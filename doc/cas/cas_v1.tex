@@ -780,8 +780,8 @@ $\propname{SL}(S, \bullet)$.
 
 \subsection{$\mathrm{MinUnion}$} 
 
-Assume $\propname{AY}(S,\ \leq)$. 
-(Seems required for associativity, idempotence, perhaps others.)
+Assume $\propname{BM}(S,\leq)$ and $\propname{AY}(S,\ \leq)$. 
+($\propname{AY}$ does not seem to be required for associativity, idempotence... Don't think it is needed?)
 
 \[
 \begin{array}{rcl} 
@@ -791,12 +791,12 @@ Assume $\propname{AY}(S,\ \leq)$.
   \\ 
 \propname{ID}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
-  & \propname{FINITE}(\min_\leq(S)) \ \ \ (\mbox{WHAT IS THIS REALLY? CLOSE W.R.T. ???})
-  \\
+  & \propname{TRUE} \ \ (\alpha = \{\})
+  \\ 
 \propname{AN}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
-  & \propname{TRUE} \ \ (\omega = \{\})
-  \\ 
+  & \propname{TRUE} \ \ (\omega = \{\bot\})
+  \\
 \propname{CM}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{TRUE}
