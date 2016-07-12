@@ -1,0 +1,78 @@
+Package relations, binary operations, transforms into 
+varius kinds of structures. 
+
+The _Base structures are used to package an 
+operation together with its "special" elements. 
+
+sg = Semigroup               
+pre = PreOrder 
+ltr = LeftTransform           
+rtr = RightTransform          
+bis = BiSemigroup             
+prs = PreOrderSemigroup       
+slt = SemigroupLeftTransform  
+srt = SemigroupRightTransform 
+lmo = LeftModule              
+rmo = RightModule             
+
+====================================
+
+   P  = ∀ x : S, Q(x) 
+not_P = { x : S & not_Q(x)} 
+
+C is a constructor that produces a "class" 
+
+Coq: 
+A_class_C 
+   A_class_P_d 
+   A_class_P
+   A_class_not_P
+
+Coq-OCAML : 
+
+class_C 
+   class_P_d 
+   class_P
+   class_not_P
+
+For each P and For each constructor C, one of these  Lemmas 
+
+1)   p2c_P (C_P_decide q r) = C_P_check (t1 q) (t2 r) 
+
+2)          p2a_P (C_P q r) = C_P_assert (t1 q) (t2 r)          
+
+3)     p2a_not_P (C_nP q r) = C_not_P_assert (t1 q) (t2 r) 
+
+
+
+C = add_ann 
+
+classes sg, sg_C, sg_CI, sg_CS, sg_CK,  
+
+sg_certs_add_ann
+sg_is_left_d       := bop_add_ann_not_is_left_check S c 
+                            (certify_nontrivial_witness S (eqv_nontrivial S eqvS))
+sg_C_certs_add_ann
+sg_C_not_is_left   := bop_add_ann_not_is_left_assert S c (Certify_Witness _ s)
+sg_CI_certs_add_ann
+sg_CI_not_is_left   := bop_add_ann_not_is_left_assert S c wS 
+sg_CS_certs_add_ann
+sg_CS_not_is_left   := bop_add_ann_not_is_left_assert S c 
+
+
+For each P and For each constructor C, one of these  lemmas 
+
+              ---> decide --> 
+           |                  | 
+          p2_                p2_
+           |                  | 
+          \/                 \/
+              ---> check --> 
+
+
+But remember, we are building 
+
+
+         c_C(q : class_q, r : class_r) : class_c 
+
+

@@ -1,0 +1,321 @@
+
+
+check. v 
+
+Definition check_not_selective_product : ∀ (S T : Type),
+             (assert_not_is_left S) -> 
+             (assert_not_is_right T) -> (check_selective (S * T))
+:= λ S T nlS nrT,  
+     match nlS, nrT with 
+     | Assert_Not_Is_Left (s1, s2), Assert_Not_Is_Right (t1, t2) => 
+          Certify_Not_Selective _ ((s1, t1), (s2, t2))  
+     end. 
+
+
+Definition check_selective_product : ∀ (S T : Type)
+             (ntS : assert_nontrivial S) 
+             (ntT : assert_nontrivial T), 
+             (check_is_left S) -> 
+             (check_is_left T) -> 
+             (check_is_right S) -> 
+             (check_is_right T) -> 
+                (check_selective (S * T))
+:= λ S T ntS ntT clS clT crS crT,  
+   match certify_nontrivial_witness S ntS, certify_nontrivial_witness T ntT with 
+   | Certify_Witness s, Certify_Witness t => 
+     match clS with 
+     | Certify_Not_Is_Left (s1, s2) => 
+       (* NOT LEFT S *) 
+       match crS with 
+       | Certify_Is_Right =>  
+         (* RIGHT S *) 
+           match crT with 
+           | Certify_Is_Right => 
+             (* RIGHT T *)   Certify_Selective _ 
+           | Certify_Not_Is_Right (t1, t2) => 
+             (* NOT RIGHT T *) Certify_Not_Selective _ ((s1, t1), (s2, t2)) 
+           end 
+       | Certify_Not_Is_Right (s3, s4) =>  
+          (* NOT RIGHT S *)   (* extra case *) 
+           match crT with 
+           | Certify_Is_Right => 
+             (* RIGHT T *) (* MUST BE NOT LEFT T *) 
+              match clT with 
+              | Certify_Is_Left => (* NOT POSSIBLE *) Certify_Selective _ 
+              | Certify_Not_Is_Left (t1, t2) => Certify_Not_Selective _ ((s3, t1), (s4, t2))
+              end 
+           | Certify_Not_Is_Right (t1, t2) => 
+             (* NOT RIGHT T *)  
+             match clT with  (* why needed ??  to match proof!  clean up! *) 
+             | Certify_Is_Left => Certify_Not_Selective _ ((s1, t1), (s2, t2))  
+             | Certify_Not_Is_Left (t3, t4) => Certify_Not_Selective _ ((s1, t1), (s2, t2))
+             end 
+           end 
+       end 
+     | Certify_Is_Left => 
+       (* LEFT S *) 
+       match clT with 
+       | Certify_Is_Left =>  
+         (* LEFT T *) Certify_Selective _
+       | Certify_Not_Is_Left (t1, t2) =>  
+         (* NOT LEFT T *) 
+           match crT with 
+           | Certify_Is_Right => 
+             (* RIGHT T *) 
+                match crS with 
+                | Certify_Is_Right =>   (* CAN'T HAPPEN with not-trivial S *) 
+                  (* RIGHT S *)  Certify_Selective _ 
+                | Certify_Not_Is_Right (s1, s2) => 
+                  (* NOT RIGHT S *) Certify_Not_Selective _ ((s1, t1), (s2, t2))  
+                end 
+           | Certify_Not_Is_Right (t3, t4) => 
+             (* NOT RIGHT T *) (* extra case *) 
+             match crS with 
+             | Certify_Is_Right => 
+               (* RIGHT S *) (* MUST BE NOT LEFT S *) 
+                match clS with 
+                | Certify_Is_Left => (* NOT POSSIBLE *) Certify_Selective _ 
+                | Certify_Not_Is_Left (s1, s2) => Certify_Not_Selective _ ((s1, t3), (s2, t4))
+                end 
+             | Certify_Not_Is_Right (s1, s2) => 
+               (* NOT RIGHT S *)  Certify_Not_Selective _ ((s1, t1), (s2, t2))  
+             end 
+          end 
+       end 
+     end
+  end. 
+
+================================================================================
+construct_certs.v 
+
+; sg_selective_d   := check_selective_product S T wS wT 
+                         (sg_is_left_d S cS) 
+                         (sg_is_left_d T cT)
+                         (sg_is_right_d S cS) 
+                         (sg_is_right_d T cT)
+
+; sg_C_selective_d   := check_not_selective_product S T 
+                         (sg_C_not_is_left S cS)
+                         (sg_C_not_is_right T cT)
+
+
+
+================================================================================
+decide.v 
+
+
+Definition bop_product_selective_decide : 
+   ∀ (S T : Type) 
+     (rS : brel S) 
+     (rT : brel T) 
+     (bS : binary_op S) 
+     (bT: binary_op T), 
+     brel_nontrivial S rS -> 
+     brel_nontrivial T rT -> 
+     brel_symmetric S rS -> 
+     brel_symmetric T rT -> 
+     brel_transitive S rS -> 
+     brel_transitive T rT -> 
+     bop_is_left_decidable S rS bS  → 
+     bop_is_left_decidable T rT bT  → 
+     bop_is_right_decidable S rS bS  → 
+     bop_is_right_decidable T rT bT  → 
+     bop_selective_decidable (S * T) (brel_product S T rS rT) (bop_product S T bS bT)
+:= λ S T rS rT bS bT ntS ntT symS symT transS transT dlS dlT drS drT,  
+       match dlS, dlT, drS, drT with 
+       |                 _,                  _,    inl is_right_S,      inl is_right_T => 
+          inl _ (bop_product_selective S T rS rT bS bT (inr _ (is_right_S, is_right_T)))
+       |     inl is_left_S,      inl is_left_T,                 _,                   _ => 
+          inl _ (bop_product_selective S T rS rT bS bT (inl _ (is_left_S, is_left_T)))
+       | inr not_is_left_S,                  _,                 _,  inr not_is_right_T => 
+            inr _ (bop_product_not_selective S T rS rT bS bT (inl _ not_is_left_S) (inr _ not_is_right_T) (inl _ not_is_left_S, inr _ not_is_right_T))
+       |                 _,  inr not_is_left_T, inr not_is_right_S,                    _ => 
+            inr _ (bop_product_not_selective S T rS rT bS bT (inr _ not_is_right_S) (inl _ not_is_left_T) (inr _ not_is_left_T, inl _ not_is_right_S))
+       |     inl is_left_S,                  _,    inl is_right_S,                   _ => abort _ (bop_not_left_or_not_right S rS bS ntS symS transS is_left_S is_right_S)
+       |                 _,      inl is_left_T,                 _,      inl is_right_T => abort _ (bop_not_left_or_not_right T rT bT ntT symT transT is_left_T is_right_T)
+       end. 
+
+
+================================================================================
+construct_proofs.v 
+
+; A_sg_selective_d   := bop_product_selective_decide S T rS rT bS bT 
+                         (A_eqv_nontrivial _ _ eqvS)
+                         (A_eqv_nontrivial _ _ eqvT)
+                         (A_eqv_symmetric _ _ eqvS)
+                         (A_eqv_symmetric _ _ eqvT)
+                         (A_eqv_transitive _ _ eqvS)
+                         (A_eqv_transitive _ _ eqvT)
+                         (A_sg_is_left_d _ _ _ sgS) 
+                         (A_sg_is_left_d _ _ _ sgT) 
+                         (A_sg_is_right_d _ _ _ sgS) 
+                         (A_sg_is_right_d _ _ _ sgT) 
+
+; A_sg_C_selective_d   := bop_product_selective_decide S T rS rT bS bT 
+                         (A_eqv_nontrivial _ _ eqvS)
+                         (A_eqv_nontrivial _ _ eqvT)
+                         (A_eqv_symmetric _ _ eqvS)
+                         (A_eqv_symmetric _ _ eqvT)
+                         (A_eqv_transitive _ _ eqvS)
+                         (A_eqv_transitive _ _ eqvT)
+                         (inr _ (A_sg_C_not_is_left _ _ _ sgS)) 
+                         (inr _ (A_sg_C_not_is_left _ _ _ sgT)) 
+                         (inr _ (A_sg_C_not_is_right _ _ _ sgS)) 
+                         (inr _ (A_sg_C_not_is_right _ _ _ sgT)) 
+
+
+
+================================================================================
+
+Definition bop_commutative (S : Type) (r : brel S) (b : binary_op S) 
+    := ∀ s t : S, r (b s t) (b t s) = true. 
+; A_sg_commutative_d    : bop_commutative_decidable S eq bop  
+; A_sg_C_commutative    : bop_commutative S eq bop  
+; A_sg_CK_commutative   : bop_commutative S eq bop  
+; A_sg_CI_commutative   : bop_commutative S eq bop  
+; A_sg_CS_commutative   : bop_commutative S eq bop  
+
+Definition bop_selective (S : Type) (r : brel S) (b : binary_op S) 
+    := ∀ s t : S, (r (b s t) s = true) + (r (b s t) t = true).
+; A_sg_selective_d      : bop_selective_decidable S eq bop  
+; A_sg_C_selective_d    : bop_selective_decidable S eq bop  
+; A_sg_CI_selective_d   : bop_selective_decidable S eq bop  
+; A_sg_CS_selective     : bop_selective S eq bop  
+
+Definition bop_idempotent (S : Type) (r : brel S) (b : binary_op S) 
+    := ∀ s : S, r (b s s) s = true. 
+; A_sg_idempotent_d       : bop_idempotent_decidable S eq bop  
+; A_sg_C_idempotent_d     : bop_idempotent_decidable S eq bop  
+; A_sg_CK_not_idempotent  : bop_not_idempotent S eq bop    # idem(c) -> id(c) 
+; A_sg_CI_idempotent      : bop_idempotent S eq bop  
+
+Definition bop_is_left (S : Type) (r : brel S) (b : binary_op S) 
+    := ∀ s t : S, r (b s t) s = true. 
+; A_sg_is_left_d        : bop_is_left_decidable S eq bop  
+; A_sg_C_not_is_left    : bop_not_is_left S eq bop  # x = x + y -> x = y (from C) 
+; A_sg_CK_not_is_left   : bop_not_is_left S eq bop  # x = x + y -> x = y
+; A_sg_CI_not_is_left   : bop_not_is_left S eq bop  # x = x + y -> x = y
+; A_sg_CS_not_is_left   : bop_not_is_left S eq bop  # x = x + y -> x = y
+
+Definition bop_is_right (S : Type) (r : brel S) (b : binary_op S) 
+    := ∀ s t : S, r (b s t) t = true. 
+; A_sg_is_right_d       : bop_is_right_decidable S eq bop  
+; A_sg_C_not_is_right   : bop_not_is_right S eq bop  # y = x + y -> x = y (from C) 
+; A_sg_CK_not_is_right  : bop_not_is_right S eq bop  # y = x + y -> x = y 
+; A_sg_CI_not_is_right  : bop_not_is_right S eq bop  # y = x + y -> x = y 
+; A_sg_CS_not_is_right  : bop_not_is_right S eq bop  # y = x + y -> x = y 
+
+; A_sg_left_cancel_d      : bop_left_cancellative_decidable S eq bop 
+; A_sg_C_left_cancel_d    : bop_left_cancellative_decidable S eq bop 
+; A_sg_CK_left_cancel     : bop_left_cancellative S eq bop  
+; A_sg_CI_not_left_cancel : bop_not_left_cancellative S eq bop # ?
+; A_sg_CS_not_left_cancel : bop_not_left_cancellative S eq bop 
+
+; A_sg_right_cancel_d     : bop_right_cancellative_decidable S eq bop 
+; A_sg_C_right_cancel_d   : bop_right_cancellative_decidable S eq bop 
+; A_sg_CK_right_cancel    : bop_right_cancellative S eq bop 
+; A_sg_CI_not_right_cancel: bop_not_right_cancellative S eq bop 
+; A_sg_CS_not_right_cancel: bop_not_right_cancellative S eq bop 
+
+; A_sg_left_constant_d       : bop_left_constant_decidable S eq bop 
+; A_sg_C_left_constant_d     : bop_left_constant_decidable S eq bop 
+; A_sg_CK_not_left_constant  : bop_not_left_constant S eq bop 
+; A_sg_CI_not_left_constant  : bop_not_left_constant S eq bop 
+; A_sg_CS_not_left_constant  : bop_not_left_constant S eq bop 
+
+; A_sg_right_constant_d      : bop_right_constant_decidable S eq bop 
+; A_sg_C_right_constant_d    : bop_right_constant_decidable S eq bop 
+; A_sg_CK_not_right_constant : bop_not_right_constant S eq bop 
+; A_sg_CI_not_right_constant : bop_not_right_constant S eq bop 
+; A_sg_CS_not_right_constant : bop_not_right_constant S eq bop 
+
+
+Definition bop_anti_left (S : Type) (r : brel S) (b : binary_op S) := 
+    ∀ (s t : S), r s (b s t) = false. 
+; A_sg_anti_left_d           : bop_anti_left_decidable S eq bop 
+; A_sg_C_anti_left_d         : bop_anti_left_decidable S eq bop 
+; A_sg_CK_anti_left_d        : bop_anti_left_decidable S eq bop 
+; A_sg_CI_not_anti_left      : bop_not_anti_left S eq bop 
+; A_sg_CS_not_anti_left      : bop_not_anti_left S eq bop 
+
+Definition bop_anti_right (S : Type) (r : brel S) (b : binary_op S) := 
+    ∀ (s t : S), r s (b t s) = false. 
+; A_sg_anti_right_d          : bop_anti_right_decidable S eq bop 
+; A_sg_C_anti_right_d        : bop_anti_right_decidable S eq bop 
+; A_sg_CK_anti_right_d       : bop_anti_right_decidable S eq bop 
+; A_sg_CI_not_anti_right     : bop_not_anti_right S eq bop 
+; A_sg_CS_not_anti_right     : bop_not_anti_right S eq bop 
+
+
+
+
+Definition bop_is_left (S : Type) (r : brel S) (b : binary_op S) 
+    := ∀ s t : S, r (b s t) s = true. 
+
+Definition bop_not_is_left (S : Type) (r : brel S) (b : binary_op S) 
+(*    := {s : S & {t : S & r (b s t) s = false}}. *) 
+    := { z : S * S & match z with (s, t) =>  r (b s t) s = false end }. 
+
+(* needed by bop_add_id_left_cancellative, right_cancellative *) 
+Definition bop_anti_left (S : Type) (r : brel S) (b : binary_op S) := 
+    ∀ (s t : S), r s (b s t) = false. 
+
+Definition bop_not_anti_left (S : Type) (r : brel S) (b : binary_op S) 
+   := { z : S * S & match z with (s, t) => r s (b s t) = true end }. 
+
+
+
+Lemma bop_add_id_left_cancellative : 
+c * a = c * b -> a = b 
+
+becomes 
+
+id * a = id * b -> a = b 
+
+    a = b -> a = b OK 
+
+c * id = c * b -> id = b 
+
+   c = c * b -> id = b      % before adding id, c <> c * b
+
+c * a = c * id -> a = id 
+
+   c * a = c -> a = id 
+
+
+===================================================================
+
+Classes 
+
+    Record A_class (S_1, ... S_k : Type) := 
+
+       A_class_ast : ast_class 
+
+       A_class_eq_1 : brel S_1                              
+       ... 
+       A_class_eq_k : brel S_k 
+
+       A_class_op_1 : op_kind_1 .... 
+       .... 
+       A_class_op_m : op_kind_m .... 
+
+
+       A_class_eqv_proofs1 : eqv_proofs S1 A_class_eq1  here or in A_class_proofs?
+       ... 
+       A_class_eqv_proofsk : eqv_proofs Sl A_class_eql
+
+       A_class_KIND_1_proofs A_class_op_1 : ????        here or in A_class_proofs?
+       .... 
+       A_class_KIND_m_proofs A_class_op_m : ??? 
+
+       A_class_proofs : class_proofs 
+
+
+} 
+
+
+
+   P  = ∀ x : S, Q(x) 
+not_P = { x : S & not_Q(x)} 
+
+

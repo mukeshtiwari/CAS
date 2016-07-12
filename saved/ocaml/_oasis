@@ -1,0 +1,28 @@
+OASISFormat: 0.4
+Name:        Cas
+Version:     0.1
+Synopsis:    Combinators for Algebraic Structures (CAS) 
+Authors:     Timothy G. Griffin
+License:     ISC
+
+Library cas
+  Path:       src/
+  BuildTools: ocamlbuild
+  Modules: extracted/Bool, 
+           extracted/Datatypes, 
+           extracted/EqNat, 
+           extracted/Peano, 
+           extracted/Ast, 
+           extracted/Basic_types, 
+           extracted/Bop, 
+           extracted/Brel, 
+           extracted/Cas, 
+           extracted/Cas_records, 
+           extracted/Cast, 
+           extracted/Cef, 
+           extracted/Cert_records, 
+           extracted/Check, 
+           extracted/Construct_certs 
+
+
+  

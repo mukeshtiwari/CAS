@@ -1,0 +1,278 @@
+
+
+(* order *) 
+
+Definition po_llte_from_sg_CI : ∀ (S : Type),  sg_CI S -> po S 
+:= λ S sg , 
+   {| 
+     po_eq         := sg_CI_eq S sg
+   ; po_lte        := brel_llte S (sg_CI_eq S sg) (sg_CI_bop S sg) 
+   ; po_eqv_certs  := sg_CI_eqv_certs S sg
+   ; po_po_certs   := po_certs_llte S 
+                           (sg_CI_eqv_certs S sg) 
+                           (sg_CI_sg_CI_certs S sg) 
+   ; po_ast        := Ast_po_llte_from_sg_CI (sg_CI_ast S sg) 
+   |}. 
+
+
+Definition lte_nat := po_llte_from_sg_CI nat sg_CI_min. 
+Definition gte_nat := po_llte_from_sg_CI nat sg_CI_max. 
+
+
+Definition po_product : ∀ (S T : Type),  po S  -> po T -> po (S * T) 
+:= λ S T poS poT, 
+   {| 
+     po_eq         := brel_product S T (po_eq S poS) (po_eq T poT)
+   ; po_lte        := brel_product S T (po_lte S poS) (po_lte T poT)
+   ; po_eqv_certs  := eqv_certs_product S T 
+                           (po_eqv_certs S poS) 
+                           (po_eqv_certs T poT) 
+   ; po_po_certs   := po_certs_product S T
+                           (po_eqv_certs S poS) 
+                           (po_eqv_certs T poT)                  
+                           (po_po_certs S poS) 
+                           (po_po_certs T poT) 
+   ; po_ast        := Ast_po_product(po_ast S poS, po_ast T poT)
+   |}. 
+
+
+(* csr *) 
+
+Definition csr_product : ∀ (S T : Type),  csr S -> csr T -> csr (S * T) 
+:= λ S T csrS csrT, 
+   {| 
+     csr_eq        := brel_product S T (csr_eq S csrS) (csr_eq T csrT) 
+   ; csr_plus      := bop_product S T (csr_plus S csrS) (csr_plus T csrT) 
+   ; csr_times       := bop_product S T (csr_times S csrS) (csr_times T csrT) 
+   ; csr_eqv_certs := eqv_certs_product S T 
+                           (csr_eqv_certs S csrS) 
+                           (csr_eqv_certs T csrT) 
+   ; csr_plus_certs := csg_certs_product S T 
+                           (csr_eqv_certs S csrS) 
+                           (csr_eqv_certs T csrT) 
+                           (csr_plus_certs S csrS) 
+                           (csr_plus_certs T csrT) 
+   ; csr_times_certs := sg_certs_product S T 
+                           (csr_eqv_certs S csrS) 
+                           (csr_eqv_certs T csrT) 
+                           (csr_times_certs S csrS) 
+                           (csr_times_certs T csrT) 
+   ; csr_csr_certs := csr_certs_product S T 
+                           (csr_eqv_certs S csrS) 
+                           (csr_eqv_certs T csrT) 
+                           (csr_csr_certs S csrS) 
+                           (csr_csr_certs T csrT) 
+   ; csr_ast        := CSR_product(csr_ast S csrS, csr_ast T csrT)
+   |}. 
+
+
+(* pa *) 
+
+Definition pa_product : ∀ (S T : Type),  pa S -> pa T -> pa (S * T) 
+:= λ S T paS paT, 
+   {| 
+     pa_eq        := brel_product S T (pa_eq S paS) (pa_eq T paT) 
+   ; pa_plus       := bop_product S T (pa_plus S paS) (pa_plus T paT) 
+   ; pa_times       := bop_product S T (pa_times S paS) (pa_times T paT) 
+   ; pa_eqv_certs := eqv_certs_product S T 
+                           (pa_eqv_certs S paS) 
+                           (pa_eqv_certs T paT) 
+   ; pa_plus_certs := sg_CI_certs_product S T 
+                           (pa_eqv_certs S paS) 
+                           (pa_eqv_certs T paT) 
+                           (pa_plus_certs S paS) 
+                           (pa_plus_certs T paT) 
+   ; pa_times_certs := sg_certs_product S T 
+                           (pa_eqv_certs S paS) 
+                           (pa_eqv_certs T paT) 
+                           (pa_times_certs S paS) 
+                           (pa_times_certs T paT) 
+   ; pa_pa_certs := csr_certs_product S T 
+                           (pa_eqv_certs S paS) 
+                           (pa_eqv_certs T paT) 
+                           (pa_pa_certs S paS) 
+                           (pa_pa_certs T paT) 
+   ; pa_ast        := Pproduct(pa_ast S paS, pa_ast T paT)
+   |}. 
+
+
+Definition pa_union_intersect : ∀ (S : Type) (c : cas_constant),  
+       eqv S -> pa (with_constant (finite_set S)) 
+:= λ S c eqvS, 
+   {| 
+     pa_eq           := brel_add_constant (finite_set S) (brel_set S (eqv_eq S eqvS)) c  
+   ; pa_plus         := bop_add_ann (finite_set S) (bop_union S (eqv_eq S eqvS)) c 
+   ; pa_times        := bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c 
+   ; pa_eqv_certs   := eqv_certs_add_constant (finite_set S) c 
+                           (eqv_certs_brel_set S (eqv_eq S eqvS) (eqv_certs S eqvS)) 
+   ; pa_plus_certs  := sg_CI_certs_union_with_ann S c (eqv_certs S eqvS)
+   ; pa_times_certs := sg_certs_from_sg_CI_certs _ (sg_CI_certs_intersect_with_id S c (eqv_certs S eqvS))
+   ; pa_pa_certs   := csr_certs_union_intersect S c (eqv_certs S eqvS)
+   ; pa_ast        := Punion_intersect (c, eqv_ast S eqvS)
+   |}. 
+
+
+
+Definition pa_intersect_union : ∀ (S : Type) (c : cas_constant),  
+       eqv S -> pa (with_constant (finite_set S)) 
+:= λ S c eqvS, 
+   {| 
+     pa_eq           := brel_add_constant (finite_set S) (brel_set S (eqv_eq S eqvS)) c  
+   ; pa_plus         := bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c 
+   ; pa_times        := bop_add_ann (finite_set S) (bop_union S (eqv_eq S eqvS)) c 
+   ; pa_eqv_certs   := eqv_certs_add_constant (finite_set S) c 
+                           (eqv_certs_brel_set S (eqv_eq S eqvS) (eqv_certs S eqvS)) 
+   ; pa_plus_certs  := sg_CI_certs_intersect_with_id S c (eqv_certs S eqvS)
+   ; pa_times_certs := sg_certs_from_sg_CI_certs _ (sg_CI_certs_union_with_ann S c (eqv_certs S eqvS))
+   ; pa_pa_certs   := csr_certs_intersect_union S c (eqv_certs S eqvS)
+   ; pa_ast        := Pintersect_union (c, eqv_ast S eqvS)
+   |}. 
+
+
+(* TESTING *) 
+
+Definition sg_rectangular_band (S T : Type) (eS : eqv S) (eT : eqv T) :=
+     sg_product S T (sg_left S eS) (sg_right T eT). 
+
+Definition r := sg_rectangular_band nat nat eqv_eq_nat eqv_eq_nat. 
+
+Compute r. 
+
+Compute (sg_sg_certs _ r). 
+(* 
+     = {|
+       sg_associative := Assert_Associative (nat * nat);
+       sg_congruence := Assert_Bop_Congruence (nat * nat);
+       sg_commutative_d := Certify_Not_Commutative (nat * nat) (0, 0) (1, 0);
+       sg_selective_d := Certify_Not_Selective (nat * nat) (0, 1) (1, 0);
+       sg_idempotent_d := Certify_Idempotent (nat * nat);
+       sg_is_left_d := Certify_Not_Is_Left (nat * nat) (0, 1) (0, 0);
+       sg_is_right_d := Certify_Not_Is_Right (nat * nat) (0, 0) (1, 0);
+       sg_exists_id_d := Certify_Not_Exists_Id (nat * nat);
+       sg_exists_ann_d := Certify_Not_Exists_Ann (nat * nat) |}
+     : sg_certs (nat * nat)
+*) 
+
+Compute (sg_sg_certs _ ((sg_left nat eqv_eq_nat))). 
+(* 
+     = {|
+       sg_associative := Assert_Associative nat;
+       sg_congruence := Assert_Bop_Congruence nat;
+       sg_commutative_d := Certify_Not_Commutative nat 0 1;
+       sg_selective_d := Certify_Selective nat;
+       sg_idempotent_d := Certify_Idempotent nat;
+       sg_is_left_d := Certify_Is_Left nat;
+       sg_is_right_d := Certify_Not_Is_Right nat 0 1;
+       sg_exists_id_d := Certify_Not_Exists_Id nat;
+       sg_exists_ann_d := Certify_Not_Exists_Ann nat |}
+*) 
+
+Compute (sg_sg_certs _ (sg_add_id nat cas_infinity (sg_left nat eqv_eq_nat))). 
+(*
+     = {|
+       sg_associative := Assert_Associative (with_constant nat);
+       sg_congruence := Assert_Bop_Congruence (with_constant nat);
+       sg_commutative_d := Certify_Not_Commutative 
+                             (with_constant nat) (inr 0) 
+                             (inr 1);
+       sg_selective_d := Certify_Selective (with_constant nat);
+       sg_idempotent_d := Certify_Idempotent (with_constant nat);
+       sg_is_left_d := Certify_Not_Is_Left (with_constant nat)
+                         (inl "INFINITY") (inr 0);
+       sg_is_right_d := Certify_Not_Is_Right (with_constant nat) 
+                          (inr 0) (inl "INFINITY");
+       sg_exists_id_d := Certify_Exists_Id (with_constant nat)
+                           (inl "INFINITY");
+       sg_exists_ann_d := Certify_Not_Exists_Ann (with_constant nat) |}
+     : sg_certs (with_constant nat)
+*) 
+
+
+Compute (sg_sg_certs _ (sg_product _ _ (sg_add_id nat cas_infinity (sg_left nat eqv_eq_nat)) 
+                                       (sg_add_id nat cas_infinity (sg_right nat eqv_eq_nat)))). 
+(*
+     = {|
+       sg_associative := Assert_Associative
+                           (with_constant nat * with_constant nat);
+       sg_congruence := Assert_Bop_Congruence
+                          (with_constant nat * with_constant nat);
+       sg_commutative_d := Certify_Not_Commutative
+                             (with_constant nat * with_constant nat)
+                             (inr 0, inr 0) (inr 1, inr 0);
+       sg_selective_d := Certify_Not_Selective
+                           (with_constant nat * with_constant nat)
+                           (inl "INFINITY", inr 0) 
+                           (inr 0, inl "INFINITY");
+       sg_idempotent_d := Certify_Idempotent
+                            (with_constant nat * with_constant nat);
+       sg_is_left_d := Certify_Not_Is_Left
+                         (with_constant nat * with_constant nat)
+                         (inl "INFINITY", inr 0) (inr 0, inr 0);
+       sg_is_right_d := Certify_Not_Is_Right
+                          (with_constant nat * with_constant nat)
+                          (inr 0, inr 0) (inl "INFINITY", inr 0);
+       sg_exists_id_d := Certify_Exists_Id
+                           (with_constant nat * with_constant nat)
+                           (inl "INFINITY", inl "INFINITY");
+       sg_exists_ann_d := Certify_Not_Exists_Ann
+                            (with_constant nat * with_constant nat) |}
+     : sg_certs (with_constant nat * with_constant nat)
+*) 
+
+Compute (sg_sg_certs _ (sg_product _ _ (sg_add_ann nat cas_infinity (sg_left nat eqv_eq_nat)) 
+                                       (sg_add_ann nat cas_infinity (sg_right nat eqv_eq_nat)))). 
+
+
+Compute (sg_product _ _ (sg_add_ann nat cas_infinity (sg_left nat eqv_eq_nat)) 
+                      (sg_add_ann nat cas_infinity (sg_right nat eqv_eq_nat))).  
+
+
+*) 
+
+
+
+(* 
+Definition sr_certs_product : 
+  ∀ (S T: Type), eqv_certificates S -> eqv_certificates T -> sr_certs S -> sr_certs T -> sr_certs (S * T) 
+:= λ S T eqvS eqvT srS srT, 
+{|
+  sr_left_distributive      := Assert_Left_Distributive (S * T) 
+; sr_right_distributive     := Assert_Right_Distributive (S * T) 
+; sr_plus_id_is_times_ann   := Assert_Plus_Id_Equals_Times_Ann (S * T) 
+; sr_times_id_is_plus_ann_d := bop_product_times_id_equals_plus_ann_check S T 
+                                     (sr_times_id_is_plus_ann_d S srS)
+                                     (sr_times_id_is_plus_ann_d T srT)
+|}. 
+
+
+Definition csr_certs_union_intersect : 
+  ∀ (S : Type) (c : cas_constant), eqv_certificates S -> csr_certs (with_constant (finite_set S)) 
+:= λ S c eqvS, 
+{|
+  csr_left_distributive    := Assert_Left_Distributive (with_constant (finite_set S)) 
+; csr_right_distributive   := Assert_Right_Distributive (with_constant (finite_set S)) 
+; csr_plus_id_is_times_ann := Assert_Plus_Id_Equals_Times_Ann (with_constant (finite_set S)) 
+; csr_times_id_is_plus_ann := Assert_Times_Id_Equals_Plus_Ann (with_constant (finite_set S)) 
+|}. 
+
+
+Definition csr_certs_intersect_union : 
+  ∀ (S : Type) (c : cas_constant), eqv_certificates S -> csr_certs (with_constant (finite_set S)) 
+:= λ S c eqvS, 
+{|
+  csr_left_distributive    := Assert_Left_Distributive (with_constant (finite_set S)) 
+; csr_right_distributive   := Assert_Right_Distributive (with_constant (finite_set S)) 
+; csr_plus_id_is_times_ann := Assert_Plus_Id_Equals_Times_Ann (with_constant (finite_set S)) 
+; csr_times_id_is_plus_ann := Assert_Times_Id_Equals_Plus_Ann (with_constant (finite_set S)) 
+|}. 
+
+Definition csr_certs_product : 
+  ∀ (S T: Type), eqv_certificates S -> eqv_certificates T -> csr_certs S -> csr_certs T -> csr_certs (S * T) 
+:= λ S T eqvS eqvT csrS csrT, 
+{|
+  csr_left_distributive    := Assert_Left_Distributive (S * T) 
+; csr_right_distributive   := Assert_Right_Distributive (S * T) 
+; csr_plus_id_is_times_ann := Assert_Plus_Id_Equals_Times_Ann (S * T) 
+; csr_times_id_is_plus_ann := Assert_Times_Id_Equals_Plus_Ann (S * T) 
+|}. 
+*)

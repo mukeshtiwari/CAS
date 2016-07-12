@@ -1,0 +1,1402 @@
+\documentclass[10pt]{article}
+
+% packages 
+\usepackage[english]{babel}
+\usepackage{amsmath}   % see http://www.ctan.org/pkg/amsmath
+\usepackage{amssymb}   % 
+\usepackage{amsfonts}  % 
+
+% my macros 
+\newcommand{\mtrx}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\BB}{\mathbb{B}}
+\newcommand{\Id}{\mathrm{id}}
+\newcommand{\Tseq}[1]{{\mathrm{seq}}({#1})}
+\newcommand{\Tset}[1]{{\mathrm{set}}({#1})}
+\newcommand{\MapSeq}[1]{{\mathrm{map}}({#1})}
+\newcommand{\MapSet}[1]{{\mathrm{map}}({#1})}
+\newcommand{\SemCarrier}[1]{{\mathrm{Carrier}}({#1})}
+\newcommand{\propname}[1]{{\mathbb{#1}}}
+\newcommand{\lexprod}{\ensuremath{\mathbin{\vec{\times}}}}
+
+\DeclareMathOperator{\opleft}{left}
+%\newcommand{\opleft}{\ensuremath{\mathrm{left}}}
+%\newcommand{\opright}{\ensuremath{\mathrm{right}}}
+\DeclareMathOperator{\opright}{right}
+\newcommand{\funfin}{\ensuremath{\mathrm{fin}}}
+
+\title{Combinators for Algebraic Structures (CAS) \\ Version 1} 
+\author{Timothy G. Griffin} 
+
+\begin{document}
+\maketitle
+\date 
+
+\begin{abstract} 
+The document presents a small language of combinators for 
+construction semigroups and semirings. 
+\end{abstract} 
+
+\section{Motivation}
+
+We assume $2 \leq |S|$ for all carrier sets $S$. 
+
+\section{Semigroup Combinators} 
+
+\subsection{Adding an identity} 
+\[ 
+  \mathrm{AddId}(\alpha,\ (S,\ \bullet)) 
+\equiv 
+(S \uplus \{\alpha\}, \bullet_{\alpha}^{\mathrm{id}})
+\] 
+where 
+\[
+\begin{array}{rcl} 
+a \bullet_{\alpha}^{\mathrm{id}} b 
+& \equiv & 
+\left\{\begin{array}{cl} 
+      a & \mbox{(if $b = \mathrm{inr}(\alpha)$)} \\ 
+      b & \mbox{(if $a = \mathrm{inr}(\alpha)$)} \\ 
+      \mathrm{inl}(x\bullet y) & \mbox{(if $a = \mathrm{inl}(x)$, $b = \mathrm{inl}(y)$)} 
+      \end{array} 
+\right.
+\end{array} 
+\] 
+
+\subsection{Adding an annihilator} 
+\[ 
+  \mathrm{AddAn}(\omega,\ (S,\ \bullet)) \equiv (S \uplus \{\omega\}, \bullet_{\omega}^{\mathrm{an}})
+\] 
+where 
+\[
+\begin{array}{rcl} 
+a \bullet_{\omega}^{\mathrm{an}} b 
+& \equiv & 
+\left\{\begin{array}{cl} 
+      \mathrm{inr}(\omega) & \mbox{(if $b = \mathrm{inr}(\omega)$)} \\ 
+      \mathrm{inr}(\omega) & \mbox{(if $a = \mathrm{inr}(\omega)$)} \\ 
+      \mathrm{inl}(x\bullet y) & \mbox{(if $a = \mathrm{inl}(x)$, $b = \mathrm{inl}(y)$)} 
+      \end{array} 
+\right.
+\end{array} 
+\] 
+\subsection{Direct Product} 
+
+Let $(S,\ \bullet)$ and $(T,\ \diamond)$ be semigroups.
+
+The {direct product} is denoted 
+\[ 
+   (S,\ \bullet) \times (T,\ \diamond) \equiv (S \times T,\ \star)
+\] 
+where 
+\[ 
+\star = \bullet \times \diamond 
+\] 
+is defined as 
+\[ 
+	(s_1,\ t_1) \star (s_2,\ t_2) 
+        = 
+        (s_1 \bullet s_2,\  t_1 \diamond t_2).
+\] 
+
+
+\subsection{Lexicographic Product} 
+
+Suppose that semigroup $(S,\ \bullet)$ is commutative, idempotent, and selective 
+and that $(T,\ \diamond)$ is a semigroup. 
+\[
+(S,\ \bullet)\ \lexprod\ (T,\ \diamond) \equiv (S \times T,\ \star)
+\]
+where $\star \equiv \bullet\lexprod\diamond$ is defined as 
+\[
+  (s_1,\ t_1) \star (s_2,\ t_2) =
+        \begin{cases}
+          (s_1 \bullet s_2,\ t_1 \diamond T_2)   & s_1 = s_1 \bullet s_2 = s_2 \\
+          (s_1 \bullet s_2,\ t_1)                & s_1 = s_1 \bullet s_2 \neq s_2 \\
+          (s_1 \bullet s_2,\ t_2)                & s_1 \neq s_1 \bullet s_2 = s_2 
+        \end{cases}
+\]
+Examples for $(\NN,\ \min)\ \lexprod\ (\NN,\ \min)$. 
+\[
+\begin{array}{rcl}
+(1,\ 17) \star (2, 3) & = & (1, 17) \\ 
+(2,\ 17) \star (2, 3) & = & (2, 3) \\ 
+(2,\ 3)  \star (2, 3) & = & (2, 3) \\ 
+\end{array} 
+\] 
+
+Examples for $(\NN,\ \min)\ \lexprod\ (\NN,\ \max)$. 
+\[
+\begin{array}{rcl}
+(1,\ 17) \star (2, 3) & = & (1, 17) \\ 
+(2,\ 17) \star (2, 3) & = & (2, 17) \\ 
+(2,\ 3)  \star (2, 3) & = & (2, 3) \\ 
+\end{array} 
+\] 
+
+Examples for $(\NN,\ \max)\ \lexprod\ (\NN,\ \min)$. 
+\[
+\begin{array}{rcl}
+(1,\ 17) \star (2, 3) & = & (2, 3) \\ 
+(2,\ 17) \star (2, 3) & = & (2, 3) \\ 
+(2,\ 3)  \star (2, 3) & = & (2, 3) \\ 
+\end{array} 
+\] 
+
+\subsection{Lifted Product} 
+
+Assume $(S,\ \bullet)$ is a semigroup. 
+Let 
+$\mathrm{lift}(S,\ \bullet) \equiv (\mathrm{fin}(2^S),\ \hat{\bullet})$ where 
+\[ 
+X \hat{\bullet} Y  = \{x \bullet y \mid x\in X,\ y\in Y\}. 
+\]
+
+Example. 
+\[
+    \{1,\ 3,\ 17\}\ \hat{+}\ \{1,\ 3,\ 17\} = \{2,\ 4,\ 6,\ 18,\ 20,\ 34\} 
+\] 
+
+
+\subsection{Minimal set union} 
+
+Let $\leq$ be a partial order on $S$. 
+For $X \subseteq S$, define 
+\[
+\min_\leq(X) \equiv \{x \in X \mid \forall y \in X,\  \neg(y < x)\}. 
+\] 
+Define 
+\[
+{\cal P}_{\mathrm{fin}}(S,\ \lesssim) 
+   \equiv 
+\{X \subseteq S\mid \mbox{$X$ finite and \ }\min_\leq(X) = X\} 
+\] 
+and 
+\[
+  A\ \cup_{\min}^{\leq} B  \equiv  \min_\leq(A\cup B) 
+\] 
+
+\[ 
+\begin{array}{rcl} 
+\mathrm{MinUnion}(S,\ \leq)
+   & \equiv 
+   & ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \cup_{\min}^{\leq})
+\end{array} 
+\] 
+
+
+NOTE: perhaps we can always define $\leq$ in terms of a $(S,\ oplus)$, and so 
+get rid of the class of structures $(S,\ \leq)$. 
+
+\subsection{Minimal set lift} 
+
+\[
+  A\ \otimes_{\min}^{\leq} B  \equiv   \min_\leq(\{a\otimes b\mid a\in A,\ b\in B\})
+\] 
+
+\[ 
+\begin{array}{rcl} 
+\mathrm{MinLift}(S,\ \leq,\ \otimes)
+   & \equiv 
+   & ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \otimes_{\min}^{\leq})
+\end{array} 
+\] 
+
+
+NOTE: perhaps we can always define $\leq$ in terms of a $(S,\ oplus)$, and so 
+get rid of the class of structures $(S,\ \leq)$. 
+
+
+\section{Pre-order Combinators} 
+
+\section{Pre-order Semigroup Combinators} 
+
+
+\section{Bi-Semigroup Combinators} 
+
+\subsection{Adding a zero} 
+\[ 
+\begin{array}{rcl} 
+\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes)) 
+   & \equiv 
+   & (S \uplus \{\overline{0}\},\ \oplus_{\overline{0}}^{\mathrm{id}},\ \otimes_{\overline{0}}^{\mathrm{an}}) \\
+\end{array} 
+\] 
+
+\subsection{Adding a one} 
+
+\[ 
+\begin{array}{rcl} 
+\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes)) 
+   & \equiv 
+   & (S \uplus \{\overline{1}\},\  \oplus_{\overline{1}}^{\mathrm{an}},\ \otimes_{\overline{1}}^{\mathrm{id}})
+\end{array} 
+\] 
+
+\subsection{Direct Product} 
+
+\[
+(S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T) 
+\equiv
+(S\times T,\ \oplus_S\times\oplus_T,\ \otimes_S\times\otimes_T)
+\]
+
+
+\subsection{Lexicographic Product} 
+
+\[
+(S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T) 
+\equiv
+(S\times T,\ \oplus_S\lexprod\oplus_T,\ \otimes_S\times\otimes_T)
+\]
+
+\subsection{$\mathcal{M}$ and $\mathcal{N}$}
+
+Suppose $D \in \{L,\ R\}$. 
+Let $\leq \ \equiv \ \leq_\oplus^{D}$ and define 
+\[
+\begin{array}{rcl} 
+\mathcal{M}(D,\ (S,\ \oplus,\ \otimes))   
+   & \equiv 
+   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \otimes_{\min}^{\leq},\ \cup_{\min}^{\leq})\\
+\\
+\mathcal{N}(D,\ (S,\ \oplus,\ \otimes))   
+   & \equiv 
+   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \cup_{\min}^{\leq},\ \otimes_{\min}^{\leq})\\
+\\
+\end{array} 
+\] 
+Recall: $a \leq_\oplus^{L} b \equiv a = a\oplus b$ 
+and $a \leq_\oplus^{R} b \equiv b = a\oplus b$.
+
+\section{Properties} 
+
+$(S,\ \bullet)$
+
+\subsubsection{Initial set of semigroup properties}
+\[ 
+\begin{array}{c|ccl} 
+\mbox{associative} 
+   & \propname{AS} 
+   & \equiv 
+   & \forall a, b, c \in S,\ a \bullet (b \bullet c) = (a \bullet b) \bullet c 
+   \\ 
+\mbox{identity}    
+   & \propname{ID} 
+   & \equiv 
+   & \exists \alpha\in S,\ \forall a\in S,\ a = \alpha \bullet a = a \bullet \alpha
+   \\ 
+\mbox{annihilator} 
+   & \propname{AN} 
+   & \equiv 
+   & \exists \omega\in S,\ \forall a\in S,\ \omega = \omega \bullet a = a \bullet \omega
+   \\ 
+\mbox{commutative} 
+   & \propname{CM} 
+   & \equiv 
+   & \forall a, b \in S,\ a\bullet b =  b\bullet a
+   \\
+\mbox{selective}   
+   & \propname{SL} 
+   & \equiv 
+   & \forall a, b \in S,\ a\bullet b  \in  \{a,\ b\} 
+   \\ 
+\mbox{idempotent}  
+   & \propname{IP} 
+   & \equiv 
+   & \forall a \in S,\ a\bullet a  =  a
+\end{array} 
+\] 
+
+\subsubsection{Initial set of order properties}
+
+$(S,\ \leq)$
+
+\[ 
+\begin{array}{c|ccl} 
+\mbox{reflexive} 
+   & \propname{RX} 
+   & \equiv 
+   & \forall a \in S,\ a \leq a 
+   \\ 
+\mbox{transitive}    
+   & \propname{TR} 
+   & \equiv 
+   & \forall a, b, c \in S, a\leq b \wedge b \leq c \implies a \leq c 
+   \\ 
+\mbox{anti-symmetric} 
+   & \propname{AY} 
+   & \equiv 
+   & \forall a, b\in S, a\leq b \wedge b \leq a \implies a = b
+   \\ 
+\mbox{total} 
+   & \propname{TO} 
+   & \equiv 
+   & \forall a, b \in S,\ a\leq b \vee  b\leq a
+   \\
+\mbox{bottom}   
+   & \propname{BM} 
+   & \equiv 
+   & \exists b \in S, \forall a \in S, b\leq a
+   \\ 
+\mbox{top}   
+   & \propname{TP} 
+   & \equiv 
+   & \exists t \in S, \forall a \in S, a\leq t
+\end{array} 
+\] 
+
+
+\subsubsection{Initial set of bi-semigroup properties}
+
+$(S,\ \oplus,\ \otimes)$
+
+\[ 
+\begin{array}{c|ccl} 
+\mbox{left distributivity} 
+    & \propname{LD}
+    & \equiv 
+    & \forall a, b, c \in S,\ a\otimes(b \oplus c) =  (a\otimes b) \oplus (a\otimes c) \\ 
+\mbox{right distributivity} 
+    & \propname{RD}
+    & \equiv 
+    & \forall a, b, c \in S,\ (a\oplus b)\otimes c  =   (a\otimes c) \oplus (b\otimes c)\\ 
+\mbox{zero annihilates} 
+    & \propname{ZA}
+    & \equiv 
+    & \exists \overline{0} \in S,\ \propname{IID}(S,\ \oplus,\ \overline{0}) \wedge \propname{IAN}(S,\ \otimes,\ \overline{0})  \\ 
+\mbox{one annihilates} 
+    & \propname{OA}
+    & \equiv 
+    & \exists \overline{1} \in S,\ \propname{IID}(S,\ \otimes,\ \overline{1}) \wedge \propname{IAN}(S,\ \oplus,\ \overline{1})  \\ 
+\end{array} 
+\] 
+where 
+
+\[ 
+\begin{array}{rcl} 
+\propname{IID}(S,\ \bullet,\ \alpha)  
+    & \equiv 
+    & \forall a\in S,\ a = \alpha \bullet a = a \bullet \alpha\\ 
+\propname{IAN}(S,\ \bullet,\ \omega)  
+    & \equiv 
+    & \forall a\in S,\ \omega = \omega \bullet a = a \bullet \omega\\ 
+\end{array} 
+\] 
+
+
+\subsubsection{Initial set of order semigroup properties}
+
+$(S,\ \leq,\ \otimes)$
+
+\[ 
+\begin{array}{c|ccl} 
+\mbox{left monotonicity} 
+   & \propname{LM} 
+   & \equiv 
+   & \forall a, b, c \in S,\ a\leq b \implies (a\otimes c) \leq (b\otimes c) 
+   \\ 
+\mbox{right monotonicity} 
+   & \propname{RM} 
+   & \equiv 
+   & \forall a, b, c \in S,\ a\leq b \implies (c\otimes a) \leq (c\otimes b)
+   \\ 
+\end{array} 
+\] 
+
+
+\section{Closure} 
+
+To close we need extra properties. 
+
+For semigroups. 
+\[ 
+\begin{array}{c|ccl|l} 
+   & 
+   & 
+   & 
+   & \mbox{required for} 
+   \\ \hline 
+\mbox{is right}   
+   & \propname{IR} 
+   & \equiv 
+   & \forall s, t\in S, s \bullet t = t 
+   & \propname{SL}(\times)
+   \\ 
+\mbox{is left}   
+   & \propname{IL} 
+   & \equiv 
+   & \forall s, t\in S, s \bullet t = s 
+   & \propname{SL}(\times)
+   \\ 
+\mbox{left cancellative}   
+   & \propname{LC}
+   & \equiv 
+   & \forall a, b, c\in S,\  c \bullet a = c \bullet b \Rightarrow a = b 
+   & \propname{LD}(\vec{\times})
+   \\ 
+\mbox{right cancellative}   
+    & \propname{RC}
+    & \equiv 
+    & \forall a, b, c\in S,\  a \bullet c = b \bullet c \Rightarrow a = b
+   & \propname{RD}(\vec{\times})
+   \\ 
+\mbox{left constant}   
+   & \propname{LK}
+   & \equiv 
+   & \forall a, b, c\in S,\ c \bullet a = c \bullet b 
+   & \propname{LD}(\vec{\times})
+   \\ 
+\mbox{right constant}   
+   & \propname{RK}
+   & \equiv 
+   & \forall a, b, c\in S,\ a \bullet c =  b \bullet c
+   & \propname{RD}(\vec{\times})
+   \\ 
+\mbox{anti-left}   
+   & \propname{AL}
+   & \equiv 
+   & \forall a, b\in S,\ a \bullet b \not= a
+   & \propname{LC}(\mathrm{AddId}),  
+     \propname{LAB}(\vec{\times}, \times)   
+   \\ 
+\mbox{anti-right}   
+   & \propname{AR}
+   & \equiv 
+   & \forall a, b\in S,\ b \bullet a \not= a
+   & \propname{RC}(\mathrm{AddId}), 
+     \propname{RAB}(\vec{\times}, \times)   
+   \\ 
+\end{array} 
+\]
+
+
+For bi-semigroups $(S,\ \oplus,\ \otimes)$
+
+% needed for D of AddOne 
+\[ 
+\begin{array}{c|ccl|l} 
+   & 
+   & 
+   & 
+   & \mbox{required for} 
+   \\ \hline 
+\mbox{left absorption}  
+    & \propname{LAB}
+    & \equiv 
+    & \forall a, b\in S,\ a =  (b\otimes a) \oplus a = a \oplus (b \otimes a) 
+    & \propname{LD}(\mathrm{AddOne})
+   \\ 
+\mbox{right absorption}  
+    & \propname{RAB}
+    & \equiv 
+    & \forall a, b\in S,\ a =  (a\otimes b) \oplus a = a \oplus (a \otimes b) 
+    & \propname{LD}(\mathrm{AddOne})
+   \\ 
+\end{array} 
+\] 
+
+
+\subsection{A few usefull implications} 
+
+\[ 
+\begin{array}{rcl} 
+\propname{SL}
+   & \Rightarrow 
+   & \propname{IP}\\ 
+\propname{RAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus)
+    & \Rightarrow 
+    & \propname{IP}(S,\ \otimes)\\ 
+\propname{LAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus)
+    & \Rightarrow 
+    & \propname{IP}(S,\ \otimes)\\ 
+\propname{LD}(S,\ \oplus,\ \otimes) \wedge \propname{OA}(S,\ \oplus,\ \otimes)
+    & \Rightarrow 
+    & \propname{RAB}(S,\ \oplus,\ \otimes) \\ 
+\propname{RD}(S,\ \oplus,\ \otimes) \wedge \propname{OA}(S,\ \oplus,\ \otimes) 
+    & \Rightarrow 
+    & \propname{LAB}(S,\ \oplus,\ \otimes)
+\end{array} 
+\] 
+
+
+
+\subsection{$\mathrm{AddId}$} 
+
+\[
+\begin{array}{rcl} 
+\propname{AS}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{AS}(S, \bullet) \\
+\propname{ID}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{TRUE} \\ 
+\propname{AN}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{AN}(S, \bullet) \\
+\propname{CM}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{CM}(S, \bullet) \\
+\propname{IP}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{IP}(S, \bullet) \\
+\propname{SL}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{SL}(S, \bullet) \\
+\propname{IR}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{IL}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{LC}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{LC}(S,\ \bullet) \wedge \propname{AL}(S,\ \bullet) \\
+\propname{RC}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{RC}(S,\ \bullet) \wedge \propname{AR}(S,\ \bullet) \\
+\propname{LK}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{RK}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{AL}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{AR}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\end{array} 
+\] 
+
+\subsection{$\mathrm{AddAn}$} 
+
+\[
+\begin{array}{rcl} 
+\propname{AS}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{AS}(S, \bullet) \\
+\propname{ID}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{ID}(S, \bullet) \\
+\propname{AN}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{TRUE} \\ 
+\propname{CM}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{CM}(S, \bullet) \\
+\propname{IP}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{IP}(S, \bullet) \\
+\propname{SL}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{SL}(S, \bullet) \\
+\propname{IR}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{IL}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{LC}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{RC}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{LK}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{RK}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{AL}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\propname{AR}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow % COQ 
+  & \propname{FALSE}\\ 
+\end{array} 
+\] 
+
+\subsection{$\times$} 
+
+\[
+\begin{array}{rcl} 
+\propname{AS}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{AS}(S, \bullet) \wedge  \propname{AS}(T, \diamond) \\ 
+\propname{ID}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{ID}(S, \bullet) \wedge  \propname{ID}(T, \diamond) \\ 
+\propname{AN}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{AN}(S, \bullet) \wedge  \propname{AN}(T, \diamond) \\ 
+\propname{CM}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{CM}(S, \bullet) \wedge  \propname{CM}(T, \diamond) \\ 
+\propname{IP}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{IP}(S, \bullet) \wedge  \propname{IP}(T, \diamond) \\ 
+%%
+%% This \Leftrightarrow is classically true.  But need more for constructive version 
+%% (Need excluded middle for properties on subterms ...) 
+%%
+\propname{SL}((S, \bullet) \times (T, \diamond)) 
+    & \Leftrightarrow % CAS --- but more complicated ... 
+    & (\propname{IR}(S, \bullet) \wedge  \propname{IR}(T, \diamond)) 
+      \vee 
+      (\propname{IL}(S, \bullet) \wedge  \propname{IL}(T, \diamond)) \\ 
+\propname{IR}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{IR}(S, \bullet) \wedge  \propname{IR}(T, \diamond) \\ 
+\propname{IL}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{IL}(S, \bullet) \wedge  \propname{IL}(T, \diamond) \\ 
+\propname{LC}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{LC}(S, \bullet) \wedge  \propname{LC}(T, \diamond) \\ 
+\propname{RC}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{RC}(S, \bullet) \wedge  \propname{RC}(T, \diamond) \\ 
+\propname{LK}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{LK}(S, \bullet) \wedge  \propname{LK}(T, \diamond) \\ 
+\propname{RK}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{RK}(S, \bullet) \wedge  \propname{RK}(T, \diamond) \\ 
+\propname{AL}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   &  \propname{AL}(S, \bullet) \vee  \propname{AL}(T, \diamond) \\ 
+\propname{AR}((S, \bullet) \times (T, \diamond))  
+   & \Leftrightarrow % COQ 
+   & \propname{AR}(S, \bullet) \vee  \propname{AR}(T, \diamond) \\ 
+\end{array} 
+\] 
+
+\subsection{$\vec{\times}$ (semigroup)} 
+
+Assuming 
+$\propname{AS}(S, \bullet)$, 
+$\propname{CM}(S, \bullet)$,  and 
+$\propname{SL}(S, \bullet)$. 
+
+\[
+\begin{array}{rcl} 
+\propname{AS}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{AS}(T, \diamond) \\ 
+\propname{ID}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{ID}(S, \bullet) \wedge  \propname{ID}(T, \diamond) \\ 
+\propname{AN}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{AN}(S, \bullet) \wedge  \propname{AN}(T, \diamond) \\ 
+\propname{CM}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{CM}(T, \diamond) \\ 
+\propname{IP}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{IP}(T, \diamond) \\ 
+\propname{SL}((S, \bullet) \vec{\times}  (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{SL}(T, \diamond) \\ 
+\propname{IR}((S, \bullet) \vec{\times}  (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{FALSE} \\
+\propname{IL}((S, \bullet) \vec{\times}  (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{FALSE} \\
+\propname{LC}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{FALSE} \\
+\propname{RC}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{FALSE} \\
+\propname{LK}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{FALSE} \\
+\propname{RK}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{FALSE} \\
+\propname{AL}((S, \bullet) \vec{\times}  (T, \diamond))  
+   & \Leftrightarrow % COQ 
+   & \propname{FALSE} \\
+\propname{AR}((S, \bullet) \vec{\times}  (T, \diamond))  
+   & \Leftrightarrow % COQ 
+   & \propname{FALSE} \\
+\end{array} 
+\] 
+
+\subsection{$\mathrm{lift}$} 
+\[
+\begin{array}{rcl} 
+\propname{AS}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{AS}(S, \bullet) \\ 
+\propname{ID}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{ID}(S, \bullet)  \ \ (\hat{\alpha} = \{\alpha\})\\ 
+\propname{AN}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{TRUE} \ \ (\omega = \{\})\\ 
+\propname{CM}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{CM}(S, \bullet) \\ 
+\propname{SL}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{IL}(S, \bullet) 
+     \vee \propname{IR}(S, \bullet) 
+     \vee (\propname{IP}(S, \bullet)\ \wedge {\mid S \mid} = 2) \\ 
+\propname{IP}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{SL}((S, \bullet)) \\ 
+\propname{IL}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{FALSE} \\ 
+\propname{IR}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{FALSE} \\ 
+\propname{LC}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{FALSE} \\ 
+\propname{RC}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{FALSE} \\ 
+\propname{LK}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{FALSE} \\ 
+\propname{RK}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{FALSE} \\  
+\propname{AL}(\mathrm{lift}(S, \bullet))  
+   & \Leftrightarrow 
+   & \propname{FALSE} \\
+\propname{AR}(\mathrm{lift}(S, \bullet))  
+   & \Leftrightarrow 
+   & \propname{FALSE} \\ 
+\end{array} 
+\]
+
+\subsection{$\mathrm{MinUnion}$} 
+
+Assume $\propname{AY}(S,\ \leq)$. 
+(Seems required for associativity, idempotence, perhaps others.)
+
+\[
+\begin{array}{rcl} 
+\propname{AS}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TRUE}
+  \\ 
+\propname{ID}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FINITE}(\min_\leq(S)) \ \ \ (\mbox{WHAT IS THIS REALLY? CLOSE W.R.T. ???})
+  \\
+\propname{AN}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TRUE} \ \ (\omega = \{\})
+  \\ 
+\propname{CM}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TRUE}
+  \\ 
+\propname{SL}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TO}(S, \leq))  
+  \\ 
+\propname{IP}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TRUE}
+  \\ 
+\propname{IL}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE}
+  \\ 
+\propname{IR}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE}
+  \\ 
+\propname{LC}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE}
+  \\ 
+\propname{RC}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\propname{LK}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\propname{RK}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE}
+  \\ 
+\propname{AL}(\mathrm{MinUnion}(S, \leq))  
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\propname{AR}(\mathrm{MinUnion}(S, \leq))  
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\end{array} 
+\] 
+
+\subsection{$\mathrm{MinLift}$} 
+
+Assume 
+$\propname{LM}(S,\ \leq,\ \otimes)$, 
+$\propname{RM}(S,\ \leq,\ \otimes)$, 
+and 
+$\propname{AY}(S,\ \leq)$. 
+(Needed for associativity) 
+{\bf Perhaps others constraints are needed to make progress on 
+$\propname{SL}$ and $\propname{IP}$. 
+Lattice Theory to the rescue?
+}
+
+%% LM : a <= b -> a . c <= b .c 
+%% so if IP : 
+%%    a <= b -> a . a <= b . a
+%%    a <= b -> a <= b . a
+
+\[
+\begin{array}{rcl} 
+\propname{AS}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{AS}(S,\ \otimes)
+  \\ 
+\propname{ID}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{ID}(S,\ \otimes)
+  \\ 
+\propname{AN}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{TRUE} \ \ (\omega = \{\})
+  \\ 
+\propname{CM}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{CM}(S,\ \otimes)
+  \\ 
+\propname{SL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+%% vilius : SL and (not SL or IAUS and IAF)? 
+%% require \otimes to be selective??? 
+%% IAUS : COMPLEX 
+%% IAF  : COMPLEX 
+  & ??? \ \ \ (\mbox{  SOMEDAY !!!})
+  \\ 
+\propname{IP}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+%% vilius : IP and (not IP or SND)? 
+%% SND : x <= x . y or y <= x . y 
+%% (not IP) or (exists x, y, not(x <= x . y) and not(y <= x . y))
+%% case 1 : not IP: 
+%%   exists a, a . a <> a. 
+%%   A = {a} 
+%% case 2 :  IP and exists x, y, not(x <= x . y) and not(y <= x . y))
+%%   A = {x, y} 
+%%   min(A . A) = min{x . x , y . y, x . y, y . x}
+%%              = min{x, y, x . y, y . x} 
+%%              <> {x, y} = A      
+  & ??? \ \ \ (\mbox{  SOMEDAY !!!})
+  \\ 
+\propname{IL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\propname{IR}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\propname{LC}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\propname{RC}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\propname{LK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\propname{RK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\propname{AL}(\mathrm{MinLift}(S,\ \leq,\ \otimes))  
+  & \Leftrightarrow 
+  &  \propname{FALSE} 
+  \\ 
+\propname{AR}(\mathrm{MinLift}(S,\ \leq,\ \otimes))  
+  & \Leftrightarrow 
+  & \propname{FALSE}  
+  \\ 
+\end{array} 
+\] 
+
+% ==============================================================
+
+\subsection{$\mathrm{AddZero}$} 
+
+\[
+\begin{array}{rcl} 
+\propname{LD}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{LD}(S,\ \oplus,\ \otimes) \\
+\propname{RD}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{RD}(S,\ \oplus,\ \otimes) \\
+\propname{ZA}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{TRUE}\\ 
+\propname{OA}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{OA}(S,\ \oplus,\ \otimes) \\
+\propname{RAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{RAB}(S,\ \oplus,\ \otimes)\\ 
+\propname{LAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{LAB}(S,\ \oplus,\ \otimes)\\ 
+\end{array} 
+\] 
+
+\subsection{$\mathrm{AddOne}$} 
+
+%% 
+%% naming of RAB and LAB?  switch? Need more? (not assuming CM ...) 
+%%
+
+\[
+\begin{array}{rcl} 
+\propname{LD}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{LD}(S,\ \oplus,\ \otimes) 
+      \wedge \propname{RAB}(S,\ \oplus,\ \otimes) 
+      \wedge  \propname{IP}(S,\ \oplus) 
+    \\
+\propname{RD}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{RD}(S,\ \oplus,\ \otimes) 
+      \wedge\propname{LAB}(S,\ \oplus,\ \otimes) 
+      \wedge\propname{IP}(S,\ \oplus) 
+    \\
+\propname{ZA}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{ZA}(S,\ \oplus,\ \otimes) \\
+\propname{OA}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{TRUE}\\ 
+\propname{RAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{RAB}(S,\ \oplus,\ \otimes) 
+      \wedge \propname{IP}(S,\ \oplus) \\ 
+\propname{LAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{LAB}(S,\ \oplus,\ \otimes)
+      \wedge \propname{IP}(S,\ \oplus) 
+\\ 
+\end{array} 
+\] 
+
+\subsection{Direct Product, $(\times,\ \times)$} 
+
+\[
+\begin{array}{rcl} 
+\propname{LD}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+   & \Leftrightarrow % COQ 
+   & \propname{LD}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{LD}(T,\ \oplus_T,\ \otimes_T)\\ 
+\propname{RD}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+   & \Leftrightarrow % COQ 
+   & \propname{RD}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{RD}(T,\ \oplus_T,\ \otimes_T) 
+  \\ 
+\propname{ZA}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{ZA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{ZA}(T,\ \oplus_T,\ \otimes_T)
+   \\
+\propname{OA}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{OA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{OA}(T,\ \oplus_T,\ \otimes_T)
+   \\
+\propname{RAB}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{RAB}(S,\ \oplus_S,\ \otimes_S) \wedge  \propname{RAB}(T,\ \oplus_T,\ \otimes_T) 
+    \\ 
+\propname{LAB}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{LAB}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{LAB}(T,\ \oplus_T,\ \otimes_T)
+    \\ 
+\end{array} 
+\]
+
+\subsection{Lexicographic Product, $(\vec{\times},\ \times)$} 
+
+Assume 
+$\propname{AS}(S, \oplus_S)$, 
+$\propname{CM}(S, \oplus_S)$,  and 
+$\propname{SL}(S, \oplus_S)$. 
+
+\[
+\begin{array}{rcl} 
+\propname{LD}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+   & \Leftrightarrow % COQ 
+   & \propname{LD}(S,\ \oplus_S,\ \otimes_S) 
+     \wedge \propname{LD}(T,\ \oplus_T,\ \otimes_T)\\ 
+   & 
+   & \ \ \ \ \wedge ( \propname{LC}(S,\ \otimes_S) \vee \propname{LK}(T,\ \otimes_T) )
+  \\
+\propname{RD}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+   & \Leftrightarrow % COQ 
+  & \propname{RD}(S,\ \oplus_S,\ \otimes_S) 
+    \wedge \propname{RD}(T,\ \oplus_T,\ \otimes_T) \\ 
+   & 
+   & \ \ \ \ \wedge ( \propname{RC}(S,\ \otimes_S) \vee \propname{RK}(T,\ \otimes_T) )
+   \\ 
+\propname{ZA}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{ZA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{ZA}(T,\ \oplus_T,\ \otimes_T)
+   \\
+\propname{OA}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{OA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{OA}(T,\ \oplus_T,\ \otimes_T)
+   \\
+\propname{RAB}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{RAB}(S,\ \oplus_S,\ \otimes_S) \wedge  
+      (\propname{RAB}(T,\ \oplus_T,\ \otimes_T) \vee \propname{AR}(S,\ \otimes_S)) 
+    \\ 
+\propname{LAB}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{LAB}(S,\ \oplus_S,\ \otimes_S) \wedge  
+      (\propname{LAB}(T,\ \oplus_T,\ \otimes_T) \vee \propname{AL}(S,\ \otimes_S)) 
+    \\ 
+\end{array} 
+\]
+
+
+\subsection{$\mathcal{N}$} 
+
+Which constraints should we impose on $(S,\ \oplus,\ \otimes)$ in order 
+to make this easier, cleaner? 
+And how can we do this without giving up to much in terms of expressive power?
+
+\[
+\begin{array}{rcl} 
+\propname{LD}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{RD}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{ZA}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{OA}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{RAB}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{LAB}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\end{array} 
+\] 
+
+
+\[
+\begin{array}{rcl} 
+\propname{LD}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{RD}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{ZA}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{OA}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{RAB}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{LAB}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\end{array} 
+\] 
+
+
+\subsection{$\mathcal{M}$} 
+
+\[
+\begin{array}{rcl} 
+\propname{LD}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{RD}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{ZA}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{OA}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{RAB}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{LAB}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\end{array} 
+\] 
+
+
+\[
+\begin{array}{rcl} 
+\propname{LD}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{RD}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{ZA}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{OA}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{RAB}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\propname{LAB}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow 
+    & ???
+    \\ 
+\end{array} 
+\] 
+
+\section{Other Problems} 
+
+\subsection{Matrix algebras}
+
+\subsection{$\mathrm{swap}$}
+
+We might want to define 
+\[ 
+\mathrm{swap}(S,\ \oplus,\ \otimes)   
+   \equiv 
+   (S,\ \otimes,\ \oplus). 
+\] 
+The disadvantage of this is that we would then have to introduce 
+(and close with respect to) these ``dual'' properties:  
+\[ 
+\begin{array}{rcl} 
+\propname{LD}^\delta(S,\ \oplus,\ \otimes) 
+    & \equiv 
+    & \forall a, b, c \in S,\ a\oplus(b \otimes c) =  (a\oplus b) \otimes (a\oplus c) \\ 
+\propname{RD}^\delta(S,\ \oplus,\ \otimes)  
+    & \equiv 
+    & \forall a, b, c \in S,\ (a\otimes b)\oplus c  =   (a\oplus c) \otimes (b\oplus c)\\ 
+\propname{RAB}^\delta(S,\ \oplus,\ \otimes) 
+    & \equiv 
+    & \forall a, b\in S,\ a =  (a\oplus b) \otimes a = a \otimes (a \oplus b) \\ 
+\propname{LAB}^\delta(S,\ \oplus,\ \otimes) 
+    & \equiv 
+    & \forall a, b\in S,\ a =  (b\oplus a) \otimes a = a \otimes (b \oplus a) 
+\end{array} 
+\] 
+
+\subsection{$k$-best paths}
+
+%% Assume $(S,\ \oplus,\\otims)$ with 
+%% $\propname{SL}(\oplus)$ and $\propname{CM}(\oplus)$. 
+
+%% \[
+%%   \mathcal{T}_k \equiv 
+%%   (\mathbb{T}_k,\  
+%%   \oplus_k,     \ 
+%%   \otimes_k,    \ 
+%%   \overline{0}_k,\
+%%   \overline{1}_k
+%%   )
+%% \] 
+%% where 
+%% \[
+%% \begin{array}{rcl} 
+%% (a_0,\ \dots,\ a_k) \oplus_k (b_0,\ \dots,\ b_k) 
+%%    & \equiv 
+%%    & \min_k (a_0,\dots,\ a_k,\ b_0,\ \dots,\ b_k) \\
+%% \\ 
+%% \overline{0}_k 
+%%    & \equiv 
+%%    & (\infty,\ \infty,\ \cdots,\ \infty)\\ 
+%% \\ 
+%% (a_0,\ \dots,\ a_k) \otimes_k (b_0,\ \dots,\ b_k) 
+%%    & \equiv 
+%%    & \min_k(a_0 + b_0,\ a_0 + b_1,\ \dots,\ a_k + b_k) \\ 
+%% \\
+%% \overline{1}_k 
+%%    & \equiv 
+%%    & (0,\ \infty,\ \cdots,\ \infty)
+%% \end{array} 
+%% \]
+%% \end{block}
+
+
+
+
+\subsection{Semi-direct product}
+
+\subsection{General reductions}
+
+%% $(T,\ r,\ \approx)$ is well-formed if 
+%% $\approx$ is an equivalence relation over $T$ and 
+%% for all $x \in T$ we have $r(x) \approx x$. 
+%% \[
+%%     \SemCarrier{(t,\ r,\ =)}  \equiv  (\{ x \in t \mid r(x) = x\},\ =_r)
+%% \] 
+
+%% \[
+%% \begin{array}{rcl} 
+%% \mathrm{Nat}  & \equiv & (\NN,\ \Id,\ =_\NN)  \\ 
+%% \mathrm{Bool} & \equiv & (\BB,\ \Id,\ =_\BB)  
+%% \end{array} 
+%% \] 
+
+%% \[
+%% \begin{array}{rcl} 
+%% \mathrm{Prod}((T_1,\ r_1,\ \approx_1),\ (T_2,\ r_2,\ \approx_2)) 
+%%    & \equiv 
+%%    & (T_1 \times T_2,\ r_1 \times r_2,\ \approx_1 \times \approx_2) \\ 
+%% \mathrm{Sum}((T_1,\ r_1,\ \approx_1),\ (T_2,\ r_2,\ \approx_2)) 
+%%    & \equiv 
+%%    & (T_1 + T_2,\ r_1 + r_2,\ \approx_1 + \approx_2) \\ 
+%% \mathrm{Seq}(T\ r\ \approx)
+%%    & \equiv 
+%%    & (\Tseq{T},\ \MapSeq{r},\ \approx_{seq}) \\ 
+%% \mathrm{Set}(T\ r\ \approx)
+%%    & \equiv 
+%%    & (\Tset{T},\ \MapSet{r},\ \approx_{set}) \\ 
+%% \mathrm{Reduce}(r',\ (T\ r\ \approx)) 
+%%    & \equiv 
+%%    & (\Tset{T},\ r' \circ r,\ \approx \circ (r' \times r')) \\ 
+%% \end{array} 
+%% \] 
+
+%% \subsection{Examples}
+
+
+%\bibliographystyle{plain}
+%\bibliography{biblio} 
+
+%\appendix
+
+%% \section{Notation}
+
+%% \[
+%% \begin{array}{rcl}     
+%% X \times Y 
+%%   & \equiv 
+%%   & \{(x,\ y) \mid x \in X,\ y \in Y\} \\ 
+%% X + Y 
+%%   & \equiv 
+%%   & \{\mathrm{inl}(x) \mid x \in X\} \cup \{\mathrm{inr}(y) \mid y \in Y\} 
+%% \end{array} 
+%% \] 
+
+%% \[
+%% \begin{array}{rcl}     
+%% (f \times g)(x, y) 
+%%   & \equiv 
+%%   & (f(x), g(y)) \\ 
+%% (f + g)(\mathrm{inl}(x))
+%%   & \equiv 
+%%   & f(x) \\ 
+%% (f + g)(\mathrm{inr}(y))
+%%   & \equiv 
+%%   & g(y) \\ 
+%% \end{array} 
+%% \] 
+
+%% Concrete types are easily implemented in traditional programming languages as a datatype. 
+%% \[
+%% \begin{array}{rcll} 
+%% T & ::=  & \BB        & (\mbox{booleans}) \\ 
+%%   & \mid & \NN        & (\mbox{natural numbers}) \\ 
+%%   & \mid & \Sigma^*   & (\mbox{words over alphabet $\Sigma$}) \\ 
+%%   & \mid & T \times t & (\mbox{product}) \\ 
+%%   & \mid & T + T      & (\mbox{sum}) \\ 
+%%   & \mid & \Tseq{T}   & (\mbox{lists over $T$}) \\ 
+%%   & \mid & \Tset{T}   & (\mbox{finite sets over $T$}) \\ 
+%% \end{array} 
+%% \] 
+
+%% \subsection{Base Semigroups}
+
+%% \[
+%% \begin{array}{|c|c|c|c|c|c|c|c|}\hline 
+%% S    & \bullet         & \mbox{description}          & \alpha   & \omega & \propname{CM} & \propname{SL} & \propname{IP} 
+%% \\ \hline 
+%% S    & \opleft        & x \opleft y = x             & & &  & \star & \star \\
+%% S    & \opright       & x \opright y = y            & & &  & \star & \star \\
+%% S^*  & \cdot          & \mbox{concatenation}        & \epsilon &      &  &  & \\
+%% S^+  & \cdot          & \mbox{concatenation}        &          &      &  &  & \\
+
+%% \{t,\ f\}  & \wedge   & \mbox{conjunction}          & $t$     & $f$   &  \star &  \star & \star \\ 
+%% \{t,\ f\}  & \vee     & \mbox{disjunction}          & $f$     & $t$   &  \star &  \star & \star \\
+
+%% \NN  & \min           & \mbox{minimum}              &          & 0    &  \star &  \star & \star \\ 
+%% \NN  & \max           & \mbox{maximum}              & 0        &      &  \star &  \star & \star \\
+
+%% 2^W  & \cup           & \mbox{union}                & \{\}     & W    &  \star &  & \star \\
+%% 2^W  & \cap           & \mbox{intersection}         & W        & \{\} &  \star &  & \star \\
+
+%% \funfin(2^U)  & \cup & \mbox{union}            & \{\}     &     &  \star &  & \star \\
+%% \funfin(2^U ) & \cap & \mbox{intersection}     &         & \{\} &  \star &  & \star \\
+
+
+%% \NN  & +              & \mbox{addition}             & 0        &      &  \star &        & \\
+%% \NN  & \times         & \mbox{multiplication}        & 1        & 0    &  \star &        & \\
+%% \hline 
+%% \end{array} 
+%% \]
+
+%% \begin{tabular}{l} 
+%% $W$ a finite set, $U$ an infinite set. For set $Y$, $\funfin(Y) \equiv \{X \in Y\mid X \mbox{ is finite}\}$ 
+%% \end{tabular} 
+
+
+%% \section{Selected proofs}
+
+
+\end{document}

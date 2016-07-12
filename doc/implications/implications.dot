@@ -1,0 +1,175 @@
+digraph KProduct {
+# label = "implications";
+fontsize = 24; 
+labelloc = "top"; 
+
+# idempotence 
+  subgraph cluster1 {
+1 [label = "Idem"]; 
+2 [label = "not Idemi"]; 
+}
+# commutativity 
+  subgraph cluster2 {
+3 [label = "Comm"]; 
+4 [label = "not Comm"]; 
+}
+# selectivity 
+  subgraph cluster3 {
+5 [label = "Sel"]; 
+6 [label = "not Sel"]; 
+}
+# exists id  
+  subgraph cluster4 {
+7 [label = "Id"]; 
+8 [label = "no Id"]; 
+}
+# exists ann
+  subgraph cluster5 {
+9 [label = "Ann"]; 
+10 [label = "no Ann"]; 
+}
+# left constant 
+  subgraph cluster6 {
+11 [label = "left constant"]; 
+12 [label = "not left constant"]; 
+}
+# right constant 
+  subgraph cluster7 {
+13 [label = "right constant"]; 
+14 [label = "not right constant"]; 
+}
+# is left 
+  subgraph cluster8 {
+15 [label = "is left"]; 
+16 [label = "not is left"]; 
+}
+# is right 
+  subgraph cluster9 {
+17 [label = "is right"]; 
+18 [label = "not is right"]; 
+}
+# left cancel 
+  subgraph cluster10 {
+19 [label = "left cancel"]; 
+20 [label = "not left cancel"]; 
+}
+# right cancel
+  subgraph cluster11 {
+21 [label = "right cancel"]; 
+22 [label = "not right cancel"]; 
+}
+# anti left 
+  subgraph cluster12 {
+23 [label = "anti left"]; 
+24 [label = "not anti left"]; 
+}
+# anti right 
+  subgraph cluster13 {
+25 [label = "anti_right "]; 
+26 [label = "not anti right"]; 
+}
+  subgraph cluster14 {
+# C and l 
+27 [label = "Comm & not is left"]; 
+# C and q.l 
+28 [label = "Comm & not left constant"]; 
+# I and C
+29 [label = "Idem & Comm"]; 
+}
+# S and C
+30 [label = "Sel & Comm"]; 
+
+
+# Lemma bop_idempotent_implies_not_anti_left 
+1 -> 24; 
+# Lemma bop_idempotent_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+1 -> 26; 
+# Lemma bop_selective_implies_idempotent : ∀ (S : Type) (r : brel S) (b : binary_op S),
+5 -> 1; 
+# Lemma bop_selective_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+5 -> 24; 
+# Lemma bop_selective_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+5 -> 26; 
+# Lemma bop_not_idempotent_implies_not_selective : ∀ (S : Type) (r : brel S) (b : binary_op S),
+2 -> 6; 
+# Lemma bop_left_cancellative_implies_not_left_constant : 
+19 -> 12; 
+# Lemma bop_right_cancellative_implies_not_right_constant : 
+21 -> 14; 
+# Lemma bop_left_cancellative_implies_not_exists_ann : 
+19 -> 10; 
+# Lemma bop_right_cancellative_implies_not_exists_ann : 
+21 -> 10; 
+# Lemma bop_left_cancellative_implies_any_idempotent_is_left_id : 
+# Lemma bop_right_cancellative_implies_any_idempotent_is_right_id : 
+# Lemma bop_cancellative_implies_idempotent_is_id : 
+
+# Lemma bop_cancellative_and_exists_id_imply_not_idempotent : 
+# Lemma bop_cancellative_and_not_exists_id_imply_not_idempotent : 
+# Lemma bop_cancellative_implies_not_idempotent : 
+
+# Lemma bop_commutative_and_not_is_left_imply_not_is_right  : 
+27 -> 3; 
+27 -> 16; 
+27 -> 18
+# Lemma bop_commutative_and_not_left_constant_imply_not_right_constant  : 
+28 -> 3; 
+28 -> 12; 
+28 -> 14; 
+# Lemma bop_commutative_and_not_anti_left_imply_not_anti_right : 
+# Lemma bop_commutative_and_left_cancellative_imply_right_cancellative  : 
+# Lemma bop_commutative_and_not_left_cancellative_imply_not_right_cancellative  : 
+
+# Lemma bop_commutative_implies_not_is_left  : ∀ (S: Type) (r : brel S) (b : binary_op S), 
+3 -> 16;
+# Lemma bop_commutative_implies_not_is_right  : ∀ (S: Type) (r : brel S) (b : binary_op S), 
+3 -> 18;
+
+# Lemma exists_id_implies_not_left_constant : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+7 -> 12; 
+# Lemma exists_id_implies_not_right_constant : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+7 -> 14; 
+# Lemma exists_id_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+7 -> 24; 
+# Lemma exists_id_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+7 -> 26; 
+# Lemma exists_id_implies_not_is_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+7 -> 16; 
+# Lemma exists_id_implies_not_is_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+7 -> 18; 
+# Lemma exists_ann_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+9 -> 24; 
+# Lemma exists_ann_implies_not_is_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+9 -> 16; 
+# Lemma exists_ann_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+9 -> 26; 
+# Lemma exists_ann_implies_not_is_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+9 -> 18; 
+# Lemma exists_ann_implies_not_left_cancellative : 
+9 -> 20; 
+# Lemma exists_ann_implies_not_right_cancellative : 
+9 -> 22; 
+# Lemma bop_idempotent_and_commutative_imply_not_left_constant : 
+29 -> 3; 
+29 -> 1; 
+29 -> 12; 
+# Lemma bop_idempotent_and_commutative_imply_not_right_constant : 
+29 -> 14; 
+# Lemma bop_selective_and_commutative_imply_not_left_constant : 
+30 -> 3; 
+30 -> 5; 
+30 -> 29; 
+30 -> 12; 
+# Lemma bop_selective_and_commutative_imply_not_right_constant : 
+30 -> 14; 
+# Lemma bop_selective_and_commutative_imply_not_left_cancellative : 
+30 -> 20; 
+# Lemma bop_selective_and_commutative_imply_not_right_cancellative : 
+30 -> 22; 
+# Lemma bop_idempotent_and_commutative_and_not_selective_imply_not_left_cancellative: 
+# Lemma bop_idempotent_and_commutative_and_not_selective_imply_not_right_cancellative: 
+# Lemma bop_idempotent_and_commutative_and_selective_decidable_imply_not_left_cancellative: 
+# Lemma bop_idempotent_and_commutative_and_selective_decidable_imply_not_right_cancellative: 
+
+
+} 
