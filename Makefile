@@ -133,7 +133,8 @@ CMOFILES=\
    cast.cmo \
    check.cmo \
    construct_certs.cmo \
-   cas.cmo
+   cas.cmo \
+   ../src/Describe.cmo
 # 
 
 
