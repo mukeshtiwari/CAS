@@ -31,5 +31,10 @@ HISTORY.txt
 
 ## coq 
 *.v.d
-*.glob 
+*.glob
 *.vo
+
+##ocaml 
+_build/
+extraction/*.ml
+extraction/*.mli
