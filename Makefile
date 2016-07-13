@@ -113,10 +113,34 @@ FILES=$(CODE) $(ACODE) $(THEORY) $(VERIFY)
 .SECONDARY: $(addsuffix .d,$(FILES))
 
 
+# is there a better way? 
+CMOFILES=\
+   Bool.cmo \
+   Datatypes.cmo \
+   EqNat.cmo \
+   List0.cmo \
+   Peano.cmo \
+   basic_types.cmo \
+   ast.cmo \
+   data.cmo \
+   brel.cmo \
+   uop.cmo \
+   bop.cmo \
+   certificates.cmo \
+   cef.cmo \
+   cert_records.cmo \
+   cas_records.cmo \
+   cast.cmo \
+   check.cmo \
+   construct_certs.cmo \
+   cas.cmo
+# 
+
+
 all:
 	$(MAKE) coq
 	$(MAKE) extraction
-	$(MAKE) src
+	$(MAKE) casml
 
 theory: $(THEORY:.v=.vo)
 
@@ -129,8 +153,9 @@ extraction/STAMP: $(FILES:.v=.vo) extraction/extraction.v
 	$(COQEXEC) extraction/extraction.v
 	touch extraction/STAMP
 
-src: extraction/STAMP src/Driver.ml
+casml: extraction/STAMP src/Driver.ml
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
+	cd _build/extraction && ocamlmktop -o casml $(CMOFILES)
 
 .PHONY: coq extraction src 
 
@@ -141,22 +166,22 @@ src: extraction/STAMP src/Driver.ml
 	$(COQDEP) -slash $(COQINCLUDES) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
 
-cleanocaml:
+cleancasml:
 	rm -rf _build
-	rm -rf extraction/*.ml extraction/*.mli
+	rm -rf extraction/*.ml extraction/*.mli extraction/STAMP
 
 cleancoq:
 	rm -f  code/*.glob  a_code/*.glob  theory/*.glob  verify/*.glob
 	rm -f  code/*.vo  a_code/*.vo  theory/*.vo  verify/*.vo
 	rm -f  code/*.d  a_code/*.d  theory/*.d  verify/*.d
-	rm -f extraction/STAMP 
 
 clean:
 	$(MAKE) cleancoq
-	$(MAKE) cleanocaml
+	$(MAKE) cleancasml
 
 # hard coded. FIX THIS 
-cma:
-	ocamlc.opt -a -I _build/extraction -o _build/extraction/cas.cma EqNat.cmo Bool.cmo Datatypes.cmo Peano.cmo List0.cmo basic_types.cmo brel.cmo uop.cmo bop.cmo ast.cmo cef.cmo certificates.cmo check.cmo cert_records.cmo construct_certs.cmo cas_records.cmo cas.cmo
+#cma:
+#	ocamlc.opt -a -I _build/extraction -o cas.cma EqNat.cmo Bool.cmo Datatypes.cmo Peano.cmo List0.cmo basic_types.cmo brel.cmo uop.cmo bop.cmo ast.cmo cef.cmo certificates.cmo check.cmo cert_records.cmo construct_certs.cmo cas_records.cmo cas.cmo
+
 
 
