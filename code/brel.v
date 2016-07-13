@@ -86,6 +86,9 @@ Definition bProp_lift_list : ∀ (A : Type), (bProp A) -> bProp (list A)
 	| a::rest => p a && f A p rest
       end.
 
+Definition dominates_set : ∀ S : Type, brel S → brel S → brel2 (finite_set S) S 
+:= λ S eq lte X a, bProp_lift_list S (λ x, brel_dual S (brel_strictify S lte) x a) X.                 
+
 (* was called bProp_forall    proofs in bprop_forall.v 
 *) 
 Definition bProp_lift_set : ∀ (A : Type), (bProp A) -> bProp (finite_set A) 

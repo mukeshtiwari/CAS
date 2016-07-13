@@ -23,6 +23,7 @@ CODE=\
    code/bop.v \
    code/cef.v \
    code/uop.v \
+   code/bprop.v \
    code/certificates.v \
    code/cert_records.v \
    code/cast.v \
@@ -60,7 +61,6 @@ THEORY=\
    theory/bop_and.v \
    theory/bop_or.v \
    theory/bop_min.v \
-   theory/bop_minset_union.v \
    theory/bop_max.v \
    theory/bop_plus.v \
    theory/bop_times.v \
@@ -143,16 +143,17 @@ src: extraction/STAMP src/Driver.ml
 
 cleanocaml:
 	rm -rf _build
-	rm -f extraction/STAMP extraction/*.ml extraction/*.mli
+	rm -rf extraction/*.ml extraction/*.mli
 
 cleancoq:
 	rm -f  code/*.glob  a_code/*.glob  theory/*.glob  verify/*.glob
 	rm -f  code/*.vo  a_code/*.vo  theory/*.vo  verify/*.vo
 	rm -f  code/*.d  a_code/*.d  theory/*.d  verify/*.d
+	rm -f extraction/STAMP 
 
 clean:
 	$(MAKE) cleancoq
-#	$(MAKE) cleanocaml
+	$(MAKE) cleanocaml
 
 # hard coded. FIX THIS 
 cma:

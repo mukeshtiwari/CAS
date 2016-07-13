@@ -28,3 +28,8 @@ HISTORY.txt
 *.mtc1
 *.out
 *.synctex.gz
+
+## coq 
+*.v.d
+*.glob 
+*.vo

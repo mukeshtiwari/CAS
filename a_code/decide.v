@@ -32,7 +32,7 @@ Require Import CAS.theory.bop_add_ann.
 Require Import CAS.theory.bop_then_unary. 
 Require Import CAS.theory.bop_union. 
 Require Import CAS.theory.bop_intersect. 
-Require Import CAS.theory.bop_minset_union. 
+(* Require Import CAS.theory.bop_minset_union. *) 
 Require Import CAS.theory.bop_llex. 
 
 Require Import CAS.theory.bops_and_or.

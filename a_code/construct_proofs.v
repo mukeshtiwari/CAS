@@ -46,7 +46,7 @@ Require Import CAS.theory.brel_set.
 Require Import CAS.theory.brel2_in_set. 
 Require Import CAS.theory.bop_union. 
 Require Import CAS.theory.bop_intersect. 
-Require Import CAS.theory.bop_minset_union. 
+(*Require Import CAS.theory.bop_minset_union. *) 
 Require Import CAS.theory.bops_union_intersect.
 Require Import CAS.theory.bops_intersect_union.
 

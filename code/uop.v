@@ -28,3 +28,7 @@ Definition uop_filter : ∀ S : Type, (bProp S) → unary_op (finite_set S) := �
 Definition uop_filter_from_brel2 : ∀ S : Type, (brel2 S (finite_set S)) → unary_op (finite_set S)
 := λ S r X, uop_filter S (λ a, r a X) X.
 
+
+Definition uop_minset :  ∀ S : Type, brel S -> brel S -> unary_op (finite_set S) 
+:= λ S rS lte, uop_filter_from_brel2 S (λ a X, dominates_set S rS lte X a).
+

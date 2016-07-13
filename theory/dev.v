@@ -747,13 +747,8 @@ Qed.
 End ReductionProperties. 
 
 
-
-
 Section Dominates. 
 Require Import CAS.theory.brel_strictify.
-
-Definition dominates_set : ∀ S : Type, brel S → brel S → brel2 (finite_set S) S 
-:= λ S eq lte X a, bProp_lift_list S (λ x, brel_dual S (brel_strictify S lte) x a) X.                  
 
 Variable S  : Type. 
 Variable rS : brel S. 
@@ -927,8 +922,6 @@ Notation "A !== B"  := (brel_set S rS A B = false) (at level 15).
 Notation "a @ X"   := (in_set S rS X a = true) (at level 15).
 Notation "a !@ X"   := (in_set S rS X a = false) (at level 15).
 
-Definition uop_minset : unary_op (finite_set S) 
-:= uop_filter_from_brel2 S (λ a X, dominates_set S rS lte X a).
 
 Definition in_upper_set : brel2 (finite_set S) S
 := λ X a, brel_set S rS (uop_minset (a :: X)) (uop_minset X).   
