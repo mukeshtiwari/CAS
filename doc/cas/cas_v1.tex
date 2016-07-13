@@ -18,6 +18,7 @@
 \newcommand{\SemCarrier}[1]{{\mathrm{Carrier}}({#1})}
 \newcommand{\propname}[1]{{\mathbb{#1}}}
 \newcommand{\lexprod}{\ensuremath{\mathbin{\vec{\times}}}}
+\newcommand{\minunion}{\cup_{\min}^{\leq}}
 
 \DeclareMathOperator{\opleft}{left}
 %\newcommand{\opleft}{\ensuremath{\mathrm{left}}}
@@ -173,14 +174,14 @@ Define
 \] 
 and 
 \[
-  A\ \cup_{\min}^{\leq} B  \equiv  \min_\leq(A\cup B) 
+  A\ \minunion B  \equiv  \min_\leq(A\cup B) 
 \] 
 
 \[ 
 \begin{array}{rcl} 
 \mathrm{MinUnion}(S,\ \leq)
    & \equiv 
-   & ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \cup_{\min}^{\leq})
+   & ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \minunion)
 \end{array} 
 \] 
 
@@ -258,22 +259,23 @@ Let $\leq \ \equiv \ \leq_\oplus^{D}$ and define
 \begin{array}{rcl} 
 \mathcal{M}(D,\ (S,\ \oplus,\ \otimes))   
    & \equiv 
-   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \otimes_{\min}^{\leq},\ \cup_{\min}^{\leq})\\
+   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \otimes_{\min}^{\leq},\ \minunion)\\
 \\
 \mathcal{N}(D,\ (S,\ \oplus,\ \otimes))   
    & \equiv 
-   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \cup_{\min}^{\leq},\ \otimes_{\min}^{\leq})\\
+   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minunion,\ \otimes_{\min}^{\leq})\\
 \\
 \end{array} 
 \] 
 Recall: $a \leq_\oplus^{L} b \equiv a = a\oplus b$ 
 and $a \leq_\oplus^{R} b \equiv b = a\oplus b$.
 
-\section{Properties} 
+\section{Initial properties} 
 
+The following are the properties of interest.
+\subsection{Semigroup}
 $(S,\ \bullet)$
 
-\subsubsection{Initial set of semigroup properties}
 \[ 
 \begin{array}{c|ccl} 
 \mbox{associative} 
@@ -308,7 +310,7 @@ $(S,\ \bullet)$
 \end{array} 
 \] 
 
-\subsubsection{Initial set of order properties}
+\subsection{Orders}
 
 $(S,\ \leq)$
 
@@ -347,7 +349,7 @@ $(S,\ \leq)$
 \] 
 
 
-\subsubsection{Initial set of bi-semigroup properties}
+\subsection{Bi-semigroups}
 
 $(S,\ \oplus,\ \otimes)$
 
@@ -385,7 +387,7 @@ where
 \] 
 
 
-\subsubsection{Initial set of order semigroup properties}
+\subsection{Ordered semigroups}
 
 $(S,\ \leq,\ \otimes)$
 
@@ -407,9 +409,11 @@ $(S,\ \leq,\ \otimes)$
 
 \section{Closure} 
 
-To close we need extra properties. 
+To fully close the theorems about our initial properties with necessary and sufficient conditions, we also need to track the following extra properties. 
 
-For semigroups. 
+\subsection{Semigroups}
+$(S,\ \bullet)$
+
 \[ 
 \begin{array}{c|ccl|l} 
    & 
@@ -471,7 +475,8 @@ For semigroups.
 \]
 
 
-For bi-semigroups $(S,\ \oplus,\ \otimes)$
+\subsection{Bi-semigroups}
+$(S,\ \oplus,\ \otimes)$
 
 % needed for D of AddOne 
 \[ 
@@ -497,7 +502,9 @@ For bi-semigroups $(S,\ \oplus,\ \otimes)$
 \] 
 
 
-\subsection{A few usefull implications} 
+\section{Closure progress}
+
+\subsection{A few useful implications} 
 
 \[ 
 \begin{array}{rcl} 
@@ -521,7 +528,7 @@ For bi-semigroups $(S,\ \oplus,\ \otimes)$
 
 
 
-\subsection{$\mathrm{AddId}$} 
+\subsection{AddId} 
 
 \[
 \begin{array}{rcl} 
@@ -570,7 +577,7 @@ For bi-semigroups $(S,\ \oplus,\ \otimes)$
 \end{array} 
 \] 
 
-\subsection{$\mathrm{AddAn}$} 
+\subsection{AddAn} 
 
 \[
 \begin{array}{rcl} 
@@ -725,10 +732,10 @@ $\propname{SL}(S, \bullet)$.
 \propname{AR}((S, \bullet) \vec{\times}  (T, \diamond))  
    & \Leftrightarrow % COQ 
    & \propname{FALSE} \\
-\end{array} 
+\end{array} MinUnion
 \] 
 
-\subsection{$\mathrm{lift}$} 
+\subsection{Lift} 
 \[
 \begin{array}{rcl} 
 \propname{AS}(\mathrm{lift}(S, \bullet)) 
@@ -778,10 +785,9 @@ $\propname{SL}(S, \bullet)$.
 \end{array} 
 \]
 
-\subsection{$\mathrm{MinUnion}$} 
+\subsection{MinUnion} 
 
-Assume $\propname{BM}(S,\leq)$ and $\propname{AY}(S,\ \leq)$. 
-($\propname{AY}$ does not seem to be required for associativity, idempotence... Don't think it is needed?)
+Assume $\propname{RX}(S,\ \leq)$ (needed for sensible semantics), $\propname{TR}(S,\ \leq)$ (needed for associativity), $\propname{AY}(S,\ \leq)$ (needed for annihilator) and $\propname{BM}(S,\leq)$ (needed for annihilator).
 
 \[
 \begin{array}{rcl} 
@@ -791,7 +797,7 @@ Assume $\propname{BM}(S,\leq)$ and $\propname{AY}(S,\ \leq)$.
   \\ 
 \propname{ID}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
-  & \propname{TRUE} \ \ (\alpha = \{\})
+  & \propname{TRUE} \ \ (\alpha = \emptyset)
   \\ 
 \propname{AN}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
@@ -844,7 +850,7 @@ Assume $\propname{BM}(S,\leq)$ and $\propname{AY}(S,\ \leq)$.
 \end{array} 
 \] 
 
-\subsection{$\mathrm{MinLift}$} 
+\subsection{MinLift} 
 
 Assume 
 $\propname{LM}(S,\ \leq,\ \otimes)$, 
@@ -940,7 +946,7 @@ Lattice Theory to the rescue?
 
 % ==============================================================
 
-\subsection{$\mathrm{AddZero}$} 
+\subsection{AddZero} 
 
 \[
 \begin{array}{rcl} 
@@ -965,7 +971,7 @@ Lattice Theory to the rescue?
 \end{array} 
 \] 
 
-\subsection{$\mathrm{AddOne}$} 
+\subsection{AddOne} 
 
 %% 
 %% naming of RAB and LAB?  switch? Need more? (not assuming CM ...) 
