@@ -28,6 +28,7 @@ HISTORY.txt
 *.mtc1
 *.out
 *.synctex.gz
+doc/*.pdf
 
 ## coq 
 *.v.d
