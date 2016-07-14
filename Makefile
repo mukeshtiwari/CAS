@@ -154,7 +154,7 @@ extraction/STAMP: $(FILES:.v=.vo) extraction/extraction.v
 	$(COQEXEC) extraction/extraction.v
 	touch extraction/STAMP
 
-casml: extraction/STAMP src/Driver.ml
+casml: extraction/STAMP src/Driver.ml src/Describe.ml
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
 	cd _build/extraction && ocamlmktop -o casml $(CMOFILES)
 
