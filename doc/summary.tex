@@ -10,20 +10,11 @@
 \newcommand{\mtrx}[1]{\ensuremath{\mathbf{#1}}}
 \newcommand{\NN}{\mathbb{N}}
 \newcommand{\BB}{\mathbb{B}}
-\newcommand{\Id}{\mathrm{id}}
-\newcommand{\Tseq}[1]{{\mathrm{seq}}({#1})}
-\newcommand{\Tset}[1]{{\mathrm{set}}({#1})}
-\newcommand{\MapSeq}[1]{{\mathrm{map}}({#1})}
-\newcommand{\MapSet}[1]{{\mathrm{map}}({#1})}
-\newcommand{\SemCarrier}[1]{{\mathrm{Carrier}}({#1})}
 \newcommand{\propname}[1]{{\mathbb{#1}}}
 \newcommand{\lexprod}{\ensuremath{\mathbin{\vec{\times}}}}
 \newcommand{\minunion}{\cup_{\min}^{\leq}}
+\newcommand{\minlift}{\otimes_{\min}^{\leq}}
 
-\DeclareMathOperator{\opleft}{left}
-%\newcommand{\opleft}{\ensuremath{\mathrm{left}}}
-%\newcommand{\opright}{\ensuremath{\mathrm{right}}}
-\DeclareMathOperator{\opright}{right}
 \newcommand{\funfin}{\ensuremath{\mathrm{fin}}}
 
 \title{Combinators for Algebraic Structures (CAS) \\ Version 1} 
@@ -192,14 +183,14 @@ get rid of the class of structures $(S,\ \leq)$.
 \subsection{Minimal set lift} 
 
 \[
-  A\ \otimes_{\min}^{\leq} B  \equiv   \min_\leq(\{a\otimes b\mid a\in A,\ b\in B\})
+  A\ \minlift B  \equiv   \min_\leq(\{a\otimes b\mid a\in A,\ b\in B\})
 \] 
 
 \[ 
 \begin{array}{rcl} 
 \mathrm{MinLift}(S,\ \leq,\ \otimes)
    & \equiv 
-   & ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \otimes_{\min}^{\leq})
+   & ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \minlift)
 \end{array} 
 \] 
 
@@ -259,11 +250,11 @@ Let $\leq \ \equiv \ \leq_\oplus^{D}$ and define
 \begin{array}{rcl} 
 \mathcal{M}(D,\ (S,\ \oplus,\ \otimes))   
    & \equiv 
-   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \otimes_{\min}^{\leq},\ \minunion)\\
+   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minlift,\ \minunion)\\
 \\
 \mathcal{N}(D,\ (S,\ \oplus,\ \otimes))   
    & \equiv 
-   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minunion,\ \otimes_{\min}^{\leq})\\
+   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minunion,\ \minlift)\\
 \\
 \end{array} 
 \] 

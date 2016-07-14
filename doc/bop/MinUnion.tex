@@ -2,35 +2,22 @@
 
 % packages 
 \usepackage[english]{babel}
-\usepackage{amsmath}   % see http://www.ctan.org/pkg/amsmath
-\usepackage{amssymb}   % 
-\usepackage{amsfonts}  % 
-\usepackage{scrextend} % used for indentation
+\usepackage{amsmath}   	% see http://www.ctan.org/pkg/amsmath
+\usepackage{amssymb}   	% 
+\usepackage{amsfonts}  	% 
+\usepackage{scrextend} 	% used for indentation
+\usepackage{titlesec}	% used for adjusting section spacing
 
-% my macros 
-\newcommand{\mtrx}[1]{\ensuremath{\mathbf{#1}}}
-\newcommand{\NN}{\mathbb{N}}
-\newcommand{\BB}{\mathbb{B}}
-\newcommand{\Id}{\mathrm{id}}
-\newcommand{\Tseq}[1]{{\mathrm{seq}}({#1})}
-\newcommand{\Tset}[1]{{\mathrm{set}}({#1})}
-\newcommand{\MapSeq}[1]{{\mathrm{map}}({#1})}
-\newcommand{\MapSet}[1]{{\mathrm{map}}({#1})}
-\newcommand{\SemCarrier}[1]{{\mathrm{Carrier}}({#1})}
+% my macros
 \newcommand{\propname}[1]{{\mathbb{#1}}}
 \newcommand{\minunion}{\cup_{\min}^{\leq}}
 \newcommand{\proof}{\vspace{1em} \textbf{Proof} \vspace{1em}}
 
 \newenvironment{ind}[0]{\begin{addmargin}[1em]{0em}\vspace{0.5em}}{\end{addmargin}\vspace{0.5em}}
 
-\DeclareMathOperator{\opleft}{left}
-%\newcommand{\opleft}{\ensuremath{\mathrm{left}}}
-%\newcommand{\opright}{\ensuremath{\mathrm{right}}}
-\DeclareMathOperator{\opright}{right}
-
 % Settings
 \setlength{\parindent}{0pt}
-
+\titlespacing*{\subsection}{0pt}{3\baselineskip}{\baselineskip}
 
 %Document
 \title{MinUnion results} 
@@ -47,7 +34,7 @@ The document presents some theoretical results for the $\minunion$ operator.
 
 \section{Definition}
 
-Let $\leq$ be a partial order on some set $S$ with at least two elements. 
+Let $\leq$ be a pre-order on some set $S$ with at least two elements. 
 For $X \subseteq S$, define 
 \[
 \min_\leq(X) \equiv \{x \in X \mid \forall y \in X,\  \neg(y < x)\}. 
@@ -306,14 +293,22 @@ $\propname{LC}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
 
 \proof
 
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, and at least two elements in $S$ and therefore two non-identity elements in ${\cal P}_{\mathrm{fin}}(S,\ \lesssim)$. Therefore $\neg \propname{LC}(\mathrm{MinUnion(S,\leq)})$.
+There exists an identity for $\mathrm{MinUnion(S,\leq)}$, and at least two elements in $S$ and therefore two non-identity elements in ${\cal P}_{\mathrm{fin}}(S,\ \leq)$.
+ 
+\vspace{0.5em}
+
+Therefore $\neg \propname{LC}(\mathrm{MinUnion(S,\leq)})$.
 
 \subsection{RightCancellative}
 $\propname{RC}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
 
 \proof
 
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, and at least two elements in $S$ and therefore two non-identity elements in ${\cal P}_{\mathrm{fin}}(S,\ \lesssim)$. Therefore $\neg \propname{RC}(\mathrm{MinUnion(S,\leq)})$.
+There exists an identity for $\mathrm{MinUnion(S,\leq)}$, and at least two elements in $S$ and therefore two non-identity elements in ${\cal P}_{\mathrm{fin}}(S,\ \leq)$. 
+
+\vspace{0.5em}
+
+Therefore $\neg \propname{RC}(\mathrm{MinUnion(S,\leq)})$.
 
 
 
