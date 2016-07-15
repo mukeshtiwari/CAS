@@ -36,11 +36,17 @@ let sg1_props = sg_describe sg1;;
      sg_C_product  : 'a sg_C  -> 'b sg_C  -> ('a *'b) sg_C
      sg_CI_product : 'a sg_CI -> 'b sg_CI -> ('a *'b) sg_CI
      ... 
-     sg_C_from_sg_CK : 'a sg_CK -> 'a sg_C
-     sg_from_sg_CI   : 'a sg_CI -> 'a sg
-     sg_from_sg_CK   : 'a sg_CK -> 'a sg
-     sg_C_from_sg_CS : 'a sg_CS -> 'a sg_C
-     sg_from_sg_CS   : 'a sg_CS -> 'a sg
+     sg_llex    : 'a sg_CS -> 'b sg    -> ('a * 'b) sg
+     sg_C_llex  : 'a sg_CS -> 'b sg_C  -> ('a * 'b) sg_C
+     sg_CI_llex : 'a sg_CS -> 'b sg_CI -> ('a * 'b) sg_CI
+     sg_CS_llex : 'a sg_CS -> 'b sg_CS -> ('a * 'b) sg_CS
+     ... 
+     sg_C_from_sg_CK  : 'a sg_CK -> 'a sg_C
+     sg_from_sg_CI    : 'a sg_CI -> 'a sg
+     sg_from_sg_CK    : 'a sg_CK -> 'a sg
+     sg_C_from_sg_CS  : 'a sg_CS -> 'a sg_C
+     sg_from_sg_CS    : 'a sg_CS -> 'a sg
+     sg_CI_from_sg_CS : 'a sg_CS -> 'a sg_CI
      ... 
      sg_CI_option_from_sg   : 'a sg   -> 'a sg_CI option
      sg_CK_option_from_sg   : 'a sg   -> 'a sg_CK option
@@ -112,3 +118,16 @@ let (<!*>) m n = liftN2 sg_llex_aux m n ;;
 let sg3 = sg_and <!*> sg_or <!*> sg_min <!*> sg_max <!*> sg_times <*> sg_plus;; 
 
 let sg3_props = mmap sg_describe sg3;; 
+
+(* However, note that this approach might not always be the best. 
+   Suppose one wants to write parameterised "templates" --- 
+   we then know at compile time that we will alwyas produce a
+   well-formed structure of a given kind. 
+   Here are some examples. 
+*) 
+
+(* sg_llex3 : 'a sg_CS * sg_CS * sg_CS -> sg_CS *) 
+let sg_llex3 (a, b, c) = sg_CS_llex a (sg_CS_llex b c) ;;
+
+(* foo : 'a sg_CI -> (int * (int * 'a)) sg_CI *) 
+let foo sg = sg_CI_llex sg_CS_min (sg_CI_llex sg_CS_max sg) ;;
