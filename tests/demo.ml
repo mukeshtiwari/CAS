@@ -103,7 +103,7 @@ let sg2_props = mmap sg_describe sg2;;
 
 (* Lex product requires an sg_CS as a first arg (for associativity). 
 
-   sg_mllex_aux : a Cas_records.sg -> 'b Cas_records.sg -> ('a * 'b) Cas_records.sg option 
+   sg_mllex_aux : a sg -> 'b sg -> ('a * 'b) sg option 
 *) 
 let sg_llex_aux sg1 sg2 = 
    match (sg_CS_option_from_sg sg1) with 
