@@ -185,7 +185,7 @@ get rid of the class of structures $(S,\ \leq)$.
 \subsubsection{Minset lift} 
 
 \[
-  A\ \minlift B  \equiv   \min_\leq(\{a\otimes b\mid a\in A,\ b\in B\})
+  A\ \minlift B  \equiv   \min_\leq(A \ \hat{\otimes} \ B)
 \] 
 
 \[ 
@@ -846,43 +846,39 @@ Assume $\propname{RX}(S,\ \leq)$ (needed for sensible semantics), $\propname{TR}
 Assume 
 $\propname{LM}(S,\ \leq,\ \otimes)$, 
 $\propname{RM}(S,\ \leq,\ \otimes)$, 
-and 
-$\propname{AY}(S,\ \leq)$. 
-(Needed for associativity) 
-{\bf Perhaps others constraints are needed to make progress on 
-$\propname{SL}$ and $\propname{IP}$. 
-Lattice Theory to the rescue?
-}
+$\propname{LI}(S,\ \leq)$,
+$\propname{RI}(S,\ \leq)$,
+$\propname{RX}(S,\ \leq)$,
+$\propname{TR}(S,\ \leq)$,
+$\propname{AY}(S,\ \leq)$,
+$\propname{ID}(S, \otimes)$ and
+$\neg \propname{SL}(S, \otimes)$. 
 
 \[
 \begin{array}{rcl} 
 \propname{AS}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
-  & \propname{AS}(S,\ \otimes)
+  & ???
   \\ 
 \propname{ID}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
-  & \propname{ID}(S,\ \otimes)
+  & \propname{TRUE}
   \\ 
 \propname{AN}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{TRUE} \ \ (\omega = \{\})
-  \\ 
+  \\
 \propname{CM}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{CM}(S,\ \otimes)
   \\ 
 \propname{SL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
-%% vilius : SL and (not SL or IAUS and IAF)? 
-%% require \otimes to be selective??? 
-%% IAUS : COMPLEX 
-%% IAF  : COMPLEX 
-  & ??? \ \ \ (\mbox{  SOMEDAY !!!})
+  & \propname{FALSE}
   \\ 
 \propname{IP}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow
-  & ??? \ \ \ (\mbox{  SOMEDAY !!!})
+  & \propname{IP}(S,\ \otimes)
   \\ 
 \propname{IL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 

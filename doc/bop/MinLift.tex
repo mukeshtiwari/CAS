@@ -1,0 +1,431 @@
+\documentclass[10pt]{article}
+
+% packages 
+\usepackage[english]{babel}
+\usepackage{amsmath}   	% see http://www.ctan.org/pkg/amsmath
+\usepackage{amssymb}   	% 
+\usepackage{amsfonts}  	% 
+\usepackage{scrextend} 	% used for indentation
+\usepackage{titlesec}	% used for adjusting section spacing
+
+% my macros
+\newcommand{\propname}[1]{{\mathbb{#1}}}
+\newcommand{\minlift}{\otimes_{\min}^{\leq}}
+\newcommand{\lift}{\hat{\otimes}}
+\newcommand{\proof}{\vspace{1em} \textbf{Proof} \vspace{1em}}
+
+\newenvironment{ind}[0]{\begin{addmargin}[1em]{0em}\vspace{0.5em}}{\end{addmargin}\vspace{0.5em}}
+
+% Settings
+\setlength{\parindent}{0pt}
+\titlespacing*{\subsection}{0pt}{3\baselineskip}{\baselineskip}
+
+%Document
+\title{MinUnion results} 
+\author{Timothy G. Griffin \& Matthew L. Daggitt} 
+
+\begin{document}
+\maketitle
+\date 
+
+\begin{abstract} 
+The document presents some theoretical results for the $\minlift$ operator. 
+\end{abstract} 
+
+
+\section{Definition}
+
+Let $\leq$ be a pre-order on some set $S$ with at least two elements. 
+For $X \subseteq S$, define 
+\[
+\min_\leq(X) \equiv \{x \in X \mid \forall y \in X,\  \neg(y < x)\}. 
+\] 
+Define 
+\[
+{\cal P}_{\mathrm{fin}}(S,\ \lesssim) 
+   \equiv 
+\{X \subseteq S\mid \mbox{$X$ finite and }\min_\leq(X) = X\} 
+\] 
+and 
+\[
+  A\ \lift B  \equiv \{a\otimes b\mid a\in A,\ b\in B\}
+\] 
+and
+\[
+  A\ \minlift B  	\equiv \min_\leq(A \lift B)
+\] 
+then
+\[ 
+\begin{array}{rcl} 
+\mathrm{MinLift}(S,\ \leq,\ \otimes)
+   & \equiv 
+   & ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \minlift)
+\end{array} 
+\]
+
+\section{Summary}
+
+The current pre-conditions required for generating necessary and sufficient conditions for each of the currently tracked properties are ???
+
+%\begin{itemize}
+%\item $\propname{TR}(\mathrm{S, \leq})$ : required for associativity
+%\item $\propname{BM}(\mathrm{S, \leq})$ : required for annihilator
+%\item $\propname{AY}(\mathrm{S, \leq})$ : required for annihilator
+%\end{itemize}
+
+
+
+\section{Lemmas}
+
+\subsection{Absorbing}
+
+$\propname{LM}(\mathrm{(S,\leq,\otimes)} \wedge \propname{LM}(\mathrm{(S,\leq,\otimes)} \Rightarrow \min_\leq(X \lift \min_\leq(Y)) = \min_\leq(X \lift Y) = \min_\leq(\min_\leq(X) \lift Y)$
+
+\proof
+
+Consider arbitrary $x \otimes y \in \min_\leq(X \lift \min_\leq(Y))$
+
+\begin{ind}
+Then we have that:
+\begin{equation} \label{eq:lem_abs_minset_left_X}
+x \in X
+\end{equation}
+\begin{equation} \label{eq:lem_abs_minset_left_minsetY}
+y \in \min_\leq(Y)
+\end{equation}
+\begin{equation} \label{eq:lem_abs_minset_left_smaller}
+\forall a \otimes b \in X \lift \min_\leq(Y) : \neg (a \otimes b < x \otimes y)
+\end{equation}
+
+From Eq~\ref{eq:lem_abs_minset_left_X} \& \ref{eq:lem_abs_minset_left_minsetY} we have that $x \otimes y \in X \lift Y$.
+
+\vspace{0.5em}
+
+Consider arbitrary $a, b$ such that $a \otimes b \in X \lift Y$.
+\begin{ind}
+Case $b \in \min_\leq(Y)$
+\begin{ind}
+Then by Eq~\ref{eq:lem_abs_minset_left_smaller} we have that $\neg (a \otimes b < x \otimes y)$.
+\end{ind}
+Case $b \notin \min_\leq(Y)$
+\begin{ind}
+Then there exists a $c \in \min_\leq(Y)$ such that $c < b$ and from Eq~\ref{eq:lem_abs_minset_left_smaller} we know that $\neg (a \otimes c < x \otimes y)$.
+
+\vspace{0.5em}
+
+Case $x \otimes y \leq a \otimes c$:
+\begin{ind}
+Then by $\propname{LM}(\mathrm{(S,\leq,\otimes)}$ and $\propname{TR}(\mathrm{(S,\leq)}$ we have that $x \otimes y \leq a \otimes c \leq a \otimes b$, and so that $\neg (a \otimes b < x \otimes y)$.
+\end{ind}
+Case $\neg (a \otimes c \leq x \otimes y)$
+\begin{ind}
+Then we have that $\neg(a \otimes b \leq x \otimes y)$ otherwise by $\propname{LM}(\mathrm{(S,\leq,\otimes)}$ and $\propname{TR}(\mathrm{(S,\leq)}$ we would have that $a \otimes c \leq a \otimes b \leq x \otimes y$ which would contradict the assumption. Therefore we have that $\neg (a \otimes b < x \otimes y)$.
+\end{ind}
+\end{ind}
+\end{ind}
+Hence $\forall a \otimes b \in X \lift Y : \neg (a \otimes b \leq x \otimes y)$ and therefore $x \otimes y \in \min_\leq(X \lift Y)$.
+
+\end{ind}
+Hence $ \min_\leq(X \lift \min_\leq(Y)) \subseteq \min_\leq(X \lift Y)$
+
+\vspace{2em}
+
+Assume $x \otimes y \in \min_\leq(X \lift Y)$
+\begin{ind}
+Then we have that:
+\begin{equation}
+x \in X
+\end{equation}
+\begin{equation}
+y \in Y
+\end{equation}
+\begin{equation} \label{eq:lem_abs_minset_right_smaller}
+\forall a \otimes b \in X \lift Y : \neg (a \otimes b < x \otimes y)
+\end{equation}
+
+Assume there exists $y' \in Y : y' < y$.
+\begin{ind}
+Then by $\propname{LM}\mathrm{(S,\leq,\otimes)}$ we have that:
+\begin{equation}
+x \otimes y' \leq x \otimes y
+\end{equation}
+Case $x \otimes y \nleq x \otimes y'$
+\begin{ind}
+Then we have that $x \otimes y' < x \otimes y$ which contradicts Eq~\ref{eq:lem_abs_minset_right_smaller}.
+\end{ind}
+Case $x \otimes y \leq x \otimes y'$:
+\begin{ind}
+Then by $\propname{AY}\mathrm{(S,\leq)}$ we have that $x \otimes y = x \otimes y'$. SADLY THIS DOES NOT MEAN $y = y'$.
+\end{ind}
+\end{ind}
+\end{ind}
+Hence $\min_\leq(X \lift Y) \subseteq \min_\leq(X \lift \min_\leq(Y))$.
+
+\vspace{2em}
+
+Hence $\min_\leq(X \lift \min_\leq(Y)) = \min_\leq(X \lift Y)$. The other half of the equality can be obtained by the exact dual of the proof above using $\propname{RM}(\mathrm{(S,\leq,\otimes)}$ instead of $\propname{LM}(\mathrm{(S,\leq,\otimes)}$.
+
+\section{Properties}
+
+\subsection{Associative}
+
+$\propname{AS}(\mathrm{MinLift(S,\leq,\otimes)} \Leftrightarrow \propname{AS}(\mathrm{S,\leq})$
+
+\proof
+
+Assume $\propname{AS}(\mathrm{S,\leq})$
+\begin{ind}
+\begin{align*}
+X \minlift (Y \minlift Z) 	& = \min_\leq
+\end{align*}
+\end{ind}
+
+\vspace{0.5em}
+
+
+Assume $\propname{AS}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\begin{ind}
+We know that $|S|$ is non-empty and therefore we can consider arbitrary $x, y, z \in S$. 
+\begin{ind}
+From $\propname{AS}(\mathrm{MinLift(S,\leq,\otimes)})$ we have that
+\begin{equation*}
+\{ x \} \minlift (\{ y \} \minlift \{ z \}) = (\{ x \} \minlift \{ y \}) \minlift \{ z \}
+\end{equation*}
+and so
+\begin{equation*}
+\{x \otimes (y \otimes z) \} = \{ (x \otimes y) \otimes z \}
+\end{equation*}
+\end{ind}
+Hence we have that $\forall x y z : x \otimes (y \otimes z) = (x \otimes y) \otimes z$.
+\end{ind}
+Hence $\propname{AS}(\mathrm{MinLift(S,\leq,\otimes)}) \Rightarrow \propname{AS}(\mathrm{S,\otimes})$
+
+
+\subsection{Identity}
+
+$\propname{ID}\mathrm{(S,\leq)} \Rightarrow (\propname{ID}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{TRUE})$
+
+\proof
+
+Witness : $\{ i \}$
+
+\begin{align*}
+\{ i \} \minlift X 	& = \min_\leq(\{i \otimes x \mid x \in X\}) \\
+					& = \min_\leq(\{x \mid x \in X\}) \\
+					& = X
+\end{align*}
+
+\begin{align*}
+X \minlift \{ i \} 	& = \min_\leq(\{x \otimes i \mid x \in X\}) \\
+					& = \min_\leq(\{x \mid x \in X\}) \\
+					& = X
+\end{align*}
+
+
+\subsection{Annihilator}
+
+$\propname{AN}(\mathrm{MinLift(S,\leq,\otimes)} \Leftrightarrow \propname{TRUE}$
+
+\proof
+
+Witness : $\emptyset$
+
+\begin{align*}
+X \minlift \emptyset 	& = \min_\leq(\{ x \otimes y \mid x \in X, y \in \emptyset\}) \\
+						& = \emptyset
+\end{align*}
+
+\begin{align*}
+\emptyset \minlift X 	& = \min_\leq(\{ x \otimes y \mid x \in \emptyset, y \in X\}) \\
+						& = \emptyset
+\end{align*}
+
+\subsection{Commutative}
+
+$\propname{CM}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{CM}\mathrm{(S,\leq)}$
+
+\proof
+
+Assume $\propname{CM}\mathrm{(S,\leq)}$
+
+\begin{ind}
+\begin{align*}
+X \minlift Y 	& = \min_\leq(\{x \otimes y \mid x \in X, y \in Y\}) \\
+				& = \min_\leq(\{y \otimes x \mid x \in X, y \in Y\}) \\
+				& = Y \minlift X
+\end{align*}
+\end{ind}
+
+Hence $\propname{CM}\mathrm{(S,\leq)} \Rightarrow \propname{CM}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\vspace{2em}
+
+Assume $\propname{CM}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\begin{ind}
+We know that $|S|$ is non-empty and therefore we can consider arbitrary $x, y \in S$. 
+\begin{ind}
+From $\propname{CM}(\mathrm{MinLift(S,\leq,\otimes)})$ we have that
+\begin{equation*}
+\{ x \} \minlift \{ y \} = \{ y \} \minlift \{ x \}
+\end{equation*}
+and so
+\begin{equation*}
+\{x \otimes y\} = \{ y \otimes x \}
+\end{equation*}
+\end{ind}
+Hence we have that $\forall x y : x \otimes y = y \otimes x$.
+\end{ind}
+Hence $\propname{CM}(\mathrm{MinLift(S,\leq,\otimes)}) \Rightarrow \propname{CM}\mathrm{(S,\leq)}$
+
+
+
+\subsection{Selective}
+
+$\neg\propname{SL}(\mathrm{S,\leq,\otimes}) \Rightarrow (\propname{SL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE})$
+
+\proof
+
+From $\neg \propname{SL}(\mathrm{S,\otimes})$ we have that there exists $s_1 , s_2 \in S$ such that $s_1 \neq s_1 \otimes s_2 \neq s_2$.
+
+\vspace{0.5em}
+
+Witness: $\{ s_1 \} \neq \{ s_1 \} \minlift \{ s_2 \} = \{ s_1 \otimes s_2 \} \neq \{ s_2 \}$.
+
+
+
+\subsection{Idempotent}
+$\propname{AY}(\mathrm{S,\leq}) \wedge (\propname{LI}(\mathrm{S,\leq,\otimes}) \vee \propname{RI}(\mathrm{S,\leq,\otimes})) \Rightarrow (\propname{IP}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{IP}(\mathrm{S,\otimes}))$
+
+\proof
+
+Assume $\propname{IP}(\mathrm{S,\otimes})$
+
+\begin{ind}
+Consider an arbitrary $X = \{x_1,...,x_n\}$
+\begin{ind}
+Then
+\begin{align*}
+X \minlift X & = \min_\leq(\{x_i \otimes x_j \mid x_i, x_j \in X\}) \\
+			 & = \min_\leq(\{x_i \otimes x_i \mid x_i \in X\} \cup \{x_i \otimes x_j \mid x_i \neq x_j \in X\}) \\
+			 & = \min_\leq(\{x_i \mid x_i \in X\} \cup \{x_i \otimes x_j \mid x_i \neq x_j \in X\}) \\
+			 & = \min_\leq(X \cup \{x_i \otimes x_j \mid x_i \neq x_j \in X\}) \\
+\intertext{Consider an arbitrary $x_i \otimes x_j$. By $\propname{LI}(\mathrm{S,\leq,\otimes}) \vee \propname{RI}(\mathrm{S,\leq,\otimes})$ we have that $x_k \leq x_i \otimes x_j$ where $x_k = x_i$ or $x_k = x_j$ respectively. If $x_i \otimes x_j \leq x_k$ then by $\propname{AY}(\mathrm{S,\leq})$ we have that $x_i \otimes x_j = x_k$. Alternatively if $x_i \otimes x_j \nleq x_k$ then we have $x_k < x_i \otimes x_j$. Hence}
+			& = \min_\leq(X) \\
+			& = X \\
+\end{align*}
+\end{ind}
+Therefore $\forall X : X \minlift X = X$.
+\end{ind}
+
+Hence $\propname{IP}(\mathrm{S,\otimes}) \Rightarrow \propname{IP}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\vspace{2em}
+
+Assume $\neg \propname{IP}(\mathrm{S,\otimes})$
+
+\begin{ind}
+Then there exists $x \in S$ such that $x \otimes x \neq x$. Therefore we have the required counterexample: $\{x\} \minlift \{x\} = \{x \otimes x\} \neq \{ x \}$.
+\end{ind}
+
+Hence $\neg \propname{IP}(\mathrm{S,\otimes}) \Rightarrow \neg \propname{IP}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+
+
+
+\subsection{IsLeft}
+$\propname{IL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+
+\proof
+
+$S$ is non-empty and therefore there exists $s \in S$.
+
+\vspace{0.5em}
+
+Witness : $\{s\} \neq \{s\} \minlift \emptyset = \emptyset$
+
+
+
+\subsection{IsRight}
+$\propname{IR}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+
+\proof
+
+$S$ is non-empty and therefore there exists $s \in S$.
+
+\vspace{0.5em}
+
+Witness : $\emptyset = \emptyset \minlift \{s\} \neq \{s\}$
+
+
+
+\subsection{LeftCancellative}
+$\propname{LC}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+
+\proof
+
+There exists at least two elements in $S$, call them $s_1$ and $s_2$.
+
+\vspace{0.5em}
+
+Witness : $\emptyset \minlift \{s_1\} = \emptyset = \emptyset \minlift \{s_2\} $ but $\{s_1\} \neq \{s_2\}$
+
+
+
+\subsection{RightCancellative}
+$\propname{RC}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+
+\proof
+
+There exists at least two elements in $S$, call them $s_1$ and $s_2$.
+
+\vspace{0.5em}
+
+Witness : $\{s_1\} \minlift \emptyset = \emptyset = \{s_2\} \minlift \emptyset$ but $\{s_1\} \neq \{s_2\}$
+
+
+
+\subsection{LeftConstant}
+$\propname{LK}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+
+\proof
+
+$S$ is non-empty and therefore there exists $s \in S$.
+
+\vspace{0.5em}
+
+Witness : $\{s\} \minlift \{s\} = \{s \otimes s\} \neq \{\} = \{s\} \minlift \emptyset$
+
+
+
+\subsection{RightConstant}
+$\propname{RK}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+
+\proof
+
+$S$ is non-empty and therefore there exists $s \in S$.
+
+\vspace{0.5em}
+
+Witness : $\{s\} \minlift \{s\} = \{s \otimes s\} \neq \{\} = \emptyset \minlift \{s\}$
+
+
+
+\subsection{AntiLeft}
+$\propname{AL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+
+\proof
+
+Witness : $\emptyset \minlift X = \emptyset$
+
+
+
+\subsection{AntiRight}
+$\propname{AR}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+
+\proof
+
+Witness : $X \minlift \emptyset = \emptyset$
+
+\end{document}

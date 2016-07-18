@@ -29,6 +29,7 @@ HISTORY.txt
 *.out
 *.synctex.gz
 doc/*.pdf
+doc/*/*.pdf
 
 ## coq 
 *.v.d

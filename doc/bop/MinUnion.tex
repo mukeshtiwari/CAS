@@ -72,7 +72,7 @@ Interestingly $\propname{RX}(\mathrm{S, \leq})$ is not required.
 
 \subsection{Absorbing}
 
-$\propname{TR}(\mathrm{S, \leq}) \Rightarrow \forall X Y : \min_\leq(X \cup \min_\leq(Y)) = \min_\leq(X \cup Y)$
+$\propname{TR}(\mathrm{S, \leq}) \Rightarrow \forall X Y : \min_\leq(X \cup \min_\leq(Y)) = \min_\leq(X \cup Y) = \min_\leq(\min_\leq(X) \cup Y)$
 
 \proof
 
@@ -151,7 +151,7 @@ Hence $z \in \min_\leq(X \cup \min_\leq(Y)) \Rightarrow z \in \min_\leq(X \cup Y
 
 \vspace{1em}
 
-Therefore $\min_\leq(X \cup \min_\leq(Y)) = \min_\leq(X \cup Y)$
+Therefore $\min_\leq(X \cup \min_\leq(Y)) = \min_\leq(X \cup Y)$. The second equality now follows immediately from the commutativity of $\cup$.
 
 \section{Properties}
 
