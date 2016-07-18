@@ -104,32 +104,8 @@ Record sg_CK_certificates (S: Type)  :=
 }. 
 
 
-(* 
+(* ******************************************************************* *) 
 
-(* Order relations *) 
-
-Record po_certs (S: Type) := 
-{
-(*   po_nontrivial   : assert_nontrivial S          *) 
-  po_congruence    : assert_brel_congruence S 
-; po_reflexive     : assert_reflexive S 
-; po_transitive    : assert_transitive S
-; po_antisymmetric : assert_antisymmetric S 
-; po_total_d       : check_total S 
-}. 
-
-Record to_certs (S: Type) := 
-{
-(*  to_nontrivial   : assert_nontrivial S          *) 
- to_congruence    : assert_brel_congruence S 
-; to_reflexive     : assert_reflexive S 
-; to_transitive    : assert_transitive S
-; to_antisymmetric : assert_antisymmetric S 
-; to_total         : assert_total S 
-}. 
-
-
-*) 
 
 Record sg_sg_certificates (S: Type) := 
 {
@@ -140,4 +116,35 @@ Record sg_sg_certificates (S: Type) :=
 ; sg_sg_left_absorptive_d      : check_left_absorptive S 
 ; sg_sg_right_absorptive_d     : check_right_absorptive S 
 }. 
+
+
+(* 
+Record sg_sg_LD_certificates (S: Type) :=
+{
+  sg_sg_LD_left_distributive      : assert_left_distributive S 
+; sg_sg_LD_left_absorption_d      : check_left_absorptive S 
+; sg_sg_LD_right_absorption_d     : check_right_absorptive S 
+; sg_sg_LD_plus_id_is_times_ann_d : check_plus_id_equals_times_ann S 
+; sg_sg_LD_times_id_is_plus_ann_d : check_times_id_equals_plus_ann S 
+}. 
+
+Record sg_sg_LA_certificates (S: Type) := 
+{
+  sg_sg_LA_left_distributive_d    : check_left_distributive S 
+; sg_sg_LA_right_distributive_d   : check_right_distributive S 
+; sg_sg_LA_left_absorption        : assert_left_absorptive S 
+; sg_sg_LA_plus_id_is_times_ann_d : check_plus_id_equals_times_ann S 
+; sg_sg_LA_times_id_is_plus_ann_d : check_times_id_equals_plus_ann S 
+}. 
+
+Record sg_sg_LALD_certificates (S: Type) := 
+{
+  sg_sg_LALD_left_distributive      : assert_left_distributive S 
+; sg_sg_LALD_left_absorption        : assert_left_absoprtion S 
+; sg_sg_LALD_plus_id_is_times_ann_d : check_plus_id_equals_times_ann S 
+; sg_sg_LALD_times_id_is_plus_ann_d : check_times_id_equals_plus_ann S 
+}. 
+
+*) 
+(* ******************************************************************* *) 
 

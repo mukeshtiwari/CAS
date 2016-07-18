@@ -684,7 +684,6 @@ Definition sg_certs_product : ∀ (S T : Type),  eqv_certificates S -> eqv_certi
 ; sg_anti_right_d     := check_anti_right_product S T 
                          (sg_anti_right_d S cS) 
                          (sg_anti_right_d T cT)
-
 |}.
 
 
@@ -1021,6 +1020,71 @@ Definition bsg_certificates_min_plus : bsg_certificates nat :=
 
 
 *)
+
+
+(* ******************************************************************* 
+
+Definition sg_sg_LALD_and_or_certs : sg_sg_LALD_certificates bool := 
+  {| 
+     sg_sg_LALD_left_distributive      := bops_and_or_left_distributive
+   ; sg_sg_LALD_left_absorption        := bops_and_or_left_absorptive
+   ; sg_sg_LALD_plus_id_is_times_ann_d := inl _ bops_and_or_id_equals_ann
+   ; sg_sg_LALD_times_id_is_plus_ann_d := inl _ bops_and_or_ann_equals_id 
+  |}. 
+
+
+Definition sg_sg_LALD_or_and_proofs : sg_sg_LALD_proofs bool brel_eq_bool bop_or bop_and := 
+  {| 
+     A_sg_sg_LALD_left_distributive      := bops_or_and_left_distributive
+   ; A_sg_sg_LALD_left_absorption        := bops_or_and_left_absorptive
+   ; A_sg_sg_LALD_plus_id_is_times_ann_d := inl _ bops_or_and_id_equals_ann
+   ; A_sg_sg_LALD_times_id_is_plus_ann_d := inl _ bops_or_and_ann_equals_id 
+  |}. 
+
+
+Definition sg_sg_LALD_max_min_proofs : sg_sg_LALD_proofs nat brel_eq_nat bop_max bop_min := 
+  {| 
+     A_sg_sg_LALD_left_distributive      := bops_max_min_left_distributive
+   ; A_sg_sg_LALD_left_absorption        := bops_max_min_left_absorptive
+   ; A_sg_sg_LALD_plus_id_is_times_ann_d := inl _ bops_max_min_id_equals_ann
+   ; A_sg_sg_LALD_times_id_is_plus_ann_d := inr _ bops_max_min_not_ann_equals_id 
+  |}. 
+
+
+Definition sg_sg_LALD_min_max_proofs : sg_sg_LALD_proofs nat brel_eq_nat bop_min bop_max := 
+  {| 
+     A_sg_sg_LALD_left_distributive      := bops_min_max_left_distributive
+   ; A_sg_sg_LALD_left_absorption        := bops_min_max_left_absorptive
+   ; A_sg_sg_LALD_plus_id_is_times_ann_d := inr _ bops_min_max_not_id_equals_ann
+   ; A_sg_sg_LALD_times_id_is_plus_ann_d := inl _ bops_min_max_ann_equals_id
+  |}. 
+
+
+Definition sg_sg_LALD_min_plus_proofs : sg_sg_LALD_proofs nat brel_eq_nat bop_min bop_plus := 
+  {| 
+     A_sg_sg_LALD_left_distributive      := bop_min_plus_left_distributive
+   ; A_sg_sg_LALD_left_absorption        := bops_min_plus_left_absorption
+    (* bops_id_equals_ann_decidable nat brel_eq_nat bop_min bop_plus *) 
+   ; A_sg_sg_LALD_plus_id_is_times_ann_d := inr _ bop_min_plus_not_id_equals_ann
+    (* bops_id_equals_ann_decidable nat brel_eq_nat bop_plus bop_min *) 
+   ; A_sg_sg_LALD_times_id_is_plus_ann_d := inl _ bop_plus_min_id_equals_ann
+  |}. 
+
+
+Definition sg_sg_LD_max_plus_proofs : sg_sg_LD_proofs nat brel_eq_nat bop_max bop_plus := 
+  {| 
+     A_sg_sg_LD_left_distributive      := bop_max_plus_left_distributive
+   ; A_sg_sg_LD_left_absorption_d      := inr _ bops_max_plus_not_left_absorption
+   ; A_sg_sg_LD_right_absorption_d     := inr _ bops_max_plus_not_right_absorption
+    (* bops_id_equals_ann_decidable nat brel_eq_nat bop_max bop_plus *) 
+   ; A_sg_sg_LD_plus_id_is_times_ann_d := inr _ bop_max_plus_not_id_equals_ann
+    (* bops_id_equals_ann_decidable nat brel_eq_nat bop_plus bop_max *) 
+   ; A_sg_sg_LD_times_id_is_plus_ann_d := inr _ bop_plus_max_not_id_equals_ann
+  |}. 
+
+*) 
+
+(* ******************************************************************* *) 
 
 Definition sg_sg_certs_add_zero : 
   ∀ (S : Type), eqv_certificates S -> sg_sg_certificates S -> sg_sg_certificates (with_constant S) 
