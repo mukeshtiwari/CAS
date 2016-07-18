@@ -18,7 +18,7 @@
 \newcommand{\funfin}{\ensuremath{\mathrm{fin}}}
 
 \title{Combinators for Algebraic Structures (CAS) \\ Version 1} 
-\author{Timothy G. Griffin} 
+\author{Timothy G. Griffin \& Matthew L. Daggitt} 
 
 \begin{document}
 \maketitle
@@ -33,9 +33,11 @@ construction semigroups and semirings.
 
 We assume $2 \leq |S|$ for all carrier sets $S$. 
 
-\section{Semigroup Combinators} 
+\section{Combinators}
 
-\subsection{Adding an identity} 
+\subsection{Semigroup combinators} 
+
+\subsubsection{Adding an identity} 
 \[ 
   \mathrm{AddId}(\alpha,\ (S,\ \bullet)) 
 \equiv 
@@ -55,7 +57,7 @@ a \bullet_{\alpha}^{\mathrm{id}} b
 \end{array} 
 \] 
 
-\subsection{Adding an annihilator} 
+\subsubsection{Adding an annihilator} 
 \[ 
   \mathrm{AddAn}(\omega,\ (S,\ \bullet)) \equiv (S \uplus \{\omega\}, \bullet_{\omega}^{\mathrm{an}})
 \] 
@@ -72,7 +74,7 @@ a \bullet_{\omega}^{\mathrm{an}} b
 \right.
 \end{array} 
 \] 
-\subsection{Direct Product} 
+\subsubsection{Direct product} 
 
 Let $(S,\ \bullet)$ and $(T,\ \diamond)$ be semigroups.
 
@@ -92,7 +94,7 @@ is defined as
 \] 
 
 
-\subsection{Lexicographic Product} 
+\subsubsection{Lexicographic product} 
 
 Suppose that semigroup $(S,\ \bullet)$ is commutative, idempotent, and selective 
 and that $(T,\ \diamond)$ is a semigroup. 
@@ -135,7 +137,7 @@ Examples for $(\NN,\ \max)\ \lexprod\ (\NN,\ \min)$.
 \end{array} 
 \] 
 
-\subsection{Lifted Product} 
+\subsubsection{Lifted product} 
 
 Assume $(S,\ \bullet)$ is a semigroup. 
 Let 
@@ -150,7 +152,7 @@ Example.
 \] 
 
 
-\subsection{Minimal set union} 
+\subsubsection{Minset union} 
 
 Let $\leq$ be a partial order on $S$. 
 For $X \subseteq S$, define 
@@ -177,10 +179,10 @@ and
 \] 
 
 
-NOTE: perhaps we can always define $\leq$ in terms of a $(S,\ oplus)$, and so 
+NOTE: perhaps we can always define $\leq$ in terms of a $(S,\oplus)$, and so 
 get rid of the class of structures $(S,\ \leq)$. 
 
-\subsection{Minimal set lift} 
+\subsubsection{Minset lift} 
 
 \[
   A\ \minlift B  \equiv   \min_\leq(\{a\otimes b\mid a\in A,\ b\in B\})
@@ -195,18 +197,13 @@ get rid of the class of structures $(S,\ \leq)$.
 \] 
 
 
-NOTE: perhaps we can always define $\leq$ in terms of a $(S,\ oplus)$, and so 
+NOTE: perhaps we can always define $\leq$ in terms of a $(S,\oplus)$, and so 
 get rid of the class of structures $(S,\ \leq)$. 
 
 
-\section{Pre-order Combinators} 
+\subsection{Bi-semigroup Combinators} 
 
-\section{Pre-order Semigroup Combinators} 
-
-
-\section{Bi-Semigroup Combinators} 
-
-\subsection{Adding a zero} 
+\subsubsection{Adding a zero} 
 \[ 
 \begin{array}{rcl} 
 \mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes)) 
@@ -215,7 +212,7 @@ get rid of the class of structures $(S,\ \leq)$.
 \end{array} 
 \] 
 
-\subsection{Adding a one} 
+\subsubsection{Adding a one} 
 
 \[ 
 \begin{array}{rcl} 
@@ -225,7 +222,7 @@ get rid of the class of structures $(S,\ \leq)$.
 \end{array} 
 \] 
 
-\subsection{Direct Product} 
+\subsubsection{Direct product} 
 
 \[
 (S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T) 
@@ -234,7 +231,7 @@ get rid of the class of structures $(S,\ \leq)$.
 \]
 
 
-\subsection{Lexicographic Product} 
+\subsubsection{Lexicographic product} 
 
 \[
 (S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T) 
@@ -242,7 +239,7 @@ get rid of the class of structures $(S,\ \leq)$.
 (S\times T,\ \oplus_S\lexprod\oplus_T,\ \otimes_S\times\otimes_T)
 \]
 
-\subsection{$\mathcal{M}$ and $\mathcal{N}$}
+\subsubsection{$\mathcal{M}$ and $\mathcal{N}$}
 
 Suppose $D \in \{L,\ R\}$. 
 Let $\leq \ \equiv \ \leq_\oplus^{D}$ and define 
@@ -261,10 +258,12 @@ Let $\leq \ \equiv \ \leq_\oplus^{D}$ and define
 Recall: $a \leq_\oplus^{L} b \equiv a = a\oplus b$ 
 and $a \leq_\oplus^{R} b \equiv b = a\oplus b$.
 
-\section{Initial properties} 
+\section{Properties} 
+
+\subsection{Initial properties}
 
 The following are the properties of interest.
-\subsection{Semigroup}
+\subsubsection{Semigroups}
 $(S,\ \bullet)$
 
 \[ 
@@ -301,7 +300,7 @@ $(S,\ \bullet)$
 \end{array} 
 \] 
 
-\subsection{Orders}
+\subsubsection{Orders}
 
 $(S,\ \leq)$
 
@@ -340,7 +339,7 @@ $(S,\ \leq)$
 \] 
 
 
-\subsection{Bi-semigroups}
+\subsubsection{Bi-semigroups}
 
 $(S,\ \oplus,\ \otimes)$
 
@@ -378,7 +377,7 @@ where
 \] 
 
 
-\subsection{Ordered semigroups}
+\subsubsection{Ordered semigroups}
 
 $(S,\ \leq,\ \otimes)$
 
@@ -398,11 +397,11 @@ $(S,\ \leq,\ \otimes)$
 \] 
 
 
-\section{Closure} 
+\subsection{Closure} 
 
 To fully close the theorems about our initial properties with necessary and sufficient conditions, we also need to track the following extra properties. 
 
-\subsection{Semigroups}
+\subsubsection{Semigroups}
 $(S,\ \bullet)$
 
 \[ 
@@ -466,7 +465,7 @@ $(S,\ \bullet)$
 \]
 
 
-\subsection{Bi-semigroups}
+\subsubsection{Bi-semigroups}
 $(S,\ \oplus,\ \otimes)$
 
 % needed for D of AddOne 
@@ -517,9 +516,10 @@ $(S,\ \oplus,\ \otimes)$
 \end{array} 
 \] 
 
+\subsection{Semigroups}
 
 
-\subsection{AddId} 
+\subsubsection{AddId} 
 
 \[
 \begin{array}{rcl} 
@@ -568,7 +568,7 @@ $(S,\ \oplus,\ \otimes)$
 \end{array} 
 \] 
 
-\subsection{AddAn} 
+\subsubsection{AddAn} 
 
 \[
 \begin{array}{rcl} 
@@ -617,7 +617,7 @@ $(S,\ \oplus,\ \otimes)$
 \end{array} 
 \] 
 
-\subsection{$\times$} 
+\subsubsection{Direct product} 
 
 \[
 \begin{array}{rcl} 
@@ -672,7 +672,7 @@ $(S,\ \oplus,\ \otimes)$
 \end{array} 
 \] 
 
-\subsection{$\vec{\times}$ (semigroup)} 
+\subsubsection{Lexicographic product} 
 
 Assuming 
 $\propname{AS}(S, \bullet)$, 
@@ -723,10 +723,10 @@ $\propname{SL}(S, \bullet)$.
 \propname{AR}((S, \bullet) \vec{\times}  (T, \diamond))  
    & \Leftrightarrow % COQ 
    & \propname{FALSE} \\
-\end{array} MinUnion
+\end{array}
 \] 
 
-\subsection{Lift} 
+\subsubsection{Lift} 
 \[
 \begin{array}{rcl} 
 \propname{AS}(\mathrm{lift}(S, \bullet)) 
@@ -776,7 +776,7 @@ $\propname{SL}(S, \bullet)$.
 \end{array} 
 \]
 
-\subsection{MinUnion} 
+\subsubsection{MinUnion} 
 
 Assume $\propname{RX}(S,\ \leq)$ (needed for sensible semantics), $\propname{TR}(S,\ \leq)$ (needed for associativity), $\propname{AY}(S,\ \leq)$ (needed for annihilator) and $\propname{BM}(S,\leq)$ (needed for annihilator).
 
@@ -841,7 +841,7 @@ Assume $\propname{RX}(S,\ \leq)$ (needed for sensible semantics), $\propname{TR}
 \end{array} 
 \] 
 
-\subsection{MinLift} 
+\subsubsection{MinLift} 
 
 Assume 
 $\propname{LM}(S,\ \leq,\ \otimes)$, 
@@ -853,11 +853,6 @@ $\propname{AY}(S,\ \leq)$.
 $\propname{SL}$ and $\propname{IP}$. 
 Lattice Theory to the rescue?
 }
-
-%% LM : a <= b -> a . c <= b .c 
-%% so if IP : 
-%%    a <= b -> a . a <= b . a
-%%    a <= b -> a <= b . a
 
 \[
 \begin{array}{rcl} 
@@ -886,18 +881,7 @@ Lattice Theory to the rescue?
   & ??? \ \ \ (\mbox{  SOMEDAY !!!})
   \\ 
 \propname{IP}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-%% vilius : IP and (not IP or SND)? 
-%% SND : x <= x . y or y <= x . y 
-%% (not IP) or (exists x, y, not(x <= x . y) and not(y <= x . y))
-%% case 1 : not IP: 
-%%   exists a, a . a <> a. 
-%%   A = {a} 
-%% case 2 :  IP and exists x, y, not(x <= x . y) and not(y <= x . y))
-%%   A = {x, y} 
-%%   min(A . A) = min{x . x , y . y, x . y, y . x}
-%%              = min{x, y, x . y, y . x} 
-%%              <> {x, y} = A      
+  & \Leftrightarrow
   & ??? \ \ \ (\mbox{  SOMEDAY !!!})
   \\ 
 \propname{IL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
@@ -937,7 +921,9 @@ Lattice Theory to the rescue?
 
 % ==============================================================
 
-\subsection{AddZero} 
+\subsection{Bi-semigroups}
+
+\subsubsection{AddZero} 
 
 \[
 \begin{array}{rcl} 
@@ -962,7 +948,7 @@ Lattice Theory to the rescue?
 \end{array} 
 \] 
 
-\subsection{AddOne} 
+\subsubsection{AddOne} 
 
 %% 
 %% naming of RAB and LAB?  switch? Need more? (not assuming CM ...) 
@@ -1000,7 +986,7 @@ Lattice Theory to the rescue?
 \end{array} 
 \] 
 
-\subsection{Direct Product, $(\times,\ \times)$} 
+\subsubsection{Direct product} 
 
 \[
 \begin{array}{rcl} 
@@ -1030,7 +1016,7 @@ Lattice Theory to the rescue?
 \end{array} 
 \]
 
-\subsection{Lexicographic Product, $(\vec{\times},\ \times)$} 
+\subsubsection{Lexicographic product} 
 
 Assume 
 $\propname{AS}(S, \oplus_S)$, 
@@ -1075,7 +1061,7 @@ $\propname{SL}(S, \oplus_S)$.
 \]
 
 
-\subsection{$\mathcal{N}$} 
+\subsubsection{$\mathcal{N}$} 
 
 Which constraints should we impose on $(S,\ \oplus,\ \otimes)$ in order 
 to make this easier, cleaner? 
@@ -1141,7 +1127,7 @@ And how can we do this without giving up to much in terms of expressive power?
 \] 
 
 
-\subsection{$\mathcal{M}$} 
+\subsubsection{$\mathcal{M}$} 
 
 \[
 \begin{array}{rcl} 
