@@ -2,9 +2,11 @@
 
 % packages 
 \usepackage[english]{babel}
-\usepackage{amsmath}   % see http://www.ctan.org/pkg/amsmath
-\usepackage{amssymb}   % 
-\usepackage{amsfonts}  % 
+\usepackage{amsmath}   	% see http://www.ctan.org/pkg/amsmath
+\usepackage{amssymb}   	% 
+\usepackage{amsfonts}  	% 
+\usepackage{titlesec}	% used for adjusting section spacing
+\usepackage{booktabs}	% for tables
 
 % my macros 
 \newcommand{\mtrx}[1]{\ensuremath{\mathbf{#1}}}
@@ -14,9 +16,14 @@
 \newcommand{\lexprod}{\ensuremath{\mathbin{\vec{\times}}}}
 \newcommand{\minunion}{\cup_{\min}^{\leq}}
 \newcommand{\minlift}{\otimes_{\min}^{\leq}}
-
 \newcommand{\funfin}{\ensuremath{\mathrm{fin}}}
 
+% environment
+\titlespacing*{\section}{0pt}{3\baselineskip}{\baselineskip}
+\titlespacing*{\subsection}{0pt}{3\baselineskip}{\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{1.5\baselineskip}{\baselineskip}
+
+% document
 \title{Combinators for Algebraic Structures (CAS) \\ Version 1} 
 \author{Timothy G. Griffin \& Matthew L. Daggitt} 
 
@@ -29,11 +36,9 @@ The document presents a small language of combinators for
 construction semigroups and semirings. 
 \end{abstract} 
 
-\section{Motivation}
+\section{Combinators}
 
 We assume $2 \leq |S|$ for all carrier sets $S$. 
-
-\section{Combinators}
 
 \subsection{Semigroup combinators} 
 
@@ -151,7 +156,6 @@ Example.
     \{1,\ 3,\ 17\}\ \hat{+}\ \{1,\ 3,\ 17\} = \{2,\ 4,\ 6,\ 18,\ 20,\ 34\} 
 \] 
 
-
 \subsubsection{Minset union} 
 
 Let $\leq$ be a partial order on $S$. 
@@ -194,14 +198,33 @@ get rid of the class of structures $(S,\ \leq)$.
    & \equiv 
    & ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \minlift)
 \end{array} 
-\] 
+\]
 
+\subsection{Order combinators}
 
-NOTE: perhaps we can always define $\leq$ in terms of a $(S,\oplus)$, and so 
-get rid of the class of structures $(S,\ \leq)$. 
+\subsubsection{Left natural order}
 
+Suppose that the semigroup $(S , \bullet)$ is selective. Then the left natural order can be formed as follows
+\begin{equation*}
+\mathrm{LNO(S, \bullet)} \equiv \mathrm{(S , \leq)}
+\end{equation*}
+where $\leq$ is defined as
+\begin{equation*}
+a \leq b \equiv a \oplus b = a
+\end{equation*}
 
-\subsection{Bi-semigroup Combinators} 
+\subsubsection{Right natural order}
+
+Suppose that the semigroup $(S , \bullet)$ is selective. Then the right natural order can be formed as follows
+\begin{equation*}
+\mathrm{RNO(S, \bullet)} \equiv \mathrm{(S , \leq)}
+\end{equation*}
+where $\leq$ is defined as
+\begin{equation*}
+a \leq b \equiv b \oplus a = a
+\end{equation*}
+
+\subsection{Bi-semigroup combinators} 
 
 \subsubsection{Adding a zero} 
 \[ 
@@ -239,132 +262,101 @@ get rid of the class of structures $(S,\ \leq)$.
 (S\times T,\ \oplus_S\lexprod\oplus_T,\ \otimes_S\times\otimes_T)
 \]
 
-\subsubsection{$\mathcal{M}$ and $\mathcal{N}$}
+\subsubsection{$\mathcal{M}$}
 
-Suppose $D \in \{L,\ R\}$. 
-Let $\leq \ \equiv \ \leq_\oplus^{D}$ and define 
 \[
-\begin{array}{rcl} 
-\mathcal{M}(D,\ (S,\ \oplus,\ \otimes))   
-   & \equiv 
-   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minlift,\ \minunion)\\
-\\
-\mathcal{N}(D,\ (S,\ \oplus,\ \otimes))   
-   & \equiv 
-   & (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minunion,\ \minlift)\\
-\\
-\end{array} 
-\] 
-Recall: $a \leq_\oplus^{L} b \equiv a = a\oplus b$ 
-and $a \leq_\oplus^{R} b \equiv b = a\oplus b$.
+\mathcal{M}(S,\ \otimes,\ \leq) \equiv (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minlift,\ \minunion)
+\]
+
+
+\subsubsection{$\mathcal{N}$}
+\[
+\mathcal{N}(S,\ \otimes,\ \leq) \equiv (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minunion,\ \minlift)
+\]
+
+
+
 
 \section{Properties} 
 
-\subsection{Initial properties}
+There are two types of properties:
+\begin{enumerate}
+\item The first set of properties are those required for various convergence proofs for the algebras.
+\item  To fully close the theorems about the first set of properties with necessary and sufficient conditions, we also need to track a second additional set of properties.  We call these \emph{closure} properties.
+\end{enumerate}
 
-The following are the properties of interest.
-\subsubsection{Semigroups}
-$(S,\ \bullet)$
+\subsection{Semigroups $(S,\ \bullet)$} 
 
-\[ 
-\begin{array}{c|ccl} 
-\mbox{associative} 
-   & \propname{AS} 
-   & \equiv 
-   & \forall a, b, c \in S,\ a \bullet (b \bullet c) = (a \bullet b) \bullet c 
-   \\ 
-\mbox{identity}    
-   & \propname{ID} 
-   & \equiv 
-   & \exists \alpha\in S,\ \forall a\in S,\ a = \alpha \bullet a = a \bullet \alpha
-   \\ 
-\mbox{annihilator} 
-   & \propname{AN} 
-   & \equiv 
-   & \exists \omega\in S,\ \forall a\in S,\ \omega = \omega \bullet a = a \bullet \omega
-   \\ 
-\mbox{commutative} 
-   & \propname{CM} 
-   & \equiv 
-   & \forall a, b \in S,\ a\bullet b =  b\bullet a
-   \\
-\mbox{selective}   
-   & \propname{SL} 
-   & \equiv 
-   & \forall a, b \in S,\ a\bullet b  \in  \{a,\ b\} 
-   \\ 
-\mbox{idempotent}  
-   & \propname{IP} 
-   & \equiv 
-   & \forall a \in S,\ a\bullet a  =  a
-\end{array} 
-\] 
+\begin{tabular}{lclp{2cm}}
+\toprule
+Property & Abbr. & Definition & Required for\\
+\midrule
+Associative & $\propname{AS}$	& $\forall a b c : a \bullet (b \bullet c) = (a \bullet b) \bullet c$ & -- \\
+Identity 	& $\propname{ID}$	& $\exists \alpha : \forall a : \alpha \bullet a = a = a \bullet \alpha$ & --\\
+Annihilator & $\propname{AN}$	& $\exists \omega : \forall a : \omega \bullet a = \omega = a \bullet \omega$ & --\\
+Commutative & $\propname{CM}$	& $\forall a b : a\bullet b =  b\bullet a$ & --\\
+Selective	& $\propname{SL}$	& $\forall a b : a\bullet b  \in  \{a,\ b\}$ & --\\
+Idempotent	& $\propname{IP}$	& $\forall a : a\bullet a  =  a$ & --\\
+\midrule
+Is left 			& $\propname{IL}$ 	&  $\forall a b : a \bullet b = a$ & $\propname{SL}(\times)$ \\
+Is right 			& $\propname{IR}$ 	&  $\forall a b : a \bullet b = b$ & $\propname{SL}(\times)$ \\
+Left cancellative 	& $\propname{LC}$ 	&  $\forall a b c :  c \bullet a = c \bullet b \Rightarrow a = b $ & $\propname{LD}(\vec{\times})$ \\
+Right cancellative 	& $\propname{RC}$ 	&  $\forall a b c :  a \bullet c = b \bullet c \Rightarrow a = b $ & $\propname{RD}(\vec{\times})$ \\
+Left constant 		& $\propname{LK}$ 	&  $\forall a b c : c \bullet a = c \bullet b$ & $\propname{LD}(\vec{\times})$ \\
+Right constant 		& $\propname{RK}$ 	&  $\forall a b c : a \bullet c =  b \bullet c$ & $\propname{RD}(\vec{\times})$ \\
+Anti-left			& $\propname{AL}$ 	&  $\forall a b : a \bullet b \neq a $ & $ \propname{LC}(\mathrm{AddId})$, $\propname{LAB}(\vec{\times}, \times) $ \\
+Anti-right 			& $\propname{AR}$ 	&  $\forall a b : b \bullet a \neq a$ & $\propname{RC}(\mathrm{AddId})$, $\propname{RAB}(\vec{\times}, \times)$ \\
+\bottomrule
+\end{tabular}
 
-\subsubsection{Orders}
+\subsection{Orders $(S,\ \leq)$}
 
-$(S,\ \leq)$
+\begin{tabular}{lcll}
+\toprule
+Property & Abbr. & Definition & Required for \\
+\midrule
+Reflexive 		& $\propname{RX}$	& $\forall a : \ a \leq a $ & --\\
+Transitive		& $\propname{TR}$	& $\forall a b c : a\leq b \wedge b \leq c \Rightarrow a \leq c $ & --\\
+Anti-symmetic	& $\propname{AY}$	& $\forall a b : a\leq b \wedge b \leq a \Rightarrow a = b$ & --\\
+Total			& $\propname{TO}$	& $\forall a b : a\leq b \vee  b\leq a$ & --\\
+Bottom			& $\propname{BM}$	& $\exists b : \forall a : b\leq a$ & --\\
+Top				& $\propname{TP}$	& $\exists t : \forall a : a\leq t$ & --\\
+\bottomrule
+\end{tabular}
 
-\[ 
-\begin{array}{c|ccl} 
-\mbox{reflexive} 
-   & \propname{RX} 
-   & \equiv 
-   & \forall a \in S,\ a \leq a 
-   \\ 
-\mbox{transitive}    
-   & \propname{TR} 
-   & \equiv 
-   & \forall a, b, c \in S, a\leq b \wedge b \leq c \implies a \leq c 
-   \\ 
-\mbox{anti-symmetric} 
-   & \propname{AY} 
-   & \equiv 
-   & \forall a, b\in S, a\leq b \wedge b \leq a \implies a = b
-   \\ 
-\mbox{total} 
-   & \propname{TO} 
-   & \equiv 
-   & \forall a, b \in S,\ a\leq b \vee  b\leq a
-   \\
-\mbox{bottom}   
-   & \propname{BM} 
-   & \equiv 
-   & \exists b \in S, \forall a \in S, b\leq a
-   \\ 
-\mbox{top}   
-   & \propname{TP} 
-   & \equiv 
-   & \exists t \in S, \forall a \in S, a\leq t
-\end{array} 
-\] 
+\subsection{Ordered semigroups $(S,\ \leq,\ \otimes)$}
 
+\begin{tabular}{lcll}
+\toprule
+Property & Abbr. & Definition & Required for \\
+\midrule
+Left monotonic		& $\propname{LM}$	& $\forall a b c : a\leq b \ \Rightarrow \ a \otimes c \leq b \otimes c$ & -- \\
+Right monotonic		& $\propname{RM}$	& $\forall a b c : a\leq b \ \Rightarrow \ c \otimes a \leq c \otimes b$ & -- \\
+\midrule
+Left increasing		& $\propname{LI}$ 	& $\forall a b : a \leq a \otimes b$ & $\propname{IP}(\mathrm{MinLift})$ \\
+Right increasing 	& $\propname{RI}$ 	& $\forall a b : a \leq b \otimes a$ & $\propname{IP}(\mathrm{MinLift})$ \\
+\bottomrule
+\end{tabular}
 
-\subsubsection{Bi-semigroups}
+\subsection{Bi-semigroups $(S,\ \oplus,\ \otimes)$}
 
-$(S,\ \oplus,\ \otimes)$
+\begin{tabular}{lcll}
+\toprule
+Property & Abbr. & Definition & Required for \\
+\midrule
+Left distributive	& $\propname{LD}$	& $\forall a b c : a\otimes(b \oplus c) =  (a\otimes b) \oplus (a\otimes c)$ & -- \\
+Right distributive	& $\propname{RD}$	& $\forall a b c : (a\oplus b)\otimes c  =   (a\otimes c) \oplus (b\otimes c)$ & -- \\
+Zero annihilates	& $\propname{ZA}$	& $\exists \overline{0} : \propname{IID}(S,\ \oplus,\ \overline{0}) \wedge \propname{IAN}(S,\ \otimes,\ \overline{0})$ & -- \\
+One annihilates		& $\propname{OA}$	& $\exists \overline{1} : \propname{IID}(S,\ \otimes,\ \overline{1}) \wedge \propname{IAN}(S,\ \oplus,\ \overline{1})$ & -- \\
+\midrule
+Left absorption 	& $\propname{LAB}$ 	& $\forall a b : (b\otimes a) \oplus a = a = a \oplus (b \otimes a)$ & $\propname{LD}(\mathrm{AddOne})$ \\
+Right absorption 	& $\propname{RAB}$ 	& $\forall a b : (a\otimes b) \oplus a = a = a \oplus (a \otimes b)$ & $\propname{RD}(\mathrm{AddOne})$ \\
+\bottomrule
+\end{tabular}
 
-\[ 
-\begin{array}{c|ccl} 
-\mbox{left distributivity} 
-    & \propname{LD}
-    & \equiv 
-    & \forall a, b, c \in S,\ a\otimes(b \oplus c) =  (a\otimes b) \oplus (a\otimes c) \\ 
-\mbox{right distributivity} 
-    & \propname{RD}
-    & \equiv 
-    & \forall a, b, c \in S,\ (a\oplus b)\otimes c  =   (a\otimes c) \oplus (b\otimes c)\\ 
-\mbox{zero annihilates} 
-    & \propname{ZA}
-    & \equiv 
-    & \exists \overline{0} \in S,\ \propname{IID}(S,\ \oplus,\ \overline{0}) \wedge \propname{IAN}(S,\ \otimes,\ \overline{0})  \\ 
-\mbox{one annihilates} 
-    & \propname{OA}
-    & \equiv 
-    & \exists \overline{1} \in S,\ \propname{IID}(S,\ \otimes,\ \overline{1}) \wedge \propname{IAN}(S,\ \oplus,\ \overline{1})  \\ 
-\end{array} 
-\] 
+\vspace{1em}
+
 where 
-
 \[ 
 \begin{array}{rcl} 
 \propname{IID}(S,\ \bullet,\ \alpha)  
@@ -375,122 +367,6 @@ where
     & \forall a\in S,\ \omega = \omega \bullet a = a \bullet \omega\\ 
 \end{array} 
 \] 
-
-
-\subsubsection{Ordered semigroups}
-
-$(S,\ \leq,\ \otimes)$
-
-\[ 
-\begin{array}{c|ccl} 
-\mbox{left monotonicity} 
-   & \propname{LM} 
-   & \equiv 
-   & \forall a, b, c \in S,\ a\leq b \implies (a\otimes c) \leq (b\otimes c) 
-   \\ 
-\mbox{right monotonicity} 
-   & \propname{RM} 
-   & \equiv 
-   & \forall a, b, c \in S,\ a\leq b \implies (c\otimes a) \leq (c\otimes b)
-   \\ 
-\end{array} 
-\] 
-
-
-\subsection{Closure} 
-
-To fully close the theorems about our initial properties with necessary and sufficient conditions, we also need to track the following extra properties. 
-
-\subsubsection{Semigroups}
-$(S,\ \bullet)$
-
-\[ 
-\begin{array}{c|ccl|l} 
-   & 
-   & 
-   & 
-   & \mbox{required for} 
-   \\ \hline 
-\mbox{is right}   
-   & \propname{IR} 
-   & \equiv 
-   & \forall s, t\in S, s \bullet t = t 
-   & \propname{SL}(\times)
-   \\ 
-\mbox{is left}   
-   & \propname{IL} 
-   & \equiv 
-   & \forall s, t\in S, s \bullet t = s 
-   & \propname{SL}(\times)
-   \\ 
-\mbox{left cancellative}   
-   & \propname{LC}
-   & \equiv 
-   & \forall a, b, c\in S,\  c \bullet a = c \bullet b \Rightarrow a = b 
-   & \propname{LD}(\vec{\times})
-   \\ 
-\mbox{right cancellative}   
-    & \propname{RC}
-    & \equiv 
-    & \forall a, b, c\in S,\  a \bullet c = b \bullet c \Rightarrow a = b
-   & \propname{RD}(\vec{\times})
-   \\ 
-\mbox{left constant}   
-   & \propname{LK}
-   & \equiv 
-   & \forall a, b, c\in S,\ c \bullet a = c \bullet b 
-   & \propname{LD}(\vec{\times})
-   \\ 
-\mbox{right constant}   
-   & \propname{RK}
-   & \equiv 
-   & \forall a, b, c\in S,\ a \bullet c =  b \bullet c
-   & \propname{RD}(\vec{\times})
-   \\ 
-\mbox{anti-left}   
-   & \propname{AL}
-   & \equiv 
-   & \forall a, b\in S,\ a \bullet b \not= a
-   & \propname{LC}(\mathrm{AddId}),  
-     \propname{LAB}(\vec{\times}, \times)   
-   \\ 
-\mbox{anti-right}   
-   & \propname{AR}
-   & \equiv 
-   & \forall a, b\in S,\ b \bullet a \not= a
-   & \propname{RC}(\mathrm{AddId}), 
-     \propname{RAB}(\vec{\times}, \times)   
-   \\ 
-\end{array} 
-\]
-
-
-\subsubsection{Bi-semigroups}
-$(S,\ \oplus,\ \otimes)$
-
-% needed for D of AddOne 
-\[ 
-\begin{array}{c|ccl|l} 
-   & 
-   & 
-   & 
-   & \mbox{required for} 
-   \\ \hline 
-\mbox{left absorption}  
-    & \propname{LAB}
-    & \equiv 
-    & \forall a, b\in S,\ a =  (b\otimes a) \oplus a = a \oplus (b \otimes a) 
-    & \propname{LD}(\mathrm{AddOne})
-   \\ 
-\mbox{right absorption}  
-    & \propname{RAB}
-    & \equiv 
-    & \forall a, b\in S,\ a =  (a\otimes b) \oplus a = a \oplus (a \otimes b) 
-    & \propname{LD}(\mathrm{AddOne})
-   \\ 
-\end{array} 
-\] 
-
 
 \section{Closure progress}
 
@@ -917,6 +793,64 @@ $\neg \propname{SL}(S, \otimes)$.
 
 % ==============================================================
 
+\subsection{Orders}
+
+\subsubsection{Left natural order}
+
+Assume $\mathrm{(S,\ \bullet)}$ is selective.
+
+\[
+\begin{array}{rcl} 
+\propname{RX}(\mathrm{LNO}(S,\ \bullet)) 
+    & \Leftrightarrow
+    & \propname{TRUE}  \\
+\propname{TR}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & \propname{AS}(S,\ \bullet) \\
+\propname{AY}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & \propname{CM}(S,\ \bullet) \\ 
+\propname{TO}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & ??? \\
+\propname{BM}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & ??? \\ 
+\propname{TP}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & ??? \\ 
+\end{array} 
+\] 
+
+\subsubsection{Right natural order}
+
+Assume $\mathrm{(S,\ \bullet)}$ is selective.
+
+\[
+\begin{array}{rcl} 
+\propname{RX}(\mathrm{RNO}(S,\ \bullet)) 
+    & \Leftrightarrow
+    & \propname{TRUE}  \\
+\propname{TR}(\mathrm{RNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & \propname{AS}(S,\ \bullet) \\
+\propname{AY}(\mathrm{RNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & \propname{CM}(S,\ \bullet) \\ 
+\propname{TO}(\mathrm{RNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & ??? \\
+\propname{BM}(\mathrm{RNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & ??? \\ 
+\propname{TP}(\mathrm{RNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & ??? \\ 
+\end{array} 
+\] 
+
+% ==============================================================
+
 \subsection{Bi-semigroups}
 
 \subsubsection{AddZero} 
@@ -1056,8 +990,7 @@ $\propname{SL}(S, \oplus_S)$.
 \end{array} 
 \]
 
-
-\subsubsection{$\mathcal{N}$} 
+\subsubsection{$\mathcal{M}$} 
 
 Which constraints should we impose on $(S,\ \oplus,\ \otimes)$ in order 
 to make this easier, cleaner? 
@@ -1065,89 +998,58 @@ And how can we do this without giving up to much in terms of expressive power?
 
 \[
 \begin{array}{rcl} 
-\propname{LD}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+\propname{LD}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{RD}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+\propname{RD}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{ZA}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+\propname{ZA}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{OA}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+\propname{OA}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{RAB}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+\propname{RAB}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{LAB}(\mathcal{N}(L,\ (S,\ \oplus,\ \otimes))) 
+\propname{LAB}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
 \end{array} 
 \] 
 
+\subsubsection{$\mathcal{N}$} 
 
 \[
 \begin{array}{rcl} 
-\propname{LD}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+\propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{RD}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+\propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{ZA}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+\propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{OA}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+\propname{OA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{RAB}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
+\propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{LAB}(\mathcal{N}(R,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\end{array} 
-\] 
-
-
-\subsubsection{$\mathcal{M}$} 
-
-\[
-\begin{array}{rcl} 
-\propname{LD}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{RD}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{ZA}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{OA}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{RAB}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{LAB}(\mathcal{M}(L,\ (S,\ \oplus,\ \otimes))) 
+\propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
@@ -1155,65 +1057,22 @@ And how can we do this without giving up to much in terms of expressive power?
 \] 
 
 
-\[
-\begin{array}{rcl} 
-\propname{LD}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{RD}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{ZA}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{OA}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{RAB}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\propname{LAB}(\mathcal{M}(R,\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-\end{array} 
-\] 
+
 
 \section{Other Problems} 
 
 \subsection{Matrix algebras}
 
-\subsection{$\mathrm{swap}$}
+\subsection{Swap}
 
-We might want to define 
+We might want to define the following combinator for bi-semigroups:
 \[ 
-\mathrm{swap}(S,\ \oplus,\ \otimes)   
+\mathrm{Swap}(S,\ \oplus,\ \otimes)   
    \equiv 
    (S,\ \otimes,\ \oplus). 
 \] 
 The disadvantage of this is that we would then have to introduce 
-(and close with respect to) these ``dual'' properties:  
-\[ 
-\begin{array}{rcl} 
-\propname{LD}^\delta(S,\ \oplus,\ \otimes) 
-    & \equiv 
-    & \forall a, b, c \in S,\ a\oplus(b \otimes c) =  (a\oplus b) \otimes (a\oplus c) \\ 
-\propname{RD}^\delta(S,\ \oplus,\ \otimes)  
-    & \equiv 
-    & \forall a, b, c \in S,\ (a\otimes b)\oplus c  =   (a\oplus c) \otimes (b\oplus c)\\ 
-\propname{RAB}^\delta(S,\ \oplus,\ \otimes) 
-    & \equiv 
-    & \forall a, b\in S,\ a =  (a\oplus b) \otimes a = a \otimes (a \oplus b) \\ 
-\propname{LAB}^\delta(S,\ \oplus,\ \otimes) 
-    & \equiv 
-    & \forall a, b\in S,\ a =  (b\oplus a) \otimes a = a \otimes (b \oplus a) 
-\end{array} 
-\] 
+(and close with respect to) these dual properties for other bi-semigroup combinators: $\propname{LD}(S,\ \otimes,\ \oplus)$, $\propname{RD}(S,\ \otimes,\ \oplus)$, $\propname{LAB}(S,\ \otimes,\ \oplus)$ and $\propname{RAB}(S,\ \otimes,\ \oplus)$.
 
 \subsection{$k$-best paths}
 
