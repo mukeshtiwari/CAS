@@ -1,0 +1,168 @@
+\documentclass[10pt]{article}
+
+% packages 
+\usepackage[english]{babel}
+\usepackage{amsmath}   	% see http://www.ctan.org/pkg/amsmath
+\usepackage{amssymb}   	% 
+\usepackage{amsfonts}  	% 
+\usepackage{scrextend} 	% used for indentation
+\usepackage{titlesec}	% used for adjusting section spacing
+
+% my macros
+\newcommand{\propname}[1]{{\mathbb{#1}}}
+\newcommand{\minlift}{\otimes_{\min}^{\leq}}
+\newcommand{\lift}{\hat{\otimes}}
+\newcommand{\minunion}{\cup_{\min}^{\leq}}
+\newcommand{\proof}{\vspace{1em} \textbf{Proof} \vspace{1em}}
+
+\newenvironment{ind}[0]{\begin{addmargin}[1em]{0em}\vspace{0.5em}}{\end{addmargin}\vspace{0.5em}}
+
+% Settings
+\setlength{\parindent}{0pt}
+\titlespacing*{\subsection}{0pt}{3\baselineskip}{\baselineskip}
+
+%Document
+\title{$\mathcal{M}$ results} 
+\author{Timothy G. Griffin \& Matthew L. Daggitt} 
+
+\begin{document}
+\maketitle
+\date 
+
+\begin{abstract} 
+The document presents some theoretical results for the $\mathcal{M}$ combinator. 
+\end{abstract} 
+
+
+\section{Definition}
+
+Let $\leq$ be a pre-order on some set $S$ with at least two elements. 
+For $X \subseteq S$, define 
+\[
+\min_\leq(X) \equiv \{x \in X \mid \forall y \in X,\  \neg(y < x)\}. 
+\] 
+Define 
+\[
+{\cal P}_{\mathrm{fin}}(S,\ \lesssim) 
+   \equiv 
+\{X \subseteq S\mid \mbox{$X$ finite and }\min_\leq(X) = X\} 
+\] 
+and 
+\[
+  A\ \lift B  \equiv \{a\otimes b\mid a\in A,\ b\in B\}
+\] 
+and
+\[
+  A\ \minlift B  	\equiv \min_\leq(A \lift B)
+\] 
+and
+\[
+  X\ \minunion Y  \equiv  \min_\leq(X \cup Y) 
+\]
+then
+\[
+\mathcal{M}(S,\ \leq,\ \otimes) \equiv ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \minlift,\ \minunion)
+\]
+
+\section{Summary}
+
+
+
+
+
+\section{Lemmas}
+
+Lemmas and results used here can be found in the documentation for MinUnion ($\minunion$) and MinTimes ($\minlift$) respectively.
+
+\section{Properties}
+
+\subsection{Left distributive}
+
+$??? \Rightarrow (\propname{LM}(\mathcal{M}(S,\ \otimes,\ \leq))  \Leftrightarrow ???)$
+
+\proof
+
+Consider arbitrary $X,Y,Z$
+\begin{align*}
+X \minunion (Y \minlift Z) 	& = \min_\leq(X \cup \min_\leq(Y \lift Z)) \\
+							& = \min_\leq(X \cup (Y \lift Z)) \\
+							& = ??? \\
+							& = \min_\leq((X \lift Y) \cup (X \lift Z)) \\
+							& = \min_\leq(\min_\leq(X \cup Y) \lift \min_\leq(X \cup Z)) \\
+							& = (X \minunion Y) \minlift (X \minunion Z)
+\end{align*}
+
+
+
+\subsection{Right distributive}
+
+$??? \Rightarrow (\propname{RD}(\mathcal{M}(S,\ \otimes,\ \leq))  \Leftrightarrow ???)$
+
+\proof
+
+
+
+
+
+\subsection{Zero annihilates}
+
+$\propname{ZA}(\mathcal{M}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}$
+
+\proof
+
+Witness : $\emptyset$
+
+\vspace{0.5em}
+
+See MinUnion and MinLift documentation for details.
+
+
+
+\subsection{One annihilates}
+
+$\propname{OA}(\mathcal{M}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}$
+
+\proof
+
+Witness : $\emptyset$
+
+\vspace{0.5em}
+
+See MinUnion and MinLift documentation for details.
+
+
+\subsection{Left absorptive}
+
+$??? \Rightarrow (\propname{LAB}(\mathcal{M}(S,\ \otimes,\ \leq)) \Leftrightarrow ???)$
+
+\proof
+
+Consider arbitrary $X, Y$
+\begin{align*}
+X \minunion (X \minlift Y) 	& = \min_\leq(X \cup \min_\leq(X \lift Y)) \\
+							& = \min_\leq(X \cup (X \lift Y)) \\
+							& = \min_\leq(X) \\
+							& = X
+\end{align*}
+The second equality holds by the commutativity of $\cup$.
+
+
+
+\subsection{Right absorptive}
+
+$??? \Rightarrow (\propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow ???)$
+
+\proof
+
+Consider arbitrary $X, Y$
+\begin{align*}
+X \minlift (Y \minunion X) 	& = \min_\leq(X \lift \min_\leq(Y \cup X)) \\
+							& = \min_\leq(X \lift (Y \cup X)) \\
+							& = \min_\leq(X \lift Y \cup X \lift X) \\
+							& = \min_\leq(X \lift Y \cup X) \\
+							& = \min_\leq(X) \\
+							& = X \\
+\end{align*}
+The second equality holds by the commutativity of $\cup$.
+
+\end{document}
