@@ -654,63 +654,67 @@ $\propname{SL}(S, \bullet)$.
 
 \subsubsection{MinUnion} 
 
-Assume $\propname{RX}(S,\ \leq)$ (needed for sensible semantics), $\propname{TR}(S,\ \leq)$ (needed for associativity), $\propname{AY}(S,\ \leq)$ (needed for annihilator) and $\propname{BM}(S,\leq)$ (needed for annihilator).
+$\propname{RX}(S,\ \leq)$ is needed for sensible semantics of $\min_\leq(X)$.
 
 \[
-\begin{array}{rcl} 
-\propname{AS}(\mathrm{MinUnion}(S, \leq)) 
+\begin{array}{lcrcl} 
+\propname{TR}(S, \leq)
+  & \Rightarrow
+  & \propname{AS}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{TRUE}
   \\ 
-\propname{ID}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{ID}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{TRUE} \ \ (\alpha = \emptyset)
   \\ 
-\propname{AN}(\mathrm{MinUnion}(S, \leq)) 
+\propname{AY}(S, \leq) \wedge \propname{BM}(S, \leq)
+  & \Rightarrow
+  & \propname{AN}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{TRUE} \ \ (\omega = \{\bot\})
   \\
-\propname{CM}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{CM}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{TRUE}
   \\ 
-\propname{SL}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{SL}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
-  & \propname{TO}(S, \leq))  
+  & \propname{TO}(S, \leq)  
   \\ 
-\propname{IP}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{IP}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{TRUE}
   \\ 
-\propname{IL}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{IL}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{FALSE}
   \\ 
-\propname{IR}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{IR}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{FALSE}
   \\ 
-\propname{LC}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{LC}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{FALSE}
   \\ 
-\propname{RC}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{RC}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
-\propname{LK}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{LK}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
-\propname{RK}(\mathrm{MinUnion}(S, \leq)) 
+& & \propname{RK}(\mathrm{MinUnion}(S, \leq)) 
   & \Leftrightarrow 
   & \propname{FALSE}
   \\ 
-\propname{AL}(\mathrm{MinUnion}(S, \leq))  
+& & \propname{AL}(\mathrm{MinUnion}(S, \leq))  
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
-\propname{AR}(\mathrm{MinUnion}(S, \leq))  
+& & \propname{AR}(\mathrm{MinUnion}(S, \leq))  
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
@@ -719,72 +723,73 @@ Assume $\propname{RX}(S,\ \leq)$ (needed for sensible semantics), $\propname{TR}
 
 \subsubsection{MinLift} 
 
-Assume 
-$\propname{LM}(S,\ \leq,\ \otimes)$, 
-$\propname{RM}(S,\ \leq,\ \otimes)$, 
-$\propname{LI}(S,\ \leq)$,
-$\propname{RI}(S,\ \leq)$,
-$\propname{RX}(S,\ \leq)$,
-$\propname{TR}(S,\ \leq)$,
-$\propname{AY}(S,\ \leq)$,
-$\propname{ID}(S, \otimes)$ and
-$\neg \propname{SL}(S, \otimes)$. 
+$\propname{RX}(S,\ \leq)$ is needed for sensible semantics of $\min_\leq(X)$.
 
 \[
-\begin{array}{rcl} 
-\propname{AS}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+\begin{array}{lcrcl} 
+\propname{AY}(S,\ \leq) \wedge \\
+\ \ \ \propname{LM}(S,\ \leq,\ \otimes) \wedge \propname{RM}(S,\ \leq,\ \otimes)
+  & \Rightarrow
+  & \propname{AS}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & ???
   \\ 
-\propname{ID}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+\propname{ID}(S, \otimes)
+  & \Rightarrow
+  & \propname{ID}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{TRUE}
   \\ 
-\propname{AN}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+& & \propname{AN}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
-  & \propname{TRUE} \ \ (\omega = \{\})
+  & \propname{TRUE}
   \\
-\propname{CM}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+& & \propname{CM}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{CM}(S,\ \otimes)
   \\ 
-\propname{SL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+\neg \propname{SL}(S,\ \leq)
+  & \Rightarrow
+  & \propname{SL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{FALSE}
   \\ 
-\propname{IP}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+\propname{AY}(S,\ \leq) \ \ \wedge \\
+\ \ \  (\propname{LI}(S,\otimes,\leq) \vee \propname{RI}(S,\otimes,\leq))
+  & \Rightarrow
+  & \propname{IP}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow
   & \propname{IP}(S,\ \otimes)
   \\ 
-\propname{IL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+& & \propname{IL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
-\propname{IR}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+& & \propname{IR}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
-\propname{LC}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+& & \propname{LC}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
-\propname{RC}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+& & \propname{RC}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
-\propname{LK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+& & \propname{LK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
-\propname{RK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+& & \propname{RK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
   & \Leftrightarrow 
   & \propname{FALSE} 
   \\ 
-\propname{AL}(\mathrm{MinLift}(S,\ \leq,\ \otimes))  
+& & \propname{AL}(\mathrm{MinLift}(S,\ \leq,\ \otimes))  
   & \Leftrightarrow 
   &  \propname{FALSE} 
   \\ 
-\propname{AR}(\mathrm{MinLift}(S,\ \leq,\ \otimes))  
+& & \propname{AR}(\mathrm{MinLift}(S,\ \leq,\ \otimes))  
   & \Leftrightarrow 
   & \propname{FALSE}  
   \\ 
@@ -880,10 +885,6 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 
 \subsubsection{AddOne} 
 
-%% 
-%% naming of RAB and LAB?  switch? Need more? (not assuming CM ...) 
-%%
-
 \[
 \begin{array}{rcl} 
 \propname{LD}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
@@ -956,34 +957,34 @@ $\propname{SL}(S, \oplus_S)$.
 \[
 \begin{array}{rcl} 
 \propname{LD}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-   & \Leftrightarrow % COQ 
+   & \Leftrightarrow
    & \propname{LD}(S,\ \oplus_S,\ \otimes_S) 
      \wedge \propname{LD}(T,\ \oplus_T,\ \otimes_T)\\ 
    & 
    & \ \ \ \ \wedge ( \propname{LC}(S,\ \otimes_S) \vee \propname{LK}(T,\ \otimes_T) )
   \\
 \propname{RD}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-   & \Leftrightarrow % COQ 
-  & \propname{RD}(S,\ \oplus_S,\ \otimes_S) 
+   & \Leftrightarrow
+   & \propname{RD}(S,\ \oplus_S,\ \otimes_S) 
     \wedge \propname{RD}(T,\ \oplus_T,\ \otimes_T) \\ 
    & 
    & \ \ \ \ \wedge ( \propname{RC}(S,\ \otimes_S) \vee \propname{RK}(T,\ \otimes_T) )
    \\ 
 \propname{ZA}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-    & \Leftrightarrow % COQ 
+    & \Leftrightarrow
     & \propname{ZA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{ZA}(T,\ \oplus_T,\ \otimes_T)
    \\
 \propname{OA}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-    & \Leftrightarrow % COQ 
+    & \Leftrightarrow
     & \propname{OA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{OA}(T,\ \oplus_T,\ \otimes_T)
    \\
 \propname{RAB}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-    & \Leftrightarrow % COQ 
+    & \Leftrightarrow
     & \propname{RAB}(S,\ \oplus_S,\ \otimes_S) \wedge  
       (\propname{RAB}(T,\ \oplus_T,\ \otimes_T) \vee \propname{AR}(S,\ \otimes_S)) 
     \\ 
 \propname{LAB}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-    & \Leftrightarrow % COQ 
+    & \Leftrightarrow
     & \propname{LAB}(S,\ \oplus_S,\ \otimes_S) \wedge  
       (\propname{LAB}(T,\ \oplus_T,\ \otimes_T) \vee \propname{AL}(S,\ \otimes_S)) 
     \\ 
@@ -997,62 +998,74 @@ to make this easier, cleaner?
 And how can we do this without giving up to much in terms of expressive power?
 
 \[
-\begin{array}{rcl} 
-\propname{LD}(\mathcal{M}(S,\ \otimes,\ \leq)) 
+\begin{array}{lcrcl} 
+& & \propname{LD}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{RD}(\mathcal{M}(S,\ \otimes,\ \leq)) 
+& & \propname{RD}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{ZA}(\mathcal{M}(S,\ \otimes,\ \leq)) 
+& & \propname{ZA}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
     \\ 
-\propname{OA}(\mathcal{M}(S,\ \otimes,\ \leq)) 
+& & \propname{OA}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
-    \\ 
-\propname{RAB}(\mathcal{M}(S,\ \otimes,\ \leq)) 
+    \\  
+& & \propname{LAB}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
-    \\ 
-\propname{LAB}(\mathcal{M}(S,\ \otimes,\ \leq)) 
+    \\
+& & \propname{RAB}(\mathcal{M}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & ???
-    \\ 
+    \\
 \end{array} 
 \] 
 
 \subsubsection{$\mathcal{N}$} 
 
 \[
-\begin{array}{rcl} 
-\propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+\begin{array}{lcrcl} 
+\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LM}(S,\ \otimes,\ \leq)
+	& \Rightarrow
+	& \propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
-    & ???
+    & \propname{TRUE}
     \\ 
-\propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RM}(S,\ \otimes,\ \leq)
+	& \Rightarrow
+	& \propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
-    & ???
+    & \propname{TRUE}
     \\ 
-\propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+& & \propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
-    & ???
+    & \propname{TRUE}
     \\ 
-\propname{OA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+\propname{AY}(S,\leq) \wedge \propname{BM}(S,\leq) \wedge \propname{ID}(S,\otimes) \ \wedge \\
+\ \ (\propname{LI}(S,\ \leq,\ \otimes) \vee \propname{RI}(S,\ \leq,\ \otimes) \ \vee \\
+\ \ \propname{LM}(S,\ \leq,\ \otimes) \vee \propname{RM}(S,\ \leq,\ \otimes))
+	& \Rightarrow 
+	& \propname{OA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
-    & ???
+    & \propname{TRUE}
     \\ 
-\propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LI}(S,\ \otimes,\ \leq) 
+	& \Rightarrow 
+	& \propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
-    & ???
+    & \propname{TRUE}
     \\ 
-\propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RI}(S,\ \otimes,\ \leq) 
+	& \Rightarrow 
+	& \propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
-    & ???
-    \\ 
+    & \propname{TRUE}
+    \\
 \end{array} 
 \] 
 

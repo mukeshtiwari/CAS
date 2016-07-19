@@ -67,19 +67,11 @@ then
 
 The current pre-conditions required for generating necessary and sufficient conditions for each of the currently tracked properties are ???
 
-%\begin{itemize}
-%\item $\propname{TR}(\mathrm{S, \leq})$ : required for associativity
-%\item $\propname{BM}(\mathrm{S, \leq})$ : required for annihilator
-%\item $\propname{AY}(\mathrm{S, \leq})$ : required for annihilator
-%\end{itemize}
-
-
-
 \section{Lemmas}
 
 \subsection{Absorbing}
 
-$\propname{LM}(\mathrm{(S,\leq,\otimes)} \wedge \propname{LM}(\mathrm{(S,\leq,\otimes)} \Rightarrow \min_\leq(X \lift \min_\leq(Y)) = \min_\leq(X \lift Y) = \min_\leq(\min_\leq(X) \lift Y)$
+$\propname{LM}(\mathrm{(S,\leq,\otimes)} \wedge \propname{RM}(\mathrm{(S,\leq,\otimes)} \Rightarrow \min_\leq(X \lift \min_\leq(Y)) = \min_\leq(X \lift Y) = \min_\leq(\min_\leq(X) \lift Y)$
 
 \proof
 
@@ -143,19 +135,32 @@ y \in Y
 \forall a \otimes b \in X \lift Y : \neg (a \otimes b < x \otimes y)
 \end{equation}
 
-Assume there exists $y' \in Y : y' < y$.
+By Eq~\ref{eq:lem_abs_minset_right_smaller} we have that $\forall a \otimes b \in X \lift \min_\leq(Y) : \neg (a \otimes b < x \otimes y)$.
+
+\vspace{0.5em}
+
+Therefore we just need to show that $x \otimes y \in X \lift \min_\leq(Y)$.
+
+\vspace{0.5em}
+
+Case $y \in \min_\leq(Y)$
 \begin{ind}
-Then by $\propname{LM}\mathrm{(S,\leq,\otimes)}$ we have that:
-\begin{equation}
-x \otimes y' \leq x \otimes y
-\end{equation}
+Then clearly $x \otimes y \in X \lift \min_\leq(Y)$
+\end{ind}
+
+Case $y \notin \min_\leq(Y)$
+\begin{ind}
+Then there exists $y' \in Y : y' < y$ and by $\propname{LM}\mathrm{(S,\leq,\otimes)}$ we have that $x \otimes y' \leq x \otimes y$.
+
+\vspace{0.5em}
+
 Case $x \otimes y \nleq x \otimes y'$
 \begin{ind}
 Then we have that $x \otimes y' < x \otimes y$ which contradicts Eq~\ref{eq:lem_abs_minset_right_smaller}.
 \end{ind}
 Case $x \otimes y \leq x \otimes y'$:
 \begin{ind}
-Then by $\propname{AY}\mathrm{(S,\leq)}$ we have that $x \otimes y = x \otimes y'$. SADLY THIS DOES NOT MEAN $y = y'$.
+Then by $\propname{AY}\mathrm{(S,\leq)}$ we have that $x \otimes y = x \otimes y'$ and $x \otimes y' \in X \lift \min_\leq(Y)$.
 \end{ind}
 \end{ind}
 \end{ind}

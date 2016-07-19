@@ -60,13 +60,72 @@ then
 
 \section{Summary}
 
-The current pre-conditions required for generating necessary and sufficient conditions for each of the currently tracked properties are:
-\begin{itemize}
-\item $\propname{TR}(\mathrm{S, \leq})$ : required for associativity
-\item $\propname{BM}(\mathrm{S, \leq})$ : required for annihilator
-\item $\propname{AY}(\mathrm{S, \leq})$ : required for annihilator
-\end{itemize}
-Interestingly $\propname{RX}(\mathrm{S, \leq})$ is not required.
+$\propname{RX}(S,\ \leq)$ is needed for sensible semantics of $\min_\leq(X)$.
+
+\[
+\begin{array}{lcrcl} 
+\propname{TR}(S, \leq)
+  & \Rightarrow
+  & \propname{AS}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TRUE}
+  \\ 
+& & \propname{ID}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TRUE}
+  \\ 
+\propname{AY}(S, \leq) \wedge \propname{BM}(S, \leq)
+  & \Rightarrow
+  & \propname{AN}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TRUE}
+  \\
+& & \propname{CM}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TRUE}
+  \\ 
+& & \propname{SL}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TO}(S, \leq)  
+  \\ 
+& & \propname{IP}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{TRUE}
+  \\ 
+& & \propname{IL}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE}
+  \\ 
+& & \propname{IR}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE}
+  \\ 
+& & \propname{LC}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE}
+  \\ 
+& & \propname{RC}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+& & \propname{LK}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+& & \propname{RK}(\mathrm{MinUnion}(S, \leq)) 
+  & \Leftrightarrow 
+  & \propname{FALSE}
+  \\ 
+& & \propname{AL}(\mathrm{MinUnion}(S, \leq))  
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+& & \propname{AR}(\mathrm{MinUnion}(S, \leq))  
+  & \Leftrightarrow 
+  & \propname{FALSE} 
+  \\ 
+\end{array} 
+\] 
 
 \section{Lemmas}
 
