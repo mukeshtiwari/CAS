@@ -1,82 +1,55 @@
-\documentclass[10pt]{article}
-
-% packages 
-\usepackage[english]{babel}
-\usepackage{amsmath}   	% see http://www.ctan.org/pkg/amsmath
-\usepackage{amssymb}   	% 
-\usepackage{amsfonts}  	% 
-\usepackage{scrextend} 	% used for indentation
-\usepackage{titlesec}	% used for adjusting section spacing
-
-% my macros
-\newcommand{\propname}[1]{{\mathbb{#1}}}
-\newcommand{\minlift}{\otimes_{\min}^{\leq}}
-\newcommand{\lift}{\hat{\otimes}}
-\newcommand{\minunion}{\cup_{\min}^{\leq}}
-\newcommand{\proof}{\vspace{1em} \textbf{Proof} \vspace{1em}}
-
-\newenvironment{ind}[0]{\begin{addmargin}[1em]{0em}\vspace{0.5em}}{\end{addmargin}\vspace{0.5em}}
-
-% Settings
-\setlength{\parindent}{0pt}
-\titlespacing*{\subsection}{0pt}{3\baselineskip}{\baselineskip}
-
-%Document
-\title{$\mathcal{N}$ results} 
-\author{Timothy G. Griffin \& Matthew L. Daggitt} 
+\documentclass[../Summary.tex]{subfiles}
 
 \begin{document}
-\maketitle
-\date 
 
-\begin{abstract} 
-The document presents some theoretical results for the $\mathcal{N}$ combinator. 
-\end{abstract} 
+\subsubsection{Summary}
 
-
-\section{Definition}
-
-Let $\leq$ be a pre-order on some set $S$ with at least two elements. 
-For $X \subseteq S$, define 
 \[
-\min_\leq(X) \equiv \{x \in X \mid \forall y \in X,\  \neg(y < x)\}. 
+\begin{array}{lcrcl} 
+\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LM}(S,\ \otimes,\ \leq)
+	& \Rightarrow
+	& \propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+    & \Leftrightarrow 
+    & \propname{TRUE}
+    \\ 
+\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RM}(S,\ \otimes,\ \leq)
+	& \Rightarrow
+	& \propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+    & \Leftrightarrow 
+    & \propname{TRUE}
+    \\ 
+& & \propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+    & \Leftrightarrow 
+    & \propname{TRUE}
+    \\ 
+\propname{AY}(S,\leq) \wedge \propname{BM}(S,\leq) \wedge \propname{ID}(S,\otimes) \ \wedge \\
+\ \ (\propname{LI}(S,\ \leq,\ \otimes) \vee \propname{RI}(S,\ \leq,\ \otimes) \ \vee \\
+\ \ \propname{LM}(S,\ \leq,\ \otimes) \vee \propname{RM}(S,\ \leq,\ \otimes))
+	& \Rightarrow 
+	& \propname{OA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+    & \Leftrightarrow 
+    & \propname{TRUE}
+    \\ 
+\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LI}(S,\ \otimes,\ \leq) 
+	& \Rightarrow 
+	& \propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+    & \Leftrightarrow 
+    & \propname{TRUE}
+    \\ 
+\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RI}(S,\ \otimes,\ \leq) 
+	& \Rightarrow 
+	& \propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+    & \Leftrightarrow 
+    & \propname{TRUE}
+    \\
+\end{array} 
 \] 
-Define 
-\[
-{\cal P}_{\mathrm{fin}}(S,\ \lesssim) 
-   \equiv 
-\{X \subseteq S\mid \mbox{$X$ finite and }\min_\leq(X) = X\} 
-\] 
-and 
-\[
-  A\ \lift B  \equiv \{a\otimes b\mid a\in A,\ b\in B\}
-\] 
-and
-\[
-  A\ \minlift B  	\equiv \min_\leq(A \lift B)
-\] 
-and
-\[
-  X\ \minunion Y  \equiv  \min_\leq(X \cup Y) 
-\]
-then
-\[
-\mathcal{N}(S,\ \leq,\ \otimes) \equiv ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \minunion,\ \minlift)
-\]
-
-\section{Summary}
-
-
-
-
-
-\section{Lemmas}
 
 Lemmas and results used here can be found in the documentation for MinUnion ($\minunion$) and MinTimes ($\minlift$) respectively.
 
-\section{Properties}
 
-\subsection{Left distributive}
+
+\subsubsection{Left distributive}
 
 $\propname{LM}(S,\ \otimes,\ \leq) \wedge \propname{TR}(S,\ \otimes,\ \leq) \wedge \propname{AY}(S,\ \otimes, \ \leq) \Rightarrow (\propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq))  \Leftrightarrow \propname{TRUE})$
 
@@ -93,7 +66,7 @@ X \minlift (Y \minunion Z) 	& = \min_\leq(X \lift \min_\leq(Y \cup Z)) \\
 
 
 
-\subsection{Right distributive}
+\subsubsection{Right distributive}
 
 $\propname{RM}(S,\ \otimes,\ \leq) \wedge \propname{TR}(S,\ \otimes,\ \leq) \wedge \propname{AY}(S,\ \otimes, \ \leq) \Rightarrow (\propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq))  \Leftrightarrow \propname{TRUE})$
 
@@ -110,7 +83,7 @@ Consider arbitrary $X,Y,Z$
 
 
 
-\subsection{Zero annihilates}
+\subsubsection{Zero annihilates}
 
 $\propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}$
 
@@ -124,7 +97,7 @@ See MinUnion and MinLift documentation for details.
 
 
 
-\subsection{One annihilates}
+\subsubsection{One annihilates}
 
 $\propname{AY}(S,\leq) \wedge \propname{BM}(S,\leq) \wedge \propname{ID}(S,\otimes) \wedge (\propname{LI}(S,\ \leq,\ \otimes) \vee \propname{RI}(S,\ \leq,\ \otimes) \vee \propname{LM}(S,\ \leq,\ \otimes) \vee \propname{RM}(S,\ \leq,\ \otimes)) \Rightarrow (\propname{OA}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE})$
 
@@ -154,7 +127,9 @@ and by $\propname{BM}(S,\leq)$ we have that:
 \end{equation*}
 Therefore by $\propname{AY}(S,\leq)$ we have that $i = \bot$.
 
-\subsection{Left absorptive}
+
+
+\subsubsection{Left absorptive}
 
 $\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LI}(S,\ \otimes,\ \leq) \Rightarrow (\propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE})$
 
@@ -171,7 +146,7 @@ The second equality holds by the commutativity of $\cup$.
 
 
 
-\subsection{Right absorptive}
+\subsubsection{Right absorptive}
 
 $\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RI}(S,\ \otimes,\ \leq) \Rightarrow (\propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE})$
 

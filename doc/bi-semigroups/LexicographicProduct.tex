@@ -1,0 +1,48 @@
+\documentclass[10pt, ../Summary.tex]{subfiles}
+
+%Document
+\begin{document}
+
+Assume 
+$\propname{AS}(S, \oplus_S)$, 
+$\propname{CM}(S, \oplus_S)$,  and 
+$\propname{SL}(S, \oplus_S)$. 
+
+\[
+\begin{array}{rcl} 
+\propname{LD}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+   & \Leftrightarrow
+   & \propname{LD}(S,\ \oplus_S,\ \otimes_S) 
+     \wedge \propname{LD}(T,\ \oplus_T,\ \otimes_T)\\ 
+   & 
+   & \ \ \ \ \wedge ( \propname{LC}(S,\ \otimes_S) \vee \propname{LK}(T,\ \otimes_T) )
+  \\
+\propname{RD}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+   & \Leftrightarrow
+   & \propname{RD}(S,\ \oplus_S,\ \otimes_S) 
+    \wedge \propname{RD}(T,\ \oplus_T,\ \otimes_T) \\ 
+   & 
+   & \ \ \ \ \wedge ( \propname{RC}(S,\ \otimes_S) \vee \propname{RK}(T,\ \otimes_T) )
+   \\ 
+\propname{ZA}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow
+    & \propname{ZA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{ZA}(T,\ \oplus_T,\ \otimes_T)
+   \\
+\propname{OA}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow
+    & \propname{OA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{OA}(T,\ \oplus_T,\ \otimes_T)
+   \\
+\propname{RAB}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow
+    & \propname{RAB}(S,\ \oplus_S,\ \otimes_S) \wedge  
+      (\propname{RAB}(T,\ \oplus_T,\ \otimes_T) \vee \propname{AR}(S,\ \otimes_S)) 
+    \\ 
+\propname{LAB}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow
+    & \propname{LAB}(S,\ \oplus_S,\ \otimes_S) \wedge  
+      (\propname{LAB}(T,\ \oplus_T,\ \otimes_T) \vee \propname{AL}(S,\ \otimes_S)) 
+    \\ 
+\end{array} 
+\]
+
+\end{document}

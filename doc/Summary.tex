@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[10pt]{report}
 
 % packages 
 \usepackage[english]{babel}
@@ -7,21 +7,33 @@
 \usepackage{amsfonts}  	% 
 \usepackage{titlesec}	% used for adjusting section spacing
 \usepackage{booktabs}	% for tables
+\usepackage{subfiles}   % handling subfiles
+\usepackage{scrextend} 	% used for indentation
 
-% my macros 
+% macros 
 \newcommand{\mtrx}[1]{\ensuremath{\mathbf{#1}}}
 \newcommand{\NN}{\mathbb{N}}
 \newcommand{\BB}{\mathbb{B}}
 \newcommand{\propname}[1]{{\mathbb{#1}}}
 \newcommand{\lexprod}{\ensuremath{\mathbin{\vec{\times}}}}
-\newcommand{\minunion}{\cup_{\min}^{\leq}}
-\newcommand{\minlift}{\otimes_{\min}^{\leq}}
+\newcommand{\lift}{\mathbin{\hat{\otimes}}}
+\newcommand{\minunion}{\mathbin{\cup_{\min}^{\leq}}}
+\newcommand{\minlift}{\mathbin{\otimes_{\min}^{\leq}}}
 \newcommand{\funfin}{\ensuremath{\mathrm{fin}}}
+\newcommand{\proof}{\vspace{1em} \emph{Proof} \vspace{1em}}
+
+\newenvironment{ind}[0]{\begin{addmargin}[1em]{0em}\vspace{0.5em}}{\end{addmargin}\vspace{0.5em}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+
 
 % environment
+\titlespacing*{\chapter}{0pt}{3\baselineskip}{\baselineskip}
 \titlespacing*{\section}{0pt}{3\baselineskip}{\baselineskip}
-\titlespacing*{\subsection}{0pt}{3\baselineskip}{\baselineskip}
-\titlespacing*{\subsubsection}{0pt}{1.5\baselineskip}{\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.5\baselineskip}{\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{3\baselineskip}{\baselineskip}
+\setlength{\parindent}{0pt}
 
 % document
 \title{Combinators for Algebraic Structures (CAS) \\ Version 1} 
@@ -36,13 +48,13 @@ The document presents a small language of combinators for
 construction semigroups and semirings. 
 \end{abstract} 
 
-\section{Combinators}
+\chapter{Combinators}
 
 We assume $2 \leq |S|$ for all carrier sets $S$. 
 
-\subsection{Semigroup combinators} 
+\section{Semigroup combinators} 
 
-\subsubsection{Adding an identity} 
+\subsection{Adding an identity} 
 \[ 
   \mathrm{AddId}(\alpha,\ (S,\ \bullet)) 
 \equiv 
@@ -62,7 +74,7 @@ a \bullet_{\alpha}^{\mathrm{id}} b
 \end{array} 
 \] 
 
-\subsubsection{Adding an annihilator} 
+\subsection{Adding an annihilator} 
 \[ 
   \mathrm{AddAn}(\omega,\ (S,\ \bullet)) \equiv (S \uplus \{\omega\}, \bullet_{\omega}^{\mathrm{an}})
 \] 
@@ -79,7 +91,7 @@ a \bullet_{\omega}^{\mathrm{an}} b
 \right.
 \end{array} 
 \] 
-\subsubsection{Direct product} 
+\subsection{Direct product} 
 
 Let $(S,\ \bullet)$ and $(T,\ \diamond)$ be semigroups.
 
@@ -99,7 +111,7 @@ is defined as
 \] 
 
 
-\subsubsection{Lexicographic product} 
+\subsection{Lexicographic product} 
 
 Suppose that semigroup $(S,\ \bullet)$ is commutative, idempotent, and selective 
 and that $(T,\ \diamond)$ is a semigroup. 
@@ -142,7 +154,7 @@ Examples for $(\NN,\ \max)\ \lexprod\ (\NN,\ \min)$.
 \end{array} 
 \] 
 
-\subsubsection{Lifted product} 
+\subsection{Lifted product} 
 
 Assume $(S,\ \bullet)$ is a semigroup. 
 Let 
@@ -156,7 +168,7 @@ Example.
     \{1,\ 3,\ 17\}\ \hat{+}\ \{1,\ 3,\ 17\} = \{2,\ 4,\ 6,\ 18,\ 20,\ 34\} 
 \] 
 
-\subsubsection{Minset union} 
+\subsection{Minset union} 
 
 Let $\leq$ be a partial order on $S$. 
 For $X \subseteq S$, define 
@@ -186,7 +198,7 @@ and
 NOTE: perhaps we can always define $\leq$ in terms of a $(S,\oplus)$, and so 
 get rid of the class of structures $(S,\ \leq)$. 
 
-\subsubsection{Minset lift} 
+\subsection{Minset lift} 
 
 \[
   A\ \minlift B  \equiv   \min_\leq(A \ \hat{\otimes} \ B)
@@ -200,9 +212,9 @@ get rid of the class of structures $(S,\ \leq)$.
 \end{array} 
 \]
 
-\subsection{Order combinators}
+\section{Order combinators}
 
-\subsubsection{Left natural order}
+\subsection{Left natural order}
 
 Suppose that the semigroup $(S , \bullet)$ is selective. Then the left natural order can be formed as follows
 \begin{equation*}
@@ -213,7 +225,7 @@ where $\leq$ is defined as
 a \leq b \equiv a \oplus b = a
 \end{equation*}
 
-\subsubsection{Right natural order}
+\subsection{Right natural order}
 
 Suppose that the semigroup $(S , \bullet)$ is selective. Then the right natural order can be formed as follows
 \begin{equation*}
@@ -224,9 +236,9 @@ where $\leq$ is defined as
 a \leq b \equiv b \oplus a = a
 \end{equation*}
 
-\subsection{Bi-semigroup combinators} 
+\section{Bi-semigroup combinators} 
 
-\subsubsection{Adding a zero} 
+\subsection{Adding a zero} 
 \[ 
 \begin{array}{rcl} 
 \mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes)) 
@@ -235,7 +247,7 @@ a \leq b \equiv b \oplus a = a
 \end{array} 
 \] 
 
-\subsubsection{Adding a one} 
+\subsection{Adding a one} 
 
 \[ 
 \begin{array}{rcl} 
@@ -245,7 +257,7 @@ a \leq b \equiv b \oplus a = a
 \end{array} 
 \] 
 
-\subsubsection{Direct product} 
+\subsection{Direct product} 
 
 \[
 (S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T) 
@@ -254,7 +266,7 @@ a \leq b \equiv b \oplus a = a
 \]
 
 
-\subsubsection{Lexicographic product} 
+\subsection{Lexicographic product} 
 
 \[
 (S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T) 
@@ -262,14 +274,14 @@ a \leq b \equiv b \oplus a = a
 (S\times T,\ \oplus_S\lexprod\oplus_T,\ \otimes_S\times\otimes_T)
 \]
 
-\subsubsection{$\mathcal{M}$}
+\subsection{$\mathcal{M}$}
 
 \[
 \mathcal{M}(S,\ \otimes,\ \leq) \equiv (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minlift,\ \minunion)
 \]
 
 
-\subsubsection{$\mathcal{N}$}
+\subsection{$\mathcal{N}$}
 \[
 \mathcal{N}(S,\ \otimes,\ \leq) \equiv (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minunion,\ \minlift)
 \]
@@ -277,7 +289,7 @@ a \leq b \equiv b \oplus a = a
 
 
 
-\section{Properties} 
+\chapter{Properties} 
 
 There are two types of properties:
 \begin{enumerate}
@@ -285,7 +297,7 @@ There are two types of properties:
 \item  To fully close the theorems about the first set of properties with necessary and sufficient conditions, we also need to track a second additional set of properties.  We call these \emph{closure} properties.
 \end{enumerate}
 
-\subsection{Semigroups $(S,\ \bullet)$} 
+\section{Semigroups $(S,\ \bullet)$} 
 
 \begin{tabular}{lclp{2cm}}
 \toprule
@@ -309,7 +321,7 @@ Anti-right 			& $\propname{AR}$ 	&  $\forall a b : b \bullet a \neq a$ & $\propn
 \bottomrule
 \end{tabular}
 
-\subsection{Orders $(S,\ \leq)$}
+\section{Orders $(S,\ \leq)$}
 
 \begin{tabular}{lcll}
 \toprule
@@ -324,7 +336,7 @@ Top				& $\propname{TP}$	& $\exists t : \forall a : a\leq t$ & --\\
 \bottomrule
 \end{tabular}
 
-\subsection{Ordered semigroups $(S,\ \leq,\ \otimes)$}
+\section{Ordered semigroups $(S,\ \leq,\ \otimes)$}
 
 \begin{tabular}{lcll}
 \toprule
@@ -338,7 +350,7 @@ Right increasing 	& $\propname{RI}$ 	& $\forall a b : a \leq b \otimes a$ & $\pr
 \bottomrule
 \end{tabular}
 
-\subsection{Bi-semigroups $(S,\ \oplus,\ \otimes)$}
+\section{Bi-semigroups $(S,\ \oplus,\ \otimes)$}
 
 \begin{tabular}{lcll}
 \toprule
@@ -368,9 +380,9 @@ where
 \end{array} 
 \] 
 
-\section{Closure progress}
+\chapter{Results}
 
-\subsection{A few useful implications} 
+\section{A few useful implications} 
 
 \[ 
 \begin{array}{rcl} 
@@ -392,10 +404,10 @@ where
 \end{array} 
 \] 
 
-\subsection{Semigroups}
+\section{Semigroups}
 
 
-\subsubsection{AddId} 
+\subsection{AddId} 
 
 \[
 \begin{array}{rcl} 
@@ -444,7 +456,7 @@ where
 \end{array} 
 \] 
 
-\subsubsection{AddAn} 
+\subsection{AddAn} 
 
 \[
 \begin{array}{rcl} 
@@ -493,7 +505,7 @@ where
 \end{array} 
 \] 
 
-\subsubsection{Direct product} 
+\subsection{Direct product} 
 
 \[
 \begin{array}{rcl} 
@@ -548,7 +560,7 @@ where
 \end{array} 
 \] 
 
-\subsubsection{Lexicographic product} 
+\subsection{Lexicographic product} 
 
 Assuming 
 $\propname{AS}(S, \bullet)$, 
@@ -602,7 +614,7 @@ $\propname{SL}(S, \bullet)$.
 \end{array}
 \] 
 
-\subsubsection{Lift} 
+\subsection{Lift} 
 \[
 \begin{array}{rcl} 
 \propname{AS}(\mathrm{lift}(S, \bullet)) 
@@ -652,155 +664,22 @@ $\propname{SL}(S, \bullet)$.
 \end{array} 
 \]
 
-\subsubsection{MinUnion} 
+\subsection{MinUnion} 
 
-$\propname{RX}(S,\ \leq)$ is needed for sensible semantics of $\min_\leq(X)$.
+\subfile{semigroups/MinUnion.tex}
 
-\[
-\begin{array}{lcrcl} 
-\propname{TR}(S, \leq)
-  & \Rightarrow
-  & \propname{AS}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\ 
-& & \propname{ID}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE} \ \ (\alpha = \emptyset)
-  \\ 
-\propname{AY}(S, \leq) \wedge \propname{BM}(S, \leq)
-  & \Rightarrow
-  & \propname{AN}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE} \ \ (\omega = \{\bot\})
-  \\
-& & \propname{CM}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\ 
-& & \propname{SL}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TO}(S, \leq)  
-  \\ 
-& & \propname{IP}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\ 
-& & \propname{IL}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE}
-  \\ 
-& & \propname{IR}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE}
-  \\ 
-& & \propname{LC}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE}
-  \\ 
-& & \propname{RC}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{LK}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{RK}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE}
-  \\ 
-& & \propname{AL}(\mathrm{MinUnion}(S, \leq))  
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{AR}(\mathrm{MinUnion}(S, \leq))  
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-\end{array} 
-\] 
 
-\subsubsection{MinLift} 
+\subsection{MinLift} 
 
-$\propname{RX}(S,\ \leq)$ is needed for sensible semantics of $\min_\leq(X)$.
+\subfile{semigroups/MinLift.tex}
 
-\[
-\begin{array}{lcrcl} 
-\propname{AY}(S,\ \leq) \wedge \\
-\ \ \ \propname{LM}(S,\ \leq,\ \otimes) \wedge \propname{RM}(S,\ \leq,\ \otimes)
-  & \Rightarrow
-  & \propname{AS}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & ???
-  \\ 
-\propname{ID}(S, \otimes)
-  & \Rightarrow
-  & \propname{ID}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\ 
-& & \propname{AN}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\
-& & \propname{CM}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{CM}(S,\ \otimes)
-  \\ 
-\neg \propname{SL}(S,\ \leq)
-  & \Rightarrow
-  & \propname{SL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{FALSE}
-  \\ 
-\propname{AY}(S,\ \leq) \ \ \wedge \\
-\ \ \  (\propname{LI}(S,\otimes,\leq) \vee \propname{RI}(S,\otimes,\leq))
-  & \Rightarrow
-  & \propname{IP}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow
-  & \propname{IP}(S,\ \otimes)
-  \\ 
-& & \propname{IL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{IR}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{LC}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{RC}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{LK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{RK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{AL}(\mathrm{MinLift}(S,\ \leq,\ \otimes))  
-  & \Leftrightarrow 
-  &  \propname{FALSE} 
-  \\ 
-& & \propname{AR}(\mathrm{MinLift}(S,\ \leq,\ \otimes))  
-  & \Leftrightarrow 
-  & \propname{FALSE}  
-  \\ 
-\end{array} 
-\] 
+
 
 % ==============================================================
 
-\subsection{Orders}
+\section{Orders}
 
-\subsubsection{Left natural order}
+\subsection{Left natural order}
 
 Assume $\mathrm{(S,\ \bullet)}$ is selective.
 
@@ -827,7 +706,7 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 \end{array} 
 \] 
 
-\subsubsection{Right natural order}
+\subsection{Right natural order}
 
 Assume $\mathrm{(S,\ \bullet)}$ is selective.
 
@@ -856,9 +735,9 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 
 % ==============================================================
 
-\subsection{Bi-semigroups}
+\section{Bi-semigroups}
 
-\subsubsection{AddZero} 
+\subsection{AddZero} 
 
 \[
 \begin{array}{rcl} 
@@ -883,7 +762,7 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 \end{array} 
 \] 
 
-\subsubsection{AddOne} 
+\subsection{AddOne} 
 
 \[
 \begin{array}{rcl} 
@@ -917,7 +796,7 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 \end{array} 
 \] 
 
-\subsubsection{Direct product} 
+\subsection{Direct product} 
 
 \[
 \begin{array}{rcl} 
@@ -947,136 +826,32 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 \end{array} 
 \]
 
-\subsubsection{Lexicographic product} 
+\subsection{Lexicographic product} 
 
-Assume 
-$\propname{AS}(S, \oplus_S)$, 
-$\propname{CM}(S, \oplus_S)$,  and 
-$\propname{SL}(S, \oplus_S)$. 
+\subfile{bi-semigroups/LexicographicProduct.tex}
 
-\[
-\begin{array}{rcl} 
-\propname{LD}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-   & \Leftrightarrow
-   & \propname{LD}(S,\ \oplus_S,\ \otimes_S) 
-     \wedge \propname{LD}(T,\ \oplus_T,\ \otimes_T)\\ 
-   & 
-   & \ \ \ \ \wedge ( \propname{LC}(S,\ \otimes_S) \vee \propname{LK}(T,\ \otimes_T) )
-  \\
-\propname{RD}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-   & \Leftrightarrow
-   & \propname{RD}(S,\ \oplus_S,\ \otimes_S) 
-    \wedge \propname{RD}(T,\ \oplus_T,\ \otimes_T) \\ 
-   & 
-   & \ \ \ \ \wedge ( \propname{RC}(S,\ \otimes_S) \vee \propname{RK}(T,\ \otimes_T) )
-   \\ 
-\propname{ZA}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-    & \Leftrightarrow
-    & \propname{ZA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{ZA}(T,\ \oplus_T,\ \otimes_T)
-   \\
-\propname{OA}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-    & \Leftrightarrow
-    & \propname{OA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{OA}(T,\ \oplus_T,\ \otimes_T)
-   \\
-\propname{RAB}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-    & \Leftrightarrow
-    & \propname{RAB}(S,\ \oplus_S,\ \otimes_S) \wedge  
-      (\propname{RAB}(T,\ \oplus_T,\ \otimes_T) \vee \propname{AR}(S,\ \otimes_S)) 
-    \\ 
-\propname{LAB}((S,\ \oplus_S,\ \otimes_S) \lexprod (T,\ \oplus_T,\ \otimes_T)) 
-    & \Leftrightarrow
-    & \propname{LAB}(S,\ \oplus_S,\ \otimes_S) \wedge  
-      (\propname{LAB}(T,\ \oplus_T,\ \otimes_T) \vee \propname{AL}(S,\ \otimes_S)) 
-    \\ 
-\end{array} 
-\]
 
-\subsubsection{$\mathcal{M}$} 
 
-Which constraints should we impose on $(S,\ \oplus,\ \otimes)$ in order 
-to make this easier, cleaner? 
-And how can we do this without giving up to much in terms of expressive power?
+\subsection{$\mathcal{M}$} 
 
-\[
-\begin{array}{lcrcl} 
-& & \propname{LD}(\mathcal{M}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-& & \propname{RD}(\mathcal{M}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-& & \propname{ZA}(\mathcal{M}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & ???
-    \\ 
-& & \propname{OA}(\mathcal{M}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & ???
-    \\  
-& & \propname{LAB}(\mathcal{M}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & ???
-    \\
-& & \propname{RAB}(\mathcal{M}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & ???
-    \\
-\end{array} 
-\] 
+\subfile{bi-semigroups/M.tex}
 
-\subsubsection{$\mathcal{N}$} 
 
-\[
-\begin{array}{lcrcl} 
-\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LM}(S,\ \otimes,\ \leq)
-	& \Rightarrow
-	& \propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & \propname{TRUE}
-    \\ 
-\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RM}(S,\ \otimes,\ \leq)
-	& \Rightarrow
-	& \propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & \propname{TRUE}
-    \\ 
-& & \propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & \propname{TRUE}
-    \\ 
-\propname{AY}(S,\leq) \wedge \propname{BM}(S,\leq) \wedge \propname{ID}(S,\otimes) \ \wedge \\
-\ \ (\propname{LI}(S,\ \leq,\ \otimes) \vee \propname{RI}(S,\ \leq,\ \otimes) \ \vee \\
-\ \ \propname{LM}(S,\ \leq,\ \otimes) \vee \propname{RM}(S,\ \leq,\ \otimes))
-	& \Rightarrow 
-	& \propname{OA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & \propname{TRUE}
-    \\ 
-\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LI}(S,\ \otimes,\ \leq) 
-	& \Rightarrow 
-	& \propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & \propname{TRUE}
-    \\ 
-\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RI}(S,\ \otimes,\ \leq) 
-	& \Rightarrow 
-	& \propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
-    & \Leftrightarrow 
-    & \propname{TRUE}
-    \\
-\end{array} 
-\] 
+
+\subsection{$\mathcal{N}$} 
+
+\subfile{bi-semigroups/N.tex}
 
 
 
 
-\section{Other Problems} 
 
-\subsection{Matrix algebras}
 
-\subsection{Swap}
+\chapter{Other Problems} 
+
+\section{Matrix algebras}
+
+\section{Swap}
 
 We might want to define the following combinator for bi-semigroups:
 \[ 
@@ -1087,7 +862,7 @@ We might want to define the following combinator for bi-semigroups:
 The disadvantage of this is that we would then have to introduce 
 (and close with respect to) these dual properties for other bi-semigroup combinators: $\propname{LD}(S,\ \otimes,\ \oplus)$, $\propname{RD}(S,\ \otimes,\ \oplus)$, $\propname{LAB}(S,\ \otimes,\ \oplus)$ and $\propname{RAB}(S,\ \otimes,\ \oplus)$.
 
-\subsection{$k$-best paths}
+\section{$k$-best paths}
 
 %% Assume $(S,\ \oplus,\\otims)$ with 
 %% $\propname{SL}(\oplus)$ and $\propname{CM}(\oplus)$. 
@@ -1126,9 +901,9 @@ The disadvantage of this is that we would then have to introduce
 
 
 
-\subsection{Semi-direct product}
+\section{Semi-direct product}
 
-\subsection{General reductions}
+\section{General reductions}
 
 %% $(T,\ r,\ \approx)$ is well-formed if 
 %% $\approx$ is an equivalence relation over $T$ and 
@@ -1164,7 +939,7 @@ The disadvantage of this is that we would then have to introduce
 %% \end{array} 
 %% \] 
 
-%% \subsection{Examples}
+%% \section{Examples}
 
 
 %\bibliographystyle{plain}
@@ -1172,7 +947,7 @@ The disadvantage of this is that we would then have to introduce
 
 %\appendix
 
-%% \section{Notation}
+%% \chapter{Notation}
 
 %% \[
 %% \begin{array}{rcl}     
@@ -1212,7 +987,7 @@ The disadvantage of this is that we would then have to introduce
 %% \end{array} 
 %% \] 
 
-%% \subsection{Base Semigroups}
+%% \section{Base Semigroups}
 
 %% \[
 %% \begin{array}{|c|c|c|c|c|c|c|c|}\hline 
@@ -1247,7 +1022,7 @@ The disadvantage of this is that we would then have to introduce
 %% \end{tabular} 
 
 
-%% \section{Selected proofs}
+%% \chapter{Selected proofs}
 
 
 \end{document}

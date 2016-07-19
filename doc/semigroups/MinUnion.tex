@@ -1,140 +1,113 @@
-\documentclass[10pt]{article}
-
-% packages 
-\usepackage[english]{babel}
-\usepackage{amsmath}   	% see http://www.ctan.org/pkg/amsmath
-\usepackage{amssymb}   	% 
-\usepackage{amsfonts}  	% 
-\usepackage{scrextend} 	% used for indentation
-\usepackage{titlesec}	% used for adjusting section spacing
-
-% my macros
-\newcommand{\propname}[1]{{\mathbb{#1}}}
-\newcommand{\minunion}{\cup_{\min}^{\leq}}
-\newcommand{\proof}{\vspace{1em} \textbf{Proof} \vspace{1em}}
-
-\newenvironment{ind}[0]{\begin{addmargin}[1em]{0em}\vspace{0.5em}}{\end{addmargin}\vspace{0.5em}}
-
-% Settings
-\setlength{\parindent}{0pt}
-\titlespacing*{\subsection}{0pt}{3\baselineskip}{\baselineskip}
-
-%Document
-\title{MinUnion results} 
-\author{Timothy G. Griffin \& Matthew L. Daggitt} 
+\documentclass[../Summary.tex]{subfiles}
 
 \begin{document}
-\maketitle
-\date 
 
-\begin{abstract} 
-The document presents some theoretical results for the $\minunion$ operator. 
-\end{abstract} 
+\subsubsection{Summary}
 
-
-\section{Definition}
-
-Let $\leq$ be a pre-order on some set $S$ with at least two elements. 
-For $X \subseteq S$, define 
-\[
-\min_\leq(X) \equiv \{x \in X \mid \forall y \in X,\  \neg(y < x)\}. 
-\] 
-Define 
-\[
-{\cal P}_{\mathrm{fin}}(S,\ \lesssim) 
-   \equiv 
-\{X \subseteq S\mid \mbox{$X$ finite and }\min_\leq(X) = X\} 
-\] 
-and 
-\[
-  X\ \minunion Y  \equiv  \min_\leq(X \cup Y) 
-\] 
-then
-\[ 
-\begin{array}{rcl} 
-\mathrm{MinUnion}(S,\ \leq)
-   & \equiv 
-   & ({\cal P}_{\mathrm{fin}}(S,\ \leq),\ \minunion)
-\end{array} 
-\] 
-
-\section{Summary}
-
-$\propname{RX}(S,\ \leq)$ is needed for sensible semantics of $\min_\leq(X)$.
+Assume $(S,\ \leq)$ is a pre-order.
 
 \[
 \begin{array}{lcrcl} 
-\propname{TR}(S, \leq)
-  & \Rightarrow
-  & \propname{AS}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\ 
-& & \propname{ID}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\ 
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{AS}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TRUE} 
+	\\ 
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{ID}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\
 \propname{AY}(S, \leq) \wedge \propname{BM}(S, \leq)
-  & \Rightarrow
-  & \propname{AN}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\
-& & \propname{CM}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\ 
-& & \propname{SL}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TO}(S, \leq)  
-  \\ 
-& & \propname{IP}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{TRUE}
-  \\ 
-& & \propname{IL}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE}
-  \\ 
-& & \propname{IR}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE}
-  \\ 
-& & \propname{LC}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE}
-  \\ 
-& & \propname{RC}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{LK}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{RK}(\mathrm{MinUnion}(S, \leq)) 
-  & \Leftrightarrow 
-  & \propname{FALSE}
-  \\ 
-& & \propname{AL}(\mathrm{MinUnion}(S, \leq))  
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
-& & \propname{AR}(\mathrm{MinUnion}(S, \leq))  
-  & \Leftrightarrow 
-  & \propname{FALSE} 
-  \\ 
+	& \Rightarrow
+	& \propname{AN}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{CM}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+  	& \propname{TRUE}
+	\\ 
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{SL}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TO}(S, \leq)  
+	\\ 
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{IP}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\ 
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{IL}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow
+	& \propname{FALSE} 
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{IR}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow
+	& \propname{FALSE} 
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{LC}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow
+	& \propname{FALSE} 
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{RC}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow
+	& \propname{FALSE} 
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{LK}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow
+	& \propname{FALSE} 
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{RK}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow
+	& \propname{FALSE} 
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{AL}(\mathrm{MinUnion}(S, \leq))  
+	& \Leftrightarrow
+	& \propname{FALSE} 
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{AR}(\mathrm{MinUnion}(S, \leq))  
+	& \Leftrightarrow
+	& \propname{FALSE} 
+	\\
 \end{array} 
 \] 
 
-\section{Lemmas}
 
-\subsection{Absorbing}
 
-$\propname{TR}(\mathrm{S, \leq}) \Rightarrow \forall X Y : \min_\leq(X \cup \min_\leq(Y)) = \min_\leq(X \cup Y) = \min_\leq(\min_\leq(X) \cup Y)$
 
-\proof
+\subsubsection{Useful lemmas}
 
+\begin{lemma} \label{lem:minunion_left_absorption}
+For all X and Y:
+\begin{equation*}
+\min_\leq(X \cup Y) = \min_\leq(\min_\leq(X) \cup Y)
+\end{equation*}
+\end{lemma}
+
+\begin{proof}
 Assume $z \in \min_\leq(X \cup Y)$. 
 \begin{ind}
 Then we have:
@@ -207,20 +180,36 @@ Then $z \in Y$ and hence $z \in X \cup Y$, and by Eq~\ref{eq:lem_abs_minset_righ
 Hence $z \in \min_\leq(X \cup \min_\leq(Y)) \Rightarrow z \in \min_\leq(X \cup Y)$.
 \end{ind}
 
-
 \vspace{1em}
 
-Therefore $\min_\leq(X \cup \min_\leq(Y)) = \min_\leq(X \cup Y)$. The second equality now follows immediately from the commutativity of $\cup$.
+Therefore $\min_\leq(X \cup \min_\leq(Y)) = \min_\leq(X \cup Y)$. 
+\end{proof}
 
-\section{Properties}
 
-\subsection{Associative}
+\vspace{2em}
 
-$\propname{TR}(\mathrm{S, \leq}) \Rightarrow (\propname{AS}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE})$
 
-\proof
+\begin{lemma} \label{lem:minunion_right_absorption}
+For all $X$ and $Y$:
+\begin{equation}
+\min_\leq(X \cup Y) = \min_\leq(X \cup \min_\leq(Y))
+\end{equation}
+\end{lemma}
 
-Using the absorbing lemma we have:
+\begin{proof}
+Follows immediately from Lemma~\ref{lem:minunion_left_absorption} by the commutativity of $\cup$.
+\end{proof}
+
+
+
+\subsubsection{Associative}
+
+\begin{theorem} \label{thm:minunion_as}
+$\propname{AS}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}$
+\end{theorem}
+
+\begin{proof}
+Using Lemmas~\ref{lem:minunion_left_absorption}~\&~\ref{lem:minunion_right_absorption} we have:
 \begin{align*}
 X \minunion (Y \minunion Z) & = \min_\leq(X \cup \min_\leq(Y \cup Z)) \\
 							& = \min_\leq(X \cup (Y \cup Z)) \\
@@ -228,15 +217,18 @@ X \minunion (Y \minunion Z) & = \min_\leq(X \cup \min_\leq(Y \cup Z)) \\
 							& = \min_\leq(\min_\leq(X \cup Y) \cup Z) \\
 							& = (X \minunion Y) \minunion Z
 \end{align*}
+\end{proof}
 
 
 
-\subsection{Identity}
 
+\subsubsection{Identity}
+
+\begin{theorem} \label{thm:minunion_id}
 $\propname{ID}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}$
+\end{theorem}
 
-\proof
-
+\begin{proof}
 Witness : $\emptyset$
 \begin{align*}
 X \minunion \emptyset 	& = \min_\leq(X \cup \emptyset) \\
@@ -249,15 +241,19 @@ X \minunion \emptyset 	& = \min_\leq(X \cup \emptyset) \\
 						& = \min_\leq(X) \\
 						& = X
 \end{align*}
+\end{proof}
 
 
 
-\subsection{Annihilator}
 
+\subsubsection{Annihilator}
+
+\begin{theorem} \label{thm:minunion_an}
 $\propname{BM}(\mathrm{S,\leq}) \wedge \propname{AY}(\mathrm{S,\leq}) \Rightarrow (\propname{AN}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE})$
+\end{theorem}
 
-\proof
 
+\begin{proof}
 Witness: $\{\bot\}$
 
 \begin{align*}
@@ -269,29 +265,37 @@ X \minunion \{\bot\} 	& = \min_\leq(X \cup \{\bot\}) \\
 \{\bot\} \minunion X 	& = \min_\leq(\{\bot\} \cup X) \\
 						& = \{\bot\}
 \end{align*}
+\end{proof}
 
 
 
-\subsection{Commutative}
 
+\subsubsection{Commutative}
+
+\begin{theorem} \label{thm:minunion_cm}
 $\propname{CM}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}$
+\end{theorem}
 
-\proof
+\begin{proof}
+Follows immediately from the commutativity of $\cup$:
 \begin{align*}
 X \minunion Y 	& = \min_\leq(X \cup Y) \\
 				& = \min_\leq(Y \cup X) \\
 				& = Y \minunion X
 \end{align*}
+\end{proof}
 
 
 
-\subsection{Selective}
 
-$\propname{SL}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TO}(\mathrm{(S,\leq)})$
+\subsubsection{Selective}
 
-\proof
+\begin{theorem} \label{thm:minunion_sl}
+$\propname{SL}(\mathrm{MinUnion}(S,\leq)) \Leftrightarrow \propname{TO}(S,\leq)$
+\end{theorem}
 
-Assume $\propname{TO}(\mathrm{(S,\leq)})$.
+\begin{proof}
+Assume $\propname{TO}(S,\leq)$.
 
 \begin{ind}
 Then every set can only contain a single element. Hence for all $x$ and $y$:
@@ -299,10 +303,10 @@ Then every set can only contain a single element. Hence for all $x$ and $y$:
 \{ x \} \minunion \{ y \} 	& = \min_\leq(\{ x \} \cup \{ y \}) \\
 							& = \min_\leq(\{ x , y \}) 
 \end{align*}
-and as $x$ and $y$ are totally ordered, the result must either equal $\{ x \}$ or $\{ y \}$ and therefore we have that $\propname{SL}(\mathrm{MinUnion(S,\leq)})$.
+and as $x$ and $y$ are totally ordered, the result must either equal $\{ x \}$ or $\{ y \}$ and therefore we have that $\propname{SL}(\mathrm{MinUnion}(S,\leq))$.
 \end{ind}
 
-Assume $\neg \propname{TO}(\mathrm{(S,\leq)})$.
+Assume $\neg \propname{TO}(S,\leq)$.
 
 \begin{ind}
 Then there exists $x$ and $y$ such that $x \nleq y$ and $y \nleq x$.
@@ -311,97 +315,145 @@ Then there exists $x$ and $y$ such that $x \nleq y$ and $y \nleq x$.
 							& = \min_\leq(\{ x , y \}) \\
 							& = \{ x , y \}
 \end{align*}
-Hence we have that $\neg \propname{SL}(\mathrm{MinUnion(S,\leq)})$.
+Hence we have that $\neg \propname{SL}(\mathrm{MinUnion}(S,\leq))$.
 \end{ind}
+\end{proof}
 
 
 
-\subsection{Idempotent}
+
+\subsubsection{Idempotent}
+
+\begin{theorem} \label{thm:minunion_ip}
 $\propname{IP}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}$
+\end{theorem}
 
-\proof
-
+\begin{proof}
+Follows immediately from the idempotence of $\cup$:
 \begin{align*}
 X \minunion X 	& = \min_\leq(X \cup X) \\
 				& = \min_\leq(X) \\
 				& = X
 \end{align*}
+\end{proof}
 
 
 
-\subsection{IsLeft}
+\subsubsection{IsLeft}
+
+\begin{theorem} \label{thm:minunion_il}
 $\propname{IL}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
 
-\proof
-
+\begin{proof}
 There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{IL}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
 
 
 
-\subsection{IsRight}
+
+
+\subsubsection{IsRight}
+
+\begin{theorem} \label{thm:minunion_ir}
 $\propname{IR}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
 
-\proof
-
+\begin{proof}
 There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{IR}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
 
 
 
-\subsection{LeftCancellative}
+
+
+\subsubsection{LeftCancellative}
+
+\begin{theorem} \label{thm:minunion_lc}
 $\propname{LC}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
 
-\proof
-
+\begin{proof}
 There exists an identity for $\mathrm{MinUnion(S,\leq)}$, and at least two elements in $S$ and therefore two non-identity elements in ${\cal P}_{\mathrm{fin}}(S,\ \leq)$.
  
 \vspace{0.5em}
 
 Therefore $\neg \propname{LC}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
 
-\subsection{RightCancellative}
+
+
+
+\subsubsection{RightCancellative}
+
+\begin{theorem} \label{thm:minunion_rc}
 $\propname{RC}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
 
-\proof
-
+\begin{proof}
 There exists an identity for $\mathrm{MinUnion(S,\leq)}$, and at least two elements in $S$ and therefore two non-identity elements in ${\cal P}_{\mathrm{fin}}(S,\ \leq)$. 
 
 \vspace{0.5em}
 
 Therefore $\neg \propname{RC}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
 
 
 
-\subsection{LeftConstant}
+
+
+\subsubsection{LeftConstant}
+\begin{theorem} \label{thm:minunion_lk}
 $\propname{LK}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
 
-\proof
-
+\begin{proof}
 There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{LK}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
 
 
 
-\subsection{RightConstant}
+
+
+\subsubsection{RightConstant}
+
+\begin{theorem} \label{thm:minunion_rk}
 $\propname{RK}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
 
-\proof
-
+\begin{proof}
 There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{RK}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
 
 
 
-\subsection{AntiLeft}
+
+
+\subsubsection{AntiLeft}
+
+\begin{theorem} \label{thm:minunion_al}
 $\propname{AL}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
 
-\proof
 
+\begin{proof}
 There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{AL}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
 
 
-\subsection{AntiRight}
+
+
+
+\subsubsection{AntiRight}
+
+\begin{theorem} \label{thm:minunion_ar}
 $\propname{AR}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
 
-\proof
-
+\begin{proof}
 There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{AR}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
+
+
 
 \end{document}
