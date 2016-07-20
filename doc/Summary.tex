@@ -212,6 +212,8 @@ get rid of the class of structures $(S,\ \leq)$.
 \end{array} 
 \]
 
+
+
 \section{Order combinators}
 
 \subsection{Left natural order}
@@ -235,6 +237,25 @@ where $\leq$ is defined as
 \begin{equation*}
 a \leq b \equiv b \oplus a = a
 \end{equation*}
+
+
+\section{Ordered semigroup combinators}
+
+\subsection{Left natural order}
+
+Given the bi-semigroup $(S , \oplus, \otimes)$ then:
+\[
+\mathrm{BLNO}(S,\ \otimes,\ \leq) \equiv (S, \mathrm{LNO}(S, \oplus), \otimes)
+\]
+
+\subsection{Right natural order}
+
+Given the bi-semigroup $(S , \oplus, \otimes)$ then:
+\[
+\mathrm{BRNO}(S,\ \otimes,\ \leq) \equiv (S, \mathrm{RNO}(S, \oplus), \otimes)
+\]
+
+
 
 \section{Bi-semigroup combinators} 
 
@@ -819,6 +840,49 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 \propname{TP}(\mathrm{RNO}(S,\ \bullet))
     & \Leftrightarrow
     & \propname{LID}(S,\ \bullet) \\ 
+\end{array} 
+\] 
+
+% ==============================================================
+
+\section{Ordered semigroups}
+
+\subsection{Left natural order}
+
+\[
+\begin{array}{rcl} 
+\propname{LM}(\mathrm{LRNO}(S,\oplus,\otimes))
+    & \Leftrightarrow % COQ 
+    & ??? \\
+\propname{RM}(\mathrm{LRNO}(S,\oplus,\otimes))
+    & \Leftrightarrow % COQ 
+    & ??? \\
+\propname{LI}(\mathrm{LRNO}(S,\oplus,\otimes))
+    & \Leftrightarrow % COQ 
+    & ??? \\ 
+\propname{RI}(\mathrm{LRNO}(S,\oplus,\otimes))
+    & \Leftrightarrow % COQ 
+    & ??? \\
+\end{array} 
+\] 
+
+
+\subsection{Right natural order}
+
+\[
+\begin{array}{rcl} 
+\propname{LM}(\mathrm{BRNO}(S,\oplus,\otimes))
+    & \Leftrightarrow % COQ 
+    & ??? \\
+\propname{RM}(\mathrm{BRNO}(S,\oplus,\otimes))
+    & \Leftrightarrow % COQ 
+    & ??? \\
+\propname{LI}(\mathrm{BRNO}(S,\oplus,\otimes))
+    & \Leftrightarrow % COQ 
+    & ??? \\ 
+\propname{RI}(\mathrm{BRNO}(S,\oplus,\otimes))
+    & \Leftrightarrow % COQ 
+    & ??? \\
 \end{array} 
 \] 
 
