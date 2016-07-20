@@ -16,47 +16,61 @@ Assume $(S,\ \leq)$ is a pre-order.
 	\\ 
 \propname{TRUE}
 	& \Rightarrow
-	& \propname{ID}(\mathrm{MinUnion}(S, \leq)) 
-	& \Leftrightarrow 
-	& \propname{TRUE}
-	\\
-\propname{AY}(S, \leq) \wedge \propname{BM}(S, \leq)
-	& \Rightarrow
-	& \propname{AN}(\mathrm{MinUnion}(S, \leq)) 
-	& \Leftrightarrow 
-	& \propname{TRUE}
-	\\
-\propname{TRUE}
-	& \Rightarrow
 	& \propname{CM}(\mathrm{MinUnion}(S, \leq)) 
 	& \Leftrightarrow 
   	& \propname{TRUE}
 	\\ 
 \propname{TRUE}
 	& \Rightarrow
-	& \propname{SL}(\mathrm{MinUnion}(S, \leq)) 
-	& \Leftrightarrow 
-	& \propname{TO}(S, \leq)  
-	\\ 
-\propname{TRUE}
-	& \Rightarrow
 	& \propname{IP}(\mathrm{MinUnion}(S, \leq)) 
 	& \Leftrightarrow 
 	& \propname{TRUE}
-	\\ 
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{SL}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TO}(S, \leq)  
+	\\\\
+	
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{LID}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{RID}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\
+\propname{AY}(S, \leq) \wedge \propname{BM}(S, \leq)
+	& \Rightarrow
+	& \propname{LAN}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\
+\propname{AY}(S, \leq) \wedge \propname{BM}(S, \leq)
+	& \Rightarrow
+	& \propname{RAN}(\mathrm{MinUnion}(S, \leq)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\\\
+	
 \propname{TRUE}
 	& \Rightarrow
 	& \propname{IL}(\mathrm{MinUnion}(S, \leq)) 
 	& \Leftrightarrow
 	& \propname{FALSE} 
 	\\
-\propname{TRUE}
+\propname{AY}(S, \leq) \wedge \propname{BM}(S, \leq)
 	& \Rightarrow
 	& \propname{IR}(\mathrm{MinUnion}(S, \leq)) 
 	& \Leftrightarrow
 	& \propname{FALSE} 
 	\\
-\propname{TRUE}
+\propname{AY}(S, \leq) \wedge \propname{BM}(S, \leq)
 	& \Rightarrow
 	& \propname{LC}(\mathrm{MinUnion}(S, \leq)) 
 	& \Leftrightarrow
@@ -98,7 +112,7 @@ Assume $(S,\ \leq)$ is a pre-order.
 
 
 
-\subsubsection{Useful lemmas}
+\subsubsection{MinUnion lemmas}
 
 \begin{lemma} \label{lem:minunion_left_absorption}
 For all X and Y:
@@ -222,54 +236,6 @@ X \minunion (Y \minunion Z) & = \min_\leq(X \cup \min_\leq(Y \cup Z)) \\
 
 
 
-\subsubsection{Identity}
-
-\begin{theorem} \label{thm:minunion_id}
-$\propname{ID}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}$
-\end{theorem}
-
-\begin{proof}
-Witness : $\emptyset$
-\begin{align*}
-X \minunion \emptyset 	& = \min_\leq(X \cup \emptyset) \\
-						& = \min_\leq(X) \\
-						& = X
-\end{align*}
-
-\begin{align*}
-\emptyset \minunion X 	& = \min_\leq(\emptyset \cup X) \\
-						& = \min_\leq(X) \\
-						& = X
-\end{align*}
-\end{proof}
-
-
-
-
-\subsubsection{Annihilator}
-
-\begin{theorem} \label{thm:minunion_an}
-$\propname{BM}(\mathrm{S,\leq}) \wedge \propname{AY}(\mathrm{S,\leq}) \Rightarrow (\propname{AN}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE})$
-\end{theorem}
-
-
-\begin{proof}
-Witness: $\{\bot\}$
-
-\begin{align*}
-X \minunion \{\bot\} 	& = \min_\leq(X \cup \{\bot\}) \\
-						& = \{\bot\}
-\end{align*}
-
-\begin{align*}
-\{\bot\} \minunion X 	& = \min_\leq(\{\bot\} \cup X) \\
-						& = \{\bot\}
-\end{align*}
-\end{proof}
-
-
-
-
 \subsubsection{Commutative}
 
 \begin{theorem} \label{thm:minunion_cm}
@@ -284,6 +250,26 @@ X \minunion Y 	& = \min_\leq(X \cup Y) \\
 				& = Y \minunion X
 \end{align*}
 \end{proof}
+
+
+
+
+
+\subsubsection{Idempotent}
+
+\begin{theorem} \label{thm:minunion_ip}
+$\propname{IP}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}$
+\end{theorem}
+
+\begin{proof}
+Follows immediately from the idempotence of $\cup$:
+\begin{align*}
+X \minunion X 	& = \min_\leq(X \cup X) \\
+				& = \min_\leq(X) \\
+				& = X
+\end{align*}
+\end{proof}
+
 
 
 
@@ -322,20 +308,112 @@ Hence we have that $\neg \propname{SL}(\mathrm{MinUnion}(S,\leq))$.
 
 
 
-\subsubsection{Idempotent}
+\subsubsection{Left identity}
 
-\begin{theorem} \label{thm:minunion_ip}
-$\propname{IP}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}$
+\begin{theorem} \label{thm:minunion_lid}
+$\propname{LID}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}$
 \end{theorem}
 
 \begin{proof}
-Follows immediately from the idempotence of $\cup$:
+
+\vspace{0.5em}
+
+Witness : $\emptyset$
+\begin{ind}
+For all $X$ then
 \begin{align*}
-X \minunion X 	& = \min_\leq(X \cup X) \\
-				& = \min_\leq(X) \\
-				& = X
+\emptyset \minunion X 	& = \min_\leq(\emptyset \cup X) \\
+						& = \min_\leq(X) \\
+						& = X
 \end{align*}
+\end{ind}
 \end{proof}
+
+
+
+\subsubsection{Right identity}
+
+\begin{theorem} \label{thm:minunion_rid}
+$\propname{RID}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\emptyset$
+\begin{ind}
+For all $X$ then
+\begin{align*}
+X \minunion \emptyset 	& = \min_\leq(X \cup \emptyset) \\
+						& = \min_\leq(X) \\
+						& = X
+\end{align*}
+\end{ind}
+\end{proof}
+
+
+
+
+
+\subsubsection{Left annihilator}
+
+\begin{theorem} \label{thm:minunion_lan}
+If $\propname{BM}(\mathrm{S,\leq})$ and $\propname{AY}(\mathrm{S,\leq})$ then
+\begin{equation*}
+\propname{LAN}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness: $\{\bot\}$
+\begin{ind}
+For all $x \in S$ we have that either $x = \bot$ or $x < \bot$ by $\propname{BM}(\mathrm{S,\leq})$ and $\propname{AY}(\mathrm{S,\leq})$.
+
+\vspace{0.5em}
+
+Therefore
+\begin{align*}
+\{\bot\} \minunion X 	& = \min_\leq(\{\bot\} \cup X) \\
+						& = \{\bot\}
+\end{align*}
+\end{ind}
+\end{proof}
+
+
+
+
+
+\subsubsection{Right annihilator}
+
+\begin{theorem} \label{thm:minunion_ran}
+If $\propname{BM}(\mathrm{S,\leq})$ and $\propname{AY}(\mathrm{S,\leq})$ then
+\begin{equation*}
+\propname{RAN}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness: $\{\bot\}$
+\begin{ind}
+For all $x \in S$ we have that either $x = \bot$ or $x < \bot$ by $\propname{BM}(\mathrm{S,\leq})$ and $\propname{AY}(\mathrm{S,\leq})$.
+
+\vspace{0.5em}
+
+Therefore
+\begin{align*}
+X \minunion \{\bot\} 	& = \min_\leq(X \cup \{\bot\}) \\
+						& = \{\bot\}
+\end{align*}
+\end{ind}
+\end{proof}
+
 
 
 
@@ -346,7 +424,10 @@ $\propname{IL}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
 \end{theorem}
 
 \begin{proof}
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{IL}(\mathrm{MinUnion(S,\leq)})$.
+
+\vspace{0.5em}
+
+By Theorem~\ref{thm:minunion_lid} we know $\propname{LID}(\mathrm{MinUnion(S,\leq)})$ holds and so by Lemma~\ref{lem:lid_implies_n_il_lk_ar} we have $\neg \propname{IL}(\mathrm{MinUnion(S,\leq)})$.
 \end{proof}
 
 
@@ -360,7 +441,10 @@ $\propname{IR}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
 \end{theorem}
 
 \begin{proof}
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{IR}(\mathrm{MinUnion(S,\leq)})$.
+
+\vspace{0.5em}
+
+By Theorem~\ref{thm:minunion_rid} we know $\propname{RID}(\mathrm{MinUnion(S,\leq)})$ holds and so by Lemma~\ref{lem:rid_implies_n_ir_rk_al} we have $\neg \propname{IR}(\mathrm{MinUnion(S,\leq)})$.
 \end{proof}
 
 
@@ -370,15 +454,19 @@ There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propn
 \subsubsection{LeftCancellative}
 
 \begin{theorem} \label{thm:minunion_lc}
-$\propname{LC}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+If $\propname{AY}(S, \leq)$ and $\propname{BM}(S, \leq)$ then
+\begin{equation*}
+\propname{LC}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}
+\end{equation*}
 \end{theorem}
 
 \begin{proof}
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, and at least two elements in $S$ and therefore two non-identity elements in ${\cal P}_{\mathrm{fin}}(S,\ \leq)$.
- 
-\vspace{0.5em}
 
-Therefore $\neg \propname{LC}(\mathrm{MinUnion(S,\leq)})$.
+\vspace{0.5em}
+As $\propname{AY}(S, \leq)$ and $\propname{BM}(S, \leq)$ then by Theorem~\ref{thm:minunion_lan} we know $\propname{LAN}(\mathrm{MinUnion(S,\leq)})$ holds.
+
+\vspace{0.5em}
+Hence by Lemma~\ref{lem:lan_implies_n_ir_lc_al} we have $\neg \propname{LC}(\mathrm{MinUnion(S,\leq)})$.
 \end{proof}
 
 
@@ -387,15 +475,19 @@ Therefore $\neg \propname{LC}(\mathrm{MinUnion(S,\leq)})$.
 \subsubsection{RightCancellative}
 
 \begin{theorem} \label{thm:minunion_rc}
-$\propname{RC}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
+If $\propname{AY}(S, \leq)$ and $\propname{BM}(S, \leq)$ then
+\begin{equation*}
+\propname{RC}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}
+\end{equation*}
 \end{theorem}
 
 \begin{proof}
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, and at least two elements in $S$ and therefore two non-identity elements in ${\cal P}_{\mathrm{fin}}(S,\ \leq)$. 
 
 \vspace{0.5em}
+As $\propname{AY}(S, \leq)$ and $\propname{BM}(S, \leq)$ then by Theorem~\ref{thm:minunion_ran} we know $\propname{RAN}(\mathrm{MinUnion(S,\leq)})$ holds.
 
-Therefore $\neg \propname{RC}(\mathrm{MinUnion(S,\leq)})$.
+\vspace{0.5em}
+Hence by Lemma~\ref{lem:ran_implies_n_il_rc_ar} we have $\neg \propname{RC}(\mathrm{MinUnion(S,\leq)})$.
 \end{proof}
 
 
@@ -408,7 +500,10 @@ $\propname{LK}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
 \end{theorem}
 
 \begin{proof}
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{LK}(\mathrm{MinUnion(S,\leq)})$.
+
+\vspace{0.5em}
+
+By Theorem~\ref{thm:minunion_lid} we know $\propname{LID}(\mathrm{MinUnion(S,\leq)})$ holds and so by Lemma~\ref{lem:lid_implies_n_il_lk_ar} we have $\neg \propname{LK}(\mathrm{MinUnion(S,\leq)})$.
 \end{proof}
 
 
@@ -422,7 +517,10 @@ $\propname{RK}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
 \end{theorem}
 
 \begin{proof}
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{RK}(\mathrm{MinUnion(S,\leq)})$.
+
+\vspace{0.5em}
+
+By Theorem~\ref{thm:minunion_rid} we know $\propname{RID}(\mathrm{MinUnion(S,\leq)})$ holds and so by Lemma~\ref{lem:rid_implies_n_ir_rk_al} we have $\neg \propname{RK}(\mathrm{MinUnion(S,\leq)})$.
 \end{proof}
 
 
@@ -435,11 +533,12 @@ There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propn
 $\propname{AL}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
 \end{theorem}
 
-
 \begin{proof}
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{AL}(\mathrm{MinUnion(S,\leq)})$.
-\end{proof}
 
+\vspace{0.5em}
+
+By Theorem~\ref{thm:minunion_rid} we know $\propname{RID}(\mathrm{MinUnion(S,\leq)})$ holds and so by Lemma~\ref{lem:rid_implies_n_ir_rk_al} we have $\neg \propname{LK}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
 
 
 
@@ -451,7 +550,10 @@ $\propname{AR}(\mathrm{MinUnion(S,\leq)}) \Leftrightarrow \propname{FALSE}$
 \end{theorem}
 
 \begin{proof}
-There exists an identity for $\mathrm{MinUnion(S,\leq)}$, therefore $\neg \propname{AR}(\mathrm{MinUnion(S,\leq)})$.
+
+\vspace{0.5em}
+
+By Theorem~\ref{thm:minunion_lid} we know $\propname{LID}(\mathrm{MinUnion(S,\leq)})$ holds and so by Lemma~\ref{lem:lid_implies_n_il_lk_ar} we have $\neg \propname{AR}(\mathrm{MinUnion(S,\leq)})$.
 \end{proof}
 
 

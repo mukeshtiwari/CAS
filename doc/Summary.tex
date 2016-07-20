@@ -25,7 +25,7 @@
 \newenvironment{ind}[0]{\begin{addmargin}[1em]{0em}\vspace{0.5em}}{\end{addmargin}\vspace{0.5em}}
 
 \newtheorem{theorem}{Theorem}
-\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{lemma}{Lemma}
 
 
 % environment
@@ -274,6 +274,13 @@ a \leq b \equiv b \oplus a = a
 (S\times T,\ \oplus_S\lexprod\oplus_T,\ \otimes_S\times\otimes_T)
 \]
 
+
+\subsection{$\mathcal{N}$}
+\[
+\mathcal{N}(S,\ \otimes,\ \leq) \equiv (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minunion,\ \minlift)
+\]
+
+
 \subsection{$\mathcal{M}$}
 
 \[
@@ -281,10 +288,7 @@ a \leq b \equiv b \oplus a = a
 \]
 
 
-\subsection{$\mathcal{N}$}
-\[
-\mathcal{N}(S,\ \otimes,\ \leq) \equiv (\mathcal{P}_{\mathrm{fin}}(S,\ \leq),\ \minunion,\ \minlift)
-\]
+
 
 
 
@@ -304,11 +308,13 @@ There are two types of properties:
 Property & Abbr. & Definition & Required for\\
 \midrule
 Associative & $\propname{AS}$	& $\forall a b c : a \bullet (b \bullet c) = (a \bullet b) \bullet c$ & -- \\
-Identity 	& $\propname{ID}$	& $\exists \alpha : \forall a : \alpha \bullet a = a = a \bullet \alpha$ & --\\
-Annihilator & $\propname{AN}$	& $\exists \omega : \forall a : \omega \bullet a = \omega = a \bullet \omega$ & --\\
 Commutative & $\propname{CM}$	& $\forall a b : a\bullet b =  b\bullet a$ & --\\
 Selective	& $\propname{SL}$	& $\forall a b : a\bullet b  \in  \{a,\ b\}$ & --\\
 Idempotent	& $\propname{IP}$	& $\forall a : a\bullet a  =  a$ & --\\
+Left identity 	& $\propname{LID}$	& $\exists \alpha : \forall a : \alpha \bullet a = a$ & --\\
+Right identity 	& $\propname{RID}$	& $\exists \alpha : \forall a : a \bullet \alpha = a$ & --\\
+Left annihilator & $\propname{LAN}$	& $\exists \omega : \forall a : \omega \bullet a = \omega$ & --\\
+Right annihilator & $\propname{RAN}$	& $\exists \omega : \forall a : a \bullet \omega = \omega$ & --\\
 \midrule
 Is left 			& $\propname{IL}$ 	&  $\forall a b : a \bullet b = a$ & $\propname{SL}(\times)$ \\
 Is right 			& $\propname{IR}$ 	&  $\forall a b : a \bullet b = b$ & $\propname{SL}(\times)$ \\
@@ -384,25 +390,72 @@ where
 
 \section{A few useful implications} 
 
-\[ 
-\begin{array}{rcl} 
-\propname{SL}
-   & \Rightarrow 
-   & \propname{IP}\\ 
-\propname{RAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus)
-    & \Rightarrow 
-    & \propname{IP}(S,\ \otimes)\\ 
-\propname{LAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus)
-    & \Rightarrow 
-    & \propname{IP}(S,\ \otimes)\\ 
-\propname{LD}(S,\ \oplus,\ \otimes) \wedge \propname{OA}(S,\ \oplus,\ \otimes)
-    & \Rightarrow 
-    & \propname{RAB}(S,\ \oplus,\ \otimes) \\ 
-\propname{RD}(S,\ \oplus,\ \otimes) \wedge \propname{OA}(S,\ \oplus,\ \otimes) 
-    & \Rightarrow 
-    & \propname{LAB}(S,\ \oplus,\ \otimes)
-\end{array} 
-\] 
+\begin{lemma} \label{lem:sl_implies_ip}
+For all $(S, \bullet)$ then
+\begin{equation*}
+\propname{SL}(S, \bullet) \Rightarrow \propname{IP}(S, \bullet)
+\end{equation*}
+\end{lemma}
+
+\begin{lemma} \label{lem:lid_implies_n_il_lk_ar}
+For all $(S, \bullet)$ then
+\begin{equation*}
+\propname{LID}(S, \bullet) \Rightarrow \neg \propname{IL}(S, \bullet) \wedge \neg \propname{LK}(S, \bullet) \wedge \neg \propname{AR}(S, \bullet)
+\end{equation*}
+\end{lemma}
+
+\begin{lemma} \label{lem:rid_implies_n_ir_rk_al}
+For all $(S, \bullet)$ then
+\begin{equation*}
+\propname{RID}(S, \bullet) \Rightarrow \neg \propname{IR}(S, \bullet) \wedge \neg \propname{RK}(S, \bullet) \wedge \neg \propname{AL}(S, \bullet)
+\end{equation*}
+\end{lemma}
+
+\begin{lemma} \label{lem:lan_implies_n_ir_lc_al}
+For all $(S, \bullet)$ then
+\begin{equation*}
+\propname{LAN}(S, \bullet) \Rightarrow \neg \propname{IR}(S, \bullet) \wedge \neg \propname{LC}(S, \bullet) \wedge \neg \propname{AL}(S, \bullet)
+\end{equation*}
+\end{lemma}
+
+\begin{lemma} \label{lem:ran_implies_n_il_rc_ar}
+For all $(S, \bullet)$ then
+\begin{equation*}
+\propname{RAN}(S, \bullet) \Rightarrow \neg \propname{IL}(S, \bullet) \wedge \neg \propname{RC}(S, \bullet) \wedge \neg \propname{AR}(S, \bullet)
+\end{equation*}
+\end{lemma}
+
+\begin{lemma} \label{lem:rab_id_implies_ip}
+For all $(S, \oplus, \otimes)$ then
+\begin{equation*}
+\propname{RAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus) \Rightarrow \propname{IP}(S,\ \otimes)\\
+\end{equation*}
+\end{lemma}
+
+\begin{lemma} \label{lem:lab_id_implies_ip}
+For all $(S, \oplus, \otimes)$ then
+\begin{equation*}
+\propname{LAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus) \Rightarrow \propname{IP}(S,\ \otimes)\\
+\end{equation*}
+\end{lemma}
+
+\begin{lemma} \label{lem:ld_oa_implies_rab}
+For all $(S, \oplus, \otimes)$ then
+\begin{equation*}
+\propname{LD}(S,\ \oplus,\ \otimes) \wedge \propname{OA}(S,\ \oplus,\ \otimes) \Rightarrow \propname{RAB}(S,\ \oplus, \ \otimes)\\
+\end{equation*}
+\end{lemma}
+
+\begin{lemma} \label{lem:rd_oa_implies_lab}
+For all $(S, \oplus, \otimes)$ then
+\begin{equation*}
+\propname{RD}(S,\ \oplus,\ \otimes) \wedge \propname{OA}(S,\ \oplus,\ \otimes) \Rightarrow \propname{LAB}(S,\ \oplus, \ \otimes)\\
+\end{equation*}
+\end{lemma}
+
+
+
+
 
 \section{Semigroups}
 
@@ -412,46 +465,54 @@ where
 \[
 \begin{array}{rcl} 
 \propname{AS}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{AS}(S, \bullet) \\
-\propname{ID}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
-  & \propname{TRUE} \\ 
-\propname{AN}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
-  & \propname{AN}(S, \bullet) \\
 \propname{CM}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{CM}(S, \bullet) \\
 \propname{IP}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{IP}(S, \bullet) \\
 \propname{SL}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
-  & \propname{SL}(S, \bullet) \\
+  & \Leftrightarrow
+  & \propname{SL}(S, \bullet) \\\\
+  
+\propname{LID}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow
+  & \propname{TRUE} \\ 
+\propname{RID}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow
+  & \propname{TRUE} \\ 
+\propname{LAN}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow
+  & \propname{LAN}(S, \bullet) \\
+\propname{RAN}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow
+  & \propname{RAN}(S, \bullet) \\\\
+  
 \propname{IR}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{IL}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{LC}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{LC}(S,\ \bullet) \wedge \propname{AL}(S,\ \bullet) \\
 \propname{RC}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{RC}(S,\ \bullet) \wedge \propname{AR}(S,\ \bullet) \\
 \propname{LK}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{RK}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{AL}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{AR}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \end{array} 
 \] 
@@ -461,46 +522,54 @@ where
 \[
 \begin{array}{rcl} 
 \propname{AS}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{AS}(S, \bullet) \\
-\propname{ID}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
-  & \propname{ID}(S, \bullet) \\
-\propname{AN}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
-  & \propname{TRUE} \\ 
 \propname{CM}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{CM}(S, \bullet) \\
 \propname{IP}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{IP}(S, \bullet) \\
 \propname{SL}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
-  & \propname{SL}(S, \bullet) \\
+  & \Leftrightarrow
+  & \propname{SL}(S, \bullet) \\\\
+  
+\propname{LID}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow
+  & \propname{LID}(S, \bullet) \\
+\propname{RID}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow
+  & \propname{RID}(S, \bullet) \\
+\propname{LAN}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow
+  & \propname{TRUE} \\ 
+\propname{RAN}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
+  & \Leftrightarrow
+  & \propname{TRUE} \\\\
+  
 \propname{IR}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{IL}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{LC}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{RC}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{LK}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow 
   & \propname{FALSE}\\ 
 \propname{RK}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{AL}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \propname{AR}(\mathrm{AddAn}(\alpha,\ (S,\ \bullet))) 
-  & \Leftrightarrow % COQ 
+  & \Leftrightarrow
   & \propname{FALSE}\\ 
 \end{array} 
 \] 
@@ -512,27 +581,31 @@ where
 \propname{AS}((S, \bullet) \times (T, \diamond)) 
    & \Leftrightarrow % COQ 
    & \propname{AS}(S, \bullet) \wedge  \propname{AS}(T, \diamond) \\ 
-\propname{ID}((S, \bullet) \times (T, \diamond)) 
-   & \Leftrightarrow % COQ 
-   & \propname{ID}(S, \bullet) \wedge  \propname{ID}(T, \diamond) \\ 
-\propname{AN}((S, \bullet) \times (T, \diamond)) 
-   & \Leftrightarrow % COQ 
-   & \propname{AN}(S, \bullet) \wedge  \propname{AN}(T, \diamond) \\ 
 \propname{CM}((S, \bullet) \times (T, \diamond)) 
    & \Leftrightarrow % COQ 
    & \propname{CM}(S, \bullet) \wedge  \propname{CM}(T, \diamond) \\ 
 \propname{IP}((S, \bullet) \times (T, \diamond)) 
    & \Leftrightarrow % COQ 
    & \propname{IP}(S, \bullet) \wedge  \propname{IP}(T, \diamond) \\ 
-%%
-%% This \Leftrightarrow is classically true.  But need more for constructive version 
-%% (Need excluded middle for properties on subterms ...) 
-%%
 \propname{SL}((S, \bullet) \times (T, \diamond)) 
     & \Leftrightarrow % CAS --- but more complicated ... 
     & (\propname{IR}(S, \bullet) \wedge  \propname{IR}(T, \diamond)) 
       \vee 
-      (\propname{IL}(S, \bullet) \wedge  \propname{IL}(T, \diamond)) \\ 
+      (\propname{IL}(S, \bullet) \wedge  \propname{IL}(T, \diamond)) \\\\
+      
+\propname{LID}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{LID}(S, \bullet) \wedge  \propname{LID}(T, \diamond) \\ 
+\propname{RID}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{RID}(S, \bullet) \wedge  \propname{RID}(T, \diamond) \\ 
+\propname{LAN}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{LAN}(S, \bullet) \wedge  \propname{LAN}(T, \diamond) \\
+\propname{RAN}((S, \bullet) \times (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{RAN}(S, \bullet) \wedge  \propname{RAN}(T, \diamond) \\\\
+   
 \propname{IR}((S, \bullet) \times (T, \diamond)) 
    & \Leftrightarrow % COQ 
    & \propname{IR}(S, \bullet) \wedge  \propname{IR}(T, \diamond) \\ 
@@ -572,12 +645,6 @@ $\propname{SL}(S, \bullet)$.
 \propname{AS}((S, \bullet) \vec{\times} (T, \diamond)) 
    & \Leftrightarrow % COQ 
    & \propname{AS}(T, \diamond) \\ 
-\propname{ID}((S, \bullet) \vec{\times} (T, \diamond)) 
-   & \Leftrightarrow % COQ 
-   & \propname{ID}(S, \bullet) \wedge  \propname{ID}(T, \diamond) \\ 
-\propname{AN}((S, \bullet) \vec{\times} (T, \diamond)) 
-   & \Leftrightarrow % COQ 
-   & \propname{AN}(S, \bullet) \wedge  \propname{AN}(T, \diamond) \\ 
 \propname{CM}((S, \bullet) \vec{\times} (T, \diamond)) 
    & \Leftrightarrow % COQ 
    & \propname{CM}(T, \diamond) \\ 
@@ -586,7 +653,21 @@ $\propname{SL}(S, \bullet)$.
    & \propname{IP}(T, \diamond) \\ 
 \propname{SL}((S, \bullet) \vec{\times}  (T, \diamond)) 
    & \Leftrightarrow % COQ 
-   & \propname{SL}(T, \diamond) \\ 
+   & \propname{SL}(T, \diamond) \\ \\
+   
+\propname{LID}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{LID}(S, \bullet) \wedge  \propname{LID}(T, \diamond) \\ 
+\propname{RID}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{RID}(S, \bullet) \wedge  \propname{RID}(T, \diamond) \\  
+\propname{LAN}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{LAN}(S, \bullet) \wedge  \propname{LAN}(T, \diamond) \\
+\propname{RAN}((S, \bullet) \vec{\times} (T, \diamond)) 
+   & \Leftrightarrow % COQ 
+   & \propname{RAN}(S, \bullet) \wedge  \propname{RAN}(T, \diamond) \\ \\
+   
 \propname{IR}((S, \bullet) \vec{\times}  (T, \diamond)) 
    & \Leftrightarrow % COQ 
    & \propname{FALSE} \\
@@ -620,12 +701,6 @@ $\propname{SL}(S, \bullet)$.
 \propname{AS}(\mathrm{lift}(S, \bullet)) 
    & \Leftrightarrow 
    & \propname{AS}(S, \bullet) \\ 
-\propname{ID}(\mathrm{lift}(S, \bullet)) 
-   & \Leftrightarrow 
-   & \propname{ID}(S, \bullet)  \ \ (\hat{\alpha} = \{\alpha\})\\ 
-\propname{AN}(\mathrm{lift}(S, \bullet)) 
-   & \Leftrightarrow 
-   & \propname{TRUE} \ \ (\omega = \{\})\\ 
 \propname{CM}(\mathrm{lift}(S, \bullet)) 
    & \Leftrightarrow 
    & \propname{CM}(S, \bullet) \\ 
@@ -636,7 +711,21 @@ $\propname{SL}(S, \bullet)$.
      \vee (\propname{IP}(S, \bullet)\ \wedge {\mid S \mid} = 2) \\ 
 \propname{IP}(\mathrm{lift}(S, \bullet)) 
    & \Leftrightarrow 
-   & \propname{SL}((S, \bullet)) \\ 
+   & \propname{SL}((S, \bullet)) \\ \\
+   
+\propname{LID}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{LID}(S, \bullet)  \ \ (\hat{\alpha} = \{\alpha\})\\ 
+\propname{RID}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{RID}(S, \bullet)  \ \ (\hat{\alpha} = \{\alpha\})\\ 
+\propname{LAN}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{TRUE} \ \ (\omega = \{\})\\ 
+\propname{RAN}(\mathrm{lift}(S, \bullet)) 
+   & \Leftrightarrow 
+   & \propname{TRUE} \ \ (\omega = \{\})\\\\
+   
 \propname{IL}(\mathrm{lift}(S, \bullet)) 
    & \Leftrightarrow 
    & \propname{FALSE} \\ 
@@ -699,10 +788,10 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
     & ??? \\
 \propname{BM}(\mathrm{LNO}(S,\ \bullet))
     & \Leftrightarrow
-    & ??? \\ 
+    & \propname{LAN}(S,\ \bullet) \\ 
 \propname{TP}(\mathrm{LNO}(S,\ \bullet))
     & \Leftrightarrow
-    & ??? \\ 
+    & \propname{RID}(S,\ \bullet) \\ 
 \end{array} 
 \] 
 
@@ -726,10 +815,10 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
     & ??? \\
 \propname{BM}(\mathrm{RNO}(S,\ \bullet))
     & \Leftrightarrow
-    & ??? \\ 
+    & \propname{RAN}(S,\ \bullet) \\ 
 \propname{TP}(\mathrm{RNO}(S,\ \bullet))
     & \Leftrightarrow
-    & ??? \\ 
+    & \propname{LID}(S,\ \bullet) \\ 
 \end{array} 
 \] 
 
@@ -796,6 +885,8 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 \end{array} 
 \] 
 
+
+
 \subsection{Direct product} 
 
 \[
@@ -826,15 +917,12 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 \end{array} 
 \]
 
+
+
 \subsection{Lexicographic product} 
 
 \subfile{bi-semigroups/LexicographicProduct.tex}
 
-
-
-\subsection{$\mathcal{M}$} 
-
-\subfile{bi-semigroups/M.tex}
 
 
 
@@ -843,6 +931,11 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 \subfile{bi-semigroups/N.tex}
 
 
+
+
+\subsection{$\mathcal{M}$} 
+
+\subfile{bi-semigroups/M.tex}
 
 
 

@@ -6,19 +6,21 @@
 
 \[
 \begin{array}{lcrcl} 
-\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LM}(S,\ \otimes,\ \leq)
+\propname{AY}(S,\ \leq) \wedge \propname{LM}(S,\ \otimes,\ \leq)
 	& \Rightarrow
 	& \propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & \propname{TRUE}
     \\ 
-\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RM}(S,\ \otimes,\ \leq)
+\propname{AY}(S,\ \leq) \wedge \propname{RM}(S,\ \otimes,\ \leq)
 	& \Rightarrow
 	& \propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & \propname{TRUE}
     \\ 
-& & \propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & \propname{TRUE}
     \\ 
@@ -30,13 +32,13 @@
     & \Leftrightarrow 
     & \propname{TRUE}
     \\ 
-\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LI}(S,\ \otimes,\ \leq) 
+\propname{AY}(S,\ \leq) \wedge \propname{LI}(S,\ \otimes,\ \leq) 
 	& \Rightarrow 
 	& \propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & \propname{TRUE}
     \\ 
-\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RI}(S,\ \otimes,\ \leq) 
+\propname{AY}(S,\ \leq) \wedge \propname{RI}(S,\ \otimes,\ \leq) 
 	& \Rightarrow 
 	& \propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
@@ -49,65 +51,100 @@ Lemmas and results used here can be found in the documentation for MinUnion ($\m
 
 
 
+
 \subsubsection{Left distributive}
 
-$\propname{LM}(S,\ \otimes,\ \leq) \wedge \propname{TR}(S,\ \otimes,\ \leq) \wedge \propname{AY}(S,\ \otimes, \ \leq) \Rightarrow (\propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq))  \Leftrightarrow \propname{TRUE})$
+\begin{theorem} \label{thm:N_ld}
+If $\propname{LM}(S,\ \otimes,\ \leq)$ and $\propname{AY}(S,\ \otimes, \ \leq)$ then
+\begin{equation*}
+\propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq))  \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
 
-\proof
 
+\begin{proof}
+
+\vspace{0.5em}
 Consider arbitrary $X,Y,Z$
 \begin{align*}
 X \minlift (Y \minunion Z) 	& = \min_\leq(X \lift \min_\leq(Y \cup Z)) \\
-							& = \min_\leq(X \lift (Y \cup Z)) \\
+							& = \min_\leq(X \lift (Y \cup Z)) & \text{(Lem~\ref{lem:minlift_right_absorption})} \\
 							& = \min_\leq((X \lift Y) \cup (X \lift Z)) \\
-							& = \min_\leq(\min_\leq(X \lift Y) \cup \min_\leq(X \lift Z)) \\
+							& = \min_\leq(\min_\leq(X \lift Y) \cup \min_\leq(X \lift Z)) & \text{(Lem \ref{lem:minunion_left_absorption} \& \ref{lem:minunion_right_absorption})} \\
 							& = (X \minlift Y) \minunion (X \minlift Z)
 \end{align*}
+\end{proof}
+
 
 
 
 \subsubsection{Right distributive}
 
-$\propname{RM}(S,\ \otimes,\ \leq) \wedge \propname{TR}(S,\ \otimes,\ \leq) \wedge \propname{AY}(S,\ \otimes, \ \leq) \Rightarrow (\propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq))  \Leftrightarrow \propname{TRUE})$
+\begin{theorem} \label{thm:N_rd}
+If $\propname{RM}(S,\ \otimes,\ \leq) \wedge \propname{AY}(S,\ \otimes, \ \leq)$ then
+\begin{equation*}
+\propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq))  \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+ 
 
-\proof
+\begin{proof}
 
+\vspace{0.5em}
 Consider arbitrary $X,Y,Z$
 \begin{align*}
 (X \minunion Y) \minlift Z 	& = \min_\leq(\min_\leq(X \cup Y) \ \lift \ Z) \\
-							& = \min_\leq((X \cup Y) \ \lift \ Z) \\
+							& = \min_\leq((X \cup Y) \ \lift \ Z) & \text{(Lem \ref{lem:minlift_left_absorption})}\\
 							& = \min_\leq((X \lift Z) \cup (Y \lift Z)) \\
-							& = \min_\leq(\min_\leq(X \lift Z) \cup \min_\leq(Y \lift Z)) \\
+							& = \min_\leq(\min_\leq(X \lift Z) \cup \min_\leq(Y \lift Z)) & \text{(Lem \ref{lem:minunion_left_absorption} \& \ref{lem:minunion_right_absorption})} \\
 							& = (X \minlift Z) \minunion (Y \minlift Z)
 \end{align*}
+\end{proof}
+
+
 
 
 
 \subsubsection{Zero annihilates}
 
+\begin{theorem} \label{thm:N_zo}
 $\propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}$
+\end{theorem}
 
-\proof
+\begin{proof}
 
+\vspace{0.5em}
 Witness : $\emptyset$
 
 \vspace{0.5em}
+Immediate from Theorems \ref{thm:minunion_lid}, \ref{thm:minunion_rid}, \ref{thm:minlift_lan} and \ref{thm:minlift_ran}.
+\end{proof}
 
-See MinUnion and MinLift documentation for details.
+
 
 
 
 \subsubsection{One annihilates}
 
-$\propname{AY}(S,\leq) \wedge \propname{BM}(S,\leq) \wedge \propname{ID}(S,\otimes) \wedge (\propname{LI}(S,\ \leq,\ \otimes) \vee \propname{RI}(S,\ \leq,\ \otimes) \vee \propname{LM}(S,\ \leq,\ \otimes) \vee \propname{RM}(S,\ \leq,\ \otimes)) \Rightarrow (\propname{OA}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE})$
+\begin{theorem} \label{thm:N_oa}
+If $\propname{AY}(S,\leq)$, $\propname{BM}(S,\leq)$, $\propname{ID}(S,\otimes)$ and at least one of: $\propname{LI}(S,\ \leq,\ \otimes)$, $\propname{RI}(S,\ \leq,\ \otimes)$, $\propname{LM}(S,\ \leq,\ \otimes)$ or $\propname{RM}(S,\ \leq,\ \otimes)$ then
+\begin{equation*}
+\propname{OA}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
 
 \proof
 
-From $\propname{AY}(S,\leq)$ and $\propname{BM}(S,\leq)$ we have that $\{ \bot \}$ is an annihilator for $\minunion$ (see MinUnion documentation).
+\vspace{0.5em}
+Witness : $\{ \bot \}$
 
 \vspace{0.5em}
 
-From $\propname{ID}(S,\otimes)$ we have that $\{ i \}$ is an identity for $\minlift$ (see MinLift documentation).
+From Theorems \ref{thm:minunion_lan} \& \ref{thm:minunion_ran} we have that $\{ \bot \}$ is an annihilator for $\minunion$.
+
+\vspace{0.5em}
+
+From Theorems \ref{thm:minlift_lid} \& \ref{thm:minlift_rid} that $\{ i \}$ is an identity for $\minlift$.
 
 \vspace{0.5em}
 
@@ -131,34 +168,53 @@ Therefore by $\propname{AY}(S,\leq)$ we have that $i = \bot$.
 
 \subsubsection{Left absorptive}
 
-$\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{LI}(S,\ \otimes,\ \leq) \Rightarrow (\propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE})$
+\begin{theorem} \label{thm:N_lab}
+If $\propname{AY}(S,\ \leq)$ and $\propname{LI}(S,\ \otimes,\ \leq)$ then
+\begin{equation*}
+\propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
 
-\proof
+\begin{proof}
 
-Consider arbitrary $X, Y$
+\vspace{0.5em}
+Consider arbitrary $X, Y$ then we have
 \begin{align*}
-X \minunion (X \minlift Y) 	& = \min_\leq(X \cup \min_\leq(X \lift Y)) \\
+X \minunion (X \minlift Y) 	& = \min_\leq(X \cup \min_\leq(X \lift Y)) & \text{(Lem \ref{lem:minunion_right_absorption})} \\
 							& = \min_\leq(X \cup (X \lift Y)) \\
+\intertext{By $\propname{AY}(S,\ \leq)$ and $\propname{LI}(S,\ \otimes,\ \leq)$ we have that for all $x, y$ either $x < x \otimes y$ or $x = x \otimes y$.}
 							& = \min_\leq(X) \\
 							& = X
 \end{align*}
 The second equality holds by the commutativity of $\cup$.
+\end{proof}
+
+
 
 
 
 \subsubsection{Right absorptive}
 
-$\propname{TR}(S,\ \leq) \wedge \propname{AY}(S,\ \leq) \wedge \propname{RI}(S,\ \otimes,\ \leq) \Rightarrow (\propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE})$
+\begin{theorem} \label{thm:N_rab}
+If $\propname{AY}(S,\ \leq)$ and $\propname{RI}(S,\ \otimes,\ \leq)$ then
+\begin{equation*}
+\propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
 
-\proof
 
-Consider arbitrary $X, Y$
+\begin{proof}
+
+\vspace{0.5em}
+Consider arbitrary $X, Y$ then we have
 \begin{align*}
-X \minunion (Y \minlift X) 	& = \min_\leq(X \cup \min_\leq(Y \lift X)) \\
+X \minunion (Y \minlift X) 	& = \min_\leq(X \cup \min_\leq(Y \lift X)) & \text{(Lem \ref{lem:minunion_right_absorption})} \\
 							& = \min_\leq(X \cup (Y \lift X)) \\
+\intertext{By $\propname{AY}(S,\ \leq)$ and $\propname{RI}(S,\ \otimes,\ \leq)$ we have that for all $x, y$ either $x < y \otimes x$ or $x = y \otimes x$.}
 							& = \min_\leq(X) \\
 							& = X	
 \end{align*}
 The second equality holds by the commutativity of $\cup$.
+\end{proof}
 
 \end{document}

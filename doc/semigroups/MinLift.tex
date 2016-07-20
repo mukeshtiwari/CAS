@@ -8,44 +8,58 @@ Assume $(S,\ \leq)$ is a pre-order.
 
 \[
 \begin{array}{lcrcl} 
-\propname{AY}(S,\ \leq) \wedge \\
-\ \ \ \propname{LM}(S,\ \leq,\ \otimes) \wedge \propname{RM}(S,\ \leq,\ \otimes)
+\propname{AY}(S,\ \leq) \wedge \propname{LM}(S,\ \leq,\ \otimes) \\
+\ \ \ \wedge \ \propname{RM}(S,\ \leq,\ \otimes)
 	& \Rightarrow
 	& \propname{AS}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
 	& \Leftrightarrow 
-	& ???
+	& \propname{AS}(S,\otimes)
 	\\ 
-\propname{ID}(S, \otimes)
-	& \Rightarrow
-	& \propname{ID}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-	& \Leftrightarrow 
-	& \propname{TRUE}
-	\\ 
-\propname{TRUE}
-	& \Rightarrow
-	& \propname{AN}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-	& \Leftrightarrow 
-	& \propname{TRUE}
-	\\
 \propname{TRUE}
 	& \Rightarrow
 	& \propname{CM}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
 	& \Leftrightarrow 
-	& \propname{CM}(S,\ \otimes)
+	& \propname{CM}(S,\otimes)
+	\\ 
+\propname{AY}(S,\ \leq) \ \wedge (\propname{LI}(S,\otimes,\leq) \\ 
+\ \ \ \vee \ \propname{RI}(S,\otimes,\leq))
+	& \Rightarrow
+	& \propname{IP}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+	& \Leftrightarrow
+	& \propname{IP}(S,\otimes)
 	\\ 
 \neg \propname{SL}(S,\ \leq)
 	& \Rightarrow
 	& \propname{SL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
 	& \Leftrightarrow 
 	& \propname{FALSE}
-	\\ 
-\propname{AY}(S,\ \leq) \ \ \wedge \\
-\ \ \  (\propname{LI}(S,\otimes,\leq) \vee \propname{RI}(S,\otimes,\leq))
+	\\ \\
+	
+\propname{LID}(S, \otimes)
 	& \Rightarrow
-	& \propname{IP}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
-	& \Leftrightarrow
-	& \propname{IP}(S,\ \otimes)
+	& \propname{LID}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
 	\\ 
+\propname{RID}(S, \otimes)
+	& \Rightarrow
+	& \propname{RID}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\ 
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{LAN}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{RAN}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
+	& \Leftrightarrow 
+	& \propname{TRUE}
+	\\\\
+	
 \propname{TRUE}
 	& \Rightarrow
 	& \propname{IL}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
@@ -70,13 +84,13 @@ Assume $(S,\ \leq)$ is a pre-order.
 	& \Leftrightarrow 
 	& \propname{FALSE} 
 	\\ 
-\propname{TRUE}
+\propname{LID}(S, \otimes)
 	& \Rightarrow
 	& \propname{LK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
 	& \Leftrightarrow 
 	& \propname{FALSE} 
 	\\ 
-\propname{TRUE}
+\propname{RID}(S, \otimes)
 	& \Rightarrow
 	& \propname{RK}(\mathrm{MinLift}(S,\ \leq,\ \otimes)) 
 	& \Leftrightarrow 
@@ -98,7 +112,7 @@ Assume $(S,\ \leq)$ is a pre-order.
 \] 
 
 
-\subsubsection{Useful lemmas}
+\subsubsection{MinLift lemmas}
 
 \begin{lemma} \label{lem:minlift_left_absorption}
 If $\propname{RM}(S,\leq,\otimes)$ then
@@ -108,7 +122,9 @@ If $\propname{RM}(S,\leq,\otimes)$ then
 \end{lemma}
 
 \begin{proof}
-Consider arbitrary $x \otimes y \in \min_\leq(X \lift \min_\leq(Y))$
+
+\vspace{0.5em}
+Assume $x \otimes y \in \min_\leq(X \lift \min_\leq(Y))$
 
 \begin{ind}
 Then we have that:
@@ -274,65 +290,6 @@ Hence $\propname{AS}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname
 
 
 
-\subsubsection{Identity}
-
-\begin{theorem} \label{thm:minlift_id}
-If $\propname{ID}\mathrm{(S,\leq)}$ then
-\begin{equation*}
-\propname{ID}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{TRUE}
-\end{equation*}
-\end{theorem}
-
-\begin{proof}
-
-\vspace{0.5em}
-
-Witness : $\{ i \}$
-\begin{align*}
-\{ i \} \minlift X 	& = \min_\leq(\{i \otimes x \mid x \in X\}) \\
-					& = \min_\leq(\{x \mid x \in X\}) \\
-					& = X
-\end{align*}
-\begin{align*}
-X \minlift \{ i \} 	& = \min_\leq(\{x \otimes i \mid x \in X\}) \\
-					& = \min_\leq(\{x \mid x \in X\}) \\
-					& = X
-\end{align*}
-\end{proof}
-\end{proof}
-
-
-
-
-
-
-
-\subsubsection{Annihilator}
-
-\begin{theorem}  \label{thm:minlift_an}
-$\propname{AN}(\mathrm{MinLift(S,\leq,\otimes)} \Leftrightarrow \propname{TRUE}$
-\end{theorem}
-
-\begin{proof}
-
-\vspace{0.5em}
-
-Witness : $\emptyset$
-\begin{align*}
-X \minlift \emptyset 	& = \min_\leq(\{ x \otimes y \mid x \in X, y \in \emptyset\}) \\
-						& = \min_\leq(\emptyset) \\
-						& = \emptyset
-\end{align*}
-\begin{align*}
-\emptyset \minlift X 	& = \min_\leq(\{ x \otimes y \mid x \in \emptyset, y \in X\}) \\
-						& = \min_\leq(\emptyset) \\
-						& = \emptyset
-\end{align*}
-\end{proof}
-
-
-
-
 
 \subsubsection{Commutative}
 
@@ -376,30 +333,6 @@ Hence $\neg \propname{CM}(S,\leq) \Rightarrow \neg \propname{CM}(\mathrm{MinLift
 \vspace{2em}
 
 Hence $\propname{CM}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{CM}(S,\otimes)$
-\end{proof}
-
-\subsubsection{Selective}
-
-\begin{theorem} \label{thm:minlift_sl}
-If $\neg\propname{SL}(S,\leq,\otimes)$ then
-\begin{equation*}
-\propname{SL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}
-\end{equation*}
-\end{theorem}
-
-\begin{proof}
-
-\vspace{0.5em}
-
-We have that there exists $x, y$ such that $x \otimes y \notin \{x , y\}$.
-
-\vspace{0.5em}
-
-Then $\{ x \} \minlift \{ y \} = \{ x \otimes y \} \notin \{ \{ x \}, \{ y \}\}$.
-
-\vspace{0.5em}
-
-Hence $\neg \propname{SL}(\mathrm{MinLift(S,\leq,\otimes)})$
 \end{proof}
 
 
@@ -466,6 +399,143 @@ Hence $\propname{IP}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname
 
 
 
+\subsubsection{Selective}
+
+\begin{theorem} \label{thm:minlift_sl}
+If $\neg\propname{SL}(S,\leq,\otimes)$ then
+\begin{equation*}
+\propname{SL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+We have that there exists $x, y$ such that $x \otimes y \notin \{x , y\}$.
+
+\vspace{0.5em}
+
+Then $\{ x \} \minlift \{ y \} = \{ x \otimes y \} \notin \{ \{ x \}, \{ y \}\}$.
+
+\vspace{0.5em}
+
+Hence $\neg \propname{SL}(\mathrm{MinLift(S,\leq,\otimes)})$
+\end{proof}
+
+
+
+
+
+\subsubsection{Left identity}
+
+\begin{theorem} \label{thm:minlift_lid}
+If $\propname{LID}\mathrm{(S,\leq)}$ then
+\begin{equation*}
+\propname{LID}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\{ i \}$
+
+\vspace{0.5em}
+
+For all $X$ we have
+\begin{align*}
+\{ i \} \minlift X 	& = \min_\leq(\{i \otimes x \mid x \in X\}) \\
+					& = \min_\leq(\{x \mid x \in X\}) \\
+					& = X
+\end{align*}
+\end{proof}
+\end{proof}
+
+
+
+
+\subsubsection{Right identity}
+
+\begin{theorem} \label{thm:minlift_rid}
+If $\propname{RID}\mathrm{(S,\leq)}$ then
+\begin{equation*}
+\propname{RID}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\{ i \}$
+
+\vspace{0.5em}
+
+For all $X$ we have
+\begin{align*}
+X \minlift \{ i \} 	& = \min_\leq(\{x \otimes i \mid x \in X\}) \\
+					& = \min_\leq(\{x \mid x \in X\}) \\
+					& = X
+\end{align*}
+\end{proof}
+
+
+
+
+\subsubsection{Left annihilator}
+
+\begin{theorem}  \label{thm:minlift_lan}
+$\propname{LAN}(\mathrm{MinLift(S,\leq,\otimes)} \Leftrightarrow \propname{TRUE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\emptyset$
+
+\vspace{0.5em}
+
+For all $X$ we have
+\begin{align*}
+\emptyset \minlift X 	& = \min_\leq(\{ x \otimes y \mid x \in \emptyset, y \in X\}) \\
+						& = \min_\leq(\emptyset) \\
+						& = \emptyset
+\end{align*}
+\end{proof}
+
+
+
+
+
+\subsubsection{Right annihilator}
+
+\begin{theorem}  \label{thm:minlift_ran}
+$\propname{RAN}(\mathrm{MinLift(S,\leq,\otimes)} \Leftrightarrow \propname{TRUE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\emptyset$
+
+\vspace{0.5em}
+
+For all $X$ we have
+\begin{align*}
+X \minlift \emptyset 	& = \min_\leq(\{ x \otimes y \mid x \in X, y \in \emptyset\}) \\
+						& = \min_\leq(\emptyset) \\
+						& = \emptyset
+\end{align*}
+\end{proof}
+
+
+
+
+
 \subsubsection{IsLeft}
 
 \begin{theorem} \label{thm:minlift_il}
@@ -475,12 +545,7 @@ $\propname{IL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE
 \begin{proof}
 
 \vspace{0.5em}
-
-$S$ is non-empty and therefore there exists $s \in S$.
-
-\vspace{0.5em}
-
-Witness : $\{s\} \neq \{s\} \minlift \emptyset = \emptyset$
+From Theorem~\ref{thm:minlift_ran} we know that $\propname{RAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:ran_implies_n_il_rc_ar} we have that $\neg \propname{IL}(\mathrm{MinLift(S,\leq,\otimes)})$.
 \end{proof}
 
 
@@ -496,12 +561,7 @@ $\propname{IR}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE
 \begin{proof}
 
 \vspace{0.5em}
-
-$S$ is non-empty and therefore there exists $s \in S$.
-
-\vspace{0.5em}
-
-Witness : $\emptyset = \emptyset \minlift \{s\} \neq \{s\}$
+From Theorem~\ref{thm:minlift_lan} we know that $\propname{LAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:lan_implies_n_ir_lc_al} we have that $\neg \propname{IR}(\mathrm{MinLift(S,\leq,\otimes)})$.
 \end{proof}
 
 
@@ -517,12 +577,7 @@ $\propname{LC}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE
 \begin{proof}
 
 \vspace{0.5em}
-
-There exists at least two elements in $S$, call them $s_1$ and $s_2$.
-
-\vspace{0.5em}
-
-Witness : $\emptyset \minlift \{s_1\} = \emptyset = \emptyset \minlift \{s_2\} $ but $\{s_1\} \neq \{s_2\}$
+From Theorem~\ref{thm:minlift_lan} we know that $\propname{LAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:lan_implies_n_ir_lc_al} we have that $\neg \propname{LC}(\mathrm{MinLift(S,\leq,\otimes)})$.
 \end{proof}
 
 
@@ -537,12 +592,7 @@ $\propname{RC}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE
 \begin{proof}
 
 \vspace{0.5em}
-
-There exists at least two elements in $S$, call them $s_1$ and $s_2$.
-
-\vspace{0.5em}
-
-Witness : $\{s_1\} \minlift \emptyset = \emptyset = \{s_2\} \minlift \emptyset$ but $\{s_1\} \neq \{s_2\}$
+From Theorem~\ref{thm:minlift_ran} we know that $\propname{RAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:ran_implies_n_il_rc_ar} we have that $\neg \propname{RC}(\mathrm{MinLift(S,\leq,\otimes)})$.
 \end{proof}
 
 
@@ -551,18 +601,19 @@ Witness : $\{s_1\} \minlift \emptyset = \emptyset = \{s_2\} \minlift \emptyset$ 
 \subsubsection{LeftConstant}
 
 \begin{theorem} \label{thm:minlift_lk}
-$\propname{LK}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+If $\propname{LID}(S,\otimes)$ then
+\begin{equation*}
+\propname{LK}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}
+\end{equation*}
 \end{theorem}
 
 \begin{proof}
 
 \vspace{0.5em}
-
-$S$ is non-empty and therefore there exists $s \in S$.
+As $\propname{LID}(S, \otimes)$ then by Theorem~\ref{thm:minlift_lid} we know $\propname{LID}(\mathrm{MinUnion(S,\leq)})$ holds.
 
 \vspace{0.5em}
-
-Witness : $\{s\} \minlift \{s\} = \{s \otimes s\} \neq \{\} = \{s\} \minlift \emptyset$
+Hence by Lemma~\ref{lem:lid_implies_n_il_lk_ar} we have $\neg \propname{LK}(\mathrm{MinUnion(S,\leq)})$.
 \end{proof}
 
 
@@ -571,18 +622,19 @@ Witness : $\{s\} \minlift \{s\} = \{s \otimes s\} \neq \{\} = \{s\} \minlift \em
 \subsubsection{RightConstant}
 
 \begin{theorem} \label{thm:minlift_rk}
-$\propname{RK}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+If $\propname{RID}(S,\otimes)$ then
+\begin{equation*}
+\propname{RK}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}
+\end{equation*}
 \end{theorem}
 
 \begin{proof}
 
 \vspace{0.5em}
-
-$S$ is non-empty and therefore there exists $s \in S$.
+As $\propname{RID}(S, \otimes)$ then by Theorem~\ref{thm:minlift_lid} we know $\propname{RID}(\mathrm{MinUnion(S,\leq)})$ holds.
 
 \vspace{0.5em}
-
-Witness : $\{s\} \minlift \{s\} = \{s \otimes s\} \neq \{\} = \emptyset \minlift \{s\}$
+Hence by Lemma~\ref{lem:rid_implies_n_ir_rk_al} we have $\neg \propname{RK}(\mathrm{MinUnion(S,\leq)})$.
 \end{proof}
 
 
@@ -597,8 +649,7 @@ $\propname{AL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE
 \begin{proof}
 
 \vspace{0.5em}
-
-Witness : $\emptyset \minlift X = \emptyset$
+From Theorem~\ref{thm:minlift_lan} we know that $\propname{LAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:lan_implies_n_ir_lc_al} we have that $\neg \propname{AL}(\mathrm{MinLift(S,\leq,\otimes)})$.
 \end{proof}
 
 
@@ -613,8 +664,7 @@ $\propname{AR}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE
 \begin{proof}
 
 \vspace{0.5em}
-
-Witness : $X \minlift \emptyset = \emptyset$
+From Theorem~\ref{thm:minlift_ran} we know that $\propname{RAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:ran_implies_n_il_rc_ar} we have that $\neg \propname{AR}(\mathrm{MinLift(S,\leq,\otimes)})$.
 \end{proof}
 
 
