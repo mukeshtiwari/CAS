@@ -6,19 +6,19 @@ Require Import CAS.code.cert_records.
 Require Import CAS.code.construct_certs.
 Require Import CAS.code.cast.
 Require Import CAS.theory.facts. 
-Require Import CAS.theory.brel_eq_list.
-Require Import CAS.theory.bop_concat.
-Require Import CAS.theory.bop_product. 
-Require Import CAS.theory.bop_left_sum.
-Require Import CAS.theory.bop_right_sum.
-Require Import CAS.theory.brel_add_constant. 
-Require Import CAS.theory.bop_add_ann.
-Require Import CAS.theory.bop_add_id.
-Require Import CAS.theory.bop_union. 
-Require Import CAS.theory.bop_intersect. 
-Require Import CAS.theory.bop_llex. 
-Require Import CAS.theory.brel_product. 
-Require Import CAS.theory.brel_sum. 
+Require Import CAS.theory.brel.eq_list.
+Require Import CAS.theory.bop.concat.
+Require Import CAS.theory.bop.product. 
+Require Import CAS.theory.bop.left_sum.
+Require Import CAS.theory.bop.right_sum.
+Require Import CAS.theory.brel.add_constant. 
+Require Import CAS.theory.bop.add_ann.
+Require Import CAS.theory.bop.add_id.
+Require Import CAS.theory.bop.union. 
+Require Import CAS.theory.bop.intersect. 
+Require Import CAS.theory.bop.llex. 
+Require Import CAS.theory.brel.product. 
+Require Import CAS.theory.brel.sum. 
 
 Require Import CAS.code.certificates. 
 Require Import CAS.theory.properties.        (* ~~ certificates *) 
@@ -63,7 +63,7 @@ Proof. intros S T rS rT bS bT ntS ntT.
 Defined. 
 
 
-
+(*
 Lemma correct_check_commutative_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -88,7 +88,7 @@ Proof. intros S T rS rT bS bT
               [ [uT | [t3 t4]] cT ]; 
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 
 Lemma correct_check_is_left_product : 
@@ -117,7 +117,7 @@ Proof. intros S T rS rT bS bT ntS ntT.
        compute; reflexivity. 
 Defined. 
 
-
+(*
 Lemma correct_check_is_left_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -143,7 +143,7 @@ Proof. intros S T rS rT bS bT
        compute; reflexivity. 
 Defined. 
 
-
+*) 
 Lemma correct_assert_not_is_left_product : 
       ∀ (S T : Type) 
         (rS : brel S) 
@@ -191,6 +191,7 @@ Proof. intros S T rS rT bS bT ntS ntT.
        compute; reflexivity. 
 Defined. 
 
+(*
 Lemma correct_check_is_right_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -215,7 +216,7 @@ Proof. intros S T rS rT bS bT
               [ [uT | [t3 t4]] cT ]; 
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 Lemma correct_assert_not_is_right_product : 
       ∀ (S T : Type) 
@@ -266,6 +267,7 @@ Proof. intros S T rS rT bS bT ntS ntT.
        compute; reflexivity. 
 Defined. 
 
+(*
 Lemma correct_check_idempotent_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -290,7 +292,7 @@ Proof. intros S T rS rT bS bT
               [ [uT | t3] cT ]; 
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 Lemma correct_check_exists_id_product : 
       ∀ (S T : Type) 
@@ -312,7 +314,7 @@ Proof. intros S T rS rT bS bT [[s sP] | nS ] [[t tP] | nT ];
        compute; reflexivity. 
 Defined. 
 
-
+(*
 Lemma correct_check_exists_id_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -329,7 +331,7 @@ Proof. intros S T rS rT bS bT
               [ [t | uT] cT ]; 
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 Lemma correct_check_exists_ann_product : 
       ∀ (S T : Type) 
@@ -351,6 +353,8 @@ Proof. intros S T rS rT bS bT [[s sP] | nS ] [[t tP] | nT ];
        compute; reflexivity. 
 Defined. 
 
+
+(*
 Lemma correct_check_exists_ann_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -367,7 +371,7 @@ Proof. intros S T rS rT bS bT
               [ [t | uT] cT ]; 
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 Lemma correct_check_selective_product : 
       ∀ (S T : Type) 
@@ -410,6 +414,7 @@ Proof. intros S T rS rT bS bT ntS ntT symS symT transS transT.
              elim F. 
 Defined. 
 
+(*
 Lemma correct_check_selective_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -441,7 +446,7 @@ Proof. intros S T rS rT bS bT symS symT transS transT
               [ [u4 | [t3 t4]] rdT ];
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 (*
 Lemma correct_check_selective_product_commutative_case : 
@@ -526,7 +531,7 @@ Proof. intros S T rS rT bS bT ntS ntT refS refT.
        compute; reflexivity. 
 Defined. 
 
-
+(*
 Lemma correct_check_left_cancel_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -554,7 +559,7 @@ Proof. intros S T rS rT bS bT refS refT
        compute; reflexivity. 
 Defined. 
  
-
+*) 
 
 Lemma correct_check_right_cancel_product : 
       ∀ (S T : Type) 
@@ -584,7 +589,7 @@ Proof. intros S T rS rT bS bT ntS ntT refS refT.
        compute; reflexivity. 
 Defined. 
 
-
+(*
 Lemma correct_check_right_cancel_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -611,7 +616,7 @@ Proof. intros S T rS rT bS bT refS refT
               [ [uT | [t1 [t2 t3]]] cT ]; 
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 
 Lemma correct_check_left_constant_product : 
@@ -640,7 +645,7 @@ Proof. intros S T rS rT bS bT ntS ntT.
        compute; reflexivity. 
 Defined. 
 
-
+(*
 Lemma correct_check_left_constant_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -665,7 +670,7 @@ Proof. intros S T rS rT bS bT
               [ [uT | [t1 [t2 t3]]] cT ]; 
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 Lemma correct_check_right_constant_product : 
       ∀ (S T : Type) 
@@ -694,6 +699,8 @@ Proof. intros S T rS rT bS bT ntS ntT.
 Defined. 
 
 
+(*
+
 Lemma correct_check_right_constant_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -719,7 +726,7 @@ Proof. intros S T rS rT bS bT
        compute; reflexivity. 
 Defined. 
 
-
+*) 
 
 Lemma correct_check_anti_left_product : 
       ∀ (S T : Type) 
@@ -741,7 +748,7 @@ Proof. intros S T rS rT bS bT [cS | [ [s3 s4] ncS] ] [cT | [ [t3 t4] ncT] ];
        compute; reflexivity. 
 Defined. 
 
-
+(*
 
 Lemma correct_check_anti_left_product_new : 
       ∀ (S T : Type) 
@@ -759,7 +766,7 @@ Proof. intros S T rS rT bS bT
               [ [uT | [t2 t3]] cT ]; 
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 Lemma correct_check_anti_right_product : 
       ∀ (S T : Type) 
@@ -781,7 +788,7 @@ Proof. intros S T rS rT bS bT [cS | [ [s3 s4] ncS] ] [cT | [ [t3 t4] ncT] ];
        compute; reflexivity. 
 Defined. 
 
-
+(*
 Lemma correct_check_anti_right_product_new : 
       ∀ (S T : Type) 
          (rS : brel S) 
@@ -798,7 +805,7 @@ Proof. intros S T rS rT bS bT
               [ [uT | [t2 t3]] cT ]; 
        compute; reflexivity. 
 Defined. 
-
+*) 
 
 
 (* bop llex *) 
@@ -1630,7 +1637,7 @@ Proof. intros S T rS rT plusS timesS plusT timesT
 Qed. 
 
 (* treatment of witnesses is ugly ... *) 
-Lemma bop_product_left_absorbtive_check_correct : 
+Lemma bop_product_left_left_absorbtive_check_correct : 
   ∀ (S T: Type) 
     (rS : brel S) 
     (rT : brel T) 
@@ -1638,19 +1645,19 @@ Lemma bop_product_left_absorbtive_check_correct :
     (plusT timesT : binary_op T)
     (wS : brel_witness S rS)
     (wT : brel_witness T rT)
-    (pS_d : bops_left_absorption_decidable S rS plusS timesS) 
-    (pT_d : bops_left_absorption_decidable T rT plusT timesT), 
-   bop_product_left_absorptive_check S T
+    (pS_d : bops_left_left_absorptive_decidable S rS plusS timesS) 
+    (pT_d : bops_left_left_absorptive_decidable T rT plusT timesT), 
+   bop_product_left_left_absorptive_check S T
        (projT1 wS)
        (projT1 wT)
-       (p2c_left_absorptive S rS plusS timesS pS_d)
-       (p2c_left_absorptive T rT plusT timesT pT_d)
+       (p2c_left_left_absorptive S rS plusS timesS pS_d)
+       (p2c_left_left_absorptive T rT plusT timesT pT_d)
      = 
-     p2c_left_absorptive (S * T) 
+     p2c_left_left_absorptive (S * T) 
         (brel_product S T rS rT)
         (bop_product S T plusS plusT)
         (bop_product S T timesS timesT)
-        (bops_product_left_absorption_decide S T 
+        (bops_product_left_left_absorptive_decide S T 
              (brel_get_witness S rS wS) 
              (brel_get_witness T rT wT) 
              rS rT plusS timesS plusT timesT pS_d pT_d).
@@ -1658,9 +1665,10 @@ Proof. intros S T rS rT plusS timesS plusT timesT [s Ps] [t Pt]
        [ ldS | [ [s1 s2] nldS]] 
        [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. 
 Qed. 
+
 
 (* treatment of witnesses is ugly ... *) 
-Lemma bop_product_right_absorbtive_check_correct : 
+Lemma bop_product_left_right_absorbtive_check_correct : 
   ∀ (S T: Type) 
     (rS : brel S) 
     (rT : brel T) 
@@ -1668,19 +1676,19 @@ Lemma bop_product_right_absorbtive_check_correct :
     (plusT timesT : binary_op T)
     (wS : brel_witness S rS)
     (wT : brel_witness T rT)
-    (pS_d : bops_right_absorption_decidable S rS plusS timesS) 
-    (pT_d : bops_right_absorption_decidable T rT plusT timesT), 
-   bop_product_right_absorptive_check S T
+    (pS_d : bops_left_right_absorptive_decidable S rS plusS timesS) 
+    (pT_d : bops_left_right_absorptive_decidable T rT plusT timesT), 
+   bop_product_left_right_absorptive_check S T
        (projT1 wS)
        (projT1 wT)
-       (p2c_right_absorptive S rS plusS timesS pS_d)
-       (p2c_right_absorptive T rT plusT timesT pT_d)
+       (p2c_left_right_absorptive S rS plusS timesS pS_d)
+       (p2c_left_right_absorptive T rT plusT timesT pT_d)
      = 
-     p2c_right_absorptive (S * T) 
+     p2c_left_right_absorptive (S * T) 
         (brel_product S T rS rT)
         (bop_product S T plusS plusT)
         (bop_product S T timesS timesT)
-        (bops_product_right_absorption_decide S T 
+        (bops_product_left_right_absorptive_decide S T 
              (brel_get_witness S rS wS) 
              (brel_get_witness T rT wT) 
              rS rT plusS timesS plusT timesT pS_d pT_d).
@@ -1689,9 +1697,72 @@ Proof. intros S T rS rT plusS timesS plusT timesT [s Ps] [t Pt]
        [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. 
 Qed. 
 
+
+(* treatment of witnesses is ugly ... *) 
+Lemma bop_product_right_left_absorbtive_check_correct : 
+  ∀ (S T: Type) 
+    (rS : brel S) 
+    (rT : brel T) 
+    (plusS timesS : binary_op S) 
+    (plusT timesT : binary_op T)
+    (wS : brel_witness S rS)
+    (wT : brel_witness T rT)
+    (pS_d : bops_right_left_absorptive_decidable S rS plusS timesS) 
+    (pT_d : bops_right_left_absorptive_decidable T rT plusT timesT), 
+   bop_product_right_left_absorptive_check S T
+       (projT1 wS)
+       (projT1 wT)
+       (p2c_right_left_absorptive S rS plusS timesS pS_d)
+       (p2c_right_left_absorptive T rT plusT timesT pT_d)
+     = 
+     p2c_right_left_absorptive (S * T) 
+        (brel_product S T rS rT)
+        (bop_product S T plusS plusT)
+        (bop_product S T timesS timesT)
+        (bops_product_right_left_absorptive_decide S T 
+             (brel_get_witness S rS wS) 
+             (brel_get_witness T rT wT) 
+             rS rT plusS timesS plusT timesT pS_d pT_d).
+Proof. intros S T rS rT plusS timesS plusT timesT [s Ps] [t Pt]
+       [ ldS | [ [s1 s2] nldS]] 
+       [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. 
+Qed. 
+
+
+(* treatment of witnesses is ugly ... *) 
+Lemma bop_product_right_right_absorbtive_check_correct : 
+  ∀ (S T: Type) 
+    (rS : brel S) 
+    (rT : brel T) 
+    (plusS timesS : binary_op S) 
+    (plusT timesT : binary_op T)
+    (wS : brel_witness S rS)
+    (wT : brel_witness T rT)
+    (pS_d : bops_right_right_absorptive_decidable S rS plusS timesS) 
+    (pT_d : bops_right_right_absorptive_decidable T rT plusT timesT), 
+   bop_product_right_right_absorptive_check S T
+       (projT1 wS)
+       (projT1 wT)
+       (p2c_right_right_absorptive S rS plusS timesS pS_d)
+       (p2c_right_right_absorptive T rT plusT timesT pT_d)
+     = 
+     p2c_right_right_absorptive (S * T) 
+        (brel_product S T rS rT)
+        (bop_product S T plusS plusT)
+        (bop_product S T timesS timesT)
+        (bops_product_right_right_absorptive_decide S T 
+             (brel_get_witness S rS wS) 
+             (brel_get_witness T rT wT) 
+             rS rT plusS timesS plusT timesT pS_d pT_d).
+Proof. intros S T rS rT plusS timesS plusT timesT [s Ps] [t Pt]
+       [ ldS | [ [s1 s2] nldS]] 
+       [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. 
+Qed. 
+
+
+
+
 (* lex product *) 
-
-
 Lemma bops_llex_product_left_distributive_check_correct : 
   ∀ (S T: Type) 
     (rS : brel S) 
@@ -1857,6 +1928,7 @@ Proof. intros S T rS rT plusS timesS plusT timesT refS symS transS commS refT sy
        [ eqS | neqS] [eqT | neqT] ; compute; reflexivity. 
 Qed. 
 
+(*
 
 Lemma bops_llex_product_left_absorbtive_check_correct : 
   ∀ (S T: Type) 
@@ -1868,14 +1940,14 @@ Lemma bops_llex_product_left_absorbtive_check_correct :
     (transS : brel_transitive S rS)
     (wtT : brel_witness T rT) 
     (refT   : brel_reflexive T rT)
-    (pS_d : bops_left_absorption_decidable S rS plusS timesS)
-    (pT_d : bops_left_absorption_decidable T rT  plusT timesT)
+    (pS_d : bops_left_absorptive_decidable S rS plusS timesS)
+    (pT_d : bops_left_absorptive_decidable T rT  plusT timesT)
     (alS_d : bop_anti_left_decidable S rS timesS), 
    p2c_left_absorptive (S * T)
       (brel_product S T rS rT)
       (bop_llex S T rS plusS plusT)
       (bop_product S T timesS timesT)
-      (bops_llex_product_left_absorption_decide S T
+      (bops_llex_product_left_absorptive_decide S T
          (brel_get_witness T rT wtT)
          rS rT plusS timesS plusT timesT symS transS refT pS_d pT_d alS_d)
    = 
@@ -1899,14 +1971,14 @@ Lemma bops_llex_product_right_absorbtive_check_correct :
     (transS : brel_transitive S rS)
     (wtT : brel_witness T rT) 
     (refT   : brel_reflexive T rT)
-    (pS_d : bops_right_absorption_decidable S rS plusS timesS)
-    (pT_d : bops_right_absorption_decidable T rT  plusT timesT)
+    (pS_d : bops_right_absorptive_decidable S rS plusS timesS)
+    (pT_d : bops_right_absorptive_decidable T rT  plusT timesT)
     (alS_d : bop_anti_right_decidable S rS timesS), 
    p2c_right_absorptive (S * T)
       (brel_product S T rS rT)
       (bop_llex S T rS plusS plusT)
       (bop_product S T timesS timesT)
-      (bops_llex_product_right_absorption_decide S T
+      (bops_llex_product_right_absorptive_decide S T
          (brel_get_witness T rT wtT)
          rS rT plusS timesS plusT timesT symS transS refT pS_d pT_d alS_d)
    = 
@@ -1919,6 +1991,8 @@ Proof. intros S T rS rT plusS timesS plusT timesT symS transS [t Pt] refT
        [ laS | [ [s1 s2] nlaS ] ]  [ laT | [ [t1 t2] nlaT ]]  [ alS | [ [s3 s4] nalS ]]; 
        compute; reflexivity. 
 Qed. 
+
+*) 
 
 (* add zero *) 
 
@@ -1971,144 +2045,79 @@ Lemma bops_add_zero_times_id_equals_plus_ann_check_correct :
   end. 
 Proof. intros S c rS plusS timesS eqvS [ L | R]; compute; reflexivity. Qed. 
 
-Lemma bops_add_zero_left_absorbtive_check_correct : 
+
+
+Lemma bops_add_zero_left_left_absorbtive_check_correct : 
 ∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
   (eqvS : eqv_proofs S rS) 
-  (pS : bops_left_absorption_decidable S rS plusS timesS), 
-  p2c_left_absorptive(with_constant S)
+  (pS : bops_left_left_absorptive_decidable S rS plusS timesS), 
+  p2c_left_left_absorptive(with_constant S)
      (brel_add_constant S rS c)                                  
      (bop_add_id S plusS c)
      (bop_add_ann S timesS c)
-     (bops_add_zero_left_absorption_decide S rS c plusS timesS (A_eqv_reflexive S rS eqvS) pS)
+     (bops_add_zero_left_left_absorptive_decide S rS c plusS timesS (A_eqv_reflexive S rS eqvS) pS)
   = 
-  bops_add_zero_left_absorptive_check S 
+  bops_add_zero_left_left_absorptive_check S 
      (projT1 (brel_nontrivial_witness S rS (A_eqv_nontrivial S rS eqvS)))
-     (p2c_left_absorptive S rS plusS timesS pS). 
+     (p2c_left_left_absorptive S rS plusS timesS pS). 
 Proof. intros S c rS plusS timesS eqvS [ ldS | [ [s1 s2] nldS ] ]; 
        compute; reflexivity. 
 Qed. 
 
-Lemma  bops_add_zero_right_absorbtive_check_correct : 
+Lemma bops_add_zero_left_right_absorbtive_check_correct : 
 ∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
   (eqvS : eqv_proofs S rS) 
-  (pS : bops_right_absorption_decidable S rS plusS timesS), 
-  p2c_right_absorptive(with_constant S)
+  (pS : bops_left_right_absorptive_decidable S rS plusS timesS), 
+  p2c_left_right_absorptive(with_constant S)
      (brel_add_constant S rS c)                                  
      (bop_add_id S plusS c)
      (bop_add_ann S timesS c)
-     (bops_add_zero_right_absorption_decide S rS c plusS timesS (A_eqv_reflexive S rS eqvS) pS)
+     (bops_add_zero_left_right_absorptive_decide S rS c plusS timesS (A_eqv_reflexive S rS eqvS) pS)
   = 
-  bops_add_zero_right_absorptive_check S 
+  bops_add_zero_left_right_absorptive_check S 
      (projT1 (brel_nontrivial_witness S rS (A_eqv_nontrivial S rS eqvS)))
-     (p2c_right_absorptive S rS plusS timesS pS). 
+     (p2c_left_right_absorptive S rS plusS timesS pS). 
+Proof. intros S c rS plusS timesS eqvS [ ldS | [ [s1 s2] nldS ] ]; 
+       compute; reflexivity. 
+Qed. 
+
+Lemma  bops_add_zero_right_left_absorbtive_check_correct : 
+∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
+  (eqvS : eqv_proofs S rS) 
+  (pS : bops_right_left_absorptive_decidable S rS plusS timesS), 
+  p2c_right_left_absorptive(with_constant S)
+     (brel_add_constant S rS c)                                  
+     (bop_add_id S plusS c)
+     (bop_add_ann S timesS c)
+     (bops_add_zero_right_left_absorptive_decide S rS c plusS timesS (A_eqv_reflexive S rS eqvS) pS)
+  = 
+  bops_add_zero_right_left_absorptive_check S 
+     (projT1 (brel_nontrivial_witness S rS (A_eqv_nontrivial S rS eqvS)))
+     (p2c_right_left_absorptive S rS plusS timesS pS). 
 Proof. intros S c rS plusS timesS eqvS [ ldS | [ [s1 s2] nldS ] ]; 
        compute; reflexivity. 
 Qed. 
 
 
-
-(* add one *) 
-
-Lemma bops_add_one_left_distributive_check_correct : 
+Lemma  bops_add_zero_right_right_absorbtive_check_correct : 
 ∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
-  (cngS : brel_congruence S rS rS)
-  (refS : brel_reflexive S rS)
-  (symS : brel_symmetric S rS)
-  (cmmS : bop_commutative S rS plusS)
-  (idmS_d : bop_idempotent_decidable S rS plusS) 
-  (laS_d : bops_left_absorption_decidable S rS plusS timesS) 
-  (ldS_d : bop_left_distributive_decidable S rS plusS timesS), 
-  p2c_left_distributive (with_constant S)
+  (eqvS : eqv_proofs S rS) 
+  (pS : bops_right_right_absorptive_decidable S rS plusS timesS), 
+  p2c_right_right_absorptive(with_constant S)
      (brel_add_constant S rS c)                                  
-     (bop_add_ann S plusS c)
-     (bop_add_id S timesS c)
-     (bops_add_one_left_distributive_decide S rS c plusS timesS 
-         cngS refS symS cmmS idmS_d laS_d ldS_d)
+     (bop_add_id S plusS c)
+     (bop_add_ann S timesS c)
+     (bops_add_zero_right_right_absorptive_decide S rS c plusS timesS (A_eqv_reflexive S rS eqvS) pS)
   = 
-  bops_add_one_left_distributive_check S c 
-     (p2c_idempotent_check S rS plusS idmS_d) 
-     (p2c_left_absorptive S rS plusS timesS laS_d)
-     (p2c_left_distributive S rS plusS timesS ldS_d). 
-Proof. intros S c rS plusS timesS cngS refS symS cmmS 
-       [ idmS | [ s0 nidmS ] ] 
-       [ laS | [ [s1 s2] nlaS ] ]
-       [ ldS | [ [s3 [s4 s5]] nldS ] ]; 
-       compute; reflexivity. 
-Qed. 
-
-Lemma  bops_add_one_right_distributive_check_correct : 
-∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
-  (cngS : brel_congruence S rS rS)
-  (refS : brel_reflexive S rS)
-  (symS : brel_symmetric S rS)
-  (cmmS : bop_commutative S rS plusS)
-  (idmS_d : bop_idempotent_decidable S rS plusS) 
-  (laS_d : bops_right_absorption_decidable S rS plusS timesS) 
-  (ldS_d : bop_right_distributive_decidable S rS plusS timesS), 
-  p2c_right_distributive (with_constant S)
-     (brel_add_constant S rS c)                                  
-     (bop_add_ann S plusS c)
-     (bop_add_id S timesS c)
-     (bops_add_one_right_distributive_decide S rS c plusS timesS 
-         cngS refS symS cmmS idmS_d laS_d ldS_d)
-  = 
-  bops_add_one_right_distributive_check S c 
-     (p2c_idempotent_check S rS plusS idmS_d) 
-     (p2c_right_absorptive S rS plusS timesS laS_d)
-     (p2c_right_distributive S rS plusS timesS ldS_d). 
-Proof. intros S c rS plusS timesS cngS refS symS cmmS 
-       [ idmS | [ s0 nidmS ] ] 
-       [ laS | [ [s1 s2] nlaS ] ]
-       [ ldS | [ [s3 [s4 s5]] nldS ] ]; 
+  bops_add_zero_right_right_absorptive_check S 
+     (projT1 (brel_nontrivial_witness S rS (A_eqv_nontrivial S rS eqvS)))
+     (p2c_right_right_absorptive S rS plusS timesS pS). 
+Proof. intros S c rS plusS timesS eqvS [ ldS | [ [s1 s2] nldS ] ]; 
        compute; reflexivity. 
 Qed. 
 
 
-Lemma bops_add_one_left_absorbtive_check_correct : 
-∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
-  (refS : brel_reflexive S rS)
-  (symS : brel_symmetric S rS)
-  (cmmS : bop_commutative S rS plusS)
-  (idmS_d : bop_idempotent_decidable S rS plusS) 
-  (laS_d : bops_left_absorption_decidable S rS plusS timesS), 
-  p2c_left_absorptive (with_constant S)
-     (brel_add_constant S rS c)                                  
-     (bop_add_ann S plusS c)
-     (bop_add_id S timesS c)
-     (bops_add_one_left_absorption_decide S rS c plusS timesS symS idmS_d laS_d)
-  = 
-  bops_add_one_left_absorptive_check S c 
-     (p2c_idempotent_check S rS plusS idmS_d) 
-     (p2c_left_absorptive S rS plusS timesS laS_d).
-Proof. intros S c rS plusS timesS refS symS cmmS 
-       [ idmS | [ s0 nidmS ] ] 
-       [ laS | [ [s1 s2] nlaS ] ]; 
-       compute; reflexivity. 
-Qed. 
-
-Lemma  bops_add_one_right_absorbtive_check_correct : 
-∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
-  (refS : brel_reflexive S rS)
-  (symS : brel_symmetric S rS)
-  (cmmS : bop_commutative S rS plusS)
-  (idmS_d : bop_idempotent_decidable S rS plusS) 
-  (laS_d : bops_right_absorption_decidable S rS plusS timesS), 
-  p2c_right_absorptive (with_constant S)
-     (brel_add_constant S rS c)                                  
-     (bop_add_ann S plusS c)
-     (bop_add_id S timesS c)
-     (bops_add_one_right_absorption_decide S rS c plusS timesS symS idmS_d laS_d)
-  = 
-  bops_add_one_right_absorptive_check S c 
-     (p2c_idempotent_check S rS plusS idmS_d) 
-     (p2c_right_absorptive S rS plusS timesS laS_d).
-Proof. intros S c rS plusS timesS refS symS cmmS 
-       [ idmS | [ s0 nidmS ] ] 
-       [ laS | [ [s1 s2] nlaS ] ]; 
-       compute; reflexivity. 
-Qed. 
-
-
+(* add one *)
 
 Lemma bops_add_one_plus_id_equals_times_ann_check_correct : 
 ∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
@@ -2127,5 +2136,153 @@ Lemma bops_add_one_plus_id_equals_times_ann_check_correct :
   | Certify_Not_Plus_Id_Equals_Times_Ann => Certify_Not_Plus_Id_Equals_Times_Ann (with_constant S)
   end. 
 Proof. intros S c rS plusS timesS eqvS [ L | R]; compute; reflexivity. Qed. 
+ 
+
+Lemma bops_add_one_left_distributive_check_correct : 
+∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
+  (refS : brel_reflexive S rS)
+  (symS : brel_symmetric S rS)
+  (idmS_d : bop_idempotent_decidable S rS plusS) 
+  (llaS_d : bops_left_left_absorptive_decidable S rS plusS timesS) 
+  (rlaS_d : bops_right_left_absorptive_decidable S rS plusS timesS) 
+  (ldS_d : bop_left_distributive_decidable S rS plusS timesS), 
+  p2c_left_distributive (with_constant S)
+     (brel_add_constant S rS c)                                  
+     (bop_add_ann S plusS c)
+     (bop_add_id S timesS c)
+     (bops_add_one_left_distributive_decide S rS c plusS timesS 
+         refS symS idmS_d llaS_d rlaS_d ldS_d)
+  = 
+  bops_add_one_left_distributive_check S c 
+     (p2c_idempotent_check S rS plusS idmS_d) 
+     (p2c_left_left_absorptive S rS plusS timesS llaS_d)
+     (p2c_right_left_absorptive S rS plusS timesS rlaS_d)
+     (p2c_left_distributive S rS plusS timesS ldS_d). 
+Proof. intros S c rS plusS timesS refS symS 
+       [ idmS | [ s0 nidmS ] ] 
+       [ llaS | [ [s1 s2] nllaS ] ]
+       [ rlaS | [ [s6 s7] nrlaS ] ]
+       [ ldS | [ [s3 [s4 s5]] nldS ] ]; 
+       compute; reflexivity. 
+Qed. 
+
+
+Lemma bops_add_one_right_distributive_check_correct : 
+∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
+  (refS : brel_reflexive S rS)
+  (symS : brel_symmetric S rS)
+  (idmS_d : bop_idempotent_decidable S rS plusS) 
+  (llaS_d : bops_left_right_absorptive_decidable S rS plusS timesS) 
+  (rlaS_d : bops_right_right_absorptive_decidable S rS plusS timesS) 
+  (ldS_d : bop_right_distributive_decidable S rS plusS timesS), 
+  p2c_right_distributive (with_constant S)
+     (brel_add_constant S rS c)                                  
+     (bop_add_ann S plusS c)
+     (bop_add_id S timesS c)
+     (bops_add_one_right_distributive_decide S rS c plusS timesS 
+         refS symS idmS_d llaS_d rlaS_d ldS_d)
+  = 
+  bops_add_one_right_distributive_check S c 
+     (p2c_idempotent_check S rS plusS idmS_d) 
+     (p2c_left_right_absorptive S rS plusS timesS llaS_d)
+     (p2c_right_right_absorptive S rS plusS timesS rlaS_d)
+     (p2c_right_distributive S rS plusS timesS ldS_d). 
+Proof. intros S c rS plusS timesS refS symS 
+       [ idmS | [ s0 nidmS ] ] 
+       [ llaS | [ [s1 s2] nllaS ] ]
+       [ rlaS | [ [s6 s7] nrlaS ] ]
+       [ ldS | [ [s3 [s4 s5]] nldS ] ]; 
+       compute; reflexivity. 
+Qed. 
+
+
+Lemma bops_add_one_left_left_absorbtive_check_correct : 
+∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
+  (refS : brel_reflexive S rS)
+  (symS : brel_symmetric S rS)
+  (idmS_d : bop_idempotent_decidable S rS plusS) 
+  (laS_d : bops_left_left_absorptive_decidable S rS plusS timesS), 
+  p2c_left_left_absorptive (with_constant S)
+     (brel_add_constant S rS c)                                  
+     (bop_add_ann S plusS c)
+     (bop_add_id S timesS c)
+     (bops_add_one_left_left_absorptive_decide S rS c plusS timesS symS idmS_d laS_d)
+  = 
+  bops_add_one_left_left_absorptive_check S c 
+     (p2c_idempotent_check S rS plusS idmS_d) 
+     (p2c_left_left_absorptive S rS plusS timesS laS_d).
+Proof. intros S c rS plusS timesS refS symS 
+       [ idmS | [ s0 nidmS ] ] 
+       [ laS | [ [s1 s2] nlaS ] ]; 
+       compute; reflexivity. 
+Qed. 
+
+
+Lemma bops_add_one_left_right_absorbtive_check_correct : 
+∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
+  (refS : brel_reflexive S rS)
+  (symS : brel_symmetric S rS)
+  (idmS_d : bop_idempotent_decidable S rS plusS) 
+  (laS_d : bops_left_right_absorptive_decidable S rS plusS timesS), 
+  p2c_left_right_absorptive (with_constant S)
+     (brel_add_constant S rS c)                                  
+     (bop_add_ann S plusS c)
+     (bop_add_id S timesS c)
+     (bops_add_one_left_right_absorptive_decide S rS c plusS timesS symS idmS_d laS_d)
+  = 
+  bops_add_one_left_right_absorptive_check S c 
+     (p2c_idempotent_check S rS plusS idmS_d) 
+     (p2c_left_right_absorptive S rS plusS timesS laS_d).
+Proof. intros S c rS plusS timesS refS symS 
+       [ idmS | [ s0 nidmS ] ] 
+       [ laS | [ [s1 s2] nlaS ] ]; 
+       compute; reflexivity. 
+Qed. 
+
+Lemma bops_add_one_right_left_absorbtive_check_correct : 
+∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
+  (refS : brel_reflexive S rS)
+  (symS : brel_symmetric S rS)
+  (idmS_d : bop_idempotent_decidable S rS plusS) 
+  (laS_d : bops_right_left_absorptive_decidable S rS plusS timesS), 
+  p2c_right_left_absorptive (with_constant S)
+     (brel_add_constant S rS c)                                  
+     (bop_add_ann S plusS c)
+     (bop_add_id S timesS c)
+     (bops_add_one_right_left_absorptive_decide S rS c plusS timesS symS idmS_d laS_d)
+  = 
+  bops_add_one_right_left_absorptive_check S c 
+     (p2c_idempotent_check S rS plusS idmS_d) 
+     (p2c_right_left_absorptive S rS plusS timesS laS_d).
+Proof. intros S c rS plusS timesS refS symS 
+       [ idmS | [ s0 nidmS ] ] 
+       [ laS | [ [s1 s2] nlaS ] ]; 
+       compute; reflexivity. 
+Qed. 
+
+Lemma bops_add_one_right_right_absorbtive_check_correct : 
+∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
+  (refS : brel_reflexive S rS)
+  (symS : brel_symmetric S rS)
+  (idmS_d : bop_idempotent_decidable S rS plusS) 
+  (laS_d : bops_right_right_absorptive_decidable S rS plusS timesS), 
+  p2c_right_right_absorptive (with_constant S)
+     (brel_add_constant S rS c)                                  
+     (bop_add_ann S plusS c)
+     (bop_add_id S timesS c)
+     (bops_add_one_right_right_absorptive_decide S rS c plusS timesS symS idmS_d laS_d)
+  = 
+  bops_add_one_right_right_absorptive_check S c 
+     (p2c_idempotent_check S rS plusS idmS_d) 
+     (p2c_right_right_absorptive S rS plusS timesS laS_d).
+Proof. intros S c rS plusS timesS refS symS 
+       [ idmS | [ s0 nidmS ] ] 
+       [ laS | [ [s1 s2] nlaS ] ]; 
+       compute; reflexivity. 
+Qed. 
+
+
+
+
 
 

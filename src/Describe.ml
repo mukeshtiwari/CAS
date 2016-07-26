@@ -5,11 +5,6 @@ open Cas_records
 open Cast
 open Cas
 
-let rec string_of_list = function 
-  | [] -> "" 
-  | [a] -> a 
-  | a::rest -> a ^ ", " ^(string_of_list rest) 
-
 let rec string_of_data = function 
 | DATA_nat n -> string_of_int n 
 | DATA_bool b -> string_of_bool b 
@@ -17,7 +12,7 @@ let rec string_of_data = function
 | DATA_pair (d1, d2) -> "(" ^ (string_of_data d1) ^  ", " ^ (string_of_data d2) ^ ")" 
 | DATA_inl d -> "inl(" ^ (string_of_data d) ^ ")" 
 | DATA_inr d -> "inr(" ^ (string_of_data d) ^ ")" 
-| DATA_list l -> "[" ^ (string_of_list (List.map string_of_data l)) ^ "]" 
+| DATA_list l -> "[" ^ (String.concat ", " (List.map string_of_data l)) ^ "]" 
 
 let string_of_check_exists_id data = function 
     | Certify_Not_Exists_Id -> 
@@ -25,7 +20,6 @@ let string_of_check_exists_id data = function
     | Certify_Exists_Id a -> 
 	"Identity  "
           ^ (string_of_data (data a))
-
 
 let string_of_check_exists_ann data = function 
     | Certify_Not_Exists_Ann -> 
@@ -165,23 +159,42 @@ let string_of_check_right_distributive data = function
 	  ^ (string_of_data (data c))
 
 
-let string_of_check_left_absorptive data = function 
-    | Certify_Left_Absorptive -> 
-	"Left Absorptive" 
-    | Certify_Not_Left_Absorptive (a, b) -> 
-	"Not Left Absorptive "
+let string_of_check_left_left_absorptive data = function 
+    | Certify_Left_Left_Absorptive -> 
+	"Left_Left Absorptive" 
+    | Certify_Not_Left_Left_Absorptive (a, b) -> 
+	"Not Left_Left Absorptive "
           ^ (string_of_data (data a))
 	  ^  ", " 
 	  ^ (string_of_data (data b))
 
-let string_of_check_right_absorptive data = function 
-    | Certify_Right_Absorptive -> 
-	"Right Absorptive" 
-    | Certify_Not_Right_Absorptive (a, b) -> 
-	"Not Right Absorptive "
+let string_of_check_left_right_absorptive data = function 
+    | Certify_Left_Right_Absorptive -> 
+	"Left_Right Absorptive" 
+    | Certify_Not_Left_Right_Absorptive (a, b) -> 
+	"Not Left_Right Absorptive "
           ^ (string_of_data (data a))
 	  ^  ", " 
 	  ^ (string_of_data (data b))
+
+let string_of_check_right_left_absorptive data = function 
+    | Certify_Right_Left_Absorptive -> 
+	"Right_Left Absorptive" 
+    | Certify_Not_Right_Left_Absorptive (a, b) -> 
+	"Not Right_Left Absorptive "
+          ^ (string_of_data (data a))
+	  ^  ", " 
+	  ^ (string_of_data (data b))
+
+let string_of_check_right_right_absorptive data = function 
+    | Certify_Right_Right_Absorptive -> 
+	"Right_Right Absorptive" 
+    | Certify_Not_Right_Right_Absorptive (a, b) -> 
+	"Not Right_Right Absorptive "
+          ^ (string_of_data (data a))
+	  ^  ", " 
+	  ^ (string_of_data (data b))
+
        
 let string_of_check_plus_id_is_times_ann = function 
     | Certify_Plus_Id_Equals_Times_Ann -> "id(+) == ann(*)"
@@ -217,25 +230,29 @@ let sg_CI_describe sg = sg_describe (sg_from_sg_CI sg)
 let sg_CK_describe sg = sg_describe (sg_from_sg_CK sg)
 
 
-let sg_sg_certs_describe data certs = 
+let bs_certs_describe data certs = 
       [
-       string_of_check_left_distributive data (sg_sg_left_distributive_d certs) ; 
-       string_of_check_right_distributive data (sg_sg_right_distributive_d certs) ; 
-       string_of_check_left_absorptive data (sg_sg_left_absorptive_d certs) ; 
-       string_of_check_right_absorptive data (sg_sg_right_absorptive_d certs) ; 
-       string_of_check_plus_id_is_times_ann (sg_sg_plus_id_is_times_ann_d certs) ; 
-       string_of_check_times_id_is_plus_ann (sg_sg_times_id_is_plus_ann_d certs) 
+       string_of_check_left_distributive data (bs_left_distributive_d certs) ; 
+       string_of_check_right_distributive data (bs_right_distributive_d certs) ; 
+
+       string_of_check_left_left_absorptive data (bs_left_left_absorptive_d certs) ; 
+       string_of_check_left_right_absorptive data (bs_left_right_absorptive_d certs) ; 
+       string_of_check_right_left_absorptive data (bs_right_left_absorptive_d certs) ; 
+       string_of_check_right_right_absorptive data (bs_right_right_absorptive_d certs) ; 
+
+       string_of_check_plus_id_is_times_ann (bs_plus_id_is_times_ann_d certs) ; 
+       string_of_check_times_id_is_plus_ann (bs_times_id_is_plus_ann_d certs) 
      ] 
 
-let sg_sg_describe bs = 
-    let data        = eqv_data (sg_sg_eqv bs) in 
-    let plus_certs  = sg_sg_plus_certs bs     in 
-    let times_certs = sg_sg_times_certs bs    in 
-    let certs       = sg_sg_certs bs          in 
+let bs_describe bs = 
+    let data        = eqv_data (bs_eqv bs) in 
+    let plus_certs  = bs_plus_certs bs     in 
+    let times_certs = bs_times_certs bs    in 
+    let certs       = bs_certs bs          in 
       (
        sg_certs_describe data plus_certs, 
        sg_certs_describe data times_certs, 
-       sg_sg_certs_describe data certs
+       bs_certs_describe data certs
       )
  
 

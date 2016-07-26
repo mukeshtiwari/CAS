@@ -3,50 +3,50 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
 Require Import CAS.theory.facts. 
-Require Import CAS.theory.brel_eq_bool. 
-Require Import CAS.theory.brel_eq_nat. 
-Require Import CAS.theory.brel_eq_list. 
-Require Import CAS.theory.brel_product. 
-Require Import CAS.theory.brel_llte_llt. 
-Require Import CAS.theory.brel_sum. 
-Require Import CAS.theory.brel_add_constant. 
-Require Import CAS.theory.brel_and_sym.
-Require Import CAS.theory.brel_reduce. 
-Require Import CAS.theory.brel_set. 
-Require Import CAS.theory.brel2_in_set. 
+Require Import CAS.theory.brel.eq_bool. 
+Require Import CAS.theory.brel.eq_nat. 
+Require Import CAS.theory.brel.eq_list. 
+Require Import CAS.theory.brel.product. 
+Require Import CAS.theory.brel.llte_llt. 
+Require Import CAS.theory.brel.sum. 
+Require Import CAS.theory.brel.add_constant. 
+Require Import CAS.theory.brel.and_sym.
+Require Import CAS.theory.brel.reduce. 
+Require Import CAS.theory.brel.set. 
+Require Import CAS.theory.brel.in_set. 
 
-Require Import CAS.theory.bop_and. 
-Require Import CAS.theory.bop_or. 
-Require Import CAS.theory.bop_max. 
-Require Import CAS.theory.bop_min. 
-Require Import CAS.theory.bop_plus. 
-Require Import CAS.theory.bop_times. 
-Require Import CAS.theory.bop_concat. 
-Require Import CAS.theory.bop_left. 
-Require Import CAS.theory.bop_right. 
-Require Import CAS.theory.bop_product. 
-Require Import CAS.theory.bop_left_sum. 
-Require Import CAS.theory.bop_right_sum. 
-Require Import CAS.theory.bop_add_id. 
-Require Import CAS.theory.bop_add_ann. 
-Require Import CAS.theory.bop_then_unary. 
-Require Import CAS.theory.bop_union. 
-Require Import CAS.theory.bop_intersect. 
-(* Require Import CAS.theory.bop_minset_union. *) 
-Require Import CAS.theory.bop_llex. 
+Require Import CAS.theory.bop.and. 
+Require Import CAS.theory.bop.or. 
+Require Import CAS.theory.bop.max. 
+Require Import CAS.theory.bop.min. 
+Require Import CAS.theory.bop.plus. 
+Require Import CAS.theory.bop.times. 
+Require Import CAS.theory.bop.concat. 
+Require Import CAS.theory.bop.left. 
+Require Import CAS.theory.bop.right. 
+Require Import CAS.theory.bop.product. 
+Require Import CAS.theory.bop.left_sum. 
+Require Import CAS.theory.bop.right_sum. 
+Require Import CAS.theory.bop.add_id. 
+Require Import CAS.theory.bop.add_ann. 
+Require Import CAS.theory.bop.then_unary. 
+Require Import CAS.theory.bop.union. 
+Require Import CAS.theory.bop.intersect. 
+(* Require Import CAS.theory.bop.minset_union. *) 
+Require Import CAS.theory.bop.llex. 
 
-Require Import CAS.theory.bops_and_or.
-Require Import CAS.theory.bops_or_and.
-Require Import CAS.theory.bops_min_max.
-Require Import CAS.theory.bops_max_min.
-Require Import CAS.theory.bops_min_plus.
-Require Import CAS.theory.bops_product_product.
-Require Import CAS.theory.bops_llex_product.
-Require Import CAS.theory.bops_add_ann_add_id.
-Require Import CAS.theory.bops_union_intersect.
-Require Import CAS.theory.bops_intersect_union.
-Require Import CAS.theory.bops_add_id_add_ann. 
-Require Import CAS.theory.bops_add_ann_add_id. 
+Require Import CAS.theory.bops.and_or.
+Require Import CAS.theory.bops.or_and.
+Require Import CAS.theory.bops.min_max.
+Require Import CAS.theory.bops.max_min.
+Require Import CAS.theory.bops.min_plus.
+Require Import CAS.theory.bops.product_product.
+Require Import CAS.theory.bops.llex_product.
+Require Import CAS.theory.bops.add_ann_add_id.
+Require Import CAS.theory.bops.union_intersect.
+Require Import CAS.theory.bops.intersect_union.
+Require Import CAS.theory.bops.add_id_add_ann. 
+Require Import CAS.theory.bops.add_ann_add_id. 
 
 
 
@@ -249,6 +249,7 @@ Definition bop_product_idempotent_decide :
        end
    end.
 
+(*
 Lemma bop_product_idempotent_decide_new : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -269,7 +270,7 @@ Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT].
            rewrite PS. simpl. reflexivity. 
 Defined. 
 
-
+*) 
 Definition bop_product_commutative_decide : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -294,7 +295,7 @@ Definition bop_product_commutative_decide :
        end
    end. 
 
-
+(*
 
 Definition bop_product_commutative_decide_new : 
    ∀ (S T : Type) 
@@ -316,6 +317,7 @@ Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT].
            rewrite PS. simpl. reflexivity. 
 Defined. 
 
+*) 
 
 Definition bop_product_left_cancellative_decide : 
    ∀ (S T : Type) 
@@ -343,6 +345,7 @@ Definition bop_product_left_cancellative_decide :
        end
    end. 
 
+(* 
 
 Definition bop_product_left_cancellative_decide_new : 
    ∀ (S T : Type) 
@@ -372,6 +375,8 @@ Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] refS refT [wS PS] 
               rewrite PSR. simpl. reflexivity. 
 Defined. 
 
+*) 
+
 Definition bop_product_right_cancellative_decide : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -399,6 +404,7 @@ Definition bop_product_right_cancellative_decide :
    end. 
 
 
+(* 
 Definition bop_product_right_cancellative_decide_new : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -427,7 +433,7 @@ Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] refS refT [wS PS] 
               rewrite PSR. simpl. reflexivity. 
 Defined. 
 
-
+*) 
 
 Definition bop_product_is_left_decide : 
    ∀ (S T : Type) 
@@ -450,6 +456,7 @@ Definition bop_product_is_left_decide :
        | inr not_leftS   => inr _ (bop_product_not_is_left_left S T rS rT bS bT ntT not_leftS)
        end. 
 
+(*
 
 Definition bop_product_is_left_decide_new : 
    ∀ (S T : Type) 
@@ -471,7 +478,7 @@ Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT].
            rewrite PS. simpl. reflexivity. 
 Defined. 
 
-
+*) 
 
 Definition bop_product_is_right_decide : 
    ∀ (S T : Type) 
@@ -494,6 +501,7 @@ Definition bop_product_is_right_decide :
        | inr not_rightS   => inr _ (bop_product_not_is_right_left S T rS rT bS bT ntT not_rightS)
        end . 
 
+(* 
 Definition bop_product_is_right_decide_new : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -513,6 +521,8 @@ Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT].
            rewrite PS. simpl. reflexivity. 
            rewrite PS. simpl. reflexivity. 
 Defined. 
+
+*) 
 
 
 Definition bop_product_selective_decide : 
@@ -561,6 +571,7 @@ Definition bop_product_selective_decide :
        end. 
 
 
+(* 
 Definition bop_product_selective_decide_new : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -622,7 +633,7 @@ Proof. intros S T rS rT bS bT ntS ntT symS symT transS transT
               rewrite LS. simpl. reflexivity. 
               rewrite RT. rewrite andb_comm. simpl. reflexivity. 
 Defined. 
-
+*) 
 
 Definition bop_product_selective_decide_commutative_case : 
    ∀ (S T : Type) 
@@ -665,6 +676,7 @@ Definition bop_product_exists_id_decide :
        | inr neS   => inr _ (bop_product_not_exists_id S T rS rT bS bT (inl _ neS))
        end. 
 
+(* 
 Definition bop_product_exists_id_decide_new : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -683,7 +695,7 @@ Proof. intros S T rS rT bS bT [wS PS] [wT PT].
           apply bop_product_not_exists_id; auto. 
 Defined. 
 
-
+*) 
 Definition bop_product_exists_ann_decide : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -704,7 +716,7 @@ Definition bop_product_exists_ann_decide :
        end. 
 
 
-
+(* 
 Definition bop_product_exists_ann_decide_new : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -722,6 +734,8 @@ Proof. intros S T rS rT bS bT [wS PS] [wT PT].
           apply bop_product_not_exists_ann; auto. 
           apply bop_product_not_exists_ann; auto. 
 Defined. 
+
+*) 
 
 Definition bop_product_left_constant_decide : 
    ∀ (S T : Type) 
@@ -747,6 +761,7 @@ Definition bop_product_left_constant_decide :
        end
    end. 
 
+(* 
 
 Definition bop_product_left_constant_decide_new : 
    ∀ (S T : Type) 
@@ -768,7 +783,7 @@ Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT].
            rewrite PS. simpl. reflexivity. 
 Defined. 
 
-
+*) 
 
 Definition bop_product_right_constant_decide : 
    ∀ (S T : Type) 
@@ -795,6 +810,7 @@ Definition bop_product_right_constant_decide :
    end. 
 
 
+(* 
 Definition bop_product_right_constant_decide_new : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -814,7 +830,7 @@ Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT].
            rewrite PS. simpl. reflexivity. 
            rewrite PS. simpl. reflexivity. 
 Defined. 
-
+*) 
 
 Definition bop_product_anti_left_decide : 
    ∀ (S T : Type) 
@@ -836,6 +852,8 @@ Definition bop_product_anti_left_decide :
    end. 
 
 
+(* 
+
 Definition bop_product_anti_left_decide_new : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -853,7 +871,7 @@ Proof. intros S T rS rT bS bT [wS PS] [wT PT].
            apply bop_product_anti_left; auto. 
            rewrite PS, PT. simpl. reflexivity. 
 Defined. 
-
+*) 
 
 Definition bop_product_anti_right_decide : 
    ∀ (S T : Type) 
@@ -874,7 +892,7 @@ Definition bop_product_anti_right_decide :
      end 
    end. 
 
-
+(* 
 Definition bop_product_anti_right_decide_new : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -893,6 +911,8 @@ Proof. intros S T rS rT bS bT [wS PS] [wT PT].
            rewrite PS, PT. simpl. reflexivity. 
 Defined. 
 
+
+*) 
 
 
 (* llex *)
@@ -1356,7 +1376,7 @@ Definition bop_product_ann_equals_ann_decide :
    end. 
 
 
-Definition bops_product_left_absorption_decide : 
+Definition bops_product_left_left_absorptive_decide : 
    ∀ (S T : Type) 
      (s : S) 
      (t : T) 
@@ -1364,9 +1384,9 @@ Definition bops_product_left_absorption_decide :
      (rT : brel T) 
      (addS mulS : binary_op S) 
      (addT mulT : binary_op T), 
-      bops_left_absorption_decidable S rS addS mulS → 
-      bops_left_absorption_decidable T rT addT mulT → 
-         bops_left_absorption_decidable (S * T) 
+      bops_left_left_absorptive_decidable S rS addS mulS → 
+      bops_left_left_absorptive_decidable T rT addT mulT → 
+         bops_left_left_absorptive_decidable (S * T) 
              (brel_product _ _ rS rT) 
              (bop_product  _ _ addS addT)
              (bop_product _ _ mulS mulT)
@@ -1375,16 +1395,16 @@ match laS_d with
 |inl laS =>
    match laT_d with 
    |inl laT     =>  
-       inl _ (bop_product_left_absorption S T rS rT addS mulS addT mulT laS laT)
+       inl _ (bop_product_left_left_absorptive S T rS rT addS mulS addT mulT laS laT)
    |inr not_laT => 
-       inr _ (bop_product_not_left_absorption_right S T rS rT addS mulS addT mulT s not_laT) 
+       inr _ (bop_product_not_left_left_absorptive_right S T rS rT addS mulS addT mulT s not_laT) 
    end 
 |inr not_laS => 
-      inr _ (bop_product_not_left_absorption_left S T rS rT addS mulS addT mulT t not_laS ) 
+      inr _ (bop_product_not_left_left_absorptive_left S T rS rT addS mulS addT mulT t not_laS ) 
 end. 
 
 
-Definition bops_product_right_absorption_decide : 
+Definition bops_product_left_right_absorptive_decide : 
    ∀ (S T : Type) 
      (s : S) 
      (t : T) 
@@ -1392,9 +1412,9 @@ Definition bops_product_right_absorption_decide :
      (rT : brel T) 
      (addS mulS : binary_op S) 
      (addT mulT : binary_op T), 
-      bops_right_absorption_decidable S rS addS mulS → 
-      bops_right_absorption_decidable T rT addT mulT → 
-         bops_right_absorption_decidable (S * T) 
+      bops_left_right_absorptive_decidable S rS addS mulS → 
+      bops_left_right_absorptive_decidable T rT addT mulT → 
+         bops_left_right_absorptive_decidable (S * T) 
              (brel_product _ _ rS rT) 
              (bop_product  _ _ addS addT)
              (bop_product _ _ mulS mulT)
@@ -1403,14 +1423,68 @@ match laS_d with
 |inl laS =>
    match laT_d with 
    |inl laT     =>  
-       inl _ (bop_product_right_absorption S T rS rT addS mulS addT mulT laS laT)
+       inl _ (bop_product_left_right_absorptive S T rS rT addS mulS addT mulT laS laT)
    |inr not_laT => 
-       inr _ (bop_product_not_right_absorption_right S T rS rT addS mulS addT mulT s not_laT) 
+       inr _ (bop_product_not_left_right_absorptive_right S T rS rT addS mulS addT mulT s not_laT) 
    end 
 |inr not_laS => 
-      inr _ (bop_product_not_right_absorption_left S T rS rT addS mulS addT mulT t not_laS ) 
+      inr _ (bop_product_not_left_right_absorptive_left S T rS rT addS mulS addT mulT t not_laS ) 
 end. 
 
+Definition bops_product_right_left_absorptive_decide : 
+   ∀ (S T : Type) 
+     (s : S) 
+     (t : T) 
+     (rS : brel S) 
+     (rT : brel T) 
+     (addS mulS : binary_op S) 
+     (addT mulT : binary_op T), 
+      bops_right_left_absorptive_decidable S rS addS mulS → 
+      bops_right_left_absorptive_decidable T rT addT mulT → 
+         bops_right_left_absorptive_decidable (S * T) 
+             (brel_product _ _ rS rT) 
+             (bop_product  _ _ addS addT)
+             (bop_product _ _ mulS mulT)
+:= λ S T s t rS rT addS mulS addT mulT laS_d laT_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT     =>  
+       inl _ (bop_product_right_left_absorptive S T rS rT addS mulS addT mulT laS laT)
+   |inr not_laT => 
+       inr _ (bop_product_not_right_left_absorptive_right S T rS rT addS mulS addT mulT s not_laT) 
+   end 
+|inr not_laS => 
+      inr _ (bop_product_not_right_left_absorptive_left S T rS rT addS mulS addT mulT t not_laS ) 
+end. 
+
+
+Definition bops_product_right_right_absorptive_decide : 
+   ∀ (S T : Type) 
+     (s : S) 
+     (t : T) 
+     (rS : brel S) 
+     (rT : brel T) 
+     (addS mulS : binary_op S) 
+     (addT mulT : binary_op T), 
+      bops_right_right_absorptive_decidable S rS addS mulS → 
+      bops_right_right_absorptive_decidable T rT addT mulT → 
+         bops_right_right_absorptive_decidable (S * T) 
+             (brel_product _ _ rS rT) 
+             (bop_product  _ _ addS addT)
+             (bop_product _ _ mulS mulT)
+:= λ S T s t rS rT addS mulS addT mulT laS_d laT_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT     =>  
+       inl _ (bop_product_right_right_absorptive S T rS rT addS mulS addT mulT laS laT)
+   |inr not_laT => 
+       inr _ (bop_product_not_right_right_absorptive_right S T rS rT addS mulS addT mulT s not_laT) 
+   end 
+|inr not_laS => 
+      inr _ (bop_product_not_right_right_absorptive_left S T rS rT addS mulS addT mulT t not_laS ) 
+end. 
 
 
 
@@ -1598,7 +1672,7 @@ nLA(S) -> nLA(lex, product)
 
 *)
 
-Definition bops_llex_product_left_absorption_decide : 
+Definition bops_llex_product_left_left_absorptive_decide : 
    ∀ (S T : Type) 
      ( t : T) 
      (rS : brel S) 
@@ -1608,10 +1682,10 @@ Definition bops_llex_product_left_absorption_decide :
       brel_symmetric S rS  →  
       brel_transitive S rS  →  
       brel_reflexive T rT  → 
-      bops_left_absorption_decidable S rS addS mulS → 
-      bops_left_absorption_decidable T rT addT mulT → 
+      bops_left_left_absorptive_decidable S rS addS mulS → 
+      bops_left_left_absorptive_decidable T rT addT mulT → 
       bop_anti_left_decidable S rS mulS → 
-         bops_left_absorption_decidable (S * T) 
+         bops_left_left_absorptive_decidable (S * T) 
              (brel_product _ _ rS rT) 
              (bop_llex  _ _ rS addS addT)
              (bop_product _ _ mulS mulT)
@@ -1619,23 +1693,23 @@ Definition bops_llex_product_left_absorption_decide :
 match laS_d with 
 |inl laS =>
    match laT_d with 
-   |inl laT =>  inl _ (bops_llex_product_left_absorption 
+   |inl laT =>  inl _ (bops_llex_product_left_left_absorptive 
                           S T rS rT addS mulS addT mulT refT laS (inl _ laT))
    |inr not_laT  => 
        match antilS_d with 
-       | inl antilS => inl _ (bops_llex_product_left_absorption 
+       | inl antilS => inl _ (bops_llex_product_left_left_absorptive 
                                     S T rS rT addS mulS addT mulT refT laS (inr _ antilS))
-       | inr not_antilS => inr _ (bops_llex_product_not_left_absorption_right
+       | inr not_antilS => inr _ (bops_llex_product_not_left_left_absorptive_right
                             S T rS rT addS mulS addT mulT not_antilS symS tranS laS not_laT)
        end 
    end 
-|inr not_laS => inr _ (bops_llex_product_not_left_absorption_left 
+|inr not_laS => inr _ (bops_llex_product_not_left_left_absorptive_left 
                           S T rS rT addS mulS addT mulT t not_laS ) 
 end. 
 
 
 
-Definition bops_llex_product_right_absorption_decide : 
+Definition bops_llex_product_left_right_absorptive_decide : 
    ∀ (S T : Type) 
      ( t : T) 
      (rS : brel S) 
@@ -1645,10 +1719,10 @@ Definition bops_llex_product_right_absorption_decide :
       brel_symmetric S rS  →  
       brel_transitive S rS  →  
       brel_reflexive T rT  → 
-      bops_right_absorption_decidable S rS addS mulS → 
-      bops_right_absorption_decidable T rT addT mulT → 
+      bops_left_right_absorptive_decidable S rS addS mulS → 
+      bops_left_right_absorptive_decidable T rT addT mulT → 
       bop_anti_right_decidable S rS mulS → 
-         bops_right_absorption_decidable (S * T) 
+         bops_left_right_absorptive_decidable (S * T) 
              (brel_product _ _ rS rT) 
              (bop_llex  _ _ rS addS addT)
              (bop_product _ _ mulS mulT)
@@ -1656,23 +1730,119 @@ Definition bops_llex_product_right_absorption_decide :
 match laS_d with 
 |inl laS =>
    match laT_d with 
-   |inl laT =>  inl _ (bops_llex_product_right_absorption 
+   |inl laT =>  inl _ (bops_llex_product_left_right_absorptive 
                           S T rS rT addS mulS addT mulT refT laS (inl _ laT))
    |inr not_laT  => 
        match antilS_d with 
-       | inl antilS => inl _ (bops_llex_product_right_absorption 
+       | inl antilS => inl _ (bops_llex_product_left_right_absorptive 
                                     S T rS rT addS mulS addT mulT refT laS (inr _ antilS))
-       | inr not_antilS => inr _ (bops_llex_product_not_right_absorption_right
+       | inr not_antilS => inr _ (bops_llex_product_not_left_right_absorptive_right
                             S T rS rT addS mulS addT mulT not_antilS symS tranS laS not_laT)
        end 
    end 
-|inr not_laS => inr _ (bops_llex_product_not_right_absorption_left 
+|inr not_laS => inr _ (bops_llex_product_not_left_right_absorptive_left 
                           S T rS rT addS mulS addT mulT t not_laS ) 
 end. 
 
 
 
-(* add zero *) 
+Definition bops_llex_product_right_left_absorptive_decide : 
+   ∀ (S T : Type) 
+     ( t : T) 
+     (rS : brel S) 
+     (rT : brel T) 
+     (addS mulS : binary_op S) 
+     (addT mulT : binary_op T), 
+      brel_symmetric S rS  →  
+      brel_transitive S rS  →  
+      brel_reflexive T rT  → 
+      bops_right_left_absorptive_decidable S rS addS mulS → 
+      bops_right_left_absorptive_decidable T rT addT mulT → 
+      bop_anti_left_decidable S rS mulS → 
+         bops_right_left_absorptive_decidable (S * T) 
+             (brel_product _ _ rS rT) 
+             (bop_llex  _ _ rS addS addT)
+             (bop_product _ _ mulS mulT)
+:= λ S T t rS rT addS mulS addT mulT symS tranS refT laS_d laT_d antilS_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT =>  inl _ (bops_llex_product_right_left_absorptive 
+                          S T rS rT addS mulS addT mulT refT symS tranS laS (inl _ laT))
+   |inr not_laT  => 
+       match antilS_d with 
+       | inl antilS => inl _ (bops_llex_product_right_left_absorptive 
+                                    S T rS rT addS mulS addT mulT refT symS tranS laS (inr _ antilS))
+       | inr not_antilS => inr _ (bops_llex_product_not_right_left_absorptive_right
+                            S T rS rT addS mulS addT mulT not_antilS symS tranS laS not_laT)
+       end 
+   end 
+|inr not_laS => inr _ (bops_llex_product_not_right_left_absorptive_left 
+                          S T rS rT addS mulS addT mulT t not_laS ) 
+end. 
+
+
+Definition bops_llex_product_right_right_absorptive_decide : 
+   ∀ (S T : Type) 
+     ( t : T) 
+     (rS : brel S) 
+     (rT : brel T) 
+     (addS mulS : binary_op S) 
+     (addT mulT : binary_op T), 
+      brel_symmetric S rS  →  
+      brel_transitive S rS  →  
+      brel_reflexive T rT  → 
+      bops_right_right_absorptive_decidable S rS addS mulS → 
+      bops_right_right_absorptive_decidable T rT addT mulT → 
+      bop_anti_right_decidable S rS mulS → 
+         bops_right_right_absorptive_decidable (S * T) 
+             (brel_product _ _ rS rT) 
+             (bop_llex  _ _ rS addS addT)
+             (bop_product _ _ mulS mulT)
+:= λ S T t rS rT addS mulS addT mulT symS tranS refT laS_d laT_d antilS_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT =>  inl _ (bops_llex_product_right_right_absorptive 
+                          S T rS rT addS mulS addT mulT refT laS (inl _ laT))
+   |inr not_laT  => 
+       match antilS_d with 
+       | inl antilS => inl _ (bops_llex_product_right_right_absorptive 
+                                    S T rS rT addS mulS addT mulT refT laS (inr _ antilS))
+       | inr not_antilS => inr _ (bops_llex_product_not_right_right_absorptive_right
+                            S T rS rT addS mulS addT mulT not_antilS symS tranS laS not_laT)
+       end 
+   end 
+|inr not_laS => inr _ (bops_llex_product_not_right_right_absorptive_left 
+                          S T rS rT addS mulS addT mulT t not_laS ) 
+end. 
+
+
+
+
+
+(* add zero *)
+
+
+Definition bops_add_zero_ann_equals_id_decide : 
+   ∀ (S : Type) 
+     (rS : brel S) 
+     (s : S)
+     (c : cas_constant)
+     (addS mulS : binary_op S),  
+     brel_reflexive S rS -> 
+     bops_id_equals_ann_decidable S rS mulS addS -> 
+     bops_id_equals_ann_decidable 
+        (with_constant S) 
+        (brel_add_constant S rS c) 
+        (bop_add_ann S mulS c) 
+        (bop_add_id S addS c)
+:= λ S rS s c addS mulS refS dS, 
+   match dS with 
+   | inl pS  => inl _ (bops_add_id_add_ann_ann_equals_id S rS c addS mulS refS pS)
+   | inr npS => inr _ (bops_add_id_add_ann_not_ann_equals_id S rS s c addS mulS npS)
+   end. 
+
 
 Definition bops_add_zero_left_distributive_decide : 
    ∀ (S : Type) 
@@ -1710,63 +1880,85 @@ Definition bops_add_zero_right_distributive_decide :
    | inr nldS => inr _ (bops_add_id_add_ann_not_right_distributive S rS c addS mulS nldS)
    end. 
 
-Definition bops_add_zero_left_absorption_decide : 
+
+Definition bops_add_zero_left_left_absorptive_decide : 
    ∀ (S : Type) 
      (rS : brel S)  
      (c : cas_constant)
      (addS mulS : binary_op S),  
      brel_reflexive S rS -> 
-     bops_left_absorption_decidable S rS addS mulS -> 
-     bops_left_absorption_decidable 
+     bops_left_left_absorptive_decidable S rS addS mulS -> 
+     bops_left_left_absorptive_decidable 
         (with_constant S) 
         (brel_add_constant S rS c) 
         (bop_add_id S addS c) 
         (bop_add_ann S mulS c)
 := λ S rS c addS mulS refS dS, 
    match dS with 
-   | inl ldS  => inl _ (bops_add_id_add_ann_left_absorption S rS c addS mulS refS ldS)
-   | inr nldS => inr _ (bops_add_id_add_ann_not_left_absorption S rS c addS mulS nldS)
+   | inl ldS  => inl _ (bops_add_id_add_ann_left_left_absorptive S rS c addS mulS refS ldS)
+   | inr nldS => inr _ (bops_add_id_add_ann_not_left_left_absorptive S rS c addS mulS nldS)
    end. 
 
 
-Definition bops_add_zero_right_absorption_decide : 
+Definition bops_add_zero_left_right_absorptive_decide : 
    ∀ (S : Type) 
      (rS : brel S) 
      (c : cas_constant)
      (addS mulS : binary_op S),  
      brel_reflexive S rS -> 
-     bops_right_absorption_decidable S rS addS mulS -> 
-     bops_right_absorption_decidable 
+     bops_left_right_absorptive_decidable S rS addS mulS -> 
+     bops_left_right_absorptive_decidable 
         (with_constant S) 
         (brel_add_constant S rS c) 
         (bop_add_id S addS c) 
         (bop_add_ann S mulS c)
 := λ S rS c addS mulS refS dS, 
    match dS with 
-   | inl ldS  => inl _ (bops_add_id_add_ann_right_absorption S rS c addS mulS refS ldS)
-   | inr nldS => inr _ (bops_add_id_add_ann_not_right_absorption S rS c addS mulS nldS)
+   | inl ldS  => inl _ (bops_add_id_add_ann_left_right_absorptive S rS c addS mulS refS ldS)
+   | inr nldS => inr _ (bops_add_id_add_ann_not_left_right_absorptive S rS c addS mulS nldS)
    end. 
 
 
-Definition bops_add_zero_ann_equals_id_decide : 
+Definition bops_add_zero_right_left_absorptive_decide : 
    ∀ (S : Type) 
-     (rS : brel S) 
-     (s : S)
+     (rS : brel S)  
      (c : cas_constant)
      (addS mulS : binary_op S),  
      brel_reflexive S rS -> 
-     bops_id_equals_ann_decidable S rS mulS addS -> 
-     bops_id_equals_ann_decidable 
+     bops_right_left_absorptive_decidable S rS addS mulS -> 
+     bops_right_left_absorptive_decidable 
         (with_constant S) 
         (brel_add_constant S rS c) 
-        (bop_add_ann S mulS c) 
-        (bop_add_id S addS c)
-:= λ S rS s c addS mulS refS dS, 
+        (bop_add_id S addS c) 
+        (bop_add_ann S mulS c)
+:= λ S rS c addS mulS refS dS, 
    match dS with 
-   | inl pS  => inl _ (bops_add_id_add_ann_ann_equals_id S rS c addS mulS refS pS)
-   | inr npS => inr _ (bops_add_id_add_ann_not_ann_equals_id S rS s c addS mulS npS)
+   | inl ldS  => inl _ (bops_add_id_add_ann_right_left_absorptive S rS c addS mulS refS ldS)
+   | inr nldS => inr _ (bops_add_id_add_ann_not_right_left_absorptive S rS c addS mulS nldS)
    end. 
 
+
+Definition bops_add_zero_right_right_absorptive_decide : 
+   ∀ (S : Type) 
+     (rS : brel S)  
+     (c : cas_constant)
+     (addS mulS : binary_op S),  
+     brel_reflexive S rS -> 
+     bops_right_right_absorptive_decidable S rS addS mulS -> 
+     bops_right_right_absorptive_decidable 
+        (with_constant S) 
+        (brel_add_constant S rS c) 
+        (bop_add_id S addS c) 
+        (bop_add_ann S mulS c)
+:= λ S rS c addS mulS refS dS, 
+   match dS with 
+   | inl ldS  => inl _ (bops_add_id_add_ann_right_right_absorptive S rS c addS mulS refS ldS)
+   | inr nldS => inr _ (bops_add_id_add_ann_not_right_right_absorptive S rS c addS mulS nldS)
+   end. 
+
+
+
+(* add one *) 
 
 Definition bops_add_one_id_equals_ann_decide : 
    ∀ (S : Type) 
@@ -1788,43 +1980,42 @@ Definition bops_add_one_id_equals_ann_decide :
    end. 
 
 
-
-
-(* add one *) 
-
-
-
 Definition bops_add_one_left_distributive_decide : 
    ∀ (S : Type) 
      (rS : brel S) 
      (c : cas_constant)
      (addS mulS : binary_op S),  
-     brel_congruence S rS rS -> 
      brel_reflexive S rS -> 
      brel_symmetric S rS -> 
-     bop_commutative S rS addS -> 
      bop_idempotent_decidable S rS addS -> 
-     bops_left_absorption_decidable S rS addS mulS -> 
+     bops_left_left_absorptive_decidable S rS addS mulS -> 
+     bops_right_left_absorptive_decidable S rS addS mulS -> 
      bop_left_distributive_decidable S rS addS mulS -> 
      bop_left_distributive_decidable 
         (with_constant S) 
         (brel_add_constant S rS c) 
         (bop_add_ann S addS c) 
         (bop_add_id S mulS c)
-:= λ S rS c addS mulS congS refS symS commS idemS_d laS_d ldS_d, 
+:= λ S rS c addS mulS refS symS idemS_d llaS_d rlaS_d ldS_d, 
    match ldS_d with 
    | inl ldS  => 
-    match laS_d with 
-    | inl laS   => 
-      match idemS_d with 
-      | inl idemS   => inl _ (bops_add_ann_add_id_left_distributive S rS c addS mulS 
-                              congS refS symS idemS commS laS ldS)
-      | inr nidemS  => inr _ (bops_add_ann_add_id_not_left_distributive_v2 S rS c addS mulS symS nidemS)
+    match llaS_d with 
+    | inl llaS   => 
+      match rlaS_d with 
+      | inl rlaS   => 
+         match idemS_d with 
+         | inl idemS   => inl _ (bops_add_ann_add_id_left_distributive S rS c addS mulS 
+                                 refS symS idemS llaS rlaS ldS)
+         | inr nidemS  => inr _ (bops_add_ann_add_id_not_left_distributive_v2 S rS c addS mulS symS nidemS)
+        end 
+      | inr nrlaS   => inr _ (bops_add_ann_add_id_not_left_distributive_v4 S rS c addS mulS nrlaS)
       end 
-    | inr nlaS  => inr _ (bops_add_ann_add_id_not_left_distributive_v3 S rS c addS mulS nlaS)
+    | inr nllaS  => inr _ (bops_add_ann_add_id_not_left_distributive_v3 S rS c addS mulS nllaS)
     end 
    | inr nldS => inr _ (bops_add_ann_add_id_not_left_distributive_v1 S rS c addS mulS nldS)
    end. 
+
+
 
 
 Definition bops_add_one_right_distributive_decide : 
@@ -1832,43 +2023,46 @@ Definition bops_add_one_right_distributive_decide :
      (rS : brel S) 
      (c : cas_constant)
      (addS mulS : binary_op S),  
-     brel_congruence S rS rS -> 
      brel_reflexive S rS -> 
      brel_symmetric S rS -> 
-     bop_commutative S rS addS -> 
      bop_idempotent_decidable S rS addS -> 
-     bops_right_absorption_decidable S rS addS mulS -> 
+     bops_left_right_absorptive_decidable S rS addS mulS -> 
+     bops_right_right_absorptive_decidable S rS addS mulS -> 
      bop_right_distributive_decidable S rS addS mulS -> 
      bop_right_distributive_decidable 
         (with_constant S) 
         (brel_add_constant S rS c) 
         (bop_add_ann S addS c) 
         (bop_add_id S mulS c)
-:= λ S rS c addS mulS congS refS symS commS idemS_d laS_d ldS_d, 
+:= λ S rS c addS mulS refS symS idemS_d llaS_d rlaS_d ldS_d, 
    match ldS_d with 
    | inl ldS  => 
-    match laS_d with 
-    | inl laS   => 
-      match idemS_d with 
-      | inl idemS   => inl _ (bops_add_ann_add_id_right_distributive S rS c addS mulS 
-                              congS refS symS idemS commS laS ldS)
-      | inr nidemS  => inr _ (bops_add_ann_add_id_not_right_distributive_v2 S rS c addS mulS symS nidemS)
+    match llaS_d with 
+    | inl llaS   => 
+      match rlaS_d with 
+      | inl rlaS   => 
+         match idemS_d with 
+         | inl idemS   => inl _ (bops_add_ann_add_id_right_distributive S rS c addS mulS 
+                                 refS symS idemS llaS rlaS ldS)
+         | inr nidemS  => inr _ (bops_add_ann_add_id_not_right_distributive_v2 S rS c addS mulS symS nidemS)
+        end 
+      | inr nrlaS   => inr _ (bops_add_ann_add_id_not_right_distributive_v4 S rS c addS mulS nrlaS)
       end 
-    | inr nlaS  => inr _ (bops_add_ann_add_id_not_right_distributive_v3 S rS c addS mulS nlaS)
+    | inr nllaS  => inr _ (bops_add_ann_add_id_not_right_distributive_v3 S rS c addS mulS nllaS)
     end 
    | inr nldS => inr _ (bops_add_ann_add_id_not_right_distributive_v1 S rS c addS mulS nldS)
    end. 
 
 
-Definition bops_add_one_left_absorption_decide : 
+Definition bops_add_one_left_left_absorptive_decide : 
    ∀ (S : Type) 
      (rS : brel S) 
      (c : cas_constant)
      (addS mulS : binary_op S),  
      brel_symmetric S rS -> 
      bop_idempotent_decidable S rS addS -> 
-     bops_left_absorption_decidable S rS addS mulS -> 
-     bops_left_absorption_decidable 
+     bops_left_left_absorptive_decidable S rS addS mulS -> 
+     bops_left_left_absorptive_decidable 
         (with_constant S) 
         (brel_add_constant S rS c) 
         (bop_add_ann S addS c) 
@@ -1877,23 +2071,23 @@ Definition bops_add_one_left_absorption_decide :
    match laS_d with 
    | inl laS  => 
      match idemS_d with 
-     | inl idemS => inl _ (bops_add_ann_add_id_left_absorption S rS c addS mulS symS idemS laS)
-     | inr nidemS => inr _ (bops_add_ann_add_id_not_left_absorption_v2 S rS c addS mulS 
+     | inl idemS => inl _ (bops_add_ann_add_id_left_left_absorptive S rS c addS mulS symS idemS laS)
+     | inr nidemS => inr _ (bops_add_ann_add_id_not_left_left_absorptive_v1 S rS c addS mulS 
                              symS nidemS)
      end 
-   | inr nlaS => inr _ (bops_add_ann_add_id_not_left_absorption_v1 S rS c addS mulS nlaS)
+   | inr nlaS => inr _ (bops_add_ann_add_id_not_left_left_absorptive_v2 S rS c addS mulS nlaS)
    end. 
 
 
-Definition bops_add_one_right_absorption_decide : 
+Definition bops_add_one_left_right_absorptive_decide : 
    ∀ (S : Type) 
      (rS : brel S) 
      (c : cas_constant)
      (addS mulS : binary_op S),  
      brel_symmetric S rS -> 
      bop_idempotent_decidable S rS addS -> 
-     bops_right_absorption_decidable S rS addS mulS -> 
-     bops_right_absorption_decidable 
+     bops_left_right_absorptive_decidable S rS addS mulS -> 
+     bops_left_right_absorptive_decidable 
         (with_constant S) 
         (brel_add_constant S rS c) 
         (bop_add_ann S addS c) 
@@ -1902,12 +2096,64 @@ Definition bops_add_one_right_absorption_decide :
    match laS_d with 
    | inl laS  => 
      match idemS_d with 
-     | inl idemS => inl _ (bops_add_ann_add_id_right_absorption S rS c addS mulS symS idemS laS)
-     | inr nidemS => inr _ (bops_add_ann_add_id_not_right_absorption_v2 S rS c addS mulS 
+     | inl idemS => inl _ (bops_add_ann_add_id_left_right_absorptive S rS c addS mulS symS idemS laS)
+     | inr nidemS => inr _ (bops_add_ann_add_id_not_left_right_absorptive_v1 S rS c addS mulS 
                              symS nidemS)
      end 
-   | inr nlaS => inr _ (bops_add_ann_add_id_not_right_absorption_v1 S rS c addS mulS nlaS)
+   | inr nlaS => inr _ (bops_add_ann_add_id_not_left_right_absorptive_v2 S rS c addS mulS nlaS)
    end. 
+
+Definition bops_add_one_right_left_absorptive_decide : 
+   ∀ (S : Type) 
+     (rS : brel S) 
+     (c : cas_constant)
+     (addS mulS : binary_op S),  
+     brel_symmetric S rS -> 
+     bop_idempotent_decidable S rS addS -> 
+     bops_right_left_absorptive_decidable S rS addS mulS -> 
+     bops_right_left_absorptive_decidable 
+        (with_constant S) 
+        (brel_add_constant S rS c) 
+        (bop_add_ann S addS c) 
+        (bop_add_id S mulS c)
+:= λ S rS c addS mulS symS idemS_d laS_d, 
+   match laS_d with 
+   | inl laS  => 
+     match idemS_d with 
+     | inl idemS => inl _ (bops_add_ann_add_id_right_left_absorptive S rS c addS mulS symS idemS laS)
+     | inr nidemS => inr _ (bops_add_ann_add_id_not_right_left_absorptive_v1 S rS c addS mulS 
+                             symS nidemS)
+     end 
+   | inr nlaS => inr _ (bops_add_ann_add_id_not_right_left_absorptive_v2 S rS c addS mulS nlaS)
+   end. 
+
+
+Definition bops_add_one_right_right_absorptive_decide : 
+   ∀ (S : Type) 
+     (rS : brel S) 
+     (c : cas_constant)
+     (addS mulS : binary_op S),  
+     brel_symmetric S rS -> 
+     bop_idempotent_decidable S rS addS -> 
+     bops_right_right_absorptive_decidable S rS addS mulS -> 
+     bops_right_right_absorptive_decidable 
+        (with_constant S) 
+        (brel_add_constant S rS c) 
+        (bop_add_ann S addS c) 
+        (bop_add_id S mulS c)
+:= λ S rS c addS mulS symS idemS_d laS_d, 
+   match laS_d with 
+   | inl laS  => 
+     match idemS_d with 
+     | inl idemS => inl _ (bops_add_ann_add_id_right_right_absorptive S rS c addS mulS symS idemS laS)
+     | inr nidemS => inr _ (bops_add_ann_add_id_not_right_right_absorptive_v1 S rS c addS mulS 
+                             symS nidemS)
+     end 
+   | inr nlaS => inr _ (bops_add_ann_add_id_not_right_right_absorptive_v2 S rS c addS mulS nlaS)
+   end. 
+
+
+
 
 
 

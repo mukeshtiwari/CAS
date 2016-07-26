@@ -127,6 +127,7 @@ Separate Extraction
    (* sg *) 
    sg_C_times
    sg_CK_plus
+
    sg_CS_and
    sg_CS_or 
    sg_CS_min
@@ -156,7 +157,6 @@ Separate Extraction
    sg_CS_right_sum
 
    sg_product
-   sg_product_new
    sg_C_product
    sg_CI_product
 
@@ -165,18 +165,33 @@ Separate Extraction
    sg_CI_llex
    sg_CS_llex
 
+   sg_union
+   sg_intersect 
+(*
    sg_CI_union_with_ann
    sg_CI_intersect_with_id
-
+*) 
    sg_CS_min_with_infinity
    sg_CS_max_with_infinity
 
-   (* sg sg *) 
-   sg_sg_add_zero
-   sg_C_sg_add_one 
-   sg_sg_product
-   sg_C_sg_llex
-   sg_CS_sg_llex
-   sg_CI_sg_llex
-   .
+   (* bs *) 
+   bs_add_zero
+   bs_add_one 
+   bs_product
+(*
+   bs_and_or 
+   bs_or_and 
+
+   bs_min_max 
+   bs_max_min
+   bs_min_plus
+   bs_max_plus
+   bs_min_times 
+
+   bs_union_intersect 
+   bs_intersect_union 
+
+   bs_llex
+   bs_CS_llex
+*)    .
 

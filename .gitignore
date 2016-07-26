@@ -1,8 +1,12 @@
+## various notes to self 
 NOTES.txt
 HISTORY.txt
+doc/tgg22.txt
+saved/
 
-## Emacs
+## backups
 *.*~
+*.bak
 
 ## Latex
 *.aux
@@ -40,3 +44,4 @@ doc/*/*.pdf
 _build/
 extraction/*.ml
 extraction/*.mli
+extraction/STAMP

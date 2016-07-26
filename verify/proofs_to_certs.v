@@ -288,6 +288,7 @@ Definition A2C_sg : ∀ (S : Type), A_sg S -> sg S
 ; sg_ast    := A_sg_ast S R
 |}. 
 
+(*
 Definition P2C_sg_new : ∀ (S : Type) (r : brel S) (b : binary_op S),  
          sg_proofs_new S r b -> sg_certificates_new S 
 := λ S r b P,
@@ -315,7 +316,7 @@ Definition A2C_sg_new : ∀ (S : Type), A_sg_new S -> sg_new S
 ; sgn_certs  := P2C_sg_new S (A_eqv_eq S (A_sgn_eq S R)) (A_sgn_bop S R) (A_sgn_proofs S R)  
 ; sgn_ast    := A_sgn_ast S R
 |}. 
-
+*) 
 
 Definition P2C_sg_C : ∀ (S : Type) (r : brel S) (b : binary_op S),  
          sg_C_proofs S r b -> sg_C_certificates S 
@@ -419,72 +420,93 @@ Definition A2C_sg_CK : ∀ (S : Type), A_sg_CK S -> sg_CK S
 
 
 
-
-Definition p2c_left_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-       bops_left_absorption_decidable S r b1 b2 -> check_left_absorptive S 
+Definition p2c_left_left_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
+       bops_left_left_absorptive_decidable S r b1 b2 -> check_left_left_absorptive S 
 := λ S eq b1 b2 d, 
    match d with 
-   | inl _ => Certify_Left_Absorptive S 
-   | inr p => Certify_Not_Left_Absorptive S (projT1 p) 
-   end. 
-
-Definition p2c_right_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-       bops_right_absorption_decidable S r b1 b2 -> check_right_absorptive S 
-:= λ S eq b1 b2 d, 
-   match d with 
-   | inl _ => Certify_Right_Absorptive S 
-   | inr p => Certify_Not_Right_Absorptive S (projT1 p)
+   | inl _ => Certify_Left_Left_Absorptive S 
+   | inr p => Certify_Not_Left_Left_Absorptive S (projT1 p) 
    end. 
 
 
+Definition p2c_left_right_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
+       bops_left_right_absorptive_decidable S r b1 b2 -> check_left_right_absorptive S 
+:= λ S eq b1 b2 d, 
+   match d with 
+   | inl _ => Certify_Left_Right_Absorptive S 
+   | inr p => Certify_Not_Left_Right_Absorptive S (projT1 p) 
+   end. 
 
-Definition P2C_sg_sg : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-             sg_sg_proofs S r b1 b2 -> sg_sg_certificates S 
+
+Definition p2c_right_left_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
+       bops_right_left_absorptive_decidable S r b1 b2 -> check_right_left_absorptive S 
+:= λ S eq b1 b2 d, 
+   match d with 
+   | inl _ => Certify_Right_Left_Absorptive S 
+   | inr p => Certify_Not_Right_Left_Absorptive S (projT1 p) 
+   end. 
+
+
+Definition p2c_right_right_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
+       bops_right_right_absorptive_decidable S r b1 b2 -> check_right_right_absorptive S 
+:= λ S eq b1 b2 d, 
+   match d with 
+   | inl _ => Certify_Right_Right_Absorptive S 
+   | inr p => Certify_Not_Right_Right_Absorptive S (projT1 p) 
+   end. 
+
+
+Definition P2C_bs : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
+             bs_proofs S r b1 b2 -> bs_certificates S 
 := λ S r b1 b2 R,
 {|
-  sg_sg_left_distributive_d    := p2c_left_distributive S r b1 b2 (A_sg_sg_left_distributive_d S r b1 b2 R)
-; sg_sg_right_distributive_d   := p2c_right_distributive S r b1 b2 (A_sg_sg_right_distributive_d S r b1 b2 R)
-; sg_sg_left_absorptive_d      := p2c_left_absorptive S r b1 b2 (A_sg_sg_left_absorption_d S r b1 b2 R)
-; sg_sg_right_absorptive_d     := p2c_right_absorptive S r b1 b2 (A_sg_sg_right_absorption_d S r b1 b2 R)
-; sg_sg_plus_id_is_times_ann_d := p2c_plus_id_equals_times_ann S r b1 b2 (A_sg_sg_plus_id_is_times_ann_d S r b1 b2 R)
-; sg_sg_times_id_is_plus_ann_d := p2c_times_id_equals_plus_ann S r b1 b2  (A_sg_sg_times_id_is_plus_ann_d S r b1 b2 R)
+  bs_left_distributive_d      := p2c_left_distributive S r b1 b2 (A_bs_left_distributive_d S r b1 b2 R)
+; bs_right_distributive_d     := p2c_right_distributive S r b1 b2 (A_bs_right_distributive_d S r b1 b2 R)
+
+; bs_left_left_absorptive_d   := p2c_left_left_absorptive S r b1 b2 (A_bs_left_left_absorptive_d S r b1 b2 R)
+; bs_left_right_absorptive_d  := p2c_left_right_absorptive S r b1 b2 (A_bs_left_right_absorptive_d S r b1 b2 R)
+; bs_right_left_absorptive_d  := p2c_right_left_absorptive S r b1 b2 (A_bs_right_left_absorptive_d S r b1 b2 R)
+; bs_right_right_absorptive_d := p2c_right_right_absorptive S r b1 b2 (A_bs_right_right_absorptive_d S r b1 b2 R)
+
+; bs_plus_id_is_times_ann_d   := p2c_plus_id_equals_times_ann S r b1 b2 (A_bs_plus_id_is_times_ann_d S r b1 b2 R)
+; bs_times_id_is_plus_ann_d   := p2c_times_id_equals_plus_ann S r b1 b2  (A_bs_times_id_is_plus_ann_d S r b1 b2 R)
    
 |}. 
 
-Definition A2C_sg_sg : ∀ (S : Type), A_sg_sg S -> sg_sg S 
+Definition A2C_bs : ∀ (S : Type), A_bs S -> bs S 
 := λ S R,
 {|
-  sg_sg_eqv         := A2C_eqv S (A_sg_sg_eqv S R)
-; sg_sg_plus        := A_sg_sg_plus S R 
-; sg_sg_times       := A_sg_sg_times S R 
-; sg_sg_plus_certs  := P2C_sg S (A_eqv_eq S (A_sg_sg_eqv S R)) 
-                                (A_sg_sg_plus S R) 
-                                (A_sg_sg_plus_proofs S R)
-; sg_sg_times_certs := P2C_sg S (A_eqv_eq S (A_sg_sg_eqv S R)) 
-                                (A_sg_sg_times S R) 
-                                (A_sg_sg_times_proofs S R)
-; sg_sg_certs       := P2C_sg_sg S (A_eqv_eq S (A_sg_sg_eqv S R)) 
-                                   (A_sg_sg_plus S R) 
-                                   (A_sg_sg_times S R) 
-                                   (A_sg_sg_proofs S R)
-; sg_sg_ast        := A_sg_sg_ast S R
+  bs_eqv         := A2C_eqv S (A_bs_eqv S R)
+; bs_plus        := A_bs_plus S R 
+; bs_times       := A_bs_times S R 
+; bs_plus_certs  := P2C_sg S (A_eqv_eq S (A_bs_eqv S R)) 
+                                (A_bs_plus S R) 
+                                (A_bs_plus_proofs S R)
+; bs_times_certs := P2C_sg S (A_eqv_eq S (A_bs_eqv S R)) 
+                                (A_bs_times S R) 
+                                (A_bs_times_proofs S R)
+; bs_certs       := P2C_bs S (A_eqv_eq S (A_bs_eqv S R)) 
+                                   (A_bs_plus S R) 
+                                   (A_bs_times S R) 
+                                   (A_bs_proofs S R)
+; bs_ast        := A_bs_ast S R
 |}.
 
 
-(* for testing/demos .... *) 
-Definition A2C_sg_sg_from_sg_C_sg : ∀ (S : Type), A_sg_C_sg S -> sg_sg S 
-:= λ S s, A2C_sg_sg S (A_sg_sg_from_sg_C_sg S s). 
+(* for testing/demos .... 
+Definition A2C_bs_from_sg_C_sg : ∀ (S : Type), A_sg_C_sg S -> bs S 
+:= λ S s, A2C_bs S (A_bs_from_sg_C_sg S s). 
 
-Definition A2C_sg_sg_from_sg_CS_sg : ∀ (S : Type), A_sg_CS_sg S -> sg_sg S 
-:= λ S s, A2C_sg_sg S (A_sg_sg_from_sg_CS_sg S s). 
+Definition A2C_bs_from_sg_CS_sg : ∀ (S : Type), A_sg_CS_sg S -> bs S 
+:= λ S s, A2C_bs S (A_bs_from_sg_CS_sg S s). 
 
 
-Definition A2C_sg_sg_from_sg_CS_sg_CK_AD : ∀ (S : Type), A_sg_CS_sg_CK_AD S -> sg_sg S 
-:= λ S s, A2C_sg_sg_from_sg_CS_sg S (A_sg_CS_sg_from_sg_CS_sg_CK_AD S s) . 
+Definition A2C_bs_from_sg_CS_sg_CK_AD : ∀ (S : Type), A_sg_CS_sg_CK_AD S -> bs S 
+:= λ S s, A2C_bs_from_sg_CS_sg S (A_sg_CS_sg_from_sg_CS_sg_CK_AD S s) . 
 
-Definition A2C_sg_sg_from_sg_CS_sg_CS_AD : ∀ (S : Type), A_sg_CS_sg_CS_AD S -> sg_sg S 
-:= λ S s, A2C_sg_sg_from_sg_C_sg S (A_sg_C_sg_from_sg_CS_sg_CS_AD S s) . 
-
+Definition A2C_bs_from_sg_CS_sg_CS_AD : ∀ (S : Type), A_sg_CS_sg_CS_AD S -> bs S 
+:= λ S s, A2C_bs_from_sg_C_sg S (A_sg_C_sg_from_sg_CS_sg_CS_AD S s) . 
+*) 
 
 
 (* 
@@ -598,7 +620,7 @@ Definition A2C_sg_C_sg : ∀ (S : Type), A_sg_C_sg S -> sg_C_sg S
 ; sg_C_sg_times_certs := P2C_sg S (A_eqv_eq S (A_sg_C_sg_eqv S R)) 
                                 (A_sg_C_sg_times S R) 
                                 (A_sg_C_sg_times_proofs S R)
-; sg_C_sg_certs       := P2C_sg_sg S (A_eqv_eq S (A_sg_C_sg_eqv S R)) 
+; sg_C_sg_certs       := P2C_bs S (A_eqv_eq S (A_sg_C_sg_eqv S R)) 
                                    (A_sg_C_sg_plus S R) 
                                    (A_sg_C_sg_times S R) 
                                    (A_sg_C_sg_proofs S R)
@@ -618,7 +640,7 @@ Definition A2C_sg_CS_sg : ∀ (S : Type), A_sg_CS_sg S -> sg_CS_sg S
 ; sg_CS_sg_times_certs := P2C_sg S (A_eqv_eq S (A_sg_CS_sg_eqv S R)) 
                                 (A_sg_CS_sg_times S R) 
                                 (A_sg_CS_sg_times_proofs S R)
-; sg_CS_sg_certs       := P2C_sg_sg S (A_eqv_eq S (A_sg_CS_sg_eqv S R)) 
+; sg_CS_sg_certs       := P2C_bs S (A_eqv_eq S (A_sg_CS_sg_eqv S R)) 
                                    (A_sg_CS_sg_plus S R) 
                                    (A_sg_CS_sg_times S R) 
                                    (A_sg_CS_sg_proofs S R)
@@ -740,11 +762,11 @@ Definition A2C_to_option : ∀ (S : Type), option(A_to S) -> option(to S)
 
 
 
-Definition P2C_sg_sg_option : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), option(sg_sg_proofs S r b1 b2) -> option(sg_sg_certs S)
-  := λ S r b1 b2, option_map (P2C_sg_sg S r b1 b2). 
+Definition P2C_bs_option : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), option(bs_proofs S r b1 b2) -> option(bs_certs S)
+  := λ S r b1 b2, option_map (P2C_bs S r b1 b2). 
 
-Definition A2C_sg_sg_option : ∀ (S : Type), option(A_sg_sg S) -> option(sg_sg S) 
-  := λ S, option_map (A2C_sg_sg S). 
+Definition A2C_bs_option : ∀ (S : Type), option(A_bs S) -> option(bs S) 
+  := λ S, option_map (A2C_bs S). 
 
 Definition P2C_sr_option : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),  option(sr_proofs S r b1 b2) -> option(sr_certs S) 
   := λ S r b1 b2, option_map (P2C_sr S r b1 b2). 

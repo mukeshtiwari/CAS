@@ -8,19 +8,19 @@ Require Import CAS.code.construct_certs.
 Require Import CAS.code.cast.
 
 Require Import CAS.theory.facts. 
-Require Import CAS.theory.brel_eq_list.
-Require Import CAS.theory.bop_concat.
-Require Import CAS.theory.bop_product. 
-Require Import CAS.theory.bop_left_sum.
-Require Import CAS.theory.bop_right_sum.
-Require Import CAS.theory.brel_add_constant. 
-Require Import CAS.theory.bop_add_ann.
-Require Import CAS.theory.bop_add_id.
-Require Import CAS.theory.bop_union. 
-Require Import CAS.theory.bop_intersect. 
-Require Import CAS.theory.bop_llex. 
-Require Import CAS.theory.brel_product. 
-Require Import CAS.theory.brel_sum. 
+Require Import CAS.theory.brel.eq_list.
+Require Import CAS.theory.bop.concat.
+Require Import CAS.theory.bop.product. 
+Require Import CAS.theory.bop.left_sum.
+Require Import CAS.theory.bop.right_sum.
+Require Import CAS.theory.brel.add_constant. 
+Require Import CAS.theory.bop.add_ann.
+Require Import CAS.theory.bop.add_id.
+Require Import CAS.theory.bop.union. 
+Require Import CAS.theory.bop.intersect. 
+Require Import CAS.theory.bop.llex. 
+Require Import CAS.theory.brel.product. 
+Require Import CAS.theory.brel.sum. 
 Require Import CAS.theory.properties.        (* ~~ certificates *) 
 
 Require Import CAS.a_code.decide.            (* ~~ code.check *) 
@@ -353,6 +353,7 @@ Proof. intros S T rS rT bS bT eS eT pS pT.
        reflexivity. 
 Defined. 
 
+(*
 Lemma correct_sg_certs_product_new : 
       ∀ (S T : Type) 
         (rS : brel S) 
@@ -389,7 +390,7 @@ Proof. intros S T rS rT bS bT eS eT pS pT.
        rewrite correct_check_anti_right_product_new. 
        reflexivity. 
 Defined. 
-
+*) 
 
 (* ????
 
@@ -867,39 +868,42 @@ Defined.
 
 (* SETS *) 
 
+(* 
 Lemma correct_sg_CI_certs_union_with_ann : 
       ∀ (S : Type) (c : cas_constant) (r : brel S) (Q : eqv_proofs S r), 
-       sg_CI_certs_union_with_ann S c (P2C_eqv S r Q) 
+       sg_certs_union S c (P2C_eqv S r Q) 
        = 
-       P2C_sg_CI (with_constant (finite_set S)) 
+       P2C_sg (with_constant (finite_set S)) 
           (brel_add_constant (finite_set S) (brel_set S r) c) 
           (bop_add_ann (finite_set S) (bop_union S r) c)
-          (sg_CI_proofs_union_with_ann S r c Q). 
+          (sg_proofs_union S r c Q). 
 Proof. intros S c r Q. destruct Q. 
        destruct A_eqv_nontrivial. 
        destruct brel_nontrivial_witness as [s sP]. 
        destruct brel_nontrivial_negate as [f fP]. 
-       unfold sg_CI_certs_union_with_ann, sg_CI_proofs_union_with_ann, P2C_sg_CI, P2C_eqv; simpl.
+       unfold sg_certs_union, sg_CI_proofs_union, P2C_sg, P2C_eqv; simpl.
        reflexivity. 
 Defined. 
 
 
-Lemma correct_sg_CI_certs_intersect_with_id : 
+Lemma correct_sg_certs_intersect_with_id : 
       ∀ (S : Type) (c : cas_constant) (r : brel S) (Q : eqv_proofs S r), 
-       sg_CI_certs_intersect_with_id S c (P2C_eqv S r Q) 
+       sg_certs_intersect_with_id S c (P2C_eqv S r Q) 
        = 
-       P2C_sg_CI (with_constant (finite_set S)) 
+       P2C_sg (with_constant (finite_set S)) 
           (brel_add_constant (finite_set S) (brel_set S r) c) 
           (bop_add_id (finite_set S) (bop_intersect S r) c)
-          (sg_CI_proofs_intersect_with_id S r c Q). 
+          (sg_proofs_intersect_with_id S r c Q). 
 Proof. intros S c r Q. destruct Q. 
        destruct A_eqv_nontrivial. 
        destruct brel_nontrivial_witness as [s sP]. 
        destruct brel_nontrivial_negate as [f fP]. 
-       unfold sg_CI_certs_intersect_with_id, sg_CI_proofs_intersect_with_id, P2C_sg_CI, P2C_eqv;
+       unfold sg_certs_intersect, sg_proofs_intersect, P2C_sg, P2C_eqv;
        compute;     destruct (fP s) as [L R]; 
        reflexivity. 
 Defined. 
+
+*) 
 
 (* SG SG 
 

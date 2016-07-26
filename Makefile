@@ -43,61 +43,61 @@ ACODE=\
 THEORY=\
    theory/properties.v \
    theory/facts.v \
-   theory/brel_eq_bool.v \
-   theory/brel_eq_nat.v \
-   theory/brel_eq_list.v \
-   theory/brel_product.v \
-   theory/brel_sum.v \
-   theory/brel_dual.v \
-   theory/brel_conjunction.v \
-   theory/brel_llte_llt.v \
-   theory/brel_reduce.v \
-   theory/brel_add_constant.v \
-   theory/brel_and_sym.v \
-   theory/brel_reduce.v \
-   theory/brel_reduce.v \
-   theory/brel_reverse.v \
-   theory/brel_strictify.v \
-   theory/bop_and.v \
-   theory/bop_or.v \
-   theory/bop_min.v \
-   theory/bop_max.v \
-   theory/bop_plus.v \
-   theory/bop_times.v \
-   theory/bop_concat.v \
-   theory/bop_list_product.v \
-   theory/bop_left.v \
-   theory/bop_right.v \
-   theory/bop_product.v \
-   theory/bop_left_sum.v \
-   theory/bop_right_sum.v \
-   theory/bop_llex.v \
-   theory/bop_then_unary.v \
-   theory/bop_union.v \
-   theory/bop_intersect.v \
-   theory/bop_add_id.v \
-   theory/bop_add_ann.v \
-   theory/bops_and_or.v \
-   theory/bops_or_and.v \
-   theory/bops_min_max.v \
-   theory/bops_max_min.v \
-   theory/bops_min_plus.v \
-   theory/bops_max_plus.v \
-   theory/bops_product_product.v \
-   theory/bops_llex_product.v \
-   theory/bops_add_ann_add_id.v \
-   theory/bops_add_id_add_ann.v \
-   theory/bops_union_intersect.v \
-   theory/bops_intersect_union.v \
-   theory/bops_left_sum_right_sum.v \
-   theory/brel2_in_list.v \
-   theory/brel2_in_set.v \
-   theory/brel2_is_minimal_in.v \
-   theory/brel_subset.v \
-   theory/brel_set.v \
-   theory/uop_duplicate_elim.v \
-   theory/uop_filter.v \
-   theory/bop_reduction.v
+   theory/brel/eq_bool.v \
+   theory/brel/eq_nat.v \
+   theory/brel/eq_list.v \
+   theory/brel/product.v \
+   theory/brel/sum.v \
+   theory/brel/dual.v \
+   theory/brel/conjunction.v \
+   theory/brel/llte_llt.v \
+   theory/brel/reduce.v \
+   theory/brel/add_constant.v \
+   theory/brel/and_sym.v \
+   theory/brel/reduce.v \
+   theory/brel/reduce.v \
+   theory/brel/reverse.v \
+   theory/brel/strictify.v \
+   theory/bop/and.v \
+   theory/bop/or.v \
+   theory/bop/min.v \
+   theory/bop/max.v \
+   theory/bop/plus.v \
+   theory/bop/times.v \
+   theory/bop/concat.v \
+   theory/bop/list_product.v \
+   theory/bop/left.v \
+   theory/bop/right.v \
+   theory/bop/product.v \
+   theory/bop/left_sum.v \
+   theory/bop/right_sum.v \
+   theory/bop/llex.v \
+   theory/bop/then_unary.v \
+   theory/bop/union.v \
+   theory/bop/intersect.v \
+   theory/bop/add_id.v \
+   theory/bop/add_ann.v \
+   theory/bops/and_or.v \
+   theory/bops/or_and.v \
+   theory/bops/min_max.v \
+   theory/bops/max_min.v \
+   theory/bops/min_plus.v \
+   theory/bops/max_plus.v \
+   theory/bops/product_product.v \
+   theory/bops/llex_product.v \
+   theory/bops/add_ann_add_id.v \
+   theory/bops/add_id_add_ann.v \
+   theory/bops/union_intersect.v \
+   theory/bops/intersect_union.v \
+   theory/bops/left_sum_right_sum.v \
+   theory/brel/in_list.v \
+   theory/brel/in_set.v \
+   theory/brel/is_minimal_in.v \
+   theory/brel/subset.v \
+   theory/brel/set.v \
+   theory/uop/duplicate_elim.v \
+   theory/uop/filter.v \
+   theory/bop/reduction.v
 
 VERIFY=\
    verify/proofs_to_certs.v \
@@ -172,17 +172,13 @@ cleancasml:
 	rm -rf extraction/*.ml extraction/*.mli extraction/STAMP
 
 cleancoq:
-	rm -f  code/*.glob  a_code/*.glob  theory/*.glob  verify/*.glob
-	rm -f  code/*.vo  a_code/*.vo  theory/*.vo  verify/*.vo
-	rm -f  code/*.d  a_code/*.d  theory/*.d  verify/*.d
+	rm -f  code/*.glob  a_code/*.glob  theory/*.glob  theory/*/*.glob verify/*.glob
+	rm -f  code/*.vo  a_code/*.vo  theory/*.vo theory/*/*.vo  verify/*.vo
+	rm -f  code/*.d  a_code/*.d  theory/*.d theory/*/*.d  verify/*.d
 
 clean:
 	$(MAKE) cleancoq
 	$(MAKE) cleancasml
-
-# hard coded. FIX THIS 
-#cma:
-#	ocamlc.opt -a -I _build/extraction -o cas.cma EqNat.cmo Bool.cmo Datatypes.cmo Peano.cmo List0.cmo basic_types.cmo brel.cmo uop.cmo bop.cmo ast.cmo cef.cmo certificates.cmo check.cmo cert_records.cmo construct_certs.cmo cas_records.cmo cas.cmo
 
 
 

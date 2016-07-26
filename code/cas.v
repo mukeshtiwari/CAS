@@ -5,6 +5,7 @@ Require Import CAS.code.bop.
 Require Import CAS.code.certificates.
 Require Import CAS.code.cert_records. 
 Require Import CAS.code.construct_certs. 
+Require Import CAS.code.cef. 
 Require Import CAS.code.cas_records.
 Require Import CAS.code.cast.
 Require Import CAS.code.data.
@@ -289,21 +290,6 @@ Definition sg_product : ∀ (S T : Type),  sg S -> sg T -> sg (S * T)
                     (sg_certs T sgT) 
    ; sg_ast    := Ast_sg_product (sg_ast S sgS, sg_ast T sgT)
    |}. 
-
-(*CC*) 
-Definition sg_product_new : ∀ (S T : Type),  sg_new S -> sg_new T -> sg_new (S * T) 
-:= λ S T sgS sgT, 
-   {| 
-     sgn_eq     := eqv_product S T (sgn_eq S sgS) (sgn_eq T sgT) 
-   ; sgn_bop    := bop_product S T (sgn_bop S sgS) (sgn_bop T sgT) 
-   ; sgn_certs := sg_certs_product_new S T 
-                    (eqv_certs S (sgn_eq S sgS))
-                    (eqv_certs T (sgn_eq T sgT))
-                    (sgn_certs S sgS) 
-                    (sgn_certs T sgT) 
-   ; sgn_ast    := Ast_sg_product (sgn_ast S sgS, sgn_ast T sgT)
-   |}. 
-
 
 
 
@@ -591,6 +577,134 @@ Definition sg_CS_llex : ∀ (S T : Type),  sg_CS S -> sg_CS T -> sg_CS (S * T)
 (* SETS *) 
 
 
+
+
+
+(* This is here because we have already constructed a new eqv structure. HACK. *) 
+Definition sg_certs_union : 
+   ∀ (S : Type), S ->             (* HACK *) 
+                 (S -> S) ->      (* HACK *) 
+                 cas_constant -> 
+                 eqv (with_constant (finite_set S)) ->   (* HACK *) 
+                 binary_op (with_constant (finite_set S)) -> 
+                 sg_certificates (with_constant (finite_set S))
+:= λ S x g c eqv_union b, 
+let r := eqv_eq _ eqv_union in 
+match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqv_union)), 
+      certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqv_union)) 
+with 
+| Certify_Witness s, Certify_Negate f =>  
+let id := inr _ nil in 
+let ann := inl _ c in 
+{|
+  sg_associative    := Assert_Associative _ 
+; sg_congruence     := Assert_Bop_Congruence _  
+; sg_commutative_d  := Certify_Commutative _ 
+; sg_idempotent_d   := Certify_Idempotent _ 
+(*
+     NOTE  (x :: nil, (g x) :: nil)
+     comes from a proof of bop_union_not_selective_raw, 
+     before the ann is added. 
+     Then (inr (x :: nil), inr (g x :: nil)) after add ann. 
+     THIS IS A HACK.  Some abstraction is broken. FIX THIS. 
+*) 
+; sg_selective_d    := Certify_Not_Selective _ (inr _ (x :: nil), inr _ ((g x) :: nil))
+; sg_exists_id_d    := Certify_Exists_Id _ id 
+; sg_exists_ann_d   := Certify_Exists_Ann _ ann 
+; sg_is_left_d      := Certify_Not_Is_Left _ (cef_commutative_implies_not_is_left _ r b s f)
+; sg_is_right_d     := Certify_Not_Is_Right _ (cef_commutative_implies_not_is_right _ r b s f)
+
+; sg_left_cancel_d  := Certify_Not_Left_Cancellative _ (ann, (s, f s))
+; sg_right_cancel_d := Certify_Not_Right_Cancellative _ (ann, (s, f s))
+; sg_left_constant_d  := Certify_Not_Left_Constant _ (id, (s, f s))
+; sg_right_constant_d := Certify_Not_Right_Constant _ (id, (s, f s))
+; sg_anti_left_d      := Certify_Not_Anti_Left _ (s, id)
+; sg_anti_right_d     := Certify_Not_Anti_Right _ (s, id)
+|}
+end. 
+
+
+Definition sg_union : ∀ (S : Type) (c : cas_constant),  eqv S -> sg (with_constant (finite_set S)) 
+:= λ S c eqvS, 
+match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
+      certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqvS)) 
+with 
+| Certify_Witness x, Certify_Negate g =>  
+let eqv_union := eqv_add_constant (finite_set S) (eqv_set S eqvS) c in 
+let b := bop_add_ann (finite_set S) (bop_union S (eqv_eq S eqvS)) c in 
+   {| 
+     sg_eq    := eqv_union 
+   ; sg_bop   := b 
+   ; sg_certs := sg_certs_union S x g c eqv_union b 
+   ; sg_ast   := Ast_sg_union (c, eqv_ast S eqvS)
+   |}
+end. 
+
+
+
+(* This is here because we have already constructed a new eqv structure. HACK. *) 
+Definition sg_certs_intersect : 
+   ∀ (S : Type), S ->             (* HACK *) 
+                 (S -> S) ->      (* HACK *) 
+                 cas_constant -> 
+                 eqv (with_constant (finite_set S)) ->   (* HACK *) 
+                 binary_op (with_constant (finite_set S)) -> 
+                 sg_certificates (with_constant (finite_set S))
+:= λ S x g c eqv_intersect b, 
+let r := eqv_eq _ eqv_intersect in 
+match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqv_intersect)), 
+      certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqv_intersect)) 
+with 
+| Certify_Witness s, Certify_Negate f =>  
+let id := inl _ c in 
+let ann := inr _ nil in 
+{|
+  sg_associative    := Assert_Associative _ 
+; sg_congruence     := Assert_Bop_Congruence _  
+; sg_commutative_d  := Certify_Commutative _ 
+; sg_idempotent_d   := Certify_Idempotent _ 
+(*
+     NOTE  (x :: nil, (g x) :: nil)
+     comes from a proof of bop_intersect_not_selective_raw, 
+     before the ann is added. 
+     Then (inr (x :: nil), inr (g x :: nil)) after add ann. 
+     THIS IS A HACK.  Some abstraction is broken. FIX THIS. 
+*) 
+; sg_selective_d    := Certify_Not_Selective _ (inr _ (x :: nil), inr _ ((g x) :: nil))
+; sg_exists_id_d    := Certify_Exists_Id _ id 
+; sg_exists_ann_d   := Certify_Exists_Ann _ ann 
+; sg_is_left_d      := Certify_Not_Is_Left _ (cef_commutative_implies_not_is_left _ r b s f)
+; sg_is_right_d     := Certify_Not_Is_Right _ (cef_commutative_implies_not_is_right _ r b s f)
+
+; sg_left_cancel_d  := Certify_Not_Left_Cancellative _ (ann, (s, f s))
+; sg_right_cancel_d := Certify_Not_Right_Cancellative _ (ann, (s, f s))
+; sg_left_constant_d  := Certify_Not_Left_Constant _ (id, (s, f s))
+; sg_right_constant_d := Certify_Not_Right_Constant _ (id, (s, f s))
+; sg_anti_left_d      := Certify_Not_Anti_Left _ (s, id)
+; sg_anti_right_d     := Certify_Not_Anti_Right _ (s, id)
+|}
+end. 
+
+
+Definition sg_intersect : ∀ (S : Type) (c : cas_constant),  eqv S -> sg (with_constant (finite_set S)) 
+:= λ S c eqvS, 
+match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
+      certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqvS)) 
+with 
+| Certify_Witness x, Certify_Negate g =>  
+let eqv_intersect := eqv_add_constant (finite_set S) (eqv_set S eqvS) c in 
+let b := bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c in 
+   {| 
+     sg_eq    := eqv_intersect 
+   ; sg_bop   := b 
+   ; sg_certs := sg_certs_intersect S x g c eqv_intersect b 
+   ; sg_ast   := Ast_sg_intersect (c, eqv_ast S eqvS)
+   |}
+end. 
+
+
+(*
+
 (*CC*) 
 Definition sg_CI_union_with_ann : ∀ (S : Type) (c : cas_constant),  eqv S -> sg_CI (with_constant (finite_set S)) 
 := λ S c eqvS, 
@@ -609,10 +723,9 @@ Definition sg_CI_intersect_with_id : ∀ (S : Type) (c : cas_constant),  eqv S -
    ; sg_CI_certs := sg_CI_certs_intersect_with_id S c (eqv_certs S eqvS)
    ; sg_CI_ast   := Ast_sg_CI_intersect_with_id (c, eqv_ast S eqvS)
    |}. 
-
+*) 
 
 (*CC*) 
-
 (* Need module for derived structures ... *) 
 Definition sg_CS_min_with_infinity : sg_CS (with_constant nat) := 
            sg_CS_add_id nat cas_infinity sg_CS_min. 
@@ -621,21 +734,8 @@ Definition sg_CS_max_with_infinity : sg_CS (with_constant nat) :=
            sg_CS_add_ann nat cas_infinity sg_CS_max. 
 
 
-(* SG SG *) 
 
-(* MIN PLUS 
-
-sg_CS_min
-
-sg_CK_plus
-
-LD RD 
-
-LABS
-RABS 
-
-
-
+(* Min PLUS 
 
 Definition bsg_min_plus : bsg nat := 
    {| 
@@ -657,131 +757,132 @@ Definition bsg_min_plus : bsg nat :=
 
 (* MIN MAX *) 
 
-
 (*CC*) 
-Definition sg_sg_add_zero : ∀ (S : Type),  sg_sg S -> cas_constant -> sg_sg (with_constant S) 
-:= λ S sg_sgS c, 
+Definition bs_add_one : ∀ (S : Type), bs S -> cas_constant -> bs (with_constant S) 
+:= λ S bsS c, 
 {| 
-     sg_sg_eqv          := eqv_add_constant S (sg_sg_eqv S sg_sgS) c 
-   ; sg_sg_plus         := bop_add_id S (sg_sg_plus S sg_sgS) c
-   ; sg_sg_times        := bop_add_ann S (sg_sg_times S sg_sgS) c
-   ; sg_sg_plus_certs  := sg_certs_add_id S c 
-                                (eqv_certs S (sg_sg_eqv S sg_sgS)) 
-                                (sg_sg_plus_certs S sg_sgS) 
-   ; sg_sg_times_certs := sg_certs_add_ann S c 
-                                (eqv_certs S (sg_sg_eqv S sg_sgS)) 
-                                (sg_sg_times_certs S sg_sgS) 
-   ; sg_sg_certs       := sg_sg_certs_add_zero S 
-                                (eqv_certs S (sg_sg_eqv S sg_sgS))  
-                                (sg_sg_certs S sg_sgS)
-   ; sg_sg_ast          := Ast_sg_sg_add_zero (c, sg_sg_ast S sg_sgS)
+     bs_eqv         := eqv_add_constant S (bs_eqv S bsS) c 
+   ; bs_plus        := bop_add_ann S (bs_plus S bsS) c
+   ; bs_times       := bop_add_id S (bs_times S bsS) c
+   ; bs_plus_certs  := sg_certs_add_ann S c
+                                (eqv_certs S (bs_eqv S bsS)) 
+                                (bs_plus_certs S bsS) 
+   ; bs_times_certs := sg_certs_add_id S c
+                                (eqv_certs S (bs_eqv S bsS)) 
+                                (bs_times_certs S bsS) 
+   ; bs_certs       := bs_certs_add_one S c
+                                (eqv_certs S (bs_eqv S bsS)) 
+                                (bs_plus_certs S bsS) 
+                                (bs_certs S bsS)
+   ; bs_ast         := Ast_bs_add_one (c, bs_ast S bsS)
 |}. 
 
 
 (*CC*) 
-Definition sg_C_sg_add_one : ∀ (S : Type), sg_C_sg S -> cas_constant -> sg_C_sg (with_constant S) 
-:= λ S sg_sgS c, 
+Definition bs_add_zero : ∀ (S : Type),  bs S -> cas_constant -> bs (with_constant S) 
+:= λ S bsS c, 
 {| 
-     sg_C_sg_eqv          := eqv_add_constant S (sg_C_sg_eqv S sg_sgS) c 
-   ; sg_C_sg_plus         := bop_add_ann S (sg_C_sg_plus S sg_sgS) c
-   ; sg_C_sg_times        := bop_add_id S (sg_C_sg_times S sg_sgS) c
-   ; sg_C_sg_plus_certs  := sg_C_certs_add_ann S c
-                                (eqv_certs S (sg_C_sg_eqv S sg_sgS)) 
-                                (sg_C_sg_plus_certs S sg_sgS) 
-   ; sg_C_sg_times_certs := sg_certs_add_id S c
-                                (eqv_certs S (sg_C_sg_eqv S sg_sgS)) 
-                                (sg_C_sg_times_certs S sg_sgS) 
-   ; sg_C_sg_certs       := sg_sg_certs_add_one S c
-                                (eqv_certs S (sg_C_sg_eqv S sg_sgS)) 
-                                (sg_C_sg_plus_certs S sg_sgS) 
-                                (sg_C_sg_certs S sg_sgS)
-   ; sg_C_sg_ast          := Ast_sg_C_sg_add_one (c, sg_C_sg_ast S sg_sgS)
+     bs_eqv          := eqv_add_constant S (bs_eqv S bsS) c 
+   ; bs_plus         := bop_add_id S (bs_plus S bsS) c
+   ; bs_times        := bop_add_ann S (bs_times S bsS) c
+   ; bs_plus_certs  := sg_certs_add_id S c 
+                                (eqv_certs S (bs_eqv S bsS)) 
+                                (bs_plus_certs S bsS) 
+   ; bs_times_certs := sg_certs_add_ann S c 
+                                (eqv_certs S (bs_eqv S bsS)) 
+                                (bs_times_certs S bsS) 
+   ; bs_certs       := bs_certs_add_zero S 
+                                (eqv_certs S (bs_eqv S bsS))  
+                                (bs_certs S bsS)
+   ; bs_ast          := Ast_bs_add_zero (c, bs_ast S bsS)
 |}. 
 
 (*CC*) 
-Definition sg_sg_product : ∀ (S T : Type),  sg_sg S -> sg_sg T -> sg_sg (S * T) 
-:= λ S T sg_sgS sg_sgT, 
+Definition bs_product : ∀ (S T : Type),  bs S -> bs T -> bs (S * T) 
+:= λ S T bsS bsT, 
    {| 
-     sg_sg_eqv         := eqv_product S T (sg_sg_eqv S sg_sgS) (sg_sg_eqv T sg_sgT) 
-   ; sg_sg_plus        := bop_product S T (sg_sg_plus S sg_sgS) (sg_sg_plus T sg_sgT) 
-   ; sg_sg_times       := bop_product S T (sg_sg_times S sg_sgS) (sg_sg_times T sg_sgT) 
-   ; sg_sg_plus_certs  := sg_certs_product S T 
-                           (eqv_certs S (sg_sg_eqv S sg_sgS))
-                           (eqv_certs T (sg_sg_eqv T sg_sgT)) 
-                           (sg_sg_plus_certs S sg_sgS) 
-                           (sg_sg_plus_certs T sg_sgT) 
-   ; sg_sg_times_certs := sg_certs_product S T 
-                           (eqv_certs S (sg_sg_eqv S sg_sgS))
-                           (eqv_certs T (sg_sg_eqv T sg_sgT)) 
-                           (sg_sg_times_certs S sg_sgS) 
-                           (sg_sg_times_certs T sg_sgT) 
-   ; sg_sg_certs       := sg_sg_certs_product S T 
-                           (eqv_certs S (sg_sg_eqv S sg_sgS))
-                           (eqv_certs T (sg_sg_eqv T sg_sgT)) 
-                           (sg_sg_certs S sg_sgS) 
-                           (sg_sg_certs T sg_sgT) 
-   ; sg_sg_ast         := Ast_sg_sg_product(sg_sg_ast S sg_sgS, sg_sg_ast T sg_sgT)
+     bs_eqv         := eqv_product S T (bs_eqv S bsS) (bs_eqv T bsT) 
+   ; bs_plus        := bop_product S T (bs_plus S bsS) (bs_plus T bsT) 
+   ; bs_times       := bop_product S T (bs_times S bsS) (bs_times T bsT) 
+   ; bs_plus_certs  := sg_certs_product S T 
+                           (eqv_certs S (bs_eqv S bsS))
+                           (eqv_certs T (bs_eqv T bsT)) 
+                           (bs_plus_certs S bsS) 
+                           (bs_plus_certs T bsT) 
+   ; bs_times_certs := sg_certs_product S T 
+                           (eqv_certs S (bs_eqv S bsS))
+                           (eqv_certs T (bs_eqv T bsT)) 
+                           (bs_times_certs S bsS) 
+                           (bs_times_certs T bsT) 
+   ; bs_certs       := bs_certs_product S T 
+                           (eqv_certs S (bs_eqv S bsS))
+                           (eqv_certs T (bs_eqv T bsT)) 
+                           (bs_certs S bsS) 
+                           (bs_certs T bsT) 
+   ; bs_ast         := Ast_bs_product(bs_ast S bsS, bs_ast T bsT)
    |}. 
 
+
+(****************
 
 
 (*!!*) 
 Definition sg_C_sg_product : ∀ (S T : Type),  sg_C_sg S -> sg_C_sg T -> sg_C_sg (S * T) 
-:= λ S T sg_sgS sg_sgT, 
+:= λ S T bsS bsT, 
    {| 
-     sg_C_sg_eqv         := eqv_product S T (sg_C_sg_eqv S sg_sgS) (sg_C_sg_eqv T sg_sgT) 
-   ; sg_C_sg_plus        := bop_product S T (sg_C_sg_plus S sg_sgS) (sg_C_sg_plus T sg_sgT) 
-   ; sg_C_sg_times       := bop_product S T (sg_C_sg_times S sg_sgS) (sg_C_sg_times T sg_sgT) 
+     sg_C_sg_eqv         := eqv_product S T (sg_C_sg_eqv S bsS) (sg_C_sg_eqv T bsT) 
+   ; sg_C_sg_plus        := bop_product S T (sg_C_sg_plus S bsS) (sg_C_sg_plus T bsT) 
+   ; sg_C_sg_times       := bop_product S T (sg_C_sg_times S bsS) (sg_C_sg_times T bsT) 
    ; sg_C_sg_plus_certs  := sg_C_certs_product S T 
-                             (eqv_eq S (sg_C_sg_eqv S sg_sgS))
-                             (eqv_eq T (sg_C_sg_eqv T sg_sgT)) 
-                             (sg_C_sg_plus S sg_sgS) 
-                             (sg_C_sg_plus T sg_sgT) 
-                             (eqv_certs S (sg_C_sg_eqv S sg_sgS))
-                             (eqv_certs T (sg_C_sg_eqv T sg_sgT)) 
-                             (sg_C_sg_plus_certs S sg_sgS) 
-                             (sg_C_sg_plus_certs T sg_sgT) 
+                             (eqv_eq S (sg_C_sg_eqv S bsS))
+                             (eqv_eq T (sg_C_sg_eqv T bsT)) 
+                             (sg_C_sg_plus S bsS) 
+                             (sg_C_sg_plus T bsT) 
+                             (eqv_certs S (sg_C_sg_eqv S bsS))
+                             (eqv_certs T (sg_C_sg_eqv T bsT)) 
+                             (sg_C_sg_plus_certs S bsS) 
+                             (sg_C_sg_plus_certs T bsT) 
    ; sg_C_sg_times_certs := sg_certs_product S T 
-                             (eqv_certs S (sg_C_sg_eqv S sg_sgS))
-                             (eqv_certs T (sg_C_sg_eqv T sg_sgT)) 
-                             (sg_C_sg_times_certs S sg_sgS) 
-                             (sg_C_sg_times_certs T sg_sgT) 
-   ; sg_C_sg_certs       := sg_sg_certs_product S T 
-                             (eqv_certs S (sg_C_sg_eqv S sg_sgS))
-                             (eqv_certs T (sg_C_sg_eqv T sg_sgT)) 
-                             (sg_C_sg_certs S sg_sgS) 
-                             (sg_C_sg_certs T sg_sgT) 
-   ; sg_C_sg_ast         := Ast_sg_C_sg_product(sg_C_sg_ast S sg_sgS, sg_C_sg_ast T sg_sgT)
+                             (eqv_certs S (sg_C_sg_eqv S bsS))
+                             (eqv_certs T (sg_C_sg_eqv T bsT)) 
+                             (sg_C_sg_times_certs S bsS) 
+                             (sg_C_sg_times_certs T bsT) 
+   ; sg_C_sg_certs       := bs_certs_product S T 
+                             (eqv_certs S (sg_C_sg_eqv S bsS))
+                             (eqv_certs T (sg_C_sg_eqv T bsT)) 
+                             (sg_C_sg_certs S bsS) 
+                             (sg_C_sg_certs T bsT) 
+   ; sg_C_sg_ast         := Ast_sg_C_sg_product(sg_C_sg_ast S bsS, sg_C_sg_ast T bsT)
    |}. 
 
 
 (*!!*) 
 Definition sg_CI_sg_product : ∀ (S T : Type),  sg_CI_sg S -> sg_CI_sg T -> sg_CI_sg (S * T) 
-:= λ S T sg_sgS sg_sgT, 
+:= λ S T bsS bsT, 
    {| 
-     sg_CI_sg_eqv         := eqv_product S T (sg_CI_sg_eqv S sg_sgS) (sg_CI_sg_eqv T sg_sgT) 
-   ; sg_CI_sg_plus        := bop_product S T (sg_CI_sg_plus S sg_sgS) (sg_CI_sg_plus T sg_sgT) 
-   ; sg_CI_sg_times       := bop_product S T (sg_CI_sg_times S sg_sgS) (sg_CI_sg_times T sg_sgT) 
+     sg_CI_sg_eqv         := eqv_product S T (sg_CI_sg_eqv S bsS) (sg_CI_sg_eqv T bsT) 
+   ; sg_CI_sg_plus        := bop_product S T (sg_CI_sg_plus S bsS) (sg_CI_sg_plus T bsT) 
+   ; sg_CI_sg_times       := bop_product S T (sg_CI_sg_times S bsS) (sg_CI_sg_times T bsT) 
    ; sg_CI_sg_plus_certs  := sg_CI_certs_product S T 
-                             (eqv_eq S (sg_CI_sg_eqv S sg_sgS))
-                             (eqv_eq T (sg_CI_sg_eqv T sg_sgT)) 
-                             (sg_CI_sg_plus S sg_sgS) 
-                             (sg_CI_sg_plus T sg_sgT) 
-                             (eqv_certs S (sg_CI_sg_eqv S sg_sgS))
-                             (eqv_certs T (sg_CI_sg_eqv T sg_sgT)) 
-                             (sg_CI_sg_plus_certs S sg_sgS) 
-                             (sg_CI_sg_plus_certs T sg_sgT) 
+                             (eqv_eq S (sg_CI_sg_eqv S bsS))
+                             (eqv_eq T (sg_CI_sg_eqv T bsT)) 
+                             (sg_CI_sg_plus S bsS) 
+                             (sg_CI_sg_plus T bsT) 
+                             (eqv_certs S (sg_CI_sg_eqv S bsS))
+                             (eqv_certs T (sg_CI_sg_eqv T bsT)) 
+                             (sg_CI_sg_plus_certs S bsS) 
+                             (sg_CI_sg_plus_certs T bsT) 
    ; sg_CI_sg_times_certs := sg_certs_product S T 
-                             (eqv_certs S (sg_CI_sg_eqv S sg_sgS))
-                             (eqv_certs T (sg_CI_sg_eqv T sg_sgT)) 
-                             (sg_CI_sg_times_certs S sg_sgS) 
-                             (sg_CI_sg_times_certs T sg_sgT) 
-   ; sg_CI_sg_certs       := sg_sg_certs_product S T 
-                             (eqv_certs S (sg_CI_sg_eqv S sg_sgS))
-                             (eqv_certs T (sg_CI_sg_eqv T sg_sgT)) 
-                             (sg_CI_sg_certs S sg_sgS) 
-                             (sg_CI_sg_certs T sg_sgT) 
-   ; sg_CI_sg_ast         := Ast_sg_CI_sg_product(sg_CI_sg_ast S sg_sgS, sg_CI_sg_ast T sg_sgT)
+                             (eqv_certs S (sg_CI_sg_eqv S bsS))
+                             (eqv_certs T (sg_CI_sg_eqv T bsT)) 
+                             (sg_CI_sg_times_certs S bsS) 
+                             (sg_CI_sg_times_certs T bsT) 
+   ; sg_CI_sg_certs       := bs_certs_product S T 
+                             (eqv_certs S (sg_CI_sg_eqv S bsS))
+                             (eqv_certs T (sg_CI_sg_eqv T bsT)) 
+                             (sg_CI_sg_certs S bsS) 
+                             (sg_CI_sg_certs T bsT) 
+   ; sg_CI_sg_ast         := Ast_sg_CI_sg_product(sg_CI_sg_ast S bsS, sg_CI_sg_ast T bsT)
    |}. 
 
 
@@ -789,126 +890,188 @@ Definition sg_CI_sg_product : ∀ (S T : Type),  sg_CI_sg S -> sg_CI_sg T -> sg_
 
 (*CC*) 
 Definition sg_C_sg_llex : ∀ (S T : Type),  sg_CS_sg S -> sg_C_sg T -> sg_C_sg (S * T) 
-:= λ S T sg_sgS sg_sgT, 
+:= λ S T bsS bsT, 
 {| 
      sg_C_sg_eqv        := eqv_product S T 
-                           (sg_CS_sg_eqv S sg_sgS) 
-                           (sg_C_sg_eqv T sg_sgT) 
+                           (sg_CS_sg_eqv S bsS) 
+                           (sg_C_sg_eqv T bsT) 
    ; sg_C_sg_plus       := bop_llex S T 
-                           (eqv_eq S (sg_CS_sg_eqv S sg_sgS)) 
-                           (sg_CS_sg_plus S sg_sgS) 
-                           (sg_C_sg_plus T sg_sgT) 
+                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
+                           (sg_CS_sg_plus S bsS) 
+                           (sg_C_sg_plus T bsT) 
    ; sg_C_sg_times       := bop_product S T 
-                           (sg_CS_sg_times S sg_sgS) 
-                           (sg_C_sg_times T sg_sgT) 
+                           (sg_CS_sg_times S bsS) 
+                           (sg_C_sg_times T bsT) 
    ; sg_C_sg_plus_certs := sg_C_certs_llex S T 
-                           (eqv_eq S (sg_CS_sg_eqv S sg_sgS)) 
-                           (sg_CS_sg_plus S sg_sgS) 
-                           (eqv_certs S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_certs T (sg_C_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_plus_certs S sg_sgS) 
-                           (sg_C_sg_plus_certs T sg_sgT) 
+                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
+                           (sg_CS_sg_plus S bsS) 
+                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_certs T (sg_C_sg_eqv T bsT)) 
+                           (sg_CS_sg_plus_certs S bsS) 
+                           (sg_C_sg_plus_certs T bsT) 
    ; sg_C_sg_times_certs := sg_certs_product S T 
-                           (eqv_certs S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_certs T (sg_C_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_times_certs S sg_sgS)
-                           (sg_C_sg_times_certs T sg_sgT)
-   ; sg_C_sg_certs    := sg_sg_certs_llex_product S T 
-                           (eqv_eq S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_eq T (sg_C_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_plus S sg_sgS)
-                           (sg_C_sg_plus T sg_sgT) 
-                           (sg_C_sg_times T sg_sgT)  
-                           (eqv_certs S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_certs T (sg_C_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_times_certs S sg_sgS) 
-                           (sg_C_sg_times_certs T sg_sgT) 
-                           (sg_CS_sg_certs S sg_sgS) 
-                           (sg_C_sg_certs T sg_sgT) 
-   ; sg_C_sg_ast        := Ast_sg_C_sg_llex (sg_CS_sg_ast S sg_sgS, sg_C_sg_ast T sg_sgT)
+                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_certs T (sg_C_sg_eqv T bsT)) 
+                           (sg_CS_sg_times_certs S bsS)
+                           (sg_C_sg_times_certs T bsT)
+   ; sg_C_sg_certs    := bs_certs_llex_product S T 
+                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_eq T (sg_C_sg_eqv T bsT)) 
+                           (sg_CS_sg_plus S bsS)
+                           (sg_C_sg_plus T bsT) 
+                           (sg_C_sg_times T bsT)  
+                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_certs T (sg_C_sg_eqv T bsT)) 
+                           (sg_CS_sg_times_certs S bsS) 
+                           (sg_C_sg_times_certs T bsT) 
+                           (sg_CS_sg_certs S bsS) 
+                           (sg_C_sg_certs T bsT) 
+   ; sg_C_sg_ast        := Ast_sg_C_sg_llex (sg_CS_sg_ast S bsS, sg_C_sg_ast T bsT)
 |}. 
 
 (*!!*) 
 Definition sg_CS_sg_llex : ∀ (S T : Type),  sg_CS_sg S -> sg_CS_sg T -> sg_CS_sg (S * T) 
-:= λ S T sg_sgS sg_sgT, 
+:= λ S T bsS bsT, 
 {| 
      sg_CS_sg_eqv        := eqv_product S T 
-                           (sg_CS_sg_eqv S sg_sgS) 
-                           (sg_CS_sg_eqv T sg_sgT) 
+                           (sg_CS_sg_eqv S bsS) 
+                           (sg_CS_sg_eqv T bsT) 
    ; sg_CS_sg_plus       := bop_llex S T 
-                           (eqv_eq S (sg_CS_sg_eqv S sg_sgS)) 
-                           (sg_CS_sg_plus S sg_sgS) 
-                           (sg_CS_sg_plus T sg_sgT) 
+                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
+                           (sg_CS_sg_plus S bsS) 
+                           (sg_CS_sg_plus T bsT) 
    ; sg_CS_sg_times       := bop_product S T 
-                           (sg_CS_sg_times S sg_sgS) 
-                           (sg_CS_sg_times T sg_sgT) 
+                           (sg_CS_sg_times S bsS) 
+                           (sg_CS_sg_times T bsT) 
    ; sg_CS_sg_plus_certs := sg_CS_certs_llex S T 
-                           (eqv_eq S (sg_CS_sg_eqv S sg_sgS)) 
-                           (sg_CS_sg_plus S sg_sgS) 
-                           (eqv_certs S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_certs T (sg_CS_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_plus_certs S sg_sgS) 
-                           (sg_CS_sg_plus_certs T sg_sgT) 
+                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
+                           (sg_CS_sg_plus S bsS) 
+                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_certs T (sg_CS_sg_eqv T bsT)) 
+                           (sg_CS_sg_plus_certs S bsS) 
+                           (sg_CS_sg_plus_certs T bsT) 
    ; sg_CS_sg_times_certs := sg_certs_product S T 
-                           (eqv_certs S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_certs T (sg_CS_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_times_certs S sg_sgS)
-                           (sg_CS_sg_times_certs T sg_sgT)
-   ; sg_CS_sg_certs    := sg_sg_certs_llex_product S T 
-                           (eqv_eq S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_eq T (sg_CS_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_plus S sg_sgS)
-                           (sg_CS_sg_plus T sg_sgT) 
-                           (sg_CS_sg_times T sg_sgT)  
-                           (eqv_certs S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_certs T (sg_CS_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_times_certs S sg_sgS) 
-                           (sg_CS_sg_times_certs T sg_sgT) 
-                           (sg_CS_sg_certs S sg_sgS) 
-                           (sg_CS_sg_certs T sg_sgT) 
-   ; sg_CS_sg_ast        := Ast_sg_CS_sg_llex (sg_CS_sg_ast S sg_sgS, sg_CS_sg_ast T sg_sgT)
+                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_certs T (sg_CS_sg_eqv T bsT)) 
+                           (sg_CS_sg_times_certs S bsS)
+                           (sg_CS_sg_times_certs T bsT)
+   ; sg_CS_sg_certs    := bs_certs_llex_product S T 
+                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_eq T (sg_CS_sg_eqv T bsT)) 
+                           (sg_CS_sg_plus S bsS)
+                           (sg_CS_sg_plus T bsT) 
+                           (sg_CS_sg_times T bsT)  
+                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_certs T (sg_CS_sg_eqv T bsT)) 
+                           (sg_CS_sg_times_certs S bsS) 
+                           (sg_CS_sg_times_certs T bsT) 
+                           (sg_CS_sg_certs S bsS) 
+                           (sg_CS_sg_certs T bsT) 
+   ; sg_CS_sg_ast        := Ast_sg_CS_sg_llex (sg_CS_sg_ast S bsS, sg_CS_sg_ast T bsT)
 |}. 
 
 
 
 (*!!*) 
 Definition sg_CI_sg_llex : ∀ (S T : Type),  sg_CS_sg S -> sg_CI_sg T -> sg_CI_sg (S * T) 
-:= λ S T sg_sgS sg_sgT, 
+:= λ S T bsS bsT, 
 {| 
      sg_CI_sg_eqv        := eqv_product S T 
-                           (sg_CS_sg_eqv S sg_sgS) 
-                           (sg_CI_sg_eqv T sg_sgT) 
+                           (sg_CS_sg_eqv S bsS) 
+                           (sg_CI_sg_eqv T bsT) 
    ; sg_CI_sg_plus       := bop_llex S T 
-                           (eqv_eq S (sg_CS_sg_eqv S sg_sgS)) 
-                           (sg_CS_sg_plus S sg_sgS) 
-                           (sg_CI_sg_plus T sg_sgT) 
+                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
+                           (sg_CS_sg_plus S bsS) 
+                           (sg_CI_sg_plus T bsT) 
    ; sg_CI_sg_times       := bop_product S T 
-                           (sg_CS_sg_times S sg_sgS) 
-                           (sg_CI_sg_times T sg_sgT) 
+                           (sg_CS_sg_times S bsS) 
+                           (sg_CI_sg_times T bsT) 
    ; sg_CI_sg_plus_certs := sg_CI_certs_llex S T 
-                           (eqv_eq S (sg_CS_sg_eqv S sg_sgS)) 
-                           (sg_CS_sg_plus S sg_sgS) 
-                           (eqv_certs S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_certs T (sg_CI_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_plus_certs S sg_sgS) 
-                           (sg_CI_sg_plus_certs T sg_sgT) 
+                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
+                           (sg_CS_sg_plus S bsS) 
+                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_certs T (sg_CI_sg_eqv T bsT)) 
+                           (sg_CS_sg_plus_certs S bsS) 
+                           (sg_CI_sg_plus_certs T bsT) 
    ; sg_CI_sg_times_certs := sg_certs_product S T 
-                           (eqv_certs S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_certs T (sg_CI_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_times_certs S sg_sgS)
-                           (sg_CI_sg_times_certs T sg_sgT)
-   ; sg_CI_sg_certs    := sg_sg_certs_llex_product S T 
-                           (eqv_eq S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_eq T (sg_CI_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_plus S sg_sgS)
-                           (sg_CI_sg_plus T sg_sgT) 
-                           (sg_CI_sg_times T sg_sgT)  
-                           (eqv_certs S (sg_CS_sg_eqv S sg_sgS)) 
-                           (eqv_certs T (sg_CI_sg_eqv T sg_sgT)) 
-                           (sg_CS_sg_times_certs S sg_sgS) 
-                           (sg_CI_sg_times_certs T sg_sgT) 
-                           (sg_CS_sg_certs S sg_sgS) 
-                           (sg_CI_sg_certs T sg_sgT) 
-   ; sg_CI_sg_ast := Ast_sg_CI_sg_llex (sg_CS_sg_ast S sg_sgS, sg_CI_sg_ast T sg_sgT)
+                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_certs T (sg_CI_sg_eqv T bsT)) 
+                           (sg_CS_sg_times_certs S bsS)
+                           (sg_CI_sg_times_certs T bsT)
+   ; sg_CI_sg_certs    := bs_certs_llex_product S T 
+                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_eq T (sg_CI_sg_eqv T bsT)) 
+                           (sg_CS_sg_plus S bsS)
+                           (sg_CI_sg_plus T bsT) 
+                           (sg_CI_sg_times T bsT)  
+                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
+                           (eqv_certs T (sg_CI_sg_eqv T bsT)) 
+                           (sg_CS_sg_times_certs S bsS) 
+                           (sg_CI_sg_times_certs T bsT) 
+                           (sg_CS_sg_certs S bsS) 
+                           (sg_CI_sg_certs T bsT) 
+   ; sg_CI_sg_ast := Ast_sg_CI_sg_llex (sg_CS_sg_ast S bsS, sg_CI_sg_ast T bsT)
 |}. 
+
+******************) 
+
+(*
+
+Definition bs_and_or : bs bool := 
+{|
+  bs_eqv          := eqv_eq_bool
+; bs_plus         := bop_and
+; bs_times        := bop_or
+; bs_plus_certs  := sg_certs_and
+; bs_times_certs := sg_certs_or
+; bs_certs       := bs_certs_and_or 
+; bs_ast          := Ast_bs_and_or
+|}.
+
+
+Definition bs_or_and : bs bool := 
+{|
+  bs_eqv          := eqv_eq_bool
+; bs_plus         := bop_or
+; bs_times        := bop_and
+; bs_plus_certs  := sg_certs_or
+; bs_times_certs := sg_certs_and
+; bs_certs       := bs_certs_or_and
+; bs_ast          := Ast_bs_or_and 
+|}.
+
+
+Definition bs_min_max : bs nat := 
+{|
+  bs_eqv          := eqv_eq_nat 
+; bs_plus         := bop_min
+; bs_times        := bop_max
+; bs_plus_certs  := sg_certs_min
+; bs_times_certs := sg_certs_max
+; bs_certs       := bs_certs_min_max
+; bs_ast          := Ast_bs_min_max
+|}.
+
+Definition bs_max_min : bs nat := 
+{|
+  bs_eqv          := eqv_eq_nat 
+; bs_plus         := bop_max
+; bs_times        := bop_min
+; bs_plus_certs  := sg_certs_max
+; bs_times_certs := sg_certs_min
+; bs_certs       := bs_certs_max_min
+; bs_ast          := Ast_bs_max_min
+|}.
+
+Definition bs_min_plus : bs nat := 
+{|
+  bs_eqv          := eqv_eq_nat 
+; bs_plus         := bop_min
+; bs_times        := bop_plus
+; bs_plus_certs  := sg_certs_min
+; bs_times_certs := sg_certs_plus
+; bs_certs       := bs_certs_min_plus
+; bs_ast          := Ast_bs_min_plus
+|}.
+*) 
 

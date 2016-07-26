@@ -753,40 +753,76 @@ Definition bop_product_times_id_equals_plus_ann_check :
 
 
 
-Definition bop_product_left_absorptive_check : 
+Definition bop_product_left_left_absorptive_check : 
    ∀ (S T : Type) (s : S) (t : T),  
-     check_left_absorptive S -> 
-     check_left_absorptive T -> 
-     check_left_absorptive (S * T) 
+     check_left_left_absorptive S -> 
+     check_left_left_absorptive T -> 
+     check_left_left_absorptive (S * T) 
 := λ S T s t dS dT,  
 match dS with 
-| Certify_Left_Absorptive => 
+| Certify_Left_Left_Absorptive => 
      match dT with 
-     | Certify_Left_Absorptive => Certify_Left_Absorptive (S * T) 
-     | Certify_Not_Left_Absorptive (t1, t2) => 
-          Certify_Not_Left_Absorptive (S * T) ((s, t1), (s, t2))
+     | Certify_Left_Left_Absorptive => Certify_Left_Left_Absorptive (S * T) 
+     | Certify_Not_Left_Left_Absorptive (t1, t2) => 
+          Certify_Not_Left_Left_Absorptive (S * T) ((s, t1), (s, t2))
      end 
-| Certify_Not_Left_Absorptive (s1, s2) => 
-        Certify_Not_Left_Absorptive (S * T) ((s1, t), (s2, t))
+| Certify_Not_Left_Left_Absorptive (s1, s2) => 
+        Certify_Not_Left_Left_Absorptive (S * T) ((s1, t), (s2, t))
+end. 
+
+Definition bop_product_left_right_absorptive_check : 
+   ∀ (S T : Type) (s : S) (t : T),  
+     check_left_right_absorptive S -> 
+     check_left_right_absorptive T -> 
+     check_left_right_absorptive (S * T) 
+:= λ S T s t dS dT,  
+match dS with 
+| Certify_Left_Right_Absorptive => 
+     match dT with 
+     | Certify_Left_Right_Absorptive => Certify_Left_Right_Absorptive (S * T) 
+     | Certify_Not_Left_Right_Absorptive (t1, t2) => 
+          Certify_Not_Left_Right_Absorptive (S * T) ((s, t1), (s, t2))
+     end 
+| Certify_Not_Left_Right_Absorptive (s1, s2) => 
+        Certify_Not_Left_Right_Absorptive (S * T) ((s1, t), (s2, t))
+end. 
+
+Definition bop_product_right_left_absorptive_check : 
+   ∀ (S T : Type) (s : S) (t : T),  
+     check_right_left_absorptive S -> 
+     check_right_left_absorptive T -> 
+     check_right_left_absorptive (S * T) 
+:= λ S T s t dS dT,  
+match dS with 
+| Certify_Right_Left_Absorptive => 
+     match dT with 
+     | Certify_Right_Left_Absorptive => Certify_Right_Left_Absorptive (S * T) 
+     | Certify_Not_Right_Left_Absorptive (t1, t2) => 
+          Certify_Not_Right_Left_Absorptive (S * T) ((s, t1), (s, t2))
+     end 
+| Certify_Not_Right_Left_Absorptive (s1, s2) => 
+        Certify_Not_Right_Left_Absorptive (S * T) ((s1, t), (s2, t))
+end. 
+
+Definition bop_product_right_right_absorptive_check : 
+   ∀ (S T : Type) (s : S) (t : T),  
+     check_right_right_absorptive S -> 
+     check_right_right_absorptive T -> 
+     check_right_right_absorptive (S * T) 
+:= λ S T s t dS dT,  
+match dS with 
+| Certify_Right_Right_Absorptive => 
+     match dT with 
+     | Certify_Right_Right_Absorptive => Certify_Right_Right_Absorptive (S * T) 
+     | Certify_Not_Right_Right_Absorptive (t1, t2) => 
+          Certify_Not_Right_Right_Absorptive (S * T) ((s, t1), (s, t2))
+     end 
+| Certify_Not_Right_Right_Absorptive (s1, s2) => 
+        Certify_Not_Right_Right_Absorptive (S * T) ((s1, t), (s2, t))
 end. 
 
 
-Definition bop_product_right_absorptive_check : 
-   ∀ (S T : Type) (s : S) (t : T),  
-     check_right_absorptive S -> 
-     check_right_absorptive T -> 
-     check_right_absorptive (S * T) 
-:= λ S T s t dS dT,  
-match dS with 
-| Certify_Right_Absorptive => 
-     match dT with 
-     | Certify_Right_Absorptive => Certify_Right_Absorptive (S * T) 
-     | Certify_Not_Right_Absorptive (t1, t2) => 
-          Certify_Not_Right_Absorptive (S * T) ((s, t1), (s, t2))
-     end 
-| Certify_Not_Right_Absorptive (s1, s2) => 
-        Certify_Not_Right_Absorptive (S * T) ((s1, t), (s2, t))
-end. 
+
 
 (* llex *)
 
@@ -966,48 +1002,96 @@ Definition bops_llex_product_times_id_equals_plus_ann_check :
 
 
 
-Definition bops_llex_product_left_absorptive_check : 
+Definition bops_llex_product_left_left_absorptive_check : 
    ∀ (S T : Type) (t : T),  
-     check_left_absorptive S -> 
-     check_left_absorptive T -> 
+     check_left_left_absorptive S -> 
+     check_left_left_absorptive T -> 
      check_anti_left S -> 
-     check_left_absorptive (S * T) 
+     check_left_left_absorptive (S * T) 
 := λ S T t dS dT alS,  
 match dS with 
-| Certify_Left_Absorptive => 
+| Certify_Left_Left_Absorptive => 
      match dT with 
-     | Certify_Left_Absorptive => Certify_Left_Absorptive (S * T) 
-     | Certify_Not_Left_Absorptive (t1, t2) => 
+     | Certify_Left_Left_Absorptive => Certify_Left_Left_Absorptive (S * T) 
+     | Certify_Not_Left_Left_Absorptive (t1, t2) => 
        match alS with 
-       | Certify_Anti_Left => Certify_Left_Absorptive (S * T) 
+       | Certify_Anti_Left => Certify_Left_Left_Absorptive (S * T) 
        | Certify_Not_Anti_Left (s1, s2) => 
-          Certify_Not_Left_Absorptive (S * T) ((s1, t1), (s2, t2))
+          Certify_Not_Left_Left_Absorptive (S * T) ((s1, t1), (s2, t2))
        end
      end 
-| Certify_Not_Left_Absorptive (s1, s2) => 
-        Certify_Not_Left_Absorptive (S * T) ((s1, t), (s2, t))
+| Certify_Not_Left_Left_Absorptive (s1, s2) => 
+        Certify_Not_Left_Left_Absorptive (S * T) ((s1, t), (s2, t))
 end. 
 
-Definition bops_llex_product_right_absorptive_check : 
+
+Definition bops_llex_product_left_right_absorptive_check : 
    ∀ (S T : Type) (t : T),  
-     check_right_absorptive S -> 
-     check_right_absorptive T -> 
+     check_left_right_absorptive S -> 
+     check_left_right_absorptive T -> 
      check_anti_right S -> 
-     check_right_absorptive (S * T) 
+     check_left_right_absorptive (S * T) 
 := λ S T t dS dT alS,  
 match dS with 
-| Certify_Right_Absorptive => 
+| Certify_Left_Right_Absorptive => 
      match dT with 
-     | Certify_Right_Absorptive => Certify_Right_Absorptive (S * T) 
-     | Certify_Not_Right_Absorptive (t1, t2) => 
+     | Certify_Left_Right_Absorptive => Certify_Left_Right_Absorptive (S * T) 
+     | Certify_Not_Left_Right_Absorptive (t1, t2) => 
        match alS with 
-       | Certify_Anti_Right => Certify_Right_Absorptive (S * T) 
+       | Certify_Anti_Right => Certify_Left_Right_Absorptive (S * T) 
        | Certify_Not_Anti_Right (s1, s2) => 
-          Certify_Not_Right_Absorptive (S * T) ((s1, t1), (s2, t2))
+          Certify_Not_Left_Right_Absorptive (S * T) ((s1, t1), (s2, t2))
        end
      end 
-| Certify_Not_Right_Absorptive (s1, s2) => 
-        Certify_Not_Right_Absorptive (S * T) ((s1, t), (s2, t))
+| Certify_Not_Left_Right_Absorptive (s1, s2) => 
+        Certify_Not_Left_Right_Absorptive (S * T) ((s1, t), (s2, t))
+end. 
+
+
+
+Definition bops_llex_product_right_left_absorptive_check : 
+   ∀ (S T : Type) (t : T),  
+     check_right_left_absorptive S -> 
+     check_right_left_absorptive T -> 
+     check_anti_right S -> 
+     check_right_left_absorptive (S * T) 
+:= λ S T t dS dT alS,  
+match dS with 
+| Certify_Right_Left_Absorptive => 
+     match dT with 
+     | Certify_Right_Left_Absorptive => Certify_Right_Left_Absorptive (S * T) 
+     | Certify_Not_Right_Left_Absorptive (t1, t2) => 
+       match alS with 
+       | Certify_Anti_Right => Certify_Right_Left_Absorptive (S * T) 
+       | Certify_Not_Anti_Right (s1, s2) => 
+          Certify_Not_Right_Left_Absorptive (S * T) ((s1, t1), (s2, t2))
+       end
+     end 
+| Certify_Not_Right_Left_Absorptive (s1, s2) => 
+        Certify_Not_Right_Left_Absorptive (S * T) ((s1, t), (s2, t))
+end. 
+
+
+Definition bops_llex_product_right_right_absorptive_check : 
+   ∀ (S T : Type) (t : T),  
+     check_right_right_absorptive S -> 
+     check_right_right_absorptive T -> 
+     check_anti_right S -> 
+     check_right_right_absorptive (S * T) 
+:= λ S T t dS dT alS,  
+match dS with 
+| Certify_Right_Right_Absorptive => 
+     match dT with 
+     | Certify_Right_Right_Absorptive => Certify_Right_Right_Absorptive (S * T) 
+     | Certify_Not_Right_Right_Absorptive (t1, t2) => 
+       match alS with 
+       | Certify_Anti_Right => Certify_Right_Right_Absorptive (S * T) 
+       | Certify_Not_Anti_Right (s1, s2) => 
+          Certify_Not_Right_Right_Absorptive (S * T) ((s1, t1), (s2, t2))
+       end
+     end 
+| Certify_Not_Right_Right_Absorptive (s1, s2) => 
+        Certify_Not_Right_Right_Absorptive (S * T) ((s1, t), (s2, t))
 end. 
 
 
@@ -1036,29 +1120,173 @@ Definition bops_add_zero_right_distributive_check :
         Certify_Not_Right_Distributive (with_constant S) (inr _ s1, (inr _ s2, inr _ s3))
    end. 
 
-
-Definition bops_add_zero_left_absorptive_check : 
+Definition bops_add_zero_left_left_absorptive_check : 
    ∀ (S : Type) (s : S), 
-     check_left_absorptive S -> 
-     check_left_absorptive (with_constant S)
+     check_left_left_absorptive S -> 
+     check_left_left_absorptive (with_constant S)
 := λ S s dS ,  
 match dS with 
-| Certify_Left_Absorptive => Certify_Left_Absorptive (with_constant S)
-| Certify_Not_Left_Absorptive (s1, s2) => 
-     Certify_Not_Left_Absorptive (with_constant S) (inr _ s1, inr _ s2)
+| Certify_Left_Left_Absorptive => Certify_Left_Left_Absorptive (with_constant S)
+| Certify_Not_Left_Left_Absorptive (s1, s2) => 
+     Certify_Not_Left_Left_Absorptive (with_constant S) (inr _ s1, inr _ s2)
 end. 
 
-Definition bops_add_zero_right_absorptive_check : 
+
+Definition bops_add_zero_left_right_absorptive_check : 
    ∀ (S : Type) (s : S), 
-     check_right_absorptive S -> 
-     check_right_absorptive (with_constant S)
+     check_left_right_absorptive S -> 
+     check_left_right_absorptive (with_constant S)
 := λ S s dS ,  
 match dS with 
-| Certify_Right_Absorptive => Certify_Right_Absorptive (with_constant S)
-| Certify_Not_Right_Absorptive (s1, s2) => 
-     Certify_Not_Right_Absorptive (with_constant S) (inr _ s1, inr _ s2)
+| Certify_Left_Right_Absorptive => Certify_Left_Right_Absorptive (with_constant S)
+| Certify_Not_Left_Right_Absorptive (s1, s2) => 
+     Certify_Not_Left_Right_Absorptive (with_constant S) (inr _ s1, inr _ s2)
 end. 
 
+Definition bops_add_zero_right_left_absorptive_check : 
+   ∀ (S : Type) (s : S), 
+     check_right_left_absorptive S -> 
+     check_right_left_absorptive (with_constant S)
+:= λ S s dS ,  
+match dS with 
+| Certify_Right_Left_Absorptive => Certify_Right_Left_Absorptive (with_constant S)
+| Certify_Not_Right_Left_Absorptive (s1, s2) => 
+     Certify_Not_Right_Left_Absorptive (with_constant S) (inr _ s1, inr _ s2)
+end. 
+
+Definition bops_add_zero_right_right_absorptive_check : 
+   ∀ (S : Type) (s : S), 
+     check_right_right_absorptive S -> 
+     check_right_right_absorptive (with_constant S)
+:= λ S s dS ,  
+match dS with 
+| Certify_Right_Right_Absorptive => Certify_Right_Right_Absorptive (with_constant S)
+| Certify_Not_Right_Right_Absorptive (s1, s2) => 
+     Certify_Not_Right_Right_Absorptive (with_constant S) (inr _ s1, inr _ s2)
+end. 
+
+(* add one *) 
+
+Definition bops_add_one_left_distributive_check : 
+   ∀ (S : Type) 
+     (c : cas_constant),
+     check_idempotent S -> 
+     check_left_left_absorptive S -> 
+     check_right_left_absorptive S -> 
+     check_left_distributive S ->  check_left_distributive (with_constant S)
+:= λ S c idemS_d llaS_d rlaS_d ldS_d, 
+   match ldS_d with 
+   | Certify_Left_Distributive  => 
+    match llaS_d with 
+    | Certify_Left_Left_Absorptive => 
+      match rlaS_d with 
+      | Certify_Right_Left_Absorptive => 
+         match idemS_d with 
+         | Certify_Idempotent       => Certify_Left_Distributive _ 
+         | Certify_Not_Idempotent s => Certify_Not_Left_Distributive _ (inr s, (inl c, inl c))
+        end 
+      | Certify_Not_Right_Left_Absorptive (s1, s2) => 
+            Certify_Not_Left_Distributive _ (inr _ s1, (inr _ s2, inl _ c))
+      end 
+    | Certify_Not_Left_Left_Absorptive (s1, s2) => 
+         Certify_Not_Left_Distributive _ (inr _ s1, (inl _ c, inr _ s2))
+    end 
+   | Certify_Not_Left_Distributive (s1, (s2, s3)) => 
+        Certify_Not_Left_Distributive _ (inr _ s1, (inr _ s2, inr _ s3))
+   end. 
+
+
+Definition bops_add_one_right_distributive_check : 
+   ∀ (S : Type) 
+     (c : cas_constant),
+     check_idempotent S -> 
+     check_left_right_absorptive S -> 
+     check_right_right_absorptive S -> 
+     check_right_distributive S ->  check_right_distributive (with_constant S)
+:= λ S c idemS_d llaS_d rlaS_d ldS_d, 
+   match ldS_d with 
+   | Certify_Right_Distributive  => 
+    match llaS_d with 
+    | Certify_Left_Right_Absorptive => 
+      match rlaS_d with 
+      | Certify_Right_Right_Absorptive => 
+         match idemS_d with 
+         | Certify_Idempotent       => Certify_Right_Distributive _ 
+         | Certify_Not_Idempotent s => Certify_Not_Right_Distributive _ (inr s, (inl c, inl c))
+        end 
+      | Certify_Not_Right_Right_Absorptive (s1, s2) => 
+            Certify_Not_Right_Distributive _ (inr _ s1, (inr _ s2, inl _ c))
+      end 
+    | Certify_Not_Left_Right_Absorptive (s1, s2) => 
+         Certify_Not_Right_Distributive _ (inr _ s1, (inl _ c, inr _ s2))
+    end 
+   | Certify_Not_Right_Distributive (s1, (s2, s3)) => 
+        Certify_Not_Right_Distributive _ (inr _ s1, (inr _ s2, inr _ s3))
+   end. 
+
+
+Definition bops_add_one_left_left_absorptive_check : 
+   ∀ (S : Type) 
+     (c : cas_constant),
+     check_idempotent S -> 
+     check_left_left_absorptive S -> check_left_left_absorptive (with_constant S)
+:= λ S c idemS_d laS_d, 
+   match laS_d with 
+   | Certify_Left_Left_Absorptive => 
+     match idemS_d with 
+     | Certify_Idempotent => Certify_Left_Left_Absorptive _ 
+     | Certify_Not_Idempotent s =>  Certify_Not_Left_Left_Absorptive _ (inr s, inl c) 
+     end 
+   | Certify_Not_Left_Left_Absorptive (s1, s2) => Certify_Not_Left_Left_Absorptive _ (inr _ s1, inr _ s2)
+   end. 
+
+
+Definition bops_add_one_left_right_absorptive_check : 
+   ∀ (S : Type) 
+     (c : cas_constant),
+     check_idempotent S -> 
+     check_left_right_absorptive S -> check_left_right_absorptive (with_constant S)
+:= λ S c idemS_d laS_d, 
+   match laS_d with 
+   | Certify_Left_Right_Absorptive => 
+     match idemS_d with 
+     | Certify_Idempotent => Certify_Left_Right_Absorptive _ 
+     | Certify_Not_Idempotent s =>  Certify_Not_Left_Right_Absorptive _ (inr s, inl c) 
+     end 
+   | Certify_Not_Left_Right_Absorptive (s1, s2) => Certify_Not_Left_Right_Absorptive _ (inr _ s1, inr _ s2)
+   end. 
+
+
+Definition bops_add_one_right_left_absorptive_check : 
+   ∀ (S : Type) 
+     (c : cas_constant),
+     check_idempotent S -> 
+     check_right_left_absorptive S -> check_right_left_absorptive (with_constant S)
+:= λ S c idemS_d laS_d, 
+   match laS_d with 
+   | Certify_Right_Left_Absorptive => 
+     match idemS_d with 
+     | Certify_Idempotent => Certify_Right_Left_Absorptive _ 
+     | Certify_Not_Idempotent s =>  Certify_Not_Right_Left_Absorptive _ (inr s, inl c) 
+     end 
+   | Certify_Not_Right_Left_Absorptive (s1, s2) => Certify_Not_Right_Left_Absorptive _ (inr _ s1, inr _ s2)
+   end. 
+
+
+Definition bops_add_one_right_right_absorptive_check : 
+   ∀ (S : Type) 
+     (c : cas_constant),
+     check_idempotent S -> 
+     check_right_right_absorptive S -> check_right_right_absorptive (with_constant S)
+:= λ S c idemS_d laS_d, 
+   match laS_d with 
+   | Certify_Right_Right_Absorptive => 
+     match idemS_d with 
+     | Certify_Idempotent => Certify_Right_Right_Absorptive _ 
+     | Certify_Not_Idempotent s =>  Certify_Not_Right_Right_Absorptive _ (inr s, inl c) 
+     end 
+   | Certify_Not_Right_Right_Absorptive (s1, s2) => Certify_Not_Right_Right_Absorptive _ (inr _ s1, inr _ s2)
+   end. 
 
 
 

@@ -35,8 +35,11 @@ Record sg_certificates (S: Type)  :=
 ; sg_anti_right_d     : check_anti_right S 
 }. 
 
+(* How about this instead? 
 
-Record sg_certificates_new (S: Type)  := 
+   pros and cons ... 
+
+Record sg_certificates (S: Type)  := 
 {
   sgn_commutative_d    : unit + (S * S) 
 ; sgn_selective_d      : unit + (S * S) 
@@ -52,7 +55,7 @@ Record sg_certificates_new (S: Type)  :=
 ; sgn_anti_left_d      : unit + (S * S) 
 ; sgn_anti_right_d     : unit + (S * S) 
 }. 
-
+*) 
 
 Record sg_C_certificates (S: Type)  := 
 {
@@ -107,44 +110,16 @@ Record sg_CK_certificates (S: Type)  :=
 (* ******************************************************************* *) 
 
 
-Record sg_sg_certificates (S: Type) := 
+Record bs_certificates (S: Type) := 
 {
-  sg_sg_left_distributive_d    : check_left_distributive S 
-; sg_sg_right_distributive_d   : check_right_distributive S 
-; sg_sg_plus_id_is_times_ann_d : check_plus_id_equals_times_ann S 
-; sg_sg_times_id_is_plus_ann_d : check_times_id_equals_plus_ann S 
-; sg_sg_left_absorptive_d      : check_left_absorptive S 
-; sg_sg_right_absorptive_d     : check_right_absorptive S 
+  bs_left_distributive_d      : check_left_distributive S 
+; bs_right_distributive_d     : check_right_distributive S 
+; bs_plus_id_is_times_ann_d   : check_plus_id_equals_times_ann S 
+; bs_times_id_is_plus_ann_d   : check_times_id_equals_plus_ann S 
+; bs_left_left_absorptive_d   : check_left_left_absorptive S 
+; bs_left_right_absorptive_d  : check_left_right_absorptive S 
+; bs_right_left_absorptive_d  : check_right_left_absorptive S 
+; bs_right_right_absorptive_d : check_right_right_absorptive S 
 }. 
 
-
-(* 
-Record sg_sg_LD_certificates (S: Type) :=
-{
-  sg_sg_LD_left_distributive      : assert_left_distributive S 
-; sg_sg_LD_left_absorption_d      : check_left_absorptive S 
-; sg_sg_LD_right_absorption_d     : check_right_absorptive S 
-; sg_sg_LD_plus_id_is_times_ann_d : check_plus_id_equals_times_ann S 
-; sg_sg_LD_times_id_is_plus_ann_d : check_times_id_equals_plus_ann S 
-}. 
-
-Record sg_sg_LA_certificates (S: Type) := 
-{
-  sg_sg_LA_left_distributive_d    : check_left_distributive S 
-; sg_sg_LA_right_distributive_d   : check_right_distributive S 
-; sg_sg_LA_left_absorption        : assert_left_absorptive S 
-; sg_sg_LA_plus_id_is_times_ann_d : check_plus_id_equals_times_ann S 
-; sg_sg_LA_times_id_is_plus_ann_d : check_times_id_equals_plus_ann S 
-}. 
-
-Record sg_sg_LALD_certificates (S: Type) := 
-{
-  sg_sg_LALD_left_distributive      : assert_left_distributive S 
-; sg_sg_LALD_left_absorption        : assert_left_absoprtion S 
-; sg_sg_LALD_plus_id_is_times_ann_d : check_plus_id_equals_times_ann S 
-; sg_sg_LALD_times_id_is_plus_ann_d : check_times_id_equals_plus_ann S 
-}. 
-
-*) 
-(* ******************************************************************* *) 
 

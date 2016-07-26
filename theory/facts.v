@@ -340,7 +340,7 @@ Proof. intros S r b1 b2 transS cong1 c1 c2 ld s t u.
 Defined. 
 
 
-
+(*
 Lemma bops_id_equals_ann_same_constant : ∀ (S : Type) (r : brel S) (c : cas_constant) (b1 : binary_op S) (b2 : binary_op S),  
     brel_reflexive S r -> 
       bops_id_equals_ann 
@@ -396,6 +396,7 @@ Proof. intros S r b lc s t u F.
           apply lc in H. rewrite H in F. discriminate. 
           reflexivity. 
 Qed. 
+*) 
 
 
 (* Id, Ann are unique *) 
@@ -458,7 +459,7 @@ Defined.
 
 
 
-(* move this? use this? *) 
+(* move this? use this? 
 Lemma tmp : ∀ (S : Type) (r : brel S),
       brel_congruence S r r → 
          ∀ (s t u v : S), r s u = true → r t v = true → r u v = false → r s t = false. 
@@ -468,7 +469,7 @@ Proof. intros S r congS s t u v H1 H2 H3.
        rewrite H3 in C. 
        assumption. 
 Qed.          
-         
+*)          
 
 (*
 
@@ -646,7 +647,7 @@ Lemma bop_idempotent_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : bi
        bop_not_anti_left S r b. 
 Proof. intros S r b [s Ps] symS idemS. 
        unfold bop_not_anti_left. 
-       exists (s, s); simpl. 
+       exists (cef_idempotent_implies_not_anti_left _ s); simpl. 
        assert (fact := idemS s). apply symS in fact. assumption. 
 Defined. 
 
@@ -655,7 +656,7 @@ Lemma bop_idempotent_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : b
        brel_symmetric S r -> 
        bop_idempotent S r b -> 
        bop_not_anti_right S r b. 
-Proof. intros S r b [s Ps] symS idemS. exists (s, s); simpl. 
+Proof. intros S r b [s Ps] symS idemS. exists (cef_idempotent_implies_not_anti_right _ s); simpl. 
        assert (fact := idemS s). apply symS in fact. assumption. 
 Defined. 
 
@@ -1528,7 +1529,7 @@ Qed.
 
 (* 
      LA( +,* ) C( * ) -> RA( +,* ) 
-*) 
+
 Lemma bops_left_absorption_and_times_commutative_imply_right_absorption : 
       ∀ (S : Type) (rS : brel S) (plusS timesS : binary_op S),       
         brel_reflexive S rS ->         
@@ -1548,6 +1549,7 @@ Proof. intros S rS plusS timesS refS transS cong_plusS commS laS s1 s2.
        assert (F := transS _ _ _ D E). 
        assumption. 
 Qed. 
+*) 
 
 (* 
 
@@ -1573,7 +1575,7 @@ Proof. unfold bops_left_absorption,
 
 (* 
    C( + ), C( * ), LA( *, +), a = a + b -> b = a * b 
-*) 
+
 Lemma bops_lattice_test_1 : 
       ∀ (S : Type) (rS : brel S) (plusS timesS : binary_op S),       
         brel_reflexive S rS -> 
@@ -1596,9 +1598,11 @@ Proof. intros S rS plusS timesS refS symS transS cong_times comm_plus comm_times
        assumption. 
 Qed. 
 
+*) 
+
 (* 
    LA( +, * ), b = a * b -> a = a + b
-*) 
+
 Lemma bops_lattice_test_2 : 
       ∀ (S : Type) (rS : brel S) (plusS timesS : binary_op S),       
         brel_reflexive S rS -> 
@@ -1614,10 +1618,11 @@ Proof. intros S rS plusS timesS refS symS transS cong_plus laS a b H.
        assert (D := transS _ _ _ A C). 
        assumption. 
 Qed. 
+*) 
 
 (* 
    LA( +, * ),  LA( *, + ) -> I( + )
-*) 
+
 Lemma bops_lattice_test_3 : 
       ∀ (S : Type) (rS : brel S) (plusS timesS : binary_op S),       
         brel_reflexive S rS -> 
@@ -1637,9 +1642,11 @@ Proof. intros S rS plusS timesS refS symS transS cong_plus la1 la2 a.
        assumption. 
 Qed.
 
+*) 
+
 (* 
    LA( +, * ),  LA( *, + ) -> I( * )
-*) 
+
 Lemma bops_lattice_test_4 : 
       ∀ (S : Type) (rS : brel S) (plusS timesS : binary_op S),       
         brel_reflexive S rS -> 
@@ -1658,10 +1665,11 @@ Proof. intros S rS plusS timesS refS symS transS cong_times la1 la2 a.
        assert (D := transS _ _ _ C A). 
        assumption. 
 Qed.
+*) 
 
 (* 
    C ( * ), LA( +, * ),  LA( *, + ), LD( +, * ) -> LD( *, + ) 
-*) 
+
 Lemma bops_lattice_test_5 : 
       ∀ (S : Type) (rS : brel S) (b1 b2 : binary_op S),       
         brel_congruence S rS rS ->         
@@ -1712,7 +1720,7 @@ Proof. intros S rS b1 b2 congS refS symS transS cong_b1 assoc_b1 comm_b2 la1 la2
        assert (E := transS _ _ _ C D). 
        apply symS. assumption. 
 Qed.
-
+*) 
 
 
 (* 
@@ -1770,3 +1778,52 @@ Definition bop_right_constant (S : Type) (r : brel S) (b : binary_op S)
     := ∀ s t u : S, r (b t s) (b u s) = true. 
 
 *) 
+
+
+(* absorption *) 
+
+
+Lemma bops_left_left_absorptive_implies_left_right : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_reflexive S r -> 
+        brel_transitive S r -> 
+        bop_congruence S r b1 -> 
+        bop_commutative S r b2 -> 
+        bops_left_left_absorptive S r b1 b2 -> bops_left_right_absorptive S r b1 b2. 
+Proof. intros S r b1 b2 refS transS cong_b1 comm_b2 lla s t.
+       assert (fact1 := lla s t).        
+       assert (fact2 : r (b1 s (b2 s t)) (b1 s (b2 t s)) = true). apply cong_b1; auto. 
+       apply (transS _ _ _ fact1 fact2). 
+Defined. 
+
+
+ Lemma bops_left_right_absorptive_implies_right_left : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),        brel_reflexive S r -> 
+        brel_transitive S r -> 
+        bop_congruence S r b1 -> 
+        bop_commutative S r b1 -> 
+        bop_commutative S r b2 -> 
+        bops_left_right_absorptive S r b1 b2 -> 
+        bops_right_left_absorptive S r b1 b2. 
+Proof. intros S r b1 b2 refS transS cong_b1 comm_b1 comm_b2 lra s t.
+       assert (fact1 := lra s t).      
+       assert (fact2 : r (b1 s (b2 t s)) (b1 (b2 s t) s) = true). 
+          assert(fact3 := comm_b2 t s). 
+          assert(fact4 := comm_b1 s (b2 t s)). 
+          assert(fact5 : r (b1 (b2 t s) s) (b1 (b2 s t) s) = true). apply cong_b1; auto. 
+          apply (transS _ _ _ fact4 fact5). 
+       apply (transS _ _ _ fact1 fact2). 
+Defined. 
+
+Lemma bops_right_left_absorptive_implies_right_right : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_reflexive S r -> 
+        brel_transitive S r -> 
+        bop_congruence S r b1 -> 
+        bop_commutative S r b2 -> 
+        bops_right_left_absorptive S r b1 b2 -> bops_right_right_absorptive S r b1 b2. 
+Proof. intros S r b1 b2 refS transS cong_b1 comm_b2 lla s t.
+       assert (fact1 := lla s t).        
+       assert (fact2 : r (b1 (b2 s t) s) (b1 (b2 t s) s) = true). apply cong_b1; auto. 
+       apply (transS _ _ _ fact1 fact2). 
+Defined. 
+
+
+

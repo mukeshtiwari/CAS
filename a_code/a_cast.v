@@ -422,7 +422,7 @@ SG SG
 
 ****************************************************************** *) 
 
-(* UPCAST *) 
+(* UPCAST 
 
 Definition A_sg_sg_from_sg_C_sg : ∀ (S : Type),  A_sg_C_sg S -> A_sg_sg S 
 := λ S s, 
@@ -650,3 +650,4 @@ Definition A_sg_CS_sg_from_sg_CS_sg_CS_AD : ∀ (S : Type),  A_sg_CS_sg_CS_AD S 
 |}.
 
 
+*) 

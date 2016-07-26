@@ -232,19 +232,43 @@ Inductive check_times_id_equals_plus_ann (S : Type) :=
 | Certify_Not_Times_Id_Equals_Plus_Ann : check_times_id_equals_plus_ann S.
 
 
-Inductive assert_left_absorptive (S : Type) := 
-| Assert_Left_Absorptive : assert_left_absorptive S. 
+Inductive assert_left_left_absorptive (S : Type) := 
+| Assert_Left_Left_Absorptive : assert_left_left_absorptive S. 
 
-Inductive check_left_absorptive (S : Type) := 
-| Certify_Left_Absorptive : check_left_absorptive S
-| Certify_Not_Left_Absorptive : (S * S) → check_left_absorptive S.
+Inductive check_left_left_absorptive (S : Type) := 
+| Certify_Left_Left_Absorptive : check_left_left_absorptive S
+| Certify_Not_Left_Left_Absorptive : (S * S) → check_left_left_absorptive S.
 
-Inductive assert_right_absorptive (S : Type) := 
-| Assert_Right_Absorptive : assert_right_absorptive S. 
 
-Inductive check_right_absorptive (S : Type) := 
-| Certify_Right_Absorptive : check_right_absorptive S
-| Certify_Not_Right_Absorptive : (S * S) → check_right_absorptive S.
+
+
+Inductive assert_left_right_absorptive (S : Type) := 
+| Assert_Left_Right_Absorptive : assert_left_right_absorptive S. 
+
+Inductive check_left_right_absorptive (S : Type) := 
+| Certify_Left_Right_Absorptive : check_left_right_absorptive S
+| Certify_Not_Left_Right_Absorptive : (S * S) → check_left_right_absorptive S.
+
+
+Inductive assert_right_left_absorptive (S : Type) := 
+| Assert_Right_Left_Absorptive : assert_right_left_absorptive S. 
+
+Inductive check_right_left_absorptive (S : Type) := 
+| Certify_Right_Left_Absorptive : check_right_left_absorptive S
+| Certify_Not_Right_Left_Absorptive : (S * S) → check_right_left_absorptive S.
+
+
+Inductive assert_right_right_absorptive (S : Type) := 
+| Assert_Right_Right_Absorptive : assert_right_right_absorptive S. 
+
+Inductive check_right_right_absorptive (S : Type) := 
+| Certify_Right_Right_Absorptive : check_right_right_absorptive S
+| Certify_Not_Right_Right_Absorptive : (S * S) → check_right_right_absorptive S.
+
+
+
+
+
 
 
 (* some useful functions *) 

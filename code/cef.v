@@ -8,6 +8,14 @@ Require Import CAS.code.certificates.
 ** WIF = WItness Function ? 
 *) 
 
+
+Definition cef_idempotent_implies_not_anti_left (S : Type) (s : S) 
+   := (s, s). 
+
+Definition cef_idempotent_implies_not_anti_right (S : Type) (s : S) 
+   := (s, s). 
+
+
 Definition cef_commutative_implies_not_is_left (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S) 
    := if (r (b (f s) s) s) then (f s, s) else (s, f s). 
 
@@ -53,11 +61,6 @@ Definition cef_idempotent_and_commutative_imply_not_left_constant (S : Type) (r 
 Definition cef_idempotent_and_commutative_imply_not_right_constant (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S) 
    := if (r (b (f s) s) s) then (f s, (s, f s)) else (s, (f s, s)). 
 
-Definition cef_idempotent_implies_not_anti_left (S : Type) (s : S) 
-   := (s, s). 
-
-Definition cef_idempotent_implies_not_anti_right (S : Type) (s : S) 
-   := (s, s). 
 
 Definition cef_bop_llex_not_cancellative (S T : Type) (rS : brel S) (bS : binary_op S) (s : S) (f : S -> S) (t : T) (g : T -> T) 
   := if brel_llt S rS bS s (f s) 

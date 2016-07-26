@@ -654,29 +654,63 @@ Definition bops_ann_equals_ann_decidable
    := (bops_ann_equals_ann S r b1 b2) + (bops_not_ann_equals_ann S r b1 b2). 
 
 
-Definition bops_left_absorption (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+
+(* Absorptivity *) 
+
+
+Definition bops_left_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     ∀ (s t : S), r s (b1 s (b2 s t)) = true.
 
-Definition bops_not_left_absorption (S : Type) (r : brel S) (b1 b2 : binary_op S) 
+Definition bops_not_left_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) 
    := { z : S * S & match z with (s, t) => r s (b1 s (b2 s t)) = false end }. 
 
-Definition bops_left_absorption_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
-    (bops_left_absorption S r b1 b2) + (bops_not_left_absorption S r b1 b2). 
+Definition bops_left_left_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    (bops_left_left_absorptive S r b1 b2) + (bops_not_left_left_absorptive S r b1 b2). 
 
-
-Definition bops_right_absorption (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+Definition bops_left_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     ∀ (s t : S), r s (b1 s (b2 t s)) = true.
 
-Definition bops_not_right_absorption (S : Type) (r : brel S) (b1 b2 : binary_op S)
+Definition bops_not_left_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S)
    := { z : S * S & match z with (s, t) => r s (b1 s (b2 t s)) = false end }. 
 
-Definition bops_right_absorption_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
-    (bops_right_absorption S r b1 b2) + (bops_not_right_absorption S r b1 b2). 
+Definition bops_left_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    (bops_left_right_absorptive S r b1 b2) + (bops_not_left_right_absorptive S r b1 b2). 
 
 
+Definition bops_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), r s (b1 (b2 s t) s) = true.
+
+Definition bops_not_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) 
+   := { z : S * S & match z with (s, t) =>  r s (b1 (b2 s t) s) = false end }. 
+
+Definition bops_right_left_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    (bops_right_left_absorptive S r b1 b2) + (bops_not_right_left_absorptive S r b1 b2). 
 
 
+Definition bops_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), r s (b1 (b2 t s) s) = true.
 
+Definition bops_not_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) 
+   := { z : S * S & match z with (s, t) =>  r s (b1 (b2 t s) s) = false end }. 
+
+Definition bops_right_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    (bops_right_right_absorptive S r b1 b2) + (bops_not_right_right_absorptive S r b1 b2). 
+
+
+Definition bops_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+          (bops_left_left_absorptive S r b1 b2)  * 
+          (bops_left_right_absorptive S r b1 b2) * 
+          (bops_right_left_absorptive S r b1 b2) * 
+          (bops_right_right_absorptive S r b1 b2). 
+
+Definition bops_not_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+          (bops_not_left_left_absorptive S r b1 b2)  + 
+          (bops_not_left_right_absorptive S r b1 b2) +  
+          (bops_not_right_left_absorptive S r b1 b2) + 
+          (bops_not_right_right_absorptive S r b1 b2). 
+
+Definition bops_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    (bops_absorptive S r b1 b2) + (bops_not_absorptive S r b1 b2). 
 
 
 

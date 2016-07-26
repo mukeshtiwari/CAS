@@ -22,13 +22,14 @@ Record sg (S : Type) := {
 ; sg_ast   : ast_sg
 }.
 
+(*
 Record sg_new (S : Type) := {
   sgn_eq    : eqv S 
 ; sgn_bop   : binary_op S 
 ; sgn_certs : sg_certificates_new S 
 ; sgn_ast   : ast_sg
 }.
-
+*) 
 
 Record sg_C (S : Type) := {
   sg_C_eqv   : eqv S 
@@ -60,39 +61,30 @@ Record sg_CK (S : Type) := {
 ; sg_CK_ast   : ast_sg_CK
 }.
 
-(* 
 
-(* po *) 
-Record po (S : Type) := {
-  po_eq           : brel S 
-; po_lte          : brel S 
-; po_eqv_certs    : eqv_certs S 
-; po_po_certs     : po_certs S 
-; po_ast          : ast_po
+Record bs (S : Type) := {
+  bs_eqv         : eqv S 
+; bs_plus        : binary_op S 
+; bs_times       : binary_op S 
+; bs_plus_certs  : sg_certificates S 
+; bs_times_certs : sg_certificates S 
+; bs_certs       : bs_certificates S 
+; bs_ast         : ast_bs
 }.
 
-(* to *) 
-Record to (S : Type) := {
-  to_eq           : brel S 
-; to_lte          : brel S 
-; to_eqv_certs    : eqv_certs S 
-; to_po_certs     : to_certs S 
-; to_ast          : ast_to
+Record bs_CS (S : Type) := {
+  bs_CS_eqv         : eqv S 
+; bs_CS_plus        : binary_op S 
+; bs_CS_times       : binary_op S 
+; bs_CS_plus_certs  : sg_CS_certificates S 
+; bs_CS_times_certs : sg_certificates S    
+; bs_CS_certs       : bs_certificates S 
+; bs_CS_ast         : ast_bs_CS
 }.
 
-(* *) 
 
-*)
 
-Record sg_sg (S : Type) := {
-  sg_sg_eqv         : eqv S 
-; sg_sg_plus        : binary_op S 
-; sg_sg_times       : binary_op S 
-; sg_sg_plus_certs  : sg_certificates S 
-; sg_sg_times_certs : sg_certificates S 
-; sg_sg_certs       : sg_sg_certificates S 
-; sg_sg_ast         : ast_sg_sg
-}.
+(*
 
 Record sg_C_sg (S : Type) := {
   sg_C_sg_eqv         : eqv S 
@@ -100,7 +92,7 @@ Record sg_C_sg (S : Type) := {
 ; sg_C_sg_times       : binary_op S 
 ; sg_C_sg_plus_certs  : sg_C_certificates S
 ; sg_C_sg_times_certs : sg_certificates S  
-; sg_C_sg_certs       : sg_sg_certificates S 
+; sg_C_sg_certs       : bs_certificates S 
 ; sg_C_sg_ast         : ast_sg_C_sg
 }.
 
@@ -111,22 +103,11 @@ Record sg_CI_sg (S : Type) := {
 ; sg_CI_sg_times       : binary_op S 
 ; sg_CI_sg_plus_certs  : sg_CI_certificates S
 ; sg_CI_sg_times_certs : sg_certificates S  
-; sg_CI_sg_certs       : sg_sg_certificates S 
+; sg_CI_sg_certs       : bs_certificates S 
 ; sg_CI_sg_ast         : ast_sg_CI_sg
 }.
 
-Record sg_CS_sg (S : Type) := {
-  sg_CS_sg_eqv         : eqv S 
-; sg_CS_sg_plus        : binary_op S 
-; sg_CS_sg_times       : binary_op S 
-; sg_CS_sg_plus_certs  : sg_CS_certificates S 
-; sg_CS_sg_times_certs : sg_certificates S    
-; sg_CS_sg_certs       : sg_sg_certificates S 
-; sg_CS_sg_ast         : ast_sg_CS_sg
-}.
 
-
-(*
 (* sr = semiring *) 
 Record sr (S : Type) := {
   sr_eq          : brel S 

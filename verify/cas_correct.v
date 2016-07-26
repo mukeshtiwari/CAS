@@ -20,19 +20,16 @@ Require Import CAS.verify.construct_correct. (* ~~ construct_certs <-> construct
 (* eqv *) 
 
 Theorem correct_eqv_eq_bool : eqv_eq_bool = A2C_eqv bool (A_eqv_eq_bool). 
-Proof. unfold eqv_eq_bool, A_eqv_eq_bool, A2C_eqv; simpl. 
-       rewrite correct_eqv_certs_eq_bool. reflexivity. 
-Qed. 
+Proof. compute. reflexivity. Qed. 
 
 Theorem correct_eqv_eq_nat : eqv_eq_nat = A2C_eqv nat (A_eqv_eq_nat). 
-Proof. unfold eqv_eq_nat, A_eqv_eq_nat, A2C_eqv; simpl. 
 Proof. compute. reflexivity. Qed. 
 
 Theorem correct_eqv_add_constant : ∀ (S : Type) (c : cas_constant) (E : A_eqv S),  
          eqv_add_constant S (A2C_eqv S E) c = A2C_eqv (with_constant S) (A_eqv_add_constant S E c). 
-Proof. intros S c E. destruct E. 
-       unfold eqv_add_constant, A_eqv_add_constant, A2C_eqv; simpl. 
-       rewrite correct_eqv_certs_add_constant. reflexivity. 
+Proof. intros S c E. destruct E. destruct A_eqv_proofs. 
+       destruct A_eqv_nontrivial. destruct brel_nontrivial_witness. 
+       compute. reflexivity. 
 Qed. 
 
 Theorem correct_eqv_list : ∀ (S : Type) (E : A_eqv S),  
@@ -249,6 +246,8 @@ Proof. intros S T sgS sgT.
 Qed. 
 
 
+(*
+
 Theorem correct_sg_product_new :
       ∀ (S T : Type) (sgS : A_sg_new S) (sgT : A_sg_new T), 
          sg_product_new S T (A2C_sg_new S sgS) (A2C_sg_new T sgT) 
@@ -260,7 +259,7 @@ Proof. intros S T sgS sgT.
        rewrite correct_sg_certs_product_new. 
        reflexivity. 
 Qed. 
-
+*) 
 
 Theorem correct_sg_CK_product :
       ∀ (S T : Type) (sgS : A_sg_CK S) (sgT : A_sg_CK T), 
@@ -436,6 +435,118 @@ Qed.
 
 (* SETS *) 
 
+Lemma  correct_sg_certs_union : 
+      ∀ (S : Type) (c : cas_constant) (eqvS : A_eqv S), 
+       sg_certs_union S (get_witness _ (certify_nontrivial_witness _ 
+                           (eqv_nontrivial _ (eqv_certs _ (A2C_eqv S eqvS)))))   (* UGLY *) 
+                        (get_negate _ (certify_nontrivial_negate _ 
+                           (eqv_nontrivial _ (eqv_certs _ (A2C_eqv S eqvS)))))   (* UGLY *) 
+                         c
+          (eqv_add_constant (finite_set S) (eqv_set S (A2C_eqv S eqvS)) c)
+          (bop_add_ann (finite_set S) (bop_union S (eqv_eq S (A2C_eqv S eqvS))) c)
+                    
+       =
+      P2C_sg (with_constant (finite_set S))
+             (brel_add_constant (finite_set S) (brel_set S (A_eqv_eq S eqvS)) c)
+             (bop_add_ann (finite_set S) (bop_union S (A_eqv_eq S eqvS)) c)
+             (sg_proofs_union S (A_eqv_eq S eqvS) c (A_eqv_proofs S eqvS)). 
+Proof. intros S c eqvS. 
+       destruct eqvS. destruct A_eqv_proofs. destruct A_eqv_nontrivial. 
+       destruct  brel_nontrivial_witness. destruct brel_nontrivial_negate. 
+       compute. 
+       reflexivity.        
+Qed. 
+
+
+Theorem correct_sg_union  :
+      ∀ (S : Type) (c : cas_constant) (eqvS : A_eqv S), 
+         sg_union S c (A2C_eqv S eqvS) 
+         = 
+         A2C_sg (with_constant (finite_set S)) (A_sg_union S c eqvS). 
+Proof. intros S c eqvS. 
+       assert (H := correct_sg_certs_union S c eqvS). 
+       unfold sg_union, A_sg_union, A2C_sg ; simpl.
+       rewrite <- correct_eqv_add_constant.
+       rewrite <- correct_eqv_set. 
+       (* UGLY *) 
+       assert (K1 : get_witness S (
+                 certify_nontrivial_witness S (eqv_nontrivial S (eqv_certs S (A2C_eqv S eqvS))))
+                 = 
+                 projT1 (brel_nontrivial_witness S (A_eqv_eq S eqvS)                    
+                            (A_eqv_nontrivial S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS)))
+              ). compute. reflexivity. 
+      assert (K2: get_negate S
+                   (certify_nontrivial_negate S (eqv_nontrivial S (eqv_certs S (A2C_eqv S eqvS))))
+                  = 
+                  projT1
+                    (brel_nontrivial_negate S (A_eqv_eq S eqvS)
+                       (A_eqv_nontrivial S (A_eqv_eq S eqvS)
+                          (A_eqv_proofs S eqvS)))
+             ). compute. reflexivity. 
+      rewrite <- K1, <- K2. rewrite <- H. reflexivity. 
+Qed. 
+
+
+
+Lemma  correct_sg_certs_intersect : 
+      ∀ (S : Type) (c : cas_constant) (eqvS : A_eqv S), 
+       sg_certs_intersect S (get_witness _ (certify_nontrivial_witness _ 
+                           (eqv_nontrivial _ (eqv_certs _ (A2C_eqv S eqvS)))))   (* UGLY *) 
+                        (get_negate _ (certify_nontrivial_negate _ 
+                           (eqv_nontrivial _ (eqv_certs _ (A2C_eqv S eqvS)))))   (* UGLY *) 
+                         c
+          (eqv_add_constant (finite_set S) (eqv_set S (A2C_eqv S eqvS)) c)
+          (bop_add_id (finite_set S) (bop_intersect S (eqv_eq S (A2C_eqv S eqvS))) c)
+                    
+       =
+      P2C_sg (with_constant (finite_set S))
+             (brel_add_constant (finite_set S) (brel_set S (A_eqv_eq S eqvS)) c)
+             (bop_add_id (finite_set S) (bop_intersect S (A_eqv_eq S eqvS)) c)
+             (sg_proofs_intersect S (A_eqv_eq S eqvS) c (A_eqv_proofs S eqvS)). 
+Proof. intros S c eqvS. 
+       destruct eqvS. destruct A_eqv_proofs. destruct A_eqv_nontrivial. 
+       destruct  brel_nontrivial_witness. destruct brel_nontrivial_negate. 
+
+       unfold P2C_sg; simpl. 
+       unfold bop.intersect.bop_intersect_not_selective. 
+       unfold bop.add_id.bop_add_id_not_selective; simpl. 
+       unfold bop.intersect.bop_intersect_not_selective_raw; simpl. 
+       compute. 
+       reflexivity.        
+Qed. 
+
+
+Theorem correct_sg_intersect  :
+      ∀ (S : Type) (c : cas_constant) (eqvS : A_eqv S), 
+         sg_intersect S c (A2C_eqv S eqvS) 
+         = 
+         A2C_sg (with_constant (finite_set S)) (A_sg_intersect S c eqvS). 
+Proof. intros S c eqvS. 
+       assert (H := correct_sg_certs_intersect S c eqvS). 
+       unfold sg_intersect, A_sg_intersect, A2C_sg ; simpl.
+       rewrite <- correct_eqv_add_constant.
+       rewrite <- correct_eqv_set. 
+       (* UGLY *) 
+       assert (K1 : get_witness S (
+                 certify_nontrivial_witness S (eqv_nontrivial S (eqv_certs S (A2C_eqv S eqvS))))
+                 = 
+                 projT1 (brel_nontrivial_witness S (A_eqv_eq S eqvS)                    
+                            (A_eqv_nontrivial S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS)))
+              ). compute. reflexivity. 
+      assert (K2: get_negate S
+                   (certify_nontrivial_negate S (eqv_nontrivial S (eqv_certs S (A2C_eqv S eqvS))))
+                  = 
+                  projT1
+                    (brel_nontrivial_negate S (A_eqv_eq S eqvS)
+                       (A_eqv_nontrivial S (A_eqv_eq S eqvS)
+                          (A_eqv_proofs S eqvS)))
+             ). compute. reflexivity. 
+      rewrite <- K1, <- K2. rewrite <- H. reflexivity. 
+Qed. 
+
+
+
+(*
 Theorem correct_sg_CI_union_with_ann  :
       ∀ (S : Type) (c : cas_constant) (eqvS : A_eqv S), 
          sg_CI_union_with_ann S c (A2C_eqv S eqvS) 
@@ -465,7 +576,7 @@ Proof. intros S c eqvS. destruct eqvS.
        unfold eqv_add_constant. simpl. 
        reflexivity. 
 Qed. 
-
+*) 
 
 
 
