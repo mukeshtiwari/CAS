@@ -78,12 +78,14 @@ with ast_sg_CS :=
    . 
 
 Inductive ast_bs :=
-   | Ast_bs_min_max  : ast_bs 
-   | Ast_bs_max_min  : ast_bs 
-   | Ast_bs_and_or   : ast_bs 
-   | Ast_bs_or_and   : ast_bs 
-   | Ast_bs_min_plus : ast_bs 
-   | Ast_bs_max_plus : ast_bs 
+   | Ast_bs_min_max   : ast_bs 
+   | Ast_bs_max_min   : ast_bs 
+   | Ast_bs_and_or    : ast_bs 
+   | Ast_bs_or_and    : ast_bs 
+   | Ast_bs_min_plus  : ast_bs 
+   | Ast_bs_max_plus  : ast_bs 
+   | Ast_bs_min_times : ast_bs 
+   | Ast_bs_max_times : ast_bs 
    | Ast_bs_intersect_union : cas_constant * ast_eqv → ast_bs
    | Ast_bs_union_intersect : cas_constant * ast_eqv → ast_bs
 

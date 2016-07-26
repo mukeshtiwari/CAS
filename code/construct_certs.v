@@ -28,7 +28,7 @@ Definition eqv_certs_eq_nat : eqv_certificates nat
      eqv_nontrivial := 
      {| 
        certify_nontrivial_witness  := Certify_Witness nat 0 
-     ; certify_nontrivial_negate   := Certify_Negate nat (λ (i : nat), S i)
+     ; certify_nontrivial_negate   := Certify_Negate nat S (* (λ (i : nat), S i) *) 
      |} 
     ; eqv_congruence    := Assert_Brel_Congruence nat 
     ; eqv_reflexive     := Assert_Reflexive nat 
@@ -141,32 +141,153 @@ Definition eqv_certs_sum : ∀ (S T : Type),  eqv_certificates S -> eqv_certific
 (* semigroups *) 
 
 (* basics *) 
-(*
 
+(* from Compute (P2C_sg _ brel_eq_bool bop_and (sg_proofs_and)) *) 
 Definition sg_certs_and : sg_certificates bool
 := {| 
-     sg_associative        := Assert_Associative bool 
-   ; sg_congruence         := Assert_Bop_Congruence bool 
-   ; sg_commutative_d      := Certify_Commutative bool 
-   ; sg_idempotent_d       := Certify_Idempotent bool 
-   ; sg_selective_d        := Certify_Selective bool 
-   ; sg_exists_id_d        := Certify_Exists_Id bool true 
-   ; sg_exists_ann_d       := Certify_Exists_Ann bool false 
+       sg_associative := Assert_Associative bool;
+       sg_congruence := Assert_Bop_Congruence bool;
+       sg_commutative_d := Certify_Commutative bool;
+       sg_selective_d := Certify_Selective bool;
+       sg_idempotent_d := Certify_Idempotent bool;
+       sg_exists_id_d := Certify_Exists_Id bool true;
+       sg_exists_ann_d := Certify_Exists_Ann bool false;
+       sg_is_left_d := Certify_Not_Is_Left bool (true, false);
+       sg_is_right_d := Certify_Not_Is_Right bool (false, true);
+       sg_left_cancel_d := Certify_Not_Left_Cancellative bool
+                             (false, (false, true));
+       sg_right_cancel_d := Certify_Not_Right_Cancellative bool
+                              (false, (false, true));
+       sg_left_constant_d := Certify_Not_Left_Constant bool
+                               (true, (false, true));
+       sg_right_constant_d := Certify_Not_Right_Constant bool
+                                (true, (false, true));
+       sg_anti_left_d := Certify_Not_Anti_Left bool (true, true);
+       sg_anti_right_d := Certify_Not_Anti_Right bool (true, true)
+   |}. 
 
 
-; sg_is_left_d        := Certify_Not_Is_Left _ (cef_commutative_implies_not_is_left _ r b s f) 
-; sg_is_right_d       := Certify_Not_Is_Right _ (cef_commutative_implies_not_is_right _ r b s f) 
+(* from Compute (P2C_sg _ brel_eq_bool bop_or (sg_proofs_or)) *) 
+Definition sg_certs_or : sg_certificates bool
+:= {| 
+       sg_associative := Assert_Associative bool;
+       sg_congruence := Assert_Bop_Congruence bool;
+       sg_commutative_d := Certify_Commutative bool;
+       sg_selective_d := Certify_Selective bool;
+       sg_idempotent_d := Certify_Idempotent bool;
+       sg_exists_id_d := Certify_Exists_Id bool false;
+       sg_exists_ann_d := Certify_Exists_Ann bool true;
+       sg_is_left_d := Certify_Not_Is_Left bool (false, true);
+       sg_is_right_d := Certify_Not_Is_Right bool (true, false);
+       sg_left_cancel_d := Certify_Not_Left_Cancellative bool
+                             (true, (true, false));
+       sg_right_cancel_d := Certify_Not_Right_Cancellative bool
+                              (true, (true, false));
+       sg_left_constant_d := Certify_Not_Left_Constant bool
+                               (false, (true, false));
+       sg_right_constant_d := Certify_Not_Right_Constant bool
+                                (false, (true, false));
+       sg_anti_left_d := Certify_Not_Anti_Left bool (true, true);
+       sg_anti_right_d := Certify_Not_Anti_Right bool (true, true)
+   |}. 
 
-; sg_left_cancel_d    := Certify_Not_Left_Cancellative S (s, (s, t)) 
-; sg_right_cancel_d   := Certify_Right_Cancellative S
-; sg_left_constant_d  := Certify_Left_Constant S
-; sg_right_constant_d := Certify_Not_Right_Constant S (s, (s, t)) 
-; sg_anti_left_d      := Certify_Not_Anti_Left S (s, s) 
-; sg_anti_right_d     := Certify_Not_Anti_Right S (s, s) 
+
+(* 
+  Compute (P2C_sg _ brel_eq_nat bop_min (sg_proofs_min)). 
+*) 
+Definition sg_certs_min : sg_certificates nat
+:= {| 
+       sg_associative := Assert_Associative nat;
+       sg_congruence := Assert_Bop_Congruence nat;
+       sg_commutative_d := Certify_Commutative nat;
+       sg_selective_d := Certify_Selective nat;
+       sg_idempotent_d := Certify_Idempotent nat;
+       sg_exists_id_d := Certify_Not_Exists_Id nat;
+       sg_exists_ann_d := Certify_Exists_Ann nat 0;
+       sg_is_left_d := Certify_Not_Is_Left nat (1, 0);
+       sg_is_right_d := Certify_Not_Is_Right nat (0, 1);
+       sg_left_cancel_d := Certify_Not_Left_Cancellative nat (0, (0, 1));
+       sg_right_cancel_d := Certify_Not_Right_Cancellative nat (0, (0, 1));
+       sg_left_constant_d := Certify_Not_Left_Constant nat (1, (0, 1));
+       sg_right_constant_d := Certify_Not_Right_Constant nat (1, (0, 1));
+       sg_anti_left_d := Certify_Not_Anti_Left nat (0, 0);
+       sg_anti_right_d := Certify_Not_Anti_Right nat (0, 0) 
+   |}. 
+
+
+(* 
+  Compute (P2C_sg _ brel_eq_nat bop_max (sg_proofs_max)). 
+*) 
+Definition sg_certs_max : sg_certificates nat
+:= {| 
+       sg_associative := Assert_Associative nat;
+       sg_congruence := Assert_Bop_Congruence nat;
+       sg_commutative_d := Certify_Commutative nat;
+       sg_selective_d := Certify_Selective nat;
+       sg_idempotent_d := Certify_Idempotent nat;
+       sg_exists_id_d := Certify_Exists_Id nat 0;
+       sg_exists_ann_d := Certify_Not_Exists_Ann nat;
+       sg_is_left_d := Certify_Not_Is_Left nat (0, 1);
+       sg_is_right_d := Certify_Not_Is_Right nat (1, 0);
+       sg_left_cancel_d := Certify_Not_Left_Cancellative nat (1, (1, 0));
+       sg_right_cancel_d := Certify_Not_Right_Cancellative nat (1, (1, 0));
+       sg_left_constant_d := Certify_Not_Left_Constant nat (0, (1, 0));
+       sg_right_constant_d := Certify_Not_Right_Constant nat (0, (1, 0));
+       sg_anti_left_d := Certify_Not_Anti_Left nat (0, 0);
+       sg_anti_right_d := Certify_Not_Anti_Right nat (0, 0) 
+   |}. 
+
+
+(* 
+  Compute (P2C_sg _ brel_eq_nat bop_plus (sg_proofs_plus)). 
+*) 
+Definition sg_certs_plus : sg_certificates nat
+:= {| 
+       sg_associative := Assert_Associative nat;
+       sg_congruence := Assert_Bop_Congruence nat;
+       sg_commutative_d := Certify_Commutative nat;
+       sg_selective_d := Certify_Not_Selective nat (1, 1);
+       sg_idempotent_d := Certify_Not_Idempotent nat 1;
+       sg_exists_id_d := Certify_Exists_Id nat 0;
+       sg_exists_ann_d := Certify_Not_Exists_Ann nat;
+       sg_is_left_d := Certify_Not_Is_Left nat (0, 1);
+       sg_is_right_d := Certify_Not_Is_Right nat (1, 0);
+       sg_left_cancel_d := Certify_Left_Cancellative nat;
+       sg_right_cancel_d := Certify_Right_Cancellative nat;
+       sg_left_constant_d := Certify_Not_Left_Constant nat (0, (0, 1));
+       sg_right_constant_d := Certify_Not_Right_Constant nat (0, (0, 1));
+       sg_anti_left_d := Certify_Not_Anti_Left nat (0, 0);
+       sg_anti_right_d := Certify_Not_Anti_Right nat (0, 0)
 
    |}. 
 
+
+(* 
+  Compute (P2C_sg _ brel_eq_nat bop_times (sg_proofs_times)). 
 *) 
+Definition sg_certs_times : sg_certificates nat
+:= {| 
+       sg_associative := Assert_Associative nat;
+       sg_congruence := Assert_Bop_Congruence nat;
+       sg_commutative_d := Certify_Commutative nat;
+       sg_selective_d := Certify_Not_Selective nat (2, 2);
+       sg_idempotent_d := Certify_Not_Idempotent nat 2;
+       sg_exists_id_d := Certify_Exists_Id nat 1;
+       sg_exists_ann_d := Certify_Exists_Ann nat 0;
+       sg_is_left_d := Certify_Not_Is_Left nat (1, 0);
+       sg_is_right_d := Certify_Not_Is_Right nat (0, 1);
+       sg_left_cancel_d := Certify_Not_Left_Cancellative nat (0, (0, 1));
+       sg_right_cancel_d := Certify_Not_Right_Cancellative nat (0, (0, 1));
+       sg_left_constant_d := Certify_Not_Left_Constant nat (1, (0, 1));
+       sg_right_constant_d := Certify_Not_Right_Constant nat (1, (0, 1));
+       sg_anti_left_d := Certify_Not_Anti_Left nat (0, 0);
+       sg_anti_right_d := Certify_Not_Anti_Right nat (0, 0) 
+   |}. 
+
+
+
+(******************) 
+
 Definition sg_CS_certs_and : sg_CS_certificates bool
 := {| 
      sg_CS_associative        := Assert_Associative bool 
@@ -1149,8 +1270,8 @@ Definition bs_certs_max_min : bs_certificates nat :=
 
      bs_left_distributive_d      := Certify_Left_Distributive _ 
    ; bs_right_distributive_d     := Certify_Right_Distributive _ 
-   ; bs_plus_id_is_times_ann_d   := Certify_Not_Plus_Id_Equals_Times_Ann _ 
-   ; bs_times_id_is_plus_ann_d   := Certify_Times_Id_Equals_Plus_Ann _ 
+   ; bs_plus_id_is_times_ann_d   := Certify_Plus_Id_Equals_Times_Ann _ 
+   ; bs_times_id_is_plus_ann_d   := Certify_Not_Times_Id_Equals_Plus_Ann _ 
    ; bs_left_left_absorptive_d   := Certify_Left_Left_Absorptive _ 
    ; bs_left_right_absorptive_d  := Certify_Left_Right_Absorptive _ 
    ; bs_right_left_absorptive_d  := Certify_Right_Left_Absorptive _ 
@@ -1161,8 +1282,8 @@ Definition bs_certs_min_max : bs_certificates nat :=
   {| 
      bs_left_distributive_d      := Certify_Left_Distributive _ 
    ; bs_right_distributive_d     := Certify_Right_Distributive _ 
-   ; bs_plus_id_is_times_ann_d   := Certify_Plus_Id_Equals_Times_Ann _ 
-   ; bs_times_id_is_plus_ann_d   := Certify_Not_Times_Id_Equals_Plus_Ann _ 
+   ; bs_plus_id_is_times_ann_d   := Certify_Not_Plus_Id_Equals_Times_Ann _ 
+   ; bs_times_id_is_plus_ann_d   := Certify_Times_Id_Equals_Plus_Ann _ 
    ; bs_left_left_absorptive_d   := Certify_Left_Left_Absorptive _ 
    ; bs_left_right_absorptive_d  := Certify_Left_Right_Absorptive _ 
    ; bs_right_left_absorptive_d  := Certify_Right_Left_Absorptive _ 
@@ -1183,5 +1304,46 @@ Definition bs_certs_min_plus : bs_certificates nat :=
   |}. 
 
 
+Definition bs_certs_max_plus : bs_certificates nat := 
+  {| 
+     bs_left_distributive_d      := Certify_Left_Distributive _ 
+   ; bs_right_distributive_d     := Certify_Right_Distributive _ 
+   ; bs_plus_id_is_times_ann_d   := Certify_Not_Plus_Id_Equals_Times_Ann _ 
+   ; bs_times_id_is_plus_ann_d   := Certify_Not_Times_Id_Equals_Plus_Ann _ 
+   ; bs_left_left_absorptive_d   := Certify_Not_Left_Left_Absorptive _ (0, 1) 
+   ; bs_left_right_absorptive_d  := Certify_Not_Left_Right_Absorptive _ (0, 1) 
+   ; bs_right_left_absorptive_d  := Certify_Not_Right_Left_Absorptive _ (0, 1) 
+   ; bs_right_right_absorptive_d := Certify_Not_Right_Right_Absorptive _ (0, 1) 
+  |}. 
 
+
+
+Definition bs_certs_union_intersect : ∀ (S : Type), bs_certificates S 
+:= λ S, 
+  {| 
+
+     bs_left_distributive_d      := Certify_Left_Distributive _ 
+   ; bs_right_distributive_d     := Certify_Right_Distributive _ 
+   ; bs_plus_id_is_times_ann_d   := Certify_Plus_Id_Equals_Times_Ann _ 
+   ; bs_times_id_is_plus_ann_d   := Certify_Times_Id_Equals_Plus_Ann _ 
+   ; bs_left_left_absorptive_d   := Certify_Left_Left_Absorptive _ 
+   ; bs_left_right_absorptive_d  := Certify_Left_Right_Absorptive _ 
+   ; bs_right_left_absorptive_d  := Certify_Right_Left_Absorptive _ 
+   ; bs_right_right_absorptive_d := Certify_Right_Right_Absorptive _ 
+  |}. 
+
+
+Definition bs_certs_intersect_union : ∀ (S : Type), bs_certificates S 
+:= λ S, 
+  {| 
+
+     bs_left_distributive_d      := Certify_Left_Distributive _ 
+   ; bs_right_distributive_d     := Certify_Right_Distributive _ 
+   ; bs_plus_id_is_times_ann_d   := Certify_Plus_Id_Equals_Times_Ann _ 
+   ; bs_times_id_is_plus_ann_d   := Certify_Times_Id_Equals_Plus_Ann _ 
+   ; bs_left_left_absorptive_d   := Certify_Left_Left_Absorptive _ 
+   ; bs_left_right_absorptive_d  := Certify_Left_Right_Absorptive _ 
+   ; bs_right_left_absorptive_d  := Certify_Right_Left_Absorptive _ 
+   ; bs_right_right_absorptive_d := Certify_Right_Right_Absorptive _ 
+  |}. 
 

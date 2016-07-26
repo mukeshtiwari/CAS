@@ -97,7 +97,63 @@ Cd "extraction".
 
 Separate Extraction 
 
-   (* casts *) 
+   (* eqv *) 
+   eqv_eq_bool
+   eqv_eq_nat
+   eqv_add_constant
+   eqv_list
+   eqv_set 
+   eqv_product
+   eqv_sum
+
+   (* sg *) 
+   sg_times
+   sg_plus
+   sg_and
+   sg_or 
+   sg_min
+   sg_max
+   sg_concat
+   sg_left
+   sg_right
+   sg_add_id
+   sg_add_ann
+   sg_left_sum
+   sg_right_sum
+   sg_product
+   sg_llex
+   sg_union
+   sg_intersect 
+
+   sg_C_times
+   sg_C_add_ann
+   sg_C_left_sum
+   sg_C_right_sum
+   sg_C_product
+   sg_C_llex
+
+   sg_CS_and
+   sg_CS_or 
+   sg_CS_min
+   sg_CS_max
+   sg_CS_add_id
+   sg_CS_add_ann
+   sg_CS_left_sum
+   sg_CS_right_sum
+   sg_CS_llex
+   sg_CS_min_with_infinity
+   sg_CS_max_with_infinity
+
+   sg_CI_add_id
+   sg_CI_add_ann
+   sg_CI_left_sum
+   sg_CI_right_sum
+   sg_CI_product
+   sg_CI_llex
+
+   sg_CK_plus
+
+   (* sg casts *) 
    sg_from_sg_C
    sg_C_from_sg_CI
    sg_CI_from_sg_CS
@@ -115,82 +171,25 @@ Separate Extraction
    sg_CS_option_from_sg_C
    sg_CS_option_from_sg
 
-   (* eqv *) 
-   eqv_eq_bool
-   eqv_eq_nat
-   eqv_add_constant
-   eqv_list
-   eqv_set 
-   eqv_product
-   eqv_sum
-
-   (* sg *) 
-   sg_C_times
-   sg_CK_plus
-
-   sg_CS_and
-   sg_CS_or 
-   sg_CS_min
-   sg_CS_max
-
-   sg_concat
-   sg_left
-   sg_right
-
-   sg_add_id
-   sg_C_add_id
-   sg_CI_add_id
-   sg_CS_add_id
-
-   sg_add_ann
-   sg_C_add_ann
-   sg_CI_add_ann
-   sg_CS_add_ann
-
-   sg_left_sum
-   sg_C_left_sum
-   sg_CI_left_sum
-   sg_CS_left_sum
-   sg_right_sum
-   sg_C_right_sum
-   sg_CI_right_sum
-   sg_CS_right_sum
-
-   sg_product
-   sg_C_product
-   sg_CI_product
-
-   sg_llex
-   sg_C_llex
-   sg_CI_llex
-   sg_CS_llex
-
-   sg_union
-   sg_intersect 
-(*
-   sg_CI_union_with_ann
-   sg_CI_intersect_with_id
-*) 
-   sg_CS_min_with_infinity
-   sg_CS_max_with_infinity
-
    (* bs *) 
-   bs_add_zero
-   bs_add_one 
-   bs_product
-(*
    bs_and_or 
    bs_or_and 
-
    bs_min_max 
    bs_max_min
    bs_min_plus
    bs_max_plus
-   bs_min_times 
 
    bs_union_intersect 
    bs_intersect_union 
 
+   bs_add_zero
+   bs_add_one 
+   bs_product
+
+(*
+
+   bs_min_times 
+   bs_max_times 
    bs_llex
    bs_CS_llex
 *)    .

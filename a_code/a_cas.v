@@ -116,6 +116,64 @@ Definition A_eqv_sum : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S + T)
 
 (* basics *) 
 
+
+
+Definition A_sg_and : A_sg bool
+:= {| 
+     A_sg_eq         := A_eqv_eq_bool
+   ; A_sg_bop         := bop_and
+   ; A_sg_proofs      := sg_proofs_and
+   ; A_sg_ast         := Ast_sg_and 
+   |}. 
+
+
+Definition A_sg_or : A_sg bool
+:= {| 
+     A_sg_eq         := A_eqv_eq_bool
+   ; A_sg_bop         := bop_or
+   ; A_sg_proofs      := sg_proofs_or
+   ; A_sg_ast         := Ast_sg_or 
+   |}. 
+
+Definition A_sg_min : A_sg nat 
+:= {| 
+     A_sg_eq         := A_eqv_eq_nat 
+   ; A_sg_bop         := bop_min 
+   ; A_sg_proofs      := sg_proofs_min 
+   ; A_sg_ast         := Ast_sg_min 
+   |}. 
+
+Definition A_sg_max : A_sg nat 
+:= {| 
+     A_sg_eq         := A_eqv_eq_nat 
+   ; A_sg_bop         := bop_max
+   ; A_sg_proofs      := sg_proofs_max
+   ; A_sg_ast         := Ast_sg_max
+   |}. 
+
+
+
+Definition A_sg_times : A_sg nat 
+:= {| 
+     A_sg_eq        := A_eqv_eq_nat 
+   ; A_sg_bop        := bop_times
+   ; A_sg_proofs     := sg_proofs_times
+   ; A_sg_ast        := Ast_sg_times
+   |}. 
+
+
+Definition A_sg_plus : A_sg nat 
+:= {| 
+     A_sg_eq         := A_eqv_eq_nat 
+   ; A_sg_bop         := bop_plus
+   ; A_sg_proofs      := sg_proofs_plus
+   ; A_sg_ast         := Ast_sg_plus 
+   |}. 
+
+
+
+
+
 Definition A_sg_CS_and : A_sg_CS bool
 := {| 
      A_sg_CS_eqv         := A_eqv_eq_bool
@@ -747,6 +805,18 @@ Definition A_bs_min_plus : A_bs nat :=
 ; A_bs_times_proofs := sg_proofs_plus
 ; A_bs_proofs       := bs_proofs_min_plus
 ; A_bs_ast          := Ast_bs_min_plus
+|}.
+
+
+Definition A_bs_max_plus : A_bs nat := 
+{|
+  A_bs_eqv          := A_eqv_eq_nat 
+; A_bs_plus         := bop_max
+; A_bs_times        := bop_plus
+; A_bs_plus_proofs  := sg_proofs_max
+; A_bs_times_proofs := sg_proofs_plus
+; A_bs_proofs       := bs_proofs_max_plus
+; A_bs_ast          := Ast_bs_max_plus
 |}.
 
 

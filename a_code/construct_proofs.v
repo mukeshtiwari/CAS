@@ -2629,71 +2629,21 @@ Definition bs_proofs_min_plus : bs_proofs nat brel_eq_nat bop_min bop_plus :=
   |}. 
 
 
-
-
-
-(* 
-
-Definition sg_sg_LALD_min_plus_proofs : sg_sg_LALD_proofs nat brel_eq_nat bop_min bop_plus := 
+Definition bs_proofs_max_plus : bs_proofs nat brel_eq_nat bop_max bop_plus := 
   {| 
-     A_sg_sg_LALD_left_distributive      := bop_min_plus_left_distributive
-   ; A_sg_sg_LALD_left_absorption        := bops_min_plus_left_absorption
-    (* bops_id_equals_ann_decidable nat brel_eq_nat bop_min bop_plus *) 
-   ; A_sg_sg_LALD_plus_id_is_times_ann_d := inr _ bop_min_plus_not_id_equals_ann
-    (* bops_id_equals_ann_decidable nat brel_eq_nat bop_plus bop_min *) 
-   ; A_sg_sg_LALD_times_id_is_plus_ann_d := inl _ bop_plus_min_id_equals_ann
+     A_bs_left_distributive_d      := inl _ bop_max_plus_left_distributive
+   ; A_bs_right_distributive_d     := inl _ bop_max_plus_right_distributive
+
+   ; A_bs_plus_id_is_times_ann_d   := inr _ bop_max_plus_not_id_equals_ann
+   ; A_bs_times_id_is_plus_ann_d   := inr _ bop_plus_max_not_id_equals_ann
+
+   ; A_bs_left_left_absorptive_d   := inr _ bops_max_plus_not_left_left_absorptive
+   ; A_bs_left_right_absorptive_d  := inr _ bops_max_plus_not_left_right_absorptive
+   ; A_bs_right_left_absorptive_d  := inr _ bops_max_plus_not_right_left_absorptive
+   ; A_bs_right_right_absorptive_d := inr _ bops_max_plus_not_right_right_absorptive
   |}. 
 
 
-Definition sg_sg_LD_max_plus_proofs : sg_sg_LD_proofs nat brel_eq_nat bop_max bop_plus := 
-  {| 
-     A_sg_sg_LD_left_distributive      := bop_max_plus_left_distributive
-   ; A_sg_sg_LD_left_absorption_d      := inr _ bops_max_plus_not_left_absorption
-   ; A_sg_sg_LD_right_absorption_d     := inr _ bops_max_plus_not_right_absorption
-    (* bops_id_equals_ann_decidable nat brel_eq_nat bop_max bop_plus *) 
-   ; A_sg_sg_LD_plus_id_is_times_ann_d := inr _ bop_max_plus_not_id_equals_ann
-    (* bops_id_equals_ann_decidable nat brel_eq_nat bop_plus bop_max *) 
-   ; A_sg_sg_LD_times_id_is_plus_ann_d := inr _ bop_plus_max_not_id_equals_ann
-  |}. 
-
-Definition sg_sg_LALD_and_or_proofs : sg_sg_LALD_proofs bool  brel_eq_bool bop_and bop_or := 
-  {| 
-     A_sg_sg_LALD_left_distributive      := bops_and_or_left_distributive
-   ; A_sg_sg_LALD_left_absorption        := bops_and_or_left_absorptive
-   ; A_sg_sg_LALD_plus_id_is_times_ann_d := inl _ bops_and_or_id_equals_ann
-   ; A_sg_sg_LALD_times_id_is_plus_ann_d := inl _ bops_and_or_ann_equals_id 
-  |}. 
-
-
-Definition sg_sg_LALD_or_and_proofs : sg_sg_LALD_proofs bool brel_eq_bool bop_or bop_and := 
-  {| 
-     A_sg_sg_LALD_left_distributive      := bops_or_and_left_distributive
-   ; A_sg_sg_LALD_left_absorption        := bops_or_and_left_absorptive
-   ; A_sg_sg_LALD_plus_id_is_times_ann_d := inl _ bops_or_and_id_equals_ann
-   ; A_sg_sg_LALD_times_id_is_plus_ann_d := inl _ bops_or_and_ann_equals_id 
-  |}. 
-
-
-Definition sg_sg_LALD_max_min_proofs : sg_sg_LALD_proofs nat brel_eq_nat bop_max bop_min := 
-  {| 
-     A_sg_sg_LALD_left_distributive      := bops_max_min_left_distributive
-   ; A_sg_sg_LALD_left_absorption        := bops_max_min_left_absorptive
-   ; A_sg_sg_LALD_plus_id_is_times_ann_d := inl _ bops_max_min_id_equals_ann
-   ; A_sg_sg_LALD_times_id_is_plus_ann_d := inr _ bops_max_min_not_ann_equals_id 
-  |}. 
-
-
-Definition sg_sg_LALD_min_max_proofs : sg_sg_LALD_proofs nat brel_eq_nat bop_min bop_max := 
-  {| 
-     A_sg_sg_LALD_left_distributive      := bops_min_max_left_distributive
-   ; A_sg_sg_LALD_left_absorption        := bops_min_max_left_absorptive
-   ; A_sg_sg_LALD_plus_id_is_times_ann_d := inr _ bops_min_max_not_id_equals_ann
-   ; A_sg_sg_LALD_times_id_is_plus_ann_d := inl _ bops_min_max_ann_equals_id
-  |}. 
-
-
-
-*) 
 
 Definition bs_proofs_add_one : 
   ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S), 
@@ -2755,60 +2705,6 @@ Definition bs_proofs_add_one :
 
 |}. 
 
-(*
-Definition sg_CS_sg_proofs_add_one : 
-  ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S), 
-     eqv_proofs S rS -> 
-     sg_CS_proofs S rS plusS -> 
-     bs_proofs S rS plusS timesS -> 
-        bs_proofs 
-           (with_constant S) 
-           (brel_add_constant S rS c)
-           (bop_add_ann S plusS c)
-           (bop_add_id S timesS c)
-:= λ S rS c plusS timesS eqvS ppS pS, 
-{|
-  A_bs_left_distributive_d    := 
-     bops_add_one_left_distributive_decide S rS c plusS timesS 
-        (A_eqv_congruence S rS eqvS)
-        (A_eqv_reflexive S rS eqvS)
-        (A_eqv_symmetric S rS eqvS)
-        (A_sg_CS_commutative S rS plusS ppS)
-        (inl _(bop_selective_implies_idempotent S rS plusS (A_sg_CS_selective S rS plusS ppS)))
-        (A_bs_left_absorptive_d S rS plusS timesS pS)
-        (A_bs_left_distributive_d S rS plusS timesS pS) 
-; A_bs_right_distributive_d   := 
-     bops_add_one_right_distributive_decide S rS c plusS timesS 
-        (A_eqv_congruence S rS eqvS)
-        (A_eqv_reflexive S rS eqvS)
-        (A_eqv_symmetric S rS eqvS)
-        (A_sg_CS_commutative S rS plusS ppS) 
-        (inl _(bop_selective_implies_idempotent S rS plusS (A_sg_CS_selective S rS plusS ppS)))
-        (A_bs_right_absorptive_d S rS plusS timesS pS)
-        (A_bs_right_distributive_d S rS plusS timesS pS) 
-; A_bs_left_absorptive_d      := 
-     bops_add_one_left_absorptive_decide S rS c plusS timesS 
-        (A_eqv_symmetric S rS eqvS)
-        (inl _(bop_selective_implies_idempotent S rS plusS (A_sg_CS_selective S rS plusS ppS)))
-        (A_bs_left_absorptive_d S rS plusS timesS pS)
-; A_bs_right_absorptive_d     := 
-     bops_add_one_right_absorptive_decide S rS c plusS timesS 
-        (A_eqv_symmetric S rS eqvS)
-        (inl _(bop_selective_implies_idempotent S rS plusS (A_sg_CS_selective S rS plusS ppS)))
-        (A_bs_right_absorptive_d S rS plusS timesS pS)
-
-; A_bs_plus_id_is_times_ann_d := 
-    bops_add_one_id_equals_ann_decide S rS 
-      (brel_get_witness S rS (brel_nontrivial_witness S rS (A_eqv_nontrivial S rS eqvS)))
-      c plusS timesS 
-      (A_eqv_reflexive S rS eqvS)
-      (A_bs_plus_id_is_times_ann_d S rS plusS timesS pS)
-; A_bs_times_id_is_plus_ann_d :=  
-     inl _ (bops_add_id_add_ann_id_equals_ann S rS c timesS plusS (A_eqv_reflexive S rS eqvS))
-
-|}. 
-
-*)  
 
 Definition bs_proofs_add_zero : 
   ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S), 

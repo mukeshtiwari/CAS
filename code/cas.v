@@ -104,6 +104,62 @@ Definition eqv_sum : ∀ (S T : Type),  eqv S -> eqv T -> eqv (S + T)
 (* basics *) 
 
 (*CC*) 
+Definition sg_times : sg nat 
+:= {| 
+     sg_eq   := eqv_eq_nat 
+   ; sg_bop   := bop_times
+   ; sg_certs := sg_certs_times
+   ; sg_ast   := Ast_sg_times
+   |}. 
+
+(*CC*) 
+Definition sg_plus : sg nat 
+:= {| 
+     sg_eq   := eqv_eq_nat 
+   ; sg_bop   := bop_plus
+   ; sg_certs := sg_certs_plus
+   ; sg_ast   := Ast_sg_plus
+   |}. 
+
+(*CC*) 
+Definition sg_max : sg nat 
+:= {| 
+     sg_eq   := eqv_eq_nat 
+   ; sg_bop   := bop_max
+   ; sg_certs := sg_certs_max
+   ; sg_ast   := Ast_sg_max
+   |}. 
+
+(*CC*) 
+Definition sg_min : sg nat 
+:= {| 
+     sg_eq   := eqv_eq_nat 
+   ; sg_bop   := bop_min
+   ; sg_certs := sg_certs_min
+   ; sg_ast   := Ast_sg_min
+   |}. 
+
+(*CC*) 
+Definition sg_and : sg bool
+:= {| 
+     sg_eq   := eqv_eq_bool
+   ; sg_bop   := bop_and
+   ; sg_certs := sg_certs_and
+   ; sg_ast   := Ast_sg_and
+   |}. 
+
+(*CC*) 
+Definition sg_or : sg bool
+:= {| 
+     sg_eq   := eqv_eq_bool
+   ; sg_bop   := bop_or
+   ; sg_certs := sg_certs_or
+   ; sg_ast   := Ast_sg_or
+   |}. 
+
+
+
+(*CC*) 
 Definition sg_C_times : sg_C nat 
 := {| 
      sg_C_eqv   := eqv_eq_nat 
@@ -579,7 +635,7 @@ Definition sg_CS_llex : ∀ (S T : Type),  sg_CS S -> sg_CS T -> sg_CS (S * T)
 
 
 
-
+(*CC*) 
 (* This is here because we have already constructed a new eqv structure. HACK. *) 
 Definition sg_certs_union : 
    ∀ (S : Type), S ->             (* HACK *) 
@@ -624,6 +680,7 @@ let ann := inl _ c in
 end. 
 
 
+(*CC*) 
 Definition sg_union : ∀ (S : Type) (c : cas_constant),  eqv S -> sg (with_constant (finite_set S)) 
 := λ S c eqvS, 
 match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
@@ -641,7 +698,7 @@ let b := bop_add_ann (finite_set S) (bop_union S (eqv_eq S eqvS)) c in
 end. 
 
 
-
+(*CC*) 
 (* This is here because we have already constructed a new eqv structure. HACK. *) 
 Definition sg_certs_intersect : 
    ∀ (S : Type), S ->             (* HACK *) 
@@ -685,7 +742,7 @@ let ann := inr _ nil in
 |}
 end. 
 
-
+(*CC*) 
 Definition sg_intersect : ∀ (S : Type) (c : cas_constant),  eqv S -> sg (with_constant (finite_set S)) 
 := λ S c eqvS, 
 match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
@@ -703,27 +760,6 @@ let b := bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c in
 end. 
 
 
-(*
-
-(*CC*) 
-Definition sg_CI_union_with_ann : ∀ (S : Type) (c : cas_constant),  eqv S -> sg_CI (with_constant (finite_set S)) 
-:= λ S c eqvS, 
-   {| 
-     sg_CI_eqv   := eqv_add_constant (finite_set S) (eqv_set S eqvS) c
-   ; sg_CI_bop   := bop_add_ann (finite_set S) (bop_union S (eqv_eq S eqvS)) c
-   ; sg_CI_certs := sg_CI_certs_union_with_ann S c (eqv_certs S eqvS)
-   ; sg_CI_ast   := Ast_sg_CI_union_with_ann (c, eqv_ast S eqvS)
-   |}. 
-
-Definition sg_CI_intersect_with_id : ∀ (S : Type) (c : cas_constant),  eqv S -> sg_CI (with_constant (finite_set S)) 
-:= λ S c eqvS, 
-   {| 
-     sg_CI_eqv   := eqv_add_constant (finite_set S) (eqv_set S eqvS) c
-   ; sg_CI_bop   := bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c
-   ; sg_CI_certs := sg_CI_certs_intersect_with_id S c (eqv_certs S eqvS)
-   ; sg_CI_ast   := Ast_sg_CI_intersect_with_id (c, eqv_ast S eqvS)
-   |}. 
-*) 
 
 (*CC*) 
 (* Need module for derived structures ... *) 
@@ -733,29 +769,6 @@ Definition sg_CS_min_with_infinity : sg_CS (with_constant nat) :=
 Definition sg_CS_max_with_infinity : sg_CS (with_constant nat) := 
            sg_CS_add_ann nat cas_infinity sg_CS_max. 
 
-
-
-(* Min PLUS 
-
-Definition bsg_min_plus : bsg nat := 
-   {| 
-     bsg_eq          := brel_eq_nat 
-   ; bsg_plus        := bop_min 
-   ; bsg_times       := bop_plus 
-   ; bsg_eqv_certs   := eqv_certs_eq_nat 
-   ; bsg_plus_certs  := sg_certs_from_sg_CS_certs _ sg_CS_certs_min
-   ; bsg_times_certs := sg_certs_from_csg_certs _ csg_certs_plus   
-   ; bsg_bsg_certs   := bsg_certs_min_plus
-   ; bsg_ast         := BSG_min_plus
-   |}. 
-
-*) 
-
-(* MAX PLUS *) 
-
-(* MAX MIN *) 
-
-(* MIN MAX *) 
 
 (*CC*) 
 Definition bs_add_one : ∀ (S : Type), bs S -> cas_constant -> bs (with_constant S) 
@@ -1015,8 +1028,8 @@ Definition sg_CI_sg_llex : ∀ (S T : Type),  sg_CS_sg S -> sg_CI_sg T -> sg_CI_
 
 ******************) 
 
-(*
 
+(*CC*) 
 Definition bs_and_or : bs bool := 
 {|
   bs_eqv          := eqv_eq_bool
@@ -1029,6 +1042,8 @@ Definition bs_and_or : bs bool :=
 |}.
 
 
+
+(*CC*) 
 Definition bs_or_and : bs bool := 
 {|
   bs_eqv          := eqv_eq_bool
@@ -1041,6 +1056,7 @@ Definition bs_or_and : bs bool :=
 |}.
 
 
+(*CC*) 
 Definition bs_min_max : bs nat := 
 {|
   bs_eqv          := eqv_eq_nat 
@@ -1052,6 +1068,7 @@ Definition bs_min_max : bs nat :=
 ; bs_ast          := Ast_bs_min_max
 |}.
 
+(*CC*) 
 Definition bs_max_min : bs nat := 
 {|
   bs_eqv          := eqv_eq_nat 
@@ -1063,6 +1080,7 @@ Definition bs_max_min : bs nat :=
 ; bs_ast          := Ast_bs_max_min
 |}.
 
+(*CC*) 
 Definition bs_min_plus : bs nat := 
 {|
   bs_eqv          := eqv_eq_nat 
@@ -1073,5 +1091,63 @@ Definition bs_min_plus : bs nat :=
 ; bs_certs       := bs_certs_min_plus
 ; bs_ast          := Ast_bs_min_plus
 |}.
-*) 
+
+
+(*CC*) 
+Definition bs_max_plus : bs nat := 
+{|
+  bs_eqv          := eqv_eq_nat 
+; bs_plus         := bop_max
+; bs_times        := bop_plus
+; bs_plus_certs  := sg_certs_max
+; bs_times_certs := sg_certs_plus
+; bs_certs       := bs_certs_max_plus
+; bs_ast          := Ast_bs_max_plus
+|}.
+
+
+
+(*CC*) 
+Definition bs_union_intersect : ∀ (S : Type) (c : cas_constant),  eqv S -> bs (with_constant (finite_set S)) 
+:= λ S c eqvS, 
+let eqv   := eqv_add_constant (finite_set S) (eqv_set S eqvS) c  in 
+let plus  := bop_add_ann (finite_set S) (bop_union S (eqv_eq S eqvS)) c  in 
+let times :=  bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c in 
+match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
+      certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqvS)) 
+with 
+| Certify_Witness x, Certify_Negate g =>  
+{|
+  bs_eqv         := eqv
+; bs_plus        := plus
+; bs_times       := times 
+; bs_plus_certs  := sg_certs_union S x g c eqv plus
+; bs_times_certs := sg_certs_intersect S x g c eqv times
+; bs_certs       := bs_certs_union_intersect _ 
+; bs_ast         := Ast_bs_union_intersect (c, eqv_ast _ eqvS)
+|}
+end.
+
+
+(*CC*) 
+Definition bs_intersect_union : ∀ (S : Type) (c : cas_constant),  eqv S -> bs (with_constant (finite_set S)) 
+:= λ S c eqvS, 
+let eqv   := eqv_add_constant (finite_set S) (eqv_set S eqvS) c  in 
+let times  := bop_add_ann (finite_set S) (bop_union S (eqv_eq S eqvS)) c  in 
+let plus :=  bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c in 
+match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
+      certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqvS)) 
+with 
+| Certify_Witness x, Certify_Negate g =>  
+{|
+  bs_eqv         := eqv
+; bs_plus        := plus
+; bs_times       := times
+; bs_plus_certs  := sg_certs_intersect S x g c eqv plus
+; bs_times_certs := sg_certs_union S x g c eqv times
+; bs_certs       := bs_certs_intersect_union _ 
+; bs_ast         := Ast_bs_intersect_union (c, eqv_ast _ eqvS)
+|}
+end.
+
 

@@ -353,89 +353,6 @@ Proof. intros S T rS rT bS bT eS eT pS pT.
        reflexivity. 
 Defined. 
 
-(*
-Lemma correct_sg_certs_product_new : 
-      ∀ (S T : Type) 
-        (rS : brel S) 
-        (rT : brel T) 
-        (bS : binary_op S) 
-        (bT : binary_op T) 
-        (eS : eqv_proofs S rS) 
-        (eT : eqv_proofs T rT)
-        (pS : sg_proofs_new S rS bS) 
-        (pT : sg_proofs_new T rT bT),
-      sg_certs_product_new S T (P2C_eqv S rS eS)
-                           (P2C_eqv T rT eT) 
-                           (P2C_sg_new S rS bS pS) 
-                           (P2C_sg_new T rT bT pT) 
-      = 
-      P2C_sg_new (S * T) (brel_product S T rS rT) 
-                     (bop_product S T bS bT) 
-                     (sg_proofs_product_new S T rS rT bS bT eS eT pS pT). 
-Proof. intros S T rS rT bS bT eS eT pS pT. 
-       destruct pS; destruct pT; destruct eS; destruct eT.
-       unfold sg_proofs_product_new, sg_certs_product_new, P2C_sg_new, P2C_eqv; simpl. 
-       rewrite correct_check_idempotent_product_new. 
-       rewrite correct_check_is_right_product_new. 
-       rewrite correct_check_is_left_product_new. 
-       rewrite correct_check_commutative_product_new.
-       rewrite correct_check_exists_id_product_new.  
-       rewrite correct_check_exists_ann_product_new. 
-       rewrite correct_check_selective_product_new. 
-       rewrite correct_check_left_cancel_product_new. 
-       rewrite correct_check_right_cancel_product_new. 
-       rewrite correct_check_left_constant_product_new. 
-       rewrite correct_check_right_constant_product_new. 
-       rewrite correct_check_anti_left_product_new. 
-       rewrite correct_check_anti_right_product_new. 
-       reflexivity. 
-Defined. 
-*) 
-
-(* ????
-
-
-Lemma  correct_sg_C_certs_product : 
-      ∀ (S T : Type) 
-        (rS : brel S) 
-        (rT : brel T) 
-        (bS : binary_op S) 
-        (bT : binary_op T) 
-        (eS : eqv_proofs S rS) 
-        (eT : eqv_proofs T rT)
-        (pS : sg_C_proofs S rS bS) 
-        (pT : sg_C_proofs T rT bT),
-      sg_C_certs_product S T rS rT bS bT 
-         (P2C_eqv S rS eS)
-         (P2C_eqv T rT eT) 
-         (P2C_sg_C S rS bS pS) 
-         (P2C_sg_C T rT bT pT) 
-      = 
-      P2C_sg_C (S * T) 
-         (brel_product S T rS rT) 
-         (bop_product S T bS bT) 
-         (sg_C_proofs_product S T rS rT bS bT eS eT pS pT). 
-Proof. intros S T rS rT bS bT eS eT pS pT. 
-       destruct pS; destruct pT; destruct eS; destruct eT.
-       unfold sg_proofs_product, sg_certs_product, P2C_sg, P2C_eqv; simpl. 
-       rewrite correct_check_idempotent_product. 
-       rewrite correct_check_is_right_product. 
-       rewrite correct_check_is_left_product. 
-       rewrite correct_check_commutative_product.
-       rewrite correct_check_exists_id_product.  
-       rewrite correct_check_exists_ann_product. 
-       rewrite correct_check_selective_product. 
-       rewrite correct_check_left_cancel_product. 
-       rewrite correct_check_right_cancel_product. 
-       rewrite correct_check_left_constant_product. 
-       rewrite correct_check_right_constant_product. 
-       rewrite correct_check_anti_left_product. 
-       rewrite correct_check_anti_right_product. 
-       reflexivity. 
-Defined. 
-
-*) 
-
 
 Lemma  correct_sg_CK_certs_product : 
       ∀ (S T : Type) 
@@ -865,101 +782,67 @@ Proof. intros S T rS rT bS bT eS eT pS pT.
 Defined. 
 
 
-
-(* SETS *) 
-
-(* 
-Lemma correct_sg_CI_certs_union_with_ann : 
-      ∀ (S : Type) (c : cas_constant) (r : brel S) (Q : eqv_proofs S r), 
-       sg_certs_union S c (P2C_eqv S r Q) 
-       = 
-       P2C_sg (with_constant (finite_set S)) 
-          (brel_add_constant (finite_set S) (brel_set S r) c) 
-          (bop_add_ann (finite_set S) (bop_union S r) c)
-          (sg_proofs_union S r c Q). 
-Proof. intros S c r Q. destruct Q. 
-       destruct A_eqv_nontrivial. 
-       destruct brel_nontrivial_witness as [s sP]. 
-       destruct brel_nontrivial_negate as [f fP]. 
-       unfold sg_certs_union, sg_CI_proofs_union, P2C_sg, P2C_eqv; simpl.
-       reflexivity. 
-Defined. 
-
-
-Lemma correct_sg_certs_intersect_with_id : 
-      ∀ (S : Type) (c : cas_constant) (r : brel S) (Q : eqv_proofs S r), 
-       sg_certs_intersect_with_id S c (P2C_eqv S r Q) 
-       = 
-       P2C_sg (with_constant (finite_set S)) 
-          (brel_add_constant (finite_set S) (brel_set S r) c) 
-          (bop_add_id (finite_set S) (bop_intersect S r) c)
-          (sg_proofs_intersect_with_id S r c Q). 
-Proof. intros S c r Q. destruct Q. 
-       destruct A_eqv_nontrivial. 
-       destruct brel_nontrivial_witness as [s sP]. 
-       destruct brel_nontrivial_negate as [f fP]. 
-       unfold sg_certs_intersect, sg_proofs_intersect, P2C_sg, P2C_eqv;
-       compute;     destruct (fP s) as [L R]; 
-       reflexivity. 
-Defined. 
-
-*) 
-
-(* SG SG 
-
-Lemma  correct_sg_sg_certs_add_zero : 
+Lemma  correct_bs_certs_add_one : 
   ∀ (S : Type) (c : cas_constant) (rS : brel S) 
     (plusS timesS : binary_op S) 
     (eqvS : eqv_proofs S rS)
-    (sg_sgS : sg_sg_proofs S rS plusS timesS), 
-    P2C_sg_sg (with_constant S) 
-       (brel_add_constant S rS c) 
-       (bop_add_id S plusS c) 
-       (bop_add_ann S timesS c) 
-       (sg_sg_proofs_add_zero S rS c plusS timesS eqvS sg_sgS)
-    =
-    sg_sg_certs_add_zero S (P2C_eqv S rS eqvS) (P2C_sg_sg S rS plusS timesS sg_sgS). 
-Proof. intros S c rS plusS timesS eqvS sg_sgS. 
-       unfold sg_sg_certs_add_zero, sg_sg_proofs_add_zero, P2C_sg_sg; simpl. 
-       rewrite bops_add_zero_left_distributive_check_correct. 
-       rewrite bops_add_zero_right_distributive_check_correct. 
-       rewrite bops_add_zero_times_id_equals_plus_ann_check_correct.
-       rewrite (bops_add_zero_left_absorbtive_check_correct S c rS plusS timesS eqvS). 
-       rewrite (bops_add_zero_right_absorbtive_check_correct S c rS plusS timesS eqvS). 
-       reflexivity. 
-Defined. 
-
-
-Lemma  correct_sg_sg_certs_add_one : 
-  ∀ (S : Type) (c : cas_constant) (rS : brel S) 
-    (plusS timesS : binary_op S) 
-    (eqvS : eqv_proofs S rS)
-    (sgS : sg_C_proofs S rS plusS) 
-    (sg_sgS : sg_sg_proofs S rS plusS timesS), 
-    P2C_sg_sg (with_constant S) 
+    (sgS : sg_proofs S rS plusS) 
+    (bsS : bs_proofs S rS plusS timesS), 
+    P2C_bs (with_constant S) 
        (brel_add_constant S rS c) 
        (bop_add_ann S plusS c) 
        (bop_add_id S timesS c) 
-       (sg_sg_proofs_add_one S rS c plusS timesS eqvS sgS sg_sgS)
+       (bs_proofs_add_one S rS c plusS timesS eqvS sgS bsS)
     =
-    sg_sg_certs_add_one S c (P2C_eqv S rS eqvS) (P2C_sg_C S rS plusS sgS) (P2C_sg_sg S rS plusS timesS sg_sgS). 
-Proof. intros S c rS plusS timesS eqvS sgS sg_sgS. 
-       unfold sg_sg_certs_add_one, sg_sg_proofs_add_one, P2C_sg_sg, P2C_eqv, P2C_sg_C; simpl. 
+    bs_certs_add_one S c (P2C_eqv S rS eqvS) (P2C_sg S rS plusS sgS) (P2C_bs S rS plusS timesS bsS). 
+Proof. intros S c rS plusS timesS eqvS sgS bsS. 
+       unfold bs_certs_add_one, bs_proofs_add_one, P2C_bs, P2C_eqv, P2C_sg; simpl. 
        rewrite bops_add_one_left_distributive_check_correct. 
        rewrite bops_add_one_right_distributive_check_correct. 
        rewrite bops_add_one_plus_id_equals_times_ann_check_correct.
-       rewrite (bops_add_one_left_absorbtive_check_correct S c rS plusS timesS 
+
+       rewrite (bops_add_one_left_left_absorbtive_check_correct S c rS plusS timesS 
                   (A_eqv_reflexive S rS eqvS)). 
-       rewrite (bops_add_one_right_absorbtive_check_correct S c rS plusS timesS 
+       rewrite (bops_add_one_left_right_absorbtive_check_correct S c rS plusS timesS 
                   (A_eqv_reflexive S rS eqvS)). 
+       rewrite (bops_add_one_right_left_absorbtive_check_correct S c rS plusS timesS 
+                  (A_eqv_reflexive S rS eqvS)). 
+       rewrite (bops_add_one_right_right_absorbtive_check_correct S c rS plusS timesS 
+                  (A_eqv_reflexive S rS eqvS)). 
+
        reflexivity. 
-       apply (A_sg_C_commutative S rS plusS sgS). 
-       apply (A_sg_C_commutative S rS plusS sgS). 
+Defined. 
+
+Lemma  correct_bs_certs_add_zero : 
+  ∀ (S : Type) (c : cas_constant) (rS : brel S) 
+    (plusS timesS : binary_op S) 
+    (eqvS : eqv_proofs S rS)
+    (bsS : bs_proofs S rS plusS timesS), 
+    P2C_bs (with_constant S) 
+       (brel_add_constant S rS c) 
+       (bop_add_id S plusS c) 
+       (bop_add_ann S timesS c) 
+       (bs_proofs_add_zero S rS c plusS timesS eqvS bsS)
+    =
+    bs_certs_add_zero S (P2C_eqv S rS eqvS) (P2C_bs S rS plusS timesS bsS). 
+Proof. intros S c rS plusS timesS eqvS bsS. 
+       unfold bs_certs_add_zero, bs_proofs_add_zero, P2C_bs, P2C_eqv, P2C_sg; simpl. 
+       rewrite bops_add_zero_left_distributive_check_correct. 
+       rewrite bops_add_zero_right_distributive_check_correct. 
+
+       rewrite bops_add_zero_times_id_equals_plus_ann_check_correct.
+
+       rewrite (bops_add_zero_left_left_absorbtive_check_correct S c rS plusS timesS eqvS). 
+       rewrite (bops_add_zero_left_right_absorbtive_check_correct S c rS plusS timesS eqvS). 
+       rewrite (bops_add_zero_right_left_absorbtive_check_correct S c rS plusS timesS eqvS). 
+       rewrite (bops_add_zero_right_right_absorbtive_check_correct S c rS plusS timesS eqvS). 
+
+       reflexivity. 
 Defined. 
 
 
 
-Lemma  correct_sg_sg_certs_product : 
+Lemma  correct_bs_certs_product : 
   ∀ (S T: Type) 
     (rS : brel S) 
     (rT : brel T) 
@@ -967,32 +850,35 @@ Lemma  correct_sg_sg_certs_product :
     (plusT timesT : binary_op T)
     (eqvS : eqv_proofs S rS)
     (eqvT :  eqv_proofs T rT)
-    (sg_sgS : sg_sg_proofs S rS plusS timesS)
-    (sg_sgT : sg_sg_proofs T rT plusT timesT), 
-    sg_sg_certs_product S T 
+    (bsS : bs_proofs S rS plusS timesS)
+    (bsT : bs_proofs T rT plusT timesT), 
+    bs_certs_product S T 
        (P2C_eqv S rS eqvS) 
        (P2C_eqv T rT eqvT) 
-       (P2C_sg_sg S rS plusS timesS sg_sgS) 
-       (P2C_sg_sg T rT plusT timesT sg_sgT)
+       (P2C_bs S rS plusS timesS bsS) 
+       (P2C_bs T rT plusT timesT bsT)
     =
-    P2C_sg_sg (S * T) 
+    P2C_bs (S * T) 
        (brel_product S T rS rT) 
        (bop_product S T plusS plusT) 
        (bop_product S T timesS timesT) 
-       (sg_sg_proofs_product S T rS rT plusS timesS plusT timesT eqvS eqvT sg_sgS sg_sgT). 
-Proof. intros S T rS rT plusS timesS plusT timesT eqvS eqvT sg_sgS sg_sgT. 
-       unfold sg_sg_certs_product, sg_sg_proofs_product, P2C_sg_sg; simpl. 
+       (bs_proofs_product S T rS rT plusS timesS plusT timesT eqvS eqvT bsS bsT). 
+Proof. intros S T rS rT plusS timesS plusT timesT eqvS eqvT bsS bsT. 
+       unfold bs_certs_product, bs_proofs_product, P2C_bs; simpl. 
        rewrite bop_product_left_distributive_check_correct. 
        rewrite bop_product_right_distributive_check_correct. 
        rewrite bop_product_plus_id_is_times_ann_check_correct. 
        rewrite bop_product_times_id_equals_plus_ann_check_correct.
-       rewrite bop_product_left_absorbtive_check_correct. 
-       rewrite bop_product_right_absorbtive_check_correct. 
+       rewrite bop_product_left_left_absorbtive_check_correct. 
+       rewrite bop_product_left_right_absorbtive_check_correct. 
+       rewrite bop_product_right_left_absorbtive_check_correct. 
+       rewrite bop_product_right_right_absorbtive_check_correct. 
        reflexivity. 
 Defined. 
 
 
-Lemma  correct_sg_sg_certs_llex_product : 
+(*
+Lemma  correct_bs_certs_llex_product : 
   ∀ (S T: Type) 
     (rS : brel S) 
     (rT : brel T) 
@@ -1004,25 +890,25 @@ Lemma  correct_sg_sg_certs_llex_product :
     (sg_S : sg_proofs S rS timesS)
     (sg_C_T : sg_C_proofs T rT plusT)
     (sg_T : sg_proofs T rT timesT) 
-    (sg_sgS : sg_sg_proofs S rS plusS timesS)
-    (sg_sgT : sg_sg_proofs T rT plusT timesT), 
-    P2C_sg_sg (S * T) 
+    (bsS : bs_proofs S rS plusS timesS)
+    (bsT : bs_proofs T rT plusT timesT), 
+    P2C_bs (S * T) 
        (brel_product S T rS rT) 
        (bop_llex S T rS plusS plusT) 
        (bop_product S T timesS timesT) 
-       (sg_sg_proofs_llex S T rS rT plusS timesS plusT timesT eqvS eqvT 
-	sg_CS_S sg_S sg_C_T sg_T sg_sgS sg_sgT) 
+       (bs_proofs_llex S T rS rT plusS timesS plusT timesT eqvS eqvT 
+	sg_CS_S sg_S sg_C_T sg_T bsS bsT) 
     =
-    sg_sg_certs_llex_product S T rS rT plusS plusT timesT
+    bs_certs_llex_product S T rS rT plusS plusT timesT
        (P2C_eqv S rS eqvS) 
        (P2C_eqv T rT eqvT) 
        (P2C_sg S rS timesS sg_S) 
        (P2C_sg T rT timesT sg_T) 
-       (P2C_sg_sg S rS plusS timesS sg_sgS) 
-       (P2C_sg_sg T rT plusT timesT sg_sgT). 
-Proof. intros S T rS rT plusS timesS plusT timesT eqvS eqvT sg_CS_S sg_S sg_C_T sg_T sg_sgS sg_sgT. 
-       unfold sg_sg_certs_llex_product, sg_sg_proofs_llex. 
-       unfold P2C_sg_sg; simpl. 
+       (P2C_bs S rS plusS timesS bsS) 
+       (P2C_bs T rT plusT timesT bsT). 
+Proof. intros S T rS rT plusS timesS plusT timesT eqvS eqvT sg_CS_S sg_S sg_C_T sg_T bsS bsT. 
+       unfold bs_certs_llex_product, bs_proofs_llex. 
+       unfold P2C_bs; simpl. 
        rewrite bops_llex_product_left_distributive_check_correct. 
        rewrite bops_llex_product_right_distributive_check_correct. 
        rewrite bops_llex_product_plus_id_is_times_ann_check_correct. 
@@ -1031,6 +917,5 @@ Proof. intros S T rS rT plusS timesS plusT timesT eqvS eqvT sg_CS_S sg_S sg_C_T 
        rewrite bops_llex_product_right_absorbtive_check_correct. 
        reflexivity. 
 Defined. 
-
 
 *) 
