@@ -716,23 +716,45 @@ Qed.
 
 
 
-(* 
 
 
-Theorem correct_sg_C_sg_llex : ∀ (S T : Type) (sg_sgS: A_sg_CS_sg S) (sg_sgT : A_sg_C_sg T), 
-   sg_C_sg_llex S T (A2C_sg_CS_sg S sg_sgS) (A2C_sg_C_sg T sg_sgT)
+
+Theorem correct_bs_C_llex_product : 
+      ∀ (S T : Type) 
+        (bsS : A_bs_CS S) 
+        (bsT : A_bs_C T), 
+
+   bs_C_llex_product S T (A2C_bs_CS S bsS) (A2C_bs_C T bsT)
    =
-   A2C_sg_C_sg (S * T) (A_sg_C_sg_llex S T sg_sgS sg_sgT). 
+   A2C_bs_C (S * T) (A_bs_C_llex_product S T bsS bsT). 
+
 Proof. intros S T sg_sgS sg_sgT. 
-       unfold sg_C_sg_llex, A_sg_C_sg_llex, A2C_sg_CS_sg, A2C_sg_C_sg; simpl. 
+       unfold bs_C_llex_product, A_bs_C_llex_product, A2C_bs_CS, A2C_bs_C; simpl. 
        rewrite correct_eqv_product. 
        rewrite correct_sg_C_certs_llex. 
        rewrite correct_sg_certs_product. 
-       rewrite correct_sg_sg_certs_llex_product. 
+       rewrite correct_bs_certs_llex_product. 
        reflexivity. 
 Qed. 
 
 
-*) 
+Theorem correct_bs_CS_llex_product : 
+      ∀ (S T : Type) 
+        (bsS : A_bs_CS S) 
+        (bsT : A_bs_CS T), 
+
+   bs_CS_llex_product S T (A2C_bs_CS S bsS) (A2C_bs_CS T bsT)
+   =
+   A2C_bs_CS (S * T) (A_bs_CS_llex_product S T bsS bsT). 
+
+Proof. intros S T sg_sgS sg_sgT. 
+       unfold bs_CS_llex_product, A_bs_CS_llex_product, A2C_bs_CS; simpl. 
+       rewrite correct_eqv_product. 
+       rewrite correct_sg_CS_certs_llex. 
+       rewrite correct_sg_certs_product. 
+       rewrite correct_bs_certs_llex_product. 
+       reflexivity. 
+Qed. 
+
 
 

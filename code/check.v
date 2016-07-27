@@ -1053,7 +1053,7 @@ Definition bops_llex_product_right_left_absorptive_check :
    ∀ (S T : Type) (t : T),  
      check_right_left_absorptive S -> 
      check_right_left_absorptive T -> 
-     check_anti_right S -> 
+     check_anti_left S -> 
      check_right_left_absorptive (S * T) 
 := λ S T t dS dT alS,  
 match dS with 
@@ -1062,8 +1062,8 @@ match dS with
      | Certify_Right_Left_Absorptive => Certify_Right_Left_Absorptive (S * T) 
      | Certify_Not_Right_Left_Absorptive (t1, t2) => 
        match alS with 
-       | Certify_Anti_Right => Certify_Right_Left_Absorptive (S * T) 
-       | Certify_Not_Anti_Right (s1, s2) => 
+       | Certify_Anti_Left => Certify_Right_Left_Absorptive (S * T) 
+       | Certify_Not_Anti_Left (s1, s2) => 
           Certify_Not_Right_Left_Absorptive (S * T) ((s1, t1), (s2, t2))
        end
      end 

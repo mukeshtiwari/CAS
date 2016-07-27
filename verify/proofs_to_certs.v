@@ -493,6 +493,47 @@ Definition A2C_bs : ∀ (S : Type), A_bs S -> bs S
 |}.
 
 
+
+Definition A2C_bs_C : ∀ (S : Type), A_bs_C S -> bs_C S 
+:= λ S R,
+{|
+  bs_C_eqv         := A2C_eqv S (A_bs_C_eqv S R)
+; bs_C_plus        := A_bs_C_plus S R 
+; bs_C_times       := A_bs_C_times S R 
+; bs_C_plus_certs  := P2C_sg_C S (A_eqv_eq S (A_bs_C_eqv S R)) 
+                                (A_bs_C_plus S R) 
+                                (A_bs_C_plus_proofs S R)
+; bs_C_times_certs := P2C_sg S (A_eqv_eq S (A_bs_C_eqv S R)) 
+                                (A_bs_C_times S R) 
+                                (A_bs_C_times_proofs S R)
+; bs_C_certs       := P2C_bs S (A_eqv_eq S (A_bs_C_eqv S R)) 
+                                   (A_bs_C_plus S R) 
+                                   (A_bs_C_times S R) 
+                                   (A_bs_C_proofs S R)
+; bs_C_ast        := A_bs_C_ast S R
+|}.
+
+
+Definition A2C_bs_CS : ∀ (S : Type), A_bs_CS S -> bs_CS S 
+:= λ S R,
+{|
+  bs_CS_eqv         := A2C_eqv S (A_bs_CS_eqv S R)
+; bs_CS_plus        := A_bs_CS_plus S R 
+; bs_CS_times       := A_bs_CS_times S R 
+; bs_CS_plus_certs  := P2C_sg_CS S (A_eqv_eq S (A_bs_CS_eqv S R)) 
+                                (A_bs_CS_plus S R) 
+                                (A_bs_CS_plus_proofs S R)
+; bs_CS_times_certs := P2C_sg S (A_eqv_eq S (A_bs_CS_eqv S R)) 
+                                (A_bs_CS_times S R) 
+                                (A_bs_CS_times_proofs S R)
+; bs_CS_certs       := P2C_bs S (A_eqv_eq S (A_bs_CS_eqv S R)) 
+                                   (A_bs_CS_plus S R) 
+                                   (A_bs_CS_times S R) 
+                                   (A_bs_CS_proofs S R)
+; bs_CS_ast        := A_bs_CS_ast S R
+|}.
+
+
 (* for testing/demos .... 
 Definition A2C_bs_from_sg_C_sg : ∀ (S : Type), A_sg_C_sg S -> bs S 
 := λ S s, A2C_bs S (A_bs_from_sg_C_sg S s). 

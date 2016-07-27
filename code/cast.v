@@ -7,14 +7,14 @@ Require Import CAS.code.cert_records.
 Require Import CAS.code.cas_records. 
 
 
-
-(* IMPLICATIONS *) 
+(*CC*) (* proved correct in verify/cas_correct.v *) 
+(*!!*) (* NOT (yet) proved correct in verify/cas_correct.v *) 
 
 
 
 (* UPCASTS *) 
 
-
+(*CC*)
 Definition sg_certs_from_sg_C_certs : ∀ (S : Type), brel S -> binary_op S -> eqv_certificates S -> sg_C_certificates S -> sg_certificates S 
 := λ S r b eqvS sgS, 
 let ntS := eqv_nontrivial S eqvS in 
@@ -55,7 +55,7 @@ Definition sg_from_sg_C: ∀ (S : Type),  sg_C S -> sg S
 
 
 
-
+(*CC*)
 Definition sg_C_certs_from_sg_CI_certs : ∀ (S : Type), brel S -> binary_op S -> eqv_certificates S -> sg_CI_certificates S -> sg_C_certificates S 
 := λ S r b eqvS sgS, 
 let ntS := eqv_nontrivial S eqvS in 
@@ -94,6 +94,7 @@ match certify_nontrivial_witness S ntS, certify_nontrivial_negate S ntS with
 |}
 end. 
 
+(*CC*)
 Definition sg_C_from_sg_CI: ∀ (S : Type),  sg_CI S -> sg_C S 
 := λ S sgS, 
    {| 
@@ -110,7 +111,7 @@ Definition sg_C_from_sg_CI: ∀ (S : Type),  sg_CI S -> sg_C S
 
 
 
-
+(*CC*)
 Definition sg_CI_certs_from_sg_CS_certs : ∀ (S : Type), sg_CS_certificates S -> sg_CI_certificates S 
 := λ S sgS, 
 {|
@@ -123,6 +124,7 @@ Definition sg_CI_certs_from_sg_CS_certs : ∀ (S : Type), sg_CS_certificates S -
 ; sg_CI_exists_ann_d       := sg_CS_exists_ann_d S sgS    
 |}. 
 
+(*CC*)
 Definition sg_CI_from_sg_CS: ∀ (S : Type),  sg_CS S -> sg_CI S 
 := λ S sgS, 
    {| 
@@ -132,7 +134,7 @@ Definition sg_CI_from_sg_CS: ∀ (S : Type),  sg_CS S -> sg_CI S
    ; sg_CI_ast   := Ast_sg_CI_from_sg_CS (sg_CS_ast S sgS)
    |}. 
 
-
+(*CC*)
 Definition sg_C_certs_from_sg_CK_certs : ∀ (S : Type), brel S -> binary_op S -> eqv_certificates S -> sg_CK_certificates S -> sg_C_certificates S 
 := λ S r b eqvS sgS, 
 let ntS := eqv_nontrivial S eqvS in 
@@ -169,7 +171,7 @@ end.
 
 
 
-
+(*CC*)
 Definition sg_C_from_sg_CK: ∀ (S : Type),  sg_CK S -> sg_C S 
 := λ S sg, 
    {| 
@@ -205,14 +207,16 @@ Definition sg_certs_from_sg_CI_certs : ∀ (S : Type) (r : brel S) (eqv : eqv_ce
             sg_CI_certificates S -> sg_certificates S 
 := λ S r eqv b sg_CI, sg_certs_from_sg_C_certs S r b eqv (sg_C_certs_from_sg_CI_certs S r b eqv sg_CI).
 
-(* NEED 
-sg_certs_from_sg_CS_certs S 
-sg_CS_certs_option_from_sg_certs
-*) 
+Definition sg_certs_from_sg_CS_certs : ∀ (S : Type) (r : brel S) (eqv : eqv_certificates S) (b : binary_op S),
+            sg_CS_certificates S -> sg_certificates S 
+:= λ S r eqv b sg_CI, sg_certs_from_sg_CI_certs S r eqv b (sg_CI_certs_from_sg_CS_certs S sg_CI).
+
+
 
 
 (* DOWNCASTS *) 
 
+(*CC*)
 Definition sg_C_certs_option_from_sg_certs : ∀ (S : Type), sg_certificates S -> option (sg_C_certificates S) 
 := λ S sgS, 
    match sg_commutative_d S sgS with 
@@ -235,6 +239,7 @@ Definition sg_C_certs_option_from_sg_certs : ∀ (S : Type), sg_certificates S -
    | _ => None
    end . 
 
+(*CC*)
 Definition sg_C_option_from_sg: ∀ (S : Type),  sg S -> option (sg_C S) 
 := λ S sgS, 
    match sg_C_certs_option_from_sg_certs S (sg_certs S sgS) with 
@@ -249,7 +254,7 @@ Definition sg_C_option_from_sg: ∀ (S : Type),  sg S -> option (sg_C S)
    end. 
 
 
-
+(*CC*)
 Definition sg_CI_certs_option_from_sg_C_certs : ∀ (S : Type), sg_C_certificates S -> option (sg_CI_certificates S) 
 := λ S sg_CS, 
    match sg_C_idempotent_d S sg_CS with 
@@ -266,6 +271,7 @@ Definition sg_CI_certs_option_from_sg_C_certs : ∀ (S : Type), sg_C_certificate
    | _ => None
    end. 
 
+(*CC*)
 Definition sg_CI_option_from_sg_C: ∀ (S : Type),  sg_C S -> option (sg_CI S) 
 := λ S sg_CS, 
    match sg_CI_certs_option_from_sg_C_certs S (sg_C_certs S sg_CS) with 
@@ -279,7 +285,7 @@ Definition sg_CI_option_from_sg_C: ∀ (S : Type),  sg_C S -> option (sg_CI S)
       |}
    end. 
 
-
+(*CC*)
 Definition sg_CS_certs_option_from_sg_CI_certs : ∀ (S : Type), sg_CI_certificates S -> option (sg_CS_certificates S) 
 := λ S sg_CIS, 
    match sg_CI_selective_d S sg_CIS with 
@@ -296,7 +302,7 @@ Definition sg_CS_certs_option_from_sg_CI_certs : ∀ (S : Type), sg_CI_certifica
    end . 
 
 
-
+(*CC*)
 Definition sg_CS_option_from_sg_CI: ∀ (S : Type),  sg_CI S -> option (sg_CS S) 
 := λ S sg_CIS, 
    match sg_CS_certs_option_from_sg_CI_certs S (sg_CI_certs S sg_CIS) with 
@@ -310,7 +316,7 @@ Definition sg_CS_option_from_sg_CI: ∀ (S : Type),  sg_CI S -> option (sg_CS S)
       |}
    end. 
 
-
+(*CC*)
 Definition sg_CK_certs_option_from_sg_C_certs : ∀ (S : Type), sg_C_certificates S -> option (sg_CK_certificates S) 
 := λ S sgS, 
    match sg_C_left_cancel_d S sgS with 
@@ -327,7 +333,7 @@ Definition sg_CK_certs_option_from_sg_C_certs : ∀ (S : Type), sg_C_certificate
    |  _ => None
    end . 
 
-
+(*CC*)
 Definition sg_CK_option_from_sg_C: ∀ (S : Type),  sg_C S -> option (sg_CK S) 
 := λ S sgS, 
    match sg_CK_certs_option_from_sg_C_certs S (sg_C_certs S sgS) with 
@@ -341,6 +347,18 @@ Definition sg_CK_option_from_sg_C: ∀ (S : Type),  sg_C S -> option (sg_CK S)
       |}
    end. 
 
+
+(*!!*)
+Definition sg_CS_certs_option_from_sg_certs : ∀ (S : Type),  sg_certificates S -> option (sg_CS_certificates S) 
+:= λ S sgS, 
+   match sg_C_certs_option_from_sg_certs S sgS with 
+   | None => None
+   | Some sgC => 
+      match sg_CI_certs_option_from_sg_C_certs S sgC with 
+      | None => None
+      | Some sgCI => sg_CS_certs_option_from_sg_CI_certs S sgCI 
+      end 
+   end. 
 
 (* DERIVED DOWNCASTS *) 
 
@@ -383,7 +401,7 @@ BS
 
 ****************************************************************** *) 
 
-
+(*!!*)
 Definition bs_from_bs_C : ∀ (S : Type),  bs_C S -> bs S 
 := λ S s, 
 {| 
@@ -401,8 +419,8 @@ Definition bs_from_bs_C : ∀ (S : Type),  bs_C S -> bs S
 |}. 
 
 
-(*
 
+(*!!*)
 Definition bs_from_bs_CS : ∀ (S : Type),  bs_CS S -> bs S 
 := λ S s, 
 {| 
@@ -411,8 +429,7 @@ Definition bs_from_bs_CS : ∀ (S : Type),  bs_CS S -> bs S
 ; bs_times        := bs_CS_times S s
 ; bs_plus_certs  := sg_certs_from_sg_CS_certs S 
                             (eqv_eq S (bs_CS_eqv S s))
-                            (bs_CS_plus S s)
-                            (eqv_certs S (bs_CS_eqv S s)) 
+                            (eqv_certs S (bs_CS_eqv S s)) (bs_CS_plus S s)
                             (bs_CS_plus_certs S s)  
 ; bs_times_certs := bs_CS_times_certs S s
 ; bs_certs       := bs_CS_certs S s 
@@ -420,10 +437,10 @@ Definition bs_from_bs_CS : ∀ (S : Type),  bs_CS S -> bs S
 |}. 
 
 
-
+(*!!*)
 Definition bs_C_option_from_bs : ∀ (S : Type),  bs S -> option (bs_C S) 
 := λ S s, 
-   match sg_C_certs_option_from_sg_certs _ _ _ (bs_plus_certs S s) with 
+   match sg_C_certs_option_from_sg_certs _ (bs_plus_certs S s) with 
    | None => None
    | Some sg_C_p => Some (
      {| 
@@ -438,10 +455,10 @@ Definition bs_C_option_from_bs : ∀ (S : Type),  bs S -> option (bs_C S)
    end. 
 
 
-
+(*!!*)
 Definition bs_CS_option_from_bs : ∀ (S : Type),  bs S -> option (bs_CS S) 
 := λ S s, 
-   match sg_CS_certs_option_from_sg_certs _ _ _ (bs_plus_certs S s) with 
+   match sg_CS_certs_option_from_sg_certs _ (bs_plus_certs S s) with 
    | None => None
    | Some sg_CS_p => Some (
      {| 
@@ -455,4 +472,3 @@ Definition bs_CS_option_from_bs : ∀ (S : Type),  bs S -> option (bs_CS S)
     |})
    end. 
 
-*) 

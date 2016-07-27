@@ -191,16 +191,12 @@ Separate Extraction
 
    (* bs casts *) 
    bs_from_bs_C 
-
-
-(*
    bs_from_bs_CS 
    bs_C_option_from_bs
    bs_CS_option_from_bs
 
+(*
    bs_min_times 
    bs_max_times 
-   bs_llex
-   bs_CS_llex
 *)    .
 

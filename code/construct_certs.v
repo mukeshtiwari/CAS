@@ -1338,7 +1338,7 @@ with
 ; bs_right_left_absorptive_d := bops_llex_product_right_left_absorptive_check S T t 
                                      (bs_right_left_absorptive_d S bsS)
                                      (bs_right_left_absorptive_d T bsT) 
-                                     (sg_anti_right_d S sg_timesS)  
+                                     (sg_anti_left_d S sg_timesS)  
 ; bs_right_right_absorptive_d   := bops_llex_product_right_right_absorptive_check S T t
                                      (bs_right_right_absorptive_d S bsS)
                                      (bs_right_right_absorptive_d T bsT)

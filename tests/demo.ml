@@ -152,6 +152,16 @@ let sg_right eqv      = Some(sg_right eqv);;
 let sg_add_id id sg      = mmap (sg_add_id (explode id)) sg;;
 let sg_add_ann ann sg    = mmap (sg_add_ann (explode ann)) sg;;
 
+let sg_union c eqv     = Some (sg_union c eqv) 
+let sg_intersect c eqv = Some (sg_intersect c eqv) 
+
+
+(* Note: ocaml infix symbols must be made of 
+
+    ! $ % & * + - . / : < = > ? @ ^ | ~
+
+*) 
+
 (* introduce an infix operators, 
   op : 'a sg option -> 'b sg option -> ('a * 'b) sg option
 *) 
@@ -194,5 +204,42 @@ let sg_CS_llex3 (a, b, c) = sg_CS_llex a (sg_CS_llex b c) ;;
 (* foo : 'a sg_CI -> (int * (int * 'a)) sg_CI *) 
 let foo sg = sg_CI_llex sg_CS_min (sg_CI_llex sg_CS_max sg) ;;
 
+(* bi-semigroup tests *) 
+
+(* redefine *) 
+
+let bs_and_or   = Some bs_and_or;; 
+let bs_or_and   = Some bs_or_and ;; 
+let bs_min_max  = Some bs_min_max ;; 
+let bs_max_min  = Some bs_max_min;; 
+let bs_min_plus = Some bs_min_plus;; 
+let bs_max_plus = Some bs_max_plus;; 
+
+let bs_union_intersect c eqv = Some (bs_union_intersect (explode c) eqv);;
+let bs_intersect_union c eqv = Some (bs_intersect_union (explode c) eqv);;
+
+let sg_add_id id sg      = mmap (sg_add_id id) sg;;
+let sg_add_ann ann sg    = mmap (sg_add_ann ann) sg;;
+
+let bs_add_zero bs c   = mmap (fun b -> bs_add_zero b (explode c)) bs;; 
+let bs_add_one bs c    = mmap (fun b -> bs_add_one b (explode c)) bs;; 
+
+(* direct product *) 
+let (<**>) m n  = liftM2 bs_product m n  ;; 
+
+(* (left) lex-product *) 
+let (<!**>) m n = 
+    let bs_llex_aux bs1 bs2 = 
+        match bs_CS_option_from_bs bs1 with 
+        | None -> None 
+        | Some bs1'-> 
+           (match bs_CS_option_from_bs bs2 with 
+	   | None -> (match bs_C_option_from_bs bs2 with 
+                     | None -> None 
+		     | Some bs2'-> Some(bs_from_bs_C(bs_C_llex_product bs1' bs2'))
+                     )
+	   | Some bs2'-> Some(bs_from_bs_CS(bs_CS_llex_product bs1' bs2'))
+           )
+        in liftN2 bs_llex_aux m n ;; 
 
 

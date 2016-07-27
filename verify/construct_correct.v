@@ -877,7 +877,7 @@ Proof. intros S T rS rT plusS timesS plusT timesT eqvS eqvT bsS bsT.
 Defined. 
 
 
-(*
+
 Lemma  correct_bs_certs_llex_product : 
   ∀ (S T: Type) 
     (rS : brel S) 
@@ -913,9 +913,11 @@ Proof. intros S T rS rT plusS timesS plusT timesT eqvS eqvT sg_CS_S sg_S sg_C_T 
        rewrite bops_llex_product_right_distributive_check_correct. 
        rewrite bops_llex_product_plus_id_is_times_ann_check_correct. 
        rewrite bops_llex_product_times_id_equals_plus_ann_check_correct.
-       rewrite bops_llex_product_left_absorbtive_check_correct. 
-       rewrite bops_llex_product_right_absorbtive_check_correct. 
+       rewrite bops_llex_product_left_left_absorbtive_check_correct. 
+       rewrite bops_llex_product_left_right_absorbtive_check_correct. 
+       rewrite bops_llex_product_right_left_absorbtive_check_correct. 
+       rewrite bops_llex_product_right_right_absorbtive_check_correct. 
        reflexivity. 
 Defined. 
 
-*) 
+
