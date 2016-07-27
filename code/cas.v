@@ -11,7 +11,7 @@ Require Import CAS.code.cast.
 Require Import CAS.code.data.
 
 (*CC*) (* proved correct in verify/cas_correct.v *) 
-(*!!*) (* NOT proved correct in verify/cas_correct.v *) 
+(*!!*) (* NOT (yet) proved correct in verify/cas_correct.v *) 
 
 (* eqv *) 
 
@@ -901,47 +901,6 @@ Definition sg_CI_sg_product : ∀ (S T : Type),  sg_CI_sg S -> sg_CI_sg T -> sg_
 
 
 
-(*CC*) 
-Definition sg_C_sg_llex : ∀ (S T : Type),  sg_CS_sg S -> sg_C_sg T -> sg_C_sg (S * T) 
-:= λ S T bsS bsT, 
-{| 
-     sg_C_sg_eqv        := eqv_product S T 
-                           (sg_CS_sg_eqv S bsS) 
-                           (sg_C_sg_eqv T bsT) 
-   ; sg_C_sg_plus       := bop_llex S T 
-                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
-                           (sg_CS_sg_plus S bsS) 
-                           (sg_C_sg_plus T bsT) 
-   ; sg_C_sg_times       := bop_product S T 
-                           (sg_CS_sg_times S bsS) 
-                           (sg_C_sg_times T bsT) 
-   ; sg_C_sg_plus_certs := sg_C_certs_llex S T 
-                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
-                           (sg_CS_sg_plus S bsS) 
-                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
-                           (eqv_certs T (sg_C_sg_eqv T bsT)) 
-                           (sg_CS_sg_plus_certs S bsS) 
-                           (sg_C_sg_plus_certs T bsT) 
-   ; sg_C_sg_times_certs := sg_certs_product S T 
-                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
-                           (eqv_certs T (sg_C_sg_eqv T bsT)) 
-                           (sg_CS_sg_times_certs S bsS)
-                           (sg_C_sg_times_certs T bsT)
-   ; sg_C_sg_certs    := bs_certs_llex_product S T 
-                           (eqv_eq S (sg_CS_sg_eqv S bsS)) 
-                           (eqv_eq T (sg_C_sg_eqv T bsT)) 
-                           (sg_CS_sg_plus S bsS)
-                           (sg_C_sg_plus T bsT) 
-                           (sg_C_sg_times T bsT)  
-                           (eqv_certs S (sg_CS_sg_eqv S bsS)) 
-                           (eqv_certs T (sg_C_sg_eqv T bsT)) 
-                           (sg_CS_sg_times_certs S bsS) 
-                           (sg_C_sg_times_certs T bsT) 
-                           (sg_CS_sg_certs S bsS) 
-                           (sg_C_sg_certs T bsT) 
-   ; sg_C_sg_ast        := Ast_sg_C_sg_llex (sg_CS_sg_ast S bsS, sg_C_sg_ast T bsT)
-|}. 
-
 (*!!*) 
 Definition sg_CS_sg_llex : ∀ (S T : Type),  sg_CS_sg S -> sg_CS_sg T -> sg_CS_sg (S * T) 
 := λ S T bsS bsT, 
@@ -1149,5 +1108,92 @@ with
 ; bs_ast         := Ast_bs_intersect_union (c, eqv_ast _ eqvS)
 |}
 end.
+
+
+
+(*CC*) 
+Definition bs_C_llex_product : ∀ (S T : Type),  bs_CS S -> bs_C T -> bs_C (S * T) 
+:= λ S T bsS bsT, 
+{| 
+     bs_C_eqv        := eqv_product S T 
+                           (bs_CS_eqv S bsS) 
+                           (bs_C_eqv T bsT) 
+   ; bs_C_plus       := bop_llex S T 
+                           (eqv_eq S (bs_CS_eqv S bsS)) 
+                           (bs_CS_plus S bsS) 
+                           (bs_C_plus T bsT) 
+   ; bs_C_times       := bop_product S T 
+                           (bs_CS_times S bsS) 
+                           (bs_C_times T bsT) 
+   ; bs_C_plus_certs := sg_C_certs_llex S T 
+                           (eqv_eq S (bs_CS_eqv S bsS)) 
+                           (bs_CS_plus S bsS) 
+                           (eqv_certs S (bs_CS_eqv S bsS)) 
+                           (eqv_certs T (bs_C_eqv T bsT)) 
+                           (bs_CS_plus_certs S bsS) 
+                           (bs_C_plus_certs T bsT) 
+   ; bs_C_times_certs := sg_certs_product S T 
+                           (eqv_certs S (bs_CS_eqv S bsS)) 
+                           (eqv_certs T (bs_C_eqv T bsT)) 
+                           (bs_CS_times_certs S bsS)
+                           (bs_C_times_certs T bsT)
+   ; bs_C_certs    := bs_certs_llex_product S T 
+                           (eqv_eq S (bs_CS_eqv S bsS)) 
+                           (eqv_eq T (bs_C_eqv T bsT)) 
+                           (bs_CS_plus S bsS)
+                           (bs_C_plus T bsT) 
+                           (bs_C_times T bsT)  
+                           (eqv_certs S (bs_CS_eqv S bsS)) 
+                           (eqv_certs T (bs_C_eqv T bsT)) 
+                           (bs_CS_times_certs S bsS) 
+                           (bs_C_times_certs T bsT) 
+                           (bs_CS_certs S bsS) 
+                           (bs_C_certs T bsT) 
+   ; bs_C_ast        := Ast_bs_C_llex (bs_CS_ast S bsS, bs_C_ast T bsT)
+|}. 
+
+
+
+(*CC*) 
+Definition bs_CS_llex_product : ∀ (S T : Type),  bs_CS S -> bs_CS T -> bs_CS (S * T) 
+:= λ S T bsS bsT, 
+{| 
+     bs_CS_eqv        := eqv_product S T 
+                           (bs_CS_eqv S bsS) 
+                           (bs_CS_eqv T bsT) 
+   ; bs_CS_plus       := bop_llex S T 
+                           (eqv_eq S (bs_CS_eqv S bsS)) 
+                           (bs_CS_plus S bsS) 
+                           (bs_CS_plus T bsT) 
+   ; bs_CS_times       := bop_product S T 
+                           (bs_CS_times S bsS) 
+                           (bs_CS_times T bsT) 
+   ; bs_CS_plus_certs := sg_CS_certs_llex S T 
+                           (eqv_eq S (bs_CS_eqv S bsS)) 
+                           (bs_CS_plus S bsS) 
+                           (eqv_certs S (bs_CS_eqv S bsS)) 
+                           (eqv_certs T (bs_CS_eqv T bsT)) 
+                           (bs_CS_plus_certs S bsS) 
+                           (bs_CS_plus_certs T bsT) 
+   ; bs_CS_times_certs := sg_certs_product S T 
+                           (eqv_certs S (bs_CS_eqv S bsS)) 
+                           (eqv_certs T (bs_CS_eqv T bsT)) 
+                           (bs_CS_times_certs S bsS)
+                           (bs_CS_times_certs T bsT)
+   ; bs_CS_certs    := bs_certs_llex_product S T 
+                           (eqv_eq S (bs_CS_eqv S bsS)) 
+                           (eqv_eq T (bs_CS_eqv T bsT)) 
+                           (bs_CS_plus S bsS)
+                           (bs_CS_plus T bsT) 
+                           (bs_CS_times T bsT)  
+                           (eqv_certs S (bs_CS_eqv S bsS)) 
+                           (eqv_certs T (bs_CS_eqv T bsT)) 
+                           (bs_CS_times_certs S bsS) 
+                           (bs_CS_times_certs T bsT) 
+                           (bs_CS_certs S bsS) 
+                           (bs_CS_certs T bsT) 
+   ; bs_CS_ast        := Ast_bs_CS_llex (bs_CS_ast S bsS, bs_CS_ast T bsT)
+|}. 
+
 
 

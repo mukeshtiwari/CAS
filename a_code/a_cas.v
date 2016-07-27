@@ -907,85 +907,6 @@ Definition A_bs_intersect_union : ∀ (S : Type) (c : cas_constant),
 
 
 
-
-(* ***************************************************
-          SG SG 
-* **************************************************
-
-Definition A_sg_CS_sg_CS_AD_and_or : A_sg_CS_sg_CS_AD bool := 
-{|
-  A_sg_CS_sg_CS_AD_eqv          := A_eqv_eq_bool
-; A_sg_CS_sg_CS_AD_plus         := bop_and
-; A_sg_CS_sg_CS_AD_times        := bop_or
-; A_sg_CS_sg_CS_AD_plus_proofs  := sg_CS_proofs_and
-; A_sg_CS_sg_CS_AD_times_proofs := sg_CS_proofs_or
-; A_sg_CS_sg_CS_AD_proofs       := sg_sg_LALD_and_or_proofs 
-; A_sg_CS_sg_CS_AD_ast          := Ast_sg_CS_sg_CS_AD_and_or
-|}.
-
-Definition A_sg_CS_sg_CS_AD_or_and : A_sg_CS_sg_CS_AD bool := 
-{|
-  A_sg_CS_sg_CS_AD_eqv          := A_eqv_eq_bool
-; A_sg_CS_sg_CS_AD_plus         := bop_or
-; A_sg_CS_sg_CS_AD_times        := bop_and
-; A_sg_CS_sg_CS_AD_plus_proofs  := sg_CS_proofs_or
-; A_sg_CS_sg_CS_AD_times_proofs := sg_CS_proofs_and
-; A_sg_CS_sg_CS_AD_proofs       := sg_sg_LALD_or_and_proofs 
-; A_sg_CS_sg_CS_AD_ast          := Ast_sg_CS_sg_CS_AD_or_and
-|}.
-
-Definition A_sg_CS_sg_CS_AD_max_min : A_sg_CS_sg_CS_AD nat := 
-{|
-  A_sg_CS_sg_CS_AD_eqv          := A_eqv_eq_nat 
-; A_sg_CS_sg_CS_AD_plus         := bop_max 
-; A_sg_CS_sg_CS_AD_times        := bop_min 
-; A_sg_CS_sg_CS_AD_plus_proofs  := sg_CS_proofs_max  
-; A_sg_CS_sg_CS_AD_times_proofs := sg_CS_proofs_min  
-; A_sg_CS_sg_CS_AD_proofs       := sg_sg_LALD_max_min_proofs 
-; A_sg_CS_sg_CS_AD_ast          := Ast_sg_CS_sg_CS_AD_max_min
-|}.
-
-
-Definition A_sg_CS_sg_CS_AD_min_max : A_sg_CS_sg_CS_AD nat := 
-{|
-  A_sg_CS_sg_CS_AD_eqv          := A_eqv_eq_nat 
-; A_sg_CS_sg_CS_AD_plus         := bop_min 
-; A_sg_CS_sg_CS_AD_times        := bop_max 
-; A_sg_CS_sg_CS_AD_plus_proofs  := sg_CS_proofs_min  
-; A_sg_CS_sg_CS_AD_times_proofs := sg_CS_proofs_max  
-; A_sg_CS_sg_CS_AD_proofs       := sg_sg_LALD_min_max_proofs 
-; A_sg_CS_sg_CS_AD_ast          := Ast_sg_CS_sg_CS_AD_min_max
-|}.
-
-(* min plus *) 
-Definition A_sg_CS_sg_CK_AD_min_plus : A_sg_CS_sg_CK_AD nat := 
-{|
-  A_sg_CS_sg_CK_AD_eqv          := A_eqv_eq_nat 
-; A_sg_CS_sg_CK_AD_plus         := bop_min 
-; A_sg_CS_sg_CK_AD_times        := bop_plus
-; A_sg_CS_sg_CK_AD_plus_proofs  := sg_CS_proofs_min  
-; A_sg_CS_sg_CK_AD_times_proofs := sg_CK_proofs_plus
-; A_sg_CS_sg_CK_AD_proofs       := sg_sg_LALD_min_plus_proofs 
-; A_sg_CS_sg_CK_AD_ast          := Ast_sg_CS_sg_CK_AD_min_plus
-|}.
-
-
-(* max plus *) 
-Definition A_sg_CS_sg_CK_D_max_plus : A_sg_CS_sg_CK_D nat := 
-{|
-  A_sg_CS_sg_CK_D_eqv          := A_eqv_eq_nat 
-; A_sg_CS_sg_CK_D_plus         := bop_max
-; A_sg_CS_sg_CK_D_times        := bop_plus
-; A_sg_CS_sg_CK_D_plus_proofs  := sg_CS_proofs_max
-; A_sg_CS_sg_CK_D_times_proofs := sg_CK_proofs_plus
-; A_sg_CS_sg_CK_D_proofs       := sg_sg_LD_max_plus_proofs 
-; A_sg_CS_sg_CK_D_ast          := Ast_sg_CS_sg_CK_D_max_plus
-|}.
-
-*) 
-
-
-
 Definition A_bs_product : ∀ (S T : Type),  A_bs S -> A_bs T -> A_bs (S * T) 
 := λ S T bsS bsT, 
 {| 
@@ -1165,55 +1086,102 @@ Definition A_sg_CS_sg_add_one : ∀ (S : Type),  A_sg_CS_sg S -> cas_constant ->
 *) 
 
 
-
-(*
-
-Definition A_sg_C_sg_llex : ∀ (S T : Type),  A_sg_CS_sg S -> A_sg_C_sg T -> A_sg_C_sg (S * T) 
+Definition A_bs_C_llex_product : ∀ (S T : Type),  A_bs_CS S -> A_bs_C T -> A_bs_C (S * T) 
 := λ S T bsS bsT, 
 {| 
-     A_sg_C_sg_eqv        := A_eqv_product S T 
-                           (A_sg_CS_sg_eqv S bsS) 
-                           (A_sg_C_sg_eqv T bsT) 
-   ; A_sg_C_sg_plus       := bop_llex S T 
-                           (A_eqv_eq S (A_sg_CS_sg_eqv S bsS)) 
-                           (A_sg_CS_sg_plus S bsS) 
-                           (A_sg_C_sg_plus T bsT) 
-   ; A_sg_C_sg_times       := bop_product S T 
-                           (A_sg_CS_sg_times S bsS) 
-                           (A_sg_C_sg_times T bsT) 
-   ; A_sg_C_sg_plus_proofs := sg_C_proofs_llex S T 
-                           (A_eqv_eq S (A_sg_CS_sg_eqv S bsS)) 
-                           (A_eqv_eq T (A_sg_C_sg_eqv T bsT))
-                           (A_sg_CS_sg_plus S bsS) 
-                           (A_sg_C_sg_plus T bsT) 
-                           (A_eqv_proofs S (A_sg_CS_sg_eqv S bsS)) 
-                           (A_eqv_proofs T (A_sg_C_sg_eqv T bsT)) 
-                           (A_sg_CS_sg_plus_proofs S bsS) 
-                           (A_sg_C_sg_plus_proofs T bsT) 
-   ; A_sg_C_sg_times_proofs := sg_proofs_product S T 
-                           (A_eqv_eq S (A_sg_CS_sg_eqv S bsS)) 
-                           (A_eqv_eq T (A_sg_C_sg_eqv T bsT))
-                           (A_sg_CS_sg_times S bsS) 
-                           (A_sg_C_sg_times T bsT) 
-                           (A_eqv_proofs S (A_sg_CS_sg_eqv S bsS)) 
-                           (A_eqv_proofs T (A_sg_C_sg_eqv T bsT)) 
-                           (A_sg_CS_sg_times_proofs S bsS)
-                           (A_sg_C_sg_times_proofs T bsT)
-   ; A_sg_C_sg_proofs    := bs_proofs_llex S T 
-                           (A_eqv_eq S (A_sg_CS_sg_eqv S bsS)) 
-                           (A_eqv_eq T (A_sg_C_sg_eqv T bsT))
-                           (A_sg_CS_sg_plus S bsS) 
-                           (A_sg_CS_sg_times S bsS) 
-                           (A_sg_C_sg_plus T bsT) 
-                           (A_sg_C_sg_times T bsT) 
-                           (A_eqv_proofs S (A_sg_CS_sg_eqv S bsS)) 
-                           (A_eqv_proofs T (A_sg_C_sg_eqv T bsT)) 
-                           (A_sg_CS_sg_plus_proofs S bsS) 
-                           (A_sg_CS_sg_times_proofs S bsS) 
-                           (A_sg_C_sg_plus_proofs T bsT) 
-                           (A_sg_C_sg_times_proofs T bsT) 
-                           (A_sg_CS_sg_proofs S bsS) 
-                           (A_sg_C_sg_proofs T bsT) 
-   ; A_sg_C_sg_ast        := Ast_sg_C_sg_llex (A_sg_CS_sg_ast S bsS, A_sg_C_sg_ast T bsT)
+     A_bs_C_eqv        := A_eqv_product S T 
+                           (A_bs_CS_eqv S bsS) 
+                           (A_bs_C_eqv T bsT) 
+   ; A_bs_C_plus       := bop_llex S T 
+                           (A_eqv_eq S (A_bs_CS_eqv S bsS)) 
+                           (A_bs_CS_plus S bsS) 
+                           (A_bs_C_plus T bsT) 
+   ; A_bs_C_times       := bop_product S T 
+                           (A_bs_CS_times S bsS) 
+                           (A_bs_C_times T bsT) 
+   ; A_bs_C_plus_proofs := sg_C_proofs_llex S T 
+                           (A_eqv_eq S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_eq T (A_bs_C_eqv T bsT))
+                           (A_bs_CS_plus S bsS) 
+                           (A_bs_C_plus T bsT) 
+                           (A_eqv_proofs S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_proofs T (A_bs_C_eqv T bsT)) 
+                           (A_bs_CS_plus_proofs S bsS) 
+                           (A_bs_C_plus_proofs T bsT) 
+   ; A_bs_C_times_proofs := sg_proofs_product S T 
+                           (A_eqv_eq S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_eq T (A_bs_C_eqv T bsT))
+                           (A_bs_CS_times S bsS) 
+                           (A_bs_C_times T bsT) 
+                           (A_eqv_proofs S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_proofs T (A_bs_C_eqv T bsT)) 
+                           (A_bs_CS_times_proofs S bsS)
+                           (A_bs_C_times_proofs T bsT)
+   ; A_bs_C_proofs    := bs_proofs_llex S T 
+                           (A_eqv_eq S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_eq T (A_bs_C_eqv T bsT))
+                           (A_bs_CS_plus S bsS) 
+                           (A_bs_CS_times S bsS) 
+                           (A_bs_C_plus T bsT) 
+                           (A_bs_C_times T bsT) 
+                           (A_eqv_proofs S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_proofs T (A_bs_C_eqv T bsT)) 
+                           (A_bs_CS_plus_proofs S bsS) 
+                           (A_bs_CS_times_proofs S bsS) 
+                           (A_bs_C_plus_proofs T bsT) 
+                           (A_bs_C_times_proofs T bsT) 
+                           (A_bs_CS_proofs S bsS) 
+                           (A_bs_C_proofs T bsT) 
+   ; A_bs_C_ast        := Ast_bs_C_llex (A_bs_CS_ast S bsS, A_bs_C_ast T bsT)
 |}. 
-*) 
+
+
+Definition A_bs_CS_llex_product : ∀ (S T : Type),  A_bs_CS S -> A_bs_CS T -> A_bs_CS (S * T) 
+:= λ S T bsS bsT, 
+{| 
+     A_bs_CS_eqv        := A_eqv_product S T 
+                           (A_bs_CS_eqv S bsS) 
+                           (A_bs_CS_eqv T bsT) 
+   ; A_bs_CS_plus       := bop_llex S T 
+                           (A_eqv_eq S (A_bs_CS_eqv S bsS)) 
+                           (A_bs_CS_plus S bsS) 
+                           (A_bs_CS_plus T bsT) 
+   ; A_bs_CS_times       := bop_product S T 
+                           (A_bs_CS_times S bsS) 
+                           (A_bs_CS_times T bsT) 
+   ; A_bs_CS_plus_proofs := sg_CS_proofs_llex S T 
+                           (A_eqv_eq S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_eq T (A_bs_CS_eqv T bsT))
+                           (A_bs_CS_plus S bsS) 
+                           (A_bs_CS_plus T bsT) 
+                           (A_eqv_proofs S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_proofs T (A_bs_CS_eqv T bsT)) 
+                           (A_bs_CS_plus_proofs S bsS) 
+                           (A_bs_CS_plus_proofs T bsT) 
+   ; A_bs_CS_times_proofs := sg_proofs_product S T 
+                           (A_eqv_eq S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_eq T (A_bs_CS_eqv T bsT))
+                           (A_bs_CS_times S bsS) 
+                           (A_bs_CS_times T bsT) 
+                           (A_eqv_proofs S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_proofs T (A_bs_CS_eqv T bsT)) 
+                           (A_bs_CS_times_proofs S bsS)
+                           (A_bs_CS_times_proofs T bsT)
+   ; A_bs_CS_proofs    := bs_proofs_llex S T 
+                           (A_eqv_eq S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_eq T (A_bs_CS_eqv T bsT))
+                           (A_bs_CS_plus S bsS) 
+                           (A_bs_CS_times S bsS) 
+                           (A_bs_CS_plus T bsT) 
+                           (A_bs_CS_times T bsT) 
+                           (A_eqv_proofs S (A_bs_CS_eqv S bsS)) 
+                           (A_eqv_proofs T (A_bs_CS_eqv T bsT)) 
+                           (A_bs_CS_plus_proofs S bsS) 
+                           (A_bs_CS_times_proofs S bsS) 
+                           (A_sg_C_proofs_from_sg_CI_proofs _ _ _ (A_eqv_proofs T (A_bs_CS_eqv T bsT))
+                              (A_sg_CI_proofs_from_sg_CS_proofs _ _ _ (A_bs_CS_plus_proofs T bsT)))
+                           (A_bs_CS_times_proofs T bsT) 
+                           (A_bs_CS_proofs S bsS) 
+                           (A_bs_CS_proofs T bsT) 
+   ; A_bs_CS_ast        := Ast_bs_CS_llex (A_bs_CS_ast S bsS, A_bs_CS_ast T bsT)
+|}. 

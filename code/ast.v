@@ -90,17 +90,25 @@ Inductive ast_bs :=
    | Ast_bs_union_intersect : cas_constant * ast_eqv → ast_bs
 
    | Ast_bs_product    : ast_bs * ast_bs → ast_bs
-   | Ast_bs_llex       : ast_bs_CS * ast_bs → ast_bs
    | Ast_bs_add_zero   : cas_constant * ast_bs → ast_bs
    | Ast_bs_add_one    : cas_constant * ast_bs → ast_bs
 
    | Ast_bs_from_bs_CS : ast_bs_CS → ast_bs
+   | Ast_bs_from_bs_C  : ast_bs_C → ast_bs
 
 with ast_bs_CS :=
    | Ast_bs_CS_product   : ast_bs_CS * ast_bs_CS → ast_bs_CS
    | Ast_bs_CS_add_zero  : cas_constant * ast_bs_CS → ast_bs_CS
    | Ast_bs_CS_add_one   : cas_constant * ast_bs_CS → ast_bs_CS
    | Ast_bs_CS_llex      : ast_bs_CS * ast_bs_CS → ast_bs_CS
+   | Ast_bs_CS_from_bs   : ast_bs  → ast_bs_CS
+
+with ast_bs_C :=
+   | Ast_bs_C_product   : ast_bs_C * ast_bs_C → ast_bs_C
+   | Ast_bs_C_add_zero  : cas_constant * ast_bs_C → ast_bs_C
+   | Ast_bs_C_add_one   : cas_constant * ast_bs_C → ast_bs_C
+   | Ast_bs_C_llex      : ast_bs_CS * ast_bs_C → ast_bs_C
+   | Ast_bs_C_from_bs   : ast_bs  → ast_bs_C
   . 
 
 

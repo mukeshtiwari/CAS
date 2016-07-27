@@ -249,28 +249,6 @@ Definition bop_product_idempotent_decide :
        end
    end.
 
-(*
-Lemma bop_product_idempotent_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     bop_idempotent_decidable_new S rS bS -> 
-     bop_idempotent_decidable_new T rT bT -> 
-     bop_idempotent_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT). 
-Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT]. 
-       exists (check_idempotent_product_new S T s t wS wT). 
-       destruct wS as [ LS | s1]; destruct wT as [ LT | t1]; simpl. 
-           apply bop_product_idempotent; auto. 
-           rewrite PT. rewrite andb_comm. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-Defined. 
-
-*) 
 Definition bop_product_commutative_decide : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -295,29 +273,6 @@ Definition bop_product_commutative_decide :
        end
    end. 
 
-(*
-
-Definition bop_product_commutative_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     bop_commutative_decidable_new S rS bS -> 
-     bop_commutative_decidable_new T rT bT -> 
-     bop_commutative_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT).
-Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT]. 
-       exists (check_commutative_product_new S T s t wS wT). 
-       destruct wS as [ LS | [s1 s2]]; destruct wT as [ LT | [t1 t2] ]; simpl. 
-           apply bop_product_commutative; auto. 
-           rewrite PT. rewrite andb_comm. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-Defined. 
-
-*) 
 
 Definition bop_product_left_cancellative_decide : 
    ∀ (S T : Type) 
@@ -345,37 +300,6 @@ Definition bop_product_left_cancellative_decide :
        end
    end. 
 
-(* 
-
-Definition bop_product_left_cancellative_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     brel_reflexive S rS  → 
-     brel_reflexive T rT  → 
-     bop_left_cancellative_decidable_new S rS bS -> 
-     bop_left_cancellative_decidable_new T rT bT -> 
-     bop_left_cancellative_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT). 
-Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] refS refT [wS PS] [wT PT]. 
-       exists (check_left_cancellative_product_new S T s t wS wT). 
-       destruct wS as [ LS | [s1 [s2 s3]]]; destruct wT as [ LT | [t1 [t2 t3]] ]; simpl. 
-           apply bop_product_left_cancellative; auto. 
-           destruct PT as [PTL PTR]. split. 
-              rewrite refS, PTL. simpl. reflexivity. 
-              rewrite Ps, PTR. simpl. reflexivity. 
-           destruct PS as [PSL PSR]. split.            
-              rewrite refT, PSL. simpl. reflexivity. 
-              rewrite PSR. simpl. reflexivity. 
-           destruct PT as [PTL PTR]. destruct PS as [PSL PSR]. split. 
-              rewrite refT, PSL. simpl. reflexivity. 
-              rewrite PSR. simpl. reflexivity. 
-Defined. 
-
-*) 
 
 Definition bop_product_right_cancellative_decide : 
    ∀ (S T : Type) 
@@ -404,37 +328,6 @@ Definition bop_product_right_cancellative_decide :
    end. 
 
 
-(* 
-Definition bop_product_right_cancellative_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     brel_reflexive S rS  → 
-     brel_reflexive T rT  → 
-     bop_right_cancellative_decidable_new S rS bS -> 
-     bop_right_cancellative_decidable_new T rT bT -> 
-     bop_right_cancellative_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT). 
-Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] refS refT [wS PS] [wT PT]. 
-       exists (check_right_cancellative_product_new S T s t wS wT). 
-       destruct wS as [ LS | [s1 [s2 s3]]]; destruct wT as [ LT | [t1 [t2 t3]] ]; simpl. 
-           apply bop_product_right_cancellative; auto. 
-           destruct PT as [PTL PTR]. split. 
-              rewrite refS, PTL. simpl. reflexivity. 
-              rewrite Ps, PTR. simpl. reflexivity. 
-           destruct PS as [PSL PSR]. split.            
-              rewrite refT, PSL. simpl. reflexivity. 
-              rewrite PSR. simpl. reflexivity. 
-           destruct PT as [PTL PTR]. destruct PS as [PSL PSR]. split. 
-              rewrite refT, PSL. simpl. reflexivity. 
-              rewrite PSR. simpl. reflexivity. 
-Defined. 
-
-*) 
-
 Definition bop_product_is_left_decide : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -456,29 +349,6 @@ Definition bop_product_is_left_decide :
        | inr not_leftS   => inr _ (bop_product_not_is_left_left S T rS rT bS bT ntT not_leftS)
        end. 
 
-(*
-
-Definition bop_product_is_left_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     bop_is_left_decidable_new S rS bS  → 
-     bop_is_left_decidable_new T rT bT  → 
-     bop_is_left_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT).
-Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT]. 
-       exists (check_is_left_product_new S T s t wS wT). 
-       destruct wS as [ LS | [s1 s2]]; destruct wT as [ LT | [t1 t2] ]; simpl. 
-           apply bop_product_is_left; auto. 
-           rewrite PT. rewrite andb_comm. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-Defined. 
-
-*) 
 
 Definition bop_product_is_right_decide : 
    ∀ (S T : Type) 
@@ -501,28 +371,6 @@ Definition bop_product_is_right_decide :
        | inr not_rightS   => inr _ (bop_product_not_is_right_left S T rS rT bS bT ntT not_rightS)
        end . 
 
-(* 
-Definition bop_product_is_right_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     bop_is_right_decidable_new S rS bS  → 
-     bop_is_right_decidable_new T rT bT  → 
-     bop_is_right_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT).
-Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT]. 
-       exists (check_is_right_product_new S T s t wS wT). 
-       destruct wS as [ LS | [s1 s2]]; destruct wT as [ LT | [t1 t2] ]; simpl. 
-           apply bop_product_is_right; auto. 
-           rewrite PT. rewrite andb_comm. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-Defined. 
-
-*) 
 
 
 Definition bop_product_selective_decide : 
@@ -571,69 +419,6 @@ Definition bop_product_selective_decide :
        end. 
 
 
-(* 
-Definition bop_product_selective_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     brel_symmetric S rS -> 
-     brel_symmetric T rT -> 
-     brel_transitive S rS -> 
-     brel_transitive T rT -> 
-     bop_is_left_decidable_new S rS bS  → 
-     bop_is_left_decidable_new T rT bT  → 
-     bop_is_right_decidable_new S rS bS  → 
-     bop_is_right_decidable_new T rT bT  → 
-     bop_selective_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT). 
-Proof. intros S T rS rT bS bT ntS ntT symS symT transS transT
-              [wLS LS] [wLT LT] [wRS RS] [wRT RT]. 
-       assert (FS := brel_nontrivial_implies_not_bop_is_left_and_bop_is_right S rS symS transS ntS bS). 
-       assert (FT := brel_nontrivial_implies_not_bop_is_left_and_bop_is_right T rT symT transT ntT bT). 
-       destruct ntS as [[s Ps] [f Pf]]; destruct ntT as  [[t Pt] [g Pg]]. 
-       exists (check_selective_product_new S T s t wLS wLT wRS wRT). 
-       destruct wLS as [ k1 | [s1 s2]]; 
-       destruct wLT as [ k2 | [t1 t2] ]; 
-       destruct wRS as [ k3 | [s3 s4]]; 
-       destruct wRT as [ k4 | [t3 t4] ]; 
-       simpl. 
-           apply bop_product_selective; auto. 
-           apply bop_product_selective; auto. 
-           apply bop_product_selective; auto. 
-           apply bop_product_selective; auto. 
-           apply bop_product_selective; auto. 
-           apply bop_product_selective; auto. 
-           assert (F := FS (LS, RS)). tauto.  
-           split. 
-              rewrite LT. rewrite andb_comm. simpl. reflexivity. 
-              rewrite RS. simpl. reflexivity. 
-           split. 
-              rewrite LT. rewrite andb_comm. simpl. reflexivity. 
-              rewrite RS. simpl. reflexivity. 
-           apply bop_product_selective; auto. 
-           split. 
-              rewrite LS. simpl. reflexivity. 
-              rewrite RT. rewrite andb_comm. simpl. reflexivity. 
-           apply bop_product_selective; auto. 
-           assert (F := FT (LT, RT)). tauto.  
-           split. 
-              rewrite LS. simpl. reflexivity. 
-              rewrite RT. rewrite andb_comm. simpl. reflexivity. 
-           apply bop_product_selective; auto. 
-           split. 
-              rewrite LS. simpl. reflexivity. 
-              rewrite RT. rewrite andb_comm. simpl. reflexivity. 
-           split. 
-              rewrite LT. rewrite andb_comm. simpl. reflexivity. 
-              rewrite RS. simpl. reflexivity. 
-           split. 
-              rewrite LS. simpl. reflexivity. 
-              rewrite RT. rewrite andb_comm. simpl. reflexivity. 
-Defined. 
-*) 
 
 Definition bop_product_selective_decide_commutative_case : 
    ∀ (S T : Type) 
@@ -676,26 +461,6 @@ Definition bop_product_exists_id_decide :
        | inr neS   => inr _ (bop_product_not_exists_id S T rS rT bS bT (inl _ neS))
        end. 
 
-(* 
-Definition bop_product_exists_id_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT : binary_op T), 
-     bop_exists_id_decidable_new S rS bS -> 
-     bop_exists_id_decidable_new T rT bT -> 
-     bop_exists_id_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT).
-Proof. intros S T rS rT bS bT [wS PS] [wT PT]. 
-       exists (check_exists_id_product_new S T wS wT). 
-       destruct wS as [s | uS]; destruct wT as [t | uT]; simpl. 
-          apply bop_product_is_id; auto. 
-          apply bop_product_not_exists_id; auto. 
-          apply bop_product_not_exists_id; auto. 
-          apply bop_product_not_exists_id; auto. 
-Defined. 
-
-*) 
 Definition bop_product_exists_ann_decide : 
    ∀ (S T : Type) 
      (rS : brel S) 
@@ -714,28 +479,6 @@ Definition bop_product_exists_ann_decide :
          end 
        | inr neS   => inr _ (bop_product_not_exists_ann S T rS rT bS bT (inl _ neS))
        end. 
-
-
-(* 
-Definition bop_product_exists_ann_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT : binary_op T), 
-     bop_exists_ann_decidable_new S rS bS -> 
-     bop_exists_ann_decidable_new T rT bT -> 
-     bop_exists_ann_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT).
-Proof. intros S T rS rT bS bT [wS PS] [wT PT]. 
-       exists (check_exists_ann_product_new S T wS wT). 
-       destruct wS as [s | uS]; destruct wT as [t | uT]; simpl. 
-          apply bop_product_is_ann; auto. 
-          apply bop_product_not_exists_ann; auto. 
-          apply bop_product_not_exists_ann; auto. 
-          apply bop_product_not_exists_ann; auto. 
-Defined. 
-
-*) 
 
 Definition bop_product_left_constant_decide : 
    ∀ (S T : Type) 
@@ -760,30 +503,6 @@ Definition bop_product_left_constant_decide :
        | inr nPS   => inr _ (bop_product_not_left_constant_left S T rS rT bS bT t nPS)
        end
    end. 
-
-(* 
-
-Definition bop_product_left_constant_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     bop_left_constant_decidable_new S rS bS -> 
-     bop_left_constant_decidable_new T rT bT -> 
-     bop_left_constant_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT). 
-Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT]. 
-       exists (check_left_constant_product_new S T s t wS wT). 
-       destruct wS as [ LS | [s1 [s2 s3]]]; destruct wT as [ LT | [t1 [t2 t3]] ]; simpl. 
-           apply bop_product_left_constant; auto. 
-           rewrite PT. rewrite andb_comm. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-Defined. 
-
-*) 
 
 Definition bop_product_right_constant_decide : 
    ∀ (S T : Type) 
@@ -810,27 +529,6 @@ Definition bop_product_right_constant_decide :
    end. 
 
 
-(* 
-Definition bop_product_right_constant_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     bop_right_constant_decidable_new S rS bS -> 
-     bop_right_constant_decidable_new T rT bT -> 
-     bop_right_constant_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT). 
-Proof. intros S T rS rT bS bT [[s Ps] [f Pf]] [[t Pt] [g Pg]] [wS PS] [wT PT]. 
-       exists (check_right_constant_product_new S T s t wS wT). 
-       destruct wS as [ LS | [s1 [s2 s3]]]; destruct wT as [ LT | [t1 [t2 t3]] ]; simpl. 
-           apply bop_product_right_constant; auto. 
-           rewrite PT. rewrite andb_comm. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-           rewrite PS. simpl. reflexivity. 
-Defined. 
-*) 
 
 Definition bop_product_anti_left_decide : 
    ∀ (S T : Type) 
@@ -852,26 +550,6 @@ Definition bop_product_anti_left_decide :
    end. 
 
 
-(* 
-
-Definition bop_product_anti_left_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     bop_anti_left_decidable_new S rS bS -> 
-     bop_anti_left_decidable_new T rT bT -> 
-     bop_anti_left_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT). 
-Proof. intros S T rS rT bS bT [wS PS] [wT PT]. 
-       exists (check_anti_left_product_new S T wS wT). 
-       destruct wS as [ LS | [s1 s2]]; destruct wT as [ LT | [t1 t2] ]; simpl. 
-           apply bop_product_anti_left; auto. 
-           apply bop_product_anti_left; auto. 
-           apply bop_product_anti_left; auto. 
-           rewrite PS, PT. simpl. reflexivity. 
-Defined. 
-*) 
 
 Definition bop_product_anti_right_decide : 
    ∀ (S T : Type) 
@@ -892,27 +570,6 @@ Definition bop_product_anti_right_decide :
      end 
    end. 
 
-(* 
-Definition bop_product_anti_right_decide_new : 
-   ∀ (S T : Type) 
-     (rS : brel S) 
-     (rT : brel T) 
-     (bS : binary_op S) 
-     (bT: binary_op T), 
-     bop_anti_right_decidable_new S rS bS -> 
-     bop_anti_right_decidable_new T rT bT -> 
-     bop_anti_right_decidable_new (S * T) (brel_product S T rS rT) (bop_product S T bS bT). 
-Proof. intros S T rS rT bS bT [wS PS] [wT PT]. 
-       exists (check_anti_right_product_new S T wS wT). 
-       destruct wS as [ LS | [s1 s2]]; destruct wT as [ LT | [t1 t2] ]; simpl. 
-           apply bop_product_anti_right; auto. 
-           apply bop_product_anti_right; auto. 
-           apply bop_product_anti_right; auto. 
-           rewrite PS, PT. simpl. reflexivity. 
-Defined. 
-
-
-*) 
 
 
 (* llex *)
@@ -1672,6 +1329,7 @@ nLA(S) -> nLA(lex, product)
 
 *)
 
+
 Definition bops_llex_product_left_left_absorptive_decide : 
    ∀ (S T : Type) 
      ( t : T) 
@@ -1700,7 +1358,7 @@ match laS_d with
        | inl antilS => inl _ (bops_llex_product_left_left_absorptive 
                                     S T rS rT addS mulS addT mulT refT laS (inr _ antilS))
        | inr not_antilS => inr _ (bops_llex_product_not_left_left_absorptive_right
-                            S T rS rT addS mulS addT mulT not_antilS symS tranS laS not_laT)
+                            S T rS rT addS mulS addT mulT symS tranS laS not_laT not_antilS)
        end 
    end 
 |inr not_laS => inr _ (bops_llex_product_not_left_left_absorptive_left 
@@ -1737,7 +1395,7 @@ match laS_d with
        | inl antilS => inl _ (bops_llex_product_left_right_absorptive 
                                     S T rS rT addS mulS addT mulT refT laS (inr _ antilS))
        | inr not_antilS => inr _ (bops_llex_product_not_left_right_absorptive_right
-                            S T rS rT addS mulS addT mulT not_antilS symS tranS laS not_laT)
+                            S T rS rT addS mulS addT mulT symS tranS laS not_laT not_antilS )
        end 
    end 
 |inr not_laS => inr _ (bops_llex_product_not_left_right_absorptive_left 
@@ -1774,7 +1432,7 @@ match laS_d with
        | inl antilS => inl _ (bops_llex_product_right_left_absorptive 
                                     S T rS rT addS mulS addT mulT refT symS tranS laS (inr _ antilS))
        | inr not_antilS => inr _ (bops_llex_product_not_right_left_absorptive_right
-                            S T rS rT addS mulS addT mulT not_antilS symS tranS laS not_laT)
+                            S T rS rT addS mulS addT mulT symS tranS laS not_laT not_antilS )
        end 
    end 
 |inr not_laS => inr _ (bops_llex_product_not_right_left_absorptive_left 
@@ -1804,13 +1462,13 @@ match laS_d with
 |inl laS =>
    match laT_d with 
    |inl laT =>  inl _ (bops_llex_product_right_right_absorptive 
-                          S T rS rT addS mulS addT mulT refT laS (inl _ laT))
+                          S T rS rT addS mulS addT mulT symS tranS refT laS (inl _ laT))
    |inr not_laT  => 
        match antilS_d with 
        | inl antilS => inl _ (bops_llex_product_right_right_absorptive 
-                                    S T rS rT addS mulS addT mulT refT laS (inr _ antilS))
+                                    S T rS rT addS mulS addT mulT symS tranS refT laS (inr _ antilS))
        | inr not_antilS => inr _ (bops_llex_product_not_right_right_absorptive_right
-                            S T rS rT addS mulS addT mulT not_antilS symS tranS laS not_laT)
+                            S T rS rT addS mulS addT mulT symS tranS laS not_laT not_antilS )
        end 
    end 
 |inr not_laS => inr _ (bops_llex_product_not_right_right_absorptive_left 

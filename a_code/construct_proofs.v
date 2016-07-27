@@ -2830,7 +2830,7 @@ Definition bs_proofs_product :
 
 |}. 
 
-(* 
+
 
 Definition bs_proofs_llex : 
   ∀ (S T: Type) 
@@ -2840,12 +2840,15 @@ Definition bs_proofs_llex :
     (plusT timesT : binary_op T), 
      eqv_proofs S rS -> 
      eqv_proofs T rT -> 
-     sg_CS_proofs S rS plusS -> 
-     sg_proofs S rS timesS ->            (*NB*) 
+
+     sg_CS_proofs S rS plusS ->          (*NB*) 
+     sg_proofs S rS timesS ->            
      sg_C_proofs T rT plusT ->           (*NB*) 
-     sg_proofs T rT timesT ->            (*NB*) 
+     sg_proofs T rT timesT ->            
+
      bs_proofs S rS plusS timesS -> 
      bs_proofs T rT plusT timesT -> 
+
         bs_proofs (S * T) 
            (brel_product S T rS rT) 
            (bop_llex S T rS plusS plusT)
@@ -2892,28 +2895,6 @@ Definition bs_proofs_llex :
      (A_bs_right_distributive_d S rS plusS timesS pS)
      (A_bs_right_distributive_d T rT plusT timesT pT)
 
-; A_bs_left_absorptive_d      := 
-    bops_llex_product_left_absorptive_decide S T 
-       (brel_get_witness T rT (brel_nontrivial_witness T rT (A_eqv_nontrivial T rT eqvT)))  
-        rS rT plusS timesS plusT timesT 
-    (A_eqv_symmetric S rS eqvS) 
-    (A_eqv_transitive S rS eqvS) 
-    (A_eqv_reflexive T rT eqvT) 
-    (A_bs_left_absorptive_d S rS plusS timesS pS)
-    (A_bs_left_absorptive_d T rT plusT timesT pT)
-    (A_sg_anti_left_d S rS timesS sg_S)
-
-; A_bs_right_absorptive_d     := 
-    bops_llex_product_right_absorptive_decide S T 
-       (brel_get_witness T rT (brel_nontrivial_witness T rT (A_eqv_nontrivial T rT eqvT)))  
-        rS rT plusS timesS plusT timesT 
-    (A_eqv_symmetric S rS eqvS) 
-    (A_eqv_transitive S rS eqvS) 
-    (A_eqv_reflexive T rT eqvT) 
-    (A_bs_right_absorptive_d S rS plusS timesS pS)
-    (A_bs_right_absorptive_d T rT plusT timesT pT)
-    (A_sg_anti_right_d S rS timesS sg_S)
-
 ; A_bs_plus_id_is_times_ann_d :=  
    bops_llex_product_id_equals_ann_decide S T 
    rS rT plusS timesS plusT timesT 
@@ -2940,9 +2921,56 @@ Definition bs_proofs_llex :
    (A_bs_times_id_is_plus_ann_d S rS plusS timesS pS)
    (A_bs_times_id_is_plus_ann_d T rT plusT timesT pT)
 
+
+; A_bs_left_left_absorptive_d      := 
+    bops_llex_product_left_left_absorptive_decide S T 
+       (brel_get_witness T rT (brel_nontrivial_witness T rT (A_eqv_nontrivial T rT eqvT)))  
+        rS rT plusS timesS plusT timesT 
+    (A_eqv_symmetric S rS eqvS) 
+    (A_eqv_transitive S rS eqvS) 
+    (A_eqv_reflexive T rT eqvT) 
+    (A_bs_left_left_absorptive_d S rS plusS timesS pS)
+    (A_bs_left_left_absorptive_d T rT plusT timesT pT)
+    (A_sg_anti_left_d S rS timesS sg_S)
+
+
+; A_bs_left_right_absorptive_d      := 
+    bops_llex_product_left_right_absorptive_decide S T 
+       (brel_get_witness T rT (brel_nontrivial_witness T rT (A_eqv_nontrivial T rT eqvT)))  
+        rS rT plusS timesS plusT timesT 
+    (A_eqv_symmetric S rS eqvS) 
+    (A_eqv_transitive S rS eqvS) 
+    (A_eqv_reflexive T rT eqvT) 
+    (A_bs_left_right_absorptive_d S rS plusS timesS pS)
+    (A_bs_left_right_absorptive_d T rT plusT timesT pT)
+    (A_sg_anti_right_d S rS timesS sg_S)
+
+
+; A_bs_right_left_absorptive_d      := 
+    bops_llex_product_right_left_absorptive_decide S T 
+       (brel_get_witness T rT (brel_nontrivial_witness T rT (A_eqv_nontrivial T rT eqvT)))  
+        rS rT plusS timesS plusT timesT 
+    (A_eqv_symmetric S rS eqvS) 
+    (A_eqv_transitive S rS eqvS) 
+    (A_eqv_reflexive T rT eqvT) 
+    (A_bs_right_left_absorptive_d S rS plusS timesS pS)
+    (A_bs_right_left_absorptive_d T rT plusT timesT pT)
+    (A_sg_anti_left_d S rS timesS sg_S)
+
+; A_bs_right_right_absorptive_d      := 
+    bops_llex_product_right_right_absorptive_decide S T 
+       (brel_get_witness T rT (brel_nontrivial_witness T rT (A_eqv_nontrivial T rT eqvT)))  
+        rS rT plusS timesS plusT timesT 
+    (A_eqv_symmetric S rS eqvS) 
+    (A_eqv_transitive S rS eqvS) 
+    (A_eqv_reflexive T rT eqvT) 
+    (A_bs_right_right_absorptive_d S rS plusS timesS pS)
+    (A_bs_right_right_absorptive_d T rT plusT timesT pT)
+    (A_sg_anti_right_d S rS timesS sg_S)
+
 |}. 
 
-*) 
+
 
 
 

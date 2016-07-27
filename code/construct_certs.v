@@ -1175,67 +1175,6 @@ with
 end. 
 
 
-Definition bs_certs_llex_product : 
-  ∀ (S T: Type)
-     (rS : brel S) 
-     (rT : brel T) 
-     (addS : binary_op S) 
-     (addT mulT : binary_op T),
-    eqv_certificates S -> 
-    eqv_certificates T -> 
-    sg_certificates S  → 
-    sg_certificates T → 
-    bs_certificates S -> 
-    bs_certificates T -> bs_certificates (S * T) 
-:= λ S T rS rT addS addT mulT eqvS eqvT sg_timesS sg_timesT bsS bsT, 
-match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
-      certify_nontrivial_witness T (eqv_nontrivial T eqvT)
-with 
-| Certify_Witness s, Certify_Witness t => 
-{|
-  bs_left_distributive_d     := bops_llex_product_left_distributive_check S T 
-                                     rS rT addS addT mulT 
-                                     (eqv_nontrivial S eqvS)  
-                                     (eqv_nontrivial T eqvT)  
-                                     (sg_left_cancel_d S sg_timesS)
-                                     (sg_left_constant_d T sg_timesT) 
-                                     (bs_left_distributive_d S bsS)
-                                     (bs_left_distributive_d T bsT)
-; bs_right_distributive_d    := bops_llex_product_right_distributive_check S T 
-                                     rS rT addS addT mulT 
-                                     (eqv_nontrivial S eqvS)  
-                                     (eqv_nontrivial T eqvT)  
-                                     (sg_right_cancel_d S sg_timesS)
-                                     (sg_right_constant_d T sg_timesT) 
-                                     (bs_right_distributive_d S bsS)
-                                     (bs_right_distributive_d T bsT)
-; bs_plus_id_is_times_ann_d := bops_llex_product_plus_id_is_times_ann_check S T 
-                                     (bs_plus_id_is_times_ann_d S bsS)
-                                     (bs_plus_id_is_times_ann_d T bsT)
-; bs_times_id_is_plus_ann_d := bops_llex_product_times_id_equals_plus_ann_check S T 
-                                     (bs_times_id_is_plus_ann_d S bsS)
-                                     (bs_times_id_is_plus_ann_d T bsT)
-; bs_left_left_absorptive_d := bops_llex_product_left_left_absorptive_check S T t 
-                                     (bs_left_left_absorptive_d S bsS)
-                                     (bs_left_left_absorptive_d T bsT) 
-                                     (sg_anti_left_d S sg_timesS) 
-; bs_left_right_absorptive_d := bops_llex_product_left_right_absorptive_check S T t 
-                                     (bs_left_right_absorptive_d S bsS)
-                                     (bs_left_right_absorptive_d T bsT) 
-                                     (sg_anti_right_d S sg_timesS)
-; bs_right_left_absorptive_d := bops_llex_product_right_left_absorptive_check S T t 
-                                     (bs_right_left_absorptive_d S bsS)
-                                     (bs_right_left_absorptive_d T bsT) 
-                                     (sg_anti_right_d S sg_timesS)  
-; bs_right_right_absorptive_d   := bops_llex_product_right_right_absorptive_check S T t
-                                     (bs_right_right_absorptive_d S bsS)
-                                     (bs_right_right_absorptive_d T bsT)
-                                     (sg_anti_right_d S sg_timesS) 
-
-|}
-end. 
-
-
 
 
 
@@ -1346,4 +1285,68 @@ Definition bs_certs_intersect_union : ∀ (S : Type), bs_certificates S
    ; bs_right_left_absorptive_d  := Certify_Right_Left_Absorptive _ 
    ; bs_right_right_absorptive_d := Certify_Right_Right_Absorptive _ 
   |}. 
+
+
+Definition bs_certs_llex_product : 
+  ∀ (S T: Type)
+     (rS : brel S) 
+     (rT : brel T) 
+     (addS : binary_op S) 
+     (addT mulT : binary_op T),
+    eqv_certificates S -> 
+    eqv_certificates T -> 
+    sg_certificates S  → 
+    sg_certificates T → 
+    bs_certificates S -> 
+    bs_certificates T -> bs_certificates (S * T) 
+:= λ S T rS rT addS addT mulT eqvS eqvT sg_timesS sg_timesT bsS bsT, 
+match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
+      certify_nontrivial_witness T (eqv_nontrivial T eqvT)
+with 
+| Certify_Witness s, Certify_Witness t => 
+{|
+  bs_left_distributive_d     := bops_llex_product_left_distributive_check S T 
+                                     rS rT addS addT mulT 
+                                     (eqv_nontrivial S eqvS)  
+                                     (eqv_nontrivial T eqvT)  
+                                     (sg_left_cancel_d S sg_timesS)
+                                     (sg_left_constant_d T sg_timesT) 
+                                     (bs_left_distributive_d S bsS)
+                                     (bs_left_distributive_d T bsT)
+; bs_right_distributive_d    := bops_llex_product_right_distributive_check S T 
+                                     rS rT addS addT mulT 
+                                     (eqv_nontrivial S eqvS)  
+                                     (eqv_nontrivial T eqvT)  
+                                     (sg_right_cancel_d S sg_timesS)
+                                     (sg_right_constant_d T sg_timesT) 
+                                     (bs_right_distributive_d S bsS)
+                                     (bs_right_distributive_d T bsT)
+; bs_plus_id_is_times_ann_d := bops_llex_product_plus_id_is_times_ann_check S T 
+                                     (bs_plus_id_is_times_ann_d S bsS)
+                                     (bs_plus_id_is_times_ann_d T bsT)
+; bs_times_id_is_plus_ann_d := bops_llex_product_times_id_equals_plus_ann_check S T 
+                                     (bs_times_id_is_plus_ann_d S bsS)
+                                     (bs_times_id_is_plus_ann_d T bsT)
+; bs_left_left_absorptive_d := bops_llex_product_left_left_absorptive_check S T t 
+                                     (bs_left_left_absorptive_d S bsS)
+                                     (bs_left_left_absorptive_d T bsT) 
+                                     (sg_anti_left_d S sg_timesS) 
+; bs_left_right_absorptive_d := bops_llex_product_left_right_absorptive_check S T t 
+                                     (bs_left_right_absorptive_d S bsS)
+                                     (bs_left_right_absorptive_d T bsT) 
+                                     (sg_anti_right_d S sg_timesS)
+; bs_right_left_absorptive_d := bops_llex_product_right_left_absorptive_check S T t 
+                                     (bs_right_left_absorptive_d S bsS)
+                                     (bs_right_left_absorptive_d T bsT) 
+                                     (sg_anti_right_d S sg_timesS)  
+; bs_right_right_absorptive_d   := bops_llex_product_right_right_absorptive_check S T t
+                                     (bs_right_right_absorptive_d S bsS)
+                                     (bs_right_right_absorptive_d T bsT)
+                                     (sg_anti_right_d S sg_timesS) 
+
+|}
+end. 
+
+
+
 

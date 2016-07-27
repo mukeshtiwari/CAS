@@ -107,6 +107,17 @@ Record A_bs_CS (S : Type) := {
 }.
 
 
+Record A_bs_C (S : Type) := {
+  A_bs_C_eqv          : A_eqv S 
+; A_bs_C_plus         : binary_op S 
+; A_bs_C_times        : binary_op S 
+; A_bs_C_plus_proofs  : sg_C_proofs S (A_eqv_eq S A_bs_C_eqv) A_bs_C_plus
+; A_bs_C_times_proofs : sg_proofs S   (A_eqv_eq S A_bs_C_eqv) A_bs_C_times 
+; A_bs_C_proofs       : bs_proofs S (A_eqv_eq S A_bs_C_eqv) A_bs_C_plus A_bs_C_times 
+; A_bs_C_ast          : ast_bs_C
+}.
+
+
 
 
 

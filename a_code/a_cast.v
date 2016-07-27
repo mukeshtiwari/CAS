@@ -236,21 +236,13 @@ Definition A_sg_from_sg_CS: ∀ (S : Type),  A_sg_CS S -> A_sg S
 := λ S sgS, A_sg_from_sg_C S (A_sg_C_from_sg_CS S sgS).  
 
 
-(* finish someday .... 
-Definition A_sg_proofs_from_sg_CI_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S), sg_CI_proofs S r b -> sg_proofs S r b 
-:= λ S r b sgS, A_sg_proofs_from_sg_C_proofs S r b (A_sg_C_proofs_from_sg_CI_proofs S r b sgS).  
+Definition A_sg_C_proofs_from_sg_CS_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S),  eqv_proofs S r -> sg_CS_proofs S r b -> sg_C_proofs S r b
+:= λ S r b eqv sg_CS, A_sg_C_proofs_from_sg_CI_proofs S r b eqv 
+                     (A_sg_CI_proofs_from_sg_CS_proofs S r b sg_CS ). 
 
 
-Definition A_sg_proofs_from_csg_C_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S), sg_CK_proofs S r b -> sg_proofs S r b 
-:= λ S r b sgS, A_sg_proofs_from_sg_C_proofs S r b (A_sg_C_proofs_from_sg_CK_proofs S r b sgS).  
-
-Definition A_sg_C_proofs_from_sg_CS_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S),  sg_CS_proofs S r b -> sg_C_proofs S r b
-:= λ S r b sg_CSS, A_sg_C_proofs_from_sg_CI_proofs S r b (A_sg_CI_proofs_from_sg_CS_proofs S r b sg_CSS ). 
-
-Definition A_sg_proofs_from_sg_CS_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S), sg_CS_proofs S r b -> sg_proofs S r b 
-:= λ S r b sg_CSS, A_sg_proofs_from_sg_C_proofs S r b (A_sg_C_proofs_from_sg_CS_proofs S r b sg_CSS).
-
-*) 
+Definition A_sg_proofs_from_sg_CS_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S), eqv_proofs S r ->  sg_CS_proofs S r b -> sg_proofs S r b 
+:= λ S r b eqv sg_CS, A_sg_proofs_from_sg_C_proofs S r b eqv (A_sg_C_proofs_from_sg_CS_proofs S r b eqv sg_CS).
 
 
 (* DOWNCASTS *) 
@@ -275,6 +267,23 @@ Definition A_sg_C_proofs_option_from_sg_proofs : ∀ (S : Type) (r : brel S) (b 
       ; A_sg_C_anti_right_d     := A_sg_anti_right_d S r b sgS
      |}
    | _ => None
+   end . 
+
+
+Definition A_sg_CS_proofs_option_from_sg_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S), sg_proofs S r b -> option (sg_CS_proofs S r b) 
+:= λ S r b sgS, 
+   match A_sg_commutative_d S r b sgS, A_sg_selective_d S r b sgS with 
+   | inl comm,   inl sel => 
+    Some
+      {|
+        A_sg_CS_associative   := A_sg_associative S r b sgS    
+      ; A_sg_CS_congruence    := A_sg_congruence S r b sgS    
+      ; A_sg_CS_commutative   := comm 
+      ; A_sg_CS_selective     := sel 
+      ; A_sg_CS_exists_id_d   := A_sg_exists_id_d S r b sgS    
+      ; A_sg_CS_exists_ann_d  := A_sg_exists_ann_d S r b sgS    
+     |}
+   | _ , _  => None
    end . 
 
 
@@ -418,30 +427,85 @@ Definition A_sg_CS_option_from_sg: ∀ (S : Type),  A_sg S -> option (A_sg_CS S)
 
 (* ******************************************************************
 
-SG SG 
+BS 
 
 ****************************************************************** *) 
 
-(* UPCAST 
 
-Definition A_sg_sg_from_sg_C_sg : ∀ (S : Type),  A_sg_C_sg S -> A_sg_sg S 
+
+Definition A_bs_from_bs_C : ∀ (S : Type),  A_bs_C S -> A_bs S 
 := λ S s, 
 {| 
-  A_sg_sg_eqv          := A_sg_C_sg_eqv S s
-; A_sg_sg_plus         := A_sg_C_sg_plus S s
-; A_sg_sg_times        := A_sg_C_sg_times S s
-; A_sg_sg_plus_proofs  := A_sg_proofs_from_sg_C_proofs S 
-                            (A_eqv_eq S (A_sg_C_sg_eqv S s))
-                            (A_sg_C_sg_plus S s)
-                            (A_eqv_proofs S (A_sg_C_sg_eqv S s)) 
-                            (A_sg_C_sg_plus_proofs S s)  
-; A_sg_sg_times_proofs := A_sg_C_sg_times_proofs S s
-; A_sg_sg_proofs       := A_sg_C_sg_proofs S s 
-; A_sg_sg_ast          := Ast_sg_sg_from_sg_C_sg (A_sg_C_sg_ast S s)
+  A_bs_eqv          := A_bs_C_eqv S s
+; A_bs_plus         := A_bs_C_plus S s
+; A_bs_times        := A_bs_C_times S s
+; A_bs_plus_proofs  := A_sg_proofs_from_sg_C_proofs S 
+                            (A_eqv_eq S (A_bs_C_eqv S s))
+                            (A_bs_C_plus S s)
+                            (A_eqv_proofs S (A_bs_C_eqv S s)) 
+                            (A_bs_C_plus_proofs S s)  
+; A_bs_times_proofs := A_bs_C_times_proofs S s
+; A_bs_proofs       := A_bs_C_proofs S s 
+; A_bs_ast          := Ast_bs_from_bs_C (A_bs_C_ast S s)
 |}. 
 
 
 
+Definition A_bs_from_bs_CS : ∀ (S : Type),  A_bs_CS S -> A_bs S 
+:= λ S s, 
+{| 
+  A_bs_eqv          := A_bs_CS_eqv S s
+; A_bs_plus         := A_bs_CS_plus S s
+; A_bs_times        := A_bs_CS_times S s
+; A_bs_plus_proofs  := A_sg_proofs_from_sg_CS_proofs S 
+                            (A_eqv_eq S (A_bs_CS_eqv S s))
+                            (A_bs_CS_plus S s)
+                            (A_eqv_proofs S (A_bs_CS_eqv S s)) 
+                            (A_bs_CS_plus_proofs S s)  
+; A_bs_times_proofs := A_bs_CS_times_proofs S s
+; A_bs_proofs       := A_bs_CS_proofs S s 
+; A_bs_ast          := Ast_bs_from_bs_CS (A_bs_CS_ast S s)
+|}. 
+
+
+
+Definition A_bs_C_option_from_bs : ∀ (S : Type),  A_bs S -> option (A_bs_C S) 
+:= λ S s, 
+   match A_sg_C_proofs_option_from_sg_proofs _ _ _ (A_bs_plus_proofs S s) with 
+   | None => None
+   | Some sg_C_p => Some (
+     {| 
+         A_bs_C_eqv          := A_bs_eqv S s
+       ; A_bs_C_plus         := A_bs_plus S s
+       ; A_bs_C_times        := A_bs_times S s
+       ; A_bs_C_plus_proofs  := sg_C_p
+       ; A_bs_C_times_proofs := A_bs_times_proofs S s
+       ; A_bs_C_proofs       := A_bs_proofs S s 
+       ; A_bs_C_ast          := Ast_bs_C_from_bs (A_bs_ast S s)
+    |})
+   end. 
+
+
+
+Definition A_bs_CS_option_from_bs : ∀ (S : Type),  A_bs S -> option (A_bs_CS S) 
+:= λ S s, 
+   match A_sg_CS_proofs_option_from_sg_proofs _ _ _ (A_bs_plus_proofs S s) with 
+   | None => None
+   | Some sg_CS_p => Some (
+     {| 
+         A_bs_CS_eqv          := A_bs_eqv S s
+       ; A_bs_CS_plus         := A_bs_plus S s
+       ; A_bs_CS_times        := A_bs_times S s
+       ; A_bs_CS_plus_proofs  := sg_CS_p
+       ; A_bs_CS_times_proofs := A_bs_times_proofs S s
+       ; A_bs_CS_proofs       := A_bs_proofs S s 
+       ; A_bs_CS_ast          := Ast_bs_CS_from_bs (A_bs_ast S s)
+    |})
+   end. 
+
+
+
+(* UPCAST 
 
 Definition A_sg_proofs_from_sg_CS_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S), eqv_proofs S r -> sg_CS_proofs S r b -> sg_proofs S r b 
 := λ S r b eqvS sgS,  
@@ -461,93 +525,93 @@ Definition A_sg_C_proofs_from_sg_CS_proofs : ∀ (S : Type) (r : brel S) (b : bi
       A_sg_C_proofs_from_sg_CI_proofs S r b eqvS 
          (A_sg_CI_proofs_from_sg_CS_proofs S r b sgS).  
 
-Definition A_sg_C_sg_from_sg_CS_sg : ∀ (S : Type),  A_sg_CS_sg S -> A_sg_C_sg S 
+Definition A_bs_C_from_sg_CS_sg : ∀ (S : Type),  A_sg_CS_sg S -> A_bs_C S 
 := λ S s, 
 {| 
-  A_sg_C_sg_eqv          := A_sg_CS_sg_eqv S s
-; A_sg_C_sg_plus         := A_sg_CS_sg_plus S s
-; A_sg_C_sg_times        := A_sg_CS_sg_times S s
-; A_sg_C_sg_plus_proofs  := A_sg_C_proofs_from_sg_CS_proofs S 
+  A_bs_C_eqv          := A_sg_CS_sg_eqv S s
+; A_bs_C_plus         := A_sg_CS_sg_plus S s
+; A_bs_C_times        := A_sg_CS_sg_times S s
+; A_bs_C_plus_proofs  := A_sg_C_proofs_from_sg_CS_proofs S 
                             (A_eqv_eq S (A_sg_CS_sg_eqv S s))
                             (A_sg_CS_sg_plus S s)
                             (A_eqv_proofs S (A_sg_CS_sg_eqv S s)) 
                             (A_sg_CS_sg_plus_proofs S s)  
-; A_sg_C_sg_times_proofs := A_sg_CS_sg_times_proofs S s
-; A_sg_C_sg_proofs       := A_sg_CS_sg_proofs S s 
-; A_sg_C_sg_ast          := Ast_sg_C_sg_from_sg_CS_sg (A_sg_CS_sg_ast S s)
+; A_bs_C_times_proofs := A_sg_CS_sg_times_proofs S s
+; A_bs_C_proofs       := A_sg_CS_sg_proofs S s 
+; A_bs_C_ast          := Ast_bs_C_from_sg_CS_sg (A_sg_CS_sg_ast S s)
 |}. 
 
 
-Definition A_sg_sg_from_sg_CS_sg : ∀ (S : Type),  A_sg_CS_sg S -> A_sg_sg S 
-:= λ S s, A_sg_sg_from_sg_C_sg S (A_sg_C_sg_from_sg_CS_sg S s). 
+Definition A_bs_from_sg_CS_sg : ∀ (S : Type),  A_sg_CS_sg S -> A_bs S 
+:= λ S s, A_bs_from_bs_C S (A_bs_C_from_sg_CS_sg S s). 
 
-Definition A_sg_sg_proofs_from_sg_sg_LD_proofs : 
+Definition A_bs_proofs_from_bs_LD_proofs : 
    ∀ (S : Type) (eq : brel S) (plus : binary_op S) (times : binary_op S), 
         brel_transitive S eq -> 
         bop_congruence S eq plus -> 
         bop_commutative S eq plus -> 
         bop_commutative S eq times -> 
-       sg_sg_LD_proofs S eq plus times -> sg_sg_proofs S eq plus times
+       bs_LD_proofs S eq plus times -> bs_proofs S eq plus times
 := λ S eq plus times transS congP commP commT s,  
 {|
-  A_sg_sg_left_distributive_d    := inl _ (A_sg_sg_LD_left_distributive S eq plus times s) 
-; A_sg_sg_right_distributive_d   := inl _ (bop_left_distributive_implies_right S eq plus times
+  A_bs_left_distributive_d    := inl _ (A_bs_LD_left_distributive S eq plus times s) 
+; A_bs_right_distributive_d   := inl _ (bop_left_distributive_implies_right S eq plus times
                                               transS congP commP commT
-                                              (A_sg_sg_LD_left_distributive S eq plus times s))
+                                              (A_bs_LD_left_distributive S eq plus times s))
 
-; A_sg_sg_left_absorption_d      := A_sg_sg_LD_left_absorption_d S eq plus times s
-; A_sg_sg_right_absorption_d     := A_sg_sg_LD_right_absorption_d S eq plus times s
+; A_bs_left_absorption_d      := A_bs_LD_left_absorption_d S eq plus times s
+; A_bs_right_absorption_d     := A_bs_LD_right_absorption_d S eq plus times s
 
-; A_sg_sg_plus_id_is_times_ann_d := A_sg_sg_LD_plus_id_is_times_ann_d S eq plus times s
-; A_sg_sg_times_id_is_plus_ann_d := A_sg_sg_LD_times_id_is_plus_ann_d S eq plus times s
+; A_bs_plus_id_is_times_ann_d := A_bs_LD_plus_id_is_times_ann_d S eq plus times s
+; A_bs_times_id_is_plus_ann_d := A_bs_LD_times_id_is_plus_ann_d S eq plus times s
 |}. 
 
 
-Definition A_sg_sg_proofs_from_sg_sg_LA_proofs : 
+Definition A_bs_proofs_from_bs_LA_proofs : 
    ∀ (S : Type) (eq : brel S) (plus : binary_op S) (times : binary_op S), 
         brel_reflexive S eq -> 
         brel_transitive S eq -> 
         bop_congruence S eq plus -> 
         bop_commutative S eq times -> 
-       sg_sg_LA_proofs S eq plus times -> sg_sg_proofs S eq plus times
+       bs_LA_proofs S eq plus times -> bs_proofs S eq plus times
 := λ S eq plus times refS transS congP commT s,  
 {|
-  A_sg_sg_left_distributive_d    := A_sg_sg_LA_left_distributive_d S eq plus times s 
-; A_sg_sg_right_distributive_d   := A_sg_sg_LA_right_distributive_d S eq plus times s
+  A_bs_left_distributive_d    := A_bs_LA_left_distributive_d S eq plus times s 
+; A_bs_right_distributive_d   := A_bs_LA_right_distributive_d S eq plus times s
 
-; A_sg_sg_left_absorption_d      := inl _ (A_sg_sg_LA_left_absorption S eq plus times s)
-; A_sg_sg_right_absorption_d     := inl _ (bops_left_absorption_and_times_commutative_imply_right_absorption S eq plus times
+; A_bs_left_absorption_d      := inl _ (A_bs_LA_left_absorption S eq plus times s)
+; A_bs_right_absorption_d     := inl _ (bops_left_absorption_and_times_commutative_imply_right_absorption S eq plus times
                                               refS transS congP commT
-                                              (A_sg_sg_LA_left_absorption S eq plus times s))
+                                              (A_bs_LA_left_absorption S eq plus times s))
 
-; A_sg_sg_plus_id_is_times_ann_d := A_sg_sg_LA_plus_id_is_times_ann_d S eq plus times s
-; A_sg_sg_times_id_is_plus_ann_d := A_sg_sg_LA_times_id_is_plus_ann_d S eq plus times s
+; A_bs_plus_id_is_times_ann_d := A_bs_LA_plus_id_is_times_ann_d S eq plus times s
+; A_bs_times_id_is_plus_ann_d := A_bs_LA_times_id_is_plus_ann_d S eq plus times s
 |}. 
 
 
-Definition A_sg_sg_proofs_from_sg_sg_LALD_proofs : 
+Definition A_bs_proofs_from_bs_LALD_proofs : 
    ∀ (S : Type) (eq : brel S) (plus : binary_op S) (times : binary_op S), 
         brel_reflexive S eq -> 
         brel_transitive S eq -> 
         bop_congruence S eq plus -> 
         bop_commutative S eq plus -> 
         bop_commutative S eq times -> 
-       sg_sg_LALD_proofs S eq plus times -> sg_sg_proofs S eq plus times
+       bs_LALD_proofs S eq plus times -> bs_proofs S eq plus times
 := λ S eq plus times refS transS congP commP commT s,  
 {|
-  A_sg_sg_left_distributive_d    := inl _ (A_sg_sg_LALD_left_distributive S eq plus times s) 
-; A_sg_sg_right_distributive_d   := inl _ (bop_left_distributive_implies_right S eq plus times
+  A_bs_left_distributive_d    := inl _ (A_bs_LALD_left_distributive S eq plus times s) 
+; A_bs_right_distributive_d   := inl _ (bop_left_distributive_implies_right S eq plus times
                                               transS congP commP commT
-                                              (A_sg_sg_LALD_left_distributive S eq plus times s))
+                                              (A_bs_LALD_left_distributive S eq plus times s))
 
 
-; A_sg_sg_left_absorption_d      := inl _ (A_sg_sg_LALD_left_absorption S eq plus times s)
-; A_sg_sg_right_absorption_d     := inl _ (bops_left_absorption_and_times_commutative_imply_right_absorption S eq plus times
+; A_bs_left_absorption_d      := inl _ (A_bs_LALD_left_absorption S eq plus times s)
+; A_bs_right_absorption_d     := inl _ (bops_left_absorption_and_times_commutative_imply_right_absorption S eq plus times
                                               refS transS congP commT
-                                              (A_sg_sg_LALD_left_absorption S eq plus times s))
+                                              (A_bs_LALD_left_absorption S eq plus times s))
 
-; A_sg_sg_plus_id_is_times_ann_d := A_sg_sg_LALD_plus_id_is_times_ann_d S eq plus times s
-; A_sg_sg_times_id_is_plus_ann_d := A_sg_sg_LALD_times_id_is_plus_ann_d S eq plus times s
+; A_bs_plus_id_is_times_ann_d := A_bs_LALD_plus_id_is_times_ann_d S eq plus times s
+; A_bs_times_id_is_plus_ann_d := A_bs_LALD_times_id_is_plus_ann_d S eq plus times s
 |}. 
 
 
@@ -566,7 +630,7 @@ Definition A_sg_CS_sg_from_sg_CS_sg_CK_AD : ∀ (S : Type),  A_sg_CS_sg_CK_AD S 
                                 (A_sg_CS_sg_CK_AD_times S s)
                                 (A_eqv_proofs S (A_sg_CS_sg_CK_AD_eqv S s))
                                 (A_sg_CS_sg_CK_AD_times_proofs S s) 
-; A_sg_CS_sg_proofs       := A_sg_sg_proofs_from_sg_sg_LALD_proofs S 
+; A_sg_CS_sg_proofs       := A_bs_proofs_from_bs_LALD_proofs S 
                                 (A_eqv_eq S (A_sg_CS_sg_CK_AD_eqv S s))
                                 (A_sg_CS_sg_CK_AD_plus S s)
                                 (A_sg_CS_sg_CK_AD_times S s)
@@ -586,23 +650,23 @@ Definition A_sg_CS_sg_from_sg_CS_sg_CK_AD : ∀ (S : Type),  A_sg_CS_sg_CK_AD S 
 
 
 
-Definition A_sg_C_sg_from_sg_CS_sg_CS_AD : ∀ (S : Type),  A_sg_CS_sg_CS_AD S -> A_sg_C_sg S 
+Definition A_bs_C_from_sg_CS_sg_CS_AD : ∀ (S : Type),  A_sg_CS_sg_CS_AD S -> A_bs_C S 
 := λ S s,  
 {|
-  A_sg_C_sg_eqv          := A_sg_CS_sg_CS_AD_eqv S s 
-; A_sg_C_sg_plus         := A_sg_CS_sg_CS_AD_plus S s 
-; A_sg_C_sg_times        := A_sg_CS_sg_CS_AD_times S s 
-; A_sg_C_sg_plus_proofs  := A_sg_C_proofs_from_sg_CS_proofs S 
+  A_bs_C_eqv          := A_sg_CS_sg_CS_AD_eqv S s 
+; A_bs_C_plus         := A_sg_CS_sg_CS_AD_plus S s 
+; A_bs_C_times        := A_sg_CS_sg_CS_AD_times S s 
+; A_bs_C_plus_proofs  := A_sg_C_proofs_from_sg_CS_proofs S 
                                 (A_eqv_eq S (A_sg_CS_sg_CS_AD_eqv S s))
                                 (A_sg_CS_sg_CS_AD_plus S s)
                                 (A_eqv_proofs S (A_sg_CS_sg_CS_AD_eqv S s))
                                 (A_sg_CS_sg_CS_AD_plus_proofs S s)  
-; A_sg_C_sg_times_proofs := A_sg_proofs_from_sg_CS_proofs S 
+; A_bs_C_times_proofs := A_sg_proofs_from_sg_CS_proofs S 
                                 (A_eqv_eq S (A_sg_CS_sg_CS_AD_eqv S s))
                                 (A_sg_CS_sg_CS_AD_times S s)
                                 (A_eqv_proofs S (A_sg_CS_sg_CS_AD_eqv S s))
                                 (A_sg_CS_sg_CS_AD_times_proofs S s) 
-; A_sg_C_sg_proofs       := A_sg_sg_proofs_from_sg_sg_LALD_proofs S 
+; A_bs_C_proofs       := A_bs_proofs_from_bs_LALD_proofs S 
                                 (A_eqv_eq S (A_sg_CS_sg_CS_AD_eqv S s))
                                 (A_sg_CS_sg_CS_AD_plus S s)
                                 (A_sg_CS_sg_CS_AD_times S s)
@@ -616,7 +680,7 @@ Definition A_sg_C_sg_from_sg_CS_sg_CS_AD : ∀ (S : Type),  A_sg_CS_sg_CS_AD S -
                                 (A_sg_CS_commutative S _ _ (A_sg_CS_sg_CS_AD_plus_proofs S s)) 
                                 (A_sg_CS_commutative S _ _ (A_sg_CS_sg_CS_AD_times_proofs S s))
                                 (A_sg_CS_sg_CS_AD_proofs S s)  
-; A_sg_C_sg_ast          :=  Ast_sg_C_sg_from_sg_CS_sg_CS_AD (A_sg_CS_sg_CS_AD_ast S s)  
+; A_bs_C_ast          :=  Ast_bs_C_from_sg_CS_sg_CS_AD (A_sg_CS_sg_CS_AD_ast S s)  
 |}.
 
 
@@ -632,7 +696,7 @@ Definition A_sg_CS_sg_from_sg_CS_sg_CS_AD : ∀ (S : Type),  A_sg_CS_sg_CS_AD S 
                                 (A_sg_CS_sg_CS_AD_times S s)
                                 (A_eqv_proofs S (A_sg_CS_sg_CS_AD_eqv S s))
                                 (A_sg_CS_sg_CS_AD_times_proofs S s) 
-; A_sg_CS_sg_proofs       := A_sg_sg_proofs_from_sg_sg_LALD_proofs S 
+; A_sg_CS_sg_proofs       := A_bs_proofs_from_bs_LALD_proofs S 
                                 (A_eqv_eq S (A_sg_CS_sg_CS_AD_eqv S s))
                                 (A_sg_CS_sg_CS_AD_plus S s)
                                 (A_sg_CS_sg_CS_AD_times S s)

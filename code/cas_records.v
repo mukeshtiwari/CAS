@@ -83,66 +83,15 @@ Record bs_CS (S : Type) := {
 }.
 
 
-
-(*
-
-Record sg_C_sg (S : Type) := {
-  sg_C_sg_eqv         : eqv S 
-; sg_C_sg_plus        : binary_op S 
-; sg_C_sg_times       : binary_op S 
-; sg_C_sg_plus_certs  : sg_C_certificates S
-; sg_C_sg_times_certs : sg_certificates S  
-; sg_C_sg_certs       : bs_certificates S 
-; sg_C_sg_ast         : ast_sg_C_sg
+Record bs_C (S : Type) := {
+  bs_C_eqv         : eqv S 
+; bs_C_plus        : binary_op S 
+; bs_C_times       : binary_op S 
+; bs_C_plus_certs  : sg_C_certificates S 
+; bs_C_times_certs : sg_certificates S    
+; bs_C_certs       : bs_certificates S 
+; bs_C_ast         : ast_bs_C
 }.
 
 
-Record sg_CI_sg (S : Type) := {
-  sg_CI_sg_eqv         : eqv S 
-; sg_CI_sg_plus        : binary_op S 
-; sg_CI_sg_times       : binary_op S 
-; sg_CI_sg_plus_certs  : sg_CI_certificates S
-; sg_CI_sg_times_certs : sg_certificates S  
-; sg_CI_sg_certs       : bs_certificates S 
-; sg_CI_sg_ast         : ast_sg_CI_sg
-}.
 
-
-(* sr = semiring *) 
-Record sr (S : Type) := {
-  sr_eq          : brel S 
-; sr_plus        : binary_op S 
-; sr_times       : binary_op S 
-; sr_eqv_certs   : eqv_certs S 
-; sr_plus_certs  : sg_C_certs S 
-; sr_times_certs : sg_certs S 
-; sr_sr_certs    : sr_certs S 
-; sr_ast         : ast_SR
-}.
-
-(* csr = closed semiring *) 
-Record csr (S : Type) := {
-  csr_eq          : brel S 
-; csr_plus        : binary_op S 
-; csr_times       : binary_op S 
-; csr_eqv_certs   : eqv_certs S 
-; csr_plus_certs  : sg_C_certs S 
-; csr_times_certs : sg_certs S 
-; csr_csr_certs   : csr_certs S 
-; csr_ast         : ast_CSR
-}.
-
-(* pa = path algebra = idempotent closed semiring *) 
-Record pa (S : Type) := {
-  pa_eq          : brel S 
-; pa_plus        : binary_op S 
-; pa_times       : binary_op S 
-; pa_eqv_certs   : eqv_certs S 
-; pa_plus_certs  : sg_CI_certs S 
-; pa_times_certs : sg_certs S 
-; pa_pa_certs    : csr_certs S 
-; pa_ast         : ast_PA
-}.
-
-
-*)
