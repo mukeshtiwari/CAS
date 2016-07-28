@@ -1,0 +1,240 @@
+\documentclass[../Summary.tex]{subfiles}
+
+\begin{document}
+
+\subsubsection{Summary}
+
+\[
+\begin{array}{lcrcl} 
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{RX}(\mathrm{LNO}(S,\ \bullet)) 
+    & \Leftrightarrow
+    & \propname{IP}(S,\ \bullet)  \\
+\propname{AS}(S,\ \bullet)
+	& \Rightarrow
+	& \propname{TR}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & \propname{TRUE} \\
+\propname{CM}(S,\ \bullet)
+	& \Rightarrow
+	& \propname{AY}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & \propname{TRUE} \\ 
+\propname{CM}(S,\ \bullet)
+	& \Rightarrow
+	& \propname{TO}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & \propname{SL}(S,\ \bullet) \\
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{BM}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & \propname{LAN}(S,\ \bullet) \\ 
+\propname{TRUE}
+	& \Rightarrow
+	& \propname{TP}(\mathrm{LNO}(S,\ \bullet))
+    & \Leftrightarrow
+    & \propname{RID}(S,\ \bullet) \\ 
+\end{array} 
+\] 
+
+
+
+
+
+\subsubsection{Reflexive}
+
+\begin{theorem} \label{thm:lno_reflexive}
+$\propname{RX}(\mathrm{LNO}(S,\bullet)) \Leftrightarrow \propname{IP}(S, \bullet)$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Assume $\propname{IP}(S,\bullet)$
+\begin{ind}
+Then for all $x$ we have that $x = x \bullet x$ and therefore $x \leq x$.
+\end{ind}
+Hence $\propname{IP}(S,\bullet) \Rightarrow \propname{RX}(\mathrm{LNO}(S,\bullet))$
+
+\vspace{2em}
+
+Assume $\neg \propname{IP}(S,\bullet)$
+\begin{ind}
+Then there exists $x$ such that $x \neq x \bullet x$ and therefore $x \nleq x$.
+\end{ind}
+Hence $\neg \propname{IP}(S,\bullet) \Rightarrow \neg \propname{RX}(\mathrm{LNO}(S,\bullet))$
+
+\end{proof}
+
+
+
+
+\subsubsection{Transitive}
+
+\begin{theorem} \label{thm:lno_transitive}
+If $\propname{AS}(S, \bullet)$ then
+\begin{equation*}
+\propname{TR}(\mathrm{LNO}(S,\bullet)) \Leftrightarrow  \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Consider arbitrary $x,y,z$
+\begin{ind}
+Assume $x \leq y$ ($x = x \bullet y$) and $y \leq z$ ($y = y \bullet z$)
+
+\begin{ind}
+Then we have
+\begin{align*}
+x 	& = x \bullet y \\
+	& = x \bullet (y \bullet z) \\
+	& = (x \bullet y) \bullet z \\
+	& = x \bullet z
+\end{align*}
+and so $x \leq z$.
+
+\end{ind}
+\end{ind}
+
+Hence $\propname{TR}(\mathrm{LNO}(S,\bullet))$
+\end{proof}
+
+
+
+
+\subsubsection{Antisymmetric}
+
+\begin{theorem} \label{thm:lno_antisymmetric}
+If $\propname{CM}(S, \bullet)$ then
+\begin{equation*}
+\propname{AY}(\mathrm{LNO}(S,\bullet)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+Consider arbitrary $x$ and $y$ such that $x \leq y$ ($x = x \bullet y$) and $y \leq x$ ($y = y \bullet y$). 
+
+\begin{ind}
+
+Then we have that
+\begin{align*}
+x 	& = x \bullet y \\
+	& = y \bullet x \\
+	& = y
+\end{align*}
+
+Hence $x \leq y$ and $y \leq x$ implies $x = y$
+\end{ind}
+
+Hence $\propname{AY}(\mathrm{LNO}(S,\bullet))$
+
+\end{proof}
+
+
+
+\subsubsection{Total}
+
+\begin{theorem} \label{thm:lno_total}
+If $\propname{CM}(S,\bullet)$ then
+\begin{equation*}
+\propname{TO}(\mathrm{LNO}(S,\bullet)) \Leftrightarrow \propname{SL}(S, \bullet)
+\end{equation*}
+\end{theorem}
+
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Assume $\propname{SL}(S,\bullet)$
+\begin{ind}
+Consider arbitrary $x$ and $y$.
+\begin{ind}
+Case $x = x \bullet y$
+\begin{ind}
+Then we have that $x \leq y$
+\end{ind}
+
+Case $y = x \bullet y$
+\begin{ind}
+Then we have that $y \bullet x = x \bullet y = y$ and so $y \leq x$.
+\end{ind}
+\end{ind}
+\end{ind}
+Hence $\propname{SL}(S,\bullet) \Rightarrow \propname{TO}(\mathrm{LNO}(S,\bullet))$
+
+\vspace{2em}
+
+Assume $\neg \propname{SL}(S,\bullet)$
+\begin{ind}
+Then there exists $x$ and $y$ such that $x \neq x \bullet y \neq y$. As $x \neq x \bullet y$ we have that $x \nleq y$ and as $y \neq x \bullet y = y \bullet x$ we also have that $y \nleq x$.
+\end{ind}
+Hence $\neg \propname{SL}(S,\bullet) \Rightarrow \neg \propname{TO}(\mathrm{LNO}(S,\bullet))$
+\end{proof}
+
+
+
+
+\subsubsection{Bottom}
+
+\begin{theorem} \label{thm:lno_bottom}
+$\propname{BM}(\mathrm{LNO}(S,\bullet)) \Leftrightarrow \propname{LAN}(S, \bullet)$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Assume $\propname{LAN}(S,\bullet)$
+\begin{ind}
+For all $x$ we then have $\omega = \omega \bullet x$ which shows $\omega \leq x$. Therefore $\omega$ is the required bottom element.
+\end{ind}
+Hence $\propname{LAN}(S,\bullet) \Rightarrow \propname{BM}(\mathrm{LNO}(S,\bullet))$
+
+\vspace{2em}
+
+Assume $\neg \propname{LAN}(S,\bullet)$
+\begin{ind}
+Consider arbitrary $x$. Then by $\neg \propname{LAN}(S,\bullet)$ there exists $y$ such that $x \neq x \bullet y$ and hence $x \nleq y$. Therefore there is no bottom element.
+\end{ind}
+Hence $\neg \propname{LAN}(S,\bullet) \Rightarrow \neg \propname{BM}(\mathrm{LNO}(S,\bullet))$
+\end{proof}
+
+
+
+
+\subsubsection{Top}
+
+\begin{theorem} \label{thm:lno_top}
+$\propname{TP}(\mathrm{LNO}(S,\bullet)) \Leftrightarrow \propname{RID}(S, \bullet)$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Assume $\propname{RID}(S,\bullet)$
+\begin{ind}
+For all $x$ we then have $x = x \bullet i$ which shows $x \leq i$. Therefore $i$ is the required top element.
+\end{ind}
+Hence $\propname{RID}(S,\bullet) \Rightarrow \propname{TP}(\mathrm{LNO}(S,\bullet))$
+
+\vspace{2em}
+
+Assume $\neg \propname{RID}(S,\bullet)$
+\begin{ind}
+Consider arbitrary $x$. Then by $\neg \propname{RID}(S,\bullet)$ there exists $y$ such that $y \neq y \bullet x$ and hence $y \nleq x$. Therefore there is no top element.
+\end{ind}
+Hence $\neg \propname{RID}(S,\bullet) \Rightarrow \neg \propname{TP}(\mathrm{LNO}(S,\bullet))$
+\end{proof}
+
+
+
+\end{document}
