@@ -3,7 +3,7 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.theory.properties. 
 Require Import CAS.theory.brel.conjunction. 
-Require Import CAS.theory.brel.dual. 
+Require Import CAS.theory.brel.complement. 
 Require Import CAS.theory.facts. 
 
 
@@ -52,7 +52,7 @@ Lemma brel_llt_irreflexive : ∀ (S : Type) (r : brel S) (b : binary_op S),
         brel_reflexive S r  -> brel_irreflexive S (brel_llt S r b). 
 Proof. unfold brel_llt. intros S r b ref x. 
        apply brel_conjunction_irreflexive_right. 
-       apply brel_dual_irreflexive; auto. 
+       apply brel_complement_irreflexive; auto. 
 Defined. 
 
 
@@ -79,7 +79,7 @@ Proof. unfold brel_llt.
        intros S r1 r2 b r_cong b_cong.
        apply brel_conjunction_congruence. 
        apply brel_llte_congruence; auto. 
-       apply brel_dual_congruence; auto. 
+       apply brel_complement_congruence; auto. 
 Defined. 
 
 (*
@@ -121,7 +121,7 @@ Lemma brel_llt_asymmetric : ∀ (S : Type) (r : brel S) (b : binary_op S),
           bop_commutative S r b → 
              brel_asymmetric S (brel_llt S r b). 
 Proof. unfold brel_asymmetric, brel_llt. unfold brel_llte. 
-       unfold brel_conjunction, brel_dual. 
+       unfold brel_conjunction, brel_complement. 
        intros S r b symS transS commS s1 s2 H.        
        apply andb_is_true_left in H. destruct H as [H1 H2].
        apply negb_true_elim in H2. 
@@ -138,7 +138,7 @@ Lemma brel_llt_asymmetric_right : ∀ (S : Type) (r : brel S) (b : binary_op S),
              brel_asymmetric S (brel_llt S r b). 
 Proof. intros S r b Ks1 s2 H. 
        apply brel_conjunction_asymmetric_right. 
-       apply brel_dual_asymmetric. assumption. 
+       apply brel_complement_asymmetric. assumption. 
 Defined. 
 
 Lemma brel_llte_antisymmetric : ∀ (S : Type) (r : brel S) (b : binary_op S),  
@@ -230,7 +230,7 @@ Lemma brel_llt_true_intro : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2
         (r s1 s2 = false) -> 
            brel_llt S r b s1 s2 = true. 
 Proof. intros S r b s1 s2 H1 H2. 
-       unfold brel_llt. unfold brel_conjunction, brel_dual, brel_llte. 
+       unfold brel_llt. unfold brel_conjunction, brel_complement, brel_llte. 
        rewrite H1, H2. simpl. reflexivity. 
 Defined. 
 
@@ -242,7 +242,7 @@ WAS brel_bop_to_lt_left_false_intro
 Lemma brel_llt_false_intro : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
         (r s1 (b s1 s2) = false) + (r s1 s2 = true) -> 
            brel_llt S r b s1 s2 = false. 
-Proof. unfold brel_llt. unfold brel_conjunction, brel_dual, brel_llte. 
+Proof. unfold brel_llt. unfold brel_conjunction, brel_complement, brel_llte. 
        intros S r b s1 s2 [H | H].        
           rewrite H. simpl. reflexivity. 
           rewrite H. simpl. apply andb_comm. 
@@ -258,7 +258,7 @@ WAS brel_bop_to_lt_left_true_elim
 Lemma brel_llt_true_elim : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
         brel_llt S r b s1 s2 = true -> 
           (r s1 (b s1 s2) = true) * (r s1 s2 = false). 
-Proof. unfold brel_llt. unfold brel_conjunction, brel_dual, brel_llte. 
+Proof. unfold brel_llt. unfold brel_conjunction, brel_complement, brel_llte. 
        intros S r b s1 s2 H. 
        apply andb_is_true_left in H. destruct H as [L R]. 
        apply negb_true_elim in R. rewrite L, R. split; reflexivity. 
@@ -274,7 +274,7 @@ WAS brel_bop_to_lt_left_false_elim
 Lemma brel_llt_false_elim : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
         brel_llt S r b s1 s2 = false -> 
           (r s1 (b s1 s2) = false) + (r s1 s2 = true). 
-Proof. unfold brel_llt. unfold brel_conjunction, brel_dual, brel_llte. 
+Proof. unfold brel_llt. unfold brel_conjunction, brel_complement, brel_llte. 
        intros S r b s1 s2 H. 
        apply andb_is_false_left in H. destruct H as [H | H]. 
           rewrite H. left. reflexivity. 
@@ -305,9 +305,9 @@ Proof. intros S r b refS symS transS congS selS x y.
              assert (K := congS x y x x (refS x) (symS x y H)). 
              assert (Q : r y (b x y) = true). apply symS in K. apply symS in H. apply symS in Ix. 
                    apply (transS _ _ _ H  (transS _ _ _ Ix K)). 
-             unfold brel_conjunction, brel_llte, brel_dual. 
+             unfold brel_conjunction, brel_llte, brel_complement. 
              rewrite H. apply andb_comm. 
-          unfold brel_llt. unfold brel_conjunction, brel_llte, brel_dual. 
+          unfold brel_llt. unfold brel_conjunction, brel_llte, brel_complement. 
           destruct (selS x y) as [K | K]; apply symS in K. 
              left. right. split.
                 reflexivity.                          

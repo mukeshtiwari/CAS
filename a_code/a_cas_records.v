@@ -12,12 +12,44 @@ Record A_eqv (S : Type) := {
 ; A_eqv_ast     : ast_eqv 
 }.
 
+
+(* orders *) 
+
+(* quasi order *) 
+Record A_qo (S : Type) := {
+  A_qo_eqv        : A_eqv S 
+; A_qo_brel       : brel S 
+; A_qo_proofs     : qo_proofs S (A_eqv_eq S A_qo_eqv) A_qo_brel 
+; A_qo_ast        : ast_qo
+}.
+
+(* partial order *) 
+Record A_po (S : Type) := {
+  A_po_eqv        : A_eqv S 
+; A_po_brel       : brel S 
+; A_po_proofs     : po_proofs S (A_eqv_eq S A_po_eqv) A_po_brel 
+; A_po_ast        : ast_po
+}.
+
+(* total order *) 
+Record A_to (S : Type) := {
+  A_to_eqv        : A_eqv S 
+; A_to_brel       : brel S 
+; A_to_proofs     : to_proofs S (A_eqv_eq S A_to_eqv) A_to_brel 
+; A_to_ast        : ast_to
+}.
+
+
+
+
+(* semigroups *) 
 Record A_sg (S : Type) := {
   A_sg_eq         : A_eqv S 
 ; A_sg_bop        : binary_op S 
 ; A_sg_proofs     : sg_proofs S (A_eqv_eq S A_sg_eq) A_sg_bop 
 ; A_sg_ast        : ast_sg
 }.
+
 
 
 (* sg_C = commutative semigroup *) 

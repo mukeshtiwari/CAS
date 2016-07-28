@@ -10,6 +10,36 @@ Record eqv_proofs (S : Type) (eq : brel S) := {
 ; A_eqv_symmetric   : brel_symmetric S eq            
 }.
 
+(* orders *) 
+
+(* quasi-order *) 
+Record qo_proofs (S : Type) (eq qo : brel S) := {
+  A_qo_congruence      : brel_congruence S eq qo 
+; A_qo_reflexive       : brel_reflexive S qo            
+; A_qo_transitive      : brel_transitive S qo           
+; A_qo_antisymmetric_d : brel_antisymmetric_decidable S eq qo 
+; A_qo_total_d         : brel_total_decidable S qo           
+}.
+
+(* partial-order *) 
+Record po_proofs (S : Type) (eq po : brel S) := {
+  A_po_congruence    : brel_congruence S eq po 
+; A_po_reflexive     : brel_reflexive S po            
+; A_po_transitive    : brel_transitive S po           
+; A_po_antisymmetric : brel_antisymmetric S eq po 
+; A_po_total_d       : brel_total_decidable S po           
+}.
+
+(* total-order *) 
+Record to_proofs (S : Type) (eq po : brel S) := {
+  A_to_congruence    : brel_congruence S eq po 
+; A_to_reflexive     : brel_reflexive S po            
+; A_to_transitive    : brel_transitive S po           
+; A_to_antisymmetric : brel_antisymmetric S eq po 
+; A_to_total         : brel_total S po           
+}.
+
+
 (* semigroups *) 
 
 Record sg_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 

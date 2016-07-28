@@ -17,8 +17,8 @@ Require Import CAS.theory.bprop_forall.
 (* 
 Definition is_minimal_in : ∀ S : Type, brel S → brel S → brel2 S (finite_set S)
 := λ S eq lte, brel2_conjunction S (finite_set S) 
-                  (brel2_reverse (finite_set S) S (in_set S eq))
-                  (brel2_lift_set_right S (brel_dual S (brel_strictify S lte))).                  
+                  (brel2_dual (finite_set S) S (in_set S eq))
+                  (brel2_lift_set_right S (brel_complement S (brel_strictify S lte))).                  
 
 
 Definition brel2_congruence (S T : Type) (rS : brel S) (rT : brel T) (r : brel2 S T) := 

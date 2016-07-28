@@ -2,10 +2,15 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
 Require Import CAS.theory.facts. 
-Require Import CAS.theory.brel.eq_bool. 
+
+Require Import CAS.theory.brel.eq_bool.
+Require Import CAS.theory.brel.to_bool.  
 Require Import CAS.theory.brel.eq_nat. 
+Require Import CAS.theory.brel.to_nat. 
 Require Import CAS.theory.brel.eq_list. 
 Require Import CAS.theory.brel.product. 
+Require Import CAS.theory.brel.llte_llt. 
+Require Import CAS.theory.brel.dual. 
 Require Import CAS.theory.brel.llte_llt. 
 Require Import CAS.theory.brel.sum. 
 Require Import CAS.theory.brel.add_constant. 
@@ -188,6 +193,111 @@ Definition eqv_proofs_sum :
                         (A_eqv_symmetric T rT eqvT) 
 |}.
 
+
+
+(* orders *) 
+
+Definition to_proofs_bool : to_proofs bool brel_eq_bool brel_to_bool
+:= {|
+  A_to_congruence  := brel_to_bool_congruence
+; A_to_reflexive   := brel_to_bool_reflexive
+; A_to_transitive  := brel_to_bool_transitive
+; A_to_antisymmetric   := brel_to_bool_antisymmetric
+; A_to_total       := brel_to_bool_total
+|}.
+
+Definition to_proofs_nat : to_proofs nat brel_eq_nat brel_to_nat 
+:= {|
+  A_to_congruence  := brel_to_nat_congruence
+; A_to_reflexive   := brel_to_nat_reflexive
+; A_to_transitive  := brel_to_nat_transitive
+; A_to_antisymmetric   := brel_to_nat_antisymmetric
+; A_to_total       := brel_to_nat_total
+|}.
+
+Definition po_proofs_dual : ∀ (S : Type) (eq po : brel S), 
+               po_proofs S eq po -> po_proofs S eq (brel_dual S po)
+:= λ S eq po tpS, 
+{|
+  A_po_congruence  := brel_dual_congruence S eq po (A_po_congruence _ _ _ tpS)
+; A_po_reflexive   := brel_dual_reflexive S po (A_po_reflexive _ _ _ tpS)
+; A_po_transitive  := brel_dual_transitive S po (A_po_transitive _ _ _ tpS)
+; A_po_antisymmetric := brel_dual_antisymmetric S eq po (A_po_antisymmetric _ _ _ tpS)
+; A_po_total_d       := brel_dual_total_decide S po (A_po_total_d _ _ _ tpS)
+|}.
+
+Definition to_proofs_dual : ∀ (S : Type) (eq po : brel S), 
+               to_proofs S eq po -> to_proofs S eq (brel_dual S po)
+:= λ S eq po tpS, 
+{|
+  A_to_congruence  := brel_dual_congruence S eq po (A_to_congruence _ _ _ tpS)
+; A_to_reflexive   := brel_dual_reflexive S po (A_to_reflexive _ _ _ tpS)
+; A_to_transitive  := brel_dual_transitive S po (A_to_transitive _ _ _ tpS)
+; A_to_antisymmetric   := brel_dual_antisymmetric S eq po (A_to_antisymmetric _ _ _ tpS)
+; A_to_total       := brel_dual_total S po (A_to_total _ _ _ tpS)
+|}.
+
+
+
+
+Definition po_proofs_llte : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+               eqv_proofs S r -> 
+               sg_CI_proofs S r b -> po_proofs S r (brel_llte S r b)
+:= λ S r b eqv sgp, 
+{|
+  A_po_congruence  := brel_llte_congruence S r r b 
+                         (A_eqv_congruence _ _ eqv)
+                         (A_sg_CI_congruence _ _ _ sgp)
+; A_po_reflexive   := brel_llte_reflexive S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_sg_CI_idempotent _ _ _ sgp)
+                         (A_eqv_reflexive _ _ eqv)
+; A_po_transitive  := brel_llte_transitive S r b 
+                         (A_eqv_reflexive _ _ eqv)
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_sg_CI_associative _ _ _ sgp) 
+                         (A_sg_CI_congruence _ _ _ sgp)
+                         (A_eqv_transitive _ _ eqv)
+; A_po_antisymmetric := brel_llte_antisymmetric S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CI_commutative _ _ _ sgp) 
+; A_po_total_d      := brel_llte_total_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CI_commutative _ _ _ sgp) 
+                         (A_sg_CI_selective_d _ _ _ sgp)
+|}.
+
+Definition to_proofs_llte : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+               eqv_proofs S r -> 
+               sg_CS_proofs S r b -> to_proofs S r (brel_llte S r b)
+:= λ S r b eqv sgp, 
+{|
+  A_to_congruence  := brel_llte_congruence S r r b 
+                         (A_eqv_congruence _ _ eqv)
+                         (A_sg_CS_congruence _ _ _ sgp)
+; A_to_reflexive   := brel_llte_reflexive S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (bop_selective_implies_idempotent  _ _ _ 
+                            (A_sg_CS_selective _ _ _ sgp))
+                         (A_eqv_reflexive _ _ eqv)
+; A_to_transitive  := brel_llte_transitive S r b 
+                         (A_eqv_reflexive _ _ eqv)
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_sg_CS_associative _ _ _ sgp) 
+                         (A_sg_CS_congruence _ _ _ sgp)
+                         (A_eqv_transitive _ _ eqv)
+; A_to_antisymmetric := brel_llte_antisymmetric S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CS_commutative _ _ _ sgp) 
+; A_to_total         := brel_llte_total S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CS_commutative _ _ _ sgp) 
+                         (A_sg_CS_selective _ _ _ sgp)
+|}.
 
 
 

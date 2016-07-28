@@ -49,15 +49,19 @@ THEORY=\
    theory/brel/product.v \
    theory/brel/sum.v \
    theory/brel/dual.v \
+   theory/brel/complement.v \
    theory/brel/conjunction.v \
    theory/brel/llte_llt.v \
    theory/brel/reduce.v \
    theory/brel/add_constant.v \
+   theory/brel/add_bottom.v \
+   theory/brel/add_top.v \
    theory/brel/and_sym.v \
    theory/brel/reduce.v \
    theory/brel/reduce.v \
-   theory/brel/reverse.v \
    theory/brel/strictify.v \
+   theory/brel/to_bool.v \
+   theory/brel/to_nat.v \
    theory/bop/and.v \
    theory/bop/or.v \
    theory/bop/min.v \
@@ -166,15 +170,14 @@ casml: extraction/STAMP src/Driver.ml src/Describe.ml
 %.v.d: %.v
 	$(COQDEP) -slash $(COQINCLUDES) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
-
-cleancasml:
-	rm -rf _build
-	rm -rf extraction/*.ml extraction/*.mli extraction/STAMP
-
 cleancoq:
 	rm -f  code/*.glob  a_code/*.glob  theory/*.glob  theory/*/*.glob verify/*.glob
 	rm -f  code/*.vo  a_code/*.vo  theory/*.vo theory/*/*.vo  verify/*.vo
 	rm -f  code/*.d  a_code/*.d  theory/*.d theory/*/*.d  verify/*.d
+
+cleancasml:
+	rm -rf _build
+	rm -rf extraction/*.ml extraction/*.mli extraction/STAMP
 
 clean:
 	$(MAKE) cleancoq

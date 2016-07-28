@@ -4,46 +4,50 @@ Require Import CAS.code.brel.
 Require Import CAS.theory.properties. 
 Require Import CAS.theory.facts. 
 
-Lemma brel_dual_irreflexive : ∀ (S : Type) (r : brel S), 
-          brel_reflexive S r -> brel_irreflexive S (brel_dual S r).  
-Proof. unfold brel_reflexive, brel_irreflexive, brel_dual. intros S r H s. 
-       rewrite (H s). compute. reflexivity. 
-Defined. 
-
-
-Lemma brel_dual_reflexive : ∀ (S : Type) (r : brel S), 
-          brel_irreflexive S r -> brel_reflexive S (brel_dual S r).  
-Proof. unfold brel_reflexive, brel_irreflexive, brel_dual. intros S r H s. 
-       rewrite (H s). compute. reflexivity. 
-Defined. 
-
-Lemma brel_dual_symmetric : ∀ (S : Type) (r : brel S), 
-          brel_symmetric S r -> brel_symmetric S (brel_dual S r).  
-Proof. unfold brel_symmetric, brel_dual. intros S r symS s t J. 
-       apply negb_true_elim in J. 
-       rewrite (brel_symmetric_implies_dual S r symS _ _ J). 
-       compute. reflexivity. 
-Defined. 
-
-Lemma brel_dual_asymmetric : ∀ (S : Type) (r : brel S), 
-          (∀ s t : S, r s t = false → r t s = true) -> 
-          brel_asymmetric S (brel_dual S r).  
-Proof. unfold brel_asymmetric, brel_dual. intros S r K s t J. 
-       case_eq(r t s); intro Q. 
-          compute. reflexivity. 
-          rewrite (K _ _ Q) in J. compute in J. discriminate. 
-Defined. 
-
-
 Lemma brel_dual_congruence : ∀ (S : Type) (r1 : brel S) (r2 : brel S), 
          brel_congruence S r1 r2 -> brel_congruence S r1 (brel_dual S r2). 
-Proof. unfold brel_congruence, brel_dual. 
-       intros S r1 r2 cong s t u v H1 H2.
-       assert (fact1 :=  cong _ _ _ _ H1 H2). 
-       case_eq(r2 s t); intro Q. 
-          rewrite <- fact1. rewrite Q. reflexivity. 
-          rewrite <- fact1. rewrite Q. reflexivity. 
-Defined. 
+Proof. intros S r1 r2 cong s t u v H1 H2. apply cong; auto. Qed. 
+
+Lemma brel_dual_irreflexive : ∀ (S : Type) (r : brel S), 
+          brel_irreflexive S r -> brel_irreflexive S (brel_dual S r).  
+Proof. intros S r H s. unfold brel_dual. apply H. Qed. 
+
+Lemma brel_dual_reflexive : ∀ (S : Type) (r : brel S), 
+          brel_reflexive S r -> brel_reflexive S (brel_dual S r).  
+Proof. intros S r H s. unfold brel_dual. apply H. Qed. 
+
+Lemma brel_dual_transitive : ∀ (S : Type) (rS : brel S),  
+    (brel_transitive _ rS) → brel_transitive S (brel_dual S rS). 
+Proof. unfold brel_dual. intros S rS transS s1 s2 s3 H1 H2. apply (transS _ _ _ H2 H1). Qed. 
+
+Lemma brel_dual_antisymmetric : ∀ (S : Type) (eqS rS : brel S),  
+      brel_antisymmetric _ eqS rS → brel_antisymmetric S eqS (brel_dual S rS). 
+Proof. unfold brel_dual. intros S eqS rS symS s1 s2 H1 H2. apply symS; auto. Qed. 
+
+Lemma brel_dual_not_antisymmetric : ∀ (S : Type) (eqS rS : brel S),  
+      brel_not_antisymmetric _ eqS rS → brel_not_antisymmetric S eqS (brel_dual S rS). 
+Proof.  unfold brel_dual. intros S eqS rS [[s t] [[H1 H2] H3]]. exists (s, t); auto. Defined. 
+
+Lemma brel_dual_total : ∀ (S : Type) (rS : brel S),  
+      (brel_total _ rS) → brel_total S (brel_dual S rS). 
+Proof.  unfold brel_dual. intros S rS symS s t.  destruct (symS s t) as [L | R]; auto. Qed. 
+
+Lemma brel_dual_not_total : ∀ (S : Type) (rS : brel S),  
+      (brel_not_total _ rS) → brel_not_total S (brel_dual S rS). 
+Proof.  intros S rS [[s t] P]. exists (t, s). compute. assumption. Defined. 
+
+Definition brel_dual_total_decide : 
+   ∀ (S : Type) 
+     (r : brel S), 
+     brel_total_decidable S r -> 
+         brel_total_decidable S (brel_dual S r)
+:= λ S r d, 
+   match d with 
+   | inl totS     => inl _ (brel_dual_total S r totS)
+   | inr not_totS => inr _ (brel_dual_not_total S r not_totS)
+   end. 
+
+
 
 
 

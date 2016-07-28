@@ -5,10 +5,15 @@ Require Import CAS.code.bop.
 Require Import CAS.theory.properties. 
 
 Require Import CAS.theory.brel.eq_nat. 
+Require Import CAS.theory.brel.to_nat. 
 Require Import CAS.theory.brel.eq_bool. 
+Require Import CAS.theory.brel.to_bool. 
 Require Import CAS.theory.brel.eq_list. 
+Require Import CAS.theory.brel.dual. 
 Require Import CAS.theory.brel.sum.
+Require Import CAS.theory.brel.llte_llt. 
 Require Import CAS.theory.brel.product. 
+
 Require Import CAS.theory.bop.plus. 
 Require Import CAS.theory.bop.times.
 Require Import CAS.theory.bop.min.
@@ -110,6 +115,77 @@ Definition A_eqv_sum : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S + T)
     ; A_eqv_rep   := λ d, (match d with inl s => inl _ (A_eqv_rep S eqvS s) | inr t => inr _ (A_eqv_rep T eqvT t) end)
     ; A_eqv_ast   := Ast_eqv_sum (A_eqv_ast S eqvS, A_eqv_ast T eqvT)
    |}. 
+
+
+(* orders *) 
+
+Definition po_dual : ∀ (S : Type), A_po S -> A_po S 
+:= λ S poS, 
+{|
+  A_po_eqv        := A_po_eqv S poS 
+; A_po_brel       := brel_dual S (A_po_brel S poS)
+; A_po_proofs     := po_proofs_dual _ _ _ (A_po_proofs _ poS)
+; A_po_ast        := Ast_po_dual (A_po_ast S poS)
+|}.
+
+
+Definition po_llte : ∀ (S : Type), A_sg_CI S -> A_po S 
+:= λ S sgS, 
+let eqv  := A_sg_CI_eqv S sgS                  in 
+let eqvP := A_eqv_proofs S eqv                 in 
+let r    := A_eqv_eq S eqv                     in 
+let b    := brel_llte S r (A_sg_CI_bop S sgS)  in 
+{|
+  A_po_eqv        := eqv 
+; A_po_brel       := b 
+; A_po_proofs     := po_proofs_llte _ _ _ eqvP (A_sg_CI_proofs S sgS)
+; A_po_ast        := Ast_to_from_sg_CI (A_sg_CI_ast S sgS)
+|}.
+
+
+Definition A_to_bool : A_to bool
+:= {|
+  A_to_eqv        := A_eqv_eq_bool
+; A_to_brel       := brel_to_bool 
+; A_to_proofs     := to_proofs_bool 
+; A_to_ast        := Ast_to_bool
+|}.
+
+
+Definition A_to_nat : A_to nat 
+:= {| 
+  A_to_eqv        := A_eqv_eq_nat 
+; A_to_brel       := brel_to_nat 
+; A_to_proofs     := to_proofs_nat 
+; A_to_ast        := Ast_to_nat
+|}.
+
+Definition to_dual : ∀ (S : Type), A_to S -> A_to S 
+:= λ S toS, 
+{|
+  A_to_eqv        := A_to_eqv S toS 
+; A_to_brel       := brel_dual S (A_to_brel S toS)
+; A_to_proofs     := to_proofs_dual _ _ _ (A_to_proofs _ toS)
+; A_to_ast        := Ast_to_dual (A_to_ast S toS)
+|}.
+
+
+
+Definition to_llte : ∀ (S : Type), A_sg_CS S -> A_to S 
+:= λ S sgS, 
+let eqv  := A_sg_CS_eqv S sgS                  in 
+let eqvP := A_eqv_proofs S eqv                 in 
+let r    := A_eqv_eq S eqv                     in 
+let b    := brel_llte S r (A_sg_CS_bop S sgS)  in 
+{|
+  A_to_eqv        := eqv 
+; A_to_brel       := b 
+; A_to_proofs     := to_proofs_llte _ _ _ eqvP (A_sg_CS_proofs S sgS)
+; A_to_ast        := Ast_to_from_sg_CS (A_sg_CS_ast S sgS)
+|}.
+
+
+
 
 
 (* semigroups *) 

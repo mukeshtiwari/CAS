@@ -11,7 +11,41 @@ Inductive ast_eqv : Type :=
    | Ast_eqv_add_constant  : cas_constant * ast_eqv → ast_eqv
    . 
 
-Inductive ast_sg :=
+Inductive ast_qo : Type := 
+   | Ast_qo_dual          : ast_qo → ast_qo
+   | Ast_qo_list          : ast_eqv → ast_qo
+   | Ast_qo_set           : ast_eqv → ast_qo
+   | Ast_qo_product       : ast_qo * ast_qo → ast_qo
+   | Ast_qo_left_sum      : ast_qo * ast_qo → ast_qo
+   | Ast_qo_right_sum     : ast_qo * ast_qo → ast_qo
+   | Ast_qo_add_bottom    : cas_constant * ast_qo → ast_qo
+   | Ast_qo_add_top       : cas_constant * ast_qo → ast_qo
+   | Ast_qo_from_po       : ast_po → ast_qo
+
+with ast_po : Type := 
+   | Ast_po_subset        : ast_eqv → ast_po
+   | Ast_po_dual          : ast_po → ast_po
+   | Ast_po_product       : ast_po * ast_po → ast_po
+   | Ast_po_left_sum      : ast_po * ast_po → ast_po
+   | Ast_po_right_sum     : ast_po * ast_po → ast_po
+   | Ast_po_add_bottom    : cas_constant * ast_po → ast_po
+   | Ast_po_add_top       : cas_constant * ast_po → ast_po
+   | Ast_po_from_qo       : ast_qo → ast_po
+   | Ast_po_from_to       : ast_to → ast_po
+   | Ast_to_from_sg_CI    : ast_sg_CI → ast_po
+
+with ast_to : Type := 
+   | Ast_to_nat           : ast_to
+   | Ast_to_bool          : ast_to
+   | Ast_to_dual          : ast_to → ast_to
+   | Ast_to_left_sum      : ast_to * ast_to → ast_to
+   | Ast_to_right_sum     : ast_to * ast_to → ast_to
+   | Ast_to_add_bottom    : cas_constant * ast_to → ast_to
+   | Ast_to_add_top       : cas_constant * ast_to → ast_to
+   | Ast_to_from_po       : ast_po → ast_to
+   | Ast_to_from_sg_CS    : ast_sg_CS → ast_to
+
+with ast_sg :=
    | Ast_sg_concat         : ast_eqv → ast_sg
    | Ast_sg_left           : ast_eqv → ast_sg
    | Ast_sg_right          : ast_eqv → ast_sg

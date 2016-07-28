@@ -24,7 +24,7 @@ Proof. unfold bop_exists_id. intros S T rS rT bS bT symS transS refT [iS pS] [iT
        case_eq(rS iS s); intro Q. 
           rewrite Tl.  apply symS in Q. rewrite Q. rewrite Tr. auto. 
 
-          unfold brel_llt. unfold brel_conjunction, brel_llte, brel_negate, brel_dual.  
+          unfold brel_llt. unfold brel_conjunction, brel_llte, brel_negate, brel_complement.  
           rewrite Q.  rewrite (brel_symmetric_implies_dual _ _ symS _ _ Q). 
           apply symS in Sr. rewrite Sr. 
           apply (brel_symmetric_implies_dual _ _ symS) in Q. 
@@ -52,7 +52,7 @@ Proof. unfold bop_exists_id. intros S T rS rT bS bT symS transS refT [iS pS] [iT
        case_eq(rS iS s); intro Q. 
           rewrite Tl.  apply symS in Q. rewrite Q. rewrite Tr. auto. 
 
-          unfold brel_llt. unfold brel_conjunction, brel_llte, brel_negate, brel_dual.  
+          unfold brel_llt. unfold brel_conjunction, brel_llte, brel_negate, brel_complement.  
           rewrite Q.  rewrite (brel_symmetric_implies_dual _ _ symS _ _ Q). 
           apply symS in Sl. rewrite Sl.
           apply symS in Sr.  
@@ -132,7 +132,7 @@ Proof.
        assert (qT := cT _ _ _ _ C2 C4). 
        assert (hS2 := congS _ _ _ _ C1 qS). 
        simpl. unfold brel_llt. unfold brel_conjunction, brel_llte, brel_negate.  
-             unfold brel_dual. 
+             unfold brel_complement. 
        rewrite hS, hS2. 
        apply andb_is_true_right. split.  
           assumption. 
@@ -241,7 +241,7 @@ Proof.
          rewrite (symS _ _ Q1). assumption. 
          assert (Q4 := congS _ _ _ _ (refS s2) cS). 
          rewrite (brel_symmetric_implies_dual _ _ symS _ _ Q1). 
-            unfold brel_llt. unfold brel_conjunction, brel_llte, brel_dual. 
+            unfold brel_llt. unfold brel_conjunction, brel_llte, brel_complement. 
             case_eq (rS s1 (bS s1 s2)); intro Q2; case_eq (rS s2 (bS s2 s1)); intro Q3.
 
                rewrite Q3 in Q4. 
@@ -349,7 +349,7 @@ Proof. unfold bop_congruence.
     intros S T rS rT bS bT refS symS transS refT r_cong congS commS. 
     unfold bop_selective. intros  selS selT [s1 t1] [s2 t2]. 
     assert (idemS := bop_selective_implies_idempotent S rS bS selS). 
-    unfold brel_product, bop_llex. unfold brel_llt, brel_conjunction, brel_llte, brel_dual. 
+    unfold brel_product, bop_llex. unfold brel_llt, brel_conjunction, brel_llte, brel_complement. 
     destruct (selS s1 s2) as [H | H]; destruct (selT t1 t2) as [Q | Q]. 
       left. rewrite H. apply symS in H. simpl. rewrite H. simpl. 
       case_eq(rS s1 s2); intro J. 
@@ -1234,7 +1234,7 @@ Lemma brel_llt_true_elim_to_false : ∀ (S : Type) (r : brel S) (b : binary_op S
       brel_transitive S r → 
       bop_commutative S r b → 
         brel_llt S r b s1 s2 = true -> brel_llt S r b s2 s1 = false. 
-Proof. unfold brel_llt. unfold brel_conjunction, brel_dual, brel_llte. 
+Proof. unfold brel_llt. unfold brel_conjunction, brel_complement, brel_llte. 
        intros S r b s1 s2 symS transS commS H. 
        apply andb_is_true_left in H. destruct H as [L R]. 
        case_eq(r s1 s2); intro J. 
@@ -1287,7 +1287,7 @@ Proof.
           rewrite (refS (bS (f s) s)). rewrite Rs. 
           rewrite (refS s). rewrite Lt. simpl. 
           apply brel_llt_false_elim in lt. 
-          unfold brel_llt, brel_conjunction, brel_dual, brel_llte.
+          unfold brel_llt, brel_conjunction, brel_complement, brel_llte.
           destruct lt as [lt | lt]. 
              rewrite Rs. 
              assert (fact2 := selS s (f s)). 
@@ -1328,7 +1328,7 @@ Proof.
           rewrite (refS (bS (f s) s)). rewrite Rs. 
           rewrite (refS s). rewrite Lt. simpl. 
           apply brel_llt_false_elim in lt. 
-          unfold brel_llt, brel_conjunction, brel_dual, brel_llte.
+          unfold brel_llt, brel_conjunction, brel_complement, brel_llte.
           destruct lt as [lt | lt]. 
              rewrite Rs. 
              assert (fact2 := selS s (f s)). 
@@ -1461,7 +1461,7 @@ Proof.
           rewrite (refS (bS (f s) s)). rewrite Rs. 
           apply brel_llt_false_elim in lt; auto. 
           destruct lt as [lt | lt].
-             unfold brel_llt, brel_conjunction, brel_llte, brel_dual. rewrite Rs. 
+             unfold brel_llt, brel_conjunction, brel_llte, brel_complement. rewrite Rs. 
              assert (fact1 : rS (f s) (bS (f s) s) = true). 
                 destruct (selS s (f s)) as [fact2 | fact2].
                    apply symS in fact2.  rewrite fact2 in lt. discriminate. 
@@ -1487,7 +1487,7 @@ Proof.
        unfold cef_bop_llex_not_anti_left. 
        destruct (Pf s) as [Ls Rs]. 
        unfold bop_not_anti_left, brel_product, bop_llex. 
-       unfold brel_llt. unfold brel_conjunction, brel_llte, brel_dual. 
+       unfold brel_llt. unfold brel_conjunction, brel_llte, brel_complement. 
        assert (fact1 := commS s (f s)). 
        assert (H := selS s (f s)). 
        destruct H as [H | H]. 
@@ -1517,7 +1517,7 @@ Proof.
        unfold cef_bop_llex_not_anti_right. 
        destruct (Pf s) as [Ls Rs]. 
        unfold bop_not_anti_right, brel_product, bop_llex. 
-       unfold brel_llt. unfold brel_conjunction, brel_llte, brel_dual. 
+       unfold brel_llt. unfold brel_conjunction, brel_llte, brel_complement. 
        assert (fact1 := commS s (f s)). 
        assert (H := selS s (f s)). 
        destruct H as [H | H]. 

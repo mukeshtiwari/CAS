@@ -4,8 +4,6 @@ Require Import Coq.Arith.Arith.
 Require Import CAS.code.basic_types. 
 Require Import Coq.Strings.String. 
 
-
-
 (* Notes on eqiv relation    a ~ b  over S 
 
    refl, sym, trans 
@@ -17,26 +15,38 @@ Require Import Coq.Strings.String.
 
 *) 
 
-
 Open Scope list_scope.
 Open Scope string_scope. 
 
 (* INFINITY ! *) 
 Definition cas_infinity : cas_constant := "INFINITY". 
-
 Definition brel_eq_bool : brel bool := eqb. 
 Definition brel_eq_nat  : brel nat  := Arith.EqNat.beq_nat.
-Definition brel_le_nat  : brel nat  := Coq.Arith.Compare_dec.leb.  
+Definition brel_to_nat  : brel nat  := Coq.Arith.Compare_dec.leb.  
 
-Definition brel_dual : ∀ (S : Type), brel S -> brel S 
+(* total order on bool : false < true 
+   x y <=
+   ======
+   t t t 
+   f t t 
+   t f f 
+   f f t 
+*) 
+Definition brel_to_bool : brel bool 
+:= λ x y, if y then true else if x then false else true. 
+
+
+(* was dual *) 
+Definition brel_complement : ∀ (S : Type), brel S -> brel S 
 := λ S r x y,  if (r x y) then false else true. 
 
-Definition brel2_dual : ∀ (S T : Type), brel2 S T -> brel2 S T
+Definition brel2_complement : ∀ (S T : Type), brel2 S T -> brel2 S T
 := λ S T r x y,  if (r x y) then false else true. 
 
-Definition brel_reverse : ∀ (S : Type), brel S -> brel S := λ S r x y,  r y x. 
+(* was reverse *) 
+Definition brel_dual : ∀ (S : Type), brel S -> brel S := λ S r x y,  r y x. 
 
-Definition brel2_reverse : ∀ (S T : Type), brel2 S T -> brel2 T S := λ S T r x y,  r y x. 
+Definition brel2_dual : ∀ (S T : Type), brel2 S T -> brel2 T S := λ S T r x y,  r y x. 
 
 Definition brel_conjunction : ∀ (S : Type), brel S -> brel S -> brel S 
 := λ S r1 r2 x y,  (r1 x y) && (r2 x y). 
@@ -64,7 +74,7 @@ Definition brel_disj : ∀ (S : Type), brel S -> brel S -> brel S
 *) 
 
 Definition brel_strictify : ∀ (S : Type), brel S -> brel S 
-:= λ S r,  brel_conjunction S r (brel_dual S (brel_reverse S r)). 
+:= λ S r,  brel_conjunction S r (brel_complement S (brel_dual S r)). 
 
 
 Definition brel_list : ∀ S : Type, brel S → brel(list S)
@@ -87,7 +97,7 @@ Definition bProp_lift_list : ∀ (A : Type), (bProp A) -> bProp (list A)
       end.
 
 Definition dominates_set : ∀ S : Type, brel S → brel S → brel2 (finite_set S) S 
-:= λ S eq lte X a, bProp_lift_list S (λ x, brel_dual S (brel_strictify S lte) x a) X.                 
+:= λ S eq lte X a, bProp_lift_list S (λ x, brel_complement S (brel_strictify S lte) x a) X.                 
 
 (* was called bProp_forall    proofs in bprop_forall.v 
 *) 
@@ -132,6 +142,24 @@ Definition brel_add_constant : ∀ S : Type, brel S → cas_constant → brel (c
    | (inr a), (inr b) => rS a b 
    end.
 
+Definition brel_add_bottom : ∀ S : Type, brel S → cas_constant → brel (cas_constant + S)
+:= λ  S rS c x y, 
+   match x, y with
+   | (inl _), (inl _) => true (* all constants equal! *) 
+   | (inl _), (inr _) => true  (* new bottom ! *) 
+   | (inr _), (inl _) => false 
+   | (inr a), (inr b) => rS a b 
+   end.
+
+Definition brel_add_top : ∀ S : Type, brel S → cas_constant → brel (cas_constant + S)
+:= λ  S rS c x y, 
+   match x, y with
+   | (inl _), (inl _) => true (* all constants equal! *) 
+   | (inl _), (inr _) => false 
+   | (inr _), (inl _) => true  (* new top ! *) 
+   | (inr a), (inr b) => rS a b 
+   end.
+
 
 (* DELETE *) 
 Definition brel_from_bop_left : ∀ (S : Type) (r : brel S) (b : binary_op S), brel S 
@@ -159,14 +187,14 @@ Definition brel_llte : ∀ S : Type, brel S → binary_op S → brel S
 := λ S eq b x y, eq x (b x y). 
 
 Definition brel_llt : ∀ S : Type, brel S → binary_op S → brel S 
-:= λ S eq b, brel_conjunction S (brel_llte S eq b) (brel_dual S eq). 
+:= λ S eq b, brel_conjunction S (brel_llte S eq b) (brel_complement S eq). 
 
 (* r' x y = true  <-> r y (b x y) *) 
 Definition brel_rlte : ∀ S : Type, brel S → binary_op S → brel S 
 := λ S eq b x y, eq y (b x y). 
 
 Definition brel_rlt : ∀ S : Type, brel S → binary_op S → brel S 
-:= λ S eq b, brel_conjunction S (brel_rlte S eq b) (brel_dual S eq). 
+:= λ S eq b, brel_conjunction S (brel_rlte S eq b) (brel_complement S eq). 
 
 
 Definition brel_and_sym : ∀ (S : Type), brel S -> brel S 
@@ -223,6 +251,6 @@ Definition is_minimal_in : ∀ S : Type, brel S → brel S → brel2 S (finite_s
 Definition is_minimal_in : ∀ S : Type, brel S → brel S → brel2 (finite_set S) S 
 := λ S eq lte, brel2_conjunction (finite_set S) S 
                   (in_set S eq)
-                  (brel2_lift_set_left S (brel_dual S (brel_strictify S lte))).                  
+                  (brel2_lift_set_left S (brel_complement S (brel_strictify S lte))).                  
 
 *) 

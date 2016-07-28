@@ -5,14 +5,14 @@ Require Import CAS.code.uop.
 Require Import CAS.code.bop. 
 Require Import CAS.theory.properties. 
 Require Import CAS.theory.facts. 
-Require Import CAS.theory.brel_set. 
-Require Import CAS.theory.brel_dual. 
-Require Import CAS.theory.brel_conjunction. 
-Require Import CAS.theory.brel_reverse. 
-Require Import CAS.theory.brel_strictify. 
-Require Import CAS.theory.brel_subset. 
-Require Import CAS.theory.brel2_in_set. 
-Require Import CAS.theory.bop_list_product. 
+Require Import CAS.theory.brel.set. 
+Require Import CAS.theory.brel.complement
+Require Import CAS.theory.brel.conjunction. 
+Require Import CAS.theory.brel.dual. 
+Require Import CAS.theory.brel.strictify. 
+Require Import CAS.theory.brel.subset. 
+Require Import CAS.theory.brel.in_set. 
+Require Import CAS.theory.bop.list_product. 
 
 
 Section LessThan. 
@@ -39,13 +39,13 @@ Notation "a !<== b"  := (lte a b = false) (at level 15).
 
 Notation "a << b"  := (brel_strictify S lte a b = true) (at level 15).
 Notation "a !<< b"  := (brel_strictify S lte a b = false) (at level 15). 
-Notation "a # b"  := ( (brel_conjunction _ (brel_dual _ lte) (brel_dual _ (brel_reverse _ lte))) a b = true ) (at level 15).
+Notation "a # b"  := ( (brel_conjunction _ (brel_complement _ lte) (brel_complement _ (brel_dual _ lte))) a b = true ) (at level 15).
 
-Notation "a !# b"  := ( (brel_conjunction S (brel_dual S lte) (brel_dual S (brel_reverse S lte))) a b = false ) (at level 15).
+Notation "a !# b"  := ( (brel_conjunction S (brel_complement S lte) (brel_complement S (brel_dual S lte))) a b = false ) (at level 15).
 
 
-Notation "a ~ b"  := ( ((brel_conjunction S lte) (brel_reverse S lte)) a b = true ) (at level 15).
-Notation "a !~ b"  := ( ((brel_conjunction S lte) (brel_reverse S lte)) a b = false ) (at level 15).
+Notation "a ~ b"  := ( ((brel_conjunction S lte) (brel_dual S lte)) a b = true ) (at level 15).
+Notation "a !~ b"  := ( ((brel_conjunction S lte) (brel_dual S lte)) a b = false ) (at level 15).
 
 
 
@@ -105,17 +105,17 @@ Lemma lt_congruence : brel_congruence S rS (brel_strictify S lte).
 Proof. apply brel_strictify_congruence; auto. Qed. 
 
 
-Lemma incomp_congruence : brel_congruence S rS (brel_conjunction S (brel_dual S lte) (brel_dual S (brel_reverse S lte))).  
+Lemma incomp_congruence : brel_congruence S rS (brel_conjunction S (brel_complement S lte) (brel_complement S (brel_dual S lte))).  
 Proof. apply brel_conjunction_congruence. 
+       apply brel_complement_congruence; auto. 
+       apply brel_complement_congruence. 
        apply brel_dual_congruence; auto. 
-       apply brel_dual_congruence. 
-       apply brel_reverse_congruence; auto. 
 Qed. 
 
 
-Lemma equiv_congruence : brel_congruence S rS ((brel_conjunction S lte) (brel_reverse S lte)). 
+Lemma equiv_congruence : brel_congruence S rS ((brel_conjunction S lte) (brel_dual S lte)). 
 Proof. apply brel_conjunction_congruence; auto. 
-       apply brel_reverse_congruence; auto. 
+       apply brel_dual_congruence; auto. 
 Qed. 
 
 
@@ -868,7 +868,7 @@ Qed.
 (* 
 dominates_set S rS lte (uS (a :: X)) c = true
 
-(∀ (b : S), in_set S eq X b = true -> brel_dual S (brel_strictify S lte) b a = true). 
+(∀ (b : S), in_set S eq X b = true -> brel_complement S (brel_strictify S lte) b a = true). 
 *) 
 
 Lemma dominates_set_union_elim :
@@ -1620,8 +1620,8 @@ Qed.
 
 
 
-Notation "a # b"  := ( (brel_conjunction S (brel_dual S lte) (brel_dual S (brel_reverse S lte))) a b = true ) (at level 15).
-Notation "a ~ b"  := ( ((brel_conjunction S lte) (brel_reverse S lte)) a b = true ) (at level 15).
+Notation "a # b"  := ( (brel_conjunction S (brel_complement S lte) (brel_complement S (brel_dual S lte))) a b = true ) (at level 15).
+Notation "a ~ b"  := ( ((brel_conjunction S lte) (brel_dual S lte)) a b = true ) (at level 15).
 
 
 Lemma tttest : brel_bop_left_strict_monotone S lte bS -> 

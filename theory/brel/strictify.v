@@ -5,7 +5,7 @@ Require Import CAS.theory.properties.
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.brel.conjunction. 
 Require Import CAS.theory.brel.dual. 
-Require Import CAS.theory.brel.reverse. 
+Require Import CAS.theory.brel.complement. 
 
 
 Lemma brel_strictify_irreflexive_v1 : ∀ (S : Type) (r : brel S), 
@@ -14,8 +14,8 @@ Proof. intros S r H.
        unfold brel_strictify. 
        apply brel_conjunction_irreflexive. 
        right. 
-       apply brel_dual_irreflexive. 
-       apply brel_reverse_reflexive. 
+       apply brel_complement_irreflexive. 
+       apply brel_dual_reflexive. 
        assumption. 
 Defined. 
 
@@ -41,8 +41,8 @@ Lemma brel_strictify_congruence : ∀ (S : Type) (r1 : brel S) (r2 : brel S),
 Proof. intros S r1 r2 H. 
        unfold brel_strictify. 
        apply brel_conjunction_congruence; auto. 
-       apply brel_dual_congruence.
-       apply brel_reverse_congruence.  
+       apply brel_complement_congruence.
+       apply brel_dual_congruence.  
        assumption. 
 Defined. 
 

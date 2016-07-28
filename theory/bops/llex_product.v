@@ -33,7 +33,7 @@ Proof. intros S T rS rT addS mulS addT mulT refS symS transS b_congS refT transT
        unfold brel_llt. 
        unfold brel_conjunction. 
        unfold brel_llte. 
-       unfold brel_dual. 
+       unfold brel_complement. 
        case_eq(rS s2 s3); intro H1; 
        case_eq(rS s2 (addS s2 s3)); intro H2; 
        case_eq(rS (mulS s1 s2) (mulS s1 s3)); intro H3; 
@@ -244,7 +244,7 @@ Proof. intros S T rS rT addS mulS addT mulT refS symS transS b_congS refT transT
        unfold brel_llt. 
        unfold brel_conjunction. 
        unfold brel_llte. 
-       unfold brel_dual. 
+       unfold brel_complement. 
        case_eq(rS s2 s3); intro H1; 
        case_eq(rS s2 (addS s2 s3)); intro H2; 
        case_eq(rS (mulS s2 s1) (mulS s3 s1)); intro H3; 
