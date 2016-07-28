@@ -34,13 +34,25 @@
     \\ 
 \propname{AY}(S,\ \leq) \wedge \propname{LI}(S,\ \otimes,\ \leq) 
 	& \Rightarrow 
-	& \propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+	& \propname{LLAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & \propname{TRUE}
     \\ 
 \propname{AY}(S,\ \leq) \wedge \propname{RI}(S,\ \otimes,\ \leq) 
 	& \Rightarrow 
-	& \propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+	& \propname{LRAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+    & \Leftrightarrow 
+    & \propname{TRUE}
+    \\
+\propname{AY}(S,\ \leq) \wedge \propname{LI}(S,\ \otimes,\ \leq) 
+	& \Rightarrow 
+	& \propname{RLAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
+    & \Leftrightarrow 
+    & \propname{TRUE}
+    \\ 
+\propname{AY}(S,\ \leq) \wedge \propname{RI}(S,\ \otimes,\ \leq) 
+	& \Rightarrow 
+	& \propname{RRAB}(\mathcal{N}(S,\ \otimes,\ \leq)) 
     & \Leftrightarrow 
     & \propname{TRUE}
     \\
@@ -166,12 +178,12 @@ Therefore by $\propname{AY}(S,\leq)$ we have that $i = \bot$.
 
 
 
-\subsubsection{Left absorptive}
+\subsubsection{Left left absorptive}
 
-\begin{theorem} \label{thm:N_lab}
+\begin{theorem} \label{thm:N_llab}
 If $\propname{AY}(S,\ \leq)$ and $\propname{LI}(S,\ \otimes,\ \leq)$ then
 \begin{equation*}
-\propname{LAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\propname{LLAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
 \end{equation*}
 \end{theorem}
 
@@ -186,22 +198,19 @@ X \minunion (X \minlift Y) 	& = \min_\leq(X \cup \min_\leq(X \lift Y)) & \text{(
 							& = \min_\leq(X) \\
 							& = X
 \end{align*}
-The second equality holds by the commutativity of $\cup$.
 \end{proof}
 
 
 
 
+\subsubsection{Left right absorptive}
 
-\subsubsection{Right absorptive}
-
-\begin{theorem} \label{thm:N_rab}
+\begin{theorem} \label{thm:N_lrab}
 If $\propname{AY}(S,\ \leq)$ and $\propname{RI}(S,\ \otimes,\ \leq)$ then
 \begin{equation*}
-\propname{RAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\propname{LRAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
 \end{equation*}
 \end{theorem}
-
 
 \begin{proof}
 
@@ -212,9 +221,47 @@ X \minunion (Y \minlift X) 	& = \min_\leq(X \cup \min_\leq(Y \lift X)) & \text{(
 							& = \min_\leq(X \cup (Y \lift X)) \\
 \intertext{By $\propname{AY}(S,\ \leq)$ and $\propname{RI}(S,\ \otimes,\ \leq)$ we have that for all $x, y$ either $x < y \otimes x$ or $x = y \otimes x$.}
 							& = \min_\leq(X) \\
-							& = X	
+							& = X
 \end{align*}
-The second equality holds by the commutativity of $\cup$.
+\end{proof}
+
+
+
+
+
+\subsubsection{Right left absorptive}
+
+\begin{theorem} \label{thm:N_rlab}
+If $\propname{AY}(S,\ \leq)$ and $\propname{LI}(S,\ \otimes,\ \leq)$ then
+\begin{equation*}
+\propname{RLAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+
+\begin{proof}
+
+\vspace{0.5em}
+Immediately from Theorem~\ref{thm:N_llab} and the commutativity of $\minunion$.
+\end{proof}
+
+
+
+
+\subsubsection{Right right absorptive}
+
+\begin{theorem} \label{thm:N_rrab}
+If $\propname{AY}(S,\ \leq)$ and $\propname{RI}(S,\ \otimes,\ \leq)$ then
+\begin{equation*}
+\propname{RRAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+
+\begin{proof}
+
+\vspace{0.5em}
+Immediately from Theorem~\ref{thm:N_lrab} and the commutativity of $\minunion$.
 \end{proof}
 
 \end{document}

@@ -388,8 +388,10 @@ Right distributive	& $\propname{RD}$	& $\forall a b c : (a\oplus b)\otimes c  = 
 Zero annihilates	& $\propname{ZA}$	& $\exists \overline{0} : \propname{IID}(S,\ \oplus,\ \overline{0}) \wedge \propname{IAN}(S,\ \otimes,\ \overline{0})$ & -- \\
 One annihilates		& $\propname{OA}$	& $\exists \overline{1} : \propname{IID}(S,\ \otimes,\ \overline{1}) \wedge \propname{IAN}(S,\ \oplus,\ \overline{1})$ & -- \\
 \midrule
-Left absorption 	& $\propname{LAB}$ 	& $\forall a b : (b\otimes a) \oplus a = a = a \oplus (b \otimes a)$ & $\propname{LD}(\mathrm{AddOne})$ \\
-Right absorption 	& $\propname{RAB}$ 	& $\forall a b : (a\otimes b) \oplus a = a = a \oplus (a \otimes b)$ & $\propname{RD}(\mathrm{AddOne})$ \\
+Left left absorption 	& $\propname{LLAB}$ 	& $\forall a b : a = a \oplus (a \otimes b)$ & $\propname{LD}(\mathrm{AddOne})$ \\
+Left right absorption 	& $\propname{LRAB}$ 	& $\forall a b : a = a \oplus (b \otimes a)$ & $\propname{LD}(\mathrm{AddOne})$ \\
+Right left absorption 	& $\propname{RLAB}$ 	& $\forall a b : a = (a \otimes b) \oplus a$ & $\propname{RD}(\mathrm{AddOne})$ \\
+Right right absorption 	& $\propname{RRAB}$ 	& $\forall a b : a = (b \otimes a) \oplus a$ & $\propname{RD}(\mathrm{AddOne})$ \\
 \bottomrule
 \end{tabular}
 
@@ -443,20 +445,6 @@ For all $(S, \bullet)$ then
 For all $(S, \bullet)$ then
 \begin{equation*}
 \propname{RAN}(S, \bullet) \Rightarrow \neg \propname{IL}(S, \bullet) \wedge \neg \propname{RC}(S, \bullet) \wedge \neg \propname{AR}(S, \bullet)
-\end{equation*}
-\end{lemma}
-
-\begin{lemma} \label{lem:rab_id_implies_ip}
-For all $(S, \oplus, \otimes)$ then
-\begin{equation*}
-\propname{RAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus) \Rightarrow \propname{IP}(S,\ \otimes)\\
-\end{equation*}
-\end{lemma}
-
-\begin{lemma} \label{lem:lab_id_implies_ip}
-For all $(S, \oplus, \otimes)$ then
-\begin{equation*}
-\propname{LAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus) \Rightarrow \propname{IP}(S,\ \otimes)\\
 \end{equation*}
 \end{lemma}
 
@@ -519,10 +507,10 @@ For all $(S, \oplus, \otimes)$ then
   & \propname{FALSE}\\ 
 \propname{LC}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
   & \Leftrightarrow
-  & \propname{LC}(S,\ \bullet) \wedge \propname{AL}(S,\ \bullet) \\
+  & \propname{FALSE} \\
 \propname{RC}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
   & \Leftrightarrow
-  & \propname{RC}(S,\ \bullet) \wedge \propname{AR}(S,\ \bullet) \\
+  & \propname{FALSE} \\
 \propname{LK}(\mathrm{AddId}(\alpha,\ (S,\ \bullet))) 
   & \Leftrightarrow
   & \propname{FALSE}\\ 
@@ -791,57 +779,13 @@ $\propname{SL}(S, \bullet)$.
 
 \subsection{Left natural order}
 
-Assume $\mathrm{(S,\ \bullet)}$ is selective.
-
-\[
-\begin{array}{rcl} 
-\propname{RX}(\mathrm{LNO}(S,\ \bullet)) 
-    & \Leftrightarrow
-    & \propname{TRUE}  \\
-\propname{TR}(\mathrm{LNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & \propname{AS}(S,\ \bullet) \\
-\propname{AY}(\mathrm{LNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & \propname{CM}(S,\ \bullet) \\ 
-\propname{TO}(\mathrm{LNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & ??? \\
-\propname{BM}(\mathrm{LNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & \propname{LAN}(S,\ \bullet) \\ 
-\propname{TP}(\mathrm{LNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & \propname{RID}(S,\ \bullet) \\ 
-\end{array} 
-\] 
+\subfile{orders/LeftNaturalOrder.tex}
 
 \subsection{Right natural order}
 
-Assume $\mathrm{(S,\ \bullet)}$ is selective.
+\subfile{orders/RightNaturalOrder.tex}
 
-\[
-\begin{array}{rcl} 
-\propname{RX}(\mathrm{RNO}(S,\ \bullet)) 
-    & \Leftrightarrow
-    & \propname{TRUE}  \\
-\propname{TR}(\mathrm{RNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & \propname{AS}(S,\ \bullet) \\
-\propname{AY}(\mathrm{RNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & \propname{CM}(S,\ \bullet) \\ 
-\propname{TO}(\mathrm{RNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & ??? \\
-\propname{BM}(\mathrm{RNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & \propname{RAN}(S,\ \bullet) \\ 
-\propname{TP}(\mathrm{RNO}(S,\ \bullet))
-    & \Leftrightarrow
-    & \propname{LID}(S,\ \bullet) \\ 
-\end{array} 
-\] 
+
 
 % ==============================================================
 
@@ -849,42 +793,14 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 
 \subsection{Left natural order}
 
-\[
-\begin{array}{rcl} 
-\propname{LM}(\mathrm{LRNO}(S,\oplus,\otimes))
-    & \Leftrightarrow % COQ 
-    & ??? \\
-\propname{RM}(\mathrm{LRNO}(S,\oplus,\otimes))
-    & \Leftrightarrow % COQ 
-    & ??? \\
-\propname{LI}(\mathrm{LRNO}(S,\oplus,\otimes))
-    & \Leftrightarrow % COQ 
-    & ??? \\ 
-\propname{RI}(\mathrm{LRNO}(S,\oplus,\otimes))
-    & \Leftrightarrow % COQ 
-    & ??? \\
-\end{array} 
-\] 
+\subfile{ordered_semigroups/LeftNaturalOrder.tex}
 
 
 \subsection{Right natural order}
 
-\[
-\begin{array}{rcl} 
-\propname{LM}(\mathrm{BRNO}(S,\oplus,\otimes))
-    & \Leftrightarrow % COQ 
-    & ??? \\
-\propname{RM}(\mathrm{BRNO}(S,\oplus,\otimes))
-    & \Leftrightarrow % COQ 
-    & ??? \\
-\propname{LI}(\mathrm{BRNO}(S,\oplus,\otimes))
-    & \Leftrightarrow % COQ 
-    & ??? \\ 
-\propname{RI}(\mathrm{BRNO}(S,\oplus,\otimes))
-    & \Leftrightarrow % COQ 
-    & ??? \\
-\end{array} 
-\] 
+\subfile{ordered_semigroups/RightNaturalOrder.tex}
+
+
 
 % ==============================================================
 
@@ -906,48 +822,25 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
 \propname{OA}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
     & \Leftrightarrow % COQ 
     & \propname{OA}(S,\ \oplus,\ \otimes) \\
-\propname{RAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+\propname{LLAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ
+    & \propname{LLAB}(S,\ \oplus,\ \otimes)\\
+\propname{LRAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
     & \Leftrightarrow % COQ 
-    & \propname{RAB}(S,\ \oplus,\ \otimes)\\ 
-\propname{LAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \propname{LRAB}(S,\ \oplus,\ \otimes)\\ 
+\propname{RLAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
     & \Leftrightarrow % COQ 
-    & \propname{LAB}(S,\ \oplus,\ \otimes)\\ 
+    & \propname{RLAB}(S,\ \oplus,\ \otimes)\\ 
+\propname{RRAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{RRAB}(S,\ \oplus,\ \otimes)\\ 
+
 \end{array} 
 \] 
 
 \subsection{AddOne} 
 
-\[
-\begin{array}{rcl} 
-\propname{LD}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{LD}(S,\ \oplus,\ \otimes) 
-      \wedge \propname{RAB}(S,\ \oplus,\ \otimes) 
-      \wedge  \propname{IP}(S,\ \oplus) 
-    \\
-\propname{RD}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{RD}(S,\ \oplus,\ \otimes) 
-      \wedge\propname{LAB}(S,\ \oplus,\ \otimes) 
-      \wedge\propname{IP}(S,\ \oplus) 
-    \\
-\propname{ZA}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{ZA}(S,\ \oplus,\ \otimes) \\
-\propname{OA}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{TRUE}\\ 
-\propname{RAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{RAB}(S,\ \oplus,\ \otimes) 
-      \wedge \propname{IP}(S,\ \oplus) \\ 
-\propname{LAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{LAB}(S,\ \oplus,\ \otimes)
-      \wedge \propname{IP}(S,\ \oplus) 
-\\ 
-\end{array} 
-\] 
+\subfile{bi-semigroups/AddOne.tex}
 
 
 
@@ -970,13 +863,21 @@ Assume $\mathrm{(S,\ \bullet)}$ is selective.
     & \Leftrightarrow % COQ 
     & \propname{OA}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{OA}(T,\ \oplus_T,\ \otimes_T)
    \\
-\propname{RAB}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+\propname{LLAB}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
     & \Leftrightarrow % COQ 
-    & \propname{RAB}(S,\ \oplus_S,\ \otimes_S) \wedge  \propname{RAB}(T,\ \oplus_T,\ \otimes_T) 
+    & \propname{LLAB}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{LLAB}(T,\ \oplus_T,\ \otimes_T)
+    \\
+\propname{LRAB}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{LRAB}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{LRAB}(T,\ \oplus_T,\ \otimes_T)
     \\ 
-\propname{LAB}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+\propname{RLAB}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
     & \Leftrightarrow % COQ 
-    & \propname{LAB}(S,\ \oplus_S,\ \otimes_S) \wedge \propname{LAB}(T,\ \oplus_T,\ \otimes_T)
+    & \propname{RLAB}(S,\ \oplus_S,\ \otimes_S) \wedge  \propname{RLAB}(T,\ \oplus_T,\ \otimes_T) 
+    \\ 
+\propname{RRAB}((S,\ \oplus_S,\ \otimes_S) \times (T,\ \oplus_T,\ \otimes_T)) 
+    & \Leftrightarrow % COQ 
+    & \propname{RRAB}(S,\ \oplus_S,\ \otimes_S) \wedge  \propname{RRAB}(T,\ \oplus_T,\ \otimes_T) 
     \\ 
 \end{array} 
 \]
