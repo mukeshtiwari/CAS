@@ -388,8 +388,10 @@ Right distributive	& $\propname{RD}$	& $\forall a b c : (a\oplus b)\otimes c  = 
 Zero annihilates	& $\propname{ZA}$	& $\exists \overline{0} : \propname{IID}(S,\ \oplus,\ \overline{0}) \wedge \propname{IAN}(S,\ \otimes,\ \overline{0})$ & -- \\
 One annihilates		& $\propname{OA}$	& $\exists \overline{1} : \propname{IID}(S,\ \otimes,\ \overline{1}) \wedge \propname{IAN}(S,\ \oplus,\ \overline{1})$ & -- \\
 \midrule
-Left absorption 	& $\propname{LAB}$ 	& $\forall a b : (b\otimes a) \oplus a = a = a \oplus (b \otimes a)$ & $\propname{LD}(\mathrm{AddOne})$ \\
-Right absorption 	& $\propname{RAB}$ 	& $\forall a b : (a\otimes b) \oplus a = a = a \oplus (a \otimes b)$ & $\propname{RD}(\mathrm{AddOne})$ \\
+Left left absorption 	& $\propname{LLAB}$ 	& $\forall a b : a = a \oplus (a \otimes b)$ & $\propname{LD}(\mathrm{AddOne})$ \\
+Left right absorption 	& $\propname{LRAB}$ 	& $\forall a b : a = a \oplus (b \otimes a)$ & $\propname{LD}(\mathrm{AddOne})$ \\
+Right left absorption 	& $\propname{RLAB}$ 	& $\forall a b : a = (a \otimes b) \oplus a$ & $\propname{RD}(\mathrm{AddOne})$ \\
+Right right absorption 	& $\propname{RRAB}$ 	& $\forall a b : a = (b \otimes a) \oplus a$ & $\propname{RD}(\mathrm{AddOne})$ \\
 \bottomrule
 \end{tabular}
 
@@ -443,20 +445,6 @@ For all $(S, \bullet)$ then
 For all $(S, \bullet)$ then
 \begin{equation*}
 \propname{RAN}(S, \bullet) \Rightarrow \neg \propname{IL}(S, \bullet) \wedge \neg \propname{RC}(S, \bullet) \wedge \neg \propname{AR}(S, \bullet)
-\end{equation*}
-\end{lemma}
-
-\begin{lemma} \label{lem:rab_id_implies_ip}
-For all $(S, \oplus, \otimes)$ then
-\begin{equation*}
-\propname{RAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus) \Rightarrow \propname{IP}(S,\ \otimes)\\
-\end{equation*}
-\end{lemma}
-
-\begin{lemma} \label{lem:lab_id_implies_ip}
-For all $(S, \oplus, \otimes)$ then
-\begin{equation*}
-\propname{LAB}(S,\ \oplus,\ \otimes) \wedge \propname{ID}(S,\ \oplus) \Rightarrow \propname{IP}(S,\ \otimes)\\
 \end{equation*}
 \end{lemma}
 
@@ -805,16 +793,16 @@ $\propname{SL}(S, \bullet)$.
 
 \[
 \begin{array}{rcl} 
-\propname{LM}(\mathrm{LRNO}(S,\oplus,\otimes))
+\propname{LM}(\mathrm{BLNO}(S,\oplus,\otimes))
     & \Leftrightarrow % COQ 
     & ??? \\
-\propname{RM}(\mathrm{LRNO}(S,\oplus,\otimes))
+\propname{RM}(\mathrm{BLNO}(S,\oplus,\otimes))
     & \Leftrightarrow % COQ 
     & ??? \\
-\propname{LI}(\mathrm{LRNO}(S,\oplus,\otimes))
+\propname{LI}(\mathrm{BLNO}(S,\oplus,\otimes))
     & \Leftrightarrow % COQ 
     & ??? \\ 
-\propname{RI}(\mathrm{LRNO}(S,\oplus,\otimes))
+\propname{RI}(\mathrm{BLNO}(S,\oplus,\otimes))
     & \Leftrightarrow % COQ 
     & ??? \\
 \end{array} 
@@ -860,48 +848,25 @@ $\propname{SL}(S, \bullet)$.
 \propname{OA}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
     & \Leftrightarrow % COQ 
     & \propname{OA}(S,\ \oplus,\ \otimes) \\
-\propname{RAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+\propname{LLAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ
+    & \propname{LLAB}(S,\ \oplus,\ \otimes)\\
+\propname{LRAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
     & \Leftrightarrow % COQ 
-    & \propname{RAB}(S,\ \oplus,\ \otimes)\\ 
-\propname{LAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \propname{LRAB}(S,\ \oplus,\ \otimes)\\ 
+\propname{RLAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
     & \Leftrightarrow % COQ 
-    & \propname{LAB}(S,\ \oplus,\ \otimes)\\ 
+    & \propname{RLAB}(S,\ \oplus,\ \otimes)\\ 
+\propname{RRAB}(\mathrm{AddZero}(\overline{0},\ (S,\ \oplus,\ \otimes))) 
+    & \Leftrightarrow % COQ 
+    & \propname{RRAB}(S,\ \oplus,\ \otimes)\\ 
+
 \end{array} 
 \] 
 
 \subsection{AddOne} 
 
-\[
-\begin{array}{rcl} 
-\propname{LD}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{LD}(S,\ \oplus,\ \otimes) 
-      \wedge \propname{RAB}(S,\ \oplus,\ \otimes) 
-      \wedge  \propname{IP}(S,\ \oplus) 
-    \\
-\propname{RD}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{RD}(S,\ \oplus,\ \otimes) 
-      \wedge\propname{LAB}(S,\ \oplus,\ \otimes) 
-      \wedge\propname{IP}(S,\ \oplus) 
-    \\
-\propname{ZA}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{ZA}(S,\ \oplus,\ \otimes) \\
-\propname{OA}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{TRUE}\\ 
-\propname{RAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{RAB}(S,\ \oplus,\ \otimes) 
-      \wedge \propname{IP}(S,\ \oplus) \\ 
-\propname{LAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) 
-    & \Leftrightarrow % COQ 
-    & \propname{LAB}(S,\ \oplus,\ \otimes)
-      \wedge \propname{IP}(S,\ \oplus) 
-\\ 
-\end{array} 
-\] 
+\subfile{bi-semigroups/AddOne.tex}
 
 
 
