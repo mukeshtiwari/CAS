@@ -139,7 +139,21 @@ let b    := brel_llte S r (A_sg_CI_bop S sgS)  in
   A_po_eqv        := eqv 
 ; A_po_brel       := b 
 ; A_po_proofs     := po_proofs_llte _ _ _ eqvP (A_sg_CI_proofs S sgS)
-; A_po_ast        := Ast_to_from_sg_CI (A_sg_CI_ast S sgS)
+; A_po_ast        := Ast_po_llte (A_sg_CI_ast S sgS)
+|}.
+
+
+Definition po_rlte : ∀ (S : Type), A_sg_CI S -> A_po S 
+:= λ S sgS, 
+let eqv  := A_sg_CI_eqv S sgS                  in 
+let eqvP := A_eqv_proofs S eqv                 in 
+let r    := A_eqv_eq S eqv                     in 
+let b    := brel_rlte S r (A_sg_CI_bop S sgS)  in 
+{|
+  A_po_eqv        := eqv 
+; A_po_brel       := b 
+; A_po_proofs     := po_proofs_rlte _ _ _ eqvP (A_sg_CI_proofs S sgS)
+; A_po_ast        := Ast_po_rlte (A_sg_CI_ast S sgS)
 |}.
 
 
@@ -181,7 +195,22 @@ let b    := brel_llte S r (A_sg_CS_bop S sgS)  in
   A_to_eqv        := eqv 
 ; A_to_brel       := b 
 ; A_to_proofs     := to_proofs_llte _ _ _ eqvP (A_sg_CS_proofs S sgS)
-; A_to_ast        := Ast_to_from_sg_CS (A_sg_CS_ast S sgS)
+; A_to_ast        := Ast_to_llte (A_sg_CS_ast S sgS)
+|}.
+
+
+
+Definition to_rlte : ∀ (S : Type), A_sg_CS S -> A_to S 
+:= λ S sgS, 
+let eqv  := A_sg_CS_eqv S sgS                  in 
+let eqvP := A_eqv_proofs S eqv                 in 
+let r    := A_eqv_eq S eqv                     in 
+let b    := brel_rlte S r (A_sg_CS_bop S sgS)  in 
+{|
+  A_to_eqv        := eqv 
+; A_to_brel       := b 
+; A_to_proofs     := to_proofs_rlte _ _ _ eqvP (A_sg_CS_proofs S sgS)
+; A_to_ast        := Ast_to_rlte (A_sg_CS_ast S sgS)
 |}.
 
 

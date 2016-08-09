@@ -197,24 +197,6 @@ Definition eqv_proofs_sum :
 
 (* orders *) 
 
-Definition to_proofs_bool : to_proofs bool brel_eq_bool brel_to_bool
-:= {|
-  A_to_congruence  := brel_to_bool_congruence
-; A_to_reflexive   := brel_to_bool_reflexive
-; A_to_transitive  := brel_to_bool_transitive
-; A_to_antisymmetric   := brel_to_bool_antisymmetric
-; A_to_total       := brel_to_bool_total
-|}.
-
-Definition to_proofs_nat : to_proofs nat brel_eq_nat brel_to_nat 
-:= {|
-  A_to_congruence  := brel_to_nat_congruence
-; A_to_reflexive   := brel_to_nat_reflexive
-; A_to_transitive  := brel_to_nat_transitive
-; A_to_antisymmetric   := brel_to_nat_antisymmetric
-; A_to_total       := brel_to_nat_total
-|}.
-
 Definition po_proofs_dual : ∀ (S : Type) (eq po : brel S), 
                po_proofs S eq po -> po_proofs S eq (brel_dual S po)
 := λ S eq po tpS, 
@@ -225,19 +207,6 @@ Definition po_proofs_dual : ∀ (S : Type) (eq po : brel S),
 ; A_po_antisymmetric := brel_dual_antisymmetric S eq po (A_po_antisymmetric _ _ _ tpS)
 ; A_po_total_d       := brel_dual_total_decide S po (A_po_total_d _ _ _ tpS)
 |}.
-
-Definition to_proofs_dual : ∀ (S : Type) (eq po : brel S), 
-               to_proofs S eq po -> to_proofs S eq (brel_dual S po)
-:= λ S eq po tpS, 
-{|
-  A_to_congruence  := brel_dual_congruence S eq po (A_to_congruence _ _ _ tpS)
-; A_to_reflexive   := brel_dual_reflexive S po (A_to_reflexive _ _ _ tpS)
-; A_to_transitive  := brel_dual_transitive S po (A_to_transitive _ _ _ tpS)
-; A_to_antisymmetric   := brel_dual_antisymmetric S eq po (A_to_antisymmetric _ _ _ tpS)
-; A_to_total       := brel_dual_total S po (A_to_total _ _ _ tpS)
-|}.
-
-
 
 
 Definition po_proofs_llte : ∀ (S : Type) (r : brel S) (b : binary_op S), 
@@ -269,6 +238,72 @@ Definition po_proofs_llte : ∀ (S : Type) (r : brel S) (b : binary_op S),
                          (A_sg_CI_selective_d _ _ _ sgp)
 |}.
 
+
+
+Definition po_proofs_rlte : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+               eqv_proofs S r -> 
+               sg_CI_proofs S r b -> po_proofs S r (brel_rlte S r b)
+:= λ S r b eqv sgp, 
+{|
+  A_po_congruence  := brel_rlte_congruence S r r b 
+                         (A_eqv_congruence _ _ eqv)
+                         (A_sg_CI_congruence _ _ _ sgp)
+; A_po_reflexive   := brel_rlte_reflexive S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_sg_CI_idempotent _ _ _ sgp)
+                         (A_eqv_reflexive _ _ eqv)
+; A_po_transitive  := brel_rlte_transitive S r b 
+                         (A_eqv_reflexive _ _ eqv)
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_sg_CI_associative _ _ _ sgp) 
+                         (A_sg_CI_congruence _ _ _ sgp)
+                         (A_eqv_transitive _ _ eqv)
+; A_po_antisymmetric := brel_rlte_antisymmetric S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CI_commutative _ _ _ sgp) 
+; A_po_total_d      := brel_rlte_total_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CI_commutative _ _ _ sgp) 
+                         (A_sg_CI_selective_d _ _ _ sgp)
+|}.
+
+
+Definition to_proofs_bool : to_proofs bool brel_eq_bool brel_to_bool
+:= {|
+  A_to_congruence  := brel_to_bool_congruence
+; A_to_reflexive   := brel_to_bool_reflexive
+; A_to_transitive  := brel_to_bool_transitive
+; A_to_antisymmetric   := brel_to_bool_antisymmetric
+; A_to_total       := brel_to_bool_total
+|}.
+
+Definition to_proofs_nat : to_proofs nat brel_eq_nat brel_to_nat 
+:= {|
+  A_to_congruence  := brel_to_nat_congruence
+; A_to_reflexive   := brel_to_nat_reflexive
+; A_to_transitive  := brel_to_nat_transitive
+; A_to_antisymmetric   := brel_to_nat_antisymmetric
+; A_to_total       := brel_to_nat_total
+|}.
+
+
+Definition to_proofs_dual : ∀ (S : Type) (eq po : brel S), 
+               to_proofs S eq po -> to_proofs S eq (brel_dual S po)
+:= λ S eq po tpS, 
+{|
+  A_to_congruence  := brel_dual_congruence S eq po (A_to_congruence _ _ _ tpS)
+; A_to_reflexive   := brel_dual_reflexive S po (A_to_reflexive _ _ _ tpS)
+; A_to_transitive  := brel_dual_transitive S po (A_to_transitive _ _ _ tpS)
+; A_to_antisymmetric   := brel_dual_antisymmetric S eq po (A_to_antisymmetric _ _ _ tpS)
+; A_to_total       := brel_dual_total S po (A_to_total _ _ _ tpS)
+|}.
+
+
+
+
+
 Definition to_proofs_llte : ∀ (S : Type) (r : brel S) (b : binary_op S), 
                eqv_proofs S r -> 
                sg_CS_proofs S r b -> to_proofs S r (brel_llte S r b)
@@ -293,6 +328,37 @@ Definition to_proofs_llte : ∀ (S : Type) (r : brel S) (b : binary_op S),
                          (A_eqv_transitive _ _ eqv)
                          (A_sg_CS_commutative _ _ _ sgp) 
 ; A_to_total         := brel_llte_total S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CS_commutative _ _ _ sgp) 
+                         (A_sg_CS_selective _ _ _ sgp)
+|}.
+
+
+Definition to_proofs_rlte : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+               eqv_proofs S r -> 
+               sg_CS_proofs S r b -> to_proofs S r (brel_rlte S r b)
+:= λ S r b eqv sgp, 
+{|
+  A_to_congruence  := brel_rlte_congruence S r r b 
+                         (A_eqv_congruence _ _ eqv)
+                         (A_sg_CS_congruence _ _ _ sgp)
+; A_to_reflexive   := brel_rlte_reflexive S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (bop_selective_implies_idempotent  _ _ _ 
+                            (A_sg_CS_selective _ _ _ sgp))
+                         (A_eqv_reflexive _ _ eqv)
+; A_to_transitive  := brel_rlte_transitive S r b 
+                         (A_eqv_reflexive _ _ eqv)
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_sg_CS_associative _ _ _ sgp) 
+                         (A_sg_CS_congruence _ _ _ sgp)
+                         (A_eqv_transitive _ _ eqv)
+; A_to_antisymmetric := brel_rlte_antisymmetric S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CS_commutative _ _ _ sgp) 
+; A_to_total         := brel_rlte_total S r b 
                          (A_eqv_symmetric _ _ eqv)
                          (A_eqv_transitive _ _ eqv)
                          (A_sg_CS_commutative _ _ _ sgp) 
@@ -2498,176 +2564,84 @@ Definition sg_proofs_intersect :
                                     (A_eqv_reflexive _ _ eqvS)
                                     (A_eqv_symmetric _ _ eqvS) 
                                     (A_eqv_transitive _ _ eqvS))
-|}. 
+|}.
+ 
 
-
-(*
 Definition sg_CI_proofs_union : 
-   ∀ (S : Type) (r : brel S) (c : cas_constant), 
-     eqv_proofs S r -> 
+   ∀ (S : Type) (r : brel S) (c : cas_constant), eqv_proofs S r -> 
         sg_CI_proofs (with_constant (finite_set S)) 
-                    (brel_add_constant (finite_set S) (brel_set S r) c) 
-                    (bop_add_ann (finite_set S) (bop_union S r) c)
+                     (brel_add_constant (finite_set S) (brel_set S r) c) 
+                     (bop_add_ann (finite_set S) (bop_union S r) c)
 := λ S r c eqvS, 
 {|
-  A_sg_CI_associative   := bop_add_ann_associative (finite_set S) (brel_set S r) c 
-                           (bop_union S r) 
-                           (brel_set_reflexive S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           )
-                           (bop_union_associative S r
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                          ) 
-; A_sg_CI_congruence    := bop_add_ann_congruence (finite_set S) (brel_set S r) c 
-                           (bop_union S r) 
-                           (brel_set_reflexive S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           )
-                           (bop_union_congruence S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           ) 
-; A_sg_CI_commutative   := bop_add_ann_commutative (finite_set S) (brel_set S r) c 
-                           (bop_union S r) 
-                           (brel_set_reflexive S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           )
-                           (bop_union_commutative S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           ) 
-; A_sg_CI_idempotent    := bop_add_ann_idempotent (finite_set S) (brel_set S r) c 
-                           (bop_union S r) 
-                           (bop_union_idempotent S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           ) 
-; A_sg_CI_selective_d   := inr _ (bop_add_ann_not_selective (finite_set S) (brel_set S r) c 
-                                   (bop_union S r) 
-                                   (bop_union_not_selective S r 
-                                      (A_eqv_reflexive _ _ eqvS)
-                                      (A_eqv_symmetric _ _ eqvS) 
-                                      (A_eqv_nontrivial _ _ eqvS) 
-                                   )
-                                )
-; A_sg_CI_exists_id_d   := inl _ (bop_add_ann_exists_id (finite_set S) (brel_set S r) c 
-                                   (bop_union S r) 
-                                   (brel_set_reflexive S r 
-                                      (A_eqv_reflexive _ _ eqvS)
-                                      (A_eqv_symmetric _ _ eqvS) 
-                                      (A_eqv_transitive _ _ eqvS) 
-                                    )
-                                   (bop_union_exists_id S r 
-                                     (A_eqv_reflexive _ _ eqvS)
-                                     (A_eqv_symmetric _ _ eqvS) 
-                                     (A_eqv_transitive _ _ eqvS) 
-                                   ) 
-                                )
-; A_sg_CI_exists_ann_d  := inl _ (bop_add_ann_exists_ann (finite_set S) (brel_set S r) c 
-                                   (bop_union S r) 
-                                   (brel_set_reflexive S r 
-                                      (A_eqv_reflexive _ _ eqvS)
-                                      (A_eqv_symmetric _ _ eqvS) 
-                                      (A_eqv_transitive _ _ eqvS) 
-                                    )
-                                 )
+  A_sg_CI_associative   := bop_union_associative S r c
+                           (A_eqv_reflexive _ _ eqvS)
+                           (A_eqv_symmetric _ _ eqvS) 
+                           (A_eqv_transitive _ _ eqvS)
+; A_sg_CI_congruence    := bop_union_congruence S r c
+                           (A_eqv_reflexive _ _ eqvS)
+                           (A_eqv_symmetric _ _ eqvS) 
+                           (A_eqv_transitive _ _ eqvS) 
+; A_sg_CI_commutative   := bop_union_commutative S r c
+                                    (A_eqv_reflexive _ _ eqvS)
+                                    (A_eqv_symmetric _ _ eqvS) 
+                                    (A_eqv_transitive _ _ eqvS)
+; A_sg_CI_idempotent  := bop_union_idempotent S r c
+                                  (A_eqv_reflexive _ _ eqvS)
+                                  (A_eqv_symmetric _ _ eqvS) 
+                                  (A_eqv_transitive _ _ eqvS)
+; A_sg_CI_selective_d   := inr _ (bop_union_not_selective S r c
+                                    (A_eqv_nontrivial _ _ eqvS)
+                                  (A_eqv_reflexive _ _ eqvS)
+                                  (A_eqv_symmetric _ _ eqvS)) 
+; A_sg_CI_exists_id_d   := inl _ (bop_union_exists_id S r c
+                                  (A_eqv_reflexive _ _ eqvS)
+                                  (A_eqv_symmetric _ _ eqvS) 
+                                  (A_eqv_transitive _ _ eqvS))
+; A_sg_CI_exists_ann_d     := inl _ (bop_union_exists_ann S r c
+                                  (A_eqv_reflexive _ _ eqvS)
+                                  (A_eqv_symmetric _ _ eqvS) 
+                                  (A_eqv_transitive _ _ eqvS))
 |}. 
 
 
-Definition sg_CI_proofs_intersect_with_id : 
-   ∀ (S : Type) (r : brel S) (c : cas_constant), 
-     eqv_proofs S r -> 
+Definition sg_CI_proofs_intersect : 
+   ∀ (S : Type) (r : brel S) (c : cas_constant), eqv_proofs S r -> 
         sg_CI_proofs (with_constant (finite_set S)) 
-                    (brel_add_constant (finite_set S) (brel_set S r) c) 
-                    (bop_add_id (finite_set S) (bop_intersect S r) c)
+                     (brel_add_constant (finite_set S) (brel_set S r) c) 
+                     (bop_add_id (finite_set S) (bop_intersect S r) c)
 := λ S r c eqvS, 
 {|
-  A_sg_CI_associative   := bop_add_id_associative (finite_set S) (brel_set S r) c 
-                           (bop_intersect S r) 
-                           (brel_set_reflexive S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           )
-                           (bop_intersect_associative S r
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                          ) 
-; A_sg_CI_congruence    := bop_add_id_congruence (finite_set S) (brel_set S r) c 
-                           (bop_intersect S r) 
-                           (brel_set_reflexive S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           )
-                           (bop_intersect_congruence S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           ) 
-; A_sg_CI_commutative   := bop_add_id_commutative (finite_set S) (brel_set S r) c 
-                           (bop_intersect S r) 
-                           (brel_set_reflexive S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           )
-                           (bop_intersect_commutative S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           ) 
-; A_sg_CI_idempotent    := bop_add_id_idempotent (finite_set S) (brel_set S r) c 
-                           (bop_intersect S r) 
-                           (bop_intersect_idempotent S r 
-                              (A_eqv_reflexive _ _ eqvS)
-                              (A_eqv_symmetric _ _ eqvS) 
-                              (A_eqv_transitive _ _ eqvS) 
-                           ) 
-; A_sg_CI_selective_d   := inr _ (bop_add_id_not_selective (finite_set S) (brel_set S r) c 
-                                   (bop_intersect S r) 
-                                   (bop_intersect_not_selective S r 
-                                      (A_eqv_reflexive _ _ eqvS)
-                                      (A_eqv_symmetric _ _ eqvS) 
-                                      (A_eqv_nontrivial _ _ eqvS) 
-                                   )
-                                )
-; A_sg_CI_exists_id_d   := inl _ (bop_add_id_exists_id (finite_set S) (brel_set S r) c 
-                                   (bop_intersect S r) 
-                                   (brel_set_reflexive S r 
-                                      (A_eqv_reflexive _ _ eqvS)
-                                      (A_eqv_symmetric _ _ eqvS) 
-                                      (A_eqv_transitive _ _ eqvS) 
-                                    )
-                                 )
-; A_sg_CI_exists_ann_d  := inl _ (bop_add_id_exists_ann (finite_set S) (brel_set S r) c 
-                                   (bop_intersect S r) 
-                                   (brel_set_reflexive S r 
-                                      (A_eqv_reflexive _ _ eqvS)
-                                      (A_eqv_symmetric _ _ eqvS) 
-                                      (A_eqv_transitive _ _ eqvS) 
-                                    )
-                                   (bop_intersect_exists_ann S r 
-                                     (A_eqv_reflexive _ _ eqvS)
-                                     (A_eqv_symmetric _ _ eqvS) 
-                                     (A_eqv_transitive _ _ eqvS) 
-                                   ) 
-                                )
+  A_sg_CI_associative   := bop_intersect_associative S r c
+                           (A_eqv_reflexive _ _ eqvS)
+                           (A_eqv_symmetric _ _ eqvS) 
+                           (A_eqv_transitive _ _ eqvS)
+; A_sg_CI_congruence    := bop_intersect_congruence S r c
+                           (A_eqv_reflexive _ _ eqvS)
+                           (A_eqv_symmetric _ _ eqvS) 
+                           (A_eqv_transitive _ _ eqvS) 
+; A_sg_CI_commutative   := bop_intersect_commutative S r c
+                                    (A_eqv_reflexive _ _ eqvS)
+                                    (A_eqv_symmetric _ _ eqvS) 
+                                    (A_eqv_transitive _ _ eqvS)
+; A_sg_CI_idempotent  := bop_intersect_idempotent S r c
+                                  (A_eqv_reflexive _ _ eqvS)
+                                  (A_eqv_symmetric _ _ eqvS) 
+                                  (A_eqv_transitive _ _ eqvS)
+; A_sg_CI_selective_d   := inr _ (bop_intersect_not_selective S r c
+                                    (A_eqv_nontrivial _ _ eqvS)
+                                  (A_eqv_reflexive _ _ eqvS)
+                                  (A_eqv_symmetric _ _ eqvS)) 
+; A_sg_CI_exists_id_d   := inl _ (bop_intersect_exists_id S r c
+                                  (A_eqv_reflexive _ _ eqvS)
+                                  (A_eqv_symmetric _ _ eqvS) 
+                                  (A_eqv_transitive _ _ eqvS))
+; A_sg_CI_exists_ann_d     := inl _ (bop_intersect_exists_ann S r c
+                                  (A_eqv_reflexive _ _ eqvS)
+                                  (A_eqv_symmetric _ _ eqvS) 
+                                  (A_eqv_transitive _ _ eqvS))
 |}. 
 
-*) 
 
 (***********************************)
 

@@ -550,6 +550,50 @@ Definition bop_not_exists_ann (S : Type) (r : brel S) (b : binary_op S)
 Definition bop_exists_ann_decidable  (S : Type) (r : brel S) (b : binary_op S) := 
     (bop_exists_ann S r b) + (bop_not_exists_ann S r b). 
 
+
+
+(* top and bottom 
+
+  LEFT and RIGHT versions? 
+*) 
+
+Definition brel_is_bottom (S : Type) (lte : brel S) (b : S) 
+    := ∀ s : S, (lte b s = true) * (lte s b = true).
+
+Definition brel_not_is_bottom (S : Type) (lte : brel S) (b : S)
+    := {s : S & (lte b s = false) + (lte s b = false)}.
+
+Definition brel_exists_bottom (S : Type) (r : brel S) (b : S) 
+    := {b : S & brel_is_bottom S r b}.
+
+Definition brel_not_exists_bottom (S : Type) (r : brel S) (b : S) 
+    := ∀ b : S, brel_not_is_bottom S r b.
+
+Definition brel_exists_bottom_decidable  (S : Type) (r : brel S) (b : S) := 
+    (brel_exists_bottom S r b) + (brel_not_exists_bottom S r b). 
+
+Definition brel_is_top (S : Type) (lte : brel S) (b : S) 
+    := ∀ s : S, (lte s b = true) * (lte b s = true).
+
+Definition brel_not_is_top (S : Type) (lte : brel S) (b : S)
+    := {s : S & (lte s s = false) + (lte b s = false)}.
+
+Definition brel_exists_top (S : Type) (r : brel S) (b : S) 
+    := {b : S & brel_is_top S r b}.
+
+Definition brel_not_exists_top (S : Type) (r : brel S) (b : S) 
+    := ∀ b : S, brel_not_is_top S r b.
+
+Definition brel_exists_top_decidable  (S : Type) (r : brel S) (b : S) := 
+    (brel_exists_top S r b) + (brel_not_exists_top S r b). 
+
+
+
+
+
+
+
+
 (* Cancellativity *) 
 
 Definition bop_left_cancellative (S : Type) (r : brel S) (b : binary_op S)

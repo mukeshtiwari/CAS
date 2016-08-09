@@ -7,6 +7,27 @@ Require Import CAS.theory.brel.complement.
 Require Import CAS.theory.facts. 
 
 
+(* llte *) 
+
+
+Lemma brel_llte_true_intro : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
+          r s1 (b s1 s2) = true -> brel_llte S r b s1 s2 = true. 
+Proof. auto. Defined. 
+
+Lemma brel_llte_false_intro : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
+          r s1 (b s1 s2) = false -> brel_llte S r b s1 s2 = false. 
+Proof. auto. Defined. 
+
+
+Lemma brel_llte_true_elim : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
+          brel_llte S r b s1 s2 = true -> (r s1 (b s1 s2) = true). 
+Proof. auto. Defined. 
+
+Lemma brel_llte_false_elim : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
+          brel_llte S r b s1 s2 = false -> (r s1 (b s1 s2) = false). 
+Proof. auto. Defined. 
+
+(*
 Lemma brel_llte_witness : ∀ (S : Type) (r : brel S) (b : binary_op S),  
          brel_witness S r ->  
          brel_symmetric S r ->  
@@ -16,23 +37,6 @@ Proof. unfold brel_witness, brel_llte.
        intros S r b [s P] symS idemS. exists s. 
        assert(fact := idemS s). 
        apply symS. assumption. 
-Defined. 
-
-
-(* 
-
-Lemma brel_llte_negate : ∀ (S : Type) (r : brel S) (b : binary_op S),  
-         brel_negate S r ->  
-         brel_transitive S r ->  
-         bop_idempotent S r b ->  
-         bop_not_is_left S r b ->  
-         bop_not_is_right S r b ->  
-         brel_negate S (brel_llte S r b). 
-Proof. unfold brel_negate, brel_llte, bop_not_is_left,  bop_not_is_right. 
-       intros S r b [g P] transS idemS [s1 [s2 P1]] [s3 [s4 P2]]. 
-       exists  (λ (s : S),(b (g s) (g s))). intro s. 
-       assert(fact1 := idemS (g s)). 
-       assert(fact2 := P s). destruct fact2 as [L R]. 
 Defined. 
 *) 
 
@@ -47,15 +51,6 @@ Proof. unfold brel_reflexive, brel_llte.
        apply symS. assumption. 
 Defined. 
 
-(* was brel_bop_to_lt_left_irreflexive *) 
-Lemma brel_llt_irreflexive : ∀ (S : Type) (r : brel S) (b : binary_op S), 
-        brel_reflexive S r  -> brel_irreflexive S (brel_llt S r b). 
-Proof. unfold brel_llt. intros S r b ref x. 
-       apply brel_conjunction_irreflexive_right. 
-       apply brel_complement_irreflexive; auto. 
-Defined. 
-
-
 (* was brel_bop_to_lte_left_congruence *) 
 Lemma brel_llte_congruence : ∀ (S : Type) (r1 : brel S) (r2 : brel S) (b : binary_op S),  
        brel_congruence S r1 r2 -> 
@@ -66,20 +61,6 @@ Proof. unfold brel_congruence, bop_congruence, brel_llte.
        assert (H3 := b_cong _ _ _ _ H1 H2). 
        assert (H4 := r_cong _ _ _ _ H1 H3). 
        assumption. 
-Defined. 
-
-
-
-(* was brel_bop_to_lt_left_congruence *) 
-Lemma brel_llt_congruence : ∀ (S : Type) (r1 : brel S) (r2 : brel S) (b : binary_op S),  
-       brel_congruence S r1 r2 -> 
-       bop_congruence S r1 b -> 
-         brel_congruence S r1 (brel_llt S r2 b). 
-Proof. unfold brel_llt. 
-       intros S r1 r2 b r_cong b_cong.
-       apply brel_conjunction_congruence. 
-       apply brel_llte_congruence; auto. 
-       apply brel_complement_congruence; auto. 
 Defined. 
 
 (*
@@ -109,37 +90,6 @@ Proof. unfold brel_transitive, brel_llte.
        apply (transS _ _ _ fact2 fact5). 
 Defined. 
 
-
-(*  
-    s1 < s2 -> s2 < s1 = false 
-
-was brel_bop_to_lt_left_asymmetric
-*) 
-Lemma brel_llt_asymmetric : ∀ (S : Type) (r : brel S) (b : binary_op S), 
-          brel_symmetric S r → 
-          brel_transitive S r → 
-          bop_commutative S r b → 
-             brel_asymmetric S (brel_llt S r b). 
-Proof. unfold brel_asymmetric, brel_llt. unfold brel_llte. 
-       unfold brel_conjunction, brel_complement. 
-       intros S r b symS transS commS s1 s2 H.        
-       apply andb_is_true_left in H. destruct H as [H1 H2].
-       apply negb_true_elim in H2. 
-       assert (C := commS s1 s2).
-       assert (D := transS _ _ _ H1 C). 
-       assert (E := brel_transititivity_implies_dual _ _ transS _ _ _ D H2). 
-       apply (brel_symmetric_implies_dual S r symS) in E.
-       rewrite E. simpl. reflexivity. 
-Defined. 
-
-(* STUDY! *) 
-Lemma brel_llt_asymmetric_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
-          (∀ s t : S, r s t = false → r t s = true) → 
-             brel_asymmetric S (brel_llt S r b). 
-Proof. intros S r b Ks1 s2 H. 
-       apply brel_conjunction_asymmetric_right. 
-       apply brel_complement_asymmetric. assumption. 
-Defined. 
 
 Lemma brel_llte_antisymmetric : ∀ (S : Type) (r : brel S) (b : binary_op S),  
          brel_symmetric S r ->  
@@ -197,25 +147,168 @@ Definition brel_llte_total_decide :
    end. 
 
 
+Definition os_left_monotone (S : Type) (lte : brel S) (b : binary_op S)  
+   := ∀ s t u : S, lte t u = true -> lte (b s t) (b s u) = true. 
 
-(**************************************************************************)
+Definition os_not_left_monotone (S : Type) (lte : brel S) (b : binary_op S)  
+   := { z : S * (S * S) & match z with (s, (t, u)) => (lte t u = true) * (lte (b s t) (b s u) = false) end }. 
 
-Lemma brel_llte_true_intro : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
-          r s1 (b s1 s2) = true -> brel_llte S r b s1 s2 = true. 
-Proof. auto. Defined. 
-
-Lemma brel_llte_false_intro : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
-          r s1 (b s1 s2) = false -> brel_llte S r b s1 s2 = false. 
-Proof. auto. Defined. 
+Definition os_left_monotone_decidable (S : Type) (lte : brel S) (b : binary_op S)  
+   := (os_left_monotone S lte b) + (os_not_left_monotone S lte b). 
 
 
-Lemma brel_llte_true_elim : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
-          brel_llte S r b s1 s2 = true -> (r s1 (b s1 s2) = true). 
-Proof. auto. Defined. 
+Definition os_right_monotone (S : Type) (lte : brel S) (b : binary_op S)  
+   := ∀ s t u : S, lte t u = true -> lte (b t s) (b u s) = true. 
 
-Lemma brel_llte_false_elim : ∀ (S : Type) (r : brel S) (b : binary_op S) (s1 s2 : S), 
-          brel_llte S r b s1 s2 = false -> (r s1 (b s1 s2) = false). 
-Proof. auto. Defined. 
+Definition os_not_right_monotone (S : Type) (lte : brel S) (b : binary_op S)  
+   := { z : S * (S * S) & match z with (s, (t, u)) => (lte t u = true) * (lte (b t s) (b u s) = false) end }. 
+
+Definition os_right_monotone_decidable (S : Type) (lte : brel S) (b : binary_op S)  
+   := (os_right_monotone S lte b) + (os_not_right_monotone S lte b). 
+
+
+Lemma brel_llte_left_monotone : ∀ (S : Type) (r :brel S) (b1 b2 : binary_op S),  
+         brel_reflexive S r  →  
+         brel_transitive S r →  
+         bop_congruence S r b2 -> 
+         bop_left_distributive S r b1 b2 -> 
+         os_left_monotone S (brel_llte S r b1) b2. 
+Proof. compute. intros S r b1 b2 refS transS cong_b2 ld s t u H. 
+       assert (fact1 := ld s t u). 
+       assert (fact2 := cong_b2 _ _ _ _ (refS s) H). 
+       assert (fact3 := transS _ _ _ fact2 fact1). 
+       assumption. 
+Qed. 
+
+
+Lemma brel_llte_right_monotone : ∀ (S : Type) (r :brel S) (b1 b2 : binary_op S),  
+         brel_reflexive S r  →  
+         brel_transitive S r →  
+         bop_congruence S r b2 -> 
+         bop_right_distributive S r b1 b2 -> 
+         os_right_monotone S (brel_llte S r b1) b2. 
+Proof. compute. intros S r b1 b2 refS transS cong_b2 ld s t u H. 
+       assert (fact1 := ld s t u). 
+       assert (fact2 := cong_b2 _ _ _ _ H (refS s)). 
+       assert (fact3 := transS _ _ _ fact2 fact1). 
+       assumption. 
+Qed. 
+
+
+
+
+
+(* rlte *) 
+
+Lemma brel_rlte_reflexive : ∀ (S : Type) (r : brel S) (b : binary_op S),  
+         brel_symmetric S r -> 
+         bop_idempotent S r b -> 
+           brel_reflexive S r →  brel_reflexive S (brel_rlte S r b). 
+Proof. unfold brel_reflexive, brel_rlte. 
+       intros S r b symS idemS refS s. 
+       assert(id := idemS s).  
+       apply symS. assumption. 
+Defined. 
+
+(* was brel_bop_to_lte_left_congruence *) 
+Lemma brel_rlte_congruence : ∀ (S : Type) (r1 : brel S) (r2 : brel S) (b : binary_op S),  
+       brel_congruence S r1 r2 -> 
+       bop_congruence S r1 b -> 
+         brel_congruence S r1 (brel_rlte S r2 b). 
+Proof. unfold brel_congruence, bop_congruence, brel_rlte. 
+       intros S r1 r2 b r_cong b_cong s t u v H1 H2. 
+       assert (H3 := b_cong _ _ _ _ H1 H2). 
+       assert (H4 := r_cong _ _ _ _ H2 H3). 
+       assumption. 
+Defined. 
+
+
+(*
+   s <= t    -> t <= u    -> s <= u
+   t = s + t -> u = t + u -> u = s + u
+   u = t + u = ((s + t) + u) = (s + (t + u)) = s + u
+*) 
+Lemma brel_rlte_transitive : ∀ (S : Type) (r : brel S) (b : binary_op S),  
+         brel_reflexive S r  →  
+         brel_symmetric S r  →  
+         bop_associative S r b  →  
+         bop_congruence S r b  →  
+         brel_transitive S r →  
+            brel_transitive S (brel_rlte S r b). 
+Proof. unfold brel_transitive, brel_rlte, bop_congruence. 
+       intros S r b refS symS assS b_cong transS s t u H1 H2. 
+       assert (fact1 : r u (b (b s t) u ) = true). 
+          assert (C := b_cong _ _ _ _ H1 (refS u)). 
+          apply (transS _ _ _ H2 C). 
+       assert (fact2 : r u (b s (b t u)) = true).
+          assert (A := assS s t u). 
+          apply (transS _ _ _ fact1 A). 
+       assert (fact3 : r u (b s u) = true). 
+          assert (C := b_cong _ _ _ _ (refS s) H2). apply symS in C. 
+          apply (transS _ _ _ fact2 C). 
+       assumption. 
+Defined. 
+
+
+Lemma brel_rlte_antisymmetric : ∀ (S : Type) (r : brel S) (b : binary_op S),  
+         brel_symmetric S r ->  
+         brel_transitive S r → 
+         bop_commutative S r b -> brel_antisymmetric S r (brel_rlte S r b). 
+Proof. unfold brel_antisymmetric, brel_rlte. 
+       intros S r b symS transS commS s t H1 H2. 
+       assert (fact1 := commS t s). 
+       assert (fact2 := transS _ _ _ H2 fact1). apply symS in H1. 
+       apply (transS _ _ _ fact2 H1). 
+Defined. 
+
+
+Lemma brel_rlte_total : ∀ (S : Type) (r : brel S) (b : binary_op S),  
+         brel_symmetric S r ->  
+         brel_transitive S r ->  
+         bop_commutative S r b -> 
+         bop_selective S r b -> brel_total S (brel_rlte S r b). 
+Proof. unfold brel_total, brel_rlte. 
+       intros S r b symS transS commS selS s t. 
+       assert (fact1 : r (b s t) (b t s) = true). apply commS. 
+       destruct (selS s t) as [Q | Q]. 
+          right. apply symS in Q. apply (transS _ _ _ Q fact1). 
+          left. apply symS. assumption. 
+
+Defined. 
+
+Lemma brel_rlte_not_total : ∀ (S : Type) (r : brel S) (b : binary_op S),  
+         brel_symmetric S r ->  
+         brel_transitive S r ->  
+         bop_commutative S r b -> 
+         bop_not_selective S r b -> brel_not_total S (brel_rlte S r b). 
+Proof. unfold brel_not_total, brel_rlte. 
+       intros S r b symS transS commS [ [s t] [P1 P2]]. 
+       assert (fact1 : r (b s t) (b t s) = true). apply commS. 
+       exists (s, t). split. 
+          apply (brel_symmetric_implies_dual _ _ symS) in P2. assumption. 
+          assert(fact2 := brel_transititivity_implies_dual _ _ transS _ _ _ fact1 P1).
+          apply (brel_symmetric_implies_dual _ _ symS) in fact2. assumption. 
+Defined. 
+
+
+Definition brel_rlte_total_decide : 
+   ∀ (S : Type) 
+     (r : brel S) 
+     (b : binary_op S), 
+     brel_symmetric S r ->  
+     brel_transitive S r ->  
+     bop_commutative S r b -> 
+     bop_selective_decidable S r b -> 
+         brel_total_decidable S (brel_rlte S r b)
+:= λ S r b symS transS commS d, 
+   match d with 
+   | inl selS     => inl _ (brel_rlte_total S r b symS transS commS selS)
+   | inr not_selS => inr _ (brel_rlte_not_total S r b symS transS commS not_selS) 
+   end. 
+
+
+(* llt *) 
+
 
 (* 
 WAS 
@@ -282,6 +375,58 @@ Proof. unfold brel_llt. unfold brel_conjunction, brel_complement, brel_llte.
 Defined. 
 
 
+(* was brel_bop_to_lt_left_irreflexive *) 
+Lemma brel_llt_irreflexive : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+        brel_reflexive S r  -> brel_irreflexive S (brel_llt S r b). 
+Proof. unfold brel_llt. intros S r b ref x. 
+       apply brel_conjunction_irreflexive_right. 
+       apply brel_complement_irreflexive; auto. 
+Defined. 
+
+
+(* was brel_bop_to_lt_left_congruence *) 
+Lemma brel_llt_congruence : ∀ (S : Type) (r1 : brel S) (r2 : brel S) (b : binary_op S),  
+       brel_congruence S r1 r2 -> 
+       bop_congruence S r1 b -> 
+         brel_congruence S r1 (brel_llt S r2 b). 
+Proof. unfold brel_llt. 
+       intros S r1 r2 b r_cong b_cong.
+       apply brel_conjunction_congruence. 
+       apply brel_llte_congruence; auto. 
+       apply brel_complement_congruence; auto. 
+Defined. 
+
+(*  
+    s1 < s2 -> s2 < s1 = false 
+
+was brel_bop_to_lt_left_asymmetric
+*) 
+Lemma brel_llt_asymmetric : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+          brel_symmetric S r → 
+          brel_transitive S r → 
+          bop_commutative S r b → 
+             brel_asymmetric S (brel_llt S r b). 
+Proof. unfold brel_asymmetric, brel_llt. unfold brel_llte. 
+       unfold brel_conjunction, brel_complement. 
+       intros S r b symS transS commS s1 s2 H.        
+       apply andb_is_true_left in H. destruct H as [H1 H2].
+       apply negb_true_elim in H2. 
+       assert (C := commS s1 s2).
+       assert (D := transS _ _ _ H1 C). 
+       assert (E := brel_transititivity_implies_dual _ _ transS _ _ _ D H2). 
+       apply (brel_symmetric_implies_dual S r symS) in E.
+       rewrite E. simpl. reflexivity. 
+Defined. 
+
+(* STUDY! *) 
+Lemma brel_llt_asymmetric_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+          (∀ s t : S, r s t = false → r t s = true) → 
+             brel_asymmetric S (brel_llt S r b). 
+Proof. intros S r b Ks1 s2 H. 
+       apply brel_conjunction_asymmetric_right. 
+       apply brel_complement_asymmetric. assumption. 
+Defined. 
+
 
 (* interesting : commutativity not used *) 
 
@@ -324,5 +469,5 @@ Defined.
 
 
 
-
+(* rlt *) 
 

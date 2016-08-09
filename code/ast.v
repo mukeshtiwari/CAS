@@ -32,7 +32,8 @@ with ast_po : Type :=
    | Ast_po_add_top       : cas_constant * ast_po → ast_po
    | Ast_po_from_qo       : ast_qo → ast_po
    | Ast_po_from_to       : ast_to → ast_po
-   | Ast_to_from_sg_CI    : ast_sg_CI → ast_po
+   | Ast_po_llte          : ast_sg_CI → ast_po
+   | Ast_po_rlte          : ast_sg_CI → ast_po
 
 with ast_to : Type := 
    | Ast_to_nat           : ast_to
@@ -43,7 +44,9 @@ with ast_to : Type :=
    | Ast_to_add_bottom    : cas_constant * ast_to → ast_to
    | Ast_to_add_top       : cas_constant * ast_to → ast_to
    | Ast_to_from_po       : ast_po → ast_to
-   | Ast_to_from_sg_CS    : ast_sg_CS → ast_to
+   | Ast_to_llte          : ast_sg_CS → ast_to
+   | Ast_to_rlte          : ast_sg_CS → ast_to
+
 
 with ast_sg :=
    | Ast_sg_concat         : ast_eqv → ast_sg

@@ -15,12 +15,12 @@ Require Import CAS.theory.uop.duplicate_elim.
 Require Import CAS.theory.bop.union. 
 
 Require Import CAS.theory.uop.filter. 
-Require Import CAS.theory.bprop.forall. 
 Require Import CAS.theory.brel.is_minimal_in. 
-Require Import CAS.theory.uop.minset. 
-Require Import CAS.theory.brel.minset. 
 Require Import CAS.theory.bop.reduction. 
 
+Require Import CAS.theory.brel.minset. 
+Require Import CAS.theory.uop.minset. 
+Require Import CAS.theory.bprop.forall. 
 
 
 (*

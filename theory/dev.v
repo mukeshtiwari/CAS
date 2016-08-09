@@ -604,6 +604,30 @@ II) We have A = (S, =, rep, .)
            ---> r(a . c) = r(c . d)               (by 4) 
            <--> a . c =_r c . d 
    [] 
+
+
+    What about non-triviality? (S, =, rep) 
+
+   witness : exists s, s = s 
+   negate  : exists f, all s, s <> f s
+
+   now, extend with a reduction r, to 
+
+   (S, =_r, r o rep) 
+
+   1) s =_r s? yes, since r(s) = r(s). 
+
+   2) exists g, st for all s,   not (g(s) =_r s)? 
+      that is, not(r(g(s)) = r(s)). 
+
+     WE MAY HAVE TO PICK g case-by-case 
+
+     example, for min_set : 
+
+     min(g(s)) <> min(s) 
+
+    g(s) = if empty (s) then {witness) else {} 
+
 *) 
 
 

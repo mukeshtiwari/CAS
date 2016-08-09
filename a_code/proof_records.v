@@ -146,3 +146,23 @@ Record bs_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op
 ; A_bs_right_right_absorptive_d : bops_right_right_absorptive_decidable S eq plus times 
 
 }. 
+
+(* order semigroups 
+
+Record bs_proofs (S: Type) (eq : brel S) (lte : brel S) (times : binary_op S) := 
+{
+  A_os_left_monotonic_d      : bop_left_distributive_decidable S eq plus times 
+; A_os_right_monotonic_d     : bop_right_distributive_decidable S eq plus times 
+
+; A_os_plus_id_is_times_ann_d   : bops_id_equals_ann_decidable S eq plus times 
+; A_os_times_id_is_plus_ann_d   : bops_id_equals_ann_decidable S eq times plus 
+
+; A_bs_left_left_absorptive_d   : bops_left_left_absorptive_decidable S eq plus times 
+; A_bs_left_right_absorptive_d  : bops_left_right_absorptive_decidable S eq plus times 
+; A_bs_right_left_absorptive_d  : bops_right_left_absorptive_decidable S eq plus times 
+; A_bs_right_right_absorptive_d : bops_right_right_absorptive_decidable S eq plus times 
+
+
+
+}. 
+*)
