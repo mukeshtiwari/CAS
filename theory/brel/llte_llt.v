@@ -122,9 +122,11 @@ Lemma brel_llte_not_total : ∀ (S : Type) (r : brel S) (b : binary_op S),
          bop_commutative S r b -> 
          bop_not_selective S r b -> brel_not_total S (brel_llte S r b). 
 Proof. unfold brel_not_total, brel_llte. 
-       intros S r b symS transS commS [ [s t] [P1 P2]]. 
+       intros S r b symS transS commS [ [s t] P]. 
+       exists (s, t). 
        assert (fact1 : r (b s t) (b t s) = true). apply commS. 
-       exists (s, t). split. 
+       destruct P as [P1 P2]. 
+       split. 
           apply (brel_symmetric_implies_dual _ _ symS) in P1. assumption. 
           assert(fact2 := brel_transititivity_implies_dual _ _ transS _ _ _ fact1 P2).
           apply (brel_symmetric_implies_dual _ _ symS) in fact2. assumption. 
@@ -282,9 +284,11 @@ Lemma brel_rlte_not_total : ∀ (S : Type) (r : brel S) (b : binary_op S),
          bop_commutative S r b -> 
          bop_not_selective S r b -> brel_not_total S (brel_rlte S r b). 
 Proof. unfold brel_not_total, brel_rlte. 
-       intros S r b symS transS commS [ [s t] [P1 P2]]. 
+       intros S r b symS transS commS [ [s t] P]. 
+       exists (s, t). 
        assert (fact1 : r (b s t) (b t s) = true). apply commS. 
-       exists (s, t). split. 
+       destruct P as [P1 P2]. 
+       split. 
           apply (brel_symmetric_implies_dual _ _ symS) in P2. assumption. 
           assert(fact2 := brel_transititivity_implies_dual _ _ transS _ _ _ fact1 P1).
           apply (brel_symmetric_implies_dual _ _ symS) in fact2. assumption. 

@@ -120,6 +120,7 @@ FILES=$(CODE) $(ACODE) $(THEORY) $(VERIFY)
 # is there a better way? 
 CMOFILES=\
    Bool.cmo \
+   Compare_dec.cmo \
    Datatypes.cmo \
    EqNat.cmo \
    List0.cmo \

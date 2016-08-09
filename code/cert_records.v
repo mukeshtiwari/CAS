@@ -11,6 +11,37 @@ Record eqv_certificates (S : Type) := {
 ; eqv_transitive    : assert_transitive S
 }.
 
+
+(* orders *) 
+
+(* quasi-order *) 
+Record qo_certificates (S : Type)  := {
+  qo_congruence      : assert_brel_congruence S 
+; qo_reflexive       : assert_reflexive S 
+; qo_transitive      : assert_transitive S
+; qo_antisymmetric_d : check_antisymmetric S 
+; qo_total_d         : check_total S 
+}.
+
+(* partial-order *) 
+Record po_certificates (S : Type) := {
+  po_congruence    : assert_brel_congruence S 
+; po_reflexive     : assert_reflexive S 
+; po_transitive    : assert_transitive S
+; po_antisymmetric : assert_antisymmetric S 
+; po_total_d       : check_total S 
+}.
+
+(* total-order *) 
+Record to_certificates (S : Type) := {
+  to_congruence    : assert_brel_congruence S 
+; to_reflexive     : assert_reflexive S 
+; to_transitive    : assert_transitive S
+; to_antisymmetric : assert_antisymmetric S 
+; to_total         : assert_total S 
+}.
+
+
 (* semigroups *) 
 
 Record sg_certificates (S: Type)  := 
@@ -35,27 +66,6 @@ Record sg_certificates (S: Type)  :=
 ; sg_anti_right_d     : check_anti_right S 
 }. 
 
-(* How about this instead? 
-
-   pros and cons ... 
-
-Record sg_certificates (S: Type)  := 
-{
-  sgn_commutative_d    : unit + (S * S) 
-; sgn_selective_d      : unit + (S * S) 
-; sgn_idempotent_d     : unit + S 
-; sgn_exists_id_d      : S + unit 
-; sgn_exists_ann_d     : S + unit 
-; sgn_is_left_d        : unit + (S * S) 
-; sgn_is_right_d       : unit + (S * S) 
-; sgn_left_cancel_d    : unit + (S * (S * S)) 
-; sgn_right_cancel_d   : unit + (S * (S * S)) 
-; sgn_left_constant_d  : unit + (S * (S * S)) 
-; sgn_right_constant_d : unit + (S * (S * S)) 
-; sgn_anti_left_d      : unit + (S * S) 
-; sgn_anti_right_d     : unit + (S * S) 
-}. 
-*) 
 
 Record sg_C_certificates (S: Type)  := 
 {

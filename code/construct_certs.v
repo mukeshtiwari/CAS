@@ -137,6 +137,101 @@ Definition eqv_certs_sum : ∀ (S T : Type),  eqv_certificates S -> eqv_certific
 
 
 
+(* orders *) 
+
+Definition po_certs_dual : ∀ (S : Type), po_certificates S -> po_certificates S 
+:= λ S tpS, 
+{|
+  po_congruence    := Assert_Brel_Congruence S 
+; po_reflexive     := Assert_Reflexive S 
+; po_transitive    := Assert_Transitive S 
+; po_antisymmetric := Assert_Antisymmetric S 
+; po_total_d       := po_total_d S tpS
+|}.
+
+
+Definition po_certs_llte : ∀ (S : Type), 
+               eqv_certificates S -> sg_CI_certificates S -> po_certificates S 
+:= λ S eqv sgp, 
+{|
+  po_congruence    := Assert_Brel_Congruence S 
+; po_reflexive     := Assert_Reflexive S 
+; po_transitive    := Assert_Transitive S 
+; po_antisymmetric := Assert_Antisymmetric S 
+; po_total_d       := match sg_CI_selective_d _ sgp with 
+                      | Certify_Selective => Certify_Total S 
+                      | Certify_Not_Selective (a, b) => Certify_Not_Total S (a, b)
+                      end 
+|}.
+
+
+Definition po_certs_rlte : ∀ (S : Type),
+               eqv_certificates S -> sg_CI_certificates S -> po_certificates S 
+               
+:= λ S eqv sgp, 
+{|
+  po_congruence    := Assert_Brel_Congruence S 
+; po_reflexive     := Assert_Reflexive S 
+; po_transitive    := Assert_Transitive S 
+; po_antisymmetric := Assert_Antisymmetric S 
+; po_total_d       := match sg_CI_selective_d _ sgp with 
+                      | Certify_Selective => Certify_Total S 
+                      | Certify_Not_Selective (a, b) => Certify_Not_Total S (a, b)
+                      end 
+|}.
+
+Definition to_certs_bool : to_certificates bool 
+:= {|
+  to_congruence    := Assert_Brel_Congruence _
+; to_reflexive     := Assert_Reflexive _ 
+; to_transitive    := Assert_Transitive _
+; to_antisymmetric := Assert_Antisymmetric _
+; to_total         := Assert_Total _ 
+|}.
+
+Definition to_certs_nat : to_certificates nat 
+:= {|
+  to_congruence    := Assert_Brel_Congruence _
+; to_reflexive     := Assert_Reflexive _
+; to_transitive    := Assert_Transitive _
+; to_antisymmetric := Assert_Antisymmetric _
+; to_total         := Assert_Total _ 
+|}.
+
+Definition to_certs_dual : ∀ (S : Type), to_certificates S -> to_certificates S 
+               
+:= λ S tpS, 
+{|
+  to_congruence    := Assert_Brel_Congruence S 
+; to_reflexive     := Assert_Reflexive S 
+; to_transitive    := Assert_Transitive S 
+; to_antisymmetric := Assert_Antisymmetric S 
+; to_total         := Assert_Total S 
+|}.
+
+
+Definition to_certs_llte : ∀ (S : Type), 
+                      eqv_certificates S -> sg_CS_certificates S -> to_certificates S 
+:= λ S eqv sgp, 
+{|
+  to_congruence    := Assert_Brel_Congruence S 
+; to_reflexive     := Assert_Reflexive S 
+; to_transitive    := Assert_Transitive S 
+; to_antisymmetric := Assert_Antisymmetric S 
+; to_total         := Assert_Total S 
+|}.
+
+Definition to_certs_rlte : ∀ (S : Type), 
+                      eqv_certificates S -> sg_CS_certificates S -> to_certificates S 
+:= λ S eqv sgp, 
+{|
+  to_congruence    := Assert_Brel_Congruence S 
+; to_reflexive     := Assert_Reflexive S 
+; to_transitive    := Assert_Transitive S 
+; to_antisymmetric := Assert_Antisymmetric S 
+; to_total         := Assert_Total S 
+|}.
+
 
 (* semigroups *) 
 

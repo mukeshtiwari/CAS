@@ -99,6 +99,108 @@ Definition eqv_sum : ∀ (S T : Type),  eqv S -> eqv T -> eqv (S + T)
     ; eqv_ast   := Ast_eqv_sum (eqv_ast S eqvS, eqv_ast T eqvT)
    |}. 
 
+
+
+
+
+(* orders *) 
+
+(*CC*)
+Definition po_dual : ∀ (S : Type), po S -> po S 
+:= λ S poS, 
+{|
+  po_eqv       := po_eqv S poS 
+; po_brel      := brel_dual S (po_brel S poS)
+; po_certs     := po_certs_dual _ (po_certs _ poS)
+; po_ast       := Ast_po_dual (po_ast S poS)
+|}.
+
+(*CC*)
+Definition po_llte : ∀ (S : Type), sg_CI S -> po S 
+:= λ S sgS, 
+let eqv  := sg_CI_eqv S sgS                  in 
+let eqvP := eqv_certs S eqv                  in 
+let r    := eqv_eq S eqv                     in 
+let b    := brel_llte S r (sg_CI_bop S sgS)  in 
+{|
+  po_eqv       := eqv 
+; po_brel      := b 
+; po_certs     := po_certs_llte _ eqvP (sg_CI_certs S sgS)
+; po_ast       := Ast_po_llte (sg_CI_ast S sgS)
+|}.
+
+(*CC*)
+Definition po_rlte : ∀ (S : Type), sg_CI S -> po S 
+:= λ S sgS, 
+let eqv  := sg_CI_eqv S sgS                  in 
+let eqvP := eqv_certs S eqv                 in 
+let r    := eqv_eq S eqv                     in 
+let b    := brel_rlte S r (sg_CI_bop S sgS)  in 
+{|
+  po_eqv        := eqv 
+; po_brel       := b 
+; po_certs      := po_certs_rlte _ eqvP (sg_CI_certs S sgS)
+; po_ast        := Ast_po_rlte (sg_CI_ast S sgS)
+|}.
+
+(*CC*)
+Definition to_bool : to bool
+:= {|
+  to_eqv        := eqv_eq_bool
+; to_brel       := brel_to_bool 
+; to_certs     := to_certs_bool 
+; to_ast        := Ast_to_bool
+|}.
+
+(*CC*)
+Definition to_nat : to nat 
+:= {| 
+  to_eqv        := eqv_eq_nat 
+; to_brel       := brel_to_nat 
+; to_certs     := to_certs_nat 
+; to_ast        := Ast_to_nat
+|}.
+
+(*CC*)
+Definition to_dual : ∀ (S : Type), to S -> to S 
+:= λ S toS, 
+{|
+  to_eqv        := to_eqv S toS 
+; to_brel       := brel_dual S (to_brel S toS)
+; to_certs     := to_certs_dual _ (to_certs _ toS)
+; to_ast        := Ast_to_dual (to_ast S toS)
+|}.
+
+
+(*CC*)
+Definition to_llte : ∀ (S : Type), sg_CS S -> to S 
+:= λ S sgS, 
+let eqv  := sg_CS_eqv S sgS                  in 
+let eqvP := eqv_certs S eqv                  in 
+let r    := eqv_eq S eqv                     in 
+let b    := brel_llte S r (sg_CS_bop S sgS)  in 
+{|
+  to_eqv       := eqv 
+; to_brel      := b 
+; to_certs     := to_certs_llte _ eqvP (sg_CS_certs S sgS)
+; to_ast       := Ast_to_llte (sg_CS_ast S sgS)
+|}.
+
+(*CC*)
+Definition to_rlte : ∀ (S : Type), sg_CS S -> to S 
+:= λ S sgS, 
+let eqv  := sg_CS_eqv S sgS                  in 
+let eqvP := eqv_certs S eqv                 in 
+let r    := eqv_eq S eqv                     in 
+let b    := brel_rlte S r (sg_CS_bop S sgS)  in 
+{|
+  to_eqv        := eqv 
+; to_brel       := b 
+; to_certs      := to_certs_rlte _ eqvP (sg_CS_certs S sgS)
+; to_ast        := Ast_to_rlte (sg_CS_ast S sgS)
+|}.
+
+
 (* semigroups *) 
 
 (* basics *) 

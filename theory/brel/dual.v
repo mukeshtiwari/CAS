@@ -34,7 +34,8 @@ Proof.  unfold brel_dual. intros S rS symS s t.  destruct (symS s t) as [L | R];
 
 Lemma brel_dual_not_total : ∀ (S : Type) (rS : brel S),  
       (brel_not_total _ rS) → brel_not_total S (brel_dual S rS). 
-Proof.  intros S rS [[s t] P]. exists (t, s). compute. assumption. Defined. 
+Proof.  intros S rS [[s t] H]. exists (s, t). compute. destruct H as [P Q]. split; assumption. 
+Defined. 
 
 Definition brel_dual_total_decide : 
    ∀ (S : Type) 

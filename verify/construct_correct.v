@@ -109,6 +109,63 @@ Defined.
 
 
 
+(*                 ============ Orders ============                    *) 
+
+Lemma correct_certs_to_dual : ∀ (S : Type) (eq lte : brel S) (p : to_proofs S eq lte ), 
+   to_certs_dual S (P2C_to S eq lte p) 
+   = 
+   P2C_to S eq (brel_dual S lte) (to_proofs_dual S eq lte p). 
+Proof. intros S eq lte p. compute. reflexivity. Qed. 
+
+
+Lemma correct_certs_po_dual : ∀ (S : Type)  (eq lte : brel S) (p : po_proofs S eq lte ), 
+   po_certs_dual S (P2C_po S eq lte p) 
+   = 
+   P2C_po S eq (brel_dual S lte) (po_proofs_dual S eq lte p). 
+Proof. intros S eq lte p. destruct p. destruct A_po_total_d. 
+       compute. reflexivity. 
+       compute. destruct b as [[s t] P]. 
+       reflexivity. 
+Qed. 
+
+Lemma correct_certs_to_rlte : ∀ (S : Type) (eq : brel S) (b : binary_op S) 
+                                (eqv : eqv_proofs S eq) (p : sg_CS_proofs S eq b), 
+   to_certs_rlte S (P2C_eqv S eq eqv) (P2C_sg_CS S eq b p) 
+   = 
+   P2C_to S eq (brel_rlte S eq b) (to_proofs_rlte S eq b eqv p). 
+Proof. intros S eq b eqv p. compute. reflexivity. Qed. 
+
+Lemma correct_certs_to_llte : ∀ (S : Type) (eq : brel S) (b : binary_op S) 
+                                (eqv : eqv_proofs S eq) (p : sg_CS_proofs S eq b), 
+   to_certs_llte S (P2C_eqv S eq eqv) (P2C_sg_CS S eq b p) 
+   = 
+   P2C_to S eq (brel_llte S eq b) (to_proofs_llte S eq b eqv p). 
+Proof. intros S eq b eqv p. compute. reflexivity. Qed. 
+
+
+Lemma correct_certs_po_llte : ∀ (S : Type) (eq : brel S) (b : binary_op S) 
+                                (eqv : eqv_proofs S eq) (p : sg_CI_proofs S eq b), 
+   po_certs_llte S (P2C_eqv S eq eqv) (P2C_sg_CI S eq b p) 
+   = 
+   P2C_po S eq (brel_llte S eq b) (po_proofs_llte S eq b eqv p). 
+Proof. intros S eq b eqv p.  destruct p.  
+       destruct A_sg_CI_selective_d. 
+         compute. reflexivity. 
+         destruct b0 as [[s t] P]. compute. reflexivity. 
+Qed. 
+
+
+Lemma correct_certs_po_rlte : ∀ (S : Type) (eq : brel S) (b : binary_op S) 
+                                (eqv : eqv_proofs S eq) (p : sg_CI_proofs S eq b), 
+   po_certs_rlte S (P2C_eqv S eq eqv) (P2C_sg_CI S eq b p) 
+   = 
+   P2C_po S eq (brel_rlte S eq b) (po_proofs_rlte S eq b eqv p). 
+Proof. intros S eq b eqv p.  destruct p.  
+       destruct A_sg_CI_selective_d. 
+         compute. reflexivity. 
+         destruct b0 as [[s t] P]. compute. reflexivity. 
+Qed. 
+
 
 (*                 ============ Semigroups ============                *) 
 

@@ -106,6 +106,16 @@ Separate Extraction
    eqv_product
    eqv_sum
 
+   (* order *) 
+   to_bool 
+   to_nat 
+   po_dual 
+   to_dual
+   to_llte  
+   to_rlte  
+   po_llte  
+   po_rlte  
+
    (* sg *) 
    sg_times
    sg_plus

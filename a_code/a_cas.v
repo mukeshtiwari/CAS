@@ -119,7 +119,7 @@ Definition A_eqv_sum : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S + T)
 
 (* orders *) 
 
-Definition po_dual : ∀ (S : Type), A_po S -> A_po S 
+Definition A_po_dual : ∀ (S : Type), A_po S -> A_po S 
 := λ S poS, 
 {|
   A_po_eqv        := A_po_eqv S poS 
@@ -129,7 +129,7 @@ Definition po_dual : ∀ (S : Type), A_po S -> A_po S
 |}.
 
 
-Definition po_llte : ∀ (S : Type), A_sg_CI S -> A_po S 
+Definition A_po_llte : ∀ (S : Type), A_sg_CI S -> A_po S 
 := λ S sgS, 
 let eqv  := A_sg_CI_eqv S sgS                  in 
 let eqvP := A_eqv_proofs S eqv                 in 
@@ -143,7 +143,7 @@ let b    := brel_llte S r (A_sg_CI_bop S sgS)  in
 |}.
 
 
-Definition po_rlte : ∀ (S : Type), A_sg_CI S -> A_po S 
+Definition A_po_rlte : ∀ (S : Type), A_sg_CI S -> A_po S 
 := λ S sgS, 
 let eqv  := A_sg_CI_eqv S sgS                  in 
 let eqvP := A_eqv_proofs S eqv                 in 
@@ -174,7 +174,7 @@ Definition A_to_nat : A_to nat
 ; A_to_ast        := Ast_to_nat
 |}.
 
-Definition to_dual : ∀ (S : Type), A_to S -> A_to S 
+Definition A_to_dual : ∀ (S : Type), A_to S -> A_to S 
 := λ S toS, 
 {|
   A_to_eqv        := A_to_eqv S toS 
@@ -184,8 +184,7 @@ Definition to_dual : ∀ (S : Type), A_to S -> A_to S
 |}.
 
 
-
-Definition to_llte : ∀ (S : Type), A_sg_CS S -> A_to S 
+Definition A_to_llte : ∀ (S : Type), A_sg_CS S -> A_to S 
 := λ S sgS, 
 let eqv  := A_sg_CS_eqv S sgS                  in 
 let eqvP := A_eqv_proofs S eqv                 in 
@@ -199,8 +198,7 @@ let b    := brel_llte S r (A_sg_CS_bop S sgS)  in
 |}.
 
 
-
-Definition to_rlte : ∀ (S : Type), A_sg_CS S -> A_to S 
+Definition A_to_rlte : ∀ (S : Type), A_sg_CS S -> A_to S 
 := λ S sgS, 
 let eqv  := A_sg_CS_eqv S sgS                  in 
 let eqvP := A_eqv_proofs S eqv                 in 
@@ -212,9 +210,6 @@ let b    := brel_rlte S r (A_sg_CS_bop S sgS)  in
 ; A_to_proofs     := to_proofs_rlte _ _ _ eqvP (A_sg_CS_proofs S sgS)
 ; A_to_ast        := Ast_to_rlte (A_sg_CS_ast S sgS)
 |}.
-
-
-
 
 
 (* semigroups *) 
