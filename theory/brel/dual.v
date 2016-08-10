@@ -50,6 +50,27 @@ Definition brel_dual_total_decide :
 
 
 
+Lemma brel_dual_exists_top : ∀ (S : Type) (rS : brel S),  
+             brel_exists_bottom S rS -> brel_exists_top S (brel_dual S rS). 
+Proof.  intros S rS [t P]. exists t. intro s. apply P. Defined. 
+
+
+Lemma brel_dual_not_exists_top : ∀ (S : Type) (rS : brel S), 
+             brel_not_exists_bottom S rS -> brel_not_exists_top S (brel_dual S rS). 
+Proof.  intros S rS P s. exists (projT1 (P s)). destruct (P s) as [w F]. compute; auto. Defined. 
+
+Lemma brel_dual_exists_bottom : ∀ (S : Type) (rS : brel S),  
+             brel_exists_top S rS -> brel_exists_bottom S (brel_dual S rS). 
+Proof.  intros S rS [t P]. exists t. intro s. apply P. Defined. 
+
+Lemma brel_dual_not_exists_bottom : ∀ (S : Type) (rS : brel S), 
+             brel_not_exists_top S rS -> brel_not_exists_bottom S (brel_dual S rS). 
+Proof.  intros S rS P s. exists (projT1 (P s)). destruct (P s) as [w F]. compute; auto. Defined. 
+
+
+
+
+
 
 
 

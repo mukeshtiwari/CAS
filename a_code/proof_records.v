@@ -19,6 +19,10 @@ Record qo_proofs (S : Type) (eq qo : brel S) := {
 ; A_qo_transitive      : brel_transitive S qo           
 ; A_qo_antisymmetric_d : brel_antisymmetric_decidable S eq qo 
 ; A_qo_total_d         : brel_total_decidable S qo           
+(*
+; A_qo_exists_top_d    : brel_exists_top_decidable S qo           
+; A_qo_exists_bottom_d : brel_exists_bottom_decidable S qo           
+*) 
 }.
 
 (* partial-order *) 
@@ -28,6 +32,10 @@ Record po_proofs (S : Type) (eq po : brel S) := {
 ; A_po_transitive    : brel_transitive S po           
 ; A_po_antisymmetric : brel_antisymmetric S eq po 
 ; A_po_total_d       : brel_total_decidable S po           
+(*
+; A_po_exists_top_d    : brel_exists_top_decidable S qo           
+; A_po_exists_bottom_d : brel_exists_bottom_decidable S qo           
+*) 
 }.
 
 (* total-order *) 
@@ -37,6 +45,10 @@ Record to_proofs (S : Type) (eq po : brel S) := {
 ; A_to_transitive    : brel_transitive S po           
 ; A_to_antisymmetric : brel_antisymmetric S eq po 
 ; A_to_total         : brel_total S po           
+(*
+; A_to_exists_top_d    : brel_exists_top_decidable S qo           
+; A_to_exists_bottom_d : brel_exists_bottom_decidable S qo           
+*) 
 }.
 
 

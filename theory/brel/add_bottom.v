@@ -47,5 +47,27 @@ Lemma brel_add_bottom_not_total : ∀ (S : Type) (rS : brel S) (c : cas_constant
 Proof.  intros S rS c [[s t] P]. exists (inr _ s, inr _ t). compute. assumption. Defined. 
 
 
+Lemma brel_add_bottom_exists_bottom : ∀ (S : Type) (rS : brel S) (c : cas_constant),  
+             brel_exists_bottom (with_constant S) (brel_add_bottom S rS c). 
+Proof.  intros S rS c. exists (inl _ c). intros [s | s]; compute; reflexivity. Defined. 
+
+
+Lemma brel_add_bottom_exists_top : ∀ (S : Type) (rS : brel S) (c : cas_constant),  
+             brel_exists_top S rS -> 
+             brel_exists_top (with_constant S) (brel_add_bottom S rS c). 
+Proof.  intros S rS c [t P]. exists (inr _ t). 
+        intros [s | s]; compute. reflexivity. apply P. 
+Defined. 
+
+
+Lemma brel_add_bottom_not_exists_top : ∀ (S : Type) (rS : brel S) (c : cas_constant) (w : S),  
+             brel_not_exists_top S rS -> 
+             brel_not_exists_top (with_constant S) (brel_add_bottom S rS c). 
+Proof.  intros S rS c w P. 
+        intros [s | s]; compute. 
+           exists (inr _ w); auto. 
+           assert (H := P s). destruct H as [t F].  exists (inr _ t). assumption. 
+Defined. 
+
 
 
