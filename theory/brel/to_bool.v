@@ -1,7 +1,7 @@
 Require Import Coq.Bool.Bool. 
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
 
 
 Lemma brel_to_bool_congruence : brel_congruence bool brel_eq_bool brel_to_bool. 

@@ -1,7 +1,7 @@
 Require Import Coq.Bool.Bool.    
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
 
 
 Lemma brel_add_top_congruence : ∀ (S : Type) (rS : brel S) (c : cas_constant),  

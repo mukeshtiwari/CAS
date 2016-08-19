@@ -2,7 +2,8 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
 Require Import CAS.code.uop.
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.bop_properties. 
+Require Import CAS.theory.uop_properties. 
 
 
 Lemma bop_reduce_congruence : 

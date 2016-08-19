@@ -9,9 +9,9 @@ Require Import CAS.theory.brel.eq_nat.
 Require Import CAS.theory.brel.to_nat. 
 Require Import CAS.theory.brel.eq_list. 
 Require Import CAS.theory.brel.product. 
-Require Import CAS.theory.brel.llte_llt. 
+Require Import CAS.theory.brel.llte. 
+Require Import CAS.theory.brel.rlte. 
 Require Import CAS.theory.brel.dual. 
-Require Import CAS.theory.brel.llte_llt. 
 Require Import CAS.theory.brel.sum. 
 Require Import CAS.theory.brel.add_constant. 
 Require Import CAS.theory.brel.and_sym.
@@ -35,16 +35,16 @@ Require Import CAS.theory.bop.add_ann.
 Require Import CAS.theory.bop.then_unary. 
 Require Import CAS.theory.bop.llex. 
 
-Require Import CAS.theory.bops.and_or.
-Require Import CAS.theory.bops.or_and.
-Require Import CAS.theory.bops.min_max.
-Require Import CAS.theory.bops.max_min.
-Require Import CAS.theory.bops.min_plus.
-Require Import CAS.theory.bops.max_plus.
-Require Import CAS.theory.bops.product_product.
-Require Import CAS.theory.bops.llex_product.
-Require Import CAS.theory.bops.add_ann_add_id.
-Require Import CAS.theory.bops.add_id_add_ann.
+Require Import CAS.theory.bs.and_or.
+Require Import CAS.theory.bs.or_and.
+Require Import CAS.theory.bs.min_max.
+Require Import CAS.theory.bs.max_min.
+Require Import CAS.theory.bs.min_plus.
+Require Import CAS.theory.bs.max_plus.
+Require Import CAS.theory.bs.product_product.
+Require Import CAS.theory.bs.llex_product.
+Require Import CAS.theory.bs.add_ann_add_id.
+Require Import CAS.theory.bs.add_id_add_ann.
 
 
 Require Import CAS.theory.brel.set. 
@@ -52,14 +52,14 @@ Require Import CAS.theory.brel.in_set.
 Require Import CAS.theory.bop.union. 
 Require Import CAS.theory.bop.intersect. 
 (*Require Import CAS.theory.bop.minset_union. *) 
-Require Import CAS.theory.bops.union_intersect.
-Require Import CAS.theory.bops.intersect_union.
+Require Import CAS.theory.bs.union_intersect.
+Require Import CAS.theory.bs.intersect_union.
 
-
-
-Require Import CAS.theory.properties.        (* ~~ code.certificates *) 
-Require Import CAS.a_code.proof_records.     (* ~~ code.cert_records *) 
-Require Import CAS.a_code.decide.            (* ~~ code.check        *) 
+Require Import CAS.theory.brel_properties.   
+Require Import CAS.theory.bop_properties.   
+Require Import CAS.theory.bs_properties.   
+Require Import CAS.a_code.proof_records.     
+Require Import CAS.a_code.decide.            
 Require Import CAS.a_code.a_cas_records. 
 
 

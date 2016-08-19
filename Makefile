@@ -41,7 +41,11 @@ ACODE=\
    a_code/a_cas.v 
 
 THEORY=\
-   theory/properties.v \
+   theory/brel_properties.v \
+   theory/uop_properties.v \
+   theory/bop_properties.v \
+   theory/bs_properties.v \
+   theory/os_properties.v \
    theory/facts.v \
    theory/brel/eq_bool.v \
    theory/brel/eq_nat.v \
@@ -51,7 +55,8 @@ THEORY=\
    theory/brel/dual.v \
    theory/brel/complement.v \
    theory/brel/conjunction.v \
-   theory/brel/llte_llt.v \
+   theory/brel/llte.v \
+   theory/brel/rlte.v \
    theory/brel/reduce.v \
    theory/brel/add_constant.v \
    theory/brel/add_bottom.v \
@@ -81,19 +86,19 @@ THEORY=\
    theory/bop/intersect.v \
    theory/bop/add_id.v \
    theory/bop/add_ann.v \
-   theory/bops/and_or.v \
-   theory/bops/or_and.v \
-   theory/bops/min_max.v \
-   theory/bops/max_min.v \
-   theory/bops/min_plus.v \
-   theory/bops/max_plus.v \
-   theory/bops/product_product.v \
-   theory/bops/llex_product.v \
-   theory/bops/add_ann_add_id.v \
-   theory/bops/add_id_add_ann.v \
-   theory/bops/union_intersect.v \
-   theory/bops/intersect_union.v \
-   theory/bops/left_sum_right_sum.v \
+   theory/bs/and_or.v \
+   theory/bs/or_and.v \
+   theory/bs/min_max.v \
+   theory/bs/max_min.v \
+   theory/bs/min_plus.v \
+   theory/bs/max_plus.v \
+   theory/bs/product_product.v \
+   theory/bs/llex_product.v \
+   theory/bs/add_ann_add_id.v \
+   theory/bs/add_id_add_ann.v \
+   theory/bs/union_intersect.v \
+   theory/bs/intersect_union.v \
+   theory/bs/left_sum_right_sum.v \
    theory/brel/in_list.v \
    theory/brel/in_set.v \
    theory/brel/is_minimal_in.v \

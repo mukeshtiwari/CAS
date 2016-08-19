@@ -1,7 +1,7 @@
 Require Import Coq.Arith.Arith.     
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
 Require Import CAS.theory.facts. 
 
 Lemma brel_complement_irreflexive : ∀ (S : Type) (r : brel S), 

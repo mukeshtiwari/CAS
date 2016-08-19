@@ -87,7 +87,7 @@ Definition cef_bop_llex_not_is_left (S T : Type) (r : brel S) (b : binary_op S) 
 Definition cef_bop_llex_not_is_right (S T : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S) (t : T) 
    := if r (b s (f s)) s then ((s, t), (f s, t)) else ((f s, t), (s, t)).
            
-
+(*
 Definition cef_llex_product_not_left_distributive 
       (S T : Type)
       (rS : brel S)
@@ -104,8 +104,27 @@ Definition cef_llex_product_not_left_distributive
    else if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
         then ((s1, t1), ((s3, t3), (s2, t2)))
         else ((s1, t1), ((s2, t3), (s3, t2))). 
- 
-Definition cef_llex_product_not_right_distributive 
+
+*) 
+Definition cef_llex_product_not_left_distributive  
+      (S T : Type)
+      (rS : brel S)
+      (rT : brel T)
+      (s1 s2 s3 : S)
+      (t1 t2 t3 : T)
+      (addS : binary_op S) 
+      (addT : binary_op T)
+      (mulT : binary_op T) 
+:= if (rS (addS s2 s3) s2) 
+   then if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
+        then ((s1, t1), ((s2, t3), (s3, t2)))
+        else ((s1, t1), ((s2, t2), (s3, t3)))
+   else if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
+        then ((s1, t1), ((s2, t2), (s3, t3)))
+        else ((s1, t1), ((s2, t3), (s3, t2))). 
+
+
+Definition cef_llex_product_not_right_distributive
       (S T : Type)
       (rS : brel S)
       (rT : brel T)
@@ -119,5 +138,6 @@ Definition cef_llex_product_not_right_distributive
         then ((s1, t1), ((s2, t3), (s3, t2)))
         else ((s1, t1), ((s2, t2), (s3, t3)))
    else if rT (mulT t2 t1) (addT (mulT t2 t1) (mulT t3 t1))
-        then ((s1, t1), ((s3, t3), (s2, t2)))
+        then ((s1, t1), ((s2, t2), (s3, t3)))
         else ((s1, t1), ((s2, t3), (s3, t2))). 
+

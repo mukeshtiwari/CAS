@@ -2,7 +2,9 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.ast. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
-Require Import CAS.theory.properties.        (* ~~ certificates *) 
+Require Import CAS.theory.brel_properties.        
+
+
 Require Import CAS.a_code.proof_records.     (* ~~ cert_records *) 
 Require Import CAS.a_code.a_cas_records.
 Require Import CAS.theory.facts. 

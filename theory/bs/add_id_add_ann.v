@@ -3,7 +3,9 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
 Require Import CAS.theory.facts. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.bop_properties. 
+Require Import CAS.theory.bs_properties. 
 
 
 Lemma bops_add_id_add_ann_id_equals_ann :    
@@ -172,4 +174,14 @@ Proof. intros S r c b1 b2 [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute.
 
 
 
+
+(* experiment *) 
+
+Lemma bops_add_id_add_ann_left_left_dependent_distributive  : 
+   ∀ (S : Type) (r : brel S) (c : cas_constant) (b1 b2 : binary_op S),
+     brel_reflexive S r -> 
+     bops_left_left_dependent_distributive S r b1 b2 -> 
+        bops_left_left_dependent_distributive (with_constant S) (brel_add_constant S r c) 
+           (bop_add_id S b1 c) (bop_add_ann S b2 c). 
+Proof. intros S r c b1 b2 refS ld [c1 | s1] [c2 | s2] [c3 | s3]; compute; intro H; auto. Qed. 
 

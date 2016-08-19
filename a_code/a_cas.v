@@ -2,34 +2,19 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.ast. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
-Require Import CAS.theory.properties. 
+Require Import CAS.code.data.
 
-Require Import CAS.theory.brel.eq_nat. 
-Require Import CAS.theory.brel.to_nat. 
-Require Import CAS.theory.brel.eq_bool. 
-Require Import CAS.theory.brel.to_bool. 
-Require Import CAS.theory.brel.eq_list. 
-Require Import CAS.theory.brel.dual. 
-Require Import CAS.theory.brel.sum.
-Require Import CAS.theory.brel.llte_llt. 
-Require Import CAS.theory.brel.product. 
 
-Require Import CAS.theory.bop.plus. 
-Require Import CAS.theory.bop.times.
-Require Import CAS.theory.bop.min.
-Require Import CAS.theory.bop.max. 
-Require Import CAS.theory.bop.or.
-Require Import CAS.theory.bop.and.
-Require Import CAS.theory.bop.concat. 
-Require Import CAS.theory.bop.product.
-Require Import CAS.theory.bops.union_intersect. 
-Require Import CAS.theory.bops.intersect_union. 
+Require Import CAS.a_code.a_cast.
+
+Require Import CAS.theory.bs.union_intersect. 
+Require Import CAS.theory.bs.intersect_union. 
+
 
 Require Import CAS.a_code.proof_records. 
-Require Import CAS.a_code.construct_proofs. 
 Require Import CAS.a_code.a_cas_records.
-Require Import CAS.a_code.a_cast.
-Require Import CAS.code.data.
+Require Import CAS.a_code.construct_proofs. 
+
 
 (* eqv *) 
 

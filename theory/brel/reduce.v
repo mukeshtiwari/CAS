@@ -1,6 +1,8 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.properties.
+Require Import CAS.theory.brel_properties.
+Require Import CAS.theory.uop_properties.
+Require Import CAS.theory.bop_properties.
 Require Import CAS.theory.facts. 
 
 Lemma brel_reduce_reflexive : ∀ (S : Type) (r : brel S) (u : unary_op S), 

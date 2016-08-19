@@ -1,7 +1,7 @@
 Require Import Coq.Bool.Bool. 
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
 
 Lemma eqb_bool_to_prop  : ∀ s t: bool, eqb s t = true -> s = t. 
 Proof.  induction s;  induction t; simpl; intro H; auto. Qed. 

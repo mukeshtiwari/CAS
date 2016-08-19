@@ -3,9 +3,11 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
 Require Import CAS.code.cef. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.bop_properties. 
+Require Import CAS.theory.bs_properties. 
 Require Import CAS.theory.facts. 
-Require Import CAS.theory.brel.llte_llt. 
+Require Import CAS.theory.brel.llte. 
 Require Import CAS.theory.bop.llex.
 Require Import CAS.theory.bop.product. 
 
@@ -115,44 +117,59 @@ Defined.
 
 (*  
 
+   Assume 
+
    bop_not_cancellative : s1 * s2 = s1 * s3, s2 <> s3 
-   bop_not_constant     : t4 * t5 <> t4 * t6   
+   bop_not_constant     : t1 * t2 <> t1 * t3 
+
+   find ((s1, a), (s2, b), (s3, c)) that violates LD 
 
    case 1 :  s2 < s3 
 
-      LHS : (s1, t1) * ( (s2, t2) + (s3, t3))  = (s1, t1) * (s2, t2) = (s1 * s2, t1 * t2) 
-      RHS : (s1 * s2, t1 * t2) + (s1 * s3, t1 * t3) = 
-            (s1 * s2, (t1 * t2) + (t1 * t3)) 
+      LHS : (s1, a) * ( (s2, b) + (s3, c))      = (s1, a) * (s2, b) = (s1 * s2, a * b) 
+      RHS : (s1 * s2, a * b) + (s1 * s3, a * c) = (s1 * s2, (a * b) + (a * c)) 
 
-      case 1 : t4 * t5  = t4 * t5 + t4 * t6   
-              t1 = t4 
-              t2 = t6 
-              t3 = t5 
+      Need a * b <> (a * b) + (a * c) 
+      
+      case 1.1 : t1 * t2  = (t1 * t2) + (t1 * t3) 
+           so    t1 * t3 <> (t1 * t2) + (t1 * t3) ={commT}=  (t1 * t3) + (t1 * t2)
+           use   a    b                                       a     b     a    c 
 
-      case 2 : t4 * t6  = t4 * t5 + t4 * t6   
-              t1 = t4 
-              t2 = t5 
-              t3 = t6 
+      case 1.2 : t1 * t2  <> (t1 * t2) + (t1 * t3) 
+           use   a    b       a     b     a    c 
 
-      case 3 : t4 * t5  <> t4 * t5 + t4 * t6   
-               t4 * t6  <> t4 * t5 + t4 * t6   
-              t1 = t4 
-              t2 = t5 
-              t3 = t6 
 
-     Need t1 * t2 <> (t1 * t2) + (t1 * t3) = t1 * (t2 + t3)
-     ie   t1 * t2 <> t1 * (t2 + t3)
+   case 1 :  s3 < s2 
 
+      LHS : (s1, a) * ( (s2, b) + (s3, c))      = (s1, a) * (s3, c) = (s1 * s2, a * c) 
+      RHS : (s1 * s2, a * b) + (s1 * s3, a * c) = (s1 * s2, (a * b) + (a * c)) 
+
+      Need a * c <> (a * b) + (a * c) 
+      
+      case 1.1 : t1 * t2  = (t1 * t2) + (t1 * t3) 
+           so    t1 * t3 <> (t1 * t2) + (t1 * t3) 
+           use   a    c      a     b     a    c 
+
+      case 1.2 : t1 * t2  <> (t1 * t2) + (t1 * t3) ={commT}=  (t1 * t3) + (t1 * t2)
+           use    a    c                                       a     b     a    c 
+
+Definition cef_llex_product_not_left_distributive
+      (S T : Type)
+      (rS : brel S)
+      (rT : brel T)
+      (s1 s2 s3 : S)
+      (t1 t2 t3 : T)
+      (addS : binary_op S) 
+      (addT : binary_op T)
+      (mulT : binary_op T) 
+:= if (rS (addS s2 s3) s2) 
+   then if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
+        then ((s1, t1), ((s2, t3), (s3, t2)))
+        else ((s1, t1), ((s2, t2), (s3, t3)))
+   else if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
+        then ((s1, t1), ((s2, t2), (s3, t3)))
+        else ((s1, t1), ((s2, t3), (s3, t2))). 
 *) 
-
-(*
-
-    LK :  all  a b c, a*b == a*c 
-   MLK : (some a b c, a*b != a*c) /\ (some a b c, a*b == a*c)
-   DLK :                              all  a b c, a*b != a*c 
-
-*) 
-
 
 Lemma bop_llex_product_not_left_distributive_v3 : 
    ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T),
@@ -162,7 +179,7 @@ Lemma bop_llex_product_not_left_distributive_v3 :
       bop_commutative S rS addS → 
       brel_symmetric T rT → 
       brel_transitive T rT → 
-      bop_commutative T rT addT → 
+      bop_commutative T rT addT → (* NB *) 
       bop_not_left_cancellative S rS mulS → 
       bop_not_left_constant T rT mulT → 
          bop_not_left_distributive (S * T) 
@@ -175,6 +192,7 @@ exists(cef_llex_product_not_left_distributive S T rS rT s1 s2 s3 t1 t2 t3 addS a
 unfold cef_llex_product_not_left_distributive. 
 destruct(selS s2 s3) as [H | H]. 
    case_eq(rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))); intro J; simpl. 
+
       rewrite H. simpl. 
       apply andb_is_false_right. right.    
       rewrite N. compute. 
@@ -184,41 +202,36 @@ destruct(selS s2 s3) as [H | H].
       assert (fact3 := brel_transititivity_implies_dual _ _ transT _ _ _ fact2 F). 
       apply (brel_symmetric_implies_dual _ _ symT). 
       assumption. 
+
       rewrite H; compute.           
       apply andb_is_false_right. right.    
       apply symS in H. rewrite N, E, H. 
       assumption. 
+
    assert (A : rS (addS s2 s3) s2 = false).  
        apply (brel_symmetric_implies_dual _ _ symS) in N.
        apply symS in H. 
        apply (brel_transititivity_implies_dual _ _ transS _ _ _ H N). 
-   case_eq(rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))); intro J; 
-      rewrite A; compute. 
-      apply andb_is_false_right. right.    
-      apply symS in H. 
-      apply (brel_symmetric_implies_dual _ _ symS) in N. 
-      apply symS in E.  
-      assert (fact1 := commS s2 s3). 
-      assert (fact2 := transS _ _ _ H fact1). 
-      rewrite N, E, fact2. 
-      assert (fact3 := commT (mulT t1 t2) (mulT t1 t3)). 
-      assert (fact4 := transT _ _ _ J fact3). 
-      assert (fact5 := brel_transititivity_implies_dual _ _ transT _ _ _ fact4 F). 
+
+   case_eq(rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))); intro J; rewrite A; compute. 
+      apply andb_is_false_right. right.  rewrite N.
+      apply (brel_symmetric_implies_dual _ _ symS) in A.  rewrite A. 
+      rewrite E. 
+      assert (fact5 := brel_transititivity_implies_dual _ _ transT _ _ _ J F). 
       apply (brel_symmetric_implies_dual _ _ symT). 
       assumption. 
+
+
       rewrite N. rewrite E. 
-      case_eq(rS s2 (addS s2 s3)); intro Q. 
-         assert (fact1 := transS _ _ _ Q H). 
-         rewrite fact1 in N. 
-         discriminate. 
-         case_eq(rS (mulS s1 (addS s2 s3)) (addS (mulS s1 s2) (mulS s1 s3))); intro K.   
-            apply (brel_symmetric_implies_dual _ _ symT) in J.
-            assert (fact1 := commT (mulT t1 t2) (mulT t1 t3)). 
-            assert (fact2 := brel_transititivity_implies_dual _ _ transT _ _ _ fact1 J). 
-            apply (brel_symmetric_implies_dual _ _ symT).             
-            assumption. 
-            reflexivity. 
+      apply (brel_symmetric_implies_dual _ _ symS) in A. rewrite A. 
+      case_eq(rS (mulS s1 (addS s2 s3)) (addS (mulS s1 s2) (mulS s1 s3))); intro K; auto.    
+      assert (fact1 := commT (mulT t1 t2) (mulT t1 t3)). 
+      apply (brel_symmetric_implies_dual _ _ symT) in J.
+      assert (fact2 := brel_transititivity_implies_dual _ _ transT _ _ _ fact1 J). 
+      apply (brel_symmetric_implies_dual _ _ symT).             
+      assumption. 
 Defined.  
+
 
 
 Lemma bop_llex_product_right_distributive : 
@@ -324,7 +337,7 @@ Proof. intros S T rS rT addS mulS addT mulT [s Ps] refS [ [t1 [t2 t3 ] ] nld ].
 Defined. 
 
 
-Lemma bop_llex_product_not_right_distributive_v3 : 
+Lemma bop_llex_product_not_right_distributive_v3: 
    ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       brel_symmetric S rS → 
       brel_transitive S rS → 
@@ -346,6 +359,7 @@ exists(cef_llex_product_not_right_distributive S T rS rT s1 s2 s3 t1 t2 t3 addS 
 unfold cef_llex_product_not_right_distributive. 
 destruct(selS s2 s3) as [H | H]. 
    case_eq(rT (mulT t2 t1) (addT (mulT t2 t1) (mulT t3 t1))); intro J; simpl. 
+
       rewrite H. simpl. 
       apply andb_is_false_right. right.    
       apply symS in H. 
@@ -355,40 +369,34 @@ destruct(selS s2 s3) as [H | H].
       assert (fact3 := brel_transititivity_implies_dual _ _ transT _ _ _ fact2 F). 
       apply (brel_symmetric_implies_dual _ _ symT). 
       assumption. 
+
       rewrite H; compute.           
       apply andb_is_false_right. right.    
       apply symS in H. rewrite N, E, H. 
       assumption. 
+
    assert (A : rS (addS s2 s3) s2 = false).
        apply (brel_symmetric_implies_dual _ _ symS) in N.
        apply symS in H. 
        apply (brel_transititivity_implies_dual _ _ transS _ _ _ H N). 
-   case_eq(rT (mulT t2 t1) (addT (mulT t2 t1) (mulT t3 t1))); intro J; simpl; 
-      rewrite A; compute. 
+   case_eq(rT (mulT t2 t1) (addT (mulT t2 t1) (mulT t3 t1))); intro J; simpl; rewrite A; compute. 
+
       apply andb_is_false_right. right.    
-      apply symS in H. 
-      apply (brel_symmetric_implies_dual _ _ symS) in N. 
-      apply symS in E.  
-      assert (fact1 := commS s2 s3). 
-      assert (fact2 := transS _ _ _ H fact1). 
-      rewrite N, E, fact2. 
-      assert (fact3 := commT (mulT t2 t1) (mulT t3 t1)). 
-      assert (fact4 := transT _ _ _ J fact3). 
-      assert (fact5 := brel_transititivity_implies_dual _ _ transT _ _ _ fact4 F). 
+      rewrite N. 
+      apply (brel_symmetric_implies_dual _ _ symS) in A. rewrite A. 
+      rewrite E. 
+      assert (fact5 := brel_transititivity_implies_dual _ _ transT _ _ _ J F). 
       apply (brel_symmetric_implies_dual _ _ symT). 
       assumption. 
+
       rewrite N. rewrite E. 
-      case_eq(rS s2 (addS s2 s3)); intro Q. 
-         assert (fact1 := transS _ _ _ Q H). 
-         rewrite fact1 in N. 
-         discriminate. 
-         case_eq(rS (mulS (addS s2 s3) s1) (addS (mulS s2 s1) (mulS s3 s1))); intro K.   
-            assert (fact1 := commT (mulT t2 t1) (mulT t3 t1)). 
-            apply (brel_symmetric_implies_dual _ _ symT) in J.
-            assert (fact2 := brel_transititivity_implies_dual _ _ transT _ _ _ fact1 J). 
-            apply (brel_symmetric_implies_dual _ _ symT). 
-            assumption. 
-            reflexivity. 
+      apply (brel_symmetric_implies_dual _ _ symS) in A. rewrite A. 
+      case_eq(rS (mulS (addS s2 s3) s1) (addS (mulS s2 s1) (mulS s3 s1))); intro K; auto.    
+      assert (fact1 := commT (mulT t2 t1) (mulT t3 t1)). 
+      apply (brel_symmetric_implies_dual _ _ symT) in J.
+      assert (fact2 := brel_transititivity_implies_dual _ _ transT _ _ _ fact1 J). 
+      apply (brel_symmetric_implies_dual _ _ symT).             
+      assumption. 
 Defined. 
 
 
@@ -875,10 +883,175 @@ Proof. intros S T rS rT addS mulS addT mulT symS transS laS [ [t1 t2] P ] [ [s1 
 Defined. 
 
 
+(* experiment *) 
+
+
+(* 
+
+   bops_left_oblivious
+
+   s * t = (s * t) + (s * u)
+
+   or 
+ 
+   s * t <= s * u 
+
+   Note, this is just rhs of bops_left_left_dependent_distributive
+
+   t = t + u -> s * t = (s * t) + (s * u)
+
+
+*) 
+Definition bops_left_oblivious (S : Type) (r : brel S) (add mul : binary_op S) 
+:= ∀ s t u : S, r (mul s t) (add (mul s t) (mul s u)) = true. 
+
+Definition bops_not_left_oblivious (S : Type) (r : brel S) (add mul : binary_op S) 
+:= {z : S * (S * S) & match z with (s, (t, u)) => r (mul s t) (add (mul s t) (mul s u)) = false end}. 
+
+Definition bops_not_left_left_dependent_distributive (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+   := { z : S * (S * S) & match z with (s, (t, u)) => (r t (add t u) = true) * (r (mul s t) (add (mul s t) (mul s u)) = false ) end }. 
+
+
+Lemma bop_llex_product_left_left_dependent_distributive_v1 : 
+   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
+      brel_reflexive S rS -> 
+      brel_reflexive T rT -> 
+      bops_left_left_dependent_distributive S rS addS mulS → 
+      bops_left_left_dependent_distributive T rT addT mulT → 
+      bop_left_cancellative S rS mulS  → 
+         bops_left_left_dependent_distributive (S * T) 
+             (brel_product _ _ rS rT) 
+             (bop_llex  _ _ rS addS addT)
+             (bop_product _ _ mulS mulT). 
+Proof. intros S T rS rT addS mulS addT mulT refS refT ldS ldT lcS 
+           [s1 t1] [s2 t2] [s3 t3]. 
+       compute. 
+       case_eq(rS s2 (addS s2 s3)); intro H1;
+       case_eq(rS s2 s3 ); intro H2; 
+       case_eq(rT t2 (addT t2 t3)); intro H3;
+       case_eq(rS (mulS s1 s2) (addS (mulS s1 s2) (mulS s1 s3))); intro H4;
+       case_eq(rS (mulS s1 s2) (mulS s1 s3)); intro H5; auto. 
+
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+
+          intro. discriminate. 
+
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+
+          apply lcS in H5. rewrite H5 in H2. discriminate. 
+
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+
+          intro. discriminate. 
+          intro. discriminate. 
+Defined. 
+
+
+Lemma bop_llex_product_left_left_dependent_distributive_v2 : 
+   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
+      brel_reflexive S rS -> 
+      brel_reflexive T rT -> 
+      bops_left_left_dependent_distributive S rS addS mulS → 
+      bops_left_left_dependent_distributive T rT addT mulT → 
+      bops_left_oblivious T rT addT mulT  → 
+         bops_left_left_dependent_distributive (S * T) 
+             (brel_product _ _ rS rT) 
+             (bop_llex  _ _ rS addS addT)
+             (bop_product _ _ mulS mulT). 
+Proof. intros S T rS rT addS mulS addT mulT refS refT ldS ldT loT 
+           [s1 t1] [s2 t2] [s3 t3]. 
+       compute. 
+       case_eq(rS s2 (addS s2 s3)); intro H1;
+       case_eq(rS s2 s3 ); intro H2; 
+       case_eq(rT t2 (addT t2 t3)); intro H3;
+       case_eq(rS (mulS s1 s2) (addS (mulS s1 s2) (mulS s1 s3))); intro H4; 
+       case_eq(rS (mulS s1 s2) (mulS s1 s3)); intro H5; auto. 
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+          rewrite (ldS _ _ _ H1) in H4. discriminate. 
+Defined. 
+
+
+Lemma bop_llex_product_not_left_left_dependent_distributive_v1 : 
+   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T) (w1 w2 w3 : T), 
+      brel_reflexive S rS -> 
+      brel_reflexive T rT -> 
+      bops_not_left_left_dependent_distributive S rS addS mulS → 
+         bops_not_left_left_dependent_distributive (S * T) 
+             (brel_product _ _ rS rT) 
+             (bop_llex  _ _ rS addS addT)
+             (bop_product _ _ mulS mulT). 
+Proof. intros S T rS rT addS mulS addT mulT w1 w2 w3 refS refT [ [s1 [s2 s3]] [L R] ]. 
+       exists ((s1, w1), ((s2, w2), (s3, w3))). simpl. 
+       rewrite L. simpl. 
+       case_eq(rS s2 s3 ); intro H2. 
+          rewrite R. simpl. 
+          (* idemT ??? 
+
+             Here we need w2 = w2 + w3. 
+
+             Solution 1: idem T, pick w3 = w2. 
+
+             Solution 2: say exists w2, w3, w2 = w2 + w3.   ie bop_not_anti_left 
+                         that is : Not(all w2, w3, w2 <> w2 + w3.)
+
+          *) 
+          admit. 
+          rewrite R. simpl. compute. rewrite L. rewrite H2. rewrite refT. auto. 
+Defined. 
+
+
+Lemma bop_llex_product_not_left_left_dependent_distributive_v2 : 
+   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T) (w : S), 
+      brel_reflexive S rS -> 
+      brel_symmetric S rS -> 
+      brel_reflexive T rT -> 
+      bop_idempotent S rS addS -> 
+      bops_not_left_left_dependent_distributive T rT addT mulT → 
+         bops_not_left_left_dependent_distributive (S * T) 
+             (brel_product _ _ rS rT) 
+             (bop_llex  _ _ rS addS addT)
+             (bop_product _ _ mulS mulT). 
+Proof. intros S T rS rT addS mulS addT mulT w refS symS refT idem [ [s1 [s2 s3]] [L R] ]. 
+       exists ((w, s1), ((w, s2), (w, s3))). simpl. 
+       assert (fact1 := idem w). apply symS in fact1. rewrite fact1. simpl. rewrite refS. 
+       rewrite L. simpl. 
+       assert (fact2 := idem (mulS w w)). 
+         apply symS in fact2. rewrite fact2. simpl. rewrite refS.        
+         split; auto. 
+Defined. 
 
 
 
-
+Lemma bop_llex_product_not_left_left_dependent_distributive_v3 : 
+   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
+      brel_reflexive S rS -> 
+      brel_symmetric S rS -> 
+      brel_reflexive T rT -> 
+      bop_idempotent S rS addS -> 
+      bop_not_left_cancellative S rS mulS  → 
+      bops_not_left_oblivious T rT addT mulT  → 
+         bops_not_left_left_dependent_distributive (S * T) 
+             (brel_product _ _ rS rT) 
+             (bop_llex  _ _ rS addS addT)
+             (bop_product _ _ mulS mulT). 
+Proof. intros S T rS rT addS mulS addT mulT refS symS refT idem 
+              [ [s1 [s2 s3]] [L R] ] 
+              [ [w1 [w2 w3]] F ].
+       exists ((s1, w1), ((s2, w2), (s3, w3))). compute. 
+       rewrite R. rewrite L. 
+       assert (fact2: rS s2 (addS s2 s3) = true). admit. rewrite fact2; auto. split. 
+         apply refT. 
+       assert (fact3: rS (mulS s1 s2) (addS (mulS s1 s2) (mulS s1 s3)) = true). admit. 
+       rewrite fact3. 
+       assumption. 
+Defined. 
 
 
 

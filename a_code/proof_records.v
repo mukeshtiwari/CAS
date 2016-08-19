@@ -1,5 +1,9 @@
 Require Import CAS.code.basic_types. 
-Require Import CAS.theory.properties.
+Require Import CAS.theory.brel_properties.
+Require Import CAS.theory.uop_properties.
+Require Import CAS.theory.bop_properties.
+Require Import CAS.theory.bs_properties.
+Require Import CAS.theory.os_properties.
 
 (* eqv *) 
 Record eqv_proofs (S : Type) (eq : brel S) := {

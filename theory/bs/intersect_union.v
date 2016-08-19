@@ -2,12 +2,16 @@ Require Import Coq.Bool.Bool.
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.bs_properties. 
+
+
+
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.brel.set.
 Require Import CAS.theory.bop.intersect. 
 Require Import CAS.theory.bop.union.
-Require Import CAS.theory.bops.add_id_add_ann. 
+Require Import CAS.theory.bs.add_id_add_ann. 
 
 (* 
 

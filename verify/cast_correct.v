@@ -5,7 +5,7 @@ Require Import CAS.code.cert_records.
 Require Import CAS.code.cas_records.
 Require Import CAS.code.cast.
 Require Import CAS.theory.facts. 
-Require Import CAS.theory.properties.        (* ~~ certificates *) 
+
 Require Import CAS.a_code.proof_records.     (* ~~ cert_records *) 
 Require Import CAS.a_code.a_cas_records.     
 Require Import CAS.a_code.a_cast.

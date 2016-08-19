@@ -1,6 +1,6 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
 
 Open Scope nat_scope. 
 

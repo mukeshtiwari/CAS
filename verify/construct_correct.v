@@ -1,31 +1,13 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
-Require Import CAS.code.certificates.
+Require Import CAS.code.certificates. 
 Require Import CAS.code.cert_records.
 Require Import CAS.code.check. 
 Require Import CAS.code.construct_certs.
 Require Import CAS.code.cast.
-
-Require Import CAS.theory.facts. 
-Require Import CAS.theory.brel.eq_list.
-Require Import CAS.theory.bop.concat.
-Require Import CAS.theory.bop.product. 
-Require Import CAS.theory.bop.left_sum.
-Require Import CAS.theory.bop.right_sum.
-Require Import CAS.theory.brel.add_constant. 
-Require Import CAS.theory.bop.add_ann.
-Require Import CAS.theory.bop.add_id.
-Require Import CAS.theory.bop.union. 
-Require Import CAS.theory.bop.intersect. 
-Require Import CAS.theory.bop.llex. 
-Require Import CAS.theory.brel.product. 
-Require Import CAS.theory.brel.sum. 
-Require Import CAS.theory.properties.        (* ~~ certificates *) 
-
-Require Import CAS.a_code.decide.            (* ~~ code.check *) 
-Require Import CAS.a_code.proof_records.     (* ~~ cert_records *) 
-Require Import CAS.a_code.construct_proofs.  (* ~~ construct_certs *)
+Require Import CAS.a_code.proof_records.     
+Require Import CAS.a_code.construct_proofs.  
 Require Import CAS.a_code.a_cast.
 Require Import CAS.verify.proofs_to_certs. 
 Require Import CAS.verify.check_correct. 

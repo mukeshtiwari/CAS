@@ -1,6 +1,6 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
 
 Lemma brel_sum_witness : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
               ((brel_witness S rS)  + (brel_witness _ rT)) 

@@ -1,7 +1,8 @@
 
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.bop. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.bop_properties. 
 Require Import CAS.theory.facts. 
 
 Lemma bop_right_associative : 

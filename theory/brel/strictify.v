@@ -1,7 +1,7 @@
 Require Import Coq.Arith.Arith.     
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.brel.conjunction. 
 Require Import CAS.theory.brel.dual. 

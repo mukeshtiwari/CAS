@@ -2,7 +2,8 @@ Require Import Coq.Bool.Bool.
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.bs_properties. 
+
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.bop.left_sum. 
 

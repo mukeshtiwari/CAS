@@ -21,7 +21,9 @@ Require Import CAS.theory.brel.product.
 Require Import CAS.theory.brel.sum. 
 
 Require Import CAS.code.certificates. 
-Require Import CAS.theory.properties.        (* ~~ certificates *) 
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.bop_properties. 
+Require Import CAS.theory.bs_properties. 
 Require Import CAS.code.check. 
 Require Import CAS.a_code.decide. 
 Require Import CAS.verify.proofs_to_certs. 

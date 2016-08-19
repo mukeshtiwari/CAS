@@ -1,6 +1,7 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.uop_properties. 
 Require Import CAS.theory.facts. 
 
 Lemma brel_and_sym_congruence: ∀ (S : Type) (r1 r2 : brel S), 

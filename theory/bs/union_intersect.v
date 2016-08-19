@@ -3,7 +3,8 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
 Require Import CAS.code.uop. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.bs_properties. 
 Require Import CAS.theory.brel.and_sym. 
 Require Import CAS.theory.bop.then_unary. 
 Require Import CAS.theory.bop.intersect. 
@@ -11,8 +12,8 @@ Require Import CAS.theory.facts.
 Require Import CAS.theory.brel.set.
 Require Import CAS.theory.bop.union.
 Require Import CAS.theory.bop.intersect.
-Require Import CAS.theory.bops.add_ann_add_id. 
-Require Import CAS.theory.bops.add_id_add_ann. 
+Require Import CAS.theory.bs.add_ann_add_id. 
+Require Import CAS.theory.bs.add_id_add_ann. 
 
 (* 
 

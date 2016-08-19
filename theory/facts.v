@@ -6,7 +6,11 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
 Require Import CAS.code.cef. 
-Require Import CAS.theory.properties. 
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.uop_properties. 
+Require Import CAS.theory.bop_properties. 
+Require Import CAS.theory.bs_properties. 
+Require Import CAS.theory.os_properties. 
 
 Open Scope list_scope. 
 

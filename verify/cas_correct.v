@@ -8,13 +8,15 @@ Require Import CAS.code.construct_certs.
 Require Import CAS.code.cas_records.
 Require Import CAS.code.cas.
 Require Import CAS.a_code.a_cast.
-Require Import CAS.theory.properties.        (* ~~ certificates *) 
 Require Import CAS.a_code.proof_records.     (* ~~ cert_records *) 
 Require Import CAS.a_code.construct_proofs.  (* ~~ construct_certs *)
 Require Import CAS.a_code.a_cas_records.     (* ~~ cas_records  *) 
 Require Import CAS.a_code.a_cas.             (* ~~ cas          *) 
 Require Import CAS.verify.proofs_to_certs. 
 Require Import CAS.verify.construct_correct. (* ~~ construct_certs <-> construct_proofs *)
+
+Require Import CAS.theory.brel_properties.        (* should not be needed here *) 
+
 
 
 (* eqv *) 

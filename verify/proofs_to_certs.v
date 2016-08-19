@@ -3,9 +3,11 @@ Require Import CAS.code.brel.
 Require Import CAS.code.certificates.
 Require Import CAS.code.cert_records.
 Require Import CAS.code.cas_records.
-Require Import CAS.theory.properties.    (* ~~ certificates *) 
-Require Import CAS.a_code.proof_records. (* ~~ cert_records *) 
-Require Import CAS.a_code.a_cas_records. (* ~~ cas_records  *) 
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.bop_properties. 
+Require Import CAS.theory.bs_properties. 
+Require Import CAS.a_code.proof_records. 
+Require Import CAS.a_code.a_cas_records. 
 Require Import CAS.a_code.a_cast. 
 (*
  *  PROOFS to CERTS 
