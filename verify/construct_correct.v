@@ -915,8 +915,6 @@ Proof. intros S T rS rT plusS timesS plusT timesT eqvS eqvT bsS bsT.
        reflexivity. 
 Defined. 
 
-
-
 Lemma  correct_bs_certs_llex_product : 
   ∀ (S T: Type) 
     (rS : brel S) 

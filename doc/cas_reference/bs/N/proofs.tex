@@ -1,0 +1,171 @@
+Lemmas and results used here can be found in the documentation for MinUnion ($\minunion$) and MinTimes ($\minlift$) respectively.
+
+
+\begin{theorem} \label{thm:N_ld}
+If $\propname{LM}(S,\ \otimes,\ \leq)$ and $\propname{AY}(S,\ \otimes, \ \leq)$ then
+\begin{equation*}
+\propname{LD}(\mathcal{N}(S,\ \otimes,\ \leq))  \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+
+\begin{proof}
+
+\vspace{0.5em}
+Consider arbitrary $X,Y,Z$
+\begin{align*}
+X \minlift (Y \minunion Z) 	& = \min_\leq(X \lift \min_\leq(Y \cup Z)) \\
+							& = \min_\leq(X \lift (Y \cup Z)) & \text{(Lem~\ref{lem:minlift_right_absorption})} \\
+							& = \min_\leq((X \lift Y) \cup (X \lift Z)) \\
+							& = \min_\leq(\min_\leq(X \lift Y) \cup \min_\leq(X \lift Z)) & \text{(Lem \ref{lem:minunion_left_absorption} \& \ref{lem:minunion_right_absorption})} \\
+							& = (X \minlift Y) \minunion (X \minlift Z)
+\end{align*}
+\end{proof}
+
+
+\begin{theorem} \label{thm:N_rd}
+If $\propname{RM}(S,\ \otimes,\ \leq) \wedge \propname{AY}(S,\ \otimes, \ \leq)$ then
+\begin{equation*}
+\propname{RD}(\mathcal{N}(S,\ \otimes,\ \leq))  \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+ 
+
+\begin{proof}
+
+\vspace{0.5em}
+Consider arbitrary $X,Y,Z$
+\begin{align*}
+(X \minunion Y) \minlift Z 	& = \min_\leq(\min_\leq(X \cup Y) \ \lift \ Z) \\
+							& = \min_\leq((X \cup Y) \ \lift \ Z) & \text{(Lem \ref{lem:minlift_left_absorption})}\\
+							& = \min_\leq((X \lift Z) \cup (Y \lift Z)) \\
+							& = \min_\leq(\min_\leq(X \lift Z) \cup \min_\leq(Y \lift Z)) & \text{(Lem \ref{lem:minunion_left_absorption} \& \ref{lem:minunion_right_absorption})} \\
+							& = (X \minlift Z) \minunion (Y \minlift Z)
+\end{align*}
+\end{proof}
+
+
+\begin{theorem} \label{thm:N_zo}
+$\propname{ZA}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+Witness : $\emptyset$
+
+\vspace{0.5em}
+Immediate from Theorems \ref{thm:minunion_lid}, \ref{thm:minunion_rid}, \ref{thm:minlift_lan} and \ref{thm:minlift_ran}.
+\end{proof}
+
+
+\begin{theorem} \label{thm:N_oa}
+If $\propname{AY}(S,\leq)$, $\propname{BM}(S,\leq)$, $\propname{ID}(S,\otimes)$ and at least one of: $\propname{LI}(S,\ \leq,\ \otimes)$, $\propname{RI}(S,\ \leq,\ \otimes)$, $\propname{LM}(S,\ \leq,\ \otimes)$ or $\propname{RM}(S,\ \leq,\ \otimes)$ then
+\begin{equation*}
+\propname{OA}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\proof
+
+\vspace{0.5em}
+Witness : $\{ \bot \}$
+
+\vspace{0.5em}
+
+From Theorems \ref{thm:minunion_lan} \& \ref{thm:minunion_ran} we have that $\{ \bot \}$ is an annihilator for $\minunion$.
+
+\vspace{0.5em}
+
+From Theorems \ref{thm:minlift_lid} \& \ref{thm:minlift_rid} that $\{ i \}$ is an identity for $\minlift$.
+
+\vspace{0.5em}
+
+It remains to prove that $i = \bot$. Any of the four remaining properties suffice to show this. 
+
+\vspace{0.5em}
+
+For example assume $\propname{LM}(S,\ \leq,\ \otimes)$. Using this with $\propname{ID}(S,\otimes)$, we therefore have that:
+\begin{align*}
+i 	& = i \otimes i \\
+  	& \leq i \otimes \bot \\
+  	& = \bot
+\end{align*} 
+and by $\propname{BM}(S,\leq)$ we have that:
+\begin{equation*}
+\bot \leq i
+\end{equation*}
+Therefore by $\propname{AY}(S,\leq)$ we have that $i = \bot$.
+
+
+\begin{theorem} \label{thm:N_llab}
+If $\propname{AY}(S,\ \leq)$ and $\propname{LI}(S,\ \otimes,\ \leq)$ then
+\begin{equation*}
+\propname{LLAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+Consider arbitrary $X, Y$ then we have
+\begin{align*}
+X \minunion (X \minlift Y) 	& = \min_\leq(X \cup \min_\leq(X \lift Y)) & \text{(Lem \ref{lem:minunion_right_absorption})} \\
+							& = \min_\leq(X \cup (X \lift Y)) \\
+\intertext{By $\propname{AY}(S,\ \leq)$ and $\propname{LI}(S,\ \otimes,\ \leq)$ we have that for all $x, y$ either $x < x \otimes y$ or $x = x \otimes y$.}
+							& = \min_\leq(X) \\
+							& = X
+\end{align*}
+\end{proof}
+
+
+
+\begin{theorem} \label{thm:N_lrab}
+If $\propname{AY}(S,\ \leq)$ and $\propname{RI}(S,\ \otimes,\ \leq)$ then
+\begin{equation*}
+\propname{LRAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+Consider arbitrary $X, Y$ then we have
+\begin{align*}
+X \minunion (Y \minlift X) 	& = \min_\leq(X \cup \min_\leq(Y \lift X)) & \text{(Lem \ref{lem:minunion_right_absorption})} \\
+							& = \min_\leq(X \cup (Y \lift X)) \\
+\intertext{By $\propname{AY}(S,\ \leq)$ and $\propname{RI}(S,\ \otimes,\ \leq)$ we have that for all $x, y$ either $x < y \otimes x$ or $x = y \otimes x$.}
+							& = \min_\leq(X) \\
+							& = X
+\end{align*}
+\end{proof}
+
+
+
+\begin{theorem} \label{thm:N_rlab}
+If $\propname{AY}(S,\ \leq)$ and $\propname{LI}(S,\ \otimes,\ \leq)$ then
+\begin{equation*}
+\propname{RLAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+
+\begin{proof}
+
+\vspace{0.5em}
+Immediately from Theorem~\ref{thm:N_llab} and the commutativity of $\minunion$.
+\end{proof}
+
+\begin{theorem} \label{thm:N_rrab}
+If $\propname{AY}(S,\ \leq)$ and $\propname{RI}(S,\ \otimes,\ \leq)$ then
+\begin{equation*}
+\propname{RRAB}(\mathcal{N}(S,\ \otimes,\ \leq)) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+
+\begin{proof}
+
+\vspace{0.5em}
+Immediately from Theorem~\ref{thm:N_lrab} and the commutativity of $\minunion$.
+\end{proof}

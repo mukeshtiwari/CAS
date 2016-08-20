@@ -1,0 +1,21 @@
+% packages 
+\usepackage[english]{babel}
+\usepackage{amsmath}   	% see http://www.ctan.org/pkg/amsmath
+\usepackage{amssymb}   	% 
+\usepackage{amsfonts}  	% 
+\usepackage{titlesec}	% used for adjusting section spacing
+\usepackage{booktabs}	% for tables
+\usepackage{subfiles}   % handling subfiles
+\usepackage{scrextend} 	% used for indentation
+
+\newenvironment{ind}[0]{\begin{addmargin}[1em]{0em}\vspace{0.5em}}{\end{addmargin}\vspace{0.5em}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+% environment
+\titlespacing*{\chapter}{0pt}{3\baselineskip}{\baselineskip}
+\titlespacing*{\section}{0pt}{3\baselineskip}{\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.5\baselineskip}{\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{3\baselineskip}{\baselineskip}
+\setlength{\parindent}{0pt}

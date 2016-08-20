@@ -59,6 +59,20 @@ Lemma brel_dual_not_exists_top : ∀ (S : Type) (rS : brel S),
              brel_not_exists_bottom S rS -> brel_not_exists_top S (brel_dual S rS). 
 Proof.  intros S rS P s. exists (projT1 (P s)). destruct (P s) as [w F]. compute; auto. Defined. 
 
+
+Definition brel_dual_exists_top_decide : 
+   ∀ (S : Type) 
+     (r : brel S), 
+     brel_exists_bottom_decidable S r -> 
+         brel_exists_top_decidable S (brel_dual S r)
+:= λ S r d, 
+   match d with 
+   | inl botS     => inl _ (brel_dual_exists_top S r botS)
+   | inr no_botS => inr _ (brel_dual_not_exists_top S r no_botS)
+   end. 
+
+
+
 Lemma brel_dual_exists_bottom : ∀ (S : Type) (rS : brel S),  
              brel_exists_top S rS -> brel_exists_bottom S (brel_dual S rS). 
 Proof.  intros S rS [t P]. exists t. intro s. apply P. Defined. 
@@ -66,6 +80,18 @@ Proof.  intros S rS [t P]. exists t. intro s. apply P. Defined.
 Lemma brel_dual_not_exists_bottom : ∀ (S : Type) (rS : brel S), 
              brel_not_exists_top S rS -> brel_not_exists_bottom S (brel_dual S rS). 
 Proof.  intros S rS P s. exists (projT1 (P s)). destruct (P s) as [w F]. compute; auto. Defined. 
+
+Definition brel_dual_exists_bottom_decide : 
+   ∀ (S : Type) 
+     (r : brel S), 
+     brel_exists_top_decidable S r -> 
+         brel_exists_bottom_decidable S (brel_dual S r)
+:= λ S r d, 
+   match d with 
+   | inl topS     => inl _ (brel_dual_exists_bottom S r topS)
+   | inr no_topS => inr _ (brel_dual_not_exists_bottom S r no_topS)
+   end. 
+
 
 
 

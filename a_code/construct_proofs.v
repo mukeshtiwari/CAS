@@ -206,6 +206,8 @@ Definition po_proofs_dual : ∀ (S : Type) (eq po : brel S),
 ; A_po_transitive  := brel_dual_transitive S po (A_po_transitive _ _ _ tpS)
 ; A_po_antisymmetric := brel_dual_antisymmetric S eq po (A_po_antisymmetric _ _ _ tpS)
 ; A_po_total_d       := brel_dual_total_decide S po (A_po_total_d _ _ _ tpS)
+; A_po_exists_top_d    := brel_dual_exists_top_decide S po (A_po_exists_bottom_d _ _ _ tpS)
+; A_po_exists_bottom_d := brel_dual_exists_bottom_decide S po (A_po_exists_top_d _ _ _ tpS)
 |}.
 
 
@@ -236,6 +238,16 @@ Definition po_proofs_llte : ∀ (S : Type) (r : brel S) (b : binary_op S),
                          (A_eqv_transitive _ _ eqv)
                          (A_sg_CI_commutative _ _ _ sgp) 
                          (A_sg_CI_selective_d _ _ _ sgp)
+; A_po_exists_top_d := brel_llte_exists_top_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CI_commutative _ _ _ sgp) 
+                         (A_sg_CI_exists_id_d _ _ _ sgp)
+; A_po_exists_bottom_d := brel_llte_exists_bottom_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CI_commutative _ _ _ sgp) 
+                         (A_sg_CI_exists_ann_d _ _ _ sgp)
 |}.
 
 
@@ -267,6 +279,17 @@ Definition po_proofs_rlte : ∀ (S : Type) (r : brel S) (b : binary_op S),
                          (A_eqv_transitive _ _ eqv)
                          (A_sg_CI_commutative _ _ _ sgp) 
                          (A_sg_CI_selective_d _ _ _ sgp)
+; A_po_exists_top_d := brel_rlte_exists_top_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CI_commutative _ _ _ sgp) 
+                         (A_sg_CI_exists_ann_d _ _ _ sgp)
+; A_po_exists_bottom_d := brel_rlte_exists_bottom_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CI_commutative _ _ _ sgp) 
+                         (A_sg_CI_exists_id_d _ _ _ sgp)
+
 |}.
 
 
@@ -277,6 +300,8 @@ Definition to_proofs_bool : to_proofs bool brel_eq_bool brel_to_bool
 ; A_to_transitive  := brel_to_bool_transitive
 ; A_to_antisymmetric   := brel_to_bool_antisymmetric
 ; A_to_total       := brel_to_bool_total
+; A_to_exists_top_d    := inl _ brel_to_bool_exists_top 
+; A_to_exists_bottom_d := inl _ brel_to_bool_exists_bottom
 |}.
 
 Definition to_proofs_nat : to_proofs nat brel_eq_nat brel_to_nat 
@@ -286,6 +311,8 @@ Definition to_proofs_nat : to_proofs nat brel_eq_nat brel_to_nat
 ; A_to_transitive  := brel_to_nat_transitive
 ; A_to_antisymmetric   := brel_to_nat_antisymmetric
 ; A_to_total       := brel_to_nat_total
+; A_to_exists_top_d    := inr _ brel_to_nat_not_exists_top
+; A_to_exists_bottom_d := inl _ brel_to_nat_exists_bottom
 |}.
 
 
@@ -298,11 +325,9 @@ Definition to_proofs_dual : ∀ (S : Type) (eq po : brel S),
 ; A_to_transitive  := brel_dual_transitive S po (A_to_transitive _ _ _ tpS)
 ; A_to_antisymmetric   := brel_dual_antisymmetric S eq po (A_to_antisymmetric _ _ _ tpS)
 ; A_to_total       := brel_dual_total S po (A_to_total _ _ _ tpS)
+; A_to_exists_top_d    := brel_dual_exists_top_decide S po (A_to_exists_bottom_d _ _ _ tpS)
+; A_to_exists_bottom_d := brel_dual_exists_bottom_decide S po (A_to_exists_top_d _ _ _ tpS)
 |}.
-
-
-
-
 
 Definition to_proofs_llte : ∀ (S : Type) (r : brel S) (b : binary_op S), 
                eqv_proofs S r -> 
@@ -332,6 +357,16 @@ Definition to_proofs_llte : ∀ (S : Type) (r : brel S) (b : binary_op S),
                          (A_eqv_transitive _ _ eqv)
                          (A_sg_CS_commutative _ _ _ sgp) 
                          (A_sg_CS_selective _ _ _ sgp)
+; A_to_exists_top_d := brel_llte_exists_top_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CS_commutative _ _ _ sgp) 
+                         (A_sg_CS_exists_id_d _ _ _ sgp)
+; A_to_exists_bottom_d := brel_llte_exists_bottom_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CS_commutative _ _ _ sgp) 
+                         (A_sg_CS_exists_ann_d _ _ _ sgp)
 |}.
 
 
@@ -363,6 +398,17 @@ Definition to_proofs_rlte : ∀ (S : Type) (r : brel S) (b : binary_op S),
                          (A_eqv_transitive _ _ eqv)
                          (A_sg_CS_commutative _ _ _ sgp) 
                          (A_sg_CS_selective _ _ _ sgp)
+; A_to_exists_top_d := brel_rlte_exists_top_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CS_commutative _ _ _ sgp) 
+                         (A_sg_CS_exists_ann_d _ _ _ sgp)
+; A_to_exists_bottom_d := brel_rlte_exists_bottom_decide S r b 
+                         (A_eqv_symmetric _ _ eqv)
+                         (A_eqv_transitive _ _ eqv)
+                         (A_sg_CS_commutative _ _ _ sgp) 
+                         (A_sg_CS_exists_id_d _ _ _ sgp)
+
 |}.
 
 

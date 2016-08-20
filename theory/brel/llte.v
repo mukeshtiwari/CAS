@@ -134,7 +134,6 @@ Definition brel_llte_total_decide :
 
 
 
-
 Lemma brel_llte_exists_top : ∀ (S : Type) (rS : brel S) (b : binary_op S),  
              brel_symmetric S rS -> 
              bop_exists_id S rS b -> brel_exists_top S (brel_llte S rS b). 
@@ -143,14 +142,6 @@ Proof.  intros S rS b symS [t P].
         apply symS. assumption. 
 Defined. 
 
-
-Lemma brel_llte_exists_bottom : ∀ (S : Type) (rS : brel S) (b : binary_op S),  
-             brel_symmetric S rS -> 
-             bop_exists_ann S rS b -> brel_exists_bottom S (brel_llte S rS b). 
-Proof.  intros S rS b symS [t P]. 
-        exists t. intro s. destruct (P s) as [L R]. compute. 
-        apply symS. assumption. 
-Defined. 
 
 Lemma brel_llte_not_exists_top : ∀ (S : Type) (rS : brel S) (b : binary_op S), 
              brel_symmetric S rS -> 
@@ -164,6 +155,31 @@ Proof.  intros S rS b symS transS commS P s.
            apply (brel_symmetric_implies_dual _ _ symS). 
            apply (brel_transititivity_implies_dual _ _ transS _ _ _ fact1 F).
            apply (brel_symmetric_implies_dual _ _ symS); auto. 
+Defined. 
+
+
+Definition brel_llte_exists_top_decide : 
+   ∀ (S : Type) 
+     (r : brel S) 
+     (b : binary_op S), 
+     brel_symmetric S r ->  
+     brel_transitive S r ->  
+     bop_commutative S r b -> 
+     bop_exists_id_decidable S r b -> 
+         brel_exists_top_decidable S (brel_llte S r b)
+:= λ S r b symS transS commS d, 
+   match d with 
+   | inl idS     => inl _ (brel_llte_exists_top S r b symS idS)
+   | inr no_idS => inr _ (brel_llte_not_exists_top S r b symS transS commS no_idS) 
+   end. 
+
+
+Lemma brel_llte_exists_bottom : ∀ (S : Type) (rS : brel S) (b : binary_op S),  
+             brel_symmetric S rS -> 
+             bop_exists_ann S rS b -> brel_exists_bottom S (brel_llte S rS b). 
+Proof.  intros S rS b symS [t P]. 
+        exists t. intro s. destruct (P s) as [L R]. compute. 
+        apply symS. assumption. 
 Defined. 
 
 
@@ -181,6 +197,20 @@ Proof.  intros S rS b symS transS commS P s.
            apply (brel_transititivity_implies_dual _ _ transS _ _ _ fact1 F).
 Defined. 
 
+Definition brel_llte_exists_bottom_decide : 
+   ∀ (S : Type) 
+     (r : brel S) 
+     (b : binary_op S), 
+     brel_symmetric S r ->  
+     brel_transitive S r ->  
+     bop_commutative S r b -> 
+     bop_exists_ann_decidable S r b -> 
+         brel_exists_bottom_decidable S (brel_llte S r b)
+:= λ S r b symS transS commS d, 
+   match d with 
+   | inl annS     => inl _ (brel_llte_exists_bottom S r b symS annS)
+   | inr no_annS => inr _ (brel_llte_not_exists_bottom S r b symS transS commS no_annS) 
+   end. 
 
 
 

@@ -150,7 +150,16 @@ Record A_bs_C (S : Type) := {
 }.
 
 
+(* order-semigroups *) 
 
-
+Record A_os (S : Type) := {
+  A_os_eqv          : A_eqv S 
+; A_os_lte          : brel S 
+; A_os_times        : binary_op S 
+; A_os_lte_proofs   : po_proofs S (A_eqv_eq S A_os_eqv) A_os_lte
+; A_os_times_proofs : sg_proofs S (A_eqv_eq S A_os_eqv) A_os_times 
+; A_os_proofs       : os_proofs S A_os_lte A_os_times 
+; A_os_ast          : ast_os
+}.
 
 

@@ -1,0 +1,535 @@
+\begin{lemma} \label{lem:minlift_left_absorption}
+If $\propname{RM}(S,\leq,\otimes)$ then
+\begin{equation*}
+\min_\leq(X \lift Y) = \min_\leq(\min_\leq(X) \lift Y)
+\end{equation*}
+\end{lemma}
+
+\begin{proof}
+
+\vspace{0.5em}
+Assume $x \otimes y \in \min_\leq(X \lift \min_\leq(Y))$
+
+\begin{ind}
+Then we have that:
+\begin{equation} \label{eq:lem_abs_minset_left_X}
+x \in X
+\end{equation}
+\begin{equation} \label{eq:lem_abs_minset_left_minsetY}
+y \in \min_\leq(Y)
+\end{equation}
+\begin{equation} \label{eq:lem_abs_minset_left_smaller}
+\forall a \otimes b \in X \lift \min_\leq(Y) : \neg (a \otimes b < x \otimes y)
+\end{equation}
+
+From Eq~\ref{eq:lem_abs_minset_left_X} \& \ref{eq:lem_abs_minset_left_minsetY} we have that $x \otimes y \in X \lift Y$.
+
+\vspace{0.5em}
+
+Consider arbitrary $a, b$ such that $a \otimes b \in X \lift Y$.
+\begin{ind}
+Case $b \in \min_\leq(Y)$
+\begin{ind}
+Then by Eq~\ref{eq:lem_abs_minset_left_smaller} we have that $\neg (a \otimes b < x \otimes y)$.
+\end{ind}
+Case $b \notin \min_\leq(Y)$
+\begin{ind}
+Then there exists a $c \in \min_\leq(Y)$ such that $c < b$ and from Eq~\ref{eq:lem_abs_minset_left_smaller} we know that $\neg (a \otimes c < x \otimes y)$.
+
+\vspace{0.5em}
+
+Case $x \otimes y \leq a \otimes c$:
+\begin{ind}
+Then by $\propname{LM}(\mathrm{(S,\leq,\otimes)}$ and $\propname{TR}(\mathrm{(S,\leq)}$ we have that $x \otimes y \leq a \otimes c \leq a \otimes b$, and so that $\neg (a \otimes b < x \otimes y)$.
+\end{ind}
+Case $\neg (a \otimes c \leq x \otimes y)$
+\begin{ind}
+Then we have that $\neg(a \otimes b \leq x \otimes y)$ otherwise by $\propname{LM}(\mathrm{(S,\leq,\otimes)}$ and $\propname{TR}(\mathrm{(S,\leq)}$ we would have that $a \otimes c \leq a \otimes b \leq x \otimes y$ which would contradict the assumption. Therefore we have that $\neg (a \otimes b < x \otimes y)$.
+\end{ind}
+\end{ind}
+\end{ind}
+Hence $\forall a \otimes b \in X \lift Y : \neg (a \otimes b \leq x \otimes y)$ and therefore $x \otimes y \in \min_\leq(X \lift Y)$.
+
+\end{ind}
+Hence $ \min_\leq(X \lift \min_\leq(Y)) \subseteq \min_\leq(X \lift Y)$
+
+\vspace{2em}
+
+Assume $x \otimes y \in \min_\leq(X \lift Y)$
+\begin{ind}
+Then we have that:
+\begin{equation}
+x \in X
+\end{equation}
+\begin{equation}
+y \in Y
+\end{equation}
+\begin{equation} \label{eq:lem_abs_minset_right_smaller}
+\forall a \otimes b \in X \lift Y : \neg (a \otimes b < x \otimes y)
+\end{equation}
+
+By Eq~\ref{eq:lem_abs_minset_right_smaller} we have that $\forall a \otimes b \in X \lift \min_\leq(Y) : \neg (a \otimes b < x \otimes y)$.
+
+\vspace{0.5em}
+
+Therefore we just need to show that $x \otimes y \in X \lift \min_\leq(Y)$.
+
+\vspace{0.5em}
+
+Case $y \in \min_\leq(Y)$
+\begin{ind}
+Then clearly $x \otimes y \in X \lift \min_\leq(Y)$
+\end{ind}
+
+Case $y \notin \min_\leq(Y)$
+\begin{ind}
+Then there exists $y' \in Y : y' < y$ and by $\propname{LM}\mathrm{(S,\leq,\otimes)}$ we have that $x \otimes y' \leq x \otimes y$.
+
+\vspace{0.5em}
+
+Case $x \otimes y \nleq x \otimes y'$
+\begin{ind}
+Then we have that $x \otimes y' < x \otimes y$ which contradicts Eq~\ref{eq:lem_abs_minset_right_smaller}.
+\end{ind}
+Case $x \otimes y \leq x \otimes y'$:
+\begin{ind}
+Then by $\propname{AY}\mathrm{(S,\leq)}$ we have that $x \otimes y = x \otimes y'$ and $x \otimes y' \in X \lift \min_\leq(Y)$.
+\end{ind}
+\end{ind}
+\end{ind}
+Hence $\min_\leq(X \lift Y) \subseteq \min_\leq(X \lift \min_\leq(Y))$.
+
+\vspace{2em}
+
+Hence $\min_\leq(X \lift \min_\leq(Y)) = \min_\leq(X \lift Y)$.
+\end{proof}
+
+
+
+\vspace{2em}
+
+
+
+
+\begin{lemma} \label{lem:minlift_right_absorption}
+If $\propname{LM}(S,\leq,\otimes)$ then
+\begin{equation*}
+\min_\leq(X \lift Y) = \min_\leq(X \lift \min_\leq(Y))
+\end{equation*}
+\end{lemma}
+
+\begin{proof} The result can be obtained by the dual of the proof of Lemma~\ref{lem:minlift_left_absorption}.
+\end{proof}
+ 
+
+
+
+
+\begin{theorem} \label{thm:minlift_as}
+If $\propname{LM}(S,\leq,\otimes)$ and $\propname{RM}(S,\leq,\otimes)$ then
+\begin{equation*}
+\propname{AS}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{AS}(S,\leq)
+\end{equation*}
+\end{theorem}
+
+
+\begin{proof}
+Assume $\propname{LM}(S,\leq,\otimes)$ and $\propname{RM}(S,\leq,\otimes)$
+
+Assume $\propname{AS}(S,\leq)$
+\begin{ind}
+Then, using Lemmas~\ref{lem:minlift_left_absorption} \& \ref{lem:minlift_right_absorption}, for all $X,Y,Z$ we have that
+\begin{align*}
+X \minlift (Y \minlift Z) 	& = \min_\leq(X \lift \min_\leq(Y \lift Z)) \\
+							& = \min_\leq(X \lift (Y \lift Z)) \\
+							& = \min_\leq((X \lift Y) \lift Z) \\
+							& = \min_\leq(\min_\leq(X \lift Y) \lift Z) \\
+							& = (X \minlift Y) \minlift Z
+\end{align*}
+Hence $\propname{AS}(\mathrm{MinLift(S,\leq,\otimes)})$.
+\end{ind}
+Hence $\propname{AS}(S,\otimes) \Rightarrow \propname{AS}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\vspace{2em}
+
+
+Assume $\neg \propname{AS}(S,\leq)$
+
+\begin{ind}
+Then there exists $x,y,z$ such that $x \otimes (y \otimes z) \neq (x \otimes y) \otimes z$.
+\begin{align*}
+\{ x \} \minlift (\{ y \} \minlift \{ z \}) 	& = \{x \otimes (y \otimes z)\} \\	
+												& \neq \{ (x \otimes y) \otimes z \} \\
+												& = (\{ x \} \minlift \{ y \}) \minlift \{ z \}
+\end{align*}
+Hence $\neg \propname{AS}(\mathrm{MinLift(S,\leq,\otimes)})$.
+\end{ind}
+Hence $\neg \propname{AS}(S,\otimes) \Rightarrow \neg \propname{AS}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\vspace{2em}
+
+Hence $\propname{AS}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{AS}(S,\otimes)$
+
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_cm}
+$\propname{CM}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{CM}\mathrm{(S,\leq)}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Assume $\propname{CM}(S,\leq)$
+
+\begin{ind}
+Then for $X,Y$ we have
+\begin{align*}
+X \minlift Y 	& = \min_\leq(\{x \otimes y \mid x \in X, y \in Y\}) \\
+				& = \min_\leq(\{y \otimes x \mid x \in X, y \in Y\}) \\
+				& = Y \minlift X
+\end{align*}
+Hence $\propname{CM}(\mathrm{MinLift(S,\leq,\otimes)})$
+\end{ind}
+
+Hence $\propname{CM}(S,\leq) \Rightarrow \propname{CM}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\vspace{2em}
+
+Assume $\neg \propname{CM}(S,\leq)$
+
+\begin{ind}
+Then there exists $x,y$ such that $x \otimes y \neq y \otimes x$.
+\begin{align*}
+\{ x \} \minlift \{ y \} 	& = \{x \otimes y\} \\	
+							& \neq \{ y \otimes x \} \\
+							& = \{ y \} \minlift \{ x \}
+\end{align*}
+Hence $\neg \propname{CM}(\mathrm{MinLift(S,\leq,\otimes)})$.
+\end{ind}
+Hence $\neg \propname{CM}(S,\leq) \Rightarrow \neg \propname{CM}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\vspace{2em}
+
+Hence $\propname{CM}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{CM}(S,\otimes)$
+\end{proof}
+
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_ip}
+If $\propname{AY}(S,\leq)$ and either $\propname{LI}(S,\leq,\otimes)$ or $\propname{RI}(S,\leq,\otimes)$ then
+\begin{equation*}
+\propname{IP}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{IP}(\mathrm{S,\otimes})
+\end{equation*}
+\end{theorem}
+
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Assume $\propname{IP}(S,\otimes)$
+
+\begin{ind}
+Then for all $X = \{x_1,...,x_n\}$ we have
+\begin{ind}
+\begin{align*}
+X \minlift X & = \min_\leq(\{x_i \otimes x_j \mid x_i, x_j \in X\}) \\
+			 & = \min_\leq(\{x_i \otimes x_i \mid x_i \in X\} \cup \{x_i \otimes x_j \mid x_i, x_j \in X\}) \\
+			 & = \min_\leq(\{x_i \mid x_i \in X\} \cup \{x_i \otimes x_j \mid x_i, x_j \in X\}) \\
+			 & = \min_\leq(X \cup \{x_i \otimes x_j \mid x_i, x_j \in X\}) \\
+\intertext{Consider an arbitrary $x_i \otimes x_j$. By $\propname{LI}(\mathrm{S,\leq,\otimes})$ or $\propname{RI}(\mathrm{S,\leq,\otimes})$ we have that $x_k \leq x_i \otimes x_j$ where $x_k = x_i$ or $x_k = x_j$ respectively. If $x_i \otimes x_j \leq x_k$ then by $\propname{AY}(\mathrm{S,\leq})$ we have that $x_i \otimes x_j = x_k$. Alternatively if $x_i \otimes x_j \nleq x_k$ then we have $x_k < x_i \otimes x_j$. Hence}
+			& = \min_\leq(X) \\
+			& = X \\
+\end{align*}
+\end{ind}
+Hence $\propname{IP}(\mathrm{MinLift(S,\leq,\otimes)})$
+\end{ind}
+Hence $\propname{IP}(S,\otimes) \Rightarrow \propname{IP}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\vspace{2em}
+
+Assume $\neg \propname{IP}(S,\otimes)$
+
+\begin{ind}
+Then there exists $x \in S$ such that $x \otimes x \neq x$.
+
+\vspace{0.5em}
+
+Then $\{x\} \minlift \{x\} = \{x \otimes x\} \neq \{ x \}$.
+
+\vspace{0.5em}
+
+Hence $\neg \propname{IP}(\mathrm{MinLift(S,\leq,\otimes)})$
+\end{ind}
+Hence $\neg \propname{IP}(S,\otimes) \Rightarrow \neg \propname{IP}(\mathrm{MinLift(S,\leq,\otimes)})$
+
+\vspace{2em}
+
+Hence $\propname{IP}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{IP}(S,\otimes)$
+\end{proof}
+
+
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_sl}
+If $\neg\propname{SL}(S,\leq,\otimes)$ then
+\begin{equation*}
+\propname{SL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+We have that there exists $x, y$ such that $x \otimes y \notin \{x , y\}$.
+
+\vspace{0.5em}
+
+Then $\{ x \} \minlift \{ y \} = \{ x \otimes y \} \notin \{ \{ x \}, \{ y \}\}$.
+
+\vspace{0.5em}
+
+Hence $\neg \propname{SL}(\mathrm{MinLift(S,\leq,\otimes)})$
+\end{proof}
+
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_lid}
+If $\propname{LID}\mathrm{(S,\leq)}$ then
+\begin{equation*}
+\propname{LID}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\{ i \}$
+
+\vspace{0.5em}
+
+For all $X$ we have
+\begin{align*}
+\{ i \} \minlift X 	& = \min_\leq(\{i \otimes x \mid x \in X\}) \\
+					& = \min_\leq(\{x \mid x \in X\}) \\
+					& = X
+\end{align*}
+\end{proof}
+\end{proof}
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_rid}
+If $\propname{RID}\mathrm{(S,\leq)}$ then
+\begin{equation*}
+\propname{RID}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{TRUE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\{ i \}$
+
+\vspace{0.5em}
+
+For all $X$ we have
+\begin{align*}
+X \minlift \{ i \} 	& = \min_\leq(\{x \otimes i \mid x \in X\}) \\
+					& = \min_\leq(\{x \mid x \in X\}) \\
+					& = X
+\end{align*}
+\end{proof}
+
+
+
+
+
+\begin{theorem}  \label{thm:minlift_lan}
+$\propname{LAN}(\mathrm{MinLift(S,\leq,\otimes)} \Leftrightarrow \propname{TRUE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\emptyset$
+
+\vspace{0.5em}
+
+For all $X$ we have
+\begin{align*}
+\emptyset \minlift X 	& = \min_\leq(\{ x \otimes y \mid x \in \emptyset, y \in X\}) \\
+						& = \min_\leq(\emptyset) \\
+						& = \emptyset
+\end{align*}
+\end{proof}
+
+
+
+
+
+
+\begin{theorem}  \label{thm:minlift_ran}
+$\propname{RAN}(\mathrm{MinLift(S,\leq,\otimes)} \Leftrightarrow \propname{TRUE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\emptyset$
+
+\vspace{0.5em}
+
+For all $X$ we have
+\begin{align*}
+X \minlift \emptyset 	& = \min_\leq(\{ x \otimes y \mid x \in X, y \in \emptyset\}) \\
+						& = \min_\leq(\emptyset) \\
+						& = \emptyset
+\end{align*}
+\end{proof}
+
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_il}
+$\propname{IL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+From Theorem~\ref{thm:minlift_ran} we know that $\propname{RAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:ran_implies_n_il_rc_ar} we have that $\neg \propname{IL}(\mathrm{MinLift(S,\leq,\otimes)})$.
+\end{proof}
+
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_ir}
+$\propname{IR}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+From Theorem~\ref{thm:minlift_lan} we know that $\propname{LAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:lan_implies_n_ir_lc_al} we have that $\neg \propname{IR}(\mathrm{MinLift(S,\leq,\otimes)})$.
+\end{proof}
+
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_lc}
+$\propname{LC}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+From Theorem~\ref{thm:minlift_lan} we know that $\propname{LAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:lan_implies_n_ir_lc_al} we have that $\neg \propname{LC}(\mathrm{MinLift(S,\leq,\otimes)})$.
+\end{proof}
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_rc}
+$\propname{RC}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+From Theorem~\ref{thm:minlift_ran} we know that $\propname{RAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:ran_implies_n_il_rc_ar} we have that $\neg \propname{RC}(\mathrm{MinLift(S,\leq,\otimes)})$.
+\end{proof}
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_lk}
+If $\propname{LID}(S,\otimes)$ then
+\begin{equation*}
+\propname{LK}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+As $\propname{LID}(S, \otimes)$ then by Theorem~\ref{thm:minlift_lid} we know $\propname{LID}(\mathrm{MinUnion(S,\leq)})$ holds.
+
+\vspace{0.5em}
+Hence by Lemma~\ref{lem:lid_implies_n_il_lk_ar} we have $\neg \propname{LK}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_rk}
+If $\propname{RID}(S,\otimes)$ then
+\begin{equation*}
+\propname{RK}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}
+\end{equation*}
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+As $\propname{RID}(S, \otimes)$ then by Theorem~\ref{thm:minlift_lid} we know $\propname{RID}(\mathrm{MinUnion(S,\leq)})$ holds.
+
+\vspace{0.5em}
+Hence by Lemma~\ref{lem:rid_implies_n_ir_rk_al} we have $\neg \propname{RK}(\mathrm{MinUnion(S,\leq)})$.
+\end{proof}
+
+
+
+
+
+\begin{theorem} \label{thm:minlift_al}
+$\propname{AL}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+From Theorem~\ref{thm:minlift_lan} we know that $\propname{LAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:lan_implies_n_ir_lc_al} we have that $\neg \propname{AL}(\mathrm{MinLift(S,\leq,\otimes)})$.
+\end{proof}
+
+
+
+\begin{theorem} \label{thm:minlift_ar}
+$\propname{AR}(\mathrm{MinLift(S,\leq,\otimes)}) \Leftrightarrow \propname{FALSE}$
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+From Theorem~\ref{thm:minlift_ran} we know that $\propname{RAN}(\mathrm{MinLift}(S,\leq,\otimes))$ holds, and so by Lemma~\ref{lem:ran_implies_n_il_rc_ar} we have that $\neg \propname{AR}(\mathrm{MinLift(S,\leq,\otimes)})$.
+\end{proof}
+

@@ -148,6 +148,10 @@ with ast_bs_C :=
    | Ast_bs_C_from_bs   : ast_bs  → ast_bs_C
   . 
 
+Inductive ast_os :=
+   | Ast_os_from_bs_CS : ast_bs_CS → ast_os
+  . 
+
 
 
 

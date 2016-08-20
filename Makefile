@@ -112,7 +112,10 @@ VERIFY=\
    verify/proofs_to_certs.v \
    verify/check_correct.v \
    verify/construct_correct.v \
-   verify/cas_correct.v \
+   verify/eqv_correct.v \
+   verify/po_correct.v \
+   verify/sg_correct.v \
+   verify/bs_correct.v \
    verify/cast_correct.v \
 
 

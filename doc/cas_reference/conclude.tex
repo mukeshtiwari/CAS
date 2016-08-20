@@ -1,0 +1,168 @@
+
+
+\chapter{Other Problems} 
+
+\section{Matrix algebras}
+
+\section{Swap}
+
+We might want to define the following combinator for bi-semigroups:
+\[ 
+\mathrm{Swap}(S,\ \oplus,\ \otimes)   
+   \equiv 
+   (S,\ \otimes,\ \oplus). 
+\] 
+The disadvantage of this is that we would then have to introduce 
+(and close with respect to) these dual properties for other bi-semigroup combinators: $\propname{LD}(S,\ \otimes,\ \oplus)$, $\propname{RD}(S,\ \otimes,\ \oplus)$, $\propname{LAB}(S,\ \otimes,\ \oplus)$ and $\propname{RAB}(S,\ \otimes,\ \oplus)$.
+
+\section{$k$-best paths}
+
+%% Assume $(S,\ \oplus,\\otims)$ with 
+%% $\propname{SL}(\oplus)$ and $\propname{CM}(\oplus)$. 
+
+%% \[
+%%   \mathcal{T}_k \equiv 
+%%   (\mathbb{T}_k,\  
+%%   \oplus_k,     \ 
+%%   \otimes_k,    \ 
+%%   \overline{0}_k,\
+%%   \overline{1}_k
+%%   )
+%% \] 
+%% where 
+%% \[
+%% \begin{array}{rcl} 
+%% (a_0,\ \dots,\ a_k) \oplus_k (b_0,\ \dots,\ b_k) 
+%%    & \equiv 
+%%    & \min_k (a_0,\dots,\ a_k,\ b_0,\ \dots,\ b_k) \\
+%% \\ 
+%% \overline{0}_k 
+%%    & \equiv 
+%%    & (\infty,\ \infty,\ \cdots,\ \infty)\\ 
+%% \\ 
+%% (a_0,\ \dots,\ a_k) \otimes_k (b_0,\ \dots,\ b_k) 
+%%    & \equiv 
+%%    & \min_k(a_0 + b_0,\ a_0 + b_1,\ \dots,\ a_k + b_k) \\ 
+%% \\
+%% \overline{1}_k 
+%%    & \equiv 
+%%    & (0,\ \infty,\ \cdots,\ \infty)
+%% \end{array} 
+%% \]
+%% \end{block}
+
+
+
+
+\section{Semi-direct product}
+
+\section{General reductions}
+
+%% $(T,\ r,\ \approx)$ is well-formed if 
+%% $\approx$ is an equivalence relation over $T$ and 
+%% for all $x \in T$ we have $r(x) \approx x$. 
+%% \[
+%%     \SemCarrier{(t,\ r,\ =)}  \equiv  (\{ x \in t \mid r(x) = x\},\ =_r)
+%% \] 
+
+%% \[
+%% \begin{array}{rcl} 
+%% \mathrm{Nat}  & \equiv & (\NN,\ \Id,\ =_\NN)  \\ 
+%% \mathrm{Bool} & \equiv & (\BB,\ \Id,\ =_\BB)  
+%% \end{array} 
+%% \] 
+
+%% \[
+%% \begin{array}{rcl} 
+%% \mathrm{Prod}((T_1,\ r_1,\ \approx_1),\ (T_2,\ r_2,\ \approx_2)) 
+%%    & \equiv 
+%%    & (T_1 \times T_2,\ r_1 \times r_2,\ \approx_1 \times \approx_2) \\ 
+%% \mathrm{Sum}((T_1,\ r_1,\ \approx_1),\ (T_2,\ r_2,\ \approx_2)) 
+%%    & \equiv 
+%%    & (T_1 + T_2,\ r_1 + r_2,\ \approx_1 + \approx_2) \\ 
+%% \mathrm{Seq}(T\ r\ \approx)
+%%    & \equiv 
+%%    & (\Tseq{T},\ \MapSeq{r},\ \approx_{seq}) \\ 
+%% \mathrm{Set}(T\ r\ \approx)
+%%    & \equiv 
+%%    & (\Tset{T},\ \MapSet{r},\ \approx_{set}) \\ 
+%% \mathrm{Reduce}(r',\ (T\ r\ \approx)) 
+%%    & \equiv 
+%%    & (\Tset{T},\ r' \circ r,\ \approx \circ (r' \times r')) \\ 
+%% \end{array} 
+%% \] 
+
+
+%% \[
+%% \begin{array}{rcl}     
+%% X \times Y 
+%%   & \equiv 
+%%   & \{(x,\ y) \mid x \in X,\ y \in Y\} \\ 
+%% X + Y 
+%%   & \equiv 
+%%   & \{\mathrm{inl}(x) \mid x \in X\} \cup \{\mathrm{inr}(y) \mid y \in Y\} 
+%% \end{array} 
+%% \] 
+
+%% \[
+%% \begin{array}{rcl}     
+%% (f \times g)(x, y) 
+%%   & \equiv 
+%%   & (f(x), g(y)) \\ 
+%% (f + g)(\mathrm{inl}(x))
+%%   & \equiv 
+%%   & f(x) \\ 
+%% (f + g)(\mathrm{inr}(y))
+%%   & \equiv 
+%%   & g(y) \\ 
+%% \end{array} 
+%% \] 
+
+%% Concrete types are easily implemented in traditional programming languages as a datatype. 
+%% \[
+%% \begin{array}{rcll} 
+%% T & ::=  & \BB        & (\mbox{booleans}) \\ 
+%%   & \mid & \NN        & (\mbox{natural numbers}) \\ 
+%%   & \mid & \Sigma^*   & (\mbox{words over alphabet $\Sigma$}) \\ 
+%%   & \mid & T \times t & (\mbox{product}) \\ 
+%%   & \mid & T + T      & (\mbox{sum}) \\ 
+%%   & \mid & \Tseq{T}   & (\mbox{lists over $T$}) \\ 
+%%   & \mid & \Tset{T}   & (\mbox{finite sets over $T$}) \\ 
+%% \end{array} 
+%% \] 
+
+%% \section{Base Semigroups}
+
+%% \[
+%% \begin{array}{|c|c|c|c|c|c|c|c|}\hline 
+%% S    & \bullet         & \mbox{description}          & \alpha   & \omega & \propname{CM} & \propname{SL} & \propname{IP} 
+%% \\ \hline 
+%% S    & \opleft        & x \opleft y = x             & & &  & \star & \star \\
+%% S    & \opright       & x \opright y = y            & & &  & \star & \star \\
+%% S^*  & \cdot          & \mbox{concatenation}        & \epsilon &      &  &  & \\
+%% S^+  & \cdot          & \mbox{concatenation}        &          &      &  &  & \\
+
+%% \{t,\ f\}  & \wedge   & \mbox{conjunction}          & $t$     & $f$   &  \star &  \star & \star \\ 
+%% \{t,\ f\}  & \vee     & \mbox{disjunction}          & $f$     & $t$   &  \star &  \star & \star \\
+
+%% \NN  & \min           & \mbox{minimum}              &          & 0    &  \star &  \star & \star \\ 
+%% \NN  & \max           & \mbox{maximum}              & 0        &      &  \star &  \star & \star \\
+
+%% 2^W  & \cup           & \mbox{union}                & \{\}     & W    &  \star &  & \star \\
+%% 2^W  & \cap           & \mbox{intersection}         & W        & \{\} &  \star &  & \star \\
+
+%% \funfin(2^U)  & \cup & \mbox{union}            & \{\}     &     &  \star &  & \star \\
+%% \funfin(2^U ) & \cap & \mbox{intersection}     &         & \{\} &  \star &  & \star \\
+
+
+%% \NN  & +              & \mbox{addition}             & 0        &      &  \star &        & \\
+%% \NN  & \times         & \mbox{multiplication}        & 1        & 0    &  \star &        & \\
+%% \hline 
+%% \end{array} 
+%% \]
+
+%% \begin{tabular}{l} 
+%% $W$ a finite set, $U$ an infinite set. For set $Y$, $\funfin(Y) \equiv \{X \in Y\mid X \mbox{ is finite}\}$ 
+%% \end{tabular} 
+
+

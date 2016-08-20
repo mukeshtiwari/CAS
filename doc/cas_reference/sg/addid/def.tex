@@ -1,0 +1,18 @@
+\[ 
+  \mathrm{AddId}(\alpha,\ (S,\ \bullet)) 
+\equiv 
+(S \uplus \{\alpha\}, \bullet_{\alpha}^{\mathrm{id}})
+\] 
+where 
+\[
+\begin{array}{rcl} 
+a \bullet_{\alpha}^{\mathrm{id}} b 
+& \equiv & 
+\left\{\begin{array}{cl} 
+      a & \mbox{(if $b = \mathrm{inr}(\alpha)$)} \\ 
+      b & \mbox{(if $a = \mathrm{inr}(\alpha)$)} \\ 
+      \mathrm{inl}(x\bullet y) & \mbox{(if $a = \mathrm{inl}(x)$, $b = \mathrm{inl}(y)$)} 
+      \end{array} 
+\right.
+\end{array} 
+\] 

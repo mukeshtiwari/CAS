@@ -1,0 +1,182 @@
+\emph{Note:} the disjoint union tags, $inl$ and $inr$, are left implicit in the following proofs for readability.
+
+
+\begin{theorem} \label{thm:addone_left_distributive}
+$\propname{LD}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) \Leftrightarrow \propname{LD}(S,\ \oplus,\ \otimes) \wedge \propname{LLAB}(S,\ \oplus,\ \otimes) \wedge \propname{RLAB}(S,\ \oplus,\ \otimes) \wedge \propname{IP}(S,\ \oplus) $
+\end{theorem}
+
+\begin{proof}
+\begin{center}
+\begin{tabular}{lllcc}
+\toprule
+$a$ & $b$ & $c$ & $a \otimes (b \oplus c)$ & $(a \otimes b) \oplus (a \otimes c)$ \\
+\midrule
+$1$ & $1$ & $1$ & $1$ 						& $1$ \\
+$1$ & $1$ & $z$ & $1$						& $1$ \\
+$1$ & $y$ & $1$ & $1$						& $1$ \\
+$1$ & $y$ & $z$ & $y \oplus z$				& $y \oplus z$ \\
+$x$ & $1$ & $1$ & $x$						& $x \oplus x$ \\
+$x$ & $1$ & $z$ & $x$						& $x \oplus (x \otimes z)$ \\
+$x$ & $y$ & $1$ & $x$						& $(x \otimes y) \oplus x$ \\
+$x$ & $y$ & $z$ & $x \otimes (y \oplus z)$	& $(x \otimes y) \oplus (x \otimes z)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{proof}
+
+
+
+
+
+\begin{theorem} \label{thm:addone_right_distributive}
+$\propname{RD}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) \Leftrightarrow \propname{RD}(S,\ \oplus,\ \otimes) \wedge \propname{LRAB}(S,\ \oplus,\ \otimes) \wedge \propname{RRAB}(S,\ \oplus,\ \otimes) \wedge \propname{IP}(S,\ \oplus) $
+\end{theorem}
+
+\begin{proof}
+\begin{center}
+\begin{tabular}{lllcc}
+\toprule
+$a$ & $b$ & $c$ & $(b \oplus c) \otimes a$ & $(b \otimes a) \oplus (c \otimes a)$ \\
+\midrule
+$1$ & $1$ & $1$ & $1$ 						& $1$ \\
+$1$ & $1$ & $z$ & $1$						& $1$ \\
+$1$ & $y$ & $1$ & $1$						& $1$ \\
+$1$ & $y$ & $z$ & $y \oplus z$				& $y \oplus z$ \\
+$x$ & $1$ & $1$ & $x$						& $x \oplus x$ \\
+$x$ & $1$ & $z$ & $x$						& $x \oplus (z \otimes x)$ \\
+$x$ & $y$ & $1$ & $x$						& $(y \otimes x) \oplus x$ \\
+$x$ & $y$ & $z$ & $x \otimes (y \oplus z)$	& $(x \otimes y) \oplus (x \otimes z)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{proof}
+
+
+
+
+
+\begin{theorem} \label{thm:addone_zero_annihilates}
+$\propname{ZA}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) \Leftrightarrow \propname{ZA}(S,\ \oplus,\ \otimes) $
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+
+Witness : $\mathrm{inl}(0)$
+
+\vspace{0.5em}
+
+For all $a$ we have
+
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+$a$ & $a \oplus 0$ & $0 \oplus a$ & $a \otimes 0$ & $0 \otimes a$ \\
+\midrule
+$1$ & $1$ & $1$ & $0$ & $0$ \\
+$x$ & $x$ & $x$ & $0$ & $0$	\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{proof}
+
+
+
+
+
+\begin{theorem} \label{thm:addone_one_annihilates}
+$\propname{OA}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) \Leftrightarrow \propname{TRUE} $
+\end{theorem}
+
+\begin{proof}
+
+\vspace{0.5em}
+Witness : $1$ (by construction)
+\end{proof}
+
+
+
+\begin{theorem} \label{thm:addone_left_left_absorptive}
+$\propname{LLAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) \Leftrightarrow \propname{IP}(S,\ \oplus,\ \otimes) \wedge \propname{LLAB}(S,\ \oplus,\ \otimes)$
+\end{theorem}
+
+\begin{proof}
+\begin{center}
+\begin{tabular}{llcc}
+\toprule
+$a$ & $b$ & $a \oplus (a \otimes b)$ \\
+\midrule
+$1$ & $1$ & $1$ 			\\
+$1$ & $y$ & $1$				\\
+$x$ & $1$ & $x \oplus x$	\\
+$x$ & $y$ & $x \oplus (x \oplus y)$	\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{proof}
+
+
+
+
+\begin{theorem} \label{thm:addone_left_right_absorptive}
+$\propname{LRAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) \Leftrightarrow \propname{IP}(S,\ \oplus,\ \otimes) \wedge \propname{LRAB}(S,\ \oplus,\ \otimes)$
+\end{theorem}
+
+\begin{proof}
+\begin{center}
+\begin{tabular}{llcc}
+\toprule
+$a$ & $b$ & $a \oplus (b \otimes a)$ \\
+\midrule
+$1$ & $1$ & $1$ 			\\
+$1$ & $y$ & $1$				\\
+$x$ & $1$ & $x \oplus x$	\\
+$x$ & $y$ & $x \oplus (y \oplus x)$	\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{proof}
+
+
+
+
+\begin{theorem} \label{thm:addone_right_left_absorptive}
+$\propname{RLAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) \Leftrightarrow \propname{IP}(S,\ \oplus,\ \otimes) \wedge \propname{RLAB}(S,\ \oplus,\ \otimes)$
+\end{theorem}
+
+\begin{proof}
+\begin{center}
+\begin{tabular}{llcc}
+\toprule
+$a$ & $b$ & $(a \otimes b) \oplus a$ \\
+\midrule
+$1$ & $1$ & $1$ 			\\
+$1$ & $y$ & $1$				\\
+$x$ & $1$ & $x \oplus x$	\\
+$x$ & $y$ & $(x \oplus y) \oplus x$	\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{proof}
+
+
+\begin{theorem} \label{thm:addone_right_right_absorptive}
+$\propname{RRAB}(\mathrm{AddOne}(\overline{1},\ (S,\ \oplus,\ \otimes))) \Leftrightarrow \propname{IP}(S,\ \oplus,\ \otimes) \wedge \propname{RRAB}(S,\ \oplus,\ \otimes)$
+\end{theorem}
+
+\begin{proof}
+\begin{center}
+\begin{tabular}{llcc}
+\toprule
+$a$ & $b$ & $(b \otimes a) \oplus a$ \\
+\midrule
+$1$ & $1$ & $1$ 			\\
+$1$ & $y$ & $1$				\\
+$x$ & $1$ & $x \oplus x$	\\
+$x$ & $y$ & $(y \oplus x) \oplus x$	\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{proof}
