@@ -1,6 +1,8 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
+Require Import CAS.code.combined. 
+Require Import CAS.code.uop. 
 Require Import CAS.theory.facts. 
 
 Require Import CAS.theory.brel.eq_bool.
@@ -66,20 +68,29 @@ Require Import CAS.a_code.a_cas_records.
 (* eqv *) 
 
 
-Definition eqv_proofs_eq_bool : eqv_proofs bool brel_eq_bool 
+Definition eqv_proofs_eq_bool : eqv_proofs bool brel_eq_bool  (* (uop_id bool) *) 
 := {| 
-     A_eqv_nontrivial  := brel_eq_bool_nontrivial
-   ; A_eqv_congruence  := brel_eq_bool_congruence 
-   ; A_eqv_reflexive   := brel_eq_bool_reflexive 
-   ; A_eqv_transitive  := brel_eq_bool_transitive 
-   ; A_eqv_symmetric   := brel_eq_bool_symmetric
+     A_eqv_nontrivial     := brel_eq_bool_nontrivial
+(*
+   ; A_eqv_rep_correct    := identity_rep_correct bool brel_eq_bool brel_eq_bool_reflexive 
+   ; A_eqv_rep_idempotent := identity_rep_idempotent bool brel_eq_bool brel_eq_bool_reflexive 
+*) 
+
+   ; A_eqv_congruence     := brel_eq_bool_congruence 
+   ; A_eqv_reflexive      := brel_eq_bool_reflexive 
+   ; A_eqv_transitive     := brel_eq_bool_transitive 
+   ; A_eqv_symmetric      := brel_eq_bool_symmetric
    |}. 
 
 Open Scope nat. 
 
-Definition eqv_proofs_eq_nat : eqv_proofs nat brel_eq_nat 
+Definition eqv_proofs_eq_nat : eqv_proofs nat brel_eq_nat (* (uop_id nat) *) 
 := {| 
      A_eqv_nontrivial  := brel_eq_nat_nontrivial
+(*
+   ; A_eqv_rep_correct    := identity_rep_correct nat brel_eq_nat brel_eq_nat_reflexive 
+   ; A_eqv_rep_idempotent := identity_rep_idempotent nat brel_eq_nat brel_eq_nat_reflexive 
+*) 
    ; A_eqv_congruence  := brel_eq_nat_congruence 
    ; A_eqv_reflexive   := brel_eq_nat_reflexive 
    ; A_eqv_transitive  := brel_eq_nat_transitive 

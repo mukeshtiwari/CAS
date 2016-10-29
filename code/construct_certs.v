@@ -94,7 +94,7 @@ Definition eqv_certs_brel_set : ∀ (S : Type) (r : brel S),  eqv_certificates S
 Definition assert_product_nontrivial : ∀ (S T : Type),  assert_nontrivial S -> assert_nontrivial T -> assert_nontrivial (S * T) 
 := λ S T ntS ntT, 
   match certify_nontrivial_negate S ntS, certify_nontrivial_negate T ntT with 
-  | Certify_Negate f, Certify_Negate g => 
+  | Certify_Negate _ f, Certify_Negate _ g => 
     {| 
        certify_nontrivial_witness  := 
           Certify_Witness (S * T) (nontrivial_witness S ntS, nontrivial_witness T ntT)
@@ -159,8 +159,8 @@ Definition po_certs_llte : ∀ (S : Type),
 ; po_transitive    := Assert_Transitive S 
 ; po_antisymmetric := Assert_Antisymmetric S 
 ; po_total_d       := match sg_CI_selective_d _ sgp with 
-                      | Certify_Selective => Certify_Total S 
-                      | Certify_Not_Selective (a, b) => Certify_Not_Total S (a, b)
+                      | Certify_Selective _ => Certify_Total S 
+                      | Certify_Not_Selective _ (a, b) => Certify_Not_Total S (a, b)
                       end 
 |}.
 
@@ -175,8 +175,8 @@ Definition po_certs_rlte : ∀ (S : Type),
 ; po_transitive    := Assert_Transitive S 
 ; po_antisymmetric := Assert_Antisymmetric S 
 ; po_total_d       := match sg_CI_selective_d _ sgp with 
-                      | Certify_Selective => Certify_Total S 
-                      | Certify_Not_Selective (a, b) => Certify_Not_Total S (a, b)
+                      | Certify_Selective _ => Certify_Total S 
+                      | Certify_Not_Selective _ (a, b) => Certify_Not_Total S (a, b)
                       end 
 |}.
 
@@ -480,7 +480,7 @@ Definition sg_certs_left : ∀ (S : Type),  eqv_certificates S -> sg_certificate
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 let t := f s in 
 {|
   sg_associative      := Assert_Associative S 
@@ -507,7 +507,7 @@ Definition sg_certs_right : ∀ (S : Type),  eqv_certificates S -> sg_certificat
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 let t := f s in 
 {|
   sg_associative   := Assert_Associative S 
@@ -535,7 +535,7 @@ Definition sg_certs_add_id : ∀ (S : Type),  cas_constant -> eqv_certificates S
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_associative      := Assert_Associative (with_constant S) 
 ; sg_congruence       := Assert_Bop_Congruence (with_constant S) 
@@ -567,7 +567,7 @@ Definition sg_C_certs_add_id : ∀ (S : Type),  cas_constant -> eqv_certificates
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_C_associative   := Assert_Associative (with_constant S) 
 ; sg_C_congruence    := Assert_Bop_Congruence (with_constant S) 
@@ -594,7 +594,7 @@ Definition sg_CI_certs_add_id : ∀ (S : Type),  cas_constant -> eqv_certificate
 let wS := certify_nontrivial_witness S (eqv_nontrivial S eqvS) in 
 match wS, certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_CI_associative        := Assert_Associative (with_constant S) 
 ; sg_CI_congruence         := Assert_Bop_Congruence (with_constant S) 
@@ -612,7 +612,7 @@ Definition sg_CS_certs_add_id : ∀ (S : Type),  cas_constant -> eqv_certificate
 let wS := certify_nontrivial_witness S (eqv_nontrivial S eqvS) in 
 match wS, certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_CS_associative   := Assert_Associative (with_constant S) 
 ; sg_CS_congruence    := Assert_Bop_Congruence (with_constant S) 
@@ -632,7 +632,7 @@ Definition sg_certs_add_ann : ∀ (S : Type),  cas_constant -> eqv_certificates 
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_associative      := Assert_Associative (with_constant S) 
 ; sg_congruence       := Assert_Bop_Congruence (with_constant S) 
@@ -659,7 +659,7 @@ Definition sg_C_certs_add_ann : ∀ (S : Type),  cas_constant -> eqv_certificate
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_C_associative   := Assert_Associative (with_constant S) 
 ; sg_C_congruence    := Assert_Bop_Congruence (with_constant S) 
@@ -683,7 +683,7 @@ Definition sg_CI_certs_add_ann : ∀ (S : Type),  cas_constant -> eqv_certificat
 let wS := certify_nontrivial_witness S (eqv_nontrivial S eqvS) in 
 match wS, certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_CI_associative        := Assert_Associative (with_constant S) 
 ; sg_CI_congruence         := Assert_Bop_Congruence (with_constant S) 
@@ -701,7 +701,7 @@ Definition sg_CS_certs_add_ann : ∀ (S : Type),  cas_constant -> eqv_certificat
 let wS := certify_nontrivial_witness S (eqv_nontrivial S eqvS) in 
 match wS, certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_CS_associative   := Assert_Associative (with_constant S) 
 ; sg_CS_congruence    := Assert_Bop_Congruence (with_constant S) 
@@ -1114,7 +1114,7 @@ Definition sg_CI_certs_union : ∀ (S : Type),  cas_constant -> eqv_certificates
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_CI_associative   := Assert_Associative (with_constant (finite_set S)) 
 ; sg_CI_congruence    := Assert_Bop_Congruence (with_constant (finite_set S))
@@ -1134,7 +1134,7 @@ Definition sg_CI_certs_intersect : ∀ (S : Type),  cas_constant -> eqv_certific
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_negate S (eqv_nontrivial S eqvS) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 {|
   sg_CI_associative   := Assert_Associative (with_constant (finite_set S)) 
 ; sg_CI_congruence    := Assert_Bop_Congruence (with_constant (finite_set S))
@@ -1164,7 +1164,7 @@ Definition bs_certs_add_zero :
   ∀ (S : Type), eqv_certificates S -> bs_certificates S -> bs_certificates (with_constant S) 
 := λ S eqvS pS, 
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS) with 
-| Certify_Witness s =>  
+| Certify_Witness _ s =>  
 {|
   bs_left_distributive_d    := 
      bops_add_zero_left_distributive_check S (bs_left_distributive_d S pS) 
@@ -1183,8 +1183,8 @@ match certify_nontrivial_witness S (eqv_nontrivial S eqvS) with
 ; bs_plus_id_is_times_ann_d :=  Certify_Plus_Id_Equals_Times_Ann (with_constant S) 
 ; bs_times_id_is_plus_ann_d :=  
   match bs_times_id_is_plus_ann_d S pS with (*** NB : type coer ***) 
-  | Certify_Times_Id_Equals_Plus_Ann => Certify_Times_Id_Equals_Plus_Ann (with_constant S) 
-  | Certify_Not_Times_Id_Equals_Plus_Ann => Certify_Not_Times_Id_Equals_Plus_Ann (with_constant S) 
+  | Certify_Times_Id_Equals_Plus_Ann _ => Certify_Times_Id_Equals_Plus_Ann (with_constant S) 
+  | Certify_Not_Times_Id_Equals_Plus_Ann _ => Certify_Not_Times_Id_Equals_Plus_Ann (with_constant S) 
   end 
 |}
 end. 
@@ -1220,8 +1220,8 @@ Definition bs_certs_add_one :
                                       (bs_right_right_absorptive_d S pS) 
 ; bs_plus_id_is_times_ann_d := 
   match bs_plus_id_is_times_ann_d S pS with (*** NB : type coer ***) 
-  | Certify_Plus_Id_Equals_Times_Ann => Certify_Plus_Id_Equals_Times_Ann (with_constant S) 
-  | Certify_Not_Plus_Id_Equals_Times_Ann => Certify_Not_Plus_Id_Equals_Times_Ann (with_constant S) 
+  | Certify_Plus_Id_Equals_Times_Ann _ => Certify_Plus_Id_Equals_Times_Ann (with_constant S) 
+  | Certify_Not_Plus_Id_Equals_Times_Ann _ => Certify_Not_Plus_Id_Equals_Times_Ann (with_constant S) 
   end 
 ; bs_times_id_is_plus_ann_d :=  Certify_Times_Id_Equals_Plus_Ann (with_constant S) 
 
@@ -1235,7 +1235,7 @@ Definition bs_certs_product :
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_witness T (eqv_nontrivial T eqvT)
 with 
-| Certify_Witness s, Certify_Witness t => 
+| Certify_Witness _ s, Certify_Witness _ t => 
 {|
   bs_left_distributive_d      := bop_product_left_distributive_check S T 
                                      (eqv_nontrivial S eqvS)  
@@ -1398,7 +1398,7 @@ Definition bs_certs_llex_product :
 match certify_nontrivial_witness S (eqv_nontrivial S eqvS), 
       certify_nontrivial_witness T (eqv_nontrivial T eqvT)
 with 
-| Certify_Witness s, Certify_Witness t => 
+| Certify_Witness _ s, Certify_Witness _ t => 
 {|
   bs_left_distributive_d     := bops_llex_product_left_distributive_check S T 
                                      rS rT addS addT mulT 

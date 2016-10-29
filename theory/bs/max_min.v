@@ -40,7 +40,8 @@ Qed.
 
 Lemma bops_max_min_left_left_absorptive  : 
      bops_left_left_absorptive nat brel_eq_nat bop_max bop_min. 
-Proof. induction s; induction t; simpl; auto. 
+Proof. unfold bops_left_left_absorptive.
+       induction s; induction t; simpl; auto. 
        apply brel_eq_nat_reflexive. 
 Qed. 
 

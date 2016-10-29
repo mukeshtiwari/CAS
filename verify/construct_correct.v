@@ -1,6 +1,7 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
+Require Import CAS.code.combined. 
 Require Import CAS.code.certificates. 
 Require Import CAS.code.cert_records.
 Require Import CAS.code.check. 

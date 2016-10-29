@@ -33,5 +33,7 @@ Proof. unfold brel_transitive, brel_eq_bool.
 Qed. 
 
 Lemma brel_eq_bool_congruence : brel_congruence bool brel_eq_bool brel_eq_bool. 
-Proof. induction s; induction t; induction u; induction v; intros H Q; auto. Qed. 
+Proof. unfold brel_congruence. 
+       induction s; induction t; induction u; induction v; intros H Q; auto. 
+Qed. 
 

@@ -27,13 +27,18 @@ Proof. induction s; induction u; simpl; intro H; auto. Qed.
 
 
 Lemma brel_to_nat_reflexive : brel_reflexive nat brel_to_nat. 
-Proof. induction s; simpl; auto. Qed. 
+Proof. unfold brel_reflexive. 
+       induction s; simpl; auto. 
+Qed. 
 
 Lemma brel_to_nat_antisymmetric : brel_antisymmetric nat brel_eq_nat brel_to_nat. 
-Proof. induction s; induction t; simpl; intros; auto. Qed. 
+Proof. unfold brel_antisymmetric. 
+       induction s; induction t; simpl; intros; auto. 
+Qed. 
 
 Lemma brel_to_nat_transitive : brel_transitive nat brel_to_nat. 
-Proof. induction s; induction t; simpl; intros u H1 H2; destruct u; auto. 
+Proof. unfold brel_transitive. 
+       induction s; induction t; simpl; intros u H1 H2; destruct u; auto. 
        discriminate. apply (IHs _ _ H1 H2). 
 Qed. 
 
@@ -52,7 +57,7 @@ Qed.
 
 
 Lemma brel_to_nat_total : brel_total nat brel_to_nat. 
-Proof. induction s; induction t; simpl; auto. Qed. 
+Proof. unfold brel_total. induction s; induction t; simpl; auto. Qed. 
 
 Lemma brel_to_nat_exists_bottom : brel_exists_bottom nat brel_to_nat. 
 Proof. exists 0. intro s. destruct s; compute; auto. Defined. 

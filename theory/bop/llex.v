@@ -1,7 +1,7 @@
 Require Import Coq.Bool.Bool. 
 Require Import CAS.code.basic_types. 
-Require Import CAS.code.brel. 
-Require Import CAS.code.bop. 
+Require Import CAS.code.brel.
+Require Import CAS.code.combined. 
 Require Import CAS.code.cef. 
 Require Import CAS.theory.brel_properties. 
 Require Import CAS.theory.bop_properties. 

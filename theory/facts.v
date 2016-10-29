@@ -279,13 +279,13 @@ Defined.
 Definition brel_get_witness :  ∀ (S : Type) (r : brel S),  (brel_witness S r) -> S 
 := λ S r cwS, 
    match cwS with  
-   | existT s _ => s 
+   | existT _ s _ => s 
    end. 
 
 Definition brel_get_negate :  ∀ (S : Type) (r : brel S),  (brel_negate S r) -> (S -> S)
 := λ S r cnS, 
    match cnS with  
-   | existT f _ => f 
+   | existT _ f _ => f 
    end. 
 
 Definition brel_get_nontrivial_witness :  ∀ (S : Type) (r : brel S),  (brel_nontrivial S r) -> S 

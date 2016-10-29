@@ -529,106 +529,6 @@ End LessThan.
 
 Section ReductionEqv. 
 
-(* *************************** 
-
-   Building a reduction with r'  Classical way first 
-
- I) We have A = (S, .)  and r : S -> S. 
-    Also: congruence : 
-     a = b and c =d -> a.c = b.d. 
-     a = b -> r a = r b. 
-
-    want : 
-       1) r(a) = r(r(a))            (implied by 2 or 3 if exists id) 
-       2) r(a . b) = r(r(a) . b)    
-       3) r(a . b) = r(a . r(b))    (implied by 2 if . commutative) 
-       4) r(a . b) = r(r(a) . r(b)) (implied by 2 and 3) 
-
-    Define S_r = {a in S | r(a) = a} 
-    Define ._r as 
-        a ._r b == r(a . b) 
-
-    congruence : for all a, b, c, d in S_r, a = b and c =d -> a ._r c = b ._r d. 
-    Proof. a = r(a) 
-           b = r(b) 
-           c = r(c) 
-           d = r(d) 
-           H1 : a = b 
-           H2 : c = d. 
-
-           a ._r c = b ._r d === r(a . c) = r (b . d), then use cong of r and . 
-    Qed. 
-
-    associativity. 
-    Proof. 
-       a ._r (b ._r c) 
-     = r(a . r(b . c)) 
-     = r(a . (b . c))   (by 3) 
-     = r((a . b) . c)   
-     = r(r(a . b) . c)  (by 2) 
-     = (a ._r b) ._r c) 
-    Qed. 
-   
-
-II) We have A = (S, =, rep, .) 
-
-        = is equiv relation 
-
-        a = rep(a), where rep is a representation function 
- 
-     Build a new structure 
-
-      B = (S, =_r, r o rep, .) 
-
-      where a =_r b  == r(a) = r(b). 
-
-      we want 
-
-      a  =_r  r(rep(a)) <--> r(a) = r(r(rep(a))) 
-
-      but by (1: r(a) = r(r(a))) this reduces to 
-
-      r(a) = r(rep(a)), which we should get from cong of r and a = rep(a). 
-
-      associativity? 
-
-      a . (b .c) =_r (a . b) .c  === r(a . (b .c)) = r((a . b) .c)
-      but assoc(.) and cong r imply this holds. 
-
-    congruence : for all a, b, c, d in S, a =_r b and c =_r d -> a . c =_r b . d. 
-    Proof. H1 : r(a) = r(b) 
-           H2 : r(c) = r(d). 
-
-                r(a) . r(c) = r(c) . r(d)         (by cong of .) 
-            --> r(r(a) . r(c)) = r(r(c) . r(d))   (by cong of r)
-           ---> r(a . c) = r(c . d)               (by 4) 
-           <--> a . c =_r c . d 
-   [] 
-
-
-    What about non-triviality? (S, =, rep) 
-
-   witness : exists s, s = s 
-   negate  : exists f, all s, s <> f s
-
-   now, extend with a reduction r, to 
-
-   (S, =_r, r o rep) 
-
-   1) s =_r s? yes, since r(s) = r(s). 
-
-   2) exists g, st for all s,   not (g(s) =_r s)? 
-      that is, not(r(g(s)) = r(s)). 
-
-     WE MAY HAVE TO PICK g case-by-case 
-
-     example, for min_set : 
-
-     min(g(s)) <> min(s) 
-
-    g(s) = if empty (s) then {witness) else {} 
-
-*) 
 
 
 
@@ -662,7 +562,12 @@ Notation "a *> B" := (ltran_list_product S bS a B) (at level 10, no associativit
 Notation "A <* b" := (rtran_list_product S bS A b) (at level 10, no associativity).
 
 
-(* ***************************************************************************) 
+(* ***************************************************************************
+
+
+*) 
+
+ 
 
 Definition condition_1 := ∀ s : S, uS s == uS(uS s). 
 Definition condition_4 := ∀ s t: S, uS (s [*] t) == uS((uS s) [*] (uS t)). 

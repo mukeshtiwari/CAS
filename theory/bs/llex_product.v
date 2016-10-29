@@ -2,6 +2,7 @@ Require Import Coq.Bool.Bool.
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
+Require Import CAS.code.combined. 
 Require Import CAS.code.cef. 
 Require Import CAS.theory.brel_properties. 
 Require Import CAS.theory.bop_properties. 
@@ -1004,7 +1005,7 @@ Proof. intros S T rS rT addS mulS addT mulT w1 w2 w3 refS refT [ [s1 [s2 s3]] [L
           *) 
           admit. 
           rewrite R. simpl. compute. rewrite L. rewrite H2. rewrite refT. auto. 
-Defined. 
+Admitted.
 
 
 Lemma bop_llex_product_not_left_left_dependent_distributive_v2 : 
@@ -1051,7 +1052,7 @@ Proof. intros S T rS rT addS mulS addT mulT refS symS refT idem
        assert (fact3: rS (mulS s1 s2) (addS (mulS s1 s2) (mulS s1 s3)) = true). admit. 
        rewrite fact3. 
        assumption. 
-Defined. 
+Admitted.
 
 
 

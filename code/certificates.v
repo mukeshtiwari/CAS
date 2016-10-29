@@ -276,13 +276,13 @@ Inductive check_right_right_absorptive (S : Type) :=
 Definition get_witness :  ∀ (S : Type),  certify_witness S -> S 
 := λ S cwS, 
    match cwS with  
-   | Certify_Witness s => s 
+   | Certify_Witness _ s => s 
    end. 
 
 Definition get_negate :  ∀ (S : Type),  certify_negate S -> (S -> S)
 := λ S cnS, 
    match cnS with  
-   | Certify_Negate f => f 
+   | Certify_Negate _ f => f 
    end. 
 
 Definition nontrivial_witness :  ∀ (S : Type),  assert_nontrivial S -> S 

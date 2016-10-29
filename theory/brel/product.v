@@ -1,17 +1,37 @@
 Require Import Coq.Bool.Bool.    
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
+Require Import CAS.code.uop. 
 Require Import CAS.theory.brel_properties. 
 Require Import CAS.theory.facts. 
 
 
-Lemma brel_product_witness : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_witness S rS) → (brel_witness T rT) 
-               → brel_witness (S * T) (brel_product S T rS rT). 
-Proof.
-     intros S T rS rT [s PS] [t PT]. 
-     exists (s, t). simpl. rewrite PS, PT. auto. 
+Section Product. 
+
+(* experiment with notation *) 
+
+Variable S  : Type. 
+Variable T  : Type. 
+Variable eqS : brel S. 
+Variable eqT : brel T. 
+Variable wS : brel_witness S eqS. 
+Variable wT : brel_witness T eqT.
+
+Notation "a <*> b"  := (brel_product S T a b) (at level 15).
+
+Lemma brel_product_witness : brel_witness (S * T) ( eqS <*> eqT ). 
+Proof. destruct wS as [s PS]; destruct wT as [t PT]. 
+       exists (s, t); compute. rewrite PS, PT. auto. 
 Defined. 
+
+
+End Product. 
+
+Check brel_product_witness. 
+
+
+
+
 
 
 Lemma brel_product_negate : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
@@ -38,6 +58,28 @@ Definition brel_product_nontrivial : ∀ (S T : Type) (rS : brel S) (rT : brel T
                                      (brel_nontrivial_negate S rS ntS)
                                      (brel_nontrivial_negate T rT ntT)
    |}. 
+
+
+Lemma brel_product_rep_correct : 
+       ∀ (S T: Type) (rS : brel S) (rT : brel T) (repS : unary_op S) (repT : unary_op T),  
+              (brel_rep_correct S rS repS) → 
+              (brel_rep_correct T rT repT) → 
+                 brel_rep_correct (S * T) (brel_product S T rS rT) (uop_product S T repS repT). 
+Proof. 
+     intros S T rS rT repS repT RS RT [s t]. compute. 
+     rewrite (RS s), (RT t). reflexivity. 
+Defined. 
+
+Lemma brel_product_rep_idempotent : 
+       ∀ (S T: Type) (rS : brel S) (rT : brel T) (repS : unary_op S) (repT : unary_op T),  
+              (brel_rep_idempotent S rS repS) → 
+              (brel_rep_idempotent T rT repT) → 
+                 brel_rep_idempotent (S * T) (brel_product S T rS rT) (uop_product S T repS repT). 
+Proof. 
+     intros S T rS rT repS repT RS RT [s t]. compute. 
+     rewrite (RS s), (RT t). reflexivity. 
+Defined. 
+
 
 
 

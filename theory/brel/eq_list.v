@@ -1,6 +1,7 @@
 Require Import Coq.Bool.Bool. 
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
+Require Import CAS.code.uop. 
 Require Import CAS.theory.brel_properties.
 Require Import CAS.theory.facts. 
 
@@ -78,6 +79,34 @@ Definition brel_list_nontrivial : ∀ (S : Type) (r : brel S),
       brel_nontrivial_witness := brel_list_witness S r
     ; brel_nontrivial_negate  := brel_list_negate S r symS nt
    |}. 
+
+
+
+Lemma brel_list_rep_correct : ∀ (S : Type)(eq : brel S)(rep : unary_op S), 
+          brel_rep_correct S eq rep →
+              brel_rep_correct (list S) (brel_list S eq) (uop_list_map S rep). 
+Proof. intros S eq rep P l. induction l. 
+       simpl. reflexivity. 
+       simpl. apply andb_is_true_right. split. 
+          apply P. 
+          assumption. 
+Defined. 
+
+
+Lemma brel_list_rep_idempotent : ∀ (S : Type)(eq : brel S)(rep : unary_op S), 
+          brel_rep_idempotent S eq rep →
+              brel_rep_idempotent (list S) (brel_list S eq) (uop_list_map S rep). 
+Proof. intros S eq rep P l. induction l. 
+       simpl. reflexivity. 
+       simpl. apply andb_is_true_right. split. 
+          apply P. 
+          assumption. 
+Defined. 
+
+
+
+
+
 
 Lemma brel_list_reflexive : ∀ (S : Type) (r : brel S), 
               (brel_reflexive _ r) → brel_reflexive (list S) (brel_list S r). 

@@ -124,6 +124,7 @@ Qed.
 *) 
 Require Import CAS.code.construct_certs.
 Require Import CAS.code.certificates.
+Require Import CAS.code.combined.
 Require Import CAS.code.cert_records.
 Require Import CAS.code.cas_records.
 Require Import CAS.theory.brel_properties.

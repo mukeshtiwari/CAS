@@ -11,7 +11,8 @@ Require Import CAS.theory.facts.
 
 Lemma bops_min_max_left_left_absorptive  : 
      bops_left_left_absorptive nat brel_eq_nat bop_min bop_max. 
-Proof. induction s; induction t; simpl; auto. 
+Proof. unfold bops_left_left_absorptive. 
+       induction s; induction t; simpl; auto. 
        apply brel_eq_nat_symmetric. 
        apply bop_min_idempotent. 
 Qed. 

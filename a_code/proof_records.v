@@ -6,12 +6,21 @@ Require Import CAS.theory.bs_properties.
 Require Import CAS.theory.os_properties.
 
 (* eqv *) 
-Record eqv_proofs (S : Type) (eq : brel S) := {
-  A_eqv_nontrivial  : brel_nontrivial S eq          
-; A_eqv_congruence  : brel_congruence S eq eq  
-; A_eqv_reflexive   : brel_reflexive S eq            
-; A_eqv_transitive  : brel_transitive S eq           
-; A_eqv_symmetric   : brel_symmetric S eq            
+(*
+Record eqv_proofs (S : Type) (eq : brel S) (rep : unary_op S) := 
+*) 
+Record eqv_proofs (S : Type) (eq : brel S) := 
+{
+  A_eqv_nontrivial     : brel_nontrivial S eq          
+(*
+; A_eqv_rep_correct    : brel_rep_correct S eq rep
+; A_eqv_rep_idempotent : brel_rep_idempotent S eq rep  
+*) 
+
+; A_eqv_congruence     : brel_congruence S eq eq  
+; A_eqv_reflexive      : brel_reflexive S eq            
+; A_eqv_transitive     : brel_transitive S eq           
+; A_eqv_symmetric      : brel_symmetric S eq            
 }.
 
 (* orders *) 

@@ -2,6 +2,7 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.ast. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
+Require Import CAS.code.combined. 
 Require Import CAS.code.data.
 
 

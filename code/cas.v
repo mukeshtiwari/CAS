@@ -9,6 +9,7 @@ Require Import CAS.code.cef.
 Require Import CAS.code.cas_records.
 Require Import CAS.code.cast.
 Require Import CAS.code.data.
+Require Import CAS.code.combined. 
 
 (*CC*) (* proved correct in verify/cas_correct.v *) 
 (*!!*) (* NOT (yet) proved correct in verify/cas_correct.v *) 
@@ -751,7 +752,7 @@ let r := eqv_eq _ eqv_union in
 match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqv_union)), 
       certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqv_union)) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 let id := inr _ nil in 
 let ann := inl _ c in 
 {|
@@ -788,7 +789,7 @@ Definition sg_union : ∀ (S : Type) (c : cas_constant),  eqv S -> sg (with_cons
 match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
       certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqvS)) 
 with 
-| Certify_Witness x, Certify_Negate g =>  
+| Certify_Witness _ x, Certify_Negate _ g =>  
 let eqv_union := eqv_add_constant (finite_set S) (eqv_set S eqvS) c in 
 let b := bop_add_ann (finite_set S) (bop_union S (eqv_eq S eqvS)) c in 
    {| 
@@ -814,7 +815,7 @@ let r := eqv_eq _ eqv_intersect in
 match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqv_intersect)), 
       certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqv_intersect)) 
 with 
-| Certify_Witness s, Certify_Negate f =>  
+| Certify_Witness _ s, Certify_Negate _ f =>  
 let id := inl _ c in 
 let ann := inr _ nil in 
 {|
@@ -850,7 +851,7 @@ Definition sg_intersect : ∀ (S : Type) (c : cas_constant),  eqv S -> sg (with_
 match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
       certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqvS)) 
 with 
-| Certify_Witness x, Certify_Negate g =>  
+| Certify_Witness _ x, Certify_Negate _ g =>  
 let eqv_intersect := eqv_add_constant (finite_set S) (eqv_set S eqvS) c in 
 let b := bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c in 
    {| 
@@ -1177,7 +1178,7 @@ let times :=  bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c in
 match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
       certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqvS)) 
 with 
-| Certify_Witness x, Certify_Negate g =>  
+| Certify_Witness _ x, Certify_Negate _ g =>  
 {|
   bs_eqv         := eqv
 ; bs_plus        := plus
@@ -1199,7 +1200,7 @@ let plus :=  bop_add_id (finite_set S) (bop_intersect S (eqv_eq S eqvS)) c in
 match certify_nontrivial_witness _ (eqv_nontrivial _ (eqv_certs _ eqvS )), 
       certify_nontrivial_negate _ (eqv_nontrivial _ (eqv_certs _ eqvS)) 
 with 
-| Certify_Witness x, Certify_Negate g =>  
+| Certify_Witness _ x, Certify_Negate _ g =>  
 {|
   bs_eqv         := eqv
 ; bs_plus        := plus

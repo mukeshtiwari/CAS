@@ -19,7 +19,7 @@ Definition sg_certs_from_sg_C_certs : ∀ (S : Type), brel S -> binary_op S -> e
 := λ S r b eqvS sgS, 
 let ntS := eqv_nontrivial S eqvS in 
 match certify_nontrivial_witness S ntS, certify_nontrivial_negate S ntS with 
-| Certify_Witness s, Certify_Negate f => 
+| Certify_Witness _ s, Certify_Negate _ f => 
 {|
   sg_associative      := Assert_Associative S 
 ; sg_congruence       := Assert_Bop_Congruence S 
@@ -60,7 +60,7 @@ Definition sg_C_certs_from_sg_CI_certs : ∀ (S : Type), brel S -> binary_op S -
 := λ S r b eqvS sgS, 
 let ntS := eqv_nontrivial S eqvS in 
 match certify_nontrivial_witness S ntS, certify_nontrivial_negate S ntS with 
-| Certify_Witness s, Certify_Negate f => 
+| Certify_Witness _ s, Certify_Negate _ f => 
 {|
   sg_C_associative      := Assert_Associative S 
 ; sg_C_congruence       := Assert_Bop_Congruence S 
@@ -72,17 +72,17 @@ match certify_nontrivial_witness S ntS, certify_nontrivial_negate S ntS with
 ; sg_C_left_cancel_d    := 
      Certify_Not_Left_Cancellative S 
         (match sg_CI_selective_d S sgS with 
-        | Certify_Selective => 
+        | Certify_Selective _ => 
              cef_selective_and_commutative_imply_not_left_cancellative S r b s f
-        | Certify_Not_Selective (s1, s2) => 
+        | Certify_Not_Selective _ (s1, s2) => 
              cef_idempotent_and_commutative_and_not_selective_imply_not_left_cancellative S b s1 s2
         end) 
 ; sg_C_right_cancel_d   := 
      Certify_Not_Right_Cancellative S 
         (match sg_CI_selective_d S sgS with 
-        | Certify_Selective => 
+        | Certify_Selective _ => 
              cef_selective_and_commutative_imply_not_right_cancellative S r b s f
-        | Certify_Not_Selective (s1, s2) => 
+        | Certify_Not_Selective _ (s1, s2) => 
              cef_idempotent_and_commutative_and_not_selective_imply_not_right_cancellative S b s1 s2
         end) 
 ; sg_C_left_constant_d  := 
@@ -139,10 +139,10 @@ Definition sg_C_certs_from_sg_CK_certs : ∀ (S : Type), brel S -> binary_op S -
 := λ S r b eqvS sgS, 
 let ntS := eqv_nontrivial S eqvS in 
 match certify_nontrivial_witness S ntS, certify_nontrivial_negate S ntS with 
-| Certify_Witness s, Certify_Negate f => 
+| Certify_Witness _ s, Certify_Negate _ f => 
 let ni := match sg_CK_exists_id_d S sgS with 
-          | Certify_Exists_Id i => cef_cancellative_and_exists_id_imply_not_idempotent S r s i f
-          | Certify_Not_Exists_Id => s 
+          | Certify_Exists_Id _ i => cef_cancellative_and_exists_id_imply_not_idempotent S r s i f
+          | Certify_Not_Exists_Id _ => s 
           end 
 in 
 {|
@@ -220,7 +220,7 @@ Definition sg_certs_from_sg_CS_certs : ∀ (S : Type) (r : brel S) (eqv : eqv_ce
 Definition sg_C_certs_option_from_sg_certs : ∀ (S : Type), sg_certificates S -> option (sg_C_certificates S) 
 := λ S sgS, 
    match sg_commutative_d S sgS with 
-   | Certify_Commutative => Some
+   | Certify_Commutative _ => Some
       {|
         sg_C_associative      := Assert_Associative S 
       ; sg_C_congruence       := Assert_Bop_Congruence S 
@@ -258,7 +258,7 @@ Definition sg_C_option_from_sg: ∀ (S : Type),  sg S -> option (sg_C S)
 Definition sg_CI_certs_option_from_sg_C_certs : ∀ (S : Type), sg_C_certificates S -> option (sg_CI_certificates S) 
 := λ S sg_CS, 
    match sg_C_idempotent_d S sg_CS with 
-   | Certify_Idempotent => Some
+   | Certify_Idempotent _ => Some
       {|
         sg_CI_associative        := Assert_Associative S 
       ; sg_CI_congruence         := Assert_Bop_Congruence S 
@@ -289,7 +289,7 @@ Definition sg_CI_option_from_sg_C: ∀ (S : Type),  sg_C S -> option (sg_CI S)
 Definition sg_CS_certs_option_from_sg_CI_certs : ∀ (S : Type), sg_CI_certificates S -> option (sg_CS_certificates S) 
 := λ S sg_CIS, 
    match sg_CI_selective_d S sg_CIS with 
-   | Certify_Selective => Some
+   | Certify_Selective _ => Some
       {|
         sg_CS_associative        := Assert_Associative S 
       ; sg_CS_congruence         := Assert_Bop_Congruence S 
@@ -320,7 +320,7 @@ Definition sg_CS_option_from_sg_CI: ∀ (S : Type),  sg_CI S -> option (sg_CS S)
 Definition sg_CK_certs_option_from_sg_C_certs : ∀ (S : Type), sg_C_certificates S -> option (sg_CK_certificates S) 
 := λ S sgS, 
    match sg_C_left_cancel_d S sgS with 
-   | Certify_Left_Cancellative => Some
+   | Certify_Left_Cancellative _ => Some
       {|
         sg_CK_associative        := sg_C_associative S sgS    
       ; sg_CK_congruence         := sg_C_congruence S sgS    

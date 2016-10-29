@@ -24,6 +24,7 @@ CODE=\
    code/cef.v \
    code/uop.v \
    code/bprop.v \
+   code/combined.v \
    code/certificates.v \
    code/cert_records.v \
    code/cast.v \
@@ -67,6 +68,7 @@ THEORY=\
    theory/brel/strictify.v \
    theory/brel/to_bool.v \
    theory/brel/to_nat.v \
+   theory/brel/minset.v \
    theory/bop/and.v \
    theory/bop/or.v \
    theory/bop/min.v \
@@ -86,6 +88,7 @@ THEORY=\
    theory/bop/intersect.v \
    theory/bop/add_id.v \
    theory/bop/add_ann.v \
+   theory/bop/reduce.v \
    theory/bs/and_or.v \
    theory/bs/or_and.v \
    theory/bs/min_max.v \
@@ -128,25 +131,25 @@ FILES=$(CODE) $(ACODE) $(THEORY) $(VERIFY)
 # is there a better way? 
 CMOFILES=\
    Bool.cmo \
-   Compare_dec.cmo \
    Datatypes.cmo \
-   EqNat.cmo \
    List0.cmo \
-   Peano.cmo \
-   basic_types.cmo \
+   Nat.cmo \
+   PeanoNat.cmo \
    ast.cmo \
-   data.cmo \
-   brel.cmo \
-   uop.cmo \
+   basic_types.cmo \
    bop.cmo \
-   certificates.cmo \
-   cef.cmo \
-   cert_records.cmo \
+   brel.cmo \
    cas_records.cmo \
+   cef.cmo \
    cast.cmo \
+   certificates.cmo \
+   cert_records.cmo \
    check.cmo \
+   uop.cmo \
+   combined.cmo \
    construct_certs.cmo \
    cas.cmo \
+   data.cmo \
    ../src/Describe.cmo
 # 
 
@@ -177,7 +180,7 @@ casml: extraction/STAMP src/Driver.ml src/Describe.ml
 	$(COQC) $*.v
 
 %.v.d: %.v
-	$(COQDEP) -slash $(COQINCLUDES) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
+	$(COQDEP) $(COQINCLUDES) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
 cleancoq:
 	rm -f  code/*.glob  a_code/*.glob  theory/*.glob  theory/*/*.glob verify/*.glob

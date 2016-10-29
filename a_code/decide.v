@@ -2,6 +2,7 @@ Require Import Coq.Bool.Bool.
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
+Require Import CAS.code.combined. 
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.brel.eq_bool. 
 Require Import CAS.theory.brel.eq_nat. 
@@ -239,7 +240,7 @@ Definition bop_product_idempotent_decide :
      bop_idempotent_decidable (S * T) (brel_product S T rS rT) (bop_product S T bS bT)
 := λ S T rS rT bS bT wS wT dS dT,  
    match brel_nontrivial_witness S rS wS,  brel_nontrivial_witness T rT wT with 
-   | existT s _, existT t _ => 
+   | existT _ s _, existT _ t _ => 
        match dS with 
        | inl commS => 
          match dT with 
@@ -263,7 +264,7 @@ Definition bop_product_commutative_decide :
      bop_commutative_decidable (S * T) (brel_product S T rS rT) (bop_product S T bS bT)
 := λ S T rS rT bS bT wS wT dS dT,  
      match brel_nontrivial_witness S rS wS,  brel_nontrivial_witness T rT wT with 
-     | existT s _, existT t _ => 
+     | existT _ s _, existT _ t _ => 
        match dS with 
        | inl commS => 
          match dT with 
@@ -290,7 +291,7 @@ Definition bop_product_left_cancellative_decide :
      bop_left_cancellative_decidable (S * T) (brel_product S T rS rT) (bop_product S T bS bT)
 := λ S T rS rT bS bT wS wT refS refT dS dT,  
      match brel_nontrivial_witness S rS wS,  brel_nontrivial_witness T rT wT with 
-     | existT s _, existT t _ => 
+     | existT _ s _, existT _ t _ => 
        match dS with 
        | inl canS => 
          match dT with 
@@ -317,7 +318,7 @@ Definition bop_product_right_cancellative_decide :
      bop_right_cancellative_decidable (S * T) (brel_product S T rS rT) (bop_product S T bS bT)
 := λ S T rS rT bS bT wS wT refS refT dS dT,  
      match brel_nontrivial_witness S rS wS,  brel_nontrivial_witness T rT wT with 
-     | existT s _, existT t _ => 
+     | existT _ s _, existT _ t _ => 
        match dS with 
        | inl canS => 
          match dT with 
@@ -494,7 +495,7 @@ Definition bop_product_left_constant_decide :
      bop_left_constant_decidable (S * T) (brel_product S T rS rT) (bop_product S T bS bT)
 := λ S T rS rT bS bT wS wT dS dT,  
      match brel_nontrivial_witness S rS wS,  brel_nontrivial_witness T rT wT with 
-     | existT s _, existT t _ => 
+     | existT _ s _, existT _ t _ => 
        match dS with 
        | inl PS => 
          match dT with 
@@ -518,7 +519,7 @@ Definition bop_product_right_constant_decide :
      bop_right_constant_decidable (S * T) (brel_product S T rS rT) (bop_product S T bS bT)
 := λ S T rS rT bS bT wS wT dS dT,  
      match brel_nontrivial_witness S rS wS,  brel_nontrivial_witness T rT wT with 
-     | existT s _, existT t _ => 
+     | existT _ s _, existT _ t _ => 
        match dS with 
        | inl PS => 
          match dT with 
@@ -590,7 +591,7 @@ Definition bop_llex_idempotent_decide :
      bop_idempotent_decidable (S * T) (brel_product S T rS rT) (bop_llex S T rS bS bT)
 := λ S T rS rT bS bT ntS ntT refS refT dS dT,  
      match ntS,  ntT with 
-     | existT s _, existT t _ => 
+     | existT _ s _, existT _ t _ => 
        match dS with 
        | inl commS => 
          match dT with 
@@ -622,7 +623,7 @@ Definition bop_llex_commutative_decide :
      bop_commutative_decidable (S * T) (brel_product S T rS rT) (bop_llex S T rS bS bT)
 := λ S T rS rT bS bT ntS ntT congS refS symS transS refT selS dS dT,  
      match ntS,  ntT with 
-     | existT s _, existT t _ => 
+     | existT _ s _, existT _ t _ => 
        match dS with 
        | inl commS => 
          match dT with 
@@ -655,7 +656,7 @@ Definition bop_llex_selective_decide :
      bop_selective_decidable (S * T) (brel_product S T rS rT) (bop_llex S T rS bS bT)
 := λ S T rS rT bS bT ntS refS symS transS r_cong b_cong commS selS refT d_selT, 
    match ntS with 
-   | existT s _ => 
+   | existT _ s _ => 
      match d_selT with 
      | inl selT => inl _ (bop_llex_selective S T rS rT bS bT refS symS transS refT r_cong b_cong commS selS selT)
      | inr not_selT => inr _ (bop_llex_not_selective S T rS rT bS bT s refS selS not_selT)

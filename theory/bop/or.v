@@ -41,10 +41,10 @@ Lemma bop_or_not_is_right : bop_not_is_right bool brel_eq_bool bop_or.
 Proof. unfold bop_not_is_right. exists (true, false); simpl. reflexivity. Defined. 
 
 Lemma bop_or_exists_id : bop_exists_id bool brel_eq_bool bop_or.
-Proof. exists false. induction s; auto. Defined. 
+Proof. exists false. unfold bop_is_id. induction s; auto. Defined. 
 
 Lemma bop_or_exists_ann : bop_exists_ann bool brel_eq_bool bop_or.
-Proof. exists true. induction s; auto. Defined. 
+Proof. exists true. unfold bop_is_ann. induction s; auto. Defined. 
 
 
 Lemma bop_or_not_left_cancellative : bop_not_left_cancellative bool brel_eq_bool bop_or.

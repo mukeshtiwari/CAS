@@ -1,5 +1,6 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
+Require Import CAS.code.uop. 
 Require Import CAS.theory.brel_properties. 
 
 Lemma brel_sum_witness : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
@@ -36,6 +37,29 @@ Proof.
      intros S T rS rT. unfold brel_reflexive. intros RS RT [s |  t]; simpl. 
      rewrite (RS s). reflexivity. 
      rewrite (RT t). reflexivity. 
+Defined. 
+
+
+Lemma brel_sum_rep_correct : 
+       ∀ (S T: Type) (rS : brel S) (rT : brel T) (repS : unary_op S) (repT : unary_op T),  
+              (brel_rep_correct S rS repS) → 
+              (brel_rep_correct T rT repT) → 
+                 brel_rep_correct (S + T) (brel_sum S T rS rT) (uop_sum S T repS repT). 
+Proof. 
+     intros S T rS rT repS repT RS RT [s | t]; compute. 
+         rewrite (RS s); auto.  
+         rewrite (RT t); auto.
+Defined. 
+
+Lemma brel_sum_rep_idempotent : 
+       ∀ (S T: Type) (rS : brel S) (rT : brel T) (repS : unary_op S) (repT : unary_op T),  
+              (brel_rep_idempotent S rS repS) → 
+              (brel_rep_idempotent T rT repT) → 
+                 brel_rep_idempotent (S + T) (brel_sum S T rS rT) (uop_sum S T repS repT). 
+Proof. 
+     intros S T rS rT repS repT RS RT [s | t]; compute. 
+         rewrite (RS s); auto.  
+         rewrite (RT t); auto.
 Defined. 
 
 

@@ -396,6 +396,7 @@ Qed.
 Require Import CAS.theory.brel_properties.        
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
+Require Import CAS.code.combined. 
 Require Import CAS.code.cas_records.
 Require Import CAS.code.cert_records.
 Require Import CAS.code.certificates.

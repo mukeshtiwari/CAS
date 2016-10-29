@@ -132,7 +132,7 @@ Qed.
 Lemma brel_list_app_reverse_left : ∀ (T : Type) (r : brel T), 
    ∀ (X  Y : list T), brel_list T r (List.rev X) Y = brel_list T r X (List.rev Y).
 Proof. admit. 
-Qed.           
+Admitted. 
 
 Lemma brel_list_app_reverse : ∀ (T : Type) (r : brel T), 
    ∀ (X  Y : list T), brel_list T r X Y = brel_list T r (List.rev X) (List.rev Y).
@@ -364,7 +364,7 @@ Proof. intros. compute; auto. Qed.
 Lemma bop_list_product_right_right_cons : ∀ (a : S) (X Y : list S), 
         X *^ (a :: Y) = (X *^ Y) ++ (X <* a). 
 Proof. admit. 
-Qed.    
+Admitted. 
 
 
 (* 
@@ -402,7 +402,7 @@ Proof. intros a X Y. induction X; simpl. auto.
        assert (T2 := T _ _ _ T1 H3). 
        apply brel_list_symmetric; auto.  
 *) 
-Qed. 
+Admitted. 
 
 
 Lemma rtrans_list_product_right_right_partial_distributivity : ∀ (a : S) (X Y : list S), 
@@ -427,7 +427,7 @@ Proof. intros a X Y. induction X; simpl. auto.
        assert (T2 := T _ _ _ T1 H3). 
        apply brel_list_symmetric; auto.  
 *) 
-Qed. 
+Admitted. 
 
 
 Lemma bop_list_product_left_right_distributive_over_app : ∀ (X Y Z: list S), 
@@ -439,7 +439,7 @@ Proof. intros X Y Z. induction X.
           rewrite List.app_assoc. reflexivity. 
 *) 
 admit. 
-Qed.    
+Admitted. 
 
 
 Lemma bop_list_product_right_left_distributive_over_app : ∀ (X Y Z: list S), 
@@ -455,7 +455,7 @@ Proof. intros X Y Z. induction X; simpl.
        rewrite List.app_assoc. reflexivity. 
 *) 
 admit. admit.  
-Qed.    
+Admitted. 
 
 (* 
 left distributivity  NO 
@@ -664,7 +664,7 @@ Proof. intros W LC RC X.
              rewrite bop_list_product_left_left_cons. 
              rewrite bop_list_product_left_left_cons in IHY. 
              admit. 
-Defined. 
+Admitted. 
 
 
 Lemma bop_list_product_left_not_commutative_v1 (s : S) : 

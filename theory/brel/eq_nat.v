@@ -29,7 +29,8 @@ Proof. unfold brel_transitive, brel_eq_nat.
 Qed. 
 
 Lemma brel_eq_nat_congruence : brel_congruence nat brel_eq_nat brel_eq_nat. 
-Proof. induction s; induction t; induction u; induction v; simpl; intros H Q; auto; discriminate.  
+Proof. unfold brel_congruence. 
+       induction s; induction t; induction u; induction v; simpl; intros H Q; auto; discriminate.  
 Qed. 
 
 Lemma brel_eq_nat_witness : brel_witness nat brel_eq_nat. 

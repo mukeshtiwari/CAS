@@ -78,7 +78,8 @@ plus_Snm_nSm: ∀ n m : nat, S n + m = n + S m
 plus_Sn_m: ∀ n m : nat, S n + m = S (n + m)
 *) 
 Lemma  bop_plus_left_cancellative : bop_left_cancellative nat brel_eq_nat bop_plus.
-Proof. unfold bop_plus. induction s; intros t u.
+Proof. unfold bop_plus. unfold bop_left_cancellative. 
+       induction s; intros t u.
        simpl. auto. 
        intro H. rewrite plus_Sn_m in H. rewrite plus_Sn_m in H. 
        rewrite brel_nat_eq_S in H. apply IHs; auto.  

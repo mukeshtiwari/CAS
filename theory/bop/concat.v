@@ -130,7 +130,7 @@ Proof. unfold bop_right_cancellative, bop_concat.
           simpl in H. admit. 
           admit. 
           admit. 
-Qed.        
+Admitted. 
 
 Lemma  bop_concat_not_left_constant : ∀ (S : Type) (r : brel S), 
         brel_witness S r -> 

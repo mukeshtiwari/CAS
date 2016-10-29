@@ -1,6 +1,7 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
+Require Import CAS.code.combined. 
 Require Import CAS.code.certificates.
 Require Import CAS.code.cert_records.
 Require Import CAS.code.construct_certs.
@@ -1811,8 +1812,8 @@ Lemma bops_add_zero_times_id_equals_plus_ann_check_correct :
         c plusS timesS (A_eqv_reflexive S rS eqvS) pS) 
   = 
   match p2c_times_id_equals_plus_ann S rS plusS timesS pS with 
-  | Certify_Times_Id_Equals_Plus_Ann => Certify_Times_Id_Equals_Plus_Ann (with_constant S)
-  | Certify_Not_Times_Id_Equals_Plus_Ann => Certify_Not_Times_Id_Equals_Plus_Ann (with_constant S)
+  | Certify_Times_Id_Equals_Plus_Ann _ => Certify_Times_Id_Equals_Plus_Ann (with_constant S)
+  | Certify_Not_Times_Id_Equals_Plus_Ann _ => Certify_Not_Times_Id_Equals_Plus_Ann (with_constant S)
   end. 
 Proof. intros S c rS plusS timesS eqvS [ L | R]; compute; reflexivity. Qed. 
 
@@ -1903,8 +1904,8 @@ Lemma bops_add_one_plus_id_equals_times_ann_check_correct :
         c plusS timesS (A_eqv_reflexive S rS eqvS) pS) 
   = 
   match p2c_plus_id_equals_times_ann S rS plusS timesS pS with 
-  | Certify_Plus_Id_Equals_Times_Ann => Certify_Plus_Id_Equals_Times_Ann (with_constant S)
-  | Certify_Not_Plus_Id_Equals_Times_Ann => Certify_Not_Plus_Id_Equals_Times_Ann (with_constant S)
+  | Certify_Plus_Id_Equals_Times_Ann _ => Certify_Plus_Id_Equals_Times_Ann (with_constant S)
+  | Certify_Not_Plus_Id_Equals_Times_Ann _ => Certify_Not_Plus_Id_Equals_Times_Ann (with_constant S)
   end. 
 Proof. intros S c rS plusS timesS eqvS [ L | R]; compute; reflexivity. Qed. 
  

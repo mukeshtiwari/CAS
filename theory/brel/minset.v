@@ -3,88 +3,17 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.code.bop. 
 Require Import CAS.code.uop. 
+Require Import CAS.code.bprop. 
+Require Import CAS.code.combined. 
 Require Import CAS.theory.brel_properties. 
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.brel.reduce.
 Require Import CAS.theory.brel.set.
-Require Import CAS.theory.brel.subset.
-Require Import CAS.theory.brel.in_set. 
-Require Import CAS.theory.brel.is_minimal_in. 
+
 
 
 (* 
-Definition brel_and_sym : ∀ (S : Type), brel S -> brel S 
-:= λ S r x y,  (r x y) && (r y x). 
-
-Definition in_set : ∀ S : Type,  ∀ r : brel S, brel2 (finite_set S) S
-:= fix f S r l s := 
-   match l with 
-   | nil => false 
-   | a :: rest => r s a || f S r rest s
-   end. 
-
-Definition brel_subset : ∀ S : Type,  ∀ r : brel S, brel (finite_set S)
-:= fix f S r set1 set2 := 
-   match set1 with 
-   | nil => true 
-   | a :: rest => (in_set S r set2 a) && (f S r rest set2)
-   end. 
-
-Definition brel_set : ∀ S : Type, brel S → brel(finite_set S) 
-:= λ S r,  brel_and_sym (list S) (brel_subset S r). 
-
-
-Definition bProp_forall: ∀ S : Type, bProp S → bProp(finite_set S) := List.forallb. 
-
-Definition brel2_from_brel : ∀ S : Type, (brel S) → brel2 S (finite_set S)
-:= λ S r x, (bProp_forall S (r x)).
-
-
-Definition is_minimal_in : ∀ S : Type, brel S → brel S → brel2 S (finite_set S)
-:= λ S eq lt a X, if brel_set S eq nil X
-                  then false 
-                  else brel2_from_brel S (λ x, λ y, negb (lt y x)) a X. 
-
-lt SEEMS WRONG !!! 
-
-
-Fixpoint filter {A : Type} (f : A -> bool) (l:list A) : list A :=
-      match l with
-	| nil => nil
-	| x :: l => if f x then x::(filter f l) else filter f l
-      end.
-
-Definition uop_filter : ∀ S : Type, (bProp S) → unary_op (finite_set S) := λ S, @filter S. 
-
-Definition uop_filter_from_brel2 : ∀ S : Type, (brel2 S (finite_set S)) → unary_op (finite_set S)
-:= λ S r X, uop_filter S (λ a, r a X) X.
-
-Definition uop_minset : ∀ S : Type, brel S → brel S → unary_op (finite_set S) 
-:= λ S eq lt, uop_filter_from_brel2 S (is_minimal_in S eq lt).
-
-Definition brel_reduce : ∀ S : Type, brel S → unary_op S → brel S
-:= λ S r u x y,  r (u x) (u y). 
-
-Definition brel_minset : ∀ S : Type, brel S → brel S → brel (finite_set S) 
-:= λ S eq lt,  brel_reduce (finite_set S) (brel_set S eq) (uop_minset S eq lt). 
-
-   
-   X = Y === brel_set (uop_minset S eq lt X) (uop_minset S eq lt Y)
-         === brel_set (uop_filter_from_brel2 S (is_minimal_in S eq lt) X) 
-                      (uop_filter_from_brel2 S (is_minimal_in S eq lt) Y)
-         === brel_set (filter (λ a, is_minimal_in S eq lt a X) X) 
-                      (filter (λ a, is_minimal_in S eq lt a Y) Y) 
-         === brel_set (filter (λ a, if brel_set S eq nil X then false else brel2_from_brel S (λ x, λ y, negb (lt y x)) a X) X) 
-                      (filter (λ a, if brel_set S eq nil Y then false else brel2_from_brel S (λ x, λ y, negb (lt y x)) a Y) Y) 
-         === brel_set (filter (λ a, if brel_set S eq nil X then false else  bProp_forall S (λ y, negb (lt y a)) X) X) 
-                      (filter (λ a, if brel_set S eq nil Y then false else  bProp_forall S (λ y, negb (lt y a)) Y) Y) 
-         === brel_set (filter (λ a, if brel_set S eq nil X then false else  forallb S (λ y, negb (lt y a)) X) X) 
-                      (filter (λ a, if brel_set S eq nil Y then false else  forallb S (λ y, negb (lt y a)) Y) Y) 
-                  
-
 *) 
-
-
 
 Lemma brel_minset_reflexive : ∀ (S : Type) (r : brel S) (lt : brel S), 
        brel_reflexive S r  →  
@@ -127,10 +56,6 @@ Proof. intros S r lt congS  refS symS transS. unfold brel_minset.
 Qed. 
 
 
-(*
-*) 
-
-
 Lemma brel_minset_witness : ∀ (S : Type) (r lt : brel S), 
               brel_reflexive S r -> 
               brel_symmetric S r -> 
@@ -149,78 +74,6 @@ Definition minset_negate (S : Type) (s : S) (f : S -> S) ( x : finite_set S) :=
    | nil => s :: nil 
    | t :: _ => (f t) :: nil 
   end. 
-
-
-
-
-(* 
-brel_negate = 
-λ (S : Type) (r : brel S),
-
-    {f : S → S & ∀ s : S, (r s (f s) = false) * (r (f s) s = false)}
-     
-: ∀ S : Type, brel S → Type
-
-
-
-
-Lemma brel_minset_negate : ∀ (S : Type) (r lt : brel S), 
-   brel_nontrivial S r -> 
-   brel_irreflexive S lt -> 
-     brel_negate (finite_set S) (brel_minset S r lt). 
-Proof. intros S r lt [ [s Ps] [f Pf] ] irr. 
-       exists (minset_negate S s f). 
-
-
-intro x. 
-split. 
-unfold brel_minset. 
-unfold brel_reduce. 
-
-   brel_set S r 
-     (uop_minset S r lt x)
-     (uop_minset S r lt (minset_negate S s f x)) = false
-
-       intro x. case x. 
-       unfold minset_negate. 
-       split. 
-          unfold brel_minset. 
-          unfold brel_reduce. 
-          unfold uop_minset at 1.       
-          unfold uop_filter_from_brel2. 
-          unfold uop_filter. 
-          unfold filter. 
-
-          unfold uop_minset. 
-          unfold uop_filter_from_brel2. 
-          unfold uop_filter. 
-          unfold filter. 
-          assert (fact1 : is_minimal_in S r lt s (s :: nil) = true). admit. 
-          rewrite fact1. compute. 
-          reflexivity. 
-          admit. 
-      intros w l. 
-      unfold minset_negate. 
-      split. 
-          unfold brel_minset. 
-          unfold brel_reduce. 
-          unfold uop_minset.       
-          unfold uop_filter_from_brel2. 
-          unfold uop_filter. 
-          unfold filter. 
-          assert (fact1 : is_minimal_in S r lt w (w :: nil) = true). admit.                
-          rewrite fact1. 
-        
-Defined. 
-
-Lemma uop_minset_nontrivial : ∀ (S : Type) (eq : brel S)  (lt : brel S), 
-   brel_nontrivial S eq -> 
-   brel_irreflexive S lt -> 
-   uop_nontrivial (finite_set S) (brel_set S eq) (uop_minset S eq lt). 
-Proof. 
-
-*) 
-
 
 (* FIX THESE 
 

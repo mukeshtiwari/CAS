@@ -6,9 +6,9 @@ Require Import CAS.a_code.proof_records.
 (* eqv *) 
 Record A_eqv (S : Type) := {
   A_eqv_eq      : brel S 
-; A_eqv_proofs  : eqv_proofs S A_eqv_eq
 ; A_eqv_data    : S -> data (* for printing in ocaml-land *) 
-; A_eqv_rep     : S -> S    (* for reductions.  Should this be an option? *) 
+; A_eqv_rep     : S -> S    (* for reductions *) 
+; A_eqv_proofs  : eqv_proofs S A_eqv_eq  (* A_eqv_rep *) 
 ; A_eqv_ast     : ast_eqv 
 }.
 

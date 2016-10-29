@@ -1,6 +1,7 @@
 Require Import Coq.Bool.Bool. 
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
+Require Import CAS.code.uop. 
 Require Import CAS.theory.brel_properties. 
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.brel.and_sym. 
@@ -114,3 +115,28 @@ Definition brel_set_nontrivial : ∀ (S : Type) (r : brel S),
     ; brel_nontrivial_negate  := brel_set_negate S r symS (brel_nontrivial_witness _ _ nt)
    |}. 
 
+
+(* 
+Lemma brel_set_rep_correct : ∀ (S : Type)(eq : brel S)(rep : unary_op S), 
+          brel_reflexive S eq →
+          brel_symmetric S eq →
+          brel_transitive S eq →
+          brel_rep_correct S eq rep →
+              brel_rep_correct (finite_set S) (brel_set S eq) (uop_set_rep S eq rep). 
+Proof. intros S eq rep refS symS tranS P l. 
+       apply brel_set_intro. split. 
+          apply brel_subset_intro;auto. intros s H. 
+          apply brel_subset_intro;auto. admit.  
+Defined. 
+
+
+Lemma brel_set_rep_idempotent : ∀ (S : Type)(eq : brel S)(rep : unary_op S), 
+          brel_rep_idempotent S eq rep →
+              brel_rep_idempotent (finite_set S) (brel_set S eq) (uop_set_rep S eq rep). 
+Proof. intros S eq rep P l. induction l. 
+       simpl. reflexivity. 
+       simpl. apply andb_is_true_right. split. 
+          apply P. 
+          assumption. 
+Defined. 
+*) 

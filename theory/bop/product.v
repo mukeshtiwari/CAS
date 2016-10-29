@@ -6,70 +6,73 @@ Require Import CAS.theory.bop_properties.
 Require Import CAS.theory.brel_properties. 
 Require Import CAS.theory.facts. 
 
+
+Notation "a <*> b" := (brel_product _ _ a b) (at level 15).
+Notation "a [*] b" := (bop_product _ _ a b) (at level 15).
+
+Section Product. 
+
+(* experiment with notation *) 
+
+Variable S  : Type. 
+Variable T  : Type. 
+Variable eqS : brel S. 
+Variable eqT : brel T. 
+Variable bS : binary_op S. 
+Variable bT : binary_op T. 
+
+Notation "a =S b"  := (eqS a b = true) (at level 15).
+Notation "a =T b"  := (eqT a b = true) (at level 15).
+Notation "a *S b"  := (bS a b) (at level 15).
+Notation "a *T b"  := (bT a b) (at level 15).
+
+
 Lemma bop_product_congruence : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
-      bop_congruence S rS bS → bop_congruence T rT bT → 
-      bop_congruence (S * T) (brel_product _ _ rS rT) (bop_product _ _ bS bT). 
-Proof. 
-    intros S T rS rT bS bT. 
-    unfold bop_congruence.  
-    intros cS cT [s1 s2] [t1 t2] [u1 u2] [w1 w2]; simpl. intros H1 H2. 
+      bop_congruence S eqS bS → bop_congruence T eqT bT → 
+         bop_congruence (S * T) (eqS <*> eqT) (bS [*] bT). 
+Proof. intros cS cT [s1 s2] [t1 t2] [u1 u2] [w1 w2]; simpl. intros H1 H2. 
        destruct (andb_is_true_left _ _ H1) as [C1 C2].
        destruct (andb_is_true_left _ _ H2) as [C3 C4].
        apply andb_is_true_right. split.  
-          apply cS. assumption. assumption. 
-          apply cT. assumption. assumption. 
+          apply cS; auto. 
+          apply cT; auto. 
 Defined.  
 
-Lemma bop_product_associative : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
-      bop_associative S rS bS → bop_associative T rT bT → 
-      bop_associative (S * T) (brel_product _ _ rS rT) (bop_product _ _ bS bT). 
-Proof. 
-    intros S T rS rT bS bT. 
-    unfold bop_associative.  
-    intros assS assT [s1 s2] [t1 t2] [u1 u2]; simpl.
+Print bop_product_congruence. 
+
+Lemma bop_product_associative : bop_associative S eqS bS → bop_associative T eqT bT → 
+        bop_associative (S * T) (eqS <*> eqT) (bS [*] bT). 
+Proof. intros assS assT [s1 s2] [t1 t2] [u1 u2]; simpl.
        apply andb_is_true_right. split. apply assS. apply assT.
 Defined.  
 
+Lemma bop_product_idempotent :  bop_idempotent S eqS bS → bop_idempotent T eqT bT → 
+        bop_idempotent (S * T) (eqS <*> eqT) (bS [*] bT). 
+Proof. intros L R (s, t). compute. rewrite L, R. reflexivity. Qed. 
 
-Lemma bop_product_idempotent : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
-      bop_idempotent S rS bS → 
-      bop_idempotent T rT bT → 
-      bop_idempotent (S * T) (brel_product _ _ rS rT) (bop_product _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT. unfold bop_idempotent. intros L R (s, t). 
-   simpl. rewrite L, R. simpl. reflexivity. 
+Lemma bop_product_not_idempotent_left : ∀ (t : T), bop_not_idempotent S eqS bS → 
+      bop_not_idempotent (S * T) (eqS <*> eqT) (bS [*] bT). 
+Proof. intros t [s P]. exists (s, t). compute. rewrite P. reflexivity. Defined. 
+
+Lemma bop_product_not_idempotent_right : ∀ (s : S), bop_not_idempotent T eqT bT → 
+      bop_not_idempotent (S * T) (eqS <*> eqT) (bS [*] bT). 
+Proof. intros s [t P]. exists (s, t). compute. rewrite P. 
+       case_eq(eqS (s *S s) s); intro J; reflexivity. 
 Defined. 
 
-Lemma bop_product_not_idempotent_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (t : T), 
-      bop_not_idempotent S rS bS → 
-      bop_not_idempotent (S * T) (brel_product _ _ rS rT) (bop_product _ _ bS bT). 
+Lemma bop_product_not_idempotent : ∀ (s : S) (t : T), 
+        (bop_not_idempotent S eqS bS) + (bop_not_idempotent T eqT bT) → 
+            bop_not_idempotent (S * T) (eqS <*> eqT) (bS [*] bT). 
 Proof. 
-   intros S T rS rT bS bT t. unfold bop_not_idempotent. intros [s P]. 
-   exists (s, t). simpl. rewrite P. simpl. reflexivity. 
+   intros s t [L | R]. 
+   apply bop_product_not_idempotent_left. apply t. assumption. 
+   apply bop_product_not_idempotent_right. apply s. assumption. 
 Defined. 
 
-Lemma bop_product_not_idempotent_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (choose : S), 
-      bop_not_idempotent T rT bT → 
-      bop_not_idempotent (S * T) (brel_product _ _ rS rT) (bop_product _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT s [t P]. exists (s, t). simpl. rewrite P. rewrite andb_comm. simpl. 
-   reflexivity. 
-Defined. 
+  
+End Product. 
 
-Lemma bop_product_not_idempotent : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (chooseS : S) (chooseT : T),  
-      (bop_not_idempotent S rS bS) +  (bop_not_idempotent T rT bT) → 
-      bop_not_idempotent (S * T) (brel_product _ _ rS rT) (bop_product _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT chooseS chooseT. intro d. destruct d. 
-   apply bop_product_not_idempotent_left. apply chooseT. assumption. 
-   apply bop_product_not_idempotent_right. apply chooseS. assumption. 
-Defined. 
+Print bop_product_not_idempotent. 
 
 Lemma bop_product_commutative : 
    ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
@@ -268,61 +271,6 @@ Proof.
           exists ((s1, t1), (s2, t2)); 
              simpl. rewrite Q1, W1. simpl. rewrite andb_comm. simpl. split; reflexivity. 
 Defined.  
-
-(*
-Lemma bop_product_testing : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
-     ((bop_is_left S rS bS) + (bop_not_is_left S rS bS)) → 
-     ((bop_is_right S rS bS) + (bop_not_is_right S rS bS)) → 
-     ((bop_is_left T rT bT) + (bop_not_is_left T rT bT)) → 
-     ((bop_is_right T rT bT) + (bop_not_is_right T rT bT)) →
-     ((bop_not_is_left S rS bS) + (bop_not_is_right S rS bS)) * 
-     ((bop_not_is_left T rT bT) + (bop_not_is_right T rT bT)). 
-Proof. intros S T rS rT bS bT . 
-       intros [leftS | not_leftS] [rightS | not_rightS] 
-              [leftT | not_leftT] [rightT| not_rightT] ; split.
-        left; assumption. 
-
-
-
-Lemma bop_product_not_selective_v2 : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
-     ((bop_is_left S rS bS) + (bop_not_is_left S rS bS)) → 
-     ((bop_is_right S rS bS) + (bop_not_is_right S rS bS)) → 
-     ((bop_is_left T rT bT) + (bop_not_is_left T rT bT)) → 
-     ((bop_is_right T rT bT) + (bop_not_is_right T rT bT)) → 
-      ((bop_not_is_left S rS bS) + (bop_not_is_left T rT bT)) 
-     * ((bop_not_is_right S rS bS) + (bop_not_is_right T rT bT)) → 
-      bop_not_selective (S * T) (brel_product _ _ rS rT) (bop_product _ _ bS bT). 
-Proof. unfold bop_not_is_left, bop_not_is_right, bop_not_selective.  
-    intros S T rS rT bS bT 
-           left_or_not_leftS right_or_not_rightS left_or_not_leftT right_or_not_rightT. 
-    intros [ 
-             [ [ [s1 s2] P1 ] | [ [t1 t2] Q1]  ] 
-             [ [ [s3 s4] P2 ] | [ [t3 t4] Q2]  ] 
-           ]. 
-       exists ((s1, t), (s2, t)). simpl. rewrite P1. simpl. 
-
-
-
-
-       destruct nl_or_nr_T as [ [ [t5 t6] W1 ]  | [ [t5 t6] W1 ] ]. 
-          exists ((s3, t5), (s4, t6)); 
-             simpl. rewrite P2, W1. simpl. rewrite andb_comm. simpl. split; reflexivity. 
-          exists ((s1, t5), (s2, t6)); 
-             simpl. rewrite P1, W1. simpl. rewrite andb_comm. simpl. split; reflexivity.
-       exists ((s1, t3), (s2, t4)); 
-          simpl. rewrite P1, Q2. simpl. rewrite andb_comm. simpl. split; reflexivity.             
-       exists ((s3, t1), (s4, t2)); 
-          simpl. rewrite P2, Q1. simpl. rewrite andb_comm. simpl. split; reflexivity.             
-       destruct nl_or_nr_S as [ [ [s1 s2] W1]  | [ [s1 s2] W1] ]. 
-          exists ((s1, t3), (s2, t4)); 
-             simpl. rewrite Q2, W1. simpl. rewrite andb_comm. simpl. split; reflexivity.   
-          exists ((s1, t1), (s2, t2)); 
-             simpl. rewrite Q1, W1. simpl. rewrite andb_comm. simpl. split; reflexivity. 
-Defined.  
-*) 
-
 
 Lemma bop_product_left_cancellative : 
    ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
