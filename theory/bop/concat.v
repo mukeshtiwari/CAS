@@ -99,7 +99,7 @@ Proof. intros S r witness. unfold bop_not_exists_ann. intro a.
           intro Q. exists (witness :: nil). left. compute. reflexivity.
           intros s l H. unfold bop_concat. exists (witness :: nil). right. 
              rewrite <- List.app_comm_cons. rewrite List.app_nil_l.
-             apply bop_concat_cons_not_equal. 
+             apply brel_list_not_cons_equal_left. 
 Defined. 
 
 Lemma brel_list_cons : ∀ (S : Type) (r : brel S) (a : S) (l1 l2 : list S), 
@@ -127,10 +127,17 @@ Proof. unfold bop_right_cancellative, bop_concat.
           compute in H. discriminate. 
           rewrite List.app_nil_r in H.  rewrite List.app_nil_r in H. assumption. 
           compute. reflexivity. 
-          simpl in H. admit. 
-          admit. 
-          admit. 
-Admitted. 
+          compute. simpl in H. apply andb_is_true_left in H. destruct H as [L R].
+             rewrite concat_cons_no_left_id in R; auto. 
+          compute. simpl in H. apply andb_is_true_left in H. destruct H as [L R].
+             rewrite concat_cons_no_left_id_v2 in R; auto.              
+          rewrite <- List.app_comm_cons in H. rewrite <- List.app_comm_cons in H.
+          unfold brel_list in H. fold brel_list in H.
+          apply andb_is_true_left in H. destruct H as [L R].
+          apply IHt in R.
+          unfold brel_list. fold brel_list.
+          apply andb_is_true_right; split; auto. 
+Qed. 
 
 Lemma  bop_concat_not_left_constant : ∀ (S : Type) (r : brel S), 
         brel_witness S r -> 

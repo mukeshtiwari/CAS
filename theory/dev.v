@@ -2,11 +2,13 @@ Require Import Coq.Bool.Bool.
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
 Require Import CAS.code.uop. 
-Require Import CAS.code.bop. 
-Require Import CAS.theory.properties. 
+Require Import CAS.code.bop.
+Require Import CAS.theory.brel_properties.
+Require Import CAS.theory.bop_properties.
+Require Import CAS.theory.bs_properties. 
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.brel.set. 
-Require Import CAS.theory.brel.complement
+Require Import CAS.theory.brel.complement.
 Require Import CAS.theory.brel.conjunction. 
 Require Import CAS.theory.brel.dual. 
 Require Import CAS.theory.brel.strictify. 
@@ -83,6 +85,13 @@ Proof. intros a b. compute.
        case_eq(lte b a); intro H2; auto. 
 Qed. 
 
+Lemma not_incomp_intro : ∀ a b : S, (a <== b + b <== a) -> a !# b. 
+Proof. intros a b; compute; intros [H | H].
+       rewrite H; auto.
+       case_eq(lte a b); intro J; auto.
+       rewrite H; auto.
+Qed. 
+
 Lemma not_incomp_elim : ∀ a b : S, a !# b -> (a <== b + b <== a).  
 Proof. intros a b. compute. 
        case_eq(lte a b); intro H1; 
@@ -120,16 +129,13 @@ Qed.
 
 
 Lemma lt_irreflexive : ∀ a : S, a !<< a.
-Proof. intros a . compute. rewrite (ref_lte a). reflexivity. 
-Qed. 
+Proof. intros a . compute. rewrite (ref_lte a). reflexivity. Qed. 
 
 Lemma incomp_irreflexive : ∀ a : S, a !# a.
-Proof. intros a . compute. rewrite (ref_lte a). reflexivity. 
-Qed. 
+Proof. intros a . compute. rewrite (ref_lte a). reflexivity. Qed. 
 
 Lemma equiv_reflexive : ∀ a : S, a ~ a.
-Proof. intros a . compute. rewrite (ref_lte a). reflexivity. 
-Qed. 
+Proof. intros a . compute. rewrite (ref_lte a). reflexivity. Qed. 
 
 Lemma lt_asymmetric : ∀ a b : S, a << b -> b !<< a.
 Proof. intros a b. compute. 
@@ -224,8 +230,6 @@ Proof. intros a b c L R.
        assert (A := lte_eq_intro _ _ L). 
        assert (B := lte_lt_lt_transitive _ _ _ A R). assumption. 
 Qed. 
-
-
 
 
 Lemma lt_transitive : ∀ a b c : S, a << b -> b << c -> a << c. 

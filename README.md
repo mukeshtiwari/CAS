@@ -24,7 +24,7 @@ of a class constructed, the instance automatically contains
 an assertion of the truth or falsity of each of the class' 
 properties.  In the Coq world these assertions are 
 associated with actual proofs, while in the OCaml world
-the are just "certificates" in a OCaml datatype. 
+the are just "certificates" in an OCaml datatype. 
 
 BUILD
 =====

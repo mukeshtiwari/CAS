@@ -460,6 +460,15 @@ Proof. intros S r symS trnS b x y p q.
        apply symS in L2. apply (trnS _ _ _ L2 R1). 
 Defined.                         
 
+Lemma sym_as_rewrite : ∀ {S : Type} {rS : brel S}, brel_symmetric S rS -> ∀ s1 s2 : S,  rS s1 s2 = rS s2 s1.
+Proof. intros S rS symS s1 s2.
+       case_eq(rS s1 s2); intro H1; case_eq(rS s2 s1); intro H2.
+       reflexivity.
+       rewrite (symS _ _ H1) in H2. discriminate.
+       rewrite (symS _ _ H2) in H1. discriminate.
+       reflexivity.
+Qed.        
+
 
 
 
@@ -1830,4 +1839,40 @@ Proof. intros S r b1 b2 refS transS cong_b1 comm_b2 lla s t.
 Defined. 
 
 
+
+(* use like        
+    destruct (three_case_lemma s2 s3) as [[[H1 H2] H3] | [H1 [ [H2 H3] | [H2 H3]]]]. 
+
+    need selS .... 
+
+  Lemma three_case_lemma : ∀ s1 s2 : S,
+      ((s1 =S s2) * (s1 =S (s1 +S s2)) * (s2 =S (s1 +S s2))) +
+      ((s1 !=S s2) * (((s1 =S (s1 +S s2)) * (s2 !=S (s1 +S s2))) + ((s1 !=S (s1 +S s2)) * (s2 =S (s1 +S s2))))).
+  Proof. intros s1 s2.
+         case_eq (rS s1 s2); intro H0.
+         left. split. split. reflexivity. 
+
+         assert (H2 := bop_selective_implies_idempotent _ _ _ selS s1).
+         apply symS in H2. apply symS in H0. 
+         assert (H3 := cong_addS s1 s2 s1 s1 (refS s1) H0).  apply symS in H3. 
+         assert (H4 := transS _ _ _ H2 H3). assumption.
+
+         assert (H2 := bop_selective_implies_idempotent _ _ _ selS s2).
+         apply symS in H2. 
+         assert (H3 := cong_addS s1 s2 s2 s2 H0 (refS s2)). apply symS in H3. 
+         assert (H4 := transS _ _ _ H2 H3). assumption.
+
+         right. split. reflexivity.
+         case_eq (rS s1 (s1 +S s2)); intro H1.
+         left. split. reflexivity.
+         assert (H2 := brel_transititivity_implies_dual _ _ transS s1 (s1 +S s2) s2 H1 H0).
+         apply (brel_symmetric_implies_dual _ _ symS) in H2. 
+         assumption. 
+         right. split. reflexivity.
+         case(selS s1 s2); intro H2.
+         apply symS in H2. rewrite H1 in H2. discriminate. 
+         apply symS in H2. assumption. 
+Qed. 
+*) 
+  
 

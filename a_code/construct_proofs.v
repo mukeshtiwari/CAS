@@ -1313,7 +1313,6 @@ Definition sg_proofs_left_sum :
                          (A_sg_associative _ _ _ sgS) 
                          (A_sg_associative _ _ _ sgT) 
 ; A_sg_congruence    := bop_left_sum_congruence S T rS rT bS bT 
-                         (A_eqv_reflexive _ _ eqvS)
                          (A_sg_congruence _ _ _ sgS) 
                          (A_sg_congruence _ _ _ sgT) 
 ; A_sg_commutative_d := bop_left_sum_commutative_decide S T rS rT bS bT 
@@ -1386,7 +1385,6 @@ Definition sg_C_proofs_left_sum :
                          (A_sg_C_associative _ _ _ sgS) 
                          (A_sg_C_associative _ _ _ sgT) 
 ; A_sg_C_congruence    := bop_left_sum_congruence S T rS rT bS bT 
-                         (A_eqv_reflexive _ _ eqvS)
                          (A_sg_C_congruence _ _ _ sgS) 
                          (A_sg_C_congruence _ _ _ sgT) 
 ; A_sg_C_commutative := bop_left_sum_commutative S T rS rT bS bT 
@@ -1452,7 +1450,7 @@ Definition sg_C_proofs_right_sum :
                          (A_sg_C_associative _ _ _ sgS) 
                          (A_sg_C_associative _ _ _ sgT) 
 ; A_sg_C_congruence    := bop_right_sum_congruence S T rS rT bS bT 
-                         (A_eqv_reflexive _ _ eqvS)
+
                          (A_sg_C_congruence _ _ _ sgS) 
                          (A_sg_C_congruence _ _ _ sgT) 
 ; A_sg_C_commutative   := bop_right_sum_commutative S T rS rT bS bT 
@@ -1474,11 +1472,13 @@ Definition sg_C_proofs_right_sum :
                          (A_eqv_nontrivial _ _ eqvT)
                          (A_eqv_reflexive _ _ eqvT)
                          (A_sg_C_exists_ann_d _ _ _ sgT) 
-; A_sg_C_left_cancel_d    := inr _ (bop_right_sum_not_left_cancellative S T rS rT bS bT 
+; A_sg_C_left_cancel_d    := inr _ (bop_right_sum_not_left_cancellative S T rS rT bS bT
+                                    (A_eqv_reflexive _ _ eqvT)
                                     (brel_nontrivial_witness _ _ (A_eqv_nontrivial _ _ eqvT))
                                     (A_eqv_nontrivial _ _ eqvS)
                            ) 
-; A_sg_C_right_cancel_d   := inr _ (bop_right_sum_not_right_cancellative S T rS rT bS bT 
+; A_sg_C_right_cancel_d   := inr _ (bop_right_sum_not_right_cancellative S T rS rT bS bT
+                                    (A_eqv_reflexive _ _ eqvT)                                                                         
                                     (brel_nontrivial_witness _ _ (A_eqv_nontrivial _ _ eqvT))
                                     (A_eqv_nontrivial _ _ eqvS)
                            ) 
@@ -1521,7 +1521,6 @@ Definition sg_proofs_right_sum :
                          (A_sg_associative _ _ _ sgS) 
                          (A_sg_associative _ _ _ sgT) 
 ; A_sg_congruence    := bop_right_sum_congruence S T rS rT bS bT 
-                         (A_eqv_reflexive _ _ eqvS)
                          (A_sg_congruence _ _ _ sgS) 
                          (A_sg_congruence _ _ _ sgT) 
 ; A_sg_commutative_d := bop_right_sum_commutative_decide S T rS rT bS bT 
@@ -1549,11 +1548,13 @@ Definition sg_proofs_right_sum :
                          (A_eqv_nontrivial _ _ eqvT)
                          (A_eqv_reflexive _ _ eqvT)
                          (A_sg_exists_ann_d _ _ _ sgT) 
-; A_sg_left_cancel_d    := inr _ (bop_right_sum_not_left_cancellative S T rS rT bS bT 
+; A_sg_left_cancel_d    := inr _ (bop_right_sum_not_left_cancellative S T rS rT bS bT
+                                    (A_eqv_reflexive _ _ eqvT)                                                                      
                                     (brel_nontrivial_witness _ _ (A_eqv_nontrivial _ _ eqvT))
                                     (A_eqv_nontrivial _ _ eqvS)
                            ) 
-; A_sg_right_cancel_d   := inr _ (bop_right_sum_not_right_cancellative S T rS rT bS bT 
+; A_sg_right_cancel_d   := inr _ (bop_right_sum_not_right_cancellative S T rS rT bS bT
+                                    (A_eqv_reflexive _ _ eqvT)                                                                       
                                     (brel_nontrivial_witness _ _ (A_eqv_nontrivial _ _ eqvT))
                                     (A_eqv_nontrivial _ _ eqvS)
                            ) 
@@ -1593,7 +1594,6 @@ Definition sg_CI_proofs_left_sum :
                          (A_sg_CI_associative _ _ _ sgS) 
                          (A_sg_CI_associative _ _ _ sgT) 
 ; A_sg_CI_congruence    := bop_left_sum_congruence S T rS rT bS bT 
-                         (A_eqv_reflexive _ _ eqvS)
                          (A_sg_CI_congruence _ _ _ sgS) 
                          (A_sg_CI_congruence _ _ _ sgT) 
 ; A_sg_CI_commutative := bop_left_sum_commutative S T rS rT bS bT 
@@ -1638,7 +1638,6 @@ Definition sg_CI_proofs_right_sum :
                          (A_sg_CI_associative _ _ _ sgS) 
                          (A_sg_CI_associative _ _ _ sgT) 
 ; A_sg_CI_congruence    := bop_right_sum_congruence S T rS rT bS bT 
-                         (A_eqv_reflexive _ _ eqvS)
                          (A_sg_CI_congruence _ _ _ sgS) 
                          (A_sg_CI_congruence _ _ _ sgT) 
 ; A_sg_CI_commutative   := bop_right_sum_commutative S T rS rT bS bT 
@@ -1682,7 +1681,6 @@ Definition sg_CS_proofs_left_sum :
                          (A_sg_CS_associative _ _ _ sgS) 
                          (A_sg_CS_associative _ _ _ sgT) 
 ; A_sg_CS_congruence    := bop_left_sum_congruence S T rS rT bS bT 
-                         (A_eqv_reflexive _ _ eqvS)
                          (A_sg_CS_congruence _ _ _ sgS) 
                          (A_sg_CS_congruence _ _ _ sgT) 
 ; A_sg_CS_commutative := bop_left_sum_commutative S T rS rT bS bT 
@@ -1721,7 +1719,6 @@ Definition sg_CS_proofs_right_sum :
                          (A_sg_CS_associative _ _ _ sgS) 
                          (A_sg_CS_associative _ _ _ sgT) 
 ; A_sg_CS_congruence    := bop_right_sum_congruence S T rS rT bS bT 
-                         (A_eqv_reflexive _ _ eqvS)
                          (A_sg_CS_congruence _ _ _ sgS) 
                          (A_sg_CS_congruence _ _ _ sgT) 
 ; A_sg_CS_commutative   := bop_right_sum_commutative S T rS rT bS bT 

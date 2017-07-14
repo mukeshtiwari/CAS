@@ -4,6 +4,19 @@ Require Import CAS.code.basic_types.
 Close Scope nat. 
 
 (* 
+****************************************************************
+
+(S, =) 
+
+T = {s in S | P(s) } 
+
+P(s) == r(s) = s
+
+*****************************************************************
+
+
+
+
    This file constains properties for boolean relations, 
 
        Definition brel (S : Type) := S → S → bool.  

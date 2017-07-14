@@ -3,11 +3,12 @@
 
 From directory ../
 
-./casml 
+_build/extraction/casml -I _build/extraction/ -I _build/src/
+
 
 then 
 
-#use "tests/demo.ml"; 
+#use "tests/demo.ml";; 
 
 *) 
 
@@ -153,7 +154,9 @@ let sg_add_id id sg      = mmap (sg_add_id (explode id)) sg;;
 let sg_add_ann ann sg    = mmap (sg_add_ann (explode ann)) sg;;
 
 let sg_union c eqv     = Some (sg_union c eqv) 
-let sg_intersect c eqv = Some (sg_intersect c eqv) 
+let sg_intersect c eqv = Some (sg_intersect c eqv)
+
+let sg_describe sg = mmap sg_describe sg;;     
 
 
 (* Note: ocaml infix symbols must be made of 
@@ -181,24 +184,25 @@ let (<!*>) m n =
 
 let sg2 = sg_and <*> sg_or <*> sg_min <*> sg_max <*> sg_times <*> sg_plus;; 
 
-let sg2_props = mmap sg_describe sg2;; 
+let sg2_props = sg_describe sg2;; 
 
 let sg3 = sg_and <!*> sg_or <!*> sg_min <!*> sg_max <!*> sg_times <*> sg_plus;; 
 
-let sg3_props = mmap sg_describe sg3;; 
+let sg3_props = sg_describe sg3;; 
 
 
 let sg4 = sg_and <!*> sg_max <!+> sg_min <+!> sg_max <*> sg_or;;
 
+let sg4_props = sg_describe sg4;;
 
 (* However, note that this approach might not always be the best. 
    Suppose one wants to write parameterised "templates" --- 
-   we then know at compile time that we will alwyas produce a
+   we then know at compile time that we will always produce a
    well-formed structure of a given kind. 
    Here are some examples. 
 *) 
 
-(* sg_CS_llex3 : 'a sg_CS * sg_CS * sg_CS -> sg_CS *) 
+(* sg_CS_llex3 : 'a sg_CS * b' sg_CS * 'c sg_CS -> ('a * ('b * 'c)) sg_CS *) 
 let sg_CS_llex3 (a, b, c) = sg_CS_llex a (sg_CS_llex b c) ;;
 
 (* foo : 'a sg_CI -> (int * (int * 'a)) sg_CI *) 
@@ -222,7 +226,9 @@ let sg_add_id id sg      = mmap (sg_add_id id) sg;;
 let sg_add_ann ann sg    = mmap (sg_add_ann ann) sg;;
 
 let bs_add_zero bs c   = mmap (fun b -> bs_add_zero b (explode c)) bs;; 
-let bs_add_one bs c    = mmap (fun b -> bs_add_one b (explode c)) bs;; 
+let bs_add_one bs c    = mmap (fun b -> bs_add_one b (explode c)) bs;;
+
+let bs_describe bs = mmap bs_describe bs;;     
 
 (* direct product *) 
 let (<**>) m n  = liftM2 bs_product m n  ;; 
@@ -242,4 +248,13 @@ let (<!**>) m n =
            )
         in liftN2 bs_llex_aux m n ;; 
 
+let bs1 = bs_min_plus <!**> bs_max_min;;
+let bs2 = bs_add_zero bs1 "INFINITY";;
+let bs3 = bs_add_one bs2 "ZERO";;
 
+let bs4 = bs_min_plus <!**> (bs_add_one bs_max_min "ZERO");;
+let bs5 = bs_add_zero bs4 "INFINITY";;   (* iso with bs3 ? *)
+
+let bs6 = bs_max_min <!**> bs_min_plus;;
+
+let bs7 = bs_min_plus <!**> bs_min_plus;;

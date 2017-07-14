@@ -4,6 +4,7 @@ DIRS=code a_code theory verify
 COQINCLUDES= -R . CAS 
 
 COQC=coqc -q $(COQINCLUDES)
+COQDOC=coqdoc $(COQINCLUDES)
 COQDEP=coqdep -c
 COQEXEC=coqtop $(COQINCLUDES) -batch -load-vernac-source
 
@@ -154,6 +155,8 @@ CMOFILES=\
 # 
 
 
+.PHONY: all casml html clean
+
 all:
 	$(MAKE) coq
 	$(MAKE) extraction
@@ -174,7 +177,10 @@ casml: extraction/STAMP src/Driver.ml src/Describe.ml
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
 	cd _build/extraction && ocamlmktop -o casml $(CMOFILES)
 
-.PHONY: coq extraction src 
+html: $(FILES:.v=.glob)
+	$(COQDOC) --html --toc --utf8 --charset utf8 --interpolate -d doc/html $(FILES)
+
+
 
 %.vo: %.v
 	$(COQC) $*.v
@@ -182,18 +188,10 @@ casml: extraction/STAMP src/Driver.ml src/Describe.ml
 %.v.d: %.v
 	$(COQDEP) $(COQINCLUDES) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
-cleancoq:
+clean:
 	rm -f  code/*.glob  a_code/*.glob  theory/*.glob  theory/*/*.glob verify/*.glob
 	rm -f  code/*.vo  a_code/*.vo  theory/*.vo theory/*/*.vo  verify/*.vo
 	rm -f  code/*.d  a_code/*.d  theory/*.d theory/*/*.d  verify/*.d
-
-cleancasml:
 	rm -rf _build
 	rm -rf extraction/*.ml extraction/*.mli extraction/STAMP
-
-clean:
-	$(MAKE) cleancoq
-	$(MAKE) cleancasml
-
-
 

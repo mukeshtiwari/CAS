@@ -789,8 +789,8 @@ Definition bop_left_sum_exists_id_decide :
 := λ S T rS rT bS bT ntT ref dT,  
    let t := brel_get_nontrivial_witness T rT ntT in 
    match dT with 
-   | inl eid  => inl _ (bop_left_sum_exists_id S T rS rT ref bS bT eid)
-   | inr neid => inr _ (bop_left_sum_not_exists_id S T t rS rT bS bT neid)
+   | inl eid  => inl _ (bop_left_sum_exists_id S T rS rT bS bT ref eid)
+   | inr neid => inr _ (bop_left_sum_not_exists_id S T rS rT bS bT t neid)
    end. 
 
 
@@ -807,8 +807,8 @@ Definition bop_left_sum_exists_ann_decide :
 := λ S T rS rT bS bT ntS ref dS,  
    let s := brel_get_nontrivial_witness S rS ntS in 
    match dS with 
-   | inl eann  => inl _ (bop_left_sum_exists_ann S T rS rT ref bS bT eann)
-   | inr neann => inr _ (bop_left_sum_not_exists_ann S T s rS rT ref bS bT neann)
+   | inl eann  => inl _ (bop_left_sum_exists_ann S T rS rT bS bT ref eann)
+   | inr neann => inr _ (bop_left_sum_not_exists_ann S T rS rT bS bT s neann)
    end. 
 
 (* right sum *) 
@@ -888,8 +888,8 @@ Definition bop_right_sum_exists_id_decide :
 := λ S T rS rT bS bT ntS ref dS,  
    let s := brel_get_nontrivial_witness S rS ntS in 
    match dS with 
-   | inl eid  => inl _ (bop_right_sum_exists_id S T rS rT ref bS bT eid)
-   | inr neid => inr _ (bop_right_sum_not_exists_id S T s rS rT bS bT neid)
+   | inl eid  => inl _ (bop_right_sum_exists_id S T rS rT bS bT ref eid)
+   | inr neid => inr _ (bop_right_sum_not_exists_id S T rS rT bS bT s neid)
    end. 
 
 
@@ -907,8 +907,8 @@ Definition bop_right_sum_exists_ann_decide :
 := λ S T rS rT bS bT ntT ref dT,  
    let t := brel_get_nontrivial_witness T rT ntT in 
    match dT with 
-   | inl eann  => inl _ (bop_right_sum_exists_ann S T rS rT ref bS bT eann)
-   | inr neann => inr _ (bop_right_sum_not_exists_ann S T t rS rT ref bS bT neann)
+   | inl eann  => inl _ (bop_right_sum_exists_ann S T rS rT bS bT ref eann)
+   | inr neann => inr _ (bop_right_sum_not_exists_ann S T rS rT bS bT t neann)
    end. 
 
 

@@ -7,9 +7,6 @@ Require Import CAS.theory.brel_properties.
 Require Import CAS.theory.facts. 
 
 
-Notation "a <*> b" := (brel_product _ _ a b) (at level 15).
-Notation "a [*] b" := (bop_product _ _ a b) (at level 15).
-
 Section Product. 
 
 (* experiment with notation *) 
@@ -25,6 +22,9 @@ Notation "a =S b"  := (eqS a b = true) (at level 15).
 Notation "a =T b"  := (eqT a b = true) (at level 15).
 Notation "a *S b"  := (bS a b) (at level 15).
 Notation "a *T b"  := (bT a b) (at level 15).
+
+Notation "a <*> b" := (brel_product _ _ a b) (at level 15).
+Notation "a [*] b" := (bop_product _ _ a b) (at level 15).
 
 
 Lemma bop_product_congruence : 

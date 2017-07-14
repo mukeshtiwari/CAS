@@ -4,16 +4,36 @@ Require Import CAS.code.brel.
 Require Import CAS.code.bop. 
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.brel_properties. 
-Require Import CAS.theory.bop_properties. 
+Require Import CAS.theory.bop_properties.
 
+Section LeftSum.
+
+  Variable S T : Type.
+  Variable rS : brel S.
+  Variable rT : brel T.
+  Variable bS : binary_op S.
+  Variable bT: binary_op T.    
+
+  Variable refS : brel_reflexive S rS.
+  Variable symS : brel_symmetric S rS.  
+  Variable tranS : brel_transitive S rS.
+
+  Variable refT : brel_reflexive T rT.
+  Variable symT : brel_symmetric T rT.  
+  Variable tranT : brel_transitive T rT.
+  
+  Variable congS : bop_congruence S rS bS.
+  Variable assS : bop_associative S rS bS.
+
+  Variable congT : bop_congruence T rT bT.  
+  Variable assT : bop_associative T rT bT. 
+
+  
 Lemma bop_left_sum_congruence : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
-      brel_reflexive S rS → bop_congruence S rS bS → bop_congruence T rT bT → 
       bop_congruence (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
 Proof. 
-   unfold bop_congruence. intros S T rS rT bS bT refS.  intros L R.
-   intros [s1 | t1] [s2 | t2] [s3 | t3] [s4 | t4]; simpl.
-   apply L. 
+   unfold bop_congruence. intros [s1 | t1] [s2 | t2] [s3 | t3] [s4 | t4]; simpl.
+   apply congS. 
    intros. discriminate. 
    intros. discriminate. 
    intros. discriminate. 
@@ -28,265 +48,193 @@ Proof.
    intros. discriminate. 
    intros. discriminate. 
    intros. discriminate. 
-   apply R. 
-Defined. 
+   apply congT. 
+Qed. 
 
 
 Lemma bop_left_sum_associative : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
-      brel_reflexive S rS → bop_associative S rS bS → bop_associative T rT bT → 
       bop_associative (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT refS. unfold bop_associative. intros L R.
-   intros [s1 | t1] [s2 | t2] [s3 | t3]; simpl.
-   apply L. apply refS. apply refS. apply refS. apply refS. apply refS. apply refS. apply R. 
-Defined. 
+Proof. intros [s1 | t1] [s2 | t2] [s3 | t3]; simpl.
+      apply assS. apply refS. apply refS. apply refS. apply refS. apply refS. apply refS. apply assT. 
+Qed. 
 
 
 Lemma bop_left_sum_idempotent : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       bop_idempotent S rS bS → 
       bop_idempotent T rT bT → 
       bop_idempotent (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT. unfold bop_idempotent. intros L R d. 
-   destruct d; simpl. apply L. apply R. 
-Defined. 
+Proof. intros L R d.  destruct d; simpl. apply L. apply R. Qed. 
 
-(* Note: no need for "brel_reflexive S rS" here *) 
 Lemma bop_left_sum_not_idempotent_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       bop_not_idempotent S rS bS → 
       bop_not_idempotent (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT. unfold bop_not_idempotent. intros [s P]. 
-   exists (inl _ s). simpl. assumption. 
-Defined. 
+Proof. intros [s P]. exists (inl _ s). simpl. assumption. Defined. 
 
 Lemma bop_left_sum_not_idempotent_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       bop_not_idempotent T rT bT → 
       bop_not_idempotent (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT. unfold bop_not_idempotent. intros [t P]. 
-   exists (inr _ t). simpl. assumption. 
-Defined. 
+Proof. intros [t P]. exists (inr _ t). simpl. assumption. Defined. 
 
 Lemma bop_left_sum_idempotent_comp : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       (bop_not_idempotent S rS bS) + (bop_not_idempotent T rT bT) → 
       bop_not_idempotent (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT d. destruct d. 
-   apply bop_left_sum_not_idempotent_left. assumption. 
-   apply bop_left_sum_not_idempotent_right. assumption. 
-Defined. 
-
-
+Proof. intros [L | R].  apply (bop_left_sum_not_idempotent_left L). apply (bop_left_sum_not_idempotent_right R). Defined. 
 
 Lemma bop_left_sum_commutative : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
-      brel_reflexive S rS → 
       bop_commutative S rS bS → 
       bop_commutative T rT bT → 
       bop_commutative (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT refl_rS. unfold bop_commutative. intros L R d1 d2. 
-   destruct d1; destruct d2; simpl. 
-      apply L. 
-      apply refl_rS.
-      apply refl_rS.
-      apply R. 
-Defined. 
+Proof. intros L R [s1 | t1] [s2 | t2]; simpl. apply L. apply refS. apply refS. apply R. Qed. 
+       
 
 Lemma bop_left_sum_not_commutative_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       bop_not_commutative S rS bS → 
       bop_not_commutative (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT. unfold bop_not_commutative. intros [ [s t] P]. 
-   exists (inl _ s, inl _ t). simpl. assumption. 
-Defined. 
+Proof. intros [ [s t] P]. exists (inl _ s, inl _ t). simpl. exact P. Defined. 
 
 Lemma bop_left_sum_not_commutative_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       bop_not_commutative T rT bT → 
       bop_not_commutative (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT. unfold bop_not_commutative. intros [ [s t] P]. 
-   exists (inr _ s, inr _ t). simpl. assumption. 
-Defined. 
+Proof. intros [ [s t] P]. exists (inr _ s, inr _ t). simpl. exact P. Defined. 
 
 Lemma bop_left_sum_not_commutative : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       (bop_not_commutative S rS bS) + (bop_not_commutative T rT bT) → 
       bop_not_commutative (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT d. destruct d. 
-   apply bop_left_sum_not_commutative_left. assumption. 
-   apply bop_left_sum_not_commutative_right. assumption. 
-Defined. 
+Proof. intros [L | R]. apply (bop_left_sum_not_commutative_left L). apply (bop_left_sum_not_commutative_right R). Defined. 
 
 Lemma bop_left_sum_selective : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
-      brel_reflexive S rS → 
       bop_selective S rS bS → 
       bop_selective T rT bT → 
       bop_selective (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT refl_rS. unfold bop_selective. intros L R.
-   intros [s1 | t1] [s2 | t2]; simpl.
-      apply L. 
-      left. apply refl_rS. 
-      right. apply refl_rS. 
-      apply R. 
-Defined. 
+Proof. intros L R [s1 | t1] [s2 | t2]; simpl. apply L. left. apply refS. right. apply refS. apply R. Defined. 
+
 
 Lemma bop_left_sum_not_selective_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       bop_not_selective S rS bS → 
       bop_not_selective (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT. unfold bop_not_selective. intros [ [s1 s2] P].
-   exists (inl _ s1, inl _ s2). simpl. assumption. 
-Defined. 
+Proof.  intros [ [s1 s2] P]. exists (inl _ s1, inl _ s2). simpl. exact P. Defined. 
 
 Lemma bop_left_sum_not_selective_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       bop_not_selective T rT bT → 
       bop_not_selective (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT. unfold bop_not_selective. intros [ [t1 t2] P].
-   exists (inr _ t1, inr _ t2). simpl. assumption. 
-Defined. 
+Proof. intros [ [t1 t2] P]. exists (inr _ t1, inr _ t2). simpl. exact P. Defined. 
 
 Lemma bop_left_sum_not_selective : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       (bop_not_selective S rS bS) + (bop_not_selective T rT bT) → 
       bop_not_selective (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT [L | R]. 
-   apply bop_left_sum_not_selective_left. assumption. 
-   apply bop_left_sum_not_selective_right. assumption. 
-Defined. 
-
+Proof. intros [L | R]. apply (bop_left_sum_not_selective_left L). apply (bop_left_sum_not_selective_right R). Defined. 
 
 Lemma bop_left_sum_not_is_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T),
       brel_witness S rS ->   brel_witness T rT ->  
       bop_not_is_left (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT [s _] [t _]. unfold bop_not_is_left. 
-   exists (inr _ t, inl _ s). simpl. reflexivity. 
-Defined. 
+Proof. intros [s _] [t _]. exists (inr _ t, inl _ s). simpl. reflexivity. Defined. 
 
 Lemma bop_left_sum_not_is_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       brel_witness S rS ->   brel_witness T rT ->  
       bop_not_is_right (S + T) (brel_sum _ _ rS rT) (bop_left_sum _ _ bS bT). 
-Proof. 
-   intros S T rS rT bS bT [s _] [t _]. unfold bop_not_is_right. 
-   exists (inl _ s, inr _ t). simpl. reflexivity. 
+Proof. intros [s _] [t _]. exists (inl _ s, inr _ t). simpl. reflexivity. Defined. 
+
+Lemma bop_left_sum_exists_id : (bop_exists_id T rT bT) -> bop_exists_id (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT).
+Proof. intros [iT pT]. exists (inr _ iT). 
+       intros [s | t]; compute. rewrite (refS s). split; reflexivity. apply (pT t).
 Defined. 
 
-Lemma bop_left_sum_exists_id : 
-     ∀ (S T : Type) (rS : brel S) (rT : brel T), 
-       brel_reflexive S rS ->  
-       ∀ (bS : binary_op S) (bT : binary_op T), 
-         (bop_exists_id T rT bT) -> 
-           bop_exists_id (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT).
-Proof. unfold bop_exists_id. 
-       intros S T rS rT refS bS bT [iT pT]. 
-       exists (inr _ iT). 
-          intros [s | t]. 
-             compute. rewrite (refS s); auto. 
-             compute. apply (pT t). 
-Defined. 
+Lemma bop_left_sum_id_is_inr : ∀ i : S + T, (bop_is_id _ (brel_sum S T rS rT) (bop_left_sum S T bS bT) i) ->
+                                        ∀ idT : T, bop_is_id _ rT bT idT -> brel_sum _ _ rS rT i (inr idT) = true.
+Proof. intros [s | t] P idT Q.
+       assert (F := P (inr idT)). compute in F. destruct F as [F _]. discriminate F.
+       compute. assert (C : bop_is_id _ rT bT t). intro t2. assert (F := P (inr t2)). compute in F. exact F.
+       apply (bop_is_id_equal _ rT symT tranT bT t idT C Q). 
+Qed.
 
+Lemma bop_left_sum_simplify_id : ∀ t : T, 
+    bop_is_id (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT) (inr t) -> bop_is_id T rT bT t.
+Proof. intros t H. intro t'. apply (H (inr t')). Qed .   
 
-Lemma bop_left_sum_not_exists_id : 
-     ∀ (S T : Type) 
-       (wT : T) 
-       (rS : brel S) 
-       (rT : brel T) 
-       (bS : binary_op S) 
-       (bT : binary_op T), 
+Lemma bop_left_sum_extract_id (t' : T) : ∀ i : S + T, 
+    bop_is_id (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT) i ->
+       {t : T & (bop_is_id T rT bT t) * (brel_sum S T rS rT i (inr t) = true) }.
+Proof. intros [s1 | t1] H; simpl.
+       assert (F := H (inr t')). compute in F. destruct F as [F _]. discriminate F. 
+       exists t1. split. apply bop_left_sum_simplify_id. exact H. apply refT.
+Qed.        
+
+Lemma bop_left_sum_not_exists_id (wT : T)  : 
          (bop_not_exists_id T rT bT) -> 
            bop_not_exists_id (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT).
-Proof. unfold bop_not_exists_id. intros S T wT rS rT bS bT pT [s | t].
+Proof. intros pT [s | t].
        exists (inr _ wT). compute. auto. 
-       destruct (pT t) as [x D]. exists (inr _ x). compute. assumption. 
+       destruct (pT t) as [x D]. exists (inr _ x). compute. exact D. 
 Defined. 
 
 
 Lemma bop_left_sum_exists_ann : 
-     ∀ (S T : Type) (rS : brel S) (rT : brel T), 
-       brel_reflexive S rS ->  
-       ∀ (bS : binary_op S) (bT : binary_op T), 
          (bop_exists_ann S rS bS) -> 
            bop_exists_ann (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT).
-Proof. unfold bop_exists_ann. 
-       intros S T rS rT refS bS bT [annS pS]. 
-       exists (inl _ annS). 
-          intros [s | t]. 
-             compute. apply (pS s). 
-             compute. rewrite (refS annS); auto. 
+Proof. intros [annS pS]. exists (inl _ annS).        
+       intros [s | t]; compute. apply (pS s). rewrite (refS annS). split; reflexivity.
 Defined. 
 
+Lemma bop_left_sum_ann_is_inl : ∀ i : S + T, (bop_is_ann _ (brel_sum S T rS rT) (bop_left_sum S T bS bT) i) ->
+                                        ∀ annS : S, bop_is_ann _ rS bS annS -> brel_sum _ _ rS rT i (inl annS) = true.
+Proof. intros [s | t] P annS Q; compute. 
+       assert (C : bop_is_ann _ rS bS s). intro s2. assert (F := P (inl s2)). compute in F. exact F.
+       apply (bop_is_ann_equal _ rS symS tranS bS s annS C Q).
+       assert (F := P (inl annS)). compute in F. destruct F as [F _]. discriminate F.       
+Qed.
 
-Lemma bop_left_sum_not_exists_ann : 
-     ∀ (S T : Type) (witness : S) (rS : brel S) (rT : brel T), 
-       brel_reflexive S rS ->  
-       ∀ (bS : binary_op S) (bT : binary_op T), 
+Lemma bop_left_sum_simplify_ann : ∀ s : S, 
+    bop_is_ann (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT) (inl s) -> bop_is_ann S rS bS s.
+Proof. intros s H. intro s'. apply (H (inl s')). Qed .
+
+Lemma bop_left_sum_extract_ann (s' : S) : ∀ i : S + T, 
+    bop_is_ann (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT) i ->
+       {s : S & (bop_is_ann S rS bS s) * (brel_sum S T rS rT i (inl s) = true) }.
+Proof. intros [s1 | t1] H; simpl.
+       exists s1. split. apply bop_left_sum_simplify_ann. exact H. apply refS.       
+       assert (F := H (inl s')). compute in F. destruct F as [F _]. discriminate F. 
+Qed.        
+
+
+
+Lemma bop_left_sum_not_exists_ann (witness : S): 
          (bop_not_exists_ann S rS bS) -> 
            bop_not_exists_ann (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT).
-Proof. unfold bop_not_exists_ann. 
-       intros S T witness rS rT refS bS bT pS [s | t]. 
-       destruct (pS s) as [x D].  exists (inl _ x). compute. assumption. 
+Proof. intros pS [s | t]. 
+       destruct (pS s) as [x D].  exists (inl _ x). compute. exact D. 
        exists (inl _ witness). compute; auto.  
 Defined. 
 
-
-
 Lemma bop_left_sum_not_left_cancellative : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       brel_witness S rS -> 
       brel_nontrivial T rT -> 
       bop_not_left_cancellative (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT). 
-Proof. intros S T rS rT bS bT [s Ps] [[t Pt] [f Pf]]. 
-       destruct (Pf t) as [L R]. 
+Proof. intros [s Ps] [[t Pt] [f Pf]]. destruct (Pf t) as [L R]. 
        exists ((inl _ s), ((inr t), (inr (f t)))). simpl.  auto. 
 Defined. 
 
 Lemma bop_left_sum_not_right_cancellative : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       brel_witness S rS -> 
       brel_nontrivial T rT -> 
       bop_not_right_cancellative (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT). 
-Proof. intros S T rS rT bS bT [s Ps] [[t Pt] [f Pf]]. 
-       destruct (Pf t) as [L R]. 
+Proof. intros [s Ps] [[t Pt] [f Pf]]. destruct (Pf t) as [L R]. 
        exists ((inl _ s), ((inr t), (inr (f t)))). simpl.  auto. 
 Defined. 
 
 
 Lemma bop_left_sum_not_left_constant : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       brel_witness T rT -> 
       brel_nontrivial S rS -> 
       bop_not_left_constant (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT). 
-Proof. intros S T rS rT bS bT [t Pt] [[s Ps] [f Pf]]. 
-       destruct (Pf s) as [L R]. 
+Proof. intros [t Pt] [[s Ps] [f Pf]]. destruct (Pf s) as [L R]. 
        exists (inr t, (inl s, inl (f s))). simpl.  auto. 
 Defined. 
 
-
 Lemma bop_left_sum_not_right_constant : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T), 
       brel_witness T rT -> 
       brel_nontrivial S rS -> 
       bop_not_right_constant (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT). 
-Proof. intros S T rS rT bS bT [t Pt] [[s Ps] [f Pf]]. 
-       destruct (Pf s) as [L R]. 
+Proof. intros [t Pt] [[s Ps] [f Pf]]. destruct (Pf s) as [L R]. 
        exists (inr t, (inl s, inl (f s))). simpl.  auto. 
 Defined. 
 
@@ -294,25 +242,18 @@ Defined.
 
 
 Lemma bop_left_sum_not_anti_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T),
       brel_witness S rS -> 
       brel_witness T rT -> 
       bop_not_anti_left (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT). 
-Proof. intros S T rS rT bS bT [s Ps] [t Pt]. 
-       exists (inl s, inr t); simpl. assumption. 
-Defined. 
+Proof. intros [s Ps] [t Pt]. exists (inl s, inr t); simpl. assumption. Defined. 
 
 
 Lemma bop_left_sum_not_anti_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T),
       brel_witness S rS -> 
       brel_witness T rT -> 
       bop_not_anti_right (S + T) (brel_sum S T rS rT) (bop_left_sum S T bS bT). 
-Proof. intros S T rS rT bS bT [s Ps] [t Pt]. 
-       exists (inl s, inr t); simpl. assumption. 
-Defined. 
+Proof. intros [s Ps] [t Pt]. exists (inl s, inr t); simpl. assumption. Defined. 
 
 
-
-
+End LeftSum.
 
