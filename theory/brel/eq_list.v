@@ -7,12 +7,8 @@ Require Import CAS.theory.facts.
 
 Open Scope list_scope. 
 
-
-Lemma brel_list_witness : ∀ (S : Type) (r : brel S), brel_witness (list S) (brel_list S r). 
-Proof. intros S r. exists nil; auto. Defined.
-
 Lemma brel_list_symmetric : ∀ (S : Type) (r : brel S), 
-              (brel_symmetric _ r) → brel_symmetric (list S) (brel_list S r). 
+              (brel_symmetric _ r) → brel_symmetric (list S) (brel_list r). 
 Proof. unfold brel_symmetric. 
        induction s; induction t; simpl; intros; auto.        
           apply andb_is_true_right. 
@@ -24,13 +20,13 @@ Proof. unfold brel_symmetric.
 Qed. 
 
 Lemma brel_list_reflexive : ∀ (S : Type) (r : brel S), 
-              (brel_reflexive _ r) → brel_reflexive (list S) (brel_list S r). 
+              (brel_reflexive _ r) → brel_reflexive (list S) (brel_list r). 
 Proof. unfold brel_reflexive. induction s; simpl; auto.  
        rewrite (H a). rewrite IHs. simpl. reflexivity. 
 Qed.
 
 Lemma brel_list_transitive : ∀ (S : Type) (r : brel S), 
-              (brel_transitive _ r) → brel_transitive (list S) (brel_list S r). 
+              (brel_transitive _ r) → brel_transitive (list S) (brel_list r). 
 Proof. unfold brel_transitive. 
        induction s; induction t; induction u; simpl; intros; auto.        
           discriminate. 
@@ -49,7 +45,7 @@ Lemma brel_list_congruence : ∀ (S : Type) (r : brel S),
          brel_symmetric S r -> 
          brel_transitive S r -> 
          brel_congruence S r r -> 
-              brel_congruence (list S) (brel_list S r) (brel_list S r). 
+              brel_congruence (list S) (brel_list r) (brel_list r). 
 Proof. intros S r symS transS congS s t u v.  
        apply brel_congruence_self. 
        apply brel_list_symmetric; auto. 
@@ -63,12 +59,12 @@ Proof. intros T t l. simpl. reflexivity. Qed.
 
 Lemma brel_list_true_implies_length_equal :
   ∀ (S : Type) (r : brel S) (l1 l2 : list S),
-    brel_list S r l1 l2 = true -> (length l1) = (length l2).
+    brel_list  r l1 l2 = true -> (length l1) = (length l2).
 Proof. intros S r. induction l1; induction l2; intro H. 
        reflexivity. 
        compute in H. discriminate.
        compute in H. discriminate.        
-       unfold brel_list in H. fold brel_list in H.
+       unfold brel_list in H. fold (@brel_list S) in H.
        apply andb_is_true_left in H.
        destruct H as [_ H].
        rewrite cons_length. rewrite cons_length.
@@ -78,22 +74,22 @@ Qed.
 Lemma list_length_not_equal_implies_brel_list_false :
        ∀ (S : Type) (r : brel S) (l1 l2 : list S), 
            (length l1) <> (length l2) -> 
-               brel_list S r l1 l2 = false. 
+               brel_list r l1 l2 = false. 
 Proof. intros S r l1 l2 H. 
-       case_eq (brel_list S r l1 l2); intro F.
+       case_eq (brel_list r l1 l2); intro F.
        apply brel_list_true_implies_length_equal in F. elim H. assumption.
        reflexivity. 
 Qed. 
 
 Lemma brel_list_not_cons_equal_left : ∀ (S : Type) (r : brel S) (l : list S) (s : S), 
-                                     brel_list S r (s :: l) l = false. 
+                                     brel_list r (s :: l) l = false. 
 Proof. intros S r l s. apply list_length_not_equal_implies_brel_list_false. 
        rewrite cons_length. assert (fact := n_Sn (length l)). 
        intro F. rewrite F in fact. elim fact. reflexivity. 
 Qed.
 
 Lemma brel_list_not_cons_equal_right : ∀ (S : Type) (r : brel S) (l : list S) (s : S), 
-        brel_list S r l (s :: l) = false. 
+        brel_list r l (s :: l) = false. 
 Proof. intros S r l s. apply list_length_not_equal_implies_brel_list_false. 
        rewrite cons_length. assert (fact := n_Sn (length l)). 
        intro F. rewrite <- F in fact. elim fact. reflexivity. 
@@ -121,7 +117,7 @@ Proof. induction a; auto.
 Qed. 
 
 Lemma concat_nil_only_left_id : ∀ (S : Type) (r : brel S) (a : S) (w u : list S),  
-    brel_list S r w (u ++ w) = true -> brel_list S r nil u = true. 
+    brel_list r w (u ++ w) = true -> brel_list r nil u = true. 
 Proof. intros S r a w u H. 
        apply brel_list_true_implies_length_equal in H.
        rewrite List.app_length in H. 
@@ -131,9 +127,9 @@ Proof. intros S r a w u H.
 Qed. 
 
 Lemma concat_cons_no_left_id : ∀ (S : Type) (a : S) (r : brel S) (s u : list S),  
-    brel_list S r s (u ++ a :: s) = false .
+    brel_list r s (u ++ a :: s) = false .
 Proof. intros S r a s u.
-       case_eq (brel_list S a s (u ++ r :: s)); intro H.
+       case_eq (brel_list a s (u ++ r :: s)); intro H.
        assert (K := H). 
        apply brel_list_true_implies_length_equal in H.
        rewrite List.app_length in H.
@@ -151,9 +147,9 @@ Proof. intros S r a s u.
 Qed. 
 
 Lemma concat_cons_no_left_id_v2 : ∀ (S : Type) (a : S) (r : brel S) (s u : list S),  
-       brel_list S r (u ++ a :: s) s = false .   
+       brel_list r (u ++ a :: s) s = false .   
 Proof. intros S r a s u.
-       case_eq (brel_list S a (u ++ r :: s) s); intro H.
+       case_eq (brel_list a (u ++ r :: s) s); intro H.
        assert (K := H). 
        apply brel_list_true_implies_length_equal in H.
        rewrite List.app_length in H.
@@ -171,18 +167,22 @@ Proof. intros S r a s u.
        reflexivity. 
 Qed. 
 
+(*
+
+Lemma brel_list_witness : ∀ (S : Type) (r : brel S),brel_witness (list S) (brel_list r). 
+Proof. intros S r. exists nil; auto. Defined.
 
 Lemma brel_list_negate : ∀ (S : Type) (r : brel S), 
               (brel_symmetric _ r) → 
-              (brel_nontrivial S r) → brel_negate (list S) (brel_list S r). 
+              (brel_nontrivial S r) → brel_negate (list S) (brel_list r). 
 Proof. unfold brel_negate. 
        intros S r symS ntS.  
        destruct (brel_nontrivial_witness S r ntS) as [s Ps]. 
        destruct (brel_nontrivial_negate S r ntS) as [f Pf]. 
        exists (λ (l : list S), s :: l). intro l.
-       assert (F1 : brel_list S r (s :: l) l = false). 
+       assert (F1 : brel_list r (s :: l) l = false). 
          apply brel_list_not_cons_equal_left. 
-       assert (F2 : brel_list S r l (s :: l) = false). 
+       assert (F2 : brel_list r l (s :: l) = false). 
          apply brel_symmetric_implies_dual. 
          apply brel_list_symmetric. assumption. 
          assumption. 
@@ -191,7 +191,7 @@ Defined.
 
 Definition brel_list_nontrivial : ∀ (S : Type) (r : brel S), 
        (brel_symmetric _ r) → 
-       (brel_nontrivial S r) → brel_nontrivial (list S) (brel_list S r)
+       (brel_nontrivial S r) → brel_nontrivial (list S) (brel_list r)
 := λ S r symS nt, 
    {| 
       brel_nontrivial_witness := brel_list_witness S r
@@ -201,7 +201,7 @@ Definition brel_list_nontrivial : ∀ (S : Type) (r : brel S),
 
 Lemma brel_list_rep_correct : ∀ (S : Type)(eq : brel S)(rep : unary_op S), 
           brel_rep_correct S eq rep →
-              brel_rep_correct (list S) (brel_list S eq) (uop_list_map S rep). 
+              brel_rep_correct (list S) (brel_list eq) (uop_list_map rep). 
 Proof. intros S eq rep P l. induction l. 
        simpl. reflexivity. 
        simpl. apply andb_is_true_right. split. 
@@ -212,7 +212,7 @@ Defined.
 
 Lemma brel_list_rep_idempotent : ∀ (S : Type)(eq : brel S)(rep : unary_op S), 
           brel_rep_idempotent S eq rep →
-              brel_rep_idempotent (list S) (brel_list S eq) (uop_list_map S rep). 
+              brel_rep_idempotent (list S) (brel_list eq) (uop_list_map rep). 
 Proof. intros S eq rep P l. induction l. 
        simpl. reflexivity. 
        simpl. apply andb_is_true_right. split. 
@@ -220,6 +220,21 @@ Proof. intros S eq rep P l. induction l.
           assumption. 
 Defined. 
 
+ *)
+
+
+Lemma brel_list_not_trivial : ∀ (S : Type) (r : brel S) (s : S) (f : S -> S), 
+              (brel_symmetric S r) → 
+              (brel_not_trivial S r f) → brel_not_trivial (list S) (brel_list r) (λ (l : list S), s :: l). 
+Proof. intros S r s f symS Pf l.  
+       assert (F1 : brel_list r (s :: l) l = false). 
+         apply brel_list_not_cons_equal_left. 
+       assert (F2 : brel_list r l (s :: l) = false). 
+         apply brel_symmetric_implies_dual. 
+         apply brel_list_symmetric. assumption. 
+         assumption. 
+       rewrite F1, F2; auto. 
+Defined. 
 
 
 (* a few useful lemmas *) 
@@ -227,7 +242,7 @@ Defined.
 Lemma list_concat_cons : ∀ (S : Type) (r : brel S),
     brel_reflexive S r ->
     ∀ (a : S) (t s : list S),
-        brel_list S r (t ++ (a :: s)) ((t ++ (a :: nil)) ++ s) = true.
+        brel_list r (t ++ (a :: s)) ((t ++ (a :: nil)) ++ s) = true.
 Proof. intros S r ref a.  induction t; intros s; simpl. 
        apply andb_is_true_right. split.  
           apply ref.

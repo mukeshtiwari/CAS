@@ -31,6 +31,10 @@ Section RightSumLeftSum.
 Variable S T : Type.
 Variable rS : brel S.
 Variable rT : brel T.
+
+Variable wS : S.
+Variable wT : T.
+
 Variable addS  mulS : binary_op S.
 Variable addT mulT : binary_op T. 
  
@@ -96,6 +100,31 @@ Lemma bop_right_sum_left_sum_not_left_distributive_v5 (t : T) :
 Proof. intros [ [s1 s2] Ps]. exists ((inl s1), (inl s2, inr t)). compute. assumption. Qed.        
 
 
+Definition bop_right_sum_left_sum_left_distributive_decide :
+  bop_idempotent_decidable S rS addS →
+  bop_left_distributive_decidable S rS addS mulS → 
+  bop_left_distributive_decidable T rT addT mulT →
+  bops_left_left_absorptive_decidable S rS addS mulS →
+  bops_right_left_absorptive_decidable S rS addS mulS →              
+         bop_left_distributive_decidable (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT)
+:= λ idm_d ldS_d ldT_d lla_d rla_d,
+match idm_d with                                                                                  
+| inl idm  => match ldS_d with
+              | inl ldS  => match ldT_d with
+                            | inl ldT  => match lla_d with
+                                          | inl lla  => match rla_d with
+                                                        | inl rla   => inl _ (bop_right_sum_left_sum_left_distributive idm ldS ldT lla rla)
+                                                        | inr nrla  => inr _ (bop_right_sum_left_sum_not_left_distributive_v5 wT nrla)
+                                                        end 
+                                          | inr nlla => inr _ (bop_right_sum_left_sum_not_left_distributive_v4 wT nlla)
+                                          end 
+                            | inr nldT => inr _ (bop_right_sum_left_sum_not_left_distributive_v3 nldT)
+                            end 
+              | inr nldS => inr _ (bop_right_sum_left_sum_not_left_distributive_v2 nldS)
+              end 
+| inr nidm => inr _ (bop_right_sum_left_sum_not_left_distributive_v1 wT nidm)
+end. 
+
 Lemma bop_right_sum_left_sum_right_distributive : 
   bop_idempotent S rS addS →
   bop_right_distributive S rS addS mulS → 
@@ -144,6 +173,34 @@ Lemma bop_right_sum_left_sum_not_right_distributive_v5 (t : T) :
          bop_not_right_distributive (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT).
 Proof. intros [ [s1 s2] Pt]. exists ((inl s1), (inl s2, inr t)). compute. assumption. Defined.    
 
+
+
+Definition bop_right_sum_left_sum_right_distributive_decide :
+  bop_idempotent_decidable S rS addS →
+  bop_right_distributive_decidable S rS addS mulS → 
+  bop_right_distributive_decidable T rT addT mulT →
+  bops_left_right_absorptive_decidable S rS addS mulS →
+  bops_right_right_absorptive_decidable S rS addS mulS →              
+         bop_right_distributive_decidable (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT)
+:= λ idm_d ldS_d ldT_d lla_d rla_d,
+match idm_d with                                                                                  
+| inl idm  => match ldS_d with
+              | inl ldS  => match ldT_d with
+                            | inl ldT  => match lla_d with
+                                          | inl lla  => match rla_d with
+                                                        | inl rla   => inl _ (bop_right_sum_left_sum_right_distributive idm ldS ldT lla rla)
+                                                        | inr nrla  => inr _ (bop_right_sum_left_sum_not_right_distributive_v5 wT nrla)
+                                                        end 
+                                          | inr nlla => inr _ (bop_right_sum_left_sum_not_right_distributive_v4 wT nlla)
+                                          end 
+                            | inr nldT => inr _ (bop_right_sum_left_sum_not_right_distributive_v3 nldT)
+                            end 
+              | inr nldS => inr _ (bop_right_sum_left_sum_not_right_distributive_v2 nldS)
+              end 
+| inr nidm => inr _ (bop_right_sum_left_sum_not_right_distributive_v1 wT nidm)
+end. 
+
+
 Lemma bop_right_sum_left_sum_left_left_absorptive :
   bop_idempotent S rS addS →   
   bops_left_left_absorptive S rS addS mulS →   
@@ -170,6 +227,27 @@ Lemma bop_right_sum_left_sum_not_left_left_absorptive_v3 :
          bops_not_left_left_absorptive (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT). 
 Proof. intros [[t1 t2] P]. exists (inr t1, inr t2). compute. assumption. Qed. 
 
+
+Definition bop_right_sum_left_sum_left_left_absorptive_decide :
+  bop_idempotent_decidable S rS addS →
+  bops_left_left_absorptive_decidable S rS addS mulS →   
+  bops_left_left_absorptive_decidable T rT addT mulT →    
+         bops_left_left_absorptive_decidable (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT)
+:= λ idm_d llaS_d llaT_d,
+match idm_d with                                                                                  
+| inl idm  => match llaS_d with
+              | inl llaS  => match llaT_d with
+                            | inl llaT  => inl _ (bop_right_sum_left_sum_left_left_absorptive idm llaS llaT)
+                            | inr nllaT => inr _ (bop_right_sum_left_sum_not_left_left_absorptive_v3 nllaT)
+                            end 
+              | inr nllaS => inr _ (bop_right_sum_left_sum_not_left_left_absorptive_v2 nllaS)
+              end 
+| inr nidm => inr _ (bop_right_sum_left_sum_not_left_left_absorptive_v1 wT nidm)
+end. 
+
+
+
+
 Lemma bop_right_sum_left_sum_left_right_absorptive :
   bop_idempotent S rS addS →   
   bops_left_right_absorptive S rS addS mulS →   
@@ -195,6 +273,27 @@ Lemma bop_right_sum_left_sum_not_left_right_absorptive_v3 :
          bops_not_left_right_absorptive (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT). 
 Proof. intros [[t1 t2] P]. exists (inr t1, inr t2). compute. assumption. Defined. 
 
+Definition bop_right_sum_left_sum_left_right_absorptive_decide :
+  bop_idempotent_decidable S rS addS →
+  bops_left_right_absorptive_decidable S rS addS mulS →   
+  bops_left_right_absorptive_decidable T rT addT mulT →    
+         bops_left_right_absorptive_decidable (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT)
+:= λ idm_d llaS_d llaT_d,
+match idm_d with                                                                                  
+| inl idm  => match llaS_d with
+              | inl llaS  => match llaT_d with
+                            | inl llaT  => inl _ (bop_right_sum_left_sum_left_right_absorptive idm llaS llaT)
+                            | inr nllaT => inr _ (bop_right_sum_left_sum_not_left_right_absorptive_v3 nllaT)
+                            end 
+              | inr nllaS => inr _ (bop_right_sum_left_sum_not_left_right_absorptive_v2 nllaS)
+              end 
+| inr nidm => inr _ (bop_right_sum_left_sum_not_left_right_absorptive_v1 wT nidm)
+end. 
+
+
+
+
+
 Lemma bop_right_sum_left_sum_right_left_absorptive :
   bop_idempotent S rS addS →   
   bops_right_left_absorptive S rS addS mulS →   
@@ -219,6 +318,25 @@ Lemma bop_right_sum_left_sum_not_right_left_absorptive_v3 :
   bops_not_right_left_absorptive T rT addT mulT →   
          bops_not_right_left_absorptive (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT). 
 Proof. intros [[t1 t2] P]. exists (inr t1, inr t2). compute. assumption. Defined. 
+
+
+Definition bop_right_sum_left_sum_right_left_absorptive_decide :
+  bop_idempotent_decidable S rS addS →
+  bops_right_left_absorptive_decidable S rS addS mulS →   
+  bops_right_left_absorptive_decidable T rT addT mulT →    
+         bops_right_left_absorptive_decidable (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT)
+:= λ idm_d llaS_d llaT_d,
+match idm_d with                                                                                  
+| inl idm  => match llaS_d with
+              | inl llaS  => match llaT_d with
+                            | inl llaT  => inl _ (bop_right_sum_left_sum_right_left_absorptive idm llaS llaT)
+                            | inr nllaT => inr _ (bop_right_sum_left_sum_not_right_left_absorptive_v3 nllaT)
+                            end 
+              | inr nllaS => inr _ (bop_right_sum_left_sum_not_right_left_absorptive_v2 nllaS)
+              end 
+| inr nidm => inr _ (bop_right_sum_left_sum_not_right_left_absorptive_v1 wT nidm)
+end. 
+
 
 Lemma bop_right_sum_left_sum_right_right_absorptive :
   bop_idempotent S rS addS →   
@@ -246,6 +364,23 @@ Lemma bop_right_sum_left_sum_not_right_right_absorptive_v3 :
          bops_not_right_right_absorptive (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT). 
 Proof. intros [[t1 t2] P]. exists (inr t1, inr t2). compute. assumption. Defined. 
 
+
+Definition bop_right_sum_left_sum_right_right_absorptive_decide :
+  bop_idempotent_decidable S rS addS →
+  bops_right_right_absorptive_decidable S rS addS mulS →   
+  bops_right_right_absorptive_decidable T rT addT mulT →    
+         bops_right_right_absorptive_decidable (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT)
+:= λ idm_d llaS_d llaT_d,
+match idm_d with                                                                                  
+| inl idm  => match llaS_d with
+              | inl llaS  => match llaT_d with
+                            | inl llaT  => inl _ (bop_right_sum_left_sum_right_right_absorptive idm llaS llaT)
+                            | inr nllaT => inr _ (bop_right_sum_left_sum_not_right_right_absorptive_v3 nllaT)
+                            end 
+              | inr nllaS => inr _ (bop_right_sum_left_sum_not_right_right_absorptive_v2 nllaS)
+              end 
+| inr nidm => inr _ (bop_right_sum_left_sum_not_right_right_absorptive_v1 wT nidm)
+end. 
 
 (*
 
@@ -275,7 +410,17 @@ Proof. intros H [s | t]. destruct (H s) as [ [s'' [L | R]] | [s'' [L | R]] ] .
        right. exists (inl _ s''). compute. right. reflexivity.
 Defined.        
 
+Definition bop_right_sum_left_sum_id_equals_ann_decide :
+  bops_id_equals_ann_decidable S rS addS mulS →
+         bops_id_equals_ann_decidable (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT)
+:= λ ia_d,
+match ia_d with                                                                                  
+| inl ia  => inl _ (bop_right_sum_left_sum_id_equals_ann ia)  
+| inr nia => inr _ (bop_right_sum_left_sum_not_id_equals_ann wS nia)
+end. 
 
+
+(*
 Lemma bop_right_sum_left_sum_id_equals_ann_dual :
   bops_id_equals_ann T rT mulT addT →
              bops_id_equals_ann (S + T) (rS [+] rT) (mulS <+] mulT) (addS [+> addT).
@@ -283,33 +428,6 @@ Proof. intros [a [I A]]. exists (inr _ a). split.
        apply bop_left_sum_is_id; auto. 
        apply bop_right_sum_is_ann; auto. 
 Defined.
+*) 
 
-
-
-(*
-Lemma bop_right_sum_left_sum_not_id_equals_ann_dual (s' : S) :
-  bops_not_id_equals_ann S rS mulS addS →
-             bops_not_id_equals_ann (S + T) (rS [+] rT) (mulS <+] mulT) (addS [+> addT).
-Proof. intros F [i1 | i1] [a2 | a2] I A; compute.
-       apply bop_left_sum_extract_ann in A.
-       destruct A as [s [aS eS]]. compute in eS.
-       case_eq (rS i1 a2); intro H.
-          assert (K := tranS _ _ _ H eS).
-          apply bop_right_sum_extract_id in I. 
-          destruct I as [s'' [aS' eS']]. compute in eS'.
-          apply symS in K.
-          assert (K' := tranS _ _ _ K eS'). apply symS in K'. 
-          unfold bops_not_id_equals_ann in F.
-          assert (J := F s'' s aS' aS). rewrite K' in J. exact J. 
-          exact refS. exact s'.
-          reflexivity.
-          exact refS. exact s'.          
-       reflexivity.
-       reflexivity.
-       apply bop_right_sum_extract_id in I. 
-       destruct I as [s [iS eS]]. compute in eS. discriminate eS. exact refS. exact s'. 
-Qed.
-
-*)                                                                               
-
-End LeftSumRightSum. 
+End RightSumLeftSum.

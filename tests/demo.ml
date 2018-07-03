@@ -1,21 +1,21 @@
 
 (*
 
-From directory ../
+From main directory 
 
-_build/extraction/casml -I _build/extraction/ -I _build/src/
+casml -I _build/extraction/ -I _build/src/
 
 
 then 
 
 #use "tests/demo.ml";; 
 
-*) 
+ *)
 
-open Cas;;
-open Describe;;
-open Cast;;
+open Cas 
+open Describe
 
+       
 let upto k = let rec aux m = if k <= m then [] else m :: (aux (m +1)) in aux 0;; 
 let explode s = List.map (fun i -> String.get s i) (upto (String.length s));; 
 
@@ -153,9 +153,10 @@ let sg_right eqv      = Some(sg_right eqv);;
 let sg_add_id id sg      = mmap (sg_add_id (explode id)) sg;;
 let sg_add_ann ann sg    = mmap (sg_add_ann (explode ann)) sg;;
 
+(*  
 let sg_union c eqv     = Some (sg_union c eqv) 
 let sg_intersect c eqv = Some (sg_intersect c eqv)
-
+ *) 
 let sg_describe sg = mmap sg_describe sg;;     
 
 
@@ -174,18 +175,20 @@ let (<+!>) m n = liftM2 sg_right_sum m n;;
 (* Lex product requires an sg_CS as a first arg (for associativity). 
    sg_mllex_aux : a sg -> 'b sg -> ('a * 'b) sg option 
   ( <!*> ) : 'a sg option -> 'b sg option -> ('a * 'b) sg option
-*) 
+ *)
+(*  
 let (<!*>) m n = 
     let sg_llex_aux sg1 sg2 = 
         match (sg_CS_option_from_sg sg1) with 
        | None -> None 
        | Some sg1'-> Some(sg_llex sg1' sg2)
     in liftN2 sg_llex_aux m n ;; 
-
+ *) 
 let sg2 = sg_and <*> sg_or <*> sg_min <*> sg_max <*> sg_times <*> sg_plus;; 
 
 let sg2_props = sg_describe sg2;; 
 
+(*  
 let sg3 = sg_and <!*> sg_or <!*> sg_min <!*> sg_max <!*> sg_times <*> sg_plus;; 
 
 let sg3_props = sg_describe sg3;; 
@@ -195,6 +198,9 @@ let sg4 = sg_and <!*> sg_max <!+> sg_min <+!> sg_max <*> sg_or;;
 
 let sg4_props = sg_describe sg4;;
 
+*)
+
+  
 (* However, note that this approach might not always be the best. 
    Suppose one wants to write parameterised "templates" --- 
    we then know at compile time that we will always produce a
@@ -219,9 +225,10 @@ let bs_max_min  = Some bs_max_min;;
 let bs_min_plus = Some bs_min_plus;; 
 let bs_max_plus = Some bs_max_plus;; 
 
+(*  
 let bs_union_intersect c eqv = Some (bs_union_intersect (explode c) eqv);;
 let bs_intersect_union c eqv = Some (bs_intersect_union (explode c) eqv);;
-
+ *)
 let sg_add_id id sg      = mmap (sg_add_id id) sg;;
 let sg_add_ann ann sg    = mmap (sg_add_ann ann) sg;;
 
@@ -233,6 +240,8 @@ let bs_describe bs = mmap bs_describe bs;;
 (* direct product *) 
 let (<**>) m n  = liftM2 bs_product m n  ;; 
 
+
+  (*
 (* (left) lex-product *) 
 let (<!**>) m n = 
     let bs_llex_aux bs1 bs2 = 
@@ -258,3 +267,4 @@ let bs5 = bs_add_zero bs4 "INFINITY";;   (* iso with bs3 ? *)
 let bs6 = bs_max_min <!**> bs_min_plus;;
 
 let bs7 = bs_min_plus <!**> bs_min_plus;;
+*)

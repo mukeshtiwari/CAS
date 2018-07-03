@@ -63,11 +63,14 @@ Proof. unfold bop_not_exists_id. induction i.
           exists (S s). right.  rewrite bop_min_S. rewrite brel_nat_eq_S. assumption. 
 Defined. 
 
-Lemma bop_min_exists_ann : bop_exists_ann nat brel_eq_nat bop_min.
-Proof. exists 0. intro s. unfold bop_min. split. 
+Lemma bop_min_zero_is_ann : bop_is_ann nat brel_eq_nat bop_min 0.
+Proof. intro s. unfold bop_min. split. 
        unfold min. apply brel_eq_nat_reflexive. 
-       rewrite min_comm. unfold min. apply brel_eq_nat_reflexive. 
-Defined. 
+       rewrite min_comm. unfold min. apply brel_eq_nat_reflexive.
+Qed.        
+  
+Lemma bop_min_exists_ann : bop_exists_ann nat brel_eq_nat bop_min.
+Proof. exists 0. apply bop_min_zero_is_ann. Defined. 
 
 Lemma bop_min_not_left_cancellative : bop_not_left_cancellative nat brel_eq_nat bop_min.
 Proof. exists (0, (0, 1)); simpl. auto. Defined. 

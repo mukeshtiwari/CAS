@@ -25,7 +25,7 @@ Section SemiLattice.
 
 Variable S : Type.
 Variable eqv : brel S.
-Variable nt  : brel_nontrivial S eqv.                  
+
 
 Variable ref : brel_reflexive S eqv. 
 Variable sym : brel_symmetric S eqv.

@@ -13,42 +13,27 @@ Require Import CAS.code.sg_records.
 Require Import CAS.code.cef. 
 Require Import CAS.code.cas.eqv.product.
 
-Definition check_commutative_llex : ∀ {S T : Type} 
-             (ntS : assert_nontrivial (S := S)),  
-             (check_commutative (S := T)) -> 
-                (check_commutative (S := (S * T)))
-:= λ {S T} ntS cT,  
-   match certify_nontrivial_witness ntS with 
-   | Certify_Witness s => 
+Definition check_commutative_llex : ∀ {S T : Type},  S -> @check_commutative T -> @check_commutative (S * T)
+:= λ {S T} s cT,  
       match cT with 
-      | Certify_Commutative => Certify_Commutative 
+      | Certify_Commutative              => Certify_Commutative 
       | Certify_Not_Commutative (t1, t2) => Certify_Not_Commutative ((s, t1), (s, t2))
-      end 
-   end. 
+      end. 
 
-Definition check_idempotent_llex : ∀ {S T : Type}
-             (ntS : assert_nontrivial (S := S)), 
-             (check_idempotent (S := T)) -> 
-                (check_idempotent (S := (S * T)))
-:= λ {S T} ntS cT,  
-   match certify_nontrivial_witness ntS with 
-   | Certify_Witness s => 
+
+Definition check_idempotent_llex : ∀ {S T : Type}, S -> @check_idempotent T -> @check_idempotent (S * T)
+:= λ {S T} s cT,  
       match cT with 
-      | Certify_Idempotent       => Certify_Idempotent 
+      | Certify_Idempotent        => Certify_Idempotent 
       | Certify_Not_Idempotent t1 => Certify_Not_Idempotent (s, t1) 
-      end
-   end.
+      end.
 
-Definition check_selective_llex : ∀ {S T : Type}, 
-           assert_nontrivial (S := S) -> check_selective (S := T) -> check_selective (S := (S * T))
-:= λ {S T} ntS dT,  
-   match certify_nontrivial_witness ntS with 
-   | Certify_Witness s => 
+Definition check_selective_llex : ∀ {S T : Type}, S -> @check_selective T -> @check_selective (S * T)
+:= λ {S T} s dT,  
      match dT with 
-     | Certify_Selective             => Certify_Selective 
+     | Certify_Selective              => Certify_Selective 
      | Certify_Not_Selective (t1, t2) => Certify_Not_Selective ((s, t1), (s, t2)) 
-     end
-  end. 
+     end.
 
 
 Definition check_exists_id_llex : ∀ {S T : Type}, 
@@ -57,7 +42,7 @@ Definition check_exists_id_llex : ∀ {S T : Type},
       match cS, cT with 
       | Certify_Exists_Id s, Certify_Exists_Id t => Certify_Exists_Id  (s, t) 
       | Certify_Not_Exists_Id, _                 => Certify_Not_Exists_Id 
-      | _, Certify_Not_Exists_Id                => Certify_Not_Exists_Id 
+      | _, Certify_Not_Exists_Id                 => Certify_Not_Exists_Id 
       end. 
 
 Definition check_exists_ann_llex : ∀ {S T : Type}, 
@@ -72,23 +57,17 @@ Definition check_exists_ann_llex : ∀ {S T : Type},
 
 Definition sg_certs_llex : ∀ {S T : Type},  
         brel S -> binary_op S -> 
-        eqv_certificates (S := S) -> 
-        eqv_certificates (S := T) -> 
+        S -> (S -> S) -> 
+        T -> (T -> T) -> 
         sg_CS_certificates (S := S) -> 
         sg_certificates (S := T) -> sg_certificates (S := (S * T))
-:= λ {S T} rS bS eS eT cS cT,  
-let wS := eqv_nontrivial eS in 
-let wT := eqv_nontrivial eT in 
-let s := nontrivial_witness wS in
-let t := nontrivial_witness wT in
-let f := nontrivial_negate wS in  
-let g := nontrivial_negate wT in  
+:= λ {S T} rS bS s f t g cS cT,  
 {|
   sg_associative      := Assert_Associative   
 ; sg_congruence       := Assert_Bop_Congruence   
-; sg_commutative_d    := check_commutative_llex wS (sg_commutative_d cT)
-; sg_selective_d      := check_selective_llex wS (sg_selective_d cT)
-; sg_idempotent_d     := check_idempotent_llex wS (sg_idempotent_d cT)
+; sg_commutative_d    := check_commutative_llex s (sg_commutative_d cT)
+; sg_selective_d      := check_selective_llex s (sg_selective_d cT)
+; sg_idempotent_d     := check_idempotent_llex s (sg_idempotent_d cT)
 ; sg_exists_id_d      := check_exists_id_llex (sg_CS_exists_id_d cS) (sg_exists_id_d cT)
 ; sg_exists_ann_d     := check_exists_ann_llex (sg_CS_exists_ann_d cS) (sg_exists_ann_d cT)
 
@@ -103,20 +82,14 @@ let g := nontrivial_negate wT in
 |}. 
 
 Definition sg_C_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
-        eqv_certificates (S := S) -> eqv_certificates (S := T) -> sg_CS_certificates (S := S) -> sg_C_certificates (S := T) -> sg_C_certificates (S := (S * T)) 
-:= λ {S T} rS bS eS eT cS cT,  
-let wS := eqv_nontrivial eS in 
-let wT := eqv_nontrivial eT in 
-let s := nontrivial_witness wS in
-let t := nontrivial_witness wT in
-let f := nontrivial_negate wS in  
-let g := nontrivial_negate wT in  
+        S -> (S -> S) -> T -> (T -> T) -> sg_CS_certificates (S := S) -> sg_C_certificates (S := T) -> sg_C_certificates (S := (S * T)) 
+:= λ {S T} rS bS s f t g cS cT,  
 {|
   sg_C_associative   := Assert_Associative 
 ; sg_C_congruence    := Assert_Bop_Congruence   
 ; sg_C_commutative   := Assert_Commutative   
-; sg_C_selective_d   := check_selective_llex wS (sg_C_selective_d cT)
-; sg_C_idempotent_d  := check_idempotent_llex wS (sg_C_idempotent_d cT)
+; sg_C_selective_d   := check_selective_llex s (sg_C_selective_d cT)
+; sg_C_idempotent_d  := check_idempotent_llex s (sg_C_idempotent_d cT)
 ; sg_C_exists_id_d   := check_exists_id_llex (sg_CS_exists_id_d cS) (sg_C_exists_id_d cT)
 ; sg_C_exists_ann_d  := check_exists_ann_llex (sg_CS_exists_ann_d cS) (sg_C_exists_ann_d cT)
 ; sg_C_left_cancel_d    := Certify_Not_Left_Cancellative (cef_bop_llex_not_cancellative rS bS s f t g)
@@ -128,21 +101,21 @@ let g := nontrivial_negate wT in
 |}.
 
 Definition sg_CI_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
-        eqv_certificates (S := S) -> eqv_certificates (S := T) -> sg_CS_certificates (S := S) -> sg_CI_certificates (S := T) -> sg_CI_certificates (S := (S * T)) 
-:= λ {S T} rS bS eS eT cS cT,  
+        S -> sg_CS_certificates (S := S) -> sg_CI_certificates (S := T) -> sg_CI_certificates (S := (S * T)) 
+:= λ {S T} rS bS s cS cT,  
 {|
   sg_CI_associative   := Assert_Associative   
 ; sg_CI_congruence    := Assert_Bop_Congruence   
 ; sg_CI_commutative   := Assert_Commutative   
 ; sg_CI_idempotent    := Assert_Idempotent   
-; sg_CI_selective_d   := check_selective_llex (eqv_nontrivial eS) (sg_CI_selective_d cT)
+; sg_CI_selective_d   := check_selective_llex s (sg_CI_selective_d cT)
 ; sg_CI_exists_id_d   := check_exists_id_llex (sg_CS_exists_id_d cS) (sg_CI_exists_id_d cT)
 ; sg_CI_exists_ann_d  := check_exists_ann_llex (sg_CS_exists_ann_d cS) (sg_CI_exists_ann_d cT)
 |}.
 
 Definition sg_CS_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
-        eqv_certificates (S := S) -> eqv_certificates (S := T) -> sg_CS_certificates (S := S) -> sg_CS_certificates (S := T) -> sg_CS_certificates (S := (S * T)) 
-:= λ {S T} rS bS eS eT cS cT,  
+        sg_CS_certificates (S := S) -> sg_CS_certificates (S := T) -> sg_CS_certificates (S := (S * T)) 
+:= λ {S T} rS bS cS cT,  
 {|
   sg_CS_associative   := Assert_Associative   
 ; sg_CS_congruence    := Assert_Bop_Congruence   
@@ -160,15 +133,13 @@ Definition sg_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg (S := T) -> sg (S :
    ; sg_certs := sg_certs_llex 
                    (eqv_eq (sg_CS_eqv sgS)) 
                    (sg_CS_bop sgS) 
-                   (eqv_certs (sg_CS_eqv sgS)) 
-                   (eqv_certs (sg_eq sgT)) 
+                   (eqv_witness (sg_CS_eqv sgS)) (eqv_new (sg_CS_eqv sgS)) 
+                   (eqv_witness (sg_eq sgT)) (eqv_new (sg_eq sgT)) 
                    (sg_CS_certs sgS) 
                    (sg_certs sgT) 
    ; sg_ast   := Ast_sg_llex (sg_CS_ast sgS, sg_ast sgT)
    |}. 
 
-
-(*CC*) 
 Definition sg_C_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_C (S := T) -> sg_C (S := (S * T))
 := λ {S T} sgS sgT, 
       {| 
@@ -180,15 +151,13 @@ Definition sg_C_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_C (S := T) -> sg_
       ; sg_C_certs := sg_C_certs_llex 
                           (eqv_eq (sg_CS_eqv sgS))
                           (sg_CS_bop sgS) 
-                          (eqv_certs (sg_CS_eqv sgS)) 
-                          (eqv_certs (sg_C_eqv sgT))
+                          (eqv_witness (sg_CS_eqv sgS)) (eqv_new (sg_CS_eqv sgS)) 
+                          (eqv_witness (sg_C_eqv sgT)) (eqv_new (sg_C_eqv sgT))
                           (sg_CS_certs sgS) 
                           (sg_C_certs sgT) 
       ; sg_C_ast    := Ast_sg_C_llex (sg_CS_ast sgS, sg_C_ast sgT)  
       |}. 
 
-
-(*CC*) 
 Definition sg_CI_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CI (S := T) -> sg_CI (S := (S * T))
 := λ {S T} sgS sgT, 
       {| 
@@ -199,16 +168,13 @@ Definition sg_CI_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CI (S := T) -> s
                           (sg_CI_bop sgT) 
       ; sg_CI_certs := sg_CI_certs_llex 
                           (eqv_eq (sg_CS_eqv sgS))
-                          (sg_CS_bop sgS) 
-                          (eqv_certs (sg_CS_eqv sgS)) 
-                          (eqv_certs (sg_CI_eqv sgT))
+                          (sg_CS_bop sgS)
+                          (eqv_witness (sg_CS_eqv sgS)) 
                           (sg_CS_certs sgS) 
                           (sg_CI_certs sgT) 
       ; sg_CI_ast    := Ast_sg_CI_llex (sg_CS_ast sgS, sg_CI_ast sgT)  
       |}. 
 
-
-(*CC*) 
 Definition sg_CS_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T) -> sg_CS (S := (S * T))
 := λ {S T} sgS sgT, 
       {| 
@@ -220,8 +186,6 @@ Definition sg_CS_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T) -> s
       ; sg_CS_certs := sg_CS_certs_llex 
                           (eqv_eq (sg_CS_eqv sgS))
                           (sg_CS_bop sgS) 
-                          (eqv_certs (sg_CS_eqv sgS)) 
-                          (eqv_certs (sg_CS_eqv sgT))
                           (sg_CS_certs sgS) 
                           (sg_CS_certs sgT) 
       ; sg_CS_ast    := Ast_sg_CS_llex (sg_CS_ast sgS, sg_CS_ast sgT)  

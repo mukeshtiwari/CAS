@@ -7,409 +7,277 @@ Require Import CAS.theory.bs_properties.
 Require Import CAS.theory.facts. 
 Require Import CAS.theory.bop.product. 
 
+Section ProductProduct. 
+
+Variable S  : Type. 
+Variable T  : Type. 
+Variable rS : brel S. 
+Variable rT : brel T.
+Variable wS : S.
+Variable wT : T.
+Variable addS  mulS : binary_op S. 
+Variable addT mulT : binary_op T. 
+
+Notation "a =S b"  := (rS a b = true) (at level 15).
+Notation "a =T b"  := (rT a b = true) (at level 15).
+Notation "a +S b"  := (addS a b) (at level 15).
+Notation "a +T b"  := (addT a b) (at level 15).
+Notation "a *S b"  := (mulS a b) (at level 15).
+Notation "a *T b"  := (mulT a b) (at level 15).
+
+Notation "a <*> b" := (brel_product a b) (at level 15).
+Notation "a [*] b" := (bop_product a b) (at level 15).
+
+
 
 (* note : should be able to abstract away and universally quantfied predicate .... *) 
 
 Lemma bop_product_left_distributive : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       bop_left_distributive S rS addS mulS → 
       bop_left_distributive T rT addT mulT → 
-         bop_left_distributive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT ldS ldT [s1 t1] [s2 t2] [s3 t3].
-       simpl. rewrite ldS, ldT.  simpl. reflexivity. 
-Defined. 
+         bop_left_distributive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2] [s3 t3]. simpl. rewrite ldS, ldT.  simpl. reflexivity. Defined. 
 
 
 Lemma bop_product_right_distributive : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       bop_right_distributive S rS addS mulS → 
       bop_right_distributive T rT addT mulT → 
-         bop_right_distributive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT lrS lrT [s1 t1] [s2 t2] [s3 t3].
-       simpl. rewrite lrS, lrT.  simpl. reflexivity. 
-Defined. 
-
-
+         bop_right_distributive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros lrS lrT [s1 t1] [s2 t2] [s3 t3]. simpl. rewrite lrS, lrT.  simpl. reflexivity. Defined. 
 
 Lemma bop_product_not_left_distributive_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      brel_witness T rT → 
       bop_not_left_distributive S rS addS mulS → 
-         bop_not_left_distributive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT [t tP] [ [s1 [s2 s3 ] ] nd ].
-       exists ((s1, t), ((s2, t), (s3, t))). simpl. 
+         bop_not_left_distributive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 [s2 s3 ] ] nd ]. exists ((s1, wT), ((s2, wT), (s3, wT))). simpl.        
        rewrite nd.  simpl. reflexivity. 
 Defined. 
 
 Lemma bop_product_not_left_distributive_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      brel_witness S rS → 
       bop_not_left_distributive T rT addT mulT → 
-         bop_not_left_distributive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT [s sP] [ [t1 [t2 t3 ] ] nd ].
-       exists ((s, t1), ((s, t2), (s, t3))). simpl. 
+         bop_not_left_distributive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [t1 [t2 t3 ] ] nd ]. exists ((wS, t1), ((wS, t2), (wS, t3))). simpl. 
        rewrite nd.  simpl. apply andb_comm. 
 Defined. 
 
-
 Lemma bop_product_not_right_distributive_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      brel_witness T rT → 
       bop_not_right_distributive S rS addS mulS → 
-         bop_not_right_distributive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT  [t tP] [ [s1 [s2 s3 ] ] nd ].
-       exists ((s1, t), ((s2, t), (s3, t))). simpl. 
+         bop_not_right_distributive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 [s2 s3 ] ] nd ]. exists ((s1, wT), ((s2, wT), (s3, wT))). simpl. 
        rewrite nd.  simpl. reflexivity. 
 Defined. 
 
 Lemma bop_product_not_right_distributive_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      brel_witness S rS → 
       bop_not_right_distributive T rT addT mulT → 
-         bop_not_right_distributive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT  [s sP] [ [t1 [t2 t3] ] nd ].
-       exists ((s, t1), ((s, t2), (s, t3))). simpl. 
+         bop_not_right_distributive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [t1 [t2 t3] ] nd ]. exists ((wS, t1), ((wS, t2), (wS, t3))). simpl. 
        rewrite nd.  simpl. apply andb_comm. 
 Defined. 
-
 
 (* *********************************** *) 
 
 
 Lemma bop_product_id_equals_ann : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       bops_id_equals_ann S rS addS mulS → 
       bops_id_equals_ann T rT addT mulT → 
-         bops_id_equals_ann (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT 
-       [[iS piS] [[aS paS] pS]] [[iT piT] [[aT paT] pT]]. simpl in pS, pT. 
-       unfold bops_id_equals_ann. 
-       exists (existT _ (iS, iT) (bop_product_is_id S T rS rT addS addT iS iT piS piT)). 
-       exists (existT _ (aS, aT) (bop_product_is_ann S T rS rT mulS mulT aS aT paS paT)). 
-       simpl. rewrite pS, pT; auto. 
+         bops_id_equals_ann (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [iS [piS paS]]  [iT [piT paT]].
+       exists (iS, iT). split.
+       apply bop_product_is_id; auto.
+       apply bop_product_is_ann; auto. 
 Defined. 
 
 Lemma bop_product_not_id_equals_ann_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       bops_not_id_equals_ann S rS addS mulS → 
-         bops_not_id_equals_ann (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
+         bops_not_id_equals_ann (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
 Proof. unfold bops_not_id_equals_ann. 
-       intros S T rS rT addS mulS addT mulT H [iS iT] [aS aT] qi qa. simpl. 
-       assert (fact1 := bop_product_is_id_left S T rS rT addS addT iS iT qi).
-       assert (fact2 := bop_product_is_ann_left S T rS rT mulS mulT aS aT qa).
-       assert (fact3 := H _ _ fact1 fact2). 
-       rewrite fact3. reflexivity. 
+       intros H [s t]. destruct (H s) as [ [s' [L | R]] | [s' [L | R]]].
+          left. exists (s', t). left. compute. rewrite L. reflexivity. 
+          left. exists (s', t). right. compute. rewrite R. reflexivity.           
+          right. exists (s', t). left. compute. rewrite L. reflexivity. 
+          right. exists (s', t). right. compute. rewrite R. reflexivity.           
 Defined. 
 
 Lemma bop_product_not_id_equals_ann_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       bops_not_id_equals_ann T rT addT mulT → 
-         bops_not_id_equals_ann (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
+         bops_not_id_equals_ann (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
 Proof. unfold bops_not_id_equals_ann. 
-       intros S T rS rT addS mulS addT mulT H [iS iT] [aS aT] qi qa. simpl. 
-       assert (fact1 := bop_product_is_id_right S T rS rT addS addT iS iT qi).
-       assert (fact2 := bop_product_is_ann_right S T rS rT mulS mulT aS aT qa).
-       assert (fact3 := H _ _ fact1 fact2). 
-       rewrite fact3. apply andb_comm. 
+       intros H [s t]. destruct (H t) as [ [t' [L | R]] | [t' [L | R]]].
+          left. exists (s, t'). left. compute. rewrite L. case_eq( rS (s +S s) s); intro K; reflexivity. 
+          left. exists (s, t'). right. compute. rewrite R. case_eq( rS (s +S s) s); intro K; reflexivity.           
+          right. exists (s, t'). left. compute. rewrite L. case_eq( rS (s *S s) s); intro K; reflexivity. 
+          right. exists (s, t'). right. compute. rewrite R. case_eq( rS (s *S s) s); intro K; reflexivity.           
 Defined. 
-
-
-
-Lemma bop_product_id_equals_id : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      bops_id_equals_id S rS addS mulS → 
-      bops_id_equals_id T rT addT mulT → 
-         bops_id_equals_id (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT 
-       [[iS piS] [[aS paS] pS]] [[iT piT] [[aT paT] pT]]. simpl in pS, pT. 
-       unfold bops_id_equals_id. 
-       exists (existT _ (iS, iT) (bop_product_is_id S T rS rT addS addT iS iT piS piT)). 
-       exists (existT _ (aS, aT) (bop_product_is_id S T rS rT mulS mulT aS aT paS paT)). 
-       simpl. rewrite pS, pT; auto. 
-Defined. 
-
-
-
-Lemma bop_product_not_id_equals_id_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      bops_not_id_equals_id S rS addS mulS → 
-         bops_not_id_equals_id (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. unfold bops_not_id_equals_ann. 
-       intros S T rS rT addS mulS addT mulT H [iS iT] [aS aT] qi qa. simpl. 
-       assert (fact1 := bop_product_is_id_left S T rS rT addS addT iS iT qi).
-       assert (fact2 := bop_product_is_id_left S T rS rT mulS mulT aS aT qa).
-       assert (fact3 := H _ _ fact1 fact2). 
-       rewrite fact3. reflexivity. 
-Defined. 
-
-
-Lemma bop_product_not_id_equals_id_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      bops_not_id_equals_id T rT addT mulT → 
-         bops_not_id_equals_id (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. unfold bops_not_id_equals_ann. 
-       intros S T rS rT addS mulS addT mulT H [iS iT] [aS aT] qi qa. simpl. 
-       assert (fact1 := bop_product_is_id_right S T rS rT addS addT iS iT qi).
-       assert (fact2 := bop_product_is_id_right S T rS rT mulS mulT aS aT qa).
-       assert (fact3 := H _ _ fact1 fact2). 
-       rewrite fact3. apply andb_comm. 
-Defined. 
-
-
-
-Lemma bop_product_ann_equals_ann : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      bops_ann_equals_ann S rS addS mulS → 
-      bops_ann_equals_ann T rT addT mulT → 
-         bops_ann_equals_ann (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT 
-       [[iS piS] [[aS paS] pS]] [[iT piT] [[aT paT] pT]]. simpl in pS, pT. 
-       unfold bops_ann_equals_ann. 
-       exists (existT _ (iS, iT) (bop_product_is_ann S T rS rT addS addT iS iT piS piT)). 
-       exists (existT _ (aS, aT) (bop_product_is_ann S T rS rT mulS mulT aS aT paS paT)). 
-       simpl. rewrite pS, pT; auto. 
-Defined. 
-
-
-
-Lemma bop_product_not_ann_equals_ann_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      bops_not_ann_equals_ann S rS addS mulS → 
-         bops_not_ann_equals_ann (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. unfold bops_not_ann_equals_ann. 
-       intros S T rS rT addS mulS addT mulT H [iS iT] [aS aT] qi qa. simpl. 
-       assert (fact1 := bop_product_is_ann_left S T rS rT addS addT iS iT qi).
-       assert (fact2 := bop_product_is_ann_left S T rS rT mulS mulT aS aT qa).
-       assert (fact3 := H _ _ fact1 fact2). 
-       rewrite fact3. reflexivity. 
-Defined. 
-
-
-Lemma bop_product_not_ann_equals_ann_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
-      bops_not_ann_equals_ann T rT addT mulT → 
-         bops_not_ann_equals_ann (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. unfold bops_not_ann_equals_ann. 
-       intros S T rS rT addS mulS addT mulT H [iS iT] [aS aT] qi qa. simpl. 
-       assert (fact1 := bop_product_is_ann_right S T rS rT addS addT iS iT qi).
-       assert (fact2 := bop_product_is_ann_right S T rS rT mulS mulT aS aT qa).
-       assert (fact3 := H _ _ fact1 fact2). 
-       rewrite fact3. apply andb_comm. 
-Defined. 
-
-
-(* *************************** *) 
 
 
 (* left left *) 
 Lemma bop_product_left_left_absorptive : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       bops_left_left_absorptive S rS addS mulS → 
       bops_left_left_absorptive T rT addT mulT → 
-         bops_left_left_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT ldS ldT [s1 t1] [s2 t2].
-       simpl. rewrite ldS, ldT.  simpl. reflexivity. 
-Defined. 
+         bops_left_left_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2]. simpl. rewrite ldS, ldT.  simpl. reflexivity. Defined. 
 
 
 Lemma bop_product_not_left_left_absorptive_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) 
-     (addS  mulS : binary_op S) (addT mulT : binary_op T) (t :T), 
       bops_not_left_left_absorptive S rS addS mulS → 
-         bops_not_left_left_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT t [ [s1 s2] P ]. 
-       exists ((s1, t), (s2, t)). simpl. rewrite P. simpl. reflexivity. 
-Defined. 
+         bops_not_left_left_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
 
 Lemma bop_product_not_left_left_absorptive_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) 
-     (addS  mulS : binary_op S) (addT mulT : binary_op T) (s : S), 
       bops_not_left_left_absorptive T rT addT mulT → 
-         bops_not_left_left_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT s [ [t1 t2] P ]. 
-       exists ((s, t1), (s, t2)). simpl. rewrite P. simpl. 
-       apply andb_comm.  
-Defined. 
-
+         bops_not_left_left_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [t1 t2] P ]. exists ((wS, t1), (wS, t2)). simpl. rewrite P. simpl. apply andb_comm.  Defined. 
 
 
 (* left right *) 
 Lemma bop_product_left_right_absorptive : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       bops_left_right_absorptive S rS addS mulS → 
       bops_left_right_absorptive T rT addT mulT → 
-         bops_left_right_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT ldS ldT [s1 t1] [s2 t2].
-       simpl. rewrite ldS, ldT.  simpl. reflexivity. 
-Defined. 
+         bops_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2]. simpl. rewrite ldS, ldT.  simpl. reflexivity. Defined. 
 
 Lemma bop_product_not_left_right_absorptive_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) 
-     (addS  mulS : binary_op S) (addT mulT : binary_op T) (t :T), 
       bops_not_left_right_absorptive S rS addS mulS → 
-         bops_not_left_right_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT t [ [s1 s2] P ]. 
-       exists ((s1, t), (s2, t)). simpl. rewrite P. simpl. reflexivity. 
-Defined. 
+         bops_not_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
 
 Lemma bop_product_not_left_right_absorptive_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) 
-     (addS  mulS : binary_op S) (addT mulT : binary_op T) (s : S), 
       bops_not_left_right_absorptive T rT addT mulT → 
-         bops_not_left_right_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT s [ [t1 t2] P ]. 
-       exists ((s, t1), (s, t2)). simpl. rewrite P. simpl. 
-       apply andb_comm.  
-Defined. 
-
+         bops_not_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [t1 t2] P ]. exists ((wS, t1), (wS, t2)). simpl. rewrite P. simpl. apply andb_comm.  Defined. 
 
 (* right left *) 
 Lemma bop_product_right_left_absorptive : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       bops_right_left_absorptive S rS addS mulS → 
       bops_right_left_absorptive T rT addT mulT → 
-         bops_right_left_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT ldS ldT [s1 t1] [s2 t2].
-       simpl. rewrite ldS, ldT.  simpl. reflexivity. 
-Defined. 
-
+         bops_right_left_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2]. simpl. rewrite ldS, ldT.  simpl. reflexivity. Defined. 
 
 Lemma bop_product_not_right_left_absorptive_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) 
-     (addS  mulS : binary_op S) (addT mulT : binary_op T) (t :T), 
       bops_not_right_left_absorptive S rS addS mulS → 
-         bops_not_right_left_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT t [ [s1 s2] P ]. 
-       exists ((s1, t), (s2, t)). simpl. rewrite P. simpl. reflexivity. 
-Defined. 
+         bops_not_right_left_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
 
 Lemma bop_product_not_right_left_absorptive_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) 
-     (addS  mulS : binary_op S) (addT mulT : binary_op T) (s : S), 
       bops_not_right_left_absorptive T rT addT mulT → 
-         bops_not_right_left_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT s [ [t1 t2] P ]. 
-       exists ((s, t1), (s, t2)). simpl. rewrite P. simpl. 
-       apply andb_comm.  
-Defined. 
-
+         bops_not_right_left_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [t1 t2] P ].  exists ((wS, t1), (wS, t2)). simpl. rewrite P. simpl. apply andb_comm.  Defined. 
 
 
 (* right right *) 
 Lemma bop_product_right_right_absorptive : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS  mulS : binary_op S) (addT mulT : binary_op T), 
       bops_right_right_absorptive S rS addS mulS → 
       bops_right_right_absorptive T rT addT mulT → 
-         bops_right_right_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT ldS ldT [s1 t1] [s2 t2].
-       simpl. rewrite ldS, ldT.  simpl. reflexivity. 
-Defined. 
+         bops_right_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2]. simpl. rewrite ldS, ldT.  simpl. reflexivity. Defined. 
 
 
 Lemma bop_product_not_right_right_absorptive_left : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) 
-     (addS  mulS : binary_op S) (addT mulT : binary_op T) (t :T), 
       bops_not_right_right_absorptive S rS addS mulS → 
-         bops_not_right_right_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT t [ [s1 s2] P ]. 
-       exists ((s1, t), (s2, t)). simpl. rewrite P. simpl. reflexivity. 
-Defined. 
+         bops_not_right_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
 
 Lemma bop_product_not_right_right_absorptive_right : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) 
-     (addS  mulS : binary_op S) (addT mulT : binary_op T) (s : S), 
       bops_not_right_right_absorptive T rT addT mulT → 
-         bops_not_right_right_absorptive (S * T) 
-             (brel_product _ _ rS rT) 
-             (bop_product _ _ addS addT)
-             (bop_product _ _ mulS mulT). 
-Proof. intros S T rS rT addS mulS addT mulT s [ [t1 t2] P ]. 
-       exists ((s, t1), (s, t2)). simpl. rewrite P. simpl. 
-       apply andb_comm.  
-Defined. 
+         bops_not_right_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [t1 t2] P ]. exists ((wS, t1), (wS, t2)). simpl. rewrite P. simpl. apply andb_comm.  Defined.
 
 
+Definition bop_product_left_distributive_decide : 
+     bop_left_distributive_decidable S rS addS mulS -> bop_left_distributive_decidable T rT addT mulT -> 
+        bop_left_distributive_decidable (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT)
+:= λ dS dT,  
+   match dS with 
+   | inl ldS => 
+     match dT with 
+     | inl ldT  => inl _ (bop_product_left_distributive ldS ldT)
+     | inr nldT => inr _ (bop_product_not_left_distributive_right nldT)
+     end 
+   | inr nldS   => inr _ (bop_product_not_left_distributive_left nldS)
+   end. 
 
-(* *************************** *) 
+Definition bop_product_right_distributive_decide : 
+     bop_right_distributive_decidable S rS addS mulS -> bop_right_distributive_decidable T rT addT mulT -> 
+       bop_right_distributive_decidable (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT)
+:= λ dS dT,  
+   match dS with 
+   | inl ldS => 
+     match dT with 
+     | inl ldT  => inl _ (bop_product_right_distributive ldS ldT)
+     | inr nldT => inr _ (bop_product_not_right_distributive_right nldT)
+     end 
+   | inr nldS   => inr _ (bop_product_not_right_distributive_left nldS)
+   end. 
+       
+Definition bop_product_id_equals_ann_decide : 
+      bops_id_equals_ann_decidable S rS addS mulS → bops_id_equals_ann_decidable T rT addT mulT →  
+        bops_id_equals_ann_decidable (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT)
+:= λ dS dT,  
+   match dS with 
+   | inl ieaS => 
+     match dT with 
+     | inl ieaT  => inl _ (bop_product_id_equals_ann ieaS ieaT)
+     | inr nieaT => inr _ (bop_product_not_id_equals_ann_right nieaT)
+     end 
+   | inr nieaS   => inr _ (bop_product_not_id_equals_ann_left nieaS)
+   end. 
 
+
+Definition bops_product_left_left_absorptive_decide : 
+      bops_left_left_absorptive_decidable S rS addS mulS → bops_left_left_absorptive_decidable T rT addT mulT → 
+         bops_left_left_absorptive_decidable (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT)
+:= λ laS_d laT_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT     => inl _ (bop_product_left_left_absorptive laS laT)
+   |inr not_laT => inr _ (bop_product_not_left_left_absorptive_right not_laT) 
+   end 
+|inr not_laS => inr _ (bop_product_not_left_left_absorptive_left not_laS ) 
+end. 
+
+
+Definition bops_product_left_right_absorptive_decide : 
+      bops_left_right_absorptive_decidable S rS addS mulS → bops_left_right_absorptive_decidable T rT addT mulT → 
+         bops_left_right_absorptive_decidable (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT)
+:= λ laS_d laT_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT     => inl _ (bop_product_left_right_absorptive laS laT)
+   |inr not_laT => inr _ (bop_product_not_left_right_absorptive_right not_laT) 
+   end 
+|inr not_laS => inr _ (bop_product_not_left_right_absorptive_left not_laS ) 
+end. 
+
+Definition bops_product_right_left_absorptive_decide : 
+      bops_right_left_absorptive_decidable S rS addS mulS → bops_right_left_absorptive_decidable T rT addT mulT → 
+         bops_right_left_absorptive_decidable (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT)
+:= λ laS_d laT_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT     =>  inl _ (bop_product_right_left_absorptive laS laT)
+   |inr not_laT => inr _ (bop_product_not_right_left_absorptive_right not_laT) 
+   end 
+|inr not_laS => inr _ (bop_product_not_right_left_absorptive_left not_laS ) 
+end. 
+
+
+Definition bops_product_right_right_absorptive_decide : 
+      bops_right_right_absorptive_decidable S rS addS mulS → bops_right_right_absorptive_decidable T rT addT mulT → 
+         bops_right_right_absorptive_decidable (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT)
+:= λ laS_d laT_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT     =>  inl _ (bop_product_right_right_absorptive laS laT)
+   |inr not_laT => inr _ (bop_product_not_right_right_absorptive_right not_laT) 
+   end 
+|inr not_laS => inr _ (bop_product_not_right_right_absorptive_left not_laS ) 
+end.
+
+
+End ProductProduct. 
 
 
 

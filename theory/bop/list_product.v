@@ -35,36 +35,36 @@ Definition rtran_congruence (U T : Type) (rU : brel U) (rT : brel T) (tr : right
 Lemma brel_list_cons_intro : ∀ (S : Type) (r : brel S), 
          ∀ (a b : S) (X  Y : list S), 
              r a b = true -> 
-             brel_list S r X Y = true -> 
-             brel_list S r (a :: X) (b :: Y) = true. 
+             brel_list r X Y = true -> 
+             brel_list r (a :: X) (b :: Y) = true. 
 Proof. intros T r  a b X Y H1 H2. 
-       unfold brel_list. fold brel_list. rewrite H1, H2. auto. 
+       unfold brel_list. fold @brel_list. rewrite H1, H2. auto. 
 Qed. 
 
 Lemma brel_list_cons_elim : ∀ (S : Type) (r : brel S), 
          ∀ (a b : S) (X  Y : list S), 
-             brel_list S r (a :: X) (b :: Y) = true -> 
-             ((r a b = true) *  (brel_list S r X Y = true)). 
+             brel_list r (a :: X) (b :: Y) = true -> 
+             ((r a b = true) *  (brel_list r X Y = true)). 
 
 Proof. intros T r  a b X Y H. 
-       unfold brel_list in H. fold brel_list in H.
+       unfold brel_list in H. fold @brel_list in H.
        apply andb_is_true_left in H. assumption. 
 Qed. 
 
 Lemma brel_list_nil_elim_left : ∀ (S : Type) (r : brel S), 
-         ∀ (X : list S), brel_list S r nil X = true -> X = nil. 
+         ∀ (X : list S), brel_list r nil X = true -> X = nil. 
 Proof. intros T r X H. induction X; auto. compute in H. discriminate. 
 Qed. 
 
 Lemma brel_list_nil_elim_right : ∀ (S : Type) (r : brel S), 
-         ∀ (X : list S), brel_list S r X nil = true -> X = nil. 
+         ∀ (X : list S), brel_list r X nil = true -> X = nil. 
 Proof. intros T r X H. induction X; auto. compute in H. discriminate. 
 Qed. 
 
 
 Lemma brel_list_app_elim_left : ∀ (S : Type) (r : brel S), 
          brel_reflexive S r -> 
-         ∀ (X  Y Z : list S), brel_list S r (Z  ++ X) (Z ++ Y) = brel_list S r X Y. 
+         ∀ (X  Y Z : list S), brel_list r (Z  ++ X) (Z ++ Y) = brel_list r X Y. 
 Proof. intros T r refT X Y Z. 
        induction Z; simpl. reflexivity. 
        rewrite refT, IHZ. auto. 
@@ -72,8 +72,8 @@ Qed.
 
 Lemma brel_list_cons_right_elim : ∀ (S : Type) (r : brel S), brel_symmetric S r -> 
         ∀ (Y X: list S)(a : S), 
-        brel_list S r Y (a :: X) = true ->  
-        {b : S & { Z : list S & ( (r a b = true) * ( Y = (b :: Z)) * (brel_list S r Z X = true))}}.  
+        brel_list r Y (a :: X) = true ->  
+        {b : S & { Z : list S & ( (r a b = true) * ( Y = (b :: Z)) * (brel_list r Z X = true))}}.  
 Proof. intros S r symS Y. induction Y; simpl; auto. 
        intros. discriminate.         
        intro X. induction X; simpl; auto. 
@@ -86,7 +86,7 @@ Qed.
 
 
 Lemma brel_list_app_intro: ∀ (S : Type) (r : brel S) (X  Z Y W : list S), 
-        (brel_list S r X Z = true) ->  (brel_list S r Y W = true) -> brel_list S r (X  ++ Y) (Z ++ W) = true. 
+        (brel_list r X Z = true) ->  (brel_list r Y W = true) -> brel_list r (X  ++ Y) (Z ++ W) = true. 
 Proof. intros S r X. induction X. 
          intro Z. induction Z; simpl; auto. 
          intros. discriminate. 
@@ -130,12 +130,12 @@ Qed.
 
 
 Lemma brel_list_app_reverse_left : ∀ (T : Type) (r : brel T), 
-   ∀ (X  Y : list T), brel_list T r (List.rev X) Y = brel_list T r X (List.rev Y).
+   ∀ (X  Y : list T), brel_list r (List.rev X) Y = brel_list  r X (List.rev Y).
 Proof. admit. 
 Admitted. 
 
 Lemma brel_list_app_reverse : ∀ (T : Type) (r : brel T), 
-   ∀ (X  Y : list T), brel_list T r X Y = brel_list T r (List.rev X) (List.rev Y).
+   ∀ (X  Y : list T), brel_list  r X Y = brel_list  r (List.rev X) (List.rev Y).
 Proof. intros T r X Y. 
        assert (H := brel_list_app_reverse_left T r (List.rev X) Y). 
        rewrite List.rev_involutive in H. assumption. 
@@ -145,7 +145,7 @@ Lemma brel_list_app_elim_right : ∀ (T : Type) (r : brel T),
          brel_reflexive T r -> 
          brel_symmetric T r -> 
          ∀ (X  Y Z : list T), 
-            brel_list T r (X ++ Z) (Y ++ Z) = brel_list T r X Y. 
+            brel_list r (X ++ Z) (Y ++ Z) = brel_list r X Y. 
 Proof. intros T r refT symT X Y Z. 
        rewrite brel_list_app_reverse. 
        (* rev distributes over ++ *) 
@@ -158,8 +158,8 @@ Lemma brel_list_app_congruence_right : ∀ (S : Type) (r : brel S),
          brel_reflexive S r -> 
           brel_symmetric S r -> 
          ∀ (X  Y Z : list S), 
-             brel_list S r X Y = true -> 
-             brel_list S r (X  ++ Z) (Y ++ Z) = true. 
+             brel_list r X Y = true -> 
+             brel_list r (X  ++ Z) (Y ++ Z) = true. 
 Proof. intros T r refT symT X Y Z H. 
        induction Z; simpl. 
        rewrite List.app_nil_r. rewrite List.app_nil_r. 
@@ -187,7 +187,7 @@ Variable cong_bS : bop_congruence S rS bS.
 Notation "a [*] b"  := (bS a b) (at level 10).
 Notation "a == b"  := (rS a b = true) (at level 15).
 Notation "a != b"  := (rS a b = false) (at level 15).
-Notation "A === B"  := (brel_list S rS A B = true) (at level 15).
+Notation "A === B"  := (brel_list rS A B = true) (at level 15).
 Notation "A ^* B" := (bop_list_product_left S bS A B) (at level 10, no associativity).
 Notation "A *^ B" := (bop_list_product_right S bS A B) (at level 10, no associativity).
 Notation "a *> B" := (ltran_list_product S bS a B) (at level 10, no associativity).
@@ -264,14 +264,14 @@ Qed.
    s1 == s2 → t1 === t2 → s1 *> t1 === s2 *> t2
 *) 
 Lemma ltran_list_product_congruence : 
-          ltran_congruence S (list S) rS (brel_list S rS) (ltran_list_product S bS). 
+          ltran_congruence S (list S) rS (brel_list rS) (ltran_list_product S bS). 
 Proof. intros s1 s2 X Y H1 H2. 
        assert (C := ltran_list_product_congruence_aux X Y H2 s1 s2 H1). 
        assumption. 
 Qed. 
 
 Lemma rtran_list_product_congruence : 
-          rtran_congruence S (list S) rS (brel_list S rS) (rtran_list_product S bS). 
+          rtran_congruence S (list S) rS (brel_list rS) (rtran_list_product S bS). 
 Proof. intros s1 s2 X Y H1 H2. 
        assert (C := rtran_list_product_congruence_aux X Y H2 s1 s2 H1). 
        assumption. 
@@ -501,7 +501,7 @@ Qed.
    ∀ s1 s2 t1 t2 : list S, s1 === t1 → s2 === t2 → s1 ^* s2 === t1 ^* t2
 *)  
 Lemma bop_list_product_left_congruence : 
-      bop_congruence (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_congruence (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. intros X Z Y W H1 H2. 
        assert (C := bop_list_product_left_congruence_aux X Y H1 Z W H2). 
        assumption. 
@@ -626,7 +626,7 @@ Qed.
 
 Lemma bop_list_product_left_not_commutative_tmp1 : 
       bop_not_left_constant S rS bS -> 
-      bop_not_commutative (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_commutative (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_commutative, bop_not_left_constant. 
        intros [ [a [b c]] P].
        exists (a :: b :: nil, a :: c :: nil). compute. 
@@ -638,7 +638,7 @@ Defined.
 
 Lemma bop_list_product_left_not_commutative_tmp2 : 
       bop_not_right_constant S rS bS -> 
-      bop_not_commutative (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_commutative (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_commutative, bop_not_left_constant. 
        intros [ [a [b c]] P].
        exists (a :: b :: nil, a :: c :: nil). compute. 
@@ -652,7 +652,7 @@ Defined.
 Lemma bop_list_product_left_commutative : 
       brel_witness S rS -> 
       bop_left_constant S rS bS -> bop_right_constant S rS bS -> 
-      bop_commutative (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_commutative (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. intros W LC RC X.  
        assert (H := bop_not_prop1_implies_prop2 W (ttest LC RC)). 
        destruct H as [c P]. 
@@ -670,7 +670,7 @@ Admitted.
 Lemma bop_list_product_left_not_commutative_v1 (s : S) : 
       bop_prop1 -> 
       bop_commutative S rS bS -> 
-      bop_not_commutative (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_commutative (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_commutative. 
        intros [ a [ b [ c [ d P1]]]] commS.       
        exists (a :: b :: nil, c::d::nil). compute. 
@@ -687,7 +687,7 @@ Defined.
 
 Lemma bop_list_product_left_not_commutative_v3 (s : S) : 
       bop_not_commutative S rS bS -> 
-      bop_not_commutative (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_commutative (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_commutative. 
        intros [ [a b] P].
        exists (a :: nil, b :: nil). compute. 
@@ -696,7 +696,7 @@ Defined.
 
 (* ======================================================================== *) 
 Lemma bop_list_product_left_not_idempotent (s : S) : 
-      bop_not_idempotent (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_idempotent (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_idempotent. 
        exists (s :: s :: nil). compute. 
        case_eq (rS (s[*]s) s); intro H; auto. 
@@ -704,14 +704,14 @@ Defined.
 
 
 Lemma bop_list_product_right_not_idempotent (s : S) : 
-      bop_not_idempotent (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_idempotent (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_idempotent. 
        exists (s :: s :: nil). compute. 
        case_eq (rS (s[*]s) s); intro H; auto. 
 Defined. 
 
 Lemma bop_list_product_left_not_is_left (s : S) : 
-      bop_not_is_left (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_is_left (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_is_left. 
        exists (s :: s :: nil, s :: s :: nil). compute. 
        case_eq (rS (s[*]s) s); intro H; auto. 
@@ -719,14 +719,14 @@ Defined.
 
 
 Lemma bop_list_product_right_not_is_left (s : S) : 
-      bop_not_is_left (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_is_left (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_is_left. 
        exists (s :: s :: nil, s :: s :: nil). compute. 
        case_eq (rS (s[*]s) s); intro H; auto. 
 Defined. 
 
 Lemma bop_list_product_left_not_is_right (s : S) : 
-      bop_not_is_right (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_is_right (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_is_right. 
        exists (s :: s :: nil, s :: s :: nil). compute. 
        case_eq (rS (s[*]s) s); intro H; auto. 
@@ -734,7 +734,7 @@ Defined.
 
 
 Lemma bop_list_product_right_not_is_right (s : S) : 
-      bop_not_is_right (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_is_right (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_is_right. 
        exists (s :: s :: nil, s :: s :: nil). compute. 
        case_eq (rS (s[*]s) s); intro H; auto. 
@@ -742,7 +742,7 @@ Defined.
 
 Lemma bop_list_product_left_not_left_cancellative (s t : S) : 
       rS s t = false -> 
-      bop_not_left_cancellative (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_left_cancellative (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_left_cancellative. 
        intro H. 
        exists (nil, (s :: nil, t :: nil)).
@@ -751,7 +751,7 @@ Defined.
 
 Lemma bop_list_product_right_not_left_cancellative (s t : S) : 
       rS s t = false -> 
-      bop_not_left_cancellative (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_left_cancellative (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_left_cancellative. 
        intro H. 
        exists (nil, (s :: nil, t :: nil)).
@@ -760,7 +760,7 @@ Defined.
 
 Lemma bop_list_product_left_not_right_cancellative (s t : S) : 
       rS s t = false -> 
-      bop_not_right_cancellative (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_right_cancellative (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_right_cancellative. 
        intro H. 
        exists (nil, (s :: nil, t :: nil)).
@@ -769,7 +769,7 @@ Defined.
 
 Lemma bop_list_product_right_not_right_cancellative (s t : S) : 
       rS s t = false -> 
-      bop_not_right_cancellative (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_right_cancellative (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_right_cancellative. 
        intro H. 
        exists (nil, (s :: nil, t :: nil)).
@@ -777,7 +777,7 @@ Proof. unfold bop_not_right_cancellative.
 Defined. 
 
 Lemma bop_list_product_left_not_left_constant_v2 (s : S) : 
-      bop_not_left_constant (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_left_constant (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_left_constant. 
        exists (s :: nil, (nil, s :: nil)).
        compute. reflexivity. 
@@ -785,52 +785,52 @@ Defined.
 
 
 Lemma bop_list_product_right_not_left_constant_v2 (s : S) : 
-      bop_not_left_constant (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_left_constant (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_left_constant. 
        exists (s :: nil, (nil, s :: nil)).
        compute. reflexivity. 
 Defined. 
 
 Lemma bop_list_product_left_not_right_constant (s : S) : 
-      bop_not_right_constant (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_right_constant (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_right_constant. 
        exists (s :: nil, (nil, s :: nil)).
        compute. reflexivity. 
 Defined. 
 
 Lemma bop_list_product_right_not_right_constant (s : S) : 
-      bop_not_right_constant (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_right_constant (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_right_constant. 
        exists (s :: nil, (nil, s :: nil)).
        compute. reflexivity. 
 Defined. 
 
 Lemma bop_list_product_left_not_anti_left : 
-      bop_not_anti_left (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_anti_left (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_anti_left. 
        exists (nil, nil). compute. reflexivity. 
 Defined. 
 
 Lemma bop_list_product_right_not_anti_left : 
-      bop_not_anti_left (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_anti_left (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_anti_left. 
        exists (nil, nil). compute. reflexivity. 
 Defined. 
 
 Lemma bop_list_product_left_not_anti_right : 
-      bop_not_anti_right (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_anti_right (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_anti_right. 
        exists (nil, nil). compute. reflexivity. 
 Defined. 
 
 Lemma bop_list_product_right_not_anti_right : 
-      bop_not_anti_right (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_anti_right (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_anti_right. 
        exists (nil, nil). compute. reflexivity. 
 Defined. 
 
 Lemma bop_list_product_left_not_selective (s : S) : 
-      bop_not_selective (list S) (brel_list S rS) (bop_list_product_left S bS). 
+      bop_not_selective (list S) (brel_list rS) (bop_list_product_left S bS). 
 Proof. unfold bop_not_selective. 
        exists (s :: s :: nil, s :: s :: nil). 
        compute.  case_eq (rS (s[*]s) s); intro H; auto. 
@@ -838,7 +838,7 @@ Defined.
 
 
 Lemma bop_list_product_right_not_selective (s : S) : 
-      bop_not_selective (list S) (brel_list S rS) (bop_list_product_right S bS). 
+      bop_not_selective (list S) (brel_list rS) (bop_list_product_right S bS). 
 Proof. unfold bop_not_selective. 
        exists (s :: s :: nil, s :: s :: nil). 
        compute.  case_eq (rS (s[*]s) s); intro H; auto. 

@@ -6,33 +6,52 @@ Require Import CAS.theory.bop_properties.
 Require Import CAS.theory.facts. 
 
 Lemma brel_reduce_reflexive : ∀ (S : Type) (r : brel S) (u : unary_op S), 
-              (brel_reflexive S r) → brel_reflexive S (brel_reduce S r u). 
+              (brel_reflexive S r) → brel_reflexive S (brel_reduce r u). 
 Proof. intros S r u refS s. unfold brel_reduce. apply refS. Defined. 
 
 
 Lemma brel_reduce_symmetric : ∀ (S : Type) (r : brel S)  (u : unary_op S), 
-              (brel_symmetric S r) → brel_symmetric S (brel_reduce S r u). 
+              (brel_symmetric S r) → brel_symmetric S (brel_reduce r u). 
 Proof. intros S r u symS. unfold brel_symmetric, brel_reduce. intros s t. apply symS. Defined. 
 
 Lemma brel_reduce_transitive : ∀ (S : Type) (r : brel S) (u : unary_op S), 
-        (brel_transitive _ r) → brel_transitive S (brel_reduce S r u). 
+        (brel_transitive _ r) → brel_transitive S (brel_reduce r u). 
 Proof. intros S r u transS. unfold brel_transitive, brel_reduce. intros s t V. apply transS. Defined.          
 
 Lemma brel_reduce_antisymmetric : ∀ (S : Type) (r : brel S)  (u : unary_op S), 
-              uop_injective S r u  → 
-              brel_antisymmetric S r (brel_reduce S r u). 
-Proof. intros S r u injS . unfold brel_antisymmetric. intros s t H1 _. 
-       apply injS in H1. assumption. 
+    brel_antisymmetric S r r  →
+    brel_antisymmetric S (brel_reduce r u) (brel_reduce r u). 
+Proof. unfold brel_antisymmetric. unfold brel_reduce. 
+       intros S r u asymS .
+       intros s t H1 H2.
+       apply asymS; auto. 
 Defined. 
+
+Lemma brel_reduce_not_antisymmetric : ∀ (S : Type) (r : brel S)  (u : unary_op S),
+    uop_congruence S r u →        
+    uop_injective S r u →    
+    brel_not_antisymmetric S r r  →
+    brel_not_antisymmetric S (brel_reduce r u) (brel_reduce r u). 
+Proof. unfold brel_not_antisymmetric. unfold brel_reduce. 
+       intros S r u cong injS.
+       intros [[s t] [[H1 H2] H3]].
+       exists (s, t).
+       split. split. apply cong; auto. apply cong; auto.
+       case_eq(r (u s) (u t)); intro J.
+          apply injS in J. rewrite J in H3. discriminate H3.
+          reflexivity.
+Defined. 
+
+(*
 
 Lemma brel_reduce_witness : ∀ (S : Type) (r : brel S)  (u : unary_op S), 
               brel_reflexive S r -> 
               brel_witness S r -> 
-              brel_witness S (brel_reduce S r u). 
+              brel_witness S (brel_reduce r u). 
 Proof. unfold brel_witness, brel_reduce. 
        intros S r u refS [s P]. exists (u s). apply refS. 
 Defined. 
-
+*)
 
 (* this should be case-by-case .... 
 
@@ -60,7 +79,7 @@ Defined.
 
 Lemma brel_reduce_congruence : ∀ (S : Type) (r : brel S) (u : unary_op S), 
         brel_congruence S r r -> 
-        brel_congruence S (brel_reduce S r u) (brel_reduce S r u). 
+        brel_congruence S (brel_reduce r u) (brel_reduce r u). 
 Proof. intros S r u congS. compute. intros s t w v H1 H2. 
        apply congS; auto. 
 Qed. 
@@ -68,7 +87,7 @@ Qed.
 
 Lemma brel_reduce_uop_congruence : ∀ (S : Type) (eq : brel S)  (u : unary_op S) (f : unary_op S), 
       uop_uop_congruence S eq u f  → 
-          uop_congruence S (brel_reduce S eq u) f. 
+          uop_congruence S (brel_reduce eq u) f. 
 Proof. intros S eq u f cong. 
        unfold uop_congruence.  
        unfold brel_reduce. 
@@ -78,7 +97,7 @@ Defined.
 
 Lemma brel_reduce_bop_congruence : ∀ (S : Type) (eq : brel S)  (u : unary_op S) (b : binary_op S), 
        bop_uop_congruence S eq u b  → 
-          bop_congruence S (brel_reduce S eq u) b. 
+          bop_congruence S (brel_reduce eq u) b. 
 Proof. intros S eq u b cong. 
        unfold bop_congruence.  
        unfold brel_reduce. 
@@ -90,7 +109,7 @@ Lemma brel_reduce_bop_idempotent :
    brel_reflexive S r    → 
    uop_congruence S r u  → 
    bop_idempotent S r b  → 
-       bop_idempotent S (brel_reduce S r u) b. 
+       bop_idempotent S (brel_reduce r u) b. 
 Proof. intros S r u b refS cong_u idem_b. unfold brel_reduce, bop_idempotent. intro s. 
        assert (A := idem_b s). 
        assert (B := cong_u _ _ A). assumption. 
@@ -102,7 +121,7 @@ Lemma brel_reduce_bop_commutative :
    brel_reflexive S r    → 
    uop_congruence S r u  → 
    bop_commutative S r b  → 
-       bop_commutative S (brel_reduce S r u) b. 
+       bop_commutative S (brel_reduce r u) b. 
 Proof. intros S r u b refS cong_u comm_b. unfold brel_reduce, bop_commutative. intros s t. 
        assert (A := comm_b s t). 
        assert (B := cong_u _ _ A). assumption. 
@@ -114,7 +133,7 @@ Lemma brel_reduce_preserves_left_positive :
    brel_transitive S eq →
    uop_congruence S eq u →
    uop_idempotent S eq u →
-   uop_preserves_left_positive S (brel_reduce S eq u) u. 
+   uop_preserves_left_positive S (brel_reduce eq u) u. 
 Proof. intros S eq lt u transS cong idem. unfold uop_preserves_left_positive. unfold brel_reduce. 
        unfold uop_congruence in cong. intros s t H. 
        assert (A := idem s). 
@@ -128,7 +147,7 @@ Lemma brel_reduce_preserves_left_negative :
    brel_transitive S eq →
    uop_congruence S eq u →
    uop_idempotent S eq u →
-   uop_preserves_left_negative S (brel_reduce S eq u) u. 
+   uop_preserves_left_negative S (brel_reduce eq u) u. 
 Proof. intros S eq lt u symS transS cong idem. 
        unfold uop_preserves_left_negative. unfold brel_reduce. 
        unfold uop_congruence in cong. intros s t H. 
@@ -152,7 +171,7 @@ Lemma brel_reduce_uop_bop_associative :
     uop_congruence S eq u →
     uop_bop_left_invariant S eq u b →
     uop_bop_right_invariant S eq u b →
-      uop_bop_associative S (brel_reduce S eq u) u b. 
+      uop_bop_associative S (brel_reduce eq u) u b. 
 Proof. intros S eq u b symS transS assS cong_u Li Ri. 
        unfold brel_reduce, uop_bop_associative. intros s t v. 
        assert (A := assS s t v). 

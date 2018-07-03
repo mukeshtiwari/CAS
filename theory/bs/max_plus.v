@@ -110,7 +110,25 @@ ann(max) = NONE
 
 *) 
 
+Lemma bop_max_plus_not_id_equals_ann : bops_not_id_equals_ann nat brel_eq_nat bop_max bop_plus. 
+Proof. unfold bops_not_id_equals_ann. 
+       unfold bop_not_is_id, bop_not_is_ann.
+       unfold brel_eq_nat, bop_max, bop_plus.
+       intro s. destruct s. right. exists (S 0). left. compute. reflexivity.
+       left. exists 0. right. compute. reflexivity. 
+Defined.
 
+Lemma bop_plus_max_not_id_equals_ann : bops_not_id_equals_ann nat brel_eq_nat bop_plus bop_max. 
+Proof. unfold bops_not_id_equals_ann. 
+       unfold bop_is_id, bop_is_ann. 
+       unfold bop_not_is_id, bop_not_is_ann.
+       unfold brel_eq_nat, bop_max, bop_plus.
+       intro s. destruct s. right. exists (S 0). left. compute. reflexivity.
+       left. exists 0. left. simpl. reflexivity. 
+Defined.
+
+
+(*
 Lemma plus_1 : ∀ s : nat, brel_eq_nat (bop_plus 1 s) s = false. 
 Proof. induction s. compute. reflexivity. 
        unfold bop_plus.  rewrite <- plus_n_Sm. apply S_cong_neg. 
@@ -127,7 +145,7 @@ Qed.
 Lemma bop_max_plus_not_id_equals_ann : 
         bops_not_id_equals_ann nat brel_eq_nat bop_max bop_plus. 
 Proof. unfold bops_not_id_equals_ann. 
-       unfold bop_is_id, bop_is_ann. 
+       unfold bop_not_is_id, bop_not_is_ann. 
        intros i a H1 H2. 
        destruct (H2 1) as [L R]. 
        destruct a. 
@@ -145,6 +163,8 @@ Proof. unfold bops_not_id_equals_ann.
           compute in L. discriminate.
           rewrite max_S_false in R. discriminate.
 Qed. 
+ *)
+
 
 (* absorption *) 
 

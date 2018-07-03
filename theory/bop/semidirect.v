@@ -177,7 +177,7 @@ Notation "a @ b"  := (bS a b) (at level 15).
 Notation "a |> b"  := (bop_semidirect S T bS bT f a b) (at level 15).
 
 
-Lemma bop_semidirect_associative : bop_associative (S * T) (brel_product _ _ rS rT) semidirect. 
+Lemma bop_semidirect_associative : bop_associative (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
        apply andb_is_true_right. split. 
           (* show ((s1 @ f t1 s2) @ f (t1 # t2) s3) =S (s1 @ f t1 (s2 @ f t2 s3))
@@ -202,7 +202,7 @@ Proof. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
 Defined.  
 
 
-Lemma bop_semidirect_congruence : bop_congruence (S * T) (brel_product _ _ rS rT) semidirect.
+Lemma bop_semidirect_congruence : bop_congruence (S * T) (brel_product rS rT) semidirect.
 Proof. intros [s1 s2] [t1 t2] [u1 u2] [w1 w2]; simpl. intros H1 H2. 
        destruct (andb_is_true_left _ _ H1) as [C1 C2].
        destruct (andb_is_true_left _ _ H2) as [C3 C4].
@@ -212,7 +212,7 @@ Proof. intros [s1 s2] [t1 t2] [u1 u2] [w1 w2]; simpl. intros H1 H2.
 Defined.
 
 
-Lemma bop_semidirect_exists_id : bop_exists_id (S * T) (brel_product _ _ rS rT) semidirect. 
+Lemma bop_semidirect_exists_id : bop_exists_id (S * T) (brel_product rS rT) semidirect. 
 Proof. destruct (exists_id_implies_exists_left_id_and_exists_right_id _ _ _ has_idS) as [idS [is_left_idS is_right_idS]].
        destruct (exists_id_implies_exists_left_id_and_exists_right_id _ _ _ has_idT) as [idT [is_left_idT is_right_idT]].
        exists (idS, idT). intros [s2 t2].
@@ -233,11 +233,10 @@ Proof. destruct (exists_id_implies_exists_left_id_and_exists_right_id _ _ _ has_
           rewrite fact4 in J. discriminate.
 Qed.           
 
-(* needs negation *) 
 Lemma bop_semidirect_exists_ann :
   bop_exists_ann S rS bS ->
   bop_exists_ann T rT bT ->
-         bop_exists_ann (S * T) (brel_product _ _ rS rT) semidirect. 
+         bop_exists_ann (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [annS P] [annT Q]. exists (annS, annT). intros [s2 t2]. 
        destruct (Q t2) as [LT RT].
        split; compute.
@@ -257,7 +256,7 @@ Qed.
 
 Lemma bop_semidirect_not_exists_ann_v1 :
   bop_not_exists_ann T rT bT ->
-         bop_not_exists_ann (S * T) (brel_product _ _ rS rT) semidirect. 
+         bop_not_exists_ann (S * T) (brel_product rS rT) semidirect. 
 Proof. intros H (s, t). unfold bop_not_is_ann.
        destruct(H t) as [t' [Q | Q]]; exists (s, t'); compute.
           left. case_eq (rS (s @ f t s) s); intro J; auto. 
@@ -267,7 +266,7 @@ Qed.
 Lemma bop_semidirect_not_exists_ann_v2 :
   bop_not_exists_ann S rS bS ->
   bop_exists_ann T rT bT ->
-         bop_not_exists_ann (S * T) (brel_product _ _ rS rT) semidirect. 
+         bop_not_exists_ann (S * T) (brel_product rS rT) semidirect. 
 Proof. intros F [annT P] (s, t). compute in F. 
        destruct (F (f annT s)) as [wS Q]. exists (wS, annT). compute.
        case_eq(rS (s @ f t wS) s); intro J; case_eq(rS (wS @ f annT s) s); intro K; auto.
@@ -281,7 +280,7 @@ Qed.
 Lemma bop_semidirect_idempotent : 
       ltr_idempotent T S rS bS f → 
       bop_idempotent T rT bT → 
-         bop_idempotent (S * T) (brel_product _ _ rS rT) semidirect. 
+         bop_idempotent (S * T) (brel_product rS rT) semidirect. 
 Proof. 
    unfold bop_idempotent. intros L R (s, t). simpl. 
    apply andb_is_true_right. split. 
@@ -292,7 +291,7 @@ Defined.
 
 Lemma bop_semidirect_not_idempotent_v1 : 
       ltr_not_idempotent T S rS bS f → 
-         bop_not_idempotent (S * T) (brel_product _ _ rS rT) semidirect. 
+         bop_not_idempotent (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [ [t s] P]. 
        exists (s, t). simpl. 
        apply andb_is_false_right. left. assumption. 
@@ -300,7 +299,7 @@ Defined.
 
 Lemma bop_semidirect_not_idempotent_v2 (s : S) : 
       bop_not_idempotent T rT bT → 
-         bop_not_idempotent (S * T) (brel_product _ _ rS rT) semidirect. 
+         bop_not_idempotent (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [ t P ]. 
        exists (s, t). simpl. 
        apply andb_is_false_right. right . assumption. 
@@ -311,7 +310,7 @@ Lemma bop_semidirect_left_cancellative :
       (∀ (s1 s2 : S) (t : T), f t s1 =S f t s2  → s1 =S s2) → 
       bop_left_cancellative S rS bS  → 
       bop_left_cancellative T rT bT → 
-      bop_left_cancellative (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_left_cancellative (S * T) (brel_product rS rT) semidirect. 
 Proof. 
    intros I L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
    intro H. apply andb_is_true_left in H. destruct H as [HL HR]. 
@@ -322,7 +321,7 @@ Defined.
 Lemma bop_semidirect_left_cancellative_II :
       (∀ (s s' s'': S) (t : T), (s @ (f t s')) =S (s @ (f t s''))  → s' =S s'') → 
       bop_left_cancellative T rT bT → 
-      bop_left_cancellative (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_left_cancellative (S * T) (brel_product rS rT) semidirect. 
 Proof. 
    intros I R [s1 t1] [s2 t2] [s3 t3]; simpl; intro H. 
    apply andb_is_true_left in H. destruct H as [HL HR]. 
@@ -331,7 +330,7 @@ Defined.
 
 Lemma bop_semidirect_not_left_cancellative_v1 (s : S):
       bop_not_left_cancellative T rT bT → 
-      bop_not_left_cancellative (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_not_left_cancellative (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [[t1 [t2 t3]] [L R]].  exists ( (s, t1), ( (s, t2), (s, t3) ) ). compute. split. 
        rewrite (refS (s @ f t1 s)). assumption.        
        rewrite (refS s). assumption.        
@@ -340,7 +339,7 @@ Defined.
 
 Lemma bop_semidirect_not_left_cancellative_v2 :
       { s : S & {s' : S & {s'': S & {t : T &  (s @ (f t s')) =S (s @ (f t s'')) * (s' !=S s'')}}}} -> 
-      bop_not_left_cancellative (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_not_left_cancellative (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [s [s' [s'' [t [L R]]]]].  exists ( (s, t), ( (s', t), (s'', t) ) ). compute.
        rewrite R. rewrite L. rewrite (refT (t # t)). split; reflexivity. 
 Defined. 
@@ -349,7 +348,7 @@ Defined.
 Lemma bop_semidirect_right_cancellative : 
       (∀ (s1 s2 s3 : S) (t1 t2 : T), (s2 @ (f t1 s1)) =S (s3 @ (f t2 s1)) -> s2 =S s3) -> 
       bop_right_cancellative T rT bT → 
-      bop_right_cancellative (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_right_cancellative (S * T) (brel_product rS rT) semidirect. 
 Proof. 
    intros L R [s1 t1] [s2 t2] [s3 t3] ; simpl. intro H. 
    apply andb_is_true_left in H. destruct H as [HL HR]. 
@@ -379,37 +378,42 @@ in λ t : S * T,
        → bop_right_cancellative T rT bT → bop_right_cancellative (S * T) (brel_product S T rS rT) semidirect
 
 
+HERE
+
 *) 
 Lemma bop_semidirect_not_right_cancellative_v1 (s : S) : 
-      bop_not_right_cancellative T rT bT → 
-      bop_not_right_cancellative (S * T) (brel_product _ _ rS rT) semidirect. 
+  bop_not_right_cancellative T rT bT →
+  (∀ (s : S) (t1 t2 : T), (s @ f t1 s) =S (s @ f t2 s))  →
+      bop_not_right_cancellative (S * T) (brel_product rS rT) semidirect. 
 Proof. 
-   intros [[t1 [t2 t3]] [L R]]; exists ( (s, t1), ( (s, t2), (s, t3) ) ). split. 
+   intros [[t1 [t2 t3]] [L R]] K; exists ( (s, t1), ( (s, t2), (s, t3) ) ). split. 
       compute. case_eq (rS (s @ f t2 s) (s @ f t3 s)); intro J.
          exact L. 
-         admit. (* (s @ f t2 s) =S (s @ f t3 s) *) 
+         assert (F := K s t2 t3). rewrite F in J. discriminate. 
       compute. rewrite (refS s). exact R. 
-Admitted. 
+Defined. 
 
 
 
 Lemma bop_semidirect_is_left : 
       bop_is_left S rS bS → 
       bop_is_left T rT bT → 
-      bop_is_left (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_is_left (S * T) (brel_product rS rT) semidirect. 
 Proof. intros L R (s1, t1) (s2, t2). simpl. rewrite L, R. simpl. reflexivity. Defined. 
 
 Lemma bop_semidirect_not_is_left_v1 (t : T) : 
       bop_not_is_left S rS bS → 
-      bop_not_is_left (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_not_is_left (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [[s s'] P]. exists ( (s, t), (s', t) ). compute.
-       admit.
+       case_eq(rS (s @ f t s') s); intro H.
+          admit. 
+          reflexivity. 
 Admitted.        
 
 
 Lemma bop_semidirect_not_is_left_v2 (s : S) : 
       bop_not_is_left T rT bT → 
-      bop_not_is_left (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_not_is_left (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [[t t'] P]. exists ( (s, t), (s, t') ). compute. rewrite P. 
        case_eq (rS (s @ f t s) s); intro J; auto. 
 Qed. 
@@ -418,7 +422,7 @@ Qed.
 Lemma bop_semidirect_left_constant : 
       bop_left_constant S rS bS → 
       bop_left_constant T rT bT → 
-      bop_left_constant (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_left_constant (S * T) (brel_product rS rT) semidirect. 
 Proof. 
    intros L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
    apply andb_is_true_right. split. apply L. apply R. 
@@ -427,14 +431,14 @@ Defined.
 
 Lemma bop_semidirect_not_left_constant_v1 (s : S) :
       bop_not_left_constant T rT bT → 
-      bop_not_left_constant (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_not_left_constant (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [[t1 [t2 t3]] F]. exists ( (s, t1), ( (s, t2), (s, t3) ) ). compute.
        rewrite (refS (s @ f t1 s)). exact F. 
 Qed. 
 
 Lemma bop_semidirect_not_left_constant_v2 (t : T) :
       bop_not_left_constant S rS bS → 
-      bop_not_left_constant (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_not_left_constant (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [[s1 [s2 s3]] F]. exists ( (s1, t), ( (s2, t), (s3, t) ) ). compute.
        rewrite (refT (t # t)).
        case_eq(rS (s1 @ f t s2) (s1 @ f t s3)); intro J; auto. 
@@ -446,7 +450,7 @@ Lemma bop_semidirect_is_right_I :
       (((bop_is_right S rS bS) * (∀ (s : S) (t: T), rS (f t s) s = true)) 
        + (∀ (s1 s2 : S) (t: T), rS (bS s1 (f t s2)) s2 = true))   → 
       bop_is_right T rT bT → 
-      bop_is_right (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_is_right (S * T) (brel_product rS rT) semidirect. 
 Proof. intros L R (s1, t1) (s2, t2). simpl. rewrite R. simpl.
        destruct L as [ [rcS L ] | L].
          admit. 
@@ -457,7 +461,7 @@ Admitted.
 Lemma bop_semidirect_is_right_II :
        (∀ (s1 s2 : S) (t: T), s1 @ (f t s2) =S s2)   → 
       bop_is_right T rT bT → 
-      bop_is_right (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_is_right (S * T) (brel_product rS rT) semidirect. 
 Proof. intros H R (s1, t1) (s2, t2). compute.
        rewrite (H s1 s2 t1). apply R. 
 Qed.        
@@ -470,7 +474,7 @@ Lemma bop_semidirect_right_constant :
       (((bop_right_constant S rS bS) * (∀ (s : S) (t1 t2: T), rS (f t1 s) (f t2 s) = true)) 
          + (∀ (s1 s2 s3 : S) (t1 t2: T), rS (bS s2 (f t1 s1)) (bS s3 (f t2 s1)) = true)) → 
       bop_right_constant T rT bT → 
-      bop_right_constant (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_right_constant (S * T) (brel_product rS rT) semidirect. 
 Proof. 
    intros L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
    apply andb_is_true_right. split. 
@@ -484,7 +488,7 @@ Admitted.
 (* needs negation *) 
 Lemma bop_semidirect_product_anti_left : 
       (bop_anti_left S rS bS) + (bop_anti_left T rT bT) → 
-      bop_anti_left (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_anti_left (S * T) (brel_product rS rT) semidirect. 
 Proof. 
    intros [P | P] [s1 t1] [s2 t2]; simpl; apply andb_is_false_right.
       left. apply P. 
@@ -496,7 +500,7 @@ Lemma bop_semidirect_anti_right :
       ((bop_anti_right S rS bS) * (∀ (s : S) (t : T), rS s (f t s) = true)) 
       + (∀ (s1 s2 : S) (t : T), rS s1 (bS s2 (f t s1)) = false)
       + (bop_anti_right T rT bT) → 
-      bop_anti_right (S * T) (brel_product _ _ rS rT) semidirect. 
+      bop_anti_right (S * T) (brel_product rS rT) semidirect. 
 Proof. 
    intros [R | L] [s1 t1] [s2 t2]; simpl; apply andb_is_false_right.
       left. destruct R as [ [rcS P ] | P].
@@ -541,7 +545,7 @@ Lemma bop_semidirect_selective :
        +
     ( (s2 =S (s1 @ f t1 s2)) *  (t2 =T (t1 # t2)) )
    ) → 
-   bop_selective (S * T) (brel_product _ _ rS rT) semidirect. 
+   bop_selective (S * T) (brel_product rS rT) semidirect. 
 Proof. intros P [s1 t1] [s2 t2]; compute.
        assert (Q := P s1 s2 t1 t2).
        destruct Q as [[H1 H2]| [H1 H2]].
@@ -585,7 +589,7 @@ Require "f t idS = idS"?
 Lemma bop_semidirect_commutative :
       ltr_commutative T S rS bS f →    (* s1 @ (f t1 s2) =S s2 @ (f t2 s1) *) 
       bop_commutative T rT bT → 
-         bop_commutative (S * T) (brel_product _ _ rS rT) semidirect. 
+         bop_commutative (S * T) (brel_product rS rT) semidirect. 
 Proof. intros L R (s1, t1) (s2, t2). simpl. 
        apply andb_is_true_right. split. 
           rewrite L. reflexivity.           
@@ -594,7 +598,7 @@ Defined.
 
 Lemma bop_semidirec_not_commutative_v1 : 
       ltr_not_commutative T S rS bS f → 
-         bop_not_commutative (S * T) (brel_product _ _ rS rT) semidirect. 
+         bop_not_commutative (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [[ [t1 t2] [s1 s2 ] ] P]. 
        exists ((s1, t1), (s2, t2)). simpl. 
        apply andb_is_false_right. left. assumption. 
@@ -603,7 +607,7 @@ Defined.
 
 Lemma bop_semidirec_not_commutative_v2 (s : S) : 
       bop_not_commutative T rT bT → 
-         bop_not_commutative (S * T) (brel_product _ _ rS rT) semidirect. 
+         bop_not_commutative (S * T) (brel_product rS rT) semidirect. 
 Proof. intros [ [t1 t2] P]. 
        exists ((s, t1), (s, t2)). simpl. 
        apply andb_is_false_right. right. assumption. 

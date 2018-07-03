@@ -24,17 +24,28 @@ Definition bop_right_distributive_decidable (S : Type) (r : brel S) (add : binar
    := (bop_right_distributive S r add mul) + (bop_not_right_distributive S r add mul). 
 
 
+(*
 Definition bops_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
 := { eI : bop_exists_id S r b1 & 
    { eA : bop_exists_ann S r b2 & r (projT1 eI) (projT1 eA)  = true }}. 
+ *)
 
+Definition bops_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
+:= { i : S & (bop_is_id S r b1 i) * (bop_is_ann S r b2 i)}. 
+
+(*
 Definition bops_not_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
 :=  ∀ (i a : S), bop_is_id S r b1 i -> bop_is_ann S r b2 a -> r i a = false. 
+ *)
+
+Definition bops_not_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
+:= ∀ (s : S), (bop_not_is_id S r b1 s) + (bop_not_is_ann S r b2 s). 
 
 Definition bops_id_equals_ann_decidable 
    (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
    := (bops_id_equals_ann S r b1 b2) + (bops_not_id_equals_ann S r b1 b2). 
 
+(* Used? 
 Definition bops_id_equals_id (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
 := { eI : bop_exists_id S r b1 & 
    { eA : bop_exists_id S r b2 & r (projT1 eI) (projT1 eA)  = true }}. 
@@ -46,7 +57,6 @@ Definition bops_id_equals_id_decidable
    (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
    := (bops_id_equals_id S r b1 b2) + (bops_not_id_equals_id S r b1 b2). 
 
-
 Definition bops_ann_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
 := { eI : bop_exists_ann S r b1 & 
    { eA : bop_exists_ann S r b2 & r (projT1 eI) (projT1 eA)  = true }}. 
@@ -57,11 +67,10 @@ Definition bops_not_ann_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b
 Definition bops_ann_equals_ann_decidable 
    (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
    := (bops_ann_equals_ann S r b1 b2) + (bops_not_ann_equals_ann S r b1 b2). 
-
+*) 
 
 
 (* Absorptivity *) 
-
 
 Definition bops_left_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     ∀ (s t : S), r s (b1 s (b2 s t)) = true.
@@ -81,7 +90,6 @@ Definition bops_not_left_right_absorptive (S : Type) (r : brel S) (b1 b2 : binar
 Definition bops_left_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     (bops_left_right_absorptive S r b1 b2) + (bops_not_left_right_absorptive S r b1 b2). 
 
-
 Definition bops_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     ∀ (s t : S), r s (b1 (b2 s t) s) = true.
 
@@ -90,7 +98,6 @@ Definition bops_not_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binar
 
 Definition bops_right_left_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     (bops_right_left_absorptive S r b1 b2) + (bops_not_right_left_absorptive S r b1 b2). 
-
 
 Definition bops_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     ∀ (s t : S), r s (b1 (b2 t s) s) = true.
@@ -101,7 +108,7 @@ Definition bops_not_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : bina
 Definition bops_right_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     (bops_right_right_absorptive S r b1 b2) + (bops_not_right_right_absorptive S r b1 b2). 
 
-
+(*
 Definition bops_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
           (bops_left_left_absorptive S r b1 b2)  * 
           (bops_left_right_absorptive S r b1 b2) * 
@@ -122,4 +129,4 @@ Definition bops_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op
 
 Definition bops_left_left_dependent_distributive (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
    := ∀ s t u : S, r t (add t u) = true -> r (mul s t) (add (mul s t) (mul s u)) = true. 
-
+*)

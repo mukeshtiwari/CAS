@@ -52,11 +52,15 @@ Lemma bop_max_not_is_right : bop_not_is_right nat brel_eq_nat bop_max.
 Proof. unfold bop_not_is_left. exists (1, 0); simpl. reflexivity. Defined. 
 
 
-Lemma bop_max_exists_id : bop_exists_id nat brel_eq_nat bop_max.
-Proof. exists 0. intro s. unfold bop_max. split. 
+
+Lemma bop_max_zero_is_id : bop_is_id nat brel_eq_nat bop_max 0.  
+intro s. unfold bop_max. split. 
        unfold max. apply brel_eq_nat_reflexive. 
        rewrite max_comm. unfold max. apply brel_eq_nat_reflexive. 
-Defined. 
+Qed. 
+                                                                               
+Lemma bop_max_exists_id : bop_exists_id nat brel_eq_nat bop_max.
+Proof. exists 0. apply bop_max_zero_is_id. Defined. 
 
 Lemma bop_max_S : ∀ s t : nat, bop_max (S s) (S t) = S (bop_max s t). 
 Proof. unfold bop_max. induction s; induction t; compute; reflexivity. Defined. 

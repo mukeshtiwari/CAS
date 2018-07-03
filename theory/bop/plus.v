@@ -46,11 +46,15 @@ Proof. unfold bop_not_is_left. exists (0, 1); simpl. reflexivity. Defined.
 Lemma bop_plus_not_is_right : bop_not_is_right nat brel_eq_nat bop_plus.
 Proof. unfold bop_not_is_left. exists (1, 0); simpl. reflexivity. Defined. 
 
-Lemma bop_plus_exists_id : bop_exists_id nat brel_eq_nat bop_plus.
-Proof. exists 0. intro s. unfold bop_plus. split. 
+
+Lemma bop_plus_zero_is_id : bop_is_id nat brel_eq_nat bop_plus 0.
+Proof. intro s. unfold bop_plus. split. 
        unfold plus. apply brel_eq_nat_reflexive. 
        rewrite plus_comm. unfold plus. apply brel_eq_nat_reflexive. 
-Defined. 
+Qed. 
+
+Lemma bop_plus_exists_id : bop_exists_id nat brel_eq_nat bop_plus.
+Proof. exists 0. apply bop_plus_zero_is_id. Defined. 
 
 Lemma bop_plus_S_left : ∀ s t : nat, bop_plus (S s) t = S (bop_plus s t). 
 Proof. unfold bop_plus. induction s; induction t; compute; reflexivity. Defined. 

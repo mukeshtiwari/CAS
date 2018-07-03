@@ -23,6 +23,7 @@ Proof. unfold bop_right_distributive.
        apply brel_eq_nat_reflexive. 
 Qed. 
 
+(*
 Lemma bops_max_min_id_equals_ann : 
       bops_id_equals_ann nat brel_eq_nat bop_max bop_min. 
 Proof. exists bop_max_exists_id. exists bop_min_exists_ann. compute. reflexivity. Qed. 
@@ -36,7 +37,7 @@ Proof. unfold bops_not_id_equals_ann. intros i a F1 F2.
           destruct (F2 s) as [G1 G2]. 
           rewrite G2 in H. discriminate. 
 Qed. 
-
+*)
 
 Lemma bops_max_min_left_left_absorptive  : 
      bops_left_left_absorptive nat brel_eq_nat bop_max bop_min. 

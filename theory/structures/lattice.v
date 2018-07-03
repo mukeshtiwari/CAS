@@ -8,11 +8,11 @@ Require Import CAS.theory.brel_properties.
 Require Import CAS.theory.bop_properties. 
 Require Import CAS.theory.bs_properties.
 
-Section Lattice.
+Section Lattice.  (* (S, join, meet) *) 
 
 Variable S : Type.
 Variable eqv : brel S.
-Variable nt  : brel_nontrivial S eqv.                  
+
 
 Variable ref : brel_reflexive S eqv. 
 Variable sym : brel_symmetric S eqv.
@@ -39,7 +39,15 @@ Notation "a != b"    := (eqv a b = false) (at level 15).
 Notation "a (j) b"   := (join a b) (at level 15).
 Notation "a (m) b"   := (meet a b) (at level 15).
 
-Lemma meet_to_join : ∀ (a b : S),  a == a (m) b → b == a (j) b.
+(* H : a (m) b = a 
+    so b (j) (a (m) b) = b (j) a (cng) 
+                       = a (j) b (com)
+
+   b = b (j) (b (m) a)  (abs) 
+     = b (j) (a (m) b)  (com) 
+     = a (j) b          (trn) 
+*)
+Lemma lattice_meet_to_join_left : ∀ (a b : S),  a == a (m) b → b == a (j) b.
 Proof. intros a b H.
        assert (F1 := abs b a).
        assert (F2 := m_com a b). apply sym in F2.       
@@ -52,7 +60,27 @@ Proof. intros a b H.
        exact F9.
 Defined. 
 
-Lemma join_to_meet : ∀ (a b : S),  a == a (j) b → b == a (m) b.
+(* H : a = b (m) a 
+   b = b (j) (b (m) a)  (abs) 
+     = b (j) a          (H, cng) 
+*)
+Lemma lattice_meet_to_join_right : ∀ (a b : S),  a == b (m) a → b == b (j) a.
+Proof. intros a b H.
+       assert (F1 := abs b a).
+       assert (F2 := j_cng _ _ _ _ (ref b) H). apply sym in F2. 
+       assert (F3 := trn _ _ _ F1 F2). 
+       exact F3.
+Defined. 
+
+(* H : a (j) b = a 
+    so b (m) (a (j) b) = b (m) a (cng) 
+                       = a (m) b (com)
+
+   b = b (m) (b (j) a)  (abs) 
+     = b (m) (a (j) b)  (com) 
+     = a (m) b          (trn) 
+*)
+Lemma lattice_join_to_meet_left : ∀ (a b : S),  a == a (j) b → b == a (m) b.
 Proof. intros a b H.
        assert (F1 := abs_dual b a).
        assert (F2 := j_com a b). apply sym in F2.       
@@ -65,9 +93,22 @@ Proof. intros a b H.
        exact F9.
 Qed.
 
-Lemma one_is_join_annihilator: ∀ (i : S),  bop_is_id S eqv meet i → bop_is_ann S eqv join i. 
+(* H : a = b (j) a 
+   b = b (m) (b (j) a)  (abs_dual) 
+     = b (j) a          (H, cng) 
+*)
+Lemma lattice_join_to_meet_right : ∀ (a b : S),  a == b (j) a → b == b (m) a.
+Proof. intros a b H.
+       assert (F1 := abs_dual b a).
+       assert (F2 := m_cng _ _ _ _ (ref b) H). apply sym in F2. 
+       assert (F3 := trn _ _ _ F1 F2). 
+       exact F3.
+Defined. 
+
+
+Lemma lattice_one_is_join_annihilator: ∀ (i : S),  bop_is_id S eqv meet i → bop_is_ann S eqv join i. 
 Proof. intros i H a. destruct (H a) as [L R]. apply sym in L. apply sym in R. 
-       apply meet_to_join in R.
+       apply lattice_meet_to_join_left in R.
        split.
        assert (F1 := j_com a i).
        assert (F2 := trn _ _ _ R F1).
@@ -75,19 +116,9 @@ Proof. intros i H a. destruct (H a) as [L R]. apply sym in L. apply sym in R.
        apply sym. exact R.
 Defined. 
 
-Lemma zero_is_meet_annihilator: ∀ (i : S),  bop_is_id S eqv join i → bop_is_ann S eqv meet i. 
+Lemma lattice_join_annihilator_is_one : ∀ (i : S),  bop_is_ann S eqv join i  → bop_is_id S eqv meet i. 
 Proof. intros i H a. destruct (H a) as [L R]. apply sym in L. apply sym in R. 
-       apply join_to_meet in R.
-       split.
-       assert (F1 := m_com a i).
-       assert (F2 := trn _ _ _ R F1).
-       apply sym. exact F2.       
-       apply sym. exact R.
-Qed.
-
-Lemma join_annihilator_is_one : ∀ (i : S),  bop_is_ann S eqv join i  → bop_is_id S eqv meet i. 
-Proof. intros i H a. destruct (H a) as [L R]. apply sym in L. apply sym in R. 
-       apply join_to_meet in L.
+       apply lattice_join_to_meet_left in L.
        split.
        apply sym. exact L.       
        assert (F1 := m_com i a).
@@ -95,9 +126,32 @@ Proof. intros i H a. destruct (H a) as [L R]. apply sym in L. apply sym in R.
        apply sym. exact F2.       
 Qed.        
 
-Lemma meet_annihilator_is_zero : ∀ (i : S),  bop_is_ann S eqv meet i  → bop_is_id S eqv join i. 
+Lemma lattice_not_one_is_not_join_annihilator: ∀ (i : S),  bop_not_is_id S eqv meet i → bop_not_is_ann S eqv join i. 
+Proof. intros i H. destruct H as [w [H | H]]; exists w.
+       left.
+       case_eq(eqv (i (j) w) i); intro J.
+          apply sym in J. apply lattice_join_to_meet_left in J. apply sym in J. rewrite H in J. discriminate. 
+          reflexivity.
+       right.
+       case_eq(eqv (w (j) i) i); intro J.
+          apply sym in J. apply lattice_join_to_meet_right in J. apply sym in J. rewrite H in J. discriminate. 
+          reflexivity.
+Qed.        
+
+Lemma lattice_zero_is_meet_annihilator: ∀ (i : S),  bop_is_id S eqv join i → bop_is_ann S eqv meet i. 
 Proof. intros i H a. destruct (H a) as [L R]. apply sym in L. apply sym in R. 
-       apply meet_to_join in L.
+       apply lattice_join_to_meet_left in R.
+       split.
+       assert (F1 := m_com a i).
+       assert (F2 := trn _ _ _ R F1).
+       apply sym. exact F2.       
+       apply sym. exact R.
+Qed.
+
+
+Lemma lattice_meet_annihilator_is_zero : ∀ (i : S),  bop_is_ann S eqv meet i  → bop_is_id S eqv join i. 
+Proof. intros i H a. destruct (H a) as [L R]. apply sym in L. apply sym in R. 
+       apply lattice_meet_to_join_left in L.
        split.
        apply sym. exact L.       
        assert (F1 := j_com i a).
@@ -105,27 +159,62 @@ Proof. intros i H a. destruct (H a) as [L R]. apply sym in L. apply sym in R.
        apply sym. exact F2.       
 Qed.
 
-
-Lemma exists_meet_id_implies_exists_join_ann : bop_exists_id S eqv meet -> bop_exists_ann S eqv join.  
-Proof. intros [i P]. exists i. apply one_is_join_annihilator; auto. Defined. 
-
-Lemma exists_join_ann_implies_exists_meet_id :  bop_exists_ann S eqv join -> bop_exists_id S eqv meet.  
-Proof. intros [a P]. exists a. apply join_annihilator_is_one; auto. Defined. 
-
-Lemma exists_join_id_implies_exists_meet_ann : bop_exists_id S eqv join -> bop_exists_ann S eqv meet.  
-Proof. intros [i P]. exists i. apply zero_is_meet_annihilator; auto. Defined. 
-
-Lemma exists_meet_ann_implies_exists_join_id :  bop_exists_ann S eqv meet -> bop_exists_id S eqv join.  
-Proof. intros [a P]. exists a. apply meet_annihilator_is_zero; auto. Defined.
-
-Lemma test : bop_exists_id S eqv meet -> bops_id_equals_ann_II S eqv meet join.
-Proof. intros [i P]. exists i. split. exact P. apply one_is_join_annihilator. exact P. Qed. 
-
-Lemma test2 : bop_exists_ann S eqv join -> bops_id_equals_ann_II S eqv meet join.
-Proof. intros [a P]. exists a. split. apply join_annihilator_is_one. exact P. exact P. Qed. 
+Lemma lattice_not_zero_is_not_meet_annihilator: ∀ (i : S),  bop_not_is_id S eqv join i → bop_not_is_ann S eqv meet i. 
+Proof. intros i H. destruct H as [w [H | H]]; exists w.
+       left.
+       case_eq(eqv (i (m) w) i); intro J.
+          apply sym in J. apply lattice_meet_to_join_left in J. apply sym in J. rewrite H in J. discriminate. 
+          reflexivity.
+       right.
+       case_eq(eqv (w (m) i) i); intro J.
+          apply sym in J. apply lattice_meet_to_join_right in J. apply sym in J. rewrite H in J. discriminate. 
+          reflexivity.
+Qed.        
 
 
-Lemma distributive_implies_distributive_dual : bop_left_distributive S eqv join meet -> bop_left_distributive S eqv meet join. 
+(*
+  exists meet id <-> exists join annihilator 
+*) 
+Lemma lattice_exists_meet_id_implies_exists_join_ann : bop_exists_id S eqv meet -> bop_exists_ann S eqv join.  
+Proof. intros [i P]. exists i. apply lattice_one_is_join_annihilator; auto. Defined. 
+
+Lemma lattice_exists_join_ann_implies_exists_meet_id :  bop_exists_ann S eqv join -> bop_exists_id S eqv meet.  
+Proof. intros [a P]. exists a. apply lattice_join_annihilator_is_one; auto. Defined. 
+
+(*
+  exists join id <-> exists meet annihilator 
+*) 
+Lemma lattice_exists_join_id_implies_exists_meet_ann : bop_exists_id S eqv join -> bop_exists_ann S eqv meet.  
+Proof. intros [i P]. exists i. apply lattice_zero_is_meet_annihilator; auto. Defined. 
+
+Lemma lattice_exists_meet_ann_implies_exists_join_id :  bop_exists_ann S eqv meet -> bop_exists_id S eqv join.  
+Proof. intros [a P]. exists a. apply lattice_meet_annihilator_is_zero; auto. Defined.
+
+(*
+  exists join id <-> join id = meet annihilator 
+*) 
+Lemma lattice_exists_join_id_implies_join_id_equals_meet_ann : bop_exists_id S eqv join -> bops_id_equals_ann S eqv join meet.
+Proof. intros [i P]. exists i. split. exact P. apply lattice_zero_is_meet_annihilator. exact P. Qed. 
+
+Lemma lattice_not_exists_join_id_implies_not_join_id_equals_meet_ann : bop_not_exists_id S eqv join -> bops_not_id_equals_ann S eqv join meet.
+Proof. unfold bops_not_id_equals_ann, bop_not_exists_id. intros H s. right.
+       apply lattice_not_zero_is_not_meet_annihilator. apply H.
+Qed.        
+
+(*
+  exists meet id <-> meet id = join annihilator 
+*) 
+Lemma lattice_exists_meet_id_implies_meet_id_equals_join_ann : bop_exists_id S eqv meet -> bops_id_equals_ann S eqv meet join.
+Proof. intros [i P]. exists i. split. exact P. apply lattice_one_is_join_annihilator. exact P. Qed. 
+
+Lemma lattice_not_exists_meet_id_implies_not_meet_id_equals_join_ann : bop_not_exists_id S eqv meet -> bops_not_id_equals_ann S eqv meet join.
+Proof. unfold bops_not_id_equals_ann, bop_not_exists_id. intros H s. right.
+       apply lattice_not_one_is_not_join_annihilator. apply H.
+Qed.        
+
+(* distributive  <-> distributive dual *)
+
+Lemma lattice_distributive_implies_distributive_dual : bop_left_distributive S eqv join meet -> bop_left_distributive S eqv meet join. 
 Proof. intros D a b c. apply sym.
        assert (F0 := D (a (j) b) a c).
        assert (F1 := abs_dual a b).
@@ -149,7 +238,8 @@ Proof. intros D a b c. apply sym.
        exact R. 
 Qed.
 
-Lemma distributive_dual_implies_distributive : bop_left_distributive S eqv meet join -> bop_left_distributive S eqv join meet. 
+
+Lemma lattice_distributive_dual_implies_distributive : bop_left_distributive S eqv meet join -> bop_left_distributive S eqv join meet. 
 Proof. intros D a b c. apply sym.
        assert (F0 := D (a (m) b) a c).
        assert (F1 := abs a b).
@@ -173,16 +263,17 @@ Proof. intros D a b c. apply sym.
        exact R. 
 Qed.
 
+(* Could be useful.  Move to ? 
 
-(*
+proofs do not use absorption 
+
 a == a (m) 1 
   == a (m) (1 (j) b) 
   == (a (m) 1) (j)  (a (m) b)
   == a (j) (a (m) b)
  *)
-Lemma t : bop_exists_id S eqv meet -> bop_left_distributive S eqv join meet -> bops_left_left_absorptive S eqv join meet.
-Proof. intros [i P] D a b.
-       assert (Q := one_is_join_annihilator i P). 
+Lemma lattice_fact : bops_id_equals_ann S eqv meet join -> bop_left_distributive S eqv join meet -> bops_left_left_absorptive S eqv join meet.
+Proof. intros [i [P Q]] D a b.
        destruct (P a) as [L R]. apply sym in R.
        destruct (Q b) as [U V]. apply sym in U.
        assert (F1 := m_cng _ _ _ _ (ref a) U).
@@ -192,9 +283,8 @@ Proof. intros [i P] D a b.
        exact C.
 Qed.        
 
-Lemma t_dual : bop_exists_id S eqv join -> bop_left_distributive S eqv meet join -> bops_left_left_absorptive S eqv meet join.
-Proof. intros [i P] D a b.
-       assert (Q := zero_is_meet_annihilator i P). 
+Lemma lattice_fact_dual : bops_id_equals_ann S eqv join meet -> bop_left_distributive S eqv meet join -> bops_left_left_absorptive S eqv meet join.
+Proof. intros [i [P Q]] D a b.
        destruct (P a) as [L R]. apply sym in R.
        destruct (Q b) as [U V]. apply sym in U.
        assert (F1 := j_cng _ _ _ _ (ref a) U).
@@ -204,11 +294,4 @@ Proof. intros [i P] D a b.
        exact C.
 Qed.        
 
-Section DistributiveLattice.
-
-  Variable dis : bop_left_distributive S eqv join meet. 
-  
-End DistributiveLattice.   
-
 End Lattice.
-

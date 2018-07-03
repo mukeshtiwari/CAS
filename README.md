@@ -38,7 +38,7 @@ with all of the CAS modules loaded. See documentation [TODO].
 
 For a very short demo, enter this toplevel and do a 
 
-     #use "tests/demo.ml"; 
+     #use "tests/demo.ml";; 
 
 
 CORRECTNESS

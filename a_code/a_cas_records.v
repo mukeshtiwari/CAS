@@ -2,14 +2,20 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.ast.
 Require Import CAS.code.data.
 Require Import CAS.a_code.proof_records.
+Require Import CAS.theory.brel_properties. 
 
 (* eqv *) 
 Record A_eqv (S : Type) := {
-  A_eqv_eq      : brel S 
-; A_eqv_data    : S -> data (* for printing in ocaml-land *) 
-; A_eqv_rep     : S -> S    (* for reductions *) 
-; A_eqv_proofs  : eqv_proofs S A_eqv_eq  (* A_eqv_rep *) 
-; A_eqv_ast     : ast_eqv 
+  A_eqv_eq          : brel S
+; A_eqv_proofs      : eqv_proofs S A_eqv_eq
+                                   
+; A_eqv_witness     : S         (* not empty *) 
+; A_eqv_new         : S -> S
+; A_eqv_not_trivial : brel_not_trivial S A_eqv_eq A_eqv_new 
+
+; A_eqv_data        : S -> data (* for printing in ocaml-land *) 
+; A_eqv_rep         : S -> S    (* for reductions ??? *) 
+; A_eqv_ast         : ast_eqv 
 }.
 
 
@@ -148,6 +154,52 @@ Record A_bs_C (S : Type) := {
 ; A_bs_C_proofs       : bs_proofs S (A_eqv_eq S A_bs_C_eqv) A_bs_C_plus A_bs_C_times 
 ; A_bs_C_ast          : ast_bs_C
 }.
+
+
+Record A_semiring (S : Type) := {
+  A_semiring_eqv          : A_eqv S 
+; A_semiring_plus         : binary_op S 
+; A_semiring_times        : binary_op S 
+; A_semiring_plus_proofs  : sg_C_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus
+; A_semiring_times_proofs : sg_proofs S   (A_eqv_eq S A_semiring_eqv) A_semiring_times 
+; A_semiring_proofs       : semiring_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus A_semiring_times 
+; A_semiring_ast          : ast_semiring
+}.
+
+Record A_dioid (S : Type) := {
+  A_dioid_eqv          : A_eqv S 
+; A_dioid_plus         : binary_op S 
+; A_dioid_times        : binary_op S 
+; A_dioid_plus_proofs  : sg_CI_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus
+; A_dioid_times_proofs : sg_proofs S   (A_eqv_eq S A_dioid_eqv) A_dioid_times 
+; A_dioid_proofs       : semiring_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times 
+; A_dioid_ast          : ast_dioid
+}.
+
+
+Record A_lattice (S : Type) := {
+  A_lattice_eqv         : A_eqv S 
+; A_lattice_join        : binary_op S 
+; A_lattice_meet        : binary_op S 
+; A_lattice_join_proofs : sg_CI_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join
+; A_lattice_meet_proofs : sg_CI_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_meet 
+; A_lattice_proofs      : lattice_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join A_lattice_meet 
+; A_lattice_ast         : ast_lattice
+}.
+
+Record A_distributive_lattice (S : Type) := {
+  A_distributive_lattice_eqv         : A_eqv S 
+; A_distributive_lattice_join        : binary_op S 
+; A_distributive_lattice_meet        : binary_op S 
+; A_distributive_lattice_join_proofs : sg_CI_proofs S (A_eqv_eq S A_distributive_lattice_eqv) A_distributive_lattice_join
+; A_distributive_lattice_meet_proofs : sg_CI_proofs S (A_eqv_eq S A_distributive_lattice_eqv) A_distributive_lattice_meet 
+; A_distributive_lattice_proofs      : distributive_lattice_proofs S
+                                          (A_eqv_eq S A_distributive_lattice_eqv)
+                                          A_distributive_lattice_join
+                                          A_distributive_lattice_meet 
+; A_distributive_lattice_ast         : ast_distributive_lattice
+}.
+
 
 
 (* order-semigroups *) 

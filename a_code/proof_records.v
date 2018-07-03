@@ -5,24 +5,27 @@ Require Import CAS.theory.bop_properties.
 Require Import CAS.theory.bs_properties.
 Require Import CAS.theory.os_properties.
 
+Require Import CAS.theory.facts. (* for witness functions.  move these? *) 
 (* eqv *) 
 (*
 Record eqv_proofs (S : Type) (eq : brel S) (rep : unary_op S) := 
 *) 
 Record eqv_proofs (S : Type) (eq : brel S) := 
 {
-  A_eqv_nontrivial     : brel_nontrivial S eq          
 (*
 ; A_eqv_rep_correct    : brel_rep_correct S eq rep
 ; A_eqv_rep_idempotent : brel_rep_idempotent S eq rep  
 *) 
-
-; A_eqv_congruence     : brel_congruence S eq eq  
+  A_eqv_congruence     : brel_congruence S eq eq  
 ; A_eqv_reflexive      : brel_reflexive S eq            
 ; A_eqv_transitive     : brel_transitive S eq           
 ; A_eqv_symmetric      : brel_symmetric S eq            
 }.
 
+(*
+Definition eqv_get_witness_element (S : Type) (eq : brel S) : (eqv_proofs S eq) -> S
+:= λ eqv, brel_get_nontrivial_witness _ _ (A_eqv_nontrivial _ _ eqv). 
+*) 
 (* orders *) 
 
 (* quasi-order *) 
@@ -78,15 +81,15 @@ Record sg_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_sg_is_left_d        : bop_is_left_decidable S eq bop  
 ; A_sg_is_right_d       : bop_is_right_decidable S eq bop  
 
-(* needed to decide distributivity of lex     *) 
+(* needed to decide distributivity of (lex, product)     *) 
 ; A_sg_left_cancel_d    : bop_left_cancellative_decidable S eq bop 
 ; A_sg_right_cancel_d   : bop_right_cancellative_decidable S eq bop 
 
-(* needed to decide distributivity of lex     *) 
+(* needed to decide distributivity of (lex, product     *) 
 ; A_sg_left_constant_d  : bop_left_constant_decidable S eq bop 
 ; A_sg_right_constant_d : bop_right_constant_decidable S eq bop 
 
-(* needed to decide absorptivity of lex      *) 
+(* needed to decide absorptivity of (lex, product)      *) 
 ; A_sg_anti_left_d      : bop_anti_left_decidable S eq bop 
 ; A_sg_anti_right_d     : bop_anti_right_decidable S eq bop 
 }. 
@@ -164,7 +167,41 @@ Record bs_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op
 ; A_bs_right_left_absorptive_d  : bops_right_left_absorptive_decidable S eq plus times 
 ; A_bs_right_right_absorptive_d : bops_right_right_absorptive_decidable S eq plus times 
 
+}.
+
+Record semiring_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
+{
+  A_semiring_left_distributive      : bop_left_distributive S eq plus times 
+; A_semiring_right_distributive     : bop_right_distributive S eq plus times 
+
+; A_semiring_plus_id_is_times_ann_d   : bops_id_equals_ann_decidable S eq plus times 
+; A_semiring_times_id_is_plus_ann_d   : bops_id_equals_ann_decidable S eq times plus
+                                                                     
+; A_semiring_left_left_absorptive_d   : bops_left_left_absorptive_decidable S eq plus times 
+; A_semiring_left_right_absorptive_d  : bops_left_right_absorptive_decidable S eq plus times 
+}.
+
+Record lattice_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
+{
+  A_lattice_absorptive      : bops_left_left_absorptive S eq plus times
+; A_lattice_absorptive_dual : bops_left_left_absorptive S eq times plus
+ 
+; A_lattice_distributive_d       : bop_left_distributive_decidable S eq plus times
+; A_lattice_distributive_dual_d  : bop_left_distributive_decidable S eq times plus (* required for lattice_dual  ? *)
 }. 
+
+
+Record distributive_lattice_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
+{
+  A_distributive_lattice_absorptive        : bops_left_left_absorptive S eq plus times
+; A_distributive_lattice_absorptive_dual   : bops_left_left_absorptive S eq times plus
+; A_distributive_lattice_distributive      : bop_left_distributive S eq plus times
+(*                                                                   
+; A_distributive_lattice_distributive_dual : bop_left_distributive S eq times plus (* could be derived, but here for convenience *)                          
+*)
+}. 
+
+
 
 (* order semigroups *) 
 

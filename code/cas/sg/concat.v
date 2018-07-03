@@ -12,9 +12,9 @@ Require Import CAS.code.sg_records.
 
 Require Import CAS.code.cas.eqv.list.
 
-Definition sg_certs_concat : ∀ {S : Type},  eqv_certificates (S := S) -> sg_certificates (S := (list S))
-:= λ {S} eqvS,  
-let (s, t) := nontrivial_pair (eqv_nontrivial eqvS) in 
+Definition sg_certs_concat : ∀ {S : Type},  S -> (S -> S) -> sg_certificates (S := (list S))
+:= λ {S} s f,  
+let t := f s in 
 {|
   sg_associative      := Assert_Associative 
 ; sg_congruence       := Assert_Bop_Congruence 
@@ -38,7 +38,7 @@ Definition sg_concat: ∀ {S : Type},  eqv (S := S) -> sg (S := (list S))
    {| 
      sg_eq     := eqv_list eqvS 
    ; sg_bop    := bop_concat 
-   ; sg_certs  := sg_certs_concat (eqv_certs eqvS) 
+   ; sg_certs  := sg_certs_concat (eqv_witness eqvS) (eqv_new eqvS) 
    ; sg_ast    := Ast_sg_concat (eqv_ast eqvS)
    |}. 
 

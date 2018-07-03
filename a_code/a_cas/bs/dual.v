@@ -8,7 +8,7 @@ Require Import CAS.a_code.a_cas_records.
 Require Import CAS.theory.structures.lattice.
 
 
-Definition lattice_dual_proofs (S: Type) (eqv : brel S) (join meet : binary_op S) :
+Definition lattice_proofs_dual (S: Type) (eqv : brel S) (join meet : binary_op S) :
           lattice_proofs S eqv join meet -> lattice_proofs S eqv meet join
 := λ pfs,
 {|
@@ -26,7 +26,7 @@ Definition A_lattice_dual : ∀ (S : Type), A_lattice S -> A_lattice S
 ; A_lattice_meet         := A_lattice_join S lat 
 ; A_lattice_join_proofs  := A_lattice_meet_proofs S lat 
 ; A_lattice_meet_proofs  := A_lattice_join_proofs S lat 
-; A_lattice_proofs       := lattice_dual_proofs S
+; A_lattice_proofs       := lattice_proofs_dual S
                                (A_eqv_eq S (A_lattice_eqv S lat))
                                (A_lattice_join S lat)
                                (A_lattice_meet S lat)
@@ -35,7 +35,7 @@ Definition A_lattice_dual : ∀ (S : Type), A_lattice S -> A_lattice S
 |}.
 
 
-Definition distributive_lattice_dual_proofs (S: Type) (rS : brel S) (join meet : binary_op S) :
+Definition distributive_lattice_proofs_dual (S: Type) (rS : brel S) (join meet : binary_op S) :
   eqv_proofs S rS -> 
   sg_CI_proofs S rS join ->
   sg_CI_proofs S rS meet ->      
@@ -70,7 +70,7 @@ Definition A_distributive_lattice_dual : ∀ (S : Type), A_distributive_lattice 
 ; A_distributive_lattice_meet         := A_distributive_lattice_join S lat 
 ; A_distributive_lattice_join_proofs  := A_distributive_lattice_meet_proofs S lat 
 ; A_distributive_lattice_meet_proofs  := A_distributive_lattice_join_proofs S lat 
-; A_distributive_lattice_proofs       := distributive_lattice_dual_proofs S
+; A_distributive_lattice_proofs       := distributive_lattice_proofs_dual S
                                              (A_eqv_eq S (A_distributive_lattice_eqv S lat))
                                              (A_distributive_lattice_join S lat)
                                              (A_distributive_lattice_meet S lat)

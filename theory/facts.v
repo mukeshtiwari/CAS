@@ -274,7 +274,7 @@ Defined.
 
 
 
-(* non_trivial *) 
+(* non_trivial 
 
 Definition brel_get_witness :  ∀ (S : Type) (r : brel S),  (brel_witness S r) -> S 
 := λ S r cwS, 
@@ -301,6 +301,8 @@ Proof. intros S r ntS.
        destruct (brel_nontrivial_negate S r ntS) as [f Pf]. 
        exists (s, f s). apply Pf. 
 Defined.    
+ *)
+
 
 Open Scope nat_scope. 
 (* 
@@ -653,23 +655,21 @@ CSNA x CINA = CINA
 
 (* I *) 
 
-Lemma bop_idempotent_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_witness S r -> 
+Lemma bop_idempotent_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) , 
        brel_symmetric S r -> 
        bop_idempotent S r b -> 
        bop_not_anti_left S r b. 
-Proof. intros S r b [s Ps] symS idemS. 
+Proof. intros S r b s symS idemS. 
        unfold bop_not_anti_left. 
-       exists (cef_idempotent_implies_not_anti_left _ s); simpl. 
+       exists (cef_idempotent_implies_not_anti_left s); simpl. 
        assert (fact := idemS s). apply symS in fact. assumption. 
 Defined. 
 
-Lemma bop_idempotent_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_witness S r -> 
+Lemma bop_idempotent_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S), 
        brel_symmetric S r -> 
        bop_idempotent S r b -> 
        bop_not_anti_right S r b. 
-Proof. intros S r b [s Ps] symS idemS. exists (cef_idempotent_implies_not_anti_right _ s); simpl. 
+Proof. intros S r b s symS idemS. exists (cef_idempotent_implies_not_anti_right s); simpl. 
        assert (fact := idemS s). apply symS in fact. assumption. 
 Defined. 
 
@@ -681,23 +681,21 @@ Lemma bop_selective_implies_idempotent : ∀ (S : Type) (r : brel S) (b : binary
 Proof. intros S r b selS x. destruct (selS x x) as [H | H]; assumption. Defined. 
 
 
-Lemma bop_selective_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_witness S r -> 
+Lemma bop_selective_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S), 
        brel_symmetric S r -> 
        bop_selective S r b -> 
        bop_not_anti_left S r b. 
-Proof. intros S r b wtS symS idemS. 
+Proof. intros S r b s symS idemS. 
        apply bop_idempotent_implies_not_anti_left; auto. 
        apply bop_selective_implies_idempotent; auto. 
 Defined. 
 
 
-Lemma bop_selective_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_witness S r -> 
+Lemma bop_selective_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S), 
        brel_symmetric S r -> 
        bop_selective S r b -> 
        bop_not_anti_right S r b. 
-Proof. intros S r b wtS symS idemS. 
+Proof. intros S r b s symS idemS. 
        apply bop_idempotent_implies_not_anti_right; auto. 
        apply bop_selective_implies_idempotent; auto. 
 Defined. 
@@ -711,13 +709,13 @@ Proof. intros S r b [i Pi]. exists (i, i). auto. Defined.
 (* K *) 
 
 Lemma bop_left_cancellative_implies_not_left_constant : 
-    ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_nontrivial S r -> 
+    ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
+       brel_not_trivial S r f -> 
        bop_left_cancellative S r b -> 
           bop_not_left_constant S r b. 
-Proof. intros S r b [ [s Ps] [f Pf] ] lcS. 
+Proof. intros S r b s f Pf lcS. 
        unfold bop_not_left_constant. 
-       exists (cef_left_cancellative_implies_not_left_constant S s f). 
+       exists (cef_left_cancellative_implies_not_left_constant s f). 
        unfold cef_left_cancellative_implies_not_left_constant. 
        case_eq(r (b s s) (b s (f s))); intro H. 
           apply lcS in H. 
@@ -728,13 +726,13 @@ Proof. intros S r b [ [s Ps] [f Pf] ] lcS.
 Defined. 
 
 Lemma bop_right_cancellative_implies_not_right_constant : 
-    ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_nontrivial S r -> 
+    ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
+       brel_not_trivial S r f -> 
        bop_right_cancellative S r b -> 
           bop_not_right_constant S r b. 
-Proof. intros S r b [ [s Ps] [f Pf] ] rcS. 
+Proof. intros S r b s f Pf rcS. 
        unfold bop_not_right_constant. 
-       exists (cef_right_cancellative_implies_not_right_constant S s f). 
+       exists (cef_right_cancellative_implies_not_right_constant s f). 
        unfold cef_right_cancellative_implies_not_right_constant. 
        case_eq(r (b s s) (b (f s) s)); intro H. 
           apply rcS in H. 
@@ -745,13 +743,13 @@ Proof. intros S r b [ [s Ps] [f Pf] ] rcS.
 Defined. 
 
 Lemma bop_left_cancellative_implies_not_exists_ann : 
-   ∀ (S : Type) (r : brel S) (b : binary_op S), 
+   ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
       brel_symmetric S r -> 
       brel_transitive S r -> 
-      brel_nontrivial S r -> 
+      brel_not_trivial S r f -> 
       bop_left_cancellative S r b -> 
          bop_not_exists_ann S r b. 
-Proof. intros S r b symS transS [ [s Ps] [f Pf] ] lcS a. 
+Proof. intros S r b s f symS transS Pf lcS a. 
        destruct (Pf s) as [L R]. 
        case_eq(r (b a s) a); case_eq(r (b a (f s)) a); intros H K. 
           apply symS in K. 
@@ -764,13 +762,13 @@ Proof. intros S r b symS transS [ [s Ps] [f Pf] ] lcS a.
 Qed. 
 
 Lemma bop_right_cancellative_implies_not_exists_ann : 
-   ∀ (S : Type) (r : brel S) (b : binary_op S), 
+   ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
       brel_symmetric S r -> 
       brel_transitive S r -> 
-      brel_nontrivial S r -> 
+      brel_not_trivial S r f -> 
       bop_right_cancellative S r b -> 
          bop_not_exists_ann S r b. 
-Proof. intros S r b symS transS [ [s Ps] [f Pf] ] lcS a. 
+Proof. intros S r b s f symS transS Pf lcS a. 
        destruct (Pf s) as [L R]. 
        case_eq(r (b s a) a); case_eq(r (b (f s) a) a); intros H K. 
           apply symS in K. 
@@ -844,8 +842,8 @@ Defined.
 
 
 Lemma bop_cancellative_and_exists_id_imply_not_idempotent : 
-   ∀ (S : Type) (r : brel S) (b : binary_op S), 
-      brel_nontrivial S r -> 
+   ∀ (S : Type) (r : brel S) (b : binary_op S) (x : S) (f : S -> S), 
+      brel_not_trivial S r f -> 
       brel_reflexive S r -> 
       brel_symmetric S r -> 
       brel_transitive S r -> 
@@ -855,8 +853,8 @@ Lemma bop_cancellative_and_exists_id_imply_not_idempotent :
       bop_right_cancellative S r b -> 
       bop_exists_id S r b -> 
          bop_not_idempotent S r b. 
-Proof. intros S r b [[x pS] [f Pf]] refS symS transS assS congS lcS rcS [i Pi]. 
-       exists (cef_cancellative_and_exists_id_imply_not_idempotent S r x i f). 
+Proof. intros S r b x f Pf refS symS transS assS congS lcS rcS [i Pi]. 
+       exists (cef_cancellative_and_exists_id_imply_not_idempotent r x i f). 
        unfold cef_cancellative_and_exists_id_imply_not_idempotent. 
        case_eq(r x i); intro H. 
              case_eq(r (b (f x) (f x)) (f x)); intro F. 
@@ -882,8 +880,8 @@ Defined.
 
 
 Lemma bop_cancellative_and_not_exists_id_imply_not_idempotent : 
-   ∀ (S : Type) (r : brel S) (b : binary_op S), 
-      brel_nontrivial S r -> 
+   ∀ (S : Type) (r : brel S) (b : binary_op S) (x : S) (f : S -> S), 
+      brel_not_trivial S r f -> 
       brel_reflexive S r -> 
       brel_symmetric S r -> 
       brel_transitive S r -> 
@@ -893,7 +891,7 @@ Lemma bop_cancellative_and_not_exists_id_imply_not_idempotent :
       bop_right_cancellative S r b -> 
       bop_not_exists_id S r b -> 
          bop_not_idempotent S r b. 
-Proof. intros S r b [[x pS] [f Pf]] refS symS transS assS congS lcS rcS no_id. 
+Proof. intros S r b x f Pf refS symS transS assS congS lcS rcS no_id. 
        exists x. 
           case_eq(r (b x x) x); intro F. 
              assert (A : bop_is_id S r b x). 
@@ -906,8 +904,8 @@ Defined.
 
 
 Lemma bop_cancellative_implies_not_idempotent : 
-   ∀ (S : Type) (r : brel S) (b : binary_op S), 
-      brel_nontrivial S r -> 
+  ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S),
+      brel_not_trivial S r f -> 
       brel_reflexive S r -> 
       brel_symmetric S r -> 
       brel_transitive S r -> 
@@ -917,14 +915,12 @@ Lemma bop_cancellative_implies_not_idempotent :
       bop_right_cancellative S r b -> 
       bop_exists_id_decidable S r b -> 
          bop_not_idempotent S r b. 
-Proof. intros S r b ntS refS symS transS assS congS lcS rcS [ id | no_id]. 
-       apply bop_cancellative_and_exists_id_imply_not_idempotent; auto.
-       apply bop_cancellative_and_not_exists_id_imply_not_idempotent; auto. 
+Proof. intros S r b s f Pf refS symS transS assS congS lcS rcS [ id | no_id]. 
+       apply (bop_cancellative_and_exists_id_imply_not_idempotent S r b s f); auto.
+       apply (bop_cancellative_and_not_exists_id_imply_not_idempotent S r b s f); auto. 
 Defined. 
 
 (* C *) 
-
-
 Lemma bop_commutative_and_not_is_left_imply_not_is_right  : 
       ∀ (S: Type) (r : brel S) (b : binary_op S), 
          brel_transitive S r -> bop_commutative S r b -> 
@@ -999,13 +995,13 @@ Proof. intros S r b symS transS commS [ p P ].
           assumption. 
 Defined. 
 
-Lemma bop_commutative_implies_not_is_left  : ∀ (S: Type) (r : brel S) (b : binary_op S), 
-     brel_nontrivial S r -> 
+Lemma bop_commutative_implies_not_is_left  : ∀ (S: Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
+     brel_not_trivial S r f -> 
      brel_symmetric S r -> 
      brel_transitive S r -> 
         bop_commutative S r b -> bop_not_is_left S r b. 
-Proof. intros S r b [[s pS] [f Pf]] symS transS commS. 
-       exists (cef_commutative_implies_not_is_left S r b s f). 
+Proof. intros S r b s f Pf symS transS commS. 
+       exists (cef_commutative_implies_not_is_left r b s f). 
        destruct (Pf s) as [L R].
        assert (C := commS s (f s)). 
        unfold cef_commutative_implies_not_is_left. 
@@ -1015,13 +1011,13 @@ Proof. intros S r b [[s pS] [f Pf]] symS transS commS.
 Defined. 
 
 
-Lemma bop_commutative_implies_not_is_right  : ∀ (S: Type) (r : brel S) (b : binary_op S), 
-     brel_nontrivial S r -> 
+Lemma bop_commutative_implies_not_is_right  : ∀ (S: Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
+     brel_not_trivial S r f -> 
      brel_symmetric S r -> 
      brel_transitive S r -> 
         bop_commutative S r b -> bop_not_is_right S r b. 
-Proof. intros S r b [[s pS] [f Pf]] symS transS commS. 
-       exists (cef_commutative_implies_not_is_right S r b s f). 
+Proof. intros S r b s f Pf symS transS commS. 
+       exists (cef_commutative_implies_not_is_right r b s f). 
        destruct (Pf s) as [L R].
        assert (C := commS (f s) s). 
        unfold cef_commutative_implies_not_is_right. 
@@ -1036,12 +1032,12 @@ Defined.
 
 (* N *) 
 
-Lemma exists_id_implies_not_left_constant : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+Lemma exists_id_implies_not_left_constant : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
                brel_congruence S r r -> 
-               brel_nontrivial S r -> 
+               brel_not_trivial S r f-> 
                bop_exists_id S r b -> 
                   bop_not_left_constant S r b. 
-Proof. intros S r b congS [ [s Ps] [f Pf] ] [i Pi]. 
+Proof. intros S r b s f congS Pf [i Pi]. 
        unfold bop_not_left_constant. 
        destruct (Pi s) as [Ls Rs]. 
        destruct (Pi (f s)) as [Lf Rf]. 
@@ -1054,12 +1050,12 @@ Proof. intros S r b congS [ [s Ps] [f Pf] ] [i Pi].
 Defined. 
 
 
-Lemma exists_id_implies_not_right_constant : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+Lemma exists_id_implies_not_right_constant : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
                brel_congruence S r r -> 
-               brel_nontrivial S r -> 
+               brel_not_trivial S r f -> 
                bop_exists_id S r b -> 
                   bop_not_right_constant S r b. 
-Proof. intros S r b congS [ [s Ps] [f Pf] ] [i Pi]. 
+Proof. intros S r b  s f congS Pf [i Pi]. 
        unfold bop_not_right_constant. 
        destruct (Pi s) as [Ls Rs]. 
        destruct (Pi (f s)) as [Lf Rf]. 
@@ -1071,15 +1067,13 @@ Proof. intros S r b congS [ [s Ps] [f Pf] ] [i Pi].
        assumption. 
 Defined. 
 
-
-
 (* really : exists_right_id ... *) 
 Lemma exists_id_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
                brel_symmetric S r -> 
-               brel_witness S r -> 
+               S -> 
                bop_exists_id S r b -> 
                   bop_not_anti_left S r b. 
-Proof. intros S r b symS [s Ps] [i Pi]. 
+Proof. intros S r b symS s [i Pi]. 
        unfold bop_not_anti_left. 
        exists (s, i). destruct (Pi s) as [L R]. 
        apply symS in R. assumption. 
@@ -1089,23 +1083,23 @@ Defined.
 (* really : exists_left_id ... *) 
 Lemma exists_id_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
                brel_symmetric S r -> 
-               brel_witness S r -> 
+               S -> 
                bop_exists_id S r b -> 
                   bop_not_anti_right S r b. 
-Proof. intros S r b symS [s Ps] [i Pi]. 
+Proof. intros S r b symS s [i Pi]. 
        unfold bop_not_anti_left. 
        exists (s, i). destruct (Pi s) as [L R]. 
        apply symS in L. assumption. 
 Defined. 
 
 
-Lemma exists_id_implies_not_is_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+Lemma exists_id_implies_not_is_left : ∀ (S : Type) (r : brel S) (b : binary_op S) (f : S -> S), 
                brel_symmetric S r -> 
                brel_transitive S r -> 
-               brel_negate S r -> 
+               brel_not_trivial S r f -> 
                bop_exists_id S r b -> 
                   bop_not_is_left S r b. 
-Proof. intros S r b symS transS [f Pf] [i Pi]. 
+Proof. intros S r b f symS transS Pf [i Pi]. 
        destruct (Pf i) as [L1 R1]. 
        destruct (Pi (f i)) as [L2 R2]. 
        unfold bop_not_is_left. 
@@ -1114,13 +1108,13 @@ Proof. intros S r b symS transS [f Pf] [i Pi].
        apply (brel_transititivity_implies_dual _ _ transS _ _ _ L2 R1). 
 Defined. 
 
-Lemma exists_id_implies_not_is_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+Lemma exists_id_implies_not_is_right : ∀ (S : Type) (r : brel S) (b : binary_op S) (f : S -> S), 
                brel_symmetric S r -> 
                brel_transitive S r -> 
-               brel_negate S r -> 
+               brel_not_trivial S r f -> 
                bop_exists_id S r b -> 
                   bop_not_is_right S r b. 
-Proof. intros S r b symS transS [f Pf] [i Pi]. 
+Proof. intros S r b f symS transS Pf [i Pi]. 
        destruct (Pf i) as [L1 R1]. 
        destruct (Pi (f i)) as [L2 R2]. 
        unfold bop_not_is_right. 
@@ -1133,10 +1127,10 @@ Defined.
 
 Lemma exists_ann_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
                brel_symmetric S r -> 
-               brel_witness S r -> 
+               S -> 
                bop_exists_ann S r b -> 
                   bop_not_anti_left S r b. 
-Proof. intros S r b symS [s Ps] [a Pa]. 
+Proof. intros S r b symS s [a Pa]. 
        unfold bop_not_anti_left. 
        unfold bop_is_ann in Pa. 
        exists (a, s). destruct (Pa s) as [L R]. 
@@ -1144,13 +1138,13 @@ Proof. intros S r b symS [s Ps] [a Pa].
 Defined. 
 
 
-Lemma exists_ann_implies_not_is_left : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+Lemma exists_ann_implies_not_is_left : ∀ (S : Type) (r : brel S) (b : binary_op S) (f : S -> S), 
                brel_symmetric S r -> 
                brel_transitive S r -> 
-               brel_negate S r -> 
+               brel_not_trivial S r f -> 
                bop_exists_ann S r b -> 
                   bop_not_is_left S r b. 
-Proof. intros S r b symS transS [f Pf] [a Pa]. 
+Proof. intros S r b f symS transS Pf [a Pa]. 
        destruct (Pf a) as [L1 R1]. 
        destruct (Pa (f a)) as [L2 R2]. 
        unfold bop_not_is_left. 
@@ -1159,26 +1153,24 @@ Proof. intros S r b symS transS [f Pf] [a Pa].
        apply (brel_transititivity_implies_dual _ _ transS _ _ _ (symS _ _ R2) L1). 
 Defined. 
 
-
-
 Lemma exists_ann_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
                brel_symmetric S r -> 
-               brel_witness S r -> 
+               S  -> 
                bop_exists_ann S r b -> 
                   bop_not_anti_right S r b. 
-Proof. intros S r b symS [s Ps] [a Pa]. 
+Proof. intros S r b symS s [a Pa]. 
        destruct (Pa s) as [L R]. 
        exists (a, s). 
        apply symS. assumption. 
 Defined. 
 
-Lemma exists_ann_implies_not_is_right : ∀ (S : Type) (r : brel S) (b : binary_op S), 
+Lemma exists_ann_implies_not_is_right : ∀ (S : Type) (r : brel S) (b : binary_op S) (f : S -> S), 
                brel_symmetric S r -> 
                brel_transitive S r -> 
-               brel_negate S r -> 
+               brel_not_trivial S r f -> 
                bop_exists_ann S r b -> 
                   bop_not_is_right S r b. 
-Proof. intros S r b symS transS [f Pf] [a Pa]. 
+Proof. intros S r b f symS transS Pf [a Pa]. 
        destruct (Pf a) as [L1 R1]. 
        destruct (Pa (f a)) as [L2 R2]. 
        unfold bop_not_is_right. 
@@ -1190,13 +1182,13 @@ Defined.
 
 
 Lemma exists_ann_implies_not_left_cancellative : 
-     ∀ (S : Type) (r : brel S) (b : binary_op S), 
+     ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
        brel_reflexive S r -> 
        brel_congruence S r r -> 
-       brel_nontrivial S r -> 
+       brel_not_trivial S r f -> 
        bop_exists_ann S r b -> 
                   bop_not_left_cancellative S r b. 
-Proof. intros S r b refS congS [ [s Ps] [f Pf] ] [a Pa]. 
+Proof. intros S r b s f refS congS Pf [a Pa]. 
        destruct (Pf s) as [L1 R1]. 
        destruct (Pa s) as [L2 R2]. 
        destruct (Pa (f s)) as [L3 R4]. 
@@ -1208,13 +1200,13 @@ Proof. intros S r b refS congS [ [s Ps] [f Pf] ] [a Pa].
 Defined. 
 
 Lemma exists_ann_implies_not_right_cancellative : 
-     ∀ (S : Type) (r : brel S) (b : binary_op S), 
+     ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
        brel_reflexive S r -> 
        brel_congruence S r r -> 
-       brel_nontrivial S r -> 
+       brel_not_trivial S r f -> 
        bop_exists_ann S r b -> 
                   bop_not_right_cancellative S r b. 
-Proof. intros S r b refS congS [ [s Ps] [f Pf] ] [a Pa]. 
+Proof. intros S r b s f refS congS Pf [a Pa]. 
        destruct (Pf s) as [L1 R1]. 
        destruct (Pa s) as [L2 R2]. 
        destruct (Pa (f s)) as [L3 R4]. 
@@ -1228,16 +1220,16 @@ Defined.
 (* CI *) 
 
 Lemma bop_idempotent_and_commutative_imply_not_left_constant : 
-    ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_nontrivial S r -> 
+    ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
+       brel_not_trivial S r f -> 
        brel_congruence S r r -> 
        brel_reflexive S r -> 
        brel_transitive S r -> 
        bop_idempotent S r b -> 
        bop_commutative S r b -> 
           bop_not_left_constant S r b. 
-Proof. intros S r b [ [s Ps]  [f Pf] ] congS refS transS idemS commS. 
-       exists (cef_idempotent_and_commutative_imply_not_left_constant S r b s f). 
+Proof. intros S r b s f Pf congS refS transS idemS commS. 
+       exists (cef_idempotent_and_commutative_imply_not_left_constant r b s f). 
        unfold cef_idempotent_and_commutative_imply_not_left_constant. 
        assert (A := idemS s). 
        assert (B := idemS (f s)). 
@@ -1258,9 +1250,10 @@ Proof. intros S r b [ [s Ps]  [f Pf] ] congS refS transS idemS commS.
              assumption.                          
 Defined. 
 
+
 Lemma bop_idempotent_and_commutative_imply_not_right_constant : 
-    ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_nontrivial S r -> 
+    ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
+       brel_not_trivial S r f -> 
        brel_congruence S r r -> 
        brel_reflexive S r -> 
        brel_symmetric S r -> 
@@ -1268,32 +1261,32 @@ Lemma bop_idempotent_and_commutative_imply_not_right_constant :
        bop_idempotent S r b -> 
        bop_commutative S r b -> 
           bop_not_right_constant S r b. 
-Proof. intros S r b ntS congS refS symS transS idemS commS. 
+Proof. intros S r b s f Pf congS refS symS transS idemS commS. 
        apply bop_commutative_and_not_left_constant_imply_not_right_constant; auto. 
-       apply bop_idempotent_and_commutative_imply_not_left_constant; auto. 
+       apply (bop_idempotent_and_commutative_imply_not_left_constant S r b s f); auto. 
 Defined. 
 
 
 (* CS *) 
 
 Lemma bop_selective_and_commutative_imply_not_left_constant : 
-    ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_nontrivial S r -> 
+    ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
+       brel_not_trivial S r f -> 
        brel_congruence S r r -> 
        brel_reflexive S r -> 
        brel_transitive S r -> 
        bop_selective S r b -> 
        bop_commutative S r b -> 
           bop_not_left_constant S r b. 
-Proof. intros S r b ntS congS refS transS selS commS. 
-       apply bop_idempotent_and_commutative_imply_not_left_constant; auto. 
+Proof. intros S r b s f Pf congS refS transS selS commS. 
+       apply (bop_idempotent_and_commutative_imply_not_left_constant S r b s f); auto. 
        apply bop_selective_implies_idempotent; auto. 
 Defined. 
 
 
 Lemma bop_selective_and_commutative_imply_not_right_constant : 
-    ∀ (S : Type) (r : brel S) (b : binary_op S), 
-       brel_nontrivial S r -> 
+    ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
+       brel_not_trivial S r f -> 
        brel_congruence S r r -> 
        brel_reflexive S r -> 
        brel_symmetric S r -> 
@@ -1301,23 +1294,23 @@ Lemma bop_selective_and_commutative_imply_not_right_constant :
        bop_selective S r b -> 
        bop_commutative S r b -> 
           bop_not_right_constant S r b. 
-Proof. intros S r b ntS congS refS symS transS selS commS. 
-       apply bop_idempotent_and_commutative_imply_not_right_constant; auto. 
+Proof. intros S r b s f Pf congS refS symS transS selS commS. 
+       apply (bop_idempotent_and_commutative_imply_not_right_constant S r b s f); auto. 
        apply bop_selective_implies_idempotent; auto. 
 Defined. 
 
 
 
 Lemma bop_selective_and_commutative_imply_not_left_cancellative : 
-   ∀ (S : Type) (r : brel S) (b : binary_op S),
+   ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S),
       brel_symmetric S r -> 
       brel_transitive S r -> 
-      brel_nontrivial S r -> 
+      brel_not_trivial S r f -> 
       bop_selective S r b -> 
       bop_commutative S r b -> 
-         bop_not_left_cancellative S r b. 
-Proof. intros S r b symS transS [ [s Ps] [f Pf] ] selS commS. 
-       exists (cef_selective_and_commutative_imply_not_left_cancellative S r b s f). 
+      bop_not_left_cancellative S r b.
+Proof. intros S r b s f symS transS Pf selS commS. 
+       exists (cef_selective_and_commutative_imply_not_left_cancellative  r b s f). 
        assert (idemS := bop_selective_implies_idempotent S r b selS).
        destruct (Pf s) as [L R]. 
        unfold cef_selective_and_commutative_imply_not_left_cancellative. 
@@ -1344,16 +1337,16 @@ Defined.
 
 
 Lemma bop_selective_and_commutative_imply_not_right_cancellative : 
-   ∀ (S : Type) (r : brel S) (b : binary_op S),
+   ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S),
       brel_symmetric S r -> 
       brel_transitive S r -> 
-      brel_nontrivial S r -> 
+      brel_not_trivial S r f -> 
       bop_selective S r b -> 
       bop_commutative S r b -> 
          bop_not_right_cancellative S r b. 
-Proof. intros S r b symS transS ntS selS commS. 
+Proof. intros S r b s f symS transS Pf selS commS. 
        apply bop_commutative_and_not_left_cancellative_imply_not_right_cancellative; auto. 
-       apply bop_selective_and_commutative_imply_not_left_cancellative; auto. 
+       apply (bop_selective_and_commutative_imply_not_left_cancellative S r b s f); auto. 
 Defined. 
 
 
@@ -1374,7 +1367,7 @@ Lemma bop_idempotent_and_commutative_and_not_selective_imply_not_left_cancellati
        bop_not_selective S r b -> 
           bop_not_left_cancellative S r b. 
 Proof. intros S r b congS refS symS transS assS b_congS idemS commS [[s1 s2]  [H1 H2]]. 
-       exists (cef_idempotent_and_commutative_and_not_selective_imply_not_left_cancellative S b s1 s2). 
+       exists (cef_idempotent_and_commutative_and_not_selective_imply_not_left_cancellative  b s1 s2). 
        unfold cef_idempotent_and_commutative_and_not_selective_imply_not_left_cancellative. split. 
           assert (A : r (b (b s1 s2) s1) (b s1 s2) = true). 
              assert (B := b_congS _ _ _ _ (commS s1 s2) (refS s1)). 
@@ -1424,9 +1417,9 @@ Defined.
 (* CI(S || s) *) 
 
 Lemma bop_idempotent_and_commutative_and_selective_decidable_imply_not_left_cancellative: 
-    ∀ (S : Type) (r : brel S) (b : binary_op S), 
+    ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
        brel_congruence S r r -> 
-       brel_nontrivial S r -> 
+       brel_not_trivial S r f -> 
        brel_reflexive S r -> 
        brel_symmetric S r -> 
        brel_transitive S r -> 
@@ -1436,15 +1429,15 @@ Lemma bop_idempotent_and_commutative_and_selective_decidable_imply_not_left_canc
        bop_commutative S r b -> 
        bop_selective_decidable S r b -> 
           bop_not_left_cancellative S r b. 
-Proof. intros S r b congS ntS refS symS transS assS b_congS idemS commS [selS | not_selS]. 
-       apply bop_selective_and_commutative_imply_not_left_cancellative; auto. 
+Proof. intros S r b s f congS Pf refS symS transS assS b_congS idemS commS [selS | not_selS]. 
+       apply (bop_selective_and_commutative_imply_not_left_cancellative S r b s f); auto. 
        apply bop_idempotent_and_commutative_and_not_selective_imply_not_left_cancellative; auto. 
 Defined. 
 
 Lemma bop_idempotent_and_commutative_and_selective_decidable_imply_not_right_cancellative: 
-    ∀ (S : Type) (r : brel S) (b : binary_op S), 
+    ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S), 
        brel_congruence S r r -> 
-       brel_nontrivial S r -> 
+       brel_not_trivial S r f -> 
        brel_reflexive S r -> 
        brel_symmetric S r -> 
        brel_transitive S r -> 
@@ -1454,10 +1447,9 @@ Lemma bop_idempotent_and_commutative_and_selective_decidable_imply_not_right_can
        bop_commutative S r b -> 
        bop_selective_decidable S r b -> 
           bop_not_right_cancellative S r b. 
-Proof. intros S r b congS ntS refS symS transS assS b_congS idemS commS d_selS. 
+Proof. intros S r b s f congS Pf refS symS transS assS b_congS idemS commS d_selS. 
        apply bop_commutative_and_not_left_cancellative_imply_not_right_cancellative; auto. 
-       apply bop_idempotent_and_commutative_and_selective_decidable_imply_not_left_cancellative; 
-       auto. 
+       apply (bop_idempotent_and_commutative_and_selective_decidable_imply_not_left_cancellative S r b s f); auto. 
 Defined. 
 
 
@@ -1755,13 +1747,13 @@ This justifies the semigroup attribute
 
 *) 
 Lemma brel_nontrivial_implies_not_bop_is_left_and_bop_is_right : 
-      ∀ (S : Type) (rS : brel S),  
+      ∀ (S : Type) (rS : brel S) (s : S) (f : S -> S),  
         brel_symmetric S rS -> 
         brel_transitive S rS -> 
-        brel_nontrivial S rS -> 
+        brel_not_trivial S rS f -> 
         ∀ (bS : binary_op S), ((bop_is_left S rS bS) * (bop_is_right S rS bS)) -> False. 
 Proof. unfold bop_is_left, bop_is_right. 
-       intros S rS symS tranS [ [s Ps] [f Pf] ] bS [ ilS irS ]. 
+       intros S rS s f symS tranS Pf bS [ ilS irS ]. 
        assert (A := ilS s (f s)). 
        assert (B := irS s (f s)). 
        apply symS in A. 
@@ -1793,7 +1785,94 @@ Definition bop_right_constant (S : Type) (r : brel S) (b : binary_op S)
 *) 
 
 
-(* absorption *) 
+(* absorption 
+
+Definition bops_left_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), r s (b1 s (b2 s t)) = true.
+
+Definition bops_left_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), r s (b1 s (b2 t s)) = true.
+
+Definition bops_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), r s (b1 (b2 s t) s) = true.
+
+Definition bops_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), r s (b1 (b2 t s) s) = true.
+ *)
+
+Lemma bops_left_right_absorptive_implies_right_right : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_transitive S r -> 
+        bop_commutative S r b1 -> 
+        bops_left_right_absorptive S r b1 b2 -> bops_right_right_absorptive S r b1 b2. 
+Proof. intros S r b1 b2 transS comm_b1 abs s t.
+       assert (fact1 := abs s t).
+       assert (fact2 := comm_b1 s (b2 t s)). 
+       apply (transS _ _ _ fact1 fact2). 
+Defined.
+
+Lemma bops_not_left_right_absorptive_implies_not_right_right : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_transitive S r ->
+        bop_commutative S r b1 -> 
+        bops_not_left_right_absorptive S r b1 b2 -> bops_not_right_right_absorptive S r b1 b2. 
+Proof. intros S r b1 b2 transS comm_b1 [[s s'] P]. exists (s, s'). 
+       case_eq(r s (b1 (b2 s' s) s)); intro J.
+          assert (fact1 := comm_b1 (b2 s' s) s). 
+          assert (fact2 := transS _ _ _ J fact1).
+          rewrite fact2 in P. discriminate. 
+          reflexivity. 
+Defined.
+
+Definition bops_right_right_absorptive_decide_I : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_transitive S r -> 
+        bop_commutative S r b1 -> 
+        bops_left_right_absorptive_decidable S r b1 b2 -> bops_right_right_absorptive_decidable S r b1 b2
+:= λ S r b1 b2 trans comm lrad, 
+   match lrad with 
+   | inl lr  => inl _ (bops_left_right_absorptive_implies_right_right S r b1 b2 trans comm lr)
+   | inr nlr => inr _ (bops_not_left_right_absorptive_implies_not_right_right S r b1 b2 trans comm nlr)
+   end. 
+
+
+
+Lemma bops_left_left_absorptive_implies_right_left: ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_transitive S r -> 
+        bop_commutative S r b1 -> 
+        bops_left_left_absorptive S r b1 b2 -> bops_right_left_absorptive S r b1 b2. 
+Proof. intros S r b1 b2 transS comm_b1 abs s t.
+       assert (fact1 := abs s t).
+       assert (fact2 := comm_b1 s (b2 s t)). 
+       apply (transS _ _ _ fact1 fact2). 
+Defined.
+
+Lemma bops_not_left_left_absorptive_implies_not_right_left : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_transitive S r ->
+        bop_commutative S r b1 -> 
+        bops_not_left_left_absorptive S r b1 b2 -> bops_not_right_left_absorptive S r b1 b2. 
+Proof. intros S r b1 b2 transS comm_b1 [[s s'] P]. exists (s, s'). 
+       case_eq(r s (b1 (b2 s s') s)); intro J.
+          assert (fact1 := comm_b1 (b2 s s') s). 
+          assert (fact2 := transS _ _ _ J fact1).
+          rewrite fact2 in P. discriminate. 
+          reflexivity. 
+Defined.
+
+Definition bops_right_left_absorptive_decide_I : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_transitive S r -> 
+        bop_commutative S r b1 -> 
+        bops_left_left_absorptive_decidable S r b1 b2 -> bops_right_left_absorptive_decidable S r b1 b2
+:= λ S r b1 b2 trans comm lrad, 
+   match lrad with 
+   | inl lr  => inl _ (bops_left_left_absorptive_implies_right_left S r b1 b2 trans comm lr)
+   | inr nlr => inr _ (bops_not_left_left_absorptive_implies_not_right_left S r b1 b2 trans comm nlr)
+   end. 
+
+
+
+
+
+
+(*--------------------------*)
+
 
 
 Lemma bops_left_left_absorptive_implies_left_right : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),

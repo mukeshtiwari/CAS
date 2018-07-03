@@ -1,92 +1,9 @@
 Require Import CAS.code.basic_types. 
-Require Import CAS.code.eqv_certificates.
-Require Import CAS.code.sg_certificates.
-Require Import CAS.code.bs_certificates.
-Require Import CAS.code.cert_records. 
+Require Import CAS.code.eqv_records. 
+Require Import CAS.code.sg_cert_records. 
+Require Import CAS.code.bs_cert_records. 
 Require Import CAS.code.ast.
-Require Import CAS.code.data.
 
-(* eqv *) 
-Record eqv {S : Type} := {
-  eqv_eq    : brel S 
-  (* should eqv have a canonical : S -> S function *) 
-; eqv_certs : eqv_certificates (S := S) 
-; eqv_data  : S -> data (* for printing in ocaml-land *) 
-; eqv_rep   : S -> S    (* for reductions.  Should this be an option? *) 
-; eqv_ast   : ast_eqv
-}.  
-
-(* orders *) 
-
-(* quasi order 
-Record qo {S : Type} := {
-  qo_eqv        : eqv S 
-; qo_brel       : brel S 
-; qo_certs      : qo_certificates S
-; qo_ast        : ast_qo
-}.
-*) 
-
-(* partial order *) 
-Record po {S : Type} := {
-  po_eqv        : eqv (S := S)  
-; po_brel       : brel S 
-; po_certs      : po_certificates (S := S) 
-; po_ast        : ast_po
-}.
-
-(* total order *) 
-Record to {S : Type} := {
-  to_eqv        : eqv (S := S)  
-; to_brel       : brel S 
-; to_certs      : to_certificates (S := S)  
-; to_ast        : ast_to
-}.
-
-(* semigroups *) 
-Record sg {S : Type} := {
-  sg_eq    : eqv (S := S) 
-; sg_bop   : binary_op S 
-; sg_certs : sg_certificates (S := S)  
-; sg_ast   : ast_sg
-}.
-
-(*
-Record sg_new {S : Type} := {
-  sgn_eq    : eqv S 
-; sgn_bop   : binary_op S 
-; sgn_certs : sg_certificates_new S 
-; sgn_ast   : ast_sg
-}.
-*) 
-
-Record sg_C {S : Type} := {
-  sg_C_eqv   : eqv (S := S) 
-; sg_C_bop   : binary_op S 
-; sg_C_certs : sg_C_certificates (S := S) 
-; sg_C_ast   : ast_sg_C
-}.
-
-Record sg_CI {S : Type} := {
-  sg_CI_eqv   : eqv (S := S) 
-; sg_CI_bop   : binary_op S 
-; sg_CI_certs : sg_CI_certificates (S := S) 
-; sg_CI_ast   : ast_sg_CI
-}.
-
-Record sg_CS {S : Type} := {
-  sg_CS_eqv   : eqv (S := S) 
-; sg_CS_bop   : binary_op S 
-; sg_CS_certs : sg_CS_certificates (S := S)
-; sg_CS_ast   : ast_sg_CS
-}.
-
-Record sg_CK {S : Type} := {
-  sg_CK_eqv   : eqv (S := S) 
-; sg_CK_bop   : binary_op S 
-; sg_CK_certs : sg_CK_certificates (S := S)
-; sg_CK_ast   : ast_sg_CK
-}.
 
 Record bs {S : Type} := {
   bs_eqv         : eqv (S := S) 
@@ -110,12 +27,53 @@ Record bs_CS {S : Type} := {
 }.
 
 Record bs_C {S : Type} := {
-  bs_C_eqv         : eqv (S := S) 
+  bs_C_eqv         : @eqv S  
 ; bs_C_plus        : binary_op S 
 ; bs_C_times       : binary_op S 
-; bs_C_plus_certs  : sg_C_certificates (S := S) 
-; bs_C_times_certs : sg_certificates (S := S)    
-; bs_C_certs       : bs_certificates (S := S) 
+; bs_C_plus_certs  : @sg_C_certificates S 
+; bs_C_times_certs : @sg_certificates S
+; bs_C_certs       : @bs_certificates S 
 ; bs_C_ast         : ast_bs_C
+}.
+
+Record semiring {S : Type} := {
+  semiring_eqv         : @eqv S 
+; semiring_plus        : binary_op S 
+; semiring_times       : binary_op S 
+; semiring_plus_certs  : @sg_C_certificates S 
+; semiring_times_certs : @sg_certificates S   
+; semiring_certs       : @semiring_certificates S 
+; semiring_ast         : ast_semiring
+}.
+
+Record dioid {S : Type} := {
+  dioid_eqv         : @eqv S 
+; dioid_plus        : binary_op S 
+; dioid_times       : binary_op S 
+; dioid_plus_certs  : @sg_CI_certificates S 
+; dioid_times_certs : @sg_certificates S   
+; dioid_certs       : @semiring_certificates S 
+; dioid_ast         : ast_dioid
+}.
+
+Record lattice {S : Type} := {
+  lattice_eqv         : @eqv S 
+; lattice_join        : binary_op S 
+; lattice_meet        : binary_op S 
+; lattice_join_certs : @sg_CI_certificates S 
+; lattice_meet_certs : @sg_CI_certificates S 
+; lattice_certs      : @lattice_certificates S 
+; lattice_ast         : ast_lattice
+}.
+
+
+Record distributive_lattice {S : Type} := {
+  distributive_lattice_eqv        : @eqv S 
+; distributive_lattice_join       : binary_op S 
+; distributive_lattice_meet       : binary_op S 
+; distributive_lattice_join_certs : @sg_CI_certificates S 
+; distributive_lattice_meet_certs : @sg_CI_certificates S 
+; distributive_lattice_certs      : @distributive_lattice_certificates S
+; distributive_lattice_ast        : ast_distributive_lattice
 }.
 

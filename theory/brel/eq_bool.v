@@ -3,9 +3,12 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.theory.brel_properties. 
 
+
+
 Lemma eqb_bool_to_prop  : ∀ s t: bool, eqb s t = true -> s = t. 
 Proof.  induction s;  induction t; simpl; intro H; auto. Qed. 
 
+(*
 Lemma brel_eq_bool_witness : brel_witness bool brel_eq_bool. 
 Proof. unfold brel_witness, brel_eq_bool. exists true; auto. Defined.
 
@@ -17,6 +20,10 @@ Definition brel_eq_bool_nontrivial : brel_nontrivial bool brel_eq_bool
       brel_nontrivial_witness   := brel_eq_bool_witness
     ; brel_nontrivial_negate    := brel_eq_bool_negate
    |}. 
+ *)
+
+Lemma brel_eq_bool_not_trivial : brel_not_trivial bool brel_eq_bool negb. 
+Proof. intro s. induction s; auto. Defined. 
 
 Lemma brel_eq_bool_reflexive : brel_reflexive bool brel_eq_bool. 
 Proof. unfold brel_reflexive, brel_eq_bool. induction s; simpl; auto. 

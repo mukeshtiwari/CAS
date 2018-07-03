@@ -7,7 +7,7 @@ Require Import CAS.code.eqv_cert_records.
 Require Import CAS.code.eqv_records.
 
 Open Scope nat. 
-
+(*
 Definition eqv_certs_eq_nat : @eqv_certificates nat 
 := {| 
      eqv_nontrivial := 
@@ -20,12 +20,14 @@ Definition eqv_certs_eq_nat : @eqv_certificates nat
     ; eqv_symmetric     := Assert_Symmetric 
     ; eqv_transitive    := Assert_Transitive 
    |}. 
-
+*) 
 
 Definition eqv_eq_nat : eqv (S := nat)
 := {| 
       eqv_eq    := brel_eq_nat 
-    ; eqv_certs := eqv_certs_eq_nat
+    ; eqv_witness := 0
+    ; eqv_new := S 
+(*    ; eqv_certs := eqv_certs_eq_nat *) 
     ; eqv_data  := λ n, DATA_nat n 
     ; eqv_rep   := λ b, b 
     ; eqv_ast   := Ast_eqv_nat

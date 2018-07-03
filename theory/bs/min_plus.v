@@ -57,31 +57,28 @@ Proof. induction a.
                 rewrite plus_Sn_m at 1. 
                 rewrite plus_comm at 1. reflexivity. 
              rewrite F in H.  apply injective_S in H. assumption.              
-Defined. 
+Defined.
 
-Lemma plus_idem_only_zero : ∀ (a : nat), plus a a = a -> a = 0. 
-Proof. intro a. apply plus_lemma_1. Defined. 
+
+Lemma bop_min_plus_ann_equals_id : bops_id_equals_ann nat brel_eq_nat bop_plus bop_min.
+Proof. exists 0. split. apply bop_plus_zero_is_id. apply bop_min_zero_is_ann. Defined. 
+
 
 Lemma bop_min_plus_not_id_equals_ann : 
         bops_not_id_equals_ann nat brel_eq_nat bop_min bop_plus. 
-Proof. unfold bops_not_id_equals_ann. intros i a H K. 
-       unfold bop_is_id in H. unfold bop_is_ann in K. 
-       case_eq(brel_eq_nat i a); intro J. 
-          assert(Ka := K a). destruct Ka as [LKa RKa]. 
-          assert (fact : brel_eq_nat (bop_plus a a) a = true -> a = 0). 
-             unfold bop_plus. intro Q. apply beq_nat_to_prop in Q. 
-             apply plus_idem_only_zero; auto. 
-          assert (E := fact RKa). rewrite E in J. 
-          apply beq_nat_to_prop in J.  rewrite J in H. 
-          destruct (H 1) as [F _]. compute in F.  discriminate. 
-       reflexivity. 
+Proof. unfold bops_not_id_equals_ann.
+       unfold bop_not_is_id, bop_not_is_ann.
+       unfold brel_eq_nat, bop_min, bop_plus. 
+       induction s.
+       right. exists (S 0). compute. left. reflexivity.
+       destruct IHs as [[s' [P | Q]] | [s' [P | Q]]].
+       left. exists (S s'). left. unfold Init.Nat.min. fold Init.Nat.min. simpl. exact P.
+       left. exists (S s'). right. unfold Init.Nat.min. fold Init.Nat.min. simpl. exact Q.
+       right. exists s'. left. unfold plus. fold plus.  simpl. exact P.
+       right. exists s'. right. unfold plus. fold plus. simpl. rewrite Nat.add_comm.  unfold plus. fold plus. simpl.  rewrite Nat.add_comm. exact Q.      
 Defined. 
+       
 
-Lemma bop_min_plus_ann_equals_id : 
-        bops_id_equals_ann nat brel_eq_nat bop_plus bop_min.
-Proof. unfold bops_id_equals_ann. 
-       exists bop_plus_exists_id. exists bop_min_exists_ann. compute; auto. 
-Defined. 
 
 
 (* absorption *) 

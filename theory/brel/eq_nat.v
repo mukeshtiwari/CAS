@@ -33,6 +33,7 @@ Proof. unfold brel_congruence.
        induction s; induction t; induction u; induction v; simpl; intros H Q; auto; discriminate.  
 Qed. 
 
+(*
 Lemma brel_eq_nat_witness : brel_witness nat brel_eq_nat. 
 Proof. unfold brel_witness, brel_eq_nat. exists 0; auto. Defined.
 
@@ -49,7 +50,16 @@ Definition brel_eq_nat_nontrivial : brel_nontrivial nat brel_eq_nat
       brel_nontrivial_witness   := brel_eq_nat_witness
     ; brel_nontrivial_negate    := brel_eq_nat_negate
    |}. 
+ *)
 
+
+Lemma brel_eq_nat_not_trivial : brel_not_trivial nat brel_eq_nat S.
+Proof. intro s. split. 
+          apply brel_nat_neq_S. 
+          apply brel_symmetric_implies_dual. 
+          apply brel_eq_nat_symmetric. 
+          apply brel_nat_neq_S. 
+Defined. 
 
 (* general lemmas *) 
 

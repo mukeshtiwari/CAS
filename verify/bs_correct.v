@@ -35,48 +35,6 @@ Proof. compute. reflexivity.  Qed.
 *)    
    
 
-Theorem correct_bs_add_one : ∀ (S : Type) (bsS: A_bs S) (c : cas_constant), 
-   bs_add_one S (A2C_bs S bsS) c 
-   =
-   A2C_bs (with_constant S) (A_bs_add_one S bsS c). 
-Proof. intros S bsS c. 
-       unfold bs_add_one, A_bs_add_one, A2C_bs; simpl. 
-       rewrite correct_eqv_add_constant. 
-       rewrite correct_sg_certs_add_ann. 
-       rewrite correct_sg_certs_add_id. 
-       rewrite correct_bs_certs_add_one. 
-       reflexivity. 
-Qed. 
-
-
-Theorem correct_bs_add_zero: ∀ (S : Type) (bsS: A_bs S) (c : cas_constant), 
-   bs_add_zero S (A2C_bs S bsS) c 
-   =
-   A2C_bs (with_constant S) (A_bs_add_zero S bsS c). 
-Proof. intros S bsS c. 
-       unfold bs_add_zero, A_bs_add_zero, A2C_bs; simpl. 
-       rewrite correct_eqv_add_constant. 
-       rewrite correct_sg_certs_add_ann. 
-       rewrite correct_sg_certs_add_id. 
-       rewrite correct_bs_certs_add_zero. 
-       reflexivity. 
-Qed. 
-
-
-
-Theorem correct_bs_product : ∀ (S T : Type) (bsS: A_bs S) (bsT : A_bs T), 
-   bs_product S T (A2C_bs S bsS) (A2C_bs T bsT)
-   =
-   A2C_bs (S * T) (A_bs_product S T bsS bsT). 
-Proof. intros S T bsS bsT. 
-       unfold bs_product, A_bs_product, A2C_bs; simpl. 
-       rewrite correct_eqv_product. 
-       rewrite correct_sg_certs_product. 
-       rewrite correct_sg_certs_product. 
-       rewrite correct_bs_certs_product. 
-       reflexivity. 
-Qed. 
-
 
 
 Theorem correct_bs_C_llex_product : 
