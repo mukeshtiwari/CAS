@@ -132,7 +132,8 @@ Inductive ast_bs :=
 
    | Ast_bs_from_bs_CS : ast_bs_CS → ast_bs
    | Ast_bs_from_bs_C  : ast_bs_C → ast_bs
-
+   | Ast_bs_from_lattice : ast_lattice → ast_bs
+                                        
 with ast_bs_CS :=
    | Ast_bs_CS_product   : ast_bs_CS * ast_bs_CS → ast_bs_CS
    | Ast_bs_CS_add_zero  : cas_constant * ast_bs_CS → ast_bs_CS
@@ -146,12 +147,12 @@ with ast_bs_C :=
    | Ast_bs_C_add_one   : cas_constant * ast_bs_C → ast_bs_C
    | Ast_bs_C_llex      : ast_bs_CS * ast_bs_C → ast_bs_C
    | Ast_bs_C_from_bs   : ast_bs  → ast_bs_C
-  . 
+   | Ast_bs_C_from_semiring  : ast_semiring → ast_bs_C
 
-Inductive ast_semiring :=
+with  ast_semiring :=
 | Ast_semiring_add_zero   : cas_constant * ast_semiring → ast_semiring
-| Ast_semiring_from_dioid : ast_dioid → ast_semiring
-| Ast_semiring_product    : ast_semiring * ast_semiring → ast_semiring 
+| Ast_semiring_product    : ast_semiring * ast_semiring → ast_semiring
+| Ast_semiring_from_dioid  : ast_dioid → ast_semiring                                                            
 
 with ast_dioid :=
 | Ast_dioid_min_plus : ast_dioid
@@ -159,7 +160,8 @@ with ast_dioid :=
 | Ast_dioid_add_zero  : cas_constant * ast_dioid → ast_dioid
 | Ast_dioid_product   : ast_dioid * ast_dioid → ast_dioid
 | Ast_dioid_from_distributive_lattice_left : ast_distributive_lattice → ast_dioid
-| Ast_dioid_from_distributive_lattice_right : ast_distributive_lattice → ast_dioid 
+| Ast_dioid_from_distributive_lattice_right : ast_distributive_lattice → ast_dioid
+| Ast_dioid_from_distributive_lattice  : ast_distributive_lattice → ast_dioid
                                                                           
 with ast_distributive_lattice :=
 | Ast_distributive_lattice_min_max  : ast_distributive_lattice
@@ -169,9 +171,8 @@ with ast_distributive_lattice :=
 | Ast_distributive_lattice_product  : ast_distributive_lattice * ast_distributive_lattice → ast_distributive_lattice
 | Ast_distributive_lattice_left_sum : ast_distributive_lattice * ast_distributive_lattice → ast_distributive_lattice                      
 | Ast_distributive_lattice_dual     : ast_distributive_lattice → ast_distributive_lattice                                                 
-.
 
-Inductive ast_lattice :=
+with ast_lattice :=
   | Ast_lattice_dual : ast_lattice → ast_lattice     
   | Ast_lattice_add_zero  : cas_constant * ast_lattice → ast_lattice
   | Ast_lattice_add_one  : cas_constant * ast_lattice → ast_lattice

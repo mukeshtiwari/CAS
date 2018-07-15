@@ -172,23 +172,22 @@ let sg_describe sg = mmap sg_describe sg;;
 let (<*>) m n  = liftM2 sg_product m n  ;; 
 let (<!+>) m n = liftM2 sg_left_sum m n ;;
 let (<+!>) m n = liftM2 sg_right_sum m n;;
-(* Lex product requires an sg_CS as a first arg (for associativity). 
+(*Lex product requires an sg_CS as a first arg (for associativity). 
    sg_mllex_aux : a sg -> 'b sg -> ('a * 'b) sg option 
   ( <!*> ) : 'a sg option -> 'b sg option -> ('a * 'b) sg option
- *)
-(*  
+*)
 let (<!*>) m n = 
     let sg_llex_aux sg1 sg2 = 
         match (sg_CS_option_from_sg sg1) with 
        | None -> None 
        | Some sg1'-> Some(sg_llex sg1' sg2)
     in liftN2 sg_llex_aux m n ;; 
- *) 
+
 let sg2 = sg_and <*> sg_or <*> sg_min <*> sg_max <*> sg_times <*> sg_plus;; 
 
 let sg2_props = sg_describe sg2;; 
 
-(*  
+
 let sg3 = sg_and <!*> sg_or <!*> sg_min <!*> sg_max <!*> sg_times <*> sg_plus;; 
 
 let sg3_props = sg_describe sg3;; 
@@ -197,8 +196,6 @@ let sg3_props = sg_describe sg3;;
 let sg4 = sg_and <!*> sg_max <!+> sg_min <+!> sg_max <*> sg_or;;
 
 let sg4_props = sg_describe sg4;;
-
-*)
 
   
 (* However, note that this approach might not always be the best. 
@@ -241,7 +238,7 @@ let bs_describe bs = mmap bs_describe bs;;
 let (<**>) m n  = liftM2 bs_product m n  ;; 
 
 
-  (*
+
 (* (left) lex-product *) 
 let (<!**>) m n = 
     let bs_llex_aux bs1 bs2 = 
@@ -267,4 +264,4 @@ let bs5 = bs_add_zero bs4 "INFINITY";;   (* iso with bs3 ? *)
 let bs6 = bs_max_min <!**> bs_min_plus;;
 
 let bs7 = bs_min_plus <!**> bs_min_plus;;
-*)
+

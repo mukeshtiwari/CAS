@@ -14,6 +14,7 @@ Require Import CAS.code.cas.sg.add_ann.
 Require Import CAS.code.cas.sg.add_id.
 Require Import CAS.code.cas.sg.and.
 Require Import CAS.code.cas.sg.cast_up.
+Require Import CAS.code.cas.sg.cast_down.
 Require Import CAS.code.cas.sg.concat.
 Require Import CAS.code.cas.sg.left_sum.
 Require Import CAS.code.cas.sg.left.
@@ -31,6 +32,8 @@ Require Import CAS.code.cas.bs.add_one.
 Require Import CAS.code.cas.bs.add_zero.
 Require Import CAS.code.cas.bs.and_or.
 Require Import CAS.code.cas.bs.dual.
+Require Import CAS.code.cas.bs.cast_up.
+Require Import CAS.code.cas.bs.cast_down.
 (*Require Import CAS.code.cas.bs.left_sum *) 
 Require Import CAS.code.cas.bs.llex_product.
 Require Import CAS.code.cas.bs.max_min.
@@ -186,28 +189,51 @@ Extraction "Cas.ml"
    sg_CI_from_sg_CS
    sg_C_from_sg_CK
 
+   sg_C_option_from_sg
+   sg_CI_option_from_sg
+   sg_CK_option_from_sg
+   sg_CS_option_from_sg 
+   sg_CS_option_from_sg_C
+   sg_CI_option_from_sg_C
+   sg_CK_option_from_sg_C
+   sg_CS_option_from_sg_CI
+  
    (* bi-semigroups *)
+   bs_max_min  (* lattice? *) 
+   bs_max_plus
+
+   bs_min_max
+   bs_min_plus
+
+   bs_or_and          
+   bs_and_or  (* lattice? *)
+
+   lattice_dual
+   distributive_lattice_dual   
+   
    bs_add_one
    lattice_add_one
    distributive_lattice_add_one
+   
    bs_add_zero
    dioid_add_zero
    semiring_add_zero
    lattice_add_zero
    distributive_lattice_add_zero
-   bs_and_or  (* lattice? *) 
-   lattice_dual
-   distributive_lattice_dual
-   bs_C_llex_product
-   bs_CS_llex_product   
-   bs_max_min  (* lattice? *) 
-   bs_max_plus
-   bs_min_max
-   bs_min_plus
-   bs_or_and          
+
    bs_product
    semiring_product
-   dioid_product
+   dioid_product   
+   
+   bs_C_llex_product
+   bs_CS_llex_product
+   
+   (* casting *)
+   bs_from_bs_C
+   bs_from_bs_CS
+
+   bs_C_option_from_bs
+   bs_CS_option_from_bs
    .
 
 (*   sg_union *) 

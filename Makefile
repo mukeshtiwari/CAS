@@ -39,6 +39,7 @@ CODE=\
    code/cas/eqv/product.v \
    code/cas/eqv/sum.v \
    code/cas/sg/cast_up.v \
+   code/cas/sg/cast_down.v \
    code/cas/sg/and.v \
    code/cas/sg/or.v \
    code/cas/sg/max.v \
@@ -56,6 +57,8 @@ CODE=\
    code/cas/bs/add_one.v \
    code/cas/bs/add_zero.v \
    code/cas/bs/and_or.v \
+   code/cas/bs/cast_up.v \
+   code/cas/bs/cast_down.v \
    code/cas/bs/or_and.v \
    code/cas/bs/max_min.v \
    code/cas/bs/min_max.v \
@@ -63,9 +66,7 @@ CODE=\
    code/cas/bs/max_plus.v \
    code/cas/bs/product.v \
    code/cas/bs/llex_product.v \
-   code/cas/bs/dual.v \
-#   code/cas.v
-#   code/cast.v \
+   code/cas/bs/dual.v 
 
 ACODE=\
    a_code/proof_records.v \
