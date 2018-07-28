@@ -78,6 +78,7 @@ ACODE=\
    a_code/a_cas/eqv/sum.v \
    a_code/a_cas/eqv/sum.v \
    a_code/a_cas/eqv/product.v \
+   a_code/a_cas/eqv/set.v \
    a_code/a_cas/sg/cast_up.v \
    a_code/a_cas/sg/and.v \
    a_code/a_cas/sg/or.v \
@@ -94,6 +95,8 @@ ACODE=\
    a_code/a_cas/sg/right_sum.v \
    a_code/a_cas/sg/product.v \
    a_code/a_cas/sg/llex.v \
+   a_code/a_cas/sg/union.v \
+   a_code/a_cas/sg/intersect.v \
    a_code/a_cas/bs/dual.v \
    a_code/a_cas/bs/and_or.v \
    a_code/a_cas/bs/or_and.v \
@@ -107,6 +110,8 @@ ACODE=\
    a_code/a_cas/bs/left_sum.v \
    a_code/a_cas/bs/right_sum.v \
    a_code/a_cas/bs/llex_product.v \
+   a_code/a_cas/bs/union_intersect.v \
+   a_code/a_cas/bs/intersect_union.v \
 
 
 THEORY=\
@@ -132,6 +137,8 @@ THEORY=\
    theory/brel/to_bool.v \
    theory/brel/to_nat.v \
    theory/brel/reduce.v \
+   theory/brel/subset.v \
+   theory/brel/set.v \
    theory/bop/and.v \
    theory/bop/or.v \
    theory/bop/min.v \
@@ -147,6 +154,9 @@ THEORY=\
    theory/bop/llex.v \
    theory/bop/add_id.v \
    theory/bop/add_ann.v \
+   theory/bop/union.v \
+   theory/bop/lift.v \
+   theory/bop/intersect.v \
    theory/bop/reduction_theory.v \
    theory/bop/full_reduce.v \
    theory/bop/predicate_reduce.v \
@@ -164,6 +174,8 @@ THEORY=\
    theory/bs/add_id_add_ann.v \
    theory/bs/left_sum_right_sum.v \
    theory/bs/right_sum_left_sum.v \
+   theory/bs/union_intersect.v \
+   theory/bs/intersect_union.v \
    theory/bs/reduction_theory.v \
    theory/structures/semilattice.v \
    theory/structures/lattice.v \
@@ -219,6 +231,9 @@ clean:
 	rm -rf _build
 	rm -rf extraction/*.ml extraction/*.mli extraction/STAMP
 
+cleancasml:
+	rm -rf _build
+
 
 all:
 	$(MAKE) coq
@@ -237,7 +252,7 @@ extraction/STAMP: $(FILES:.v=.vo) extraction/extraction.v
 	$(COQEXEC) extraction/extraction.v
 	touch extraction/STAMP
 
-casml: extraction/STAMP src/Driver.ml src/Describe.ml
+casml: extraction/STAMP src/Mcas.ml src/Describe.ml
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
 	cd _build/extraction && ocamlmktop -o casml $(CMOFILES)
 

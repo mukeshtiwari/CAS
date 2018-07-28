@@ -122,8 +122,6 @@ Inductive ast_bs :=
    | Ast_bs_max_plus  : ast_bs 
    | Ast_bs_min_times : ast_bs 
    | Ast_bs_max_times : ast_bs 
-   | Ast_bs_intersect_union : cas_constant * ast_eqv → ast_bs
-   | Ast_bs_union_intersect : cas_constant * ast_eqv → ast_bs
 
    | Ast_bs_product    : ast_bs * ast_bs → ast_bs
    | Ast_bs_left_sum    : ast_bs * ast_bs → ast_bs                                             
@@ -170,7 +168,10 @@ with ast_distributive_lattice :=
 | Ast_distributive_lattice_add_zero : cas_constant * ast_distributive_lattice → ast_distributive_lattice
 | Ast_distributive_lattice_product  : ast_distributive_lattice * ast_distributive_lattice → ast_distributive_lattice
 | Ast_distributive_lattice_left_sum : ast_distributive_lattice * ast_distributive_lattice → ast_distributive_lattice                      
-| Ast_distributive_lattice_dual     : ast_distributive_lattice → ast_distributive_lattice                                                 
+| Ast_distributive_lattice_dual     : ast_distributive_lattice → ast_distributive_lattice
+| Ast_distributive_lattice_intersect_union : cas_constant * ast_eqv → ast_distributive_lattice
+| Ast_distributive_lattice_union_intersect : cas_constant * ast_eqv → ast_distributive_lattice
+                                                                   
 
 with ast_lattice :=
   | Ast_lattice_dual : ast_lattice → ast_lattice     

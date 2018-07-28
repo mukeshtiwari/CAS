@@ -42,12 +42,17 @@ Require Import CAS.code.cas.bs.min_max.
 Require Import CAS.code.cas.bs.min_plus.
 Require Import CAS.code.cas.bs.or_and. 
 Require Import CAS.code.cas.bs.product.
+
 (*Require Import CAS.code.cas.bs.right_sum *)
+
+
+Require Extraction. 
+
 
 
 (* Require Import Coq.ExtrOcamlString.v. *) (* why does this not work?? *) 
 
-(* BEGIN from ExtrOcamlString.v *) 
+(* BEGIN from ExtrOcamlString.v  *)
 Require Import Ascii String.
 
 Extract Inductive ascii => char
@@ -71,6 +76,7 @@ Extract Constant shift =>
 Extract Inlined Constant ascii_dec => "(=)".
 
 Extract Inductive string => "char list" [ "[]" "(::)" ].
+
 
 
 (* End from ExtrOcamlString.v *) 
@@ -99,6 +105,7 @@ Extraction Library ident.
 
 *) 
 
+
 Set Extraction KeepSingleton. 
 Unset Extraction Optimize.
 Unset Extraction AutoInline.
@@ -118,7 +125,7 @@ Extraction Inline
 *)
 
 
-Extraction Language Ocaml. 
+Extraction Language OCaml. 
 Extract Inductive unit => "unit" [ "()" ].
 Extract Inductive bool => "bool" [ "true" "false" ].
 Extract Inductive prod => "(*)"  [ "(,)" ].
