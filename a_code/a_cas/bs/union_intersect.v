@@ -1,7 +1,8 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.ast.
 Require Import CAS.code.brel. 
-Require Import CAS.code.bop. 
+Require Import CAS.code.bop.
+Require Import CAS.code.combined. 
 Require Import CAS.a_code.proof_records.
 Require Import CAS.a_code.a_cas_records.
 Require Import CAS.theory.brel_properties.
@@ -12,9 +13,6 @@ Require Import CAS.a_code.a_cas.eqv.add_constant.
 Require Import CAS.a_code.a_cas.eqv.set.
 Require Import CAS.a_code.a_cas.sg.union.
 Require Import CAS.a_code.a_cas.sg.intersect. 
-
-Require Import CAS.theory.bop.union.      (* for def of union. move to bop.v *)
-Require Import CAS.theory.bop.intersect.  (* for def of intersection. move to bop.v *)
 
 Require Import CAS.theory.bs.union_intersect.
 Require Import CAS.theory.bs.intersect_union. 

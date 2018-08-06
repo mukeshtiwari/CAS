@@ -137,6 +137,7 @@ THEORY=\
    theory/brel/to_bool.v \
    theory/brel/to_nat.v \
    theory/brel/reduce.v \
+   theory/brel/in_set.v \
    theory/brel/subset.v \
    theory/brel/set.v \
    theory/bop/and.v \

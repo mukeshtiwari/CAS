@@ -13,9 +13,9 @@ Definition eqv_proofs_set : ∀ (S : Type) (r : brel S),
 := λ S r eqv, 
    {| 
      A_eqv_congruence  := brel_set_congruence S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) (A_eqv_transitive S r eqv) 
-   ; A_eqv_reflexive   := brel_set_reflexive S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) (A_eqv_transitive S r eqv) 
+   ; A_eqv_reflexive   := brel_set_reflexive S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) 
    ; A_eqv_transitive  := brel_set_transitive S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) (A_eqv_transitive S r eqv) 
-   ; A_eqv_symmetric   := brel_set_symmetric S r (A_eqv_symmetric S r eqv) 
+   ; A_eqv_symmetric   := brel_set_symmetric S r 
    |}. 
 
 

@@ -61,3 +61,13 @@ Definition uop_minset : ∀ {S : Type}, brel S → brel S → unary_op (finite_s
 
 Definition brel_minset : ∀ {S : Type}, brel S → brel S → brel (finite_set S) 
 := λ {S} eq lt,  brel_reduce (brel_set eq) (uop_minset eq lt). 
+
+
+Definition bop_lift : ∀ {S : Type}, brel S → binary_op S → binary_op(finite_set S) := 
+    λ {S} eq bS X Y, uop_duplicate_elim eq (bop_list_product_left bS X Y). 
+
+Definition bop_union : ∀ {S : Type}, brel S → binary_op (finite_set S) 
+:= λ {S} r,  bop_then_unary (uop_duplicate_elim r) (@bop_concat S).
+
+Definition bop_intersect : ∀ {S : Type}, brel S → binary_op (finite_set S) 
+:= λ {S} eq X,  uop_filter (in_set eq X). 

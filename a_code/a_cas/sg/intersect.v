@@ -1,7 +1,8 @@
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.ast.
 Require Import CAS.code.brel. 
-Require Import CAS.code.bop. 
+Require Import CAS.code.bop.
+Require Import CAS.code.combined. 
 Require Import CAS.a_code.proof_records. 
 Require Import CAS.a_code.a_cas_records.
 Require Import CAS.a_code.a_cas.eqv.add_constant.
@@ -28,7 +29,7 @@ Definition sg_CI_proofs_intersect :
 ; A_sg_CI_commutative        := bop_intersect_commutative S rS refS symS tranS c
 ; A_sg_CI_idempotent         := bop_intersect_idempotent S rS refS symS tranS c
 ; A_sg_CI_selective_d        := inr _ (bop_intersect_not_selective S rS s f ntS c)
-; A_sg_CI_exists_id_d        := inl _ (bop_intersect_exists_id S rS refS symS tranS c)
+; A_sg_CI_exists_id_d        := inl _ (bop_intersect_exists_id S rS refS symS c)
 ; A_sg_CI_exists_ann_d       := inl _ (bop_intersect_exists_ann S rS refS symS tranS c)
 |}. 
 

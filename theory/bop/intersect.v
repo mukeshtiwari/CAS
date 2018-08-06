@@ -6,15 +6,13 @@ Require Import CAS.code.combined.
 Require Import CAS.code.uop. 
 Require Import CAS.theory.brel_properties. 
 Require Import CAS.theory.bop_properties. 
-Require Import CAS.theory.facts. 
+Require Import CAS.theory.facts.
+Require Import CAS.theory.brel.in_set.
 Require Import CAS.theory.brel.subset.
 Require Import CAS.theory.brel.set.
 Require Import CAS.theory.brel.add_constant.
 Require Import CAS.theory.bop.add_id.
-Require Import CAS.theory.bop.union. (* for dup elim ... *) 
 
-Definition bop_intersect : ∀ {S : Type}, brel S → binary_op (finite_set S) 
-:= λ {S} eq X,  uop_filter (in_set eq X). 
 
 Section Intersect.
   Variable S: Type.
@@ -58,19 +56,6 @@ of union before the id is added.
 *) 
 
 
-(* 
-   ∀ (t : S) (s1 s2 : finite_set S),
-   brel_set X s1 s2 = true → in_set X s1 t = in_set X s2 t
-*) 
-Lemma in_set_left_congruence : brel2_left_congruence (finite_set S) S (brel_set eq) (in_set eq). 
-Proof. unfold brel2_left_congruence.
-       intros t s1 s2 H. 
-       apply brel_set_elim_prop in H; auto. destruct H as [L R]. 
-       case_eq(in_set eq s1 t); intro J; 
-       case_eq(in_set eq s2 t); intro K; auto.  
-          rewrite (L t J) in K. assumption. 
-          rewrite (R t K) in J. discriminate. 
-Defined. 
 
 
 
@@ -85,8 +70,8 @@ Proof. unfold bop_intersect. unfold bop_congruence.
           apply in_set_filter_intro; auto.
           apply in_set_bProp_congruence; auto.
           apply in_set_filter_elim in J. destruct J as [JL JR].
-          assert(fact1 := in_set_left_congruence a _ _ H1).
-          assert(fact2 := in_set_left_congruence a _ _ H2).
+          assert(fact1 := in_set_left_congruence S eq symS tranS a _ _ H1).
+          assert(fact2 := in_set_left_congruence S eq symS tranS a _ _ H2).
           rewrite JL in fact1. rewrite JR in fact2. 
           rewrite <- fact1, fact2. auto. 
           apply in_set_bProp_congruence; auto. 
@@ -94,8 +79,8 @@ Proof. unfold bop_intersect. unfold bop_congruence.
           apply in_set_filter_intro; auto.
           apply in_set_bProp_congruence; auto. 
           apply in_set_filter_elim in J. destruct J as [JL JR]. 
-          assert(fact1 := in_set_left_congruence a _ _ H1).
-          assert(fact2 := in_set_left_congruence a _ _ H2).
+          assert(fact1 := in_set_left_congruence S eq symS tranS a _ _ H1).
+          assert(fact2 := in_set_left_congruence S eq symS tranS a _ _ H2).
           rewrite JL in fact1. rewrite JR in fact2. 
           rewrite <- fact1, fact2. auto. 
        apply in_set_bProp_congruence; auto. 
@@ -270,7 +255,7 @@ Proof. apply bop_add_id_exists_ann; auto.
        apply bop_intersect_exists_ann_raw; auto. 
 Defined. 
 
-(* not needed as intersect is sg_CI 
+(* not needed as intersect is sg_CI ?
 Lemma bop_intersect_not_is_left : ∀ (S : Type) (r : brel S) (c : cas_constant),
        brel_nontrivial S eq -> 
        brel_reflexive S eq -> 
