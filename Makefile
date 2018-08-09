@@ -38,6 +38,7 @@ CODE=\
    code/cas/eqv/nat.v \
    code/cas/eqv/product.v \
    code/cas/eqv/sum.v \
+   code/cas/eqv/set.v \
    code/cas/sg/cast_up.v \
    code/cas/sg/cast_down.v \
    code/cas/sg/and.v \
@@ -54,6 +55,8 @@ CODE=\
    code/cas/sg/left_sum.v \
    code/cas/sg/right_sum.v \
    code/cas/sg/llex.v \
+   code/cas/sg/intersect.v \
+   code/cas/sg/union.v \
    code/cas/bs/add_one.v \
    code/cas/bs/add_zero.v \
    code/cas/bs/and_or.v \
@@ -177,6 +180,7 @@ THEORY=\
    theory/bs/right_sum_left_sum.v \
    theory/bs/union_intersect.v \
    theory/bs/intersect_union.v \
+   theory/bs/union_lift.v \
    theory/bs/reduction_theory.v \
    theory/structures/semilattice.v \
    theory/structures/lattice.v \
@@ -189,6 +193,7 @@ VERIFY=\
    verify/eqv/nat.v \
    verify/eqv/product.v \
    verify/eqv/sum.v \
+   verify/eqv/set.v \
    verify/sg_proofs_to_certs.v \
    verify/sg/and.v \
    verify/sg/or.v \
@@ -205,6 +210,8 @@ VERIFY=\
    verify/sg/left_sum.v \
    verify/sg/right_sum.v \
    verify/sg/llex.v \
+   verify/sg/union.v \
+   verify/sg/intersect.v \
    verify/bs_proofs_to_certs.v \
    verify/bs/add_one.v \
    verify/bs/add_zero.v \

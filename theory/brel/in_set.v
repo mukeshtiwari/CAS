@@ -30,6 +30,90 @@ Proof. intros a b X H.
        destruct H as [H | H]; auto.
 Qed.
 
+
+
+Lemma in_set_singleton_elim : ∀ (a b : S), in_set r (a :: nil) b = true -> r a b = true.
+Proof. intros a b H.
+       compute in H. case_eq(r b a); intro F. apply symS. rewrite F in H; auto.
+       rewrite F in H; discriminate H.
+Qed.        
+
+Lemma in_set_singleton_intro : ∀ (a b : S), r a b = true -> in_set r (a :: nil) b = true. 
+Proof. intros a b H.
+       compute. apply symS in H. rewrite H; auto. 
+Qed.
+
+
+Lemma in_set_two_set_elim : ∀ (a b c: S), in_set r (a :: b :: nil) c = true -> (r a c = true) + (r b c = true).
+Proof. intros a b c H.
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]; auto. 
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]; auto.
+       compute in H. discriminate H. 
+ Qed.        
+
+Lemma in_set_two_set_intro : ∀ (a b c: S), (r a c = true) + (r b c = true) -> in_set r (a :: b :: nil) c = true.
+Proof. intros a b c [H | H].
+       apply in_set_cons_intro; auto. 
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto.        
+ Qed.        
+
+
+Lemma in_set_three_set_elim : ∀ (a b c d : S), in_set r (a :: b :: c :: nil) d = true -> (r a d = true) + (r b d = true) + (r c d = true).
+Proof. intros a b c d H.
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]; auto. 
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]; auto.
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]; auto.
+       compute in H. discriminate H. 
+Qed.        
+
+Lemma in_set_three_set_intro : ∀ (a b c d : S), (r a d = true) + (r b d = true) + (r c d = true) -> in_set r (a :: b :: c :: nil) d = true.
+Proof. intros a b c d [[H | H] | H]. 
+       apply in_set_cons_intro; auto. 
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto.
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto.       
+ Qed.        
+
+
+Lemma in_set_four_set_elim : ∀ (a b c d e : S), in_set r (a :: b :: c :: d :: nil) e = true
+                                                -> (r a e = true) + (r b e = true) + (r c e = true) + (r d e = true).
+Proof. intros a b c d e H.
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]; auto. 
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]; auto.
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]; auto.
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]; auto.
+       compute in H. discriminate H. 
+Qed.        
+
+Lemma in_set_four_set_intro : ∀ (a b c d e : S), (r a e = true) + (r b e = true) + (r c e = true) + (r d e = true)
+                                                 -> in_set r (a :: b :: c :: d :: nil) e = true.
+Proof. intros a b c d e [[[H | H] | H] | H].
+       apply in_set_cons_intro; auto.  
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto.
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto.
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto. right.
+       apply in_set_cons_intro; auto.       
+ Qed.        
+
+
+
 Lemma in_set_right_congruence : ∀ (a b : S) (X : finite_set S),
     r a b = true -> in_set r X a = true -> in_set r X b = true.
 Proof. intros a b X H.
@@ -49,6 +133,8 @@ Proof. intros X a b E.
        rewrite (in_set_right_congruence _ _ _ E H1) in H2. discriminate H2. 
        apply symS in E. rewrite (in_set_right_congruence _ _ _ E H2) in H1. discriminate H1. 
 Qed.
+
+
 
 Lemma in_set_filter_elim :    ∀ (g : bProp S) (X : finite_set S) (a : S),
     bProp_congruence S r g ->
@@ -126,11 +212,6 @@ Proof. induction X.
                 left. apply in_set_cons_intro. right. exact KL. 
                 right. exact KR. 
 Defined. 
-
-(* 
-Hypothesis in_set_duplicate_elim : ∀ (S : Type) (r : brel S) (s : S) (X : finite_set S),
-    in_set S r (uop_duplicate_elim S r X) s = in_set S r X s. 
-*) 
 
   
 End InSet. 

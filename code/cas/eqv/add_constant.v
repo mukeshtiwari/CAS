@@ -5,25 +5,6 @@ Require Import CAS.code.brel.
 Require Import CAS.code.eqv_certificates.
 Require Import CAS.code.eqv_cert_records.
 Require Import CAS.code.eqv_records.
-(*
-Definition eqv_certs_add_constant : ∀ {S : Type}, cas_constant -> eqv_certificates (S := S) -> @eqv_certificates (with_constant S)
-:= λ {S} c eqvS, 
-   let w := nontrivial_witness (eqv_nontrivial eqvS) in 
-   {| 
-     eqv_nontrivial := 
-     {| 
-       certify_nontrivial_witness  := Certify_Witness (inr w)  
-     ; certify_nontrivial_negate   := Certify_Negate (λ (d : with_constant S), 
-                                          
-
-     |} 
-    ; eqv_congruence    := Assert_Brel_Congruence 
-    ; eqv_reflexive     := Assert_Reflexive 
-    ; eqv_symmetric     := Assert_Symmetric 
-    ; eqv_transitive    := Assert_Transitive
-   |}. 
-*) 
-
 
 Definition eqv_add_constant : ∀ {S : Type},  eqv (S := S) -> cas_constant -> @eqv (with_constant S)
 := λ {S} eqvS c, 

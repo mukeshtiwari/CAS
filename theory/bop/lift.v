@@ -28,87 +28,6 @@ Variable symS  : brel_symmetric S rS.
 Variable bcong : bop_congruence S rS bS. 
 Variable assS : bop_associative S rS bS. 
 
-(* MOVE *)
-
-Lemma in_set_singleton_elim : ∀ (a b : S), in_set rS (a :: nil) b = true -> rS a b = true.
-Proof. intros a b H.
-       compute in H. case_eq(rS b a); intro F. apply symS. rewrite F in H; auto.
-       rewrite F in H; discriminate H.
-Qed.        
-
-Lemma in_set_singleton_intro : ∀ (a b : S), rS a b = true -> in_set rS (a :: nil) b = true. 
-Proof. intros a b H.
-       compute. apply symS in H. rewrite H; auto. 
-Qed.
-
-
-Lemma in_set_two_set_elim : ∀ (a b c: S), in_set rS (a :: b :: nil) c = true -> (rS a c = true) + (rS b c = true).
-Proof. intros a b c H.
-       apply in_set_cons_elim in H; auto.
-       destruct H as [H | H]; auto. 
-       apply in_set_cons_elim in H; auto.
-       destruct H as [H | H]; auto.
-       compute in H. discriminate H. 
- Qed.        
-
-Lemma in_set_two_set_intro : ∀ (a b c: S), (rS a c = true) + (rS b c = true) -> in_set rS (a :: b :: nil) c = true.
-Proof. intros a b c [H | H].
-       apply in_set_cons_intro; auto. 
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto.        
- Qed.        
-
-
-Lemma in_set_three_set_elim : ∀ (a b c d : S), in_set rS (a :: b :: c :: nil) d = true -> (rS a d = true) + (rS b d = true) + (rS c d = true).
-Proof. intros a b c d H.
-       apply in_set_cons_elim in H; auto.
-       destruct H as [H | H]; auto. 
-       apply in_set_cons_elim in H; auto.
-       destruct H as [H | H]; auto.
-       apply in_set_cons_elim in H; auto.
-       destruct H as [H | H]; auto.
-       compute in H. discriminate H. 
-Qed.        
-
-Lemma in_set_three_set_intro : ∀ (a b c d : S), (rS a d = true) + (rS b d = true) + (rS c d = true) -> in_set rS (a :: b :: c :: nil) d = true.
-Proof. intros a b c d [[H | H] | H]. 
-       apply in_set_cons_intro; auto. 
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto.
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto.       
- Qed.        
-
-
-Lemma in_set_four_set_elim : ∀ (a b c d e : S), in_set rS (a :: b :: c :: d :: nil) e = true
-                                                -> (rS a e = true) + (rS b e = true) + (rS c e = true) + (rS d e = true).
-Proof. intros a b c d e H.
-       apply in_set_cons_elim in H; auto.
-       destruct H as [H | H]; auto. 
-       apply in_set_cons_elim in H; auto.
-       destruct H as [H | H]; auto.
-       apply in_set_cons_elim in H; auto.
-       destruct H as [H | H]; auto.
-       apply in_set_cons_elim in H; auto.
-       destruct H as [H | H]; auto.
-       compute in H. discriminate H. 
-Qed.        
-
-Lemma in_set_four_set_intro : ∀ (a b c d e : S), (rS a e = true) + (rS b e = true) + (rS c e = true) + (rS d e = true)
-                                                 -> in_set rS (a :: b :: c :: d :: nil) e = true.
-Proof. intros a b c d e [[[H | H] | H] | H].
-       apply in_set_cons_intro; auto.  
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto.
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto.
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto. right.
-       apply in_set_cons_intro; auto.       
- Qed.        
 
 
 
@@ -122,39 +41,6 @@ Proof. intros X Y [ s [T F]].
           reflexivity. 
 Defined.
 
-Lemma in_set_left_congruence : ∀ (a : S) (X Y : finite_set S),
-    brel_set rS X Y = true -> in_set rS X a = true -> in_set rS Y a = true.
-Proof. intros a X Y H1 H2. 
-       apply brel_set_elim in H1.
-       destruct H1 as [H1 _]. 
-       assert (K := brel_subset_elim _ _ symS tranS X Y H1). 
-       apply K; auto. 
-Qed.
-
-Lemma in_set_left_congruence_v2 : ∀ (X Y : finite_set S),
-    brel_set rS X Y = true -> ∀ (a : S), in_set rS X a = in_set rS Y a.
-Proof. intros X Y H a. 
-       apply brel_set_elim in H.
-       destruct H as [H1 H2]. 
-       assert (K1 := brel_subset_elim _ _ symS tranS X Y H1).
-       assert (K2 := brel_subset_elim _ _ symS tranS Y X H2).        
-       case_eq(in_set rS X a); intro J1; case_eq(in_set rS Y a); intro J2; auto.
-       apply K1 in J1. rewrite J1 in J2. exact J2.
-       apply K2 in J2. rewrite J1 in J2. exact J2.       
-Qed.
-
-
-Lemma in_set_congruence : ∀ (a b : S) (X Y : finite_set S),
-    brel_set rS X Y = true -> rS a b = true -> in_set rS X a = in_set rS Y b.
-Proof. intros a b X Y H1 H2.
-       assert (J1 := in_set_right_congruence S rS symS tranS _ _ X H2).
-       apply symS in H2. assert (J2 := in_set_right_congruence S rS symS tranS _ _ Y H2).        
-       assert (Ma := in_set_left_congruence_v2 X Y H1 a).       
-       assert (Mb := in_set_left_congruence_v2 X Y H1 b).
-       case_eq(in_set rS X a); intro K1; case_eq(in_set rS Y b); intro K2; auto.
-       rewrite (J1 K1) in Mb. rewrite <- Mb in K2. exact K2.
-       rewrite (J2 K2) in Ma. rewrite K1 in Ma. exact Ma.
-Qed. 
 
 (* end MOVE *) 
 
@@ -178,6 +64,11 @@ Proof. intro X. unfold bop_lift. rewrite bop_list_product_nil_right.
        compute; auto.
 Qed.        
 
+Lemma bop_lift_nil_is_ann : bop_is_ann (finite_set S) (brel_set rS) (bop_lift rS bS) nil.
+Proof. unfold bop_is_ann. intro X. split.
+       rewrite bop_lift_nil_left. compute; auto. 
+       rewrite bop_lift_nil_right. compute; auto.
+Qed.        
 
 Lemma  in_set_ltran_list_product_elim :
   ∀ (a b : S) (Y : finite_set S),
@@ -504,10 +395,7 @@ Qed.
 
 
 Lemma bop_lift_exists_ann : bop_exists_ann (finite_set S) (brel_set rS) (bop_lift rS bS). 
-Proof. exists nil. intro X. split. 
-          rewrite bop_lift_nil_left; auto. 
-          rewrite bop_lift_nil_right; auto.           
-Defined. 
+Proof. exists nil. apply bop_lift_nil_is_ann. Defined. 
 
 Lemma bop_lift_exists_id : bop_exists_id S rS bS  -> bop_exists_id (finite_set S) (brel_set rS) (bop_lift rS bS). 
 Proof. intros [i P]. exists (i :: nil). intro X.
@@ -899,21 +787,23 @@ Proof. intros s t et X.
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto. 
        destruct H as [H | H].
        left. apply (tranS _ _ _ J H).
-       right. apply (in_set_left_congruence _ _ _ H1 H). 
+       right.  apply (in_set_left_congruence_v3 _ _ symS tranS _ _ _ H1 H).
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto.
        destruct H as [H | H].
        left. apply symS in J. apply (tranS _ _ _ J H).
-       right. apply brel_set_symmetric in H1; auto. apply (in_set_left_congruence _ _ _ H1 H). 
+       right. apply brel_set_symmetric in H1; auto.
+       apply (in_set_left_congruence_v3 _ _ symS tranS _ _ _ H1 H).
        left. right. 
        apply brel_set_intro; split; apply brel_subset_intro; auto.
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto. 
        destruct H as [H | H].
        left. apply (tranS _ _ _ J H).
-       right. apply (in_set_left_congruence _ _ _ H1 H). 
+       right. apply (in_set_left_congruence_v3 _ _ symS tranS  _ _ _ H1 H). 
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto.
        destruct H as [H | H].
        left. apply symS in J. apply (tranS _ _ _ J H).
-       right. apply brel_set_symmetric in H1; auto. apply (in_set_left_congruence _ _ _ H1 H). 
+       right. apply brel_set_symmetric in H1; auto.
+       apply (in_set_left_congruence_v3 _ _ symS tranS  _ _ _ H1 H). 
            
        
        destruct (R a) as [J | J].
@@ -922,7 +812,7 @@ Proof. intros s t et X.
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto. 
        destruct H as [H | H].
        left. apply (tranS _ _ _ J H).
-       left. assert (K := in_set_left_congruence _ _ _ H2 H). compute in K. case_eq(rS x s); intro F.
+       left. assert (K := in_set_left_congruence_v3 _ _ symS tranS  _ _ _ H2 H). compute in K. case_eq(rS x s); intro F.
        apply symS. exact F. rewrite F in K. discriminate K. 
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto.
        destruct H as [H | H].
@@ -933,11 +823,11 @@ Proof. intros s t et X.
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto. 
        destruct H as [H | H].
        right. apply in_set_cons_intro; auto. left. apply (tranS _ _ _ J H).
-       left. assert (K := in_set_left_congruence _ _ _ H2 H). compute in K. case_eq(rS x s); intro F.
+       left. assert (K := in_set_left_congruence_v3 _ _ symS tranS  _ _ _ H2 H). compute in K. case_eq(rS x s); intro F.
        apply symS. exact F. rewrite F in K. discriminate K. 
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto.
        destruct H as [H | H].
-       right. apply symS in H. rewrite (in_set_congruence _ _ _ _ H2 H). compute. rewrite refS; auto. 
+       right. apply symS in H. rewrite (in_set_congruence _ _ symS tranS _ _ _ _ H2 H). compute. rewrite refS; auto. 
        left. compute in H. case_eq(rS x t); intro F. apply symS. apply (tranS _ _ _ F J).  rewrite F in H. discriminate H.
 
        destruct (R a) as [J | J].
@@ -946,17 +836,17 @@ Proof. intros s t et X.
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto. 
        destruct H as [H | H].
        left. apply (tranS _ _ _ J H).
-       right.  assert (K := in_set_left_congruence _ _ _ H3 H). exact K. 
+       right.  assert (K := in_set_left_congruence_v3 _ _ symS tranS  _ _ _ H3 H). exact K. 
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto.
        destruct H as [H | H].
        left. apply symS in J. apply (tranS _ _ _ J H).
-       right. apply brel_set_symmetric in H3; auto. apply (in_set_left_congruence _ _ _ H3 H). 
+       right. apply brel_set_symmetric in H3; auto. apply (in_set_left_congruence_v3 _ _ symS tranS  _ _ _ H3 H). 
        left. right. 
        apply brel_set_intro; split; apply brel_subset_intro; auto.
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto. 
        destruct H as [H | H].
        left. apply (tranS _ _ _ J H). 
-       left. assert (K := in_set_left_congruence _ _ _ H3 H). compute in K.  case_eq(rS x t); intro F; auto. 
+       left. assert (K := in_set_left_congruence_v3 _ _ symS tranS  _ _ _ H3 H). compute in K.  case_eq(rS x t); intro F; auto. 
        rewrite F in K. discriminate K.
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto. 
        destruct H as [H | H].
@@ -973,7 +863,7 @@ Proof. intros s t et X.
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto.
        destruct H as [H | H].
        left. apply symS in J. apply (tranS _ _ _ J H).
-       right. rewrite (in_set_congruence _ _ _ _ H4 (refS x)). 
+       right. rewrite (in_set_congruence _ _ symS tranS  _ _ _ _ H4 (refS x)). 
        apply in_set_cons_intro; auto.        
        right.
        apply brel_set_intro; split; apply brel_subset_intro; auto.
@@ -984,10 +874,10 @@ Proof. intros s t et X.
 
        intros x H. apply in_set_cons_intro; auto. apply in_set_cons_elim in H; auto.
        destruct H as [H | H].
-       right. apply symS in J. apply symS in H. rewrite (in_set_congruence _ _ _ _ H4 H). 
+       right. apply symS in J. apply symS in H. rewrite (in_set_congruence _ _ symS tranS  _ _ _ _ H4 H). 
        apply in_set_cons_intro; auto.
-       right. apply in_set_singleton_elim in H. compute in H. 
-       apply symS in H. rewrite (in_set_congruence _ _ _ _ H4 H). 
+       right. apply in_set_singleton_elim in H; auto. compute in H. 
+       apply symS in H. rewrite (in_set_congruence _ _ symS tranS  _ _ _ _ H4 H). 
        apply in_set_cons_intro; auto.  right.  apply in_set_cons_intro; auto.  
 Defined.
 
@@ -1021,20 +911,20 @@ Proof. intros a b c.
           apply brel_subset_intro; auto. intros e H. 
           apply in_set_bop_lift_elim in H; auto.
           destruct H as [x [y [[H1 H2] H3]]].
-          apply in_set_two_set_intro.
-          apply in_set_singleton_elim in H1.
-          apply in_set_two_set_elim in H2.
+          apply in_set_two_set_intro; auto. 
+          apply in_set_singleton_elim in H1; auto. 
+          apply in_set_two_set_elim in H2; auto. 
           destruct H2 as [H2 | H2];
           assert (H4 := tranS _ _ _ H3 (symS _ _ (bcong _ _ _ _ H1 H2))); auto.
           apply brel_subset_intro; auto. intros e H.
-          apply in_set_two_set_elim in H.
+          apply in_set_two_set_elim in H; auto. 
           destruct H as [H | H]. 
              apply (in_set_bop_lift_intro_v2 _ _ e a b); auto.
-                apply in_set_singleton_intro. apply refS.
-                apply in_set_two_set_intro. left. apply refS.
+                apply in_set_singleton_intro; auto. 
+                apply in_set_two_set_intro; auto. 
              apply (in_set_bop_lift_intro_v2 _ _ e a c); auto.
-                apply in_set_singleton_intro. apply refS.
-                apply in_set_two_set_intro. right. apply refS.
+                apply in_set_singleton_intro; auto. 
+                apply in_set_two_set_intro; auto.  
 Qed. 
 
 
@@ -1045,20 +935,20 @@ Proof. intros a b c.
           apply brel_subset_intro; auto. intros e H. 
           apply in_set_bop_lift_elim in H; auto.
           destruct H as [x [y [[H1 H2] H3]]].
-          apply in_set_two_set_intro.
-          apply in_set_two_set_elim in H1.
-          apply in_set_singleton_elim in H2.
+          apply in_set_two_set_intro; auto.
+          apply in_set_two_set_elim in H1; auto. 
+          apply in_set_singleton_elim in H2; auto. 
           destruct H1 as [H1 | H1]; 
           assert (H4 := tranS _ _ _ H3 (symS _ _ (bcong _ _ _ _ H1 H2))); auto.
           apply brel_subset_intro; auto. intros e H.
-          apply in_set_two_set_elim in H.
+          apply in_set_two_set_elim in H; auto. 
           destruct H as [H | H].
              apply (in_set_bop_lift_intro_v2 _ _ e a c); auto.
-                apply in_set_two_set_intro. left. apply refS.
-                apply in_set_singleton_intro. apply refS.
+                apply in_set_two_set_intro; auto. 
+                apply in_set_singleton_intro; auto. 
              apply (in_set_bop_lift_intro_v2 _ _ e b c); auto.
-                apply in_set_two_set_intro. right. apply refS.
-                apply in_set_singleton_intro. apply refS.
+                apply in_set_two_set_intro; auto. 
+                apply in_set_singleton_intro; auto. 
 Qed. 
 
 
@@ -1069,27 +959,27 @@ Proof. intros a b c d.
           apply brel_subset_intro; auto. intros e H. 
           apply in_set_bop_lift_elim in H; auto.
           destruct H as [x [y [[H1 H2] H3]]].
-          apply in_set_four_set_intro.
-          apply in_set_two_set_elim in H1.
-          apply in_set_two_set_elim in H2.
+          apply in_set_four_set_intro; auto.
+          apply in_set_two_set_elim in H1; auto. 
+          apply in_set_two_set_elim in H2; auto.
           destruct H1 as [H1 | H1];
           destruct H2 as [H2 | H2];
           assert (H4 := tranS _ _ _ H3 (symS _ _ (bcong _ _ _ _ H1 H2))); auto.
           apply brel_subset_intro; auto. intros e H.
-          apply in_set_four_set_elim in H.
+          apply in_set_four_set_elim in H; auto. 
           destruct H as [[[H | H] | H] | H].
              apply (in_set_bop_lift_intro_v2 _ _ e a c); auto.
-                apply in_set_two_set_intro. left. apply refS.
-                apply in_set_two_set_intro. left. apply refS.
+                apply in_set_two_set_intro; auto. 
+                apply in_set_two_set_intro; auto. 
              apply (in_set_bop_lift_intro_v2 _ _ e a d); auto.
-                apply in_set_two_set_intro. left. apply refS.
-                apply in_set_two_set_intro. right. apply refS.
+                apply in_set_two_set_intro; auto. 
+                apply in_set_two_set_intro; auto. 
              apply (in_set_bop_lift_intro_v2 _ _ e b c); auto.
-                apply in_set_two_set_intro. right. apply refS.
-                apply in_set_two_set_intro. left. apply refS.
+                apply in_set_two_set_intro; auto. 
+                apply in_set_two_set_intro; auto. 
              apply (in_set_bop_lift_intro_v2 _ _ e b d); auto.
-                apply in_set_two_set_intro. right. apply refS.
-                apply in_set_two_set_intro. right. apply refS.                
+                apply in_set_two_set_intro; auto. 
+                apply in_set_two_set_intro; auto. 
 Qed. 
 
 Lemma bop_lift_selective_v3 :  bop_idempotent S rS bS -> brel_exactly_two S rS -> bop_selective (finite_set S) (brel_set rS) (bop_lift rS bS).
@@ -1139,7 +1029,7 @@ Proof. intros idem [[s t] P] X Y.
           assert (P9 := tranS _ _ _ P8 Ls). rewrite P9; auto. 
           rewrite P4 in P1. discriminate P1.
           (**)
-          apply in_set_singleton_elim in H.
+          apply in_set_singleton_elim in H; auto.
           unfold bop_lift. apply in_set_uop_duplicate_elim_intro; auto. 
           unfold bop_list_product_left.
           apply in_set_concat_intro. left.
@@ -1547,7 +1437,7 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                                   assert (J16 := bcong _ _ _ _ J13 J14). apply symS in J16.
                                   rewrite (tranS _ _ _ J15 J16) in J11. discriminate J11. 
                                   compute in J14. discriminate J14. 
-                                  apply in_set_singleton_elim in J13. (***********)
+                                  apply in_set_singleton_elim in J13; auto. (***********)
                                   assert (J16 := bcong _ _ _ _ J13 J14). apply symS in J16.
                                   assert (J17 := tranS _ _ _ J15 J16). apply symS in J17.
                                   case_eq(rS c e1); intro J18.

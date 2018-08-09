@@ -6,23 +6,6 @@ Require Import CAS.code.cas.eqv.product.
 Require Import CAS.a_code.a_cas.eqv.product. 
 Require Import CAS.verify.eqv_proofs_to_certs.
 
-(*
-Lemma correct_eqv_certs_product : 
-      ∀ (S T : Type) (rS : brel S) (rT : brel T) (eS : eqv_proofs S rS) (eT : eqv_proofs T rT), 
-       eqv_certs_product (P2C_eqv S rS eS) (P2C_eqv T rT eT) 
-       = 
-       P2C_eqv (S * T) (brel_product rS rT) (eqv_proofs_product S T rS rT eS eT). 
-Proof. intros S T rS rT eS eT. destruct eS; destruct eT. 
-       destruct A_eqv_nontrivial. 
-       destruct A_eqv_nontrivial0. 
-       destruct brel_nontrivial_witness as [s sP]. 
-       destruct brel_nontrivial_negate as [f fP]. 
-       destruct brel_nontrivial_witness0 as [t tP]. 
-       destruct brel_nontrivial_negate0 as [g gP]. 
-       compute. reflexivity. 
-Defined.
- *)
-
 Theorem correct_eqv_product :
       ∀ (S T : Type) (eS : A_eqv S) (eT : A_eqv T), 
          eqv_product (A2C_eqv S eS) (A2C_eqv T eT)

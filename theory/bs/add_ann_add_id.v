@@ -79,13 +79,27 @@ Proof. intros [[s1 s3] nla].
        exists (inr s1, (inl c, inr s3)). compute. assumption. 
 Defined. 
 
-
 Lemma bops_add_ann_add_id_not_left_distributive_v4 : 
      bops_not_right_left_absorptive S r b1 b2 -> 
         bop_not_left_distributive (with_constant S) (c <+> r) (c [+ann] b1) (c [+id] b2). 
 Proof. intros [[s1 s3] nla]. 
        exists (inr s1, (inr s3, inl c)). compute. assumption. 
 Defined. 
+
+
+Lemma bops_add_ann_add_id_not_left_distributive  : 
+     (bop_not_idempotent S r b1 + 
+     bops_not_left_left_absorptive S r b1 b2 +
+     bops_not_right_left_absorptive S r b1 b2 +
+     bop_not_left_distributive S r b1 b2)-> 
+        bop_not_left_distributive (with_constant S) (c <+> r) (c [+ann] b1) (c [+id] b2). 
+Proof. intros [[[NID | NLLA] | NRLA] | NLD].
+       apply bops_add_ann_add_id_not_left_distributive_v2; auto.
+       apply bops_add_ann_add_id_not_left_distributive_v3; auto.               
+       apply bops_add_ann_add_id_not_left_distributive_v4; auto.        
+       apply bops_add_ann_add_id_not_left_distributive_v1; auto.        
+Qed. 
+
 
 
 Lemma bops_add_ann_add_id_right_distributive  : 
@@ -127,7 +141,21 @@ Lemma bops_add_ann_add_id_not_right_distributive_v4 :
         bop_not_right_distributive (with_constant S) (c <+> r) (c [+ann] b1) (c [+id] b2). 
 Proof. intros [[s1 s3] nla]. 
        exists (inr s1, (inr s3, inl c)). compute. assumption. 
-Defined. 
+Defined.
+
+Lemma bops_add_ann_add_id_not_right_distributive  : 
+     (bop_not_idempotent S r b1 + 
+     bops_not_left_right_absorptive S r b1 b2 +
+     bops_not_right_right_absorptive S r b1 b2 +
+     bop_not_right_distributive S r b1 b2)-> 
+        bop_not_right_distributive (with_constant S) (c <+> r) (c [+ann] b1) (c [+id] b2). 
+Proof. intros [[[NID | NLLA] | NRLA] | NLD].
+       apply bops_add_ann_add_id_not_right_distributive_v2; auto.
+       apply bops_add_ann_add_id_not_right_distributive_v3; auto.               
+       apply bops_add_ann_add_id_not_right_distributive_v4; auto.        
+       apply bops_add_ann_add_id_not_right_distributive_v1; auto.        
+Qed. 
+
 
 
 (* all new *) 
@@ -151,7 +179,17 @@ Defined.
 Lemma bops_add_ann_add_id_not_left_left_absorptive_v2  : 
      bops_not_left_left_absorptive S r b1 b2 -> 
         bops_not_left_left_absorptive (with_constant S) (c <+> r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined. 
+Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined.
+
+
+Lemma bops_add_ann_add_id_not_left_left_absorptive  : 
+     (bop_not_idempotent S r b1 + 
+      bops_not_left_left_absorptive S r b1 b2) -> 
+        bops_not_left_left_absorptive (with_constant S)  (c <+> r) (c [+ann] b1) (c [+id] b2). 
+Proof. intros [NID | NLLA].
+       apply bops_add_ann_add_id_not_left_left_absorptive_v1; auto.
+       apply bops_add_ann_add_id_not_left_left_absorptive_v2; auto.   
+Qed. 
 
 (* left right *) 
 Lemma bops_add_ann_add_id_left_right_absorptive  : 
@@ -175,6 +213,16 @@ Lemma bops_add_ann_add_id_not_left_right_absorptive_v2  :
 Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined. 
 
 
+Lemma bops_add_ann_add_id_not_left_right_absorptive  : 
+     (bop_not_idempotent S r b1 + 
+      bops_not_left_right_absorptive S r b1 b2) -> 
+        bops_not_left_right_absorptive (with_constant S)  (c <+> r) (c [+ann] b1) (c [+id] b2). 
+Proof. intros [NID | NLRA].
+       apply bops_add_ann_add_id_not_left_right_absorptive_v1; auto.
+       apply bops_add_ann_add_id_not_left_right_absorptive_v2; auto.   
+Qed. 
+
+
 (* right left *) 
 Lemma bops_add_ann_add_id_right_left_absorptive  : 
      bop_idempotent S r b1 -> 
@@ -196,6 +244,15 @@ Lemma bops_add_ann_add_id_not_right_left_absorptive_v2  :
         bops_not_right_left_absorptive (with_constant S) (c <+> r) (c [+ann] b1) (c [+id] b2). 
 Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined. 
 
+Lemma bops_add_ann_add_id_not_right_left_absorptive  : 
+     (bop_not_idempotent S r b1 + 
+      bops_not_right_left_absorptive S r b1 b2) -> 
+        bops_not_right_left_absorptive (with_constant S)  (c <+> r) (c [+ann] b1) (c [+id] b2). 
+Proof. intros [NID | NRLA].
+       apply bops_add_ann_add_id_not_right_left_absorptive_v1; auto.
+       apply bops_add_ann_add_id_not_right_left_absorptive_v2; auto.   
+Qed. 
+
 
 (* right right *) 
 Lemma bops_add_ann_add_id_right_right_absorptive  : 
@@ -216,7 +273,19 @@ Defined.
 Lemma bops_add_ann_add_id_not_right_right_absorptive_v2  : 
      bops_not_right_right_absorptive S r b1 b2 -> 
         bops_not_right_right_absorptive (with_constant S) (c <+> r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined. 
+Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined.
+
+Lemma bops_add_ann_add_id_not_right_right_absorptive  : 
+     (bop_not_idempotent S r b1 + 
+      bops_not_right_right_absorptive S r b1 b2) -> 
+        bops_not_right_right_absorptive (with_constant S)  (c <+> r) (c [+ann] b1) (c [+id] b2). 
+Proof. intros [NID | NRRA].
+       apply bops_add_ann_add_id_not_right_right_absorptive_v1; auto.
+       apply bops_add_ann_add_id_not_right_right_absorptive_v2; auto.   
+Qed. 
+
+
+
 
 (* experiment 
 

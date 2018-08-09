@@ -3,7 +3,8 @@ Require Import CAS.code.basic_types.
 Require Import CAS.code.brel. 
 Require Import CAS.code.uop. 
 Require Import CAS.theory.brel_properties. 
-Require Import CAS.theory.facts. 
+Require Import CAS.theory.facts.
+Require Import CAS.theory.brel.in_set.
 Require Import CAS.theory.brel.subset.
 
 Section BrelSet.
@@ -59,7 +60,18 @@ Proof. unfold brel2_left_congruence.
        case_eq(in_set eq s2 t); intro K; auto.  
           rewrite (L t J) in K. assumption. 
           rewrite (R t K) in J. discriminate. 
-Defined. 
+Defined.
+
+Lemma in_set_left_congruence_v3 : ∀ (a : S) (X Y : finite_set S),
+    brel_set eq X Y = true -> in_set eq X a = true -> in_set eq Y a = true.
+Proof. intros a X Y H1 H2. 
+       apply brel_set_elim in H1.
+       destruct H1 as [H1 _]. 
+       assert (K := brel_subset_elim _ _ symS tranS X Y H1). 
+       apply K; auto. 
+Qed.
+
+
 
 (***     brel_set eqv properties   ****)
 
@@ -82,6 +94,34 @@ Proof. unfold brel_symmetric, brel_and_sym. intros s t H.
        apply andb_is_true_left in H. destruct H as [H_l H_r].        
        rewrite H_l. rewrite H_r. simpl. reflexivity. 
 Defined. 
+
+
+
+Lemma in_set_left_congruence_v2 : ∀ (X Y : finite_set S),
+    brel_set eq X Y = true -> ∀ (a : S), in_set eq X a = in_set eq Y a.
+Proof. intros X Y H a. 
+       apply brel_set_elim in H.
+       destruct H as [H1 H2]. 
+       assert (K1 := brel_subset_elim _ _ symS tranS X Y H1).
+       assert (K2 := brel_subset_elim _ _ symS tranS Y X H2).        
+       case_eq(in_set eq X a); intro J1; case_eq(in_set eq Y a); intro J2; auto.
+       apply K1 in J1. rewrite J1 in J2. exact J2.
+       apply K2 in J2. rewrite J1 in J2. exact J2.       
+Qed.
+
+
+
+Lemma in_set_congruence : ∀ (a b : S) (X Y : finite_set S),
+    brel_set eq X Y = true -> eq a b = true -> in_set eq X a = in_set eq Y b.
+Proof. intros a b X Y H1 H2.
+       assert (J1 := in_set_right_congruence S eq symS tranS _ _ X H2).
+       apply symS in H2. assert (J2 := in_set_right_congruence S eq symS tranS _ _ Y H2).        
+       assert (Ma := in_set_left_congruence_v2 X Y H1 a).       
+       assert (Mb := in_set_left_congruence_v2 X Y H1 b).
+       case_eq(in_set eq X a); intro K1; case_eq(in_set eq Y b); intro K2; auto.
+       rewrite (J1 K1) in Mb. rewrite <- Mb in K2. exact K2.
+       rewrite (J2 K2) in Ma. rewrite K1 in Ma. exact Ma.
+Qed. 
 
 
 (***)
