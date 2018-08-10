@@ -3,7 +3,6 @@ Require Import CAS.code.brel.
 Require Import CAS.code.bop.
 
 Require Import CAS.code.cas.eqv.bool.  
-Require Import CAS.code.cas.eqv.nat.
 Require Import CAS.code.cas.eqv.list.
 Require Import CAS.code.cas.eqv.add_constant.
 Require Import CAS.code.cas.eqv.product.
@@ -19,29 +18,32 @@ Require Import CAS.code.cas.sg.concat.
 Require Import CAS.code.cas.sg.left_sum.
 Require Import CAS.code.cas.sg.left.
 Require Import CAS.code.cas.sg.llex.
-Require Import CAS.code.cas.sg.max.
-Require Import CAS.code.cas.sg.min.
 Require Import CAS.code.cas.sg.or.
-Require Import CAS.code.cas.sg.plus.
 Require Import CAS.code.cas.sg.product.
 Require Import CAS.code.cas.sg.right_sum.
 Require Import CAS.code.cas.sg.right.
-Require Import CAS.code.cas.sg.times.
-
 Require Import CAS.code.cas.bs.add_one.
 Require Import CAS.code.cas.bs.add_zero.
 Require Import CAS.code.cas.bs.and_or.
-Require Import CAS.code.cas.bs.dual.
 Require Import CAS.code.cas.bs.cast_up.
 Require Import CAS.code.cas.bs.cast_down.
 (*Require Import CAS.code.cas.bs.left_sum *) 
 Require Import CAS.code.cas.bs.llex_product.
-Require Import CAS.code.cas.bs.max_min.
-Require Import CAS.code.cas.bs.max_plus.
-Require Import CAS.code.cas.bs.min_max.
-Require Import CAS.code.cas.bs.min_plus.
+
 Require Import CAS.code.cas.bs.or_and. 
 Require Import CAS.code.cas.bs.product.
+
+Require Import CAS.coq.eqv.nat.
+Require Import CAS.coq.sg.max.
+Require Import CAS.coq.sg.min.
+Require Import CAS.coq.sg.times.
+Require Import CAS.coq.sg.plus.
+Require Import CAS.coq.bs.max_min.
+Require Import CAS.coq.bs.min_max.
+Require Import CAS.coq.bs.min_plus.
+Require Import CAS.coq.bs.max_plus.
+Require Import CAS.coq.bs.dual.
+
 
 (*Require Import CAS.code.cas.bs.right_sum *)
 
@@ -142,16 +144,21 @@ Cd "extraction".
 
 (* Separate Extraction  *) 
 Extraction "Cas.ml" 
-   (* eqv *) 
+(* eqv 
    eqv_eq_bool
-   eqv_eq_nat
    eqv_add_constant
    eqv_list
-(*   eqv_set *) 
    eqv_product
    eqv_sum
+*) 
+   eqv_eq_nat
 
 (* semigroups *)
+   sg_C_times
+   sg_CS_max
+   sg_CS_min
+   sg_CK_plus
+(*
    sg_add_ann
    sg_C_add_ann
    sg_CI_add_ann
@@ -171,12 +178,10 @@ Extraction "Cas.ml"
    sg_C_llex         
    sg_CI_llex      
    sg_CS_llex   
-   sg_CS_max
-   sg_CS_min
    sg_CS_or 
-   sg_CK_plus
    sg_product
-   bs_and_or   sg_C_product      
+   bs_and_or
+   sg_C_product      
    sg_CI_product
    sg_CK_product      
    sg_right_sum
@@ -184,9 +189,8 @@ Extraction "Cas.ml"
    sg_CI_right_sum         
    sg_CS_right_sum
    sg_right
-   sg_C_times
-
-   (* sg casting *) 
+*)
+   (* sg casting 
    sg_from_sg_C
    sg_from_sg_CS
    sg_from_sg_CI
@@ -204,19 +208,22 @@ Extraction "Cas.ml"
    sg_CI_option_from_sg_C
    sg_CK_option_from_sg_C
    sg_CS_option_from_sg_CI
+*) 
   
    (* bi-semigroups *)
    bs_max_min  (* lattice? *) 
    bs_max_plus
-
    bs_min_max
    bs_min_plus
-
+   lattice_dual
+   distributive_lattice_dual
+   .
+(*   
+   
    bs_or_and          
    bs_and_or  (* lattice? *)
 
-   lattice_dual
-   distributive_lattice_dual   
+
    
    bs_add_one
    lattice_add_one
@@ -242,6 +249,7 @@ Extraction "Cas.ml"
    bs_C_option_from_bs
    bs_CS_option_from_bs
    .
+*) 
 
 (*   sg_union *) 
 (*   sg_intersect  *) 

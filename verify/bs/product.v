@@ -180,7 +180,27 @@ Proof. intros eqvS eqvT bsS bsT.
        rewrite bop_product_right_left_absorbtive_check_correct. 
        rewrite bop_product_right_right_absorbtive_check_correct. 
        reflexivity. 
+Defined.
+
+Lemma  correct_semiring_certs_product : 
+  ∀ (eqvS : eqv_proofs S rS)
+     (eqvT : eqv_proofs T rT)
+     (bsS : semiring_proofs S rS plusS timesS)
+     (bsT : semiring_proofs T rT plusT timesT), 
+    semiring_certs_product wS wT (P2C_semiring S rS plusS timesS bsS) (P2C_semiring T rT plusT timesT bsT)
+    =
+    P2C_semiring (S * T) (brel_product rS rT) (bop_product plusS plusT) (bop_product timesS timesT) 
+       (semiring_proofs_product S T rS rT plusS timesS plusT timesT wS wT eqvS eqvT bsS bsT). 
+Proof. intros eqvS eqvT bsS bsT. 
+       unfold semiring_certs_product, semiring_proofs_product, P2C_semiring; simpl. 
+       rewrite bop_product_plus_id_is_times_ann_check_correct. 
+       rewrite bop_product_times_id_equals_plus_ann_check_correct.
+       rewrite bop_product_left_left_absorbtive_check_correct. 
+       rewrite bop_product_left_right_absorbtive_check_correct. 
+       reflexivity. 
 Defined. 
+
+
 
 End ChecksCorrect.
 
@@ -197,3 +217,34 @@ Proof. intros S T bsS bsT.
        reflexivity. 
 Qed. 
 
+
+Theorem correct_semiring_product : ∀ (S T : Type) (bsS: A_semiring S) (bsT : A_semiring T), 
+   semiring_product (A2C_semiring S bsS) (A2C_semiring T bsT)
+   =
+   A2C_semiring (S * T) (A_semiring_product S T bsS bsT). 
+Proof. intros S T bsS bsT. 
+       unfold semiring_product, A_semiring_product, A2C_semiring; simpl. 
+       rewrite correct_eqv_product. 
+       rewrite <- correct_sg_certs_product. 
+       rewrite <- correct_sg_C_certs_product. 
+       rewrite <- correct_semiring_certs_product. 
+       reflexivity. 
+Qed. 
+
+
+Theorem correct_dioid_product : ∀ (S T : Type) (bsS: A_dioid S) (bsT : A_dioid T), 
+   dioid_product S T (A2C_dioid S bsS) (A2C_dioid T bsT)
+   =
+   A2C_dioid (S * T) (A_dioid_product S T bsS bsT). 
+Proof. intros S T bsS bsT. 
+       unfold dioid_product, A_dioid_product, A2C_dioid; simpl. 
+       rewrite correct_eqv_product. 
+       rewrite <- correct_sg_certs_product. 
+       rewrite <- correct_sg_CI_certs_product. 
+       rewrite <- correct_semiring_certs_product. 
+       reflexivity. 
+Qed. 
+
+Check A_lattice_product.
+
+Check A_distributive_lattice_product. 

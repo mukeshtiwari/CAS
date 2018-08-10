@@ -1,10 +1,22 @@
 Require Import Coq.Arith.Arith.     
 Require Import CAS.code.basic_types. 
 Require Import CAS.code.brel. 
-Require Import CAS.theory.brel_properties. 
-Require Import CAS.theory.facts. 
 
-Open Scope nat. 
+Require Import CAS.code.ast.
+Require Import CAS.a_code.proof_records.     
+Require Import CAS.a_code.a_cas_records.   
+Require Import CAS.code.data.
+
+Require Import CAS.code.eqv_certificates.
+Require Import CAS.code.eqv_cert_records.
+Require Import CAS.code.eqv_records.
+
+Require Import CAS.verify.eqv_proofs_to_certs.
+
+Require Import CAS.theory.brel_properties. 
+Require Import CAS.theory.facts.
+
+Section Theory.
 
 Lemma brel_nat_eq_S : ∀ s t : nat, brel_eq_nat (S s) (S t) = brel_eq_nat s t. 
 Proof. unfold brel_eq_nat. induction s; induction t; compute; reflexivity. Qed. 
@@ -33,25 +45,6 @@ Proof. unfold brel_congruence.
        induction s; induction t; induction u; induction v; simpl; intros H Q; auto; discriminate.  
 Qed. 
 
-(*
-Lemma brel_eq_nat_witness : brel_witness nat brel_eq_nat. 
-Proof. unfold brel_witness, brel_eq_nat. exists 0; auto. Defined.
-
-Lemma brel_eq_nat_negate : brel_negate nat brel_eq_nat. 
-Proof. unfold brel_negate, brel_eq_nat. exists (S). intro s. split. 
-          apply brel_nat_neq_S. 
-          apply brel_symmetric_implies_dual. 
-          apply brel_eq_nat_symmetric. 
-          apply brel_nat_neq_S. 
-Defined. 
-
-Definition brel_eq_nat_nontrivial : brel_nontrivial nat brel_eq_nat
-:= {| 
-      brel_nontrivial_witness   := brel_eq_nat_witness
-    ; brel_nontrivial_negate    := brel_eq_nat_negate
-   |}. 
- *)
-
 
 Lemma brel_eq_nat_not_trivial : brel_not_trivial nat brel_eq_nat S.
 Proof. intro s. split. 
@@ -70,3 +63,58 @@ Lemma injection_S_brel_eq_nat : ∀ s t : nat, brel_eq_nat s t = true -> brel_eq
 Proof. intros s t H. apply beq_nat_to_prop in H.  rewrite H. 
        apply brel_eq_nat_reflexive. 
 Qed. 
+
+End Theory.
+
+Section ACAS.
+
+Open Scope nat. 
+
+
+Definition eqv_proofs_eq_nat : eqv_proofs nat brel_eq_nat (* (uop_id nat) *) 
+:= {| 
+     A_eqv_congruence  := brel_eq_nat_congruence 
+   ; A_eqv_reflexive   := brel_eq_nat_reflexive 
+   ; A_eqv_transitive  := brel_eq_nat_transitive 
+   ; A_eqv_symmetric   := brel_eq_nat_symmetric
+   |}. 
+
+
+Definition A_eqv_nat : A_eqv nat
+:= {| 
+      A_eqv_eq     := brel_eq_nat 
+    ; A_eqv_proofs := eqv_proofs_eq_nat
+    ; A_eqv_witness     := 0
+    ; A_eqv_new         := S
+    ; A_eqv_not_trivial := brel_eq_nat_not_trivial                        
+    ; A_eqv_data   := λ n, DATA_nat n 
+    ; A_eqv_rep    := λ b, b 
+    ; A_eqv_ast    := Ast_eqv_nat
+   |}. 
+
+
+End ACAS.
+
+Section CAS.
+Open Scope nat. 
+
+Definition eqv_eq_nat : eqv (S := nat)
+:= {| 
+      eqv_eq    := brel_eq_nat 
+    ; eqv_witness := 0
+    ; eqv_new := S 
+    ; eqv_data  := λ n, DATA_nat n 
+    ; eqv_rep   := λ b, b 
+    ; eqv_ast   := Ast_eqv_nat
+   |}. 
+
+
+End CAS.
+
+Section Verify.
+
+Theorem correct_eqv_nat : eqv_eq_nat = A2C_eqv nat (A_eqv_nat). 
+Proof. compute. reflexivity. Qed. 
+  
+End Verify.   
+  

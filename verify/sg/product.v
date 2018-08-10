@@ -64,20 +64,6 @@ Lemma correct_check_is_left_product :
             (bop_product_is_left_decide S T rS rT bS bT wS wT dS dT). 
 Proof. intros [cS | [ [s3 s4] ncS ] ] [cT | [ [t3 t4] ncT ]]; compute; reflexivity. Defined. 
 
-
-(*
-Lemma correct_assert_not_is_left_product : ∀ (nlS : bop_not_is_left S rS bS), 
-
-    assert_product_not_is_left_left wT 
-             (p2c_not_is_left S rS bS nlS)
-          = 
-          p2c_not_is_left (S * T) 
-             (brel_product rS rT)
-             (bop_product bS bT)
-             (bop_product_not_is_left_left S T rS rT bS bT wT nlS). 
-Proof. intros [ [t1 t2] PT ].  compute. reflexivity. Defined. 
-*) 
-
 Lemma correct_check_is_right_product : 
       ∀ (dS : bop_is_right_decidable S rS bS) (dT : bop_is_right_decidable T rT bT),
          
@@ -91,19 +77,6 @@ Lemma correct_check_is_right_product :
             (bop_product_is_right_decide S T rS rT bS bT wS wT dS dT). 
 Proof. intros [cS | [ [s3 s4] ncS]] [cT | [ [t3 t4] ncT]]; compute; reflexivity. Defined. 
 
-(*
-Lemma correct_assert_not_is_right_product : 
-      ∀ (nrT : bop_not_is_right T rT bT), 
-          assert_product_not_is_right_right 
-             (p2c_nontrivial S rS ntS)
-             (p2c_not_is_right T rT bT nrT)
-          = 
-          p2c_not_is_right (S * T) 
-             (brel_product rS rT)
-             (bop_product bS bT)
-             (bop_product_not_is_right_right S T rS rT bS bT (brel_get_nontrivial_witness S rS ntS) nrT). 
-Proof. intros [ [t1 t2] PT]. compute. reflexivity. Defined. 
-*) 
 
 Lemma correct_check_idempotent_product : 
       ∀ (dS : bop_idempotent_decidable S rS bS)  (dT : bop_idempotent_decidable T rT bT),
@@ -172,6 +145,26 @@ Proof.
              elim F. 
 Defined. 
 
+
+
+(* what abstractions where broken here? *) 
+Lemma correct_check_selective_commutative_product : 
+   ∀ (syS : brel_symmetric S rS) (syT : brel_symmetric T rT) (trnS : brel_transitive S rS) (trnT : brel_transitive T rT) 
+     (pS : bop_commutative S rS bS) (pT : bop_commutative T rT bT), 
+     
+   check_selective_product wS wT (Certify_Not_Is_Left (cef.cef_commutative_implies_not_is_left rS bS wS f))
+                         (Certify_Not_Is_Left (cef.cef_commutative_implies_not_is_left rT bT wT g))
+                         (Certify_Not_Is_Right (cef.cef_commutative_implies_not_is_right rS bS wS f))
+                         (Certify_Not_Is_Right (cef.cef_commutative_implies_not_is_right rT bT wT g))
+  = 
+  p2c_selective_check (S * T) (brel_product rS rT) (bop_product bS bT)
+                         (inr
+                         (bop_product_not_selective S T rS rT bS bT
+                              (inl (facts.bop_commutative_implies_not_is_left S rS bS wS f Pf syS trnS pS))
+                              (inl (facts.bop_commutative_implies_not_is_left T rT bT wT g Pg syT trnT pT))
+                              (inl (facts.bop_commutative_implies_not_is_left S rS bS wS f Pf syS trnS pS), 
+                               inl (facts.bop_commutative_implies_not_is_right S rS bS wS f Pf syS trnS pS)))). 
+Admitted. 
 
 Lemma correct_check_left_cancel_product : 
       ∀ (dS : bop_left_cancellative_decidable S rS bS) (dT : bop_left_cancellative_decidable T rT bT),
@@ -299,6 +292,50 @@ Proof. intros pS pT.
        rewrite correct_check_left_cancel_product. 
        rewrite correct_check_right_cancel_product. 
        reflexivity. 
+Defined.
+
+Lemma correct_sg_CI_certs_product : 
+      ∀ (pS : sg_CI_proofs S rS bS) (pT : sg_CI_proofs T rT bT),
+        
+      sg_CI_certs_product rS rT bS bT wS f wT g (P2C_sg_CI S rS bS pS) (P2C_sg_CI T rT bT pT) 
+      = 
+      P2C_sg_CI (S * T) (brel_product rS rT) 
+                        (bop_product bS bT) 
+                       (sg_CI_proofs_product S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
+Proof. intros pS pT. 
+       unfold sg_CI_proofs_product, sg_CI_certs_product, P2C_sg_CI.
+       unfold A_sg_CI_selective_d. (* broken abstraction *) 
+       destruct eS. destruct eT. 
+       rewrite <- correct_check_selective_commutative_product; auto. 
+       simpl. 
+       rewrite correct_check_exists_id_product; auto. 
+       rewrite correct_check_exists_ann_product; auto.
+Defined. 
+
+
+Lemma correct_sg_C_certs_product : 
+      ∀ (pS : sg_C_proofs S rS bS) (pT : sg_C_proofs T rT bT),
+        
+      sg_C_certs_product rS rT bS bT wS f wT g (P2C_sg_C S rS bS pS) (P2C_sg_C T rT bT pT) 
+      = 
+      P2C_sg_C (S * T) (brel_product rS rT) 
+                       (bop_product bS bT) 
+                       (sg_C_proofs_product S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
+Proof. intros pS pT. 
+       unfold sg_C_proofs_product, sg_C_certs_product, P2C_sg_C.
+       unfold A_sg_C_selective_d. (* broken abstraction *)
+       destruct eS. destruct eT.        
+       rewrite <- correct_check_selective_commutative_product; auto. 
+       simpl. 
+       rewrite correct_check_idempotent_product; auto.
+       rewrite correct_check_exists_ann_product; auto.
+       rewrite correct_check_exists_id_product; auto.  
+       rewrite <- correct_check_anti_left_product; auto. 
+       rewrite <- correct_check_anti_right_product; auto.
+       rewrite <- correct_check_left_constant_product; auto.       
+       rewrite <- correct_check_right_constant_product; auto.        
+       rewrite correct_check_left_cancel_product; auto. 
+       rewrite correct_check_right_cancel_product; auto. 
 Defined. 
 
 
@@ -343,5 +380,30 @@ Proof. intros S T sgS sgT.
        unfold sg_CK_product, A2C_sg_CK; simpl. 
        rewrite correct_eqv_product. 
        rewrite <- correct_sg_CK_certs_product. 
+       reflexivity. 
+Qed. 
+
+
+Theorem correct_sg_CI_product :
+      ∀ (S T : Type) (sgS : A_sg_CI S) (sgT : A_sg_CI T), 
+         sg_CI_product (A2C_sg_CI S sgS) (A2C_sg_CI T sgT) 
+         = 
+         A2C_sg_CI (S * T) (A_sg_CI_product S T sgS sgT). 
+Proof. intros S T sgS sgT. 
+       unfold sg_CI_product, A2C_sg_CI; simpl. 
+       rewrite correct_eqv_product. 
+       rewrite <- correct_sg_CI_certs_product. 
+       reflexivity. 
+Qed. 
+
+Theorem correct_sg_C_product :
+      ∀ (S T : Type) (sgS : A_sg_C S) (sgT : A_sg_C T), 
+         sg_C_product (A2C_sg_C S sgS) (A2C_sg_C T sgT) 
+         = 
+         A2C_sg_C (S * T) (A_sg_C_product S T sgS sgT). 
+Proof. intros S T sgS sgT. 
+       unfold sg_C_product, A2C_sg_C; simpl. 
+       rewrite correct_eqv_product. 
+       rewrite <- correct_sg_C_certs_product. 
        reflexivity. 
 Qed. 
