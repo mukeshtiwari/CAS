@@ -1,25 +1,4 @@
-Require Import CAS.code.basic_types. 
-Require Import CAS.code.ast.
-Require Import CAS.code.brel. 
-Require Import CAS.code.bop. 
-
-Require Import CAS.theory.brel_properties. 
-Require Import CAS.theory.bop_properties. 
-Require Import CAS.theory.bs_properties.
-
-Require Import CAS.theory.structures.lattice.
-
-Require Import CAS.code.bs_certificates. 
-Require Import CAS.code.bs_cert_records.
-Require Import CAS.code.bs_records.
-Require Import CAS.a_code.proof_records.           
-Require Import CAS.a_code.a_cas_records.
-Require Import CAS.theory.bop_properties.
-Require Import CAS.theory.bs_properties. 
-
-Require Import CAS.verify.eqv_proofs_to_certs.
-Require Import CAS.verify.sg_proofs_to_certs.
-Require Import CAS.verify.bs_proofs_to_certs.
+Require Import CAS.coq.common.base.
 
 Section LatticeTheory.  (* (S, join, meet) *) 
 
@@ -475,7 +454,7 @@ Lemma  correct_distributive_lattice_certs_dual :
     distributive_lattice_certs_dual (P2C_distributive_lattice S rS join meet dlp).
 Proof. intros S rS join meet eqvS pjoin pmeet dlp. compute. reflexivity. Qed.
 
-Theorem correct_distributive_lattice_add_one : ∀ (S : Type) (distributive_latticeS: A_distributive_lattice S), 
+Theorem correct_distributive_lattice_dual : ∀ (S : Type) (distributive_latticeS: A_distributive_lattice S), 
    distributive_lattice_dual  (A2C_distributive_lattice S distributive_latticeS)  
    =
    A2C_distributive_lattice S (A_distributive_lattice_dual S distributive_latticeS). 

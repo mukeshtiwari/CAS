@@ -1,17 +1,5 @@
-Require Import CAS.code.basic_types. 
-Require Import CAS.code.brel. 
-Require Import CAS.code.bop. 
-
-Require Import CAS.a_code.a_cas_records.
-Require Import CAS.code.ast.
-Require Import CAS.code.sg_certificates.
-Require Import CAS.code.sg_cert_records.
-Require Import CAS.code.bs_certificates.
-Require Import CAS.code.bs_cert_records.
-Require Import CAS.code.bs_records.
-
-Require Import CAS.theory.bs_properties.
-Require Import CAS.theory.facts.
+Require Import CAS.coq.common.base. 
+Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.eqv.nat.
 Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.max.
@@ -93,6 +81,10 @@ Definition distributive_lattice_max_min : @distributive_lattice nat := distribut
 End CAS.
 
 Section Verify.
+
+Theorem correct_distributive_lattice_max_min : 
+   distributive_lattice_max_min = A2C_distributive_lattice nat (A_distributive_lattice_max_min). 
+Proof. compute. reflexivity. Qed. 
  
 End Verify.   
   

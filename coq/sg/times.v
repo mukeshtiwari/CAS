@@ -1,19 +1,6 @@
-Require Import Coq.Arith.Arith.     (* beq_nat *) 
-Require Import CAS.code.basic_types. 
-Require Import CAS.code.brel. 
-Require Import CAS.code.bop. 
-
-Require Import CAS.code.ast.
-Require Import CAS.code.data.
-Require Import CAS.a_code.proof_records. 
-Require Import CAS.a_code.a_cas_records.
-Require Import CAS.code.sg_certificates.
-Require Import CAS.code.sg_cert_records.
-Require Import CAS.code.sg_records.
-Require Import CAS.verify.sg_proofs_to_certs.
-
-Require Import CAS.theory.bop_properties.
-Require Import CAS.theory.facts.
+Require Import Coq.Arith.Arith.     (* beq_nat *)
+Require Import CAS.coq.common.base.
+Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.eqv.nat. 
 
 Section Theory.
@@ -21,8 +8,7 @@ Section Theory.
 Open Scope nat.   
 
 Lemma beq_nat_times_congruence : 
-   ∀ s1 s2 t1 t2 : nat,
-   beq_nat s1 t1 = true
+   ∀ s1 s2 t1 t2 : nat,    beq_nat s1 t1 = true
    → beq_nat s2 t2 = true → beq_nat (mult s1 s2) (mult t1 t2) = true.
 Proof. 
    intros s1 s2 t1 t2 H1 H2. 

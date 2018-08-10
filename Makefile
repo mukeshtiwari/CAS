@@ -13,36 +13,31 @@ OCB_OPTIONS=\
   $(CAMLINCLUDES)
 
 BASE=\
-   code/basic_types.v \
-   code/ast.v \
-   code/data.v \
-   code/brel.v \
-   code/bop.v \
-   code/cef.v \
-   code/uop.v \
-   code/bprop.v \
-   code/combined.v \
-   theory/brel_properties.v \
-   theory/uop_properties.v \
-   theory/bop_properties.v \
-   theory/lt_properties.v \
-   theory/bs_properties.v \
-   theory/os_properties.v \
-   a_code/proof_records.v \
-   a_code/a_cas_records.v \
-   code/eqv_certificates.v \
-   code/eqv_cert_records.v \
-   code/eqv_records.v \
-   code/sg_certificates.v \
-   code/sg_cert_records.v \
-   code/sg_records.v \
-   code/bs_certificates.v \
-   code/bs_cert_records.v \
-   code/bs_records.v \
-   verify/eqv_proofs_to_certs.v \
-   verify/sg_proofs_to_certs.v \
-   verify/bs_proofs_to_certs.v \
-   theory/facts.v
+   coq/common/compute.v \
+   coq/common/brel_properties.v \
+   coq/common/uop_properties.v \
+   coq/common/bop_properties.v \
+   coq/common/lt_properties.v \
+   coq/common/bs_properties.v \
+   coq/common/os_properties.v \
+   coq/common/ast.v \
+   coq/common/data.v \
+   coq/common/proof_records.v \
+   coq/common/a_cas_records.v \
+   coq/common/eqv_certificates.v \
+   coq/common/eqv_cert_records.v \
+   coq/common/eqv_records.v \
+   coq/common/sg_certificates.v \
+   coq/common/sg_cert_records.v \
+   coq/common/sg_records.v \
+   coq/common/bs_certificates.v \
+   coq/common/bs_cert_records.v \
+   coq/common/bs_records.v \
+   coq/common/eqv_proofs_to_certs.v \
+   coq/common/sg_proofs_to_certs.v \
+   coq/common/bs_proofs_to_certs.v \
+   coq/common/base.v \
+   coq/theory/facts.v
 
 CAS=\
    coq/eqv/nat.v \

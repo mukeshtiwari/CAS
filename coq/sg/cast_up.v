@@ -1,25 +1,5 @@
-Require Import CAS.code.basic_types. 
-Require Import CAS.code.ast.
-Require Import CAS.code.brel. 
-Require Import CAS.code.bop. 
-Require Import CAS.a_code.proof_records. 
-Require Import CAS.a_code.a_cas_records.
-Require Import CAS.theory.brel_properties. 
-
-Require Import CAS.code.eqv_certificates.
-Require Import CAS.code.eqv_cert_records.
-Require Import CAS.code.eqv_records.
-
-Require Import CAS.code.sg_certificates.
-Require Import CAS.code.sg_cert_records.
-Require Import CAS.code.sg_records.
-Require Import CAS.code.ast.
-
-Require Import CAS.verify.eqv_proofs_to_certs.
-Require Import CAS.verify.sg_proofs_to_certs. 
-
-Require Import CAS.code.cef. 
-Require Import CAS.theory.facts.
+Require Import CAS.coq.common.base.
+Require Import CAS.coq.theory.facts.
 
 Section Theory.
 

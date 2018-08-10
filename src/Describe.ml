@@ -131,6 +131,7 @@ let string_of_check_is_right data = function
 	  ^  ", " 
 	  ^ (string_of_data (data b))
 
+(*
 
 let string_of_check_left_distributive data = function 
     | Certify_Left_Distributive -> 
@@ -200,6 +201,7 @@ let string_of_check_times_id_is_plus_ann = function
     | Certify_Times_Id_Equals_Plus_Ann -> "id(*) == ann(+)"
     | Certify_Not_Times_Id_Equals_Plus_Ann -> "id(*) != ann(+)"
 
+
 let sg_certs_describe data certs = 
       [
        string_of_check_exists_id data (sg_exists_id_d certs) ; 
@@ -217,15 +219,14 @@ let sg_certs_describe data certs =
        string_of_check_is_right data (sg_is_right_d certs)
      ] 
 
-
-
 let sg_describe sg = sg_certs_describe (eqv_data (sg_eq sg)) (sg_certs sg)
 let sg_C_describe sg  = sg_describe (sg_from_sg_C sg)
 let sg_CS_describe sg = sg_describe (sg_from_sg_CS sg)
 let sg_CI_describe sg = sg_describe (sg_from_sg_CI sg)
 let sg_CK_describe sg = sg_describe (sg_from_sg_CK sg)
+*) 
 
-
+(*
 let bs_certs_describe data certs = 
       [
        string_of_check_left_distributive data (bs_left_distributive_d certs) ; 
@@ -252,3 +253,4 @@ let bs_describe bs =
       )
  
 
+*) 

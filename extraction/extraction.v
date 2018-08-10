@@ -1,56 +1,18 @@
-Require Import CAS.code.basic_types. 
-Require Import CAS.code.brel. 
-Require Import CAS.code.bop.
-
-Require Import CAS.code.cas.eqv.bool.  
-Require Import CAS.code.cas.eqv.list.
-Require Import CAS.code.cas.eqv.add_constant.
-Require Import CAS.code.cas.eqv.product.
-Require Import CAS.code.cas.eqv.sum.
-
-
-Require Import CAS.code.cas.sg.add_ann.
-Require Import CAS.code.cas.sg.add_id.
-Require Import CAS.code.cas.sg.and.
-Require Import CAS.code.cas.sg.cast_up.
-Require Import CAS.code.cas.sg.cast_down.
-Require Import CAS.code.cas.sg.concat.
-Require Import CAS.code.cas.sg.left_sum.
-Require Import CAS.code.cas.sg.left.
-Require Import CAS.code.cas.sg.llex.
-Require Import CAS.code.cas.sg.or.
-Require Import CAS.code.cas.sg.product.
-Require Import CAS.code.cas.sg.right_sum.
-Require Import CAS.code.cas.sg.right.
-Require Import CAS.code.cas.bs.add_one.
-Require Import CAS.code.cas.bs.add_zero.
-Require Import CAS.code.cas.bs.and_or.
-Require Import CAS.code.cas.bs.cast_up.
-Require Import CAS.code.cas.bs.cast_down.
-(*Require Import CAS.code.cas.bs.left_sum *) 
-Require Import CAS.code.cas.bs.llex_product.
-
-Require Import CAS.code.cas.bs.or_and. 
-Require Import CAS.code.cas.bs.product.
+Require Import CAS.coq.common.base. 
 
 Require Import CAS.coq.eqv.nat.
-Require Import CAS.coq.sg.max.
-Require Import CAS.coq.sg.min.
-Require Import CAS.coq.sg.times.
+Require Import CAS.coq.sg.cast_up.
 Require Import CAS.coq.sg.plus.
+Require Import CAS.coq.sg.times.
+Require Import CAS.coq.sg.min.
+Require Import CAS.coq.sg.max.
 Require Import CAS.coq.bs.max_min.
 Require Import CAS.coq.bs.min_max.
 Require Import CAS.coq.bs.min_plus.
 Require Import CAS.coq.bs.max_plus.
 Require Import CAS.coq.bs.dual.
 
-
-(*Require Import CAS.code.cas.bs.right_sum *)
-
-
 Require Extraction. 
-
-
 
 (* Require Import Coq.ExtrOcamlString.v. *) (* why does this not work?? *) 
 
@@ -82,7 +44,6 @@ Extract Inductive string => "char list" [ "[]" "(::)" ].
 
 
 (* End from ExtrOcamlString.v *) 
-
 
 (* Evaluation / Extraction /Testing  
 
@@ -143,7 +104,8 @@ Extraction Blacklist List String Int.
 Cd "extraction".
 
 (* Separate Extraction  *) 
-Extraction "Cas.ml" 
+Extraction "Cas.ml"
+   eqv_eq_nat           
 (* eqv 
    eqv_eq_bool
    eqv_add_constant
@@ -151,8 +113,6 @@ Extraction "Cas.ml"
    eqv_product
    eqv_sum
 *) 
-   eqv_eq_nat
-
 (* semigroups *)
    sg_C_times
    sg_CS_max
@@ -190,16 +150,17 @@ Extraction "Cas.ml"
    sg_CS_right_sum
    sg_right
 *)
-   (* sg casting 
+   (* sg casting *)
    sg_from_sg_C
    sg_from_sg_CS
    sg_from_sg_CI
    sg_from_sg_CK
    sg_C_from_sg_CI
-   sg_C_from_sg_CS   
-   sg_CI_from_sg_CS
+   sg_C_from_sg_CS
    sg_C_from_sg_CK
+   sg_CI_from_sg_CS
 
+(*   
    sg_C_option_from_sg
    sg_CI_option_from_sg
    sg_CK_option_from_sg
@@ -208,13 +169,14 @@ Extraction "Cas.ml"
    sg_CI_option_from_sg_C
    sg_CK_option_from_sg_C
    sg_CS_option_from_sg_CI
-*) 
+*)
   
    (* bi-semigroups *)
-   bs_max_min  (* lattice? *) 
-   bs_max_plus
-   bs_min_max
-   bs_min_plus
+
+   dioid_max_plus
+   dioid_min_plus
+   distributive_lattice_min_max
+   distributive_lattice_max_min  
    lattice_dual
    distributive_lattice_dual
    .
@@ -272,15 +234,6 @@ Extraction "Cas.ml"
    sg_CS_min_with_infinity
    sg_CS_max_with_infinity
 
-   (* sg casts *) 
-   sg_C_option_from_sg
-   sg_CI_option_from_sg_C
-   sg_CS_option_from_sg_CI
-   sg_CK_option_from_sg_C
-   sg_CI_option_from_sg
-   sg_CK_option_from_sg
-   sg_CS_option_from_sg_C
-   sg_CS_option_from_sg
 
 
    bs_union_intersect 

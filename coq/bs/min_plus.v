@@ -1,24 +1,7 @@
 Require Import Coq.Arith.Arith.     (* beq_nat *) 
 Require Import Coq.Arith.Min. 
-Require Import CAS.code.basic_types. 
-Require Import CAS.code.brel. 
-Require Import CAS.code.bop. 
-
-Require Import CAS.code.ast.
-Require Import CAS.a_code.proof_records.
-Require Import CAS.a_code.a_cas_records.
-
-Require Import CAS.code.sg_certificates.
-Require Import CAS.code.sg_cert_records.
-Require Import CAS.code.bs_certificates.
-Require Import CAS.code.bs_cert_records.
-Require Import CAS.code.sg_records.
-Require Import CAS.code.bs_records.
-
-Require Import CAS.theory.brel_properties. 
-Require Import CAS.theory.bop_properties. 
-Require Import CAS.theory.bs_properties. 
-Require Import CAS.theory.facts. 
+Require Import CAS.coq.common.base. 
+Require Import CAS.coq.theory.facts. 
 Require Import CAS.coq.eqv.nat.
 Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.plus.
@@ -191,7 +174,7 @@ Definition semiring_certs_min_plus : @semiring_certificates nat :=
   |}. 
 
 
-Definition semiring_min_plus : dioid (S := nat) := 
+Definition dioid_min_plus : dioid (S := nat) := 
 {|
   dioid_eqv         := eqv_eq_nat 
 ; dioid_plus        := bop_min
@@ -205,7 +188,11 @@ Definition semiring_min_plus : dioid (S := nat) :=
 End CAS.
 
 Section Verify.
- 
+
+Theorem correct_semiring_min_plus : 
+   dioid_min_plus = A2C_dioid nat (A_dioid_min_plus). 
+Proof. compute. reflexivity. Qed. 
+  
 
 End Verify.   
   

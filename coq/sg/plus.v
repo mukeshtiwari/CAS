@@ -1,20 +1,5 @@
-Require Import Coq.Arith.Arith.     (* beq_nat *) 
-Require Import CAS.code.basic_types. 
-Require Import CAS.code.brel. 
-Require Import CAS.code.bop. 
-
-Require Import CAS.code.ast.
-Require Import CAS.a_code.proof_records. 
-Require Import CAS.a_code.a_cas_records.
-
-Require Import CAS.code.sg_certificates.
-Require Import CAS.code.sg_cert_records.
-Require Import CAS.code.sg_records.
-
-Require Import CAS.verify.sg_proofs_to_certs.
-
-Require Import CAS.theory.bop_properties.
-
+Require Import Coq.Arith.Arith.     (* beq_nat *)
+Require Import CAS.coq.common.base.
 Require Import CAS.coq.eqv.nat. 
 
 Section Theory.
