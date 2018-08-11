@@ -5,7 +5,7 @@ COQDOC=coqdoc $(COQINCLUDES)
 COQDEP=coqdep -c
 COQEXEC=coqtop $(COQINCLUDES) -batch -load-vernac-source
 OCAMLBUILD=ocamlbuild
-CAMLINCLUDES= -I extraction -I src 
+CAMLINCLUDES= -I extraction -I ocaml
 OCB_OPTIONS=\
   -j 2 \
   -no-hygiene \
@@ -97,7 +97,7 @@ FILES=$(BASE) $(CAS)
 # is there a better way? 
 CMOFILES=\
 Cas.cmo \
-../src/Describe.cmo
+../ocaml/Describe.cmo
 # 
 
 .PHONY: all casml html clean
@@ -131,7 +131,7 @@ extraction/STAMP: $(FILES:.v=.vo) extraction/extraction.v
 	$(COQEXEC) extraction/extraction.v
 	touch extraction/STAMP
 
-casml: extraction/STAMP src/Mcas.ml src/Describe.ml
+casml: extraction/STAMP ocaml/Mcas.ml ocaml/Describe.ml
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
 	cd _build/extraction && ocamlmktop -o casml $(CMOFILES)
 
