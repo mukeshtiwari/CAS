@@ -115,20 +115,11 @@ with ast_sg_CS :=
    . 
 
 Inductive ast_bs :=
-   | Ast_bs_min_max   : ast_bs 
-   | Ast_bs_max_min   : ast_bs 
-   | Ast_bs_and_or    : ast_bs 
-   | Ast_bs_or_and    : ast_bs 
-   | Ast_bs_min_plus  : ast_bs 
-   | Ast_bs_max_plus  : ast_bs 
-   | Ast_bs_min_times : ast_bs 
-   | Ast_bs_max_times : ast_bs 
-
    | Ast_bs_product    : ast_bs * ast_bs → ast_bs
-   | Ast_bs_left_sum    : ast_bs * ast_bs → ast_bs                                             
+   | Ast_bs_left_sum    : ast_bs * ast_bs → ast_bs
+   | Ast_bs_right_sum    : ast_bs * ast_bs → ast_bs                                                                                           
    | Ast_bs_add_zero   : cas_constant * ast_bs → ast_bs
    | Ast_bs_add_one    : cas_constant * ast_bs → ast_bs
-
    | Ast_bs_from_bs_CS : ast_bs_CS → ast_bs
    | Ast_bs_from_bs_C  : ast_bs_C → ast_bs
    | Ast_bs_from_lattice : ast_lattice → ast_bs
@@ -183,7 +174,6 @@ with ast_lattice :=
   | Ast_lattice_from_distributive_lattice   : ast_distributive_lattice → ast_lattice                                                          
   .
   
-
 Inductive ast_os :=
    | Ast_os_from_bs_CS : ast_bs_CS → ast_os
   .

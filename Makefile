@@ -74,9 +74,16 @@ CAS=\
    coq/bs/min_plus.v \
    coq/bs/max_plus.v \
    coq/bs/dual.v \
+   coq/bs/and_or.v \
+   coq/bs/or_and.v \
    coq/bs/product_product.v \
+   coq/bs/llex_product.v \
+   coq/bs/left_sum.v \
+   coq/bs/right_sum.v \
    coq/bs/min_max.v \
    coq/bs/max_min.v \
+   coq/bs/union_intersect.v \
+   coq/bs/intersect_union.v \
    coq/bs/add_id_add_ann.v \
    coq/bs/add_ann_add_id.v \
 
