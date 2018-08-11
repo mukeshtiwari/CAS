@@ -1,3 +1,4 @@
+Require Import CAS.coq.common.base. 
 
 Section Theory.
 

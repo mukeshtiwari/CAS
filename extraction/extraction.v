@@ -1,16 +1,40 @@
 Require Import CAS.coq.common.base. 
 
 Require Import CAS.coq.eqv.nat.
+Require Import CAS.coq.eqv.bool.
+Require Import CAS.coq.eqv.list.
+Require Import CAS.coq.eqv.set.
+Require Import CAS.coq.eqv.product.
+Require Import CAS.coq.eqv.sum.
+Require Import CAS.coq.eqv.add_constant.
+
 Require Import CAS.coq.sg.cast_up.
 Require Import CAS.coq.sg.plus.
 Require Import CAS.coq.sg.times.
 Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.max.
+Require Import CAS.coq.sg.and.
+Require Import CAS.coq.sg.or.
+Require Import CAS.coq.sg.left.
+Require Import CAS.coq.sg.right.
+Require Import CAS.coq.sg.left_sum.
+Require Import CAS.coq.sg.right_sum.
+Require Import CAS.coq.sg.concat.
+Require Import CAS.coq.sg.product.
+Require Import CAS.coq.sg.llex.
+Require Import CAS.coq.sg.add_id.
+Require Import CAS.coq.sg.add_ann.
+Require Import CAS.coq.sg.union.
+Require Import CAS.coq.sg.intersect. 
+
 Require Import CAS.coq.bs.max_min.
 Require Import CAS.coq.bs.min_max.
 Require Import CAS.coq.bs.min_plus.
 Require Import CAS.coq.bs.max_plus.
 Require Import CAS.coq.bs.dual.
+Require Import CAS.coq.bs.product_product.
+Require Import CAS.coq.bs.add_ann_add_id.
+Require Import CAS.coq.bs.add_id_add_ann. 
 
 Require Extraction. 
 
@@ -105,51 +129,49 @@ Cd "extraction".
 
 (* Separate Extraction  *) 
 Extraction "Cas.ml"
-   eqv_eq_nat           
-(* eqv 
-   eqv_eq_bool
-   eqv_add_constant
-   eqv_list
+   eqv_eq_nat
    eqv_product
+   eqv_add_constant
+   eqv_bool
    eqv_sum
-*) 
+   eqv_list
+   eqv_set   
 (* semigroups *)
    sg_C_times
    sg_CS_max
    sg_CS_min
+   sg_CS_and
+   sg_CS_or   
    sg_CK_plus
-(*
+   sg_product
+   sg_C_product      
+   sg_CI_product
+   sg_CK_product
+   sg_llex            
+   sg_C_llex         
+   sg_CI_llex      
+   sg_CS_llex
    sg_add_ann
    sg_C_add_ann
    sg_CI_add_ann
-   sg_CS_add_ann         
+   sg_CS_add_ann            
    sg_add_id
    sg_C_add_id
    sg_CI_add_id
-   sg_CS_add_id         
-   sg_CS_and
+   sg_CS_add_id
+   sg_left
+   sg_right
    sg_concat
-   sg_left_sum
    sg_C_left_sum
    sg_CI_left_sum         
    sg_CS_left_sum      
-   sg_left
-   sg_llex
-   sg_C_llex         
-   sg_CI_llex      
-   sg_CS_llex   
-   sg_CS_or 
-   sg_product
-   bs_and_or
-   sg_C_product      
-   sg_CI_product
-   sg_CK_product      
    sg_right_sum
    sg_C_right_sum            
    sg_CI_right_sum         
    sg_CS_right_sum
-   sg_right
-*)
+   sg_CI_union 
+   sg_CI_intersect  
+
    (* sg casting *)
    sg_from_sg_C
    sg_from_sg_CS
@@ -159,7 +181,6 @@ Extraction "Cas.ml"
    sg_C_from_sg_CS
    sg_C_from_sg_CK
    sg_CI_from_sg_CS
-
 (*   
    sg_C_option_from_sg
    sg_CI_option_from_sg
@@ -170,51 +191,43 @@ Extraction "Cas.ml"
    sg_CK_option_from_sg_C
    sg_CS_option_from_sg_CI
 *)
-  
-   (* bi-semigroups *)
-
+  (* bi-semigroups *)
    dioid_max_plus
    dioid_min_plus
    distributive_lattice_min_max
    distributive_lattice_max_min  
    lattice_dual
    distributive_lattice_dual
-   .
-(*   
-   
-   bs_or_and          
-   bs_and_or  (* lattice? *)
-
-
-   
    bs_add_one
+   bs_add_zero
+   bs_product
+   dioid_product   
    lattice_add_one
    distributive_lattice_add_one
-   
-   bs_add_zero
    dioid_add_zero
    semiring_add_zero
    lattice_add_zero
    distributive_lattice_add_zero
-
-   bs_product
-   semiring_product
-   dioid_product   
-   
+   .
+(*   
+   bs_min_times 
+   bs_max_times    
+   bs_or_and          
+   bs_and_or  (* lattice? *)
+   bs_union_intersect 
+   bs_intersect_union 
    bs_C_llex_product
    bs_CS_llex_product
-   
    (* casting *)
    bs_from_bs_C
    bs_from_bs_CS
-
    bs_C_option_from_bs
    bs_CS_option_from_bs
-   .
+   bs_from_bs_C 
+   bs_from_bs_CS 
+   bs_C_option_from_bs
+   bs_CS_option_from_bs
 *) 
-
-(*   sg_union *) 
-(*   sg_intersect  *) 
 
 (**
    (* order *) 
@@ -230,26 +243,4 @@ Extraction "Cas.ml"
    to_add_bottom 
    po_add_top
    po_add_bottom 
-
-   sg_CS_min_with_infinity
-   sg_CS_max_with_infinity
-
-
-
-   bs_union_intersect 
-   bs_intersect_union 
-
-   (* bs *) 
-
-   (* bs casts *) 
-   bs_from_bs_C 
-   bs_from_bs_CS 
-   bs_C_option_from_bs
-   bs_CS_option_from_bs
-
-(*
-   bs_min_times 
-   bs_max_times 
-*)    .
-
 **)

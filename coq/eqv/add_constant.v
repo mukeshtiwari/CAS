@@ -1,9 +1,5 @@
 Require Import Coq.Bool.Bool.    
-Require Import CAS.code.basic_types. 
-Require Import CAS.code.brel. 
-Require Import CAS.code.uop.
-Require Import CAS.code.data.
-Require Import CAS.theory.brel_properties.
+Require Import CAS.coq.common.base. 
 
 Section Theory.
 
@@ -51,10 +47,6 @@ End Theory.
 
 Section ACAS.
 
-Require Import CAS.code.ast. 
-Require Import CAS.a_code.proof_records. 
-Require Import CAS.a_code.a_cas_records.
-  
 Definition eqv_proofs_add_constant : ∀ (S : Type) (r : brel S) (c : cas_constant),
     eqv_proofs S r → eqv_proofs (with_constant S) (brel_add_constant r c) 
 := λ S r c eqv, 
@@ -86,10 +78,6 @@ Definition A_eqv_add_constant : ∀ (S : Type),  A_eqv S -> cas_constant -> A_eq
 End ACAS.
 
 Section CAS.
-Require Import CAS.code.ast. 
-Require Import CAS.code.eqv_certificates.
-Require Import CAS.code.eqv_cert_records.
-Require Import CAS.code.eqv_records.
 
 Definition eqv_add_constant : ∀ {S : Type},  eqv (S := S) -> cas_constant -> @eqv (with_constant S)
 := λ {S} eqvS c, 
@@ -105,8 +93,6 @@ Definition eqv_add_constant : ∀ {S : Type},  eqv (S := S) -> cas_constant -> @
 End CAS.
 
 Section Verify.
-
-Require Import CAS.verify.eqv_proofs_to_certs.
 
 Theorem correct_eqv_add_constant : ∀ (S : Type) (c : cas_constant) (E : A_eqv S),  
     eqv_add_constant (A2C_eqv S E) c = A2C_eqv (with_constant S) (A_eqv_add_constant S E c).

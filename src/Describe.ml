@@ -131,8 +131,6 @@ let string_of_check_is_right data = function
 	  ^  ", " 
 	  ^ (string_of_data (data b))
 
-(*
-
 let string_of_check_left_distributive data = function 
     | Certify_Left_Distributive -> 
 	"Left Distributive" 
@@ -224,9 +222,9 @@ let sg_C_describe sg  = sg_describe (sg_from_sg_C sg)
 let sg_CS_describe sg = sg_describe (sg_from_sg_CS sg)
 let sg_CI_describe sg = sg_describe (sg_from_sg_CI sg)
 let sg_CK_describe sg = sg_describe (sg_from_sg_CK sg)
-*) 
 
-(*
+
+
 let bs_certs_describe data certs = 
       [
        string_of_check_left_distributive data (bs_left_distributive_d certs) ; 
@@ -252,5 +250,3 @@ let bs_describe bs =
        bs_certs_describe data certs
       )
  
-
-*) 

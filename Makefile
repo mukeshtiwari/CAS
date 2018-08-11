@@ -37,21 +37,49 @@ BASE=\
    coq/common/sg_proofs_to_certs.v \
    coq/common/bs_proofs_to_certs.v \
    coq/common/base.v \
+   coq/theory/conjunction.v \
+   coq/theory/complement.v\
+   coq/theory/llte.v \
+   coq/theory/in_set.v\
+   coq/theory/subset.v\
    coq/theory/facts.v
 
 CAS=\
    coq/eqv/nat.v \
+   coq/eqv/bool.v \
+   coq/eqv/list.v \
+   coq/eqv/set.v \
+   coq/eqv/sum.v \
+   coq/eqv/product.v \
+   coq/eqv/add_constant.v \
    coq/sg/cast_up.v \
    coq/sg/plus.v \
    coq/sg/times.v \
+   coq/sg/and.v \
+   coq/sg/or.v \
    coq/sg/max.v \
    coq/sg/min.v \
    coq/sg/times.v \
+   coq/sg/left.v \
+   coq/sg/right.v \
+   coq/sg/concat.v \
+   coq/sg/left_sum.v \
+   coq/sg/right_sum.v \
+   coq/sg/product.v \
+   coq/sg/llex.v \
+   coq/sg/add_id.v \
+   coq/sg/add_ann.v \
+   coq/sg/union.v \
+   coq/sg/intersect.v \
    coq/bs/min_plus.v \
    coq/bs/max_plus.v \
    coq/bs/dual.v \
+   coq/bs/product_product.v \
    coq/bs/min_max.v \
    coq/bs/max_min.v \
+   coq/bs/add_id_add_ann.v \
+   coq/bs/add_ann_add_id.v \
+
 
 FILES=$(BASE) $(CAS)
 
