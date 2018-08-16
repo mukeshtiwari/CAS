@@ -232,6 +232,10 @@ Definition A_sg_proofs_from_sg_CS_proofs : ∀ (S : Type) (r : brel S) (b : bina
     brel_not_trivial S r f -> eqv_proofs S r ->  sg_CS_proofs S r b -> sg_proofs S r b 
 := λ S r b s f Pf eqv sg_CS, A_sg_proofs_from_sg_C_proofs S r b s f Pf eqv (A_sg_C_proofs_from_sg_CS_proofs S r b s f Pf eqv sg_CS).
 
+Definition A_sg_proofs_from_sg_CI_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S),
+    brel_not_trivial S r f -> eqv_proofs S r ->  sg_CI_proofs S r b -> sg_proofs S r b 
+:= λ S r b s f Pf eqv sg_CS, A_sg_proofs_from_sg_C_proofs S r b s f Pf eqv (A_sg_C_proofs_from_sg_CI_proofs S r b s f Pf eqv sg_CS).
+
 Definition A_sg_from_sg_CI: ∀ (S : Type),  A_sg_CI S -> A_sg S 
 := λ S sgS, A_sg_from_sg_C S (A_sg_C_from_sg_CI S sgS).  
 
@@ -346,7 +350,11 @@ Definition sg_CI_certs_from_sg_CS_certs : ∀ {S : Type}, sg_CS_certificates (S 
 ; sg_CI_selective_d        := Certify_Selective (S := S) 
 ; sg_CI_exists_id_d        := sg_CS_exists_id_d sgS    
 ; sg_CI_exists_ann_d       := sg_CS_exists_ann_d sgS    
-|}. 
+|}.
+
+Definition sg_C_certs_from_sg_CS_certs: ∀ {S : Type}, brel S -> binary_op S -> S -> (S -> S) -> @sg_CS_certificates S -> @sg_C_certificates S 
+:= λ {S} eq b s f sgS, sg_C_certs_from_sg_CI_certs eq b s f (sg_CI_certs_from_sg_CS_certs sgS). 
+
 
 Definition sg_CI_from_sg_CS: ∀ {S : Type},  sg_CS (S := S) -> sg_CI (S := S) 
 := λ {S} sgS, 
@@ -444,7 +452,6 @@ Proof. intros S r b s f nt eqvS sgS. destruct sgS. destruct eqvS.
        reflexivity.        
 Defined. 
 
-  
 
 Lemma correct_sg_C_certs_from_sg_CI_certs : 
    ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S) (nt : brel_not_trivial S r f) (eqvS : eqv_proofs S r) (sgS : sg_CI_proofs S r b), 
@@ -470,6 +477,28 @@ Proof. intros S r b sgS. destruct sgS.
        reflexivity.        
 Defined. 
 
+Lemma correct_sg_C_certs_from_sg_CS_certs : 
+   ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S) (nt : brel_not_trivial S r f) (eqvS : eqv_proofs S r) (sgS : sg_CS_proofs S r b), 
+       sg_C_certs_from_sg_CS_certs r b s f (P2C_sg_CS S r b sgS)
+       = 
+       P2C_sg_C S r b (A_sg_C_proofs_from_sg_CS_proofs S r b s f nt eqvS sgS). 
+Proof. intros S r b s f nt eqvS sgS. 
+       unfold sg_C_certs_from_sg_CS_certs, A_sg_C_proofs_from_sg_CS_proofs.
+       rewrite correct_sg_CI_certs_from_sg_CS_certs.
+       rewrite <- correct_sg_C_certs_from_sg_CI_certs; auto. 
+Defined.
+
+
+Lemma correct_sg_certs_from_sg_CI_certs : 
+   ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S) (nt : brel_not_trivial S r f) (eqvS : eqv_proofs S r) (sgS : sg_CI_proofs S r b), 
+       sg_certs_from_sg_CI_certs r b s f (P2C_sg_CI S r b sgS)
+       = 
+       P2C_sg S r b (A_sg_proofs_from_sg_CI_proofs S r b s f nt eqvS sgS). 
+Proof. intros S r b s f nt eqvS sgS. 
+       unfold sg_certs_from_sg_CI_certs, A_sg_proofs_from_sg_CI_proofs.
+       rewrite (correct_sg_C_certs_from_sg_CI_certs S r b s f nt eqvS).
+       rewrite <- correct_sg_certs_from_sg_C_certs; auto. 
+Qed. 
 
 
 Lemma correct_sg_C_certs_from_sg_CK_certs : 

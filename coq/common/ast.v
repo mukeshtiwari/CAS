@@ -112,6 +112,7 @@ with ast_sg_CS :=
    | Ast_sg_CS_right_sum    : ast_sg_CS * ast_sg_CS → ast_sg_CS
    | Ast_sg_CS_llex         : ast_sg_CS * ast_sg_CS → ast_sg_CS
    | Ast_sg_CS_from_sg_CI   : ast_sg_CI → ast_sg_CS
+   | Ast_sg_CS_from_sg_C    : ast_sg_C → ast_sg_CS                                       
    . 
 
 Inductive ast_bs :=
@@ -123,6 +124,7 @@ Inductive ast_bs :=
    | Ast_bs_from_bs_CS : ast_bs_CS → ast_bs
    | Ast_bs_from_bs_C  : ast_bs_C → ast_bs
    | Ast_bs_from_lattice : ast_lattice → ast_bs
+   | Ast_bs_from_semiring : ast_semiring → ast_bs                                          
                                         
 with ast_bs_CS :=
    | Ast_bs_CS_product   : ast_bs_CS * ast_bs_CS → ast_bs_CS
@@ -137,7 +139,12 @@ with ast_bs_C :=
    | Ast_bs_C_add_one   : cas_constant * ast_bs_C → ast_bs_C
    | Ast_bs_C_llex      : ast_bs_CS * ast_bs_C → ast_bs_C
    | Ast_bs_C_from_bs   : ast_bs  → ast_bs_C
-   | Ast_bs_C_from_semiring  : ast_semiring → ast_bs_C
+   | Ast_bs_C_from_bs_CS    : ast_bs_CS → ast_bs_C
+   | Ast_bs_C_from_bs_CI    : ast_bs_CI → ast_bs_C
+   | Ast_bs_C_from_semiring : ast_semiring → ast_bs_C
+
+with ast_bs_CI :=
+   | Ast_bs_CI_from_dioid    : ast_dioid → ast_bs_CI                                                                                         
 
 with  ast_semiring :=
 | Ast_semiring_add_zero   : cas_constant * ast_semiring → ast_semiring

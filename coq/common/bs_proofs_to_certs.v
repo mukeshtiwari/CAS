@@ -27,7 +27,7 @@ Definition p2c_left_left_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : binar
 := λ S eq b1 b2 d, 
    match d with 
    | inl _ => @Certify_Left_Left_Absorptive S 
-   | inr p => Certify_Not_Left_Left_Absorptive (projT1 p) 
+   | inr (existT _ (s1, s2) _) => Certify_Not_Left_Left_Absorptive (s1, s2) 
    end. 
 
 
@@ -36,7 +36,7 @@ Definition p2c_left_right_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : bina
 := λ S eq b1 b2 d, 
    match d with 
    | inl _ => @Certify_Left_Right_Absorptive S 
-   | inr p => Certify_Not_Left_Right_Absorptive (projT1 p) 
+   | inr (existT _ (s1, s2) _) => Certify_Not_Left_Right_Absorptive (s1, s2) 
    end. 
 
 
@@ -45,7 +45,7 @@ Definition p2c_right_left_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : bina
 := λ S eq b1 b2 d, 
    match d with 
    | inl _ => @Certify_Right_Left_Absorptive S 
-   | inr p => Certify_Not_Right_Left_Absorptive (projT1 p) 
+   | inr (existT _ (s1, s2) _) => Certify_Not_Right_Left_Absorptive (s1, s2) 
    end. 
 
 
@@ -54,7 +54,7 @@ Definition p2c_right_right_absorptive : ∀ (S : Type) (r : brel S) (b1 b2 : bin
 := λ S eq b1 b2 d, 
    match d with 
    | inl _ => @Certify_Right_Right_Absorptive S 
-   | inr p => Certify_Not_Right_Right_Absorptive (projT1 p) 
+   | inr (existT _ (s1, s2) _) => Certify_Not_Right_Right_Absorptive (s1, s2) 
    end. 
 
 Definition p2c_left_distributive : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
@@ -175,6 +175,26 @@ Definition A2C_bs_CS : ∀ (S : Type), A_bs_CS S -> @bs_CS S
                                    (A_bs_CS_times S R) 
                                    (A_bs_CS_proofs S R)
 ; bs_CS_ast        := A_bs_CS_ast S R
+|}.
+
+
+Definition A2C_bs_CI : ∀ (S : Type), A_bs_CI S -> @bs_CI S 
+:= λ S R,
+{|
+  bs_CI_eqv         := A2C_eqv S (A_bs_CI_eqv S R)
+; bs_CI_plus        := A_bs_CI_plus S R 
+; bs_CI_times       := A_bs_CI_times S R 
+; bs_CI_plus_certs  := P2C_sg_CI S (A_eqv_eq S (A_bs_CI_eqv S R)) 
+                                (A_bs_CI_plus S R) 
+                                (A_bs_CI_plus_proofs S R)
+; bs_CI_times_certs := P2C_sg S (A_eqv_eq S (A_bs_CI_eqv S R)) 
+                                (A_bs_CI_times S R) 
+                                (A_bs_CI_times_proofs S R)
+; bs_CI_certs       := P2C_bs S (A_eqv_eq S (A_bs_CI_eqv S R)) 
+                                   (A_bs_CI_plus S R) 
+                                   (A_bs_CI_times S R) 
+                                   (A_bs_CI_proofs S R)
+; bs_CI_ast        := A_bs_CI_ast S R
 |}.
 
 

@@ -931,9 +931,6 @@ End Theory.
 Section ACAS.
 
 
-End ACAS.
-
-
 Definition bs_proofs_llex : 
   ∀ (S T: Type) (rS : brel S) (rT : brel T) (plusS timesS : binary_op S) (plusT timesT : binary_op T) (s : S) (t : T), 
      eqv_proofs S rS -> 
@@ -1086,7 +1083,7 @@ let timesT := A_bs_CS_times T bsT in
    ; A_bs_CS_ast        := Ast_bs_CS_llex (A_bs_CS_ast S bsS, A_bs_CS_ast T bsT)
 |}. 
 
-
+End ACAS.
 
 Section CAS.
 
@@ -1446,7 +1443,312 @@ End CAS.
 
 Section Verify.
 
+
+Section ChecksCorrect.
+
+  Variable S : Type.
+  Variable T : Type.
+  Variable rS : brel S.
+  Variable rT : brel T.
+  Variable plusS timesS : binary_op S.
+  Variable plusT timesT : binary_op T.
+  Variable wS : S.
+  Variable f : S -> S.    
+  Variable Pf : brel_not_trivial S rS f.
+  Variable wT : T.
+  Variable g : T -> T.      
+  Variable Pg : brel_not_trivial T rT g.  
+  Variable symS : brel_symmetric S rS.
+  Variable symT : brel_symmetric T rT. 
+  Variable transS : brel_transitive S rS.
+  Variable transT : brel_transitive T rT. 
+  Variable refS : brel_reflexive S rS. 
+  Variable refT : brel_reflexive T rT.
+
+Lemma bop_llex_product_left_distributive_check_correct : 
+  ∀ (rfS : brel_reflexive S rS)
+     (syS : brel_symmetric S rS)
+     (tnS : brel_transitive S rS)
+     (rfT : brel_reflexive T rT)     
+     (syT : brel_symmetric T rT)
+     (tnT : brel_transitive T rT)
+     (cong_timesS : bop_congruence S rS timesS)
+     (sel_plusS : bop_selective S rS plusS)
+     (comm_plusS : bop_commutative S rS plusS)
+     (comm_plusT : bop_commutative T rT plusT)
+     (qS_d : bop_left_cancellative_decidable S rS timesS) 
+     (qT_d : bop_left_constant_decidable T rT timesT)
+     (pS_d : bop_left_distributive_decidable S rS plusS timesS) 
+     (pT_d : bop_left_distributive_decidable T rT plusT timesT), 
+    bops_llex_product_left_distributive_check rS rT plusS plusT timesT wS wT
+       (p2c_left_cancel_check S rS timesS qS_d)
+       (p2c_left_constant_check T rT timesT qT_d)                                                                                            
+       (p2c_left_distributive S rS plusS timesS pS_d)
+       (p2c_left_distributive T rT plusT timesT pT_d)
+     = 
+     @p2c_left_distributive (S * T) 
+        (brel_product rS rT)
+        (bop_llex rS plusS plusT)
+        (bop_product timesS timesT)
+        (bops_llex_product_left_distributive_decide S T rS rT wS wT plusS timesS plusT timesT rfS syS tnS rfT syT tnT
+                                                    cong_timesS sel_plusS comm_plusS comm_plusT qS_d qT_d pS_d pT_d).
+Proof. intros rfS syS tnS rfT syT tnT ct sp cpS cpT 
+              [lcS | [[u1 [u2 u3]] [L R]] ]
+              [lkS | [[v1 [v2 v3]] P] ]
+              [ ldS | [ [s1 [s2 s3]] nldS] ]
+              [ ldT | [ [t1 [t2 t3]] nldT] ];
+         compute; reflexivity. Qed. 
+
+Lemma bop_llex_product_right_distributive_check_correct : 
+  ∀ (rfS : brel_reflexive S rS)
+     (syS : brel_symmetric S rS)
+     (tnS : brel_transitive S rS)
+     (rfT : brel_reflexive T rT)     
+     (syT : brel_symmetric T rT)
+     (tnT : brel_transitive T rT)
+     (cong_timesS : bop_congruence S rS timesS)
+     (sel_plusS : bop_selective S rS plusS)
+     (comm_plusS : bop_commutative S rS plusS)
+     (comm_plusT : bop_commutative T rT plusT)
+     (qS_d : bop_right_cancellative_decidable S rS timesS) 
+     (qT_d : bop_right_constant_decidable T rT timesT)
+     (pS_d : bop_right_distributive_decidable S rS plusS timesS) 
+     (pT_d : bop_right_distributive_decidable T rT plusT timesT), 
+    bops_llex_product_right_distributive_check rS rT plusS plusT timesT wS wT
+       (p2c_right_cancel_check S rS timesS qS_d)
+       (p2c_right_constant_check T rT timesT qT_d)                                                                                            
+       (p2c_right_distributive S rS plusS timesS pS_d)
+       (p2c_right_distributive T rT plusT timesT pT_d)
+     = 
+     @p2c_right_distributive (S * T) 
+        (brel_product rS rT)
+        (bop_llex rS plusS plusT)
+        (bop_product timesS timesT)
+        (bops_llex_product_right_distributive_decide S T rS rT wS wT plusS timesS plusT timesT rfS syS tnS rfT syT tnT
+                                                     cong_timesS sel_plusS comm_plusS comm_plusT qS_d qT_d pS_d pT_d).
+Proof. intros rfS syS tnS rfT syT tnT ct sp cpS cpT 
+              [lcS | [[u1 [u2 u3]] [L R]] ]
+              [lkS | [[v1 [v2 v3]] P] ]
+              [ ldS | [ [s1 [s2 s3]] nldS] ]
+              [ ldT | [ [t1 [t2 t3]] nldT] ];
+         compute; reflexivity. Qed. 
+
+
+Lemma bop_llex_product_plus_id_is_times_ann_check_correct : 
+  ∀ (rfS : brel_reflexive S rS)
+     (syS : brel_symmetric S rS)
+     (tnS : brel_transitive S rS) 
+     (rfT : brel_reflexive T rT)
+     (cplusS : bop_commutative S rS plusS)
+     (pS_d : bops_id_equals_ann_decidable S rS plusS timesS)
+     (pT_d : bops_id_equals_ann_decidable T rT plusT timesT), 
+   p2c_plus_id_equals_times_ann (S * T) 
+      (brel_product rS rT)
+      (bop_llex rS plusS plusT)
+      (bop_product timesS timesT)
+      (bops_llex_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT rfS syS tnS rfT cplusS pS_d pT_d)
+   = 
+   bops_llex_product_plus_id_is_times_ann_check 
+      (p2c_plus_id_equals_times_ann S rS plusS timesS pS_d)
+      (p2c_plus_id_equals_times_ann T rT plusT timesT pT_d). 
+Proof. intros rfs syS tnS rfT cplus [ eqS | neqS] [eqT | neqT] ; compute; reflexivity. Qed.
+
+
+
+Lemma bop_llex_product_times_id_equals_plus_ann_check_correct : 
+  ∀ (rfS : brel_reflexive S rS)
+     (syS : brel_symmetric S rS)
+     (tnS : brel_transitive S rS) 
+     (rfT : brel_reflexive T rT)
+     (cplusS : bop_commutative S rS plusS)
+     (idem_plusS : bop_idempotent S rS plusS)
+     (pS_d : bops_id_equals_ann_decidable S rS timesS plusS)
+     (pT_d : bops_id_equals_ann_decidable T rT timesT plusT), 
+   p2c_times_id_equals_plus_ann (S * T) 
+      (brel_product rS rT)
+      (bop_llex rS plusS plusT)
+      (bop_product timesS timesT)
+      (bops_product_llex_id_equals_ann_decide S T rS rT plusS timesS plusT
+                                              timesT rfS syS tnS rfT cplusS idem_plusS pS_d pT_d)
+   = 
+   bops_llex_product_times_id_equals_plus_ann_check 
+      (p2c_times_id_equals_plus_ann S rS plusS timesS pS_d) 
+      (p2c_times_id_equals_plus_ann T rT plusT timesT pT_d). 
+Proof. intros rfS syS tnS rfT cplus idem_S [ eqS | neqS] [eqT | neqT] ; compute; reflexivity. Qed.
+
+
+Lemma bop_llex_product_left_left_absorbtive_check_correct : 
+  ∀ (rfT : brel_reflexive T rT)
+     (alS : bop_anti_left_decidable S rS timesS)
+     (pS_d : bops_left_left_absorptive_decidable S rS plusS timesS) 
+     (pT_d : bops_left_left_absorptive_decidable T rT plusT timesT), 
+   bops_llex_product_left_left_absorptive_check wT 
+       (p2c_left_left_absorptive S rS plusS timesS pS_d)
+       (p2c_left_left_absorptive T rT plusT timesT pT_d)
+       (p2c_anti_left_check S rS timesS alS) 
+     = 
+   p2c_left_left_absorptive (S * T) 
+        (brel_product rS rT)
+        (bop_llex rS plusS plusT)
+        (bop_product timesS timesT)
+        (bops_llex_product_left_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT rfT pS_d pT_d alS).
+Proof. intros rfT [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; simpl; auto. Qed. 
+
+
+Lemma bop_llex_product_right_left_absorbtive_check_correct : 
+  ∀ (syS : brel_symmetric S rS)
+     (tnS : brel_transitive S rS)
+     (rfT : brel_reflexive T rT)    
+     (alS : bop_anti_left_decidable S rS timesS)
+     (pS_d : bops_right_left_absorptive_decidable S rS plusS timesS) 
+     (pT_d : bops_right_left_absorptive_decidable T rT plusT timesT), 
+   bops_llex_product_right_left_absorptive_check wT 
+       (p2c_right_left_absorptive S rS plusS timesS pS_d)
+       (p2c_right_left_absorptive T rT plusT timesT pT_d)
+       (p2c_anti_left_check S rS timesS alS) 
+     = 
+   p2c_right_left_absorptive (S * T) 
+        (brel_product rS rT)
+        (bop_llex rS plusS plusT)
+        (bop_product timesS timesT)
+        (bops_llex_product_right_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT syS tnS rfT pS_d pT_d alS).
+Proof. intros syS tnS rfT [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; simpl; auto. Qed. 
+
+
+Lemma bop_llex_product_left_right_absorbtive_check_correct : 
+  ∀ (rfT : brel_reflexive T rT)
+     (alS : bop_anti_right_decidable S rS timesS)
+     (pS_d : bops_left_right_absorptive_decidable S rS plusS timesS) 
+     (pT_d : bops_left_right_absorptive_decidable T rT plusT timesT), 
+   bops_llex_product_left_right_absorptive_check wT 
+       (p2c_left_right_absorptive S rS plusS timesS pS_d)
+       (p2c_left_right_absorptive T rT plusT timesT pT_d)
+       (p2c_anti_right_check S rS timesS alS)        
+     = 
+     p2c_left_right_absorptive (S * T) 
+        (brel_product rS rT)
+        (bop_llex rS plusS plusT)
+        (bop_product timesS timesT)
+        (bops_llex_product_left_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT rfT pS_d pT_d alS).
+Proof. intros rfT [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. Qed.
+
+
+Lemma bop_llex_product_right_right_absorbtive_check_correct : 
+  ∀ (syS : brel_symmetric S rS)
+     (tnS : brel_transitive S rS)
+     (rfT : brel_reflexive T rT)
+     (alS : bop_anti_right_decidable S rS timesS)
+     (pS_d : bops_right_right_absorptive_decidable S rS plusS timesS) 
+     (pT_d : bops_right_right_absorptive_decidable T rT plusT timesT), 
+   bops_llex_product_right_right_absorptive_check wT 
+       (p2c_right_right_absorptive S rS plusS timesS pS_d)
+       (p2c_right_right_absorptive T rT plusT timesT pT_d)
+       (p2c_anti_right_check S rS timesS alS)        
+     = 
+     p2c_right_right_absorptive (S * T) 
+        (brel_product rS rT)
+        (bop_llex rS plusS plusT)
+        (bop_product timesS timesT)
+        (bops_llex_product_right_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT syS tnS rfT pS_d pT_d alS).
+Proof. intros syS trS rfT [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. Qed.
+
+
+Lemma  correct_bs_C_certs_llex_product : 
+  ∀ (eqvS : eqv_proofs S rS)
+     (eqvT : eqv_proofs T rT)
+     (plusPS : sg_CS_proofs S rS plusS)
+     (timesPS : sg_proofs S rS timesS)     
+     (plusPT : sg_C_proofs T rT plusT)
+     (timesPT : sg_proofs T rT timesT)          
+     (bsS : bs_proofs S rS plusS timesS)
+     (bsT : bs_proofs T rT plusT timesT), 
+  bs_certs_llex_product rS rT plusS plusT timesT wS wT
+               (P2C_sg S rS timesS timesPS)  (P2C_sg T rT timesT timesPT)
+               (P2C_bs S rS plusS timesS bsS) (P2C_bs T rT plusT timesT bsT)
+  =
+ P2C_bs (S * T) (brel_product rS rT)
+                  (bop_llex rS plusS plusT)
+                  (bop_product timesS timesT)
+                  (bs_proofs_llex S T rS rT plusS timesS plusT timesT wS wT eqvS eqvT plusPS timesPS plusPT timesPT bsS bsT). 
+Proof. intros.
+       unfold bs_certs_llex_product, bs_proofs_llex, P2C_bs; simpl.
+       rewrite bop_llex_product_plus_id_is_times_ann_check_correct.        
+       rewrite bop_llex_product_times_id_equals_plus_ann_check_correct.                     
+       rewrite <- bop_llex_product_left_left_absorbtive_check_correct. 
+       rewrite <- bop_llex_product_left_right_absorbtive_check_correct. 
+       rewrite <- bop_llex_product_right_left_absorbtive_check_correct. 
+       rewrite <- bop_llex_product_right_right_absorbtive_check_correct.
+       rewrite <- bop_llex_product_left_distributive_check_correct. 
+       rewrite <- bop_llex_product_right_distributive_check_correct. 
+       reflexivity. 
+Qed.   
+
+
+
+
+Lemma  correct_bs_CS_certs_llex_product : 
+  ∀ (eqvS : eqv_proofs S rS)
+     (eqvT : eqv_proofs T rT)
+     (plusPS : sg_CS_proofs S rS plusS)
+     (timesPS : sg_proofs S rS timesS)     
+     (plusPT : sg_CS_proofs T rT plusT)
+     (plusPT_v2 : sg_C_proofs T rT plusT)
+     (timesPT : sg_proofs T rT timesT)          
+     (bsS : bs_proofs S rS plusS timesS)
+     (bsT : bs_proofs T rT plusT timesT), 
+  bs_certs_llex_product rS rT plusS plusT timesT wS wT
+               (P2C_sg S rS timesS timesPS)  (P2C_sg T rT timesT timesPT)
+               (P2C_bs S rS plusS timesS bsS) (P2C_bs T rT plusT timesT bsT)
+  =
+ P2C_bs (S * T) (brel_product rS rT)
+                  (bop_llex rS plusS plusT)
+                  (bop_product timesS timesT)
+                  (bs_proofs_llex S T rS rT plusS timesS plusT timesT wS wT eqvS eqvT plusPS timesPS plusPT_v2 timesPT bsS bsT). 
+Proof. intros.
+       unfold bs_certs_llex_product, bs_proofs_llex, P2C_bs; simpl.
+       rewrite bop_llex_product_plus_id_is_times_ann_check_correct.        
+       rewrite bop_llex_product_times_id_equals_plus_ann_check_correct.                     
+       rewrite <- bop_llex_product_left_left_absorbtive_check_correct. 
+       rewrite <- bop_llex_product_left_right_absorbtive_check_correct. 
+       rewrite <- bop_llex_product_right_left_absorbtive_check_correct. 
+       rewrite <- bop_llex_product_right_right_absorbtive_check_correct.
+       rewrite <- bop_llex_product_left_distributive_check_correct. 
+       rewrite <- bop_llex_product_right_distributive_check_correct. 
+       reflexivity. 
+Qed.   
+
+End ChecksCorrect.   
+
   
- 
+
+Theorem correct_bs_C_llex_product : ∀ (S T : Type) (bsS: A_bs_CS S) (bsT : A_bs_C T), 
+   bs_C_llex_product (A2C_bs_CS S bsS) (A2C_bs_C T bsT)
+   =
+   A2C_bs_C (S * T) (A_bs_C_llex_product S T bsS bsT). 
+Proof. intros S T bsS bsT. 
+       unfold bs_C_llex_product, A_bs_C_llex_product, A2C_bs_C, A2C_bs_CS; simpl. 
+       rewrite correct_eqv_product. 
+       rewrite <- correct_sg_certs_product. 
+       rewrite <- correct_sg_C_certs_llex. 
+       rewrite <- correct_bs_C_certs_llex_product. 
+       reflexivity. 
+Qed. 
+
+Theorem correct_bs_CS_llex_product : ∀ (S T : Type) (bsS: A_bs_CS S) (bsT : A_bs_CS T), 
+   bs_CS_llex_product (A2C_bs_CS S bsS) (A2C_bs_CS T bsT)
+   =
+   A2C_bs_CS (S * T) (A_bs_CS_llex_product S T bsS bsT). 
+Proof. intros S T bsS bsT. 
+       unfold bs_CS_llex_product, A_bs_CS_llex_product, A2C_bs_CS; simpl. 
+       rewrite correct_eqv_product.
+       rewrite <- correct_sg_CS_certs_llex.        
+       rewrite <- correct_sg_certs_product. 
+       rewrite <- correct_bs_CS_certs_llex_product.
+       reflexivity.
+       apply A_bs_CS_plus_proofs. (* broken abstraction ? *) 
+Qed. 
+
+
+
 End Verify.   
   

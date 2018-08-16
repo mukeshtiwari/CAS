@@ -53,6 +53,7 @@ CAS=\
    coq/eqv/product.v \
    coq/eqv/add_constant.v \
    coq/sg/cast_up.v \
+   coq/sg/cast_down.v \
    coq/sg/plus.v \
    coq/sg/times.v \
    coq/sg/and.v \
@@ -71,6 +72,8 @@ CAS=\
    coq/sg/add_ann.v \
    coq/sg/union.v \
    coq/sg/intersect.v \
+   coq/bs/cast_up.v \
+   coq/bs/cast_down.v \
    coq/bs/min_plus.v \
    coq/bs/max_plus.v \
    coq/bs/dual.v \
@@ -93,11 +96,11 @@ FILES=$(BASE) $(CAS)
 -include $(addsuffix .d,$(FILES))
 .SECONDARY: $(addsuffix .d,$(FILES))
 
-
 # is there a better way? 
 CMOFILES=\
 Cas.cmo \
-../ocaml/Describe.cmo
+../ocaml/Describe.cmo \
+../ocaml/Mcas.cmo
 # 
 
 .PHONY: all casml html clean

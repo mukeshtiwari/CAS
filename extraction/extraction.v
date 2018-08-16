@@ -9,6 +9,7 @@ Require Import CAS.coq.eqv.sum.
 Require Import CAS.coq.eqv.add_constant.
 
 Require Import CAS.coq.sg.cast_up.
+Require Import CAS.coq.sg.cast_down.
 Require Import CAS.coq.sg.plus.
 Require Import CAS.coq.sg.times.
 Require Import CAS.coq.sg.min.
@@ -27,6 +28,8 @@ Require Import CAS.coq.sg.add_ann.
 Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.intersect. 
 
+Require Import CAS.coq.bs.cast_up.
+Require Import CAS.coq.bs.cast_down.
 Require Import CAS.coq.bs.max_min.
 Require Import CAS.coq.bs.min_max.
 Require Import CAS.coq.bs.min_plus.
@@ -34,7 +37,14 @@ Require Import CAS.coq.bs.max_plus.
 Require Import CAS.coq.bs.dual.
 Require Import CAS.coq.bs.product_product.
 Require Import CAS.coq.bs.add_ann_add_id.
-Require Import CAS.coq.bs.add_id_add_ann. 
+Require Import CAS.coq.bs.add_id_add_ann.
+Require Import CAS.coq.bs.llex_product.
+Require Import CAS.coq.bs.left_sum.
+Require Import CAS.coq.bs.right_sum.
+Require Import CAS.coq.bs.and_or.
+Require Import CAS.coq.bs.or_and.
+Require Import CAS.coq.bs.union_intersect.
+Require Import CAS.coq.bs.intersect_union. 
 
 Require Extraction. 
 
@@ -162,6 +172,7 @@ Extraction "Cas.ml"
    sg_left
    sg_right
    sg_concat
+   sg_left_sum   
    sg_C_left_sum
    sg_CI_left_sum         
    sg_CS_left_sum      
@@ -171,7 +182,6 @@ Extraction "Cas.ml"
    sg_CS_right_sum
    sg_CI_union 
    sg_CI_intersect  
-
    (* sg casting *)
    sg_from_sg_C
    sg_from_sg_CS
@@ -181,7 +191,6 @@ Extraction "Cas.ml"
    sg_C_from_sg_CS
    sg_C_from_sg_CK
    sg_CI_from_sg_CS
-(*   
    sg_C_option_from_sg
    sg_CI_option_from_sg
    sg_CK_option_from_sg
@@ -190,44 +199,52 @@ Extraction "Cas.ml"
    sg_CI_option_from_sg_C
    sg_CK_option_from_sg_C
    sg_CS_option_from_sg_CI
-*)
   (* bi-semigroups *)
    dioid_max_plus
    dioid_min_plus
    distributive_lattice_min_max
    distributive_lattice_max_min  
+   distributive_lattice_and_or
+   distributive_lattice_or_and
+   
    lattice_dual
    distributive_lattice_dual
+
    bs_add_one
-   bs_add_zero
-   bs_product
-   dioid_product   
    lattice_add_one
-   distributive_lattice_add_one
-   dioid_add_zero
+   distributive_lattice_add_one   
+
+   bs_add_zero
    semiring_add_zero
+   dioid_add_zero   
    lattice_add_zero
    distributive_lattice_add_zero
-   .
-(*   
-   bs_min_times 
-   bs_max_times    
-   bs_or_and          
-   bs_and_or  (* lattice? *)
-   bs_union_intersect 
-   bs_intersect_union 
+   
+   bs_product
+   semiring_product
+   dioid_product
+
+   bs_left_sum
+(* bs_right_sum *) 
+
    bs_C_llex_product
    bs_CS_llex_product
-   (* casting *)
+
+   distributive_lattice_union_intersect
+   distributive_lattice_intersect_union
+
    bs_from_bs_C
-   bs_from_bs_CS
+   bs_C_from_bs_CS
+   bs_C_from_bs_CI
+   bs_C_from_semiring
+   semiring_from_dioid
+   bs_from_dioid
+   dioid_from_distributive_lattice
+   bs_from_distributive_lattice
+
    bs_C_option_from_bs
    bs_CS_option_from_bs
-   bs_from_bs_C 
-   bs_from_bs_CS 
-   bs_C_option_from_bs
-   bs_CS_option_from_bs
-*) 
+   .
 
 (**
    (* order *) 

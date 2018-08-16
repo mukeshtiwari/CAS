@@ -1,2 +1,2 @@
 #!/bin/bash
-_build/extraction/casml -I _build/src/ -I _build/extraction/
+_build/extraction/casml -I _build/src/ -I _build/ocaml/ -I _build/extraction/

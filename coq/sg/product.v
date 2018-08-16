@@ -954,23 +954,6 @@ Definition check_is_left_product : ∀ {S T : Type}
       | _, Certify_Not_Is_Left (t1, t2)  => Certify_Not_Is_Left ((s, t1), (s, t2))
       end.  
 
-(*
-Definition assert_product_not_is_left_left  : ∀ {S T : Type},  
-       assert_nontrivial (S := T) -> assert_not_is_left (S := S) -> assert_not_is_left (S := (S * T)) 
-:= λ {S T} ntT nlS,  
-   match certify_nontrivial_witness ntT, nlS with 
-   | Certify_Witness t, Assert_Not_Is_Left (s1, s2) => Assert_Not_Is_Left ((s1, t), (s2, t))
-   end. 
-
-Definition assert_product_not_is_right_right  : ∀ {S T : Type},  
-       assert_nontrivial (S := S) -> assert_not_is_right (S := T) -> assert_not_is_right (S := (S * T)) 
-:= λ {S T} ntS nrT,  
-   match certify_nontrivial_witness ntS, nrT with 
-   | Certify_Witness s, Assert_Not_Is_Right (t1, t2) => Assert_Not_Is_Right ((s, t1), (s, t2))
-   end.
-
-
-*) 
 
 Definition check_is_right_product : ∀ {S T : Type} 
              (s : S) 
@@ -1441,8 +1424,17 @@ Lemma correct_check_selective_commutative_product :
                               (inl (facts.bop_commutative_implies_not_is_left S rS bS wS f Pf syS trnS pS))
                               (inl (facts.bop_commutative_implies_not_is_left T rT bT wT g Pg syT trnT pT))
                               (inl (facts.bop_commutative_implies_not_is_left S rS bS wS f Pf syS trnS pS), 
-                               inl (facts.bop_commutative_implies_not_is_right S rS bS wS f Pf syS trnS pS)))). 
-Admitted. 
+                               inl (facts.bop_commutative_implies_not_is_right S rS bS wS f Pf syS trnS pS)))).
+Admitted.
+(*
+Proof. intros syS syT trnS trnT pS pT. unfold p2c_selective_check.
+       unfold check_selective_product.
+       unfold cef_commutative_implies_not_is_left, cef_commutative_implies_not_is_right.
+       case_eq(rS (bS (f wS) wS) wS); intro J1; case_eq(rT (bT (g wT) wT) wT); intro J2.
+       unfold bop_commutative_implies_not_is_left.
+       unfold cef_commutative_implies_not_is_left, cef_commutative_implies_not_is_right.
+       unfold bop_product_not_selective. simpl.
+*)        
 
 Lemma correct_check_left_cancel_product : 
       ∀ (dS : bop_left_cancellative_decidable S rS bS) (dT : bop_left_cancellative_decidable T rT bT),

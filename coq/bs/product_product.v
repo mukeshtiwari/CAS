@@ -1103,7 +1103,9 @@ Proof. intros S T bsS bsT.
        rewrite <- correct_sg_CI_certs_product. 
        rewrite <- correct_semiring_certs_product. 
        reflexivity. 
-Qed. 
+Qed.
+
+(* lattice? *) 
 
 End Verify.   
   

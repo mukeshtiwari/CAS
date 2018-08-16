@@ -26,6 +26,16 @@ Record bs_CS {S : Type} := {
 ; bs_CS_ast         : ast_bs_CS
 }.
 
+Record bs_CI {S : Type} := {
+  bs_CI_eqv         : eqv (S := S) 
+; bs_CI_plus        : binary_op S 
+; bs_CI_times       : binary_op S 
+; bs_CI_plus_certs  : sg_CI_certificates (S := S) 
+; bs_CI_times_certs : sg_certificates (S := S)    
+; bs_CI_certs       : bs_certificates (S := S) 
+; bs_CI_ast         : ast_bs_CI
+}.
+
 Record bs_C {S : Type} := {
   bs_C_eqv         : @eqv S  
 ; bs_C_plus        : binary_op S 

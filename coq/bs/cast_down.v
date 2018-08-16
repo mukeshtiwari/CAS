@@ -1,12 +1,11 @@
 Require Import CAS.coq.common.base. 
-Require Import CAS.code.cas.sg.cast_down.
+Require Import CAS.coq.sg.cast_down.
 
 Section Theory.
 
 End Theory.
 
 Section ACAS.
-
 
 Definition A_bs_C_option_from_bs : ∀ (S : Type),  A_bs S -> option (A_bs_C S) 
 := λ S s, 
@@ -49,7 +48,7 @@ Section CAS.
 
 Definition bs_C_option_from_bs : ∀ {S : Type},  bs (S := S) -> option (bs_C (S := S)) 
 := λ {S} s, 
-   match sg_C_certs_option_from_sg_certs (bs_plus_certs s) with 
+   match sg_C_certs_option_from_sg_certs S (bs_plus_certs s) with 
    | None => None
    | Some sg_C_p => Some (
      {| 
@@ -63,9 +62,9 @@ Definition bs_C_option_from_bs : ∀ {S : Type},  bs (S := S) -> option (bs_C (S
     |})
    end. 
 
-Definition bs_CS_option_from_bs : ∀ {S : Type},  bs (S := S) -> option (bs_CS (S := S)) 
+Definition bs_CS_option_from_bs : ∀ {S : Type},  @bs S -> option (@bs_CS S) 
 := λ {S} s, 
-   match sg_CS_certs_option_from_sg_certs (bs_plus_certs s) with 
+   match sg_CS_certs_option_from_sg_certs S( bs_plus_certs s) with 
    | None => None
    | Some sg_CS_p => Some (
      {| 
