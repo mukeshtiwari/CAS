@@ -10,13 +10,16 @@ Require Import CAS.coq.common.bs_properties.
 Record A_eqv (S : Type) := {
   A_eqv_eq          : brel S
 ; A_eqv_proofs      : eqv_proofs S A_eqv_eq
-                                   
-; A_eqv_witness     : S         (* not empty *) 
-; A_eqv_new         : S -> S
-; A_eqv_not_trivial : brel_not_trivial S A_eqv_eq A_eqv_new 
 
+(* put "cardinality" info in a separate record? *)                                  
+; A_eqv_witness       : S         (* not empty *) 
+; A_eqv_new           : S -> S
+; A_eqv_not_trivial   : brel_not_trivial S A_eqv_eq A_eqv_new
+; A_eqv_exactly_two_d : brel_exactly_two_decidable S A_eqv_eq 
+
+(* another record for this stuff? *)                                                    
 ; A_eqv_data        : S -> data (* for printing in ocaml-land *) 
-; A_eqv_rep         : S -> S    (* for reductions ??? *) 
+; A_eqv_rep         : S -> S    (* for reductions? need proved properties for this? *) 
 ; A_eqv_ast         : ast_eqv 
 }.
 

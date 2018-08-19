@@ -34,12 +34,23 @@ Definition P2C_eqv : ∀ (S : Type) (r : brel S), eqv_proofs S r -> @eqv_certifi
   |}.
  *)
 
+
+Definition p2c_exactly_two_check : ∀ (S : Type) (eq : brel S), 
+       brel_exactly_two_decidable S eq -> @check_exactly_two S 
+:= λ S eq d, 
+   match d with
+   | inl (existT _ p _) => Certify_Exactly_Two p
+   | inr (existT _ f _) => Certify_Not_Exactly_Two f
+   end. 
+
 Definition A2C_eqv : ∀ (S : Type), A_eqv S -> @eqv S 
 := λ S E,
+let eq := A_eqv_eq S E in   
 {| 
-  eqv_eq      := A_eqv_eq S E
+  eqv_eq      := eq 
 ; eqv_witness := A_eqv_witness S E
-; eqv_new     := A_eqv_new S E                    
+; eqv_new     := A_eqv_new S E
+; eqv_exactly_two_d := p2c_exactly_two_check S eq (A_eqv_exactly_two_d S E)                           
 ; eqv_data    := A_eqv_data S E
 ; eqv_rep     := A_eqv_rep S E
 ; eqv_ast     := A_eqv_ast S E
@@ -53,7 +64,7 @@ Definition A2C_eqv : ∀ (S : Type), A_eqv S -> @eqv S
 Definition p2c_total_check : ∀ (S : Type) (lte : brel S), 
        brel_total_decidable S lte -> @check_total S 
 := λ S lte d, 
-   match d with 
+  match d with
    | inl _             => @Certify_Total S
    | inr p => Certify_Not_Total (projT1 p)   
    end. 

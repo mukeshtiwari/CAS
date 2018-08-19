@@ -28,7 +28,14 @@ Qed.
 Lemma brel_eq_bool_congruence : brel_congruence bool brel_eq_bool brel_eq_bool. 
 Proof. unfold brel_congruence. 
        induction s; induction t; induction u; induction v; intros H Q; auto. 
-Qed. 
+Qed.
+
+
+Lemma brel_eq_bool_exactly_two : brel_exactly_two bool brel_eq_bool.
+Proof. exists (true, false). compute. split; auto.
+       intro a. destruct a; auto. 
+Defined.
+
 
 End Theory.
 
@@ -51,7 +58,7 @@ Definition A_eqv_bool : A_eqv bool
     ; A_eqv_witness     := true
     ; A_eqv_new         := negb                          
     ; A_eqv_not_trivial := brel_eq_bool_not_trivial
-
+    ; A_eqv_exactly_two_d   := inl (brel_eq_bool_exactly_two)                              
     ; A_eqv_data   := λ b, DATA_bool b 
     ; A_eqv_rep    := λ b, b
     ; A_eqv_ast    := Ast_eqv_bool 
@@ -66,7 +73,8 @@ Definition eqv_bool : @eqv bool
 := {| 
       eqv_eq    := brel_eq_bool 
     ; eqv_witness := true 
-    ; eqv_new   := negb 
+    ; eqv_new   := negb
+    ; eqv_exactly_two_d := Certify_Exactly_Two (true, false) 
     ; eqv_data  := λ b, DATA_bool b 
     ; eqv_rep   := λ b, b 
     ; eqv_ast   := Ast_eqv_bool 

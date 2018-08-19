@@ -61,7 +61,7 @@ let sg_llex m n =
 
 let sg_union c eqv     = Some (Cas.sg_from_sg_CI (Cas.sg_CI_union (explode c) eqv)) 
 let sg_intersect c eqv = Some (Cas.sg_from_sg_CI (Cas.sg_CI_intersect (explode c) eqv)) 
-
+let sg_lift sg         = mmap Cas.sg_lift sg
 
 (* bi-semigroup *) 
 

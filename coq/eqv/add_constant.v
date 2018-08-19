@@ -1,5 +1,6 @@
 Require Import Coq.Bool.Bool.    
-Require Import CAS.coq.common.base. 
+Require Import CAS.coq.common.base.
+Require Import CAS.coq.theory.facts. 
 
 Section Theory.
 
@@ -41,7 +42,28 @@ Proof. intros rep P [a | b]. simpl. reflexivity. simpl. apply P. Qed.
 
 Lemma brel_add_constant_rep_idempotent : ∀ (rep : unary_op S), brel_rep_idempotent S rS rep →
                                        brel_rep_idempotent (with_constant S) (c <+> rS) (uop_with_constant rep).
-Proof. intros rep P [a | b]; simpl. reflexivity. apply P. Qed. 
+Proof. intros rep P [a | b]; simpl. reflexivity. apply P. Qed.
+
+Lemma brel_add_constant_at_least_three (s : S) (f : S -> S) :
+  brel_not_trivial S rS f ->
+  brel_at_least_three (with_constant S) (c <+> rS).
+Proof. intro ntS. 
+       exists (inl c, (inr s, inr (f s))).
+       destruct (ntS s) as [LS RS].        
+       compute. rewrite LS; split; auto. 
+Defined. 
+
+
+Lemma brel_add_constant_not_exactly_two (s : S) (f : S -> S) :
+  brel_not_trivial S rS f ->
+  brel_not_exactly_two (with_constant S) (c <+> rS).
+Proof. intro ntS.
+       apply brel_at_least_thee_implies_not_exactly_two.
+       apply brel_add_constant_symmetric; auto. 
+       apply brel_add_constant_transitive; auto.
+       apply (brel_add_constant_at_least_three s f); auto. 
+Defined.
+
 
 End Theory.
 
@@ -59,14 +81,22 @@ Definition eqv_proofs_add_constant : ∀ (S : Type) (r : brel S) (c : cas_consta
 
 
 Definition A_eqv_add_constant : ∀ (S : Type),  A_eqv S -> cas_constant -> A_eqv (with_constant S) 
-:= λ S eqvS c, 
+  := λ S eqvS c,
+  let eq  := A_eqv_eq S eqvS in
+  let eqP := A_eqv_proofs S eqvS in
+  let wS  := A_eqv_witness S eqvS in
+  let f   := A_eqv_new S eqvS in
+  let ntS := A_eqv_not_trivial S eqvS in
+  let symS := A_eqv_symmetric S eq eqP in
+  let trnS := A_eqv_transitive S eq eqP in   
    {| 
-      A_eqv_eq     := brel_add_constant (A_eqv_eq S eqvS) c
-    ; A_eqv_proofs := eqv_proofs_add_constant S (A_eqv_eq S eqvS) c (A_eqv_proofs S eqvS)
+      A_eqv_eq     := brel_add_constant eq c
+    ; A_eqv_proofs := eqv_proofs_add_constant S eq c eqP
 
     ; A_eqv_witness := inl c
-    ; A_eqv_new     := λ (d : with_constant S), match d with | inl _ => inr _ (A_eqv_witness S eqvS)  | inr _ => inl S c end
-    ; A_eqv_not_trivial := brel_add_constant_not_trivial S (A_eqv_eq S eqvS) c (A_eqv_witness S eqvS)
+    ; A_eqv_new     := λ (d : with_constant S), match d with | inl _ => inr wS  | inr _ => inl c end
+    ; A_eqv_not_trivial   := brel_add_constant_not_trivial S eq c wS 
+    ; A_eqv_exactly_two_d := inr (brel_add_constant_not_exactly_two S eq c symS trnS wS f ntS)
 
     ; A_eqv_data   := λ d, (match d with inl s => DATA_inl(DATA_string s) | inr a => DATA_inr (A_eqv_data S eqvS a) end)
     ; A_eqv_rep    := λ d, (match d with inl s => inl _ s  | inr s => inr _ (A_eqv_rep S eqvS s) end )
@@ -80,12 +110,16 @@ End ACAS.
 Section CAS.
 
 Definition eqv_add_constant : ∀ {S : Type},  eqv (S := S) -> cas_constant -> @eqv (with_constant S)
-:= λ {S} eqvS c, 
+  := λ {S} eqvS c,
+  let s  := eqv_witness eqvS in
+  let f  := eqv_new eqvS in
+  let r := brel_add_constant (eqv_eq eqvS) c in 
    {| 
-     eqv_eq    := brel_add_constant (eqv_eq eqvS) c
+     eqv_eq       := r
     ; eqv_witness := inl c 
-    ; eqv_new := (λ (d : with_constant S), match d with | inl _ => inr (eqv_witness eqvS) | inr _ => inl c end) 
-    ; eqv_data  := λ d, (match d with inl s => DATA_inl(DATA_string s) | inr a => DATA_inr (eqv_data eqvS a) end)
+    ; eqv_new     := (λ (d : with_constant S), match d with | inl _ => inr (eqv_witness eqvS) | inr _ => inl c end) 
+    ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 r (inl c) (inr s) (inr (f s)))
+    ; eqv_data    := λ d, (match d with inl s => DATA_inl(DATA_string s) | inr a => DATA_inr (eqv_data eqvS a) end)
     ; eqv_rep   := λ d, (match d with inl s => inl _ s  | inr s => inr _ (eqv_rep eqvS s) end )
     ; eqv_ast   := Ast_eqv_add_constant (c, eqv_ast eqvS)
    |}. 

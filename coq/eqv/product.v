@@ -188,7 +188,34 @@ Lemma brel_product_not_total (s : S) (f : S -> S) (t : T):
 Proof. intros Pf. exists ((s, t), (f s, t)). compute. 
        destruct (Pf s) as [sL sR]. 
        rewrite sL, sR. auto. 
+Defined.
+
+Lemma brel_product_at_least_three (s : S) (f : S -> S) (t : T) (g : T -> T):
+  brel_not_trivial S rS f ->
+  brel_not_trivial T rT g -> 
+  brel_at_least_three (S * T) (rS <*> rT).
+Proof. intros ntS ntT. 
+       exists ((s , t), ((f s, t), (s, g t))).
+       destruct (ntS s) as [LS RS]. destruct (ntT t) as [LT RT].       
+       compute. rewrite LS, LT, RS; split; auto. rewrite (refS s); auto. 
 Defined. 
+
+
+Lemma brel_product_not_exactly_two (s : S) (f : S -> S) (t : T) (g : T -> T):
+  brel_not_trivial S rS f ->
+  brel_not_trivial T rT g ->
+  brel_symmetric S rS ->
+  brel_transitive S rS ->
+  brel_symmetric T rT ->
+  brel_transitive T rT ->     
+  brel_not_exactly_two (S * T) (rS <*> rT).
+Proof. intros ntS ntT symS trnS symT trnT.
+       apply brel_at_least_thee_implies_not_exactly_two.
+       apply brel_product_symmetric; auto. 
+       apply brel_product_transitive; auto.
+       apply (brel_product_at_least_three s f t g); auto. 
+Defined.
+
 
 Close Scope nat_scope. 
 
@@ -579,47 +606,58 @@ Definition eqv_proofs_product :
 |}.
 
 
+
 Definition A_eqv_product : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S * T) 
-:= λ S T eqvS eqvT, 
+:= λ S T eqvS eqvT,
+  let eqS := A_eqv_eq S eqvS in
+  let s  := A_eqv_witness S eqvS in
+  let f  := A_eqv_new S eqvS in
+  let ntS := A_eqv_not_trivial S eqvS in
+  let eqT := A_eqv_eq T eqvT in
+  let t  := A_eqv_witness T eqvT in
+  let g  := A_eqv_new T eqvT in
+  let ntT := A_eqv_not_trivial T eqvT in  
+  let eqPS := A_eqv_proofs S eqvS in
+  let eqPT := A_eqv_proofs T eqvT in
+  let refS := A_eqv_reflexive S eqS eqPS in    
+  let symS := A_eqv_symmetric S eqS eqPS in
+  let trnS := A_eqv_transitive S eqS eqPS in
+  let refT := A_eqv_reflexive T eqT eqPT in  
+  let symT := A_eqv_symmetric T eqT eqPT in
+  let trnT := A_eqv_transitive T eqT eqPT in
    {| 
-        A_eqv_eq     := brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) 
-      ; A_eqv_proofs := eqv_proofs_product S T
-                           (A_eqv_eq S eqvS)                                           
-                           (A_eqv_eq T eqvT)
-                           (A_eqv_proofs S eqvS)
-                           (A_eqv_proofs T eqvT) 
-
-    ; A_eqv_witness := (A_eqv_witness S eqvS, A_eqv_witness T eqvT)
-    ; A_eqv_new   := λ p, let (s, t) := p in ((A_eqv_new S eqvS) s, t)
-    ; A_eqv_not_trivial := brel_product_not_trivial S T
-                              (A_eqv_eq S eqvS)                                                                                               
-                              (A_eqv_eq T eqvT)                                                    
-                              (A_eqv_reflexive T (A_eqv_eq T eqvT) (A_eqv_proofs T eqvT))
-                              (A_eqv_new S eqvS)
-                              (A_eqv_not_trivial S eqvS)
-
+        A_eqv_eq     := brel_product eqS eqT 
+      ; A_eqv_proofs := eqv_proofs_product S T eqS eqT eqPS eqPT 
+    ; A_eqv_witness  := (s, t)
+    ; A_eqv_new      := λ p, let (s, t) := p in (f s, t)
+    ; A_eqv_not_trivial   := brel_product_not_trivial S T eqS eqT refT f ntS 
+    ; A_eqv_exactly_two_d := inr (brel_product_not_exactly_two S T eqS eqT refS s f t g ntS ntT symS trnS symT trnT)                         
     ; A_eqv_data  := λ p, DATA_pair (A_eqv_data S eqvS (fst p), A_eqv_data T eqvT (snd p))
     ; A_eqv_rep   := λ p, (A_eqv_rep S eqvS (fst p), A_eqv_rep T eqvT (snd p))
 
     ; A_eqv_ast   := Ast_eqv_product (A_eqv_ast _ eqvS, A_eqv_ast _ eqvT)
-   |}. 
-
-  
-
+   |}.
 
 End ACAS.
 
 Section CAS.
 
-
 Definition eqv_product : ∀ {S T : Type},  @eqv S -> @eqv T -> @eqv (S * T)
-:= λ {S T} eqvS eqvT, 
+:= λ {S T} eqvS eqvT,
+  let eqS := eqv_eq eqvS in
+  let eqT := eqv_eq eqvT in
+  let s   := eqv_witness eqvS in
+  let f   := eqv_new eqvS in  
+  let t   := eqv_witness eqvT in
+  let g   := eqv_new eqvT in    
+  let r   := brel_product eqS eqT in 
    {| 
-     eqv_eq    := brel_product (eqv_eq eqvS) (eqv_eq eqvT) 
-    ; eqv_witness := (eqv_witness eqvS, eqv_witness eqvT)
-    ; eqv_new     := λ (p : S * T), let (x, y) := p in ((eqv_new eqvS) x, y)
-    ; eqv_data  := λ p, DATA_pair (eqv_data eqvS (fst p), eqv_data eqvT (snd p))
-    ; eqv_rep   := λ p, (eqv_rep eqvS (fst p), eqv_rep eqvT (snd p))
+     eqv_eq       := r
+    ; eqv_witness := (s, t)
+    ; eqv_new     := λ (p : S * T), let (x, y) := p in (f x, y)
+    ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 r (s , t) (f s, t) (s, g t))
+    ; eqv_data          := λ p, DATA_pair (eqv_data eqvS (fst p), eqv_data eqvT (snd p))
+    ; eqv_rep           := λ p, (eqv_rep eqvS (fst p), eqv_rep eqvT (snd p))
     ; eqv_ast  := Ast_eqv_product (eqv_ast eqvS, eqv_ast eqvT)
    |}. 
 

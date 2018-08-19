@@ -219,7 +219,26 @@ Proof. intros S r ref a.  induction t; intros s; simpl.
        apply andb_is_true_right. split.
           apply ref.
           apply IHt. 
-Qed. 
+Qed.
+
+Lemma brel_list_at_least_three : ∀ (S : Type) (s : S) (r : brel S),
+  brel_at_least_three (list S) (brel_list r).
+Proof. intros S s r. exists (nil, (s :: nil, s :: s :: nil)). 
+       compute; split; auto. case_eq(r s s); intro J; auto. 
+Defined. 
+
+
+Lemma brel_list_not_exactly_two : ∀ (S : Type) (s : S) (r : brel S),
+  brel_symmetric S r ->
+  brel_transitive S r ->     
+  brel_not_exactly_two (list S) (brel_list r).
+Proof. intros S s r symS trnS. apply brel_at_least_thee_implies_not_exactly_two.
+       apply brel_list_symmetric; auto. 
+       apply brel_list_transitive; auto.
+       apply brel_list_at_least_three; auto. 
+Defined.
+
+
 
 
 End Theory.
@@ -242,35 +261,39 @@ Definition eqv_proofs_brel_list : ∀ (S : Type) (r : brel S), eqv_proofs S r �
 
 
 Definition A_eqv_list : ∀ (S : Type),  A_eqv S -> A_eqv (list S) 
-:= λ S eqvS, 
+  := λ S eqvS,
+  let eq := A_eqv_eq S eqvS in
+  let wS := A_eqv_witness S eqvS in
+  let f  := A_eqv_new S eqvS in
+  let nt := A_eqv_not_trivial S eqvS in
+  let eqP  := A_eqv_proofs S eqvS in 
+  let symS := A_eqv_symmetric S eq eqP in
+  let trnS := A_eqv_transitive S eq eqP in     
    {| 
-      A_eqv_eq     := brel_list (A_eqv_eq S eqvS)
-    ; A_eqv_proofs := eqv_proofs_brel_list S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS)                                                                   
-
-    ; A_eqv_witness := nil 
-    ; A_eqv_new     := λ (l : list S), (A_eqv_witness S eqvS) :: l
-    ; A_eqv_not_trivial := brel_list_not_trivial S
-                             (A_eqv_eq S eqvS)
-                             (A_eqv_witness S eqvS)
-                             (A_eqv_new S eqvS)
-                             (A_eqv_symmetric S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS))
-                             (A_eqv_not_trivial S eqvS)
-
-    ; A_eqv_data   := λ l, DATA_list (List.map (A_eqv_data S eqvS) l)
-    ; A_eqv_rep    := λ l, List.map (A_eqv_rep S eqvS) l
-    ; A_eqv_ast    := Ast_eqv_list (A_eqv_ast S eqvS)
+      A_eqv_eq     := brel_list eq 
+    ; A_eqv_proofs := eqv_proofs_brel_list S eq eqP 
+    ; A_eqv_witness       := nil 
+    ; A_eqv_new           := λ (l : list S), wS :: l
+    ; A_eqv_not_trivial   := brel_list_not_trivial S eq wS f symS nt
+    ; A_eqv_exactly_two_d := inr (brel_list_not_exactly_two S wS eq symS trnS)                              
+    ; A_eqv_data          := λ l, DATA_list (List.map (A_eqv_data S eqvS) l)
+    ; A_eqv_rep           := λ l, List.map (A_eqv_rep S eqvS) l
+    ; A_eqv_ast           := Ast_eqv_list (A_eqv_ast S eqvS)
    |}. 
 
 End ACAS.
 
 Section CAS.
 
-Definition eqv_list : ∀ {S : Type},  eqv (S := S) -> @eqv (list S)
-:= λ {S} eqvS, 
+Definition eqv_list : ∀ {S : Type},  @eqv S -> @eqv (list S)
+:= λ {S} eqvS,
+  let eq := eqv_eq eqvS in
+  let wS := eqv_witness eqvS in  
    {| 
-      eqv_eq    := brel_list (eqv_eq eqvS) 
+      eqv_eq    := brel_list eq 
     ; eqv_witness := nil 
-    ; eqv_new := (λ (l : list S), (eqv_witness eqvS) :: l)
+    ; eqv_new := (λ (l : list S), wS :: l)
+    ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 (brel_list eq) nil (wS :: nil)  (wS :: wS :: nil))                   
     ; eqv_data  := λ l, DATA_list (List.map (eqv_data eqvS) l)
     ; eqv_rep   := λ l, List.map (eqv_rep eqvS) l
     ; eqv_ast   := Ast_eqv_list (eqv_ast eqvS)
@@ -282,8 +305,11 @@ Section Verify.
 
 Theorem correct_eqv_list : ∀ (S : Type) (E : A_eqv S),  
          eqv_list (A2C_eqv S E) = A2C_eqv (list S) (A_eqv_list S E). 
-Proof. intros S E. destruct E. compute . reflexivity. Qed. 
-  
+Proof. intros S E.
+       unfold eqv_list, A_eqv_list, A2C_eqv; simpl.
+       unfold brel_list_not_exactly_two. unfold brel_at_least_thee_implies_not_exactly_two. 
+       reflexivity.
+Qed.        
  
 End Verify.   
   

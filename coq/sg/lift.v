@@ -1,4 +1,4 @@
-Require Import Coq.Bool.Bool.
+
 Require Import CAS.coq.common.base. 
 Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.theory.in_set.
@@ -19,9 +19,7 @@ Variable symS  : brel_symmetric S rS.
 Variable bcong : bop_congruence S rS bS. 
 Variable assS : bop_associative S rS bS. 
 
-
-
-
+(* MOVE *) 
 Lemma brel_set_intro_false : ∀ (X Y : finite_set S), 
      {s : S & (in_set rS X s = true) * (in_set rS Y s = false)} → brel_set rS X Y = false. 
 Proof. intros X Y [ s [T F]]. 
@@ -31,7 +29,6 @@ Proof. intros X Y [ s [T F]].
           rewrite K in F. discriminate. 
           reflexivity. 
 Defined.
-
 
 (* end MOVE *) 
 
@@ -379,10 +376,7 @@ Qed.
 
 Lemma bop_lift_not_commutative : 
      bop_not_commutative S rS bS -> bop_not_commutative (finite_set S) (brel_set rS) (bop_lift rS bS). 
-Proof. intros [[x y] P]. 
-       exists ((x :: nil), (y :: nil)).
-       compute. rewrite P; auto. 
-Qed. 
+Proof. intros [[x y] P]. exists ((x :: nil), (y :: nil)). compute. rewrite P; auto. Defined. 
 
 
 Lemma bop_lift_exists_ann : bop_exists_ann (finite_set S) (brel_set rS) (bop_lift rS bS). 
@@ -491,14 +485,15 @@ Defined.
 Lemma bop_lift_not_idempotent : 
     bop_not_selective S rS bS -> 
     bop_not_idempotent (finite_set S) (brel_set rS) (bop_lift rS bS). 
-Proof. intros [[a b] [L R]]. exists (a :: b :: nil). 
+Proof. intros nsel. exists ((fst (projT1 nsel)) :: (snd (projT1 nsel)) :: nil).
+       destruct nsel as [[a b] [L R]]. simpl. 
        apply brel_set_intro_false. 
        exists (bS a b). split.
        apply in_set_bop_lift_intro.
        apply in_set_cons_intro; auto. 
        apply in_set_cons_intro; auto. right. apply in_set_cons_intro; auto. 
        compute. rewrite L. rewrite R; auto. 
-Qed. 
+Defined. 
 
 Lemma bop_lift_idempotent : 
     bop_selective S rS bS -> 
@@ -547,16 +542,16 @@ Proof. exists (s :: nil, (s :: nil, nil)). compute; auto. Defined.
 
 Lemma bop_lift_not_left_cancellative (s : S) (f : S -> S) (ntS : brel_not_trivial S rS f) :
          bop_not_left_cancellative (finite_set S) (brel_set rS) (bop_lift rS bS).
-Proof. destruct (ntS s) as [L R].
-       exists (nil, (s :: nil, (f s) :: nil)).
+Proof. exists (nil, (s :: nil, (f s) :: nil)).
+       destruct (ntS s) as [L R].
        compute; auto.
        rewrite L; auto. 
 Defined. 
 
 Lemma bop_lift_not_right_cancellative (s : S) (f : S -> S) (ntS : brel_not_trivial S rS f) :
         bop_not_right_cancellative (finite_set S) (brel_set rS) (bop_lift rS bS).
-Proof. destruct (ntS s) as [L R].
-       exists (nil, (s :: nil, (f s) :: nil)).
+Proof. exists (nil, (s :: nil, (f s) :: nil)).
+       destruct (ntS s) as [L R].
        compute; auto.
        rewrite L; auto. 
 Defined. 
@@ -751,15 +746,6 @@ Proof. unfold bop_is_right. unfold bop_selective.
        apply bop_list_product_is_right_intro; auto. 
 Qed. 
 
-
-Definition exactly_two (S : Type) (r : brel S) (s t : S)  
-  := (r s t = false) * (∀ (a : S), (r s a = true) + (r t a = true)).
-
-Definition brel_exactly_two (S : Type) (r : brel S) 
-  := { z : S * S & match z with (s, t) =>  exactly_two S r s t end}.
-
-Definition brel_not_exactly_two (S : Type) (r : brel S) 
-  := ∀ (s t : S), (r s t = true) + {a : S &  (r s a = false) * (r t a = false)}.
 
 Lemma brel_set_exactly_two_implies_four_subsets : ∀ (s t : S), exactly_two S rS s t -> ∀ (X : finite_set S),
       (brel_set rS X nil = true) +
@@ -975,6 +961,11 @@ Qed.
 
 Lemma bop_lift_selective_v3 :  bop_idempotent S rS bS -> brel_exactly_two S rS -> bop_selective (finite_set S) (brel_set rS) (bop_lift rS bS).
 Proof. intros idem [[s t] P] X Y.
+
+       assert (cong_set := brel_set_congruence S rS refS symS tranS).
+       assert (ref_set := brel_set_reflexive S rS refS symS).
+       assert (sym_set := brel_set_symmetric S rS).
+       assert (trn_set := brel_set_transitive S rS refS symS tranS).       
        
        assert (Ls := idem s). assert (Rs := symS _ _ Ls). 
        assert (Lt := idem t). assert (Rt := symS _ _ Lt).        
@@ -987,7 +978,6 @@ Proof. intros idem [[s t] P] X Y.
        
        destruct KX as [[[KX | KX] | KX] | KX]; destruct KY as [[[KY | KY] | KY] | KY];
        rewrite (testX _ _ _ _ KX KY); rewrite (testY _ _ _ _ KX KY).
-       
            
        compute; auto.
        compute; auto.
@@ -1000,64 +990,22 @@ Proof. intros idem [[s t] P] X Y.
        destruct Kst as [Kst | Kst].
           rewrite Kst. rewrite (symS _ _ Kst). left; auto.
           rewrite Kst. rewrite (symS _ _ Kst). right; auto.
-       destruct Kst as [Kst | Kst].
-          left. apply brel_set_intro; split; apply brel_subset_intro; auto; intros a H.
-          apply in_set_bop_lift_elim in H.
-          destruct H as [x [y [[P1 P2] P3]]].
-          compute. compute in P1. apply in_set_cons_elim in P2; auto.
-          case_eq(rS x s); intro P4. destruct P2 as [P2 | P2].
-          apply symS in P4. assert (P5 := bcong _ _ _ _ P4 P2). apply symS in P5. 
-          assert (P6 := tranS _ _ _ P3 P5).
-          assert (P7 := tranS _ _ _ P6 Ls). rewrite P7; auto.
-          compute in P2. case_eq(rS y t); intro P5.
-          assert (P6 := bcong _ _ _ _ P4 P5).
-          assert (P7 := tranS _ _ _ P3 P6). apply symS in Kst. 
-          assert (P8 := tranS _ _ _ P7 Kst). rewrite P8; auto.
-          assert (P6 : rS y s = true). destruct (Q y) as [L | R]. 
-          apply symS. exact L.  apply symS in R. rewrite R in P5. discriminate P5. 
-          assert (P7 := bcong _ _ _ _ P4 P6).
-          assert (P8 := tranS _ _ _ P3 P7).
-          assert (P9 := tranS _ _ _ P8 Ls). rewrite P9; auto. 
-          rewrite P4 in P1. discriminate P1.
-          (**)
-          apply in_set_singleton_elim in H; auto.
-          unfold bop_lift. apply in_set_uop_duplicate_elim_intro; auto. 
-          unfold bop_list_product_left.
-          apply in_set_concat_intro. left.
-          unfold ltran_list_product.
-          apply in_set_cons_intro; auto. left.
-          apply (tranS _ _ _ Ls H). 
-          (* * * *)
-          right. apply brel_set_intro; split; apply brel_subset_intro; auto; intros a H.
-          apply in_set_bop_lift_elim in H.
-          destruct H as [x [y [[P1 P2] P3]]].
-          compute. compute in P1. apply in_set_cons_elim in P2; auto.
-          case_eq(rS x s); intro P4. destruct P2 as [P2 | P2].
-          apply symS in P4. assert (P5 := bcong _ _ _ _ P4 P2). apply symS in P5. 
-          assert (P6 := tranS _ _ _ P3 P5).
-          assert (P7 := tranS _ _ _ P6 Ls). rewrite P7; auto.
-          compute in P2. case_eq(rS y t); intro P5.
-          assert (P6 := bcong _ _ _ _ P4 P5).
-          assert (P7 := tranS _ _ _ P3 P6). apply symS in Kst. 
-          assert (P8 := tranS _ _ _ P7 Kst). rewrite P8; auto. 
-          (* same up to here *)
-          case_eq(rS a s); intro P9; auto. 
-          rewrite P5 in P2. discriminate P2.
-          rewrite P4 in P1. discriminate P1.          
-          (**)
-          apply in_set_cons_elim in H; auto.
-          destruct H as [H | H].
-          apply (in_set_bop_lift_intro_v2 _ _ a s s ); auto.
-          compute; rewrite refS; auto.
-          compute. rewrite refS; auto. 
-          apply symS in H. exact (tranS _ _ _ H Rs).
-          apply in_set_singleton_elim in H; auto. 
-          apply (in_set_bop_lift_intro_v2 _ _ a s t ); auto.
-          compute; rewrite refS; auto.
-          compute. rewrite refS. case_eq(rS t s); intro J1; auto. 
-          apply symS in H. exact (tranS _ _ _ H Kst).
-          
-       admit. 
+
+
+       assert (J1 := bop_lift_compute_1_by_2 s s t).
+       destruct Kts as [Kts | Kts]; destruct Kst as [Kst | Kst].
+          left. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: nil))).
+                rewrite J2. compute. rewrite Kst. rewrite (symS _ _ Kst).  rewrite Ls, Rs. auto. 
+          right. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: t :: nil))).
+                 rewrite J2. compute. rewrite Kst. rewrite (symS _ _ Kst).  rewrite Ls, Rs.
+                 case_eq(rS (bS s t) s); intro J3; case_eq(rS t (bS s s)); intro J4; auto.
+          left. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: nil))).
+                rewrite J2. compute. rewrite Kst. rewrite (symS _ _ Kst).  rewrite Ls, Rs. auto. 
+          right. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: t :: nil))).
+                 rewrite J2. compute. rewrite Kst. rewrite (symS _ _ Kst).  rewrite Ls, Rs.
+                 case_eq(rS (bS s t) s); intro J3; case_eq(rS t (bS s s)); intro J4; auto. 
+
+       compute. right. auto. 
 
        compute. destruct Kts as [Kts | Kts].
           rewrite Kts. rewrite (symS _ _ Kts). right; auto.
@@ -1065,17 +1013,66 @@ Proof. intros idem [[s t] P] X Y.
 
        compute. rewrite Lt, Rt; auto. 
 
-       admit. 
+       assert (J1 := bop_lift_compute_1_by_2 t s t).
+       destruct Kts as [Kts | Kts]; destruct Kst as [Kst | Kst].
+          right. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: t :: nil))).
+                 rewrite J2. compute. rewrite Kts. rewrite (symS _ _ Kts).  rewrite Lt, Rt.
+                 case_eq(rS (bS t t) s); intro J3; case_eq(rS t (bS t s)); intro J4; auto. 
+          right. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: t :: nil))).
+                 rewrite J2. compute. rewrite Kts. rewrite (symS _ _ Kts).  rewrite Lt, Rt.
+                 case_eq(rS (bS t t) s); intro J3; case_eq(rS t (bS t s)); intro J4; auto. 
+          left. assert (J2 := cong_set _ _ _ _ J1 (ref_set (t :: nil))).
+                rewrite J2. compute. rewrite Kts. rewrite (symS _ _ Kts).  rewrite Lt. auto. 
+          left. assert (J2 := cong_set _ _ _ _ J1 (ref_set (t :: nil))).
+                rewrite J2. compute. rewrite Kts. rewrite (symS _ _ Kts).  rewrite Lt. auto.                   
 
        compute; auto.  
 
-       admit.
+       assert (J1 := bop_lift_compute_2_by_1 s t s).
+       destruct Kts as [Kts | Kts]; destruct Kst as [Kst | Kst].          
+          right. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: nil))).
+                 rewrite J2. compute. rewrite Kts. rewrite (symS _ _ Kts).  rewrite Ls, Rs. auto. 
+          right. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: nil))).
+                 rewrite J2. compute. rewrite Kts. rewrite (symS _ _ Kts).  rewrite Ls, Rs. auto. 
+          left. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: t :: nil))).
+                rewrite J2. compute. rewrite Kts. rewrite (symS _ _ Kts).  rewrite Ls, Rs.
+                case_eq(rS (bS t s) s); intro J3; case_eq(rS t (bS s s)); intro J4; auto.                  
+          left. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: t :: nil))).
+                rewrite J2. compute. rewrite Kts. rewrite (symS _ _ Kts).  rewrite Ls, Rs. 
+                case_eq(rS (bS t s) s); intro J3; case_eq(rS t (bS s s)); intro J4; auto.                  
 
-       admit.
+       assert (J1 := bop_lift_compute_2_by_1 s t t).
+       destruct Kts as [Kts | Kts]; destruct Kst as [Kst | Kst].
+          left. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: t :: nil))).
+                rewrite J2. compute. rewrite Kst. rewrite (symS _ _ Kst).  rewrite Lt, Rt.
+                case_eq(rS (bS t t) s); intro J3; case_eq(rS t (bS s t)); intro J4; auto.
+          right. assert (J2 := cong_set _ _ _ _ J1 (ref_set (t :: nil))).
+                 rewrite J2. compute. rewrite Kst. rewrite (symS _ _ Kst).  rewrite Lt. auto. 
+          left. assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: t :: nil))).
+                rewrite J2. compute. rewrite Kst. rewrite (symS _ _ Kst).  rewrite Lt, Rt.
+                case_eq(rS (bS t t) s); intro J3; case_eq(rS t (bS s t)); intro J4; auto.                  
+          right. assert (J2 := cong_set _ _ _ _ J1 (ref_set (t :: nil))).
+                 rewrite J2. compute. rewrite Kst. rewrite (symS _ _ Kst).  rewrite Lt. auto. 
+       
+       assert (J1 := bop_lift_compute_2_by_2 s t s t).
+       left.
+       assert (J2 := cong_set _ _ _ _ J1 (ref_set (s :: t :: nil))).
+       rewrite J2. compute. rewrite Ls, Rs, Lt, Rt. 
+       destruct Kts as [Kts | Kts]; destruct Kst as [Kst | Kst].
+          rewrite (symS _ _ Kst), (symS _ _ Kts). 
+          case_eq(rS (bS t t) s); intro J3; case_eq(rS t (bS s s)); intro J4;
+          case_eq(rS t (bS s t)); intro J5; case_eq(rS t (bS t s)); intro J6; auto. 
+          rewrite (symS _ _ Kst), (symS _ _ Kts). rewrite Kst.            
+          case_eq(rS (bS s t) s); intro J3; case_eq(rS t (bS s s)); intro J4;
+          case_eq(rS (bS t t) s); intro J5; auto. 
+          rewrite (symS _ _ Kst), (symS _ _ Kts). rewrite Kts.                      
+          case_eq(rS (bS t s) s); intro J3; case_eq(rS (bS t t) s); intro J4;
+          case_eq(rS t (bS s s)); intro J5; case_eq(rS t (bS s t)); intro J6; auto. 
+          rewrite (symS _ _ Kst), (symS _ _ Kts). rewrite Kts. rewrite Kst. 
+          case_eq(rS (bS s t) s); intro J3; case_eq(rS (bS t s) s); intro J4;
+          case_eq(rS (bS t t) s); intro J5; case_eq(rS t (bS s s)); intro J6; auto. 
+Qed.               
 
-       left. assert (J1 : brel_set rS (bop_lift rS bS (s :: t :: nil) (s :: t :: nil)) ((bS s s) :: (bS s t) :: (bS t s) :: (bS t t) :: nil) = true). admit.
-              
-Admitted.
 
 
 Lemma bop_lift_selective :
@@ -1086,17 +1083,11 @@ Proof. intros [[IL | IR] | [idim et]].
        apply bop_lift_selective_v1; auto.
        apply bop_lift_selective_v2; auto.
        apply bop_lift_selective_v3; auto.
-Qed.        
-
-Lemma bop_lift_not_selective_v1 (s : S) (f : S -> S):
-  brel_not_trivial S rS f -> 
-  bop_not_is_left S rS bS -> 
-  bop_not_is_right S rS bS ->   
-  bop_not_idempotent S rS bS -> bop_not_selective (finite_set S) (brel_set rS) (bop_lift rS bS).
-Proof. intros ntS [[x y] NL] [[u v] NR]  [a Nidem]. 
-       exists (a :: nil, a :: nil).
-       compute. rewrite Nidem; auto.
 Qed.
+
+Lemma bop_lift_not_selective_v1 :
+  bop_not_idempotent S rS bS -> bop_not_selective (finite_set S) (brel_set rS) (bop_lift rS bS).
+Proof. intros [a Nidem]. exists (a :: nil, a :: nil). compute. rewrite Nidem; auto. Defined. 
 
 
 Lemma in_set_cons_false_elim  : ∀ (a b : S) (X : finite_set S),
@@ -1169,7 +1160,7 @@ Lemma bop_lift_not_selective_initial_solution :
   bop_not_is_right S rS bS -> 
   (bop_idempotent S rS bS) -> 
   (brel_not_exactly_two S rS) -> bop_not_selective (finite_set S) (brel_set rS) (bop_lift rS bS).
-Proof. intros [[a b] NL] [[c d] NR] idem Net.
+Proof. intros [[a b] NL] [[c d] NR] idem [nex2 Net]. 
 
        assert (F1 : rS a b = false).
           case_eq(rS a b); intro F; auto.
@@ -1187,18 +1178,18 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
           case_eq(rS (bS c d) c); intro J2. 
              destruct (Net a b) as [J3 | J3].
              rewrite J3 in F1. discriminate F1.
-             destruct J3 as [e1 [J3 J4]].
-             case_eq (rS e1 (bS e1 b)); intro J5; case_eq (rS b (bS e1 b)); intro J6.
-                (* J5 : rS e1 (bS e1 b) = true,  J6 : rS b (bS e1 b) = true *) 
+             destruct J3 as [J3 J4].  
+             case_eq (rS (nex2 a b) (bS (nex2 a b) b)); intro J5; case_eq (rS b (bS (nex2 a b) b)); intro J6.
+                (* J5 : rS (nex2 a b) (bS (nex2 a b) b) = true,  J6 : rS b (bS (nex2 a b) b) = true *) 
                 apply symS in J5. rewrite (tranS _ _ _ J6 J5) in J4. discriminate J4.
-                (* J5 : rS e1 (bS e1 b) = true,  J6 : rS b (bS e1 b) = false *) 
-                (* {e1, a}.{b} = {e1b, ab} = {e1, b} *)
-                exists (e1 :: a :: nil, b :: nil). split.
+                (* J5 : rS (nex2 a b) (bS (nex2 a b) b) = true,  J6 : rS b (bS (nex2 a b) b) = false *) 
+                (* {(nex2 a b), a}.{b} = {(nex2 a b)b, ab} = {(nex2 a b), b} *)
+                exists ((nex2 a b) :: a :: nil, b :: nil). split.
                    apply brel_set_false_intro; auto. 
                    right. apply brel_subset_false_intro; auto.
                    exists a. split.
                       compute. rewrite J3. rewrite refS. auto. 
-                      case_eq(in_set rS (bop_lift rS bS (e1 :: a :: nil) (b :: nil)) a); intro K; auto.
+                      case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: a :: nil) (b :: nil)) a); intro K; auto.
                       apply in_set_bop_lift_elim in K; auto.
                       destruct K as [x [y [[K1 K2] K3]]].
                       apply in_set_cons_elim in K1; auto. apply in_set_cons_elim in K2; auto. 
@@ -1213,40 +1204,40 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                          assert (K6 := tranS _ _ _ K5 J1). rewrite K6 in F1. discriminate F1.
                          compute in K1. discriminate K1.
                          compute in K2. discriminate K2.
-                      case_eq(brel_set rS (bop_lift rS bS (e1 :: a :: nil) (b :: nil)) (b :: nil)); intro J7; auto. 
+                      case_eq(brel_set rS (bop_lift rS bS ((nex2 a b) :: a :: nil) (b :: nil)) (b :: nil)); intro J7; auto. 
                          apply brel_set_elim in J7; auto. destruct J7 as [J7 J8].
-                         assert (J9 := brel_subset_elim _ _ symS tranS _ _ J7 (bS e1 b)). 
-                         assert (J10 : in_set rS (bop_lift rS bS (e1 :: a :: nil) (b :: nil)) (bS e1 b) = true).
+                         assert (J9 := brel_subset_elim _ _ symS tranS _ _ J7 (bS (nex2 a b) b)). 
+                         assert (J10 : in_set rS (bop_lift rS bS ((nex2 a b) :: a :: nil) (b :: nil)) (bS (nex2 a b) b) = true).
                             apply in_set_bop_lift_intro; auto.
                                 apply in_set_cons_intro; auto. apply in_set_cons_intro; auto. 
                          assert (J11 := J9 J10).
                          apply in_set_cons_elim in J11; auto. destruct J11 as [J11 | J11].
                             rewrite J11 in J6. discriminate J6. 
                             compute in J11. discriminate J11. 
-                (* J5 : rS e1 (bS e1 b) = false,  J6 : rS b (bS e1 b) = true *) 
+                (* J5 : rS (nex2 a b) (bS (nex2 a b) b) = false,  J6 : rS b (bS (nex2 a b) b) = true *) 
                 destruct (Net c d) as [J7 | J7].
                 rewrite J7 in F2. discriminate F2.
-                destruct J7 as [e2 [J7 J8]].
-                case_eq (rS e2 (bS c e2)); intro J9; case_eq (rS c (bS c e2)); intro J10.
-                   (* J9 : rS e2 (bS c e2) = true   J10 : rS c (bS c e2) = true*) 
+                destruct J7 as [J7 J8].
+                case_eq (rS (nex2 c d) (bS c (nex2 c d))); intro J9; case_eq (rS c (bS c (nex2 c d))); intro J10.
+                   (* J9 : rS (nex2 c d) (bS c (nex2 c d)) = true   J10 : rS c (bS c (nex2 c d)) = true*) 
                    apply symS in J9. rewrite (tranS _ _ _ J10 J9) in J7. discriminate J7.
-                   (* J9 : rS e2 (bS c e2) = true   J10 : rS c (bS c e2) = false *) 
-                   (* {c}.{e2 d} = {ce2, cd} = {e2, c} *)
-                   exists (c :: nil, e2 :: d :: nil). split.
-                      (* brel_set rS (bop_lift rS bS (c :: nil) (e2 :: d :: nil)) (c :: nil) = false *)
+                   (* J9 : rS (nex2 c d) (bS c (nex2 c d)) = true   J10 : rS c (bS c (nex2 c d)) = false *) 
+                   (* {c}.{(nex2 c d) d} = {c(nex2 c d), cd} = {(nex2 c d), c} *)
+                   exists (c :: nil, (nex2 c d) :: d :: nil). split.
+                      (* brel_set rS (bop_lift rS bS (c :: nil) ((nex2 c d) :: d :: nil)) (c :: nil) = false *)
                       apply brel_set_false_intro; auto.
                       left. apply brel_subset_false_intro; auto.
-                      exists (bS c e2). split.
+                      exists (bS c (nex2 c d)). split.
                          apply in_set_bop_lift_intro; auto.
                          compute. rewrite refS; auto.
                          apply in_set_cons_intro; auto. 
                          compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ J10). auto. 
-                      (* brel_set rS (bop_lift rS bS (c :: nil) (e2 :: d :: nil)) (e2 :: d :: nil) = false *)
+                      (* brel_set rS (bop_lift rS bS (c :: nil) ((nex2 c d) :: d :: nil)) ((nex2 c d) :: d :: nil) = false *)
                       apply brel_set_false_intro; auto.
                       left.
-                      case_eq(brel_subset rS (bop_lift rS bS (c :: nil) (e2 :: d :: nil)) (e2 :: d :: nil) ); intro J11; auto.
+                      case_eq(brel_subset rS (bop_lift rS bS (c :: nil) ((nex2 c d) :: d :: nil)) ((nex2 c d) :: d :: nil) ); intro J11; auto.
                          assert (J12 := brel_subset_elim _ _ symS tranS _ _ J11 (bS c d)).
-                         assert (J13 : in_set rS (bop_lift rS bS (c :: nil) (e2 :: d :: nil)) (bS c d) = true).
+                         assert (J13 : in_set rS (bop_lift rS bS (c :: nil) ((nex2 c d) :: d :: nil)) (bS c d) = true).
                              apply in_set_bop_lift_intro; auto. 
                              compute. rewrite refS; auto.
                              apply in_set_cons_intro; auto. right. compute. rewrite refS; auto.
@@ -1257,18 +1248,18 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                             apply in_set_cons_elim in J14; auto. destruct J14 as [J14 | J14].
                                assert (J15 := tranS _ _ _ J14 J2). apply symS in J15. rewrite J15 in F2. discriminate F2. 
                                compute in J14. discriminate J14. 
-                   (* J9 : rS e2 (bS c e2) = false   J10 : rS d (bS c e2) = true *) 
-                   case_eq (rS e1 (bS e1 e2)); intro J11; case_eq (rS e2 (bS e1 e2)); intro J12.
+                   (* J9 : rS (nex2 c d) (bS c (nex2 c d)) = false   J10 : rS d (bS c (nex2 c d)) = true *) 
+                   case_eq (rS (nex2 a b) (bS (nex2 a b) (nex2 c d))); intro J11; case_eq (rS (nex2 c d) (bS (nex2 a b) (nex2 c d))); intro J12.
                       apply symS in J12. assert (J13 := tranS _ _ _ J11 J12).
                       (* DO THIS CASE EARLY ??? *) 
-                      case_eq (rS e1 (bS e1 a)); intro J14; case_eq (rS a (bS e1 a)); intro J15.
+                      case_eq (rS (nex2 a b) (bS (nex2 a b) a)); intro J14; case_eq (rS a (bS (nex2 a b) a)); intro J15.
                          apply symS in J14. rewrite (tranS _ _ _ J15 J14) in J3. discriminate J3.
                          (* {e}{a, b} = {ea, eb} = {e, b} *)
-                         exists(e1 :: nil, a :: b :: nil). split.
+                         exists((nex2 a b) :: nil, a :: b :: nil). split.
                             apply brel_set_false_intro; auto.
                             left. apply brel_subset_false_intro; auto.
                             exists b. split. 
-                               apply (in_set_bop_lift_intro_v2 _ _ b e1 b); auto.
+                               apply (in_set_bop_lift_intro_v2 _ _ b (nex2 a b) b); auto.
                                   compute. rewrite refS; auto. 
                                   compute. rewrite refS. rewrite (brel_symmetric_implies_dual _ _ symS _ _ F1). auto. 
                                compute. rewrite J4; auto.                                 
@@ -1276,7 +1267,7 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                             right. apply brel_subset_false_intro; auto.
                             exists a. split.
                                compute. rewrite refS; auto.                                 
-                               case_eq(in_set rS (bop_lift rS bS (e1 :: nil) (a :: b :: nil)) a); intro J16; auto. 
+                               case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: nil) (a :: b :: nil)) a); intro J16; auto. 
                                   apply in_set_bop_lift_elim in J16; auto.
                                   destruct J16 as [x [y [[J16 J17] J18]]].
                                   apply in_set_cons_elim in J16; auto. apply in_set_cons_elim in J17; auto. 
@@ -1289,15 +1280,15 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                                         compute in J17. discriminate J17.
                                      compute in J16. discriminate J16.
                                      compute in J16. discriminate J16.
-                         case_eq (rS e2 (bS d e2)); intro J16; case_eq (rS d (bS d e2)); intro J17.
+                         case_eq (rS (nex2 c d) (bS d (nex2 c d))); intro J16; case_eq (rS d (bS d (nex2 c d))); intro J17.
                             apply symS in J16. rewrite (tranS _ _ _ J17 J16) in J8. discriminate J8.
-                            (* {c,d}{e2} = {ce2, de2} = {c, e2} *)
-                            exists (c :: d :: nil, e2 :: nil). split. 
+                            (* {c,d}{(nex2 c d)} = {c(nex2 c d), d(nex2 c d)} = {c, (nex2 c d)} *)
+                            exists (c :: d :: nil, (nex2 c d) :: nil). split. 
                                apply brel_set_false_intro; auto.
                                right.  apply brel_subset_false_intro; auto.
                                exists d. split. 
                                   compute. rewrite refS. case_eq(rS d c); intro J18; auto.
-                                  case_eq(in_set rS (bop_lift rS bS (c :: d :: nil) (e2 :: nil)) d); intro J18; auto.
+                                  case_eq(in_set rS (bop_lift rS bS (c :: d :: nil) ((nex2 c d) :: nil)) d); intro J18; auto.
                                   apply in_set_bop_lift_elim in J18. destruct J18 as [x [y [[J18 J19] J20]]].
                                   apply in_set_cons_elim in J18; auto. apply in_set_cons_elim in J19; auto.
                                   destruct J18 as [J18 | J18]; destruct J19 as [J19 | J19].
@@ -1312,26 +1303,26 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                                      compute in J19. discriminate J19.                                      
                                apply brel_set_false_intro; auto.
                                left. apply brel_subset_false_intro; auto.
-                               exists (bS c e2). split.
+                               exists (bS c (nex2 c d)). split.
                                   apply in_set_bop_lift_intro; auto.
                                      compute. rewrite refS; auto.
                                      compute. rewrite refS; auto.
                                   compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ J9). auto.
                              case_eq(rS a c); intro J18.    
                                (*  {a}{b, e} = {ab, ae} = {b, a} *)
-                               exists (a :: nil, e2 :: b :: nil). split.
+                               exists (a :: nil, (nex2 c d) :: b :: nil). split.
                                   apply brel_set_false_intro; auto.
                                   left. apply brel_subset_false_intro; auto.
                                   exists b. split.
                                      apply (in_set_bop_lift_intro_v2 _ _ b a b); auto.
                                         compute; rewrite refS; auto.
-                                        compute. rewrite refS. case_eq(rS b e2); intro J19; auto.
+                                        compute. rewrite refS. case_eq(rS b (nex2 c d)); intro J19; auto.
                                         compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ F1). auto. 
                                   apply brel_set_false_intro; auto.
                                   right. apply brel_subset_false_intro; auto.
-                                  exists e2. split.
+                                  exists (nex2 c d). split.
                                      compute. rewrite refS. auto. 
-                                     case_eq(in_set rS (bop_lift rS bS (a :: nil) (e2 :: b :: nil)) e2); intro J19; auto.
+                                     case_eq(in_set rS (bop_lift rS bS (a :: nil) ((nex2 c d) :: b :: nil)) (nex2 c d)); intro J19; auto.
                                         apply in_set_bop_lift_elim in J19; auto.
                                         destruct J19 as [x [y [[J19 J20] J21]]].
                                         apply in_set_singleton_elim in J19; auto. 
@@ -1339,7 +1330,7 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                                         destruct J20 as [J20 | J20].
                                            assert (J22 := bcong _ _ _ _ J19 J20).
                                            apply symS in J22. assert (J23 := tranS _ _ _ J21 J22).
-                                           assert (J24 := bcong _ _ _ _ J18 (refS e2)).
+                                           assert (J24 := bcong _ _ _ _ J18 (refS (nex2 c d))).
                                            rewrite (tranS _ _ _ J23 J24) in J9. discriminate J9.
                                         apply in_set_singleton_elim in J20; auto. 
                                         assert (J22 := bcong _ _ _ _ J19 J20).
@@ -1348,34 +1339,34 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                                         assert (J25 := tranS _ _ _ J13 J24).
                                         apply symS in J25. rewrite J25 in J4. discriminate J4. 
                                (* {e, c}{e, a} = {ee, ea, ce ca} = {e, a, c, ca} *)
-                               exists (e1 :: c :: nil, e2 :: a :: nil). split.
+                               exists ((nex2 a b) :: c :: nil, (nex2 c d) :: a :: nil). split.
                                   apply brel_set_false_intro; auto. 
                                   left. apply brel_subset_false_intro; auto.
                                   exists a. split.
-                                     apply (in_set_bop_lift_intro_v2 _ _ a e1 a); auto.
+                                     apply (in_set_bop_lift_intro_v2 _ _ a (nex2 a b) a); auto.
                                         compute. rewrite refS; auto.
-                                        compute. rewrite refS. case_eq(rS a e2); intro J19; auto.
+                                        compute. rewrite refS. case_eq(rS a (nex2 c d)); intro J19; auto.
                                         compute. rewrite J18. rewrite J3. auto. 
                                   apply brel_set_false_intro; auto.
                                   left. apply brel_subset_false_intro; auto.
-                                  exists (bS c e2). split.
+                                  exists (bS c (nex2 c d)). split.
                                      apply in_set_bop_lift_intro; auto.
-                                        compute. rewrite refS. case_eq(rS c e1); intro J19; auto. 
+                                        compute. rewrite refS. case_eq(rS c (nex2 a b)); intro J19; auto. 
                                         compute. rewrite refS. auto. 
-                                     compute. case_eq(rS (bS c e2) e2); intro J19; case_eq(rS (bS c e2) a); intro J20; auto.
+                                     compute. case_eq(rS (bS c (nex2 c d)) (nex2 c d)); intro J19; case_eq(rS (bS c (nex2 c d)) a); intro J20; auto.
                                         apply symS in J20. apply symS in J10. rewrite (tranS _ _ _ J20 J10) in J18. discriminate J18.  
                                         rewrite (tranS _ _ _ J10 J19) in J7. discriminate J7.
                                         apply symS in J20. apply symS in J10. rewrite (tranS _ _ _ J20 J10) in J18. discriminate J18. 
-                          (* {d}{e2} = {de2}*)
-                          exists (d:: nil, e2 :: nil). compute. rewrite J16, J17.
+                          (* {d}{(nex2 c d)} = {d(nex2 c d)}*)
+                          exists (d:: nil, (nex2 c d) :: nil). compute. rewrite J16, J17.
                                rewrite (brel_symmetric_implies_dual _ _ symS _ _ J16). rewrite (brel_symmetric_implies_dual _ _ symS _ _ J17). auto. 
                          (* {e}{a} = {ea} *)                         
-                         exists(e1 :: nil, a :: nil). split.
+                         exists((nex2 a b) :: nil, a :: nil). split.
                             apply brel_set_false_intro; auto.
                             right. apply brel_subset_false_intro; auto.
-                            exists e1. split. 
+                            exists (nex2 a b). split. 
                                compute. rewrite refS; auto.
-                               case_eq(in_set rS (bop_lift rS bS (e1 :: nil) (a :: nil)) e1); intro J16; auto. 
+                               case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: nil) (a :: nil)) (nex2 a b)); intro J16; auto. 
                                   apply in_set_bop_lift_elim in J16; auto. destruct J16 as [x [y [[J16 J17] J18]]].
                                   apply in_set_cons_elim in J16; auto. apply in_set_cons_elim in J17; auto.
                                   destruct J16 as[J16 | J16]; destruct J17 as[J17 | J17].
@@ -1387,7 +1378,7 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                             right. apply brel_subset_false_intro; auto.
                             exists a. split. 
                                compute. rewrite refS; auto.
-                               case_eq(in_set rS (bop_lift rS bS (e1 :: nil) (a :: nil)) a); intro J16; auto. 
+                               case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: nil) (a :: nil)) a); intro J16; auto. 
                                   apply in_set_bop_lift_elim in J16; auto. destruct J16 as [x [y [[J16 J17] J18]]].
                                   apply in_set_cons_elim in J16; auto. apply in_set_cons_elim in J17; auto.
                                   destruct J16 as[J16 | J16]; destruct J17 as[J17 | J17].
@@ -1395,32 +1386,32 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                                   compute in J17. discriminate J17.
                                   compute in J16. discriminate J16.
                                   compute in J17. discriminate J17.
-                      (* {e1}{e2, b} = {e1e2, e1b} = {e1, b} *)
-                      exists (e1 :: nil, e2 :: b :: nil). split.
+                      (* {(nex2 a b)}{(nex2 c d), b} = {(nex2 a b)(nex2 c d), (nex2 a b)b} = {(nex2 a b), b} *)
+                      exists ((nex2 a b) :: nil, (nex2 c d) :: b :: nil). split.
                          apply brel_set_false_intro; auto.
                          left. apply brel_subset_false_intro; auto.
-                         exists (bS e1 b). split. 
+                         exists (bS (nex2 a b) b). split. 
                              apply in_set_bop_lift_intro; auto.                          
                                 compute. rewrite refS; auto. 
                                 compute. rewrite refS.
-                                case_eq(rS b e2); intro J13; auto.
+                                case_eq(rS b (nex2 c d)); intro J13; auto.
                                 compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ J5). auto. 
                          apply brel_set_false_intro; auto.
                          left. apply brel_subset_false_intro; auto.
-                         exists e1. split.
-                            apply (in_set_bop_lift_intro_v2 _ _ e1 e1 e2); auto. 
+                         exists (nex2 a b). split.
+                            apply (in_set_bop_lift_intro_v2 _ _ (nex2 a b) (nex2 a b) (nex2 c d)); auto. 
                                compute. rewrite refS; auto. 
                                compute. rewrite refS. auto.
                                compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ J4).
-                               assert (J13 : rS e1 e2 = false).
-                                  case_eq(rS e1 e2); intro J13; auto. apply symS in J13. rewrite (tranS _ _ _ J13 J11) in J12. discriminate J12.                                            rewrite J13; auto.                    
-                      (* {e1, c}{e2} = {e1e2, ce2} = {e2, c} *)
-                      exists (e1 :: c :: nil, e2 :: nil). split.
+                               assert (J13 : rS (nex2 a b) (nex2 c d) = false).
+                                  case_eq(rS (nex2 a b) (nex2 c d)); intro J13; auto. apply symS in J13. rewrite (tranS _ _ _ J13 J11) in J12. discriminate J12.                                            rewrite J13; auto.                    
+                      (* {(nex2 a b), c}{(nex2 c d)} = {(nex2 a b)(nex2 c d), c(nex2 c d)} = {(nex2 c d), c} *)
+                      exists ((nex2 a b) :: c :: nil, (nex2 c d) :: nil). split.
                          apply brel_set_false_intro; auto.
                          right. apply brel_subset_false_intro; auto.
-                         exists e1. split. 
+                         exists (nex2 a b). split. 
                             compute. rewrite refS; auto. 
-                            case_eq(in_set rS (bop_lift rS bS (e1 :: c :: nil) (e2 :: nil)) e1); intro J13; auto.
+                            case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: c :: nil) ((nex2 c d) :: nil)) (nex2 a b)); intro J13; auto.
                                apply in_set_bop_lift_elim in J13; auto.
                                destruct J13 as [x [y [[J13 J14] J15]]].
                                apply in_set_cons_elim in J13; auto. apply in_set_cons_elim in J14; auto.
@@ -1431,8 +1422,8 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                                   apply in_set_singleton_elim in J13; auto. (***********)
                                   assert (J16 := bcong _ _ _ _ J13 J14). apply symS in J16.
                                   assert (J17 := tranS _ _ _ J15 J16). apply symS in J17.
-                                  case_eq(rS c e1); intro J18.
-                                     assert (J19 := bcong _ _ _ _ J18 (refS e2)).
+                                  case_eq(rS c (nex2 a b)); intro J18.
+                                     assert (J19 := bcong _ _ _ _ J18 (refS (nex2 c d))).
                                      assert (J20 := tranS _ _ _ J10 J19).
                                      apply symS in J12. rewrite (tranS _ _ _ J20 J12) in J7. discriminate J7.
                                      rewrite (tranS _ _ _ J10 J17) in J18. discriminate J18. 
@@ -1440,144 +1431,670 @@ Proof. intros [[a b] NL] [[c d] NR] idem Net.
                          apply brel_set_false_intro; auto. 
                          left. apply brel_subset_false_intro; auto.
                          exists c. split.
-                            apply (in_set_bop_lift_intro_v2 _ _ c c e2); auto. 
-                               compute. rewrite refS. case_eq(rS c e1); intro J13; auto.
+                            apply (in_set_bop_lift_intro_v2 _ _ c c (nex2 c d)); auto. 
+                               compute. rewrite refS. case_eq(rS c (nex2 a b)); intro J13; auto.
                                compute. rewrite refS; auto.
                             compute. rewrite J7; auto. 
-                      exists (e1 :: nil, e2 :: nil). compute. rewrite J11, J12.
+                      exists ((nex2 a b) :: nil, (nex2 c d) :: nil). compute. rewrite J11, J12.
                          rewrite (brel_symmetric_implies_dual _ _ symS _ _ J11). rewrite (brel_symmetric_implies_dual _ _ symS _ _ J12). auto. 
-                   (* J9 : rS e2 (bS c e2) = false   J10 : rS c (bS c e2) =  false*)
-                   exists (c :: nil, e2 :: nil). compute. rewrite J9, J10.
-                      rewrite (brel_symmetric_implies_dual _ _ symS _ _ J9). rewrite (brel_symmetric_implies_dual _ _ symS _ _ J10). auto. 
-                (* J5 : rS e1 (bS e1 b) = false,  J6 : rS b (bS e1 b) = false *)                 
-                exists (e1 :: nil, b :: nil). compute. rewrite J5, J6.
+                   (* J9 : rS (nex2 c d) (bS c (nex2 c d)) = false   J10 : rS c (bS c (nex2 c d)) =  false*)
+                   exists (c :: nil, (nex2 c d) :: nil). compute. rewrite J9, J10.
+                      rewrite (brel_symmetric_implies_dual _ _ symS _ _ J9). rewrite (brel_symmetric_implies_dual _ _ symS _ _ J10). auto.
+                (* J5 : rS (nex2 a b) (bS (nex2 a b) b) = false,  J6 : rS b (bS (nex2 a b) b) = false *)                 
+                exists ((nex2 a b) :: nil, b :: nil). compute. rewrite J5, J6.
                    rewrite (brel_symmetric_implies_dual _ _ symS _ _ J5). rewrite (brel_symmetric_implies_dual _ _ symS _ _ J6). auto. 
           (* J2 : rS (bS c d) c = false *)           
           exists (c :: nil, d :: nil). compute.  rewrite NR. rewrite J2. auto.
        (* J1 : rS (bS a b) b = false *)           
        exists (a :: nil, b :: nil). compute.  rewrite NL. rewrite J1. auto. 
-Defined. 
+Defined.
 
+
+(* simplify ? *) 
+Definition lift_not_selective (a b c d : S) (nex2 : S -> (S -> S)) : (finite_set S) * (finite_set S) :=
+  if rS (bS a b) b      (* J1 *) 
+  then if rS (bS c d) c (* J2 *) 
+       then if rS (nex2 a b) (bS (nex2 a b) b) (* J5 *)
+            then if rS b (bS (nex2 a b) b)     (* J6 *)
+                 then (nil, nil) (* ABORT *) 
+                 else ((nex2 a b) :: a :: nil, b :: nil)
+            else if rS b (bS (nex2 a b) b)     (* J6 *)
+                 then if rS (nex2 c d) (bS c (nex2 c d))  (* J9 *) 
+                      then if rS c (bS c (nex2 c d))      (* J10 *) 
+                           then (nil, nil) (* ABORT *) 
+                           else (c :: nil, (nex2 c d) :: d :: nil)
+                      else if rS c (bS c (nex2 c d))      (* J10 *) 
+                           then if rS (nex2 a b) (bS (nex2 a b) (nex2 c d)) (* J11 *) 
+                                then if rS (nex2 c d) (bS (nex2 a b) (nex2 c d)) (* J12 *)
+                                     then if rS (nex2 a b) (bS (nex2 a b) a) (* J14 *)
+                                          then if rS a (bS (nex2 a b) a) (* J15 *)
+                                               then (nil, nil) (* ABORT *) 
+                                               else ((nex2 a b) :: nil, a :: b :: nil)
+                                          else if rS a (bS (nex2 a b) a) (* J15 *)
+                                               then if rS (nex2 c d) (bS d (nex2 c d))  (* J16 *)
+                                                    then if rS d (bS d (nex2 c d)) (* J 17 *)
+                                                         then (nil, nil) (* ABORT *) 
+                                                         else (c :: d :: nil, (nex2 c d) :: nil)
+                                                    else if rS d (bS d (nex2 c d)) (* J 17 *)
+                                                         then if rS a c (* J18 *)
+                                                              then (a :: nil, (nex2 c d) :: b :: nil)
+                                                              else ((nex2 a b) :: c :: nil, (nex2 c d) :: a :: nil)
+                                                         else (d:: nil, (nex2 c d) :: nil)
+                                               else ((nex2 a b) :: nil, a :: nil)
+                                     else ((nex2 a b) :: nil, (nex2 c d) :: b :: nil)
+                                else if rS (nex2 c d) (bS (nex2 a b) (nex2 c d)) (* J12 *)
+                                     then ((nex2 a b) :: c :: nil, (nex2 c d) :: nil)
+                                     else ((nex2 a b) :: nil, (nex2 c d) :: nil)
+                           else (c :: nil, (nex2 c d) :: nil)
+                 else ((nex2 a b) :: nil, b :: nil)
+       else (c :: nil, d :: nil)
+  else (a :: nil, b :: nil).
+
+
+Lemma bop_lift_not_selective :
+  bop_not_is_left S rS bS -> 
+  bop_not_is_right S rS bS -> 
+  (bop_idempotent S rS bS) -> 
+  (brel_not_exactly_two S rS) -> bop_not_selective (finite_set S) (brel_set rS) (bop_lift rS bS).
+Proof. intros bnil bnir idem bnext.
+       exists(lift_not_selective (fst (projT1 bnil)) (snd (projT1 bnil)) (fst (projT1 bnir)) (snd (projT1 bnir))  (projT1 bnext)). 
+       destruct bnil as [[a b] NL].
+       destruct bnir as [[c d] NR].
+       destruct bnext as [nex2 Net]. simpl. 
+
+       assert (F1 : rS a b = false).
+          case_eq(rS a b); intro F; auto.
+          assert (K := idem a).
+          assert (J := bcong _ _ _ _ (refS a) F).
+          apply symS in K. assert (M := tranS _ _ _ K J).  apply symS in M. rewrite M in NL. discriminate NL. 
+
+       assert (F2 : rS c d = false).
+          case_eq(rS c d); intro F; auto.
+          assert (K := idem d).
+          assert (J := bcong _ _ _ _ F (refS d)).
+          assert (M := tranS _ _ _ J K).  rewrite M in NR. discriminate NR.
+
+       unfold lift_not_selective. 
+       case_eq(rS (bS a b) b); intro J1.
+          case_eq(rS (bS c d) c); intro J2. 
+             destruct (Net a b) as [J3 | J3].
+             rewrite J3 in F1. discriminate F1.
+             destruct J3 as [J3 J4].  
+             case_eq (rS (nex2 a b) (bS (nex2 a b) b)); intro J5; case_eq (rS b (bS (nex2 a b) b)); intro J6.
+                (* J5 : rS (nex2 a b) (bS (nex2 a b) b) = true,  J6 : rS b (bS (nex2 a b) b) = true *) 
+                apply symS in J5. rewrite (tranS _ _ _ J6 J5) in J4. discriminate J4.
+                (* J5 : rS (nex2 a b) (bS (nex2 a b) b) = true,  J6 : rS b (bS (nex2 a b) b) = false *) 
+                (* {(nex2 a b), a}.{b} = {(nex2 a b)b, ab} = {(nex2 a b), b} *)
+                split.
+                   apply brel_set_false_intro; auto. 
+                   right. apply brel_subset_false_intro; auto.
+                   exists a. split.
+                      compute. rewrite J3. rewrite refS. auto. 
+                      case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: a :: nil) (b :: nil)) a); intro K; auto.
+                      apply in_set_bop_lift_elim in K; auto.
+                      destruct K as [x [y [[K1 K2] K3]]].
+                      apply in_set_cons_elim in K1; auto. apply in_set_cons_elim in K2; auto. 
+                      destruct K1 as [K1 | K1]; destruct K2 as [K2 | K2].
+                      assert (K4 := bcong _ _ _ _ K1 K2).
+                      apply symS in K4. assert (K5 := tranS _ _ _ K3 K4).
+                      apply symS in J5. assert (K6 := tranS _ _ _ K5 J5). rewrite K6 in J3. discriminate J3.
+                      compute in K2. discriminate K2. 
+                      apply in_set_cons_elim in K1; auto. destruct K1 as [K1 | K1].
+                         assert (K4 := bcong _ _ _ _ K1 K2). 
+                         apply symS in K4. assert (K5 := tranS _ _ _ K3 K4).
+                         assert (K6 := tranS _ _ _ K5 J1). rewrite K6 in F1. discriminate F1.
+                         compute in K1. discriminate K1.
+                         compute in K2. discriminate K2.
+                      case_eq(brel_set rS (bop_lift rS bS ((nex2 a b) :: a :: nil) (b :: nil)) (b :: nil)); intro J7; auto. 
+                         apply brel_set_elim in J7; auto. destruct J7 as [J7 J8].
+                         assert (J9 := brel_subset_elim _ _ symS tranS _ _ J7 (bS (nex2 a b) b)). 
+                         assert (J10 : in_set rS (bop_lift rS bS ((nex2 a b) :: a :: nil) (b :: nil)) (bS (nex2 a b) b) = true).
+                            apply in_set_bop_lift_intro; auto.
+                                apply in_set_cons_intro; auto. apply in_set_cons_intro; auto. 
+                         assert (J11 := J9 J10).
+                         apply in_set_cons_elim in J11; auto. destruct J11 as [J11 | J11].
+                            rewrite J11 in J6. discriminate J6. 
+                            compute in J11. discriminate J11. 
+                (* J5 : rS (nex2 a b) (bS (nex2 a b) b) = false,  J6 : rS b (bS (nex2 a b) b) = true *) 
+                destruct (Net c d) as [J7 | J7].
+                rewrite J7 in F2. discriminate F2.
+                destruct J7 as [J7 J8].
+                case_eq (rS (nex2 c d) (bS c (nex2 c d))); intro J9; case_eq (rS c (bS c (nex2 c d))); intro J10.
+                   (* J9 : rS (nex2 c d) (bS c (nex2 c d)) = true   J10 : rS c (bS c (nex2 c d)) = true*) 
+                   apply symS in J9. rewrite (tranS _ _ _ J10 J9) in J7. discriminate J7.
+                   (* J9 : rS (nex2 c d) (bS c (nex2 c d)) = true   J10 : rS c (bS c (nex2 c d)) = false *) 
+                   (* {c}.{(nex2 c d) d} = {c(nex2 c d), cd} = {(nex2 c d), c} *)
+                   split.
+                      (* brel_set rS (bop_lift rS bS (c :: nil) ((nex2 c d) :: d :: nil)) (c :: nil) = false *)
+                      apply brel_set_false_intro; auto.
+                      left. apply brel_subset_false_intro; auto.
+                      exists (bS c (nex2 c d)). split.
+                         apply in_set_bop_lift_intro; auto.
+                         compute. rewrite refS; auto.
+                         apply in_set_cons_intro; auto. 
+                         compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ J10). auto. 
+                      (* brel_set rS (bop_lift rS bS (c :: nil) ((nex2 c d) :: d :: nil)) ((nex2 c d) :: d :: nil) = false *)
+                      apply brel_set_false_intro; auto.
+                      left.
+                      case_eq(brel_subset rS (bop_lift rS bS (c :: nil) ((nex2 c d) :: d :: nil)) ((nex2 c d) :: d :: nil) ); intro J11; auto.
+                         assert (J12 := brel_subset_elim _ _ symS tranS _ _ J11 (bS c d)).
+                         assert (J13 : in_set rS (bop_lift rS bS (c :: nil) ((nex2 c d) :: d :: nil)) (bS c d) = true).
+                             apply in_set_bop_lift_intro; auto. 
+                             compute. rewrite refS; auto.
+                             apply in_set_cons_intro; auto. right. compute. rewrite refS; auto.
+                         assert (J14 := J12 J13).
+                         apply in_set_cons_elim in J14; auto. destruct J14 as [J14 | J14 ].
+                            assert (J15 := tranS _ _ _ J14 J2).
+                            apply symS in J15. rewrite J15 in J7. discriminate J7.
+                            apply in_set_cons_elim in J14; auto. destruct J14 as [J14 | J14].
+                               assert (J15 := tranS _ _ _ J14 J2). apply symS in J15. rewrite J15 in F2. discriminate F2. 
+                               compute in J14. discriminate J14. 
+                   (* J9 : rS (nex2 c d) (bS c (nex2 c d)) = false   J10 : rS d (bS c (nex2 c d)) = true *) 
+                   case_eq (rS (nex2 a b) (bS (nex2 a b) (nex2 c d))); intro J11; case_eq (rS (nex2 c d) (bS (nex2 a b) (nex2 c d))); intro J12.
+                      apply symS in J12. assert (J13 := tranS _ _ _ J11 J12).
+                      (* DO THIS CASE EARLY ??? *) 
+                      case_eq (rS (nex2 a b) (bS (nex2 a b) a)); intro J14; case_eq (rS a (bS (nex2 a b) a)); intro J15.
+                         apply symS in J14. rewrite (tranS _ _ _ J15 J14) in J3. discriminate J3.
+                         (* {e}{a, b} = {ea, eb} = {e, b} *)
+                         split.
+                            apply brel_set_false_intro; auto.
+                            left. apply brel_subset_false_intro; auto.
+                            exists b. split. 
+                               apply (in_set_bop_lift_intro_v2 _ _ b (nex2 a b) b); auto.
+                                  compute. rewrite refS; auto. 
+                                  compute. rewrite refS. rewrite (brel_symmetric_implies_dual _ _ symS _ _ F1). auto. 
+                               compute. rewrite J4; auto.                                 
+                            apply brel_set_false_intro; auto. 
+                            right. apply brel_subset_false_intro; auto.
+                            exists a. split.
+                               compute. rewrite refS; auto.                                 
+                               case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: nil) (a :: b :: nil)) a); intro J16; auto. 
+                                  apply in_set_bop_lift_elim in J16; auto.
+                                  destruct J16 as [x [y [[J16 J17] J18]]].
+                                  apply in_set_cons_elim in J16; auto. apply in_set_cons_elim in J17; auto. 
+                                  destruct J16 as [J16 | J16]; destruct J17 as [J17 | J17].
+                                     assert (J19 := bcong _ _ _ _ J16 J17).  apply symS in J19. rewrite (tranS _ _ _ J18 J19) in J15. discriminate J15.
+                                     apply in_set_cons_elim in J17; auto. destruct J17 as [J17 | J17].
+                                        assert (J19 := bcong _ _ _ _ J16 J17). 
+                                        apply symS in J19. assert (J20 := tranS _ _ _ J18 J19). apply symS in J6.
+                                        rewrite (tranS _ _ _ J20 J6) in F1. discriminate F1. 
+                                        compute in J17. discriminate J17.
+                                     compute in J16. discriminate J16.
+                                     compute in J16. discriminate J16.
+                         case_eq (rS (nex2 c d) (bS d (nex2 c d))); intro J16; case_eq (rS d (bS d (nex2 c d))); intro J17.
+                            apply symS in J16. rewrite (tranS _ _ _ J17 J16) in J8. discriminate J8.
+                            (* {c,d}{(nex2 c d)} = {c(nex2 c d), d(nex2 c d)} = {c, (nex2 c d)} *)
+                            split. 
+                               apply brel_set_false_intro; auto.
+                               right.  apply brel_subset_false_intro; auto.
+                               exists d. split. 
+                                  compute. rewrite refS. case_eq(rS d c); intro J18; auto.
+                                  case_eq(in_set rS (bop_lift rS bS (c :: d :: nil) ((nex2 c d) :: nil)) d); intro J18; auto.
+                                  apply in_set_bop_lift_elim in J18. destruct J18 as [x [y [[J18 J19] J20]]].
+                                  apply in_set_cons_elim in J18; auto. apply in_set_cons_elim in J19; auto.
+                                  destruct J18 as [J18 | J18]; destruct J19 as [J19 | J19].
+                                     assert (J21 := bcong _ _ _ _ J18 J19).
+                                     apply symS in J21. assert (J22 := tranS _ _ _ J20 J21).
+                                     apply symS in J22. rewrite (tranS _ _ _ J10 J22) in F2. discriminate F2.
+                                     compute in J19. discriminate J19.                                      
+                                     apply in_set_cons_elim in J18; auto. destruct J18 as [J18 | J18].
+                                        assert (J21 := bcong _ _ _ _ J18 J19). apply symS in J21.
+                                        assert (J22 := tranS _ _ _ J20 J21). rewrite J22 in J17. discriminate J17.
+                                        compute in J18. discriminate J18. 
+                                     compute in J19. discriminate J19.                                      
+                               apply brel_set_false_intro; auto.
+                               left. apply brel_subset_false_intro; auto.
+                               exists (bS c (nex2 c d)). split.
+                                  apply in_set_bop_lift_intro; auto.
+                                     compute. rewrite refS; auto.
+                                     compute. rewrite refS; auto.
+                                  compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ J9). auto.
+                             case_eq(rS a c); intro J18.    
+                               (*  {a}{b, e} = {ab, ae} = {b, a} *)
+                               split.
+                                  apply brel_set_false_intro; auto.
+                                  left. apply brel_subset_false_intro; auto.
+                                  exists b. split.
+                                     apply (in_set_bop_lift_intro_v2 _ _ b a b); auto.
+                                        compute; rewrite refS; auto.
+                                        compute. rewrite refS. case_eq(rS b (nex2 c d)); intro J19; auto.
+                                        compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ F1). auto. 
+                                  apply brel_set_false_intro; auto.
+                                  right. apply brel_subset_false_intro; auto.
+                                  exists (nex2 c d). split.
+                                     compute. rewrite refS. auto. 
+                                     case_eq(in_set rS (bop_lift rS bS (a :: nil) ((nex2 c d) :: b :: nil)) (nex2 c d)); intro J19; auto.
+                                        apply in_set_bop_lift_elim in J19; auto.
+                                        destruct J19 as [x [y [[J19 J20] J21]]].
+                                        apply in_set_singleton_elim in J19; auto. 
+                                        apply in_set_cons_elim in J20; auto. 
+                                        destruct J20 as [J20 | J20].
+                                           assert (J22 := bcong _ _ _ _ J19 J20).
+                                           apply symS in J22. assert (J23 := tranS _ _ _ J21 J22).
+                                           assert (J24 := bcong _ _ _ _ J18 (refS (nex2 c d))).
+                                           rewrite (tranS _ _ _ J23 J24) in J9. discriminate J9.
+                                        apply in_set_singleton_elim in J20; auto. 
+                                        assert (J22 := bcong _ _ _ _ J19 J20).
+                                        apply symS in J22. assert (J23 := tranS _ _ _ J21 J22).
+                                        assert (J24 := tranS _ _ _ J23 J1).
+                                        assert (J25 := tranS _ _ _ J13 J24).
+                                        apply symS in J25. rewrite J25 in J4. discriminate J4. 
+                               (* {e, c}{e, a} = {ee, ea, ce ca} = {e, a, c, ca} *)
+                               split.
+                                  apply brel_set_false_intro; auto. 
+                                  left. apply brel_subset_false_intro; auto.
+                                  exists a. split.
+                                     apply (in_set_bop_lift_intro_v2 _ _ a (nex2 a b) a); auto.
+                                        compute. rewrite refS; auto.
+                                        compute. rewrite refS. case_eq(rS a (nex2 c d)); intro J19; auto.
+                                        compute. rewrite J18. rewrite J3. auto. 
+                                  apply brel_set_false_intro; auto.
+                                  left. apply brel_subset_false_intro; auto.
+                                  exists (bS c (nex2 c d)). split.
+                                     apply in_set_bop_lift_intro; auto.
+                                        compute. rewrite refS. case_eq(rS c (nex2 a b)); intro J19; auto. 
+                                        compute. rewrite refS. auto. 
+                                     compute. case_eq(rS (bS c (nex2 c d)) (nex2 c d)); intro J19; case_eq(rS (bS c (nex2 c d)) a); intro J20; auto.
+                                        apply symS in J20. apply symS in J10. rewrite (tranS _ _ _ J20 J10) in J18. discriminate J18.  
+                                        rewrite (tranS _ _ _ J10 J19) in J7. discriminate J7.
+                                        apply symS in J20. apply symS in J10. rewrite (tranS _ _ _ J20 J10) in J18. discriminate J18. 
+                          (* {d}{(nex2 c d)} = {d(nex2 c d)}*)
+                          compute. rewrite J16, J17.
+                               rewrite (brel_symmetric_implies_dual _ _ symS _ _ J16). rewrite (brel_symmetric_implies_dual _ _ symS _ _ J17). auto. 
+                         (* {e}{a} = {ea} *)                         
+                         split.
+                            apply brel_set_false_intro; auto.
+                            right. apply brel_subset_false_intro; auto.
+                            exists (nex2 a b). split. 
+                               compute. rewrite refS; auto.
+                               case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: nil) (a :: nil)) (nex2 a b)); intro J16; auto. 
+                                  apply in_set_bop_lift_elim in J16; auto. destruct J16 as [x [y [[J16 J17] J18]]].
+                                  apply in_set_cons_elim in J16; auto. apply in_set_cons_elim in J17; auto.
+                                  destruct J16 as[J16 | J16]; destruct J17 as[J17 | J17].
+                                     assert (J19 := bcong _ _ _ _ J16 J17). apply symS in J19. rewrite (tranS _ _ _ J18 J19) in J14. discriminate J14.
+                                  compute in J17. discriminate J17.
+                                  compute in J16. discriminate J16.
+                                  compute in J17. discriminate J17.
+                            apply brel_set_false_intro; auto.
+                            right. apply brel_subset_false_intro; auto.
+                            exists a. split. 
+                               compute. rewrite refS; auto.
+                               case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: nil) (a :: nil)) a); intro J16; auto. 
+                                  apply in_set_bop_lift_elim in J16; auto. destruct J16 as [x [y [[J16 J17] J18]]].
+                                  apply in_set_cons_elim in J16; auto. apply in_set_cons_elim in J17; auto.
+                                  destruct J16 as[J16 | J16]; destruct J17 as[J17 | J17].
+                                     assert (J19 := bcong _ _ _ _ J16 J17). apply symS in J19. rewrite (tranS _ _ _ J18 J19) in J15. discriminate J15.
+                                  compute in J17. discriminate J17.
+                                  compute in J16. discriminate J16.
+                                  compute in J17. discriminate J17.
+                      (* {(nex2 a b)}{(nex2 c d), b} = {(nex2 a b)(nex2 c d), (nex2 a b)b} = {(nex2 a b), b} *)
+                      split.
+                         apply brel_set_false_intro; auto.
+                         left. apply brel_subset_false_intro; auto.
+                         exists (bS (nex2 a b) b). split. 
+                             apply in_set_bop_lift_intro; auto.                          
+                                compute. rewrite refS; auto. 
+                                compute. rewrite refS.
+                                case_eq(rS b (nex2 c d)); intro J13; auto.
+                                compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ J5). auto. 
+                         apply brel_set_false_intro; auto.
+                         left. apply brel_subset_false_intro; auto.
+                         exists (nex2 a b). split.
+                            apply (in_set_bop_lift_intro_v2 _ _ (nex2 a b) (nex2 a b) (nex2 c d)); auto. 
+                               compute. rewrite refS; auto. 
+                               compute. rewrite refS. auto.
+                               compute. rewrite (brel_symmetric_implies_dual _ _ symS _ _ J4).
+                               assert (J13 : rS (nex2 a b) (nex2 c d) = false).
+                                  case_eq(rS (nex2 a b) (nex2 c d)); intro J13; auto. apply symS in J13. rewrite (tranS _ _ _ J13 J11) in J12. discriminate J12.                                            rewrite J13; auto.                    
+                      (* {(nex2 a b), c}{(nex2 c d)} = {(nex2 a b)(nex2 c d), c(nex2 c d)} = {(nex2 c d), c} *)
+                      split.
+                         apply brel_set_false_intro; auto.
+                         right. apply brel_subset_false_intro; auto.
+                         exists (nex2 a b). split. 
+                            compute. rewrite refS; auto. 
+                            case_eq(in_set rS (bop_lift rS bS ((nex2 a b) :: c :: nil) ((nex2 c d) :: nil)) (nex2 a b)); intro J13; auto.
+                               apply in_set_bop_lift_elim in J13; auto.
+                               destruct J13 as [x [y [[J13 J14] J15]]].
+                               apply in_set_cons_elim in J13; auto. apply in_set_cons_elim in J14; auto.
+                               destruct J13 as [J13 | J13]; destruct J14 as [J14 | J14].
+                                  assert (J16 := bcong _ _ _ _ J13 J14). apply symS in J16.
+                                  rewrite (tranS _ _ _ J15 J16) in J11. discriminate J11. 
+                                  compute in J14. discriminate J14. 
+                                  apply in_set_singleton_elim in J13; auto. (***********)
+                                  assert (J16 := bcong _ _ _ _ J13 J14). apply symS in J16.
+                                  assert (J17 := tranS _ _ _ J15 J16). apply symS in J17.
+                                  case_eq(rS c (nex2 a b)); intro J18.
+                                     assert (J19 := bcong _ _ _ _ J18 (refS (nex2 c d))).
+                                     assert (J20 := tranS _ _ _ J10 J19).
+                                     apply symS in J12. rewrite (tranS _ _ _ J20 J12) in J7. discriminate J7.
+                                     rewrite (tranS _ _ _ J10 J17) in J18. discriminate J18. 
+                                  compute in J14. discriminate J14. 
+                         apply brel_set_false_intro; auto. 
+                         left. apply brel_subset_false_intro; auto.
+                         exists c. split.
+                            apply (in_set_bop_lift_intro_v2 _ _ c c (nex2 c d)); auto. 
+                               compute. rewrite refS. case_eq(rS c (nex2 a b)); intro J13; auto.
+                               compute. rewrite refS; auto.
+                      compute. rewrite J7; auto.
+                      (* J11 : rS (nex2 a b) (bS (nex2 a b) (nex2 c d)) = false, J12 : rS (nex2 c d) (bS (nex2 a b) (nex2 c d)) = true*)
+                      (* {(nex2 a b)} {(nex2 c d)} *)        
+                      compute. rewrite J11, J12.
+                         rewrite (brel_symmetric_implies_dual _ _ symS _ _ J11). rewrite (brel_symmetric_implies_dual _ _ symS _ _ J12). auto. 
+                   (* J9 : rS (nex2 c d) (bS c (nex2 c d)) = false   J10 : rS c (bS c (nex2 c d)) =  false*)
+                   compute. rewrite J9, J10.
+                      rewrite (brel_symmetric_implies_dual _ _ symS _ _ J9). rewrite (brel_symmetric_implies_dual _ _ symS _ _ J10). auto.
+                (* J5 : rS (nex2 a b) (bS (nex2 a b) b) = false,  J6 : rS b (bS (nex2 a b) b) = false *)                 
+                compute. rewrite J5, J6.
+                   rewrite (brel_symmetric_implies_dual _ _ symS _ _ J5). rewrite (brel_symmetric_implies_dual _ _ symS _ _ J6). auto. 
+          (* J2 : rS (bS c d) c = false *)           
+          compute.  rewrite NR. rewrite J2. auto.
+       (* J1 : rS (bS a b) b = false *)           
+       compute.  rewrite NL. rewrite J1. auto. 
+Defined.
+
+                                     
 (* end selectivity *)
 
-Definition brel_at_least_three (S : Type) (r : brel S) 
-  := { z : S * (S * S) &
-      match z with (s, (t, u)) =>
-       (r s t = false) *
-       (r s u = false) *
-       (r t u = false) 
-      end}.
-
-
-Lemma brel_at_least_thee_implies_not_exactly_two :
-  ∀ (T : Type) (eq : brel T),
-    brel_symmetric T eq ->
-    brel_transitive T eq ->     
-    brel_at_least_three T eq -> brel_not_exactly_two T eq.
-Proof. intros T eq sy tr [[s [t u] ] [[P1 P2] P3]] x y.
-       case_eq(eq x y); intro J.
-       left; auto. 
-       right.
-       case_eq(eq x s); intro K1; case_eq(eq x t); intro K2; case_eq(eq x u); intro K3.
-       apply sy in K1. rewrite (tr _ _ _ K1 K2) in P1. discriminate P1. 
-       apply sy in K1. rewrite (tr _ _ _ K1 K2) in P1. discriminate P1.        
-       apply sy in K1. rewrite (tr _ _ _ K1 K3) in P2. discriminate P2. 
-       case_eq(eq y s); intro J1; case_eq(eq y t); intro J2; case_eq(eq y u); intro J3.
-          apply sy in J1. rewrite (tr _ _ _ J1 J2) in P1. discriminate P1.
-          apply sy in J1. rewrite (tr _ _ _ J1 J2) in P1. discriminate P1.
-          apply sy in J1. rewrite (tr _ _ _ J1 J3) in P2. discriminate P2.
-          exists t; split; auto. 
-          apply sy in J2. rewrite (tr _ _ _ J2 J3) in P3. discriminate P3.
-          exists u; split; auto.
-          exists t; split; auto.
-          exists t; split; auto.                     
-       apply sy in K2. rewrite (tr _ _ _ K2 K3) in P3. discriminate P3.
-       case_eq(eq y s); intro J1; case_eq(eq y t); intro J2; case_eq(eq y u); intro J3.
-          apply sy in J1. rewrite (tr _ _ _ J1 J2) in P1. discriminate P1.
-          apply sy in J1. rewrite (tr _ _ _ J1 J2) in P1. discriminate P1.
-          apply sy in J1. rewrite (tr _ _ _ J1 J3) in P2. discriminate P2.
-          exists u; split; auto. 
-          apply sy in J2. rewrite (tr _ _ _ J2 J3) in P3. discriminate P3.
-          exists u; split; auto.
-          exists s; split; auto.
-          exists u; split; auto.                     
-       case_eq(eq y s); intro J1; case_eq(eq y t); intro J2; case_eq(eq y u); intro J3.
-          apply sy in J1. rewrite (tr _ _ _ J1 J2) in P1. discriminate P1.
-          apply sy in J1. rewrite (tr _ _ _ J1 J2) in P1. discriminate P1.
-          apply sy in J1. rewrite (tr _ _ _ J1 J3) in P2. discriminate P2.
-          exists t; split; auto. 
-          apply sy in J2. rewrite (tr _ _ _ J2 J3) in P3. discriminate P3.
-          exists s; split; auto.
-          exists s; split; auto.
-          exists s; split; auto.                     
-       case_eq(eq y s); intro J1; case_eq(eq y t); intro J2; case_eq(eq y u); intro J3.
-          apply sy in J1. rewrite (tr _ _ _ J1 J2) in P1. discriminate P1.
-          apply sy in J1. rewrite (tr _ _ _ J1 J2) in P1. discriminate P1.
-          apply sy in J1. rewrite (tr _ _ _ J1 J3) in P2. discriminate P2.
-          exists t; split; auto. 
-          apply sy in J2. rewrite (tr _ _ _ J2 J3) in P3. discriminate P3.
-          exists s; split; auto.
-          exists s; split; auto.
-          exists s; split; auto.                     
-Defined. 
-
-Lemma brel_set_at_least_three (s : S) (f : S -> S):
-  brel_not_trivial S rS f -> 
-  brel_at_least_three (finite_set S) (brel_set rS).
-Proof. intro nt. destruct (nt s) as [L R].
-       exists (nil, (s :: nil, (f s) :: nil)). 
-       compute. rewrite L; auto. 
-Defined. 
-
-
-Lemma brel_set_not_exactly_two (s : S) (f : S -> S):
-  brel_not_trivial S rS f -> 
-  brel_not_exactly_two (finite_set S) (brel_set rS).
-Proof. intro nt. apply brel_at_least_thee_implies_not_exactly_two.
-       apply brel_set_symmetric; auto. 
-       apply brel_set_transitive; auto.
-       apply (brel_set_at_least_three s f); auto. 
-Defined.
 
 End Theory.
 
+
+
 Section ACAS.
 
-  Record sg_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
-{
-(* "root set" required                          *) 
-  A_sg_associative      : bop_associative S eq bop 
-; A_sg_congruence       : bop_congruence S eq bop   
+Section ACAS_Proofs.
 
-(* "root set" of optional semigroup properties *) 
-; A_sg_commutative_d    : bop_commutative_decidable S eq bop  
-; A_sg_selective_d      : bop_selective_decidable S eq bop  
-; A_sg_idempotent_d     : bop_idempotent_decidable S eq bop  
-; A_sg_exists_id_d      : bop_exists_id_decidable S eq bop 
-; A_sg_exists_ann_d     : bop_exists_ann_decidable S eq bop 
+Definition bop_lift_commutative_decide (S : Type) (eq: brel S) (b: binary_op S)
+        (refS : brel_reflexive S eq) (symS : brel_symmetric S eq) (trnS : brel_transitive S eq)
+        (cong_b : bop_congruence S eq b) (cD : bop_commutative_decidable S eq b) := 
+match cD with
+| inl c  => inl (bop_lift_commutative S eq b refS trnS symS cong_b c)                               
+| inr nc => inr (bop_lift_not_commutative S eq b nc)
+end .
 
-(* needed to decide selectivity of product    *) 
-; A_sg_is_left_d        : bop_is_left_decidable S eq bop  
-; A_sg_is_right_d       : bop_is_right_decidable S eq bop  
+Definition bop_lift_idempotent_decide (S : Type) (eq: brel S) (b: binary_op S)
+        (refS : brel_reflexive S eq) (symS : brel_symmetric S eq) (trnS : brel_transitive S eq)
+        (cong_b : bop_congruence S eq b) (sD : bop_selective_decidable S eq b) :=
+match sD with
+| inl sel  => inl (bop_lift_idempotent S eq b refS trnS symS cong_b sel)                               
+| inr nsel => inr (bop_lift_not_idempotent S eq b refS trnS symS cong_b nsel)                               
+end.
 
-(* needed to decide distributivity of (lex, product)     *) 
-; A_sg_left_cancel_d    : bop_left_cancellative_decidable S eq bop 
-; A_sg_right_cancel_d   : bop_right_cancellative_decidable S eq bop 
+Definition bop_lift_exists_id_decide (S : Type) (eq: brel S) (wS : S) (b: binary_op S)
+        (refS : brel_reflexive S eq) (symS : brel_symmetric S eq) (trnS : brel_transitive S eq)
+        (cong_b : bop_congruence S eq b) (iD : bop_exists_id_decidable S eq b) :=
+match iD with
+| inl id  => inl (bop_lift_exists_id S eq b refS trnS symS cong_b id)                               
+| inr nid => inr (bop_lift_not_exists_id S eq b refS trnS symS wS nid)                               
+end.
 
-(* needed to decide distributivity of (lex, product     *) 
-; A_sg_left_constant_d  : bop_left_constant_decidable S eq bop 
-; A_sg_right_constant_d : bop_right_constant_decidable S eq bop 
+Definition bop_lift_selective_decide (S : Type) (eq: brel S) (b: binary_op S)
+        (refS : brel_reflexive S eq) (symS : brel_symmetric S eq) (trnS : brel_transitive S eq)
+        (cong_b : bop_congruence S eq b) (asso_b : bop_associative S eq b) 
+        (ilD : bop_is_left_decidable S eq b)
+        (irD : bop_is_right_decidable S eq b)
+        (idD : bop_idempotent_decidable S eq b)
+        (exD : brel_exactly_two_decidable S eq) :=
+match ilD with
+| inl isl  => inl (bop_lift_selective_v1 S eq b refS trnS symS cong_b isl) 
+| inr nisl => match irD with
+              | inl isr  => inl (bop_lift_selective_v2 S eq b refS trnS symS cong_b isr) 
+              | inr nisr => match idD with
+                            | inl idem  => match exD with
+                                           | inl ex2 => inl (bop_lift_selective_v3 S eq b refS trnS symS cong_b idem ex2) 
+                                           | inr nex2 => inr (bop_lift_not_selective S eq b refS trnS symS cong_b nisl nisr idem nex2)
+                                           end 
+                            | inr nidem => inr (bop_lift_not_selective_v1 S eq b nidem)
+                            end 
+              end 
+end. 
 
-(* needed to decide absorptivity of (lex, product)      *) 
-; A_sg_anti_left_d      : bop_anti_left_decidable S eq bop 
-; A_sg_anti_right_d     : bop_anti_right_decidable S eq bop 
-}. 
+
+Definition sg_lift_proofs (S: Type) (sg : A_sg S) :
+         sg_proofs (finite_set S) (brel_set (A_eqv_eq S (A_sg_eq S sg))) (bop_lift (A_eqv_eq S (A_sg_eq S sg)) (A_sg_bop S sg)) :=
+let eqv  := A_sg_eq S sg                in
+let eqvP := A_eqv_proofs S eqv           in   
+let eq   := A_eqv_eq S eqv               in
+let wS   := A_eqv_witness S eqv          in
+let f    := A_eqv_new S eqv              in
+let nt    := A_eqv_not_trivial S eqv     in
+let b    := A_sg_bop S sg                in
+let refS := A_eqv_reflexive S eq eqvP    in
+let symS := A_eqv_symmetric S eq eqvP    in
+let trnS := A_eqv_transitive S eq eqvP   in
+let bP   := A_sg_proofs S sg             in
+let cong_b := A_sg_congruence S eq b bP  in
+let asso_b := A_sg_associative S eq b bP in
+{|
+  A_sg_associative      :=  bop_lift_associative S eq b refS trnS symS cong_b asso_b 
+; A_sg_congruence       :=  bop_lift_congruence S eq b refS trnS symS cong_b  
+; A_sg_commutative_d    :=  bop_lift_commutative_decide S eq b refS symS trnS cong_b (A_sg_commutative_d S eq b bP)
+; A_sg_selective_d      :=  bop_lift_selective_decide S eq b refS symS trnS cong_b asso_b
+                                                      (A_sg_is_left_d S eq b bP)
+                                                      (A_sg_is_right_d S eq b bP)
+                                                      (A_sg_idempotent_d S eq b bP)
+                                                      (A_eqv_exactly_two_d S eqv)
+; A_sg_idempotent_d     :=  bop_lift_idempotent_decide S eq b refS symS trnS cong_b (A_sg_selective_d S eq b bP)
+; A_sg_exists_id_d      :=  bop_lift_exists_id_decide S eq wS b refS symS trnS cong_b (A_sg_exists_id_d S eq b bP)
+; A_sg_exists_ann_d     :=  inl (bop_lift_exists_ann S eq b)
+; A_sg_is_left_d        :=  inr (bop_lift_not_is_left S eq b wS)
+; A_sg_is_right_d       :=  inr (bop_lift_not_is_right S eq b wS)
+; A_sg_left_cancel_d    :=  inr (bop_lift_not_left_cancellative S eq b wS f nt) 
+; A_sg_right_cancel_d   :=  inr (bop_lift_not_right_cancellative S eq b wS f nt) 
+; A_sg_left_constant_d  :=  inr (bop_lift_not_left_constant S eq b wS)
+; A_sg_right_constant_d :=  inr (bop_lift_not_right_constant S eq b wS)
+; A_sg_anti_left_d      :=  inr (bop_lift_not_anti_left S eq b)
+; A_sg_anti_right_d     :=  inr (bop_lift_not_anti_right S eq b)
+|}. 
+
+End ACAS_Proofs. 
+
+Definition A_sg_lift : ∀ (S : Type),  A_sg S -> A_sg (finite_set S)
+:= λ S sgS,
+  let eqv := A_sg_eq S sgS in
+  let eq := A_eqv_eq S eqv in
+  let bS := A_sg_bop S sgS in 
+   {| 
+     A_sg_eq        := A_eqv_set S eqv
+   ; A_sg_bop       := bop_lift eq bS 
+   ; A_sg_proofs    := sg_lift_proofs S sgS 
+   ; A_sg_ast       := Ast_sg_lift (A_sg_ast S sgS)
+   |}.
 
   
 End ACAS.
 
 Section CAS.
+
+
+Definition bop_lift_commutative_check {S : Type} (cD: @check_commutative S) : @check_commutative (finite_set S) := 
+match cD with
+| Certify_Commutative              => Certify_Commutative
+| Certify_Not_Commutative (s1, s2) => Certify_Not_Commutative (s1 :: nil, s2 :: nil)
+end.
+
+Definition bop_lift_idempotent_check {S : Type} (idD: @check_selective S) : @check_idempotent (finite_set S) := 
+match idD with
+| Certify_Selective  => Certify_Idempotent
+| Certify_Not_Selective (s1, s2) => Certify_Not_Idempotent (s1 :: s2 :: nil) 
+end.
+
+Definition bop_lift_exists_id_check {S : Type} (idD: @check_exists_id S) : @check_exists_id (finite_set S) := 
+match idD with
+| Certify_Exists_Id id  => Certify_Exists_Id (id :: nil) 
+| Certify_Not_Exists_Id => Certify_Not_Exists_Id
+end.
+
+Definition bop_lift_selective_check {S : Type}
+           (eq : brel S) (bS : binary_op S)
+           (ilD: @check_is_left S)
+           (irD: @check_is_right S)
+           (idD: @check_idempotent S)
+           (exD: @check_exactly_two S)                      
+  : @check_selective (finite_set S) := 
+match ilD with
+| Certify_Is_Left  => Certify_Selective 
+| Certify_Not_Is_Left (a, b)  =>
+  match irD with
+  | Certify_Is_Right  => Certify_Selective 
+  | Certify_Not_Is_Right (c, d) =>
+    match idD  with
+    | Certify_Idempotent  =>
+      match exD with
+      | Certify_Exactly_Two _  => Certify_Selective 
+      | Certify_Not_Exactly_Two nex2 =>
+        Certify_Not_Selective (lift_not_selective S eq bS a b c d nex2)
+      end 
+    | Certify_Not_Idempotent e => Certify_Not_Selective (e :: nil, e :: nil) 
+    end 
+  end 
+end.
+
+  Definition sg_lift_certs (S: Type) (sg : @sg S) : @sg_certificates (finite_set S) :=
+let eqv  := sg_eq sg                 in
+let eq   := eqv_eq eqv               in
+let wS   := eqv_witness eqv          in
+let f    := eqv_new eqv              in
+let bS   := sg_bop sg                in
+let bP   := sg_certs sg              in
+{|
+  sg_associative      :=  Assert_Associative  
+; sg_congruence       :=  Assert_Bop_Congruence  
+; sg_commutative_d    :=  bop_lift_commutative_check (sg_commutative_d bP)
+; sg_selective_d      :=  bop_lift_selective_check eq bS 
+                                                   (sg_is_left_d bP)
+                                                   (sg_is_right_d bP)
+                                                   (sg_idempotent_d bP)
+                                                   (eqv_exactly_two_d eqv)
+; sg_idempotent_d     :=  bop_lift_idempotent_check (sg_selective_d bP)
+; sg_exists_id_d      :=  bop_lift_exists_id_check (sg_exists_id_d bP)  
+; sg_exists_ann_d     :=  Certify_Exists_Ann nil 
+; sg_is_left_d        :=  Certify_Not_Is_Left (wS :: nil, nil) 
+; sg_is_right_d       :=  Certify_Not_Is_Right (nil, wS :: nil) 
+; sg_left_cancel_d    :=  Certify_Not_Left_Cancellative (nil, (wS :: nil, (f wS) :: nil))
+; sg_right_cancel_d   :=  Certify_Not_Right_Cancellative (nil, (wS :: nil, (f wS) :: nil))
+; sg_left_constant_d  :=  Certify_Not_Left_Constant (wS :: nil, (wS ::nil, nil)) 
+; sg_right_constant_d :=  Certify_Not_Right_Constant (wS :: nil, (wS ::nil, nil)) 
+; sg_anti_left_d      :=  Certify_Not_Anti_Left (nil, nil) 
+; sg_anti_right_d     :=  Certify_Not_Anti_Right (nil, nil) 
+|}. 
+
+
+Definition sg_lift : ∀ {S : Type},  @sg S -> @sg (finite_set S)
+:= λ {S} sgS,
+  let eqv := sg_eq sgS in
+  let eq := eqv_eq eqv in
+  let bS := sg_bop sgS in 
+   {| 
+     sg_eq        := eqv_set eqv
+   ; sg_bop       := bop_lift eq bS 
+   ; sg_certs     := sg_lift_certs S sgS 
+   ; sg_ast       := Ast_sg_lift (sg_ast sgS)
+   |}. 
+
+  
 End CAS.
 
 Section Verify.
+
+
+
+Lemma correct_bop_lift_commutative_check : 
+  ∀ (S : Type)
+     (eq : brel S)
+     (b : binary_op S)
+     (eqP : eqv_proofs S eq)
+     (cong_b : bop_congruence S eq b)
+     (cD : bop_commutative_decidable S eq b),
+
+     p2c_commutative_check (finite_set S) (brel_set eq) (bop_lift eq b)
+                      (bop_lift_commutative_decide S eq b
+                           (A_eqv_reflexive S eq eqP)
+                           (A_eqv_symmetric S eq eqP)
+                           (A_eqv_transitive S eq eqP) cong_b cD)
+    =
+    bop_lift_commutative_check (p2c_commutative_check S eq b cD).
+Proof. intros. destruct cD as [C | [[s1 s2] NC] ]; compute; auto. Qed. 
+  
+Lemma correct_bop_lift_selective_check : 
+  ∀ (S : Type)
+     (eq : brel S)
+     (b : binary_op S)
+     (eqP : eqv_proofs S eq)
+     (asso_b : bop_associative S eq b)
+     (cong_b : bop_congruence S eq b)
+     (ilD : bop_is_left_decidable S eq b)
+     (irD : bop_is_right_decidable S eq b)      
+     (iD : bop_idempotent_decidable S eq b)
+     (exD : brel_exactly_two_decidable S eq), 
+
+    p2c_selective_check (finite_set S) (brel_set eq) (bop_lift eq b)
+                    (bop_lift_selective_decide S eq b
+                              (A_eqv_reflexive S eq eqP)
+                              (A_eqv_symmetric S eq eqP)
+                              (A_eqv_transitive S eq eqP) cong_b asso_b ilD irD iD exD)
+    =
+    bop_lift_selective_check eq b
+                             (p2c_is_left_check S eq b ilD)
+                             (p2c_is_right_check S eq b irD)
+                             (p2c_idempotent_check S eq b iD)
+                             (p2c_exactly_two_check S eq exD).
+Proof. intros.
+       destruct ilD as [IL | [[s1 s2] NIL] ];
+       destruct irD as [IR | [[s3 s4] NIR] ];
+       destruct iD  as [IDEM | [s5 NIDEM] ];
+       destruct exD as [ [[s6 s7] AT] | [nex2 NAT] ]; simpl; auto. 
+Qed.
+
+Lemma correct_bop_lift_idempotent_check : 
+  ∀ (S : Type)
+     (eq : brel S)
+     (b : binary_op S)
+     (eqP : eqv_proofs S eq)
+     (cong_b : bop_congruence S eq b)
+     (sD : bop_selective_decidable S eq b),
+
+    p2c_idempotent_check (finite_set S) (brel_set eq) (bop_lift eq b)
+                         (bop_lift_idempotent_decide S eq b
+                                                     (A_eqv_reflexive S eq eqP)
+                                                     (A_eqv_symmetric S eq eqP)
+                                                     (A_eqv_transitive S eq eqP) cong_b sD)
+    =
+    bop_lift_idempotent_check (p2c_selective_check S eq b sD).
+Proof. intros. destruct sD as [ SEL | [ [s1 s2] NSEL ] ]; compute; auto. Qed. 
+
+Lemma correct_bop_lift_exists_id_check : 
+  ∀ (S : Type)
+     (eq : brel S)
+     (b : binary_op S)
+     (eqP : eqv_proofs S eq)
+     (wS : S) 
+     (cong_b : bop_congruence S eq b)
+     (idD : bop_exists_id_decidable S eq b),
+
+    p2c_exists_id_check (finite_set S) (brel_set eq) (bop_lift eq b)
+                        (bop_lift_exists_id_decide S eq wS b
+                                                   (A_eqv_reflexive S eq eqP)
+                                                   (A_eqv_symmetric S eq eqP)
+                                                   (A_eqv_transitive S eq eqP) cong_b idD)
+    =
+    bop_lift_exists_id_check (p2c_exists_id_check S eq b idD).
+Proof. intros. destruct idD as [ [id  ID] | NID ]; compute; auto. Qed. 
+  
+
+Theorem correct_sg_lift  : ∀ (S : Type) (sgS : A_sg S), 
+         sg_lift (A2C_sg S sgS) 
+         = 
+         A2C_sg (finite_set S) (A_sg_lift S sgS). 
+Proof. intros S sgS.
+       unfold A2C_sg, sg_lift, A_sg_lift. simpl.
+       unfold sg_lift_proofs, sg_lift_certs.
+       destruct sgS. destruct A_sg_eq. destruct A_sg_proofs.
+       simpl. simpl in *.  unfold A2C_eqv. simpl. unfold P2C_sg. simpl.
+       rewrite correct_bop_lift_exists_id_check; auto. 
+       rewrite correct_bop_lift_idempotent_check; auto.
+       rewrite correct_bop_lift_selective_check; auto. 
+       rewrite correct_bop_lift_commutative_check; auto.
+Qed.
+
 End Verify.   

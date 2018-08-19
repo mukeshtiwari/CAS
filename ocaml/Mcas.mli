@@ -42,7 +42,9 @@ val sg_left_sum  : ('a Cas.sg) option -> ('b Cas.sg) option -> ((('a , 'b) Cas.s
 val sg_right_sum : ('a Cas.sg) option -> ('b Cas.sg) option -> ((('a , 'b) Cas.sum) Cas.sg) option  
 
 val sg_union     : string -> 'a Cas.eqv -> ((('a Cas.finite_set) Cas.with_constant) Cas.sg) option 
-val sg_intersect : string -> 'a Cas.eqv -> ((('a Cas.finite_set) Cas.with_constant) Cas.sg) option 
+val sg_intersect : string -> 'a Cas.eqv -> ((('a Cas.finite_set) Cas.with_constant) Cas.sg) option
+val sg_lift      : ('a Cas.sg) option -> (('a Cas.finite_set) Cas.sg) option   
+
 
 (* bi-semigroup *) 
 

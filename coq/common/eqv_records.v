@@ -10,7 +10,7 @@ Record eqv {S : Type} := {
 
 ; eqv_witness : S         
 ; eqv_new     : S -> S                                                                                                   
-
+; eqv_exactly_two_d : @check_exactly_two S 
 ; eqv_data  : S -> data (* for printing in ocaml-land *) 
 ; eqv_rep   : S -> S    (* for reductions.  Should this be an option? *) 
 ; eqv_ast   : ast_eqv

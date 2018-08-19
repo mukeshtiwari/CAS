@@ -72,6 +72,7 @@ CAS=\
    coq/sg/add_ann.v \
    coq/sg/union.v \
    coq/sg/intersect.v \
+   coq/sg/lift.v \
    coq/bs/cast_up.v \
    coq/bs/cast_down.v \
    coq/bs/min_plus.v \
@@ -106,6 +107,7 @@ Cas.cmo \
 .PHONY: all casml html clean
 
 clean:
+	rm casml
 	rm -f  */*.glob  */*/*.glob */*/*/*.glob 
 	rm -f  */*.vo  */*/*.vo */*/*/*.vo 
 	rm -f  */*.d  */*/*.d */*/*/*.d 
@@ -134,7 +136,8 @@ extraction/STAMP: $(FILES:.v=.vo) extraction/extraction.v
 	$(COQEXEC) extraction/extraction.v
 	touch extraction/STAMP
 
-casml: extraction/STAMP ocaml/Mcas.ml ocaml/Describe.ml
+casml: casml extraction/STAMP ocaml/Mcas.ml ocaml/Describe.ml
+	mk_casml.sh
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
 	cd _build/extraction && ocamlmktop -o casml $(CMOFILES)
 

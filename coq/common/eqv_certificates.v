@@ -1,30 +1,6 @@
 Require Import CAS.coq.common.compute. 
 
 
-(* 
-Inductive certify_not_true {S : Type} := 
-| Certify_Not_True : S → S → certify_not_true S. 
-
-Inductive certify_not_false {S : Type} := 
-| Certify_Not_False : S → S → certify_not_false S. 
-
-Record assert_not_trivial {S : Type} := {
-  certify_not_trivial_not_true  : certify_not_true S
-; certify_not_trivial_not_false : certify_not_false S 
-}. 
-*)  
-(*
-Inductive certify_witness {S : Type} := 
-| Certify_Witness : S → certify_witness (S := S). 
-
-Inductive certify_negate {S : Type} := 
-| Certify_Negate : (S → S) → certify_negate (S := S).  
-
-Record assert_nontrivial {S : Type} := {
-  certify_nontrivial_witness : certify_witness (S := S) 
-; certify_nontrivial_negate  : certify_negate (S := S) 
-}. 
- *)
 
 Inductive assert_brel_congruence {S : Type} := 
 | Assert_Brel_Congruence : assert_brel_congruence (S := S). 
@@ -78,33 +54,11 @@ Inductive check_total {S : Type} :=
 | Certify_Total : check_total (S := S)
 | Certify_Not_Total : (S * S) → check_total (S := S). 
 
-(* some useful functions 
 
-Definition get_witness :  ∀ {S : Type},  certify_witness (S := S) -> S 
-:= λ {S} cwS, 
-   match cwS with  
-   | Certify_Witness s => s 
-   end. 
+Inductive check_exactly_two {S : Type} := 
+| Certify_Exactly_Two : (S * S) → check_exactly_two (S := S)
+| Certify_Not_Exactly_Two : (S -> (S -> S)) → check_exactly_two (S := S). 
 
-Definition get_negate :  ∀ {S : Type},  certify_negate (S := S) -> (S -> S)
-:= λ {S} cnS, 
-   match cnS with  
-   | Certify_Negate f => f 
-   end. 
-
-Definition nontrivial_witness :  ∀ {S : Type},  assert_nontrivial (S := S) -> S 
-:= λ {S} ntS, get_witness (certify_nontrivial_witness ntS). 
-
-Definition nontrivial_negate :  ∀ {S : Type},  assert_nontrivial (S := S) -> (S -> S) 
-:= λ {S} ntS, get_negate (certify_nontrivial_negate ntS). 
-
-Definition nontrivial_pair :  ∀ {S : Type},  assert_nontrivial (S := S) -> (S * S) 
-:= λ {S} ntS, 
-   let w := nontrivial_witness ntS in 
-   let f := nontrivial_negate ntS in 
-   (w, f w). 
-
-*) 
 
 
 

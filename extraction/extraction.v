@@ -26,7 +26,8 @@ Require Import CAS.coq.sg.llex.
 Require Import CAS.coq.sg.add_id.
 Require Import CAS.coq.sg.add_ann.
 Require Import CAS.coq.sg.union.
-Require Import CAS.coq.sg.intersect. 
+Require Import CAS.coq.sg.intersect.
+Require Import CAS.coq.sg.lift. 
 
 Require Import CAS.coq.bs.cast_up.
 Require Import CAS.coq.bs.cast_down.
@@ -181,7 +182,8 @@ Extraction "Cas.ml"
    sg_CI_right_sum         
    sg_CS_right_sum
    sg_CI_union 
-   sg_CI_intersect  
+   sg_CI_intersect
+   sg_lift
    (* sg casting *)
    sg_from_sg_C
    sg_from_sg_CS

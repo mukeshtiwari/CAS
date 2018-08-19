@@ -68,6 +68,7 @@ with ast_sg :=
    | Ast_sg_llex           : ast_sg_CS * ast_sg → ast_sg
    | Ast_sg_add_id         : cas_constant * ast_sg → ast_sg
    | Ast_sg_add_ann        : cas_constant * ast_sg → ast_sg
+   | Ast_sg_lift           : ast_sg → ast_sg                                                       
    | Ast_sg_from_sg_C      : ast_sg_C → ast_sg
 
 

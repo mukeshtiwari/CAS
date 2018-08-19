@@ -1,4 +1,5 @@
 Require Import CAS.coq.common.base.
+Require Import CAS.coq.theory.facts. 
 
 Section Theory.
 Variable S  : Type. 
@@ -71,7 +72,30 @@ Proof.
 Qed. 
 
 Lemma brel_sum_not_total_ : ∀ (s : S) (t : T),  brel_not_total (S + T) (rS <+> rT). 
-Proof. intros s t. exists ((inl _ s), (inr _ t)); simpl. split; reflexivity. Defined. 
+Proof. intros s t. exists ((inl _ s), (inr _ t)); simpl. split; reflexivity. Defined.
+
+
+Lemma brel_sum_at_least_three (s : S) (f : S -> S) (t : T):
+  brel_not_trivial S rS f ->
+  brel_at_least_three (S + T) (rS <+> rT).
+Proof. intro ntS. 
+       exists (inl s, (inl (f s), inr t)).
+       destruct (ntS s) as [LS RS].        
+       compute. rewrite LS; split; auto. 
+Defined. 
+
+
+Lemma brel_sum_not_exactly_two (s : S) (f : S -> S) (t : T) :
+  brel_not_trivial S rS f ->
+  brel_not_exactly_two (S + T) (rS <+> rT).
+Proof. intros ntS.
+       apply brel_at_least_thee_implies_not_exactly_two.
+       apply brel_sum_symmetric; auto. 
+       apply brel_sum_transitive; auto.
+       apply (brel_sum_at_least_three s f t); auto. 
+Defined.
+
+
 
 End Theory.
 
@@ -97,26 +121,29 @@ Definition eqv_proofs_sum :
 |}.
 
 Definition A_eqv_sum : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S + T) 
-:= λ S T eqvS eqvT, 
+:= λ S T eqvS eqvT,
+  let eqS := A_eqv_eq S eqvS in
+  let s  := A_eqv_witness S eqvS in
+  let f  := A_eqv_new S eqvS in
+  let ntS := A_eqv_not_trivial S eqvS in
+  let eqT := A_eqv_eq T eqvT in
+  let t  := A_eqv_witness T eqvT in
+  let eqPS := A_eqv_proofs S eqvS in
+  let eqPT := A_eqv_proofs T eqvT in  
+  let symS := A_eqv_symmetric S eqS eqPS in
+  let trnS := A_eqv_transitive S eqS eqPS in
+  let symT := A_eqv_symmetric T eqT eqPT in
+  let trnT := A_eqv_transitive T eqT eqPT in     
    {| 
-      A_eqv_eq     := brel_sum (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) 
-    ; A_eqv_proofs := eqv_proofs_sum S T 
-                           (A_eqv_eq S eqvS) 
-                           (A_eqv_eq T eqvT)
-                           (A_eqv_proofs S eqvS) 
-                           (A_eqv_proofs T eqvT) 
-
-    ; A_eqv_witness := inl (A_eqv_witness S eqvS)
-    ; A_eqv_new     := λ (d : S + T), match d with | inl _ => inr (A_eqv_witness T eqvT) | inr _ => inl (A_eqv_witness S eqvS) end
-    ; A_eqv_not_trivial := brel_sum_not_trivial S T 
-                             (A_eqv_eq S eqvS) 
-                             (A_eqv_eq T eqvT)                                                
-                             (A_eqv_witness S eqvS)
-                             (A_eqv_witness T eqvT)                                                
-    ; A_eqv_data  := λ d, (match d with inl s => DATA_inl (A_eqv_data S eqvS s) | inr t => DATA_inr (A_eqv_data T eqvT t) end)
+      A_eqv_eq     := brel_sum eqS eqT  
+    ; A_eqv_proofs := eqv_proofs_sum S T eqS eqT eqPS eqPT  
+    ; A_eqv_witness := inl s
+    ; A_eqv_new     := λ (d : S + T), match d with | inl _ => inr t | inr _ => inl s end
+    ; A_eqv_not_trivial := brel_sum_not_trivial S T eqS eqT s t 
+    ; A_eqv_exactly_two_d := inr (brel_sum_not_exactly_two S T eqS eqT symS trnS symT trnT s f t ntS)                                                            ; A_eqv_data  := λ d, (match d with inl s => DATA_inl (A_eqv_data S eqvS s) | inr t => DATA_inr (A_eqv_data T eqvT t) end)
     ; A_eqv_rep   := λ d, (match d with inl s => inl _ (A_eqv_rep S eqvS s) | inr t => inr _ (A_eqv_rep T eqvT t) end)
     ; A_eqv_ast   := Ast_eqv_sum (A_eqv_ast S eqvS, A_eqv_ast T eqvT)
-   |}. 
+   |}.
 
 
 End ACAS.
@@ -124,11 +151,16 @@ End ACAS.
 Section CAS.
 
 Definition eqv_sum : ∀ {S T : Type},  @eqv S -> @eqv T -> @eqv (S + T)
-:= λ {S T} eqvS eqvT, 
+:= λ {S T} eqvS eqvT,
+  let s := eqv_witness eqvS in
+  let f := eqv_new eqvS in  
+  let t := eqv_witness eqvT in
+  let r := brel_sum (eqv_eq eqvS) (eqv_eq eqvT) in 
    {| 
-     eqv_eq    := brel_sum (eqv_eq eqvS) (eqv_eq eqvT) 
-   ; eqv_witness := inl (eqv_witness eqvS)
-   ; eqv_new     := λ (d : S + T), match d with | inl _ => inr (eqv_witness eqvT) | inr _ => inl (eqv_witness eqvS) end
+      eqv_eq      := r
+    ; eqv_witness := inl s 
+    ; eqv_new     := λ (d : S + T), match d with | inl _ => inr t | inr _ => inl s end
+    ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 r (inl s) (inl (f s)) (inr t))
     ; eqv_data  := λ d, (match d with inl s => DATA_inl (eqv_data eqvS s) | inr t => DATA_inr (eqv_data eqvT t) end)
     ; eqv_rep   := λ d, (match d with inl s => inl _ (eqv_rep eqvS s) | inr t => inr _ (eqv_rep eqvT t) end)
     ; eqv_ast   := Ast_eqv_sum (eqv_ast eqvS, eqv_ast eqvT)
@@ -144,9 +176,11 @@ Theorem correct_eqv_sum :
          eqv_sum (A2C_eqv S eS) (A2C_eqv T eT)
          = 
          A2C_eqv (S + T) (A_eqv_sum S T eS eT). 
-Proof. intros S T eS eT. destruct eS; destruct eT. compute. reflexivity. 
+Proof. intros S T eS eT.
+       unfold eqv_sum, A_eqv_sum, A2C_eqv; simpl.
+       unfold brel_sum_not_exactly_two.
+       reflexivity.
 Qed. 
-
   
  
 End Verify.   

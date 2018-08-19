@@ -235,3 +235,28 @@ Definition brel_exists_top_decidable  (S : Type) (r : brel S) :=
 
 Definition bProp_congruence (S : Type) (eq : brel S) (P : bProp S) := 
    ∀ s t : S, eq s t = true → P s = P t. 
+
+
+(* needed for selectivity of bop_lift *)
+
+Definition exactly_two (S : Type) (r : brel S) (s t : S)  
+  := (r s t = false) * (∀ (a : S), (r s a = true) + (r t a = true)).
+
+Definition brel_exactly_two (S : Type) (r : brel S) 
+  := { z : S * S & match z with (s, t) =>  exactly_two S r s t end}.
+
+Definition brel_not_exactly_two (S : Type) (r : brel S) 
+  := {f : S -> (S ->S) & ∀ (s t : S), (r s t = true) + ((r s (f s t) = false) * (r t (f s t) = false))}.
+
+Definition brel_exactly_two_decidable  (S : Type) (r : brel S):= 
+    (brel_exactly_two S r) + (brel_not_exactly_two S r). 
+
+Definition brel_at_least_three (S : Type) (r : brel S) 
+  := { z : S * (S * S) &
+      match z with (s, (t, u)) =>
+       (r s t = false) *
+       (r s u = false) *
+       (r t u = false) 
+      end}.
+
+

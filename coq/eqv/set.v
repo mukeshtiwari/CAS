@@ -170,6 +170,29 @@ Proof. intros rep P l. induction l.
 Defined. 
  *)
 
+
+Lemma brel_set_at_least_three (s : S) (f : S -> S):
+  brel_not_trivial S eq f -> 
+  brel_at_least_three (finite_set S) (brel_set eq).
+Proof. intro nt. 
+       exists (nil, (s :: nil, (f s) :: nil)).
+       destruct (nt s) as [L R].
+       compute. rewrite L; auto. 
+Defined. 
+
+
+Lemma brel_set_not_exactly_two (s : S) (f : S -> S):
+  brel_not_trivial S eq f -> 
+  brel_not_exactly_two (finite_set S) (brel_set eq).
+Proof. intro nt. apply brel_at_least_thee_implies_not_exactly_two.
+       apply brel_set_symmetric; auto. 
+       apply brel_set_transitive; auto.
+       apply (brel_set_at_least_three s f); auto. 
+Defined.
+
+
+
+
 End Theory.
 
 Section ACAS.
@@ -185,21 +208,25 @@ Definition eqv_proofs_set : ∀ (S : Type) (r : brel S),
    ; A_eqv_symmetric   := brel_set_symmetric S r 
    |}. 
 
-
 Definition A_eqv_set : ∀ (S : Type),  A_eqv S -> A_eqv (finite_set S)
 := λ S eqvS,
   let eq := A_eqv_eq S eqvS in
-  let s := A_eqv_witness S eqvS in 
+  let s  := A_eqv_witness S eqvS in
+  let f  := A_eqv_new S eqvS in
+  let nt := A_eqv_not_trivial S eqvS in
+  let eqP := A_eqv_proofs S eqvS in
+  let refS := A_eqv_reflexive S eq eqP in
+  let symS := A_eqv_symmetric S eq eqP in
+  let trnS := A_eqv_transitive S eq eqP in   
    {| 
       A_eqv_eq     := brel_set eq 
-    ; A_eqv_proofs := eqv_proofs_set S eq (A_eqv_proofs S eqvS)
+    ; A_eqv_proofs := eqv_proofs_set S eq eqP 
     ; A_eqv_witness := s :: nil 
     ; A_eqv_new     := λ (l : finite_set S), if brel_set eq nil l then (s :: nil) else nil
     ; A_eqv_not_trivial := brel_set_not_trivial S eq s 
-
+    ; A_eqv_exactly_two_d := inr (brel_set_not_exactly_two S eq refS symS trnS s f nt)                              
     ; A_eqv_data   := λ d, DATA_list (List.map (A_eqv_data S eqvS) d)  (* need DATA_set *) 
-    ; A_eqv_rep    := λ d, d  (* fix this? *) 
-
+    ; A_eqv_rep    := λ d, d  (* fix this someday ... *) 
     ; A_eqv_ast    := Ast_eqv_set (A_eqv_ast S eqvS)
    |}. 
 
@@ -210,11 +237,13 @@ Section CAS.
 Definition eqv_set : ∀ {S : Type},  @eqv S -> @eqv (finite_set S)
 := λ {S} eqvS,
   let eq := eqv_eq eqvS in
-  let s := eqv_witness eqvS in 
+  let s := eqv_witness eqvS in
+  let f := eqv_new eqvS in   
  {| 
      eqv_eq       := brel_set eq 
     ; eqv_witness := s :: nil 
     ; eqv_new     := λ (l : finite_set S), if brel_set eq nil l then (s :: nil) else nil
+    ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 (brel_set eq) nil (s :: nil)  ((f s):: nil))
     ; eqv_data    := λ d, DATA_list (List.map (eqv_data eqvS) d)  (* need DATA_set *) 
     ; eqv_rep     := λ d, d  (* fix this? *) 
     ; eqv_ast     := Ast_eqv_set (eqv_ast eqvS)
@@ -227,7 +256,12 @@ Section Verify.
 
 Theorem correct_eqv_set : ∀ (S : Type) (E : A_eqv S),  
     eqv_set (A2C_eqv S E) = A2C_eqv (finite_set S) (A_eqv_set S E).
-Proof. intros S E. destruct E, A_eqv_proofs. compute. reflexivity. Qed. 
+Proof. intros S E. 
+       unfold eqv_set, A_eqv_set, A2C_eqv; simpl.
+       unfold brel_set_not_exactly_two.
+       reflexivity.
+Qed.        
+
   
  
 End Verify.   

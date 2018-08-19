@@ -1916,3 +1916,67 @@ Proof. intros S r b1 b2 refS transS cong_b1 comm_b2 lla s t.
 Defined. 
 
 
+(*************************************************** *)
+
+Definition not_ex2 {S : Type} (eq : brel S) (s : S) (t : S) (u : S) : S -> (S -> S) :=
+λ x y,
+  if eq x y
+  then x 
+  else if eq x s
+       then if eq y t
+            then u 
+            else t 
+       else (* x <> s *)
+            if eq y t 
+            then if eq x u
+                 then s 
+                 else u 
+            else (* x <> s, y <> t *)
+                 if eq x u
+                 then if eq y s 
+                      then t 
+                      else s
+                 else (* x <> u, x <> s, y <> t *)
+                      if eq x t
+                      then if eq y s 
+                           then u 
+                           else s 
+                      else t 
+  . 
+
+Lemma brel_at_least_thee_implies_not_exactly_two :
+  ∀ (T : Type) (eq : brel T),
+    brel_symmetric T eq ->
+    brel_transitive T eq ->     
+    brel_at_least_three T eq -> brel_not_exactly_two T eq.
+Proof. intros T eq sy tr nalt. 
+       exists (not_ex2 eq (fst (projT1 nalt)) (fst (snd (projT1 nalt))) (snd (snd (projT1 nalt)))). 
+       destruct nalt as [[s [t u] ] [[P1 P2] P3]]. simpl. 
+       intros  x y.  
+       case_eq(eq x y); intro J.
+       left; auto. 
+       right. compute. rewrite J.
+       case_eq(eq x s); intro K1.
+          case_eq(eq y t); intro K2. 
+             apply sy in K1. rewrite (brel_transititivity_implies_dual T eq tr _ _ _ K1 P2).        
+             apply sy in K2. rewrite (brel_transititivity_implies_dual T eq tr _ _ _ K2 P3). auto.
+             apply sy in K1. rewrite (brel_transititivity_implies_dual T eq tr _ _ _ K1 P1). auto.                   
+          case_eq(eq y t); intro K2. 
+             case_eq(eq x u); intro K3.  
+                apply sy in K2. apply (brel_symmetric_implies_dual T eq sy) in P1. 
+                rewrite (brel_transititivity_implies_dual T eq tr _ _ _ K2 P1). auto.
+                apply sy in K2. rewrite (brel_transititivity_implies_dual T eq tr _ _ _ K2 P3). auto.
+             case_eq(eq x u); intro K3.               
+                case_eq(eq y s); intro K4.
+                    apply sy in K4. rewrite (brel_transititivity_implies_dual T eq tr _ _ _ K4 P1). 
+                    apply sy in K3. apply (brel_symmetric_implies_dual T eq sy) in P3. 
+                    rewrite (brel_transititivity_implies_dual T eq tr _ _ _ K3 P3). auto.                    
+                   split; auto.
+                case_eq(eq x t); intro K5. 
+                   case_eq(eq y s); intro K6. 
+                      apply sy in K6. rewrite (brel_transititivity_implies_dual T eq tr _ _ _ K6 P2). auto.
+                      split; auto.
+                   split; auto. 
+Defined. 
+
+
