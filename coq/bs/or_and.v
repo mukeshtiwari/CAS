@@ -7,17 +7,19 @@ Section Theory.
 End Theory.  
 
 Section ACAS.
-Definition A_distributive_lattice_or_and : A_distributive_lattice bool := A_distributive_lattice_dual bool A_distributive_lattice_and_or.   
+  Definition A_selective_distributive_lattice_or_and : A_selective_distributive_lattice bool :=
+    A_selective_distributive_lattice_dual bool A_selective_distributive_lattice_and_or.   
 End ACAS.
 
 
 Section CAS.
-Definition distributive_lattice_or_and : @distributive_lattice bool := distributive_lattice_dual distributive_lattice_and_or.   
+  Definition selective_distributive_lattice_or_and : @selective_distributive_lattice bool :=
+    selective_distributive_lattice_dual selective_distributive_lattice_and_or.   
 End CAS.
 
 Section Verify.
-Theorem correct_distributive_lattice_or_and : 
-   distributive_lattice_or_and = A2C_distributive_lattice bool (A_distributive_lattice_or_and). 
+Theorem correct_selective_distributive_lattice_or_and : 
+   selective_distributive_lattice_or_and = A2C_selective_distributive_lattice bool (A_selective_distributive_lattice_or_and). 
 Proof. compute. reflexivity. Qed. 
   
  

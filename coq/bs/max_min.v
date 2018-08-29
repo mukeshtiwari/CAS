@@ -8,17 +8,19 @@ Section Theory.
 End Theory.  
 
 Section ACAS.
-Definition A_distributive_lattice_max_min : A_distributive_lattice nat := A_distributive_lattice_dual nat A_distributive_lattice_min_max.   
+  Definition A_selective_distributive_lattice_max_min : A_selective_distributive_lattice nat :=
+    A_selective_distributive_lattice_dual nat A_selective_distributive_lattice_min_max.   
 End ACAS.
 
 
 Section CAS.
-Definition distributive_lattice_max_min : @distributive_lattice nat := distributive_lattice_dual distributive_lattice_min_max.   
+  Definition selective_distributive_lattice_max_min : @selective_distributive_lattice nat :=
+    selective_distributive_lattice_dual selective_distributive_lattice_min_max.   
 End CAS.
 
 Section Verify.
-Theorem correct_distributive_lattice_max_min : 
-   distributive_lattice_max_min = A2C_distributive_lattice nat (A_distributive_lattice_max_min). 
+Theorem correct_selective_distributive_lattice_max_min : 
+   selective_distributive_lattice_max_min = A2C_selective_distributive_lattice nat (A_selective_distributive_lattice_max_min). 
 Proof. compute. reflexivity. Qed. 
   
  

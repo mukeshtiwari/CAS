@@ -46,7 +46,8 @@ Definition A_sg_from_sg_C : ∀ (S : Type),  A_sg_C S -> A_sg S
                             (A_eqv_new S (A_sg_C_eqv S sgS))
                             (A_eqv_not_trivial S (A_sg_C_eqv S sgS))
                             (A_eqv_proofs S (A_sg_C_eqv S sgS)) 
-                            (A_sg_C_proofs S sgS) 
+                            (A_sg_C_proofs S sgS)
+   ; A_sg_bop_ast    := A_sg_C_bop_ast S sgS                                                                                                    
    ; A_sg_ast        := Ast_sg_from_sg_C (A_sg_C_ast S sgS)
    |}. 
 
@@ -124,7 +125,8 @@ Definition A_sg_C_from_sg_CI: ∀ (S : Type),  A_sg_CI S -> A_sg_C S
                             (A_eqv_new S (A_sg_CI_eqv S sgS))
                             (A_eqv_not_trivial S (A_sg_CI_eqv S sgS))                                                                                     
                             (A_eqv_proofs S (A_sg_CI_eqv S sgS)) 
-                            (A_sg_CI_proofs S sgS) 
+                            (A_sg_CI_proofs S sgS)
+   ; A_sg_C_bop_ast    := A_sg_CI_bop_ast S sgS 
    ; A_sg_C_ast        := Ast_sg_C_from_sg_CI (A_sg_CI_ast S sgS)
    |}. 
 
@@ -150,7 +152,8 @@ Definition A_sg_CI_from_sg_CS: ∀ (S : Type),  A_sg_CS S -> A_sg_CI S
    ; A_sg_CI_proofs      := A_sg_CI_proofs_from_sg_CS_proofs S 
                             (A_eqv_eq S (A_sg_CS_eqv S sgS)) 
                             (A_sg_CS_bop S sgS) 
-                            (A_sg_CS_proofs S sgS) 
+                            (A_sg_CS_proofs S sgS)
+   ; A_sg_CI_bop_ast    := A_sg_CS_bop_ast S sgS                             
    ; A_sg_CI_ast        := Ast_sg_CI_from_sg_CS (A_sg_CS_ast S sgS)
    |}. 
 
@@ -213,7 +216,8 @@ Definition A_sg_C_from_sg_CK: ∀ (S : Type),  A_sg_CK S -> A_sg_C S
                             (A_eqv_new S (A_sg_CK_eqv S sgS))
                             (A_eqv_not_trivial S (A_sg_CK_eqv S sgS))
                             (A_eqv_proofs S (A_sg_CK_eqv S sgS))                             
-                            (A_sg_CK_proofs S sgS) 
+                            (A_sg_CK_proofs S sgS)
+   ; A_sg_C_bop_ast    := A_sg_CK_bop_ast S sgS                                                         
    ; A_sg_C_ast        := Ast_sg_C_from_sg_CK (A_sg_CK_ast S sgS)
    |}. 
 
@@ -284,7 +288,8 @@ Definition sg_from_sg_C: ∀ {S : Type},  sg_C (S := S) -> sg (S := S)
                     (sg_C_bop sg_C) 
                     (eqv_witness (sg_C_eqv sg_C))
                     (eqv_new (sg_C_eqv sg_C))                    
-                    (sg_C_certs sg_C) 
+                    (sg_C_certs sg_C)
+   ; sg_bop_ast    := sg_C_bop_ast sg_C                                                                                                    
    ; sg_ast   := Ast_sg_from_sg_C (sg_C_ast sg_C)
    |}. 
 
@@ -334,7 +339,8 @@ Definition sg_C_from_sg_CI: ∀ {S : Type},  sg_CI (S := S) -> sg_C (S := S)
                       (sg_CI_bop sgS) 
                       (eqv_witness (sg_CI_eqv sgS))
                       (eqv_new (sg_CI_eqv sgS))                      
-                      (sg_CI_certs sgS) 
+                      (sg_CI_certs sgS)
+   ; sg_C_bop_ast    := sg_CI_bop_ast sgS 
    ; sg_C_ast   := Ast_sg_C_from_sg_CI (sg_CI_ast sgS)
    |}. 
 
@@ -361,7 +367,8 @@ Definition sg_CI_from_sg_CS: ∀ {S : Type},  sg_CS (S := S) -> sg_CI (S := S)
    {| 
      sg_CI_eqv   := sg_CS_eqv sgS
    ; sg_CI_bop   := sg_CS_bop sgS
-   ; sg_CI_certs := sg_CI_certs_from_sg_CS_certs (sg_CS_certs sgS) 
+   ; sg_CI_certs := sg_CI_certs_from_sg_CS_certs (sg_CS_certs sgS)
+   ; sg_CI_bop_ast := sg_CS_bop_ast sgS                             
    ; sg_CI_ast   := Ast_sg_CI_from_sg_CS (sg_CS_ast sgS)
    |}. 
 
@@ -406,7 +413,8 @@ Definition sg_C_from_sg_CK: ∀ {S : Type},  sg_CK (S := S) -> sg_C (S := S)
                       (sg_CK_bop sg)
                       (eqv_witness (sg_CK_eqv sg))
                       (eqv_new (sg_CK_eqv sg)) 
-                      (sg_CK_certs sg) 
+                      (sg_CK_certs sg)
+   ; sg_C_bop_ast    := sg_CK_bop_ast sg                                                         
    ; sg_C_ast   := Ast_sg_C_from_sg_CK (sg_CK_ast sg)
    |}. 
 

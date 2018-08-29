@@ -90,7 +90,8 @@ Definition A_sg_left: ∀ (S : Type),  A_eqv S -> A_sg S
                                       (A_eqv_witness S eqvS)
                                       (A_eqv_new S eqvS)
                                       (A_eqv_not_trivial S eqvS)
-                                      (A_eqv_proofs S eqvS) 
+                                      (A_eqv_proofs S eqvS)
+   ; A_sg_bop_ast   := Ast_bop_left (A_eqv_ast _ eqvS)
    ; A_sg_ast       := Ast_sg_left (A_eqv_ast _ eqvS)
    |}. 
 
@@ -126,7 +127,8 @@ Definition sg_left: ∀ {S : Type},  @eqv S -> @sg S
    {| 
      sg_eq      := eqvS
    ; sg_bop     := bop_left 
-   ; sg_certs   := sg_certs_left (eqv_witness eqvS) (eqv_new eqvS) 
+   ; sg_certs   := sg_certs_left (eqv_witness eqvS) (eqv_new eqvS)
+   ; sg_bop_ast := Ast_bop_left (eqv_ast eqvS)                                 
    ; sg_ast     := Ast_sg_left (eqv_ast eqvS)
    |}. 
   

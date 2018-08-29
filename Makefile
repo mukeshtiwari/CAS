@@ -42,6 +42,8 @@ BASE=\
    coq/theory/llte.v \
    coq/theory/in_set.v\
    coq/theory/subset.v\
+   coq/theory/lattice_theory.v\
+   coq/theory/semilattice_theory.v\
    coq/theory/facts.v
 
 CAS=\
@@ -90,6 +92,9 @@ CAS=\
    coq/bs/intersect_union.v \
    coq/bs/add_id_add_ann.v \
    coq/bs/add_ann_add_id.v \
+   coq/bs/union_lift.v \
+   coq/bs/left.v \
+   coq/bs/right.v \
 
 
 FILES=$(BASE) $(CAS)
@@ -106,24 +111,10 @@ Cas.cmo \
 
 .PHONY: all casml html clean
 
-clean:
-	rm casml
-	rm -f  */*.glob  */*/*.glob */*/*/*.glob 
-	rm -f  */*.vo  */*/*.vo */*/*/*.vo 
-	rm -f  */*.d  */*/*.d */*/*/*.d 
-	rm -f  */.*.aux  */*/.*.aux */*/*/.*.aux 
-	rm -rf _build
-	rm -rf extraction/*.ml extraction/*.mli extraction/STAMP
-
-cleancasml:
-	rm -rf _build
-
-
 all:
 	$(MAKE) coq
 	$(MAKE) extraction
 	$(MAKE) casml
-
 
 depend: $(FILES:.v=.v.d)
 
@@ -136,8 +127,9 @@ extraction/STAMP: $(FILES:.v=.vo) extraction/extraction.v
 	$(COQEXEC) extraction/extraction.v
 	touch extraction/STAMP
 
-casml: casml extraction/STAMP ocaml/Mcas.ml ocaml/Describe.ml
+casml: extraction/STAMP ocaml/Mcas.ml ocaml/Describe.ml
 	mk_casml.sh
+	chmod +x casml
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
 	cd _build/extraction && ocamlmktop -o casml $(CMOFILES)
 
@@ -148,6 +140,18 @@ html: $(FILES:.v=.glob)
 	$(COQC) $*.v
 
 %.v.d: %.v
-	$(COQDEP) $(COQINCLUDES) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
+	$(COQDEP) $(COQINCLUDES) "$<" > "$@" 
 
+clean:
+	rm -f casml
+	rm -f  */*.glob  */*/*.glob */*/*/*.glob 
+	rm -f  */*.vo  */*/*.vo */*/*/*.vo 
+	rm -f  */*.d  */*/*.d */*/*/*.d 
+	rm -f  */.*.aux  */*/.*.aux */*/*/.*.aux 
+	rm -rf _build
+	rm -rf extraction/*.ml extraction/*.mli extraction/STAMP
+
+cleancasml:
+	rm -f casml
+	rm -rf _build
 

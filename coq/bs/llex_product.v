@@ -1039,7 +1039,9 @@ let timesT := A_bs_C_times T bsT in
                            (A_bs_C_plus_proofs T bsT) 
                            (A_bs_C_times_proofs T bsT) 
                            (A_bs_CS_proofs S bsS) 
-                           (A_bs_C_proofs T bsT) 
+                           (A_bs_C_proofs T bsT)
+   ; A_bs_C_plus_ast   := Ast_bop_llex (A_bs_CS_plus_ast S bsS, A_bs_C_plus_ast T bsT)
+   ; A_bs_C_times_ast  := Ast_bop_product (A_bs_CS_times_ast S bsS, A_bs_C_times_ast T bsT)                                       
    ; A_bs_C_ast        := Ast_bs_C_llex (A_bs_CS_ast S bsS, A_bs_C_ast T bsT)
 |}. 
 
@@ -1079,7 +1081,9 @@ let timesT := A_bs_CS_times T bsT in
                            (A_sg_C_proofs_from_sg_CS_proofs T _ _ t g Pg (A_eqv_proofs T (A_bs_CS_eqv T bsT)) (A_bs_CS_plus_proofs T bsT))
                            (A_bs_CS_times_proofs T bsT)
                            (A_bs_CS_proofs S bsS) 
-                           (A_bs_CS_proofs T bsT) 
+                           (A_bs_CS_proofs T bsT)
+   ; A_bs_CS_plus_ast   := Ast_bop_llex (A_bs_CS_plus_ast S bsS, A_bs_CS_plus_ast T bsT)
+   ; A_bs_CS_times_ast  := Ast_bop_product (A_bs_CS_times_ast S bsS, A_bs_CS_times_ast T bsT)            
    ; A_bs_CS_ast        := Ast_bs_CS_llex (A_bs_CS_ast S bsS, A_bs_CS_ast T bsT)
 |}. 
 
@@ -1395,7 +1399,9 @@ Definition bs_C_llex_product : ∀ {S T : Type},  bs_CS (S := S) -> bs_C (S := T
                            (bs_CS_times_certs bsS) 
                            (bs_C_times_certs bsT) 
                            (bs_CS_certs bsS) 
-                           (bs_C_certs bsT) 
+                           (bs_C_certs bsT)
+   ; bs_C_plus_ast   := Ast_bop_llex (bs_CS_plus_ast bsS, bs_C_plus_ast bsT)
+   ; bs_C_times_ast  := Ast_bop_product (bs_CS_times_ast bsS, bs_C_times_ast bsT)                                       
    ; bs_C_ast        := Ast_bs_C_llex (bs_CS_ast bsS, bs_C_ast bsT)
 |}. 
 
@@ -1433,7 +1439,9 @@ Definition bs_CS_llex_product : ∀ {S T : Type},  bs_CS (S := S) -> bs_CS (S :=
                            (bs_CS_times_certs bsS) 
                            (bs_CS_times_certs bsT) 
                            (bs_CS_certs bsS) 
-                           (bs_CS_certs bsT) 
+                           (bs_CS_certs bsT)
+   ; bs_CS_plus_ast   := Ast_bop_llex (bs_CS_plus_ast bsS, bs_CS_plus_ast bsT)
+   ; bs_CS_times_ast  := Ast_bop_product (bs_CS_times_ast bsS, bs_CS_times_ast bsT)                                                                  
    ; bs_CS_ast        := Ast_bs_CS_llex (bs_CS_ast bsS, bs_CS_ast bsT)
 |}. 
 

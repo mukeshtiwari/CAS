@@ -202,15 +202,17 @@ Definition semiring_proofs_max_plus : semiring_proofs nat brel_eq_nat bop_max bo
    ; A_semiring_left_right_absorptive_d  := inr _ bops_max_plus_not_left_right_absorptive
   |}. 
 
-Definition A_dioid_max_plus : A_dioid nat := 
+Definition A_selective_dioid_max_plus : A_selective_dioid nat := 
 {|
-  A_dioid_eqv          := A_eqv_nat 
-; A_dioid_plus         := bop_max
-; A_dioid_times        := bop_plus
-; A_dioid_plus_proofs  := A_sg_CI_proofs _ (A_sg_CI_from_sg_CS _ A_sg_CS_max) (* cast up! *) 
-; A_dioid_times_proofs := A_sg_proofs _ (A_sg_from_sg_CK _ A_sg_CK_plus)      (* cast up! *) 
-; A_dioid_proofs       := semiring_proofs_max_plus
-; A_dioid_ast          := Ast_dioid_max_plus
+  A_selective_dioid_eqv          := A_eqv_nat 
+; A_selective_dioid_plus         := bop_max
+; A_selective_dioid_times        := bop_plus
+; A_selective_dioid_plus_proofs  := A_sg_CS_proofs _ A_sg_CS_max
+; A_selective_dioid_times_proofs := A_sg_proofs _ (A_sg_from_sg_CK _ A_sg_CK_plus)      (* cast up! *) 
+; A_selective_dioid_proofs       := semiring_proofs_max_plus
+; A_selective_dioid_plus_ast     := Ast_bop_max
+; A_selective_dioid_times_ast    := Ast_bop_plus
+; A_selective_dioid_ast          := Ast_selective_dioid_max_plus
 |}.
 
 End ACAS.
@@ -230,15 +232,17 @@ Definition semiring_certs_max_plus : @semiring_certificates nat :=
   |}. 
 
 
-Definition dioid_max_plus : dioid (S := nat) := 
+Definition selective_dioid_max_plus : selective_dioid (S := nat) := 
 {|
-  dioid_eqv         := eqv_eq_nat 
-; dioid_plus        := bop_max
-; dioid_times       := bop_plus
-; dioid_plus_certs  := sg_CI_certs (sg_CI_from_sg_CS sg_CS_max)
-; dioid_times_certs := sg_certs (sg_from_sg_CK sg_CK_plus)
-; dioid_certs       := semiring_certs_max_plus
-; dioid_ast         := Ast_dioid_max_plus
+  selective_dioid_eqv         := eqv_eq_nat 
+; selective_dioid_plus        := bop_max
+; selective_dioid_times       := bop_plus
+; selective_dioid_plus_certs  := sg_CS_certs sg_CS_max
+; selective_dioid_times_certs := sg_certs (sg_from_sg_CK sg_CK_plus)
+; selective_dioid_certs       := semiring_certs_max_plus
+; selective_dioid_plus_ast    := Ast_bop_max
+; selective_dioid_times_ast   := Ast_bop_plus                                   
+; selective_dioid_ast         := Ast_selective_dioid_max_plus
 |}.
 
 End CAS.
@@ -246,7 +250,7 @@ End CAS.
 Section Verify.
 
 Theorem correct_semiring_max_plus : 
-   dioid_max_plus = A2C_dioid nat (A_dioid_max_plus). 
+   selective_dioid_max_plus = A2C_selective_dioid nat (A_selective_dioid_max_plus). 
 Proof. compute. reflexivity. Qed. 
   
  

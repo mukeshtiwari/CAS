@@ -97,7 +97,7 @@ Proof. intros [[[NID | NLLA] | NRLA] | NLD].
        apply bops_add_ann_add_id_not_left_distributive_v3; auto.               
        apply bops_add_ann_add_id_not_left_distributive_v4; auto.        
        apply bops_add_ann_add_id_not_left_distributive_v1; auto.        
-Qed. 
+Defined. 
 
 
 
@@ -153,7 +153,7 @@ Proof. intros [[[NID | NLLA] | NRLA] | NLD].
        apply bops_add_ann_add_id_not_right_distributive_v3; auto.               
        apply bops_add_ann_add_id_not_right_distributive_v4; auto.        
        apply bops_add_ann_add_id_not_right_distributive_v1; auto.        
-Qed. 
+Defined. 
 
 
 
@@ -188,7 +188,7 @@ Lemma bops_add_ann_add_id_not_left_left_absorptive  :
 Proof. intros [NID | NLLA].
        apply bops_add_ann_add_id_not_left_left_absorptive_v1; auto.
        apply bops_add_ann_add_id_not_left_left_absorptive_v2; auto.   
-Qed. 
+Defined. 
 
 (* left right *) 
 Lemma bops_add_ann_add_id_left_right_absorptive  : 
@@ -219,7 +219,7 @@ Lemma bops_add_ann_add_id_not_left_right_absorptive  :
 Proof. intros [NID | NLRA].
        apply bops_add_ann_add_id_not_left_right_absorptive_v1; auto.
        apply bops_add_ann_add_id_not_left_right_absorptive_v2; auto.   
-Qed. 
+Defined. 
 
 
 (* right left *) 
@@ -250,7 +250,7 @@ Lemma bops_add_ann_add_id_not_right_left_absorptive  :
 Proof. intros [NID | NRLA].
        apply bops_add_ann_add_id_not_right_left_absorptive_v1; auto.
        apply bops_add_ann_add_id_not_right_left_absorptive_v2; auto.   
-Qed. 
+Defined. 
 
 
 (* right right *) 
@@ -281,7 +281,7 @@ Lemma bops_add_ann_add_id_not_right_right_absorptive  :
 Proof. intros [NID | NRRA].
        apply bops_add_ann_add_id_not_right_right_absorptive_v1; auto.
        apply bops_add_ann_add_id_not_right_right_absorptive_v2; auto.   
-Qed. 
+Defined. 
 
 
 
@@ -497,6 +497,8 @@ let tproofs := A_bs_times_proofs S bsS in
    ; A_bs_plus_proofs  := sg_proofs_add_ann S rS c plus s f Pf peqvS pproofs 
    ; A_bs_times_proofs := sg_proofs_add_id S rS c times s f Pf peqvS tproofs 
    ; A_bs_proofs       := bs_proofs_add_one S rS c plus times s peqvS pproofs (A_bs_proofs S bsS)
+   ; A_bs_plus_ast     := Ast_bop_add_ann (c, A_bs_plus_ast S bsS)
+   ; A_bs_times_ast    := Ast_bop_add_id (c, A_bs_times_ast S bsS)                                                      
    ; A_bs_ast          := Ast_bs_add_one (c, A_bs_ast S bsS)
 |}.
 
@@ -580,6 +582,8 @@ Definition A_lattice_add_one : ∀ (S : Type),  A_lattice S -> cas_constant -> A
                                 (A_lattice_join_proofs S bsS)
                                 (A_lattice_meet_proofs S bsS)                                 
                                 (A_lattice_proofs S bsS)
+   ; A_lattice_join_ast    := Ast_bop_add_ann (c, A_lattice_join_ast S bsS)
+   ; A_lattice_meet_ast    := Ast_bop_add_id (c, A_lattice_meet_ast S bsS)                                                      
    ; A_lattice_ast         :=  Ast_lattice_add_one (c, A_lattice_ast S bsS)
 |}. 
 
@@ -661,6 +665,8 @@ Definition A_distributive_lattice_add_one : ∀ (S : Type),  A_distributive_latt
                                 (A_distributive_lattice_join_proofs S bsS)
                                 (A_distributive_lattice_meet_proofs S bsS)                                 
                                 (A_distributive_lattice_proofs S bsS)
+   ; A_distributive_lattice_join_ast    := Ast_bop_add_ann (c, A_distributive_lattice_join_ast S bsS)
+   ; A_distributive_lattice_meet_ast    := Ast_bop_add_id (c, A_distributive_lattice_meet_ast S bsS)                                 
    ; A_distributive_lattice_ast         := Ast_distributive_lattice_add_one (c, A_distributive_lattice_ast S bsS)
 |}. 
 
@@ -899,6 +905,8 @@ Definition bs_add_one : ∀ {S : Type}, bs (S := S) -> cas_constant -> bs (S := 
    ; bs_certs       := bs_certs_add_one c
                                 (bs_plus_certs bsS) 
                                 (bs_certs bsS)
+   ; bs_plus_ast    := Ast_bop_add_ann (c, bs_plus_ast bsS)
+   ; bs_times_ast   := Ast_bop_add_id (c, bs_times_ast bsS)                                                      
    ; bs_ast         := Ast_bs_add_one (c, bs_ast bsS)
 |}.
 
@@ -940,6 +948,8 @@ Definition lattice_add_one : ∀ (S : Type),  @lattice S -> cas_constant -> @lat
    ; lattice_join_certs  := sg_CI_certs_add_ann c (lattice_join_certs bsS) 
    ; lattice_meet_certs  := sg_CI_certs_add_id c (lattice_meet_certs bsS) 
    ; lattice_certs       := lattice_certs_add_one c (lattice_certs bsS)
+   ; lattice_join_ast    := Ast_bop_add_ann (c, lattice_join_ast bsS)                                                     
+   ; lattice_meet_ast    := Ast_bop_add_id (c, lattice_meet_ast bsS)
    ; lattice_ast         := Ast_lattice_add_one (c, lattice_ast bsS)
 |}. 
 
@@ -962,6 +972,8 @@ Definition distributive_lattice_add_one : ∀ (S : Type),  @distributive_lattice
    ; distributive_lattice_join_certs  := sg_CI_certs_add_ann c (distributive_lattice_join_certs bsS) 
    ; distributive_lattice_meet_certs  := sg_CI_certs_add_id c (distributive_lattice_meet_certs bsS) 
    ; distributive_lattice_certs       := distributive_lattice_certs_add_one c (distributive_lattice_certs bsS)
+   ; distributive_lattice_join_ast    := Ast_bop_add_ann (c, distributive_lattice_join_ast bsS)                                            
+   ; distributive_lattice_meet_ast    := Ast_bop_add_id (c, distributive_lattice_meet_ast bsS)
    ; distributive_lattice_ast         := Ast_distributive_lattice_add_one (c, distributive_lattice_ast bsS)
 |}. 
   

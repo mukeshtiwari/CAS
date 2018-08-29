@@ -191,7 +191,8 @@ Definition A_sg_concat : ∀ (S : Type),  A_eqv S -> A_sg (list S)
                                          (A_eqv_witness S eqvS)
                                          (A_eqv_new S eqvS)
                                          (A_eqv_not_trivial S eqvS)
-                                         (A_eqv_proofs S eqvS) 
+                                         (A_eqv_proofs S eqvS)
+   ; A_sg_bop_ast    := Ast_bop_concat (A_eqv_ast S eqvS)                                                                              
    ; A_sg_ast        := Ast_sg_concat (A_eqv_ast S eqvS)
    |}. 
 
@@ -224,10 +225,11 @@ let t := f s in
 Definition sg_concat: ∀ {S : Type},  eqv (S := S) -> sg (S := (list S)) 
 := λ {S} eqvS, 
    {| 
-     sg_eq     := eqv_list eqvS 
-   ; sg_bop    := bop_concat 
-   ; sg_certs  := sg_certs_concat (eqv_witness eqvS) (eqv_new eqvS) 
-   ; sg_ast    := Ast_sg_concat (eqv_ast eqvS)
+     sg_eq      := eqv_list eqvS 
+   ; sg_bop     := bop_concat 
+   ; sg_certs   := sg_certs_concat (eqv_witness eqvS) (eqv_new eqvS)
+   ; sg_bop_ast := Ast_bop_concat (eqv_ast eqvS)
+   ; sg_ast     := Ast_sg_concat (eqv_ast eqvS)
    |}. 
 
 End CAS.

@@ -1581,8 +1581,9 @@ let bT   := A_sg_bop T sgT in
                            (A_eqv_proofs S eqvS) 
                            (A_eqv_proofs T eqvT)
                            (A_sg_CS_proofs S sgS) 
-                           (A_sg_proofs T sgT) 
-      ; A_sg_ast    := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_ast T sgT)  
+                           (A_sg_proofs T sgT)
+      ; A_sg_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S sgS, A_sg_bop_ast T sgT)                                            
+      ; A_sg_ast     := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_ast T sgT)  
 |}. 
 
 
@@ -1610,8 +1611,9 @@ let bT   := A_sg_C_bop T sgT in
                            (A_eqv_proofs S eqvS)
                            (A_eqv_proofs T eqvT)                           
                            (A_sg_CS_proofs S sgS) 
-                           (A_sg_C_proofs T sgT) 
-      ; A_sg_C_ast    := Ast_sg_C_llex (A_sg_CS_ast S sgS, A_sg_C_ast T sgT)  
+                           (A_sg_C_proofs T sgT)
+      ; A_sg_C_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S sgS, A_sg_C_bop_ast T sgT)                                                                       
+      ; A_sg_C_ast     := Ast_sg_C_llex (A_sg_CS_ast S sgS, A_sg_C_ast T sgT)  
 |}. 
 
 
@@ -1631,8 +1633,9 @@ let bT   := A_sg_CI_bop T sgT in
                            (A_eqv_proofs S eqvS)
                            (A_eqv_proofs T eqvT)                           
                           (A_sg_CS_proofs S sgS) 
-                          (A_sg_CI_proofs T sgT) 
-      ; A_sg_CI_ast    := Ast_sg_CI_llex (A_sg_CS_ast S sgS, A_sg_CI_ast T sgT)  
+                          (A_sg_CI_proofs T sgT)
+      ; A_sg_CI_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S sgS, A_sg_CI_bop_ast T sgT)                                        
+      ; A_sg_CI_ast     := Ast_sg_CI_llex (A_sg_CS_ast S sgS, A_sg_CI_ast T sgT)  
  |}. 
 
 
@@ -1651,7 +1654,8 @@ let bT   := A_sg_CS_bop T sgT in
                            (A_eqv_proofs S eqvS)
                            (A_eqv_proofs T eqvT)                           
                            (A_sg_CS_proofs S sgS) 
-                           (A_sg_CS_proofs T sgT) 
+                           (A_sg_CS_proofs T sgT)
+      ; A_sg_CS_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S sgS, A_sg_CS_bop_ast T sgT)                               
       ; A_sg_CS_ast    := Ast_sg_CS_llex (A_sg_CS_ast S sgS, A_sg_CS_ast T sgT)  
 |}. 
 
@@ -1783,7 +1787,8 @@ Definition sg_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg (S := T) -> sg (S :
                    (eqv_witness (sg_CS_eqv sgS)) (eqv_new (sg_CS_eqv sgS)) 
                    (eqv_witness (sg_eq sgT)) (eqv_new (sg_eq sgT)) 
                    (sg_CS_certs sgS) 
-                   (sg_certs sgT) 
+                   (sg_certs sgT)
+   ; sg_bop_ast := Ast_bop_llex (sg_CS_bop_ast sgS, sg_bop_ast sgT)                                                                            
    ; sg_ast   := Ast_sg_llex (sg_CS_ast sgS, sg_ast sgT)
    |}. 
 
@@ -1801,7 +1806,8 @@ Definition sg_C_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_C (S := T) -> sg_
                           (eqv_witness (sg_CS_eqv sgS)) (eqv_new (sg_CS_eqv sgS)) 
                           (eqv_witness (sg_C_eqv sgT)) (eqv_new (sg_C_eqv sgT))
                           (sg_CS_certs sgS) 
-                          (sg_C_certs sgT) 
+                          (sg_C_certs sgT)
+      ; sg_C_bop_ast := Ast_bop_llex (sg_CS_bop_ast sgS, sg_C_bop_ast sgT)                                                         
       ; sg_C_ast    := Ast_sg_C_llex (sg_CS_ast sgS, sg_C_ast sgT)  
       |}. 
 
@@ -1818,7 +1824,8 @@ Definition sg_CI_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CI (S := T) -> s
                           (sg_CS_bop sgS)
                           (eqv_witness (sg_CS_eqv sgS)) 
                           (sg_CS_certs sgS) 
-                          (sg_CI_certs sgT) 
+                          (sg_CI_certs sgT)
+      ; sg_CI_bop_ast := Ast_bop_llex (sg_CS_bop_ast sgS, sg_CI_bop_ast sgT)                                                         
       ; sg_CI_ast    := Ast_sg_CI_llex (sg_CS_ast sgS, sg_CI_ast sgT)  
       |}. 
 
@@ -1834,7 +1841,8 @@ Definition sg_CS_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T) -> s
                           (eqv_eq (sg_CS_eqv sgS))
                           (sg_CS_bop sgS) 
                           (sg_CS_certs sgS) 
-                          (sg_CS_certs sgT) 
+                          (sg_CS_certs sgT)
+      ; sg_CS_bop_ast := Ast_bop_llex (sg_CS_bop_ast sgS, sg_CS_bop_ast sgT)                               
       ; sg_CS_ast    := Ast_sg_CS_llex (sg_CS_ast sgS, sg_CS_ast sgT)  
       |}. 
 

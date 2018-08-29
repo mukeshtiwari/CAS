@@ -1850,19 +1850,19 @@ match ilD with
 end. 
 
 
-Definition sg_lift_proofs (S: Type) (sg : A_sg S) :
-         sg_proofs (finite_set S) (brel_set (A_eqv_eq S (A_sg_eq S sg))) (bop_lift (A_eqv_eq S (A_sg_eq S sg)) (A_sg_bop S sg)) :=
-let eqv  := A_sg_eq S sg                in
-let eqvP := A_eqv_proofs S eqv           in   
-let eq   := A_eqv_eq S eqv               in
-let wS   := A_eqv_witness S eqv          in
-let f    := A_eqv_new S eqv              in
-let nt    := A_eqv_not_trivial S eqv     in
-let b    := A_sg_bop S sg                in
+Definition sg_lift_proofs (S: Type)
+           (eq : brel S)
+           (b : binary_op S)
+           (eqvP : eqv_proofs S eq)
+           (wS : S)
+           (f : S -> S)
+           (nt : brel_not_trivial S eq f)
+           (ex2_d : brel_exactly_two_decidable S eq)           
+           (bP : sg_proofs S eq b) : sg_proofs (finite_set S) (brel_set eq) (bop_lift eq b)
+:=
 let refS := A_eqv_reflexive S eq eqvP    in
 let symS := A_eqv_symmetric S eq eqvP    in
 let trnS := A_eqv_transitive S eq eqvP   in
-let bP   := A_sg_proofs S sg             in
 let cong_b := A_sg_congruence S eq b bP  in
 let asso_b := A_sg_associative S eq b bP in
 {|
@@ -1873,7 +1873,7 @@ let asso_b := A_sg_associative S eq b bP in
                                                       (A_sg_is_left_d S eq b bP)
                                                       (A_sg_is_right_d S eq b bP)
                                                       (A_sg_idempotent_d S eq b bP)
-                                                      (A_eqv_exactly_two_d S eqv)
+                                                      ex2_d 
 ; A_sg_idempotent_d     :=  bop_lift_idempotent_decide S eq b refS symS trnS cong_b (A_sg_selective_d S eq b bP)
 ; A_sg_exists_id_d      :=  bop_lift_exists_id_decide S eq wS b refS symS trnS cong_b (A_sg_exists_id_d S eq b bP)
 ; A_sg_exists_ann_d     :=  inl (bop_lift_exists_ann S eq b)
@@ -1897,7 +1897,14 @@ Definition A_sg_lift : ∀ (S : Type),  A_sg S -> A_sg (finite_set S)
    {| 
      A_sg_eq        := A_eqv_set S eqv
    ; A_sg_bop       := bop_lift eq bS 
-   ; A_sg_proofs    := sg_lift_proofs S sgS 
+   ; A_sg_proofs    := sg_lift_proofs S eq bS
+                                      (A_eqv_proofs S eqv)
+                                      (A_eqv_witness S eqv)
+                                      (A_eqv_new S eqv)
+                                      (A_eqv_not_trivial S eqv)
+                                      (A_eqv_exactly_two_d S eqv)
+                                      (A_sg_proofs S sgS) 
+   ; A_sg_bop_ast   := Ast_bop_lift (A_sg_bop_ast S sgS)                                   
    ; A_sg_ast       := Ast_sg_lift (A_sg_ast S sgS)
    |}.
 
@@ -1950,14 +1957,14 @@ match ilD with
   end 
 end.
 
-  Definition sg_lift_certs (S: Type) (sg : @sg S) : @sg_certificates (finite_set S) :=
-let eqv  := sg_eq sg                 in
-let eq   := eqv_eq eqv               in
-let wS   := eqv_witness eqv          in
-let f    := eqv_new eqv              in
-let bS   := sg_bop sg                in
-let bP   := sg_certs sg              in
-{|
+Definition sg_lift_certs (S: Type)
+           (eq : brel S) 
+           (wS : S)
+           (f : S -> S)
+           (ex2_d : @check_exactly_two S)
+           (bS : binary_op S)
+           (bP : @sg_certificates S) : @sg_certificates (finite_set S)
+:= {|
   sg_associative      :=  Assert_Associative  
 ; sg_congruence       :=  Assert_Bop_Congruence  
 ; sg_commutative_d    :=  bop_lift_commutative_check (sg_commutative_d bP)
@@ -1965,7 +1972,7 @@ let bP   := sg_certs sg              in
                                                    (sg_is_left_d bP)
                                                    (sg_is_right_d bP)
                                                    (sg_idempotent_d bP)
-                                                   (eqv_exactly_two_d eqv)
+                                                   ex2_d 
 ; sg_idempotent_d     :=  bop_lift_idempotent_check (sg_selective_d bP)
 ; sg_exists_id_d      :=  bop_lift_exists_id_check (sg_exists_id_d bP)  
 ; sg_exists_ann_d     :=  Certify_Exists_Ann nil 
@@ -1988,7 +1995,8 @@ Definition sg_lift : ∀ {S : Type},  @sg S -> @sg (finite_set S)
    {| 
      sg_eq        := eqv_set eqv
    ; sg_bop       := bop_lift eq bS 
-   ; sg_certs     := sg_lift_certs S sgS 
+   ; sg_certs     := sg_lift_certs S eq (eqv_witness eqv) (eqv_new eqv) (eqv_exactly_two_d eqv) bS (sg_certs sgS) 
+   ; sg_bop_ast   := Ast_bop_lift (sg_bop_ast sgS)                                                                      
    ; sg_ast       := Ast_sg_lift (sg_ast sgS)
    |}. 
 
@@ -2080,21 +2088,53 @@ Lemma correct_bop_lift_exists_id_check :
     =
     bop_lift_exists_id_check (p2c_exists_id_check S eq b idD).
 Proof. intros. destruct idD as [ [id  ID] | NID ]; compute; auto. Qed. 
-  
 
+
+
+
+Lemma correct_bop_lift_certs 
+  (S : Type)
+  (eq : brel S)
+  (wS : S)
+  (f : S -> S)
+  (bS : binary_op S)
+  (nt : brel_not_trivial S eq f)
+  (ex2_d : brel_exactly_two_decidable S eq) 
+  (eqvP : eqv_proofs S eq)   
+  (sgP : sg_proofs S eq bS) :
+  P2C_sg (finite_set S)
+         (brel_set eq)
+         (bop_lift eq bS)
+         (sg_lift_proofs S eq bS eqvP wS f nt ex2_d  sgP) 
+  =  
+  sg_lift_certs S eq wS f (p2c_exactly_two_check S eq ex2_d) bS (P2C_sg S eq bS sgP).
+Proof. unfold sg_lift_proofs, sg_lift_certs, P2C_sg. simpl. 
+       rewrite correct_bop_lift_exists_id_check; auto. 
+       rewrite correct_bop_lift_idempotent_check; auto.
+       rewrite correct_bop_lift_selective_check; auto. 
+       rewrite correct_bop_lift_commutative_check; auto.
+Qed.   
+  
 Theorem correct_sg_lift  : ∀ (S : Type) (sgS : A_sg S), 
          sg_lift (A2C_sg S sgS) 
          = 
          A2C_sg (finite_set S) (A_sg_lift S sgS). 
 Proof. intros S sgS.
        unfold A2C_sg, sg_lift, A_sg_lift. simpl.
-       unfold sg_lift_proofs, sg_lift_certs.
-       destruct sgS. destruct A_sg_eq. destruct A_sg_proofs.
-       simpl. simpl in *.  unfold A2C_eqv. simpl. unfold P2C_sg. simpl.
-       rewrite correct_bop_lift_exists_id_check; auto. 
-       rewrite correct_bop_lift_idempotent_check; auto.
-       rewrite correct_bop_lift_selective_check; auto. 
-       rewrite correct_bop_lift_commutative_check; auto.
+       rewrite correct_eqv_set.
+       rewrite correct_bop_lift_certs.
+       reflexivity. 
 Qed.
 
-End Verify.   
+
+
+End Verify.
+
+(*
+
+correct_sg_C_lift
+
+correct_sg_CI_lift  : CS -> CI 
+
+*) 
+

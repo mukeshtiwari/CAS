@@ -1063,7 +1063,9 @@ let timesT := A_bs_times T bsT in
    ; A_bs_proofs    := bs_proofs_left_sum S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
                            (A_bs_plus_proofs T bsT)                            
                            (A_bs_proofs S bsS) 
-                           (A_bs_proofs T bsT) 
+                           (A_bs_proofs T bsT)
+   ; A_bs_plus_ast   := Ast_bop_left_sum(A_bs_plus_ast S bsS, A_bs_plus_ast T bsT)
+   ; A_bs_times_ast  := Ast_bop_right_sum(A_bs_times_ast S bsS, A_bs_times_ast T bsT)                                                                   
    ; A_bs_ast        := Ast_bs_left_sum(A_bs_ast S bsS, A_bs_ast T bsT)
 |}. 
 
@@ -1096,8 +1098,10 @@ let meetT  := A_lattice_meet T sr2 in
                                    (A_lattice_meet_proofs S sr1)
                                    (A_lattice_join_proofs T sr2)                                                                      
                                    (A_lattice_proofs S sr1)
-                                   (A_lattice_proofs T sr2)                                   
-   ; A_lattice_ast  := Ast_lattice_left_sum (A_lattice_ast S sr1, A_lattice_ast T sr2)
+                                   (A_lattice_proofs T sr2)
+   ; A_lattice_join_ast := Ast_bop_left_sum(A_lattice_join_ast S sr1, A_lattice_join_ast T sr2)
+   ; A_lattice_meet_ast := Ast_bop_right_sum(A_lattice_meet_ast S sr1, A_lattice_meet_ast T sr2)     
+   ; A_lattice_ast      := Ast_lattice_left_sum (A_lattice_ast S sr1, A_lattice_ast T sr2)
 |}.
 
 
@@ -1129,7 +1133,9 @@ let meetT  := A_distributive_lattice_meet T sr2 in
                                    (A_distributive_lattice_meet_proofs S sr1)
                                    (A_distributive_lattice_join_proofs T sr2)                                                                      
                                    (A_distributive_lattice_proofs S sr1)
-                                   (A_distributive_lattice_proofs T sr2)                                   
+                                   (A_distributive_lattice_proofs T sr2)
+   ; A_distributive_lattice_join_ast := Ast_bop_left_sum(A_distributive_lattice_join_ast S sr1, A_distributive_lattice_join_ast T sr2)
+   ; A_distributive_lattice_meet_ast := Ast_bop_right_sum(A_distributive_lattice_meet_ast S sr1, A_distributive_lattice_meet_ast T sr2)
    ; A_distributive_lattice_ast  := Ast_distributive_lattice_left_sum (A_distributive_lattice_ast S sr1, A_distributive_lattice_ast T sr2)
 |}.
 
@@ -1369,7 +1375,9 @@ let timesT := bs_times bsT in
    ; bs_times       := bop_right_sum timesS timesT 
    ; bs_plus_certs  := sg_certs_left_sum s f t g (bs_plus_certs bsS) (bs_plus_certs bsT) 
    ; bs_times_certs := sg_certs_right_sum s f t g (bs_times_certs bsS) (bs_times_certs bsT) 
-   ; bs_certs       := bs_certs_left_sum S T s (bs_plus_certs bsT) (bs_certs bsS) (bs_certs bsT) 
+   ; bs_certs       := bs_certs_left_sum S T s (bs_plus_certs bsT) (bs_certs bsS) (bs_certs bsT)
+   ; bs_plus_ast    := Ast_bop_left_sum(bs_plus_ast bsS, bs_plus_ast bsT)
+   ; bs_times_ast   := Ast_bop_right_sum(bs_times_ast bsS, bs_times_ast bsT)                                                                   
    ; bs_ast         := Ast_bs_left_sum(bs_ast bsS, bs_ast bsT)
 |}.
 

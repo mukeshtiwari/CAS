@@ -1,7 +1,8 @@
 Require Import CAS.coq.common.base. 
 Require Import CAS.coq.sg.cast_up.
 Require Import CAS.coq.bs.dual. 
-Require Import CAS.coq.theory.facts. 
+Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.theory.lattice_theory. 
 Section Theory.
 
 End Theory.
@@ -23,7 +24,9 @@ Definition A_bs_from_bs_C : ∀ (S : Type),  A_bs_C S -> A_bs S
                             (A_eqv_proofs S (A_bs_C_eqv S s)) 
                             (A_bs_C_plus_proofs S s)  
 ; A_bs_times_proofs := A_bs_C_times_proofs S s
-; A_bs_proofs       := A_bs_C_proofs S s 
+; A_bs_proofs       := A_bs_C_proofs S s
+; A_bs_plus_ast     := A_bs_C_plus_ast S s
+; A_bs_times_ast    := A_bs_C_times_ast S s                                                                      
 ; A_bs_ast          := Ast_bs_from_bs_C (A_bs_C_ast S s)
 |}. 
 
@@ -43,7 +46,9 @@ Definition A_bs_C_from_bs_CS : ∀ (S : Type),  A_bs_CS S -> A_bs_C S
                             (A_eqv_proofs S (A_bs_CS_eqv S s))                            
                             (A_bs_CS_plus_proofs S s)  
 ; A_bs_C_times_proofs := A_bs_CS_times_proofs S s
-; A_bs_C_proofs       := A_bs_CS_proofs S s 
+; A_bs_C_proofs       := A_bs_CS_proofs S s
+; A_bs_C_plus_ast     := A_bs_CS_plus_ast S s
+; A_bs_C_times_ast    := A_bs_CS_times_ast S s   
 ; A_bs_C_ast          := Ast_bs_C_from_bs_CS (A_bs_CS_ast S s)
 |}. 
 
@@ -63,7 +68,9 @@ Definition A_bs_C_from_bs_CI : ∀ (S : Type),  A_bs_CI S -> A_bs_C S
                             (A_eqv_proofs S (A_bs_CI_eqv S s))                            
                             (A_bs_CI_plus_proofs S s)  
 ; A_bs_C_times_proofs := A_bs_CI_times_proofs S s
-; A_bs_C_proofs       := A_bs_CI_proofs S s 
+; A_bs_C_proofs       := A_bs_CI_proofs S s
+; A_bs_C_plus_ast     := A_bs_CI_plus_ast S s
+; A_bs_C_times_ast    := A_bs_CI_times_ast S s                                           
 ; A_bs_C_ast          := Ast_bs_C_from_bs_CI (A_bs_CI_ast S s)
 |}. 
 
@@ -107,7 +114,9 @@ let sg_plusP := A_semiring_plus_proofs S s in
 ; A_bs_C_times        := times
 ; A_bs_C_plus_proofs  := sg_plusP
 ; A_bs_C_times_proofs := A_semiring_times_proofs S s
-; A_bs_C_proofs       := bs_proofs_from_semiring_proofs S eq plus times eqvP sg_plusP (A_semiring_proofs S s) 
+; A_bs_C_proofs       := bs_proofs_from_semiring_proofs S eq plus times eqvP sg_plusP (A_semiring_proofs S s)
+; A_bs_C_plus_ast     := A_semiring_plus_ast S s
+; A_bs_C_times_ast    := A_semiring_times_ast S s                                                           
 ; A_bs_C_ast          := Ast_bs_C_from_semiring (A_semiring_ast S s)
 |}.
      
@@ -127,6 +136,8 @@ let nt := A_eqv_not_trivial S eqv in
 ; A_semiring_plus_proofs  := A_sg_C_proofs_from_sg_CI_proofs S eq plus w f nt eqvP (A_dioid_plus_proofs S dS)
 ; A_semiring_times_proofs := A_dioid_times_proofs S dS
 ; A_semiring_proofs       := A_dioid_proofs S dS
+; A_semiring_plus_ast     := A_dioid_plus_ast S dS
+; A_semiring_times_ast    := A_dioid_times_ast S dS                                                           
 ; A_semiring_ast          := Ast_semiring_from_dioid (A_dioid_ast S dS)
 |}.  
 
@@ -191,12 +202,55 @@ let nt    := A_eqv_not_trivial S eqv in
 ; A_dioid_plus_proofs  := plusP 
 ; A_dioid_times_proofs := A_sg_proofs_from_sg_CI_proofs S eq times w f nt eqvP timesP
 ; A_dioid_proofs       := distributive_lattice_proofs_to_semiring_proofs S eq plus times eqvP plusP timesP dPS
+; A_dioid_plus_ast     := A_distributive_lattice_join_ast S dS
+; A_dioid_times_ast    := A_distributive_lattice_meet_ast S dS                                                          
 ; A_dioid_ast          := Ast_dioid_from_distributive_lattice (A_distributive_lattice_ast S dS)
+|}.  
+
+Definition A_dioid_from_selective_dioid :∀ (S: Type), A_selective_dioid S -> A_dioid S
+:= λ S dS,
+{|
+  A_dioid_eqv           := A_selective_dioid_eqv S dS
+; A_dioid_plus          := A_selective_dioid_plus S dS
+; A_dioid_times         := A_selective_dioid_times S dS
+; A_dioid_plus_proofs   := A_sg_CI_proofs_from_sg_CS_proofs S
+                             (A_eqv_eq S (A_selective_dioid_eqv S dS))
+                             (A_selective_dioid_plus S dS)
+                             (A_selective_dioid_plus_proofs S dS)
+; A_dioid_times_proofs  := A_selective_dioid_times_proofs S dS
+; A_dioid_proofs        := A_selective_dioid_proofs S dS
+; A_dioid_plus_ast     := A_selective_dioid_plus_ast S dS 
+; A_dioid_times_ast    := A_selective_dioid_times_ast S dS                                                        
+; A_dioid_ast          := Ast_dioid_from_selective_dioid (A_selective_dioid_ast S dS)
+|}.
+
+
+Definition A_distributive_lattice_from_selective_distributive_lattice : ∀ (S : Type), A_selective_distributive_lattice S -> A_distributive_lattice S
+:= λ S lat,
+{|  
+  A_distributive_lattice_eqv          := A_selective_distributive_lattice_eqv S lat 
+; A_distributive_lattice_join         := A_selective_distributive_lattice_join S lat
+; A_distributive_lattice_meet         := A_selective_distributive_lattice_meet S lat 
+; A_distributive_lattice_join_proofs  := A_sg_CI_proofs_from_sg_CS_proofs S
+                                              (A_eqv_eq S (A_selective_distributive_lattice_eqv S lat))
+                                              (A_selective_distributive_lattice_join S lat)                                
+                                              (A_selective_distributive_lattice_join_proofs S lat)
+; A_distributive_lattice_meet_proofs  := A_sg_CI_proofs_from_sg_CS_proofs S
+                                              (A_eqv_eq S (A_selective_distributive_lattice_eqv S lat))
+                                              (A_selective_distributive_lattice_meet S lat)
+                                              (A_selective_distributive_lattice_meet_proofs S lat)
+; A_distributive_lattice_proofs       := A_selective_distributive_lattice_proofs S lat
+; A_distributive_lattice_join_ast     := A_selective_distributive_lattice_join_ast S lat
+; A_distributive_lattice_meet_ast     := A_selective_distributive_lattice_meet_ast S lat  
+; A_distributive_lattice_ast          := Ast_distributive_lattice_from_selective_distributive_lattice (A_selective_distributive_lattice_ast S lat) 
 |}.  
 
 
 Definition A_bs_from_dioid :∀ (S: Type), A_dioid S -> A_bs S 
-:= λ S sS,  (A_bs_from_bs_C S (A_bs_C_from_semiring S (A_semiring_from_dioid S sS))). 
+  := λ S sS,  (A_bs_from_bs_C S (A_bs_C_from_semiring S (A_semiring_from_dioid S sS))).
+
+Definition A_bs_from_selective_dioid :∀ (S: Type), A_selective_dioid S -> A_bs S 
+:= λ S sS,  A_bs_from_dioid S (A_dioid_from_selective_dioid S sS). 
 
 Definition A_bs_from_distributive_lattice :∀ (S: Type), A_distributive_lattice S -> A_bs S 
 := λ S dS,  A_bs_from_dioid S (A_dioid_from_distributive_lattice S dS). 
@@ -218,8 +272,10 @@ Definition bs_from_bs_C : ∀ {S : Type},  @bs_C S -> @bs S
                             (eqv_new (bs_C_eqv s))                             
                             (bs_C_plus_certs s)  
 ; bs_times_certs := bs_C_times_certs s
-; bs_certs       := bs_C_certs  s 
-; bs_ast          := Ast_bs_from_bs_C (bs_C_ast s)
+; bs_certs       := bs_C_certs  s
+; bs_plus_ast    := bs_C_plus_ast s
+; bs_times_ast   := bs_C_times_ast s                                                                                                 
+; bs_ast         := Ast_bs_from_bs_C (bs_C_ast s)
 |}. 
 
 
@@ -238,7 +294,9 @@ Definition bs_C_from_bs_CS : ∀ {S : Type},  @bs_CS S -> @bs_C S
                       (eqv_new (bs_CS_eqv s))                             
                       (bs_CS_plus_certs s)  
 ; bs_C_times_certs := bs_CS_times_certs s
-; bs_C_certs       := bs_CS_certs s 
+; bs_C_certs       := bs_CS_certs s
+; bs_C_plus_ast    := bs_CS_plus_ast s
+; bs_C_times_ast   := bs_CS_times_ast s   
 ; bs_C_ast         := Ast_bs_C_from_bs_CS (bs_CS_ast s)
 |}.
 
@@ -256,7 +314,9 @@ Definition bs_C_from_bs_CI : ∀ {S : Type},  @bs_CI S -> @bs_C S
                       (eqv_new (bs_CI_eqv s))                             
                       (bs_CI_plus_certs s)  
 ; bs_C_times_certs := bs_CI_times_certs s
-; bs_C_certs       := bs_CI_certs s 
+; bs_C_certs       := bs_CI_certs s
+; bs_C_plus_ast    := bs_CI_plus_ast s
+; bs_C_times_ast   := bs_CI_times_ast s                                           
 ; bs_C_ast         := Ast_bs_C_from_bs_CI (bs_CI_ast s)
 |}.
 
@@ -293,7 +353,9 @@ Definition bs_C_from_semiring : ∀ {S : Type},  @semiring S -> @bs_C S
 ; bs_C_times       := semiring_times s
 ; bs_C_plus_certs  := semiring_plus_certs s
 ; bs_C_times_certs := semiring_times_certs s
-; bs_C_certs       := bs_certs_from_semiring_certs (semiring_certs s) 
+; bs_C_certs       := bs_certs_from_semiring_certs (semiring_certs s)
+; bs_C_plus_ast    := semiring_plus_ast s
+; bs_C_times_ast   := semiring_times_ast s                                                           
 ; bs_C_ast         := Ast_bs_C_from_semiring (semiring_ast s)
 |}. 
 
@@ -312,6 +374,8 @@ Definition semiring_from_dioid :∀ {S: Type}, @dioid S -> @semiring S
                                                        (dioid_plus_certs dS)
 ; semiring_times_certs  := dioid_times_certs dS
 ; semiring_certs        := dioid_certs dS
+; semiring_plus_ast     := dioid_plus_ast dS
+; semiring_times_ast    := dioid_times_ast  dS                                      
 ; semiring_ast          := Ast_semiring_from_dioid (dioid_ast dS)
 |}.
 
@@ -355,16 +419,56 @@ let f     := eqv_new eqv in
 ; dioid_plus_certs   := plusP 
 ; dioid_times_certs  := sg_certs_from_sg_CI_certs eq times w f timesP
 ; dioid_certs        := distributive_lattice_certs_to_semiring_certs plusP timesP dPS
+; dioid_plus_ast     := distributive_lattice_join_ast dS 
+; dioid_times_ast    := distributive_lattice_meet_ast dS                                                         
 ; dioid_ast          := Ast_dioid_from_distributive_lattice (distributive_lattice_ast dS)
+|}.  
+
+
+Definition dioid_from_selective_dioid :∀ {S: Type}, @selective_dioid S -> @dioid S
+:= λ S dS,
+{|
+  dioid_eqv          := selective_dioid_eqv dS
+; dioid_plus         := selective_dioid_plus dS
+; dioid_times        := selective_dioid_times dS
+; dioid_plus_certs   := sg_CI_certs_from_sg_CS_certs (selective_dioid_plus_certs dS)
+; dioid_times_certs  := selective_dioid_times_certs dS
+; dioid_certs        := selective_dioid_certs dS
+; dioid_plus_ast     := selective_dioid_plus_ast dS
+; dioid_times_ast    := selective_dioid_times_ast dS                                                        
+; dioid_ast          := Ast_dioid_from_selective_dioid (selective_dioid_ast dS)
+|}.  
+
+
+Definition distributive_lattice_from_selective_distributive_lattice : ∀ {S : Type}, @selective_distributive_lattice S -> @distributive_lattice S
+:= λ S lat,
+{|  
+  distributive_lattice_eqv          := selective_distributive_lattice_eqv lat 
+; distributive_lattice_join         := selective_distributive_lattice_join lat
+; distributive_lattice_meet         := selective_distributive_lattice_meet lat 
+; distributive_lattice_join_certs   := sg_CI_certs_from_sg_CS_certs (selective_distributive_lattice_join_certs lat)
+; distributive_lattice_meet_certs   := sg_CI_certs_from_sg_CS_certs (selective_distributive_lattice_meet_certs lat)
+; distributive_lattice_certs        := selective_distributive_lattice_certs lat
+; distributive_lattice_join_ast     := selective_distributive_lattice_join_ast lat
+; distributive_lattice_meet_ast     := selective_distributive_lattice_meet_ast lat                                          
+; distributive_lattice_ast          := Ast_distributive_lattice_from_selective_distributive_lattice (selective_distributive_lattice_ast lat) 
 |}.  
 
 
 
 Definition bs_from_dioid :∀ {S: Type}, @dioid S -> @bs S 
-:= λ S sS,  (bs_from_bs_C (bs_C_from_semiring (semiring_from_dioid sS))). 
+  := λ S sS,  (bs_from_bs_C (bs_C_from_semiring (semiring_from_dioid sS))).
+
+Definition bs_from_selective_dioid :∀ {S: Type}, @selective_dioid S -> @bs S 
+:= λ S sS,  bs_from_dioid (dioid_from_selective_dioid sS). 
+
 
 Definition bs_from_distributive_lattice :∀ {S: Type}, @distributive_lattice S -> @bs S 
 := λ S dS,  bs_from_dioid (dioid_from_distributive_lattice dS). 
+
+
+Definition bs_from_selective_distributive_lattice :∀ {S: Type}, @selective_distributive_lattice S -> @bs S
+:= λ S dS,  bs_from_distributive_lattice (distributive_lattice_from_selective_distributive_lattice dS). 
 
 
 End CAS.
@@ -475,8 +579,25 @@ Proof. intros S P. unfold bs_from_distributive_lattice, A_bs_from_distributive_l
 Qed. 
 
 
+Theorem correct_dioid_from_selective_dioid : ∀ (S : Type) (P : A_selective_dioid S),  
+    dioid_from_selective_dioid (A2C_selective_dioid S P) = A2C_dioid S (A_dioid_from_selective_dioid S P).
+Proof. intros S P. destruct P.
+       unfold dioid_from_selective_dioid, A_dioid_from_selective_dioid.
+       unfold A2C_selective_dioid, A2C_dioid. simpl.
+       rewrite <- correct_sg_CI_certs_from_sg_CS_certs.
+       reflexivity. 
+Qed. 
 
+Theorem correct_distributive_lattice_from_selective_distributive_lattice : ∀ (S : Type) (P : A_selective_distributive_lattice S),  
+    distributive_lattice_from_selective_distributive_lattice (A2C_selective_distributive_lattice S P)
+    =
+    A2C_distributive_lattice S (A_distributive_lattice_from_selective_distributive_lattice S P).
+Proof. intros S P. destruct P.
+       unfold distributive_lattice_from_selective_distributive_lattice, A_distributive_lattice_from_selective_distributive_lattice.
+       unfold A2C_distributive_lattice, A2C_selective_distributive_lattice. simpl.
+       rewrite <- correct_sg_CI_certs_from_sg_CS_certs.
+       reflexivity. 
+Qed. 
   
  
 End Verify.   
-  

@@ -75,7 +75,7 @@ Proof. intros [L | R].
 Defined. 
 
 Lemma bop_product_commutative : bop_commutative S rS bS → bop_commutative T rT bT → bop_commutative (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros L R (s1, t1) (s2, t2). simpl. rewrite L, R. simpl. reflexivity. Defined. 
+Proof. intros L R (s1, t1) (s2, t2). simpl. compute in *. rewrite L, R. simpl. reflexivity. Defined. 
 
 Lemma bop_product_not_commutative_left : bop_not_commutative S rS bS → bop_not_commutative (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. intros [ [s t] P]. exists ((s, wT), (t, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
@@ -750,7 +750,8 @@ let bT   := A_sg_bop T sgT in
                            (A_eqv_proofs S eqvS) 
                            (A_eqv_proofs T eqvT) 
                            (A_sg_proofs S sgS) 
-                           (A_sg_proofs T sgT) 
+                           (A_sg_proofs T sgT)
+   ; A_sg_bop_ast   := Ast_bop_product (A_sg_bop_ast S sgS, A_sg_bop_ast T sgT)                                                                 
    ; A_sg_ast       := Ast_sg_product (A_sg_ast S sgS, A_sg_ast T sgT)
    |}. 
 
@@ -775,6 +776,7 @@ let bT   := A_sg_C_bop T sgT in
                            (A_eqv_proofs T eqvT)                            
                            (A_sg_C_proofs S sgS) 
                            (A_sg_C_proofs T sgT) 
+   ; A_sg_C_bop_ast   := Ast_bop_product (A_sg_C_bop_ast S sgS, A_sg_C_bop_ast T sgT)                            
    ; A_sg_C_ast       := Ast_sg_C_product (A_sg_C_ast S sgS, A_sg_C_ast T sgT)
    |}. 
 
@@ -797,7 +799,8 @@ let bT   := A_sg_CI_bop T sgT in
                            (A_eqv_proofs S eqvS)
                            (A_eqv_proofs T eqvT)
                            (A_sg_CI_proofs S sgS) 
-                           (A_sg_CI_proofs T sgT) 
+                           (A_sg_CI_proofs T sgT)
+   ; A_sg_CI_bop_ast   := Ast_bop_product (A_sg_CI_bop_ast S sgS, A_sg_CI_bop_ast T sgT)                                                       
    ; A_sg_CI_ast       := Ast_sg_CI_product (A_sg_CI_ast S sgS, A_sg_CI_ast T sgT)
    |}. 
 
@@ -815,7 +818,8 @@ let bT   := A_sg_CK_bop T sgT in
                            (A_eqv_proofs S eqvS)
                            (A_eqv_proofs T eqvT)
                            (A_sg_CK_proofs S sgS) 
-                           (A_sg_CK_proofs T sgT) 
+                           (A_sg_CK_proofs T sgT)
+   ; A_sg_CK_bop_ast   := Ast_bop_product (A_sg_CK_bop_ast S sgS, A_sg_CK_bop_ast T sgT)                             
    ; A_sg_CK_ast       := Ast_sg_CK_product (A_sg_CK_ast S sgS, A_sg_CK_ast T sgT)
    |}. 
 
@@ -1224,7 +1228,8 @@ Definition sg_product : ∀ {S T : Type},  @sg S -> @sg T -> @sg (S * T)
                     (eqv_witness (sg_eq sgS)) 
                     (eqv_witness (sg_eq sgT)) 
                     (sg_certs sgS) 
-                    (sg_certs sgT) 
+                    (sg_certs sgT)
+   ; sg_bop_ast := Ast_bop_product (sg_bop_ast sgS, sg_bop_ast sgT)                        
    ; sg_ast    := Ast_sg_product (sg_ast sgS, sg_ast sgT)
    |}. 
 
@@ -1232,10 +1237,11 @@ Definition sg_product : ∀ {S T : Type},  @sg S -> @sg T -> @sg (S * T)
 Definition sg_CK_product : ∀ {S T : Type},  @sg_CK S -> @sg_CK T -> @sg_CK (S * T)
 := λ {S T} sgS sgT, 
    {| 
-     sg_CK_eqv   := eqv_product (sg_CK_eqv sgS) (sg_CK_eqv sgT) 
-   ; sg_CK_bop   := bop_product (sg_CK_bop sgS) (sg_CK_bop sgT) 
-   ; sg_CK_certs := sg_CK_certs_product (sg_CK_certs sgS) (sg_CK_certs sgT) 
-   ; sg_CK_ast       := Ast_sg_CK_product (sg_CK_ast sgS, sg_CK_ast sgT)
+     sg_CK_eqv     := eqv_product (sg_CK_eqv sgS) (sg_CK_eqv sgT) 
+   ; sg_CK_bop     := bop_product (sg_CK_bop sgS) (sg_CK_bop sgT) 
+   ; sg_CK_certs   := sg_CK_certs_product (sg_CK_certs sgS) (sg_CK_certs sgT)
+   ; sg_CK_bop_ast := Ast_bop_product (sg_CK_bop_ast sgS, sg_CK_bop_ast sgT)                             
+   ; sg_CK_ast     := Ast_sg_CK_product (sg_CK_ast sgS, sg_CK_ast sgT)
    |}.
 
 Definition sg_C_product : ∀ {S T : Type},  @sg_C S  -> @sg_C T -> @sg_C (S * T)
@@ -1247,7 +1253,8 @@ Definition sg_C_product : ∀ {S T : Type},  @sg_C S  -> @sg_C T -> @sg_C (S * T
                                       (sg_C_bop sgS) (sg_C_bop sgT) 
                                       (eqv_witness (sg_C_eqv sgS)) (eqv_new (sg_C_eqv sgS))
                                       (eqv_witness (sg_C_eqv sgT)) (eqv_new (sg_C_eqv sgT)) 
-                                      (sg_C_certs sgS) (sg_C_certs sgT) 
+                                      (sg_C_certs sgS) (sg_C_certs sgT)
+   ; sg_C_bop_ast := Ast_bop_product (sg_C_bop_ast sgS, sg_C_bop_ast sgT)                                                                   
    ; sg_C_ast       := Ast_sg_C_product (sg_C_ast sgS, sg_C_ast sgT)
    |}. 
 
@@ -1264,7 +1271,8 @@ Definition sg_CI_product : ∀ {S T : Type},  sg_CI (S := S) -> sg_CI (S := T) -
                                         (eqv_witness (sg_CI_eqv sgT))
                                         (eqv_new (sg_CI_eqv sgT))                                         
                                         (sg_CI_certs sgS) 
-                                        (sg_CI_certs sgT) 
+                                        (sg_CI_certs sgT)
+   ; sg_CI_bop_ast := Ast_bop_product (sg_CI_bop_ast sgS, sg_CI_bop_ast sgT)                                                                     
    ; sg_CI_ast       := Ast_sg_CI_product (sg_CI_ast sgS, sg_CI_ast sgT)
    |}. 
 

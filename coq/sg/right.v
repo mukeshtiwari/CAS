@@ -92,8 +92,9 @@ Definition A_sg_right : ∀ (S : Type),  A_eqv S -> A_sg S
                                         (A_eqv_witness S eqvS)
                                         (A_eqv_new S eqvS)
                                         (A_eqv_not_trivial S eqvS)
-                                        (A_eqv_proofs S eqvS) 
-   ; A_sg_ast        := Ast_sg_right (A_eqv_ast _ eqvS)
+                                        (A_eqv_proofs S eqvS)
+   ; A_sg_bop_ast    := Ast_bop_right (A_eqv_ast S eqvS)                                  
+   ; A_sg_ast        := Ast_sg_right (A_eqv_ast S eqvS)
    |}. 
 
 
@@ -127,10 +128,11 @@ Definition sg_certs_right : ∀ {S : Type},  S -> (S -> S) -> sg_certificates (S
 Definition sg_right : ∀ {S : Type},  eqv (S := S) -> sg (S := S) 
 := λ {S} eqvS, 
    {| 
-     sg_eq     := eqvS
-   ; sg_bop    := bop_right 
-   ; sg_certs  := sg_certs_right (eqv_witness eqvS) (eqv_new eqvS) 
-   ; sg_ast    := Ast_sg_right (eqv_ast eqvS)
+     sg_eq        := eqvS
+   ; sg_bop       := bop_right 
+   ; sg_certs     := sg_certs_right (eqv_witness eqvS) (eqv_new eqvS)
+   ; sg_bop_ast   := Ast_bop_right (eqv_ast eqvS)                                                                   
+   ; sg_ast       := Ast_sg_right (eqv_ast eqvS)
    |}. 
 
   

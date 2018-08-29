@@ -102,9 +102,10 @@ Definition sg_C_proofs_times : sg_C_proofs nat brel_eq_nat bop_times :=
 
 Definition A_sg_C_times : A_sg_C nat 
 := {| 
-     A_sg_C_eqv         := A_eqv_nat 
+     A_sg_C_eqv        := A_eqv_nat 
    ; A_sg_C_bop        := bop_times
-   ; A_sg_C_proofs     := sg_C_proofs_times 
+   ; A_sg_C_proofs     := sg_C_proofs_times
+   ; A_sg_C_bop_ast    := Ast_bop_times                             
    ; A_sg_C_ast        := Ast_sg_C_times
    |}. 
 
@@ -137,6 +138,7 @@ Definition sg_C_times : @sg_C nat
      sg_C_eqv   := eqv_eq_nat 
    ; sg_C_bop   := bop_times
    ; sg_C_certs := sg_C_certs_times
+   ; sg_C_bop_ast := Ast_bop_times 
    ; sg_C_ast   := Ast_sg_C_times
    |}. 
 

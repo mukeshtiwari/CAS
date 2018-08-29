@@ -135,6 +135,8 @@ Definition A2C_bs : ∀ (S : Type), A_bs S -> @bs S
                                    (A_bs_plus S R) 
                                    (A_bs_times S R) 
                                    (A_bs_proofs S R)
+; bs_plus_ast   := A_bs_plus_ast S R
+; bs_times_ast  := A_bs_times_ast S R                                                                     
 ; bs_ast        := A_bs_ast S R
 |}.
 
@@ -154,6 +156,8 @@ Definition A2C_bs_C : ∀ (S : Type), A_bs_C S -> @bs_C S
                                    (A_bs_C_plus S R) 
                                    (A_bs_C_times S R) 
                                    (A_bs_C_proofs S R)
+; bs_C_plus_ast   := A_bs_C_plus_ast S R
+; bs_C_times_ast  := A_bs_C_times_ast S R                                                                     
 ; bs_C_ast        := A_bs_C_ast S R
 |}.
 
@@ -174,6 +178,8 @@ Definition A2C_bs_CS : ∀ (S : Type), A_bs_CS S -> @bs_CS S
                                    (A_bs_CS_plus S R) 
                                    (A_bs_CS_times S R) 
                                    (A_bs_CS_proofs S R)
+; bs_CS_plus_ast   := A_bs_CS_plus_ast S R
+; bs_CS_times_ast  := A_bs_CS_times_ast S R                                                                                                        
 ; bs_CS_ast        := A_bs_CS_ast S R
 |}.
 
@@ -194,6 +200,8 @@ Definition A2C_bs_CI : ∀ (S : Type), A_bs_CI S -> @bs_CI S
                                    (A_bs_CI_plus S R) 
                                    (A_bs_CI_times S R) 
                                    (A_bs_CI_proofs S R)
+; bs_CI_plus_ast   := A_bs_CI_plus_ast S R
+; bs_CI_times_ast  := A_bs_CI_times_ast S R                                                                                
 ; bs_CI_ast        := A_bs_CI_ast S R
 |}.
 
@@ -303,38 +311,9 @@ Definition A2C_lattice : ∀ (S : Type), A_lattice S -> @lattice S
                                    (A_lattice_join S R) 
                                    (A_lattice_meet S R) 
                                    (A_lattice_proofs S R)
+; lattice_join_ast   := A_lattice_join_ast S R
+; lattice_meet_ast   := A_lattice_meet_ast S R                                                                                         
 ; lattice_ast        := A_lattice_ast S R
-|}.
-
-
-Definition P2C_distributive_lattice : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
-    distributive_lattice_proofs S r b1 b2 -> @distributive_lattice_certificates S 
-:= λ S r b1 b2 p,
-{|
-
-  distributive_lattice_absorptive             := Assert_Left_Left_Absorptive
-; distributive_lattice_absorptive_dual        := Assert_Left_Left_Absorptive_Dual 
-; distributive_lattice_distributive           := Assert_Left_Distributive
-|}. 
-
-Definition A2C_distributive_lattice : ∀ (S : Type), A_distributive_lattice S -> @distributive_lattice S 
-:= λ S R,
-{|
-  distributive_lattice_eqv         := A2C_eqv S (A_distributive_lattice_eqv S R)
-; distributive_lattice_join        := A_distributive_lattice_join S R 
-; distributive_lattice_meet        := A_distributive_lattice_meet S R 
-; distributive_lattice_join_certs  := P2C_sg_CI S (A_eqv_eq S (A_distributive_lattice_eqv S R)) 
-                                (A_distributive_lattice_join S R) 
-                                (A_distributive_lattice_join_proofs S R)
-; distributive_lattice_meet_certs := P2C_sg_CI S (A_eqv_eq S (A_distributive_lattice_eqv S R)) 
-                                (A_distributive_lattice_meet S R) 
-                                (A_distributive_lattice_meet_proofs S R)
-; distributive_lattice_certs       := P2C_distributive_lattice S 
-                                        (A_eqv_eq S (A_distributive_lattice_eqv S R)) 
-                                        (A_distributive_lattice_join S R)
-                                        (A_distributive_lattice_meet S R)                   
-                                        (A_distributive_lattice_proofs S R)
-; distributive_lattice_ast        := A_distributive_lattice_ast S R
 |}.
 
 
@@ -371,6 +350,8 @@ Definition A2C_semiring : ∀ (S : Type), A_semiring S -> @semiring S
                                    (A_semiring_plus S R) 
                                    (A_semiring_times S R) 
                                    (A_semiring_proofs S R)
+; semiring_plus_ast   := A_semiring_plus_ast S R
+; semiring_times_ast  := A_semiring_times_ast S R                                                                                
 ; semiring_ast        := A_semiring_ast S R
 |}.
 
@@ -391,6 +372,87 @@ Definition A2C_dioid : ∀ (S : Type), A_dioid S -> @dioid S
                                    (A_dioid_plus S R) 
                                    (A_dioid_times S R) 
                                    (A_dioid_proofs S R)
+; dioid_plus_ast   := A_dioid_plus_ast S R                                                                      
+; dioid_times_ast  := A_dioid_times_ast S R                                   
 ; dioid_ast        := A_dioid_ast S R
+|}.
+
+
+Definition A2C_selective_dioid : ∀ (S : Type), A_selective_dioid S -> @selective_dioid S 
+:= λ S R,
+{|
+  selective_dioid_eqv         := A2C_eqv S (A_selective_dioid_eqv S R)
+; selective_dioid_plus        := A_selective_dioid_plus S R 
+; selective_dioid_times       := A_selective_dioid_times S R 
+; selective_dioid_plus_certs  := P2C_sg_CS S (A_eqv_eq S (A_selective_dioid_eqv S R)) 
+                                (A_selective_dioid_plus S R) 
+                                (A_selective_dioid_plus_proofs S R)
+; selective_dioid_times_certs := P2C_sg S (A_eqv_eq S (A_selective_dioid_eqv S R)) 
+                                (A_selective_dioid_times S R) 
+                                (A_selective_dioid_times_proofs S R)
+; selective_dioid_certs       := P2C_semiring S (A_eqv_eq S (A_selective_dioid_eqv S R)) 
+                                   (A_selective_dioid_plus S R) 
+                                   (A_selective_dioid_times S R) 
+                                   (A_selective_dioid_proofs S R)
+; selective_dioid_plus_ast   := A_selective_dioid_plus_ast S R                                                                      
+; selective_dioid_times_ast  := A_selective_dioid_times_ast S R                                   
+; selective_dioid_ast        := A_selective_dioid_ast S R
+|}.
+
+
+Definition P2C_distributive_lattice : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+    distributive_lattice_proofs S r b1 b2 -> @distributive_lattice_certificates S 
+:= λ S r b1 b2 p,
+{|
+
+  distributive_lattice_absorptive             := Assert_Left_Left_Absorptive
+; distributive_lattice_absorptive_dual        := Assert_Left_Left_Absorptive_Dual 
+; distributive_lattice_distributive           := Assert_Left_Distributive
+|}. 
+
+Definition A2C_distributive_lattice : ∀ (S : Type), A_distributive_lattice S -> @distributive_lattice S 
+:= λ S R,
+{|
+  distributive_lattice_eqv         := A2C_eqv S (A_distributive_lattice_eqv S R)
+; distributive_lattice_join        := A_distributive_lattice_join S R 
+; distributive_lattice_meet        := A_distributive_lattice_meet S R 
+; distributive_lattice_join_certs  := P2C_sg_CI S (A_eqv_eq S (A_distributive_lattice_eqv S R)) 
+                                (A_distributive_lattice_join S R) 
+                                (A_distributive_lattice_join_proofs S R)
+; distributive_lattice_meet_certs := P2C_sg_CI S (A_eqv_eq S (A_distributive_lattice_eqv S R)) 
+                                (A_distributive_lattice_meet S R) 
+                                (A_distributive_lattice_meet_proofs S R)
+; distributive_lattice_certs       := P2C_distributive_lattice S 
+                                        (A_eqv_eq S (A_distributive_lattice_eqv S R)) 
+                                        (A_distributive_lattice_join S R)
+                                        (A_distributive_lattice_meet S R)                   
+                                        (A_distributive_lattice_proofs S R)
+; distributive_lattice_join_ast   := A_distributive_lattice_join_ast S R                                        
+; distributive_lattice_meet_ast   := A_distributive_lattice_meet_ast S R                                        
+; distributive_lattice_ast        := A_distributive_lattice_ast S R
+|}.
+
+
+
+Definition A2C_selective_distributive_lattice : ∀ (S : Type), A_selective_distributive_lattice S -> @selective_distributive_lattice S 
+:= λ S R,
+{|
+  selective_distributive_lattice_eqv         := A2C_eqv S (A_selective_distributive_lattice_eqv S R)
+; selective_distributive_lattice_join        := A_selective_distributive_lattice_join S R 
+; selective_distributive_lattice_meet        := A_selective_distributive_lattice_meet S R 
+; selective_distributive_lattice_join_certs  := P2C_sg_CS S (A_eqv_eq S (A_selective_distributive_lattice_eqv S R)) 
+                                (A_selective_distributive_lattice_join S R) 
+                                (A_selective_distributive_lattice_join_proofs S R)
+; selective_distributive_lattice_meet_certs := P2C_sg_CS S (A_eqv_eq S (A_selective_distributive_lattice_eqv S R)) 
+                                (A_selective_distributive_lattice_meet S R) 
+                                (A_selective_distributive_lattice_meet_proofs S R)
+; selective_distributive_lattice_certs       := P2C_distributive_lattice S 
+                                        (A_eqv_eq S (A_selective_distributive_lattice_eqv S R)) 
+                                        (A_selective_distributive_lattice_join S R)
+                                        (A_selective_distributive_lattice_meet S R)                   
+                                        (A_selective_distributive_lattice_proofs S R)
+; selective_distributive_lattice_join_ast   := A_selective_distributive_lattice_join_ast S R                                        
+; selective_distributive_lattice_meet_ast   := A_selective_distributive_lattice_meet_ast S R                                        
+; selective_distributive_lattice_ast        := A_selective_distributive_lattice_ast S R
 |}.
 

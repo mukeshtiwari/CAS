@@ -21,12 +21,18 @@ let liftN f m n =
     mbind m (fun a -> 
     mbind n (fun b -> f a b))
 
+let make_constant s1 s2 = Cas.make_constant (explode s1) (explode s2)
+let infinity      = make_constant "INFINITY" "\\infty" 
+let self          = make_constant "SELF" "\\self" 
+let bottom        = make_constant "BOTTOM"  "\\bottom" 
+let top           = make_constant "TOP" "\\top" 
+				      
 
 let eq_nat           = Cas.eqv_eq_nat
 let eqv_bool         = Cas.eqv_bool
 let eqv_product      = Cas.eqv_product
 let eqv_sum          = Cas.eqv_sum 
-let eqv_add_constant c eqv = Cas.eqv_add_constant eqv (explode c)
+let eqv_add_constant c eqv = Cas.eqv_add_constant eqv c
 let eqv_list         = Cas.eqv_list
 let eqv_set          = Cas.eqv_set
 
@@ -43,8 +49,8 @@ let sg_right eqv      = Some(Cas.sg_right eqv)
 let sg_concat eqv     = Some(Cas.sg_concat eqv)
 
 
-let sg_add_id id sg      = mmap (Cas.sg_add_id (explode id)) sg
-let sg_add_ann ann sg    = mmap (Cas.sg_add_ann (explode ann)) sg
+let sg_add_id c sg      = mmap (Cas.sg_add_id c) sg
+let sg_add_ann c sg    = mmap (Cas.sg_add_ann c) sg
 
 let sg_product m n  = liftM Cas.sg_product m n   
 
@@ -59,28 +65,46 @@ let sg_llex m n =
        | Some sg1'-> Some(Cas.sg_llex sg1' sg2)
     in liftN sg_llex_aux m n  
 
-let sg_union c eqv     = Some (Cas.sg_from_sg_CI (Cas.sg_CI_union (explode c) eqv)) 
-let sg_intersect c eqv = Some (Cas.sg_from_sg_CI (Cas.sg_CI_intersect (explode c) eqv)) 
+let sg_union c eqv     = Some (Cas.sg_from_sg_CI (Cas.sg_CI_union c eqv)) 
+let sg_intersect c eqv = Some (Cas.sg_from_sg_CI (Cas.sg_CI_intersect c eqv)) 
 let sg_lift sg         = mmap Cas.sg_lift sg
 
 (* bi-semigroup *) 
 
-
-let bs_and_or   = Some (Cas.bs_from_distributive_lattice Cas.distributive_lattice_and_or) 
-let bs_or_and   = Some (Cas.bs_from_distributive_lattice Cas.distributive_lattice_or_and)  
-
-
-let bs_min_max  = Some (Cas.bs_from_distributive_lattice Cas.distributive_lattice_min_max) 
-let bs_max_min  = Some (Cas.bs_from_distributive_lattice Cas.distributive_lattice_max_min) 
-let bs_min_plus = Some (Cas.bs_from_dioid Cas.dioid_min_plus) 
-let bs_max_plus = Some (Cas.bs_from_dioid Cas.dioid_max_plus) 
+let bs_and_or   = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_and_or) 
+let bs_or_and   = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_or_and)  
 
 
-let bs_union_intersect c eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_union_intersect eqv (explode c)))
-let bs_intersect_union c eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_intersect_union eqv (explode c)))
+let bs_min_max  = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_min_max) 
+let bs_max_min  = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_max_min) 
+let bs_min_plus = Some (Cas.bs_from_selective_dioid Cas.selective_dioid_min_plus) 
+let bs_max_plus = Some (Cas.bs_from_selective_dioid Cas.selective_dioid_max_plus) 
 
-let bs_add_zero bs c   = mmap (fun b -> Cas.bs_add_zero b (explode c)) bs 
-let bs_add_one bs c    = mmap (fun b -> Cas.bs_add_one b (explode c)) bs
+let bs_sg_left = function
+  | None -> None 
+  | Some sg ->
+     (match (Cas.sg_CS_option_from_sg sg) with 
+       | None -> (match (Cas.sg_CI_option_from_sg sg) with 
+                  | None -> None 
+		  | Some sg'-> Some(Cas.bs_from_dioid (Cas.dioid_sg_left sg')))
+       | Some sg'-> Some(Cas.bs_from_selective_dioid (Cas.selective_dioid_sg_left sg')))
+
+let bs_sg_right = function
+  | None -> None 
+  | Some sg ->
+     (match (Cas.sg_CS_option_from_sg sg) with 
+       | None -> (match (Cas.sg_CI_option_from_sg sg) with 
+                  | None -> None 
+		  | Some sg'-> Some(Cas.bs_from_dioid (Cas.dioid_sg_right sg')))
+       | Some sg'-> Some(Cas.bs_from_selective_dioid (Cas.selective_dioid_sg_right sg')))
+       
+       
+let bs_union_lift c sg = Some (Cas.bs_from_bs_C (Cas.bs_C_from_bs_CI (Cas.bs_CI_union_lift sg c)))
+let bs_union_intersect c eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_union_intersect eqv c))
+let bs_intersect_union c eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_intersect_union eqv c))
+
+let bs_add_zero bs c   = mmap (fun b -> Cas.bs_add_zero b c) bs 
+let bs_add_one bs c    = mmap (fun b -> Cas.bs_add_one b c) bs
 
 let bs_product m n  = liftM Cas.bs_product m n
 let bs_left_sum m n  = liftM Cas.bs_left_sum m n
@@ -100,10 +124,22 @@ let bs_llex_product m n =
     in liftN bs_llex_aux m n 
 
 
-let bs_describe bs = mmap Describe.bs_describe bs     
-let sg_describe sg = mmap Describe.sg_describe sg     
+let bs_describe = function
+  | None    -> print_string "bi-semigroup is not defined\n"
+  | Some bs -> Describe.bs_describe bs     
 
+let sg_describe = function
+  | None    -> print_string "semigroup is not defined\n"
+  | Some sg -> Describe.sg_describe sg
 
+let bs_describe_fully = function
+  | None    -> print_string "bi-semigroup is not defined\n"
+  | Some bs -> Describe.bs_describe_fully bs     
+
+let sg_describe_fully = function
+  | None    -> print_string "semigroup is not defined\n"
+  | Some sg -> Describe.sg_describe_fully sg
+				    
 (* Note: ocaml infix symbols must be made of 
 
     ! $ % & * + - . / : < = > ? @ ^ | ~

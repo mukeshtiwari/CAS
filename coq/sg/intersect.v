@@ -447,6 +447,7 @@ Definition A_sg_CI_intersect : ∀ (S : Type) (c : cas_constant),  A_eqv S -> A_
      A_sg_CI_eqv       := A_eqv_add_constant (finite_set S) (A_eqv_set S eqv) c  
    ; A_sg_CI_bop       := bop_add_id (bop_intersect eqS) c
    ; A_sg_CI_proofs    := sg_CI_proofs_intersect S eqS c s f ntS (A_eqv_proofs S eqv)
+   ; A_sg_CI_bop_ast   := Ast_bop_add_id(c, Ast_bop_intersect (A_eqv_ast S eqv)) 
    ; A_sg_CI_ast       := Ast_sg_CI_intersect_with_id (c, A_eqv_ast S eqv)
    |}. 
   
@@ -479,6 +480,7 @@ Definition sg_CI_intersect : ∀ {S : Type} (c : cas_constant), @eqv S -> @sg_CI
      sg_CI_eqv       := eqv_add_constant (eqv_set eqvS) c  
    ; sg_CI_bop       := bop_add_id (bop_intersect eqS) c
    ; sg_CI_certs     := sg_CI_certs_intersect c s f
+   ; sg_CI_bop_ast   := Ast_bop_add_id(c, Ast_bop_intersect (eqv_ast eqvS))                                               
    ; sg_CI_ast       := Ast_sg_CI_intersect_with_id (c, eqv_ast eqvS)
    |}. 
 

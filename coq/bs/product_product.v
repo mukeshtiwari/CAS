@@ -359,7 +359,9 @@ let timesT := A_bs_times T bsT in
                            (A_bs_times_proofs T bsT) 
    ; A_bs_proofs    := bs_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
                            (A_bs_proofs S bsS) 
-                           (A_bs_proofs T bsT) 
+                           (A_bs_proofs T bsT)
+   ; A_bs_plus_ast   := Ast_bop_product(A_bs_plus_ast S bsS, A_bs_plus_ast T bsT)
+   ; A_bs_times_ast  := Ast_bop_product(A_bs_times_ast S bsS, A_bs_times_ast T bsT)    
    ; A_bs_ast        := Ast_bs_product(A_bs_ast S bsS, A_bs_ast T bsT)
 |}. 
 
@@ -436,8 +438,10 @@ let timesT := A_semiring_times T sr2 in
                                 (A_semiring_times_proofs T sr2)                                 
    ; A_semiring_proofs       := semiring_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
                                    (A_semiring_proofs S sr1)
-                                   (A_semiring_proofs T sr2)                                   
-   ; A_semiring_ast  := Ast_semiring_product (A_semiring_ast S sr1, A_semiring_ast T sr2)
+                                   (A_semiring_proofs T sr2)
+   ; A_semiring_plus_ast  := Ast_bop_product (A_semiring_plus_ast S sr1, A_semiring_plus_ast T sr2)
+   ; A_semiring_times_ast := Ast_bop_product (A_semiring_times_ast S sr1, A_semiring_times_ast T sr2)                                
+   ; A_semiring_ast       := Ast_semiring_product (A_semiring_ast S sr1, A_semiring_ast T sr2)
 |}.
 
 Definition A_dioid_product : ∀ (S T : Type),  A_dioid S ->  A_dioid T -> A_dioid (S * T) 
@@ -470,7 +474,9 @@ let timesT := A_dioid_times T sr2 in
                                 (A_dioid_times_proofs T sr2)                                 
    ; A_dioid_proofs       := semiring_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
                                    (A_dioid_proofs S sr1)
-                                   (A_dioid_proofs T sr2)                                   
+                                   (A_dioid_proofs T sr2)
+   ; A_dioid_plus_ast  := Ast_bop_product (A_dioid_plus_ast S sr1, A_dioid_plus_ast T sr2)
+   ; A_dioid_times_ast := Ast_bop_product (A_dioid_times_ast S sr1, A_dioid_times_ast T sr2)                                
    ; A_dioid_ast  := Ast_dioid_product (A_dioid_ast S sr1, A_dioid_ast T sr2)
 |}.
 
@@ -531,7 +537,9 @@ let meetT  := A_distributive_lattice_meet T sr2 in
                                 (A_distributive_lattice_meet_proofs T sr2)                                 
    ; A_distributive_lattice_proofs  := distributive_lattice_proofs_product S T rS rT joinS meetS joinT meetT peqvS peqvT  
                                    (A_distributive_lattice_proofs S sr1)
-                                   (A_distributive_lattice_proofs T sr2)                                   
+                                   (A_distributive_lattice_proofs T sr2)
+   ; A_distributive_lattice_join_ast := Ast_bop_product (A_distributive_lattice_join_ast S sr1, A_distributive_lattice_join_ast T sr2)
+   ; A_distributive_lattice_meet_ast := Ast_bop_product (A_distributive_lattice_meet_ast S sr1, A_distributive_lattice_meet_ast T sr2)
    ; A_distributive_lattice_ast  := Ast_distributive_lattice_product (A_distributive_lattice_ast S sr1, A_distributive_lattice_ast T sr2)
 |}.
 
@@ -599,7 +607,9 @@ let meetT  := A_lattice_meet T sr2 in
                                 (A_lattice_meet_proofs T sr2)                                 
    ; A_lattice_proofs  := lattice_proofs_product S T rS rT joinS meetS joinT meetT s t peqvS peqvT  
                                    (A_lattice_proofs S sr1)
-                                   (A_lattice_proofs T sr2)                                   
+                                   (A_lattice_proofs T sr2)
+   ; A_lattice_join_ast := Ast_bop_product (A_lattice_join_ast S sr1, A_lattice_join_ast T sr2)
+   ; A_lattice_meet_ast := Ast_bop_product (A_lattice_meet_ast S sr1, A_lattice_meet_ast T sr2)
    ; A_lattice_ast  := Ast_lattice_product (A_lattice_ast S sr1, A_lattice_ast T sr2)
 |}.
 
@@ -804,8 +814,10 @@ Definition bs_product : ∀ {S T : Type},  @bs S -> @bs T -> @bs (S * T)
                            (eqv_witness (bs_eqv bsS))
                            (eqv_witness (bs_eqv bsT))
                            (bs_certs bsS) 
-                           (bs_certs bsT) 
-   ; bs_ast         := Ast_bs_product(bs_ast bsS, bs_ast bsT)
+                           (bs_certs bsT)
+   ; bs_plus_ast   := Ast_bop_product(bs_plus_ast bsS, bs_plus_ast bsT)
+   ; bs_times_ast  := Ast_bop_product(bs_times_ast bsS, bs_times_ast bsT)    
+   ; bs_ast        := Ast_bs_product(bs_ast bsS, bs_ast bsT)
    |}. 
 
 
@@ -847,7 +859,9 @@ let mulT := semiring_times s2 in
    ; semiring_times        := bop_product mulS mulT
    ; semiring_plus_certs   := sg_C_certs_product eqS eqT addS addT wS fS wT fT (semiring_plus_certs s1) (semiring_plus_certs s2) 
    ; semiring_times_certs  := sg_certs_product wS wT (semiring_times_certs s1) (semiring_times_certs s2) 
-   ; semiring_certs        := semiring_certs_product wS wT (semiring_certs s1) (semiring_certs s2) 
+   ; semiring_certs        := semiring_certs_product wS wT (semiring_certs s1) (semiring_certs s2)
+   ; semiring_plus_ast     := Ast_bop_product (semiring_plus_ast s1, semiring_plus_ast s2)
+   ; semiring_times_ast    := Ast_bop_product (semiring_times_ast s1, semiring_times_ast s2)                                
    ; semiring_ast          := Ast_semiring_product (semiring_ast s1, semiring_ast s2)
 |}.
 
@@ -871,7 +885,9 @@ let timesT := dioid_times sr2 in
    ; dioid_times       := bop_product timesS timesT 
    ; dioid_plus_certs  := sg_CI_certs_product rS rT plusS plusT s f t g (dioid_plus_certs sr1)(dioid_plus_certs sr2)
    ; dioid_times_certs := sg_certs_product s t (dioid_times_certs sr1) (dioid_times_certs sr2)
-   ; dioid_certs       := semiring_certs_product s t (dioid_certs sr1) (dioid_certs sr2) 
+   ; dioid_certs       := semiring_certs_product s t (dioid_certs sr1) (dioid_certs sr2)
+   ; dioid_plus_ast    := Ast_bop_product (dioid_plus_ast sr1, dioid_plus_ast sr2)
+   ; dioid_times_ast   := Ast_bop_product (dioid_times_ast sr1, dioid_times_ast sr2)                                            
    ; dioid_ast         := Ast_dioid_product (dioid_ast sr1, dioid_ast sr2)
 |}.
   

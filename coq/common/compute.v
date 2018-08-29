@@ -7,7 +7,13 @@ Require Import Coq.Arith.Arith.
 Section BasicTypes.
   
 Close Scope nat_scope. 
-Definition cas_constant : Type          := string. 
+Record cas_constant :=
+{
+  constant_ascii : string
+; constant_latex : string                      
+}.
+
+Definition make_constant (s1 s2: string) := {| constant_ascii := s1; constant_latex := s2 |}. 
 Definition with_constant (S : Type)     := cas_constant + S.  
 Definition brel (S : Type)              := S → S → bool.  
 Definition brel2 (S T : Type)           := S → T → bool.  
@@ -39,7 +45,7 @@ Open Scope list_scope.
 Open Scope string_scope. 
 
 (* INFINITY ! *) 
-Definition cas_infinity : cas_constant := "INFINITY". 
+Definition infinity : cas_constant := {| constant_ascii := "INFINITY"; constant_latex := "\infty" |}. 
 Definition brel_eq_bool : brel bool := eqb. 
 Definition brel_eq_nat  : brel nat  := Arith.EqNat.beq_nat.
 Definition brel_to_nat  : brel nat  := Coq.Arith.Compare_dec.leb.  

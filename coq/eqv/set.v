@@ -225,7 +225,7 @@ Definition A_eqv_set : ∀ (S : Type),  A_eqv S -> A_eqv (finite_set S)
     ; A_eqv_new     := λ (l : finite_set S), if brel_set eq nil l then (s :: nil) else nil
     ; A_eqv_not_trivial := brel_set_not_trivial S eq s 
     ; A_eqv_exactly_two_d := inr (brel_set_not_exactly_two S eq refS symS trnS s f nt)                              
-    ; A_eqv_data   := λ d, DATA_list (List.map (A_eqv_data S eqvS) d)  (* need DATA_set *) 
+    ; A_eqv_data   := λ d, DATA_set (List.map (A_eqv_data S eqvS) d)  
     ; A_eqv_rep    := λ d, d  (* fix this someday ... *) 
     ; A_eqv_ast    := Ast_eqv_set (A_eqv_ast S eqvS)
    |}. 
@@ -244,7 +244,7 @@ Definition eqv_set : ∀ {S : Type},  @eqv S -> @eqv (finite_set S)
     ; eqv_witness := s :: nil 
     ; eqv_new     := λ (l : finite_set S), if brel_set eq nil l then (s :: nil) else nil
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 (brel_set eq) nil (s :: nil)  ((f s):: nil))
-    ; eqv_data    := λ d, DATA_list (List.map (eqv_data eqvS) d)  (* need DATA_set *) 
+    ; eqv_data    := λ d, DATA_set (List.map (eqv_data eqvS) d)  
     ; eqv_rep     := λ d, d  (* fix this? *) 
     ; eqv_ast     := Ast_eqv_set (eqv_ast eqvS)
    |}. 

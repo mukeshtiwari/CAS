@@ -85,10 +85,11 @@ Definition sg_CS_proofs_and : sg_CS_proofs bool brel_eq_bool bop_and :=
 
 Definition A_sg_CS_and : A_sg_CS bool
 := {| 
-     A_sg_CS_eqv         := A_eqv_bool
-   ; A_sg_CS_bop         := bop_and
-   ; A_sg_CS_proofs      := sg_CS_proofs_and
-   ; A_sg_CS_ast         := Ast_sg_CS_and 
+     A_sg_CS_eqv       := A_eqv_bool
+   ; A_sg_CS_bop       := bop_and
+   ; A_sg_CS_proofs    := sg_CS_proofs_and
+   ; A_sg_CS_bop_ast   := Ast_bop_and 
+   ; A_sg_CS_ast       := Ast_sg_CS_and 
    |}. 
 
 End ACAS.
@@ -112,6 +113,7 @@ Definition sg_CS_and : @sg_CS bool
      sg_CS_eqv   := eqv_bool
    ; sg_CS_bop   := bop_and
    ; sg_CS_certs := sg_CS_certs_and
+   ; sg_CS_bop_ast   := Ast_bop_and                       
    ; sg_CS_ast   := Ast_sg_CS_and 
    |}. 
   

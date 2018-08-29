@@ -53,15 +53,17 @@ Definition distributive_lattice_proofs_and_or : distributive_lattice_proofs bool
    ; A_distributive_lattice_distributive      := bops_and_or_left_distributive
   |}. 
 
-Definition A_distributive_lattice_and_or : A_distributive_lattice bool := 
+Definition A_selective_distributive_lattice_and_or : A_selective_distributive_lattice bool := 
 {|
-  A_distributive_lattice_eqv          := A_eqv_bool
-; A_distributive_lattice_join         := bop_and
-; A_distributive_lattice_meet         := bop_or
-; A_distributive_lattice_join_proofs  := A_sg_CI_proofs _ (A_sg_CI_from_sg_CS _ (A_sg_CS_and))
-; A_distributive_lattice_meet_proofs  := A_sg_CI_proofs _ (A_sg_CI_from_sg_CS _ (A_sg_CS_or))
-; A_distributive_lattice_proofs       := distributive_lattice_proofs_and_or
-; A_distributive_lattice_ast          := Ast_distributive_lattice_and_or
+  A_selective_distributive_lattice_eqv          := A_eqv_bool
+; A_selective_distributive_lattice_join         := bop_and
+; A_selective_distributive_lattice_meet         := bop_or
+; A_selective_distributive_lattice_join_proofs  := A_sg_CS_proofs _ A_sg_CS_and
+; A_selective_distributive_lattice_meet_proofs  := A_sg_CS_proofs _ A_sg_CS_or
+; A_selective_distributive_lattice_proofs       := distributive_lattice_proofs_and_or
+; A_selective_distributive_lattice_join_ast     := Ast_bop_and
+; A_selective_distributive_lattice_meet_ast     := Ast_bop_or
+; A_selective_distributive_lattice_ast          := Ast_selective_distributive_lattice_and_or
 |}.
 
 End ACAS.
@@ -75,15 +77,17 @@ Definition distributive_lattice_certs_and_or : @distributive_lattice_certificate
    ; distributive_lattice_absorptive        := Assert_Left_Left_Absorptive
   |}. 
 
-Definition distributive_lattice_and_or : @distributive_lattice bool := 
+Definition selective_distributive_lattice_and_or : @selective_distributive_lattice bool := 
 {|
-  distributive_lattice_eqv          := eqv_bool 
-; distributive_lattice_join         := bop_and
-; distributive_lattice_meet        := bop_or
-; distributive_lattice_join_certs  := sg_CI_certs (sg_CI_from_sg_CS (sg_CS_and))
-; distributive_lattice_meet_certs  := sg_CI_certs (sg_CI_from_sg_CS (sg_CS_or))
-; distributive_lattice_certs       := distributive_lattice_certs_and_or
-; distributive_lattice_ast         := Ast_distributive_lattice_and_or
+  selective_distributive_lattice_eqv          := eqv_bool 
+; selective_distributive_lattice_join         := bop_and
+; selective_distributive_lattice_meet        := bop_or
+; selective_distributive_lattice_join_certs  := sg_CS_certs sg_CS_and
+; selective_distributive_lattice_meet_certs  := sg_CS_certs sg_CS_or
+; selective_distributive_lattice_certs       := distributive_lattice_certs_and_or
+; selective_distributive_lattice_join_ast    := Ast_bop_and
+; selective_distributive_lattice_meet_ast    := Ast_bop_or                                                  
+; selective_distributive_lattice_ast         := Ast_selective_distributive_lattice_and_or
 |}.
 
 
@@ -92,8 +96,8 @@ End CAS.
 
 Section Verify.
 
-Theorem correct_distributive_lattice_and_or :
-      distributive_lattice_and_or = A2C_distributive_lattice bool (A_distributive_lattice_and_or). 
+Theorem correct_selective_distributive_lattice_and_or :
+      selective_distributive_lattice_and_or = A2C_selective_distributive_lattice bool (A_selective_distributive_lattice_and_or). 
 Proof. compute. reflexivity. Qed. 
 
  

@@ -360,7 +360,8 @@ let bT   := A_sg_bop T sgT in
                            (A_eqv_proofs S eqvS) 
                            (A_eqv_proofs T eqvT) 
                            (A_sg_proofs S sgS) 
-                           (A_sg_proofs T sgT) 
+                           (A_sg_proofs T sgT)
+   ; A_sg_bop_ast   := Ast_bop_left_sum (A_sg_bop_ast S sgS, A_sg_bop_ast T sgT)                           
    ; A_sg_ast       := Ast_sg_left_sum (A_sg_ast S sgS, A_sg_ast T sgT)
 |}. 
 
@@ -383,7 +384,8 @@ let bT   := A_sg_C_bop T sgT in
                            (A_eqv_proofs S (A_sg_C_eqv S sgS)) 
                            (A_eqv_proofs T (A_sg_C_eqv T sgT)) 
                            (A_sg_C_proofs S sgS) 
-                           (A_sg_C_proofs T sgT) 
+                           (A_sg_C_proofs T sgT)
+   ; A_sg_C_bop_ast   := Ast_bop_left_sum (A_sg_C_bop_ast S sgS, A_sg_C_bop_ast T sgT)                                                      
    ; A_sg_C_ast       := Ast_sg_C_left_sum (A_sg_C_ast S sgS, A_sg_C_ast T sgT)
 |}. 
 
@@ -403,7 +405,8 @@ let bT   := A_sg_CI_bop T sgT in
                            (A_eqv_proofs S (A_sg_CI_eqv S sgS)) 
                            (A_eqv_proofs T (A_sg_CI_eqv T sgT)) 
                            (A_sg_CI_proofs S sgS) 
-                           (A_sg_CI_proofs T sgT) 
+                           (A_sg_CI_proofs T sgT)
+   ; A_sg_CI_bop_ast   := Ast_bop_left_sum (A_sg_CI_bop_ast S sgS, A_sg_CI_bop_ast T sgT)                      
    ; A_sg_CI_ast       := Ast_sg_CI_left_sum (A_sg_CI_ast S sgS, A_sg_CI_ast T sgT)
 |}. 
 
@@ -422,7 +425,8 @@ let bT   := A_sg_CS_bop T sgT in
                            (A_eqv_proofs S (A_sg_CS_eqv S sgS)) 
                            (A_eqv_proofs T (A_sg_CS_eqv T sgT)) 
                            (A_sg_CS_proofs S sgS) 
-                           (A_sg_CS_proofs T sgT) 
+                           (A_sg_CS_proofs T sgT)
+   ; A_sg_CS_bop_ast   := Ast_bop_left_sum (A_sg_CS_bop_ast S sgS, A_sg_CS_bop_ast T sgT)                                        
    ; A_sg_CS_ast       := Ast_sg_CS_left_sum (A_sg_CS_ast S sgS, A_sg_CS_ast T sgT)
 |}. 
 
@@ -563,7 +567,8 @@ Definition sg_left_sum : ∀ {S T : Type},  sg (S := S) -> sg (S := T) -> sg (S 
                     (eqv_witness (sg_eq sgS)) (eqv_new (sg_eq sgS))
                     (eqv_witness (sg_eq sgT)) (eqv_new (sg_eq sgT)) 
                     (sg_certs sgS) 
-                    (sg_certs sgT) 
+                    (sg_certs sgT)
+   ; sg_bop_ast   := Ast_bop_left_sum (sg_bop_ast sgS, sg_bop_ast sgT)                                                     
    ; sg_ast    := Ast_sg_left_sum (sg_ast sgS, sg_ast sgT)
    |}. 
 
@@ -577,7 +582,8 @@ Definition sg_C_left_sum : ∀ {S T : Type},  sg_C (S := S) -> sg_C (S := T) -> 
                            (eqv_witness (sg_C_eqv sgS)) (eqv_new (sg_C_eqv sgS)) 
                            (eqv_witness (sg_C_eqv sgT)) (eqv_new (sg_C_eqv sgT)) 
                            (sg_C_certs sgS) 
-                           (sg_C_certs sgT) 
+                           (sg_C_certs sgT)
+   ; sg_C_bop_ast   := Ast_bop_left_sum (sg_C_bop_ast sgS, sg_C_bop_ast sgT)                                 
    ; sg_C_ast       := Ast_sg_C_left_sum (sg_C_ast sgS, sg_C_ast sgT)
    |}. 
 
@@ -586,7 +592,8 @@ Definition sg_CI_left_sum : ∀ {S T : Type},  sg_CI (S := S) -> sg_CI (S := T) 
    {| 
      sg_CI_eqv       := eqv_sum (sg_CI_eqv sgS) (sg_CI_eqv sgT) 
    ; sg_CI_bop       := bop_left_sum (sg_CI_bop sgS) (sg_CI_bop sgT) 
-   ; sg_CI_certs    := sg_CI_certs_left_sum (sg_CI_certs sgS) (sg_CI_certs sgT) 
+   ; sg_CI_certs    := sg_CI_certs_left_sum (sg_CI_certs sgS) (sg_CI_certs sgT)
+   ; sg_CI_bop_ast   := Ast_bop_left_sum (sg_CI_bop_ast sgS, sg_CI_bop_ast sgT)                                                  
    ; sg_CI_ast       := Ast_sg_CI_left_sum (sg_CI_ast sgS, sg_CI_ast sgT)
    |}. 
 
@@ -595,7 +602,8 @@ Definition sg_CS_left_sum : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T) 
    {| 
      sg_CS_eqv       := eqv_sum (sg_CS_eqv sgS) (sg_CS_eqv sgT) 
    ; sg_CS_bop       := bop_left_sum (sg_CS_bop sgS) (sg_CS_bop sgT) 
-   ; sg_CS_certs     := sg_CS_certs_left_sum (sg_CS_certs sgS) (sg_CS_certs sgT) 
+   ; sg_CS_certs     := sg_CS_certs_left_sum (sg_CS_certs sgS) (sg_CS_certs sgT)
+   ; sg_CS_bop_ast   := Ast_bop_left_sum (sg_CS_bop_ast sgS, sg_CS_bop_ast sgT)      
    ; sg_CS_ast       := Ast_sg_CS_left_sum (sg_CS_ast sgS, sg_CS_ast sgT)
    |}. 
   

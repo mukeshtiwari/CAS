@@ -999,7 +999,7 @@ Lemma bop_commutative_implies_not_is_left  : ∀ (S: Type) (r : brel S) (b : bin
      brel_transitive S r -> 
         bop_commutative S r b -> bop_not_is_left S r b. 
 Proof. intros S r b s f Pf symS transS commS. 
-       exists (cef_commutative_implies_not_is_left r b s f). 
+       exists (cef_commutative_implies_not_is_left r b s f).
        destruct (Pf s) as [L R].
        assert (C := commS s (f s)). 
        unfold cef_commutative_implies_not_is_left. 

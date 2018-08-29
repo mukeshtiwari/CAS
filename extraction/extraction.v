@@ -45,11 +45,14 @@ Require Import CAS.coq.bs.right_sum.
 Require Import CAS.coq.bs.and_or.
 Require Import CAS.coq.bs.or_and.
 Require Import CAS.coq.bs.union_intersect.
-Require Import CAS.coq.bs.intersect_union. 
+Require Import CAS.coq.bs.intersect_union.
+Require Import CAS.coq.bs.union_lift.
+Require Import CAS.coq.bs.left.
+Require Import CAS.coq.bs.right.
 
 Require Extraction. 
 
-(* Require Import Coq.ExtrOcamlString.v. *) (* why does this not work?? *) 
+(* Require Import Coq.ExtrOcamlString. *) (* why does this not work?? *) 
 
 (* BEGIN from ExtrOcamlString.v  *)
 Require Import Ascii String.
@@ -140,6 +143,7 @@ Cd "extraction".
 
 (* Separate Extraction  *) 
 Extraction "Cas.ml"
+   make_constant 
    eqv_eq_nat
    eqv_product
    eqv_add_constant
@@ -202,15 +206,16 @@ Extraction "Cas.ml"
    sg_CK_option_from_sg_C
    sg_CS_option_from_sg_CI
   (* bi-semigroups *)
-   dioid_max_plus
-   dioid_min_plus
-   distributive_lattice_min_max
-   distributive_lattice_max_min  
-   distributive_lattice_and_or
-   distributive_lattice_or_and
+   selective_dioid_max_plus
+   selective_dioid_min_plus
+   selective_distributive_lattice_min_max
+   selective_distributive_lattice_max_min  
+   selective_distributive_lattice_and_or
+   selective_distributive_lattice_or_and
    
    lattice_dual
    distributive_lattice_dual
+   selective_distributive_lattice_dual
 
    bs_add_one
    lattice_add_one
@@ -221,16 +226,24 @@ Extraction "Cas.ml"
    dioid_add_zero   
    lattice_add_zero
    distributive_lattice_add_zero
+(*   selective_distributive_lattice_add_zero   *) 
    
    bs_product
    semiring_product
    dioid_product
+
+   dioid_sg_left
+   selective_dioid_sg_left
+   dioid_sg_right
+   selective_dioid_sg_right
+   
 
    bs_left_sum
 (* bs_right_sum *) 
 
    bs_C_llex_product
    bs_CS_llex_product
+   bs_CI_union_lift 
 
    distributive_lattice_union_intersect
    distributive_lattice_intersect_union
@@ -241,8 +254,10 @@ Extraction "Cas.ml"
    bs_C_from_semiring
    semiring_from_dioid
    bs_from_dioid
+   bs_from_selective_dioid   
    dioid_from_distributive_lattice
    bs_from_distributive_lattice
+   bs_from_selective_distributive_lattice   
 
    bs_C_option_from_bs
    bs_CS_option_from_bs

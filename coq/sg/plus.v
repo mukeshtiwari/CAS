@@ -133,10 +133,11 @@ Definition sg_CK_proofs_plus : sg_CK_proofs nat brel_eq_nat bop_plus :=
 
 Definition A_sg_CK_plus : A_sg_CK nat 
 := {| 
-     A_sg_CK_eqv         := A_eqv_nat 
-   ; A_sg_CK_bop         := bop_plus
-   ; A_sg_CK_proofs      := sg_CK_proofs_plus
-   ; A_sg_CK_ast         := Ast_sg_CK_plus 
+     A_sg_CK_eqv       := A_eqv_nat 
+   ; A_sg_CK_bop       := bop_plus
+   ; A_sg_CK_proofs    := sg_CK_proofs_plus
+   ; A_sg_CK_bop_ast   := Ast_bop_plus                              
+   ; A_sg_CK_ast       := Ast_sg_CK_plus 
    |}. 
 
 
@@ -163,6 +164,7 @@ Definition sg_CK_plus : sg_CK (S := nat)
      sg_CK_eqv   := eqv_eq_nat 
    ; sg_CK_bop   := bop_plus
    ; sg_CK_certs := sg_CK_certs_plus
+   ; sg_CK_bop_ast   := Ast_bop_plus                                                    
    ; sg_CK_ast   := Ast_sg_CK_plus 
    |}. 
 

@@ -95,15 +95,17 @@ Definition distributive_lattice_proofs_min_max : distributive_lattice_proofs nat
    ; A_distributive_lattice_distributive      := bops_min_max_left_distributive
   |}. 
 
-Definition A_distributive_lattice_min_max : A_distributive_lattice nat := 
+Definition A_selective_distributive_lattice_min_max : A_selective_distributive_lattice nat := 
 {|
-  A_distributive_lattice_eqv          := A_eqv_nat
-; A_distributive_lattice_join         := bop_min
-; A_distributive_lattice_meet         := bop_max
-; A_distributive_lattice_join_proofs  := A_sg_CI_proofs _ (A_sg_CI_from_sg_CS _ (A_sg_CS_min))
-; A_distributive_lattice_meet_proofs  := A_sg_CI_proofs _ (A_sg_CI_from_sg_CS _ (A_sg_CS_max))
-; A_distributive_lattice_proofs       := distributive_lattice_proofs_min_max
-; A_distributive_lattice_ast          := Ast_distributive_lattice_min_max
+  A_selective_distributive_lattice_eqv          := A_eqv_nat
+; A_selective_distributive_lattice_join         := bop_min
+; A_selective_distributive_lattice_meet         := bop_max
+; A_selective_distributive_lattice_join_proofs  := A_sg_CS_proofs _ A_sg_CS_min
+; A_selective_distributive_lattice_meet_proofs  := A_sg_CS_proofs _ A_sg_CS_max
+; A_selective_distributive_lattice_proofs       := distributive_lattice_proofs_min_max
+; A_selective_distributive_lattice_join_ast     := Ast_bop_min
+; A_selective_distributive_lattice_meet_ast    := Ast_bop_max
+; A_selective_distributive_lattice_ast          := Ast_selective_distributive_lattice_min_max
 |}.
 
 End ACAS.
@@ -120,23 +122,25 @@ Definition distributive_lattice_certs_min_max : @distributive_lattice_certificat
 
 
 
-Definition distributive_lattice_min_max : @distributive_lattice nat := 
+Definition selective_distributive_lattice_min_max : @selective_distributive_lattice nat := 
 {|
-  distributive_lattice_eqv          := eqv_eq_nat 
-; distributive_lattice_join         := bop_min
-; distributive_lattice_meet        := bop_max
-; distributive_lattice_join_certs  := sg_CI_certs (sg_CI_from_sg_CS (sg_CS_min))
-; distributive_lattice_meet_certs  := sg_CI_certs (sg_CI_from_sg_CS (sg_CS_max))
-; distributive_lattice_certs       := distributive_lattice_certs_min_max
-; distributive_lattice_ast         := Ast_distributive_lattice_min_max
+  selective_distributive_lattice_eqv          := eqv_eq_nat 
+; selective_distributive_lattice_join         := bop_min
+; selective_distributive_lattice_meet        := bop_max
+; selective_distributive_lattice_join_certs  := sg_CS_certs sg_CS_min
+; selective_distributive_lattice_meet_certs  := sg_CS_certs sg_CS_max
+; selective_distributive_lattice_certs       := distributive_lattice_certs_min_max
+; selective_distributive_lattice_join_ast    := Ast_bop_min
+; selective_distributive_lattice_meet_ast    := Ast_bop_max                                                  
+; selective_distributive_lattice_ast         := Ast_selective_distributive_lattice_min_max
 |}.
 
 End CAS.
 
 Section Verify.
 
-Theorem correct_distributive_lattice_min_max : 
-   distributive_lattice_min_max = A2C_distributive_lattice nat (A_distributive_lattice_min_max). 
+Theorem correct_selective_distributive_lattice_min_max : 
+   selective_distributive_lattice_min_max = A2C_selective_distributive_lattice nat (A_selective_distributive_lattice_min_max). 
 Proof. compute. reflexivity. Qed. 
   
  

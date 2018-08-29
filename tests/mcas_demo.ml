@@ -2,15 +2,17 @@
 (*
 From main directory 
 
-casml -I _build/extraction/ -I _build/src/
+./casml 
 
 then 
 
-#use "tests/demo.ml";; 
+#use "tests/mcas_demo.ml";; 
+
+Or use Tuareg ... 
 
  *)
 
-open Mcas
+open Mcas;;
 
 sg_describe sg_max;;
 sg_describe sg_min;;   
@@ -33,10 +35,10 @@ bs_describe bs_max_min;;  (* zero = 1, no 1 *)
 let bs_min_plus_llex_max_min = bs_min_plus <!**> bs_max_min;;
 bs_describe bs_min_plus_llex_max_min;;  (* no zero, no one *) 
 
-let bs_min_plus_infinity  = bs_add_zero bs_min_plus "INFINITY" ;; 
-bs_describe  bs_min_plus_infinity; 
+let bs_min_plus_infinity  = bs_add_zero bs_min_plus infinity ;; 
+bs_describe  bs_min_plus_infinity;; 
 
-let bs_max_min_self  = bs_add_one bs_max_min "SELF" ;; 
+let bs_max_min_self  = bs_add_one bs_max_min self ;; 
 bs_describe  bs_max_min_self;; 
 
 let bs_min_plus_llex_max_min_v2 = bs_min_plus_infinity <!**>  bs_max_min_self;;
@@ -45,7 +47,7 @@ bs_describe bs_min_plus_llex_max_min_v2;;  (* not distributive *)
 let bs_min_plus_llex_max_min_v3 = bs_min_plus <!**>  bs_max_min_self;;
 bs_describe bs_min_plus_llex_max_min_v3;;  (* distributive, no zero *) 
   
-let bs_min_plus_llex_max_min_v4 = bs_add_zero bs_min_plus_llex_max_min_v3 "INFINITY" ;;
+let bs_min_plus_llex_max_min_v4 = bs_add_zero bs_min_plus_llex_max_min_v3 infinity ;;
 bs_describe bs_min_plus_llex_max_min_v4;;  (* *) 
 
 let bs_max_min_llex_min_plus = bs_max_min <!**> bs_min_plus;;

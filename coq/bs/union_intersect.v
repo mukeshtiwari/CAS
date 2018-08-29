@@ -470,7 +470,9 @@ Definition A_distributive_lattice_union_intersect : ∀ (S : Type),  A_eqv S -> 
 ; A_distributive_lattice_meet        := @bop_add_id (finite_set S) (bop_intersect eq) c
 ; A_distributive_lattice_join_proofs := sg_CI_proofs_union S eq c s f ntS eqP 
 ; A_distributive_lattice_meet_proofs := sg_CI_proofs_intersect S eq c s f ntS eqP 
-; A_distributive_lattice_proofs      := distributive_lattice_proofs_union_intersect S eq c eqP 
+; A_distributive_lattice_proofs      := distributive_lattice_proofs_union_intersect S eq c eqP
+; A_distributive_lattice_join_ast    := Ast_bop_add_ann(c, Ast_bop_union (A_eqv_ast S eqv))
+; A_distributive_lattice_meet_ast    := Ast_bop_add_id(c, Ast_bop_intersect (A_eqv_ast S eqv))
 ; A_distributive_lattice_ast         := Ast_distributive_lattice_union_intersect(c, A_eqv_ast S eqv) 
 |}.
 
@@ -501,6 +503,8 @@ Definition distributive_lattice_union_intersect : ∀ (S : Type),  @eqv S -> cas
 ; distributive_lattice_join_certs  := sg_CI_certs_union c s f 
 ; distributive_lattice_meet_certs  := sg_CI_certs_intersect c s f 
 ; distributive_lattice_certs       := distributive_lattice_certs_union_intersect S
+; distributive_lattice_join_ast    := Ast_bop_add_ann(c, Ast_bop_union (eqv_ast eqv))
+; distributive_lattice_meet_ast    := Ast_bop_add_id(c, Ast_bop_intersect (eqv_ast eqv))                                                     
 ; distributive_lattice_ast         := Ast_distributive_lattice_union_intersect (c, eqv_ast eqv) 
 |}.
   

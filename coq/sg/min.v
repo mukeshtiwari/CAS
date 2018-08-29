@@ -113,7 +113,8 @@ Definition A_sg_CS_min : A_sg_CS nat
 := {| 
      A_sg_CS_eqv         := A_eqv_nat 
    ; A_sg_CS_bop         := bop_min 
-   ; A_sg_CS_proofs      := sg_CS_proofs_min 
+   ; A_sg_CS_proofs      := sg_CS_proofs_min
+   ; A_sg_CS_bop_ast     := Ast_bop_min
    ; A_sg_CS_ast         := Ast_sg_CS_min 
    |}. 
 
@@ -140,7 +141,8 @@ Definition sg_CS_min : @sg_CS nat
 := {| 
      sg_CS_eqv   := eqv_eq_nat 
    ; sg_CS_bop   := bop_min 
-   ; sg_CS_certs := sg_CS_certs_min 
+   ; sg_CS_certs := sg_CS_certs_min
+   ; sg_CS_bop_ast     := Ast_bop_min                      
    ; sg_CS_ast   := Ast_sg_CS_min 
    |}. 
   

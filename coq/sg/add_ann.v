@@ -202,7 +202,8 @@ Definition A_sg_add_ann : ∀ (S : Type) (c : cas_constant),  A_sg S -> A_sg (wi
                                          (A_eqv_new S (A_sg_eq S sgS))
                                          (A_eqv_not_trivial S (A_sg_eq S sgS)) 
                                          (A_eqv_proofs S (A_sg_eq S sgS))
-                                         (A_sg_proofs S sgS) 
+                                         (A_sg_proofs S sgS)
+   ; A_sg_bop_ast   := Ast_bop_add_ann (c, A_sg_bop_ast S sgS) 
    ; A_sg_ast       := Ast_sg_add_ann (c, A_sg_ast S sgS)
    |}. 
 
@@ -218,7 +219,8 @@ Definition A_sg_C_add_ann : ∀ (S : Type) (c : cas_constant),  A_sg_C S -> A_sg
                                              (A_eqv_new S (A_sg_C_eqv S sgS))
                                              (A_eqv_not_trivial S (A_sg_C_eqv S sgS)) 
                                              (A_eqv_proofs S (A_sg_C_eqv S sgS))
-                                             (A_sg_C_proofs S sgS) 
+                                             (A_sg_C_proofs S sgS)
+   ; A_sg_C_bop_ast   := Ast_bop_add_ann (c, A_sg_C_bop_ast S sgS) 
    ; A_sg_C_ast       := Ast_sg_C_add_ann (c, A_sg_C_ast S sgS)
    |}. 
 
@@ -231,7 +233,8 @@ Definition A_sg_CI_add_ann : ∀ (S : Type) (c : cas_constant),  A_sg_CI S -> A_
                                                (A_sg_CI_bop S sgS)
                                                (A_eqv_witness S (A_sg_CI_eqv S sgS))                                               
                                                (A_eqv_proofs S (A_sg_CI_eqv S sgS))
-                                               (A_sg_CI_proofs S sgS) 
+                                               (A_sg_CI_proofs S sgS)
+   ; A_sg_CI_bop_ast   := Ast_bop_add_ann (c, A_sg_CI_bop_ast S sgS) 
    ; A_sg_CI_ast       := Ast_sg_CI_add_ann (c, A_sg_CI_ast S sgS)
    |}. 
 
@@ -245,7 +248,8 @@ Definition A_sg_CS_add_ann : ∀ (S : Type) (c : cas_constant),  A_sg_CS S -> A_
                                                (A_sg_CS_bop S sgS)
                                                (A_eqv_witness S (A_sg_CS_eqv S sgS)) 
                                                (A_eqv_proofs S (A_sg_CS_eqv S sgS))
-                                               (A_sg_CS_proofs S sgS) 
+                                               (A_sg_CS_proofs S sgS)
+   ; A_sg_CS_bop_ast   := Ast_bop_add_ann (c, A_sg_CS_bop_ast S sgS) 
    ; A_sg_CS_ast       := Ast_sg_CS_add_ann (c, A_sg_CS_ast S sgS)
    |}. 
 
@@ -352,10 +356,11 @@ Definition sg_CS_certs_add_ann : ∀ {S : Type},  cas_constant -> sg_CS_certific
 Definition sg_add_ann:  ∀ {S : Type},  cas_constant -> @sg S -> @sg (with_constant S)
 := λ {S} c sgS, 
    {| 
-     sg_eq     := eqv_add_constant (sg_eq sgS) c 
-   ; sg_bop    := bop_add_ann (sg_bop sgS) c
-   ; sg_certs  := sg_certs_add_ann c (eqv_witness (sg_eq sgS)) (eqv_new (sg_eq sgS)) (sg_certs sgS) 
-   ; sg_ast    := Ast_sg_add_ann (c, sg_ast sgS)
+     sg_eq      := eqv_add_constant (sg_eq sgS) c 
+   ; sg_bop     := bop_add_ann (sg_bop sgS) c
+   ; sg_certs   := sg_certs_add_ann c (eqv_witness (sg_eq sgS)) (eqv_new (sg_eq sgS)) (sg_certs sgS)
+   ; sg_bop_ast := Ast_bop_add_ann (c, sg_bop_ast sgS) 
+   ; sg_ast     := Ast_sg_add_ann (c, sg_ast sgS)
    |}. 
 
 Definition sg_C_add_ann : ∀ {S : Type} (c : cas_constant),  sg_C (S := S) -> sg_C (S := (with_constant S)) 
@@ -363,7 +368,8 @@ Definition sg_C_add_ann : ∀ {S : Type} (c : cas_constant),  sg_C (S := S) -> s
    {| 
      sg_C_eqv       := eqv_add_constant (sg_C_eqv sgS) c  
    ; sg_C_bop       := bop_add_ann (sg_C_bop sgS) c 
-   ; sg_C_certs     := sg_C_certs_add_ann c (eqv_witness (sg_C_eqv sgS)) (eqv_new (sg_C_eqv sgS)) (sg_C_certs sgS) 
+   ; sg_C_certs     := sg_C_certs_add_ann c (eqv_witness (sg_C_eqv sgS)) (eqv_new (sg_C_eqv sgS)) (sg_C_certs sgS)
+   ; sg_C_bop_ast   := Ast_bop_add_ann (c, sg_C_bop_ast sgS) 
    ; sg_C_ast       := Ast_sg_C_add_ann (c, sg_C_ast sgS)
    |}. 
 
@@ -372,7 +378,8 @@ Definition sg_CI_add_ann : ∀ {S : Type} (c : cas_constant),  sg_CI (S := S) ->
    {| 
      sg_CI_eqv       := eqv_add_constant (sg_CI_eqv sgS) c  
    ; sg_CI_bop       := bop_add_ann (sg_CI_bop sgS) c 
-   ; sg_CI_certs    := sg_CI_certs_add_ann c (sg_CI_certs sgS) 
+   ; sg_CI_certs     := sg_CI_certs_add_ann c (sg_CI_certs sgS)
+   ; sg_CI_bop_ast   := Ast_bop_add_ann (c, sg_CI_bop_ast sgS) 
    ; sg_CI_ast       := Ast_sg_CI_add_ann (c, sg_CI_ast sgS)
    |}. 
 
@@ -381,10 +388,10 @@ Definition sg_CS_add_ann : ∀ {S : Type} (c : cas_constant),  sg_CS (S := S) ->
    {| 
      sg_CS_eqv       := eqv_add_constant (sg_CS_eqv sgS) c  
    ; sg_CS_bop       := bop_add_ann (sg_CS_bop sgS) c 
-   ; sg_CS_certs    := sg_CS_certs_add_ann c (sg_CS_certs sgS) 
+   ; sg_CS_certs     := sg_CS_certs_add_ann c (sg_CS_certs sgS)
+   ; sg_CS_bop_ast   := Ast_bop_add_ann (c, sg_CS_bop_ast sgS) 
    ; sg_CS_ast       := Ast_sg_CS_add_ann (c, sg_CS_ast sgS)
    |}. 
-
  
 End CAS.
 

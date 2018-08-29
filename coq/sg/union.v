@@ -725,8 +725,8 @@ Definition A_sg_CI_union : ∀ (S : Type) (c : cas_constant),  A_eqv S -> A_sg_C
      A_sg_CI_eqv       := A_eqv_add_constant (finite_set S) (A_eqv_set S eqv) c  
    ; A_sg_CI_bop       := bop_add_ann (bop_union eqS) c
    ; A_sg_CI_proofs    := sg_CI_proofs_union S eqS c s f ntS (A_eqv_proofs S eqv)
-   ; A_sg_CI_ast       := Ast_sg_CI_union_with_ann (c, A_eqv_ast S eqv)
-                                                                   
+   ; A_sg_CI_bop_ast   := Ast_bop_add_ann(c, Ast_bop_union (A_eqv_ast S eqv)) 
+   ; A_sg_CI_ast       := Ast_sg_CI_union_with_ann (c, A_eqv_ast S eqv)                                                                   
    |}. 
   
 
@@ -757,6 +757,7 @@ Definition sg_CI_union : ∀ {S : Type} (c : cas_constant), @eqv S -> @sg_CI (wi
      sg_CI_eqv       := eqv_add_constant (eqv_set eqvS) c  
    ; sg_CI_bop       := bop_add_ann (bop_union eqS) c
    ; sg_CI_certs     := sg_CI_certs_union c s f
+   ; sg_CI_bop_ast   := Ast_bop_add_ann(c, Ast_bop_union (eqv_ast eqvS))                                           
    ; sg_CI_ast       := Ast_sg_CI_union_with_ann (c, eqv_ast eqvS)
    |}. 
 

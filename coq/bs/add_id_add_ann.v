@@ -287,6 +287,8 @@ Definition A_bs_add_zero : ∀ (S : Type),  A_bs S -> cas_constant -> A_bs (with
                                 (A_eqv_witness S (A_bs_eqv S bsS))                                
                                 (A_eqv_proofs S (A_bs_eqv S bsS)) 
                                 (A_bs_proofs S bsS)
+   ; A_bs_plus_ast     := Ast_bop_add_id (c, A_bs_plus_ast S bsS)
+   ; A_bs_times_ast    := Ast_bop_add_ann (c, A_bs_times_ast S bsS)                                                      
    ; A_bs_ast          := Ast_bs_add_zero (c, A_bs_ast S bsS)
 |}. 
 
@@ -494,7 +496,9 @@ Definition A_dioid_add_zero : ∀ (S : Type),  A_dioid S -> cas_constant -> A_di
                                 (A_eqv_witness S (A_dioid_eqv S bsS))                                
                                 (A_eqv_proofs S (A_dioid_eqv S bsS))
                                 (A_dioid_proofs S bsS)
-   ; A_dioid_ast  := Ast_dioid_add_zero (c, A_dioid_ast S bsS)
+   ; A_dioid_plus_ast     := Ast_bop_add_id (c, A_dioid_plus_ast S bsS)
+   ; A_dioid_times_ast    := Ast_bop_add_ann (c, A_dioid_times_ast S bsS)   
+   ; A_dioid_ast          := Ast_dioid_add_zero (c, A_dioid_ast S bsS)
 |}. 
 
 
@@ -526,7 +530,9 @@ Definition A_semiring_add_zero : ∀ (S : Type),  A_semiring S -> cas_constant -
                                 (A_eqv_witness S (A_semiring_eqv S bsS))                                
                                 (A_eqv_proofs S (A_semiring_eqv S bsS))
                                 (A_semiring_proofs S bsS)
-   ; A_semiring_ast  := Ast_semiring_add_zero (c, A_semiring_ast S bsS)
+   ; A_semiring_plus_ast     := Ast_bop_add_id (c, A_semiring_plus_ast S bsS)
+   ; A_semiring_times_ast    := Ast_bop_add_ann (c, A_semiring_times_ast S bsS)                                
+   ; A_semiring_ast          := Ast_semiring_add_zero (c, A_semiring_ast S bsS)
 |}. 
  
 
@@ -655,6 +661,8 @@ let f :=   eqv_new (bs_eqv bsS) in
    ; bs_plus_certs  := sg_certs_add_id c s f (bs_plus_certs bsS) 
    ; bs_times_certs := sg_certs_add_ann c s f (bs_times_certs bsS) 
    ; bs_certs       := bs_certs_add_zero s (bs_certs bsS)
+   ; bs_plus_ast    := Ast_bop_add_id (c, bs_plus_ast bsS)
+   ; bs_times_ast   := Ast_bop_add_ann (c, bs_times_ast bsS)                                                    
    ; bs_ast         := Ast_bs_add_zero (c, bs_ast bsS)
 |}. 
 
@@ -686,6 +694,8 @@ let f :=   eqv_new (dioid_eqv bsS) in
    ; dioid_plus_certs  := sg_CI_certs_add_id c (dioid_plus_certs bsS)
    ; dioid_times_certs := sg_certs_add_ann c s f (dioid_times_certs bsS)
    ; dioid_certs       := semiring_certs_add_zero s (dioid_certs bsS)
+   ; dioid_plus_ast    := Ast_bop_add_id (c, dioid_plus_ast bsS)
+   ; dioid_times_ast   := Ast_bop_add_ann (c, dioid_times_ast bsS)
    ; dioid_ast         := Ast_dioid_add_zero (c, dioid_ast bsS)
 |}. 
 
@@ -700,6 +710,8 @@ let f :=   eqv_new (semiring_eqv bsS) in
    ; semiring_plus_certs  := sg_C_certs_add_id c s f (semiring_plus_certs bsS)
    ; semiring_times_certs := sg_certs_add_ann c s f (semiring_times_certs bsS)
    ; semiring_certs       := semiring_certs_add_zero s (semiring_certs bsS)
+   ; semiring_plus_ast    := Ast_bop_add_id (c, semiring_plus_ast bsS)
+   ; semiring_times_ast   := Ast_bop_add_ann (c, semiring_times_ast bsS)                                                      
    ; semiring_ast         := Ast_semiring_add_zero (c, semiring_ast bsS)
 |}. 
 
@@ -721,6 +733,8 @@ Definition distributive_lattice_add_zero : ∀ (S : Type),  @distributive_lattic
    ; distributive_lattice_join_certs  := sg_CI_certs_add_id c (distributive_lattice_join_certs bsS)
    ; distributive_lattice_meet_certs  := sg_CI_certs_add_ann c (distributive_lattice_meet_certs bsS)
    ; distributive_lattice_certs       := distributive_lattice_certs_add_zero c (distributive_lattice_certs bsS )
+   ; distributive_lattice_join_ast    := Ast_bop_add_id (c, distributive_lattice_join_ast bsS)
+   ; distributive_lattice_meet_ast    := Ast_bop_add_ann (c, distributive_lattice_meet_ast bsS) 
    ; distributive_lattice_ast         := Ast_distributive_lattice_add_zero (c, distributive_lattice_ast bsS)
 |}. 
 
@@ -746,6 +760,8 @@ let f :=   eqv_new (lattice_eqv bsS) in
    ; lattice_join_certs  := sg_CI_certs_add_id c (lattice_join_certs bsS)
    ; lattice_meet_certs  := sg_CI_certs_add_ann c (lattice_meet_certs bsS)
    ; lattice_certs       := lattice_certs_add_zero (lattice_certs bsS)
+   ; lattice_join_ast    := Ast_bop_add_id (c, lattice_join_ast bsS)
+   ; lattice_meet_ast    := Ast_bop_add_ann (c, lattice_meet_ast bsS)                             
    ; lattice_ast         := Ast_lattice_add_zero (c, lattice_ast bsS)
 |}. 
 

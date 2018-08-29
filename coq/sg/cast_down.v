@@ -38,6 +38,7 @@ Definition A_sg_C_option_from_sg : ∀ (S : Type),  A_sg S -> option (A_sg_C S)
          A_sg_C_eqv     := A_sg_eq S sg
        ; A_sg_C_bop     := A_sg_bop S sg
        ; A_sg_C_proofs  := sg_C_p
+       ; A_sg_C_bop_ast := A_sg_bop_ast S sg                                        
        ; A_sg_C_ast     := Ast_sg_C_from_sg (A_sg_ast S sg)
     |}
    end.
@@ -77,6 +78,7 @@ Definition A_sg_CS_option_from_sg_C : ∀ (S : Type),  A_sg_C S -> option (A_sg_
          A_sg_CS_eqv     := A_sg_C_eqv S sg
        ; A_sg_CS_bop     := A_sg_C_bop S sg
        ; A_sg_CS_proofs  := sg_CS_p
+       ; A_sg_CS_bop_ast := A_sg_C_bop_ast S sg                                                                      
        ; A_sg_CS_ast     := Ast_sg_CS_from_sg_C (A_sg_C_ast S sg)
     |}
    end.
@@ -106,6 +108,7 @@ Definition A_sg_CS_option_from_sg_CI : ∀ (S : Type),  A_sg_CI S -> option (A_s
          A_sg_CS_eqv     := A_sg_CI_eqv S sg
        ; A_sg_CS_bop     := A_sg_CI_bop S sg
        ; A_sg_CS_proofs  := sg_CS_p
+       ; A_sg_CS_bop_ast := A_sg_CI_bop_ast S sg                                                                      
        ; A_sg_CS_ast     := Ast_sg_CS_from_sg_CI (A_sg_CI_ast S sg)
     |}
    end.
@@ -136,6 +139,7 @@ Definition A_sg_CI_option_from_sg_C : ∀ (S : Type),  A_sg_C S -> option (A_sg_
          A_sg_CI_eqv     := A_sg_C_eqv S sg
        ; A_sg_CI_bop     := A_sg_C_bop S sg
        ; A_sg_CI_proofs  := sg_CI_p
+       ; A_sg_CI_bop_ast := A_sg_C_bop_ast S sg                                                                      
        ; A_sg_CI_ast     := Ast_sg_CI_from_sg_C (A_sg_C_ast S sg)
     |}
    end. 
@@ -166,6 +170,7 @@ Definition A_sg_CK_option_from_sg_C : ∀ (S : Type),  A_sg_C S -> option (A_sg_
          A_sg_CK_eqv     := A_sg_C_eqv S sg
        ; A_sg_CK_bop     := A_sg_C_bop S sg
        ; A_sg_CK_proofs  := sg_CK_p
+       ; A_sg_CK_bop_ast := A_sg_C_bop_ast S sg                                                                                                    
        ; A_sg_CK_ast     := Ast_sg_CK_from_sg_C (A_sg_C_ast S sg)
     |}
    end.
@@ -229,6 +234,7 @@ Definition sg_C_option_from_sg : ∀ (S : Type),  @sg S -> option (@sg_C S)
          sg_C_eqv     := sg_eq sg
        ; sg_C_bop     := sg_bop sg
        ; sg_C_certs  := sg_C_p
+       ; sg_C_bop_ast := sg_bop_ast sg                                        
        ; sg_C_ast     := Ast_sg_C_from_sg (sg_ast sg)
     |}
    end.
@@ -258,6 +264,7 @@ Definition sg_CS_option_from_sg_C : ∀ (S : Type),  @sg_C S -> option (@sg_CS S
          sg_CS_eqv     := sg_C_eqv sg
        ; sg_CS_bop     := sg_C_bop sg
        ; sg_CS_certs   := sg_CS_p
+       ; sg_CS_bop_ast := sg_C_bop_ast sg                                                                      
        ; sg_CS_ast     := Ast_sg_CS_from_sg_C (sg_C_ast sg)
     |}
    end.
@@ -296,6 +303,7 @@ Definition sg_CS_option_from_sg_CI : ∀ (S : Type),  @sg_CI S -> option (@sg_CS
          sg_CS_eqv     := sg_CI_eqv sg
        ; sg_CS_bop     := sg_CI_bop sg
        ; sg_CS_certs   := sg_CS_p
+       ; sg_CS_bop_ast := sg_CI_bop_ast sg                                                                      
        ; sg_CS_ast     := Ast_sg_CS_from_sg_CI (sg_CI_ast sg)
     |}
    end.
@@ -325,6 +333,7 @@ Definition sg_CI_option_from_sg_C : ∀ (S : Type),  @sg_C S -> option (@sg_CI S
          sg_CI_eqv     := sg_C_eqv sg
        ; sg_CI_bop     := sg_C_bop sg
        ; sg_CI_certs   := sg_CS_p
+       ; sg_CI_bop_ast := sg_C_bop_ast sg                                                                      
        ; sg_CI_ast     := Ast_sg_CI_from_sg_C (sg_C_ast sg)
     |}
    end.
@@ -355,6 +364,7 @@ Definition sg_CK_option_from_sg_C : ∀ (S : Type),  @sg_C S -> option (@sg_CK S
          sg_CK_eqv     := sg_C_eqv sg
        ; sg_CK_bop     := sg_C_bop sg
        ; sg_CK_certs   := sg_CS_p
+       ; sg_CK_bop_ast := sg_C_bop_ast sg                                                                                                    
        ; sg_CK_ast     := Ast_sg_CK_from_sg_C (sg_C_ast sg)
     |}
    end.

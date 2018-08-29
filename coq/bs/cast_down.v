@@ -18,7 +18,9 @@ Definition A_bs_C_option_from_bs : ∀ (S : Type),  A_bs S -> option (A_bs_C S)
        ; A_bs_C_times        := A_bs_times S s
        ; A_bs_C_plus_proofs  := sg_C_p
        ; A_bs_C_times_proofs := A_bs_times_proofs S s
-       ; A_bs_C_proofs       := A_bs_proofs S s 
+       ; A_bs_C_proofs       := A_bs_proofs S s
+       ; A_bs_C_plus_ast     := A_bs_plus_ast S s
+       ; A_bs_C_times_ast    := A_bs_times_ast S s                                                 
        ; A_bs_C_ast          := Ast_bs_C_from_bs (A_bs_ast S s)
     |})
    end. 
@@ -36,7 +38,9 @@ Definition A_bs_CS_option_from_bs : ∀ (S : Type),  A_bs S -> option (A_bs_CS S
        ; A_bs_CS_times        := A_bs_times S s
        ; A_bs_CS_plus_proofs  := sg_CS_p
        ; A_bs_CS_times_proofs := A_bs_times_proofs S s
-       ; A_bs_CS_proofs       := A_bs_proofs S s 
+       ; A_bs_CS_proofs       := A_bs_proofs S s
+       ; A_bs_CS_plus_ast     := A_bs_plus_ast S s
+       ; A_bs_CS_times_ast    := A_bs_times_ast S s                                                                                              
        ; A_bs_CS_ast          := Ast_bs_CS_from_bs (A_bs_ast S s)
     |})
    end. 
@@ -57,8 +61,10 @@ Definition bs_C_option_from_bs : ∀ {S : Type},  bs (S := S) -> option (bs_C (S
        ; bs_C_times        := bs_times s
        ; bs_C_plus_certs  := sg_C_p
        ; bs_C_times_certs := bs_times_certs s
-       ; bs_C_certs       := bs_certs  s 
-       ; bs_C_ast          := Ast_bs_C_from_bs (bs_ast  s)
+       ; bs_C_certs       := bs_certs  s
+       ; bs_C_plus_ast    := bs_plus_ast s
+       ; bs_C_times_ast   := bs_times_ast s                                                                                        
+       ; bs_C_ast         := Ast_bs_C_from_bs (bs_ast  s)
     |})
    end. 
 
@@ -73,8 +79,10 @@ Definition bs_CS_option_from_bs : ∀ {S : Type},  @bs S -> option (@bs_CS S)
        ; bs_CS_times        := bs_times s
        ; bs_CS_plus_certs  := sg_CS_p
        ; bs_CS_times_certs := bs_times_certs s
-       ; bs_CS_certs       := bs_certs s 
-       ; bs_CS_ast          := Ast_bs_CS_from_bs (bs_ast s)
+       ; bs_CS_certs       := bs_certs s
+       ; bs_CS_plus_ast    := bs_plus_ast s
+       ; bs_CS_times_ast   := bs_times_ast s                                                  
+       ; bs_CS_ast         := Ast_bs_CS_from_bs (bs_ast s)
     |})
    end. 
 

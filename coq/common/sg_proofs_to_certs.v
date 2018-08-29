@@ -153,7 +153,8 @@ Definition A2C_sg : ∀ (S : Type), A_sg S -> @sg S
 {| 
   sg_eq     := A2C_eqv S (A_sg_eq S R) 
 ; sg_bop    := A_sg_bop S R 
-; sg_certs  := P2C_sg S (A_eqv_eq S (A_sg_eq S R)) (A_sg_bop S R) (A_sg_proofs S R)  
+; sg_certs  := P2C_sg S (A_eqv_eq S (A_sg_eq S R)) (A_sg_bop S R) (A_sg_proofs S R)
+; sg_bop_ast := A_sg_bop_ast S R                      
 ; sg_ast    := A_sg_ast S R
 |}. 
 
@@ -184,7 +185,8 @@ Definition A2C_sg_C : ∀ (S : Type), A_sg_C S -> @sg_C S
 ; sg_C_certs := P2C_sg_C S 
                    (A_eqv_eq S (A_sg_C_eqv S R)) 
                    (A_sg_C_bop S R) 
-                   (A_sg_C_proofs S R)  
+                   (A_sg_C_proofs S R)
+; sg_C_bop_ast := A_sg_C_bop_ast S R                                         
 ; sg_C_ast   := A_sg_C_ast S R
 |}.
 
@@ -207,7 +209,8 @@ Definition A2C_sg_CI : ∀ (S : Type), A_sg_CI S -> @sg_CI S
 {| 
   sg_CI_eqv   := A2C_eqv S (A_sg_CI_eqv S R)
 ; sg_CI_bop   := A_sg_CI_bop S R 
-; sg_CI_certs := P2C_sg_CI S (A_eqv_eq S (A_sg_CI_eqv S R)) (A_sg_CI_bop S R) (A_sg_CI_proofs S R)  
+; sg_CI_certs := P2C_sg_CI S (A_eqv_eq S (A_sg_CI_eqv S R)) (A_sg_CI_bop S R) (A_sg_CI_proofs S R)
+; sg_CI_bop_ast := A_sg_CI_bop_ast S R                                                 
 ; sg_CI_ast   := A_sg_CI_ast S R
 |}. 
 
@@ -230,7 +233,8 @@ Definition A2C_sg_CS : ∀ (S : Type), A_sg_CS S -> @sg_CS S
 {| 
   sg_CS_eqv   := A2C_eqv S (A_sg_CS_eqv S R)
 ; sg_CS_bop   := A_sg_CS_bop S R 
-; sg_CS_certs := P2C_sg_CS S (A_eqv_eq S (A_sg_CS_eqv S R)) (A_sg_CS_bop S R) (A_sg_CS_proofs S R)  
+; sg_CS_certs := P2C_sg_CS S (A_eqv_eq S (A_sg_CS_eqv S R)) (A_sg_CS_bop S R) (A_sg_CS_proofs S R)
+; sg_CS_bop_ast := A_sg_CS_bop_ast S R                                                 
 ; sg_CS_ast   := A_sg_CS_ast S R
 |}. 
 
@@ -253,7 +257,8 @@ Definition A2C_sg_CK : ∀ (S : Type), A_sg_CK S -> @sg_CK S
 {| 
   sg_CK_eqv   := A2C_eqv S (A_sg_CK_eqv S R)
 ; sg_CK_bop   := A_sg_CK_bop S R 
-; sg_CK_certs := P2C_sg_CK S (A_eqv_eq S (A_sg_CK_eqv S R)) (A_sg_CK_bop S R) (A_sg_CK_proofs S R)  
+; sg_CK_certs := P2C_sg_CK S (A_eqv_eq S (A_sg_CK_eqv S R)) (A_sg_CK_bop S R) (A_sg_CK_proofs S R)
+; sg_CK_bop_ast := A_sg_CK_bop_ast S R                                                 
 ; sg_CK_ast   := A_sg_CK_ast S R
 |}. 
 

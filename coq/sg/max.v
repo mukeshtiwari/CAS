@@ -116,6 +116,7 @@ Definition A_sg_CS_max : A_sg_CS nat
      A_sg_CS_eqv         := A_eqv_nat 
    ; A_sg_CS_bop         := bop_max
    ; A_sg_CS_proofs      := sg_CS_proofs_max
+   ; A_sg_CS_bop_ast     := Ast_bop_max
    ; A_sg_CS_ast         := Ast_sg_CS_max
    |}. 
 
@@ -137,10 +138,11 @@ Definition sg_CS_certs_max : @sg_CS_certificates nat
 
 Definition sg_CS_max : @sg_CS nat 
 := {| 
-     sg_CS_eqv   := eqv_eq_nat 
-   ; sg_CS_bop   := bop_max
-   ; sg_CS_certs := sg_CS_certs_max
-   ; sg_CS_ast   := Ast_sg_CS_max
+     sg_CS_eqv     := eqv_eq_nat 
+   ; sg_CS_bop     := bop_max
+   ; sg_CS_certs   := sg_CS_certs_max
+   ; sg_CS_bop_ast := Ast_bop_max                      
+   ; sg_CS_ast     := Ast_sg_CS_max
    |}. 
 
 
