@@ -32,8 +32,8 @@ let rec ast_eqv_to_ascii = function
 | Ast_eqv_nat                   -> "int"
 | Ast_eqv_list eqv              -> "(" ^ (ast_eqv_to_ascii eqv) ^ ") list"
 | Ast_eqv_set eqv               -> "(" ^ (ast_eqv_to_ascii eqv) ^ ") set"
-| Ast_eqv_product (eqv1, eqv2)  -> "(" ^ (ast_eqv_to_ascii eqv1) ^ " * " ^ (ast_eqv_to_ascii eqv1) ^ ")"
-| Ast_eqv_sum (eqv1, eqv2)      -> "(" ^ (ast_eqv_to_ascii eqv1) ^ " + " ^ (ast_eqv_to_ascii eqv1) ^ ")"
+| Ast_eqv_product (eqv1, eqv2)  -> "(" ^ (ast_eqv_to_ascii eqv1) ^ " * " ^ (ast_eqv_to_ascii eqv2) ^ ")"
+| Ast_eqv_sum (eqv1, eqv2)      -> "(" ^ (ast_eqv_to_ascii eqv1) ^ " + " ^ (ast_eqv_to_ascii eqv2) ^ ")"
 | Ast_eqv_add_constant (c, eqv) -> "({" ^ (char_list_to_string c.constant_ascii)      ^ "} + " ^ (ast_eqv_to_ascii eqv) ^ ")"
 
 let rec ast_eqv_to_latex = function 
@@ -41,8 +41,8 @@ let rec ast_eqv_to_latex = function
 | Ast_eqv_nat                   -> "\typenat"
 | Ast_eqv_list eqv              -> "\typelist{" ^ (ast_eqv_to_latex eqv) ^ "}"
 | Ast_eqv_set eqv               -> "\typeset{" ^ (ast_eqv_to_latex eqv) ^ "}"
-| Ast_eqv_product (eqv1, eqv2)  -> "\typeproduct{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv1) ^ "}"
-| Ast_eqv_sum (eqv1, eqv2)      -> "\typesum{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv1) ^ "}"
+| Ast_eqv_product (eqv1, eqv2)  -> "\typeproduct{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv2) ^ "}"
+| Ast_eqv_sum (eqv1, eqv2)      -> "\typesum{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv2) ^ "}"
 | Ast_eqv_add_constant (c, eqv) -> "\typeaddconstant{" ^ (char_list_to_string c.constant_latex) ^ "}{" ^ (ast_eqv_to_latex eqv) ^ "}"
 
 let rec ast_bop_to_ascii = function 	

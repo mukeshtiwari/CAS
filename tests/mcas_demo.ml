@@ -15,16 +15,17 @@ Or use Tuareg ...
 open Mcas;;
 
 sg_describe sg_max;;
+sg_describe_fully sg_max;;    
 sg_describe sg_min;;   
 
 let sg_max_llex_min = sg_llex sg_max sg_min ;;
-sg_describe sg_max_llex_min;; 
+sg_describe_fully sg_max_llex_min;; 
 
 let sg_min_llex_max = sg_llex sg_min sg_max ;;
 sg_describe sg_min_llex_max;; 
   
 let sg1 = sg_and <*> sg_or <*> sg_min <*> sg_max <*> sg_times <*> sg_plus;; 
-sg_describe sg1;; 
+sg_describe_fully sg1;; 
 
 let sg2 = sg_and <*> sg_or <*> sg_min <*> sg_max;; 
 sg_describe sg2;;

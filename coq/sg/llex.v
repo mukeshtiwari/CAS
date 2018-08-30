@@ -212,6 +212,7 @@ Proof. intros [H | H].
        apply bop_llex_not_idempotent_right. exact H. 
 Defined. 
 
+
 Lemma bop_llex_not_commutative_left : bop_not_commutative S rS bS → bop_not_commutative (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. unfold bop_not_commutative. intros [ [s s'] P]. exists ((s, wT), (s', wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
 
@@ -298,6 +299,7 @@ Proof.
       assert (K3 := brel_transititivity_implies_dual _ _ tranS _ _ _ K K1). 
       rewrite K1. simpl. rewrite K3. simpl. reflexivity. 
 Defined. 
+
 
 
 Lemma bop_llex_not_selective : 
@@ -1083,7 +1085,6 @@ Proof.
           destruct (lex_lemma_case_8 s1 s2 s3 selS Aeq Alt Beq Blt) as [[[E1 E2] E3] E4]. rewrite E1, E2, E3, E4, Aeq, Alt. apply refT. 
           destruct (lex_lemma_case_9 selS commS s1 s2 s3 Aeq Alt Beq Blt) as [[[E1 E2] E3] E4]. rewrite E1, E2, E3, E4, Aeq, Alt. apply refT. 
 Defined.  
-
 
 (* 
    s1 <> s2 = f s1 

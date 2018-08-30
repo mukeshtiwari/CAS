@@ -5,7 +5,8 @@ Require Import CAS.coq.common.proof_records.
 Require Import CAS.coq.common.brel_properties.
 Require Import CAS.coq.common.bop_properties.
 Require Import CAS.coq.common.bs_properties.
-Require Import CAS.coq.common.lt_properties. 
+Require Import CAS.coq.common.lt_properties.
+Require Import CAS.coq.common.str_properties. 
 
 (* eqv *) 
 Record A_eqv (S : Type) := {
@@ -282,13 +283,6 @@ Record A_os (S : Type) := {
     Tranforms 
 *)
 
-Record ltr_proofs (S L : Type) (eqS : brel S) (eqL : brel L) (ltr : L -> (S -> S)) := 
-{
-  A_ltr_congruence          : lt_congruence L S eqL eqS ltr
-; A_ltr_is_right_d          : lt_is_right_decidable L S eqS ltr
-; A_ltr_exists_id_d         : lt_exists_id_decidable L S eqS ltr
-; A_ltr_left_cancellative_d : lt_left_cancellative_decidable L S eqS ltr
-}.
 
 Record A_ltr (S L : Type) :=
 {
@@ -299,41 +293,28 @@ Record A_ltr (S L : Type) :=
 ; A_ltr_ast     : ast_ltr
 }.
 
-
-Definition sltr_distributive (S L : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) 
-   := ∀ (l : L) (t u : S), r (ltr l (add t u)) (add (ltr l t) (ltr l u)) = true. 
-
-Definition sltr_not_distributive (S L : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) 
-   := { z : L * (S * S) & match z with (l, (t, u)) => r (ltr l (add t u)) (add (ltr l t) (ltr l u)) = false end }. 
-
-Definition sltr_distributive_decidable (S L : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) 
-   := (sltr_distributive S L r add ltr) + (sltr_not_distributive S L r add ltr). 
- 
-Definition sltr_absorptive (S L : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) 
-  := ∀ (l : L) (s : S), r s (add s (ltr l s)) = true.
-
-Definition sltr_not_absorptive (S L : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) 
-   := { z : L * S  & match z with (l, s) =>  r s (add s (ltr l s)) = false end }. 
-
-Definition sltr_absorptive_decidable (S L : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) 
-   := (sltr_absorptive S L r add ltr) + (sltr_not_absorptive S L r add ltr). 
-
-Record sltr_proofs (S L : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) :=
+Record A_sltr_CS (S L : Type) :=
 {
-  sltr_distributive_d : sltr_distributive_decidable S L r add ltr
-; sltr_absorptive_d   : sltr_absorptive_decidable S L r add ltr                                  
+  A_sltr_CS_carrier      : A_eqv S
+; A_sltr_CS_label        : A_eqv L
+; A_sltr_CS_plus         : binary_op S                                               
+; A_sltr_CS_trans        : left_transform L S (* L -> (S -> S) *)
+; A_sltr_CS_plus_proofs  : sg_CS_proofs S (A_eqv_eq S A_sltr_CS_carrier) A_sltr_CS_plus                                 
+; A_sltr_CS_trans_proofs : ltr_proofs S L (A_eqv_eq S A_sltr_CS_carrier) (A_eqv_eq L A_sltr_CS_label)  A_sltr_CS_trans
+; A_sltr_CS_proofs       : sltr_proofs S L (A_eqv_eq S A_sltr_CS_carrier) A_sltr_CS_plus A_sltr_CS_trans                                  
+; A_sltr_CS_ast          : ast_sltr
 }.
 
-Record A_sltr (S L : Type) :=
+Record A_sltr_CI (S L : Type) :=
 {
-  A_sltr_carrier      : A_eqv S
-; A_sltr_label        : A_eqv L
-; A_sltr_plus         : binary_op S                                               
-; A_sltr_trans        : left_transform L S (* L -> (S -> S) *)
-; A_sltr_plus_proofs  : sg_CI_proofs S (A_eqv_eq S A_sltr_carrier) A_sltr_plus                                 
-; A_sltr_trans_proofs : ltr_proofs S L (A_eqv_eq S A_sltr_carrier) (A_eqv_eq L A_sltr_label)  A_sltr_trans
-; A_sltr_proofs       : sltr_proofs S L (A_eqv_eq S A_sltr_carrier) A_sltr_plus A_sltr_trans                                  
-; A_sltr_ast          : ast_sltr
+  A_sltr_CI_carrier      : A_eqv S
+; A_sltr_CI_label        : A_eqv L
+; A_sltr_CI_plus         : binary_op S                                               
+; A_sltr_CI_trans        : left_transform L S (* L -> (S -> S) *)
+; A_sltr_CI_plus_proofs  : sg_CI_proofs S (A_eqv_eq S A_sltr_CI_carrier) A_sltr_CI_plus                                 
+; A_sltr_CI_trans_proofs : ltr_proofs S L (A_eqv_eq S A_sltr_CI_carrier) (A_eqv_eq L A_sltr_CI_label)  A_sltr_CI_trans
+; A_sltr_CI_proofs       : sltr_proofs S L (A_eqv_eq S A_sltr_CI_carrier) A_sltr_CI_plus A_sltr_CI_trans                                  
+; A_sltr_CI_ast          : ast_sltr
 }.
 
 

@@ -90,7 +90,6 @@ let plusS := A_sg_CI_bop S sg           in
 ; A_dioid_ast          := Ast_dioid_sg_left (A_sg_CI_ast S sg)
 |}.
 
-Check A_sg_CI_proofs_from_sg_CS_proofs. 
 
 Definition A_selective_dioid_sg_left  (S : Type) (sg : A_sg_CS S) :=
 let eqv   := A_sg_CS_eqv S sg            in

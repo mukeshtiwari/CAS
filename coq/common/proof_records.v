@@ -4,6 +4,8 @@ Require Import CAS.coq.common.uop_properties.
 Require Import CAS.coq.common.bop_properties.
 Require Import CAS.coq.common.bs_properties.
 Require Import CAS.coq.common.os_properties.
+Require Import CAS.coq.common.lt_properties.
+Require Import CAS.coq.common.str_properties.
 Require Import CAS.coq.theory.facts. (* for witness functions.  move these? *) 
 (* eqv *) 
 (*
@@ -213,3 +215,19 @@ Record os_proofs (S: Type) (lte : brel S) (times : binary_op S) :=
 ; A_os_right_increasing_d    : os_right_increasing_decidable S lte times 
 
 }. 
+
+(* transforms *)
+
+Record ltr_proofs (S L : Type) (eqS : brel S) (eqL : brel L) (ltr : L -> (S -> S)) := 
+{
+  A_ltr_congruence          : lt_congruence L S eqL eqS ltr
+; A_ltr_is_right_d          : lt_is_right_decidable L S eqS ltr
+; A_ltr_exists_id_d         : lt_exists_id_decidable L S eqS ltr
+; A_ltr_left_cancellative_d : lt_left_cancellative_decidable L S eqS ltr
+}.
+
+Record sltr_proofs (S L : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) :=
+{
+  sltr_distributive_d : sltr_distributive_decidable S L r add ltr
+; sltr_absorptive_d   : sltr_absorptive_decidable S L r add ltr                                  
+}.

@@ -12,7 +12,7 @@ Or use Tuareg ...
 
  *)
 
-open Cas
+open Cas;;
        
 
 (* The Mcas approach might not always be the best. 

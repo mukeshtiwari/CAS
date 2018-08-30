@@ -18,6 +18,7 @@ BASE=\
    coq/common/uop_properties.v \
    coq/common/bop_properties.v \
    coq/common/lt_properties.v \
+   coq/common/str_properties.v \
    coq/common/bs_properties.v \
    coq/common/os_properties.v \
    coq/common/ast.v \
