@@ -3,12 +3,10 @@ Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
 Require Import CAS.coq.common.proof_records.
 Require Import CAS.coq.common.brel_properties.
-Require Import CAS.coq.common.bop_properties.
-Require Import CAS.coq.common.bs_properties.
-Require Import CAS.coq.common.lt_properties.
-Require Import CAS.coq.common.str_properties. 
 
-(* eqv *) 
+
+
+(* eqv : for "carrier types" *) 
 Record A_eqv (S : Type) := {
   A_eqv_eq          : brel S
 ; A_eqv_proofs      : eqv_proofs S A_eqv_eq
@@ -24,7 +22,6 @@ Record A_eqv (S : Type) := {
 ; A_eqv_rep         : S -> S    (* for reductions? need proved properties for this? *) 
 ; A_eqv_ast         : ast_eqv 
 }.
-
 
 (* orders *) 
 

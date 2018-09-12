@@ -17,7 +17,7 @@ BASE=\
    coq/common/brel_properties.v \
    coq/common/uop_properties.v \
    coq/common/bop_properties.v \
-   coq/common/lt_properties.v \
+   coq/common/tr_properties.v \
    coq/common/str_properties.v \
    coq/common/bs_properties.v \
    coq/common/os_properties.v \
@@ -41,10 +41,11 @@ BASE=\
    coq/theory/conjunction.v \
    coq/theory/complement.v\
    coq/theory/llte.v \
-   coq/theory/in_set.v\
-   coq/theory/subset.v\
-   coq/theory/lattice_theory.v\
-   coq/theory/semilattice_theory.v\
+   coq/theory/in_set.v \
+   coq/theory/subset.v \
+   coq/theory/lattice_theory.v \
+   coq/theory/semilattice_theory.v \
+   coq/theory/reduction_theory.v \
    coq/theory/facts.v
 
 CAS=\

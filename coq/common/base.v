@@ -4,7 +4,7 @@ Require Export CAS.coq.common.brel_properties.
 Require Export CAS.coq.common.bop_properties.
 Require Export CAS.coq.common.uop_properties.
 Require Export CAS.coq.common.bs_properties.
-Require Export CAS.coq.common.lt_properties.
+Require Export CAS.coq.common.tr_properties.
 Require Export CAS.coq.common.str_properties.
 Require Export CAS.coq.common.os_properties.
 
