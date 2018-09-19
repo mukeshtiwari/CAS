@@ -1,5 +1,11 @@
 Require Import CAS.coq.common.base.
-Require Import CAS.coq.theory.facts. 
+Require Import CAS.coq.theory.facts.
+
+(* for Section ReduceAnnihilators. *) 
+  Require Import CAS.coq.eqv.product.
+  Require Import CAS.coq.sg.product.
+  Require Import CAS.coq.bs.product_product. 
+
 
 (*
       r(r(s) + r(t)) +  r(u)  =_r  r(s) + r(r(t) + r(u)) 
@@ -658,19 +664,13 @@ Proof. split.
        apply bop_full_reduce_associative_implies_pseudo_associative. 
 Qed. 
 
-(* *) 
-Lemma bop_full_reduce_left_right_invariant_implies_associative (S : Type) (eqS : brel S) (r : unary_op S) (bS : binary_op S) :
-  brel_reflexive S eqS ->
-  brel_symmetric S eqS ->  
-  brel_transitive S eqS ->
-  uop_idempotent S eqS r ->  
-  uop_congruence S eqS r ->
-  bop_congruence S eqS bS -> 
+
+Lemma bop_full_reduce_left_right_invariant_implies_associative : 
   bop_associative S eqS bS ->
   bop_left_uop_invariant S eqS (bop_reduce r bS) r ->
   bop_right_uop_invariant S eqS (bop_reduce r bS) r -> 
          bop_associative S (brel_reduce eqS r) (bop_full_reduce r bS). 
-Proof. intros refS symS tranS r_idem r_cong b_cong assoc linv rinv.
+Proof. intros assoc linv rinv.
        apply bop_full_reduce_pseudo_associative_implies_associative; auto.
        apply r_left_right_imply_pseudo_associative; auto. 
 Qed.
@@ -683,24 +683,20 @@ Qed.
 (* 
     Commutativity 
 *)
-Lemma bop_full_reduce_commutative (S : Type) (eqS : brel S) (r : unary_op S) (bS : binary_op S) :
-      uop_congruence S eqS r -> 
+Lemma bop_full_reduce_commutative : 
       bop_commutative S eqS bS ->
            bop_commutative S (brel_reduce eqS r) (bop_full_reduce r bS). 
-Proof.  intros H C a b. compute. apply H. apply H. apply C. Qed. 
+Proof.  intros C a b. compute. apply r_cong. apply r_cong. apply C. Qed. 
 (* 
       idempotence 
 *)   
-Lemma bop_full_reduce_idempotent (S : Type) (eqS : brel S) (r : unary_op S) (bS : binary_op S) :
-  brel_transitive S eqS -> 
-  uop_congruence S eqS r ->
-  uop_idempotent S eqS r ->   
+Lemma bop_full_reduce_idempotent : 
   bop_idempotent S eqS bS -> bop_idempotent S (brel_reduce eqS r) (bop_full_reduce r bS). 
-Proof. intros transS r_cong r_idem idemS s. compute.
+Proof. intros idemS s. compute.
        assert (H1 := idemS (r s)). apply r_cong in H1. 
        assert (H2 := r_idem s). 
-       assert (H3 := transS _ _ _ H1 H2).  apply r_cong in H3.
-       assert (H4 := transS _ _ _ H3 H2).       
+       assert (H3 := tranS _ _ _ H1 H2).  apply r_cong in H3.
+       assert (H4 := tranS _ _ _ H3 H2).       
        exact H4. 
 Qed.
 
@@ -721,65 +717,52 @@ Qed.
 (* 
     Selectivity 
 *)   
-Lemma bop_full_reduce_selective (S : Type) (eqS : brel S) (r : unary_op S) (bS : binary_op S) :
-  brel_transitive S eqS -> 
-  uop_congruence S eqS r ->
-  uop_idempotent S eqS r ->   
+Lemma bop_full_reduce_selective : 
   bop_selective S eqS bS -> bop_selective S (brel_reduce eqS r) (bop_full_reduce r bS). 
-Proof. intros transS r_cong r_idem selS s1 s2. compute.
+Proof. intros selS s1 s2. compute.
          destruct (selS (r s1) (r s2)) as [H1 | H1].
          left.
          apply r_cong in H1. 
          assert (H2 := r_idem s1).
-         assert (H3 := transS _ _ _ H1 H2). apply r_cong in H3.
-         assert (H4 := transS _ _ _ H3 H2). 
+         assert (H3 := tranS _ _ _ H1 H2). apply r_cong in H3.
+         assert (H4 := tranS _ _ _ H3 H2). 
          exact H4.
          right.
          apply r_cong in H1. 
          assert (H2 := r_idem s2).
-         assert (H3 := transS _ _ _ H1 H2). apply r_cong in H3.
-         assert (H4 := transS _ _ _ H3 H2). 
+         assert (H3 := tranS _ _ _ H1 H2). apply r_cong in H3.
+         assert (H4 := tranS _ _ _ H3 H2). 
          exact H4.         
 Qed.                                  
 (* 
       Id 
  *)
 
-Lemma bop_full_reduce_is_id (S : Type) (eqS : brel S) (r : unary_op S) (bS : binary_op S) (id : S) :
-  brel_reflexive S eqS ->  
-  brel_transitive S eqS -> 
-  uop_congruence S eqS r ->
-  uop_idempotent S eqS r ->
-  bop_congruence S eqS bS ->  
+Lemma bop_full_reduce_is_id (id : S) :
   uop_preserves_id S eqS bS r -> bop_is_id S eqS bS id -> bop_is_id S (brel_reduce eqS r) (bop_full_reduce r bS) id. 
-Proof. intros refS transS r_cong r_idem congS H p.
+Proof. intros H p.
        assert (K := H id p).
        compute. 
        intros t. 
        destruct (p (r t)) as [H1  H2]. split. 
-       assert (H3 := congS _ _ _ _ K (refS (r t))).
-       assert (H4 := transS _ _ _ H3 H1). apply r_cong in H4. 
+       assert (H3 := bS_cong _ _ _ _ K (refS (r t))).
+       assert (H4 := tranS _ _ _ H3 H1). apply r_cong in H4. 
        assert (H5 := r_idem t). 
-       assert (H6 := transS _ _ _ H4 H5). apply r_cong in H6. 
-       assert (H7 := transS _ _ _ H6 H5).
+       assert (H6 := tranS _ _ _ H4 H5). apply r_cong in H6. 
+       assert (H7 := tranS _ _ _ H6 H5).
        exact H7.
-       assert (H3 := congS _ _ _ _ (refS (r t)) K).
-       assert (H4 := transS _ _ _ H3 H2). apply r_cong in H4. 
+       assert (H3 := bS_cong _ _ _ _ (refS (r t)) K).
+       assert (H4 := tranS _ _ _ H3 H2). apply r_cong in H4. 
        assert (H5 := r_idem t). 
-       assert (H6 := transS _ _ _ H4 H5). apply r_cong in H6. 
-       assert (H7 := transS _ _ _ H6 H5).
+       assert (H6 := tranS _ _ _ H4 H5). apply r_cong in H6. 
+       assert (H7 := tranS _ _ _ H6 H5).
        exact H7.
 Qed.
 
 
-Lemma bop_full_reduce_exists_id (S : Type) (eqS : brel S) (r : unary_op S) (bS : binary_op S) :
-  brel_reflexive S eqS ->  
-  brel_transitive S eqS -> 
-  uop_congruence S eqS r ->
-  uop_idempotent S eqS r ->
-  bop_congruence S eqS bS ->  
+Lemma bop_full_reduce_exists_id : 
   uop_preserves_id S eqS bS r -> bop_exists_id S eqS bS -> bop_exists_id S (brel_reduce eqS r) (bop_full_reduce r bS). 
-Proof. intros refS transS r_cong r_idem congS H [id p].
+Proof. intros H [id p].
        exists id. 
        apply bop_full_reduce_is_id; auto. 
 Qed.
@@ -788,34 +771,26 @@ Qed.
 
 *)
 
-Lemma bop_full_reduce_is_ann (S : Type) (eqS : brel S) (r : unary_op S) (bS : binary_op S) (ann : S):
-  brel_reflexive S eqS ->  
-  brel_transitive S eqS -> 
-  uop_congruence S eqS r ->
-  bop_congruence S eqS bS ->  
+Lemma bop_full_reduce_is_ann (ann : S):
   uop_preserves_ann S eqS bS r -> bop_is_ann S eqS bS ann -> bop_is_ann S (brel_reduce eqS r) (bop_full_reduce r bS) ann. 
-Proof. intros refS transS r_cong congS H p.
+Proof. intros H p.
        assert (K := H ann p).
        compute. 
        intros t. 
        destruct (p (r t)) as [H1  H2]. split. 
-       assert (H3 := congS _ _ _ _ K (refS (r t))).
-       assert (H4 := transS _ _ _ H3 H1). apply r_cong in H4. 
-       assert (H6 := transS _ _ _ H4 K). apply r_cong in H6. 
+       assert (H3 := bS_cong _ _ _ _ K (refS (r t))).
+       assert (H4 := tranS _ _ _ H3 H1). apply r_cong in H4. 
+       assert (H6 := tranS _ _ _ H4 K). apply r_cong in H6. 
        exact H6.
-       assert (H3 := congS _ _ _ _ (refS (r t)) K).
-       assert (H4 := transS _ _ _ H3 H2). apply r_cong in H4. 
-       assert (H6 := transS _ _ _ H4 K). apply r_cong in H6. 
+       assert (H3 := bS_cong _ _ _ _ (refS (r t)) K).
+       assert (H4 := tranS _ _ _ H3 H2). apply r_cong in H4. 
+       assert (H6 := tranS _ _ _ H4 K). apply r_cong in H6. 
        exact H6.
 Qed.
 
-Lemma bop_full_reduce_exists_ann (S : Type) (eqS : brel S) (r : unary_op S) (bS : binary_op S) :
-  brel_reflexive S eqS ->  
-  brel_transitive S eqS -> 
-  uop_congruence S eqS r ->
-  bop_congruence S eqS bS ->  
+Lemma bop_full_reduce_exists_ann : 
   uop_preserves_ann S eqS bS r -> bop_exists_ann S eqS bS -> bop_exists_ann S (brel_reduce eqS r) (bop_full_reduce r bS). 
-Proof. intros refS transS r_cong congS H [ann p].
+Proof. intros H [ann p].
        exists ann.
        apply bop_full_reduce_is_ann; auto. 
 Qed.
@@ -1086,8 +1061,10 @@ Qed.
 
 (* End non-commutative *) 
 
+End PredicateReduce.
 
-Section PredicateReduce. 
+
+Section PredicateReduce2. 
 
 Variable S : Type.
 Variable P : S -> bool.
@@ -1275,7 +1252,6 @@ Proof. intros c bS Pc P_cong b_cong assoc H isId l1 l2 l3; compute; auto.
        apply assoc.        
 Qed.
 
-
 Lemma bop_associative_fpr_decompositional_id : 
   ∀ (c : S) (bS : binary_op S),
     pred_true S P c -> 
@@ -1287,8 +1263,8 @@ Lemma bop_associative_fpr_decompositional_id :
         bop_associative S (brel_reduce eq (uop_predicate_reduce c P)) (bop_fpr c P bS). 
 Proof. intros c bS Pc P_cong cong accos H isId. unfold bop_fpr. 
        apply bop_full_reduce_pseudo_associative_implies_associative; auto.
+       apply uop_predicate_reduce_congruence; auto.       
        apply uop_predicate_reduce_idempotent; auto.
-       apply uop_predicate_reduce_congruence; auto.
        apply bop_pseudo_associative_fpr_decompositional_id; auto. 
 Qed. 
 
@@ -1359,8 +1335,8 @@ Lemma bop_associative_fpr_decompositional_ann :
         bop_associative S (brel_reduce eq (uop_predicate_reduce c P)) (bop_fpr c P bS). 
 Proof. intros c bS Pc P_cong cong accos H isAnn. unfold bop_fpr. 
        apply bop_full_reduce_pseudo_associative_implies_associative; auto.
-       apply uop_predicate_reduce_idempotent; auto.
        apply uop_predicate_reduce_congruence; auto.
+       apply uop_predicate_reduce_idempotent; auto.
        apply bop_pseudo_associative_fpr_decompositional_ann; auto. 
 Qed. 
 
@@ -1509,8 +1485,8 @@ Lemma bop_associative_fpr_compositional :
     bop_associative S (brel_reduce eq (uop_predicate_reduce s P)) (bop_fpr s P bS).      
 Proof. intros s bS Ps P_cong H cong assoc.
        apply bop_full_reduce_left_right_invariant_implies_associative; auto.
+       apply uop_predicate_reduce_congruence; auto.       
        apply uop_predicate_reduce_idempotent; auto.
-       apply uop_predicate_reduce_congruence; auto.
        apply bop_left_uop_invariant_predicate_reduce; auto. 
        apply bop_right_uop_invariant_predicate_reduce; auto.
 Qed.
@@ -2235,7 +2211,7 @@ Proof. intros s w1 w2 w3 add mul P_true congP cong_add cong_mul s_id s_ann addD 
 Qed. 
 
 
-End PredicateReduce.
+End PredicateReduce2.
 
 Section EqvReduction.
 
@@ -2422,9 +2398,6 @@ End EqvReduction.
 
 
 Section ReduceAnnihilators.
-  Require Import CAS.coq.eqv.product.
-  Require Import CAS.coq.sg.product.
-  Require Import CAS.coq.bs.product_product. 
 
   Variable S : Type.
   Variable T : Type.     
@@ -2740,15 +2713,15 @@ Lemma  bop_rap_add_is_id : bop_is_id (S * T)
                                      (brel_reduce (brel_product eqS eqT) uop_rap)
                                      bop_rap_add
                                      (zeroS, zeroT).
-Proof.  apply bop_full_reduce_is_id; auto. 
+Proof.  apply bop_full_reduce_is_id; auto.
+        apply uop_predicate_reduce_congruence; auto.        
         apply brel_product_reflexive; auto.
+        apply P_congruence.        
+        apply bop_product_congruence; auto.
+        apply brel_product_reflexive; auto.        
         apply brel_product_transitive; auto.
-        apply uop_predicate_reduce_congruence; auto.
-        apply brel_product_reflexive; auto.
-        apply P_congruence.
         apply uop_predicate_reduce_idempotent; auto.
         apply brel_product_reflexive; auto.
-        apply bop_product_congruence; auto.
         apply uop_rap_add_preserves_id; auto. 
         apply bop_product_is_id; auto. 
 Qed.  
@@ -2757,13 +2730,13 @@ Lemma  bop_rap_add_is_ann : bop_is_ann (S * T)
                                      (brel_reduce  (brel_product eqS eqT) uop_rap)
                                      bop_rap_add
                                      (oneS, oneT).
-Proof.  apply bop_full_reduce_is_ann; auto. 
-        apply brel_product_reflexive; auto.
-        apply brel_product_transitive; auto.
-        apply uop_predicate_reduce_congruence; auto.
+Proof.  apply bop_full_reduce_is_ann; auto.
+        apply uop_predicate_reduce_congruence; auto.        
         apply brel_product_reflexive; auto.
         apply P_congruence.
-        apply bop_product_congruence; auto.        
+        apply bop_product_congruence; auto.
+        apply brel_product_reflexive; auto.        
+        apply brel_product_transitive; auto.
         apply uop_rap_add_preserves_ann; auto. 
         apply bop_product_is_ann; auto. 
 Qed.  
@@ -2772,13 +2745,13 @@ Lemma  bop_rap_mul_is_ann : bop_is_ann (S * T)
                                      (brel_reduce  (brel_product eqS eqT) uop_rap)
                                      bop_rap_mul
                                      (zeroS, zeroT).
-Proof.  apply bop_full_reduce_is_ann; auto. 
+Proof.  apply bop_full_reduce_is_ann; auto.
+        apply uop_predicate_reduce_congruence; auto.        
         apply brel_product_reflexive; auto.
-        apply brel_product_transitive; auto.
-        apply uop_predicate_reduce_congruence; auto.
-        apply brel_product_reflexive; auto.
-        unfold pred_congruence. apply P_congruence.
+        apply P_congruence.
         apply bop_product_congruence; auto.
+        apply brel_product_reflexive; auto.        
+        apply brel_product_transitive; auto.
         apply uop_rap_mul_preserves_ann; auto.
         apply bop_product_is_ann; auto. 
 Qed.
@@ -2787,15 +2760,15 @@ Lemma  bop_rap_mul_is_id : bop_is_id (S * T)
                                      (brel_reduce  (brel_product eqS eqT) uop_rap)
                                      bop_rap_mul
                                      (oneS, oneT).
-Proof.  apply bop_full_reduce_is_id; auto. 
-        apply brel_product_reflexive; auto.
-        apply brel_product_transitive; auto.
-        apply uop_predicate_reduce_congruence; auto.
+Proof.  apply bop_full_reduce_is_id; auto.
+        apply uop_predicate_reduce_congruence; auto.        
         apply brel_product_reflexive; auto.
         apply P_congruence.
+        apply bop_product_congruence; auto.
+        apply brel_product_reflexive; auto.        
+        apply brel_product_transitive; auto.
         apply uop_predicate_reduce_idempotent; auto.        
         apply brel_product_reflexive; auto.
-        apply bop_product_congruence; auto.
         apply uop_rap_mul_preserves_id; auto.
         apply bop_product_is_id; auto. 
 Qed.
