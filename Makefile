@@ -56,6 +56,7 @@ CAS=\
    coq/eqv/sum.v \
    coq/eqv/product.v \
    coq/eqv/add_constant.v \
+   coq/eqv/reduce.v \
    coq/sg/cast_up.v \
    coq/sg/cast_down.v \
    coq/sg/plus.v \
@@ -77,6 +78,8 @@ CAS=\
    coq/sg/union.v \
    coq/sg/intersect.v \
    coq/sg/lift.v \
+   coq/tr/cons.v \
+   coq/tr/left_cayley.v \
    coq/bs/cast_up.v \
    coq/bs/cast_down.v \
    coq/bs/min_plus.v \

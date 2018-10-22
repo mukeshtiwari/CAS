@@ -126,7 +126,21 @@ Definition bop_anti_right_decidable  (S : Type) (r : brel S) (b : binary_op S) :
 (* IDs Annihilators 
 
   LEFT and RIGHT versions? 
-*) 
+ *)
+
+Definition bop_is_left_id (S : Type) (r : brel S) (b : binary_op S) (i : S) 
+    := ∀ s : S, (r (b i s) s = true).
+
+Definition bop_not_is_left_id (S : Type) (r : brel S) (b : binary_op S) (i : S)
+    := {s : S & (r (b i s) s = false)}.
+
+Definition bop_exists_left_id (S : Type) (r : brel S) (b : binary_op S) 
+    := {i : S & bop_is_left_id S r b i}.
+
+Definition bop_not_exists_left_id (S : Type) (r : brel S) (b : binary_op S) 
+  := ∀ i : S, bop_not_is_left_id S r b i.
+
+
 
 Definition bop_is_id (S : Type) (r : brel S) (b : binary_op S) (i : S) 
     := ∀ s : S, (r (b i s) s = true) * (r (b s i) s = true).

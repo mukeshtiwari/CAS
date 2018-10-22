@@ -27,7 +27,7 @@ Lemma bop_add_id_congruence : bop_congruence (with_constant S ) (c <+> rS) (c [+
 Proof. unfold bop_congruence. intros [s1 | t1] [s2 | t2] [s3 | t3] [s4 | t4]; simpl; intros H1 H2;auto; discriminate. Qed. 
 
 Lemma bop_add_id_associative : bop_associative S rS bS -> bop_associative (with_constant S ) (c <+> rS) (c [+] bS). 
-Proof. intros assS [s1 | t1] [s2 | t2] [s3 | t3]; simpl; auto. Qed. 
+Proof. intros assS [c1 | s1] [c2 | s2] [c3 | s3]; simpl; auto. Qed. 
 
 Lemma bop_add_id_idempotent : bop_idempotent S rS bS → bop_idempotent (with_constant S ) (c <+> rS) (c [+] bS). 
 Proof. intros idemS [s1 | t1]; simpl; auto. Qed. 
@@ -676,7 +676,7 @@ Defined.
 
 End CertsCorrect.
 
-Section AddAnnCorrect.
+Section AddIdCorrect.
 
   Variable S : Type.
   Variable c : cas_constant. 
@@ -726,7 +726,7 @@ Proof. intro sg_CSS.
        reflexivity. 
 Qed. 
 
-End AddAnnCorrect.  
+End AddIdCorrect.  
  
 End Verify.   
   

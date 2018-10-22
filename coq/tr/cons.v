@@ -4,23 +4,30 @@ Require Import CAS.coq.theory.facts.
 
 Section Theory.
 
- Open Scope list. 
+  Open Scope list.
+
+
 
  Definition ltr_cons : ∀ {S : Type}, left_transform S (list S) := λ {S} x y,  (x :: y) . 
 
- Lemma ltr_cons_congruence (S : Type) (eqS : brel S) : lt_congruence S (list S) eqS (brel_list eqS) ltr_cons. 
- Proof. unfold lt_congruence. intros s1 s2 l1 l2 H1 H2.
+ Lemma ltr_cons_congruence (S : Type) (eqS : brel S) : ltr_congruence S (list S) eqS (brel_list eqS) ltr_cons. 
+ Proof. unfold ltr_congruence. intros s1 s2 l1 l2 H1 H2.
         unfold ltr_cons. unfold brel_list. fold (@brel_list S). rewrite H1, H2. compute; auto.
  Qed.
+
+ Lemma ltr_cons_partial_congruence (S : Type) (eqS : brel S) (refS : brel_reflexive S eqS) : ltr_partial_congruence S (list S) (brel_list eqS) ltr_cons. 
+ Proof. unfold ltr_congruence. intros s l1 l2 H.
+        unfold ltr_cons. unfold brel_list. fold (@brel_list S). rewrite H. rewrite refS. compute; auto.
+ Qed.
  
- Lemma ltr_cons_not_is_right (S : Type) (eqS : brel S) (s : S) : lt_not_is_right S (list S) (brel_list eqS) ltr_cons. 
- Proof. unfold lt_not_is_right. exists (s, nil). compute; auto. Defined.
+ Lemma ltr_cons_not_is_right (S : Type) (eqS : brel S) (s : S) : ltr_not_is_right S (list S) (brel_list eqS) ltr_cons. 
+ Proof. unfold ltr_not_is_right. exists (s, nil). compute; auto. Defined.
  
- Lemma ltr_cons_not_exists_id (S : Type) (eqS : brel S) : lt_not_exists_id S (list S) (brel_list eqS) ltr_cons. 
- Proof. unfold lt_not_exists_id. intro s. unfold lt_not_is_id. exists nil. compute; auto. Defined.
+ Lemma ltr_cons_not_exists_id (S : Type) (eqS : brel S) : ltr_not_exists_id S (list S) (brel_list eqS) ltr_cons. 
+ Proof. unfold ltr_not_exists_id. intro s. unfold ltr_not_is_id. exists nil. compute; auto. Defined.
  
- Lemma ltr_cons_cancellative (S : Type) (eqS : brel S) : lt_left_cancellative S (list S) (brel_list eqS) ltr_cons. 
- Proof. unfold lt_left_cancellative. intros s l1 l2 H. unfold ltr_cons in H. 
+ Lemma ltr_cons_cancellative (S : Type) (eqS : brel S) : ltr_left_cancellative S (list S) (brel_list eqS) ltr_cons. 
+ Proof. unfold ltr_left_cancellative. intros s l1 l2 H. unfold ltr_cons in H. 
         unfold brel_list in H. fold (@brel_list S) in H. apply andb_is_true_left in H.
         destruct H as [_ H]. exact H.
 Qed.        

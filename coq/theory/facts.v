@@ -1,3 +1,6 @@
+(* this file is currently a random collection of facts .... *) 
+
+
 Require Import Coq.Arith.Arith.     (* beq_nat *) 
 Require Import Coq.Bool.Bool.
 Require Import Coq.Lists.List. 

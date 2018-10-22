@@ -1,7 +1,9 @@
 Require Import CAS.coq.common.base.
 Require Import CAS.coq.theory.facts.
 
-(* for Section ReduceAnnihilators. *) 
+
+(* for Section ReduceAnnihilators. *)
+  Require Import CAS.coq.eqv.reduce.
   Require Import CAS.coq.eqv.product.
   Require Import CAS.coq.sg.product.
   Require Import CAS.coq.bs.product_product. 
@@ -59,11 +61,7 @@ Section ReductionTheory.
   Variable symS   : brel_symmetric S eqS. 
   Variable transS : brel_transitive S eqS.
   Variable eqS_cong : brel_congruence S eqS eqS.
-
   
-  Definition transSf1 := brel_transitive_f1 S eqS symS transS. 
-  Definition transSf2 := brel_transitive_f2 S eqS symS transS. 
-
   Variable b_cong : bop_congruence S eqS b. 
   Variable b_ass  : bop_associative S eqS b.
 
@@ -2215,86 +2213,6 @@ End PredicateReduce2.
 
 Section EqvReduction.
 
-Lemma brel_reduce_reflexive : ∀ (S : Type) (r : brel S) (u : unary_op S), 
-              (brel_reflexive S r) → brel_reflexive S (brel_reduce r u). 
-Proof. intros S r u refS s. unfold brel_reduce. apply refS. Defined. 
-
-
-Lemma brel_reduce_symmetric : ∀ (S : Type) (r : brel S)  (u : unary_op S), 
-              (brel_symmetric S r) → brel_symmetric S (brel_reduce r u). 
-Proof. intros S r u symS. unfold brel_symmetric, brel_reduce. intros s t. apply symS. Defined. 
-
-Lemma brel_reduce_transitive : ∀ (S : Type) (r : brel S) (u : unary_op S), 
-        (brel_transitive _ r) → brel_transitive S (brel_reduce r u). 
-Proof. intros S r u transS. unfold brel_transitive, brel_reduce. intros s t V. apply transS. Defined.          
-
-Lemma brel_reduce_antisymmetric : ∀ (S : Type) (r : brel S)  (u : unary_op S), 
-    brel_antisymmetric S r r  →
-    brel_antisymmetric S (brel_reduce r u) (brel_reduce r u). 
-Proof. unfold brel_antisymmetric. unfold brel_reduce. 
-       intros S r u asymS .
-       intros s t H1 H2.
-       apply asymS; auto. 
-Defined. 
-
-Lemma brel_reduce_not_antisymmetric : ∀ (S : Type) (r : brel S)  (u : unary_op S),
-    uop_congruence S r u →        
-    uop_injective S r u →    
-    brel_not_antisymmetric S r r  →
-    brel_not_antisymmetric S (brel_reduce r u) (brel_reduce r u). 
-Proof. unfold brel_not_antisymmetric. unfold brel_reduce. 
-       intros S r u cong injS.
-       intros [[s t] [[H1 H2] H3]].
-       exists (s, t).
-       split. split. apply cong; auto. apply cong; auto.
-       case_eq(r (u s) (u t)); intro J.
-          apply injS in J. rewrite J in H3. discriminate H3.
-          reflexivity.
-Defined. 
-
-(*
-
-Lemma brel_reduce_witness : ∀ (S : Type) (r : brel S)  (u : unary_op S), 
-              brel_reflexive S r -> 
-              brel_witness S r -> 
-              brel_witness S (brel_reduce r u). 
-Proof. unfold brel_witness, brel_reduce. 
-       intros S r u refS [s P]. exists (u s). apply refS. 
-Defined. 
-*)
-
-(* this should be case-by-case .... 
-
-
-Lemma brel_reduce_negate : ∀ (S : Type) (r : brel S)  (u : unary_op S), 
-              (∀ (y : S), r (u (u y)) (u y) = true) -> 
-              brel_reflexive S r -> 
-              brel_negate S r -> 
-              brel_negate S (brel_reduce S r u). 
-Proof. unfold brel_negate, brel_reduce. 
-       intros S r u ax refS [f P]. 
-       exists (λ x : S, u (f (u x))). intro s. 
-       assert (H := P (u s)). 
-
-
-  H : (r (u s)     (f (u s)) = false) * (r     (f (u s)) (u s) = false)
-  ============================
-      (r (u s) (u (f (u s))) = false) * (r (u (f (u s))) (u s) = false)
-
-      ??????????
-Defined. 
-*) 
-
-(* ************ *) 
-
-Lemma brel_reduce_congruence : ∀ (S : Type) (r : brel S) (u : unary_op S), 
-        brel_congruence S r r -> 
-        brel_congruence S (brel_reduce r u) (brel_reduce r u). 
-Proof. intros S r u congS. compute. intros s t w v H1 H2. 
-       apply congS; auto. 
-Qed. 
-
-
 Lemma brel_reduce_uop_congruence : ∀ (S : Type) (eq : brel S)  (u : unary_op S) (f : unary_op S), 
       uop_uop_congruence S eq u f  → 
           uop_congruence S (brel_reduce eq u) f. 
@@ -2475,11 +2393,12 @@ Section ReduceAnnihilators.
          apply brel_product_congruence; auto. 
   Qed. 
 
+
               
 Lemma P_congruence : pred_congruence (S * T) (brel_product eqS eqT) P. 
 Proof. intros [s1 t1] [s2 t2]; compute; intro H.
          case_eq(eqS s1 zeroS); intro J1; case_eq(eqS s2 zeroS); intro J2; auto.
-         assert (J3 := brel_transitive_f1 S eqS symS tranS s2 zeroS s1 J2 (symS _ _ J1)).         
+         assert (J3 := brel_transitive_f1 S eqS symS tranS s2 zeroS s1 J2 (symS _ _ J1)).
          case_eq(eqS s1 s2); intro J4. apply symS in J4. rewrite J4 in J3. discriminate J3. 
          rewrite J4 in H. discriminate H. 
          assert (J3 := brel_transitive_f1 S eqS symS tranS _ _ _ J1 (symS _ _ J2)). 

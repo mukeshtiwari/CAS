@@ -9,7 +9,8 @@ Inductive ast_eqv : Type :=
    | Ast_eqv_product       : ast_eqv * ast_eqv → ast_eqv
    | Ast_eqv_sum           : ast_eqv * ast_eqv → ast_eqv
    | Ast_eqv_add_constant  : cas_constant * ast_eqv → ast_eqv
-.
+   | Ast_eqv_reduce        : ast_eqv → ast_eqv   (* reduction r is not a part of syntax! *)
+   .
 
 
 Inductive ast_bop : Type := 

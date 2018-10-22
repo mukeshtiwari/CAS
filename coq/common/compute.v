@@ -20,8 +20,8 @@ Definition brel2 (S T : Type)           := S → T → bool.
 Definition bProp (S : Type)             := S → bool.  
 Definition unary_op (S : Type)          := S → S. 
 Definition binary_op (S : Type)         := S → S → S.  
-Definition left_transform (S T : Type)  := S → T → T.  
-Definition right_transform (S T : Type) := T → S → T. 
+Definition left_transform (L S : Type)  := L → S → S.  
+Definition right_transform (L S : Type) := S → L → S. 
 Definition finite_set (S : Type)        := list S.     (* improve someday ... *) 
 
 End BasicTypes.

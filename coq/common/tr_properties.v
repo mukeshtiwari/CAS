@@ -10,7 +10,11 @@ Definition left_transform (L S : Type)  := L → S → S.
 *) 
 
 Definition ltr_congruence (L S : Type) (rL : brel L) (rS : brel S) (lt : left_transform L S) := 
-   ∀ (l1 l2 : L) (s1 s2 : S), rL l1 l2 = true -> rS s1 s2 = true -> rS (lt l1 s1) (lt l2 s2) = true.
+  ∀ (l1 l2 : L) (s1 s2 : S), rL l1 l2 = true -> rS s1 s2 = true -> rS (lt l1 s1) (lt l2 s2) = true.
+
+Definition ltr_partial_congruence (L S : Type) (rS : brel S) (lt : left_transform L S) := 
+   ∀ (l : L)(s1 s2 : S), rS s1 s2 = true -> rS (lt l s1) (lt l s2) = true.
+
 
 Definition ltr_is_right (L S : Type) (rS : brel S) (lt : left_transform L S) 
     := ∀ (l : L) (s : S), rS (lt l s) s = true. 
