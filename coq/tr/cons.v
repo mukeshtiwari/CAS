@@ -6,8 +6,6 @@ Section Theory.
 
   Open Scope list.
 
-
-
  Definition ltr_cons : ∀ {S : Type}, left_transform S (list S) := λ {S} x y,  (x :: y) . 
 
  Lemma ltr_cons_congruence (S : Type) (eqS : brel S) : ltr_congruence S (list S) eqS (brel_list eqS) ltr_cons. 
