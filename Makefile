@@ -78,8 +78,9 @@ CAS=\
    coq/sg/union.v \
    coq/sg/intersect.v \
    coq/sg/lift.v \
-   coq/tr/cons.v \
-   coq/tr/left_cayley.v \
+   coq/ltr/cons.v \
+   coq/ltr/left_cayley.v \
+   coq/ltr/product.v \
    coq/bs/cast_up.v \
    coq/bs/cast_down.v \
    coq/bs/min_plus.v \
@@ -100,7 +101,7 @@ CAS=\
    coq/bs/union_lift.v \
    coq/bs/left.v \
    coq/bs/right.v \
-
+   coq/lstr/product_product.v \
 
 FILES=$(BASE) $(CAS)
 
