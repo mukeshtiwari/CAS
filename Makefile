@@ -104,6 +104,8 @@ CAS=\
    coq/bs/left.v \
    coq/bs/right.v \
    coq/lstr/product_product.v \
+   coq/lstr/left_sum_sum_of_product.v \
+
 
 FILES=$(BASE) $(CAS)
 
