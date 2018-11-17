@@ -80,7 +80,7 @@ Proof. intros [s1 s2] [t1 t2] [u1 u2] [w1 w2]; simpl. intros H1 H2.
           apply c_mul; auto.
 Qed.           
 
-Lemma bop_eisner_idempotent_v1 :
+Lemma bop_eisner_idempotent :
       (∀ (s t : S), ((s [*] t) [+] (t [*] s)) =S s) → 
       bop_idempotent S rS mulS → 
          bop_idempotent (S * S) (brel_product rS rS) eisner. 
@@ -89,25 +89,46 @@ Proof. intros H I (s, t). simpl. apply andb_is_true_right. split.
        rewrite I. reflexivity. 
 Qed. 
 
+Lemma bop_eisner_fact1 :
+  (∀ (s t : S), ((s [*] t) [+] (t [*] s)) =S s) →
+      bop_idempotent S rS addS →   
+      bop_commutative S rS mulS → 
+         bop_is_left S rS mulS. 
+Proof. intros H I C s t.
+       assert (J := C s t).
+       assert (K := I (s [*] t)).
+       assert (L := H s t).
+       assert (M := c_add _ _ _ _ (refS (s [*] t)) J).
+       assert (N := tranS _ _ _ M L). apply symS in K.
+       assert (O := tranS _ _ _ K N).
+       exact O.
+Qed. 
 
-Lemma bop_eisner_idempotent :
-      bop_idempotent S rS addS → 
-      bop_commutative S rS mulS →
-      bop_idempotent S rS mulS →       
-         bop_idempotent (S * S) (brel_product rS rS) eisner. 
-Proof. intros addI C mulI(s, t). simpl.
-       apply andb_is_true_right. split. 
-       admit. (* OK *) 
-       rewrite mulI. reflexivity. 
-Admitted. 
+Lemma bop_eisner_fact2 (s : S) (f : S -> S) (Pf : brel_not_trivial S rS f) :
+  (∀ (s t : S), ((s [*] t) [+] (t [*] s)) =S s) →
+      bop_idempotent S rS addS →   
+      bop_commutative_decidable S rS mulS → 
+         bop_not_commutative S rS mulS. 
+Proof. intros H I [C | NC]. 
+       assert (J := bop_eisner_fact1 H I C).
+       destruct (bop_commutative_implies_not_is_left S rS mulS s f Pf symS tranS C) as [[s' t'] Q]. 
+       assert (L := J s' t'). rewrite L in Q. discriminate Q. 
+       exact NC.
+Defined. 
 
-Lemma bop_eisner_not_idempotent (wS : S):
+
+Lemma bop_eisner_not_idempotent_v1 (wS : S):
       bop_not_idempotent S rS mulS →       
          bop_not_idempotent (S * S) (brel_product rS rS) eisner. 
 Proof. intros [s NI]. exists (wS, s). compute. 
        rewrite NI.
        case_eq(rS ((wS [*] s) [+] (s [*] wS)) wS); intro J1; auto.
 Defined.
+
+Lemma bop_eisner_not_idempotent_v2 (a b c d : S):
+       { p : S * S &  match p with (s, t) => ((s [*] t) [+] (t [*] s)) !=S s end} → 
+         bop_not_idempotent (S * S) (brel_product rS rS) eisner. 
+Proof. intros [[s t] N]. exists (s, t). compute. rewrite N; auto.  Defined.
 
 
 Lemma bop_eisner_product_anti_left :
@@ -167,6 +188,20 @@ Proof. intros L R (s1, t1) (s2, t2). simpl. apply andb_is_true_right. split.
           apply L. 
           apply R. 
 Defined.
+
+
+Lemma bop_eisner_is_right_v2 :
+      bop_is_right S rS addS → 
+      bop_is_right S rS mulS → 
+      bop_is_right (S * S) (brel_product rS rS) eisner. 
+Proof. intros L R (s1, t1) (s2, t2). simpl. apply andb_is_true_right. split.
+          assert (K := L (s1 [*] t2) (t1 [*] s2)).
+          assert (J := R t1 s2).
+          assert (M := tranS _ _ _ K J).
+          exact M.
+          apply R. 
+Defined.
+
 
 Lemma bop_eisner_left_constant : 
       (∀ (s1 s2 s3 t1 t2 t3 : S), ((s1 [*] t2) [+] (t1 [*] s2)) =S ((s1 [*] t3) [+] (t1 [*] s3))) → 

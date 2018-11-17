@@ -18,15 +18,22 @@ Section LeftRight.
     (inr a) * (inl b) = inr a 
     (inl a) * (inr b) = inr b 
 
-compare to 
+compare to this left tranform 
 
-     (a, b) |> inl c = inl (a *_S c) 
-     (a, b) |> inr c = inr (b *_T c) 
+     (a, b) |1> inl c = inl (a *_S c) 
+     (a, b) |1> inr c = inr (b *_T c) 
 
+that can easily be genrealized to this left transform 
+
+     (a, b) |2> inl c = inl (a |>_S c) 
+     (a, b) |2> inr c = inr (b |>_T c) 
+
+
+Here is another interesting transform 
 or to (with different +) 
 
-     (inl c) |> (a, b)  = (c * _S a, b) 
-     (inr c) |> (a, b)  = (a, c * _T b) 
+     (inl c) |3> (a, b)  = (c * _S a, b) 
+     (inr c) |3> (a, b)  = (a, c * _T b) 
 
 which is a sub-algebra of product 
       
@@ -35,8 +42,8 @@ which is a sub-algebra of product
 
 Think of scoped product: 
 
-     (inl (c, d)) |> (a, b)  = (c * _S a, d) = (c * _S a, d left b) 
-     (inr c) |> (a, b)       = (a, c * _T b) = (c right a, c * _T b) =  (id *_S a, c * _T b) =  
+     (inl (c, d)) |> (a, b)  = (c * _S a, d) = (c *_S a, d left b) 
+          (inr c) |> (a, b)  = (a, c * _T b) = (c right a, c * _T b) =  (id *_S a, c * _T b) =  
 
 Generalize scoped product: 
 

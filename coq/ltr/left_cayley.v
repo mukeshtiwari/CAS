@@ -6,7 +6,6 @@ Require Import CAS.coq.theory.facts.
 
 Definition ltr_cayley {S : Type} (b : binary_op S) : left_transform S S := b.
 
-
 Section Theory.
 
   Variable S : Type.
@@ -14,8 +13,6 @@ Section Theory.
   Variable bS : binary_op S.
   Variable bS_cong : bop_congruence S eqS bS.
   Variable refS : brel_reflexive S eqS. 
-
-  Print bop_congruence. 
 
  Lemma ltr_cayley_congruence : ltr_congruence S S eqS eqS (ltr_cayley bS).
  Proof. unfold ltr_congruence. unfold ltr_cayley. intros. apply bS_cong; auto. Qed.

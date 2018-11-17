@@ -81,6 +81,8 @@ CAS=\
    coq/ltr/cons.v \
    coq/ltr/left_cayley.v \
    coq/ltr/product.v \
+   coq/ltr/product_of_sum.v \
+   coq/ltr/sum_of_product.v \
    coq/bs/cast_up.v \
    coq/bs/cast_down.v \
    coq/bs/min_plus.v \
