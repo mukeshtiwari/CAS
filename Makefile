@@ -45,6 +45,7 @@ BASE=\
    coq/theory/subset.v \
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
+   coq/theory/reduction_representations.v \
    coq/theory/reduction_theory.v \
    coq/theory/facts.v
 

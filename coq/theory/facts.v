@@ -174,6 +174,22 @@ Proof. unfold brel_symmetric, brel_symmetric_dual.
           reflexivity. 
 Defined. 
 
+Lemma brel_transitive_dual_v2 (S : Type) (eq : brel S) (sym : brel_symmetric S eq) (trans : brel_transitive S eq) : 
+  ∀ s t u: S, (eq s t = false) → (eq t u = true) → (eq s u = false).
+Proof. intros s t u H1 H2.
+       exact (brel_symmetric_implies_dual S eq sym _ _
+                  (brel_transititivity_implies_dual S eq trans t u s H2
+                          (brel_symmetric_implies_dual S eq sym _ _ H1))). 
+Qed.        
+
+
+
+Lemma brel_transitive_dual_v3 (S : Type) (eq : brel S) (sym : brel_symmetric S eq) (trans : brel_transitive S eq)  : 
+  ∀ s t u: S, (eq s t = true) → (eq t u = false) → (eq s u = false).
+Proof. intros s t u H1 H2.
+       exact (brel_transititivity_implies_dual S eq trans t s u (sym _ _ H1) H2). 
+Qed.        
+
 
 
 (* NB : this is HOW symmetric should be DEFINED ! *) 

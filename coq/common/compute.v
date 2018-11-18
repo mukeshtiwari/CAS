@@ -16,8 +16,9 @@ Record cas_constant :=
 Definition make_constant (s1 s2: string) := {| constant_ascii := s1; constant_latex := s2 |}. 
 Definition with_constant (S : Type)     := cas_constant + S.  
 Definition brel (S : Type)              := S → S → bool.  
-Definition brel2 (S T : Type)           := S → T → bool.  
-Definition bProp (S : Type)             := S → bool.  
+Definition brel2 (S T : Type)           := S → T → bool.
+Definition bProp (S : Type)             := S → bool. (* replace with pred *) 
+Definition pred (S : Type)              := S → bool. 
 Definition unary_op (S : Type)          := S → S. 
 Definition binary_op (S : Type)         := S → S → S.  
 Definition left_transform (L S : Type)  := L → S → S.  

@@ -117,3 +117,5 @@ Definition uop_bop_associative (S : Type) (r : brel S) (u : unary_op S) (b : bin
 
 
 
+
+

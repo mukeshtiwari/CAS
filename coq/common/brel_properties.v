@@ -228,13 +228,20 @@ Definition brel_not_exists_top (S : Type) (r : brel S)
 Definition brel_exists_top_decidable  (S : Type) (r : brel S) := 
     (brel_exists_top S r) + (brel_not_exists_top S r). 
 
-(* bProp 
+(* bProp, pred 
 
-   Move this to another file ... 
+   Move these to another file ... 
 *) 
 
 Definition bProp_congruence (S : Type) (eq : brel S) (P : bProp S) := 
    ∀ s t : S, eq s t = true → P s = P t. 
+
+Definition pred_true (S : Type) (P : pred S) (s : S) 
+  := P s = true. 
+
+Definition pred_congruence (S : Type) (eq : brel S) (P : pred S) 
+  := ∀ (a b : S), eq a b = true -> P a = P b.
+
 
 
 (* needed for selectivity of bop_lift *)

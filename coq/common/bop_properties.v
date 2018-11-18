@@ -222,3 +222,41 @@ Definition bop_right_constant_decidable  (S : Type) (r : brel S) (b : binary_op 
     (bop_right_constant S r b) + (bop_not_right_constant S r b). 
 
 
+(* for reductions *)
+
+Definition bop_left_uop_invariant (S : Type) (eq : brel S) (b : binary_op S) (r : unary_op S) :=
+  ∀ s1 s2 : S, eq (b (r s1) s2) (b s1 s2)  = true.
+
+Definition bop_right_uop_invariant (S : Type) (eq : brel S) (b : binary_op S) (r : unary_op S) :=
+  ∀ s1 s2 : S, eq (b s1 (r s2)) (b s1 s2)  = true.
+
+Definition bop_self_divisor (S : Type) (eqS : brel S) (bS : binary_op S) (aS : S) :=
+  ∀ a b : S, eqS (bS a b) aS = true → (eqS a aS = true) + (eqS b aS = true).
+
+Definition bop_self_square (S : Type) (eqS : brel S) (bS : binary_op S) (aS : S) :=
+  ∀ a b : S, eqS (bS a b) aS = true → (eqS a aS = true) * (eqS b aS = true).
+
+Definition pred_bop_decompose (S : Type) (P : pred S) (bS : binary_op S) 
+  := ∀ (a b : S), P (bS a b) = true -> (P a = true) + (P b = true).
+
+Definition pred_bop_weak_decompose (S : Type) (P : pred S) (bS : binary_op S) 
+  := ∀ (a b : S), P (bS a b) = true -> P (bS b a) = true -> (P a = true) + (P b = true).
+
+Definition pred_bop_compose (S : Type) (P : pred S) (bS : binary_op S) 
+  := ∀ (a b : S), (P a = true) + (P b = true) -> P (bS a b) = true.
+
+Definition pred_preserve_order (S : Type) (P : pred S) (eqS : brel S) (bS : binary_op S)
+  := ∀ (a b : S), eqS (bS a b) a = true -> P a = true -> P b = true.
+
+Definition bop_preserve_pred (S : Type) (P : pred S) (bS : binary_op S)
+  := ∀ (a b : S), P a = true -> P b = true -> P (bS a b) = true.
+
+(* for reductions *)
+
+Definition uop_preserves_id (S : Type) (eq : brel S) (b : binary_op S) (r : unary_op S) :=
+  ∀ (s : S), bop_is_id S eq b s -> eq (r s) s = true.
+
+Definition uop_preserves_ann (S : Type) (eq : brel S) (b : binary_op S) (r : unary_op S) :=
+  ∀ (s : S), bop_is_ann S eq b s -> eq (r s) s = true.
+
+
