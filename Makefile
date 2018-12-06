@@ -46,7 +46,10 @@ BASE=\
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
    coq/theory/reduction_representations.v \
-   coq/theory/reduction_theory.v \
+   coq/theory/reduction_classical.v \
+   coq/theory/reduction_full.v \
+   coq/theory/reduction_predicate.v \
+   coq/theory/reduction_zeroes.v \
    coq/theory/facts.v
 
 CAS=\

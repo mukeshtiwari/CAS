@@ -140,7 +140,7 @@ Definition sg_CS_certs_min : @sg_CS_certificates nat
 Definition sg_CS_min : @sg_CS nat 
 := {| 
      sg_CS_eqv   := eqv_eq_nat 
-   ; sg_CS_bop   := bop_min 
+  ; sg_CS_bop   := bop_min 
    ; sg_CS_certs := sg_CS_certs_min
    ; sg_CS_bop_ast     := Ast_bop_min                      
    ; sg_CS_ast   := Ast_sg_CS_min 
