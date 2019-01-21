@@ -1,8 +1,8 @@
 Require Import CAS.coq.common.base.
 Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.reduction_representations.
-Require Import CAS.coq.theory.reduction_full. 
-Require Import CAS.coq.theory.reduction_predicate. 
+Require Import CAS.coq.theory.reduction.representations.
+Require Import CAS.coq.theory.reduction.full. 
+Require Import CAS.coq.theory.reduction.predicate. 
 
 Require Import CAS.coq.eqv.reduce.
 Require Import CAS.coq.eqv.product.
@@ -313,52 +313,52 @@ Qed.
 
 Lemma  bop_rap_add_is_id : bop_is_id (S * T) brel_rap bop_rap_add (zeroS, zeroT).
 Proof.  apply bop_full_reduce_is_id; auto.
-        apply uop_predicate_reduce_congruence; auto.        
-        apply brel_product_reflexive; auto.
-        apply P_congruence.        
-        apply bop_product_congruence; auto.
         apply brel_product_reflexive; auto.        
         apply brel_product_transitive; auto.
-        apply uop_predicate_reduce_idempotent; auto.
+        apply uop_predicate_reduce_congruence; auto.        
         apply brel_product_reflexive; auto.
+        apply P_congruence.
+        apply uop_predicate_reduce_idempotent; auto.
+        apply brel_product_reflexive; auto.        
+        apply bop_product_congruence; auto.
         apply uop_rap_add_preserves_id; auto. 
         apply bop_product_is_id; auto. 
 Qed.  
 
 Lemma  bop_rap_add_is_ann : bop_is_ann (S * T) brel_rap bop_rap_add (oneS, oneT).
 Proof.  apply bop_full_reduce_is_ann; auto.
+        apply brel_product_reflexive; auto.
+        apply brel_product_transitive; auto.        
         apply uop_predicate_reduce_congruence; auto.        
         apply brel_product_reflexive; auto.
         apply P_congruence.
         apply bop_product_congruence; auto.
-        apply brel_product_reflexive; auto.        
-        apply brel_product_transitive; auto.
         apply uop_rap_add_preserves_ann; auto. 
         apply bop_product_is_ann; auto. 
 Qed.  
 
 Lemma  bop_rap_mul_is_ann : bop_is_ann (S * T) brel_rap bop_rap_mul (zeroS, zeroT).
 Proof.  apply bop_full_reduce_is_ann; auto.
+        apply brel_product_reflexive; auto.                
+        apply brel_product_transitive; auto.
         apply uop_predicate_reduce_congruence; auto.        
         apply brel_product_reflexive; auto.
         apply P_congruence.
         apply bop_product_congruence; auto.
-        apply brel_product_reflexive; auto.        
-        apply brel_product_transitive; auto.
         apply uop_rap_mul_preserves_ann; auto.
         apply bop_product_is_ann; auto. 
 Qed.
 
 Lemma  bop_rap_mul_is_id : bop_is_id (S * T) brel_rap bop_rap_mul (oneS, oneT).
 Proof.  apply bop_full_reduce_is_id; auto.
+        apply brel_product_reflexive; auto.        
+        apply brel_product_transitive; auto.
         apply uop_predicate_reduce_congruence; auto.        
         apply brel_product_reflexive; auto.
         apply P_congruence.
-        apply bop_product_congruence; auto.
+        apply uop_predicate_reduce_idempotent; auto.
         apply brel_product_reflexive; auto.        
-        apply brel_product_transitive; auto.
-        apply uop_predicate_reduce_idempotent; auto.        
-        apply brel_product_reflexive; auto.
+        apply bop_product_congruence; auto.
         apply uop_rap_mul_preserves_id; auto.
         apply bop_product_is_id; auto. 
 Qed.

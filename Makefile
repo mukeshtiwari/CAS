@@ -45,11 +45,11 @@ BASE=\
    coq/theory/subset.v \
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
-   coq/theory/reduction_representations.v \
-   coq/theory/reduction_classical.v \
-   coq/theory/reduction_full.v \
-   coq/theory/reduction_predicate.v \
-   coq/theory/reduction_zeroes.v \
+   coq/theory/reduction/representations.v \
+   coq/theory/reduction/classical.v \
+   coq/theory/reduction/full.v \
+   coq/theory/reduction/predicate.v \
+   coq/theory/reduction/zeroes.v \
    coq/theory/facts.v
 
 CAS=\
@@ -61,6 +61,8 @@ CAS=\
    coq/eqv/product.v \
    coq/eqv/add_constant.v \
    coq/eqv/reduce.v \
+   coq/eqv/predicate_reduce.v \
+   coq/eqv/nat_ceiling.v \
    coq/sg/cast_up.v \
    coq/sg/cast_down.v \
    coq/sg/plus.v \

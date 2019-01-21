@@ -1,6 +1,6 @@
 Require Import CAS.coq.common.base.
 Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.reduction_representations. 
+Require Import CAS.coq.theory.reduction.representations. 
 
   (***************************************************************************************)
 Section ReductionClassical. 
@@ -51,11 +51,6 @@ Proof. intros [s1 p1] [s2 p2] [s3 p3]. compute.
          assert (H5 := transS _ _ _ H1 H4).
          exact H5. 
 Qed.
-
-Lemma bop_full_reduce_associative : bop_associative S (brel_reduce eqS r) (bop_full_reduce r b).
-Proof. apply (reduced_bop_associative_iff S b r eqS refS symS transS b_cong r_cong r_idem).
-       apply reduced_bop_ass.
-Qed. 
 
 Lemma reduced_bop_id : uop_preserves_id S eqS b r -> bop_exists_id S eqS b -> bop_exists_id (reduced_type S r eqS) (reduced_equality S r eqS) (reduced_bop S b r eqS r_idem). 
   Proof. intros H [id p]. exists (inj S r eqS r_idem id). unfold bop_is_id in p. unfold bop_is_id.

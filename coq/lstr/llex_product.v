@@ -7,7 +7,6 @@ Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.theory.llte. 
 
 
-
 Definition cef_sltr_llex_product_not_distributive  
       {S LS T LT : Type}
       (rS : brel S)
@@ -209,8 +208,6 @@ Defined.
 
  *)
 
-Print ltr_not_left_constant. 
-
 Lemma sltr_llex_product_not_distributive_v3 : 
       bop_selective S rS addS → bop_commutative S rS addS → bop_commutative T rT addT → 
       ltr_not_left_cancellative LS S rS mulS → ltr_not_left_constant LT T rT mulT → 
@@ -264,150 +261,35 @@ Defined.
 
 (* left left *) 
 
-Lemma bops_llex_product_left_left_absorptive : 
-      bops_left_left_absorptive S rS addS mulS → 
-      ((bops_left_left_absorptive T rT addT mulT) + (bop_anti_left S rS mulS)) → 
-         bops_left_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros ldS [ldT| F] [s1 t1] [s2 t2].
+Lemma sltr_llex_product_left_left_absorptive : 
+      sltr_absorptive S LS rS addS mulS → ((sltr_absorptive T LT rT addT mulT) + (ltr_anti_right LS S rS mulS)) → 
+         sltr_absorptive (S * T) (LS * LT) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros ldS [ldT | ar] [ls lt] [s t].
        simpl. 
-       unfold bops_left_left_absorptive in ldS. 
-       unfold bops_left_left_absorptive in ldT. 
        rewrite ldS. simpl. 
-       case_eq(rS s1 (s1 |S> s2)); intro H. 
+       case_eq(rS s (ls |S> s)); intro H. 
           apply ldT.
-          compute.  rewrite ldS. rewrite H. 
+          compute. rewrite ldS. rewrite H. 
           apply refT. 
-       compute. 
-       rewrite ldS. rewrite F. rewrite F. 
-       apply refT. 
+       compute.
+       rewrite ldS. rewrite ldS.
+       assert (F : rS s (ls |S> s) = false). admit. 
+       rewrite F. apply refT. 
+Admitted.
+
+Lemma sltr_llex_product_not_absorptive_left : 
+      sltr_not_absorptive S LS rS addS mulS → 
+         sltr_not_absorptive (S * T) (LS * LT) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros [ [ls s] P ]. exists ((ls, wLT), (s, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
+
+Lemma sltr_llex_product_not_absorptive_right : 
+      sltr_absorptive S LS rS addS mulS → sltr_not_absorptive T LT rT addT mulT → ltr_not_anti_right LS S rS mulS →
+         sltr_not_absorptive (S * T) (LS * LT) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. unfold ltr_not_anti_right. 
+       intros laS [ [lt t] P ] [[ls s] Q]. exists ((ls, lt), (s, t)). compute. rewrite laS. apply symS in Q. rewrite Q. 
+       exact P.
 Defined. 
 
-Lemma bops_llex_product_not_left_left_absorptive_left : 
-      bops_not_left_left_absorptive S rS addS mulS → 
-         bops_not_left_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
-
-
-Lemma bops_llex_product_not_left_left_absorptive_right : 
-      bops_left_left_absorptive S rS addS mulS → bops_not_left_left_absorptive T rT addT mulT → bop_not_anti_left S rS mulS  →
-         bops_not_left_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]. exists ((s1, t1), (s2, t2)). compute. rewrite laS. rewrite Q. assumption. Defined. 
-
-(* left right *) 
-Lemma bops_llex_product_left_right_absorptive :
-      bops_left_right_absorptive S rS addS mulS → 
-      ((bops_left_right_absorptive T rT addT mulT) + (bop_anti_right S rS mulS)) → 
-         bops_left_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros ldS [ldT| F] [s1 t1] [s2 t2].
-       simpl. 
-       unfold bops_left_right_absorptive in ldS. 
-       unfold bops_left_right_absorptive in ldT.
-       compute.  
-       rewrite ldS. 
-       case_eq(rS s1 (s2 |S> s1)); intro H. 
-          apply ldT.
-          apply refT. 
-       compute. 
-       rewrite ldS. rewrite F. rewrite F. 
-       apply refT. 
-Defined. 
-
-Lemma bops_llex_product_not_left_right_absorptive_left : 
-      bops_not_left_right_absorptive S rS addS mulS → 
-         bops_not_left_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
-
-Lemma bops_llex_product_not_left_right_absorptive_right : 
-      bops_left_right_absorptive S rS addS mulS → bops_not_left_right_absorptive T rT addT mulT → bop_not_anti_right S rS mulS  → 
-         bops_not_left_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q] . exists ((s1, t1), (s2, t2)). compute. rewrite laS. rewrite Q. assumption. Defined. 
-
-(* right left *) 
-Lemma bops_llex_product_right_left_absorptive : 
-      bops_right_left_absorptive S rS addS mulS → 
-      ((bops_right_left_absorptive T rT addT mulT) + (bop_anti_left S rS mulS)) → 
-         bops_right_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros ldS [ldT| F] [s1 t1] [s2 t2]; compute. 
-       unfold bops_right_left_absorptive in ldS. 
-       unfold bops_right_left_absorptive in ldT. 
-       rewrite ldS. 
-       case_eq(rS (s1 |S> s2) s1); intro H. 
-          apply ldT. 
-          case_eq(rS (s1 |S> s2) ((s1 |S> s2) +S s1)) ; intro K. 
-             assert (fact1 := ldS s1 s2). apply symS in fact1. 
-             assert (fact2 := tranS _ _ _ K fact1).            
-             rewrite fact2 in H. discriminate. 
-             apply refT. 
-       unfold bops_right_left_absorptive in ldS. 
-       unfold bop_anti_left in F.
-       assert (F' : ∀ s t : S, rS (s |S> t) s = false). 
-          intros s t. apply (brel_symmetric_implies_dual _ _ symS). apply F. 
-       rewrite ldS, F'. 
-       assert (L : rS (s1 |S> s2) ((s1 |S> s2) +S s1) = false). 
-          assert (fact1 := ldS s1 s2).
-          assert (fact2 := F s1 s2). 
-          assert (fact3 := brel_transititivity_implies_dual _ _ tranS _ _ _ fact1 fact2). 
-          apply (brel_symmetric_implies_dual _ _ symS).  assumption. 
-       rewrite L. apply refT. 
-Defined. 
-
-
-Lemma bops_llex_product_not_right_left_absorptive_left : 
-      bops_not_right_left_absorptive S rS addS mulS → 
-         bops_not_right_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
-
-
-Lemma bops_llex_product_not_right_left_absorptive_right : 
-      bops_right_left_absorptive S rS addS mulS → bops_not_right_left_absorptive T rT addT mulT → bop_not_anti_left S rS mulS  → 
-         bops_not_right_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]. exists ((s1, t1), (s2, t2)). compute. rewrite laS. apply symS in Q. rewrite Q. 
-       assumption. 
-Defined. 
-
-
-(* right_right *) 
-Lemma bops_llex_product_right_right_absorptive : 
-      bops_right_right_absorptive S rS addS mulS → 
-      ((bops_right_right_absorptive T rT addT mulT) + (bop_anti_right S rS mulS)) → 
-         bops_right_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros laS [laT| F] [s1 t1] [s2 t2]; simpl. 
-       unfold bops_right_right_absorptive in laS. 
-       unfold bops_right_right_absorptive in laT. 
-       rewrite laS. simpl. 
-       case_eq(rS (s2 |S> s1) s1); intro H1. 
-          apply laT.
-          compute.  
-          case_eq(rS (s2 |S> s1) ((s2 |S> s1) +S s1)); intro H2. 
-             rewrite H1.  
-             assert (fact1 := laS s1 s2). apply symS in fact1. 
-             assert (fact2 := tranS _ _ _ H2 fact1). 
-             rewrite fact2 in H1. discriminate. 
-             apply refT. 
-          unfold bops_right_right_absorptive in laS. 
-          unfold bop_anti_right in F. 
-          compute. 
-          rewrite laS. simpl. 
-          assert (fact1 := F s1 s2). apply (brel_symmetric_implies_dual _ _ symS) in fact1. 
-          rewrite fact1. 
-          case_eq (rS (s2 |S> s1) ((s2 |S> s1) +S s1)); intro H. 
-             assert (fact2 := laS s1 s2). apply symS in fact2. 
-             assert (fact3 := tranS _ _ _ H fact2). rewrite fact3 in fact1. discriminate. 
-             apply refT. 
-Defined. 
-
-Lemma bops_llex_product_not_right_right_absorptive_left : 
-      bops_not_right_right_absorptive S rS addS mulS → 
-         bops_not_right_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
-
-
-Lemma bops_llex_product_not_right_right_absorptive_right : 
-      bops_right_right_absorptive S rS addS mulS → bops_not_right_right_absorptive T rT addT mulT → bop_not_anti_right S rS mulS  → 
-         bops_not_right_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q] . exists ((s1, t1), (s2, t2)). 
-       compute. rewrite laS. apply symS in Q. rewrite Q. assumption. 
-Defined. 
 
 (* IDs ANNs 
 

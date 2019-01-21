@@ -1,9 +1,6 @@
 Require Import CAS.coq.common.base.
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.reduction_representations.
-Require Import CAS.coq.theory.reduction_full. 
+Require Import CAS.coq.theory.reduction.full. 
 Require Import CAS.coq.eqv.reduce. 
-
 
 Definition uop_predicate_reduce {S : Type} (s1 : S) (P : pred S) : unary_op S 
   := λ s2,  if P s2 then s1 else s2.
@@ -13,8 +10,6 @@ Definition brel_predicate_reduce {S : Type} (s : S) (P : pred S) (eq : brel S) :
 
 Definition bop_predicate_reduce {S : Type} (s : S ) (P : S -> bool) (bS : binary_op S) := 
   bop_full_reduce (uop_predicate_reduce s P) bS.
-
-
 
 Section Facts.
 Variable S : Type.
@@ -32,7 +27,7 @@ Proof. intros D a b H1 H2.
 Qed.
 
 Lemma pred_bop_compose_contrapositive : 
-  pred_bop_compose S P bS -> ∀ (a b : S), P (bS a b) = false -> (P a = false) /\ (P b = false).
+  pred_bop_compose S P bS -> ∀ (a b : S), P (bS a b) = false -> (P a = false) * (P b = false).
 Proof. intros D a b H. split.
        case_eq(P a); intro K.
        assert (A : (P a = true) + (P b = true)).
@@ -93,6 +88,13 @@ Proof. intros congP s1 s2; compute; intro H; compute; auto.
        apply congP in H. rewrite H1 in H. rewrite H2 in H. discriminate H.        
 Qed.
 
+Lemma uop_predicate_reduce_idempotent : uop_idempotent S eq (uop_predicate_reduce s P). 
+Proof. intros x; compute; auto.
+       case_eq(P x); intro H; auto.
+       case_eq(P s); intro H1; auto.
+       rewrite H. apply refS. 
+Qed.
+
 Lemma brel_predicate_reduce_congruence :
   brel_congruence S (brel_predicate_reduce s P eq) (brel_predicate_reduce s P eq). 
 Proof. apply brel_reduce_congruence; auto. Qed.
@@ -106,14 +108,6 @@ Proof. apply brel_reduce_symmetric; auto. Qed.
 Lemma brel_predicate_reduce_transitive : brel_transitive S (brel_predicate_reduce s P eq). 
 Proof. apply brel_reduce_transitive; auto. Qed.
 
-
-Lemma uop_predicate_reduce_idempotent : uop_idempotent S eq (uop_predicate_reduce s P). 
-Proof. intros x; compute; auto.
-       case_eq(P x); intro H; auto.
-       case_eq(P s); intro H1; auto.
-       rewrite H. apply refS. 
-Qed.
-
 Lemma bop_predicate_reduce_congruence :
   pred_congruence S eq P ->
   bop_congruence S eq bS ->  
@@ -124,11 +118,236 @@ Proof. intros congP congb.
 Qed.
 
 
+(* bop selective
+
+*) 
+
+(* note: does not require "pred_true S P s" *) 
+Lemma bop_predicate_reduce_selective_intro_standard :
+  pred_congruence S eq P -> 
+  bop_selective S eq bS -> 
+    bop_selective S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
+Proof. intros cong_P selS a b. compute.
+       case_eq(P a); intro H1; case_eq(P b); intro H2. 
+          case_eq(P (bS s s)); intro H3. 
+             left. case_eq(P s); intro H4; apply refS. 
+             rewrite H3. exact (selS s s). 
+          case_eq(P (bS s b)); intro H3. 
+             left. case_eq(P s); intro H4; apply refS. 
+             rewrite H3. exact (selS s b). 
+          case_eq(P (bS a s)); intro H3. 
+             right. case_eq(P s); intro H4; apply refS. 
+             rewrite H3. exact (selS a s). 
+          case_eq(P (bS a b)); intro H3.
+            destruct(selS a b) as [H4 | H4]; apply cong_P in H4. 
+                rewrite H1 in H4. rewrite H3 in H4. discriminate H4.
+                rewrite H2 in H4. rewrite H3 in H4. discriminate H4.
+            rewrite H3. exact (selS a b). 
+Qed.        
+
+Lemma bop_predicate_reduce_not_selective_intro_standard ( a b : S):
+  pred_congruence S eq P -> 
+    bop_not_selective S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
+Proof. intros cong_P. exists (a, b). compute.
+       case_eq(P a); intro H1; case_eq(P b); intro H2. 
+          case_eq(P (bS s s)); intro H3. 
+             case_eq(P s); intro H4.  admit. admit. 
+             rewrite H3.  admit. 
+          case_eq(P (bS s b)); intro H3. 
+             case_eq(P s); intro H4.  admit. admit. 
+             rewrite H3. admit. 
+          case_eq(P (bS a s)); intro H3. 
+             case_eq(P s); intro H4.  admit. admit. 
+             rewrite H3. admit. 
+          case_eq(P (bS a b)); intro H3.
+             case_eq(P s); intro H4.  admit. admit. 
+            rewrite H3. admit. 
+Admitted. 
+
+
+Lemma bop_predicate_reduce_selective : 
+  (P s = true) ->
+  (∀ (a b : S), eq a b = true -> P a = P b) ->
+  (∀ (a b : S), P a = false -> P b = false -> P (bS a b) = false) -> 
+  bop_is_ann S eq bS s ->
+  bop_selective S eq bS ->  
+        bop_selective S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
+Proof. intros X Y B is_ann H. compute. intros a b. compute in H.
+      (*pred_bop_decompose_contrapositive *) 
+      case_eq(P a); intro K;case_eq(P b); intro L;
+      assert (M := is_ann s); destruct M as [M _].
+      assert (Z := Y (bS s s) s M). rewrite X in Z. rewrite Z. rewrite X. auto.
+      assert (Z := is_ann b); destruct Z as [Z _].
+      assert (A := Y (bS s b) s Z). rewrite X in A. rewrite A. rewrite X. auto.
+      assert (Z := is_ann a); destruct Z as [_ Z].
+      assert (A := Y (bS a s) s Z). rewrite X in A. rewrite A. rewrite X. auto.
+      assert (Z := B a b K L). rewrite Z. rewrite Z. auto.
+Qed.
+
+Lemma bop_predicate_reduce_selective_v2 : 
+(P s = true) ->
+(∀ (a b : S), eq a b = true -> P a = P b) ->
+(∀ (a b : S), P a = false -> P b = false -> P (bS a b) = false) -> 
+bop_is_id S eq bS s ->
+bop_selective S eq bS ->  
+bop_selective S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
+Proof. intros X Y B is_id H. compute. intros a b. compute in H.
+      case_eq(P a); intro K;case_eq(P b); intro L;
+      assert (M := is_id s); destruct M as [M _].
+      assert (Z := Y (bS s s) s M). rewrite X in Z. rewrite Z. rewrite X. auto.
+      assert (Z := is_id b); destruct Z as [Z _].
+      assert (A := Y (bS s b) b Z). rewrite L in A. rewrite A,A. auto.
+      assert (Z := is_id a); destruct Z as [_ Z].
+      assert (A := Y (bS a s) a Z). rewrite K in A. rewrite A,A. auto.
+      assert (Z := B a b K L). rewrite Z. rewrite Z. auto.
+Qed.
+
+Lemma selective_implies_preserve_pred : 
+bop_selective S eq bS ->
+pred_congruence S eq P ->
+bop_preserve_pred S P bS.
+Proof. intros sel congP a b.
+     assert(A := sel a b). destruct A; intros Pa Pb.
+     assert(B := congP _ _ e). rewrite Pa in B. auto.
+     assert(B := congP _ _ e). rewrite Pb in B. auto.
+Qed.
+
+
+
+(* bop idempotence 
+
+   First, find the most general iff rules. 
+*) 
+
+Lemma bop_predicate_reduce_idempotent_intro :
+ (∀ w : S,if P w
+            then (eq (bS s s) s = true) + (P (bS s s) = true)
+            else if P (bS w w)
+                 then eq s w = true
+                 else eq (bS w w) w = true 
+  ) -> bop_idempotent S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
+Proof. intros H a. compute.
+       assert (A := H a). 
+       case_eq(P a); intro H1; rewrite H1 in A. 
+          destruct A as [A | A]. 
+             case_eq(P (bS s s)); intro H2. 
+                case_eq(P s); intro H3; apply refS. 
+                rewrite H2. exact A. 
+             rewrite A. case_eq(P s); intro H3; apply refS. 
+          case_eq(P (bS a a)); intro H2; rewrite H2 in A.              
+             case_eq(P s); intro H3; exact A. 
+             rewrite H2. exact A.
+Qed. 
+
+Lemma bop_predicate_reduce_idempotent_elim :
+  bop_idempotent S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS) -> 
+  (∀ w : S, if P w
+             then (eq (bS s s) s = true) + (P (bS s s) = true)
+             else if P (bS w w)
+                  then eq s w = true
+                  else eq (bS w w) w = true).        
+Proof. intros H w.
+       assert (A := H w). compute in A. 
+       case_eq(P w); intro H1; rewrite H1 in A.
+          case_eq(P (bS s s)); intro H2; rewrite H2 in A. 
+             right; reflexivity. 
+             rewrite H2 in A. left. exact A. 
+          case_eq(P (bS w w)); intro H2; rewrite H2 in A. 
+                case_eq(P s); intro H3; rewrite H3 in A; exact A.              
+                rewrite H2 in A. exact A.
+Qed. 
+
+
+Lemma bop_predicate_reduce_not_idempotent_intro :
+  { w : S & if P w
+            then (eq (bS s s) s = false) * (P (bS s s) = false)
+            else if P (bS w w)
+                 then eq s w = false                 
+                 else eq (bS w w) w = false
+   } -> bop_not_idempotent S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
+Proof. intros [w A]. exists w. compute. 
+       case_eq(P w); intro H1; rewrite H1 in A. destruct A as [L R]. rewrite R. rewrite R. exact L. 
+          case_eq(P (bS w w)); intro H2; rewrite H2 in A.              
+             case_eq(P s); intro H3; exact A. 
+             rewrite H2. exact A.
+Defined.
+
+
+Lemma bop_predicate_reduce_not_idempotent_elim :
+  bop_not_idempotent S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS) -> 
+  { w : S & if P w
+            then (eq (bS s s) s = false) * (P (bS s s) = false)
+            else if P (bS w w)
+                 then eq s w = false                 
+                 else eq (bS w w) w = false  }.        
+Proof. intros [w H]. compute in H. exists w. 
+       case_eq(P w); intro H1; rewrite H1 in H.
+          case_eq(P (bS s s)); intro H2; rewrite H2 in H. 
+             case_eq(P s); intro H3; rewrite H3 in H; rewrite refS in H; discriminate H. 
+             rewrite H2 in H. split.  
+             exact H. 
+             reflexivity. 
+          case_eq(P (bS w w)); intro H2; rewrite H2 in H; auto.
+                case_eq(P s); intro H3; rewrite H3 in H; exact H.              
+                rewrite H2 in H. exact H.
+Defined. 
+
+(* by "standard" I mean using the standard assumptions: 
+  pred_true S P s 
+  pred_congruence S eq P 
+*) 
+
+Lemma bop_predicate_reduce_idempotent_intro_standard :
+  pred_true S P s -> 
+  pred_congruence S eq P -> 
+  bop_idempotent S eq bS -> 
+        bop_idempotent S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
+Proof. intros Ps cong_P idem. 
+       apply bop_predicate_reduce_idempotent_intro. 
+       intro w.
+       case_eq(P w); intro H1. 
+          left. exact (idem s).
+          case_eq(P (bS w w)); intro H2. 
+             assert (H3 := idem w). apply cong_P in H3. rewrite H1 in H3. rewrite H2 in H3. discriminate H3. 
+             exact (idem w). 
+Qed.
+
+Lemma bop_predicate_reduce_not_idempotent_intro_standard :
+  pred_true S P s -> 
+  pred_congruence S eq P ->
+  (eq (bS s s) s = false) ->
+  (P (bS s s) = false) -> 
+        bop_not_idempotent S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
+Proof. intros Ps cong_P H1 H2.
+       apply bop_predicate_reduce_not_idempotent_intro. 
+       exists s.
+       case_eq(P s); intro H3. 
+          split. exact H1. exact H2. 
+          rewrite H2. exact H1. 
+Defined. 
+
 (*
+bop_commutative
+bop_exists_id
+bop_exists_ann
+bop_is_left
+bop_is_right
+bop_left_cancellative
+bop_right_cancellative
+bop_left_constant
+bop_right_constant
+bop_anti_left
+bop_anti_right
+*) 
+
+
+
+ (* Associativity 
 
   Decompositional 
 
 *) 
+
 
 Lemma bop_associative_predicate_reduce_decompositional_id : 
     pred_true S P s -> 
@@ -261,43 +480,6 @@ Proof. intros Ps P_cong b_cong assoc H s_ann a b c. compute; auto. compute in Ps
 Qed.
 
 
-Lemma bop_predicate_reduce_selective : 
-  (P s = true) ->
-  (∀ (a b : S), eq a b = true -> P a = P b) ->
-  (∀ (a b : S), P a = false -> P b = false -> P (bS a b) = false) -> 
-  bop_is_ann S eq bS s ->
-  bop_selective S eq bS ->  
-        bop_selective S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
-Proof. intros X Y B is_ann H. compute. intros a b. compute in H.
-      (*pred_bop_decompose_contrapositive *) 
-      case_eq(P a); intro K;case_eq(P b); intro L;
-      assert (M := is_ann s); destruct M as [M _].
-      assert (Z := Y (bS s s) s M). rewrite X in Z. rewrite Z. rewrite X. auto.
-      assert (Z := is_ann b); destruct Z as [Z _].
-      assert (A := Y (bS s b) s Z). rewrite X in A. rewrite A. rewrite X. auto.
-      assert (Z := is_ann a); destruct Z as [_ Z].
-      assert (A := Y (bS a s) s Z). rewrite X in A. rewrite A. rewrite X. auto.
-      assert (Z := B a b K L). rewrite Z. rewrite Z. auto.
-Qed.
-
-Lemma bop_predicate_reduce_selective_v2 : 
-(P s = true) ->
-(∀ (a b : S), eq a b = true -> P a = P b) ->
-(∀ (a b : S), P a = false -> P b = false -> P (bS a b) = false) -> 
-bop_is_id S eq bS s ->
-bop_selective S eq bS ->  
-bop_selective S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).
-Proof. intros X Y B is_id H. compute. intros a b. compute in H.
-      case_eq(P a); intro K;case_eq(P b); intro L;
-      assert (M := is_id s); destruct M as [M _].
-      assert (Z := Y (bS s s) s M). rewrite X in Z. rewrite Z. rewrite X. auto.
-      assert (Z := is_id b); destruct Z as [Z _].
-      assert (A := Y (bS s b) b Z). rewrite L in A. rewrite A,A. auto.
-      assert (Z := is_id a); destruct Z as [_ Z].
-      assert (A := Y (bS a s) a Z). rewrite K in A. rewrite A,A. auto.
-      assert (Z := B a b K L). rewrite Z. rewrite Z. auto.
-Qed.
-
 
 
 (*
@@ -334,7 +516,7 @@ Lemma bop_associative_predicate_reduce_compositional :
     bop_associative S eq bS ->
     bop_associative S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).      
 Proof. intros Ps P_cong H cong assoc.
-       apply bop_full_reduce_left_right_invariant_implies_associative; auto.
+       apply bop_full_reduce_associative_classical; auto. 
        apply uop_predicate_reduce_congruence; auto.       
        apply uop_predicate_reduce_idempotent; auto.
        apply bop_left_uop_invariant_predicate_reduce; auto. 
@@ -406,7 +588,7 @@ Lemma bop_associative_predicate_reduce_order_preserving :
     bop_associative S eq bS ->
        bop_associative S (brel_predicate_reduce s P eq) (bop_predicate_reduce s P bS).      
 Proof. intros Ps P_cong b_cong selS commS isId OP assoc.
-       apply bop_full_reduce_left_right_invariant_implies_associative; auto.
+       apply bop_full_reduce_associative_classical; auto. 
        apply uop_predicate_reduce_congruence; auto.       
        apply uop_predicate_reduce_idempotent; auto.
        apply bop_left_uop_invariant_predicate_reduce_v2; auto. 
@@ -435,16 +617,6 @@ Proof. intros P_true P_cong is_id H s1 s2 H1 H2.
        discriminate H4.
 Qed.    
 
-
-Lemma selective_implies_preserve_pred : 
-bop_selective S eq bS ->
-pred_congruence S eq P ->
-bop_preserve_pred S P bS.
-Proof. intros sel congP a b.
-     assert(A := sel a b). destruct A; intros Pa Pb.
-     assert(B := congP _ _ e). rewrite Pa in B. auto.
-     assert(B := congP _ _ e). rewrite Pb in B. auto.
-Qed.
 
 
 End Semigroup.

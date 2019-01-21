@@ -136,14 +136,12 @@ Definition eqv_reduce {S : Type} (r : S -> S) (f : S -> S) (ex2 : @check_exactly
     ; eqv_ast     := Ast_eqv_reduce (eqv_ast eqvS)
    |}. 
 
-
-
 End CAS.
 
 Section Verify.
 
 
-Theorem correct_eqv_set : ∀ (S : Type) (E : A_eqv S) (r : unary_op S) (f : S -> S) 
+Theorem correct_eqv_reduce : ∀ (S : Type) (E : A_eqv S) (r : unary_op S) (f : S -> S) 
       (nt: brel_not_trivial S (brel_reduce (A_eqv_eq S E) r) f)
       (ex2 : brel_exactly_two_decidable S (brel_reduce (A_eqv_eq S E) r)),  
     
