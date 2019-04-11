@@ -9,11 +9,10 @@ Inductive ast_eqv : Type :=
    | Ast_eqv_product       : ast_eqv * ast_eqv → ast_eqv
    | Ast_eqv_sum           : ast_eqv * ast_eqv → ast_eqv
    | Ast_eqv_add_constant  : cas_constant * ast_eqv → ast_eqv
-   | Ast_eqv_reduce        : ast_eqv → ast_eqv   (* reduction r is not a part of syntax! *)
-   .
+   | Ast_eqv_nat_ceiling   : nat → ast_eqv   
+   | Ast_eqv_minset        : ast_po → ast_eqv   
 
-
-Inductive ast_bop : Type := 
+with ast_bop : Type := 
 | Ast_bop_times : ast_bop 
 | Ast_bop_plus  : ast_bop 
 | Ast_bop_min   : ast_bop 
@@ -32,10 +31,8 @@ Inductive ast_bop : Type :=
 | Ast_bop_lift      : ast_bop → ast_bop
 | Ast_bop_union     : ast_eqv → ast_bop
 | Ast_bop_intersect : ast_eqv → ast_bop
-.
 
-
-Inductive ast_qo : Type := 
+with  ast_qo : Type := 
    | Ast_qo_dual          : ast_qo → ast_qo
    | Ast_qo_list          : ast_eqv → ast_qo
    | Ast_qo_set           : ast_eqv → ast_qo
@@ -113,8 +110,8 @@ with ast_sg_CI :=
    | Ast_sg_CI_product            : ast_sg_CI * ast_sg_CI → ast_sg_CI
    | Ast_sg_CI_llex               : ast_sg_CS * ast_sg_CI → ast_sg_CI
    | Ast_sg_CI_lift               : ast_sg_CS → ast_sg_CI    
-   | Ast_sg_CI_union_with_ann     : cas_constant * ast_eqv → ast_sg_CI
-   | Ast_sg_CI_intersect_with_id  : cas_constant * ast_eqv → ast_sg_CI
+   | Ast_sg_CI_union              : ast_eqv → ast_sg_CI
+   | Ast_sg_CI_intersect          : ast_eqv → ast_sg_CI
    | Ast_sg_CI_from_sg_CS         : ast_sg_CS → ast_sg_CI
    | Ast_sg_CI_from_sg_C          : ast_sg_C → ast_sg_CI
 
@@ -160,7 +157,7 @@ with ast_bs_C :=
    | Ast_bs_C_from_semiring : ast_semiring → ast_bs_C
 
 with ast_bs_CI :=
-   | Ast_bs_CI_union_lift    : cas_constant * ast_sg → ast_bs_CI
+   | Ast_bs_CI_union_lift    : ast_sg → ast_bs_CI
    | Ast_bs_CI_from_dioid    : ast_dioid → ast_bs_CI                                                                                         
 
 with  ast_semiring :=
@@ -190,8 +187,8 @@ with ast_distributive_lattice :=
 | Ast_distributive_lattice_product  : ast_distributive_lattice * ast_distributive_lattice → ast_distributive_lattice
 | Ast_distributive_lattice_left_sum : ast_distributive_lattice * ast_distributive_lattice → ast_distributive_lattice                      
 | Ast_distributive_lattice_dual     : ast_distributive_lattice → ast_distributive_lattice
-| Ast_distributive_lattice_intersect_union : cas_constant * ast_eqv → ast_distributive_lattice
-| Ast_distributive_lattice_union_intersect : cas_constant * ast_eqv → ast_distributive_lattice
+| Ast_distributive_lattice_intersect_union : ast_eqv → ast_distributive_lattice
+| Ast_distributive_lattice_union_intersect : ast_eqv → ast_distributive_lattice
 | Ast_distributive_lattice_from_selective_distributive_lattice  : ast_selective_distributive_lattice → ast_distributive_lattice
 
 with ast_selective_distributive_lattice :=

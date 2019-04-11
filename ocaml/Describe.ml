@@ -35,6 +35,9 @@ let rec ast_eqv_to_ascii = function
 | Ast_eqv_product (eqv1, eqv2)  -> "(" ^ (ast_eqv_to_ascii eqv1) ^ " * " ^ (ast_eqv_to_ascii eqv2) ^ ")"
 | Ast_eqv_sum (eqv1, eqv2)      -> "(" ^ (ast_eqv_to_ascii eqv1) ^ " + " ^ (ast_eqv_to_ascii eqv2) ^ ")"
 | Ast_eqv_add_constant (c, eqv) -> "({" ^ (char_list_to_string c.constant_ascii)      ^ "} + " ^ (ast_eqv_to_ascii eqv) ^ ")"
+| Ast_eqv_nat_ceiling  n        -> "[" ^ (string_of_int n) ^ " + 1]"
+| Ast_eqv_minset po             -> "minset ..." 
+															    
 
 let rec ast_eqv_to_latex = function 
 | Ast_eqv_bool                  -> "\typebool"
@@ -44,6 +47,9 @@ let rec ast_eqv_to_latex = function
 | Ast_eqv_product (eqv1, eqv2)  -> "\typeproduct{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv2) ^ "}"
 | Ast_eqv_sum (eqv1, eqv2)      -> "\typesum{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv2) ^ "}"
 | Ast_eqv_add_constant (c, eqv) -> "\typeaddconstant{" ^ (char_list_to_string c.constant_latex) ^ "}{" ^ (ast_eqv_to_latex eqv) ^ "}"
+| Ast_eqv_nat_ceiling  n        -> "[" ^ (string_of_int n) ^ " + 1]"
+| Ast_eqv_minset po             ->  "minset ..." 
+																    
 
 let rec ast_bop_to_ascii = function 	
 | Ast_bop_times              -> "times"

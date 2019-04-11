@@ -1,42 +1,26 @@
 Require Import Coq.Bool.Bool.    
 Require Import CAS.coq.common.base. 
-Require Import CAS.coq.theory.facts. 
+Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.theory.in_set. 
 
 Section Theory.
 
 Variable S  : Type. 
-Variable T  : Type. 
+Variable T  : Type.
+Variable wS : S. 
+Variable wT : T. 
 Variable rS : brel S. 
 Variable rT : brel T.
 Variable refS : brel_reflexive S rS. 
-Variable refT : brel_reflexive T rT. 
+Variable refT : brel_reflexive T rT.
+Variable symS : brel_symmetric S rS. 
+Variable symT : brel_symmetric T rT. 
+Variable trnS : brel_transitive S rS. 
+Variable trnT : brel_transitive T rT. 
+
 
 Notation "a <*> b"  := (brel_product a b) (at level 15).
 
-
-(*
-
-
-Lemma brel_product_rep_correct : 
-       ∀ (repS : unary_op S) (repT : unary_op T),  
-              (brel_rep_correct S rS repS) → 
-              (brel_rep_correct T rT repT) → 
-                 brel_rep_correct (S * T) (rS <*> rT) (uop_product repS repT). 
-Proof. 
-     intros repS repT RS RT [s t]. compute. 
-     rewrite (RS s), (RT t). reflexivity. 
-Defined. 
-
-Lemma brel_product_rep_idempotent : 
-       ∀ (repS : unary_op S) (repT : unary_op T),  
-              (brel_rep_idempotent S rS repS) → 
-              (brel_rep_idempotent T rT repT) → 
-                 brel_rep_idempotent (S * T) (rS <*> rT) (uop_product repS repT). 
-Proof. 
-     intros repS repT RS RT [s t]. compute. 
-     rewrite (RS s), (RT t). reflexivity. 
-Defined. 
-*) 
 
 Lemma brel_product_not_trivial (f : S -> S) : 
               (brel_not_trivial S rS f) → brel_not_trivial (S * T) (rS <*> rT) (λ (p : S * T), let (s, t) := p in (f s, t)).
@@ -57,11 +41,6 @@ Proof. unfold brel_congruence. intros r1 r2 C1 C2.
        rewrite (C2 _ _ _ _ R1 R2). reflexivity. 
 Defined.
 
-
-
-
-
-(* **** *)
 
 
 Lemma brel_product_transitive : 
@@ -204,17 +183,154 @@ Defined.
 Lemma brel_product_not_exactly_two (s : S) (f : S -> S) (t : T) (g : T -> T):
   brel_not_trivial S rS f ->
   brel_not_trivial T rT g ->
-  brel_symmetric S rS ->
-  brel_transitive S rS ->
-  brel_symmetric T rT ->
-  brel_transitive T rT ->     
   brel_not_exactly_two (S * T) (rS <*> rT).
-Proof. intros ntS ntT symS trnS symT trnT.
+Proof. intros ntS ntT.
        apply brel_at_least_thee_implies_not_exactly_two.
        apply brel_product_symmetric; auto. 
        apply brel_product_transitive; auto.
        apply (brel_product_at_least_three s f t g); auto. 
 Defined.
+
+
+Definition list_product : S -> list T -> list (S * T) 
+:= fix f  s y := 
+      match y with
+         | nil => nil 
+         | t :: rest => (s, t) :: (f s rest)
+      end.
+
+Definition lists_product : list S -> list T -> list (S * T) 
+:= fix f x y := 
+      match x with
+         | nil => nil 
+         | a :: rest => (list_product a y) ++ (f rest y) 
+      end.
+
+Lemma lemm1 (a s : S) (t : T) (Y : finite_set T) (HS : rS a s = true) (HT : in_set rT Y t = true) : 
+  in_set (rS <*> rT) (list_product a Y) (s, t) = true.
+Proof. induction Y. compute in HT. discriminate HT. 
+       apply in_set_cons_elim in HT; auto. destruct HT as [HT | HT].
+       unfold list_product. fold @list_product.
+       apply in_set_cons_intro. apply brel_product_symmetric; auto.
+       left. compute. rewrite HS, HT; auto. 
+
+       unfold list_product. fold @list_product.
+       apply in_set_cons_intro. apply brel_product_symmetric; auto.
+       right. apply IHY; auto.
+Qed.        
+       
+
+Lemma lemm2 (s : S) (a t : T) (X : finite_set S) (Y : finite_set T) (HS : in_set rS X s = true) (HT : rT a t = true): 
+  in_set (rS <*> rT) (lists_product X (a :: Y)) (s, t) = true.
+Proof. induction X. compute in HS. discriminate HS.
+       apply in_set_cons_elim in HS; auto. destruct HS as [HS | HS].
+
+       apply in_set_cons_intro. apply brel_product_symmetric; auto.
+       left. compute. rewrite HS, HT; auto.        
+
+       unfold lists_product. fold @lists_product. 
+       apply in_set_concat_intro. 
+       right. apply IHX; auto.
+Qed.
+
+Lemma in_set_lists_product (s : S) (t : T) (X : finite_set S) (Y : finite_set T) (HS : in_set rS X s = true) (HT : in_set rT Y t = true) : 
+  in_set (rS <*> rT) (lists_product X Y) (s, t) = true.
+Proof. induction X; induction Y; auto.
+       compute in HT. discriminate HT. 
+       apply in_set_cons_elim in HS; auto. apply in_set_cons_elim in HT; auto. 
+       destruct HS as [ HS | HS ]; destruct HT as [ HT | HT ].
+
+       unfold lists_product. fold @lists_product. unfold list_product. fold @list_product.
+       apply in_set_cons_intro; auto. apply brel_product_symmetric; auto.
+       left. compute. rewrite HS, HT; auto. 
+
+       unfold lists_product. fold @lists_product. unfold list_product. fold @list_product.
+       apply in_set_concat_intro.
+       case_eq(in_set rS X s); intro K.
+          right. apply IHX; auto. 
+          left. apply in_set_cons_intro. apply brel_product_symmetric; auto.
+          right. apply lemm1; auto. 
+
+       unfold lists_product. fold @lists_product. unfold list_product. fold @list_product.
+       apply in_set_concat_intro.
+       case_eq(in_set rS X s); intro K.
+          right. apply IHX; auto. 
+          right. apply lemm2; auto. 
+
+
+       unfold lists_product. fold @lists_product. unfold list_product. fold @list_product.
+       apply in_set_concat_intro.
+       assert (K := IHX HS). right. exact K. 
+Qed. 
+
+
+Definition product_enum (fS : unit -> list S) (fT : unit -> list T) (x : unit) := lists_product (fS tt) (fT tt). 
+
+Lemma brel_product_finite : carrier_is_finite S rS -> carrier_is_finite T rT -> carrier_is_finite (S * T) (rS <*> rT).
+Proof. intros [fS pS] [fT pT]. unfold carrier_is_finite. exists (product_enum fS fT).
+       intros [s t]. assert (HS := pS s); assert (HT := pT t).
+       unfold product_enum. apply in_set_lists_product; auto.
+Defined. 
+
+
+Lemma in_set_pair_elim_left (s : S) (t : T) (X : finite_set (S * T)) : 
+  in_set (rS <*> rT) (X) (s, t) = true -> in_set rS (List.map fst X) s = true.
+Proof. intro H. induction X. compute in H. discriminate H.
+       destruct a as (s', t'). 
+       apply in_set_cons_elim in H; auto. destruct H as [H | H].
+       compute in H.
+       case_eq(rS s' s); intro Hss; case_eq(rT t' t); intro Htt. 
+          unfold List.map. apply in_set_cons_intro; auto.  
+          rewrite Hss, Htt in H. discriminate H.
+          rewrite Hss in H. discriminate H.
+          rewrite Hss in H. discriminate H.                     
+       assert (K := IHX H).
+       unfold List.map. apply in_set_cons_intro; auto. apply brel_product_symmetric; auto. 
+Defined.
+
+Lemma in_set_pair_elim_right (s : S) (t : T) (X : finite_set (S * T)) : 
+  in_set (rS <*> rT) (X) (s, t) = true -> in_set rT (List.map snd X) t = true.
+Proof. intro H. induction X. compute in H. discriminate H.
+       destruct a as (s', t'). 
+       apply in_set_cons_elim in H; auto. destruct H as [H | H].
+       compute in H.
+       case_eq(rS s' s); intro Hss; case_eq(rT t' t); intro Htt. 
+          unfold List.map. apply in_set_cons_intro; auto.
+          rewrite Hss, Htt in H. discriminate H.
+          rewrite Hss in H. discriminate H.
+          rewrite Hss in H. discriminate H.
+       assert (K := IHX H).
+       unfold List.map. apply in_set_cons_intro; auto. apply brel_product_symmetric; auto. 
+Defined.
+
+Lemma brel_product_not_finite_left : carrier_is_not_finite S rS -> carrier_is_not_finite (S * T) (rS <*> rT).
+Proof. unfold carrier_is_not_finite. intro H.
+       intro fST. assert (K := H (λ _, List.map fst (fST tt))).
+       destruct K as [s Ps].
+       exists (s, wT).
+       case_eq(in_set (rS <*> rT) (fST tt) (s, wT)); intro J; auto.
+       apply in_set_pair_elim_left in J.
+       rewrite J in Ps. exact Ps. 
+Defined. 
+
+Lemma brel_product_not_finite_right : carrier_is_not_finite T rT -> carrier_is_not_finite (S * T) (rS <*> rT).
+Proof. unfold carrier_is_not_finite. intro H.
+       intro fST. assert (K := H (λ _, List.map snd (fST tt))).
+       destruct K as [t Pt].
+       exists (wS, t).
+       case_eq(in_set (rS <*> rT) (fST tt) (wS, t)); intro J; auto.
+       apply in_set_pair_elim_right in J.
+       rewrite J in Pt. exact Pt. 
+Defined. 
+
+Definition eqv_product_decidable (dS : carrier_is_finite_decidable S rS) (dT: carrier_is_finite_decidable T rT) :
+    carrier_is_finite_decidable (S * T) (rS <*> rT)
+  := match dS, dT with
+     | inr nfS, _ => inr (brel_product_not_finite_left nfS) 
+     | _, inr nfT => inr (brel_product_not_finite_right nfT) 
+     | inl fS, inl fT => inl (brel_product_finite fS fT)
+     end. 
+
 
 
 Close Scope nat_scope. 
@@ -236,354 +352,9 @@ Proof. intros totS Pf antiS.
              rewrite F in F2. discriminate.
 Defined. 
 
-(*
-Lemma brel_product_total_decide_v2 : 
-   ∀ (eqS : brel S) 
-     (eqT : brel T),  
-      brel_nontrivial S eqS -> 
-      brel_nontrivial T eqT ->      
-      brel_antisymmetric S eqS rS -> 
-      brel_antisymmetric T eqT rT -> 
-      brel_total_decidable S rS -> 
-      brel_total_decidable T rT -> 
-           brel_total_decidable (S * T) (rS <*> rT). 
-Proof. 
-  intros eqS eqT ntS ntT antiS antiT.
-  destruct (brel_nontrivial_witness S eqS ntS) as [s QS]. 
-  destruct (brel_nontrivial_witness T eqT ntT) as [t QT]. 
-  destruct (brel_nontrivial_negate S eqS ntS) as [fS fSP]. 
-  destruct (brel_nontrivial_negate T eqT ntT) as [fT fTP]. 
-  intros [ totS | [ [s1 s2] [SL SR]]] [ totT | [ [t1 t2] [TL TR]]]. 
-     destruct (brel_total_split totS ntS antiS) as [s1 [s2 [sP1 sP2]]]. 
-     destruct (brel_total_split totT ntT antiT) as [t1 [t2 [tP1 tP2]]]. 
-     right. exists ((s1, t2), (s2, t1)). simpl.  
-     rewrite sP2, tP2. simpl. rewrite andb_comm. simpl. auto. 
-     right. exists ((s, t1), (s, t2)); simpl. rewrite TL, TR. rewrite andb_comm; compute; auto.
-     right. exists ((s1, t), (s2, t)); simpl. rewrite SL, SR. compute; auto.
-     right. exists ((s, t1), (s, t2)); simpl. rewrite TL, TR. rewrite andb_comm; compute; auto.
-Defined. 
-
-
-
-
-Lemma brel_product_asymmetric_left : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_asymmetric S rS) → 
-                  brel_asymmetric (S * T) (rS <*> rT). 
-Proof. unfold brel_asymmetric. 
-     intros S T rS rT AS [s1 t1] [s2 t2]. simpl. intro H. 
-     apply andb_is_false_right. apply andb_is_true_left in H. destruct H as [L R]. 
-     left. rewrite (AS _ _ L). reflexivity. 
-Defined. 
-
-Lemma brel_product_asymmetric_right : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_asymmetric T rT) → 
-                  brel_asymmetric (S * T) (rS <*> rT). 
-Proof. unfold brel_asymmetric. 
-     intros S T rS rT AT [s1 t1] [s2 t2]. simpl. intro H. 
-     apply andb_is_false_right. apply andb_is_true_left in H. destruct H as [L R]. 
-     right. rewrite (AT _ _ R). reflexivity. 
-Defined. 
-
-
-Lemma brel_product_not_asymmetric : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_not_asymmetric S rS) → 
-              (brel_not_asymmetric T rT) → 
-                  brel_not_asymmetric (S * T) (rS <*> rT). 
-Proof. unfold brel_not_asymmetric. 
-     intros S T rS rT [ [s1 s2] [P1 P2]] [ [t1 t2] [Q1 Q2]]. 
-     exists ((s1, t1), (s2, t2)); simpl. rewrite P1, P2, Q1, Q2. simpl. auto. 
-Defined. 
-
-
-Definition brel_product_asymmetric_decide: 
-   ∀ (S T: Type) 
-     (rS : brel S) 
-     (rT : brel T),   
-     brel_asymmetric_decidable S rS → 
-     brel_asymmetric_decidable T rT → 
-        brel_asymmetric_decidable (S * T) (rS <*> rT)
-:= λ S T rS rT dS dT,  
-       match dS with 
-       | inl asymS       => inl _ (brel_product_asymmetric_left S T rS rT asymS)
-       | inr not_asymS   => 
-         match dT with 
-         | inl asymT     => inl _ (brel_product_asymmetric_right S T rS rT asymT)
-         | inr not_asymT => inr _ (brel_product_not_asymmetric S T rS rT not_asymS not_asymT)
-         end 
-       end. 
-
-
-Lemma brel_product_has_2_chain : 
-         ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_has_2_chain S rS) → 
-              (brel_has_2_chain T rT) → 
-                  brel_has_2_chain (S * T) (rS <*> rT). 
-                  
-Proof. intros S T rS rT [ [s1 [s2 s3]] [P1 P2] ] [ [t1 [t2 t3]] [Q1 Q2] ]. 
-       exists ((s1, t1), ((s2, t2), (s3, t3))); simpl. 
-       rewrite P1, P2, Q1, Q2. simpl. auto. 
-Defined. 
-
-Lemma brel_product_not_has_2_chain_left : 
-         ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_not_has_2_chain S rS) → 
-                  brel_not_has_2_chain (S * T) (rS <*> rT). 
-Proof. unfold brel_not_has_2_chain. intros S T rS rT C [s1 t1] [s2 t2] [s3 t3]. simpl. 
-       intro H. apply andb_is_true_left in H. destruct H as [L R]. 
-       apply andb_is_false_right. left. rewrite (C _ _ s3 L). reflexivity. 
-Defined. 
-
-Lemma brel_product_not_has_2_chain_right : 
-         ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_not_has_2_chain T rT) → 
-                  brel_not_has_2_chain (S * T) (rS <*> rT). 
-Proof. unfold brel_not_has_2_chain. intros S T rS rT C [s1 t1] [s2 t2] [s3 t3]. simpl. 
-       intro H. apply andb_is_true_left in H. destruct H as [L R]. 
-       apply andb_is_false_right. right. rewrite (C _ _ t3 R). reflexivity. 
-Defined. 
-
-
-
-Definition brel_product_has_2_chain_decide: 
-   ∀ (S T: Type) 
-     (rS : brel S) 
-     (rT : brel T),   
-     brel_has_2_chain_decidable S rS → 
-     brel_has_2_chain_decidable T rT → 
-        brel_has_2_chain_decidable (S * T) (rS <*> rT)
-:= λ S T rS rT dS dT,  
-       match dS with 
-       | inl h2cS       => 
-         match dT with 
-         | inl h2cT     => inl _ (brel_product_has_2_chain S T rS rT h2cS h2cT)
-         | inr not_h2cT => inr _ (brel_product_not_has_2_chain_right S T rS rT not_h2cT)
-         end 
-       | inr not_h2cS   => inr _ (brel_product_not_has_2_chain_left S T rS rT not_h2cS)
-       end. 
-
-
-Lemma brel_product_transitive_left : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_not_has_2_chain S rS) → 
-                  brel_transitive (S * T) (rS <*> rT). 
-Proof. 
-     intros S T rS rT C [s1 t1] [s2 t2] [s3 t3]. simpl.  intros H1 H2. 
-     apply andb_is_true_left in H1. destruct H1 as [L R]. 
-     rewrite (C _ _ s3 L) in H2. simpl in H2. discriminate. 
-Defined. 
-
-
-Lemma brel_product_transitive_right : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_not_has_2_chain T rT) → 
-                  brel_transitive (S * T) (rS <*> rT). 
-Proof. 
-     intros S T rS rT C [s1 t1] [s2 t2] [s3 t3]. simpl.  intros H1 H2. 
-     apply andb_is_true_left in H1. destruct H1 as [L R]. 
-     rewrite (C _ _ t3 R) in H2. rewrite andb_comm in H2. simpl in H2. discriminate. 
-Defined. 
-
-
-Lemma brel_product_not_transitive_right : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_has_2_chain S rS) → 
-              (brel_not_transitive T rT) → 
-                  brel_not_transitive (S * T) (rS <*> rT). 
-Proof. intros S T rS rT [ [s1 [s2 s3]] [P1 P2] ] [ [t1 [t2 t3]] [[Q1 Q2] Q3] ]. 
-       exists ((s1, t1), ((s2, t2), (s3, t3))); simpl. 
-       rewrite P1, P2, Q1, Q2, Q3. simpl. rewrite andb_comm. simpl. auto. 
-Defined. 
-
-Lemma brel_product_not_transitive_left : ∀ (S T: Type) (rS : brel S) (rT : brel T),  
-              (brel_not_transitive S rS) → 
-              (brel_has_2_chain T rT) → 
-                  brel_not_transitive (S * T) (rS <*> rT). 
-Proof. intros S T rS rT [ [s1 [s2 s3]] [ [P1 P2] P3 ] ] [ [t1 [t2 t3]] [Q1 Q2] ]. 
-       exists ((s1, t1), ((s2, t2), (s3, t3))); simpl. 
-       rewrite P1, P2, P3, Q1, Q2. simpl. auto. 
-Defined. 
-
-Definition brel_product_transitive_decide : 
-   ∀ (S T: Type) 
-     (rS : brel S) 
-     (rT : brel T),   
-     brel_has_2_chain_decidable S rS →  
-     brel_has_2_chain_decidable T rT →  
-     brel_transitive_decidable S rS → 
-     brel_transitive_decidable T rT → 
-        brel_transitive_decidable (S * T) (rS <*> rT)
-:= λ S T rS rT h2S h2T dS dT,  
-       match dS with 
-       | inl transS => 
-         match dT with 
-         | inl transT     => inl _ (brel_product_transitive S T rS rT transS transT)
-         | inr not_transT => 
-           match h2S with 
-           | inl h2cS     => inr _ (brel_product_not_transitive_right S T rS rT h2cS not_transT)
-           | inr not_h2cS => inl _ (brel_product_transitive_left S T rS rT not_h2cS)
-           end 
-         end 
-       | inr not_transS   => 
-           match h2T with 
-           | inl h2cT     => inr _ (brel_product_not_transitive_left S T rS rT not_transS h2cT)
-           | inr not_h2cT => inl _ (brel_product_transitive_right S T rS rT not_h2cT) 
-           end 
-       end. 
-
-Lemma brel_product_antisymmetric : 
-         ∀ (S T: Type) (r_eq1 : brel S) (r_eq2 : brel T) (r1 : brel S) (r2 : brel T),  
-              (brel_antisymmetric S r_eq1 r1) → 
-              (brel_antisymmetric T r_eq2 r2) → 
-              brel_antisymmetric (S * T) 
-                  (brel_product S T r_eq1 r_eq2)
-                  (brel_product S T r1 r2). 
-Proof. 
-     intros S T r_eq1 r_eq2 r1 r2 asS asT [s1 t1] [s2 t2]; simpl. intros H1 H2.                
-     destruct (andb_is_true_left _ _ H1) as [L1 R1]; destruct (andb_is_true_left _ _ H2) as [L2 R2].
-     rewrite (asS s1 s2 L1 L2). rewrite (asT t1 t2 R1 R2). auto. 
-Defined. 
-
-
-Lemma brel_product_with_reflexivity_not_antisymmetric_left : 
-         ∀ (S T: Type) (r_eq1 : brel S) (r_eq2 : brel T) (r1 : brel S) (r2 : brel T) (t : T),  
-              (brel_reflexive T r2) → 
-              (brel_not_antisymmetric S r_eq1 r1) → 
-              brel_not_antisymmetric (S * T) 
-                  (brel_product S T r_eq1 r_eq2)
-                  (brel_product S T r1 r2). 
-Proof. unfold brel_not_antisymmetric. 
-     intros S T r_eq1 r_eq2 r1 r2 t refT [ [s1 s2] [[H1 H2] H3] ]; simpl. 
-     exists ((s1, t), (s2, t)); simpl. 
-     rewrite H1, H2, H3. simpl. rewrite (refT t); auto. 
-Defined.
-
-
-Lemma brel_product_with_reflexivity_not_antisymmetric_right : 
-         ∀ (S T: Type) (eq1 : brel S) (eq2 : brel T) (r1 : brel S) (r2 : brel T) (s : S),  
-              brel_reflexive S r1 → 
-              brel_not_antisymmetric T eq2 r2 → 
-              brel_not_antisymmetric (S * T) 
-                  (brel_product S T eq1 eq2)
-                  (brel_product S T r1 r2). 
-Proof. 
-     intros S T eq1 eq2 r1 r2 s refS [ [t1 t2] [[H1 H2] H3] ]; simpl. 
-     exists ((s, t1), (s, t2)); simpl. 
-     rewrite H1, H2, H3. simpl. rewrite (refS s). simpl; auto. 
-     rewrite andb_comm. simpl; auto. 
-Defined.
-
-
-Definition brel_product_with_reflexivity_antisymmetric_decide : 
-   ∀ (S T: Type) 
-     (eqS : brel S) 
-     (eqT : brel T)
-     (rS : brel S) 
-     (rT : brel T),   
-     brel_nontrivial S rS -> 
-     brel_nontrivial T rT -> 
-     brel_reflexive S rS -> 
-     brel_reflexive T rT -> 
-     brel_antisymmetric_decidable S eqS rS → 
-     brel_antisymmetric_decidable T eqT rT → 
-        brel_antisymmetric_decidable (S * T) (brel_product S T eqS eqT) (rS <*> rT)
-:= λ S T eqS eqT rS rT ntS ntT refS refT dS dT,  
-  let s := brel_get_nontrivial_witness S rS ntS in 
-  let t := brel_get_nontrivial_witness T rT ntT in 
-       match dS with 
-       | inl asymS => 
-         match dT with 
-         | inl asymT     => inl _ (brel_product_antisymmetric S T  eqS eqT rS rT asymS asymT)
-         | inr not_asymT => inr _ (brel_product_with_reflexivity_not_antisymmetric_right S T eqS eqT rS rT s refS not_asymT)
-         end 
-       | inr not_asymS   => inr _ (brel_product_with_reflexivity_not_antisymmetric_left S T  eqS eqT rS rT t refT not_asymS)
-       end.
-
-
-Lemma brel_product_antisymmetric_left : 
-         ∀ (S T: Type) (eqS : brel S) (eqT : brel T) (rS : brel S) (rT : brel T),  
-              brel_asymmetric S rS → 
-              brel_antisymmetric (S * T) 
-                  (brel_product S T eqS eqT)
-                  (rS <*> rT). 
-Proof. unfold brel_antisymmetric, brel_asymmetric. 
-     intros S T eqS eqT rS rT asS [s1 t1] [s2 t2] H1 H2.  simpl in H1, H2.
-     apply andb_is_true_left in H1. destruct H1 as [L R]. 
-     rewrite (asS _ _ L) in H2. simpl in H2. discriminate. 
-Defined. 
-
-
-Lemma brel_product_antisymmetric_right : 
-         ∀ (S T: Type) (eqS : brel S) (eqT : brel T) (rS : brel S) (rT : brel T),  
-              brel_asymmetric T rT → 
-              brel_antisymmetric (S * T) 
-                  (brel_product S T eqS eqT)
-                  (rS <*> rT). 
-Proof. unfold brel_antisymmetric, brel_asymmetric. 
-     intros S T eqS eqT rS rT asT [s1 t1] [s2 t2] H1 H2.  simpl in H1, H2.
-     apply andb_is_true_left in H2. destruct H2 as [L R]. 
-     rewrite (asT _ _ R) in H1. rewrite andb_comm in H1.  simpl in H1. discriminate. 
-Defined. 
-
-
-Lemma brel_product_not_antisymmetric_left : 
-         ∀ (S T: Type) (eqS : brel S) (eqT : brel T) (rS : brel S) (rT : brel T),  
-              brel_not_asymmetric T rT → 
-              brel_not_antisymmetric S eqS rS → 
-              brel_not_antisymmetric (S * T) 
-                  (brel_product S T eqS eqT)
-                  (rS <*> rT). 
-Proof. unfold brel_not_antisymmetric, brel_not_asymmetric. 
-     intros S T eqS eqT rS rT [ [t1 t2] [P1 P2] ] [ [s1 s2] [[H1 H2] H3] ]. 
-     exists ((s1, t1), (s2, t2)); simpl. 
-     rewrite P1, P2, H1, H2, H3; simpl. auto. 
-Defined.
-
-
-Lemma brel_product_not_antisymmetric_right : 
-         ∀ (S T: Type) (eqS : brel S) (eqT : brel T) (rS : brel S) (rT : brel T),  
-              brel_not_asymmetric S rS → 
-              brel_not_antisymmetric T eqT rT → 
-              brel_not_antisymmetric (S * T) 
-                  (brel_product S T eqS eqT)
-                  (rS <*> rT). 
-Proof. unfold brel_not_antisymmetric, brel_not_asymmetric. 
-     intros S T eqS eqT rS rT [ [s1 s2] [P1 P2] ] [ [t1 t2] [[H1 H2] H3] ]. 
-     exists ((s1, t1), (s2, t2)); simpl. 
-     rewrite P1, P2, H1, H2, H3; simpl. rewrite andb_comm. simpl. auto. 
-Defined.
-
-Definition brel_product_antisymmetric_decide : 
-   ∀ (S T: Type) 
-     (eqS : brel S) 
-     (eqT : brel T)
-     (rS : brel S) 
-     (rT : brel T),   
-     brel_asymmetric_decidable S rS →  
-     brel_asymmetric_decidable T rT →  
-     brel_antisymmetric_decidable S eqS rS → 
-     brel_antisymmetric_decidable T eqT rT → 
-        brel_antisymmetric_decidable (S * T) (brel_product S T eqS eqT) (rS <*> rT)
-:= λ S T eqS eqT rS rT adS adT dS dT,  
-       match dS with 
-       | inl anti_symS => 
-         match dT with 
-         | inl anti_symT     => inl _ (brel_product_antisymmetric S T  eqS eqT rS rT anti_symS anti_symT)
-         | inr not_anti_symT => 
-           match adS with 
-           | inl asymS     => inl _ (brel_product_antisymmetric_left S T  eqS eqT rS rT asymS)
-           | inr not_asymS => inr _ (brel_product_not_antisymmetric_right S T eqS eqT rS rT not_asymS not_anti_symT)
-           end 
-         end 
-       | inr not_anti_symS   => 
-           match adT with 
-           | inl asymT     => inl _ (brel_product_antisymmetric_right S T  eqS eqT rS rT asymT)
-           | inr not_asymT => inr _ (brel_product_not_antisymmetric_left S T eqS eqT rS rT not_asymT not_anti_symS)
-           end 
-       end. 
-
-*) 
 End Theory.
 
-
 Section ACAS.
-
 
 Definition eqv_proofs_product : 
    ∀ (S T : Type) (rS : brel S) (rT : brel T),
@@ -604,7 +375,6 @@ Definition eqv_proofs_product :
                         (A_eqv_symmetric S rS eqvS) 
                         (A_eqv_symmetric T rT eqvT) 
 |}.
-
 
 
 Definition A_eqv_product : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S * T) 
@@ -631,16 +401,23 @@ Definition A_eqv_product : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S * T
     ; A_eqv_witness  := (s, t)
     ; A_eqv_new      := λ p, let (s, t) := p in (f s, t)
     ; A_eqv_not_trivial   := brel_product_not_trivial S T eqS eqT refT f ntS 
-    ; A_eqv_exactly_two_d := inr (brel_product_not_exactly_two S T eqS eqT refS s f t g ntS ntT symS trnS symT trnT)                         
+    ; A_eqv_exactly_two_d := inr (brel_product_not_exactly_two S T eqS eqT refS symS symT trnS trnT s f t g ntS ntT)
     ; A_eqv_data  := λ p, DATA_pair (A_eqv_data S eqvS (fst p), A_eqv_data T eqvT (snd p))
     ; A_eqv_rep   := λ p, (A_eqv_rep S eqvS (fst p), A_eqv_rep T eqvT (snd p))
-
+    ; A_eqv_finite_d := eqv_product_decidable S T s t eqS eqT symS symT  (A_eqv_finite_d _ eqvS) (A_eqv_finite_d _ eqvT)
     ; A_eqv_ast   := Ast_eqv_product (A_eqv_ast _ eqvS, A_eqv_ast _ eqvT)
    |}.
 
 End ACAS.
 
 Section CAS.
+
+Definition eqv_product_finite_certifiable {S T : Type} (fS : @check_is_finite S ) (fT : @check_is_finite T )
+ :=  match fS, fT with
+       Certify_Is_Not_Finite, _        => Certify_Is_Not_Finite
+     | _, Certify_Is_Not_Finite        => Certify_Is_Not_Finite
+     | Certify_Is_Finite f, Certify_Is_Finite g => Certify_Is_Finite (product_enum S T f g)
+     end. 
 
 Definition eqv_product : ∀ {S T : Type},  @eqv S -> @eqv T -> @eqv (S * T)
 := λ {S T} eqvS eqvT,
@@ -658,6 +435,7 @@ Definition eqv_product : ∀ {S T : Type},  @eqv S -> @eqv T -> @eqv (S * T)
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 r (s , t) (f s, t) (s, g t))
     ; eqv_data          := λ p, DATA_pair (eqv_data eqvS (fst p), eqv_data eqvT (snd p))
     ; eqv_rep           := λ p, (eqv_rep eqvS (fst p), eqv_rep eqvT (snd p))
+    ; eqv_finite_d  := eqv_product_finite_certifiable (eqv_finite_d eqvS) (eqv_finite_d eqvT)
     ; eqv_ast  := Ast_eqv_product (eqv_ast eqvS, eqv_ast eqvT)
    |}. 
 
@@ -665,12 +443,26 @@ End CAS.
 
 Section Verify.
 
+Lemma correct_eqv_product_decidable (S : Type) (T : Type) (wS : S) (wT : T) (eqS : brel S) (eqT : brel T)
+              (symS : brel_symmetric S eqS) (symT : brel_symmetric T eqT) 
+              (FS : carrier_is_finite_decidable S eqS) 
+              (FT : carrier_is_finite_decidable T eqT) : 
+   eqv_product_finite_certifiable (p2c_is_finite_check S eqS FS) (p2c_is_finite_check T eqT FT)
+   =   
+   p2c_is_finite_check (S * T) (brel_product eqS eqT) (eqv_product_decidable S T wS wT eqS eqT symS symT FS FT). 
+Proof. destruct FS as [[fS PS] | NFS]; destruct FT as [[fT PT]| NFT]; simpl; auto. Qed. 
+
+
 Theorem correct_eqv_product :
       ∀ (S T : Type) (eS : A_eqv S) (eT : A_eqv T), 
          eqv_product (A2C_eqv S eS) (A2C_eqv T eT)
          = 
          A2C_eqv (S * T) (A_eqv_product S T eS eT). 
-Proof. intros S T eS eT. destruct eS; destruct eT. compute. reflexivity. Qed. 
+Proof. intros S T eS eT. destruct eS; destruct eT. 
+       unfold eqv_product, A_eqv_product, A2C_eqv; simpl.
+       rewrite <- correct_eqv_product_decidable. reflexivity. 
+Qed.
+
 
 End Verify.   
   

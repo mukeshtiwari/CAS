@@ -382,8 +382,8 @@ Proof. intros [[x y] P]. exists ((x :: nil), (y :: nil)). compute. rewrite P; au
 Lemma bop_lift_exists_ann : bop_exists_ann (finite_set S) (brel_set rS) (bop_lift rS bS). 
 Proof. exists nil. apply bop_lift_nil_is_ann. Defined. 
 
-Lemma bop_lift_exists_id : bop_exists_id S rS bS  -> bop_exists_id (finite_set S) (brel_set rS) (bop_lift rS bS). 
-Proof. intros [i P]. exists (i :: nil). intro X.
+Lemma bop_lift_is_id (i : S) : bop_is_id S rS bS i  -> bop_is_id (finite_set S) (brel_set rS) (bop_lift rS bS) (i :: nil).
+Proof. intros P X.
        split. 
 
        apply brel_set_intro.
@@ -435,7 +435,10 @@ Proof. intros [i P]. exists (i :: nil). intro X.
        apply M.
        apply in_set_bop_lift_intro; auto.
        compute. rewrite refS; auto.
-Defined.
+Qed.        
+
+Lemma bop_lift_exists_id : bop_exists_id S rS bS  -> bop_exists_id (finite_set S) (brel_set rS) (bop_lift rS bS). 
+Proof. intros [i P]. exists (i :: nil). apply bop_lift_is_id; auto. Defined. 
 
 Lemma bop_list_product_left_contains_product : ∀ (a b : S) (X Y : finite_set S), in_set rS (bop_list_product_left bS (a :: X) (b :: Y)) (bS a b) = true.
 Proof. intros a b X Y.

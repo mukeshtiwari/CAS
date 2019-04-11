@@ -12,7 +12,8 @@ Record eqv {S : Type} := {
 ; eqv_new     : S -> S                                                                                                   
 ; eqv_exactly_two_d : @check_exactly_two S 
 ; eqv_data  : S -> data (* for printing in ocaml-land *) 
-; eqv_rep   : S -> S    (* for reductions.  Should this be an option? *) 
+; eqv_rep   : S -> S    (* for reductions.  Should this be an option? *)
+; eqv_finite_d : @check_is_finite S 
 ; eqv_ast   : ast_eqv
 }.  
 

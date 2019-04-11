@@ -61,6 +61,12 @@ Inductive check_exactly_two {S : Type} :=
 
 
 
+Inductive check_is_finite {S : Type} := 
+| Certify_Is_Finite : (unit -> list S) → check_is_finite (S := S)
+| Certify_Is_Not_Finite : check_is_finite (S := S). 
+
+
+
 
 
 

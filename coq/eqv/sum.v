@@ -1,5 +1,6 @@
 Require Import CAS.coq.common.base.
-Require Import CAS.coq.theory.facts. 
+Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.theory.in_set. 
 
 Section Theory.
 Variable S  : Type. 
@@ -95,7 +96,115 @@ Proof. intros ntS.
        apply (brel_sum_at_least_three s f t); auto. 
 Defined.
 
+Definition enumerate_sum (X : finite_set S) (Y : finite_set T) : finite_set (S + T)
+  := (List.map (λ s, inl s) X) ++ (List.map (λ t, inr t) Y). 
+                         
+Definition sum_enum (fS : unit -> list S) (fT : unit -> list T) (x : unit) := enumerate_sum (fS tt) (fT tt).
 
+Lemma in_set_sum_left  (s : S) (X : finite_set S) (H : in_set rS X s = true) : in_set (rS <+> rT) (List.map (λ a : S, inl a) X) (inl s) = true. 
+Proof. induction X. compute in H. discriminate H.
+       apply in_set_cons_elim in H; auto.
+       unfold List.map. destruct H as [H | H]. 
+       apply in_set_cons_intro; auto. apply brel_sum_symmetric; auto.
+       apply in_set_cons_intro; auto. apply brel_sum_symmetric; auto.
+Qed.
+
+Lemma in_set_sum_right  (t : T) (X : finite_set T) (H : in_set rT X t = true) : in_set (rS <+> rT) (List.map (λ a : T, inr a) X) (inr t) = true. 
+Proof. induction X. compute in H. discriminate H.
+       apply in_set_cons_elim in H; auto.
+       unfold List.map. destruct H as [H | H]. 
+       apply in_set_cons_intro; auto. apply brel_sum_symmetric; auto.
+       apply in_set_cons_intro; auto. apply brel_sum_symmetric; auto.
+Qed.
+
+
+Lemma brel_sum_finite : carrier_is_finite S rS -> carrier_is_finite T rT -> carrier_is_finite (S + T) (rS <+> rT).
+Proof. intros [fS pS] [fT pT]. unfold carrier_is_finite. exists (sum_enum fS fT).
+       unfold sum_enum. unfold enumerate_sum. 
+       intros [s | t].
+          assert (HS := pS s). apply in_set_concat_intro; auto.       
+          left. apply in_set_sum_left; auto. 
+          assert (HT := pT t). apply in_set_concat_intro; auto.       
+          right. apply in_set_sum_right; auto.        
+Defined. 
+
+
+Definition only_left: finite_set (S + T) -> finite_set S 
+  := fix f X :=
+     match X with
+     | nil => nil
+     | (inl s) :: Y => s :: (f Y)
+     | (inr _) :: Y => f Y
+     end.                          
+
+Definition only_right: finite_set (S + T) -> finite_set T
+  := fix f X :=
+     match X with
+     | nil => nil
+     | (inl _) :: Y => f Y
+     | (inr t) :: Y => t :: (f Y)
+     end.
+
+Lemma in_only_left_intro (s : S) (X : finite_set (S + T)): 
+  in_set (rS <+> rT) X (inl s) = true -> in_set rS (only_left X) s = true.
+Proof. intro H. induction X. compute in H. discriminate H. 
+       destruct a as [s' | t'].
+       unfold only_left. fold only_left. apply in_set_cons_intro; auto.
+       apply in_set_cons_elim in H. destruct H as [H | H].
+       compute in H. left. exact H. 
+       right. apply IHX; auto. 
+       apply brel_sum_symmetric; auto.
+
+       unfold only_left. fold only_left. apply IHX. 
+       apply in_set_cons_elim in H. destruct H as [H | H].
+       compute in H. discriminate H. 
+       exact H.
+       apply brel_sum_symmetric; auto.       
+Qed. 
+
+Lemma in_only_right_intro (t : T) (X : finite_set (S + T)): 
+  in_set (rS <+> rT) X (inr t) = true -> in_set rT (only_right X) t = true.
+Proof. intro H. induction X. compute in H. discriminate H. 
+       destruct a as [s' | t'].
+
+       unfold only_right. fold only_right. apply IHX. 
+       apply in_set_cons_elim in H. destruct H as [H | H].
+       compute in H. discriminate H. 
+       exact H.
+       apply brel_sum_symmetric; auto.       
+       
+       unfold only_right. fold only_left. apply in_set_cons_intro; auto.
+       apply in_set_cons_elim in H. destruct H as [H | H].
+       compute in H. left. exact H. 
+       right. apply IHX; auto. 
+       apply brel_sum_symmetric; auto.
+Qed. 
+
+Lemma brel_sum_not_finite_left : carrier_is_not_finite S rS -> carrier_is_not_finite (S + T) (rS <+> rT).
+Proof. unfold carrier_is_not_finite. intro H.
+       intro fST. assert (K := H (λ _, only_left (fST tt) )).
+       destruct K as [s Ps]. exists (inl s).
+       case_eq(in_set (rS <+> rT) (fST tt) (inl s)); intro J; auto. 
+       apply in_only_left_intro in J. rewrite J in Ps. exact Ps. 
+Defined. 
+
+
+Lemma brel_sum_not_finite_right : carrier_is_not_finite T rT -> carrier_is_not_finite (S + T) (rS <+> rT).
+Proof. unfold carrier_is_not_finite. intro H.
+       intro fST. assert (K := H (λ _, only_right (fST tt) )).
+       destruct K as [t Pt]. exists (inr t).
+       case_eq(in_set (rS <+> rT) (fST tt) (inr t)); intro J; auto. 
+       apply in_only_right_intro in J. rewrite J in Pt. exact Pt. 
+Defined. 
+
+
+Definition eqv_sum_finite_decidable (dS : carrier_is_finite_decidable S rS) (dT: carrier_is_finite_decidable T rT) :
+    carrier_is_finite_decidable (S + T) (rS <+> rT)
+  := match dS, dT with
+     | inr nfS, _ => inr (brel_sum_not_finite_left nfS) 
+     | _, inr nfT => inr (brel_sum_not_finite_right nfT) 
+     | inl fS, inl fT => inl (brel_sum_finite fS fT)
+     end. 
 
 End Theory.
 
@@ -120,6 +229,7 @@ Definition eqv_proofs_sum :
                         (A_eqv_symmetric T rT eqvT) 
 |}.
 
+
 Definition A_eqv_sum : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S + T) 
 := λ S T eqvS eqvT,
   let eqS := A_eqv_eq S eqvS in
@@ -142,6 +252,7 @@ Definition A_eqv_sum : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S + T)
     ; A_eqv_not_trivial := brel_sum_not_trivial S T eqS eqT s t 
     ; A_eqv_exactly_two_d := inr (brel_sum_not_exactly_two S T eqS eqT symS trnS symT trnT s f t ntS)                                                            ; A_eqv_data  := λ d, (match d with inl s => DATA_inl (A_eqv_data S eqvS s) | inr t => DATA_inr (A_eqv_data T eqvT t) end)
     ; A_eqv_rep   := λ d, (match d with inl s => inl _ (A_eqv_rep S eqvS s) | inr t => inr _ (A_eqv_rep T eqvT t) end)
+    ; A_eqv_finite_d := eqv_sum_finite_decidable S T eqS eqT symS symT (A_eqv_finite_d _ eqvS) (A_eqv_finite_d _ eqvT)
     ; A_eqv_ast   := Ast_eqv_sum (A_eqv_ast S eqvS, A_eqv_ast T eqvT)
    |}.
 
@@ -149,6 +260,14 @@ Definition A_eqv_sum : ∀ (S T : Type),  A_eqv S -> A_eqv T -> A_eqv (S + T)
 End ACAS.
 
 Section CAS.
+
+Definition eqv_sum_finite_certifiable {S T : Type} (fS : @check_is_finite S ) (fT : @check_is_finite T )
+ :=  match fS, fT with
+       Certify_Is_Not_Finite, _        => Certify_Is_Not_Finite
+     | _, Certify_Is_Not_Finite        => Certify_Is_Not_Finite
+     | Certify_Is_Finite f, Certify_Is_Finite g => Certify_Is_Finite (sum_enum S T f g)
+     end. 
+  
 
 Definition eqv_sum : ∀ {S T : Type},  @eqv S -> @eqv T -> @eqv (S + T)
 := λ {S T} eqvS eqvT,
@@ -163,6 +282,7 @@ Definition eqv_sum : ∀ {S T : Type},  @eqv S -> @eqv T -> @eqv (S + T)
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 r (inl s) (inl (f s)) (inr t))
     ; eqv_data  := λ d, (match d with inl s => DATA_inl (eqv_data eqvS s) | inr t => DATA_inr (eqv_data eqvT t) end)
     ; eqv_rep   := λ d, (match d with inl s => inl _ (eqv_rep eqvS s) | inr t => inr _ (eqv_rep eqvT t) end)
+    ; eqv_finite_d  := eqv_sum_finite_certifiable (eqv_finite_d eqvS) (eqv_finite_d eqvT)
     ; eqv_ast   := Ast_eqv_sum (eqv_ast eqvS, eqv_ast eqvT)
    |}. 
 
@@ -170,6 +290,15 @@ End CAS.
 
 Section Verify.
 
+Lemma correct_eqv_sum_decidable (S : Type) (T : Type) (eqS : brel S) (eqT : brel T)
+              (symS : brel_symmetric S eqS) (symT : brel_symmetric T eqT) 
+              (FS : carrier_is_finite_decidable S eqS) 
+              (FT : carrier_is_finite_decidable T eqT) : 
+   eqv_sum_finite_certifiable (p2c_is_finite_check S eqS FS) (p2c_is_finite_check T eqT FT)
+   =   
+   p2c_is_finite_check (S + T) (brel_sum eqS eqT) (eqv_sum_finite_decidable S T eqS eqT symS symT FS FT). 
+Proof. destruct FS as [[fS PS] | NFS]; destruct FT as [[fT PT]| NFT]; simpl; auto. Qed. 
+  
 
 Theorem correct_eqv_sum :
       ∀ (S T : Type) (eS : A_eqv S) (eT : A_eqv T), 
@@ -179,9 +308,9 @@ Theorem correct_eqv_sum :
 Proof. intros S T eS eT.
        unfold eqv_sum, A_eqv_sum, A2C_eqv; simpl.
        unfold brel_sum_not_exactly_two.
-       reflexivity.
+       rewrite <- correct_eqv_sum_decidable.
+       reflexivity. 
 Qed. 
   
  
 End Verify.   
-  

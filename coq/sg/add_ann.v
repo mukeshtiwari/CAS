@@ -1,6 +1,7 @@
 Require Import Coq.Bool.Bool. 
 Require Import CAS.coq.common.base.
 Require Import CAS.coq.eqv.add_constant.
+Require Import CAS.coq.eqv.sum. 
 Require Import CAS.coq.theory.facts. 
 
 Section Theory.
@@ -15,72 +16,70 @@ Variable Pf : brel_not_trivial S rS f.
 
 Variable refS : brel_reflexive S rS.
 Variable congS : bop_congruence S rS bS.
-(* Variable assS : bop_associative S rS bS. *) 
 
-Notation "a <+> b"  := (brel_add_constant b a) (at level 15).
 Notation "a [+] b"  := (bop_add_ann b a)       (at level 15).
 
-Lemma bop_add_ann_congruence : bop_congruence (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_congruence : bop_congruence (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. unfold bop_congruence. intros [s1 | t1] [s2 | t2] [s3 | t3] [s4 | t4]; simpl; intros H1 H2;auto. Qed. 
 
-Lemma bop_add_ann_associative : bop_associative S rS bS -> bop_associative (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_associative : bop_associative S rS bS -> bop_associative (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. intros assS [s1 | t1] [s2 | t2] [s3 | t3]; simpl; auto. Qed. 
 
-Lemma bop_add_ann_idempotent : bop_idempotent S rS bS → bop_idempotent (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_idempotent : bop_idempotent S rS bS → bop_idempotent (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. intros idemS [s1 | t1]; simpl; auto. Qed. 
 
-Lemma bop_add_ann_not_idempotent : bop_not_idempotent S rS bS → bop_not_idempotent (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_not_idempotent : bop_not_idempotent S rS bS → bop_not_idempotent (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. intros [s P]. exists (inr _ s). simpl. assumption. Defined. 
 
-Lemma bop_add_ann_commutative : bop_commutative S rS bS → bop_commutative (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_commutative : bop_commutative S rS bS → bop_commutative (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. intros commS [s1 | t1] [s2 | t2]; simpl; auto. Qed. 
 
-Lemma bop_add_ann_not_commutative : bop_not_commutative S rS bS → bop_not_commutative (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_not_commutative : bop_not_commutative S rS bS → bop_not_commutative (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. intros [ [s t] P]. exists (inr _ s, inr _ t); simpl. assumption. Defined. 
 
-Lemma bop_add_ann_selective : bop_selective S rS bS → bop_selective (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_selective : bop_selective S rS bS → bop_selective (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. intros selS [s1 | t1] [s2 | t2]; simpl; auto. Qed. 
 
-Lemma bop_add_ann_not_selective : bop_not_selective S rS bS → bop_not_selective (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_not_selective : bop_not_selective S rS bS → bop_not_selective (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. intros [ [s1 s2] P]. exists (inr _ s1, inr _ s2). simpl. assumption. Defined. 
 
-Lemma bop_add_ann_exists_ann : bop_exists_ann (with_constant S ) (c <+> rS) (c [+] bS).
+Lemma bop_add_ann_exists_ann : bop_exists_ann (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
 Proof. exists (inl S c). intros [a | b]; compute; auto. Defined. 
 
-Lemma bop_add_ann_exists_id : bop_exists_id S rS bS -> bop_exists_id (with_constant S ) (c <+> rS) (c [+] bS).
+Lemma bop_add_ann_exists_id : bop_exists_id S rS bS -> bop_exists_id (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
 Proof. intros [annS pS]. exists (inr _ annS). intros [s | t]; compute; auto. Defined. 
 
-Lemma bop_add_ann_not_exists_id : bop_not_exists_id S rS bS -> bop_not_exists_id (with_constant S ) (c <+> rS) (c [+] bS).
+Lemma bop_add_ann_not_exists_id : bop_not_exists_id S rS bS -> bop_not_exists_id (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
 Proof. intros naS. intros [x | x]. exists (inr _ wS). compute; auto. destruct (naS x) as [y D].  exists (inr _ y). compute. exact D. Defined. 
 
-Lemma bop_add_ann_not_is_left : bop_not_is_left (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_not_is_left : bop_not_is_left (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. exists (inr _ wS, inl _ c). simpl. reflexivity. Defined. 
 
-Lemma bop_add_ann_not_is_right : bop_not_is_right (with_constant S ) (c <+> rS) (c [+] bS). 
+Lemma bop_add_ann_not_is_right : bop_not_is_right (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. exists (inl _ c, inr _ wS). simpl. reflexivity. Defined. 
 
-Lemma bop_add_ann_not_left_cancellative : bop_not_left_cancellative (with_constant S) (c <+> rS) (c [+] bS).
+Lemma bop_add_ann_not_left_cancellative : bop_not_left_cancellative (with_constant S) (brel_sum brel_constant rS) (c [+] bS).
 Proof. exists (inl _ c, (inr _ wS, inr _ (f wS))); simpl. destruct (Pf wS) as [L _]. split; auto. Defined. 
 
-Lemma bop_add_ann_not_right_cancellative : bop_not_right_cancellative (with_constant S) (c <+> rS) (c [+] bS).
+Lemma bop_add_ann_not_right_cancellative : bop_not_right_cancellative (with_constant S) (brel_sum brel_constant rS) (c [+] bS).
 Proof. exists (inl _ c, (inr _ wS, inr _ (f wS))); simpl. destruct (Pf wS) as [L _]. split; auto. Defined. 
 
-Lemma bop_add_ann_not_left_constant : bop_not_left_constant (with_constant S) (c <+> rS) (c [+] bS).
+Lemma bop_add_ann_not_left_constant : bop_not_left_constant (with_constant S) (brel_sum brel_constant rS) (c [+] bS).
 Proof. exists (inr _ wS, (inr _ wS, inl _ c)); simpl. reflexivity. Defined. 
 
-Lemma bop_add_ann_not_right_constant : bop_not_right_constant (with_constant S) (c <+> rS) (c [+] bS).
+Lemma bop_add_ann_not_right_constant : bop_not_right_constant (with_constant S) (brel_sum brel_constant rS) (c [+] bS).
 Proof. exists (inr _ wS, (inr _ wS, inl _ c)); simpl. reflexivity. Defined. 
 
-Lemma bop_add_ann_not_anti_left : bop_not_anti_left (with_constant S) (c <+> rS) (c [+] bS).
+Lemma bop_add_ann_not_anti_left : bop_not_anti_left (with_constant S) (brel_sum brel_constant rS) (c [+] bS).
 Proof. unfold bop_not_anti_left. exists (inl c, inr wS); simpl. reflexivity. Defined. 
 
-Lemma bop_add_ann_not_anti_right : bop_not_anti_right (with_constant S) (c <+> rS) (c [+] bS).
+Lemma bop_add_ann_not_anti_right : bop_not_anti_right (with_constant S) (brel_sum brel_constant rS) (c [+] bS).
 Proof. unfold bop_not_anti_right. exists (inl c, inr wS); simpl. reflexivity.  Defined.
 
 (* Decide *)
 
 Definition bop_add_ann_idempotent_decide : 
-     bop_idempotent_decidable S rS bS  → bop_idempotent_decidable (with_constant S) (c <+> rS) (c [+] bS)
+     bop_idempotent_decidable S rS bS  → bop_idempotent_decidable (with_constant S) (brel_sum brel_constant rS) (c [+] bS)
 := λ dS,  
    match dS with 
    | inl idemS     => inl _ (bop_add_ann_idempotent idemS)
@@ -88,7 +87,7 @@ Definition bop_add_ann_idempotent_decide :
    end.  
 
 Definition bop_add_ann_commutative_decide : 
-     bop_commutative_decidable S rS bS  → bop_commutative_decidable (with_constant S) (c <+> rS) (c [+] bS)
+     bop_commutative_decidable S rS bS  → bop_commutative_decidable (with_constant S) (brel_sum brel_constant rS) (c [+] bS)
 := λ dS,  
    match dS with 
    | inl commS     => inl _ (bop_add_ann_commutative commS)
@@ -96,14 +95,14 @@ Definition bop_add_ann_commutative_decide :
    end. 
 
 Definition bop_add_ann_selective_decide : 
-     bop_selective_decidable S rS bS  → bop_selective_decidable (with_constant S) (c <+> rS) (c [+] bS)
+     bop_selective_decidable S rS bS  → bop_selective_decidable (with_constant S) (brel_sum brel_constant rS) (c [+] bS)
 := λ dS,  
    match dS with 
    | inl selS       => inl _ (bop_add_ann_selective selS)
    | inr not_selS   => inr _ (bop_add_ann_not_selective not_selS)
    end. 
 
-Definition bop_add_ann_exists_id_decide : bop_exists_id_decidable S rS bS  →  bop_exists_id_decidable (with_constant S) (c <+> rS) (c [+] bS)
+Definition bop_add_ann_exists_id_decide : bop_exists_id_decidable S rS bS  →  bop_exists_id_decidable (with_constant S) (brel_sum brel_constant rS) (c [+] bS)
 := λ dS,  
    match dS with 
    | inl eann  => inl _ (bop_add_ann_exists_id eann)
@@ -119,7 +118,7 @@ Definition sg_proofs_add_ann :
      brel_not_trivial S rS f -> 
      eqv_proofs S rS -> 
      sg_proofs S rS bS -> 
-        sg_proofs (with_constant S) (brel_add_constant rS c) (bop_add_ann bS c)
+        sg_proofs (with_constant S) (brel_sum brel_constant rS) (bop_add_ann bS c)
 := λ S rS c bS s f Pf eqvS sgS,
 {|
   A_sg_associative   := bop_add_ann_associative S rS c bS (A_sg_associative _ _ _ sgS)                                                
@@ -143,7 +142,7 @@ Definition sg_proofs_add_ann :
 Definition sg_C_proofs_add_ann : 
    ∀ (S : Type) (rS : brel S) (c : cas_constant) (bS : binary_op S) (s : S) (f : S -> S),
      brel_not_trivial S rS f -> eqv_proofs S rS -> sg_C_proofs S rS bS -> 
-        sg_C_proofs (with_constant S) (brel_add_constant rS c) (bop_add_ann bS c)
+        sg_C_proofs (with_constant S) (brel_sum brel_constant rS) (bop_add_ann bS c)
 := λ S rS c bS s f Pf eqvS sgS, 
 {|
   A_sg_C_associative   := bop_add_ann_associative S rS c bS (A_sg_C_associative _ _ _ sgS)
@@ -164,7 +163,7 @@ Definition sg_C_proofs_add_ann :
 Definition sg_CI_proofs_add_ann : 
    ∀ (S : Type) (rS : brel S) (c : cas_constant) (bS : binary_op S) (s : S), 
      eqv_proofs S rS -> sg_CI_proofs S rS bS -> 
-        sg_CI_proofs (with_constant S) (brel_add_constant rS c) (bop_add_ann bS c)
+        sg_CI_proofs (with_constant S) (brel_sum brel_constant rS) (bop_add_ann bS c)
 := λ S rS c bS s eqvS sgS, 
 {|
   A_sg_CI_associative        := bop_add_ann_associative S rS c bS (A_sg_CI_associative _ _ _ sgS)
@@ -179,7 +178,7 @@ Definition sg_CI_proofs_add_ann :
 Definition sg_CS_proofs_add_ann : 
    ∀ (S : Type) (rS : brel S) (c : cas_constant) (bS : binary_op S) (s : S), 
      eqv_proofs S rS -> sg_CS_proofs S rS bS -> 
-        sg_CS_proofs (with_constant S) (brel_add_constant rS c) (bop_add_ann bS c)
+        sg_CS_proofs (with_constant S) (brel_sum brel_constant rS) (bop_add_ann bS c)
 := λ S rS c bS s eqvS sgS, 
 {|
   A_sg_CS_associative   := bop_add_ann_associative S rS c bS (A_sg_CS_associative _ _ _ sgS)
@@ -408,7 +407,7 @@ Section CertsCorrect.
   
 Lemma bop_add_ann_commutative_check_correct : ∀ p_d : bop_commutative_decidable S r b, 
      p2c_commutative_check (with_constant S)
-                         (brel_add_constant r c) 
+                         (brel_sum brel_constant r) 
                          (bop_add_ann b c)
                          (bop_add_ann_commutative_decide S r c b p_d)
      =                          
@@ -418,7 +417,7 @@ Proof. intros [p | [ [s1 s2] np]]; compute; reflexivity. Qed.
 
 Lemma bop_add_ann_selective_check_correct : ∀ p_d : bop_selective_decidable S r b, 
      p2c_selective_check (with_constant S)
-                         (brel_add_constant r c) 
+                         (brel_sum brel_constant r) 
                          (bop_add_ann b c)
                          (bop_add_ann_selective_decide S r c b p_d)
      =                          
@@ -427,7 +426,7 @@ Proof. intros [p | [ [s1 s2] np]]; compute; reflexivity. Qed.
 
 Lemma bop_add_ann_idempotent_check_correct : ∀ p_d : bop_idempotent_decidable S r b,       
      p2c_idempotent_check (with_constant S)
-                         (brel_add_constant r c) 
+                         (brel_sum brel_constant r) 
                          (bop_add_ann b c)
                          (bop_add_ann_idempotent_decide S r c b p_d)
      =                          
@@ -436,7 +435,7 @@ Proof. intros [p | [s np] ]; compute; reflexivity. Qed.
 
 Lemma bop_add_ann_exists_id_check_correct : ∀ (s : S) (p_d : bop_exists_id_decidable S r b),
     p2c_exists_id_check (with_constant S)
-                        (brel_add_constant r c)
+                        (brel_sum brel_constant r)
                         (bop_add_ann b c)
                         (bop_add_ann_exists_id_decide S r c b s p_d)
      =                          
@@ -448,7 +447,7 @@ Lemma correct_sg_certs_add_ann : ∀ (s : S) (f : S-> S) (Pf : brel_not_trivial 
        sg_certs_add_ann c s f (P2C_sg S r b P) 
        = 
        P2C_sg (with_constant S) 
-          (brel_add_constant r c) 
+          (brel_sum brel_constant r) 
           (bop_add_ann b c) 
           (sg_proofs_add_ann S r c b s f Pf Q P). 
 Proof. intros s f Pf P. 
@@ -465,7 +464,7 @@ Lemma correct_sg_C_certs_add_ann : ∀ (s : S) (f : S-> S) (Pf : brel_not_trivia
        sg_C_certs_add_ann  c s f (P2C_sg_C S r b P) 
        = 
        P2C_sg_C (with_constant S) 
-          (brel_add_constant r c) 
+          (brel_sum brel_constant r) 
           (bop_add_ann b c) 
           (sg_C_proofs_add_ann S r c b s f Pf Q P). 
 Proof. intros s f Pf P. destruct P. destruct Q. 
@@ -481,7 +480,7 @@ Lemma correct_sg_CI_certs_add_ann : ∀ (s : S) (P : sg_CI_proofs S r b),
        sg_CI_certs_add_ann c (P2C_sg_CI S r b P) 
        = 
        P2C_sg_CI (with_constant S) 
-          (brel_add_constant r c) 
+          (brel_sum brel_constant r) 
           (bop_add_ann b c) 
           (sg_CI_proofs_add_ann S r c b s Q P). 
 Proof. intros s P. destruct P. destruct Q. 
@@ -496,7 +495,7 @@ Lemma correct_sg_CS_certs_add_ann : ∀ (s : S) (P : sg_CS_proofs S r b),
        sg_CS_certs_add_ann c  (P2C_sg_CS S r b P) 
        = 
        P2C_sg_CS (with_constant S) 
-          (brel_add_constant r c) 
+          (brel_sum brel_constant r) 
           (bop_add_ann b c) 
           (sg_CS_proofs_add_ann S r c b s Q P). 
 Proof. intros s P. destruct P. destruct Q. 

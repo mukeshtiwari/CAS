@@ -99,7 +99,11 @@ Definition A_eqv_reduce
            (r : unary_op S)
            (f : S -> S)
            (nt: brel_not_trivial S (brel_reduce (A_eqv_eq S eqvS) r) f)
-           (ex2 : brel_exactly_two_decidable S (brel_reduce (A_eqv_eq S eqvS) r)): A_eqv S
+           (ex2 : brel_exactly_two_decidable S (brel_reduce (A_eqv_eq S eqvS) r))
+           (fin : carrier_is_finite_decidable S (brel_reduce (A_eqv_eq S eqvS) r))
+           (ast : ast_eqv)
+           : A_eqv S
+                                                                                         
 := 
   let eq := A_eqv_eq S eqvS in
   let s  := A_eqv_witness S eqvS in
@@ -112,8 +116,9 @@ Definition A_eqv_reduce
     ; A_eqv_not_trivial   := nt 
     ; A_eqv_exactly_two_d := ex2 
     ; A_eqv_data          := λ d, A_eqv_data S eqvS (r d)  
-    ; A_eqv_rep           := r 
-    ; A_eqv_ast           := Ast_eqv_reduce (A_eqv_ast S eqvS)
+    ; A_eqv_rep           := r
+    ; A_eqv_finite_d      := fin
+    ; A_eqv_ast           := ast
    |}. 
 
 
@@ -122,7 +127,8 @@ End ACAS.
 Section CAS.
 
 
-Definition eqv_reduce {S : Type} (r : S -> S) (f : S -> S) (ex2 : @check_exactly_two S) (eqvS : @eqv S) : @eqv S
+Definition eqv_reduce {S : Type}
+      (r : S -> S) (f : S -> S) (ex2 : @check_exactly_two S) (fin : @check_is_finite S)  (eqvS : @eqv S) (ast : ast_eqv) : @eqv S
 := 
   let eq := eqv_eq eqvS in
   let s := eqv_witness eqvS in
@@ -132,8 +138,9 @@ Definition eqv_reduce {S : Type} (r : S -> S) (f : S -> S) (ex2 : @check_exactly
     ; eqv_new     := f 
     ; eqv_exactly_two_d := ex2 
     ; eqv_data    := λ d, eqv_data eqvS (r d)  
-    ; eqv_rep     := r 
-    ; eqv_ast     := Ast_eqv_reduce (eqv_ast eqvS)
+    ; eqv_rep     := r
+    ; eqv_finite_d  := fin                     
+    ; eqv_ast     := ast 
    |}. 
 
 End CAS.
@@ -143,9 +150,11 @@ Section Verify.
 
 Theorem correct_eqv_reduce : ∀ (S : Type) (E : A_eqv S) (r : unary_op S) (f : S -> S) 
       (nt: brel_not_trivial S (brel_reduce (A_eqv_eq S E) r) f)
-      (ex2 : brel_exactly_two_decidable S (brel_reduce (A_eqv_eq S E) r)),  
+      (ex2 : brel_exactly_two_decidable S (brel_reduce (A_eqv_eq S E) r))
+      (fin : carrier_is_finite_decidable S (brel_reduce (A_eqv_eq S E) r))
+      (ast : ast_eqv),  
     
-    eqv_reduce r f (p2c_exactly_two_check _ _ ex2) (A2C_eqv S E) = A2C_eqv S(A_eqv_reduce S E r f nt ex2).
+    eqv_reduce r f (p2c_exactly_two_check _ _ ex2) (p2c_is_finite_check _ _ fin) (A2C_eqv S E) ast = A2C_eqv S(A_eqv_reduce S E r f nt ex2 fin ast).
 Proof. intros S E r f nt ex2. destruct E; destruct ex2; compute; auto. Qed.        
  
 End Verify.   

@@ -35,7 +35,8 @@ let eqv_sum          = Cas.eqv_sum
 let eqv_add_constant c eqv = Cas.eqv_add_constant eqv c
 let eqv_list         = Cas.eqv_list
 let eqv_set          = Cas.eqv_set
-
+let eqv_nat_ceiling  = Cas.eqv_nat_ceiling
+			 
 let sg_and   = Some (Cas.sg_from_sg_CS Cas.sg_CS_and)   (* : bool sg option *) 
 let sg_or    = Some (Cas.sg_from_sg_CS Cas.sg_CS_or)    (* : bool sg option *) 
 
@@ -65,9 +66,9 @@ let sg_llex m n =
        | Some sg1'-> Some(Cas.sg_llex sg1' sg2)
     in liftN sg_llex_aux m n  
 
-let sg_union c eqv     = Some (Cas.sg_from_sg_CI (Cas.sg_CI_union c eqv)) 
-let sg_intersect c eqv = Some (Cas.sg_from_sg_CI (Cas.sg_CI_intersect c eqv)) 
-let sg_lift sg         = mmap Cas.sg_lift sg
+let sg_union eqv     = Some (Cas.sg_from_sg_CI (Cas.sg_CI_union eqv)) 
+let sg_intersect eqv = Some (Cas.sg_from_sg_CI (Cas.sg_CI_intersect eqv)) 
+let sg_lift sg       = mmap Cas.sg_lift sg
 
 (* bi-semigroup *) 
 
@@ -99,9 +100,9 @@ let bs_sg_right = function
        | Some sg'-> Some(Cas.bs_from_selective_dioid (Cas.selective_dioid_sg_right sg')))
        
        
-let bs_union_lift c sg = Some (Cas.bs_from_bs_C (Cas.bs_C_from_bs_CI (Cas.bs_CI_union_lift sg c)))
-let bs_union_intersect c eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_union_intersect eqv c))
-let bs_intersect_union c eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_intersect_union eqv c))
+let bs_union_lift sg = Some (Cas.bs_from_bs_C (Cas.bs_C_from_bs_CI (Cas.bs_CI_union_lift sg)))
+let bs_union_intersect eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_union_intersect eqv))
+let bs_intersect_union eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_intersect_union eqv))
 
 let bs_add_zero bs c   = mmap (fun b -> Cas.bs_add_zero b c) bs 
 let bs_add_one bs c    = mmap (fun b -> Cas.bs_add_one b c) bs
@@ -123,6 +124,10 @@ let bs_llex_product m n =
            )
     in liftN bs_llex_aux m n 
 
+let bs_union_lift sg =
+  match sg with
+  | None -> None
+  | Some sg -> Some(Cas.bs_from_bs_C (Cas.bs_C_from_bs_CI (Cas.bs_CI_union_lift sg)))
 
 let bs_describe = function
   | None    -> print_string "bi-semigroup is not defined\n"

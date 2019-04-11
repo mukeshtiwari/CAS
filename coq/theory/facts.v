@@ -477,7 +477,23 @@ Lemma bop_is_ann_equal : ∀ (S : Type)
 Proof. intros S r symS trnS b x y p q.  
        destruct (q x) as [_ R1]. destruct (p y) as [L2 _]. 
        apply symS in L2. apply (trnS _ _ _ L2 R1). 
-Defined.                         
+Defined.
+
+
+Lemma bop_not_is_id_intro (S : Type) (r : brel S) (id s : S) (bS : binary_op S)
+                          (symS : brel_symmetric S r) (trnS : brel_transitive S r) : bop_is_id S r bS id -> r id s = false -> bop_not_is_id S r bS s.
+Proof. intros ID F. exists id. destruct (ID s) as [L R]. 
+       left. case_eq(r (bS s id) id); intro J; auto. apply symS in J.
+       assert (K := trnS _ _ _ J R). rewrite K in F. exact F. 
+Defined.
+
+Lemma bop_not_is_ann_intro (S : Type) (r : brel S) (a s : S) (bS : binary_op S)
+                          (symS : brel_symmetric S r) (trnS : brel_transitive S r) : bop_is_ann S r bS a -> r a s = false -> bop_not_is_ann S r bS s.
+Proof. intros ID F. exists a. destruct (ID s) as [L R]. 
+       left. case_eq(r (bS s a) s); intro J; auto. apply symS in R.
+       assert (K := trnS _ _ _ R J). rewrite K in F. exact F. 
+Defined.
+
 
 Lemma sym_as_rewrite : ∀ {S : Type} {rS : brel S}, brel_symmetric S rS -> ∀ s1 s2 : S,  rS s1 s2 = rS s2 s1.
 Proof. intros S rS symS s1 s2.

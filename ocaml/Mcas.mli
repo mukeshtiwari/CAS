@@ -18,13 +18,14 @@ val self          : Cas.cas_constant
 val bottom        : Cas.cas_constant
 val top           : Cas.cas_constant					  		 		      			
 
-val eq_nat : int Cas.eqv
-val eqv_bool : bool Cas.eqv
-val eqv_product : 'a Cas.eqv -> 'b Cas.eqv -> ('a * 'b) Cas.eqv
-val eqv_sum : 'a Cas.eqv -> 'b Cas.eqv -> (('a , 'b) Cas.sum) Cas.eqv
+val eq_nat           : int Cas.eqv
+val eqv_bool         : bool Cas.eqv
+val eqv_product      : 'a Cas.eqv -> 'b Cas.eqv -> ('a * 'b) Cas.eqv
+val eqv_sum          : 'a Cas.eqv -> 'b Cas.eqv -> (('a , 'b) Cas.sum) Cas.eqv
+val eqv_list         : 'a Cas.eqv -> ('a list) Cas.eqv
+val eqv_set          : 'a Cas.eqv -> ('a Cas.finite_set) Cas.eqv
 val eqv_add_constant : Cas.cas_constant -> 'a Cas.eqv -> ('a Cas.with_constant) Cas.eqv
-val eqv_list : 'a Cas.eqv -> ('a list) Cas.eqv
-val eqv_set : 'a Cas.eqv -> ('a Cas.finite_set) Cas.eqv								      				       
+val eqv_nat_ceiling  : int -> int Cas.eqv						
 
 val sg_and   : (bool Cas.sg) option 
 val sg_or    : (bool Cas.sg) option
@@ -47,8 +48,8 @@ val sg_add_ann :  Cas.cas_constant -> ('a Cas.sg) option -> ('a Cas.with_constan
 val sg_left_sum  : ('a Cas.sg) option -> ('b Cas.sg) option -> ((('a , 'b) Cas.sum) Cas.sg) option  
 val sg_right_sum : ('a Cas.sg) option -> ('b Cas.sg) option -> ((('a , 'b) Cas.sum) Cas.sg) option  
 
-val sg_union     : Cas.cas_constant -> 'a Cas.eqv -> ((('a Cas.finite_set) Cas.with_constant) Cas.sg) option 
-val sg_intersect : Cas.cas_constant -> 'a Cas.eqv -> ((('a Cas.finite_set) Cas.with_constant) Cas.sg) option
+val sg_union     : 'a Cas.eqv -> (('a Cas.finite_set) Cas.sg) option 
+val sg_intersect : 'a Cas.eqv -> (('a Cas.finite_set) Cas.sg) option
 val sg_lift      : ('a Cas.sg) option -> (('a Cas.finite_set) Cas.sg) option   
 
 
@@ -65,8 +66,8 @@ val bs_max_plus : (int Cas.bs) option
 val bs_sg_left  : ('a Cas.sg) option -> ('a Cas.bs) option
 val bs_sg_right : ('a Cas.sg) option -> ('a Cas.bs) option						   
 
-val bs_union_intersect : Cas.cas_constant -> 'a Cas.eqv -> ((('a Cas.finite_set) Cas.with_constant) Cas.bs) option 
-val bs_intersect_union : Cas.cas_constant -> 'a Cas.eqv -> ((('a Cas.finite_set) Cas.with_constant) Cas.bs) option 
+val bs_union_intersect : 'a Cas.eqv -> (('a Cas.finite_set) Cas.bs) option 
+val bs_intersect_union : 'a Cas.eqv -> (('a Cas.finite_set) Cas.bs) option 
 
 val bs_left_sum : ('a Cas.bs) option -> ('b Cas.bs) option -> ((('a , 'b) Cas.sum) Cas.bs) option
 (*  
@@ -78,7 +79,9 @@ val bs_add_zero : ('a Cas.bs) option -> Cas.cas_constant -> (('a Cas.with_consta
 val bs_add_one  : ('a Cas.bs) option -> Cas.cas_constant -> (('a Cas.with_constant) Cas.bs) option 
 
 val bs_product      : ('a Cas.bs) option -> ('b Cas.bs) option -> (('a * 'b) Cas.bs) option 
-val bs_llex_product : ('a Cas.bs) option -> ('b Cas.bs) option -> (('a * 'b) Cas.bs) option 
+val bs_llex_product : ('a Cas.bs) option -> ('b Cas.bs) option -> (('a * 'b) Cas.bs) option
+
+val bs_union_lift : ('a Cas.sg) option -> (('a Cas.finite_set) Cas.bs) option 					      
 
 val sg_describe : 'a Cas.sg option -> unit
 val bs_describe : 'a Cas.bs option -> unit

@@ -12,24 +12,6 @@ Require Import CAS.coq.theory.facts.
 
 Section Theory.
 
-Section UnionIntersect.   
-(* 
-
-Issue with (union, intersect): If the carrier set S is infinite, 
-then the annihilator for intersect (id for union) is not a finite set. 
-Even if S is a finite set, it can be enormous, with no good way 
-of representing it.  Therefore, we define a constructon 
-that forces the definition of a new constant representing 
-the annihilator for intersect (id for union). 
-
-The "bops_intersect_union_..._raw" results below capture the interaction 
-of these binary operators before the id (annihilator) is added. 
-
-*) 
-
-(* ************************************* raw ************************************* *)
-
-
   Variable S: Type.
   Variable r : brel S.
   Variable wS  : S. 
@@ -40,7 +22,7 @@ of these binary operators before the id (annihilator) is added.
   Variable tranS : brel_transitive S r.
 
 
-Lemma bop_union_intersect_left_distributive_raw : 
+Lemma bops_union_intersect_left_distributive : 
         bop_left_distributive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
 Proof. intros s t u. 
        apply brel_set_intro_prop; auto.
@@ -61,18 +43,18 @@ Proof. intros s t u.
            destruct H as [ L R ]. apply in_set_bop_union_intro; auto.
 Qed. 
 
-Lemma bop_union_intersect_right_distributive_raw : 
+Lemma bops_union_intersect_right_distributive : 
         bop_right_distributive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
 Proof. apply bop_left_distributive_implies_right; auto. 
        apply brel_set_transitive; auto. 
-       apply bop_union_congruence_raw; auto. 
-       apply bop_union_commutative_raw; auto. 
-       apply bop_intersect_commutative_raw; auto. 
-       apply bop_union_intersect_left_distributive_raw; auto. 
+       apply bop_union_congruence; auto. 
+       apply bop_union_commutative; auto. 
+       apply bop_intersect_commutative; auto. 
+       apply bops_union_intersect_left_distributive; auto. 
 Defined. 
 
 
-Lemma bops_union_intersect_left_left_absorptive_raw : 
+Lemma bops_union_intersect_left_left_absorptive : 
         bops_left_left_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
 Proof. intros s t. 
        apply brel_set_intro_prop; auto. split; intros a H. 
@@ -82,183 +64,43 @@ Proof. intros s t.
 Qed. 
 
 
-Lemma bops_union_intersect_left_right_absorptive_raw : 
+Lemma bops_union_intersect_left_right_absorptive : 
         bops_left_right_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r) . 
 Proof. apply bops_left_left_absorptive_implies_left_right; auto. 
        apply brel_set_reflexive; auto. 
        apply brel_set_transitive; auto. 
-       apply bop_union_congruence_raw; auto. 
-       apply bop_intersect_commutative_raw; auto. 
-       apply bops_union_intersect_left_left_absorptive_raw; auto. 
+       apply bop_union_congruence; auto. 
+       apply bop_intersect_commutative; auto. 
+       apply bops_union_intersect_left_left_absorptive; auto. 
 Qed. 
 
 
-Lemma bops_union_intersect_right_left_absorptive_raw : 
+Lemma bops_union_intersect_right_left_absorptive : 
         bops_right_left_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
 Proof. apply bops_left_right_absorptive_implies_right_left. 
        apply brel_set_reflexive; auto. 
        apply brel_set_transitive; auto. 
-       apply bop_union_congruence_raw; auto. 
-       apply bop_union_commutative_raw; auto. 
-       apply bop_intersect_commutative_raw; auto. 
-       apply bops_union_intersect_left_right_absorptive_raw; auto. 
-Qed. 
-
-
-Lemma bops_union_intersect_right_right_absorptive_raw : 
-       bops_right_right_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
-Proof. apply bops_right_left_absorptive_implies_right_right. 
-       apply brel_set_reflexive; auto. 
-       apply brel_set_transitive; auto. 
-       apply bop_union_congruence_raw; auto. 
-       apply bop_intersect_commutative_raw; auto. 
-       apply bops_union_intersect_right_left_absorptive_raw; auto. 
-Qed. 
-
-
-
-(* ************************************* cooked ************************************* *) 
-
-Variable c : cas_constant.
-
-Lemma bops_union_intersect_left_distributive : 
-        bop_left_distributive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c). 
-Proof. apply bops_add_ann_add_id_left_distributive. 
-       apply brel_set_reflexive; auto. 
-       apply brel_set_symmetric; auto. 
-       apply bop_union_idempotent_raw; auto. 
-       apply bops_union_intersect_left_left_absorptive_raw; auto. 
-       apply bops_union_intersect_right_left_absorptive_raw; auto. 
-       apply bop_union_intersect_left_distributive_raw; auto.        
-Qed. 
-
-
-Lemma bops_union_intersect_right_distributive : 
-        bop_right_distributive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c). 
-Proof. apply bops_add_ann_add_id_right_distributive. 
-       apply brel_set_reflexive; auto. 
-       apply brel_set_symmetric; auto. 
-       apply bop_union_idempotent_raw; auto. 
-       apply bops_union_intersect_left_right_absorptive_raw; auto. 
-       apply bops_union_intersect_right_right_absorptive_raw; auto. 
-       apply bop_union_intersect_right_distributive_raw; auto.        
-Qed. 
-
-
-Lemma bops_union_intersect_left_left_absorptive : 
-        bops_left_left_absorptive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c). 
-Proof. apply bops_add_ann_add_id_left_left_absorptive. 
-       apply brel_set_symmetric; auto. 
-       apply bop_union_idempotent_raw; auto. 
-       apply bops_union_intersect_left_left_absorptive_raw; auto. 
-Qed. 
-
-
-Lemma bops_union_intersect_left_right_absorptive : 
-        bops_left_right_absorptive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c). 
-Proof. apply bops_add_ann_add_id_left_right_absorptive. 
-       apply brel_set_symmetric; auto. 
-       apply bop_union_idempotent_raw; auto. 
-       apply bops_union_intersect_left_right_absorptive_raw; auto. 
-Qed. 
-
-Lemma bops_union_intersect_right_left_absorptive : 
-        bops_right_left_absorptive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c). 
-Proof. apply bops_add_ann_add_id_right_left_absorptive. 
-       apply brel_set_symmetric; auto. 
-       apply bop_union_idempotent_raw; auto. 
-       apply bops_union_intersect_right_left_absorptive_raw; auto. 
+       apply bop_union_congruence; auto. 
+       apply bop_union_commutative; auto. 
+       apply bop_intersect_commutative; auto. 
+       apply bops_union_intersect_left_right_absorptive; auto. 
 Qed. 
 
 
 Lemma bops_union_intersect_right_right_absorptive : 
-        bops_right_right_absorptive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c).
-Proof. apply bops_add_ann_add_id_right_right_absorptive. 
-       apply brel_set_symmetric; auto. 
-       apply bop_union_idempotent_raw; auto. 
-       apply bops_union_intersect_right_right_absorptive_raw; auto. 
-Qed. 
-
-
-Lemma bops_union_intersect_ann_equals_id : 
-        bops_id_equals_ann 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c). 
-Proof. apply bops_add_id_add_ann_id_equals_ann. 
+       bops_right_right_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
+Proof. apply bops_right_left_absorptive_implies_right_right. 
        apply brel_set_reflexive; auto. 
-Qed. 
+       apply brel_set_transitive; auto. 
+       apply bop_union_congruence; auto. 
+       apply bop_intersect_commutative; auto. 
+       apply bops_union_intersect_right_left_absorptive; auto. 
+Qed.
 
 
-Lemma bops_union_intersect_id_equals_ann : 
-        bops_id_equals_ann 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c). 
-Proof. apply bops_add_ann_add_id_id_equals_ann. 
-       apply brel_set_reflexive; auto.
-       exists nil; split. 
-       apply bop_union_nil_is_id; auto. 
-       apply bop_intersect_nil_is_ann; auto.       
-Defined.
+(* intersect union theorems *)
 
-End UnionIntersect.
-
-Section IntersectUnion.
-
-(* 
-
-Issue with (intersect, union): If the carrier set S is infinite, 
-then the id for intersect (annihilator for union) is not a finite set. 
-Even if S is a finite set, it can be enormous, with no good way 
-of representing it.  Therefore, we define a constructon 
-that forces the definition of a new constant representing 
-the id for intersect (annihilator for union). 
-
-The "bops_intersect_union_..._raw" results below capture the interaction 
-of these binary operators before the id (annihilator) is added. 
-
- *)
-
-
-  Variable S: Type.
-  Variable r : brel S.
-  Variable wS  : S. 
-  Variable f : S -> S.
-  Variable ntS : brel_not_trivial S r f. 
-  Variable refS : brel_reflexive S r.
-  Variable symS : brel_symmetric S r.
-  Variable tranS : brel_transitive S r.
-
-(* ************************************* raw ************************************* *) 
-
-Lemma bop_intersect_union_left_distributive_raw : 
+Lemma bops_intersect_union_left_distributive : 
         bop_left_distributive (finite_set S) (brel_set r) (bop_intersect r) (bop_union r). 
 Proof. intros s t u. 
        apply brel_set_intro_prop; auto. split; intros a H.        
@@ -281,17 +123,17 @@ Proof. intros s t u.
              right. apply in_set_bop_intersect_intro; auto. 
 Qed. 
 
-Lemma bop_intersect_union_right_distributive_raw : 
+Lemma bops_intersect_union_right_distributive : 
         bop_right_distributive (finite_set S) (brel_set r) (bop_intersect r) (bop_union r). 
 Proof. apply bop_left_distributive_implies_right; auto. 
        apply brel_set_transitive; auto. 
-       apply bop_intersect_congruence_raw; auto. 
-       apply bop_intersect_commutative_raw; auto. 
-       apply bop_union_commutative_raw; auto. 
-       apply bop_intersect_union_left_distributive_raw; auto. 
+       apply bop_intersect_congruence; auto. 
+       apply bop_intersect_commutative; auto. 
+       apply bop_union_commutative; auto. 
+       apply bops_intersect_union_left_distributive; auto. 
 Qed. 
 
-Lemma bops_intersect_union_left_left_absorptive_raw : 
+Lemma bops_intersect_union_left_left_absorptive : 
         bops_left_left_absorptive (finite_set S) (brel_set r) (bop_intersect r) (bop_union r). 
 Proof. intros s t. 
        apply brel_set_intro_prop; auto. split; intros a H. 
@@ -301,179 +143,79 @@ Proof. intros s t.
 Qed. 
 
 
-Lemma bops_intersect_union_left_right_absorptive_raw : 
+Lemma bops_intersect_union_left_right_absorptive : 
         bops_left_right_absorptive (finite_set S) (brel_set r) (bop_intersect r) (bop_union r). 
 Proof. apply bops_left_left_absorptive_implies_left_right. 
        apply brel_set_reflexive; auto. 
        apply brel_set_transitive; auto. 
-       apply bop_intersect_congruence_raw; auto. 
-       apply bop_union_commutative_raw; auto. 
-       apply bops_intersect_union_left_left_absorptive_raw; auto. 
+       apply bop_intersect_congruence; auto. 
+       apply bop_union_commutative; auto. 
+       apply bops_intersect_union_left_left_absorptive; auto. 
 Qed. 
 
 
-Lemma bops_intersect_union_right_left_absorptive_raw : 
+Lemma bops_intersect_union_right_left_absorptive : 
         bops_right_left_absorptive (finite_set S) (brel_set r) (bop_intersect r) (bop_union r). 
 Proof. apply bops_left_right_absorptive_implies_right_left. 
        apply brel_set_reflexive; auto. 
        apply brel_set_transitive; auto. 
-       apply bop_intersect_congruence_raw; auto. 
-       apply bop_intersect_commutative_raw; auto. 
-       apply bop_union_commutative_raw; auto. 
-       apply bops_intersect_union_left_right_absorptive_raw; auto. 
+       apply bop_intersect_congruence; auto. 
+       apply bop_intersect_commutative; auto. 
+       apply bop_union_commutative; auto. 
+       apply bops_intersect_union_left_right_absorptive; auto. 
 Qed. 
 
-Lemma bops_intersect_union_right_right_absorptive_raw : 
+Lemma bops_intersect_union_right_right_absorptive : 
         bops_right_right_absorptive (finite_set S) (brel_set r) (bop_intersect r) (bop_union r). 
 Proof. apply bops_right_left_absorptive_implies_right_right. 
        apply brel_set_reflexive; auto. 
        apply brel_set_transitive; auto. 
-       apply bop_intersect_congruence_raw; auto. 
-       apply bop_union_commutative_raw; auto. 
-       apply bops_intersect_union_right_left_absorptive_raw; auto. 
+       apply bop_intersect_congruence; auto. 
+       apply bop_union_commutative; auto. 
+       apply bops_intersect_union_right_left_absorptive; auto. 
 Qed. 
 
-(* ************************************* cooked ************************************* *) 
-
-Variable c : cas_constant. 
-Lemma bops_intersect_union_left_distributive : 
-        bop_left_distributive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c). 
-Proof. apply bops_add_id_add_ann_left_distributive. 
-       apply brel_set_reflexive; auto. 
-       apply bop_intersect_union_left_distributive_raw; auto.        
-Qed. 
-
-
-Lemma bops_intersect_union_right_distributive : 
-        bop_right_distributive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c). 
-Proof. apply bops_add_id_add_ann_right_distributive. 
-       apply brel_set_reflexive; auto. 
-       apply bop_intersect_union_right_distributive_raw; auto.        
-Qed. 
-
-
-Lemma bops_intersect_union_left_left_absorptive : 
-        bops_left_left_absorptive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c). 
-Proof. apply bops_add_id_add_ann_left_left_absorptive. 
-       apply brel_set_reflexive; auto. 
-       apply bops_intersect_union_left_left_absorptive_raw; auto. 
-Qed. 
-
-
-Lemma bops_intersect_union_left_right_absorptive : 
-        bops_left_right_absorptive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c). 
-Proof. apply bops_add_id_add_ann_left_right_absorptive. 
-       apply brel_set_reflexive; auto. 
-       apply bops_intersect_union_left_right_absorptive_raw; auto. 
-Qed. 
-
-Lemma bops_intersect_union_right_left_absorptive : 
-        bops_right_left_absorptive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c). 
-Proof. apply bops_add_id_add_ann_right_left_absorptive. 
-       apply brel_set_reflexive; auto. 
-       apply bops_intersect_union_right_left_absorptive_raw; auto. 
-Qed. 
-
-
-Lemma bops_intersect_union_right_right_absorptive : 
-        bops_right_right_absorptive 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c). 
-Proof. apply bops_add_id_add_ann_right_right_absorptive. 
-       apply brel_set_reflexive; auto. 
-       apply bops_intersect_union_right_right_absorptive_raw; auto. 
-Qed. 
-
-
-Lemma bops_intersect_union_id_equals_ann : 
-        bops_id_equals_ann 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c). 
-Proof. apply bops_add_id_add_ann_id_equals_ann. 
-       apply brel_set_reflexive; auto. 
-Qed. 
-
-
-Lemma bops_intersect_union_ann_equals_id : 
-        bops_id_equals_ann 
-            (with_constant (finite_set S)) 
-            (@brel_add_constant (finite_set S) (brel_set r) c)
-            (@bop_add_ann (finite_set S) (bop_union r) c)
-            (@bop_add_id (finite_set S) (bop_intersect r) c). 
-Proof. apply bops_add_id_add_ann_ann_equals_id. 
-       apply brel_set_reflexive; auto. 
-       exists nil; split. 
-       apply bop_union_nil_is_id; auto.
-       apply bop_intersect_nil_is_ann; auto.        
-Qed.
-
-  
-End IntersectUnion.   
 
 End Theory.
 
 Section ACAS.
 
 Definition distributive_lattice_proofs_union_intersect : 
-  ∀ (S : Type) (eq : brel S) (c : cas_constant),
+  ∀ (S : Type) (eq : brel S) ,
      eqv_proofs S eq -> 
      distributive_lattice_proofs
-       (with_constant (finite_set S)) 
-       (@brel_add_constant (finite_set S) (brel_set eq) c)
-       (@bop_add_ann (finite_set S) (bop_union eq) c)
-       (@bop_add_id (finite_set S) (bop_intersect eq) c)
-:= λ S eq c eqvS,
+       (finite_set S)
+       (brel_set eq)
+       (bop_union eq)
+       (bop_intersect eq)
+:= λ S eq eqvS,
 let refS := A_eqv_reflexive _ _ eqvS in
 let symS := A_eqv_symmetric _ _ eqvS in
 let tranS := A_eqv_transitive _ _ eqvS in      
 {|
-  A_distributive_lattice_absorptive        := bops_union_intersect_left_left_absorptive S eq refS symS tranS c
-; A_distributive_lattice_absorptive_dual   := bops_intersect_union_left_left_absorptive S eq refS symS tranS c
-; A_distributive_lattice_distributive      := bops_union_intersect_left_distributive S eq refS symS tranS c
+  A_distributive_lattice_absorptive        := bops_union_intersect_left_left_absorptive S eq refS symS tranS 
+; A_distributive_lattice_absorptive_dual   := bops_intersect_union_left_left_absorptive S eq refS symS tranS 
+; A_distributive_lattice_distributive      := bops_union_intersect_left_distributive S eq refS symS tranS 
 |}. 
 
 
-Definition A_distributive_lattice_union_intersect : ∀ (S : Type),  A_eqv S -> cas_constant -> A_distributive_lattice (with_constant (finite_set S)) 
-  := λ S eqv c,
+Definition A_distributive_lattice_union_intersect : ∀ (S : Type),  A_eqv S -> A_distributive_lattice (finite_set S)
+  := λ S eqv,
   let eq  := A_eqv_eq S eqv in
   let s   := A_eqv_witness S eqv in
   let f   := A_eqv_new S eqv in
   let ntS := A_eqv_not_trivial S eqv in
   let eqP := A_eqv_proofs S eqv in 
 {|
-  A_distributive_lattice_eqv         := A_eqv_add_constant (finite_set S) (A_eqv_set S eqv) c 
-; A_distributive_lattice_join        := @bop_add_ann (finite_set S) (bop_union eq) c
-; A_distributive_lattice_meet        := @bop_add_id (finite_set S) (bop_intersect eq) c
-; A_distributive_lattice_join_proofs := sg_CI_proofs_union S eq c s f ntS eqP 
-; A_distributive_lattice_meet_proofs := sg_CI_proofs_intersect S eq c s f ntS eqP 
-; A_distributive_lattice_proofs      := distributive_lattice_proofs_union_intersect S eq c eqP
-; A_distributive_lattice_join_ast    := Ast_bop_add_ann(c, Ast_bop_union (A_eqv_ast S eqv))
-; A_distributive_lattice_meet_ast    := Ast_bop_add_id(c, Ast_bop_intersect (A_eqv_ast S eqv))
-; A_distributive_lattice_ast         := Ast_distributive_lattice_union_intersect(c, A_eqv_ast S eqv) 
+  A_distributive_lattice_eqv         := A_eqv_set S eqv
+; A_distributive_lattice_join        := bop_union eq
+; A_distributive_lattice_meet        := bop_intersect eq
+; A_distributive_lattice_join_proofs := sg_CI_proofs_union S eq s f ntS eqP (A_eqv_finite_d S eqv)
+; A_distributive_lattice_meet_proofs := sg_CI_proofs_intersect S eq s f ntS eqP (A_eqv_finite_d S eqv)
+; A_distributive_lattice_proofs      := distributive_lattice_proofs_union_intersect S eq eqP
+; A_distributive_lattice_join_ast    := Ast_bop_union (A_eqv_ast S eqv)
+; A_distributive_lattice_meet_ast    := Ast_bop_intersect (A_eqv_ast S eqv)
+; A_distributive_lattice_ast         := Ast_distributive_lattice_union_intersect (A_eqv_ast S eqv) 
 |}.
 
 
@@ -481,7 +223,7 @@ End ACAS.
 
 Section CAS.
 
-Definition distributive_lattice_certs_union_intersect : ∀ (S : Type), @distributive_lattice_certificates (with_constant (finite_set S)) 
+Definition distributive_lattice_certs_union_intersect : ∀ (S : Type), @distributive_lattice_certificates (finite_set S)
   := λ S,    
   {| 
      distributive_lattice_distributive      := Assert_Left_Distributive 
@@ -491,21 +233,21 @@ Definition distributive_lattice_certs_union_intersect : ∀ (S : Type), @distrib
 
 
 
-Definition distributive_lattice_union_intersect : ∀ (S : Type),  @eqv S -> cas_constant -> @distributive_lattice  (with_constant (finite_set S)) 
-  := λ S eqv c,
+Definition distributive_lattice_union_intersect : ∀ (S : Type),  @eqv S -> @distributive_lattice (finite_set S)
+  := λ S eqv,
   let eq  := eqv_eq eqv in
   let s   := eqv_witness eqv in
   let f   := eqv_new eqv in
 {|
-  distributive_lattice_eqv         := eqv_add_constant (eqv_set eqv) c 
-; distributive_lattice_join        := bop_add_ann (bop_union eq) c
-; distributive_lattice_meet        := bop_add_id (bop_intersect eq) c
-; distributive_lattice_join_certs  := sg_CI_certs_union c s f 
-; distributive_lattice_meet_certs  := sg_CI_certs_intersect c s f 
+  distributive_lattice_eqv         := eqv_set eqv  
+; distributive_lattice_join        := bop_union eq
+; distributive_lattice_meet        := bop_intersect eq
+; distributive_lattice_join_certs  := sg_CI_certs_union s f (eqv_finite_d eqv)
+; distributive_lattice_meet_certs  := sg_CI_certs_intersect s f (eqv_finite_d eqv)
 ; distributive_lattice_certs       := distributive_lattice_certs_union_intersect S
-; distributive_lattice_join_ast    := Ast_bop_add_ann(c, Ast_bop_union (eqv_ast eqv))
-; distributive_lattice_meet_ast    := Ast_bop_add_id(c, Ast_bop_intersect (eqv_ast eqv))                                                     
-; distributive_lattice_ast         := Ast_distributive_lattice_union_intersect (c, eqv_ast eqv) 
+; distributive_lattice_join_ast    := Ast_bop_union (eqv_ast eqv)
+; distributive_lattice_meet_ast    := Ast_bop_intersect (eqv_ast eqv)
+; distributive_lattice_ast         := Ast_distributive_lattice_union_intersect (eqv_ast eqv) 
 |}.
   
 
@@ -513,11 +255,25 @@ End CAS.
 
 Section Verify.
 
-Theorem correct_distributive_lattice_union_intersect : ∀ (S : Type) (eqv: A_eqv S) (c : cas_constant), 
-    distributive_lattice_union_intersect S (A2C_eqv S eqv) c 
+Lemma correct_proofs_union_intersect (S : Type) (eqv : A_eqv S) :
+  distributive_lattice_certs_union_intersect S
+  =                                            
+  P2C_distributive_lattice (finite_set S) (brel_set (A_eqv_eq S eqv)) (bop_union (A_eqv_eq S eqv)) (bop_intersect (A_eqv_eq S eqv))
+                           (distributive_lattice_proofs_union_intersect S (A_eqv_eq S eqv) (A_eqv_proofs S eqv)). 
+Proof. compute. reflexivity. Qed. 
+
+Theorem correct_distributive_lattice_union_intersect : ∀ (S : Type) (eqv: A_eqv S), 
+    distributive_lattice_union_intersect S (A2C_eqv S eqv) 
     =
-    A2C_distributive_lattice _ (A_distributive_lattice_union_intersect S eqv c). 
-Proof. intros S eqv c. compute. reflexivity. Qed. 
+    A2C_distributive_lattice _ (A_distributive_lattice_union_intersect S eqv). 
+Proof. intros S eqv.
+       unfold distributive_lattice_union_intersect, A_distributive_lattice_union_intersect, A2C_distributive_lattice; simpl.
+       rewrite correct_eqv_set.
+       rewrite bop_union_certs_correct.
+       rewrite bop_intersect_certs_correct.
+       rewrite <- correct_proofs_union_intersect. 
+       reflexivity.
+Qed. 
   
  
 End Verify.   

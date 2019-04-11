@@ -43,6 +43,15 @@ Definition p2c_exactly_two_check : ∀ (S : Type) (eq : brel S),
    | inr (existT _ f _) => Certify_Not_Exactly_Two f
    end. 
 
+
+Definition p2c_is_finite_check : ∀ (S : Type) (eq : brel S), 
+       carrier_is_finite_decidable S eq -> @check_is_finite S 
+:= λ S eq d, 
+   match d with
+   | inl (existT _ p _) => Certify_Is_Finite p
+   | inr _ => Certify_Is_Not_Finite 
+   end. 
+
 Definition A2C_eqv : ∀ (S : Type), A_eqv S -> @eqv S 
 := λ S E,
 let eq := A_eqv_eq S E in   
@@ -53,6 +62,7 @@ let eq := A_eqv_eq S E in
 ; eqv_exactly_two_d := p2c_exactly_two_check S eq (A_eqv_exactly_two_d S E)                           
 ; eqv_data    := A_eqv_data S E
 ; eqv_rep     := A_eqv_rep S E
+; eqv_finite_d := p2c_is_finite_check S eq (A_eqv_finite_d S E)                           
 ; eqv_ast     := A_eqv_ast S E
 |}. 
 

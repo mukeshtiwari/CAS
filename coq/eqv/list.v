@@ -165,32 +165,6 @@ Proof. intros S r a s u.
        reflexivity. 
 Qed. 
 
-(*
-
-
-Lemma brel_list_rep_correct : ∀ (S : Type)(eq : brel S)(rep : unary_op S), 
-          brel_rep_correct S eq rep →
-              brel_rep_correct (list S) (brel_list eq) (uop_list_map rep). 
-Proof. intros S eq rep P l. induction l. 
-       simpl. reflexivity. 
-       simpl. apply andb_is_true_right. split. 
-          apply P. 
-          assumption. 
-Defined. 
-
-
-Lemma brel_list_rep_idempotent : ∀ (S : Type)(eq : brel S)(rep : unary_op S), 
-          brel_rep_idempotent S eq rep →
-              brel_rep_idempotent (list S) (brel_list eq) (uop_list_map rep). 
-Proof. intros S eq rep P l. induction l. 
-       simpl. reflexivity. 
-       simpl. apply andb_is_true_right. split. 
-          apply P. 
-          assumption. 
-Defined. 
-
- *)
-
 
 Lemma brel_list_not_trivial : ∀ (S : Type) (r : brel S) (s : S) (f : S -> S), 
               (brel_symmetric S r) → 
@@ -238,7 +212,8 @@ Proof. intros S s r symS trnS. apply brel_at_least_thee_implies_not_exactly_two.
        apply brel_list_at_least_three; auto. 
 Defined.
 
-
+Lemma brel_list_not_finite (S : Type) (r : brel S) : carrier_is_not_finite (list S) (brel_list r).
+Admitted.   
 
 
 End Theory.
@@ -278,6 +253,7 @@ Definition A_eqv_list : ∀ (S : Type),  A_eqv S -> A_eqv (list S)
     ; A_eqv_exactly_two_d := inr (brel_list_not_exactly_two S wS eq symS trnS)                              
     ; A_eqv_data          := λ l, DATA_list (List.map (A_eqv_data S eqvS) l)
     ; A_eqv_rep           := λ l, List.map (A_eqv_rep S eqvS) l
+    ; A_eqv_finite_d      := inr (brel_list_not_finite S eq) 
     ; A_eqv_ast           := Ast_eqv_list (A_eqv_ast S eqvS)
    |}. 
 
@@ -296,6 +272,7 @@ Definition eqv_list : ∀ {S : Type},  @eqv S -> @eqv (list S)
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 (brel_list eq) nil (wS :: nil)  (wS :: wS :: nil))                   
     ; eqv_data  := λ l, DATA_list (List.map (eqv_data eqvS) l)
     ; eqv_rep   := λ l, List.map (eqv_rep eqvS) l
+    ; eqv_finite_d  := Certify_Is_Not_Finite 
     ; eqv_ast   := Ast_eqv_list (eqv_ast eqvS)
    |}. 
 

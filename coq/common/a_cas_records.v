@@ -19,7 +19,8 @@ Record A_eqv (S : Type) := {
 
 (* another record for this stuff? *)                                                    
 ; A_eqv_data        : S -> data (* for printing in ocaml-land *) 
-; A_eqv_rep         : S -> S    (* for reductions? need proved properties for this? *) 
+; A_eqv_rep         : S -> S    (* for reductions? need proved properties for this? *)
+; A_eqv_finite_d    : carrier_is_finite_decidable S A_eqv_eq                             
 ; A_eqv_ast         : ast_eqv 
 }.
 

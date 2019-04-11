@@ -149,26 +149,6 @@ Lemma brel_set_not_trivial (s : S) :
    brel_not_trivial (finite_set S) (brel_set eq) (λ (l : finite_set S), if brel_set eq nil l then (s :: nil) else nil). 
 Proof. intro X. destruct X; compute; auto. Qed. 
 
-(* 
-Lemma brel_set_rep_correct : ∀ (rep : unary_op S), 
-          brel_rep_correct S eq rep →
-              brel_rep_correct (finite_set S) (brel_set S eq) (uop_set_rep S eq rep). 
-Proof. intros rep P l. 
-       apply brel_set_intro. split. 
-          apply brel_subset_intro;auto. intros s H. 
-          apply brel_subset_intro;auto. admit.  
-Defined. 
-
-Lemma brel_set_rep_idempotent : ∀ (rep : unary_op S), 
-          brel_rep_idempotent S eq rep →
-              brel_rep_idempotent (finite_set S) (brel_set S eq) (uop_set_rep S eq rep). 
-Proof. intros rep P l. induction l. 
-       simpl. reflexivity. 
-       simpl. apply andb_is_true_right. split. 
-          apply P. 
-          assumption. 
-Defined. 
- *)
 
 
 Lemma brel_set_at_least_three (s : S) (f : S -> S):
@@ -190,8 +170,40 @@ Proof. intro nt. apply brel_at_least_thee_implies_not_exactly_two.
        apply (brel_set_at_least_three s f); auto. 
 Defined.
 
+Definition power_set : finite_set S -> finite_set (finite_set S)
+:= fix f X := 
+      match X with
+         | nil => nil :: nil 
+         | t :: Y => (f Y) ++ (List.map (λ Z, t :: Z) (f Y))
+      end.
+
+Definition powerset_enum (fS : unit -> list S) (x : unit) :=  power_set (fS x).
+
+Lemma empty_set_in_powerset (X : finite_set S) : in_set (brel_set eq) (power_set X) nil = true.
+Admitted.
+
+Lemma  in_powerset_intro (a : S) (X Y : finite_set S) (H : in_set (brel_set eq) (power_set Y) X = true) (K : in_set eq Y a = true) : 
+                          in_set (brel_set eq) (power_set Y) (a :: X) = true.
+Admitted.   
 
 
+Lemma brel_set_finite : carrier_is_finite S eq -> carrier_is_finite (finite_set S) (brel_set eq).
+Proof. intros [fS pS]. unfold carrier_is_finite. exists (powerset_enum fS).
+       intro X. unfold powerset_enum.
+       induction X.
+          apply empty_set_in_powerset. 
+          assert (K := pS a).  apply in_powerset_intro; auto. 
+Defined. 
+
+Lemma brel_set_not_finite : carrier_is_not_finite S eq -> carrier_is_not_finite (finite_set S) (brel_set eq).
+Proof. unfold carrier_is_not_finite. intros H f.
+Admitted.
+
+Definition brel_set_finite_decidable (d : carrier_is_finite_decidable S eq) : carrier_is_finite_decidable (finite_set S) (brel_set eq)
+  := match d with
+     | inl fS  => inl (brel_set_finite fS)
+     | inr nfS => inr (brel_set_not_finite nfS)                       
+     end.
 
 End Theory.
 
@@ -207,6 +219,7 @@ Definition eqv_proofs_set : ∀ (S : Type) (r : brel S),
    ; A_eqv_transitive  := brel_set_transitive S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) (A_eqv_transitive S r eqv) 
    ; A_eqv_symmetric   := brel_set_symmetric S r 
    |}. 
+
 
 Definition A_eqv_set : ∀ (S : Type),  A_eqv S -> A_eqv (finite_set S)
 := λ S eqvS,
@@ -226,13 +239,21 @@ Definition A_eqv_set : ∀ (S : Type),  A_eqv S -> A_eqv (finite_set S)
     ; A_eqv_not_trivial := brel_set_not_trivial S eq s 
     ; A_eqv_exactly_two_d := inr (brel_set_not_exactly_two S eq refS symS trnS s f nt)                              
     ; A_eqv_data   := λ d, DATA_set (List.map (A_eqv_data S eqvS) d)  
-    ; A_eqv_rep    := λ d, d  (* fix this someday ... *) 
+    ; A_eqv_rep    := λ d, d  (* fix this someday ... *)
+    ; A_eqv_finite_d  := brel_set_finite_decidable S eq refS symS trnS (A_eqv_finite_d S eqvS)
     ; A_eqv_ast    := Ast_eqv_set (A_eqv_ast S eqvS)
    |}. 
 
 End ACAS.
 
 Section CAS.
+
+Definition brel_set_finite_checkable {S : Type} (d : @check_is_finite S) : @check_is_finite (finite_set S)
+  := match d with
+     | Certify_Is_Finite fS  => Certify_Is_Finite (powerset_enum S fS)
+     | Certify_Is_Not_Finite => Certify_Is_Not_Finite
+     end.
+  
 
 Definition eqv_set : ∀ {S : Type},  @eqv S -> @eqv (finite_set S)
 := λ {S} eqvS,
@@ -245,7 +266,8 @@ Definition eqv_set : ∀ {S : Type},  @eqv S -> @eqv (finite_set S)
     ; eqv_new     := λ (l : finite_set S), if brel_set eq nil l then (s :: nil) else nil
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 (brel_set eq) nil (s :: nil)  ((f s):: nil))
     ; eqv_data    := λ d, DATA_set (List.map (eqv_data eqvS) d)  
-    ; eqv_rep     := λ d, d  (* fix this? *) 
+    ; eqv_rep     := λ d, d  (* fix this? *)
+    ; eqv_finite_d  := brel_set_finite_checkable (eqv_finite_d eqvS)
     ; eqv_ast     := Ast_eqv_set (eqv_ast eqvS)
    |}. 
 
@@ -258,7 +280,9 @@ Theorem correct_eqv_set : ∀ (S : Type) (E : A_eqv S),
     eqv_set (A2C_eqv S E) = A2C_eqv (finite_set S) (A_eqv_set S E).
 Proof. intros S E. 
        unfold eqv_set, A_eqv_set, A2C_eqv; simpl.
-       unfold brel_set_not_exactly_two.
+       destruct E; simpl.  unfold brel_set_finite_checkable, brel_set_finite_decidable. 
+       destruct A_eqv_finite_d; auto.
+       destruct c as [fS PS]. simpl. unfold brel_set_finite. 
        reflexivity.
 Qed.        
 

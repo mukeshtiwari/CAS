@@ -7,6 +7,8 @@ Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.eqv.sum.
 Require Import CAS.coq.eqv.add_constant.
+Require Import CAS.coq.eqv.nat_ceiling.
+Require Import CAS.coq.eqv.minset. 
 
 Require Import CAS.coq.sg.cast_up.
 Require Import CAS.coq.sg.cast_down.
@@ -150,7 +152,9 @@ Extraction "Cas.ml"
    eqv_bool
    eqv_sum
    eqv_list
-   eqv_set   
+   eqv_set
+   eqv_nat_ceiling
+   eqv_minset
 (* semigroups *)
    sg_C_times
    sg_CS_max

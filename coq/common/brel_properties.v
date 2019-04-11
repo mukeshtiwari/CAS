@@ -80,18 +80,6 @@ Proof. intros S eq refS s. compute. apply refS. Qed.
 
 
 
-(*  Needed? 
-
-Definition prefix_injective (S : Type) (n : nat) (f : nat -> S) (r : brel S), 
-    := ∀ s t : nat, s <= n -> t <= n -> r (f s) (f t) = true -> s = t. 
-
-Definition brel_finite (S : Type) (r : brel S) 
-    := { n : nat & {f : nat -> S & ∀ s : S { m : nat & (m <= n) * (r (f m) s = true)}}}
-
-Definition brel_not_finite (S : Type) (r : brel S) 
-    := ∀ n : nat, ∀ f : nat -> S, {s : S &  ∀ m : nat , (m <= n)  -> (r (f m) s = false} ) }}
-
-*) 
 
 
 Definition brel_strict (S : Type) (r : brel S) (lt : brel S) := 
@@ -266,4 +254,22 @@ Definition brel_at_least_three (S : Type) (r : brel S)
        (r t u = false) 
       end}.
 
+(* needed for ann of union and id of intersect *)
+Definition carrier_is_finite (S : Type) (r : brel S) := {f : unit -> list S & ∀ (s : S),  in_set r (f tt) s = true}.
 
+Definition carrier_is_not_finite (S : Type) (r : brel S) := ∀ f : unit -> list S, {s : S &  in_set r (f tt) s = false}.
+
+Definition carrier_is_finite_decidable  (S : Type) (r : brel S) := (carrier_is_finite S r) + (carrier_is_not_finite S r).
+
+(*  Needed? 
+
+Definition prefix_injective (S : Type) (n : nat) (f : nat -> S) (r : brel S), 
+    := ∀ s t : nat, s <= n -> t <= n -> r (f s) (f t) = true -> s = t. 
+
+Definition brel_finite (S : Type) (r : brel S) 
+    := { n : nat & {f : nat -> S & ∀ s : S { m : nat & (m <= n) * (r (f m) s = true)}}}
+
+Definition brel_not_finite (S : Type) (r : brel S) 
+    := ∀ n : nat, ∀ f : nat -> S, {s : S &  ∀ m : nat , (m <= n)  -> (r (f m) s = false} ) }}
+
+*) 

@@ -40,6 +40,13 @@ Proof. intro s. split.
           apply brel_nat_neq_S. 
 Defined.
 
+Lemma brel_eq_nat_not_finite : carrier_is_not_finite nat brel_eq_nat.
+Proof. unfold carrier_is_not_finite. intro f.
+       admit.        
+Admitted. 
+
+
+
 Open Scope nat. 
 Lemma brel_eq_nat_at_least_three : brel_at_least_three nat brel_eq_nat.
 Proof. exists (0, (1, 2)).  compute; split; auto. Defined. 
@@ -87,7 +94,8 @@ Definition A_eqv_nat : A_eqv nat
     ; A_eqv_not_trivial := brel_eq_nat_not_trivial
     ; A_eqv_exactly_two_d   := inr (brel_nat_not_exactly_two)                              
     ; A_eqv_data   := λ n, DATA_nat n 
-    ; A_eqv_rep    := λ b, b 
+    ; A_eqv_rep    := λ b, b
+    ; A_eqv_finite_d := inr brel_eq_nat_not_finite 
     ; A_eqv_ast    := Ast_eqv_nat
    |}. 
 
@@ -104,7 +112,8 @@ Definition eqv_eq_nat : eqv (S := nat)
     ; eqv_new := S
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 brel_eq_nat 0 1 2)
     ; eqv_data  := λ n, DATA_nat n 
-    ; eqv_rep   := λ b, b 
+    ; eqv_rep   := λ b, b
+    ; eqv_finite_d := Certify_Is_Not_Finite 
     ; eqv_ast   := Ast_eqv_nat
    |}. 
 
@@ -116,7 +125,8 @@ Section Verify.
 Theorem correct_eqv_nat : eqv_eq_nat = A2C_eqv nat (A_eqv_nat). 
 Proof. unfold eqv_eq_nat, A_eqv_nat, A2C_eqv; simpl.
        unfold brel_nat_not_exactly_two. unfold brel_at_least_thee_implies_not_exactly_two. 
-       reflexivity. Qed. 
+       reflexivity.
+Qed. 
   
 End Verify.   
   

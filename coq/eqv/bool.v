@@ -2,16 +2,21 @@ Require Import Coq.Bool.Bool.
 Require Import CAS.coq.common.base. 
 
 Section Theory.
-
+Open Scope list_scope.
 
 Lemma eqb_bool_to_prop  : ∀ s t: bool, eqb s t = true -> s = t. 
 Proof.  induction s;  induction t; simpl; intro H; auto. Qed. 
 
 
 Lemma brel_eq_bool_not_trivial : brel_not_trivial bool brel_eq_bool negb. 
-Proof. intro s. induction s; auto. Defined. 
+Proof. intro s. induction s; auto. Defined.
 
-Lemma brel_eq_bool_reflexive : brel_reflexive bool brel_eq_bool. 
+Lemma brel_eq_bool_is_finite : carrier_is_finite bool brel_eq_bool. 
+Proof. unfold carrier_is_finite. exists (λ _, false :: true :: nil).
+       intro s. destruct s; compute; auto. 
+Defined.
+
+Lemma brel_eq_bool_reflexive : brel_reflexive bool brel_eq_bool.
 Proof. unfold brel_reflexive, brel_eq_bool. induction s; simpl; auto. 
 Qed. 
 
@@ -61,6 +66,7 @@ Definition A_eqv_bool : A_eqv bool
     ; A_eqv_exactly_two_d   := inl (brel_eq_bool_exactly_two)                              
     ; A_eqv_data   := λ b, DATA_bool b 
     ; A_eqv_rep    := λ b, b
+    ; A_eqv_finite_d  := inl brel_eq_bool_is_finite
     ; A_eqv_ast    := Ast_eqv_bool 
    |}. 
 
@@ -69,6 +75,8 @@ End ACAS.
 
 Section CAS.
 
+Open Scope list_scope.
+
 Definition eqv_bool : @eqv bool 
 := {| 
       eqv_eq    := brel_eq_bool 
@@ -76,7 +84,8 @@ Definition eqv_bool : @eqv bool
     ; eqv_new   := negb
     ; eqv_exactly_two_d := Certify_Exactly_Two (true, false) 
     ; eqv_data  := λ b, DATA_bool b 
-    ; eqv_rep   := λ b, b 
+    ; eqv_rep   := λ b, b
+    ; eqv_finite_d  := Certify_Is_Finite (λ _, false :: true :: nil)
     ; eqv_ast   := Ast_eqv_bool 
 |}. 
   

@@ -63,6 +63,7 @@ CAS=\
    coq/eqv/reduce.v \
    coq/eqv/predicate_reduce.v \
    coq/eqv/nat_ceiling.v \
+   coq/eqv/minset.v \
    coq/sg/cast_up.v \
    coq/sg/cast_down.v \
    coq/sg/plus.v \

@@ -69,10 +69,12 @@ Defined.
 Lemma brel_nat_ceiling_at_least_three : brel_eq_nat 0 ceiling_minus_one = false -> brel_at_least_three nat brel_nat_ceiling.
 Proof. intro H. exists (0, (1, 2)).  split. split.
        apply brel_nat_ceiling_0_1. 
-       unfold brel_nat_ceiling. unfold brel_predicate_reduce. unfold brel_reduce, uop_predicate_reduce, above_ceiling_minus_one.
+       unfold brel_nat_ceiling.
+       unfold brel_predicate_reduce. unfold brel_reduce, uop_predicate_reduce, above_ceiling_minus_one.
        case_eq(ceiling_minus_one <? 0); intro H1; case_eq(ceiling_minus_one <? 2); intro H2.
        compute in H1. discriminate H1. compute in H1. discriminate H1. compute; auto. compute; auto.
-       unfold brel_nat_ceiling. unfold brel_predicate_reduce. unfold brel_reduce, uop_predicate_reduce, above_ceiling_minus_one.       
+       unfold brel_nat_ceiling.
+       unfold brel_predicate_reduce. unfold brel_reduce, uop_predicate_reduce, above_ceiling_minus_one.       
        case_eq(ceiling_minus_one <? 1); intro H1; case_eq(ceiling_minus_one <? 2); intro H2.
        apply Nat.ltb_lt in H1.
        assert (H3 : ceiling_minus_one = 0). apply Nat.lt_1_r; auto. 
@@ -81,11 +83,10 @@ Proof. intro H. exists (0, (1, 2)).  split. split.
        assert (H3 : ceiling_minus_one = 0). apply Nat.lt_1_r; auto. 
        rewrite H3 in H. compute in H. discriminate H.
        apply Nat.ltb_lt in H2. assert (H4 : 1 < 2). apply Nat.lt_1_2.
-       assert (H5 : 2 ≤ ceiling). admit. 
-       assert (H6 : 1 < ceiling). admit.
-       admit. 
-       compute; auto. 
-Admitted. 
+       unfold ceiling. compute. destruct ceiling_minus_one. 
+       compute in H. discriminate H. reflexivity. 
+       compute. reflexivity. 
+Defined. 
 
 
 Lemma brel_nat_ceiling_not_exactly_two :   brel_eq_nat 0 ceiling_minus_one = false -> brel_not_exactly_two nat brel_nat_ceiling.
@@ -102,9 +103,29 @@ Proof. case_eq(brel_eq_nat 0 ceiling_minus_one); intro H.
        right. apply brel_nat_ceiling_not_exactly_two; auto. 
 Defined.
 
+Definition nat_ceiling_enumerate 
+  := fix f x :=
+       match x with
+       | 0 => 0 :: nil
+       | S y => (S y) :: (f y)
+       end.
+
+Definition nat_ceiling_enum (x : unit) := nat_ceiling_enumerate ceiling.
+
+Lemma enum_correct (n : nat) : in_set brel_nat_ceiling (nat_ceiling_enumerate ceiling) n = true. 
+Admitted. 
+
+Lemma bel_nat_ceiling_is_finite : carrier_is_finite nat brel_nat_ceiling.
+Proof. exists nat_ceiling_enum. intro n. 
+       unfold nat_ceiling_enum.
+       apply enum_correct. 
+Defined. 
+
 End Theory.
 
 Section ACAS.
+
+
 
 Definition A_eqv_nat_ceiling (ceiling_minus_one : nat) : A_eqv nat
   := A_eqv_predicate_reduce
@@ -114,20 +135,28 @@ Definition A_eqv_nat_ceiling (ceiling_minus_one : nat) : A_eqv nat
        (above_ceiling_minus_one ceiling_minus_one)
        (brel_nat_ceiling_not_trivial_f ceiling_minus_one)
        (brel_nat_ceiling_not_trivial ceiling_minus_one)
-       (bel_nat_ceiling_exactly_two_decidable ceiling_minus_one).       
+       (bel_nat_ceiling_exactly_two_decidable ceiling_minus_one)
+       (inl (bel_nat_ceiling_is_finite ceiling_minus_one))
+       (Ast_eqv_nat_ceiling ceiling_minus_one).       
 
 End ACAS.
 
 Section CAS.
 Open Scope nat.
 
+
+  
 Definition eqv_nat_ceiling (ceiling_minus_one : nat) : @eqv nat
   := eqv_predicate_reduce
        (S ceiling_minus_one)
        (above_ceiling_minus_one ceiling_minus_one)
        (brel_nat_ceiling_not_trivial_f ceiling_minus_one)
-       (if brel_eq_nat 0 ceiling_minus_one then Certify_Exactly_Two (1, 2) else Certify_Not_Exactly_Two (not_ex2 brel_eq_nat 0 1 2))
-       eqv_eq_nat.
+       (if brel_eq_nat 0 ceiling_minus_one
+        then Certify_Exactly_Two (0, 1)
+        else Certify_Not_Exactly_Two (not_ex2 (brel_nat_ceiling ceiling_minus_one) 0 1 2))
+       (Certify_Is_Finite (nat_ceiling_enum ceiling_minus_one))
+       eqv_eq_nat
+       (Ast_eqv_nat_ceiling ceiling_minus_one).       
 End CAS.
 
 Section Verify.
@@ -135,15 +164,24 @@ Open Scope nat.
 
 Lemma fact (ceiling_minus_one : nat) :
        p2c_exactly_two_check _ _ (bel_nat_ceiling_exactly_two_decidable ceiling_minus_one)
-       = if brel_eq_nat 0 ceiling_minus_one then Certify_Exactly_Two (1, 2) else Certify_Not_Exactly_Two (not_ex2 brel_eq_nat 0 1 2).
+       = if brel_eq_nat 0 ceiling_minus_one
+         then Certify_Exactly_Two (0, 1)
+         else Certify_Not_Exactly_Two (not_ex2 (brel_nat_ceiling ceiling_minus_one) 0 1 2).
 Proof. unfold bel_nat_ceiling_exactly_two_decidable.
-       (* case_eq(brel_eq_nat 0 ceiling_minus_one); intro H. *) 
-Admitted.   
+       destruct ceiling_minus_one.
+       compute. reflexivity. 
+       unfold brel_eq_nat.
+       simpl. reflexivity.
+Qed.        
 
-Theorem correct_eqv_nat (ceiling_minus_one : nat) : eqv_nat_ceiling ceiling_minus_one = A2C_eqv nat (A_eqv_nat_ceiling ceiling_minus_one). 
+Theorem correct_eqv_nat (ceiling_minus_one : nat) :
+  eqv_nat_ceiling ceiling_minus_one = A2C_eqv nat (A_eqv_nat_ceiling ceiling_minus_one). 
 Proof. unfold eqv_nat_ceiling, A_eqv_nat_ceiling.
-       rewrite <- fact. unfold brel_nat_ceiling. 
+       rewrite <- fact.
+       unfold brel_nat_ceiling. 
        rewrite <- correct_eqv_predicate_reduce. 
+       unfold bel_nat_ceiling_is_finite. 
+       unfold p2c_is_finite_check. 
        reflexivity. 
 Qed.        
   

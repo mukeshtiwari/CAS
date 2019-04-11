@@ -162,15 +162,6 @@ Definition brel_sum : ∀ {S T : Type}, brel S → brel T → brel (S + T)
    | (inr a), (inr b) => V a b
    end.
 
-Definition brel_add_constant : ∀ {S : Type}, brel S → cas_constant → brel (cas_constant + S)
-:= λ  {S} rS c x y, 
-   match x, y with
-   | (inl a), (inl b) => true (* all constants equal! *) 
-   | (inl _), (inr _) => false 
-   | (inr _), (inl _) => false 
-   | (inr a), (inr b) => rS a b 
-   end.
-
 Definition brel_add_bottom : ∀ {S : Type}, brel S → cas_constant → brel (cas_constant + S)
 := λ  {S} rS c x y, 
    match x, y with
@@ -523,19 +514,6 @@ Definition bop_union : ∀ {S : Type}, brel S → binary_op (finite_set S)
 Definition bop_intersect : ∀ {S : Type}, brel S → binary_op (finite_set S) 
 := λ {S} r X,  uop_filter (in_set r X). 
 *)  
-
-
-Definition is_minimal_in : ∀ {S : Type}, brel S → brel S → brel2 S (finite_set S)
-:= λ {S} eq lte a X, 
-      if brel_set eq nil X
-      then false 
-      else (bProp_forall S (λ y, bop_or (uop_not (lte y a)) (eq y a))) X. 
-
-Definition uop_minset : ∀ {S : Type}, brel S → brel S → unary_op (finite_set S) 
-:= λ {S} eq lte X, uop_filter (λ a, is_minimal_in eq lte a X) X. 
-
-Definition brel_minset : ∀ {S : Type}, brel S → brel S → brel (finite_set S) 
-:= λ {S} eq lt,  brel_reduce (brel_set eq) (uop_minset eq lt). 
 
 
 Definition bop_lift : ∀ {S : Type}, brel S → binary_op S → binary_op(finite_set S) := 
