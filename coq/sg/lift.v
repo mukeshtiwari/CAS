@@ -1850,7 +1850,40 @@ match ilD with
                             | inr nidem => inr (bop_lift_not_selective_v1 S eq b nidem)
                             end 
               end 
-end. 
+end.
+
+
+Definition msg_lift_proofs (S: Type)
+           (eq : brel S)
+           (b : binary_op S)
+           (eqvP : eqv_proofs S eq)
+           (wS : S)
+           (f : S -> S)
+           (nt : brel_not_trivial S eq f)
+(*            (ex2_d : brel_exactly_two_decidable S eq)           NB *) 
+           (bP : msg_proofs S eq b) : msg_proofs (finite_set S) (brel_set eq) (bop_lift eq b)
+:=
+let refS := A_eqv_reflexive S eq eqvP    in
+let symS := A_eqv_symmetric S eq eqvP    in
+let trnS := A_eqv_transitive S eq eqvP   in
+let cong_b := A_msg_congruence S eq b bP  in
+let asso_b := A_msg_associative S eq b bP in
+{|
+  A_msg_associative      :=  bop_lift_associative S eq b refS trnS symS cong_b asso_b 
+; A_msg_congruence       :=  bop_lift_congruence S eq b refS trnS symS cong_b  
+; A_msg_commutative_d    :=  bop_lift_commutative_decide S eq b refS symS trnS cong_b (A_msg_commutative_d S eq b bP)
+; A_msg_exists_id_d      :=  bop_lift_exists_id_decide S eq wS b refS symS trnS cong_b (A_msg_exists_id_d S eq b bP)
+; A_msg_exists_ann_d     :=  inl (bop_lift_exists_ann S eq b)
+; A_msg_is_left_d        :=  inr (bop_lift_not_is_left S eq b wS)
+; A_msg_is_right_d       :=  inr (bop_lift_not_is_right S eq b wS)
+; A_msg_left_cancel_d    :=  inr (bop_lift_not_left_cancellative S eq b wS f nt) 
+; A_msg_right_cancel_d   :=  inr (bop_lift_not_right_cancellative S eq b wS f nt) 
+; A_msg_left_constant_d  :=  inr (bop_lift_not_left_constant S eq b wS)
+; A_msg_right_constant_d :=  inr (bop_lift_not_right_constant S eq b wS)
+; A_msg_anti_left_d      :=  inr (bop_lift_not_anti_left S eq b)
+; A_msg_anti_right_d     :=  inr (bop_lift_not_anti_right S eq b)
+|}. 
+
 
 
 Definition sg_lift_proofs (S: Type)
@@ -1959,6 +1992,31 @@ match ilD with
     end 
   end 
 end.
+
+
+Definition msg_lift_certs (S: Type)
+           (eq : brel S) 
+           (wS : S)
+           (f : S -> S)
+           (* (ex2_d : @check_exactly_two S) NB *)
+           (bS : binary_op S)
+           (bP : @msg_certificates S) : @msg_certificates (finite_set S)
+:= {|
+  msg_associative      :=  Assert_Associative  
+; msg_congruence       :=  Assert_Bop_Congruence  
+; msg_commutative_d    :=  bop_lift_commutative_check (msg_commutative_d bP)
+; msg_exists_id_d      :=  bop_lift_exists_id_check (msg_exists_id_d bP)  
+; msg_exists_ann_d     :=  Certify_Exists_Ann nil 
+; msg_is_left_d        :=  Certify_Not_Is_Left (wS :: nil, nil) 
+; msg_is_right_d       :=  Certify_Not_Is_Right (nil, wS :: nil) 
+; msg_left_cancel_d    :=  Certify_Not_Left_Cancellative (nil, (wS :: nil, (f wS) :: nil))
+; msg_right_cancel_d   :=  Certify_Not_Right_Cancellative (nil, (wS :: nil, (f wS) :: nil))
+; msg_left_constant_d  :=  Certify_Not_Left_Constant (wS :: nil, (wS ::nil, nil)) 
+; msg_right_constant_d :=  Certify_Not_Right_Constant (wS :: nil, (wS ::nil, nil)) 
+; msg_anti_left_d      :=  Certify_Not_Anti_Left (nil, nil) 
+; msg_anti_right_d     :=  Certify_Not_Anti_Right (nil, nil) 
+|}. 
+
 
 Definition sg_lift_certs (S: Type)
            (eq : brel S) 
@@ -2093,16 +2151,37 @@ Lemma correct_bop_lift_exists_id_check :
 Proof. intros. destruct idD as [ [id  ID] | NID ]; compute; auto. Qed. 
 
 
-
-
-Lemma correct_bop_lift_certs 
+Lemma correct_msg_lift_certs 
   (S : Type)
   (eq : brel S)
   (wS : S)
   (f : S -> S)
   (bS : binary_op S)
   (nt : brel_not_trivial S eq f)
-  (ex2_d : brel_exactly_two_decidable S eq) 
+(*  (ex2_d : brel_exactly_two_decidable S eq) *) 
+  (eqvP : eqv_proofs S eq)   
+  (sgP : msg_proofs S eq bS) :
+  P2C_msg (finite_set S)
+          (brel_set eq)
+          (bop_lift eq bS)
+          (msg_lift_proofs S eq bS eqvP wS f nt sgP) 
+  =  
+  msg_lift_certs S eq wS f bS (P2C_msg S eq bS sgP).
+Proof. unfold msg_lift_proofs, msg_lift_certs, P2C_msg. simpl. 
+       rewrite correct_bop_lift_exists_id_check; auto. 
+       rewrite correct_bop_lift_commutative_check; auto.
+Qed.   
+
+
+
+Lemma correct_sg_lift_certs 
+  (S : Type)
+  (eq : brel S)
+  (wS : S)
+  (f : S -> S)
+  (bS : binary_op S)
+  (nt : brel_not_trivial S eq f)
+  (ex2_d : brel_exactly_two_decidable S eq)
   (eqvP : eqv_proofs S eq)   
   (sgP : sg_proofs S eq bS) :
   P2C_sg (finite_set S)
@@ -2125,11 +2204,9 @@ Theorem correct_sg_lift  : ∀ (S : Type) (sgS : A_sg S),
 Proof. intros S sgS.
        unfold A2C_sg, sg_lift, A_sg_lift. simpl.
        rewrite correct_eqv_set.
-       rewrite correct_bop_lift_certs.
+       rewrite correct_sg_lift_certs.
        reflexivity. 
 Qed.
-
-
 
 End Verify.
 

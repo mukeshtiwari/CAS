@@ -45,6 +45,16 @@ Proof. intros X Y H. unfold brel_set in H. unfold brel_and_sym in H.
 Defined. 
 
 
+Lemma brel_set_false_elim_prop : ∀ (X Y : finite_set S),
+     brel_set eq X Y = false -> 
+        { a : S & (in_set eq X a = true) * (in_set eq Y a = false) } 
+      + { a : S & (in_set eq Y a = true) * (in_set eq X a = false) }.
+Proof. intros X Y H. unfold brel_set in H. unfold brel_and_sym in H. 
+       apply andb_is_false_left in H. destruct H as [H | H].  
+          apply brel_subset_false_elim in H; auto. 
+          apply brel_subset_false_elim in H; auto. 
+Defined. 
+
 (* 
    ∀ (t : S) (s1 s2 : finite_set S),
    brel_set X s1 s2 = true → in_set X s1 t = in_set X s2 t

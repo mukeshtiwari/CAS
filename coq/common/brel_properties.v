@@ -3,23 +3,8 @@ Require Import CAS.coq.common.compute.
 
 Close Scope nat. 
 
-
 Definition brel_not_trivial (S : Type) (r : brel S) (f : S -> S) 
     := ∀ s : S, (r s (f s) = false) * (r (f s) s = false). 
-
-(*
-Definition brel_witness (S : Type) (r : brel S) 
-    := {s : S & r s s = true}. 
-
-Definition brel_negate (S : Type) (r : brel S) 
-    := {f : S -> S & ∀ s : S, (r s (f s) = false) * (r (f s) s = false) }. 
-
-Record brel_nontrivial (S : Type) (r : brel S) := {
-  brel_nontrivial_witness   : brel_witness S r 
-; brel_nontrivial_negate    : brel_negate S r 
-}.  
-*)
-
 
 Definition brel_congruence (S : Type) (eq : brel S) (r : brel S) := 
    ∀ s t u v : S, eq s u = true → eq t v = true → r s t = r u v. 
@@ -273,3 +258,20 @@ Definition brel_not_finite (S : Type) (r : brel S)
     := ∀ n : nat, ∀ f : nat -> S, {s : S &  ∀ m : nat , (m <= n)  -> (r (f m) s = false} ) }}
 
 *) 
+
+(* Needed for computing annihilator for minset_union. 
+ 
+  Represent { f : unit -> list S & ∀ (s : S), {y : S, in_set eq (f tt) y = true * lte y s = true}} 
+  as follows: 
+*) 
+Definition bottoms_finite (S : Type) (eq lte : brel S)
+  := {p : (unit -> list S) * (S -> S) & match p with (f, w) =>  ∀ (s : S),  (in_set eq (f tt) (w s) = true) * (lte (w s) s = true) end}.
+
+(* note : if code bottoms_not_finite up as the direct negation of bottoms_finite, then 
+   bop_minset_union_not_exists_ann does not seem to go through ... ;-) 
+*) 
+Definition bottoms_not_finite (S : Type) (eq lte : brel S)
+  := ∀ (X : list S), { s : S &  ∀ (y : S), (in_set eq X y = true) -> (lte y s = false)}.
+
+Definition bottoms_finite_decidable  (S : Type) (eq lte : brel S) := (bottoms_finite S eq lte) + (bottoms_not_finite S eq lte).
+

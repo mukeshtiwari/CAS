@@ -53,7 +53,7 @@ Definition ltr_cayley_proofs (S : Type) (eqS : brel S) (bS : binary_op S) (sgP :
                                    | inl IR -> inl (ltr_cayley_is_right _ _ _ IR)
                                    | lnr NIR -> inr (ltr_cayley_not_is_right _ _ _ NIR)
                                    end 
-; A_ltr_exists_id_d         := ????? 
+; A_ltr_exists_id_d         := 
 ; A_ltr_left_cancellative_d := match A_sg_is_left_cancellative_d _ _ _ sgP with
                                    | inl LC -> inl (ltr_cayley_is_cancellative _ _ _ LC)
                                    | lnr NLC -> inr (ltr_cayley_not_cancellative _ _ _ NLC)

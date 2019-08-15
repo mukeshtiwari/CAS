@@ -2,6 +2,7 @@ Require Import CAS.coq.common.base.
 Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.theory.reduction.predicate.
 Require Import CAS.coq.eqv.reduce.
+Require Import CAS.coq.eqv.set.
 
 Section Theory.
 
@@ -26,10 +27,7 @@ Proof. apply brel_reduce_symmetric; auto. Qed.
 Lemma brel_reduce_transitive : brel_transitive S (brel_predicate_reduce s P eq). 
 Proof. apply brel_reduce_transitive; auto. Qed. 
 
-Lemma brel_predicate_reduce_not_trivial (f : S -> S) :
-  (∀ x : S, eq (uop_predicate_reduce s P x) (uop_predicate_reduce s P (f x)) = false) -> 
-  brel_not_trivial S (brel_predicate_reduce s P eq) f. 
-Proof. intros H. apply brel_set_not_trivial; auto. Qed.
+
 
 End Theory.
 

@@ -290,37 +290,6 @@ Proof. intros S r u symS transS idem. unfold uop_uop_congruence. intros s t H.
 Defined. 
 
 
-
-(* non_trivial 
-
-Definition brel_get_witness :  ∀ (S : Type) (r : brel S),  (brel_witness S r) -> S 
-:= λ S r cwS, 
-   match cwS with  
-   | existT _ s _ => s 
-   end. 
-
-Definition brel_get_negate :  ∀ (S : Type) (r : brel S),  (brel_negate S r) -> (S -> S)
-:= λ S r cnS, 
-   match cnS with  
-   | existT _ f _ => f 
-   end. 
-
-Definition brel_get_nontrivial_witness :  ∀ (S : Type) (r : brel S),  (brel_nontrivial S r) -> S 
-:= λ S r ntS, brel_get_witness S r (brel_nontrivial_witness S r ntS). 
-
-Definition brel_get_nontrivial_negate :  ∀ (S : Type) (r : brel S), (brel_nontrivial S r) -> (S -> S) 
-:= λ S r ntS, brel_get_negate S r (brel_nontrivial_negate S r ntS). 
-
-Definition brel_nontrivial_pair :  ∀ (S : Type) (r : brel S),  (brel_nontrivial S r )-> 
-       { p : S * S & let (s, t) := p in (r s t = false) * (r t s = false) }.  
-Proof. intros S r ntS. 
-       destruct (brel_nontrivial_witness S r ntS) as [s Ps]. 
-       destruct (brel_nontrivial_negate S r ntS) as [f Pf]. 
-       exists (s, f s). apply Pf. 
-Defined.    
- *)
-
-
 Open Scope nat_scope. 
 (* 
 plus_Snm_nSm: ∀ n m : nat, S n + m = n + S m
@@ -363,68 +332,8 @@ Proof. intros S r b1 b2 transS cong1 c1 c2 ld s t u.
 Defined. 
 
 
-(*
-Lemma bops_id_equals_ann_same_constant : ∀ (S : Type) (r : brel S) (c : cas_constant) (b1 : binary_op S) (b2 : binary_op S),  
-    brel_reflexive S r -> 
-      bops_id_equals_ann 
-         (with_constant S) 
-         (brel_add_constant S r c)
-         (bop_add_id S b1 c) 
-         (bop_add_ann S b2 c). 
-Proof. intros S r c b1 b2 refS. unfold bops_id_equals_ann. 
-       assert (fact1: bop_is_id (with_constant S) (brel_add_constant S r c) (bop_add_id S b1 c) (inl c)). 
-          unfold bop_is_id. intros [s | s]; compute; auto. 
-       assert (fact2: bop_is_ann (with_constant S) (brel_add_constant S r c) (bop_add_ann S b2 c) (inl c)). 
-          unfold bop_is_id. intros [s | s]; compute; auto. 
-      exists (existT _ (inl _ c) fact1). exists (existT _ (inl _ c) fact2). compute. 
-      reflexivity. 
-Defined.        
-       
-
-Lemma bop_add_id_add_ann_left_distributive  : 
-   ∀ (S : Type) (r : brel S) (c : cas_constant) (b1 b2 : binary_op S),
-     brel_reflexive S r -> 
-     bop_left_distributive S r b1 b2 -> 
-        bop_left_distributive (with_constant S) (brel_add_constant S r c) 
-           (bop_add_id S b1 c) (bop_add_ann S b2 c). 
-Proof. intros S r c b1 b2 refS ld [c1 | s1] [c2 | s2] [c3 | s3]; compute; auto. Qed. 
-
-Lemma bop_add_id_add_ann_right_distributive  : 
-   ∀ (S : Type) (r : brel S) (c : cas_constant) (b1 b2 : binary_op S),
-     brel_reflexive S r -> 
-     bop_right_distributive S r b1 b2 -> 
-        bop_right_distributive (with_constant S) (brel_add_constant S r c) 
-           (bop_add_id S b1 c) (bop_add_ann S b2 c). 
-Proof. intros S r c b1 b2 refS ld [c1 | s1] [c2 | s2] [c3 | s3]; compute; auto. Qed. 
-
-
-Lemma bop_commutative_not_left_constant_implies_not_right_constant : 
-      ∀ (S : Type) (r : brel S) (b : binary_op S), 
-      brel_congruence S r r -> 
-         bop_commutative S r b -> bop_not_left_constant S r b -> bop_not_right_constant S r b.
-Proof. intros S r b congS commS [ [s1 [s2 s3]] P ]. 
-       exists (s1, (s2, s3)). simpl. 
-       rewrite <- (congS _ _ _ _ (commS s1 s2) (commS s1 s3)). assumption. 
-Defined. 
-
-
-
-
-Lemma bop_left_cancellative_contrapositive :  
-  ∀ (S : Type) (r : brel S) (b : binary_op S),  
-   (bop_left_cancellative S r b) → 
-       ∀ s t u : S, r t u = false → r (b s t) (b s u) = false.  
-Proof. intros S r b lc s t u F. 
-       case_eq(r (b s t) (b s u)); intro H. 
-          apply lc in H. rewrite H in F. discriminate. 
-          reflexivity. 
-Qed. 
-*) 
-
 
 (* Id, Ann are unique *) 
-
-
 
 Lemma bop_id_unique : ∀ (S : Type) 
                         (r : brel S )
@@ -503,21 +412,6 @@ Proof. intros S rS symS s1 s2.
        rewrite (symS _ _ H2) in H1. discriminate.
        reflexivity.
 Qed.        
-
-
-
-
-(* move this? use this? 
-Lemma tmp : ∀ (S : Type) (r : brel S),
-      brel_congruence S r r → 
-         ∀ (s t u v : S), r s u = true → r t v = true → r u v = false → r s t = false. 
-Proof. intros S r congS s t u v H1 H2 H3. 
-       unfold brel_congruence in congS. 
-       assert (C := congS s t u v H1 H2).          
-       rewrite H3 in C. 
-       assumption. 
-Qed.          
-*)          
 
 (*
 
@@ -963,6 +857,15 @@ Proof. intros S r b transS commS [[s1 s2] P]. exists (s2, s1).
        apply (brel_transititivity_implies_dual _ _ transS _ _ _ A P). 
 Defined. 
 
+
+Lemma bop_commutative_and_left_constant_imply_right_constant  : 
+      ∀ (S: Type) (r : brel S) (b : binary_op S), 
+         brel_transitive S r -> 
+         bop_commutative S r b -> 
+         bop_left_constant S r b -> bop_right_constant S r b.
+Proof. intros S r b tranS commS lcS s t u.
+       exact (tranS _ _ _ (commS t s) (tranS _ _ _ (lcS s t u) (commS s u))). 
+Qed. 
 
 Lemma bop_commutative_and_not_left_constant_imply_not_right_constant  : 
       ∀ (S: Type) (r : brel S) (b : binary_op S), 

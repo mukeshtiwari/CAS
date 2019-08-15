@@ -9,8 +9,8 @@ Record bs {S : Type} := {
   bs_eqv         : eqv (S := S) 
 ; bs_plus        : binary_op S 
 ; bs_times       : binary_op S 
-; bs_plus_certs  : sg_certificates (S := S) 
-; bs_times_certs : sg_certificates (S := S) 
+; bs_plus_certs  : asg_certificates (S := S) 
+; bs_times_certs : msg_certificates (S := S) 
 ; bs_certs       : bs_certificates (S := S)
 ; bs_plus_ast    : ast_bop
 ; bs_times_ast   : ast_bop                                                                            
@@ -23,7 +23,7 @@ Record bs_CS {S : Type} := {
 ; bs_CS_plus        : binary_op S 
 ; bs_CS_times       : binary_op S 
 ; bs_CS_plus_certs  : sg_CS_certificates (S := S) 
-; bs_CS_times_certs : sg_certificates (S := S)    
+; bs_CS_times_certs : msg_certificates (S := S)    
 ; bs_CS_certs       : bs_certificates (S := S)
 ; bs_CS_plus_ast    : ast_bop
 ; bs_CS_times_ast   : ast_bop                                                                            
@@ -35,31 +35,33 @@ Record bs_CI {S : Type} := {
 ; bs_CI_plus        : binary_op S 
 ; bs_CI_times       : binary_op S 
 ; bs_CI_plus_certs  : sg_CI_certificates (S := S) 
-; bs_CI_times_certs : sg_certificates (S := S)    
+; bs_CI_times_certs : msg_certificates (S := S)    
 ; bs_CI_certs       : bs_certificates (S := S)
 ; bs_CI_plus_ast    : ast_bop
 ; bs_CI_times_ast   : ast_bop                                                                            
 ; bs_CI_ast         : ast_bs_CI
 }.
 
+(*
 Record bs_C {S : Type} := {
   bs_C_eqv         : @eqv S  
 ; bs_C_plus        : binary_op S 
 ; bs_C_times       : binary_op S 
 ; bs_C_plus_certs  : @sg_C_certificates S 
-; bs_C_times_certs : @sg_certificates S
+; bs_C_times_certs : @msg_certificates S
 ; bs_C_certs       : @bs_certificates S
 ; bs_C_plus_ast    : ast_bop
 ; bs_C_times_ast   : ast_bop                                                                            
 ; bs_C_ast         : ast_bs_C
 }.
+ *)
 
 Record semiring {S : Type} := {
   semiring_eqv         : @eqv S 
 ; semiring_plus        : binary_op S 
 ; semiring_times       : binary_op S 
 ; semiring_plus_certs  : @sg_C_certificates S 
-; semiring_times_certs : @sg_certificates S   
+; semiring_times_certs : @msg_certificates S   
 ; semiring_certs       : @semiring_certificates S
 ; semiring_plus_ast    : ast_bop
 ; semiring_times_ast   : ast_bop                                                                            
@@ -71,7 +73,7 @@ Record dioid {S : Type} := {
 ; dioid_plus        : binary_op S 
 ; dioid_times       : binary_op S 
 ; dioid_plus_certs  : @sg_CI_certificates S 
-; dioid_times_certs : @sg_certificates S   
+; dioid_times_certs : @msg_certificates S   
 ; dioid_certs       : @semiring_certificates S
 ; dioid_plus_ast    : ast_bop
 ; dioid_times_ast   : ast_bop                                                                                                                         
@@ -84,7 +86,7 @@ Record selective_dioid {S : Type} := {
 ; selective_dioid_plus        : binary_op S 
 ; selective_dioid_times       : binary_op S 
 ; selective_dioid_plus_certs  : @sg_CS_certificates S 
-; selective_dioid_times_certs : @sg_certificates S   
+; selective_dioid_times_certs : @msg_certificates S   
 ; selective_dioid_certs       : @semiring_certificates S
 ; selective_dioid_plus_ast     : ast_bop
 ; selective_dioid_times_ast    : ast_bop                                                                            

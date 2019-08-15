@@ -264,15 +264,13 @@ Definition A_bs_add_zero : ∀ (S : Type),  A_bs S -> cas_constant -> A_bs (with
      A_bs_eqv          := A_eqv_add_constant S (A_bs_eqv S bsS) c 
    ; A_bs_plus         := bop_add_id  (A_bs_plus S bsS) c
    ; A_bs_times        := bop_add_ann  (A_bs_times S bsS) c
-   ; A_bs_plus_proofs  := sg_proofs_add_id S 
+   ; A_bs_plus_proofs  := asg_proofs_add_id S 
                                 (A_eqv_eq S (A_bs_eqv S bsS)) c 
                                 (A_bs_plus S bsS)
                                 (A_eqv_witness S (A_bs_eqv S bsS))
-                                (A_eqv_new S (A_bs_eqv S bsS))
-                                (A_eqv_not_trivial S (A_bs_eqv S bsS))
                                 (A_eqv_proofs S (A_bs_eqv S bsS)) 
                                 (A_bs_plus_proofs S bsS) 
-   ; A_bs_times_proofs := sg_proofs_add_ann S 
+   ; A_bs_times_proofs := msg_proofs_add_ann S 
                                 (A_eqv_eq S (A_bs_eqv S bsS)) c 
                                 (A_bs_times S bsS)
                                 (A_eqv_witness S (A_bs_eqv S bsS))
@@ -481,7 +479,7 @@ Definition A_dioid_add_zero : ∀ (S : Type),  A_dioid S -> cas_constant -> A_di
                                 (A_eqv_witness S (A_dioid_eqv S bsS))                                 
                                 (A_eqv_proofs S (A_dioid_eqv S bsS)) 
                                 (A_dioid_plus_proofs S bsS) 
-   ; A_dioid_times_proofs := sg_proofs_add_ann S 
+   ; A_dioid_times_proofs := msg_proofs_add_ann S 
                                 (A_eqv_eq S (A_dioid_eqv S bsS)) c 
                                 (A_dioid_times S bsS)
                                 (A_eqv_witness S (A_dioid_eqv S bsS))
@@ -515,7 +513,7 @@ Definition A_semiring_add_zero : ∀ (S : Type),  A_semiring S -> cas_constant -
                                 (A_eqv_not_trivial S (A_semiring_eqv S bsS))                                 
                                 (A_eqv_proofs S (A_semiring_eqv S bsS)) 
                                 (A_semiring_plus_proofs S bsS) 
-   ; A_semiring_times_proofs := sg_proofs_add_ann S 
+   ; A_semiring_times_proofs := msg_proofs_add_ann S 
                                 (A_eqv_eq S (A_semiring_eqv S bsS)) c 
                                 (A_semiring_times S bsS)
                                 (A_eqv_witness S (A_semiring_eqv S bsS))
@@ -657,8 +655,8 @@ let f :=   eqv_new (bs_eqv bsS) in
      bs_eqv         := eqv_add_constant (bs_eqv bsS) c 
    ; bs_plus        := bop_add_id (bs_plus bsS) c
    ; bs_times       := bop_add_ann (bs_times bsS) c
-   ; bs_plus_certs  := sg_certs_add_id c s f (bs_plus_certs bsS) 
-   ; bs_times_certs := sg_certs_add_ann c s f (bs_times_certs bsS) 
+   ; bs_plus_certs  := asg_certs_add_id c s (bs_plus_certs bsS) 
+   ; bs_times_certs := msg_certs_add_ann c s f (bs_times_certs bsS) 
    ; bs_certs       := bs_certs_add_zero s (bs_certs bsS)
    ; bs_plus_ast    := Ast_bop_add_id (c, bs_plus_ast bsS)
    ; bs_times_ast   := Ast_bop_add_ann (c, bs_times_ast bsS)                                                    
@@ -691,7 +689,7 @@ let f :=   eqv_new (dioid_eqv bsS) in
    ; dioid_plus        := bop_add_id (dioid_plus bsS) c
    ; dioid_times       := bop_add_ann (dioid_times bsS) c
    ; dioid_plus_certs  := sg_CI_certs_add_id c (dioid_plus_certs bsS)
-   ; dioid_times_certs := sg_certs_add_ann c s f (dioid_times_certs bsS)
+   ; dioid_times_certs := msg_certs_add_ann c s f (dioid_times_certs bsS)
    ; dioid_certs       := semiring_certs_add_zero s (dioid_certs bsS)
    ; dioid_plus_ast    := Ast_bop_add_id (c, dioid_plus_ast bsS)
    ; dioid_times_ast   := Ast_bop_add_ann (c, dioid_times_ast bsS)
@@ -707,7 +705,7 @@ let f :=   eqv_new (semiring_eqv bsS) in
    ; semiring_plus        := bop_add_id (semiring_plus bsS) c
    ; semiring_times       := bop_add_ann (semiring_times bsS) c
    ; semiring_plus_certs  := sg_C_certs_add_id c s f (semiring_plus_certs bsS)
-   ; semiring_times_certs := sg_certs_add_ann c s f (semiring_times_certs bsS)
+   ; semiring_times_certs := msg_certs_add_ann c s f (semiring_times_certs bsS)
    ; semiring_certs       := semiring_certs_add_zero s (semiring_certs bsS)
    ; semiring_plus_ast    := Ast_bop_add_id (c, semiring_plus_ast bsS)
    ; semiring_times_ast   := Ast_bop_add_ann (c, semiring_times_ast bsS)                                                      
@@ -909,8 +907,8 @@ Theorem correct_bs_add_zero: ∀ (S : Type) (bsS: A_bs S) (c : cas_constant),
 Proof. intros S bsS c. 
        unfold bs_add_zero, A_bs_add_zero, A2C_bs; simpl. 
        rewrite correct_eqv_add_constant. 
-       rewrite <- correct_sg_certs_add_ann. 
-       rewrite <- correct_sg_certs_add_id. 
+       rewrite <- correct_msg_certs_add_ann. 
+       rewrite <- correct_asg_certs_add_id. 
        rewrite correct_bs_certs_add_zero. 
        reflexivity. 
 Qed. 
@@ -943,7 +941,7 @@ Theorem correct_semiring_add_zero: ∀ (S : Type) (pS: A_semiring S) (c : cas_co
 Proof. intros S pS c. 
        unfold semiring_add_zero, A_semiring_add_zero, A2C_semiring; simpl. 
        rewrite correct_eqv_add_constant. 
-       rewrite <- correct_sg_certs_add_ann. 
+       rewrite <- correct_msg_certs_add_ann. 
        rewrite <- correct_sg_C_certs_add_id. 
        rewrite correct_semiring_certs_add_zero. 
        reflexivity. 
@@ -957,7 +955,7 @@ Theorem correct_dioid_add_zero: ∀ (S : Type) (pS: A_dioid S) (c : cas_constant
 Proof. intros S pS c. 
        unfold dioid_add_zero, A_dioid_add_zero, A2C_dioid; simpl. 
        rewrite correct_eqv_add_constant. 
-       rewrite <- correct_sg_certs_add_ann. 
+       rewrite <- correct_msg_certs_add_ann. 
        rewrite <- correct_sg_CI_certs_add_id. 
        rewrite correct_semiring_certs_add_zero. 
        reflexivity. 

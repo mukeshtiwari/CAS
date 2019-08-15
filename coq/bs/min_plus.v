@@ -153,7 +153,7 @@ Definition A_selective_dioid_min_plus : A_selective_dioid nat :=
 ; A_selective_dioid_plus         := bop_min
 ; A_selective_dioid_times        := bop_plus
 ; A_selective_dioid_plus_proofs  := A_sg_CS_proofs _ A_sg_CS_min 
-; A_selective_dioid_times_proofs := A_sg_proofs _ (A_sg_from_sg_CK _ A_sg_CK_plus)       (* cast up! *) 
+; A_selective_dioid_times_proofs := A_msg_proofs_plus
 ; A_selective_dioid_proofs       := semiring_proofs_min_plus 
 ; A_selective_dioid_plus_ast     := Ast_bop_min
 ; A_selective_dioid_times_ast    := Ast_bop_plus
@@ -182,7 +182,7 @@ Definition selective_dioid_min_plus : selective_dioid (S := nat) :=
 ; selective_dioid_plus        := bop_min
 ; selective_dioid_times       := bop_plus
 ; selective_dioid_plus_certs  := sg_CS_certs sg_CS_min
-; selective_dioid_times_certs := sg_certs (sg_from_sg_CK sg_CK_plus)
+; selective_dioid_times_certs := msg_certs_plus
 ; selective_dioid_certs       := semiring_certs_min_plus
 ; selective_dioid_plus_ast     := Ast_bop_min
 ; selective_dioid_times_ast    := Ast_bop_plus                                   

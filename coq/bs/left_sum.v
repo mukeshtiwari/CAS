@@ -856,7 +856,7 @@ Definition bs_proofs_left_sum :
     (plusT timesT : binary_op T) (s : S) (t : T), 
      eqv_proofs S rS -> 
      eqv_proofs T rT ->
-     sg_proofs T rT plusT ->      
+     asg_proofs T rT plusT ->      
      bs_proofs S rS plusS timesS -> 
      bs_proofs T rT plusT timesT -> 
         bs_proofs (S + T) 
@@ -870,7 +870,7 @@ Definition bs_proofs_left_sum :
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_reflexive T rT eqvT)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_sg_idempotent_d T rT plusT sgT)
+        (A_asg_idempotent_d T rT plusT sgT)
         (A_bs_left_distributive_d S rS plusS timesS pS)
         (A_bs_left_distributive_d T rT plusT timesT pT)
         (A_bs_left_left_absorptive_d T rT plusT timesT pT)
@@ -881,7 +881,7 @@ Definition bs_proofs_left_sum :
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_reflexive T rT eqvT)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_sg_idempotent_d T rT plusT sgT)
+        (A_asg_idempotent_d T rT plusT sgT)
         (A_bs_right_distributive_d S rS plusS timesS pS)
         (A_bs_right_distributive_d T rT plusT timesT pT)
         (A_bs_left_right_absorptive_d T rT plusT timesT pT)
@@ -891,7 +891,7 @@ Definition bs_proofs_left_sum :
     bop_left_sum_right_sum_left_left_absorptive_decide S T rS rT s plusS timesS plusT timesT
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_sg_idempotent_d T rT plusT sgT)
+        (A_asg_idempotent_d T rT plusT sgT)
         (A_bs_left_left_absorptive_d S rS plusS timesS pS)
         (A_bs_left_left_absorptive_d T rT plusT timesT pT)        
 
@@ -899,7 +899,7 @@ Definition bs_proofs_left_sum :
     bop_left_sum_right_sum_left_right_absorptive_decide S T rS rT s plusS timesS plusT timesT
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_sg_idempotent_d T rT plusT sgT)
+        (A_asg_idempotent_d T rT plusT sgT)
         (A_bs_left_right_absorptive_d S rS plusS timesS pS)
         (A_bs_left_right_absorptive_d T rT plusT timesT pT)        
 
@@ -907,7 +907,7 @@ Definition bs_proofs_left_sum :
     bop_left_sum_right_sum_right_left_absorptive_decide S T rS rT s plusS timesS plusT timesT
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_sg_idempotent_d T rT plusT sgT)
+        (A_asg_idempotent_d T rT plusT sgT)
         (A_bs_right_left_absorptive_d S rS plusS timesS pS)
         (A_bs_right_left_absorptive_d T rT plusT timesT pT)        
     
@@ -915,7 +915,7 @@ Definition bs_proofs_left_sum :
     bop_left_sum_right_sum_right_right_absorptive_decide S T rS rT s plusS timesS plusT timesT
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_sg_idempotent_d T rT plusT sgT)
+        (A_asg_idempotent_d T rT plusT sgT)
         (A_bs_right_right_absorptive_d S rS plusS timesS pS)
         (A_bs_right_right_absorptive_d T rT plusT timesT pT)        
 
@@ -1061,10 +1061,10 @@ let timesT := A_bs_times T bsT in
      A_bs_eqv        := A_eqv_sum S T eqvS eqvT 
    ; A_bs_plus       := bop_left_sum plusS plusT 
    ; A_bs_times       := bop_right_sum timesS timesT 
-   ; A_bs_plus_proofs := sg_proofs_left_sum S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
+   ; A_bs_plus_proofs := asg_proofs_left_sum S T rS rT plusS plusT s t peqvS peqvT 
                            (A_bs_plus_proofs S bsS) 
                            (A_bs_plus_proofs T bsT) 
-   ; A_bs_times_proofs := sg_proofs_right_sum S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+   ; A_bs_times_proofs := msg_proofs_right_sum S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                            (A_bs_times_proofs S bsS) 
                            (A_bs_times_proofs T bsT) 
    ; A_bs_proofs    := bs_proofs_left_sum S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
@@ -1308,7 +1308,7 @@ end.
 Definition bs_certs_left_sum : 
   ∀ (S T: Type) 
      (s : S), 
-     @sg_certificates T ->      
+     @asg_certificates T ->      
      @bs_certificates S -> 
      @bs_certificates T -> 
         @bs_certificates (S + T) 
@@ -1324,7 +1324,7 @@ Definition bs_certs_left_sum :
     
 ;  bs_left_distributive_d :=
     bop_left_sum_right_sum_left_distributive_check S T s 
-        (sg_idempotent_d sgT)
+        (asg_idempotent_d sgT)
         (bs_left_distributive_d pS)
         (bs_left_distributive_d pT)
         (bs_left_left_absorptive_d pT)
@@ -1332,7 +1332,7 @@ Definition bs_certs_left_sum :
 
 ; bs_right_distributive_d := 
     bop_left_sum_right_sum_right_distributive_check S T s 
-        (sg_idempotent_d sgT)
+        (asg_idempotent_d sgT)
         (bs_right_distributive_d pS)
         (bs_right_distributive_d pT)
         (bs_left_right_absorptive_d pT)
@@ -1340,25 +1340,25 @@ Definition bs_certs_left_sum :
 
 ; bs_left_left_absorptive_d := 
     bop_left_sum_right_sum_left_left_absorptive_check S T s
-        (sg_idempotent_d sgT)
+        (asg_idempotent_d sgT)
         (bs_left_left_absorptive_d pS)
         (bs_left_left_absorptive_d pT)        
 
 ; bs_left_right_absorptive_d := 
     bop_left_sum_right_sum_left_right_absorptive_check S T s
-        (sg_idempotent_d sgT)
+        (asg_idempotent_d sgT)
         (bs_left_right_absorptive_d pS)
         (bs_left_right_absorptive_d pT)        
 
 ; bs_right_left_absorptive_d :=
     bop_left_sum_right_sum_right_left_absorptive_check S T s
-        (sg_idempotent_d sgT)
+        (asg_idempotent_d sgT)
         (bs_right_left_absorptive_d pS)
         (bs_right_left_absorptive_d pT)        
     
 ; bs_right_right_absorptive_d := 
     bop_left_sum_right_sum_right_right_absorptive_check S T s
-        (sg_idempotent_d sgT)
+        (asg_idempotent_d sgT)
         (bs_right_right_absorptive_d pS)
         (bs_right_right_absorptive_d pT)        
 
@@ -1380,8 +1380,8 @@ let timesT := bs_times bsT in
      bs_eqv         := eqv_sum eqvS eqvT 
    ; bs_plus        := bop_left_sum plusS plusT 
    ; bs_times       := bop_right_sum timesS timesT 
-   ; bs_plus_certs  := sg_certs_left_sum s f t g (bs_plus_certs bsS) (bs_plus_certs bsT) 
-   ; bs_times_certs := sg_certs_right_sum s f t g (bs_times_certs bsS) (bs_times_certs bsT) 
+   ; bs_plus_certs  := asg_certs_left_sum (bs_plus_certs bsS) (bs_plus_certs bsT) 
+   ; bs_times_certs := msg_certs_right_sum s f t g (bs_times_certs bsS) (bs_times_certs bsT) 
    ; bs_certs       := bs_certs_left_sum S T s (bs_plus_certs bsT) (bs_certs bsS) (bs_certs bsT)
    ; bs_plus_ast    := Ast_bop_left_sum(bs_plus_ast bsS, bs_plus_ast bsT)
    ; bs_times_ast   := Ast_bop_right_sum(bs_times_ast bsS, bs_times_ast bsT)                                                                   
@@ -1580,15 +1580,15 @@ Lemma  correct_bs_certs_left_sum :
      (plusT timesT : binary_op T)
      (eqvS : eqv_proofs S rS)
      (eqvT : eqv_proofs T rT)
-     (sgT : sg_proofs T rT plusT)     
+     (sgT : asg_proofs T rT plusT)     
      (bsS : bs_proofs S rS plusS timesS)
      (bsT : bs_proofs T rT plusT timesT), 
-    bs_certs_left_sum S T wS (P2C_sg T rT plusT sgT) (P2C_bs S rS plusS timesS bsS) (P2C_bs T rT plusT timesT bsT)
+    bs_certs_left_sum S T wS (P2C_asg T rT plusT sgT) (P2C_bs S rS plusS timesS bsS) (P2C_bs T rT plusT timesT bsT)
     =
     P2C_bs (S + T) (brel_sum rS rT) (bop_left_sum plusS plusT) (bop_right_sum timesS timesT) 
        (bs_proofs_left_sum S T rS rT plusS timesS plusT timesT wS wT eqvS eqvT sgT bsS bsT). 
 Proof. intros. 
-       unfold bs_certs_left_sum, bs_proofs_left_sum, P2C_bs, P2C_sg; simpl. 
+       unfold bs_certs_left_sum, bs_proofs_left_sum, P2C_bs, P2C_asg; simpl. 
        rewrite bop_left_sum_right_sum_left_distributive_check_correct. 
        rewrite bop_left_sum_right_sum_right_distributive_check_correct. 
        rewrite bop_left_sum_right_sum_left_left_absorbtive_check_correct. 
@@ -1607,8 +1607,8 @@ Theorem correct_bs_left_sum : ∀ (S T : Type) (bsS: A_bs S) (bsT : A_bs T),
 Proof. intros S T bsS bsT. 
        unfold bs_left_sum, A_bs_left_sum, A2C_bs; simpl. 
        rewrite correct_eqv_sum. 
-       rewrite <- correct_sg_certs_left_sum.
-       rewrite <- correct_sg_certs_right_sum. 
+       rewrite <- correct_asg_certs_left_sum.
+       rewrite <- correct_msg_certs_right_sum. 
        rewrite <- correct_bs_certs_left_sum. 
        reflexivity. 
 Defined. 
@@ -1778,4 +1778,3 @@ let meetT  := distributive_lattice_meet T sr2 in
 
  
 End Verify.   
-  

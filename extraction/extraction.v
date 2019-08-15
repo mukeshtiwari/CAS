@@ -245,17 +245,15 @@ Extraction "Cas.ml"
    bs_left_sum
 (* bs_right_sum *) 
 
-   bs_C_llex_product
+   bs_llex_product
    bs_CS_llex_product
    bs_CI_union_lift 
 
    distributive_lattice_union_intersect
    distributive_lattice_intersect_union
 
-   bs_from_bs_C
-   bs_C_from_bs_CS
-   bs_C_from_bs_CI
-   bs_C_from_semiring
+   bs_from_bs_CI
+   bs_from_semiring
    semiring_from_dioid
    bs_from_dioid
    bs_from_selective_dioid   
@@ -263,7 +261,6 @@ Extraction "Cas.ml"
    bs_from_distributive_lattice
    bs_from_selective_distributive_lattice   
 
-   bs_C_option_from_bs
    bs_CS_option_from_bs
    .
 

@@ -117,13 +117,33 @@ End Theory.
 
 Section ACAS.
 
+Definition A_msg_proofs_plus : msg_proofs nat brel_eq_nat bop_plus := 
+{| 
+  A_msg_associative        := bop_plus_associative
+; A_msg_congruence         := bop_plus_congruence
+; A_msg_commutative_d      := inl bop_plus_commutative
+; A_msg_exists_id_d        := inl bop_plus_exists_id
+; A_msg_exists_ann_d       := inr bop_plus_not_exists_ann
+; A_msg_is_left_d          := inr bop_plus_not_is_left
+; A_msg_is_right_d         := inr bop_plus_not_is_right
+; A_msg_left_cancel_d      := inl bop_plus_left_cancellative
+; A_msg_right_cancel_d     := inl bop_plus_right_cancellative
+
+; A_msg_left_constant_d    := inr bop_plus_not_left_constant
+; A_msg_right_constant_d   := inr bop_plus_not_right_constant
+
+; A_msg_anti_left_d        := inr bop_plus_not_anti_left
+; A_msg_anti_right_d       := inr bop_plus_not_anti_right
+|}. 
+
+
 
 Definition sg_CK_proofs_plus : sg_CK_proofs nat brel_eq_nat bop_plus := 
 {| 
   A_sg_CK_associative        := bop_plus_associative
 ; A_sg_CK_congruence         := bop_plus_congruence
 ; A_sg_CK_commutative        := bop_plus_commutative
-; A_sg_CK_left_cancel        := bop_plus_left_cancellative 
+; A_sg_CK_cancel             := bop_plus_left_cancellative 
 ; A_sg_CK_exists_id_d        := inl _ bop_plus_exists_id 
 ; A_sg_CK_anti_left_d        := inr _ bop_plus_not_anti_left
 ; A_sg_CK_anti_right_d       := inr _ bop_plus_not_anti_right
@@ -145,7 +165,28 @@ End ACAS.
 
 Section CAS.
 
-Open Scope nat.   
+Open Scope nat.
+
+Definition msg_certs_plus : @msg_certificates nat := 
+{| 
+  msg_associative        := Assert_Associative 
+; msg_congruence         := Assert_Bop_Congruence 
+; msg_commutative_d      := Certify_Commutative 
+; msg_exists_id_d        := Certify_Exists_Id 0 
+; msg_exists_ann_d       := Certify_Not_Exists_Ann 
+; msg_is_left_d          := Certify_Not_Is_Left (0, 1)
+; msg_is_right_d         := Certify_Not_Is_Right (1, 0)
+; msg_left_cancel_d      := Certify_Left_Cancellative
+; msg_right_cancel_d     := Certify_Right_Cancellative
+
+; msg_left_constant_d    := Certify_Not_Left_Constant (0, (0, 1))
+; msg_right_constant_d   := Certify_Not_Right_Constant (0, (0, 1))
+
+; msg_anti_left_d        := Certify_Not_Anti_Left (0, 0) 
+; msg_anti_right_d       := Certify_Not_Anti_Right (0, 0) 
+|}. 
+
+  
 
 Definition sg_CK_certs_plus : @sg_CK_certificates nat 
 := {|
@@ -172,8 +213,13 @@ End CAS.
 
 Section Verify.
 
+Theorem correct_msg_certs_plus : msg_certs_plus = P2C_msg nat brel_eq_nat bop_plus (A_msg_proofs_plus). 
+Proof. compute. reflexivity. Qed. 
+  
+
 Theorem correct_sg_CK_plus : sg_CK_plus = A2C_sg_CK nat (A_sg_CK_plus). 
 Proof. compute. reflexivity. Qed. 
 
 End Verify.   
-  
+
+

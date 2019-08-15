@@ -26,6 +26,37 @@ Record sg_certificates {S: Type}  :=
 ; sg_anti_right_d     : check_anti_right (S := S) 
 }. 
 
+Record asg_certificates {S: Type}  := 
+{
+  asg_associative      : assert_associative (S := S) 
+; asg_congruence       : assert_bop_congruence (S := S) 
+
+; asg_commutative      : assert_commutative (S := S) 
+; asg_selective_d      : check_selective (S := S) 
+; asg_idempotent_d     : check_idempotent (S := S) 
+; asg_exists_id_d      : check_exists_id (S := S) 
+; asg_exists_ann_d     : check_exists_ann (S := S) 
+}. 
+
+Record msg_certificates {S: Type}  := 
+{
+  msg_associative      : assert_associative (S := S) 
+; msg_congruence       : assert_bop_congruence (S := S) 
+
+; msg_commutative_d    : check_commutative (S := S) 
+; msg_exists_id_d      : check_exists_id (S := S) 
+; msg_exists_ann_d     : check_exists_ann (S := S) 
+
+; msg_is_left_d        : check_is_left (S := S) 
+; msg_is_right_d       : check_is_right (S := S) 
+
+; msg_left_cancel_d    : check_left_cancellative (S := S) 
+; msg_right_cancel_d   : check_right_cancellative (S := S) 
+; msg_left_constant_d  : check_left_constant (S := S) 
+; msg_right_constant_d : check_right_constant (S := S) 
+; msg_anti_left_d      : check_anti_left (S := S) 
+; msg_anti_right_d     : check_anti_right (S := S) 
+}. 
 
 Record sg_C_certificates {S: Type}  := 
 {
@@ -36,10 +67,8 @@ Record sg_C_certificates {S: Type}  :=
 ; sg_C_idempotent_d     : check_idempotent (S := S)
 ; sg_C_exists_id_d      : check_exists_id (S := S) 
 ; sg_C_exists_ann_d     : check_exists_ann (S := S) 
-; sg_C_left_cancel_d    : check_left_cancellative (S := S) 
-; sg_C_right_cancel_d   : check_right_cancellative (S := S) 
-; sg_C_left_constant_d  : check_left_constant (S := S) 
-; sg_C_right_constant_d : check_right_constant (S := S) 
+; sg_C_cancel_d         : check_left_cancellative (S := S) 
+; sg_C_constant_d       : check_left_constant (S := S) 
 ; sg_C_anti_left_d      : check_anti_left (S := S) 
 ; sg_C_anti_right_d     : check_anti_right (S := S) 
 }. 

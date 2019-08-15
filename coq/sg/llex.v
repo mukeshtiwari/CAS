@@ -1339,6 +1339,54 @@ End Theory.
 
 Section ACAS.
 
+
+Definition asg_proofs_llex : 
+   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S), 
+     eqv_proofs S rS -> eqv_proofs T rT -> sg_CS_proofs S rS bS -> asg_proofs T rT bT -> 
+        asg_proofs (S * T) (brel_product rS rT) (bop_llex rS bS bT)
+:= λ S T rS rT bS bT s eqvS eqvT sgS sgT,
+let congS  := A_eqv_congruence _ _ eqvS in   
+let refS   := A_eqv_reflexive _ _ eqvS in
+let transS := A_eqv_transitive _ _ eqvS in    
+let symS   := A_eqv_symmetric _ _ eqvS in
+let congT  := A_eqv_congruence _ _ eqvT in   
+let refT   := A_eqv_reflexive _ _ eqvT in 
+let transT := A_eqv_transitive _ _ eqvT in   
+let symT   := A_eqv_symmetric _ _ eqvT in
+let bcongS := A_sg_CS_congruence _ _ _ sgS in   
+{|
+  A_asg_associative   := bop_llex_associative S T rS rT bS bT congS refS symS transS refT bcongS
+                         (A_sg_CS_associative _ _ _ sgS)
+                         (A_asg_associative _ _ _ sgT)                          
+                         (A_sg_CS_commutative  S rS bS sgS)
+                         (A_sg_CS_selective S rS bS sgS)
+; A_asg_congruence    := bop_llex_congruence S T rS rT bS bT congS congT 
+                         (A_sg_CS_congruence _ _ _ sgS) 
+                         (A_asg_congruence _ _ _ sgT) 
+; A_asg_commutative   := bop_llex_commutative S T rS rT bS bT congS refS symS transS refT 
+                         (A_sg_CS_selective S rS bS sgS)
+                         (A_sg_CS_commutative S rS bS sgS)
+                         (A_asg_commutative _ _ _ sgT) 
+; A_asg_selective_d   := bop_llex_selective_decide S T rS rT bS bT s refS symS transS refT bcongS
+                         (A_sg_CS_commutative S rS bS sgS)
+                         (A_sg_CS_selective S rS bS sgS)
+                         (A_asg_selective_d _ _ _ sgT)                          
+; A_asg_idempotent_d  := bop_llex_idempotent_decide S T rS rT bS bT s refS 
+                         (A_sg_CS_selective S rS bS sgS)
+                         (A_asg_idempotent_d _ _ _ sgT) 
+; A_asg_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS transS refT 
+                         (A_sg_CS_commutative S rS bS sgS) 
+                         (A_sg_CS_exists_id_d _ _ _ sgS) 
+                         (A_asg_exists_id_d _ _ _ sgT) 
+; A_asg_exists_ann_d  := bop_llex_exists_ann_decide S T rS rT bS bT refS symS transS refT 
+                         (A_sg_CS_commutative S rS bS sgS) 
+                         (A_sg_CS_exists_ann_d _ _ _ sgS) 
+                         (A_asg_exists_ann_d _ _ _ sgT)
+
+|}. 
+
+  
+
 Definition sg_proofs_llex : 
    ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
      brel_not_trivial S rS f -> brel_not_trivial T rT g -> 
@@ -1455,16 +1503,10 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
                          (A_sg_CS_exists_ann_d _ _ _ sgS) 
                          (A_sg_C_exists_ann_d _ _ _ sg_CT) 
 
-; A_sg_C_left_cancel_d    := inr _ (bop_llex_not_left_cancellative_v2 S T rS rT bS bT s f Pf refS symS transS t g Pg refT bcongS 
+; A_sg_C_cancel_d    := inr _ (bop_llex_not_left_cancellative_v2 S T rS rT bS bT s f Pf refS symS transS t g Pg refT bcongS 
                                     (A_sg_CS_selective _ _ _ sgS)
                                     (A_sg_CS_commutative _ _ _ sgS))
-; A_sg_C_right_cancel_d   := inr _ (bop_llex_not_right_cancellative S T rS rT bS bT s f Pf refS symS transS t g Pg refT bcongS 
-                                    (A_sg_CS_selective _ _ _ sgS)
-                                    (A_sg_CS_commutative _ _ _ sgS))
-; A_sg_C_left_constant_d  := inr _ (bop_llex_not_left_constant S T rS rT bS bT s f Pf refS symS transS t g Pg bcongS 
-                                    (A_sg_CS_selective _ _ _ sgS)
-                                    (A_sg_CS_commutative _ _ _ sgS))
-; A_sg_C_right_constant_d := inr _ (bop_llex_not_right_constant S T rS rT bS bT s f Pf refS symS transS t g Pg bcongS 
+; A_sg_C_constant_d  := inr _ (bop_llex_not_left_constant S T rS rT bS bT s f Pf refS symS transS t g Pg bcongS 
                                     (A_sg_CS_selective _ _ _ sgS)
                                     (A_sg_CS_commutative _ _ _ sgS))
 ; A_sg_C_anti_left_d      := inr _ (bop_llex_not_anti_left S T rS rT bS bT s f Pf symS transS t refT 
@@ -1706,6 +1748,21 @@ Definition check_exists_ann_llex : ∀ {S T : Type},
       | _, Certify_Not_Exists_Ann                  => Certify_Not_Exists_Ann 
       end. 
 
+Definition asg_certs_llex : ∀ {S T : Type},  
+        brel S -> binary_op S -> 
+        S -> 
+        sg_CS_certificates (S := S) -> 
+        asg_certificates (S := T) -> asg_certificates (S := (S * T))
+:= λ {S T} rS bS s cS cT,  
+{|
+  asg_associative      := Assert_Associative   
+; asg_congruence       := Assert_Bop_Congruence   
+; asg_commutative      := Assert_Commutative
+; asg_selective_d      := check_selective_llex s (asg_selective_d cT)
+; asg_idempotent_d     := check_idempotent_llex s (asg_idempotent_d cT)
+; asg_exists_id_d      := check_exists_id_llex (sg_CS_exists_id_d cS) (asg_exists_id_d cT)
+; asg_exists_ann_d     := check_exists_ann_llex (sg_CS_exists_ann_d cS) (asg_exists_ann_d cT)
+|}. 
 
 Definition sg_certs_llex : ∀ {S T : Type},  
         brel S -> binary_op S -> 
@@ -1744,10 +1801,8 @@ Definition sg_C_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S),
 ; sg_C_idempotent_d  := check_idempotent_llex s (sg_C_idempotent_d cT)
 ; sg_C_exists_id_d   := check_exists_id_llex (sg_CS_exists_id_d cS) (sg_C_exists_id_d cT)
 ; sg_C_exists_ann_d  := check_exists_ann_llex (sg_CS_exists_ann_d cS) (sg_C_exists_ann_d cT)
-; sg_C_left_cancel_d    := Certify_Not_Left_Cancellative (cef_bop_llex_not_cancellative rS bS s f t g)
-; sg_C_right_cancel_d   := Certify_Not_Right_Cancellative (cef_bop_llex_not_cancellative rS bS s f t g)
-; sg_C_left_constant_d  := Certify_Not_Left_Constant (cef_bop_llex_not_constant rS bS s f t g)
-; sg_C_right_constant_d := Certify_Not_Right_Constant (cef_bop_llex_not_constant rS bS s f t g)
+; sg_C_cancel_d    := Certify_Not_Left_Cancellative (cef_bop_llex_not_cancellative rS bS s f t g)
+; sg_C_constant_d  := Certify_Not_Left_Constant (cef_bop_llex_not_constant rS bS s f t g)
 ; sg_C_anti_left_d      := Certify_Not_Anti_Left (cef_bop_llex_not_anti_left rS bS s f t)                            
 ; sg_C_anti_right_d     := Certify_Not_Anti_Right (cef_bop_llex_not_anti_right rS bS s f t)
 |}.
@@ -1776,6 +1831,7 @@ Definition sg_CS_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S),
 ; sg_CS_exists_id_d   := check_exists_id_llex (sg_CS_exists_id_d cS) (sg_CS_exists_id_d cT)
 ; sg_CS_exists_ann_d  := check_exists_ann_llex (sg_CS_exists_ann_d cS) (sg_CS_exists_ann_d cT)
 |}.
+
 
 Definition sg_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg (S := T) -> sg (S := (S * T))
 := λ {S T} sgS sgT, 
@@ -2001,7 +2057,25 @@ Proof. intros pS pT.
        reflexivity. 
 Defined. 
 
-  
+
+Lemma correct_asg_certs_llex :  ∀(pS : sg_CS_proofs S rS bS)  (pT : asg_proofs T rT bT),
+        
+      asg_certs_llex rS bS wS (P2C_sg_CS S rS bS pS) (P2C_asg T rT bT pT) 
+      = 
+      P2C_asg (S * T) (brel_product rS rT) 
+                      (bop_llex rS bS bT) 
+                      (asg_proofs_llex S T rS rT bS bT wS eS eT pS pT). 
+Proof. intros pS pT. 
+       unfold asg_proofs_llex, asg_certs_llex, P2C_asg, P2C_sg_CS; simpl. 
+       rewrite correct_check_exists_id_llex.  
+       rewrite correct_check_exists_ann_llex. 
+       rewrite correct_check_selective_llex.
+       rewrite correct_check_idempotent_llex.        
+       reflexivity. 
+Defined. 
+
+
+
 Lemma correct_sg_certs_llex : ∀ (pS : sg_CS_proofs S rS bS) (pT : sg_proofs T rT bT),
 
       sg_certs_llex rS bS wS f wT g (P2C_sg_CS S rS bS pS) (P2C_sg T rT bT pT) 

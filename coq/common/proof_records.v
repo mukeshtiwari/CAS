@@ -82,39 +82,81 @@ Record sg_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_sg_is_left_d        : bop_is_left_decidable S eq bop  
 ; A_sg_is_right_d       : bop_is_right_decidable S eq bop  
 
-(* needed to decide distributivity of (lex, product)     *) 
+(* needed to decide distributivity of (lex, product), on mult-part *) 
 ; A_sg_left_cancel_d    : bop_left_cancellative_decidable S eq bop 
 ; A_sg_right_cancel_d   : bop_right_cancellative_decidable S eq bop 
 
-(* needed to decide distributivity of (lex, product     *) 
+(* needed to decide distributivity of (lex, product, on mult-part *) 
 ; A_sg_left_constant_d  : bop_left_constant_decidable S eq bop 
 ; A_sg_right_constant_d : bop_right_constant_decidable S eq bop 
 
-(* needed to decide absorptivity of (lex, product)      *) 
+(* needed to decide absorptivity of (lex, product), on mult-part*) 
 ; A_sg_anti_left_d      : bop_anti_left_decidable S eq bop 
 ; A_sg_anti_right_d     : bop_anti_right_decidable S eq bop 
 }. 
+
+(* additive semigroup *) 
+Record asg_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
+{
+  A_asg_associative      : bop_associative S eq bop 
+; A_asg_congruence       : bop_congruence S eq bop   
+; A_asg_commutative      : bop_commutative S eq bop  
+
+; A_asg_exists_id_d      : bop_exists_id_decidable S eq bop 
+; A_asg_exists_ann_d     : bop_exists_ann_decidable S eq bop 
+
+(***)                                                  
+; A_asg_selective_d      : bop_selective_decidable S eq bop  
+; A_asg_idempotent_d     : bop_idempotent_decidable S eq bop      
+}.
+
+
+(* multiplicative semigroup *) 
+Record msg_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
+{
+  A_msg_associative      : bop_associative S eq bop 
+; A_msg_congruence       : bop_congruence S eq bop   
+
+; A_msg_commutative_d    : bop_commutative_decidable S eq bop  
+; A_msg_exists_id_d      : bop_exists_id_decidable S eq bop 
+; A_msg_exists_ann_d     : bop_exists_ann_decidable S eq bop 
+
+(* needed?*)                                                    
+; A_msg_is_left_d        : bop_is_left_decidable S eq bop  
+; A_msg_is_right_d       : bop_is_right_decidable S eq bop  
+
+(***)                                                   
+; A_msg_left_cancel_d    : bop_left_cancellative_decidable S eq bop 
+; A_msg_right_cancel_d   : bop_right_cancellative_decidable S eq bop 
+
+; A_msg_left_constant_d  : bop_left_constant_decidable S eq bop 
+; A_msg_right_constant_d : bop_right_constant_decidable S eq bop 
+
+; A_msg_anti_left_d      : bop_anti_left_decidable S eq bop 
+; A_msg_anti_right_d     : bop_anti_right_decidable S eq bop 
+}. 
+
 
 
 Record sg_C_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
 {
   A_sg_C_associative      : bop_associative S eq bop 
 ; A_sg_C_congruence       : bop_congruence S eq bop   
-; A_sg_C_commutative      : bop_commutative S eq bop  
 
-; A_sg_C_selective_d      : bop_selective_decidable S eq bop  
-; A_sg_C_idempotent_d     : bop_idempotent_decidable S eq bop  
+; A_sg_C_commutative      : bop_commutative S eq bop
 ; A_sg_C_exists_id_d      : bop_exists_id_decidable S eq bop 
 ; A_sg_C_exists_ann_d     : bop_exists_ann_decidable S eq bop 
 
-; A_sg_C_left_cancel_d    : bop_left_cancellative_decidable S eq bop 
-; A_sg_C_right_cancel_d   : bop_right_cancellative_decidable S eq bop 
-
-; A_sg_C_left_constant_d  : bop_left_constant_decidable S eq bop 
-; A_sg_C_right_constant_d : bop_right_constant_decidable S eq bop 
-
 ; A_sg_C_anti_left_d      : bop_anti_left_decidable S eq bop 
 ; A_sg_C_anti_right_d     : bop_anti_right_decidable S eq bop 
+
+(***)
+; A_sg_C_selective_d      : bop_selective_decidable S eq bop  
+; A_sg_C_idempotent_d     : bop_idempotent_decidable S eq bop  
+
+; A_sg_C_cancel_d         : bop_left_cancellative_decidable S eq bop 
+; A_sg_C_constant_d       : bop_left_constant_decidable S eq bop 
+
 }. 
 
 
@@ -123,10 +165,12 @@ Record sg_CS_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
   A_sg_CS_associative        : bop_associative S eq bop 
 ; A_sg_CS_congruence         : bop_congruence S eq bop   
 ; A_sg_CS_commutative        : bop_commutative S eq bop  
+; A_sg_CS_exists_id_d        : bop_exists_id_decidable S eq bop 
+; A_sg_CS_exists_ann_d       : bop_exists_ann_decidable S eq bop
+
 ; A_sg_CS_selective          : bop_selective S eq bop  
 
-; A_sg_CS_exists_id_d        : bop_exists_id_decidable S eq bop 
-; A_sg_CS_exists_ann_d       : bop_exists_ann_decidable S eq bop 
+                                                        
 }. 
 
 Record sg_CI_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
@@ -146,7 +190,7 @@ Record sg_CK_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
   A_sg_CK_associative        : bop_associative S eq bop 
 ; A_sg_CK_congruence         : bop_congruence S eq bop   
 ; A_sg_CK_commutative        : bop_commutative S eq bop  
-; A_sg_CK_left_cancel        : bop_left_cancellative S eq bop  
+; A_sg_CK_cancel             : bop_left_cancellative S eq bop  
 
 ; A_sg_CK_exists_id_d        : bop_exists_id_decidable S eq bop 
 ; A_sg_CK_anti_left_d        : bop_anti_left_decidable S eq bop 

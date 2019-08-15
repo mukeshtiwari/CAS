@@ -259,6 +259,47 @@ End Theory.
 
 Section ACAS.
 
+Definition asg_proofs_right_sum :
+   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (t : T), 
+     eqv_proofs S rS -> eqv_proofs T rT -> asg_proofs S rS bS -> asg_proofs T rT bT -> 
+        asg_proofs (S + T) (brel_sum rS rT) (bop_right_sum bS bT)
+:= λ S T rS rT bS bT s t eqvS eqvT sgS sgT, 
+let refT := A_eqv_reflexive _ _ eqvT in 
+{|
+  A_asg_associative   := bop_right_sum_associative S T rS rT bS bT refT (A_asg_associative _ _ _ sgS) (A_asg_associative _ _ _ sgT) 
+; A_asg_congruence    := bop_right_sum_congruence S T rS rT bS bT (A_asg_congruence _ _ _ sgS) (A_asg_congruence _ _ _ sgT) 
+; A_asg_commutative   := bop_right_sum_commutative S T rS rT bS bT refT (A_asg_commutative _ _ _ sgS) (A_asg_commutative _ _ _ sgT) 
+; A_asg_selective_d   := bop_right_sum_selective_decide S T rS rT bS bT refT (A_asg_selective_d _ _ _ sgS) (A_asg_selective_d _ _ _ sgT) 
+; A_asg_idempotent_d  := bop_right_sum_idempotent_decide S T rS rT bS bT (A_asg_idempotent_d _ _ _ sgS) (A_asg_idempotent_d _ _ _ sgT) 
+; A_asg_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT  (A_asg_exists_id_d _ _ _ sgS) 
+; A_asg_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_asg_exists_ann_d _ _ _ sgT) 
+|}. 
+
+Definition msg_proofs_right_sum :
+   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
+     brel_not_trivial S rS f -> brel_not_trivial T rT g -> 
+     eqv_proofs S rS -> eqv_proofs T rT -> msg_proofs S rS bS -> msg_proofs T rT bT -> 
+        msg_proofs (S + T) (brel_sum rS rT) (bop_right_sum bS bT)
+:= λ S T rS rT bS bT s f t g Pf Pg eqvS eqvT sgS sgT, 
+let refT := A_eqv_reflexive _ _ eqvT in 
+{|
+  A_msg_associative   := bop_right_sum_associative S T rS rT bS bT refT (A_msg_associative _ _ _ sgS) (A_msg_associative _ _ _ sgT) 
+; A_msg_congruence    := bop_right_sum_congruence S T rS rT bS bT (A_msg_congruence _ _ _ sgS) (A_msg_congruence _ _ _ sgT) 
+; A_msg_commutative_d := bop_right_sum_commutative_decide S T rS rT bS bT refT (A_msg_commutative_d _ _ _ sgS) (A_msg_commutative_d _ _ _ sgT) 
+
+; A_msg_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT  (A_msg_exists_id_d _ _ _ sgS) 
+; A_msg_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_msg_exists_ann_d _ _ _ sgT) 
+ 
+; A_msg_is_left_d        := inr _ (bop_right_sum_not_is_left S T rS rT bS bT s t)
+; A_msg_is_right_d       := inr _ (bop_right_sum_not_is_right S T rS rT bS bT s t) 
+; A_msg_left_cancel_d    := inr _ (bop_right_sum_not_left_cancellative S T rS rT bS bT s f Pf t refT)
+; A_msg_right_cancel_d   := inr _ (bop_right_sum_not_right_cancellative S T rS rT bS bT s f Pf t refT)
+; A_msg_left_constant_d  := inr _ (bop_right_sum_not_left_constant S T rS rT bS bT s t g Pg)
+; A_msg_right_constant_d := inr _ (bop_right_sum_not_right_constant S T rS rT bS bT s t g Pg)
+; A_msg_anti_left_d      := inr _ (bop_right_sum_not_anti_left S T rS rT bS bT s t refT)
+; A_msg_anti_right_d     := inr _ (bop_right_sum_not_anti_right S T rS rT bS bT s t refT)
+|}. 
+
 
 Definition sg_proofs_right_sum :
    ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
@@ -315,12 +356,10 @@ let annT := A_sg_C_exists_ann_d _ _ _ sgT in
 ; A_sg_C_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT idS  
 ; A_sg_C_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT annT 
 
-; A_sg_C_left_cancel_d    := inr _ (bop_right_sum_not_left_cancellative S T rS rT bS bT s f Pf t refT)
-; A_sg_C_right_cancel_d   := inr _ (bop_right_sum_not_right_cancellative S T rS rT bS bT s f Pf t refT)
-; A_sg_C_left_constant_d  := inr _ (bop_right_sum_not_left_constant S T rS rT bS bT s t g Pg)
-; A_sg_C_right_constant_d := inr _ (bop_right_sum_not_right_constant S T rS rT bS bT s t g Pg)
-; A_sg_C_anti_left_d      := inr _ (bop_right_sum_not_anti_left S T rS rT bS bT s t refT)
-; A_sg_C_anti_right_d     := inr _ (bop_right_sum_not_anti_right S T rS rT bS bT s t refT)
+; A_sg_C_cancel_d      := inr _ (bop_right_sum_not_left_cancellative S T rS rT bS bT s f Pf t refT)
+; A_sg_C_constant_d    := inr _ (bop_right_sum_not_left_constant S T rS rT bS bT s t g Pg)
+; A_sg_C_anti_left_d   := inr _ (bop_right_sum_not_anti_left S T rS rT bS bT s t refT)
+; A_sg_C_anti_right_d  := inr _ (bop_right_sum_not_anti_right S T rS rT bS bT s t refT)
 |}. 
 
 
@@ -513,6 +552,39 @@ Definition check_commutative_right_sum : ∀ {S T : Type},
       end. 
 
 
+
+Definition asg_certs_right_sum : ∀ {S T : Type},  @asg_certificates S -> @asg_certificates T -> @asg_certificates (S + T)  
+:= λ {S T} cS cT,  
+{|
+  asg_associative   := Assert_Associative 
+; asg_congruence    := Assert_Bop_Congruence 
+; asg_commutative   := Assert_Commutative
+; asg_idempotent_d  := check_idempotent_right_sum (asg_idempotent_d cS) (asg_idempotent_d cT)
+; asg_selective_d   := check_selective_right_sum (asg_selective_d cS) (asg_selective_d cT)
+; asg_exists_id_d   := check_exists_id_right_sum (asg_exists_id_d cS)
+; asg_exists_ann_d  := check_exists_ann_right_sum  (asg_exists_ann_d  cT)
+|}.
+
+
+Definition msg_certs_right_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T -> T) -> @msg_certificates S -> @msg_certificates T -> @msg_certificates (S + T)  
+:= λ {S T} s f t g cS cT,  
+{|
+  msg_associative   := Assert_Associative 
+; msg_congruence    := Assert_Bop_Congruence 
+; msg_commutative_d := check_commutative_right_sum (msg_commutative_d cS) (msg_commutative_d  cT)
+; msg_is_left_d     := Certify_Not_Is_Left (inl T s, inr t) 
+; msg_is_right_d    := Certify_Not_Is_Right (inr t, inl T s) 
+; msg_exists_id_d   := check_exists_id_right_sum (msg_exists_id_d cS)
+; msg_exists_ann_d  := check_exists_ann_right_sum  (msg_exists_ann_d  cT)
+; msg_left_cancel_d    := Certify_Not_Left_Cancellative (inr t, (inl s, inl (f s)))
+; msg_right_cancel_d   := Certify_Not_Right_Cancellative (inr t, (inl s, inl (f s)))
+; msg_left_constant_d  := Certify_Not_Left_Constant (inl s, (inr t, inr (g t)))
+; msg_right_constant_d := Certify_Not_Right_Constant (inl s, (inr t, inr (g t)))
+; msg_anti_left_d      := Certify_Not_Anti_Left (inr t, inl s) 
+; msg_anti_right_d     := Certify_Not_Anti_Right (inr t, inl s) 
+|}.
+
+
 Definition sg_certs_right_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T -> T) -> @sg_certificates S -> @sg_certificates T -> @sg_certificates (S + T)  
 := λ {S T} s f t g cS cT,  
 {|
@@ -547,12 +619,10 @@ Definition sg_C_certs_right_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T ->
                          (sg_C_selective_d cT)
 ; sg_C_exists_id_d   := check_exists_id_right_sum (sg_C_exists_id_d cS)
 ; sg_C_exists_ann_d  := check_exists_ann_right_sum (sg_C_exists_ann_d cT)
-; sg_C_left_cancel_d    := Certify_Not_Left_Cancellative (inr t, (inl s, inl (f s)))
-; sg_C_right_cancel_d   := Certify_Not_Right_Cancellative (inr t, (inl s, inl (f s)))
-; sg_C_left_constant_d  := Certify_Not_Left_Constant (inl s, (inr t, inr (g t)))
-; sg_C_right_constant_d := Certify_Not_Right_Constant (inl s, (inr t, inr (g t)))
-; sg_C_anti_left_d      := Certify_Not_Anti_Left (inr t, inl s) 
-; sg_C_anti_right_d     := Certify_Not_Anti_Right (inr t, inl s) 
+; sg_C_cancel_d      := Certify_Not_Left_Cancellative (inr t, (inl s, inl (f s)))
+; sg_C_constant_d    := Certify_Not_Left_Constant (inl s, (inr t, inr (g t)))
+; sg_C_anti_left_d   := Certify_Not_Anti_Left (inr t, inl s) 
+; sg_C_anti_right_d  := Certify_Not_Anti_Right (inr t, inl s) 
 |}.
 
 Definition sg_CI_certs_right_sum : ∀ {S T : Type},  @sg_CI_certificates S -> @sg_CI_certificates T -> @sg_CI_certificates (S + T)
@@ -727,6 +797,42 @@ Section ProofsCorrect.
   Variable bT : binary_op T.
   Variable eS : eqv_proofs S rS.
   Variable eT : eqv_proofs T rT. 
+
+
+
+Lemma correct_asg_certs_right_sum : 
+      ∀ (pS : asg_proofs S rS bS) (pT : asg_proofs T rT bT),
+        
+      asg_certs_right_sum (P2C_asg S rS bS pS) (P2C_asg T rT bT pT) 
+      = 
+      P2C_asg (S + T) (brel_sum rS rT) 
+                     (bop_right_sum bS bT) 
+                     (asg_proofs_right_sum S T rS rT bS bT wS wT eS eT pS pT). 
+Proof. intros pS pT. 
+       unfold asg_proofs_right_sum, asg_certs_right_sum, P2C_asg; simpl. 
+       rewrite <- correct_check_selective_right_sum. 
+       rewrite correct_check_idempotent_right_sum. 
+       rewrite <- correct_check_exists_id_right_sum. 
+       rewrite <- correct_check_exists_ann_right_sum. 
+       reflexivity. 
+Defined. 
+
+
+Lemma correct_msg_certs_right_sum : 
+      ∀ (pS : msg_proofs S rS bS) (pT : msg_proofs T rT bT),
+        
+      msg_certs_right_sum wS f wT g (P2C_msg S rS bS pS) (P2C_msg T rT bT pT) 
+      = 
+      P2C_msg (S + T) (brel_sum rS rT) 
+                     (bop_right_sum bS bT) 
+                     (msg_proofs_right_sum S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
+Proof. intros pS pT. 
+       unfold msg_proofs_right_sum, msg_certs_right_sum, P2C_msg; simpl. 
+       rewrite <- correct_check_commutative_right_sum. 
+       rewrite <- correct_check_exists_id_right_sum. 
+       rewrite <- correct_check_exists_ann_right_sum. 
+       reflexivity. 
+Defined. 
 
 
 Lemma correct_sg_certs_right_sum : 

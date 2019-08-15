@@ -40,6 +40,18 @@ Proof. induction x.
 Qed. 
 
 
+Lemma brel_subset_false_elim : 
+           ∀ (x w : finite_set S), 
+               brel_subset r x w = false -> 
+                  { a :S & (in_set r x a = true) * (in_set r w a = false) }. 
+Proof. intros x w H.
+       induction x. compute in H. discriminate H. 
+       unfold brel_subset in H. fold @brel_subset in H. apply andb_is_false_left in H.
+       destruct H as [H | H]. 
+          exists a. split; auto. apply in_set_cons_intro; auto. 
+          destruct (IHx H) as [s [P Q]]. exists s; split; auto. apply in_set_cons_intro; auto. 
+Defined.         
+
 Lemma brel_subset_filter_intro : 
    ∀ (f g : bProp S),
        bProp_congruence S r f →

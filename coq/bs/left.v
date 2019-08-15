@@ -28,10 +28,16 @@ Lemma bops_sg_left_left_left_absorptive : bops_left_left_absorptive S rS addS bo
 Proof. intros s1 s2 ; compute. exact (symS _ _ (idemS s1)).  Qed. 
 
 Lemma bops_sg_left_not_left_right_absorptive : bops_not_left_right_absorptive S rS addS bop_left. 
-Proof. compute.
-       destruct (bop_commutative_implies_not_is_left S rS addS wS f nt symS tranS commS) as [[s1 s2] NIL]. 
-       exists (s1, s2). case_eq(rS s1 (addS s1 s2)); intro F; auto.
-       apply symS in F. rewrite F in NIL. discriminate NIL. 
+Proof.  exists (cef_commutative_implies_not_is_left rS addS wS f).
+        compute. destruct (nt wS) as [L R]. 
+        case_eq(rS (addS (f wS) wS) wS); intro F. 
+           case_eq(rS (f wS) (addS (f wS) wS)); intro G; auto. 
+           assert (K := tranS _ _ _ G F).
+           rewrite K in R. exact R.
+           case_eq(rS wS (addS wS (f wS))); intro G; auto.
+           assert (K := commS wS (f wS)).
+           assert (J := tranS _ _ _ G K). 
+           apply symS in J.  rewrite J in F. exact F.
 Defined.
 
 Lemma bops_sg_left_not_id_equals_ann : bops_not_id_equals_ann S rS addS bop_left. 
@@ -83,7 +89,7 @@ let plusS := A_sg_CI_bop S sg           in
 ; A_dioid_plus         := plusS 
 ; A_dioid_times        := bop_left 
 ; A_dioid_plus_proofs  := A_sg_CI_proofs S sg
-; A_dioid_times_proofs := sg_proofs_left S eq s f nt eqvP 
+; A_dioid_times_proofs := msg_proofs_left S eq s f nt eqvP 
 ; A_dioid_proofs       := semiring_proofs_sg_left S eq plusS s f nt eqvP (A_sg_CI_proofs S sg)  
 ; A_dioid_plus_ast     := A_sg_CI_bop_ast S sg 
 ; A_dioid_times_ast    := Ast_bop_left (A_eqv_ast S eqv) 
@@ -104,7 +110,7 @@ let plusS := A_sg_CS_bop S sg           in
 ; A_selective_dioid_plus         := plusS 
 ; A_selective_dioid_times        := bop_left 
 ; A_selective_dioid_plus_proofs  := A_sg_CS_proofs S sg
-; A_selective_dioid_times_proofs := sg_proofs_left S eq s f nt eqvP 
+; A_selective_dioid_times_proofs := msg_proofs_left S eq s f nt eqvP 
 ; A_selective_dioid_proofs       := semiring_proofs_sg_left S eq plusS s f nt eqvP (A_sg_CI_proofs_from_sg_CS_proofs S eq plusS (A_sg_CS_proofs S sg))
 ; A_selective_dioid_plus_ast     := A_sg_CS_bop_ast S sg 
 ; A_selective_dioid_times_ast    := Ast_bop_left (A_eqv_ast S eqv) 
@@ -127,7 +133,7 @@ Definition semiring_certs_sg_left
   semiring_left_distributive       := Assert_Left_Distributive 
 ; semiring_right_distributive      := Assert_Right_Distributive 
 ; semiring_left_left_absorptive_d  := Certify_Left_Left_Absorptive 
-; semiring_left_right_absorptive_d := Certify_Not_Left_Right_Absorptive (cef_commutative_implies_not_is_left rS addS s f)
+; semiring_left_right_absorptive_d := let (s1, s2) := cef_commutative_implies_not_is_left rS addS s f in Certify_Not_Left_Right_Absorptive (s1, s2)
 ; semiring_plus_id_is_times_ann_d  := Certify_Not_Plus_Id_Equals_Times_Ann
 ; semiring_times_id_is_plus_ann_d  := Certify_Not_Times_Id_Equals_Plus_Ann
 |}.
@@ -144,7 +150,7 @@ let plusS := sg_CI_bop sg        in
 ; dioid_plus         := plusS 
 ; dioid_times        := bop_left 
 ; dioid_plus_certs   := sg_CI_certs sg
-; dioid_times_certs  := sg_certs_left s f 
+; dioid_times_certs  := msg_certs_left s f 
 ; dioid_certs        := semiring_certs_sg_left S eq plusS s f 
 ; dioid_plus_ast     := sg_CI_bop_ast sg 
 ; dioid_times_ast    := Ast_bop_left (eqv_ast eqv) 
@@ -164,21 +170,16 @@ let plusS := sg_CS_bop sg        in
 ; selective_dioid_plus         := plusS 
 ; selective_dioid_times        := bop_left 
 ; selective_dioid_plus_certs   := sg_CS_certs sg
-; selective_dioid_times_certs  := sg_certs_left s f 
+; selective_dioid_times_certs  := msg_certs_left s f 
 ; selective_dioid_certs        := semiring_certs_sg_left S eq plusS s f 
 ; selective_dioid_plus_ast     := sg_CS_bop_ast sg 
 ; selective_dioid_times_ast    := Ast_bop_left (eqv_ast eqv) 
 ; selective_dioid_ast          := Ast_selective_dioid_sg_left (sg_CS_ast sg)
 |}.
 
-  
-
 End CAS.
 
 Section Verify.
-
-
-
 
 Lemma correct_dioid_sg_left_certs
   (S : Type)
@@ -192,15 +193,15 @@ Lemma correct_dioid_sg_left_certs
   P2C_semiring S eq addS bop_left (semiring_proofs_sg_left S eq addS wS f nt eqvP sgP)
   = 
   semiring_certs_sg_left S eq addS wS f. 
-Proof. destruct sgP. unfold semiring_proofs_sg_left, semiring_certs_sg_left, P2C_semiring; simpl.
-Admitted. 
+Proof. destruct sgP. compute; auto. Qed. 
+       
 
 Theorem correct_dioid_sg_left  (S : Type) (sg : A_sg_CI S) :
    A2C_dioid S (A_dioid_sg_left S sg) =  dioid_sg_left S (A2C_sg_CI S sg). 
 Proof. destruct sg. destruct A_sg_CI_proofs.
        unfold dioid_sg_left, A_dioid_sg_left, A2C_dioid, A2C_sg_CI; simpl.
        unfold P2C_sg_CI; simpl.
-       rewrite <- correct_sg_certs_left.
+       rewrite <- correct_msg_certs_left.
        rewrite correct_dioid_sg_left_certs.
        reflexivity. 
 Qed.   
@@ -210,7 +211,7 @@ Theorem correct_selective_dioid_sg_left  (S : Type) (sg : A_sg_CS S) :
 Proof. destruct sg. destruct A_sg_CS_proofs.
        unfold selective_dioid_sg_left, A_selective_dioid_sg_left, A2C_selective_dioid, A2C_sg_CS; simpl.
        unfold P2C_sg_CS; simpl.
-       rewrite <- correct_sg_certs_left.
+       rewrite <- correct_msg_certs_left.
        rewrite correct_dioid_sg_left_certs.
        reflexivity. 
 Qed.   

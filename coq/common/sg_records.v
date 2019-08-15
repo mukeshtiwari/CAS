@@ -13,14 +13,23 @@ Record sg {S : Type} := {
 ; sg_ast     : ast_sg
 }.
 
-(*
-Record sg_new {S : Type} := {
-  sgn_eq    : eqv S 
-; sgn_bop   : binary_op S 
-; sgn_certs : sg_certificates_new S 
-; sgn_ast   : ast_sg
+Record asg {S : Type} := {
+  asg_eq      : eqv (S := S) 
+; asg_bop     : binary_op S 
+; asg_certs   : asg_certificates (S := S)
+; asg_bop_ast : ast_bop                      
+; asg_ast     : ast_asg
 }.
-*) 
+
+Record msg {S : Type} := {
+  msg_eq      : eqv (S := S) 
+; msg_bop     : binary_op S 
+; msg_certs   : msg_certificates (S := S)
+; msg_bop_ast : ast_bop                      
+; msg_ast     : ast_msg
+}.
+
+
 
 Record sg_C {S : Type} := {
   sg_C_eqv   : eqv (S := S) 
@@ -34,7 +43,7 @@ Record sg_CI {S : Type} := {
   sg_CI_eqv   : eqv (S := S) 
 ; sg_CI_bop   : binary_op S 
 ; sg_CI_certs : sg_CI_certificates (S := S)
-; sg_CI_bop_ast      : ast_bop                                                            
+; sg_CI_bop_ast      : ast_bop               
 ; sg_CI_ast   : ast_sg_CI
 }.
 
@@ -42,7 +51,7 @@ Record sg_CS {S : Type} := {
   sg_CS_eqv   : eqv (S := S) 
 ; sg_CS_bop   : binary_op S 
 ; sg_CS_certs : sg_CS_certificates (S := S)
-; sg_CS_bop_ast      : ast_bop
+; sg_CS_bop_ast  : ast_bop
 ; sg_CS_ast   : ast_sg_CS
 }.
 
@@ -50,7 +59,7 @@ Record sg_CK {S : Type} := {
   sg_CK_eqv   : eqv (S := S) 
 ; sg_CK_bop   : binary_op S 
 ; sg_CK_certs : sg_CK_certificates (S := S)
-; sg_CK_bop_ast     : ast_bop                                                           
+; sg_CK_bop_ast     : ast_bop   
 ; sg_CK_ast   : ast_sg_CK
 }.
 

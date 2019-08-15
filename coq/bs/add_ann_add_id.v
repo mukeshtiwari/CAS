@@ -424,7 +424,7 @@ Section ACAS.
 Definition bs_proofs_add_one : 
   ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S) (s : S), 
      eqv_proofs S rS -> 
-     sg_proofs S rS plusS -> 
+     asg_proofs S rS plusS -> 
      bs_proofs S rS plusS timesS -> 
         bs_proofs 
            (with_constant S) 
@@ -437,7 +437,7 @@ Definition bs_proofs_add_one :
      bops_add_one_left_distributive_decide S rS c plusS timesS 
         (A_eqv_reflexive S rS eqvS)
         (A_eqv_symmetric S rS eqvS)
-        (A_sg_idempotent_d S rS plusS ppS)
+        (A_asg_idempotent_d S rS plusS ppS)
         (A_bs_left_left_absorptive_d S rS plusS timesS pS)
         (A_bs_right_left_absorptive_d S rS plusS timesS pS)
         (A_bs_left_distributive_d S rS plusS timesS pS) 
@@ -445,29 +445,29 @@ Definition bs_proofs_add_one :
      bops_add_one_right_distributive_decide S rS c plusS timesS 
         (A_eqv_reflexive S rS eqvS)
         (A_eqv_symmetric S rS eqvS)
-        (A_sg_idempotent_d S rS plusS ppS)
+        (A_asg_idempotent_d S rS plusS ppS)
         (A_bs_left_right_absorptive_d S rS plusS timesS pS)
         (A_bs_right_right_absorptive_d S rS plusS timesS pS)
         (A_bs_right_distributive_d S rS plusS timesS pS) 
 ; A_bs_left_left_absorptive_d      := 
      bops_add_one_left_left_absorptive_decide S rS c plusS timesS 
         (A_eqv_symmetric S rS eqvS)
-        (A_sg_idempotent_d S rS plusS ppS)
+        (A_asg_idempotent_d S rS plusS ppS)
         (A_bs_left_left_absorptive_d S rS plusS timesS pS)
 ; A_bs_left_right_absorptive_d      := 
      bops_add_one_left_right_absorptive_decide S rS c plusS timesS 
         (A_eqv_symmetric S rS eqvS)
-        (A_sg_idempotent_d S rS plusS ppS)
+        (A_asg_idempotent_d S rS plusS ppS)
         (A_bs_left_right_absorptive_d S rS plusS timesS pS)
 ; A_bs_right_left_absorptive_d     := 
      bops_add_one_right_left_absorptive_decide S rS c plusS timesS 
         (A_eqv_symmetric S rS eqvS)
-        (A_sg_idempotent_d S rS plusS ppS)
+        (A_asg_idempotent_d S rS plusS ppS)
         (A_bs_right_left_absorptive_d S rS plusS timesS pS)
 ; A_bs_right_right_absorptive_d     := 
      bops_add_one_right_right_absorptive_decide S rS c plusS timesS 
         (A_eqv_symmetric S rS eqvS)
-        (A_sg_idempotent_d S rS plusS ppS)
+        (A_asg_idempotent_d S rS plusS ppS)
         (A_bs_right_right_absorptive_d S rS plusS timesS pS)
 ; A_bs_plus_id_is_times_ann_d := 
     bops_add_one_id_equals_ann_decide S rS c plusS timesS s (A_eqv_reflexive S rS eqvS) 
@@ -493,8 +493,8 @@ let tproofs := A_bs_times_proofs S bsS in
      A_bs_eqv          := A_eqv_add_constant S eqvS c 
    ; A_bs_plus         := bop_add_ann plus c
    ; A_bs_times        := bop_add_id times c
-   ; A_bs_plus_proofs  := sg_proofs_add_ann S rS c plus s f Pf peqvS pproofs 
-   ; A_bs_times_proofs := sg_proofs_add_id S rS c times s f Pf peqvS tproofs 
+   ; A_bs_plus_proofs  := asg_proofs_add_ann S rS c plus s peqvS pproofs 
+   ; A_bs_times_proofs := msg_proofs_add_id S rS c times s f Pf peqvS tproofs 
    ; A_bs_proofs       := bs_proofs_add_one S rS c plus times s peqvS pproofs (A_bs_proofs S bsS)
    ; A_bs_plus_ast     := Ast_bop_add_ann (c, A_bs_plus_ast S bsS)
    ; A_bs_times_ast    := Ast_bop_add_id (c, A_bs_times_ast S bsS)                                                      
@@ -860,30 +860,30 @@ Definition bops_plus_id_equals_times_ann_check :
 
 Definition bs_certs_add_one : 
   ∀ {S : Type} (c : cas_constant),
-     sg_certificates (S := S) -> bs_certificates (S := S) -> bs_certificates (S := (with_constant S))
+     asg_certificates (S := S) -> bs_certificates (S := S) -> bs_certificates (S := (with_constant S))
 := λ {S} c ppS pS, 
 {|
   bs_left_distributive_d      :=  bops_add_one_left_distributive_check c 
-                                      (sg_idempotent_d ppS) 
+                                      (asg_idempotent_d ppS) 
                                       (bs_left_left_absorptive_d pS) 
                                       (bs_right_left_absorptive_d pS) 
                                       (bs_left_distributive_d pS) 
 ; bs_right_distributive_d     := bops_add_one_right_distributive_check c 
-                                      (sg_idempotent_d ppS) 
+                                      (asg_idempotent_d ppS) 
                                       (bs_left_right_absorptive_d pS) 
                                       (bs_right_right_absorptive_d pS) 
                                       (bs_right_distributive_d pS) 
 ; bs_left_left_absorptive_d   := bops_add_one_left_left_absorptive_check c 
-                                      (sg_idempotent_d ppS) 
+                                      (asg_idempotent_d ppS) 
                                       (bs_left_left_absorptive_d pS) 
 ; bs_left_right_absorptive_d  := bops_add_one_left_right_absorptive_check c 
-                                      (sg_idempotent_d ppS) 
+                                      (asg_idempotent_d ppS) 
                                       (bs_left_right_absorptive_d pS) 
 ; bs_right_left_absorptive_d  := bops_add_one_right_left_absorptive_check c 
-                                      (sg_idempotent_d ppS) 
+                                      (asg_idempotent_d ppS) 
                                       (bs_right_left_absorptive_d pS) 
 ; bs_right_right_absorptive_d := bops_add_one_right_right_absorptive_check c 
-                                      (sg_idempotent_d ppS) 
+                                      (asg_idempotent_d ppS) 
                                       (bs_right_right_absorptive_d pS) 
 ; bs_plus_id_is_times_ann_d := bops_plus_id_equals_times_ann_check c (bs_plus_id_is_times_ann_d pS)
 ; bs_times_id_is_plus_ann_d :=  Certify_Times_Id_Equals_Plus_Ann  
@@ -895,15 +895,9 @@ Definition bs_add_one : ∀ {S : Type}, bs (S := S) -> cas_constant -> bs (S := 
      bs_eqv         := eqv_add_constant (bs_eqv bsS) c 
    ; bs_plus        := bop_add_ann (bs_plus bsS) c
    ; bs_times       := bop_add_id (bs_times bsS) c
-   ; bs_plus_certs  := sg_certs_add_ann c
-                                (eqv_witness (bs_eqv bsS)) (eqv_new (bs_eqv bsS)) 
-                                (bs_plus_certs bsS) 
-   ; bs_times_certs := sg_certs_add_id c
-                                (eqv_witness (bs_eqv bsS)) (eqv_new (bs_eqv bsS)) 
-                                (bs_times_certs bsS) 
-   ; bs_certs       := bs_certs_add_one c
-                                (bs_plus_certs bsS) 
-                                (bs_certs bsS)
+   ; bs_plus_certs  := asg_certs_add_ann c (eqv_witness (bs_eqv bsS)) (bs_plus_certs bsS) 
+   ; bs_times_certs := msg_certs_add_id c (eqv_witness (bs_eqv bsS)) (eqv_new (bs_eqv bsS)) (bs_times_certs bsS) 
+   ; bs_certs       := bs_certs_add_one c (bs_plus_certs bsS) (bs_certs bsS)
    ; bs_plus_ast    := Ast_bop_add_ann (c, bs_plus_ast bsS)
    ; bs_times_ast   := Ast_bop_add_id (c, bs_times_ast bsS)                                                      
    ; bs_ast         := Ast_bs_add_one (c, bs_ast bsS)
@@ -1136,7 +1130,7 @@ Lemma  correct_bs_certs_add_one :
   ∀ (S : Type) (c : cas_constant) (s : S) (rS : brel S) 
     (plusS timesS : binary_op S) 
     (eqvS : eqv_proofs S rS)
-    (sgS : sg_proofs S rS plusS) 
+    (sgS : asg_proofs S rS plusS) 
     (bsS : bs_proofs S rS plusS timesS), 
     P2C_bs (with_constant S) 
        (brel_sum brel_constant rS) 
@@ -1144,9 +1138,9 @@ Lemma  correct_bs_certs_add_one :
        (bop_add_id timesS c) 
        (bs_proofs_add_one S rS c plusS timesS s eqvS sgS bsS)
     =
-    bs_certs_add_one c (P2C_sg S rS plusS sgS) (P2C_bs S rS plusS timesS bsS). 
+    bs_certs_add_one c (P2C_asg S rS plusS sgS) (P2C_bs S rS plusS timesS bsS). 
 Proof. intros S c s rS plusS timesS eqvS sgS bsS. 
-       unfold bs_certs_add_one, bs_proofs_add_one, P2C_bs, P2C_sg; simpl. 
+       unfold bs_certs_add_one, bs_proofs_add_one, P2C_bs, P2C_asg; simpl. 
        rewrite bops_add_one_left_distributive_check_correct. 
        rewrite bops_add_one_right_distributive_check_correct. 
        rewrite bops_add_one_plus_id_equals_times_ann_check_correct.
@@ -1164,8 +1158,8 @@ Theorem correct_bs_add_one : ∀ (S : Type) (bsS: A_bs S) (c : cas_constant),
 Proof. intros S bsS c. 
        unfold bs_add_one, A_bs_add_one, A2C_bs; simpl. 
        rewrite correct_eqv_add_constant. 
-       rewrite <- correct_sg_certs_add_ann. 
-       rewrite <- correct_sg_certs_add_id. 
+       rewrite <- correct_asg_certs_add_ann. 
+       rewrite <- correct_msg_certs_add_id. 
        rewrite correct_bs_certs_add_one. 
        reflexivity. 
 Qed. 

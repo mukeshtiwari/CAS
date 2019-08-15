@@ -125,10 +125,10 @@ Definition A2C_bs : ∀ (S : Type), A_bs S -> @bs S
   bs_eqv         := A2C_eqv S (A_bs_eqv S R)
 ; bs_plus        := A_bs_plus S R 
 ; bs_times       := A_bs_times S R 
-; bs_plus_certs  := P2C_sg S (A_eqv_eq S (A_bs_eqv S R)) 
+; bs_plus_certs  := P2C_asg S (A_eqv_eq S (A_bs_eqv S R)) 
                                 (A_bs_plus S R) 
                                 (A_bs_plus_proofs S R)
-; bs_times_certs := P2C_sg S (A_eqv_eq S (A_bs_eqv S R)) 
+; bs_times_certs := P2C_msg S (A_eqv_eq S (A_bs_eqv S R)) 
                                 (A_bs_times S R) 
                                 (A_bs_times_proofs S R)
 ; bs_certs       := P2C_bs S (A_eqv_eq S (A_bs_eqv S R)) 
@@ -140,6 +140,8 @@ Definition A2C_bs : ∀ (S : Type), A_bs S -> @bs S
 ; bs_ast        := A_bs_ast S R
 |}.
 
+
+(*
 Definition A2C_bs_C : ∀ (S : Type), A_bs_C S -> @bs_C S 
 := λ S R,
 {|
@@ -149,7 +151,7 @@ Definition A2C_bs_C : ∀ (S : Type), A_bs_C S -> @bs_C S
 ; bs_C_plus_certs  := P2C_sg_C S (A_eqv_eq S (A_bs_C_eqv S R)) 
                                 (A_bs_C_plus S R) 
                                 (A_bs_C_plus_proofs S R)
-; bs_C_times_certs := P2C_sg S (A_eqv_eq S (A_bs_C_eqv S R)) 
+; bs_C_times_certs := P2C_msg S (A_eqv_eq S (A_bs_C_eqv S R)) 
                                 (A_bs_C_times S R) 
                                 (A_bs_C_times_proofs S R)
 ; bs_C_certs       := P2C_bs S (A_eqv_eq S (A_bs_C_eqv S R)) 
@@ -160,7 +162,7 @@ Definition A2C_bs_C : ∀ (S : Type), A_bs_C S -> @bs_C S
 ; bs_C_times_ast  := A_bs_C_times_ast S R                                                                     
 ; bs_C_ast        := A_bs_C_ast S R
 |}.
-
+*) 
 
 Definition A2C_bs_CS : ∀ (S : Type), A_bs_CS S -> @bs_CS S 
 := λ S R,
@@ -171,7 +173,7 @@ Definition A2C_bs_CS : ∀ (S : Type), A_bs_CS S -> @bs_CS S
 ; bs_CS_plus_certs  := P2C_sg_CS S (A_eqv_eq S (A_bs_CS_eqv S R)) 
                                 (A_bs_CS_plus S R) 
                                 (A_bs_CS_plus_proofs S R)
-; bs_CS_times_certs := P2C_sg S (A_eqv_eq S (A_bs_CS_eqv S R)) 
+; bs_CS_times_certs := P2C_msg S (A_eqv_eq S (A_bs_CS_eqv S R)) 
                                 (A_bs_CS_times S R) 
                                 (A_bs_CS_times_proofs S R)
 ; bs_CS_certs       := P2C_bs S (A_eqv_eq S (A_bs_CS_eqv S R)) 
@@ -193,7 +195,7 @@ Definition A2C_bs_CI : ∀ (S : Type), A_bs_CI S -> @bs_CI S
 ; bs_CI_plus_certs  := P2C_sg_CI S (A_eqv_eq S (A_bs_CI_eqv S R)) 
                                 (A_bs_CI_plus S R) 
                                 (A_bs_CI_plus_proofs S R)
-; bs_CI_times_certs := P2C_sg S (A_eqv_eq S (A_bs_CI_eqv S R)) 
+; bs_CI_times_certs := P2C_msg S (A_eqv_eq S (A_bs_CI_eqv S R)) 
                                 (A_bs_CI_times S R) 
                                 (A_bs_CI_times_proofs S R)
 ; bs_CI_certs       := P2C_bs S (A_eqv_eq S (A_bs_CI_eqv S R)) 
@@ -343,7 +345,7 @@ Definition A2C_semiring : ∀ (S : Type), A_semiring S -> @semiring S
 ; semiring_plus_certs  := P2C_sg_C S (A_eqv_eq S (A_semiring_eqv S R)) 
                                 (A_semiring_plus S R) 
                                 (A_semiring_plus_proofs S R)
-; semiring_times_certs := P2C_sg S (A_eqv_eq S (A_semiring_eqv S R)) 
+; semiring_times_certs := P2C_msg S (A_eqv_eq S (A_semiring_eqv S R)) 
                                 (A_semiring_times S R) 
                                 (A_semiring_times_proofs S R)
 ; semiring_certs       := P2C_semiring S (A_eqv_eq S (A_semiring_eqv S R)) 
@@ -365,7 +367,7 @@ Definition A2C_dioid : ∀ (S : Type), A_dioid S -> @dioid S
 ; dioid_plus_certs  := P2C_sg_CI S (A_eqv_eq S (A_dioid_eqv S R)) 
                                 (A_dioid_plus S R) 
                                 (A_dioid_plus_proofs S R)
-; dioid_times_certs := P2C_sg S (A_eqv_eq S (A_dioid_eqv S R)) 
+; dioid_times_certs := P2C_msg S (A_eqv_eq S (A_dioid_eqv S R)) 
                                 (A_dioid_times S R) 
                                 (A_dioid_times_proofs S R)
 ; dioid_certs       := P2C_semiring S (A_eqv_eq S (A_dioid_eqv S R)) 
@@ -387,7 +389,7 @@ Definition A2C_selective_dioid : ∀ (S : Type), A_selective_dioid S -> @selecti
 ; selective_dioid_plus_certs  := P2C_sg_CS S (A_eqv_eq S (A_selective_dioid_eqv S R)) 
                                 (A_selective_dioid_plus S R) 
                                 (A_selective_dioid_plus_proofs S R)
-; selective_dioid_times_certs := P2C_sg S (A_eqv_eq S (A_selective_dioid_eqv S R)) 
+; selective_dioid_times_certs := P2C_msg S (A_eqv_eq S (A_selective_dioid_eqv S R)) 
                                 (A_selective_dioid_times S R) 
                                 (A_selective_dioid_times_proofs S R)
 ; selective_dioid_certs       := P2C_semiring S (A_eqv_eq S (A_selective_dioid_eqv S R)) 

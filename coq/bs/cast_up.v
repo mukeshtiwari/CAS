@@ -9,73 +9,50 @@ End Theory.
 
 Section ACAS.
 
-Definition A_bs_from_bs_C : ∀ (S : Type),  A_bs_C S -> A_bs S 
-:= λ S s, 
+
+
+Definition A_bs_from_bs_CS : ∀ (S : Type),  A_bs_CS S -> A_bs S 
+:= λ S bs, 
 {| 
-  A_bs_eqv          := A_bs_C_eqv S s
-; A_bs_plus         := A_bs_C_plus S s
-; A_bs_times        := A_bs_C_times S s
-; A_bs_plus_proofs  := A_sg_proofs_from_sg_C_proofs S 
-                            (A_eqv_eq S (A_bs_C_eqv S s))
-                            (A_bs_C_plus S s)
-                            (A_eqv_witness S (A_bs_C_eqv S s))
-                            (A_eqv_new S (A_bs_C_eqv S s))
-                            (A_eqv_not_trivial S (A_bs_C_eqv S s))                            
-                            (A_eqv_proofs S (A_bs_C_eqv S s)) 
-                            (A_bs_C_plus_proofs S s)  
-; A_bs_times_proofs := A_bs_C_times_proofs S s
-; A_bs_proofs       := A_bs_C_proofs S s
-; A_bs_plus_ast     := A_bs_C_plus_ast S s
-; A_bs_times_ast    := A_bs_C_times_ast S s                                                                      
-; A_bs_ast          := Ast_bs_from_bs_C (A_bs_C_ast S s)
+  A_bs_eqv          := A_bs_CS_eqv S bs
+; A_bs_plus         := A_bs_CS_plus S bs
+; A_bs_times        := A_bs_CS_times S bs
+; A_bs_plus_proofs  := A_asg_proofs_from_sg_CS_proofs S
+                         (A_eqv_eq S (A_bs_CS_eqv S bs))
+                         (A_bs_CS_plus S bs)
+                         (A_eqv_witness S (A_bs_CS_eqv S bs))
+                         (A_eqv_new S (A_bs_CS_eqv S bs))
+                         (A_eqv_not_trivial S (A_bs_CS_eqv S bs))                         
+                         (A_eqv_proofs S (A_bs_CS_eqv S bs))
+                         (A_bs_CS_plus_proofs S bs)  
+; A_bs_times_proofs := A_bs_CS_times_proofs S bs
+; A_bs_proofs       := A_bs_CS_proofs S bs
+; A_bs_plus_ast     := A_bs_CS_plus_ast S bs
+; A_bs_times_ast    := A_bs_CS_times_ast S bs   
+; A_bs_ast          := Ast_bs_from_bs_CS (A_bs_CS_ast S bs)
 |}. 
 
 
-Definition A_bs_C_from_bs_CS : ∀ (S : Type),  A_bs_CS S -> A_bs_C S 
-:= λ S s, 
+Definition A_bs_from_bs_CI : ∀ (S : Type),  A_bs_CI S -> A_bs S 
+:= λ S bs, 
 {| 
-  A_bs_C_eqv          := A_bs_CS_eqv S s
-; A_bs_C_plus         := A_bs_CS_plus S s
-; A_bs_C_times        := A_bs_CS_times S s
-; A_bs_C_plus_proofs  := A_sg_C_proofs_from_sg_CS_proofs S 
-                            (A_eqv_eq S (A_bs_CS_eqv S s))
-                            (A_bs_CS_plus S s)
-                            (A_eqv_witness S (A_bs_CS_eqv S s))
-                            (A_eqv_new S (A_bs_CS_eqv S s))
-                            (A_eqv_not_trivial S (A_bs_CS_eqv S s))
-                            (A_eqv_proofs S (A_bs_CS_eqv S s))                            
-                            (A_bs_CS_plus_proofs S s)  
-; A_bs_C_times_proofs := A_bs_CS_times_proofs S s
-; A_bs_C_proofs       := A_bs_CS_proofs S s
-; A_bs_C_plus_ast     := A_bs_CS_plus_ast S s
-; A_bs_C_times_ast    := A_bs_CS_times_ast S s   
-; A_bs_C_ast          := Ast_bs_C_from_bs_CS (A_bs_CS_ast S s)
+  A_bs_eqv          := A_bs_CI_eqv S bs
+; A_bs_plus         := A_bs_CI_plus S bs
+; A_bs_times        := A_bs_CI_times S bs
+; A_bs_plus_proofs  := A_asg_proofs_from_sg_CI_proofs S
+                         (A_eqv_eq S (A_bs_CI_eqv S bs))
+                         (A_bs_CI_plus S bs)
+                         (A_eqv_witness S (A_bs_CI_eqv S bs))
+                         (A_eqv_new S (A_bs_CI_eqv S bs))
+                         (A_eqv_not_trivial S (A_bs_CI_eqv S bs))                         
+                         (A_eqv_proofs S (A_bs_CI_eqv S bs))
+                         (A_bs_CI_plus_proofs S bs)  
+; A_bs_times_proofs := A_bs_CI_times_proofs S bs
+; A_bs_proofs       := A_bs_CI_proofs S bs
+; A_bs_plus_ast     := A_bs_CI_plus_ast S bs
+; A_bs_times_ast    := A_bs_CI_times_ast S bs                                           
+; A_bs_ast          := Ast_bs_from_bs_CI (A_bs_CI_ast S bs)
 |}. 
-
-
-Definition A_bs_C_from_bs_CI : ∀ (S : Type),  A_bs_CI S -> A_bs_C S 
-:= λ S s, 
-{| 
-  A_bs_C_eqv          := A_bs_CI_eqv S s
-; A_bs_C_plus         := A_bs_CI_plus S s
-; A_bs_C_times        := A_bs_CI_times S s
-; A_bs_C_plus_proofs  := A_sg_C_proofs_from_sg_CI_proofs S 
-                            (A_eqv_eq S (A_bs_CI_eqv S s))
-                            (A_bs_CI_plus S s)
-                            (A_eqv_witness S (A_bs_CI_eqv S s))
-                            (A_eqv_new S (A_bs_CI_eqv S s))
-                            (A_eqv_not_trivial S (A_bs_CI_eqv S s))
-                            (A_eqv_proofs S (A_bs_CI_eqv S s))                            
-                            (A_bs_CI_plus_proofs S s)  
-; A_bs_C_times_proofs := A_bs_CI_times_proofs S s
-; A_bs_C_proofs       := A_bs_CI_proofs S s
-; A_bs_C_plus_ast     := A_bs_CI_plus_ast S s
-; A_bs_C_times_ast    := A_bs_CI_times_ast S s                                           
-; A_bs_C_ast          := Ast_bs_C_from_bs_CI (A_bs_CI_ast S s)
-|}. 
-
-
-
 
 
 Definition bs_proofs_from_semiring_proofs :
@@ -100,6 +77,7 @@ let plusS_comm := A_sg_C_commutative S eq plus sg in
 |}.
 
 
+(*
 Definition A_bs_C_from_semiring :∀ (S: Type), A_semiring S -> A_bs_C S
 := λ S s,
 let eqv := A_semiring_eqv S s in
@@ -119,7 +97,8 @@ let sg_plusP := A_semiring_plus_proofs S s in
 ; A_bs_C_times_ast    := A_semiring_times_ast S s                                                           
 ; A_bs_C_ast          := Ast_bs_C_from_semiring (A_semiring_ast S s)
 |}.
-     
+*) 
+
 Definition A_semiring_from_dioid :∀ (S: Type), A_dioid S -> A_semiring S
 := λ S dS,
 let eqv := A_dioid_eqv S dS in
@@ -200,7 +179,7 @@ let nt    := A_eqv_not_trivial S eqv in
 ; A_dioid_plus         := plus
 ; A_dioid_times        := times 
 ; A_dioid_plus_proofs  := plusP 
-; A_dioid_times_proofs := A_sg_proofs_from_sg_CI_proofs S eq times w f nt eqvP timesP
+; A_dioid_times_proofs := A_msg_proofs_from_sg_proofs S eq times (A_sg_proofs_from_sg_CI_proofs S eq times w f nt eqvP timesP)
 ; A_dioid_proofs       := distributive_lattice_proofs_to_semiring_proofs S eq plus times eqvP plusP timesP dPS
 ; A_dioid_plus_ast     := A_distributive_lattice_join_ast S dS
 ; A_dioid_times_ast    := A_distributive_lattice_meet_ast S dS                                                          
@@ -246,8 +225,29 @@ Definition A_distributive_lattice_from_selective_distributive_lattice : ∀ (S :
 |}.  
 
 
+Definition A_bs_from_semiring :∀ (S: Type), A_semiring S -> A_bs S 
+:= λ S s,
+let eqv := A_semiring_eqv S s in
+let eqvP := A_eqv_proofs S eqv in
+let eq := A_eqv_eq S eqv in
+let plus := A_semiring_plus S s in
+let times := A_semiring_times S s in
+let sg_plusP := A_semiring_plus_proofs S s in 
+{| 
+  A_bs_eqv          := eqv 
+; A_bs_plus         := plus 
+; A_bs_times        := times 
+; A_bs_plus_proofs  := A_asg_proofs_from_sg_C_proofs S eq plus sg_plusP  
+; A_bs_times_proofs := A_semiring_times_proofs S s
+; A_bs_proofs       := bs_proofs_from_semiring_proofs S eq plus times eqvP sg_plusP (A_semiring_proofs S s)
+; A_bs_plus_ast     := A_semiring_plus_ast S s
+; A_bs_times_ast    := A_semiring_times_ast S s                                                           
+; A_bs_ast          := Ast_bs_from_semiring (A_semiring_ast S s)
+|}. 
+     
+
 Definition A_bs_from_dioid :∀ (S: Type), A_dioid S -> A_bs S 
-  := λ S sS,  (A_bs_from_bs_C S (A_bs_C_from_semiring S (A_semiring_from_dioid S sS))).
+  := λ S sS,  A_bs_from_semiring S (A_semiring_from_dioid S sS). 
 
 Definition A_bs_from_selective_dioid :∀ (S: Type), A_selective_dioid S -> A_bs S 
 := λ S sS,  A_bs_from_dioid S (A_dioid_from_selective_dioid S sS). 
@@ -259,26 +259,20 @@ End ACAS.
 
 Section CAS.
 
+(*  
 Definition bs_from_bs_C : ∀ {S : Type},  @bs_C S -> @bs S 
 := λ {S} s, 
 {| 
   bs_eqv          := bs_C_eqv s
 ; bs_plus         := bs_C_plus s
 ; bs_times        := bs_C_times s
-; bs_plus_certs  := sg_certs_from_sg_C_certs 
-                            (eqv_eq (bs_C_eqv s))
-                            (bs_C_plus s)
-                            (eqv_witness (bs_C_eqv s))
-                            (eqv_new (bs_C_eqv s))                             
-                            (bs_C_plus_certs s)  
+; bs_plus_certs  := asg_certs_from_sg_C_certs (bs_C_plus_certs s)  
 ; bs_times_certs := bs_C_times_certs s
 ; bs_certs       := bs_C_certs  s
 ; bs_plus_ast    := bs_C_plus_ast s
 ; bs_times_ast   := bs_C_times_ast s                                                                                                 
 ; bs_ast         := Ast_bs_from_bs_C (bs_C_ast s)
 |}. 
-
-
 
 
 Definition bs_C_from_bs_CS : ∀ {S : Type},  @bs_CS S -> @bs_C S
@@ -301,25 +295,27 @@ Definition bs_C_from_bs_CS : ∀ {S : Type},  @bs_CS S -> @bs_C S
 |}.
 
 
-Definition bs_C_from_bs_CI : ∀ {S : Type},  @bs_CI S -> @bs_C S
-:= λ {S} s, 
-{| 
-  bs_C_eqv          := bs_CI_eqv s
-; bs_C_plus         := bs_CI_plus s
-; bs_C_times        := bs_CI_times s
-; bs_C_plus_certs  := sg_C_certs_from_sg_CI_certs 
-                      (eqv_eq  (bs_CI_eqv s))
-                      (bs_CI_plus s)                      
-                      (eqv_witness (bs_CI_eqv s))
-                      (eqv_new (bs_CI_eqv s))                             
-                      (bs_CI_plus_certs s)  
-; bs_C_times_certs := bs_CI_times_certs s
-; bs_C_certs       := bs_CI_certs s
-; bs_C_plus_ast    := bs_CI_plus_ast s
-; bs_C_times_ast   := bs_CI_times_ast s                                           
-; bs_C_ast         := Ast_bs_C_from_bs_CI (bs_CI_ast s)
-|}.
 
+*) 
+
+Definition bs_from_bs_CI : ∀ {S : Type},  @bs_CI S -> @bs S
+:= λ {S} bs, 
+{| 
+  bs_eqv          := bs_CI_eqv bs
+; bs_plus         := bs_CI_plus bs
+; bs_times        := bs_CI_times bs
+; bs_plus_certs  := asg_certs_from_sg_CI_certs
+                      (eqv_eq (bs_CI_eqv bs))
+                      (bs_CI_plus bs)
+                      (eqv_witness (bs_CI_eqv bs))
+                      (eqv_new (bs_CI_eqv bs))
+                      (bs_CI_plus_certs bs)  
+; bs_times_certs := bs_CI_times_certs bs
+; bs_certs       := bs_CI_certs bs
+; bs_plus_ast    := bs_CI_plus_ast bs
+; bs_times_ast   := bs_CI_times_ast bs                                           
+; bs_ast         := Ast_bs_from_bs_CI (bs_CI_ast bs)
+|}.
 
 Definition bs_certs_from_semiring_certs :
   ∀ {S: Type},  @semiring_certificates S -> @bs_certificates S 
@@ -344,7 +340,7 @@ Definition bs_certs_from_semiring_certs :
                                  end 
 |}.
 
-
+(*
 Definition bs_C_from_semiring : ∀ {S : Type},  @semiring S -> @bs_C S
 := λ {S} s, 
 {| 
@@ -358,8 +354,7 @@ Definition bs_C_from_semiring : ∀ {S : Type},  @semiring S -> @bs_C S
 ; bs_C_times_ast   := semiring_times_ast s                                                           
 ; bs_C_ast         := Ast_bs_C_from_semiring (semiring_ast s)
 |}. 
-
-
+*) 
 
 Definition semiring_from_dioid :∀ {S: Type}, @dioid S -> @semiring S
 := λ S dS,
@@ -417,7 +412,7 @@ let f     := eqv_new eqv in
 ; dioid_plus         := plus
 ; dioid_times        := times 
 ; dioid_plus_certs   := plusP 
-; dioid_times_certs  := sg_certs_from_sg_CI_certs eq times w f timesP
+; dioid_times_certs  := msg_certs_from_sg_certs (sg_certs_from_sg_CI_certs eq times w f timesP)
 ; dioid_certs        := distributive_lattice_certs_to_semiring_certs plusP timesP dPS
 ; dioid_plus_ast     := distributive_lattice_join_ast dS 
 ; dioid_times_ast    := distributive_lattice_meet_ast dS                                                         
@@ -455,9 +450,23 @@ Definition distributive_lattice_from_selective_distributive_lattice : ∀ {S : T
 |}.  
 
 
+Definition bs_from_semiring :∀ {S: Type}, @semiring S -> @bs S 
+:= λ S s,
+{| 
+  bs_eqv          := semiring_eqv s
+; bs_plus         := semiring_plus s
+; bs_times        := semiring_times s
+; bs_plus_certs  := asg_certs_from_sg_C_certs (semiring_plus_certs s)  
+; bs_times_certs := semiring_times_certs s
+; bs_certs       := bs_certs_from_semiring_certs (semiring_certs s)
+; bs_plus_ast    := semiring_plus_ast s
+; bs_times_ast   := semiring_times_ast s
+; bs_ast         := Ast_bs_from_semiring (semiring_ast s)
+|}. 
+     
 
 Definition bs_from_dioid :∀ {S: Type}, @dioid S -> @bs S 
-  := λ S sS,  (bs_from_bs_C (bs_C_from_semiring (semiring_from_dioid sS))).
+  := λ S sS,  bs_from_semiring (semiring_from_dioid sS).
 
 Definition bs_from_selective_dioid :∀ {S: Type}, @selective_dioid S -> @bs S 
 := λ S sS,  bs_from_dioid (dioid_from_selective_dioid sS). 
@@ -513,12 +522,14 @@ Proof. intros. destruct dP. destruct plusP, timesP.
        destruct A_sg_CI_exists_id_d; destruct A_sg_CI_exists_id_d0; compute; auto.   
 Qed.
 
+(*
 Theorem correct_bs_from_bs_C : ∀ (S : Type) (P : A_bs_C S),  
     bs_from_bs_C (A2C_bs_C S P) = A2C_bs S (A_bs_from_bs_C S P).
 Proof. intros S P. destruct P.
        unfold bs_from_bs_C, A_bs_from_bs_C, A2C_bs_C, A2C_bs; simpl.
-       rewrite <-correct_sg_certs_from_sg_C_certs; auto.        
+       rewrite <-correct_asg_certs_from_sg_C_certs; auto.        
 Defined. 
+
 
 
 Theorem correct_bs_from_bs_CS : ∀ (S : Type) (P : A_bs_CS S),  
@@ -528,7 +539,6 @@ Proof. intros S P. destruct P.
        rewrite <-correct_sg_C_certs_from_sg_CS_certs; auto.   
 Qed. 
 
-
 Theorem correct_bs_C_from_bs_CI : ∀ (S : Type) (P : A_bs_CI S),  
     bs_C_from_bs_CI (A2C_bs_CI S P) = A2C_bs_C S (A_bs_C_from_bs_CI S P).
 Proof. intros S P. destruct P.
@@ -537,13 +547,14 @@ Proof. intros S P. destruct P.
 Qed. 
 
 
-Theorem correct_bs_C_from_semiring : ∀ (S : Type) (P : A_semiring S),  
-    bs_C_from_semiring (A2C_semiring S P) = A2C_bs_C S (A_bs_C_from_semiring S P).
-Proof. intros S P. destruct P.
-       unfold bs_C_from_semiring, A_bs_C_from_semiring, A2C_semiring, A2C_bs_C; simpl.
-       rewrite correct_bs_certs_from_semiring_certs; auto.
-Qed.  
+*) 
 
+Theorem correct_bs_from_semiring : ∀ (S : Type) (P : A_semiring S),  
+    bs_from_semiring (A2C_semiring S P) = A2C_bs S (A_bs_from_semiring S P).
+Proof. intros S P. destruct P.
+       unfold bs_from_semiring, A_bs_from_semiring, A2C_semiring, A2C_bs; simpl.
+       rewrite correct_bs_certs_from_semiring_certs; auto.
+Qed. 
 
 Theorem correct_semiring_from_dioid : ∀ (S : Type) (P : A_dioid S),  
     semiring_from_dioid (A2C_dioid S P) = A2C_semiring S (A_semiring_from_dioid S P).
@@ -557,8 +568,7 @@ Theorem correct_bs_from_dioid : ∀ (S : Type) (P : A_dioid S),
 Proof. intros S P.
        unfold bs_from_dioid, A_bs_from_dioid.
        rewrite correct_semiring_from_dioid. 
-       rewrite correct_bs_C_from_semiring.
-       rewrite correct_bs_from_bs_C; auto. 
+       rewrite correct_bs_from_semiring; auto. 
 Qed. 
 
 Theorem correct_dioid_from_distributive_lattice : ∀ (S : Type) (P : A_distributive_lattice S),  
@@ -566,9 +576,11 @@ Theorem correct_dioid_from_distributive_lattice : ∀ (S : Type) (P : A_distribu
 Proof. intros S P. destruct P.
        unfold dioid_from_distributive_lattice, A_dioid_from_distributive_lattice.
        unfold A2C_distributive_lattice, A2C_dioid. simpl.
-       rewrite <- correct_sg_certs_from_sg_CI_certs.
        rewrite correct_distributive_lattice_certs_to_semiring_certs; auto.
-Qed. 
+       rewrite <- correct_msg_certs_from_sg_certs.       
+       rewrite <- correct_sg_certs_from_sg_CI_certs.  
+       reflexivity.        
+Qed.
 
 Theorem correct_bs_from_distributive_lattice : ∀ (S : Type) (P : A_distributive_lattice S),  
     bs_from_distributive_lattice (A2C_distributive_lattice S P) = A2C_bs S (A_bs_from_distributive_lattice S P).
@@ -577,7 +589,6 @@ Proof. intros S P. unfold bs_from_distributive_lattice, A_bs_from_distributive_l
        rewrite correct_bs_from_dioid. 
        reflexivity. 
 Qed. 
-
 
 Theorem correct_dioid_from_selective_dioid : ∀ (S : Type) (P : A_selective_dioid S),  
     dioid_from_selective_dioid (A2C_selective_dioid S P) = A2C_dioid S (A_dioid_from_selective_dioid S P).

@@ -126,16 +126,40 @@ with ast_sg_CS :=
    | Ast_sg_CS_right_sum    : ast_sg_CS * ast_sg_CS → ast_sg_CS
    | Ast_sg_CS_llex         : ast_sg_CS * ast_sg_CS → ast_sg_CS
    | Ast_sg_CS_from_sg_CI   : ast_sg_CI → ast_sg_CS
-   | Ast_sg_CS_from_sg_C    : ast_sg_C → ast_sg_CS                             . 
+   | Ast_sg_CS_from_sg_C    : ast_sg_C → ast_sg_CS                             
 
+with ast_asg :=
+   | Ast_asg_left_sum       : ast_asg * ast_asg → ast_asg
+   | Ast_asg_right_sum      : ast_asg * ast_asg → ast_asg
+   | Ast_asg_product        : ast_asg * ast_asg → ast_asg
+   | Ast_asg_llex           : ast_sg_CS * ast_asg → ast_asg
+   | Ast_asg_add_id         : cas_constant * ast_asg → ast_asg
+   | Ast_asg_add_ann        : cas_constant * ast_asg → ast_asg
+   | Ast_asg_lift           : ast_asg → ast_asg
+   | Ast_asg_from_sg        : ast_sg → ast_asg
+
+with ast_msg :=     
+   | Ast_msg_concat         : ast_eqv → ast_msg
+   | Ast_msg_left           : ast_eqv → ast_msg
+   | Ast_msg_right          : ast_eqv → ast_msg
+   | Ast_msg_left_sum       : ast_msg * ast_msg → ast_msg
+   | Ast_msg_right_sum      : ast_msg * ast_msg → ast_msg
+   | Ast_msg_product        : ast_msg * ast_msg → ast_msg
+   | Ast_msg_add_id         : cas_constant * ast_msg → ast_msg
+   | Ast_msg_add_ann        : cas_constant * ast_msg → ast_msg
+   | Ast_msg_lift           : ast_msg → ast_msg
+   | Ast_msg_from_sg        : ast_sg → ast_msg
+   .
+                                          
 Inductive ast_bs :=
    | Ast_bs_product    : ast_bs * ast_bs → ast_bs
    | Ast_bs_left_sum    : ast_bs * ast_bs → ast_bs
    | Ast_bs_right_sum    : ast_bs * ast_bs → ast_bs     
    | Ast_bs_add_zero   : cas_constant * ast_bs → ast_bs
    | Ast_bs_add_one    : cas_constant * ast_bs → ast_bs
+   | Ast_bs_llex      : ast_bs_CS * ast_bs → ast_bs                                                   
    | Ast_bs_from_bs_CS : ast_bs_CS → ast_bs
-   | Ast_bs_from_bs_C  : ast_bs_C → ast_bs
+   | Ast_bs_from_bs_CI : ast_bs_CI → ast_bs                                       
    | Ast_bs_from_lattice : ast_lattice → ast_bs
    | Ast_bs_from_semiring : ast_semiring → ast_bs
                                         
@@ -145,19 +169,19 @@ with ast_bs_CS :=
    | Ast_bs_CS_add_one   : cas_constant * ast_bs_CS → ast_bs_CS
    | Ast_bs_CS_llex      : ast_bs_CS * ast_bs_CS → ast_bs_CS
    | Ast_bs_CS_from_bs   : ast_bs  → ast_bs_CS
-
+(*
 with ast_bs_C :=
    | Ast_bs_C_product   : ast_bs_C * ast_bs_C → ast_bs_C
    | Ast_bs_C_add_zero  : cas_constant * ast_bs_C → ast_bs_C
    | Ast_bs_C_add_one   : cas_constant * ast_bs_C → ast_bs_C
-   | Ast_bs_C_llex      : ast_bs_CS * ast_bs_C → ast_bs_C
+
    | Ast_bs_C_from_bs   : ast_bs  → ast_bs_C
    | Ast_bs_C_from_bs_CS    : ast_bs_CS → ast_bs_C
    | Ast_bs_C_from_bs_CI    : ast_bs_CI → ast_bs_C
    | Ast_bs_C_from_semiring : ast_semiring → ast_bs_C
-
+*)
 with ast_bs_CI :=
-   | Ast_bs_CI_union_lift    : ast_sg → ast_bs_CI
+   | Ast_bs_CI_union_lift    : ast_msg → ast_bs_CI
    | Ast_bs_CI_from_dioid    : ast_dioid → ast_bs_CI                                                                                         
 
 with  ast_semiring :=

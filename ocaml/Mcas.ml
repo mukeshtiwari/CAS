@@ -100,7 +100,7 @@ let bs_sg_right = function
        | Some sg'-> Some(Cas.bs_from_selective_dioid (Cas.selective_dioid_sg_right sg')))
        
        
-let bs_union_lift sg = Some (Cas.bs_from_bs_C (Cas.bs_C_from_bs_CI (Cas.bs_CI_union_lift sg)))
+let bs_union_lift sg = Some (Cas.bs_from_bs_CI (Cas.bs_CI_union_lift sg))
 let bs_union_intersect eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_union_intersect eqv))
 let bs_intersect_union eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_intersect_union eqv))
 
@@ -117,17 +117,13 @@ let bs_llex_product m n =
     let bs_llex_aux bs1 bs2 = 
         match Cas.bs_CS_option_from_bs bs1 with 
         | None -> None 
-        | Some bs1'-> 
-           (match Cas.bs_C_option_from_bs bs2 with 
-            | None -> None 
-	    | Some bs2'-> Some(Cas.bs_from_bs_C(Cas.bs_C_llex_product bs1' bs2'))
-           )
+        | Some bs1'-> Some(Cas.bs_llex_product bs1' bs2)
     in liftN bs_llex_aux m n 
 
 let bs_union_lift sg =
   match sg with
   | None -> None
-  | Some sg -> Some(Cas.bs_from_bs_C (Cas.bs_C_from_bs_CI (Cas.bs_CI_union_lift sg)))
+  | Some sg -> Some(Cas.bs_from_bs_CI (Cas.bs_CI_union_lift sg))
 
 let bs_describe = function
   | None    -> print_string "bi-semigroup is not defined\n"

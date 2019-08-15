@@ -148,6 +148,66 @@ Definition P2C_sg : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; sg_anti_right_d     := p2c_anti_right_check S r b (A_sg_anti_right_d S r b P)
 |}. 
 
+
+Definition P2C_asg : ∀ (S : Type) (r : brel S) (b : binary_op S),  
+         asg_proofs S r b -> @asg_certificates S 
+:= λ S r b P,
+{|
+  asg_associative      := @Assert_Associative S
+; asg_congruence       := @Assert_Bop_Congruence S 
+; asg_commutative      := @Assert_Commutative S 
+; asg_selective_d      := p2c_selective_check S r b (A_asg_selective_d S r b P)
+; asg_idempotent_d     := p2c_idempotent_check S r b (A_asg_idempotent_d S r b P)
+; asg_exists_id_d      := p2c_exists_id_check S r b (A_asg_exists_id_d S r b P)
+; asg_exists_ann_d     := p2c_exists_ann_check S r b (A_asg_exists_ann_d S r b P)
+|}. 
+
+
+Definition P2C_msg : ∀ (S : Type) (r : brel S) (b : binary_op S),  
+         msg_proofs S r b -> @msg_certificates S 
+:= λ S r b P,
+{|
+  msg_associative      := @Assert_Associative S 
+; msg_congruence       := @Assert_Bop_Congruence S 
+; msg_commutative_d    := p2c_commutative_check S r b (A_msg_commutative_d S r b P)
+; msg_exists_id_d      := p2c_exists_id_check S r b (A_msg_exists_id_d S r b P)
+; msg_exists_ann_d     := p2c_exists_ann_check S r b (A_msg_exists_ann_d S r b P)
+; msg_is_left_d        := p2c_is_left_check S r b (A_msg_is_left_d S r b P)
+; msg_is_right_d       := p2c_is_right_check S r b (A_msg_is_right_d S r b P)
+; msg_left_cancel_d    := p2c_left_cancel_check S r b (A_msg_left_cancel_d S r b P)
+; msg_right_cancel_d   := p2c_right_cancel_check S r b (A_msg_right_cancel_d S r b P)
+; msg_left_constant_d  := p2c_left_constant_check S r b (A_msg_left_constant_d S r b P)
+; msg_right_constant_d := p2c_right_constant_check S r b (A_msg_right_constant_d S r b P)
+; msg_anti_left_d      := p2c_anti_left_check S r b (A_msg_anti_left_d S r b P)
+; msg_anti_right_d     := p2c_anti_right_check S r b (A_msg_anti_right_d S r b P)
+|}. 
+
+
+
+
+Definition A2C_asg : ∀ (S : Type), A_asg S -> @asg S 
+:= λ S R,
+{| 
+  asg_eq      := A2C_eqv S (A_asg_eq S R) 
+; asg_bop     := A_asg_bop S R 
+; asg_certs   := P2C_asg S (A_eqv_eq S (A_asg_eq S R)) (A_asg_bop S R) (A_asg_proofs S R)
+; asg_bop_ast := A_asg_bop_ast S R                      
+; asg_ast     := A_asg_ast S R
+|}. 
+
+
+Definition A2C_msg : ∀ (S : Type), A_msg S -> @msg S 
+:= λ S R,
+{| 
+  msg_eq      := A2C_eqv S (A_msg_eq S R) 
+; msg_bop     := A_msg_bop S R 
+; msg_certs   := P2C_msg S (A_eqv_eq S (A_msg_eq S R)) (A_msg_bop S R) (A_msg_proofs S R)
+; msg_bop_ast := A_msg_bop_ast S R                      
+; msg_ast     := A_msg_ast S R
+|}. 
+
+
+
 Definition A2C_sg : ∀ (S : Type), A_sg S -> @sg S 
 := λ S R,
 {| 
@@ -169,12 +229,10 @@ Definition P2C_sg_C : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; sg_C_idempotent_d  := p2c_idempotent_check S r b (A_sg_C_idempotent_d S r b P)
 ; sg_C_exists_id_d   := p2c_exists_id_check S r b (A_sg_C_exists_id_d S r b P)
 ; sg_C_exists_ann_d  := p2c_exists_ann_check S r b (A_sg_C_exists_ann_d S r b P)
-; sg_C_left_cancel_d    := p2c_left_cancel_check S r b (A_sg_C_left_cancel_d S r b P)
-; sg_C_right_cancel_d   := p2c_right_cancel_check S r b (A_sg_C_right_cancel_d S r b P)
-; sg_C_left_constant_d  := p2c_left_constant_check S r b (A_sg_C_left_constant_d S r b P)
-; sg_C_right_constant_d := p2c_right_constant_check S r b (A_sg_C_right_constant_d S r b P)
-; sg_C_anti_left_d      := p2c_anti_left_check S r b (A_sg_C_anti_left_d S r b P)
-; sg_C_anti_right_d     := p2c_anti_right_check S r b (A_sg_C_anti_right_d S r b P)
+; sg_C_cancel_d      := p2c_left_cancel_check S r b (A_sg_C_cancel_d S r b P)
+; sg_C_constant_d    := p2c_left_constant_check S r b (A_sg_C_constant_d S r b P)
+; sg_C_anti_left_d   := p2c_anti_left_check S r b (A_sg_C_anti_left_d S r b P)
+; sg_C_anti_right_d  := p2c_anti_right_check S r b (A_sg_C_anti_right_d S r b P)
 |}. 
 
 Definition A2C_sg_C : ∀ (S : Type), A_sg_C S -> @sg_C S 

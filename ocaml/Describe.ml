@@ -237,7 +237,7 @@ let string_of_check_right_distributive eq plus times data = function
        let rhs = plus  times_b_a  times_c_a in
        if eq lhs rhs
        then "INTERNAL ERROR\n"
-       else "Not Left Distributive : \n" ^
+       else "Not Right Distributive : \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
 	      "   c = " ^ (data_to_ascii (data c)) ^ "\n" ^				  
@@ -326,9 +326,30 @@ let string_of_check_times_id_is_plus_ann = function
 
 let eqv_describe eqv = (print_string "Carrier type :\n";  print_string (nl (ast_eqv_to_ascii eqv)))
 let bop_describe bop = (print_string "Binary operation :\n";  print_string (nl (ast_bop_to_ascii bop)))			 			 
-let plus_describe bop = (print_string "Additive operation :\n";  print_string (nl (ast_bop_to_ascii bop)))			 
-let times_describe bop = (print_string "Multiplicative operation :\n";  print_string (nl (ast_bop_to_ascii bop)))
+let plus_describe bop = (print_string "\nAdditive operation :\n";
+			 print_string   "--------------------\n";
+			 print_string (nl (ast_bop_to_ascii bop)))			 
+let times_describe bop = (print_string "\nMultiplicative operation :\n";
+			  print_string   "--------------------------\n";
+			  print_string (nl (ast_bop_to_ascii bop)))
 
+let asg_certs_describe eq b data certs = 
+     (
+       print_string "Commutative\n" ; 
+       print_string (string_of_check_idempotent eq b data (asg_idempotent_d certs)) ; 
+       print_string (string_of_check_selective eq b data (asg_selective_d certs)) ;
+       print_string (string_of_check_exists_id eq b data (asg_exists_id_d certs)) ; 
+       print_string (string_of_check_exists_ann eq b data (asg_exists_ann_d certs)) ; 
+      )
+
+let msg_certs_describe eq b data certs = 
+      (
+       print_string (string_of_check_commutative eq b data (msg_commutative_d certs)) ; 
+       print_string (string_of_check_exists_id eq b data (msg_exists_id_d certs)) ; 
+       print_string (string_of_check_exists_ann eq b data (msg_exists_ann_d certs)) ; 
+      )
+	
+			   
 let sg_certs_describe eq b data certs = 
       (
        print_string (string_of_check_idempotent eq b data (sg_idempotent_d certs)) ; 
@@ -342,7 +363,25 @@ let sg_describe sg =
   (eqv_describe (eqv_ast (sg_eq sg)); 
    bop_describe (sg_bop_ast sg); 			    
    sg_certs_describe (eqv_eq (sg_eq sg)) (sg_bop sg) (eqv_data (sg_eq sg)) (sg_certs sg))
-	
+
+
+let asg_certs_describe_fully = asg_certs_describe    
+
+let msg_certs_describe_fully eq b data certs = 
+      (
+       print_string (string_of_check_commutative eq b data (msg_commutative_d certs)) ; 
+       print_string (string_of_check_exists_id eq b data (msg_exists_id_d certs)) ; 
+       print_string (string_of_check_exists_ann eq b data (msg_exists_ann_d certs)) ; 
+       print_string (string_of_check_left_cancellative eq b data (msg_left_cancel_d certs)) ; 
+       print_string (string_of_check_right_cancellative eq b data (msg_right_cancel_d certs)) ; 
+       print_string (string_of_check_left_constant eq b data (msg_left_constant_d certs)) ; 
+       print_string (string_of_check_right_constant eq b data (msg_right_constant_d certs)) ; 
+       print_string (string_of_check_anti_left eq b data (msg_anti_left_d certs)) ; 
+       print_string (string_of_check_anti_right eq b data (msg_anti_right_d certs)) ; 
+       print_string (string_of_check_is_left eq b data (msg_is_left_d certs)) ;  
+       print_string (string_of_check_is_right eq b data (msg_is_right_d certs))
+      )
+    
 			   
 let sg_certs_describe_fully eq b data certs = 
       (
@@ -375,12 +414,13 @@ let sg_CK_describe sg = sg_describe (sg_from_sg_CK sg)
 
 
 let bs_certs_describe eq plus times data certs = 
-      (print_string "Interaction of Additive and Multiplicative operations: \n"; 
-       print_string (string_of_check_left_distributive eq plus times data (bs_left_distributive_d certs) ); 
-       print_string (string_of_check_right_distributive eq plus times data (bs_right_distributive_d certs) ); 
-       print_string (string_of_check_plus_id_is_times_ann (bs_plus_id_is_times_ann_d certs) ); 
-       print_string (string_of_check_times_id_is_plus_ann (bs_times_id_is_plus_ann_d certs)) ; 
-      )
+  (print_string "\nInteraction of Additive and Multiplicative operations: \n";
+   print_string   "-------------------------------------------------------\n"; 
+   print_string (string_of_check_left_distributive eq plus times data (bs_left_distributive_d certs) ); 
+   print_string (string_of_check_right_distributive eq plus times data (bs_right_distributive_d certs) ); 
+   print_string (string_of_check_plus_id_is_times_ann (bs_plus_id_is_times_ann_d certs) ); 
+   print_string (string_of_check_times_id_is_plus_ann (bs_times_id_is_plus_ann_d certs)) ; 
+  )
 
 let bs_describe bs =
     let eq          = eqv_eq (bs_eqv bs)   in   
@@ -394,15 +434,16 @@ let bs_describe bs =
     (
        eqv_describe (eqv_ast (bs_eqv bs)); 
        plus_describe (bs_plus_ast bs); 
-       sg_certs_describe eq plus data plus_certs;
+       asg_certs_describe eq plus data plus_certs;
        times_describe (bs_times_ast bs);        
-       sg_certs_describe eq times data times_certs; 
+       msg_certs_describe eq times data times_certs; 
        bs_certs_describe eq plus times data certs
       )
     
 
 let bs_certs_describe_fully eq plus times data certs = 
-      (print_string "Interaction of Additive and Multiplicative operations: \n"; 
+     (print_string "\nInteraction of Additive and Multiplicative operations: \n";
+      print_string   "-------------------------------------------------------\n";    
        print_string (string_of_check_left_distributive eq plus times data (bs_left_distributive_d certs) ); 
        print_string (string_of_check_right_distributive eq plus times data (bs_right_distributive_d certs) ); 
        print_string (string_of_check_plus_id_is_times_ann (bs_plus_id_is_times_ann_d certs) ); 
@@ -425,9 +466,9 @@ let bs_describe_fully bs =
     (
        eqv_describe (eqv_ast (bs_eqv bs)); 
        plus_describe (bs_plus_ast bs); 
-       sg_certs_describe_fully eq plus data plus_certs;
+       asg_certs_describe_fully eq plus data plus_certs;
        times_describe (bs_times_ast bs);        
-       sg_certs_describe_fully eq times data times_certs; 
+       msg_certs_describe_fully eq times data times_certs; 
        bs_certs_describe_fully eq plus times data certs
       )
 

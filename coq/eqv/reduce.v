@@ -47,7 +47,7 @@ Proof. unfold brel_not_antisymmetric. unfold brel_reduce.
 Defined. 
   
 
-Lemma brel_set_not_trivial (f : S -> S) :
+Lemma brel_reduce_not_trivial (f : S -> S) :
   (∀ x : S, eq (r x) (r (f x)) = false) ->  
   brel_not_trivial S (brel_reduce eq r) f. 
 Proof. intros H x. compute. 
@@ -56,26 +56,6 @@ Proof. intros H x. compute.
        apply (brel_symmetric_implies_dual _ _ symS _ _ (H x)). 
 Qed.
 
-(*
-Lemma brel_set_at_least_three :
-  brel_at_least_three S eq -> 
-  brel_at_least_three S (brel_reduce eq r).
-Proof. intros [[a [b c]] [[H1 H2] H3]]. 
-       exists (r , (s :: nil, (f s) :: nil)).
-       destruct (nt s) as [L R].
-       compute. rewrite L; auto. 
-Defined. 
-
-
-Lemma brel_set_not_exactly_two (s : S) (f : S -> S):
-  brel_not_trivial S eq f -> 
-  brel_not_exactly_two (finite_set S) (brel_set eq).
-Proof. intro nt. apply brel_at_least_thee_implies_not_exactly_two.
-       apply brel_set_symmetric; auto. 
-       apply brel_set_transitive; auto.
-       apply (brel_set_at_least_three s f); auto. 
-Defined.
-*) 
 
 End Theory.
 

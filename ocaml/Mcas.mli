@@ -81,7 +81,7 @@ val bs_add_one  : ('a Cas.bs) option -> Cas.cas_constant -> (('a Cas.with_consta
 val bs_product      : ('a Cas.bs) option -> ('b Cas.bs) option -> (('a * 'b) Cas.bs) option 
 val bs_llex_product : ('a Cas.bs) option -> ('b Cas.bs) option -> (('a * 'b) Cas.bs) option
 
-val bs_union_lift : ('a Cas.sg) option -> (('a Cas.finite_set) Cas.bs) option 					      
+val bs_union_lift : ('a Cas.msg) option -> (('a Cas.finite_set) Cas.bs) option 					      
 
 val sg_describe : 'a Cas.sg option -> unit
 val bs_describe : 'a Cas.bs option -> unit
