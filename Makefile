@@ -12,6 +12,7 @@ OCB_OPTIONS=\
   -no-links \
   $(CAMLINCLUDES)
 
+
 BASE=\
    coq/common/compute.v \
    coq/common/brel_properties.v \
@@ -85,6 +86,7 @@ CAS=\
    coq/sg/union.v \
    coq/sg/intersect.v \
    coq/sg/lift.v \
+   coq/sg/minset_union.v \
    coq/ltr/cons.v \
    coq/ltr/left_cayley.v \
    coq/ltr/product.v \
@@ -103,15 +105,16 @@ CAS=\
    coq/bs/right_sum.v \
    coq/bs/min_max.v \
    coq/bs/max_min.v \
-   coq/bs/union_intersect.v \
-   coq/bs/intersect_union.v \
    coq/bs/add_id_add_ann.v \
    coq/bs/add_ann_add_id.v \
-   coq/bs/union_lift.v \
    coq/bs/left.v \
    coq/bs/right.v \
    coq/lstr/product_product.v \
    coq/lstr/left_sum_sum_of_product.v \
+   coq/bs/union_lift.v \
+   coq/bs/intersect_union.v \
+   coq/bs/union_intersect.v 
+
 
 
 FILES=$(BASE) $(CAS)
@@ -126,7 +129,7 @@ Cas.cmo \
 ../ocaml/Mcas.cmo
 # 
 
-.PHONY: all casml html clean
+.PHONY: all casml html clean test
 
 all:
 	$(MAKE) coq

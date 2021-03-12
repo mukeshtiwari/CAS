@@ -221,35 +221,43 @@ End Theory.
 Section ACAS.
 
 Definition sg_CI_proofs_intersect : 
-  ∀ (S : Type) (rS : brel S) (s : S) (f : S -> S) (ntS : brel_not_trivial S rS f) (eqvS : eqv_proofs S rS)
-    (fin_d : carrier_is_finite_decidable S rS), sg_CI_proofs (finite_set S) (brel_set rS) (bop_intersect rS)
-:= λ S rS s f ntS eqvS fin_d,
-   let refS := A_eqv_reflexive S rS eqvS in
-   let symS := A_eqv_symmetric S rS eqvS in
-   let tranS := A_eqv_transitive S rS eqvS in                                                            
+  ∀ (S : Type) (eqvS : A_eqv S), sg_CI_proofs (finite_set S) (brel_set (A_eqv_eq S eqvS)) (bop_intersect (A_eqv_eq S eqvS))
+:= λ S eqvS,
+let rS   := A_eqv_eq S eqvS in
+let s    := A_eqv_witness S eqvS in
+let f    := A_eqv_new S eqvS in
+let ntS  := A_eqv_not_trivial S eqvS in       
+let eqvP := A_eqv_proofs S eqvS in
+let refS := A_eqv_reflexive S rS eqvP in
+let symS := A_eqv_symmetric S rS eqvP in
+let tranS := A_eqv_transitive S rS eqvP in                                                            
 {|
   A_sg_CI_associative        := bop_intersect_associative S rS refS symS tranS 
 ; A_sg_CI_congruence         := bop_intersect_congruence S rS  refS symS tranS 
 ; A_sg_CI_commutative        := bop_intersect_commutative S rS refS symS tranS 
 ; A_sg_CI_idempotent         := bop_intersect_idempotent S rS refS symS tranS 
 ; A_sg_CI_selective_d        := inr _ (bop_intersect_not_selective S rS s f ntS)
-; A_sg_CI_exists_id_d        := bop_intersect_exists_id_decide S rS s f ntS refS symS tranS fin_d 
-; A_sg_CI_exists_ann_d       := inl _ (bop_intersect_exists_ann S rS refS symS tranS)
+; A_sg_CI_bop_ast            := Ast_bop_intersect (A_eqv_brel_ast S rS (A_eqv_proofs S eqvS))                                    
 |}. 
 
 
 Definition A_sg_CI_intersect : ∀ (S : Type) ,  A_eqv S -> A_sg_CI (finite_set S)
   := λ S eqv,
-  let eqS := A_eqv_eq S eqv in
-  let s   := A_eqv_witness S eqv in
-  let f   := A_eqv_new S eqv in
-  let ntS := A_eqv_not_trivial S eqv in       
+  let eqvP := A_eqv_proofs S eqv in
+  let symS := A_eqv_symmetric _ _ eqvP in
+  let refS := A_eqv_reflexive _ _ eqvP in
+  let trnS := A_eqv_transitive _ _ eqvP in     
+  let eqS  := A_eqv_eq S eqv in
+  let s    := A_eqv_witness S eqv in
+  let f    := A_eqv_new S eqv in
+  let ntS  := A_eqv_not_trivial S eqv in       
    {| 
-     A_sg_CI_eqv       := A_eqv_set S eqv
-   ; A_sg_CI_bop       := bop_intersect eqS
-   ; A_sg_CI_proofs    := sg_CI_proofs_intersect S eqS s f ntS (A_eqv_proofs S eqv) (A_eqv_finite_d S eqv) 
-   ; A_sg_CI_bop_ast   := Ast_bop_intersect (A_eqv_ast S eqv)
-   ; A_sg_CI_ast       := Ast_sg_CI_intersect (A_eqv_ast S eqv)
+     A_sg_CI_eqv          := A_eqv_set S eqv
+   ; A_sg_CI_bop          := bop_intersect eqS
+   ; A_sg_CI_exists_id_d  := bop_intersect_exists_id_decide S eqS s f ntS refS symS trnS (A_eqv_finite_d S eqv) 
+   ; A_sg_CI_exists_ann_d := inl _ (bop_intersect_exists_ann S eqS refS symS trnS)
+   ; A_sg_CI_proofs       := sg_CI_proofs_intersect S eqv
+   ; A_sg_CI_ast          := Ast_sg_CI_intersect (A_eqv_ast S eqv)
    |}. 
   
 
@@ -266,30 +274,28 @@ Definition  check_intersect_exists_id {S : Type} (d : @check_is_finite S) : @che
 
 
 
-Definition sg_CI_certs_intersect : ∀ {S : Type},  S -> (S -> S) -> @check_is_finite S -> @sg_CI_certificates (finite_set S)
-:= λ {S} s f fin_d,  
+Definition sg_CI_certs_intersect : ∀ {S : Type},  @eqv S -> @sg_CI_certificates (finite_set S)
+:= λ {S} eqvS,
+let s   := eqv_witness eqvS in
+let f   := eqv_new eqvS in  
 {|
   sg_CI_associative        := Assert_Associative  
 ; sg_CI_congruence         := Assert_Bop_Congruence  
 ; sg_CI_commutative        := Assert_Commutative  
 ; sg_CI_idempotent         := Assert_Idempotent  
 ; sg_CI_selective_d        := Certify_Not_Selective ((s :: nil), ((f s) :: nil))
-; sg_CI_exists_id_d        := check_intersect_exists_id fin_d
-; sg_CI_exists_ann_d       := Certify_Exists_Ann nil
+; sg_CI_bop_ast            := Ast_bop_intersect (eqv_brel_ast (eqv_certs eqvS))                                                   
 |}. 
-
-
 
 Definition sg_CI_intersect : ∀ {S : Type}, @eqv S -> @sg_CI (finite_set S)
 := λ {S} eqvS,
   let eqS := eqv_eq eqvS in
-  let s   := eqv_witness eqvS in
-  let f   := eqv_new eqvS in
    {| 
      sg_CI_eqv       := eqv_set eqvS
    ; sg_CI_bop       := bop_intersect eqS
-   ; sg_CI_certs     := sg_CI_certs_intersect s f (eqv_finite_d eqvS)
-   ; sg_CI_bop_ast   := Ast_bop_intersect (eqv_ast eqvS)
+   ; sg_CI_exists_id_d        := check_intersect_exists_id (eqv_finite_d eqvS)
+   ; sg_CI_exists_ann_d       := Certify_Exists_Ann nil
+   ; sg_CI_certs     := sg_CI_certs_intersect eqvS
    ; sg_CI_ast       := Ast_sg_CI_intersect (eqv_ast eqvS)
    |}. 
 
@@ -299,14 +305,13 @@ Section Verify.
 
 Theorem bop_intersect_certs_correct : 
     ∀ (S : Type) (eqvS : A_eqv S), 
-      sg_CI_certs_intersect (A_eqv_witness S eqvS) (A_eqv_new S eqvS) (p2c_is_finite_check S (A_eqv_eq S eqvS) (A_eqv_finite_d S eqvS))
+      sg_CI_certs_intersect (A2C_eqv S eqvS)  
       =                        
        P2C_sg_CI (finite_set S) (brel_set (A_eqv_eq S eqvS)) (bop_intersect (A_eqv_eq S eqvS))
-                   (sg_CI_proofs_intersect S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS) (A_eqv_new S eqvS) (A_eqv_not_trivial S eqvS) 
-                      (A_eqv_proofs S eqvS) (A_eqv_finite_d S eqvS)). 
+                   (sg_CI_proofs_intersect S eqvS). 
 Proof. intros S eqvS. destruct eqvS.
        unfold sg_CI_certs_intersect, sg_CI_proofs_intersect. unfold P2C_sg_CI. simpl.
-       destruct A_eqv_finite_d as [[fS Pf] | NFS]; simpl; reflexivity.        
+       reflexivity.        
 Qed. 
 
   
@@ -318,11 +323,13 @@ Theorem bop_intersect_correct :
          A2C_sg_CI (finite_set S) (A_sg_CI_intersect S eqvS). 
 Proof. intros S eqvS. unfold sg_CI_intersect, A_sg_CI_intersect. unfold A2C_sg_CI. simpl.
        rewrite correct_eqv_set. 
-       rewrite bop_intersect_certs_correct. 
+       rewrite bop_intersect_certs_correct.
+       destruct eqvS; simpl. 
+       destruct A_eqv_finite_d as [[fS Pf] | NFS]; simpl; 
        reflexivity. 
 Qed.
 
-
+       
 
  
 End Verify.   

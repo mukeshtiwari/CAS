@@ -1,4 +1,4 @@
-  Require Import Coq.Arith.Arith.     (* beq_nat *) 
+Require Import Coq.Arith.Arith.     (* beq_nat *) 
 Require Import Coq.Arith.Min.
 Require Import CAS.coq.common.base. 
 Require Import CAS.coq.theory.facts.
@@ -194,29 +194,32 @@ Definition semiring_proofs_max_plus : semiring_proofs nat brel_eq_nat bop_max bo
   {| 
      A_semiring_left_distributive      := bop_max_plus_left_distributive
    ; A_semiring_right_distributive     := bop_max_plus_right_distributive
-
-   ; A_semiring_plus_id_is_times_ann_d   := inr _ bop_max_plus_not_id_equals_ann
-   ; A_semiring_times_id_is_plus_ann_d   := inr _ bop_plus_max_not_id_equals_ann
-
    ; A_semiring_left_left_absorptive_d   := inr _ bops_max_plus_not_left_left_absorptive
    ; A_semiring_left_right_absorptive_d  := inr _ bops_max_plus_not_left_right_absorptive
-  |}. 
+  |}.
 
-Definition A_selective_dioid_max_plus : A_selective_dioid nat := 
+
+Definition A_selective_presemiring_max_plus : A_selective_presemiring nat := 
 {|
-  A_selective_dioid_eqv          := A_eqv_nat 
-; A_selective_dioid_plus         := bop_max
-; A_selective_dioid_times        := bop_plus
-; A_selective_dioid_plus_proofs  := A_sg_CS_proofs _ A_sg_CS_max
-; A_selective_dioid_times_proofs := A_msg_proofs_plus
-; A_selective_dioid_proofs       := semiring_proofs_max_plus
-; A_selective_dioid_plus_ast     := Ast_bop_max
-; A_selective_dioid_times_ast    := Ast_bop_plus
-; A_selective_dioid_ast          := Ast_selective_dioid_max_plus
+  A_selective_presemiring_eqv          := A_eqv_nat 
+; A_selective_presemiring_plus         := bop_max
+; A_selective_presemiring_times        := bop_plus
+; A_selective_presemiring_plus_proofs  := A_sg_CS_proofs _ A_sg_CS_max
+; A_selective_presemiring_times_proofs := A_msg_proofs_plus
+; A_selective_presemiring_id_ann_proofs :=
+    {|
+      A_id_ann_exists_plus_id_d       := inl bop_max_exists_id 
+    ; A_id_ann_exists_plus_ann_d      := inr bop_max_not_exists_ann
+    ; A_id_ann_exists_times_id_d      := inl bop_plus_exists_id
+    ; A_id_ann_exists_times_ann_d     := inr bop_plus_not_exists_ann
+    ; A_id_ann_plus_id_is_times_ann_d := inr bop_max_plus_not_id_equals_ann
+    ; A_id_ann_times_id_is_plus_ann_d := inr bop_plus_max_not_id_equals_ann
+    |}
+; A_selective_presemiring_proofs       := semiring_proofs_max_plus
+; A_selective_presemiring_ast          := Ast_max_plus
 |}.
 
 End ACAS.
-
 Section CAS.
 
 Open Scope nat.     
@@ -225,24 +228,29 @@ Definition semiring_certs_max_plus : @semiring_certificates nat :=
   {| 
      semiring_left_distributive      := Assert_Left_Distributive 
    ; semiring_right_distributive     := Assert_Right_Distributive 
-   ; semiring_plus_id_is_times_ann_d   := Certify_Not_Plus_Id_Equals_Times_Ann 
-   ; semiring_times_id_is_plus_ann_d   := Certify_Not_Times_Id_Equals_Plus_Ann 
    ; semiring_left_left_absorptive_d   := Certify_Not_Left_Left_Absorptive (0, 1) 
    ; semiring_left_right_absorptive_d  := Certify_Not_Left_Right_Absorptive (0, 1) 
   |}. 
 
 
-Definition selective_dioid_max_plus : selective_dioid (S := nat) := 
+Definition selective_presemiring_max_plus : selective_presemiring (S := nat) := 
 {|
-  selective_dioid_eqv         := eqv_eq_nat 
-; selective_dioid_plus        := bop_max
-; selective_dioid_times       := bop_plus
-; selective_dioid_plus_certs  := sg_CS_certs sg_CS_max
-; selective_dioid_times_certs := msg_certs_plus
-; selective_dioid_certs       := semiring_certs_max_plus
-; selective_dioid_plus_ast    := Ast_bop_max
-; selective_dioid_times_ast   := Ast_bop_plus                                   
-; selective_dioid_ast         := Ast_selective_dioid_max_plus
+  selective_presemiring_eqv         := eqv_eq_nat 
+; selective_presemiring_plus        := bop_max
+; selective_presemiring_times       := bop_plus
+; selective_presemiring_plus_certs  := sg_CS_certs sg_CS_max
+; selective_presemiring_times_certs := msg_certs_plus
+; selective_presemiring_id_ann_certs :=
+    {|
+      id_ann_exists_plus_id_d       := Certify_Exists_Id 0 
+    ; id_ann_exists_plus_ann_d      := Certify_Not_Exists_Ann 
+    ; id_ann_exists_times_id_d      := Certify_Exists_Id 0 
+    ; id_ann_exists_times_ann_d     := Certify_Not_Exists_Ann 
+    ; id_ann_plus_id_is_times_ann_d := Certify_Not_Plus_Id_Equals_Times_Ann
+    ; id_ann_times_id_is_plus_ann_d := Certify_Not_Times_Id_Equals_Plus_Ann
+    |}
+; selective_presemiring_certs       := semiring_certs_max_plus
+; selective_presemiring_ast         := Ast_max_plus
 |}.
 
 End CAS.
@@ -250,7 +258,7 @@ End CAS.
 Section Verify.
 
 Theorem correct_semiring_max_plus : 
-   selective_dioid_max_plus = A2C_selective_dioid nat (A_selective_dioid_max_plus). 
+   selective_presemiring_max_plus = A2C_selective_presemiring nat (A_selective_presemiring_max_plus). 
 Proof. compute. reflexivity. Qed. 
   
  

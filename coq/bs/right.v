@@ -49,7 +49,7 @@ Proof. compute. intros s. left. destruct (nt s) as [F _]. exists (f s). right. e
 End Theory.
 
 Section ACAS.
-
+(*
   
 Definition semiring_proofs_sg_right 
     (S : Type)
@@ -115,11 +115,11 @@ let plusS := A_sg_CS_bop S sg           in
 ; A_selective_dioid_ast          := Ast_selective_dioid_sg_right (A_sg_CS_ast S sg)
 |}.
 
-
+*) 
 End ACAS.
 
 Section CAS.
-
+(*
 Definition semiring_certs_sg_right 
     (S : Type)
     (rS : brel S)
@@ -175,12 +175,12 @@ let plusS := sg_CS_bop sg        in
 ; selective_dioid_ast          := Ast_selective_dioid_sg_right (sg_CS_ast sg)
 |}.
 
-  
+*)   
 
 End CAS.
 
 Section Verify.
-
+(*
 Lemma correct_dioid_sg_right_certs
   (S : Type)
   (eq : brel S)
@@ -215,5 +215,5 @@ Proof. destruct sg. destruct A_sg_CS_proofs.
        rewrite correct_dioid_sg_right_certs.
        reflexivity. 
 Qed.   
-
+*) 
 End Verify.     

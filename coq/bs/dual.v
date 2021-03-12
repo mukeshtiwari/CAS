@@ -26,14 +26,17 @@ Definition A_lattice_dual : ∀ (S : Type), A_lattice S -> A_lattice S
 ; A_lattice_join         := A_lattice_meet S lat 
 ; A_lattice_meet         := A_lattice_join S lat 
 ; A_lattice_join_proofs  := A_lattice_meet_proofs S lat 
-; A_lattice_meet_proofs  := A_lattice_join_proofs S lat 
+; A_lattice_meet_proofs  := A_lattice_join_proofs S lat
+; A_lattice_id_ann_proofs :=
+    {|
+        A_bounded_plus_id_is_times_ann := A_bounded_times_id_is_plus_ann S _ _ _ (A_lattice_id_ann_proofs S lat)
+      ; A_bounded_times_id_is_plus_ann := A_bounded_plus_id_is_times_ann S _ _ _ (A_lattice_id_ann_proofs S lat)
+    |}
 ; A_lattice_proofs       := lattice_proofs_dual S
                                (A_eqv_eq S (A_lattice_eqv S lat))
                                (A_lattice_join S lat)
                                (A_lattice_meet S lat)
                                (A_lattice_proofs S lat)
-; A_lattice_join_ast     := A_lattice_meet_ast S lat
-; A_lattice_meet_ast     := A_lattice_join_ast S lat                                           
 ; A_lattice_ast          := Ast_lattice_dual (A_lattice_ast S lat) 
 |}.
 
@@ -68,7 +71,12 @@ Definition A_distributive_lattice_dual : ∀ (S : Type), A_distributive_lattice 
 ; A_distributive_lattice_join         := A_distributive_lattice_meet S lat 
 ; A_distributive_lattice_meet         := A_distributive_lattice_join S lat 
 ; A_distributive_lattice_join_proofs  := A_distributive_lattice_meet_proofs S lat 
-; A_distributive_lattice_meet_proofs  := A_distributive_lattice_join_proofs S lat 
+; A_distributive_lattice_meet_proofs  := A_distributive_lattice_join_proofs S lat
+; A_distributive_lattice_id_ann_proofs :=
+    {|
+        A_bounded_plus_id_is_times_ann := A_bounded_times_id_is_plus_ann S _ _ _ (A_distributive_lattice_id_ann_proofs S lat)
+      ; A_bounded_times_id_is_plus_ann := A_bounded_plus_id_is_times_ann S _ _ _ (A_distributive_lattice_id_ann_proofs S lat)
+    |}                                                                            
 ; A_distributive_lattice_proofs       := distributive_lattice_proofs_dual S
                                              (A_eqv_eq S (A_distributive_lattice_eqv S lat))
                                              (A_distributive_lattice_join S lat)
@@ -77,11 +85,38 @@ Definition A_distributive_lattice_dual : ∀ (S : Type), A_distributive_lattice 
                                              (A_distributive_lattice_join_proofs S lat)
                                              (A_distributive_lattice_meet_proofs S lat)                                             
                                              (A_distributive_lattice_proofs S lat)
-; A_distributive_lattice_join_ast     := A_distributive_lattice_meet_ast S lat
-; A_distributive_lattice_meet_ast     := A_distributive_lattice_join_ast S lat                                              
 ; A_distributive_lattice_ast          := Ast_distributive_lattice_dual (A_distributive_lattice_ast S lat) 
 |}.
-  
+
+Definition A_distributive_prelattice_dual : ∀ (S : Type), A_distributive_prelattice S -> A_distributive_prelattice S
+:= λ S lat,
+{|  
+  A_distributive_prelattice_eqv          := A_distributive_prelattice_eqv S lat 
+; A_distributive_prelattice_join         := A_distributive_prelattice_meet S lat 
+; A_distributive_prelattice_meet         := A_distributive_prelattice_join S lat 
+; A_distributive_prelattice_join_proofs  := A_distributive_prelattice_meet_proofs S lat 
+; A_distributive_prelattice_meet_proofs  := A_distributive_prelattice_join_proofs S lat
+; A_distributive_prelattice_id_ann_proofs :=
+    let p := A_distributive_prelattice_id_ann_proofs S lat in 
+    {|
+        A_id_ann_exists_plus_id_d       := A_id_ann_exists_times_id_d S _ _ _ p 
+      ; A_id_ann_exists_plus_ann_d      := A_id_ann_exists_times_ann_d S _ _ _ p 
+      ; A_id_ann_exists_times_id_d      := A_id_ann_exists_plus_id_d S _ _ _ p 
+      ; A_id_ann_exists_times_ann_d     := A_id_ann_exists_plus_ann_d S _ _ _ p 
+      ; A_id_ann_plus_id_is_times_ann_d := A_id_ann_times_id_is_plus_ann_d S _ _ _ p 
+      ; A_id_ann_times_id_is_plus_ann_d := A_id_ann_plus_id_is_times_ann_d S _ _ _ p
+    |}                                                                            
+; A_distributive_prelattice_proofs       := distributive_lattice_proofs_dual S
+                                             (A_eqv_eq S (A_distributive_prelattice_eqv S lat))
+                                             (A_distributive_prelattice_join S lat)
+                                             (A_distributive_prelattice_meet S lat)
+                                             (A_eqv_proofs S (A_distributive_prelattice_eqv S lat))
+                                             (A_distributive_prelattice_join_proofs S lat)
+                                             (A_distributive_prelattice_meet_proofs S lat)                                             
+                                             (A_distributive_prelattice_proofs S lat)
+; A_distributive_prelattice_ast          := Ast_distributive_prelattice_dual (A_distributive_prelattice_ast S lat) 
+|}.
+
 
 Definition selective_distributive_lattice_proofs_dual (S: Type) (rS : brel S) (join meet : binary_op S) :
   eqv_proofs S rS -> 
@@ -113,7 +148,13 @@ Definition A_selective_distributive_lattice_dual : ∀ (S : Type), A_selective_d
 ; A_selective_distributive_lattice_join         := A_selective_distributive_lattice_meet S lat 
 ; A_selective_distributive_lattice_meet         := A_selective_distributive_lattice_join S lat 
 ; A_selective_distributive_lattice_join_proofs  := A_selective_distributive_lattice_meet_proofs S lat 
-; A_selective_distributive_lattice_meet_proofs  := A_selective_distributive_lattice_join_proofs S lat 
+; A_selective_distributive_lattice_meet_proofs  := A_selective_distributive_lattice_join_proofs S lat
+; A_selective_distributive_lattice_id_ann_proofs :=
+    {|
+        A_bounded_plus_id_is_times_ann := A_bounded_times_id_is_plus_ann S _ _ _ (A_selective_distributive_lattice_id_ann_proofs S lat)
+      ; A_bounded_times_id_is_plus_ann := A_bounded_plus_id_is_times_ann S _ _ _ (A_selective_distributive_lattice_id_ann_proofs S lat)
+    |}                                                                            
+                                                                                                
 ; A_selective_distributive_lattice_proofs       := selective_distributive_lattice_proofs_dual S
                                              (A_eqv_eq S (A_selective_distributive_lattice_eqv S lat))
                                              (A_selective_distributive_lattice_join S lat)
@@ -122,9 +163,7 @@ Definition A_selective_distributive_lattice_dual : ∀ (S : Type), A_selective_d
                                              (A_selective_distributive_lattice_join_proofs S lat)
                                              (A_selective_distributive_lattice_meet_proofs S lat)                                             
                                              (A_selective_distributive_lattice_proofs S lat)
-; A_selective_distributive_lattice_join_ast     := A_selective_distributive_lattice_meet_ast S lat
-; A_selective_distributive_lattice_meet_ast     := A_selective_distributive_lattice_join_ast S lat
-; A_selective_distributive_lattice_ast          := Ast_selective_distributive_lattice_dual (A_selective_distributive_lattice_ast S lat) 
+; A_selective_distributive_lattice_ast  := Ast_selective_distributive_lattice_dual (A_selective_distributive_lattice_ast S lat) 
 |}.
 
 End ACAS.
@@ -146,7 +185,18 @@ Definition lattice_certs_dual {S: Type} : @lattice_certificates S  -> @lattice_c
                                   end                                     
 |}. 
 
-
+Definition bounded_certs_dual : ∀ {S : Type}, @bounded_certificates S -> @bounded_certificates S
+  := λ {S} c,
+    match bounded_plus_id_is_times_ann c, 
+          bounded_times_id_is_plus_ann c 
+    with
+      | Assert_Plus_Id_Equals_Times_Ann zero, Assert_Times_Id_Equals_Plus_Ann one => 
+      {|
+        bounded_plus_id_is_times_ann := Assert_Plus_Id_Equals_Times_Ann one 
+      ; bounded_times_id_is_plus_ann := Assert_Times_Id_Equals_Plus_Ann zero 
+      |}
+    end.
+  
 Definition lattice_dual : ∀ {S : Type}, @lattice S -> @lattice S
 := λ {S} lat,
 {|  
@@ -154,10 +204,9 @@ Definition lattice_dual : ∀ {S : Type}, @lattice S -> @lattice S
 ; lattice_join         := lattice_meet lat 
 ; lattice_meet         := lattice_join lat 
 ; lattice_join_certs   := lattice_meet_certs lat 
-; lattice_meet_certs   := lattice_join_certs lat 
+; lattice_meet_certs   := lattice_join_certs lat
+; lattice_id_ann_certs := bounded_certs_dual (lattice_id_ann_certs lat)
 ; lattice_certs        := lattice_certs_dual (lattice_certs lat)
-; lattice_join_ast     := lattice_meet_ast lat
-; lattice_meet_ast     := lattice_join_ast lat                                           
 ; lattice_ast          := Ast_lattice_dual (lattice_ast lat) 
 |}.
 
@@ -178,12 +227,42 @@ Definition distributive_lattice_dual : ∀ {S : Type}, @distributive_lattice S -
 ; distributive_lattice_join         := distributive_lattice_meet lat 
 ; distributive_lattice_meet         := distributive_lattice_join lat 
 ; distributive_lattice_join_certs   := distributive_lattice_meet_certs lat 
-; distributive_lattice_meet_certs   := distributive_lattice_join_certs lat 
+; distributive_lattice_meet_certs   := distributive_lattice_join_certs lat
+; distributive_lattice_id_ann_certs := bounded_certs_dual (distributive_lattice_id_ann_certs lat)  
 ; distributive_lattice_certs        := distributive_lattice_certs_dual (distributive_lattice_certs lat)
-; distributive_lattice_join_ast     := distributive_lattice_meet_ast lat
-; distributive_lattice_meet_ast     := distributive_lattice_join_ast lat                                                                                
 ; distributive_lattice_ast          := Ast_distributive_lattice_dual (distributive_lattice_ast lat) 
 |}.
+
+
+
+Definition distributive_prelattice_dual : ∀ {S : Type}, @distributive_prelattice S -> @distributive_prelattice S
+:= λ {S} lat,
+{|  
+  distributive_prelattice_eqv          := distributive_prelattice_eqv lat 
+; distributive_prelattice_join         := distributive_prelattice_meet lat 
+; distributive_prelattice_meet         := distributive_prelattice_join lat 
+; distributive_prelattice_join_certs  := distributive_prelattice_meet_certs lat 
+; distributive_prelattice_meet_certs  := distributive_prelattice_join_certs lat
+; distributive_prelattice_id_ann_certs :=
+    let p := distributive_prelattice_id_ann_certs lat in 
+    {|
+        id_ann_exists_plus_id_d       := id_ann_exists_times_id_d p 
+      ; id_ann_exists_plus_ann_d      := id_ann_exists_times_ann_d p 
+      ; id_ann_exists_times_id_d      := id_ann_exists_plus_id_d p 
+      ; id_ann_exists_times_ann_d     := id_ann_exists_plus_ann_d p 
+      ; id_ann_plus_id_is_times_ann_d := match id_ann_times_id_is_plus_ann_d p with
+                                         | Certify_Times_Id_Equals_Plus_Ann one => Certify_Plus_Id_Equals_Times_Ann one
+                                         | Certify_Not_Times_Id_Equals_Plus_Ann => Certify_Not_Plus_Id_Equals_Times_Ann 
+                                         end
+      ; id_ann_times_id_is_plus_ann_d := match id_ann_plus_id_is_times_ann_d p with
+                                         | Certify_Plus_Id_Equals_Times_Ann zero => Certify_Times_Id_Equals_Plus_Ann zero
+                                         | Certify_Not_Plus_Id_Equals_Times_Ann  => Certify_Not_Times_Id_Equals_Plus_Ann    
+                                         end
+    |}                                                                            
+; distributive_prelattice_certs       := distributive_lattice_certs_dual (distributive_prelattice_certs lat)
+; distributive_prelattice_ast          := Ast_distributive_prelattice_dual (distributive_prelattice_ast lat) 
+|}.
+
 
 
 Definition selective_distributive_lattice_dual : ∀ {S : Type}, @selective_distributive_lattice S -> @selective_distributive_lattice S
@@ -193,10 +272,9 @@ Definition selective_distributive_lattice_dual : ∀ {S : Type}, @selective_dist
 ; selective_distributive_lattice_join         := selective_distributive_lattice_meet lat 
 ; selective_distributive_lattice_meet         := selective_distributive_lattice_join lat 
 ; selective_distributive_lattice_join_certs   := selective_distributive_lattice_meet_certs lat 
-; selective_distributive_lattice_meet_certs   := selective_distributive_lattice_join_certs lat 
+; selective_distributive_lattice_meet_certs   := selective_distributive_lattice_join_certs lat
+; selective_distributive_lattice_id_ann_certs := bounded_certs_dual (selective_distributive_lattice_id_ann_certs lat)  
 ; selective_distributive_lattice_certs        := distributive_lattice_certs_dual (selective_distributive_lattice_certs lat)
-; selective_distributive_lattice_join_ast     := selective_distributive_lattice_meet_ast lat
-; selective_distributive_lattice_meet_ast     := selective_distributive_lattice_join_ast lat
 ; selective_distributive_lattice_ast          := Ast_selective_distributive_lattice_dual (selective_distributive_lattice_ast lat) 
 |}.
 
@@ -222,7 +300,7 @@ Theorem correct_lattice_dual : ∀ (S : Type) (latticeS: A_lattice S),
    =
    A2C_lattice S (A_lattice_dual S latticeS). 
 Proof. intros S latticeS. 
-       unfold lattice_dual, A_lattice_dual, A2C_lattice; simpl. 
+       unfold A_lattice_dual, lattice_dual, A2C_lattice; simpl. 
        rewrite correct_lattice_certs_dual. 
        reflexivity. 
 Qed. 
@@ -243,8 +321,27 @@ Theorem correct_distributive_lattice_dual : ∀ (S : Type) (distributive_lattice
    =
    A2C_distributive_lattice S (A_distributive_lattice_dual S distributive_latticeS). 
 Proof. intros S distributive_latticeS. 
-       unfold distributive_lattice_dual, A_distributive_lattice_dual, A2C_distributive_lattice; simpl. 
+       unfold A_distributive_lattice_dual, distributive_lattice_dual, A2C_distributive_lattice; simpl. 
        rewrite correct_distributive_lattice_certs_dual. 
+       reflexivity. 
+Qed. 
+
+
+Theorem correct_distributive_prelattice_dual : ∀ (S : Type) (distributive_latticeS: A_distributive_prelattice S), 
+   distributive_prelattice_dual  (A2C_distributive_prelattice S distributive_latticeS)  
+   =
+   A2C_distributive_prelattice S (A_distributive_prelattice_dual S distributive_latticeS). 
+Proof. intros S distributive_latticeS. 
+       unfold A_distributive_prelattice_dual, distributive_prelattice_dual, A2C_distributive_prelattice; simpl. 
+       rewrite correct_distributive_lattice_certs_dual.
+       destruct distributive_latticeS. simpl.
+       destruct A_distributive_prelattice_id_ann_proofs; simpl. unfold P2C_id_ann; simpl.
+       destruct A_id_ann_exists_times_id_d as [[id1 Q1] | P1];
+       destruct A_id_ann_exists_times_ann_d as [[an2 Q2] | P2];
+       destruct A_id_ann_exists_plus_id_d as [[id3 Q3] | P3];
+       destruct A_id_ann_exists_plus_ann_d as [[an4 Q4] | P4];
+       destruct A_id_ann_times_id_is_plus_ann_d as [[id5 Q5] | P5];
+       destruct A_id_ann_plus_id_is_times_ann_d as [[an6 Q6] | P6]; simpl;
        reflexivity. 
 Qed. 
 
@@ -265,7 +362,7 @@ Theorem correct_selective_distributive_lattice_dual : ∀ (S : Type) (selective_
    =
    A2C_selective_distributive_lattice S (A_selective_distributive_lattice_dual S selective_distributive_latticeS). 
 Proof. intros S selective_distributive_latticeS. 
-       unfold selective_distributive_lattice_dual, A_selective_distributive_lattice_dual, A2C_selective_distributive_lattice; simpl. 
+       unfold A_selective_distributive_lattice_dual, selective_distributive_lattice_dual, A2C_selective_distributive_lattice; simpl. 
        rewrite correct_selective_distributive_lattice_certs_dual. 
        reflexivity. 
 Qed. 

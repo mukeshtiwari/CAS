@@ -51,19 +51,23 @@ Definition distributive_lattice_proofs_and_or : distributive_lattice_proofs bool
      A_distributive_lattice_absorptive        := bops_and_or_left_left_absorptive
    ; A_distributive_lattice_absorptive_dual   := bops_or_and_left_left_absorptive                                                 
    ; A_distributive_lattice_distributive      := bops_and_or_left_distributive
-  |}. 
+  |}.
+
 
 Definition A_selective_distributive_lattice_and_or : A_selective_distributive_lattice bool := 
 {|
-  A_selective_distributive_lattice_eqv          := A_eqv_bool
-; A_selective_distributive_lattice_join         := bop_and
-; A_selective_distributive_lattice_meet         := bop_or
-; A_selective_distributive_lattice_join_proofs  := A_sg_CS_proofs _ A_sg_CS_and
-; A_selective_distributive_lattice_meet_proofs  := A_sg_CS_proofs _ A_sg_CS_or
-; A_selective_distributive_lattice_proofs       := distributive_lattice_proofs_and_or
-; A_selective_distributive_lattice_join_ast     := Ast_bop_and
-; A_selective_distributive_lattice_meet_ast     := Ast_bop_or
-; A_selective_distributive_lattice_ast          := Ast_selective_distributive_lattice_and_or
+  A_selective_distributive_lattice_eqv           := A_eqv_bool
+; A_selective_distributive_lattice_join          := bop_and
+; A_selective_distributive_lattice_meet          := bop_or
+; A_selective_distributive_lattice_join_proofs   := A_sg_CS_proofs _ A_sg_CS_and
+; A_selective_distributive_lattice_meet_proofs   := A_sg_CS_proofs _ A_sg_CS_or
+; A_selective_distributive_lattice_id_ann_proofs := 
+    {|
+        A_bounded_plus_id_is_times_ann := bops_and_or_id_equals_ann  
+      ; A_bounded_times_id_is_plus_ann := bops_and_or_ann_equals_id
+    |}    
+; A_selective_distributive_lattice_proofs        := distributive_lattice_proofs_and_or
+; A_selective_distributive_lattice_ast           := Ast_and_or 
 |}.
 
 End ACAS.
@@ -84,10 +88,14 @@ Definition selective_distributive_lattice_and_or : @selective_distributive_latti
 ; selective_distributive_lattice_meet        := bop_or
 ; selective_distributive_lattice_join_certs  := sg_CS_certs sg_CS_and
 ; selective_distributive_lattice_meet_certs  := sg_CS_certs sg_CS_or
+; selective_distributive_lattice_id_ann_certs := 
+    {|
+        bounded_plus_id_is_times_ann := Assert_Plus_Id_Equals_Times_Ann true
+      ; bounded_times_id_is_plus_ann := Assert_Times_Id_Equals_Plus_Ann false 
+    |}    
+                                                            
 ; selective_distributive_lattice_certs       := distributive_lattice_certs_and_or
-; selective_distributive_lattice_join_ast    := Ast_bop_and
-; selective_distributive_lattice_meet_ast    := Ast_bop_or                                                  
-; selective_distributive_lattice_ast         := Ast_selective_distributive_lattice_and_or
+; selective_distributive_lattice_ast         := Ast_and_or
 |}.
 
 

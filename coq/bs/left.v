@@ -48,9 +48,11 @@ Proof. compute. intros s. left. destruct (nt s) as [F _]. exists (f s). left. ex
 
 End Theory.
 
-Section ACAS.
 
-  
+
+(*
+
+Section ACAS.
 Definition semiring_proofs_sg_left 
     (S : Type)
     (rS : brel S)
@@ -75,49 +77,6 @@ let commS := A_sg_CI_commutative S rS addS sgP in
 ; A_semiring_times_id_is_plus_ann_d  := inr (bops_left_sg_not_id_equals_ann S rS f nt addS)
 |}.
 
-
-Definition A_dioid_sg_left  (S : Type) (sg : A_sg_CI S) :=
-let eqv   := A_sg_CI_eqv S sg            in
-let eq    := A_eqv_eq S eqv          in
-let s     := A_eqv_witness S eqv     in
-let f     := A_eqv_new S eqv         in
-let nt    := A_eqv_not_trivial S eqv in
-let eqvP  := A_eqv_proofs S eqv      in   
-let plusS := A_sg_CI_bop S sg           in 
-{|
-  A_dioid_eqv          := eqv 
-; A_dioid_plus         := plusS 
-; A_dioid_times        := bop_left 
-; A_dioid_plus_proofs  := A_sg_CI_proofs S sg
-; A_dioid_times_proofs := msg_proofs_left S eq s f nt eqvP 
-; A_dioid_proofs       := semiring_proofs_sg_left S eq plusS s f nt eqvP (A_sg_CI_proofs S sg)  
-; A_dioid_plus_ast     := A_sg_CI_bop_ast S sg 
-; A_dioid_times_ast    := Ast_bop_left (A_eqv_ast S eqv) 
-; A_dioid_ast          := Ast_dioid_sg_left (A_sg_CI_ast S sg)
-|}.
-
-
-Definition A_selective_dioid_sg_left  (S : Type) (sg : A_sg_CS S) :=
-let eqv   := A_sg_CS_eqv S sg            in
-let eq    := A_eqv_eq S eqv          in
-let s     := A_eqv_witness S eqv     in
-let f     := A_eqv_new S eqv         in
-let nt    := A_eqv_not_trivial S eqv in
-let eqvP  := A_eqv_proofs S eqv      in   
-let plusS := A_sg_CS_bop S sg           in 
-{|
-  A_selective_dioid_eqv          := eqv 
-; A_selective_dioid_plus         := plusS 
-; A_selective_dioid_times        := bop_left 
-; A_selective_dioid_plus_proofs  := A_sg_CS_proofs S sg
-; A_selective_dioid_times_proofs := msg_proofs_left S eq s f nt eqvP 
-; A_selective_dioid_proofs       := semiring_proofs_sg_left S eq plusS s f nt eqvP (A_sg_CI_proofs_from_sg_CS_proofs S eq plusS (A_sg_CS_proofs S sg))
-; A_selective_dioid_plus_ast     := A_sg_CS_bop_ast S sg 
-; A_selective_dioid_times_ast    := Ast_bop_left (A_eqv_ast S eqv) 
-; A_selective_dioid_ast          := Ast_selective_dioid_sg_left (A_sg_CS_ast S sg)
-|}.
-
-
 End ACAS.
 
 Section CAS.
@@ -138,82 +97,10 @@ Definition semiring_certs_sg_left
 ; semiring_times_id_is_plus_ann_d  := Certify_Not_Times_Id_Equals_Plus_Ann
 |}.
 
-
-Definition dioid_sg_left  (S : Type) (sg : @sg_CI S) :=
-let eqv   := sg_CI_eqv sg        in
-let eq    := eqv_eq eqv          in
-let s     := eqv_witness eqv     in
-let f     := eqv_new eqv         in
-let plusS := sg_CI_bop sg        in 
-{|
-  dioid_eqv          := eqv 
-; dioid_plus         := plusS 
-; dioid_times        := bop_left 
-; dioid_plus_certs   := sg_CI_certs sg
-; dioid_times_certs  := msg_certs_left s f 
-; dioid_certs        := semiring_certs_sg_left S eq plusS s f 
-; dioid_plus_ast     := sg_CI_bop_ast sg 
-; dioid_times_ast    := Ast_bop_left (eqv_ast eqv) 
-; dioid_ast          := Ast_dioid_sg_left (sg_CI_ast sg)
-|}.
-
-
-
-Definition selective_dioid_sg_left  (S : Type) (sg : @sg_CS S) :=
-let eqv   := sg_CS_eqv sg        in
-let eq    := eqv_eq eqv          in
-let s     := eqv_witness eqv     in
-let f     := eqv_new eqv         in
-let plusS := sg_CS_bop sg        in 
-{|
-  selective_dioid_eqv          := eqv 
-; selective_dioid_plus         := plusS 
-; selective_dioid_times        := bop_left 
-; selective_dioid_plus_certs   := sg_CS_certs sg
-; selective_dioid_times_certs  := msg_certs_left s f 
-; selective_dioid_certs        := semiring_certs_sg_left S eq plusS s f 
-; selective_dioid_plus_ast     := sg_CS_bop_ast sg 
-; selective_dioid_times_ast    := Ast_bop_left (eqv_ast eqv) 
-; selective_dioid_ast          := Ast_selective_dioid_sg_left (sg_CS_ast sg)
-|}.
-
 End CAS.
 
 Section Verify.
 
-Lemma correct_dioid_sg_left_certs
-  (S : Type)
-  (eq : brel S)
-  (wS : S)
-  (f : S -> S)
-  (nt : brel_not_trivial S eq f) 
-  (addS : binary_op S)
-  (eqvP : eqv_proofs S eq)
-  (sgP : sg_CI_proofs S eq addS) :   
-  P2C_semiring S eq addS bop_left (semiring_proofs_sg_left S eq addS wS f nt eqvP sgP)
-  = 
-  semiring_certs_sg_left S eq addS wS f. 
-Proof. destruct sgP. compute; auto. Qed. 
-       
-
-Theorem correct_dioid_sg_left  (S : Type) (sg : A_sg_CI S) :
-   A2C_dioid S (A_dioid_sg_left S sg) =  dioid_sg_left S (A2C_sg_CI S sg). 
-Proof. destruct sg. destruct A_sg_CI_proofs.
-       unfold dioid_sg_left, A_dioid_sg_left, A2C_dioid, A2C_sg_CI; simpl.
-       unfold P2C_sg_CI; simpl.
-       rewrite <- correct_msg_certs_left.
-       rewrite correct_dioid_sg_left_certs.
-       reflexivity. 
-Qed.   
-
-Theorem correct_selective_dioid_sg_left  (S : Type) (sg : A_sg_CS S) :
-   A2C_selective_dioid S (A_selective_dioid_sg_left S sg) =  selective_dioid_sg_left S (A2C_sg_CS S sg). 
-Proof. destruct sg. destruct A_sg_CS_proofs.
-       unfold selective_dioid_sg_left, A_selective_dioid_sg_left, A2C_selective_dioid, A2C_sg_CS; simpl.
-       unfold P2C_sg_CS; simpl.
-       rewrite <- correct_msg_certs_left.
-       rewrite correct_dioid_sg_left_certs.
-       reflexivity. 
-Qed.   
-
 End Verify.     
+*) 
+

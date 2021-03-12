@@ -103,8 +103,7 @@ Definition sg_CS_proofs_min : sg_CS_proofs nat brel_eq_nat bop_min :=
 ; A_sg_CS_congruence   := bop_min_congruence
 ; A_sg_CS_commutative  := bop_min_commutative
 ; A_sg_CS_selective    := bop_min_selective
-; A_sg_CS_exists_id_d  := inr _ bop_min_not_exists_id
-; A_sg_CS_exists_ann_d := inl _ bop_min_exists_ann
+; A_sg_CS_bop_ast      := Ast_bop_min
 |}. 
 
 
@@ -112,9 +111,11 @@ Definition sg_CS_proofs_min : sg_CS_proofs nat brel_eq_nat bop_min :=
 Definition A_sg_CS_min : A_sg_CS nat 
 := {| 
      A_sg_CS_eqv         := A_eqv_nat 
-   ; A_sg_CS_bop         := bop_min 
+   ; A_sg_CS_bop         := bop_min
+   ; A_sg_CS_exists_id_d  := inr _ bop_min_not_exists_id
+   ; A_sg_CS_exists_ann_d := inl _ bop_min_exists_ann
    ; A_sg_CS_proofs      := sg_CS_proofs_min
-   ; A_sg_CS_bop_ast     := Ast_bop_min
+   
    ; A_sg_CS_ast         := Ast_sg_CS_min 
    |}. 
 
@@ -130,9 +131,8 @@ Definition sg_CS_certs_min : @sg_CS_certificates nat
      sg_CS_associative        := Assert_Associative 
    ; sg_CS_congruence         := Assert_Bop_Congruence 
    ; sg_CS_commutative        := Assert_Commutative 
-   ; sg_CS_selective          := Assert_Selective 
-   ; sg_CS_exists_id_d        := Certify_Not_Exists_Id 
-   ; sg_CS_exists_ann_d       := Certify_Exists_Ann 0
+   ; sg_CS_selective          := Assert_Selective
+   ; sg_CS_bop_ast            := Ast_bop_min                                                         
    |}. 
 
 
@@ -140,9 +140,10 @@ Definition sg_CS_certs_min : @sg_CS_certificates nat
 Definition sg_CS_min : @sg_CS nat 
 := {| 
      sg_CS_eqv   := eqv_eq_nat 
-  ; sg_CS_bop   := bop_min 
+   ; sg_CS_bop   := bop_min 
+   ; sg_CS_exists_id_d        := Certify_Not_Exists_Id 
+   ; sg_CS_exists_ann_d       := Certify_Exists_Ann 0
    ; sg_CS_certs := sg_CS_certs_min
-   ; sg_CS_bop_ast     := Ast_bop_min                      
    ; sg_CS_ast   := Ast_sg_CS_min 
    |}. 
   

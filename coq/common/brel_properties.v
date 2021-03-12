@@ -267,11 +267,24 @@ Definition brel_not_finite (S : Type) (r : brel S)
 Definition bottoms_finite (S : Type) (eq lte : brel S)
   := {p : (unit -> list S) * (S -> S) & match p with (f, w) =>  ∀ (s : S),  (in_set eq (f tt) (w s) = true) * (lte (w s) s = true) end}.
 
-(* note : if code bottoms_not_finite up as the direct negation of bottoms_finite, then 
+(* note : if we code bottoms_not_finite as the direct "negation" of bottoms_finite, then 
    bop_minset_union_not_exists_ann does not seem to go through ... ;-) 
-*) 
+
 Definition bottoms_not_finite (S : Type) (eq lte : brel S)
   := ∀ (X : list S), { s : S &  ∀ (y : S), (in_set eq X y = true) -> (lte y s = false)}.
 
+*) 
+Definition bottoms_not_finite (S : Type) (eq lte : brel S)
+  := {f : (list S) -> S & ∀ (X : list S) (y : S), (in_set eq X y = true) -> (lte y (f X) = false)}.
+
 Definition bottoms_finite_decidable  (S : Type) (eq lte : brel S) := (bottoms_finite S eq lte) + (bottoms_not_finite S eq lte).
 
+(*  because the definitions have changed a lot ... *) 
+Lemma bottoms_finite_sanity_check (S : Type) (eq lte : brel S) : 
+  bottoms_finite S eq lte -> bottoms_not_finite S eq lte -> (true = false).
+Proof. intros [[f w] P] [g Q].
+       destruct (P (g (f tt))) as [H0 H1]. 
+       assert (H2 := Q (f tt) (w (g(f tt)))).
+       assert (H3 := H2 H0). 
+       rewrite H1 in H3. exact H3. 
+Qed.        

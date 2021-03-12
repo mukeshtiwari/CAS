@@ -158,7 +158,7 @@ Proof. apply bop_predicate_reduce_congruence.
 Qed.
 
 Lemma bop_min_ceiling_idempotent : bop_idempotent nat (brel_nat_ceiling ceiling_minus_one) bop_min_ceiling.
-Proof.  apply bop_predicate_reduce_idempotent. 
+Proof.  apply bop_predicate_reduce_idempotent_intro_standard. 
         apply brel_eq_nat_reflexive.
         apply above_ceiling_minus_one_ceiling. 
         apply pred_congruence_above_ceiling_minus_one. 
@@ -170,8 +170,15 @@ Proof.  apply bop_predicate_reduce_selective.
         apply brel_eq_nat_reflexive.
         apply above_ceiling_minus_one_ceiling. 
         apply pred_congruence_above_ceiling_minus_one.
-        admit.
-        admit. 
+        unfold above_ceiling_minus_one. 
+           intros a b H1 H2.
+           assert (H3 := bop_min_selective a b). 
+           destruct H3 as [H3 | H3].
+              admit.
+              admit.         
+        unfold bop_is_ann. split. 
+           admit. (* false! *) 
+           admit. 
         apply bop_min_selective.         
 Admitted. 
 
@@ -310,7 +317,7 @@ Proof. exists (0, 1). rewrite bop_min_ceiling_0_1. compute; auto. Defined.
 End Theory.
 
 Section ACAS.
-  
+(*  
 Definition sg_CS_proofs_min_ceiling (ceiling_minus_one : nat) : sg_CS_proofs nat (brel_nat_ceiling ceiling_minus_one) (bop_min_ceiling ceiling_minus_one) := 
 {| 
   A_sg_CS_associative  := bop_min_ceiling_associative ceiling_minus_one
@@ -331,14 +338,14 @@ Definition A_sg_CS_min (ceiling_minus_one : nat) : A_sg_CS nat
    ; A_sg_CS_bop_ast     := Ast_bop_min        (* FIX *) 
    ; A_sg_CS_ast         := Ast_sg_CS_min      (* FIX *) 
    |}. 
-
+*)
 
 End ACAS.
 
 
 Section CAS.
 Open Scope nat.   
-
+(*
 Definition sg_CS_certs_min : @sg_CS_certificates nat 
 := {|
      sg_CS_associative        := Assert_Associative 
@@ -350,7 +357,7 @@ Definition sg_CS_certs_min : @sg_CS_certificates nat
    |}. 
 
 
-(*
+
 Definition sg_CS_min : @sg_CS nat 
 := {| 
      sg_CS_eqv   := eqv_eq_nat 

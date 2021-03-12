@@ -284,8 +284,8 @@ a == a (m) 1
  *)
 Lemma lattice_fact : bops_id_equals_ann S eqv meet join -> bop_left_distributive S eqv join meet -> bops_left_left_absorptive S eqv join meet.
 Proof. intros [i [P Q]] D a b.
-       destruct (P a) as [L R]. apply sym in R.
-       destruct (Q b) as [U V]. apply sym in U.
+       destruct (P a) as [_ R]. apply sym in R.
+       destruct (Q b) as [U _]. apply sym in U.
        assert (F1 := m_cng _ _ _ _ (ref a) U).
        assert (F2 := D a i b).  apply sym in R.
        assert (F3 := j_cng _ _ _ _ R (ref (a (m) b))). apply sym in R.

@@ -373,7 +373,13 @@ Definition eqv_proofs_product :
                         (A_eqv_transitive T rT eqvT) 
 ; A_eqv_symmetric   := brel_product_symmetric S T rS rT  
                         (A_eqv_symmetric S rS eqvS) 
-                        (A_eqv_symmetric T rT eqvT) 
+                        (A_eqv_symmetric T rT eqvT)
+; A_eqv_type_ast    := Ast_type_product
+                        (A_eqv_type_ast S rS eqvS, 
+                         A_eqv_type_ast T rT eqvT)                                                 
+; A_eqv_brel_ast    := Ast_brel_eq_product
+                        (A_eqv_brel_ast S rS eqvS, 
+                         A_eqv_brel_ast T rT eqvT)                         
 |}.
 
 
@@ -429,14 +435,23 @@ Definition eqv_product : ∀ {S T : Type},  @eqv S -> @eqv T -> @eqv (S * T)
   let g   := eqv_new eqvT in    
   let r   := brel_product eqS eqT in 
    {| 
-     eqv_eq       := r
-    ; eqv_witness := (s, t)
-    ; eqv_new     := λ (p : S * T), let (x, y) := p in (f x, y)
+      eqv_eq            := r
+    ; eqv_certs         := 
+     {|
+       eqv_congruence     := @Assert_Brel_Congruence (S *T)
+     ; eqv_reflexive      := @Assert_Reflexive (S * T)
+     ; eqv_transitive     := @Assert_Transitive (S *T) 
+     ; eqv_symmetric      := @Assert_Symmetric (S * T)
+     ; eqv_type_ast       := Ast_type_product (eqv_type_ast (eqv_certs eqvS), eqv_type_ast (eqv_certs eqvT))                            
+     ; eqv_brel_ast       := Ast_brel_eq_product (eqv_brel_ast (eqv_certs eqvS), eqv_brel_ast (eqv_certs eqvT))                         
+     |}  
+    ; eqv_witness       := (s, t)
+    ; eqv_new           := λ (p : S * T), let (x, y) := p in (f x, y)
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 r (s , t) (f s, t) (s, g t))
     ; eqv_data          := λ p, DATA_pair (eqv_data eqvS (fst p), eqv_data eqvT (snd p))
     ; eqv_rep           := λ p, (eqv_rep eqvS (fst p), eqv_rep eqvT (snd p))
-    ; eqv_finite_d  := eqv_product_finite_certifiable (eqv_finite_d eqvS) (eqv_finite_d eqvT)
-    ; eqv_ast  := Ast_eqv_product (eqv_ast eqvS, eqv_ast eqvT)
+    ; eqv_finite_d      := eqv_product_finite_certifiable (eqv_finite_d eqvS) (eqv_finite_d eqvT)
+    ; eqv_ast           := Ast_eqv_product (eqv_ast eqvS, eqv_ast eqvT)
    |}. 
 
 End CAS.

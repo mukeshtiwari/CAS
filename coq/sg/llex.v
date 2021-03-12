@@ -1374,15 +1374,7 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
 ; A_asg_idempotent_d  := bop_llex_idempotent_decide S T rS rT bS bT s refS 
                          (A_sg_CS_selective S rS bS sgS)
                          (A_asg_idempotent_d _ _ _ sgT) 
-; A_asg_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative S rS bS sgS) 
-                         (A_sg_CS_exists_id_d _ _ _ sgS) 
-                         (A_asg_exists_id_d _ _ _ sgT) 
-; A_asg_exists_ann_d  := bop_llex_exists_ann_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative S rS bS sgS) 
-                         (A_sg_CS_exists_ann_d _ _ _ sgS) 
-                         (A_asg_exists_ann_d _ _ _ sgT)
-
+; A_asg_bop_ast      := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_asg_bop_ast T rT bT sgT)                                            
 |}. 
 
   
@@ -1423,14 +1415,6 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
 ; A_sg_idempotent_d  := bop_llex_idempotent_decide S T rS rT bS bT s refS 
                          (A_sg_CS_selective S rS bS sgS)
                          (A_sg_idempotent_d _ _ _ sgT) 
-; A_sg_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative S rS bS sgS) 
-                         (A_sg_CS_exists_id_d _ _ _ sgS) 
-                         (A_sg_exists_id_d _ _ _ sgT) 
-; A_sg_exists_ann_d  := bop_llex_exists_ann_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative S rS bS sgS) 
-                         (A_sg_CS_exists_ann_d _ _ _ sgS) 
-                         (A_sg_exists_ann_d _ _ _ sgT)
 
 ; A_sg_is_left_d     := inr _ (bop_llex_not_is_left S T rS rT bS bT s f Pf symS transS t
                                  (A_sg_CS_commutative S rS bS sgS) 
@@ -1456,6 +1440,7 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
 ; A_sg_anti_right_d     := inr _ (bop_llex_not_anti_right S T rS rT bS bT s f Pf symS transS t refT 
                                     (A_sg_CS_selective S rS bS sgS)
                                     (A_sg_CS_commutative S rS bS sgS) )
+; A_sg_bop_ast          := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_sg_bop_ast T rT bT sgT)                                            
 |}. 
 
 Definition sg_C_proofs_llex :
@@ -1494,15 +1479,6 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
 ; A_sg_C_idempotent_d  := bop_llex_idempotent_decide S T rS rT bS bT s refS 
                          (A_sg_CS_selective _ _ _ sgS)
                          (A_sg_C_idempotent_d _ _ _ sg_CT) 
-; A_sg_C_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative _ _ _ sgS)
-                         (A_sg_CS_exists_id_d _ _ _ sgS) 
-                         (A_sg_C_exists_id_d _ _ _ sg_CT) 
-; A_sg_C_exists_ann_d  :=  bop_llex_exists_ann_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative _ _ _ sgS)
-                         (A_sg_CS_exists_ann_d _ _ _ sgS) 
-                         (A_sg_C_exists_ann_d _ _ _ sg_CT) 
-
 ; A_sg_C_cancel_d    := inr _ (bop_llex_not_left_cancellative_v2 S T rS rT bS bT s f Pf refS symS transS t g Pg refT bcongS 
                                     (A_sg_CS_selective _ _ _ sgS)
                                     (A_sg_CS_commutative _ _ _ sgS))
@@ -1516,6 +1492,7 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
                                     (A_sg_CS_selective _ _ _ sgS)
                                     (A_sg_CS_commutative _ _ _ sgS))
 
+; A_sg_C_bop_ast          := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_sg_C_bop_ast T rT bT sg_CT)                                                                       
 |}. 
 
 
@@ -1552,14 +1529,7 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
                          (A_sg_CS_commutative _ _ _ sgS) 
                          (A_sg_CS_selective _ _ _ sgS) 
                          (A_sg_CI_selective_d _ _ _ sg_CIT) 
-; A_sg_CI_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative _ _ _ sgS)
-                         (A_sg_CS_exists_id_d _ _ _ sgS) 
-                         (A_sg_CI_exists_id_d _ _ _ sg_CIT) 
-; A_sg_CI_exists_ann_d  :=  bop_llex_exists_ann_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative _ _ _ sgS)
-                         (A_sg_CS_exists_ann_d _ _ _ sgS) 
-                         (A_sg_CI_exists_ann_d _ _ _ sg_CIT) 
+; A_sg_CI_bop_ast       := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_sg_CI_bop_ast T rT bT sg_CIT)                                        
 |}. 
 
 
@@ -1591,15 +1561,8 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
 ; A_sg_CS_selective   := bop_llex_selective S T rS rT bS bT refS symS transS refT bcongS
                          (A_sg_CS_commutative _ _ _ sgS) 
                          (A_sg_CS_selective _ _ _ sgS) 
-                         (A_sg_CS_selective _ _ _ sg_CST) 
-; A_sg_CS_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative _ _ _ sgS)
-                         (A_sg_CS_exists_id_d _ _ _ sgS) 
-                         (A_sg_CS_exists_id_d _ _ _ sg_CST) 
-; A_sg_CS_exists_ann_d  :=  bop_llex_exists_ann_decide S T rS rT bS bT refS symS transS refT 
-                         (A_sg_CS_commutative _ _ _ sgS)
-                         (A_sg_CS_exists_ann_d _ _ _ sgS) 
-                         (A_sg_CS_exists_ann_d _ _ _ sg_CST) 
+                         (A_sg_CS_selective _ _ _ sg_CST)
+; A_sg_CS_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_sg_CS_bop_ast T rT bT sg_CST)                                                        
 |}. 
 
 
@@ -1611,9 +1574,20 @@ let rS   := A_eqv_eq S eqvS in
 let rT   := A_eqv_eq T eqvT in 
 let bS   := A_sg_CS_bop S sgS in
 let bT   := A_sg_bop T sgT in 
+let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
+let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in
+let symS := A_eqv_symmetric _ _ (A_eqv_proofs S eqvS) in
+let trnS := A_eqv_transitive _ _ (A_eqv_proofs S eqvS) in
+let comS := A_sg_CS_commutative S rS bS (A_sg_CS_proofs S sgS)  in 
+let id1  := A_sg_CS_exists_id_d _ sgS in
+let id2  := A_sg_exists_id_d _ sgT in
+let an1  := A_sg_CS_exists_ann_d _ sgS in
+let an2  := A_sg_exists_ann_d _ sgT in        
 {| 
         A_sg_eq     := A_eqv_product S T eqvS eqvT 
       ; A_sg_bop    := bop_llex rS bS bT 
+      ; A_sg_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS trnS refT comS id1 id2 
+      ; A_sg_exists_ann_d  := bop_llex_exists_ann_decide S T rS rT bS bT refS symS trnS refT comS an1 an2 
       ; A_sg_proofs := sg_proofs_llex S T rS rT bS bT 
                            (A_eqv_witness S eqvS) 
                            (A_eqv_new S eqvS) 
@@ -1625,12 +1599,9 @@ let bT   := A_sg_bop T sgT in
                            (A_eqv_proofs T eqvT)
                            (A_sg_CS_proofs S sgS) 
                            (A_sg_proofs T sgT)
-      ; A_sg_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S sgS, A_sg_bop_ast T sgT)                                            
+     
       ; A_sg_ast     := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_ast T sgT)  
 |}. 
-
-
-
 
 
 Definition A_sg_C_llex : ∀ (S T : Type),  A_sg_CS S -> A_sg_C T -> A_sg_C (S * T)
@@ -1641,9 +1612,20 @@ let rS   := A_eqv_eq S eqvS in
 let rT   := A_eqv_eq T eqvT in 
 let bS   := A_sg_CS_bop S sgS in
 let bT   := A_sg_C_bop T sgT in 
+let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
+let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in
+let symS := A_eqv_symmetric _ _ (A_eqv_proofs S eqvS) in
+let trnS := A_eqv_transitive _ _ (A_eqv_proofs S eqvS) in
+let comS := A_sg_CS_commutative S rS bS (A_sg_CS_proofs S sgS)  in 
+let id1  := A_sg_CS_exists_id_d _ sgS in
+let id2  := A_sg_C_exists_id_d _ sgT in
+let an1  := A_sg_CS_exists_ann_d _ sgS in
+let an2  := A_sg_C_exists_ann_d _ sgT in        
 {| 
         A_sg_C_eqv    := A_eqv_product S T eqvS eqvT 
       ; A_sg_C_bop    := bop_llex rS bS bT 
+      ; A_sg_C_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS trnS refT comS id1 id2 
+      ; A_sg_C_exists_ann_d  := bop_llex_exists_ann_decide S T rS rT bS bT refS symS trnS refT comS an1 an2 
       ; A_sg_C_proofs := sg_C_proofs_llex S T rS rT bS bT 
                            (A_eqv_witness S eqvS) 
                            (A_eqv_new S eqvS) 
@@ -1655,7 +1637,7 @@ let bT   := A_sg_C_bop T sgT in
                            (A_eqv_proofs T eqvT)                           
                            (A_sg_CS_proofs S sgS) 
                            (A_sg_C_proofs T sgT)
-      ; A_sg_C_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S sgS, A_sg_C_bop_ast T sgT)                                                                       
+      
       ; A_sg_C_ast     := Ast_sg_C_llex (A_sg_CS_ast S sgS, A_sg_C_ast T sgT)  
 |}. 
 
@@ -1668,16 +1650,27 @@ let rS   := A_eqv_eq S eqvS in
 let rT   := A_eqv_eq T eqvT in 
 let bS   := A_sg_CS_bop S sgS in
 let bT   := A_sg_CI_bop T sgT in 
- {| 
+let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
+let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in
+let symS := A_eqv_symmetric _ _ (A_eqv_proofs S eqvS) in
+let trnS := A_eqv_transitive _ _ (A_eqv_proofs S eqvS) in
+let comS := A_sg_CS_commutative S rS bS (A_sg_CS_proofs S sgS)  in 
+let id1  := A_sg_CS_exists_id_d _ sgS in
+let id2  := A_sg_CI_exists_id_d _ sgT in
+let an1  := A_sg_CS_exists_ann_d _ sgS in
+let an2  := A_sg_CI_exists_ann_d _ sgT in        
+{| 
         A_sg_CI_eqv     := A_eqv_product S T eqvS eqvT 
       ; A_sg_CI_bop    := bop_llex rS bS bT 
+      ; A_sg_CI_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS trnS refT comS id1 id2 
+      ; A_sg_CI_exists_ann_d  := bop_llex_exists_ann_decide S T rS rT bS bT refS symS trnS refT comS an1 an2 
       ; A_sg_CI_proofs := sg_CI_proofs_llex S T rS rT bS bT 
                            (A_eqv_witness S eqvS) 
                            (A_eqv_proofs S eqvS)
                            (A_eqv_proofs T eqvT)                           
                           (A_sg_CS_proofs S sgS) 
                           (A_sg_CI_proofs T sgT)
-      ; A_sg_CI_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S sgS, A_sg_CI_bop_ast T sgT)                                        
+      
       ; A_sg_CI_ast     := Ast_sg_CI_llex (A_sg_CS_ast S sgS, A_sg_CI_ast T sgT)  
  |}. 
 
@@ -1690,18 +1683,28 @@ let rS   := A_eqv_eq S eqvS in
 let rT   := A_eqv_eq T eqvT in 
 let bS   := A_sg_CS_bop S sgS in
 let bT   := A_sg_CS_bop T sgT in 
+let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
+let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in
+let symS := A_eqv_symmetric _ _ (A_eqv_proofs S eqvS) in
+let trnS := A_eqv_transitive _ _ (A_eqv_proofs S eqvS) in
+let comS := A_sg_CS_commutative S rS bS (A_sg_CS_proofs S sgS)  in 
+let id1  := A_sg_CS_exists_id_d _ sgS in
+let id2  := A_sg_CS_exists_id_d _ sgT in
+let an1  := A_sg_CS_exists_ann_d _ sgS in
+let an2  := A_sg_CS_exists_ann_d _ sgT in        
 {| 
         A_sg_CS_eqv    := A_eqv_product S T eqvS eqvT 
       ; A_sg_CS_bop    := bop_llex rS bS bT 
+      ; A_sg_CS_exists_id_d   := bop_llex_exists_id_decide S T rS rT bS bT refS symS trnS refT comS id1 id2 
+      ; A_sg_CS_exists_ann_d  := bop_llex_exists_ann_decide S T rS rT bS bT refS symS trnS refT comS an1 an2 
       ; A_sg_CS_proofs := sg_CS_proofs_llex S T rS rT bS bT 
                            (A_eqv_proofs S eqvS)
                            (A_eqv_proofs T eqvT)                           
                            (A_sg_CS_proofs S sgS) 
                            (A_sg_CS_proofs T sgT)
-      ; A_sg_CS_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S sgS, A_sg_CS_bop_ast T sgT)                               
+      
       ; A_sg_CS_ast    := Ast_sg_CS_llex (A_sg_CS_ast S sgS, A_sg_CS_ast T sgT)  
 |}. 
-
 End ACAS.
 
 
@@ -1760,8 +1763,7 @@ Definition asg_certs_llex : ∀ {S T : Type},
 ; asg_commutative      := Assert_Commutative
 ; asg_selective_d      := check_selective_llex s (asg_selective_d cT)
 ; asg_idempotent_d     := check_idempotent_llex s (asg_idempotent_d cT)
-; asg_exists_id_d      := check_exists_id_llex (sg_CS_exists_id_d cS) (asg_exists_id_d cT)
-; asg_exists_ann_d     := check_exists_ann_llex (sg_CS_exists_ann_d cS) (asg_exists_ann_d cT)
+; asg_bop_ast          := Ast_bop_llex (sg_CS_bop_ast cS, asg_bop_ast cT)                                                                                                                            
 |}. 
 
 Definition sg_certs_llex : ∀ {S T : Type},  
@@ -1777,8 +1779,6 @@ Definition sg_certs_llex : ∀ {S T : Type},
 ; sg_commutative_d    := check_commutative_llex s (sg_commutative_d cT)
 ; sg_selective_d      := check_selective_llex s (sg_selective_d cT)
 ; sg_idempotent_d     := check_idempotent_llex s (sg_idempotent_d cT)
-; sg_exists_id_d      := check_exists_id_llex (sg_CS_exists_id_d cS) (sg_exists_id_d cT)
-; sg_exists_ann_d     := check_exists_ann_llex (sg_CS_exists_ann_d cS) (sg_exists_ann_d cT)
 
 ; sg_is_left_d        := Certify_Not_Is_Left (cef_bop_llex_not_is_left rS bS s f t)
 ; sg_is_right_d       := Certify_Not_Is_Right (cef_bop_llex_not_is_right rS bS s f t)
@@ -1788,6 +1788,7 @@ Definition sg_certs_llex : ∀ {S T : Type},
 ; sg_right_constant_d := Certify_Not_Right_Constant (cef_bop_llex_not_constant rS bS s f t g)
 ; sg_anti_left_d      := Certify_Not_Anti_Left (cef_bop_llex_not_anti_left rS bS s f t)
 ; sg_anti_right_d     := Certify_Not_Anti_Right (cef_bop_llex_not_anti_right rS bS s f t)
+; sg_bop_ast          := Ast_bop_llex (sg_CS_bop_ast cS, sg_bop_ast cT)                                                                            
 |}. 
 
 Definition sg_C_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
@@ -1799,12 +1800,11 @@ Definition sg_C_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S),
 ; sg_C_commutative   := Assert_Commutative   
 ; sg_C_selective_d   := check_selective_llex s (sg_C_selective_d cT)
 ; sg_C_idempotent_d  := check_idempotent_llex s (sg_C_idempotent_d cT)
-; sg_C_exists_id_d   := check_exists_id_llex (sg_CS_exists_id_d cS) (sg_C_exists_id_d cT)
-; sg_C_exists_ann_d  := check_exists_ann_llex (sg_CS_exists_ann_d cS) (sg_C_exists_ann_d cT)
 ; sg_C_cancel_d    := Certify_Not_Left_Cancellative (cef_bop_llex_not_cancellative rS bS s f t g)
 ; sg_C_constant_d  := Certify_Not_Left_Constant (cef_bop_llex_not_constant rS bS s f t g)
 ; sg_C_anti_left_d      := Certify_Not_Anti_Left (cef_bop_llex_not_anti_left rS bS s f t)                            
 ; sg_C_anti_right_d     := Certify_Not_Anti_Right (cef_bop_llex_not_anti_right rS bS s f t)
+; sg_C_bop_ast       := Ast_bop_llex (sg_CS_bop_ast cS, sg_C_bop_ast cT)                                                         
 |}.
 
 Definition sg_CI_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
@@ -1816,8 +1816,7 @@ Definition sg_CI_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S),
 ; sg_CI_commutative   := Assert_Commutative   
 ; sg_CI_idempotent    := Assert_Idempotent   
 ; sg_CI_selective_d   := check_selective_llex s (sg_CI_selective_d cT)
-; sg_CI_exists_id_d   := check_exists_id_llex (sg_CS_exists_id_d cS) (sg_CI_exists_id_d cT)
-; sg_CI_exists_ann_d  := check_exists_ann_llex (sg_CS_exists_ann_d cS) (sg_CI_exists_ann_d cT)
+; sg_CI_bop_ast       := Ast_bop_llex (sg_CS_bop_ast cS, sg_CI_bop_ast cT)                                                         
 |}.
 
 Definition sg_CS_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
@@ -1828,16 +1827,16 @@ Definition sg_CS_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S),
 ; sg_CS_congruence    := Assert_Bop_Congruence   
 ; sg_CS_commutative   := Assert_Commutative   
 ; sg_CS_selective     := Assert_Selective   
-; sg_CS_exists_id_d   := check_exists_id_llex (sg_CS_exists_id_d cS) (sg_CS_exists_id_d cT)
-; sg_CS_exists_ann_d  := check_exists_ann_llex (sg_CS_exists_ann_d cS) (sg_CS_exists_ann_d cT)
+; sg_CS_bop_ast := Ast_bop_llex (sg_CS_bop_ast cS, sg_CS_bop_ast cT)                               
 |}.
-
 
 Definition sg_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg (S := T) -> sg (S := (S * T))
 := λ {S T} sgS sgT, 
    {| 
-     sg_eq    := eqv_product (sg_CS_eqv sgS) (sg_eq sgT) 
-   ; sg_bop   := bop_llex (eqv_eq (sg_CS_eqv sgS)) (sg_CS_bop sgS) (sg_bop sgT) 
+     sg_eq           := eqv_product (sg_CS_eqv sgS) (sg_eq sgT) 
+   ; sg_bop          := bop_llex (eqv_eq (sg_CS_eqv sgS)) (sg_CS_bop sgS) (sg_bop sgT) 
+   ; sg_exists_id_d  := check_exists_id_llex (sg_CS_exists_id_d sgS) (sg_exists_id_d sgT)
+   ; sg_exists_ann_d := check_exists_ann_llex (sg_CS_exists_ann_d sgS) (sg_exists_ann_d sgT)
    ; sg_certs := sg_certs_llex 
                    (eqv_eq (sg_CS_eqv sgS)) 
                    (sg_CS_bop sgS) 
@@ -1845,7 +1844,7 @@ Definition sg_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg (S := T) -> sg (S :
                    (eqv_witness (sg_eq sgT)) (eqv_new (sg_eq sgT)) 
                    (sg_CS_certs sgS) 
                    (sg_certs sgT)
-   ; sg_bop_ast := Ast_bop_llex (sg_CS_bop_ast sgS, sg_bop_ast sgT)                                                                            
+   
    ; sg_ast   := Ast_sg_llex (sg_CS_ast sgS, sg_ast sgT)
    |}. 
 
@@ -1856,7 +1855,9 @@ Definition sg_C_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_C (S := T) -> sg_
       ; sg_C_bop    := bop_llex 
                           (eqv_eq (sg_CS_eqv sgS)) 
                           (sg_CS_bop sgS) 
-                          (sg_C_bop sgT) 
+                          (sg_C_bop sgT)
+      ; sg_C_exists_id_d  := check_exists_id_llex (sg_CS_exists_id_d sgS) (sg_C_exists_id_d sgT)
+      ; sg_C_exists_ann_d := check_exists_ann_llex (sg_CS_exists_ann_d sgS) (sg_C_exists_ann_d sgT)
       ; sg_C_certs := sg_C_certs_llex 
                           (eqv_eq (sg_CS_eqv sgS))
                           (sg_CS_bop sgS) 
@@ -1864,7 +1865,7 @@ Definition sg_C_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_C (S := T) -> sg_
                           (eqv_witness (sg_C_eqv sgT)) (eqv_new (sg_C_eqv sgT))
                           (sg_CS_certs sgS) 
                           (sg_C_certs sgT)
-      ; sg_C_bop_ast := Ast_bop_llex (sg_CS_bop_ast sgS, sg_C_bop_ast sgT)                                                         
+      
       ; sg_C_ast    := Ast_sg_C_llex (sg_CS_ast sgS, sg_C_ast sgT)  
       |}. 
 
@@ -1876,13 +1877,15 @@ Definition sg_CI_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CI (S := T) -> s
                           (eqv_eq (sg_CS_eqv sgS)) 
                           (sg_CS_bop sgS) 
                           (sg_CI_bop sgT) 
+      ; sg_CI_exists_id_d  := check_exists_id_llex (sg_CS_exists_id_d sgS) (sg_CI_exists_id_d sgT)
+      ; sg_CI_exists_ann_d := check_exists_ann_llex (sg_CS_exists_ann_d sgS) (sg_CI_exists_ann_d sgT)
       ; sg_CI_certs := sg_CI_certs_llex 
                           (eqv_eq (sg_CS_eqv sgS))
                           (sg_CS_bop sgS)
                           (eqv_witness (sg_CS_eqv sgS)) 
                           (sg_CS_certs sgS) 
                           (sg_CI_certs sgT)
-      ; sg_CI_bop_ast := Ast_bop_llex (sg_CS_bop_ast sgS, sg_CI_bop_ast sgT)                                                         
+      
       ; sg_CI_ast    := Ast_sg_CI_llex (sg_CS_ast sgS, sg_CI_ast sgT)  
       |}. 
 
@@ -1894,12 +1897,14 @@ Definition sg_CS_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T) -> s
                           (eqv_eq (sg_CS_eqv sgS)) 
                           (sg_CS_bop sgS) 
                           (sg_CS_bop sgT) 
+      ; sg_CS_exists_id_d  := check_exists_id_llex (sg_CS_exists_id_d sgS) (sg_CS_exists_id_d sgT)
+      ; sg_CS_exists_ann_d := check_exists_ann_llex (sg_CS_exists_ann_d sgS) (sg_CS_exists_ann_d sgT)
       ; sg_CS_certs := sg_CS_certs_llex 
                           (eqv_eq (sg_CS_eqv sgS))
                           (sg_CS_bop sgS) 
                           (sg_CS_certs sgS) 
                           (sg_CS_certs sgT)
-      ; sg_CS_bop_ast := Ast_bop_llex (sg_CS_bop_ast sgS, sg_CS_bop_ast sgT)                               
+      
       ; sg_CS_ast    := Ast_sg_CS_llex (sg_CS_ast sgS, sg_CS_ast sgT)  
       |}. 
 
@@ -2021,8 +2026,6 @@ Lemma correct_sg_CI_certs_llex : ∀ (pS : sg_CS_proofs S rS bS) (pT : sg_CI_pro
                      (sg_CI_proofs_llex S T rS rT bS bT wS eS eT pS pT).
 Proof. intros pS pT. 
        unfold sg_CI_proofs_llex, sg_CI_certs_llex, P2C_sg_CI, P2C_sg_CS; simpl. 
-       rewrite correct_check_exists_id_llex.  
-       rewrite correct_check_exists_ann_llex. 
        rewrite correct_check_selective_llex. 
        reflexivity. 
 Defined. 
@@ -2035,8 +2038,6 @@ Lemma correct_sg_CS_certs_llex : ∀ (pS : sg_CS_proofs S rS bS) (pT : sg_CS_pro
                      (sg_CS_proofs_llex S T rS rT bS bT eS eT pS pT). 
 Proof. intros pS pT. 
        unfold sg_CS_proofs_llex, sg_CS_certs_llex, P2C_sg_CS; simpl. 
-       rewrite correct_check_exists_id_llex.  
-       rewrite correct_check_exists_ann_llex. 
        reflexivity. 
 Defined. 
 
@@ -2050,8 +2051,6 @@ Lemma correct_sg_C_certs_llex :  ∀(pS : sg_CS_proofs S rS bS)  (pT : sg_C_proo
                        (sg_C_proofs_llex S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
 Proof. intros pS pT. 
        unfold sg_C_proofs_llex, sg_C_certs_llex, P2C_sg_C, P2C_sg_CS; simpl. 
-       rewrite correct_check_exists_id_llex.  
-       rewrite correct_check_exists_ann_llex. 
        rewrite correct_check_selective_llex.
        rewrite correct_check_idempotent_llex.        
        reflexivity. 
@@ -2067,8 +2066,6 @@ Lemma correct_asg_certs_llex :  ∀(pS : sg_CS_proofs S rS bS)  (pT : asg_proofs
                       (asg_proofs_llex S T rS rT bS bT wS eS eT pS pT). 
 Proof. intros pS pT. 
        unfold asg_proofs_llex, asg_certs_llex, P2C_asg, P2C_sg_CS; simpl. 
-       rewrite correct_check_exists_id_llex.  
-       rewrite correct_check_exists_ann_llex. 
        rewrite correct_check_selective_llex.
        rewrite correct_check_idempotent_llex.        
        reflexivity. 
@@ -2085,8 +2082,6 @@ Lemma correct_sg_certs_llex : ∀ (pS : sg_CS_proofs S rS bS) (pT : sg_proofs T 
                      (sg_proofs_llex S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
 Proof. intros pS pT.
        unfold sg_certs_llex, sg_proofs_llex, P2C_sg; simpl. 
-       rewrite correct_check_exists_id_llex.  
-       rewrite correct_check_exists_ann_llex. 
        rewrite correct_check_selective_llex.
        rewrite correct_check_idempotent_llex.                      
        rewrite correct_check_commutative_llex.
@@ -2104,7 +2099,9 @@ Theorem correct_sg_llex :
 Proof. intros S T sgS sgT. 
        unfold sg_llex, A2C_sg, A2C_sg_CS; simpl. 
        rewrite <- correct_sg_certs_llex. 
-       rewrite correct_eqv_product. 
+       rewrite correct_eqv_product.
+       rewrite correct_check_exists_id_llex.  
+       rewrite correct_check_exists_ann_llex. 
        reflexivity. 
 Qed. 
 
@@ -2117,7 +2114,9 @@ Theorem correct_sg_C_llex :
 Proof. intros S T sgS sgT. 
        unfold sg_C_llex, A2C_sg_C, A2C_sg_CS; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_sg_C_certs_llex. 
+       rewrite <- correct_sg_C_certs_llex.
+       rewrite correct_check_exists_id_llex.  
+       rewrite correct_check_exists_ann_llex.        
        reflexivity. 
 Qed. 
 
@@ -2129,7 +2128,9 @@ Theorem correct_sg_CS_llex :
 Proof. intros S T sgS sgT. 
        unfold sg_CS_llex, A2C_sg_CS; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_sg_CS_certs_llex. 
+       rewrite <- correct_sg_CS_certs_llex.
+       rewrite correct_check_exists_id_llex.  
+       rewrite correct_check_exists_ann_llex.        
        reflexivity. 
 Qed. 
 
@@ -2141,7 +2142,9 @@ Theorem correct_sg_CI_llex :
 Proof. intros S T sgS sgT. destruct sgS; destruct sgT. 
        unfold sg_CI_llex, A2C_sg_CI, A2C_sg_CS; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_sg_CI_certs_llex. 
+       rewrite <- correct_sg_CI_certs_llex.
+       rewrite correct_check_exists_id_llex.  
+       rewrite correct_check_exists_ann_llex. 
        reflexivity. 
 Qed. 
 

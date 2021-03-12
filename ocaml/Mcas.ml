@@ -28,7 +28,7 @@ let bottom        = make_constant "BOTTOM"  "\\bottom"
 let top           = make_constant "TOP" "\\top" 
 				      
 
-let eq_nat           = Cas.eqv_eq_nat
+let eqv_nat          = Cas.eqv_eq_nat
 let eqv_bool         = Cas.eqv_bool
 let eqv_product      = Cas.eqv_product
 let eqv_sum          = Cas.eqv_sum 
@@ -36,7 +36,8 @@ let eqv_add_constant c eqv = Cas.eqv_add_constant eqv c
 let eqv_list         = Cas.eqv_list
 let eqv_set          = Cas.eqv_set
 let eqv_nat_ceiling  = Cas.eqv_nat_ceiling
-			 
+let eqv_minset       = Cas.eqv_minset 
+				       
 let sg_and   = Some (Cas.sg_from_sg_CS Cas.sg_CS_and)   (* : bool sg option *) 
 let sg_or    = Some (Cas.sg_from_sg_CS Cas.sg_CS_or)    (* : bool sg option *) 
 
@@ -70,25 +71,10 @@ let sg_union eqv     = Some (Cas.sg_from_sg_CI (Cas.sg_CI_union eqv))
 let sg_intersect eqv = Some (Cas.sg_from_sg_CI (Cas.sg_CI_intersect eqv)) 
 let sg_lift sg       = mmap Cas.sg_lift sg
 
-(* bi-semigroup *) 
-
-let bs_and_or   = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_and_or) 
-let bs_or_and   = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_or_and)  
 
 
-let bs_min_max  = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_min_max) 
-let bs_max_min  = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_max_min) 
-let bs_min_plus = Some (Cas.bs_from_selective_dioid Cas.selective_dioid_min_plus) 
-let bs_max_plus = Some (Cas.bs_from_selective_dioid Cas.selective_dioid_max_plus) 
-
-let bs_sg_left = function
-  | None -> None 
-  | Some sg ->
-     (match (Cas.sg_CS_option_from_sg sg) with 
-       | None -> (match (Cas.sg_CI_option_from_sg sg) with 
-                  | None -> None 
-		  | Some sg'-> Some(Cas.bs_from_dioid (Cas.dioid_sg_left sg')))
-       | Some sg'-> Some(Cas.bs_from_selective_dioid (Cas.selective_dioid_sg_left sg')))
+			    
+(* bi-semigroup  
 
 let bs_sg_right = function
   | None -> None 
@@ -99,10 +85,30 @@ let bs_sg_right = function
 		  | Some sg'-> Some(Cas.bs_from_dioid (Cas.dioid_sg_right sg')))
        | Some sg'-> Some(Cas.bs_from_selective_dioid (Cas.selective_dioid_sg_right sg')))
        
-       
-let bs_union_lift sg = Some (Cas.bs_from_bs_CI (Cas.bs_CI_union_lift sg))
-let bs_union_intersect eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_union_intersect eqv))
-let bs_intersect_union eqv = Some (Cas.bs_from_distributive_lattice (Cas.distributive_lattice_intersect_union eqv))
+
+let bs_sg_left = function
+  | None -> None 
+  | Some sg ->
+     (match (Cas.sg_CS_option_from_sg sg) with 
+       | None -> (match (Cas.sg_CI_option_from_sg sg) with 
+                  | None -> None 
+		  | Some sg'-> Some(Cas.bs_from_dioid (Cas.dioid_sg_left sg')))
+       | Some sg'-> Some(Cas.bs_from_selective_dioid (Cas.selective_dioid_sg_left sg')))
+*)
+
+let bs_sg_left sg = None 			    
+let bs_sg_right sg = None 
+			    
+let bs_and_or   = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_and_or) 
+let bs_or_and   = Some (Cas.bs_from_selective_distributive_lattice Cas.selective_distributive_lattice_or_and)  
+let bs_min_max  = Some (Cas.bs_from_selective_distributive_prelattice Cas.selective_distributive_prelattice_min_max) 
+let bs_max_min  = Some (Cas.bs_from_selective_distributive_prelattice Cas.selective_distributive_prelattice_max_min) 
+
+let bs_min_plus = Some (Cas.bs_from_selective_presemiring Cas.selective_presemiring_min_plus) 
+let bs_max_plus = Some (Cas.bs_from_selective_presemiring Cas.selective_presemiring_max_plus) 
+
+let bs_union_intersect eqv = Some (Cas.bs_from_distributive_prelattice (Cas.distributive_prelattice_union_intersect eqv))
+let bs_intersect_union eqv = Some (Cas.bs_from_distributive_prelattice (Cas.distributive_prelattice_intersect_union eqv))
 
 let bs_add_zero bs c   = mmap (fun b -> Cas.bs_add_zero b c) bs 
 let bs_add_one bs c    = mmap (fun b -> Cas.bs_add_one b c) bs
@@ -123,8 +129,10 @@ let bs_llex_product m n =
 let bs_union_lift sg =
   match sg with
   | None -> None
-  | Some sg -> Some(Cas.bs_from_bs_CI (Cas.bs_CI_union_lift sg))
+  | Some sg -> Some (Cas.bs_from_bs_CI (Cas.bs_CI_union_lift (Cas.msg_from_sg sg)))
 
+let eqv_describe = Describe.eqv_describe
+		     
 let bs_describe = function
   | None    -> print_string "bi-semigroup is not defined\n"
   | Some bs -> Describe.bs_describe bs     

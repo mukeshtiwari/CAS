@@ -1,0 +1,2 @@
+#!/bin/bash
+/home/tgg22/working/mre/cas/_build/extraction/casml -I /home/tgg22/working/mre/cas/_build/src/ -I /home/tgg22/working/mre/cas/_build/ocaml/ -I /home/tgg22/working/mre/cas/_build/extraction/

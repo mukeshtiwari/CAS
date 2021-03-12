@@ -160,39 +160,46 @@ End Theory.
 Section ACAS.
 
 
-Definition sg_proofs_concat : 
-   ∀ (S : Type) (rS : brel S) (s : S) (f : S -> S), 
-     brel_not_trivial S rS f -> eqv_proofs S rS -> sg_proofs (list S) (brel_list rS) (@bop_concat S)
-:= λ S rS s f Pf eqvS, 
+Definition sg_proofs_concat : ∀ (S : Type) (eqvS : A_eqv S), sg_proofs (list S) (brel_list (A_eqv_eq S eqvS)) (@bop_concat S)
+:= λ S eqvS, 
+let eqvP := A_eqv_proofs S eqvS in 
+let rS   := A_eqv_eq S eqvS in
+let s    := A_eqv_witness S eqvS in
+let f    := A_eqv_new S eqvS in
+let nt   := A_eqv_not_trivial S eqvS in 
+let refS := A_eqv_reflexive _ _ eqvP in 
 {|
-  A_sg_associative   := bop_concat_associative S rS (A_eqv_reflexive _ _ eqvS)
-; A_sg_congruence    := bop_concat_congruence S rS (A_eqv_reflexive _ _ eqvS)
-; A_sg_commutative_d := inr _ (bop_concat_not_commutative S rS s f Pf)
-; A_sg_selective_d   := inr _ (bop_concat_not_selective S rS s f Pf)
+  A_sg_associative   := bop_concat_associative S rS refS 
+; A_sg_congruence    := bop_concat_congruence S rS refS
+; A_sg_commutative_d := inr _ (bop_concat_not_commutative S rS s f nt)
+; A_sg_selective_d   := inr _ (bop_concat_not_selective S rS s f nt)
 ; A_sg_is_left_d     := inr _ (bop_concat_not_is_left S rS s)
 ; A_sg_is_right_d    := inr _ (bop_concat_not_is_right S rS s)
 ; A_sg_idempotent_d  := inr _ (bop_concat_not_idempotent S rS s)
-; A_sg_exists_id_d   := inl _ (bop_concat_exists_id S rS (A_eqv_reflexive _ _ eqvS))
-; A_sg_exists_ann_d  := inr _ (bop_concat_not_exists_ann S rS s )
-; A_sg_left_cancel_d    := inl _ (bop_concat_left_cancellative S rS (A_eqv_reflexive S rS eqvS))
+; A_sg_left_cancel_d    := inl _ (bop_concat_left_cancellative S rS refS)
 ; A_sg_right_cancel_d   := inl _ (bop_concat_right_cancellative S rS)
 ; A_sg_left_constant_d  := inr _ (bop_concat_not_left_constant S rS s)
 ; A_sg_right_constant_d := inr _ (bop_concat_not_right_constant S rS s)
-; A_sg_anti_left_d      := inr _ (bop_concat_not_anti_left S rS s (A_eqv_reflexive _ _ eqvS))
-; A_sg_anti_right_d     := inr _ (bop_concat_not_anti_right S rS s (A_eqv_reflexive _ _ eqvS))
-|}. 
- 
+; A_sg_anti_left_d      := inr _ (bop_concat_not_anti_left S rS s refS)
+; A_sg_anti_right_d     := inr _ (bop_concat_not_anti_right S rS s refS)
+; A_sg_bop_ast          := Ast_bop_concat (A_eqv_brel_ast S rS (A_eqv_proofs S eqvS))
+|}.
+
+
 Definition A_sg_concat : ∀ (S : Type),  A_eqv S -> A_sg (list S) 
-:= λ S eqvS, 
-   {| 
+:= λ S eqvS,
+let eqvP := A_eqv_proofs S eqvS in 
+let rS   := A_eqv_eq S eqvS in
+let s    := A_eqv_witness S eqvS in
+let f    := A_eqv_new S eqvS in
+let nt   := A_eqv_not_trivial S eqvS in 
+let refS := A_eqv_reflexive _ _ eqvP in 
+{| 
      A_sg_eq         := A_eqv_list S eqvS
-   ; A_sg_bop        := @bop_concat S 
-   ; A_sg_proofs     := sg_proofs_concat S (A_eqv_eq S eqvS)
-                                         (A_eqv_witness S eqvS)
-                                         (A_eqv_new S eqvS)
-                                         (A_eqv_not_trivial S eqvS)
-                                         (A_eqv_proofs S eqvS)
-   ; A_sg_bop_ast    := Ast_bop_concat (A_eqv_ast S eqvS)                                                                              
+   ; A_sg_bop        := @bop_concat S
+   ; A_sg_exists_id_d   := inl _ (bop_concat_exists_id S rS refS)
+   ; A_sg_exists_ann_d  := inr _ (bop_concat_not_exists_ann S rS s)
+   ; A_sg_proofs     := sg_proofs_concat S eqvS
    ; A_sg_ast        := Ast_sg_concat (A_eqv_ast S eqvS)
    |}. 
 
@@ -201,8 +208,10 @@ End ACAS.
 
 Section CAS.
 
-Definition sg_certs_concat : ∀ {S : Type},  S -> (S -> S) -> sg_certificates (S := (list S))
-:= λ {S} s f,  
+Definition sg_certs_concat : ∀ {S : Type},  @eqv S -> @sg_certificates (list S)
+:= λ {S} eqvS,
+let s := eqv_witness eqvS in
+let f := eqv_new eqvS in 
 let t := f s in 
 {|
   sg_associative      := Assert_Associative 
@@ -212,23 +221,23 @@ let t := f s in
 ; sg_is_left_d        := Certify_Not_Is_Left (nil, s :: nil)
 ; sg_is_right_d       := Certify_Not_Is_Right  (s :: nil, nil)
 ; sg_idempotent_d     := Certify_Not_Idempotent  (s :: nil)
-; sg_exists_id_d      := Certify_Exists_Id  nil 
-; sg_exists_ann_d     := Certify_Not_Exists_Ann  
 ; sg_left_cancel_d    := Certify_Left_Cancellative  
 ; sg_right_cancel_d   := Certify_Right_Cancellative  
 ; sg_left_constant_d  := Certify_Not_Left_Constant   (nil, (nil, s :: nil))
 ; sg_right_constant_d := Certify_Not_Right_Constant  (nil, (nil, s :: nil))
 ; sg_anti_left_d      := Certify_Not_Anti_Left  (s :: nil, nil) 
 ; sg_anti_right_d     := Certify_Not_Anti_Right  (s :: nil, nil)
+; sg_bop_ast          := Ast_bop_concat (eqv_brel_ast (eqv_certs eqvS))                                                 
 |}. 
 
 Definition sg_concat: ∀ {S : Type},  eqv (S := S) -> sg (S := (list S)) 
 := λ {S} eqvS, 
    {| 
      sg_eq      := eqv_list eqvS 
-   ; sg_bop     := bop_concat 
-   ; sg_certs   := sg_certs_concat (eqv_witness eqvS) (eqv_new eqvS)
-   ; sg_bop_ast := Ast_bop_concat (eqv_ast eqvS)
+   ; sg_bop     := bop_concat
+   ; sg_exists_id_d      := Certify_Exists_Id  nil 
+   ; sg_exists_ann_d     := Certify_Not_Exists_Ann  
+   ; sg_certs   := sg_certs_concat eqvS
    ; sg_ast     := Ast_sg_concat (eqv_ast eqvS)
    |}. 
 
@@ -238,11 +247,11 @@ Section Verify.
 
 
 Lemma correct_sg_certs_concat : 
-      ∀ (S : Type) (r : brel S) (s : S) (f : S -> S) (Pf : brel_not_trivial S r f) (P : eqv_proofs S r), 
-       sg_certs_concat s f 
+      ∀ (S : Type) (eS : A_eqv S), 
+       sg_certs_concat (A2C_eqv S eS) 
        = 
-       P2C_sg (list S) (brel_list r) (@bop_concat S) (sg_proofs_concat S r s f Pf P). 
-Proof. intros S r s f Pf P. destruct P. compute. reflexivity. Defined. 
+       P2C_sg (list S) (brel_list (A_eqv_eq S eS)) (@bop_concat S) (sg_proofs_concat S eS). 
+Proof. intros S eS. compute. reflexivity. Defined. 
 
 
 Theorem correct_sg_concat : ∀ (S : Type) (eS : A_eqv S), 

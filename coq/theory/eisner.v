@@ -1,6 +1,7 @@
 Require Import Coq.Bool.Bool.
 Require Import CAS.coq.common.base. 
 Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.sg.product.
 
 
 Definition bop_eisner (S : Type) (addS : binary_op S) (mulS : binary_op S) : binary_op (S * S) 
@@ -305,7 +306,23 @@ Lemma bop_product_eisner_left_left_absorption :
       bops_left_left_absorptive S rS addS mulS → 
              bops_left_left_absorptive (S * S) (brel_product rS rS) (bop_product addS addS) (eisner). 
 Proof. intros laS . unfold bops_left_left_absorptive. intros [s1 t1] [s2 t2]. simpl.
-       apply andb_is_true_right. split.
+       apply andb_is_true_right. split. unfold bops_left_left_absorptive in laS. 
+       (* 
+        laS : ∀ s t : S, s =S (s [+] (s [*] t))
+
+        so 
+
+        s1 =S s1 [+] (s1 [*] t2) 
+
+        so 
+        (s1 [+] ((s1 [*] t2) [+] (t1 [*] s2))) 
+        =S 
+        s1 [+] (t1 [*] s2)
+        
+        want 
+        s1 =S (s1 [+] ((s1 [*] t2) [+] (t1 [*] s2))) 
+
+       *) 
        admit.  (* NEVER !!! *) 
        apply laS.
 Admitted.        

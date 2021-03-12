@@ -212,9 +212,12 @@ Proof. intros S s r symS trnS. apply brel_at_least_thee_implies_not_exactly_two.
        apply brel_list_at_least_three; auto. 
 Defined.
 
-Lemma brel_list_not_finite (S : Type) (r : brel S) : carrier_is_not_finite (list S) (brel_list r).
-Admitted.   
-
+Lemma brel_list_not_finite (S : Type) (r : brel S) (s : S) : carrier_is_not_finite (list S) (brel_list r).
+Proof. unfold carrier_is_not_finite. intro F.
+       (* cons an s onto each of the longest lists in (F tt), then pick one... 
+          the in_set should really be an in_list --- so pick the first longest in (F tt) ... 
+        *)
+Admitted.
 
 End Theory.
 
@@ -231,7 +234,9 @@ Definition eqv_proofs_brel_list : ∀ (S : Type) (r : brel S), eqv_proofs S r �
                                   (A_eqv_congruence S r eqv) 
    ; A_eqv_reflexive   := brel_list_reflexive S r  (A_eqv_reflexive S r eqv) 
    ; A_eqv_transitive  := brel_list_transitive S r (A_eqv_transitive S r eqv) 
-   ; A_eqv_symmetric   := brel_list_symmetric S r  (A_eqv_symmetric S r eqv) 
+   ; A_eqv_symmetric   := brel_list_symmetric S r  (A_eqv_symmetric S r eqv)
+   ; A_eqv_type_ast    := Ast_type_list (A_eqv_type_ast S r eqv)                                               
+   ; A_eqv_brel_ast    := Ast_brel_eq_list (A_eqv_brel_ast S r eqv) 
    |}. 
 
 
@@ -253,7 +258,7 @@ Definition A_eqv_list : ∀ (S : Type),  A_eqv S -> A_eqv (list S)
     ; A_eqv_exactly_two_d := inr (brel_list_not_exactly_two S wS eq symS trnS)                              
     ; A_eqv_data          := λ l, DATA_list (List.map (A_eqv_data S eqvS) l)
     ; A_eqv_rep           := λ l, List.map (A_eqv_rep S eqvS) l
-    ; A_eqv_finite_d      := inr (brel_list_not_finite S eq) 
+    ; A_eqv_finite_d      := inr (brel_list_not_finite S eq wS) 
     ; A_eqv_ast           := Ast_eqv_list (A_eqv_ast S eqvS)
    |}. 
 
@@ -267,6 +272,15 @@ Definition eqv_list : ∀ {S : Type},  @eqv S -> @eqv (list S)
   let wS := eqv_witness eqvS in  
    {| 
       eqv_eq    := brel_list eq 
+    ; eqv_certs := 
+     {|
+       eqv_congruence     := @Assert_Brel_Congruence (list S)
+     ; eqv_reflexive      := @Assert_Reflexive (list S)
+     ; eqv_transitive     := @Assert_Transitive (list S)
+     ; eqv_symmetric      := @Assert_Symmetric (list S)
+     ; eqv_type_ast       := Ast_type_list (eqv_type_ast (eqv_certs eqvS))                                                
+     ; eqv_brel_ast       := Ast_brel_eq_list (eqv_brel_ast (eqv_certs eqvS)) 
+     |}  
     ; eqv_witness := nil 
     ; eqv_new := (λ (l : list S), wS :: l)
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 (brel_list eq) nil (wS :: nil)  (wS :: wS :: nil))                   

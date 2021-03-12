@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>CAS.code.cert_records</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library CAS.code.cert_records</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="CAS.code.basic_types.html#"><span class="id" title="library">CAS.code.basic_types</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="CAS.code.certificates.html#"><span class="id" title="library">CAS.code.certificates</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="eqv_certificates"><span class="id" title="record">eqv_certificates</span></a> (<span class="id" title="var">S</span> : <span class="id" title="keyword">Type</span>) := {<br/>
+&nbsp;&nbsp;<a name="eqv_nontrivial"><span class="id" title="projection">eqv_nontrivial</span></a>    : <a class="idref" href="CAS.code.certificates.html#assert_nontrivial"><span class="id" title="record">assert_nontrivial</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a>          <br/>
+; <a name="eqv_congruence"><span class="id" title="projection">eqv_congruence</span></a>    : <a class="idref" href="CAS.code.certificates.html#assert_brel_congruence"><span class="id" title="inductive">assert_brel_congruence</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="eqv_reflexive"><span class="id" title="projection">eqv_reflexive</span></a>     : <a class="idref" href="CAS.code.certificates.html#assert_reflexive"><span class="id" title="inductive">assert_reflexive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="eqv_symmetric"><span class="id" title="projection">eqv_symmetric</span></a>     : <a class="idref" href="CAS.code.certificates.html#assert_symmetric"><span class="id" title="inductive">assert_symmetric</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="eqv_transitive"><span class="id" title="projection">eqv_transitive</span></a>    : <a class="idref" href="CAS.code.certificates.html#assert_transitive"><span class="id" title="inductive">assert_transitive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a><br/>
+}.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="qo_certificates"><span class="id" title="record">qo_certificates</span></a> (<span class="id" title="var">S</span> : <span class="id" title="keyword">Type</span>)  := {<br/>
+&nbsp;&nbsp;<a name="qo_congruence"><span class="id" title="projection">qo_congruence</span></a>      : <a class="idref" href="CAS.code.certificates.html#assert_brel_congruence"><span class="id" title="inductive">assert_brel_congruence</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="qo_reflexive"><span class="id" title="projection">qo_reflexive</span></a>       : <a class="idref" href="CAS.code.certificates.html#assert_reflexive"><span class="id" title="inductive">assert_reflexive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="qo_transitive"><span class="id" title="projection">qo_transitive</span></a>      : <a class="idref" href="CAS.code.certificates.html#assert_transitive"><span class="id" title="inductive">assert_transitive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a><br/>
+; <a name="qo_antisymmetric_d"><span class="id" title="projection">qo_antisymmetric_d</span></a> : <a class="idref" href="CAS.code.certificates.html#check_antisymmetric"><span class="id" title="inductive">check_antisymmetric</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="qo_total_d"><span class="id" title="projection">qo_total_d</span></a>         : <a class="idref" href="CAS.code.certificates.html#check_total"><span class="id" title="inductive">check_total</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+}.<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="po_certificates"><span class="id" title="record">po_certificates</span></a> (<span class="id" title="var">S</span> : <span class="id" title="keyword">Type</span>) := {<br/>
+&nbsp;&nbsp;<a name="po_congruence"><span class="id" title="projection">po_congruence</span></a>    : <a class="idref" href="CAS.code.certificates.html#assert_brel_congruence"><span class="id" title="inductive">assert_brel_congruence</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="po_reflexive"><span class="id" title="projection">po_reflexive</span></a>     : <a class="idref" href="CAS.code.certificates.html#assert_reflexive"><span class="id" title="inductive">assert_reflexive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="po_transitive"><span class="id" title="projection">po_transitive</span></a>    : <a class="idref" href="CAS.code.certificates.html#assert_transitive"><span class="id" title="inductive">assert_transitive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a><br/>
+; <a name="po_antisymmetric"><span class="id" title="projection">po_antisymmetric</span></a> : <a class="idref" href="CAS.code.certificates.html#assert_antisymmetric"><span class="id" title="inductive">assert_antisymmetric</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="po_total_d"><span class="id" title="projection">po_total_d</span></a>       : <a class="idref" href="CAS.code.certificates.html#check_total"><span class="id" title="inductive">check_total</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+}.<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="to_certificates"><span class="id" title="record">to_certificates</span></a> (<span class="id" title="var">S</span> : <span class="id" title="keyword">Type</span>) := {<br/>
+&nbsp;&nbsp;<a name="to_congruence"><span class="id" title="projection">to_congruence</span></a>    : <a class="idref" href="CAS.code.certificates.html#assert_brel_congruence"><span class="id" title="inductive">assert_brel_congruence</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="to_reflexive"><span class="id" title="projection">to_reflexive</span></a>     : <a class="idref" href="CAS.code.certificates.html#assert_reflexive"><span class="id" title="inductive">assert_reflexive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="to_transitive"><span class="id" title="projection">to_transitive</span></a>    : <a class="idref" href="CAS.code.certificates.html#assert_transitive"><span class="id" title="inductive">assert_transitive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a><br/>
+; <a name="to_antisymmetric"><span class="id" title="projection">to_antisymmetric</span></a> : <a class="idref" href="CAS.code.certificates.html#assert_antisymmetric"><span class="id" title="inductive">assert_antisymmetric</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="to_total"><span class="id" title="projection">to_total</span></a>         : <a class="idref" href="CAS.code.certificates.html#assert_total"><span class="id" title="inductive">assert_total</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+}.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="sg_certificates"><span class="id" title="record">sg_certificates</span></a> (<span class="id" title="var">S</span>: <span class="id" title="keyword">Type</span>)  := <br/>
+{<br/>
+&nbsp;&nbsp;<a name="sg_associative"><span class="id" title="projection">sg_associative</span></a>      : <a class="idref" href="CAS.code.certificates.html#assert_associative"><span class="id" title="inductive">assert_associative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_congruence"><span class="id" title="projection">sg_congruence</span></a>       : <a class="idref" href="CAS.code.certificates.html#assert_bop_congruence"><span class="id" title="inductive">assert_bop_congruence</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+<br/>
+; <a name="sg_commutative_d"><span class="id" title="projection">sg_commutative_d</span></a>    : <a class="idref" href="CAS.code.certificates.html#check_commutative"><span class="id" title="inductive">check_commutative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_selective_d"><span class="id" title="projection">sg_selective_d</span></a>      : <a class="idref" href="CAS.code.certificates.html#check_selective"><span class="id" title="inductive">check_selective</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_idempotent_d"><span class="id" title="projection">sg_idempotent_d</span></a>     : <a class="idref" href="CAS.code.certificates.html#check_idempotent"><span class="id" title="inductive">check_idempotent</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_exists_id_d"><span class="id" title="projection">sg_exists_id_d</span></a>      : <a class="idref" href="CAS.code.certificates.html#check_exists_id"><span class="id" title="inductive">check_exists_id</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_exists_ann_d"><span class="id" title="projection">sg_exists_ann_d</span></a>     : <a class="idref" href="CAS.code.certificates.html#check_exists_ann"><span class="id" title="inductive">check_exists_ann</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+<br/>
+; <a name="sg_is_left_d"><span class="id" title="projection">sg_is_left_d</span></a>        : <a class="idref" href="CAS.code.certificates.html#check_is_left"><span class="id" title="inductive">check_is_left</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_is_right_d"><span class="id" title="projection">sg_is_right_d</span></a>       : <a class="idref" href="CAS.code.certificates.html#check_is_right"><span class="id" title="inductive">check_is_right</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+<br/>
+; <a name="sg_left_cancel_d"><span class="id" title="projection">sg_left_cancel_d</span></a>    : <a class="idref" href="CAS.code.certificates.html#check_left_cancellative"><span class="id" title="inductive">check_left_cancellative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_right_cancel_d"><span class="id" title="projection">sg_right_cancel_d</span></a>   : <a class="idref" href="CAS.code.certificates.html#check_right_cancellative"><span class="id" title="inductive">check_right_cancellative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_left_constant_d"><span class="id" title="projection">sg_left_constant_d</span></a>  : <a class="idref" href="CAS.code.certificates.html#check_left_constant"><span class="id" title="inductive">check_left_constant</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_right_constant_d"><span class="id" title="projection">sg_right_constant_d</span></a> : <a class="idref" href="CAS.code.certificates.html#check_right_constant"><span class="id" title="inductive">check_right_constant</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_anti_left_d"><span class="id" title="projection">sg_anti_left_d</span></a>      : <a class="idref" href="CAS.code.certificates.html#check_anti_left"><span class="id" title="inductive">check_anti_left</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_anti_right_d"><span class="id" title="projection">sg_anti_right_d</span></a>     : <a class="idref" href="CAS.code.certificates.html#check_anti_right"><span class="id" title="inductive">check_anti_right</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+}.<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="sg_C_certificates"><span class="id" title="record">sg_C_certificates</span></a> (<span class="id" title="var">S</span>: <span class="id" title="keyword">Type</span>)  := <br/>
+{<br/>
+&nbsp;&nbsp;<a name="sg_C_associative"><span class="id" title="projection">sg_C_associative</span></a>      : <a class="idref" href="CAS.code.certificates.html#assert_associative"><span class="id" title="inductive">assert_associative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_congruence"><span class="id" title="projection">sg_C_congruence</span></a>       : <a class="idref" href="CAS.code.certificates.html#assert_bop_congruence"><span class="id" title="inductive">assert_bop_congruence</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_commutative"><span class="id" title="projection">sg_C_commutative</span></a>      : <a class="idref" href="CAS.code.certificates.html#assert_commutative"><span class="id" title="inductive">assert_commutative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_selective_d"><span class="id" title="projection">sg_C_selective_d</span></a>      : <a class="idref" href="CAS.code.certificates.html#check_selective"><span class="id" title="inductive">check_selective</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_idempotent_d"><span class="id" title="projection">sg_C_idempotent_d</span></a>     : <a class="idref" href="CAS.code.certificates.html#check_idempotent"><span class="id" title="inductive">check_idempotent</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a><br/>
+; <a name="sg_C_exists_id_d"><span class="id" title="projection">sg_C_exists_id_d</span></a>      : <a class="idref" href="CAS.code.certificates.html#check_exists_id"><span class="id" title="inductive">check_exists_id</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_exists_ann_d"><span class="id" title="projection">sg_C_exists_ann_d</span></a>     : <a class="idref" href="CAS.code.certificates.html#check_exists_ann"><span class="id" title="inductive">check_exists_ann</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_left_cancel_d"><span class="id" title="projection">sg_C_left_cancel_d</span></a>    : <a class="idref" href="CAS.code.certificates.html#check_left_cancellative"><span class="id" title="inductive">check_left_cancellative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_right_cancel_d"><span class="id" title="projection">sg_C_right_cancel_d</span></a>   : <a class="idref" href="CAS.code.certificates.html#check_right_cancellative"><span class="id" title="inductive">check_right_cancellative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_left_constant_d"><span class="id" title="projection">sg_C_left_constant_d</span></a>  : <a class="idref" href="CAS.code.certificates.html#check_left_constant"><span class="id" title="inductive">check_left_constant</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_right_constant_d"><span class="id" title="projection">sg_C_right_constant_d</span></a> : <a class="idref" href="CAS.code.certificates.html#check_right_constant"><span class="id" title="inductive">check_right_constant</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_anti_left_d"><span class="id" title="projection">sg_C_anti_left_d</span></a>      : <a class="idref" href="CAS.code.certificates.html#check_anti_left"><span class="id" title="inductive">check_anti_left</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_C_anti_right_d"><span class="id" title="projection">sg_C_anti_right_d</span></a>     : <a class="idref" href="CAS.code.certificates.html#check_anti_right"><span class="id" title="inductive">check_anti_right</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+}.<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="sg_CS_certificates"><span class="id" title="record">sg_CS_certificates</span></a> (<span class="id" title="var">S</span>: <span class="id" title="keyword">Type</span>)  := <br/>
+{<br/>
+&nbsp;&nbsp;<a name="sg_CS_associative"><span class="id" title="projection">sg_CS_associative</span></a>        : <a class="idref" href="CAS.code.certificates.html#assert_associative"><span class="id" title="inductive">assert_associative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CS_congruence"><span class="id" title="projection">sg_CS_congruence</span></a>         : <a class="idref" href="CAS.code.certificates.html#assert_bop_congruence"><span class="id" title="inductive">assert_bop_congruence</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CS_commutative"><span class="id" title="projection">sg_CS_commutative</span></a>        : <a class="idref" href="CAS.code.certificates.html#assert_commutative"><span class="id" title="inductive">assert_commutative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CS_selective"><span class="id" title="projection">sg_CS_selective</span></a>          : <a class="idref" href="CAS.code.certificates.html#assert_selective"><span class="id" title="inductive">assert_selective</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CS_exists_id_d"><span class="id" title="projection">sg_CS_exists_id_d</span></a>        : <a class="idref" href="CAS.code.certificates.html#check_exists_id"><span class="id" title="inductive">check_exists_id</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CS_exists_ann_d"><span class="id" title="projection">sg_CS_exists_ann_d</span></a>       : <a class="idref" href="CAS.code.certificates.html#check_exists_ann"><span class="id" title="inductive">check_exists_ann</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+}.<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="sg_CI_certificates"><span class="id" title="record">sg_CI_certificates</span></a> (<span class="id" title="var">S</span>: <span class="id" title="keyword">Type</span>)  := <br/>
+{<br/>
+&nbsp;&nbsp;<a name="sg_CI_associative"><span class="id" title="projection">sg_CI_associative</span></a>        : <a class="idref" href="CAS.code.certificates.html#assert_associative"><span class="id" title="inductive">assert_associative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CI_congruence"><span class="id" title="projection">sg_CI_congruence</span></a>         : <a class="idref" href="CAS.code.certificates.html#assert_bop_congruence"><span class="id" title="inductive">assert_bop_congruence</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CI_commutative"><span class="id" title="projection">sg_CI_commutative</span></a>        : <a class="idref" href="CAS.code.certificates.html#assert_commutative"><span class="id" title="inductive">assert_commutative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CI_idempotent"><span class="id" title="projection">sg_CI_idempotent</span></a>         : <a class="idref" href="CAS.code.certificates.html#assert_idempotent"><span class="id" title="inductive">assert_idempotent</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CI_selective_d"><span class="id" title="projection">sg_CI_selective_d</span></a>        : <a class="idref" href="CAS.code.certificates.html#check_selective"><span class="id" title="inductive">check_selective</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CI_exists_id_d"><span class="id" title="projection">sg_CI_exists_id_d</span></a>        : <a class="idref" href="CAS.code.certificates.html#check_exists_id"><span class="id" title="inductive">check_exists_id</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CI_exists_ann_d"><span class="id" title="projection">sg_CI_exists_ann_d</span></a>       : <a class="idref" href="CAS.code.certificates.html#check_exists_ann"><span class="id" title="inductive">check_exists_ann</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+}.<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="sg_CK_certificates"><span class="id" title="record">sg_CK_certificates</span></a> (<span class="id" title="var">S</span>: <span class="id" title="keyword">Type</span>)  := <br/>
+{<br/>
+&nbsp;&nbsp;<a name="sg_CK_associative"><span class="id" title="projection">sg_CK_associative</span></a>      : <a class="idref" href="CAS.code.certificates.html#assert_associative"><span class="id" title="inductive">assert_associative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CK_congruence"><span class="id" title="projection">sg_CK_congruence</span></a>       : <a class="idref" href="CAS.code.certificates.html#assert_bop_congruence"><span class="id" title="inductive">assert_bop_congruence</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CK_commutative"><span class="id" title="projection">sg_CK_commutative</span></a>      : <a class="idref" href="CAS.code.certificates.html#assert_commutative"><span class="id" title="inductive">assert_commutative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CK_left_cancel"><span class="id" title="projection">sg_CK_left_cancel</span></a>      : <a class="idref" href="CAS.code.certificates.html#assert_left_cancellative"><span class="id" title="inductive">assert_left_cancellative</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CK_exists_id_d"><span class="id" title="projection">sg_CK_exists_id_d</span></a>      : <a class="idref" href="CAS.code.certificates.html#check_exists_id"><span class="id" title="inductive">check_exists_id</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CK_anti_left_d"><span class="id" title="projection">sg_CK_anti_left_d</span></a>      : <a class="idref" href="CAS.code.certificates.html#check_anti_left"><span class="id" title="inductive">check_anti_left</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="sg_CK_anti_right_d"><span class="id" title="projection">sg_CK_anti_right_d</span></a>     : <a class="idref" href="CAS.code.certificates.html#check_anti_right"><span class="id" title="inductive">check_anti_right</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+}.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Record</span> <a name="bs_certificates"><span class="id" title="record">bs_certificates</span></a> (<span class="id" title="var">S</span>: <span class="id" title="keyword">Type</span>) := <br/>
+{<br/>
+&nbsp;&nbsp;<a name="bs_left_distributive_d"><span class="id" title="projection">bs_left_distributive_d</span></a>      : <a class="idref" href="CAS.code.certificates.html#check_left_distributive"><span class="id" title="inductive">check_left_distributive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="bs_right_distributive_d"><span class="id" title="projection">bs_right_distributive_d</span></a>     : <a class="idref" href="CAS.code.certificates.html#check_right_distributive"><span class="id" title="inductive">check_right_distributive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="bs_plus_id_is_times_ann_d"><span class="id" title="projection">bs_plus_id_is_times_ann_d</span></a>   : <a class="idref" href="CAS.code.certificates.html#check_plus_id_equals_times_ann"><span class="id" title="inductive">check_plus_id_equals_times_ann</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="bs_times_id_is_plus_ann_d"><span class="id" title="projection">bs_times_id_is_plus_ann_d</span></a>   : <a class="idref" href="CAS.code.certificates.html#check_times_id_equals_plus_ann"><span class="id" title="inductive">check_times_id_equals_plus_ann</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="bs_left_left_absorptive_d"><span class="id" title="projection">bs_left_left_absorptive_d</span></a>   : <a class="idref" href="CAS.code.certificates.html#check_left_left_absorptive"><span class="id" title="inductive">check_left_left_absorptive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="bs_left_right_absorptive_d"><span class="id" title="projection">bs_left_right_absorptive_d</span></a>  : <a class="idref" href="CAS.code.certificates.html#check_left_right_absorptive"><span class="id" title="inductive">check_left_right_absorptive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="bs_right_left_absorptive_d"><span class="id" title="projection">bs_right_left_absorptive_d</span></a>  : <a class="idref" href="CAS.code.certificates.html#check_right_left_absorptive"><span class="id" title="inductive">check_right_left_absorptive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+; <a name="bs_right_right_absorptive_d"><span class="id" title="projection">bs_right_right_absorptive_d</span></a> : <a class="idref" href="CAS.code.certificates.html#check_right_right_absorptive"><span class="id" title="inductive">check_right_right_absorptive</span></a> <a class="idref" href="CAS.code.cert_records.html#S"><span class="id" title="variable">S</span></a> <br/>
+}.<br/>
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

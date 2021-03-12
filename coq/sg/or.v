@@ -83,8 +83,7 @@ Definition sg_CS_proofs_or : sg_CS_proofs bool brel_eq_bool bop_or :=
 ; A_sg_CS_congruence   := bop_or_congruence
 ; A_sg_CS_commutative  := bop_or_commutative
 ; A_sg_CS_selective    := bop_or_selective
-; A_sg_CS_exists_id_d  := inl _ bop_or_exists_id 
-; A_sg_CS_exists_ann_d := inl _ bop_or_exists_ann
+; A_sg_CS_bop_ast      := Ast_bop_or
 |}. 
 
 
@@ -93,7 +92,8 @@ Definition A_sg_CS_or : A_sg_CS bool
      A_sg_CS_eqv       := A_eqv_bool
    ; A_sg_CS_bop       := bop_or
    ; A_sg_CS_proofs    := sg_CS_proofs_or
-   ; A_sg_CS_bop_ast   := Ast_bop_or 
+   ; A_sg_CS_exists_id_d  := inl _ bop_or_exists_id 
+   ; A_sg_CS_exists_ann_d := inl _ bop_or_exists_ann
    ; A_sg_CS_ast       := Ast_sg_CS_or 
    |}. 
 
@@ -110,9 +110,8 @@ Definition sg_CS_certs_or : sg_CS_certificates (S := bool)
      sg_CS_associative        := Assert_Associative  
    ; sg_CS_congruence         := Assert_Bop_Congruence  
    ; sg_CS_commutative        := Assert_Commutative  
-   ; sg_CS_selective          := Assert_Selective  
-   ; sg_CS_exists_id_d        := Certify_Exists_Id  false 
-   ; sg_CS_exists_ann_d       := Certify_Exists_Ann  true
+   ; sg_CS_selective          := Assert_Selective
+   ; sg_CS_bop_ast            := Ast_bop_or                                                          
    |}. 
 
 
@@ -121,8 +120,10 @@ Definition sg_CS_or : sg_CS (S := bool)
 := {| 
      sg_CS_eqv   := eqv_bool
    ; sg_CS_bop   := bop_or
+   ; sg_CS_exists_id_d        := Certify_Exists_Id  false 
+   ; sg_CS_exists_ann_d       := Certify_Exists_Ann  true
    ; sg_CS_certs := sg_CS_certs_or
-   ; sg_CS_bop_ast   := Ast_bop_or                       
+   
    ; sg_CS_ast   := Ast_sg_CS_or 
    |}. 
   

@@ -23,20 +23,8 @@ Definition bop_not_right_distributive (S : Type) (r : brel S) (add : binary_op S
 Definition bop_right_distributive_decidable (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
    := (bop_right_distributive S r add mul) + (bop_not_right_distributive S r add mul). 
 
-
-(*
-Definition bops_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-:= { eI : bop_exists_id S r b1 & 
-   { eA : bop_exists_ann S r b2 & r (projT1 eI) (projT1 eA)  = true }}. 
- *)
-
 Definition bops_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
 := { i : S & (bop_is_id S r b1 i) * (bop_is_ann S r b2 i)}. 
-
-(*
-Definition bops_not_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-:=  ∀ (i a : S), bop_is_id S r b1 i -> bop_is_ann S r b2 a -> r i a = false. 
- *)
 
 Definition bops_not_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
 := ∀ (s : S), (bop_not_is_id S r b1 s) + (bop_not_is_ann S r b2 s). 

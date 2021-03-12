@@ -40,7 +40,7 @@ Variable lteS : brel S.
 Variable lteCong : brel_congruence S rS lteS.
 Variable lteRefl : brel_reflexive S lteS.
 Variable lteTrans : brel_transitive S lteS. 
-Variable lteAntiSym : brel_antisymmetric S rS lteS. 
+
 
 Notation "a =S b"  := (rS a b = true) (at level 15).
 Notation "a !=S b" := (rS a b = false) (at level 15).
@@ -191,6 +191,9 @@ Proof. intro H. unfold is_minimal_wrt in H.
        compute in M. case_eq(lteS s a); intro N; auto. rewrite N in M. left. apply symS. exact M. 
 Qed.
 
+Lemma is_minimal_wrt_fasle_elim (a : S) (X : finite_set S)  :
+      is_minimal_wrt rS lteS a X = false -> ∀ (s : S), in_set rS X s = true -> (rS a s = false) * (lteS s a = true). 
+Admitted. 
 
 Lemma is_minimal_wrt_intro (a : S) (X : finite_set S) :
    (∀ (s : S), in_set rS X s = true -> (rS a s = true) + (lteS s a = false)) -> is_minimal_wrt rS lteS a X = true.
@@ -234,6 +237,16 @@ Proof. compute. reflexivity. Qed.
 Lemma in_set_true_implies_not_nil (X : finite_set S) : ∀ s : S, in_set rS X s = true -> brel_set rS nil X = false. 
 Proof. intros s H. induction X. compute in H. discriminate H.  apply in_set_cons_elim in H; auto.  Qed. 
 
+
+Lemma in_set_minset_intro (a : S) (X : finite_set S) :
+  (in_set rS X a = true) * (∀ (s : S), in_set rS X s = true -> (rS a s = true) + (lteS s a = false))
+              -> in_set rS (uop_minset rS lteS X) a = true. 
+Proof. intros [L R].
+       unfold uop_minset. unfold uop_filter. apply in_set_filter_intro; auto. 
+       apply bProp_is_minimal_wrt_congruence. split; auto. 
+       apply is_minimal_wrt_intro; auto. 
+Qed.
+
 Lemma in_set_minset_elim (a : S) (X : finite_set S) :
   in_set rS (uop_minset rS lteS X) a = true ->
          (in_set rS X a = true) * (∀ (s : S), in_set rS X s = true -> (rS a s = true) + (lteS s a = false)). 
@@ -247,15 +260,18 @@ Proof. intro H.
        apply bProp_is_minimal_wrt_congruence. 
 Qed.
 
-
-Lemma in_set_minset_intro (a : S) (X : finite_set S) :
-  (in_set rS X a = true) * (∀ (s : S), in_set rS X s = true -> (rS a s = true) + (lteS s a = false))
-              -> in_set rS (uop_minset rS lteS X) a = true. 
-Proof. intros [L R].
-       unfold uop_minset. unfold uop_filter. apply in_set_filter_intro; auto. 
-       apply bProp_is_minimal_wrt_congruence. split; auto. 
-       apply is_minimal_wrt_intro; auto. 
+Lemma in_set_minset_singleton_intro (a s : S) : (rS a s = true) -> in_set rS (uop_minset rS lteS (s :: nil)) a = true. 
+Proof. intro H. apply in_set_minset_intro. split. 
+       apply in_set_singleton_intro; auto. 
+       intros s0 H1. apply in_set_singleton_elim in H1; auto. 
+       left. exact (tranS _ _ _ H H1). 
 Qed.
+
+Lemma in_set_minset_singleton_elim (a s : S) : in_set rS (uop_minset rS lteS (s :: nil)) a = true -> (rS a s = true). 
+Proof. intro H. apply in_set_minset_elim in H. destruct H as [H _]. 
+       apply in_set_singleton_elim in H; auto. 
+Qed.
+
 
 (* MOVE *) 
 Lemma in_set_filter_false_elim (g : bProp S) (cong : bProp_congruence S rS g) (X : finite_set S) (a : S) : 
@@ -275,108 +291,12 @@ Proof. intro H. induction X. right. compute; auto.
 Qed.
 
 
-
-
-
-Definition lt : brel S := λ a b, bop_and (lteS a b) (uop_not (rS a b)).   
-
-Fixpoint idea (p: S * S) (l: finite_set S) : (S * S) :=
-      match l with
-	| nil => p
-	| s::l => match p with
-                  | (a, b) => if lt s b then idea (a, s) l else idea p l 
-                  end 
-      end.
-
-
-Lemma testing_idea (a : S) (X : finite_set S) (F : is_minimal_wrt rS lteS a X = false) :
-  { s : S & (idea (a, a) X = (a, s)) * (is_minimal_wrt rS lteS s X = true)}.
-Proof. induction X.
-       exists a. compute. auto. 
-       case_eq(is_minimal_wrt rS lteS a X); intro J. 
-          exists a0. split.
-             unfold idea; fold @idea.  assert (K: lt a0 a = true). admit. rewrite K. admit. 
-             admit.        
-          destruct (IHX J) as [s [P Q]]. 
-          exists s. split.           
-             unfold idea; fold @idea.          
-             case_eq(lt a0 a); intro K.              
-                admit. 
-                admit. 
-             admit. (* is_minimal_wrt rS lteS s (a0 :: X) = true *)
-Admitted. 
-
-
-                
-Lemma test (s : S) (X : finite_set S) (H : in_set rS X s = true) :
-  {a : S & (in_set rS (uop_minset rS lteS X) a = true) * ((rS a s = true) + (lteS a s = true)) }.
-Proof. induction X. compute in H. discriminate H.
-       apply in_set_cons_elim in H; auto. destruct H as [H | H]. 
-          case_eq(in_set rS X s); intro J; auto. 
-             destruct (IHX J) as [s' [P Q]]. exists s'; split; auto. 
-                admit. (* OK *)
-                case_eq(in_set rS (uop_minset rS lteS (a :: X)) a); intro K.
-                   exists a; auto.
-                   unfold uop_minset in K. unfold uop_filter in K. admit. 
-          destruct (IHX H) as [s' [P Q]]. exists s'; split; auto. 
-                admit. (* OK *) 
-Admitted. 
-
-
-             
-Lemma tmp (s : S) (X : finite_set S) (H : in_set rS X s = true) :
-  (is_minimal_wrt rS lteS s X = true) + {a : S & (in_set rS (uop_minset rS lteS X) a = true) * (rS s a = false) * (lteS a s = true)}.
-Proof. case_eq(is_minimal_wrt rS lteS s X); intro J; auto; right.
-       unfold is_minimal_wrt in J. 
-       apply bProp_forall_false_elim in J. destruct J as [a [P Q]].
-Admitted.
-
-
-Lemma help (a : S) (X : finite_set S) :
-  bProp_forall S (not_below rS lteS a) X = false -> bProp_forall S (not_below rS lteS a) (uop_minset rS lteS X) = false.
-Proof. intro H. 
-       apply bProp_forall_false_elim in H.
-       apply bProp_forall_false_intro. intros s s' K. exact (brel_not_below_congruence _ _ _ _ (refS a) K) .
-       destruct H as [s [P Q]]. 
-       destruct (tmp s X P) as [ H1 | [ s' [[H1 H2] H3 ] ] ]. 
-          exists s. split; auto. 
-             apply in_set_minset_intro.
-             assert (K := in_set_true_implies_not_nil X s P). 
-             assert (H2 := is_minimal_wrt_elim s X H1). split; auto. 
-          exists s'. split; auto. 
-             case_eq(not_below rS lteS a s'); intro J; auto. 
-                unfold not_below in *. unfold bop_or in *.
-                apply orb_is_false_left in Q.  destruct Q as [L R]. 
-                unfold uop_not in L. case_eq(lteS s a); intro F.
-                   apply orb_is_true_left in J. destruct J as [J | J]. 
-                   unfold uop_not in J. case_eq(lteS s' a); intro F'.
-                   rewrite F' in J. discriminate J.
-                   assert (T := lteTrans _ _ _ H3 F). rewrite T in F'. exact F'.
-                   rewrite <- (lteCong _ _ _ _ (refS s) J) in F.
-                   rewrite (lteAntiSym _ _ F H3) in H2. exact H2. 
-                   rewrite F in L. discriminate L. 
-Defined. 
-          
-Lemma is_minimal_wrt_false_elim (a : S) (X : finite_set S) (H1 : in_set rS X a = true) (H2 : is_minimal_wrt rS lteS a X = false) : 
-  {s : S & (in_set rS (uop_minset rS lteS X) s = true) * s <<= a * s !=S a}.
-Proof. unfold is_minimal_wrt in H2.
-       assert (H3 := help _ _ H2). 
-       apply bProp_forall_false_elim in H3. destruct H3 as [s [I D]].
-       exists s.  compute in D.  case_eq(lteS s a); intro J. rewrite J in D. rewrite D; auto. 
-       rewrite J in D. discriminate D. 
-Defined. 
-
+(* USED in minset_union !!!! REPLACE *) 
 Lemma in_set_uop_minset_false_elim (a : S) (X : finite_set S) :
   in_set rS X a = true -> in_set rS (uop_minset rS lteS X) a = false ->
   {s : S & (in_set rS (uop_minset rS lteS X) s = true) * (lteS s a = true) * (rS s a = false)}.  
-Proof. intros H1 H2.
-       unfold uop_minset in H2. unfold uop_filter in H2.
-       apply in_set_filter_false_elim in H2.
-       destruct H2 as [L | R].
-          apply is_minimal_wrt_false_elim; auto. 
-          rewrite R in H1. discriminate H1.
-      apply bProp_is_minimal_wrt_congruence. 
-Qed. 
+Admitted. 
+
 
 Lemma uop_minset_idempotent : uop_idempotent (finite_set S) (brel_set rS) (uop_minset rS lteS). 
 Proof. unfold uop_idempotent.
@@ -442,63 +362,169 @@ Lemma brel_minset_singleton_nil (s : S) : brel_minset rS lteS (s :: nil) nil = f
 Proof. apply (brel_symmetric_implies_dual _ _ brel_minset_symmetric nil (s :: nil) (brel_minset_nil_singleton s)). Qed.   
 
 
-(* Needed? 
+Lemma uop_minset_swap (a s : S) (X : finite_set S) : 
+  (∀ a0 : S, in_set rS (uop_minset rS lteS (a :: s :: X)) a0 = true → in_set rS (uop_minset rS lteS (s :: a :: X)) a0 = true). 
+Proof.  intros s0 H.
+          apply in_set_minset_elim in H. destruct H as [H1 H2]. 
+          apply in_set_minset_intro. split. 
+             apply in_set_cons_intro; auto.
+             apply in_set_cons_elim in H1; auto. 
+             destruct H1 as [H1 | H1]. 
+                right. apply in_set_cons_intro; auto.
+                apply in_set_cons_elim in H1; auto. 
+                destruct H1 as [H1 | H1]. 
+                   left; auto.
+                   right. apply in_set_cons_intro; auto.
 
-Lemma brel_minset_not_minimal (s : S) (X : finite_set S) (H : is_minimal_wrt rS lteS s X = false) :
-      brel_minset rS lteS (s::X) X = true.
+             intros s1 H3.
+             apply H2. 
+             apply in_set_cons_elim in H3; auto.              
+             apply in_set_cons_intro; auto.
+             destruct H3 as [H3 | H3].
+                right. apply in_set_cons_intro; auto.
+                apply in_set_cons_elim in H3; auto.              
+                destruct H3 as [H3 | H3].
+                   left. auto. 
+                   right. apply in_set_cons_intro; auto.
+Qed.                    
+
+Lemma brel_uop_minset_swap (a s : S) (X : finite_set S) : brel_set rS (uop_minset rS lteS (a :: s :: X)) (uop_minset rS lteS (s :: a :: X)) = true.
+Proof. apply brel_set_intro_prop; auto. split.
+       apply uop_minset_swap.
+       apply uop_minset_swap.
+Qed.        
+          
+Lemma brel_minset_cons_minimal (s : S) (X : finite_set S) :
+  is_minimal_wrt rS lteS s X = true -> brel_set rS (uop_minset rS lteS (s :: X)) (uop_minset rS lteS (s :: (uop_minset rS lteS X))) = true.
 Admitted.
+(*
+Proof. intro H.
+       apply brel_set_intro_prop; auto. split; intros a aIn. 
+          apply in_set_cons_intro; auto.        
+          case_eq(rS s a); intro N; auto. 
+             right.  apply in_set_minset_elim in aIn. destruct aIn as [aIn aMinimal].
+             apply in_set_cons_elim in aIn; auto. 
+             destruct aIn as [E | aIn]. 
+                rewrite E in N. discriminate N. 
+                apply in_set_minset_intro. split; auto. 
+                intros s0 s0In. 
+                apply aMinimal.
+                apply in_set_cons_intro; auto.
+
+          apply in_set_minset_intro.        
+          apply in_set_cons_elim in aIn; auto.           
+          destruct aIn as [E | aIn]. 
+             split. 
+                apply in_set_cons_intro; auto. 
+                intros s0 s0In. 
+                apply in_set_cons_elim in s0In; auto.
+                destruct s0In as [E' | s0In].
+                   apply symS in E. left. exact (tranS _ _ _ E E').
+                   assert (K := is_minimal_wrt_elim _ _ H s0 s0In). 
+                   apply symS in E. rewrite (congS _ _ _ _ E (refS s0)).
+                   rewrite (lteCong _ _ _ _ (refS s0) E). 
+                   exact K. 
+
+                split. 
+                   apply in_set_cons_intro; auto. 
+                   right. apply in_set_minset_elim in aIn. 
+                   destruct aIn as [aIn _]; auto. 
 
 
-Lemma brel_minset_not_minimal (s : S) (X : finite_set S) (H : is_minimal_wrt rS lteS s X = false) :
-      brel_minset rS lteS (s::X) X = true.
-Proof. unfold brel_minset. unfold brel_reduce.
-       apply brel_set_intro_prop; auto. split. 
-       intros a K. apply in_set_minset_intro.
-       apply in_set_minset_elim in K.  destruct K as [L R]. 
-       split. apply in_set_cons_elim in L; auto. destruct L as [L | L]; auto.
-       admit. (* WHY SHOULD a BE IN X? *)
-       intros s' K. apply R. apply in_set_cons_intro; auto.
-       intros a K. apply in_set_minset_intro.
-       apply in_set_minset_elim in K.  destruct K as [L R]. 
-       split. apply in_set_cons_intro; auto. 
-       intros s' K. apply R. admit. 
-Admitted.        
+
+
+
+                   intros s0 s0In. 
+                   apply in_set_cons_elim in s0In; auto.
+                   apply in_set_minset_elim in aIn. destruct aIn as [aIn aMinimal].
+                   destruct s0In as [E' | s0In].
+                      apply symS in E'. rewrite (congS _ _ _ _ (refS a) E').
+                      rewrite (lteCong _ _ _ _ E' (refS a)).                   
+                      assert (K := is_minimal_wrt_elim _ _ H a aIn).
+                      destruct K as [K | K].
+                         left. apply symS; auto.
+                         case_eq(rS a s); intro F1; case_eq(lteS s a); intro F2; auto.
+                         admit.  (* OUCH *) 
+                      apply (aMinimal s0 s0In). 
+Admitted.
  *)
 
-
-
-(* should be able to prove without brel_minset result .... *)        
-Lemma uop_minset_nil_elim (X : finite_set S) : uop_minset rS lteS X = nil -> X = nil.
-Proof. intro H. induction X; auto. 
-       unfold uop_minset in H. unfold uop_filter in H.
-       unfold filter in H. fold @filter in H.
-       case_eq(is_minimal_wrt rS lteS a (a :: X)); intro J.
-          rewrite J in H. discriminate H. 
-          rewrite J in H. apply is_minimal_wrt_false_elim in J.
-          destruct J as [s [[H1 H2] H3]]. 
-Admitted. 
-                         
-(* ditto ... *)
-Lemma  uop_minset_not_empty (X : finite_set S) (H: brel_set rS nil X = false) : brel_set rS nil (uop_minset rS lteS X) = false.
-Proof.  destruct X.
-        compute in H. discriminate H.
-        case_eq(brel_set rS nil (uop_minset rS lteS (s :: X))); intro K; auto. 
-           apply brel_set_nil in K. apply uop_minset_nil_elim in K. 
-           discriminate K.                       
+(* move *) 
+Lemma set_is_empty (X : finite_set S) : (∀ s : S, in_set rS X s = false) -> X = nil.
+Proof. induction X; intro H.
+       reflexivity. 
+       assert (K := H a). unfold in_set in K. rewrite refS in K. simpl in K. 
+       discriminate K. 
 Qed. 
-           
+
+Lemma brel_minset_drop_not_minimal (lteAntiSym : brel_antisymmetric S rS lteS) (s : S) (X : finite_set S) :
+    is_minimal_wrt rS lteS s X = false -> brel_set rS (uop_minset rS lteS (s :: X)) (uop_minset rS lteS X) = true.
+Proof. intro H. 
+       apply brel_set_intro_prop; auto. split; intros a aIn. 
+          apply in_set_minset_elim in aIn. destruct aIn as [aIn aMinimal]. 
+          apply in_set_minset_intro. split. 
+             apply in_set_cons_elim in aIn; auto. destruct aIn as [E | aIn]; auto. 
+                assert (aMinimal' : ∀ s0 : S, in_set rS X s0 = true → a =S s0 + s0 <<!= a). 
+                   intros s0 s0In. apply aMinimal.
+                   apply in_set_cons_intro; auto. 
+                assert (K := is_minimal_wrt_fasle_elim s X H). 
+                assert (J : ∀ s0 : S, in_set rS X s0 = false).
+                   intro s0. case_eq(in_set rS X s0); intro J; auto. 
+                   assert (J1 := aMinimal' s0 J).
+                   assert (J2 := K s0 J).
+                   destruct J2 as [L R].
+                   rewrite (congS _ _ _ _ E (refS s0)) in L. rewrite (lteCong _ _ _ _ (refS s0) E) in R. 
+                   rewrite L in J1. rewrite R in J1. destruct J1 as [F | F]; discriminate F. 
+                   assert (L : X = nil). apply set_is_empty; auto. 
+                rewrite L in H. compute in H. discriminate H. 
+ 
+          intros s0 s0In. 
+          apply aMinimal. 
+          apply in_set_cons_intro; auto.
+
+          apply in_set_minset_elim in aIn. destruct aIn as [aIn aMinimal]. 
+          apply in_set_minset_intro. split. 
+             apply in_set_cons_intro; auto. 
+             intros s0 s0In. 
+             apply in_set_cons_elim in s0In; auto.
+             destruct s0In as [E | s0In].
+                case_eq(rS a s0); intro F1; case_eq(lteS s0 a); intro F2; auto.
+                assert (K := is_minimal_wrt_fasle_elim s X H). 
+                assert (J := K a aIn). destruct J as [L R]. 
+                apply symS in E. rewrite (lteCong _ _ _ _ E (refS a)) in F2.
+                assert (E' := lteAntiSym _ _ F2 R). rewrite E' in L. discriminate L. 
+                apply aMinimal; auto. 
+Qed. 
+          
+Lemma tttt (s : S) (X : finite_set S) : brel_set rS nil (uop_minset rS lteS (s :: X)) = false.
+Proof. induction X.
+       rewrite uop_minset_singleton. compute; auto. 
+
+       case_eq(brel_set rS nil (uop_minset rS lteS (s :: a :: X))); intro H; auto. 
+       assert (K := brel_uop_minset_swap s a X).
+       assert (J := brel_set_transitive S rS refS symS tranS _ _ _ H K).
+          case_eq(is_minimal_wrt rS lteS a (s :: X)); intro F.
+             assert (L := brel_minset_cons_minimal _ _ F).
+             assert (M := brel_set_transitive S rS refS symS tranS _ _ _ J L).
+             assert (N := brel_set_nil S rS _ M).
+             admit.  (* OUCH discriminate N. *) 
+(*
+             assert (L := brel_minset_drop_not_minimal _ _ F).
+             assert (M := brel_set_transitive S rS refS symS tranS _ _ _ J L).
+             rewrite M in IHX. 
+             exact IHX. 
+*) 
+Admitted. 
+                                 
+       
 Lemma brel_minset_nil_notnil (s : S) (X : finite_set S) : brel_minset rS lteS nil (s :: X) = false.
 Proof. unfold brel_minset. unfold brel_reduce. rewrite uop_minset_nil.
-       assert (K : brel_set rS nil (s :: X) = false). apply brel_set_nil_notnil. 
-       apply uop_minset_not_empty; auto. 
+       assert (K : brel_set rS nil (s :: X) = false). apply brel_set_nil_notnil.
+       apply tttt.
 Qed.
 
 Lemma brel_minset_notnil_nil (s : S) (X : finite_set S) : brel_minset rS lteS (s :: X) nil = false.
 Proof. apply (brel_symmetric_implies_dual _ _ brel_minset_symmetric nil (s :: X) (brel_minset_nil_notnil s X)). Qed. 
-
-Lemma brel_minset_singlton_elim (a : S) (X : finite_set S) :
-      brel_minset rS lteS (a :: nil) X = true -> (in_set rS X a = true) * (is_minimal_wrt rS lteS a X = true). 
-Admitted. 
 
 Lemma brel_minset_not_trivial : brel_not_trivial (finite_set S) (brel_minset rS lteS) brel_minset_new.
 Proof. unfold brel_not_trivial. intro X. 
@@ -508,6 +534,35 @@ Proof. unfold brel_not_trivial. intro X.
        unfold brel_minset_new. rewrite brel_set_nil_notnil.        
        rewrite brel_minset_nil_notnil. rewrite brel_minset_notnil_nil. auto. 
 Qed. 
+
+
+Lemma brel_minset_elim (X Y : finite_set S) : brel_minset rS lteS X Y = true ->
+       (∀ (s : S),  (in_set rS (uop_minset rS lteS X) s = true) <-> (in_set rS (uop_minset rS lteS Y) s = true)). 
+Proof. intro H. unfold brel_minset in H.  unfold brel_reduce in H. apply brel_set_elim_prop in H; auto.
+       destruct H as [L R]. intro s. 
+       assert (J := L s); assert (K := R s). split; auto. 
+Qed. 
+
+Lemma brel_minset_intro (X Y : finite_set S) : 
+       (∀ (s : S),  (in_set rS (uop_minset rS lteS X) s = true) <-> (in_set rS (uop_minset rS lteS Y) s = true))
+       -> brel_minset rS lteS X Y = true.
+Proof. intro H. unfold brel_minset. unfold brel_reduce. 
+       apply brel_set_intro_prop; auto; split; intros s J.
+          destruct (H s) as [K _]. apply K; auto.
+          destruct (H s) as [_ K]. apply K; auto.        
+Qed. 
+
+
+Lemma brel_minset_singleton_elim (a : S) (X : finite_set S) :
+      brel_minset rS lteS (a :: nil) X = true -> (in_set rS X a = true) * (is_minimal_wrt rS lteS a X = true). 
+Proof.  intro H. 
+        destruct (brel_minset_elim _ _ H a) as [L R].
+        assert (K : in_set rS (uop_minset rS lteS X) a = true).
+           apply L. rewrite uop_minset_singleton. compute. rewrite refS; auto. 
+        apply in_set_minset_elim in K.
+        destruct K as [K1 K2]. split; auto.
+        apply is_minimal_wrt_intro; auto. 
+Qed.
 
 Definition minset_negate ( X Y : finite_set S) :=
    match uop_minset rS lteS X, uop_minset rS lteS Y with 
@@ -577,48 +632,12 @@ Proof. unfold brel_minset. unfold brel_reduce.
        assert (J := K T).  compute in J. discriminate J. 
 Qed. 
 
-Lemma brel_minset_elim (X Y : finite_set S) : brel_minset rS lteS X Y = true ->
-       (∀ (s : S),  (in_set rS (uop_minset rS lteS X) s = true) <-> (in_set rS (uop_minset rS lteS Y) s = true)). 
-Proof. intro H. unfold brel_minset in H.  unfold brel_reduce in H. apply brel_set_elim_prop in H; auto.
-       destruct H as [L R]. intro s. 
-       assert (J := L s); assert (K := R s). split; auto. 
-Qed. 
-
-Lemma brel_minset_intro (X Y : finite_set S) : 
-       (∀ (s : S),  (in_set rS (uop_minset rS lteS X) s = true) <-> (in_set rS (uop_minset rS lteS Y) s = true))
-       -> brel_minset rS lteS X Y = true.
-Proof. intro H. unfold brel_minset. unfold brel_reduce. 
-       apply brel_set_intro_prop; auto; split; intros s J.
-          destruct (H s) as [K _]. apply K; auto.
-          destruct (H s) as [_ K]. apply K; auto.        
-Qed. 
-
-(* needed ? 
-Lemma brel_set_minset_invariant (X : finite_set S) : brel_minset rS lteS X (uop_minset rS lteS X) = true. 
-Proof. apply brel_minset_intro.
-
-      Use this? 
-      Lemma uop_minset_idempotent : uop_idempotent (finite_set S) (brel_set rS) (uop_minset rS lteS).  ----->        
-      ∀ s : finite_set S, brel_set rS (uop_minset rS lteS (uop_minset rS lteS s)) (uop_minset rS lteS s) = true
-
-       intros s H J.
-       apply in_set_minset_elim in J. destruct J as [_ J]. 
-       left. split.
-          apply is_minimal_wrt_intro. split.
-             apply (in_set_true_implies_not_nil X s H). 
-             exact J.
-          apply is_minimal_wrt_intro. split.
-             case_eq(brel_set rS nil (uop_minset rS lteS X)); intro K; auto. 
-                apply brel_set_nil in K. apply uop_minset_nil_elim in K. rewrite K in H. compute in H. discriminate H. 
-             intros s' H'. apply J. apply in_set_minset_elim in H'. destruct H' as [H' _]; auto. 
-Qed. 
-*) 
                                               
 Lemma minset_lemma2 (s : S) (X : finite_set S) (H : brel_minset rS lteS X (s :: nil) = true) : in_set rS X s = true.
 Proof. induction X. rewrite minset_lemma1 in H. discriminate H. 
        apply in_set_cons_intro; auto.
        apply brel_minset_symmetric in H; auto.
-       apply brel_minset_singlton_elim in H. destruct H as [H _]. 
+       apply brel_minset_singleton_elim in H. destruct H as [H _]. 
        apply in_set_cons_elim in H; auto. 
 Qed. 
 
@@ -644,10 +663,22 @@ Defined.
 
 Definition minset_enum (fS : unit -> list S) (x : unit) :=  List.map (uop_minset rS lteS) (power_set S (fS x)).
 
-Lemma minset_enum_lemma (f : unit → list S) (pf : ∀ s : S, in_set rS (f tt) s = true) (X : finite_set S) : 
-  in_set (brel_minset rS lteS) (minset_enum f tt) X = true.
+Lemma empty_set_in_minset_enum (f : unit -> list S) : in_set (brel_minset rS lteS) (minset_enum f tt) nil = true.
 Admitted. 
 
+Lemma min_set_enum_cons (f : unit -> list S) (pf : ∀ s : S, in_set rS (f tt) s = true) (a : S) (X : finite_set S) : 
+        in_set rS (f tt) a = true -> 
+        in_set (brel_minset rS lteS) (minset_enum f tt) X = true -> 
+        in_set (brel_minset rS lteS) (minset_enum f tt) (a :: X) = true. 
+Admitted. 
+
+Lemma minset_enum_lemma (f : unit → list S) (pf : ∀ s : S, in_set rS (f tt) s = true) (X : finite_set S) : 
+  in_set (brel_minset rS lteS) (minset_enum f tt) X = true.
+Proof.  induction X. 
+        apply empty_set_in_minset_enum. 
+        assert (aIn := pf a). 
+        apply min_set_enum_cons; auto. 
+Qed. 
 
 Definition brel_minset_is_finite : carrier_is_finite S rS -> carrier_is_finite (finite_set S) (brel_minset rS lteS).
 Proof. unfold carrier_is_finite.   intros [f pf].
@@ -661,6 +692,107 @@ Definition brel_minset_finite_decidable (d : carrier_is_finite_decidable S rS) :
      | inr nfS => inr (brel_minset_is_not_finite nfS)                       
      end.
 
+
+
+
+(*********************************************************************************************************
+
+0) ms and upper are congruent 
+1)  x in upper(ms(X)) <-> x in upper(X) 
+2)  x in ms(X) <-> x in ms(upper(X))
+3)  (x in upper(X) <-> x in upper(Y)) <-> ms(X) = ms(Y) 
+*)
+
+Definition in_upper_set (S : Type) (eq : brel S) (lte : brel S) (X : finite_set S) (a : S) :=
+   { b : S & (in_set eq X b = true) * (lte b a = true) }. 
+
+Definition in_up := in_upper_set S rS lteS.
+
+Definition ms := uop_minset rS lteS.
+
+Lemma p1_left : ∀ (X : finite_set S) (x : S),  in_up (ms X) x → in_up X x.
+Proof.  intros X x [b [H Q]]. 
+        unfold in_up. unfold in_upper_set.
+        apply in_set_minset_elim in H. 
+        destruct H as [H1 H2]. 
+        exists b. 
+        split; auto. 
+Qed. 
+
+
+Lemma p1_right : ∀ (X : finite_set S) (x : S),  in_up X x → in_up (ms X) x.
+Proof.  intros X x [b [H Q]]. 
+        unfold in_up. unfold in_upper_set.
+        case_eq (in_set rS (ms X) b); intro P.
+           exists b. split; auto.
+           apply in_set_uop_minset_false_elim in P; auto.
+           destruct P as [s [[P1 P2] P3]]. 
+           exists s. split; auto.
+           apply (lteTrans _ _ _ P2 Q). 
+Qed. 
+
+
+Notation "a == b"  := (brel_set rS a b = true) (at level 15).
+
+Lemma minset_subset : ∀ (X : finite_set S) (x: S),  in_set rS (ms X) x = true -> in_set rS X x = true.
+Admitted.
+
+
+Lemma p3_right1 : ∀ (X Y : finite_set S),  (ms X) == (ms Y) -> ∀ (x: S), in_up X x -> in_up Y x. 
+Proof. intros X Y H1 x H2.
+       unfold in_up. unfold in_upper_set.
+       apply brel_set_elim_prop in H1; auto. 
+       destruct H1 as [H1 _].       
+       destruct H2 as [s [H3 H4]].
+       case_eq (in_set rS Y s); intro P.
+          exists s. split; auto. 
+          case_eq (in_set rS (ms X) s); intro Q.
+             exists s. split; auto.
+             assert (H2 := H1 s Q).
+             apply minset_subset. exact H2.
+             assert (H2 := in_set_uop_minset_false_elim s X H3 Q).
+             destruct H2 as [b [[A B]] _]. 
+             exists b. split; auto.
+                assert (H2 := H1 b A).
+                apply minset_subset. exact H2.
+                exact (lteTrans _ _ _ B H4). 
+Defined. 
+
+
+Lemma p3_left : ∀ (X Y : finite_set S),  (∀  (x : S), in_up X x -> in_up Y x) -> (∀  (y : S), in_up Y y -> in_up X y) -> (ms X) == (ms Y).
+Proof. intros X Y H1 H2.
+       apply brel_minset_intro.
+       intro s. split. intro H3.
+       apply in_set_minset_intro.
+       apply in_set_minset_elim in H3.
+       destruct H3 as [H3 H4].
+       split.
+          admit.           
+          intros b H5.
+          case_eq(rS s b); intro H6; auto.
+          right.
+          case_eq(lteS b s); intro H7; auto. 
+          assert (H8 : in_up Y b).
+             exists b; auto.
+          case_eq(in_set rS X b); intro H9. 
+             destruct (H4 b H9) as [H10 | H10].
+                rewrite H10 in H6. exact H6.
+                rewrite H7 in H10. exact H10.
+             
+          apply H2 in H8.
+          destruct H8 as [c [H8 H10]]. 
+          destruct (H4 c H8) as [H11 | H11].
+             assert (H12 := lteCong _ _ _ _ H11 (refS b)).
+             rewrite <- H12 in H10.
+             (* Note : suppose b ~ s, b<>s. 
+                then up{b} = up{s}, but up{b} <> up{s}, 
+                so need antisymmetry here. 
+             *) 
+             admit.                    
+             assert (H12 := lteTrans _ _ _ H10 H7). 
+             rewrite H12 in H11. exact H11.
+Admitted. 
+
 End Theory.
 
 
@@ -673,7 +805,9 @@ Definition eqv_proofs_brel_minset : ∀ (S : Type) (r : brel S) (lteS : brel S),
      A_eqv_congruence  := brel_minset_congruence S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) (A_eqv_transitive S r eqv) lteS
    ; A_eqv_reflexive   := brel_minset_reflexive S r  (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) lteS 
    ; A_eqv_transitive  := brel_minset_transitive S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) (A_eqv_transitive S r eqv) lteS
-   ; A_eqv_symmetric   := brel_minset_symmetric S r lteS 
+   ; A_eqv_symmetric   := brel_minset_symmetric S r lteS
+   ; A_eqv_type_ast    := Ast_type_set (A_eqv_type_ast S r eqv)                                                           
+   ; A_eqv_brel_ast    := Ast_brel_eq_minset (A_eqv_brel_ast S r eqv)                                                
    |}.
 
 Definition A_eqv_minset : ∀ (S : Type),  A_po S -> A_eqv (finite_set S) 
@@ -688,22 +822,22 @@ Definition A_eqv_minset : ∀ (S : Type),  A_po S -> A_eqv (finite_set S)
   let refS  := A_eqv_reflexive S rS eqP in  
   let symS  := A_eqv_symmetric S rS eqP in
   let trnS  := A_eqv_transitive S rS eqP in
-  let lteS  := A_po_brel S poS in
+  let lteS  := A_po_lte S poS in
   let lteP  := A_po_proofs S poS in 
   let lte_congS := A_po_congruence S rS lteS lteP in 
   let lte_refS  := A_po_reflexive S rS lteS lteP in  
-  let lte_asymS := A_po_antisymmetric S rS lteS lteP in
+(*  let lte_asymS := A_po_antisymmetric S rS lteS lteP in *) 
   let lte_trnS  := A_po_transitive S rS lteS lteP in  
    {| 
       A_eqv_eq            := brel_minset rS lteS 
     ; A_eqv_proofs        := eqv_proofs_brel_minset S rS lteS eqP 
     ; A_eqv_witness       := nil 
     ; A_eqv_new           := brel_minset_new S rS wS 
-    ; A_eqv_not_trivial   := brel_minset_not_trivial S rS wS fS nt congS refS symS trnS lteS lte_congS lte_refS lte_trnS lte_asymS 
+    ; A_eqv_not_trivial   := brel_minset_not_trivial S rS wS fS nt congS refS symS trnS lteS lte_congS lte_refS lte_trnS (* lte_asymS *) 
     ; A_eqv_exactly_two_d := inr (brel_minset_not_exactly_two S rS wS fS nt refS lteS lte_refS)                              
     ; A_eqv_data          := λ l, DATA_list (List.map (A_eqv_data S eqvS) (uop_minset rS lteS l))   
     ; A_eqv_rep           := λ l, List.map (A_eqv_rep S eqvS) (uop_minset rS lteS l)
-    ; A_eqv_finite_d      := brel_minset_finite_decidable S rS wS fS nt congS refS symS trnS lteS lte_congS lte_refS lte_trnS lte_asymS (A_eqv_finite_d S eqvS)
+    ; A_eqv_finite_d      := brel_minset_finite_decidable S rS wS fS nt congS refS symS trnS lteS lte_congS lte_refS lte_trnS (* lte_asymS *) (A_eqv_finite_d S eqvS)
     ; A_eqv_ast           := Ast_eqv_minset (A_po_ast S poS)
    |}. 
 
@@ -725,9 +859,18 @@ Definition eqv_minset : ∀ {S : Type},  @po S -> @eqv (finite_set S)
   let rS   := eqv_eq eqvS in
   let wS   := eqv_witness eqvS in
   let fS   := eqv_new eqvS in  
-  let lteS := po_brel poS in 
+  let lteS := po_lte poS in 
    {| 
       eqv_eq            := brel_minset rS lteS 
+    ; eqv_certs := 
+     {|
+       eqv_congruence     := @Assert_Brel_Congruence (finite_set S)
+     ; eqv_reflexive      := @Assert_Reflexive (finite_set S)
+     ; eqv_transitive     := @Assert_Transitive (finite_set S)
+     ; eqv_symmetric      := @Assert_Symmetric (finite_set S)
+     ; eqv_type_ast       := Ast_type_set (eqv_type_ast (eqv_certs eqvS)) 
+     ; eqv_brel_ast       := Ast_brel_eq_minset (eqv_brel_ast (eqv_certs eqvS)) 
+     |}  
     ; eqv_witness       := nil 
     ; eqv_new           := brel_minset_new S rS wS 
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (minset_negate S rS wS fS lteS) 

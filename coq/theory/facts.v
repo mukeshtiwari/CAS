@@ -332,6 +332,37 @@ Proof. intros S r b1 b2 transS cong1 c1 c2 ld s t u.
 Defined. 
 
 
+Lemma bop_not_left_distributive_implies_not_right : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_transitive S r -> 
+        bop_congruence S r b1 -> 
+        bop_commutative S r b1 -> 
+        bop_commutative S r b2 -> 
+           bop_not_left_distributive S r b1 b2 -> bop_not_right_distributive S r b1 b2. 
+Proof. intros S r b1 b2 transS cong1 c1 c2 [[a [b c]] NLD].
+       exists (a, (b, c)). 
+       case_eq(r (b2 (b1 b c) a) (b1 (b2 b a) (b2 c a))); intro H; auto. 
+       assert (fact1 := c2 a (b1 b c)).
+       assert (fact2 := transS _ _ _ fact1 H).        
+       assert (fact3 := c2 b a).
+       assert (fact4 := c2 c a).
+       assert (fact5 := cong1 _ _ _ _ fact3 fact4).
+       assert (fact6 := transS _ _ _ fact2 fact5).               
+       rewrite fact6 in NLD. 
+       discriminate NLD. 
+Defined. 
+
+
+Lemma bop_left_distributive_decidable_implies_right_decidable : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
+        brel_transitive S r -> 
+        bop_congruence S r b1 -> 
+        bop_commutative S r b1 -> 
+        bop_commutative S r b2 -> 
+        bop_left_distributive_decidable S r b1 b2 -> bop_right_distributive_decidable S r b1 b2.
+Proof. intros S r b1 b2 transS cong1 c1 c2 [LD | NLD].
+       left. apply bop_left_distributive_implies_right; auto. 
+       right. apply bop_not_left_distributive_implies_not_right; auto. 
+Defined.
+
 
 (* Id, Ann are unique *) 
 
@@ -973,13 +1004,11 @@ Lemma exists_id_implies_not_left_constant : ∀ (S : Type) (r : brel S) (b : bin
                brel_not_trivial S r f-> 
                bop_exists_id S r b -> 
                   bop_not_left_constant S r b. 
-Proof. intros S r b s f congS Pf [i Pi]. 
-       unfold bop_not_left_constant. 
+Proof. intros S r b s f congS Pf [i Pi].
+       exists (i, (s, f s)).               
        destruct (Pi s) as [Ls Rs]. 
        destruct (Pi (f s)) as [Lf Rf]. 
        destruct (Pf s) as [L R]. 
-       exists (i, (s, f s)). 
-       unfold brel_congruence in congS. 
        assert (C := congS _ _ _ _ Ls Lf). 
        rewrite L in C. 
        assumption. 
@@ -991,13 +1020,11 @@ Lemma exists_id_implies_not_right_constant : ∀ (S : Type) (r : brel S) (b : bi
                brel_not_trivial S r f -> 
                bop_exists_id S r b -> 
                   bop_not_right_constant S r b. 
-Proof. intros S r b  s f congS Pf [i Pi]. 
-       unfold bop_not_right_constant. 
+Proof. intros S r b  s f congS Pf [i Pi].
+       exists (i, (s, f s)).        
        destruct (Pi s) as [Ls Rs]. 
        destruct (Pi (f s)) as [Lf Rf]. 
        destruct (Pf s) as [L R]. 
-       exists (i, (s, f s)). 
-       unfold brel_congruence in congS. 
        assert (C := congS _ _ _ _ Rs Rf). 
        rewrite L in C. 
        assumption. 
@@ -1010,7 +1037,6 @@ Lemma exists_id_implies_not_anti_left : ∀ (S : Type) (r : brel S) (b : binary_
                bop_exists_id S r b -> 
                   bop_not_anti_left S r b. 
 Proof. intros S r b symS s [i Pi]. 
-       unfold bop_not_anti_left. 
        exists (s, i). destruct (Pi s) as [L R]. 
        apply symS in R. assumption. 
 Defined. 
@@ -1023,7 +1049,6 @@ Lemma exists_id_implies_not_anti_right : ∀ (S : Type) (r : brel S) (b : binary
                bop_exists_id S r b -> 
                   bop_not_anti_right S r b. 
 Proof. intros S r b symS s [i Pi]. 
-       unfold bop_not_anti_left. 
        exists (s, i). destruct (Pi s) as [L R]. 
        apply symS in L. assumption. 
 Defined. 
@@ -1035,11 +1060,10 @@ Lemma exists_id_implies_not_is_left : ∀ (S : Type) (r : brel S) (b : binary_op
                brel_not_trivial S r f -> 
                bop_exists_id S r b -> 
                   bop_not_is_left S r b. 
-Proof. intros S r b f symS transS Pf [i Pi]. 
+Proof. intros S r b f symS transS Pf [i Pi].
+       exists (i, f i).       
        destruct (Pf i) as [L1 R1]. 
        destruct (Pi (f i)) as [L2 R2]. 
-       unfold bop_not_is_left. 
-       exists (i, f i).
        apply symS in L2. 
        apply (brel_transititivity_implies_dual _ _ transS _ _ _ L2 R1). 
 Defined. 
@@ -1050,11 +1074,10 @@ Lemma exists_id_implies_not_is_right : ∀ (S : Type) (r : brel S) (b : binary_o
                brel_not_trivial S r f -> 
                bop_exists_id S r b -> 
                   bop_not_is_right S r b. 
-Proof. intros S r b f symS transS Pf [i Pi]. 
+Proof. intros S r b f symS transS Pf [i Pi].
+       exists (f i, i).       
        destruct (Pf i) as [L1 R1]. 
        destruct (Pi (f i)) as [L2 R2]. 
-       unfold bop_not_is_right. 
-       exists (f i, i).
        apply symS in R2. 
        apply (brel_transititivity_implies_dual _ _ transS _ _ _ R2 R1). 
 Defined. 

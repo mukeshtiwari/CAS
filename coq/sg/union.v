@@ -583,34 +583,45 @@ End Theory.
 Section ACAS.
 
 Definition sg_CI_proofs_union : 
-  ∀ (S : Type) (rS : brel S) (s : S) (f : S -> S) (ntS : brel_not_trivial S rS f) (eqvS : eqv_proofs S rS)
-  (fin_d : carrier_is_finite_decidable S rS), sg_CI_proofs (finite_set S) (brel_set rS) (bop_union rS)
-:= λ S rS s f ntS eqvS fin_d,
-   let refS := A_eqv_reflexive S rS eqvS in
-   let symS := A_eqv_symmetric S rS eqvS in
-   let tranS := A_eqv_transitive S rS eqvS in                                                            
+  ∀ (S : Type) (eqv : A_eqv S), sg_CI_proofs (finite_set S) (brel_set (A_eqv_eq S eqv)) (bop_union (A_eqv_eq S eqv))
+  := λ S eqv,
+let eqvP := A_eqv_proofs S eqv in
+let symS := A_eqv_symmetric _ _ eqvP in
+let refS := A_eqv_reflexive _ _ eqvP in
+let trnS := A_eqv_transitive _ _ eqvP in     
+let rS   := A_eqv_eq S eqv in
+let s    := A_eqv_witness S eqv in
+let f    := A_eqv_new S eqv in
+let ntS  := A_eqv_not_trivial S eqv in       
+let refS := A_eqv_reflexive S rS eqvP in
+let symS := A_eqv_symmetric S rS eqvP in
+let tranS := A_eqv_transitive S rS eqvP in                                                            
 {|
   A_sg_CI_associative        := bop_union_associative S rS refS symS tranS 
 ; A_sg_CI_congruence         := bop_union_congruence S rS refS symS tranS 
 ; A_sg_CI_commutative        := bop_union_commutative S rS refS symS tranS 
 ; A_sg_CI_idempotent         := bop_union_idempotent S rS refS symS tranS 
 ; A_sg_CI_selective_d        := inr _ (bop_union_not_selective S rS refS symS s f ntS)
-; A_sg_CI_exists_id_d        := inl _ (bop_union_exists_id S rS refS symS tranS)
-; A_sg_CI_exists_ann_d       := bop_union_exists_ann_decide S rS refS symS tranS fin_d 
+; A_sg_CI_bop_ast            := Ast_bop_union (A_eqv_brel_ast S rS (A_eqv_proofs S eqv))
 |}. 
-
 
 Definition A_sg_CI_union : ∀ (S : Type),  A_eqv S -> A_sg_CI (finite_set S)
   := λ S eqv,
-  let eqS := A_eqv_eq S eqv in
-  let s   := A_eqv_witness S eqv in
-  let f   := A_eqv_new S eqv in
-  let ntS := A_eqv_not_trivial S eqv in       
+  let eqvP := A_eqv_proofs S eqv in
+  let symS := A_eqv_symmetric _ _ eqvP in
+  let refS := A_eqv_reflexive _ _ eqvP in
+  let trnS := A_eqv_transitive _ _ eqvP in     
+  let eqS  := A_eqv_eq S eqv in
+  let s    := A_eqv_witness S eqv in
+  let f    := A_eqv_new S eqv in
+  let ntS  := A_eqv_not_trivial S eqv in       
    {| 
      A_sg_CI_eqv       := A_eqv_set S eqv
    ; A_sg_CI_bop       := bop_union eqS
-   ; A_sg_CI_proofs    := sg_CI_proofs_union S eqS s f ntS (A_eqv_proofs S eqv) (A_eqv_finite_d S eqv)
-   ; A_sg_CI_bop_ast   := Ast_bop_union (A_eqv_ast S eqv)
+   ; A_sg_CI_exists_id_d  := inl _ (bop_union_exists_id S eqS refS symS trnS)
+   ; A_sg_CI_exists_ann_d := bop_union_exists_ann_decide S eqS refS symS trnS (A_eqv_finite_d S eqv)
+   ; A_sg_CI_proofs    := sg_CI_proofs_union S eqv
+   
    ; A_sg_CI_ast       := Ast_sg_CI_union (A_eqv_ast S eqv)                                                                   
    |}. 
   
@@ -626,16 +637,17 @@ Definition  check_union_exists_ann {S : Type} (d : @check_is_finite S) : @check_
      end.
 
 
-Definition sg_CI_certs_union : ∀ {S : Type},  S -> (S -> S) -> @check_is_finite S -> @sg_CI_certificates (finite_set S)
-:= λ {S} s f fin_d,  
+Definition sg_CI_certs_union : ∀ {S : Type}, @eqv S -> @sg_CI_certificates (finite_set S)
+:= λ {S} eqvS,  
+let s   := eqv_witness eqvS in
+let f   := eqv_new eqvS in
 {|
   sg_CI_associative        := Assert_Associative  
 ; sg_CI_congruence         := Assert_Bop_Congruence  
 ; sg_CI_commutative        := Assert_Commutative  
 ; sg_CI_idempotent         := Assert_Idempotent  
 ; sg_CI_selective_d        := Certify_Not_Selective ((s :: nil), ((f s) :: nil))
-; sg_CI_exists_id_d        := Certify_Exists_Id nil 
-; sg_CI_exists_ann_d       := check_union_exists_ann fin_d
+; sg_CI_bop_ast            := Ast_bop_union (eqv_brel_ast (eqv_certs eqvS))
 |}. 
 
 
@@ -648,8 +660,10 @@ Definition sg_CI_union : ∀ {S : Type}, @eqv S -> @sg_CI (finite_set S)
    {| 
      sg_CI_eqv       := eqv_set eqvS
    ; sg_CI_bop       := bop_union eqS
-   ; sg_CI_certs     := sg_CI_certs_union s f (eqv_finite_d eqvS)
-   ; sg_CI_bop_ast   := Ast_bop_union (eqv_ast eqvS)                                          
+   ; sg_CI_exists_id_d        := Certify_Exists_Id nil 
+   ; sg_CI_exists_ann_d       := check_union_exists_ann (eqv_finite_d eqvS)
+   ; sg_CI_certs     := sg_CI_certs_union eqvS
+   
    ; sg_CI_ast       := Ast_sg_CI_union(eqv_ast eqvS)
    |}. 
 
@@ -661,19 +675,14 @@ Section Verify.
 
 Lemma bop_union_certs_correct : 
     ∀ (S : Type) (eqvS : A_eqv S), 
-      sg_CI_certs_union (A_eqv_witness S eqvS) (A_eqv_new S eqvS) (p2c_is_finite_check S (A_eqv_eq S eqvS) (A_eqv_finite_d S eqvS))
+      sg_CI_certs_union (A2C_eqv S eqvS)
       =                        
       P2C_sg_CI (finite_set S) (brel_set (A_eqv_eq S eqvS)) (bop_union (A_eqv_eq S eqvS))
-                (sg_CI_proofs_union S (A_eqv_eq S eqvS) 
-                                    (A_eqv_witness S eqvS)
-                                    (A_eqv_new S eqvS)
-                                    (A_eqv_not_trivial S eqvS)
-                                    (A_eqv_proofs S eqvS)
-                                    (A_eqv_finite_d S eqvS)).
+                (sg_CI_proofs_union S eqvS).
 Proof. intros S eqvS.
        destruct eqvS.
        unfold sg_CI_certs_union, sg_CI_proofs_union. unfold P2C_sg_CI. simpl.
-       destruct A_eqv_finite_d as [[fS Pf] | NFS]; simpl; reflexivity. 
+       reflexivity.        
 Qed. 
   
 
@@ -682,8 +691,11 @@ Theorem bop_union_correct (S : Type) (eqvS : A_eqv S) :
 Proof. unfold sg_CI_union, A_sg_CI_union. unfold A2C_sg_CI. simpl.
        rewrite correct_eqv_set. 
        rewrite bop_union_certs_correct. 
-       reflexivity. 
+       destruct eqvS. simpl.
+       destruct A_eqv_finite_d as [[fS Pf] | NFS]; simpl; reflexivity.        
 Qed.
+
+
 
 End Verify.   
   

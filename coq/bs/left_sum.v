@@ -30,7 +30,7 @@ that can easily be genrealized to this left transform
 
 
 Here is another interesting transform 
-or to (with different +) 
+or two (with different +) 
 
      (inl c) |3> (a, b)  = (c * _S a, b) 
      (inr c) |3> (a, b)  = (a, c * _T b) 
@@ -86,6 +86,59 @@ Lemma bop_left_sum_right_sum_left_distributive :
          bop_left_distributive (S + T) (rS [+] rT) (addS <+] addT) (mulS [+> mulT).
 Proof. intros idemT ldS ldT llaT rlaT [s1 | t1] [s2 | t2] [s3 | t3]; compute.
        apply ldS. apply refS. apply refS. apply refT. apply symT. apply idemT. apply llaT. apply rlaT. apply ldT. Defined.
+
+
+(* Let's see what happens when both plus and times are defined the same way. 
+   (Do we want such a construction? Is it useful?) 
+
+ This requires 
+   rS (mulS s1 s2) (addS (mulS s1 s2) s1) = true
+ and 
+   rS (mulS s1 s2) (addS s1 (mulS s1 s2)) = true
+ (or just one of these if addS is commutative) 
+ 
+ This seems to be the opposite of absorption, for example 
+   rS s1 (addS s1 (mulS s1 s2)) = true
+
+ Note: the new properties cannot hold 
+ if the additive id is the multiplicative ann. 
+*)        
+Lemma test_left_left :
+  (∀ s1 s2 : S, rS (mulS s1 s2) (addS (mulS s1 s2) s1) = true) →
+  (∀ s1 s2 : S, rS (mulS s1 s2) (addS s1 (mulS s1 s2)) = true) →  
+  bop_idempotent S rS addS →  
+  bop_left_distributive S rS addS mulS → 
+  bop_left_distributive T rT addT mulT →
+         bop_left_distributive (S + T) (rS [+] rT) (addS <+] addT) (mulS <+] mulT).
+Proof. intros P1 P2 idemS ldS ldT [s1 | t1] [s2 | t2] [s3 | t3]; simpl. 
+       apply ldS.
+       apply P1. 
+       apply P2. 
+       apply symS. apply idemS.
+       apply refS.
+       apply refS. 
+       apply refS. 
+       apply ldT.
+Qed. 
+
+Lemma test_right_right :
+  (∀ t1 t2 : T, rT (mulT t1 t2) (addT (mulT t1 t2) t1) = true) →
+  (∀ t1 t2 : T, rT (mulT t1 t2) (addT t1 (mulT t1 t2)) = true) →  
+  bop_idempotent T rT addT →  
+  bop_left_distributive S rS addS mulS → 
+  bop_left_distributive T rT addT mulT →
+         bop_left_distributive (S + T) (rS [+] rT) (addS [+> addT) (mulS [+> mulT).
+Proof. intros  P1 P2 idemT ldS ldT [s1 | t1] [s2 | t2] [s3 | t3]; compute.
+       apply ldS.
+       apply refT.
+       apply refT.
+       apply refT.
+       apply symT. apply idemT.       
+       apply P2.
+       apply P1. 
+       apply ldT.
+Qed. 
+
 
 Lemma bop_left_sum_right_sum_not_left_distributive_v1 ( s : S) : 
   bop_not_idempotent T rT addT →
@@ -918,18 +971,6 @@ Definition bs_proofs_left_sum :
         (A_asg_idempotent_d T rT plusT sgT)
         (A_bs_right_right_absorptive_d S rS plusS timesS pS)
         (A_bs_right_right_absorptive_d T rT plusT timesT pT)        
-
-; A_bs_plus_id_is_times_ann_d :=
-    bop_left_sum_right_sum_id_equals_ann_decide S T rS rT t plusS timesS plusT timesT
-        (A_eqv_reflexive S rS eqvS)                                                      
-        (A_eqv_reflexive T rT eqvT)                                                      
-        (A_bs_plus_id_is_times_ann_d T rT plusT timesT pT)        
-
-; A_bs_times_id_is_plus_ann_d :=  
-    bop_right_sum_left_sum_id_equals_ann_decide S T rS rT s timesS plusS timesT plusT
-        (A_eqv_reflexive S rS eqvS)                                                      
-        (A_eqv_reflexive T rT eqvT)                                                      
-        (A_bs_times_id_is_plus_ann_d S rS plusS timesS pS)        
 |}.
 
 
@@ -1038,6 +1079,58 @@ Definition distributive_lattice_proofs_left_sum :
         )
 |}.
 
+Definition id_ann_proofs_left_sum (S T : Type) (rS : brel S) (rT : brel T) (s : S) (t : T)
+           (eqvS : eqv_proofs S rS)
+           (eqvT : eqv_proofs T rT)
+           (plusS timesS : binary_op S)
+           (plusT timesT : binary_op T)
+           (pS : id_ann_proofs S rS plusS timesS)
+           (pT : id_ann_proofs T rT plusT timesT) :
+               id_ann_proofs (S + T) (brel_sum rS rT) (bop_left_sum plusS plusT) (bop_right_sum timesS timesT)
+:=
+let refS := A_eqv_reflexive S rS eqvS in
+let refT := A_eqv_reflexive T rT eqvT in     
+{|
+    A_id_ann_exists_plus_id_d       :=
+      bop_left_sum_exists_id_decide S T rS rT plusS plusT refS t 
+        (A_id_ann_exists_plus_id_d T rT plusT timesT pT)                                                                                
+  ; A_id_ann_exists_plus_ann_d      :=
+      bop_left_sum_exists_ann_decide S T rS rT plusS plusT s refS 
+        (A_id_ann_exists_plus_ann_d S rS plusS timesS pS)
+  ; A_id_ann_exists_times_id_d      :=
+      bop_right_sum_exists_id_decide S T rS rT timesS timesT s refT
+        (A_id_ann_exists_times_id_d S rS plusS timesS pS)
+  ; A_id_ann_exists_times_ann_d     :=
+      bop_right_sum_exists_ann_decide S T rS rT timesS timesT t refT 
+        (A_id_ann_exists_times_ann_d T rT plusT timesT pT)                                                                                
+  ; A_id_ann_plus_id_is_times_ann_d :=
+    bop_left_sum_right_sum_id_equals_ann_decide S T rS rT t plusS timesS plusT timesT refS refT 
+        (A_id_ann_plus_id_is_times_ann_d T rT plusT timesT pT)        
+  ; A_id_ann_times_id_is_plus_ann_d :=
+    bop_right_sum_left_sum_id_equals_ann_decide S T rS rT s timesS plusS timesT plusT refS refT 
+        (A_id_ann_times_id_is_plus_ann_d S rS plusS timesS pS)        
+|}.
+
+
+Definition bounded_proofs_left_sum (S T : Type) (rS : brel S) (rT : brel T) 
+           (eqvS : eqv_proofs S rS)
+           (eqvT : eqv_proofs T rT)
+           (plusS timesS : binary_op S)
+           (plusT timesT : binary_op T)
+           (pS : bounded_proofs S rS plusS timesS)
+           (pT : bounded_proofs T rT plusT timesT) :
+               bounded_proofs (S + T) (brel_sum rS rT) (bop_left_sum plusS plusT) (bop_right_sum timesS timesT)
+:=
+let refS := A_eqv_reflexive S rS eqvS in
+let refT := A_eqv_reflexive T rT eqvT in     
+{|
+    A_bounded_plus_id_is_times_ann :=
+     bop_left_sum_right_sum_id_equals_ann S T rS rT plusS timesS plusT timesT refS refT 
+        (A_bounded_plus_id_is_times_ann T rT plusT timesT pT)        
+  ; A_bounded_times_id_is_plus_ann :=
+     bop_right_sum_left_sum_id_equals_ann S T rS rT timesS plusS timesT plusT refS refT 
+        (A_bounded_times_id_is_plus_ann S rS plusS timesS pS)        
+|}.
 
 Definition A_bs_left_sum : ∀ (S T : Type),  A_bs S -> A_bs T -> A_bs (S + T) 
 := λ S T bsS bsT, 
@@ -1066,13 +1159,14 @@ let timesT := A_bs_times T bsT in
                            (A_bs_plus_proofs T bsT) 
    ; A_bs_times_proofs := msg_proofs_right_sum S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                            (A_bs_times_proofs S bsS) 
-                           (A_bs_times_proofs T bsT) 
+                           (A_bs_times_proofs T bsT)
+   ; A_bs_id_ann_proofs := id_ann_proofs_left_sum S T rS rT s t peqvS peqvT plusS timesS plusT timesT
+                           (A_bs_id_ann_proofs S bsS) 
+                           (A_bs_id_ann_proofs T bsT)                                                  
    ; A_bs_proofs    := bs_proofs_left_sum S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
                            (A_bs_plus_proofs T bsT)                            
                            (A_bs_proofs S bsS) 
                            (A_bs_proofs T bsT)
-   ; A_bs_plus_ast   := Ast_bop_left_sum(A_bs_plus_ast S bsS, A_bs_plus_ast T bsT)
-   ; A_bs_times_ast  := Ast_bop_right_sum(A_bs_times_ast S bsS, A_bs_times_ast T bsT)                                                                   
    ; A_bs_ast        := Ast_bs_left_sum(A_bs_ast S bsS, A_bs_ast T bsT)
 |}. 
 
@@ -1100,14 +1194,15 @@ let meetT  := A_lattice_meet T sr2 in
                                 (A_lattice_join_proofs T sr2)                                 
    ; A_lattice_meet_proofs := sg_CI_proofs_right_sum S T rS rT meetS meetT s t peqvS peqvT 
                                 (A_lattice_meet_proofs S sr1)
-                                (A_lattice_meet_proofs T sr2)                                 
+                                (A_lattice_meet_proofs T sr2)
+   ; A_lattice_id_ann_proofs := bounded_proofs_left_sum S T rS rT peqvS peqvT joinS meetS joinT meetT
+                                   (A_lattice_id_ann_proofs S sr1) 
+                                   (A_lattice_id_ann_proofs T sr2)                                                  
    ; A_lattice_proofs  := lattice_proofs_left_sum S T rS rT joinS meetS joinT meetT s t peqvS peqvT 
                                    (A_lattice_meet_proofs S sr1)
                                    (A_lattice_join_proofs T sr2)                                                                      
                                    (A_lattice_proofs S sr1)
                                    (A_lattice_proofs T sr2)
-   ; A_lattice_join_ast := Ast_bop_left_sum(A_lattice_join_ast S sr1, A_lattice_join_ast T sr2)
-   ; A_lattice_meet_ast := Ast_bop_right_sum(A_lattice_meet_ast S sr1, A_lattice_meet_ast T sr2)     
    ; A_lattice_ast      := Ast_lattice_left_sum (A_lattice_ast S sr1, A_lattice_ast T sr2)
 |}.
 
@@ -1135,14 +1230,15 @@ let meetT  := A_distributive_lattice_meet T sr2 in
                                 (A_distributive_lattice_join_proofs T sr2)                                 
    ; A_distributive_lattice_meet_proofs := sg_CI_proofs_right_sum S T rS rT meetS meetT s t peqvS peqvT 
                                 (A_distributive_lattice_meet_proofs S sr1)
-                                (A_distributive_lattice_meet_proofs T sr2)                                 
+                                (A_distributive_lattice_meet_proofs T sr2)
+   ; A_distributive_lattice_id_ann_proofs := bounded_proofs_left_sum S T rS rT peqvS peqvT joinS meetS joinT meetT
+                                   (A_distributive_lattice_id_ann_proofs S sr1) 
+                                   (A_distributive_lattice_id_ann_proofs T sr2)                                                  
    ; A_distributive_lattice_proofs  := distributive_lattice_proofs_left_sum S T rS rT joinS meetS joinT meetT peqvS peqvT 
                                    (A_distributive_lattice_meet_proofs S sr1)
                                    (A_distributive_lattice_join_proofs T sr2)                                                                      
                                    (A_distributive_lattice_proofs S sr1)
                                    (A_distributive_lattice_proofs T sr2)
-   ; A_distributive_lattice_join_ast := Ast_bop_left_sum(A_distributive_lattice_join_ast S sr1, A_distributive_lattice_join_ast T sr2)
-   ; A_distributive_lattice_meet_ast := Ast_bop_right_sum(A_distributive_lattice_meet_ast S sr1, A_distributive_lattice_meet_ast T sr2)
    ; A_distributive_lattice_ast  := Ast_distributive_lattice_left_sum (A_distributive_lattice_ast S sr1, A_distributive_lattice_ast T sr2)
 |}.
 
@@ -1291,7 +1387,7 @@ Definition bop_left_sum_right_sum_id_equals_ann_check (S T : Type) :
      @check_plus_id_equals_times_ann T -> @check_plus_id_equals_times_ann (S + T)   
 := λ ia_d,
 match ia_d with                                                                                  
-| Certify_Plus_Id_Equals_Times_Ann  => Certify_Plus_Id_Equals_Times_Ann
+| Certify_Plus_Id_Equals_Times_Ann t => Certify_Plus_Id_Equals_Times_Ann (inr t)
 | Certify_Not_Plus_Id_Equals_Times_Ann => Certify_Not_Plus_Id_Equals_Times_Ann
 end. 
 
@@ -1299,11 +1395,9 @@ Definition bop_right_sum_left_sum_id_equals_ann_check (S T : Type) :
      @check_times_id_equals_plus_ann S -> @check_times_id_equals_plus_ann (S + T)     
 := λ ia_d,
 match ia_d with                                                                                  
-| Certify_Times_Id_Equals_Plus_Ann  => Certify_Times_Id_Equals_Plus_Ann
+| Certify_Times_Id_Equals_Plus_Ann s => Certify_Times_Id_Equals_Plus_Ann (inl s)
 | Certify_Not_Times_Id_Equals_Plus_Ann => Certify_Not_Times_Id_Equals_Plus_Ann
 end. 
-
-
 
 Definition bs_certs_left_sum : 
   ∀ (S T: Type) 
@@ -1314,15 +1408,15 @@ Definition bs_certs_left_sum :
         @bs_certificates (S + T) 
 := λ S T s sgT pS pT, 
 {|
-
+(*
  bs_times_id_is_plus_ann_d :=  
     bop_right_sum_left_sum_id_equals_ann_check S T 
          (bs_times_id_is_plus_ann_d pS)
 ; bs_plus_id_is_times_ann_d :=
     bop_left_sum_right_sum_id_equals_ann_check S T 
         (bs_plus_id_is_times_ann_d pT)        
-    
-;  bs_left_distributive_d :=
+*)    
+   bs_left_distributive_d :=
     bop_left_sum_right_sum_left_distributive_check S T s 
         (asg_idempotent_d sgT)
         (bs_left_distributive_d pS)
@@ -1364,6 +1458,23 @@ Definition bs_certs_left_sum :
 
 |}.
 
+Definition id_ann_certs_left_sum {S T : Type} (pS : @id_ann_certificates S) (pT : @id_ann_certificates T) :
+               @id_ann_certificates (S + T) 
+:=
+{|
+    id_ann_exists_plus_id_d       := check_exists_id_left_sum (id_ann_exists_plus_id_d pT)        
+  ; id_ann_exists_plus_ann_d      := check_exists_ann_left_sum (id_ann_exists_plus_ann_d pS)        
+  ; id_ann_exists_times_id_d      := check_exists_id_right_sum (id_ann_exists_times_id_d pS)
+  ; id_ann_exists_times_ann_d     := check_exists_ann_right_sum (id_ann_exists_times_ann_d pT) 
+  ; id_ann_plus_id_is_times_ann_d :=
+    bop_left_sum_right_sum_id_equals_ann_check S T (id_ann_plus_id_is_times_ann_d pT)        
+  ; id_ann_times_id_is_plus_ann_d :=
+    bop_right_sum_left_sum_id_equals_ann_check S T (id_ann_times_id_is_plus_ann_d pS)        
+        
+|}.
+
+
+
 Definition bs_left_sum : ∀ {S T : Type},  @bs S -> @bs T -> @bs (S + T) 
 := λ {S T} bsS bsT, 
 let eqvS   := bs_eqv bsS   in
@@ -1381,10 +1492,9 @@ let timesT := bs_times bsT in
    ; bs_plus        := bop_left_sum plusS plusT 
    ; bs_times       := bop_right_sum timesS timesT 
    ; bs_plus_certs  := asg_certs_left_sum (bs_plus_certs bsS) (bs_plus_certs bsT) 
-   ; bs_times_certs := msg_certs_right_sum s f t g (bs_times_certs bsS) (bs_times_certs bsT) 
+   ; bs_times_certs := msg_certs_right_sum s f t g (bs_times_certs bsS) (bs_times_certs bsT)
+   ; bs_id_ann_certs := id_ann_certs_left_sum (bs_id_ann_certs bsS) (bs_id_ann_certs bsT)
    ; bs_certs       := bs_certs_left_sum S T s (bs_plus_certs bsT) (bs_certs bsS) (bs_certs bsT)
-   ; bs_plus_ast    := Ast_bop_left_sum(bs_plus_ast bsS, bs_plus_ast bsT)
-   ; bs_times_ast   := Ast_bop_right_sum(bs_times_ast bsS, bs_times_ast bsT)                                                                   
    ; bs_ast         := Ast_bs_left_sum(bs_ast bsS, bs_ast bsT)
 |}.
 
@@ -1558,7 +1668,7 @@ Lemma bop_left_sum_right_sum_plus_id_is_times_ann_check_correct :
       (bop_left_sum_right_sum_id_equals_ann_decide S T rS rT wT plusS timesS plusT timesT refS refT pT_d)
   =                                                                             
   bop_left_sum_right_sum_id_equals_ann_check S T (p2c_plus_id_equals_times_ann T rT plusT timesT pT_d). 
-Proof. intros S T wT rS rT plusS timesS plusT timesT refS refT [eqT | neqT] ; compute; reflexivity. Qed. 
+Proof. intros S T wT rS rT plusS timesS plusT timesT refS refT [[t [idP annP]] | neqT] ; simpl; reflexivity. Qed. 
 
 Lemma bop_left_sum_right_sum_times_id_is_plus_ann_check_correct : 
   ∀ (S T : Type) (wS : S) (rS : brel S) (rT : brel T)
@@ -1570,7 +1680,7 @@ Lemma bop_left_sum_right_sum_times_id_is_plus_ann_check_correct :
       (bop_right_sum_left_sum_id_equals_ann_decide S T rS rT wS timesS plusS timesT plusT refS refT pT_d)
   =                                                                             
   bop_right_sum_left_sum_id_equals_ann_check S T (p2c_times_id_equals_plus_ann S rS plusS timesS pT_d). 
-Proof. intros S T wT rS rT plusS timesS plusT timesT refS refT [eqT | neqT] ; compute; reflexivity. Qed. 
+Proof. intros S T wT rS rT plusS timesS plusT timesT refS refT [ [t [idP annP]]  | neqT] ; compute; reflexivity. Qed. 
 
 Lemma  correct_bs_certs_left_sum : 
   ∀ (S T : Type) (wS : S) (wT : T)
@@ -1595,11 +1705,36 @@ Proof. intros.
        rewrite bop_left_sum_right_sum_left_right_absorbtive_check_correct. 
        rewrite bop_left_sum_right_sum_right_left_absorbtive_check_correct. 
        rewrite bop_left_sum_right_sum_right_right_absorbtive_check_correct.
+(*       
+*)
+       reflexivity. 
+Defined.
+
+Lemma  correct_id_ann_certs_left_sum 
+     (S T : Type) (s : S) (t : T)
+     (rS : brel S)
+     (rT : brel T)
+     (plusS timesS : binary_op S)     
+     (plusT timesT : binary_op T)
+     (eqvS : eqv_proofs S rS)
+     (eqvT : eqv_proofs T rT)
+     (pS : id_ann_proofs S rS plusS timesS)
+     (pT : id_ann_proofs T rT plusT timesT) : 
+ id_ann_certs_left_sum (P2C_id_ann S rS plusS timesS pS) (P2C_id_ann T rT plusT timesT pT)
+ = 
+ P2C_id_ann (S + T) (brel_sum rS rT)
+                    (bop_left_sum plusS plusT) (bop_right_sum timesS timesT)
+                    (id_ann_proofs_left_sum S T rS rT s t eqvS eqvT plusS timesS plusT timesT pS pT).
+Proof. unfold id_ann_certs_left_sum, id_ann_proofs_left_sum, P2C_id_ann; simpl.
+       rewrite <- correct_check_exists_id_left_sum.
+       rewrite <- correct_check_exists_id_right_sum.
+       rewrite <- correct_check_exists_ann_left_sum.
+       rewrite <- correct_check_exists_ann_right_sum.
        rewrite bop_left_sum_right_sum_plus_id_is_times_ann_check_correct. 
        rewrite bop_left_sum_right_sum_times_id_is_plus_ann_check_correct. 
        reflexivity. 
-Defined.
-  
+Qed.
+
 Theorem correct_bs_left_sum : ∀ (S T : Type) (bsS: A_bs S) (bsT : A_bs T), 
    bs_left_sum (A2C_bs S bsS) (A2C_bs T bsT)
    =
@@ -1609,9 +1744,12 @@ Proof. intros S T bsS bsT.
        rewrite correct_eqv_sum. 
        rewrite <- correct_asg_certs_left_sum.
        rewrite <- correct_msg_certs_right_sum. 
-       rewrite <- correct_bs_certs_left_sum. 
+       rewrite <- correct_bs_certs_left_sum.
+       rewrite <- correct_id_ann_certs_left_sum. 
        reflexivity. 
 Defined. 
+
+
 
 
 (*

@@ -3,42 +3,115 @@ open Cas
 let nl s = s ^ "\n"       
 let char_list_to_string cl = String.concat "" (List.map (String.make 1) cl)
 
-let rec data_to_ascii = function 
-| DATA_nat n -> string_of_int n 
-| DATA_bool b -> string_of_bool b 
-| DATA_string l -> String.concat "" (List.map (String.make 1) l) 
-| DATA_pair (d1, d2) -> "(" ^ (data_to_ascii d1) ^  ", " ^ (data_to_ascii d2) ^ ")" 
-| DATA_inl d -> "inl(" ^ (data_to_ascii d) ^ ")" 
-| DATA_inr d -> "inr(" ^ (data_to_ascii d) ^ ")" 
-| DATA_list l -> "[" ^ (String.concat ", " (List.map data_to_ascii l)) ^ "]"
-| DATA_set l -> "{" ^ (String.concat ", " (List.map data_to_ascii l)) ^ "}"									   
-| DATA_constant c -> String.concat "" (List.map (String.make 1) (c.Cas.constant_ascii))
+type string_type = Ascii | Latex
+
+let rec data_to_string st = function 
+| DATA_nat n         -> string_of_int n 
+| DATA_bool b        -> string_of_bool b 
+| DATA_string l      -> String.concat "" (List.map (String.make 1) l)
+| DATA_constant c    -> String.concat "" (List.map (String.make 1) (c.Cas.constant_ascii))
+| DATA_pair (d1, d2) -> (match st with
+              		| Ascii -> "(" ^ (data_to_string st d1) ^  ", " ^ (data_to_string st d2) ^ ")"
+			| Latex -> "(" ^ (data_to_string st d1) ^  ", " ^ (data_to_string st d2) ^ ")" )
+| DATA_inl d         -> (match st with
+			 | Ascii -> "inl(" ^ (data_to_string st d) ^ ")"
+			 | Latex -> "\\inl{" ^ (data_to_string st d) ^ "}")
+| DATA_inr d         -> (match st with
+			 | Ascii -> "inr(" ^ (data_to_string st d) ^ ")"
+			 | Latex -> "\\inr{" ^ (data_to_string st d) ^ "}" )
+| DATA_list l        -> (match st with
+			 | Ascii -> "[" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "]"
+			 | Latex -> "[" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "]")
+| DATA_set l         -> (match st with
+			 | Ascii -> "{" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "}"	 
+                         | Latex -> "\\{" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "\\}")		    
+			     
+let rec data_to_ascii = data_to_string Ascii
+let rec data_to_latex = data_to_string Latex 
 
 
-let rec data_to_latex = function 
-| DATA_nat n -> string_of_int n 
-| DATA_bool b -> string_of_bool b 
-| DATA_string l -> String.concat "" (List.map (String.make 1) l) 
-| DATA_pair (d1, d2) -> "(" ^ (data_to_latex d1) ^  ", " ^ (data_to_latex d2) ^ ")" 
-| DATA_inl d -> "\\inl{" ^ (data_to_latex d) ^ "}" 
-| DATA_inr d -> "\\inr{" ^ (data_to_latex d) ^ "}" 
-| DATA_list l -> "[" ^ (String.concat ", " (List.map data_to_latex l)) ^ "]"
-| DATA_set l -> "{" ^ (String.concat ", " (List.map data_to_ascii l)) ^ "}"		    
-| DATA_constant c -> String.concat "" (List.map (String.make 1) (c.Cas.constant_latex))
+let rec ast_type_to_string st = function 
+| Ast_type_bool             -> (match st with
+			       | Ascii -> "bool"
+                               | Latex -> "bool")		    
+| Ast_type_nat              -> (match st with
+			       | Ascii -> "int"
+                               | Latex -> "int")		    
+| Ast_type_list t           -> (match st with
+			       | Ascii -> "(" ^ (ast_type_to_string st t) ^ ") list"
+                               | Latex -> "(" ^ (ast_type_to_string st t) ^ ") list")		    
+| Ast_type_set t            -> (match st with
+			       | Ascii -> "(" ^ (ast_type_to_string st t) ^ ") set"
+                               | Latex -> "(" ^ (ast_type_to_string st t) ^ ") set")		    
+| Ast_type_product (t1, t2) -> (match st with
+			       | Ascii -> "(" ^ (ast_type_to_string st t1) ^ " * " ^ (ast_type_to_string st t2) ^ ")"
+                               | Latex -> "(" ^ (ast_type_to_string st t1) ^ " * " ^ (ast_type_to_string st t2) ^ ")")		    
+| Ast_type_sum (t1, t2)     -> (match st with
+			       | Ascii -> "(" ^ (ast_type_to_string st t1) ^ " + " ^ (ast_type_to_string st t2) ^ ")"
+                               | Latex -> "(" ^ (ast_type_to_string st t1) ^ " + " ^ (ast_type_to_string st t2) ^ ")")		    
+| Ast_type_add_constant (c,t) -> (match st with
+			       | Ascii ->  "(" ^ "cas_constant" ^ " + " ^ (ast_type_to_string st t) ^ ")"
+                               | Latex -> "(" ^ "cas_constant" ^ " + " ^ (ast_type_to_string st t) ^ ")"
+				 )		    
 
 
-let rec ast_eqv_to_ascii = function 
+let rec ast_type_to_ascii = ast_type_to_string Ascii
+let rec ast_type_to_latex = ast_type_to_string Latex 
+
+let rec ast_brel_to_string st = function 						       
+| Ast_brel_eq_bool              -> "eq_bool"
+| Ast_brel_eq_nat               -> "eq_nat"
+| Ast_brel_eq_list r            -> "eq_list(" ^ (ast_brel_to_string st r) ^ ")"
+| Ast_brel_eq_set r             -> "eq_set(" ^ (ast_brel_to_string st r) ^ ")"
+| Ast_brel_eq_product(r1,r2)    -> "eq_product(" ^ (ast_brel_to_string st r1) ^ ", " ^ (ast_brel_to_string st r2) ^ ")"
+| Ast_brel_eq_sum(r1,r2)        -> "eq_sum(" ^ (ast_brel_to_string st r1) ^ ", " ^ (ast_brel_to_string st r2) ^ ")"
+| Ast_brel_eq_add_constant(c,r) -> "eq_add_constant(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (ast_brel_to_string st r) ^ ")"
+| Ast_brel_eq_nat_ceiling n     -> "eq_nat_ceiling(" ^ (string_of_int (n+1)) ^ ")"
+| Ast_brel_eq_minset r          -> "eq_minset(" ^ (ast_brel_to_string st r) ^ ")"
+| Ast_brel_lte_nat              -> "lte_nat"
+| Ast_brel_lte_left b           -> "lte_left(" ^ (ast_bop_to_string st b) ^ ")"
+| Ast_brel_lte_right b          -> "lte_right(" ^ (ast_bop_to_string st b) ^ ")"
+| Ast_brel_lte_product(r1,r2)   -> "lte_product(" ^ (ast_brel_to_string st r1) ^ ", " ^ (ast_brel_to_string st r2) ^ ")"
+| Ast_brel_lte_dual r           -> "lte_dual(" ^ (ast_brel_to_string st r) ^ ")"
+and ast_bop_to_string st = function                           
+| Ast_bop_times            -> "times"
+| Ast_bop_plus             -> "plus"
+| Ast_bop_min              -> "min"
+| Ast_bop_max              -> "max"
+| Ast_bop_and              -> "and"
+| Ast_bop_or               -> "or"
+| Ast_bop_concat r         -> "concat(" ^ (ast_brel_to_string st r) ^ ")"
+| Ast_bop_left r           -> "left(" ^ (ast_brel_to_string st r) ^ ")"
+| Ast_bop_right r          -> "right(" ^ (ast_brel_to_string st r) ^ ")"
+| Ast_bop_llex(b1,b2)      -> "llex(" ^ (ast_bop_to_string st b1) ^ ", " ^ (ast_bop_to_string st b2) ^ ")"
+| Ast_bop_product(b1,b2)   -> "product(" ^ (ast_bop_to_string st b1) ^ ", " ^ (ast_bop_to_string st b2) ^ ")"
+| Ast_bop_left_sum(b1,b2)  -> "left_sum(" ^ (ast_bop_to_string st b1) ^ ", " ^ (ast_bop_to_string st b2) ^ ")"
+| Ast_bop_right_sum(b1,b2) -> "right_sum(" ^ (ast_bop_to_string st b1) ^ ", " ^ (ast_bop_to_string st b2) ^ ")"
+| Ast_bop_add_id(c,b)      -> "add_id(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (ast_bop_to_string st b) ^ ")"
+| Ast_bop_add_ann(c,b)     -> "add_ann(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (ast_bop_to_string st b) ^ ")"
+| Ast_bop_lift b           -> "lift(" ^ (ast_bop_to_string st b) ^ ")"
+| Ast_bop_union r          -> "union(" ^ (ast_brel_to_string st r) ^ ")"
+| Ast_bop_intersect r      -> "intersect(" ^ (ast_brel_to_string st r) ^ ")"
+| Ast_bop_minset_union r   -> "minset_union(" ^ (ast_brel_to_string st r) ^ ")"
+| Ast_bop_minset_lift r    -> "minset_lift(" ^ (ast_brel_to_string st r) ^ ")"
+
+
+let ast_brel_to_ascii = ast_brel_to_string Ascii
+let ast_brel_to_latex = ast_brel_to_string Latex 									     
+let ast_bop_to_ascii  = ast_bop_to_string Ascii
+let ast_bop_to_latex  = ast_bop_to_string Latex 
+
+let rec ast_eqv_to_string st = function 
 | Ast_eqv_bool                  -> "bool"
 | Ast_eqv_nat                   -> "int"
-| Ast_eqv_list eqv              -> "(" ^ (ast_eqv_to_ascii eqv) ^ ") list"
-| Ast_eqv_set eqv               -> "(" ^ (ast_eqv_to_ascii eqv) ^ ") set"
-| Ast_eqv_product (eqv1, eqv2)  -> "(" ^ (ast_eqv_to_ascii eqv1) ^ " * " ^ (ast_eqv_to_ascii eqv2) ^ ")"
-| Ast_eqv_sum (eqv1, eqv2)      -> "(" ^ (ast_eqv_to_ascii eqv1) ^ " + " ^ (ast_eqv_to_ascii eqv2) ^ ")"
-| Ast_eqv_add_constant (c, eqv) -> "({" ^ (char_list_to_string c.constant_ascii)      ^ "} + " ^ (ast_eqv_to_ascii eqv) ^ ")"
-| Ast_eqv_nat_ceiling  n        -> "[" ^ (string_of_int n) ^ " + 1]"
+| Ast_eqv_list eqv              -> "(" ^ (ast_eqv_to_string st eqv) ^ ") list"
+| Ast_eqv_set eqv               -> "(" ^ (ast_eqv_to_string st eqv) ^ ") set"
+| Ast_eqv_product (eqv1, eqv2)  -> "(" ^ (ast_eqv_to_string st eqv1) ^ " * " ^ (ast_eqv_to_string st eqv2) ^ ")"
+| Ast_eqv_sum (eqv1, eqv2)      -> "(" ^ (ast_eqv_to_string st eqv1) ^ " + " ^ (ast_eqv_to_string st eqv2) ^ ")"
+| Ast_eqv_add_constant (c, eqv) -> "({" ^ (char_list_to_string c.constant_ascii)      ^ "} + " ^ (ast_eqv_to_string st eqv) ^ ")"
+| Ast_eqv_nat_ceiling  n        -> "[" ^ (string_of_int (n +1)) ^ "]"
 | Ast_eqv_minset po             -> "minset ..." 
-															    
-
+(*
 let rec ast_eqv_to_latex = function 
 | Ast_eqv_bool                  -> "\typebool"
 | Ast_eqv_nat                   -> "\typenat"
@@ -47,37 +120,19 @@ let rec ast_eqv_to_latex = function
 | Ast_eqv_product (eqv1, eqv2)  -> "\typeproduct{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv2) ^ "}"
 | Ast_eqv_sum (eqv1, eqv2)      -> "\typesum{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv2) ^ "}"
 | Ast_eqv_add_constant (c, eqv) -> "\typeaddconstant{" ^ (char_list_to_string c.constant_latex) ^ "}{" ^ (ast_eqv_to_latex eqv) ^ "}"
-| Ast_eqv_nat_ceiling  n        -> "[" ^ (string_of_int n) ^ " + 1]"
+| Ast_eqv_nat_ceiling  n        -> "[" ^ (string_of_int (n +1)) ^ "]"
 | Ast_eqv_minset po             ->  "minset ..." 
-																    
+ *)																    
 
-let rec ast_bop_to_ascii = function 	
-| Ast_bop_times              -> "times"
-| Ast_bop_plus               -> "plus"
-| Ast_bop_min                -> "min"
-| Ast_bop_max                -> "max"
-| Ast_bop_and                -> "and"
-| Ast_bop_or                 -> "or"
-| Ast_bop_concat eqv         -> "concat(" ^ (ast_eqv_to_ascii eqv) ^ ")"
-| Ast_bop_left eqv           -> "left(" ^ (ast_eqv_to_ascii eqv) ^ ")"
-| Ast_bop_right eqv          -> "right(" ^ (ast_eqv_to_ascii eqv) ^ ")"
-| Ast_bop_llex (b1, b2)      -> "llex(" ^ (ast_bop_to_ascii b1) ^ ", " ^ (ast_bop_to_ascii b2) ^ ")"
-| Ast_bop_product (b1, b2)   -> "product(" ^ (ast_bop_to_ascii b1) ^ ", " ^ (ast_bop_to_ascii b2) ^ ")"
-| Ast_bop_left_sum (b1, b2)  -> "left_sum(" ^ (ast_bop_to_ascii b1) ^ ", " ^ (ast_bop_to_ascii b2) ^ ")"
-| Ast_bop_right_sum (b1, b2) -> "right_sum(" ^ (ast_bop_to_ascii b1) ^ ", " ^ (ast_bop_to_ascii b2) ^ ")"
-| Ast_bop_add_id (c, b)      -> "add_id(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (ast_bop_to_ascii b) ^ ")"
-| Ast_bop_add_ann (c, b)     -> "add_nn(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (ast_bop_to_ascii b) ^ ")"
-| Ast_bop_lift b             -> "lift(" ^ (ast_bop_to_ascii b) ^ ")"
-| Ast_bop_union eqv          -> "union(" ^ (ast_eqv_to_ascii eqv) ^ ")"
-| Ast_bop_intersect eqv      -> "intersect(" ^ (ast_eqv_to_ascii eqv) ^ ")"
-																    
+let ast_eqv_to_ascii = ast_eqv_to_string Ascii
+let ast_eqv_to_latex = ast_eqv_to_string Latex 					 
 
-				   
-let string_of_check_exists_id eq bop data = function 
+							     
+let string_of_check_exists_id data = function 
     | Certify_Not_Exists_Id -> "No Identity\n" 
     | Certify_Exists_Id a -> "Identity " ^ (data_to_ascii (data a)) ^ "\n"
 
-let string_of_check_exists_ann eq bop data = function 
+let string_of_check_exists_ann data = function 
     | Certify_Not_Exists_Ann -> "No Annihilator\n" 
     | Certify_Exists_Ann a -> "Annihilator " ^ (data_to_ascii (data a)) ^ "\n"
           
@@ -88,7 +143,7 @@ let string_of_check_commutative eq bop data = function
        let rhs = bop b a in
        if eq lhs rhs
        then "INTERNAL ERROR\n"
-       else "Not Commutative : \n" ^
+       else "Not Commutative -> \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data lhs)) ^ "\n" ^
 	      "   " ^ (data_to_ascii (data b)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data rhs)) ^ "\n"
 
@@ -98,7 +153,7 @@ let string_of_check_idempotent eq bop data = function
        let result = bop a a in
        if eq a result
        then "INTERNAL ERROR\n"
-       else "Not Idempotent : \n" ^
+       else "Not Idempotent -> \n" ^
 	    "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n" 
 
 let string_of_check_selective eq bop data = function 
@@ -107,7 +162,7 @@ let string_of_check_selective eq bop data = function
        let result = bop a b in
        if (eq a result) || (eq b result)
        then "INTERNAL ERROR\n"
-       else "Not Selective : \n" ^
+       else "Not Selective -> \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
 
 let string_of_check_anti_left eq bop data = function 
@@ -115,7 +170,7 @@ let string_of_check_anti_left eq bop data = function
     | Certify_Not_Anti_Left (a, b) ->
        let result = bop a b in
        if eq a result 
-       then "Not Anti Left : \n" ^
+       then "Not Anti Left -> \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
        else "INTERNAL ERROR\n"
 
@@ -124,7 +179,7 @@ let string_of_check_anti_right eq bop data = function
     | Certify_Not_Anti_Right (s, t) -> 
        let result = bop t s in
        if eq s result 
-       then "Not Anti Right : \n" ^
+       then "Not Anti Right -> \n" ^
 	      "   " ^ (data_to_ascii (data t)) ^  "." ^ (data_to_ascii (data s)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
        else "INTERNAL ERROR\n"
 
@@ -135,7 +190,7 @@ let string_of_check_is_left eq bop data = function
        let result = bop a b in
        if eq a result 
        then "INTERNAL ERROR\n"
-       else "Not Is Left : \n" ^
+       else "Not Is Left -> \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
 
 let string_of_check_is_right eq bop data = function 
@@ -144,7 +199,7 @@ let string_of_check_is_right eq bop data = function
        let result = bop a b in
        if eq b result 
        then "INTERNAL ERROR\n"
-       else "Not Is Right : \n" ^
+       else "Not Is Right -> \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
 															   
 
@@ -157,7 +212,7 @@ let string_of_check_left_cancellative eq bop data = function
        if eq b c 
        then "INTERNAL ERROR\n"
        else if eq ab ac
-            then "Not Left Cancellative : \n" ^
+            then "Not Left Cancellative -> \n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data ab)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data c)) ^ " = " ^ (data_to_ascii (data ac)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data b)) ^ " <> " ^ (data_to_ascii (data c)) ^ "\n" 	       
@@ -172,7 +227,7 @@ let string_of_check_right_cancellative eq bop data = function
        if eq b c 
        then "INTERNAL ERROR\n"
        else if eq ba ca
-            then "Not Right Cancellative : \n" ^
+            then "Not Right Cancellative -> \n" ^
 		   "   " ^ (data_to_ascii (data b)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ba)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data c)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ca)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data b)) ^ " <> " ^ (data_to_ascii (data c)) ^ "\n" 	       
@@ -186,7 +241,7 @@ let string_of_check_left_constant eq bop data = function
        let ac = bop a c in       
        if eq ab ac 
        then "INTERNAL ERROR\n"
-       else "Not Left Constant : \n" ^
+       else "Not Left Constant -> \n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data ab)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data c)) ^ " = " ^ (data_to_ascii (data ac)) ^ "\n"
 
@@ -199,7 +254,7 @@ let string_of_check_right_constant eq bop data = function
        let ca = bop c a in       
        if eq ba ca 
        then "INTERNAL ERROR\n"
-       else "Not Right Constant : \n" ^
+       else "Not Right Constant -> \n" ^
 		   "   " ^ (data_to_ascii (data b)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ba)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data c)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ca)) ^ "\n"
 
@@ -215,11 +270,11 @@ let string_of_check_left_distributive eq plus times data = function
        let rhs = plus  times_a_b  times_a_c in
        if eq lhs rhs
        then "INTERNAL ERROR\n"
-       else "Not Left Distributive : \n" ^
+       else "Not Left Distributive -> \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
 	      "   c = " ^ (data_to_ascii (data c)) ^ "\n" ^				  
-	      "   lhs = a*(b + c) <> a*b + a*c = rhs : \n" ^
+	      "   lhs = a*(b + c) <> a*b + a*c = rhs -> \n" ^
 	      "   b + c = " ^ (data_to_ascii (data plus_b_c)) ^ "\n" ^
 	      "   a*b = " ^ (data_to_ascii (data times_a_b)) ^ "\n" ^
 	      "   a*c = " ^ (data_to_ascii (data times_a_c)) ^ "\n" ^
@@ -237,11 +292,11 @@ let string_of_check_right_distributive eq plus times data = function
        let rhs = plus  times_b_a  times_c_a in
        if eq lhs rhs
        then "INTERNAL ERROR\n"
-       else "Not Right Distributive : \n" ^
+       else "Not Right Distributive -> \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
 	      "   c = " ^ (data_to_ascii (data c)) ^ "\n" ^				  
-	      "   lhs = (b + c)*a <> b*a + c*a = rhs : \n" ^
+	      "   lhs = (b + c)*a <> b*a + c*a = rhs -> \n" ^
 	      "   b + c = " ^ (data_to_ascii (data plus_b_c)) ^ "\n" ^
 	      "   b*a = " ^ (data_to_ascii (data times_b_a)) ^ "\n" ^
 	      "   c*a = " ^ (data_to_ascii (data times_c_a)) ^ "\n" ^
@@ -257,10 +312,10 @@ let string_of_check_left_left_absorptive eq plus times data = function
        let rhs = plus a times_a_b in
        if eq a rhs
        then "INTERNAL ERROR\n"
-       else "Not Left left Absorptive : \n" ^
+       else "Not Left left Absorptive -> \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
-	      "   a <> a + a*b = rhs : \n" ^
+	      "   a <> a + a*b = rhs -> \n" ^
 	      "   a*b = " ^ (data_to_ascii (data times_a_b)) ^ "\n" ^
 	      "   rhs = " ^ (data_to_ascii (data rhs)) ^ "\n" 
 
@@ -272,10 +327,10 @@ let string_of_check_left_right_absorptive eq plus times data = function
        let rhs = plus a times_b_a in
        if eq a rhs
        then "INTERNAL ERROR\n"
-       else "Not Left Right Absorptive : \n" ^
+       else "Not Left Right Absorptive -> \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
-	      "   a <> a + b*a = rhs : \n" ^
+	      "   a <> a + b*a = rhs -> \n" ^
 	      "   b*a = " ^ (data_to_ascii (data times_b_a)) ^ "\n" ^
 	      "   rhs = " ^ (data_to_ascii (data rhs)) ^ "\n" 
 
@@ -288,10 +343,10 @@ let string_of_check_right_left_absorptive eq plus times data = function
        let rhs = plus times_a_b a in
        if eq a rhs
        then "INTERNAL ERROR\n"
-       else "Not Right left Absorptive : \n" ^
+       else "Not Right left Absorptive -> \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
-	      "   a <> a*b + a = rhs : \n" ^
+	      "   a <> a*b + a = rhs -> \n" ^
 	      "   a*b = " ^ (data_to_ascii (data times_a_b)) ^ "\n" ^
 	      "   rhs = " ^ (data_to_ascii (data rhs)) ^ "\n" 
        
@@ -304,19 +359,19 @@ let string_of_check_right_right_absorptive eq plus times data = function
        let rhs = plus times_b_a a in
        if eq a rhs
        then "INTERNAL ERROR\n"
-       else "Not Right left Absorptive : \n" ^
+       else "Not Right left Absorptive -> \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
-	      "   a <> b*a + a = rhs : \n" ^
+	      "   a <> b*a + a = rhs -> \n" ^
 	      "   b*a = " ^ (data_to_ascii (data times_b_a)) ^ "\n" ^
 	      "   rhs = " ^ (data_to_ascii (data rhs)) ^ "\n" 
        
 let string_of_check_plus_id_is_times_ann = function 
-    | Certify_Plus_Id_Equals_Times_Ann -> "plus id = times annihilator\n"
+    | Certify_Plus_Id_Equals_Times_Ann _ -> "plus id = times annihilator\n"
     | Certify_Not_Plus_Id_Equals_Times_Ann -> "plus id <> times annihilator\n"
 
 let string_of_check_times_id_is_plus_ann = function 
-    | Certify_Times_Id_Equals_Plus_Ann -> "times id = plus annihilator\n"
+    | Certify_Times_Id_Equals_Plus_Ann _ -> "times id = plus annihilator\n"
     | Certify_Not_Times_Id_Equals_Plus_Ann -> "times id <> plus annihilator\n"
 
 
@@ -324,54 +379,70 @@ let string_of_check_times_id_is_plus_ann = function
 (*******************************************************)
 
 
-let eqv_describe eqv = (print_string "Carrier type :\n";  print_string (nl (ast_eqv_to_ascii eqv)))
-let bop_describe bop = (print_string "Binary operation :\n";  print_string (nl (ast_bop_to_ascii bop)))			 			 
-let plus_describe bop = (print_string "\nAdditive operation :\n";
+let bop_describe bop = (print_string "Binary operation ->\n";  print_string (nl (ast_bop_to_ascii bop)))			 			 
+let plus_describe bop = (print_string "\nAdditive operation ->\n";
 			 print_string   "--------------------\n";
 			 print_string (nl (ast_bop_to_ascii bop)))			 
-let times_describe bop = (print_string "\nMultiplicative operation :\n";
+let times_describe bop = (print_string "\nMultiplicative operation ->\n";
 			  print_string   "--------------------------\n";
 			  print_string (nl (ast_bop_to_ascii bop)))
 
-let asg_certs_describe eq b data certs = 
-     (
-       print_string "Commutative\n" ; 
-       print_string (string_of_check_idempotent eq b data (asg_idempotent_d certs)) ; 
-       print_string (string_of_check_selective eq b data (asg_selective_d certs)) ;
-       print_string (string_of_check_exists_id eq b data (asg_exists_id_d certs)) ; 
-       print_string (string_of_check_exists_ann eq b data (asg_exists_ann_d certs)) ; 
-      )
 
-let msg_certs_describe eq b data certs = 
-      (
-       print_string (string_of_check_commutative eq b data (msg_commutative_d certs)) ; 
-       print_string (string_of_check_exists_id eq b data (msg_exists_id_d certs)) ; 
-       print_string (string_of_check_exists_ann eq b data (msg_exists_ann_d certs)) ; 
-      )
-	
+let eqv_describe eqv =
+  (
+     print_string "Carrier type: ";  print_string (nl (ast_type_to_ascii (eqv_type_ast (eqv_certs eqv))));
+     print_string "Equality: ";      print_string (nl (ast_brel_to_ascii (eqv_brel_ast (eqv_certs eqv))));     
+  )
 			   
-let sg_certs_describe eq b data certs = 
-      (
+let sg_certs_describe eq b data sg =
+  let certs = sg_certs sg in 
+  (
+       bop_describe (sg_bop_ast certs); 			    
        print_string (string_of_check_idempotent eq b data (sg_idempotent_d certs)) ; 
        print_string (string_of_check_commutative eq b data (sg_commutative_d certs)) ; 
        print_string (string_of_check_selective eq b data (sg_selective_d certs)) ;
-       print_string (string_of_check_exists_id eq b data (sg_exists_id_d certs)) ; 
-       print_string (string_of_check_exists_ann eq b data (sg_exists_ann_d certs)) ; 
+       print_string (string_of_check_exists_id data (sg_exists_id_d sg)) ; 
+       print_string (string_of_check_exists_ann data (sg_exists_ann_d sg)) ; 
       )
+			   
 
-let sg_describe sg =
-  (eqv_describe (eqv_ast (sg_eq sg)); 
-   bop_describe (sg_bop_ast sg); 			    
-   sg_certs_describe (eqv_eq (sg_eq sg)) (sg_bop sg) (eqv_data (sg_eq sg)) (sg_certs sg))
+let asg_certs_describe eq b data sg certs =
+     (
+       print_string "Commutative\n" ; 
+       print_string (string_of_check_idempotent eq b data (asg_idempotent_d certs)) ;
+       print_string (string_of_check_selective eq b data (asg_selective_d certs)) ;       
+(*       
+       print_string (string_of_check_exists_ann data (asg_exists_ann_d sg)) ; 
+       print_string (string_of_check_exists_id data (asg_exists_id_d sg)) ; 
+ *) 
 
+      )
+			   
 
-let asg_certs_describe_fully = asg_certs_describe    
-
-let msg_certs_describe_fully eq b data certs = 
+let msg_certs_describe eq b data certs = () 	
+(*
+let msg_certs_describe eq b data certs = 
       (
        print_string (string_of_check_commutative eq b data (msg_commutative_d certs)) ; 
-       print_string (string_of_check_exists_id eq b data (msg_exists_id_d certs)) ; 
-       print_string (string_of_check_exists_ann eq b data (msg_exists_ann_d certs)) ; 
+       print_string (string_of_check_exists_id data (msg_exists_id_d certs)) ; 
+       print_string (string_of_check_exists_ann data (msg_exists_ann_d certs)) ; 
+      )
+ *)	
+	
+
+let sg_describe sg =
+  ((eqv_describe (sg_eq sg)); 
+   sg_certs_describe (eqv_eq (sg_eq sg)) (sg_bop sg) (eqv_data (sg_eq sg)) sg)
+
+
+let asg_certs_describe_fully = asg_certs_describe   
+
+let msg_certs_describe_fully eq b data certs =  ()
+(*						  
+      (
+       print_string (string_of_check_commutative eq b data (msg_commutative_d certs)) ; 
+       print_string (string_of_check_exists_id data (msg_exists_id_d certs)) ; 
+       print_string (string_of_check_exists_ann data (msg_exists_ann_d certs)) ; 
        print_string (string_of_check_left_cancellative eq b data (msg_left_cancel_d certs)) ; 
        print_string (string_of_check_right_cancellative eq b data (msg_right_cancel_d certs)) ; 
        print_string (string_of_check_left_constant eq b data (msg_left_constant_d certs)) ; 
@@ -381,15 +452,17 @@ let msg_certs_describe_fully eq b data certs =
        print_string (string_of_check_is_left eq b data (msg_is_left_d certs)) ;  
        print_string (string_of_check_is_right eq b data (msg_is_right_d certs))
       )
-    
+ *)    
 			   
-let sg_certs_describe_fully eq b data certs = 
-      (
+let sg_certs_describe_fully eq b data sg =
+  let certs = sg_certs sg in   
+  (
+       bop_describe (sg_bop_ast certs); 			        
        print_string (string_of_check_idempotent eq b data (sg_idempotent_d certs)) ; 
        print_string (string_of_check_commutative eq b data (sg_commutative_d certs)) ; 
        print_string (string_of_check_selective eq b data (sg_selective_d certs)) ;
-       print_string (string_of_check_exists_id eq b data (sg_exists_id_d certs)) ; 
-       print_string (string_of_check_exists_ann eq b data (sg_exists_ann_d certs)) ; 
+       print_string (string_of_check_exists_id data (sg_exists_id_d sg)) ; 
+       print_string (string_of_check_exists_ann data (sg_exists_ann_d sg)) ; 
        print_string (string_of_check_left_cancellative eq b data (sg_left_cancel_d certs)) ; 
        print_string (string_of_check_right_cancellative eq b data (sg_right_cancel_d certs)) ; 
        print_string (string_of_check_left_constant eq b data (sg_left_constant_d certs)) ; 
@@ -401,9 +474,8 @@ let sg_certs_describe_fully eq b data certs =
       )
 
 let sg_describe_fully sg =
-  (eqv_describe (eqv_ast (sg_eq sg)); 
-   bop_describe (sg_bop_ast sg); 			    
-   sg_certs_describe_fully (eqv_eq (sg_eq sg)) (sg_bop sg) (eqv_data (sg_eq sg)) (sg_certs sg))
+  ((eqv_describe (sg_eq sg)); 
+   sg_certs_describe_fully (eqv_eq (sg_eq sg)) (sg_bop sg) (eqv_data (sg_eq sg)) sg)
 
 (*    
 let sg_C_describe sg  = sg_describe (sg_from_sg_C sg)
@@ -414,12 +486,14 @@ let sg_CK_describe sg = sg_describe (sg_from_sg_CK sg)
 
 
 let bs_certs_describe eq plus times data certs = 
-  (print_string "\nInteraction of Additive and Multiplicative operations: \n";
+  (print_string "\nInteraction of Additive and Multiplicative operations-> \n";
    print_string   "-------------------------------------------------------\n"; 
    print_string (string_of_check_left_distributive eq plus times data (bs_left_distributive_d certs) ); 
-   print_string (string_of_check_right_distributive eq plus times data (bs_right_distributive_d certs) ); 
+   print_string (string_of_check_right_distributive eq plus times data (bs_right_distributive_d certs) );
+(*   
    print_string (string_of_check_plus_id_is_times_ann (bs_plus_id_is_times_ann_d certs) ); 
    print_string (string_of_check_times_id_is_plus_ann (bs_times_id_is_plus_ann_d certs)) ; 
+ *)
   )
 
 let bs_describe bs =
@@ -432,44 +506,63 @@ let bs_describe bs =
     let times       = bs_times bs          in
     let ast         = bs_ast bs            in             
     (
-       eqv_describe (eqv_ast (bs_eqv bs)); 
+
+      eqv_describe (bs_eqv bs);
+(*            
        plus_describe (bs_plus_ast bs); 
-       asg_certs_describe eq plus data plus_certs;
+ *) 
+      asg_certs_describe eq plus data plus_certs;
+(*      
        times_describe (bs_times_ast bs);        
+*)
        msg_certs_describe eq times data times_certs; 
        bs_certs_describe eq plus times data certs
       )
     
 
 let bs_certs_describe_fully eq plus times data certs = 
-     (print_string "\nInteraction of Additive and Multiplicative operations: \n";
+     (print_string "\nInteraction of Additive and Multiplicative operations-> \n";
       print_string   "-------------------------------------------------------\n";    
        print_string (string_of_check_left_distributive eq plus times data (bs_left_distributive_d certs) ); 
-       print_string (string_of_check_right_distributive eq plus times data (bs_right_distributive_d certs) ); 
-       print_string (string_of_check_plus_id_is_times_ann (bs_plus_id_is_times_ann_d certs) ); 
-       print_string (string_of_check_times_id_is_plus_ann (bs_times_id_is_plus_ann_d certs)) ; 
+       print_string (string_of_check_right_distributive eq plus times data (bs_right_distributive_d certs) );
        print_string (string_of_check_left_left_absorptive eq plus times data (bs_left_left_absorptive_d certs) ); 
        print_string (string_of_check_left_right_absorptive eq plus times data (bs_left_right_absorptive_d certs) ); 
        print_string (string_of_check_right_left_absorptive eq plus times data (bs_right_left_absorptive_d certs) ); 
        print_string (string_of_check_right_right_absorptive eq plus times data (bs_right_right_absorptive_d certs) )
       )
 
+
+let id_ann_certs_describe_fully data certs = 
+     (print_string "\nIdentiy and Annhilator-> \n";
+      print_string   "------------------------\n";
+       print_string (string_of_check_exists_id data (id_ann_exists_plus_id_d certs)) ; 
+       print_string (string_of_check_exists_ann data (id_ann_exists_plus_ann_d certs)) ; 
+       print_string (string_of_check_exists_id data (id_ann_exists_times_id_d certs)) ; 
+       print_string (string_of_check_exists_ann data (id_ann_exists_times_ann_d certs)) ;       
+       print_string (string_of_check_plus_id_is_times_ann (id_ann_plus_id_is_times_ann_d certs) ); 
+       print_string (string_of_check_times_id_is_plus_ann (id_ann_times_id_is_plus_ann_d certs)) ; 
+      )
+
+
+       
 let bs_describe_fully bs =
     let eq          = eqv_eq (bs_eqv bs)   in   
     let data        = eqv_data (bs_eqv bs) in 
     let plus_certs  = bs_plus_certs bs     in 
-    let times_certs = bs_times_certs bs    in 
+    let times_certs = bs_times_certs bs    in
+    let id_ann_certs = bs_id_ann_certs bs    in     
     let certs       = bs_certs bs          in
     let plus        = bs_plus bs           in
     let times       = bs_times bs          in
     let ast         = bs_ast bs            in             
     (
-       eqv_describe (eqv_ast (bs_eqv bs)); 
-       plus_describe (bs_plus_ast bs); 
-       asg_certs_describe_fully eq plus data plus_certs;
-       times_describe (bs_times_ast bs);        
-       msg_certs_describe_fully eq times data times_certs; 
-       bs_certs_describe_fully eq plus times data certs
+      eqv_describe (bs_eqv bs);
+      plus_describe (asg_bop_ast plus_certs); 
+      asg_certs_describe_fully eq plus data plus_certs ;
+      times_describe (msg_bop_ast times_certs); 
+      msg_certs_describe_fully eq times data times_certs;
+      id_ann_certs_describe_fully data ;
+      bs_certs_describe_fully eq plus times data certs
       )
 
 					     

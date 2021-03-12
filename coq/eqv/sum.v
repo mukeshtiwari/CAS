@@ -226,7 +226,14 @@ Definition eqv_proofs_sum :
                         (A_eqv_transitive T rT eqvT) 
 ; A_eqv_symmetric   := brel_sum_symmetric S T rS rT  
                         (A_eqv_symmetric S rS eqvS) 
-                        (A_eqv_symmetric T rT eqvT) 
+                        (A_eqv_symmetric T rT eqvT)
+; A_eqv_type_ast    := Ast_type_sum
+                        (A_eqv_type_ast S rS eqvS, 
+                         A_eqv_type_ast T rT eqvT)                                                 
+; A_eqv_brel_ast    := Ast_brel_eq_sum
+                        (A_eqv_brel_ast S rS eqvS, 
+                         A_eqv_brel_ast T rT eqvT)
+                        
 |}.
 
 
@@ -277,6 +284,15 @@ Definition eqv_sum : ∀ {S T : Type},  @eqv S -> @eqv T -> @eqv (S + T)
   let r := brel_sum (eqv_eq eqvS) (eqv_eq eqvT) in 
    {| 
       eqv_eq      := r
+    ; eqv_certs         := 
+     {|
+       eqv_congruence     := @Assert_Brel_Congruence (S + T)
+     ; eqv_reflexive      := @Assert_Reflexive (S + T)
+     ; eqv_transitive     := @Assert_Transitive (S + T) 
+     ; eqv_symmetric      := @Assert_Symmetric (S + T)
+     ; eqv_type_ast       := Ast_type_sum (eqv_type_ast (eqv_certs eqvS), eqv_type_ast (eqv_certs eqvT))
+     ; eqv_brel_ast       := Ast_brel_eq_sum (eqv_brel_ast (eqv_certs eqvS), eqv_brel_ast (eqv_certs eqvT))                         
+     |}  
     ; eqv_witness := inl s 
     ; eqv_new     := λ (d : S + T), match d with | inl _ => inr t | inr _ => inl s end
     ; eqv_exactly_two_d := Certify_Not_Exactly_Two (not_ex2 r (inl s) (inl (f s)) (inr t))

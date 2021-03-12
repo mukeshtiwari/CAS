@@ -7,6 +7,7 @@ End Theory.
 
 Section ACAS.
 
+
 Definition A_bs_CS_option_from_bs : ∀ (S : Type),  A_bs S -> option (A_bs_CS S) 
 := λ S s, 
    match A_sg_CS_proofs_option_from_asg_proofs _ _ _ (A_bs_plus_proofs S s) with 
@@ -18,9 +19,8 @@ Definition A_bs_CS_option_from_bs : ∀ (S : Type),  A_bs S -> option (A_bs_CS S
        ; A_bs_CS_times        := A_bs_times S s
        ; A_bs_CS_plus_proofs  := sg_CS_p
        ; A_bs_CS_times_proofs := A_bs_times_proofs S s
+       ; A_bs_CS_id_ann_proofs := A_bs_id_ann_proofs S s 
        ; A_bs_CS_proofs       := A_bs_proofs S s
-       ; A_bs_CS_plus_ast     := A_bs_plus_ast S s
-       ; A_bs_CS_times_ast    := A_bs_times_ast S s                                                                                              
        ; A_bs_CS_ast          := Ast_bs_CS_from_bs (A_bs_ast S s)
     |})
    end. 
@@ -42,9 +42,8 @@ Definition bs_CS_option_from_bs : ∀ {S : Type},  @bs S -> option (@bs_CS S)
        ; bs_CS_times        := bs_times s
        ; bs_CS_plus_certs  := sg_CS_p
        ; bs_CS_times_certs := bs_times_certs s
+       ; bs_CS_id_ann_certs := bs_id_ann_certs s                                                
        ; bs_CS_certs       := bs_certs s
-       ; bs_CS_plus_ast    := bs_plus_ast s
-       ; bs_CS_times_ast   := bs_times_ast s                                                  
        ; bs_CS_ast         := Ast_bs_CS_from_bs (bs_ast s)
     |})
    end. 
@@ -54,5 +53,4 @@ End CAS.
 
 Section Verify.
  
-End Verify.   
-  
+End Verify.     

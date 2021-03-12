@@ -1872,8 +1872,6 @@ let asso_b := A_msg_associative S eq b bP in
   A_msg_associative      :=  bop_lift_associative S eq b refS trnS symS cong_b asso_b 
 ; A_msg_congruence       :=  bop_lift_congruence S eq b refS trnS symS cong_b  
 ; A_msg_commutative_d    :=  bop_lift_commutative_decide S eq b refS symS trnS cong_b (A_msg_commutative_d S eq b bP)
-; A_msg_exists_id_d      :=  bop_lift_exists_id_decide S eq wS b refS symS trnS cong_b (A_msg_exists_id_d S eq b bP)
-; A_msg_exists_ann_d     :=  inl (bop_lift_exists_ann S eq b)
 ; A_msg_is_left_d        :=  inr (bop_lift_not_is_left S eq b wS)
 ; A_msg_is_right_d       :=  inr (bop_lift_not_is_right S eq b wS)
 ; A_msg_left_cancel_d    :=  inr (bop_lift_not_left_cancellative S eq b wS f nt) 
@@ -1882,9 +1880,8 @@ let asso_b := A_msg_associative S eq b bP in
 ; A_msg_right_constant_d :=  inr (bop_lift_not_right_constant S eq b wS)
 ; A_msg_anti_left_d      :=  inr (bop_lift_not_anti_left S eq b)
 ; A_msg_anti_right_d     :=  inr (bop_lift_not_anti_right S eq b)
+; A_msg_bop_ast          :=  Ast_bop_lift (A_msg_bop_ast S eq b bP)                                                                
 |}. 
-
-
 
 Definition sg_lift_proofs (S: Type)
            (eq : brel S)
@@ -1911,8 +1908,6 @@ let asso_b := A_sg_associative S eq b bP in
                                                       (A_sg_idempotent_d S eq b bP)
                                                       ex2_d 
 ; A_sg_idempotent_d     :=  bop_lift_idempotent_decide S eq b refS symS trnS cong_b (A_sg_selective_d S eq b bP)
-; A_sg_exists_id_d      :=  bop_lift_exists_id_decide S eq wS b refS symS trnS cong_b (A_sg_exists_id_d S eq b bP)
-; A_sg_exists_ann_d     :=  inl (bop_lift_exists_ann S eq b)
 ; A_sg_is_left_d        :=  inr (bop_lift_not_is_left S eq b wS)
 ; A_sg_is_right_d       :=  inr (bop_lift_not_is_right S eq b wS)
 ; A_sg_left_cancel_d    :=  inr (bop_lift_not_left_cancellative S eq b wS f nt) 
@@ -1921,26 +1916,32 @@ let asso_b := A_sg_associative S eq b bP in
 ; A_sg_right_constant_d :=  inr (bop_lift_not_right_constant S eq b wS)
 ; A_sg_anti_left_d      :=  inr (bop_lift_not_anti_left S eq b)
 ; A_sg_anti_right_d     :=  inr (bop_lift_not_anti_right S eq b)
+; A_sg_bop_ast          := Ast_bop_lift (A_sg_bop_ast S eq b bP)                                                                   
 |}. 
 
 End ACAS_Proofs. 
 
 Definition A_sg_lift : ∀ (S : Type),  A_sg S -> A_sg (finite_set S)
 := λ S sgS,
-  let eqv := A_sg_eq S sgS in
-  let eq := A_eqv_eq S eqv in
-  let bS := A_sg_bop S sgS in 
+  let eqv  := A_sg_eq S sgS in
+  let eqvP := A_eqv_proofs S eqv in
+  let refS := A_eqv_reflexive _ _ eqvP in
+  let symS := A_eqv_symmetric _ _ eqvP in
+  let trnS := A_eqv_transitive _ _ eqvP in
+  let cngb := A_sg_congruence _ _ _  (A_sg_proofs S sgS) in       
+  let eq   := A_eqv_eq S eqv in
+  let bS   := A_sg_bop S sgS in
+  let wS   := A_eqv_witness S eqv in
    {| 
-     A_sg_eq        := A_eqv_set S eqv
-   ; A_sg_bop       := bop_lift eq bS 
-   ; A_sg_proofs    := sg_lift_proofs S eq bS
-                                      (A_eqv_proofs S eqv)
-                                      (A_eqv_witness S eqv)
+     A_sg_eq           := A_eqv_set S eqv
+   ; A_sg_bop          := bop_lift eq bS 
+   ; A_sg_exists_id_d  :=  bop_lift_exists_id_decide S eq wS bS refS symS trnS cngb (A_sg_exists_id_d S sgS)
+   ; A_sg_exists_ann_d :=  inl (bop_lift_exists_ann S eq bS)
+   ; A_sg_proofs       := sg_lift_proofs S eq bS eqvP wS 
                                       (A_eqv_new S eqv)
                                       (A_eqv_not_trivial S eqv)
                                       (A_eqv_exactly_two_d S eqv)
-                                      (A_sg_proofs S sgS) 
-   ; A_sg_bop_ast   := Ast_bop_lift (A_sg_bop_ast S sgS)                                   
+                                      (A_sg_proofs S sgS)    
    ; A_sg_ast       := Ast_sg_lift (A_sg_ast S sgS)
    |}.
 
@@ -2005,8 +2006,6 @@ Definition msg_lift_certs (S: Type)
   msg_associative      :=  Assert_Associative  
 ; msg_congruence       :=  Assert_Bop_Congruence  
 ; msg_commutative_d    :=  bop_lift_commutative_check (msg_commutative_d bP)
-; msg_exists_id_d      :=  bop_lift_exists_id_check (msg_exists_id_d bP)  
-; msg_exists_ann_d     :=  Certify_Exists_Ann nil 
 ; msg_is_left_d        :=  Certify_Not_Is_Left (wS :: nil, nil) 
 ; msg_is_right_d       :=  Certify_Not_Is_Right (nil, wS :: nil) 
 ; msg_left_cancel_d    :=  Certify_Not_Left_Cancellative (nil, (wS :: nil, (f wS) :: nil))
@@ -2014,7 +2013,8 @@ Definition msg_lift_certs (S: Type)
 ; msg_left_constant_d  :=  Certify_Not_Left_Constant (wS :: nil, (wS ::nil, nil)) 
 ; msg_right_constant_d :=  Certify_Not_Right_Constant (wS :: nil, (wS ::nil, nil)) 
 ; msg_anti_left_d      :=  Certify_Not_Anti_Left (nil, nil) 
-; msg_anti_right_d     :=  Certify_Not_Anti_Right (nil, nil) 
+; msg_anti_right_d     :=  Certify_Not_Anti_Right (nil, nil)
+; msg_bop_ast          := Ast_bop_lift (msg_bop_ast bP)                                                                                                                    
 |}. 
 
 
@@ -2035,8 +2035,6 @@ Definition sg_lift_certs (S: Type)
                                                    (sg_idempotent_d bP)
                                                    ex2_d 
 ; sg_idempotent_d     :=  bop_lift_idempotent_check (sg_selective_d bP)
-; sg_exists_id_d      :=  bop_lift_exists_id_check (sg_exists_id_d bP)  
-; sg_exists_ann_d     :=  Certify_Exists_Ann nil 
 ; sg_is_left_d        :=  Certify_Not_Is_Left (wS :: nil, nil) 
 ; sg_is_right_d       :=  Certify_Not_Is_Right (nil, wS :: nil) 
 ; sg_left_cancel_d    :=  Certify_Not_Left_Cancellative (nil, (wS :: nil, (f wS) :: nil))
@@ -2044,7 +2042,8 @@ Definition sg_lift_certs (S: Type)
 ; sg_left_constant_d  :=  Certify_Not_Left_Constant (wS :: nil, (wS ::nil, nil)) 
 ; sg_right_constant_d :=  Certify_Not_Right_Constant (wS :: nil, (wS ::nil, nil)) 
 ; sg_anti_left_d      :=  Certify_Not_Anti_Left (nil, nil) 
-; sg_anti_right_d     :=  Certify_Not_Anti_Right (nil, nil) 
+; sg_anti_right_d     :=  Certify_Not_Anti_Right (nil, nil)
+; sg_bop_ast          := Ast_bop_lift (sg_bop_ast bP)                                                                      
 |}. 
 
 
@@ -2056,8 +2055,10 @@ Definition sg_lift : ∀ {S : Type},  @sg S -> @sg (finite_set S)
    {| 
      sg_eq        := eqv_set eqv
    ; sg_bop       := bop_lift eq bS 
+   ; sg_exists_id_d      :=  bop_lift_exists_id_check (sg_exists_id_d sgS)  
+   ; sg_exists_ann_d     :=  Certify_Exists_Ann nil 
    ; sg_certs     := sg_lift_certs S eq (eqv_witness eqv) (eqv_new eqv) (eqv_exactly_two_d eqv) bS (sg_certs sgS) 
-   ; sg_bop_ast   := Ast_bop_lift (sg_bop_ast sgS)                                                                      
+
    ; sg_ast       := Ast_sg_lift (sg_ast sgS)
    |}. 
 
@@ -2168,10 +2169,8 @@ Lemma correct_msg_lift_certs
   =  
   msg_lift_certs S eq wS f bS (P2C_msg S eq bS sgP).
 Proof. unfold msg_lift_proofs, msg_lift_certs, P2C_msg. simpl. 
-       rewrite correct_bop_lift_exists_id_check; auto. 
        rewrite correct_bop_lift_commutative_check; auto.
 Qed.   
-
 
 
 Lemma correct_sg_lift_certs 
@@ -2191,7 +2190,6 @@ Lemma correct_sg_lift_certs
   =  
   sg_lift_certs S eq wS f (p2c_exactly_two_check S eq ex2_d) bS (P2C_sg S eq bS sgP).
 Proof. unfold sg_lift_proofs, sg_lift_certs, P2C_sg. simpl. 
-       rewrite correct_bop_lift_exists_id_check; auto. 
        rewrite correct_bop_lift_idempotent_check; auto.
        rewrite correct_bop_lift_selective_check; auto. 
        rewrite correct_bop_lift_commutative_check; auto.
@@ -2205,6 +2203,7 @@ Proof. intros S sgS.
        unfold A2C_sg, sg_lift, A_sg_lift. simpl.
        rewrite correct_eqv_set.
        rewrite correct_sg_lift_certs.
+       rewrite correct_bop_lift_exists_id_check; 
        reflexivity. 
 Qed.
 

@@ -122,8 +122,6 @@ Definition A_msg_proofs_plus : msg_proofs nat brel_eq_nat bop_plus :=
   A_msg_associative        := bop_plus_associative
 ; A_msg_congruence         := bop_plus_congruence
 ; A_msg_commutative_d      := inl bop_plus_commutative
-; A_msg_exists_id_d        := inl bop_plus_exists_id
-; A_msg_exists_ann_d       := inr bop_plus_not_exists_ann
 ; A_msg_is_left_d          := inr bop_plus_not_is_left
 ; A_msg_is_right_d         := inr bop_plus_not_is_right
 ; A_msg_left_cancel_d      := inl bop_plus_left_cancellative
@@ -134,8 +132,8 @@ Definition A_msg_proofs_plus : msg_proofs nat brel_eq_nat bop_plus :=
 
 ; A_msg_anti_left_d        := inr bop_plus_not_anti_left
 ; A_msg_anti_right_d       := inr bop_plus_not_anti_right
+; A_msg_bop_ast            := Ast_bop_plus                                                                                                    
 |}. 
-
 
 
 Definition sg_CK_proofs_plus : sg_CK_proofs nat brel_eq_nat bop_plus := 
@@ -144,20 +142,21 @@ Definition sg_CK_proofs_plus : sg_CK_proofs nat brel_eq_nat bop_plus :=
 ; A_sg_CK_congruence         := bop_plus_congruence
 ; A_sg_CK_commutative        := bop_plus_commutative
 ; A_sg_CK_cancel             := bop_plus_left_cancellative 
-; A_sg_CK_exists_id_d        := inl _ bop_plus_exists_id 
 ; A_sg_CK_anti_left_d        := inr _ bop_plus_not_anti_left
 ; A_sg_CK_anti_right_d       := inr _ bop_plus_not_anti_right
+; A_sg_CK_bop_ast            := Ast_bop_plus                                                                  
 |}. 
 
 
 
 Definition A_sg_CK_plus : A_sg_CK nat 
 := {| 
-     A_sg_CK_eqv       := A_eqv_nat 
-   ; A_sg_CK_bop       := bop_plus
-   ; A_sg_CK_proofs    := sg_CK_proofs_plus
-   ; A_sg_CK_bop_ast   := Ast_bop_plus                              
-   ; A_sg_CK_ast       := Ast_sg_CK_plus 
+       A_sg_CK_eqv          := A_eqv_nat 
+     ; A_sg_CK_bop          := bop_plus
+     ; A_sg_CK_exists_id_d  := inl bop_plus_exists_id
+     ; A_sg_CK_proofs       := sg_CK_proofs_plus
+     
+     ; A_sg_CK_ast          := Ast_sg_CK_plus 
    |}. 
 
 
@@ -172,41 +171,38 @@ Definition msg_certs_plus : @msg_certificates nat :=
   msg_associative        := Assert_Associative 
 ; msg_congruence         := Assert_Bop_Congruence 
 ; msg_commutative_d      := Certify_Commutative 
-; msg_exists_id_d        := Certify_Exists_Id 0 
-; msg_exists_ann_d       := Certify_Not_Exists_Ann 
 ; msg_is_left_d          := Certify_Not_Is_Left (0, 1)
 ; msg_is_right_d         := Certify_Not_Is_Right (1, 0)
 ; msg_left_cancel_d      := Certify_Left_Cancellative
 ; msg_right_cancel_d     := Certify_Right_Cancellative
-
 ; msg_left_constant_d    := Certify_Not_Left_Constant (0, (0, 1))
 ; msg_right_constant_d   := Certify_Not_Right_Constant (0, (0, 1))
-
 ; msg_anti_left_d        := Certify_Not_Anti_Left (0, 0) 
 ; msg_anti_right_d       := Certify_Not_Anti_Right (0, 0) 
+; msg_bop_ast            := Ast_bop_plus
 |}. 
 
-  
 
 Definition sg_CK_certs_plus : @sg_CK_certificates nat 
 := {|
      sg_CK_associative    := Assert_Associative 
    ; sg_CK_congruence     := Assert_Bop_Congruence 
    ; sg_CK_commutative    := Assert_Commutative 
-   ; sg_CK_left_cancel    := Assert_Left_Cancellative 
-   ; sg_CK_exists_id_d    := Certify_Exists_Id 0 
    ; sg_CK_anti_left_d    := Certify_Not_Anti_Left (0, 0) 
-   ; sg_CK_anti_right_d   := Certify_Not_Anti_Right (0, 0) 
+   ; sg_CK_anti_right_d   := Certify_Not_Anti_Right (0, 0)
+   ; sg_CK_left_cancel    := Assert_Left_Cancellative
+   ; sg_CK_bop_ast        := Ast_bop_plus                                                                                   
    |}.
 
 
 Definition sg_CK_plus : sg_CK (S := nat) 
 := {| 
-     sg_CK_eqv   := eqv_eq_nat 
-   ; sg_CK_bop   := bop_plus
-   ; sg_CK_certs := sg_CK_certs_plus
-   ; sg_CK_bop_ast   := Ast_bop_plus                                                    
-   ; sg_CK_ast   := Ast_sg_CK_plus 
+     sg_CK_eqv         := eqv_eq_nat 
+   ; sg_CK_bop         := bop_plus
+   ; sg_CK_exists_id_d := Certify_Exists_Id 0 
+   ; sg_CK_certs       := sg_CK_certs_plus   
+   
+   ; sg_CK_ast         := Ast_sg_CK_plus 
    |}. 
 
 End CAS.
@@ -215,7 +211,6 @@ Section Verify.
 
 Theorem correct_msg_certs_plus : msg_certs_plus = P2C_msg nat brel_eq_nat bop_plus (A_msg_proofs_plus). 
 Proof. compute. reflexivity. Qed. 
-  
 
 Theorem correct_sg_CK_plus : sg_CK_plus = A2C_sg_CK nat (A_sg_CK_plus). 
 Proof. compute. reflexivity. Qed. 

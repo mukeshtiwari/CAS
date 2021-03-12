@@ -271,9 +271,10 @@ let refT := A_eqv_reflexive _ _ eqvT in
 ; A_asg_commutative   := bop_right_sum_commutative S T rS rT bS bT refT (A_asg_commutative _ _ _ sgS) (A_asg_commutative _ _ _ sgT) 
 ; A_asg_selective_d   := bop_right_sum_selective_decide S T rS rT bS bT refT (A_asg_selective_d _ _ _ sgS) (A_asg_selective_d _ _ _ sgT) 
 ; A_asg_idempotent_d  := bop_right_sum_idempotent_decide S T rS rT bS bT (A_asg_idempotent_d _ _ _ sgS) (A_asg_idempotent_d _ _ _ sgT) 
-; A_asg_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT  (A_asg_exists_id_d _ _ _ sgS) 
-; A_asg_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_asg_exists_ann_d _ _ _ sgT) 
-|}. 
+; A_asg_bop_ast          := Ast_bop_right_sum (A_asg_bop_ast S rS bS sgS, A_asg_bop_ast T rT bT sgT)
+|}.
+
+
 
 Definition msg_proofs_right_sum :
    ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
@@ -286,9 +287,6 @@ let refT := A_eqv_reflexive _ _ eqvT in
   A_msg_associative   := bop_right_sum_associative S T rS rT bS bT refT (A_msg_associative _ _ _ sgS) (A_msg_associative _ _ _ sgT) 
 ; A_msg_congruence    := bop_right_sum_congruence S T rS rT bS bT (A_msg_congruence _ _ _ sgS) (A_msg_congruence _ _ _ sgT) 
 ; A_msg_commutative_d := bop_right_sum_commutative_decide S T rS rT bS bT refT (A_msg_commutative_d _ _ _ sgS) (A_msg_commutative_d _ _ _ sgT) 
-
-; A_msg_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT  (A_msg_exists_id_d _ _ _ sgS) 
-; A_msg_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_msg_exists_ann_d _ _ _ sgT) 
  
 ; A_msg_is_left_d        := inr _ (bop_right_sum_not_is_left S T rS rT bS bT s t)
 ; A_msg_is_right_d       := inr _ (bop_right_sum_not_is_right S T rS rT bS bT s t) 
@@ -298,7 +296,7 @@ let refT := A_eqv_reflexive _ _ eqvT in
 ; A_msg_right_constant_d := inr _ (bop_right_sum_not_right_constant S T rS rT bS bT s t g Pg)
 ; A_msg_anti_left_d      := inr _ (bop_right_sum_not_anti_left S T rS rT bS bT s t refT)
 ; A_msg_anti_right_d     := inr _ (bop_right_sum_not_anti_right S T rS rT bS bT s t refT)
-|}. 
+; A_msg_bop_ast          := Ast_bop_right_sum (A_msg_bop_ast S rS bS sgS, A_msg_bop_ast T rT bT sgT)|}. 
 
 
 Definition sg_proofs_right_sum :
@@ -313,11 +311,7 @@ let refT := A_eqv_reflexive _ _ eqvT in
 ; A_sg_congruence    := bop_right_sum_congruence S T rS rT bS bT (A_sg_congruence _ _ _ sgS) (A_sg_congruence _ _ _ sgT) 
 ; A_sg_commutative_d := bop_right_sum_commutative_decide S T rS rT bS bT refT (A_sg_commutative_d _ _ _ sgS) (A_sg_commutative_d _ _ _ sgT) 
 ; A_sg_selective_d   := bop_right_sum_selective_decide S T rS rT bS bT refT (A_sg_selective_d _ _ _ sgS) (A_sg_selective_d _ _ _ sgT) 
-
 ; A_sg_idempotent_d  := bop_right_sum_idempotent_decide S T rS rT bS bT (A_sg_idempotent_d _ _ _ sgS) (A_sg_idempotent_d _ _ _ sgT) 
-; A_sg_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT  (A_sg_exists_id_d _ _ _ sgS) 
-; A_sg_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_sg_exists_ann_d _ _ _ sgT) 
- 
 ; A_sg_is_left_d        := inr _ (bop_right_sum_not_is_left S T rS rT bS bT s t)
 ; A_sg_is_right_d       := inr _ (bop_right_sum_not_is_right S T rS rT bS bT s t) 
 ; A_sg_left_cancel_d    := inr _ (bop_right_sum_not_left_cancellative S T rS rT bS bT s f Pf t refT)
@@ -326,6 +320,7 @@ let refT := A_eqv_reflexive _ _ eqvT in
 ; A_sg_right_constant_d := inr _ (bop_right_sum_not_right_constant S T rS rT bS bT s t g Pg)
 ; A_sg_anti_left_d      := inr _ (bop_right_sum_not_anti_left S T rS rT bS bT s t refT)
 ; A_sg_anti_right_d     := inr _ (bop_right_sum_not_anti_right S T rS rT bS bT s t refT)
+; A_sg_bop_ast          := Ast_bop_right_sum (A_sg_bop_ast S rS bS sgS, A_sg_bop_ast T rT bT sgT)
 |}. 
 
 Definition sg_C_proofs_right_sum :
@@ -345,21 +340,17 @@ let selS := A_sg_C_selective_d _ _ _ sgS in
 let selT := A_sg_C_selective_d _ _ _ sgT in
 let idmS := A_sg_C_idempotent_d _ _ _ sgS in
 let idmT := A_sg_C_idempotent_d _ _ _ sgT in
-let idS  := A_sg_C_exists_id_d _ _ _ sgS in
-let annT := A_sg_C_exists_ann_d _ _ _ sgT in 
 {|
   A_sg_C_associative   := bop_right_sum_associative S T rS rT bS bT refT assS assT 
 ; A_sg_C_congruence    := bop_right_sum_congruence S T rS rT bS bT conS conT
 ; A_sg_C_commutative   := bop_right_sum_commutative S T rS rT bS bT refT comS comT 
 ; A_sg_C_selective_d   := bop_right_sum_selective_decide S T rS rT bS bT refT selS selT
 ; A_sg_C_idempotent_d  := bop_right_sum_idempotent_decide S T rS rT bS bT idmS idmT 
-; A_sg_C_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT idS  
-; A_sg_C_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT annT 
-
 ; A_sg_C_cancel_d      := inr _ (bop_right_sum_not_left_cancellative S T rS rT bS bT s f Pf t refT)
 ; A_sg_C_constant_d    := inr _ (bop_right_sum_not_left_constant S T rS rT bS bT s t g Pg)
 ; A_sg_C_anti_left_d   := inr _ (bop_right_sum_not_anti_left S T rS rT bS bT s t refT)
 ; A_sg_C_anti_right_d  := inr _ (bop_right_sum_not_anti_right S T rS rT bS bT s t refT)
+; A_sg_C_bop_ast       := Ast_bop_right_sum (A_sg_C_bop_ast S rS bS sgS, A_sg_C_bop_ast T rT bT sgT)
 |}. 
 
 
@@ -375,9 +366,7 @@ let refT := A_eqv_reflexive _ _ eqvT in
 ; A_sg_CI_commutative := bop_right_sum_commutative S T rS rT bS bT refT (A_sg_CI_commutative _ _ _ sgS) (A_sg_CI_commutative _ _ _ sgT) 
 ; A_sg_CI_selective_d := bop_right_sum_selective_decide S T rS rT bS bT refT (A_sg_CI_selective_d _ _ _ sgS) (A_sg_CI_selective_d _ _ _ sgT) 
 ; A_sg_CI_idempotent  := bop_right_sum_idempotent S T rS rT bS bT  (A_sg_CI_idempotent _ _ _ sgS) (A_sg_CI_idempotent _ _ _ sgT) 
-                          
-; A_sg_CI_exists_id_d := bop_right_sum_exists_id_decide S T rS rT bS bT s refT (A_sg_CI_exists_id_d _ _ _ sgS) 
-; A_sg_CI_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_sg_CI_exists_ann_d _ _ _ sgT) 
+; A_sg_CI_bop_ast     := Ast_bop_right_sum (A_sg_CI_bop_ast S rS bS sgS, A_sg_CI_bop_ast T rT bT sgT)
 |}. 
 
 Definition sg_CS_proofs_right_sum : 
@@ -391,9 +380,7 @@ let refT := A_eqv_reflexive _ _ eqvT in
 ; A_sg_CS_congruence    := bop_right_sum_congruence S T rS rT bS bT (A_sg_CS_congruence _ _ _ sgS) (A_sg_CS_congruence _ _ _ sgT) 
 ; A_sg_CS_commutative   := bop_right_sum_commutative S T rS rT bS bT refT (A_sg_CS_commutative _ _ _ sgS) (A_sg_CS_commutative _ _ _ sgT) 
 ; A_sg_CS_selective     := bop_right_sum_selective S T rS rT bS bT refT (A_sg_CS_selective _ _ _ sgS) (A_sg_CS_selective _ _ _ sgT) 
-
-; A_sg_CS_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT (A_sg_CS_exists_id_d _ _ _ sgS) 
-; A_sg_CS_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_sg_CS_exists_ann_d _ _ _ sgT) 
+; A_sg_CS_bop_ast   := Ast_bop_right_sum (A_sg_CS_bop_ast S rS bS sgS, A_sg_CS_bop_ast T rT bT sgT)
 |}. 
 
 
@@ -405,22 +392,25 @@ Definition A_sg_right_sum : ∀ (S T : Type),  A_sg S -> A_sg T -> A_sg (S + T)
 let eqvS := A_sg_eq S sgS in
 let eqvT := A_sg_eq T sgT in
 let bS   := A_sg_bop S sgS in
-let bT   := A_sg_bop T sgT in 
+let bT   := A_sg_bop T sgT in
+let rS   := A_eqv_eq S eqvS in
+let rT   := A_eqv_eq T eqvT in
+let s    := A_eqv_witness S eqvS in
+let t    := A_eqv_witness T eqvT in
+let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in 
 {| 
      A_sg_eq        := A_eqv_sum S T eqvS eqvT
    ; A_sg_bop       := bop_right_sum bS bT
-   ; A_sg_proofs := sg_proofs_right_sum S T (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) bS bT
-                           (A_eqv_witness S eqvS) 
-                           (A_eqv_new S eqvS) 
-                           (A_eqv_witness T eqvT)
-                           (A_eqv_new T eqvT)
+   ; A_sg_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT  (A_sg_exists_id_d _ sgS) 
+   ; A_sg_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_sg_exists_ann_d _ sgT) 
+   ; A_sg_proofs := sg_proofs_right_sum S T rS rT bS bT s (A_eqv_new S eqvS) t (A_eqv_new T eqvT)
                            (A_eqv_not_trivial S eqvS)                                                                                  
                            (A_eqv_not_trivial T eqvT)                                                       
                            (A_eqv_proofs S eqvS) 
                            (A_eqv_proofs T eqvT) 
                            (A_sg_proofs S sgS) 
                            (A_sg_proofs T sgT)
-   ; A_sg_bop_ast   := Ast_bop_right_sum (A_sg_bop_ast S sgS, A_sg_bop_ast T sgT)                                                                 
+   
    ; A_sg_ast       := Ast_sg_right_sum (A_sg_ast S sgS, A_sg_ast T sgT)
    |}. 
 
@@ -432,22 +422,25 @@ Definition A_sg_C_right_sum : ∀ (S T : Type),  A_sg_C S -> A_sg_C T -> A_sg_C 
 let eqvS := A_sg_C_eqv S sgS in
 let eqvT := A_sg_C_eqv T sgT in
 let bS   := A_sg_C_bop S sgS in
-let bT   := A_sg_C_bop T sgT in 
+let bT   := A_sg_C_bop T sgT in
+let rS   := A_eqv_eq S eqvS in
+let rT   := A_eqv_eq T eqvT in
+let s    := A_eqv_witness S eqvS in
+let t    := A_eqv_witness T eqvT in
+let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in 
    {| 
      A_sg_C_eqv       := A_eqv_sum S T eqvS eqvT
    ; A_sg_C_bop       := bop_right_sum bS bT
-   ; A_sg_C_proofs := sg_C_proofs_right_sum S T (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) bS bT
-                           (A_eqv_witness S eqvS) 
-                           (A_eqv_new S eqvS) 
-                           (A_eqv_witness T eqvT)
-                           (A_eqv_new T eqvT)
+   ; A_sg_C_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT  (A_sg_C_exists_id_d _ sgS) 
+   ; A_sg_C_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_sg_C_exists_ann_d _ sgT) 
+   ; A_sg_C_proofs := sg_C_proofs_right_sum S T rS rT bS bT s (A_eqv_new S eqvS) t (A_eqv_new T eqvT)
                            (A_eqv_not_trivial S eqvS)                                                                                  
                            (A_eqv_not_trivial T eqvT)                                                       
                            (A_eqv_proofs S eqvS) 
                            (A_eqv_proofs T eqvT) 
                            (A_sg_C_proofs S sgS) 
                            (A_sg_C_proofs T sgT)
-   ; A_sg_C_bop_ast   := Ast_bop_right_sum (A_sg_C_bop_ast S sgS, A_sg_C_bop_ast T sgT) 
+   
    ; A_sg_C_ast       := Ast_sg_C_right_sum (A_sg_C_ast S sgS, A_sg_C_ast T sgT)
    |}. 
 
@@ -458,17 +451,22 @@ let eqvS := A_sg_CI_eqv S sgS in
 let eqvT := A_sg_CI_eqv T sgT in
 let bS   := A_sg_CI_bop S sgS in
 let bT   := A_sg_CI_bop T sgT in 
-   {| 
+let rS   := A_eqv_eq S eqvS in
+let rT   := A_eqv_eq T eqvT in
+let s    := A_eqv_witness S eqvS in
+let t    := A_eqv_witness T eqvT in
+let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in 
+  {| 
      A_sg_CI_eqv       := A_eqv_sum S T eqvS eqvT
    ; A_sg_CI_bop       := bop_right_sum bS bT
-   ; A_sg_CI_proofs := sg_CI_proofs_right_sum S T (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) bS bT
-                           (A_eqv_witness S eqvS) 
-                           (A_eqv_witness T eqvT)
+   ; A_sg_CI_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT  (A_sg_CI_exists_id_d _ sgS) 
+   ; A_sg_CI_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_sg_CI_exists_ann_d _ sgT) 
+   ; A_sg_CI_proofs := sg_CI_proofs_right_sum S T rS rT bS bT s t 
                            (A_eqv_proofs S eqvS) 
                            (A_eqv_proofs T eqvT) 
                            (A_sg_CI_proofs S sgS) 
                            (A_sg_CI_proofs T sgT)
-   ; A_sg_CI_bop_ast   := Ast_bop_right_sum (A_sg_CI_bop_ast S sgS, A_sg_CI_bop_ast T sgT)                            
+   
    ; A_sg_CI_ast       := Ast_sg_CI_right_sum (A_sg_CI_ast S sgS, A_sg_CI_ast T sgT)
    |}. 
 
@@ -479,18 +477,23 @@ Definition A_sg_CS_right_sum : ∀ (S T : Type),  A_sg_CS S -> A_sg_CS T -> A_sg
 let eqvS := A_sg_CS_eqv S sgS in
 let eqvT := A_sg_CS_eqv T sgT in
 let bS   := A_sg_CS_bop S sgS in
-let bT   := A_sg_CS_bop T sgT in 
+let bT   := A_sg_CS_bop T sgT in
+let rS   := A_eqv_eq S eqvS in
+let rT   := A_eqv_eq T eqvT in
+let s    := A_eqv_witness S eqvS in
+let t    := A_eqv_witness T eqvT in
+let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in 
    {| 
      A_sg_CS_eqv       := A_eqv_sum S T eqvS eqvT
    ; A_sg_CS_bop       := bop_right_sum bS bT
-   ; A_sg_CS_proofs := sg_CS_proofs_right_sum S T (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) bS bT
-                           (A_eqv_witness S eqvS) 
-                           (A_eqv_witness T eqvT)
+   ; A_sg_CS_exists_id_d   := bop_right_sum_exists_id_decide S T rS rT bS bT s refT  (A_sg_CS_exists_id_d _ sgS) 
+   ; A_sg_CS_exists_ann_d  := bop_right_sum_exists_ann_decide S T rS rT bS bT t refT (A_sg_CS_exists_ann_d _ sgT) 
+   ; A_sg_CS_proofs := sg_CS_proofs_right_sum S T rS rT bS bT s t 
                            (A_eqv_proofs S eqvS) 
                            (A_eqv_proofs T eqvT) 
                            (A_sg_CS_proofs S sgS) 
                            (A_sg_CS_proofs T sgT)
-   ; A_sg_CS_bop_ast   := Ast_bop_right_sum (A_sg_CS_bop_ast S sgS, A_sg_CS_bop_ast T sgT)                                                       
+
    ; A_sg_CS_ast       := Ast_sg_CS_right_sum (A_sg_CS_ast S sgS, A_sg_CS_ast T sgT)
    |}. 
 
@@ -561,8 +564,7 @@ Definition asg_certs_right_sum : ∀ {S T : Type},  @asg_certificates S -> @asg_
 ; asg_commutative   := Assert_Commutative
 ; asg_idempotent_d  := check_idempotent_right_sum (asg_idempotent_d cS) (asg_idempotent_d cT)
 ; asg_selective_d   := check_selective_right_sum (asg_selective_d cS) (asg_selective_d cT)
-; asg_exists_id_d   := check_exists_id_right_sum (asg_exists_id_d cS)
-; asg_exists_ann_d  := check_exists_ann_right_sum  (asg_exists_ann_d  cT)
+; asg_bop_ast       := Ast_bop_right_sum (asg_bop_ast cS, asg_bop_ast cT)
 |}.
 
 
@@ -574,16 +576,14 @@ Definition msg_certs_right_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T -> 
 ; msg_commutative_d := check_commutative_right_sum (msg_commutative_d cS) (msg_commutative_d  cT)
 ; msg_is_left_d     := Certify_Not_Is_Left (inl T s, inr t) 
 ; msg_is_right_d    := Certify_Not_Is_Right (inr t, inl T s) 
-; msg_exists_id_d   := check_exists_id_right_sum (msg_exists_id_d cS)
-; msg_exists_ann_d  := check_exists_ann_right_sum  (msg_exists_ann_d  cT)
 ; msg_left_cancel_d    := Certify_Not_Left_Cancellative (inr t, (inl s, inl (f s)))
 ; msg_right_cancel_d   := Certify_Not_Right_Cancellative (inr t, (inl s, inl (f s)))
 ; msg_left_constant_d  := Certify_Not_Left_Constant (inl s, (inr t, inr (g t)))
 ; msg_right_constant_d := Certify_Not_Right_Constant (inl s, (inr t, inr (g t)))
 ; msg_anti_left_d      := Certify_Not_Anti_Left (inr t, inl s) 
 ; msg_anti_right_d     := Certify_Not_Anti_Right (inr t, inl s) 
+; msg_bop_ast          := Ast_bop_right_sum (msg_bop_ast cS, msg_bop_ast cT)
 |}.
-
 
 Definition sg_certs_right_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T -> T) -> @sg_certificates S -> @sg_certificates T -> @sg_certificates (S + T)  
 := λ {S T} s f t g cS cT,  
@@ -595,14 +595,13 @@ Definition sg_certs_right_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T -> T
 ; sg_selective_d   := check_selective_right_sum (sg_selective_d cS) (sg_selective_d cT)
 ; sg_is_left_d     := Certify_Not_Is_Left (inl T s, inr t) 
 ; sg_is_right_d    := Certify_Not_Is_Right (inr t, inl T s) 
-; sg_exists_id_d   := check_exists_id_right_sum (sg_exists_id_d cS)
-; sg_exists_ann_d  := check_exists_ann_right_sum  (sg_exists_ann_d  cT)
 ; sg_left_cancel_d    := Certify_Not_Left_Cancellative (inr t, (inl s, inl (f s)))
 ; sg_right_cancel_d   := Certify_Not_Right_Cancellative (inr t, (inl s, inl (f s)))
 ; sg_left_constant_d  := Certify_Not_Left_Constant (inl s, (inr t, inr (g t)))
 ; sg_right_constant_d := Certify_Not_Right_Constant (inl s, (inr t, inr (g t)))
 ; sg_anti_left_d      := Certify_Not_Anti_Left (inr t, inl s) 
 ; sg_anti_right_d     := Certify_Not_Anti_Right (inr t, inl s) 
+; sg_bop_ast          := Ast_bop_right_sum (sg_bop_ast cS, sg_bop_ast cT)
 |}.
 
 Definition sg_C_certs_right_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T -> T) -> @sg_C_certificates S -> @sg_C_certificates T -> @sg_C_certificates (S + T)
@@ -617,12 +616,11 @@ Definition sg_C_certs_right_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T ->
 ; sg_C_selective_d   := check_selective_right_sum 
                          (sg_C_selective_d cS) 
                          (sg_C_selective_d cT)
-; sg_C_exists_id_d   := check_exists_id_right_sum (sg_C_exists_id_d cS)
-; sg_C_exists_ann_d  := check_exists_ann_right_sum (sg_C_exists_ann_d cT)
 ; sg_C_cancel_d      := Certify_Not_Left_Cancellative (inr t, (inl s, inl (f s)))
 ; sg_C_constant_d    := Certify_Not_Left_Constant (inl s, (inr t, inr (g t)))
 ; sg_C_anti_left_d   := Certify_Not_Anti_Left (inr t, inl s) 
 ; sg_C_anti_right_d  := Certify_Not_Anti_Right (inr t, inl s) 
+; sg_C_bop_ast   := Ast_bop_right_sum (sg_C_bop_ast cS, sg_C_bop_ast cT)
 |}.
 
 Definition sg_CI_certs_right_sum : ∀ {S T : Type},  @sg_CI_certificates S -> @sg_CI_certificates T -> @sg_CI_certificates (S + T)
@@ -633,8 +631,7 @@ Definition sg_CI_certs_right_sum : ∀ {S T : Type},  @sg_CI_certificates S -> @
 ; sg_CI_commutative  := Assert_Commutative  
 ; sg_CI_idempotent   := Assert_Idempotent  
 ; sg_CI_selective_d  := check_selective_right_sum (sg_CI_selective_d cS) (sg_CI_selective_d cT)
-; sg_CI_exists_id_d  := check_exists_id_right_sum (sg_CI_exists_id_d cS)
-; sg_CI_exists_ann_d := check_exists_ann_right_sum (sg_CI_exists_ann_d cT)
+; sg_CI_bop_ast   := Ast_bop_right_sum (sg_CI_bop_ast cS, sg_CI_bop_ast cT)
 |}.
 
 
@@ -645,22 +642,23 @@ Definition sg_CS_certs_right_sum : ∀ {S T : Type},  @sg_CS_certificates S -> @
 ; sg_CS_congruence   := Assert_Bop_Congruence  
 ; sg_CS_commutative  := Assert_Commutative  
 ; sg_CS_selective    := Assert_Selective  
-; sg_CS_exists_id_d  := check_exists_id_right_sum (sg_CS_exists_id_d cS)
-; sg_CS_exists_ann_d := check_exists_ann_right_sum (sg_CS_exists_ann_d cT)
+; sg_CS_bop_ast   := Ast_bop_right_sum (sg_CS_bop_ast cS, sg_CS_bop_ast cT)
 |}.
 
 
 Definition sg_right_sum : ∀ {S T : Type},  @sg S -> @sg T -> @sg (S + T)
 := λ {S T} sgS sgT, 
    {| 
-     sg_eq     := eqv_sum (sg_eq sgS) (sg_eq sgT) 
-   ; sg_bop    := bop_right_sum (sg_bop sgS) (sg_bop sgT) 
+     sg_eq            := eqv_sum (sg_eq sgS) (sg_eq sgT) 
+   ; sg_bop           := bop_right_sum (sg_bop sgS) (sg_bop sgT) 
+   ; sg_exists_id_d   := check_exists_id_right_sum (sg_exists_id_d sgS)
+   ; sg_exists_ann_d  := check_exists_ann_right_sum  (sg_exists_ann_d  sgT)
    ; sg_certs  := sg_certs_right_sum 
                     (eqv_witness (sg_eq sgS)) (eqv_new (sg_eq sgS))
                     (eqv_witness (sg_eq sgT)) (eqv_new (sg_eq sgT)) 
                     (sg_certs sgS) 
                     (sg_certs sgT)
-   ; sg_bop_ast   := Ast_bop_right_sum (sg_bop_ast sgS, sg_bop_ast sgT)                                                                 
+   
    ; sg_ast    := Ast_sg_right_sum (sg_ast sgS, sg_ast sgT)
    |}. 
 
@@ -669,12 +667,14 @@ Definition sg_C_right_sum : ∀ {S T : Type},  sg_C (S := S) -> sg_C (S := T) ->
    {| 
      sg_C_eqv       := eqv_sum (sg_C_eqv sgS) (sg_C_eqv sgT) 
    ; sg_C_bop       := bop_right_sum (sg_C_bop sgS) (sg_C_bop sgT) 
+   ; sg_C_exists_id_d   := check_exists_id_right_sum (sg_C_exists_id_d sgS)
+   ; sg_C_exists_ann_d  := check_exists_ann_right_sum  (sg_C_exists_ann_d  sgT)
    ; sg_C_certs := sg_C_certs_right_sum 
                            (eqv_witness (sg_C_eqv sgS)) (eqv_new (sg_C_eqv sgS)) 
                            (eqv_witness (sg_C_eqv sgT)) (eqv_new (sg_C_eqv sgT)) 
                            (sg_C_certs sgS) 
                            (sg_C_certs sgT)
-   ; sg_C_bop_ast   := Ast_bop_right_sum (sg_C_bop_ast sgS, sg_C_bop_ast sgT)                                                                 
+   
    ; sg_C_ast       := Ast_sg_C_right_sum (sg_C_ast sgS, sg_C_ast  sgT)
    |}. 
 
@@ -684,8 +684,10 @@ Definition sg_CI_right_sum : ∀ {S T : Type},  sg_CI (S := S) -> sg_CI (S := T)
    {| 
      sg_CI_eqv       := eqv_sum (sg_CI_eqv sgS) (sg_CI_eqv sgT) 
    ; sg_CI_bop       := bop_right_sum (sg_CI_bop sgS) (sg_CI_bop sgT) 
+   ; sg_CI_exists_id_d   := check_exists_id_right_sum (sg_CI_exists_id_d sgS)
+   ; sg_CI_exists_ann_d  := check_exists_ann_right_sum  (sg_CI_exists_ann_d  sgT)
    ; sg_CI_certs     := sg_CI_certs_right_sum (sg_CI_certs sgS) (sg_CI_certs sgT)
-   ; sg_CI_bop_ast   := Ast_bop_right_sum (sg_CI_bop_ast sgS, sg_CI_bop_ast sgT)
+   
    ; sg_CI_ast       := Ast_sg_CI_right_sum (sg_CI_ast sgS, sg_CI_ast sgT)
    |}. 
 
@@ -694,8 +696,10 @@ Definition sg_CS_right_sum : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T)
    {| 
      sg_CS_eqv       := eqv_sum (sg_CS_eqv sgS) (sg_CS_eqv sgT) 
    ; sg_CS_bop       := bop_right_sum (sg_CS_bop sgS) (sg_CS_bop sgT) 
+   ; sg_CS_exists_id_d   := check_exists_id_right_sum (sg_CS_exists_id_d sgS)
+   ; sg_CS_exists_ann_d  := check_exists_ann_right_sum  (sg_CS_exists_ann_d  sgT)
    ; sg_CS_certs     := sg_CS_certs_right_sum (sg_CS_certs sgS) (sg_CS_certs sgT)
-   ; sg_CS_bop_ast   := Ast_bop_right_sum (sg_CS_bop_ast sgS, sg_CS_bop_ast sgT)                                          
+   
    ; sg_CS_ast       := Ast_sg_CS_right_sum (sg_CS_ast sgS, sg_CS_ast sgT)
    |}. 
 
@@ -812,8 +816,6 @@ Proof. intros pS pT.
        unfold asg_proofs_right_sum, asg_certs_right_sum, P2C_asg; simpl. 
        rewrite <- correct_check_selective_right_sum. 
        rewrite correct_check_idempotent_right_sum. 
-       rewrite <- correct_check_exists_id_right_sum. 
-       rewrite <- correct_check_exists_ann_right_sum. 
        reflexivity. 
 Defined. 
 
@@ -829,10 +831,9 @@ Lemma correct_msg_certs_right_sum :
 Proof. intros pS pT. 
        unfold msg_proofs_right_sum, msg_certs_right_sum, P2C_msg; simpl. 
        rewrite <- correct_check_commutative_right_sum. 
-       rewrite <- correct_check_exists_id_right_sum. 
-       rewrite <- correct_check_exists_ann_right_sum. 
        reflexivity. 
 Defined. 
+
 
 
 Lemma correct_sg_certs_right_sum : 
@@ -848,8 +849,6 @@ Proof. intros pS pT.
        rewrite <- correct_check_commutative_right_sum. 
        rewrite <- correct_check_selective_right_sum. 
        rewrite correct_check_idempotent_right_sum. 
-       rewrite <- correct_check_exists_id_right_sum. 
-       rewrite <- correct_check_exists_ann_right_sum. 
        reflexivity. 
 Defined. 
 
@@ -865,8 +864,6 @@ Proof. intros pS pT.
        unfold sg_C_proofs_right_sum, sg_C_certs_right_sum, P2C_sg_C; simpl.        
        rewrite <- correct_check_selective_right_sum. 
        rewrite correct_check_idempotent_right_sum. 
-       rewrite <- correct_check_exists_id_right_sum. 
-       rewrite <- correct_check_exists_ann_right_sum. 
        reflexivity. 
 Defined. 
 
@@ -879,8 +876,6 @@ Lemma correct_sg_CS_certs_right_sum : ∀ (pS : sg_CS_proofs S rS bS) (pT : sg_C
                      (sg_CS_proofs_right_sum S T rS rT bS bT wS wT eS eT pS pT). 
 Proof. intros pS pT. 
        unfold sg_CS_proofs_right_sum, sg_CS_certs_right_sum, P2C_sg_CS; simpl.        
-       rewrite <- correct_check_exists_id_right_sum. 
-       rewrite <- correct_check_exists_ann_right_sum. 
        reflexivity. 
 Defined. 
 
@@ -894,8 +889,6 @@ Lemma correct_sg_CI_certs_right_sum : ∀ (pS : sg_CI_proofs S rS bS) (pT : sg_C
                      (sg_CI_proofs_right_sum S T rS rT bS bT wS wT eS eT pS pT). 
 Proof. intros pS pT. 
        unfold sg_CI_proofs_right_sum, sg_CI_certs_right_sum, P2C_sg_CI; simpl. 
-       rewrite <- correct_check_exists_id_right_sum. 
-       rewrite <- correct_check_exists_ann_right_sum. 
        rewrite <- correct_check_selective_right_sum. 
        reflexivity. 
 Defined.
@@ -911,7 +904,9 @@ Theorem correct_sg_right_sum : ∀ (S T : Type) (sgS : A_sg S) (sgT : A_sg T),
 Proof. intros S T sgS sgT. 
        unfold sg_right_sum, A2C_sg; simpl. 
        rewrite correct_eqv_sum.
-       rewrite <- correct_sg_certs_right_sum. 
+       rewrite <- correct_sg_certs_right_sum.
+       rewrite <- correct_check_exists_id_right_sum. 
+       rewrite <- correct_check_exists_ann_right_sum. 
        reflexivity. 
 Qed. 
 
@@ -926,6 +921,8 @@ Proof. intros S T sgS sgT.
        unfold sg_C_right_sum, A2C_sg_C; simpl. 
        rewrite correct_eqv_sum.
        rewrite <- correct_sg_C_certs_right_sum. 
+       rewrite <- correct_check_exists_id_right_sum. 
+       rewrite <- correct_check_exists_ann_right_sum. 
        reflexivity. 
 Qed. 
 
@@ -939,6 +936,8 @@ Proof. intros S T sgS sgT.
        unfold sg_CS_right_sum, A2C_sg_CS; simpl. 
        rewrite correct_eqv_sum.
        rewrite <- correct_sg_CS_certs_right_sum. 
+       rewrite <- correct_check_exists_id_right_sum. 
+       rewrite <- correct_check_exists_ann_right_sum. 
        reflexivity. 
 Qed. 
 
@@ -952,7 +951,9 @@ Theorem correct_sg_CI_right_sum : ∀ (S T : Type) (sgS : A_sg_CI S) (sgT : A_sg
 Proof. intros S T sgS sgT. 
        unfold sg_CI_right_sum, A2C_sg_CI; simpl. 
        rewrite correct_eqv_sum.
-       rewrite <- correct_sg_CI_certs_right_sum. 
+       rewrite <- correct_sg_CI_certs_right_sum.
+       rewrite <- correct_check_exists_id_right_sum. 
+       rewrite <- correct_check_exists_ann_right_sum.        
        reflexivity. 
 Qed. 
   

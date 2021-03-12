@@ -3,8 +3,7 @@ Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
 Require Import CAS.coq.common.proof_records.
 Require Import CAS.coq.common.brel_properties.
-
-
+Require Import CAS.coq.common.bop_properties.
 
 (* eqv : for "carrier types" *) 
 Record A_eqv (S : Type) := {
@@ -60,69 +59,71 @@ So any cancellative idempotent commutative semigroup will be trivial {id}.
 *) 
 
 Record A_sg (S : Type) := {
-  A_sg_eq         : A_eqv S 
-; A_sg_bop        : binary_op S 
-; A_sg_proofs     : sg_proofs S (A_eqv_eq S A_sg_eq) A_sg_bop 
-; A_sg_bop_ast    : ast_bop                      
-; A_sg_ast        : ast_sg
+  A_sg_eq           : A_eqv S 
+; A_sg_bop          : binary_op S
+; A_sg_exists_id_d  : bop_exists_id_decidable S (A_eqv_eq S A_sg_eq) A_sg_bop 
+; A_sg_exists_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_sg_eq) A_sg_bop 
+; A_sg_proofs       : sg_proofs S (A_eqv_eq S A_sg_eq) A_sg_bop 
+; A_sg_ast          : ast_sg
 }.
 
 (* sg_C = commutative semigroup *) 
 Record A_sg_C (S : Type) := {
-  A_sg_C_eqv         : A_eqv S 
-; A_sg_C_bop         : binary_op S 
-; A_sg_C_proofs      : sg_C_proofs S (A_eqv_eq S A_sg_C_eqv) A_sg_C_bop
-; A_sg_C_bop_ast     : ast_bop                      
-; A_sg_C_ast         : ast_sg_C
+  A_sg_C_eqv          : A_eqv S 
+; A_sg_C_bop          : binary_op S
+; A_sg_C_exists_id_d  : bop_exists_id_decidable S (A_eqv_eq S A_sg_C_eqv) A_sg_C_bop
+; A_sg_C_exists_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_sg_C_eqv) A_sg_C_bop
+; A_sg_C_proofs       : sg_C_proofs S (A_eqv_eq S A_sg_C_eqv) A_sg_C_bop
+; A_sg_C_ast          : ast_sg_C
 }.
-
 
 (* sg_CI = commutative idempotent semigroup *) 
 Record A_sg_CI (S : Type) := {
   A_sg_CI_eqv          : A_eqv S
-; A_sg_CI_bop          : binary_op S 
+; A_sg_CI_bop          : binary_op S
+; A_sg_CI_exists_id_d  : bop_exists_id_decidable S (A_eqv_eq S A_sg_CI_eqv) A_sg_CI_bop
+; A_sg_CI_exists_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_sg_CI_eqv) A_sg_CI_bop
 ; A_sg_CI_proofs       : sg_CI_proofs S (A_eqv_eq S A_sg_CI_eqv) A_sg_CI_bop
-; A_sg_CI_bop_ast      : ast_bop                                                            
 ; A_sg_CI_ast          : ast_sg_CI
 }.
 
 (* sg_CS = commutative selective semigroup *) 
 Record A_sg_CS (S : Type) := {
   A_sg_CS_eqv          : A_eqv S 
-; A_sg_CS_bop          : binary_op S 
+; A_sg_CS_bop          : binary_op S
+; A_sg_CS_exists_id_d  : bop_exists_id_decidable S (A_eqv_eq S A_sg_CS_eqv) A_sg_CS_bop
+; A_sg_CS_exists_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_sg_CS_eqv) A_sg_CS_bop
 ; A_sg_CS_proofs       : sg_CS_proofs S (A_eqv_eq S A_sg_CS_eqv) A_sg_CS_bop
-; A_sg_CS_bop_ast      : ast_bop                                                            
 ; A_sg_CS_ast          : ast_sg_CS 
 }.
 
 Record A_sg_CK (S : Type) := {
   A_sg_CK_eqv         : A_eqv S 
-; A_sg_CK_bop         : binary_op S 
+; A_sg_CK_bop         : binary_op S
+; A_sg_CK_exists_id_d : bop_exists_id_decidable S (A_eqv_eq S A_sg_CK_eqv) A_sg_CK_bop
 ; A_sg_CK_proofs      : sg_CK_proofs S (A_eqv_eq S A_sg_CK_eqv) A_sg_CK_bop
-; A_sg_CK_bop_ast     : ast_bop                                                           
 ; A_sg_CK_ast         : ast_sg_CK
-                            }.
+}.
 
 (* additive semigroups *) 
 Record A_asg (S : Type) := {
-  A_asg_eq         : A_eqv S 
-; A_asg_bop        : binary_op S 
-; A_asg_proofs     : asg_proofs S (A_eqv_eq S A_asg_eq) A_asg_bop 
-; A_asg_bop_ast    : ast_bop                      
-; A_asg_ast        : ast_asg
+  A_asg_eq           : A_eqv S 
+; A_asg_bop          : binary_op S
+; A_asg_exists_id_d  : bop_exists_id_decidable S (A_eqv_eq S A_asg_eq) A_asg_bop
+; A_asg_exists_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_asg_eq) A_asg_bop
+; A_asg_proofs       : asg_proofs S (A_eqv_eq S A_asg_eq) A_asg_bop 
+; A_asg_ast          : ast_asg
 }.
 
 (* multiplicitive semigroups *) 
 Record A_msg (S : Type) := {
-  A_msg_eq         : A_eqv S 
-; A_msg_bop        : binary_op S 
-; A_msg_proofs     : msg_proofs S (A_eqv_eq S A_msg_eq) A_msg_bop 
-; A_msg_bop_ast    : ast_bop                      
-; A_msg_ast        : ast_msg
+  A_msg_eq           : A_eqv S 
+; A_msg_bop          : binary_op S
+; A_msg_exists_id_d  : bop_exists_id_decidable S (A_eqv_eq S A_msg_eq) A_msg_bop 
+; A_msg_exists_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_msg_eq) A_msg_bop 
+; A_msg_proofs       : msg_proofs S (A_eqv_eq S A_msg_eq) A_msg_bop 
+; A_msg_ast          : ast_msg
 }.
-
-
-
 
 (* bi-semigroups *) 
 
@@ -130,76 +131,90 @@ Record A_bs (S : Type) := {
   A_bs_eqv          : A_eqv S 
 ; A_bs_plus         : binary_op S 
 ; A_bs_times        : binary_op S 
-; A_bs_plus_proofs  : asg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus
-; A_bs_times_proofs : msg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_times 
-; A_bs_proofs       : bs_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus A_bs_times
-; A_bs_plus_ast     : ast_bop
-; A_bs_times_ast    : ast_bop                                                                            
-; A_bs_ast          : ast_bs
+; A_bs_plus_proofs   : asg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus
+; A_bs_times_proofs  : msg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_times
+; A_bs_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus A_bs_times                                 
+; A_bs_proofs        : bs_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus A_bs_times
+; A_bs_ast           : ast_bs
 }.
 
 
 Record A_bs_CS (S : Type) := {
-  A_bs_CS_eqv          : A_eqv S 
-; A_bs_CS_plus         : binary_op S 
-; A_bs_CS_times        : binary_op S 
-; A_bs_CS_plus_proofs  : sg_CS_proofs S (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_plus
-; A_bs_CS_times_proofs : msg_proofs S    (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_times 
-; A_bs_CS_proofs       : bs_proofs S (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_plus A_bs_CS_times
-; A_bs_CS_plus_ast     : ast_bop
-; A_bs_CS_times_ast    : ast_bop                                                                            
-; A_bs_CS_ast          : ast_bs_CS
+  A_bs_CS_eqv           : A_eqv S 
+; A_bs_CS_plus          : binary_op S 
+; A_bs_CS_times         : binary_op S 
+; A_bs_CS_plus_proofs   : sg_CS_proofs S (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_plus
+; A_bs_CS_times_proofs  : msg_proofs S    (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_times
+; A_bs_CS_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_plus A_bs_CS_times
+; A_bs_CS_proofs        : bs_proofs S (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_plus A_bs_CS_times
+; A_bs_CS_ast           : ast_bs_CS
 }.
 
 Record A_bs_CI (S : Type) := {
-  A_bs_CI_eqv          : A_eqv S 
-; A_bs_CI_plus         : binary_op S 
-; A_bs_CI_times        : binary_op S 
-; A_bs_CI_plus_proofs  : sg_CI_proofs S (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_plus
-; A_bs_CI_times_proofs : msg_proofs S    (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_times 
-; A_bs_CI_proofs       : bs_proofs S (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_plus A_bs_CI_times
-; A_bs_CI_plus_ast     : ast_bop
-; A_bs_CI_times_ast    : ast_bop                                                                            
-; A_bs_CI_ast          : ast_bs_CI
+  A_bs_CI_eqv           : A_eqv S 
+; A_bs_CI_plus          : binary_op S 
+; A_bs_CI_times         : binary_op S 
+; A_bs_CI_plus_proofs   : sg_CI_proofs S (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_plus
+; A_bs_CI_times_proofs  : msg_proofs S    (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_times
+; A_bs_CI_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_plus A_bs_CI_times
+; A_bs_CI_proofs        : bs_proofs S (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_plus A_bs_CI_times
+; A_bs_CI_ast           : ast_bs_CI
 }.
 
-
-(*
-Record A_bs_C (S : Type) := {
-  A_bs_C_eqv          : A_eqv S 
-; A_bs_C_plus         : binary_op S 
-; A_bs_C_times        : binary_op S 
-; A_bs_C_plus_proofs  : sg_C_proofs S (A_eqv_eq S A_bs_C_eqv) A_bs_C_plus
-; A_bs_C_times_proofs : msg_proofs S   (A_eqv_eq S A_bs_C_eqv) A_bs_C_times 
-; A_bs_C_proofs       : bs_proofs S (A_eqv_eq S A_bs_C_eqv) A_bs_C_plus A_bs_C_times
-; A_bs_C_plus_ast     : ast_bop
-; A_bs_C_times_ast    : ast_bop                                                                            
-; A_bs_C_ast          : ast_bs_C
+Record A_presemiring (S : Type) := {
+  A_presemiring_eqv           : A_eqv S 
+; A_presemiring_plus          : binary_op S 
+; A_presemiring_times         : binary_op S 
+; A_presemiring_plus_proofs   : sg_C_proofs S (A_eqv_eq S A_presemiring_eqv) A_presemiring_plus
+; A_presemiring_times_proofs  : msg_proofs S   (A_eqv_eq S A_presemiring_eqv) A_presemiring_times
+; A_presemiring_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_presemiring_eqv) A_presemiring_plus A_presemiring_times
+; A_presemiring_proofs        : semiring_proofs S (A_eqv_eq S A_presemiring_eqv) A_presemiring_plus A_presemiring_times
+; A_presemiring_ast           : ast_presemiring
 }.
-*)
+
+Record A_selective_presemiring (S : Type) := {
+  A_selective_presemiring_eqv           : A_eqv S 
+; A_selective_presemiring_plus          : binary_op S 
+; A_selective_presemiring_times         : binary_op S 
+; A_selective_presemiring_plus_proofs   : sg_CS_proofs S (A_eqv_eq S A_selective_presemiring_eqv) A_selective_presemiring_plus
+; A_selective_presemiring_times_proofs  : msg_proofs S   (A_eqv_eq S A_selective_presemiring_eqv) A_selective_presemiring_times
+; A_selective_presemiring_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_selective_presemiring_eqv) A_selective_presemiring_plus A_selective_presemiring_times
+; A_selective_presemiring_proofs        : semiring_proofs S (A_eqv_eq S A_selective_presemiring_eqv) A_selective_presemiring_plus A_selective_presemiring_times
+; A_selective_presemiring_ast           : ast_selective_presemiring
+}.
+
 
 Record A_semiring (S : Type) := {
   A_semiring_eqv          : A_eqv S 
 ; A_semiring_plus         : binary_op S 
 ; A_semiring_times        : binary_op S 
 ; A_semiring_plus_proofs  : sg_C_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus
-; A_semiring_times_proofs : msg_proofs S   (A_eqv_eq S A_semiring_eqv) A_semiring_times 
+; A_semiring_times_proofs : msg_proofs S   (A_eqv_eq S A_semiring_eqv) A_semiring_times
+; A_semiring_id_ann_proofs : zero_one_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus A_semiring_times
 ; A_semiring_proofs       : semiring_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus A_semiring_times
-; A_semiring_plus_ast     : ast_bop
-; A_semiring_times_ast    : ast_bop                                                                            
 ; A_semiring_ast          : ast_semiring
 }.
 
+Record A_selective_semiring (S : Type) := {
+  A_selective_semiring_eqv          : A_eqv S 
+; A_selective_semiring_plus         : binary_op S 
+; A_selective_semiring_times        : binary_op S 
+; A_selective_semiring_plus_proofs  : sg_CS_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus
+; A_selective_semiring_times_proofs : msg_proofs S   (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_times
+; A_selective_semiring_id_ann_proofs : zero_one_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus A_selective_semiring_times
+; A_selective_semiring_proofs       : semiring_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus A_selective_semiring_times
+; A_selective_semiring_ast          : ast_selective_semiring
+}.
+
 Record A_dioid (S : Type) := {
-  A_dioid_eqv          : A_eqv S 
-; A_dioid_plus         : binary_op S 
-; A_dioid_times        : binary_op S 
-; A_dioid_plus_proofs  : sg_CI_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus
-; A_dioid_times_proofs : msg_proofs S   (A_eqv_eq S A_dioid_eqv) A_dioid_times 
-; A_dioid_proofs       : semiring_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
-; A_dioid_plus_ast     : ast_bop
-; A_dioid_times_ast    : ast_bop                                                                            
-; A_dioid_ast          : ast_dioid
+  A_dioid_eqv           : A_eqv S 
+; A_dioid_plus          : binary_op S 
+; A_dioid_times         : binary_op S 
+; A_dioid_plus_proofs   : sg_CI_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus
+; A_dioid_times_proofs  : msg_proofs S   (A_eqv_eq S A_dioid_eqv) A_dioid_times
+; A_dioid_id_ann_proofs : bounded_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
+; A_dioid_proofs        : semiring_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
+; A_dioid_ast           : ast_dioid
 }.
 
 Record A_selective_dioid (S : Type) := {
@@ -207,24 +222,69 @@ Record A_selective_dioid (S : Type) := {
 ; A_selective_dioid_plus         : binary_op S 
 ; A_selective_dioid_times        : binary_op S 
 ; A_selective_dioid_plus_proofs  : sg_CS_proofs S (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_plus
-; A_selective_dioid_times_proofs : msg_proofs S   (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_times 
+; A_selective_dioid_times_proofs : msg_proofs S   (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_times
+; A_selective_dioid_id_ann_proofs : bounded_proofs S (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_plus A_selective_dioid_times
 ; A_selective_dioid_proofs       : semiring_proofs S (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_plus A_selective_dioid_times
-; A_selective_dioid_plus_ast     : ast_bop
-; A_selective_dioid_times_ast    : ast_bop                                                                            
 ; A_selective_dioid_ast          : ast_selective_dioid
 }.
 
 
+
+Record A_prelattice (S : Type) := {
+  A_prelattice_eqv           : A_eqv S 
+; A_prelattice_join          : binary_op S 
+; A_prelattice_meet          : binary_op S 
+; A_prelattice_join_proofs   : sg_CI_proofs S (A_eqv_eq S A_prelattice_eqv) A_prelattice_join
+; A_prelattice_meet_proofs   : sg_CI_proofs S (A_eqv_eq S A_prelattice_eqv) A_prelattice_meet
+; A_prelattice_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_prelattice_eqv) A_prelattice_join A_prelattice_meet      
+; A_prelattice_proofs        : lattice_proofs S (A_eqv_eq S A_prelattice_eqv) A_prelattice_join A_prelattice_meet
+; A_prelattice_ast           : ast_prelattice
+}.
+
+Record A_distributive_prelattice (S : Type) := {
+  A_distributive_prelattice_eqv         : A_eqv S 
+; A_distributive_prelattice_join        : binary_op S 
+; A_distributive_prelattice_meet        : binary_op S 
+; A_distributive_prelattice_join_proofs : sg_CI_proofs S (A_eqv_eq S A_distributive_prelattice_eqv) A_distributive_prelattice_join
+; A_distributive_prelattice_meet_proofs : sg_CI_proofs S (A_eqv_eq S A_distributive_prelattice_eqv) A_distributive_prelattice_meet
+; A_distributive_prelattice_id_ann_proofs : id_ann_proofs S
+                                          (A_eqv_eq S A_distributive_prelattice_eqv)
+                                          A_distributive_prelattice_join
+                                          A_distributive_prelattice_meet                                                        
+; A_distributive_prelattice_proofs      : distributive_lattice_proofs S
+                                          (A_eqv_eq S A_distributive_prelattice_eqv)
+                                          A_distributive_prelattice_join
+                                          A_distributive_prelattice_meet
+; A_distributive_prelattice_ast         : ast_distributive_prelattice
+}.
+
+Record A_selective_distributive_prelattice (S : Type) := {
+  A_selective_distributive_prelattice_eqv         : A_eqv S 
+; A_selective_distributive_prelattice_join        : binary_op S 
+; A_selective_distributive_prelattice_meet        : binary_op S 
+; A_selective_distributive_prelattice_join_proofs : sg_CS_proofs S (A_eqv_eq S A_selective_distributive_prelattice_eqv) A_selective_distributive_prelattice_join
+; A_selective_distributive_prelattice_meet_proofs : sg_CS_proofs S (A_eqv_eq S A_selective_distributive_prelattice_eqv) A_selective_distributive_prelattice_meet
+; A_selective_distributive_prelattice_id_ann_proofs : id_ann_proofs S
+                                          (A_eqv_eq S A_selective_distributive_prelattice_eqv)
+                                          A_selective_distributive_prelattice_join
+                                          A_selective_distributive_prelattice_meet                                                                  
+; A_selective_distributive_prelattice_proofs      : distributive_lattice_proofs S
+                                          (A_eqv_eq S A_selective_distributive_prelattice_eqv)
+                                          A_selective_distributive_prelattice_join
+                                          A_selective_distributive_prelattice_meet
+; A_selective_distributive_prelattice_ast         : ast_selective_distributive_prelattice
+}.
+
+
 Record A_lattice (S : Type) := {
-  A_lattice_eqv         : A_eqv S 
-; A_lattice_join        : binary_op S 
-; A_lattice_meet        : binary_op S 
-; A_lattice_join_proofs : sg_CI_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join
-; A_lattice_meet_proofs : sg_CI_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_meet 
-; A_lattice_proofs      : lattice_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join A_lattice_meet
-; A_lattice_join_ast    : ast_bop
-; A_lattice_meet_ast   : ast_bop                                                                            
-; A_lattice_ast         : ast_lattice
+  A_lattice_eqv           : A_eqv S 
+; A_lattice_join          : binary_op S 
+; A_lattice_meet          : binary_op S 
+; A_lattice_join_proofs   : sg_CI_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join
+; A_lattice_meet_proofs   : sg_CI_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_meet
+; A_lattice_id_ann_proofs : bounded_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join A_lattice_meet      
+; A_lattice_proofs        : lattice_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join A_lattice_meet
+; A_lattice_ast           : ast_lattice
 }.
 
 Record A_distributive_lattice (S : Type) := {
@@ -232,30 +292,32 @@ Record A_distributive_lattice (S : Type) := {
 ; A_distributive_lattice_join        : binary_op S 
 ; A_distributive_lattice_meet        : binary_op S 
 ; A_distributive_lattice_join_proofs : sg_CI_proofs S (A_eqv_eq S A_distributive_lattice_eqv) A_distributive_lattice_join
-; A_distributive_lattice_meet_proofs : sg_CI_proofs S (A_eqv_eq S A_distributive_lattice_eqv) A_distributive_lattice_meet 
+; A_distributive_lattice_meet_proofs : sg_CI_proofs S (A_eqv_eq S A_distributive_lattice_eqv) A_distributive_lattice_meet
+; A_distributive_lattice_id_ann_proofs : bounded_proofs S
+                                          (A_eqv_eq S A_distributive_lattice_eqv)
+                                          A_distributive_lattice_join
+                                          A_distributive_lattice_meet                                                        
 ; A_distributive_lattice_proofs      : distributive_lattice_proofs S
                                           (A_eqv_eq S A_distributive_lattice_eqv)
                                           A_distributive_lattice_join
                                           A_distributive_lattice_meet
-; A_distributive_lattice_join_ast    : ast_bop
-; A_distributive_lattice_meet_ast   : ast_bop                                                                            
 ; A_distributive_lattice_ast         : ast_distributive_lattice
 }.
-
-
 
 Record A_selective_distributive_lattice (S : Type) := {
   A_selective_distributive_lattice_eqv         : A_eqv S 
 ; A_selective_distributive_lattice_join        : binary_op S 
 ; A_selective_distributive_lattice_meet        : binary_op S 
 ; A_selective_distributive_lattice_join_proofs : sg_CS_proofs S (A_eqv_eq S A_selective_distributive_lattice_eqv) A_selective_distributive_lattice_join
-; A_selective_distributive_lattice_meet_proofs : sg_CS_proofs S (A_eqv_eq S A_selective_distributive_lattice_eqv) A_selective_distributive_lattice_meet 
+; A_selective_distributive_lattice_meet_proofs : sg_CS_proofs S (A_eqv_eq S A_selective_distributive_lattice_eqv) A_selective_distributive_lattice_meet
+; A_selective_distributive_lattice_id_ann_proofs : bounded_proofs S
+                                          (A_eqv_eq S A_selective_distributive_lattice_eqv)
+                                          A_selective_distributive_lattice_join
+                                          A_selective_distributive_lattice_meet                                                                  
 ; A_selective_distributive_lattice_proofs      : distributive_lattice_proofs S
                                           (A_eqv_eq S A_selective_distributive_lattice_eqv)
                                           A_selective_distributive_lattice_join
                                           A_selective_distributive_lattice_meet
-; A_selective_distributive_lattice_join_ast    : ast_bop
-; A_selective_distributive_lattice_meet_ast    : ast_bop                                                                            
 ; A_selective_distributive_lattice_ast         : ast_selective_distributive_lattice
 }.
 
@@ -274,8 +336,8 @@ Record A_qo (S : Type) := {
 (* partial order *) 
 Record A_po (S : Type) := {
   A_po_eqv        : A_eqv S 
-; A_po_brel       : brel S 
-; A_po_proofs     : po_proofs S (A_eqv_eq S A_po_eqv) A_po_brel 
+; A_po_lte        : brel S 
+; A_po_proofs     : po_proofs S (A_eqv_eq S A_po_eqv) A_po_lte 
 ; A_po_ast        : ast_po
 }.
 

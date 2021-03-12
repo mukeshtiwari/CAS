@@ -1,0 +1,131 @@
+Definition distributive_lattice_certs_product : 
+  ∀ {S T : Type},  
+    @distributive_lattice_certificates S ->
+    @distributive_lattice_certificates T ->     
+        @distributive_lattice_certificates (S * T) 
+:= λ {S T} srS srT, 
+{|
+  distributive_lattice_absorptive        := 
+    bop_product_left_left_absorptive_assert 
+        (distributive_lattice_absorptive srS)
+        (distributive_lattice_absorptive srT)                                  
+                                     
+; distributive_lattice_absorptive_dual   :=
+    bop_product_left_left_absorptive_assert
+        (distributive_lattice_absorptive_dual srS)
+        (distributive_lattice_absorptive_dual srT)                                  
+    
+; distributive_lattice_distributive        :=
+    bop_product_left_distributive_assert 
+        (distributive_lattice_distributive srS)
+        (distributive_lattice_distributive srT)                                  
+    
+|}.
+
+Definition A_distributive_lattice_product : ∀ (S T : Type),  A_distributive_lattice S ->  A_distributive_lattice T -> A_distributive_lattice (S * T) 
+:= λ S T sr1 sr2,
+let eqvS   := A_distributive_lattice_eqv S sr1   in
+let eqvT   := A_distributive_lattice_eqv T sr2   in
+let peqvS  := A_eqv_proofs S eqvS in
+let peqvT  := A_eqv_proofs T eqvT in 
+let rS     := A_eqv_eq S eqvS  in 
+let rT     := A_eqv_eq T eqvT  in
+let s      := A_eqv_witness S eqvS in
+let f      := A_eqv_new S eqvS in
+let Pf     := A_eqv_not_trivial S eqvS in
+let t      := A_eqv_witness T eqvT in
+let g      := A_eqv_new T eqvT in
+let Pg     := A_eqv_not_trivial T eqvT in
+let joinS  := A_distributive_lattice_join S sr1  in 
+let joinT  := A_distributive_lattice_join T sr2  in
+let meetS  := A_distributive_lattice_meet S sr1 in 
+let meetT  := A_distributive_lattice_meet T sr2 in 
+{| 
+     A_distributive_lattice_eqv   := A_eqv_product S T eqvS eqvT 
+   ; A_distributive_lattice_join  := bop_product joinS joinT 
+   ; A_distributive_lattice_meet  := bop_product meetS meetT 
+   ; A_distributive_lattice_join_proofs  := sg_CI_proofs_product S T rS rT joinS joinT s f t g Pf Pg peqvS peqvT  
+                                (A_distributive_lattice_join_proofs S sr1)
+                                (A_distributive_lattice_join_proofs T sr2)                                 
+   ; A_distributive_lattice_meet_proofs := sg_CI_proofs_product S T rS rT meetS meetT s f t g Pf Pg peqvS peqvT  
+                                (A_distributive_lattice_meet_proofs S sr1)
+                                (A_distributive_lattice_meet_proofs T sr2)
+   ; A_distributive_lattice_id_ann_proofs := bounded_proofs_product S T rS rT joinS meetS joinT meetT 
+                                   (A_distributive_lattice_id_ann_proofs S sr1) 
+                                   (A_distributive_lattice_id_ann_proofs T sr2)                           
+   ; A_distributive_lattice_proofs  := distributive_lattice_proofs_product S T rS rT joinS meetS joinT meetT peqvS peqvT  
+                                   (A_distributive_lattice_proofs S sr1)
+                                   (A_distributive_lattice_proofs T sr2)
+   ; A_distributive_lattice_ast  := Ast_distributive_lattice_product (A_distributive_lattice_ast S sr1, A_distributive_lattice_ast T sr2)
+|}.
+
+
+Definition lattice_proofs_product : 
+  ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS mulS : binary_op S) (addT mulT : binary_op T) (s : S) (t : T), 
+    eqv_proofs S rS ->
+    eqv_proofs T rT -> 
+    lattice_proofs S rS addS mulS ->
+    lattice_proofs T rT addT mulT ->     
+        lattice_proofs (S * T) (brel_product rS rT) (bop_product addS addT) (bop_product mulS mulT)
+:= λ S T rS rT addS mulS addT mulT s t eqvS eqvT srS srT, 
+{|
+  A_lattice_absorptive        := 
+    bop_product_left_left_absorptive S T rS rT addS mulS addT mulT
+        (A_lattice_absorptive S rS addS mulS srS)
+        (A_lattice_absorptive T rT addT mulT srT)                                  
+                                     
+; A_lattice_absorptive_dual   :=
+    bop_product_left_left_absorptive S T rS rT mulS addS mulT addT
+        (A_lattice_absorptive_dual S rS addS mulS srS)
+        (A_lattice_absorptive_dual T rT addT mulT srT)                                  
+
+    
+; A_lattice_distributive_d        :=
+     bop_product_left_distributive_decide S T rS rT s t addS mulS addT mulT 
+        (A_lattice_distributive_d S rS addS mulS srS)
+        (A_lattice_distributive_d T rT addT mulT  srT)
+
+; A_lattice_distributive_dual_d        :=
+     bop_product_left_distributive_decide S T rS rT s t mulS addS mulT addT 
+        (A_lattice_distributive_dual_d S rS addS mulS srS)
+        (A_lattice_distributive_dual_d T rT addT mulT  srT)
+        
+|}.
+
+
+Definition A_lattice_product : ∀ (S T : Type),  A_lattice S ->  A_lattice T -> A_lattice (S * T) 
+:= λ S T sr1 sr2,
+let eqvS   := A_lattice_eqv S sr1   in
+let eqvT   := A_lattice_eqv T sr2   in
+let peqvS  := A_eqv_proofs S eqvS in
+let peqvT  := A_eqv_proofs T eqvT in 
+let rS     := A_eqv_eq S eqvS  in 
+let rT     := A_eqv_eq T eqvT  in
+let s      := A_eqv_witness S eqvS in
+let f      := A_eqv_new S eqvS in
+let Pf     := A_eqv_not_trivial S eqvS in
+let t      := A_eqv_witness T eqvT in
+let g      := A_eqv_new T eqvT in
+let Pg     := A_eqv_not_trivial T eqvT in
+let joinS  := A_lattice_join S sr1  in 
+let joinT  := A_lattice_join T sr2  in
+let meetS  := A_lattice_meet S sr1 in 
+let meetT  := A_lattice_meet T sr2 in 
+{| 
+     A_lattice_eqv          := A_eqv_product S T eqvS eqvT 
+   ; A_lattice_join         := bop_product joinS joinT 
+   ; A_lattice_meet         := bop_product meetS meetT 
+   ; A_lattice_join_proofs  := sg_CI_proofs_product S T rS rT joinS joinT s f t g Pf Pg peqvS peqvT  
+                                (A_lattice_join_proofs S sr1)
+                                (A_lattice_join_proofs T sr2)                                 
+   ; A_lattice_meet_proofs := sg_CI_proofs_product S T rS rT meetS meetT s f t g Pf Pg peqvS peqvT  
+                                (A_lattice_meet_proofs S sr1)
+                                (A_lattice_meet_proofs T sr2)
+   ; A_lattice_id_ann_proofs := bounded_proofs_product S T rS rT joinS meetS joinT meetT 
+                                   (A_lattice_id_ann_proofs S sr1) 
+                                   (A_lattice_id_ann_proofs T sr2)                           
+   ; A_lattice_proofs  := lattice_proofs_product S T rS rT joinS meetS joinT meetT s t peqvS peqvT  
+                                   (A_lattice_proofs S sr1)
+                                   (A_lattice_proofs T sr2)
+   ; A_lattice_ast  := Ast_lattice_product (A_lattice_ast S sr1, A_lattice_ast T sr2)
+|}.

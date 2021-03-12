@@ -1,6 +1,58 @@
-
 Require Import CAS.coq.common.compute.
 
+Inductive ast_type : Type :=
+| Ast_type_bool          : ast_type
+| Ast_type_nat           : ast_type
+| Ast_type_list          : ast_type → ast_type
+| Ast_type_set           : ast_type → ast_type
+| Ast_type_product       : ast_type * ast_type → ast_type
+| Ast_type_sum           : ast_type * ast_type → ast_type
+| Ast_type_add_constant  : cas_constant * ast_type → ast_type
+.
+
+(* computational combinators  *)
+Inductive ast_brel : Type :=
+| Ast_brel_eq_bool          : ast_brel
+| Ast_brel_eq_nat           : ast_brel
+| Ast_brel_eq_list          : ast_brel → ast_brel
+| Ast_brel_eq_set           : ast_brel → ast_brel
+| Ast_brel_eq_product       : ast_brel * ast_brel → ast_brel
+| Ast_brel_eq_sum           : ast_brel * ast_brel → ast_brel
+| Ast_brel_eq_add_constant  : cas_constant * ast_brel → ast_brel
+| Ast_brel_eq_nat_ceiling   : nat → ast_brel   
+| Ast_brel_eq_minset        : ast_brel → ast_brel
+| Ast_brel_lte_nat          : ast_brel
+| Ast_brel_lte_left         : ast_bop → ast_brel
+| Ast_brel_lte_right        : ast_bop → ast_brel                                                                   
+| Ast_brel_lte_product      : ast_brel * ast_brel → ast_brel
+| Ast_brel_lte_dual         : ast_brel → ast_brel
+                                  
+with ast_bop : Type := 
+| Ast_bop_times        : ast_bop 
+| Ast_bop_plus         : ast_bop 
+| Ast_bop_min          : ast_bop 
+| Ast_bop_max          : ast_bop  
+| Ast_bop_and          : ast_bop 
+| Ast_bop_or           : ast_bop 
+| Ast_bop_concat       : ast_brel → ast_bop
+| Ast_bop_left         : ast_brel → ast_bop
+| Ast_bop_right        : ast_brel → ast_bop
+| Ast_bop_llex         : ast_bop * ast_bop  → ast_bop
+| Ast_bop_product      : ast_bop * ast_bop  → ast_bop
+| Ast_bop_left_sum     : ast_bop * ast_bop → ast_bop
+| Ast_bop_right_sum    : ast_bop * ast_bop → ast_bop
+| Ast_bop_add_id       : cas_constant * ast_bop → ast_bop
+| Ast_bop_add_ann      : cas_constant * ast_bop → ast_bop
+| Ast_bop_lift         : ast_bop → ast_bop
+| Ast_bop_union        : ast_brel → ast_bop
+| Ast_bop_intersect    : ast_brel → ast_bop
+| Ast_bop_minset_union : ast_brel → ast_bop
+| Ast_bop_minset_lift  : ast_brel → ast_bop
+.
+
+
+
+(* algebraic combinators *)
 Inductive ast_eqv : Type := 
    | Ast_eqv_bool          : ast_eqv
    | Ast_eqv_nat           : ast_eqv
@@ -10,27 +62,7 @@ Inductive ast_eqv : Type :=
    | Ast_eqv_sum           : ast_eqv * ast_eqv → ast_eqv
    | Ast_eqv_add_constant  : cas_constant * ast_eqv → ast_eqv
    | Ast_eqv_nat_ceiling   : nat → ast_eqv   
-   | Ast_eqv_minset        : ast_po → ast_eqv   
-
-with ast_bop : Type := 
-| Ast_bop_times : ast_bop 
-| Ast_bop_plus  : ast_bop 
-| Ast_bop_min   : ast_bop 
-| Ast_bop_max   : ast_bop  
-| Ast_bop_and   : ast_bop 
-| Ast_bop_or    : ast_bop 
-| Ast_bop_concat    : ast_eqv → ast_bop
-| Ast_bop_left      : ast_eqv → ast_bop
-| Ast_bop_right     : ast_eqv → ast_bop
-| Ast_bop_llex      :  ast_bop * ast_bop  → ast_bop
-| Ast_bop_product   : ast_bop * ast_bop  → ast_bop
-| Ast_bop_left_sum  : ast_bop * ast_bop → ast_bop
-| Ast_bop_right_sum :  ast_bop * ast_bop → ast_bop
-| Ast_bop_add_id    :  cas_constant * ast_bop → ast_bop
-| Ast_bop_add_ann   :  cas_constant * ast_bop → ast_bop
-| Ast_bop_lift      : ast_bop → ast_bop
-| Ast_bop_union     : ast_eqv → ast_bop
-| Ast_bop_intersect : ast_eqv → ast_bop
+   | Ast_eqv_minset        : ast_po → ast_eqv
 
 with  ast_qo : Type := 
    | Ast_qo_dual          : ast_qo → ast_qo
@@ -67,7 +99,6 @@ with ast_to : Type :=
    | Ast_to_from_po       : ast_po → ast_to
    | Ast_to_llte          : ast_sg_CS → ast_to
    | Ast_to_rlte          : ast_sg_CS → ast_to
-
 
 with ast_sg :=
    | Ast_sg_concat         : ast_eqv → ast_sg
@@ -112,6 +143,7 @@ with ast_sg_CI :=
    | Ast_sg_CI_lift               : ast_sg_CS → ast_sg_CI    
    | Ast_sg_CI_union              : ast_eqv → ast_sg_CI
    | Ast_sg_CI_intersect          : ast_eqv → ast_sg_CI
+   | Ast_sg_CI_minset_union       : ast_po → ast_sg_CI                                                
    | Ast_sg_CI_from_sg_CS         : ast_sg_CS → ast_sg_CI
    | Ast_sg_CI_from_sg_C          : ast_sg_C → ast_sg_CI
 
@@ -149,89 +181,175 @@ with ast_msg :=
    | Ast_msg_add_ann        : cas_constant * ast_msg → ast_msg
    | Ast_msg_lift           : ast_msg → ast_msg
    | Ast_msg_from_sg        : ast_sg → ast_msg
+
+with ast_mm :=     
+   | Ast_mm_concat         : ast_eqv → ast_mm
+   | Ast_mm_left_sum       : ast_msg * ast_mm → ast_mm
+   | Ast_mm_right_sum      : ast_mm * ast_msg → ast_mm
+   | Ast_mm_product        : ast_mm * ast_mm → ast_mm
+   | Ast_mm_add_ann        : cas_constant * ast_mm → ast_mm
+   | Ast_mm_lift           : ast_mm → ast_mm
+   | Ast_mm_minset_lift    : ast_msg → ast_mm                                          
+   | Ast_mm_from_sg        : ast_sg → ast_mm
    .
-                                          
+   
 Inductive ast_bs :=
+(* need paths!, reductions 
+operations 
+  product 
+  left_sum 
+  right_sum
+  add_one
+  add_zero 
+  llex 
+ *)
+(* base cases *)
+(* operations preserving this class *)           
    | Ast_bs_product    : ast_bs * ast_bs → ast_bs
-   | Ast_bs_left_sum    : ast_bs * ast_bs → ast_bs
-   | Ast_bs_right_sum    : ast_bs * ast_bs → ast_bs     
+   | Ast_bs_left_sum   : ast_bs * ast_bs → ast_bs
+   | Ast_bs_right_sum  : ast_bs * ast_bs → ast_bs     
    | Ast_bs_add_zero   : cas_constant * ast_bs → ast_bs
    | Ast_bs_add_one    : cas_constant * ast_bs → ast_bs
-   | Ast_bs_llex      : ast_bs_CS * ast_bs → ast_bs                                                   
-   | Ast_bs_from_bs_CS : ast_bs_CS → ast_bs
-   | Ast_bs_from_bs_CI : ast_bs_CI → ast_bs                                       
-   | Ast_bs_from_lattice : ast_lattice → ast_bs
-   | Ast_bs_from_semiring : ast_semiring → ast_bs
-                                        
+   | Ast_bs_llex       : ast_bs_CS * ast_bs → ast_bs                                                   
+(* translations from adjacent classes *) 
+   | Ast_bs_from_bs_CI       : ast_bs_CI → ast_bs                                       
+   | Ast_bs_from_presemiring : ast_presemiring → ast_bs
+
+with ast_bs_CI :=
+(* base cases *)       
+   | Ast_bs_CI_union_lift    : ast_msg → ast_bs_CI
+(* operations preserving this class *)         
+(* translations from adjacent classes *)                                                                                                
+   | Ast_bs_CI_from_bs       : ast_bs → ast_bs_CI
+   | Ast_bs_CI_from_bs_CS    : ast_bs_CS → ast_bs_CI                                          
+   | Ast_bs_CI_from_lattice  : ast_lattice → ast_bs_CI                                       
+                                                   
 with ast_bs_CS :=
+(* base cases *)
+(* operations preserving this class *)         
    | Ast_bs_CS_product   : ast_bs_CS * ast_bs_CS → ast_bs_CS
    | Ast_bs_CS_add_zero  : cas_constant * ast_bs_CS → ast_bs_CS
    | Ast_bs_CS_add_one   : cas_constant * ast_bs_CS → ast_bs_CS
    | Ast_bs_CS_llex      : ast_bs_CS * ast_bs_CS → ast_bs_CS
-   | Ast_bs_CS_from_bs   : ast_bs  → ast_bs_CS
-(*
-with ast_bs_C :=
-   | Ast_bs_C_product   : ast_bs_C * ast_bs_C → ast_bs_C
-   | Ast_bs_C_add_zero  : cas_constant * ast_bs_C → ast_bs_C
-   | Ast_bs_C_add_one   : cas_constant * ast_bs_C → ast_bs_C
+(* translations from adjacent classes *)                                                      
+   | Ast_bs_CS_from_bs_CI   : ast_bs_CI  → ast_bs_CS
+   | Ast_bs_CS_from_bs      : ast_bs  → ast_bs_CS                                       
 
-   | Ast_bs_C_from_bs   : ast_bs  → ast_bs_C
-   | Ast_bs_C_from_bs_CS    : ast_bs_CS → ast_bs_C
-   | Ast_bs_C_from_bs_CI    : ast_bs_CI → ast_bs_C
-   | Ast_bs_C_from_semiring : ast_semiring → ast_bs_C
+with  ast_presemiring :=
+(* base cases *)
+(* operations preserving this class *)         
+| Ast_presemiring_product     : ast_presemiring * ast_presemiring → ast_presemiring
+(* translations from adjacent classes *) 
+| Ast_presemiring_from_bs                    : ast_bs → ast_presemiring                                                                      
+| Ast_presemiring_from_semiring              : ast_semiring → ast_presemiring
+| Ast_presemiring_from_selective_presemiring : ast_selective_presemiring → ast_presemiring
+| Ast_presemiring_from_distributive_prelattice : ast_distributive_prelattice → ast_presemiring
+| Ast_presemiring_from_selective_distributive_prelattice : ast_selective_distributive_prelattice → ast_presemiring                                                                                 
+                                               
+with  ast_selective_presemiring :=
+(* base cases *)                        
+| Ast_min_plus : ast_selective_presemiring
+| Ast_max_plus : ast_selective_presemiring
+(*                   
+| Ast_min_max  : ast_selective_presemiring
+| Ast_max_min  : ast_selective_presemiring                   
 *)
-with ast_bs_CI :=
-   | Ast_bs_CI_union_lift    : ast_msg → ast_bs_CI
-   | Ast_bs_CI_from_dioid    : ast_dioid → ast_bs_CI                                                                                         
+(* operations preserving this class *) 
+(* translations from adjacent classes *) 
+| Ast_selective_presemiring_from_presemiring  : ast_presemiring → ast_selective_presemiring                                                            
 
 with  ast_semiring :=
+(* base cases *)                
+(* operations preserving this class *) 
 | Ast_semiring_add_zero   : cas_constant * ast_semiring → ast_semiring
 | Ast_semiring_product    : ast_semiring * ast_semiring → ast_semiring
-| Ast_semiring_from_dioid  : ast_dioid → ast_semiring                                                            
+(* translations from adjacent classes *) 
+| Ast_semiring_from_presemiring  : ast_presemiring → ast_semiring                                                            
+| Ast_semiring_from_dioid        : ast_dioid → ast_semiring
+| Ast_semiring_from_selective_semiring  : ast_selective_semiring → ast_semiring 
+
+with  ast_selective_semiring :=
+(* base cases *)                        
+(* operations preserving this class *) 
+(* translations from adjacent classes *) 
+| Ast_selective_semiring_from_semiring  : ast_semiring → ast_selective_semiring                                                            
 
 with ast_dioid :=
+(* base cases *)        
+| Ast_dioid_sg_left   : ast_sg_CI  → ast_dioid  (* left and right do not belong here *) 
+| Ast_dioid_sg_right   : ast_sg_CI  → ast_dioid                                             
+(* operations preserving this class *) 
 | Ast_dioid_add_zero  : cas_constant * ast_dioid → ast_dioid
 | Ast_dioid_product   : ast_dioid * ast_dioid → ast_dioid
-| Ast_dioid_sg_left   : ast_sg_CI  → ast_dioid
-| Ast_dioid_sg_right   : ast_sg_CI  → ast_dioid                                       
-| Ast_dioid_from_distributive_lattice  : ast_distributive_lattice → ast_dioid
-| Ast_dioid_from_selective_dioid : ast_selective_dioid → ast_dioid
+(* translations from adjacent classes *) 
+| Ast_dioid_from_semiring             : ast_semiring → ast_dioid                                        
+| Ast_dioid_from_distributive_lattice : ast_distributive_lattice → ast_dioid
+| Ast_dioid_from_selective_dioid      : ast_selective_dioid → ast_dioid
 
 with ast_selective_dioid :=
-| Ast_selective_dioid_min_plus : ast_selective_dioid
-| Ast_selective_dioid_max_plus : ast_selective_dioid
-| Ast_selective_dioid_sg_left   : ast_sg_CS  → ast_selective_dioid
-| Ast_selective_dioid_sg_right   : ast_sg_CS  → ast_selective_dioid                                       
+(* base cases *)
+(* operations preserving this class *)        
+| Ast_selective_dioid_sg_left   : ast_sg_CS  → ast_selective_dioid (* left and right do not belong here *) 
+| Ast_selective_dioid_sg_right  : ast_sg_CS  → ast_selective_dioid                                       
 | Ast_selective_dioid_add_zero  : cas_constant * ast_selective_dioid → ast_selective_dioid
+(* translations from adjacent classes *)                                                                          
+| Ast_selective_dioid_from_dioid                           : ast_dioid → ast_selective_dioid
+| Ast_selective_dioid_from_selective_distributive_lattice  : ast_selective_distributive_lattice → ast_selective_dioid                                                  
 
-                                                                         
+                                                                           
 with ast_distributive_lattice :=
+(* base cases *)        
+(*| Ast_distributive_lattice_union_intersect : ast_eqv → ast_distributive_lattice *)
+(* operations preserving this class *)                                                               
 | Ast_distributive_lattice_add_one  : cas_constant * ast_distributive_lattice → ast_distributive_lattice
 | Ast_distributive_lattice_add_zero : cas_constant * ast_distributive_lattice → ast_distributive_lattice
 | Ast_distributive_lattice_product  : ast_distributive_lattice * ast_distributive_lattice → ast_distributive_lattice
 | Ast_distributive_lattice_left_sum : ast_distributive_lattice * ast_distributive_lattice → ast_distributive_lattice                      
 | Ast_distributive_lattice_dual     : ast_distributive_lattice → ast_distributive_lattice
-| Ast_distributive_lattice_intersect_union : ast_eqv → ast_distributive_lattice
-| Ast_distributive_lattice_union_intersect : ast_eqv → ast_distributive_lattice
+(* translations from adjacent classes *)
+| Ast_distributive_lattice_from_dioid                           : ast_dioid → ast_distributive_lattice
+| Ast_distributive_lattice_from_lattice                         : ast_lattice → ast_distributive_lattice
 | Ast_distributive_lattice_from_selective_distributive_lattice  : ast_selective_distributive_lattice → ast_distributive_lattice
 
 with ast_selective_distributive_lattice :=
-| Ast_selective_distributive_lattice_min_max  : ast_selective_distributive_lattice
-| Ast_selective_distributive_lattice_and_or   : ast_selective_distributive_lattice
+(* base cases *)               
+| Ast_and_or   : ast_selective_distributive_lattice
+(* operations preserving this class *)                                                               
 | Ast_selective_distributive_lattice_add_one  : cas_constant * ast_selective_distributive_lattice → ast_selective_distributive_lattice
 | Ast_selective_distributive_lattice_add_zero : cas_constant * ast_selective_distributive_lattice → ast_selective_distributive_lattice
 | Ast_selective_distributive_lattice_left_sum :
            ast_selective_distributive_lattice * ast_selective_distributive_lattice → ast_selective_distributive_lattice                      
 | Ast_selective_distributive_lattice_dual     : ast_selective_distributive_lattice → ast_selective_distributive_lattice 
-                                                                        
-
+(* translations from adjacent classes *)                                                                         
+| Ast_selective_distributive_lattice_from_selective_dioid       : ast_selective_dioid → ast_selective_distributive_lattice
+| Ast_selective_distributive_lattice_from_distributive_lattice  : ast_distributive_lattice → ast_selective_distributive_lattice
+                                                                                       
 with ast_lattice :=
-  | Ast_lattice_dual : ast_lattice → ast_lattice     
+(* base cases *)                      
+(* operations preserving this class *)                                                               
+  | Ast_lattice_dual      : ast_lattice → ast_lattice     
   | Ast_lattice_add_zero  : cas_constant * ast_lattice → ast_lattice
-  | Ast_lattice_add_one  : cas_constant * ast_lattice → ast_lattice
+  | Ast_lattice_add_one   : cas_constant * ast_lattice → ast_lattice
   | Ast_lattice_product   : ast_lattice * ast_lattice → ast_lattice
-  | Ast_lattice_left_sum   : ast_lattice * ast_lattice → ast_lattice                                                          
-  | Ast_lattice_from_distributive_lattice   : ast_distributive_lattice → ast_lattice                                                          
+  | Ast_lattice_left_sum  : ast_lattice * ast_lattice → ast_lattice
+(* translations from adjacent classes *)                                                             
+  | Ast_lattice_from_bs_CI                  : ast_bs_CI → ast_lattice                                                          
+  | Ast_lattice_from_distributive_lattice   : ast_distributive_lattice → ast_lattice
+with ast_distributive_prelattice :=
+(* base cases *)        
+| Ast_union_intersect : ast_eqv → ast_distributive_prelattice
+(* operations preserving this class *)                                                               
+| Ast_distributive_prelattice_dual     : ast_distributive_prelattice → ast_distributive_prelattice
+(* translations from adjacent classes *)
+| Ast_distributive_prelattice_from_selective_distributive_prelattice  : ast_selective_distributive_prelattice → ast_distributive_prelattice
+with ast_selective_distributive_prelattice :=
+(* base cases *)
+| Ast_max_min   : ast_selective_distributive_prelattice
+| Ast_min_max   : ast_selective_distributive_prelattice
+with ast_prelattice :=
+(* base cases *)                      
+(* operations preserving this class *)
+| Ast_prelattice_dual      : ast_prelattice → ast_prelattice                                                                                
   .
   
 Inductive ast_os :=

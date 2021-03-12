@@ -52,6 +52,8 @@ Definition eqv_proofs_eq_bool : eqv_proofs bool brel_eq_bool  (* (uop_id bool) *
    ; A_eqv_reflexive      := brel_eq_bool_reflexive 
    ; A_eqv_transitive     := brel_eq_bool_transitive 
    ; A_eqv_symmetric      := brel_eq_bool_symmetric
+   ; A_eqv_type_ast       := Ast_type_bool                                
+   ; A_eqv_brel_ast       := Ast_brel_eq_bool 
    |}. 
 
 
@@ -79,7 +81,16 @@ Open Scope list_scope.
 
 Definition eqv_bool : @eqv bool 
 := {| 
-      eqv_eq    := brel_eq_bool 
+      eqv_eq    := brel_eq_bool
+    ; eqv_certs := 
+     {|
+       eqv_congruence     := @Assert_Brel_Congruence bool
+     ; eqv_reflexive      := @Assert_Reflexive bool
+     ; eqv_transitive     := @Assert_Transitive bool 
+     ; eqv_symmetric      := @Assert_Symmetric bool
+     ; eqv_type_ast       := Ast_type_bool                                                                               
+     ; eqv_brel_ast       := Ast_brel_eq_bool
+     |}  
     ; eqv_witness := true 
     ; eqv_new   := negb
     ; eqv_exactly_two_d := Certify_Exactly_Two (true, false) 

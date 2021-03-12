@@ -193,6 +193,7 @@ Extraction "Cas.ml"
    sg_CI_intersect
    sg_lift
    (* sg casting *)
+   msg_from_sg   
    sg_from_sg_C
    sg_from_sg_CS
    sg_from_sg_CI
@@ -210,58 +211,53 @@ Extraction "Cas.ml"
    sg_CK_option_from_sg_C
    sg_CS_option_from_sg_CI
   (* bi-semigroups *)
-   selective_dioid_max_plus
-   selective_dioid_min_plus
-   selective_distributive_lattice_min_max
-   selective_distributive_lattice_max_min  
+   selective_presemiring_max_plus 
+   selective_presemiring_min_plus
+   selective_distributive_prelattice_min_max
+   selective_distributive_prelattice_max_min  
    selective_distributive_lattice_and_or
    selective_distributive_lattice_or_and
-   
-   lattice_dual
-   distributive_lattice_dual
-   selective_distributive_lattice_dual
-
    bs_add_one
-   lattice_add_one
-   distributive_lattice_add_one   
-
+(* lattice_add_one
+   distributive_lattice_add_one   *)
    bs_add_zero
-   semiring_add_zero
+(* semiring_add_zero 
    dioid_add_zero   
    lattice_add_zero
-   distributive_lattice_add_zero
-(*   selective_distributive_lattice_add_zero   *) 
-   
+   distributive_lattice_add_zero 
+   selective_distributive_lattice_add_zero   *) 
    bs_product
    semiring_product
    dioid_product
-
-   dioid_sg_left
-   selective_dioid_sg_left
-   dioid_sg_right
-   selective_dioid_sg_right
-   
-
+(*   
+   semiring_sg_left
+   semiring_sg_right
+*)
    bs_left_sum
 (* bs_right_sum *) 
-
    bs_llex_product
    bs_CS_llex_product
    bs_CI_union_lift 
-
-   distributive_lattice_union_intersect
-   distributive_lattice_intersect_union
-
+   distributive_prelattice_union_intersect
+   distributive_prelattice_intersect_union 
+   (* cast up *) 
    bs_from_bs_CI
    bs_from_semiring
    semiring_from_dioid
-   bs_from_dioid
-   bs_from_selective_dioid   
+   bs_from_dioid 
+   bs_from_selective_dioid  
    dioid_from_distributive_lattice
-   bs_from_distributive_lattice
-   bs_from_selective_distributive_lattice   
-
+   bs_from_distributive_prelattice         
+   bs_from_distributive_lattice 
+   bs_from_selective_distributive_lattice
+   bs_from_selective_distributive_prelattice
+   bs_from_selective_presemiring   
+   (* cast down *) 
    bs_CS_option_from_bs
+   (* lattice duals *) 
+   lattice_dual
+   distributive_lattice_dual
+   selective_distributive_lattice_dual
    .
 
 (**

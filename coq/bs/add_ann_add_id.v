@@ -469,13 +469,32 @@ Definition bs_proofs_add_one :
         (A_eqv_symmetric S rS eqvS)
         (A_asg_idempotent_d S rS plusS ppS)
         (A_bs_right_right_absorptive_d S rS plusS timesS pS)
-; A_bs_plus_id_is_times_ann_d := 
-    bops_add_one_id_equals_ann_decide S rS c plusS timesS s (A_eqv_reflexive S rS eqvS) 
-      (A_bs_plus_id_is_times_ann_d S rS plusS timesS pS)
-; A_bs_times_id_is_plus_ann_d :=  
-     inl _ (bops_add_id_add_ann_id_equals_ann S rS c timesS plusS (A_eqv_reflexive S rS eqvS))
+|}.
 
-|}. 
+Definition id_ann_proofs_add_one : 
+  ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S) (s : S), 
+     eqv_proofs S rS -> 
+     id_ann_proofs S rS plusS timesS -> 
+        id_ann_proofs 
+           (with_constant S) 
+           (brel_sum brel_constant rS)
+           (bop_add_ann plusS c)
+           (bop_add_id timesS c)           
+:= λ S rS c plusS timesS s eqvS pS,
+let refS := A_eqv_reflexive S rS eqvS in   
+{|
+    A_id_ann_exists_plus_id_d       := bop_add_ann_exists_id_decide S rS c plusS s (A_id_ann_exists_plus_id_d S rS plusS timesS pS)
+  ; A_id_ann_exists_plus_ann_d      := inl (bop_add_ann_exists_ann S rS c plusS) 
+  ; A_id_ann_exists_times_id_d      := inl (bop_add_id_exists_id S rS c timesS refS)
+  ; A_id_ann_exists_times_ann_d     := bop_add_id_exists_ann_decide S rS c timesS s refS (A_id_ann_exists_times_ann_d S rS plusS timesS pS)
+  ; A_id_ann_plus_id_is_times_ann_d := 
+    bops_add_one_id_equals_ann_decide S rS c plusS timesS s (A_eqv_reflexive S rS eqvS) 
+      (A_id_ann_plus_id_is_times_ann_d S rS plusS timesS pS)
+; A_id_ann_times_id_is_plus_ann_d :=  
+     inl _ (bops_add_id_add_ann_id_equals_ann S rS c timesS plusS (A_eqv_reflexive S rS eqvS))
+|}.
+
+
 
 Definition A_bs_add_one : ∀ (S : Type),  A_bs S -> cas_constant -> A_bs (with_constant S) 
 := λ S bsS c,
@@ -494,10 +513,9 @@ let tproofs := A_bs_times_proofs S bsS in
    ; A_bs_plus         := bop_add_ann plus c
    ; A_bs_times        := bop_add_id times c
    ; A_bs_plus_proofs  := asg_proofs_add_ann S rS c plus s peqvS pproofs 
-   ; A_bs_times_proofs := msg_proofs_add_id S rS c times s f Pf peqvS tproofs 
+   ; A_bs_times_proofs := msg_proofs_add_id S rS c times s f Pf peqvS tproofs
+   ; A_bs_id_ann_proofs := id_ann_proofs_add_one S _ c plus times (A_eqv_witness S eqvS) (A_eqv_proofs S eqvS) (A_bs_id_ann_proofs S bsS)
    ; A_bs_proofs       := bs_proofs_add_one S rS c plus times s peqvS pproofs (A_bs_proofs S bsS)
-   ; A_bs_plus_ast     := Ast_bop_add_ann (c, A_bs_plus_ast S bsS)
-   ; A_bs_times_ast    := Ast_bop_add_id (c, A_bs_times_ast S bsS)                                                      
    ; A_bs_ast          := Ast_bs_add_one (c, A_bs_ast S bsS)
 |}.
 
@@ -555,7 +573,7 @@ Definition lattice_proofs_add_one :
         (A_lattice_distributive_dual_d S rS join meet pl) 
 |}.
 
-
+(*
 Definition A_lattice_add_one : ∀ (S : Type),  A_lattice S -> cas_constant -> A_lattice (with_constant S) 
 := λ S bsS c, 
 {| 
@@ -581,8 +599,6 @@ Definition A_lattice_add_one : ∀ (S : Type),  A_lattice S -> cas_constant -> A
                                 (A_lattice_join_proofs S bsS)
                                 (A_lattice_meet_proofs S bsS)                                 
                                 (A_lattice_proofs S bsS)
-   ; A_lattice_join_ast    := Ast_bop_add_ann (c, A_lattice_join_ast S bsS)
-   ; A_lattice_meet_ast    := Ast_bop_add_id (c, A_lattice_meet_ast S bsS)                                                      
    ; A_lattice_ast         :=  Ast_lattice_add_one (c, A_lattice_ast S bsS)
 |}. 
 
@@ -669,7 +685,7 @@ Definition A_distributive_lattice_add_one : ∀ (S : Type),  A_distributive_latt
    ; A_distributive_lattice_ast         := Ast_distributive_lattice_add_one (c, A_distributive_lattice_ast S bsS)
 |}. 
 
-
+*)
 
 (* Note: This is another example (like llex) where we can combine semirings and obtain 
    something that is not a semiring 
@@ -853,8 +869,8 @@ Definition bops_plus_id_equals_times_ann_check :
    ∀ {S : Type}  (c : cas_constant),
      @check_plus_id_equals_times_ann S -> @check_plus_id_equals_times_ann (with_constant S)
 := λ {S} c iea_d, 
-  match iea_d with                           (*** NB : same terms, different types! ***) 
-  | Certify_Plus_Id_Equals_Times_Ann     => Certify_Plus_Id_Equals_Times_Ann  
+  match iea_d with                    (*** NB : same terms, different types! ***) 
+  | Certify_Plus_Id_Equals_Times_Ann s   => Certify_Plus_Id_Equals_Times_Ann  (inr _ s)
   | Certify_Not_Plus_Id_Equals_Times_Ann => Certify_Not_Plus_Id_Equals_Times_Ann  
   end. 
 
@@ -885,9 +901,20 @@ Definition bs_certs_add_one :
 ; bs_right_right_absorptive_d := bops_add_one_right_right_absorptive_check c 
                                       (asg_idempotent_d ppS) 
                                       (bs_right_right_absorptive_d pS) 
-; bs_plus_id_is_times_ann_d := bops_plus_id_equals_times_ann_check c (bs_plus_id_is_times_ann_d pS)
-; bs_times_id_is_plus_ann_d :=  Certify_Times_Id_Equals_Plus_Ann  
 |}. 
+
+Definition id_ann_certs_add_one {S : Type} (c : cas_constant) : 
+     @id_ann_certificates S -> @id_ann_certificates (with_constant S) 
+:= λ pS,
+{|
+    id_ann_exists_plus_id_d       := bop_add_ann_exists_id_check (id_ann_exists_plus_id_d pS)
+  ; id_ann_exists_plus_ann_d      := Certify_Exists_Ann (inl c) 
+  ; id_ann_exists_times_id_d      := Certify_Exists_Id (inl c) 
+  ; id_ann_exists_times_ann_d     := bop_add_id_exists_ann_check (id_ann_exists_times_ann_d pS)
+  ; id_ann_plus_id_is_times_ann_d := bops_plus_id_equals_times_ann_check c (id_ann_plus_id_is_times_ann_d pS)
+  ; id_ann_times_id_is_plus_ann_d := Certify_Times_Id_Equals_Plus_Ann (inl c) 
+|}.
+                                                                 
 
 Definition bs_add_one : ∀ {S : Type}, bs (S := S) -> cas_constant -> bs (S := (with_constant S)) 
 := λ {S} bsS c, 
@@ -896,15 +923,15 @@ Definition bs_add_one : ∀ {S : Type}, bs (S := S) -> cas_constant -> bs (S := 
    ; bs_plus        := bop_add_ann (bs_plus bsS) c
    ; bs_times       := bop_add_id (bs_times bsS) c
    ; bs_plus_certs  := asg_certs_add_ann c (eqv_witness (bs_eqv bsS)) (bs_plus_certs bsS) 
-   ; bs_times_certs := msg_certs_add_id c (eqv_witness (bs_eqv bsS)) (eqv_new (bs_eqv bsS)) (bs_times_certs bsS) 
+   ; bs_times_certs := msg_certs_add_id c (eqv_witness (bs_eqv bsS)) (eqv_new (bs_eqv bsS)) (bs_times_certs bsS)
+   ; bs_id_ann_certs := id_ann_certs_add_one c (bs_id_ann_certs bsS)
    ; bs_certs       := bs_certs_add_one c (bs_plus_certs bsS) (bs_certs bsS)
-   ; bs_plus_ast    := Ast_bop_add_ann (c, bs_plus_ast bsS)
-   ; bs_times_ast   := Ast_bop_add_id (c, bs_times_ast bsS)                                                      
    ; bs_ast         := Ast_bs_add_one (c, bs_ast bsS)
 |}.
 
 (* "dual" to code bops_add_zero_left_distributive_check *)
 
+(*
 Definition bops_add_one_left_distributive_dual_check : 
    ∀ {S : Type},  @check_left_distributive_dual S -> @check_left_distributive_dual (with_constant S) 
 := λ {S} dS,  
@@ -970,7 +997,7 @@ Definition distributive_lattice_add_one : ∀ (S : Type),  @distributive_lattice
    ; distributive_lattice_ast         := Ast_distributive_lattice_add_one (c, distributive_lattice_ast bsS)
 |}. 
   
-
+*)
 End CAS.
 
 Section Verify.
@@ -986,7 +1013,7 @@ Lemma bops_add_one_plus_id_equals_times_ann_check_correct :
      (bops_add_one_id_equals_ann_decide S rS 
         c plusS timesS s (A_eqv_reflexive S rS eqvS) pS) 
   =  bops_plus_id_equals_times_ann_check c (p2c_plus_id_equals_times_ann S rS plusS timesS pS).
-Proof. intros S c rS s plusS timesS eqvS [ L | R]; compute; reflexivity. Qed. 
+Proof. intros S c rS s plusS timesS eqvS [ [i [P Q]] | R]; compute; reflexivity. Qed. 
  
 
 Lemma bops_add_one_left_distributive_check_correct : 
@@ -1143,7 +1170,6 @@ Proof. intros S c s rS plusS timesS eqvS sgS bsS.
        unfold bs_certs_add_one, bs_proofs_add_one, P2C_bs, P2C_asg; simpl. 
        rewrite bops_add_one_left_distributive_check_correct. 
        rewrite bops_add_one_right_distributive_check_correct. 
-       rewrite bops_add_one_plus_id_equals_times_ann_check_correct.
        rewrite bops_add_one_left_left_absorbtive_check_correct .
        rewrite bops_add_one_left_right_absorbtive_check_correct. 
        rewrite bops_add_one_right_left_absorbtive_check_correct. 
@@ -1151,6 +1177,27 @@ Proof. intros S c s rS plusS timesS eqvS sgS bsS.
        reflexivity. 
 Defined. 
 
+
+Lemma  correct_id_ann_certs_add_one : 
+  ∀ (S : Type) (c : cas_constant) (rS : brel S) (s : S) 
+    (plusS timesS : binary_op S) 
+    (eqvS : eqv_proofs S rS)
+    (bsS : id_ann_proofs S rS plusS timesS), 
+    P2C_id_ann (with_constant S) 
+       (brel_sum brel_constant rS) 
+       (bop_add_ann plusS c) 
+       (bop_add_id timesS c) 
+       (id_ann_proofs_add_one S rS c plusS timesS s eqvS bsS)
+    =
+    id_ann_certs_add_one c (P2C_id_ann S rS plusS timesS bsS). 
+Proof. intros S c rS s plusS timesS eqvS bsS.
+       unfold id_ann_certs_add_one, id_ann_proofs_add_one, P2C_id_ann; simpl.        
+       rewrite bops_add_one_plus_id_equals_times_ann_check_correct.
+       rewrite bop_add_id_exists_ann_check_correct.
+       rewrite bop_add_ann_exists_id_check_correct.        
+       reflexivity.
+Qed.        
+       
 Theorem correct_bs_add_one : ∀ (S : Type) (bsS: A_bs S) (c : cas_constant), 
    bs_add_one (A2C_bs S bsS) c 
    =
@@ -1160,11 +1207,12 @@ Proof. intros S bsS c.
        rewrite correct_eqv_add_constant. 
        rewrite <- correct_asg_certs_add_ann. 
        rewrite <- correct_msg_certs_add_id. 
-       rewrite correct_bs_certs_add_one. 
+       rewrite correct_bs_certs_add_one.
+       rewrite correct_id_ann_certs_add_one.        
        reflexivity. 
 Qed. 
 
-
+(*
 Lemma bops_add_one_left_distributive_dual_check_correct : 
   ∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
     (eqvS : eqv_proofs S rS)
@@ -1257,6 +1305,6 @@ Proof. intros S distributive_latticeS c.
        reflexivity. 
 Qed. 
   
- 
+*) 
 End Verify.   
   

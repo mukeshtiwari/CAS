@@ -89,22 +89,23 @@ Definition sg_C_proofs_times : sg_C_proofs nat brel_eq_nat bop_times :=
 ; A_sg_C_commutative      := bop_times_commutative
 ; A_sg_C_selective_d      := inr _ bop_times_not_selective
 ; A_sg_C_idempotent_d     := inr _ bop_times_not_idempotent 
-; A_sg_C_exists_id_d      := inl _ bop_times_exists_id
-; A_sg_C_exists_ann_d     := inl _ bop_times_exists_ann
 ; A_sg_C_cancel_d         := inr _ bop_times_not_left_cancellative
 ; A_sg_C_constant_d       := inr _ bop_times_not_left_constant
 ; A_sg_C_anti_left_d      := inr _ bop_times_not_anti_left
 ; A_sg_C_anti_right_d     := inr _ bop_times_not_anti_right
+; A_sg_C_bop_ast          := Ast_bop_times
 |}. 
 
 
 Definition A_sg_C_times : A_sg_C nat 
 := {| 
-     A_sg_C_eqv        := A_eqv_nat 
-   ; A_sg_C_bop        := bop_times
-   ; A_sg_C_proofs     := sg_C_proofs_times
-   ; A_sg_C_bop_ast    := Ast_bop_times                             
-   ; A_sg_C_ast        := Ast_sg_C_times
+     A_sg_C_eqv          := A_eqv_nat 
+   ; A_sg_C_bop          := bop_times
+   ; A_sg_C_exists_id_d  := inl _ bop_times_exists_id
+   ; A_sg_C_exists_ann_d := inl _ bop_times_exists_ann
+   ; A_sg_C_proofs       := sg_C_proofs_times
+   
+   ; A_sg_C_ast          := Ast_sg_C_times
    |}. 
 
 End ACAS.
@@ -121,20 +122,21 @@ Definition sg_C_certs_times : @sg_C_certificates nat
    ; sg_C_commutative    := Assert_Commutative 
    ; sg_C_selective_d    := Certify_Not_Selective (2, 2)
    ; sg_C_idempotent_d   := Certify_Not_Idempotent 2
-   ; sg_C_exists_id_d    := Certify_Exists_Id 1 
-   ; sg_C_exists_ann_d   := Certify_Exists_Ann 0
    ; sg_C_cancel_d       := Certify_Not_Left_Cancellative (0, (0, 1))
    ; sg_C_constant_d     := Certify_Not_Left_Constant  (1, (0, 1))
    ; sg_C_anti_left_d    := Certify_Not_Anti_Left (0, 0)
    ; sg_C_anti_right_d   := Certify_Not_Anti_Right (0, 0)
-   |}.
+   ; sg_C_bop_ast := Ast_bop_times
+  |}.
 
 Definition sg_C_times : @sg_C nat 
 := {| 
      sg_C_eqv   := eqv_eq_nat 
    ; sg_C_bop   := bop_times
+   ; sg_C_exists_id_d    := Certify_Exists_Id 1 
+   ; sg_C_exists_ann_d   := Certify_Exists_Ann 0
    ; sg_C_certs := sg_C_certs_times
-   ; sg_C_bop_ast := Ast_bop_times 
+   
    ; sg_C_ast   := Ast_sg_C_times
    |}. 
 

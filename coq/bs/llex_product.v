@@ -3,7 +3,8 @@ Require Import CAS.coq.common.base.
 Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.sg.product.
 Require Import CAS.coq.sg.llex.
-Require Import CAS.coq.sg.cast_up. 
+Require Import CAS.coq.sg.cast_up.
+Require Import CAS.coq.bs.cast_up. 
 Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.theory.llte. 
 
@@ -106,7 +107,46 @@ Proof. intros ldS ldT D [s1 t1] [s2 t2] [s3 t3].
              rewrite fact2 in H2. discriminate. 
              apply K. (* "direct" use of K *) 
           apply refT. 
-Defined. 
+Defined.
+
+
+
+Lemma bop_llex_product_left_distributive_dual : 
+      bop_left_distributive S rS mulS addS → bop_left_distributive T rT mulT addT  → 
+             bop_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2] [s3 t3].
+       unfold bop_product, bop_llex, brel_product. 
+       apply andb_true_intro. split.  
+       apply ldS. 
+       unfold brel_llt. 
+       unfold brel_conjunction. 
+       unfold brel_llte. 
+       unfold brel_complement. 
+       unfold bop_left_distributive in ldS, ldT. 
+       case_eq(rS s1 (s2 *S s3)); intro H1; 
+       case_eq(rS s1 s2); intro H2; 
+       case_eq(rS s1 s3); intro H3. 
+          apply ldT.
+          case_eq(rS s1 (s1 +S s3)); intro H4; simpl. 
+             admit.              
+             admit.              
+          case_eq(rS s1 (s1 +S s2)); intro H4; simpl. 
+             admit.              
+             admit. (* contra if *S selective *)              
+          case_eq(rS s1 (s1 +S s2)); intro H4;
+          case_eq(rS s1 (s1 +S s3)); intro H5; simpl.                
+             admit. (* contra if *S selective only need H1,2,3 *)                           
+             admit. (* contra if *S selective *)                                        
+             admit. (* contra if *S selective *)             
+             admit. (* contra if *S selective *)             
+          case_eq(rS s1 (s1 +S (s2 *S s3))); intro H4; simpl. 
+             admit. (* contra if *S selective only need H1,2,3 *)              
+             admit. (* contra if *S selective *)             
+          admit.   (* contra if *S selective *) 
+          admit.   (* contra if *S selective *) 
+          admit.   (* contra if *S selective *) 
+Admitted. 
+
 
 Definition bop_is_left_ann (S : Type) (eq : brel S) (b : binary_op S) (a : S)
     :=  ∀ s : S, (eq (b a s) a = true).
@@ -119,6 +159,23 @@ Definition bop_left_cancellative_weak (S : Type) (eq : brel S) (b : binary_op S)
 
 Definition bop_not_left_cancellative_weak (S : Type) (eq : brel S) (b : binary_op S)
    := { z : S * (S * S) & match z with (s, (t, u)) => (eq (b s t) (b s u) = true) * (eq t u = false) * (bop_not_is_left_ann S eq b s) end }. 
+
+
+(*  COUNTER EXAMPLE: 
+
+H1 : rS s2 s3 = false
+H2 : s2 =S (s2 +S s3)
+H3 : bop_is_left_ann S rS mulS s1  from   H3 : (s1 *S s2) =S (s1 *S s3)   and (bop_left_cancellative_weak S rS mulS) 
+LHS
+                                 (s1, t1) * ((s2, t2) + (s3, t3))
+                               = (s1, t1) * (s2, t2) 
+                               = (s1 * s2, t1 * t2) 
+                               = (s1, t1 * t2) 
+RHS
+                                 ((s1, t1) * (s2, t2)) + ((s1, t1) * (s3, t3))
+                               = (s1 * s2, t1 * t2) + (s1 * s3, t1 * t3)
+                               = (s1, t1 * t2) + (s1, t1 * t3)
+                               = (s1, (t1 * t2) + (t1 * t3))
 
 
 Lemma bop_llex_product_left_distributive_weak : 
@@ -149,10 +206,7 @@ Proof. intros ldS ldT D [s1 t1] [s2 t2] [s3 t3].
               apply C in H3.
               destruct H3 as [H3 | H3]. 
                  rewrite H3 in H1. discriminate.
-                 admit. (* HERE 
-                                 s1 (s2 + s3) = s1 s2 + s1 s3 
-                                              = s1 s2 
-                         *) 
+                 compute in H3. admit.  <----------------COUNTER EXAMPLE 
              assert (fact1 := ldT t1 t2 t3). 
              assert (fact2 := K t1 t2 (t2 +T t3)). (* t1 * t2 = t1 * (t2 + t3) *) 
              assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
@@ -175,7 +229,7 @@ Proof. intros ldS ldT D [s1 t1] [s2 t2] [s3 t3].
              apply C in H3.
              destruct H3 as [H3 | H3]. 
                 rewrite H3 in H1. discriminate. 
-                admit. (* HERE *) 
+                admit. <----------------COUNTER EXAMPLE 
              assert (fact1 := ldT t1 t2 t3). 
              assert (fact2 := K t1 t3 (t2 +T t3)). (* t1 * t3 = t1 * (t2 + t3) *) 
              assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
@@ -196,7 +250,7 @@ Proof. intros ldS ldT D [s1 t1] [s2 t2] [s3 t3].
                 admit. (* OK HERE *) 
              apply K. (* "direct" use of K *) 
           apply refT. 
-Admitted. 
+Admitted. *) 
 
 
 
@@ -620,7 +674,25 @@ Proof. intros ldS [ldT| F] [s1 t1] [s2 t2].
        compute. 
        rewrite ldS. rewrite F. rewrite F. 
        apply refT. 
-Defined. 
+Defined.
+
+Lemma bops_llex_product_left_left_absorptive_dual :
+      bop_selective S rS addS → bop_idempotent T rT mulT →   
+      bops_left_left_absorptive S rS mulS addS → bops_left_left_absorptive T rT mulT addT → 
+         bops_left_left_absorptive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT). 
+Proof. intros selS itemT ldS ldT [s1 t1] [s2 t2]; simpl.
+       unfold bops_left_left_absorptive in ldS, ldT.
+       unfold brel_llt. unfold brel_conjunction. unfold brel_llte. unfold brel_complement. 
+       rewrite ldS; simpl. 
+       case_eq(rS s1 s2); intro H1;
+       case_eq(rS s1 (s1 +S s2)); intro H2; simpl.
+          apply ldT.
+          apply ldT.            
+          rewrite symT; auto. 
+          destruct (selS s1 s2) as [H3 | H3]. 
+             apply symS in H3. rewrite H3 in H2. discriminate H2. 
+             admit. (* BUSTED! *) 
+Admitted. 
 
 Lemma bops_llex_product_not_left_left_absorptive_left : 
       bops_not_left_left_absorptive S rS addS mulS → 
@@ -930,80 +1002,234 @@ End Theory.
 
 Section ACAS.
 
+Section Proofs.
 
-Definition bs_proofs_llex : 
-  ∀ (S T: Type) (rS : brel S) (rT : brel T) (plusS timesS : binary_op S) (plusT timesT : binary_op T) (s : S) (t : T), 
-     eqv_proofs S rS -> 
-     eqv_proofs T rT -> 
+Variable S T : Type.
+Variable eqvS : A_eqv S.
+Variable eqvT : A_eqv T.
+Variable plusS timesS : binary_op S.
+Variable plusT timesT : binary_op T.
+Variable comS : bop_commutative S (A_eqv_eq S eqvS) plusS.
+Variable selS : bop_selective S (A_eqv_eq S eqvS) plusS.
+Variable comT : bop_commutative T (A_eqv_eq T eqvT) plusT.
+Variable c_timesS : bop_congruence S (A_eqv_eq S eqvS) timesS.
 
-     sg_CS_proofs S rS plusS ->          (*NB*) 
-     msg_proofs S rS timesS ->            
-     asg_proofs T rT plusT ->            (*NB*) 
-     msg_proofs T rT timesT ->            
+Variable left_cancel_timesS    : bop_left_cancellative_decidable S (A_eqv_eq S eqvS) timesS.     (* A_msg_left_cancel_d S rS timesS sg_S *)
+Variable right_cancel_timesS   : bop_right_cancellative_decidable S (A_eqv_eq S eqvS) timesS.    (* A_msg_right_cancel_d S rS timesS sg_S *)
+Variable anti_left_timesS      : bop_anti_left_decidable S (A_eqv_eq S eqvS) timesS.             (* A_msg_anti_left_d S rS timesS sg_S *)
+Variable anti_right_timesS     : bop_anti_right_decidable S (A_eqv_eq S eqvS) timesS.            (* A_msg_anti_right_d S rS timesS sg_S *)
+Variable left_constant_timesT  : bop_left_constant_decidable T (A_eqv_eq T eqvT) timesT.         (* A_msg_left_constant_d T rT timesT sg_T *)    
+Variable right_constant_timesT : bop_right_constant_decidable T (A_eqv_eq T eqvT) timesT.        (* A_msg_right_constant_d T rT timesT sg_T *)
 
-     bs_proofs S rS plusS timesS -> 
-     bs_proofs T rT plusT timesT -> 
 
+Definition bs_proofs_llex_product : 
+     bs_proofs  S (A_eqv_eq S eqvS) plusS timesS -> 
+     bs_proofs  T (A_eqv_eq T eqvT) plusT timesT -> 
         bs_proofs (S * T) 
-           (brel_product rS rT) 
-           (bop_llex rS plusS plusT)
+           (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT)) 
+           (bop_llex     (A_eqv_eq S eqvS) plusS plusT)
            (bop_product timesS timesT)
-
-:= λ S T rS rT plusS timesS plusT timesT s t eqvS eqvT sg_CS_S sg_S sg_C_T sg_T pS pT,
-let refS   := A_eqv_reflexive S rS eqvS in 
-let symS   := A_eqv_symmetric S rS eqvS in 
-let transS := A_eqv_transitive S rS eqvS in 
-let refT   := A_eqv_reflexive T rT eqvT in 
-let symT   := A_eqv_symmetric T rT eqvT in 
-let transT := A_eqv_transitive T rT eqvT in 
-let selS := A_sg_CS_selective S rS plusS sg_CS_S in 
-let comS := A_sg_CS_commutative S rS plusS sg_CS_S in 
-let comT := A_asg_commutative T rT plusT sg_C_T in   
-let c_timesS := A_msg_congruence S rS timesS sg_S in 
+:= λ pS pT,
+let rS     := A_eqv_eq S eqvS in
+let s      := A_eqv_witness S eqvS in     
+let eqvPS  := A_eqv_proofs S eqvS in   
+let refS   := A_eqv_reflexive S rS eqvPS in 
+let symS   := A_eqv_symmetric S rS eqvPS in 
+let transS := A_eqv_transitive S rS eqvPS in
+let rT     := A_eqv_eq T eqvT in
+let t      := A_eqv_witness T eqvT in
+let g      := A_eqv_new T eqvT in
+let ntT    := A_eqv_not_trivial T eqvT in  
+let eqvPT  := A_eqv_proofs T  eqvT in   
+let refT   := A_eqv_reflexive T rT eqvPT in 
+let symT   := A_eqv_symmetric T rT eqvPT in 
+let transT := A_eqv_transitive T rT eqvPT in
+let congT  := A_eqv_congruence T rT eqvPT in 
 {|
   A_bs_left_distributive_d    := 
-   bops_llex_product_left_distributive_decide S T rS rT s t plusS timesS plusT timesT refS symS transS refT symT transT c_timesS selS comS comT
-     (A_msg_left_cancel_d S rS timesS  sg_S) 
-     (A_msg_left_constant_d T rT timesT sg_T)
+    bops_llex_product_left_distributive_decide S T rS rT s t plusS timesS plusT timesT refS symS transS refT symT transT c_timesS selS comS comT
+     left_cancel_timesS
+     left_constant_timesT                                           
      (A_bs_left_distributive_d S rS plusS timesS pS)
      (A_bs_left_distributive_d T rT plusT timesT pT)
 ; A_bs_right_distributive_d   := 
    bops_llex_product_right_distributive_decide S T rS rT s t plusS timesS plusT timesT refS symS transS refT symT transT c_timesS selS comS comT
-     (A_msg_right_cancel_d S rS timesS  sg_S) 
-     (A_msg_right_constant_d T rT timesT sg_T)
+     right_cancel_timesS
+     right_constant_timesT                                           
      (A_bs_right_distributive_d S rS plusS timesS pS)
      (A_bs_right_distributive_d T rT plusT timesT pT)
-; A_bs_plus_id_is_times_ann_d :=  
-    bops_llex_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS transS refT comS 
-     (A_bs_plus_id_is_times_ann_d S rS plusS timesS pS)
-     (A_bs_plus_id_is_times_ann_d T rT plusT timesT pT)
-; A_bs_times_id_is_plus_ann_d :=  
-   bops_product_llex_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS transS refT comS 
-   (bop_selective_implies_idempotent S rS plusS (A_sg_CS_selective S rS plusS sg_CS_S))
-   (A_bs_times_id_is_plus_ann_d S rS plusS timesS pS)
-   (A_bs_times_id_is_plus_ann_d T rT plusT timesT pT)
 ; A_bs_left_left_absorptive_d      := 
     bops_llex_product_left_left_absorptive_decide S T rS rT t plusS timesS plusT timesT refT
     (A_bs_left_left_absorptive_d S rS plusS timesS pS)
     (A_bs_left_left_absorptive_d T rT plusT timesT pT)
-    (A_msg_anti_left_d S rS timesS sg_S)
+    anti_left_timesS
 ; A_bs_left_right_absorptive_d      := 
     bops_llex_product_left_right_absorptive_decide S T rS rT t plusS timesS plusT timesT refT 
     (A_bs_left_right_absorptive_d S rS plusS timesS pS)
     (A_bs_left_right_absorptive_d T rT plusT timesT pT)
-    (A_msg_anti_right_d S rS timesS sg_S)
+    anti_right_timesS    
 ; A_bs_right_left_absorptive_d      := 
     bops_llex_product_right_left_absorptive_decide S T rS rT t plusS timesS plusT timesT symS transS refT 
        (A_bs_right_left_absorptive_d S rS plusS timesS pS)
        (A_bs_right_left_absorptive_d T rT plusT timesT pT)
-       (A_msg_anti_left_d S rS timesS sg_S)
+       anti_left_timesS
 ; A_bs_right_right_absorptive_d      := 
     bops_llex_product_right_right_absorptive_decide S T rS rT t plusS timesS plusT timesT symS transS refT
        (A_bs_right_right_absorptive_d S rS plusS timesS pS)
        (A_bs_right_right_absorptive_d T rT plusT timesT pT)
-       (A_msg_anti_right_d S rS timesS sg_S)
-|}. 
+       anti_right_timesS           
+|}.
 
+
+Definition semiring_proofs_llex:
+     semiring_proofs  S (A_eqv_eq S eqvS) plusS timesS -> 
+     semiring_proofs  T (A_eqv_eq T eqvT) plusT timesT ->
+     (bop_left_cancellative S (A_eqv_eq S eqvS) timesS + bop_left_constant T (A_eqv_eq T eqvT) timesT) ->
+     (bop_right_cancellative S (A_eqv_eq S eqvS) timesS + bop_right_constant T (A_eqv_eq T eqvT) timesT) ->      
+        semiring_proofs (S * T) 
+           (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT)) 
+           (bop_llex     (A_eqv_eq S eqvS) plusS plusT)
+           (bop_product timesS timesT)
+:= λ pS pT dL dR,
+let rS     := A_eqv_eq S eqvS in
+let eqvPS  := A_eqv_proofs S eqvS in   
+let refS   := A_eqv_reflexive S rS eqvPS in 
+let symS   := A_eqv_symmetric S rS eqvPS in 
+let trnS   := A_eqv_transitive S rS eqvPS in
+let rT     := A_eqv_eq T eqvT in
+let t      := A_eqv_witness T eqvT in
+let eqvPT  := A_eqv_proofs T  eqvT in   
+let refT   := A_eqv_reflexive T rT eqvPT in 
+let trnT   := A_eqv_transitive T rT eqvPT in
+let ldS := A_semiring_left_distributive _ _ _ _ pS in
+let rdS := A_semiring_right_distributive _ _ _ _ pS in         
+let ldT := A_semiring_left_distributive _ _ _ _ pT in
+let rdT := A_semiring_right_distributive _ _ _ _ pT in         
+{| A_semiring_left_distributive       :=
+     bop_llex_product_left_distributive S T rS rT plusS timesS plusT timesT refS symS trnS refT trnT c_timesS ldS ldT dL
+ ; A_semiring_right_distributive      :=
+        bop_llex_product_right_distributive S T rS rT plusS timesS plusT timesT refS symS trnS refT trnT c_timesS rdS rdT dR       
+ ; A_semiring_left_left_absorptive_d  :=
+    bops_llex_product_left_left_absorptive_decide S T rS rT t plusS timesS plusT timesT refT
+    (A_semiring_left_left_absorptive_d S rS plusS timesS pS)
+    (A_semiring_left_left_absorptive_d T rT plusT timesT pT)
+    anti_left_timesS
+ ; A_semiring_left_right_absorptive_d :=
+    bops_llex_product_left_right_absorptive_decide S T rS rT t plusS timesS plusT timesT refT 
+    (A_semiring_left_right_absorptive_d S rS plusS timesS pS)
+    (A_semiring_left_right_absorptive_d T rT plusT timesT pT)
+    anti_right_timesS    
+|}.
+
+Definition id_ann_proofs_llex
+(dS : id_ann_proofs S (A_eqv_eq S eqvS) plusS timesS)
+(dT : id_ann_proofs T (A_eqv_eq T eqvT) plusT timesT) :
+  id_ann_proofs (S * T)
+                (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT))
+                (bop_llex (A_eqv_eq S eqvS) plusS plusT)
+                (bop_product timesS timesT) := 
+let rS     := A_eqv_eq S eqvS in
+let eqvPS  := A_eqv_proofs S eqvS in   
+let refS   := A_eqv_reflexive S rS eqvPS in 
+let symS   := A_eqv_symmetric S rS eqvPS in 
+let trnS   := A_eqv_transitive S rS eqvPS in
+let rT     := A_eqv_eq T eqvT in
+let eqvPT  := A_eqv_proofs T  eqvT in   
+let refT   := A_eqv_reflexive T rT eqvPT in 
+{|     
+  A_id_ann_exists_plus_id_d       :=
+    bop_llex_exists_id_decide S T rS rT plusS plusT refS symS trnS refT comS
+                              (A_id_ann_exists_plus_id_d _ _ _ _ dS)
+                              (A_id_ann_exists_plus_id_d _ _ _ _ dT) 
+; A_id_ann_exists_plus_ann_d      :=
+    bop_llex_exists_ann_decide S T rS rT plusS plusT refS symS trnS refT comS
+                               (A_id_ann_exists_plus_ann_d _ _ _ _ dS)
+                               (A_id_ann_exists_plus_ann_d _ _ _ _ dT) 
+; A_id_ann_exists_times_id_d      :=
+    bop_product_exists_id_decide S T rS rT timesS timesT
+                                 (A_id_ann_exists_times_id_d _ _ _ _ dS)
+                                 (A_id_ann_exists_times_id_d _ _ _ _ dT)
+; A_id_ann_exists_times_ann_d     :=
+    bop_product_exists_ann_decide S T rS rT timesS timesT
+                                  (A_id_ann_exists_times_ann_d _ _ _ _ dS)
+                                  (A_id_ann_exists_times_ann_d _ _ _ _ dT)
+; A_id_ann_plus_id_is_times_ann_d :=  
+    bops_llex_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS trnS refT comS 
+     (A_id_ann_plus_id_is_times_ann_d S rS plusS timesS dS)
+     (A_id_ann_plus_id_is_times_ann_d T rT plusT timesT dT)
+; A_id_ann_times_id_is_plus_ann_d :=  
+   bops_product_llex_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS trnS refT comS 
+   (bop_selective_implies_idempotent S rS plusS selS)  (* NB : selectivity used here *) 
+   (A_id_ann_times_id_is_plus_ann_d S rS plusS timesS dS)
+   (A_id_ann_times_id_is_plus_ann_d T rT plusT timesT dT)
+|}.
+
+
+Definition zero_one_proofs_llex 
+(dS : zero_one_proofs S (A_eqv_eq S eqvS) plusS timesS)
+(dT : zero_one_proofs T (A_eqv_eq T eqvT) plusT timesT) :
+  zero_one_proofs (S * T)
+                (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT))
+                (bop_llex (A_eqv_eq S eqvS) plusS plusT)
+                (bop_product timesS timesT) :=
+let rS     := A_eqv_eq S eqvS in
+let eqvPS  := A_eqv_proofs S eqvS in   
+let refS   := A_eqv_reflexive S rS eqvPS in 
+let symS   := A_eqv_symmetric S rS eqvPS in 
+let trnS   := A_eqv_transitive S rS eqvPS in
+let rT     := A_eqv_eq T eqvT in
+let eqvPT  := A_eqv_proofs T  eqvT in   
+let refT   := A_eqv_reflexive T rT eqvPT in 
+{|
+   A_zero_one_exists_plus_ann_d      :=
+     bop_llex_exists_ann_decide S T rS rT plusS plusT refS symS trnS refT comS
+       (A_zero_one_exists_plus_ann_d S rS plusS timesS dS )
+       (A_zero_one_exists_plus_ann_d T rT plusT timesT dT)
+ ; A_zero_one_exists_times_id        :=
+     bop_product_exists_id S T rS rT timesS timesT
+      (A_zero_one_exists_times_id S rS plusS timesS dS)
+      (A_zero_one_exists_times_id T rT plusT timesT dT) 
+ ; A_zero_one_plus_id_is_times_ann   :=
+    bops_llex_product_id_equals_ann S T rS rT plusS timesS plusT timesT symS trnS refT comS 
+     (A_zero_one_plus_id_is_times_ann S rS plusS timesS dS)
+     (A_zero_one_plus_id_is_times_ann T rT plusT timesT dT)
+ ; A_zero_one_times_id_is_plus_ann_d :=
+   bops_product_llex_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS trnS refT comS 
+   (bop_selective_implies_idempotent S rS plusS selS)  (* NB : selectivity used here *) 
+   (A_zero_one_times_id_is_plus_ann_d S rS plusS timesS dS)
+   (A_zero_one_times_id_is_plus_ann_d T rT plusT timesT dT)
+     
+|}.
+
+
+Definition bounded_proofs_llex 
+(dS : bounded_proofs S (A_eqv_eq S eqvS) plusS timesS)
+(dT : bounded_proofs T (A_eqv_eq T eqvT) plusT timesT) :
+  bounded_proofs (S * T)
+                 (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT))
+                 (bop_llex (A_eqv_eq S eqvS) plusS plusT)
+                 (bop_product timesS timesT) :=
+let rS     := A_eqv_eq S eqvS in
+let eqvPS  := A_eqv_proofs S eqvS in   
+let symS   := A_eqv_symmetric S rS eqvPS in 
+let trnS   := A_eqv_transitive S rS eqvPS in
+let rT     := A_eqv_eq T eqvT in
+let eqvPT  := A_eqv_proofs T  eqvT in   
+let refT   := A_eqv_reflexive T rT eqvPT in 
+{|
+  A_bounded_plus_id_is_times_ann :=
+    bops_llex_product_id_equals_ann S T rS rT plusS timesS plusT timesT symS trnS refT comS 
+     (A_bounded_plus_id_is_times_ann S rS plusS timesS dS)
+     (A_bounded_plus_id_is_times_ann T rT plusT timesT dT)
+ ; A_bounded_times_id_is_plus_ann :=
+   bops_product_llex_id_equals_ann S T rS rT plusS timesS plusT timesT symS trnS refT comS 
+   (A_bounded_times_id_is_plus_ann S rS plusS timesS dS)
+   (A_bounded_times_id_is_plus_ann T rT plusT timesT dT)
+      
+|}.
+
+  
+End Proofs. 
 
 Definition A_bs_llex_product : ∀ (S T : Type),  A_bs_CS S -> A_bs T -> A_bs (S * T) 
 := λ S T bsS bsT,
@@ -1022,7 +1248,17 @@ let Pg     := A_eqv_not_trivial T eqvT in
 let plusS  := A_bs_CS_plus S bsS  in 
 let plusT  := A_bs_plus T bsT  in
 let timesS := A_bs_CS_times S bsS in 
-let timesT := A_bs_times T bsT in 
+let timesT := A_bs_times T bsT in
+let comS   := A_sg_CS_commutative _ _ _ (A_bs_CS_plus_proofs S bsS) in
+let selS   := A_sg_CS_selective _ _ _ (A_bs_CS_plus_proofs S bsS) in
+let comT   := A_asg_commutative _ _ _ (A_bs_plus_proofs T bsT) in
+let c_timesS := A_msg_congruence S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let left_cancel_timesS    := A_msg_left_cancel_d S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let right_cancel_timesS   := A_msg_right_cancel_d S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let anti_left_timesS      := A_msg_anti_left_d S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let anti_right_timesS     := A_msg_anti_right_d S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let left_constant_timesT  := A_msg_left_constant_d T rT timesT (A_bs_times_proofs T bsT) in 
+let right_constant_timesT := A_msg_right_constant_d T rT timesT (A_bs_times_proofs T bsT) in 
 {| 
      A_bs_eqv         := A_eqv_product S T eqvS eqvT 
    ; A_bs_plus        := bop_llex rS plusS plusT 
@@ -1033,21 +1269,24 @@ let timesT := A_bs_times T bsT in
    ; A_bs_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                            (A_bs_CS_times_proofs S bsS)
                            (A_bs_times_proofs T bsT)
-   ; A_bs_proofs    := bs_proofs_llex S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
-                           (A_bs_CS_plus_proofs S bsS) 
-                           (A_bs_CS_times_proofs S bsS) 
-                           (A_bs_plus_proofs T bsT) 
-                           (A_bs_times_proofs T bsT) 
-                           (A_bs_CS_proofs S bsS) 
-                           (A_bs_proofs T bsT)
-   ; A_bs_plus_ast   := Ast_bop_llex (A_bs_CS_plus_ast S bsS, A_bs_plus_ast T bsT)
-   ; A_bs_times_ast  := Ast_bop_product (A_bs_CS_times_ast S bsS, A_bs_times_ast T bsT)                                       
+   ; A_bs_id_ann_proofs := id_ann_proofs_llex S T eqvS eqvT plusS timesS plusT timesT comS selS 
+                           (A_bs_CS_id_ann_proofs S bsS)
+                           (A_bs_id_ann_proofs T bsT)
+   ; A_bs_proofs    := bs_proofs_llex_product S T eqvS eqvT plusS timesS plusT timesT comS selS comT c_timesS
+                                      left_cancel_timesS    
+                                      right_cancel_timesS   
+                                      anti_left_timesS      
+                                      anti_right_timesS     
+                                      left_constant_timesT  
+                                      right_constant_timesT 
+                                      (A_bs_CS_proofs S bsS) 
+                                      (A_bs_proofs T bsT)
    ; A_bs_ast        := Ast_bs_llex (A_bs_CS_ast S bsS, A_bs_ast T bsT)
 |}. 
 
 
 
-Definition A_bs_CS_llex_product : ∀ (S T : Type),  A_bs_CS S -> A_bs_CS T -> A_bs_CS (S * T) 
+Definition A_bs_CS_llex_product : ∀ (S T : Type),  A_bs_CS S -> A_bs_CS T -> A_bs_CS (S * T)
 := λ S T bsS bsT,
 let eqvS   := A_bs_CS_eqv S bsS   in
 let eqvT   := A_bs_CS_eqv T bsT   in
@@ -1064,7 +1303,17 @@ let Pg     := A_eqv_not_trivial T eqvT in
 let plusS  := A_bs_CS_plus S bsS  in 
 let plusT  := A_bs_CS_plus T bsT  in
 let timesS := A_bs_CS_times S bsS in 
-let timesT := A_bs_CS_times T bsT in 
+let timesT := A_bs_CS_times T bsT in
+let comS   := A_sg_CS_commutative _ _ _ (A_bs_CS_plus_proofs S bsS) in
+let selS   := A_sg_CS_selective _ _ _ (A_bs_CS_plus_proofs S bsS) in
+let comT   := A_sg_CS_commutative _ _ _ (A_bs_CS_plus_proofs T bsT) in
+let c_timesS := A_msg_congruence S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let left_cancel_timesS    := A_msg_left_cancel_d S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let right_cancel_timesS   := A_msg_right_cancel_d S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let anti_left_timesS      := A_msg_anti_left_d S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let anti_right_timesS     := A_msg_anti_right_d S rS timesS (A_bs_CS_times_proofs S bsS) in 
+let left_constant_timesT  := A_msg_left_constant_d T rT timesT (A_bs_CS_times_proofs T bsT) in 
+let right_constant_timesT := A_msg_right_constant_d T rT timesT (A_bs_CS_times_proofs T bsT) in 
 {| 
      A_bs_CS_eqv         := A_eqv_product S T eqvS eqvT 
    ; A_bs_CS_plus        := bop_llex rS plusS plusT 
@@ -1075,34 +1324,24 @@ let timesT := A_bs_CS_times T bsT in
    ; A_bs_CS_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                            (A_bs_CS_times_proofs S bsS)
                            (A_bs_CS_times_proofs T bsT)
-   ; A_bs_CS_proofs    := bs_proofs_llex S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
-                           (A_bs_CS_plus_proofs S bsS) 
-                           (A_bs_CS_times_proofs S bsS) 
-                           (A_asg_proofs_from_sg_CS_proofs T _ _ t g Pg peqvT (A_bs_CS_plus_proofs T bsT))
-                           (A_bs_CS_times_proofs T bsT)
-                           (A_bs_CS_proofs S bsS) 
-                           (A_bs_CS_proofs T bsT)
-   ; A_bs_CS_plus_ast   := Ast_bop_llex (A_bs_CS_plus_ast S bsS, A_bs_CS_plus_ast T bsT)
-   ; A_bs_CS_times_ast  := Ast_bop_product (A_bs_CS_times_ast S bsS, A_bs_CS_times_ast T bsT)            
+   ; A_bs_CS_id_ann_proofs := id_ann_proofs_llex S T eqvS eqvT plusS timesS plusT timesT comS selS 
+                           (A_bs_CS_id_ann_proofs S bsS)
+                           (A_bs_CS_id_ann_proofs T bsT)
+   ; A_bs_CS_proofs    := bs_proofs_llex_product S T eqvS eqvT plusS timesS plusT timesT comS selS comT c_timesS
+                                      left_cancel_timesS    
+                                      right_cancel_timesS   
+                                      anti_left_timesS      
+                                      anti_right_timesS     
+                                      left_constant_timesT  
+                                      right_constant_timesT 
+                                      (A_bs_CS_proofs S bsS) 
+                                      (A_bs_CS_proofs T bsT)
    ; A_bs_CS_ast        := Ast_bs_CS_llex (A_bs_CS_ast S bsS, A_bs_CS_ast T bsT)
 |}. 
 
 End ACAS.
 
 Section CAS.
-
-
-(* 
-
-C = Constructor 
-P = Property 
-
-  1) C_P_check 
-  2) C_P_assert 
-  3) C_not_P_assert 
-
-*) 
-
 
 Definition bops_llex_product_left_distributive_check 
      {S T : Type}
@@ -1186,9 +1425,9 @@ Definition bops_llex_product_plus_id_is_times_ann_check :
      check_plus_id_equals_times_ann (S := (S * T)) 
 := λ {S T} dS dT,  
    match dS with 
-   | Certify_Plus_Id_Equals_Times_Ann => 
+   | Certify_Plus_Id_Equals_Times_Ann s => 
      match dT with 
-     | Certify_Plus_Id_Equals_Times_Ann => Certify_Plus_Id_Equals_Times_Ann  
+     | Certify_Plus_Id_Equals_Times_Ann t => Certify_Plus_Id_Equals_Times_Ann (s, t) 
      | Certify_Not_Plus_Id_Equals_Times_Ann => 
           Certify_Not_Plus_Id_Equals_Times_Ann  
      end 
@@ -1203,9 +1442,9 @@ Definition bops_llex_product_times_id_equals_plus_ann_check :
      check_times_id_equals_plus_ann (S := (S * T)) 
 := λ {S T} dS dT,  
    match dS with 
-   | Certify_Times_Id_Equals_Plus_Ann => 
+   | Certify_Times_Id_Equals_Plus_Ann s => 
      match dT with 
-     | Certify_Times_Id_Equals_Plus_Ann => Certify_Times_Id_Equals_Plus_Ann  
+     | Certify_Times_Id_Equals_Plus_Ann t => Certify_Times_Id_Equals_Plus_Ann (s, t) 
      | Certify_Not_Times_Id_Equals_Plus_Ann => 
           Certify_Not_Times_Id_Equals_Plus_Ann  
      end 
@@ -1309,102 +1548,80 @@ end.
 
 
 
+Section Certs.
 
-Definition bs_certs_llex_product : 
-  ∀ {S T: Type}
-     (rS : brel S) 
-     (rT : brel T) 
-     (addS : binary_op S) 
-     (addT mulT : binary_op T),
-    S -> 
-    T -> 
-    msg_certificates (S := S)  → 
-    msg_certificates (S := T) → 
-    bs_certificates (S := S) -> 
-    bs_certificates (S := T) -> bs_certificates (S := (S * T)) 
-:= λ {S T} rS rT addS addT mulT s t sg_timesS sg_timesT bsS bsT, 
+Variable S T : Type.
+Variable rS : brel S. 
+Variable rT : brel T.
+Variable s : S.
+Variable t : T. 
+Variable plusS timesS : binary_op S.
+Variable plusT timesT : binary_op T.
+
+Variable left_cancel_timesS    : @check_left_cancellative S.   
+Variable right_cancel_timesS   : @check_right_cancellative S.  
+Variable anti_left_timesS      : @check_anti_left S.           
+Variable anti_right_timesS     : @check_anti_right S.          
+Variable left_constant_timesT  : @check_left_constant T.       
+Variable right_constant_timesT : @check_right_constant T.
+
+Definition bs_certs_llex_product : @bs_certificates  S -> @bs_certificates  T -> @bs_certificates (S * T) 
+:= λ pS pT,
 {|
-  bs_left_distributive_d     := bops_llex_product_left_distributive_check 
-                                     rS rT addS addT mulT s t
-                                     (msg_left_cancel_d sg_timesS)
-                                     (msg_left_constant_d sg_timesT) 
-                                     (bs_left_distributive_d bsS)
-                                     (bs_left_distributive_d bsT)
-; bs_right_distributive_d    := bops_llex_product_right_distributive_check 
-                                     rS rT addS addT mulT s t
-                                     (msg_right_cancel_d sg_timesS)
-                                     (msg_right_constant_d sg_timesT) 
-                                     (bs_right_distributive_d bsS)
-                                     (bs_right_distributive_d bsT)
-; bs_plus_id_is_times_ann_d := bops_llex_product_plus_id_is_times_ann_check 
-                                     (bs_plus_id_is_times_ann_d bsS)
-                                     (bs_plus_id_is_times_ann_d bsT)
-; bs_times_id_is_plus_ann_d := bops_llex_product_times_id_equals_plus_ann_check 
-                                     (bs_times_id_is_plus_ann_d bsS)
-                                     (bs_times_id_is_plus_ann_d bsT)
-; bs_left_left_absorptive_d := bops_llex_product_left_left_absorptive_check t 
-                                     (bs_left_left_absorptive_d bsS)
-                                     (bs_left_left_absorptive_d bsT) 
-                                     (msg_anti_left_d sg_timesS) 
-; bs_left_right_absorptive_d := bops_llex_product_left_right_absorptive_check t 
-                                     (bs_left_right_absorptive_d bsS)
-                                     (bs_left_right_absorptive_d bsT) 
-                                     (msg_anti_right_d sg_timesS)
-; bs_right_left_absorptive_d := bops_llex_product_right_left_absorptive_check t 
-                                     (bs_right_left_absorptive_d bsS)
-                                     (bs_right_left_absorptive_d bsT) 
-                                     (msg_anti_left_d sg_timesS)  
-; bs_right_right_absorptive_d   := bops_llex_product_right_right_absorptive_check t
-                                     (bs_right_right_absorptive_d bsS)
-                                     (bs_right_right_absorptive_d bsT)
-                                     (msg_anti_right_d sg_timesS) 
-
-|}
-.
+  bs_left_distributive_d    := 
+    bops_llex_product_left_distributive_check rS rT plusS plusT timesT s t 
+     left_cancel_timesS
+     left_constant_timesT                                           
+     (bs_left_distributive_d pS)
+     (bs_left_distributive_d pT)
+; bs_right_distributive_d   := 
+   bops_llex_product_right_distributive_check rS rT plusS plusT timesT s t 
+     right_cancel_timesS
+     right_constant_timesT                                           
+     (bs_right_distributive_d pS)
+     (bs_right_distributive_d pT)
+; bs_left_left_absorptive_d      := 
+    bops_llex_product_left_left_absorptive_check t 
+    (bs_left_left_absorptive_d pS)
+    (bs_left_left_absorptive_d pT)
+    anti_left_timesS
+; bs_left_right_absorptive_d      := 
+    bops_llex_product_left_right_absorptive_check t
+    (bs_left_right_absorptive_d pS)
+    (bs_left_right_absorptive_d pT)
+    anti_right_timesS    
+; bs_right_left_absorptive_d      := 
+    bops_llex_product_right_left_absorptive_check t 
+       (bs_right_left_absorptive_d pS)
+       (bs_right_left_absorptive_d pT)
+       anti_left_timesS
+; bs_right_right_absorptive_d      := 
+    bops_llex_product_right_right_absorptive_check t 
+       (bs_right_right_absorptive_d pS)
+       (bs_right_right_absorptive_d pT)
+       anti_right_timesS           
+|}.
 
 
-Definition bs_CS_llex_product : ∀ {S T : Type},  bs_CS (S := S) -> bs_CS (S := T) -> bs_CS (S := (S * T)) 
-:= λ {S T} bsS bsT, 
-{| 
-     bs_CS_eqv        := eqv_product  
-                           (bs_CS_eqv bsS) 
-                           (bs_CS_eqv bsT) 
-   ; bs_CS_plus       := bop_llex 
-                           (eqv_eq (bs_CS_eqv bsS)) 
-                           (bs_CS_plus bsS) 
-                           (bs_CS_plus bsT) 
-   ; bs_CS_times       := bop_product 
-                           (bs_CS_times bsS) 
-                           (bs_CS_times bsT) 
-   ; bs_CS_plus_certs := sg_CS_certs_llex 
-                           (eqv_eq (bs_CS_eqv bsS)) 
-                           (bs_CS_plus bsS) 
-                           (bs_CS_plus_certs bsS) 
-                           (bs_CS_plus_certs bsT) 
-   ; bs_CS_times_certs := msg_certs_product 
-                           (eqv_witness (bs_CS_eqv bsS)) 
-                           (eqv_witness (bs_CS_eqv bsT)) 
-                           (bs_CS_times_certs bsS)
-                           (bs_CS_times_certs bsT)
-   ; bs_CS_certs    := bs_certs_llex_product 
-                           (eqv_eq (bs_CS_eqv bsS)) 
-                           (eqv_eq (bs_CS_eqv bsT)) 
-                           (bs_CS_plus bsS)
-                           (bs_CS_plus bsT) 
-                           (bs_CS_times bsT)  
-                           (eqv_witness (bs_CS_eqv bsS)) 
-                           (eqv_witness (bs_CS_eqv bsT)) 
-                           (bs_CS_times_certs bsS) 
-                           (bs_CS_times_certs bsT) 
-                           (bs_CS_certs bsS) 
-                           (bs_CS_certs bsT)
-   ; bs_CS_plus_ast   := Ast_bop_llex (bs_CS_plus_ast bsS, bs_CS_plus_ast bsT)
-   ; bs_CS_times_ast  := Ast_bop_product (bs_CS_times_ast bsS, bs_CS_times_ast bsT)                                                                  
-   ; bs_CS_ast        := Ast_bs_CS_llex (bs_CS_ast bsS, bs_CS_ast bsT)
-|}. 
+Definition id_ann_certs_llex_product
+(dS : @id_ann_certificates S)  (dT : @id_ann_certificates T ) : @id_ann_certificates (S * T) := 
+{|     
+  id_ann_exists_plus_id_d       :=
+    check_exists_id_llex (id_ann_exists_plus_id_d dS) (id_ann_exists_plus_id_d dT) 
+; id_ann_exists_plus_ann_d      :=
+    check_exists_ann_llex (id_ann_exists_plus_ann_d dS) (id_ann_exists_plus_ann_d dT) 
+; id_ann_exists_times_id_d      :=
+    check_exists_id_product (id_ann_exists_times_id_d dS) (id_ann_exists_times_id_d dT)
+; id_ann_exists_times_ann_d     :=
+    check_exists_ann_product (id_ann_exists_times_ann_d dS) (id_ann_exists_times_ann_d dT)
+; id_ann_plus_id_is_times_ann_d :=  
+    bops_llex_product_plus_id_is_times_ann_check (id_ann_plus_id_is_times_ann_d dS) (id_ann_plus_id_is_times_ann_d dT)
+; id_ann_times_id_is_plus_ann_d :=
+   bops_llex_product_times_id_equals_plus_ann_check (id_ann_times_id_is_plus_ann_d dS) (id_ann_times_id_is_plus_ann_d dT)
+|}.
 
 
-
+End Certs. 
 
 
 Definition bs_llex_product : ∀ {S T : Type},  @bs_CS S -> @bs T -> @bs (S * T)
@@ -1431,23 +1648,69 @@ Definition bs_llex_product : ∀ {S T : Type},  @bs_CS S -> @bs T -> @bs (S * T)
                            (eqv_witness (bs_eqv bsT)) 
                            (bs_CS_times_certs bsS)
                            (bs_times_certs bsT)
-   ; bs_certs    := bs_certs_llex_product 
+   ; bs_id_ann_certs := id_ann_certs_llex_product S T (bs_CS_id_ann_certs bsS) (bs_id_ann_certs bsT)
+   ; bs_certs    := bs_certs_llex_product S T
                            (eqv_eq (bs_CS_eqv bsS)) 
-                           (eqv_eq (bs_eqv bsT)) 
+                           (eqv_eq (bs_eqv bsT))
+                           (eqv_witness (bs_CS_eqv bsS)) 
+                           (eqv_witness (bs_eqv bsT))
                            (bs_CS_plus bsS)
                            (bs_plus bsT) 
-                           (bs_times bsT)  
-                           (eqv_witness (bs_CS_eqv bsS)) 
-                           (eqv_witness (bs_eqv bsT)) 
-                           (bs_CS_times_certs bsS) 
-                           (bs_times_certs bsT) 
+                           (bs_times bsT)
+                           (msg_left_cancel_d (bs_CS_times_certs bsS))
+                           (msg_right_cancel_d (bs_CS_times_certs bsS))
+                           (msg_anti_left_d (bs_CS_times_certs bsS))
+                           (msg_anti_right_d (bs_CS_times_certs bsS))
+                           (msg_left_constant_d (bs_times_certs bsT))
+                           (msg_right_constant_d (bs_times_certs bsT))
                            (bs_CS_certs bsS) 
                            (bs_certs bsT)
-   ; bs_plus_ast   := Ast_bop_llex (bs_CS_plus_ast bsS, bs_plus_ast bsT)
-   ; bs_times_ast  := Ast_bop_product (bs_CS_times_ast bsS, bs_times_ast bsT)                                                                  
    ; bs_ast        := Ast_bs_llex (bs_CS_ast bsS, bs_ast bsT)
-|}. 
+|}.
 
+
+Definition bs_CS_llex_product : ∀ {S T : Type},  bs_CS (S := S) -> bs_CS (S := T) -> bs_CS (S := (S * T)) 
+:= λ {S T} bsS bsT, 
+{| 
+     bs_CS_eqv        := eqv_product  
+                           (bs_CS_eqv bsS) 
+                           (bs_CS_eqv bsT) 
+   ; bs_CS_plus       := bop_llex 
+                           (eqv_eq (bs_CS_eqv bsS)) 
+                           (bs_CS_plus bsS) 
+                           (bs_CS_plus bsT) 
+   ; bs_CS_times       := bop_product 
+                           (bs_CS_times bsS) 
+                           (bs_CS_times bsT) 
+   ; bs_CS_plus_certs := sg_CS_certs_llex 
+                           (eqv_eq (bs_CS_eqv bsS)) 
+                           (bs_CS_plus bsS) 
+                           (bs_CS_plus_certs bsS) 
+                           (bs_CS_plus_certs bsT) 
+   ; bs_CS_times_certs := msg_certs_product 
+                           (eqv_witness (bs_CS_eqv bsS)) 
+                           (eqv_witness (bs_CS_eqv bsT)) 
+                           (bs_CS_times_certs bsS)
+                           (bs_CS_times_certs bsT)                           
+   ; bs_CS_id_ann_certs := id_ann_certs_llex_product S T (bs_CS_id_ann_certs bsS) (bs_CS_id_ann_certs bsT)
+   ; bs_CS_certs    := bs_certs_llex_product S T
+                           (eqv_eq (bs_CS_eqv bsS)) 
+                           (eqv_eq (bs_CS_eqv bsT))
+                           (eqv_witness (bs_CS_eqv bsS)) 
+                           (eqv_witness (bs_CS_eqv bsT))
+                           (bs_CS_plus bsS)
+                           (bs_CS_plus bsT) 
+                           (bs_CS_times bsT)
+                           (msg_left_cancel_d (bs_CS_times_certs bsS))
+                           (msg_right_cancel_d (bs_CS_times_certs bsS))
+                           (msg_anti_left_d (bs_CS_times_certs bsS))
+                           (msg_anti_right_d (bs_CS_times_certs bsS))
+                           (msg_left_constant_d (bs_CS_times_certs bsT))
+                           (msg_right_constant_d (bs_CS_times_certs bsT))
+                           (bs_CS_certs bsS) 
+                           (bs_CS_certs bsT)
+   ; bs_CS_ast        := Ast_bs_CS_llex (bs_CS_ast bsS, bs_CS_ast bsT)
+|}. 
 
 End CAS.
 
@@ -1457,35 +1720,52 @@ Section Verify.
 Section ChecksCorrect.
   Variable S : Type.
   Variable T : Type.
+  Variable eqvS : A_eqv S.
+  Variable eqvT : A_eqv T.
+(*  
   Variable rS : brel S.
   Variable rT : brel T.
+*)
+  Let rS : brel S := A_eqv_eq S eqvS. 
+  Let rT : brel T := A_eqv_eq T eqvT. 
   Variable plusS timesS : binary_op S.
   Variable plusT timesT : binary_op T.
+(*  
   Variable wS : S.
   Variable f : S -> S.    
   Variable Pf : brel_not_trivial S rS f.
   Variable wT : T.
   Variable g : T -> T.      
-  Variable Pg : brel_not_trivial T rT g.  
+  Variable Pg : brel_not_trivial T rT g.
+*)
+  Let wS : S := A_eqv_witness S eqvS. 
+  Let f : S -> S := A_eqv_new S eqvS.     
+  Let Pf : brel_not_trivial S rS f := A_eqv_not_trivial S eqvS.     
+  Let wT : T := A_eqv_witness T eqvT. 
+  Let g : T -> T := A_eqv_new T eqvT.           
+  Let Pg : brel_not_trivial T rT g := A_eqv_not_trivial T eqvT.     
+(*  
+  Variable refS : brel_reflexive S rS.   
   Variable symS : brel_symmetric S rS.
-  Variable symT : brel_symmetric T rT. 
-  Variable transS : brel_transitive S rS.
-  Variable transT : brel_transitive T rT. 
-  Variable refS : brel_reflexive S rS. 
+  Variable trnS : brel_transitive S rS.
   Variable refT : brel_reflexive T rT.
+  Variable symT : brel_symmetric T rT.  
+  Variable trnT : brel_transitive T rT. 
+ *)
+  Let refS : brel_reflexive S rS  := A_eqv_reflexive S rS (A_eqv_proofs S eqvS) . 
+  Let symS : brel_symmetric S rS  := A_eqv_symmetric S rS (A_eqv_proofs S eqvS) . 
+  Let trnS : brel_transitive S rS := A_eqv_transitive S rS (A_eqv_proofs S eqvS) . 
+  Let refT : brel_reflexive T rT  := A_eqv_reflexive T rT (A_eqv_proofs T eqvT) . 
+  Let symT : brel_symmetric T rT  := A_eqv_symmetric T rT (A_eqv_proofs T eqvT) . 
+  Let trnT : brel_transitive T rT := A_eqv_transitive T rT (A_eqv_proofs T eqvT) .
+  
+  Variable cong_timesS : bop_congruence S rS timesS.
+  Variable sel_plusS   : bop_selective S rS plusS.
+  Variable comsg_plusS : bop_commutative S rS plusS.
+  Variable comsg_plusT : bop_commutative T rT plusT.
 
 Lemma bop_llex_product_left_distributive_check_correct : 
-  ∀ (rfS : brel_reflexive S rS)
-     (syS : brel_symmetric S rS)
-     (tnS : brel_transitive S rS)
-     (rfT : brel_reflexive T rT)     
-     (syT : brel_symmetric T rT)
-     (tnT : brel_transitive T rT)
-     (cong_timesS : bop_congruence S rS timesS)
-     (sel_plusS : bop_selective S rS plusS)
-     (comm_plusS : bop_commutative S rS plusS)
-     (comm_plusT : bop_commutative T rT plusT)
-     (qS_d : bop_left_cancellative_decidable S rS timesS) 
+  ∀ (qS_d : bop_left_cancellative_decidable S rS timesS) 
      (qT_d : bop_left_constant_decidable T rT timesT)
      (pS_d : bop_left_distributive_decidable S rS plusS timesS) 
      (pT_d : bop_left_distributive_decidable T rT plusT timesT), 
@@ -1499,27 +1779,16 @@ Lemma bop_llex_product_left_distributive_check_correct :
         (brel_product rS rT)
         (bop_llex rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_llex_product_left_distributive_decide S T rS rT wS wT plusS timesS plusT timesT rfS syS tnS rfT syT tnT
-                                                    cong_timesS sel_plusS comm_plusS comm_plusT qS_d qT_d pS_d pT_d).
-Proof. intros rfS syS tnS rfT syT tnT ct sp cpS cpT 
-              [lcS | [[u1 [u2 u3]] [L R]] ]
+        (bops_llex_product_left_distributive_decide S T rS rT wS wT plusS timesS plusT timesT refS symS trnS refT symT trnT
+                                                    cong_timesS sel_plusS comsg_plusS comsg_plusT qS_d qT_d pS_d pT_d).
+Proof. intros [lcS | [[u1 [u2 u3]] [L R]] ]
               [lkS | [[v1 [v2 v3]] P] ]
               [ ldS | [ [s1 [s2 s3]] nldS] ]
               [ ldT | [ [t1 [t2 t3]] nldT] ];
          compute; reflexivity. Qed. 
 
 Lemma bop_llex_product_right_distributive_check_correct : 
-  ∀ (rfS : brel_reflexive S rS)
-     (syS : brel_symmetric S rS)
-     (tnS : brel_transitive S rS)
-     (rfT : brel_reflexive T rT)     
-     (syT : brel_symmetric T rT)
-     (tnT : brel_transitive T rT)
-     (cong_timesS : bop_congruence S rS timesS)
-     (sel_plusS : bop_selective S rS plusS)
-     (comm_plusS : bop_commutative S rS plusS)
-     (comm_plusT : bop_commutative T rT plusT)
-     (qS_d : bop_right_cancellative_decidable S rS timesS) 
+  ∀ (qS_d : bop_right_cancellative_decidable S rS timesS) 
      (qT_d : bop_right_constant_decidable T rT timesT)
      (pS_d : bop_right_distributive_decidable S rS plusS timesS) 
      (pT_d : bop_right_distributive_decidable T rT plusT timesT), 
@@ -1533,44 +1802,38 @@ Lemma bop_llex_product_right_distributive_check_correct :
         (brel_product rS rT)
         (bop_llex rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_llex_product_right_distributive_decide S T rS rT wS wT plusS timesS plusT timesT rfS syS tnS rfT syT tnT
-                                                     cong_timesS sel_plusS comm_plusS comm_plusT qS_d qT_d pS_d pT_d).
-Proof. intros rfS syS tnS rfT syT tnT ct sp cpS cpT 
-              [lcS | [[u1 [u2 u3]] [L R]] ]
+        (bops_llex_product_right_distributive_decide S T rS rT wS wT plusS timesS plusT timesT refS symS trnS refT symT trnT
+                                                     cong_timesS sel_plusS comsg_plusS comsg_plusT qS_d qT_d pS_d pT_d).
+Proof. intros [lcS | [[u1 [u2 u3]] [L R]] ]
               [lkS | [[v1 [v2 v3]] P] ]
               [ ldS | [ [s1 [s2 s3]] nldS] ]
               [ ldT | [ [t1 [t2 t3]] nldT] ];
          compute; reflexivity. Qed. 
 
 
+     
+
 Lemma bop_llex_product_plus_id_is_times_ann_check_correct : 
-  ∀ (rfS : brel_reflexive S rS)
-     (syS : brel_symmetric S rS)
-     (tnS : brel_transitive S rS) 
-     (rfT : brel_reflexive T rT)
-     (cplusS : bop_commutative S rS plusS)
-     (pS_d : bops_id_equals_ann_decidable S rS plusS timesS)
+  ∀ (pS_d : bops_id_equals_ann_decidable S rS plusS timesS)
      (pT_d : bops_id_equals_ann_decidable T rT plusT timesT), 
    p2c_plus_id_equals_times_ann (S * T) 
       (brel_product rS rT)
       (bop_llex rS plusS plusT)
       (bop_product timesS timesT)
-      (bops_llex_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT rfS syS tnS rfT cplusS pS_d pT_d)
+      (bops_llex_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS trnS refT comsg_plusS pS_d pT_d)
    = 
    bops_llex_product_plus_id_is_times_ann_check 
       (p2c_plus_id_equals_times_ann S rS plusS timesS pS_d)
       (p2c_plus_id_equals_times_ann T rT plusT timesT pT_d). 
-Proof. intros rfs syS tnS rfT cplus [ eqS | neqS] [eqT | neqT] ; compute; reflexivity. Qed.
+Proof. intros [ [a [LS RS]] | neqS] [ [b [LT RT]] | neqT]; compute; reflexivity. Qed.
 
 
+
+     
+     
 
 Lemma bop_llex_product_times_id_equals_plus_ann_check_correct : 
-  ∀ (rfS : brel_reflexive S rS)
-     (syS : brel_symmetric S rS)
-     (tnS : brel_transitive S rS) 
-     (rfT : brel_reflexive T rT)
-     (cplusS : bop_commutative S rS plusS)
-     (idem_plusS : bop_idempotent S rS plusS)
+  ∀ (idem_plusS : bop_idempotent S rS plusS)
      (pS_d : bops_id_equals_ann_decidable S rS timesS plusS)
      (pT_d : bops_id_equals_ann_decidable T rT timesT plusT), 
    p2c_times_id_equals_plus_ann (S * T) 
@@ -1578,17 +1841,16 @@ Lemma bop_llex_product_times_id_equals_plus_ann_check_correct :
       (bop_llex rS plusS plusT)
       (bop_product timesS timesT)
       (bops_product_llex_id_equals_ann_decide S T rS rT plusS timesS plusT
-                                              timesT rfS syS tnS rfT cplusS idem_plusS pS_d pT_d)
+                                              timesT refS symS trnS refT comsg_plusS idem_plusS pS_d pT_d)
    = 
    bops_llex_product_times_id_equals_plus_ann_check 
       (p2c_times_id_equals_plus_ann S rS plusS timesS pS_d) 
-      (p2c_times_id_equals_plus_ann T rT plusT timesT pT_d). 
-Proof. intros rfS syS tnS rfT cplus idem_S [ eqS | neqS] [eqT | neqT] ; compute; reflexivity. Qed.
+      (p2c_times_id_equals_plus_ann T rT plusT timesT pT_d).
+Proof. intros idem_plusS [ [a [LS RS]] | neqS] [ [b [LT RT]] | neqT]; compute; reflexivity. Qed.
 
 
 Lemma bop_llex_product_left_left_absorbtive_check_correct : 
-  ∀ (rfT : brel_reflexive T rT)
-     (alS : bop_anti_left_decidable S rS timesS)
+  ∀ (alS : bop_anti_left_decidable S rS timesS)
      (pS_d : bops_left_left_absorptive_decidable S rS plusS timesS) 
      (pT_d : bops_left_left_absorptive_decidable T rT plusT timesT), 
    bops_llex_product_left_left_absorptive_check wT 
@@ -1600,15 +1862,12 @@ Lemma bop_llex_product_left_left_absorbtive_check_correct :
         (brel_product rS rT)
         (bop_llex rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_llex_product_left_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT rfT pS_d pT_d alS).
-Proof. intros rfT [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; simpl; auto. Qed. 
+        (bops_llex_product_left_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT refT pS_d pT_d alS).
+Proof. intros [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; simpl; auto. Qed. 
 
 
 Lemma bop_llex_product_right_left_absorbtive_check_correct : 
-  ∀ (syS : brel_symmetric S rS)
-     (tnS : brel_transitive S rS)
-     (rfT : brel_reflexive T rT)    
-     (alS : bop_anti_left_decidable S rS timesS)
+  ∀ (alS : bop_anti_left_decidable S rS timesS)
      (pS_d : bops_right_left_absorptive_decidable S rS plusS timesS) 
      (pT_d : bops_right_left_absorptive_decidable T rT plusT timesT), 
    bops_llex_product_right_left_absorptive_check wT 
@@ -1620,13 +1879,12 @@ Lemma bop_llex_product_right_left_absorbtive_check_correct :
         (brel_product rS rT)
         (bop_llex rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_llex_product_right_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT syS tnS rfT pS_d pT_d alS).
-Proof. intros syS tnS rfT [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; simpl; auto. Qed. 
+        (bops_llex_product_right_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT symS trnS refT pS_d pT_d alS).
+Proof. intros [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; simpl; auto. Qed. 
 
 
 Lemma bop_llex_product_left_right_absorbtive_check_correct : 
-  ∀ (rfT : brel_reflexive T rT)
-     (alS : bop_anti_right_decidable S rS timesS)
+  ∀ (alS : bop_anti_right_decidable S rS timesS)
      (pS_d : bops_left_right_absorptive_decidable S rS plusS timesS) 
      (pT_d : bops_left_right_absorptive_decidable T rT plusT timesT), 
    bops_llex_product_left_right_absorptive_check wT 
@@ -1638,15 +1896,12 @@ Lemma bop_llex_product_left_right_absorbtive_check_correct :
         (brel_product rS rT)
         (bop_llex rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_llex_product_left_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT rfT pS_d pT_d alS).
-Proof. intros rfT [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. Qed.
+        (bops_llex_product_left_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT refT pS_d pT_d alS).
+Proof. intros [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. Qed.
 
 
 Lemma bop_llex_product_right_right_absorbtive_check_correct : 
-  ∀ (syS : brel_symmetric S rS)
-     (tnS : brel_transitive S rS)
-     (rfT : brel_reflexive T rT)
-     (alS : bop_anti_right_decidable S rS timesS)
+  ∀ (alS : bop_anti_right_decidable S rS timesS)
      (pS_d : bops_right_right_absorptive_decidable S rS plusS timesS) 
      (pT_d : bops_right_right_absorptive_decidable T rT plusT timesT), 
    bops_llex_product_right_right_absorptive_check wT 
@@ -1658,75 +1913,110 @@ Lemma bop_llex_product_right_right_absorbtive_check_correct :
         (brel_product rS rT)
         (bop_llex rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_llex_product_right_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT syS tnS rfT pS_d pT_d alS).
-Proof. intros syS trS rfT [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. Qed.
+        (bops_llex_product_right_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT symS trnS refT pS_d pT_d alS).
+Proof. intros [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. Qed.
 
+End ChecksCorrect.
+
+Section CertsCorrect.
+
+Variable S T : Type.
+Variable eqvS : A_eqv S.
+Variable eqvT : A_eqv T.
+Let rS := A_eqv_eq S eqvS.
+Let rT := A_eqv_eq T eqvT.
+Let wS := A_eqv_witness S eqvS.
+Let wT := A_eqv_witness T eqvT.
+Variable plusS timesS : binary_op S.
+Variable plusT timesT : binary_op T.
+Variable comS : bop_commutative S rS plusS.
+Variable selS : bop_selective S rS plusS.
+Variable comT : bop_commutative T rT plusT.
+Variable c_timesS : bop_congruence S rS timesS.
+
+Variable left_cancel_timesS    : bop_left_cancellative_decidable S rS timesS.     
+Variable right_cancel_timesS   : bop_right_cancellative_decidable S rS timesS.    
+Variable anti_left_timesS      : bop_anti_left_decidable S rS timesS.             
+Variable anti_right_timesS     : bop_anti_right_decidable S rS timesS.            
+Variable left_constant_timesT  : bop_left_constant_decidable T rT timesT.         
+Variable right_constant_timesT : bop_right_constant_decidable T rT timesT.        
 
 
 Lemma  correct_bs_certs_llex_product : 
-  ∀ (eqvS : eqv_proofs S rS)
-     (eqvT : eqv_proofs T rT)
-     (plusPS : sg_CS_proofs S rS plusS)
-     (timesPS : msg_proofs S rS timesS)     
-     (plusPT : asg_proofs T rT plusT)
-     (timesPT : msg_proofs T rT timesT)          
-     (bsS : bs_proofs S rS plusS timesS)
-     (bsT : bs_proofs T rT plusT timesT), 
-  bs_certs_llex_product rS rT plusS plusT timesT wS wT
-               (P2C_msg S rS timesS timesPS)  (P2C_msg T rT timesT timesPT)
-               (P2C_bs S rS plusS timesS bsS) (P2C_bs T rT plusT timesT bsT)
+  ∀ (bsS : bs_proofs S rS plusS timesS)
+     (bsT : bs_proofs T rT plusT timesT),
+    bs_certs_llex_product S T rS rT wS wT plusS plusT timesT
+                          (p2c_left_cancel_check _ _ _ left_cancel_timesS)
+                          (p2c_right_cancel_check _ _ _ right_cancel_timesS)
+                          (p2c_anti_left_check _ _ _ anti_left_timesS)
+                          (p2c_anti_right_check _ _ _ anti_right_timesS)
+                          (p2c_left_constant_check _ _ _ left_constant_timesT)
+                          (p2c_right_constant_check _ _ _ right_constant_timesT)
+                          (P2C_bs S rS plusS timesS bsS)
+                          (P2C_bs T rT plusT timesT bsT)
   =
  P2C_bs (S * T) (brel_product rS rT)
-                  (bop_llex rS plusS plusT)
-                  (bop_product timesS timesT)
-                  (bs_proofs_llex S T rS rT plusS timesS plusT timesT wS wT eqvS eqvT plusPS timesPS plusPT timesPT bsS bsT). 
+                 (bop_llex rS plusS plusT)
+                 (bop_product timesS timesT)
+                 (bs_proofs_llex_product S T eqvS eqvT plusS timesS plusT timesT comS selS comT c_timesS
+                                         left_cancel_timesS right_cancel_timesS anti_left_timesS
+                                         anti_right_timesS left_constant_timesT right_constant_timesT bsS bsT). 
 Proof. intros.
-       unfold bs_certs_llex_product, bs_proofs_llex, P2C_bs; simpl.
+       unfold bs_certs_llex_product, bs_proofs_llex_product, P2C_bs; simpl.
+(*       
        rewrite bop_llex_product_plus_id_is_times_ann_check_correct.        
        rewrite bop_llex_product_times_id_equals_plus_ann_check_correct.                     
+       destruct timesPS. destruct timesPT. simpl.  
+       destruct A_msg_exists_id as [idS idPS]; destruct A_msg_exists_id0 as [idT idPT]; simpl.
+ *)
+       unfold rS, rT, wS, wT.  (* ugly! *) 
+       rewrite <- bop_llex_product_left_distributive_check_correct. 
+       rewrite <- bop_llex_product_right_distributive_check_correct. 
        rewrite <- bop_llex_product_left_left_absorbtive_check_correct. 
        rewrite <- bop_llex_product_left_right_absorbtive_check_correct. 
        rewrite <- bop_llex_product_right_left_absorbtive_check_correct. 
        rewrite <- bop_llex_product_right_right_absorbtive_check_correct.
-       rewrite <- bop_llex_product_left_distributive_check_correct. 
-       rewrite <- bop_llex_product_right_distributive_check_correct. 
        reflexivity. 
 Qed.   
 
 
-
-Lemma  correct_bs_CS_certs_llex_product : 
-  ∀ (eqvS : eqv_proofs S rS)
-     (eqvT : eqv_proofs T rT)
-     (plusPS : sg_CS_proofs S rS plusS)
-     (timesPS : msg_proofs S rS timesS)     
-     (plusPT : asg_proofs T rT plusT)
-     (timesPT : msg_proofs T rT timesT)          
-     (bsS : bs_proofs S rS plusS timesS)
-     (bsT : bs_proofs T rT plusT timesT), 
-  bs_certs_llex_product rS rT plusS plusT timesT wS wT
-               (P2C_msg S rS timesS timesPS)  (P2C_msg T rT timesT timesPT)
-               (P2C_bs S rS plusS timesS bsS) (P2C_bs T rT plusT timesT bsT)
-  =
- P2C_bs (S * T) (brel_product rS rT)
-                  (bop_llex rS plusS plusT)
-                  (bop_product timesS timesT)
-                  (bs_proofs_llex S T rS rT plusS timesS plusT timesT wS wT eqvS eqvT plusPS timesPS plusPT timesPT bsS bsT). 
+Lemma  correct_id_ann_certs_llex_product : 
+  ∀ (bsS : id_ann_proofs S rS plusS timesS)
+     (bsT : id_ann_proofs T rT plusT timesT),
+  id_ann_certs_llex_product S T (P2C_id_ann S rS plusS timesS bsS) (P2C_id_ann T rT plusT timesT bsT)
+  = 
+  P2C_id_ann (S * T) (brel_product rS rT)
+                     (bop_llex rS plusS plusT) 
+                     (bop_product timesS timesT) 
+                     (id_ann_proofs_llex S T eqvS eqvT plusS timesS plusT timesT comS selS bsS bsT). 
 Proof. intros.
-       unfold bs_certs_llex_product, bs_proofs_llex, P2C_bs; simpl.
+       unfold id_ann_certs_llex_product, id_ann_proofs_llex, P2C_id_ann; simpl.
+       unfold rS, rT, wS, wT.  (* ugly! *) 
        rewrite bop_llex_product_plus_id_is_times_ann_check_correct.        
-       rewrite bop_llex_product_times_id_equals_plus_ann_check_correct.                     
-       rewrite <- bop_llex_product_left_left_absorbtive_check_correct. 
-       rewrite <- bop_llex_product_left_right_absorbtive_check_correct. 
-       rewrite <- bop_llex_product_right_left_absorbtive_check_correct. 
-       rewrite <- bop_llex_product_right_right_absorbtive_check_correct.
-       rewrite <- bop_llex_product_left_distributive_check_correct. 
-       rewrite <- bop_llex_product_right_distributive_check_correct. 
+       rewrite bop_llex_product_times_id_equals_plus_ann_check_correct.
+       rewrite <- correct_check_exists_id_product.
+       rewrite <- correct_check_exists_ann_product.       
+       rewrite correct_check_exists_id_llex.
+       rewrite correct_check_exists_ann_llex.       
        reflexivity. 
 Qed.   
+End CertsCorrect. 
 
 
-End ChecksCorrect.
+Theorem correct_bs_llex_product : ∀ (S T : Type) (bsS: A_bs_CS S) (bsT : A_bs T), 
+   bs_llex_product (A2C_bs_CS S bsS) (A2C_bs T bsT)
+   =
+   A2C_bs (S * T) (A_bs_llex_product S T bsS bsT). 
+Proof. intros S T bsS bsT. 
+       unfold bs_llex_product, A_bs_llex_product, A2C_bs, A2C_bs_CS; simpl. 
+       rewrite correct_eqv_product.
+       rewrite <- correct_asg_certs_llex.
+       rewrite <- correct_msg_certs_product.        
+       rewrite <- correct_bs_certs_llex_product.
+       rewrite <- correct_id_ann_certs_llex_product. 
+       reflexivity. 
+Qed. 
+
 
 
 Theorem correct_bs_CS_llex_product : ∀ (S T : Type) (bsS: A_bs_CS S) (bsT : A_bs_CS T), 
@@ -1737,26 +2027,11 @@ Proof. intros S T bsS bsT.
        unfold bs_CS_llex_product, A_bs_CS_llex_product, A2C_bs_CS; simpl. 
        rewrite correct_eqv_product.
        rewrite <- correct_sg_CS_certs_llex.        
-       rewrite <- correct_msg_certs_product. 
-       rewrite <- correct_bs_CS_certs_llex_product.
+       rewrite <- correct_msg_certs_product.
+       rewrite <- correct_id_ann_certs_llex_product.               
+       rewrite <- correct_bs_certs_llex_product.
        reflexivity.
 Qed. 
-
-
-Theorem correct_bs_C_llex_product : ∀ (S T : Type) (bsS: A_bs_CS S) (bsT : A_bs T), 
-   bs_llex_product (A2C_bs_CS S bsS) (A2C_bs T bsT)
-   =
-   A2C_bs (S * T) (A_bs_llex_product S T bsS bsT). 
-Proof. intros S T bsS bsT. 
-       unfold bs_llex_product, A_bs_llex_product, A2C_bs, A2C_bs_CS; simpl. 
-       rewrite correct_eqv_product.
-       rewrite <- correct_asg_certs_llex.
-       rewrite <- correct_msg_certs_product.        
-       rewrite <- correct_bs_certs_llex_product.        
-       reflexivity. 
-Qed. 
-
-
 
 End Verify.   
   

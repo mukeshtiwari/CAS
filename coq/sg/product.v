@@ -167,7 +167,37 @@ Proof.
              simpl. rewrite Q2, W1. simpl. rewrite andb_comm. simpl. split; reflexivity.   
           exists ((s1, t1), (s2, t2)); 
              simpl. rewrite Q1, W1. simpl. rewrite andb_comm. simpl. split; reflexivity. 
-Defined.  
+Defined.
+
+
+Lemma bop_product_not_selective_v2 (s : S) (t : T):
+       bop_is_left_decidable S rS bS  →
+       bop_is_right_decidable S rS bS  →  
+       bop_is_left_decidable T rT bT  →
+       bop_is_right_decidable T rT bT  →     
+       ((bop_not_is_left S rS bS) + (bop_not_is_left T rT bT)) 
+     * ((bop_not_is_right S rS bS) + (bop_not_is_right T rT bT)) → 
+          bop_not_selective (S * T) (rS <*> rT) (bS [*] bT). 
+Proof. 
+  intros DLS DRS DLT DRT 
+       [ 
+             [ [ [s1 s2] P1 ] | [ [t1 t2] Q1]  ] 
+             [ [ [s3 s4] P2 ] | [ [t3 t4] Q2]  ] 
+       ].
+       destruct DLT as [LT | [[t1 t2] NLT] ].
+          destruct DRT as [RT | [[t1 t2] NTT] ].
+             admit. (* T is left and right *) 
+             exists ((s1, t1), (s2, t2)); simpl. admit. 
+          exists ((s3, t1), (s4, t2)); simpl. admit.
+       exists ((s1, t3), (s2, t4)); simpl. admit.
+       exists ((s3, t1), (s4, t2)); simpl. admit.
+       destruct DLS as [LS | [[s1 s2] NLS] ].
+          destruct DRS as [RS | [[s1 s2] NTS] ].
+             admit. (* S is left and right *) 
+             exists ((s1, t1), (s2, t2)); simpl. admit. 
+          exists ((s1, t3), (s2, t4)); simpl. admit.
+Admitted. 
+
 
 Lemma bop_product_left_cancellative :
         bop_left_cancellative S rS bS → bop_left_cancellative T rT bT → bop_left_cancellative (S * T) (rS <*> rT) (bS [*] bT). 
@@ -666,8 +696,6 @@ let transT := A_eqv_transitive _ _ eqvT in
 ; A_sg_is_left_d     := bop_product_is_left_decide S T rS rT bS bT s t (A_sg_is_left_d _ _ _ sgS) (A_sg_is_left_d _ _ _ sgT) 
 ; A_sg_is_right_d    := bop_product_is_right_decide S T rS rT bS bT s t (A_sg_is_right_d _ _ _ sgS) (A_sg_is_right_d _ _ _ sgT) 
 ; A_sg_idempotent_d  := bop_product_idempotent_decide S T rS rT bS bT s t (A_sg_idempotent_d _ _ _ sgS) (A_sg_idempotent_d _ _ _ sgT) 
-; A_sg_exists_id_d   := bop_product_exists_id_decide S T rS rT bS bT (A_sg_exists_id_d _ _ _ sgS) (A_sg_exists_id_d _ _ _ sgT) 
-; A_sg_exists_ann_d  :=  bop_product_exists_ann_decide S T rS rT bS bT (A_sg_exists_ann_d _ _ _ sgS) (A_sg_exists_ann_d _ _ _ sgT) 
 ; A_sg_left_cancel_d    := bop_product_left_cancellative_decide S T rS rT bS bT s refS t refT
                             (A_sg_left_cancel_d _ _ _ sgS) 
                             (A_sg_left_cancel_d _ _ _ sgT) 
@@ -682,6 +710,7 @@ let transT := A_eqv_transitive _ _ eqvT in
                             (A_sg_right_constant_d _ _ _ sgT) 
 ; A_sg_anti_left_d      := bop_product_anti_left_decide S T rS rT bS bT (A_sg_anti_left_d _ _ _ sgS) (A_sg_anti_left_d _ _ _ sgT) 
 ; A_sg_anti_right_d     := bop_product_anti_right_decide S T rS rT bS bT (A_sg_anti_right_d _ _ _ sgS) (A_sg_anti_right_d _ _ _ sgT) 
+; A_sg_bop_ast          := Ast_bop_product (A_sg_bop_ast S rS bS sgS, A_sg_bop_ast T rT bT sgT)
 |}.
 
   
@@ -705,8 +734,7 @@ let commT  := A_asg_commutative _ _ _ sgT in
 ; A_asg_commutative   := bop_product_commutative S T rS rT bS bT commS commT 
 ; A_asg_selective_d   := inr (bop_product_selective_decide_commutative_case S T rS rT bS bT s f Pf symS transS t g Pg symT transT commS commT) 
 ; A_asg_idempotent_d  := bop_product_idempotent_decide S T rS rT bS bT s t (A_asg_idempotent_d _ _ _ sgS) (A_asg_idempotent_d _ _ _ sgT) 
-; A_asg_exists_id_d   := bop_product_exists_id_decide S T rS rT bS bT (A_asg_exists_id_d _ _ _ sgS) (A_asg_exists_id_d _ _ _ sgT) 
-; A_asg_exists_ann_d  :=  bop_product_exists_ann_decide S T rS rT bS bT (A_asg_exists_ann_d _ _ _ sgS) (A_asg_exists_ann_d _ _ _ sgT) 
+; A_asg_bop_ast       := Ast_bop_product (A_asg_bop_ast S rS bS sgS, A_asg_bop_ast T rT bT sgT)
 |}.
 
 
@@ -728,8 +756,6 @@ let transT := A_eqv_transitive _ _ eqvT in
 ; A_msg_commutative_d := bop_product_commutative_decide S T rS rT bS bT s t (A_msg_commutative_d _ _ _ sgS) (A_msg_commutative_d _ _ _ sgT) 
 ; A_msg_is_left_d     := bop_product_is_left_decide S T rS rT bS bT s t (A_msg_is_left_d _ _ _ sgS) (A_msg_is_left_d _ _ _ sgT) 
 ; A_msg_is_right_d    := bop_product_is_right_decide S T rS rT bS bT s t (A_msg_is_right_d _ _ _ sgS) (A_msg_is_right_d _ _ _ sgT) 
-; A_msg_exists_id_d   := bop_product_exists_id_decide S T rS rT bS bT (A_msg_exists_id_d _ _ _ sgS) (A_msg_exists_id_d _ _ _ sgT) 
-; A_msg_exists_ann_d  :=  bop_product_exists_ann_decide S T rS rT bS bT (A_msg_exists_ann_d _ _ _ sgS) (A_msg_exists_ann_d _ _ _ sgT) 
 ; A_msg_left_cancel_d    := bop_product_left_cancellative_decide S T rS rT bS bT s refS t refT
                             (A_msg_left_cancel_d _ _ _ sgS) 
                             (A_msg_left_cancel_d _ _ _ sgT) 
@@ -744,8 +770,8 @@ let transT := A_eqv_transitive _ _ eqvT in
                             (A_msg_right_constant_d _ _ _ sgT) 
 ; A_msg_anti_left_d      := bop_product_anti_left_decide S T rS rT bS bT (A_msg_anti_left_d _ _ _ sgS) (A_msg_anti_left_d _ _ _ sgT) 
 ; A_msg_anti_right_d     := bop_product_anti_right_decide S T rS rT bS bT (A_msg_anti_right_d _ _ _ sgS) (A_msg_anti_right_d _ _ _ sgT) 
+; A_msg_bop_ast          := Ast_bop_product (A_msg_bop_ast S rS bS sgS, A_msg_bop_ast T rT bT sgT)
 |}.
-
 
 
 Definition sg_C_proofs_product : 
@@ -768,8 +794,6 @@ let commT := A_sg_C_commutative _ _ _ sgT in
 ; A_sg_C_commutative   := bop_product_commutative S T rS rT bS bT commS commT 
 ; A_sg_C_selective_d   := inr (bop_product_selective_decide_commutative_case S T rS rT bS bT s f Pf symS transS t g Pg symT transT commS commT) 
 ; A_sg_C_idempotent_d  := bop_product_idempotent_decide S T rS rT bS bT s t (A_sg_C_idempotent_d _ _ _ sgS) (A_sg_C_idempotent_d _ _ _ sgT) 
-; A_sg_C_exists_id_d   := bop_product_exists_id_decide S T rS rT bS bT (A_sg_C_exists_id_d _ _ _ sgS) (A_sg_C_exists_id_d _ _ _ sgT) 
-; A_sg_C_exists_ann_d  := bop_product_exists_ann_decide S T rS rT bS bT (A_sg_C_exists_ann_d _ _ _ sgS) (A_sg_C_exists_ann_d _ _ _ sgT) 
 ; A_sg_C_cancel_d      := bop_product_left_cancellative_decide S T rS rT bS bT s refS t refT
                             (A_sg_C_cancel_d _ _ _ sgS) 
                             (A_sg_C_cancel_d _ _ _ sgT) 
@@ -778,6 +802,7 @@ let commT := A_sg_C_commutative _ _ _ sgT in
                             (A_sg_C_constant_d _ _ _ sgT) 
 ; A_sg_C_anti_left_d      := bop_product_anti_left_decide S T rS rT bS bT (A_sg_C_anti_left_d _ _ _ sgS) (A_sg_C_anti_left_d _ _ _ sgT) 
 ; A_sg_C_anti_right_d     := bop_product_anti_right_decide S T rS rT bS bT (A_sg_C_anti_right_d _ _ _ sgS) (A_sg_C_anti_right_d _ _ _ sgT) 
+; A_sg_C_bop_ast            := Ast_bop_product (A_sg_C_bop_ast S rS bS sgS, A_sg_C_bop_ast T rT bT sgT)
 |}. 
 
 Definition sg_CI_proofs_product : 
@@ -800,8 +825,7 @@ let commT := A_sg_CI_commutative _ _ _ sgT in
 ; A_sg_CI_commutative   := bop_product_commutative S T rS rT bS bT (A_sg_CI_commutative _ _ _ sgS) (A_sg_CI_commutative _ _ _ sgT) 
 ; A_sg_CI_idempotent    := bop_product_idempotent S T rS rT bS bT (A_sg_CI_idempotent _ _ _ sgS) (A_sg_CI_idempotent _ _ _ sgT) 
 ; A_sg_CI_selective_d   := inr (bop_product_selective_decide_commutative_case S T rS rT bS bT s f Pf symS transS t g Pg symT transT commS commT) 
-; A_sg_CI_exists_id_d   := bop_product_exists_id_decide S T rS rT bS bT (A_sg_CI_exists_id_d _ _ _ sgS) (A_sg_CI_exists_id_d _ _ _ sgT) 
-; A_sg_CI_exists_ann_d  := bop_product_exists_ann_decide S T rS rT bS bT (A_sg_CI_exists_ann_d _ _ _ sgS) (A_sg_CI_exists_ann_d _ _ _ sgT) 
+; A_sg_CI_bop_ast       := Ast_bop_product (A_sg_CI_bop_ast S rS bS sgS, A_sg_CI_bop_ast T rT bT sgT)
 |}. 
 
 
@@ -816,23 +840,28 @@ Definition sg_CK_proofs_product :
 ; A_sg_CK_commutative        := bop_product_commutative S T rS rT bS bT (A_sg_CK_commutative _ _ _ sgS) (A_sg_CK_commutative _ _ _ sgT) 
 ; A_sg_CK_cancel             := bop_product_left_cancellative S T rS rT bS bT (A_sg_CK_cancel _ _ _ sgS) (A_sg_CK_cancel _ _ _ sgT) 
 
-; A_sg_CK_exists_id_d        := bop_product_exists_id_decide S T rS rT bS bT (A_sg_CK_exists_id_d _ _ _ sgS) (A_sg_CK_exists_id_d _ _ _ sgT) 
 ; A_sg_CK_anti_left_d        := bop_product_anti_left_decide S T rS rT bS bT (A_sg_CK_anti_left_d _ _ _ sgS) (A_sg_CK_anti_left_d _ _ _ sgT) 
 ; A_sg_CK_anti_right_d       := bop_product_anti_right_decide S T rS rT bS bT (A_sg_CK_anti_right_d _ _ _ sgS) (A_sg_CK_anti_right_d _ _ _ sgT) 
+; A_sg_CK_bop_ast            := Ast_bop_product (A_sg_CK_bop_ast S rS bS sgS, A_sg_CK_bop_ast T rT bT sgT)
 |}. 
 
 
+(**************************************************************************************)
 
 Definition A_sg_product : ∀ (S T : Type),  A_sg S -> A_sg T -> A_sg (S * T) 
 := λ S T sgS sgT,
-let eqvS := A_sg_eq S sgS in
-let eqvT := A_sg_eq T sgT in
-let bS   := A_sg_bop S sgS in
-let bT   := A_sg_bop T sgT in 
+let eqvS := A_sg_eq S sgS   in
+let eqvT := A_sg_eq T sgT   in
+let eqS  := A_eqv_eq S eqvS in
+let eqT  := A_eqv_eq T eqvT in  
+let bS   := A_sg_bop S sgS  in
+let bT   := A_sg_bop T sgT  in 
 {| 
-     A_sg_eq        := A_eqv_product S T eqvS eqvT
-   ; A_sg_bop       := bop_product bS bT
-   ; A_sg_proofs := sg_proofs_product S T (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) bS bT
+       A_sg_eq              := A_eqv_product S T eqvS eqvT
+     ; A_sg_bop           := bop_product bS bT
+     ; A_sg_exists_id_d   := bop_product_exists_id_decide S T eqS eqT bS bT (A_sg_exists_id_d _ sgS) (A_sg_exists_id_d _ sgT) 
+     ; A_sg_exists_ann_d  :=  bop_product_exists_ann_decide S T eqS eqT bS bT (A_sg_exists_ann_d _ sgS) (A_sg_exists_ann_d _ sgT) 
+     ; A_sg_proofs := sg_proofs_product S T eqS eqT bS bT
                            (A_eqv_witness S eqvS) 
                            (A_eqv_new S eqvS) 
                            (A_eqv_witness T eqvT)
@@ -843,21 +872,24 @@ let bT   := A_sg_bop T sgT in
                            (A_eqv_proofs T eqvT) 
                            (A_sg_proofs S sgS) 
                            (A_sg_proofs T sgT)
-   ; A_sg_bop_ast   := Ast_bop_product (A_sg_bop_ast S sgS, A_sg_bop_ast T sgT)                                                                 
+   
    ; A_sg_ast       := Ast_sg_product (A_sg_ast S sgS, A_sg_ast T sgT)
    |}. 
-
 
 Definition A_sg_C_product : ∀ (S T : Type),  A_sg_C S -> A_sg_C T -> A_sg_C (S * T) 
 := λ S T sgS sgT,
 let eqvS := A_sg_C_eqv S sgS in
 let eqvT := A_sg_C_eqv T sgT in
+let eqS  := A_eqv_eq S eqvS in
+let eqT  := A_eqv_eq T eqvT in  
 let bS   := A_sg_C_bop S sgS in
 let bT   := A_sg_C_bop T sgT in 
 {| 
-     A_sg_C_eqv    := A_eqv_product S T eqvS eqvT  
-   ; A_sg_C_bop    := bop_product bS bT
-   ; A_sg_C_proofs := sg_C_proofs_product S T (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) bS bT
+     A_sg_C_eqv         := A_eqv_product S T eqvS eqvT  
+   ; A_sg_C_bop         := bop_product bS bT
+   ; A_sg_C_exists_id_d   := bop_product_exists_id_decide S T eqS eqT bS bT (A_sg_C_exists_id_d _ sgS) (A_sg_C_exists_id_d _ sgT) 
+   ; A_sg_C_exists_ann_d  := bop_product_exists_ann_decide S T eqS eqT bS bT (A_sg_C_exists_ann_d _ sgS) (A_sg_C_exists_ann_d _ sgT) 
+   ; A_sg_C_proofs := sg_C_proofs_product S T eqS eqT bS bT
                            (A_eqv_witness S eqvS) 
                            (A_eqv_new S eqvS) 
                            (A_eqv_witness T eqvT)
@@ -868,7 +900,7 @@ let bT   := A_sg_C_bop T sgT in
                            (A_eqv_proofs T eqvT)                            
                            (A_sg_C_proofs S sgS) 
                            (A_sg_C_proofs T sgT) 
-   ; A_sg_C_bop_ast   := Ast_bop_product (A_sg_C_bop_ast S sgS, A_sg_C_bop_ast T sgT)                            
+   
    ; A_sg_C_ast       := Ast_sg_C_product (A_sg_C_ast S sgS, A_sg_C_ast T sgT)
    |}. 
 
@@ -876,12 +908,16 @@ Definition A_sg_CI_product : ∀ (S T : Type),  A_sg_CI S -> A_sg_CI T -> A_sg_C
 := λ S T sgS sgT,
 let eqvS := A_sg_CI_eqv S sgS in
 let eqvT := A_sg_CI_eqv T sgT in
+let eqS  := A_eqv_eq S eqvS in
+let eqT  := A_eqv_eq T eqvT in  
 let bS   := A_sg_CI_bop S sgS in
 let bT   := A_sg_CI_bop T sgT in 
 {| 
      A_sg_CI_eqv    := A_eqv_product S T eqvS eqvT 
-   ; A_sg_CI_bop    := bop_product bS bT 
-   ; A_sg_CI_proofs := sg_CI_proofs_product S T (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) bS bT
+   ; A_sg_CI_bop    := bop_product bS bT
+   ; A_sg_CI_exists_id_d   := bop_product_exists_id_decide S T eqS eqT bS bT (A_sg_CI_exists_id_d _ sgS) (A_sg_CI_exists_id_d _ sgT) 
+   ; A_sg_CI_exists_ann_d  := bop_product_exists_ann_decide S T eqS eqT bS bT (A_sg_CI_exists_ann_d _ sgS) (A_sg_CI_exists_ann_d _ sgT) 
+   ; A_sg_CI_proofs := sg_CI_proofs_product S T eqS eqT bS bT
                            (A_eqv_witness S eqvS) 
                            (A_eqv_new S eqvS) 
                            (A_eqv_witness T eqvT)
@@ -892,7 +928,7 @@ let bT   := A_sg_CI_bop T sgT in
                            (A_eqv_proofs T eqvT)
                            (A_sg_CI_proofs S sgS) 
                            (A_sg_CI_proofs T sgT)
-   ; A_sg_CI_bop_ast   := Ast_bop_product (A_sg_CI_bop_ast S sgS, A_sg_CI_bop_ast T sgT)                                                       
+   
    ; A_sg_CI_ast       := Ast_sg_CI_product (A_sg_CI_ast S sgS, A_sg_CI_ast T sgT)
    |}. 
 
@@ -901,21 +937,22 @@ Definition A_sg_CK_product : ∀ (S T : Type),  A_sg_CK S -> A_sg_CK T -> A_sg_C
 := λ S T sgS sgT,
 let eqvS := A_sg_CK_eqv S sgS in
 let eqvT := A_sg_CK_eqv T sgT in
+let eqS  := A_eqv_eq S eqvS in
+let eqT  := A_eqv_eq T eqvT in  
 let bS   := A_sg_CK_bop S sgS in
 let bT   := A_sg_CK_bop T sgT in 
 {| 
      A_sg_CK_eqv    := A_eqv_product S T eqvS eqvT 
-   ; A_sg_CK_bop    := bop_product bS bT 
+   ; A_sg_CK_bop    := bop_product bS bT
+   ; A_sg_CK_exists_id_d   := bop_product_exists_id_decide S T eqS eqT bS bT (A_sg_CK_exists_id_d _ sgS) (A_sg_CK_exists_id_d _ sgT)   
    ; A_sg_CK_proofs := sg_CK_proofs_product S T (A_eqv_eq S eqvS) (A_eqv_eq T eqvT) bS bT
                            (A_eqv_proofs S eqvS)
                            (A_eqv_proofs T eqvT)
                            (A_sg_CK_proofs S sgS) 
                            (A_sg_CK_proofs T sgT)
-   ; A_sg_CK_bop_ast   := Ast_bop_product (A_sg_CK_bop_ast S sgS, A_sg_CK_bop_ast T sgT)                             
+   
    ; A_sg_CK_ast       := Ast_sg_CK_product (A_sg_CK_ast S sgS, A_sg_CK_ast T sgT)
    |}. 
-
-
 
   
 End ACAS.
@@ -1146,6 +1183,13 @@ Definition check_selective_product : ∀ {S T : Type}
      end.
 
 
+Definition assert_exists_id_product : ∀ {S T : Type}, 
+             (assert_exists_id (S := S)) -> (assert_exists_id (S := T)) -> assert_exists_id (S := (S * T))
+:= λ {S T} cS cT,  
+      match cS, cT with 
+      | Assert_Exists_Id s, Assert_Exists_Id t  => Assert_Exists_Id (s, t) 
+      end. 
+
 
 Definition check_exists_id_product : ∀ {S T : Type}, 
              (check_exists_id (S := S)) -> (check_exists_id (S := T)) -> (check_exists_id (S := (S * T)))
@@ -1187,12 +1231,6 @@ Definition sg_certs_product : ∀ {S T : Type},  S -> T -> sg_certificates (S :=
 ; sg_idempotent_d  := check_idempotent_product wS wT 
                          (sg_idempotent_d cS) 
                          (sg_idempotent_d cT)
-; sg_exists_id_d   := check_exists_id_product 
-                         (sg_exists_id_d cS) 
-                         (sg_exists_id_d cT)
-; sg_exists_ann_d  := check_exists_ann_product 
-                         (sg_exists_ann_d cS) 
-                         (sg_exists_ann_d cT)
 ; sg_left_cancel_d    := check_left_cancellative_product wS wT 
                           (sg_left_cancel_d cS)
                           (sg_left_cancel_d cT)
@@ -1211,6 +1249,7 @@ Definition sg_certs_product : ∀ {S T : Type},  S -> T -> sg_certificates (S :=
 ; sg_anti_right_d     := check_anti_right_product 
                          (sg_anti_right_d cS) 
                          (sg_anti_right_d cT)
+; sg_bop_ast := Ast_bop_product (sg_bop_ast cS, sg_bop_ast cT)
 |}.
 
 
@@ -1225,12 +1264,7 @@ Definition asg_certs_product : ∀ {S T : Type},  (brel S) -> (brel T) -> (binar
 ; asg_idempotent_d  := check_idempotent_product wS wT 
                          (asg_idempotent_d cS) 
                          (asg_idempotent_d cT)
-; asg_exists_id_d   := check_exists_id_product 
-                         (asg_exists_id_d cS) 
-                         (asg_exists_id_d cT)
-; asg_exists_ann_d  := check_exists_ann_product 
-                         (asg_exists_ann_d cS) 
-                         (asg_exists_ann_d cT)
+; asg_bop_ast := Ast_bop_product (asg_bop_ast cS, asg_bop_ast cT)
 |}.
 
 
@@ -1249,12 +1283,6 @@ Definition msg_certs_product : ∀ {S T : Type},  S -> T -> msg_certificates (S 
 ; msg_is_right_d    := check_is_right_product wS wT 
                          (msg_is_right_d cS) 
                          (msg_is_right_d cT)
-; msg_exists_id_d   := check_exists_id_product 
-                         (msg_exists_id_d cS) 
-                         (msg_exists_id_d cT)
-; msg_exists_ann_d  := check_exists_ann_product 
-                         (msg_exists_ann_d cS) 
-                         (msg_exists_ann_d cT)
 ; msg_left_cancel_d    := check_left_cancellative_product wS wT 
                           (msg_left_cancel_d cS)
                           (msg_left_cancel_d cT)
@@ -1273,9 +1301,8 @@ Definition msg_certs_product : ∀ {S T : Type},  S -> T -> msg_certificates (S 
 ; msg_anti_right_d     := check_anti_right_product 
                          (msg_anti_right_d cS) 
                          (msg_anti_right_d cT)
+; msg_bop_ast := Ast_bop_product (msg_bop_ast cS, msg_bop_ast cT)
 |}.
-
-
 
 Definition sg_CK_certs_product : ∀ {S T : Type},  sg_CK_certificates (S := S) -> sg_CK_certificates (S := T) -> sg_CK_certificates (S := (S * T)) 
 := λ {S T} cS cT,  
@@ -1284,15 +1311,13 @@ Definition sg_CK_certs_product : ∀ {S T : Type},  sg_CK_certificates (S := S) 
 ; sg_CK_congruence    := Assert_Bop_Congruence   
 ; sg_CK_commutative   := Assert_Commutative   
 ; sg_CK_left_cancel   := Assert_Left_Cancellative   
-; sg_CK_exists_id_d   := check_exists_id_product 
-                         (sg_CK_exists_id_d cS) 
-                         (sg_CK_exists_id_d cT)
 ; sg_CK_anti_left_d   := check_anti_left_product 
                          (sg_CK_anti_left_d cS) 
                          (sg_CK_anti_left_d cT)
 ; sg_CK_anti_right_d  := check_anti_right_product 
                          (sg_CK_anti_right_d cS) 
                          (sg_CK_anti_right_d cT)
+; sg_CK_bop_ast := Ast_bop_product (sg_CK_bop_ast cS, sg_CK_bop_ast cT)
 |}.
 
 Definition sg_C_certs_product : ∀ {S T : Type},  (brel S) -> (brel T) -> (binary_op S) -> (binary_op T) ->
@@ -1307,12 +1332,6 @@ Definition sg_C_certs_product : ∀ {S T : Type},  (brel S) -> (brel T) -> (bina
 ; sg_C_idempotent_d  := check_idempotent_product s t
                          (sg_C_idempotent_d cS) 
                          (sg_C_idempotent_d cT)
-; sg_C_exists_id_d   := check_exists_id_product 
-                         (sg_C_exists_id_d cS) 
-                         (sg_C_exists_id_d cT)
-; sg_C_exists_ann_d  := check_exists_ann_product 
-                         (sg_C_exists_ann_d cS) 
-                         (sg_C_exists_ann_d cT)
 ; sg_C_cancel_d      := check_left_cancellative_product s t
                           (sg_C_cancel_d cS)
                           (sg_C_cancel_d cT)
@@ -1326,6 +1345,7 @@ Definition sg_C_certs_product : ∀ {S T : Type},  (brel S) -> (brel T) -> (bina
                          (sg_C_anti_right_d cS) 
                          (sg_C_anti_right_d cT)
 
+; sg_C_bop_ast   := Ast_bop_product (sg_C_bop_ast cS, sg_C_bop_ast cT)
 |}.
 
 Definition sg_CI_certs_product : ∀ {S T : Type},  (brel S) -> (brel T) -> (binary_op S) -> (binary_op T) ->
@@ -1338,23 +1358,24 @@ Definition sg_CI_certs_product : ∀ {S T : Type},  (brel S) -> (brel T) -> (bin
 ; sg_CI_commutative   := Assert_Commutative   
 ; sg_CI_idempotent    := Assert_Idempotent   
 ; sg_CI_selective_d   := Certify_Not_Selective (cef_commutative_product S T rS rT bS bT s f t g)
-; sg_CI_exists_id_d   := check_exists_id_product (sg_CI_exists_id_d cS) (sg_CI_exists_id_d cT)
-; sg_CI_exists_ann_d  := check_exists_ann_product (sg_CI_exists_ann_d cS) (sg_CI_exists_ann_d cT)
+; sg_CI_bop_ast := Ast_bop_product (sg_CI_bop_ast cS, sg_CI_bop_ast cT)
 |}.
 
 
 Definition sg_product : ∀ {S T : Type},  @sg S -> @sg T -> @sg (S * T)
 := λ {S T} sgS sgT, 
    {| 
-     sg_eq     := eqv_product (sg_eq sgS) (sg_eq sgT) 
-   ; sg_bop    := bop_product (sg_bop sgS) (sg_bop sgT) 
-   ; sg_certs := sg_certs_product 
+       sg_eq     := eqv_product (sg_eq sgS) (sg_eq sgT) 
+     ; sg_bop    := bop_product (sg_bop sgS) (sg_bop sgT)
+     ; sg_exists_id_d := check_exists_id_product (sg_exists_id_d sgS) (sg_exists_id_d sgT)
+     ; sg_exists_ann_d := check_exists_ann_product (sg_exists_ann_d sgS) (sg_exists_ann_d sgT)
+     ; sg_certs := sg_certs_product 
                     (eqv_witness (sg_eq sgS)) 
                     (eqv_witness (sg_eq sgT)) 
                     (sg_certs sgS) 
                     (sg_certs sgT)
-   ; sg_bop_ast := Ast_bop_product (sg_bop_ast sgS, sg_bop_ast sgT)                        
-   ; sg_ast    := Ast_sg_product (sg_ast sgS, sg_ast sgT)
+     
+     ; sg_ast    := Ast_sg_product (sg_ast sgS, sg_ast sgT)
    |}. 
 
 
@@ -1362,23 +1383,26 @@ Definition sg_CK_product : ∀ {S T : Type},  @sg_CK S -> @sg_CK T -> @sg_CK (S 
 := λ {S T} sgS sgT, 
    {| 
      sg_CK_eqv     := eqv_product (sg_CK_eqv sgS) (sg_CK_eqv sgT) 
-   ; sg_CK_bop     := bop_product (sg_CK_bop sgS) (sg_CK_bop sgT) 
+   ; sg_CK_bop     := bop_product (sg_CK_bop sgS) (sg_CK_bop sgT)
+   ; sg_CK_exists_id_d := check_exists_id_product (sg_CK_exists_id_d sgS) (sg_CK_exists_id_d sgT)
    ; sg_CK_certs   := sg_CK_certs_product (sg_CK_certs sgS) (sg_CK_certs sgT)
-   ; sg_CK_bop_ast := Ast_bop_product (sg_CK_bop_ast sgS, sg_CK_bop_ast sgT)                             
+   
    ; sg_CK_ast     := Ast_sg_CK_product (sg_CK_ast sgS, sg_CK_ast sgT)
    |}.
 
 Definition sg_C_product : ∀ {S T : Type},  @sg_C S  -> @sg_C T -> @sg_C (S * T)
 := λ {S T} sgS sgT, 
    {| 
-     sg_C_eqv    := eqv_product  (sg_C_eqv sgS) (sg_C_eqv sgT) 
-   ; sg_C_bop    := bop_product (sg_C_bop sgS) (sg_C_bop sgT)                            
-   ; sg_C_certs := sg_C_certs_product (eqv_eq (sg_C_eqv sgS)) (eqv_eq (sg_C_eqv sgT))
+     sg_C_eqv        := eqv_product  (sg_C_eqv sgS) (sg_C_eqv sgT) 
+   ; sg_C_bop        := bop_product (sg_C_bop sgS) (sg_C_bop sgT)                            
+   ; sg_C_exists_id_d  := check_exists_id_product (sg_C_exists_id_d sgS) (sg_C_exists_id_d sgT)
+   ; sg_C_exists_ann_d := check_exists_ann_product (sg_C_exists_ann_d sgS) (sg_C_exists_ann_d sgT)
+   ; sg_C_certs      := sg_C_certs_product (eqv_eq (sg_C_eqv sgS)) (eqv_eq (sg_C_eqv sgT))
                                       (sg_C_bop sgS) (sg_C_bop sgT) 
                                       (eqv_witness (sg_C_eqv sgS)) (eqv_new (sg_C_eqv sgS))
                                       (eqv_witness (sg_C_eqv sgT)) (eqv_new (sg_C_eqv sgT)) 
                                       (sg_C_certs sgS) (sg_C_certs sgT)
-   ; sg_C_bop_ast := Ast_bop_product (sg_C_bop_ast sgS, sg_C_bop_ast sgT)                                                                   
+   
    ; sg_C_ast       := Ast_sg_C_product (sg_C_ast sgS, sg_C_ast sgT)
    |}. 
 
@@ -1387,7 +1411,9 @@ Definition sg_CI_product : ∀ {S T : Type},  sg_CI (S := S) -> sg_CI (S := T) -
 := λ {S T} sgS sgT, 
    {| 
      sg_CI_eqv    := eqv_product (sg_CI_eqv sgS) (sg_CI_eqv sgT) 
-   ; sg_CI_bop       := bop_product (sg_CI_bop sgS) (sg_CI_bop sgT) 
+   ; sg_CI_bop       := bop_product (sg_CI_bop sgS) (sg_CI_bop sgT)
+   ; sg_CI_exists_id_d  := check_exists_id_product (sg_CI_exists_id_d sgS) (sg_CI_exists_id_d sgT)
+   ; sg_CI_exists_ann_d := check_exists_ann_product (sg_CI_exists_ann_d sgS) (sg_CI_exists_ann_d sgT)                                      
    ; sg_CI_certs := sg_CI_certs_product (eqv_eq (sg_CI_eqv sgS)) (eqv_eq (sg_CI_eqv sgT))
                                         (sg_CI_bop sgS) (sg_CI_bop sgT)
                                         (eqv_witness (sg_CI_eqv sgS))
@@ -1396,14 +1422,9 @@ Definition sg_CI_product : ∀ {S T : Type},  sg_CI (S := S) -> sg_CI (S := T) -
                                         (eqv_new (sg_CI_eqv sgT))                                         
                                         (sg_CI_certs sgS) 
                                         (sg_CI_certs sgT)
-   ; sg_CI_bop_ast := Ast_bop_product (sg_CI_bop_ast sgS, sg_CI_bop_ast sgT)                                                                     
+   
    ; sg_CI_ast       := Ast_sg_CI_product (sg_CI_ast sgS, sg_CI_ast sgT)
    |}. 
-
-
-
-
-
 
 End CAS.
 
@@ -1483,6 +1504,20 @@ Lemma correct_check_idempotent_product :
             (bop_product bS bT)
             (bop_product_idempotent_decide S T rS rT bS bT wS wT dS dT). 
 Proof. intros [cS | [s3 niS]] [cT | [t3 niT]]; compute; reflexivity. Defined. 
+
+
+Lemma correct_assert_exists_id_product : 
+      ∀ (dS : bop_exists_id S rS bS) (dT : bop_exists_id T rT bT),
+         
+         assert_exists_id_product 
+           (p2c_exists_id_assert S rS bS dS)
+           (p2c_exists_id_assert T rT bT dT)
+         =
+         p2c_exists_id_assert (S * T) 
+            (brel_product rS rT)
+            (bop_product bS bT)
+            (bop_product_exists_id S T rS rT bS bT dS dT).
+Proof. intros [s sP] [t tP]; compute; reflexivity. Defined. 
 
 
 Lemma correct_check_exists_id_product : 
@@ -1655,8 +1690,6 @@ Proof. intros pS pT.
        rewrite correct_check_is_right_product. 
        rewrite correct_check_is_left_product. 
        rewrite correct_check_commutative_product.
-       rewrite correct_check_exists_id_product.  
-       rewrite correct_check_exists_ann_product. 
        rewrite <- correct_check_anti_left_product. 
        rewrite <- correct_check_anti_right_product.
        rewrite <- correct_check_left_constant_product.       
@@ -1680,8 +1713,6 @@ Proof. intros pS pT.
        rewrite correct_check_is_right_product. 
        rewrite correct_check_is_left_product. 
        rewrite correct_check_commutative_product.
-       rewrite correct_check_exists_id_product.  
-       rewrite correct_check_exists_ann_product. 
        rewrite <- correct_check_anti_left_product. 
        rewrite <- correct_check_anti_right_product.
        rewrite <- correct_check_left_constant_product.       
@@ -1690,8 +1721,6 @@ Proof. intros pS pT.
        rewrite correct_check_right_cancel_product. 
        reflexivity. 
 Defined.
-
-
 
 Lemma correct_sg_CI_certs_product : 
       ∀ (pS : sg_CI_proofs S rS bS) (pT : sg_CI_proofs T rT bT),
@@ -1702,9 +1731,7 @@ Lemma correct_sg_CI_certs_product :
                         (bop_product bS bT) 
                        (sg_CI_proofs_product S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
 Proof. intros pS pT. 
-       unfold sg_CI_proofs_product, sg_CI_certs_product, P2C_sg_CI; simpl. 
-       rewrite correct_check_exists_id_product; auto. 
-       rewrite correct_check_exists_ann_product; auto.
+       unfold sg_CI_proofs_product, sg_CI_certs_product, P2C_sg_CI; simpl; auto. 
 Defined. 
 
 
@@ -1719,8 +1746,6 @@ Lemma correct_sg_C_certs_product :
 Proof. intros pS pT. 
        unfold sg_C_proofs_product, sg_C_certs_product, P2C_sg_C; simpl. 
        rewrite correct_check_idempotent_product; auto.
-       rewrite correct_check_exists_ann_product; auto.
-       rewrite correct_check_exists_id_product; auto.  
        rewrite <- correct_check_anti_left_product; auto. 
        rewrite <- correct_check_anti_right_product; auto.
        rewrite <- correct_check_left_constant_product; auto.       
@@ -1742,7 +1767,6 @@ Lemma  correct_sg_CK_certs_product :
          (sg_CK_proofs_product S T rS rT bS bT eS eT pS pT). 
 Proof. intros pS pT. 
        unfold sg_CK_proofs_product, sg_CK_certs_product, P2C_sg_CK; simpl. 
-       rewrite correct_check_exists_id_product.  
        rewrite correct_check_anti_left_product. 
        rewrite correct_check_anti_right_product. 
        reflexivity. 
@@ -1760,8 +1784,6 @@ Lemma correct_asg_certs_product :
 Proof. intros pS pT. 
        unfold asg_proofs_product, asg_certs_product, P2C_asg; simpl. 
        rewrite correct_check_idempotent_product.
-       rewrite correct_check_exists_id_product.  
-       rewrite correct_check_exists_ann_product.
        reflexivity. 
 Defined.
 
@@ -1776,7 +1798,9 @@ Theorem correct_sg_product :
 Proof. intros S T sgS sgT. 
        unfold sg_product, A2C_sg; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_sg_certs_product. 
+       rewrite <- correct_sg_certs_product.
+       rewrite correct_check_exists_id_product.  
+       rewrite correct_check_exists_ann_product.
        reflexivity. 
 Qed. 
 
@@ -1789,7 +1813,8 @@ Theorem correct_sg_CK_product :
 Proof. intros S T sgS sgT. 
        unfold sg_CK_product, A2C_sg_CK; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_sg_CK_certs_product. 
+       rewrite <- correct_sg_CK_certs_product.
+       rewrite correct_check_exists_id_product.  
        reflexivity. 
 Qed. 
 
@@ -1802,7 +1827,9 @@ Theorem correct_sg_CI_product :
 Proof. intros S T sgS sgT. 
        unfold sg_CI_product, A2C_sg_CI; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_sg_CI_certs_product. 
+       rewrite <- correct_sg_CI_certs_product.
+       rewrite correct_check_exists_id_product.  
+       rewrite correct_check_exists_ann_product.
        reflexivity. 
 Qed. 
 
@@ -1814,7 +1841,9 @@ Theorem correct_sg_C_product :
 Proof. intros S T sgS sgT. 
        unfold sg_C_product, A2C_sg_C; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_sg_C_certs_product. 
+       rewrite <- correct_sg_C_certs_product.
+       rewrite correct_check_exists_id_product.  
+       rewrite correct_check_exists_ann_product.       
        reflexivity. 
 Qed. 
 

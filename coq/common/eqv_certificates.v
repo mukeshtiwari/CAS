@@ -60,10 +60,21 @@ Inductive check_exactly_two {S : Type} :=
 | Certify_Not_Exactly_Two : (S -> (S -> S)) → check_exactly_two (S := S). 
 
 
-
 Inductive check_is_finite {S : Type} := 
 | Certify_Is_Finite : (unit -> list S) → check_is_finite (S := S)
 | Certify_Is_Not_Finite : check_is_finite (S := S). 
+
+Inductive check_exists_top {S : Type} := 
+| Certify_Exists_Top : S → check_exists_top (S := S)
+| Certify_Not_Exists_Top : check_exists_top (S := S). 
+
+Inductive check_exists_bottom {S : Type} := 
+| Certify_Exists_Bottom : S → check_exists_bottom (S := S)
+| Certify_Not_Exists_Bottom : check_exists_bottom (S := S). 
+
+Inductive check_bottoms_finite {S : Type} := 
+| Certify_Bottoms_Finite : ((unit -> list S) * (S -> S))  → check_bottoms_finite (S := S)
+| Certify_Not_Bottoms_Finite : ((list S) -> S) -> check_bottoms_finite (S := S). 
 
 
 

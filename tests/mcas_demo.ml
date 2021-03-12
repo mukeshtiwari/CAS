@@ -14,53 +14,100 @@ Or use Tuareg ...
 
 open Mcas;;
 
-sg_describe sg_max;;
-sg_describe_fully sg_max;;    
-sg_describe sg_min;;   
+let e0 = eqv_nat;;
+eqv_describe  e0;;   
+let e1 = eqv_bool;;
+eqv_describe  e1;; 
+let e2 = eqv_product e0 e1;;
+eqv_describe  e2;;
+let e3 = eqv_sum e0 e2;;
+eqv_describe  e3;;
+let e4 = eqv_list e3;;
+eqv_describe  e4;;
+let e5 = eqv_set e4;;
+eqv_describe  e5;;
+(* should have a guard for n < 0 *)     
+let e6 = eqv_nat_ceiling 7;;     
+eqv_describe  e6;;
+List.map (Cas.eqv_new e6) [0;1;2;3;4;5;6;7;8;9];;
+let e7 = eqv_add_constant infinity e5;;  
+eqv_describe  e7;;   
+(* eqv_minset po ? *) 
 
+    
+let s1 =   sg_max;;
+sg_describe_fully s1;;
+let s2 =   sg_min;;    
+sg_describe_fully s2;;
+let s3 =   sg_and;;        
+sg_describe_fully s3;;
+let s4 =   sg_or;;        
+sg_describe_fully s4;;
+let s5 =   sg_plus;;        
+sg_describe_fully s5;;
+let s6 =   sg_times;;        
+sg_describe_fully s6;;
+let s7 =   sg_product s5 s6;;        
+sg_describe_fully s7;;
+let s9 =   sg_left e1;;        
+sg_describe_fully s9;;                    
+let s10 =   sg_right e1;;        
+sg_describe_fully s10;;
+let s11 =   sg_concat e1;;        
+sg_describe_fully s11;;
+let s12 =   sg_left_sum s7 s9;;        
+sg_describe_fully s12;;    
+let s13 = sg_add_id infinity sg_min;;
+sg_describe_fully s13;;
+let s14 = sg_add_ann infinity sg_plus;;
+sg_describe_fully s14;;
+let s15= sg_llex sg_max sg_min ;;
+sg_describe_fully s15;;     
+    
+    
 let sg_max_llex_min = sg_llex sg_max sg_min ;;
 sg_describe_fully sg_max_llex_min;; 
 
 let sg_min_llex_max = sg_llex sg_min sg_max ;;
-sg_describe sg_min_llex_max;; 
+sg_describe_fully sg_min_llex_max;; 
   
 let sg1 = sg_and <*> sg_or <*> sg_min <*> sg_max <*> sg_times <*> sg_plus;; 
 sg_describe_fully sg1;; 
 
 let sg2 = sg_and <*> sg_or <*> sg_min <*> sg_max;; 
-sg_describe sg2;;
+sg_describe_fully sg2;;
 
-bs_describe bs_min_plus;; (* no zero, 1 = 0 *)
-bs_describe bs_max_min;;  (* zero = 1, no 1 *)       
+bs_describe_fully bs_min_plus;; (* no zero, 1 = 0 *)
+bs_describe_fully bs_max_min;;  (* zero = 1, no 1 *)       
   
 let bs_min_plus_llex_max_min = bs_min_plus <!**> bs_max_min;;
-bs_describe bs_min_plus_llex_max_min;;  (* no zero, no one *) 
+bs_describe_fully bs_min_plus_llex_max_min;;  (* no zero, no one *) 
 
 let bs_min_plus_infinity  = bs_add_zero bs_min_plus infinity ;; 
-bs_describe  bs_min_plus_infinity;; 
+bs_describe_fully  bs_min_plus_infinity;; 
 
 let bs_max_min_self  = bs_add_one bs_max_min self ;; 
-bs_describe  bs_max_min_self;; 
+bs_describe_fully  bs_max_min_self;; 
 
 let bs_min_plus_llex_max_min_v2 = bs_min_plus_infinity <!**>  bs_max_min_self;;
-bs_describe bs_min_plus_llex_max_min_v2;;  (* not distributive *) 
+bs_describe_fully bs_min_plus_llex_max_min_v2;;  (* not distributive *) 
 
 let bs_min_plus_llex_max_min_v3 = bs_min_plus <!**>  bs_max_min_self;;
-bs_describe bs_min_plus_llex_max_min_v3;;  (* distributive, no zero *) 
+bs_describe_fully bs_min_plus_llex_max_min_v3;;  (* distributive, no zero *) 
   
 let bs_min_plus_llex_max_min_v4 = bs_add_zero bs_min_plus_llex_max_min_v3 infinity ;;
-bs_describe bs_min_plus_llex_max_min_v4;;  (* *) 
+bs_describe_fully bs_min_plus_llex_max_min_v4;;  (* *) 
 
 let bs_max_min_llex_min_plus = bs_max_min <!**> bs_min_plus;;
-bs_describe bs_max_min_llex_min_plus;;  (* not distributive, no 0, no 1 *) 
+bs_describe_fully bs_max_min_llex_min_plus;;  (* not distributive, no 0, no 1 *) 
 
-bs_describe (bs_max_min <!++> bs_min_plus);; 
+bs_describe_fully (bs_max_min <!++> bs_min_plus);; 
 
   (* **** *) 
 let bs_union_lift_left  = bs_union_lift (sg_left (eqv_nat_ceiling 5));;  
 let bs_union_lift_right = bs_union_lift (sg_right (eqv_nat_ceiling 5));;
 (*
-bs_describe bs_union_lift_left;;
+bs_describe_fully bs_union_lift_left;;
 Carrier type :
 ([5 + 1]) set
 
@@ -93,7 +140,7 @@ plus id = times annihilator
 times id <> plus annihilator
 
 
-bs_describe bs_union_lift_right;;
+bs_describe_fully bs_union_lift_right;;
 Carrier type :
 ([5 + 1]) set
 
@@ -129,7 +176,7 @@ times id <> plus annihilator
 let bs_sp_llex_union_lift_left  = bs_llex_product bs_min_plus bs_union_lift_left;;
 let bs_sp_llex_union_lift_right = bs_llex_product bs_min_plus bs_union_lift_right;;
 (*
-bs_describe bs_sp_llex_union_lift_left;;
+bs_describe_fully bs_sp_llex_union_lift_left;;
 Carrier type :
 (int * ([5 + 1]) set)
 
@@ -165,7 +212,7 @@ times id <> plus annihilator
 
 
 
-bs_describe bs_sp_llex_union_lift_right;;
+bs_describe_fully bs_sp_llex_union_lift_right;;
 Carrier type :
 (int * ([5 + 1]) set)
 
@@ -204,7 +251,7 @@ times id <> plus annihilator
 let bs_add_zero_sp_llex_union_lift_left  = bs_add_zero bs_sp_llex_union_lift_left infinity;; 
 let bs_add_zero_sp_llex_union_lift_right = bs_add_zero bs_sp_llex_union_lift_right infinity;;
 (*  
-bs_describe bs_add_zero_sp_llex_union_lift_left;;
+bs_describe_fully bs_add_zero_sp_llex_union_lift_left;;
 Carrier type :
 ({INFINITY} + (int * ([5 + 1]) set))
 
@@ -239,7 +286,7 @@ plus id = times annihilator
 times id <> plus annihilator
 
  
-bs_describe bs_add_zero_sp_llex_union_lift_right;;
+bs_describe_fully bs_add_zero_sp_llex_union_lift_right;;
 Carrier type :
 ({INFINITY} + (int * ([5 + 1]) set))
 
@@ -278,7 +325,7 @@ times id <> plus annihilator
 let bs_add_one_zero_sp_llex_union_lift_left  = bs_add_one bs_add_zero_sp_llex_union_lift_left self;; 
 let bs_add_one_zero_sp_llex_union_lift_right = bs_add_one bs_add_zero_sp_llex_union_lift_right self;; 
 (*  
-bs_describe bs_add_one_zero_sp_llex_union_lift_left;;
+bs_describe_fully bs_add_one_zero_sp_llex_union_lift_left;;
 Carrier type :
 ({SELF} + ({INFINITY} + (int * ([5 + 1]) set)))
 
@@ -322,7 +369,7 @@ plus id = times annihilator
 times id = plus annihilator
 
   
-bs_describe bs_add_one_zero_sp_llex_union_lift_right;;
+bs_describe_fully bs_add_one_zero_sp_llex_union_lift_right;;
 Carrier type :
 ({SELF} + ({INFINITY} + (int * ([5 + 1]) set)))
 
