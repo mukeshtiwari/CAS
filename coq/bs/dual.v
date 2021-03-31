@@ -37,7 +37,7 @@ Definition A_lattice_dual : ∀ (S : Type), A_lattice S -> A_lattice S
                                (A_lattice_join S lat)
                                (A_lattice_meet S lat)
                                (A_lattice_proofs S lat)
-; A_lattice_ast          := Ast_lattice_dual (A_lattice_ast S lat) 
+; A_lattice_ast          := Ast_bs_dual (A_lattice_ast S lat) 
 |}.
 
 
@@ -85,7 +85,7 @@ Definition A_distributive_lattice_dual : ∀ (S : Type), A_distributive_lattice 
                                              (A_distributive_lattice_join_proofs S lat)
                                              (A_distributive_lattice_meet_proofs S lat)                                             
                                              (A_distributive_lattice_proofs S lat)
-; A_distributive_lattice_ast          := Ast_distributive_lattice_dual (A_distributive_lattice_ast S lat) 
+; A_distributive_lattice_ast          := Ast_bs_dual (A_distributive_lattice_ast S lat) 
 |}.
 
 Definition A_distributive_prelattice_dual : ∀ (S : Type), A_distributive_prelattice S -> A_distributive_prelattice S
@@ -114,7 +114,7 @@ Definition A_distributive_prelattice_dual : ∀ (S : Type), A_distributive_prela
                                              (A_distributive_prelattice_join_proofs S lat)
                                              (A_distributive_prelattice_meet_proofs S lat)                                             
                                              (A_distributive_prelattice_proofs S lat)
-; A_distributive_prelattice_ast          := Ast_distributive_prelattice_dual (A_distributive_prelattice_ast S lat) 
+; A_distributive_prelattice_ast          := Ast_bs_dual (A_distributive_prelattice_ast S lat) 
 |}.
 
 
@@ -163,7 +163,7 @@ Definition A_selective_distributive_lattice_dual : ∀ (S : Type), A_selective_d
                                              (A_selective_distributive_lattice_join_proofs S lat)
                                              (A_selective_distributive_lattice_meet_proofs S lat)                                             
                                              (A_selective_distributive_lattice_proofs S lat)
-; A_selective_distributive_lattice_ast  := Ast_selective_distributive_lattice_dual (A_selective_distributive_lattice_ast S lat) 
+; A_selective_distributive_lattice_ast  := Ast_bs_dual (A_selective_distributive_lattice_ast S lat) 
 |}.
 
 End ACAS.
@@ -207,7 +207,7 @@ Definition lattice_dual : ∀ {S : Type}, @lattice S -> @lattice S
 ; lattice_meet_certs   := lattice_join_certs lat
 ; lattice_id_ann_certs := bounded_certs_dual (lattice_id_ann_certs lat)
 ; lattice_certs        := lattice_certs_dual (lattice_certs lat)
-; lattice_ast          := Ast_lattice_dual (lattice_ast lat) 
+; lattice_ast          := Ast_bs_dual (lattice_ast lat) 
 |}.
 
 
@@ -230,7 +230,7 @@ Definition distributive_lattice_dual : ∀ {S : Type}, @distributive_lattice S -
 ; distributive_lattice_meet_certs   := distributive_lattice_join_certs lat
 ; distributive_lattice_id_ann_certs := bounded_certs_dual (distributive_lattice_id_ann_certs lat)  
 ; distributive_lattice_certs        := distributive_lattice_certs_dual (distributive_lattice_certs lat)
-; distributive_lattice_ast          := Ast_distributive_lattice_dual (distributive_lattice_ast lat) 
+; distributive_lattice_ast          := Ast_bs_dual (distributive_lattice_ast lat) 
 |}.
 
 
@@ -260,7 +260,7 @@ Definition distributive_prelattice_dual : ∀ {S : Type}, @distributive_prelatti
                                          end
     |}                                                                            
 ; distributive_prelattice_certs       := distributive_lattice_certs_dual (distributive_prelattice_certs lat)
-; distributive_prelattice_ast          := Ast_distributive_prelattice_dual (distributive_prelattice_ast lat) 
+; distributive_prelattice_ast          := Ast_bs_dual (distributive_prelattice_ast lat) 
 |}.
 
 
@@ -275,7 +275,7 @@ Definition selective_distributive_lattice_dual : ∀ {S : Type}, @selective_dist
 ; selective_distributive_lattice_meet_certs   := selective_distributive_lattice_join_certs lat
 ; selective_distributive_lattice_id_ann_certs := bounded_certs_dual (selective_distributive_lattice_id_ann_certs lat)  
 ; selective_distributive_lattice_certs        := distributive_lattice_certs_dual (selective_distributive_lattice_certs lat)
-; selective_distributive_lattice_ast          := Ast_selective_distributive_lattice_dual (selective_distributive_lattice_ast lat) 
+; selective_distributive_lattice_ast          := Ast_bs_dual (selective_distributive_lattice_ast lat) 
 |}.
 
   

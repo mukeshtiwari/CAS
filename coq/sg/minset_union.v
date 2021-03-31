@@ -106,13 +106,26 @@ Proof. unfold bop_left_uop_invariant. intros X Y.
                 (* s in X *)
                 case_eq(in_set rS (uop_minset rS lteS X) s); intro J. 
                    apply H2; auto. 
-                   destruct (in_set_uop_minset_false_elim S rS wS f Pf congS refS symS tranS lteS lteCong lteRefl lteTrans lteAntiSym s X s_in_X J)
+                   destruct (in_set_uop_minset_false_elim S rS wS f Pf congS refS symS tranS lteS lteCong lteRefl lteTrans s X s_in_X J)
                             as [s' [[H3 H4] H5]]. 
                    destruct (H2 s' (inl H3)) as [H6 | H6].
                       left. case_eq(lteS s a); intro H7; auto. 
                       rewrite (lteTrans _ _ _ H4 H7) in H6. exact H6.
                       rewrite (lteCong _ _ _ _ H6 (refS s)) in H4. 
                       left. case_eq(lteS s a); intro H7; auto.
+(* I don't think we really need antisym...
+                     
+                      assert (F : s [in] uop_minset rS lteS X).
+                         apply in_set_minset_intro; auto.
+                         split; auto.
+                         apply in_set_minset_elim in L; auto.
+                         destruct L as [L1 L2].
+                         intros t H8.
+                         assert (G := L2 t H8). 
+                         destruct G as [G | G].
+                            right.
+                            case_eq(lteS t s); intro I; auto. 
+*)                          
                       assert (H8 := lteAntiSym _ _ H4 H7).
                       assert (H9 := tranS _ _ _ H6 H8).
                       rewrite H9 in H5. exact H5.
@@ -125,7 +138,7 @@ Proof. unfold bop_left_uop_invariant. intros X Y.
                 (* s in X *)
                 case_eq(in_set rS (uop_minset rS lteS X) s); intro J. 
                    apply H2; auto. 
-                   destruct (in_set_uop_minset_false_elim S rS wS f Pf congS refS symS tranS lteS lteCong lteRefl lteTrans lteAntiSym s X s_in_X J)
+                   destruct (in_set_uop_minset_false_elim S rS wS f Pf congS refS symS tranS lteS lteCong lteRefl lteTrans s X s_in_X J)
                             as [s' [[H3 H4] H5]]. 
                    destruct (H2 s' (inl H3)) as [H6 | H6].
                       left. case_eq(lteS s a); intro H7; auto. 
@@ -273,7 +286,7 @@ Proof. intro H. unfold EQMS in H. unfold brel_minset in H. unfold brel_reduce in
           apply R in J. 
           apply in_set_minset_elim in J; auto. destruct J as [J _]. 
           apply in_set_singleton_elim in J; auto.  
-          destruct (in_set_uop_minset_false_elim S rS wS f Pf congS refS symS tranS lteS lteCong lteRefl lteTrans lteAntiSym s0 X H1 J)
+          destruct (in_set_uop_minset_false_elim S rS wS f Pf congS refS symS tranS lteS lteCong lteRefl lteTrans s0 X H1 J)
                             as [s' [[H3 H4] H5]]. 
           assert (H6 := R s' H3). 
           apply in_set_minset_elim in H6; auto. destruct H6 as [H6 H7].           
@@ -675,7 +688,6 @@ let tot_d      := A_po_total_d S rS lteS poS in
 ; A_sg_CI_commutative        := bop_minset_union_commutative S rS congS refS symS tranS lteS lteCong 
 ; A_sg_CI_idempotent         := bop_minset_union_idempotent S rS congS refS symS tranS lteS lteCong lteRefl
 ; A_sg_CI_selective_d        := bop_minset_union_selective_decide S rS s f ntS congS refS symS tranS lteS lteCong lteRefl lteTran lteAntiSym tot_d
-; A_sg_CI_bop_ast            := Ast_bop_minset_union (A_po_brel_ast S rS lteS poS)
 |}. 
 
 Definition A_sg_CI_minset_union : ∀ (S : Type),  A_po S -> A_sg_CI (finite_set S)
@@ -704,8 +716,14 @@ Definition A_sg_CI_minset_union : ∀ (S : Type),  A_po S -> A_sg_CI (finite_set
    ; A_sg_CI_exists_ann_d := bop_minset_union_exists_ann_decide S eq s f ntS congS refS symS tranS lteS lteCong lteRefl lteTran lteAntiSym bf_d
    ; A_sg_CI_proofs       := sg_CI_proofs_minset_union S eq lteS s f ntS eqP poP 
    
-   ; A_sg_CI_ast          := Ast_sg_CI_minset_union (A_po_ast S po)                                                                   
-   |}. 
+   ; A_sg_CI_ast          := Ast_sg_minset_union (A_po_ast S po)                                                                   
+  |}.
+
+(*
+    2) version of minset_union that takes a A_po_with_bottom 
+    3) sg_CI_with_ann 
+*)
+
 
 End ACAS.
 
@@ -733,7 +751,6 @@ Definition sg_CI_certs_minset_union : ∀ {S : Type},  @po_certificates S -> @sg
 ; sg_CI_commutative        := Assert_Commutative  
 ; sg_CI_idempotent         := Assert_Idempotent  
 ; sg_CI_selective_d        := check_minset_union_selective (po_total_d po)
-; sg_CI_bop_ast            := Ast_bop_minset_union (po_brel_ast po)                                                           
 |}. 
 
 Definition sg_CI_minset_union : ∀ {S : Type}, @po S -> @sg_CI (finite_set S)
@@ -748,7 +765,7 @@ Definition sg_CI_minset_union : ∀ {S : Type}, @po S -> @sg_CI (finite_set S)
    ; sg_CI_exists_ann_d       := check_minset_union_exists_ann (po_bottoms_finite_d (po_certs po))
    ; sg_CI_certs     := sg_CI_certs_minset_union (po_certs po)
    
-   ; sg_CI_ast       := Ast_sg_CI_minset_union (po_ast po)                                                                   
+   ; sg_CI_ast       := Ast_sg_minset_union (po_ast po)                                                                   
    |}. 
 
 End CAS.

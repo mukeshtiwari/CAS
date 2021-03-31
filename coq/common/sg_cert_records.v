@@ -1,6 +1,5 @@
 Require Import CAS.coq.common.compute. 
 Require Import CAS.coq.common.sg_certificates.
-Require Import CAS.coq.common.ast.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -24,7 +23,6 @@ Record sg_certificates {S: Type}  :=
 ; sg_anti_left_d      : check_anti_left (S := S) 
 ; sg_anti_right_d     : check_anti_right (S := S)
 
-; sg_bop_ast          : ast_bop                      
 }. 
 
 Record sg_C_certificates {S: Type}  := 
@@ -38,8 +36,6 @@ Record sg_C_certificates {S: Type}  :=
 ; sg_C_constant_d       : check_left_constant (S := S) 
 ; sg_C_anti_left_d      : check_anti_left (S := S) 
 ; sg_C_anti_right_d     : check_anti_right (S := S)
-
-; sg_C_bop_ast          : ast_bop                      
 }. 
 
 Record sg_CS_certificates {S: Type}  := 
@@ -48,9 +44,6 @@ Record sg_CS_certificates {S: Type}  :=
 ; sg_CS_congruence         : assert_bop_congruence (S := S) 
 ; sg_CS_commutative        : assert_commutative (S := S) 
 ; sg_CS_selective          : assert_selective (S := S)
-
-; sg_CS_bop_ast            : ast_bop
-                                              
 }. 
 
 Record sg_CI_certificates {S: Type}  := 
@@ -60,8 +53,6 @@ Record sg_CI_certificates {S: Type}  :=
 ; sg_CI_commutative        : assert_commutative (S := S) 
 ; sg_CI_idempotent         : assert_idempotent (S := S) 
 ; sg_CI_selective_d        : check_selective (S := S)
-
-; sg_CI_bop_ast            : ast_bop                                                            
 }. 
 
 Record sg_CK_certificates {S: Type}  := 
@@ -72,8 +63,6 @@ Record sg_CK_certificates {S: Type}  :=
 ; sg_CK_left_cancel      : assert_left_cancellative (S := S) 
 ; sg_CK_anti_left_d      : check_anti_left (S := S) 
 ; sg_CK_anti_right_d     : check_anti_right (S := S)
-
-; sg_CK_bop_ast          : ast_bop   
 }. 
 
 
@@ -84,8 +73,6 @@ Record asg_certificates {S: Type}  :=
 ; asg_commutative      : assert_commutative (S := S) 
 ; asg_selective_d      : check_selective (S := S) 
 ; asg_idempotent_d     : check_idempotent (S := S)
-
-; asg_bop_ast          : ast_bop                      
 }. 
 
 Record msg_certificates {S: Type}  := 
@@ -102,8 +89,6 @@ Record msg_certificates {S: Type}  :=
 ; msg_right_constant_d : check_right_constant (S := S) 
 ; msg_anti_left_d      : check_anti_left (S := S) 
 ; msg_anti_right_d     : check_anti_right (S := S)
-
-; msg_bop_ast          : ast_bop                      
 }. 
 
 

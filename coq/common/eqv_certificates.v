@@ -66,7 +66,11 @@ Inductive check_is_finite {S : Type} :=
 
 Inductive check_exists_top {S : Type} := 
 | Certify_Exists_Top : S → check_exists_top (S := S)
-| Certify_Not_Exists_Top : check_exists_top (S := S). 
+| Certify_Not_Exists_Top : check_exists_top (S := S).
+
+Inductive assert_exists_bottom {S : Type} := 
+| Assert_exists_bottom : S → assert_exists_bottom (S := S). 
+
 
 Inductive check_exists_bottom {S : Type} := 
 | Certify_Exists_Bottom : S → check_exists_bottom (S := S)

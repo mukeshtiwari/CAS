@@ -155,8 +155,6 @@ Definition P2C_sg : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; sg_right_constant_d := p2c_right_constant_check S r b (A_sg_right_constant_d S r b P)
 ; sg_anti_left_d      := p2c_anti_left_check S r b (A_sg_anti_left_d S r b P)
 ; sg_anti_right_d     := p2c_anti_right_check S r b (A_sg_anti_right_d S r b P)
-
-; sg_bop_ast          := A_sg_bop_ast S r b P
 |}. 
 
 
@@ -173,8 +171,6 @@ Definition P2C_sg_C : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; sg_C_constant_d    := p2c_left_constant_check S r b (A_sg_C_constant_d S r b P)
 ; sg_C_anti_left_d   := p2c_anti_left_check S r b (A_sg_C_anti_left_d S r b P)
 ; sg_C_anti_right_d  := p2c_anti_right_check S r b (A_sg_C_anti_right_d S r b P)
-
-; sg_C_bop_ast       := A_sg_C_bop_ast S r b P
 |}. 
 
 
@@ -187,8 +183,6 @@ Definition P2C_sg_CI : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; sg_CI_commutative   := @Assert_Commutative S 
 ; sg_CI_idempotent    := @Assert_Idempotent S 
 ; sg_CI_selective_d   := p2c_selective_check S r b (A_sg_CI_selective_d S r b P)
-
-; sg_CI_bop_ast       := A_sg_CI_bop_ast S r b P                                             
 |}. 
 
 
@@ -200,8 +194,6 @@ Definition P2C_sg_CS : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; sg_CS_congruence    := @Assert_Bop_Congruence S 
 ; sg_CS_commutative   := @Assert_Commutative S 
 ; sg_CS_selective     := @Assert_Selective S
-
-; sg_CS_bop_ast       := A_sg_CS_bop_ast S r b P                                                 
 |}. 
 
 
@@ -215,8 +207,6 @@ Definition P2C_sg_CK : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; sg_CK_left_cancel      := @Assert_Left_Cancellative S 
 ; sg_CK_anti_left_d      := p2c_anti_left_check S r b (A_sg_CK_anti_left_d S r b P)
 ; sg_CK_anti_right_d     := p2c_anti_right_check S r b (A_sg_CK_anti_right_d S r b P)
-
-; sg_CK_bop_ast          := A_sg_CK_bop_ast S r b P                                                 
 |}. 
 
 Definition P2C_asg : ∀ (S : Type) (r : brel S) (b : binary_op S),  
@@ -228,8 +218,6 @@ Definition P2C_asg : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; asg_commutative      := @Assert_Commutative S 
 ; asg_selective_d      := p2c_selective_check S r b (A_asg_selective_d S r b P)
 ; asg_idempotent_d     := p2c_idempotent_check S r b (A_asg_idempotent_d S r b P)
-
-; asg_bop_ast          := A_asg_bop_ast S r b P
 |}. 
 
 
@@ -248,8 +236,6 @@ Definition P2C_msg : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; msg_right_constant_d := p2c_right_constant_check S r b (A_msg_right_constant_d S r b P)
 ; msg_anti_left_d      := p2c_anti_left_check S r b (A_msg_anti_left_d S r b P)
 ; msg_anti_right_d     := p2c_anti_right_check S r b (A_msg_anti_right_d S r b P)
-
-; msg_bop_ast          := A_msg_bop_ast S r b P                                                                     
 |}. 
 
 
@@ -294,6 +280,20 @@ let eq := A_eqv_eq S (A_sg_CI_eqv S R) in
 ; sg_CI_exists_ann_d := p2c_exists_ann_check S eq b (A_sg_CI_exists_ann_d S R)
 ; sg_CI_certs        := P2C_sg_CI S eq b (A_sg_CI_proofs S R)
 ; sg_CI_ast          := A_sg_CI_ast S R
+|}. 
+
+
+Definition A2C_sg_CI_with_ann : ∀ (S : Type), A_sg_CI_with_ann S -> @sg_CI_with_ann S 
+:= λ S R,
+let b  := A_sg_CI_wa_bop S R in
+let eq := A_eqv_eq S (A_sg_CI_wa_eqv S R) in 
+{| 
+  sg_CI_wa_eqv          := A2C_eqv S (A_sg_CI_wa_eqv S R)
+; sg_CI_wa_bop          := b 
+; sg_CI_wa_exists_id_d  := p2c_exists_id_check S eq b (A_sg_CI_wa_exists_id_d S R)
+; sg_CI_wa_exists_ann   := Assert_Exists_Ann (projT1 (A_sg_CI_wa_exists_ann S R))
+; sg_CI_wa_certs        := P2C_sg_CI S eq b (A_sg_CI_wa_proofs S R)
+; sg_CI_wa_ast          := A_sg_CI_wa_ast S R
 |}. 
 
 

@@ -1336,7 +1336,7 @@ let right_constant_timesT := A_msg_right_constant_d T rT timesT (A_bs_CS_times_p
                                       right_constant_timesT 
                                       (A_bs_CS_proofs S bsS) 
                                       (A_bs_CS_proofs T bsT)
-   ; A_bs_CS_ast        := Ast_bs_CS_llex (A_bs_CS_ast S bsS, A_bs_CS_ast T bsT)
+   ; A_bs_CS_ast        := Ast_bs_llex (A_bs_CS_ast S bsS, A_bs_CS_ast T bsT)
 |}. 
 
 End ACAS.
@@ -1709,7 +1709,7 @@ Definition bs_CS_llex_product : ∀ {S T : Type},  bs_CS (S := S) -> bs_CS (S :=
                            (msg_right_constant_d (bs_CS_times_certs bsT))
                            (bs_CS_certs bsS) 
                            (bs_CS_certs bsT)
-   ; bs_CS_ast        := Ast_bs_CS_llex (bs_CS_ast bsS, bs_CS_ast bsT)
+   ; bs_CS_ast        := Ast_bs_llex (bs_CS_ast bsS, bs_CS_ast bsT)
 |}. 
 
 End CAS.

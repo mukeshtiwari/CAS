@@ -82,8 +82,7 @@ Definition eqv_proofs_eq_nat : eqv_proofs nat brel_eq_nat (* (uop_id nat) *)
    ; A_eqv_reflexive   := brel_eq_nat_reflexive 
    ; A_eqv_transitive  := brel_eq_nat_transitive 
    ; A_eqv_symmetric   := brel_eq_nat_symmetric
-   ; A_eqv_type_ast    := Ast_type_nat                                                        
-   ; A_eqv_brel_ast    := Ast_brel_eq_nat                            
+
    |}. 
 
 
@@ -116,8 +115,7 @@ Definition eqv_eq_nat : eqv (S := nat)
      ; eqv_reflexive      := @Assert_Reflexive nat 
      ; eqv_transitive     := @Assert_Transitive nat 
      ; eqv_symmetric      := @Assert_Symmetric nat
-     ; eqv_type_ast       := Ast_type_nat                                               
-     ; eqv_brel_ast       := Ast_brel_eq_nat
+
      |}  
     ; eqv_witness := 0
     ; eqv_new := S

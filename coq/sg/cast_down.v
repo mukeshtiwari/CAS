@@ -22,7 +22,6 @@ Section ACAS.
                    ; A_sg_C_constant_d       := A_sg_left_constant_d S eqS bS sgS 
                    ; A_sg_C_anti_left_d      := A_sg_anti_left_d S eqS bS sgS 
                    ; A_sg_C_anti_right_d     := A_sg_anti_right_d S eqS bS sgS
-                  ; A_sg_C_bop_ast           := A_sg_bop_ast S eqS bS sgS   
                  |}
     end.   
 
@@ -51,7 +50,6 @@ Definition A_sg_CS_proofs_option_from_asg_proofs :
                    ; A_sg_CS_congruence       := A_asg_congruence S eqS bS sgS 
                    ; A_sg_CS_commutative      := A_asg_commutative S eqS bS sgS 
                    ; A_sg_CS_selective        := sS
-                   ; A_sg_CS_bop_ast          := A_asg_bop_ast S eqS bS sgS                                                   
                  |}
     end.
  
@@ -65,7 +63,6 @@ Definition A_sg_CS_proofs_option_from_asg_proofs :
                    ; A_sg_CS_congruence       := A_sg_C_congruence S eqS bS sgS 
                    ; A_sg_CS_commutative      := A_sg_C_commutative S eqS bS sgS 
                    ; A_sg_CS_selective        := sS
-                   ; A_sg_CS_bop_ast          := A_sg_C_bop_ast S eqS bS sgS
                  |}
     end.
 
@@ -105,7 +102,6 @@ Definition A_sg_CS_option_from_sg_C : ∀ (S : Type),  A_sg_C S -> option (A_sg_
                    ; A_sg_CS_congruence       := A_sg_CI_congruence S eqS bS sgS 
                    ; A_sg_CS_commutative      := A_sg_CI_commutative S eqS bS sgS 
                    ; A_sg_CS_selective        := sS
-                   ; A_sg_CS_bop_ast          := A_sg_CI_bop_ast S eqS bS sgS                                
                  |}
     end.
  
@@ -135,7 +131,6 @@ Definition A_sg_CS_option_from_sg_CI : ∀ (S : Type),  A_sg_CI S -> option (A_s
                    ; A_sg_CI_commutative      := A_sg_C_commutative S eqS bS sgS 
                    ; A_sg_CI_idempotent       := iS
                    ; A_sg_CI_selective_d      := A_sg_C_selective_d S eqS bS sgS
-                   ; A_sg_CI_bop_ast          := A_sg_C_bop_ast S eqS bS sgS    
                  |}
     end.   
 
@@ -167,7 +162,6 @@ Definition A_sg_CI_option_from_sg_C : ∀ (S : Type),  A_sg_C S -> option (A_sg_
                    ; A_sg_CK_cancel           := cS
                    ; A_sg_CK_anti_left_d      := A_sg_C_anti_left_d S eqS bS sgS 
                    ; A_sg_CK_anti_right_d     := A_sg_C_anti_right_d S eqS bS sgS 
-                   ; A_sg_CK_bop_ast          := A_sg_C_bop_ast S eqS bS sgS
                   |}
     end.   
 
@@ -228,7 +222,6 @@ Section CAS.
                    ; sg_C_constant_d       := sg_left_constant_d sgS 
                    ; sg_C_anti_left_d      := sg_anti_left_d sgS 
                    ; sg_C_anti_right_d     := sg_anti_right_d sgS
-                   ; sg_C_bop_ast          := sg_bop_ast sgS
     |}
     end.   
 
@@ -242,7 +235,6 @@ Section CAS.
                    ; sg_CS_congruence       := asg_congruence sgS
                    ; sg_CS_commutative      := Assert_Commutative 
                    ; sg_CS_selective        := Assert_Selective
-                   ; sg_CS_bop_ast          := asg_bop_ast sgS                                                 
                  |}
     end.
 
@@ -257,7 +249,6 @@ Section CAS.
                    ; sg_CS_congruence       := sg_C_congruence sgS
                    ; sg_CS_commutative      := Assert_Commutative 
                    ; sg_CS_selective        := Assert_Selective
-                   ; sg_CS_bop_ast          := sg_C_bop_ast sgS
               |}
     end.
 
@@ -281,7 +272,6 @@ Section CAS.
                    ; sg_CS_congruence       := sg_CI_congruence sgS
                    ; sg_CS_commutative      := Assert_Commutative 
                    ; sg_CS_selective        := Assert_Selective
-                   ; sg_CS_bop_ast          := sg_CI_bop_ast sgS
                |}
     end.   
 
@@ -296,7 +286,6 @@ Definition sg_CI_certs_option_from_sg_C_certs :
                    ; sg_CI_commutative      := Assert_Commutative
                    ; sg_CI_idempotent       := Assert_Idempotent                               
                    ; sg_CI_selective_d      := sg_C_selective_d sgS
-                   ; sg_CI_bop_ast          := sg_C_bop_ast sgS                                             
                  |}
     end.   
 
@@ -313,7 +302,6 @@ Definition sg_CK_certs_option_from_sg_C_certs :
                    ; sg_CK_left_cancel      := Assert_Left_Cancellative
                    ; sg_CK_anti_left_d      := sg_C_anti_left_d sgS 
                    ; sg_CK_anti_right_d     := sg_C_anti_right_d sgS                                                                     
-                   ; sg_CK_bop_ast          := sg_C_bop_ast sgS
                 |}
     end.   
 

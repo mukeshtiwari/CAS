@@ -87,6 +87,8 @@ CAS=\
    coq/sg/intersect.v \
    coq/sg/lift.v \
    coq/sg/minset_union.v \
+   coq/sg/minset_lift.v \
+   coq/po/from_sg_left.v \
    coq/ltr/cons.v \
    coq/ltr/left_cayley.v \
    coq/ltr/product.v \
@@ -113,8 +115,8 @@ CAS=\
    coq/lstr/left_sum_sum_of_product.v \
    coq/bs/union_lift.v \
    coq/bs/intersect_union.v \
-   coq/bs/union_intersect.v 
-
+   coq/bs/union_intersect.v \
+   coq/bs/minset_union_lift.v
 
 
 FILES=$(BASE) $(CAS)

@@ -1374,7 +1374,6 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
 ; A_asg_idempotent_d  := bop_llex_idempotent_decide S T rS rT bS bT s refS 
                          (A_sg_CS_selective S rS bS sgS)
                          (A_asg_idempotent_d _ _ _ sgT) 
-; A_asg_bop_ast      := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_asg_bop_ast T rT bT sgT)                                            
 |}. 
 
   
@@ -1440,7 +1439,6 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
 ; A_sg_anti_right_d     := inr _ (bop_llex_not_anti_right S T rS rT bS bT s f Pf symS transS t refT 
                                     (A_sg_CS_selective S rS bS sgS)
                                     (A_sg_CS_commutative S rS bS sgS) )
-; A_sg_bop_ast          := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_sg_bop_ast T rT bT sgT)                                            
 |}. 
 
 Definition sg_C_proofs_llex :
@@ -1492,7 +1490,6 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
                                     (A_sg_CS_selective _ _ _ sgS)
                                     (A_sg_CS_commutative _ _ _ sgS))
 
-; A_sg_C_bop_ast          := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_sg_C_bop_ast T rT bT sg_CT)                                                                       
 |}. 
 
 
@@ -1529,7 +1526,6 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
                          (A_sg_CS_commutative _ _ _ sgS) 
                          (A_sg_CS_selective _ _ _ sgS) 
                          (A_sg_CI_selective_d _ _ _ sg_CIT) 
-; A_sg_CI_bop_ast       := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_sg_CI_bop_ast T rT bT sg_CIT)                                        
 |}. 
 
 
@@ -1562,7 +1558,6 @@ let bcongS := A_sg_CS_congruence _ _ _ sgS in
                          (A_sg_CS_commutative _ _ _ sgS) 
                          (A_sg_CS_selective _ _ _ sgS) 
                          (A_sg_CS_selective _ _ _ sg_CST)
-; A_sg_CS_bop_ast := Ast_bop_llex (A_sg_CS_bop_ast S rS bS sgS, A_sg_CS_bop_ast T rT bT sg_CST)                                                        
 |}. 
 
 
@@ -1638,7 +1633,7 @@ let an2  := A_sg_C_exists_ann_d _ sgT in
                            (A_sg_CS_proofs S sgS) 
                            (A_sg_C_proofs T sgT)
       
-      ; A_sg_C_ast     := Ast_sg_C_llex (A_sg_CS_ast S sgS, A_sg_C_ast T sgT)  
+      ; A_sg_C_ast     := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_C_ast T sgT)  
 |}. 
 
 
@@ -1671,7 +1666,7 @@ let an2  := A_sg_CI_exists_ann_d _ sgT in
                           (A_sg_CS_proofs S sgS) 
                           (A_sg_CI_proofs T sgT)
       
-      ; A_sg_CI_ast     := Ast_sg_CI_llex (A_sg_CS_ast S sgS, A_sg_CI_ast T sgT)  
+      ; A_sg_CI_ast     := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_CI_ast T sgT)  
  |}. 
 
 
@@ -1703,7 +1698,7 @@ let an2  := A_sg_CS_exists_ann_d _ sgT in
                            (A_sg_CS_proofs S sgS) 
                            (A_sg_CS_proofs T sgT)
       
-      ; A_sg_CS_ast    := Ast_sg_CS_llex (A_sg_CS_ast S sgS, A_sg_CS_ast T sgT)  
+      ; A_sg_CS_ast    := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_CS_ast T sgT)  
 |}. 
 End ACAS.
 
@@ -1763,7 +1758,6 @@ Definition asg_certs_llex : ∀ {S T : Type},
 ; asg_commutative      := Assert_Commutative
 ; asg_selective_d      := check_selective_llex s (asg_selective_d cT)
 ; asg_idempotent_d     := check_idempotent_llex s (asg_idempotent_d cT)
-; asg_bop_ast          := Ast_bop_llex (sg_CS_bop_ast cS, asg_bop_ast cT)                                                                                                                            
 |}. 
 
 Definition sg_certs_llex : ∀ {S T : Type},  
@@ -1788,7 +1782,6 @@ Definition sg_certs_llex : ∀ {S T : Type},
 ; sg_right_constant_d := Certify_Not_Right_Constant (cef_bop_llex_not_constant rS bS s f t g)
 ; sg_anti_left_d      := Certify_Not_Anti_Left (cef_bop_llex_not_anti_left rS bS s f t)
 ; sg_anti_right_d     := Certify_Not_Anti_Right (cef_bop_llex_not_anti_right rS bS s f t)
-; sg_bop_ast          := Ast_bop_llex (sg_CS_bop_ast cS, sg_bop_ast cT)                                                                            
 |}. 
 
 Definition sg_C_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
@@ -1804,7 +1797,6 @@ Definition sg_C_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S),
 ; sg_C_constant_d  := Certify_Not_Left_Constant (cef_bop_llex_not_constant rS bS s f t g)
 ; sg_C_anti_left_d      := Certify_Not_Anti_Left (cef_bop_llex_not_anti_left rS bS s f t)                            
 ; sg_C_anti_right_d     := Certify_Not_Anti_Right (cef_bop_llex_not_anti_right rS bS s f t)
-; sg_C_bop_ast       := Ast_bop_llex (sg_CS_bop_ast cS, sg_C_bop_ast cT)                                                         
 |}.
 
 Definition sg_CI_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
@@ -1816,7 +1808,6 @@ Definition sg_CI_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S),
 ; sg_CI_commutative   := Assert_Commutative   
 ; sg_CI_idempotent    := Assert_Idempotent   
 ; sg_CI_selective_d   := check_selective_llex s (sg_CI_selective_d cT)
-; sg_CI_bop_ast       := Ast_bop_llex (sg_CS_bop_ast cS, sg_CI_bop_ast cT)                                                         
 |}.
 
 Definition sg_CS_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
@@ -1827,7 +1818,6 @@ Definition sg_CS_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S),
 ; sg_CS_congruence    := Assert_Bop_Congruence   
 ; sg_CS_commutative   := Assert_Commutative   
 ; sg_CS_selective     := Assert_Selective   
-; sg_CS_bop_ast := Ast_bop_llex (sg_CS_bop_ast cS, sg_CS_bop_ast cT)                               
 |}.
 
 Definition sg_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg (S := T) -> sg (S := (S * T))
@@ -1866,7 +1856,7 @@ Definition sg_C_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_C (S := T) -> sg_
                           (sg_CS_certs sgS) 
                           (sg_C_certs sgT)
       
-      ; sg_C_ast    := Ast_sg_C_llex (sg_CS_ast sgS, sg_C_ast sgT)  
+      ; sg_C_ast    := Ast_sg_llex (sg_CS_ast sgS, sg_C_ast sgT)  
       |}. 
 
 Definition sg_CI_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CI (S := T) -> sg_CI (S := (S * T))
@@ -1886,7 +1876,7 @@ Definition sg_CI_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CI (S := T) -> s
                           (sg_CS_certs sgS) 
                           (sg_CI_certs sgT)
       
-      ; sg_CI_ast    := Ast_sg_CI_llex (sg_CS_ast sgS, sg_CI_ast sgT)  
+      ; sg_CI_ast    := Ast_sg_llex (sg_CS_ast sgS, sg_CI_ast sgT)  
       |}. 
 
 Definition sg_CS_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T) -> sg_CS (S := (S * T))
@@ -1905,7 +1895,7 @@ Definition sg_CS_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T) -> s
                           (sg_CS_certs sgS) 
                           (sg_CS_certs sgT)
       
-      ; sg_CS_ast    := Ast_sg_CS_llex (sg_CS_ast sgS, sg_CS_ast sgT)  
+      ; sg_CS_ast    := Ast_sg_llex (sg_CS_ast sgS, sg_CS_ast sgT)  
       |}. 
 
 End CAS.

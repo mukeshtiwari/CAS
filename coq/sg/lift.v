@@ -1880,7 +1880,6 @@ let asso_b := A_msg_associative S eq b bP in
 ; A_msg_right_constant_d :=  inr (bop_lift_not_right_constant S eq b wS)
 ; A_msg_anti_left_d      :=  inr (bop_lift_not_anti_left S eq b)
 ; A_msg_anti_right_d     :=  inr (bop_lift_not_anti_right S eq b)
-; A_msg_bop_ast          :=  Ast_bop_lift (A_msg_bop_ast S eq b bP)                                                                
 |}. 
 
 Definition sg_lift_proofs (S: Type)
@@ -1916,7 +1915,6 @@ let asso_b := A_sg_associative S eq b bP in
 ; A_sg_right_constant_d :=  inr (bop_lift_not_right_constant S eq b wS)
 ; A_sg_anti_left_d      :=  inr (bop_lift_not_anti_left S eq b)
 ; A_sg_anti_right_d     :=  inr (bop_lift_not_anti_right S eq b)
-; A_sg_bop_ast          := Ast_bop_lift (A_sg_bop_ast S eq b bP)                                                                   
 |}. 
 
 End ACAS_Proofs. 
@@ -2014,7 +2012,6 @@ Definition msg_lift_certs (S: Type)
 ; msg_right_constant_d :=  Certify_Not_Right_Constant (wS :: nil, (wS ::nil, nil)) 
 ; msg_anti_left_d      :=  Certify_Not_Anti_Left (nil, nil) 
 ; msg_anti_right_d     :=  Certify_Not_Anti_Right (nil, nil)
-; msg_bop_ast          := Ast_bop_lift (msg_bop_ast bP)                                                                                                                    
 |}. 
 
 
@@ -2043,7 +2040,6 @@ Definition sg_lift_certs (S: Type)
 ; sg_right_constant_d :=  Certify_Not_Right_Constant (wS :: nil, (wS ::nil, nil)) 
 ; sg_anti_left_d      :=  Certify_Not_Anti_Left (nil, nil) 
 ; sg_anti_right_d     :=  Certify_Not_Anti_Right (nil, nil)
-; sg_bop_ast          := Ast_bop_lift (sg_bop_ast bP)                                                                      
 |}. 
 
 

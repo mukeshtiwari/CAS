@@ -79,7 +79,6 @@ Definition sg_CS_proofs_and : sg_CS_proofs bool brel_eq_bool bop_and :=
 ; A_sg_CS_congruence   := bop_and_congruence
 ; A_sg_CS_commutative  := bop_and_commutative
 ; A_sg_CS_selective    := bop_and_selective
-; A_sg_CS_bop_ast      := Ast_bop_and                             
 |}. 
 
 Definition A_sg_CS_and : A_sg_CS bool
@@ -89,7 +88,7 @@ Definition A_sg_CS_and : A_sg_CS bool
    ; A_sg_CS_exists_id_d  := inl _ bop_and_exists_id 
    ; A_sg_CS_exists_ann_d := inl _ bop_and_exists_ann 
    ; A_sg_CS_proofs    := sg_CS_proofs_and
-   ; A_sg_CS_ast       := Ast_sg_CS_and 
+   ; A_sg_CS_ast       := Ast_sg_and 
    |}. 
 
 End ACAS.
@@ -103,7 +102,6 @@ Definition sg_CS_certs_and : @sg_CS_certificates bool
    ; sg_CS_congruence         := Assert_Bop_Congruence  
    ; sg_CS_commutative        := Assert_Commutative  
    ; sg_CS_selective          := Assert_Selective
-   ; sg_CS_bop_ast            := Ast_bop_and                                                          
    |}. 
 
 
@@ -114,7 +112,7 @@ Definition sg_CS_and : @sg_CS bool
    ; sg_CS_exists_id_d        := Certify_Exists_Id  true 
    ; sg_CS_exists_ann_d       := Certify_Exists_Ann  false 
    ; sg_CS_certs := sg_CS_certs_and
-   ; sg_CS_ast   := Ast_sg_CS_and 
+   ; sg_CS_ast   := Ast_sg_and 
    |}. 
   
 

@@ -79,7 +79,6 @@ let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
 ; A_msg_right_constant_d := inr _ (bop_left_not_right_constant S rS s f Pf)
 ; A_msg_anti_left_d      := inr _ (bop_left_not_anti_left S rS s refS) 
 ; A_msg_anti_right_d     := inr _ (bop_left_not_anti_right S rS s refS)
-; A_msg_bop_ast          := Ast_bop_left (A_eqv_brel_ast _ _ (A_eqv_proofs S eqvS))                                
 |}.
 
 Definition sg_proofs_left : ∀ (S : Type) (eqvS : A_eqv S), sg_proofs S (A_eqv_eq S eqvS) (@bop_left S)
@@ -103,7 +102,6 @@ let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
 ; A_sg_right_constant_d := inr _ (bop_left_not_right_constant S rS s f Pf)
 ; A_sg_anti_left_d      := inr _ (bop_left_not_anti_left S rS s refS)
 ; A_sg_anti_right_d     := inr _ (bop_left_not_anti_right S rS s refS)
-; A_sg_bop_ast          := Ast_bop_left (A_eqv_brel_ast _ _ (A_eqv_proofs S eqvS))
 |}. 
 
 
@@ -141,7 +139,6 @@ let f := eqv_new eqvS in
 ; msg_right_constant_d := Certify_Not_Right_Constant  (s, (s, f s)) 
 ; msg_anti_left_d      := Certify_Not_Anti_Left  (s, s) 
 ; msg_anti_right_d     := Certify_Not_Anti_Right  (s, s)
-; msg_bop_ast          := Ast_bop_left (eqv_brel_ast (eqv_certs eqvS))                                
 |}. 
 
   
@@ -164,7 +161,6 @@ let f := eqv_new eqvS in
 ; sg_right_constant_d := Certify_Not_Right_Constant  (s, (s, f s)) 
 ; sg_anti_left_d      := Certify_Not_Anti_Left  (s, s) 
 ; sg_anti_right_d     := Certify_Not_Anti_Right  (s, s) 
-; sg_bop_ast          := Ast_bop_left (eqv_brel_ast (eqv_certs eqvS))
 |}. 
 
 

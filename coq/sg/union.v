@@ -602,7 +602,6 @@ let tranS := A_eqv_transitive S rS eqvP in
 ; A_sg_CI_commutative        := bop_union_commutative S rS refS symS tranS 
 ; A_sg_CI_idempotent         := bop_union_idempotent S rS refS symS tranS 
 ; A_sg_CI_selective_d        := inr _ (bop_union_not_selective S rS refS symS s f ntS)
-; A_sg_CI_bop_ast            := Ast_bop_union (A_eqv_brel_ast S rS (A_eqv_proofs S eqv))
 |}. 
 
 Definition A_sg_CI_union : ∀ (S : Type),  A_eqv S -> A_sg_CI (finite_set S)
@@ -622,7 +621,7 @@ Definition A_sg_CI_union : ∀ (S : Type),  A_eqv S -> A_sg_CI (finite_set S)
    ; A_sg_CI_exists_ann_d := bop_union_exists_ann_decide S eqS refS symS trnS (A_eqv_finite_d S eqv)
    ; A_sg_CI_proofs    := sg_CI_proofs_union S eqv
    
-   ; A_sg_CI_ast       := Ast_sg_CI_union (A_eqv_ast S eqv)                                                                   
+   ; A_sg_CI_ast       := Ast_sg_union (A_eqv_ast S eqv)                                                                   
    |}. 
   
 
@@ -647,7 +646,6 @@ let f   := eqv_new eqvS in
 ; sg_CI_commutative        := Assert_Commutative  
 ; sg_CI_idempotent         := Assert_Idempotent  
 ; sg_CI_selective_d        := Certify_Not_Selective ((s :: nil), ((f s) :: nil))
-; sg_CI_bop_ast            := Ast_bop_union (eqv_brel_ast (eqv_certs eqvS))
 |}. 
 
 
@@ -664,7 +662,7 @@ Definition sg_CI_union : ∀ {S : Type}, @eqv S -> @sg_CI (finite_set S)
    ; sg_CI_exists_ann_d       := check_union_exists_ann (eqv_finite_d eqvS)
    ; sg_CI_certs     := sg_CI_certs_union eqvS
    
-   ; sg_CI_ast       := Ast_sg_CI_union(eqv_ast eqvS)
+   ; sg_CI_ast       := Ast_sg_union(eqv_ast eqvS)
    |}. 
 
 

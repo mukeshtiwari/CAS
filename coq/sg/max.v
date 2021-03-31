@@ -106,7 +106,6 @@ Definition sg_CS_proofs_max : sg_CS_proofs nat brel_eq_nat bop_max :=
 ; A_sg_CS_congruence   := bop_max_congruence
 ; A_sg_CS_commutative  := bop_max_commutative
 ; A_sg_CS_selective    := bop_max_selective
-; A_sg_CS_bop_ast      := Ast_bop_max
 |}. 
 
 
@@ -118,7 +117,7 @@ Definition A_sg_CS_max : A_sg_CS nat
    ; A_sg_CS_exists_ann_d := inr _ bop_max_not_exists_ann
    ; A_sg_CS_proofs      := sg_CS_proofs_max
    
-   ; A_sg_CS_ast         := Ast_sg_CS_max
+   ; A_sg_CS_ast         := Ast_sg_max
    |}. 
 
 End ACAS.
@@ -132,7 +131,6 @@ Definition sg_CS_certs_max : @sg_CS_certificates nat
    ; sg_CS_congruence         := Assert_Bop_Congruence 
    ; sg_CS_commutative        := Assert_Commutative 
    ; sg_CS_selective          := Assert_Selective
-   ; sg_CS_bop_ast            := Ast_bop_max                                                         
    |}. 
 
 
@@ -144,7 +142,7 @@ Definition sg_CS_max : @sg_CS nat
    ; sg_CS_exists_ann_d       := Certify_Not_Exists_Ann 
    ; sg_CS_certs   := sg_CS_certs_max
    
-   ; sg_CS_ast     := Ast_sg_CS_max
+   ; sg_CS_ast     := Ast_sg_max
    |}. 
 
 

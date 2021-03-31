@@ -13,7 +13,7 @@ Record bs {S : Type} := {
 ; bs_times_certs   : msg_certificates (S := S)
 ; bs_id_ann_certs  : id_ann_certificates (S := S)
 ; bs_certs         : bs_certificates (S := S)
-; bs_ast           : ast_bs
+; bs_ast           : cas_ast
 }.
 
 
@@ -25,7 +25,7 @@ Record bs_CS {S : Type} := {
 ; bs_CS_times_certs  : msg_certificates (S := S)
 ; bs_CS_id_ann_certs : id_ann_certificates (S := S) 
 ; bs_CS_certs        : bs_certificates (S := S)
-; bs_CS_ast          : ast_bs_CS
+; bs_CS_ast          : cas_ast
 }.
 
 Record bs_CI {S : Type} := {
@@ -36,7 +36,7 @@ Record bs_CI {S : Type} := {
 ; bs_CI_times_certs  : msg_certificates (S := S)
 ; bs_CI_id_ann_certs : id_ann_certificates (S := S)               
 ; bs_CI_certs        : bs_certificates (S := S)
-; bs_CI_ast          : ast_bs_CI
+; bs_CI_ast          : cas_ast
 }.
 
 
@@ -48,7 +48,7 @@ Record presemiring {S : Type} := {
 ; presemiring_times_certs  : @msg_certificates S
 ; presemiring_id_ann_certs : @id_ann_certificates S
 ; presemiring_certs        : @semiring_certificates S
-; presemiring_ast          : ast_presemiring
+; presemiring_ast          : cas_ast
 }.
 
 Record selective_presemiring {S : Type} := {
@@ -59,7 +59,7 @@ Record selective_presemiring {S : Type} := {
 ; selective_presemiring_times_certs  : @msg_certificates S
 ; selective_presemiring_id_ann_certs : @id_ann_certificates S
 ; selective_presemiring_certs        : @semiring_certificates S
-; selective_presemiring_ast          : ast_selective_presemiring
+; selective_presemiring_ast          : cas_ast
 }.
 
 
@@ -72,7 +72,7 @@ Record semiring {S : Type} := {
 ; semiring_times_certs  : @msg_certificates S
 ; semiring_id_ann_certs : @zero_one_certificates S
 ; semiring_certs        : @semiring_certificates S
-; semiring_ast          : ast_semiring
+; semiring_ast          : cas_ast
 }.
 
 
@@ -84,7 +84,7 @@ Record selective_semiring {S : Type} := {
 ; selective_semiring_times_certs  : @msg_certificates S
 ; selective_semiring_id_ann_certs : @zero_one_certificates S
 ; selective_semiring_certs        : @semiring_certificates S
-; selective_semiring_ast          : ast_selective_semiring
+; selective_semiring_ast          : cas_ast
 }.
 
 Record dioid {S : Type} := {
@@ -95,7 +95,7 @@ Record dioid {S : Type} := {
 ; dioid_times_certs  : @msg_certificates S
 ; dioid_id_ann_certs : @bounded_certificates S
 ; dioid_certs        : @semiring_certificates S
-; dioid_ast          : ast_dioid
+; dioid_ast          : cas_ast
 }.
 
 Record selective_dioid {S : Type} := {
@@ -106,7 +106,7 @@ Record selective_dioid {S : Type} := {
 ; selective_dioid_times_certs  : @msg_certificates S
 ; selective_dioid_id_ann_certs : @bounded_certificates S                  
 ; selective_dioid_certs        : @semiring_certificates S
-; selective_dioid_ast          : ast_selective_dioid
+; selective_dioid_ast          : cas_ast
 }.
 
 
@@ -118,7 +118,7 @@ Record prelattice {S : Type} := {
 ; prelattice_meet_proofs   : @sg_CI_certificates S 
 ; prelattice_id_ann_proofs : @id_ann_certificates S 
 ; prelattice_proofs        : @lattice_certificates S 
-; prelattice_ast           : ast_prelattice
+; prelattice_ast           : cas_ast
 }.
 
 Record distributive_prelattice {S : Type} := {
@@ -129,7 +129,7 @@ Record distributive_prelattice {S : Type} := {
 ; distributive_prelattice_meet_certs    : @sg_CI_certificates S 
 ; distributive_prelattice_id_ann_certs  : @id_ann_certificates S
 ; distributive_prelattice_certs         : @distributive_lattice_certificates S
-; distributive_prelattice_ast           : ast_distributive_prelattice
+; distributive_prelattice_ast           : cas_ast
 }.
 
 Record selective_distributive_prelattice {S : Type} := {
@@ -140,7 +140,7 @@ Record selective_distributive_prelattice {S : Type} := {
 ; selective_distributive_prelattice_meet_certs   : @sg_CS_certificates S 
 ; selective_distributive_prelattice_id_ann_certs : @id_ann_certificates S
 ; selective_distributive_prelattice_certs        : @distributive_lattice_certificates S
-; selective_distributive_prelattice_ast          : ast_selective_distributive_prelattice
+; selective_distributive_prelattice_ast          : cas_ast
 }.
 
 Record lattice {S : Type} := {
@@ -151,7 +151,7 @@ Record lattice {S : Type} := {
 ; lattice_meet_certs   : @sg_CI_certificates S
 ; lattice_id_ann_certs : @bounded_certificates S
 ; lattice_certs        : @lattice_certificates S
-; lattice_ast          : ast_lattice
+; lattice_ast          : cas_ast
 }.
 
 
@@ -163,7 +163,7 @@ Record distributive_lattice {S : Type} := {
 ; distributive_lattice_meet_certs   : @sg_CI_certificates S
 ; distributive_lattice_id_ann_certs : @bounded_certificates S
 ; distributive_lattice_certs        : @distributive_lattice_certificates S
-; distributive_lattice_ast          : ast_distributive_lattice
+; distributive_lattice_ast          : cas_ast
 }.
 
 
@@ -175,7 +175,7 @@ Record selective_distributive_lattice {S : Type} := {
 ; selective_distributive_lattice_meet_certs : @sg_CS_certificates S
 ; selective_distributive_lattice_id_ann_certs : @bounded_certificates S                                                                  
 ; selective_distributive_lattice_certs      : @distributive_lattice_certificates S
-; selective_distributive_lattice_ast        : ast_selective_distributive_lattice
+; selective_distributive_lattice_ast        : cas_ast
 }.
 
 

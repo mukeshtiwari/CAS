@@ -228,8 +228,6 @@ Definition eqv_proofs_set : ∀ (S : Type) (r : brel S),
    ; A_eqv_reflexive   := brel_set_reflexive S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) 
    ; A_eqv_transitive  := brel_set_transitive S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) (A_eqv_transitive S r eqv) 
    ; A_eqv_symmetric   := brel_set_symmetric S r
-   ; A_eqv_type_ast    := Ast_type_set (A_eqv_type_ast S r eqv)                                                                                           
-   ; A_eqv_brel_ast    := Ast_brel_eq_set (A_eqv_brel_ast S r eqv)                                              
    |}. 
 
 
@@ -280,8 +278,6 @@ Definition eqv_set : ∀ {S : Type},  @eqv S -> @eqv (finite_set S)
      ; eqv_reflexive      := @Assert_Reflexive (finite_set S)
      ; eqv_transitive     := @Assert_Transitive (finite_set S)
      ; eqv_symmetric      := @Assert_Symmetric (finite_set S)
-     ; eqv_type_ast       := Ast_type_set (eqv_type_ast (eqv_certs eqvS))                                                
-     ; eqv_brel_ast       := Ast_brel_eq_set (eqv_brel_ast (eqv_certs eqvS)) 
      |}  
     ; eqv_witness := s :: nil 
     ; eqv_new     := λ (l : finite_set S), if brel_set eq nil l then (s :: nil) else nil

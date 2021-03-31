@@ -22,8 +22,6 @@ Record eqv_proofs (S : Type) (eq : brel S) :=
 ; A_eqv_reflexive      : brel_reflexive S eq            
 ; A_eqv_transitive     : brel_transitive S eq           
 ; A_eqv_symmetric      : brel_symmetric S eq
-; A_eqv_type_ast       : ast_type                                                                                
-; A_eqv_brel_ast       : ast_brel                                        
 }.
 
 (*
@@ -41,7 +39,6 @@ Record qo_proofs (S : Type) (eq qo : brel S) := {
 ; A_qo_total_d         : brel_total_decidable S qo           
 ; A_qo_exists_top_d    : brel_exists_top_decidable S qo           
 ; A_qo_exists_bottom_d : brel_exists_bottom_decidable S qo          
-; A_qo_brel_ast        : ast_brel                                                   
 }.
 
 (* partial-order *) 
@@ -51,10 +48,7 @@ Record po_proofs (S : Type) (eq po : brel S) := {
 ; A_po_transitive    : brel_transitive S po           
 ; A_po_antisymmetric : brel_antisymmetric S eq po 
 ; A_po_total_d       : brel_total_decidable S po           
-; A_po_exists_top_d    : brel_exists_top_decidable S po           
-; A_po_exists_bottom_d : brel_exists_bottom_decidable S po
 ; A_po_bottoms_finite_d : bottoms_finite_decidable S eq po
-; A_po_brel_ast         : ast_brel                                                   
 }.
 
 (* total-order *) 
@@ -66,7 +60,6 @@ Record to_proofs (S : Type) (eq po : brel S) := {
 ; A_to_total         : brel_total S po           
 ; A_to_exists_top_d    : brel_exists_top_decidable S po           
 ; A_to_exists_bottom_d : brel_exists_bottom_decidable S po
-; A_to_brel_ast        : ast_brel                                                                                                         
 }.
 
 
@@ -99,7 +92,6 @@ Record sg_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_sg_anti_left_d      : bop_anti_left_decidable S eq bop 
 ; A_sg_anti_right_d     : bop_anti_right_decidable S eq bop
 
-; A_sg_bop_ast          : ast_bop                      
 }. 
 
 Record sg_C_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
@@ -118,7 +110,6 @@ Record sg_C_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_sg_C_cancel_d         : bop_left_cancellative_decidable S eq bop 
 ; A_sg_C_constant_d       : bop_left_constant_decidable S eq bop 
 
-; A_sg_C_bop_ast          : ast_bop                      
 }. 
 
 
@@ -129,7 +120,6 @@ Record sg_CS_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_sg_CS_commutative        : bop_commutative S eq bop  
 ; A_sg_CS_selective          : bop_selective S eq bop
 
-; A_sg_CS_bop_ast      : ast_bop                                                            
 }. 
 
 Record sg_CI_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
@@ -141,7 +131,6 @@ Record sg_CI_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 
 ; A_sg_CI_selective_d        : bop_selective_decidable S eq bop
 
-; A_sg_CI_bop_ast            : ast_bop                                                            
 }. 
 
 Record sg_CK_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
@@ -154,7 +143,6 @@ Record sg_CK_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_sg_CK_anti_left_d        : bop_anti_left_decidable S eq bop 
 ; A_sg_CK_anti_right_d       : bop_anti_right_decidable S eq bop
 
-; A_sg_CK_bop_ast            : ast_bop                                                           
 }.
 
 
@@ -169,7 +157,6 @@ Record asg_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_asg_selective_d      : bop_selective_decidable S eq bop  
 ; A_asg_idempotent_d     : bop_idempotent_decidable S eq bop
 
-; A_asg_bop_ast          : ast_bop                      
                                                     
 }.
 
@@ -195,7 +182,6 @@ Record msg_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_msg_anti_left_d      : bop_anti_left_decidable S eq bop 
 ; A_msg_anti_right_d     : bop_anti_right_decidable S eq bop
 
-; A_msg_bop_ast          : ast_bop                      
                                                     
 }. 
 

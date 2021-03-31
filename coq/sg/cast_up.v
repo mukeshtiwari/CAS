@@ -85,7 +85,6 @@ Definition A_asg_proofs_from_sg_C_proofs : ∀ (S : Type) (r : brel S) (b : bina
 ; A_asg_commutative      := A_sg_C_commutative S r b sgS
 ; A_asg_selective_d      := A_sg_C_selective_d S r b sgS    
 ; A_asg_idempotent_d     := A_sg_C_idempotent_d S r b sgS
-; A_asg_bop_ast          := A_sg_C_bop_ast S r b sgS                                                                                   
 |}. 
 
 Definition A_msg_proofs_from_sg_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S),  sg_proofs S r b -> msg_proofs S r b
@@ -102,7 +101,6 @@ Definition A_msg_proofs_from_sg_proofs : ∀ (S : Type) (r : brel S) (b : binary
 ; A_msg_right_constant_d := A_sg_right_constant_d S r b sgS
 ; A_msg_anti_left_d      := A_sg_anti_left_d S r b sgS
 ; A_msg_anti_right_d     := A_sg_anti_right_d S r b sgS
-; A_msg_bop_ast          := A_sg_bop_ast S r b sgS                                   
 |}. 
        
 Definition A_sg_proofs_from_sg_C_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S),
@@ -131,7 +129,6 @@ let tranS := A_eqv_transitive S r eqvS in
                            end                                                         
 ; A_sg_anti_left_d      := A_sg_C_anti_left_d S r b sgS
 ; A_sg_anti_right_d     := A_sg_C_anti_right_d S r b sgS
-; A_sg_bop_ast          := A_sg_C_bop_ast S r b sgS
 |}. 
 
 Definition A_sg_C_proofs_from_sg_CI_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S),
@@ -170,7 +167,6 @@ Definition A_sg_C_proofs_from_sg_CI_proofs : ∀ (S : Type) (r : brel S) (b : bi
                                        (A_eqv_symmetric S r eqvS) 
                                        (A_sg_CI_idempotent S r b sgS)
                                    )
-; A_sg_C_bop_ast           := A_sg_CI_bop_ast S r b sgS 
 |}. 
 
 
@@ -182,7 +178,6 @@ Definition A_sg_CI_proofs_from_sg_CS_proofs : ∀ (S : Type) (r : brel S) (b : b
 ; A_sg_CI_commutative        := A_sg_CS_commutative S r b sg_CSS
 ; A_sg_CI_idempotent         := bop_selective_implies_idempotent S r b (A_sg_CS_selective S r b sg_CSS)
 ; A_sg_CI_selective_d        := inl _ (A_sg_CS_selective S r b sg_CSS)
-; A_sg_CI_bop_ast            := A_sg_CS_bop_ast S r b sg_CSS                                                                 
 |}. 
 
 Definition A_sg_C_proofs_from_sg_CK_proofs : ∀ (S : Type) (r : brel S) (b : binary_op S) (s : S) (f : S -> S),
@@ -215,7 +210,6 @@ in
                                    )
 ; A_sg_C_anti_left_d      := A_sg_CK_anti_left_d S r b sgS 
 ; A_sg_C_anti_right_d     := A_sg_CK_anti_right_d S r b sgS
-; A_sg_C_bop_ast          := A_sg_CK_bop_ast S r b sgS                                                         
 |}. 
 
 
@@ -361,7 +355,6 @@ Definition asg_certs_from_sg_C_certs : ∀ {S : Type}, @sg_C_certificates S -> @
 ; asg_commutative      := sg_C_commutative sgS
 ; asg_selective_d      := sg_C_selective_d sgS    
 ; asg_idempotent_d     := sg_C_idempotent_d sgS
-; asg_bop_ast          := sg_C_bop_ast sgS                          
 |}. 
 
 
@@ -379,7 +372,6 @@ Definition msg_certs_from_sg_certs : ∀ {S : Type}, @sg_certificates S -> @msg_
 ; msg_right_constant_d := sg_right_constant_d sgS
 ; msg_anti_left_d      := sg_anti_left_d sgS
 ; msg_anti_right_d     := sg_anti_right_d sgS
-; msg_bop_ast          := sg_bop_ast sgS                                                                                     
 |}. 
   
 
@@ -405,7 +397,6 @@ Definition sg_certs_from_sg_C_certs : ∀ {S : Type}, brel S -> binary_op S -> S
                          end 
 ; sg_anti_left_d      := sg_C_anti_left_d sgS
 ; sg_anti_right_d     := sg_C_anti_right_d sgS
-; sg_bop_ast          := sg_C_bop_ast sgS                                           
 |}.
 
 
@@ -429,7 +420,6 @@ Definition sg_C_certs_from_sg_CI_certs : ∀ {S : Type}, brel S -> binary_op S -
      Certify_Not_Left_Constant (cef_idempotent_and_commutative_imply_not_left_constant r b s f)
 ; sg_C_anti_left_d      := Certify_Not_Anti_Left (cef_idempotent_implies_not_anti_left s)
 ; sg_C_anti_right_d     := Certify_Not_Anti_Right (cef_idempotent_implies_not_anti_right s)
-; sg_C_bop_ast          := sg_CI_bop_ast sgS                                                   
 |}.
 
 
@@ -441,7 +431,6 @@ Definition sg_CI_certs_from_sg_CS_certs : ∀ {S : Type}, @sg_CS_certificates S 
 ; sg_CI_commutative        := Assert_Commutative (S := S) 
 ; sg_CI_idempotent         := Assert_Idempotent (S := S) 
 ; sg_CI_selective_d        := Certify_Selective (S := S)
-; sg_CI_bop_ast            := sg_CS_bop_ast sgS                                                                             
 |}.
 
 Definition sg_from_sg_C: ∀ {S : Type},  @sg_C S -> @sg S
@@ -511,7 +500,6 @@ in
 ; sg_C_cancel_d         := Certify_Left_Cancellative (S := S) 
 ; sg_C_anti_left_d      := sg_CK_anti_left_d sgS 
 ; sg_C_anti_right_d     := sg_CK_anti_right_d sgS
-; sg_C_bop_ast          := sg_CK_bop_ast sgS                                                                                                       
 |}. 
 
 

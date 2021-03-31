@@ -132,7 +132,6 @@ Definition A_msg_proofs_plus : msg_proofs nat brel_eq_nat bop_plus :=
 
 ; A_msg_anti_left_d        := inr bop_plus_not_anti_left
 ; A_msg_anti_right_d       := inr bop_plus_not_anti_right
-; A_msg_bop_ast            := Ast_bop_plus                                                                                                    
 |}. 
 
 
@@ -144,7 +143,6 @@ Definition sg_CK_proofs_plus : sg_CK_proofs nat brel_eq_nat bop_plus :=
 ; A_sg_CK_cancel             := bop_plus_left_cancellative 
 ; A_sg_CK_anti_left_d        := inr _ bop_plus_not_anti_left
 ; A_sg_CK_anti_right_d       := inr _ bop_plus_not_anti_right
-; A_sg_CK_bop_ast            := Ast_bop_plus                                                                  
 |}. 
 
 
@@ -156,7 +154,7 @@ Definition A_sg_CK_plus : A_sg_CK nat
      ; A_sg_CK_exists_id_d  := inl bop_plus_exists_id
      ; A_sg_CK_proofs       := sg_CK_proofs_plus
      
-     ; A_sg_CK_ast          := Ast_sg_CK_plus 
+     ; A_sg_CK_ast          := Ast_sg_plus 
    |}. 
 
 
@@ -179,7 +177,6 @@ Definition msg_certs_plus : @msg_certificates nat :=
 ; msg_right_constant_d   := Certify_Not_Right_Constant (0, (0, 1))
 ; msg_anti_left_d        := Certify_Not_Anti_Left (0, 0) 
 ; msg_anti_right_d       := Certify_Not_Anti_Right (0, 0) 
-; msg_bop_ast            := Ast_bop_plus
 |}. 
 
 
@@ -191,7 +188,6 @@ Definition sg_CK_certs_plus : @sg_CK_certificates nat
    ; sg_CK_anti_left_d    := Certify_Not_Anti_Left (0, 0) 
    ; sg_CK_anti_right_d   := Certify_Not_Anti_Right (0, 0)
    ; sg_CK_left_cancel    := Assert_Left_Cancellative
-   ; sg_CK_bop_ast        := Ast_bop_plus                                                                                   
    |}.
 
 
@@ -202,7 +198,7 @@ Definition sg_CK_plus : sg_CK (S := nat)
    ; sg_CK_exists_id_d := Certify_Exists_Id 0 
    ; sg_CK_certs       := sg_CK_certs_plus   
    
-   ; sg_CK_ast         := Ast_sg_CK_plus 
+   ; sg_CK_ast         := Ast_sg_plus 
    |}. 
 
 End CAS.

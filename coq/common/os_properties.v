@@ -41,6 +41,59 @@ Definition os_not_right_increasing (S : Type) (lte : brel S) (b : binary_op S)
 Definition os_right_increasing_decidable (S : Type) (lte : brel S) (b : binary_op S)  
    := (os_right_increasing S lte b) + (os_not_right_increasing S lte b). 
 
+
+
+
+
+
+Definition os_left_strictly_increasing (S : Type) (lte : brel S) (b : binary_op S)  
+   := ∀ s t : S, (lte s (b s t) = true) * (lte (b s t) s = false). 
+
+Definition os_not_left_strictly_increasing (S : Type) (lte : brel S) (b : binary_op S)  
+   := { z : S * S & match z with (s, t) => (lte s (b s t) = false) + (lte (b s t) s = true)  end }. 
+
+Definition os_left_strictly_increasing_decidable (S : Type) (lte : brel S) (b : binary_op S)  
+   := (os_left_strictly_increasing S lte b) + (os_not_left_strictly_increasing S lte b). 
+
+
+Definition os_right_strictly_increasing (S : Type) (lte : brel S) (b : binary_op S)  
+   := ∀ s t : S, (lte s (b t s) = true) * (lte (b t s) s = false). 
+
+Definition os_not_right_strictly_increasing (S : Type) (lte : brel S) (b : binary_op S)  
+   := { z : S * S & match z with (s, t) => (lte s (b t s) = false) + (lte (b t s) s = true)  end }. 
+
+Definition os_right_strictly_increasing_decidable (S : Type) (lte : brel S) (b : binary_op S)  
+  := (os_right_strictly_increasing S lte b) + (os_not_right_strictly_increasing S lte b).
+
+
+Definition os_left_strictly_monotone (S : Type) (lte : brel S) (b : binary_op S)  
+  := ∀ s t u : S, lte t u = true -> lte u t = false ->
+                  (lte (b s t) (b s u) = true) * (lte (b s u) (b s t) = false). 
+
+Definition os_not_left_strictly_monotone (S : Type) (lte : brel S) (b : binary_op S)  
+  := { z : S * (S * S) & match z with (s, (t, u)) =>
+            (lte t u = true) * (lte u t = false) * ((lte (b s t) (b s u) = false) + (lte (b s u) (b s t) = true))end }. 
+
+Definition os_left_strictly_monotone_decidable (S : Type) (lte : brel S) (b : binary_op S)  
+   := (os_left_strictly_monotone S lte b) + (os_not_left_strictly_monotone S lte b). 
+
+
+Definition os_right_strictly_monotone (S : Type) (lte : brel S) (b : binary_op S)  
+   := ∀ s t u : S, lte t u = true -> lte u t = false -> (lte (b t s) (b u s) = true) * (lte (b u s) (b t s) = false). 
+
+Definition os_not_right_strictly_monotone (S : Type) (lte : brel S) (b : binary_op S)  
+  := { z : S * (S * S) & match z with (s, (t, u)) =>
+            (lte t u = true) * (lte u t = false) * ((lte (b t s) (b u s) = false) + (lte (b u s) (b t s) = true)) end }. 
+
+Definition os_right_strictly_monotone_decidable (S : Type) (lte : brel S) (b : binary_op S)  
+   := (os_right_strictly_monotone S lte b) + (os_not_right_strictly_monotone S lte b). 
+
+
+
+
+
+
+
 Definition is_lower_bound (S : Type) (lte : brel S) (a b c : S) :=  
      (lte c a = true) *  (lte c b = true). 
 

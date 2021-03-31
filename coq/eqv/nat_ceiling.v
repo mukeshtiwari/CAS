@@ -136,8 +136,7 @@ Definition A_eqv_nat_ceiling (ceiling_minus_one : nat) : A_eqv nat
        (brel_nat_ceiling_not_trivial_f ceiling_minus_one)
        (brel_nat_ceiling_not_trivial ceiling_minus_one)
        (bel_nat_ceiling_exactly_two_decidable ceiling_minus_one)
-       (inl (bel_nat_ceiling_is_finite ceiling_minus_one))
-       (Ast_brel_eq_nat_ceiling ceiling_minus_one)
+       (inl (bel_nat_ceiling_is_finite ceiling_minus_one)) 
        (Ast_eqv_nat_ceiling ceiling_minus_one).
 
 End ACAS.
@@ -157,7 +156,6 @@ Definition eqv_nat_ceiling (ceiling_minus_one : nat) : @eqv nat
         else Certify_Not_Exactly_Two (not_ex2 (brel_nat_ceiling ceiling_minus_one) 0 1 2))
        (Certify_Is_Finite (nat_ceiling_enum ceiling_minus_one))
        eqv_eq_nat
-       (Ast_brel_eq_nat_ceiling ceiling_minus_one)
        (Ast_eqv_nat_ceiling ceiling_minus_one).       
 End CAS.
 

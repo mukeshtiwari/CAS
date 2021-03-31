@@ -515,7 +515,7 @@ let timesT := A_presemiring_times T sr2 in
    ; A_presemiring_proofs       := semiring_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
                                    (A_presemiring_proofs S sr1)
                                    (A_presemiring_proofs T sr2)
-   ; A_presemiring_ast       := Ast_presemiring_product (A_presemiring_ast S sr1, A_presemiring_ast T sr2)
+   ; A_presemiring_ast       := Ast_bs_product (A_presemiring_ast S sr1, A_presemiring_ast T sr2)
 |}.
 
 
@@ -553,7 +553,7 @@ let timesT := A_semiring_times T sr2 in
    ; A_semiring_proofs       := semiring_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
                                    (A_semiring_proofs S sr1)
                                    (A_semiring_proofs T sr2)
-   ; A_semiring_ast       := Ast_semiring_product (A_semiring_ast S sr1, A_semiring_ast T sr2)
+   ; A_semiring_ast       := Ast_bs_product (A_semiring_ast S sr1, A_semiring_ast T sr2)
 |}.
 
 Definition A_dioid_product : ∀ (S T : Type),  A_dioid S ->  A_dioid T -> A_dioid (S * T) 
@@ -590,7 +590,7 @@ let timesT := A_dioid_times T sr2 in
    ; A_dioid_proofs       := semiring_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
                                    (A_dioid_proofs S sr1)
                                    (A_dioid_proofs T sr2)
-   ; A_dioid_ast  := Ast_dioid_product (A_dioid_ast S sr1, A_dioid_ast T sr2)
+   ; A_dioid_ast  := Ast_bs_product (A_dioid_ast S sr1, A_dioid_ast T sr2)
 |}.
 
 Definition distributive_lattice_proofs_product : 
@@ -654,7 +654,7 @@ let meetT  := A_distributive_lattice_meet T sr2 in
    ; A_distributive_lattice_proofs  := distributive_lattice_proofs_product S T rS rT joinS meetS joinT meetT peqvS peqvT  
                                    (A_distributive_lattice_proofs S sr1)
                                    (A_distributive_lattice_proofs T sr2)
-   ; A_distributive_lattice_ast  := Ast_distributive_lattice_product (A_distributive_lattice_ast S sr1, A_distributive_lattice_ast T sr2)
+   ; A_distributive_lattice_ast  := Ast_bs_product (A_distributive_lattice_ast S sr1, A_distributive_lattice_ast T sr2)
 |}.
 
 
@@ -725,7 +725,7 @@ let meetT  := A_lattice_meet T sr2 in
    ; A_lattice_proofs  := lattice_proofs_product S T rS rT joinS meetS joinT meetT s t peqvS peqvT  
                                    (A_lattice_proofs S sr1)
                                    (A_lattice_proofs T sr2)
-   ; A_lattice_ast  := Ast_lattice_product (A_lattice_ast S sr1, A_lattice_ast T sr2)
+   ; A_lattice_ast  := Ast_bs_product (A_lattice_ast S sr1, A_lattice_ast T sr2)
 |}.
 
 End ACAS.
@@ -1034,7 +1034,7 @@ let mulT := presemiring_times s2 in
    ; presemiring_times_certs  := msg_certs_product wS wT (presemiring_times_certs s1) (presemiring_times_certs s2)
    ; presemiring_id_ann_certs := id_ann_certs_product (presemiring_id_ann_certs s1) (presemiring_id_ann_certs s2) 
    ; presemiring_certs        := semiring_certs_product wS wT (presemiring_certs s1) (presemiring_certs s2)
-   ; presemiring_ast          := Ast_presemiring_product (presemiring_ast s1, presemiring_ast s2)
+   ; presemiring_ast          := Ast_bs_product (presemiring_ast s1, presemiring_ast s2)
 |}.
 
 
@@ -1058,7 +1058,7 @@ let mulT := semiring_times s2 in
    ; semiring_times_certs  := msg_certs_product wS wT (semiring_times_certs s1) (semiring_times_certs s2)
    ; semiring_id_ann_certs := zero_one_certs_product (semiring_id_ann_certs s1) (semiring_id_ann_certs s2)        
    ; semiring_certs        := semiring_certs_product wS wT (semiring_certs s1) (semiring_certs s2)
-   ; semiring_ast          := Ast_semiring_product (semiring_ast s1, semiring_ast s2)
+   ; semiring_ast          := Ast_bs_product (semiring_ast s1, semiring_ast s2)
 |}.
 
 Definition dioid_product : ∀ (S T : Type),  @dioid S ->  @dioid T -> @dioid (S * T) 
@@ -1083,7 +1083,7 @@ let timesT := dioid_times sr2 in
    ; dioid_times_certs  := msg_certs_product s t (dioid_times_certs sr1) (dioid_times_certs sr2)
    ; dioid_id_ann_certs := bounded_certs_product (dioid_id_ann_certs sr1) (dioid_id_ann_certs sr2)                                              
    ; dioid_certs        := semiring_certs_product s t (dioid_certs sr1) (dioid_certs sr2)
-   ; dioid_ast          := Ast_dioid_product (dioid_ast sr1, dioid_ast sr2)
+   ; dioid_ast          := Ast_bs_product (dioid_ast sr1, dioid_ast sr2)
 |}.
   
 End CAS.

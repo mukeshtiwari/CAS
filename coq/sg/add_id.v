@@ -177,7 +177,6 @@ let symS := A_eqv_symmetric _ _ eqvS in
 ; A_asg_commutative   := bop_add_id_commutative S rS c bS refS (A_asg_commutative _ _ _ sgS)
 ; A_asg_selective_d   := bop_add_id_selective_decide S rS c bS refS (A_asg_selective_d _ _ _ sgS)
 ; A_asg_idempotent_d  := bop_add_id_idempotent_decide S rS c bS (A_asg_idempotent_d _ _ _ sgS)
-; A_asg_bop_ast       := Ast_bop_add_id (c, A_asg_bop_ast S rS bS sgS)                                                                                      
 |}. 
 
 Definition msg_proofs_add_id : 
@@ -203,7 +202,6 @@ let symS := A_eqv_symmetric _ _ eqvS in
 ; A_msg_right_constant_d := inr _ (bop_add_id_not_right_constant S rS c bS s f Pf) 
 ; A_msg_anti_left_d      := inr _ (bop_add_id_not_anti_left S rS c bS s refS)
 ; A_msg_anti_right_d     := inr _ (bop_add_id_not_anti_right S rS c bS s refS)
-; A_msg_bop_ast          := Ast_bop_add_id (c, A_msg_bop_ast S rS bS sgS)                                    
 |}. 
 
 
@@ -234,7 +232,6 @@ let symS := A_eqv_symmetric _ _ eqvS in
 ; A_sg_right_constant_d := inr _ (bop_add_id_not_right_constant S rS c bS s f Pf) 
 ; A_sg_anti_left_d      := inr _ (bop_add_id_not_anti_left S rS c bS s refS)
 ; A_sg_anti_right_d     := inr _ (bop_add_id_not_anti_right S rS c bS s refS)
-; A_sg_bop_ast          := Ast_bop_add_id (c, A_sg_bop_ast S rS bS sgS)                                
 |}. 
 
 
@@ -258,7 +255,6 @@ let symS := A_eqv_symmetric _ _ eqvS in
 ; A_sg_C_constant_d  := inr _ (bop_add_id_not_left_constant S rS c bS s f Pf) 
 ; A_sg_C_anti_left_d      := inr _ (bop_add_id_not_anti_left S rS c bS s refS)
 ; A_sg_C_anti_right_d     := inr _ (bop_add_id_not_anti_right S rS c bS s refS)
-; A_sg_C_bop_ast          := Ast_bop_add_id (c, A_sg_C_bop_ast S rS bS sgS)                                  
 |}. 
 
 Definition sg_CI_proofs_add_id : 
@@ -274,7 +270,6 @@ let symS := A_eqv_symmetric _ _ eqvS in
 ; A_sg_CI_commutative        := bop_add_id_commutative S rS c bS refS (A_sg_CI_commutative _ _ _ sgS)
 ; A_sg_CI_idempotent         := bop_add_id_idempotent S rS c bS (A_sg_CI_idempotent _ _ _ sgS)
 ; A_sg_CI_selective_d        := bop_add_id_selective_decide S rS c bS refS (A_sg_CI_selective_d _ _ _ sgS)
-; A_sg_CI_bop_ast            := Ast_bop_add_id (c, A_sg_CI_bop_ast S rS bS sgS)                                                             
 |}. 
 
 Definition sg_CS_proofs_add_id : 
@@ -290,7 +285,6 @@ let symS := A_eqv_symmetric _ _ eqvS in
 ; A_sg_CS_congruence    := bop_add_id_congruence S rS c bS symS (A_sg_CS_congruence _ _ _ sgS) 
 ; A_sg_CS_commutative   := bop_add_id_commutative S rS c bS refS (A_sg_CS_commutative _ _ _ sgS)
 ; A_sg_CS_selective     := bop_add_id_selective S rS c bS refS (A_sg_CS_selective _ _ _ sgS)
-; A_sg_CS_bop_ast       := Ast_bop_add_id (c, A_sg_CS_bop_ast S rS bS sgS)                                                 
 |}.
 
 Definition A_sg_add_id : ∀ (S : Type) (c : cas_constant),  A_sg S -> A_sg (with_constant S) 
@@ -331,7 +325,7 @@ Definition A_sg_C_add_id : ∀ (S : Type) (c : cas_constant),  A_sg_C S -> A_sg_
                                             (A_eqv_not_trivial S (A_sg_C_eqv S sgS))                                        
                                             (A_eqv_proofs S (A_sg_C_eqv S sgS))
                                             (A_sg_C_proofs S sgS)
-   ; A_sg_C_ast       := Ast_sg_C_add_id (c, A_sg_C_ast S sgS)
+   ; A_sg_C_ast       := Ast_sg_add_id (c, A_sg_C_ast S sgS)
    |}. 
 
 
@@ -352,7 +346,7 @@ Definition A_sg_CI_add_id : ∀ (S : Type) (c : cas_constant), A_sg_CI S -> A_sg
                                               (A_eqv_witness S (A_sg_CI_eqv S sgS))                                              
                                               (A_eqv_proofs S (A_sg_CI_eqv S sgS))
                                               (A_sg_CI_proofs S sgS)
-   ; A_sg_CI_ast       := Ast_sg_CI_add_id (c, A_sg_CI_ast S sgS)
+   ; A_sg_CI_ast       := Ast_sg_add_id (c, A_sg_CI_ast S sgS)
    |}. 
 
 
@@ -372,7 +366,7 @@ Definition A_sg_CS_add_id : ∀ (S : Type) (c : cas_constant),  A_sg_CS S -> A_s
                                               (A_eqv_witness S (A_sg_CS_eqv S sgS))                                              
                                               (A_eqv_proofs S (A_sg_CS_eqv S sgS))
                                               (A_sg_CS_proofs S sgS)   
-   ; A_sg_CS_ast       := Ast_sg_CS_add_id (c, A_sg_CS_ast S sgS)
+   ; A_sg_CS_ast       := Ast_sg_add_id (c, A_sg_CS_ast S sgS)
    |}. 
 
 
@@ -491,7 +485,6 @@ Definition asg_certs_add_id : ∀ {S : Type},  cas_constant -> S -> @asg_certifi
 ; asg_commutative      := Assert_Commutative
 ; asg_selective_d      := bop_add_id_selective_check (asg_selective_d sgS) 
 ; asg_idempotent_d     := bop_add_id_idempotent_check (asg_idempotent_d sgS)
-; asg_bop_ast          := Ast_bop_add_id (c, asg_bop_ast sgS)                                                       
 |}.
 
 Definition msg_certs_add_id : ∀ {S : Type},  cas_constant -> S -> (S -> S) -> @msg_certificates S -> @msg_certificates (with_constant S)
@@ -508,7 +501,6 @@ Definition msg_certs_add_id : ∀ {S : Type},  cas_constant -> S -> (S -> S) -> 
 ; msg_right_constant_d := Certify_Not_Right_Constant (inl c, (inr s, inr (f s)))
 ; msg_anti_left_d      := Certify_Not_Anti_Left  (inr s, inl c)
 ; msg_anti_right_d     := Certify_Not_Anti_Right  (inr s, inl c)
-; msg_bop_ast          := Ast_bop_add_id (c, msg_bop_ast sgS)                                                   
 |}.
 
 
@@ -529,7 +521,6 @@ Definition sg_certs_add_id : ∀ {S : Type},  cas_constant -> S -> (S -> S) -> @
 ; sg_right_constant_d := Certify_Not_Right_Constant (inl c, (inr s, inr (f s)))
 ; sg_anti_left_d      := Certify_Not_Anti_Left  (inr s, inl c)
 ; sg_anti_right_d     := Certify_Not_Anti_Right  (inr s, inl c)
-; sg_bop_ast          := Ast_bop_add_id (c, sg_bop_ast sgS)                                                  
 |}.
 
 
@@ -546,7 +537,6 @@ Definition sg_C_certs_add_id : ∀ {S : Type},  cas_constant -> S -> (S -> S) ->
 ; sg_C_constant_d    := Certify_Not_Left_Constant  (inl c, (inr s, inr (f s)))
 ; sg_C_anti_left_d   := Certify_Not_Anti_Left  (inr s, inl c)
 ; sg_C_anti_right_d  := Certify_Not_Anti_Right  (inr s, inl c)
-; sg_C_bop_ast       := Ast_bop_add_id (c, sg_C_bop_ast sgS)                                                 
 |}. 
 
 Definition sg_CI_certs_add_id : ∀ {S : Type},  cas_constant -> sg_CI_certificates (S := S) -> sg_CI_certificates (S := (with_constant S)) 
@@ -557,7 +547,6 @@ Definition sg_CI_certs_add_id : ∀ {S : Type},  cas_constant -> sg_CI_certifica
 ; sg_CI_commutative        := Assert_Commutative  
 ; sg_CI_idempotent         := Assert_Idempotent  
 ; sg_CI_selective_d        := bop_add_id_selective_check (sg_CI_selective_d sgS)
-; sg_CI_bop_ast            := Ast_bop_add_id (c, sg_CI_bop_ast sgS)                                                          
 |}. 
 
 
@@ -568,7 +557,6 @@ Definition sg_CS_certs_add_id : ∀ {S : Type},  cas_constant -> sg_CS_certifica
 ; sg_CS_congruence    := Assert_Bop_Congruence  
 ; sg_CS_commutative   := Assert_Commutative  
 ; sg_CS_selective     := Assert_Selective
-; sg_CS_bop_ast       := Ast_bop_add_id (c, sg_CS_bop_ast sg)                            
 |}. 
 
 Definition sg_add_id: ∀ {S : Type},  cas_constant -> @sg S -> @sg (with_constant S)
@@ -590,7 +578,7 @@ Definition sg_C_add_id : ∀ {S : Type} (c : cas_constant),  sg_C (S := S) -> sg
    ; sg_C_exists_id_d  := Certify_Exists_Id  (inl c) 
    ; sg_C_exists_ann_d := bop_add_id_exists_ann_check (sg_C_exists_ann_d sgS) 
    ; sg_C_certs     := sg_C_certs_add_id c (eqv_witness (sg_C_eqv sgS)) (eqv_new (sg_C_eqv sgS)) (sg_C_certs sgS)
-   ; sg_C_ast       := Ast_sg_C_add_id (c, sg_C_ast sgS)
+   ; sg_C_ast       := Ast_sg_add_id (c, sg_C_ast sgS)
    |}. 
 
 Definition sg_CI_add_id : ∀ {S : Type} (c : cas_constant), sg_CI (S := S) -> sg_CI (S := (with_constant S)) 
@@ -601,7 +589,7 @@ Definition sg_CI_add_id : ∀ {S : Type} (c : cas_constant), sg_CI (S := S) -> s
    ; sg_CI_exists_id_d  := Certify_Exists_Id  (inl c) 
    ; sg_CI_exists_ann_d := bop_add_id_exists_ann_check (sg_CI_exists_ann_d sgS)                                      
    ; sg_CI_certs     := sg_CI_certs_add_id c (sg_CI_certs sgS)
-   ; sg_CI_ast       := Ast_sg_CI_add_id (c, sg_CI_ast sgS)
+   ; sg_CI_ast       := Ast_sg_add_id (c, sg_CI_ast sgS)
    |}. 
 
 
@@ -613,7 +601,7 @@ Definition sg_CS_add_id : ∀ {S : Type} (c : cas_constant),  sg_CS (S := S) -> 
    ; sg_CS_exists_id_d  := Certify_Exists_Id  (inl c) 
    ; sg_CS_exists_ann_d := bop_add_id_exists_ann_check (sg_CS_exists_ann_d sgS)                                      
    ; sg_CS_certs    := sg_CS_certs_add_id c (sg_CS_certs sgS)
-   ; sg_CS_ast       := Ast_sg_CS_add_id (c, sg_CS_ast sgS)
+   ; sg_CS_ast       := Ast_sg_add_id (c, sg_CS_ast sgS)
    |}. 
   
 End CAS.

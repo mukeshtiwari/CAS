@@ -235,8 +235,6 @@ Definition eqv_proofs_brel_list : ∀ (S : Type) (r : brel S), eqv_proofs S r �
    ; A_eqv_reflexive   := brel_list_reflexive S r  (A_eqv_reflexive S r eqv) 
    ; A_eqv_transitive  := brel_list_transitive S r (A_eqv_transitive S r eqv) 
    ; A_eqv_symmetric   := brel_list_symmetric S r  (A_eqv_symmetric S r eqv)
-   ; A_eqv_type_ast    := Ast_type_list (A_eqv_type_ast S r eqv)                                               
-   ; A_eqv_brel_ast    := Ast_brel_eq_list (A_eqv_brel_ast S r eqv) 
    |}. 
 
 
@@ -278,8 +276,6 @@ Definition eqv_list : ∀ {S : Type},  @eqv S -> @eqv (list S)
      ; eqv_reflexive      := @Assert_Reflexive (list S)
      ; eqv_transitive     := @Assert_Transitive (list S)
      ; eqv_symmetric      := @Assert_Symmetric (list S)
-     ; eqv_type_ast       := Ast_type_list (eqv_type_ast (eqv_certs eqvS))                                                
-     ; eqv_brel_ast       := Ast_brel_eq_list (eqv_brel_ast (eqv_certs eqvS)) 
      |}  
     ; eqv_witness := nil 
     ; eqv_new := (λ (l : list S), wS :: l)

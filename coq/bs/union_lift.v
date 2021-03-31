@@ -329,7 +329,7 @@ let Pf    := A_eqv_not_trivial S eqvS in
    ; A_bs_CI_plus_proofs   := sg_CI_proofs_union S eqvS
    ; A_bs_CI_times_proofs  := msg_lift_proofs S rS bS peqvS s f Pf (A_msg_proofs S sgS)
    ; A_bs_CI_proofs        := bs_proofs_union_lift S s rS bS f Pf (A_eqv_finite_d S eqvS) peqvS (A_msg_proofs S sgS)
-   ; A_bs_CI_ast           := Ast_bs_CI_union_lift (A_msg_ast S sgS)
+   ; A_bs_CI_ast           := Ast_bs_union_lift (A_msg_ast S sgS)
 |}.
 
   
@@ -405,7 +405,7 @@ let f     := eqv_new eqvS in
    ; bs_CI_plus_certs   := sg_CI_certs_union eqvS
    ; bs_CI_times_certs  := msg_lift_certs S rS s f bS (msg_certs sgS)
    ; bs_CI_certs        := bs_certs_union_lift (msg_certs sgS)
-   ; bs_CI_ast          := Ast_bs_CI_union_lift (msg_ast sgS)
+   ; bs_CI_ast          := Ast_bs_union_lift (msg_ast sgS)
 |}.
 
 

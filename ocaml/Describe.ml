@@ -29,7 +29,7 @@ let rec data_to_string st = function
 let rec data_to_ascii = data_to_string Ascii
 let rec data_to_latex = data_to_string Latex 
 
-
+(*
 let rec ast_type_to_string st = function 
 | Ast_type_bool             -> (match st with
 			       | Ascii -> "bool"
@@ -57,7 +57,7 @@ let rec ast_type_to_string st = function
 
 let rec ast_type_to_ascii = ast_type_to_string Ascii
 let rec ast_type_to_latex = ast_type_to_string Latex 
-
+ *)
 let rec ast_brel_to_string st = function 						       
 | Ast_brel_eq_bool              -> "eq_bool"
 | Ast_brel_eq_nat               -> "eq_nat"

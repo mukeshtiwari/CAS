@@ -97,8 +97,6 @@ Definition eqv_proofs_add_constant : ∀ (S : Type) (r : brel S) (c : cas_consta
    ; A_eqv_reflexive   := brel_add_constant_reflexive S r (A_eqv_reflexive S r eqv) 
    ; A_eqv_transitive  := brel_add_constant_transitive S r (A_eqv_transitive S r eqv) 
    ; A_eqv_symmetric   := brel_add_constant_symmetric S r (A_eqv_symmetric S r eqv)
-   ; A_eqv_type_ast    := Ast_type_add_constant(c, A_eqv_type_ast S r eqv)                                                      
-   ; A_eqv_brel_ast    := Ast_brel_eq_add_constant(c, A_eqv_brel_ast S r eqv)
    |}. 
 
 Definition A_eqv_add_constant : ∀ (S : Type),  A_eqv S -> cas_constant -> A_eqv (cas_constant + S) 
@@ -143,8 +141,6 @@ Definition eqv_add_constant : ∀ {S : Type},  @eqv S -> cas_constant -> @eqv (c
      ; eqv_reflexive      := @Assert_Reflexive (cas_constant + S)
      ; eqv_transitive     := @Assert_Transitive (cas_constant + S)
      ; eqv_symmetric      := @Assert_Symmetric (cas_constant + S)
-     ; eqv_type_ast       := Ast_type_add_constant(c, eqv_type_ast (eqv_certs eqvS))       
-     ; eqv_brel_ast       := Ast_brel_eq_add_constant (c, eqv_brel_ast (eqv_certs eqvS)) 
      |}  
     ; eqv_witness := inl c 
     ; eqv_new     := (λ (d : cas_constant + S), match d with | inl _ => inr (eqv_witness eqvS) | inr _ => inl c end) 

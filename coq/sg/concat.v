@@ -182,7 +182,6 @@ let refS := A_eqv_reflexive _ _ eqvP in
 ; A_sg_right_constant_d := inr _ (bop_concat_not_right_constant S rS s)
 ; A_sg_anti_left_d      := inr _ (bop_concat_not_anti_left S rS s refS)
 ; A_sg_anti_right_d     := inr _ (bop_concat_not_anti_right S rS s refS)
-; A_sg_bop_ast          := Ast_bop_concat (A_eqv_brel_ast S rS (A_eqv_proofs S eqvS))
 |}.
 
 
@@ -227,7 +226,6 @@ let t := f s in
 ; sg_right_constant_d := Certify_Not_Right_Constant  (nil, (nil, s :: nil))
 ; sg_anti_left_d      := Certify_Not_Anti_Left  (s :: nil, nil) 
 ; sg_anti_right_d     := Certify_Not_Anti_Right  (s :: nil, nil)
-; sg_bop_ast          := Ast_bop_concat (eqv_brel_ast (eqv_certs eqvS))                                                 
 |}. 
 
 Definition sg_concat: ∀ {S : Type},  eqv (S := S) -> sg (S := (list S)) 

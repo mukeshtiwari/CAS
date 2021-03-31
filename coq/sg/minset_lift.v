@@ -264,24 +264,6 @@ Qed.
 Lemma bop_minset_lift_exists_id : bop_exists_id S rS bS  -> bop_exists_id (finite_set S) (brel_minset rS lteS) bop_minset_lift.
 Proof. intros [i P]. exists (i :: nil). apply bop_minset_lift_is_id; auto. Defined.
 
-
-
-Lemma in_minset_intro (s : S) (X : finite_set S) :
-  s [in] X -> (∀ (x : S), x [in] X -> x [!<] s) -> s [in] ([ms] X).
-Admitted.   
-
-Lemma in_minset_elim (s : S) (X : finite_set S) :
-  s [in] ([ms] X) -> (s [in] X) * (∀ (x : S), x [in] X -> x [!<] s).
-Admitted.   
-
-
-
-
-
-
-
-
-
    
 
 (* associativity: 
@@ -296,23 +278,6 @@ Need
 
 ms( ms(x) .^ y) = ms(x .^ y). 
 
-Will uppersets help? 
-
-up( up(x) .^ y) = up(x .^ y). 
-
-
-
-*) 
-
-(*
-Print bop_left_uop_invariant.
-bop_left_uop_invariant = 
-λ (S : Type) (eq0 : brel S) (b : binary_op S) (r : unary_op S), ∀ s1 s2 : S, eq0 (b (r s1) s2) (b s1 s2) = true
-     : ∀ S : Type, brel S → binary_op S → unary_op S → Prop
-*) 
-
-
-(* 
   if I is an identity, then 
 
   ms ((ms I) *^ (ms X)) =_MS X 
@@ -360,268 +325,342 @@ bop_left_uop_invariant =
 
  *)
 
-(*
 
-*) 
 
-Lemma test : bop_left_uop_invariant (finite_set S) (brel_set rS) (bop_reduce (uop_minset rS lteS) (bop_lift rS bS)) (uop_minset rS lteS).
+
+
+  Lemma in_minset_intro (s : S) (X : finite_set S) :
+  s [in] X -> (∀ (x : S), x [in] X -> x [!<] s) -> s [in] ([ms] X).
+Admitted.   
+
+Lemma in_minset_elim (s : S) (X : finite_set S) :
+  s [in] ([ms] X) -> (s [in] X) * (∀ (x : S), x [in] X -> x [!<] s).
+Admitted.   
+
+
+Lemma in_set_uop_minset_false_elim_NEW (a : S) (X : finite_set S) :
+  in_set rS X a = true -> in_set rS (uop_minset rS lteS X) a = false ->
+  {s : S &   (in_set rS (uop_minset rS lteS X) s = true)
+           * (lteS s a = true)
+           * (lteS a s = false)}.
+Admitted. 
+
+Lemma minset_lift_right_inclusion_1
+      (RM : os_right_monotone S lteS bS)
+      (D : (brel_antisymmetric S rS lteS) + (os_right_strictly_monotone S lteS bS))      
+      (X Y : finite_set S)
+      (a : S)
+      (H : a [in] ([ms] (X [lift] Y))) : 
+  a [in] ([ms] (([ms] X) [lift] Y)).
+Proof. apply in_set_minset_elim in H; auto. destruct H as [H1 H2].
+        apply in_set_bop_lift_elim in H1; auto.
+        destruct H1 as [x [y [[H3 H4] H5]]]. 
+        apply in_set_minset_intro; auto. split.
+           apply symS in H5. 
+           rewrite (in_set_right_congruence S rS symS tranS (bS x y) a (([ms] X) [lift] Y) H5);auto.
+           case_eq(in_set rS ([ms] X) x); intro H6.
+              apply in_set_bop_lift_intro; auto. 
+              assert (B := H6). 
+              apply in_set_uop_minset_false_elim_NEW in B; auto.
+              destruct B as [s [[H7 H8] H9]].
+              assert (R := RM y _ _ H8).
+              case_eq (lteS (bS x y) (bS s y)) ; intro H10.
+                 destruct D as [AntiSym | RSM].
+                    (* AntiSym *) 
+                    assert (G := AntiSym _ _ R H10).
+                    rewrite (in_set_right_congruence S rS symS tranS _  _ (([ms] X) [lift] Y) G); auto. 
+                    apply in_set_bop_lift_intro; auto.
+                    (* RSM *) 
+                  destruct (RSM y  _  _ H8 H9) as [H11 H12].
+                  rewrite H12 in H10. discriminate H10. 
+                    
+                 assert (H11 : bS s y [in] (X [lift] Y)).
+                    apply in_set_bop_lift_intro; auto.
+                    apply in_minset_elim in H7; auto.                     
+                    destruct H7 as [H7 _]; auto. 
+                 destruct (H2 (bS s y) H11) as [H12 | H12]. 
+                    apply symS in H5. rewrite (congS _ _ _ _ H5 (refS (bS s y))) in H12.
+                    assert (H13 := lteRefl (bS s y)). 
+                    apply symS in H12. 
+                    rewrite (lteCong _ _ _ _ H12 (refS (bS s y))) in H13.
+                    rewrite H13 in H10. discriminate H10.
+                    rewrite (lteCong _ _ _ _ (refS (bS s y)) H5) in R.
+                    rewrite R in H12. discriminate H12.
+           intros s H6.  apply H2. 
+           apply in_set_bop_lift_elim in H6; auto.
+           destruct H6 as [x' [y' [[H7 H8] H9]]].
+           apply symS in H9. 
+           rewrite (in_set_right_congruence S rS symS tranS (bS x' y') s (X [lift] Y) H9);auto. 
+           apply in_set_bop_lift_intro; auto.
+           apply in_minset_elim in H7. destruct H7 as [H7 _]; auto. 
+Qed.            
+
+Lemma lte_implies_not_lt (AS: brel_antisymmetric S rS lteS) (x y : S) : x [<=] y -> not_below rS lteS x y = true.
+Proof. intro H.
+       unfold not_below. unfold bop_or. unfold uop_not.
+       case_eq(lteS y x); intro F; auto.
+       rewrite (AS _ _ F H). 
+       compute; auto.
+Qed.
+
+Lemma minset_lift_right_inclusion_2
+      (RM : os_right_monotone S lteS bS)
+      (D : (brel_antisymmetric S rS lteS) + (os_right_strictly_monotone S lteS bS))            
+      (X Y : finite_set S)
+      (a : S)
+      (H : a [in] ([ms] (([ms] X) [lift] Y))) : 
+  a [in] ([ms] (X [lift] Y)).
+Proof. apply in_set_minset_elim in H; auto. destruct H as [H1 H2].
+        apply in_set_bop_lift_elim in H1; auto.
+        destruct H1 as [x [y [[H3 H4] H5]]]. 
+        apply in_set_minset_intro; auto. split.
+           apply in_minset_elim in H3; auto.
+           destruct H3 as [H3 _].
+           apply symS in H5. rewrite (in_set_right_congruence S rS symS tranS (bS x y) a (X [lift] Y) H5);auto. 
+           apply in_set_bop_lift_intro; auto. 
+
+           intros s H6.
+           apply in_set_bop_lift_elim in H6; auto. 
+           destruct H6 as [b [ c [[H7 H8] H9]]].
+           case_eq(in_set rS ([ms] X) b); intro H10. 
+              apply H2.               
+              apply symS in H9. rewrite (in_set_right_congruence S rS symS tranS (bS b c) s (([ms] X) [lift] Y) H9);auto.
+              apply in_set_bop_lift_intro; auto.
+
+              apply in_set_uop_minset_false_elim_NEW in H10; auto.
+              destruct H10 as [b' [[H11 H12] H13]].               
+              assert (H14 := RM c _ _ H12).
+              assert (A : (bS b' c) [in] (([ms] X) [lift] Y)).
+                 apply in_set_bop_lift_intro; auto. 
+              assert (B := H2 (bS b' c) A).
+              case_eq(rS a s); intro C;
+              case_eq(lteS s a); intro E; auto. 
+              destruct B as [B | B].
+                 rewrite (lteCong _ _ _ _ (symS _ _ B) (symS _ _ H9)) in H14.
+                 destruct D as [AntiSym | RSM]. 
+                 rewrite (AntiSym _ _ H14 E) in C. discriminate C. 
+                 destruct (RSM c _ _ H12 H13) as [F1 F2].
+                 rewrite (lteCong _ _ _ _ (symS _ _ H9) (symS _ _ B)) in F2.
+                 rewrite F2 in E.  discriminate E. 
+                 rewrite (lteCong _ _ _ _ H9 H5) in E.
+                 rewrite (lteCong _ _ _ _ (refS (bS b' c)) H5) in B.                 
+                 rewrite (lteTrans _ _ _ H14 E) in B.
+                 discriminate B. 
+Qed.
+
+
+
+
+Lemma minset_lift_left_invariant 
+      (RM : os_right_monotone S lteS bS)
+      (D : (brel_antisymmetric S rS lteS) + (os_right_strictly_monotone S lteS bS)) :
+     bop_left_uop_invariant (finite_set S) (brel_set rS) (bop_reduce (uop_minset rS lteS) (bop_lift rS bS)) (uop_minset rS lteS).
 Proof. unfold bop_left_uop_invariant. intros X Y. 
        apply brel_set_intro_prop; auto. split. 
           intros a H.
-          unfold bop_reduce. unfold bop_reduce in H. 
-          apply in_set_minset_elim in H; auto.  destruct H as [H1 H2]. 
-          apply in_set_bop_lift_elim in H1; auto.
-          destruct H1 as [x [y [[H3 H4] H5]]]. 
-          apply in_set_minset_intro; auto. split. 
-             rewrite (in_set_congruence S rS symS tranS _ _ _ _  (set_reflexive (X [lift] Y)) H5). 
-             apply in_set_bop_lift_intro; auto. 
-                apply in_set_minset_elim in H3; auto. destruct H3 as [H3 _]. exact H3. 
-                intros s H6.
-                apply in_set_bop_lift_elim in H6; auto. 
-                destruct H6 as [x' [y' [[H6 H7] H8]]].
-                case_eq(in_set rS ([ms] X) x'); intro H9.
-                   assert (K : s [in] (([ms] X) [lift] Y)). admit.  (* OK *)   
-                   apply (H2 s K).
-                   case_eq (rS a s); intro F1; case_eq (lteS s a); intro F2; auto.
-                   admit. (* ??? *) 
-
-
-
-
-
-
-
-
-
-                   
-                   Check in_set_uop_minset_false_elim. 
-
-in_set_uop_minset_false_elim
-     : ∀ (S : Type) (rS : brel S), S
-                                   → ∀ fS : S → S, brel_not_trivial S rS fS
-                                                   → brel_congruence S rS rS
-                                                     → brel_reflexive S rS
-                                                       → brel_symmetric S rS
-                                                         → brel_transitive S rS
-                                                           → ∀ lteS : brel S, brel_congruence S rS lteS
-                                                                              → brel_reflexive S lteS
-                                                                                → brel_transitive S lteS
-                                                                                  → brel_antisymmetric S rS lteS
-                                                                                    → ∀ (a : S) (X : finite_set S), in_set rS X a = true
-                                                                                                                    → in_set rS (uop_minset rS lteS X) a =
-                                                                                                                      false
-                                                                                                                      → {s : S &
-                                                                                                                        (in_set rS (uop_minset rS lteS X) s =
-                                                                                                                         true) * 
-                                                                                                                        (lteS s a = true) *
-                                                                                                                        (rS s a = false)}
-
-                
-
-                find x'' in [ms] X with x'' <= x' 
-
-
-
-                
-                
-                destruct (H2 _ K) as [L | R].
-                   apply in_set_minset_elim in H3; auto. destruct H3 as [H3 H9]. 
-                   destruct (H9 x' H6) as [L' | R'].
-                      assert (K' := cong_bS _ _ _ _ L' (refS y')). 
-                      assert (K'' := tranS _ _ _ L K').  apply symS in H8. 
-                      left. exact (tranS _ _ _ K'' H8).
-
-                      case_eq(rS a s); intro F1; case_eq(lteS s a); intro F2; auto.
-(*
-  L  : bS x  y [=] bS x y'
-  R' : x' [!<=] x
-  F1 : bS x y [!=] bS x' y'
-  F2 : bS x' y' [<=] bS x y
-  ============================
-  (false = true) + (true = false)
-
-??????????????????                      
-*)
-                         admit. 
-                      
-                      
-                   right. case_eq(lteS s a); intro F; auto.
-                   admit. (* need (bS x' y' [<=] bS x y) * (bS x y' [!<=] bS x y) *(x [<=] x') -> true=false 
-
-   
-                               x [<=] x' 
-                               so bS x y' [<=] bS x' y'
-
-                               so bS x y' [!<=] bS x' y'
-                               VIOLATES monotonicity. 
-*)
-                
-          intros a H. 
           unfold bop_reduce. unfold bop_reduce in H.
-          apply in_set_minset_elim in H; auto. destruct H as [H1 H2]. 
-          apply in_set_minset_intro; auto. split. 
-             apply in_set_bop_lift_elim in H1; auto.            
-             destruct H1 as [x [y [[H1 H3] H4]]]. 
-             rewrite (in_set_congruence S rS symS tranS _ _ _ _  (set_reflexive (([ms] X) [lift] Y)) H4).                        
-             apply in_set_bop_lift_intro; auto. 
-                apply in_set_minset_intro; auto. split; auto. 
-                intros s H5. 
-                assert (K : (bS s y) [in] (X [lift] Y)). admit. 
-                destruct (H2 _ K) as [L | R]. 
-                   admit. (* need cancellation ?? ! *) 
+          apply minset_lift_right_inclusion_2; auto. 
+          intros a H.
+          unfold bop_reduce. unfold bop_reduce in H.
+          apply minset_lift_right_inclusion_1; auto. 
+Qed.
 
-                   right.  case_eq(lteS s x); intro F; auto.
-(*
-  R : bS s y [!<=] bS x y
-  F : s [<=] x
-  ============================
-  true = false
 
-  Need : monotonicity s [<=] x -> bS s y [<=] bS x y
-*)                admit. 
-                   
-             intros s H3. 
-             assert (K : s [in] (X [lift] Y)). admit. (* OK *) 
-             apply H2; auto. 
-Admitted.
+Lemma minset_lift_left_inclusion_1
+      (LM : os_left_monotone S lteS bS)
+      (D : (brel_antisymmetric S rS lteS) + (os_left_strictly_monotone S lteS bS))      
+      (X Y : finite_set S)
+      (a : S)
+      (H : a [in] ([ms] (X [lift] Y))) : 
+  a [in] ([ms] (X [lift] ([ms] Y))).
+Proof. apply in_set_minset_elim in H; auto. destruct H as [H1 H2].
+        apply in_set_bop_lift_elim in H1; auto.
+        destruct H1 as [x [y [[H3 H4] H5]]]. 
+        apply in_set_minset_intro; auto. split.
+           apply symS in H5. 
+           rewrite (in_set_right_congruence S rS symS tranS (bS x y) a (X [lift] ([ms] Y)) H5);auto.
+           case_eq(in_set rS ([ms] Y) y); intro H6.
+              apply in_set_bop_lift_intro; auto. 
+              assert (B := H6). 
+              apply in_set_uop_minset_false_elim_NEW in B; auto.
+              destruct B as [s [[H7 H8] H9]].
+              assert (R := LM x _ _ H8).
+              case_eq (lteS (bS x y) (bS x s)) ; intro H10.
+                 destruct D as [AntiSym | LSM].
+                    (* AntiSym *) 
+                    assert (G := AntiSym _ _ R H10).
+                    rewrite (in_set_right_congruence S rS symS tranS _  _ (X [lift] ([ms] Y)) G); auto. 
+                    apply in_set_bop_lift_intro; auto.
+                    (* RSM *) 
+                  destruct (LSM x  _  _ H8 H9) as [H11 H12].
+                  rewrite H12 in H10. discriminate H10. 
+                    
+                 assert (H11 : bS x s [in] (X [lift] Y)).
+                    apply in_set_bop_lift_intro; auto.
+                    apply in_minset_elim in H7; auto.                     
+                    destruct H7 as [H7 _]; auto. 
+                 destruct (H2 (bS x s) H11) as [H12 | H12]. 
+                    apply symS in H5. rewrite (congS _ _ _ _ H5 (refS (bS x s))) in H12.
+                    assert (H13 := lteRefl (bS x s)). 
+                    apply symS in H12. 
+                    rewrite (lteCong _ _ _ _ H12 (refS (bS x s))) in H13.
+                    rewrite H13 in H10. discriminate H10.
+                    rewrite (lteCong _ _ _ _ (refS (bS x s)) H5) in R.
+                    rewrite R in H12. discriminate H12.
+           intros s H6.  apply H2. 
+           apply in_set_bop_lift_elim in H6; auto.
+           destruct H6 as [x' [y' [[H7 H8] H9]]].
+           apply symS in H9. 
+           rewrite (in_set_right_congruence S rS symS tranS (bS x' y') s (X [lift] Y) H9);auto. 
+           apply in_set_bop_lift_intro; auto.
+           apply in_minset_elim in H8. destruct H8 as [H8 _]; auto. 
+Qed.            
 
-Lemma bop_minset_lift_associative_classical :  bop_associative (finite_set S) (brel_minset rS lteS) bop_minset_lift.
+
+Lemma minset_lift_left_inclusion_2
+      (LM : os_left_monotone S lteS bS)
+      (D : (brel_antisymmetric S rS lteS) + (os_left_strictly_monotone S lteS bS))      
+      (X Y : finite_set S)
+      (a : S)
+      (H : a [in] ([ms] (X [lift] ([ms] Y)))) : 
+  a [in] ([ms] (X [lift] Y)).
+Proof. apply in_set_minset_elim in H; auto. destruct H as [H1 H2].
+        apply in_set_bop_lift_elim in H1; auto.
+        destruct H1 as [x [y [[H3 H4] H5]]]. 
+        apply in_set_minset_intro; auto. split.
+           apply in_minset_elim in H4; auto.
+           destruct H4 as [H4 _].
+           apply symS in H5. rewrite (in_set_right_congruence S rS symS tranS (bS x y) a (X [lift] Y) H5);auto. 
+           apply in_set_bop_lift_intro; auto. 
+
+           intros s H6.
+           apply in_set_bop_lift_elim in H6; auto. 
+           destruct H6 as [b [ c [[H7 H8] H9]]].
+           case_eq(in_set rS ([ms] Y) c); intro H10. 
+              apply H2.               
+              apply symS in H9. rewrite (in_set_right_congruence S rS symS tranS (bS b c) s (X [lift] ([ms] Y)) H9);auto.
+              apply in_set_bop_lift_intro; auto.
+
+              apply in_set_uop_minset_false_elim_NEW in H10; auto.
+              destruct H10 as [c' [[H11 H12] H13]].               
+              assert (H14 := LM b _ _ H12).
+              assert (A : (bS b c') [in] (X [lift] ([ms] Y))).
+                 apply in_set_bop_lift_intro; auto. 
+              assert (B := H2 (bS b c') A).
+              case_eq(rS a s); intro C;
+              case_eq(lteS s a); intro E; auto. 
+              destruct B as [B | B].
+                 rewrite (lteCong _ _ _ _ (symS _ _ B) (symS _ _ H9)) in H14.
+                 destruct D as [AntiSym | RSM]. 
+                 rewrite (AntiSym _ _ H14 E) in C. discriminate C. 
+                 destruct (RSM b _ _ H12 H13) as [F1 F2].
+                 rewrite (lteCong _ _ _ _ (symS _ _ H9) (symS _ _ B)) in F2.
+                 rewrite F2 in E.  discriminate E. 
+                 rewrite (lteCong _ _ _ _ H9 H5) in E.
+                 rewrite (lteCong _ _ _ _ (refS (bS b c')) H5) in B.                 
+                 rewrite (lteTrans _ _ _ H14 E) in B.
+                 discriminate B. 
+Qed.
+
+
+Lemma minset_lift_right_invariant 
+      (LM : os_left_monotone S lteS bS)
+      (D : (brel_antisymmetric S rS lteS) + (os_left_strictly_monotone S lteS bS)) :
+     bop_right_uop_invariant (finite_set S) (brel_set rS) (bop_reduce (uop_minset rS lteS) (bop_lift rS bS)) (uop_minset rS lteS).
+Proof. unfold bop_right_uop_invariant. intros X Y. 
+       apply brel_set_intro_prop; auto. split. 
+          intros a H.
+          unfold bop_reduce. unfold bop_reduce in H.
+          apply minset_lift_left_inclusion_2; auto. 
+          intros a H.
+          unfold bop_reduce. unfold bop_reduce in H.
+          apply minset_lift_left_inclusion_1; auto. 
+Qed.
+
+
+Lemma bop_minset_lift_associative
+      (LM : os_left_monotone S lteS bS)      
+    (RM : os_right_monotone S lteS bS)
+    (D : (brel_antisymmetric S rS lteS)
+         + ((os_left_strictly_monotone S lteS bS) *
+            (os_right_strictly_monotone S lteS bS))) :
+       bop_associative (finite_set S) (brel_minset rS lteS) bop_minset_lift.
 Proof. apply bop_full_reduce_associative_classical; auto. 
        apply set_reflexive. apply set_symmetric. apply set_transitive.
        apply uop_minset_congruence; auto.
        apply uop_minset_idempotent; auto.        
        apply bop_lift_congruence; auto.
-       apply bop_lift_associative; auto.
-       admit. 
-       admit. 
+       apply bop_lift_associative; auto. 
+       apply minset_lift_left_invariant; auto.
+       destruct D as [AS | [_ RSM]]; auto. 
+       apply minset_lift_right_invariant; auto.
+       destruct D as [AS | [LSM _]]; auto. 
+Qed. 
+
+
+(* see how far the following can be pushed ... 
+   Try to find weaker suff conditions .... 
+*) 
+
+
+Lemma conj4 (X Y : finite_set S) (a : S) : a [in] ([ms] X) -> a [in] ([ms] (X [msl] Y)). 
 Admitted.
 
+Lemma conj5 (Y Z : finite_set S) (b : S) : b [in] ([ms] (Y [msl] Z)) -> b [in] ([ms] Z).
+Admitted.   
+
+Lemma  conj3 (X Y Z : finite_set S) (s : S):
+  s [in] (([ms] X) [lift] ([ms] (Y [msl] Z))) -> s [in] (([ms] (X [msl] Y)) [lift] ([ms] Z)). 
+Proof. intro A. apply in_set_bop_lift_elim in A; auto. 
+       destruct A as [a [b [[A B] C]]].
+       rewrite (in_set_congruence _ _ symS tranS s (bS a b) _ _ (set_reflexive ((([ms] (X [msl] Y)) [lift] ([ms] Z)))) C).
+       apply in_set_bop_lift_intro; auto.
+       apply conj4; auto. 
+       exact (conj5 Y Z b B).
+Qed. 
+
+Lemma  conj1 (X Y Z : finite_set S) (s : S):  s [in] ((X [msl] Y) [msl] Z) -> s [in] (X [msl] (Y [msl] Z)).
+Proof. intro A.
+       apply in_set_bop_minset_lift_elim in A.
+       destruct A as [b [c [[[A B] C] D]]]. 
+       apply in_set_bop_minset_lift_intro.
+       case_eq(in_set rS ([ms] X) b); intro E; case_eq(in_set rS ([ms] (Y [msl] Z)) c); intro F.
+          exists b; exists c; split; auto. 
+          intros t G.
+          assert (H : t [in] (([ms] (X [msl] Y)) [lift] ([ms] Z))).
+             apply conj3; auto. 
+          apply (D t H). 
+          admit. (* b [in] ([ms] X), c [!in] ([ms] (Y [msl] Z)) *)           
+          admit. (* b [!in] ([ms] X), c [in] ([ms] (Y [msl] Z)) *)
+          admit. (* b [!in] ([ms] X), c [!in] ([ms] (Y [msl] Z)) *)                     
+Admitted.    
 
 
-Lemma bop_minset_lift_associative :  bop_associative (finite_set S) (brel_minset rS lteS) bop_minset_lift.
-Proof.  intros X Y Z.
-        apply brel_minset_intro; auto. 
-        intro s; split; intro H1.
-        unfold bop_minset_lift. unfold bop_full_reduce.
-        unfold bop_minset_lift in H1. unfold bop_full_reduce in H1. 
-Admitted. 
-
-H1 : s [in] ([ms]
-               ([ms]
-                     (([ms]
-                         ([ms]
-                              (([ms] X) [lift] ([ms] Y))))
-                     [lift]
-                     ([ms] Z))
-               )
-            )
-
-  ============================
-  s [in] ([ms]
-            ([ms]
-               (([ms] X)
-                  [lift]
-                  ([ms]
-                     ([ms]
-                        (([ms] Y) [lift] ([ms] Z))
-                     )
-                  )
-               )
-            )
-         )
-
-
-
-
-Lemma bop_minset_lift_associative :  bop_associative (finite_set S) (brel_minset rS lteS) bop_minset_lift.
-Proof.  intros X Y Z.
-        apply brel_minset_intro; auto. 
-        intro s; split; intro H1.
-        (* H1 : s [in] ([ms] ((X [msl] Y) [msl] Z))
-           ============================
-           s [in] ([ms] (X [msl] (Y [msl] Z)))   *) 
-        apply in_set_minset_intro; auto. 
-        apply in_set_minset_elim in H1; auto. destruct H1 as [H1 sMinimal].
-        apply in_set_minset_elim in H1; auto. destruct H1 as [H1 sMinimalInLift].
-        apply in_set_bop_lift_elim in H1; auto. destruct H1 as [a [b [[aIn bIn] E]]].
-        apply in_set_minset_elim in aIn; auto. destruct aIn as [aIn aMinimal].
-        unfold bop_minset_lift in aIn.  unfold bop_full_reduce in aIn.
-        apply in_set_minset_elim in aIn; auto.
-        destruct aIn as [aIn aMinimal2].
-        apply in_set_bop_lift_elim in aIn; auto.
-        destruct aIn as [c [d [[xIn yIn] aEq] ]].        
-        assert (E' : s [=] bS c (bS d b)).
-           assert (K := cong_bS _ _ _ _ aEq (refS b)).
-           assert (J := assoc_bS c d b).
-           exact (tranS _ _ _ E (tranS _ _ _ K J)). 
-        split. 
-           rewrite (in_set_congruence  _ _ symS tranS _ _ _ _ (brel_set_reflexive _ _ refS symS (X [msl] (Y [msl] Z))) E').
-           apply in_set_minset_intro; auto. split. 
-              apply in_set_bop_lift_intro; auto. 
-              apply in_set_minset_intro; auto. 
-                 split. 
-                    apply in_set_minset_intro; auto. split.
-                       apply in_set_bop_lift_intro; auto. 
-                       
-                       intros s0 s0In. 
-                       apply in_set_bop_lift_elim in s0In; auto. 
-                       destruct s0In as [d' [b' [[d'In b'In] E'']]].
-                       case_eq(rS (bS d b) s0); intro F1; case_eq(lteS s0 (bS d b)); intro F2; auto. 
-                       admit.                        
-                       
-                    admit.
-                        
-              admit.
-
-           admit.
-
-           
-        (* H1 : s [in] ([ms] (X [msl] (Y [msl] Z))) 
-           ============================
-           s [in] ([ms] ((X [msl] Y) [msl] Z))    *) 
-        admit.               
-
+Lemma  conj2 (X Y Z : finite_set S) (s : S):  s [in] (X [msl] (Y [msl] Z)) -> s [in] ((X [msl] Y) [msl] Z).
 Admitted.
 
+Lemma bop_minset_lift_associative_v2: 
+  bop_associative (finite_set S) (brel_minset rS lteS) bop_minset_lift.
+Proof. intros X Y Z. 
+       apply brel_minset_intro; auto. intro s. split. 
+       intro A. 
+       apply in_set_minset_elim in A; auto. destruct A as [A B].
+       apply in_set_minset_intro; auto. split.
+          apply conj1; auto. 
+          intros t C.
+          assert (D : t [in] ((X [msl] Y) [msl] Z)).
+             apply conj2; auto. 
+          assert (E := B t D). exact E. 
+       intro A. 
+       apply in_set_minset_elim in A; auto. destruct A as [A B].
+       apply in_set_minset_intro; auto. split.
+          apply conj2; auto. 
+          intros t C.
+          assert (D : t [in] (X [msl] (Y [msl] Z))).
+             apply conj1; auto. 
+          assert (E := B t D). exact E. 
+Qed. 
        
-Lemma bop_minset_lift_associative :  bop_associative (finite_set S) (brel_minset rS lteS) bop_minset_lift.
-Proof.  intros X Y Z.
-        apply brel_minset_intro; auto. 
-        intro s; split; intro H1.
-        (* H1 : s [in] ([ms] ((X [msl] Y) [msl] Z))
-           ============================
-           s [in] ([ms] (X [msl] (Y [msl] Z)))   *) 
-        apply in_set_minset_intro; auto. 
-        apply in_set_minset_elim in H1; auto. destruct H1 as [H1 sMinimal].
-        apply in_set_minset_elim in H1; auto. destruct H1 as [H1 sMinimalInLift].
-        apply in_set_bop_lift_elim in H1; auto. destruct H1 as [a [b [[aIn bIn] E]]].
-        apply in_set_minset_elim in aIn; auto. destruct aIn as [aIn aMinimal].
-        split. 
-           (* show : s [in] (X [msl] (Y [msl] Z)) *)
-           apply in_set_minset_intro; auto. 
-           split. 
-              (* s [in] (([ms] X) [lift] ([ms] (Y [msl] Z)))*) 
-              unfold bop_minset_lift in aIn.  unfold bop_full_reduce in aIn. 
-              apply in_set_minset_elim in aIn; auto.
-              destruct aIn as [aIn aMinimal2].
-              apply in_set_bop_lift_elim in aIn; auto.  
-              destruct aIn as [c [d [[xIn yIn] aEq] ]].
-              assert (E' : s [=] bS c (bS d b)). admit. 
-              rewrite (in_set_congruence  _ _ symS tranS _ _ _ _ (brel_set_reflexive _ _ refS symS (([ms] X) [lift] ([ms] (Y [msl] Z)))) E').
-              apply in_set_bop_lift_intro; auto.
-              admit. 
-              (* ∀ s0 : S, s0 [in] (([ms] X) [lift] ([ms] (Y [msl] Z))) → s [=] s0 + s0 [!<=] s *) 
-              admit. 
-           (* show :  ∀ s0 : S, s0 [in] (X [msl] (Y [msl] Z)) → s [=] s0 + s0 [!<=] s*)
-           admit.
-        (* H1 : s [in] ([ms] (X [msl] (Y [msl] Z))) 
-           ============================
-           s [in] ([ms] ((X [msl] Y) [msl] Z))    *) 
-        admit.               
-
-Admitted.
-
-
 Lemma bop_minset_lift_not_left_cancellative : bop_not_left_cancellative (finite_set S) (brel_minset rS lteS) bop_minset_lift. 
 Proof. exists (nil, (wS :: nil, (f wS) :: nil)). 
        destruct (Pf wS) as [L R]. split. 
@@ -663,17 +702,69 @@ Defined.
 
 End Theory.
 
+
+
+(*
+
+bop_minset_lift_associative
+     : ∀ (S : Type) (rS : brel S), S
+                                   → ∀ f : S → S, brel_not_trivial S rS f
+                                                  → brel_congruence S rS rS
+                                                    → brel_reflexive S rS
+                                                      → brel_symmetric S rS
+                                                        → brel_transitive S rS
+                                                          → ∀ lteS : brel S, brel_congruence S rS lteS
+                                                                             → brel_reflexive S lteS
+                                                                               → brel_transitive S lteS
+                                                                                 → ∀ bS : binary_op S, bop_associative S rS bS
+                                                                                                       → bop_congruence S rS bS
+                                                                                                         → os_left_monotone S lteS bS
+                                                                                                           → os_right_monotone S lteS bS
+                                                                                                             → brel_antisymmetric S rS lteS +
+                                                                                                               os_left_strictly_monotone S lteS bS *
+                                                                                                               os_right_strictly_monotone S lteS bS
+                                                                                                               → bop_associative 
+                                                                                                                   (finite_set S) 
+                                                                                                                   (brel_minset rS lteS)
+                                                                                                                   (bop_minset_lift S rS lteS bS)
+
+
+
+bop_minset_lift_not_left_cancellative
+     : ∀ (S : Type) (rS : brel S), S
+                                   → ∀ f : S → S, brel_not_trivial S rS f
+                                                  → brel_reflexive S rS
+                                                    → brel_symmetric S rS
+                                                      → brel_transitive S rS
+                                                        → ∀ lteS : brel S, brel_reflexive S lteS
+                                                                           → ∀ bS : binary_op S, bop_not_left_cancellative (finite_set S)
+                                                                                                   (brel_minset rS lteS) (bop_minset_lift S rS lteS bS)
+
+bop_minset_lift_not_right_cancellative
+     : ∀ (S : Type) (rS : brel S), S
+                                   → ∀ f : S → S, brel_not_trivial S rS f
+                                                  → brel_reflexive S rS
+                                                    → brel_symmetric S rS
+                                                      → brel_transitive S rS
+                                                        → ∀ lteS : brel S, brel_reflexive S lteS
+                                                                           → ∀ bS : binary_op S, bop_not_right_cancellative (finite_set S)
+                                                                                                   (brel_minset rS lteS) (bop_minset_lift S rS lteS bS)
+
+
+*) 
+
+(*
 Record mm_minset_lift_proofs (S : Type) (eq : brel S) (bop : binary_op S) :=
 {|
   A_mm_associative    :=
 ; A_mm_congruence     :=
 ; A_mm_exists_id      :=
+; A_mm_exists_ann_d   :=     
 ; A_mm_commutative_d  :=
-; A_mm_exists_ann_d   := 
 ; A_mm_left_cancel_d  := 
 ; A_mm_right_cancel_d := 
 |}.
-
+*) 
 
 
 Section ACAS.

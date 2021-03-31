@@ -1203,7 +1203,7 @@ let meetT  := A_lattice_meet T sr2 in
                                    (A_lattice_join_proofs T sr2)                                                                      
                                    (A_lattice_proofs S sr1)
                                    (A_lattice_proofs T sr2)
-   ; A_lattice_ast      := Ast_lattice_left_sum (A_lattice_ast S sr1, A_lattice_ast T sr2)
+   ; A_lattice_ast      := Ast_bs_left_sum (A_lattice_ast S sr1, A_lattice_ast T sr2)
 |}.
 
 
@@ -1239,7 +1239,7 @@ let meetT  := A_distributive_lattice_meet T sr2 in
                                    (A_distributive_lattice_join_proofs T sr2)                                                                      
                                    (A_distributive_lattice_proofs S sr1)
                                    (A_distributive_lattice_proofs T sr2)
-   ; A_distributive_lattice_ast  := Ast_distributive_lattice_left_sum (A_distributive_lattice_ast S sr1, A_distributive_lattice_ast T sr2)
+   ; A_distributive_lattice_ast  := Ast_bs_left_sum (A_distributive_lattice_ast S sr1, A_distributive_lattice_ast T sr2)
 |}.
 
                                    
