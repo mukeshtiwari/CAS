@@ -1,7 +1,16 @@
 Require Import Coq.Bool.Bool. 
-Require Import CAS.coq.common.base.
+
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+
 Require Import CAS.coq.eqv.add_constant.
 Require Import CAS.coq.eqv.sum. 
+
 Require Import CAS.coq.theory.facts. 
 
 Section Theory.
@@ -202,6 +211,21 @@ Definition sg_CI_proofs_add_ann :
 ; A_sg_CI_selective_d        := bop_add_ann_selective_decide S rS c bS (A_sg_CI_selective_d _ _ _ sgS)
 |}. 
 
+Definition sg_CINS_proofs_add_ann : 
+   ∀ (S : Type) (rS : brel S) (c : cas_constant) (bS : binary_op S) (s : S), 
+     eqv_proofs S rS -> sg_CINS_proofs S rS bS -> 
+        sg_CINS_proofs (with_constant S) (brel_sum brel_constant rS) (bop_add_ann bS c)
+:= λ S rS c bS s eqvS sgS, 
+{|
+  A_sg_CINS_associative        := bop_add_ann_associative S rS c bS (A_sg_CINS_associative _ _ _ sgS)
+; A_sg_CINS_congruence         := bop_add_ann_congruence S rS c bS (A_sg_CINS_congruence _ _ _ sgS) 
+; A_sg_CINS_commutative        := bop_add_ann_commutative S rS c bS (A_sg_CINS_commutative _ _ _ sgS)
+; A_sg_CINS_idempotent         := bop_add_ann_idempotent S rS c bS (A_sg_CINS_idempotent _ _ _ sgS)
+; A_sg_CINS_not_selective      := bop_add_ann_not_selective S rS c bS (A_sg_CINS_not_selective _ _ _ sgS)
+|}. 
+
+
+
 Definition sg_CS_proofs_add_ann : 
    ∀ (S : Type) (rS : brel S) (c : cas_constant) (bS : binary_op S) (s : S), 
      eqv_proofs S rS -> sg_CS_proofs S rS bS -> 
@@ -213,7 +237,6 @@ Definition sg_CS_proofs_add_ann :
 ; A_sg_CS_commutative   := bop_add_ann_commutative S rS c bS (A_sg_CS_commutative _ _ _ sgS)
 ; A_sg_CS_selective     := bop_add_ann_selective S rS c bS (A_sg_CS_selective _ _ _ sgS)
 |}. 
-
 
 Definition A_sg_add_ann : ∀ (S : Type) (c : cas_constant),  A_sg S -> A_sg (with_constant S) 
 := λ S c sgS, 
@@ -439,6 +462,19 @@ Definition sg_CI_certs_add_ann : ∀ {S : Type},  cas_constant -> sg_CI_certific
 |}. 
 
 
+Definition sg_CINS_certs_add_ann : ∀ {S : Type},  cas_constant -> sg_CINS_certificates (S := S) -> sg_CINS_certificates (S := (with_constant S)) 
+:= λ {S} c sgS,  
+{|
+  sg_CINS_associative        := Assert_Associative  
+; sg_CINS_congruence         := Assert_Bop_Congruence  
+; sg_CINS_commutative        := Assert_Commutative  
+; sg_CINS_idempotent         := Assert_Idempotent  
+; sg_CINS_not_selective      := match sg_CINS_not_selective sgS with
+                                | Assert_Not_Selective (s1, s2) => Assert_Not_Selective (inr s1, inr s2)
+                                end 
+|}. 
+
+
 Definition sg_CS_certs_add_ann : ∀ {S : Type},  cas_constant -> sg_CS_certificates (S := S) -> sg_CS_certificates (S := with_constant S) 
 := λ {S} c sg,  
 {|
@@ -637,6 +673,21 @@ Lemma correct_sg_CI_certs_add_ann : ∀ (s : S) (P : sg_CI_proofs S r b),
 Proof. intros s P. destruct P. destruct Q. 
        unfold sg_CI_certs_add_ann, sg_CI_proofs_add_ann, P2C_sg_CI; simpl.
        rewrite bop_add_ann_selective_check_correct. 
+       reflexivity. 
+Defined. 
+
+
+Lemma correct_sg_CINS_certs_add_ann : ∀ (s : S) (P : sg_CINS_proofs S r b), 
+       sg_CINS_certs_add_ann c (P2C_sg_CINS S r b P) 
+       = 
+       P2C_sg_CINS (with_constant S) 
+          (brel_sum brel_constant r) 
+          (bop_add_ann b c) 
+          (sg_CINS_proofs_add_ann S r c b s Q P). 
+Proof. intros s P. destruct P. destruct Q. 
+       unfold sg_CINS_certs_add_ann, sg_CINS_proofs_add_ann, P2C_sg_CINS; simpl.
+       destruct A_sg_CINS_not_selective as [[s1 s2] A]. simpl. 
+       unfold p2c_not_selective_assert. simpl. 
        reflexivity. 
 Defined. 
 

@@ -1,8 +1,7 @@
 Require Import Coq.Bool.Bool.
-Require Import CAS.coq.common.base. 
+Require Export CAS.coq.common.compute.
 Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.sg.product.
-
 
 Definition bop_eisner (S : Type) (addS : binary_op S) (mulS : binary_op S) : binary_op (S * S) 
 := λ x y,  

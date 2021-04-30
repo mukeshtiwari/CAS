@@ -1,12 +1,19 @@
 Require Import Coq.Bool.Bool.
-Require Import CAS.coq.common.base.
+
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+
 Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.eqv.list. 
 
 Section Theory.
 
 Open Scope list_scope.
-
+  
 Lemma bop_concat_not_idempotent : 
      ∀ (S : Type) (r : brel S) (s : S), 
            bop_not_idempotent (list S) (@brel_list S r) (@bop_concat S).

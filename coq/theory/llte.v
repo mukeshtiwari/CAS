@@ -1,5 +1,8 @@
-Require Import Coq.Bool.Bool. 
-Require Import CAS.coq.common.base.
+Require Import Coq.Bool.Bool.
+Require Export CAS.coq.common.compute.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.po.properties.
+Require Import CAS.coq.sg.properties. 
 Require Import CAS.coq.theory.conjunction. 
 Require Import CAS.coq.theory.complement. 
 Require Import CAS.coq.theory.facts. 
@@ -110,7 +113,7 @@ Proof. unfold brel_not_total, brel_llte.
           apply (brel_symmetric_implies_dual _ _ symS) in fact2. assumption. 
 Defined. 
 
-
+(*
 Lemma brel_llte_exists_top : bop_exists_id S r b -> brel_exists_top S (brel_llte r b). 
 Proof.  intros [t P]. exists t. intro s. destruct (P s) as [L R]. compute. apply symS. assumption. Defined. 
 
@@ -139,7 +142,7 @@ Proof.  intros commS P s. exists (projT1 (P s)).
            apply (brel_transititivity_implies_dual _ _ tranS _ _ _ fact1 F).
 Defined. 
 
-
+*) 
 
 (* llt *) 
 

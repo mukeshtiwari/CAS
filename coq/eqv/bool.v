@@ -1,5 +1,9 @@
 Require Import Coq.Bool.Bool.
-Require Import CAS.coq.common.base. 
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.common.data.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
 
 Section Theory.
 Open Scope list_scope.

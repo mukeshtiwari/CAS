@@ -1,5 +1,5 @@
 Require Import Coq.Bool.Bool.
-Require Import CAS.coq.common.base. 
+Require Export CAS.coq.common.compute.
 Require Import CAS.coq.theory.facts.
 
 

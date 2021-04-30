@@ -1,4 +1,10 @@
-Require Import CAS.coq.common.base. 
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+
 
 Section Theory.
 

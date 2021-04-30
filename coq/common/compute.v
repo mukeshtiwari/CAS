@@ -162,14 +162,6 @@ Definition brel_sum : ∀ {S T : Type}, brel S → brel T → brel (S + T)
    | (inr a), (inr b) => V a b
    end.
 
-Definition brel_add_bottom : ∀ {S : Type}, brel S → cas_constant → brel (cas_constant + S)
-:= λ  {S} rS c x y, 
-   match x, y with
-   | (inl _), (inl _) => true (* all constants equal! *) 
-   | (inl _), (inr _) => true  (* new bottom ! *) 
-   | (inr _), (inl _) => false 
-   | (inr a), (inr b) => rS a b 
-   end.
 
 Definition brel_add_top : ∀ {S : Type}, brel S → cas_constant → brel (cas_constant + S)
 := λ  {S} rS c x y, 

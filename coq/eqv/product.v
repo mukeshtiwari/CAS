@@ -1,5 +1,11 @@
 Require Import Coq.Bool.Bool.    
-Require Import CAS.coq.common.base. 
+
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.data.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+ 
 Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.theory.in_set. 
 
@@ -95,30 +101,6 @@ Definition brel_product_reflexive_decide:
        | inr not_refS   => inr _ (brel_product_not_reflexive_left t not_refS)
        end. 
 
-Lemma brel_product_irreflexive_left : brel_irreflexive S rS -> brel_irreflexive (S * T) (rS <*> rT). 
-Proof. unfold brel_irreflexive. intros irr [s t]. compute. rewrite (irr s). reflexivity. Defined. 
-
-Lemma brel_product_irreflexive_right : brel_irreflexive T rT -> brel_irreflexive (S * T) (rS <*> rT). 
-Proof. unfold brel_irreflexive. intros irr [s t]. compute. rewrite (irr t). case_eq(rS s s); intro H; auto. Defined. 
-
-Lemma brel_product_not_irreflexive : brel_not_irreflexive S rS -> brel_not_irreflexive T rT -> 
-           brel_not_irreflexive (S * T) (rS <*> rT). 
-Proof. unfold brel_not_irreflexive. intros [s P] [t Q]. exists (s, t). compute. rewrite P, Q; auto. Defined. 
-
-Definition brel_product_irreflexive_decide: 
-     brel_irreflexive_decidable S rS → 
-     brel_irreflexive_decidable T rT → 
-        brel_irreflexive_decidable (S * T) (rS <*> rT)
-:= λ dS dT,  
-       match dS with 
-       | inl irrS => inl _ (brel_product_irreflexive_left irrS)
-       | inr not_irrS   => 
-         match dT with 
-         | inl irrT     => inl _ (brel_product_irreflexive_right irrT)
-         | inr not_irrT => inr _ (brel_product_not_irreflexive not_irrS not_irrT)
-         end 
-       end. 
-
 
 
 Lemma brel_product_symmetric : (brel_symmetric _ rS) → (brel_symmetric _ rT) → brel_symmetric (S * T) (rS <*> rT). 
@@ -160,14 +142,6 @@ Definition brel_product_symmetric_decide:
          end 
        | inr not_symS   => inr _ (brel_product_not_symmetric_left not_symS wT)
        end.
-
-Lemma brel_product_not_total (s : S) (f : S -> S) (t : T): 
-  brel_not_trivial S rS f ->
-      brel_not_total (S * T) (rS <*> rT). 
-Proof. intros Pf. exists ((s, t), (f s, t)). compute. 
-       destruct (Pf s) as [sL sR]. 
-       rewrite sL, sR. auto. 
-Defined.
 
 Lemma brel_product_at_least_three (s : S) (f : S -> S) (t : T) (g : T -> T):
   brel_not_trivial S rS f ->
@@ -333,24 +307,6 @@ Definition eqv_product_decidable (dS : carrier_is_finite_decidable S rS) (dT: ca
 
 
 
-Close Scope nat_scope. 
-
-Lemma brel_total_split (s : S) ( f : S -> S) : 
-      brel_total S rS -> 
-      brel_not_trivial S rS f -> 
-      brel_antisymmetric S rS rS -> 
-      {s1 : S & {s2 : S & (rS s2 s1 = true) * (rS s1 s2 = false) }}. 
-Proof. intros totS Pf antiS. 
-       unfold brel_antisymmetric in antiS. 
-       destruct (Pf s) as [L R].
-       case_eq(rS s (f s)); intro F1;  case_eq(rS (f s) s); intro F2. 
-          rewrite (antiS _ _ F1 F2) in L. discriminate. 
-          exists (f s); exists s; split; assumption. 
-          exists s; exists (f s); split; assumption. 
-          destruct (totS s (f s)) as [F | F].          
-             rewrite F in F1. discriminate.
-             rewrite F in F2. discriminate.
-Defined. 
 
 End Theory.
 
@@ -465,7 +421,7 @@ Theorem correct_eqv_product :
       ∀ (S T : Type) (eS : A_eqv S) (eT : A_eqv T), 
          eqv_product (A2C_eqv S eS) (A2C_eqv T eT)
          = 
-         A2C_eqv (S * T) (A_eqv_product S T eS eT). 
+         A2C_eqv (S * T)(A_eqv_product S T eS eT). 
 Proof. intros S T eS eT. destruct eS; destruct eT. 
        unfold eqv_product, A_eqv_product, A2C_eqv; simpl.
        rewrite <- correct_eqv_product_decidable. reflexivity. 

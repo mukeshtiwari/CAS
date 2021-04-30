@@ -22,6 +22,8 @@ Inductive cas_ast : Type :=
    | Ast_po_from_to       : cas_ast → cas_ast
    | Ast_po_llte          : cas_ast → cas_ast
    | Ast_po_rlte          : cas_ast → cas_ast
+   | Ast_qo_trivial       : cas_ast → cas_ast
+   | Ast_qo_length        : cas_ast → cas_ast                                                                                   
 
    | Ast_to_nat           : cas_ast
    | Ast_to_bool          : cas_ast
@@ -89,9 +91,10 @@ Inductive cas_ast : Type :=
    | Ast_bs_from_bs_CI       : cas_ast → cas_ast                                       
    | Ast_bs_from_presemiring : cas_ast → cas_ast
 
-| Ast_presemiring_product     : cas_ast * cas_ast → cas_ast
-| Ast_presemiring_from_bs                    : cas_ast → cas_ast                                                                      
-| Ast_presemiring_from_semiring              : cas_ast → cas_ast
+   | Ast_presemiring_product     : cas_ast * cas_ast → cas_ast
+   | Ast_mposg_from_bs                    : cas_ast → cas_ast                                            
+   | Ast_presemiring_from_bs                    : cas_ast → cas_ast                                                                      
+   | Ast_presemiring_from_semiring              : cas_ast → cas_ast
 | Ast_presemiring_from_selective_presemiring : cas_ast → cas_ast
 | Ast_presemiring_from_distributive_prelattice : cas_ast → cas_ast
 | Ast_presemiring_from_selective_distributive_prelattice : cas_ast → cas_ast                                          

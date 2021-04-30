@@ -1,5 +1,7 @@
-Require Import Coq.Bool.Bool. 
-Require Import CAS.coq.common.base. 
+Require Import Coq.Bool.Bool.
+Require Export CAS.coq.common.compute.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.po.properties.
 Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.theory.in_set.
 

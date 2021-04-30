@@ -1,5 +1,14 @@
 Require Import Coq.Bool.Bool. 
-Require Import CAS.coq.common.base. 
+
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures.
+
 Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.sg.product. 
@@ -340,6 +349,35 @@ Definition zero_one_proofs_product :
 
 
 
+Definition with_one_proofs_product : 
+  ∀ (S T: Type) 
+    (rS : brel S) 
+    (rT : brel T) 
+    (plusS timesS : binary_op S) 
+    (plusT timesT : binary_op T),
+     with_one_proofs S rS plusS timesS -> 
+     with_one_proofs T rT plusT timesT -> 
+        with_one_proofs (S * T) 
+           (brel_product rS rT) 
+           (bop_product plusS plusT)
+           (bop_product timesS timesT)
+:= λ S T rS rT plusS timesS plusT timesT pS pT, 
+  {|
+  A_with_one_exists_plus_id_d   := bop_product_exists_id_decide S T rS rT plusS plusT (A_with_one_exists_plus_id_d _ _ _ _ pS) (A_with_one_exists_plus_id_d _ _ _ _ pT) 
+; A_with_one_exists_plus_ann  := bop_product_exists_ann S T rS rT plusS plusT (A_with_one_exists_plus_ann _ _ _ _ pS) (A_with_one_exists_plus_ann _ _ _ _ pT) 
+; A_with_one_exists_times_id  := bop_product_exists_id S T rS rT timesS timesT (A_with_one_exists_times_id _ _ _ _ pS) (A_with_one_exists_times_id _ _ _ _ pT) 
+; A_with_one_exists_times_ann_d := bop_product_exists_ann_decide S T rS rT timesS timesT (A_with_one_exists_times_ann_d _ _ _ _ pS) (A_with_one_exists_times_ann_d _ _ _ _ pT)       
+; A_with_one_plus_id_is_times_ann_d := 
+     bop_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT 
+        (A_with_one_plus_id_is_times_ann_d S rS plusS timesS pS)
+        (A_with_one_plus_id_is_times_ann_d T rT plusT timesT pT)
+; A_with_one_times_id_is_plus_ann := bop_product_id_equals_ann S T rS rT timesS plusS timesT plusT  
+        (A_with_one_times_id_is_plus_ann S rS plusS timesS pS)
+        (A_with_one_times_id_is_plus_ann T rT plusT timesT pT)
+
+|}. 
+
+
 Definition bounded_proofs_product : 
   ∀ (S T: Type) 
     (rS : brel S) 
@@ -410,6 +448,44 @@ Definition bounded_proofs_product :
 |}. 
 
 
+
+
+Definition path_algebra_proofs_product : 
+  ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS mulS : binary_op S) (addT mulT : binary_op T) (s : S) (t : T), 
+    eqv_proofs S rS ->
+    eqv_proofs T rT -> 
+    path_algebra_proofs S rS addS mulS ->
+    path_algebra_proofs T rT addT mulT ->     
+        path_algebra_proofs (S * T) (brel_product rS rT) (bop_product addS addT) (bop_product mulS mulT)
+:= λ S T rS rT addS mulS addT mulT s t eqvS eqvT srS srT, 
+{|
+  A_path_algebra_left_distributive        :=
+    bop_product_left_distributive S T rS rT addS mulS addT mulT  
+        (A_path_algebra_left_distributive S rS addS mulS srS)
+        (A_path_algebra_left_distributive T rT addT mulT srT)                                  
+    
+; A_path_algebra_right_distributive       :=
+    bop_product_right_distributive S T rS rT addS mulS addT mulT  
+        (A_path_algebra_right_distributive S rS addS mulS srS)
+        (A_path_algebra_right_distributive T rT addT mulT srT)                                  
+
+                                                                     
+; A_path_algebra_left_left_absorptive   :=
+    bop_product_left_left_absorptive S T rS rT addS mulS addT mulT
+        (A_path_algebra_left_left_absorptive S rS addS mulS srS)
+        (A_path_algebra_left_left_absorptive T rT addT mulT srT)                                  
+
+; A_path_algebra_left_right_absorptive  :=
+    bop_product_left_right_absorptive S T rS rT addS mulS addT mulT
+        (A_path_algebra_left_right_absorptive S rS addS mulS srS)
+        (A_path_algebra_left_right_absorptive T rT addT mulT srT)                                  
+|}.
+
+
+
+
+
+
 Definition A_bs_product : ∀ (S T : Type),  A_bs S -> A_bs T -> A_bs (S * T) 
 := λ S T bsS bsT,
 let eqvS   := A_bs_eqv S bsS   in
@@ -446,6 +522,45 @@ let timesT := A_bs_times T bsT in
                            (A_bs_proofs T bsT)
    ; A_bs_ast        := Ast_bs_product(A_bs_ast S bsS, A_bs_ast T bsT)
 |}. 
+
+
+Definition A_pre_path_algebra_product : ∀ (S T : Type),  A_pre_path_algebra S -> A_pre_path_algebra T -> A_pre_path_algebra_NS (S * T) 
+:= λ S T bsS bsT,
+let eqvS   := A_pre_path_algebra_eqv S bsS   in
+let eqvT   := A_pre_path_algebra_eqv T bsT   in
+let peqvS  := A_eqv_proofs S eqvS in
+let peqvT  := A_eqv_proofs T eqvT in 
+let rS     := A_eqv_eq S eqvS  in 
+let rT     := A_eqv_eq T eqvT  in
+let s      := A_eqv_witness S eqvS in
+let f      := A_eqv_new S eqvS in
+let Pf     := A_eqv_not_trivial S eqvS in
+let t      := A_eqv_witness T eqvT in
+let g      := A_eqv_new T eqvT in
+let Pg     := A_eqv_not_trivial T eqvT in
+let plusS  := A_pre_path_algebra_plus S bsS  in 
+let plusT  := A_pre_path_algebra_plus T bsT  in
+let timesS := A_pre_path_algebra_times S bsS in 
+let timesT := A_pre_path_algebra_times T bsT in 
+{| 
+     A_pre_path_algebra_NS_eqv        := A_eqv_product S T eqvS eqvT 
+   ; A_pre_path_algebra_NS_plus       := bop_product plusS plusT 
+   ; A_pre_path_algebra_NS_times      := bop_product timesS timesT 
+   ; A_pre_path_algebra_NS_plus_proofs := sg_CI_to_CINS_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
+                           (A_pre_path_algebra_plus_proofs S bsS) 
+                           (A_pre_path_algebra_plus_proofs T bsT) 
+   ; A_pre_path_algebra_NS_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+                           (A_pre_path_algebra_times_proofs S bsS) 
+                           (A_pre_path_algebra_times_proofs T bsT)
+   ; A_pre_path_algebra_NS_id_ann_proofs := id_ann_proofs_product S T rS rT plusS timesS plusT timesT
+                           (A_pre_path_algebra_id_ann_proofs S bsS) 
+                           (A_pre_path_algebra_id_ann_proofs T bsT)                           
+   ; A_pre_path_algebra_NS_proofs    := path_algebra_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT
+                                        (A_pre_path_algebra_proofs S bsS) 
+                                       (A_pre_path_algebra_proofs T bsT)
+   ; A_pre_path_algebra_NS_ast        := Ast_bs_product(A_pre_path_algebra_ast S bsS, A_pre_path_algebra_ast T bsT) (* FIX *) 
+|}. 
+
 
 
 
@@ -1085,6 +1200,53 @@ let timesT := dioid_times sr2 in
    ; dioid_certs        := semiring_certs_product s t (dioid_certs sr1) (dioid_certs sr2)
    ; dioid_ast          := Ast_bs_product (dioid_ast sr1, dioid_ast sr2)
 |}.
+
+
+Definition path_algebra_certs_product {S T : Type} (CS: @path_algebra_certs S) (CT : @path_algebra_certs T) : 
+        @path_algebra_certs (S * T) := 
+{|
+  path_algebra_left_distributive      := Assert_Left_Distributive  
+; path_algebra_right_distributive     := Assert_Right_Distributive 
+; path_algebra_left_left_absorptive   := Assert_Left_Left_Absorptive  
+; path_algebra_left_right_absorptive  := Assert_Left_Right_Absorptive 
+|}.
+
+
+
+Definition pre_path_algebra_product {S T : Type} :  @pre_path_algebra S -> @pre_path_algebra T -> @pre_path_algebra_NS (S * T) 
+:= λ bsS bsT,
+let eqvS   := pre_path_algebra_eqv bsS   in
+let eqvT   := pre_path_algebra_eqv bsT   in
+let rS     := eqv_eq eqvS in 
+let rT     := eqv_eq eqvT in 
+let s      := eqv_witness eqvS in
+let f      := eqv_new eqvS in
+let t      := eqv_witness eqvT in
+let g      := eqv_new eqvT in
+let plusS  := pre_path_algebra_plus bsS  in 
+let plusT  := pre_path_algebra_plus bsT  in
+let timesS := pre_path_algebra_times bsS in 
+let timesT := pre_path_algebra_times bsT in 
+{| 
+     pre_path_algebra_NS_eqv        := eqv_product eqvS eqvT 
+   ; pre_path_algebra_NS_plus       := bop_product plusS plusT 
+   ; pre_path_algebra_NS_times      := bop_product timesS timesT 
+   ; pre_path_algebra_NS_plus_certs := sg_CI_to_CINS_certs_product rS rT plusS plusT s f t g 
+                           (pre_path_algebra_plus_certs bsS) 
+                           (pre_path_algebra_plus_certs bsT) 
+   ; pre_path_algebra_NS_times_certs := msg_certs_product s t 
+                           (pre_path_algebra_times_certs bsS) 
+                           (pre_path_algebra_times_certs bsT)
+   ; pre_path_algebra_NS_id_ann_certs := id_ann_certs_product 
+                           (pre_path_algebra_id_ann_certs bsS) 
+                           (pre_path_algebra_id_ann_certs bsT)                           
+   ; pre_path_algebra_NS_certs    := path_algebra_certs_product 
+                                        (pre_path_algebra_certs bsS) 
+                                       (pre_path_algebra_certs bsT)
+   ; pre_path_algebra_NS_ast        := Ast_bs_product(pre_path_algebra_ast bsS, pre_path_algebra_ast bsT) (* FIX *) 
+|}. 
+
+
   
 End CAS.
 
@@ -1388,6 +1550,22 @@ Proof. intros S T bsS bsT.
        rewrite <- correct_sg_C_certs_product. 
        rewrite <- correct_semiring_certs_product.
        rewrite correct_id_ann_certs_product. 
+       reflexivity. 
+Qed. 
+
+
+
+Theorem correct_pre_path_algebra_product : ∀ (S T : Type) (bsS: A_pre_path_algebra S) (bsT : A_pre_path_algebra T), 
+   pre_path_algebra_product (A2C_pre_path_algebra S bsS) (A2C_pre_path_algebra T bsT)
+   =
+   A2C_pre_path_algebra_NS (S * T) (A_pre_path_algebra_product S T bsS bsT). 
+Proof. intros S T bsS bsT. 
+       unfold pre_path_algebra_product, A_pre_path_algebra_product, A2C_pre_path_algebra, A2C_pre_path_algebra_NS; simpl. 
+       rewrite correct_eqv_product. 
+       rewrite <- correct_msg_certs_product.
+       rewrite correct_id_ann_certs_product.        
+       rewrite <- correct_sg_CI_to_CINS_certs_product. 
+       unfold P2C_path_algebra. unfold path_algebra_certs_product. 
        reflexivity. 
 Qed. 
 

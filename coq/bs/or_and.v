@@ -1,4 +1,12 @@
-Require Import CAS.coq.common.base. 
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures.
+
 Require Import CAS.coq.eqv.bool.
 Require Import CAS.coq.bs.and_or.
 Require Import CAS.coq.bs.dual.

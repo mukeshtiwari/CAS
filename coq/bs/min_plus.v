@@ -1,6 +1,15 @@
 Require Import Coq.Arith.Arith.     (* beq_nat *) 
 Require Import Coq.Arith.Min. 
-Require Import CAS.coq.common.base. 
+
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures.
+
 Require Import CAS.coq.theory.facts. 
 Require Import CAS.coq.eqv.nat.
 Require Import CAS.coq.sg.min.
@@ -133,6 +142,8 @@ End Theory.
 
 Section ACAS.
 
+
+  
   Open Scope nat.
   
 Definition semiring_proofs_min_plus : semiring_proofs nat brel_eq_nat bop_min bop_plus := 
@@ -164,6 +175,37 @@ Definition A_selective_presemiring_min_plus : A_selective_presemiring nat :=
 ; A_selective_presemiring_ast          := Ast_min_plus
 |}.
 
+
+
+Definition path_algebra_proofs_min_plus : path_algebra_proofs nat brel_eq_nat bop_min bop_plus := 
+  {| 
+     A_path_algebra_left_distributive      := bop_min_plus_left_distributive
+   ; A_path_algebra_right_distributive     := bop_min_plus_right_distributive
+   ; A_path_algebra_left_left_absorptive   := bops_min_plus_left_left_absorptive
+   ; A_path_algebra_left_right_absorptive  := bops_min_plus_left_right_absorptive
+  |}.
+
+
+Definition A_pre_path_algebra_min_plus : A_pre_path_algebra nat := 
+{|
+  A_pre_path_algebra_eqv          := A_eqv_nat 
+; A_pre_path_algebra_plus         := bop_min
+; A_pre_path_algebra_times        := bop_plus
+; A_pre_path_algebra_plus_proofs  := A_sg_CI_proofs_from_sg_CS_proofs _ _ _ (A_sg_CS_proofs _ A_sg_CS_min)
+; A_pre_path_algebra_times_proofs := A_msg_proofs_plus
+; A_pre_path_algebra_id_ann_proofs :=
+    {|
+      A_id_ann_exists_plus_id_d       := inr bop_min_not_exists_id
+    ; A_id_ann_exists_plus_ann_d      := inl bop_min_exists_ann 
+    ; A_id_ann_exists_times_id_d      := inl bop_plus_exists_id
+    ; A_id_ann_exists_times_ann_d     := inr bop_plus_not_exists_ann
+    ; A_id_ann_plus_id_is_times_ann_d := inr bop_min_plus_not_id_equals_ann
+    ; A_id_ann_times_id_is_plus_ann_d := inl bop_min_plus_ann_equals_id 
+    |}
+; A_pre_path_algebra_proofs       := path_algebra_proofs_min_plus 
+; A_pre_path_algebra_ast          := Ast_min_plus (*FIX*)
+|}.
+
 End ACAS.
 
 
@@ -177,9 +219,18 @@ Definition semiring_certs_min_plus : @semiring_certificates nat :=
    ; semiring_right_distributive     := Assert_Right_Distributive 
    ; semiring_left_left_absorptive_d   := Certify_Left_Left_Absorptive 
    ; semiring_left_right_absorptive_d  := Certify_Left_Right_Absorptive 
-  |}. 
+  |}.
 
-Definition selective_presemiring_min_plus : selective_presemiring (S := nat) := 
+Definition path_algebra_certs_min_plus : @path_algebra_certs nat := 
+  {| 
+     path_algebra_left_distributive      := Assert_Left_Distributive 
+   ; path_algebra_right_distributive     := Assert_Right_Distributive 
+   ; path_algebra_left_left_absorptive   := Assert_Left_Left_Absorptive 
+   ; path_algebra_left_right_absorptive  := Assert_Left_Right_Absorptive 
+  |}.
+
+
+Definition selective_presemiring_min_plus : @selective_presemiring nat := 
 {|
   selective_presemiring_eqv         := eqv_eq_nat 
 ; selective_presemiring_plus        := bop_min
@@ -199,6 +250,27 @@ Definition selective_presemiring_min_plus : selective_presemiring (S := nat) :=
 ; selective_presemiring_ast         := Ast_min_plus
 |}.
 
+
+Definition pre_path_algebra_min_plus : @pre_path_algebra nat := 
+{|
+  pre_path_algebra_eqv         := eqv_eq_nat 
+; pre_path_algebra_plus        := bop_min
+; pre_path_algebra_times       := bop_plus
+; pre_path_algebra_plus_certs  := sg_CI_certs_from_sg_CS_certs (sg_CS_certs sg_CS_min)
+; pre_path_algebra_times_certs := msg_certs_plus
+; pre_path_algebra_id_ann_certs :=
+    {|
+      id_ann_exists_plus_id_d       := Certify_Not_Exists_Id 
+    ; id_ann_exists_plus_ann_d      := Certify_Exists_Ann 0 
+    ; id_ann_exists_times_id_d      := Certify_Exists_Id 0 
+    ; id_ann_exists_times_ann_d     := Certify_Not_Exists_Ann 
+    ; id_ann_plus_id_is_times_ann_d := Certify_Not_Plus_Id_Equals_Times_Ann
+    ; id_ann_times_id_is_plus_ann_d := Certify_Times_Id_Equals_Plus_Ann 0 
+    |}
+; pre_path_algebra_certs       := path_algebra_certs_min_plus
+; pre_path_algebra_ast         := Ast_min_plus
+|}.
+
 End CAS.
 
 Section Verify.
@@ -206,5 +278,10 @@ Section Verify.
 Theorem correct_selective_presemiring_min_plus : 
    selective_presemiring_min_plus = A2C_selective_presemiring nat (A_selective_presemiring_min_plus). 
 Proof. compute. reflexivity. Qed. 
+
+Theorem correct_pre_path_algebra_min_plus : 
+   pre_path_algebra_min_plus = A2C_pre_path_algebra nat (A_pre_path_algebra_min_plus). 
+Proof. compute. reflexivity. Qed. 
+
 
 End Verify.   

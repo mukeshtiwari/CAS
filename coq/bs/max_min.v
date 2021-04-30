@@ -1,5 +1,13 @@
 
-Require Import CAS.coq.common.base. 
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures.
+
 Require Import CAS.coq.eqv.nat.
 Require Import CAS.coq.sg.max.
 Require Import CAS.coq.sg.min.
@@ -111,10 +119,37 @@ Definition A_selective_distributive_prelattice_max_min : A_selective_distributiv
 ; A_selective_distributive_prelattice_meet          := bop_min
 ; A_selective_distributive_prelattice_join_proofs   := sg_CS_proofs_max
 ; A_selective_distributive_prelattice_meet_proofs   := sg_CS_proofs_min
-; A_selective_distributive_prelattice_id_ann_proofs :=id_ann_proofs_max_min                                                                  
+; A_selective_distributive_prelattice_id_ann_proofs := id_ann_proofs_max_min                                                                  
 ; A_selective_distributive_prelattice_proofs        :=  distributive_lattice_proofs_max_min
 ; A_selective_distributive_prelattice_ast           := Ast_max_min
 |}.
+
+
+Definition path_algebra_proofs_max_min : path_algebra_proofs nat brel_eq_nat bop_max bop_min := 
+  {| 
+     A_path_algebra_left_distributive      := bops_max_min_left_distributive
+   ; A_path_algebra_right_distributive     := bops_max_min_right_distributive
+   ; A_path_algebra_left_left_absorptive   := bops_max_min_left_left_absorptive
+   ; A_path_algebra_left_right_absorptive  := bops_max_min_left_right_absorptive
+  |}.
+
+
+Definition A_pre_path_algebra_max_min : A_pre_path_algebra nat :=
+let eqvP := A_eqv_proofs _  A_eqv_nat in 
+let s := A_eqv_witness _ A_eqv_nat in 
+let f := A_eqv_new _ A_eqv_nat in 
+let nt := A_eqv_not_trivial _ A_eqv_nat in 
+ {|
+  A_pre_path_algebra_eqv           := A_eqv_nat 
+; A_pre_path_algebra_plus          := bop_max
+; A_pre_path_algebra_times         := bop_min
+; A_pre_path_algebra_plus_proofs   := A_sg_CI_proofs_from_sg_CS_proofs _ _ _ sg_CS_proofs_max 
+; A_pre_path_algebra_times_proofs  := A_msg_proofs_from_sg_proofs _ _ _ (A_sg_proofs_from_sg_CS_proofs _ _ _ s f nt eqvP sg_CS_proofs_min)
+; A_pre_path_algebra_id_ann_proofs := id_ann_proofs_max_min                                                                  
+; A_pre_path_algebra_proofs        := path_algebra_proofs_max_min
+; A_pre_path_algebra_ast           := Ast_max_min (*FIX*)
+|}.
+
 
   
 End ACAS.
@@ -150,7 +185,32 @@ Definition selective_distributive_prelattice_max_min : @selective_distributive_p
 ; selective_distributive_prelattice_certs        := distributive_lattice_certs_max_min
 ; selective_distributive_prelattice_ast          := Ast_max_min
 |}.
-  
+
+
+Definition path_algebra_certs_max_min : @path_algebra_certs nat := 
+  {| 
+     path_algebra_left_distributive      := Assert_Left_Distributive 
+   ; path_algebra_right_distributive     := Assert_Right_Distributive 
+   ; path_algebra_left_left_absorptive   := Assert_Left_Left_Absorptive 
+   ; path_algebra_left_right_absorptive  := Assert_Left_Right_Absorptive 
+  |}.
+
+
+Definition pre_path_algebra_max_min : @pre_path_algebra nat :=
+let eq := eqv_eq eqv_eq_nat  in
+let s := eqv_witness eqv_eq_nat  in
+let f := eqv_new eqv_eq_nat  in     
+{|
+  pre_path_algebra_eqv         := eqv_eq_nat 
+; pre_path_algebra_plus        := bop_max
+; pre_path_algebra_times       := bop_min
+; pre_path_algebra_plus_certs  := sg_CI_certs_from_sg_CS_certs (sg_CS_certs sg_CS_max)
+; pre_path_algebra_times_certs := msg_certs_from_sg_certs (sg_certs_from_sg_CS_certs eq bop_min s f sg_CS_certs_min)
+; pre_path_algebra_id_ann_certs := id_ann_certs_max_min   
+; pre_path_algebra_certs       := path_algebra_certs_max_min 
+; pre_path_algebra_ast         := Ast_max_min (* FIX *) 
+|}.
+
 
 End CAS.
 
@@ -162,7 +222,17 @@ Theorem correct_selective_distributive_prelattice_max_min :
   A2C_selective_distributive_prelattice nat (A_selective_distributive_prelattice_max_min). 
 Proof. compute. reflexivity. Qed. 
   
- 
+
+Theorem correct_pre_path_algebra_max_min : 
+  pre_path_algebra_max_min
+  =
+  A2C_pre_path_algebra nat (A_pre_path_algebra_max_min). 
+Proof. compute. reflexivity. Qed. 
+  
+
+
+
+
 End Verify.   
   
 

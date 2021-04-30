@@ -1,4 +1,10 @@
-Require Import CAS.coq.common.base.
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.common.data.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.po.properties.
+Require Import CAS.coq.uop.properties. 
 Require Import CAS.coq.theory.facts. 
 
 Section Theory.
@@ -143,7 +149,7 @@ Theorem correct_eqv_reduce : ∀ (S : Type) (E : A_eqv S) (r : unary_op S) (f : 
     
     eqv_reduce r f (p2c_exactly_two_check _ _ ex2) (p2c_is_finite_check _ _ fin) (A2C_eqv S E) ast
     =
-    A2C_eqv S(A_eqv_reduce S E r f nt ex2 fin ast).
+    A2C_eqv S (A_eqv_reduce S E r f nt ex2 fin ast).
 Proof. intros S E r f nt ex2 ast. destruct E; destruct ex2; compute; auto. Qed.        
  
 End Verify.   

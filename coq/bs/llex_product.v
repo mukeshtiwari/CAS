@@ -1,12 +1,21 @@
 Require Import Coq.Bool.Bool.
-Require Import CAS.coq.common.base.
+
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures.
+Require Import CAS.coq.theory.llte. 
 Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.sg.product.
 Require Import CAS.coq.sg.llex.
 Require Import CAS.coq.sg.cast_up.
 Require Import CAS.coq.bs.cast_up. 
 Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.llte. 
+
 
 Section Theory.
 
@@ -49,10 +58,126 @@ Notation "a <*> b" := (brel_product a b) (at level 15).
 Notation "a [+] b" := (bop_llex rS a b) (at level 15).
 Notation "a [*] b" := (bop_product a b) (at level 15).
 
+
+
+Lemma bop_llex_product_left_monotone : 
+  bop_left_monotone S rS addS mulS → bop_left_monotone T rT addT mulT →
+  bop_left_cancellative S rS mulS →
+             bop_left_monotone (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT lcS [s1 t1] [s2 t2] [s3 t3]. 
+       unfold bop_product, bop_llex, brel_product. intro A. apply andb_is_true_left in A. destruct A as [A B]. 
+       apply andb_true_intro. split.  
+       apply ldS.
+       case_eq(rS s2 s3); intro H1;        
+       case_eq(rS s2 (s2 +S s3)); intro H2; auto.
+          rewrite H2 in A. discriminate A. 
+          rewrite H2 in A. discriminate A. 
+
+       case_eq(rS s2 s3); intro H1;        
+       case_eq(rS (s1 *S s2) (s1 *S s3)); intro H2; auto.
+          rewrite H1 in B. apply ldT; auto. 
+          rewrite H1 in B. compute. rewrite H2.
+             case_eq(rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))); intro H3; auto.             
+                assert (C := m_conS _ _ _ _ (refS s1) H1). rewrite C in H2. discriminate H2. 
+          rewrite H1 in B. apply lcS in H2. rewrite H2 in H1. discriminate H1. 
+          rewrite H1 in B. compute. rewrite H2. 
+             case_eq(rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))); intro H3; auto.
+                rewrite (ldS s1 s2 s3 A) in H3. discriminate H3. 
+Qed. 
+
+Lemma bop_llex_product_not_left_monotone_v1 (selS : bop_selective S rS addS ) : 
+  bop_not_left_monotone S rS addS mulS → 
+         bop_not_left_monotone (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 [s2 s3]] [A B] ].
+       exists ((s1, wT), ((s2, wT), (s3, wT))); compute. rewrite A, B.
+       split; auto. case_eq(rS s2 s3); intro C; auto.
+          assert (D := bop_selective_implies_idempotent _ _ _ selS (s1 *S s2)). 
+          apply symS in D. 
+          assert (E : ((s1 *S s2) +S (s1 *S s2)) =S ((s1 *S s2) +S (s1 *S s3))).
+             assert (F : (s1 *S s2) =S (s1 *S s3)). exact (m_conS _ _ _ _ (refS s1) C).
+             exact (a_conS _ _ _ _ (refS (s1 *S s2)) F). 
+          rewrite (tranS _ _ _ D E) in B. discriminate B. 
+Defined.        
+
+
+Lemma bop_llex_product_not_left_monotone_v2 (selS : bop_selective S rS addS ) : 
+  bop_not_left_monotone T rT addT mulT → 
+         bop_not_left_monotone (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros [ [t1 [t2 t3]] [A B] ].
+       exists ((wS, t1), ((wS, t2), (wS, t3))); compute. 
+       split; auto. rewrite (refS wS).
+       assert (C : wS =S (wS +S wS)).
+          destruct (selS wS wS) as [D | D]; apply symS; auto. 
+       rewrite C; auto. 
+       rewrite (refS ((wS *S wS))).
+       assert (C : (wS *S wS) =S ((wS *S wS) +S (wS *S wS))).
+          destruct (selS (wS *S wS) (wS *S wS)) as [D | D]; apply symS; auto.        
+       rewrite C; auto. 
+Defined.
+
+
+Lemma bop_llex_product_not_left_monotone_v3 (selS : bop_selective S rS addS ) :
+  bop_not_left_cancellative S rS mulS →
+  bop_not_left_monotone (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Proof. intros [[s1 [s2 s3]] [A B]].
+       exists ((s1, wT), ((s2, wT), (s3, wT))); compute. rewrite A, B. 
+       case_eq(rS s2 (s2 +S s3)); intro C. 
+          rewrite refT. split; auto.
+          case_eq(rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))); intro D; auto. 
+             admit. 
+          destruct (selS s2 s3) as [D | D].
+             apply symS in D. rewrite D in C. discriminate C.
+             admit. 
+Admitted.
+
+Lemma bop_llex_product_not_left_monotone_v4 (selS : bop_selective S rS addS ) :
+  bop_not_left_constant T rT mulT →  
+  bop_not_left_monotone (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Proof. intros [[t1 [t2 t3]] A].
+       exists ((wS, t1), ((wS, t2), (wS, t3))); compute. 
+       assert (B : rS wS (wS +S wS) = true). admit. 
+       rewrite B. rewrite refS. rewrite refS. 
+       assert (C : rS (wS *S wS) ((wS *S wS) +S (wS *S wS)) = true). admit. 
+       rewrite C. 
+Admitted. 
+
+
+Lemma bop_llex_product_not_left_monotone_v5 (selS : bop_selective S rS addS ) :
+  bop_not_left_cancellative S rS mulS →
+  bop_not_left_constant T rT mulT →    
+  bop_not_left_monotone (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Proof. intros [[s1 [s2 s3]] [A B]] [[t1 [t2 t3]] C].
+(*
+
+  A : (s1 *S s2) =S (s1 *S s3)
+  B : rS s2 s3 = false
+  t1, t2, t3 : T
+  C : rT (t1 *T t2) (t1 *T t3) = false
+  
+need (a, b) (c, d) (e, f) 
+
+(c, d) = (c, d) + (e, f) 
+AND 
+(a, b)(c, d) <> (a, b)(c, d) + (a, b)(e, f) 
+That is 
+(ac, bd) <> (ac, bd) + (ae, bf)
+
+try a = s1, c = s2, e = s3
+
+(s2, d) = (s2, d) + (s3, f) 
+AND 
+(s1 s2, bd) <> (s1 s2 , bd) + (s1 s3, bf)
+            =  (s1 s2  + s1 s3 , ???) 
+            =  (s1 s2 , bd + bf) 
+*) 
+Admitted.              
+
+
+
 Lemma bop_llex_product_left_distributive : 
       bop_left_distributive S rS addS mulS → bop_left_distributive T rT addT mulT → 
          ((bop_left_cancellative S rS mulS) + (bop_left_constant T rT mulT)) → 
-             bop_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+         bop_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
 Proof. intros ldS ldT D [s1 t1] [s2 t2] [s3 t3].
        unfold bop_product, bop_llex, brel_product. 
        apply andb_true_intro. split.  

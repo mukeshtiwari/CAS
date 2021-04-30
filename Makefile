@@ -15,33 +15,13 @@ OCB_OPTIONS=\
 
 BASE=\
    coq/common/compute.v \
-   coq/common/brel_properties.v \
-   coq/common/uop_properties.v \
-   coq/common/bop_properties.v \
-   coq/common/tr_properties.v \
-   coq/common/str_properties.v \
-   coq/common/bs_properties.v \
-   coq/common/os_properties.v \
    coq/common/ast.v \
    coq/common/data.v \
-   coq/common/proof_records.v \
-   coq/common/a_cas_records.v \
-   coq/common/eqv_certificates.v \
-   coq/common/eqv_cert_records.v \
-   coq/common/eqv_records.v \
-   coq/common/sg_certificates.v \
-   coq/common/sg_cert_records.v \
-   coq/common/sg_records.v \
-   coq/common/bs_certificates.v \
-   coq/common/bs_cert_records.v \
-   coq/common/bs_records.v \
-   coq/common/eqv_proofs_to_certs.v \
-   coq/common/sg_proofs_to_certs.v \
-   coq/common/bs_proofs_to_certs.v \
-   coq/common/base.v \
+   coq/theory/facts.v \
    coq/theory/conjunction.v \
    coq/theory/complement.v\
    coq/theory/llte.v \
+   coq/theory/order.v \
    coq/theory/in_set.v \
    coq/theory/subset.v \
    coq/theory/lattice_theory.v \
@@ -51,9 +31,11 @@ BASE=\
    coq/theory/reduction/full.v \
    coq/theory/reduction/predicate.v \
    coq/theory/reduction/zeroes.v \
-   coq/theory/facts.v
+
 
 CAS=\
+   coq/eqv/properties.v \
+   coq/eqv/structures.v \
    coq/eqv/nat.v \
    coq/eqv/bool.v \
    coq/eqv/list.v \
@@ -65,6 +47,8 @@ CAS=\
    coq/eqv/predicate_reduce.v \
    coq/eqv/nat_ceiling.v \
    coq/eqv/minset.v \
+   coq/sg/properties.v \
+   coq/sg/structures.v \
    coq/sg/cast_up.v \
    coq/sg/cast_down.v \
    coq/sg/plus.v \
@@ -88,12 +72,19 @@ CAS=\
    coq/sg/lift.v \
    coq/sg/minset_union.v \
    coq/sg/minset_lift.v \
+   coq/po/structures.v \
+   coq/po/properties.v \
    coq/po/from_sg_left.v \
-   coq/ltr/cons.v \
-   coq/ltr/left_cayley.v \
-   coq/ltr/product.v \
-   coq/ltr/product_of_sum.v \
-   coq/ltr/sum_of_product.v \
+   coq/po/product.v \
+   coq/po/lte_nat.v \
+   coq/po/length.v \
+   coq/tr/properties.v \
+   coq/tr/structures.v \
+   coq/tr/left/cayley.v \
+   coq/tr/left/cons.v \
+   coq/tr/left/product.v \
+   coq/bs/properties.v \
+   coq/bs/structures.v \
    coq/bs/cast_up.v \
    coq/bs/cast_down.v \
    coq/bs/min_plus.v \
@@ -111,13 +102,28 @@ CAS=\
    coq/bs/add_ann_add_id.v \
    coq/bs/left.v \
    coq/bs/right.v \
-   coq/lstr/product_product.v \
-   coq/lstr/left_sum_sum_of_product.v \
    coq/bs/union_lift.v \
    coq/bs/intersect_union.v \
    coq/bs/union_intersect.v \
-   coq/bs/minset_union_lift.v
+   coq/bs/minset_union_lift.v \
+   coq/os/properties.v \
+   coq/os/structures.v \
+   coq/ot/properties.v \
+   coq/ot/structures.v \
+   coq/ot/left/length_cons.v \
+   coq/ot/left/from_bs_left.v \
+   coq/ot/left/product_product.v \
+   coq/uop/properties.v \
 
+
+   # coq/tr/left/left_cayley.v \
+   # coq/tr/left/product.v \
+   # coq/tr/left/product_of_sum.v \
+   # coq/tr/left/sum_of_product.v \
+   # coq/str/properties.v \
+   # coq/str/structures.v \
+   # coq/str/left/product_product.v \
+   # coq/str/left/left_sum_sum_of_product.v \
 
 FILES=$(BASE) $(CAS)
 

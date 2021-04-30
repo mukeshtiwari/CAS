@@ -1,17 +1,13 @@
 (* this file is currently a random collection of facts .... *) 
-
-
 Require Import Coq.Arith.Arith.     (* beq_nat *) 
 Require Import Coq.Bool.Bool.
 Require Import Coq.Lists.List. 
-
-
 Require Import CAS.coq.common.compute. 
-Require Import CAS.coq.common.brel_properties. 
-Require Import CAS.coq.common.uop_properties. 
-Require Import CAS.coq.common.bop_properties. 
-Require Import CAS.coq.common.bs_properties. 
-Require Import CAS.coq.common.os_properties. 
+Require Import CAS.coq.eqv.properties. 
+Require Import CAS.coq.uop.properties. 
+Require Import CAS.coq.sg.properties. 
+Require Import CAS.coq.bs.properties. 
+Require Import CAS.coq.os.properties. 
 
 Open Scope list_scope. 
 

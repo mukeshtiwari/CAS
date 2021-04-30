@@ -1,5 +1,15 @@
 Require Import Coq.Bool.Bool. 
-Require Import CAS.coq.common.base.
+
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures.
+
+
 Require Import CAS.coq.eqv.add_constant.
 Require Import CAS.coq.sg.add_id.
 Require Import CAS.coq.sg.add_ann. 
@@ -42,6 +52,48 @@ Proof. unfold bops_not_id_equals_ann. intros H [cn | s ].
        right. exists (inr _ s''). compute. rewrite L. left. reflexivity. 
        right. exists (inr _ s''). compute. rewrite R. right. reflexivity. 
 Defined.    
+
+
+Lemma bops_add_ann_add_id_left_monotone  :
+     bop_idempotent S r b1 ->
+     bops_left_left_absorptive S r b1 b2 ->   
+     bop_left_monotone S r b1 b2 -> 
+        bop_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
+Proof. intros idem lla lm [c1 | s1] [c2 | s2] [c3 | s3]; compute; intro A; auto.
+         discriminate A. 
+Qed. 
+
+(*
+bops_left_left_absorptive  : s = s + st 
+bops_right_left_absorptive : s = st + s 
+
+
+note:  comm(+) * left_abs * idem(+) -> 
+       (left_monotone <-> left_distributive)
+
+*)
+
+Lemma bops_add_ann_add_id_not_left_monotone_v1  :
+     bop_not_left_monotone S r b1 b2 -> 
+     bop_not_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof. intros [[s1 [s2 s3]] nld]. 
+       exists (inr s1, (inr s2, inr s3)).  compute. assumption. 
+Defined.
+
+Lemma bops_add_ann_add_id_not_left_monotone_v2  :
+     bop_not_idempotent S r b1 -> 
+     bop_not_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof. intros [s nidem]. 
+       exists (inr s, (inl c, inl c)). compute. split; auto. 
+       apply (brel_symmetric_implies_dual _ _ symS). assumption. 
+Defined. 
+
+Lemma bops_add_ann_add_id_not_left_monotone_v3  :
+  bops_not_left_left_absorptive S r b1 b2 -> 
+     bop_not_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof. intros [[s1 s3] nla]. 
+       exists (inr s1, (inl c, inr s3)). compute. split; auto. 
+Defined. 
 
 Lemma bops_add_ann_add_id_left_distributive  : 
      bop_idempotent S r b1 ->          
@@ -520,6 +572,87 @@ let tproofs := A_bs_times_proofs S bsS in
 |}.
 
 
+Definition path_algebra_proofs_add_one : 
+  ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S) (s : S), 
+     eqv_proofs S rS -> 
+     sg_CINS_proofs S rS plusS -> 
+     path_algebra_proofs S rS plusS timesS -> 
+        path_algebra_proofs 
+           (with_constant S) 
+           (brel_sum brel_constant rS)
+           (bop_add_ann plusS c)
+           (bop_add_id timesS c)
+:= λ S rS c plusS timesS s eqvS ppS pS, 
+let ref := A_eqv_reflexive S rS eqvS in 
+let sym := A_eqv_symmetric S rS eqvS in
+let trn := A_eqv_transitive S rS eqvS in
+let idm := A_sg_CINS_idempotent S rS plusS ppS in
+let cmm := A_sg_CINS_commutative S rS plusS ppS in 
+let LLA := A_path_algebra_left_left_absorptive S rS plusS timesS pS in
+let LRA := A_path_algebra_left_right_absorptive S rS plusS timesS pS in
+let RLA := bops_left_left_absorptive_implies_right_left S rS plusS timesS trn cmm LLA in 
+let RRA := bops_left_right_absorptive_implies_right_right S rS plusS timesS trn cmm LRA in 
+let LD := A_path_algebra_left_distributive S rS plusS timesS pS in
+let RD := A_path_algebra_right_distributive S rS plusS timesS pS in 
+{|
+  A_path_algebra_left_distributive    := 
+     bops_add_ann_add_id_left_distributive S rS c plusS timesS ref sym idm LLA RLA LD 
+; A_path_algebra_right_distributive   := 
+     bops_add_ann_add_id_right_distributive S rS c plusS timesS ref sym idm LRA RRA RD 
+; A_path_algebra_left_left_absorptive      := 
+     bops_add_ann_add_id_left_left_absorptive S rS c plusS timesS sym idm LLA 
+; A_path_algebra_left_right_absorptive      := 
+     bops_add_ann_add_id_left_right_absorptive S rS c plusS timesS sym idm LRA 
+|}.
+
+
+Definition with_one_proofs_add_one : 
+  ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S) (s : S), 
+     eqv_proofs S rS -> 
+     id_ann_proofs S rS plusS timesS -> 
+        with_one_proofs 
+           (with_constant S) 
+           (brel_sum brel_constant rS)
+           (bop_add_ann plusS c)
+           (bop_add_id timesS c)           
+:= λ S rS c plusS timesS s eqvS pS,
+let refS := A_eqv_reflexive S rS eqvS in   
+{|
+    A_with_one_exists_plus_id_d     := bop_add_ann_exists_id_decide S rS c plusS s (A_id_ann_exists_plus_id_d S rS plusS timesS pS)
+  ; A_with_one_exists_plus_ann      := bop_add_ann_exists_ann S rS c plusS
+  ; A_with_one_exists_times_id      := bop_add_id_exists_id S rS c timesS refS
+  ; A_with_one_exists_times_ann_d   := bop_add_id_exists_ann_decide S rS c timesS s refS (A_id_ann_exists_times_ann_d S rS plusS timesS pS)
+  ; A_with_one_plus_id_is_times_ann_d := 
+    bops_add_one_id_equals_ann_decide S rS c plusS timesS s (A_eqv_reflexive S rS eqvS) 
+      (A_id_ann_plus_id_is_times_ann_d S rS plusS timesS pS)
+; A_with_one_times_id_is_plus_ann := bops_add_id_add_ann_id_equals_ann S rS c timesS plusS (A_eqv_reflexive S rS eqvS)
+|}.
+
+
+Definition A_add_one_to_pre_path_algebra : ∀ (S : Type),  A_pre_path_algebra_NS S -> cas_constant -> A_pre_path_algebra_with_one (with_constant S) 
+:= λ S bsS c,
+let eqvS  := A_pre_path_algebra_NS_eqv S bsS in
+let peqvS := A_eqv_proofs S eqvS in
+let s     := A_eqv_witness S eqvS in
+let f     := A_eqv_new S eqvS in
+let Pf    := A_eqv_not_trivial S eqvS in 
+let rS    := A_eqv_eq S eqvS in   
+let plus  := A_pre_path_algebra_NS_plus S bsS in
+let times := A_pre_path_algebra_NS_times S bsS in
+let pproofs := A_pre_path_algebra_NS_plus_proofs S bsS in
+let tproofs := A_pre_path_algebra_NS_times_proofs S bsS in 
+{| 
+     A_pre_path_algebra_with_one_eqv          := A_eqv_add_constant S eqvS c 
+   ; A_pre_path_algebra_with_one_plus         := bop_add_ann plus c
+   ; A_pre_path_algebra_with_one_times        := bop_add_id times c
+   ; A_pre_path_algebra_with_one_plus_proofs  := sg_CINS_proofs_add_ann S rS c plus s peqvS pproofs 
+   ; A_pre_path_algebra_with_one_times_proofs := msg_proofs_add_id S rS c times s f Pf peqvS tproofs
+   ; A_pre_path_algebra_with_one_id_ann_proofs := with_one_proofs_add_one S _ c plus times (A_eqv_witness S eqvS) (A_eqv_proofs S eqvS) (A_pre_path_algebra_NS_id_ann_proofs S bsS)
+   ; A_pre_path_algebra_with_one_proofs       := path_algebra_proofs_add_one S rS c plus times s peqvS pproofs (A_pre_path_algebra_NS_proofs S bsS)
+   ; A_pre_path_algebra_with_one_ast          := Ast_bs_add_one (c, A_pre_path_algebra_NS_ast S bsS) (*FIX*)
+|}.
+
+
 
 
 
@@ -929,6 +1062,9 @@ Definition bs_add_one : ∀ {S : Type}, bs (S := S) -> cas_constant -> bs (S := 
    ; bs_ast         := Ast_bs_add_one (c, bs_ast bsS)
 |}.
 
+
+
+
 (* "dual" to code bops_add_zero_left_distributive_check *)
 
 (*
@@ -997,7 +1133,56 @@ Definition distributive_lattice_add_one : ∀ (S : Type),  @distributive_lattice
    ; distributive_lattice_ast         := Ast_distributive_lattice_add_one (c, distributive_lattice_ast bsS)
 |}. 
   
-*)
+ *)
+
+
+
+Definition path_algebra_certs_add_one (S : Type) : 
+     @path_algebra_certs S -> 
+        @path_algebra_certs (with_constant S) 
+:= λ P, 
+{|
+  path_algebra_left_distributive    := Assert_Left_Distributive  
+; path_algebra_right_distributive   := Assert_Right_Distributive 
+; path_algebra_left_left_absorptive := Assert_Left_Left_Absorptive  
+; path_algebra_left_right_absorptive := Assert_Left_Right_Absorptive 
+|}.
+
+
+Definition with_one_certs_add_one {S : Type} (c : cas_constant) : 
+     @id_ann_certificates S -> @with_one_certs (with_constant S) 
+:= λ pS,
+{|
+    with_one_exists_plus_id_d     := bop_add_ann_exists_id_check (id_ann_exists_plus_id_d pS)
+  ; with_one_exists_plus_ann      := Assert_Exists_Ann (inl c) 
+  ; with_one_exists_times_id      := Assert_Exists_Id (inl c) 
+  ; with_one_exists_times_ann_d   := bop_add_id_exists_ann_check (id_ann_exists_times_ann_d pS)
+  ; with_one_plus_id_is_times_ann_d := bops_plus_id_equals_times_ann_check c (id_ann_plus_id_is_times_ann_d pS)
+  ; with_one_times_id_is_plus_ann   := Assert_Times_Id_Equals_Plus_Ann (inl c) 
+|}.
+
+
+Definition add_one_to_pre_path_algebra {S : Type}:  @pre_path_algebra_NS S -> cas_constant -> @pre_path_algebra_with_one (with_constant S) 
+  := λ bsS c,
+let eqvS  := pre_path_algebra_NS_eqv bsS in      
+let s     := eqv_witness eqvS in
+let f     := eqv_new eqvS in
+let plus  := pre_path_algebra_NS_plus bsS in
+let times := pre_path_algebra_NS_times bsS in
+let pcerts := pre_path_algebra_NS_plus_certs bsS in
+let tcerts := pre_path_algebra_NS_times_certs bsS in 
+{| 
+     pre_path_algebra_with_one_eqv         := eqv_add_constant eqvS c 
+   ; pre_path_algebra_with_one_plus        := bop_add_ann plus c
+   ; pre_path_algebra_with_one_times       := bop_add_id times c
+   ; pre_path_algebra_with_one_plus_certs  := sg_CINS_certs_add_ann c pcerts 
+   ; pre_path_algebra_with_one_times_certs := msg_certs_add_id c s f tcerts
+   ; pre_path_algebra_with_one_id_ann_certs := with_one_certs_add_one c (pre_path_algebra_NS_id_ann_certs bsS)
+   ; pre_path_algebra_with_one_certs       := path_algebra_certs_add_one S (pre_path_algebra_NS_certs bsS)
+   ; pre_path_algebra_with_one_ast         := Ast_bs_add_one (c, pre_path_algebra_NS_ast bsS) (*FIX*)
+|}.
+
+
 End CAS.
 
 Section Verify.
@@ -1212,6 +1397,50 @@ Proof. intros S bsS c.
        reflexivity. 
 Qed. 
 
+
+
+
+Lemma correct_with_one_certs_add_one (S : Type) (c : cas_constant) (wS : S) 
+      (eq :brel S) (eqvP : eqv_proofs S eq) (plus times : binary_op S) (P : id_ann_proofs S eq plus times):
+   with_one_certs_add_one c (P2C_id_ann S eq plus times P) 
+   =
+   P2C_with_one (with_constant S) (brel_sum brel_constant eq) (bop_add_ann plus c) (bop_add_id times c) 
+        (with_one_proofs_add_one S eq c plus times wS eqvP P). 
+Proof. unfold with_one_certs_add_one, with_one_proofs_add_one, P2C_id_ann, P2C_with_one; simpl. 
+       rewrite bops_add_one_plus_id_equals_times_ann_check_correct.
+       rewrite bop_add_id_exists_ann_check_correct.
+       rewrite bop_add_ann_exists_id_check_correct.        
+       reflexivity.
+Qed.        
+
+Lemma correct_path_algebra_certs_add_one (S : Type) (c : cas_constant) (wS : S) 
+      (eq :brel S) (eqvP : eqv_proofs S eq) (plus times : binary_op S)
+      (Q : sg_CINS_proofs S eq plus) (P : path_algebra_proofs S eq plus times):
+   path_algebra_certs_add_one S (P2C_path_algebra S eq plus times P)
+   =
+   P2C_path_algebra (with_constant S) (brel_sum brel_constant eq) (bop_add_ann plus c) (bop_add_id times c) 
+                                       (path_algebra_proofs_add_one S eq c plus times wS eqvP Q P). 
+Proof. unfold path_algebra_certs_add_one, P2C_path_algebra. reflexivity. Qed. 
+
+Theorem correct_add_one_to_pre_path_algebra (S : Type) (PPA: A_pre_path_algebra_NS S) (c : cas_constant): 
+   add_one_to_pre_path_algebra (A2C_pre_path_algebra_NS S PPA) c 
+   =
+   A2C_pre_path_algebra_with_one (with_constant S) (A_add_one_to_pre_path_algebra S PPA c). 
+Proof. unfold add_one_to_pre_path_algebra, A_add_one_to_pre_path_algebra, A2C_pre_path_algebra_NS, A2C_pre_path_algebra_with_one; simpl. 
+       rewrite correct_eqv_add_constant.
+       rewrite <- correct_msg_certs_add_id.        
+       rewrite <- correct_sg_CINS_certs_add_ann. 
+       rewrite <- correct_with_one_certs_add_one. 
+       rewrite <- correct_path_algebra_certs_add_one.
+       reflexivity. 
+Qed. 
+
+
+
+
+
+
+
 (*
 Lemma bops_add_one_left_distributive_dual_check_correct : 
   ∀ (S : Type) (c : cas_constant) (rS : brel S) (plusS timesS : binary_op S)
@@ -1307,4 +1536,3 @@ Qed.
   
 *) 
 End Verify.   
-  

@@ -1,4 +1,9 @@
-Require Import CAS.coq.common.base.
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
+Require Import CAS.coq.common.data.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.structures.
+
 Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.theory.in_set. 
 
@@ -50,6 +55,7 @@ Lemma brel_sum_congruence : brel_congruence (S + T) (rS <+> rT) (rS <+> rT).
 Proof. intros [s | s] [t | t] [u | u] [v | v]; simpl; intros H Q; auto; discriminate. Qed. 
 
 
+(*
 Lemma brel_sum_rep_correct : 
        ∀ (repS : unary_op S) (repT : unary_op T),  
               (brel_rep_correct S rS repS) → 
@@ -72,9 +78,10 @@ Proof.
          rewrite (RT t); auto.
 Qed. 
 
+
 Lemma brel_sum_not_total_ : ∀ (s : S) (t : T),  brel_not_total (S + T) (rS <+> rT). 
 Proof. intros s t. exists ((inl _ s), (inr _ t)); simpl. split; reflexivity. Defined.
-
+*) 
 
 Lemma brel_sum_at_least_three (s : S) (f : S -> S) (t : T):
   brel_not_trivial S rS f ->
