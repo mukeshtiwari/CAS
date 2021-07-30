@@ -67,31 +67,31 @@ End Theory.
 
 Section ACAS.
   
-Definition wp_proofs_length (S : Type) (eq : brel S) (wS : S) (f : S → S) (nt : brel_not_trivial S eq f) : 
-    wp_proofs (list S) (brel_list eq) brel_length := 
+Definition wo_proofs_length (S : Type) (eq : brel S) (wS : S) (f : S → S) (nt : brel_not_trivial S eq f) : 
+    wo_proofs (list S) (brel_list eq) brel_length := 
 {|
-  A_wp_congruence    := brel_length_congruence S eq wS 
-; A_wp_reflexive     := brel_length_reflexive S 
-; A_wp_transitive    := brel_length_transitive S 
-; A_wp_not_antisymmetric := brel_length_not_antisymmetric S eq wS f nt
-; A_wp_total         := brel_length_total S
+  A_wo_congruence    := brel_length_congruence S eq wS 
+; A_wo_reflexive     := brel_length_reflexive S 
+; A_wo_transitive    := brel_length_transitive S 
+; A_wo_not_antisymmetric := brel_length_not_antisymmetric S eq wS f nt
+; A_wo_total         := brel_length_total S
 |}. 
 
 
 
-Definition A_wp_length (S : Type): A_eqv S -> A_wp (list S)
+Definition A_wo_length (S : Type): A_eqv S -> A_wo (list S)
 := λ eqv,
   let wS := A_eqv_witness S eqv in
   let f  := A_eqv_new S eqv in
   let nt := A_eqv_not_trivial S eqv in      
   let eq := A_eqv_eq S eqv in
   {| 
-     A_wp_eqv             := A_eqv_list S eqv 
-   ; A_wp_lte             := brel_length
-   ; A_wp_exists_top_d    := inr (brel_length_not_exists_qo_top S eq wS)
-   ; A_wp_exists_bottom   := brel_length_exists_qo_bottom S eq                                  
-   ; A_wp_proofs          := wp_proofs_length S eq wS f nt
-   ; A_wp_ast             := Ast_qo_length (A_eqv_ast S eqv)
+     A_wo_eqv             := A_eqv_list S eqv 
+   ; A_wo_lte             := brel_length
+   ; A_wo_exists_top_d    := inr (brel_length_not_exists_qo_top S eq wS)
+   ; A_wo_exists_bottom   := brel_length_exists_qo_bottom S eq                                  
+   ; A_wo_proofs          := wo_proofs_length S eq wS f nt
+   ; A_wo_ast             := Ast_qo_length (A_eqv_ast S eqv)
    |}. 
 
 End ACAS.
@@ -99,27 +99,27 @@ End ACAS.
 
 Section CAS.
 
-Definition wp_certs_length {S : Type} (wS : S) (f : S -> S) : @wp_certificates (list S) := 
+Definition wo_certs_length {S : Type} (wS : S) (f : S -> S) : @wo_certificates (list S) := 
 {|
-  wp_congruence    := Assert_Brel_Congruence
-; wp_reflexive     := Assert_Reflexive 
-; wp_transitive    := Assert_Transitive 
-; wp_not_antisymmetric := Assert_Not_Antisymmetric (wS :: nil, (f wS) :: nil) 
-; wp_total          := Assert_Total
+  wo_congruence    := Assert_Brel_Congruence
+; wo_reflexive     := Assert_Reflexive 
+; wo_transitive    := Assert_Transitive 
+; wo_not_antisymmetric := Assert_Not_Antisymmetric (wS :: nil, (f wS) :: nil) 
+; wo_total          := Assert_Total
 |}. 
 
 
-Definition wp_length {S : Type} :  @eqv S -> @wp (list S) 
+Definition wo_length {S : Type} :  @eqv S -> @wo (list S) 
 := λ eqv,
   let wS := eqv_witness eqv in
   let f := eqv_new eqv in           
   {| 
-     wp_eqv            := eqv_list eqv
-   ; wp_lte            := brel_length
-   ; wp_exists_top_d    := Certify_Not_Exists_Qo_Top
-   ; wp_exists_bottom   := Assert_Exists_Qo_Bottom nil 
-   ; wp_certs          := wp_certs_length wS f 
-   ; wp_ast            := Ast_qo_length (eqv_ast eqv)
+     wo_eqv            := eqv_list eqv
+   ; wo_lte            := brel_length
+   ; wo_exists_top_d    := Certify_Not_Exists_Qo_Top
+   ; wo_exists_bottom   := Assert_Exists_Qo_Bottom nil 
+   ; wo_certs          := wo_certs_length wS f 
+   ; wo_ast            := Ast_qo_length (eqv_ast eqv)
    |}. 
 
 
@@ -131,17 +131,17 @@ Section Verify.
 
 
   
-Lemma correct_wp_certs_length (S : Type) (eq : brel S) (wS : S) (f : S -> S) (nt : brel_not_trivial S eq f): 
-       wp_certs_length wS f 
+Lemma correct_wo_certs_length (S : Type) (eq : brel S) (wS : S) (f : S -> S) (nt : brel_not_trivial S eq f): 
+       wo_certs_length wS f 
        = 
-       P2C_wp (list S) (brel_list eq) brel_length (wp_proofs_length S eq wS f nt).
+       P2C_wo (list S) (brel_list eq) brel_length (wo_proofs_length S eq wS f nt).
 Proof. compute. reflexivity. Qed. 
 
 
 Theorem correct_sg_length (S : Type) (E : A_eqv S):  
-         wp_length (A2C_eqv S E)  = A2C_wp (list S) (A_wp_length S E). 
-Proof. unfold wp_length, A_wp_length, A2C_wp; simpl. 
-       rewrite <- correct_wp_certs_length. reflexivity.        
+         wo_length (A2C_eqv S E)  = A2C_wo (list S) (A_wo_length S E). 
+Proof. unfold wo_length, A_wo_length, A2C_wo; simpl. 
+       rewrite <- correct_wo_certs_length. reflexivity.        
 Qed. 
 
 

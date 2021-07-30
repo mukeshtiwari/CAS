@@ -55,77 +55,30 @@ let rec ast_type_to_string st = function
 				 )		    
 
 
-let rec ast_type_to_ascii = ast_type_to_string Ascii
-let rec ast_type_to_latex = ast_type_to_string Latex 
+
  *)
-let rec ast_brel_to_string st = function 						       
-| Ast_brel_eq_bool              -> "eq_bool"
-| Ast_brel_eq_nat               -> "eq_nat"
-| Ast_brel_eq_list r            -> "eq_list(" ^ (ast_brel_to_string st r) ^ ")"
-| Ast_brel_eq_set r             -> "eq_set(" ^ (ast_brel_to_string st r) ^ ")"
-| Ast_brel_eq_product(r1,r2)    -> "eq_product(" ^ (ast_brel_to_string st r1) ^ ", " ^ (ast_brel_to_string st r2) ^ ")"
-| Ast_brel_eq_sum(r1,r2)        -> "eq_sum(" ^ (ast_brel_to_string st r1) ^ ", " ^ (ast_brel_to_string st r2) ^ ")"
-| Ast_brel_eq_add_constant(c,r) -> "eq_add_constant(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (ast_brel_to_string st r) ^ ")"
-| Ast_brel_eq_nat_ceiling n     -> "eq_nat_ceiling(" ^ (string_of_int (n+1)) ^ ")"
-| Ast_brel_eq_minset r          -> "eq_minset(" ^ (ast_brel_to_string st r) ^ ")"
-| Ast_brel_lte_nat              -> "lte_nat"
-| Ast_brel_lte_left b           -> "lte_left(" ^ (ast_bop_to_string st b) ^ ")"
-| Ast_brel_lte_right b          -> "lte_right(" ^ (ast_bop_to_string st b) ^ ")"
-| Ast_brel_lte_product(r1,r2)   -> "lte_product(" ^ (ast_brel_to_string st r1) ^ ", " ^ (ast_brel_to_string st r2) ^ ")"
-| Ast_brel_lte_dual r           -> "lte_dual(" ^ (ast_brel_to_string st r) ^ ")"
-and ast_bop_to_string st = function                           
-| Ast_bop_times            -> "times"
-| Ast_bop_plus             -> "plus"
-| Ast_bop_min              -> "min"
-| Ast_bop_max              -> "max"
-| Ast_bop_and              -> "and"
-| Ast_bop_or               -> "or"
-| Ast_bop_concat r         -> "concat(" ^ (ast_brel_to_string st r) ^ ")"
-| Ast_bop_left r           -> "left(" ^ (ast_brel_to_string st r) ^ ")"
-| Ast_bop_right r          -> "right(" ^ (ast_brel_to_string st r) ^ ")"
-| Ast_bop_llex(b1,b2)      -> "llex(" ^ (ast_bop_to_string st b1) ^ ", " ^ (ast_bop_to_string st b2) ^ ")"
-| Ast_bop_product(b1,b2)   -> "product(" ^ (ast_bop_to_string st b1) ^ ", " ^ (ast_bop_to_string st b2) ^ ")"
-| Ast_bop_left_sum(b1,b2)  -> "left_sum(" ^ (ast_bop_to_string st b1) ^ ", " ^ (ast_bop_to_string st b2) ^ ")"
-| Ast_bop_right_sum(b1,b2) -> "right_sum(" ^ (ast_bop_to_string st b1) ^ ", " ^ (ast_bop_to_string st b2) ^ ")"
-| Ast_bop_add_id(c,b)      -> "add_id(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (ast_bop_to_string st b) ^ ")"
-| Ast_bop_add_ann(c,b)     -> "add_ann(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (ast_bop_to_string st b) ^ ")"
-| Ast_bop_lift b           -> "lift(" ^ (ast_bop_to_string st b) ^ ")"
-| Ast_bop_union r          -> "union(" ^ (ast_brel_to_string st r) ^ ")"
-| Ast_bop_intersect r      -> "intersect(" ^ (ast_brel_to_string st r) ^ ")"
-| Ast_bop_minset_union r   -> "minset_union(" ^ (ast_brel_to_string st r) ^ ")"
-| Ast_bop_minset_lift r    -> "minset_lift(" ^ (ast_brel_to_string st r) ^ ")"
+let rec ast_type_to_string st = function
+  | Ast_eqv_bool -> "bool"
+  | _ -> "NADA"
 
+let rec ast_type_to_ascii = ast_type_to_string Ascii
+let rec ast_type_to_latex = ast_type_to_string Latex
 
-let ast_brel_to_ascii = ast_brel_to_string Ascii
-let ast_brel_to_latex = ast_brel_to_string Latex 									     
-let ast_bop_to_ascii  = ast_bop_to_string Ascii
-let ast_bop_to_latex  = ast_bop_to_string Latex 
-
-let rec ast_eqv_to_string st = function 
+					       
+let rec ast_to_string st = function
 | Ast_eqv_bool                  -> "bool"
 | Ast_eqv_nat                   -> "int"
-| Ast_eqv_list eqv              -> "(" ^ (ast_eqv_to_string st eqv) ^ ") list"
-| Ast_eqv_set eqv               -> "(" ^ (ast_eqv_to_string st eqv) ^ ") set"
-| Ast_eqv_product (eqv1, eqv2)  -> "(" ^ (ast_eqv_to_string st eqv1) ^ " * " ^ (ast_eqv_to_string st eqv2) ^ ")"
-| Ast_eqv_sum (eqv1, eqv2)      -> "(" ^ (ast_eqv_to_string st eqv1) ^ " + " ^ (ast_eqv_to_string st eqv2) ^ ")"
-| Ast_eqv_add_constant (c, eqv) -> "({" ^ (char_list_to_string c.constant_ascii)      ^ "} + " ^ (ast_eqv_to_string st eqv) ^ ")"
+| Ast_eqv_list eqv              -> "(" ^ (ast_to_string st eqv) ^ ") list"
+| Ast_eqv_set eqv               -> "(" ^ (ast_to_string st eqv) ^ ") set"
+| Ast_eqv_product (eqv1, eqv2)  -> "(" ^ (ast_to_string st eqv1) ^ " * " ^ (ast_to_string st eqv2) ^ ")"
+| Ast_eqv_sum (eqv1, eqv2)      -> "(" ^ (ast_to_string st eqv1) ^ " + " ^ (ast_to_string st eqv2) ^ ")"
+| Ast_eqv_add_constant (c, eqv) -> "({" ^ (char_list_to_string c.constant_ascii)      ^ "} + " ^ (ast_to_string st eqv) ^ ")"
 | Ast_eqv_nat_ceiling  n        -> "[" ^ (string_of_int (n +1)) ^ "]"
 | Ast_eqv_minset po             -> "minset ..." 
-(*
-let rec ast_eqv_to_latex = function 
-| Ast_eqv_bool                  -> "\typebool"
-| Ast_eqv_nat                   -> "\typenat"
-| Ast_eqv_list eqv              -> "\typelist{" ^ (ast_eqv_to_latex eqv) ^ "}"
-| Ast_eqv_set eqv               -> "\typeset{" ^ (ast_eqv_to_latex eqv) ^ "}"
-| Ast_eqv_product (eqv1, eqv2)  -> "\typeproduct{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv2) ^ "}"
-| Ast_eqv_sum (eqv1, eqv2)      -> "\typesum{" ^ (ast_eqv_to_latex eqv1) ^ "}{" ^ (ast_eqv_to_latex eqv2) ^ "}"
-| Ast_eqv_add_constant (c, eqv) -> "\typeaddconstant{" ^ (char_list_to_string c.constant_latex) ^ "}{" ^ (ast_eqv_to_latex eqv) ^ "}"
-| Ast_eqv_nat_ceiling  n        -> "[" ^ (string_of_int (n +1)) ^ "]"
-| Ast_eqv_minset po             ->  "minset ..." 
- *)																    
+| _ -> "NADA"
 
-let ast_eqv_to_ascii = ast_eqv_to_string Ascii
-let ast_eqv_to_latex = ast_eqv_to_string Latex 					 
+let ast_to_ascii = ast_to_string Ascii
+let ast_to_latex = ast_to_string Latex 									     
 
 							     
 let string_of_check_exists_id data = function 
@@ -379,25 +332,26 @@ let string_of_check_times_id_is_plus_ann = function
 (*******************************************************)
 
 
-let bop_describe bop = (print_string "Binary operation ->\n";  print_string (nl (ast_bop_to_ascii bop)))			 			 
+let bop_describe bop = (print_string "Binary operation ->\n";  print_string (nl (ast_to_ascii bop)))			 			 
 let plus_describe bop = (print_string "\nAdditive operation ->\n";
 			 print_string   "--------------------\n";
-			 print_string (nl (ast_bop_to_ascii bop)))			 
+			 print_string (nl (ast_to_ascii bop)))			 
 let times_describe bop = (print_string "\nMultiplicative operation ->\n";
 			  print_string   "--------------------------\n";
-			  print_string (nl (ast_bop_to_ascii bop)))
+			  print_string (nl (ast_to_ascii bop)))
 
 
-let eqv_describe eqv =
+let eqv_describe (eqv : 'a Cas.eqv) = print_string "eqv_describe"
+(*			 
   (
      print_string "Carrier type: ";  print_string (nl (ast_type_to_ascii (eqv_type_ast (eqv_certs eqv))));
-     print_string "Equality: ";      print_string (nl (ast_brel_to_ascii (eqv_brel_ast (eqv_certs eqv))));     
+     print_string "Equality: ";      print_string (nl (ast_to_ascii (eqv_brel_ast (eqv_certs eqv))));     
   )
-			   
+ *) 			   
 let sg_certs_describe eq b data sg =
   let certs = sg_certs sg in 
   (
-       bop_describe (sg_bop_ast certs); 			    
+       (* bop_describe (sg_bop_ast certs); 			    *) 
        print_string (string_of_check_idempotent eq b data (sg_idempotent_d certs)) ; 
        print_string (string_of_check_commutative eq b data (sg_commutative_d certs)) ; 
        print_string (string_of_check_selective eq b data (sg_selective_d certs)) ;
@@ -457,7 +411,7 @@ let msg_certs_describe_fully eq b data certs =  ()
 let sg_certs_describe_fully eq b data sg =
   let certs = sg_certs sg in   
   (
-       bop_describe (sg_bop_ast certs); 			        
+    (* bop_describe (sg_bop_ast certs); 			        *)
        print_string (string_of_check_idempotent eq b data (sg_idempotent_d certs)) ; 
        print_string (string_of_check_commutative eq b data (sg_commutative_d certs)) ; 
        print_string (string_of_check_selective eq b data (sg_selective_d certs)) ;
@@ -557,9 +511,9 @@ let bs_describe_fully bs =
     let ast         = bs_ast bs            in             
     (
       eqv_describe (bs_eqv bs);
-      plus_describe (asg_bop_ast plus_certs); 
+      (*      plus_describe (asg_bop_ast plus_certs); *)
       asg_certs_describe_fully eq plus data plus_certs ;
-      times_describe (msg_bop_ast times_certs); 
+      (*      times_describe (msg_bop_ast times_certs); *) 
       msg_certs_describe_fully eq times data times_certs;
       id_ann_certs_describe_fully data ;
       bs_certs_describe_fully eq plus times data certs

@@ -1,6 +1,10 @@
 Require Import CAS.coq.common.compute. 
 
 
+
+
+
+
 Close Scope nat. 
 
 Section ACAS. 
@@ -264,7 +268,40 @@ Definition uop_preserves_ann (S : Type) (eq : brel S) (b : binary_op S) (r : una
   ∀ (s : S), bop_is_ann S eq b s -> eq (r s) s = true.
 
 
+(* ********************* NEW ************************)
+
+Definition is_interesting (S : Type) (rS : brel S) (bS : binary_op S) (X : finite_set S) :=
+  ∀ (s : S), in_set rS X s = true  ->
+             ∀ (t : S), in_set rS X t = true ->
+                   ((rS t (bS t s)= true) * (rS s (bS s t) = true))
+                   +
+                   ((rS t (bS t s)= false) * (rS s (bS s t) = false)). 
+
+Definition something_is_finite (T : Type) (rS : brel T) (bS : binary_op T) 
+  := {p : (list T) * (T -> T) &
+          match p with (B, w) =>
+                       (is_interesting T rS bS B) * 
+                       (∀(s : T), (in_set rS B s = true) +
+                                   ((in_set rS B (w s) = true) *
+                                    ((rS (w s) (bS (w s) s) = true) *
+                                     (rS s (bS s (w s)) = false))
+                                   )
+                       )
+          end}.
+
+Definition something_not_is_finite (T : Type) (rS : brel T) (bS : binary_op T) 
+  := {F : (list T) -> T &
+                       ∀ B : finite_set T, 
+                         (is_interesting T rS bS B) ->
+                           (in_set rS B (F B) = false) * 
+                           (∀(s : T), (in_set rS B s = true) -> 
+                                       ((rS s (bS s (F B)) = false) +
+                                        (rS (F B) (bS (F B) s) = true))
+                           )}. 
+
+
 End ACAS.
+
 
 Section CAS.
 

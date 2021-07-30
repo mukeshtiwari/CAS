@@ -166,7 +166,25 @@ Proof. intros A B. apply below_elim in A. apply below_elim in B.
           case_eq(lte s t); intro E; auto. 
              assert (F := lteTrans _ _ _ B E). 
              rewrite F in C. discriminate C.
+Qed.
+
+Lemma below_pseudo_transitive_left (s t u : S) : s <<= t -> t << u -> s << u.
+Proof. intros A B. apply below_elim in B. destruct B as [B C]. 
+       apply below_intro. 
+         exact (lteTrans _ _ _ A B). 
+         case_eq(lte u s); intro D; auto. 
+         rewrite (lteTrans _ _ _ D A) in C. discriminate C. 
 Qed. 
+
+
+Lemma below_pseudo_transitive_right (s t u : S) : s << t -> t <<= u -> s << u.
+Proof. intros A B. apply below_elim in A. destruct A as [A C]. 
+       apply below_intro. 
+         exact (lteTrans _ _ _ A B). 
+         case_eq(lte u s); intro D; auto. 
+         rewrite (lteTrans _ _ _ B D) in C. discriminate C. 
+Qed. 
+
 
 (**************** equiv *************************) 
 

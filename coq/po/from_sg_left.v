@@ -8,7 +8,8 @@ Require Import CAS.coq.po.structures.
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 
-Require Import CAS.coq.theory.facts. 
+Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.theory.order. 
 
 Section Compute. 
 
@@ -45,6 +46,13 @@ Proof. compute. intros s t u v H1 H2. apply eqCong; auto. Qed.
 Lemma po_from_sg_left_reflexive : brel_reflexive S  (brel_lte_left eq b).
 Proof. compute. intro s. auto. Qed.
 
+(*
+Print po_from_sg_left_reflexive.
+
+po_from_sg_left_reflexive =  λ s : S, symS (b s s) s (idemS s)
+
+*) 
+
 Lemma po_from_sg_left_transitive : brel_transitive S  (brel_lte_left eq b).
 Proof. compute. intros s t u H1 H2.
        assert (A : eq (b s t) (b s (b t u)) = true).
@@ -59,6 +67,21 @@ Proof. compute. intros s t u H1 H2.
        exact F.
 Qed.
 
+(* 
+Print po_from_sg_left_transitive. 
+
+po_from_sg_left_transitive = 
+    λ (s t u : S) (H1 : eq s (b s t) = true) (H2 : eq t (b t u) = true), 
+      let A : eq (b s t) (b s (b t u)) = true       := congS s t s (b t u) (refS s) H2 in
+      let B : eq (b s (b t u)) (b (b s t) u) = true := symS (b (b s t) u) (b s (b t u)) (assoS s t u) in
+      let C : eq (b (b s t) u) (b s u) = true       := congS (b s t) u s u (symS s (b s t) H1) (refS u) in
+      let D : eq s (b s (b t u)) = true             := trnS s (b s t) (b s (b t u)) H1 A in
+      let E : eq s (b (b s t) u) = true             := trnS s (b s (b t u)) (b (b s t) u) D B in
+      let F : eq s (b s u) = true                   := trnS s (b (b s t) u) (b s u) E C in 
+      F
+: brel_transitive S (brel_lte_left eq b)
+*) 
+
 Lemma po_from_sg_left_antisymmetric : brel_antisymmetric S eq (brel_lte_left eq b).
 Proof. compute. intros s t H1 H2.
        assert (A := commS s t). 
@@ -67,6 +90,17 @@ Proof. compute. intros s t H1 H2.
        assert (C := trnS _ _ _ B H2).
        exact C. 
 Qed.
+
+(*
+Print po_from_sg_left_antisymmetric.
+
+po_from_sg_left_antisymmetric = 
+   λ (s t : S) (H1 : eq s (b s t) = true) (H2 : eq t (b t s) = true),
+     let A : eq (b s t) (b t s) = true := commS s t in
+     let H3 : eq (b t s) t = true      := symS t (b t s) H2 in
+     let B : eq s (b t s) = true       := trnS s (b s t) (b t s) H1 A in
+     let C : eq s t = true             := trnS s (b t s) t B H3 in C
+*) 
 
 Lemma po_from_sg_left_total (selS : bop_selective S eq b) : brel_total S (brel_lte_left eq b).
 Proof. compute. intros s t.
@@ -77,6 +111,22 @@ Proof. compute. intros s t.
        exact (trnS _ _ _ H A). 
 Qed.
 
+(*
+Print po_from_sg_left_total.
+
+po_from_sg_left_total = 
+   λ (selS : bop_selective S eq b) (s t : S), 
+     let s0 := selS s t in
+       match s0 with
+       | inl H => inl (symS (b s t) s H)
+       | inr H => inr (let A : eq (b s t) (b t s) = true := commS s t in
+                       let H0 : eq t (b s t) = true      := symS (b s t) t H 
+                       in 
+                          trnS t (b s t) (b t s) H0 A
+                      )
+       end
+*)
+
 Lemma po_from_sg_left_not_total (nselS : bop_not_selective S eq b) : brel_not_total S (brel_lte_left eq b).
 Proof. destruct nselS as [[s t] [A B]].
        exists (s, t). compute.
@@ -85,7 +135,42 @@ Proof. destruct nselS as [[s t] [A B]].
        assert (D := brel_transititivity_implies_dual S eq trnS _ _ _ C B). 
        apply symS_dual in D. rewrite D. 
        auto.        
-Defined. 
+Defined.
+
+(*
+Print po_from_sg_left_not_total.
+
+
+po_from_sg_left_not_total = 
+   λ nselS : bop_not_selective S eq b, 
+     let (x, x0) := nselS in
+     ( 
+       let (s, t) as p
+       return ((let (s, t) := p in (eq (b s t) s = false) * (eq (b s t) t = false)) → brel_not_total S (brel_lte_left eq b)) 
+           := x 
+       in λ y : (eq (b s t) s = false) * (eq (b s t) t = false), 
+                let (A, B) := y 
+                in  existT
+                           (λ z : S * S, let (s0, t0) := z in
+                              (brel_lte_left eq b s0 t0 = false) *
+                              (brel_lte_left eq b t0 s0 = false))
+                           (s, t)
+                           (let A0 : eq s (b s t) = false := symS_dual (b s t) s A 
+                            in
+                               eq_ind_r
+                                    (λ b0 : bool, (b0 = false) * (eq t (b t s) = false))
+                                    (let C : eq (b s t) (b t s) = true := commS s t 
+                                     in 
+                                        let D : eq (b t s) t = false :=
+                                                brel_transititivity_implies_dual S eq trnS (b s t) (b t s) t C B 
+                                        in
+                                           let D0 : eq t (b t s) = false := symS_dual (b t s) t D 
+                                           in
+                                              eq_ind_r (λ b : bool, (false = false) * (b = false))
+                                                       (eq_refl, eq_refl) D0) A0)
+    ) x0
+
+*) 
 
 Definition po_from_sg_left_total_decide (D : bop_selective_decidable S eq b) : 
   brel_total_decidable S (brel_lte_left eq b)
@@ -138,6 +223,80 @@ Defined.
 Lemma po_from_sg_left_exists_bottom (annS : bop_exists_ann S eq b) : brel_exists_qo_bottom S eq (brel_lte_left eq b).
 Proof. destruct annS as [s A]. exists s. apply po_from_sg_left_is_bottom; auto. Defined. 
 
+
+Lemma po_from_sg_left_equiv (s t : S)
+      (H1 : eq t (b t s) = true)
+      (H2 : eq s (b s t) = true) : equiv (brel_lte_left eq b) s t = true. 
+Proof. compute.  rewrite H1, H2. reflexivity. Qed.
+
+Lemma po_from_sg_left_below (s t : S)
+      (H1 : eq t (b t s) = true)
+      (H2 : eq s (b s t) = false) : below (brel_lte_left eq b) s t = true. 
+Proof. compute.  rewrite H1, H2. reflexivity. Qed. 
+
+Lemma po_from_sg_left_incomp (s t : S)
+      (H1 : eq t (b t s) = false)
+      (H2 : eq s (b s t) = false) : incomp (brel_lte_left eq b) s t = true. 
+Proof. compute.  rewrite H1, H2. reflexivity. Qed.
+
+
+
+Lemma po_from_sg_left_bottoms_set_is_finite (sif : something_is_finite S eq b) :
+       bottoms_set_is_finite S eq (brel_lte_left eq b). 
+Proof. destruct sif as [[B w] [Q P]].
+       exists (B, w). split. 
+
+       (* is_antichain S eq (brel_lte_left eq b) B *)
+       unfold is_antichain.
+       intros s A t C. compute.
+       assert (D := Q s A t C). 
+       destruct D as [[E F] | [E F]]; rewrite E, F; reflexivity. 
+
+       intro s. destruct (P s) as [A | A]. 
+          left. exact A. 
+          destruct A as [A1 [A2 A3]]. right. split. 
+             (* in_set eq B (w s) = true *)
+             exact A1. 
+             (* below (brel_lte_left eq b) s (w s) = true *)
+             compute. rewrite A2, A3. reflexivity. 
+Defined.
+
+Lemma po_from_sg_left_bottoms_set_not_is_finite (sif : something_not_is_finite S eq b) :
+       bottoms_set_not_is_finite S eq (brel_lte_left eq b). 
+Proof. destruct sif as [F A].
+       unfold bottoms_set_not_is_finite.
+       exists F. 
+       intros B C.
+
+          assert (D : is_interesting S eq b B).
+             unfold is_interesting. unfold is_antichain in C. 
+             intros s D t E.
+             assert (bC := commS s t). 
+             assert (G := C s D t E). apply equiv_or_incomp_elim in G.
+             unfold brel_lte_left in G.              
+             destruct G as [G | G]. 
+                apply equiv_elim in G. left. 
+                destruct G as [G1 G2]. split.
+                   exact G2. 
+                   exact G1. 
+                
+                apply incomp_elim in G. right. 
+                destruct G as [G1 G2]. split.                   
+                   exact G2. 
+                   exact G1. 
+          destruct (A B D) as [E G].
+          split. 
+            exact E.           
+            intros s H.
+            assert (I := G s H).
+            apply below_false_intro.
+            unfold brel_lte_left. 
+            exact I. 
+Defined. 
+
+
+
+       
 (*
 Lemma po_from_sg_left_not_exists_bottom (nannS : bop_not_exists_ann S eq b) : brel_not_exists_bottom S (brel_lte_left eq b).
 Proof. compute. intros a.
@@ -169,14 +328,7 @@ Proof. unfold bop_not_exists_ann in nannS.
 *) 
 
 
-(*  NOTE: we will insist that there is an ann.  
-
-     *******************************************************
-     if (S, b) is a group, then lte is eq, and bottoms = S. 
-     *******************************************************
-
-   Is there some other way to ensure that bottoms not infinite? 
-
+(*  NOTE: we will insist that there is an ann so that from_sg_left has a bottom. 
 *) 
 End Theory.
 

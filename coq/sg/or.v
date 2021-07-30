@@ -6,6 +6,7 @@ Require Import CAS.coq.common.ast.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.theory. 
 Require Import CAS.coq.sg.structures.
 
 
@@ -78,7 +79,22 @@ Lemma bop_or_not_anti_left : bop_not_anti_left bool brel_eq_bool bop_or.
 Proof. exists (true, false); simpl. auto. Defined. 
 
 Lemma bop_or_not_anti_right : bop_not_anti_right bool brel_eq_bool bop_or.
-Proof. exists (true, false); simpl. auto. Defined. 
+Proof. exists (true, false); simpl. auto. Defined.
+
+
+Lemma bop_or_somthing_is_finite : something_is_finite bool brel_eq_bool bop_or.
+Proof. exact (exists_ann_implies_something_is_finite _ _ _ 
+              bop_or_congruence
+              brel_eq_bool_reflexive
+              brel_eq_bool_symmetric
+              brel_eq_bool_transitive
+              bop_or_commutative
+              bop_or_idempotent
+              negb
+              brel_eq_bool_not_trivial
+              bop_or_exists_ann). 
+Defined.
+
 
 End Theory.
 

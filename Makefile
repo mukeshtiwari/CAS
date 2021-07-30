@@ -48,6 +48,7 @@ CAS=\
    coq/eqv/nat_ceiling.v \
    coq/eqv/minset.v \
    coq/sg/properties.v \
+   coq/sg/theory.v \
    coq/sg/structures.v \
    coq/sg/cast_up.v \
    coq/sg/cast_down.v \
@@ -108,6 +109,8 @@ CAS=\
    coq/bs/minset_union_lift.v \
    coq/os/properties.v \
    coq/os/structures.v \
+   coq/st/properties.v \
+   coq/st/structures.v \
    coq/ot/properties.v \
    coq/ot/structures.v \
    coq/ot/left/length_cons.v \

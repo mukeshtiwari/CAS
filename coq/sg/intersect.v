@@ -5,6 +5,7 @@ Require Import CAS.coq.common.ast.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.theory.
 Require Import CAS.coq.sg.structures.
 
 Require Import CAS.coq.theory.facts.
@@ -221,6 +222,22 @@ Definition bop_intersect_exists_id_decide (fin_d : carrier_is_finite_decidable S
      | inl fS  => inl (bop_intersect_exists_id fS) 
      | inr nfs => inr (bop_intersect_not_exists_id nfs)
     end.
+
+
+Check brel_set_not_trivial. 
+
+Lemma bop_intersect_somthing_is_finite : something_is_finite (finite_set S) (brel_set eq) (bop_intersect eq).
+Proof. exact (exists_ann_implies_something_is_finite _ _ _ 
+              bop_intersect_congruence 
+              (brel_set_reflexive _ _ refS symS)
+              (brel_set_symmetric _ eq) 
+              (brel_set_transitive  _ _ refS symS tranS)
+              bop_intersect_commutative
+              bop_intersect_idempotent
+              (λ l : finite_set S, if brel_set eq nil l then wS :: nil else nil)
+              (brel_set_not_trivial S eq wS)
+              bop_intersect_exists_ann). 
+Defined.
 
 
 End Theory.

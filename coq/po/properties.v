@@ -1,4 +1,5 @@
-Require Import CAS.coq.common.compute. 
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.theory.order. (* for def of equiv_or_incomp needed in is_antichain *) 
 
 (* Note that some of the order-related properties are
   in brel_properties (such as reflexivity, transitivity)
@@ -7,7 +8,15 @@ Require Import CAS.coq.common.compute.
 
 Section ACAS.
 
-Close Scope nat.   
+Close Scope nat.
+
+Definition is_antichain (S : Type) (eq lte : brel S) (X : finite_set S) :=
+∀ (s : S), in_set eq X s = true  -> ∀ (t : S), in_set eq X t = true -> equiv_or_incomp lte t s = true. 
+
+
+
+
+  
 Definition brel_antisymmetric (S : Type) (r1 : brel S) (r2 : brel S) := 
     ∀ s t : S, (r2 s t = true) → (r2 t s = true) → (r1 s t = true). 
 
@@ -135,6 +144,101 @@ Proof. intros [[f w] P] [g Q].
        rewrite H1 in H3. exact H3. 
 Qed.
 
+(**************** NEW DEFS *************************)
+
+Definition brel_exists_bottom (S : Type) (lte : brel S)
+    := {b : S & brel_is_bottom S lte b}.
+
+Definition brel_not_exists_bottom (S : Type) (lte : brel S)
+    := ∀ b : S, brel_not_is_bottom S lte b.
+
+Definition brel_exists_bottom_decidable  (S : Type) (lte : brel S) := 
+    (brel_exists_bottom S lte) + (brel_not_exists_bottom S lte). 
+
+
+(*
+{B : finite_set T & (is_antichain T eq lte B) * 
+                    (∀(t : T), (in_set eq B t = true) + {s : S & (in_set eq B s = true) * (below lte t s = true)})}
+*) 
+
+
+Definition bottoms_set_is_finite (T : Type) (eq lte : brel T) 
+  := {p : (list T) * (T -> T) &
+          match p with (B, w) =>
+                       (is_antichain T eq lte B) * 
+                       (∀(s : T), (in_set eq B s = true) + ((in_set eq B (w s) = true) * (below lte s (w s) = true)))
+          end}.
+
+
+Definition bottoms_set_is_finite2 (T : Type) (eq lte : brel T) 
+  := {p : (list T) * (T -> T) &
+          match p with (B, w) =>
+                       (is_antichain T eq lte B) * 
+                       (∀(s : T), (in_set eq B (w s) = true) * (below lte s (w s) = true))
+          end}.
+(*
+
+negate 
+
+{B : finite_set T & (is_antichain T eq lte B) * 
+                    (∀(t : T), (in_set eq B t = true) + {s : S & (in_set eq B s = true) * (below lte t s = true)})}
+
+to 
+∀ B : finite_set T,  (is_antichain T eq lte B)  -> 
+                     {t : T & (in_set eq B t = false) * (∀ s : S, (in_set eq B s = true) -> (below lte t s = false))}
+
+now, functionalise this 
+
+
+{F : (finite_set T) -> T & 
+     ∀ B : finite_set T, (is_antichain T eq lte B) -> (in_set eq B (F B) = false) * 
+                                                      (∀ s : S, (in_set eq B s = true) -> (below lte (F B) s = false))}
+ *)
+
+Definition bottoms_set_not_is_finite2 (T : Type) (eq lte : brel T) 
+  := {F : (list T) -> T & 
+                      ∀ B : finite_set T, (is_antichain T eq lte B) ->
+                                          (∀ s : T, (in_set eq B s = true) -> (below lte (F B) s = false))}. 
+
+
+Definition bottoms_set_not_is_finite (T : Type) (eq lte : brel T) 
+  := {F : (list T) -> T &
+                      ∀ B : finite_set T, (is_antichain T eq lte B) ->
+                                          (in_set eq B (F B) = false) * 
+                                          (∀ s : T, (in_set eq B s = true) -> (below lte (F B) s = false))}. 
+     
+
+(* because the definitions have changed too often .... *) 
+Lemma another_bottoms_sanity_check (S : Type) (rS lteS : brel S)
+      (bf : bottoms_set_is_finite S rS lteS) (bnf : bottoms_set_not_is_finite S rS lteS) : true = false.
+Proof. destruct bf as [[BOTTOMS w] [A B]].
+       destruct bnf as [F C].
+       destruct (C BOTTOMS A) as [D E].
+       destruct (B (F BOTTOMS)) as [G | G].
+          rewrite G in D. discriminate D.
+          destruct G as [G1 G2]. 
+          assert (H := E _ G1).
+          rewrite H in G2. discriminate G2. 
+Qed.   
+
+
+Lemma another_bottoms_sanity_check2 (S : Type) (rS lteS : brel S)
+      (bf : bottoms_set_is_finite2 S rS lteS) (bnf : bottoms_set_not_is_finite2 S rS lteS) : true = false.
+Proof. destruct bf as [[BOTTOMS w] [A B]].
+       destruct bnf as [F C].
+       assert (E := C BOTTOMS A).
+       destruct (B (F BOTTOMS)) as [G1 G2].
+          assert (H := E _ G1).
+          rewrite H in G2. discriminate G2. 
+Qed.   
+
+
+(***************************************************)
+
+
+
+
+
 
 Definition brel_strict (S : Type) (r : brel S) (lt : brel S) := 
    ∀ s t : S, lt s t = true → r s t = false. 
@@ -169,9 +273,9 @@ End ACAS.
 
 Section CAS.
 
-Inductive check_antisymmetric {S : Type} := 
-| Certify_Antisymmetric : check_antisymmetric (S := S)
-| Certify_Not_Antisymmetric : (S * S) → check_antisymmetric (S := S). 
+Inductive certify_antisymmetric {S : Type} := 
+| Certify_Antisymmetric : certify_antisymmetric (S := S)
+| Certify_Not_Antisymmetric : (S * S) → certify_antisymmetric (S := S). 
 
 Inductive assert_antisymmetric {S : Type} := 
 | Assert_Antisymmetric : assert_antisymmetric (S := S). 
@@ -180,23 +284,23 @@ Inductive assert_not_antisymmetric {S : Type} :=
 | Assert_Not_Antisymmetric : (S * S) → @assert_not_antisymmetric S. 
   
 
-Inductive check_exists_qo_bottom {S : Type} := 
-| Certify_Exists_Qo_Bottom : S → @check_exists_qo_bottom S
-| Certify_Not_Exists_Qo_Bottom : @check_exists_qo_bottom S. 
+Inductive certify_exists_qo_bottom {S : Type} := 
+| Certify_Exists_Qo_Bottom : S → @certify_exists_qo_bottom S
+| Certify_Not_Exists_Qo_Bottom : @certify_exists_qo_bottom S. 
 
 Inductive assert_exists_qo_bottom {S : Type} := 
 | Assert_Exists_Qo_Bottom : S → @assert_exists_qo_bottom S.
   
-Inductive check_exists_qo_top {S : Type} := 
-| Certify_Exists_Qo_Top : S → @check_exists_qo_top S
-| Certify_Not_Exists_Qo_Top : @check_exists_qo_top S. 
+Inductive certify_exists_qo_top {S : Type} := 
+| Certify_Exists_Qo_Top : S → @certify_exists_qo_top S
+| Certify_Not_Exists_Qo_Top : @certify_exists_qo_top S. 
 
 Inductive assert_exists_qo_top {S : Type} := 
 | Assert_Exists_Qo_Top : S → @assert_exists_qo_top S.
   
-Inductive check_total {S : Type} := 
-| Certify_Total : @check_total S
-| Certify_Not_Total : (S * S) → @check_total S. 
+Inductive certify_total {S : Type} := 
+| Certify_Total : @certify_total S
+| Certify_Not_Total : (S * S) → @certify_total S. 
 
 Inductive assert_total {S : Type} := 
 | Assert_Total : @assert_total S. 
@@ -208,21 +312,21 @@ Inductive assert_not_total {S : Type} :=
 Inductive assert_asymmetric {S : Type} := 
 | Assert_Asymmetric : assert_asymmetric (S := S). 
 
-Inductive check_asymmetric {S : Type} := 
-| Certify_Asymmetric : check_asymmetric (S := S)
-| Certify_Not_Asymmetric : (S * S) → check_asymmetric (S := S). 
+Inductive certify_asymmetric {S : Type} := 
+| Certify_Asymmetric : certify_asymmetric (S := S)
+| Certify_Not_Asymmetric : (S * S) → certify_asymmetric (S := S). 
 
 
-Inductive check_bottoms_finite {S : Type} := 
-| Certify_Bottoms_Finite : ((unit -> list S) * (S -> S))  → check_bottoms_finite (S := S)
-| Certify_Not_Bottoms_Finite : ((list S) -> S) -> check_bottoms_finite (S := S). 
+Inductive certify_bottoms_finite {S : Type} := 
+| Certify_Bottoms_Finite : ((unit -> list S) * (S -> S))  → certify_bottoms_finite (S := S)
+| Certify_Not_Bottoms_Finite : ((list S) -> S) -> certify_bottoms_finite (S := S). 
 
 End CAS.
 
 Section Translation.
 
 Definition p2c_antisymmetric_check : ∀ (S : Type) (eq lte : brel S), 
-       brel_antisymmetric_decidable S eq lte -> @check_antisymmetric S 
+       brel_antisymmetric_decidable S eq lte -> @certify_antisymmetric S 
 := λ S eq lte d, 
   match d with
    | inl _ => Certify_Antisymmetric 
@@ -240,7 +344,7 @@ Definition p2c_not_antisymmetric_assert : ∀ (S : Type) (eq lte : brel S),
 
 
 Definition p2c_exists_qo_bottom_check : ∀ (S : Type) (eq lte : brel S), 
-       brel_exists_qo_bottom_decidable S eq lte -> @check_exists_qo_bottom S 
+       brel_exists_qo_bottom_decidable S eq lte -> @certify_exists_qo_bottom S 
 := λ S eq lte d, 
   match d with
    | inl p  => Certify_Exists_Qo_Bottom (projT1 p)   
@@ -253,7 +357,7 @@ Definition p2c_exists_qo_bottom_assert : ∀ (S : Type) (eq lte : brel S),
 
 
 Definition p2c_exists_qo_top_check : ∀ (S : Type) (eq lte : brel S), 
-       brel_exists_qo_top_decidable S eq lte -> @check_exists_qo_top S 
+       brel_exists_qo_top_decidable S eq lte -> @certify_exists_qo_top S 
 := λ S eq lte d, 
   match d with
    | inl p  => Certify_Exists_Qo_Top (projT1 p)   
@@ -266,7 +370,7 @@ Definition p2c_exists_qo_top_assert : ∀ (S : Type) (eq lte : brel S),
 
 
 Definition p2c_total_check : ∀ (S : Type) (lte : brel S), 
-       brel_total_decidable S lte -> @check_total S 
+       brel_total_decidable S lte -> @certify_total S 
 := λ S lte d, 
   match d with
    | inl _             => @Certify_Total S
@@ -283,7 +387,7 @@ Definition p2c_not_total_assert : ∀ (S : Type) (lte : brel S),
 
 
 Definition p2c_bottoms_finite_check : ∀ (S : Type) (eq lte : brel S), 
-       bottoms_finite_decidable S eq lte -> @check_bottoms_finite S 
+       bottoms_finite_decidable S eq lte -> @certify_bottoms_finite S 
 := λ S eq lte d, 
   match d with
    | inl p  => Certify_Bottoms_Finite (projT1 p)   

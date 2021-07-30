@@ -6,6 +6,7 @@ Require Import CAS.coq.common.ast.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.theory.
 Require Import CAS.coq.sg.structures.
 
 
@@ -98,6 +99,20 @@ Proof. exists (0, 1); simpl. auto. Defined.
 
 Lemma bop_min_not_anti_left : bop_not_anti_left nat brel_eq_nat bop_min.
 Proof. exists (0, 1); simpl. auto. Defined. 
+
+
+Lemma bop_min_somthing_is_finite : something_is_finite nat brel_eq_nat bop_min.
+Proof. exact (exists_ann_implies_something_is_finite _ _ _ 
+              bop_min_congruence
+              brel_eq_nat_reflexive
+              brel_eq_nat_symmetric
+              brel_eq_nat_transitive
+              bop_min_commutative
+              bop_min_idempotent
+              S
+              brel_eq_nat_not_trivial
+              bop_min_exists_ann). 
+Defined.
 
 
 End Theory.

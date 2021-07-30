@@ -5,23 +5,37 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.po.properties.
 
-(* all order structures required to have a bottom. 
+(* order structures 
 
+                or 
+              /   \
+             /     \
+    antisymm/       \not 
+           /         \ 
+          /           \
+          |            \ 
+          |             \ 
+          |              \
+    total/ \not    total / \not             
+        |   |           |   | 
+       to  po           wo  qo 
 
-         or 
-       /   \
-      /     \ 
-    po       to 
-     \       /
-      q0    /
-        \  /
-         wp
 
 or = order (ref, trans) 
 to = total order   (ref, trans, antisymm, total) 
 po = partial order (ref, trans, antisymm, not total)   
 qo = quasi order (ref, trans, not_antisymm, not total) 
-wp = weak preference order (ref, trans, not_antisymm, total) 
+wo = weak preference order (ref, trans, not_antisymm, total) 
+
+
+NB: all order structures currently required to have a bottom. 
+Why? without bottoms, it seems minset_union requres 
+bottoms_finite_decidable (see po/properties.v), and at present 
+we don't know how to ensure this.... 
+
+For example, if (S, b) is a group, then lte is eq, and bottoms = S. 
+Is there some other way to ensure that bottoms not infinite? 
+
 *) 
 Section ACAS.
 
@@ -107,21 +121,21 @@ Record A_qo (S : Type) := {
 }.
 
 
-Record wp_proofs (S : Type) (eq lte : brel S) := {
-  A_wp_congruence      : brel_congruence S eq lte
-; A_wp_reflexive       : brel_reflexive S lte            
-; A_wp_transitive      : brel_transitive S lte           
-; A_wp_not_antisymmetric : brel_not_antisymmetric S eq lte
-; A_wp_total             : brel_total S lte           
+Record wo_proofs (S : Type) (eq lte : brel S) := {
+  A_wo_congruence      : brel_congruence S eq lte
+; A_wo_reflexive       : brel_reflexive S lte            
+; A_wo_transitive      : brel_transitive S lte           
+; A_wo_not_antisymmetric : brel_not_antisymmetric S eq lte
+; A_wo_total             : brel_total S lte           
 }.
 
-Record A_wp (S : Type) := {
-  A_wp_eqv             : A_eqv S 
-; A_wp_lte             : brel S
-; A_wp_exists_top_d    : brel_exists_qo_top_decidable S (A_eqv_eq S A_wp_eqv) A_wp_lte           
-; A_wp_exists_bottom   : brel_exists_qo_bottom S (A_eqv_eq S A_wp_eqv) A_wp_lte
-; A_wp_proofs          : wp_proofs S (A_eqv_eq S A_wp_eqv) A_wp_lte 
-; A_wp_ast             : cas_ast
+Record A_wo (S : Type) := {
+  A_wo_eqv             : A_eqv S 
+; A_wo_lte             : brel S
+; A_wo_exists_top_d    : brel_exists_qo_top_decidable S (A_eqv_eq S A_wo_eqv) A_wo_lte           
+; A_wo_exists_bottom   : brel_exists_qo_bottom S (A_eqv_eq S A_wo_eqv) A_wo_lte
+; A_wo_proofs          : wo_proofs S (A_eqv_eq S A_wo_eqv) A_wo_lte 
+; A_wo_ast             : cas_ast
 }.
 
 
@@ -133,14 +147,14 @@ Record or_certificates {S : Type} := {
   or_congruence       : @assert_brel_congruence S 
 ; or_reflexive        : @assert_reflexive S 
 ; or_transitive       : @assert_transitive S
-; or_antisymmetric_d  : @check_antisymmetric S 
-; or_total_d          : @check_total S
-(*; or_bottoms_finite_d : @check_bottoms_finite S *) 
+; or_antisymmetric_d  : @certify_antisymmetric S 
+; or_total_d          : @certify_total S
+(*; or_bottoms_finite_d : @certify_bottoms_finite S *) 
                                     }.
 Record or {S : Type} := {
   or_eqv             : @eqv S
 ; or_lte             : @brel S
-; or_exists_top_d    : @check_exists_qo_top S 
+; or_exists_top_d    : @certify_exists_qo_top S 
 ; or_exists_bottom   : @assert_exists_qo_bottom S 
 ; or_certs           : @or_certificates S
 ; or_ast             : cas_ast
@@ -152,15 +166,15 @@ Record po_certificates {S : Type} := {
 ; po_reflexive        : @assert_reflexive S 
 ; po_transitive       : @assert_transitive S
 ; po_antisymmetric    : @assert_antisymmetric S
-(*; po_total_d          : @check_total S  *)
+(*; po_total_d          : @certify_total S  *)
 ; po_not_total        : @assert_not_total S
-(*; po_bottoms_finite_d : @check_bottoms_finite S *) 
+(*; po_bottoms_finite_d : @certify_bottoms_finite S *) 
 }.
 
 Record po {S : Type} := {
   po_eqv             : @eqv S
 ; po_lte             : @brel S
-; po_exists_top_d    : @check_exists_qo_top S 
+; po_exists_top_d    : @certify_exists_qo_top S 
 ; po_exists_bottom   : @assert_exists_qo_bottom S 
 ; po_certs           : @po_certificates S
 ; po_ast             : cas_ast
@@ -178,7 +192,7 @@ Record to_certificates {S : Type} := {
 Record to {S : Type} := {
   to_eqv             : @eqv S
 ; to_lte             : @brel S
-; to_exists_top_d    : @check_exists_qo_top S 
+; to_exists_top_d    : @certify_exists_qo_top S 
 ; to_exists_bottom   : @assert_exists_qo_bottom S 
 ; to_certs           : @to_certificates S
 ; to_ast             : cas_ast
@@ -195,28 +209,28 @@ Record qo_certificates {S : Type}  := {
 Record qo {S : Type} := {
   qo_eqv             : @eqv S 
 ; qo_lte             : @brel S
-; qo_exists_top_d    : @check_exists_qo_top S 
+; qo_exists_top_d    : @certify_exists_qo_top S 
 ; qo_exists_bottom   : @assert_exists_qo_bottom S                        
 ; qo_certs           : @qo_certificates S
 ; qo_ast             : cas_ast
 }.
  
 
-Record wp_certificates {S : Type}  := {
-  wp_congruence        : @assert_brel_congruence S 
-; wp_reflexive         : @assert_reflexive S 
-; wp_transitive        : @assert_transitive S
-; wp_not_antisymmetric : @assert_not_antisymmetric S 
-; wp_total             : @assert_total S 
+Record wo_certificates {S : Type}  := {
+  wo_congruence        : @assert_brel_congruence S 
+; wo_reflexive         : @assert_reflexive S 
+; wo_transitive        : @assert_transitive S
+; wo_not_antisymmetric : @assert_not_antisymmetric S 
+; wo_total             : @assert_total S 
 }.
   
-Record wp {S : Type} := {
-  wp_eqv             : @eqv S 
-; wp_lte             : @brel S
-; wp_exists_top_d    : @check_exists_qo_top S 
-; wp_exists_bottom   : @assert_exists_qo_bottom S                        
-; wp_certs           : @wp_certificates S
-; wp_ast             : cas_ast
+Record wo {S : Type} := {
+  wo_eqv             : @eqv S 
+; wo_lte             : @brel S
+; wo_exists_top_d    : @certify_exists_qo_top S 
+; wo_exists_bottom   : @assert_exists_qo_bottom S                        
+; wo_certs           : @wo_certificates S
+; wo_ast             : cas_ast
 }.
  
 End CAS.
@@ -328,25 +342,25 @@ Definition A2C_qo : ∀ (S : Type), A_qo S -> @qo S
 
 
 
-Definition P2C_wp : ∀ (S : Type) (eq lte : brel S), wp_proofs S eq lte -> @wp_certificates S 
+Definition P2C_wo : ∀ (S : Type) (eq lte : brel S), wo_proofs S eq lte -> @wo_certificates S 
 := λ S eq lte P,
 {|
-  wp_congruence       := @Assert_Brel_Congruence S 
-; wp_reflexive        := @Assert_Reflexive S 
-; wp_transitive       := @Assert_Transitive S
-; wp_not_antisymmetric := p2c_not_antisymmetric_assert S eq lte (A_wp_not_antisymmetric S eq lte P)
-; wp_total             := p2c_total_assert S lte (A_wp_total S eq lte P)
+  wo_congruence       := @Assert_Brel_Congruence S 
+; wo_reflexive        := @Assert_Reflexive S 
+; wo_transitive       := @Assert_Transitive S
+; wo_not_antisymmetric := p2c_not_antisymmetric_assert S eq lte (A_wo_not_antisymmetric S eq lte P)
+; wo_total             := p2c_total_assert S lte (A_wo_total S eq lte P)
 |}. 
 
-Definition A2C_wp : ∀ (S : Type), A_wp S -> @wp S 
+Definition A2C_wo : ∀ (S : Type), A_wo S -> @wo S 
 := λ S R,
 {| 
-  wp_eqv              := A2C_eqv S (A_wp_eqv S R) 
-; wp_lte              := A_wp_lte S R
-; wp_exists_top_d     := p2c_exists_qo_top_check S (A_eqv_eq S (A_wp_eqv S R)) (A_wp_lte S R) (A_wp_exists_top_d S R)
-; wp_exists_bottom    := p2c_exists_qo_bottom_assert S (A_eqv_eq S (A_wp_eqv S R)) (A_wp_lte S R) (A_wp_exists_bottom S R)                          
-; wp_certs            := P2C_wp S (A_eqv_eq S (A_wp_eqv S R)) (A_wp_lte S R) (A_wp_proofs S R)
-; wp_ast              := A_wp_ast S R                       
+  wo_eqv              := A2C_eqv S (A_wo_eqv S R) 
+; wo_lte              := A_wo_lte S R
+; wo_exists_top_d     := p2c_exists_qo_top_check S (A_eqv_eq S (A_wo_eqv S R)) (A_wo_lte S R) (A_wo_exists_top_d S R)
+; wo_exists_bottom    := p2c_exists_qo_bottom_assert S (A_eqv_eq S (A_wo_eqv S R)) (A_wo_lte S R) (A_wo_exists_bottom S R)                          
+; wo_certs            := P2C_wo S (A_eqv_eq S (A_wo_eqv S R)) (A_wo_lte S R) (A_wo_proofs S R)
+; wo_ast              := A_wo_ast S R                       
 |}. 
 
 

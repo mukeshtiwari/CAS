@@ -69,17 +69,17 @@ Definition length_cons_with_bottom_proofs (S: Type) (eq : brel S) (wS : S) :=
 |}.
 
 
-Definition A_length_cons_wpltr_monotone_strictly_increasing (S : Type) (eqvS : A_eqv S) :=
+Definition A_length_cons_woltr_monotone_strictly_increasing (S : Type) (eqvS : A_eqv S) :=
 {|
-  A_wpltr_msi_carrier      := A_eqv_list S eqvS 
-; A_wpltr_msi_label        := eqvS 
-; A_wpltr_msi_lte          := brel_length 
-; A_wpltr_msi_ltr          := ltr_cons 
-; A_wpltr_msi_lte_proofs   := wp_proofs_length S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS) (A_eqv_new S eqvS) (A_eqv_not_trivial S eqvS)
-; A_wpltr_msi_ltr_proofs   := ltr_cons_proofs S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS)
-; A_wpltr_msi_bottom_proofs := length_cons_with_bottom_proofs S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS)                                              
-; A_wpltr_msi_proofs       := length_cons_qoltr_msi_proofs S 
-; A_wpltr_msi_ast          := Ast_qo_length (A_eqv_ast S eqvS)
+  A_woltr_msi_carrier      := A_eqv_list S eqvS 
+; A_woltr_msi_label        := eqvS 
+; A_woltr_msi_lte          := brel_length 
+; A_woltr_msi_ltr          := ltr_cons 
+; A_woltr_msi_lte_proofs   := wo_proofs_length S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS) (A_eqv_new S eqvS) (A_eqv_not_trivial S eqvS)
+; A_woltr_msi_ltr_proofs   := ltr_cons_proofs S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS)
+; A_woltr_msi_bottom_proofs := length_cons_with_bottom_proofs S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS)                                              
+; A_woltr_msi_proofs       := length_cons_qoltr_msi_proofs S 
+; A_woltr_msi_ast          := Ast_qo_length (A_eqv_ast S eqvS)
 |}.
 
 
@@ -102,17 +102,17 @@ Definition length_cons_qoltr_msi_certs {S : Type} :=
 |}.
 
 
-Definition length_cons_wpltr_monotone_strictly_increasing {S : Type} (eqvS : @eqv S) :=
+Definition length_cons_woltr_monotone_strictly_increasing {S : Type} (eqvS : @eqv S) :=
 {|
-  wpltr_msi_carrier      := eqv_list eqvS 
-; wpltr_msi_label        := eqvS 
-; wpltr_msi_lte          := brel_length 
-; wpltr_msi_ltr          := ltr_cons 
-; wpltr_msi_lte_certs    := wp_certs_length (eqv_witness eqvS) (eqv_new eqvS)
-; wpltr_msi_ltr_certs    := ltr_cons_certs (eqv_witness eqvS)
-; wpltr_msi_bottom_certs := length_cons_with_bottom_certs       
-; wpltr_msi_certs        := length_cons_qoltr_msi_certs
-; wpltr_msi_ast          := Ast_qo_length (eqv_ast eqvS)
+  woltr_msi_carrier      := eqv_list eqvS 
+; woltr_msi_label        := eqvS 
+; woltr_msi_lte          := brel_length 
+; woltr_msi_ltr          := ltr_cons 
+; woltr_msi_lte_certs    := wo_certs_length (eqv_witness eqvS) (eqv_new eqvS)
+; woltr_msi_ltr_certs    := ltr_cons_certs (eqv_witness eqvS)
+; woltr_msi_bottom_certs := length_cons_with_bottom_certs       
+; woltr_msi_certs        := length_cons_qoltr_msi_certs
+; woltr_msi_ast          := Ast_qo_length (eqv_ast eqvS)
 |}.
   
 
@@ -120,15 +120,15 @@ End CAS.
 
 Section Verify.
 
-Theorem correct_length_cons_wpltr_monotone_strictly_increasing (L S : Type) (eqv : A_eqv S) : 
-   length_cons_wpltr_monotone_strictly_increasing (A2C_eqv S eqv) 
+Theorem correct_length_cons_woltr_monotone_strictly_increasing (L S : Type) (eqv : A_eqv S) : 
+   length_cons_woltr_monotone_strictly_increasing (A2C_eqv S eqv) 
    =
-   A2C_wpltr_monotone_strictly_increasing S (list S) (A_length_cons_wpltr_monotone_strictly_increasing S eqv). 
-Proof. unfold length_cons_wpltr_monotone_strictly_increasing, A_length_cons_wpltr_monotone_strictly_increasing,
-              A2C_wpltr_monotone_strictly_increasing; simpl. 
+   A2C_woltr_monotone_strictly_increasing S (list S) (A_length_cons_woltr_monotone_strictly_increasing S eqv). 
+Proof. unfold length_cons_woltr_monotone_strictly_increasing, A_length_cons_woltr_monotone_strictly_increasing,
+              A2C_woltr_monotone_strictly_increasing; simpl. 
        rewrite <- correct_eqv_list.
        unfold length_cons_qoltr_msi_certs. unfold P2C_qoltr_msi.        
-       rewrite <- correct_wp_certs_length.
+       rewrite <- correct_wo_certs_length.
        rewrite <- correct_ltr_certs_cons.        
        reflexivity.
 Qed. 

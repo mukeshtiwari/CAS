@@ -26,7 +26,8 @@ val eqv_list         : 'a Cas.eqv -> ('a list) Cas.eqv
 val eqv_set          : 'a Cas.eqv -> ('a Cas.finite_set) Cas.eqv
 val eqv_add_constant : Cas.cas_constant -> 'a Cas.eqv -> ('a Cas.with_constant) Cas.eqv
 val eqv_nat_ceiling  : int -> int Cas.eqv
-val eqv_minset       : 'a Cas.po -> ('a Cas.finite_set) Cas.eqv										  
+val eqv_minset_from_po       : 'a Cas.po -> ('a Cas.finite_set) Cas.eqv
+val eqv_minset_from_qo       : 'a Cas.qo -> ('a Cas.finite_set) Cas.eqv										  								
 
 val sg_and   : (bool Cas.sg) option 
 val sg_or    : (bool Cas.sg) option

@@ -1,4 +1,4 @@
-Require Import CAS.coq.common.base. 
+Require Import CAS.coq.common.compute. 
 
 Require Import CAS.coq.eqv.nat.
 Require Import CAS.coq.eqv.bool.
@@ -29,7 +29,26 @@ Require Import CAS.coq.sg.add_id.
 Require Import CAS.coq.sg.add_ann.
 Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.intersect.
-Require Import CAS.coq.sg.lift. 
+Require Import CAS.coq.sg.minset_union. 
+Require Import CAS.coq.sg.lift.
+(* Require Import CAS.coq.sg.minset_lift. *) 
+
+Require Import CAS.coq.po.lte_nat. (* why is this not from_sg_left sg_min?*)
+Require Import CAS.coq.po.trivial.
+(*
+Require Import CAS.coq.po.from_sg_left.
+Require Import CAS.coq.po.from_sg_right.
+Require Import CAS.coq.po.length.
+Require Import CAS.coq.po.add_bottom.
+Require Import CAS.coq.po.add_top.
+Require Import CAS.coq.po.po_to_qo.
+Require Import CAS.coq.po.product.
+Require Import CAS.coq.po.llex.
+Require Import CAS.coq.po.left_sum. 
+Require Import CAS.coq.po.right_sum. 
+*) 
+
+
 
 Require Import CAS.coq.bs.cast_up.
 Require Import CAS.coq.bs.cast_down.
@@ -154,7 +173,8 @@ Extraction "Cas.ml"
    eqv_list
    eqv_set
    eqv_nat_ceiling
-   eqv_minset
+   eqv_minset_from_po
+   eqv_minset_from_qo   
 (* semigroups *)
    sg_C_times
    sg_CS_max
@@ -191,6 +211,8 @@ Extraction "Cas.ml"
    sg_CS_right_sum
    sg_CI_union 
    sg_CI_intersect
+   sg_CI_minset_union_from_qo   
+   sg_CI_minset_union_from_po
    sg_lift
    (* sg casting *)
    msg_from_sg   
@@ -210,7 +232,25 @@ Extraction "Cas.ml"
    sg_CI_option_from_sg_C
    sg_CK_option_from_sg_C
    sg_CS_option_from_sg_CI
-  (* bi-semigroups *)
+   (* order *)
+   lte_nat
+   wp_trivial 
+(**
+   po_add_bottom    
+   to_bool 
+   to_nat 
+   po_dual 
+   to_dual
+   to_llte  
+   to_rlte  
+   po_llte  
+   po_rlte  
+   to_add_top
+   to_add_bottom 
+   po_add_top
+
+**)   
+   (* bi-semigroups *)
    selective_presemiring_max_plus 
    selective_presemiring_min_plus
    selective_distributive_prelattice_min_max
@@ -260,18 +300,3 @@ Extraction "Cas.ml"
    selective_distributive_lattice_dual
    .
 
-(**
-   (* order *) 
-   to_bool 
-   to_nat 
-   po_dual 
-   to_dual
-   to_llte  
-   to_rlte  
-   po_llte  
-   po_rlte  
-   to_add_top
-   to_add_bottom 
-   po_add_top
-   po_add_bottom 
-**)

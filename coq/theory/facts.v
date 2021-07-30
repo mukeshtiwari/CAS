@@ -558,6 +558,8 @@ C  ->   l r
 N  ->   l r q y z 
 A  -> k l r   y z
 
+N A  -> k l r q y z 
+
 
 CI         ->   l r q y z 
 CIs        -> k l r q y z 
@@ -576,9 +578,6 @@ b_k(a,b) = k
 plus   : CiNK 
 
 
-L  -> Scna(lk)(RK)r(LQ)(rQ)yz 
-R  -> Scna(LK)(rk)l(lq)(RQ)yz 
-
 and    : CSNA
 or     : CSNA 
 min    : CSnA   
@@ -591,6 +590,9 @@ plus   : CiNK
 concat : cNK  
 left   : L 
 right  : R 
+
+L  -> Scna(lk)(RK)r(LQ)(rQ)yz 
+R  -> Scna(LK)(rk)l(lq)(RQ)yz 
 
 CI x CI = CI 
 CI x CS = CI 
@@ -1170,7 +1172,10 @@ Proof. intros S r b s f refS congS Pf [a Pa].
           rewrite (refS a) in C. 
           assumption.        
           assumption.        
-Defined. 
+Defined.
+
+
+
 
 (* CI *) 
 

@@ -36,7 +36,8 @@ let eqv_add_constant c eqv = Cas.eqv_add_constant eqv c
 let eqv_list         = Cas.eqv_list
 let eqv_set          = Cas.eqv_set
 let eqv_nat_ceiling  = Cas.eqv_nat_ceiling
-let eqv_minset       = Cas.eqv_minset 
+let eqv_minset_from_po       = Cas.eqv_minset_from_po
+let eqv_minset_from_qo       = Cas.eqv_minset_from_qo 				 
 				       
 let sg_and   = Some (Cas.sg_from_sg_CS Cas.sg_CS_and)   (* : bool sg option *) 
 let sg_or    = Some (Cas.sg_from_sg_CS Cas.sg_CS_or)    (* : bool sg option *) 

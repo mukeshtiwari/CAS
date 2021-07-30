@@ -100,7 +100,29 @@ Lemma bop_max_not_anti_right : bop_not_anti_right nat brel_eq_nat bop_max.
 Proof. exists (1, 0); simpl. auto. Defined. 
 
 Lemma bop_max_not_anti_left : bop_not_anti_left nat brel_eq_nat bop_max.
-Proof. exists (1, 0); simpl. auto. Defined. 
+Proof. exists (1, 0); simpl. auto. Defined.
+
+
+(* bottoms *)
+
+
+Definition max_list (l : list nat) := List.fold_left bop_max l 0. 
+
+Definition bop_max_F (l : list nat) := S(max_list l). 
+
+
+Lemma bop_max_something_not_is_finite : something_not_is_finite nat brel_eq_nat bop_max.
+Proof. unfold something_not_is_finite. exists bop_max_F. 
+       intros B A. split. 
+         admit.
+         intros s C.
+            destruct (bop_max_selective s (bop_max_F B)) as [D | D]. 
+               admit. (* get *** from C, D *)
+               right. assert (E := bop_max_commutative (bop_max_F B) s). 
+               assert (G := brel_eq_nat_transitive _ _ _ E D).
+               apply brel_eq_nat_symmetric.
+               exact G. 
+Admitted.
 
 End Theory.
 

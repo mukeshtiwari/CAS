@@ -205,8 +205,57 @@ Proof. intros X Y Z.
 Qed.        
 
 
+
+
+Lemma minset_union_lift_left_distributive_weak_TEST (anti: brel_antisymmetric S rS lteS)
+  (NLM : os_not_left_monotone S lteS bS) :
+     bop_not_left_distributive (finite_set S) (brel_set rS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
+Proof. unfold os_not_left_monotone in NLM.
+       destruct NLM as [[a [b c]] [A B]].
+       unfold bop_not_left_distributive. 
+       exists (a :: nil, (b :: nil, c :: nil)).
+       case_eq(brel_set rS ((a :: nil) <^> ((b :: nil) <U> (c :: nil)))  (((a :: nil) <^> (b :: nil)) <U> ((a :: nil) <^> (c :: nil)))); intro C; auto.
+       apply brel_set_elim_prop in C; auto.  destruct C as [C D]. 
+(*
+     assume anti-symm 
+
+      A : b <= c
+      B : ab !<= ac 
+      C: x in ms ({a} ms{b,c}} -> x in ms {ab, ac} 
+      D: x in ms {ab, ac}      -> x in ms ({a} ms{b,c}} 
+
+      case 1. c <= b. so c = b, and *** from B 
+      case 2. c !<= b. 
+      
+       LHS : ms ({a} ms{b,c}} = ms ({a} {b}} = {ab} 
+       RHS : ms {ab, ac} = {ac} if ac <= ab 
+                         = {ac, ab} ow. 
+
+       LHS <> RHS
+
+         C': x in {ab} -> x in ms {ab, ac} 
+         D': x in ms {ab, ac} -> x in {ab}
+         claim : ac in ms {ab, ac}. 
+            proof: if ac <= ab  so ac < ab 
+                   then ms {ab, ac} = {ac} 
+                   else ms {ab, ac} = {ab, ac} since ab # ac. 
+         Now, from D' : ac = ab, this contradicts B. 
+*) 
+      case_eq(lteS c b); intro E. 
+         admit. (* use anti-sym *)
+         assert (G := D (bS a c)). 
+         assert (H : bS a c [in] (((a :: nil) <^> (b :: nil)) <U> ((a :: nil) <^> (c :: nil)))). admit. 
+         assert (I := G H). unfold bop_minset_lift in I. 
+         apply in_minset_elim in I; auto. destruct I as [I J].
+         apply in_set_bop_lift_elim in I; auto.
+         destruct I as [x [y [[K L] M]]]. 
+         admit. (* get ac = bc -> *** with B *)
+Admitted.
+
+              
 Lemma minset_union_lift_left_distributive_weak
-  (LM : os_left_monotone S lteS bS) 
+  (LM : os_left_monotone S lteS bS)
+  (RM : os_right_monotone S lteS bS)       
   (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) : 
      bop_left_distributive (finite_set S) (brel_set rS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
 Proof. intros X Y Z.
@@ -243,13 +292,15 @@ Qed.
 
 
 Lemma minset_union_lift_left_distributive
-  (LM : os_left_monotone S lteS bS)       
+  (LM : os_left_monotone S lteS bS)
+  (RM : os_right_monotone S lteS bS)             
   (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) :       
      bop_left_distributive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
 Proof. intros X Y Z. apply set_equal_implies_minset_equal. apply minset_union_lift_left_distributive_weak; auto. Qed. 
        
 
 Lemma minset_union_lift_right_distributive_weak
+  (LM : os_left_monotone S lteS bS)      
   (RM : os_right_monotone S lteS bS)
   (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) :       
      bop_right_distributive (finite_set S) (brel_set rS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
@@ -293,6 +344,7 @@ Qed.
 
 
 Lemma minset_union_lift_right_distributive
+  (LM : os_left_monotone S lteS bS)            
   (RM : os_right_monotone S lteS bS)      
   (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) :   
      bop_right_distributive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 

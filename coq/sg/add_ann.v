@@ -6,12 +6,14 @@ Require Import CAS.coq.common.ast.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.theory.
 Require Import CAS.coq.sg.structures.
 
 Require Import CAS.coq.eqv.add_constant.
 Require Import CAS.coq.eqv.sum. 
 
-Require Import CAS.coq.theory.facts. 
+Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.theory.in_set. 
 
 Section Theory.
 Variable S  : Type. 
@@ -52,15 +54,6 @@ Proof. intros selS [s1 | t1] [s2 | t2]; simpl; auto. Qed.
 Lemma bop_add_ann_not_selective : bop_not_selective S rS bS → bop_not_selective (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. intros [ [s1 s2] P]. exists (inr _ s1, inr _ s2). simpl. assumption. Defined. 
 
-Lemma bop_add_ann_exists_ann : bop_exists_ann (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
-Proof. exists (inl S c). intros [a | b]; compute; auto. Defined. 
-
-Lemma bop_add_ann_exists_id : bop_exists_id S rS bS -> bop_exists_id (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
-Proof. intros [annS pS]. exists (inr _ annS). intros [s | t]; compute; auto. Defined. 
-
-Lemma bop_add_ann_not_exists_id : bop_not_exists_id S rS bS -> bop_not_exists_id (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
-Proof. intros naS. intros [x | x]. exists (inr _ wS). compute; auto. destruct (naS x) as [y D].  exists (inr _ y). compute. exact D. Defined. 
-
 Lemma bop_add_ann_not_is_left : bop_not_is_left (with_constant S ) (brel_sum brel_constant rS) (c [+] bS). 
 Proof. exists (inr _ wS, inl _ c). simpl. reflexivity. Defined. 
 
@@ -84,6 +77,38 @@ Proof. unfold bop_not_anti_left. exists (inl c, inr wS); simpl. reflexivity. Def
 
 Lemma bop_add_ann_not_anti_right : bop_not_anti_right (with_constant S) (brel_sum brel_constant rS) (c [+] bS).
 Proof. unfold bop_not_anti_right. exists (inl c, inr wS); simpl. reflexivity.  Defined.
+
+(* id, ann *) 
+
+Lemma bop_add_ann_exists_ann : bop_exists_ann (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
+Proof. exists (inl S c). intros [a | b]; compute; auto. Defined. 
+
+Lemma bop_add_ann_exists_id : bop_exists_id S rS bS -> bop_exists_id (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
+Proof. intros [annS pS]. exists (inr _ annS). intros [s | t]; compute; auto. Defined. 
+
+Lemma bop_add_ann_not_exists_id : bop_not_exists_id S rS bS -> bop_not_exists_id (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
+Proof. intros naS. intros [x | x]. exists (inr _ wS). compute; auto. destruct (naS x) as [y D].  exists (inr _ y). compute. exact D. Defined.
+
+
+Lemma bop_add_ann_somthing_is_finite
+      (symS : brel_symmetric S rS)
+      (trnS : brel_transitive S rS)      
+      (comm : bop_commutative S rS bS)
+      (idem : bop_idempotent S rS bS) :
+         something_is_finite (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
+Proof. exact (exists_ann_implies_something_is_finite _ _ _ 
+              bop_add_ann_congruence
+              (brel_add_constant_reflexive _ _ refS) 
+              (brel_add_constant_symmetric _ _ symS)
+              (brel_add_constant_transitive _ _ trnS)
+              (bop_add_ann_commutative comm) 
+              (bop_add_ann_idempotent idem) 
+              (λ (d : cas_constant + S), match d with | inl _ => inr _ wS  | inr _ => inl S c end)
+              (brel_add_constant_not_trivial _ rS c wS)
+              bop_add_ann_exists_ann). 
+Defined.
+
+
 
 (* Decide *)
 

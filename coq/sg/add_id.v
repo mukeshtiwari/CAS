@@ -8,7 +8,8 @@ Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 
 Require Import CAS.coq.eqv.add_constant.
-Require Import CAS.coq.theory.facts. 
+Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.theory.in_set. 
 
 Section Theory.
 
@@ -105,7 +106,180 @@ Lemma bop_add_id_not_anti_left : bop_not_anti_left (with_constant S) (brel_sum b
 Proof. unfold bop_not_anti_left. exists (inr wS, inl c); simpl. apply refS. Defined. 
 
 Lemma bop_add_id_not_anti_right : bop_not_anti_right (with_constant S) (brel_sum brel_constant rS) (c [+] bS).
-Proof. unfold bop_not_anti_right. exists (inr wS, inl c); simpl. apply refS. Defined. 
+Proof. unfold bop_not_anti_right. exists (inr wS, inl c); simpl. apply refS. Defined.
+
+
+(* bottoms *)
+
+Definition bop_add_id_BOTTOMS (B : list S) : list (with_constant S) :=
+  List.map (λ d, inr d) B.
+
+Definition bop_add_id_w (w : S -> S) (d : with_constant S) : with_constant S :=
+  match d with | inl _ => inr (w wS) | inr s => inr (w s) end.
+
+Lemma bop_add_id_BOTTOMS_cons (a : S) (B : list S) : bop_add_id_BOTTOMS (a :: B) = (inr a) :: (bop_add_id_BOTTOMS B).
+Proof. compute. reflexivity. Qed. 
+  
+Lemma lemma27 (s : cas_constant) (B : list S) : 
+  in_set (brel_sum brel_constant rS) (bop_add_id_BOTTOMS B) (inl s) = false.
+Proof. induction B. 
+       compute. reflexivity.
+       rewrite bop_add_id_BOTTOMS_cons.
+       case_eq(in_set (brel_sum brel_constant rS) (inr a :: bop_add_id_BOTTOMS B) (inl s)); intro C; auto. 
+          apply in_set_cons_elim in C. 
+          destruct C as [C | C].
+             compute in C. discriminate C. 
+             rewrite IHB in C. discriminate C.
+          apply brel_add_constant_symmetric; auto. 
+Qed.
+
+Lemma in_set_add_id_BOTTOMS (B : list S) (s : S) (H : in_set rS B s = true) :
+       in_set (brel_sum brel_constant rS) (bop_add_id_BOTTOMS B) (inr s) = true. 
+Proof. induction B.
+       compute in H. discriminate H.
+       rewrite bop_add_id_BOTTOMS_cons.
+       apply in_set_cons_intro. 
+       apply brel_add_constant_symmetric; auto.
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]. 
+          left. compute. exact H. 
+          right. apply IHB; auto. 
+Qed.
+
+Lemma in_set_add_id_BOTTOMS_right (B : list S) (s : S):
+  in_set (brel_sum brel_constant rS) (bop_add_id_BOTTOMS B) (inr s) = true -> in_set rS B s = true. 
+Proof. intro A. induction B. 
+       compute in A. discriminate A.
+       apply in_set_cons_intro; auto.
+       rewrite bop_add_id_BOTTOMS_cons in A.
+       apply in_set_cons_elim in A. 
+       destruct A as [A | A]. 
+          compute in A. left. exact A. 
+          right. exact (IHB A). 
+       apply brel_add_constant_symmetric; auto. 
+Qed.
+
+Lemma bop_add_id_is_interesting (B : list S) : is_interesting S rS bS B
+                                         -> is_interesting (with_constant S) (brel_sum brel_constant rS) (c [+] bS) (bop_add_id_BOTTOMS B).
+Proof. unfold is_interesting. intros I s A t C. 
+       destruct s as [s | s]; destruct t as [t | t].
+          assert (D := lemma27 t B). admit. 
+          admit. 
+          admit.
+          assert (A' := in_set_add_id_BOTTOMS_right _ _ A).
+          assert (C' := in_set_add_id_BOTTOMS_right _ _ C).           
+          destruct (I s A' t C') as [[D E] | [D E]].
+             left. split. 
+                compute. exact D. 
+                compute. exact E. 
+                
+             right. split. 
+                compute. exact D. 
+                compute. exact E. 
+Admitted.
+
+Lemma bop_add_id_bottoms_functions_compatible (B : list S) (w : S -> S) (s : S):                   
+    in_set rS B (w s) = true -> in_set (brel_sum brel_constant rS) (bop_add_id_BOTTOMS B) (bop_add_id_w w (inr s)) = true. 
+Proof. intro A. 
+       apply in_set_add_id_BOTTOMS in A. 
+       unfold bop_add_id_w. 
+       exact A. 
+Qed. 
+
+Lemma id_in_set_add_id_BOTTOMS (B : list S) (w : S -> S)
+      (H : ∀ s : S, (in_set rS B s = true) + (in_set rS B (w s) = true))
+      (J : ∀ s : S, (in_set rS B s = true) ->  (w s) = s) :   
+  in_set (brel_sum brel_constant rS) (bop_add_id_BOTTOMS B) (bop_add_id_w w (inl c)) = true.
+Proof. unfold bop_add_id_w. unfold bop_add_id_BOTTOMS. 
+       destruct (H wS) as [I | I]. 
+          admit. (* OK *) 
+          admit. (* OK *) 
+Admitted. 
+
+
+(* note: commutativity and idempotence not needed *) 
+Lemma bop_add_id_something_is_finite
+      (sif : something_is_finite S rS bS) : 
+         something_is_finite (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
+Proof. destruct sif as [[BOTTOMS w] [A B]].
+       unfold something_is_finite.
+       exists (bop_add_id_BOTTOMS BOTTOMS, bop_add_id_w w). split. 
+          apply bop_add_id_is_interesting; auto. 
+          intros [s | s].
+             right. split.
+                assert (H : ∀ s : S, (in_set rS BOTTOMS s = true) + (in_set rS BOTTOMS (w s) = true)). admit. 
+                assert (J : ∀ s : S, (in_set rS BOTTOMS s = true) -> (w s) = s).
+                   admit. (* fix this *) 
+                apply (id_in_set_add_id_BOTTOMS BOTTOMS w H J). 
+                split. 
+                   compute. apply refS. 
+                   compute. reflexivity. 
+             destruct (B s) as [C | [C1 [C2 C3]]]. 
+               left. apply in_set_add_id_BOTTOMS; auto.  
+               right. split. 
+                 apply bop_add_id_bottoms_functions_compatible; auto. 
+                  split. 
+                     compute. exact C2. 
+                     compute. exact C3. 
+Admitted. 
+
+
+Fixpoint strip_all_inr (carry : list S) (B : list (with_constant S)) : list S :=
+  match B with
+  | nil => carry
+  | (inl a) :: rest => strip_all_inr carry rest
+  | (inr a) :: rest => strip_all_inr (a :: carry) rest
+  end.
+
+Definition bop_add_id_not_BOTTOMS (F : list S → S) (B : list (with_constant S)) : with_constant S :=
+     inr (F (strip_all_inr nil B)). 
+
+
+Lemma lemma17 (F : list S → S) (B : list (with_constant S))
+              (H : in_set rS (strip_all_inr nil B) (F (strip_all_inr nil B)) = false) : 
+              in_set (brel_sum brel_constant rS) B (bop_add_id_not_BOTTOMS F B) = false. 
+Proof. induction B.
+       compute. reflexivity. 
+       destruct a as [a | a].
+          admit. 
+          admit.           
+Admitted. 
+       
+Lemma lemma18 (F : list S → S) (B : list (with_constant S)) (s : cas_constant) : 
+  (brel_sum brel_constant rS (inl s) ((c [+] bS) (inl s) (bop_add_id_not_BOTTOMS F B)) = false).
+Proof. compute. reflexivity. Qed.
+
+Lemma lemma19 (F : list S → S) (B : list (with_constant S)) (s : S) 
+  (H : in_set (brel_sum brel_constant rS) B (inr s) = true) : 
+  brel_sum brel_constant rS (bop_add_id_not_BOTTOMS F B) ((c [+] bS) (bop_add_id_not_BOTTOMS F B) (inr s)) = true. 
+Admitted. 
+
+Lemma bop_add_id_is_interesting_right (B : finite_set (with_constant S)) : 
+  is_interesting (with_constant S) (brel_sum brel_constant rS) (c [+] bS) B -> is_interesting S rS bS (strip_all_inr nil B). 
+Proof. unfold is_interesting. intros A s C t D.
+       assert (E : in_set (brel_sum brel_constant rS) B (inr s) = true). admit.
+       assert (G : in_set (brel_sum brel_constant rS) B (inr t) = true). admit.
+       destruct(A _ E _ G) as [[H1 H2] | [H1 H2]]; compute in H1, H2.
+          left; auto. right; auto. 
+Admitted. 
+
+(* note: commutativity and idempotence not needed *) 
+Lemma bop_add_id_something_not_is_finite
+      (sif : something_not_is_finite S rS bS) : 
+         something_not_is_finite (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
+Proof. unfold something_not_is_finite. unfold something_not_is_finite in sif. 
+       destruct sif as [F A].
+       exists (bop_add_id_not_BOTTOMS F).
+       intros B C. 
+          assert (D := bop_add_id_is_interesting_right B C).
+          destruct (A _ D) as [E G]. 
+       split. 
+          apply (lemma17 _ _ E).
+          intros [s | s] H.
+             left. apply (lemma18 F B s). 
+             right. apply (lemma19 F B s H). 
+Qed. 
+
 
 (* Decide *) 
 
