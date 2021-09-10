@@ -2,13 +2,18 @@ Require Import Coq.Bool.Bool.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
+Require Import CAS.coq.eqv.set. 
+Require Import CAS.coq.eqv.product.
+
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.and. 
+Require Import CAS.coq.sg.or. 
 
-Require Import CAS.coq.eqv.product. 
-Require Import CAS.coq.theory.facts. 
 
 Section Theory.
 
@@ -46,6 +51,9 @@ Variable assT : bop_associative T rT bT.
 
 Notation "a =S b"  := (rS a b = true) (at level 15).
 Notation "a =T b"  := (rT a b = true) (at level 15).
+Notation "a <>S b"  := (rS a b = false) (at level 15).
+Notation "a <>T b"  := (rT a b = false) (at level 15).
+
 Notation "a *S b"  := (bS a b) (at level 15).
 Notation "a *T b"  := (bT a b) (at level 15).
 
@@ -55,15 +63,15 @@ Notation "a [*] b" := (bop_product a b) (at level 15).
 
 Lemma bop_product_congruence : bop_congruence (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. intros [s1 s2] [t1 t2] [u1 u2] [w1 w2]; simpl. intros H1 H2. 
-       destruct (andb_is_true_left _ _ H1) as [C1 C2].
-       destruct (andb_is_true_left _ _ H2) as [C3 C4].
-       apply andb_is_true_right. split.  
+       destruct (bop_and_elim _ _ H1) as [C1 C2].
+       destruct (bop_and_elim _ _ H2) as [C3 C4].
+       apply bop_and_intro. 
           apply conS; auto. 
           apply conT; auto. 
 Defined.  
 
 Lemma bop_product_associative : bop_associative (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros [s1 s2] [t1 t2] [u1 u2]; simpl. apply andb_is_true_right. split. apply assS. apply assT. Defined.  
+Proof. intros [s1 s2] [t1 t2] [u1 u2]; simpl. apply bop_and_intro. apply assS. apply assT. Defined.  
 
 Lemma bop_product_idempotent :  bop_idempotent S rS bS → bop_idempotent T rT bT → bop_idempotent (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. intros L R (s, t). compute. rewrite L, R. reflexivity. Qed. 
@@ -209,7 +217,7 @@ Admitted.
 Lemma bop_product_left_cancellative :
         bop_left_cancellative S rS bS → bop_left_cancellative T rT bT → bop_left_cancellative (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. intros  L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
-       intro H. apply andb_is_true_left in H. destruct H as [HL HR]. 
+       intro H. apply bop_and_elim in H. destruct H as [HL HR]. 
        apply L in HL. apply R in HR. rewrite HL, HR. auto. 
 Defined. 
 
@@ -217,7 +225,7 @@ Lemma bop_product_not_left_cancellative_left :
         bop_not_left_cancellative S rS bS → bop_not_left_cancellative (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. intros [ [s1 [s2 s3]] [L R] ] . 
        exists ((s1, wT), ((s2, wT), (s3, wT))); simpl. split. 
-       apply andb_is_true_right. split. 
+       apply bop_and_intro. 
          exact L. 
          apply refT. 
       rewrite R. simpl. reflexivity. 
@@ -227,7 +235,7 @@ Lemma bop_product_not_left_cancellative_right :
       bop_not_left_cancellative T rT bT → bop_not_left_cancellative (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. intros [ [t1 [t2 t3]] [L R] ]. 
        exists ((wS, t1), ((wS, t2), (wS, t3))); simpl. split. 
-       apply andb_is_true_right. split. 
+       apply bop_and_intro. 
          apply refS. 
          exact L. 
       rewrite R. rewrite (refS wS). simpl. reflexivity. 
@@ -239,7 +247,7 @@ Lemma bop_product_right_cancellative :
          bop_right_cancellative (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. 
    intros L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
-   intro H. apply andb_is_true_left in H. destruct H as [HL HR]. 
+   intro H. apply bop_and_elim in H. destruct H as [HL HR]. 
    apply L in HL. apply R in HR. rewrite HL, HR. auto. 
 Defined. 
 
@@ -247,7 +255,7 @@ Lemma bop_product_not_right_cancellative_left :
       bop_not_right_cancellative S rS bS → bop_not_right_cancellative (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. intros [ [s1 [s2 s3]] [L R] ]. 
        exists ((s1, wT), ((s2, wT), (s3, wT))); simpl. split. 
-       apply andb_is_true_right. split. 
+       apply bop_and_intro. 
          exact L. 
          apply refT. 
       rewrite R. simpl. reflexivity. 
@@ -257,7 +265,7 @@ Lemma bop_product_not_right_cancellative_right :
         bop_not_right_cancellative T rT bT → bop_not_right_cancellative (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. intros [ [t1 [t2 t3]] [L R] ]. 
        exists ((wS, t1), ((wS, t2), (wS, t3))); simpl. split. 
-       apply andb_is_true_right. split. 
+       apply bop_and_intro. 
          apply refS. 
          exact L.      
       rewrite R. rewrite (refS wS). simpl. reflexivity. 
@@ -265,29 +273,29 @@ Defined.
 
 Lemma bop_product_left_constant : 
       bop_left_constant S rS bS → bop_left_constant T rT bT → bop_left_constant (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros  L R [s1 t1] [s2 t2] [s3 t3]; simpl. apply andb_is_true_right. split. apply L. apply R. Defined. 
+Proof. intros  L R [s1 t1] [s2 t2] [s3 t3]; simpl. apply bop_and_intro. apply L. apply R. Defined. 
 
 Lemma bop_product_not_left_constant_left : 
           bop_not_left_constant S rS bS → bop_not_left_constant (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros  [ [s1 [s2 s3]] Q ]. exists ((s1, wT), ((s2, wT), (s3, wT))); simpl. apply andb_is_false_right. left. exact Q. Defined. 
+Proof. intros  [ [s1 [s2 s3]] Q ]. exists ((s1, wT), ((s2, wT), (s3, wT))); simpl. apply bop_and_false_intro. left. exact Q. Defined. 
 
 Lemma bop_product_not_left_constant_right : bop_not_left_constant T rT bT → bop_not_left_constant (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros  [ [t1 [t2 t3]]  Q ]. exists ((wS, t1), ((wS, t2), (wS, t3))); simpl. apply andb_is_false_right. right. exact Q. Defined. 
+Proof. intros  [ [t1 [t2 t3]]  Q ]. exists ((wS, t1), ((wS, t2), (wS, t3))); simpl. apply bop_and_false_intro. right. exact Q. Defined. 
 
 Lemma bop_product_right_constant : bop_right_constant S rS bS → bop_right_constant T rT bT → bop_right_constant (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros  L R [s1 t1] [s2 t2] [s3 t3]; simpl. apply andb_is_true_right. split. apply L. apply R. Defined. 
+Proof. intros  L R [s1 t1] [s2 t2] [s3 t3]; simpl. apply bop_and_intro. apply L. apply R. Defined. 
 
 Lemma bop_product_not_right_constant_left : bop_not_right_constant S rS bS → bop_not_right_constant (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros  [ [s1 [s2 s3]] Q ]. exists ((s1, wT), ((s2, wT), (s3, wT))); simpl. apply andb_is_false_right. left. exact Q. Defined. 
+Proof. intros  [ [s1 [s2 s3]] Q ]. exists ((s1, wT), ((s2, wT), (s3, wT))); simpl. apply bop_and_false_intro. left. exact Q. Defined. 
 
 Lemma bop_product_not_right_constant_right : bop_not_right_constant T rT bT → bop_not_right_constant (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros  [ [t1 [t2 t3]] Q ]. exists ((wS, t1), ((wS, t2), (wS, t3))); simpl. apply andb_is_false_right. right. exact Q. Defined. 
+Proof. intros  [ [t1 [t2 t3]] Q ]. exists ((wS, t1), ((wS, t2), (wS, t3))); simpl. apply bop_and_false_intro. right. exact Q. Defined. 
 
 Lemma bop_product_anti_left : (bop_anti_left S rS bS) + (bop_anti_left T rT bT) → bop_anti_left (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros  [P | P] [s1 t1] [s2 t2]; simpl; apply andb_is_false_right. left. apply P. right. apply P. Defined. 
+Proof. intros  [P | P] [s1 t1] [s2 t2]; simpl; apply bop_and_false_intro. left. apply P. right. apply P. Defined. 
 
 Lemma bop_product_anti_right : (bop_anti_right S rS bS) + (bop_anti_right T rT bT) → bop_anti_right (S * T) (rS <*> rT) (bS [*] bT). 
-Proof. intros  [P | P] [s1 t1] [s2 t2]; simpl; apply andb_is_false_right. left. apply P. right. apply P. Defined. 
+Proof. intros  [P | P] [s1 t1] [s2 t2]; simpl; apply bop_and_false_intro. left. apply P. right. apply P. Defined. 
 
 Lemma bop_product_not_anti_left : bop_not_anti_left S rS bS → bop_not_anti_left T rT bT → bop_not_anti_left (S * T) (rS <*> rT) (bS [*] bT). 
 Proof. intros  [[ s1 s2 ] P ] [ [ t1 t2 ] Q ]. exists ((s1, t1), (s2, t2)); simpl. rewrite P, Q. simpl. reflexivity. Defined. 
@@ -301,7 +309,7 @@ Lemma bop_product_is_id_left :
    ∀ (s : S ) (t : T ),  (bop_is_id (S * T) (rS <*> rT) (bS [*] bT) (s, t)) ->  bop_is_id S rS bS s.        
 Proof. intros  s t H s1. 
        destruct (H (s1, t)) as [L R]. simpl in L, R. 
-       apply andb_is_true_left in L. apply andb_is_true_left in R. 
+       apply bop_and_elim in L. apply bop_and_elim in R. 
        destruct L as [LL RL]. destruct R as [LR RR]. 
        rewrite LL, LR. auto. 
 Defined.                         
@@ -310,7 +318,7 @@ Lemma bop_product_is_id_right :
    ∀ (s : S ) (t : T ), (bop_is_id (S * T) (rS <*> rT) (bS [*] bT) (s, t)) ->  bop_is_id T rT bT t.  
 Proof. intros  s t H t1. 
        destruct (H (s, t1)) as [L R]. simpl in L, R. 
-       apply andb_is_true_left in L. apply andb_is_true_left in R. 
+       apply bop_and_elim in L. apply bop_and_elim in R. 
        destruct L as [LL RL]. destruct R as [LR RR]. 
        rewrite RL, RR. auto. 
 Defined.                         
@@ -320,7 +328,7 @@ Lemma bop_product_is_ann_left :
    ∀ (s : S ) (t : T ), (bop_is_ann (S * T) (rS <*> rT) (bS [*] bT) (s, t)) ->  bop_is_ann S rS bS s.         
 Proof. intros  s t H s1. 
        destruct (H (s1, t)) as [L R]. simpl in L, R. 
-       apply andb_is_true_left in L. apply andb_is_true_left in R. 
+       apply bop_and_elim in L. apply bop_and_elim in R. 
        destruct L as [LL RL]. destruct R as [LR RR]. 
        rewrite LL, LR. auto. 
 Defined.                         
@@ -329,7 +337,7 @@ Lemma bop_product_is_ann_right :
    ∀ (s : S ) (t : T ), (bop_is_ann (S * T) (rS <*> rT) (bS [*] bT) (s, t)) ->  bop_is_ann T rT bT t.  
 Proof. intros  s t H t1. 
        destruct (H (s, t1)) as [L R]. simpl in L, R. 
-       apply andb_is_true_left in L. apply andb_is_true_left in R. 
+       apply bop_and_elim in L. apply bop_and_elim in R. 
        destruct L as [LL RL]. destruct R as [LR RR]. 
        rewrite RL, RR. auto. 
 Defined.       
@@ -421,6 +429,355 @@ Proof. unfold bop_not_exists_ann, brel_product, bop_product.
           exists (s, x). right. rewrite F. apply andb_comm. 
 Defined.
 
+
+(*bottoms
+
+Definition bop_product_w (BS : list S) (BT : list T) (fS : S ->S) (fT : T -> T) (p : S * T) :=
+  match p with (s, t) =>
+               if in_set rS BS s 
+               then if in_set rT BT t 
+                    then (s, t)
+                    else (s, fT t)
+               else if in_set rT BT t 
+                    then (fS s, t)
+                    else (fS s, fT t)
+  end.  
+
+Definition map_mk_pairs: S -> finite_set T -> finite_set (S * T) :=
+   fix f a Y := 
+      match Y with
+         | nil => nil 
+         | b :: rest => (a, b) :: (f a rest)
+      end.
+
+Definition set_product : finite_set S -> finite_set T -> finite_set (S * T) :=
+   fix f x y := 
+      match x with
+         | nil => nil 
+         | a :: rest => (map_mk_pairs a y) ++ (f rest y) 
+      end.
+
+Lemma in_set_map_mk_pairs_elim (a s : S) (t : T) (BT : list T): 
+      in_set (rS <*> rT) (map_mk_pairs a BT) (s, t) = true -> (rS a s = true) * (in_set rT BT t = true). 
+Proof. induction BT; intro H. 
+          compute in H. discriminate H. 
+          unfold map_mk_pairs in H. fold map_mk_pairs in H. 
+          apply in_set_cons_elim in H; auto. 
+          destruct H as [H | H]. 
+             compute in H. 
+             case_eq(rS a s); intro G. 
+                 rewrite G in H. split; auto. 
+                 apply in_set_cons_intro; auto. 
+                 rewrite G in H. discriminate H. 
+
+             destruct (IHBT H) as [J K]. 
+             split; auto. 
+                apply in_set_cons_intro; auto. 
+          apply brel_product_symmetric; auto. 
+Qed. 
+             
+Lemma in_set_map_mk_pairs_intro (a s : S) (t : T) (BT : list T): 
+    (rS a s = true) -> (in_set rT BT t = true) -> in_set (rS <*> rT) (map_mk_pairs a BT) (s, t) = true.
+Proof. induction BT; intros H1 H2.
+       compute in H2. discriminate H2. 
+
+       unfold map_mk_pairs. fold map_mk_pairs. 
+       apply in_set_cons_intro; auto. 
+       apply brel_product_symmetric; auto. 
+       apply in_set_cons_elim in H2; auto. 
+       destruct H2 as [H2 | H2]. 
+          left. compute. rewrite H1, H2. reflexivity. 
+          right. apply IHBT; auto. 
+Qed. 
+       
+Lemma in_set_product_elim (s : S) (t : T) (BS : list S) (BT : list T) :
+  in_set (rS <*> rT) (set_product BS BT) (s, t) = true -> (in_set rS BS s = true) * (in_set rT BT t = true).
+Proof. induction BS; intro H. 
+       compute in H. discriminate H.
+       unfold set_product in H. fold set_product in H.
+       apply in_set_concat_elim in H; auto. 
+       destruct H as [H | H]. 
+          apply in_set_map_mk_pairs_elim in H. destruct H as [H1 H2].
+          split; auto. 
+             apply in_set_cons_intro; auto. 
+       
+          destruct (IHBS H) as [J K].        
+          split; auto. 
+             apply in_set_cons_intro; auto. 
+             apply brel_product_symmetric; auto. 
+Qed.
+
+Lemma in_set_product_intro (s : S) (t : T) (BS : list S) (BT : list T) :
+ (in_set rS BS s = true) -> (in_set rT BT t = true) -> in_set (rS <*> rT) (set_product BS BT) (s, t) = true. 
+Proof. intros A B. induction BS. 
+          compute in A. discriminate A. 
+
+          unfold set_product. fold set_product. 
+          apply in_set_concat_intro; auto. 
+          apply in_set_cons_elim in A; auto.           
+          destruct A as [A | A]. 
+             left. apply in_set_map_mk_pairs_intro; auto. 
+             right. exact (IHBS A). 
+Qed. 
+
+          
+Lemma set_product_is_interesting (BS : list S) (BT : list T) :
+  is_interesting S rS bS BS -> is_interesting T rT bT BT -> 
+  is_interesting (S * T) (rS <*> rT) (bS [*] bT) (set_product BS BT).
+Proof. unfold is_interesting. intros IS IT.
+       intros [s1 t1] H1 [s2 t2] H2.
+       apply in_set_product_elim in H1. destruct H1 as [H1L H1R].
+       apply in_set_product_elim in H2. destruct H2 as [H2L H2R].
+       destruct (IS s1 H1L s2 H2L) as [[A B] | [A B]];
+       destruct (IT t1 H1R t2 H2R) as [[C D] | [C D]]; compute. 
+          rewrite A, B, C, D. left; auto. 
+          rewrite A, B, C, D. right; auto. 
+          rewrite A, B.  right; auto. 
+          rewrite A, B.  right; auto. 
+Qed. 
+
+
+(* note: commutativity not used *) 
+Lemma bop_product_something_is_finite
+      (idemS : bop_idempotent S rS bS) (idemT : bop_idempotent T rT bT):
+  something_is_finite S rS bS →
+  something_is_finite T rT bT →
+       something_is_finite (S * T) (rS <*> rT) (bS [*] bT). 
+Proof. unfold something_is_finite. 
+       intros [[BS fS] [IS PS]] [[BT fT] [IT PT]]. 
+       exists (set_product BS BT, bop_product_w BS BT fS fT). split. 
+          apply set_product_is_interesting; auto.   
+          intros [s t]. unfold bop_product_w.
+          assert (iS := idemS s). apply symS in iS.
+          assert (iT := idemT t). apply symT in iT.            
+          destruct (PS s) as [A | [A [B C]]];
+          destruct (PT t) as [D | [D [E F]]]. 
+             left. apply in_set_product_intro; auto.
+
+             rewrite A. case_eq(in_set rT BT t); intro G. 
+                left. apply in_set_product_intro; auto.
+                right. split. 
+                   apply in_set_product_intro; auto.
+                   split. 
+                      compute. rewrite iS. exact E. 
+                      compute. rewrite iS. exact F. 
+
+             rewrite D. case_eq(in_set rS BS s); intro G. 
+                left. apply in_set_product_intro; auto.
+                right. split. 
+                   apply in_set_product_intro; auto.
+                   split. 
+                      compute. rewrite B. exact iT. 
+                      compute. rewrite C. reflexivity. 
+
+             case_eq(in_set rS BS s); intro G; case_eq(in_set rT BT t); intro H.
+                left. apply in_set_product_intro; auto. 
+
+                right. split. 
+                   apply in_set_product_intro; auto. 
+                   split. 
+                      compute. rewrite iS. exact E. 
+                      compute. rewrite iS. exact F. 
+
+                right. split. 
+                   apply in_set_product_intro; auto. 
+                   split. 
+                      compute. rewrite B. exact iT. 
+                      compute. rewrite C. reflexivity. 
+
+                right. split. 
+                   apply in_set_product_intro; auto. 
+                   split. 
+                      compute. rewrite B. exact E. 
+                      compute. rewrite C. reflexivity. 
+Qed. 
+
+Definition set_product_proj1 (B : finite_set (S * T)) : finite_set S :=
+  List.map (λ p, match p with (s, _) => s end) B. 
+
+Definition set_product_proj2 (B : finite_set (S * T)) : finite_set T :=
+  List.map (λ p, match p with (_, t) => t end) B.
+ 
+Definition product_not_finite_v1 (F : finite_set S -> S) (X : finite_set (S * T)) : S * T :=
+     (F (set_product_proj1 X), wT). 
+
+Definition product_not_finite_v2 (F : finite_set T -> T) (X : finite_set (S * T)) : S * T :=
+     (wS, F (set_product_proj2 X)). 
+
+Lemma in_set_product_proj1_intro (B : finite_set (S * T)) :
+  ∀ (s : S) (t : T) ,  
+     in_set (rS <*> rT) B (s, t) = true -> in_set rS (set_product_proj1 B) s = true. 
+Proof. induction B; intros s t H. 
+          compute in H. discriminate H. 
+          unfold set_product_proj1. 
+          destruct a as [s' t']. 
+          unfold List.map. fold (List.map (λ p : S * T, let (s0, _) := p in s0) B). 
+          apply in_set_cons_intro; auto. 
+          apply in_set_cons_elim in H; auto. 
+          destruct H as [H | H]. 
+             compute in H. 
+             case_eq(rS s' s); intro J. 
+               left. reflexivity. 
+               rewrite J in H. discriminate H.
+
+            right. exact (IHB s t H). 
+          apply brel_product_symmetric; auto. 
+Qed.
+
+Lemma in_set_product_proj1_elim (B : finite_set (S * T)) :
+  ∀ (s : S),  
+     in_set rS (set_product_proj1 B) s = true -> {t : T & in_set (rS <*> rT) B (s, t) = true}. 
+Proof. induction B; intros s H. 
+       compute in H. discriminate H. 
+       unfold set_product_proj1 in H. 
+       destruct a as [s' t']. 
+       unfold List.map in H. fold (List.map (λ p : S * T, let (s0, _) := p in s0) B) in H. 
+       apply in_set_cons_elim in H; auto. 
+       destruct H as [H | H]. 
+          exists t'.
+          apply in_set_cons_intro; auto.
+          apply brel_product_symmetric; auto.
+          left. compute. rewrite H. apply refT. 
+          destruct (IHB s H) as [t P]. 
+          exists t. 
+          apply in_set_cons_intro; auto.
+          apply brel_product_symmetric; auto.
+Qed.
+
+
+Lemma in_set_product_proj2_intro (B : finite_set (S * T)) :
+  ∀ (s : S) (t : T) ,  
+     in_set (rS <*> rT) B (s, t) = true -> in_set rT (set_product_proj2 B) t = true. 
+Proof. induction B; intros s t H. 
+          compute in H. discriminate H. 
+          unfold set_product_proj2. 
+          destruct a as [s' t']. 
+          unfold List.map. fold (List.map (λ p : S * T, let (_, t0) := p in t0) B). 
+          apply in_set_cons_intro; auto. 
+          apply in_set_cons_elim in H; auto. 
+          destruct H as [H | H]. 
+             compute in H. 
+             case_eq(rT t' t); intro J. 
+               left. reflexivity. 
+               rewrite J in H. 
+               case_eq(rS s' s); intro K; rewrite K in H; discriminate H. 
+
+              right. exact (IHB s t H). 
+          apply brel_product_symmetric; auto. 
+Qed.
+
+Lemma set_product_is_interesting_v1 (B : finite_set (S * T)) : 
+   is_interesting (S * T) (rS <*> rT) (bS [*] bT) B -> is_interesting S rS bS (set_product_proj1 B).
+Proof. unfold is_interesting. intros I s1 H1 s2 H2.
+       apply in_set_product_proj1_elim in H1. 
+       apply in_set_product_proj1_elim in H2. 
+       destruct H1 as [t1 H1]. 
+       destruct H2 as [t2 H2]. 
+       destruct (I (s1, t1) H1 (s2, t2) H2) as [[H3 H4] | [H3 H4]]; compute in H3, H4.           
+          case_eq(rS s2 (s2 *S s1)); intro H5; case_eq(rS s1 (s1 *S s2)); intro H6. 
+              left; auto. 
+              rewrite H6 in H4. discriminate H4. 
+              rewrite H5 in H3. discriminate H3. 
+              right; auto. 
+          case_eq(rT t2 (t2 *T t1)); intro H5; case_eq(rT t1 (t1 *T t2)); intro H6;
+              rewrite H5 in H3; rewrite H6 in H4.
+              case_eq(rS s2 (s2 *S s1)); intro H7; case_eq(rS s1 (s1 *S s2)); intro H8.  
+                 left; auto. 
+                 rewrite H7 in H3. discriminate H3. 
+                 rewrite H8 in H4. discriminate H4. 
+                 right; auto. 
+
+              case_eq(rS s2 (s2 *S s1)); intro H7; case_eq(rS s1 (s1 *S s2)); intro H8.  
+                 left; auto. 
+                 rewrite H7 in H3. discriminate H3. 
+                 admit. 
+                 right; auto. 
+
+              case_eq(rS s2 (s2 *S s1)); intro H7; case_eq(rS s1 (s1 *S s2)); intro H8.  
+                 left; auto. 
+                 admit. 
+                 rewrite H8 in H4. discriminate H4. 
+                 right; auto. 
+
+              case_eq(rS s2 (s2 *S s1)); intro H7; case_eq(rS s1 (s1 *S s2)); intro H8.  
+                 left; auto. 
+                 admit. 
+                 admit. 
+                 right; auto. 
+Admitted. 
+
+       
+Lemma set_product_is_interesting_v2 (B : finite_set (S * T)) : 
+   is_interesting (S * T) (rS <*> rT) (bS [*] bT) B -> is_interesting T rT bT (set_product_proj2 B).
+Admitted.
+
+
+
+(* note: idempotence not used *) 
+Lemma bop_product_something_not_is_finite_v1 (commS : bop_commutative S rS bS): 
+  something_not_is_finite S rS bS →
+     something_not_is_finite (S * T) (rS <*> rT) (bS [*] bT).
+Proof. unfold something_not_is_finite.
+       intros [F A]. 
+       exists (product_not_finite_v1 F).
+       intros B I. 
+       assert (C := set_product_is_interesting_v1 B I).
+       destruct (A (set_product_proj1 B) C) as [D E]. 
+       unfold product_not_finite_v1.
+       split. 
+          case_eq(in_set (rS <*> rT) B (F (set_product_proj1 B), wT)); intro G; auto.
+             apply in_set_product_proj1_intro in G. 
+             rewrite G in D. discriminate D. 
+          
+          intros [s t] G. 
+          assert (G' := in_set_product_proj1_intro _ _ _ G).
+          unfold bop_product. unfold brel_product. 
+          destruct (E s G') as [H | H].
+             left. rewrite H. compute. reflexivity.
+
+             case_eq(rS s (s *S F (set_product_proj1 B)) ); intro K. 
+                assert (J := commS s (F (set_product_proj1 B))). 
+                assert (L := transS _ _ _ K J).              
+                apply symS in H. 
+                assert (M := transS _ _ _ L H). 
+                assert (N := in_set_right_congruence _ rS symS transS _ _ _ M G'). 
+                rewrite N in D. discriminate D. 
+                
+                left. compute. reflexivity. 
+Defined. 
+
+Lemma bop_product_something_not_is_finite_v2 (commT : bop_commutative T rT bT): 
+  something_not_is_finite T rT bT →
+     something_not_is_finite (S * T) (rS <*> rT) (bS [*] bT).
+Proof. unfold something_not_is_finite.
+       intros [F A]. 
+       exists (product_not_finite_v2 F).
+       intros B I. 
+       assert (C := set_product_is_interesting_v2 B I).
+       destruct (A (set_product_proj2 B) C) as [D E]. 
+       unfold product_not_finite_v2.
+       split. 
+          case_eq(in_set (rS <*> rT) B (wS, F (set_product_proj2 B))); intro G; auto.
+             apply in_set_product_proj2_intro in G. 
+             rewrite G in D. discriminate D. 
+          
+          intros [s t] G. 
+          assert (G' := in_set_product_proj2_intro _ _ _ G).
+          unfold bop_product. unfold brel_product. 
+          destruct (E t G') as [H | H].
+             left. rewrite H. apply andb_is_false_right. right. reflexivity. 
+
+             case_eq(rT t (t *T F (set_product_proj2 B))); intro K. 
+                assert (J := commT t (F (set_product_proj2 B))). 
+                assert (L := transT _ _ _ K J).              
+                apply symT in H. 
+                assert (M := transT _ _ _ L H). 
+                assert (N := in_set_right_congruence _ rT symT transT _ _ _ M G'). 
+                rewrite N in D. discriminate D. 
+                
+                left. apply andb_is_false_right. right. reflexivity. 
+Defined. 
+*)
 
 (* Decide *) 
 
@@ -640,7 +997,7 @@ Proof.  intros commS commT.
         assert (CT := commT (g wT) wT).         
         case_eq (rS (f wS *S wS) wS); intro H1; case_eq (rT (g wT *T wT) wT); intro H2; 
         unfold brel_product; unfold bop_product; 
-        split; apply andb_is_false_right. 
+        split; apply bop_and_false_intro. 
            left. case_eq (rS (f wS *S wS) (f wS)); intro H3; auto.
                  apply symS in H1. 
                  assert (H6 := transS _ _ _ H1 H3). 

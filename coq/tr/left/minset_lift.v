@@ -1,23 +1,23 @@
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
-Require Import CAS.coq.po.properties.
-Require Import CAS.coq.po.structures.
-Require Import CAS.coq.sg.properties.
-Require Import CAS.coq.sg.structures.
-Require Import CAS.coq.os.properties.
-Require Import CAS.coq.os.structures.
-
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.subset.
-Require Import CAS.coq.theory.order. (* for below, equiv, ... *) 
-
+Require Import CAS.coq.eqv.theory. 
 Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.eqv.minset.
+
+Require Import CAS.coq.po.properties.
+Require Import CAS.coq.po.structures.
+Require Import CAS.coq.po.theory. 
+
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.lift.
+
+Require Import CAS.coq.os.properties.
+Require Import CAS.coq.os.structures.
 
 Section Theory.
 

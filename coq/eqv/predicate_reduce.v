@@ -4,7 +4,7 @@ Require Import CAS.coq.common.data.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 
-Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.theory.reduction.predicate.
 Require Import CAS.coq.eqv.reduce.
 Require Import CAS.coq.eqv.set.

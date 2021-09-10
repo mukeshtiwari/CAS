@@ -2,16 +2,25 @@ Require Import Coq.Bool.Bool.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
+Require Import CAS.coq.theory.set. 
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
-Require Import CAS.coq.sg.properties.
-Require Import CAS.coq.sg.theory.
-Require Import CAS.coq.sg.structures.
-
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.subset. 
+Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.eqv.set.
+
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.theory.
+Require Import CAS.coq.sg.and. 
+
+Section Computation.
+
+Definition bop_intersect : ∀ {S : Type}, brel S → binary_op (finite_set S) 
+:= λ {S} eq X,  uop_filter (in_set eq X). 
+  
+End Computation.   
 
 Section Theory.
 
@@ -100,8 +109,7 @@ Qed.
 Lemma bop_intersect_idempotent : bop_idempotent (finite_set S) (brel_set eq) (bop_intersect eq).
 Proof. intro s. destruct s. 
           compute. reflexivity.
-          unfold brel_set. unfold brel_and_sym. apply andb_is_true_right. 
-          split.
+          unfold brel_set. unfold brel_and_sym. apply bop_and_intro. 
              apply brel_subset_intro; auto. 
              intros x H. 
              apply in_set_filter_elim in H.
@@ -200,7 +208,18 @@ Defined.
 
 
 Lemma  bop_intersect_singleton_nil (s : S) (X : finite_set S) : in_set eq X s = false -> bop_intersect eq (s :: nil) X = nil.
-Admitted.   
+Proof. intro H. induction X.
+       compute. reflexivity. 
+       apply not_in_set_cons_elim in H; auto. 
+       destruct H as [H1 H2].
+       assert (H3 := IHX H2). 
+       unfold bop_intersect. unfold bop_intersect in H3.
+       unfold uop_filter. unfold uop_filter in H3. 
+       unfold filter. (fold (filter (in_set eq (s :: nil)) X)).
+       case_eq(in_set eq (s :: nil) a ); intro H4. 
+          compute in H4. rewrite H1 in H4. discriminate H4. 
+          exact H3. 
+Qed.
 
 Lemma bop_intersect_not_exists_id (no_enum : carrier_is_not_finite S eq) : 
    bop_not_exists_id (finite_set S) (brel_set eq) (bop_intersect eq).
@@ -223,9 +242,7 @@ Definition bop_intersect_exists_id_decide (fin_d : carrier_is_finite_decidable S
      | inr nfs => inr (bop_intersect_not_exists_id nfs)
     end.
 
-
-Check brel_set_not_trivial. 
-
+(*
 Lemma bop_intersect_somthing_is_finite : something_is_finite (finite_set S) (brel_set eq) (bop_intersect eq).
 Proof. exact (exists_ann_implies_something_is_finite _ _ _ 
               bop_intersect_congruence 
@@ -238,7 +255,7 @@ Proof. exact (exists_ann_implies_something_is_finite _ _ _
               (brel_set_not_trivial S eq wS)
               bop_intersect_exists_ann). 
 Defined.
-
+*) 
 
 End Theory.
 
@@ -277,7 +294,7 @@ Definition A_sg_CI_intersect : ∀ (S : Type) ,  A_eqv S -> A_sg_CI (finite_set 
    {| 
      A_sg_CI_eqv          := A_eqv_set S eqv
    ; A_sg_CI_bop          := bop_intersect eqS
-   ; A_sg_CI_exists_id_d  := bop_intersect_exists_id_decide S eqS s f ntS refS symS trnS (A_eqv_finite_d S eqv) 
+   ; A_sg_CI_exists_id_d  := bop_intersect_exists_id_decide S eqS refS symS trnS (A_eqv_finite_d S eqv) 
    ; A_sg_CI_exists_ann_d := inl _ (bop_intersect_exists_ann S eqS refS symS trnS)
    ; A_sg_CI_proofs       := sg_CI_proofs_intersect S eqv
    ; A_sg_CI_ast          := Ast_sg_intersect (A_eqv_ast S eqv)

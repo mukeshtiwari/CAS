@@ -70,9 +70,6 @@ Definition brel_complement : ∀ {S : Type}, brel S -> brel S
 Definition brel2_complement : ∀ {S T : Type}, brel2 S T -> brel2 S T
 := λ {S} {T} r x y,  if (r x y) then false else true. 
 
-(* was reverse *) 
-Definition brel_dual : ∀ {S : Type}, brel S -> brel S := λ {S} r x y,  r y x. 
-
 Definition brel2_dual : ∀ {S T : Type}, brel2 S T -> brel2 T S := λ {S} {T} r x y,  r y x. 
 
 Definition brel_conjunction : ∀ {S : Type}, brel S -> brel S -> brel S 
@@ -95,23 +92,6 @@ Definition brel2_disjunction : ∀ {S T : Type}, brel2 S T-> brel2 S T -> brel2 
 := λ {S} {T} r1 r2 x y,  (r1 x y) || (r2 x y). 
 
 
-(* 
-Definition brel_disj : ∀ (S : Type), brel S -> brel S -> brel S 
-:= λ S r1 r2 x y,  (r1 x y) || (r2 x y). 
-*) 
-
-Definition brel_strictify : ∀ {S : Type}, brel S -> brel S 
-:= λ {S} r,  brel_conjunction r (brel_complement (brel_dual r)). 
-
-
-Definition brel_list : ∀ {S : Type}, brel S → brel(list S)
-:= fix f {S} U x y := 
-      match x, y with
-         | nil, nil => true 
-         | nil, _ => false 
-         | _, nil => false 
-         | a::tla, b::tlb => andb (U a b) (f U tla tlb)
-      end.
 
 (* This is forallb from List.v.  Define it here 
    rather than in List.v so as not to pull in that file in extraction. 
@@ -124,9 +104,10 @@ Definition bProp_lift_list : ∀ {A : Type}, (bProp A) -> bProp (list A)
 	| a::rest => p a && f p rest
       end.
 
+(*
 Definition dominates_set : ∀ {S : Type}, brel S → brel S → brel2 (finite_set S) S 
 := λ {S} eq lte X a, bProp_lift_list  (λ x, brel_complement (brel_strictify lte) x a) X.                 
-
+*) 
 (* was called bProp_forall    proofs in bprop_forall.v 
 
 Definition bProp_lift_set : ∀ {A : Type}, (bProp A) -> bProp (finite_set A) 
@@ -139,12 +120,6 @@ Definition bProp_from_brel_left : ∀ {S : Type}, brel S -> S -> bProp S
 Definition bProp_from_brel_right : ∀ {S : Type}, brel S -> S -> bProp S
 := λ {S} r a x, r a x.  
 
-
-Definition brel_product : ∀ {S T : Type}, brel S → brel T → brel (S * T)
-:= λ {S} {T} U V x y, 
-   match x, y with
-   | (x1, x2), (y1, y2) => andb (U x1 y1) (V x2 y2) 
-   end.
 
 Definition brel2_product : ∀ {S T U V : Type}, brel2 S U → brel2 T V → brel2 (S * T) (U * V)
 := λ {S} {T} {U} {V} r q x y, 
@@ -173,44 +148,8 @@ Definition brel_add_top : ∀ {S : Type}, brel S → cas_constant → brel (cas_
    end.
 
 
-(* DELETE 
-Definition brel_from_bop_left : ∀ (S : Type) (r : brel S) (b : binary_op S), brel S 
-:= λ S r b x y, r x (b x y). 
 
-(* DELETE *) 
-(* r' x y = true  <-> r y (b x y) *) 
-Definition brel_from_bop_right : ∀ (S : Type) (r : brel S) (b : binary_op S), brel S 
-:= λ S r b x y, r y (b x y). 
-
-(* DELETE *) 
-(* r' x y = true  <-> r x (b x y) *) 
-Definition brel_bop_to_lte_left : ∀ S : Type, brel S → binary_op S → brel S 
-:= λ S eq b x y, eq x (b x y). 
-
-(* DELETE *) 
-Definition brel_bop_to_lt_left : ∀ S : Type, brel S → binary_op S → brel S 
-:= λ S eq b x y, (brel_bop_to_lte_left S eq b x y) && (negb (eq y (b x y))). 
- *)
-
-
-(* NEW DEFS *) 
-
-
-(* r' x y = true  <-> r x (b x y) *) 
-Definition brel_llte : ∀ {S : Type}, brel S → binary_op S → brel S 
-:= λ {S} eq b x y, eq x (b x y). 
-
-Definition brel_llt : ∀ {S : Type}, brel S → binary_op S → brel S 
-:= λ {S} eq b, brel_conjunction (brel_llte eq b) (brel_complement eq). 
-
-(* r' x y = true  <-> r y (b x y) *) 
-Definition brel_rlte : ∀ {S : Type}, brel S → binary_op S → brel S 
-:= λ {S} eq b x y, eq y (b x y). 
-
-Definition brel_rlt : ∀ {S : Type}, brel S → binary_op S → brel S 
-
-:= λ {S} eq b, brel_conjunction (brel_rlte eq b) (brel_complement eq). 
-
+(* NEW DEFS *)
 
 Definition brel_and_sym : ∀ {S : Type}, brel S -> brel S 
 := λ {S} r x y,  (r x y) && (r y x). 
@@ -218,29 +157,6 @@ Definition brel_and_sym : ∀ {S : Type}, brel S -> brel S
 Definition brel_or_sym : ∀ {S : Type}, brel S -> brel S 
 := λ {S} r x y,  (r x y) || (r y x). 
 
-Definition in_list : ∀ {S : Type},  brel S -> brel2 (list S) S
-:= fix f {S} r l s := 
-   match l with 
-   | nil => false 
-   | a :: rest => r s a || f r rest s
-   end. 
-
-Definition in_set : ∀ {S : Type},  brel S -> brel2 (finite_set S) S
-:= fix f {S} r l s := 
-   match l with 
-   | nil => false 
-   | a :: rest => r s a || f r rest s
-   end. 
-
-Definition brel_subset : ∀ {S : Type},  brel S -> brel (finite_set S)
-:= fix f {S} r set1 set2 := 
-   match set1 with 
-   | nil => true 
-   | a :: rest => (in_set r set2 a) && (f r rest set2)
-   end. 
-
-Definition brel_set : ∀ {S : Type}, brel S → brel(finite_set S) 
-:= λ {S} r,  brel_and_sym (brel_subset r). 
 
 Definition brel_reduce : ∀ {S : Type}, brel S → unary_op S → brel S
 := λ {S} r u x y,  r (u x) (u y). 
@@ -249,24 +165,6 @@ Definition brel_reduce : ∀ {S : Type}, brel S → unary_op S → brel S
 (* brel2 *) 
 
 
-(* DELETE brel2_from_brel.v ... 
-
-Definition brel2_from_brel : ∀ {S : Type}, (brel S) → brel2 S (finite_set S)
-:= λ {S} r x, (bProp_lift_list S (r x)).
-
-
-Definition is_minimal_in : ∀ {S : Type}, brel S → brel S → brel2 S (finite_set S)
-:= λ {S} eq lt a X, if brel_set S eq nil X
-                  then false 
-                  else brel2_from_brel S (λ x, λ y, negb ((brel_strictify S lt) y x)) a X. 
-
-
-Definition is_minimal_in : ∀ {S : Type}, brel S → brel S → brel2 (finite_set S) S 
-:= λ {S} eq lte, brel2_conjunction (finite_set S) S 
-                  (in_set S eq)
-                  (brel2_lift_set_left S (brel_complement S (brel_strictify S lte))).                  
-
-*) 
 
 End BooleanRelations.
 
@@ -308,22 +206,6 @@ Definition uop_sum : ∀ {S T : Type}, unary_op S → unary_op T → unary_op (S
          | (inr t) => inr _ (g t) 
       end.
 
-Definition uop_duplicate_elim : ∀ {S : Type}, brel S -> unary_op (finite_set S) 
-:= λ {S} r,  fix f x := 
-      match x with
-         | nil => nil
-         | a :: y => 
-            if in_set r y a 
-              then f y
-              else a :: (f y)
-      end.
-
-(* yes, cheating for now ... *) 
-Definition uop_set_map : ∀ {S : Type}, unary_op S → unary_op (finite_set S) 
-:= λ {S} f X,  uop_list_map f X. 
-
-Definition uop_set_rep : ∀ {S : Type}, brel S -> unary_op S → unary_op (finite_set S) 
-:= λ {S} eq f X,  uop_duplicate_elim eq (uop_set_map f X). 
 
 (* copied here from Coq.Lists.List.v    
    so that extraction does not construct a 
@@ -355,8 +237,8 @@ Open Scope list_scope.
 
 (* BASE *) 
 
-Definition bop_and    : binary_op bool := andb. 
-Definition bop_or     : binary_op bool := orb. 
+
+
 Definition bop_plus   : binary_op nat := plus.
 Definition bop_times  : binary_op nat := mult.
 Definition bop_min    : binary_op nat := min.
@@ -461,23 +343,6 @@ End BinaryOperators.
 
 
 Section CombinedOperators.
-(*
-
-(a, b) llex (c, d) = (a + c, test(=, a,  c, b + d, test(<, a, c, b, d)))
-
-*) 
-Definition bop_llex : ∀ {S T : Type}, brel S → binary_op S → binary_op T → binary_op (S * T) 
-:= λ {S T} eq b1 b2 x y,  
-   match x, y with
-    | (a, b), (c, d) => 
-        (b1 a c, 
-         if eq a c 
-         then (b2 b d)
-         else if brel_llt eq b1 a c 
-              then b 
-              else d)
-   end.
-
 
 (* Sets 
 
@@ -493,30 +358,16 @@ Definition is_empty : ∀ {S : Type}, bProp (finite_set S)
 Definition singleton : ∀ {S : Type}, S → finite_set S 
 := λ {S} s, s :: nil. 
 
+(*
 Definition ltr_insert : ∀ {S : Type}, brel S → left_transform S (finite_set S) 
 := λ {S} r s X,  if in_set r X s then X else (s :: X). 
 
 Definition ltr_delete : ∀ {S : Type}, brel S → left_transform S (finite_set S) 
 := λ {S} r s X,  if in_set r X s then (uop_filter (λ x, negb (r x s)) X) else X. 
-
-(* 
-Definition bop_union : ∀ {S : Type}, brel S → binary_op (finite_set S) 
-:= λ {S} r,  bop_then_unary (uop_duplicate_elim r) (bop_concat (@S)).
-
-Definition bop_intersect : ∀ {S : Type}, brel S → binary_op (finite_set S) 
-:= λ {S} r X,  uop_filter (in_set r X). 
-*)  
+*) 
 
 
-Definition bop_lift : ∀ {S : Type}, brel S → binary_op S → binary_op(finite_set S) := 
-    λ {S} eq bS X Y, uop_duplicate_elim eq (bop_list_product_left bS X Y). 
 
-Definition bop_union : ∀ {S : Type}, brel S → binary_op (finite_set S) 
-:= λ {S} r,  bop_then_unary (uop_duplicate_elim r) (@bop_concat S).
-
-Definition bop_intersect : ∀ {S : Type}, brel S → binary_op (finite_set S) 
-:= λ {S} eq X,  uop_filter (in_set eq X). 
-  
 
 End CombinedOperators.
 
@@ -577,86 +428,6 @@ Definition cef_idempotent_and_commutative_imply_not_left_constant {S : Type} (r 
 
 Definition cef_idempotent_and_commutative_imply_not_right_constant {S : Type} (r : brel S) (b : binary_op S) (s : S) (f : S -> S) 
    := if (r (b (f s) s) s) then (f s, (s, f s)) else (s, (f s, s)). 
-
-
-Definition cef_bop_llex_not_cancellative {S T : Type} (rS : brel S) (bS : binary_op S) (s : S) (f : S -> S) (t : T) (g : T -> T) 
-  := if brel_llt rS bS s (f s) 
-     then ((s, t), ((f s, t), (f s, g t))) 
-     else ((f s, t), ((s, t), (s, g t))).
-
-
-Definition cef_bop_llex_not_anti_left {S T : Type} (rS : brel S) (bS : binary_op S) (s : S) (f : S -> S) (t : T)  
-  := if rS (bS s (f s)) s then ((s, t), (f s, t)) else ((f s, t), (s, t)). 
-
-Definition cef_bop_llex_not_anti_right {S T : Type} (rS : brel S) (bS : binary_op S) (s : S) (f : S -> S) (t : T)  
-  := if rS (bS s (f s)) s then ((s, t), (f s, t)) else ((f s, t), (s, t)). 
-
-
-Definition cef_bop_llex_not_constant {S T : Type} (rS : brel S) (bS : binary_op S) (s : S) (f : S -> S) (t : T) (g : T -> T) 
-  := if brel_llt rS bS s (f s) 
-     then ((f s, t), ((s, t), (s, g t)))
-     else ((s, t), ((f s, t), (f s, g t))). 
-
-
-Definition cef_bop_llex_not_is_left {S T : Type} (r : brel S) (b : binary_op S) (s : S) (f : S -> S) (t : T) 
-   := if r (b s (f s)) s then ((f s, t), (s, t)) else ((s, t), (f s, t)). 
-
-Definition cef_bop_llex_not_is_right {S T : Type} (r : brel S) (b : binary_op S) (s : S) (f : S -> S) (t : T) 
-   := if r (b s (f s)) s then ((s, t), (f s, t)) else ((f s, t), (s, t)).
-           
-(*
-Definition cef_llex_product_not_left_distributive 
-      {S T : Type}
-      (rS : brel S)
-      (rT : brel T)
-      (s1 s2 s3 : S)
-      (t1 t2 t3 : T)
-      (addS : binary_op S) 
-      (addT : binary_op T)
-      (mulT : binary_op T) 
-:= if (rS (addS s2 s3) s2) 
-   then if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
-        then ((s1, t1), ((s2, t3), (s3, t2)))
-        else ((s1, t1), ((s2, t2), (s3, t3)))
-   else if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
-        then ((s1, t1), ((s3, t3), (s2, t2)))
-        else ((s1, t1), ((s2, t3), (s3, t2))). 
-
-*) 
-Definition cef_llex_product_not_left_distributive  
-      {S T : Type}
-      (rS : brel S)
-      (rT : brel T)
-      (s1 s2 s3 : S)
-      (t1 t2 t3 : T)
-      (addS : binary_op S) 
-      (addT : binary_op T)
-      (mulT : binary_op T) 
-:= if (rS (addS s2 s3) s2) 
-   then if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
-        then ((s1, t1), ((s2, t3), (s3, t2)))
-        else ((s1, t1), ((s2, t2), (s3, t3)))
-   else if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
-        then ((s1, t1), ((s2, t2), (s3, t3)))
-        else ((s1, t1), ((s2, t3), (s3, t2))). 
-
-
-Definition cef_llex_product_not_right_distributive
-      {S T : Type}
-      (rS : brel S)
-      (rT : brel T)
-      (s1 s2 s3 : S)
-      (t1 t2 t3 : T)
-      (addS : binary_op S) 
-      (addT : binary_op T)
-      (mulT : binary_op T) 
-:= if (rS (addS s2 s3) s2) 
-   then if rT (mulT t2 t1) (addT (mulT t2 t1) (mulT t3 t1))
-        then ((s1, t1), ((s2, t3), (s3, t2)))
-        else ((s1, t1), ((s2, t2), (s3, t3)))
-   else if rT (mulT t2 t1) (addT (mulT t2 t1) (mulT t3 t1))
-        then ((s1, t1), ((s2, t2), (s3, t3)))
-        else ((s1, t1), ((s2, t3), (s3, t2))). 
 
 
 

@@ -8,10 +8,6 @@ Section ACAS.
 
 Record eqv_proofs (S : Type) (eq : brel S) := 
 {
-(*
-; A_eqv_rep_correct    : brel_rep_correct S eq rep
-; A_eqv_rep_idempotent : brel_rep_idempotent S eq rep  
-*) 
   A_eqv_congruence     : brel_congruence S eq eq  
 ; A_eqv_reflexive      : brel_reflexive S eq            
 ; A_eqv_transitive     : brel_transitive S eq           
@@ -23,16 +19,21 @@ Record A_eqv (S : Type) := {
   A_eqv_eq          : brel S
 ; A_eqv_proofs      : eqv_proofs S A_eqv_eq
 
-(* put "cardinality" info in a separate record? *)                                  
+(* put cardinality info in a separate record? *)                                  
 ; A_eqv_witness       : S         (* not empty *) 
-; A_eqv_new           : S -> S
+; A_eqv_new           : S -> S    (* s <> A_eqv_new s *) 
 ; A_eqv_not_trivial   : brel_not_trivial S A_eqv_eq A_eqv_new
-; A_eqv_exactly_two_d : brel_exactly_two_decidable S A_eqv_eq 
+; A_eqv_exactly_two_d : brel_exactly_two_decidable S A_eqv_eq   (* needed for selectivity of sg product *) 
+; A_eqv_finite_d      : carrier_is_finite_decidable S A_eqv_eq  (* needed for ann of intersect and id of union *)                           
 
 (* another record for this stuff? *)                                                    
 ; A_eqv_data        : S -> data (* for printing in ocaml-land *) 
-; A_eqv_rep         : S -> S    (* for reductions? need proved properties for this? *)
-; A_eqv_finite_d    : carrier_is_finite_decidable S A_eqv_eq                             
+; A_eqv_rep         : S -> S    (* should this be an option?  *) 
+(*
+  is rep for reductions? need proved properties for this?
+; A_eqv_rep_correct    : brel_rep_correct S eq rep
+; A_eqv_rep_idempotent : brel_rep_idempotent S eq rep  
+*) 
 ; A_eqv_ast         : cas_ast
 }.
 
@@ -53,12 +54,14 @@ Record eqv_certificates {S : Type} :=
 Record eqv {S : Type} := {
   eqv_eq            : brel S
 ; eqv_certs         : @eqv_certificates S                                                   
+
 ; eqv_witness       : S         
 ; eqv_new           : S -> S                                                                                                   
-; eqv_exactly_two_d : @check_exactly_two S 
-; eqv_data          : S -> data (* for printing in ocaml-land *) 
-; eqv_rep           : S -> S    (* for reductions.  Should this be an option? *)
+; eqv_exactly_two_d : @check_exactly_two S
 ; eqv_finite_d      : @check_is_finite S 
+                                         
+; eqv_data          : S -> data 
+; eqv_rep           : S -> S    
 ; eqv_ast           : cas_ast
 }.  
 

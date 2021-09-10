@@ -2,16 +2,19 @@ Require Import Coq.Bool.Bool.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.product.
+
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.product.
+
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
 
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.eqv.product.
-Require Import CAS.coq.sg.product. 
+
 
 
 Section Theory. 

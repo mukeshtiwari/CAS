@@ -1,22 +1,92 @@
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
-Require Import CAS.coq.theory.facts. 
+Require Import CAS.coq.eqv.theory.
 
-Section Theory.
+Require Import CAS.coq.sg.and.
+Require Import CAS.coq.sg.or. 
+Require Import CAS.coq.sg.theory. (* for plus_SS *)
+
 
 Open Scope list_scope. 
+
+Section Compuation.
+
+Fixpoint brel_list {S : Type} (r : brel S) (x : list S) (y : list S) : bool 
+:= match x, y with
+         | nil, nil => true 
+         | nil, _ => false 
+         | _, nil => false 
+         | a::tla, b::tlb => bop_and (r a b) (brel_list r tla tlb)
+      end.
+
+End Compuation. 
+    
+Section IntroElim.
+
+Variable S : Type.
+Variable eq : brel S.
+Variable sym : brel_symmetric S eq. 
+
+(* in_list is defined in eqv/properties.v *) 
+Lemma in_list_cons_intro  : ∀ (a b : S) (X : list S),
+    ((eq a b = true) + (in_list eq X b = true)) ->   in_list eq (a :: X) b = true.
+Proof. intros a b X [H | H]; unfold in_list; fold (@in_list S); apply bop_or_intro; auto. Qed.        
+       
+Lemma in_list_cons_elim : ∀ (a b : S) (X : finite_set S),
+    in_list eq (a :: X) b = true -> ((eq a b = true) + (in_list eq X b = true)). 
+Proof. intros a b X H.
+       unfold in_list in H. fold (@in_list S) in H. 
+       apply bop_or_elim in H.
+       destruct H as [H | H]; auto.
+Qed.
+
+
+Lemma in_list_concat_intro : ∀ (X Y : list S) (a : S),
+     (in_list eq X a = true) + (in_list eq Y a = true) → in_list eq (X ++ Y) a = true. 
+Proof. induction X. intros Y a [L | R]. 
+             compute in L. discriminate L. 
+             rewrite List.app_nil_l. exact R. 
+          intros Y a0 [L | R]. 
+             rewrite <- List.app_comm_cons. 
+             unfold in_list. fold (@in_list S). unfold in_list in L. fold (@in_list S) in L. 
+             apply bop_or_elim in L. destruct L as [L | L]. 
+                rewrite L. simpl. reflexivity. 
+                apply bop_or_intro. right. apply IHX. left. exact L. 
+
+             rewrite <- List.app_comm_cons. 
+             unfold in_list. fold (@in_list S). 
+             apply bop_or_intro. right. apply IHX. right. exact R. 
+Defined. 
+
+Lemma in_list_concat_elim : ∀ (X Y : finite_set S) (a : S),
+      in_list eq (X ++ Y) a = true → (in_list eq X a = true) + (in_list eq Y a = true). 
+Proof. induction X. 
+          intros U a H. rewrite List.app_nil_l in H. right. exact H. 
+          intros U b H. rewrite <- List.app_comm_cons in H. 
+          unfold in_list in H. fold (@in_list S) in H. 
+          apply bop_or_elim in H.  destruct H as [L | R]. 
+             left. unfold in_list. fold (@in_list S). rewrite L. simpl. reflexivity. 
+             assert (K := IHX U b R). destruct K as [KL | KR].
+                left. apply in_list_cons_intro. right. exact KL. 
+                right. exact KR. 
+Defined. 
+
+
+End IntroElim.   
+
+Section Theory.
 
 Lemma brel_list_symmetric : ∀ (S : Type) (r : brel S), 
               (brel_symmetric _ r) → brel_symmetric (list S) (brel_list r). 
 Proof. unfold brel_symmetric. 
        induction s; induction t; simpl; intros; auto.        
-          apply andb_is_true_right. 
-          apply andb_is_true_left in H0. 
-          destruct H0 as [H0_l H0_r]. 
-          split. 
+          apply bop_and_elim in H0. 
+          destruct H0 as [H0_l H0_r].
+          apply bop_and_intro. 
              apply (H _ _ H0_l). 
              apply (IHs t H0_r).
 Qed. 
@@ -32,12 +102,11 @@ Lemma brel_list_transitive : ∀ (S : Type) (r : brel S),
 Proof. unfold brel_transitive. 
        induction s; induction t; induction u; simpl; intros; auto.        
           discriminate. 
-          apply andb_is_true_right. 
-          apply andb_is_true_left in H0. 
-          apply andb_is_true_left in H1. 
+          apply bop_and_elim in H0. 
+          apply bop_and_elim in H1. 
           destruct H0 as [H0_l H0_r]. 
-          destruct H1 as [H1_l H1_r]. 
-          split. 
+          destruct H1 as [H1_l H1_r].
+          apply bop_and_intro. 
              apply (H _ _ _ H0_l H1_l). 
              apply (IHs t u H0_r H1_r).
 Qed. 
@@ -67,7 +136,7 @@ Proof. intros S r. induction l1; induction l2; intro H.
        compute in H. discriminate.
        compute in H. discriminate.        
        unfold brel_list in H. fold (@brel_list S) in H.
-       apply andb_is_true_left in H.
+       apply bop_and_elim in H.
        destruct H as [_ H].
        rewrite cons_length. rewrite cons_length.
        apply IHl1 in H. auto.        
@@ -191,10 +260,10 @@ Lemma list_concat_cons : ∀ (S : Type) (r : brel S),
     ∀ (a : S) (t s : list S),
         brel_list r (t ++ (a :: s)) ((t ++ (a :: nil)) ++ s) = true.
 Proof. intros S r ref a.  induction t; intros s; simpl. 
-       apply andb_is_true_right. split.  
+       apply bop_and_intro. 
           apply ref.
           apply brel_list_reflexive; auto. 
-       apply andb_is_true_right. split.
+       apply bop_and_intro. 
           apply ref.
           apply IHt. 
 Qed.

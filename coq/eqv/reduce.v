@@ -5,7 +5,7 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.uop.properties. 
-Require Import CAS.coq.theory.facts. 
+Require Import CAS.coq.eqv.theory. 
 
 Section Theory.
 

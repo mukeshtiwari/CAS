@@ -17,13 +17,7 @@ BASE=\
    coq/common/compute.v \
    coq/common/ast.v \
    coq/common/data.v \
-   coq/theory/facts.v \
-   coq/theory/conjunction.v \
-   coq/theory/complement.v\
-   coq/theory/llte.v \
-   coq/theory/order.v \
-   coq/theory/in_set.v \
-   coq/theory/subset.v \
+   coq/theory/set.v \
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
    coq/theory/reduction/representations.v \
@@ -36,6 +30,7 @@ BASE=\
 CAS=\
    coq/eqv/properties.v \
    coq/eqv/structures.v \
+   coq/eqv/theory.v \
    coq/eqv/nat.v \
    coq/eqv/bool.v \
    coq/eqv/list.v \
@@ -75,10 +70,13 @@ CAS=\
    coq/sg/minset_lift.v \
    coq/po/structures.v \
    coq/po/properties.v \
-   coq/po/from_sg_left.v \
+   coq/po/theory.v \
    coq/po/product.v \
    coq/po/lte_nat.v \
    coq/po/length.v \
+   coq/po/subset.v \
+   coq/po/lex.v \
+   coq/po/dual.v \
    coq/tr/properties.v \
    coq/tr/structures.v \
    coq/tr/left/cayley.v \
@@ -86,6 +84,7 @@ CAS=\
    coq/tr/left/product.v \
    coq/bs/properties.v \
    coq/bs/structures.v \
+   coq/bs/theory.v \
    coq/bs/cast_up.v \
    coq/bs/cast_down.v \
    coq/bs/min_plus.v \
@@ -109,12 +108,12 @@ CAS=\
    coq/bs/minset_union_lift.v \
    coq/os/properties.v \
    coq/os/structures.v \
+   coq/os/theory.v \
    coq/st/properties.v \
    coq/st/structures.v \
    coq/ot/properties.v \
    coq/ot/structures.v \
    coq/ot/left/length_cons.v \
-   coq/ot/left/from_bs_left.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
 

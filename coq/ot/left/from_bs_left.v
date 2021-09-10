@@ -15,7 +15,7 @@ Require Import CAS.coq.tr.structures.
 Require Import CAS.coq.ot.properties.
 Require Import CAS.coq.ot.structures.
 
-Require Import CAS.coq.po.from_sg_left.
+Require Import CAS.coq.po.from_sg.
 Require Import CAS.coq.tr.left.cayley.
 
 Section Theory.
@@ -63,7 +63,7 @@ let LRA := A_path_algebra_left_right_absorptive S eq plus times PAP in
 ; A_poltr_mi_increasing  := olt_from_bs_left_increasing S eq plus times LRA 
 |}.
 
-
+(*
 Definition from_sg_left_with_bottom_proofs (S : Type) (eq : brel S) (eqvP : eqv_proofs S eq) (plus : binary_op S)
    (comm : bop_commutative S eq plus) (ann : bop_exists_ann S eq plus) (id_d : bop_exists_id_decidable S eq plus) := 
 let sym := A_eqv_symmetric S eq eqvP in 
@@ -99,8 +99,12 @@ let ann :=  A_with_one_exists_plus_ann S eq plus times WOP in
 ; A_poltr_mi_ast          := A_pre_path_algebra_with_one_ast S PPA (* FIX *) 
 |}.
 
-
+*) 
 End ACAS. 
+
+
+(********************************
+
 
 Section CAS.
 
@@ -211,3 +215,4 @@ End Verify.
 
 
 
+***********************)

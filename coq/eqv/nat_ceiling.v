@@ -6,7 +6,7 @@ Require Import CAS.coq.common.data.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 
-Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.theory.reduction.predicate.
 Require Import CAS.coq.eqv.nat.
 Require Import CAS.coq.eqv.predicate_reduce. 
@@ -118,7 +118,7 @@ Definition nat_ceiling_enumerate
 
 Definition nat_ceiling_enum (x : unit) := nat_ceiling_enumerate ceiling.
 
-Lemma enum_correct (n : nat) : in_set brel_nat_ceiling (nat_ceiling_enumerate ceiling) n = true. 
+Lemma enum_correct (n : nat) : in_list brel_nat_ceiling (nat_ceiling_enumerate ceiling) n = true. 
 Admitted. 
 
 Lemma bel_nat_ceiling_is_finite : carrier_is_finite nat brel_nat_ceiling.

@@ -1,12 +1,47 @@
+
+Require Import Coq.Arith.Arith.     (* beq_nat *) 
 Require Import Coq.Bool.Bool.
-Require Export CAS.coq.common.compute.
+Require Import Coq.Lists.List. 
+
+Require Import CAS.coq.common.compute. 
 Require Import CAS.coq.eqv.properties.
-Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.eqv.theory. 
 
-(***********************************)
+Require Import CAS.coq.sg.and.
+Require Import CAS.coq.sg.or. 
 
-(* move ? *) 
-Definition bProp_congruence (S : Type) (r : brel S) (P : bProp S) := ∀ (a b : S),  r a b = true -> P a = P b.
+Open Scope list_scope.
+
+Section Computation.
+
+Definition in_set : ∀ {S : Type},  brel S -> brel2 (finite_set S) S
+:= fix f {S} r l s := 
+   match l with 
+   | nil => false 
+   | a :: rest => bop_or (r s a) (f r rest s)
+   end. 
+  
+
+Definition uop_duplicate_elim : ∀ {S : Type}, brel S -> unary_op (finite_set S) 
+:= λ {S} r,  fix f x := 
+      match x with
+         | nil => nil
+         | a :: y => 
+            if in_set r y a 
+              then f y
+              else a :: (f y)
+      end.
+
+(* yes, cheating for now ... *) 
+Definition uop_set_map : ∀ {S : Type}, unary_op S → unary_op (finite_set S) 
+:= λ {S} f X,  uop_list_map f X. 
+
+Definition uop_set_rep : ∀ {S : Type}, brel S -> unary_op S → unary_op (finite_set S) 
+:= λ {S} eq f X,  uop_duplicate_elim eq (uop_set_map f X). 
+
+
+End Computation. 
+
 
 Section InSet.
   Variable S: Type.
@@ -15,16 +50,40 @@ Section InSet.
   Variable symS : brel_symmetric S r.
   Variable tranS : brel_transitive S r.
 
+
+Definition list_of_set (X : finite_set S) : list S := X.
+
+Lemma in_set_implies_in_list (s : S) (X : finite_set S) : in_set r X s = true -> in_list r (list_of_set X) s = true. 
+Proof. auto. Qed. 
+  
+
 Lemma in_set_cons_intro  : ∀ (a b : S) (X : finite_set S),
     ((r a b = true) + (in_set r X b = true)) ->   in_set r (a :: X) b = true.
-Proof. intros a b X [H | H]; unfold in_set; fold (@in_set S); apply orb_is_true_right; auto. Qed.        
+Proof. intros a b X [H | H]; unfold in_set; fold (@in_set S); apply bop_or_intro; auto. Qed.        
        
 Lemma in_set_cons_elim : ∀ (a b : S) (X : finite_set S),
     in_set r (a :: X) b = true -> ((r a b = true) + (in_set r X b = true)). 
 Proof. intros a b X H.
        unfold in_set in H. fold (@in_set S) in H. 
-       apply orb_is_true_left in H.
+       apply bop_or_elim in H.
        destruct H as [H | H]; auto.
+Qed.
+
+
+Lemma not_in_set_cons_intro  : ∀ (a b : S) (X : finite_set S),
+    ((r a b = false) * (in_set r X b = false)) ->   in_set r (a :: X) b = false.
+Proof. intros a b X [H1 H2]. unfold in_set. fold (@in_set S). 
+       apply (brel_symmetric_implies_dual S r symS) in H1.
+       rewrite H1, H2. compute; reflexivity. 
+Qed.
+
+Lemma not_in_set_cons_elim : ∀ (a b : S) (X : finite_set S),
+    in_set r (a :: X) b = false -> ((r a b = false) * (in_set r X b = false)). 
+Proof. intros a b X H.
+       unfold in_set in H. fold (@in_set S) in H. 
+       apply bop_or_false_elim in H.
+       destruct H as [H1 H2]; split; auto. 
+       apply (brel_symmetric_implies_dual S r symS) in H1. exact H1. 
 Qed.
 
 
@@ -118,7 +177,7 @@ Proof. intros a b X H.
        compute. auto.
        unfold in_set. fold (@in_set S).
        intro K.
-       apply orb_is_true_right. apply orb_is_true_left in K.
+       apply bop_or_intro. apply bop_or_elim in K.
        destruct K as [K | K].
        left. apply symS in H. apply (tranS _ _ _ H K). 
        right. apply IHX; auto.
@@ -165,7 +224,7 @@ Proof. intros g X a cong [gP inX].
        compute in inX.  discriminate inX. 
        unfold in_set in inX. fold (@in_set S) in inX.
        unfold filter. fold (@filter S).
-       apply orb_is_true_left in inX.
+       apply bop_or_elim in inX.
        destruct inX as [inX | inX].
        assert (H := cong _ _ inX).  rewrite gP in H. 
        rewrite <- H. unfold in_set. fold (@in_set S). rewrite inX. simpl. reflexivity.
@@ -188,13 +247,13 @@ Proof. induction X. intros Y a [L | R].
           intros Y a0 [L | R]. 
              rewrite <- List.app_comm_cons. 
              unfold in_set. fold (@in_set S). unfold in_set in L. fold (@in_set S) in L. 
-             apply orb_is_true_left in L. destruct L as [L | L]. 
+             apply bop_or_elim in L. destruct L as [L | L]. 
                 rewrite L. simpl. reflexivity. 
-                apply orb_is_true_right. right. apply IHX. left. exact L. 
+                apply bop_or_intro. right. apply IHX. left. exact L. 
 
              rewrite <- List.app_comm_cons. 
              unfold in_set. fold (@in_set S). 
-             apply orb_is_true_right. right. apply IHX. right. exact R. 
+             apply bop_or_intro. right. apply IHX. right. exact R. 
 Defined. 
 
 Lemma in_set_concat_elim : ∀ (X Y : finite_set S) (a : S),
@@ -203,7 +262,7 @@ Proof. induction X.
           intros U a H. rewrite List.app_nil_l in H. right. exact H. 
           intros U b H. rewrite <- List.app_comm_cons in H. 
           unfold in_set in H. fold (@in_set S) in H. 
-          apply orb_is_true_left in H.  destruct H as [L | R]. 
+          apply bop_or_elim in H.  destruct H as [L | R]. 
              left. unfold in_set. fold (@in_set S). rewrite L. simpl. reflexivity. 
              assert (K := IHX U b R). destruct K as [KL | KR].
                 left. apply in_set_cons_intro. right. exact KL. 
@@ -212,14 +271,5 @@ Defined.
 
   
 End InSet. 
-
-
-
-
-
-
-
-
-
 
 

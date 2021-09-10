@@ -1,10 +1,5 @@
 Require Import CAS.coq.common.compute. 
 
-
-
-
-
-
 Close Scope nat. 
 
 Section ACAS. 
@@ -268,7 +263,7 @@ Definition uop_preserves_ann (S : Type) (eq : brel S) (b : binary_op S) (r : una
   ∀ (s : S), bop_is_ann S eq b s -> eq (r s) s = true.
 
 
-(* ********************* NEW ************************)
+(* ********************* NEW ***********
 
 Definition is_interesting (S : Type) (rS : brel S) (bS : binary_op S) (X : finite_set S) :=
   ∀ (s : S), in_set rS X s = true  ->
@@ -299,7 +294,7 @@ Definition something_not_is_finite (T : Type) (rS : brel T) (bS : binary_op T)
                                         (rS (F B) (bS (F B) s) = true))
                            )}. 
 
-
+*************)
 End ACAS.
 
 

@@ -2,16 +2,30 @@ Require Import Coq.Bool.Bool.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
+Require Import CAS.coq.theory.set. 
+
+Require Import CAS.coq.uop.properties.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
-Require Import CAS.coq.uop.properties.
-Require Import CAS.coq.sg.properties.
-Require Import CAS.coq.sg.structures.
-
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.subset. 
 Require Import CAS.coq.eqv.set.
+
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.  
+Require Import CAS.coq.sg.and.
+Require Import CAS.coq.sg.or.
+
+Require Import CAS.coq.po.dual. 
+Require Import CAS.coq.os.properties. 
+
+Section Computation.
+
+Definition bop_union : ∀ {S : Type}, brel S → binary_op (finite_set S) 
+  := λ {S} r X Y,  uop_duplicate_elim r (bop_concat X Y).
+
+End Computation.   
+
 
 Section Theory.
 
@@ -37,8 +51,8 @@ Defined.
 Lemma bop_concat_set_congruence : bop_congruence (finite_set S) (brel_set r) (@bop_concat S).
 Proof. unfold bop_congruence, bop_concat. unfold brel_set. unfold brel_and_sym. 
        intros s1 s2 t1 t2 H J.  
-       apply andb_is_true_left in H. apply andb_is_true_left in J. 
-       destruct H as [H1 H2]. destruct J as [J1 J2]. apply andb_is_true_right. split. 
+       apply bop_and_elim in H. apply bop_and_elim in J. 
+       destruct H as [H1 H2]. destruct J as [J1 J2]. apply bop_and_intro. 
           apply (bop_concat_subset_congruence s1 s2 t1 t2 H1 J1).
           apply (bop_concat_subset_congruence t1 t2 s1 s2 H2 J2).
 Defined. 
@@ -74,17 +88,17 @@ Lemma subset_cat_left :
         brel_subset r (u ++ v) s = true. 
 Proof. induction s; induction v; induction u; simpl; intros H Q. 
        reflexivity. assumption. assumption. assumption. assumption. 
-       apply andb_is_true_left in H. destruct H as [H1 H2].
-          apply orb_is_true_left in H1. destruct H1 as [H1 | H1].
+       apply bop_and_elim in H. destruct H as [H1 H2].
+          apply bop_or_elim in H1. destruct H1 as [H1 | H1].
              rewrite H1. simpl. apply IHu. assumption. simpl. reflexivity. 
              rewrite List.app_nil_r. rewrite H1, H2. rewrite orb_comm. simpl. reflexivity. 
-       apply andb_is_true_left in Q. destruct Q as [Q1 Q2].      
-          apply orb_is_true_left in Q1. destruct Q1 as [Q1 | Q1]. 
+       apply bop_and_elim in Q. destruct Q as [Q1 Q2].      
+          apply bop_or_elim in Q1. destruct Q1 as [Q1 | Q1]. 
              rewrite Q1. simpl. assumption. 
              rewrite Q1, Q2. rewrite orb_comm. simpl. reflexivity. 
-       apply andb_is_true_left in H. apply andb_is_true_left in Q. 
+       apply bop_and_elim in H. apply bop_and_elim in Q. 
           destruct H as [H1 H2]. destruct Q as [Q1 Q2].
-          apply orb_is_true_left in H1.  apply orb_is_true_left in Q1. 
+          apply bop_or_elim in H1.  apply bop_or_elim in Q1. 
           destruct H1 as [H1 | H1]; destruct Q1 as [Q1 | Q1]. 
              rewrite H1. simpl. apply IHu. assumption. 
                 unfold brel_subset. fold (@brel_subset S). unfold in_set. fold (@in_set S). 
@@ -110,17 +124,17 @@ Lemma subset_cat_right :
         brel_subset r s (u ++ v) = true. 
 Proof. induction s; induction v; induction u; simpl; intros H Q. 
        reflexivity. assumption. assumption. assumption. assumption. 
-       apply andb_is_true_left in H. destruct H as [H1 H2].
-          apply orb_is_true_left in H1. destruct H1 as [H1 | H1].
+       apply bop_and_elim in H. destruct H as [H1 H2].
+          apply bop_or_elim in H1. destruct H1 as [H1 | H1].
              rewrite H1. simpl. rewrite List.app_nil_r. assumption. 
              rewrite List.app_nil_r. rewrite H1, H2. rewrite orb_comm. simpl. reflexivity. 
-       apply andb_is_true_left in Q. destruct Q as [Q1 Q2].      
-          apply orb_is_true_left in Q1. destruct Q1 as [Q1 | Q1]. 
+       apply bop_and_elim in Q. destruct Q as [Q1 Q2].      
+          apply bop_or_elim in Q1. destruct Q1 as [Q1 | Q1]. 
              rewrite Q1. simpl. assumption. 
              rewrite Q1, Q2. rewrite orb_comm. simpl. reflexivity. 
-       apply andb_is_true_left in H. apply andb_is_true_left in Q. 
+       apply bop_and_elim in H. apply bop_and_elim in Q. 
           destruct H as [H1 H2]. destruct Q as [Q1 Q2].
-          apply orb_is_true_left in H1.  apply orb_is_true_left in Q1. 
+          apply bop_or_elim in H1.  apply bop_or_elim in Q1. 
           destruct H1 as [H1 | H1]; destruct Q1 as [Q1 | Q1]. 
              rewrite H1. simpl. apply (IHs (a0 :: v) (a1 :: u) H2 Q2). 
              rewrite H1. simpl. apply (IHs (a0 :: v) (a1 :: u) H2 Q2). 
@@ -135,8 +149,7 @@ Defined.
 Lemma bop_concat_set_commutative : bop_commutative (finite_set S) (brel_set r) (@bop_concat S).
 Proof.  unfold bop_commutative, bop_concat.
         intros s t. unfold brel_set. unfold brel_and_sym. 
-        apply andb_is_true_right.
-        split.
+        apply bop_and_intro.
         apply subset_cat_left.        
         apply brel_subset_concat_right_intro. 
              right. apply brel_subset_reflexive; auto. 
@@ -151,7 +164,7 @@ Defined.
 Lemma bop_concat_set_idempotent : bop_idempotent (finite_set S) (brel_set r) (@bop_concat S).
 Proof.  unfold bop_idempotent, bop_concat.
         intro s. unfold brel_set. unfold brel_and_sym. 
-        apply andb_is_true_right. split. 
+        apply bop_and_intro. 
           apply subset_cat_left.  
                 apply brel_subset_reflexive; auto. 
                 apply brel_subset_reflexive; auto. 
@@ -243,12 +256,12 @@ Proof. induction X; intros t H.
        simpl in H. discriminate. 
        simpl. case_eq(in_set r X a); intro Q.
           unfold in_set in H.  fold (@in_set S) in H.  
-          apply orb_is_true_left in H. destruct H as [H | H].
+          apply bop_or_elim in H. destruct H as [H | H].
           apply IHX. apply symS in H. apply (in_set_right_congruence S r symS tranS a t X H Q). 
           apply IHX. assumption. 
        unfold in_set. fold (@in_set S). 
           unfold in_set in H.  fold (@in_set S) in H.  
-          apply orb_is_true_left in H. destruct H as [H | H].
+          apply bop_or_elim in H. destruct H as [H | H].
              rewrite H. simpl. reflexivity. 
              rewrite (IHX t H). rewrite orb_comm. simpl. reflexivity. 
 Defined. 
@@ -262,11 +275,11 @@ Proof. unfold uop_congruence_positive.
           unfold uop_duplicate_elim at 1. fold (@uop_duplicate_elim S r). 
           case_eq(in_set r s a); intro Q. 
              apply IHs. unfold brel_subset in H. fold (@brel_subset S) in H. 
-                apply andb_is_true_left in H.  destruct H as [H1 H2].  assumption. 
+                apply bop_and_elim in H.  destruct H as [H1 H2].  assumption. 
              unfold brel_subset in H. fold (@brel_subset S) in H. 
              unfold brel_subset. fold (@brel_subset S). 
-             apply andb_is_true_left in H.  destruct H as [H1 H2].
-             apply andb_is_true_right. split. 
+             apply bop_and_elim in H.  destruct H as [H1 H2].
+             apply bop_and_intro. 
                 apply in_set_dup_elim_intro; auto. 
                 apply IHs; auto. 
 Defined. 
@@ -274,8 +287,8 @@ Defined.
 Lemma uop_duplicate_elim_congruence_v2 :
       uop_congruence_positive (finite_set S) (brel_set r) (uop_duplicate_elim r).  
 Proof. unfold brel_set. unfold brel_and_sym. unfold uop_congruence_positive. intros s t H. 
-       apply andb_is_true_left in H. destruct H as [H1 H2]. 
-       apply andb_is_true_right. split. 
+       apply bop_and_elim in H. destruct H as [H1 H2]. 
+       apply bop_and_intro. 
          apply uop_duplicate_elim_congruence_v1; auto. 
          apply uop_duplicate_elim_congruence_v1; auto. 
 Defined.
@@ -286,7 +299,7 @@ Lemma uop_duplicate_elim_preserves_left_v1 :
 Proof. unfold uop_preserves_left_positive. 
        induction s; simpl; intros t H. 
           reflexivity. 
-          apply andb_is_true_left in H. destruct H as [H1 H2].
+          apply bop_and_elim in H. destruct H as [H1 H2].
           case_eq(in_set r s a); intro Q. 
              apply IHs. assumption. 
              unfold brel_subset. fold (@brel_subset S). rewrite H1, (IHs t H2). simpl. reflexivity. 
@@ -297,7 +310,7 @@ Lemma uop_duplicate_elim_preserves_right_v1 :
       uop_preserves_right_positive (finite_set S) (brel_subset r) (uop_duplicate_elim r).  
 Proof. unfold uop_preserves_right_positive. 
        induction s; simpl; intros t H; auto. 
-          apply andb_is_true_left in H. destruct H as [H1 H2].
+          apply bop_and_elim in H. destruct H as [H1 H2].
           rewrite (IHs t H2).  rewrite (in_set_dup_elim_intro t a H1); auto. 
 Defined. 
 
@@ -305,8 +318,8 @@ Defined.
 Lemma uop_duplicate_elim_preserves_right_v2 : 
       uop_preserves_right_positive (finite_set S) (brel_set r) (uop_duplicate_elim r).  
 Proof. intros w u. unfold brel_set. unfold brel_and_sym. intro H. 
-       apply andb_is_true_left in H. destruct H as [H1 H2]. 
-       apply andb_is_true_right. split. 
+       apply bop_and_elim in H. destruct H as [H1 H2]. 
+       apply bop_and_intro. 
          apply uop_duplicate_elim_preserves_right_v1; auto. 
          apply uop_duplicate_elim_preserves_left_v1; auto. 
 Defined. 
@@ -337,8 +350,8 @@ Defined.
 Lemma uop_duplicate_elim_preserves_left_v2 : 
       uop_preserves_left_positive (finite_set S) (@brel_set S r) (@uop_duplicate_elim S r).  
 Proof. intros w u. unfold brel_set. unfold brel_and_sym. intro H. 
-       apply andb_is_true_left in H. destruct H as [H1 H2]. 
-       apply andb_is_true_right. split. 
+       apply bop_and_elim in H. destruct H as [H1 H2]. 
+       apply bop_and_intro. 
          apply uop_duplicate_elim_preserves_left_v1; auto. 
          apply uop_duplicate_elim_preserves_right_v1; auto. 
 Defined. 
@@ -562,8 +575,8 @@ Defined.
 Lemma bop_union_not_exists_ann (no_enum : carrier_is_not_finite S r) : 
    bop_not_exists_ann (finite_set S) (brel_set r) (bop_union r).
 Proof.  unfold bop_not_exists_ann. intro X.
-        unfold bop_not_is_ann.
-        assert (K := no_enum (λ _, X)). simpl in K.
+        unfold bop_not_is_ann. unfold carrier_is_not_finite in no_enum. 
+        assert (K := no_enum (λ _, list_of_set S X)). simpl in K.
         destruct K as [s K].
         exists (s :: nil). 
         right. case_eq(brel_set r (bop_union r (s :: nil) X) X); intro J; auto.
@@ -573,9 +586,10 @@ Proof.  unfold bop_not_exists_ann. intro X.
         assert (F : in_set r (bop_union r (s :: nil) X) s = true).
            apply in_set_bop_union_intro.              
            left. compute. rewrite refS; auto. 
-        rewrite (J F) in K.
-        exact K. 
-Defined.
+        assert (M := J F).
+        assert (N : in_list r (list_of_set S X) s = true). apply in_set_implies_in_list; auto.  
+        rewrite N in K. discriminate K. 
+Defined. 
 
 Definition bop_union_exists_ann_decide (fin_d : carrier_is_finite_decidable S r) : bop_exists_ann_decidable (finite_set S) (brel_set r) (bop_union r)
  := match fin_d with
@@ -675,6 +689,12 @@ Definition sg_CI_union : ∀ {S : Type}, @eqv S -> @sg_CI (finite_set S)
 
 
 End CAS.
+
+(*  union left order 
+
+    X = X union Y <-> Y subset X 
+*) 
+
 
 Section Verify.
 

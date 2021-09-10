@@ -1,7 +1,18 @@
-Require Import CAS.coq.common.compute.
-Require Import CAS.coq.eqv.properties.
+Require Import Coq.Bool.Bool.
 
-Section Compute.
+Require Import CAS.coq.common.compute.
+
+Require Import CAS.coq.theory.set. 
+
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.theory. 
+
+Require Import CAS.coq.po.properties.
+
+Require Import CAS.coq.sg.and.
+Require Import CAS.coq.sg.or. 
+
+Section Computation. 
 
 Definition below {S : Type} (lte : brel S) : brel S
     := λ a y, bop_and (lte y a) (uop_not(lte a y)).
@@ -13,9 +24,146 @@ Definition incomp {S : Type} (lte : brel S) : brel S
   := λ a b, bop_and (uop_not(lte a b)) (uop_not (lte b a)).
 
 Definition equiv_or_incomp {S : Type} (lte : brel S) : brel S
-  := λ a b, bop_or (equiv lte a b) (incomp lte a b). 
+  := λ a b, bop_or (equiv lte a b) (incomp lte a b).
 
-End Compute.  
+(* move this? *) 
+Definition is_antichain (S : Type) (eq lte : brel S) (X : finite_set S) :=
+∀ (s : S), in_set eq X s = true  -> ∀ (t : S), in_set eq X t = true -> equiv_or_incomp lte t s = true. 
+
+End Computation. 
+
+
+
+Section Complement.
+
+
+Lemma brel_complement_asymmetric : ∀ (S : Type) (r : brel S), 
+          (∀ s t : S, r s t = false → r t s = true) -> 
+          brel_asymmetric S (brel_complement r).  
+Proof. unfold brel_asymmetric, brel_complement. intros S r K s t J. 
+       case_eq(r t s); intro Q. 
+          compute. reflexivity. 
+          rewrite (K _ _ Q) in J. compute in J. discriminate. 
+Defined. 
+
+Lemma brel_complement_irreflexive : ∀ (S : Type) (r : brel S), 
+          brel_reflexive S r -> brel_irreflexive S (brel_complement r).  
+Proof. unfold brel_reflexive, brel_irreflexive, brel_complement. intros S r H s. 
+       rewrite (H s). compute. reflexivity. 
+Defined. 
+
+Lemma brel_complement_reflexive : ∀ (S : Type) (r : brel S), 
+          brel_irreflexive S r -> brel_reflexive S (brel_complement r).  
+Proof. unfold brel_reflexive, brel_irreflexive, brel_complement. intros S r H s. 
+       rewrite (H s). compute. reflexivity. 
+Defined. 
+
+
+End Complement.   
+
+
+
+
+Section Conjunction. 
+
+Variable S  : Type. 
+Variable r1 : brel S.
+Variable r2 : brel S. 
+
+Notation "a <&> b"  := (brel_conjunction a b) (at level 15).
+
+
+Lemma brel_conjunction_irreflexive_left : ∀ (rS1 : brel S) (rS2 : brel S),  
+        brel_irreflexive S rS1 -> 
+           brel_irreflexive S (rS1 <&> rS2). 
+Proof. 
+     unfold brel_irreflexive, brel_conjunction. 
+     intros rS1 rS2 irr s. rewrite (irr s). reflexivity. 
+Defined. 
+
+
+Lemma brel_conjunction_irreflexive_right : ∀ (rS1 : brel S) (rS2 : brel S),  
+        brel_irreflexive S rS2 -> 
+           brel_irreflexive S (rS1 <&> rS2). 
+Proof. 
+     unfold brel_irreflexive, brel_conjunction. 
+     intros rS1 rS2 irr s. rewrite (irr s). apply andb_comm. 
+Defined. 
+
+Lemma brel_conjunction_irreflexive : 
+        ((brel_irreflexive S r1) + (brel_irreflexive S r2)) -> 
+           brel_irreflexive S (r1 <&> r2). 
+Proof. intros [L | R]. 
+       apply brel_conjunction_irreflexive_left; auto. 
+       apply brel_conjunction_irreflexive_right; auto. 
+Defined. 
+
+
+
+(*
+
+
+Lemma brel_conjunction_not_reflexive_right : 
+              (brel_not_reflexive S r2) 
+               → brel_not_reflexive S (r1 <&> r2). 
+Proof. unfold brel_not_reflexive, brel_conjunction. 
+       intros [s P]. exists s. rewrite P. apply andb_comm. 
+Defined. 
+
+Definition brel_conjunction_reflexive_decide: 
+   ∀ (S : Type) 
+     (r1 : brel S) 
+     (r2 : brel S),   
+     brel_reflexive_decidable S r1 → 
+     brel_reflexive_decidable S r2 → 
+        brel_reflexive_decidable S (r1 <&> r2)
+:= λ S r1 r2 d1 d2,  
+       match d1 with 
+       | inl ref1 => 
+         match d2 with 
+         | inl ref2     => inl _ (brel_conjunction_reflexive S r1 r2 ref1 ref2)
+         | inr not_ref2 => inr _ (brel_conjunction_not_reflexive_right S r1 r2 not_ref2)
+         end 
+       | inr not_ref1   => inr _ (brel_conjunction_not_reflexive_left S r1 r2 not_ref1)
+       end. 
+
+
+Lemma brel_conjunction_asymmetric_left : ∀ (S : Type) (r1 : brel S) (r2 : brel S),  
+              (brel_asymmetric S r1) → 
+                  brel_asymmetric S (r1 <&> r2). 
+Proof. unfold brel_asymmetric, brel_conjunction.  
+     intros S r1 r2 asy s t H. apply andb_is_true_left in H. destruct H as [L _]. 
+     rewrite (asy _ _ L). compute. reflexivity. 
+Defined. 
+
+Lemma brel_conjunction_asymmetric_right : ∀ (S : Type) (r1 : brel S) (r2 : brel S),  
+              (brel_asymmetric S r2) → 
+                  brel_asymmetric S (r1 <&> r2). 
+Proof. unfold brel_asymmetric, brel_conjunction.  
+     intros S r1 r2 asy s t H. apply andb_is_true_left in H. destruct H as [_ R]. 
+     rewrite (asy _ _ R). apply andb_comm.  
+Defined. 
+
+
+Lemma brel_conjunction_antisymmetric : 
+         ∀ (S : Type) (eq : brel S) (r1 : brel S) (r2 : brel S),  
+              (brel_antisymmetric S eq r1) + (brel_antisymmetric S eq r2) → 
+              
+              brel_antisymmetric S eq (r1 <&> r2). 
+Proof. unfold brel_antisymmetric, brel_conjunction. 
+     intros S eq r1 r2 [anti | anti] s t H1 H2. 
+        destruct (andb_is_true_left _ _ H1) as [L1 _]; 
+        destruct (andb_is_true_left _ _ H2) as [L2 _]. apply (anti _ _ L1 L2). 
+
+        destruct (andb_is_true_left _ _ H1) as [_ R1]; 
+        destruct (andb_is_true_left _ _ H2) as [_ R2]. apply (anti _ _ R1 R2). 
+Defined. 
+*) 
+
+End Conjunction.
+
+
+
 
 Section Theory.
 
@@ -153,7 +301,10 @@ Proof. intros a b c d A B.
 Qed. 
 
 Lemma below_not_reflexive (a : S ) : a !<< a.
-Proof. compute. rewrite lteRefl. rewrite lteRefl. reflexivity. Qed.
+Proof. compute.
+       (* note: could use lteRefl here, but no need to add this dependency.... *) 
+       case_eq(lte a a); intro K; reflexivity. 
+Qed.
 
 Lemma below_anti_symmetric (a b : S ) : a << b -> b !<< a.
 Proof. compute. case_eq(lte a b); intro A; case_eq(lte b a); intro B; auto. Qed. 
@@ -358,6 +509,93 @@ Proof. intros a b c A.
           assert (E := below_transitive _ _ _ D C).
           apply below_elim in E. destruct E as [E F].       
           rewrite F in A. discriminate A.
-Qed.        
+Qed.
+
+
+Close Scope nat. 
+
+(*******************BOTTOMS********************************)
+
+
+(*
+{B : finite_set T & (is_antichain T eq lte B) * 
+                    (∀(t : T), (in_set eq B t = true) + {s : S & (in_set eq B s = true) * (below lte t s = true)})}
+*) 
+
+
+
+Definition bottoms_set_is_finite (T : Type) (eq lte : brel T) 
+  := {p : (list T) * (T -> T) &
+          match p with (B, w) =>
+                       (is_antichain T eq lte B) * 
+                       (∀(s : T), (in_set eq B s = true) + ((in_set eq B (w s) = true) * (below lte s (w s) = true)))
+          end}.
+
+
+Definition bottoms_set_is_finite2 (T : Type) (eq lte : brel T) 
+  := {p : (list T) * (T -> T) &
+          match p with (B, w) =>
+                       (is_antichain T eq lte B) * 
+                       (∀(s : T), (in_set eq B (w s) = true) * (below lte s (w s) = true))
+          end}.
+(*
+
+negate 
+
+{B : finite_set T & (is_antichain T eq lte B) * 
+                    (∀(t : T), (in_set eq B t = true) + {s : S & (in_set eq B s = true) * (below lte t s = true)})}
+
+to 
+∀ B : finite_set T,  (is_antichain T eq lte B)  -> 
+                     {t : T & (in_set eq B t = false) * (∀ s : S, (in_set eq B s = true) -> (below lte t s = false))}
+
+now, functionalise this 
+
+
+{F : (finite_set T) -> T & 
+     ∀ B : finite_set T, (is_antichain T eq lte B) -> (in_set eq B (F B) = false) * 
+                                                      (∀ s : S, (in_set eq B s = true) -> (below lte (F B) s = false))}
+ *)
+
+Definition bottoms_set_not_is_finite2 (T : Type) (eq lte : brel T) 
+  := {F : (list T) -> T & 
+                      ∀ B : finite_set T, (is_antichain T eq lte B) ->
+                                          (∀ s : T, (in_set eq B s = true) -> (below lte (F B) s = false))}. 
+
+
+Definition bottoms_set_not_is_finite (T : Type) (eq lte : brel T) 
+  := {F : (list T) -> T &
+                      ∀ B : finite_set T, (is_antichain T eq lte B) ->
+                                          (in_set eq B (F B) = false) * 
+                                          (∀ s : T, (in_set eq B s = true) -> (below lte (F B) s = false))}. 
+     
+
+(* because the definitions have changed too often .... *) 
+Lemma another_bottoms_sanity_check (T : Type) (rT lteT : brel T)
+      (bf : bottoms_set_is_finite T rT lteT) (bnf : bottoms_set_not_is_finite T rT lteT) : true = false.
+Proof. destruct bf as [[BOTTOMS w] [A B]].
+       destruct bnf as [F C].
+       destruct (C BOTTOMS A) as [D E].
+       destruct (B (F BOTTOMS)) as [G | G].
+          rewrite G in D. discriminate D.
+          destruct G as [G1 G2]. 
+          assert (H := E _ G1).
+          rewrite H in G2. discriminate G2. 
+Qed.   
+
+
+Lemma another_bottoms_sanity_check2 (T : Type) (rT lteT : brel T)
+      (bf : bottoms_set_is_finite2 T rT lteT) (bnf : bottoms_set_not_is_finite2 T rT lteT) : true = false.
+Proof. destruct bf as [[BOTTOMS w] [A B]].
+       destruct bnf as [F C].
+       assert (E := C BOTTOMS A).
+       destruct (B (F BOTTOMS)) as [G1 G2].
+          assert (H := E _ G1).
+          rewrite H in G2. discriminate G2. 
+Qed.   
+
+
+(***************************************************)
+
  
 End Theory. 

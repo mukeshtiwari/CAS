@@ -10,6 +10,17 @@ I want to see the dependencies ...
 *)
 
 
+Local Open Scope list_scope.
+
+Section Compuation.
+
+Fixpoint in_list {S : Type} (r : brel S) (l : list S) (s : S) : bool 
+  := match l with 
+     | nil => false 
+     | a :: rest => orb (r s a) (in_list r rest s)
+     end. 
+End Compuation.
+
 Section ACAS. 
 Close Scope nat. 
 
@@ -27,11 +38,6 @@ Definition brel_not_reflexive (S : Type) (r : brel S) :=
 
 Definition brel_reflexive_decidable (S : Type) (r : brel S) := 
     (brel_reflexive S r) + (brel_not_reflexive S r). 
-
-(* sanity check *) 
-Lemma brel_reflexive_covered : forall (S : Type) (r : brel S), 
-    ((brel_reflexive S r) * (brel_not_reflexive S r)) -> False. 
-Proof. intros S r [refS [s P]].  rewrite (refS s) in P. discriminate. Defined. 
 
 Definition brel_transitive (S : Type) (r : brel S) := 
     ∀ s t u: S, (r s t = true) → (r t u = true) → (r s u = true). 
@@ -129,6 +135,7 @@ Definition brel_not_exactly_two (S : Type) (r : brel S)
 Definition brel_exactly_two_decidable  (S : Type) (r : brel S):= 
     (brel_exactly_two S r) + (brel_not_exactly_two S r). 
 
+
 Definition brel_at_least_three (S : Type) (r : brel S) 
   := { z : S * (S * S) &
       match z with (s, (t, u)) =>
@@ -137,10 +144,14 @@ Definition brel_at_least_three (S : Type) (r : brel S)
        (r t u = false) 
       end}.
 
-(* needed for ann of union and id of intersect *)
-Definition carrier_is_finite (S : Type) (r : brel S) := {f : unit -> list S & ∀ (s : S),  in_set r (f tt) s = true}.
 
-Definition carrier_is_not_finite (S : Type) (r : brel S) := ∀ f : unit -> list S, {s : S &  in_set r (f tt) s = false}.
+(* Needed for ann of union and id of intersect.  
+   Using lists rather than sets to avoid circular dependencies 
+   (coq/theory/set.v imports the current file). 
+*)
+Definition carrier_is_finite (S : Type) (r : brel S) := {f : unit -> list S & ∀ (s : S),  in_list r (f tt) s = true}.
+
+Definition carrier_is_not_finite (S : Type) (r : brel S) := ∀ f : unit -> list S, {s : S &  in_list r (f tt) s = false}.
 
 Definition carrier_is_finite_decidable  (S : Type) (r : brel S) := (carrier_is_finite S r) + (carrier_is_not_finite S r).
 

@@ -1,23 +1,31 @@
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
+Require Import CAS.coq.theory.set.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
+Require Import CAS.coq.eqv.set.
+Require Import CAS.coq.eqv.minset.
+
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
+Require Import CAS.coq.po.theory.
+
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.theory. 
+Require Import CAS.coq.sg.lift.
+
 Require Import CAS.coq.os.properties.
 Require Import CAS.coq.os.structures.
 
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.subset.
-Require Import CAS.coq.theory.order. (* for below, equiv, ... *) 
 
-Require Import CAS.coq.eqv.set.
-Require Import CAS.coq.eqv.minset.
-Require Import CAS.coq.sg.lift.
+
+
+
 
 Section Theory.
 
@@ -167,10 +175,10 @@ match comm_d with
 end. 
 
 Lemma minset_lift_right_inclusion_1
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS)))
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS)))
       (X Y : finite_set S) (a : S) (H : a [in] ([ms] (X [^] Y))) : 
      a [in] ([ms] (([ms] X) [^] Y)).
 Proof. apply in_minset_elim in H; auto. destruct H as [H1 H2].
@@ -292,7 +300,7 @@ Admitted.
 
 (* nb : this did not use strictness or antisym *) 
 Lemma minset_lift_right_inclusion_2
-      (RM : os_right_monotone S lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (X Y : finite_set S) (a : S) (H : a [in] ([ms] (([ms] X) [^] Y))) : 
   a [in] ([ms] (X [^] Y)).
 Proof. apply in_minset_elim in H; auto. destruct H as [H1 H2].
@@ -334,10 +342,10 @@ Qed.
 (* note : clean these up someday?  *) 
 
 Lemma minset_lift_left_invariant_v0
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS)))      
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS)))      
        (X Y : finite_set S) :  [ms] (([ms] X) [^] Y) [=S] [ms] (X [^] Y). 
 Proof. apply brel_set_intro_prop; auto. split.
        apply minset_lift_right_inclusion_2; auto.        
@@ -345,10 +353,10 @@ Proof. apply brel_set_intro_prop; auto. split.
 Qed. 
 
 Lemma minset_lift_left_invariant_v1
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS)))      
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS)))      
       (X Y : finite_set S) :  [ms] (([ms] X) [^] Y) [=MS] [ms] (X [^] Y). 
 Proof. assert (A := minset_lift_left_invariant_v0 LM RM DDD X Y).
        apply set_equal_implies_minset_equal; auto. 
@@ -357,10 +365,10 @@ Qed.
 
 (* proves   (([ms] X) <^> Y) [=S] (X <^> Y)   *) 
 Lemma minset_lift_left_invariant_v2 
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))): 
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))): 
      bop_left_uop_invariant (finite_set S) (brel_set rS) bop_minset_lift (uop_minset lteS).
 Proof. unfold bop_left_uop_invariant. intros X Y. 
        apply brel_set_intro_prop; auto. split. 
@@ -372,10 +380,10 @@ Qed.
 
 (* (([ms] X) <^> Y) [=MS] (X <^> Y)   *) 
 Lemma minset_lift_left_invariant
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))):       
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))):       
      bop_left_uop_invariant (finite_set S) (brel_minset rS lteS) bop_minset_lift (uop_minset lteS).
 Proof. intros X Y. 
        assert (A := minset_lift_left_invariant_v2 LM RM DDD X Y). 
@@ -386,9 +394,9 @@ Qed.
 
 
 Lemma minset_lift_left_inclusion_1
-      (LM : os_left_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS)))
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS)))
       (X Y : finite_set S) (a : S) (H : a [in] ([ms] (X [^] Y))) : 
   a [in] ([ms] (X [^] ([ms] Y))).
 Proof. apply in_minset_elim in H; auto. destruct H as [H1 H2].
@@ -435,7 +443,7 @@ Qed.
 
 (* nb : this did not use strictness or antisym *) 
 Lemma minset_lift_left_inclusion_2
-      (LM : os_left_monotone S lteS bS)
+      (LM : os_left_monotone lteS bS)
       (X Y : finite_set S) (a : S) (H : a [in] ([ms] (X [^] ([ms] Y)))) : 
   a [in] ([ms] (X [^] Y)).
 Proof. apply in_minset_elim in H; auto. destruct H as [H1 H2].
@@ -473,18 +481,17 @@ Proof. apply in_minset_elim in H; auto. destruct H as [H1 H2].
                  rewrite (below_congruence _ _ _ lteCong _ _ _ _ H5 H9). 
                  case_eq(below lteS (bS x y) (bS b c) ); intro D; auto. 
                     assert (E := below_pseudo_transitive_right _ _ _ D C). 
-                    assert (G := below_not_reflexive _ _ lteRefl (bS b c)). 
+                    assert (G := below_not_reflexive _ lteS (bS b c)). 
                     rewrite G in E. discriminate E. 
-                 
 Qed.
 
 
 
 Lemma minset_lift_right_invariant_v0
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS)))
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS)))
       (X Y : finite_set S) :  [ms] (X [^] ([ms] Y)) [=S] [ms] (X [^] Y). 
 Proof. apply brel_set_intro_prop; auto. split.
        apply minset_lift_left_inclusion_2; auto.        
@@ -492,10 +499,10 @@ Proof. apply brel_set_intro_prop; auto. split.
 Qed. 
 
 Lemma minset_lift_right_invariant_v1
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS)))
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS)))
       (X Y : finite_set S) :  [ms] (X [^] ([ms] Y)) [=MS] [ms] (X [^] Y). 
 Proof. assert (A := minset_lift_right_invariant_v0 LM RM DDD X Y).
        apply set_equal_implies_minset_equal; auto. 
@@ -503,10 +510,10 @@ Qed.
 
 
 Lemma minset_lift_right_invariant_v2
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))):       
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))):       
      bop_right_uop_invariant (finite_set S) (brel_set rS) bop_minset_lift (uop_minset lteS).
 Proof. unfold bop_right_uop_invariant. intros X Y. 
        apply brel_set_intro_prop; auto. split. 
@@ -515,10 +522,10 @@ Proof. unfold bop_right_uop_invariant. intros X Y.
 Qed.
 
 Lemma minset_lift_right_invariant
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) :       
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))) :       
      bop_right_uop_invariant (finite_set S) (brel_minset rS lteS) bop_minset_lift (uop_minset lteS).
 Proof. intros X Y. 
        assert (A := minset_lift_right_invariant_v2 LM RM DDD X Y). 
@@ -542,10 +549,10 @@ Qed.
 
 
 Lemma bop_minset_lift_associative
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-             ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))):
+             ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))):
   bop_associative (finite_set S) (brel_minset rS lteS) bop_minset_lift.
 Proof. intros X Y Z.
        assert (A : ((X <^> Y) <^> Z) [=MS] [ms] (([ms] (X <^> Y)) [^] ([ms] Z))).
@@ -625,10 +632,10 @@ Proof. exists nil. apply bop_minset_lift_ann_is_nil. Defined.
 
 
 Lemma bop_minset_lift_id_is_bottom
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS)))
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS)))
       (b : S) (P : bop_is_id S rS bS b) : 
       bop_is_id (finite_set S) (brel_minset rS lteS) bop_minset_lift (b :: nil). 
 Proof. intro X.   
@@ -649,10 +656,10 @@ Proof. intro X.
 Qed. 
 
 Lemma bop_minset_lift_exists_id
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-             ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) :
+             ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))) :
   bop_exists_id (finite_set S) (brel_minset rS lteS) bop_minset_lift. 
 Proof. destruct bId as [b P]. exists (b :: nil).
        apply bop_minset_lift_id_is_bottom; auto.
@@ -769,10 +776,10 @@ Defined.
 (**************** selectivity, idempotence ***************) 
 
 Lemma bop_minset_lift_not_selective_v1 
-      (LM : os_left_monotone S lteS bS) 
-      (RM : os_right_monotone S lteS bS) 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
       (DDD : (brel_antisymmetric S rS lteS) +
-               ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) :
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))) :
          (bop_not_selective S rS bS) → bop_not_selective (finite_set S) (brel_minset rS lteS) bop_minset_lift. 
 Proof. intros [ [s t] [A B]]. 
        exists (s :: nil, t :: nil). 
@@ -874,8 +881,8 @@ Qed.
 
 Lemma bop_minset_lift_idempotent_v2
       (idem : bop_idempotent S rS bS)
-      (LI : os_left_increasing S lteS bS) 
-      (RI : os_right_increasing S lteS bS) :  
+      (LI : os_left_increasing lteS bS) 
+      (RI : os_right_increasing lteS bS) :  
          bop_idempotent (finite_set S) (brel_minset rS lteS) bop_minset_lift.
 Proof. intros X. unfold bop_minset_lift. unfold brel_minset. 
        assert (A := uop_minset_idempotent (([ms] X) [^] ([ms] X))).
@@ -954,7 +961,7 @@ Admitted.
 
 Lemma bop_minset_lift_not_idempotent_v2 
       (idem : bop_idempotent S rS bS)
-      (NLI : os_not_left_increasing S lteS bS) :
+      (NLI : os_not_left_increasing lteS bS) :
             bop_not_idempotent (finite_set S) (brel_minset rS lteS) bop_minset_lift. 
 Proof. destruct NLI as [[s t] A]. 
        exists (s :: t :: nil). 
@@ -971,7 +978,24 @@ Admitted.
 
 
 
+(*
 
+Lemma bop_minset_lift_somthing_is_finite (wS : S) (selS : bop_selective S rS bS) (commS : bop_commutative S rS bS) :
+      something_is_finite (finite_set S) (brel_set rS) (bop_lift rS bS).
+Proof. exact (exists_ann_implies_something_is_finite _ _ _ 
+              bop_lift_congruence 
+              (brel_set_reflexive _ _ refS symS)
+              (brel_set_symmetric _ rS) 
+              (brel_set_transitive  _ _ refS symS tranS)
+              (bop_lift_commutative commS)
+              (bop_lift_idempotent selS) 
+              (λ l : finite_set S, if brel_set rS nil l then wS :: nil else nil)
+              (brel_set_not_trivial S rS wS)
+              bop_lift_exists_ann). 
+Defined.
+
+
+*) 
 
 
 

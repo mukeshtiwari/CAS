@@ -2,13 +2,15 @@ Require Import Coq.Bool.Bool.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
+Require Import CAS.coq.eqv.list.
+
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
-
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.eqv.list. 
+Require Import CAS.coq.sg.and. 
 
 Section Theory.
 
@@ -55,7 +57,7 @@ Proof. unfold bop_congruence, bop_concat. intros S r refS.
        fold @brel_list. fold @brel_list in H, Q. 
        rewrite <- List.app_comm_cons. rewrite <- List.app_comm_cons.
        unfold brel_list. fold @brel_list. 
-       destruct (andb_is_true_left _ _ H) as [H1 H2]. 
+       destruct (bop_and_elim _ _ H) as [H1 H2]. 
        rewrite H1. simpl. 
        apply IHs1. assumption. 
        unfold brel_list. fold @brel_list. assumption. 
@@ -127,16 +129,16 @@ Proof. unfold bop_right_cancellative, bop_concat.
           compute in H. discriminate. 
           rewrite List.app_nil_r in H.  rewrite List.app_nil_r in H. assumption. 
           compute. reflexivity. 
-          compute. simpl in H. apply andb_is_true_left in H. destruct H as [L R].
+          compute. simpl in H. apply bop_and_elim in H. destruct H as [L R].
              rewrite concat_cons_no_left_id in R; auto. 
-          compute. simpl in H. apply andb_is_true_left in H. destruct H as [L R].
+          compute. simpl in H. apply bop_and_elim in H. destruct H as [L R].
              rewrite concat_cons_no_left_id_v2 in R; auto.              
           rewrite <- List.app_comm_cons in H. rewrite <- List.app_comm_cons in H.
           unfold brel_list in H. fold @brel_list in H.
-          apply andb_is_true_left in H. destruct H as [L R].
+          apply bop_and_elim in H. destruct H as [L R].
           apply IHt in R.
           unfold brel_list. fold @brel_list.
-          apply andb_is_true_right; split; auto. 
+          apply bop_and_intro; auto. 
 Qed. 
 
 Lemma  bop_concat_not_left_constant : ∀ (S : Type) (r : brel S) (s : S), 

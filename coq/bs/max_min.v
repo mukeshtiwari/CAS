@@ -1,19 +1,20 @@
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
-Require Import CAS.coq.eqv.properties.
+
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.nat.
+
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
-Require Import CAS.coq.bs.properties.
-Require Import CAS.coq.bs.structures.
-
-Require Import CAS.coq.eqv.nat.
 Require Import CAS.coq.sg.max.
 Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.cast_up.
+
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures.
+Require Import CAS.coq.bs.theory. 
 Require Import CAS.coq.bs.min_max. (* for bops_min_max_left_left_absorptive *) 
-Require Import CAS.coq.theory.facts. 
 
 Section Theory.
 

@@ -1,12 +1,35 @@
+Require Import Coq.Bool.Bool.
+
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
 
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.subset.
+Require Import CAS.coq.sg.and.
+Require Import CAS.coq.sg.or. 
+
+Require Import CAS.coq.theory.set.
+
+Section Computation.
+
+Definition brel_subset : ∀ {S : Type},  brel S -> brel (finite_set S)
+:= fix f {S} r set1 set2 := 
+   match set1 with 
+   | nil => true 
+   | a :: rest => bop_and (in_set r set2 a) (f r rest set2)
+   end.
+
+Definition brel_set : ∀ {S : Type}, brel S → brel(finite_set S) 
+:= λ {S} r,  brel_and_sym (brel_subset r). 
+  
+
+End Computation.
+
+Close Scope nat.
+
 
 Section Theory.
 
@@ -17,17 +40,88 @@ Section Theory.
   Variable tranS : brel_transitive S eq.
 
 
+
+Lemma brel_subset_intro : 
+        ∀ (x w : finite_set S), 
+          (∀ a:S, in_set eq x a = true -> in_set eq w a = true) 
+               -> brel_subset eq x w = true. 
+Proof. induction x; intros w H; unfold brel_subset.  
+       reflexivity. 
+       fold (@brel_subset S). rewrite (H a). simpl. 
+       apply IHx.  intros t Q. apply H. unfold in_set. fold (@in_set S). 
+          rewrite Q. apply orb_comm. unfold in_set. fold (@in_set S). 
+          rewrite (refS a). simpl. reflexivity. 
+Defined. 
+
+
+Lemma brel_subset_elim : 
+           ∀ (x w : finite_set S), 
+               brel_subset eq x w = true -> 
+                   ∀ a:S, in_set eq x a = true -> in_set eq w a = true. 
+Proof. induction x. 
+       intros w H a Q. unfold in_set in Q. discriminate. 
+       intros w H a0 Q.              
+       unfold brel_subset in H.  fold (@brel_subset S) in H. 
+       apply bop_and_elim in H. destruct H as [H1 H2].
+       unfold in_set in Q. fold (@in_set S) in Q.  
+       apply bop_or_elim in Q. destruct Q as [Q|Q]. 
+         apply symS in Q.  
+         apply (in_set_right_congruence S eq symS tranS a a0 w Q H1).
+         apply (IHx w H2 a0 Q). 
+Qed. 
+
+
+Lemma brel_subset_false_elim : 
+           ∀ (x w : finite_set S), 
+               brel_subset eq x w = false -> 
+                  { a :S & (in_set eq x a = true) * (in_set eq w a = false) }. 
+Proof. intros x w H.
+       induction x. compute in H. discriminate H. 
+       unfold brel_subset in H. fold @brel_subset in H. apply bop_and_false_elim in H.
+       destruct H as [H | H]. 
+          exists a. split; auto. apply in_set_cons_intro; auto. 
+          destruct (IHx H) as [s [P Q]]. exists s; split; auto. apply in_set_cons_intro; auto. 
+Defined.         
+
+
+Lemma brel_subset_filter_intro : 
+   ∀ (f g : bProp S),
+       bProp_congruence S eq f →
+       bProp_congruence S eq g →
+      (∀ s : S, g s = true -> f s = true) -> (* <<< NB *) 
+        ∀ (X Y : finite_set S), brel_subset eq X Y = true -> 
+            brel_subset eq (filter g X) (filter f Y) = true. 
+Proof. intros f g cong_f cong_g P X Y H.
+       apply brel_subset_intro; auto. 
+       assert(A := brel_subset_elim _ _ H). 
+       intros a J.
+       apply in_set_filter_elim in J; auto.
+       destruct J as [L R].
+       apply in_set_filter_intro; auto. 
+Defined.
+
+
+Lemma brel_subset_uop_filter_intro : 
+   ∀ (f g : bProp S),
+       bProp_congruence S eq f →
+       bProp_congruence S eq g →
+      (∀ s : S, g s = true -> f s = true) -> 
+        ∀ (X Y : finite_set S), brel_subset eq X Y = true -> 
+            brel_subset eq (uop_filter g X) (uop_filter f Y) = true. 
+Proof. unfold uop_filter. apply brel_subset_filter_intro; auto. Defined. 
+  
+
 Lemma brel_set_nil : ∀ (X : finite_set S), brel_set eq nil X = true -> X = nil. 
 Proof. induction X; intro H. reflexivity. compute in H. discriminate. Defined. 
 
 
 Lemma brel_set_intro : ∀ (X Y : finite_set S), (brel_subset eq X Y = true) * (brel_subset eq Y X = true)  → brel_set eq X Y = true. 
-Proof. intros X Y [H1 H2]. unfold brel_set. unfold brel_and_sym. apply andb_is_true_right; auto. Defined. 
+Proof. intros X Y [H1 H2]. unfold brel_set. unfold brel_and_sym. apply bop_and_intro; auto. Defined. 
 
 Lemma brel_set_elim : ∀ (X Y : finite_set S), 
      brel_set eq X Y = true -> (brel_subset eq X Y = true) * (brel_subset eq Y X = true).
 Proof. intros X Y H. unfold brel_set in H. unfold brel_and_sym in H. 
-       apply andb_is_true_left in H. destruct H as [H1 H2]; auto. 
+       apply bop_and_elim in H. destruct H as [H1 H2]; auto. 
 Defined. 
 
 Lemma brel_set_intro_prop : ∀ (X Y : finite_set S), 
@@ -44,10 +138,11 @@ Lemma brel_set_elim_prop : ∀ (X Y : finite_set S),
         (∀ a : S, in_set eq X a = true → in_set eq Y a = true) 
       * (∀ a : S, in_set eq Y a = true → in_set eq X a = true).
 Proof. intros X Y H. unfold brel_set in H. unfold brel_and_sym in H. 
-       apply andb_is_true_left in H. destruct H as [H1 H2]. 
-       assert (A1 := brel_subset_elim S eq symS tranS _ _ H1). 
-       assert (A2 := brel_subset_elim S eq symS tranS _ _ H2); auto. 
+       apply bop_and_elim in H. destruct H as [H1 H2]. 
+       assert (A1 := brel_subset_elim _ _ H1). 
+       assert (A2 := brel_subset_elim _ _ H2); auto. 
 Defined. 
+
 
 
 Lemma brel_set_false_elim_prop : ∀ (X Y : finite_set S),
@@ -55,7 +150,7 @@ Lemma brel_set_false_elim_prop : ∀ (X Y : finite_set S),
         { a : S & (in_set eq X a = true) * (in_set eq Y a = false) } 
       + { a : S & (in_set eq Y a = true) * (in_set eq X a = false) }.
 Proof. intros X Y H. unfold brel_set in H. unfold brel_and_sym in H. 
-       apply andb_is_false_left in H. destruct H as [H | H].  
+       apply bop_and_false_elim in H. destruct H as [H | H].  
           apply brel_subset_false_elim in H; auto. 
           apply brel_subset_false_elim in H; auto. 
 Defined. 
@@ -79,7 +174,7 @@ Lemma in_set_left_congruence_v3 : ∀ (a : S) (X Y : finite_set S),
 Proof. intros a X Y H1 H2. 
        apply brel_set_elim in H1.
        destruct H1 as [H1 _]. 
-       assert (K := brel_subset_elim _ _ symS tranS X Y H1). 
+       assert (K := brel_subset_elim X Y H1). 
        apply K; auto. 
 Qed.
 
@@ -95,15 +190,15 @@ Defined.
 
 Lemma brel_and_sym_transitive (T : Type) (r : brel T) (tranr : brel_transitive T r) : brel_transitive T (brel_and_sym r). 
 Proof. unfold brel_transitive, brel_and_sym. intros s t u H1 H2. 
-       apply andb_is_true_left in H1. destruct H1 as [H1_l H1_r].        
-       apply andb_is_true_left in H2. destruct H2 as [H2_l H2_r].        
+       apply bop_and_elim in H1. destruct H1 as [H1_l H1_r].        
+       apply bop_and_elim in H2. destruct H2 as [H2_l H2_r].        
        rewrite (tranr _ _ _ H1_l H2_l).
        rewrite (tranr _ _ _ H2_r H1_r ). simpl. reflexivity. 
 Defined. 
 
 Lemma brel_and_sym_symmetric (T : Type) (r : brel T) : brel_symmetric T (brel_and_sym r). 
 Proof. unfold brel_symmetric, brel_and_sym. intros s t H. 
-       apply andb_is_true_left in H. destruct H as [H_l H_r].        
+       apply bop_and_elim in H. destruct H as [H_l H_r].        
        rewrite H_l. rewrite H_r. simpl. reflexivity. 
 Defined. 
 
@@ -114,8 +209,8 @@ Lemma in_set_left_congruence_v2 : ∀ (X Y : finite_set S),
 Proof. intros X Y H a. 
        apply brel_set_elim in H.
        destruct H as [H1 H2]. 
-       assert (K1 := brel_subset_elim _ _ symS tranS X Y H1).
-       assert (K2 := brel_subset_elim _ _ symS tranS Y X H2).        
+       assert (K1 := brel_subset_elim X Y H1).
+       assert (K2 := brel_subset_elim Y X H2).        
        case_eq(in_set eq X a); intro J1; case_eq(in_set eq Y a); intro J2; auto.
        apply K1 in J1. rewrite J1 in J2. exact J2.
        apply K2 in J2. rewrite J1 in J2. exact J2.       
@@ -137,6 +232,22 @@ Qed.
 
 
 (***)
+
+Lemma brel_subset_reflexive : brel_reflexive (finite_set S) (brel_subset eq). 
+Proof. unfold brel_reflexive. induction s. 
+       simpl. reflexivity. 
+       unfold brel_subset. fold (@brel_subset S). unfold in_set. rewrite (refS a). simpl.
+       apply brel_subset_intro; auto.   
+       intros b H. apply in_set_cons_intro; auto. 
+Defined. 
+
+Lemma brel_subset_transitive : brel_transitive (finite_set S) (brel_subset eq). 
+Proof. intros x y z H1 H2. 
+      assert (Q1 := brel_subset_elim x y H1). 
+      assert (Q2 := brel_subset_elim y z H2). 
+      apply brel_subset_intro. 
+      intros a I. apply Q2. apply Q1. assumption. 
+Defined. 
 
 
 Lemma brel_set_reflexive : brel_reflexive (finite_set S) (brel_set eq). 
@@ -225,14 +336,14 @@ End Theory.
 Section ACAS.
 
 
-Definition eqv_proofs_set : ∀ (S : Type) (r : brel S),
-    eqv_proofs S r → eqv_proofs (finite_set S) (brel_set r) 
-:= λ S r eqv, 
+Definition eqv_proofs_set : ∀ (S : Type) (eq : brel S),
+    eqv_proofs S eq → eqv_proofs (finite_set S) (brel_set eq) 
+:= λ S eq eqv, 
    {| 
-     A_eqv_congruence  := brel_set_congruence S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) (A_eqv_transitive S r eqv) 
-   ; A_eqv_reflexive   := brel_set_reflexive S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) 
-   ; A_eqv_transitive  := brel_set_transitive S r (A_eqv_reflexive S r eqv) (A_eqv_symmetric S r eqv) (A_eqv_transitive S r eqv) 
-   ; A_eqv_symmetric   := brel_set_symmetric S r
+     A_eqv_congruence  := brel_set_congruence S eq (A_eqv_reflexive S eq eqv) (A_eqv_symmetric S eq eqv) (A_eqv_transitive S eq eqv) 
+   ; A_eqv_reflexive   := brel_set_reflexive S eq (A_eqv_reflexive S eq eqv) (A_eqv_symmetric S eq eqv) 
+   ; A_eqv_transitive  := brel_set_transitive S eq (A_eqv_reflexive S eq eqv) (A_eqv_symmetric S eq eqv) (A_eqv_transitive S eq eqv) 
+   ; A_eqv_symmetric   := brel_set_symmetric S eq
    |}. 
 
 

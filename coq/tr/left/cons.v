@@ -1,12 +1,15 @@
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
+Require Import CAS.coq.eqv.list.
+
+Require Import CAS.coq.sg.and. 
+
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
-
-Require Import CAS.coq.eqv.list.
-Require Import CAS.coq.theory.facts.
 
 Open Scope list.
 
@@ -45,7 +48,7 @@ Section Theory.
  
  Lemma ltr_cons_cancellative : ltr_left_cancellative S (list S) (brel_list eq) ltr_cons. 
  Proof. unfold ltr_left_cancellative. intros s l1 l2 H. unfold ltr_cons in H. 
-        unfold brel_list in H. fold (@brel_list S) in H. apply andb_is_true_left in H.
+        unfold brel_list in H. fold (@brel_list S) in H. apply bop_and_elim  in H.
         destruct H as [_ H]. exact H.
 Qed.        
  

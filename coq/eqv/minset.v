@@ -3,23 +3,55 @@ Require Import Coq.Lists.List.
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
+
+Require Import CAS.coq.theory.set. 
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
+Require Import CAS.coq.eqv.set.
+Require Import CAS.coq.eqv.list. 
+
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
-Require Import CAS.coq.uop.properties.
+Require Import CAS.coq.po.theory.
 
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.subset.
-(* theory/order.v contains defs and 
-   lemmas for below, equiv, incomp, equiv_or_incomp
-*) 
-Require Import CAS.coq.theory.order. 
-Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.sg.union. 
 
-Section Operations.
+Require Import CAS.coq.uop.properties.
+
+
+Section Computation. 
+
+(*  
+   The standard way of defining minsets is as follows. 
+   Given an order, (S, <=), define and a subset X of S, 
+   define (the antichain) 
+
+   min(<=, X) := {x in X | for all y in X, not (y < x)}. 
+
+   Now, the set of minimal sets over S is defined as 
+
+   MIN(<=, S) := {X subset S | X is finite and min(<=, X) = X}, 
+   and we can define an equivalence relation 
+   (MIN(<=, S), =') 
+   where equality =' is just equality over sets restricted to MIN(<=, S). 
+
+   Now, here is a problem.  We want MIN(<=, S) to be a type representable in OCaml! 
+   So, instead of (MIN(<=, S), ='), we represent minsets as 
+
+      (Finite_set S, ='') 
+
+   where X ='' Y iff min(<=, X) =' min(<=, Y). 
+
+   Note: This could be defined using the more abstract notion of a reduction.  
+   This was attempted, but it turned out that proving the in this file with 
+   so many layers of abstraction was pure torture, at least with the way reductions 
+   are currently defined (see coq/theory/reductions). 
+
+   Another note: antisymmetry will not be assumed for <= ! This allows us to model 
+   some exotic network routing constructions ... 
+*)   
 
 Definition iterate_minset : ∀ {S : Type} (lte : brel S), (finite_set S)  -> (finite_set S)  -> (finite_set S) 
   := λ {S} lte,  fix f Y X  :=
@@ -40,7 +72,7 @@ Definition uop_minset {S : Type} (lte :brel S) : unary_op (finite_set S)
 Definition brel_minset {S : Type} (eq lte : brel S)  : brel (finite_set S)
   := λ X Y, brel_set eq (uop_minset lte X) (uop_minset lte Y).
 
-End Operations.  
+End Computation. 
 
 Section Theory.
 
@@ -1225,6 +1257,7 @@ Proof. unfold brel_not_exactly_two. exists minset_negate.
 Defined. 
 
 
+(* we really want fully lazy sets here.  fix this someday.... *) 
 Definition minset_enum (enum : unit -> list S) (x : unit) :=  List.map (uop_minset lteS) (power_set S (enum x)).
 
 Lemma empty_set_in_minset_enum (f : unit -> list S) : in_set (brel_minset rS lteS) (minset_enum f tt) nil = true.
@@ -1271,11 +1304,11 @@ Proof. intro A.
 Qed.
 
 
-Lemma squash_lemma (s : S) (X : list (finite_set S)) (H : in_set (brel_minset rS lteS) X (s :: nil) = true) : in_set rS (squash X) s = true. 
+Lemma squash_lemma (s : S) (X : list (finite_set S)) (H : in_list (brel_minset rS lteS) X (s :: nil) = true) : in_list rS (squash X) s = true. 
 Proof. induction X. compute in H. discriminate H.
-       apply in_set_cons_elim in H.
+       apply in_list_cons_elim in H.
        unfold squash; fold squash.
-       apply in_set_concat_intro.
+       apply in_list_concat_intro.
        destruct H as [H | H].       
           left. apply brel_minset_singleton_elim; auto. 
           right. apply IHX; auto. 
@@ -1285,10 +1318,10 @@ Qed.
 
 Definition brel_minset_is_not_finite : carrier_is_not_finite S rS -> carrier_is_not_finite (finite_set S) (brel_minset rS lteS).
 Proof. unfold carrier_is_not_finite.   
-       intros H f.
+       intros H f. 
        destruct (H (λ _, squash (f tt))) as [s Ps].
        exists (s :: nil). 
-       case_eq(in_set (brel_minset rS lteS) (f tt) (s :: nil)); intro J; auto.
+       case_eq(in_list (brel_minset rS lteS) (f tt) (s :: nil)); intro J; auto.
        apply squash_lemma in J. rewrite J in Ps. exact Ps. 
 Defined.
 

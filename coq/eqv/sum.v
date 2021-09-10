@@ -1,11 +1,12 @@
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
+Require Import CAS.coq.eqv.list. 
 
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set. 
 
 Section Theory.
 Variable S  : Type. 
@@ -103,25 +104,25 @@ Proof. intros ntS.
        apply (brel_sum_at_least_three s f t); auto. 
 Defined.
 
-Definition enumerate_sum (X : finite_set S) (Y : finite_set T) : finite_set (S + T)
+Definition enumerate_sum (X : list S) (Y : list T) : list (S + T)
   := (List.map (λ s, inl s) X) ++ (List.map (λ t, inr t) Y). 
                          
 Definition sum_enum (fS : unit -> list S) (fT : unit -> list T) (x : unit) := enumerate_sum (fS tt) (fT tt).
 
-Lemma in_set_sum_left  (s : S) (X : finite_set S) (H : in_set rS X s = true) : in_set (rS <+> rT) (List.map (λ a : S, inl a) X) (inl s) = true. 
+Lemma in_list_sum_left  (s : S) (X : list S) (H : in_list rS X s = true) : in_list (rS <+> rT) (List.map (λ a : S, inl a) X) (inl s) = true. 
 Proof. induction X. compute in H. discriminate H.
-       apply in_set_cons_elim in H; auto.
+       apply in_list_cons_elim in H; auto.
        unfold List.map. destruct H as [H | H]. 
-       apply in_set_cons_intro; auto. apply brel_sum_symmetric; auto.
-       apply in_set_cons_intro; auto. apply brel_sum_symmetric; auto.
+       apply in_list_cons_intro; auto. apply brel_sum_symmetric; auto.
+       apply in_list_cons_intro; auto. apply brel_sum_symmetric; auto.
 Qed.
 
-Lemma in_set_sum_right  (t : T) (X : finite_set T) (H : in_set rT X t = true) : in_set (rS <+> rT) (List.map (λ a : T, inr a) X) (inr t) = true. 
+Lemma in_list_sum_right  (t : T) (X : list T) (H : in_list rT X t = true) : in_list (rS <+> rT) (List.map (λ a : T, inr a) X) (inr t) = true. 
 Proof. induction X. compute in H. discriminate H.
-       apply in_set_cons_elim in H; auto.
+       apply in_list_cons_elim in H; auto.
        unfold List.map. destruct H as [H | H]. 
-       apply in_set_cons_intro; auto. apply brel_sum_symmetric; auto.
-       apply in_set_cons_intro; auto. apply brel_sum_symmetric; auto.
+       apply in_list_cons_intro; auto. apply brel_sum_symmetric; auto.
+       apply in_list_cons_intro; auto. apply brel_sum_symmetric; auto.
 Qed.
 
 
@@ -129,14 +130,14 @@ Lemma brel_sum_finite : carrier_is_finite S rS -> carrier_is_finite T rT -> carr
 Proof. intros [fS pS] [fT pT]. unfold carrier_is_finite. exists (sum_enum fS fT).
        unfold sum_enum. unfold enumerate_sum. 
        intros [s | t].
-          assert (HS := pS s). apply in_set_concat_intro; auto.       
-          left. apply in_set_sum_left; auto. 
-          assert (HT := pT t). apply in_set_concat_intro; auto.       
-          right. apply in_set_sum_right; auto.        
+          assert (HS := pS s). apply in_list_concat_intro; auto.       
+          left. apply in_list_sum_left; auto. 
+          assert (HT := pT t). apply in_list_concat_intro; auto.       
+          right. apply in_list_sum_right; auto.        
 Defined. 
 
 
-Definition only_left: finite_set (S + T) -> finite_set S 
+Definition only_left: list (S + T) -> list S 
   := fix f X :=
      match X with
      | nil => nil
@@ -144,7 +145,7 @@ Definition only_left: finite_set (S + T) -> finite_set S
      | (inr _) :: Y => f Y
      end.                          
 
-Definition only_right: finite_set (S + T) -> finite_set T
+Definition only_right: list (S + T) -> list T
   := fix f X :=
      match X with
      | nil => nil
@@ -152,36 +153,36 @@ Definition only_right: finite_set (S + T) -> finite_set T
      | (inr t) :: Y => t :: (f Y)
      end.
 
-Lemma in_only_left_intro (s : S) (X : finite_set (S + T)): 
-  in_set (rS <+> rT) X (inl s) = true -> in_set rS (only_left X) s = true.
+Lemma in_only_left_intro (s : S) (X : list (S + T)): 
+  in_list (rS <+> rT) X (inl s) = true -> in_list rS (only_left X) s = true.
 Proof. intro H. induction X. compute in H. discriminate H. 
        destruct a as [s' | t'].
-       unfold only_left. fold only_left. apply in_set_cons_intro; auto.
-       apply in_set_cons_elim in H. destruct H as [H | H].
+       unfold only_left. fold only_left. apply in_list_cons_intro; auto.
+       apply in_list_cons_elim in H. destruct H as [H | H].
        compute in H. left. exact H. 
        right. apply IHX; auto. 
        apply brel_sum_symmetric; auto.
 
        unfold only_left. fold only_left. apply IHX. 
-       apply in_set_cons_elim in H. destruct H as [H | H].
+       apply in_list_cons_elim in H. destruct H as [H | H].
        compute in H. discriminate H. 
        exact H.
        apply brel_sum_symmetric; auto.       
 Qed. 
 
-Lemma in_only_right_intro (t : T) (X : finite_set (S + T)): 
-  in_set (rS <+> rT) X (inr t) = true -> in_set rT (only_right X) t = true.
+Lemma in_only_right_intro (t : T) (X : list (S + T)): 
+  in_list (rS <+> rT) X (inr t) = true -> in_list rT (only_right X) t = true.
 Proof. intro H. induction X. compute in H. discriminate H. 
        destruct a as [s' | t'].
 
        unfold only_right. fold only_right. apply IHX. 
-       apply in_set_cons_elim in H. destruct H as [H | H].
+       apply in_list_cons_elim in H. destruct H as [H | H].
        compute in H. discriminate H. 
        exact H.
        apply brel_sum_symmetric; auto.       
        
-       unfold only_right. fold only_left. apply in_set_cons_intro; auto.
-       apply in_set_cons_elim in H. destruct H as [H | H].
+       unfold only_right. fold only_left. apply in_list_cons_intro; auto.
+       apply in_list_cons_elim in H. destruct H as [H | H].
        compute in H. left. exact H. 
        right. apply IHX; auto. 
        apply brel_sum_symmetric; auto.
@@ -191,7 +192,7 @@ Lemma brel_sum_not_finite_left : carrier_is_not_finite S rS -> carrier_is_not_fi
 Proof. unfold carrier_is_not_finite. intro H.
        intro fST. assert (K := H (λ _, only_left (fST tt) )).
        destruct K as [s Ps]. exists (inl s).
-       case_eq(in_set (rS <+> rT) (fST tt) (inl s)); intro J; auto. 
+       case_eq(in_list (rS <+> rT) (fST tt) (inl s)); intro J; auto. 
        apply in_only_left_intro in J. rewrite J in Ps. exact Ps. 
 Defined. 
 
@@ -200,7 +201,7 @@ Lemma brel_sum_not_finite_right : carrier_is_not_finite T rT -> carrier_is_not_f
 Proof. unfold carrier_is_not_finite. intro H.
        intro fST. assert (K := H (λ _, only_right (fST tt) )).
        destruct K as [t Pt]. exists (inr t).
-       case_eq(in_set (rS <+> rT) (fST tt) (inr t)); intro J; auto. 
+       case_eq(in_list (rS <+> rT) (fST tt) (inr t)); intro J; auto. 
        apply in_only_right_intro in J. rewrite J in Pt. exact Pt. 
 Defined. 
 

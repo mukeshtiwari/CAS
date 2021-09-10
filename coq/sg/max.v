@@ -105,25 +105,34 @@ Proof. exists (1, 0); simpl. auto. Defined.
 
 (* bottoms *)
 
-
+(*
 Definition max_list (l : list nat) := List.fold_left bop_max l 0. 
 
 Definition bop_max_F (l : list nat) := S(max_list l). 
 
+Lemma bop_max_F_not_in_B (B : finite_set nat) : in_set brel_eq_nat B (bop_max_F B) = false. 
+Proof. induction B.
+       compute. reflexivity. 
+       unfold bop_max_F. 
+Admitted. 
+       
+Lemma bop_max_F_is_max (B : finite_set nat) (s : nat) : 
+   in_set brel_eq_nat B s = true -> brel_eq_nat (bop_max s (bop_max_F B)) s = false. 
+Admitted.
 
 Lemma bop_max_something_not_is_finite : something_not_is_finite nat brel_eq_nat bop_max.
 Proof. unfold something_not_is_finite. exists bop_max_F. 
        intros B A. split. 
-         admit.
+         apply bop_max_F_not_in_B.
          intros s C.
             destruct (bop_max_selective s (bop_max_F B)) as [D | D]. 
-               admit. (* get *** from C, D *)
+               assert (E := bop_max_F_is_max B s C). rewrite E in D. discriminate D. 
                right. assert (E := bop_max_commutative (bop_max_F B) s). 
                assert (G := brel_eq_nat_transitive _ _ _ E D).
                apply brel_eq_nat_symmetric.
                exact G. 
-Admitted.
-
+Qed. 
+*) 
 End Theory.
 
 Section ACAS.

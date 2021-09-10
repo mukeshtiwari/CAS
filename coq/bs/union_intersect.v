@@ -2,22 +2,21 @@ Require Import Coq.Bool.Bool.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory. 
+Require Import CAS.coq.eqv.set.
+
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
-Require Import CAS.coq.bs.properties.
-Require Import CAS.coq.bs.structures.
-
-Require Import CAS.coq.eqv.set.
-Require Import CAS.coq.eqv.add_constant. 
 Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.intersect.
-Require Import CAS.coq.bs.add_ann_add_id. 
-Require Import CAS.coq.bs.add_id_add_ann. 
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.subset. 
-Require Import CAS.coq.theory.facts.
+
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures.
+Require Import CAS.coq.bs.theory. 
+
 
 Section Theory.
 
@@ -203,8 +202,9 @@ Proof. unfold bops_id_equals_ann_decidable. destruct fin_d as [fS | nfs].
              apply bop_intersect_enum_is_id; auto. 
              apply bop_union_enum_is_ann; auto. 
        right. unfold bops_not_id_equals_ann. intro X.
-              left. apply (bop_intersect_not_exists_id _ r wS f ntS refS symS tranS nfs X); auto.
+              left. apply (bop_intersect_not_exists_id _ r refS symS tranS nfs X); auto.
 Defined.        
+
 End Theory.
 
 Section ACAS.
@@ -251,10 +251,10 @@ let fin_d := A_eqv_finite_d S eqv in
 {|
    A_id_ann_exists_plus_id_d       := inl _ (bop_union_exists_id S eqS refS symS trnS)
  ; A_id_ann_exists_plus_ann_d      := bop_union_exists_ann_decide S eqS refS symS trnS fin_d
- ; A_id_ann_exists_times_id_d      := bop_intersect_exists_id_decide S eqS s f ntS refS symS trnS fin_d
+ ; A_id_ann_exists_times_id_d      := bop_intersect_exists_id_decide S eqS refS symS trnS fin_d
  ; A_id_ann_exists_times_ann_d     := inl _ (bop_intersect_exists_ann S eqS refS symS trnS)
  ; A_id_ann_plus_id_is_times_ann_d := inl _ (bops_intersect_union_id_equals_ann S eqS refS symS trnS)
- ; A_id_ann_times_id_is_plus_ann_d := bops_union__intersect_id_equals_ann_decidable S eqS s f ntS refS symS trnS fin_d
+ ; A_id_ann_times_id_is_plus_ann_d := bops_union__intersect_id_equals_ann_decidable S eqS refS symS trnS fin_d
 |}.
 
 Definition A_distributive_prelattice_union_intersect : ∀ (S : Type),  A_eqv S -> A_distributive_prelattice (finite_set S)

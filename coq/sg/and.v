@@ -1,62 +1,73 @@
 Require Import Coq.Bool.Bool. 
+
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.bool.
+
 Require Import CAS.coq.sg.properties.
-Require Import CAS.coq.sg.theory.
 Require Import CAS.coq.sg.structures.
 
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.eqv.bool. 
+Section Computation.
+
+Definition bop_and : binary_op bool := andb.   
+
+End Computation.   
+
+Section IntroElim.
+
+Lemma bop_and_intro : ∀ b1 b2 : bool, (b1 = true) →  (b2 = true) → bop_and b1 b2 = true. 
+Proof. unfold bop_and. intros b1 b2 A B. rewrite A, B. compute. reflexivity. Qed. 
+
+Lemma bop_and_elim : ∀ b1 b2 : bool, bop_and b1 b2 = true → (b1 = true) * (b2 = true). 
+Proof. intros b1 b2;destruct b1; destruct b2; compute; intro H; auto. Qed. 
+
+Lemma bop_and_false_intro : ∀ b1 b2 : bool, (b1 = false) + (b2 = false) → bop_and b1 b2 = false. 
+Proof. intros b1 b2 [A | A]; rewrite A; compute. reflexivity. destruct b1; reflexivity. Qed. 
+
+Lemma bop_and_false_elim : ∀ b1 b2 : bool, bop_and b1 b2 = false → (b1 = false) + (b2 = false). 
+Proof. unfold bop_and. intros b1 b2. destruct b1; destruct b2; compute; auto. Qed. 
+
+End IntroElim.   
 
 Section Theory.
-
-Lemma eqb_andb_congruence : 
-   ∀ s1 s2 t1 t2 : bool, eqb s1 t1 = true → eqb s2 t2 = true → eqb (s1 && s2) (t1 && t2) = true. 
-Proof. 
-   intros s1 s2 t1 t2 H1 H2. 
-   assert (C1 := eqb_bool_to_prop s1 t1 H1). 
-   assert (C2 := eqb_bool_to_prop s2 t2 H2). 
-   rewrite C1. rewrite C2.  apply brel_eq_bool_reflexive. 
-Qed. 
-
+  
 Lemma bop_and_congruence : bop_congruence bool brel_eq_bool bop_and.
-Proof. unfold bop_congruence. unfold brel_eq_bool, bop_and.
-       exact eqb_andb_congruence. 
-Qed. 
+Proof. intros s1 s2 t1 t2. destruct s1; destruct s2; destruct t1; destruct t2; compute; auto. Qed. 
 
 Lemma bop_and_associative : bop_associative bool brel_eq_bool bop_and.
-Proof. unfold bop_associative. induction s; induction t; induction u; simpl; reflexivity. Qed. 
+Proof. compute. destruct s; auto. destruct t; auto.  destruct u; auto. Qed. 
 
 Lemma bop_and_idempotent : bop_idempotent bool brel_eq_bool bop_and.
-Proof. unfold bop_idempotent. induction s; simpl; reflexivity. Qed. 
+Proof. compute. induction s; simpl; reflexivity. Qed. 
 
 Lemma bop_and_commutative : bop_commutative bool brel_eq_bool bop_and.
-Proof. unfold bop_commutative. induction s; induction t; simpl; reflexivity. Qed. 
+Proof. compute; induction s; induction t; simpl; reflexivity. Qed. 
 
 Lemma bop_and_selective : bop_selective bool brel_eq_bool bop_and.
-Proof. unfold bop_selective. induction s; induction t; simpl. 
-      right. reflexivity. right. reflexivity. left. reflexivity. right. reflexivity. 
-Qed. 
+Proof. compute; induction s; induction t; auto. Qed.
 
-Lemma bop_and_not_is_left : bop_not_is_left bool brel_eq_bool bop_and.
-Proof. unfold bop_not_is_left. exists (true, false); simpl. reflexivity. Defined. 
- 
-Lemma bop_and_not_is_right : bop_not_is_right bool brel_eq_bool bop_and.
-Proof. unfold bop_not_is_right. exists (false, true); simpl. reflexivity. Defined.
 
 Lemma bop_and_true_is_id : bop_is_id bool brel_eq_bool bop_and true. 
-Proof. unfold bop_is_id. induction s; auto. Qed.
+Proof. compute. induction s; auto. Qed.
 
 Lemma bop_and_exists_id : bop_exists_id bool brel_eq_bool bop_and.
 Proof. exists true. apply bop_and_true_is_id. Defined. 
 
 Lemma bop_and_false_is_ann : bop_is_ann bool brel_eq_bool bop_and false. 
-Proof. unfold bop_is_ann. induction s; auto. Qed.
+Proof. compute. induction s; auto. Qed.
 
 Lemma bop_and_exists_ann : bop_exists_ann bool brel_eq_bool bop_and.
 Proof. exists false. apply bop_and_false_is_ann. Defined. 
+
+(*
+Lemma bop_and_not_is_left : bop_not_is_left bool brel_eq_bool bop_and.
+Proof. compute. exists (true, false); simpl. reflexivity. Defined. 
+ 
+Lemma bop_and_not_is_right : bop_not_is_right bool brel_eq_bool bop_and.
+Proof. compute. exists (false, true); simpl. reflexivity. Defined.
 
 Lemma bop_and_not_left_cancellative : bop_not_left_cancellative bool brel_eq_bool bop_and.
 Proof. exists (false, (false, true)); simpl. auto. Defined. 
@@ -88,7 +99,7 @@ Proof. exact (exists_ann_implies_something_is_finite _ _ _
               brel_eq_bool_not_trivial
               bop_and_exists_ann). 
 Defined.
-
+*) 
 
 
 End Theory.
@@ -105,12 +116,12 @@ Definition sg_CS_proofs_and : sg_CS_proofs bool brel_eq_bool bop_and :=
 
 Definition A_sg_CS_and : A_sg_CS bool
 := {| 
-     A_sg_CS_eqv       := A_eqv_bool
-   ; A_sg_CS_bop       := bop_and
+     A_sg_CS_eqv          := A_eqv_bool
+   ; A_sg_CS_bop          := bop_and
    ; A_sg_CS_exists_id_d  := inl _ bop_and_exists_id 
    ; A_sg_CS_exists_ann_d := inl _ bop_and_exists_ann 
-   ; A_sg_CS_proofs    := sg_CS_proofs_and
-   ; A_sg_CS_ast       := Ast_sg_and 
+   ; A_sg_CS_proofs       := sg_CS_proofs_and
+   ; A_sg_CS_ast          := Ast_sg_and 
    |}. 
 
 End ACAS.
@@ -129,12 +140,12 @@ Definition sg_CS_certs_and : @sg_CS_certificates bool
 
 Definition sg_CS_and : @sg_CS bool
 := {| 
-     sg_CS_eqv   := eqv_bool
-   ; sg_CS_bop   := bop_and
-   ; sg_CS_exists_id_d        := Certify_Exists_Id  true 
-   ; sg_CS_exists_ann_d       := Certify_Exists_Ann  false 
-   ; sg_CS_certs := sg_CS_certs_and
-   ; sg_CS_ast   := Ast_sg_and 
+     sg_CS_eqv          := eqv_bool
+   ; sg_CS_bop          := bop_and
+   ; sg_CS_exists_id_d  := Certify_Exists_Id  true 
+   ; sg_CS_exists_ann_d := Certify_Exists_Ann  false 
+   ; sg_CS_certs        := sg_CS_certs_and
+   ; sg_CS_ast          := Ast_sg_and 
    |}. 
   
 

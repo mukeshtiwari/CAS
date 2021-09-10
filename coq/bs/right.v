@@ -7,7 +7,6 @@ Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
 
-Require Import CAS.coq.theory.facts.
 Require Import CAS.coq.sg.right.
 Require Import CAS.coq.sg.cast_up.
 

@@ -10,16 +10,16 @@ Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
 Require Import CAS.coq.po.theory.
+Require Import CAS.coq.po.lex. 
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory. 
 Require Import CAS.coq.sg.product.
 Require Import CAS.coq.sg.and. 
-Require Import CAS.coq.sg.llex.
 
-Require Import CAS.coq.bs.properties.
-Require Import CAS.coq.bs.structures.
+Require Import CAS.coq.os.properties.
+Require Import CAS.coq.os.structures.
 
 
 
@@ -184,8 +184,8 @@ Admitted.
 
 *) 
 
-Lemma bop_lex_left_product_left_distributive 
-      (selS_or_annT : bop_selective S rS addS + bop_is_ann T rT mulT argT)
+Lemma bop_llex_product_left_distributive 
+      (selS_or_idT : bop_selective S rS addS + bop_is_id T rT addT argT)
       (ldS : bop_left_distributive S rS addS mulS)
       (ldT : bop_left_distributive T rT addT mulT)
       (D : (bop_left_cancellative S rS mulS) + (bop_left_constant T rT mulT)) : 
@@ -228,42 +228,26 @@ Proof. intros [s1 t1] [s2 t2] [s3 t3].
            assert (F2 := m_conS _ _ _ _ (refS s1) H1). apply symS in F1. 
            rewrite (tranS _ _ _ F1 F2) in H3. discriminate H3.            
          + destruct D as [LC | LK].
-           * assert (F1 := ldS s1 s2 s3).
-             assert (F2 := tranS _ _ _ F1 H3). 
-             apply LC in F2. 
-             rewrite F2 in H1. discriminate H1.
-           * exact(LK t1 t2 t3). 
+           * admit.
+           * admit.              
          + assert (F1 := ldS s1 s2 s3).
            assert (F2 := m_conS _ _ _ _ (refS s1) H2).
            assert (F3 := tranS _ _ _ F2 F1).            
            rewrite F3 in H4. discriminate H4.
        - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s1 *S s2) +S (s1 *S s3)) (s1 *S s3)); intro H3.
          + destruct D as [LC | LK].
-           * assert (F1 := ldS s1 s2 s3). apply symS in F1. 
-             assert (F2 := tranS _ _ _ H4 F1). 
-             apply LC in F2.
-             rewrite F2 in H2. discriminate H2.
-           * assert (F1 := ldT t1 t2 t3).
-             assert (F2 := LK t1 t3 (t2 +T t3)). 
-             exact (tranT _ _ _ F2 F1). 
+           * admit.
+           * admit.              
          + assert (F1 := ldS s1 s2 s3).
            assert (F2 := m_conS _ _ _ _ (refS s1) H1). apply symS in F1. 
            assert (F3 := tranS _ _ _ F1 F2).            
            rewrite F3 in H3. discriminate H3.
          + destruct D as [LC | LK].
-           * assert (F1 := ldS s1 s2 s3). apply symS in F1. 
-             assert (F2 := tranS _ _ _ H4 F1). 
-             apply LC in F2.
-             rewrite F2 in H2. discriminate H2.
-           * assert (F1 := ldT t1 t2 t3).
-             assert (F2 := LK t1 argT (t2 +T t3)). 
-             exact (tranT _ _ _ F2 F1).              (* NB : idT_is_annT -> not NK *)
+           * admit.
+           * admit.              
          + destruct D as [LC | LK].
-           * assert (F1 := ldS s1 s2 s3). apply symS in F1. 
-             assert (F2 := tranS _ _ _ H4 F1). 
-             apply LC in F2.
-             rewrite F2 in H2. discriminate H2.
-           * exact (LK t1 argT t2). 
+           * admit.
+           * admit.              
        - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s1 *S s2) +S (s1 *S s3)) (s1 *S s3)); intro H3.
          + apply refT. 
          + assert (F1 := ldS s1 s2 s3).
@@ -271,380 +255,521 @@ Proof. intros [s1 t1] [s2 t2] [s3 t3].
            assert (F3 := tranS _ _ _ F2 F1). apply symS in F3.
            rewrite F3 in H3. discriminate H3.
          + destruct D as [LC | LK].
-           * assert (F1 := ldS s1 s2 s3).
-             assert (F2 := tranS _ _ _ F1 H3). 
-             apply LC in F2.
-             rewrite F2 in H1. discriminate H1.
-           * exact (LK t1 argT t3). 
-         + destruct selS_or_annT as [selS | argT_is_annT].
+           * admit.
+           * admit.              
+         + destruct selS_or_idT as [selS | idT].
            * destruct (selS s2 s3) as [F1 | F1].
              -- apply symS in F1. rewrite F1 in H2. discriminate H2.
              -- rewrite F1 in H1. discriminate H1. 
-           * destruct (argT_is_annT t1) as [F1 F2].  exact F2. 
-Qed. 
+           * destruct D as [LC | LK].
+             -- assert (F1 := ldS s1 s2 s3).
+(*
+
+  (s1, t1) * [(s2, t2) + (s3, t3)] = [(s1, t1) * (s2, t2)] + [(s1, t1) * (s3, t3)] 
+ 
+  (s1, t1) * (s2 + s2, idT)  = (s1 * s2,  t1 * t2) + (s1 * s3, t1 * t3)
+
+  (s1 * (s2 + s2), t1) = (s1 * s2,  t1 * t2) + (s1 * s3, t1 * t3)
+
+  (s1 * (s2 + s2), t1) = ((s1 * s2) + (s1 * s3),  idT ) 
+
+  H2 : rS s2 (s2 +S s3) = false
+  H4 : rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3)) = false
+  H1 : rS (s2 +S s3) s3 = false
+  H3 : rS ((s1 *S s2) +S (s1 *S s3)) (s1 *S s3) = false
+  F1 : (s1 *S (s2 +S s3)) =S ((s1 *S s2) +S (s1 *S s3))
+
+s2 # s3 
+
+(s1 *S s2) # (s1 *S s3)
+
+*) 
+                
+                admit. 
+             -- admit. (* need LK * idT -> false *)
+Admitted. 
+
+(*       
+       case_eq(rS s2 s3); intro H1; 
+       case_eq(rS s2 (s2 +S s3)); intro H2; 
+       case_eq(rS (s1 *S s2) (s1 *S s3)); intro H3; 
+       case_eq(rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))); intro H4; simpl. 
+          apply ldT. 
+          apply ldT. 
+          assert(fact := m_conS _ _ _ _ (refS s1) H1). rewrite fact in H3. discriminate. 
+          assert(fact := m_conS _ _ _ _ (refS s1) H1). rewrite fact in H3. discriminate. 
+          apply ldT. 
+          apply ldT. 
+          assert(fact := m_conS _ _ _ _ (refS s1) H1). rewrite fact in H3. discriminate. 
+          assert(fact := m_conS _ _ _ _ (refS s1) H1). rewrite fact in H3. discriminate. 
+          destruct D as [C | K]. 
+             apply C in H3. rewrite H3 in H1. discriminate. 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t2 (t2 +T t3)). (* t1 * t2 = t1 * (t2 + t3) *) 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          destruct D as [C | K]. 
+             apply C in H3. rewrite H3 in H1. discriminate. 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t2 (t2 +T t3)). (* t1 * t2 = t1 * (t2 + t3) *) 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          apply refT. 
+
+          assert (fact1 := ldS s1 s2 s3). 
+          assert (fact2 := m_conS _ _ _ _ (refS s1) H2).
+          assert (fact3 := tranS _ _ _ fact2 fact1). 
+          rewrite fact3 in H4. discriminate. 
+
+          destruct D as [C | K]. 
+             apply C in H3. rewrite H3 in H1. discriminate. 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t3 (t2 +T t3)). (* t1 * t3 = t1 * (t2 + t3) *) 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          destruct D as [C | K]. 
+             apply C in H3. rewrite H3 in H1. discriminate. 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t3 (t2 +T t3)). (* t1 * t3 = t1 * (t2 + t3) *) 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          destruct D as [C | K]. 
+             assert (fact1 := ldS s1 s2 s3). apply symS in fact1. 
+             assert (fact2 := tranS _ _ _ H4 fact1). 
+             apply C in fact2. 
+             rewrite fact2 in H2. discriminate. 
+             apply K. (* "direct" use of K *) 
+          apply refT. 
+Defined.
+*) 
+
+(*
+Lemma bop_lex_left_product_left_distributive_dual : 
+      bop_left_distributive S rS mulS addS → bop_left_distributive T rT mulT addT  → 
+             bop_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2] [s3 t3].
+       unfold bop_product, bop_lex_left, brel_product. 
+       apply andb_true_intro. split.  
+       apply ldS. 
+       unfold brel_llt. 
+       unfold brel_conjunction. 
+       unfold brel_llte. 
+       unfold brel_complement. 
+       unfold bop_left_distributive in ldS, ldT. 
+       case_eq(rS s1 (s2 *S s3)); intro H1; 
+       case_eq(rS s1 s2); intro H2; 
+       case_eq(rS s1 s3); intro H3. 
+          apply ldT.
+          case_eq(rS s1 (s1 +S s3)); intro H4; simpl. 
+             admit.              
+             admit.              
+          case_eq(rS s1 (s1 +S s2)); intro H4; simpl. 
+             admit.              
+             admit. (* contra if *S selective *)              
+          case_eq(rS s1 (s1 +S s2)); intro H4;
+          case_eq(rS s1 (s1 +S s3)); intro H5; simpl.                
+             admit. (* contra if *S selective only need H1,2,3 *)                           
+             admit. (* contra if *S selective *)                                        
+             admit. (* contra if *S selective *)             
+             admit. (* contra if *S selective *)             
+          case_eq(rS s1 (s1 +S (s2 *S s3))); intro H4; simpl. 
+             admit. (* contra if *S selective only need H1,2,3 *)              
+             admit. (* contra if *S selective *)             
+          admit.   (* contra if *S selective *) 
+          admit.   (* contra if *S selective *) 
+          admit.   (* contra if *S selective *) 
+Admitted. 
+*) 
+
+Definition bop_is_left_ann (S : Type) (eq : brel S) (b : binary_op S) (a : S)
+    :=  ∀ s : S, (eq (b a s) a = true).
+
+Definition bop_not_is_left_ann (S : Type) (r : brel S) (b : binary_op S) (a : S)
+    := {s : S & (r (b a s) a = false)}.
+
+Definition bop_left_cancellative_weak (S : Type) (eq : brel S) (b : binary_op S)
+    := ∀ s t u : S, eq (b s t) (b s u) = true -> (eq t u = true) + (bop_is_left_ann S eq b s).
+
+Definition bop_not_left_cancellative_weak (S : Type) (eq : brel S) (b : binary_op S)
+   := { z : S * (S * S) & match z with (s, (t, u)) => (eq (b s t) (b s u) = true) * (eq t u = false) * (bop_not_is_left_ann S eq b s) end }. 
+
+
+(*  COUNTER EXAMPLE: 
+
+H1 : rS s2 s3 = false
+H2 : s2 =S (s2 +S s3)
+H3 : bop_is_left_ann S rS mulS s1  from   H3 : (s1 *S s2) =S (s1 *S s3)   and (bop_left_cancellative_weak S rS mulS) 
+LHS
+                                 (s1, t1) * ((s2, t2) + (s3, t3))
+                               = (s1, t1) * (s2, t2) 
+                               = (s1 * s2, t1 * t2) 
+                               = (s1, t1 * t2) 
+RHS
+                                 ((s1, t1) * (s2, t2)) + ((s1, t1) * (s3, t3))
+                               = (s1 * s2, t1 * t2) + (s1 * s3, t1 * t3)
+                               = (s1, t1 * t2) + (s1, t1 * t3)
+                               = (s1, (t1 * t2) + (t1 * t3))
+
+
+Lemma bop_lex_left_product_left_distributive_weak : 
+      bop_left_distributive S rS addS mulS → bop_left_distributive T rT addT mulT → 
+         ((bop_left_cancellative_weak S rS mulS) + (bop_left_constant T rT mulT)) → 
+             bop_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT D [s1 t1] [s2 t2] [s3 t3].
+       unfold bop_product, bop_lex_left, brel_product. 
+       apply andb_true_intro. split.  
+       apply ldS. 
+       unfold brel_llt. 
+       unfold brel_conjunction. 
+       unfold brel_llte. 
+       unfold brel_complement. 
+       case_eq(rS s2 s3); intro H1; 
+       case_eq(rS s2 (s2 +S s3)); intro H2; 
+       case_eq(rS (s1 *S s2) (s1 *S s3)); intro H3; 
+       case_eq(rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))); intro H4; simpl. 
+          apply ldT. 
+          apply ldT. 
+          assert(fact := m_conS _ _ _ _ (refS s1) H1). rewrite fact in H3. discriminate. 
+          assert(fact := m_conS _ _ _ _ (refS s1) H1). rewrite fact in H3. discriminate. 
+          apply ldT. 
+          apply ldT. 
+          assert(fact := m_conS _ _ _ _ (refS s1) H1). rewrite fact in H3. discriminate. 
+          assert(fact := m_conS _ _ _ _ (refS s1) H1). rewrite fact in H3. discriminate. 
+          destruct D as [C | K].
+              apply C in H3.
+              destruct H3 as [H3 | H3]. 
+                 rewrite H3 in H1. discriminate.
+                 compute in H3. admit.  <----------------COUNTER EXAMPLE 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t2 (t2 +T t3)). (* t1 * t2 = t1 * (t2 + t3) *) 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          destruct D as [C | K]. 
+             apply C in H3.
+             destruct H3 as [H3 | H3]. 
+                rewrite H3 in H1. discriminate. 
+                admit. (* OK HERE *) 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t2 (t2 +T t3)). (* t1 * t2 = t1 * (t2 + t3) *) 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          apply refT. 
+
+          assert (fact1 := ldS s1 s2 s3). 
+          assert (fact2 := m_conS _ _ _ _ (refS s1) H2).
+          assert (fact3 := tranS _ _ _ fact2 fact1). 
+          rewrite fact3 in H4. discriminate. 
+
+          destruct D as [C | K]. 
+             apply C in H3.
+             destruct H3 as [H3 | H3]. 
+                rewrite H3 in H1. discriminate. 
+                admit. <----------------COUNTER EXAMPLE 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t3 (t2 +T t3)). (* t1 * t3 = t1 * (t2 + t3) *) 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          destruct D as [C | K]. 
+             apply C in H3.
+             destruct H3 as [H3 | H3]. 
+                rewrite H3 in H1. discriminate. 
+                admit. (* OK HERE *) 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t3 (t2 +T t3)). (* t1 * t3 = t1 * (t2 + t3) *) 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          destruct D as [C | K]. 
+             assert (fact1 := ldS s1 s2 s3). apply symS in fact1. 
+             assert (fact2 := tranS _ _ _ H4 fact1). 
+             apply C in fact2.
+             destruct fact2 as [fact2 | fact2].
+                rewrite fact2 in H2. discriminate. 
+                admit. (* OK HERE *) 
+             apply K. (* "direct" use of K *) 
+          apply refT. 
+Admitted. *) 
 
 
 
 
 Lemma bop_lex_left_product_not_left_distributive_v1 : 
   bop_not_left_distributive S rS addS mulS → bop_not_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros [ [s1 [s2 s3 ] ] nld ].
-       exists ((s1, wT), ((s2, wT), (s3, wT))).
-       compute. rewrite nld. reflexivity.
-Defined. 
-
+Admitted.
+(*
+Proof. intros [ [s1 [s2 s3 ] ] nld ]. exists ((s1, wT), ((s2, wT), (s3, wT))); simpl. rewrite nld. simpl. reflexivity. Defined. 
+*) 
 
 Lemma bop_lex_left_product_not_left_distributive_v2 : 
   bop_not_left_distributive T rT addT mulT → bop_not_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
+(*
 Proof. intros [ [t1 [t2 t3 ] ] nld ].
-       exists ((wS, t1), ((wS, t2), (wS, t3))).
-       unfold brel_product. unfold bop_product, bop_lex_left. 
-       apply bop_and_false_intro. right. unfold llex_p2.
-       assert (F1 := a_idemS wS). rewrite F1. apply symS in F1. rewrite F1. 
-       assert (F2 := a_idemS (wS *S wS)). rewrite F2. apply symS in F2. rewrite F2. 
-       exact nld. 
+       exists ((wS, t1), ((wS, t2), (wS, t3))); simpl. 
+       apply andb_is_false_right. right. 
+       rewrite (refS wS). rewrite (refS (mulS wS wS)). 
+       assumption. 
 Defined. 
+*) 
 
 
-(* see cases 1-4 in the proof below *) 
 
-Definition a_witness_lex_left_product_not_left_distributive
-      (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))
+
+
+(*  
+
+   Assume 
+
+   bop_not_cancellative : s1 * s2 = s1 * s3, s2 <> s3 
+   bop_not_constant     : t1 * t2 <> t1 * t3 
+
+   find ((s1, a), (s2, b), (s3, c)) that violates LD 
+
+   case 1 :  s2 < s3 
+
+      LHS : (s1, a) * ( (s2, b) + (s3, c))      = (s1, a) * (s2, b) = (s1 * s2, a * b) 
+      RHS : (s1 * s2, a * b) + (s1 * s3, a * c) = (s1 * s2, (a * b) + (a * c)) 
+
+      Need a * b <> (a * b) + (a * c) 
+      
+      case 1.1 : t1 * t2  = (t1 * t2) + (t1 * t3) 
+           so    t1 * t3 <> (t1 * t2) + (t1 * t3) ={commT}=  (t1 * t3) + (t1 * t2)
+           use   a    b                                       a     b     a    c 
+
+      case 1.2 : t1 * t2  <> (t1 * t2) + (t1 * t3) 
+           use   a    b       a     b     a    c 
+
+
+   case 1 :  s3 < s2 
+
+      LHS : (s1, a) * ( (s2, b) + (s3, c))      = (s1, a) * (s3, c) = (s1 * s2, a * c) 
+      RHS : (s1 * s2, a * b) + (s1 * s3, a * c) = (s1 * s2, (a * b) + (a * c)) 
+
+      Need a * c <> (a * b) + (a * c) 
+      
+      case 1.1 : t1 * t2  = (t1 * t2) + (t1 * t3) 
+           so    t1 * t3 <> (t1 * t2) + (t1 * t3) 
+           use   a    c      a     b     a    c 
+
+      case 1.2 : t1 * t2  <> (t1 * t2) + (t1 * t3) ={commT}=  (t1 * t3) + (t1 * t2)
+           use    a    c                                       a     b     a    c 
+
+Definition cef_llex_product_not_left_distributive
+      (S T : Type)
+      (rS : brel S)
+      (rT : brel T)
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
-:= if (rS (s2 +S s3) s2) 
-   then if rS (s2 +S s3) s3
-        then (* can't reach this branch *) 
-             ((s1, t1), ((s2, t2), (s3, t3)))
-        else  if rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))
-              then (* case 1 *) 
-                   if rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))
-                   then ((s1, t1), ((s2, t3), (s3, t2)))
-                   else ((s1, t1), ((s2, t2), (s3, t3)))
-              else (* case 2 *) 
-                   ((s1, t1), ((s2, t2), (s3, t3)))
-   else if rS (s2 +S s3) s3
-        then (* case 3 *) 
-             if rT (t1 *T t3) ((t1 *T t2) +T (t1 *T t3))
-             then ((s1, t1), ((s2, t3), (s3, t2)))
-             else ((s1, t1), ((s2, t2), (s3, t3)))
-        else (* case 4 *) 
-             match selS_or_id_annT with 
-             | inl _ => (* can't reach this branch *) 
-                       ((s1, t1), ((s2, t2), (s3, t3)))
-             | inr _ => if rT argT (t1 *T t2)
-                        then ((s1, t1), ((s2, argT), (s3, t3)))
-                        else ((s1, t1), ((s2, argT), (s3, t2)))
-             end.   
+      (addS : binary_op S) 
+      (addT : binary_op T)
+      (mulT : binary_op T) 
+:= if (rS (addS s2 s3) s2) 
+   then if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
+        then ((s1, t1), ((s2, t3), (s3, t2)))
+        else ((s1, t1), ((s2, t2), (s3, t3)))
+   else if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
+        then ((s1, t1), ((s2, t2), (s3, t3)))
+        else ((s1, t1), ((s2, t3), (s3, t2))). 
+ *)
 
 
-Lemma bop_lex_left_product_not_left_distributive_v3
-      (a_commT : bop_commutative T rT addT) (*NB*)
-      (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))
-      (ldS : bop_left_distributive S rS addS mulS)
-      (ldT : bop_left_distributive T rT addT mulT) : 
+Definition cef_llex_product_not_left_distributive  
+      {S T : Type}
+      (rS : brel S)
+      (rT : brel T)
+      (s1 s2 s3 : S)
+      (t1 t2 t3 : T)
+      (addS : binary_op S) 
+      (addT : binary_op T)
+      (mulT : binary_op T) 
+:= if (rS (addS s2 s3) s2) 
+   then if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
+        then ((s1, t1), ((s2, t3), (s3, t2)))
+        else ((s1, t1), ((s2, t2), (s3, t3)))
+   else if rT (mulT t1 t2) (addT (mulT t1 t2) (mulT t1 t3))
+        then ((s1, t1), ((s2, t2), (s3, t3)))
+        else ((s1, t1), ((s2, t3), (s3, t2))). 
+
+
+Definition cef_llex_product_not_right_distributive
+      {S T : Type}
+      (rS : brel S)
+      (rT : brel T)
+      (s1 s2 s3 : S)
+      (t1 t2 t3 : T)
+      (addS : binary_op S) 
+      (addT : binary_op T)
+      (mulT : binary_op T) 
+:= if (rS (addS s2 s3) s2) 
+   then if rT (mulT t2 t1) (addT (mulT t2 t1) (mulT t3 t1))
+        then ((s1, t1), ((s2, t3), (s3, t2)))
+        else ((s1, t1), ((s2, t2), (s3, t3)))
+   else if rT (mulT t2 t1) (addT (mulT t2 t1) (mulT t3 t1))
+        then ((s1, t1), ((s2, t2), (s3, t3)))
+        else ((s1, t1), ((s2, t3), (s3, t2))). 
+
+
+
+Lemma bop_lex_left_product_not_left_distributive_v3 : 
+      bop_selective S rS addS → bop_commutative S rS addS → bop_commutative T rT addT → (* NB *) 
       bop_not_left_cancellative S rS mulS → bop_not_left_constant T rT mulT → 
       bop_not_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
-       (* to understand the cases below, assume we have done this: 
-          
-           exists ((s1, a), ((s2, b), (s3, c))).
+Admitted.
+(*
+Proof. intros selS commS commT  [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
+exists(cef_llex_product_not_left_distributive rS rT s1 s2 s3 t1 t2 t3 addS addT mulT). 
+unfold cef_llex_product_not_left_distributive. 
+destruct(selS s2 s3) as [H | H]. 
+   case_eq(rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))); intro J; simpl. 
 
-          In each of the four cases pick a, b, and c to make that case work. 
-        *)
-       exists(a_witness_lex_left_product_not_left_distributive selS_or_id_annT s1 s2 s3 t1 t2 t3). 
-       unfold a_witness_lex_left_product_not_left_distributive. 
-       unfold bop_product, brel_product, bop_lex_left.        
+      rewrite H. simpl. 
+      apply andb_is_false_right. right.    
+      rewrite N. compute. 
+      apply symS in H. rewrite N, E, H.  
+      assert (fact1 := commT (t1 *T t2) (t1 *T t3)). 
+      assert (fact2 := tranT _ _ _ J fact1). 
+      assert (fact3 := brel_transititivity_implies_dual _ _ tranT _ _ _ fact2 F). 
+      apply (brel_symmetric_implies_dual _ _ symT). 
+      assumption. 
+
+      rewrite H; compute.           
+      apply andb_is_false_right. right.    
+      apply symS in H. rewrite N, E, H. 
+      assumption. 
+
+   assert (A : rS (s2 +S s3) s2 = false).  
+       apply (brel_symmetric_implies_dual _ _ symS) in N.
+       apply symS in H. 
+       apply (brel_transititivity_implies_dual _ _ tranS _ _ _ H N). 
+
+   case_eq(rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))); intro J; rewrite A; compute. 
+      apply andb_is_false_right. right.  rewrite N.
+      apply (brel_symmetric_implies_dual _ _ symS) in A.  rewrite A. 
+      rewrite E. 
+      assert (fact5 := brel_transititivity_implies_dual _ _ tranT _ _ _ J F). 
+      apply (brel_symmetric_implies_dual _ _ symT). 
+      assumption. 
+
+
+      rewrite N. rewrite E. 
+      apply (brel_symmetric_implies_dual _ _ symS) in A. rewrite A. 
+      case_eq(rS (s1 *S (s2 +S s3)) ((s1 *S s2) +S (s1 *S s3))); intro K; auto.    
+      assert (fact1 := commT (t1 *T t2) (t1 *T t3)). 
+      apply (brel_symmetric_implies_dual _ _ symT) in J.
+      assert (fact2 := brel_transititivity_implies_dual _ _ tranT _ _ _ fact1 J). 
+      apply (brel_symmetric_implies_dual _ _ symT).             
+      assumption. 
+Defined.  
+*) 
+
+
+Lemma bop_lex_left_product_not_left_distributive_v3_weak : 
+      bop_selective S rS addS → bop_commutative S rS addS → bop_commutative T rT addT → (* NB *) 
+      bop_not_left_cancellative_weak S rS mulS → bop_not_left_constant T rT mulT → 
+      bop_not_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
+(*
+Proof. intros selS commS commT  [ [s1 [s2 s3 ] ] [[E N] _] ] [ [t1 [ t2 t3 ]] F].
+exists(cef_llex_product_not_left_distributive rS rT s1 s2 s3 t1 t2 t3 addS addT mulT). 
+unfold cef_llex_product_not_left_distributive. 
+destruct(selS s2 s3) as [H | H]. 
+   case_eq(rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))); intro J; simpl. 
+
+      rewrite H. simpl. 
+      apply andb_is_false_right. right.    
+      rewrite N. compute. 
+      apply symS in H. rewrite N, E, H.  
+      assert (fact1 := commT (t1 *T t2) (t1 *T t3)). 
+      assert (fact2 := tranT _ _ _ J fact1). 
+      assert (fact3 := brel_transititivity_implies_dual _ _ tranT _ _ _ fact2 F). 
+      apply (brel_symmetric_implies_dual _ _ symT). 
+      assumption. 
+
+      rewrite H; compute.           
+      apply andb_is_false_right. right.    
+      apply symS in H. rewrite N, E, H. 
+      assumption. 
+
+   assert (A : rS (s2 +S s3) s2 = false).  
+       apply (brel_symmetric_implies_dual _ _ symS) in N.
+       apply symS in H. 
+       apply (brel_transititivity_implies_dual _ _ tranS _ _ _ H N). 
+
+   case_eq(rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))); intro J; rewrite A; compute. 
+      apply andb_is_false_right. right.  rewrite N.
+      apply (brel_symmetric_implies_dual _ _ symS) in A.  rewrite A. 
+      rewrite E. 
+      assert (fact5 := brel_transititivity_implies_dual _ _ tranT _ _ _ J F). 
+      apply (brel_symmetric_implies_dual _ _ symT). 
+      assumption. 
+
+
+      rewrite N. rewrite E. 
+      apply (brel_symmetric_implies_dual _ _ symS) in A. rewrite A. 
+      case_eq(rS (s1 *S (s2 +S s3)) ((s1 *S s2) +S (s1 *S s3))); intro K; auto.    
+      assert (fact1 := commT (t1 *T t2) (t1 *T t3)). 
+      apply (brel_symmetric_implies_dual _ _ symT) in J.
+      assert (fact2 := brel_transititivity_implies_dual _ _ tranT _ _ _ fact1 J). 
+      apply (brel_symmetric_implies_dual _ _ symT).             
+      assumption. 
+Defined.  
+*) 
+
+
+Lemma bop_lex_left_product_right_distributive : 
+      bop_right_distributive S rS addS mulS → 
+      bop_right_distributive T rT addT mulT → 
+      ((bop_right_cancellative S rS mulS) + (bop_right_constant T rT mulT)) → 
+      bop_right_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
+(*
+Proof. intros ldS ldT D [s1 t1] [s2 t2] [s3 t3].
+       unfold bop_product, bop_lex_left, brel_product. 
+       apply andb_true_intro. split.  
+       apply ldS. 
+       unfold brel_llt. 
+       unfold brel_conjunction. 
+       unfold brel_llte. 
+       unfold brel_complement. 
+       case_eq(rS s2 s3); intro H1; 
        case_eq(rS s2 (s2 +S s3)); intro H2; 
-       case_eq(rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))); intro H4; simpl. 
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s1 *S s2) +S (s1 *S s3)) (s1 *S s3)); intro H3. 
-         + rewrite (tranS _ _ _ H2 H1) in N. discriminate N. 
-         + assert (F1 := tranS _ _ _ H2 H1).
-           assert (F2 := a_idemS (s1 *S s3)). 
-           assert (F3 := m_conS _ _ _ _ (refS s1) F1). 
-           assert (F4 := a_conS _ _ _ _ F3 (refS ((s1 *S s3)))). 
-           assert (F5 := tranS _ _ _ F4 F2).
-           rewrite F5 in H3. discriminate H3. 
-         + (* ============= case 1 ======================
-              E : (s1 *S s2) =S (s1 *S s3)
-              N : rS s2 s3 = false
-              F : rT (t1 *T t2) (t1 *T t3) = false
-
-             H2 : s2 =S (s2 +S s3)
-             H4 : (s1 *S s2) =S ((s1 *S s2) +S (s1 *S s3))
-             H1 : rS (s2 +S s3) s3 = false
-             H3 : ((s1 *S s2) +S (s1 *S s3)) =S (s1 *S s3)
-             ===========need=================
-             rT (a *T b) ((a *T b) +T (a *T c)) = false
-
-             if rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))
-             then (t1 *T t3) ((t1 *T t2) +T (t1 *T t3)) = false
-                   a     b     a     c       a     b    (use a_commT) 
-
-             else (t1 *T t2) ((t1 *T t2) +T (t1 *T t3)) = false
-                   a      b     a     b      a     c 
-           *) 
-           unfold llex_p2. rewrite (symS _ _ H2).
-           case_eq(rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))); intro F1.
-           * apply bop_and_false_intro. right.
-             rewrite H2. rewrite H1. rewrite H4. rewrite H3.            
-               case_eq(rT (t1 *T t3) ((t1 *T t3) +T (t1 *T t2))); intro F2; auto.              
-             -- assert (F3 := a_commT (t1 *T t3) (t1 *T t2)). 
-                assert (F4 := tranT _ _ _ F2 F3). apply symT in F4. 
-                rewrite (tranT _ _ _ F1 F4) in F. discriminate F. 
-           * apply bop_and_false_intro. right.
-             rewrite H2. rewrite H1. rewrite H4. rewrite H3.            
-             exact F1.            
-         + apply symS in E.
-           assert (F1 := tranS _ _ _ E H4). apply symS in F1. 
-           rewrite F1 in H3. discriminate H3. 
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s1 *S s2) +S (s1 *S s3)) (s1 *S s3)); intro H3. 
-         + assert (F1 := tranS _ _ _ H2 H1). 
-           assert (F2 := a_idemS (s1 *S s2)). 
-           assert (F3 := m_conS _ _ _ _ (refS s1) F1). 
-           assert (F4 := a_conS _ _ _ _ (refS (s1 *S s2)) F3). apply symS in F2.
-           assert (F5 := tranS _ _ _ F2 F4). 
-           rewrite F5 in H4. discriminate H4.
-         + assert (F1 := ldS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ (refS s1) H1). apply symS in F1. 
-           rewrite (tranS _ _ _ F1 F2) in H3. discriminate H3.            
-         + (* ===============case 2==============================
-              E : (s1 *S s2) =S (s1 *S s3)
-              N : rS s2 s3 = false
-              F : rT (t1 *T t2) (t1 *T t3) = false
-
-             H2 : s2 =S (s2 +S s3)
-             H4 : rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3)) = false
-             H1 : rS (s2 +S s3) s3 = false
-             H3 : ((s1 *S s2) +S (s1 *S s3)) =S (s1 *S s3)
-             ==========need==================
-             rT (a *T b) (a *T c) = false
-             so use F: 
-             rT (t1 *T t2) (t1 *T t3) = false
-                 a     b    c     d 
-           *)
-           unfold llex_p2. rewrite (symS _ _ H2). rewrite H2. 
-           apply bop_and_false_intro. right. rewrite H1, H4, H3. 
-           exact F. 
-         + assert (F1 := ldS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ (refS s1) H2).
-           assert (F3 := tranS _ _ _ F2 F1).            
-           rewrite F3 in H4. discriminate H4.
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s1 *S s2) +S (s1 *S s3)) (s1 *S s3)); intro H3. 
-         + (* ==================case 3=========================
-              E : (s1 *S s2) =S (s1 *S s3)
-              N : rS s2 s3 = false
-              F : rT (t1 *T t2) (t1 *T t3) = false
-
-              H2 : rS s2 (s2 +S s3) = false
-              H4 : (s1 *S s2) =S ((s1 *S s2) +S (s1 *S s3))
-              H1 : (s2 +S s3) =S s3
-              H3 : ((s1 *S s2) +S (s1 *S s3)) =S (s1 *S s3)
-              ===========need=================
-              rT (a *T c) ((a *T b) +T (a *T c)) = false
-
-             if rT (t1 *T t3) ((t1 *T t2) +T (t1 *T t3))
-             then (t1 *T t2) ((t1 *T t2) +T (t1 *T t3)) = false
-                   a     c     a     c       a     b    (use a_commT) 
-
-             else (t1 *T t3) ((t1 *T t2) +T (t1 *T t3)) = false
-                   a     c      a     b       a     c 
-
-           *) 
-           assert (G : rS (s2 +S s3) s2 = false).
-              case_eq(rS (s2 +S s3) s2); intro H; auto.
-                apply symS in H. rewrite H in H2. discriminate H2.            
-           unfold llex_p2. rewrite G. 
-           case_eq(rT (t1 *T t3) ((t1 *T t2) +T (t1 *T t3))); intro F1.
-           * apply bop_and_false_intro. right.
-             rewrite H2. rewrite H1. rewrite H4. rewrite H3.            
-               case_eq(rT (t1 *T t2) ((t1 *T t3) +T (t1 *T t2))); intro F2; auto.              
-             -- assert (F3 := a_commT (t1 *T t3) (t1 *T t2)). 
-                assert (F4 := tranT _ _ _ F2 F3). apply symT in F1. 
-                rewrite (tranT _ _ _ F4 F1) in F. discriminate F. 
-           * apply bop_and_false_intro. right.
-             rewrite H2. rewrite H1. rewrite H4. rewrite H3.            
-             exact F1.            
-         + assert (F1 := ldS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ (refS s1) H1). apply symS in F1. 
-           assert (F3 := tranS _ _ _ F1 F2).            
-           rewrite F3 in H3. discriminate H3.
-         + (* =============case 4=================================
-              E : (s1 *S s2) =S (s1 *S s3)
-              N : rS s2 s3 = false
-              F : rT (t1 *T t2) (t1 *T t3) = false
-
-              H2 : rS s2 (s2 +S s3) = false
-              H4 : (s1 *S s2) =S ((s1 *S s2) +S (s1 *S s3))
-              H1 : rS (s2 +S s3) s3 = false
-              H3 : ((s1 *S s2) +S (s1 *S s3)) =S (s1 *S s3)
-             =============need===============
-              rT (a *T argT) ((a *T b) +T (a *T c)) = false
-  
-             case split: 
-             selective(+S) : contradiction with H1 H2. 
-             
-             argT is id for +T and is ann for *T: 
-             =============need===============
-             rT argT ((a *T b) +T (a *T c)) = false
-             
-             let b = argT. so  ((a *T b) +T (a *T c)) =T (a *T c). 
-
-             =============need===============
-             rT argT (a *T c) = false
-
-             if argT = (t1 *T t2)
-             then let (a *T c) = (t1 *T t3)
-             else let (a *T c) = (t1 *T t2)
-           *)
-           destruct selS_or_id_annT as [selS | [idT annT]].
-           * destruct (selS s2 s3) as [F1 | F1]. 
-             -- apply symS in F1. rewrite F1 in H2. discriminate H2.
-             -- rewrite F1 in H1. discriminate H1.
-           * assert (G : rS (s2 +S s3) s2 = false).
-             case_eq(rS (s2 +S s3) s2); intro H; auto.
-             apply symS in H. rewrite H in H2. discriminate H2.
-             unfold llex_p2. rewrite G.
-             case_eq(rT argT (t1 *T t2)); intro F6.
-             -- apply bop_and_false_intro. right.
-                rewrite H1, H2, H3, H4.
-                destruct (annT t1) as [F1 F2].
-                destruct (idT (t1 *T t3)) as [F3 F4].                          
-                assert (F5 : ((t1 *T argT) +T (t1 *T t3)) =T (t1 *T t3)).
-                   assert (F5 := a_conT _ _ _ _ F2 (refT (t1 *T t3))). 
-                   exact (tranT _ _ _ F5 F3). 
-                case_eq(rT (t1 *T argT) ((t1 *T argT) +T (t1 *T t3))); intro F7; auto.
-                ++ assert (F8 := tranT _ _ _ F7 F5).
-                   assert (F9 := tranT _ _ _ F2 F6). apply symT in F9. 
-                   rewrite (tranT _ _ _ F9 F8) in F. discriminate F. 
-             -- apply bop_and_false_intro. right.
-                rewrite H1, H2, H3, H4.
-                destruct (annT t1) as [F1 F2].
-                destruct (idT (t1 *T t2)) as [F3 F4].                                          
-                assert (F5 : ((t1 *T argT) +T (t1 *T t2)) =T (t1 *T t2)).
-                   assert (F5 := a_conT _ _ _ _ F2 (refT (t1 *T t2))). 
-                   exact (tranT _ _ _ F5 F3). 
-                case_eq(rT (t1 *T argT) ((t1 *T argT) +T (t1 *T t2))); intro F7; auto.
-                ++ assert (F8 := tranT _ _ _ F7 F5). apply symT in F2. 
-                   rewrite (tranT _ _ _ F2 F8) in F6. discriminate F6. 
-         + apply symS in E. assert (F1 := tranS _ _ _ E H4). 
-           apply symS in F1. rewrite F1 in H3. discriminate H3. 
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s1 *S s2) +S (s1 *S s3)) (s1 *S s3)); intro H3. 
-         + apply symS in E. assert (F1 := tranS _ _ _ H3 E). 
-           apply symS in F1. rewrite F1 in H4. discriminate H4. 
-         + assert (F1 := ldS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ (refS s1) H1). apply symS in F2. 
-           assert (F3 := tranS _ _ _ F2 F1). apply symS in F3.
-           rewrite F3 in H3. discriminate H3.
-         + apply symS in E. assert (F1 := tranS _ _ _ H3 E). 
-           apply symS in F1. rewrite F1 in H4. discriminate H4. 
-         + assert (F1 := a_idemS (s1 *S s3)). 
-           assert (F2 := a_conS _ _ _ _ E (refS (s1 *S s3))). 
-           assert (F3 := tranS _ _ _ F2 F1).
-           rewrite F3 in H3. discriminate H3. 
-Defined. 
-
-
-
-Lemma bop_lex_left_product_right_distributive 
-      (selS_or_annT : bop_selective S rS addS + bop_is_ann T rT mulT argT)
-      (rdS : bop_right_distributive S rS addS mulS)
-      (rdT : bop_right_distributive T rT addT mulT)
-      (D : (bop_right_cancellative S rS mulS) + (bop_right_constant T rT mulT)) : 
-         bop_right_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros [s1 t1] [s2 t2] [s3 t3].
-       unfold bop_product, bop_lex_left, brel_product.
-       apply bop_and_intro. 
-       apply rdS. 
-       unfold llex_p2.
-       case_eq(rS s2 (s2 +S s3)); intro H2; 
+       case_eq(rS (s2 *S s1) (s3 *S s1)); intro H3; 
        case_eq(rS (s2 *S s1) ((s2 *S s1) +S (s3 *S s1))); intro H4; simpl. 
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s2 *S s1) +S (s3 *S s1)) (s3 *S s1)); intro H3. 
-         + apply rdT.
-         + assert (F1 := tranS _ _ _ H2 H1).
-           assert (F2 := a_idemS (s3 *S s1)). 
-           assert (F3 := m_conS _ _ _ _ F1 (refS s1)). 
-           assert (F4 := a_conS _ _ _ _ F3 (refS (s3 *S s1))). 
-           assert (F5 := tranS _ _ _ F4 F2).
-           rewrite F5 in H3. discriminate H3. 
-         + destruct D as [RC | RK].
-           * assert (F1 := rdS s1 s2 s3).
-             assert (F2 := tranS _ _ _ F1 H3). 
-             apply RC in F2. 
-             assert (F3 := tranS _ _ _ H2 F2).
-             assert (F4 := conS _ _ _ _ (refS (s2 +S s3)) F3). 
-             rewrite <- F4 in H1. apply symS in H2.
-             rewrite H2 in H1. discriminate H1.
-           * assert (F1 := rdT t1 t2 t3).
-             assert (F2 := RK t1 t2 (t2 +T t3)). 
-             exact (tranT _ _ _ F2 F1). 
-         + apply refT.
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s2 *S s1) +S (s3 *S s1)) (s3 *S s1)); intro H3. 
-         + assert (F1 := tranS _ _ _ H2 H1). 
-           assert (F2 := a_idemS (s2 *S s1)). 
-           assert (F3 := m_conS _ _ _ _ F1 (refS s1)). 
-           assert (F4 := a_conS _ _ _ _ (refS (s2 *S s1)) F3). apply symS in F2.
-           assert (F5 := tranS _ _ _ F2 F4). 
-           rewrite F5 in H4. discriminate H4.
-         + assert (F1 := rdS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ H1 (refS s1)). apply symS in F1. 
-           rewrite (tranS _ _ _ F1 F2) in H3. discriminate H3.            
-         + destruct D as [RC | RK].
-           * assert (F1 := rdS s1 s2 s3).
-             assert (F2 := tranS _ _ _ F1 H3). 
-             apply RC in F2. 
-             rewrite F2 in H1. discriminate H1.
-           * exact(RK t1 t2 t3). 
-         + assert (F1 := rdS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ H2 (refS s1)).
-           assert (F3 := tranS _ _ _ F2 F1).            
-           rewrite F3 in H4. discriminate H4.
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s2 *S s1) +S (s3 *S s1)) (s3 *S s1)); intro H3. 
-         + destruct D as [RC | RK].
-           * assert (F1 := rdS s1 s2 s3). apply symS in F1. 
-             assert (F2 := tranS _ _ _ H4 F1). 
-             apply RC in F2.
-             rewrite F2 in H2. discriminate H2.
-           * assert (F1 := rdT t1 t2 t3).
-             assert (F2 := RK t1 t3 (t2 +T t3)). 
-             exact (tranT _ _ _ F2 F1). 
-         + assert (F1 := rdS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ H1 (refS s1)). apply symS in F1. 
-           assert (F3 := tranS _ _ _ F1 F2).            
-           rewrite F3 in H3. discriminate H3.
-         + destruct D as [RC | RK].
-           * assert (F1 := rdS s1 s2 s3). apply symS in F1. 
-             assert (F2 := tranS _ _ _ H4 F1). 
-             apply RC in F2.
-             rewrite F2 in H2. discriminate H2.
-           * assert (F1 := rdT t1 t2 t3).
-             assert (F2 := RK t1 argT (t2 +T t3)). 
-             exact (tranT _ _ _ F2 F1).              (* NB : idT_is_annT -> not RK *)
-         + destruct D as [RC | RK].
-           * assert (F1 := rdS s1 s2 s3). apply symS in F1. 
-             assert (F2 := tranS _ _ _ H4 F1). 
-             apply RC in F2.
-             rewrite F2 in H2. discriminate H2.
-           * exact (RK t1 argT t2). 
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s2 *S s1) +S (s3 *S s1)) (s3 *S s1)); intro H3. 
-         + apply refT. 
-         + assert (F1 := rdS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ H1 (refS s1)). apply symS in F2. 
-           assert (F3 := tranS _ _ _ F2 F1). apply symS in F3.
-           rewrite F3 in H3. discriminate H3.
-         + destruct D as [RC | RK].
-           * assert (F1 := rdS s1 s2 s3).
-             assert (F2 := tranS _ _ _ F1 H3). 
-             apply RC in F2.
-             rewrite F2 in H1. discriminate H1.
-           * exact (RK t1 argT t3). 
-         + destruct selS_or_annT as [selS | argT_is_annT].
-           * destruct (selS s2 s3) as [F1 | F1].
-             -- apply symS in F1. rewrite F1 in H2. discriminate H2.
-             -- rewrite F1 in H1. discriminate H1. 
-           * destruct (argT_is_annT t1) as [F1 F2].  exact F1. 
-Qed. 
-
+          apply ldT. 
+          apply ldT. 
+          assert(fact := m_conS _ _ _ _ H1 (refS s1)). rewrite fact in H3. discriminate. 
+          assert(fact := m_conS _ _ _ _ H1 (refS s1)). rewrite fact in H3. discriminate. 
+          apply ldT. 
+          apply ldT. 
+          assert(fact := m_conS _ _ _ _ H1 (refS s1)). rewrite fact in H3. discriminate. 
+          assert(fact := m_conS _ _ _ _ H1 (refS s1)). rewrite fact in H3. discriminate. 
+          destruct D as [C | K]. 
+             apply C in H3. rewrite H3 in H1. discriminate. 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t2 (t2 +T t3)). 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          destruct D as [C | K]. 
+             apply C in H3. rewrite H3 in H1. discriminate. 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t2 (t2 +T t3)). 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          apply refT. 
+          destruct D as [C | K]. 
+             assert (fact1 := ldS s1 s2 s3). 
+             assert (fact2 := m_conS _ _ _ _ H2 (refS s1)).
+             assert (fact3 := tranS _ _ _ fact2 fact1). 
+             rewrite fact3 in H4. discriminate. 
+             apply K. 
+          destruct D as [C | K]. 
+             apply C in H3. rewrite H3 in H1. discriminate. 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t3 (t2 +T t3)). 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          destruct D as [C | K]. 
+             apply C in H3. rewrite H3 in H1. discriminate. 
+             assert (fact1 := ldT t1 t2 t3). 
+             assert (fact2 := K t1 t3 (t2 +T t3)). 
+             assert (fact3 := tranT _ _ _ fact2 fact1). assumption. 
+          destruct D as [C | K]. 
+             assert (fact1 := ldS s1 s2 s3). apply symS in fact1. 
+             assert (fact2 := tranS _ _ _ H4 fact1). 
+             apply C in fact2. 
+             rewrite fact2 in H2. discriminate. 
+             apply K. 
+          apply refT. 
+Defined. 
+*) 
 Lemma bop_lex_left_product_not_right_distributive_v1 : 
       bop_not_right_distributive S rS addS mulS → 
          bop_not_right_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
@@ -654,674 +779,391 @@ Proof. intros [ [s1 [s2 s3 ] ] nld ]. exists ((s1, wT), ((s2, wT), (s3, wT))); s
 Lemma bop_lex_left_product_not_right_distributive_v2 : 
       bop_not_right_distributive T rT addT mulT → 
       bop_not_right_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros [ [t1 [t2 t3 ] ] nrd ].
-       exists ((wS, t1), ((wS, t2), (wS, t3))).
-      unfold brel_product. unfold bop_product, bop_lex_left. 
-       apply bop_and_false_intro. right. unfold llex_p2.
-       assert (F1 := a_idemS wS). rewrite F1. apply symS in F1. rewrite F1. 
-       assert (F2 := a_idemS (wS *S wS)). rewrite F2. apply symS in F2. rewrite F2. 
-       exact nrd. 
+Admitted.
+(*
+Proof. intros [ [t1 [t2 t3 ] ] nld ].
+       exists ((wS, t1), ((wS, t2), (wS, t3))); simpl. 
+       apply andb_is_false_right. right. 
+       rewrite (refS wS). rewrite (refS (mulS wS wS)). 
+       assumption. 
 Defined. 
+*) 
 
-
-(* see cases 1-4 in the proof below *) 
-
-Definition a_witness_lex_left_product_not_right_distributive
-      (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))
-      (s1 s2 s3 : S)
-      (t1 t2 t3 : T)
-:= if (rS (s2 +S s3) s2) 
-   then if rS (s2 +S s3) s3
-        then (* can't reach this branch *) 
-             ((s1, t1), ((s2, t2), (s3, t3)))
-        else  if rS (s2 *S s1) ((s2 *S s1) +S (s3 *S s1))
-              then (* case 1 *) 
-                   if rT (t2 *T t1) ((t2 *T t1) +T (t3 *T t1))
-                   then ((s1, t1), ((s2, t3), (s3, t2)))
-                   else ((s1, t1), ((s2, t2), (s3, t3)))
-              else (* case 2 *) 
-                   ((s1, t1), ((s2, t2), (s3, t3)))
-   else if rS (s2 +S s3) s3
-        then (* case 3 *) 
-             if rT (t3 *T t1) ((t2 *T t1) +T (t3 *T t1))
-             then ((s1, t1), ((s2, t3), (s3, t2)))
-             else ((s1, t1), ((s2, t2), (s3, t3)))
-        else (* case 4 *) 
-             match selS_or_id_annT with 
-             | inl _ => (* can't reach this branch *) 
-                       ((s1, t1), ((s2, t2), (s3, t3)))
-             | inr _ => if rT argT (t2 *T t1)
-                        then ((s1, t1), ((s2, argT), (s3, t3)))
-                        else ((s1, t1), ((s2, argT), (s3, t2)))
-             end.   
-
-
-
-Lemma bop_lex_left_product_not_right_distributive_v3 
-      (a_commT : bop_commutative T rT addT) (*NB*)
-      (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))
-      (rdS : bop_right_distributive S rS addS mulS)
-      (rdT : bop_right_distributive T rT addT mulT) : 
-      bop_not_right_cancellative S rS mulS → bop_not_right_constant T rT mulT → 
+Lemma bop_lex_left_product_not_right_distributive_v3: 
+      bop_selective S rS addS → bop_commutative S rS addS → bop_commutative T rT addT → bop_not_right_cancellative S rS mulS → 
+      bop_not_right_constant T rT mulT → 
       bop_not_right_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
-       (* to understand the cases below, assume we have done this: 
-          
-           exists ((s1, a), ((s2, b), (s3, c))).
+Admitted.
+(*
+Proof. intros selS commS commT [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
+exists(cef_llex_product_not_right_distributive rS rT s1 s2 s3 t1 t2 t3 addS addT mulT). 
+unfold cef_llex_product_not_right_distributive. 
+destruct(selS s2 s3) as [H | H]. 
+   case_eq(rT (t2 *T t1) ((t2 *T t1) +T (t3 *T t1))); intro J; simpl. 
 
-          In each of the four cases pick a, b, and c to make that case work. 
-        *)
-       exists(a_witness_lex_left_product_not_right_distributive selS_or_id_annT s1 s2 s3 t1 t2 t3). 
-       unfold a_witness_lex_left_product_not_right_distributive. 
-       unfold bop_product, brel_product, bop_lex_left.
-       case_eq(rS s2 (s2 +S s3)); intro H2; 
-       case_eq(rS (s2 *S s1) ((s2 *S s1) +S (s3 *S s1))); intro H4; simpl. 
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s2 *S s1) +S (s3 *S s1)) (s3 *S s1)); intro H3. 
-         + rewrite (tranS _ _ _ H2 H1) in N. discriminate N. 
-         + assert (F1 := tranS _ _ _ H2 H1).
-           assert (F2 := a_idemS (s3 *S s1)). 
-           assert (F3 := m_conS _ _ _ _ F1 (refS s1)). 
-           assert (F4 := a_conS _ _ _ _ F3 (refS (s3 *S s1))). 
-           assert (F5 := tranS _ _ _ F4 F2).
-           rewrite F5 in H3. discriminate H3. 
-         + (* ============= case 1 ======================
-              E : (s2 *S s1) =S (s3 *S s1)
-              N : rS s2 s3 = false
-              F : rT (t2 *T t1) (t3 *T t1) = false
-  
-             H2 : s2 =S (s2 +S s3)
-             H4 : (s2 *S s1) =S ((s2 *S s1) +S (s3 *S s1))
-             H1 : rS (s2 +S s3) s3 = false
-             H3 : ((s2 *S s1) +S (s3 *S s1)) =S (s3 *S s1)
-             ===========need=================
-             rT (b *T a) ((b *T a) +T (c *T a)) = false
+      rewrite H. simpl. 
+      apply andb_is_false_right. right.    
+      apply symS in H. 
+      rewrite N; compute. rewrite H, E.  rewrite N. 
+      assert (fact1 := commT (t2 *T t1) (t3 *T t1)). 
+      assert (fact2 := tranT _ _ _ J fact1). 
+      assert (fact3 := brel_transititivity_implies_dual _ _ tranT _ _ _ fact2 F). 
+      apply (brel_symmetric_implies_dual _ _ symT). 
+      assumption. 
 
-             if rT (t2 *T t1) ((t2 *T t1) +T (t3 *T t1))
-             then (t3 *T t1) ((t2 *T t1) +T (t3 *T t1)) = false
-                   b     a     c     a        b    a    (use a_commT) 
+      rewrite H; compute.           
+      apply andb_is_false_right. right.    
+      apply symS in H. rewrite N, E, H. 
+      assumption. 
 
-             else rT (t2 *T t1) ((t2 *T t1) +T (t3 *T t1)) = false 
-                      b      a    b     a       c     a 
-            *)
-           unfold llex_p2. rewrite (symS _ _ H2).
-           case_eq(rT (t2 *T t1) ((t2 *T t1) +T (t3 *T t1))); intro F1.
-           * rewrite H1, H2, H3, H4.
-             apply bop_and_false_intro. right.
-             case_eq(rT (t3 *T t1) ((t3 *T t1) +T (t2 *T t1))); intro F2; auto.              
-             -- assert (F3 := a_commT (t3 *T t1) (t2 *T t1)). 
-                assert (F4 := tranT _ _ _ F2 F3). apply symT in F4. 
-                rewrite (tranT _ _ _ F1 F4) in F. discriminate F. 
-           * apply bop_and_false_intro. right.
-             rewrite H1, H2, H3, H4.
-             exact F1.            
-         + apply symS in E.
-           assert (F1 := tranS _ _ _ E H4). apply symS in F1. 
-           rewrite F1 in H3. discriminate H3. 
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s2 *S s1) +S (s3 *S s1)) (s3 *S s1)); intro H3. 
-         + assert (F1 := tranS _ _ _ H2 H1). 
-           assert (F2 := a_idemS (s2 *S s1)). 
-           assert (F3 := m_conS _ _ _ _ F1 (refS s1)). 
-           assert (F4 := a_conS _ _ _ _ (refS (s2 *S s1)) F3). apply symS in F2.
-           assert (F5 := tranS _ _ _ F2 F4). 
-           rewrite F5 in H4. discriminate H4.
-         + assert (F1 := rdS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ H1 (refS s1)). apply symS in F1. 
-           rewrite (tranS _ _ _ F1 F2) in H3. discriminate H3.            
-         + (* ===============case 2==============================
-              E : (s2 *S s1) =S (s3 *S s1)
-              N : rS s2 s3 = false
-              F : rT (t2 *T t1) (t3 *T t1) = false
+   assert (A : rS (s2 +S s3) s2 = false).
+       apply (brel_symmetric_implies_dual _ _ symS) in N.
+       apply symS in H. 
+       apply (brel_transititivity_implies_dual _ _ tranS _ _ _ H N). 
+   case_eq(rT (t2 *T t1) ((t2 *T t1) +T (t3 *T t1))); intro J; simpl; rewrite A; compute. 
 
-             H2 : s2 =S (s2 +S s3)
-             H4 : rS (s2 *S s1) ((s2 *S s1) +S (s3 *S s1)) = false
-             H1 : rS (s2 +S s3) s3 = false
-             H3 : ((s2 *S s1) +S (s3 *S s1)) =S (s3 *S s1)
-             ==========need==================
-               rT (b *T a) (c *T a) = false
+      apply andb_is_false_right. right.    
+      rewrite N. 
+      apply (brel_symmetric_implies_dual _ _ symS) in A. rewrite A. 
+      rewrite E. 
+      assert (fact5 := brel_transititivity_implies_dual _ _ tranT _ _ _ J F). 
+      apply (brel_symmetric_implies_dual _ _ symT). 
+      assumption. 
 
-             so use F: 
-             rT (t2 *T t1) (t3 *T t1) = false
-                 b     a    c     a 
-           *)
-           unfold llex_p2. rewrite (symS _ _ H2). 
-           apply bop_and_false_intro. right. rewrite H1, H2, H4, H3. 
-           exact F.
-         + assert (F1 := rdS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ H2 (refS s1)).
-           assert (F3 := tranS _ _ _ F2 F1).            
-           rewrite F3 in H4. discriminate H4.
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s2 *S s1) +S (s3 *S s1)) (s3 *S s1)); intro H3. 
-         + (* ==================case 3=========================
-              E : (s2 *S s1) =S (s3 *S s1)
-              N : rS s2 s3 = false
-              F : rT (t2 *T t1) (t3 *T t1) = false
-
-             H2 : rS s2 (s2 +S s3) = false
-             H4 : (s2 *S s1) =S ((s2 *S s1) +S (s3 *S s1))
-             H1 : (s2 +S s3) =S s3
-             H3 : ((s2 *S s1) +S (s3 *S s1)) =S (s3 *S s1)
-            =========need===================
-             rT (c *T a) ((b *T a) +T (c *T a)) = false
-
-             if rT (t3 *T t1) ((t2 *T t1) +T (t3 *T t1))
-             then (t2 *T t1) ((t2 *T t1) +T (t3 *T t1)) = false
-                   c     a     c     a       b     a    (use a_commT) 
-
-             else (t3 *T t1) ((t2 *T t1) +T (t3 *T t1)) = false
-                   c     a      b     a       c     a 
-           *)   
-           assert (G : rS (s2 +S s3) s2 = false).
-              case_eq(rS (s2 +S s3) s2); intro H; auto.
-                apply symS in H. rewrite H in H2. discriminate H2.            
-           unfold llex_p2. rewrite G. 
-           case_eq(rT (t3 *T t1) ((t2 *T t1) +T (t3 *T t1))); intro F1.
-           * apply bop_and_false_intro. right.
-             rewrite H1, H2, H3, H4. 
-               case_eq(rT (t2 *T t1) ((t3 *T t1) +T (t2 *T t1))); intro F2; auto.              
-             -- assert (F3 := a_commT (t3 *T t1) (t2 *T t1)). 
-                assert (F4 := tranT _ _ _ F2 F3). apply symT in F1. 
-                rewrite (tranT _ _ _ F4 F1) in F. discriminate F. 
-           * apply bop_and_false_intro. right.
-             rewrite H1, H2, H3, H4. 
-             exact F1.
-         + assert (F1 := rdS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ H1 (refS s1)). apply symS in F1. 
-           assert (F3 := tranS _ _ _ F1 F2).            
-           rewrite F3 in H3. discriminate H3.
-         + (* =============case 4=================================
-              E : (s2 *S s1) =S (s3 *S s1)
-              N : rS s2 s3 = false
-              F : rT (t2 *T t1) (t3 *T t1) = false
-
-             H2 : rS s2 (s2 +S s3) = false
-             H4 : (s2 *S s1) =S ((s2 *S s1) +S (s3 *S s1))
-             H1 : rS (s2 +S s3) s3 = false
-             H3 : ((s2 *S s1) +S (s3 *S s1)) =S (s3 *S s1)
-             =============need===============
-               rT (argT *T a) ((b *T a) +T (c *T a)) = false
-  
-             case split: 
-             selective(+S) : contradiction with H1 H2. 
-             
-             argT is id for +T and is ann for *T: 
-             =============need===============
-             rT argT ((b *T a) +T (c *T a)) = false
-             
-             let b = argT. so  ((b *T a) +T (c *T a)) = (c *T a)
-
-             =============need===============
-             rT argT (c *T a) = false
-
-             if argT = (t2 *T t1)
-             then let (c *T a) = (t3 *T t1)
-             else let (c *T a) = (t2 *T t1)
-           *)
-           destruct selS_or_id_annT as [selS | [idT annT]].
-           * destruct (selS s2 s3) as [F1 | F1]. 
-             -- apply symS in F1. rewrite F1 in H2. discriminate H2.
-             -- rewrite F1 in H1. discriminate H1.
-           * assert (G : rS (s2 +S s3) s2 = false).
-             case_eq(rS (s2 +S s3) s2); intro H; auto.
-             apply symS in H. rewrite H in H2. discriminate H2.
-             unfold llex_p2. rewrite G.
-             case_eq(rT argT (t2 *T t1)); intro F6.
-             -- apply bop_and_false_intro. right.
-                rewrite H1, H2, H3, H4.
-                destruct (annT t1) as [F1 F2].
-                destruct (idT (t3 *T t1)) as [F3 F4].                          
-                assert (F5 : ((argT *T t1) +T (t3 *T t1)) =T (t3 *T t1)).
-                   assert (F5 := a_conT _ _ _ _ F1 (refT (t3 *T t1))). 
-                   exact (tranT _ _ _ F5 F3). 
-                case_eq(rT (argT *T t1) ((argT *T t1) +T (t3 *T t1))); intro F7; auto.
-                ++ assert (F8 := tranT _ _ _ F7 F5). apply symT in F6. apply symT in F1. 
-                   assert (F9 := tranT _ _ _ F6 F1). 
-                   rewrite (tranT _ _ _ F9 F8) in F. discriminate F. 
-             -- apply bop_and_false_intro. right.
-                rewrite H1, H2, H3, H4.
-                destruct (annT t1) as [F1 F2].
-                destruct (idT (t2 *T t1)) as [F3 F4].                                          
-                assert (F5 : (argT *T t1) +T (t2 *T t1) =T (t2 *T t1)). 
-                   assert (F5 := a_conT _ _ _ _ F1 (refT (t2 *T t1))). 
-                   exact (tranT _ _ _ F5 F3). 
-                case_eq(rT (argT *T t1) ((argT *T t1) +T (t2 *T t1))); intro F7; auto.
-                ++ assert (F8 := tranT _ _ _ F7 F5). apply symT in F1. 
-                   rewrite (tranT _ _ _ F1 F8) in F6. discriminate F6. 
-         + apply symS in E. assert (F1 := tranS _ _ _ E H4). 
-           apply symS in F1. rewrite F1 in H3. discriminate H3. 
-       - case_eq(rS (s2 +S s3) s3); intro H1; case_eq(rS ((s2 *S s1) +S (s3 *S s1)) (s3 *S s1)); intro H3. 
-         + apply symS in E. assert (F1 := tranS _ _ _ H3 E). 
-           apply symS in F1. rewrite F1 in H4. discriminate H4. 
-         + assert (F1 := rdS s1 s2 s3).
-           assert (F2 := m_conS _ _ _ _ H1 (refS s1)). apply symS in F2. 
-           assert (F3 := tranS _ _ _ F2 F1). apply symS in F3.
-           rewrite F3 in H3. discriminate H3.
-         + apply symS in E. assert (F1 := tranS _ _ _ H3 E). 
-           apply symS in F1. rewrite F1 in H4. discriminate H4. 
-         + assert (F1 := a_idemS (s3 *S s1)). 
-           assert (F2 := a_conS _ _ _ _ E (refS (s3 *S s1))). 
-           assert (F3 := tranS _ _ _ F2 F1).
-           rewrite F3 in H3. discriminate H3. 
+      rewrite N. rewrite E. 
+      apply (brel_symmetric_implies_dual _ _ symS) in A. rewrite A. 
+      case_eq(rS ((s2 +S s3) *S s1) ((s2 *S s1) +S (s3 *S s1))); intro K; auto.    
+      assert (fact1 := commT (t2 *T t1) (t3 *T t1)). 
+      apply (brel_symmetric_implies_dual _ _ symT) in J.
+      assert (fact2 := brel_transititivity_implies_dual _ _ tranT _ _ _ fact1 J). 
+      apply (brel_symmetric_implies_dual _ _ symT).             
+      assumption. 
 Defined.
+ *)
 
+Lemma bops_llex_product_not_left_distributive_left : 
+      bop_not_left_distributive S rS addS mulS → 
+         bop_not_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 [s2 s3 ] ] nd ]. exists ((s1, wT), ((s2, wT), (s3, wT))). simpl. rewrite nd.  simpl. reflexivity. Defined. 
 
-Definition bops_llex_product_right_distributive_decide
-           (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))           
-           (a_commT : bop_commutative T rT addT) (*NB*)
-           (rdS_d : bop_right_distributive_decidable S rS addS mulS)
-           (rdT_d : bop_right_distributive_decidable T rT addT mulT)            
-           (rcS_d : bop_right_cancellative_decidable S rS mulS)
-           (rkT_d : bop_right_constant_decidable T rT mulT) : 
-              bop_right_distributive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) :=
-let selS_or_annT :=
-    match selS_or_id_annT with
-    | inl selS => inl selS
-    | inr (_, annT) => inr annT 
-    end
-in       
-match rdS_d with 
-| inl rdS =>
-   match rdT_d with 
-   | inl rdT =>
-       match rcS_d with 
-       | inl rcS => inl _ (bop_lex_left_product_right_distributive selS_or_annT rdS rdT (inl _ rcS))
-       | inr not_rcS => 
-            match rkT_d with 
-            | inl rkT => inl _ (bop_lex_left_product_right_distributive selS_or_annT rdS rdT (inr _ rkT))
-            | inr not_rkT => inr _ (bop_lex_left_product_not_right_distributive_v3 a_commT selS_or_id_annT rdS rdT not_rcS not_rkT)
-            end 
-       end 
-   |inr not_rdT => inr _ (bop_lex_left_product_not_right_distributive_v2 not_rdT)
-   end 
-|inr not_rdS => inr _ (bop_lex_left_product_not_right_distributive_v1 not_rdS ) 
-end. 
+Lemma bops_llex_product_not_left_distributive_right : 
+      bop_not_left_distributive T rT addT mulT → 
+      bop_not_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
+(*
+Proof. intros [ [t1 [t2 t3 ] ] nd ]. exists ((wS, t1), ((wS, t2), (wS, t3))). simpl.
+       rewrite (refS wS). rewrite (refS (mulS wS wS)). rewrite nd.  apply andb_comm. 
+Defined. 
+*) 
 
+Lemma bops_llex_product_not_right_distributive_left : 
+      bop_not_right_distributive S rS addS mulS → 
+         bop_not_right_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 [s2 s3 ] ] nd ]. exists ((s1, wT), ((s2, wT), (s3, wT))). simpl. rewrite nd.  simpl. reflexivity. Defined. 
 
+Lemma bops_llex_product_not_right_distributive_right :   
+      bop_not_right_distributive T rT addT mulT → 
+      bop_not_right_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) .
+Admitted.
+(*
+Proof. intros [ [t1 [t2 t3] ] nd ]. exists ((wS, t1), ((wS, t2), (wS, t3))). simpl. 
+       rewrite (refS wS). rewrite (refS (wS *S wS)). 
+       rewrite nd.  apply andb_comm. 
+Defined. 
+*) 
 
 Lemma bops_llex_product_id_equals_ann : 
-      bops_id_equals_ann S rS addS mulS → bops_id_equals_ann T rT addT mulT → 
-              bops_id_equals_ann (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros [iS [piS paS]] [iT [piT paT]]. 
+      bop_commutative S rS addS → bops_id_equals_ann S rS addS mulS → bops_id_equals_ann T rT addT mulT → 
+      bops_id_equals_ann (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
+(*
+Proof. intros commS [iS [piS paS]] [iT [piT paT]]. 
        exists (iS, iT). split.
-          - apply bop_lex_left_is_id; auto.
-          - apply bop_product_is_ann; auto.        
+       apply bop_lex_left_is_id; auto.
+       apply bop_product_is_ann; auto.        
 Defined. 
+*) 
 
+
+Lemma bops_product_llex_id_equals_ann : 
+      bop_commutative S rS addS → bops_id_equals_ann S rS mulS addS  → 
+      bops_id_equals_ann T rT mulT addT  → 
+      bops_id_equals_ann (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. intros commS [iS [piS paS]] [iT [piT paT]]. 
+       exists (iS, iT). split.
+       apply bop_product_is_id; auto.               
+       apply bop_lex_left_is_ann; auto.
+Defined. 
 
 Lemma bops_llex_product_not_id_equals_ann_left : 
       bops_not_id_equals_ann S rS addS mulS → 
          bops_not_id_equals_ann (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros H [s t]. destruct (H s) as [ [s' [L | R]] | [s' [L | R]] ].
-       - left. exists (s', t). compute. rewrite L. left. reflexivity.
-       - left. exists (s', t). compute. rewrite R. right. reflexivity.   
-       - right. exists (s', t). compute. rewrite L. left. reflexivity.
-       - right. exists (s', t). compute. rewrite R. right. reflexivity.   
+Proof. unfold bops_not_id_equals_ann. 
+       intros H [s t]. destruct (H s) as [ [s' [L | R]] | [s' [L | R]] ].
+       left. exists (s', t). compute. rewrite L. left. reflexivity.
+       left. exists (s', t). compute. rewrite R. right. reflexivity.   
+       right. exists (s', t). compute. rewrite L. left. reflexivity.
+       right. exists (s', t). compute. rewrite R. right. reflexivity.   
 Defined. 
 
 Lemma bops_llex_product_not_id_equals_ann_right : 
       bops_not_id_equals_ann T rT addT mulT → 
       bops_not_id_equals_ann (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros H [s t]. destruct (H t) as [ [t' [L | R]] | [t' [L | R]] ].
-       - left. exists (s, t'). compute.
-         case_eq(rS (s +S s) s); intro J; auto. 
-         + rewrite (symS _ _ J). left. exact L. 
-       - left. exists (s, t'). compute.
-         case_eq(rS (s +S s) s); intro J; auto.
-         + rewrite (symS _ _ J). right. exact R. 
-       - right. exists (s, t'). compute.
-         case_eq(rS (s *S s) s); intro J; auto. 
-       - right. exists (s, t'). compute.
-         case_eq(rS (s *S s) s); intro J; auto. 
-Defined.
+Admitted.
+(*
+Proof. unfold bops_not_id_equals_ann. 
+       intros H [s t]. destruct (H t) as [ [t' [L | R]] | [t' [L | R]] ].
+       left. exists (s, t'). compute. case_eq(rS (s +S s) s); intro J. rewrite refS. rewrite L. left; auto. left; auto. 
+       left. exists (s, t'). compute. case_eq(rS (s +S s) s); intro J. rewrite refS. rewrite R. right; auto. left; auto. 
+       right. exists (s, t'). compute. case_eq(rS (s *S s) s); intro J. rewrite L. left; auto. left; auto. 
+       right. exists (s, t'). compute. case_eq(rS (s *S s) s); intro J. rewrite R. right; auto. left; auto. 
+Defined. 
+*) 
 
+Lemma bops_product_llex_not_id_equals_ann_left : 
+      bops_not_id_equals_ann S rS mulS addS → 
+         bops_not_id_equals_ann (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT). 
+Proof. unfold bops_not_id_equals_ann. intros H [s t]. 
+       destruct (H s) as [ [s' [L| R] ] | [s' [L | R]] ].
+       left. exists (s', t). compute. rewrite L. left. reflexivity.
+       left. exists (s', t). compute. rewrite R. right. reflexivity.
+       right. exists (s', t). compute. rewrite L. left. reflexivity.
+       right. exists (s', t). compute. rewrite R. right. reflexivity.              
+Defined. 
 
-Definition bops_llex_product_id_equals_ann_decide 
-      (dS : bops_id_equals_ann_decidable S rS addS mulS)
-      (dT : bops_id_equals_ann_decidable T rT addT mulT) : 
-          bops_id_equals_ann_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) := 
-   match dS with 
-   | inl ieaS => 
-     match dT with 
-     | inl ieaT  => inl _ (bops_llex_product_id_equals_ann ieaS ieaT)
-     | inr nieaT => inr _ (bops_llex_product_not_id_equals_ann_right nieaT)
-     end 
-   | inr nieaS   => inr _ (bops_llex_product_not_id_equals_ann_left nieaS)
-   end. 
+Lemma bops_product_llex_not_id_equals_ann_right :
+      bop_idempotent S rS addS → (* NB *) 
+      bops_not_id_equals_ann T rT mulT addT → 
+      bops_not_id_equals_ann (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Admitted.
+(*
+Proof. unfold bops_not_id_equals_ann. intros idemS H [s t]. 
+       destruct (H t) as [ [t' [L| R] ] | [t' [L | R]] ].
+       left. exists (s, t'). compute. rewrite L. case(rS (s *S s) s); left; reflexivity.
+       left. exists (s, t'). compute. rewrite R. case(rS (s *S s) s); right; reflexivity.
+       right. exists (s, t'). compute. rewrite (idemS s). rewrite refS. rewrite L. left. reflexivity.
+       right. exists (s, t'). compute. rewrite (idemS s). rewrite refS. rewrite R. right. reflexivity.
+Defined. 
+*) 
        
 (* absorption *) 
 
 (* left left *) 
 
-Lemma bops_lex_left_product_left_left_absorptive : 
+Lemma bops_llex_product_left_left_absorptive : 
       bops_left_left_absorptive S rS addS mulS → 
       ((bops_left_left_absorptive T rT addT mulT) + (bop_anti_left S rS mulS)) → 
-         bops_left_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros ldS [ldT| F] [s1 t1] [s2 t2]; compute. 
-       - rewrite ldS. 
-         case_eq(rS (s1 +S (s1 *S s2)) (s1 *S s2)); intro H. 
-          + apply ldT.
-          + apply refT. 
-       - rewrite ldS.
-         case_eq(rS (s1 +S (s1 *S s2)) (s1 *S s2)); intro H. 
-         + assert (K := F s1 s2).
-           assert (J := ldS s1 s2).
-           rewrite (tranS _ _ _ J H) in K. discriminate K. 
-          + apply refT.
-Qed.
+      bops_left_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
+(*
+Proof. intros ldS [ldT| F] [s1 t1] [s2 t2].
+       simpl. 
+       unfold bops_left_left_absorptive in ldS. 
+       unfold bops_left_left_absorptive in ldT. 
+       rewrite ldS. simpl. 
+       case_eq(rS s1 (s1 *S s2)); intro H. 
+          apply ldT.
+          compute.  rewrite ldS. rewrite H. 
+          apply refT. 
+       compute. 
+       rewrite ldS. rewrite F. rewrite F. 
+       apply refT. 
+Defined.
+ *)
 
-Lemma bops_lex_left_product_not_left_left_absorptive_left : 
+Lemma bops_llex_product_left_left_absorptive_dual :
+      bop_selective S rS addS → bop_idempotent T rT mulT →   
+      bops_left_left_absorptive S rS mulS addS → bops_left_left_absorptive T rT mulT addT → 
+      bops_left_left_absorptive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Admitted.
+(*
+Proof. intros selS itemT ldS ldT [s1 t1] [s2 t2]; simpl.
+       unfold bops_left_left_absorptive in ldS, ldT.
+       unfold brel_llt. unfold brel_conjunction. unfold brel_llte. unfold brel_complement. 
+       rewrite ldS; simpl. 
+       case_eq(rS s1 s2); intro H1;
+       case_eq(rS s1 (s1 +S s2)); intro H2; simpl.
+          apply ldT.
+          apply ldT.            
+          rewrite symT; auto. 
+          destruct (selS s1 s2) as [H3 | H3]. 
+             apply symS in H3. rewrite H3 in H2. discriminate H2. 
+             admit. (* BUSTED! *) 
+Admitted. 
+*) 
+
+
+Lemma bops_llex_product_not_left_left_absorptive_left : 
       bops_not_left_left_absorptive S rS addS mulS → 
          bops_not_left_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
 Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
 
 
-Lemma bops_lex_left_product_not_left_left_absorptive_right : 
+Lemma bops_llex_product_not_left_left_absorptive_right : 
       bops_left_left_absorptive S rS addS mulS → bops_not_left_left_absorptive T rT addT mulT → bop_not_anti_left S rS mulS  →
       bops_not_left_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]; compute.
-       exists ((s1, t1), (s2, t2)).
-       rewrite laS.
-       assert (F1 : (s1 +S (s1 *S s2)) =S (s1 *S s2)).
-          assert (F2 := a_idemS (s1 *S s2)).
-          assert (F3 := a_conS _ _ _ _ Q (refS (s1 *S s2))).        
-          exact (tranS _ _ _ F3 F2). 
-       rewrite F1. exact P.        
-Defined.
-
-
-Definition bops_lex_left_product_left_left_absorptive_decide 
-      (laS_d : bops_left_left_absorptive_decidable S rS addS mulS)
-      (laT_d : bops_left_left_absorptive_decidable T rT addT mulT) 
-      (antilS_d : bop_anti_left_decidable S rS mulS) : 
-         bops_left_left_absorptive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) :=
-match laS_d with 
-|inl laS =>
-   match laT_d with 
-   |inl laT =>  inl _ (bops_lex_left_product_left_left_absorptive laS (inl _ laT))
-   |inr not_laT  => 
-       match antilS_d with 
-       | inl antilS => inl _ (bops_lex_left_product_left_left_absorptive laS (inr _ antilS))
-       | inr not_antilS => inr _ (bops_lex_left_product_not_left_left_absorptive_right laS not_laT not_antilS)
-       end 
-   end 
-|inr not_laS => inr _ (bops_lex_left_product_not_left_left_absorptive_left not_laS) 
-end. 
+Admitted.
+(*
+Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]. exists ((s1, t1), (s2, t2)). compute. rewrite laS. rewrite Q. assumption. Defined. 
+ *)
 
 (* left right *) 
-Lemma bops_lex_left_product_left_right_absorptive :
+Lemma bops_llex_product_left_right_absorptive :
       bops_left_right_absorptive S rS addS mulS → 
       ((bops_left_right_absorptive T rT addT mulT) + (bop_anti_right S rS mulS)) → 
       bops_left_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros ldS [ldT| F] [s1 t1] [s2 t2]; compute. 
-       - rewrite ldS. 
-         case_eq(rS (s1 +S (s2 *S s1)) (s2 *S s1)); intro H. 
-          + apply ldT.
-          + apply refT. 
-       - rewrite ldS.
-         case_eq(rS (s1 +S (s2 *S s1)) (s2 *S s1)); intro H. 
-         + assert (K := F s1 s2).
-           assert (J := ldS s1 s2).
-           rewrite (tranS _ _ _ J H) in K. discriminate K. 
-          + apply refT.
+Admitted.
+(*
+Proof. intros ldS [ldT| F] [s1 t1] [s2 t2].
+       simpl. 
+       unfold bops_left_right_absorptive in ldS. 
+       unfold bops_left_right_absorptive in ldT.
+       compute.  
+       rewrite ldS. 
+       case_eq(rS s1 (s2 *S s1)); intro H. 
+          apply ldT.
+          apply refT. 
+       compute. 
+       rewrite ldS. rewrite F. rewrite F. 
+       apply refT. 
 Defined. 
+ *)
 
-Lemma bops_lex_left_product_not_left_right_absorptive_left : 
+
+Lemma bops_llex_product_not_left_right_absorptive_left : 
       bops_not_left_right_absorptive S rS addS mulS → 
          bops_not_left_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
 Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
 
-Lemma bops_lex_left_product_not_left_right_absorptive_right : 
+Lemma bops_llex_product_not_left_right_absorptive_right : 
       bops_left_right_absorptive S rS addS mulS → bops_not_left_right_absorptive T rT addT mulT → bop_not_anti_right S rS mulS  → 
       bops_not_left_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]. compute. 
-       exists ((s1, t1), (s2, t2)).
-       rewrite laS. 
-       assert (F1 : (s1 +S (s2 *S s1)) =S (s2 *S s1)).
-          assert (F2 := a_idemS (s2 *S s1)).
-          assert (F3 := a_conS _ _ _ _ Q (refS (s2 *S s1))).        
-          exact (tranS _ _ _ F3 F2). 
-       rewrite F1. exact P.        
-Defined.
-
-Definition bops_lex_left_product_left_right_absorptive_decide 
-      (laS_d : bops_left_right_absorptive_decidable S rS addS mulS)
-      (laT_d : bops_left_right_absorptive_decidable T rT addT mulT) 
-      (antilS_d : bop_anti_right_decidable S rS mulS) : 
-         bops_left_right_absorptive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) :=
-match laS_d with 
-|inl laS =>
-   match laT_d with 
-   |inl laT =>  inl _ (bops_lex_left_product_left_right_absorptive laS (inl _ laT))
-   |inr not_laT  => 
-       match antilS_d with 
-       | inl antilS => inl _ (bops_lex_left_product_left_right_absorptive laS (inr _ antilS))
-       | inr not_antilS => inr _ (bops_lex_left_product_not_left_right_absorptive_right laS not_laT not_antilS)
-       end 
-   end 
-|inr not_laS => inr _ (bops_lex_left_product_not_left_right_absorptive_left not_laS) 
-end. 
-
-
-(* right left *) 
-Lemma bops_lex_left_product_right_left_absorptive : 
-      bops_right_left_absorptive S rS addS mulS → 
-      ((bops_right_left_absorptive T rT addT mulT) + (bop_anti_left S rS mulS)) → 
-      bops_right_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros ldS [ldT| F] [s1 t1] [s2 t2]; compute. 
-       - assert (J := ldS s1 s2). rewrite J. apply symS in J. rewrite J. 
-         case_eq(rS (s1 *S s2) ((s1 *S s2) +S s1)) ; intro K. 
-         + apply ldT. 
-         + apply refT. 
-       - assert (J := ldS s1 s2). rewrite J. apply symS in J. rewrite J. 
-         case_eq(rS (s1 *S s2) ((s1 *S s2) +S s1)) ; intro K.
-         + apply symS in J. apply symS in K.
-           assert (F1 := tranS _ _ _ J K). 
-           assert (F2 := F s1 s2). 
-           rewrite F1 in F2. discriminate F2. 
-         + apply refT. 
-Defined. 
-
-Lemma bops_lex_left_product_not_right_left_absorptive_left : 
-      bops_not_right_left_absorptive S rS addS mulS → 
-         bops_not_right_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). compute. rewrite P. reflexivity. Defined. 
-
-Lemma bops_lex_left_product_not_right_left_absorptive_right : 
-      bops_right_left_absorptive S rS addS mulS → bops_not_right_left_absorptive T rT addT mulT → bop_not_anti_left S rS mulS  → 
-      bops_not_right_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]; compute. 
-       exists ((s1, t1), (s2, t2)).
-       assert (K := laS s1 s2). rewrite K. apply symS in K. rewrite K. 
-       assert (J : (s1 *S s2) =S ((s1 *S s2) +S s1)).
-          assert (L := a_idemS (s1 *S s2)). 
-          assert (M := a_conS _ _ _ _ (refS (s1 *S s2)) Q). apply symS in L. apply symS in M. 
-          exact (tranS _ _ _ L M). 
-       rewrite J. exact P. 
-Defined.
-
-Definition bops_lex_left_product_right_left_absorptive_decide 
-      (laS_d : bops_right_left_absorptive_decidable S rS addS mulS)
-      (laT_d : bops_right_left_absorptive_decidable T rT addT mulT) 
-      (antilS_d : bop_anti_left_decidable S rS mulS) : 
-         bops_right_left_absorptive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) :=
-match laS_d with 
-|inl laS =>
-   match laT_d with 
-   |inl laT =>  inl _ (bops_lex_left_product_right_left_absorptive laS (inl _ laT))
-   |inr not_laT  => 
-       match antilS_d with 
-       | inl antilS => inl _ (bops_lex_left_product_right_left_absorptive laS (inr _ antilS))
-       | inr not_antilS => inr _ (bops_lex_left_product_not_right_left_absorptive_right laS not_laT not_antilS)
-       end 
-   end 
-|inr not_laS => inr _ (bops_lex_left_product_not_right_left_absorptive_left not_laS) 
-end. 
-
-
-(* right_right *) 
-Lemma bops_lex_left_product_right_right_absorptive : 
-      bops_right_right_absorptive S rS addS mulS → 
-      ((bops_right_right_absorptive T rT addT mulT) + (bop_anti_right S rS mulS)) → 
-      bops_right_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros laS [laT| F] [s1 t1] [s2 t2]; compute. 
-       - assert (J := laS s1 s2). rewrite J. apply symS in J. rewrite J. 
-         case_eq(rS (s2 *S s1) ((s2 *S s1) +S s1)) ; intro K. 
-         + apply laT. 
-         + apply refT. 
-       - assert (J := laS s1 s2). rewrite J. apply symS in J. rewrite J. 
-         case_eq(rS (s2 *S s1) ((s2 *S s1) +S s1)) ; intro K.
-         + apply symS in J. apply symS in K.
-           assert (F1 := tranS _ _ _ J K). 
-           assert (F2 := F s1 s2). 
-           rewrite F1 in F2. discriminate F2. 
-         + apply refT. 
-Defined.
-
-Lemma bops_lex_left_product_not_right_right_absorptive_left : 
-      bops_not_right_right_absorptive S rS addS mulS → 
-         bops_not_right_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
-Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). compute. rewrite P. reflexivity. Defined. 
-
-
-Lemma bops_lex_left_product_not_right_right_absorptive_right : 
-  bops_right_right_absorptive S rS addS mulS → bops_not_right_right_absorptive T rT addT mulT → bop_not_anti_right S rS mulS  →
-  bops_not_right_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
-Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]; compute.
-       exists ((s1, t1), (s2, t2)). 
-       assert (K := laS s1 s2). rewrite K. apply symS in K. rewrite K. 
-       assert (J : (s2 *S s1) =S ((s2 *S s1) +S s1)).
-          assert (L := a_idemS (s2 *S s1)). 
-          assert (M := a_conS _ _ _ _ (refS (s2 *S s1)) Q). apply symS in L. apply symS in M. 
-          exact (tranS _ _ _ L M). 
-       rewrite J. exact P. 
-Defined. 
-
-Definition bops_lex_left_product_right_right_absorptive_decide 
-      (laS_d : bops_right_right_absorptive_decidable S rS addS mulS)
-      (laT_d : bops_right_right_absorptive_decidable T rT addT mulT) 
-      (antilS_d : bop_anti_right_decidable S rS mulS) : 
-         bops_right_right_absorptive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) :=
-match laS_d with 
-|inl laS =>
-   match laT_d with 
-   |inl laT =>  inl _ (bops_lex_left_product_right_right_absorptive laS (inl _ laT))
-   |inr not_laT  => 
-       match antilS_d with 
-       | inl antilS => inl _ (bops_lex_left_product_right_right_absorptive laS (inr _ antilS))
-       | inr not_antilS => inr _ (bops_lex_left_product_not_right_right_absorptive_right laS not_laT not_antilS)
-       end 
-   end 
-|inr not_laS => inr _ (bops_lex_left_product_not_right_right_absorptive_left not_laS) 
-end. 
-
-End Theory.
-
-
-
-(* 
-Section ACAS.
-
-Section Proofs.
-
+Admitted.
 (*
-bops_llex_product_left_distributive_decide
-     : ∀ (S T : Type) (rS : brel S) (rT : brel T),
-         S
-         → T
-           → ∀ (argT : T) (addS mulS : binary_op S) (addT mulT : binary_op T),
-               brel_congruence S rS rS
-               → brel_reflexive S rS
-                 → brel_symmetric S rS
-                   → brel_transitive S rS
-                     → brel_reflexive T rT
-                       → brel_symmetric T rT
-                         → brel_transitive T rT
-                           → bop_congruence S rS addS
-                             → bop_congruence S rS mulS
-                               → bop_congruence T rT addT
-                                 → bop_idempotent S rS addS
-
-
-                                   → bop_selective S rS addS +
-                                     bop_is_id T rT addT argT *
-                                     bop_is_ann T rT mulT argT
-                                     → bop_commutative T rT addT
-                                       → bop_left_distributive_decidable S rS
-                                           addS mulS
-                                         → bop_left_distributive_decidable T
-                                             rT addT mulT
-                                           → bop_left_cancellative_decidable
-                                               S rS mulS
-                                             → bop_left_constant_decidable T
-                                                 rT mulT
-                                               → bop_left_distributive_decidable
-                                                 (S * T) 
-                                                 (brel_product rS rT)
-                                                 (bop_lex_left argT rS addS
-                                                 addT)
-                                                 (bop_product mulS mulT)
-  
+Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q] . exists ((s1, t1), (s2, t2)). compute. rewrite laS. rewrite Q. assumption. Defined. 
  *)
 
 
-Variable S T       : Type.
-Variable eqvS      : A_eqv S.
-Variable eqvT      : A_eqv T.
-Variable addS mulS : binary_op S.
-Variable addT mulT : binary_op T.
-Variable p_addS    : sg_CI_proofs S (A_eqv_eq _ eqvS) addS.
-Variable p_addT    : sg_C_proofs T (A_eqv_eq _ eqvT) addT. 
-
-Definition rS      := A_eqv_eq _ eqvS.
-
+(* right left *) 
+Lemma bops_llex_product_right_left_absorptive : 
+      bops_right_left_absorptive S rS addS mulS → 
+      ((bops_right_left_absorptive T rT addT mulT) + (bop_anti_left S rS mulS)) → 
+      bops_right_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
 (*
-Print eqv_proofs. 
-
-Record eqv_proofs (S : Type) (eq : brel S) : Prop := Build_eqv_proofs
-  { A_eqv_congruence : brel_congruence S eq eq;
-    A_eqv_reflexive : brel_reflexive S eq;
-    A_eqv_transitive : brel_transitive S eq;
-    A_eqv_symmetric : brel_symmetric S eq }
-
-Record A_eqv (S : Type) : Type := Build_A_eqv
-  { A_eqv_eq : brel S;
-    A_eqv_proofs : eqv_proofs S A_eqv_eq;
-    A_eqv_witness : S;
-    A_eqv_new : S → S;
-    A_eqv_not_trivial : brel_not_trivial S A_eqv_eq A_eqv_new;
-    A_eqv_exactly_two_d : brel_exactly_two_decidable S A_eqv_eq;
-    A_eqv_finite_d : carrier_is_finite_decidable S A_eqv_eq;
-    A_eqv_data : S → data.data;
-    A_eqv_rep : S → S;
-    A_eqv_ast : cas_ast }
+Proof. intros ldS [ldT| F] [s1 t1] [s2 t2]; compute. 
+       unfold bops_right_left_absorptive in ldS. 
+       unfold bops_right_left_absorptive in ldT. 
+       rewrite ldS. 
+       case_eq(rS (s1 *S s2) s1); intro H. 
+          apply ldT. 
+          case_eq(rS (s1 *S s2) ((s1 *S s2) +S s1)) ; intro K. 
+             assert (fact1 := ldS s1 s2). apply symS in fact1. 
+             assert (fact2 := tranS _ _ _ K fact1).            
+             rewrite fact2 in H. discriminate. 
+             apply refT. 
+       unfold bops_right_left_absorptive in ldS. 
+       unfold bop_anti_left in F.
+       assert (F' : ∀ s t : S, rS (s *S t) s = false). 
+          intros s t. apply (brel_symmetric_implies_dual _ _ symS). apply F. 
+       rewrite ldS, F'. 
+       assert (L : rS (s1 *S s2) ((s1 *S s2) +S s1) = false). 
+          assert (fact1 := ldS s1 s2).
+          assert (fact2 := F s1 s2). 
+          assert (fact3 := brel_transititivity_implies_dual _ _ tranS _ _ _ fact1 fact2). 
+          apply (brel_symmetric_implies_dual _ _ symS).  assumption. 
+       rewrite L. apply refT. 
+Defined. 
 *) 
-Definition rT      := A_eqv_eq _ eqvT. 
-Definition a_commS := A_sg_CI_commutative _ _ _ p_addS.
-Definition a_idemS := A_sg_CI_idempotent _ _ _ p_addS. 
-Definition a_commT := A_sg_C_commutative _ _ _ p_addT.  
 
-Definition bops_llex_product_left_distributive_decide
-           (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))           
-           (ldS_d : bop_left_distributive_decidable S rS addS mulS)
-           (ldT_d : bop_left_distributive_decidable T rT addT mulT)            
-           (lcS_d : bop_left_cancellative_decidable S rS mulS)
-           (lkT_d : bop_left_constant_decidable T rT mulT) : 
-              bop_left_distributive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) :=
-let selS_or_annT :=
-    match selS_or_id_annT with
-    | inl selS => inl selS
-    | inr (_, annT) => inr annT 
-    end
-in       
+Lemma bops_llex_product_not_right_left_absorptive_left : 
+      bops_not_right_left_absorptive S rS addS mulS → 
+         bops_not_right_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
+
+
+Lemma bops_llex_product_not_right_left_absorptive_right : 
+      bops_right_left_absorptive S rS addS mulS → bops_not_right_left_absorptive T rT addT mulT → bop_not_anti_left S rS mulS  → 
+      bops_not_right_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
+(*
+Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]. exists ((s1, t1), (s2, t2)). compute. rewrite laS. apply symS in Q. rewrite Q. 
+       assumption. 
+Defined. 
+*) 
+
+(* right_right *) 
+Lemma bops_llex_product_right_right_absorptive : 
+      bops_right_right_absorptive S rS addS mulS → 
+      ((bops_right_right_absorptive T rT addT mulT) + (bop_anti_right S rS mulS)) → 
+      bops_right_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
+(*
+Proof. intros laS [laT| F] [s1 t1] [s2 t2]; simpl. 
+       unfold bops_right_right_absorptive in laS. 
+       unfold bops_right_right_absorptive in laT. 
+       rewrite laS. simpl. 
+       case_eq(rS (s2 *S s1) s1); intro H1. 
+          apply laT.
+          compute.  
+          case_eq(rS (s2 *S s1) ((s2 *S s1) +S s1)); intro H2. 
+             rewrite H1.  
+             assert (fact1 := laS s1 s2). apply symS in fact1. 
+             assert (fact2 := tranS _ _ _ H2 fact1). 
+             rewrite fact2 in H1. discriminate. 
+             apply refT. 
+          unfold bops_right_right_absorptive in laS. 
+          unfold bop_anti_right in F. 
+          compute. 
+          rewrite laS. simpl. 
+          assert (fact1 := F s1 s2). apply (brel_symmetric_implies_dual _ _ symS) in fact1. 
+          rewrite fact1. 
+          case_eq (rS (s2 *S s1) ((s2 *S s1) +S s1)); intro H. 
+             assert (fact2 := laS s1 s2). apply symS in fact2. 
+             assert (fact3 := tranS _ _ _ H fact2). rewrite fact3 in fact1. discriminate. 
+             apply refT. 
+Defined. 
+ *)
+
+Lemma bops_llex_product_not_right_right_absorptive_left : 
+      bops_not_right_right_absorptive S rS addS mulS → 
+         bops_not_right_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
+
+
+Lemma bops_llex_product_not_right_right_absorptive_right : 
+  bops_right_right_absorptive S rS addS mulS → bops_not_right_right_absorptive T rT addT mulT → bop_not_anti_right S rS mulS  →
+  bops_not_right_right_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Admitted.
+(*
+Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q] . exists ((s1, t1), (s2, t2)). 
+       compute. rewrite laS. apply symS in Q. rewrite Q. assumption. 
+Defined. 
+*) 
+
+
+(* Decide 
+
+Definition bops_llex_product_left_distributive_decide : 
+      bop_selective S rS addS  →      (* NB *) 
+      bop_commutative S rS addS  →    (* NB *) 
+      bop_commutative T rT addT  →    (* NB *) 
+      bop_left_cancellative_decidable S rS mulS  → 
+      bop_left_constant_decidable T rT mulT → 
+      bop_left_distributive_decidable S rS addS mulS → 
+      bop_left_distributive_decidable T rT addT mulT → 
+         bop_left_distributive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT)
+:= λ selS commS commT lcS_d lkT_d ldS_d ldT_d, 
 match ldS_d with 
-| inl ldS =>
+|inl ldS =>
    match ldT_d with 
-   | inl ldT =>
+   |inl ldT =>
        match lcS_d with 
-       | inl lcS => inl _ (bop_lex_left_product_left_distributive selS_or_annT ldS ldT (inl _ lcS))
+       | inl lcS => inl _ (bop_lex_left_product_left_distributive ldS ldT (inl _ lcS))
        | inr not_lcS => 
             match lkT_d with 
-            | inl lkT => inl _ (bop_lex_left_product_left_distributive selS_or_annT ldS ldT (inr _ lkT))
-            | inr not_lkT => inr _ (bop_lex_left_product_not_left_distributive_v3 a_commT selS_or_id_annT ldS ldT not_lcS not_lkT)
+            | inl lkT => inl _ (bop_lex_left_product_left_distributive ldS ldT (inr _ lkT))
+            | inr not_lkT => inr _ (bop_lex_left_product_not_left_distributive_v3 selS commS commT not_lcS not_lkT)
                                      
             end 
        end 
@@ -1330,8 +1172,161 @@ match ldS_d with
 |inr not_ldS => inr _ (bop_lex_left_product_not_left_distributive_v1 not_ldS ) 
 end. 
 
+Definition bops_llex_product_right_distributive_decide : 
+      bop_selective S rS addS  →      (* NB *) 
+      bop_commutative S rS addS  →    (* NB *) 
+      bop_commutative T rT addT  →    (* NB *) 
+      bop_right_cancellative_decidable S rS mulS  → 
+      bop_right_constant_decidable T rT mulT → 
+      bop_right_distributive_decidable S rS addS mulS → 
+      bop_right_distributive_decidable T rT addT mulT → 
+         bop_right_distributive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT)
+:= λ selS commS commT lcS_d lkT_d ldS_d ldT_d, 
+match ldS_d with 
+|inl ldS =>
+   match ldT_d with 
+   |inl ldT =>
+       match lcS_d with 
+       | inl lcS => inl _ (bop_lex_left_product_right_distributive ldS ldT (inl _ lcS))
+       | inr not_lcS => 
+            match lkT_d with 
+            | inl lkT => inl _ (bop_lex_left_product_right_distributive ldS ldT (inr _ lkT))
+            | inr not_lkT => inr _ (bop_lex_left_product_not_right_distributive_v3 selS commS commT not_lcS not_lkT)
+            end 
+       end 
+   |inr not_ldT => inr _ (bop_lex_left_product_not_right_distributive_v2 not_ldT)
+   end 
+|inr not_ldS => inr _ (bop_lex_left_product_not_right_distributive_v1 not_ldS)
+end. 
 
-  
+
+(*
+ LA(S) -> 
+          LA(T) -> (LA(T) | nQ) -> LA(lex, product) 
+          nLA(T) -> 
+             nQ  -> (LA(T) | nQ) -> LA(lex, product) 
+              Q -> (nLA(T) & Q) -> nLA(lex, product) 
+nLA(S) -> nLA(lex, product) 
+
+*)
+Definition bops_llex_product_left_left_absorptive_decide : 
+      bops_left_left_absorptive_decidable S rS addS mulS → 
+      bops_left_left_absorptive_decidable T rT addT mulT → 
+      bop_anti_left_decidable S rS mulS → 
+         bops_left_left_absorptive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) 
+:= λ laS_d laT_d antilS_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT =>  inl _ (bops_llex_product_left_left_absorptive laS (inl _ laT))
+   |inr not_laT  => 
+       match antilS_d with 
+       | inl antilS => inl _ (bops_llex_product_left_left_absorptive laS (inr _ antilS))
+       | inr not_antilS => inr _ (bops_llex_product_not_left_left_absorptive_right laS not_laT not_antilS)
+       end 
+   end 
+|inr not_laS => inr _ (bops_llex_product_not_left_left_absorptive_left not_laS) 
+end. 
+
+Definition bops_llex_product_left_right_absorptive_decide : 
+      bops_left_right_absorptive_decidable S rS addS mulS → 
+      bops_left_right_absorptive_decidable T rT addT mulT → 
+      bop_anti_right_decidable S rS mulS → 
+         bops_left_right_absorptive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) 
+:= λ laS_d laT_d antilS_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT =>  inl _ (bops_llex_product_left_right_absorptive laS (inl _ laT))
+   |inr not_laT  => 
+       match antilS_d with 
+       | inl antilS => inl _ (bops_llex_product_left_right_absorptive laS (inr _ antilS))
+       | inr not_antilS => inr _ (bops_llex_product_not_left_right_absorptive_right laS not_laT not_antilS )
+       end 
+   end 
+|inr not_laS => inr _ (bops_llex_product_not_left_right_absorptive_left not_laS ) 
+end. 
+
+Definition bops_llex_product_right_left_absorptive_decide : 
+      bops_right_left_absorptive_decidable S rS addS mulS → 
+      bops_right_left_absorptive_decidable T rT addT mulT → 
+      bop_anti_left_decidable S rS mulS → 
+         bops_right_left_absorptive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) 
+:= λ laS_d laT_d antilS_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT =>  inl _ (bops_llex_product_right_left_absorptive laS (inl _ laT))
+   |inr not_laT  => 
+       match antilS_d with 
+       | inl antilS => inl _ (bops_llex_product_right_left_absorptive laS (inr _ antilS))
+       | inr not_antilS => inr _ (bops_llex_product_not_right_left_absorptive_right laS not_laT not_antilS )
+       end 
+   end 
+|inr not_laS => inr _ (bops_llex_product_not_right_left_absorptive_left not_laS ) 
+end. 
+
+Definition bops_llex_product_right_right_absorptive_decide : 
+      bops_right_right_absorptive_decidable S rS addS mulS → 
+      bops_right_right_absorptive_decidable T rT addT mulT → 
+      bop_anti_right_decidable S rS mulS → 
+         bops_right_right_absorptive_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT) 
+:= λ laS_d laT_d antilS_d, 
+match laS_d with 
+|inl laS =>
+   match laT_d with 
+   |inl laT =>  inl _ (bops_llex_product_right_right_absorptive laS (inl _ laT))
+   |inr not_laT  => 
+       match antilS_d with 
+       | inl antilS => inl _ (bops_llex_product_right_right_absorptive laS (inr _ antilS))
+       | inr not_antilS => inr _ (bops_llex_product_not_right_right_absorptive_right laS not_laT not_antilS )
+       end 
+   end 
+|inr not_laS => inr _ (bops_llex_product_not_right_right_absorptive_left not_laS ) 
+end.
+
+
+Definition bops_llex_product_id_equals_ann_decide : 
+      bop_commutative S rS addS  →
+      bops_id_equals_ann_decidable S rS addS mulS → 
+      bops_id_equals_ann_decidable T rT addT mulT →  
+        bops_id_equals_ann_decidable (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT)
+ := λ commS dS dT,  
+   match dS with 
+   | inl ieaS => 
+     match dT with 
+     | inl ieaT  => inl _ (bops_llex_product_id_equals_ann commS ieaS ieaT)
+     | inr nieaT => inr _ (bops_llex_product_not_id_equals_ann_right nieaT)
+     end 
+   | inr nieaS   => inr _ (bops_llex_product_not_id_equals_ann_left nieaS)
+   end. 
+
+
+Definition bops_product_llex_id_equals_ann_decide : 
+  bop_commutative S rS addS  →
+  bop_idempotent S rS addS  →
+  bops_id_equals_ann_decidable S rS mulS addS  → 
+  bops_id_equals_ann_decidable T rT mulT addT  →  
+        bops_id_equals_ann_decidable (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT) 
+:= λ commS idemS dS dT,  
+   match dS with 
+   | inl ieaS => 
+     match dT with 
+     | inl ieaT  => inl _ (bops_product_llex_id_equals_ann commS ieaS ieaT)
+     | inr nieaT => inr _ (bops_product_llex_not_id_equals_ann_right idemS nieaT)
+     end 
+   | inr nieaS   => inr _ (bops_product_llex_not_id_equals_ann_left nieaS)
+   end. 
+
+*) 
+End Theory.
+
+
+
+(*
+Section ACAS.
+
+Section Proofs.
 
 Variable S T : Type.
 Variable eqvS : A_eqv S.
@@ -1351,7 +1346,7 @@ Variable left_constant_timesT  : bop_left_constant_decidable T (A_eqv_eq T eqvT)
 Variable right_constant_timesT : bop_right_constant_decidable T (A_eqv_eq T eqvT) timesT.        (* A_msg_right_constant_d T rT timesT sg_T *)
 
 
-Definition bs_proofs_lex_left_product : 
+Definition bs_proofs_llex_product : 
      bs_proofs  S (A_eqv_eq S eqvS) plusS timesS -> 
      bs_proofs  T (A_eqv_eq T eqvT) plusT timesT -> 
         bs_proofs (S * T) 
@@ -1376,34 +1371,34 @@ let transT := A_eqv_transitive T rT eqvPT in
 let congT  := A_eqv_congruence T rT eqvPT in 
 {|
   A_bs_left_distributive_d    := 
-    bops_lex_left_product_left_distributive_decide S T rS rT s t plusS timesS plusT timesT refS symS transS refT symT transT c_timesS selS comS comT
+    bops_llex_product_left_distributive_decide S T rS rT s t plusS timesS plusT timesT refS symS transS refT symT transT c_timesS selS comS comT
      left_cancel_timesS
      left_constant_timesT                                           
      (A_bs_left_distributive_d S rS plusS timesS pS)
      (A_bs_left_distributive_d T rT plusT timesT pT)
 ; A_bs_right_distributive_d   := 
-   bops_lex_left_product_right_distributive_decide S T rS rT s t plusS timesS plusT timesT refS symS transS refT symT transT c_timesS selS comS comT
+   bops_llex_product_right_distributive_decide S T rS rT s t plusS timesS plusT timesT refS symS transS refT symT transT c_timesS selS comS comT
      right_cancel_timesS
      right_constant_timesT                                           
      (A_bs_right_distributive_d S rS plusS timesS pS)
      (A_bs_right_distributive_d T rT plusT timesT pT)
 ; A_bs_left_left_absorptive_d      := 
-    bops_lex_left_product_left_left_absorptive_decide S T rS rT t plusS timesS plusT timesT refT
+    bops_llex_product_left_left_absorptive_decide S T rS rT t plusS timesS plusT timesT refT
     (A_bs_left_left_absorptive_d S rS plusS timesS pS)
     (A_bs_left_left_absorptive_d T rT plusT timesT pT)
     anti_left_timesS
 ; A_bs_left_right_absorptive_d      := 
-    bops_lex_left_product_left_right_absorptive_decide S T rS rT t plusS timesS plusT timesT refT 
+    bops_llex_product_left_right_absorptive_decide S T rS rT t plusS timesS plusT timesT refT 
     (A_bs_left_right_absorptive_d S rS plusS timesS pS)
     (A_bs_left_right_absorptive_d T rT plusT timesT pT)
     anti_right_timesS    
 ; A_bs_right_left_absorptive_d      := 
-    bops_lex_left_product_right_left_absorptive_decide S T rS rT t plusS timesS plusT timesT symS transS refT 
+    bops_llex_product_right_left_absorptive_decide S T rS rT t plusS timesS plusT timesT symS transS refT 
        (A_bs_right_left_absorptive_d S rS plusS timesS pS)
        (A_bs_right_left_absorptive_d T rT plusT timesT pT)
        anti_left_timesS
 ; A_bs_right_right_absorptive_d      := 
-    bops_lex_left_product_right_right_absorptive_decide S T rS rT t plusS timesS plusT timesT symS transS refT
+    bops_llex_product_right_right_absorptive_decide S T rS rT t plusS timesS plusT timesT symS transS refT
        (A_bs_right_right_absorptive_d S rS plusS timesS pS)
        (A_bs_right_right_absorptive_d T rT plusT timesT pT)
        anti_right_timesS           
@@ -1439,12 +1434,12 @@ let rdT := A_semiring_right_distributive _ _ _ _ pT in
  ; A_semiring_right_distributive      :=
         bop_lex_left_product_right_distributive S T rS rT plusS timesS plusT timesT refS symS trnS refT trnT c_timesS rdS rdT dR       
  ; A_semiring_left_left_absorptive_d  :=
-    bops_lex_left_product_left_left_absorptive_decide S T rS rT t plusS timesS plusT timesT refT
+    bops_llex_product_left_left_absorptive_decide S T rS rT t plusS timesS plusT timesT refT
     (A_semiring_left_left_absorptive_d S rS plusS timesS pS)
     (A_semiring_left_left_absorptive_d T rT plusT timesT pT)
     anti_left_timesS
  ; A_semiring_left_right_absorptive_d :=
-    bops_lex_left_product_left_right_absorptive_decide S T rS rT t plusS timesS plusT timesT refT 
+    bops_llex_product_left_right_absorptive_decide S T rS rT t plusS timesS plusT timesT refT 
     (A_semiring_left_right_absorptive_d S rS plusS timesS pS)
     (A_semiring_left_right_absorptive_d T rT plusT timesT pT)
     anti_right_timesS    
@@ -1483,7 +1478,7 @@ let refT   := A_eqv_reflexive T rT eqvPT in
                                   (A_id_ann_exists_times_ann_d _ _ _ _ dS)
                                   (A_id_ann_exists_times_ann_d _ _ _ _ dT)
 ; A_id_ann_plus_id_is_times_ann_d :=  
-    bops_lex_left_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS trnS refT comS 
+    bops_llex_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS trnS refT comS 
      (A_id_ann_plus_id_is_times_ann_d S rS plusS timesS dS)
      (A_id_ann_plus_id_is_times_ann_d T rT plusT timesT dT)
 ; A_id_ann_times_id_is_plus_ann_d :=  
@@ -1519,7 +1514,7 @@ let refT   := A_eqv_reflexive T rT eqvPT in
       (A_zero_one_exists_times_id S rS plusS timesS dS)
       (A_zero_one_exists_times_id T rT plusT timesT dT) 
  ; A_zero_one_plus_id_is_times_ann   :=
-    bops_lex_left_product_id_equals_ann S T rS rT plusS timesS plusT timesT symS trnS refT comS 
+    bops_llex_product_id_equals_ann S T rS rT plusS timesS plusT timesT symS trnS refT comS 
      (A_zero_one_plus_id_is_times_ann S rS plusS timesS dS)
      (A_zero_one_plus_id_is_times_ann T rT plusT timesT dT)
  ; A_zero_one_times_id_is_plus_ann_d :=
@@ -1547,7 +1542,7 @@ let eqvPT  := A_eqv_proofs T  eqvT in
 let refT   := A_eqv_reflexive T rT eqvPT in 
 {|
   A_bounded_plus_id_is_times_ann :=
-    bops_lex_left_product_id_equals_ann S T rS rT plusS timesS plusT timesT symS trnS refT comS 
+    bops_llex_product_id_equals_ann S T rS rT plusS timesS plusT timesT symS trnS refT comS 
      (A_bounded_plus_id_is_times_ann S rS plusS timesS dS)
      (A_bounded_plus_id_is_times_ann T rT plusT timesT dT)
  ; A_bounded_times_id_is_plus_ann :=
@@ -1560,7 +1555,7 @@ let refT   := A_eqv_reflexive T rT eqvPT in
   
 End Proofs. 
 
-Definition A_bs_lex_left_product : ∀ (S T : Type),  A_bs_CS S -> A_bs T -> A_bs (S * T) 
+Definition A_bs_llex_product : ∀ (S T : Type),  A_bs_CS S -> A_bs T -> A_bs (S * T) 
 := λ S T bsS bsT,
 let eqvS   := A_bs_CS_eqv S bsS   in
 let eqvT   := A_bs_eqv T bsT   in
@@ -1601,7 +1596,7 @@ let right_constant_timesT := A_msg_right_constant_d T rT timesT (A_bs_times_proo
    ; A_bs_id_ann_proofs := id_ann_proofs_llex S T eqvS eqvT plusS timesS plusT timesT comS selS 
                            (A_bs_CS_id_ann_proofs S bsS)
                            (A_bs_id_ann_proofs T bsT)
-   ; A_bs_proofs    := bs_proofs_lex_left_product S T eqvS eqvT plusS timesS plusT timesT comS selS comT c_timesS
+   ; A_bs_proofs    := bs_proofs_llex_product S T eqvS eqvT plusS timesS plusT timesT comS selS comT c_timesS
                                       left_cancel_timesS    
                                       right_cancel_timesS   
                                       anti_left_timesS      
@@ -1615,7 +1610,7 @@ let right_constant_timesT := A_msg_right_constant_d T rT timesT (A_bs_times_proo
 
 
 
-Definition A_bs_CS_lex_left_product : ∀ (S T : Type),  A_bs_CS S -> A_bs_CS T -> A_bs_CS (S * T)
+Definition A_bs_CS_llex_product : ∀ (S T : Type),  A_bs_CS S -> A_bs_CS T -> A_bs_CS (S * T)
 := λ S T bsS bsT,
 let eqvS   := A_bs_CS_eqv S bsS   in
 let eqvT   := A_bs_CS_eqv T bsT   in
@@ -1656,7 +1651,7 @@ let right_constant_timesT := A_msg_right_constant_d T rT timesT (A_bs_CS_times_p
    ; A_bs_CS_id_ann_proofs := id_ann_proofs_llex S T eqvS eqvT plusS timesS plusT timesT comS selS 
                            (A_bs_CS_id_ann_proofs S bsS)
                            (A_bs_CS_id_ann_proofs T bsT)
-   ; A_bs_CS_proofs    := bs_proofs_lex_left_product S T eqvS eqvT plusS timesS plusT timesT comS selS comT c_timesS
+   ; A_bs_CS_proofs    := bs_proofs_llex_product S T eqvS eqvT plusS timesS plusT timesT comS selS comT c_timesS
                                       left_cancel_timesS    
                                       right_cancel_timesS   
                                       anti_left_timesS      
@@ -1672,7 +1667,7 @@ End ACAS.
 
 Section CAS.
 
-Definition bops_lex_left_product_left_distributive_check 
+Definition bops_llex_product_left_distributive_check 
      {S T : Type}
      (rS : brel S) 
      (rT : brel T) 
@@ -1697,7 +1692,7 @@ match ldS_d with
             | Certify_Left_Constant => Certify_Left_Distributive  
             | Certify_Not_Left_Constant (t1, (t2, t3)) => 
                   Certify_Not_Left_Distributive  
-                     (cef_lex_left_product_not_left_distributive rS rT s1 s2 s3 t1 t2 t3
+                     (cef_llex_product_not_left_distributive rS rT s1 s2 s3 t1 t2 t3
                          addS addT mulT) 
             end 
        end 
@@ -1708,7 +1703,7 @@ match ldS_d with
         Certify_Not_Left_Distributive  ((s1, t), ((s2, t), (s3, t))) 
 end.
 
-Definition bops_lex_left_product_right_distributive_check 
+Definition bops_llex_product_right_distributive_check 
      {S T : Type}
      (rS : brel S) 
      (rT : brel T) 
@@ -1733,7 +1728,7 @@ match ldS_d with
             | Certify_Right_Constant => Certify_Right_Distributive  
             | Certify_Not_Right_Constant (t1, (t2, t3)) => 
                   Certify_Not_Right_Distributive  
-                     (cef_lex_left_product_not_right_distributive rS rT s1 s2 s3 t1 t2 t3
+                     (cef_llex_product_not_right_distributive rS rT s1 s2 s3 t1 t2 t3
                          addS addT mulT) 
 
             end 
@@ -1747,7 +1742,7 @@ end.
 
 
 (* these are the same as for product *) 
-Definition bops_lex_left_product_plus_id_is_times_ann_check : 
+Definition bops_llex_product_plus_id_is_times_ann_check : 
    ∀ {S T : Type},  
      check_plus_id_equals_times_ann (S := S) -> 
      check_plus_id_equals_times_ann (S := T) -> 
@@ -1764,7 +1759,7 @@ Definition bops_lex_left_product_plus_id_is_times_ann_check :
         Certify_Not_Plus_Id_Equals_Times_Ann 
    end. 
 
-Definition bops_lex_left_product_times_id_equals_plus_ann_check : 
+Definition bops_llex_product_times_id_equals_plus_ann_check : 
    ∀ {S T : Type},  
      check_times_id_equals_plus_ann (S := S) -> 
      check_times_id_equals_plus_ann (S := T) -> 
@@ -1783,7 +1778,7 @@ Definition bops_lex_left_product_times_id_equals_plus_ann_check :
 
 
 
-Definition bops_lex_left_product_left_left_absorptive_check : 
+Definition bops_llex_product_left_left_absorptive_check : 
    ∀ {S T : Type} (t : T),  
      check_left_left_absorptive (S := S) -> 
      check_left_left_absorptive (S := T) -> 
@@ -1806,7 +1801,7 @@ match dS with
 end. 
 
 
-Definition bops_lex_left_product_left_right_absorptive_check : 
+Definition bops_llex_product_left_right_absorptive_check : 
    ∀ {S T : Type} (t : T),  
      check_left_right_absorptive (S := S) -> 
      check_left_right_absorptive (S := T) -> 
@@ -1830,7 +1825,7 @@ end.
 
 
 
-Definition bops_lex_left_product_right_left_absorptive_check : 
+Definition bops_llex_product_right_left_absorptive_check : 
    ∀ {S T : Type} (t : T),  
      check_right_left_absorptive (S := S) -> 
      check_right_left_absorptive (S := T) -> 
@@ -1853,7 +1848,7 @@ match dS with
 end. 
 
 
-Definition bops_lex_left_product_right_right_absorptive_check : 
+Definition bops_llex_product_right_right_absorptive_check : 
    ∀ {S T : Type} (t : T),  
      check_right_right_absorptive (S := S) -> 
      check_right_right_absorptive (S := T) -> 
@@ -1894,45 +1889,45 @@ Variable anti_right_timesS     : @check_anti_right S.
 Variable left_constant_timesT  : @check_left_constant T.       
 Variable right_constant_timesT : @check_right_constant T.
 
-Definition bs_certs_lex_left_product : @bs_certificates  S -> @bs_certificates  T -> @bs_certificates (S * T) 
+Definition bs_certs_llex_product : @bs_certificates  S -> @bs_certificates  T -> @bs_certificates (S * T) 
 := λ pS pT,
 {|
   bs_left_distributive_d    := 
-    bops_lex_left_product_left_distributive_check rS rT plusS plusT timesT s t 
+    bops_llex_product_left_distributive_check rS rT plusS plusT timesT s t 
      left_cancel_timesS
      left_constant_timesT                                           
      (bs_left_distributive_d pS)
      (bs_left_distributive_d pT)
 ; bs_right_distributive_d   := 
-   bops_lex_left_product_right_distributive_check rS rT plusS plusT timesT s t 
+   bops_llex_product_right_distributive_check rS rT plusS plusT timesT s t 
      right_cancel_timesS
      right_constant_timesT                                           
      (bs_right_distributive_d pS)
      (bs_right_distributive_d pT)
 ; bs_left_left_absorptive_d      := 
-    bops_lex_left_product_left_left_absorptive_check t 
+    bops_llex_product_left_left_absorptive_check t 
     (bs_left_left_absorptive_d pS)
     (bs_left_left_absorptive_d pT)
     anti_left_timesS
 ; bs_left_right_absorptive_d      := 
-    bops_lex_left_product_left_right_absorptive_check t
+    bops_llex_product_left_right_absorptive_check t
     (bs_left_right_absorptive_d pS)
     (bs_left_right_absorptive_d pT)
     anti_right_timesS    
 ; bs_right_left_absorptive_d      := 
-    bops_lex_left_product_right_left_absorptive_check t 
+    bops_llex_product_right_left_absorptive_check t 
        (bs_right_left_absorptive_d pS)
        (bs_right_left_absorptive_d pT)
        anti_left_timesS
 ; bs_right_right_absorptive_d      := 
-    bops_lex_left_product_right_right_absorptive_check t 
+    bops_llex_product_right_right_absorptive_check t 
        (bs_right_right_absorptive_d pS)
        (bs_right_right_absorptive_d pT)
        anti_right_timesS           
 |}.
 
 
-Definition id_ann_certs_lex_left_product
+Definition id_ann_certs_llex_product
 (dS : @id_ann_certificates S)  (dT : @id_ann_certificates T ) : @id_ann_certificates (S * T) := 
 {|     
   id_ann_exists_plus_id_d       :=
@@ -1944,16 +1939,16 @@ Definition id_ann_certs_lex_left_product
 ; id_ann_exists_times_ann_d     :=
     check_exists_ann_product (id_ann_exists_times_ann_d dS) (id_ann_exists_times_ann_d dT)
 ; id_ann_plus_id_is_times_ann_d :=  
-    bops_lex_left_product_plus_id_is_times_ann_check (id_ann_plus_id_is_times_ann_d dS) (id_ann_plus_id_is_times_ann_d dT)
+    bops_llex_product_plus_id_is_times_ann_check (id_ann_plus_id_is_times_ann_d dS) (id_ann_plus_id_is_times_ann_d dT)
 ; id_ann_times_id_is_plus_ann_d :=
-   bops_lex_left_product_times_id_equals_plus_ann_check (id_ann_times_id_is_plus_ann_d dS) (id_ann_times_id_is_plus_ann_d dT)
+   bops_llex_product_times_id_equals_plus_ann_check (id_ann_times_id_is_plus_ann_d dS) (id_ann_times_id_is_plus_ann_d dT)
 |}.
 
 
 End Certs. 
 
 
-Definition bs_lex_left_product : ∀ {S T : Type},  @bs_CS S -> @bs T -> @bs (S * T)
+Definition bs_llex_product : ∀ {S T : Type},  @bs_CS S -> @bs T -> @bs (S * T)
 := λ {S T} bsS bsT, 
 {| 
      bs_eqv        := eqv_product  
@@ -1977,8 +1972,8 @@ Definition bs_lex_left_product : ∀ {S T : Type},  @bs_CS S -> @bs T -> @bs (S 
                            (eqv_witness (bs_eqv bsT)) 
                            (bs_CS_times_certs bsS)
                            (bs_times_certs bsT)
-   ; bs_id_ann_certs := id_ann_certs_lex_left_product S T (bs_CS_id_ann_certs bsS) (bs_id_ann_certs bsT)
-   ; bs_certs    := bs_certs_lex_left_product S T
+   ; bs_id_ann_certs := id_ann_certs_llex_product S T (bs_CS_id_ann_certs bsS) (bs_id_ann_certs bsT)
+   ; bs_certs    := bs_certs_llex_product S T
                            (eqv_eq (bs_CS_eqv bsS)) 
                            (eqv_eq (bs_eqv bsT))
                            (eqv_witness (bs_CS_eqv bsS)) 
@@ -1998,7 +1993,7 @@ Definition bs_lex_left_product : ∀ {S T : Type},  @bs_CS S -> @bs T -> @bs (S 
 |}.
 
 
-Definition bs_CS_lex_left_product : ∀ {S T : Type},  bs_CS (S := S) -> bs_CS (S := T) -> bs_CS (S := (S * T)) 
+Definition bs_CS_llex_product : ∀ {S T : Type},  bs_CS (S := S) -> bs_CS (S := T) -> bs_CS (S := (S * T)) 
 := λ {S T} bsS bsT, 
 {| 
      bs_CS_eqv        := eqv_product  
@@ -2021,8 +2016,8 @@ Definition bs_CS_lex_left_product : ∀ {S T : Type},  bs_CS (S := S) -> bs_CS (
                            (eqv_witness (bs_CS_eqv bsT)) 
                            (bs_CS_times_certs bsS)
                            (bs_CS_times_certs bsT)                           
-   ; bs_CS_id_ann_certs := id_ann_certs_lex_left_product S T (bs_CS_id_ann_certs bsS) (bs_CS_id_ann_certs bsT)
-   ; bs_CS_certs    := bs_certs_lex_left_product S T
+   ; bs_CS_id_ann_certs := id_ann_certs_llex_product S T (bs_CS_id_ann_certs bsS) (bs_CS_id_ann_certs bsT)
+   ; bs_CS_certs    := bs_certs_llex_product S T
                            (eqv_eq (bs_CS_eqv bsS)) 
                            (eqv_eq (bs_CS_eqv bsT))
                            (eqv_witness (bs_CS_eqv bsS)) 
@@ -2098,7 +2093,7 @@ Lemma bop_lex_left_product_left_distributive_check_correct :
      (qT_d : bop_left_constant_decidable T rT timesT)
      (pS_d : bop_left_distributive_decidable S rS plusS timesS) 
      (pT_d : bop_left_distributive_decidable T rT plusT timesT), 
-    bops_lex_left_product_left_distributive_check rS rT plusS plusT timesT wS wT
+    bops_llex_product_left_distributive_check rS rT plusS plusT timesT wS wT
        (p2c_left_cancel_check S rS timesS qS_d)
        (p2c_left_constant_check T rT timesT qT_d)                                                                                            
        (p2c_left_distributive S rS plusS timesS pS_d)
@@ -2108,7 +2103,7 @@ Lemma bop_lex_left_product_left_distributive_check_correct :
         (brel_product rS rT)
         (bop_lex_left rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_lex_left_product_left_distributive_decide S T rS rT wS wT plusS timesS plusT timesT refS symS trnS refT symT trnT
+        (bops_llex_product_left_distributive_decide S T rS rT wS wT plusS timesS plusT timesT refS symS trnS refT symT trnT
                                                     cong_timesS sel_plusS comsg_plusS comsg_plusT qS_d qT_d pS_d pT_d).
 Proof. intros [lcS | [[u1 [u2 u3]] [L R]] ]
               [lkS | [[v1 [v2 v3]] P] ]
@@ -2121,7 +2116,7 @@ Lemma bop_lex_left_product_right_distributive_check_correct :
      (qT_d : bop_right_constant_decidable T rT timesT)
      (pS_d : bop_right_distributive_decidable S rS plusS timesS) 
      (pT_d : bop_right_distributive_decidable T rT plusT timesT), 
-    bops_lex_left_product_right_distributive_check rS rT plusS plusT timesT wS wT
+    bops_llex_product_right_distributive_check rS rT plusS plusT timesT wS wT
        (p2c_right_cancel_check S rS timesS qS_d)
        (p2c_right_constant_check T rT timesT qT_d)                                                                                            
        (p2c_right_distributive S rS plusS timesS pS_d)
@@ -2131,7 +2126,7 @@ Lemma bop_lex_left_product_right_distributive_check_correct :
         (brel_product rS rT)
         (bop_lex_left rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_lex_left_product_right_distributive_decide S T rS rT wS wT plusS timesS plusT timesT refS symS trnS refT symT trnT
+        (bops_llex_product_right_distributive_decide S T rS rT wS wT plusS timesS plusT timesT refS symS trnS refT symT trnT
                                                      cong_timesS sel_plusS comsg_plusS comsg_plusT qS_d qT_d pS_d pT_d).
 Proof. intros [lcS | [[u1 [u2 u3]] [L R]] ]
               [lkS | [[v1 [v2 v3]] P] ]
@@ -2149,9 +2144,9 @@ Lemma bop_lex_left_product_plus_id_is_times_ann_check_correct :
       (brel_product rS rT)
       (bop_lex_left rS plusS plusT)
       (bop_product timesS timesT)
-      (bops_lex_left_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS trnS refT comsg_plusS pS_d pT_d)
+      (bops_llex_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT refS symS trnS refT comsg_plusS pS_d pT_d)
    = 
-   bops_lex_left_product_plus_id_is_times_ann_check 
+   bops_llex_product_plus_id_is_times_ann_check 
       (p2c_plus_id_equals_times_ann S rS plusS timesS pS_d)
       (p2c_plus_id_equals_times_ann T rT plusT timesT pT_d). 
 Proof. intros [ [a [LS RS]] | neqS] [ [b [LT RT]] | neqT]; compute; reflexivity. Qed.
@@ -2172,7 +2167,7 @@ Lemma bop_lex_left_product_times_id_equals_plus_ann_check_correct :
       (bops_product_llex_id_equals_ann_decide S T rS rT plusS timesS plusT
                                               timesT refS symS trnS refT comsg_plusS idem_plusS pS_d pT_d)
    = 
-   bops_lex_left_product_times_id_equals_plus_ann_check 
+   bops_llex_product_times_id_equals_plus_ann_check 
       (p2c_times_id_equals_plus_ann S rS plusS timesS pS_d) 
       (p2c_times_id_equals_plus_ann T rT plusT timesT pT_d).
 Proof. intros idem_plusS [ [a [LS RS]] | neqS] [ [b [LT RT]] | neqT]; compute; reflexivity. Qed.
@@ -2182,7 +2177,7 @@ Lemma bop_lex_left_product_left_left_absorbtive_check_correct :
   ∀ (alS : bop_anti_left_decidable S rS timesS)
      (pS_d : bops_left_left_absorptive_decidable S rS plusS timesS) 
      (pT_d : bops_left_left_absorptive_decidable T rT plusT timesT), 
-   bops_lex_left_product_left_left_absorptive_check wT 
+   bops_llex_product_left_left_absorptive_check wT 
        (p2c_left_left_absorptive S rS plusS timesS pS_d)
        (p2c_left_left_absorptive T rT plusT timesT pT_d)
        (p2c_anti_left_check S rS timesS alS) 
@@ -2191,7 +2186,7 @@ Lemma bop_lex_left_product_left_left_absorbtive_check_correct :
         (brel_product rS rT)
         (bop_lex_left rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_lex_left_product_left_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT refT pS_d pT_d alS).
+        (bops_llex_product_left_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT refT pS_d pT_d alS).
 Proof. intros [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; simpl; auto. Qed. 
 
 
@@ -2199,7 +2194,7 @@ Lemma bop_lex_left_product_right_left_absorbtive_check_correct :
   ∀ (alS : bop_anti_left_decidable S rS timesS)
      (pS_d : bops_right_left_absorptive_decidable S rS plusS timesS) 
      (pT_d : bops_right_left_absorptive_decidable T rT plusT timesT), 
-   bops_lex_left_product_right_left_absorptive_check wT 
+   bops_llex_product_right_left_absorptive_check wT 
        (p2c_right_left_absorptive S rS plusS timesS pS_d)
        (p2c_right_left_absorptive T rT plusT timesT pT_d)
        (p2c_anti_left_check S rS timesS alS) 
@@ -2208,7 +2203,7 @@ Lemma bop_lex_left_product_right_left_absorbtive_check_correct :
         (brel_product rS rT)
         (bop_lex_left rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_lex_left_product_right_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT symS trnS refT pS_d pT_d alS).
+        (bops_llex_product_right_left_absorptive_decide S T rS rT wT plusS timesS plusT timesT symS trnS refT pS_d pT_d alS).
 Proof. intros [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; simpl; auto. Qed. 
 
 
@@ -2216,7 +2211,7 @@ Lemma bop_lex_left_product_left_right_absorbtive_check_correct :
   ∀ (alS : bop_anti_right_decidable S rS timesS)
      (pS_d : bops_left_right_absorptive_decidable S rS plusS timesS) 
      (pT_d : bops_left_right_absorptive_decidable T rT plusT timesT), 
-   bops_lex_left_product_left_right_absorptive_check wT 
+   bops_llex_product_left_right_absorptive_check wT 
        (p2c_left_right_absorptive S rS plusS timesS pS_d)
        (p2c_left_right_absorptive T rT plusT timesT pT_d)
        (p2c_anti_right_check S rS timesS alS)        
@@ -2225,7 +2220,7 @@ Lemma bop_lex_left_product_left_right_absorbtive_check_correct :
         (brel_product rS rT)
         (bop_lex_left rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_lex_left_product_left_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT refT pS_d pT_d alS).
+        (bops_llex_product_left_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT refT pS_d pT_d alS).
 Proof. intros [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. Qed.
 
 
@@ -2233,7 +2228,7 @@ Lemma bop_lex_left_product_right_right_absorbtive_check_correct :
   ∀ (alS : bop_anti_right_decidable S rS timesS)
      (pS_d : bops_right_right_absorptive_decidable S rS plusS timesS) 
      (pT_d : bops_right_right_absorptive_decidable T rT plusT timesT), 
-   bops_lex_left_product_right_right_absorptive_check wT 
+   bops_llex_product_right_right_absorptive_check wT 
        (p2c_right_right_absorptive S rS plusS timesS pS_d)
        (p2c_right_right_absorptive T rT plusT timesT pT_d)
        (p2c_anti_right_check S rS timesS alS)        
@@ -2242,7 +2237,7 @@ Lemma bop_lex_left_product_right_right_absorbtive_check_correct :
         (brel_product rS rT)
         (bop_lex_left rS plusS plusT)
         (bop_product timesS timesT)
-        (bops_lex_left_product_right_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT symS trnS refT pS_d pT_d alS).
+        (bops_llex_product_right_right_absorptive_decide S T rS rT wT plusS timesS plusT timesT symS trnS refT pS_d pT_d alS).
 Proof. intros [al | [[u1 u2] nal]] [ ldS | [ [s1 s2] nldS]] [ ldT | [ [t1 t2] nldT]]; compute; reflexivity. Qed.
 
 End ChecksCorrect.
@@ -2271,10 +2266,10 @@ Variable left_constant_timesT  : bop_left_constant_decidable T rT timesT.
 Variable right_constant_timesT : bop_right_constant_decidable T rT timesT.        
 
 
-Lemma  correct_bs_certs_lex_left_product : 
+Lemma  correct_bs_certs_llex_product : 
   ∀ (bsS : bs_proofs S rS plusS timesS)
      (bsT : bs_proofs T rT plusT timesT),
-    bs_certs_lex_left_product S T rS rT wS wT plusS plusT timesT
+    bs_certs_llex_product S T rS rT wS wT plusS plusT timesT
                           (p2c_left_cancel_check _ _ _ left_cancel_timesS)
                           (p2c_right_cancel_check _ _ _ right_cancel_timesS)
                           (p2c_anti_left_check _ _ _ anti_left_timesS)
@@ -2287,11 +2282,11 @@ Lemma  correct_bs_certs_lex_left_product :
  P2C_bs (S * T) (brel_product rS rT)
                  (bop_lex_left rS plusS plusT)
                  (bop_product timesS timesT)
-                 (bs_proofs_lex_left_product S T eqvS eqvT plusS timesS plusT timesT comS selS comT c_timesS
+                 (bs_proofs_llex_product S T eqvS eqvT plusS timesS plusT timesT comS selS comT c_timesS
                                          left_cancel_timesS right_cancel_timesS anti_left_timesS
                                          anti_right_timesS left_constant_timesT right_constant_timesT bsS bsT). 
 Proof. intros.
-       unfold bs_certs_lex_left_product, bs_proofs_lex_left_product, P2C_bs; simpl.
+       unfold bs_certs_llex_product, bs_proofs_llex_product, P2C_bs; simpl.
 (*       
        rewrite bop_lex_left_product_plus_id_is_times_ann_check_correct.        
        rewrite bop_lex_left_product_times_id_equals_plus_ann_check_correct.                     
@@ -2309,17 +2304,17 @@ Proof. intros.
 Qed.   
 
 
-Lemma  correct_id_ann_certs_lex_left_product : 
+Lemma  correct_id_ann_certs_llex_product : 
   ∀ (bsS : id_ann_proofs S rS plusS timesS)
      (bsT : id_ann_proofs T rT plusT timesT),
-  id_ann_certs_lex_left_product S T (P2C_id_ann S rS plusS timesS bsS) (P2C_id_ann T rT plusT timesT bsT)
+  id_ann_certs_llex_product S T (P2C_id_ann S rS plusS timesS bsS) (P2C_id_ann T rT plusT timesT bsT)
   = 
   P2C_id_ann (S * T) (brel_product rS rT)
                      (bop_lex_left rS plusS plusT) 
                      (bop_product timesS timesT) 
                      (id_ann_proofs_llex S T eqvS eqvT plusS timesS plusT timesT comS selS bsS bsT). 
 Proof. intros.
-       unfold id_ann_certs_lex_left_product, id_ann_proofs_llex, P2C_id_ann; simpl.
+       unfold id_ann_certs_llex_product, id_ann_proofs_llex, P2C_id_ann; simpl.
        unfold rS, rT, wS, wT.  (* ugly! *) 
        rewrite bop_lex_left_product_plus_id_is_times_ann_check_correct.        
        rewrite bop_lex_left_product_times_id_equals_plus_ann_check_correct.
@@ -2332,37 +2327,36 @@ Qed.
 End CertsCorrect. 
 
 
-Theorem correct_bs_lex_left_product : ∀ (S T : Type) (bsS: A_bs_CS S) (bsT : A_bs T), 
-   bs_lex_left_product (A2C_bs_CS S bsS) (A2C_bs T bsT)
+Theorem correct_bs_llex_product : ∀ (S T : Type) (bsS: A_bs_CS S) (bsT : A_bs T), 
+   bs_llex_product (A2C_bs_CS S bsS) (A2C_bs T bsT)
    =
-   A2C_bs (S * T) (A_bs_lex_left_product S T bsS bsT). 
+   A2C_bs (S * T) (A_bs_llex_product S T bsS bsT). 
 Proof. intros S T bsS bsT. 
-       unfold bs_lex_left_product, A_bs_lex_left_product, A2C_bs, A2C_bs_CS; simpl. 
+       unfold bs_llex_product, A_bs_llex_product, A2C_bs, A2C_bs_CS; simpl. 
        rewrite correct_eqv_product.
        rewrite <- correct_asg_certs_llex.
        rewrite <- correct_msg_certs_product.        
-       rewrite <- correct_bs_certs_lex_left_product.
-       rewrite <- correct_id_ann_certs_lex_left_product. 
+       rewrite <- correct_bs_certs_llex_product.
+       rewrite <- correct_id_ann_certs_llex_product. 
        reflexivity. 
 Qed. 
 
 
 
-Theorem correct_bs_CS_lex_left_product : ∀ (S T : Type) (bsS: A_bs_CS S) (bsT : A_bs_CS T), 
-   bs_CS_lex_left_product (A2C_bs_CS S bsS) (A2C_bs_CS T bsT)
+Theorem correct_bs_CS_llex_product : ∀ (S T : Type) (bsS: A_bs_CS S) (bsT : A_bs_CS T), 
+   bs_CS_llex_product (A2C_bs_CS S bsS) (A2C_bs_CS T bsT)
    =
-   A2C_bs_CS (S * T) (A_bs_CS_lex_left_product S T bsS bsT). 
+   A2C_bs_CS (S * T) (A_bs_CS_llex_product S T bsS bsT). 
 Proof. intros S T bsS bsT. 
-       unfold bs_CS_lex_left_product, A_bs_CS_lex_left_product, A2C_bs_CS; simpl. 
+       unfold bs_CS_llex_product, A_bs_CS_llex_product, A2C_bs_CS; simpl. 
        rewrite correct_eqv_product.
        rewrite <- correct_sg_CS_certs_llex.        
        rewrite <- correct_msg_certs_product.
-       rewrite <- correct_id_ann_certs_lex_left_product.               
-       rewrite <- correct_bs_certs_lex_left_product.
+       rewrite <- correct_id_ann_certs_llex_product.               
+       rewrite <- correct_bs_certs_llex_product.
        reflexivity.
 Qed. 
 
 End Verify.   
 
-
-*) 
+*)

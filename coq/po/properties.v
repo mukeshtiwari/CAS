@@ -1,5 +1,6 @@
 Require Import CAS.coq.common.compute.
-Require Import CAS.coq.theory.order. (* for def of equiv_or_incomp needed in is_antichain *) 
+
+Require Import CAS.coq.theory.set.
 
 (* Note that some of the order-related properties are
   in brel_properties (such as reflexivity, transitivity)
@@ -9,13 +10,6 @@ Require Import CAS.coq.theory.order. (* for def of equiv_or_incomp needed in is_
 Section ACAS.
 
 Close Scope nat.
-
-Definition is_antichain (S : Type) (eq lte : brel S) (X : finite_set S) :=
-∀ (s : S), in_set eq X s = true  -> ∀ (t : S), in_set eq X t = true -> equiv_or_incomp lte t s = true. 
-
-
-
-
   
 Definition brel_antisymmetric (S : Type) (r1 : brel S) (r2 : brel S) := 
     ∀ s t : S, (r2 s t = true) → (r2 t s = true) → (r1 s t = true). 
@@ -155,89 +149,7 @@ Definition brel_not_exists_bottom (S : Type) (lte : brel S)
 Definition brel_exists_bottom_decidable  (S : Type) (lte : brel S) := 
     (brel_exists_bottom S lte) + (brel_not_exists_bottom S lte). 
 
-
-(*
-{B : finite_set T & (is_antichain T eq lte B) * 
-                    (∀(t : T), (in_set eq B t = true) + {s : S & (in_set eq B s = true) * (below lte t s = true)})}
-*) 
-
-
-Definition bottoms_set_is_finite (T : Type) (eq lte : brel T) 
-  := {p : (list T) * (T -> T) &
-          match p with (B, w) =>
-                       (is_antichain T eq lte B) * 
-                       (∀(s : T), (in_set eq B s = true) + ((in_set eq B (w s) = true) * (below lte s (w s) = true)))
-          end}.
-
-
-Definition bottoms_set_is_finite2 (T : Type) (eq lte : brel T) 
-  := {p : (list T) * (T -> T) &
-          match p with (B, w) =>
-                       (is_antichain T eq lte B) * 
-                       (∀(s : T), (in_set eq B (w s) = true) * (below lte s (w s) = true))
-          end}.
-(*
-
-negate 
-
-{B : finite_set T & (is_antichain T eq lte B) * 
-                    (∀(t : T), (in_set eq B t = true) + {s : S & (in_set eq B s = true) * (below lte t s = true)})}
-
-to 
-∀ B : finite_set T,  (is_antichain T eq lte B)  -> 
-                     {t : T & (in_set eq B t = false) * (∀ s : S, (in_set eq B s = true) -> (below lte t s = false))}
-
-now, functionalise this 
-
-
-{F : (finite_set T) -> T & 
-     ∀ B : finite_set T, (is_antichain T eq lte B) -> (in_set eq B (F B) = false) * 
-                                                      (∀ s : S, (in_set eq B s = true) -> (below lte (F B) s = false))}
- *)
-
-Definition bottoms_set_not_is_finite2 (T : Type) (eq lte : brel T) 
-  := {F : (list T) -> T & 
-                      ∀ B : finite_set T, (is_antichain T eq lte B) ->
-                                          (∀ s : T, (in_set eq B s = true) -> (below lte (F B) s = false))}. 
-
-
-Definition bottoms_set_not_is_finite (T : Type) (eq lte : brel T) 
-  := {F : (list T) -> T &
-                      ∀ B : finite_set T, (is_antichain T eq lte B) ->
-                                          (in_set eq B (F B) = false) * 
-                                          (∀ s : T, (in_set eq B s = true) -> (below lte (F B) s = false))}. 
-     
-
-(* because the definitions have changed too often .... *) 
-Lemma another_bottoms_sanity_check (S : Type) (rS lteS : brel S)
-      (bf : bottoms_set_is_finite S rS lteS) (bnf : bottoms_set_not_is_finite S rS lteS) : true = false.
-Proof. destruct bf as [[BOTTOMS w] [A B]].
-       destruct bnf as [F C].
-       destruct (C BOTTOMS A) as [D E].
-       destruct (B (F BOTTOMS)) as [G | G].
-          rewrite G in D. discriminate D.
-          destruct G as [G1 G2]. 
-          assert (H := E _ G1).
-          rewrite H in G2. discriminate G2. 
-Qed.   
-
-
-Lemma another_bottoms_sanity_check2 (S : Type) (rS lteS : brel S)
-      (bf : bottoms_set_is_finite2 S rS lteS) (bnf : bottoms_set_not_is_finite2 S rS lteS) : true = false.
-Proof. destruct bf as [[BOTTOMS w] [A B]].
-       destruct bnf as [F C].
-       assert (E := C BOTTOMS A).
-       destruct (B (F BOTTOMS)) as [G1 G2].
-          assert (H := E _ G1).
-          rewrite H in G2. discriminate G2. 
-Qed.   
-
-
-(***************************************************)
-
-
-
-
+(*********************************************) 
 
 
 Definition brel_strict (S : Type) (r : brel S) (lt : brel S) := 

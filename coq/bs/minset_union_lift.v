@@ -1,33 +1,39 @@
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
+Require Import CAS.coq.theory.set. 
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
-Require Import CAS.coq.po.properties.
-Require Import CAS.coq.po.structures.
-Require Import CAS.coq.sg.properties.
-Require Import CAS.coq.sg.structures.
-Require Import CAS.coq.bs.properties.
-Require Import CAS.coq.bs.structures.
-Require Import CAS.coq.os.properties.
-Require Import CAS.coq.os.structures.
-
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.order. (* for below, equiv, ... *)
-
+Require Import CAS.coq.eqv.theory. 
 Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.eqv.minset.
+
+Require Import CAS.coq.po.properties.
+Require Import CAS.coq.po.structures.
+Require Import CAS.coq.po.theory.
+
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.minset_union.
 Require Import CAS.coq.sg.lift.
 Require Import CAS.coq.sg.minset_lift.
 
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures.
+
+Require Import CAS.coq.os.properties.
+Require Import CAS.coq.os.structures.
+
+
+
 
 Lemma os_left_strictly_monotone_implies_left_monotone (S : Type) (lte : brel S) (b : binary_op S):
   brel_reflexive S lte -> 
-  os_left_strictly_monotone S lte b ->
+  os_left_strictly_monotone lte b ->
   bop_congruence S (equiv lte) b ->
-     os_left_monotone S lte b. 
+     os_left_monotone lte b. 
 Proof. intros refl LSM Cong s t u A.
        assert (lteRefl := equiv_reflexive S lte refl). 
        case_eq(lte u t); intro B.
@@ -40,9 +46,9 @@ Qed.
 
 Lemma os_right_strictly_monotone_implies_right_monotone (S : Type) (lte : brel S) (b : binary_op S):
   brel_reflexive S lte -> 
-  os_right_strictly_monotone S lte b ->
+  os_right_strictly_monotone lte b ->
   bop_congruence S (equiv lte) b ->
-     os_right_monotone S lte b. 
+     os_right_monotone lte b. 
 Proof. intros refl RSM Cong s t u A.
        assert (lteRefl := equiv_reflexive S lte refl). 
        case_eq(lte u t); intro B.
@@ -208,7 +214,7 @@ Qed.
 
 
 Lemma minset_union_lift_left_distributive_weak_TEST (anti: brel_antisymmetric S rS lteS)
-  (NLM : os_not_left_monotone S lteS bS) :
+  (NLM : os_not_left_monotone lteS bS) :
      bop_not_left_distributive (finite_set S) (brel_set rS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
 Proof. unfold os_not_left_monotone in NLM.
        destruct NLM as [[a [b c]] [A B]].
@@ -254,9 +260,9 @@ Admitted.
 
               
 Lemma minset_union_lift_left_distributive_weak
-  (LM : os_left_monotone S lteS bS)
-  (RM : os_right_monotone S lteS bS)       
-  (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) : 
+  (LM : os_left_monotone lteS bS)
+  (RM : os_right_monotone lteS bS)       
+  (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))) : 
      bop_left_distributive (finite_set S) (brel_set rS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
 Proof. intros X Y Z.
        assert (A : (X <^> (Y <U> Z)) [=S] ([ms] (([ms] X) [^] ([ms] ([ms] (([ms] Y) [U] ([ms] Z))))))).
@@ -292,17 +298,17 @@ Qed.
 
 
 Lemma minset_union_lift_left_distributive
-  (LM : os_left_monotone S lteS bS)
-  (RM : os_right_monotone S lteS bS)             
-  (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) :       
+  (LM : os_left_monotone lteS bS)
+  (RM : os_right_monotone lteS bS)             
+  (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))) :       
      bop_left_distributive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
 Proof. intros X Y Z. apply set_equal_implies_minset_equal. apply minset_union_lift_left_distributive_weak; auto. Qed. 
        
 
 Lemma minset_union_lift_right_distributive_weak
-  (LM : os_left_monotone S lteS bS)      
-  (RM : os_right_monotone S lteS bS)
-  (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) :       
+  (LM : os_left_monotone lteS bS)      
+  (RM : os_right_monotone lteS bS)
+  (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))) :       
      bop_right_distributive (finite_set S) (brel_set rS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
 Proof. intros X Y Z. unfold bop_minset_lift. unfold bop_minset_union.
        assert (A : ((Y <U> Z) <^> X ) [=S] ([ms] (([ms] ([ms] (([ms] Y) [U] ([ms] Z)))) [^] ([ms] X)))). 
@@ -344,9 +350,9 @@ Qed.
 
 
 Lemma minset_union_lift_right_distributive
-  (LM : os_left_monotone S lteS bS)            
-  (RM : os_right_monotone S lteS bS)      
-  (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone S lteS bS) * (os_right_strictly_monotone S lteS bS))) :   
+  (LM : os_left_monotone lteS bS)            
+  (RM : os_right_monotone lteS bS)      
+  (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))) :   
      bop_right_distributive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
 Proof. intros X Y Z. apply set_equal_implies_minset_equal. apply minset_union_lift_right_distributive_weak; auto. Qed. 
        
@@ -361,7 +367,7 @@ Definition os_left_increasing (S : Type) (lte : brel S) (b : binary_op S)
 
 
 Lemma lift_left_increasing 
-      (inc : os_left_increasing S lteS bS) 
+      (inc : os_left_increasing lteS bS) 
       (X Y : finite_set S):    
   (∀ (t : S), t [in] (X [^] Y) -> {x : S & (x [in] X) * (lteS x t = true)}).
 Proof. intros t A.   unfold os_left_increasing in inc. 
@@ -373,7 +379,7 @@ Qed.
 
 
 Lemma lift_right_increasing 
-      (inc : os_right_increasing S lteS bS) 
+      (inc : os_right_increasing lteS bS) 
       (X Y : finite_set S):    
   (∀ (t : S), t [in] (Y [^] X) -> {x : S & (x [in] X) * (lteS x t = true)}).
 Proof. intros t A.   
@@ -433,14 +439,14 @@ Qed.
 
 Lemma minset_union_lift_left_left_absorptive_increasing_weak
       (anti: brel_antisymmetric S rS lteS)
-      (inc : os_left_increasing S lteS bS)       
+      (inc : os_left_increasing lteS bS)       
       (X Y : finite_set S):    
       ([ms] X) [=S] ([ms] (X [U] (X [^] Y))).
 Proof.  apply  union_left_antisymmetric; auto. apply lift_left_increasing; auto. Qed. 
 
 Lemma minset_union_lift_left_right_absorptive_increasing_weak
       (anti: brel_antisymmetric S rS lteS)
-      (inc : os_right_increasing S lteS bS)       
+      (inc : os_right_increasing lteS bS)       
       (X Y : finite_set S):    
       ([ms] X) [=S] ([ms] (X [U] (Y [^] X))).
 Proof.  apply  union_left_antisymmetric; auto. apply lift_right_increasing; auto. Qed. 
@@ -448,7 +454,7 @@ Proof.  apply  union_left_antisymmetric; auto. apply lift_right_increasing; auto
 (* STRICT VERSIONS *)
 
 Lemma lift_left_strictly_increasing 
-      (sinc : os_left_strictly_increasing S lteS bS) 
+      (sinc : os_left_strictly_increasing lteS bS) 
       (X Y : finite_set S):    
   (∀ (t : S), t [in] (X [^] Y) -> {x : S & (x [in] X) * (below lteS t x = true)}).
 Proof. intros t A.   unfold os_left_strictly_increasing in sinc. 
@@ -460,7 +466,7 @@ Proof. intros t A.   unfold os_left_strictly_increasing in sinc.
 Qed.        
 
 Lemma lift_right_strictly_increasing 
-      (sinc : os_right_strictly_increasing S lteS bS) 
+      (sinc : os_right_strictly_increasing lteS bS) 
       (X Y : finite_set S):    
   (∀ (t : S), t [in] (Y [^] X) -> {x : S & (x [in] X) * (below lteS t x = true)}).
 Proof. intros t A.   
@@ -515,13 +521,13 @@ Qed.
 
 
 Lemma minset_union_lift_left_left_absorptive_strictly_increasing_weak
-      (sinc : os_left_strictly_increasing S lteS bS)       
+      (sinc : os_left_strictly_increasing lteS bS)       
       (X Y : finite_set S):    
         ([ms] X) [=S] ([ms] (X [U] (X [^] Y))).
 Proof.  apply  union_left_without_antisymmetry; auto. apply lift_left_strictly_increasing; auto. Qed.       
 
 Lemma minset_union_lift_left_right_absorptive_strictly_increasing_weak
-      (sinc : os_right_strictly_increasing S lteS bS)       
+      (sinc : os_right_strictly_increasing lteS bS)       
       (X Y : finite_set S):    
       ([ms] X) [=S] ([ms] (X [U] (Y [^] X))).
 Proof.  apply  union_left_without_antisymmetry; auto. apply lift_right_strictly_increasing; auto. Qed. 
@@ -531,7 +537,7 @@ Proof.  apply  union_left_without_antisymmetry; auto. apply lift_right_strictly_
 (*   X [=MS] (X <U> (X <^> Y))  *) 
 Lemma minset_union_lift_left_left_absorptive_increasing
       (anti: brel_antisymmetric S rS lteS)
-      (inc : os_left_increasing S lteS bS) :
+      (inc : os_left_increasing lteS bS) :
   bops_left_left_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS).
 Proof. intros X Y.
        unfold brel_minset. unfold bop_minset_union. unfold bop_minset_lift. 
@@ -556,7 +562,7 @@ Qed.
 (*  X [=MS] (X <U> (Y <^> X))  *) 
 Lemma minset_union_lift_left_right_absorptive_increasing 
   (anti: brel_antisymmetric S rS lteS)
-  (inc : os_right_increasing S lteS bS) :
+  (inc : os_right_increasing lteS bS) :
      bops_left_right_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS).
 Proof. intros X Y.     
        unfold brel_minset. unfold bop_minset_union. unfold bop_minset_lift. 
@@ -582,7 +588,7 @@ Qed.
 
 (*   X [=MS] (X <U> (X <^> Y))  *) 
 Lemma minset_union_lift_left_left_absorptive_strictly_increasing
-      (sinc : os_left_strictly_increasing S lteS bS) :
+      (sinc : os_left_strictly_increasing lteS bS) :
   bops_left_left_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS).
 Proof. intros X Y.
        unfold brel_minset. unfold bop_minset_union. unfold bop_minset_lift. 
@@ -606,7 +612,7 @@ Qed.
 
 (*  X [=MS] (X <U> (Y <^> X))  *) 
 Lemma minset_union_lift_left_right_absorptive_strictly_increasing 
-  (sinc : os_right_strictly_increasing S lteS bS) :
+  (sinc : os_right_strictly_increasing lteS bS) :
      bops_left_right_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS).
 Proof. intros X Y.     
        unfold brel_minset. unfold bop_minset_union. unfold bop_minset_lift. 
@@ -639,10 +645,10 @@ Proof. exists nil. split.
 Qed.
 
 Lemma minset_union_lift_times_id_equals_plus_ann_with_antisymmetry
-   (LM : os_left_monotone S lteS bS)
-   (RM : os_right_monotone S lteS bS)       
+   (LM : os_left_monotone lteS bS)
+   (RM : os_right_monotone lteS bS)       
    (anti : brel_antisymmetric S rS lteS) : 
-   os_bottom_equals_id S rS lteS bS -> 
+   os_bottom_equals_id rS lteS bS -> 
        bops_id_equals_ann (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS bS) (bop_minset_union S rS lteS). 
 Proof. intros [b [A B]]. exists (b :: nil). split.
        apply bop_minset_lift_id_is_bottom; auto. (*uses anti, LM and RM *)
@@ -652,10 +658,10 @@ Qed.
 
 
 Lemma minset_union_lift_times_id_equals_plus_ann_without_antisymmetry
-   (LM : os_left_monotone S lteS bS)
-   (RM : os_right_monotone S lteS bS)             
-   (smono : os_left_strictly_monotone S lteS bS * os_right_strictly_monotone S lteS bS): 
-   os_qo_bottom_equals_id S rS lteS bS ->   
+   (LM : os_left_monotone lteS bS)
+   (RM : os_right_monotone lteS bS)             
+   (smono : os_left_strictly_monotone lteS bS * os_right_strictly_monotone lteS bS): 
+   os_qo_bottom_equals_id rS lteS bS ->   
        bops_id_equals_ann (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS bS) (bop_minset_union S rS lteS). 
 Proof. intros [b [[A B] C]]. exists (b :: nil). split. 
        apply bop_minset_lift_id_is_bottom; auto. (* uses smono , LM and RM *)
@@ -664,12 +670,12 @@ Qed.
 
 
 Lemma minset_union_lift_times_id_equals_plus_ann_with_monotonicity
-   (LM : os_left_monotone S lteS bS)
-   (RM : os_right_monotone S lteS bS)
-   (EEE : ((brel_antisymmetric S rS lteS) * (os_bottom_equals_id S rS lteS bS)) +
-          ((os_qo_bottom_equals_id S rS lteS bS) * 
-           (os_left_strictly_monotone S lteS bS) *
-           (os_right_strictly_monotone S lteS bS))) :      
+   (LM : os_left_monotone lteS bS)
+   (RM : os_right_monotone lteS bS)
+   (EEE : ((brel_antisymmetric S rS lteS) * (os_bottom_equals_id rS lteS bS)) +
+          ((os_qo_bottom_equals_id rS lteS bS) * 
+           (os_left_strictly_monotone lteS bS) *
+           (os_right_strictly_monotone lteS bS))) :      
        bops_id_equals_ann (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS bS) (bop_minset_union S rS lteS). 
 Proof. destruct EEE as [[anti po_bot] | [[qo_bot LSM] RSM] ].
        apply minset_union_lift_times_id_equals_plus_ann_with_antisymmetry; auto. 
@@ -689,8 +695,8 @@ Definition minset_union_lift_semiring_proofs (S: Type) (eq lte : brel S) (times 
 {|
   A_semiring_left_distributive        := minset_union_lift_left_distributive S eq refs symS trnS lte lteCong lteRefl lteTran times tCong LM (inl anti)
 ; A_semiring_right_distributive       := minset_union_lift_left_distributive S eq refs symS trnS lte lteCong lteRefl lteTran times tCong RM (inl anti)
-; A_semiring_left_left_absorptive_d   := inl (minset_union_lift_left_left_absorptive_increasing S eq refs symS trnS lte lteCong lteRefl lteTran times (inl anti) LINC)
-; A_semiring_left_right_absorptive_d  := inl (minset_union_lift_left_left_absorptive_increasing S eq refs symS trnS lte lteCong lteRefl lteTran times (inl anti) LRNC) 
+; A_semiring_left_left_absorptive_d   := inl (minset_union_lift_left_left_absorptive_increasing eq refs symS trnS lte lteCong lteRefl lteTran times (inl anti) LINC)
+; A_semiring_left_right_absorptive_d  := inl (minset_union_lift_left_left_absorptive_increasing eq refs symS trnS lte lteCong lteRefl lteTran times (inl anti) LRNC) 
 |}.
 
 *) 
@@ -732,8 +738,8 @@ Record A_dioid (S : Type) := {
 I need a strictly structure with (q0, sg) with 
    (bop_congruence S (equiv lteS) bS)
    (os_qo_bottom_equals_id S rS lteS bS) 
-   (os_left_strictly_monotone S lteS bS) 
-   (os_right_strictly_monotone S lteS bS)
+   (os_left_strictly_monotone lteS bS) 
+   (os_right_strictly_monotone lteS bS)
 
 
 

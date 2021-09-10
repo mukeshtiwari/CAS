@@ -2,18 +2,20 @@ Require Import Coq.Bool.Bool.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory. 
+Require Import CAS.coq.eqv.add_constant.
+
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.add_id.
+Require Import CAS.coq.sg.add_ann.
+
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
-
-
-Require Import CAS.coq.eqv.add_constant.
-Require Import CAS.coq.sg.add_id.
-Require Import CAS.coq.sg.add_ann. 
-Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.bs.theory. 
 Require Import CAS.coq.bs.add_id_add_ann. (* for bops_add_id_add_ann_id_equals_ann *) 
 
 Section Theory.

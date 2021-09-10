@@ -2,15 +2,20 @@ Require Import Coq.Bool.Bool.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
+Require Import CAS.coq.theory.set. 
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
+Require Import CAS.coq.eqv.product. (* some properties proved here *) 
+Require Import CAS.coq.eqv.minset.  (* for bottoms *) 
+
+Require Import CAS.coq.sg.and. 
+
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
-
-
-Require Import CAS.coq.eqv.product. (* some properties proved here *) 
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set. 
+Require Import CAS.coq.po.theory.
 
 Section Theory.
 
@@ -94,13 +99,11 @@ Lemma ord_product_antisymmetric :
   (brel_antisymmetric S eqS lteS) → (brel_antisymmetric T eqT lteT)
   → brel_antisymmetric (S * T) (eqS <*> eqT) (lteS <*> lteT). 
 Proof. intros AS AT [s1 t1] [s2 t2]; simpl. 
-     intros A B.
-     apply andb_is_true_right. 
-     apply andb_is_true_left in A. destruct A as [A1 A2].
-     apply andb_is_true_left in B. destruct B as [B1 B2].
-     rewrite (AS _ _ A1 B1). rewrite (AT _ _ A2 B2); auto.  
+       intros A B.
+       apply bop_and_elim in A. destruct A as [A1 A2].
+       apply bop_and_elim in B. destruct B as [B1 B2].
+       apply bop_and_intro; auto. 
 Qed. 
-
 
 Lemma ord_product_not_antisymmetric_left : brel_not_antisymmetric S eqS lteS → 
          brel_not_antisymmetric (S * T) (eqS <*> eqT) (lteS <*> lteT). 
@@ -289,8 +292,397 @@ Proof. unfold brel_not_total. exists ((s1, t1), (s2, t2)).
              case_eq(lteT t2 t1); intro C; auto.
                 admit. (* not(not(s1 <= s2), s2 <= s1, t2 <= t1)  *)
 Admitted. 
-*) 
+ *)
 
+
+
+(* bottoms *)
+Section Bottoms.
+
+(* interesting that these not needed until now *)   
+Variable symS : brel_symmetric S eqS.
+Variable refT : brel_reflexive T eqT.
+Variable symT : brel_symmetric T eqT. 
+
+Definition bop_product_w (BS : list S) (BT : list T) (fS : S ->S) (fT : T -> T) (p : S * T) :=
+  match p with (s, t) =>
+               if in_set eqS BS s 
+               then if in_set eqT BT t 
+                    then (s, t)
+                    else (s, fT t)
+               else if in_set eqT BT t 
+                    then (fS s, t)
+                    else (fS s, fT t)
+  end.  
+
+Definition map_mk_pairs: S -> finite_set T -> finite_set (S * T) :=
+   fix f a Y := 
+      match Y with
+         | nil => nil 
+         | b :: rest => (a, b) :: (f a rest)
+      end.
+
+Definition set_product : finite_set S -> finite_set T -> finite_set (S * T) :=
+   fix f x y := 
+      match x with
+         | nil => nil 
+         | a :: rest => (map_mk_pairs a y) ++ (f rest y) 
+      end.
+
+
+Lemma in_set_map_mk_pairs_elim (a s : S) (t : T) (BT : list T): 
+      in_set (eqS <*> eqT) (map_mk_pairs a BT) (s, t) = true -> (eqS a s = true) * (in_set eqT BT t = true). 
+Proof. induction BT; intro H. 
+          compute in H. discriminate H. 
+          unfold map_mk_pairs in H. fold map_mk_pairs in H. 
+          apply in_set_cons_elim in H; auto. 
+          destruct H as [H | H]. 
+             compute in H. 
+             case_eq(eqS a s); intro G. 
+                 rewrite G in H. split; auto. 
+                 apply in_set_cons_intro; auto. 
+                 rewrite G in H. discriminate H. 
+
+             destruct (IHBT H) as [J K]. 
+             split; auto. 
+                apply in_set_cons_intro; auto. 
+          apply brel_product_symmetric; auto. 
+Qed.
+
+Lemma in_set_product_elim (s : S) (t : T) (BS : list S) (BT : list T) :
+  in_set (eqS <*> eqT) (set_product BS BT) (s, t) = true -> (in_set eqS BS s = true) * (in_set eqT BT t = true).
+Proof. induction BS; intro H. 
+       compute in H. discriminate H.
+       unfold set_product in H. fold set_product in H.
+       apply in_set_concat_elim in H; auto. 
+       destruct H as [H | H]. 
+          apply in_set_map_mk_pairs_elim in H; auto. destruct H as [H1 H2].
+          split; auto. 
+             apply in_set_cons_intro; auto. 
+       
+          destruct (IHBS H) as [J K].        
+          split; auto. 
+             apply in_set_cons_intro; auto. 
+             apply brel_product_symmetric; auto. 
+Qed.
+
+
+Lemma in_set_map_mk_pairs_intro (a s : S) (t : T) (BT : list T): 
+    (eqS a s = true) -> (in_set eqT BT t = true) -> in_set (eqS <*> eqT) (map_mk_pairs a BT) (s, t) = true.
+Proof. induction BT; intros H1 H2.
+       compute in H2. discriminate H2. 
+
+       unfold map_mk_pairs. fold map_mk_pairs. 
+       apply in_set_cons_intro; auto. 
+       apply brel_product_symmetric; auto. 
+       apply in_set_cons_elim in H2; auto. 
+       destruct H2 as [H2 | H2]. 
+          left. compute. rewrite H1, H2. reflexivity. 
+          right. apply IHBT; auto. 
+Qed. 
+
+Lemma in_set_product_intro (s : S) (t : T) (BS : list S) (BT : list T) :
+ (in_set eqS BS s = true) -> (in_set eqT BT t = true) -> in_set (eqS <*> eqT) (set_product BS BT) (s, t) = true. 
+Proof. intros A B. induction BS. 
+          compute in A. discriminate A. 
+
+          unfold set_product. fold set_product. 
+          apply in_set_concat_intro; auto. 
+          apply in_set_cons_elim in A; auto.           
+          destruct A as [A | A]. 
+             left. apply in_set_map_mk_pairs_intro; auto. 
+             right. exact (IHBS A). 
+Qed. 
+
+Lemma set_product_is_antichain (BS : list S) (BT : list T) :
+  is_antichain S eqS lteS BS -> is_antichain T eqT lteT BT -> 
+  is_antichain (S * T) (eqS <*> eqT) (lteS <*> lteT) (set_product BS BT).
+Proof. unfold is_antichain. intros IS IT.
+       intros [s1 t1] H1 [s2 t2] H2.
+       apply in_set_product_elim in H1; auto. destruct H1 as [H1L H1R].
+       apply in_set_product_elim in H2; auto.  destruct H2 as [H2L H2R].
+       assert (H3 := IS s1 H1L s2 H2L). apply equiv_or_incomp_elim in H3.
+       assert (H4 := IT t1 H1R t2 H2R). apply equiv_or_incomp_elim in H4.
+       apply equiv_or_incomp_intro. 
+       destruct H3 as [A |A]; destruct H4 as [C | C]. 
+          left. apply equiv_intro.
+             compute. apply equiv_elim in A. apply equiv_elim in C. 
+             destruct A as [A B]; destruct C as [C D]. 
+             rewrite A, C. reflexivity.
+             
+             compute. apply equiv_elim in A. apply equiv_elim in C. 
+             destruct A as [A B]; destruct C as [C D]. 
+             rewrite B, D. reflexivity. 
+
+             
+          right. apply incomp_intro. 
+             compute. apply equiv_elim in A. apply incomp_elim in C. 
+             destruct A as [A B]; destruct C as [C D]. 
+             rewrite A, C. reflexivity.
+             
+             compute. apply equiv_elim in A. apply incomp_elim in C. 
+             destruct A as [A B]; destruct C as [C D]. 
+             rewrite B, D. reflexivity. 
+          
+          right. apply incomp_intro. 
+             compute. apply incomp_elim in A. apply equiv_elim in C. 
+             destruct A as [A B]; destruct C as [C D]. 
+             rewrite A. reflexivity.
+             
+             compute. apply incomp_elim in A. apply equiv_elim in C. 
+             destruct A as [A B]; destruct C as [C D]. 
+             rewrite B. reflexivity. 
+
+          right. apply incomp_intro. 
+             compute. apply incomp_elim in A. apply incomp_elim in C. 
+             destruct A as [A B]; destruct C as [C D]. 
+             rewrite A. reflexivity.
+             
+             compute. apply incomp_elim in A. apply incomp_elim in C. 
+             destruct A as [A B]; destruct C as [C D]. 
+             rewrite B. reflexivity. 
+Qed. 
+
+
+Lemma ord_product_bottoms_set_is_finite :
+  (bottoms_set_is_finite S eqS lteS) → (bottoms_set_is_finite T eqT lteT)
+  → bottoms_set_is_finite (S * T) (eqS <*> eqT) (lteS <*> lteT). 
+Proof. unfold bottoms_set_is_finite. 
+       intros [[BS fS] [IS PS]] [[BT fT] [IT PT]]. 
+       exists (set_product BS BT, bop_product_w BS BT fS fT). split. 
+          apply set_product_is_antichain; auto.   
+          intros [s t]. unfold bop_product_w.
+          (* assert (iS := idemS s). apply symS in iS.
+          assert (iT := idemT t). apply symT in iT.            *) 
+          destruct (PS s) as [A | [A B]];
+          destruct (PT t) as [D | [D E]]. 
+             left. apply in_set_product_intro; auto.
+
+             rewrite A. case_eq(in_set eqT BT t); intro G. 
+                left. apply in_set_product_intro; auto.
+                right. split. 
+                   apply in_set_product_intro; auto.
+                   apply below_intro. 
+                      compute. rewrite lteReflS. apply below_elim in E. destruct E as [E _]. exact E. 
+                      compute. rewrite lteReflS. apply below_elim in E. destruct E as [_ E]. exact E. 
+
+             rewrite D. case_eq(in_set eqS BS s); intro G. 
+                left. apply in_set_product_intro; auto.
+                right. split. 
+                   apply in_set_product_intro; auto.
+                   apply below_intro. 
+                      compute. apply below_elim in B. destruct B as [B _]. rewrite B. apply lteReflT. 
+                      compute. apply below_elim in B. destruct B as [_ B]. rewrite B. reflexivity. 
+
+             case_eq(in_set eqS BS s); intro G; case_eq(in_set eqT BT t); intro H.
+                left. apply in_set_product_intro; auto. 
+
+                right. split. 
+                   apply in_set_product_intro; auto. 
+                   apply below_intro. 
+                      compute. rewrite lteReflS. apply below_elim in E. destruct E as [E _]. exact E. 
+                      compute. rewrite lteReflS. apply below_elim in E. destruct E as [_ E]. exact E. 
+
+                right. split. 
+                   apply in_set_product_intro; auto. 
+                   apply below_intro. 
+                      compute.  apply below_elim in B. destruct B as [B _]. rewrite B. apply lteReflT. 
+                      compute. apply below_elim in B. destruct B as [_ B]. rewrite B. reflexivity. 
+
+                right. split. 
+                   apply in_set_product_intro; auto. 
+                   apply below_intro. 
+                      compute. apply below_elim in B. destruct B as [B _]. rewrite B. 
+                               apply below_elim in E. destruct E as [E _]. exact E. 
+                      compute. apply below_elim in B. destruct B as [_ B]. rewrite B. 
+                               apply below_elim in E. destruct E as [_ E]. reflexivity. 
+Qed. 
+
+
+Definition set_product_proj1 (B : finite_set (S * T)) : finite_set S :=
+  List.map (λ p, match p with (s, _) => s end) B.
+
+Definition set_product_proj2 (B : finite_set (S * T)) : finite_set T :=
+  List.map (λ p, match p with (_, t) => t end) B.
+
+(*
+Lemma in_set_product_proj1_intro (B : finite_set (S * T)) :
+  ∀ (s : S) (t : T) ,  
+     in_set (rS <*> rT) B (s, t) = true -> in_set rS (set_product_proj1 B) s = true. 
+Proof. induction B; intros s t H. 
+          compute in H. discriminate H. 
+          unfold set_product_proj1. 
+          destruct a as [s' t']. 
+          unfold List.map. fold (List.map (λ p : S * T, let (s0, _) := p in s0) B). 
+          apply in_set_cons_intro; auto. 
+          apply in_set_cons_elim in H; auto. 
+          destruct H as [H | H]. 
+             compute in H. 
+             case_eq(rS s' s); intro J. 
+               left. reflexivity. 
+               rewrite J in H. discriminate H.
+
+            right. exact (IHB s t H). 
+          apply brel_product_symmetric; auto. 
+Qed.
+
+Lemma in_set_product_proj2_intro (B : finite_set (S * T)) :
+  ∀ (s : S) (t : T) ,  
+     in_set (rS <*> rT) B (s, t) = true -> in_set rT (set_product_proj2 B) t = true. 
+Proof. induction B; intros s t H. 
+          compute in H. discriminate H. 
+          unfold set_product_proj2. 
+          destruct a as [s' t']. 
+          unfold List.map. fold (List.map (λ p : S * T, let (_, t0) := p in t0) B). 
+          apply in_set_cons_intro; auto. 
+          apply in_set_cons_elim in H; auto. 
+          destruct H as [H | H]. 
+             compute in H. 
+             case_eq(rT t' t); intro J. 
+               left. reflexivity. 
+               rewrite J in H. 
+               case_eq(rS s' s); intro K; rewrite K in H; discriminate H. 
+
+              right. exact (IHB s t H). 
+          apply brel_product_symmetric; auto. 
+Qed.
+
+*)
+Lemma in_set_product_proj1_elim (B : finite_set (S * T)) :
+  ∀ (s : S),  
+     in_set eqS (set_product_proj1 B) s = true -> {t : T & in_set (eqS <*> eqT) B (s, t) = true}. 
+Proof. induction B; intros s H. 
+       compute in H. discriminate H. 
+       unfold set_product_proj1 in H. 
+       destruct a as [s' t']. 
+       unfold List.map in H. fold (List.map (λ p : S * T, let (s0, _) := p in s0) B) in H. 
+       apply in_set_cons_elim in H; auto. 
+       destruct H as [H | H]. 
+          exists t'.
+          apply in_set_cons_intro; auto.
+          apply brel_product_symmetric; auto.
+          left. compute. rewrite H. apply refT. 
+          destruct (IHB s H) as [t P]. 
+          exists t. 
+          apply in_set_cons_intro; auto.
+          apply brel_product_symmetric; auto.
+Qed.
+
+
+(* For the cases of bottoms_set_not_is_finite 
+   we need to extract antichains over S or T from an antichain over S * T. 
+   Just doing simple projections doesn't work.  For example, suppose 
+
+    (s2, t2) # (s1, t1)
+
+   There are two situations where the neither projection will be an antichain. 
+    That is [(s1 < s2) and (t2 < t1)] 
+    and [(s2 < s1) and (t1 < t2)].  
+
+    The solution is to take minsets of projections! 
+
+ *)
+
+
+Definition negation_v1 (X : finite_set (S * T)) : finite_set S :=
+      uop_minset lteS (set_product_proj1 X). 
+
+Definition negation_v2 (X : finite_set (S * T)) : finite_set T :=
+     uop_minset lteT (set_product_proj2 X). 
+
+
+Definition product_not_finite_v1 (F : finite_set S -> S) (B : finite_set (S * T)) : S * T :=
+     (F (negation_v1 B), wT). 
+
+Definition product_not_finite_v2 (F : finite_set T -> T) (X : finite_set (S * T)) : S * T :=
+     (wS, F (negation_v2 X)). 
+
+
+Lemma negation_v1_is_antichain (B : finite_set (S * T)) : is_antichain S eqS lteS (negation_v1 B).
+Admitted.
+
+Lemma negation_v2_is_antichain (B : finite_set (S * T)) : is_antichain T eqT lteT (negation_v2 B).
+Admitted.
+
+Lemma lemma10 (F : finite_set S -> S) (B : finite_set (S * T)) : 
+     in_set (eqS <*> eqT) B (F (negation_v1 B), wT) = true
+     -> in_set eqS (negation_v1 B) (F (negation_v1 B)) = true. 
+Admitted.
+
+
+Lemma in_set_negation_v1_intro (B : finite_set (S * T)) :
+  ∀ (s : S) (t : T) ,  
+     in_set (eqS <*> eqT) B (s, t) = true -> in_set eqS (negation_v1 B) s = true. 
+Admitted. 
+
+(* need glb on T *) 
+Lemma ord_product_something_not_is_finite_v1 : 
+  bottoms_set_not_is_finite S eqS lteS →
+     bottoms_set_not_is_finite (S * T) (eqS <*> eqT) (lteS <*> lteT).
+Proof. unfold bottoms_set_not_is_finite.
+       intros [F A].
+       exists (product_not_finite_v1 F).
+       intros B I. 
+       assert (C := negation_v1_is_antichain B).
+       destruct (A (negation_v1 B) C) as [D E]. 
+       unfold product_not_finite_v1.
+       split. 
+          case_eq(in_set (eqS <*> eqT) B (F (negation_v1 B), wT)); intro G; auto.
+             apply lemma10 in G. rewrite G in D. discriminate D. 
+          
+          intros [s t] G. 
+          assert (G' := in_set_negation_v1_intro _ _ _ G).
+          apply below_false_intro.
+          assert (H := E s G').           apply below_false_elim in H. 
+          destruct H as [H | H].
+             left. unfold brel_product. rewrite H. compute. reflexivity.
+
+             unfold brel_product. 
+             case_eq(lteT t wT); intro K;  case_eq(lteT wT t); intro J.  
+                rewrite H. right. compute. reflexivity. 
+
+                left. case_eq(lteS s (F (negation_v1 B)) ); intro L; auto. 
+                   admit. 
+                
+                rewrite H. right. compute. reflexivity. 
+
+                left. apply bop_and_false_intro. right. reflexivity. 
+Admitted.
+
+(*
+Lemma bop_product_something_not_is_finite_v2 (commT : bop_commutative T rT bT): 
+  something_not_is_finite T rT bT →
+     something_not_is_finite (S * T) (rS <*> rT) (bS [*] bT).
+Proof. unfold something_not_is_finite.
+       intros [F A]. 
+       exists (product_not_finite_v2 F).
+       intros B I. 
+       assert (C := set_product_is_interesting_v2 B I).
+       destruct (A (set_product_proj2 B) C) as [D E]. 
+       unfold product_not_finite_v2.
+       split. 
+          case_eq(in_set (rS <*> rT) B (wS, F (set_product_proj2 B))); intro G; auto.
+             apply in_set_product_proj2_intro in G. 
+             rewrite G in D. discriminate D. 
+          
+          intros [s t] G. 
+          assert (G' := in_set_product_proj2_intro _ _ _ G).
+          unfold bop_product. unfold brel_product. 
+          destruct (E t G') as [H | H].
+             left. rewrite H. apply andb_is_false_right. right. reflexivity. 
+
+             case_eq(rT t (t *T F (set_product_proj2 B))); intro K. 
+                assert (J := commT t (F (set_product_proj2 B))). 
+                assert (L := transT _ _ _ K J).              
+                apply symT in H. 
+                assert (M := transT _ _ _ L H). 
+                assert (N := in_set_right_congruence _ rT symT transT _ _ _ M G'). 
+                rewrite N in D. discriminate D. 
+                
+                left. apply andb_is_false_right. right. reflexivity. 
+Defined. 
+*)
+End Bottoms. 
 End Theory.
 
 Section ACAS.

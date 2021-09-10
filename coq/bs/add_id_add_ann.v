@@ -14,7 +14,7 @@ Require Import CAS.coq.bs.structures.
 Require Import CAS.coq.eqv.add_constant.
 Require Import CAS.coq.sg.add_id.
 Require Import CAS.coq.sg.add_ann. 
-Require Import CAS.coq.theory.facts. 
+
 
 Section Theory.
 

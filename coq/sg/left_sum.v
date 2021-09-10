@@ -1,12 +1,16 @@
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
+Require Import CAS.coq.eqv.sum.
+
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.theory.
 
-Require Import CAS.coq.theory.facts. 
-Require Import CAS.coq.eqv.sum. 
+
 
 Section Theory.
 
@@ -201,7 +205,241 @@ Lemma bop_left_sum_not_anti_left : bop_not_anti_left (S + T) (rS <+> rT) (bS [+]
 Proof. exists (inl wS, inr wT); simpl. apply refS. Defined. 
 
 Lemma bop_left_sum_not_anti_right : bop_not_anti_right (S + T) (rS <+> rT) (bS [+] bT).
-Proof. exists (inl wS, inr wT); simpl. apply refS. Defined. 
+Proof. exists (inl wS, inr wT); simpl. apply refS. Defined.
+
+
+(* bottoms *) 
+
+(*
+Definition bop_left_sum_BOTTOMS (B : list S) : list (S + T) :=
+  List.map (λ d, inl d) B.
+
+Definition bop_left_sum_w (B : list S) (w : S -> S) (d : S + T) : S + T :=
+  match d with
+  | inl s => inl (w s) 
+  | inr _ => if in_set rS B wS then inl wS else inl (w wS) 
+  end.
+    
+Lemma bop_left_sum_BOTTOMS_cons (a : S) (B : list S) : bop_left_sum_BOTTOMS (a :: B) = (inl a) :: (bop_left_sum_BOTTOMS B).
+Proof. compute. reflexivity. Qed. 
+  
+Lemma bop_left_sum_BOTTOMS_inr (t : T) (B : list S) : 
+  in_set (rS <+> rT) (bop_left_sum_BOTTOMS B) (inr t) = false.
+Proof. induction B. 
+       compute. reflexivity.
+       rewrite bop_left_sum_BOTTOMS_cons.
+       case_eq(in_set (rS <+> rT) (inl a :: bop_left_sum_BOTTOMS B) (inr t)); intro C; auto. 
+          apply in_set_cons_elim in C. 
+          destruct C as [C | C].
+             compute in C. discriminate C. 
+             rewrite IHB in C. discriminate C.
+          apply brel_sum_symmetric; auto. 
+Qed.
+
+Lemma bop_left_sum_BOTTONS_inl (B : list S) (s : S) (H : in_set rS B s = true) :
+       in_set (rS <+> rT) (bop_left_sum_BOTTOMS B) (inl s) = true. 
+Proof. induction B.
+       compute in H. discriminate H.
+       rewrite bop_left_sum_BOTTOMS_cons.
+       apply in_set_cons_intro. 
+       apply brel_sum_symmetric; auto.
+       apply in_set_cons_elim in H; auto.
+       destruct H as [H | H]. 
+          left. compute. exact H. 
+          right. apply IHB; auto. 
+Qed.
+
+Lemma in_set_left_sum_BOTTOMS (B : list S) (s : S):
+  in_set (rS <+> rT) (bop_left_sum_BOTTOMS B) (inl s) = true -> in_set rS B s = true. 
+Proof. intro A. induction B. 
+       compute in A. discriminate A.
+       apply in_set_cons_intro; auto.
+       rewrite bop_left_sum_BOTTOMS_cons in A.
+       apply in_set_cons_elim in A. 
+       destruct A as [A | A]. 
+          compute in A. left. exact A. 
+          right. exact (IHB A). 
+       apply brel_sum_symmetric; auto. 
+Qed.
+
+Lemma bop_left_sum_is_interesting (B : list S) : 
+  is_interesting S rS bS B ->
+       is_interesting (S + T) (rS <+> rT) (bS [+] bT) (bop_left_sum_BOTTOMS B).
+Proof. unfold is_interesting. intros I s A t C.
+       destruct s as [s | s]; destruct t as [t | t].
+          assert (A' := in_set_left_sum_BOTTOMS _ _ A).
+          assert (C' := in_set_left_sum_BOTTOMS _ _ C).           
+          destruct (I s A' t C') as [[D E] | [D E]].
+             left. split. 
+                compute. exact D. 
+                compute. exact E. 
+                
+             right. split. 
+                compute. exact D. 
+                compute. exact E. 
+          assert (D := bop_left_sum_BOTTOMS_inr t B). rewrite D in C. discriminate C. 
+          assert (D := bop_left_sum_BOTTOMS_inr s B). rewrite D in A. discriminate A. 
+          assert (D := bop_left_sum_BOTTOMS_inr t B). rewrite D in C. discriminate C. 
+Qed. 
+
+
+(* note: commutativity and idempotence not needed *) 
+Lemma bop_left_sum_something_is_finite
+      (sif : something_is_finite S rS bS) : something_is_finite (S + T) (rS <+> rT) (bS [+] bT).
+Proof. destruct sif as [[BOTTOMS w] [A B]].
+       unfold something_is_finite.
+       exists (bop_left_sum_BOTTOMS BOTTOMS, bop_left_sum_w BOTTOMS w). split. 
+          apply bop_left_sum_is_interesting; auto. 
+          intros [s | s]; unfold bop_left_sum_w.
+          destruct (B s) as [C | [C [D E]]]. 
+             left. apply bop_left_sum_BOTTONS_inl; auto. 
+             right. split. 
+                apply bop_left_sum_BOTTONS_inl; auto. 
+                split. 
+                   compute. exact D. 
+                   compute. exact E. 
+          right. split. 
+             destruct (B wS) as [C | [C [D E]]].           
+                rewrite C. apply bop_left_sum_BOTTONS_inl; auto. 
+                 case_eq(in_set rS BOTTOMS wS); intro F. 
+                    apply bop_left_sum_BOTTONS_inl; auto.                    
+                    apply bop_left_sum_BOTTONS_inl; auto.                                        
+              split. 
+                 case_eq(in_set rS BOTTOMS wS); intro C. 
+                    compute. apply refS. 
+                    compute. apply refS. 
+                 case_eq(in_set rS BOTTOMS wS); intro C. 
+                    compute. reflexivity. 
+                    compute. reflexivity. 
+Defined. 
+
+
+
+Fixpoint strip_all_inl (carry : list S) (B : finite_set (S + T)) : list S :=
+  match B with
+  | nil => carry
+  | (inr _) :: rest => strip_all_inl carry rest
+  | (inl a) :: rest => strip_all_inl (a :: carry) rest
+  end.
+
+Definition bop_left_sum_not_BOTTOMS (F : list S → S) (B : finite_set (S + T)) : S + T :=
+     inl (F (strip_all_inl nil B)). 
+
+(*
+Lemma bop_left_sum_not_BOTTOMS_is_not_inl (F : list S → S) (B : list (with_constant S)) (s : cas_constant) : 
+  (brel_sum rS rT (inl s) ((c [+] bS) (inl s) (bop_left_sum_not_BOTTOMS F B)) = false).
+Proof. compute. reflexivity. Qed.
+*) 
+
+Lemma in_set_strip_all_inl_aux (B : finite_set (S + T)): 
+∀ (l : list S) (s : S), 
+  ((in_set rS (strip_all_inl l B) s = true) -> (in_set rS l s = true) + (in_set (rS <+> rT) B (inl s) = true))
+  *
+  ((in_set rS (strip_all_inl l B) s = false) -> (in_set rS l s = false) * (in_set (rS <+> rT) B (inl s) = false)).
+Proof. induction B. 
+       intros l s. unfold strip_all_inl. split; intro H. 
+          left. exact H.        
+          split. 
+             exact H. 
+             compute. reflexivity. 
+
+        destruct a as [a | a]. 
+           unfold strip_all_inl. fold strip_all_inl.         
+           intros l s; split; intro H. 
+              destruct (IHB (a :: l) s) as [C D]. 
+              destruct (C H) as [E | E]. 
+                 apply in_set_cons_elim in E; auto. 
+                 destruct E as [E | E]. 
+                    right. unfold in_set.
+                    fold (in_set (rS <+> rT) B (inl s)).
+                    compute. rewrite (symS _ _ E). reflexivity. 
+                    left. exact E. 
+                 right. apply in_set_cons_intro; auto. 
+                 apply brel_sum_symmetric; auto.
+                 destruct (IHB (a :: l) s) as [C D].
+                 destruct (D H) as [E F]. split. 
+                 apply not_in_set_cons_elim in E; auto.
+                 destruct E as [_ E]. exact E. 
+                 case_eq(in_set (rS <+> rT) (inl a :: B) (inl s)); intro G; auto. 
+                    apply in_set_cons_elim in G; auto. 
+                    destruct G as [G | G]. 
+                       compute in G. 
+                       apply not_in_set_cons_elim in E; auto.
+                       destruct E as [E _]. rewrite G in E. discriminate E. 
+                       rewrite G in F. discriminate F. 
+                    apply brel_sum_symmetric; auto.
+
+           unfold strip_all_inl. fold strip_all_inl. 
+           intros l s. destruct (IHB l s) as [C D]. split; intros H. 
+              destruct (C H) as [E | E].                        
+                 left. exact E. 
+                 right. apply in_set_cons_intro; auto. 
+                 apply brel_sum_symmetric; auto.
+              destruct (D H) as [E F]. split.                                      
+                 exact E. 
+                 case_eq(in_set (rS <+> rT) (inr a :: B) (inl s)); intro G; auto. 
+                    apply in_set_cons_elim in G. 
+                    destruct G as [G | G]. 
+                       compute in G. discriminate G.
+                       rewrite F in G. discriminate G.
+                    apply brel_sum_symmetric; auto.
+Qed. 
+
+
+(* this could be a nice student exercise.  Just give def of strip_all_inl and have
+   them prove the following.  This requires generalizing to something like 
+   in_set_strip_all_inl_aux.  However, setting up in_set_strip_all_inl_aux properly 
+   in order to make the proof go through is 
+   a bit tricky.  Students may try double induction, which does not seem to work.
+   And the quantifiers have to be in the right order, (forall B, forall l, ....  see above).  
+*) 
+Lemma in_set_strip_all_inl (B : finite_set (S + T)) (s : S) : 
+      in_set rS (strip_all_inl nil B) s = true -> in_set (rS <+> rT) B (inl s) = true.
+Proof. intro H. destruct (in_set_strip_all_inl_aux B nil s) as [A _].
+       destruct (A H) as [C | C]. 
+          compute in C. discriminate C. 
+          exact C. 
+Qed.
+
+Lemma bop_left_sum_is_interesting_right (B : finite_set (S + T)) : 
+  is_interesting (S + T) (rS <+> rT) (bS [+] bT) B -> is_interesting S rS bS (strip_all_inl nil B). 
+Proof. unfold is_interesting. intros A s C t D.
+       assert (E : in_set (rS <+> rT) B (inl s) = true). apply in_set_strip_all_inl; auto. 
+       assert (G : in_set (rS <+> rT) B (inl t) = true). apply in_set_strip_all_inl; auto. 
+       destruct(A _ E _ G) as [[H1 H2] | [H1 H2]]; compute in H1, H2.
+          left; auto. right; auto. 
+Qed. 
+
+(* note: commutativity and idempotence not needed *) 
+Lemma bop_left_sum_something_not_is_finite
+      (sif : something_not_is_finite S rS bS) : something_not_is_finite (S + T) (rS <+> rT) (bS [+] bT).
+Proof. unfold something_not_is_finite. unfold something_not_is_finite in sif. 
+       destruct sif as [F A].
+       exists (bop_left_sum_not_BOTTOMS F).
+       intros B C. 
+       assert (D := bop_left_sum_is_interesting_right B C).
+       destruct (A _ D) as [E G]. 
+       split.
+          unfold bop_left_sum_not_BOTTOMS.           
+          destruct (in_set_strip_all_inl_aux B nil (F (strip_all_inl nil B))) as [_ K].
+          destruct (K E) as [_ J]. 
+          exact J. 
+
+          intros [s | s] H.
+             assert (J: in_set rS (strip_all_inl nil B) s = true). 
+                case_eq(in_set rS (strip_all_inl nil B) s); intro K; auto.
+                   destruct (in_set_strip_all_inl_aux B nil s) as [_ R].
+                   destruct (R K) as [_ M]. rewrite M in H. discriminate H. 
+             destruct (G s J) as [K | K].
+                left. unfold bop_left_sum_not_BOTTOMS, brel_sum, bop_left_sum. exact K. 
+                   
+               right.  unfold bop_left_sum_not_BOTTOMS, brel_sum, bop_left_sum. exact K. 
+
+             left. compute. reflexivity. 
+Defined. 
+*) 
+
+(* decide *) 
 
 Definition bop_left_sum_idempotent_decide : 
      bop_idempotent_decidable S rS bS  → bop_idempotent_decidable T rT bT  → 

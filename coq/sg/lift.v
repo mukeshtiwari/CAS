@@ -1,16 +1,26 @@
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
+Require Import CAS.coq.theory.set. 
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
+Require Import CAS.coq.eqv.set.
+
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.theory.
+Require Import CAS.coq.sg.and. 
+Require Import CAS.coq.sg.union. (* just for in_set_uop_duplicate_elim_elim ? *)
 
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.subset. 
-Require Import CAS.coq.eqv.set.
-Require Import CAS.coq.sg.union. (* just for in_set_uop_duplicate_elim_elim ? *) 
+Section Computation.
+
+Definition bop_lift : ∀ {S : Type}, brel S → binary_op S → binary_op(finite_set S) := 
+    λ {S} eq bS X Y, uop_duplicate_elim eq (bop_list_product_left bS X Y). 
+
+End Computation.   
 
 Section Theory. 
 
@@ -1123,7 +1133,7 @@ Lemma brel_subset_false_elim :
 Proof. induction x; intros w H. 
        compute in H. discriminate H.
        unfold brel_subset in H. fold (@brel_subset S) in H. 
-       apply andb_is_false_left in H.
+       apply bop_and_false_elim in H.
        destruct H as [H | H].
        exists a. split. apply in_set_cons_intro; auto. exact H.
        destruct (IHx _ H) as [a0 [K1 K2]].
@@ -1140,10 +1150,10 @@ Proof. induction x.
        intros w [b [L R]].  apply in_set_cons_elim in L; auto.
        unfold brel_subset. fold (@brel_subset S).
        destruct L as [L | L].
-       apply andb_is_false_right. left.
+       apply bop_and_false_intro. left.
        case_eq(in_set rS w a); intro J; auto.
        assert (K := in_set_right_congruence _ _ symS tranS _ _ _ L J).  rewrite K in R. discriminate R.
-       apply andb_is_false_right. right.
+       apply bop_and_false_intro. right.
        apply IHx.
        exists b. split; auto. 
 Defined. 
@@ -1804,6 +1814,25 @@ Defined.
                                      
 (* end selectivity *)
 
+
+
+(* bottoms 
+
+Lemma bop_intersect_somthing_is_finite (wS : S) (selS : bop_selective S rS bS) (commS : bop_commutative S rS bS) :
+      something_is_finite (finite_set S) (brel_set rS) (bop_lift rS bS).
+Proof. exact (exists_ann_implies_something_is_finite _ _ _ 
+              bop_lift_congruence 
+              (brel_set_reflexive _ _ refS symS)
+              (brel_set_symmetric _ rS) 
+              (brel_set_transitive  _ _ refS symS tranS)
+              (bop_lift_commutative commS)
+              (bop_lift_idempotent selS) 
+              (λ l : finite_set S, if brel_set rS nil l then wS :: nil else nil)
+              (brel_set_not_trivial S rS wS)
+              bop_lift_exists_ann). 
+Defined.
+
+*)
 
 End Theory.
 

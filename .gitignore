@@ -40,6 +40,8 @@ doc/*/*.pdf
 *.v.d
 *.glob
 *.vo
+*.vos
+*.vok
 
 ##ocaml 
 _build/

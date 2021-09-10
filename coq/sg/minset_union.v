@@ -1,21 +1,21 @@
-             
-
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
+
+Require Import CAS.coq.theory.set.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
-Require Import CAS.coq.sg.properties.
-Require Import CAS.coq.sg.structures.
-Require Import CAS.coq.po.properties.
-Require Import CAS.coq.po.structures.
-
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set.
-Require Import CAS.coq.theory.subset.
-Require Import CAS.coq.theory.order. (* for below, equiv, ... *) 
+Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.eqv.minset.
+
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.union.
+
+Require Import CAS.coq.po.properties.
+Require Import CAS.coq.po.structures.
+Require Import CAS.coq.po.theory.
 
 Section Theory.
 
@@ -31,6 +31,8 @@ Variable refS  : brel_reflexive S rS.
 Variable symS  : brel_symmetric S rS.  
 Variable tranS : brel_transitive S rS.
 
+
+(* NB: antisymmetry is not assumed! *) 
 Variable lteS : brel S.
 Variable lteCong : brel_congruence S rS lteS.
 Variable lteRefl : brel_reflexive S lteS.
@@ -860,7 +862,7 @@ Proof. intro X.
                    exact (EC s (w s) E J). 
  *)
                       assert (J : w s << w s). exact (below_pseudo_transitive_right _ lteS lteTrans _ _ _ F I).
-                      rewrite (below_not_reflexive S lteS lteRefl (w s)) in J. discriminate J. 
+                      rewrite (below_not_reflexive S lteS  (w s)) in J. discriminate J. 
                    
              intros s B. unfold bop_minset_union. apply in_minset_intro; auto. split. 
                 apply in_set_bop_union_intro; auto. left. 
@@ -987,7 +989,7 @@ Proof. intro X.
                       rewrite I in F. discriminate F.
 
                       assert (J : w s << w s). exact (below_pseudo_transitive_right _ lteS lteTrans _ _ _ F I).
-                      rewrite (below_not_reflexive S lteS lteRefl (w s)) in J. discriminate J. 
+                      rewrite (below_not_reflexive S lteS (w s)) in J. discriminate J. 
                    
              intros s B. unfold bop_minset_union. apply in_minset_intro; auto. split. 
                 apply in_set_bop_union_intro; auto. left. 
@@ -1077,7 +1079,7 @@ Proof. intro X. destruct bnf as [F P].
                    destruct B as [B | B].
                       rewrite minset_singleton in B. apply in_set_singleton_elim in B; auto. 
                       apply symS in B. rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS (F ([ms] X))) B). 
-                      apply (below_not_reflexive S lteS lteRefl).
+                      apply (below_not_reflexive S lteS).
 
                       exact (Q2 t B). 
                 
@@ -1088,7 +1090,7 @@ Proof. intro X. destruct bnf as [F P].
                 destruct D1 as [D1 | D1]. 
                    rewrite minset_singleton in D1. apply in_set_singleton_elim in D1; auto. 
                    apply symS in D1. rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS (F ([ms] X))) D1). 
-                   apply (below_not_reflexive S lteS lteRefl).
+                   apply (below_not_reflexive S lteS).
                    
                    exact (Q2 _ D1).
              
@@ -1118,7 +1120,7 @@ Proof. intro X. destruct bnf as [F P].
                    destruct B as [B | B].
                       rewrite minset_singleton in B. apply in_set_singleton_elim in B; auto. 
                       apply symS in B. rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS (F ([ms] X))) B). 
-                      apply (below_not_reflexive S lteS lteRefl).
+                      apply (below_not_reflexive S lteS).
 
                       exact (Q t B). 
                 
@@ -1129,7 +1131,7 @@ Proof. intro X. destruct bnf as [F P].
                 destruct D1 as [D1 | D1]. 
                    rewrite minset_singleton in D1. apply in_set_singleton_elim in D1; auto. 
                    apply symS in D1. rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS (F ([ms] X))) D1). 
-                   apply (below_not_reflexive S lteS lteRefl).
+                   apply (below_not_reflexive S lteS).
                    
                    exact (Q _ D1).
              

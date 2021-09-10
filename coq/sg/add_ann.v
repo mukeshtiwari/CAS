@@ -5,15 +5,11 @@ Require Import CAS.coq.common.ast.
 
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
-Require Import CAS.coq.sg.properties.
-Require Import CAS.coq.sg.theory.
-Require Import CAS.coq.sg.structures.
-
 Require Import CAS.coq.eqv.add_constant.
-Require Import CAS.coq.eqv.sum. 
 
-Require Import CAS.coq.theory.facts.
-Require Import CAS.coq.theory.in_set. 
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.theory.
 
 Section Theory.
 Variable S  : Type. 
@@ -89,7 +85,7 @@ Proof. intros [annS pS]. exists (inr _ annS). intros [s | t]; compute; auto. Def
 Lemma bop_add_ann_not_exists_id : bop_not_exists_id S rS bS -> bop_not_exists_id (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
 Proof. intros naS. intros [x | x]. exists (inr _ wS). compute; auto. destruct (naS x) as [y D].  exists (inr _ y). compute. exact D. Defined.
 
-
+(*
 Lemma bop_add_ann_somthing_is_finite
       (symS : brel_symmetric S rS)
       (trnS : brel_transitive S rS)      
@@ -108,7 +104,7 @@ Proof. exact (exists_ann_implies_something_is_finite _ _ _
               bop_add_ann_exists_ann). 
 Defined.
 
-
+*) 
 
 (* Decide *)
 
