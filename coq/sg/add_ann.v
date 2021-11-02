@@ -191,10 +191,11 @@ Definition sg_proofs_add_ann :
 ; A_sg_congruence    := bop_add_ann_congruence S rS c bS (A_sg_congruence _ _ _ sgS)  
 ; A_sg_commutative_d := bop_add_ann_commutative_decide S rS c bS (A_sg_commutative_d _ _ _ sgS)
 ; A_sg_selective_d   := bop_add_ann_selective_decide S rS c bS (A_sg_selective_d _ _ _ sgS)
-; A_sg_is_left_d     := inr _ (bop_add_ann_not_is_left S rS c bS s) 
-; A_sg_is_right_d    := inr _ (bop_add_ann_not_is_right S rS c bS s)
-; A_sg_idempotent_d  := bop_add_ann_idempotent_decide S rS c bS (A_sg_idempotent_d _ _ _ sgS)
-; A_sg_left_cancel_d    :=  inr _ (bop_add_ann_not_left_cancellative S rS c bS s f Pf)
+; A_sg_idempotent_d  := bop_add_ann_idempotent_decide S rS c bS (A_sg_idempotent_d _ _ _ sgS)                                                     
+
+; A_sg_is_left_d        := inr _ (bop_add_ann_not_is_left S rS c bS s) 
+; A_sg_is_right_d       := inr _ (bop_add_ann_not_is_right S rS c bS s)
+; A_sg_left_cancel_d    := inr _ (bop_add_ann_not_left_cancellative S rS c bS s f Pf)
 ; A_sg_right_cancel_d   := inr _ (bop_add_ann_not_right_cancellative S rS c bS s f Pf)
 ; A_sg_left_constant_d  := inr _ (bop_add_ann_not_left_constant S rS c bS s)
 ; A_sg_right_constant_d := inr _ (bop_add_ann_not_right_constant S rS c bS s)
@@ -229,21 +230,10 @@ Definition sg_CI_proofs_add_ann :
 ; A_sg_CI_congruence         := bop_add_ann_congruence S rS c bS (A_sg_CI_congruence _ _ _ sgS) 
 ; A_sg_CI_commutative        := bop_add_ann_commutative S rS c bS (A_sg_CI_commutative _ _ _ sgS)
 ; A_sg_CI_idempotent         := bop_add_ann_idempotent S rS c bS (A_sg_CI_idempotent _ _ _ sgS)
-; A_sg_CI_selective_d        := bop_add_ann_selective_decide S rS c bS (A_sg_CI_selective_d _ _ _ sgS)
+(*; A_sg_CI_selective_d        := bop_add_ann_selective_decide S rS c bS (A_sg_CI_selective_d _ _ _ sgS) *) 
+; A_sg_CI_not_selective      := bop_add_ann_not_selective S rS c bS (A_sg_CI_not_selective _ _ _ sgS) 
 |}. 
 
-Definition sg_CINS_proofs_add_ann : 
-   ∀ (S : Type) (rS : brel S) (c : cas_constant) (bS : binary_op S) (s : S), 
-     eqv_proofs S rS -> sg_CINS_proofs S rS bS -> 
-        sg_CINS_proofs (with_constant S) (brel_sum brel_constant rS) (bop_add_ann bS c)
-:= λ S rS c bS s eqvS sgS, 
-{|
-  A_sg_CINS_associative        := bop_add_ann_associative S rS c bS (A_sg_CINS_associative _ _ _ sgS)
-; A_sg_CINS_congruence         := bop_add_ann_congruence S rS c bS (A_sg_CINS_congruence _ _ _ sgS) 
-; A_sg_CINS_commutative        := bop_add_ann_commutative S rS c bS (A_sg_CINS_commutative _ _ _ sgS)
-; A_sg_CINS_idempotent         := bop_add_ann_idempotent S rS c bS (A_sg_CINS_idempotent _ _ _ sgS)
-; A_sg_CINS_not_selective      := bop_add_ann_not_selective S rS c bS (A_sg_CINS_not_selective _ _ _ sgS)
-|}. 
 
 
 
@@ -479,21 +469,13 @@ Definition sg_CI_certs_add_ann : ∀ {S : Type},  cas_constant -> sg_CI_certific
 ; sg_CI_congruence         := Assert_Bop_Congruence  
 ; sg_CI_commutative        := Assert_Commutative  
 ; sg_CI_idempotent         := Assert_Idempotent  
-; sg_CI_selective_d        := bop_add_ann_selective_check (sg_CI_selective_d sgS)
+(*; sg_CI_selective_d        := bop_add_ann_selective_check (sg_CI_selective_d sgS) *) 
+; sg_CI_not_selective      := 
+   match sg_CI_not_selective sgS with 
+   | Assert_Not_Selective (s, t) => Assert_Not_Selective (inr _ s, inr _ t)
+   end
 |}. 
 
-
-Definition sg_CINS_certs_add_ann : ∀ {S : Type},  cas_constant -> sg_CINS_certificates (S := S) -> sg_CINS_certificates (S := (with_constant S)) 
-:= λ {S} c sgS,  
-{|
-  sg_CINS_associative        := Assert_Associative  
-; sg_CINS_congruence         := Assert_Bop_Congruence  
-; sg_CINS_commutative        := Assert_Commutative  
-; sg_CINS_idempotent         := Assert_Idempotent  
-; sg_CINS_not_selective      := match sg_CINS_not_selective sgS with
-                                | Assert_Not_Selective (s1, s2) => Assert_Not_Selective (inr s1, inr s2)
-                                end 
-|}. 
 
 
 Definition sg_CS_certs_add_ann : ∀ {S : Type},  cas_constant -> sg_CS_certificates (S := S) -> sg_CS_certificates (S := with_constant S) 
@@ -693,24 +675,11 @@ Lemma correct_sg_CI_certs_add_ann : ∀ (s : S) (P : sg_CI_proofs S r b),
           (sg_CI_proofs_add_ann S r c b s Q P). 
 Proof. intros s P. destruct P. destruct Q. 
        unfold sg_CI_certs_add_ann, sg_CI_proofs_add_ann, P2C_sg_CI; simpl.
-       rewrite bop_add_ann_selective_check_correct. 
+(*       rewrite bop_add_ann_selective_check_correct. *) 
+       destruct A_sg_CI_not_selective as [[x y] [A B]]. compute. 
        reflexivity. 
 Defined. 
 
-
-Lemma correct_sg_CINS_certs_add_ann : ∀ (s : S) (P : sg_CINS_proofs S r b), 
-       sg_CINS_certs_add_ann c (P2C_sg_CINS S r b P) 
-       = 
-       P2C_sg_CINS (with_constant S) 
-          (brel_sum brel_constant r) 
-          (bop_add_ann b c) 
-          (sg_CINS_proofs_add_ann S r c b s Q P). 
-Proof. intros s P. destruct P. destruct Q. 
-       unfold sg_CINS_certs_add_ann, sg_CINS_proofs_add_ann, P2C_sg_CINS; simpl.
-       destruct A_sg_CINS_not_selective as [[s1 s2] A]. simpl. 
-       unfold p2c_not_selective_assert. simpl. 
-       reflexivity. 
-Defined. 
 
 
 Lemma correct_sg_CS_certs_add_ann : ∀ (s : S) (P : sg_CS_proofs S r b), 
@@ -779,5 +748,4 @@ Qed.
 
 End AddAnnCorrect.  
  
-End Verify.   
-  
+End Verify.     

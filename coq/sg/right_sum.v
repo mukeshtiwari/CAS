@@ -369,7 +369,8 @@ let refT := A_eqv_reflexive _ _ eqvT in
   A_sg_CI_associative := bop_right_sum_associative S T rS rT bS bT refT (A_sg_CI_associative _ _ _ sgS) (A_sg_CI_associative _ _ _ sgT) 
 ; A_sg_CI_congruence  := bop_right_sum_congruence S T rS rT bS bT (A_sg_CI_congruence _ _ _ sgS) (A_sg_CI_congruence _ _ _ sgT) 
 ; A_sg_CI_commutative := bop_right_sum_commutative S T rS rT bS bT refT (A_sg_CI_commutative _ _ _ sgS) (A_sg_CI_commutative _ _ _ sgT) 
-; A_sg_CI_selective_d := bop_right_sum_selective_decide S T rS rT bS bT refT (A_sg_CI_selective_d _ _ _ sgS) (A_sg_CI_selective_d _ _ _ sgT) 
+(*; A_sg_CI_selective_d := bop_right_sum_selective_decide S T rS rT bS bT refT (A_sg_CI_selective_d _ _ _ sgS) (A_sg_CI_selective_d _ _ _ sgT) *) 
+; A_sg_CI_not_selective := bop_right_sum_not_selective_left S T rS rT bS bT (A_sg_CI_not_selective _ _ _ sgS) 
 ; A_sg_CI_idempotent  := bop_right_sum_idempotent S T rS rT bS bT  (A_sg_CI_idempotent _ _ _ sgS) (A_sg_CI_idempotent _ _ _ sgT) 
 |}. 
 
@@ -629,7 +630,11 @@ Definition sg_CI_certs_right_sum : ∀ {S T : Type},  @sg_CI_certificates S -> @
 ; sg_CI_congruence   := Assert_Bop_Congruence  
 ; sg_CI_commutative  := Assert_Commutative  
 ; sg_CI_idempotent   := Assert_Idempotent  
-; sg_CI_selective_d  := check_selective_right_sum (sg_CI_selective_d cS) (sg_CI_selective_d cT)
+(*; sg_CI_selective_d  := check_selective_right_sum (sg_CI_selective_d cS) (sg_CI_selective_d cT) *) 
+; sg_CI_not_selective  :=
+      match sg_CI_not_selective cS with 
+      | Assert_Not_Selective (s1, s2) => Assert_Not_Selective ((inl _ s1), (inl _ s2))
+      end
 |}.
 
 
@@ -886,7 +891,8 @@ Lemma correct_sg_CI_certs_right_sum : ∀ (pS : sg_CI_proofs S rS bS) (pT : sg_C
                      (sg_CI_proofs_right_sum S T rS rT bS bT wS wT eS eT pS pT). 
 Proof. intros pS pT. 
        unfold sg_CI_proofs_right_sum, sg_CI_certs_right_sum, P2C_sg_CI; simpl. 
-       rewrite <- correct_check_selective_right_sum. 
+       (*       rewrite <- correct_check_selective_right_sum. *)
+       destruct (A_sg_CI_not_selective S rS bS pS) as [[s t] [A B]]. compute. 
        reflexivity. 
 Defined.
 

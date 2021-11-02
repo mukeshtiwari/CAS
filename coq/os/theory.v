@@ -5,6 +5,7 @@ Require Import CAS.coq.eqv.theory.
 
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.theory.
+Require Import CAS.coq.po.dual.
 
 Require Import CAS.coq.sg.properties.
 
@@ -419,7 +420,48 @@ Proof. intros selS x y.
                 rewrite J. simpl. reflexivity.
 Defined.  
 
-(*********************** OS properties ************************************) 
+(*********************** OS properties ************************************)
+
+
+Lemma lower_bound_implies_dual_upper_bound (lte : brel S) (s t u : S) : 
+       is_lower_bound lte s t u -> is_upper_bound (brel_dual lte) s t u. 
+Proof. compute. auto. Qed. 
+
+Lemma dual_upper_bound_implies_lower_bound (lte : brel S) (s t u : S) : 
+       is_upper_bound (brel_dual lte) s t u -> is_lower_bound lte s t u. 
+Proof. compute. auto. Qed. 
+
+Lemma upper_bound_implies_dual_lower_bound (lte : brel S) (s t u : S) : 
+       is_upper_bound lte s t u -> is_lower_bound (brel_dual lte) s t u. 
+Proof. compute. auto. Qed. 
+
+Lemma dual_lower_bound_implies_upper_bound (lte : brel S) (s t u : S) : 
+       is_lower_bound (brel_dual lte) s t u -> is_upper_bound lte s t u. 
+Proof. compute. auto. Qed. 
+
+       
+Lemma glb_implies_dual_lub (lte : brel S) (b : binary_op S) (P : bop_is_glb lte b) : bop_is_lub (brel_dual lte) b.
+Proof. intros s t.
+       assert (A := P s t). unfold is_glb in A. destruct A as [A B]. 
+       unfold is_lub. split. 
+       - apply lower_bound_implies_dual_upper_bound; auto. 
+       - intros u C.
+         unfold brel_dual. apply B.
+         apply dual_upper_bound_implies_lower_bound; auto. 
+Qed. 
+
+Lemma lub_implies_dual_glb (lte : brel S) (b : binary_op S) (P : bop_is_lub lte b) : bop_is_glb (brel_dual lte) b.
+Proof. intros s t.
+       assert (A := P s t). unfold is_lub in A. destruct A as [A B]. 
+       unfold is_glb. split. 
+       - apply upper_bound_implies_dual_lower_bound; auto. 
+       - intros u C.
+         unfold brel_dual. apply B.
+         apply dual_lower_bound_implies_upper_bound; auto. 
+Qed. 
+
+
+
 
 Lemma bop_is_glb_wrt_lte_left : bop_is_glb (brel_lte_left eq bS) bS.
 Proof. intros a b. split; compute. split.

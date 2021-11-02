@@ -180,13 +180,15 @@ let refS := A_eqv_reflexive _ _ eqvP in
 {|
   A_sg_associative   := bop_concat_associative S rS refS 
 ; A_sg_congruence    := bop_concat_congruence S rS refS
-; A_sg_commutative_d := inr _ (bop_concat_not_commutative S rS s f nt)
-; A_sg_selective_d   := inr _ (bop_concat_not_selective S rS s f nt)
-; A_sg_is_left_d     := inr _ (bop_concat_not_is_left S rS s)
-; A_sg_is_right_d    := inr _ (bop_concat_not_is_right S rS s)
-; A_sg_idempotent_d  := inr _ (bop_concat_not_idempotent S rS s)
+
 ; A_sg_left_cancel_d    := inl _ (bop_concat_left_cancellative S rS refS)
 ; A_sg_right_cancel_d   := inl _ (bop_concat_right_cancellative S rS)
+                                                
+; A_sg_commutative_d    := inr _ (bop_concat_not_commutative S rS s f nt)
+; A_sg_selective_d      := inr _ (bop_concat_not_selective S rS s f nt)
+; A_sg_is_left_d        := inr _ (bop_concat_not_is_left S rS s)
+; A_sg_is_right_d       := inr _ (bop_concat_not_is_right S rS s)
+; A_sg_idempotent_d     := inr _ (bop_concat_not_idempotent S rS s)
 ; A_sg_left_constant_d  := inr _ (bop_concat_not_left_constant S rS s)
 ; A_sg_right_constant_d := inr _ (bop_concat_not_right_constant S rS s)
 ; A_sg_anti_left_d      := inr _ (bop_concat_not_anti_left S rS s refS)

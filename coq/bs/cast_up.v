@@ -80,6 +80,43 @@ Variable S: Type.
 Variable eq : brel S.     
 Variable plus times : binary_op S.
 
+(*
+                        id_ann_proofs
+                     /                \
+  pid_is_tann_proofs                   pann_is_tid_proofs
+                   \                   /
+                   dually_bounded_proofs
+*)
+
+
+
+Definition id_ann_proofs_from_pid_is_tann_proofs (P : pid_is_tann_proofs S eq plus times) : id_ann_proofs S eq plus times := 
+{|
+  A_id_ann_plus_times_d := Id_Ann_Proof_Equal _ _ _ _ (A_pid_is_tann_plus_times _ _ _ _ P)
+; A_id_ann_times_plus_d := A_pid_is_tann_times_plus_d _ _ _ _ P
+|}.
+
+Definition id_ann_proofs_from_pann_is_tid_proofs (P : pann_is_tid_proofs S eq plus times) : id_ann_proofs S eq plus times := 
+{|
+  A_id_ann_plus_times_d := A_pann_is_tid_plus_times_d _ _ _ _ P
+; A_id_ann_times_plus_d := Id_Ann_Proof_Equal _ _ _ _ (A_pann_is_tid_times_plus _ _ _ _ P)
+|}.
+
+Definition pid_is_tann_proofs_from_dually_bounded_proofs (P : dually_bounded_proofs S eq plus times) : pid_is_tann_proofs S eq plus times := 
+{|
+  A_pid_is_tann_plus_times   := A_bounded_plus_id_is_times_ann  _ _ _ _ P
+; A_pid_is_tann_times_plus_d := Id_Ann_Proof_Equal _ _ _ _ (A_bounded_times_id_is_plus_ann _ _ _ _ P)
+|}.
+
+Definition pann_is_tid_proofs_from_dually_bounded_proofs (P : dually_bounded_proofs S eq plus times) : pann_is_tid_proofs S eq plus times := 
+{|
+  A_pann_is_tid_plus_times_d   := Id_Ann_Proof_Equal _ _ _ _ (A_bounded_plus_id_is_times_ann _ _ _ _ P)
+; A_pann_is_tid_times_plus     := A_bounded_times_id_is_plus_ann  _ _ _ _ P
+|}.
+
+Definition id_ann_proofs_from_dually_bounded_proofs (P : dually_bounded_proofs S eq plus times) : id_ann_proofs S eq plus times := 
+             id_ann_proofs_from_pann_is_tid_proofs (pann_is_tid_proofs_from_dually_bounded_proofs P). 
+
 
 Definition bs_proofs_from_semiring_proofs :
     eqv_proofs S eq -> sg_C_proofs S eq plus ->
@@ -97,55 +134,6 @@ let plusS_comm := A_sg_C_commutative S eq plus sg in
 ; A_bs_right_left_absorptive_d  := bops_right_left_absorptive_decide_I S eq plus times tranS plusS_comm (A_semiring_left_left_absorptive_d S eq plus times sr)
 ; A_bs_right_right_absorptive_d := bops_right_right_absorptive_decide_I S eq plus times tranS plusS_comm (A_semiring_left_right_absorptive_d S eq plus times sr)
 |}.
-
-
-Definition bounded_to_zero_one_proofs : bounded_proofs S eq plus times -> zero_one_proofs S eq plus times
-:= λ bp,
-   match A_bounded_times_id_is_plus_ann S eq plus times bp with 
-   | existT _ one (idP, annP)  => 
-    {|
-        A_zero_one_exists_plus_ann_d      := inl (existT (λ a, bop_is_ann S eq plus a) one annP)
-      ; A_zero_one_exists_times_id        := existT (λ a, bop_is_id S eq times a) one idP 
-      ; A_zero_one_plus_id_is_times_ann   := A_bounded_plus_id_is_times_ann S eq plus times bp 
-      ; A_zero_one_times_id_is_plus_ann_d := inl (A_bounded_times_id_is_plus_ann S eq plus times bp)
-    |}
-   end.
-
-
-Definition zero_one_to_id_ann_proofs : zero_one_proofs S eq plus times -> id_ann_proofs S eq plus times
-:= λ zop,
-   match A_zero_one_plus_id_is_times_ann S eq plus times zop with 
-   | existT _ zero (idP, annP)  => 
-     {|
-        A_id_ann_exists_plus_id_d       := inl(existT (λ a, bop_is_id S eq plus a) zero idP)
-      ; A_id_ann_exists_plus_ann_d      := A_zero_one_exists_plus_ann_d _ _ _ _ zop 
-      ; A_id_ann_exists_times_id_d      := inl(A_zero_one_exists_times_id _ _ _ _ zop)
-      ; A_id_ann_exists_times_ann_d     := inl(existT (λ a, bop_is_ann S eq times a) zero annP)                                                  
-      ; A_id_ann_plus_id_is_times_ann_d := inl (A_zero_one_plus_id_is_times_ann _ _ _ _ zop) 
-      ; A_id_ann_times_id_is_plus_ann_d := A_zero_one_times_id_is_plus_ann_d _ _ _ _ zop 
-    |}
-   end.
-
-Definition selective_distributive_lattice_proofs_to_semiring_proofs :
-       eqv_proofs S eq -> 
-       sg_CS_proofs S eq plus -> sg_CS_proofs S eq times -> 
-             distributive_lattice_proofs S eq plus times -> semiring_proofs S eq plus times
-:= λ eqvP plusP timesP dlp,
-let refS  := A_eqv_reflexive S eq eqvP in
-let symS  := A_eqv_symmetric S eq eqvP in     
-let tranS := A_eqv_transitive S eq eqvP in
-let cong_plus  := A_sg_CS_congruence S eq plus plusP in   
-let comm_plus  := A_sg_CS_commutative S eq plus plusP in
-let comm_times := A_sg_CS_commutative S eq times timesP in   
-let ld  := A_distributive_lattice_distributive S eq plus times dlp in   
-let la  := A_distributive_lattice_absorptive S eq plus times dlp in
-{|
-  A_semiring_left_distributive        := ld 
-; A_semiring_right_distributive       := bop_left_distributive_implies_right S eq plus times tranS cong_plus comm_plus comm_times ld
-; A_semiring_left_left_absorptive_d   := inl la 
-; A_semiring_left_right_absorptive_d  := inl (bops_left_left_absorptive_implies_left_right S eq plus times refS tranS cong_plus comm_times la)
-|}.
-
 
 
 
@@ -243,6 +231,7 @@ Definition A_bs_from_bs_CI : ∀ (S : Type),  A_bs_CI S -> A_bs S
 ; A_bs_ast          := Ast_bs_from_bs_CI (A_bs_CI_ast S bs)
 |}. 
 
+(*
 Definition A_bs_CI_from_bs_CS : ∀ (S : Type),  A_bs_CS S -> A_bs_CI S 
 := λ S bs, 
 {| 
@@ -259,7 +248,7 @@ Definition A_bs_CI_from_bs_CS : ∀ (S : Type),  A_bs_CS S -> A_bs_CI S
 ; A_bs_CI_ast           := Ast_bs_CI_from_bs_CS (A_bs_CS_ast S bs)
 |}. 
 
-
+*) 
 Definition A_bs_from_presemiring :∀ (S: Type), A_presemiring S -> A_bs S 
 := λ S s,
 let eqv      := A_presemiring_eqv S s in
@@ -279,7 +268,7 @@ let sg_plusP := A_presemiring_plus_proofs S s in
 ; A_bs_ast           := Ast_bs_from_presemiring (A_presemiring_ast S s)
 |}.
 
-
+(*
 Definition A_presemiring_from_selective_presemiring :∀ (S: Type), A_selective_presemiring S -> A_presemiring S
   := λ S dS,
 let eqvS  := A_selective_presemiring_eqv S dS in
@@ -300,7 +289,7 @@ let times := A_selective_presemiring_times S dS in
 ; A_presemiring_proofs        := A_selective_presemiring_proofs S dS 
 ; A_presemiring_ast           := Ast_presemiring_from_selective_presemiring(A_selective_presemiring_ast S dS)
 |}.     
-
+*) 
 
 Definition A_presemiring_from_semiring :∀ (S: Type), A_semiring S -> A_presemiring S
   := λ S dS,
@@ -314,7 +303,7 @@ let times := A_semiring_times S dS in
 ; A_presemiring_times         := times 
 ; A_presemiring_plus_proofs   := A_semiring_plus_proofs S dS 
 ; A_presemiring_times_proofs  := A_semiring_times_proofs S dS 
-; A_presemiring_id_ann_proofs := zero_one_to_id_ann_proofs S eq plus times (A_semiring_id_ann_proofs S dS)
+; A_presemiring_id_ann_proofs := id_ann_proofs_from_pid_is_tann_proofs S eq plus times (A_semiring_id_ann_proofs S dS)
 ; A_presemiring_proofs        := A_semiring_proofs S dS 
 ; A_presemiring_ast           := Ast_presemiring_from_semiring(A_semiring_ast S dS)
 |}.
@@ -345,7 +334,7 @@ let timesP := A_distributive_prelattice_meet_proofs S dS in
 |}.     
 
 
-
+(*
 Definition A_presemiring_from_selective_distributive_prelattice :∀ (S: Type), A_selective_distributive_prelattice S -> A_presemiring S
   := λ S dS,
 let eqvS   := A_selective_distributive_prelattice_eqv S dS in
@@ -369,7 +358,7 @@ let plP    := A_selective_distributive_prelattice_proofs S dS in
 ; A_presemiring_proofs        := selective_distributive_lattice_proofs_to_semiring_proofs S eq plus times eqvP plusP timesP plP
 ; A_presemiring_ast           := Ast_presemiring_from_selective_distributive_prelattice (A_selective_distributive_prelattice_ast S dS)
 |}.     
-
+*) 
 
 
 Definition A_semiring_from_dioid :∀ (S: Type), A_dioid S -> A_semiring S
@@ -387,7 +376,7 @@ let nt := A_eqv_not_trivial S eqv in
 ; A_semiring_times        := A_dioid_times S dS
 ; A_semiring_plus_proofs  := A_sg_C_proofs_from_sg_CI_proofs S eq plus w f nt eqvP (A_dioid_plus_proofs S dS)
 ; A_semiring_times_proofs := A_dioid_times_proofs S dS
-; A_semiring_id_ann_proofs := bounded_to_zero_one_proofs S _ _ _ (A_dioid_id_ann_proofs S dS)                                                  
+; A_semiring_id_ann_proofs := pid_is_tann_proofs_from_dually_bounded_proofs S _ _ _ (A_dioid_id_ann_proofs S dS)                                                  
 ; A_semiring_proofs       := A_dioid_proofs S dS
 ; A_semiring_ast          := Ast_semiring_from_dioid (A_dioid_ast S dS)
 |}.  
@@ -434,7 +423,7 @@ Definition A_bs_CI_from_lattice :∀ (S: Type), A_lattice S -> A_bs_CI S
    ; A_bs_CI_times         := meet 
    ; A_bs_CI_plus_proofs   := joinP 
    ; A_bs_CI_times_proofs  := A_msg_proofs_from_sg_proofs S eq meet (A_sg_proofs_from_sg_CI_proofs S eq meet wS f ntf eqvP meetP)
-   ; A_bs_CI_id_ann_proofs := zero_one_to_id_ann_proofs S eq join meet (bounded_to_zero_one_proofs S eq join meet (A_lattice_id_ann_proofs S lP))
+   ; A_bs_CI_id_ann_proofs := id_ann_proofs_from_dually_bounded_proofs S eq join meet (A_lattice_id_ann_proofs S lP)
    ; A_bs_CI_proofs        := lattice_to_bs_proofs S eq join meet eqvP joinP meetP (A_lattice_proofs S lP) 
    ; A_bs_CI_ast           := Ast_bs_CI_from_lattice (A_lattice_ast S lP)
   |}.
@@ -464,7 +453,7 @@ let nt    := A_eqv_not_trivial S eqv in
 |}.
 
 
-
+(*
 Definition A_selective_dioid_from_selective_distributive_lattice :∀ (S: Type), A_selective_distributive_lattice S -> A_selective_dioid S
 := λ S dS,
 let eqv   := A_selective_distributive_lattice_eqv S dS in
@@ -525,39 +514,42 @@ Definition A_distributive_lattice_from_selective_distributive_lattice : ∀ (S :
 ; A_distributive_lattice_proofs       := A_selective_distributive_lattice_proofs S lat
 ; A_distributive_lattice_ast          := Ast_distributive_lattice_from_selective_distributive_lattice (A_selective_distributive_lattice_ast S lat) 
 |}.  
-
+*) 
 
 Definition A_bs_from_semiring :∀ (S: Type), A_semiring S -> A_bs S 
   := λ S sS,  A_bs_from_presemiring S (A_presemiring_from_semiring S sS).
 
+(*
 Definition A_bs_from_selective_presemiring :∀ (S: Type), A_selective_presemiring S -> A_bs S 
   := λ S sS,  A_bs_from_presemiring S (A_presemiring_from_selective_presemiring S sS).
-
+*) 
 
 Definition A_bs_from_dioid :∀ (S: Type), A_dioid S -> A_bs S 
   := λ S sS,  A_bs_from_semiring S (A_semiring_from_dioid S sS).
 
+(*
 Definition A_bs_from_selective_dioid :∀ (S: Type), A_selective_dioid S -> A_bs S 
   := λ S sS,  A_bs_from_dioid S (A_dioid_from_selective_dioid S sS).
-
+*) 
 Definition A_bs_from_distributive_lattice :∀ (S: Type), A_distributive_lattice S -> A_bs S 
   := λ S sS,  A_bs_from_dioid S (A_dioid_from_distributive_lattice S sS). 
 
 Definition A_bs_from_distributive_prelattice :∀ (S: Type), A_distributive_prelattice S -> A_bs S 
   := λ S sS,  A_bs_from_presemiring S (A_presemiring_from_distributive_prelattice S sS). 
 
-
+(*
 Definition A_bs_from_selective_distributive_prelattice :∀ (S: Type), A_selective_distributive_prelattice S -> A_bs S 
   := λ S sS,  A_bs_from_presemiring S (A_presemiring_from_selective_distributive_prelattice S sS). 
 
 
 Definition A_bs_from_selective_distributive_lattice :∀ (S: Type), A_selective_distributive_lattice S -> A_bs S 
   := λ S sS,  A_bs_from_distributive_lattice S (A_distributive_lattice_from_selective_distributive_lattice S sS). 
-
+*) 
 End ACAS.
 
 Section CAS.
-  
+
+  (*
 Definition bs_from_bs_CI : ∀ {S : Type},  @bs_CI S -> @bs S
 := λ {S} bs, 
 {| 
@@ -575,7 +567,8 @@ Definition bs_from_bs_CI : ∀ {S : Type},  @bs_CI S -> @bs S
 ; bs_certs       := bs_CI_certs bs
 ; bs_ast         := Ast_bs_from_bs_CI (bs_CI_ast bs)
 |}.
-
+ *)
+  
 Definition bs_certs_from_semiring_certs :
   ∀ {S: Type},  @semiring_certificates S -> @bs_certificates S 
 := λ S sr,
@@ -609,6 +602,7 @@ Definition bs_from_presemiring {S: Type} (s : @presemiring S): @bs S :=
 ; bs_ast           := Ast_bs_from_presemiring (presemiring_ast s)
 |}. 
 
+(*
 Definition bs_CI_from_bs_CS {S : Type} (bs : @bs_CS S) : @bs_CI S := 
 {| 
   bs_CI_eqv          := bs_CS_eqv bs
@@ -634,7 +628,8 @@ Definition zero_one_to_id_ann_certs {S : Type} : @zero_one_certificates S  -> @i
       ; id_ann_times_id_is_plus_ann_d := zero_one_times_id_is_plus_ann_d zop 
     |}
    end.
-
+*) 
+(*
 Definition presemiring_from_selective_presemiring :∀ {S: Type}, @selective_presemiring S -> @presemiring S
   := λ S dS,
 let eqvS  := selective_presemiring_eqv dS in
@@ -652,6 +647,36 @@ let plus  := selective_presemiring_plus dS in
 ; presemiring_certs         := selective_presemiring_certs dS 
 ; presemiring_ast           := Ast_presemiring_from_selective_presemiring(selective_presemiring_ast dS)
 |}.     
+*) 
+
+
+
+Definition id_ann_certs_from_pid_is_tann_certs {S : Type} (P : @pid_is_tann_certificates S) : @id_ann_certificates S := 
+{|
+  id_ann_plus_times_d := match pid_is_tann_plus_times P with Assert_Exists_Id_Ann_Equal a => Id_Ann_Cert_Equal a end
+; id_ann_times_plus_d := pid_is_tann_times_plus_d P
+|}.
+
+Definition id_ann_certs_from_pann_is_tid_certs {S : Type} (P : @pann_is_tid_certificates S) : @id_ann_certificates S := 
+{|
+  id_ann_plus_times_d := pann_is_tid_plus_times_d P
+; id_ann_times_plus_d := match pann_is_tid_times_plus P with Assert_Exists_Id_Ann_Equal a => Id_Ann_Cert_Equal a end 
+|}.
+
+Definition pid_is_tann_certs_from_dually_bounded_certs {S : Type} (P : @dually_bounded_certificates S) : @pid_is_tann_certificates S := 
+{|
+  pid_is_tann_plus_times   := bounded_plus_id_is_times_ann  P
+; pid_is_tann_times_plus_d := match bounded_times_id_is_plus_ann P with Assert_Exists_Id_Ann_Equal a => Id_Ann_Cert_Equal a end
+|}.
+
+Definition pann_is_tid_certs_from_dually_bounded_certs {S : Type} (P : @dually_bounded_certificates S) : @pann_is_tid_certificates S := 
+{|
+  pann_is_tid_plus_times_d   := match bounded_plus_id_is_times_ann P with Assert_Exists_Id_Ann_Equal a => Id_Ann_Cert_Equal a end 
+; pann_is_tid_times_plus     := bounded_times_id_is_plus_ann  P
+|}.
+
+Definition id_ann_certs_from_dually_bounded_certs {S : Type} (P : @dually_bounded_certificates S) : @id_ann_certificates S := 
+             id_ann_certs_from_pann_is_tid_certs (pann_is_tid_certs_from_dually_bounded_certs P). 
 
 
 Definition presemiring_from_semiring  {S: Type} (bS : @semiring S) : @presemiring S := 
@@ -661,24 +686,10 @@ Definition presemiring_from_semiring  {S: Type} (bS : @semiring S) : @presemirin
 ; presemiring_times        := semiring_times bS 
 ; presemiring_plus_certs   := semiring_plus_certs bS 
 ; presemiring_times_certs  := semiring_times_certs bS 
-; presemiring_id_ann_certs := zero_one_to_id_ann_certs (semiring_id_ann_certs bS)
+; presemiring_id_ann_certs := id_ann_certs_from_pid_is_tann_certs (semiring_id_ann_certs bS)
 ; presemiring_certs        := semiring_certs bS 
 ; presemiring_ast          := Ast_presemiring_from_semiring(semiring_ast bS)
 |}.     
-
-
-Definition bounded_to_zero_one_certs {S : Type} : 
-                     @bounded_certificates S -> @zero_one_certificates S 
-:= λ bp,
-   match bounded_times_id_is_plus_ann bp with 
-   | Assert_Times_Id_Equals_Plus_Ann one  => 
-    {|
-        zero_one_exists_plus_ann_d      := Certify_Exists_Ann one 
-      ; zero_one_exists_times_id        := Assert_Exists_Id one 
-      ; zero_one_plus_id_is_times_ann   := bounded_plus_id_is_times_ann bp 
-      ; zero_one_times_id_is_plus_ann_d := Certify_Times_Id_Equals_Plus_Ann one 
-    |}
-   end.
 
 
 Definition selective_distributive_lattice_certs_to_semiring_certs {S: Type} :
@@ -701,7 +712,7 @@ Definition distributive_lattice_certs_to_semiring_certs :
 ; semiring_left_left_absorptive_d   := Certify_Left_Left_Absorptive 
 ; semiring_left_right_absorptive_d  := Certify_Left_Right_Absorptive 
 |}.
-
+(*
 Definition presemiring_from_distributive_prelattice :∀ {S: Type}, @distributive_prelattice S -> @presemiring S
   := λ S dS,
 let eqvS   := distributive_prelattice_eqv dS in
@@ -746,6 +757,7 @@ let plP    := selective_distributive_prelattice_certs dS in
 ; presemiring_ast          := Ast_presemiring_from_selective_distributive_prelattice (selective_distributive_prelattice_ast dS)
 |}.     
 
+
 Definition semiring_from_dioid :∀ {S: Type}, @dioid S -> @semiring S
 := λ S dS,
 {|
@@ -762,6 +774,8 @@ Definition semiring_from_dioid :∀ {S: Type}, @dioid S -> @semiring S
 ; semiring_certs        := dioid_certs dS
 ; semiring_ast          := Ast_semiring_from_dioid (dioid_ast dS)
 |}.
+
+
 
 
 Definition dioid_from_selective_dioid :∀ {S: Type}, @selective_dioid S -> @dioid S
@@ -791,6 +805,8 @@ Definition distributive_lattice_from_selective_distributive_lattice : ∀ {S : T
 ; distributive_lattice_ast          := Ast_distributive_lattice_from_selective_distributive_lattice (selective_distributive_lattice_ast lat) 
 |}.  
 
+
+
 Definition dioid_from_distributive_lattice {S: Type} (dS : @distributive_lattice S) : @dioid S :=
 let eqv   := distributive_lattice_eqv dS in  
 let eq    := eqv_eq eqv in
@@ -809,7 +825,7 @@ let f     := eqv_new eqv in
 ; dioid_certs        := distributive_lattice_certs_to_semiring_certs plusC timesC (distributive_lattice_certs dS)
 ; dioid_ast          := Ast_dioid_from_distributive_lattice (distributive_lattice_ast dS)
 |}.
-
+ *)
 
 Definition lattice_certs_from_distributive_lattice_certs {S : Type} : @distributive_lattice_certificates S ->  @lattice_certificates S 
 := λ dP,
@@ -848,7 +864,7 @@ Definition lattice_to_bs_certs {S : Type} (lP : @lattice_certificates S ) : @bs_
  ; bs_right_right_absorptive_d := Certify_Right_Right_Absorptive
 |}.           
 
-
+(*
 Definition bs_CI_from_lattice {S: Type} (lP : @lattice S) :  @bs_CI S := 
   let eqv  := lattice_eqv lP      in 
   let eq   := eqv_eq eqv          in 
@@ -886,12 +902,13 @@ let f     := eqv_new eqv in
 ; selective_dioid_certs        := distributive_lattice_certs_to_semiring_certs (sg_CI_certs_from_sg_CS_certs plusP) (sg_CI_certs_from_sg_CS_certs timesP) dPS
 ; selective_dioid_ast          := Ast_selective_dioid_from_selective_distributive_lattice (selective_distributive_lattice_ast dS)
 |}.  
-
+*) 
 
 
 Definition bs_from_semiring :∀ {S: Type}, @semiring S -> @bs S 
   := λ S sS,  bs_from_presemiring (presemiring_from_semiring sS).
 
+(*
 Definition bs_from_selective_presemiring :∀ {S: Type}, @selective_presemiring S -> @bs S 
   := λ S sS,  bs_from_presemiring (presemiring_from_selective_presemiring sS).
 
@@ -913,7 +930,7 @@ Definition bs_from_selective_distributive_prelattice :∀ {S: Type}, @selective_
 
 Definition bs_from_selective_distributive_lattice :∀ {S: Type}, @selective_distributive_lattice S -> @bs S 
   := λ S sS,  bs_from_distributive_lattice (distributive_lattice_from_selective_distributive_lattice sS). 
-
+*) 
 
 (*
 bs_from_selective_distributive_lattice
@@ -970,27 +987,47 @@ Proof. destruct dP. destruct plusP, timesP.
             distributive_lattice_certs_to_semiring_certs, P2C_sg_CI, P2C_distributive_lattice, P2C_semiring; simpl; auto. 
 Qed.
 
-Lemma correct_zero_one_to_id_ann_certs (zop : zero_one_proofs S eq plus times): 
-   zero_one_to_id_ann_certs (P2C_zero_one S eq plus times zop)
+Lemma correct_id_ann_from_pid_is_tann_certs (P : pid_is_tann_proofs S eq plus times): 
+   id_ann_certs_from_pid_is_tann_certs (P2C_pid_is_tann S eq plus times P)
    =
-   P2C_id_ann S eq plus times (zero_one_to_id_ann_proofs S eq plus times zop).
-Proof. destruct zop.
-       destruct A_zero_one_plus_id_is_times_ann as [zero [idP annP]].              
-       destruct A_zero_one_exists_times_id as [one oneP].
-       unfold zero_one_to_id_ann_proofs, zero_one_to_id_ann_certs, P2C_zero_one, P2C_id_ann; simpl.
+   P2C_id_ann S eq plus times (id_ann_proofs_from_pid_is_tann_proofs S eq plus times P).
+Proof. destruct P.
+       unfold id_ann_certs_from_pid_is_tann_certs, id_ann_proofs_from_pid_is_tann_proofs. 
+       unfold P2C_pid_is_tann, P2C_id_ann; simpl. 
        reflexivity. 
 Qed.
 
-Lemma correct_bounded_to_zero_one_certs (bp : bounded_proofs S eq plus times): 
-   bounded_to_zero_one_certs (P2C_bounded S eq plus times bp)
+Lemma correct_id_ann_from_pann_is_tid_certs (P : pann_is_tid_proofs S eq plus times): 
+   id_ann_certs_from_pann_is_tid_certs (P2C_pann_is_tid S eq plus times P)
    =
-   P2C_zero_one S eq plus times (bounded_to_zero_one_proofs S eq plus times bp).
-Proof. destruct bp.
-       destruct A_bounded_times_id_is_plus_ann as [one [oidP oannP]].                     
-       destruct A_bounded_plus_id_is_times_ann as [zero [zidP zannP]].
-       unfold bounded_to_zero_one_proofs, bounded_to_zero_one_certs, P2C_zero_one, P2C_bounded; simpl.
+   P2C_id_ann S eq plus times (id_ann_proofs_from_pann_is_tid_proofs S eq plus times P).
+Proof. destruct P.
+       unfold id_ann_certs_from_pann_is_tid_certs, id_ann_proofs_from_pann_is_tid_proofs. 
+       unfold P2C_pann_is_tid, P2C_id_ann; simpl. 
        reflexivity. 
 Qed.
+
+Lemma correct_pid_is_tann_certs_from_dually_bounded_certs (P : dually_bounded_proofs S eq plus times): 
+   pid_is_tann_certs_from_dually_bounded_certs (P2C_dually_bounded S eq plus times P)
+   =
+   P2C_pid_is_tann S eq plus times (pid_is_tann_proofs_from_dually_bounded_proofs S eq plus times P).
+Proof. destruct P.
+       unfold pid_is_tann_certs_from_dually_bounded_certs, pid_is_tann_proofs_from_dually_bounded_proofs. 
+       unfold P2C_pid_is_tann, P2C_dually_bounded; simpl. 
+       reflexivity. 
+Qed.
+
+Lemma correct_pann_is_tid_certs_from_dually_bounded_certs (P : dually_bounded_proofs S eq plus times): 
+   pann_is_tid_certs_from_dually_bounded_certs (P2C_dually_bounded S eq plus times P)
+   =
+   P2C_pann_is_tid S eq plus times (pann_is_tid_proofs_from_dually_bounded_proofs S eq plus times P).
+Proof. destruct P.
+       unfold pann_is_tid_certs_from_dually_bounded_certs, pann_is_tid_proofs_from_dually_bounded_proofs. 
+       unfold P2C_pann_is_tid, P2C_dually_bounded; simpl. 
+       reflexivity. 
+Qed.
+
+
 
 Lemma correct_lattice_certs_from_distributive_lattice_certs
       (eqv : A_eqv S)
@@ -1021,6 +1058,7 @@ Proof. intros S P. destruct P.
        reflexivity. 
 Qed.
 
+(*
 Theorem correct_bs_from_bs_CI : ∀ (S : Type) (P : A_bs_CI S),  
     bs_from_bs_CI (A2C_bs_CI S P) = A2C_bs S (A_bs_from_bs_CI S P).
 Proof. intros S P. destruct P.
@@ -1105,7 +1143,7 @@ Proof. intros S P. destruct P.
        rewrite <- correct_sg_CI_certs_from_sg_CS_certs.
        reflexivity. 
 Qed. 
-
+*) 
 
 Theorem correct_lattice_from_distributive_lattice : ∀ (S : Type) (P : A_distributive_lattice S),  
     lattice_from_distributive_lattice (A2C_distributive_lattice S P)

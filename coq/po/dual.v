@@ -141,6 +141,16 @@ End Theory.
 
 Section ACAS.
 
+Definition po_dual_proofs {S : Type} (eq lte : brel S) (poP : po_proofs S eq lte) : po_proofs S eq (brel_dual lte)
+:= 
+{|
+  A_po_congruence    := brel_dual_congruence S eq lte (A_po_congruence _ _ _ poP)  
+; A_po_reflexive     := brel_dual_reflexive S lte (A_po_reflexive _ _ _ poP)
+; A_po_transitive    := brel_dual_transitive S lte (A_po_transitive _ _ _ poP)                                                    
+; A_po_antisymmetric := brel_dual_antisymmetric S eq lte (A_po_antisymmetric _ _ _ poP)   
+; A_po_not_total     := brel_dual_not_total S lte (A_po_not_total _ _ _ poP)
+|}. 
+  
 
 (*  
 Definition qo_proofs_add_bottom : 

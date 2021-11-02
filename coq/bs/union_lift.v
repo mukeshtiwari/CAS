@@ -210,6 +210,7 @@ Definition bops_union_lift_right_right_absorptive_decide (rd : bop_is_right_deci
      | inr nlra => inr (bops_union_lift_not_right_right_absorptive nlra)
      end.                                                          
 
+(*
 Lemma bops_union_lift_id_equals_ann : bops_id_equals_ann (finite_set S) (brel_set r) (bop_union r) (bop_lift r bS).
 Proof. exists nil; split. 
        apply bop_union_nil_is_id; auto. 
@@ -243,7 +244,7 @@ Proof. unfold bops_not_id_equals_ann.
        left.  apply bop_lift_not_exists_id; auto.
        left.  apply bop_lift_not_exists_id; auto.
 Defined. 
-
+*) 
 End Theory. 
 
 Section ACAS.
@@ -295,7 +296,7 @@ let irD  := A_msg_is_right_d S rS bS sgS in
 |}.
 
 
-
+(*
 Definition id_ann_proofs_union_lift : 
   ∀ (S : Type) (s : S) (rS : brel S) (bS : binary_op S) (f : S -> S),
     brel_not_trivial S rS f -> 
@@ -334,12 +335,12 @@ let Pf    := A_eqv_not_trivial S eqvS in
    ; A_bs_CI_plus          := bop_union rS
    ; A_bs_CI_times         := bop_lift rS bS
    ; A_bs_CI_id_ann_proofs := id_ann_proofs_union_lift S s rS bS f Pf (A_eqv_finite_d S eqvS) (A_msg_exists_id_d S sgS) peqvS (A_msg_proofs S sgS)
-   ; A_bs_CI_plus_proofs   := sg_CI_proofs_union S eqvS
+   ; A_bs_CI_plus_proofs   := sg_CI_proofs_union eqvS
    ; A_bs_CI_times_proofs  := msg_lift_proofs S rS bS peqvS s f Pf (A_msg_proofs S sgS)
    ; A_bs_CI_proofs        := bs_proofs_union_lift S s rS bS f Pf (A_eqv_finite_d S eqvS) peqvS (A_msg_proofs S sgS)
    ; A_bs_CI_ast           := Ast_bs_union_lift (A_msg_ast S sgS)
 |}.
-
+*) 
   
 End ACAS.
 
@@ -386,6 +387,7 @@ let irD  := msg_is_right_d sgS in
 ; bs_right_right_absorptive_d := bops_union_lift_right_right_absorptive_check irD
 |}.
 
+(*
 Definition id_ann_certs_union_lift : ∀ {S : Type}, @check_exists_id S -> @check_is_finite S -> @id_ann_certificates (finite_set S)
 := λ {S} exists_id_d finite_d,
 {|
@@ -415,7 +417,7 @@ let f     := eqv_new eqvS in
    ; bs_CI_certs        := bs_certs_union_lift (msg_certs sgS)
    ; bs_CI_ast          := Ast_bs_union_lift (msg_ast sgS)
 |}.
-
+*) 
 
 
 
@@ -497,7 +499,7 @@ Proof. destruct sgP. unfold bs_proofs_union_lift, bs_certs_union_lift, P2C_msg, 
        destruct A_msg_is_left_d as [L | [[a b] NL]]; destruct A_msg_is_right_d as [R | [[c d] NR]]; simpl; reflexivity. 
 Qed.
 
-
+(*
 Lemma correct_id_ann_certs_union_lift 
       (S : Type) 
       (eqv : A_eqv S)
@@ -538,7 +540,7 @@ Proof. intros S sgS.
        reflexivity.
 Qed. 
 
-
+*) 
 End Verify. 
 
 

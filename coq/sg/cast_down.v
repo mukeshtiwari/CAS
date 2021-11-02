@@ -12,6 +12,23 @@ End Theory.
 
 Section ACAS.
 
+
+Definition A2C_sg_option : ∀ (S : Type), option(A_sg S) -> option(@sg S)
+  := λ S, option_map (A2C_sg S). 
+
+Definition A2C_sg_C_option : ∀ (S : Type), option(A_sg_C S) -> option(@sg_C S) 
+  := λ S, option_map (A2C_sg_C S). 
+
+Definition A2C_sg_CI_option : ∀ (S : Type), option(A_sg_CI S) -> option(@sg_CI S) 
+  := λ S, option_map (A2C_sg_CI S). 
+
+Definition A2C_sg_CS_option : ∀ (S : Type), option(A_sg_CS S) -> option(@sg_CS S)
+  := λ S, option_map (A2C_sg_CS S). 
+         
+Definition A2C_sg_CK_option : ∀ (S : Type), option(A_sg_CK S) -> option(@sg_CK S)
+  := λ S, option_map (A2C_sg_CK S). 
+
+
   
  Definition A_sg_C_proofs_option_from_sg_proofs :
     ∀ (S : Type) (eqS : brel S) (bS : binary_op S), sg_proofs S eqS bS -> option (sg_C_proofs S eqS bS)
@@ -97,7 +114,7 @@ Definition A_sg_CS_option_from_sg_C : ∀ (S : Type),  A_sg_C S -> option (A_sg_
     |}
    end.
 
-
+(*
  Definition A_sg_CS_proofs_option_from_sg_CI_proofs :
     ∀ (S : Type) (eqS : brel S) (bS : binary_op S), sg_CI_proofs S eqS bS -> option (sg_CS_proofs S eqS bS)
 := λ S eqS bS sgS,
@@ -110,7 +127,7 @@ Definition A_sg_CS_option_from_sg_C : ∀ (S : Type),  A_sg_C S -> option (A_sg_
                    ; A_sg_CS_selective        := sS
                  |}
     end.
- 
+
 Definition A_sg_CS_option_from_sg_CI : ∀ (S : Type),  A_sg_CI S -> option (A_sg_CS S) 
 := λ S sg, 
    match A_sg_CS_proofs_option_from_sg_CI_proofs _ _ _ (A_sg_CI_proofs S sg) with 
@@ -154,7 +171,7 @@ Definition A_sg_CI_option_from_sg_C : ∀ (S : Type),  A_sg_C S -> option (A_sg_
        ; A_sg_CI_ast          := Ast_sg_CI_from_sg_C (A_sg_C_ast S sg)
     |}
    end. 
-
+*)  
 
  Definition A_sg_CK_proofs_option_from_sg_C_proofs :
     ∀ (S : Type) (eqS : brel S) (bS : binary_op S), sg_C_proofs S eqS bS -> option (sg_CK_proofs S eqS bS)
@@ -194,13 +211,14 @@ Definition A_sg_CS_option_from_sg : ∀ (S : Type),  A_sg S -> option (A_sg_CS S
    | Some sgC => A_sg_CS_option_from_sg_C S sgC 
    end. 
 
+ (*
 Definition A_sg_CI_option_from_sg : ∀ (S : Type),  A_sg S -> option (A_sg_CI S) 
 := λ S sg, 
    match A_sg_C_option_from_sg S sg with 
    | None => None
    | Some sgC => A_sg_CI_option_from_sg_C S sgC 
    end. 
- 
+ *) 
 
 Definition A_sg_CK_option_from_sg : ∀ (S : Type),  A_sg S -> option (A_sg_CK S) 
 := λ S sg, 
@@ -212,6 +230,23 @@ Definition A_sg_CK_option_from_sg : ∀ (S : Type),  A_sg S -> option (A_sg_CK S
 End ACAS.
 
 Section CAS.
+
+Definition P2C_sg_option : ∀ (S : Type) (r : brel S) (b : binary_op S), option(sg_proofs S r b) -> option(@sg_certificates S)
+  := λ S r b, option_map (P2C_sg S r b). 
+
+Definition P2C_sg_C_option : ∀ (S : Type) (r : brel S) (b : binary_op S),  option(sg_C_proofs S r b) -> option(@sg_C_certificates S)       
+  := λ S r b, option_map (P2C_sg_C S r b). 
+
+Definition P2C_sg_CI_option : ∀ (S : Type) (r : brel S) (b : binary_op S), option(sg_CI_proofs S r b) -> option(@sg_CI_certificates S)  
+  := λ S r b, option_map (P2C_sg_CI S r b).          
+
+Definition P2C_sg_CS_option : ∀ (S : Type) (r : brel S) (b : binary_op S), option(sg_CS_proofs S r b) -> option(@sg_CS_certificates S)   
+  := λ S r b, option_map (P2C_sg_CS S r b). 
+         
+Definition P2C_sg_CK_option : ∀ (S : Type) (r : brel S) (b : binary_op S), option(sg_CK_proofs S r b) -> option(@sg_CK_certificates S)   
+  := λ S r b, option_map (P2C_sg_CK S r b). 
+
+  
 
  Definition sg_C_certs_option_from_sg_certs :
     ∀ (S : Type), @sg_certificates S -> option (@sg_C_certificates S)
@@ -267,7 +302,7 @@ Section CAS.
     end.   
 
 
-
+(*
   Definition sg_CS_certs_option_from_sg_CI_certs :
     ∀ (S : Type), @sg_CI_certificates S -> option (@sg_CS_certificates S)
 := λ S sgS,
@@ -294,7 +329,7 @@ Definition sg_CI_certs_option_from_sg_C_certs :
                    ; sg_CI_selective_d      := sg_C_selective_d sgS
                  |}
     end.   
-
+*) 
 
 Definition sg_CK_certs_option_from_sg_C_certs :
     ∀ (S : Type), @sg_C_certificates S -> option (@sg_CK_certificates S)
@@ -327,7 +362,7 @@ Definition sg_C_option_from_sg : ∀ (S : Type),  @sg S -> option (@sg_C S)
        ; sg_C_ast          := Ast_sg_C_from_sg (sg_ast sg)
     |}
    end.
-
+(*
  Definition sg_CI_option_from_sg_C : ∀ (S : Type),  @sg_C S -> option (@sg_CI S) 
 := λ S sg, 
    match sg_CI_certs_option_from_sg_C_certs _ (sg_C_certs sg) with 
@@ -342,7 +377,7 @@ Definition sg_C_option_from_sg : ∀ (S : Type),  @sg S -> option (@sg_C S)
        ; sg_CI_ast          := Ast_sg_CI_from_sg_C (sg_C_ast sg)
     |}
    end.
-
+*) 
 Definition sg_CK_option_from_sg_C : ∀ (S : Type),  @sg_C S -> option (@sg_CK S) 
 := λ S sg, 
    match sg_CK_certs_option_from_sg_C_certs _ (sg_C_certs sg) with 
@@ -356,7 +391,7 @@ Definition sg_CK_option_from_sg_C : ∀ (S : Type),  @sg_C S -> option (@sg_CK S
        ; sg_CK_ast         := Ast_sg_CK_from_sg_C (sg_C_ast sg)
     |}
    end.
-
+(*
 Definition sg_CS_option_from_sg_CI : ∀ (S : Type),  @sg_CI S -> option (@sg_CS S) 
 := λ S sg, 
    match sg_CS_certs_option_from_sg_CI_certs _ (sg_CI_certs sg) with 
@@ -371,7 +406,7 @@ Definition sg_CS_option_from_sg_CI : ∀ (S : Type),  @sg_CI S -> option (@sg_CS
        ; sg_CS_ast          := Ast_sg_CS_from_sg_CI (sg_CI_ast sg)
     |}
    end.
-
+*) 
 
 Definition sg_CS_option_from_sg_C : ∀ (S : Type),  @sg_C S -> option (@sg_CS S) 
 := λ S sg, 
@@ -400,13 +435,14 @@ Definition sg_CS_option_from_sg : ∀ (S : Type),  @sg S -> option (@sg_CS S)
    | Some sgC => sg_CS_option_from_sg_C S sgC 
    end. 
 
+(* 
 Definition sg_CI_option_from_sg : ∀ (S : Type),  @sg S -> option (@sg_CI S) 
 := λ S sg, 
    match sg_C_option_from_sg S sg with 
    | None => None
    | Some sgC => sg_CI_option_from_sg_C S sgC 
    end. 
- 
+ *) 
 
 Definition sg_CK_option_from_sg : ∀ (S : Type),  @sg S -> option (@sg_CK S) 
 := λ S sg, 
@@ -432,7 +468,7 @@ Proof. intros S r b sgS. destruct sgS.
        reflexivity. 
 Defined. 
 
-
+(*
 Lemma correct_sg_CI_certs_option_from_sg_C_certs : 
    ∀ (S : Type) (r : brel S) (b : binary_op S) (sgS : sg_C_proofs S r b), 
        sg_CI_certs_option_from_sg_C_certs S (P2C_sg_C S r b sgS)
@@ -457,7 +493,7 @@ Proof. intros S r b sgS. destruct sgS.
        simpl; reflexivity. 
 Defined. 
 
-
+*) 
 Lemma correct_sg_CS_certs_option_from_sg_C_certs : 
    ∀ (S : Type) (r : brel S) (b : binary_op S) (sgS : sg_C_proofs S r b), 
        sg_CS_certs_option_from_sg_C_certs S (P2C_sg_C S r b sgS)
@@ -508,7 +544,7 @@ Proof. intros S P. destruct P.
           reflexivity. 
 Defined. 
 
-
+(*
 Theorem correct_sg_CI_option_from_sg_C : ∀ (S : Type) (P : A_sg_C S),  
         sg_CI_option_from_sg_C S (A2C_sg_C S P) = A2C_sg_CI_option S (A_sg_CI_option_from_sg_C S P). 
 Proof. intros S P. destruct P. 
@@ -518,7 +554,7 @@ Proof. intros S P. destruct P.
           intro s. reflexivity. 
           reflexivity. 
 Defined.
-
+*) 
 Theorem correct_sg_CS_option_from_sg_C : ∀ (S : Type) (P : A_sg_C S),  
         sg_CS_option_from_sg_C S (A2C_sg_C S P) = A2C_sg_CS_option S (A_sg_CS_option_from_sg_C S P). 
 Proof. intros S P. destruct P. 
@@ -541,7 +577,7 @@ Proof. intros S P. destruct P.
           intro s. reflexivity. 
           reflexivity. 
 Defined. 
-
+(*
 Theorem correct_sg_CS_option_from_sg_CI : ∀ (S : Type) (P : A_sg_CI S),  
          sg_CS_option_from_sg_CI S (A2C_sg_CI S P) = A2C_sg_CS_option S (A_sg_CS_option_from_sg_CI S P). 
 Proof. intros S P. destruct P. 
@@ -551,6 +587,6 @@ Proof. intros S P. destruct P.
           intro s. reflexivity. 
           reflexivity. 
 Defined. 
- 
+ *) 
 End Verify.   
   

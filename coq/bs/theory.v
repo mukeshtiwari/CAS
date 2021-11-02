@@ -401,6 +401,69 @@ Definition bops_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_o
     ∀ (s t : S), r s (b1 (b2 t s) s) = true.
  *)
 
+
+Lemma id_ann_implies_left_left_absorptive
+      (S : Type)
+      (eq : brel S)
+      (ref : brel_reflexive S eq)
+      (trn : brel_transitive S eq)
+      (sym : brel_symmetric S eq)      
+      (plus times : binary_op S)
+      (c_plus : bop_congruence S eq plus)
+      (c_times : bop_congruence S eq times)       
+      (ld : bop_left_distributive S eq plus times)       
+      (id_ann : bops_exists_id_ann_equal S eq times plus) :
+      bops_left_left_absorptive S eq plus times.   
+Proof. destruct id_ann as [id [A B]]. 
+       intros a b.
+       assert (C : eq (plus a (times a b)) (plus (times a id) (times a b)) = true).
+          destruct (A a) as [D E].
+          apply sym. exact (c_plus _ _ _ _ E (ref (times a b))). 
+       assert (D : eq (plus (times a id) (times a b)) (times a (plus id b)) = true).
+          apply sym. exact (ld a id b). 
+       assert (E : eq (times a (plus id b)) (times a id) = true). 
+          destruct (B b) as [F G]. 
+          exact (c_times _ _ _ _ (ref a) F).
+       assert (F : eq (times a id) a = true).
+          destruct (A a) as [G H]. exact H. 
+       apply sym.
+       exact (trn _ _ _ (trn _ _ _ (trn _ _ _ C D) E) F). 
+Qed.
+
+
+Lemma id_ann_implies_left_right_absorptive
+      (S : Type)
+      (eq : brel S)
+      (ref : brel_reflexive S eq)
+      (trn : brel_transitive S eq)
+      (sym : brel_symmetric S eq)      
+      (plus times : binary_op S)
+      (c_plus : bop_congruence S eq plus)
+      (comm : bop_commutative S eq plus)      
+      (c_times : bop_congruence S eq times)       
+      (rd : bop_right_distributive S eq plus times)       
+      (id_ann : bops_exists_id_ann_equal S eq times plus) :
+      bops_left_right_absorptive S eq plus times.   
+Proof. destruct id_ann as [id [A B]]. 
+       intros a b.
+       assert (C : eq (plus (times b a) a) (plus  (times b a) (times id a)) = true).
+          destruct (A a) as [D E].
+          apply sym. exact (c_plus _ _ _ _ (ref (times b a)) D). 
+       assert (D : eq (plus (times b a) (times id a)) (times  (plus b id) a) = true).
+          apply sym. exact (rd a b id). 
+       assert (E : eq (times (plus b id) a) (times id a) = true). 
+          destruct (B b) as [F G]. 
+          exact (c_times _ _ _ _ G (ref a)).
+       assert (F : eq (times id a) a = true).
+          destruct (A a) as [G H]. exact G.
+       assert (G := comm a (times b a)).
+       apply sym.
+       exact (trn _ _ _ (trn _ _ _ (trn _ _ _ (trn _ _ _ G C) D) E) F). 
+Qed.
+
+
+       
+
 Lemma bops_left_right_absorptive_implies_right_right : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S),
         brel_transitive S r -> 
         bop_commutative S r b1 -> 

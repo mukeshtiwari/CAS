@@ -22,6 +22,7 @@ Require Import CAS.coq.sg.minset_lift.
 
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
+Require Import CAS.coq.bs.theory. 
 
 Require Import CAS.coq.os.properties.
 Require Import CAS.coq.os.structures.
@@ -449,7 +450,216 @@ Lemma minset_union_lift_left_right_absorptive_increasing_weak
       (inc : os_right_increasing lteS bS)       
       (X Y : finite_set S):    
       ([ms] X) [=S] ([ms] (X [U] (Y [^] X))).
-Proof.  apply  union_left_antisymmetric; auto. apply lift_right_increasing; auto. Qed. 
+Proof.  apply  union_left_antisymmetric; auto. apply lift_right_increasing; auto. Qed.
+
+(*
+Lemma minset_union_lift_not_id_equals_ann
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
+      (anti : brel_antisymmetric S rS lteS)
+      (top_ann : os_top_equals_ann rS lteS bS) :
+      bops_not_id_equals_ann (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
+Proof. unfold bops_not_id_equals_ann.
+       intro X. 
+Admitted. 
+
+Lemma minset_union_lift_ann_equals_id 
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
+      (anti : brel_antisymmetric S rS lteS)
+      (bot_id : os_bottom_equals_id rS lteS bS) :
+      bops_id_equals_ann (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS bS) (bop_minset_union S rS lteS). 
+Proof. destruct bot_id as [bot [A B]]. 
+       exists (bot :: nil). split.
+       apply bop_minset_lift_id_is_bottom; auto.
+       apply bop_minset_union_exists_ann_is_bottom; auto.
+Defined.
+
+Lemma minset_union_lift_left_left_absorptive
+      (anti : brel_antisymmetric S rS lteS)
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
+      (bot_id : os_bottom_equals_id rS lteS bS) :
+     bops_left_left_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
+Proof. apply id_ann_implies_left_left_absorptive.
+       apply minset_reflexive. 
+       apply minset_transitive. 
+       apply minset_symmetric. 
+       apply bop_minset_union_congruence; auto. 
+       apply bop_minset_lift_congruence; auto. 
+       apply minset_union_lift_left_distributive; auto. 
+       apply minset_union_lift_ann_equals_id; auto. 
+Qed. 
+
+
+Lemma minset_union_lift_left_right_absorptive
+      (anti : brel_antisymmetric S rS lteS)
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
+      (bot_id : os_bottom_equals_id rS lteS bS) :
+     bops_left_right_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
+Proof. apply id_ann_implies_left_right_absorptive.
+       apply minset_reflexive. 
+       apply minset_transitive. 
+       apply minset_symmetric. 
+       apply bop_minset_union_congruence; auto.
+       apply bop_minset_union_commutative; auto.        
+       apply bop_minset_lift_congruence; auto. 
+       apply minset_union_lift_right_distributive; auto. 
+       apply minset_union_lift_ann_equals_id; auto. 
+Qed. 
+*) 
+       
+Lemma minset_lift_left_uop_invariant_weak
+      (anti: brel_antisymmetric S rS lteS)      
+      (RM : os_right_monotone lteS bS)  :
+         ∀ X Y : finite_set S, ([ms] (([ms] X) [^] Y)) [=S] ([ms] (X [^] Y)).
+Proof. intros X Y.
+       apply brel_set_intro_prop; auto. split.
+       + intros a A.
+         apply in_minset_elim in A; auto. destruct A as [A B].
+         apply in_minset_intro; auto. split. 
+         * apply in_set_bop_lift_elim in A; auto.
+           destruct A as [x [y [[C D] E]]]. 
+           apply in_minset_elim in C; auto. destruct C as [C F].
+           apply (in_set_right_congruence _ _ symS tranS _ _ _ (symS _ _ E)).            
+           apply in_set_bop_lift_intro; auto.            
+         * intros t C. 
+           apply in_set_bop_lift_elim in C; auto. 
+           destruct C as [x [y [[D E] F]]].
+           rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS a) F). 
+           case_eq(in_set rS ([ms] X) x); intro G. 
+           ** apply B.
+              apply in_set_bop_lift_intro; auto.            
+           ** apply in_set_minset_false_elim in G; auto.
+              destruct G as [z [H I]].
+              assert (J : (bS z y) [in] (([ms] X) [^] Y)). apply in_set_bop_lift_intro; auto.
+              assert (K := B _ J).
+              case_eq(below lteS a (bS x y)); intro L; auto. 
+              *** apply below_elim in I. destruct I as [I1 I2]. 
+                  assert (M := RM y z x I1). 
+                  assert (N := below_pseudo_transitive_left _ _ lteTrans _ _ _ M L). 
+                  rewrite N in K. discriminate K. 
+       + intros a A. 
+         apply in_minset_elim in A; auto. destruct A as [A B]. 
+         apply in_set_bop_lift_elim in A; auto.
+         destruct A as [x [y [[C D] E]]]. 
+         apply (in_set_right_congruence _ _ symS tranS _ _ _ (symS _ _ E)).            
+         apply in_minset_intro; auto. split. 
+         ++ apply in_set_bop_lift_intro; auto. 
+            apply in_minset_intro; auto. split; auto. 
+            +++ intros t F. 
+                assert (G : (bS t y) [in] (X [^] Y)). apply in_set_bop_lift_intro; auto.
+                assert (H := B _ G). 
+                case_eq(below lteS x t); intro I; auto. 
+                ++++ apply below_elim in I. destruct I as [I1 I2]. 
+                     assert (J := RM y t x I1).
+                     rewrite (below_congruence S rS lteS lteCong _ _ _ _ E (refS (bS t y))) in H.
+                     apply below_false_elim in H. 
+                     destruct H as [H | H].
+                     +++++ rewrite J in H. discriminate H. 
+                     +++++ assert (K := anti _ _ H J). 
+                           admit. (*NEED STRICT MONO!!!*)
+         ++ intros t F. 
+            apply in_set_bop_lift_elim in F; auto. 
+            destruct F as [u [v [[G H] I]]].             
+            apply symS in E. 
+            rewrite (below_congruence S rS lteS lteCong _ _ _ _ E (refS t)).
+            apply B.
+            apply (in_set_right_congruence _ _ symS tranS _ _ _ (symS _ _ I)).
+            apply in_minset_elim in G; auto. destruct G as [G _]. 
+            apply in_set_bop_lift_intro; auto. 
+Admitted.
+
+
+Lemma minset_lift_right_uop_invariant_weak 
+     : ∀ X Y : finite_set S, ([ms] (X [^] ([ms] Y))) [=S] ([ms] (X [^] Y)).
+Admitted.
+
+
+
+Lemma minset_union_lift_left_left_absorptive_original_attempt 
+     (anti: brel_antisymmetric S rS lteS)
+     (inc : os_left_increasing lteS bS) : 
+     bops_left_left_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
+Proof. intros X Y.
+       (* X [=MS] ([ms] ([ms] (([ms] X) [U] ([ms] (X <^> Y))))) *)
+       unfold brel_minset, bop_minset_union. 
+       assert (A : ([ms] ([ms] (([ms] X) [U] ([ms] (X <^> Y))))) [=S] ([ms] (([ms] X) [U] ([ms] (X <^> Y))))). 
+          apply uop_minset_idempotent. 
+       assert (B : ([ms] (([ms] X) [U] ([ms] (X <^> Y)))) [=S] ([ms] (([ms] X) [U] ([ms] (X [^] Y))))).  
+          unfold bop_minset_lift. 
+           admit. 
+
+       assert (C := set_transitive _ _ _ A B). 
+       assert (D : ([ms] (([ms] X) [U] ([ms] (X [^] Y)))) [=S] ([ms] (X [U] ([ms] (X [^] Y))))).  
+          apply minset_union_left_uop_invariant_weak.
+       assert (E := set_transitive _ _ _ C D). 
+       assert (F : ([ms] (X [U] ([ms] (X [^] Y)))) [=S] ([ms] (X [U] (X [^] Y)))). 
+          apply minset_union_right_uop_invariant_weak. 
+       assert (G := set_transitive _ _ _ E F).               
+       assert (H : ([ms] (X [U] (X [^] Y))) [=S] ([ms] X)).
+          apply set_symmetric.
+          apply minset_union_lift_left_left_absorptive_increasing_weak; auto. 
+       assert (I := set_transitive _ _ _ G H).               
+       apply set_symmetric. 
+       exact I. 
+Admitted.
+
+
+
+Lemma minset_union_lift_left_left_absorptive_second_attempt
+     (anti: brel_antisymmetric S rS lteS)
+     (inc : os_left_increasing lteS bS) : 
+     bops_left_left_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
+Proof. intros X Y.
+       (* X [=MS] ([ms] ([ms] (([ms] X) [U] ([ms] (X <^> Y))))) *)
+       unfold brel_minset, bop_minset_union. 
+       assert (A : ([ms] ([ms] (([ms] X) [U] ([ms] (X <^> Y))))) [=S] ([ms] (([ms] X) [U] ([ms] (X <^> Y))))). 
+          apply uop_minset_idempotent. 
+       assert (B : ([ms] (([ms] X) [U] ([ms] (X <^> Y)))) [=S] ([ms] (([ms] X) [U] ([ms] (([ms] X) [^] ([ms] Y)))))).  
+           assert (C : ([ms] (X <^> Y)) [=S]  ([ms] ([ms] (([ms] X) [^] ([ms] Y)))) ).  
+              unfold bop_minset_lift. apply set_reflexive. 
+           assert (D : ([ms] ([ms] (([ms] X) [^] ([ms] Y)))) [=S]  ([ms] (([ms] X) [^] ([ms] Y)))). 
+              apply uop_minset_idempotent. 
+           assert (E := set_transitive _ _ _ C D). 
+           apply uop_minset_congruence_weak. 
+           apply bop_union_congruence; auto. 
+             apply set_reflexive. 
+       assert (C := set_transitive _ _ _ A B). 
+       assert (D : ([ms] (([ms] X) [U] ([ms] (([ms] X) [^] ([ms] Y))))) [=S] ([ms] (X [U] ([ms] (([ms] X) [^] ([ms] Y)))))).  
+          apply minset_union_left_uop_invariant_weak.
+       assert (E := set_transitive _ _ _ C D). 
+       assert (F : ([ms] (X [U] ([ms] (([ms] X) [^] ([ms] Y))))) [=S] ([ms] (X [U] (([ms] X) [^] ([ms] Y))))). 
+          apply minset_union_right_uop_invariant_weak. 
+       assert (G := set_transitive _ _ _ E F).               
+       assert (H : ([ms] (X [U] (([ms] X) [^] ([ms] Y)))) [=S] ([ms] X)).
+          apply brel_set_intro_prop; auto. split. 
+          (* ∀ a : S, a [in] ([ms] (X [U] (([ms] X) [^] ([ms] Y)))) → a [in] ([ms] X) *) 
+          intros a H. 
+          admit. 
+
+
+          (* ∀ a : S, a [in] ([ms] X) → a [in] ([ms] (X [U] (([ms] X) [^] ([ms] Y)))) *) 
+          intros a H.
+          apply in_minset_intro; auto. split. 
+             apply in_set_bop_union_intro; auto.
+             left. apply in_minset_elim in H; auto. destruct H as [H _]; auto. 
+             intros t I.        
+             apply in_minset_elim in H; auto. destruct H as [H J]. 
+             apply in_set_bop_union_elim in I; auto. 
+             destruct I as [I | I]. 
+                exact (J t I). 
+                apply in_set_bop_lift_elim in I; auto.                              
+                destruct I as [u [v [[K L] M]]]. 
+                case_eq(below lteS a t); intro O; auto. 
+                   admit. (* ??? *)                 
+       assert (I := set_transitive _ _ _ G H).               
+       apply set_symmetric. 
+       exact I. 
+Admitted.   
+
+
 
 (* STRICT VERSIONS *)
 
@@ -636,7 +846,7 @@ Qed.
 
 
 
-
+(*
 Lemma minset_union_lift_plus_id_equals_times_ann : 
    bops_id_equals_ann (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS).
 Proof. exists nil. split. 
@@ -681,67 +891,94 @@ Proof. destruct EEE as [[anti po_bot] | [[qo_bot LSM] RSM] ].
        apply minset_union_lift_times_id_equals_plus_ann_with_antisymmetry; auto. 
        apply minset_union_lift_times_id_equals_plus_ann_without_antisymmetry; auto. 
 Qed. 
-       
+*)        
 End Theory.
 
+(*
 Section ACAS.
 
 
-
-(*
-Definition minset_union_lift_semiring_proofs (S: Type) (eq lte : brel S) (times : binary_op S)
-????????             
-:= 
+Definition minset_union_lift_bottom_with_one_proofs_to_with_one_proofs
+           (S: Type) (eq lte : brel S) (times : binary_op S)             
+           (P  : bottom_with_one_proofs S eq lte times) :
+  with_one_proofs (finite_set S) (brel_minset S eq lte) (bop_minset_union S eq lte) (bop_minset_lift S eq lte times) :=  
+let top_d     := A_bottom_with_one_exists_top_d _ _ _ _ P in 
+let bot       := A_bottom_with_one_exists_bottom _ _ _ _ P in 
+let one       := A_bottom_with_one_exists_times _ _ _ _ P in 
+let ann_d     := A_bottom_with_one_exists_times_ann_d _ _ _ _ P in 
+let top_ann_d := A_bottom_with_one_top_ann_d _ _ _ _ P in 
+let bot_one   := A_bottom_with_one_bottom_one _ _ _ _ P in 
 {|
-  A_semiring_left_distributive        := minset_union_lift_left_distributive S eq refs symS trnS lte lteCong lteRefl lteTran times tCong LM (inl anti)
-; A_semiring_right_distributive       := minset_union_lift_left_distributive S eq refs symS trnS lte lteCong lteRefl lteTran times tCong RM (inl anti)
-; A_semiring_left_left_absorptive_d   := inl (minset_union_lift_left_left_absorptive_increasing eq refs symS trnS lte lteCong lteRefl lteTran times (inl anti) LINC)
-; A_semiring_left_right_absorptive_d  := inl (minset_union_lift_left_left_absorptive_increasing eq refs symS trnS lte lteCong lteRefl lteTran times (inl anti) LRNC) 
+  A_with_one_exists_plus_id_d          := inl (bop_minset_union_exists_id S eq ref sym trn lte lteCng lteRef lteTrn) 
+; A_with_one_exists_plus_ann           := bop_exists_ann S eq plus
+; A_with_one_exists_times_id           := bop_exists_id S eq times
+; A_with_one_exists_times_ann_d        := inl (bop_minset_union_exists_ann_with_antisymmetry S eq ref sym trn lte lteCng lteTrn anti bot) 
+; A_with_one_plus_id_is_times_ann_d    := inr (minset_union_lift_not_id_equals_ann) 
+; A_with_one_times_id_is_plus_ann      := minset_union_lift_ann_equals_id S eq ref sym trn lte lteCng lteRef lteTrn times timesCng LM RM anit bot_one 
 |}.
-
-*) 
-  
-  
-(* 
+r
 
 
 
-Record semiring_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
+(*  
+Record A_monotone_posg (S : Type) := {
+  A_mposg_eqv          : A_eqv S 
+; A_mposg_lte          : brel S 
+; A_mposg_times        : binary_op S 
+; A_mposg_lte_proofs   : po_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_lte
+; A_mposg_times_proofs : msg_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_times
+; A_mposg_top_bottom   : top_bottom_ann_id_with_id_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_lte A_mposg_times                                    
+; A_mposg_proofs       : monotone_os_proofs S A_mposg_lte A_mposg_times 
+; A_mposg_ast          : cas_ast
+}.
+
+Record A_pre_path_algebra_with_one (S : Type) := {
+  A_pre_path_algebra_with_one_eqv           : A_eqv S 
+; A_pre_path_algebra_with_one_plus          : binary_op S 
+; A_pre_path_algebra_with_one_times         : binary_op S 
+; A_pre_path_algebra_with_one_plus_proofs   : sg_CI_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus
+; A_pre_path_algebra_with_one_times_proofs  : msg_proofs S   (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_times
+; A_pre_path_algebra_with_one_id_ann_proofs : with_one_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus A_pre_path_algebra_with_one_times
+; A_pre_path_algebra_with_one_proofs        : path_algebra_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus A_pre_path_algebra_with_one_times
+; A_pre_path_algebra_with_one_ast           : cas_ast
+}.
+
+
+
+
+Record path_algebra_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
 {
-  A_semiring_left_distributive        : bop_left_distributive S eq plus times 
-; A_semiring_right_distributive       : bop_right_distributive S eq plus times 
-; A_semiring_left_left_absorptive_d   : bops_left_left_absorptive_decidable S eq plus times 
-; A_semiring_left_right_absorptive_d  : bops_left_right_absorptive_decidable S eq plus times 
-}.
-
-
-Record bounded_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
-{
-  A_bounded_plus_id_is_times_ann : bops_id_equals_ann S eq plus times 
-; A_bounded_times_id_is_plus_ann : bops_id_equals_ann S eq times plus 
-}.
-
-Record A_dioid (S : Type) := {
-  A_dioid_eqv           : A_eqv S 
-; A_dioid_plus          : binary_op S 
-; A_dioid_times         : binary_op S 
-; A_dioid_plus_proofs   : sg_CI_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus
-; A_dioid_times_proofs  : msg_proofs S   (A_eqv_eq S A_dioid_eqv) A_dioid_times
-; A_dioid_id_ann_proofs : bounded_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
-; A_dioid_proofs        : semiring_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
-; A_dioid_ast           : cas_ast
+  A_path_algebra_left_distributive      : bop_left_distributive S eq plus times 
+; A_path_algebra_right_distributive     : bop_right_distributive S eq plus times 
+; A_path_algebra_left_left_absorptive   : bops_left_left_absorptive S eq plus times 
+; A_path_algebra_left_right_absorptive  : bops_left_right_absorptive S eq plus times 
 }.
 
 
 
 
-I need a strictly structure with (q0, sg) with 
-   (bop_congruence S (equiv lteS) bS)
-   (os_qo_bottom_equals_id S rS lteS bS) 
-   (os_left_strictly_monotone lteS bS) 
-   (os_right_strictly_monotone lteS bS)
+sg_CI_proofs_minset_union_from_po
+     : ∀ (S : Type) (rS lteS : brel S),
+         S
+         → ∀ f : S → S,
+             brel_not_trivial S rS f
+             → eqv_proofs S rS
+               → po_proofs S rS lteS
+                 → sg_CI_proofs (finite_set S) (brel_minset rS lteS)
+                     (bop_minset_union S rS lteS)
 
-
+A_minset_lift_monotone_os_proofs_to_msg_proofs
+     : ∀ (S : Type) (eq lte : brel S) (b : binary_op S),
+         eqv_proofs S eq
+         → S
+           → ∀ f : S → S,
+               brel_not_trivial S eq f
+               → bop_exists_id S eq b
+                 → po_proofs S eq lte
+                   → msg_proofs S eq b
+                     → monotone_os_proofs S lte b
+                       → msg_proofs (finite_set S) 
+                           (brel_minset eq lte) (bop_minset_lift S eq lte b)
 
 *) 
 
@@ -757,5 +994,5 @@ End CAS.
 
 Section Verify.
  
-End Verify.   
-  
+End Verify.     
+*) 

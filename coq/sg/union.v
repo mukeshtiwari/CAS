@@ -16,8 +16,13 @@ Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.and.
 Require Import CAS.coq.sg.or.
 
+Require Import CAS.coq.po.subset.
 Require Import CAS.coq.po.dual. 
-Require Import CAS.coq.os.properties. 
+
+Require Import CAS.coq.os.properties.
+Require Import CAS.coq.os.structures. 
+Require Import CAS.coq.os.theory. 
+
 
 Section Computation.
 
@@ -598,15 +603,101 @@ Definition bop_union_exists_ann_decide (fin_d : carrier_is_finite_decidable S r)
     end.
 
 
+(******************************************)
+
+Lemma brel_subset_union_left (X Y : finite_set S) : brel_subset r X (bop_union r X Y) = true.
+Proof. apply brel_subset_intro; auto. 
+       intros x A.  apply in_set_bop_union_intro. left. exact A. 
+Qed.
+
+Lemma brel_subset_union_right (X Y : finite_set S) : brel_subset r Y (bop_union r X Y) = true.
+Proof. apply brel_subset_intro; auto. 
+       intros x A.  apply in_set_bop_union_intro. right. exact A. 
+Qed.        
+       
+Lemma bop_union_is_glb_wrt_lte_left : bop_is_glb (brel_lte_left (brel_set r) (bop_union r)) (bop_union r).
+Proof. apply bop_is_glb_wrt_lte_left.
+       apply brel_set_reflexive; auto. 
+       apply brel_set_symmetric; auto. 
+       apply brel_set_transitive; auto. 
+       apply bop_union_congruence; auto. 
+       apply bop_union_associative; auto.        
+       apply bop_union_idempotent; auto.        
+       apply bop_union_commutative; auto.        
+Qed. 
+
+
+Lemma bop_union_is_lub_wrt_lte_right : bop_is_lub (brel_lte_right (brel_set r) (bop_union r)) (bop_union r).
+Proof. apply bop_is_lub_wrt_lte_right. 
+       apply brel_set_reflexive; auto. 
+       apply brel_set_symmetric; auto. 
+       apply brel_set_transitive; auto. 
+       apply bop_union_congruence; auto. 
+       apply bop_union_associative; auto.        
+       apply bop_union_idempotent; auto.        
+       apply bop_union_commutative; auto.        
+Qed. 
+
+Lemma subset_implies_lte_right (X Y : finite_set S) : brel_subset r X Y = true -> brel_lte_right (brel_set r) (bop_union r) X Y = true. 
+Proof. intro A. unfold brel_lte_right. 
+       apply brel_set_intro. split. 
+       - apply brel_subset_union_right. 
+       - apply brel_subset_intro; auto. 
+         intros a B. apply in_set_bop_union_elim in B. 
+         destruct B as [B | B]. 
+         + assert (C := brel_subset_elim _ r symS tranS _ _ A). 
+           exact (C a B). 
+         + exact B. 
+Qed. 
+
+
+Lemma lte_right_implies_subset (X Y : finite_set S) : brel_lte_right (brel_set r) (bop_union r) X Y = true -> brel_subset r X Y = true. 
+Proof. unfold brel_lte_right. intros A.
+       apply brel_set_elim in A; auto. destruct A as [A B].
+       assert (C : brel_subset r X (bop_union r X Y) = true).
+          apply brel_subset_union_left.
+       exact (brel_subset_transitive S r refS symS tranS _ _ _ C B).  
+Qed. 
+
+(* Think of (brel_subset r) as an "optimization" of brel_lte_right (brel_set r) (bop_union r) 
+
+Note: we could do this with some kind of extensional equality 
+
+   (brel_subset r)  = brel_lte_right (brel_set r) (bop_union r)
+
+and congruence of properties like bop_union_lub wrt to this equality. 
+But, I'm taking an easier approach...
+*) 
+Lemma bop_union_lub : bop_is_lub (brel_subset r) (bop_union r).
+Proof. intros X Y.
+       destruct (bop_union_is_lub_wrt_lte_right X Y) as [A B].
+       unfold is_upper_bound in A. destruct A as [A C].
+       unfold is_lub. split. 
+       - unfold is_upper_bound. split. 
+         + apply lte_right_implies_subset. exact A. 
+         + apply lte_right_implies_subset. exact C. 
+       - intros U D. unfold is_upper_bound in D. destruct D as [D E]. 
+         assert (G : is_upper_bound (brel_lte_right (brel_set r) (bop_union r)) X Y U).
+            unfold is_upper_bound. split.
+              apply subset_implies_lte_right. exact D. 
+              apply subset_implies_lte_right. exact E. 
+         assert (F := B U G).
+         apply lte_right_implies_subset. exact F. 
+Qed.
+
+Lemma bop_union_glb : bop_is_glb (brel_dual (brel_subset r)) (bop_union r).
+Proof.  apply lub_implies_dual_glb. apply bop_union_lub. Qed. 
+
+
+
 End Union.
 
 End Theory.
 
 Section ACAS.
 
-Definition sg_CI_proofs_union : 
-  ∀ (S : Type) (eqv : A_eqv S), sg_CI_proofs (finite_set S) (brel_set (A_eqv_eq S eqv)) (bop_union (A_eqv_eq S eqv))
-  := λ S eqv,
+Definition sg_CI_proofs_union {S : Type} (eqv : A_eqv S) : sg_CI_proofs (finite_set S) (brel_set (A_eqv_eq S eqv)) (bop_union (A_eqv_eq S eqv))
+:= 
 let eqvP := A_eqv_proofs S eqv in
 let symS := A_eqv_symmetric _ _ eqvP in
 let refS := A_eqv_reflexive _ _ eqvP in
@@ -623,11 +714,11 @@ let tranS := A_eqv_transitive S rS eqvP in
 ; A_sg_CI_congruence         := bop_union_congruence S rS refS symS tranS 
 ; A_sg_CI_commutative        := bop_union_commutative S rS refS symS tranS 
 ; A_sg_CI_idempotent         := bop_union_idempotent S rS refS symS tranS 
-; A_sg_CI_selective_d        := inr _ (bop_union_not_selective S rS refS symS s f ntS)
+(*; A_sg_CI_selective_d        := inr _ (bop_union_not_selective S rS refS symS s f ntS)*) 
+; A_sg_CI_not_selective      := bop_union_not_selective S rS refS symS s f ntS
 |}. 
 
-Definition A_sg_CI_union : ∀ (S : Type),  A_eqv S -> A_sg_CI (finite_set S)
-  := λ S eqv,
+Definition A_sg_CI_union {S : Type} (eqv : A_eqv S) : A_sg_CI (finite_set S) := 
   let eqvP := A_eqv_proofs S eqv in
   let symS := A_eqv_symmetric _ _ eqvP in
   let refS := A_eqv_reflexive _ _ eqvP in
@@ -641,11 +732,69 @@ Definition A_sg_CI_union : ∀ (S : Type),  A_eqv S -> A_sg_CI (finite_set S)
    ; A_sg_CI_bop       := bop_union eqS
    ; A_sg_CI_exists_id_d  := inl _ (bop_union_exists_id S eqS refS symS trnS)
    ; A_sg_CI_exists_ann_d := bop_union_exists_ann_decide S eqS refS symS trnS (A_eqv_finite_d S eqv)
-   ; A_sg_CI_proofs    := sg_CI_proofs_union S eqv
-   
+   ; A_sg_CI_proofs    := sg_CI_proofs_union eqv
    ; A_sg_CI_ast       := Ast_sg_union (A_eqv_ast S eqv)                                                                   
-   |}. 
-  
+   |}.
+
+
+Definition bop_union_glb_proofs {S : Type} (eqv : A_eqv S) :
+      bop_is_glb (brel_dual (brel_subset (A_eqv_eq S eqv))) (bop_union (A_eqv_eq S eqv)) :=
+let eq   := A_eqv_eq S eqv in
+let eqvP := A_eqv_proofs S eqv in
+let refS := A_eqv_reflexive S eq eqvP in
+let symS := A_eqv_symmetric S eq eqvP in
+let trnS := A_eqv_transitive S eq eqvP in bop_union_glb S eq refS symS trnS. 
+
+Definition msl_union_proofs {S : Type} (eqv : A_eqv S) :
+      meet_semilattice_proofs (brel_set (A_eqv_eq S eqv)) (brel_dual (brel_subset (A_eqv_eq S eqv))) (bop_union (A_eqv_eq S eqv)) :=
+{|
+  A_msl_lte_proofs    := po_dual_proofs _ _ (po_subset_proofs eqv) 
+; A_msl_meet_proofs   := sg_CI_proofs_union eqv
+; A_msl_glb           := bop_union_glb_proofs eqv 
+|}.
+
+
+Definition A_msl_union {S : Type} (eqv : A_eqv S) : @A_meet_semilattice (finite_set S) :=
+let eq   := A_eqv_eq S eqv in
+{|
+  A_msl_eqv           := A_eqv_set S eqv
+; A_msl_lte           := brel_dual (brel_subset eq)
+; A_msl_meet          := bop_union eq 
+; A_msl_proofs        := msl_union_proofs eqv 
+(* ; A_msl_top_bottom_proofs : posg_top_bottom_id_ann_proofs S (A_eqv_eq S A_posg_eqv) A_posg_lte A_posg_times *) 
+; A_msl_ast           := Ast_sg_union (A_eqv_ast S eqv) (* fix *)
+|}.
+
+
+Definition bop_union_lub_proofs {S : Type} (eqv : A_eqv S) :
+      bop_is_lub (brel_subset (A_eqv_eq S eqv)) (bop_union (A_eqv_eq S eqv)) :=
+let eq   := A_eqv_eq S eqv in
+let eqvP := A_eqv_proofs S eqv in
+let refS := A_eqv_reflexive S eq eqvP in
+let symS := A_eqv_symmetric S eq eqvP in
+let trnS := A_eqv_transitive S eq eqvP in bop_union_lub S eq refS symS trnS. 
+
+
+Definition jsl_union_proofs {S : Type} (eqv : A_eqv S) :
+      join_semilattice_proofs (brel_set (A_eqv_eq S eqv)) (brel_subset (A_eqv_eq S eqv)) (bop_union (A_eqv_eq S eqv)) :=
+{|
+  A_jsl_lte_proofs    := po_subset_proofs eqv
+; A_jsl_join_proofs   := sg_CI_proofs_union eqv
+; A_jsl_lub           := bop_union_lub_proofs eqv 
+|}.
+
+
+Definition A_jsl_union {S : Type} (eqv : A_eqv S) : @A_join_semilattice (finite_set S) :=
+let eq   := A_eqv_eq S eqv in
+{|
+  A_jsl_eqv           := A_eqv_set S eqv
+; A_jsl_lte           := brel_subset eq
+; A_jsl_join          := bop_union eq
+; A_jsl_proofs        := jsl_union_proofs eqv                                    
+(* ; A_jsl_top_bottom_proofs : posg_top_bottom_id_ann_proofs S (A_eqv_eq S A_posg_eqv) A_posg_lte A_posg_times *) 
+; A_jsl_ast           := Ast_sg_union (A_eqv_ast S eqv) (* fix *)
+|}.
+
 
 End ACAS.
 
@@ -667,7 +816,8 @@ let f   := eqv_new eqvS in
 ; sg_CI_congruence         := Assert_Bop_Congruence  
 ; sg_CI_commutative        := Assert_Commutative  
 ; sg_CI_idempotent         := Assert_Idempotent  
-; sg_CI_selective_d        := Certify_Not_Selective ((s :: nil), ((f s) :: nil))
+(*; sg_CI_selective_d        := Certify_Not_Selective ((s :: nil), ((f s) :: nil))*) 
+; sg_CI_not_selective      := Assert_Not_Selective ((s :: nil), ((f s) :: nil))
 |}. 
 
 
@@ -690,11 +840,6 @@ Definition sg_CI_union : ∀ {S : Type}, @eqv S -> @sg_CI (finite_set S)
 
 End CAS.
 
-(*  union left order 
-
-    X = X union Y <-> Y subset X 
-*) 
-
 
 Section Verify.
 
@@ -704,7 +849,7 @@ Lemma bop_union_certs_correct :
       sg_CI_certs_union (A2C_eqv S eqvS)
       =                        
       P2C_sg_CI (finite_set S) (brel_set (A_eqv_eq S eqvS)) (bop_union (A_eqv_eq S eqvS))
-                (sg_CI_proofs_union S eqvS).
+                (sg_CI_proofs_union eqvS).
 Proof. intros S eqvS.
        destruct eqvS.
        unfold sg_CI_certs_union, sg_CI_proofs_union. unfold P2C_sg_CI. simpl.
@@ -713,7 +858,7 @@ Qed.
   
 
 Theorem bop_union_correct (S : Type) (eqvS : A_eqv S) : 
-         sg_CI_union (A2C_eqv S eqvS)  =  A2C_sg_CI (finite_set S) (A_sg_CI_union S eqvS). 
+         sg_CI_union (A2C_eqv S eqvS)  =  A2C_sg_CI (finite_set S) (A_sg_CI_union eqvS). 
 Proof. unfold sg_CI_union, A_sg_CI_union. unfold A2C_sg_CI. simpl.
        rewrite correct_eqv_set. 
        rewrite bop_union_certs_correct. 

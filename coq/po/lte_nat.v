@@ -83,15 +83,12 @@ Qed.
 Lemma brel_lte_nat_is_bottom : brel_is_bottom nat brel_lte_nat 0. 
 Proof. intro s. compute; auto. Qed. 
 
-Lemma brel_lte_nat_exists_bottom : brel_exists_qo_bottom nat brel_eq_nat brel_lte_nat.
-Proof. exists 0. split. apply brel_lte_nat_is_bottom. 
-       intros m A B; auto. induction m. 
-       compute; auto. compute in B. discriminate B. 
-Defined. 
+Lemma brel_lte_nat_exists_bottom : brel_exists_bottom nat brel_lte_nat.
+Proof. exists 0. apply brel_lte_nat_is_bottom. Defined. 
 
 
-Lemma brel_lte_nat_not_exists_top : brel_not_exists_qo_top nat brel_eq_nat brel_lte_nat. 
-Proof. intro s. left. exists (S s). induction s.
+Lemma brel_lte_nat_not_exists_top : brel_not_exists_top nat brel_lte_nat. 
+Proof. intro s. exists (S s). induction s.
        compute; auto. rewrite brel_lte_nat_S; auto. 
 Defined. 
 
@@ -140,8 +137,8 @@ Definition lte_nat : @to nat
 := {|
      to_eqv             := eqv_eq_nat
    ; to_lte             := brel_lte_nat
-   ; to_exists_top_d    := Certify_Not_Exists_Qo_Top 
-   ; to_exists_bottom   := Assert_Exists_Qo_Bottom 0
+   ; to_exists_top_d    := Certify_Not_Exists_Top 
+   ; to_exists_bottom   := Assert_Exists_Bottom 0
    ; to_certs           := to_certs_brel_lte_nat
    ; to_ast             := Ast_to_nat 
    |}. 

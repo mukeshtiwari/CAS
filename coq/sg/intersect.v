@@ -277,7 +277,8 @@ let tranS := A_eqv_transitive S rS eqvP in
 ; A_sg_CI_congruence         := bop_intersect_congruence S rS  refS symS tranS 
 ; A_sg_CI_commutative        := bop_intersect_commutative S rS refS symS tranS 
 ; A_sg_CI_idempotent         := bop_intersect_idempotent S rS refS symS tranS 
-; A_sg_CI_selective_d        := inr _ (bop_intersect_not_selective S rS s f ntS)
+(*; A_sg_CI_selective_d        := inr _ (bop_intersect_not_selective S rS s f ntS) *) 
+; A_sg_CI_not_selective      := bop_intersect_not_selective S rS s f ntS
 |}. 
 
 
@@ -323,7 +324,8 @@ let f   := eqv_new eqvS in
 ; sg_CI_congruence         := Assert_Bop_Congruence  
 ; sg_CI_commutative        := Assert_Commutative  
 ; sg_CI_idempotent         := Assert_Idempotent  
-; sg_CI_selective_d        := Certify_Not_Selective ((s :: nil), ((f s) :: nil))
+(*; sg_CI_selective_d        := Certify_Not_Selective ((s :: nil), ((f s) :: nil)) *) 
+; sg_CI_not_selective      := Assert_Not_Selective ((s :: nil), ((f s) :: nil))
 |}. 
 
 Definition sg_CI_intersect : ∀ {S : Type}, @eqv S -> @sg_CI (finite_set S)

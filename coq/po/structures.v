@@ -7,7 +7,7 @@ Require Import CAS.coq.po.properties.
 
 (* order structures 
 
-                or 
+               ord 
               /   \
              /     \
     antisymm/       \not 
@@ -21,7 +21,7 @@ Require Import CAS.coq.po.properties.
        to  po           wo  qo 
 
 
-or = order (ref, trans) 
+ord = order (ref, trans) 
 to = total order   (ref, trans, antisymm, total) 
 po = partial order (ref, trans, antisymm, not total)   
 qo = quasi order (ref, trans, not_antisymm, not total) 
@@ -46,7 +46,7 @@ Record or_proofs (S : Type) (eq lte : brel S) := {
 ; A_or_antisymmetric_d : brel_antisymmetric_decidable S eq lte
 ; A_or_total_d         : brel_total_decidable S lte            
 (*; A_or_bottoms_finite_d : bottoms_finite_decidable S eq lte*) 
-                                                }.
+}.
 
 Record A_or (S : Type) := {
   A_or_eqv             : A_eqv S 
@@ -77,8 +77,8 @@ Record po_proofs (S : Type) (eq lte : brel S) := {
 Record A_po (S : Type) := {
   A_po_eqv             : A_eqv S 
 ; A_po_lte             : brel S
-; A_po_exists_top_d    : brel_exists_qo_top_decidable S (A_eqv_eq S A_po_eqv) A_po_lte           
-; A_po_exists_bottom   : brel_exists_qo_bottom S (A_eqv_eq S A_po_eqv) A_po_lte
+; A_po_exists_top_d    : brel_exists_top_decidable S A_po_lte           
+; A_po_exists_bottom   : brel_exists_bottom S A_po_lte
 ; A_po_proofs          : po_proofs S (A_eqv_eq S A_po_eqv) A_po_lte 
 ; A_po_ast             : cas_ast
 }.
@@ -95,8 +95,8 @@ Record to_proofs (S : Type) (eq lte : brel S) := {
 Record A_to (S : Type) := {
   A_to_eqv             : A_eqv S 
 ; A_to_lte             : brel S
-; A_to_exists_top_d    : brel_exists_qo_top_decidable S (A_eqv_eq S A_to_eqv) A_to_lte           
-; A_to_exists_bottom   : brel_exists_qo_bottom S (A_eqv_eq S A_to_eqv) A_to_lte
+; A_to_exists_top_d    : brel_exists_top_decidable S A_to_lte           
+; A_to_exists_bottom   : brel_exists_bottom S A_to_lte
 ; A_to_proofs          : to_proofs S (A_eqv_eq S A_to_eqv) A_to_lte 
 ; A_to_ast             : cas_ast
 }.
@@ -174,8 +174,8 @@ Record po_certificates {S : Type} := {
 Record po {S : Type} := {
   po_eqv             : @eqv S
 ; po_lte             : @brel S
-; po_exists_top_d    : @certify_exists_qo_top S 
-; po_exists_bottom   : @assert_exists_qo_bottom S 
+; po_exists_top_d    : @certify_exists_top S 
+; po_exists_bottom   : @assert_exists_bottom S 
 ; po_certs           : @po_certificates S
 ; po_ast             : cas_ast
 }.
@@ -192,8 +192,8 @@ Record to_certificates {S : Type} := {
 Record to {S : Type} := {
   to_eqv             : @eqv S
 ; to_lte             : @brel S
-; to_exists_top_d    : @certify_exists_qo_top S 
-; to_exists_bottom   : @assert_exists_qo_bottom S 
+; to_exists_top_d    : @certify_exists_top S 
+; to_exists_bottom   : @assert_exists_bottom S 
 ; to_certs           : @to_certificates S
 ; to_ast             : cas_ast
 }.
@@ -279,6 +279,7 @@ Definition P2C_po : ∀ (S : Type) (eq lte : brel S), po_proofs S eq lte -> @po_
 |}. 
 
 
+
 Definition A2C_po : ∀ (S : Type), A_po S -> @po S 
 := λ S R,
 let eq  := A_eqv_eq S (A_po_eqv S R) in 
@@ -286,8 +287,8 @@ let lte := A_po_lte S R in
 {| 
   po_eqv     := A2C_eqv S (A_po_eqv S R) 
 ; po_lte    := A_po_lte S R
-; po_exists_top_d     := p2c_exists_qo_top_check S eq lte (A_po_exists_top_d S R)
-; po_exists_bottom     := p2c_exists_qo_bottom_assert S eq lte  (A_po_exists_bottom S R)                          
+; po_exists_top_d     := p2c_exists_top_check S lte (A_po_exists_top_d S R)
+; po_exists_bottom    := p2c_exists_bottom_assert S lte  (A_po_exists_bottom S R)                          
 ; po_certs   := P2C_po S eq lte (A_po_proofs S R)
 ; po_ast   := A_po_ast S R                       
 |}. 
@@ -309,8 +310,8 @@ let lte := A_to_lte S R in
 {| 
   to_eqv           := A2C_eqv S (A_to_eqv S R) 
 ; to_lte           := A_to_lte S R
-; to_exists_top_d  := p2c_exists_qo_top_check S eq lte (A_to_exists_top_d S R)
-; to_exists_bottom := p2c_exists_qo_bottom_assert S eq lte (A_to_exists_bottom S R)                          
+; to_exists_top_d  := p2c_exists_top_check S lte (A_to_exists_top_d S R)
+; to_exists_bottom := p2c_exists_bottom_assert S lte (A_to_exists_bottom S R)                          
 ; to_certs         := P2C_to S eq lte (A_to_proofs S R)  
 ; to_ast           := A_to_ast S R
 |}. 

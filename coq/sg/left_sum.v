@@ -597,7 +597,8 @@ let refS := A_eqv_reflexive _ _ eqvS in
 ; A_sg_CI_congruence  := bop_left_sum_congruence S T rS rT bS bT (A_sg_CI_congruence _ _ _ sgS) (A_sg_CI_congruence _ _ _ sgT) 
 ; A_sg_CI_commutative := bop_left_sum_commutative S T rS rT bS bT refS (A_sg_CI_commutative _ _ _ sgS) (A_sg_CI_commutative _ _ _ sgT) 
                          
-; A_sg_CI_selective_d  := bop_left_sum_selective_decide S T rS rT bS bT refS (A_sg_CI_selective_d _ _ _ sgS) (A_sg_CI_selective_d _ _ _ sgT) 
+(*; A_sg_CI_selective_d  := bop_left_sum_selective_decide S T rS rT bS bT refS (A_sg_CI_selective_d _ _ _ sgS) (A_sg_CI_selective_d _ _ _ sgT)*)
+; A_sg_CI_not_selective  := bop_left_sum_not_selective_left S T rS rT bS bT (A_sg_CI_not_selective _ _ _ sgS) 
 ; A_sg_CI_idempotent   := bop_left_sum_idempotent S T rS rT bS bT (A_sg_CI_idempotent _ _ _ sgS) (A_sg_CI_idempotent _ _ _ sgT) 
 |}.
 
@@ -856,7 +857,11 @@ Definition sg_CI_certs_left_sum : ∀ {S T : Type},  sg_CI_certificates (S := S)
 ; sg_CI_congruence   := Assert_Bop_Congruence  
 ; sg_CI_commutative  := Assert_Commutative  
 ; sg_CI_idempotent   := Assert_Idempotent  
-; sg_CI_selective_d  := check_selective_left_sum (sg_CI_selective_d cS) (sg_CI_selective_d cT)
+(*; sg_CI_selective_d  := check_selective_left_sum (sg_CI_selective_d cS) (sg_CI_selective_d cT) *) 
+; sg_CI_not_selective  := 
+      match sg_CI_not_selective cS with 
+      | Assert_Not_Selective (s1, s2) => Assert_Not_Selective ((inl _ s1), (inl _ s2))
+      end
 |}.
 
 Definition sg_CS_certs_left_sum : ∀ {S T : Type},  sg_CS_certificates (S := S) -> sg_CS_certificates (S := T) -> sg_CS_certificates (S := (S + T)) 
@@ -1103,7 +1108,8 @@ Lemma correct_sg_CI_certs_left_sum : ∀ (pS : sg_CI_proofs S rS bS) (pT : sg_CI
                      (sg_CI_proofs_left_sum S T rS rT bS bT wS wT eS eT pS pT). 
 Proof. intros pS pT. 
        unfold sg_CI_proofs_left_sum, sg_CI_certs_left_sum, P2C_sg_CI; simpl. 
-       rewrite <- correct_check_selective_left_sum. 
+       (*       rewrite <- correct_check_selective_left_sum. *)
+       destruct (A_sg_CI_not_selective S rS bS pS) as [[s t] [A B]]. compute. 
        reflexivity. 
 Defined.
 

@@ -1,3 +1,4 @@
+
 Require Import Coq.Bool.Bool. 
 
 Require Import CAS.coq.common.compute.
@@ -83,40 +84,12 @@ Proof. intros [ [t1 [t2 t3] ] nd ]. exists ((wS, t1), ((wS, t2), (wS, t3))). sim
        rewrite nd.  simpl. apply andb_comm. 
 Defined. 
 
-(* *********************************** *) 
+(* *******************
 
 
-Lemma bop_product_id_equals_ann : 
-      bops_id_equals_ann S rS addS mulS → 
-      bops_id_equals_ann T rT addT mulT → 
-         bops_id_equals_ann (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
-Proof. intros [iS [piS paS]]  [iT [piT paT]].
-       exists (iS, iT). split.
-       apply bop_product_is_id; auto.
-       apply bop_product_is_ann; auto. 
-Defined. 
+**************** *)
 
-Lemma bop_product_not_id_equals_ann_left : 
-      bops_not_id_equals_ann S rS addS mulS → 
-         bops_not_id_equals_ann (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
-Proof. unfold bops_not_id_equals_ann. 
-       intros H [s t]. destruct (H s) as [ [s' [L | R]] | [s' [L | R]]].
-          left. exists (s', t). left. compute. rewrite L. reflexivity. 
-          left. exists (s', t). right. compute. rewrite R. reflexivity.           
-          right. exists (s', t). left. compute. rewrite L. reflexivity. 
-          right. exists (s', t). right. compute. rewrite R. reflexivity.           
-Defined. 
 
-Lemma bop_product_not_id_equals_ann_right : 
-      bops_not_id_equals_ann T rT addT mulT → 
-         bops_not_id_equals_ann (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
-Proof. unfold bops_not_id_equals_ann. 
-       intros H [s t]. destruct (H t) as [ [t' [L | R]] | [t' [L | R]]].
-          left. exists (s, t'). left. compute. rewrite L. case_eq( rS (s +S s) s); intro K; reflexivity. 
-          left. exists (s, t'). right. compute. rewrite R. case_eq( rS (s +S s) s); intro K; reflexivity.           
-          right. exists (s, t'). left. compute. rewrite L. case_eq( rS (s *S s) s); intro K; reflexivity. 
-          right. exists (s, t'). right. compute. rewrite R. case_eq( rS (s *S s) s); intro K; reflexivity.           
-Defined. 
 
 
 (* left left *) 
@@ -217,20 +190,8 @@ Definition bop_product_right_distributive_decide :
      end 
    | inr nldS   => inr _ (bop_product_not_right_distributive_left nldS)
    end. 
-       
-Definition bop_product_id_equals_ann_decide : 
-      bops_id_equals_ann_decidable S rS addS mulS → bops_id_equals_ann_decidable T rT addT mulT →  
-        bops_id_equals_ann_decidable (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT)
-:= λ dS dT,  
-   match dS with 
-   | inl ieaS => 
-     match dT with 
-     | inl ieaT  => inl _ (bop_product_id_equals_ann ieaS ieaT)
-     | inr nieaT => inr _ (bop_product_not_id_equals_ann_right nieaT)
-     end 
-   | inr nieaS   => inr _ (bop_product_not_id_equals_ann_left nieaS)
-   end. 
-
+(*       
+*) 
 
 Definition bops_product_left_left_absorptive_decide : 
       bops_left_left_absorptive_decidable S rS addS mulS → bops_left_left_absorptive_decidable T rT addT mulT → 
@@ -290,126 +251,270 @@ End Theory.
 
 Section ACAS.
 
+Lemma bops_product_exists_id_ann_equal
+        (S T : Type) (eqS : brel S) (eqT : brel T)
+           (bS1 bS2 : binary_op S)
+           (bT1 bT2 : binary_op T) : 
+      bops_exists_id_ann_equal S eqS bS1 bS2 → 
+      bops_exists_id_ann_equal T eqT bT1 bT2 → 
+      bops_exists_id_ann_equal (S * T)
+                               (brel_product eqS eqT)
+                               (bop_product bS1 bT1)
+                               (bop_product bS2 bT2).
+Proof. intros [iS [piS paS]]  [iT [piT paT]].
+       exists (iS, iT). split.
+       apply bop_product_is_id; auto.
+       apply bop_product_is_ann; auto. 
+Defined. 
 
-Definition id_ann_proofs_product : 
-  ∀ (S T: Type) 
-    (rS : brel S) 
-    (rT : brel T) 
-    (plusS timesS : binary_op S) 
-    (plusT timesT : binary_op T),
-     id_ann_proofs S rS plusS timesS -> 
-     id_ann_proofs T rT plusT timesT -> 
+
+Lemma bops_product_exists_id_ann_not_equal_v1
+        (S T : Type) (eqS : brel S) (eqT : brel T)
+           (bS1 bS2 : binary_op S)
+           (bT1 bT2 : binary_op T) : 
+      bops_exists_id_ann_not_equal S eqS bS1 bS2 → 
+      bops_exists_id_ann_equal T eqT bT1 bT2 → 
+      bops_exists_id_ann_not_equal (S * T)
+                               (brel_product eqS eqT)
+                               (bop_product bS1 bT1)
+                               (bop_product bS2 bT2).
+Proof. intros [[iS aS] [[piS paS] iS_not_aS]]  [iT [piT paT]].
+       exists ((iS, iT), (aS, iT)). split. split. 
+       apply bop_product_is_id; auto.
+       apply bop_product_is_ann; auto. 
+       compute. rewrite iS_not_aS. reflexivity. 
+Defined. 
+
+
+Lemma bops_product_exists_id_ann_not_equal_v2
+        (S T : Type) (eqS : brel S) (eqT : brel T)
+           (bS1 bS2 : binary_op S)
+           (bT1 bT2 : binary_op T) : 
+      bops_exists_id_ann_equal S eqS bS1 bS2 → 
+      bops_exists_id_ann_not_equal T eqT bT1 bT2 → 
+      bops_exists_id_ann_not_equal (S * T)
+                               (brel_product eqS eqT)
+                               (bop_product bS1 bT1)
+                               (bop_product bS2 bT2).
+Proof. intros [iS [piS paS]]  [[iT aT] [[piT paT] iT_not_aT]].
+       exists ((iS, iT), (iS, aT)). split. split. 
+       apply bop_product_is_id; auto.
+       apply bop_product_is_ann; auto. 
+       compute. rewrite iT_not_aT.
+       case_eq(eqS iS iS); intro A; reflexivity. 
+Defined. 
+
+Lemma bops_product_exists_id_ann_not_equal_v3
+        (S T : Type) (eqS : brel S) (eqT : brel T)
+           (bS1 bS2 : binary_op S)
+           (bT1 bT2 : binary_op T) : 
+      bops_exists_id_ann_not_equal S eqS bS1 bS2 → 
+      bops_exists_id_ann_not_equal T eqT bT1 bT2 → 
+      bops_exists_id_ann_not_equal (S * T)
+                               (brel_product eqS eqT)
+                               (bop_product bS1 bT1)
+                               (bop_product bS2 bT2).
+Proof. intros [[iS aS] [[piS paS] iS_not_aS]]  [[iT aT] [[piT paT] iT_not_aT]].
+       exists ((iS, iT), (aS, aT)). split. split. 
+       apply bop_product_is_id; auto.
+       apply bop_product_is_ann; auto. 
+       compute. rewrite iS_not_aS. reflexivity. 
+Defined. 
+
+
+
+(*
+*) 
+
+
+
+Definition bops_product_exists_id_ann_decide
+           (S T : Type) (eqS : brel S) (eqT : brel T)
+           (bS1 bS2 : binary_op S)
+           (bT1 bT2 : binary_op T)           
+           (PS : exists_id_ann_decidable S eqS bS1 bS2)
+           (PT : exists_id_ann_decidable T eqT bT1 bT2) :
+           exists_id_ann_decidable (S * T)
+                                   (brel_product eqS eqT)
+                                   (bop_product bS1 bT1)
+                                   (bop_product bS2 bT2) :=
+let F0 := bop_product_exists_id S T eqS eqT bS1 bT1      in
+let F1 := bop_product_not_exists_id S T eqS eqT bS1 bT1  in  
+
+let F3 := bop_product_exists_ann S T eqS eqT bS2 bT2     in 
+let F2 := bop_product_not_exists_ann S T eqS eqT bS2 bT2 in
+
+let F4 := bops_product_exists_id_ann_equal S T eqS eqT bS1 bS2 bT1 bT2 in 
+let F5 := bops_product_exists_id_ann_not_equal_v2 S T eqS eqT bS1 bS2 bT1 bT2 in 
+let F6 := bops_product_exists_id_ann_not_equal_v1 S T eqS eqT bS1 bS2 bT1 bT2 in
+let F7 := bops_product_exists_id_ann_not_equal_v3 S T eqS eqT bS1 bS2 bT1 bT2 in 
+
+let E5 := extract_exist_id_from_exists_id_ann_equal S eqS bS1 bS2 in
+let E1 := extract_exist_id_from_exists_id_ann_equal T eqT bT1 bT2 in 
+
+let E6 := extract_exist_ann_from_exists_id_ann_equal S eqS bS1 bS2 in
+let E3 := extract_exist_ann_from_exists_id_ann_equal T eqT bT1 bT2 in
+
+let E7 := extract_exist_id_from_exists_id_ann_not_equal S eqS bS1 bS2 in
+let E2 := extract_exist_id_from_exists_id_ann_not_equal T eqT bT1 bT2 in 
+
+let E8 := extract_exist_ann_from_exists_id_ann_not_equal S eqS bS1 bS2 in 
+let E4 := extract_exist_ann_from_exists_id_ann_not_equal T eqT bT1 bT2 in
+
+match PS with 
+| Id_Ann_Proof_None _ _ _ _ (nidS, nannS)               =>
+     Id_Ann_Proof_None _ _ _ _ (F1 (inl nidS), F2 (inl nannS))
+| Id_Ann_Proof_Id_None _ _ _ _ (idS, nannS) =>
+  match PT with 
+  | Id_Ann_Proof_None _ _ _ _ (nidT, nannT)             =>
+       Id_Ann_Proof_None _ _ _ _ (F1 (inr nidT), F2 (inl nannS))           
+  | Id_Ann_Proof_Id_None _ _ _ _ (idT, nannT)           =>
+       Id_Ann_Proof_Id_None _ _ _ _ (F0 idS idT, F2 (inl nannS))
+  | Id_Ann_Proof_None_Ann _ _ _ _ (nidT, annT)          =>
+       Id_Ann_Proof_None _ _ _ _ (F1 (inr nidT), F2 (inl nannS))                     
+  | Id_Ann_Proof_Equal _ _ _ _ (idT_annT_equal)         =>
+       Id_Ann_Proof_Id_None _ _ _ _ (F0 idS (E1 idT_annT_equal), F2 (inl nannS))              
+  | Id_Ann_Proof_Not_Equal _ _ _ _ (idT_annT_not_equal) =>
+       Id_Ann_Proof_Id_None _ _ _ _ (F0 idS (E2 idT_annT_not_equal), F2 (inl nannS))              
+  end   
+| Id_Ann_Proof_None_Ann _ _ _ _ (nidS, annS) =>
+  match PT with 
+  | Id_Ann_Proof_None _ _ _ _ (nidT, nannT)             =>
+       Id_Ann_Proof_None _ _ _ _ (F1 (inl nidS),F2 (inr nannT))           
+  | Id_Ann_Proof_Id_None _ _ _ _ (idT, nannT)           =>
+       Id_Ann_Proof_None _ _ _ _ (F1 (inl nidS), F2 (inr nannT))                         
+  | Id_Ann_Proof_None_Ann _ _ _ _ (nidT, annT)          =>
+       Id_Ann_Proof_None_Ann _ _ _ _ (F1 (inl nidS), F3 annS annT)                      
+  | Id_Ann_Proof_Equal _ _ _ _ (idT_annT_equal)         =>
+       Id_Ann_Proof_None_Ann _ _ _ _ (F1 (inl nidS), F3 annS (E3 idT_annT_equal))  
+  | Id_Ann_Proof_Not_Equal _ _ _ _ (idT_annT_not_equal) =>
+       Id_Ann_Proof_None_Ann _ _ _ _ (F1 (inl nidS), F3 annS (E4 idT_annT_not_equal))   
+  end   
+| Id_Ann_Proof_Equal _ _ _ _ (idS_annS_equal)  =>
+  match PT with 
+  | Id_Ann_Proof_None _ _ _ _ (nidT, nannT)             =>
+       Id_Ann_Proof_None _ _ _ _ (F1 (inr nidT), F2 (inr nannT))                      
+  | Id_Ann_Proof_Id_None _ _ _ _ (idT, nannT)           =>
+       Id_Ann_Proof_Id_None _ _ _ _ (F0 (E5 idS_annS_equal) idT, F2 (inr nannT))
+  | Id_Ann_Proof_None_Ann _ _ _ _ (nidT, annT)          =>
+       Id_Ann_Proof_None_Ann _ _ _ _ (F1 (inr nidT), F3 (E6 idS_annS_equal) annT)
+  | Id_Ann_Proof_Equal _ _ _ _ (idT_annT_equal)         =>
+       Id_Ann_Proof_Equal _ _ _ _ (F4 idS_annS_equal idT_annT_equal)
+  | Id_Ann_Proof_Not_Equal _ _ _ _ (idT_annT_not_equal) =>
+       Id_Ann_Proof_Not_Equal _ _ _ _ (F5 idS_annS_equal idT_annT_not_equal)
+  end   
+| Id_Ann_Proof_Not_Equal _ _ _ _ (idS_annS_not_equal)  =>
+  match PT with 
+  | Id_Ann_Proof_None _ _ _ _ (nidT, nannT)             =>
+       Id_Ann_Proof_None _ _ _ _ (F1 (inr nidT), F2 (inr nannT))             
+  | Id_Ann_Proof_Id_None _ _ _ _ (idT, nannT)           =>
+    Id_Ann_Proof_Id_None _ _ _ _ (F0 (E7 idS_annS_not_equal) idT, F2 (inr nannT))                    
+  | Id_Ann_Proof_None_Ann _ _ _ _ (nidT, annT)          =>
+       Id_Ann_Proof_None_Ann _ _ _ _ (F1 (inr nidT), F3 (E8 idS_annS_not_equal) annT)
+  | Id_Ann_Proof_Equal _ _ _ _ (idT_annT_equal)         =>
+       Id_Ann_Proof_Not_Equal _ _ _ _ (F6 idS_annS_not_equal idT_annT_equal)
+  | Id_Ann_Proof_Not_Equal _ _ _ _ (idT_annT_not_equal) =>
+       Id_Ann_Proof_Not_Equal _ _ _ _ (F7 idS_annS_not_equal idT_annT_not_equal)
+  end   
+end. 
+
+
+
+
+
+  
+(* pay attention to order of arguement!  ;-) *) 
+Definition id_ann_proofs_product
+ (S T: Type) 
+ (rS : brel S) 
+ (rT : brel T) 
+ (plusS timesS : binary_op S) 
+ (plusT timesT : binary_op T)
+ (pS : id_ann_proofs S rS plusS timesS)
+ (pT : id_ann_proofs T rT plusT timesT) : 
         id_ann_proofs (S * T) 
            (brel_product rS rT) 
            (bop_product plusS plusT)
-           (bop_product timesS timesT)
-:= λ S T rS rT plusS timesS plusT timesT pS pT, 
-  {|
-  A_id_ann_exists_plus_id_d   := bop_product_exists_id_decide S T rS rT plusS plusT (A_id_ann_exists_plus_id_d _ _ _ _ pS) (A_id_ann_exists_plus_id_d _ _ _ _ pT) 
-; A_id_ann_exists_plus_ann_d  := bop_product_exists_ann_decide S T rS rT plusS plusT (A_id_ann_exists_plus_ann_d _ _ _ _ pS) (A_id_ann_exists_plus_ann_d _ _ _ _ pT) 
-; A_id_ann_exists_times_id_d  := bop_product_exists_id_decide S T rS rT timesS timesT (A_id_ann_exists_times_id_d _ _ _ _ pS) (A_id_ann_exists_times_id_d _ _ _ _ pT) 
-; A_id_ann_exists_times_ann_d := bop_product_exists_ann_decide S T rS rT timesS timesT (A_id_ann_exists_times_ann_d _ _ _ _ pS) (A_id_ann_exists_times_ann_d _ _ _ _ pT)       
-; A_id_ann_plus_id_is_times_ann_d := 
-     bop_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT 
-        (A_id_ann_plus_id_is_times_ann_d S rS plusS timesS pS)
-        (A_id_ann_plus_id_is_times_ann_d T rT plusT timesT pT)
-; A_id_ann_times_id_is_plus_ann_d :=  
-     bop_product_id_equals_ann_decide S T rS rT timesS plusS timesT plusT  
-        (A_id_ann_times_id_is_plus_ann_d S rS plusS timesS pS)
-        (A_id_ann_times_id_is_plus_ann_d T rT plusT timesT pT)
-|}. 
-
-
-Definition zero_one_proofs_product : 
-  ∀ (S T: Type) 
-    (rS : brel S) 
-    (rT : brel T) 
-    (plusS timesS : binary_op S) 
-    (plusT timesT : binary_op T),
-     zero_one_proofs S rS plusS timesS -> 
-     zero_one_proofs T rT plusT timesT -> 
-        zero_one_proofs (S * T) 
-           (brel_product rS rT) 
-           (bop_product plusS plusT)
-           (bop_product timesS timesT)
-:= λ S T rS rT plusS timesS plusT timesT pS pT, 
+           (bop_product timesS timesT) := 
+let pS_id_ann_plus_times_d := A_id_ann_plus_times_d _ _ _ _ pS in 
+let pS_id_ann_times_plus_d := A_id_ann_times_plus_d _ _ _ _ pS in 
+let pT_id_ann_plus_times_d := A_id_ann_plus_times_d _ _ _ _ pT in 
+let pT_id_ann_times_plus_d := A_id_ann_times_plus_d _ _ _ _ pT in 
 {|
-  A_zero_one_exists_plus_ann_d  := bop_product_exists_ann_decide S T rS rT plusS plusT
-                                        (A_zero_one_exists_plus_ann_d _ _ _ _ pS)
-                                        (A_zero_one_exists_plus_ann_d _ _ _ _ pT) 
-; A_zero_one_exists_times_id  := bop_product_exists_id S T rS rT timesS timesT
-                                        (A_zero_one_exists_times_id _ _ _ _ pS)
-                                        (A_zero_one_exists_times_id _ _ _ _ pT) 
-; A_zero_one_plus_id_is_times_ann := 
-     bop_product_id_equals_ann S T rS rT plusS timesS plusT timesT 
-        (A_zero_one_plus_id_is_times_ann S rS plusS timesS pS)
-        (A_zero_one_plus_id_is_times_ann T rT plusT timesT pT)
-; A_zero_one_times_id_is_plus_ann_d :=  
-     bop_product_id_equals_ann_decide S T rS rT timesS plusS timesT plusT  
-        (A_zero_one_times_id_is_plus_ann_d S rS plusS timesS pS)
-        (A_zero_one_times_id_is_plus_ann_d T rT plusT timesT pT)
-|}. 
+  A_id_ann_plus_times_d := bops_product_exists_id_ann_decide S T rS rT plusS timesS plusT timesT pS_id_ann_plus_times_d pT_id_ann_plus_times_d 
+; A_id_ann_times_plus_d := bops_product_exists_id_ann_decide S T rS rT timesS plusS timesT plusT pS_id_ann_times_plus_d pT_id_ann_times_plus_d
+|}.
 
 
 
-Definition with_one_proofs_product : 
-  ∀ (S T: Type) 
-    (rS : brel S) 
-    (rT : brel T) 
-    (plusS timesS : binary_op S) 
-    (plusT timesT : binary_op T),
-     with_one_proofs S rS plusS timesS -> 
-     with_one_proofs T rT plusT timesT -> 
-        with_one_proofs (S * T) 
+Definition dually_bounded_proofs_product
+ (S T: Type) 
+ (rS : brel S) 
+ (rT : brel T) 
+ (plusS timesS : binary_op S) 
+ (plusT timesT : binary_op T)
+ (pS : dually_bounded_proofs S rS plusS timesS)
+ (pT : dually_bounded_proofs T rT plusT timesT) : 
+        dually_bounded_proofs (S * T) 
            (brel_product rS rT) 
            (bop_product plusS plusT)
-           (bop_product timesS timesT)
-:= λ S T rS rT plusS timesS plusT timesT pS pT, 
-  {|
-  A_with_one_exists_plus_id_d   := bop_product_exists_id_decide S T rS rT plusS plusT (A_with_one_exists_plus_id_d _ _ _ _ pS) (A_with_one_exists_plus_id_d _ _ _ _ pT) 
-; A_with_one_exists_plus_ann  := bop_product_exists_ann S T rS rT plusS plusT (A_with_one_exists_plus_ann _ _ _ _ pS) (A_with_one_exists_plus_ann _ _ _ _ pT) 
-; A_with_one_exists_times_id  := bop_product_exists_id S T rS rT timesS timesT (A_with_one_exists_times_id _ _ _ _ pS) (A_with_one_exists_times_id _ _ _ _ pT) 
-; A_with_one_exists_times_ann_d := bop_product_exists_ann_decide S T rS rT timesS timesT (A_with_one_exists_times_ann_d _ _ _ _ pS) (A_with_one_exists_times_ann_d _ _ _ _ pT)       
-; A_with_one_plus_id_is_times_ann_d := 
-     bop_product_id_equals_ann_decide S T rS rT plusS timesS plusT timesT 
-        (A_with_one_plus_id_is_times_ann_d S rS plusS timesS pS)
-        (A_with_one_plus_id_is_times_ann_d T rT plusT timesT pT)
-; A_with_one_times_id_is_plus_ann := bop_product_id_equals_ann S T rS rT timesS plusS timesT plusT  
-        (A_with_one_times_id_is_plus_ann S rS plusS timesS pS)
-        (A_with_one_times_id_is_plus_ann T rT plusT timesT pT)
-
-|}. 
-
-
-Definition bounded_proofs_product : 
-  ∀ (S T: Type) 
-    (rS : brel S) 
-    (rT : brel T) 
-    (plusS timesS : binary_op S) 
-    (plusT timesT : binary_op T),
-     bounded_proofs S rS plusS timesS -> 
-     bounded_proofs T rT plusT timesT -> 
-        bounded_proofs (S * T) 
-           (brel_product rS rT) 
-           (bop_product plusS plusT)
-           (bop_product timesS timesT)
-:= λ S T rS rT plusS timesS plusT timesT pS pT, 
+           (bop_product timesS timesT) := 
+let pS_id_ann_plus_times := A_bounded_plus_id_is_times_ann _ _ _ _ pS in 
+let pS_id_ann_times_plus := A_bounded_times_id_is_plus_ann _ _ _ _ pS in 
+let pT_id_ann_plus_times := A_bounded_plus_id_is_times_ann _ _ _ _ pT in 
+let pT_id_ann_times_plus := A_bounded_times_id_is_plus_ann _ _ _ _ pT in 
 {|
-  A_bounded_plus_id_is_times_ann := 
-     bop_product_id_equals_ann S T rS rT plusS timesS plusT timesT 
-        (A_bounded_plus_id_is_times_ann S rS plusS timesS pS)
-        (A_bounded_plus_id_is_times_ann T rT plusT timesT pT)
-; A_bounded_times_id_is_plus_ann :=  
-     bop_product_id_equals_ann S T rS rT timesS plusS timesT plusT  
-        (A_bounded_times_id_is_plus_ann S rS plusS timesS pS)
-        (A_bounded_times_id_is_plus_ann T rT plusT timesT pT)
-|}. 
+  A_bounded_plus_id_is_times_ann := bops_product_exists_id_ann_equal S T rS rT plusS timesS plusT timesT pS_id_ann_plus_times pT_id_ann_plus_times 
+; A_bounded_times_id_is_plus_ann := bops_product_exists_id_ann_equal S T rS rT timesS plusS timesT plusT pS_id_ann_times_plus pT_id_ann_times_plus
+|}.
 
 
 
+Definition pid_is_tann_proofs_product
+ (S T: Type) 
+ (rS : brel S) 
+ (rT : brel T) 
+ (plusS timesS : binary_op S) 
+ (plusT timesT : binary_op T)
+ (pS : pid_is_tann_proofs S rS plusS timesS)
+ (pT : pid_is_tann_proofs T rT plusT timesT) : 
+        pid_is_tann_proofs (S * T) 
+           (brel_product rS rT) 
+           (bop_product plusS plusT)
+           (bop_product timesS timesT) := 
+let pS_id_ann_plus_times := A_pid_is_tann_plus_times _ _ _ _ pS in 
+let pS_id_ann_times_plus_d := A_pid_is_tann_times_plus_d _ _ _ _ pS in 
+let pT_id_ann_plus_times := A_pid_is_tann_plus_times _ _ _ _ pT in 
+let pT_id_ann_times_plus_d := A_pid_is_tann_times_plus_d _ _ _ _ pT in 
+{|
+  A_pid_is_tann_plus_times   := bops_product_exists_id_ann_equal S T rS rT plusS timesS plusT timesT pS_id_ann_plus_times pT_id_ann_plus_times 
+; A_pid_is_tann_times_plus_d := bops_product_exists_id_ann_decide S T rS rT timesS plusS timesT plusT pS_id_ann_times_plus_d pT_id_ann_times_plus_d
+|}.
 
 
-  Definition bs_proofs_product : 
+Definition pann_is_tid_proofs_product
+ (S T: Type) 
+ (rS : brel S) 
+ (rT : brel T) 
+ (plusS timesS : binary_op S) 
+ (plusT timesT : binary_op T)
+ (pS : pann_is_tid_proofs S rS plusS timesS)
+ (pT : pann_is_tid_proofs T rT plusT timesT) : 
+        pann_is_tid_proofs (S * T) 
+           (brel_product rS rT) 
+           (bop_product plusS plusT)
+           (bop_product timesS timesT) := 
+let pS_id_ann_plus_times_d := A_pann_is_tid_plus_times_d _ _ _ _ pS in 
+let pS_id_ann_times_plus := A_pann_is_tid_times_plus _ _ _ _ pS in 
+let pT_id_ann_plus_times_d := A_pann_is_tid_plus_times_d _ _ _ _ pT in 
+let pT_id_ann_times_plus := A_pann_is_tid_times_plus _ _ _ _ pT in 
+{|
+  A_pann_is_tid_plus_times_d := bops_product_exists_id_ann_decide S T rS rT plusS timesS plusT timesT pS_id_ann_plus_times_d pT_id_ann_plus_times_d 
+; A_pann_is_tid_times_plus   := bops_product_exists_id_ann_equal S T rS rT timesS plusS timesT plusT pS_id_ann_times_plus pT_id_ann_times_plus
+|}.
+
+
+Definition bs_proofs_product : 
   ∀ (S T: Type) 
     (rS : brel S) 
     (rT : brel T) 
@@ -526,7 +631,7 @@ let timesT := A_bs_times T bsT in
    ; A_bs_ast        := Ast_bs_product(A_bs_ast S bsS, A_bs_ast T bsT)
 |}. 
 
-
+(*
 Definition A_pre_path_algebra_product : ∀ (S T : Type),  A_pre_path_algebra S -> A_pre_path_algebra T -> A_pre_path_algebra_NS (S * T) 
 := λ S T bsS bsT,
 let eqvS   := A_pre_path_algebra_eqv S bsS   in
@@ -563,7 +668,7 @@ let timesT := A_pre_path_algebra_times T bsT in
                                        (A_pre_path_algebra_proofs T bsT)
    ; A_pre_path_algebra_NS_ast        := Ast_bs_product(A_pre_path_algebra_ast S bsS, A_pre_path_algebra_ast T bsT) (* FIX *) 
 |}. 
-
+*) 
 
 
 
@@ -665,7 +770,7 @@ let timesT := A_semiring_times T sr2 in
    ; A_semiring_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                                 (A_semiring_times_proofs S sr1)
                                 (A_semiring_times_proofs T sr2)
-   ; A_semiring_id_ann_proofs := zero_one_proofs_product S T rS rT plusS timesS plusT timesT
+   ; A_semiring_id_ann_proofs := pid_is_tann_proofs_product S T rS rT plusS timesS plusT timesT
                                    (A_semiring_id_ann_proofs S sr1) 
                                    (A_semiring_id_ann_proofs T sr2)                           
    ; A_semiring_proofs       := semiring_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
@@ -702,7 +807,7 @@ let timesT := A_dioid_times T sr2 in
    ; A_dioid_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                                 (A_dioid_times_proofs S sr1)
                                 (A_dioid_times_proofs T sr2)
-   ; A_dioid_id_ann_proofs := bounded_proofs_product S T rS rT plusS timesS plusT timesT
+   ; A_dioid_id_ann_proofs := dually_bounded_proofs_product S T rS rT plusS timesS plusT timesT
                                    (A_dioid_id_ann_proofs S sr1) 
                                    (A_dioid_id_ann_proofs T sr2)                           
    ; A_dioid_proofs       := semiring_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
@@ -766,7 +871,7 @@ let meetT  := A_distributive_lattice_meet T sr2 in
    ; A_distributive_lattice_meet_proofs := sg_CI_proofs_product S T rS rT meetS meetT s f t g Pf Pg peqvS peqvT  
                                 (A_distributive_lattice_meet_proofs S sr1)
                                 (A_distributive_lattice_meet_proofs T sr2)
-   ; A_distributive_lattice_id_ann_proofs := bounded_proofs_product S T rS rT joinS meetS joinT meetT 
+   ; A_distributive_lattice_id_ann_proofs := dually_bounded_proofs_product S T rS rT joinS meetS joinT meetT 
                                    (A_distributive_lattice_id_ann_proofs S sr1) 
                                    (A_distributive_lattice_id_ann_proofs T sr2)                           
    ; A_distributive_lattice_proofs  := distributive_lattice_proofs_product S T rS rT joinS meetS joinT meetT peqvS peqvT  
@@ -837,7 +942,7 @@ let meetT  := A_lattice_meet T sr2 in
    ; A_lattice_meet_proofs := sg_CI_proofs_product S T rS rT meetS meetT s f t g Pf Pg peqvS peqvT  
                                 (A_lattice_meet_proofs S sr1)
                                 (A_lattice_meet_proofs T sr2)
-   ; A_lattice_id_ann_proofs := bounded_proofs_product S T rS rT joinS meetS joinT meetT 
+   ; A_lattice_id_ann_proofs := dually_bounded_proofs_product S T rS rT joinS meetS joinT meetT 
                                    (A_lattice_id_ann_proofs S sr1) 
                                    (A_lattice_id_ann_proofs T sr2)                           
    ; A_lattice_proofs  := lattice_proofs_product S T rS rT joinS meetS joinT meetT s t peqvS peqvT  
@@ -888,64 +993,6 @@ Definition bop_product_right_distributive_check :
    | Certify_Not_Right_Distributive (s1, (s2, s3)) => 
         Certify_Not_Right_Distributive  ((s1, t), ((s2, t), (s3, t)))
    end.
-
-Definition bop_product_plus_id_equals_times_ann_check : 
-   ∀ {S T : Type},  
-     @check_plus_id_equals_times_ann S -> 
-     @check_plus_id_equals_times_ann T -> 
-     @check_plus_id_equals_times_ann (S * T) 
-:= λ {S T} dS dT,  
-   match dS with 
-   | Certify_Plus_Id_Equals_Times_Ann s => 
-     match dT with 
-     | Certify_Plus_Id_Equals_Times_Ann t => Certify_Plus_Id_Equals_Times_Ann (s, t) 
-     | Certify_Not_Plus_Id_Equals_Times_Ann => 
-          Certify_Not_Plus_Id_Equals_Times_Ann  
-     end 
-   | Certify_Not_Plus_Id_Equals_Times_Ann => 
-        Certify_Not_Plus_Id_Equals_Times_Ann 
-   end.
-
-
-Definition bop_product_times_id_equals_plus_ann_check : 
-   ∀ {S T : Type},  
-     @check_times_id_equals_plus_ann S -> 
-     @check_times_id_equals_plus_ann T -> 
-     @check_times_id_equals_plus_ann (S * T) 
-:= λ {S T} dS dT,  
-   match dS with 
-   | Certify_Times_Id_Equals_Plus_Ann s => 
-     match dT with 
-     | Certify_Times_Id_Equals_Plus_Ann t => Certify_Times_Id_Equals_Plus_Ann (s, t) 
-     | Certify_Not_Times_Id_Equals_Plus_Ann => 
-          Certify_Not_Times_Id_Equals_Plus_Ann  
-     end 
-   | Certify_Not_Times_Id_Equals_Plus_Ann => 
-        Certify_Not_Times_Id_Equals_Plus_Ann 
-   end. 
-
-Definition bop_product_plus_id_equals_times_ann_assert : 
-   ∀ {S T : Type},  
-     @assert_plus_id_equals_times_ann S -> 
-     @assert_plus_id_equals_times_ann T -> 
-     @assert_plus_id_equals_times_ann (S * T) 
-:= λ {S T} dS dT,  
-   match dS, dT with 
-   | Assert_Plus_Id_Equals_Times_Ann s, Assert_Plus_Id_Equals_Times_Ann t => 
-       Assert_Plus_Id_Equals_Times_Ann (s, t) 
-   end.
-
-
-Definition bop_product_times_id_equals_plus_ann_assert : 
-   ∀ {S T : Type},  
-     @assert_times_id_equals_plus_ann S -> 
-     @assert_times_id_equals_plus_ann T -> 
-     @assert_times_id_equals_plus_ann (S * T) 
-:= λ {S T} dS dT,  
-   match dS, dT with 
-   | Assert_Times_Id_Equals_Plus_Ann s, Assert_Times_Id_Equals_Plus_Ann t =>
-        Assert_Times_Id_Equals_Plus_Ann (s, t) 
-   end. 
 
 
 
@@ -1019,46 +1066,113 @@ end.
 
 
 
-Definition id_ann_certs_product : 
-  ∀ {S T: Type}, 
-     @id_ann_certificates S -> 
-     @id_ann_certificates T -> 
-        @id_ann_certificates (S * T) 
-:= λ {S T} pS pT, 
-  {|
-  id_ann_exists_plus_id_d       := check_exists_id_product (id_ann_exists_plus_id_d pS) (id_ann_exists_plus_id_d pT) 
-; id_ann_exists_plus_ann_d      := check_exists_ann_product (id_ann_exists_plus_ann_d pS) (id_ann_exists_plus_ann_d pT) 
-; id_ann_exists_times_id_d      := check_exists_id_product (id_ann_exists_times_id_d pS) (id_ann_exists_times_id_d pT) 
-; id_ann_exists_times_ann_d     := check_exists_ann_product (id_ann_exists_times_ann_d pS) (id_ann_exists_times_ann_d pT)       
-; id_ann_plus_id_is_times_ann_d := bop_product_plus_id_equals_times_ann_check (id_ann_plus_id_is_times_ann_d pS) (id_ann_plus_id_is_times_ann_d pT)
-; id_ann_times_id_is_plus_ann_d := bop_product_times_id_equals_plus_ann_check (id_ann_times_id_is_plus_ann_d pS) (id_ann_times_id_is_plus_ann_d pT)
+
+Definition bops_product_exists_id_ann_certify
+           {S T : Type} 
+           (PS : @exists_id_ann_certificate S)
+           (PT : @exists_id_ann_certificate T) :
+             @exists_id_ann_certificate (S * T) := 
+match PS with 
+| Id_Ann_Cert_None         => Id_Ann_Cert_None 
+| Id_Ann_Cert_Id_None idS  =>
+  match PT with 
+  | Id_Ann_Cert_None               => Id_Ann_Cert_None 
+  | Id_Ann_Cert_Id_None idT        => Id_Ann_Cert_Id_None (idS, idT) 
+  | Id_Ann_Cert_None_Ann annT      => Id_Ann_Cert_None 
+  | Id_Ann_Cert_Equal idT_annT     => Id_Ann_Cert_Id_None (idS, idT_annT) 
+  | Id_Ann_Cert_Not_Equal (idT, _) => Id_Ann_Cert_Id_None (idS, idT) 
+  end   
+| Id_Ann_Cert_None_Ann annS =>
+  match PT with 
+  | Id_Ann_Cert_None                  => Id_Ann_Cert_None
+  | Id_Ann_Cert_Id_None idT           => Id_Ann_Cert_None
+  | Id_Ann_Cert_None_Ann annT         => Id_Ann_Cert_None_Ann (annS, annT) 
+  | Id_Ann_Cert_Equal (idT_annT)     => Id_Ann_Cert_None_Ann (annS, idT_annT) 
+  | Id_Ann_Cert_Not_Equal (_, annT)   => Id_Ann_Cert_None_Ann (annS, annT) 
+  end   
+| Id_Ann_Cert_Equal idS_annS  =>
+  match PT with 
+  | Id_Ann_Cert_None                  => Id_Ann_Cert_None
+  | Id_Ann_Cert_Id_None idT           => Id_Ann_Cert_Id_None (idS_annS, idT)
+  | Id_Ann_Cert_None_Ann annT         => Id_Ann_Cert_None_Ann (idS_annS, annT) 
+  | Id_Ann_Cert_Equal idT_annT        => Id_Ann_Cert_Equal (idS_annS, idT_annT) 
+  | Id_Ann_Cert_Not_Equal (idT, annT) => Id_Ann_Cert_Not_Equal ((idS_annS, idT), (idS_annS, annT))
+  end   
+| Id_Ann_Cert_Not_Equal (idS, annS)  =>
+  match PT with 
+  | Id_Ann_Cert_None                  => Id_Ann_Cert_None 
+  | Id_Ann_Cert_Id_None idT           => Id_Ann_Cert_Id_None (idS, idT) 
+  | Id_Ann_Cert_None_Ann annT         => Id_Ann_Cert_None_Ann (annS, annT)
+  | Id_Ann_Cert_Equal idT_annT        => Id_Ann_Cert_Not_Equal ((idS, idT_annT), (annS, idT_annT))
+  | Id_Ann_Cert_Not_Equal (idT,annT)  => Id_Ann_Cert_Not_Equal ((idS, idT), (annS, annT))
+  end   
+end. 
+
+
+Definition id_ann_certs_product 
+  {S T: Type}
+  (pS : @id_ann_certificates S) 
+  (pT : @id_ann_certificates T) : 
+        @id_ann_certificates (S * T) := 
+let pS_id_ann_plus_times_d := id_ann_plus_times_d pS in 
+let pS_id_ann_times_plus_d := id_ann_times_plus_d pS in 
+let pT_id_ann_plus_times_d := id_ann_plus_times_d pT in 
+let pT_id_ann_times_plus_d := id_ann_times_plus_d pT in 
+{|
+  id_ann_plus_times_d := bops_product_exists_id_ann_certify pS_id_ann_plus_times_d pT_id_ann_plus_times_d 
+; id_ann_times_plus_d := bops_product_exists_id_ann_certify pS_id_ann_times_plus_d pT_id_ann_times_plus_d
+|}.
+
+Definition dually_bounded_certs_product 
+  {S T: Type}
+  (pS : @dually_bounded_certificates S)
+  (pT : @dually_bounded_certificates T) : 
+        @dually_bounded_certificates (S * T) := 
+{|
+  bounded_plus_id_is_times_ann :=
+    match bounded_plus_id_is_times_ann pS, bounded_plus_id_is_times_ann pT with
+    | Assert_Exists_Id_Ann_Equal s, Assert_Exists_Id_Ann_Equal t => Assert_Exists_Id_Ann_Equal (s, t)
+   end                                                                                                
+; bounded_times_id_is_plus_ann :=
+    match bounded_times_id_is_plus_ann pS, bounded_times_id_is_plus_ann pT with
+    | Assert_Exists_Id_Ann_Equal s, Assert_Exists_Id_Ann_Equal t => Assert_Exists_Id_Ann_Equal (s, t)
+   end                                                                                                
 |}. 
 
+Definition pid_is_tann_certs_product
+ {S T: Type}
+ (pS : @pid_is_tann_certificates S)
+ (pT : @pid_is_tann_certificates T) : 
+         @pid_is_tann_certificates (S * T) := 
+let pS_id_ann_plus_times   := pid_is_tann_plus_times pS in 
+let pS_id_ann_times_plus_d := pid_is_tann_times_plus_d pS in 
+let pT_id_ann_plus_times   := pid_is_tann_plus_times pT in 
+let pT_id_ann_times_plus_d := pid_is_tann_times_plus_d pT in 
+{|
+  pid_is_tann_plus_times   :=
+    match pS_id_ann_plus_times,  pT_id_ann_plus_times with
+    | Assert_Exists_Id_Ann_Equal s, Assert_Exists_Id_Ann_Equal t => Assert_Exists_Id_Ann_Equal (s, t)
+   end                                                                                                
+; pid_is_tann_times_plus_d :=bops_product_exists_id_ann_certify pS_id_ann_times_plus_d pT_id_ann_times_plus_d
+|}.
 
-Definition zero_one_certs_product : 
-  ∀ {S T: Type}, 
-     @zero_one_certificates S -> 
-     @zero_one_certificates T -> 
-        @zero_one_certificates (S * T) 
-:= λ {S T} pS pT, 
-  {|
-  zero_one_exists_plus_ann_d      := check_exists_ann_product (zero_one_exists_plus_ann_d pS) (zero_one_exists_plus_ann_d pT) 
-; zero_one_exists_times_id        := assert_exists_id_product (zero_one_exists_times_id pS) (zero_one_exists_times_id pT) 
-; zero_one_plus_id_is_times_ann   := bop_product_plus_id_equals_times_ann_assert (zero_one_plus_id_is_times_ann pS) (zero_one_plus_id_is_times_ann pT)
-; zero_one_times_id_is_plus_ann_d := bop_product_times_id_equals_plus_ann_check (zero_one_times_id_is_plus_ann_d pS) (zero_one_times_id_is_plus_ann_d pT)
-|}. 
-
-
-Definition bounded_certs_product : 
-  ∀ {S T: Type}, 
-     @bounded_certificates S -> 
-     @bounded_certificates T -> 
-        @bounded_certificates (S * T) 
-:= λ {S T} pS pT, 
-  {|
-  bounded_plus_id_is_times_ann := bop_product_plus_id_equals_times_ann_assert (bounded_plus_id_is_times_ann pS) (bounded_plus_id_is_times_ann pT)
-; bounded_times_id_is_plus_ann := bop_product_times_id_equals_plus_ann_assert (bounded_times_id_is_plus_ann pS) (bounded_times_id_is_plus_ann pT)
-|}. 
+Definition pann_is_tid_certs_product
+ {S T: Type}
+ (pS : @pann_is_tid_certificates S)
+ (pT : @pann_is_tid_certificates T) : 
+        @pann_is_tid_certificates (S * T) := 
+let pS_id_ann_plus_times_d := pann_is_tid_plus_times_d pS in 
+let pS_id_ann_times_plus := pann_is_tid_times_plus pS in 
+let pT_id_ann_plus_times_d := pann_is_tid_plus_times_d pT in 
+let pT_id_ann_times_plus := pann_is_tid_times_plus pT in 
+{|
+  pann_is_tid_plus_times_d := bops_product_exists_id_ann_certify pS_id_ann_plus_times_d pT_id_ann_plus_times_d 
+; pann_is_tid_times_plus   :=
+    match pS_id_ann_times_plus, pT_id_ann_times_plus with
+    | Assert_Exists_Id_Ann_Equal s, Assert_Exists_Id_Ann_Equal t => Assert_Exists_Id_Ann_Equal (s, t)
+   end                                                                                                
+      
+|}.
 
 
 
@@ -1174,7 +1288,7 @@ let mulT := semiring_times s2 in
    ; semiring_times        := bop_product mulS mulT
    ; semiring_plus_certs   := sg_C_certs_product eqS eqT addS addT wS fS wT fT (semiring_plus_certs s1) (semiring_plus_certs s2) 
    ; semiring_times_certs  := msg_certs_product wS wT (semiring_times_certs s1) (semiring_times_certs s2)
-   ; semiring_id_ann_certs := zero_one_certs_product (semiring_id_ann_certs s1) (semiring_id_ann_certs s2)        
+   ; semiring_id_ann_certs := pid_is_tann_certs_product (semiring_id_ann_certs s1) (semiring_id_ann_certs s2)        
    ; semiring_certs        := semiring_certs_product wS wT (semiring_certs s1) (semiring_certs s2)
    ; semiring_ast          := Ast_bs_product (semiring_ast s1, semiring_ast s2)
 |}.
@@ -1199,14 +1313,14 @@ let timesT := dioid_times sr2 in
    ; dioid_times        := bop_product timesS timesT 
    ; dioid_plus_certs   := sg_CI_certs_product rS rT plusS plusT s f t g (dioid_plus_certs sr1)(dioid_plus_certs sr2)
    ; dioid_times_certs  := msg_certs_product s t (dioid_times_certs sr1) (dioid_times_certs sr2)
-   ; dioid_id_ann_certs := bounded_certs_product (dioid_id_ann_certs sr1) (dioid_id_ann_certs sr2)                                              
+   ; dioid_id_ann_certs := dually_bounded_certs_product (dioid_id_ann_certs sr1) (dioid_id_ann_certs sr2)                                              
    ; dioid_certs        := semiring_certs_product s t (dioid_certs sr1) (dioid_certs sr2)
    ; dioid_ast          := Ast_bs_product (dioid_ast sr1, dioid_ast sr2)
 |}.
 
 
-Definition path_algebra_certs_product {S T : Type} (CS: @path_algebra_certs S) (CT : @path_algebra_certs T) : 
-        @path_algebra_certs (S * T) := 
+Definition path_algebra_certs_product {S T : Type} (CS: @path_algebra_certificates S) (CT : @path_algebra_certificates T) : 
+        @path_algebra_certificates (S * T) := 
 {|
   path_algebra_left_distributive      := Assert_Left_Distributive  
 ; path_algebra_right_distributive     := Assert_Right_Distributive 
@@ -1215,7 +1329,7 @@ Definition path_algebra_certs_product {S T : Type} (CS: @path_algebra_certs S) (
 |}.
 
 
-
+(*
 Definition pre_path_algebra_product {S T : Type} :  @pre_path_algebra S -> @pre_path_algebra T -> @pre_path_algebra_NS (S * T) 
 := λ bsS bsT,
 let eqvS   := pre_path_algebra_eqv bsS   in
@@ -1248,7 +1362,7 @@ let timesT := pre_path_algebra_times bsT in
                                        (pre_path_algebra_certs bsT)
    ; pre_path_algebra_NS_ast        := Ast_bs_product(pre_path_algebra_ast bsS, pre_path_algebra_ast bsT) (* FIX *) 
 |}. 
-
+*) 
 
   
 End CAS.
@@ -1310,6 +1424,7 @@ Proof. intros
 Qed. 
 
 
+(*
 Lemma bop_product_plus_id_is_times_ann_assert_correct : 
   ∀ (pS_d : bops_id_equals_ann S rS plusS timesS)
      (pT_d : bops_id_equals_ann T rT plusT timesT), 
@@ -1368,7 +1483,7 @@ Lemma bop_product_times_id_equals_plus_ann_check_correct :
       (p2c_times_id_equals_plus_ann S rS plusS timesS pS_d) 
       (p2c_times_id_equals_plus_ann T rT plusT timesT pT_d). 
 Proof. intros [ [iS [piS paS]] | neqS]  [[iT [piT paT]] | neqT] ; compute; reflexivity. Qed. 
-
+*) 
 
 
 Lemma bop_product_left_left_absorbtive_check_correct : 
@@ -1468,7 +1583,54 @@ Proof. intros eqvS eqvT bsS bsT.
        rewrite bop_product_left_left_absorbtive_check_correct. 
        rewrite bop_product_left_right_absorbtive_check_correct. 
        reflexivity. 
-Defined. 
+Defined.
+
+
+Lemma bops_product_exists_id_ann_correct 
+  (bS1 bS2 : binary_op S)
+  (bT1 bT2 : binary_op T)
+  (pS : exists_id_ann_decidable S rS bS1 bS2)
+  (pT : exists_id_ann_decidable T rT bT1 bT2) : 
+  p2c_exists_id_ann (S * T) (brel_product rS rT) (bop_product bS1 bT1) (bop_product bS2 bT2)
+                            (bops_product_exists_id_ann_decide S T rS rT bS1 bS2 bT1 bT2 pS pT)
+  =
+  bops_product_exists_id_ann_certify (p2c_exists_id_ann S rS bS1 bS2 pS)
+                                     (p2c_exists_id_ann T rT bT1 bT2 pT).                           
+Proof. unfold p2c_exists_id_ann, bops_product_exists_id_ann_decide, bops_product_exists_id_ann_certify; simpl. 
+       destruct pS; simpl.
+       + destruct pT; simpl. 
+         ++ destruct p as [A B]; destruct p0 as [C D]. reflexivity. 
+         ++ destruct p as [A B]; destruct p0 as [C D]. reflexivity. 
+         ++ destruct p as [A B]; destruct p0 as [C D]. reflexivity. 
+         ++ destruct p as [A B]. reflexivity. 
+         ++ destruct p as [A B]. reflexivity. 
+       + destruct pT; simpl.
+         ++ destruct p as [A B]; destruct p0 as [C D]. reflexivity. 
+         ++ destruct p as [[idS A] B]; destruct p0 as [[idT C] D]; simpl. reflexivity. 
+         ++ destruct p as [A B]; destruct p0 as [C D]. reflexivity. 
+         ++ destruct p as [[idS A] B]. destruct b as [idT_annT D]; simpl. reflexivity. 
+         ++ destruct p as [[idS A] B]. destruct b as [[idT annT] D]; simpl. reflexivity. 
+       + destruct pT; simpl.
+         ++ destruct p as [A B]; destruct p0 as [C D]. reflexivity. 
+         ++ destruct p as [A B]; destruct p0 as [C D]. reflexivity. 
+         ++ destruct p as [A [annS B]]; destruct p0 as [C [annT D]]; simpl. reflexivity. 
+         ++ destruct p as [A [annS B]]; destruct b as [idT_annT C]; simpl. reflexivity. 
+         ++ destruct p as [A [annS B]]; destruct b as [[idT annT] C]; simpl. reflexivity. 
+       + destruct pT; simpl.
+         ++ destruct b as [idS_annS A]; destruct p as [C D]. reflexivity. 
+         ++ destruct b as [idS_annS A]; destruct p as [[idT C] D]; simpl. reflexivity. 
+         ++ destruct b as [idS_annS A]; destruct p as [C [annT D]]; simpl. reflexivity. 
+         ++ destruct b as [idS_annS [A B]]; destruct b0 as [idT_annT [C D]]; simpl. reflexivity. 
+         ++ destruct b as [idS_annS [A B]]; destruct b0 as [[idT annT] [[C D] E]]; simpl. reflexivity. 
+       + destruct pT; simpl.
+         ++ destruct b as [[idS annS] [[A B] C]]; destruct p as [D E]; simpl. reflexivity. 
+         ++ destruct b as [[idS annS] [[A B] C]]; destruct p as [[idT D] E]; simpl. reflexivity. 
+         ++ destruct b as [[idS annS] [[A B] C]]; destruct p as [D [annT E]]; simpl. reflexivity. 
+         ++ destruct b as [[idS annS] [[A B] C]]; destruct b0 as [idT_annT [D E]]; simpl. reflexivity. 
+         ++ destruct b as [[idS annS] [[A B] C]]; destruct b0 as [[idT annT] [[D E] F]]; simpl. reflexivity. 
+Qed. 
+
+
 
 Lemma  correct_id_ann_certs_product : 
   ∀ (pS : id_ann_proofs S rS plusS timesS)
@@ -1479,50 +1641,65 @@ Lemma  correct_id_ann_certs_product :
                        (id_ann_proofs_product S T rS rT plusS timesS plusT timesT pS pT). 
 Proof. intros pS pT. 
        unfold id_ann_certs_product, id_ann_proofs_product, P2C_id_ann; simpl.
-       rewrite bop_product_plus_id_is_times_ann_check_correct. 
-       rewrite bop_product_times_id_equals_plus_ann_check_correct.
-       rewrite correct_check_exists_id_product.
-       rewrite correct_check_exists_id_product.         
-       rewrite correct_check_exists_ann_product.
-       rewrite correct_check_exists_ann_product.       
+       rewrite bops_product_exists_id_ann_correct.
+       rewrite bops_product_exists_id_ann_correct.        
        reflexivity. 
 Qed.
 
 
-Lemma  correct_zero_one_certs_product : 
-  ∀ (pS : zero_one_proofs S rS plusS timesS)
-     (pT : zero_one_proofs T rT plusT timesT), 
-    zero_one_certs_product (P2C_zero_one S rS plusS timesS pS) (P2C_zero_one T rT plusT timesT pT) 
+Lemma  correct_dually_bounded_certs_product : 
+  ∀ (pS : dually_bounded_proofs S rS plusS timesS)
+     (pT : dually_bounded_proofs T rT plusT timesT), 
+    dually_bounded_certs_product (P2C_dually_bounded S rS plusS timesS pS) (P2C_dually_bounded T rT plusT timesT pT) 
     = 
-    P2C_zero_one (S * T) (brel_product rS rT) (bop_product plusS plusT) (bop_product timesS timesT) 
-                       (zero_one_proofs_product S T rS rT plusS timesS plusT timesT pS pT). 
+    P2C_dually_bounded (S * T) (brel_product rS rT) (bop_product plusS plusT) (bop_product timesS timesT) 
+                                (dually_bounded_proofs_product S T rS rT plusS timesS plusT timesT pS pT). 
 Proof. intros pS pT. 
-       unfold zero_one_certs_product, zero_one_proofs_product, P2C_zero_one; simpl.
-       rewrite correct_check_exists_ann_product.                
-       rewrite bop_product_plus_id_is_times_ann_assert_correct.
-       rewrite bop_product_times_id_equals_plus_ann_check_correct.
-       (* messy: *)
-       destruct pS, pT.
-       destruct A_zero_one_exists_times_id as [iS ipS].
-       destruct A_zero_one_exists_times_id0 as [iT ipT].        
-       simpl. unfold p2c_exists_id_assert. simpl. 
+       unfold dually_bounded_certs_product, dually_bounded_proofs_product, P2C_dually_bounded; simpl.
+       destruct pS; destruct pT.
+       destruct A_bounded_plus_id_is_times_ann as [pidS_tannS [A B]]. 
+       destruct A_bounded_times_id_is_plus_ann as [tidS_pannS [C D]]. 
+       destruct A_bounded_plus_id_is_times_ann0 as [pidT_tannT [E F]]. 
+       destruct A_bounded_times_id_is_plus_ann0 as [tidT_pannT [G H]].
+       unfold p2c_exists_id_ann_equal; simpl. 
        reflexivity. 
 Qed.
 
-
-Lemma  correct_bounded_certs_product : 
-  ∀ (pS : bounded_proofs S rS plusS timesS)
-     (pT : bounded_proofs T rT plusT timesT), 
-    bounded_certs_product (P2C_bounded S rS plusS timesS pS) (P2C_bounded T rT plusT timesT pT) 
+Lemma  correct_pid_is_tann_certs_product : 
+  ∀ (pS : pid_is_tann_proofs S rS plusS timesS)
+     (pT : pid_is_tann_proofs T rT plusT timesT), 
+    pid_is_tann_certs_product (P2C_pid_is_tann S rS plusS timesS pS) (P2C_pid_is_tann T rT plusT timesT pT) 
     = 
-    P2C_bounded (S * T) (brel_product rS rT) (bop_product plusS plusT) (bop_product timesS timesT) 
-                       (bounded_proofs_product S T rS rT plusS timesS plusT timesT pS pT). 
+    P2C_pid_is_tann (S * T) (brel_product rS rT) (bop_product plusS plusT) (bop_product timesS timesT) 
+                                (pid_is_tann_proofs_product S T rS rT plusS timesS plusT timesT pS pT). 
 Proof. intros pS pT. 
-       unfold bounded_certs_product, bounded_proofs_product, P2C_bounded; simpl.
-       rewrite bop_product_plus_id_is_times_ann_assert_correct.
-       rewrite bop_product_times_id_is_plus_ann_assert_correct.
+       unfold pid_is_tann_certs_product, pid_is_tann_proofs_product, P2C_pid_is_tann; simpl.
+       destruct pS; destruct pT.
+       rewrite bops_product_exists_id_ann_correct. simpl. 
+       destruct A_pid_is_tann_plus_times as [pidS_tannS [A B]]. 
+       destruct A_pid_is_tann_plus_times0 as [pidT_tannT [C D]]. 
+       unfold p2c_exists_id_ann_equal; simpl. 
        reflexivity. 
 Qed.
+
+Lemma  correct_pann_is_tid_certs_product : 
+  ∀ (pS : pann_is_tid_proofs S rS plusS timesS)
+     (pT : pann_is_tid_proofs T rT plusT timesT), 
+    pann_is_tid_certs_product (P2C_pann_is_tid S rS plusS timesS pS) (P2C_pann_is_tid T rT plusT timesT pT) 
+    = 
+    P2C_pann_is_tid (S * T) (brel_product rS rT) (bop_product plusS plusT) (bop_product timesS timesT) 
+                                (pann_is_tid_proofs_product S T rS rT plusS timesS plusT timesT pS pT). 
+Proof. intros pS pT. 
+       unfold pann_is_tid_certs_product, pann_is_tid_proofs_product, P2C_pann_is_tid; simpl.
+       destruct pS; destruct pT.
+       rewrite bops_product_exists_id_ann_correct. simpl. 
+       destruct A_pann_is_tid_times_plus as [idS_annS [A B]]. 
+       destruct A_pann_is_tid_times_plus0 as [idT_annT [C D]]. 
+       unfold p2c_exists_id_ann_equal; simpl. 
+       reflexivity. 
+Qed.
+
+
 
 End ChecksCorrect.
 
@@ -1557,7 +1734,7 @@ Proof. intros S T bsS bsT.
 Qed. 
 
 
-
+(*
 Theorem correct_pre_path_algebra_product : ∀ (S T : Type) (bsS: A_pre_path_algebra S) (bsT : A_pre_path_algebra T), 
    pre_path_algebra_product (A2C_pre_path_algebra S bsS) (A2C_pre_path_algebra T bsT)
    =
@@ -1571,7 +1748,7 @@ Proof. intros S T bsS bsT.
        unfold P2C_path_algebra. unfold path_algebra_certs_product. 
        reflexivity. 
 Qed. 
-
+*) 
 Theorem correct_semiring_product : ∀ (S T : Type) (bsS: A_semiring S) (bsT : A_semiring T), 
    semiring_product (A2C_semiring S bsS) (A2C_semiring T bsT)
    =
@@ -1582,7 +1759,7 @@ Proof. intros S T bsS bsT.
        rewrite <- correct_msg_certs_product. 
        rewrite <- correct_sg_C_certs_product. 
        rewrite <- correct_semiring_certs_product.
-       rewrite correct_zero_one_certs_product. 
+       rewrite correct_pid_is_tann_certs_product. 
        reflexivity. 
 Qed. 
 
@@ -1597,7 +1774,7 @@ Proof. intros S T bsS bsT.
        rewrite <- correct_msg_certs_product. 
        rewrite <- correct_sg_CI_certs_product. 
        rewrite <- correct_semiring_certs_product.
-       rewrite correct_bounded_certs_product.        
+       rewrite correct_dually_bounded_certs_product.        
        reflexivity. 
 Qed.
 

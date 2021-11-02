@@ -11,9 +11,55 @@ Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory.
-Require Import CAS.coq.sg.and. 
+Require Import CAS.coq.sg.and.
+Require Import CAS.coq.sg.cast_up. 
 
 Require Import CAS.coq.os.theory. 
+
+(*** OUTLINE 
+
+Section Computation.
+  Defines (left) lexicographic product 
+
+Section Theory.
+  Semigroup property preservation lemmas 
+
+Section ACAS. (annotated combinators. annotated with proofs) 
+   Section Decide.
+      decision procedures for semigroup properties 
+   Section Proofs.
+      use decision procedures to build proof structures 
+   Section Combinators.
+      use proof structures to build combinators 
+
+Section CAS.  (proofs replaced by certificates) 
+   Section Certify.
+      CAS annologue of decision procedures 
+   Section Certificates.
+      CAS annologue of proof structures 
+   Section Combinators.
+      CAS annologue of proof combinators 
+
+Section Verify.  (correctness proofs) 
+   Section Certify.
+   Section Certificates.
+   Section Combinators.
+
+      The main idea is that for every combinator pair (A_combo, combo) 
+      we should prove that this diagram commutes: 
+
+                       A_combo 
+    (A_sg S, A_sg T) -------------> A_sg 
+      |      |                      |
+      |      |                      |   A2C 
+     \/     \/                     \/
+    (sgS',   sgT') ---------------> sg' 
+                       combo
+
+      For each combo the types of semigroups and A2C translations 
+      may vary (A_sg, A_sg_CI, A_sg_CS, etc).
+*) 
+
 
 
 Section Computation.
@@ -30,7 +76,7 @@ Definition llex_p2 {S T : Type} (t : T) (eq : brel S) (b2 : binary_op T) (ac a c
      | false, false => t 
      end. 
   
-Definition bop_lex_left : ∀ {S T : Type}, T → brel S → binary_op S → binary_op T → binary_op (S * T) 
+Definition bop_llex : ∀ {S T : Type}, T → brel S → binary_op S → binary_op T → binary_op (S * T) 
 := λ {S T} t eq b1 b2 x y,  
    match x, y with
     | (a, b), (c, d) => let ac := b1 a c in (ac, llex_p2 t eq b2 ac a c b d) 
@@ -39,12 +85,12 @@ Definition bop_lex_left : ∀ {S T : Type}, T → brel S → binary_op S → bin
 End Computation.
 
 
-Declare Scope bop_lex_left_scope.
+Declare Scope bop_llex_scope.
 
-Notation " a 'llex' [ eqS , t ] b"  := (bop_lex_left t eqS a b) (at level 1) : bop_lex_left_scope.
+Notation " a 'llex' [ eqS , t ] b"  := (bop_llex t eqS a b) (at level 1) : bop_llex_scope.
 
 Open Scope brel_product_scope.
-Open Scope bop_lex_left_scope.
+Open Scope bop_llex_scope.
 
 
 Section Theory.
@@ -63,7 +109,7 @@ Variable Pf : brel_not_trivial S rS f.
 
 Variable conS : brel_congruence S rS rS. 
 Variable refS : brel_reflexive S rS.
-Variable symS : brel_symmetric S rS.  (* needed where? *) 
+Variable symS : brel_symmetric S rS.  
 Variable tranS : brel_transitive S rS.
 
 Variable wT : T.
@@ -73,17 +119,16 @@ Variable Pg : brel_not_trivial T rT g.
 
 Variable conT : brel_congruence T rT rT. 
 Variable refT : brel_reflexive T rT.
-Variable symT : brel_symmetric T rT.  (* needed where? *) 
+Variable symT : brel_symmetric T rT.  
 Variable tranT : brel_transitive T rT.
   
 Variable b_conS : bop_congruence S rS bS.
-Variable assS   : bop_associative S rS bS.
-Variable idemS  : bop_idempotent S rS bS. 
-Variable commS  : bop_commutative S rS bS.
-
+Variable assS   : bop_associative S rS bS.  (* needed for associativity of llex, of course *) 
+Variable idemS  : bop_idempotent S rS bS.   (* needed for associativity of llex! *) 
+Variable commS  : bop_commutative S rS bS.  (* needed for associativity of llex! *) 
 
 Variable b_conT : bop_congruence T rT bT.  
-Variable assT : bop_associative T rT bT. 
+Variable assT   : bop_associative T rT bT.  (* needed for associativity of llex, of course *) 
 
 
 Notation "a =S b"  := (rS a b = true) (at level 15).
@@ -96,9 +141,6 @@ Notation "a <<= b" := (brel_lte_left rS bS a b = true) (at level 15).
 Notation "a !<<= b" := (brel_lte_left rS bS a b = false) (at level 15).
 Notation "a << b"  := (brel_lt_left rS bS a b = true) (at level 15).
 Notation "a !<< b" := (brel_lt_left rS bS a b = false) (at level 15).
-
-(*Notation "a <*> b" := (brel_product a b) (at level 15).*) 
-(* Notation "a [*] b" := (bop_lex_left argT rS a b) (at level 15). *) 
 
 Notation "[| p1 | a | c | b | d |]" := (llex_p2 argT rS bT p1 a c b d) (at level 15).
 
@@ -117,28 +159,29 @@ Proof. unfold llex_p2.
 Qed.
 
 
-Lemma bop_lex_left_congruence : bop_congruence (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Lemma bop_llex_congruence : bop_congruence (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
 Proof. intros [s1 t1] [s2 t2] [s3 t3] [s4 t4]; intros H1 H2.
        unfold brel_product in H1, H2. 
        destruct (bop_and_elim _ _ H1) as [C1 C2].
        destruct (bop_and_elim _ _ H2) as [C3 C4].
-       unfold bop_lex_left. unfold brel_product. apply bop_and_intro. 
+       unfold bop_llex. unfold brel_product. apply bop_and_intro. 
           exact (b_conS _ _ _ _ C1 C3).
           apply llex_p2_congruence; auto. 
 Qed.
 
-Lemma bop_lex_left_idempotent :bop_idempotent T rT bT → bop_idempotent (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Lemma bop_llex_idempotent :bop_idempotent T rT bT → bop_idempotent (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
 Proof. intros idemT (s, t). compute. assert (I := idemS s). rewrite I. apply symS in I. rewrite I. 
        rewrite idemT. reflexivity.
 Qed.        
 
-Lemma bop_lex_left_not_idempotent : bop_not_idempotent T rT bT →  bop_not_idempotent (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Lemma bop_llex_not_idempotent : bop_not_idempotent T rT bT →  bop_not_idempotent (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
 Proof. intros [t P]. exists (wS, t). compute.
        assert (I := idemS wS). rewrite I. apply symS in I. rewrite I. exact P.
 Defined. 
 
-Lemma bop_lex_left_not_commutative : bop_not_commutative T rT bT → bop_not_commutative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. intros [ [t t'] P]. exists ((wS, t), (wS, t')). compute. rewrite refS. 
+Lemma bop_llex_not_commutative : bop_not_commutative T rT bT → bop_not_commutative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. intros [ [t t'] P]. exists ((wS, t), (wS, t')). compute. rewrite refS.
+       (* Note : seems idempotence really is needed here. *) 
        assert (I := idemS wS). rewrite I. apply symS in I. rewrite I. exact P. 
 Defined. 
 
@@ -174,36 +217,29 @@ Proof. assert (F1 := commS s1 s2).
          rewrite F3, F4. apply refT. 
 Qed. 
 
-Lemma bop_lex_left_commutative : bop_commutative T rT bT → bop_commutative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Lemma bop_llex_commutative : bop_commutative T rT bT → bop_commutative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
 Proof. intros commT (s1, t1) (s2, t2).  
-       unfold brel_product. unfold bop_lex_left. 
+       unfold brel_product. unfold bop_llex. 
        apply bop_and_intro. 
           apply commS.
           apply llex_p2_commutative; auto. 
 Qed. 
 
 
-(*Definition witness_bop_lex_left_not_is_left {S T : Type} (r : brel S) (b : binary_op S) (s : S) (f : S -> S) (t : T) 
-   := if r (b s (f s)) s then ((f s, t), (s, t)) else ((s, t), (f s, t)). 
-*) 
-Lemma bop_lex_left_not_is_left : bop_not_is_left (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Lemma bop_llex_not_is_left : bop_not_is_left (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
 Proof. destruct (bop_commutative_implies_not_is_left S rS bS wS f Pf symS tranS commS) as [[s1 s2] Q]. 
        exists ((s1, wT), (s2, wT)). compute. rewrite Q. reflexivity. 
 Defined.
 
-(*Definition witness_bop_lex_left_not_is_right {S T : Type} (r : brel S) (b : binary_op S) (s : S) (f : S -> S) (t : T) 
-   := if r (b s (f s)) s then ((s, t), (f s, t)) else ((f s, t), (s, t)).
-*)           
-
-Lemma bop_lex_left_not_is_right : bop_not_is_right (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Lemma bop_llex_not_is_right : bop_not_is_right (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
 Proof. destruct (bop_commutative_implies_not_is_right S rS bS wS f Pf symS tranS commS) as [[s1 s2] Q]. 
        exists ((s1, wT), (s2, wT)). compute. rewrite Q. reflexivity. 
 Defined.
 
-Lemma bop_lex_left_selective : 
+Lemma bop_llex_selective : 
      bop_selective S rS bS → bop_selective T rT bT → bop_selective (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
 Proof. intros selS selT [s1 t1] [s2 t2].
-       unfold bop_lex_left.
+       unfold bop_llex.
        unfold brel_product. unfold llex_p2.
        destruct (selS s1 s2) as [A | A]; destruct (selT t1 t2) as [B | B]; rewrite A. 
        - apply symS in A. rewrite A.
@@ -224,353 +260,105 @@ Proof. intros selS selT [s1 t1] [s2 t2].
          + right. rewrite refT. compute. reflexivity. 
 Qed.
 
-Lemma bop_lex_left_not_selective_left : 
+Lemma bop_llex_not_selective_left : 
      bop_not_selective S rS bS → bop_not_selective (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
 Proof. intros [ [s1 s2] [A B]]. exists ((s1, wT), (s2, wT)). compute.        
        rewrite A, B.  split; reflexivity. 
 Defined.   
 
 
-Lemma bop_lex_left_not_selective_right : 
+Lemma bop_llex_not_selective_right : 
      bop_selective S rS bS → bop_not_selective T rT bT → bop_not_selective (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. intros selS [ [t1 t2] [A B]]. exists ((wS, t1), (wS, t2)). compute. 
-       assert (I := idemS wS). rewrite I. apply symS in I. rewrite I. rewrite A, B. split; reflexivity. 
+Proof. intros selS [ [t1 t2] [A B]]. exists ((wS, t1), (wS, t2)). compute.
+       assert (ID := bop_selective_implies_idempotent S rS bS selS). 
+       assert (I := ID wS). rewrite I. apply symS in I. rewrite I. rewrite A, B. split; reflexivity. 
 Defined.
 
 
 
-Lemma bop_lex_left_is_id (iS : S ) (iT : T )
+Lemma bop_llex_is_id (iS : S ) (iT : T )
        (pS : bop_is_id S rS bS iS) (pT : bop_is_id T rT bT iT) : 
          bop_is_id (S * T) (rS <*> rT) (bS llex [rS, argT] bT) (iS, iT). 
 Proof. intros [s t].  compute.
        destruct (pS s) as [A1 A2]. destruct (pT t) as [B1 B2]. 
-       rewrite A1, A2. apply symS in A1. apply symS in A2. 
-       case_eq(rS iS (iS *S s)); intro C. 
-       - rewrite A2. assert (D := commS s iS). apply symS in C. 
-         rewrite (tranS _ _ _ D C). split; assumption. 
-       - rewrite A2.
-         case_eq(rS (s *S iS) iS); intro D. 
-         + split. apply refT. exact B2.
-         + split; apply refT.
+       rewrite A1, A2. apply symS in A1. apply symS in A2. rewrite A2.
+       (* could use commutativity here but I don't want that dependency....*) 
+       case_eq(rS iS (iS *S s)); intro C; case_eq(rS (s *S iS) iS); intro D; split; auto.  
 Defined.
 
 
-Lemma bop_lex_left_exists_id : bop_exists_id S rS bS -> bop_exists_id T rT bT -> 
+Lemma bop_llex_exists_id : bop_exists_id S rS bS -> bop_exists_id T rT bT -> 
                               bop_exists_id (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
-Proof. intros [iS pS] [iT pT]. exists (iS, iT). apply bop_lex_left_is_id; auto. Defined. 
+Proof. intros [iS pS] [iT pT]. exists (iS, iT). apply bop_llex_is_id; auto. Defined. 
 
-Lemma bop_lex_left_not_exists_id_left : bop_not_exists_id S rS bS -> bop_not_exists_id (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Lemma bop_llex_not_exists_id_left : bop_not_exists_id S rS bS -> bop_not_exists_id (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
 Proof. unfold bop_not_exists_ann. 
        intros pS (s, t). destruct (pS s) as [x [F | F]]. 
           exists (x, t). left. compute. rewrite F. reflexivity. 
           exists (x, t). right. compute. rewrite F. reflexivity. 
 Defined. 
 
-Lemma bop_lex_left_not_exists_id_right: bop_not_exists_id T rT bT -> bop_not_exists_id (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Lemma bop_llex_not_exists_id_right: bop_not_exists_id T rT bT -> bop_not_exists_id (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
 Proof. unfold bop_not_exists_ann. 
-       intros pT (s, t). destruct (pT t) as [x [F | F]]. 
-          - exists (s, x). left. compute. assert (I := idemS s).  rewrite I. apply symS in I. rewrite I. exact F. 
-          - exists (s, x). right. compute. assert (I := idemS s).  rewrite I. apply symS in I. rewrite I. exact F. 
+       intros pT (s, t). destruct (pT t) as [x [F | F]].
+       (* proof is shorter if we use idempotence, but I don't want to introduce the dependency if not needed ... *)
+       - exists (s, x). left. compute.
+         case_eq(rS (s *S s) s); intro G; auto.
+         -- apply symS in G. rewrite G. exact F.
+       - exists (s, x). right. compute. 
+         case_eq(rS (s *S s) s); intro G; auto.
+         -- apply symS in G. rewrite G. exact F.
 Defined.
 
 
-Lemma bop_lex_left_is_ann (aS : S ) (aT : T )
+Lemma bop_llex_not_exists_id (D : (bop_not_exists_id S rS bS) + (bop_not_exists_id T rT bT)) :
+     bop_not_exists_id (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Proof. destruct D as [D | D].
+       apply (bop_llex_not_exists_id_left D).
+       apply (bop_llex_not_exists_id_right D).        
+Defined. 
+
+
+
+Lemma bop_llex_is_ann (aS : S ) (aT : T )
                          (pS : bop_is_ann S rS bS aS) (pT : bop_is_ann T rT bT aT) :
                              bop_is_ann (S * T) (rS <*> rT) (bS llex [rS, argT] bT) (aS, aT). 
 Proof. intros [s t]. compute. 
-       destruct (pS s) as [A1 A2]. destruct (pT t) as [B1 B2]. 
-       rewrite A1, A2. apply symS in A1. apply symS in A2.
-       rewrite A1. 
-       case_eq(rS s (s *S aS)); intro C. 
-       - apply symS in C. assert (D := commS aS s). 
-         rewrite (tranS _ _ _ D C). split; assumption. 
-       - case_eq(rS (aS *S s) s); intro D. 
-         + split. exact B1. apply refT. 
-         + split; apply refT.
+       destruct (pS s) as [A1 A2]. destruct (pT t) as [B1 B2].
+       rewrite A1, A2. apply symS in A1. rewrite A1.
+       (* could use commutativity here but I don't want that dependency....*) 
+       case_eq(rS s (s *S aS)); intro C; case_eq(rS (aS *S s) s); intro D; split; auto.  
 Defined.
 
 
-Lemma bop_lex_left_exists_ann : bop_exists_ann S rS bS -> bop_exists_ann T rT bT -> 
+Lemma bop_llex_exists_ann : bop_exists_ann S rS bS -> bop_exists_ann T rT bT -> 
                               bop_exists_ann (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
-Proof. intros [iS pS] [iT pT]. exists (iS, iT). apply bop_lex_left_is_ann; auto. Defined. 
+Proof. intros [iS pS] [iT pT]. exists (iS, iT). apply bop_llex_is_ann; auto. Defined. 
 
-Lemma bop_lex_left_not_exists_ann_left : bop_not_exists_ann S rS bS -> bop_not_exists_ann (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Lemma bop_llex_not_exists_ann_left : bop_not_exists_ann S rS bS -> bop_not_exists_ann (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
 Proof. intros pS (s, t). destruct (pS s) as [x [F | F]]. 
           exists (x, t). left. compute. rewrite F. reflexivity. 
           exists (x, t). right. compute. rewrite F. reflexivity. 
 Defined. 
 
-Lemma bop_lex_left_not_exists_ann_right : bop_not_exists_ann T rT bT -> bop_not_exists_ann (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
-Proof. intros pT (s, t). destruct (pT t) as [x [F | F]]. 
-          exists (s, x). left. compute. assert (I := idemS s).  rewrite I. apply symS in I. rewrite I. exact F. 
-          exists (s, x). right. compute. assert (I := idemS s).  rewrite I. apply symS in I. rewrite I. exact F. 
+Lemma bop_llex_not_exists_ann_right : bop_not_exists_ann T rT bT -> bop_not_exists_ann (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Proof. intros pT (s, t). destruct (pT t) as [x [F | F]].
+       (* proof is shorter if we use idempotence, but I don't want to introduce the dependency if not needed ... *)
+       - exists (s, x). left. compute.
+         case_eq(rS (s *S s) s); intro G; auto.
+         -- apply symS in G. rewrite G. exact F.
+       - exists (s, x). right. compute. 
+         case_eq(rS (s *S s) s); intro G; auto.
+         -- apply symS in G. rewrite G. exact F.
 Defined. 
 
-
-(*
-
-(* this is really just a curiosity since bS is communtative and so bop_is_right cannot hold. *) 
-Lemma bop_lex_left_left_cancellative (rightS : bop_is_right S rS bS) (canT : bop_left_cancellative T rT bT) :
-               bop_left_cancellative (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
-Proof. intros [s1 t1] [s2 t2] [s3 t3]. unfold brel_product. unfold bop_lex_left.   
-       intros A. apply bop_and_elim in A. destruct A as [A B].
-       assert (R1 : rS (s1 *S s2) s2 = true). apply rightS. 
-       assert (R2 : rS (s1 *S s3) s3 = true). apply rightS. 
-       apply symS in R1. assert (C := tranS _ _ _ R1 A). 
-       rewrite (tranS _ _ _ C R2). 
-       unfold llex_p2 in B. 
-       case_eq(rS s1 (s1 *S s2)); intro D; rewrite D in B. 
-       - rewrite R2 in B. rewrite (symS _ _ R1) in B. 
-         assert (E := tranS _ _ _ D A). rewrite E in B. 
-         rewrite (canT _ _ _ B). compute. reflexivity. 
-
-       - rewrite R2 in B. apply symS in C. rewrite (tranS _ _ _ A C) in B. 
-         case_eq(rS s1 (s1 *S s3)); intro E; rewrite E in B.
-         + apply symS in A. rewrite (tranS _ _ _ E A) in D. discriminate D.
-         + rewrite B. compute; reflexivity. 
-Qed. 
-
-
-Lemma bop_lex_not_left_cancellative_general (a b c : T):
-  (bop_not_is_right S rS bS) + (bop_not_left_cancellative T rT bT) -> 
-               bop_not_left_cancellative (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
-Proof. intros [[[s1 s2] A] | [[t1 [t2 t3]] [B C]]].
-       - exists ((s1, a), ((s1 *S s2, b), (s2, c))). compute.
-         assert (C : rS (s1 *S (s1 *S s2)) (s1 *S s2) = true). admit.
-         rewrite C. rewrite A. 
-         admit.
-       - exists ((wS, t1), ((wS, t2), (wS, t3))). compute.
-         rewrite refS. rewrite (symS _ _ (refS wS)).
-         assert (I := idemS wS). rewrite I. apply symS in I. rewrite I.          
-         rewrite B, C. split; reflexivity. 
-Admitted. 
-
-  (* 
-   s1 <> s2 = f s1 
-   t1 <> t2 = g t1 
-
-   1) s1 < s2 :  (s1 ,t1) * (s2, t1) =  (s1 ,t1) * (s2, f t1) 
-   2) s2 < s1 :  (s2 ,t1) * (s1, t1) =  (s2 ,t1) * (s1, f t1) 
-   3) s2 = s1 : contradiction. 
-
-
-   if s < f s 
-   then ((s ,t), (f s, t), (f s, g t))
-   else ((f s ,t), (s, t), (s, g t))
-
-*) 
-Lemma bop_lex_left_not_left_cancellative (s1 s2 s3 : S) (t1 t2 t3 : T) : bop_not_left_cancellative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. exists ((s1, t1), ((s2, t2), (s3, t3))). compute.
-       assert (A : rS s2 s3 = false). admit. rewrite A. 
-       assert (B : rS (s1 *S s2) (s1 *S s3) = true). admit. 
-       rewrite B.
-       case_eq(rS s1 (s1 *S s2)); intro C; case_eq(rS s1 (s1 *S s3)); intro D.
-       - admit. 
-       - admit.
-       - admit.
-       - admit.          
-Admitted. 
-
-
-(*
-  intros selS commS. 
-       destruct (Pf wS) as [Ls Rs]. destruct (Pg wT) as [Lt Rt]. 
-       assert (fact1 := brel_lt_left_total_order_split S rS bS symS refS tranS b_conS selS wS (f wS)). 
-       destruct fact1 as [[[eq lt] | [eq lt]] | [eq lt]]. 
-       rewrite eq in Ls. discriminate. 
-       exists ((wS, wT), ((f wS, wT), (f wS, g wT))); simpl. 
-          rewrite (refS (wS *S (f wS))). rewrite eq, lt. 
-          rewrite (refS (f wS)). rewrite (refT wT). rewrite Lt. auto. 
-       exists ((f wS, wT), ((wS, wT), (wS, g wT))); simpl. 
-          rewrite (refS ((f wS) *S wS)). rewrite Rs. 
-          rewrite (refS wS). rewrite Lt. simpl. 
-          apply brel_lt_left_false_elim in lt. 
-          unfold brel_lt_left, brel_conjunction, brel_complement, brel_lte_left.
-          destruct lt as [lt | lt]. 
-             rewrite Rs. 
-             assert (fact2 := selS wS (f wS)). 
-             destruct fact2 as [J | K]. 
-                apply symS in J. rewrite J in lt. discriminate. 
-                apply symS in K. 
-                assert (fact3 := commS wS (f wS)). 
-                assert (fact4 := tranS _ _ _ K fact3). 
-                rewrite fact4. simpl. rewrite (refT wT). auto. 
-       rewrite lt in eq. discriminate.        
-Defined.
-*) 
-
-Definition cef_bop_lex_left_not_cancellative {S T : Type} (rS : brel S) (bS : binary_op S) (s : S) (f : S -> S) (t : T) (g : T -> T) 
-  := if brel_lt_left rS bS s (f s) 
-     then ((s, t), ((f s, t), (f s, g t))) 
-     else ((f s, t), ((s, t), (s, g t))).
-
-
-
-Lemma bop_lex_left_not_left_cancellative_v2 : 
-      bop_selective S rS bS → bop_commutative S rS bS → bop_not_left_cancellative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. intros selS commS.
-       exists (cef_bop_lex_left_not_cancellative rS bS wS f wT g). 
-       destruct (Pf wS) as [Ls Rs]. destruct (Pg wT) as [Lt Rt]. 
-       assert (fact1 := brel_lt_left_total_order_split S rS bS symS refS tranS b_conS selS wS (f wS)). 
-       unfold cef_bop_lex_left_not_cancellative. 
-       destruct fact1 as [[[eq lt] | [eq lt]] | [eq lt]]. 
-       rewrite eq in Ls. discriminate. 
-       rewrite lt. simpl. 
-          rewrite (refS (wS *S (f wS))). rewrite eq, lt. 
-          rewrite (refS (f wS)). rewrite (refT wT). rewrite Lt. auto. 
-       rewrite lt. simpl. 
-          rewrite (refS ((f wS) *S wS)). rewrite Rs. 
-          rewrite (refS wS). rewrite Lt. simpl. 
-          apply brel_lt_left_false_elim in lt. 
-          unfold brel_lt_left, brel_conjunction, brel_complement, brel_lte_left.
-          destruct lt as [lt | lt]. 
-             rewrite Rs. 
-             assert (fact2 := selS wS (f wS)). 
-             destruct fact2 as [J | K]. 
-                apply symS in J. rewrite J in lt. discriminate. 
-                apply symS in K. 
-                assert (fact3 := commS wS (f wS)). 
-                assert (fact4 := tranS _ _ _ K fact3). 
-                rewrite fact4. simpl. rewrite (refT wT). auto. 
-       rewrite lt in eq. discriminate.        
+Lemma bop_llex_not_exists_ann (D : (bop_not_exists_ann S rS bS) + (bop_not_exists_ann T rT bT)) :
+     bop_not_exists_ann (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Proof. destruct D as [D | D].
+       apply (bop_llex_not_exists_ann_left D).
+       apply (bop_llex_not_exists_ann_right D).        
 Defined. 
 
-
-Lemma bop_lex_left_not_right_cancellative : 
-      bop_selective S rS bS → bop_commutative S rS bS → bop_not_right_cancellative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. intros selS commS .
-       exists (cef_bop_lex_left_not_cancellative rS bS wS f wT g). 
-       destruct (Pf wS) as [Ls Rs]. destruct (Pg wT) as [Lt Rt]. 
-       assert (fact1 := brel_lt_left_total_order_split S rS bS symS refS tranS b_conS selS wS (f wS)). 
-       unfold cef_bop_lex_left_not_cancellative. 
-       destruct fact1 as [[[eq lt] | [eq lt]] | [eq lt]]. 
-       rewrite eq in Ls. discriminate. 
-       rewrite lt. simpl. 
-          rewrite (refS (bS (f wS) wS)). rewrite (refS (f wS)). rewrite Lt, Rs. 
-          apply brel_lt_left_asymmetric in lt; auto. rewrite lt; auto. 
-          rewrite (refT wT); auto. simpl.
-       rewrite lt. simpl. 
-          rewrite (refS (bS wS (f wS))). rewrite Ls. 
-          rewrite (refS wS). rewrite lt, Lt. simpl. rewrite (refT wT); auto. 
-Defined. 
-
-
-
-(* 
-   s1 <> s2 = f s1 
-   t1 <> t2 = g t1 
-
-   1) s1 < s2 :  (s2 ,t1) * (s1, t1) <>  (s2 ,t1) * (s1, g t1) 
-   2) s2 < s1 :  (s1 ,t1) * (s2, t1) <>  (s1 ,t1) * (s2, g t1) 
-   3) s2 = s1 : contradiction. 
-
- *)
-
-Definition cef_bop_lex_left_not_constant {S T : Type} (rS : brel S) (bS : binary_op S) (s : S) (f : S -> S) (t : T) (g : T -> T) 
-  := if brel_lt_left rS bS s (f s) 
-     then ((f s, t), ((s, t), (s, g t)))
-     else ((s, t), ((f s, t), (f s, g t))). 
-
-
-Lemma bop_lex_left_not_left_constant : 
-      bop_selective S rS bS → bop_commutative S rS bS → bop_not_left_constant (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. intros selS commS.
-       exists (cef_bop_lex_left_not_constant rS bS wS f wT g). 
-       unfold cef_bop_lex_left_not_constant. 
-       destruct (Pf wS) as [Ls Rs]. destruct (Pg wT) as [Lt Rt]. 
-       assert (fact1 := brel_lt_left_total_order_split S rS bS symS refS tranS b_conS selS wS (f wS)). 
-       destruct fact1 as [[[eq lt] | [eq lt]] | [eq lt]]. 
-       rewrite eq in Ls. discriminate. 
-       rewrite lt; simpl. 
-          rewrite (refS ((f wS) *S wS)). rewrite Rs. 
-          apply brel_lt_left_asymmetric in lt; auto. rewrite lt, Lt. auto. 
-       rewrite lt; simpl. 
-          rewrite (refS (wS *S (f wS))). rewrite Ls. rewrite lt, Lt. auto. 
-Defined. 
-   
-
-Lemma bop_lex_left_not_right_constant : 
-      bop_selective S rS bS → bop_commutative S rS bS → bop_not_right_constant (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. intros selS commS.
-       exists (cef_bop_lex_left_not_constant rS bS wS f wT g). 
-       unfold cef_bop_lex_left_not_constant. 
-       destruct (Pf wS) as [Ls Rs]. destruct (Pg wT) as [Lt Rt]. 
-       assert (fact1 := brel_lt_left_total_order_split S rS bS symS refS tranS b_conS selS wS (f wS)). 
-       destruct fact1 as [[[eq lt] | [eq lt]] | [eq lt]]. 
-       rewrite eq in Ls. discriminate. 
-       rewrite lt; simpl. 
-          rewrite (refS (bS wS (f wS))). rewrite Ls. rewrite lt, Lt. auto. 
-       rewrite lt; simpl. 
-          rewrite (refS (bS (f wS) wS)). rewrite Rs. 
-          apply brel_lt_left_false_elim in lt; auto. 
-          destruct lt as [lt | lt].
-             unfold brel_lt_left, brel_conjunction, brel_lte_left, brel_complement. rewrite Rs. 
-             assert (fact1 : rS (f wS) (bS (f wS) wS) = true). 
-                destruct (selS wS (f wS)) as [fact2 | fact2].
-                   apply symS in fact2.  rewrite fact2 in lt. discriminate. 
-                   assert (fact3 := commS wS (f wS)). apply symS in fact2. 
-                   apply (tranS _ _ _ fact2 fact3). 
-             rewrite fact1; auto.          
-       rewrite eq in lt. discriminate. 
-Defined.
-
-
-Definition cef_bop_lex_left_not_anti_left {S T : Type} (rS : brel S) (bS : binary_op S) (s : S) (f : S -> S) (t : T)  
-  := if rS (bS s (f s)) s then ((s, t), (f s, t)) else ((f s, t), (s, t)). 
-
-
-Lemma bop_lex_left_not_anti_left : 
-      bop_selective S rS bS → bop_commutative S rS bS → bop_not_anti_left (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. intros selS commS .
-       exists (cef_bop_lex_left_not_anti_left rS bS wS f wT). 
-       unfold cef_bop_lex_left_not_anti_left. 
-       destruct (Pf wS) as [Ls Rs]. 
-       unfold bop_not_anti_left, brel_product, bop_lex_left. 
-       unfold brel_lt_left. unfold brel_conjunction, brel_lte_left, brel_complement. 
-       assert (fact1 := commS wS (f wS)). 
-       assert (H := selS wS (f wS)). 
-       destruct H as [H | H]. 
-          rewrite H, Ls.  simpl. apply symS in H. rewrite H. simpl. apply refT. 
-          assert (fact2 : rS (bS wS (f wS)) wS = false). 
-             apply symS in H. 
-             assert (fact3 := brel_transititivity_implies_dual _ _ tranS _ _ _ H Rs).              
-             rewrite fact3. reflexivity. 
-          rewrite fact2. apply symS in H. 
-          assert (fact3 := tranS _ _ _ H fact1). rewrite fact3, Rs. simpl. apply refT. 
-Defined. 
-
-Definition cef_bop_lex_left_not_anti_right {S T : Type} (rS : brel S) (bS : binary_op S) (s : S) (f : S -> S) (t : T)  
-  := if rS (bS s (f s)) s then ((s, t), (f s, t)) else ((f s, t), (s, t)). 
-
-Lemma bop_lex_left_not_anti_right : 
-      bop_selective S rS bS → bop_commutative S rS bS → bop_not_anti_right (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. intros selS commS .
-       exists (cef_bop_lex_left_not_anti_right rS bS wS f wT). 
-       unfold cef_bop_lex_left_not_anti_right. 
-       destruct (Pf wS) as [Ls Rs]. 
-       unfold bop_not_anti_right, brel_product, bop_lex_left. 
-       unfold brel_lt_left. unfold brel_conjunction, brel_lte_left, brel_complement. 
-       assert (fact1 := commS wS (f wS)). 
-       assert (H := selS wS (f wS)). 
-       destruct H as [H | H]. 
-          rewrite H. apply symS in H. 
-          assert (fact2 := tranS _ _ _ H fact1). 
-          assert (fact3 := brel_transititivity_implies_dual _ _ tranS _ _ _ fact2 Ls). 
-          apply (brel_symmetric_implies_dual _ _ symS) in fact3. 
-          rewrite Rs, fact2, fact3. simpl. apply refT. 
-
-          assert (fact2 : rS (bS wS (f wS)) wS = false).
-             apply symS in H. 
-             assert (fact3 := brel_transititivity_implies_dual _ _ tranS _ _ _ H Rs).              
-             rewrite fact3. reflexivity. 
-          rewrite fact2, Ls.  
-          apply symS in H. rewrite H. simpl. 
-          case_eq(rS wS (bS wS (f wS))); intro J. 
-             simpl. apply refT. 
-             simpl. apply refT. 
-Defined. 
-
-*)
 
 
 (*================== ASSOCIATIVITY ========================
@@ -1285,11 +1073,11 @@ Lemma llex_assoc_case16
   ([|s1 *S (s2 *S s3) | s1 | s2 *S s3 | t1 | [|s2 *S s3 | s2 | s3 | t2 | t3|]|]). 
 Proof. unfold llex_p2 at 1 3. rewrite A1, A2, C1, C2. apply refT. Qed. 
 
-Lemma bop_lex_left_associative : 
+Lemma bop_llex_associative : 
      (bop_selective S rS bS + bop_is_id T rT bT argT) → bop_associative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
 Proof. 
     intros selS_or_idT [s1 t1] [s2 t2] [s3 t3].
-    unfold brel_product, bop_lex_left. 
+    unfold brel_product, bop_llex. 
     apply bop_and_intro.
        apply assS.
        case_eq(rS (s1 *S s2) ((s1 *S s2) *S s3)); intro A1; 
@@ -1314,604 +1102,394 @@ Proof.
        - apply llex_assoc_case16; auto. 
 Qed. 
 
-
-(* projections 
-
-where needed? 
-
-
-
-Lemma bop_lex_left_is_id_left : 
-   ∀ (s : S ) (t : T ), (bop_is_id (S * T) (rS <*> rT) (bS llex [rS, argT] bT) (s, t)) ->  bop_is_id S rS bS s.  
-Proof. intros s t H s1. destruct (H (s1, t)) as [L R]. simpl in L, R. 
-       apply bop_and_elim in L. apply bop_and_elim in R. 
-       destruct L as [LL RL]. destruct R as [LR RR]. 
-       rewrite LL, LR. auto. 
-Defined.                         
-
-Lemma bop_lex_left_is_id_right : 
-   ∀ (s : S ) (t : T ), (bop_is_id (S * T) (rS <*> rT) (bS llex [rS, argT] bT) (s, t)) ->  bop_is_id T rT bT t.  
-Proof. intros s t H t1. 
-       destruct (H (s, t1)) as [L R]. simpl in L, R. 
-       apply bop_and_elim in L. apply bop_and_elim in R. 
-       destruct L as [LL RL]. destruct R as [LR RR]. 
-       rewrite (refS s) in RL. rewrite (refS s) in RR. 
-       rewrite RL, RR. auto.        
-Defined.                         
-
-Lemma bop_lex_left_is_ann_left : 
-   ∀ (s : S ) (t : T ), (bop_is_ann (S * T) (rS <*> rT) (bS llex [rS, argT] bT) (s, t)) ->  bop_is_ann S rS bS s.  
-Proof. intros s t H s1. 
-       destruct (H (s1, t)) as [L R]. simpl in L, R. 
-       apply bop_and_elim in L. apply bop_and_elim in R. 
-       destruct L as [LL RL]. destruct R as [LR RR]. 
-       rewrite LL, LR. auto. 
-Defined.                         
-
-Lemma bop_lex_left_is_ann_right : 
-   ∀ (s : S ) (t : T ), (bop_is_ann (S * T) (rS <*> rT) (bS llex [rS, argT] bT) (s, t)) ->  bop_is_ann T rT bT t.  
-Proof. intros s t H t1. 
-       destruct (H (s, t1)) as [L R]. simpl in L, R. 
-       apply bop_and_elim in L. apply bop_and_elim in R. 
-       destruct L as [LL RL]. destruct R as [LR RR]. 
-       rewrite (refS s) in RL. rewrite (refS s) in RR.        
-       rewrite RL, RR. auto. 
-Defined.                         
-
-*) 
-
 End Theory.
 
 
 Section ACAS.
 
-Variable S T : Type. 
+
 
 Section Decide.
  
-
-Variable eqvS : A_eqv S.
-Variable eqvT : A_eqv T.   
+Variable S T : Type.
+Variable wS : S.
+Variable wT : T.    
+Variable argT : T.  
+Variable eqS : brel S.
+Variable eqT : brel T.   
 Variable bS : binary_op S. 
-Variable pS : sg_CI_proofs S (A_eqv_eq S eqvS) bS. 
 Variable bT : binary_op T.
-Variable pT : sg_proofs T (A_eqv_eq T eqvT) bT. 
-Variable argT : T.
+Variable eqvS : eqv_proofs S eqS.
+Variable eqvT : eqv_proofs T eqT.   
 
-Definition bop_lex_left_commutative_decide
-             (dT : bop_commutative_decidable T (A_eqv_eq T eqvT) bT) : 
-               bop_commutative_decidable (S * T)
-                                         (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT))
-                                         (bop_lex_left argT (A_eqv_eq S eqvS) bS bT) 
-:= let   rS := A_eqv_eq S eqvS in 
-   let   PS := A_eqv_proofs S eqvS in 
-   let   wS := A_eqv_witness S eqvS in 
-   let refS := A_eqv_reflexive S rS PS in 
-   let symS := A_eqv_symmetric S rS PS in 
-   let trnS := A_eqv_transitive S rS PS in 
-   let   rT := A_eqv_eq T eqvT in 
-   let   PT := A_eqv_proofs T eqvT in 
-   let refT := A_eqv_reflexive T rT PT in 
-   let commS := A_sg_CI_commutative S rS bS pS in 
-   let idemS := A_sg_CI_idempotent S rS bS pS in 
-    match dT with 
-   | inl commT     => inl _ (bop_lex_left_commutative S T rS rT bS bT symS trnS argT refT commS commT)
-   | inr not_commT => inr _ (bop_lex_left_not_commutative S T rS rT bS bT wS refS symS argT idemS not_commT)
+Definition bop_llex_commutative_decide
+            (idemS : bop_idempotent S eqS bS) 
+            (commS : bop_commutative S eqS bS) (cT_d : bop_commutative_decidable T eqT bT) : 
+               bop_commutative_decidable (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) 
+:= let refS := A_eqv_reflexive S eqS eqvS in 
+   let symS := A_eqv_symmetric S eqS eqvS in 
+   let trnS := A_eqv_transitive S eqS eqvS in 
+   let refT := A_eqv_reflexive T eqT eqvT in 
+    match cT_d with 
+   | inl commT     => inl _ (bop_llex_commutative S T eqS eqT bS bT symS trnS argT refT commS commT)
+   | inr not_commT => inr _ (bop_llex_not_commutative S T eqS eqT bS bT wS refS symS argT idemS not_commT)
     end.
 
-Definition bop_lex_left_idempotent_decide (dT : bop_idempotent_decidable T (A_eqv_eq T eqvT) bT): 
-  bop_idempotent_decidable (S * T)
-                           (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT))
-                           (bop_lex_left argT (A_eqv_eq S eqvS) bS bT) 
-:=
-let   rS := A_eqv_eq S eqvS in 
-   let   PS := A_eqv_proofs S eqvS in 
-   let   wS := A_eqv_witness S eqvS in 
-   let symS := A_eqv_symmetric S rS PS in 
-   let   rT := A_eqv_eq T eqvT in 
-   let idemS := A_sg_CI_idempotent S rS bS pS in 
-   match dT with 
-   | inl idemT     => inl _ (bop_lex_left_idempotent S T rS rT bS bT symS argT idemS idemT)
-   | inr not_idemT => inr _ (bop_lex_left_not_idempotent S T rS rT bS bT wS symS argT idemS not_idemT)
+Definition bop_llex_commutative_holds
+            (commS : bop_commutative S eqS bS) (commT : bop_commutative T eqT bT) :
+               bop_commutative (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) 
+:= let symS := A_eqv_symmetric S eqS eqvS in 
+   let trnS := A_eqv_transitive S eqS eqvS in 
+   let refT := A_eqv_reflexive T eqT eqvT in 
+      bop_llex_commutative S T eqS eqT bS bT symS trnS argT refT commS commT. 
+
+
+Definition bop_llex_idempotent_decide
+            (idemS : bop_idempotent S eqS bS) (idemT_d : bop_idempotent_decidable T eqT bT) :            
+  bop_idempotent_decidable (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) 
+:= let symS := A_eqv_symmetric S eqS eqvS in
+   match idemT_d with 
+   | inl idemT     => inl _ (bop_llex_idempotent S T eqS eqT bS bT symS argT idemS idemT)
+   | inr not_idemT => inr _ (bop_llex_not_idempotent S T eqS eqT bS bT wS symS argT idemS not_idemT)
    end. 
 
-Definition bop_lex_left_selective_decide
-           (dS : bop_selective_decidable S (A_eqv_eq S eqvS) bS)
-           (dT : bop_selective_decidable T (A_eqv_eq T eqvT) bT) : 
-             bop_selective_decidable (S * T)
-                                    (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT))
-                                    (bop_lex_left argT (A_eqv_eq S eqvS) bS bT) 
-:= let   rS := A_eqv_eq S eqvS in 
-   let   PS := A_eqv_proofs S eqvS in 
-   let   wS := A_eqv_witness S eqvS in 
-   let symS := A_eqv_symmetric S rS PS in 
-   let   rT := A_eqv_eq T eqvT in 
-   let   PT := A_eqv_proofs T eqvT in
-   let   wT := A_eqv_witness T eqvT in    
-   let refT := A_eqv_reflexive T rT PT in 
-   let idemS := A_sg_CI_idempotent S rS bS pS in 
-   match dS with 
-   | inl selS     => match dT with
-                     | inl selT => inl (bop_lex_left_selective S T rS rT bS bT symS argT refT selS selT)
-                     | inr not_selT => inr (bop_lex_left_not_selective_right S T rS rT bS bT wS symS argT idemS selS not_selT)
-                     end
-   | inr not_selS => inr _ (bop_lex_left_not_selective_left S T rS rT bS bT wT argT not_selS)
-   end.
+
+
+Definition bop_llex_idempotent_holds
+            (idemS : bop_idempotent S eqS bS) (idemT : bop_idempotent T eqT bT) :            
+                 bop_idempotent (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) 
+:= let symS  := A_eqv_symmetric S eqS eqvS in
+      bop_llex_idempotent S T eqS eqT bS bT symS argT idemS idemT. 
 
 
 
-Definition bop_lex_left_exists_id_decide
-           (dS : bop_exists_id_decidable S (A_eqv_eq S eqvS) bS)
-           (dT : bop_exists_id_decidable T (A_eqv_eq T eqvT) bT) : 
-                 bop_exists_id_decidable (S * T) 
-                                         (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT))
-                                         (bop_lex_left argT (A_eqv_eq S eqvS) bS bT) 
-:= let   rS := A_eqv_eq S eqvS in 
-   let   PS := A_eqv_proofs S eqvS in 
-   let symS := A_eqv_symmetric S rS PS in 
-   let trnS := A_eqv_transitive S rS PS in 
-   let   rT := A_eqv_eq T eqvT in 
-   let   PT := A_eqv_proofs T eqvT in 
-   let refT := A_eqv_reflexive T rT PT in 
-   let commS := A_sg_CI_commutative S rS bS pS in 
-   let idemS := A_sg_CI_idempotent S rS bS pS in
-   match dS with 
-   | inl eS => match dT with 
-               | inl eT  => inl _ (bop_lex_left_exists_id S T rS rT bS bT symS trnS argT refT commS eS eT)
-               | inr neT => inr _ (bop_lex_left_not_exists_id_right S T rS rT bS bT symS argT idemS neT)
-               end 
-   | inr neS   => inr _ (bop_lex_left_not_exists_id_left S T rS rT bS bT argT neS)
-   end.
-
-
-Definition bop_lex_left_exists_ann_decide 
-  (dS : bop_exists_ann_decidable S (A_eqv_eq S eqvS) bS)
-  (dT : bop_exists_ann_decidable T (A_eqv_eq T eqvT) bT) : 
-                bop_exists_ann_decidable (S * T)
-                                         (brel_product (A_eqv_eq S eqvS) (A_eqv_eq T eqvT))
-                                         (bop_lex_left argT (A_eqv_eq S eqvS) bS bT) 
-:= let   rS := A_eqv_eq S eqvS in 
-   let   PS := A_eqv_proofs S eqvS in 
-   let symS := A_eqv_symmetric S rS PS in 
-   let trnS := A_eqv_transitive S rS PS in 
-   let   rT := A_eqv_eq T eqvT in 
-   let   PT := A_eqv_proofs T eqvT in 
-   let refT := A_eqv_reflexive T rT PT in 
-   let commS := A_sg_CI_commutative S rS bS pS in 
-   let idemS := A_sg_CI_idempotent S rS bS pS in
-       match dS with 
-       | inl eS => 
-         match dT with 
-         | inl eT  => inl _ (bop_lex_left_exists_ann S T rS rT bS bT symS trnS argT refT commS eS eT)
-         | inr neT => inr _ (bop_lex_left_not_exists_ann_right S T rS rT bS bT symS argT idemS neT)
-         end 
-       | inr neS   => inr _ (bop_lex_left_not_exists_ann_left S T rS rT bS bT argT neS)
+Definition bop_llex_selective_decide
+           (selS_d : bop_selective_decidable S eqS bS)
+           (selT_d : bop_selective_decidable T eqT bT) :           
+             bop_selective_decidable (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) 
+:= let symS := A_eqv_symmetric S eqS eqvS in 
+   let refT := A_eqv_reflexive T eqT eqvT in 
+       match selS_d with
+       | inl selS => match selT_d with
+                     | inl selT     => inl (bop_llex_selective S T eqS eqT bS bT symS argT refT selS selT)
+                     | inr not_selT => inr (bop_llex_not_selective_right S T eqS eqT bS bT wS symS argT selS not_selT)
+                     end 
+       | inr not_selS => inr (bop_llex_not_selective_left S T eqS eqT bS bT wT argT not_selS)
        end. 
 
-Definition bop_lex_left_associative_assert
-           (selS_or_idT : bop_selective S (A_eqv_eq S eqvS) bS +
-                          bop_is_id T (A_eqv_eq T eqvT) bT argT) 
-:= let   rS := A_eqv_eq S eqvS in 
-   let   PS := A_eqv_proofs S eqvS in 
-   let   wS := A_eqv_witness S eqvS in 
-   let refS := A_eqv_reflexive S rS PS in 
-   let symS := A_eqv_symmetric S rS PS in 
-   let trnS := A_eqv_transitive S rS PS in 
-   let   rT := A_eqv_eq T eqvT in 
-   let   PT := A_eqv_proofs T eqvT in 
-   let refT := A_eqv_reflexive T rT PT in
-   let symT := A_eqv_symmetric T rT PT in    
-   let conS := A_sg_CI_congruence S rS bS pS in       
-   let assS := A_sg_CI_associative S rS bS pS in    
-   let commS := A_sg_CI_commutative S rS bS pS in 
-   let idemS := A_sg_CI_idempotent S rS bS pS in 
-   let assT := A_sg_associative T rT bT pT in    
-          bop_lex_left_associative S T rS rT bS bT
-                                   refS symS trnS
-                                   argT
-                                   refT symT 
+Definition bop_llex_exists_id_decide
+           (dS : bop_exists_id_decidable S eqS bS)
+           (dT : bop_exists_id_decidable T eqT bT) : 
+                 bop_exists_id_decidable (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) 
+:= let symS := A_eqv_symmetric S eqS eqvS in 
+   let refT := A_eqv_reflexive T eqT eqvT in 
+   match dS with 
+   | inl eS => match dT with 
+               | inl eT  => inl _ (bop_llex_exists_id S T eqS eqT bS bT symS argT refT eS eT)
+               | inr neT => inr _ (bop_llex_not_exists_id_right S T eqS eqT bS bT symS argT neT)
+               end 
+   | inr neS   => inr _ (bop_llex_not_exists_id_left S T eqS eqT bS bT argT neS)
+   end.
+
+
+Definition bop_llex_exists_ann_decide 
+  (dS : bop_exists_ann_decidable S eqS bS)
+  (dT : bop_exists_ann_decidable T eqT bT) : 
+    bop_exists_ann_decidable (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT)
+:= let symS := A_eqv_symmetric S eqS eqvS in 
+   let refT := A_eqv_reflexive T eqT eqvT in 
+   match dS with 
+   | inl eS => match dT with 
+               | inl eT  => inl _ (bop_llex_exists_ann S T eqS eqT bS bT symS argT refT eS eT)
+               | inr neT => inr _ (bop_llex_not_exists_ann_right S T eqS eqT bS bT symS argT neT)
+               end 
+   | inr neS   => inr _ (bop_llex_not_exists_ann_left S T eqS eqT bS bT argT neS)
+   end.
+
+
+Definition bop_llex_associative_holds_v1
+           (idemS : bop_idempotent S eqS bS)
+           (commS : bop_commutative S eqS bS)
+           (conS : bop_congruence S eqS bS) 
+           (assS : bop_associative S eqS bS)
+           (assT : bop_associative T eqT bT)            
+           (idT : bop_is_id T eqT bT argT) :
+                bop_associative (S * T) (eqS <*> eqT) bS llex [eqS, argT] bT
+:= let refS := A_eqv_reflexive S eqS eqvS in 
+   let symS := A_eqv_symmetric S eqS eqvS in 
+   let trnS := A_eqv_transitive S eqS eqvS in 
+   let refT := A_eqv_reflexive T eqT eqvT in
+   let symT := A_eqv_symmetric T eqT eqvT in
+          bop_llex_associative S T eqS eqT bS bT refS symS trnS
+                                   argT refT symT 
                                    conS assS idemS commS
-                                   assT
-                                   selS_or_idT. 
+                                   assT (inr idT).  
+
+
+Definition bop_llex_associative_holds_v2
+           (selS  : bop_selective S eqS bS)
+           (commS : bop_commutative S eqS bS)
+           (conS : bop_congruence S eqS bS) 
+           (assS : bop_associative S eqS bS)
+           (assT : bop_associative T eqT bT) : 
+                bop_associative (S * T) (eqS <*> eqT) bS llex [eqS, argT] bT           
+:= let refS := A_eqv_reflexive S eqS eqvS in 
+   let symS := A_eqv_symmetric S eqS eqvS in 
+   let trnS := A_eqv_transitive S eqS eqvS in 
+   let refT := A_eqv_reflexive T eqT eqvT in
+   let symT := A_eqv_symmetric T eqT eqvT in
+   let idemS := bop_selective_implies_idempotent S eqS bS selS in 
+          bop_llex_associative S T eqS eqT bS bT refS symS trnS
+                                   argT refT symT 
+                                   conS assS idemS commS
+                                   assT (inl selS). 
+
+
+Definition bop_llex_congruence_holds 
+           (cng_bS : bop_congruence S eqS bS) (cng_bT : bop_congruence T eqT bT) :
+                 bop_congruence (S * T) (eqS <*> eqT) bS llex [eqS, argT] bT
+:= let cngS := A_eqv_congruence S eqS eqvS in
+   let refT := A_eqv_reflexive T eqT eqvT in     
+   let symT := A_eqv_symmetric T eqT eqvT in
+      bop_llex_congruence S T eqS eqT bS bT cngS argT refT symT cng_bS cng_bT.
 
 End  Decide.
-End ACAS.
 
 
-(*
-Section Proofs. 
+Section Proofs.
 
-Definition proofs_llex
-    (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S)
-    (eqvS : eqv_proofs S rS) (eqvT : eqv_proofs T rT)
-    (sgS : sg_CS_proofs S rS bS) 
-        asg_proofs (S * T) (brel_product rS rT) (bop_lex_left rS bS bT)
-:= λ S T rS rT bS bT s eqvS eqvT sgS sgT,
-let congS  := A_eqv_congruence _ _ eqvS in   
-let refS   := A_eqv_reflexive _ _ eqvS in
-let transS := A_eqv_transitive _ _ eqvS in    
-let symS   := A_eqv_symmetric _ _ eqvS in
-let congT  := A_eqv_congruence _ _ eqvT in   
-let refT   := A_eqv_reflexive _ _ eqvT in 
-let transT := A_eqv_transitive _ _ eqvT in   
-let symT   := A_eqv_symmetric _ _ eqvT in
-let bcongS := A_sg_CS_congruence _ _ _ sgS in   
+(* NOTE: things marked with ** should really be included in eqv_proofs structure *) 
+Variable S T : Type.
+Variable wS : S.                             (**)
+Variable wT : T.                             (**)
+Variable argT : T.  
+Variable eqS : brel S.
+Variable eqT : brel T.
+Variable f : T → T.                         (**)
+Variable ntT : brel_not_trivial T eqT f.     (**)
+Variable bS : binary_op S. 
+Variable bT : binary_op T.
+Variable eqvS : eqv_proofs S eqS.
+Variable eqvT : eqv_proofs T eqT.   
+
+
+Definition sg_CI_llex_proofs_v1
+        (pS : sg_CI_proofs S eqS bS)
+        (pT : sg_CI_proofs T eqT bT)
+        (idT : bop_is_id T eqT bT argT) : 
+             sg_CI_proofs (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) :=
+let cng_bS   := A_sg_CI_congruence _ _ _ pS in
+let cng_bT   := A_sg_CI_congruence _ _ _ pT in
+let not_selS := A_sg_CI_not_selective _ _ _ pS in
+let idemS    := A_sg_CI_idempotent _ _ _ pS in
+let idemT    := A_sg_CI_idempotent _ _ _ pT in
+let commS    := A_sg_CI_commutative _ _ _ pS in
+let commT    := A_sg_CI_commutative _ _ _ pT in
+let assS     := A_sg_CI_associative _ _ _ pS in
+let assT     := A_sg_CI_associative _ _ _ pT in
 {|
-  A_asg_associative   := bop_lex_left_associative S T rS rT bS bT congS refS symS transS refT bcongS
-                         (A_sg_CS_associative _ _ _ sgS)
-                         (A_asg_associative _ _ _ sgT)                          
-                         (A_sg_CS_commutative  S rS bS sgS)
-                         (A_sg_CS_selective S rS bS sgS)
-; A_asg_congruence    := bop_lex_left_congruence S T rS rT bS bT congS congT 
-                         (A_sg_CS_congruence _ _ _ sgS) 
-                         (A_asg_congruence _ _ _ sgT) 
-; A_asg_commutative   := bop_lex_left_commutative S T rS rT bS bT congS refS symS transS refT 
-                         (A_sg_CS_selective S rS bS sgS)
-                         (A_sg_CS_commutative S rS bS sgS)
-                         (A_asg_commutative _ _ _ sgT) 
-; A_asg_selective_d   := bop_lex_left_selective_decide S T rS rT bS bT s refS symS transS refT bcongS
-                         (A_sg_CS_commutative S rS bS sgS)
-                         (A_sg_CS_selective S rS bS sgS)
-                         (A_asg_selective_d _ _ _ sgT)                          
-; A_asg_idempotent_d  := bop_lex_left_idempotent_decide S T rS rT bS bT s refS 
-                         (A_sg_CS_selective S rS bS sgS)
-                         (A_asg_idempotent_d _ _ _ sgT) 
-|}. 
+     A_sg_CI_associative   := bop_llex_associative_holds_v1 S T argT eqS eqT bS bT eqvS eqvT idemS commS cng_bS assS assT idT 
+   ; A_sg_CI_congruence    := bop_llex_congruence_holds S T argT eqS eqT bS bT eqvS eqvT cng_bS cng_bT 
+   ; A_sg_CI_commutative   := bop_llex_commutative_holds S T argT eqS eqT bS bT eqvS eqvT commS commT 
+   ; A_sg_CI_idempotent    := bop_llex_idempotent_holds S T argT eqS eqT bS bT eqvS idemS idemT 
+   ; A_sg_CI_not_selective := bop_llex_not_selective_left S T eqS eqT bS bT wT argT not_selS 
+|}.
+
+
+Definition sg_CI_llex_proofs_v2
+        (pS : sg_CS_proofs S eqS bS)
+        (pT : sg_CI_proofs T eqT bT) : 
+             sg_CI_proofs (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) :=
+let symS := A_eqv_symmetric S eqS eqvS in 
+let cng_bS   := A_sg_CS_congruence _ _ _ pS in
+let cng_bT   := A_sg_CI_congruence _ _ _ pT in
+let selS     := A_sg_CS_selective _ _ _ pS in
+let not_selT := A_sg_CI_not_selective _ _ _ pT in
+let idemS    := bop_selective_implies_idempotent S eqS bS selS in 
+let idemT    := A_sg_CI_idempotent _ _ _ pT in
+let commS    := A_sg_CS_commutative _ _ _ pS in
+let commT    := A_sg_CI_commutative _ _ _ pT in
+let assS     := A_sg_CS_associative _ _ _ pS in
+let assT     := A_sg_CI_associative _ _ _ pT in
+{|
+     A_sg_CI_associative   := bop_llex_associative_holds_v2 S T argT eqS eqT bS bT eqvS eqvT selS commS cng_bS assS assT 
+   ; A_sg_CI_congruence    := bop_llex_congruence_holds S T argT eqS eqT bS bT eqvS eqvT cng_bS cng_bT 
+   ; A_sg_CI_commutative   := bop_llex_commutative_holds S T argT eqS eqT bS bT eqvS eqvT commS commT 
+   ; A_sg_CI_idempotent    := bop_llex_idempotent_holds S T argT eqS eqT bS bT eqvS idemS idemT 
+   ; A_sg_CI_not_selective := bop_llex_not_selective_right S T eqS eqT bS bT wS symS argT selS not_selT
+|}.
+
+
+Definition sg_CS_llex_proofs
+        (pS : sg_CS_proofs S eqS bS)
+        (pT : sg_CS_proofs T eqT bT) : 
+             sg_CS_proofs (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) :=
+let symS     := A_eqv_symmetric S eqS eqvS in
+let refT     := A_eqv_reflexive T eqT eqvT in   
+let cng_bS   := A_sg_CS_congruence _ _ _ pS in
+let cng_bT   := A_sg_CS_congruence _ _ _ pT in
+let selS     := A_sg_CS_selective _ _ _ pS in
+let selT     := A_sg_CS_selective _ _ _ pT in
+let commS    := A_sg_CS_commutative _ _ _ pS in
+let commT    := A_sg_CS_commutative _ _ _ pT in
+let assS     := A_sg_CS_associative _ _ _ pS in
+let assT     := A_sg_CS_associative _ _ _ pT in
+{|
+     A_sg_CS_associative    := bop_llex_associative_holds_v2 S T argT eqS eqT bS bT eqvS eqvT selS commS cng_bS assS assT 
+   ; A_sg_CS_congruence     := bop_llex_congruence_holds S T argT eqS eqT bS bT eqvS eqvT cng_bS cng_bT 
+   ; A_sg_CS_commutative    := bop_llex_commutative_holds S T argT eqS eqT bS bT eqvS eqvT commS commT 
+   ; A_sg_CS_selective      := bop_llex_selective S T eqS eqT bS bT symS argT refT selS selT
+|}.
+
+
+End Proofs.   
+
+Section Combinators.
+
+
+Definition A_sg_CI_llex_from_CI_CI (S T : Type) (A : A_sg_CI S) (B : A_sg_CI_with_id T) : A_sg_CI (S * T)  :=
+let eqvS   := A_sg_CI_eqv _ A in
+let eqvT   := A_sg_CI_wi_eqv _ B in
+let eqS    := A_eqv_eq _ eqvS in
+let eqT    := A_eqv_eq _ eqvT in
+let eqvPS  := A_eqv_proofs _ eqvS in
+let eqvPT  := A_eqv_proofs _ eqvT in
+let bS     := A_sg_CI_bop _ A in
+let bT     := A_sg_CI_wi_bop _ B in
+let PS     := A_sg_CI_proofs _ A in
+let PT     := A_sg_CI_wi_proofs _ B in
+let idS_d  := A_sg_CI_exists_id_d _ A in
+let annS_d := A_sg_CI_exists_ann_d _ A in
+let annT_d := A_sg_CI_wi_exists_ann_d _ B in
+let exists_idT := A_sg_CI_wi_exists_id _ B in
+let idT    := projT1 exists_idT in
+let is_idT := projT2 exists_idT in 
+(* this should move to the A_eqv structures *)
+let wT     := A_eqv_witness _ eqvT in
+{|
+   A_sg_CI_eqv          := A_eqv_product S T eqvS eqvT                                                
+ ; A_sg_CI_bop          := bop_llex idT eqS bS bT 
+ ; A_sg_CI_exists_id_d  := bop_llex_exists_id_decide S T idT eqS eqT bS bT eqvPS eqvPT idS_d (inl exists_idT)
+ ; A_sg_CI_exists_ann_d := bop_llex_exists_ann_decide S T idT eqS eqT bS bT eqvPS eqvPT annS_d annT_d                                                 
+ ; A_sg_CI_proofs       := sg_CI_llex_proofs_v1 S T wT idT eqS eqT bS bT eqvPS eqvPT PS PT is_idT 
+ ; A_sg_CI_ast          := Ast_sg_llex (A_sg_CI_ast S A, A_sg_CI_wi_ast T B)  (* Fix *) 
+|}.
 
   
 
-Definition sg_proofs_llex : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
-     brel_not_trivial S rS f -> brel_not_trivial T rT g -> 
-     eqv_proofs S rS -> eqv_proofs T rT -> sg_CS_proofs S rS bS -> sg_proofs T rT bT -> 
-        sg_proofs (S * T) (brel_product rS rT) (bop_lex_left rS bS bT)
-:= λ S T rS rT bS bT s f t g Pf Pg eqvS eqvT sgS sgT,
-let congS  := A_eqv_congruence _ _ eqvS in   
-let refS   := A_eqv_reflexive _ _ eqvS in
-let transS := A_eqv_transitive _ _ eqvS in    
-let symS   := A_eqv_symmetric _ _ eqvS in
-let congT  := A_eqv_congruence _ _ eqvT in   
-let refT   := A_eqv_reflexive _ _ eqvT in 
-let transT := A_eqv_transitive _ _ eqvT in   
-let symT   := A_eqv_symmetric _ _ eqvT in
-let bcongS := A_sg_CS_congruence _ _ _ sgS in   
+Definition A_sg_CI_llex_from_CS_CI (S T : Type) (A : A_sg_CS S) (B : A_sg_CI T) : A_sg_CI (S * T)  :=
+let eqvS   := A_sg_CS_eqv _ A in
+let eqvT   := A_sg_CI_eqv _ B in
+let eqS    := A_eqv_eq _ eqvS in
+let eqT    := A_eqv_eq _ eqvT in
+let eqvPS  := A_eqv_proofs _ eqvS in
+let eqvPT  := A_eqv_proofs _ eqvT in
+let bS     := A_sg_CS_bop _ A in
+let bT     := A_sg_CI_bop _ B in
+let PS     := A_sg_CS_proofs _ A in
+let PT     := A_sg_CI_proofs _ B in
+let idS_d  := A_sg_CS_exists_id_d _ A in
+let idT_d  := A_sg_CI_exists_id_d _ B in
+let annS_d := A_sg_CS_exists_ann_d _ A in
+let annT_d := A_sg_CI_exists_ann_d _ B in
+(* these things should move to the A_eqv structures *)
+let wS     := A_eqv_witness _ eqvS in
+let wT     := A_eqv_witness _ eqvT in
 {|
-  A_sg_associative   := bop_lex_left_associative S T rS rT bS bT congS refS symS transS refT bcongS
-                         (A_sg_CS_associative _ _ _ sgS)
-                         (A_sg_associative _ _ _ sgT)                          
-                         (A_sg_CS_commutative  S rS bS sgS)
-                         (A_sg_CS_selective S rS bS sgS)
-; A_sg_congruence    := bop_lex_left_congruence S T rS rT bS bT congS congT 
-                         (A_sg_CS_congruence _ _ _ sgS) 
-                         (A_sg_congruence _ _ _ sgT) 
+   A_sg_CI_eqv          := A_eqv_product S T eqvS eqvT 
+ ; A_sg_CI_bop          := bop_llex wT eqS bS bT 
+ ; A_sg_CI_exists_id_d  := bop_llex_exists_id_decide S T wT eqS eqT bS bT eqvPS eqvPT idS_d idT_d 
+ ; A_sg_CI_exists_ann_d := bop_llex_exists_ann_decide S T wT eqS eqT bS bT eqvPS eqvPT annS_d annT_d 
+ ; A_sg_CI_proofs       := sg_CI_llex_proofs_v2 S T wS wT eqS eqT bS bT eqvPS eqvPT PS PT 
+ ; A_sg_CI_ast          := Ast_sg_llex (A_sg_CS_ast S A, A_sg_CI_ast T B)  (* Fix *) 
+|}.     
 
-; A_sg_commutative_d := bop_lex_left_commutative_decide S T rS rT bS bT s congS refS symS transS refT 
-                         (A_sg_CS_selective S rS bS sgS)
-                         (A_sg_CS_commutative S rS bS sgS)
-                         (A_sg_commutative_d _ _ _ sgT) 
-; A_sg_selective_d   := bop_lex_left_selective_decide S T rS rT bS bT s refS symS transS refT bcongS
-                         (A_sg_CS_commutative S rS bS sgS)
-                         (A_sg_CS_selective S rS bS sgS)
-                         (A_sg_selective_d _ _ _ sgT)                          
-; A_sg_idempotent_d  := bop_lex_left_idempotent_decide S T rS rT bS bT s refS 
-                         (A_sg_CS_selective S rS bS sgS)
-                         (A_sg_idempotent_d _ _ _ sgT) 
 
-; A_sg_is_left_d     := inr _ (bop_lex_left_not_is_left S T rS rT bS bT s f Pf symS transS t
-                                 (A_sg_CS_commutative S rS bS sgS) 
-                                 (A_sg_CS_selective S rS bS sgS))
-; A_sg_is_right_d    := inr _ (bop_lex_left_not_is_right S T rS rT bS bT s f Pf symS transS t
-                                 (A_sg_CS_commutative S rS bS sgS)
-                                 (A_sg_CS_selective S rS bS sgS) )
-; A_sg_left_cancel_d    := inr _ (bop_lex_left_not_left_cancellative_v2 S T rS rT bS bT s f Pf refS symS transS t g Pg refT bcongS 
-                                    (A_sg_CS_selective S rS bS sgS)
-                                    (A_sg_CS_commutative S rS bS sgS) )
-; A_sg_right_cancel_d   := inr _ (bop_lex_left_not_right_cancellative S T rS rT bS bT  s f Pf refS symS transS t g Pg refT bcongS 
-                                    (A_sg_CS_selective S rS bS sgS)
-                                    (A_sg_CS_commutative S rS bS sgS) )
-; A_sg_left_constant_d  := inr _ (bop_lex_left_not_left_constant S T rS rT bS bT s f Pf refS symS transS t g Pg bcongS 
-                                    (A_sg_CS_selective S rS bS sgS) 
-                                    (A_sg_CS_commutative S rS bS sgS) )
-; A_sg_right_constant_d := inr _ (bop_lex_left_not_right_constant S T rS rT bS bT s f Pf refS symS transS t g Pg bcongS 
-                                    (A_sg_CS_selective S rS bS sgS)
-                                    (A_sg_CS_commutative S rS bS sgS) )
-; A_sg_anti_left_d      := inr _ (bop_lex_left_not_anti_left S T rS rT bS bT s f Pf symS transS t refT 
-                                    (A_sg_CS_selective S rS bS sgS) 
-                                    (A_sg_CS_commutative S rS bS sgS) )
-; A_sg_anti_right_d     := inr _ (bop_lex_left_not_anti_right S T rS rT bS bT s f Pf symS transS t refT 
-                                    (A_sg_CS_selective S rS bS sgS)
-                                    (A_sg_CS_commutative S rS bS sgS) )
-|}. 
 
-Definition sg_C_proofs_llex :
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
-     brel_not_trivial S rS f -> brel_not_trivial T rT g -> 
-     eqv_proofs S rS -> eqv_proofs T rT -> sg_CS_proofs S rS bS -> sg_C_proofs T rT bT -> 
-        sg_C_proofs (S * T) (brel_product rS rT) (bop_lex_left rS bS bT)
-:= λ S T rS rT bS bT s f t g Pf Pg eqvS eqvT sgS sg_CT,
-let congS  := A_eqv_congruence _ _ eqvS in   
-let refS   := A_eqv_reflexive _ _ eqvS in
-let transS := A_eqv_transitive _ _ eqvS in    
-let symS   := A_eqv_symmetric _ _ eqvS in
-let congT  := A_eqv_congruence _ _ eqvT in   
-let refT   := A_eqv_reflexive _ _ eqvT in 
-let transT := A_eqv_transitive _ _ eqvT in   
-let symT   := A_eqv_symmetric _ _ eqvT in
-let bcongS := A_sg_CS_congruence _ _ _ sgS in   
+Definition A_sg_CS_llex_from_CS_CS (S T : Type) (A : A_sg_CS S) (B : A_sg_CS T) : A_sg_CS (S * T)  :=
+let eqvS   := A_sg_CS_eqv _ A in
+let eqvT   := A_sg_CS_eqv _ B in
+let eqS    := A_eqv_eq _ eqvS in
+let eqT    := A_eqv_eq _ eqvT in
+let eqvPS  := A_eqv_proofs _ eqvS in
+let eqvPT  := A_eqv_proofs _ eqvT in
+let bS     := A_sg_CS_bop _ A in
+let bT     := A_sg_CS_bop _ B in
+let PS     := A_sg_CS_proofs _ A in
+let PT     := A_sg_CS_proofs _ B in
+let idS_d  := A_sg_CS_exists_id_d _ A in
+let idT_d  := A_sg_CS_exists_id_d _ B in
+let annS_d := A_sg_CS_exists_ann_d _ A in
+let annT_d := A_sg_CS_exists_ann_d _ B in
+(* this should move to the A_eqv structures *)
+let wT     := A_eqv_witness _ eqvT in
 {|
-  A_sg_C_associative   := bop_lex_left_associative S T rS rT bS bT congS refS symS transS refT bcongS
-                         (A_sg_CS_associative _ _ _ sgS)
-                         (A_sg_C_associative _ _ _ sg_CT)                          
-                         (A_sg_CS_commutative _ _ _ sgS) 
-                         (A_sg_CS_selective _ _ _ sgS) 
-; A_sg_C_congruence    := bop_lex_left_congruence S T rS rT bS bT congS congT 
-                         (A_sg_CS_congruence _ _ _ sgS) 
-                         (A_sg_C_congruence _ _ _ sg_CT) 
-; A_sg_C_commutative := bop_lex_left_commutative S T rS rT bS bT congS refS symS transS refT 
-                         (A_sg_CS_selective _ _ _ sgS) 
-                         (A_sg_CS_commutative _ _ _ sgS)
-                         (A_sg_C_commutative _ _ _ sg_CT) 
+   A_sg_CS_eqv          := A_eqv_product S T eqvS eqvT 
+ ; A_sg_CS_bop          := bop_llex wT eqS bS bT 
+ ; A_sg_CS_exists_id_d  := bop_llex_exists_id_decide S T wT eqS eqT bS bT eqvPS eqvPT idS_d idT_d 
+ ; A_sg_CS_exists_ann_d := bop_llex_exists_ann_decide S T wT eqS eqT bS bT eqvPS eqvPT annS_d annT_d 
+ ; A_sg_CS_proofs       := sg_CS_llex_proofs S T wT eqS eqT bS bT eqvPS eqvPT PS PT 
+ ; A_sg_CS_ast          := Ast_sg_llex (A_sg_CS_ast S A, A_sg_CS_ast T B)  (* Fix *) 
+|}.     
 
-; A_sg_C_selective_d   := bop_lex_left_selective_decide S T rS rT bS bT s refS symS transS refT bcongS
-                         (A_sg_CS_commutative _ _ _ sgS) 
-                         (A_sg_CS_selective _ _ _ sgS) 
-                         (A_sg_C_selective_d _ _ _ sg_CT) 
-; A_sg_C_idempotent_d  := bop_lex_left_idempotent_decide S T rS rT bS bT s refS 
-                         (A_sg_CS_selective _ _ _ sgS)
-                         (A_sg_C_idempotent_d _ _ _ sg_CT) 
-; A_sg_C_cancel_d    := inr _ (bop_lex_left_not_left_cancellative_v2 S T rS rT bS bT s f Pf refS symS transS t g Pg refT bcongS 
-                                    (A_sg_CS_selective _ _ _ sgS)
-                                    (A_sg_CS_commutative _ _ _ sgS))
-; A_sg_C_constant_d  := inr _ (bop_lex_left_not_left_constant S T rS rT bS bT s f Pf refS symS transS t g Pg bcongS 
-                                    (A_sg_CS_selective _ _ _ sgS)
-                                    (A_sg_CS_commutative _ _ _ sgS))
-; A_sg_C_anti_left_d      := inr _ (bop_lex_left_not_anti_left S T rS rT bS bT s f Pf symS transS t refT 
-                                    (A_sg_CS_selective _ _ _ sgS)
-                                    (A_sg_CS_commutative _ _ _ sgS))
-; A_sg_C_anti_right_d     := inr _ (bop_lex_left_not_anti_right S T rS rT bS bT s f Pf symS transS t refT 
-                                    (A_sg_CS_selective _ _ _ sgS)
-                                    (A_sg_CS_commutative _ _ _ sgS))
+End Combinators. 
 
-|}. 
-
-
-Definition sg_CI_proofs_llex : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S), 
-     eqv_proofs S rS -> eqv_proofs T rT -> sg_CS_proofs S rS bS -> sg_CI_proofs T rT bT -> 
-        sg_CI_proofs (S * T) (brel_product rS rT) (bop_lex_left rS bS bT)
-:= λ S T rS rT bS bT s eqvS eqvT sgS sg_CIT,
-let congS  := A_eqv_congruence _ _ eqvS in   
-let refS   := A_eqv_reflexive _ _ eqvS in
-let transS := A_eqv_transitive _ _ eqvS in    
-let symS   := A_eqv_symmetric _ _ eqvS in
-let congT  := A_eqv_congruence _ _ eqvT in   
-let refT   := A_eqv_reflexive _ _ eqvT in 
-let bcongS := A_sg_CS_congruence _ _ _ sgS in   
-{|
-  A_sg_CI_associative   := bop_lex_left_associative S T rS rT bS bT congS refS symS transS refT bcongS
-                         (A_sg_CS_associative _ _ _ sgS) 
-                         (A_sg_CI_associative _ _ _ sg_CIT) 
-                         (A_sg_CS_commutative _ _ _ sgS) 
-                         (A_sg_CS_selective _ _ _ sgS) 
-; A_sg_CI_congruence    := bop_lex_left_congruence S T rS rT bS bT congS congT 
-                         (A_sg_CS_congruence _ _ _ sgS) 
-                         (A_sg_CI_congruence _ _ _ sg_CIT) 
-; A_sg_CI_commutative := bop_lex_left_commutative S T rS rT bS bT congS refS symS transS refT 
-                         (A_sg_CS_selective _ _ _ sgS) 
-                         (A_sg_CS_commutative _ _ _ sgS)
-                         (A_sg_CI_commutative _ _ _ sg_CIT) 
-; A_sg_CI_idempotent   := bop_lex_left_idempotent S T rS rT bS bT refS 
-                         (bop_selective_implies_idempotent S rS bS 
-                                  (A_sg_CS_selective _ _ _ sgS))                                              
-                         (A_sg_CI_idempotent _ _ _ sg_CIT)                                               
-; A_sg_CI_selective_d   := bop_lex_left_selective_decide S T rS rT bS bT s refS symS transS refT bcongS
-                         (A_sg_CS_commutative _ _ _ sgS) 
-                         (A_sg_CS_selective _ _ _ sgS) 
-                         (A_sg_CI_selective_d _ _ _ sg_CIT) 
-|}. 
-
-
-Definition sg_CS_proofs_llex : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) , 
-     eqv_proofs S rS -> eqv_proofs T rT -> sg_CS_proofs S rS bS -> sg_CS_proofs T rT bT -> 
-        sg_CS_proofs (S * T) (brel_product rS rT) (bop_lex_left rS bS bT)
-:= λ S T rS rT bS bT eqvS eqvT sgS sg_CST,
-let congS  := A_eqv_congruence _ _ eqvS in   
-let refS   := A_eqv_reflexive _ _ eqvS in
-let transS := A_eqv_transitive _ _ eqvS in    
-let symS   := A_eqv_symmetric _ _ eqvS in
-let congT  := A_eqv_congruence _ _ eqvT in   
-let refT   := A_eqv_reflexive _ _ eqvT in 
-let bcongS := A_sg_CS_congruence _ _ _ sgS in   
-{|
-  A_sg_CS_associative   := bop_lex_left_associative S T rS rT bS bT congS refS symS transS refT bcongS
-                         (A_sg_CS_associative _ _ _ sgS) 
-                         (A_sg_CS_associative _ _ _ sg_CST)                          
-                         (A_sg_CS_commutative _ _ _ sgS) 
-                         (A_sg_CS_selective _ _ _ sgS) 
-; A_sg_CS_congruence    := bop_lex_left_congruence S T rS rT bS bT congS congT 
-                         (A_sg_CS_congruence _ _ _ sgS) 
-                         (A_sg_CS_congruence _ _ _ sg_CST) 
-; A_sg_CS_commutative := bop_lex_left_commutative S T rS rT bS bT congS refS symS transS refT 
-                         (A_sg_CS_selective _ _ _ sgS) 
-                         (A_sg_CS_commutative _ _ _ sgS)
-                         (A_sg_CS_commutative _ _ _ sg_CST) 
-; A_sg_CS_selective   := bop_lex_left_selective S T rS rT bS bT refS symS transS refT bcongS
-                         (A_sg_CS_commutative _ _ _ sgS) 
-                         (A_sg_CS_selective _ _ _ sgS) 
-                         (A_sg_CS_selective _ _ _ sg_CST)
-|}. 
-
-End Proofs.
-
-
-
-Definition A_sg_llex : ∀ (S T : Type),  A_sg_CS S -> A_sg T -> A_sg (S * T)
-:= λ S T sgS sgT,
-let eqvS := A_sg_CS_eqv S sgS in
-let eqvT := A_sg_eq T sgT in
-let rS   := A_eqv_eq S eqvS in
-let rT   := A_eqv_eq T eqvT in 
-let bS   := A_sg_CS_bop S sgS in
-let bT   := A_sg_bop T sgT in 
-let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
-let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in
-let symS := A_eqv_symmetric _ _ (A_eqv_proofs S eqvS) in
-let trnS := A_eqv_transitive _ _ (A_eqv_proofs S eqvS) in
-let comS := A_sg_CS_commutative S rS bS (A_sg_CS_proofs S sgS)  in 
-let id1  := A_sg_CS_exists_id_d _ sgS in
-let id2  := A_sg_exists_id_d _ sgT in
-let an1  := A_sg_CS_exists_ann_d _ sgS in
-let an2  := A_sg_exists_ann_d _ sgT in        
-{| 
-        A_sg_eq     := A_eqv_product S T eqvS eqvT 
-      ; A_sg_bop    := bop_lex_left rS bS bT 
-      ; A_sg_exists_id_d   := bop_lex_left_exists_id_decide S T rS rT bS bT refS symS trnS refT comS id1 id2 
-      ; A_sg_exists_ann_d  := bop_lex_left_exists_ann_decide S T rS rT bS bT refS symS trnS refT comS an1 an2 
-      ; A_sg_proofs := sg_proofs_llex S T rS rT bS bT 
-                           (A_eqv_witness S eqvS) 
-                           (A_eqv_new S eqvS) 
-                           (A_eqv_witness T eqvT)
-                           (A_eqv_new T eqvT)
-                           (A_eqv_not_trivial S eqvS)                                                                                  
-                           (A_eqv_not_trivial T eqvT)                                                       
-                           (A_eqv_proofs S eqvS) 
-                           (A_eqv_proofs T eqvT)
-                           (A_sg_CS_proofs S sgS) 
-                           (A_sg_proofs T sgT)
-     
-      ; A_sg_ast     := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_ast T sgT)  
-|}. 
-
-
-Definition A_sg_C_llex : ∀ (S T : Type),  A_sg_CS S -> A_sg_C T -> A_sg_C (S * T)
-:= λ S T sgS sgT,
-let eqvS := A_sg_CS_eqv S sgS in
-let eqvT := A_sg_C_eqv T sgT in
-let rS   := A_eqv_eq S eqvS in
-let rT   := A_eqv_eq T eqvT in 
-let bS   := A_sg_CS_bop S sgS in
-let bT   := A_sg_C_bop T sgT in 
-let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
-let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in
-let symS := A_eqv_symmetric _ _ (A_eqv_proofs S eqvS) in
-let trnS := A_eqv_transitive _ _ (A_eqv_proofs S eqvS) in
-let comS := A_sg_CS_commutative S rS bS (A_sg_CS_proofs S sgS)  in 
-let id1  := A_sg_CS_exists_id_d _ sgS in
-let id2  := A_sg_C_exists_id_d _ sgT in
-let an1  := A_sg_CS_exists_ann_d _ sgS in
-let an2  := A_sg_C_exists_ann_d _ sgT in        
-{| 
-        A_sg_C_eqv    := A_eqv_product S T eqvS eqvT 
-      ; A_sg_C_bop    := bop_lex_left rS bS bT 
-      ; A_sg_C_exists_id_d   := bop_lex_left_exists_id_decide S T rS rT bS bT refS symS trnS refT comS id1 id2 
-      ; A_sg_C_exists_ann_d  := bop_lex_left_exists_ann_decide S T rS rT bS bT refS symS trnS refT comS an1 an2 
-      ; A_sg_C_proofs := sg_C_proofs_llex S T rS rT bS bT 
-                           (A_eqv_witness S eqvS) 
-                           (A_eqv_new S eqvS) 
-                           (A_eqv_witness T eqvT)
-                           (A_eqv_new T eqvT)
-                           (A_eqv_not_trivial S eqvS)                                                                                  
-                           (A_eqv_not_trivial T eqvT)                                                       
-                           (A_eqv_proofs S eqvS)
-                           (A_eqv_proofs T eqvT)                           
-                           (A_sg_CS_proofs S sgS) 
-                           (A_sg_C_proofs T sgT)
-      
-      ; A_sg_C_ast     := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_C_ast T sgT)  
-|}. 
-
-
-Definition A_sg_CI_llex : ∀ (S T : Type),  A_sg_CS S -> A_sg_CI T -> A_sg_CI (S * T)
-:= λ S T sgS sgT,
-let eqvS := A_sg_CS_eqv S sgS in
-let eqvT := A_sg_CI_eqv T sgT in
-let rS   := A_eqv_eq S eqvS in
-let rT   := A_eqv_eq T eqvT in 
-let bS   := A_sg_CS_bop S sgS in
-let bT   := A_sg_CI_bop T sgT in 
-let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
-let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in
-let symS := A_eqv_symmetric _ _ (A_eqv_proofs S eqvS) in
-let trnS := A_eqv_transitive _ _ (A_eqv_proofs S eqvS) in
-let comS := A_sg_CS_commutative S rS bS (A_sg_CS_proofs S sgS)  in 
-let id1  := A_sg_CS_exists_id_d _ sgS in
-let id2  := A_sg_CI_exists_id_d _ sgT in
-let an1  := A_sg_CS_exists_ann_d _ sgS in
-let an2  := A_sg_CI_exists_ann_d _ sgT in        
-{| 
-        A_sg_CI_eqv     := A_eqv_product S T eqvS eqvT 
-      ; A_sg_CI_bop    := bop_lex_left rS bS bT 
-      ; A_sg_CI_exists_id_d   := bop_lex_left_exists_id_decide S T rS rT bS bT refS symS trnS refT comS id1 id2 
-      ; A_sg_CI_exists_ann_d  := bop_lex_left_exists_ann_decide S T rS rT bS bT refS symS trnS refT comS an1 an2 
-      ; A_sg_CI_proofs := sg_CI_proofs_llex S T rS rT bS bT 
-                           (A_eqv_witness S eqvS) 
-                           (A_eqv_proofs S eqvS)
-                           (A_eqv_proofs T eqvT)                           
-                          (A_sg_CS_proofs S sgS) 
-                          (A_sg_CI_proofs T sgT)
-      
-      ; A_sg_CI_ast     := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_CI_ast T sgT)  
- |}. 
-
-
-Definition A_sg_CS_llex : ∀ (S T : Type),  A_sg_CS S -> A_sg_CS T -> A_sg_CS (S * T)
-:= λ S T sgS sgT,
-let eqvS := A_sg_CS_eqv S sgS in
-let eqvT := A_sg_CS_eqv T sgT in
-let rS   := A_eqv_eq S eqvS in
-let rT   := A_eqv_eq T eqvT in 
-let bS   := A_sg_CS_bop S sgS in
-let bT   := A_sg_CS_bop T sgT in 
-let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
-let refT := A_eqv_reflexive _ _ (A_eqv_proofs T eqvT) in
-let symS := A_eqv_symmetric _ _ (A_eqv_proofs S eqvS) in
-let trnS := A_eqv_transitive _ _ (A_eqv_proofs S eqvS) in
-let comS := A_sg_CS_commutative S rS bS (A_sg_CS_proofs S sgS)  in 
-let id1  := A_sg_CS_exists_id_d _ sgS in
-let id2  := A_sg_CS_exists_id_d _ sgT in
-let an1  := A_sg_CS_exists_ann_d _ sgS in
-let an2  := A_sg_CS_exists_ann_d _ sgT in        
-{| 
-        A_sg_CS_eqv    := A_eqv_product S T eqvS eqvT 
-      ; A_sg_CS_bop    := bop_lex_left rS bS bT 
-      ; A_sg_CS_exists_id_d   := bop_lex_left_exists_id_decide S T rS rT bS bT refS symS trnS refT comS id1 id2 
-      ; A_sg_CS_exists_ann_d  := bop_lex_left_exists_ann_decide S T rS rT bS bT refS symS trnS refT comS an1 an2 
-      ; A_sg_CS_proofs := sg_CS_proofs_llex S T rS rT bS bT 
-                           (A_eqv_proofs S eqvS)
-                           (A_eqv_proofs T eqvT)                           
-                           (A_sg_CS_proofs S sgS) 
-                           (A_sg_CS_proofs T sgT)
-      
-      ; A_sg_CS_ast    := Ast_sg_llex (A_sg_CS_ast S sgS, A_sg_CS_ast T sgT)  
-|}. 
 End ACAS.
-*)
 
-(*
+
 Section CAS.
 
-Definition check_commutative_llex : ∀ {S T : Type},  S -> @check_commutative T -> @check_commutative (S * T)
-:= λ {S T} s cT,  
-      match cT with 
-      | Certify_Commutative              => Certify_Commutative 
-      | Certify_Not_Commutative (t1, t2) => Certify_Not_Commutative ((s, t1), (s, t2))
-      end. 
+Section Certify.
 
+Definition bop_llex_commutative_certify_v1 {S T : Type} (wS : S) 
+            (pS : @sg_CI_certificates S) (pT : @sg_certificates T) : @check_commutative (S * T) 
+:= match sg_commutative_d pT with 
+   | Certify_Commutative => Certify_Commutative
+   | Certify_Not_Commutative (t1, t2) => Certify_Not_Commutative ((wS, t1), (wS, t2))
+   end.
 
-Definition check_idempotent_llex : ∀ {S T : Type}, S -> @check_idempotent T -> @check_idempotent (S * T)
-:= λ {S T} s cT,  
-      match cT with 
-      | Certify_Idempotent        => Certify_Idempotent 
-      | Certify_Not_Idempotent t1 => Certify_Not_Idempotent (s, t1) 
-      end.
+Definition bop_llex_commutative_certify_v2 {S T : Type} (wS : S) 
+            (pS : @sg_CS_certificates S) (pT : @sg_certificates T) : @check_commutative (S * T) 
+:= match sg_commutative_d pT with 
+   | Certify_Commutative => Certify_Commutative
+   | Certify_Not_Commutative (t1, t2) => Certify_Not_Commutative ((wS, t1), (wS, t2))
+   end.
 
-Definition check_selective_llex : ∀ {S T : Type}, S -> @check_selective T -> @check_selective (S * T)
-:= λ {S T} s dT,  
-     match dT with 
-     | Certify_Selective              => Certify_Selective 
-     | Certify_Not_Selective (t1, t2) => Certify_Not_Selective ((s, t1), (s, t2)) 
-     end.
+Definition bop_llex_commutative_assert_v1 {S T : Type} (wS : S) 
+            (pS : @sg_CI_certificates S) (pT : @sg_C_certificates T) : @assert_commutative (S * T) 
+:= Assert_Commutative.
+
+Definition bop_llex_commutative_assert_v2 {S T : Type} (wS : S) 
+            (pS : @sg_CS_certificates S) (pT : @sg_C_certificates T) : @assert_commutative (S * T) 
+:= Assert_Commutative.
+
+    
+Definition bop_llex_idempotent_certify {S T : Type} (wS : S) 
+            (pS : @sg_CI_certificates S) (pT : @sg_certificates T) : @check_idempotent (S * T) 
+:= match sg_idempotent_d pT with 
+   | Certify_Idempotent => Certify_Idempotent 
+   | Certify_Not_Idempotent t => Certify_Not_Idempotent (wS, t)
+   end.
+
+Definition bop_llex_idempotent_assert_v1 {S T : Type} (wS : S) 
+            (pS : @sg_CI_certificates S) (pT : @sg_CI_certificates T) : @assert_idempotent (S * T) 
+:= Assert_Idempotent.
+
+Definition bop_llex_idempotent_assert_v2 {S T : Type} (wS : S) 
+            (pS : @sg_CS_certificates S) (pT : @sg_CI_certificates T) : @assert_idempotent (S * T) 
+:= Assert_Idempotent.
+
+Definition bop_llex_selective_certify_v1 {S T : Type} (wS : S) 
+            (pS : @sg_CI_certificates S) (pT : @sg_certificates T) : @check_selective (S * T) 
+:= match sg_selective_d pT with 
+   | Certify_Selective => Certify_Selective
+   | Certify_Not_Selective (t1, t2) => Certify_Not_Selective ((wS, t1), (wS, t2))
+   end.
+
+Definition bop_llex_selective_assert_v1 {S T : Type} (wS : S) 
+            (pS : @sg_CS_certificates S) (pT : @sg_CI_certificates T) : @assert_selective (S * T) 
+:= Assert_Selective. 
+
 
 
 Definition check_exists_id_llex : ∀ {S T : Type}, 
@@ -1932,401 +1510,283 @@ Definition check_exists_ann_llex : ∀ {S T : Type},
       | _, Certify_Not_Exists_Ann                  => Certify_Not_Exists_Ann 
       end. 
 
-Definition asg_certs_llex : ∀ {S T : Type},  
-        brel S -> binary_op S -> 
-        S -> 
-        sg_CS_certificates (S := S) -> 
-        asg_certificates (S := T) -> asg_certificates (S := (S * T))
-:= λ {S T} rS bS s cS cT,  
-{|
-  asg_associative      := Assert_Associative   
-; asg_congruence       := Assert_Bop_Congruence   
-; asg_commutative      := Assert_Commutative
-; asg_selective_d      := check_selective_llex s (asg_selective_d cT)
-; asg_idempotent_d     := check_idempotent_llex s (asg_idempotent_d cT)
-|}. 
+End Certify.
 
-Definition sg_certs_llex : ∀ {S T : Type},  
-        brel S -> binary_op S -> 
-        S -> (S -> S) -> 
-        T -> (T -> T) -> 
-        sg_CS_certificates (S := S) -> 
-        sg_certificates (S := T) -> sg_certificates (S := (S * T))
-:= λ {S T} rS bS s f t g cS cT,  
-{|
-  sg_associative      := Assert_Associative   
-; sg_congruence       := Assert_Bop_Congruence   
-; sg_commutative_d    := check_commutative_llex s (sg_commutative_d cT)
-; sg_selective_d      := check_selective_llex s (sg_selective_d cT)
-; sg_idempotent_d     := check_idempotent_llex s (sg_idempotent_d cT)
 
-; sg_is_left_d        := Certify_Not_Is_Left (cef_bop_lex_left_not_is_left rS bS s f t)
-; sg_is_right_d       := Certify_Not_Is_Right (cef_bop_lex_left_not_is_right rS bS s f t)
-; sg_left_cancel_d    := Certify_Not_Left_Cancellative (cef_bop_lex_left_not_cancellative rS bS s f t g)
-; sg_right_cancel_d   := Certify_Not_Right_Cancellative (cef_bop_lex_left_not_cancellative rS bS s f t g)
-; sg_left_constant_d  := Certify_Not_Left_Constant (cef_bop_lex_left_not_constant rS bS s f t g)
-; sg_right_constant_d := Certify_Not_Right_Constant (cef_bop_lex_left_not_constant rS bS s f t g)
-; sg_anti_left_d      := Certify_Not_Anti_Left (cef_bop_lex_left_not_anti_left rS bS s f t)
-; sg_anti_right_d     := Certify_Not_Anti_Right (cef_bop_lex_left_not_anti_right rS bS s f t)
-|}. 
 
-Definition sg_C_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
-        S -> (S -> S) -> T -> (T -> T) -> sg_CS_certificates (S := S) -> sg_C_certificates (S := T) -> sg_C_certificates (S := (S * T)) 
-:= λ {S T} rS bS s f t g cS cT,  
+Section Certificates.
+
+Definition sg_CI_llex_certs_v1 {S T : Type} (wT : T) 
+        (pS : @sg_CI_certificates S)
+        (pT : @sg_CI_certificates T)
+        (idT : @assert_exists_id T) : @sg_CI_certificates (S * T) :=
 {|
-  sg_C_associative   := Assert_Associative 
-; sg_C_congruence    := Assert_Bop_Congruence   
-; sg_C_commutative   := Assert_Commutative   
-; sg_C_selective_d   := check_selective_llex s (sg_C_selective_d cT)
-; sg_C_idempotent_d  := check_idempotent_llex s (sg_C_idempotent_d cT)
-; sg_C_cancel_d    := Certify_Not_Left_Cancellative (cef_bop_lex_left_not_cancellative rS bS s f t g)
-; sg_C_constant_d  := Certify_Not_Left_Constant (cef_bop_lex_left_not_constant rS bS s f t g)
-; sg_C_anti_left_d      := Certify_Not_Anti_Left (cef_bop_lex_left_not_anti_left rS bS s f t)                            
-; sg_C_anti_right_d     := Certify_Not_Anti_Right (cef_bop_lex_left_not_anti_right rS bS s f t)
+     sg_CI_associative   := Assert_Associative 
+   ; sg_CI_congruence    := Assert_Bop_Congruence 
+   ; sg_CI_commutative   := Assert_Commutative
+   ; sg_CI_idempotent    := Assert_Idempotent 
+   ; sg_CI_not_selective := match sg_CI_not_selective pS with
+                              | Assert_Not_Selective (s1, s2) => Assert_Not_Selective ((s1, wT), (s2, wT))
+                            end                                                     
 |}.
 
-Definition sg_CI_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
-        S -> sg_CS_certificates (S := S) -> sg_CI_certificates (S := T) -> sg_CI_certificates (S := (S * T)) 
-:= λ {S T} rS bS s cS cT,  
+Definition sg_CI_llex_certs_v2 {S T : Type} (wS : S) 
+        (pS : @sg_CS_certificates S)
+        (pT : @sg_CI_certificates T) : @sg_CI_certificates (S * T) :=
 {|
-  sg_CI_associative   := Assert_Associative   
-; sg_CI_congruence    := Assert_Bop_Congruence   
-; sg_CI_commutative   := Assert_Commutative   
-; sg_CI_idempotent    := Assert_Idempotent   
-; sg_CI_selective_d   := check_selective_llex s (sg_CI_selective_d cT)
+     sg_CI_associative   := Assert_Associative 
+   ; sg_CI_congruence    := Assert_Bop_Congruence 
+   ; sg_CI_commutative   := Assert_Commutative
+   ; sg_CI_idempotent    := Assert_Idempotent 
+   ; sg_CI_not_selective := match sg_CI_not_selective pT with
+                              | Assert_Not_Selective (t1, t2) => Assert_Not_Selective ((wS, t1), (wS, t2))
+                            end                                                     
 |}.
 
-Definition sg_CS_certs_llex : ∀ {S T : Type} (rS : brel S) (bS : binary_op S), 
-        sg_CS_certificates (S := S) -> sg_CS_certificates (S := T) -> sg_CS_certificates (S := (S * T)) 
-:= λ {S T} rS bS cS cT,  
+
+Definition sg_CS_llex_certs {S T : Type} 
+        (pS : @sg_CS_certificates S)
+        (pT : @sg_CS_certificates T) : @sg_CS_certificates (S * T) :=
 {|
-  sg_CS_associative   := Assert_Associative   
-; sg_CS_congruence    := Assert_Bop_Congruence   
-; sg_CS_commutative   := Assert_Commutative   
-; sg_CS_selective     := Assert_Selective   
+     sg_CS_associative   := Assert_Associative 
+   ; sg_CS_congruence    := Assert_Bop_Congruence 
+   ; sg_CS_commutative   := Assert_Commutative
+   ; sg_CS_selective     := Assert_Selective
 |}.
 
-Definition sg_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg (S := T) -> sg (S := (S * T))
-:= λ {S T} sgS sgT, 
-   {| 
-     sg_eq           := eqv_product (sg_CS_eqv sgS) (sg_eq sgT) 
-   ; sg_bop          := bop_lex_left (eqv_eq (sg_CS_eqv sgS)) (sg_CS_bop sgS) (sg_bop sgT) 
-   ; sg_exists_id_d  := check_exists_id_llex (sg_CS_exists_id_d sgS) (sg_exists_id_d sgT)
-   ; sg_exists_ann_d := check_exists_ann_llex (sg_CS_exists_ann_d sgS) (sg_exists_ann_d sgT)
-   ; sg_certs := sg_certs_llex 
-                   (eqv_eq (sg_CS_eqv sgS)) 
-                   (sg_CS_bop sgS) 
-                   (eqv_witness (sg_CS_eqv sgS)) (eqv_new (sg_CS_eqv sgS)) 
-                   (eqv_witness (sg_eq sgT)) (eqv_new (sg_eq sgT)) 
-                   (sg_CS_certs sgS) 
-                   (sg_certs sgT)
-   
-   ; sg_ast   := Ast_sg_llex (sg_CS_ast sgS, sg_ast sgT)
-   |}. 
+End Certificates.
 
-Definition sg_C_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_C (S := T) -> sg_C (S := (S * T))
-:= λ {S T} sgS sgT, 
-      {| 
-        sg_C_eqv     := eqv_product (sg_CS_eqv sgS) (sg_C_eqv sgT) 
-      ; sg_C_bop    := bop_lex_left 
-                          (eqv_eq (sg_CS_eqv sgS)) 
-                          (sg_CS_bop sgS) 
-                          (sg_C_bop sgT)
-      ; sg_C_exists_id_d  := check_exists_id_llex (sg_CS_exists_id_d sgS) (sg_C_exists_id_d sgT)
-      ; sg_C_exists_ann_d := check_exists_ann_llex (sg_CS_exists_ann_d sgS) (sg_C_exists_ann_d sgT)
-      ; sg_C_certs := sg_C_certs_llex 
-                          (eqv_eq (sg_CS_eqv sgS))
-                          (sg_CS_bop sgS) 
-                          (eqv_witness (sg_CS_eqv sgS)) (eqv_new (sg_CS_eqv sgS)) 
-                          (eqv_witness (sg_C_eqv sgT)) (eqv_new (sg_C_eqv sgT))
-                          (sg_CS_certs sgS) 
-                          (sg_C_certs sgT)
-      
-      ; sg_C_ast    := Ast_sg_llex (sg_CS_ast sgS, sg_C_ast sgT)  
-      |}. 
+Section Combinators.
 
-Definition sg_CI_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CI (S := T) -> sg_CI (S := (S * T))
-:= λ {S T} sgS sgT, 
-      {| 
-        sg_CI_eqv     := eqv_product (sg_CS_eqv sgS) (sg_CI_eqv sgT) 
-      ; sg_CI_bop    := bop_lex_left 
-                          (eqv_eq (sg_CS_eqv sgS)) 
-                          (sg_CS_bop sgS) 
-                          (sg_CI_bop sgT) 
-      ; sg_CI_exists_id_d  := check_exists_id_llex (sg_CS_exists_id_d sgS) (sg_CI_exists_id_d sgT)
-      ; sg_CI_exists_ann_d := check_exists_ann_llex (sg_CS_exists_ann_d sgS) (sg_CI_exists_ann_d sgT)
-      ; sg_CI_certs := sg_CI_certs_llex 
-                          (eqv_eq (sg_CS_eqv sgS))
-                          (sg_CS_bop sgS)
-                          (eqv_witness (sg_CS_eqv sgS)) 
-                          (sg_CS_certs sgS) 
-                          (sg_CI_certs sgT)
-      
-      ; sg_CI_ast    := Ast_sg_llex (sg_CS_ast sgS, sg_CI_ast sgT)  
-      |}. 
 
-Definition sg_CS_llex : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T) -> sg_CS (S := (S * T))
-:= λ {S T} sgS sgT, 
-      {| 
-        sg_CS_eqv    := eqv_product (sg_CS_eqv sgS) (sg_CS_eqv sgT) 
-      ; sg_CS_bop    := bop_lex_left 
-                          (eqv_eq (sg_CS_eqv sgS)) 
-                          (sg_CS_bop sgS) 
-                          (sg_CS_bop sgT) 
-      ; sg_CS_exists_id_d  := check_exists_id_llex (sg_CS_exists_id_d sgS) (sg_CS_exists_id_d sgT)
-      ; sg_CS_exists_ann_d := check_exists_ann_llex (sg_CS_exists_ann_d sgS) (sg_CS_exists_ann_d sgT)
-      ; sg_CS_certs := sg_CS_certs_llex 
-                          (eqv_eq (sg_CS_eqv sgS))
-                          (sg_CS_bop sgS) 
-                          (sg_CS_certs sgS) 
-                          (sg_CS_certs sgT)
-      
-      ; sg_CS_ast    := Ast_sg_llex (sg_CS_ast sgS, sg_CS_ast sgT)  
-      |}. 
+Definition sg_CI_llex_from_CI_CI {S T : Type} (A : @sg_CI S) (B : @sg_CI_with_id T) : @sg_CI (S * T)  :=
+let eqvS   := sg_CI_eqv A in
+let eqvT   := sg_CI_wi_eqv B in
+let eqS    := eqv_eq eqvS in
+let eqT    := eqv_eq eqvT in
+let wT     := eqv_witness eqvT in
+let bS     := sg_CI_bop A in
+let bT     := sg_CI_wi_bop B in
+let PS     := sg_CI_certs A in
+let PT     := sg_CI_wi_certs B in
+let idS_d  := sg_CI_exists_id_d A in
+let annS_d := sg_CI_exists_ann_d A in
+let annT_d := sg_CI_wi_exists_ann_d B in
+match sg_CI_wi_exists_id B with
+| Assert_Exists_Id i =>   
+{|
+   sg_CI_eqv          := eqv_product eqvS eqvT                                                
+ ; sg_CI_bop          := bop_llex i eqS bS bT 
+ ; sg_CI_exists_id_d  := check_exists_id_llex idS_d (Certify_Exists_Id i) 
+ ; sg_CI_exists_ann_d := check_exists_ann_llex annS_d annT_d                                                 
+ ; sg_CI_certs        := sg_CI_llex_certs_v1 wT PS PT (sg_CI_wi_exists_id B)
+ ; sg_CI_ast          := Ast_sg_llex (sg_CI_ast A, sg_CI_wi_ast B)  (* Fix *) 
+|}
+end.
 
+
+Definition sg_CI_llex_from_CS_CI {S T : Type} (A : @sg_CS S) (B : @sg_CI T) : @sg_CI (S * T)  :=
+let eqvS   := sg_CS_eqv A in
+let eqvT   := sg_CI_eqv B in
+let eqS    := eqv_eq eqvS in
+let eqT    := eqv_eq eqvT in
+let wS     := eqv_witness eqvS in
+let wT     := eqv_witness eqvT in
+let bS     := sg_CS_bop A in
+let bT     := sg_CI_bop B in
+let PS     := sg_CS_certs A in
+let PT     := sg_CI_certs B in
+let idS_d  := sg_CS_exists_id_d A in
+let idT_d  := sg_CI_exists_id_d B in
+let annS_d := sg_CS_exists_ann_d A in
+let annT_d := sg_CI_exists_ann_d B in
+{|
+   sg_CI_eqv          := eqv_product eqvS eqvT                                                
+ ; sg_CI_bop          := bop_llex wT eqS bS bT 
+ ; sg_CI_exists_id_d  := check_exists_id_llex idS_d idT_d
+ ; sg_CI_exists_ann_d := check_exists_ann_llex annS_d annT_d                                                 
+ ; sg_CI_certs        := sg_CI_llex_certs_v2 wS PS PT 
+ ; sg_CI_ast          := Ast_sg_llex (sg_CS_ast A, sg_CI_ast B)  (* Fix *) 
+|}.
+
+Definition sg_CS_llex_from_CS_CS {S T : Type} (A : @sg_CS S) (B : @sg_CS T) : @sg_CS (S * T)  :=
+let eqvS   := sg_CS_eqv A in
+let eqvT   := sg_CS_eqv B in
+let eqS    := eqv_eq eqvS in
+let eqT    := eqv_eq eqvT in
+let wT     := eqv_witness eqvT in
+let bS     := sg_CS_bop A in
+let bT     := sg_CS_bop B in
+let PS     := sg_CS_certs A in
+let PT     := sg_CS_certs B in
+let idS_d  := sg_CS_exists_id_d A in
+let idT_d  := sg_CS_exists_id_d B in
+let annS_d := sg_CS_exists_ann_d A in
+let annT_d := sg_CS_exists_ann_d B in
+{|
+   sg_CS_eqv          := eqv_product eqvS eqvT                                                
+ ; sg_CS_bop          := bop_llex wT eqS bS bT 
+ ; sg_CS_exists_id_d  := check_exists_id_llex idS_d idT_d
+ ; sg_CS_exists_ann_d := check_exists_ann_llex annS_d annT_d                                                 
+ ; sg_CS_certs        := sg_CS_llex_certs PS PT 
+ ; sg_CS_ast          := Ast_sg_llex (sg_CS_ast A, sg_CS_ast B)  (* Fix *) 
+|}.
+  
+End Combinators. 
 End CAS.
 
 Section Verify.
 
-Section ChecksCorrect.
-  
-  Variable S : Type.
-  Variable T : Type.
-  Variable rS : brel S.
-  Variable rT : brel T.
-  Variable wS : S.
-  Variable f : S -> S.    
-  Variable Pf : brel_not_trivial S rS f.
-  Variable wT : T.
-  Variable g : T -> T.      
-  Variable Pg : brel_not_trivial T rT g.  
-  Variable bS : binary_op S.
-  Variable bT : binary_op T.
-  Variable symS : brel_symmetric S rS.
-  Variable symT : brel_symmetric T rT. 
-  Variable transS : brel_transitive S rS.
-  Variable transT : brel_transitive T rT. 
-  Variable refS : brel_reflexive S rS. 
-  Variable refT : brel_reflexive T rT.
-  Variable congS : brel_congruence S rS rS.
-  
-  Variable commS : bop_commutative S rS bS.
-  Variable selS : bop_selective S rS bS.
-  Variable b_congS : bop_congruence S rS bS.  
 
-  Lemma correct_check_commutative_llex : ∀ (dT : bop_commutative_decidable T rT bT),
-      
-         p2c_commutative_check (S * T) 
-            (brel_product rS rT) 
-            (bop_lex_left rS bS bT)
-            (bop_lex_left_commutative_decide S T rS rT bS bT wS congS refS symS transS refT selS commS dT)
-         = 
-         check_commutative_llex wS (p2c_commutative_check T rT bT dT). 
-Proof. intros [cT | [ [t3 t4] ncT]]; compute; reflexivity. Defined. 
+Section Certify.
+
+Variable S T : Type.
+Variable wS : S.    
+Variable argT : T.  
+Variable eqS : brel S.
+Variable eqT : brel T.   
+Variable bS : binary_op S. 
+Variable bT : binary_op T.
+Variable eqvS : eqv_proofs S eqS.
+Variable eqvT : eqv_proofs T eqT.   
 
 
-Lemma correct_check_idempotent_llex : ∀ (dT : bop_idempotent_decidable T rT bT),
-
-       p2c_idempotent_check (S * T) 
-            (brel_product rS rT) 
-            (bop_lex_left rS bS bT) 
-            (bop_lex_left_idempotent_decide S T rS rT bS bT wS refS selS dT)
-         = 
-         check_idempotent_llex wS (p2c_idempotent_check T rT bT dT).
-Proof. intros [cT | [t3 niT]]; compute; reflexivity. Defined. 
-
-Lemma correct_check_exists_id_llex : 
-      ∀ (dS : bop_exists_id_decidable S rS bS) (dT : bop_exists_id_decidable T rT bT),
-         
+Lemma correct_check_exists_id_llex 
+    (dS : bop_exists_id_decidable S eqS bS)
+    (dT : bop_exists_id_decidable T eqT bT): 
          p2c_exists_id_check (S * T) 
-            (brel_product rS rT)
-            (bop_lex_left rS bS bT)
-            (bop_lex_left_exists_id_decide S T rS rT bS bT refS symS transS refT commS dS dT)
+            (brel_product eqS eqT)
+            (bop_llex argT eqS bS bT)
+            (bop_llex_exists_id_decide S T argT eqS eqT bS bT eqvS eqvT dS dT)
          =
          check_exists_id_llex 
-           (p2c_exists_id_check S rS bS dS)
-           (p2c_exists_id_check T rT bT dT). 
-Proof. intros [[s sP] | nS ] [[t tP] | nT ]; compute; reflexivity. Defined. 
+           (p2c_exists_id_check S eqS bS dS)
+           (p2c_exists_id_check T eqT bT dT). 
+Proof. destruct dS as [[s sP] | nS ]; destruct dT as [[t tP] | nT ]; compute; reflexivity. Defined. 
 
-Lemma correct_check_exists_ann_llex : ∀ (dS : bop_exists_ann_decidable S rS bS) (dT : bop_exists_ann_decidable T rT bT),
 
+Lemma correct_check_exists_ann_llex 
+    (dS : bop_exists_ann_decidable S eqS bS)
+    (dT : bop_exists_ann_decidable T eqT bT): 
          p2c_exists_ann_check (S * T) 
-            (brel_product rS rT)
-            (bop_lex_left rS bS bT)
-            (bop_lex_left_exists_ann_decide S T rS rT bS bT refS symS transS refT commS dS dT)
+            (brel_product eqS eqT)
+            (bop_llex argT eqS bS bT)
+            (bop_llex_exists_ann_decide S T argT eqS eqT bS bT eqvS eqvT dS dT)
          =
          check_exists_ann_llex 
-           (p2c_exists_ann_check S rS bS dS)
-           (p2c_exists_ann_check T rT bT dT). 
-Proof. intros [[s sP] | nS ] [[t tP] | nT ]; compute; reflexivity. Defined. 
+           (p2c_exists_ann_check S eqS bS dS)
+           (p2c_exists_ann_check T eqT bT dT). 
+Proof. destruct dS as [[s sP] | nS ]; destruct dT as [[t tP] | nT ]; compute; reflexivity. Defined. 
 
-Lemma correct_check_selective_llex : ∀ (dT : bop_selective_decidable T rT bT),
+End Certify.
 
-         p2c_selective_check (S * T) 
-            (brel_product rS rT) 
-            (bop_lex_left rS bS bT)
-            (bop_lex_left_selective_decide S T rS rT bS bT wS
-              refS symS transS refT b_congS commS selS dT)
-         = 
-         check_selective_llex wS (p2c_selective_check T rT bT dT). 
-Proof.  intros [selT | [ [t1 t2] P]]; compute; reflexivity. Defined. 
+Section Certificates.
 
-End ChecksCorrect.
+Variable S T : Type.
+Variable wS : S.     
+Variable wT : T.     
+Variable argT : T.  
+Variable eqS : brel S.
+Variable eqT : brel T.
+Variable f : T → T. 
+Variable ntT : brel_not_trivial T eqT f.  
+Variable bS : binary_op S. 
+Variable bT : binary_op T.
+Variable eqvS : eqv_proofs S eqS.
+Variable eqvT : eqv_proofs T eqT.
 
 
-Section ProofsCorrect.
+
+Lemma correct_sg_CI_llex_certs_v1
+      (pS : sg_CI_proofs S eqS bS)
+      (pT : sg_CI_proofs T eqT bT)
+      (idT : bop_exists_id T eqT bT) : 
+     P2C_sg_CI (S * T) (brel_product eqS eqT) 
+                       (bop_llex (projT1 idT) eqS bS bT) 
+                       (sg_CI_llex_proofs_v1 S T wT (projT1 idT) eqS eqT bS bT eqvS eqvT pS pT (projT2 idT))
+     =
+     sg_CI_llex_certs_v1 wT (P2C_sg_CI S eqS bS pS) (P2C_sg_CI T eqT bT pT) (Assert_Exists_Id (projT1 idT)).
+Proof. unfold sg_CI_llex_proofs_v1, sg_CI_llex_certs_v1, P2C_sg_CI; simpl.
+       destruct pS. simpl. destruct A_sg_CI_not_selective as [[s1 s2] [C D]]. simpl.
+       unfold p2c_not_selective_assert. simpl. 
+       reflexivity. 
+Defined.
+
+
+Lemma correct_sg_CI_llex_certs_v2 (pS : sg_CS_proofs S eqS bS) (pT : sg_CI_proofs T eqT bT) : 
+     P2C_sg_CI (S * T) (brel_product eqS eqT) 
+                       (bop_llex argT eqS bS bT) 
+                       (sg_CI_llex_proofs_v2 S T wS argT eqS eqT bS bT eqvS eqvT pS pT)
+     =
+     sg_CI_llex_certs_v2 wS (P2C_sg_CS S eqS bS pS) (P2C_sg_CI T eqT bT pT).
+Proof. unfold sg_CI_llex_proofs_v2, sg_CI_llex_certs_v2, P2C_sg_CI, P2C_sg_CS; simpl.
+       destruct pS. simpl. destruct A_sg_CI_not_selective as [[s1 s2] [C D]]. simpl.
+       unfold p2c_not_selective_assert. simpl. 
+       reflexivity. 
+Defined.
+
+Lemma correct_sg_CS_certs_llex (pS : sg_CS_proofs S eqS bS) (pT : sg_CS_proofs T eqT bT) : 
+    P2C_sg_CS (S * T) (brel_product eqS eqT) 
+                     (bop_llex argT eqS bS bT) 
+                     (sg_CS_llex_proofs S T argT eqS eqT bS bT eqvS eqvT pS pT)
+    =
+    sg_CS_llex_certs (P2C_sg_CS S eqS bS pS) (P2C_sg_CS T eqT bT pT). 
+ Proof. unfold sg_CS_llex_proofs, sg_CS_llex_certs, P2C_sg_CS; simpl. 
+       reflexivity. 
+Defined. 
+
+End Certificates.
+
+Section Combinators.
+
+
+Theorem correct_sg_CI_llex_from_CI_CI (S T : Type) (A : A_sg_CI S) (B : A_sg_CI_with_id T) : 
+  sg_CI_llex_from_CI_CI (A2C_sg_CI S A) (A2C_sg_CI_with_id T B)
+  =
+  A2C_sg_CI (S * T) (A_sg_CI_llex_from_CI_CI S T A B). 
+Proof. unfold sg_CI_llex_from_CI_CI, A_sg_CI_llex_from_CI_CI.
+       unfold A2C_sg_CI, A2C_sg_CI_with_id. 
+       destruct A, B. simpl.
+       rewrite correct_eqv_product.       
+       rewrite correct_check_exists_id_llex.
+       rewrite correct_check_exists_ann_llex.
+       rewrite correct_sg_CI_llex_certs_v1.
+       unfold p2c_exists_id_check. 
+       reflexivity. 
+Qed.
+
+Theorem correct_sg_CI_llex_from_CS_CI (S T : Type) (A : A_sg_CS S) (B : A_sg_CI T) : 
+  sg_CI_llex_from_CS_CI (A2C_sg_CS S A) (A2C_sg_CI T B)
+  =
+  A2C_sg_CI (S * T) (A_sg_CI_llex_from_CS_CI S T A B). 
+Proof. unfold sg_CI_llex_from_CI_CI, A_sg_CI_llex_from_CI_CI, A2C_sg_CI. 
+       destruct A, B. simpl.
+       rewrite <- correct_eqv_product.       
+       rewrite correct_check_exists_id_llex.
+       rewrite correct_check_exists_ann_llex. simpl. 
+       rewrite correct_sg_CI_llex_certs_v2.
+       unfold p2c_exists_id_check. 
+       reflexivity. 
+Qed.
+
+
+Theorem correct_sg_CS_llex_from_CS_CS (S T : Type) (A : A_sg_CS S) (B : A_sg_CS T) : 
+  sg_CS_llex_from_CS_CS (A2C_sg_CS S A) (A2C_sg_CS T B)
+  =
+  A2C_sg_CS (S * T) (A_sg_CS_llex_from_CS_CS S T A B). 
+Proof. unfold sg_CS_llex_from_CS_CS, A_sg_CS_llex_from_CS_CS.
+       unfold A2C_sg_CS. destruct A, B. simpl.
+       rewrite correct_eqv_product.       
+       rewrite correct_check_exists_id_llex.
+       rewrite correct_check_exists_ann_llex.
+       rewrite correct_sg_CS_certs_llex. 
+       reflexivity. 
+Qed.
   
-  Variable S : Type.
-  Variable T : Type.
-  Variable rS : brel S.
-  Variable rT : brel T.
-  Variable wS : S.
-  Variable f : S -> S.    
-  Variable Pf : brel_not_trivial S rS f.
-  Variable wT : T.
-  Variable g : T -> T.      
-  Variable Pg : brel_not_trivial T rT g.  
-  Variable bS : binary_op S.
-  Variable bT : binary_op T.
-  Variable eS : eqv_proofs S rS.
-  Variable eT : eqv_proofs T rT.
-
-
-Lemma correct_sg_CI_certs_llex : ∀ (pS : sg_CS_proofs S rS bS) (pT : sg_CI_proofs T rT bT),
-      sg_CI_certs_llex rS bS wS  
-                           (P2C_sg_CS S rS bS pS) 
-                           (P2C_sg_CI T rT bT pT) 
-      = 
-      P2C_sg_CI (S * T) (brel_product rS rT) 
-                     (bop_lex_left rS bS bT) 
-                     (sg_CI_proofs_llex S T rS rT bS bT wS eS eT pS pT).
-Proof. intros pS pT. 
-       unfold sg_CI_proofs_llex, sg_CI_certs_llex, P2C_sg_CI, P2C_sg_CS; simpl. 
-       rewrite correct_check_selective_llex. 
-       reflexivity. 
-Defined. 
-
-Lemma correct_sg_CS_certs_llex : ∀ (pS : sg_CS_proofs S rS bS) (pT : sg_CS_proofs T rT bT),
-      sg_CS_certs_llex rS bS (P2C_sg_CS S rS bS pS) (P2C_sg_CS T rT bT pT) 
-      = 
-      P2C_sg_CS (S * T) (brel_product rS rT) 
-                     (bop_lex_left rS bS bT) 
-                     (sg_CS_proofs_llex S T rS rT bS bT eS eT pS pT). 
-Proof. intros pS pT. 
-       unfold sg_CS_proofs_llex, sg_CS_certs_llex, P2C_sg_CS; simpl. 
-       reflexivity. 
-Defined. 
-
-
-Lemma correct_sg_C_certs_llex :  ∀(pS : sg_CS_proofs S rS bS)  (pT : sg_C_proofs T rT bT),
-        
-      sg_C_certs_llex rS bS wS f wT g (P2C_sg_CS S rS bS pS) (P2C_sg_C T rT bT pT) 
-      = 
-      P2C_sg_C (S * T) (brel_product rS rT) 
-                       (bop_lex_left rS bS bT) 
-                       (sg_C_proofs_llex S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
-Proof. intros pS pT. 
-       unfold sg_C_proofs_llex, sg_C_certs_llex, P2C_sg_C, P2C_sg_CS; simpl. 
-       rewrite correct_check_selective_llex.
-       rewrite correct_check_idempotent_llex.        
-       reflexivity. 
-Defined. 
-
-
-Lemma correct_asg_certs_llex :  ∀(pS : sg_CS_proofs S rS bS)  (pT : asg_proofs T rT bT),
-        
-      asg_certs_llex rS bS wS (P2C_sg_CS S rS bS pS) (P2C_asg T rT bT pT) 
-      = 
-      P2C_asg (S * T) (brel_product rS rT) 
-                      (bop_lex_left rS bS bT) 
-                      (asg_proofs_llex S T rS rT bS bT wS eS eT pS pT). 
-Proof. intros pS pT. 
-       unfold asg_proofs_llex, asg_certs_llex, P2C_asg, P2C_sg_CS; simpl. 
-       rewrite correct_check_selective_llex.
-       rewrite correct_check_idempotent_llex.        
-       reflexivity. 
-Defined. 
-
-
-
-Lemma correct_sg_certs_llex : ∀ (pS : sg_CS_proofs S rS bS) (pT : sg_proofs T rT bT),
-
-      sg_certs_llex rS bS wS f wT g (P2C_sg_CS S rS bS pS) (P2C_sg T rT bT pT) 
-      = 
-      P2C_sg (S * T) (brel_product rS rT) 
-                     (bop_lex_left rS bS bT) 
-                     (sg_proofs_llex S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
-Proof. intros pS pT.
-       unfold sg_certs_llex, sg_proofs_llex, P2C_sg; simpl. 
-       rewrite correct_check_selective_llex.
-       rewrite correct_check_idempotent_llex.                      
-       rewrite correct_check_commutative_llex.
-       reflexivity. 
-Defined. 
-
-End ProofsCorrect.   
-
-
-Theorem correct_sg_llex :
-      ∀ (S T : Type) (sgS : A_sg_CS S) (sgT : A_sg T), 
-         sg_llex (A2C_sg_CS S sgS) (A2C_sg T sgT) 
-         = 
-         A2C_sg (S * T) (A_sg_llex S T sgS sgT). 
-Proof. intros S T sgS sgT. 
-       unfold sg_llex, A2C_sg, A2C_sg_CS; simpl. 
-       rewrite <- correct_sg_certs_llex. 
-       rewrite correct_eqv_product.
-       rewrite correct_check_exists_id_llex.  
-       rewrite correct_check_exists_ann_llex. 
-       reflexivity. 
-Qed. 
-
-
-Theorem correct_sg_C_llex :
-      ∀ (S T : Type) (sgS : A_sg_CS S) (sgT : A_sg_C T), 
-         sg_C_llex (A2C_sg_CS S sgS) (A2C_sg_C T sgT) 
-         = 
-         A2C_sg_C (S * T) (A_sg_C_llex S T sgS sgT). 
-Proof. intros S T sgS sgT. 
-       unfold sg_C_llex, A2C_sg_C, A2C_sg_CS; simpl. 
-       rewrite correct_eqv_product. 
-       rewrite <- correct_sg_C_certs_llex.
-       rewrite correct_check_exists_id_llex.  
-       rewrite correct_check_exists_ann_llex.        
-       reflexivity. 
-Qed. 
-
-Theorem correct_sg_CS_llex :
-      ∀ (S T : Type) (sgS : A_sg_CS S) (sgT : A_sg_CS T), 
-         sg_CS_llex (A2C_sg_CS S sgS) (A2C_sg_CS T sgT) 
-         = 
-         A2C_sg_CS (S * T) (A_sg_CS_llex S T sgS sgT). 
-Proof. intros S T sgS sgT. 
-       unfold sg_CS_llex, A2C_sg_CS; simpl. 
-       rewrite correct_eqv_product. 
-       rewrite <- correct_sg_CS_certs_llex.
-       rewrite correct_check_exists_id_llex.  
-       rewrite correct_check_exists_ann_llex.        
-       reflexivity. 
-Qed. 
-
-Theorem correct_sg_CI_llex :
-      ∀ (S T : Type) (sgS : A_sg_CS S) (sgT : A_sg_CI T), 
-         sg_CI_llex (A2C_sg_CS S sgS) (A2C_sg_CI T sgT) 
-         = 
-         A2C_sg_CI (S * T) (A_sg_CI_llex S T sgS sgT). 
-Proof. intros S T sgS sgT. destruct sgS; destruct sgT. 
-       unfold sg_CI_llex, A2C_sg_CI, A2C_sg_CS; simpl. 
-       rewrite correct_eqv_product. 
-       rewrite <- correct_sg_CI_certs_llex.
-       rewrite correct_check_exists_id_llex.  
-       rewrite correct_check_exists_ann_llex. 
-       reflexivity. 
-Qed. 
-
- 
-End Verify.   
+End Combinators.   
+End Verify.
   
-***************************************)
+(***************************************)
 Close Scope brel_product_scope.
-Close Scope bop_lex_left_scope.
+Close Scope bop_llex_scope.
+

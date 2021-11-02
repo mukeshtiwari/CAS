@@ -75,6 +75,7 @@ CAS=\
    coq/po/lte_nat.v \
    coq/po/length.v \
    coq/po/subset.v \
+   coq/po/minset_subset.v \
    coq/po/lex.v \
    coq/po/dual.v \
    coq/tr/properties.v \
@@ -92,7 +93,7 @@ CAS=\
    coq/bs/dual.v \
    coq/bs/and_or.v \
    coq/bs/or_and.v \
-   coq/bs/product_product.v \
+   coq/bs/product.v \
    coq/bs/llex_product.v \
    coq/bs/left_sum.v \
    coq/bs/right_sum.v \

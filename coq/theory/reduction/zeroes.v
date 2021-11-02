@@ -12,7 +12,7 @@ Require Import CAS.coq.sg.theory.
 Require Import CAS.coq.sg.product.
 
 Require Import CAS.coq.bs.properties. 
-Require Import CAS.coq.bs.product_product.
+Require Import CAS.coq.bs.product.
 
 Require Import CAS.coq.theory.reduction.representations.
 Require Import CAS.coq.theory.reduction.full. 

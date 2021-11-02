@@ -468,19 +468,21 @@ let symS := A_eqv_symmetric _ _ eqvS in
 ; A_sg_congruence    := bop_add_id_congruence S rS c bS symS (A_sg_congruence _ _ _ sgS) 
 ; A_sg_commutative_d := bop_add_id_commutative_decide S rS c bS refS (A_sg_commutative_d _ _ _ sgS)
 ; A_sg_selective_d   := bop_add_id_selective_decide S rS c bS refS (A_sg_selective_d _ _ _ sgS)
-; A_sg_is_left_d     := inr _ (bop_add_id_not_is_left S rS c bS s)
-; A_sg_is_right_d    := inr _ (bop_add_id_not_is_right S rS c bS s)
 ; A_sg_idempotent_d  := bop_add_id_idempotent_decide S rS c bS (A_sg_idempotent_d _ _ _ sgS)
+
 ; A_sg_left_cancel_d    :=  bop_add_id_left_cancellative_decide S rS c bS symS 
                                (A_sg_anti_left_d _ _ _ sgS) 
                                (A_sg_left_cancel_d _ _ _ sgS) 
 ; A_sg_right_cancel_d   := bop_add_id_right_cancellative_decide S rS c bS symS 
                                (A_sg_anti_right_d _ _ _ sgS) 
                                (A_sg_right_cancel_d _ _ _ sgS) 
+
 ; A_sg_left_constant_d  := inr _ (bop_add_id_not_left_constant S rS c bS s f Pf)
 ; A_sg_right_constant_d := inr _ (bop_add_id_not_right_constant S rS c bS s f Pf) 
 ; A_sg_anti_left_d      := inr _ (bop_add_id_not_anti_left S rS c bS s refS)
 ; A_sg_anti_right_d     := inr _ (bop_add_id_not_anti_right S rS c bS s refS)
+; A_sg_is_left_d        := inr _ (bop_add_id_not_is_left S rS c bS s)
+; A_sg_is_right_d       := inr _ (bop_add_id_not_is_right S rS c bS s)                               
 |}. 
 
 
@@ -518,7 +520,8 @@ let symS := A_eqv_symmetric _ _ eqvS in
 ; A_sg_CI_congruence         := bop_add_id_congruence S rS c bS symS (A_sg_CI_congruence _ _ _ sgS) 
 ; A_sg_CI_commutative        := bop_add_id_commutative S rS c bS refS (A_sg_CI_commutative _ _ _ sgS)
 ; A_sg_CI_idempotent         := bop_add_id_idempotent S rS c bS (A_sg_CI_idempotent _ _ _ sgS)
-; A_sg_CI_selective_d        := bop_add_id_selective_decide S rS c bS refS (A_sg_CI_selective_d _ _ _ sgS)
+(*; A_sg_CI_selective_d        := bop_add_id_selective_decide S rS c bS refS (A_sg_CI_selective_d _ _ _ sgS) *) 
+; A_sg_CI_not_selective      := bop_add_id_not_selective S rS c bS (A_sg_CI_not_selective _ _ _ sgS)
 |}. 
 
 Definition sg_CS_proofs_add_id : 
@@ -795,7 +798,12 @@ Definition sg_CI_certs_add_id : ∀ {S : Type},  cas_constant -> sg_CI_certifica
 ; sg_CI_congruence         := Assert_Bop_Congruence  
 ; sg_CI_commutative        := Assert_Commutative  
 ; sg_CI_idempotent         := Assert_Idempotent  
-; sg_CI_selective_d        := bop_add_id_selective_check (sg_CI_selective_d sgS)
+(*; sg_CI_selective_d        := bop_add_id_selective_check (sg_CI_selective_d sgS) *) 
+; sg_CI_not_selective      := 
+   match sg_CI_not_selective sgS with 
+   | Assert_Not_Selective (s, t) => 
+        Assert_Not_Selective (S := (with_constant S)) (inr _ s, inr _ t)
+   end
 |}. 
 
 
@@ -1006,7 +1014,8 @@ Lemma correct_sg_CI_certs_add_id : ∀ (s : S) (P : sg_CI_proofs S r b),
                  (sg_CI_proofs_add_id S r c b s Q P). 
 Proof. intros s P. destruct P. destruct Q. 
        unfold sg_CI_certs_add_id, sg_CI_proofs_add_id, P2C_sg_CI; simpl.
-       rewrite bop_add_id_selective_check_correct. 
+(*       rewrite bop_add_id_selective_check_correct. *) 
+       destruct A_sg_CI_not_selective as [[x y] [A B]]. compute. 
        reflexivity. 
 Defined. 
 

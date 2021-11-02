@@ -105,13 +105,14 @@ Proof. apply bops_right_left_absorptive_implies_right_right.
        apply bops_union_intersect_right_left_absorptive; auto. 
 Qed.
 
+(*
 Lemma bops_union_intersect_id_equals_ann : 
   bops_id_equals_ann (finite_set S) (brel_set r) (bop_union r) (bop_intersect r).
 Proof. exists nil. split. 
        apply bop_union_nil_is_id; auto. 
        apply bop_intersect_nil_is_ann; auto. 
 Defined.
-
+*) 
  (* intersect union theorems *)
 
 Lemma bops_intersect_union_left_distributive : 
@@ -190,7 +191,7 @@ Proof. apply bops_right_left_absorptive_implies_right_right.
 Qed. 
 
 
-
+(*
 Lemma bops_intersect_union_id_equals_ann : bops_id_equals_ann  (finite_set S) (brel_set r) (bop_union r) (bop_intersect r).
 Proof. exists nil; split. apply bop_union_nil_is_id; auto. apply bop_intersect_nil_is_ann; auto. Defined. 
 
@@ -204,7 +205,7 @@ Proof. unfold bops_id_equals_ann_decidable. destruct fin_d as [fS | nfs].
        right. unfold bops_not_id_equals_ann. intro X.
               left. apply (bop_intersect_not_exists_id _ r refS symS tranS nfs X); auto.
 Defined.        
-
+*) 
 End Theory.
 
 Section ACAS.
@@ -236,7 +237,7 @@ Definition bounded_proofs_union_intersect (S: Type) :=
   A_bounded_plus_id_is_times_ann := bops_id_equals_ann S eq plus times 
 ; A_bounded_times_id_is_plus_ann := bops_id_equals_ann S eq times plus 
 |}.
- *)
+
 
 Definition id_ann_proofs_union_intersect (S : Type) (eqv: A_eqv S) := 
 let eqvP := A_eqv_proofs S eqv in
@@ -269,12 +270,12 @@ Definition A_distributive_prelattice_union_intersect : ∀ (S : Type),  A_eqv S 
 ; A_distributive_prelattice_join          := bop_union eq
 ; A_distributive_prelattice_meet          := bop_intersect eq
 ; A_distributive_prelattice_id_ann_proofs := id_ann_proofs_union_intersect S eqv                                                          
-; A_distributive_prelattice_join_proofs   := sg_CI_proofs_union S eqv
+; A_distributive_prelattice_join_proofs   := sg_CI_proofs_union eqv
 ; A_distributive_prelattice_meet_proofs   := sg_CI_proofs_intersect S eqv
 ; A_distributive_prelattice_proofs        := distributive_lattice_proofs_union_intersect S eq eqP
 ; A_distributive_prelattice_ast           := Ast_union_intersect (A_eqv_ast S eqv) 
 |}.
-
+ *)
 
 End ACAS.
 
@@ -288,6 +289,7 @@ Definition distributive_lattice_certs_union_intersect : ∀ (S : Type), @distrib
    ; distributive_lattice_absorptive        := Assert_Left_Left_Absorptive
   |}.
 
+(*
 Definition  check_times_id_is_plus_ann_union_intersect {S : Type} (d : @check_is_finite S)
   := match d with
      | Certify_Is_Finite fS  => Certify_Times_Id_Equals_Plus_Ann  (fS tt)
@@ -322,7 +324,7 @@ Definition distributive_prelattice_union_intersect : ∀ {S : Type},  @eqv S -> 
 ; distributive_prelattice_ast          := Ast_union_intersect (eqv_ast eqv) 
 |}.
   
-
+*) 
 End CAS.
 
 Section Verify.
@@ -334,7 +336,7 @@ Lemma correct_proofs_union_intersect (S : Type) (eqv : A_eqv S) :
                            (distributive_lattice_proofs_union_intersect S (A_eqv_eq S eqv) (A_eqv_proofs S eqv)). 
 Proof. compute. reflexivity. Qed.
 
-
+(*
 Lemma correct_id_ann_proofs_union_intersect (S : Type) (eqv : A_eqv S) :
   id_ann_certs_union_intersect (A2C_eqv S eqv)
   = 
@@ -343,6 +345,7 @@ Lemma correct_id_ann_proofs_union_intersect (S : Type) (eqv : A_eqv S) :
 Proof. destruct eqv; unfold id_ann_certs_union_intersect, id_ann_proofs_union_intersect, P2C_id_ann, A2C_eqv; simpl. 
        destruct A_eqv_finite_d as [[f fS] | nfS]; simpl; reflexivity. 
 Qed. 
+
 Theorem correct_distributive_prelattice_union_intersect : ∀ (S : Type) (eqv: A_eqv S), 
     distributive_prelattice_union_intersect (A2C_eqv S eqv) 
     =
@@ -356,7 +359,7 @@ Proof. intros S eqv.
        rewrite <- correct_id_ann_proofs_union_intersect.
        reflexivity.
 Qed. 
-  
+*)   
  
 End Verify.   
 

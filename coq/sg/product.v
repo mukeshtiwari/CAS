@@ -1184,54 +1184,11 @@ let commT := A_sg_CI_commutative _ _ _ sgT in
 ; A_sg_CI_congruence    := bop_product_congruence S T rS rT bS bT (A_sg_CI_congruence _ _ _ sgS) (A_sg_CI_congruence _ _ _ sgT) 
 ; A_sg_CI_commutative   := bop_product_commutative S T rS rT bS bT (A_sg_CI_commutative _ _ _ sgS) (A_sg_CI_commutative _ _ _ sgT) 
 ; A_sg_CI_idempotent    := bop_product_idempotent S T rS rT bS bT (A_sg_CI_idempotent _ _ _ sgS) (A_sg_CI_idempotent _ _ _ sgT) 
-; A_sg_CI_selective_d   := inr (bop_product_selective_decide_commutative_case S T rS rT bS bT s f Pf symS transS t g Pg symT transT commS commT) 
+(*; A_sg_CI_selective_d   := inr (bop_product_selective_decide_commutative_case S T rS rT bS bT s f Pf symS transS t g Pg symT transT commS commT) *)
+; A_sg_CI_not_selective := bop_product_selective_decide_commutative_case S T rS rT bS bT s f Pf symS transS t g Pg symT transT commS commT
 |}. 
 
 
-Definition sg_CI_to_CINS_proofs_product : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
-     brel_not_trivial S rS f -> brel_not_trivial T rT g -> 
-     eqv_proofs S rS -> eqv_proofs T rT -> sg_CI_proofs S rS bS -> sg_CI_proofs T rT bT -> 
-        sg_CINS_proofs (S * T) (brel_product rS rT) (bop_product bS bT)
-:= λ S T rS rT bS bT s f t g Pf Pg eqvS eqvT sgS sgT,
-let symS   := A_eqv_symmetric _ _ eqvS in
-let refS   := A_eqv_reflexive _ _ eqvS in 
-let transS := A_eqv_transitive _ _ eqvS in   
-let symT   := A_eqv_symmetric _ _ eqvT in
-let refT   := A_eqv_reflexive _ _ eqvT in 
-let transT := A_eqv_transitive _ _ eqvT in
-let commS := A_sg_CI_commutative _ _ _ sgS in
-let commT := A_sg_CI_commutative _ _ _ sgT in 
-{|
-  A_sg_CINS_associative   := bop_product_associative S T rS rT bS bT (A_sg_CI_associative _ _ _ sgS) (A_sg_CI_associative _ _ _ sgT) 
-; A_sg_CINS_congruence    := bop_product_congruence S T rS rT bS bT (A_sg_CI_congruence _ _ _ sgS) (A_sg_CI_congruence _ _ _ sgT) 
-; A_sg_CINS_commutative   := bop_product_commutative S T rS rT bS bT (A_sg_CI_commutative _ _ _ sgS) (A_sg_CI_commutative _ _ _ sgT) 
-; A_sg_CINS_idempotent    := bop_product_idempotent S T rS rT bS bT (A_sg_CI_idempotent _ _ _ sgS) (A_sg_CI_idempotent _ _ _ sgT) 
-; A_sg_CINS_not_selective := bop_product_selective_decide_commutative_case S T rS rT bS bT s f Pf symS transS t g Pg symT transT commS commT
-|}. 
-
-
-Definition sg_CINS_proofs_product : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
-     brel_not_trivial S rS f -> brel_not_trivial T rT g -> 
-     eqv_proofs S rS -> eqv_proofs T rT -> sg_CINS_proofs S rS bS -> sg_CINS_proofs T rT bT -> 
-        sg_CINS_proofs (S * T) (brel_product rS rT) (bop_product bS bT)
-:= λ S T rS rT bS bT s f t g Pf Pg eqvS eqvT sgS sgT,
-let symS   := A_eqv_symmetric _ _ eqvS in
-let refS   := A_eqv_reflexive _ _ eqvS in 
-let transS := A_eqv_transitive _ _ eqvS in   
-let symT   := A_eqv_symmetric _ _ eqvT in
-let refT   := A_eqv_reflexive _ _ eqvT in 
-let transT := A_eqv_transitive _ _ eqvT in
-let commS := A_sg_CINS_commutative _ _ _ sgS in
-let commT := A_sg_CINS_commutative _ _ _ sgT in 
-{|
-  A_sg_CINS_associative   := bop_product_associative S T rS rT bS bT (A_sg_CINS_associative _ _ _ sgS) (A_sg_CINS_associative _ _ _ sgT) 
-; A_sg_CINS_congruence    := bop_product_congruence S T rS rT bS bT (A_sg_CINS_congruence _ _ _ sgS) (A_sg_CINS_congruence _ _ _ sgT) 
-; A_sg_CINS_commutative   := bop_product_commutative S T rS rT bS bT (A_sg_CINS_commutative _ _ _ sgS) (A_sg_CINS_commutative _ _ _ sgT) 
-; A_sg_CINS_idempotent    := bop_product_idempotent S T rS rT bS bT (A_sg_CINS_idempotent _ _ _ sgS) (A_sg_CINS_idempotent _ _ _ sgT) 
-; A_sg_CINS_not_selective := bop_product_selective_decide_commutative_case S T rS rT bS bT s f Pf symS transS t g Pg symT transT commS commT
-|}. 
 
 
 
@@ -1757,34 +1714,10 @@ Definition sg_CI_certs_product : ∀ {S T : Type},  (brel S) -> (brel T) -> (bin
 ; sg_CI_congruence    := Assert_Bop_Congruence   
 ; sg_CI_commutative   := Assert_Commutative   
 ; sg_CI_idempotent    := Assert_Idempotent   
-; sg_CI_selective_d   := Certify_Not_Selective (cef_commutative_product S T rS rT bS bT s f t g)
+(*; sg_CI_selective_d   := Certify_Not_Selective (cef_commutative_product S T rS rT bS bT s f t g)*)
+; sg_CI_not_selective  := Assert_Not_Selective (cef_commutative_product S T rS rT bS bT s f t g)
 |}.
 
-
-Definition sg_CI_to_CINS_certs_product : ∀ {S T : Type},  (brel S) -> (brel T) -> (binary_op S) -> (binary_op T) ->
-                                                  S -> (S -> S) -> T -> (T -> T) -> 
-                                                  sg_CI_certificates (S := S) -> sg_CI_certificates (S := T) -> sg_CINS_certificates (S := (S * T)) 
-:= λ {S T} rS rT bS bT s f t g cS cT,  
-{|
-  sg_CINS_associative   := Assert_Associative   
-; sg_CINS_congruence    := Assert_Bop_Congruence   
-; sg_CINS_commutative   := Assert_Commutative   
-; sg_CINS_idempotent    := Assert_Idempotent   
-; sg_CINS_not_selective := Assert_Not_Selective (cef_commutative_product S T rS rT bS bT s f t g)
-|}.
-
-
-Definition sg_CINS_certs_product : ∀ {S T : Type},  (brel S) -> (brel T) -> (binary_op S) -> (binary_op T) ->
-                                                  S -> (S -> S) -> T -> (T -> T) -> 
-                                                  sg_CINS_certificates (S := S) -> sg_CINS_certificates (S := T) -> sg_CINS_certificates (S := (S * T)) 
-:= λ {S T} rS rT bS bT s f t g cS cT,  
-{|
-  sg_CINS_associative   := Assert_Associative   
-; sg_CINS_congruence    := Assert_Bop_Congruence   
-; sg_CINS_commutative   := Assert_Commutative   
-; sg_CINS_idempotent    := Assert_Idempotent   
-; sg_CINS_not_selective  := Assert_Not_Selective (cef_commutative_product S T rS rT bS bT s f t g)
-|}.
 
 
 Definition sg_product : ∀ {S T : Type},  @sg S -> @sg T -> @sg (S * T)
@@ -2159,31 +2092,6 @@ Proof. intros pS pT.
        unfold sg_CI_proofs_product, sg_CI_certs_product, P2C_sg_CI; simpl; auto. 
 Defined. 
 
-
-Lemma correct_sg_CINS_certs_product : 
-      ∀ (pS : sg_CINS_proofs S rS bS) (pT : sg_CINS_proofs T rT bT),
-        
-      sg_CINS_certs_product rS rT bS bT wS f wT g (P2C_sg_CINS S rS bS pS) (P2C_sg_CINS T rT bT pT) 
-      = 
-      P2C_sg_CINS (S * T) (brel_product rS rT) 
-                        (bop_product bS bT) 
-                        (sg_CINS_proofs_product S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
-Proof. intros pS pT. 
-       unfold sg_CINS_proofs_product, sg_CINS_certs_product, P2C_sg_CINS; simpl; auto. 
-Defined. 
-
-
-Lemma correct_sg_CI_to_CINS_certs_product : 
-      ∀ (pS : sg_CI_proofs S rS bS) (pT : sg_CI_proofs T rT bT),
-        
-      sg_CI_to_CINS_certs_product rS rT bS bT wS f wT g (P2C_sg_CI S rS bS pS) (P2C_sg_CI T rT bT pT) 
-      = 
-      P2C_sg_CINS (S * T) (brel_product rS rT) 
-                        (bop_product bS bT) 
-                        (sg_CI_to_CINS_proofs_product S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
-Proof. intros pS pT. 
-       unfold sg_CI_to_CINS_proofs_product, sg_CI_to_CINS_certs_product, P2C_sg_CINS, P2C_sg_CI; simpl; auto. 
-Defined. 
 
 
 Lemma correct_sg_C_certs_product : 

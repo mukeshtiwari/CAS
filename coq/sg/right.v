@@ -76,17 +76,18 @@ let rS   := A_eqv_eq S eqvS in
 let Pf   := A_eqv_not_trivial S eqvS in
 let refS := A_eqv_reflexive _ _ eqvP in 
 {| 
-  A_sg_associative   := bop_right_associative S rS refS
-; A_sg_congruence    := bop_right_congruence S rS 
-; A_sg_commutative_d := inr _ (bop_right_not_commutative S rS s f Pf) 
-; A_sg_selective_d   := inl _ (bop_right_selective S rS refS) 
-; A_sg_is_left_d     := inr _ (bop_right_not_is_left S rS s f Pf) 
-; A_sg_is_right_d    := inl _ (bop_right_is_right S rS refS) 
-; A_sg_idempotent_d  := inl _ (bop_right_idempotent S rS refS) 
-; A_sg_left_cancel_d    := inl _ (bop_right_left_cancellative S rS) 
+  A_sg_associative        := bop_right_associative S rS refS
+  ; A_sg_congruence       := bop_right_congruence S rS
+  ; A_sg_selective_d      := inl _ (bop_right_selective S rS refS)
+  ; A_sg_is_right_d       := inl _ (bop_right_is_right S rS refS) 
+  ; A_sg_idempotent_d     := inl _ (bop_right_idempotent S rS refS)
+  ; A_sg_left_cancel_d    := inl _ (bop_right_left_cancellative S rS)
+  ; A_sg_right_constant_d := inl _ (bop_right_right_constant S rS refS)
+                                 
+; A_sg_commutative_d    := inr _ (bop_right_not_commutative S rS s f Pf) 
+; A_sg_is_left_d        := inr _ (bop_right_not_is_left S rS s f Pf) 
 ; A_sg_right_cancel_d   := inr _ (bop_right_not_right_cancellative S rS s f Pf refS)
 ; A_sg_left_constant_d  := inr _ (bop_right_not_left_constant S rS s f Pf)
-; A_sg_right_constant_d := inl _ (bop_right_right_constant S rS refS)
 ; A_sg_anti_left_d      := inr _ (bop_right_not_anti_left S rS s refS)
 ; A_sg_anti_right_d     := inr _ (bop_right_not_anti_right S rS s refS) 
 |}. 

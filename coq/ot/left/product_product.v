@@ -344,8 +344,8 @@ let topT_d := A_top_bottom_exists_top_d _ _ _ PT in
 let botS_d := A_top_bottom_exists_bottom_d _ _ _ PS in
 let botT_d := A_top_bottom_exists_bottom_d _ _ _ PT in                                  
 {|
-  A_top_bottom_exists_top_d       := ord_product_exists_top_decide S T eqS eqT lteS lteT lteReflS lteReflT refS topS_d topT_d 
-; A_top_bottom_exists_bottom_d    := ord_product_exists_bottom_decide S T eqS eqT lteS lteT lteReflS lteReflT refS botS_d botT_d 
+  A_top_bottom_exists_top_d       := ord_product_exists_qo_top_decide S T eqS eqT lteS lteT lteReflS lteReflT refS topS_d topT_d 
+; A_top_bottom_exists_bottom_d    := ord_product_exists_qo_bottom_decide S T eqS eqT lteS lteT lteReflS lteReflT refS botS_d botT_d 
 |}.
 
 
@@ -431,8 +431,8 @@ let topT_d := A_with_bottom_exists_top_d _ _ _ PT in
 let botS   := A_with_bottom_exists _ _ _ PS in
 let botT   := A_with_bottom_exists _ _ _ PT in                                  
 {|
-  A_with_bottom_exists_top_d       := ord_product_exists_top_decide S T eqS eqT lteS lteT lteReflS lteReflT refS topS_d topT_d 
-; A_with_bottom_exists             := ord_product_exists_bottom S T eqS eqT lteS lteT botS botT 
+  A_with_bottom_exists_top_d       := ord_product_exists_qo_top_decide S T eqS eqT lteS lteT lteReflS lteReflT refS topS_d topT_d 
+; A_with_bottom_exists             := ord_product_exists_qo_bottom S T eqS eqT lteS lteT botS botT 
 |}.
 
 

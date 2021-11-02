@@ -32,7 +32,7 @@ Section Theory.
 Notation "a [+ann] b" := (bop_add_ann b a)       (at level 15).
 Notation "a [+id] b"  := (bop_add_id b a)       (at level 15).
   
-
+(*
 Lemma bops_add_ann_add_id_id_equals_ann :    
       bops_id_equals_ann S r b1 b2 -> bops_id_equals_ann (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
 Proof. unfold bops_id_equals_ann. 
@@ -54,7 +54,7 @@ Proof. unfold bops_not_id_equals_ann. intros H [cn | s ].
        right. exists (inr _ s''). compute. rewrite L. left. reflexivity. 
        right. exists (inr _ s''). compute. rewrite R. right. reflexivity. 
 Defined.    
-
+*) 
 
 Lemma bops_add_ann_add_id_left_monotone  :
      bop_idempotent S r b1 ->
@@ -460,7 +460,7 @@ Definition bops_add_one_right_right_absorptive_decide :
    | inr nlaS => inr _ (bops_add_ann_add_id_not_right_right_absorptive_v2 nlaS)
    end.
 
-
+(*
 Definition bops_add_one_id_equals_ann_decide :
      bops_id_equals_ann_decidable S r b1 b2 -> 
         bops_id_equals_ann_decidable (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2) 
@@ -469,7 +469,7 @@ Definition bops_add_one_id_equals_ann_decide :
    | inl pS  => inl _ (bops_add_ann_add_id_id_equals_ann pS)
    | inr npS => inr _ (bops_add_ann_add_id_not_id_equals_ann npS)
    end. 
-
+*) 
 End Theory.
 
 Section ACAS.
@@ -525,6 +525,7 @@ Definition bs_proofs_add_one :
         (A_bs_right_right_absorptive_d S rS plusS timesS pS)
 |}.
 
+(*
 Definition id_ann_proofs_add_one : 
   ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S) (s : S), 
      eqv_proofs S rS -> 
@@ -547,9 +548,9 @@ let refS := A_eqv_reflexive S rS eqvS in
 ; A_id_ann_times_id_is_plus_ann_d :=  
      inl _ (bops_add_id_add_ann_id_equals_ann S rS c timesS plusS (A_eqv_reflexive S rS eqvS))
 |}.
+*) 
 
-
-
+(*
 Definition A_bs_add_one : ∀ (S : Type),  A_bs S -> cas_constant -> A_bs (with_constant S) 
 := λ S bsS c,
 let eqvS  := A_bs_eqv S bsS in
@@ -572,8 +573,9 @@ let tproofs := A_bs_times_proofs S bsS in
    ; A_bs_proofs       := bs_proofs_add_one S rS c plus times s peqvS pproofs (A_bs_proofs S bsS)
    ; A_bs_ast          := Ast_bs_add_one (c, A_bs_ast S bsS)
 |}.
+*) 
 
-
+(*
 Definition path_algebra_proofs_add_one : 
   ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S) (s : S), 
      eqv_proofs S rS -> 
@@ -629,8 +631,8 @@ let refS := A_eqv_reflexive S rS eqvS in
       (A_id_ann_plus_id_is_times_ann_d S rS plusS timesS pS)
 ; A_with_one_times_id_is_plus_ann := bops_add_id_add_ann_id_equals_ann S rS c timesS plusS (A_eqv_reflexive S rS eqvS)
 |}.
-
-
+*) 
+(*
 Definition A_add_one_to_pre_path_algebra : ∀ (S : Type),  A_pre_path_algebra_NS S -> cas_constant -> A_pre_path_algebra_with_one (with_constant S) 
 := λ S bsS c,
 let eqvS  := A_pre_path_algebra_NS_eqv S bsS in
@@ -653,7 +655,7 @@ let tproofs := A_pre_path_algebra_NS_times_proofs S bsS in
    ; A_pre_path_algebra_with_one_proofs       := path_algebra_proofs_add_one S rS c plus times s peqvS pproofs (A_pre_path_algebra_NS_proofs S bsS)
    ; A_pre_path_algebra_with_one_ast          := Ast_bs_add_one (c, A_pre_path_algebra_NS_ast S bsS) (*FIX*)
 |}.
-
+*)
 
 
 
@@ -999,7 +1001,7 @@ Definition bops_add_one_right_right_absorptive_check :
      end 
    | Certify_Not_Right_Right_Absorptive (s1, s2) => Certify_Not_Right_Right_Absorptive (inr _ s1, inr _ s2)
    end.
-
+(*
 Definition bops_plus_id_equals_times_ann_check : 
    ∀ {S : Type}  (c : cas_constant),
      @check_plus_id_equals_times_ann S -> @check_plus_id_equals_times_ann (with_constant S)
@@ -1008,7 +1010,7 @@ Definition bops_plus_id_equals_times_ann_check :
   | Certify_Plus_Id_Equals_Times_Ann s   => Certify_Plus_Id_Equals_Times_Ann  (inr _ s)
   | Certify_Not_Plus_Id_Equals_Times_Ann => Certify_Not_Plus_Id_Equals_Times_Ann  
   end. 
-
+*) 
 Definition bs_certs_add_one : 
   ∀ {S : Type} (c : cas_constant),
      asg_certificates (S := S) -> bs_certificates (S := S) -> bs_certificates (S := (with_constant S))
@@ -1038,6 +1040,7 @@ Definition bs_certs_add_one :
                                       (bs_right_right_absorptive_d pS) 
 |}. 
 
+(*
 Definition id_ann_certs_add_one {S : Type} (c : cas_constant) : 
      @id_ann_certificates S -> @id_ann_certificates (with_constant S) 
 := λ pS,
@@ -1064,7 +1067,7 @@ Definition bs_add_one : ∀ {S : Type}, bs (S := S) -> cas_constant -> bs (S := 
    ; bs_ast         := Ast_bs_add_one (c, bs_ast bsS)
 |}.
 
-
+*) 
 
 
 (* "dual" to code bops_add_zero_left_distributive_check *)
@@ -1138,7 +1141,7 @@ Definition distributive_lattice_add_one : ∀ (S : Type),  @distributive_lattice
  *)
 
 
-
+(*
 Definition path_algebra_certs_add_one (S : Type) : 
      @path_algebra_certs S -> 
         @path_algebra_certs (with_constant S) 
@@ -1162,8 +1165,8 @@ Definition with_one_certs_add_one {S : Type} (c : cas_constant) :
   ; with_one_plus_id_is_times_ann_d := bops_plus_id_equals_times_ann_check c (id_ann_plus_id_is_times_ann_d pS)
   ; with_one_times_id_is_plus_ann   := Assert_Times_Id_Equals_Plus_Ann (inl c) 
 |}.
-
-
+*) 
+(*
 Definition add_one_to_pre_path_algebra {S : Type}:  @pre_path_algebra_NS S -> cas_constant -> @pre_path_algebra_with_one (with_constant S) 
   := λ bsS c,
 let eqvS  := pre_path_algebra_NS_eqv bsS in      
@@ -1183,12 +1186,13 @@ let tcerts := pre_path_algebra_NS_times_certs bsS in
    ; pre_path_algebra_with_one_certs       := path_algebra_certs_add_one S (pre_path_algebra_NS_certs bsS)
    ; pre_path_algebra_with_one_ast         := Ast_bs_add_one (c, pre_path_algebra_NS_ast bsS) (*FIX*)
 |}.
-
+*) 
 
 End CAS.
 
 Section Verify.
 
+(*  
 Lemma bops_add_one_plus_id_equals_times_ann_check_correct : 
 ∀ (S : Type) (c : cas_constant) (rS : brel S) (s : S) (plusS timesS : binary_op S)
   (eqvS : eqv_proofs S rS) 
@@ -1423,7 +1427,8 @@ Lemma correct_path_algebra_certs_add_one (S : Type) (c : cas_constant) (wS : S)
    P2C_path_algebra (with_constant S) (brel_sum brel_constant eq) (bop_add_ann plus c) (bop_add_id times c) 
                                        (path_algebra_proofs_add_one S eq c plus times wS eqvP Q P). 
 Proof. unfold path_algebra_certs_add_one, P2C_path_algebra. reflexivity. Qed. 
-
+*) 
+(*
 Theorem correct_add_one_to_pre_path_algebra (S : Type) (PPA: A_pre_path_algebra_NS S) (c : cas_constant): 
    add_one_to_pre_path_algebra (A2C_pre_path_algebra_NS S PPA) c 
    =
@@ -1436,7 +1441,7 @@ Proof. unfold add_one_to_pre_path_algebra, A_add_one_to_pre_path_algebra, A2C_pr
        rewrite <- correct_path_algebra_certs_add_one.
        reflexivity. 
 Qed. 
-
+*) 
 
 
 

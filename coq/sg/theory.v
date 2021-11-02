@@ -12,6 +12,162 @@ Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.sg.properties.
 
 
+(* 
+
+In addition to properties for identities and annihilators, the semigroup properties, so far 
+are as follows (from structures.v): 
+
+Record sg_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
+{
+(* "root set" required                          *) 
+  A_sg_associative      : bop_associative S eq bop 
+; A_sg_congruence       : bop_congruence S eq bop   
+
+(* "root set" of optional semigroup properties *) 
+; A_sg_commutative_d    : bop_commutative_decidable S eq bop  
+; A_sg_selective_d      : bop_selective_decidable S eq bop  
+; A_sg_idempotent_d     : bop_idempotent_decidable S eq bop  
+
+(* needed to decide selectivity of sg product    *) 
+; A_sg_is_left_d        : bop_is_left_decidable S eq bop  
+; A_sg_is_right_d       : bop_is_right_decidable S eq bop  
+
+(* needed to decide distributivity of (lex, product). For multiplicative operator *) 
+; A_sg_left_cancel_d    : bop_left_cancellative_decidable S eq bop 
+; A_sg_right_cancel_d   : bop_right_cancellative_decidable S eq bop 
+
+(* needed to decide distributivity of (lex, product). For multiplicative operator *) 
+; A_sg_left_constant_d  : bop_left_constant_decidable S eq bop 
+; A_sg_right_constant_d : bop_right_constant_decidable S eq bop 
+
+(* needed to decide absorptivity of (lex, product). For multiplicative operator *) 
+; A_sg_anti_left_d      : bop_anti_left_decidable S eq bop 
+; A_sg_anti_right_d     : bop_anti_right_decidable S eq bop
+
+}. 
+
+Some temporary abbreviations: 
+
+P                 NOT P 
+--------------------------------------------
+N = id             n   (need left/right?)
+A = Ann            a   (need left/right?)
+
+C = Commutative    c
+I = Idempotent     i
+S = Selective      s
+
+LK = cancellative  lk (left)
+RK = cancellative  rk (right) 
+LQ = constant      lq (left)  
+RQ = constant      rq (right) 
+L = is left        l 
+R = is right       r
+Y = anti left      y 
+Z = anti right     z
+
+Call {C, c, I, i, S, s} the "additive properties".  
+The others (not including N and A) are "multiplicative properties". 
+
+We can "sub-class" semigroups by looking at the implications 
+of various combinations of properties. 
+
+Recall: we are assuming all carrier sets are not trivial. 
+
+Below, q alone stands for both lq and rq, k alone for both lk and rk. 
+
+Here is a summary of the implications proved below. 
+
+C          ->   l r
+I          ->         y z 
+CI(S || s) -> k l r q y z     (S || s) means that proof assume selectivity is decidable. 
+NA         -> k l r q y z 
+N          ->   l r q y z 
+A          -> k l r   y z
+
+
+S  -> I 
+i  -> s 
+K  -> a
+K(id || not_id)  -> i 
+LK -> lq
+RK -> rq
+
+
+
+From this we can derive some "natural" semigroup classes. 
+A "D" says that the propery is decidable. 
+
+N A C I S   LK RK LQ RQ L R Y Z        comments 
+-----------------------------------------------------------
+D D D D D   D  D  D  D  D D D D        semigroup
+D A D D D   lk rk D  D  l r y z        semigroup "with zero" (thinking multiplicitively) 
+N D D D D   D  D  lq rq l r y z        monoid 
+N A D D D   kk rk lq rq l r y z        monoid "with zero" 
+D D C I s   kk rk lq rq l r y z        commutative and idempotent semigroup (semi lattice) 
+D D C I S   kk rk lq rq l r y z        commutative and selective semigroup
+
+
+What "types" do base semigroups have? 
+
+                N A C I S   LK RK LQ RQ L R Y Z 
+-----------------------------------------------
+and             N A C I S   lk rk lq rq l r y z 
+or              N A C I S   lk rk lq rq l r y z 
+min             n A C I S   lk rk lq rq l r y z 
+max             N a C I S   lk rk lq rq l r y z 
+union           N D C I s   lk rk lq rq l r y z 
+intersect       D A C I s   lk rk lq rq l r y z 
+times           N A C i s   lk rk lq rq l r y z 
+plus            N a C i s   LK RK lq rq l r y z 
+concat          N a c i s   LK RK lq rq l r y z 
+left            n a c i S   lk RK LQ rq L r y z 
+right           n a c i S   LK rk lq RQ l R y z 
+
+Question : can we think of a (natural) base algebra that is anit-left or anti-right or both? 
+
+Here are the *result types* of the current set of semigroup combinators. 
+A "D" says that the propery is decidable. 
+
+                N A C I S   LK RK LQ RQ L R Y Z 
+-----------------------------------------------
+product         D D D D D   D  D  D  D  D D D D          (note: product is anit-left if either arg is. same for anit-right) 
+add_id          N D D D D   D  D  lq rq l r y z 
+add_ann         D A D D D   lk rk lq rq l r y z 
+left_sum        D D D D D   lk rk lq rq l r y z 
+right_sum       D D D D D   lk rk lq rq l r y z 
+llex            D D D D D   lk rk lq rq l r y z          (general version?) 
+lift            D A D D D   lk rk lq rq l r y z          
+minset_union    N D C I s   lk rk lq rq l r y z    
+minset_lift     D A D ? ?   lk rk lq rq l r y z          (what about pre-order version?)
+
+
+
+
+
+
+Combinators 
+
+CI x CI = CI 
+CI x CS = CI 
+CS x CI = CI 
+CS x CS = CI 
+
+CSNA CINA CSnA CSNa    
+
+CINA x CINA = CINA 
+CSNA x CSNA = CINA 
+CINA x CSNA = CINA 
+CSNA x CINA = CINA 
+
+
+
+
+*) 
+
+
+
+
 
 Section Id_Ann.
 
@@ -171,176 +327,6 @@ Proof. intros S r u b symS transS comm_b cong_u. unfold uop_bop_left_invariant, 
        assert(B := I_r (u s) t). 
        assert(T := transS _ _ _ A B). assumption. 
 Defined. 
-
-
-
-(*
-
-          P                   
-    ∀ x, P(x) = true     
-
-
-       not_P                   not_anti_P 
-    {x & P(x) = false }    {x & P(x) = true } 
-
-                                anti_P                
-                           ∀ x, P(x) = false    
-
-
-Definition bop_is_left (S : Type) (r : brel S) (b : binary_op S) 
-    := ∀ s t : S, r (b s t) s = true. 
-
-Definition bop_not_is_left (S : Type) (r : brel S) (b : binary_op S) 
-    := { z : S * S & match z with (s, t) =>  r (b s t) s = false end }. 
-
-Definition bop_anti_left (S : Type) (r : brel S) (b : binary_op S) := 
-    ∀ (s t : S), r s (b s t) = false. 
-
-Definition bop_not_anti_left (S : Type) (r : brel S) (b : binary_op S) 
-   := { z : S * S & match z with (s, t) => r s (b s t) = true end }. 
-
-
-LC(s, t, u) = r (b s t) (b s u) = true. 
-
-Definition bop_left_constant (S : Type) (r : brel S) (b : binary_op S)
-    := ∀ s t u : S, r (b s t) (b s u) = true. 
-
-Definition bop_not_left_constant (S : Type) (r : brel S) (b : binary_op S)
-   := { z : S * (S * S) & match z with (s, (t, u)) => r (b s t) (b s u) = false  end }. 
-
-
-
-LK(s, t, u) == LC(s, t, u) -> r t u = true.
-
-Definition bop_left_cancellative (S : Type) (r : brel S) (b : binary_op S)
-    := ∀ s t u : S, r (b s t) (b s u) = true -> r t u = true.
-
-Definition bop_not_left_cancellative (S : Type) (r : brel S) (b : binary_op S)
-   := { z : S * (S * S) & match z with (s, (t, u)) => (r (b s t) (b s u) = true) * (r t u = false) end }. 
-
-
-*) 
-
-(* =====================  IMPLICATIONS ===================== 
-
-
-[
-
-
- 1) No-id No-ann 
-    1.1) Comm 
-         1.1.1) Idempotent 
-                1.1.1.1) Selective        [MAX] 
-                1.1.1.2) not Selective 
-         1.1.2) not Idempotent 
-    1.2) not-Comm                         [LEFT, RIGHT]
- 2) No-id ann 
-    2.1) Comm 
-         2.1.1) Idempotent 
-                2.1.1.1) Selective         [MIN] 
-                2.1.1.2) not Selective 
-         2.1.2) not Idempotent 
-    2.2) not-Comm 
- 3) id No-ann 
-    3.1) Comm 
-         3.1.1) Idempotent 
-                3.1.1.1) Selective 
-                3.1.1.2) not Selective 
-         3.1.2) not Idempotent            [PLUS] 
-    3.2) not-Comm                         [CONCAT] 
- 4) id ann
-    4.1) Comm 
-         4.1.1) Idempotent 
-                4.1.1.1) Selective        [AND, OR] 
-                4.1.1.2) not Selective    [UNION+ANN, INTERSECT+ID]
-         4.1.2) not Idempotent            [TIMES] 
-    4.2) not-Comm 
-
-
- 1) Comm
-    1.1) Idempotent 
-    1.2) not-Idempotent
- 2) not-Comm 
-    2.1) Idempotent 
-    2.2) not-Idempotent
-
-
-
-Summary of implications 
-                   NOT 
-C = Commutative    c
-I = Idempotent     i
-S = Selective      s
-N = id             n   (left/right?)
-A = Ann            a   (left/right?)
-K = cancellative   k   (left/right)
-L = is left        l 
-R = is right       r
-Q = constant       q   (left/right)
-Y = anti left      y 
-Z = anti right     z
-
-
-I  ->         y z 
-S  -> I 
-i  -> s 
-K  -> a
-K(id || not_id)  -> i 
-lK -> lq
-rK -> rq
-C  ->   l r
-N  ->   l r q y z 
-A  -> k l r   y z
-
-N A  -> k l r q y z 
-
-
-CI         ->   l r q y z 
-CIs        -> k l r q y z 
-CI(S || s) -> k l r q y z 
-CS         -> k l r q y z 
-
-C(I || i)(S || s) -> 
-   1) _ S -> k l r q y z 
-   2) I s -> k l r q y z 
-   3) i _ -> ? l r ? ? ? 
-SW
-Ci  -> ? l r ? ? ? 
-
-b_k(a,b) = k 
-   b_k : CikQyz
-plus   : CiNK 
-
-
-and    : CSNA
-or     : CSNA 
-min    : CSnA   
-max    : CSNa 
-union+ : CINA 
-inter+ : CINA 
-
-times  : CiNA
-plus   : CiNK 
-concat : cNK  
-left   : L 
-right  : R 
-
-L  -> Scna(lk)(RK)r(LQ)(rQ)yz 
-R  -> Scna(LK)(rk)l(lq)(RQ)yz 
-
-CI x CI = CI 
-CI x CS = CI 
-CS x CI = CI 
-CS x CS = CI 
-
-CSNA CINA CSnA CSNa    
-
-CINA x CINA = CINA 
-CSNA x CSNA = CINA 
-CINA x CSNA = CINA 
-CSNA x CINA = CINA 
-
-*) 
 
 
 (* I *) 
@@ -907,7 +893,6 @@ Proof. intros S r b s f refS congS Pf [a Pa].
           assumption.        
           assumption.        
 Defined.
-
 
 
 

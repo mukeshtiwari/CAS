@@ -114,6 +114,8 @@ Proof. intros idemT ldS ldT llaT rlaT [s1 | t1] [s2 | t2] [s3 | t3]; compute.
 
  Note: the new properties cannot hold 
  if the additive id is the multiplicative ann. 
+
+ But what about absorption? 
 *)        
 Lemma test_left_left :
   (∀ s1 s2 : S, rS (mulS s1 s2) (addS (mulS s1 s2) s1) = true) →
@@ -451,7 +453,7 @@ match idm_d with
 | inr nidm => inr _ (bop_left_sum_right_sum_not_right_right_absorptive_v1 nidm)
 end. 
 
-
+(*
 Lemma bop_left_sum_right_sum_id_equals_ann :
   bops_id_equals_ann T rT addT mulT →
          bops_id_equals_ann (S + T) (rS [+] rT) (addS <+] addT) (mulS [+> mulT).
@@ -483,6 +485,8 @@ match ia_d with
 | inl ia  => inl _ (bop_left_sum_right_sum_id_equals_ann ia)  
 | inr nia => inr _ (bop_left_sum_right_sum_not_id_equals_ann nia)
 end. 
+
+*) 
 End LeftRight.
 
 Section RightLeft.
@@ -862,6 +866,7 @@ end.
 
 *) 
 
+(*
 Lemma bop_right_sum_left_sum_id_equals_ann :
   bops_id_equals_ann S rS addS mulS →
          bops_id_equals_ann (S + T) (rS [+] rT) (addS [+> addT) (mulS <+] mulT).
@@ -894,7 +899,7 @@ match ia_d with
 | inl ia  => inl _ (bop_right_sum_left_sum_id_equals_ann ia)  
 | inr nia => inr _ (bop_right_sum_left_sum_not_id_equals_ann wS nia)
 end. 
-
+*) 
 
 (*
 Lemma bop_right_sum_left_sum_id_equals_ann_dual :
@@ -1091,6 +1096,7 @@ Definition distributive_lattice_proofs_left_sum :
         )
 |}.
 
+(*
 Definition id_ann_proofs_left_sum (S T : Type) (rS : brel S) (rT : brel T) (s : S) (t : T)
            (eqvS : eqv_proofs S rS)
            (eqvT : eqv_proofs T rT)
@@ -1254,9 +1260,12 @@ let meetT  := A_distributive_lattice_meet T sr2 in
    ; A_distributive_lattice_ast  := Ast_bs_left_sum (A_distributive_lattice_ast S sr1, A_distributive_lattice_ast T sr2)
 |}.
 
-                                   
+*)                                    
 End ACAS.
 
+
+
+(*
 Section CAS.
 
 
@@ -1928,3 +1937,4 @@ let meetT  := distributive_lattice_meet T sr2 in
 
  
 End Verify.   
+*)

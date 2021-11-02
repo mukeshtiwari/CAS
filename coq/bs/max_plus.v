@@ -99,24 +99,6 @@ Proof. exists (2, (1, 1)); compute. reflexivity. Defined.
 
 
 
-Lemma bop_max_plus_not_id_equals_ann : bops_not_id_equals_ann nat brel_eq_nat bop_max bop_plus. 
-Proof. unfold bops_not_id_equals_ann. 
-       unfold bop_not_is_id, bop_not_is_ann.
-       unfold brel_eq_nat, bop_max, bop_plus.
-       intro s. destruct s. right. exists (S 0). left. compute. reflexivity.
-       left. exists 0. right. compute. reflexivity. 
-Defined.
-
-Lemma bop_plus_max_not_id_equals_ann : bops_not_id_equals_ann nat brel_eq_nat bop_plus bop_max. 
-Proof. unfold bops_not_id_equals_ann. 
-       unfold bop_is_id, bop_is_ann. 
-       unfold bop_not_is_id, bop_not_is_ann.
-       unfold brel_eq_nat, bop_max, bop_plus.
-       intro s. destruct s. right. exists (S 0). left. compute. reflexivity.
-       left. exists 0. left. simpl. reflexivity. 
-Defined.
-
-
 (* absorption *) 
 
 Lemma bops_max_plus_not_left_left_absorptive : 
@@ -139,6 +121,12 @@ End Theory.
 
 Section ACAS.
 
+Definition bops_max_plus_id_ann_proofs : id_ann_proofs nat brel_eq_nat bop_max bop_plus := 
+{| 
+  A_id_ann_plus_times_d := Id_Ann_Proof_Id_None _ _ _ _ (bop_max_exists_id, bop_plus_not_exists_ann) 
+; A_id_ann_times_plus_d := Id_Ann_Proof_Id_None _ _ _ _ (bop_plus_exists_id, bop_max_not_exists_ann)
+|}.
+
 
 Definition semiring_proofs_max_plus : semiring_proofs nat brel_eq_nat bop_max bop_plus := 
   {| 
@@ -156,15 +144,7 @@ Definition A_selective_presemiring_max_plus : A_selective_presemiring nat :=
 ; A_selective_presemiring_times        := bop_plus
 ; A_selective_presemiring_plus_proofs  := A_sg_CS_proofs _ A_sg_CS_max
 ; A_selective_presemiring_times_proofs := A_msg_proofs_plus
-; A_selective_presemiring_id_ann_proofs :=
-    {|
-      A_id_ann_exists_plus_id_d       := inl bop_max_exists_id 
-    ; A_id_ann_exists_plus_ann_d      := inr bop_max_not_exists_ann
-    ; A_id_ann_exists_times_id_d      := inl bop_plus_exists_id
-    ; A_id_ann_exists_times_ann_d     := inr bop_plus_not_exists_ann
-    ; A_id_ann_plus_id_is_times_ann_d := inr bop_max_plus_not_id_equals_ann
-    ; A_id_ann_times_id_is_plus_ann_d := inr bop_plus_max_not_id_equals_ann
-    |}
+; A_selective_presemiring_id_ann_proofs := bops_max_plus_id_ann_proofs
 ; A_selective_presemiring_proofs       := semiring_proofs_max_plus
 ; A_selective_presemiring_ast          := Ast_max_plus
 |}.
@@ -172,7 +152,14 @@ Definition A_selective_presemiring_max_plus : A_selective_presemiring nat :=
 End ACAS.
 Section CAS.
 
-Open Scope nat.     
+  Open Scope nat.
+
+Definition bops_max_plus_id_ann_certs : @id_ann_certificates nat :=
+{| 
+  id_ann_plus_times_d := Id_Ann_Cert_Id_None 0
+; id_ann_times_plus_d := Id_Ann_Cert_Id_None 0 
+|}.
+  
 
 Definition semiring_certs_max_plus : @semiring_certificates nat := 
   {| 
@@ -190,15 +177,7 @@ Definition selective_presemiring_max_plus : selective_presemiring (S := nat) :=
 ; selective_presemiring_times       := bop_plus
 ; selective_presemiring_plus_certs  := sg_CS_certs sg_CS_max
 ; selective_presemiring_times_certs := msg_certs_plus
-; selective_presemiring_id_ann_certs :=
-    {|
-      id_ann_exists_plus_id_d       := Certify_Exists_Id 0 
-    ; id_ann_exists_plus_ann_d      := Certify_Not_Exists_Ann 
-    ; id_ann_exists_times_id_d      := Certify_Exists_Id 0 
-    ; id_ann_exists_times_ann_d     := Certify_Not_Exists_Ann 
-    ; id_ann_plus_id_is_times_ann_d := Certify_Not_Plus_Id_Equals_Times_Ann
-    ; id_ann_times_id_is_plus_ann_d := Certify_Not_Times_Id_Equals_Plus_Ann
-    |}
+; selective_presemiring_id_ann_certs := bops_max_plus_id_ann_certs
 ; selective_presemiring_certs       := semiring_certs_max_plus
 ; selective_presemiring_ast         := Ast_max_plus
 |}.
@@ -210,7 +189,6 @@ Section Verify.
 Theorem correct_semiring_max_plus : 
    selective_presemiring_max_plus = A2C_selective_presemiring nat (A_selective_presemiring_max_plus). 
 Proof. compute. reflexivity. Qed. 
-  
- 
+
 End Verify.   
   

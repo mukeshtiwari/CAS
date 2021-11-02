@@ -75,13 +75,14 @@ let Pf := A_eqv_not_trivial S eqvS in
 let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in 
 {| 
   A_msg_associative      := bop_left_associative S rS refS 
-; A_msg_congruence       := bop_left_congruence S rS 
+  ; A_msg_congruence       := bop_left_congruence S rS
+  ; A_msg_is_left_d        := inl _ (bop_left_is_left S rS refS)
+  ; A_msg_right_cancel_d   := inl _ (bop_left_right_cancellative S rS) 
+  ; A_msg_left_constant_d  := inl _ (bop_left_left_constant S rS refS) 
+                                  
 ; A_msg_commutative_d    := inr _ (bop_left_not_commutative S rS s f Pf)
-; A_msg_is_left_d        := inl _ (bop_left_is_left S rS refS)
 ; A_msg_is_right_d       := inr _ (bop_left_not_is_right S rS s f Pf)
 ; A_msg_left_cancel_d    := inr _ (bop_left_not_left_cancellative S rS s f Pf refS)
-; A_msg_right_cancel_d   := inl _ (bop_left_right_cancellative S rS) 
-; A_msg_left_constant_d  := inl _ (bop_left_left_constant S rS refS) 
 ; A_msg_right_constant_d := inr _ (bop_left_not_right_constant S rS s f Pf)
 ; A_msg_anti_left_d      := inr _ (bop_left_not_anti_left S rS s refS) 
 ; A_msg_anti_right_d     := inr _ (bop_left_not_anti_right S rS s refS)

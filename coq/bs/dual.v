@@ -107,12 +107,8 @@ Definition A_distributive_prelattice_dual : ∀ (S : Type), A_distributive_prela
 ; A_distributive_prelattice_id_ann_proofs :=
     let p := A_distributive_prelattice_id_ann_proofs S lat in 
     {|
-        A_id_ann_exists_plus_id_d       := A_id_ann_exists_times_id_d S _ _ _ p 
-      ; A_id_ann_exists_plus_ann_d      := A_id_ann_exists_times_ann_d S _ _ _ p 
-      ; A_id_ann_exists_times_id_d      := A_id_ann_exists_plus_id_d S _ _ _ p 
-      ; A_id_ann_exists_times_ann_d     := A_id_ann_exists_plus_ann_d S _ _ _ p 
-      ; A_id_ann_plus_id_is_times_ann_d := A_id_ann_times_id_is_plus_ann_d S _ _ _ p 
-      ; A_id_ann_times_id_is_plus_ann_d := A_id_ann_plus_id_is_times_ann_d S _ _ _ p
+       A_id_ann_plus_times_d := A_id_ann_times_plus_d _ _ _ _ p 
+     ; A_id_ann_times_plus_d := A_id_ann_plus_times_d _ _ _ _ p 
     |}                                                                            
 ; A_distributive_prelattice_proofs       := distributive_lattice_proofs_dual S
                                              (A_eqv_eq S (A_distributive_prelattice_eqv S lat))
@@ -193,17 +189,11 @@ Definition lattice_certs_dual {S: Type} : @lattice_certificates S  -> @lattice_c
                                   end                                     
 |}. 
 
-Definition bounded_certs_dual : ∀ {S : Type}, @bounded_certificates S -> @bounded_certificates S
-  := λ {S} c,
-    match bounded_plus_id_is_times_ann c, 
-          bounded_times_id_is_plus_ann c 
-    with
-      | Assert_Plus_Id_Equals_Times_Ann zero, Assert_Times_Id_Equals_Plus_Ann one => 
+Definition bounded_certs_dual {S : Type} (c : @dually_bounded_certificates S) : @dually_bounded_certificates S := 
       {|
-        bounded_plus_id_is_times_ann := Assert_Plus_Id_Equals_Times_Ann one 
-      ; bounded_times_id_is_plus_ann := Assert_Times_Id_Equals_Plus_Ann zero 
-      |}
-    end.
+        bounded_plus_id_is_times_ann := bounded_times_id_is_plus_ann c 
+      ; bounded_times_id_is_plus_ann := bounded_plus_id_is_times_ann c
+      |}. 
   
 Definition lattice_dual : ∀ {S : Type}, @lattice S -> @lattice S
 := λ {S} lat,
@@ -254,18 +244,8 @@ Definition distributive_prelattice_dual : ∀ {S : Type}, @distributive_prelatti
 ; distributive_prelattice_id_ann_certs :=
     let p := distributive_prelattice_id_ann_certs lat in 
     {|
-        id_ann_exists_plus_id_d       := id_ann_exists_times_id_d p 
-      ; id_ann_exists_plus_ann_d      := id_ann_exists_times_ann_d p 
-      ; id_ann_exists_times_id_d      := id_ann_exists_plus_id_d p 
-      ; id_ann_exists_times_ann_d     := id_ann_exists_plus_ann_d p 
-      ; id_ann_plus_id_is_times_ann_d := match id_ann_times_id_is_plus_ann_d p with
-                                         | Certify_Times_Id_Equals_Plus_Ann one => Certify_Plus_Id_Equals_Times_Ann one
-                                         | Certify_Not_Times_Id_Equals_Plus_Ann => Certify_Not_Plus_Id_Equals_Times_Ann 
-                                         end
-      ; id_ann_times_id_is_plus_ann_d := match id_ann_plus_id_is_times_ann_d p with
-                                         | Certify_Plus_Id_Equals_Times_Ann zero => Certify_Times_Id_Equals_Plus_Ann zero
-                                         | Certify_Not_Plus_Id_Equals_Times_Ann  => Certify_Not_Times_Id_Equals_Plus_Ann    
-                                         end
+       id_ann_plus_times_d := id_ann_times_plus_d p 
+     ; id_ann_times_plus_d := id_ann_plus_times_d p 
     |}                                                                            
 ; distributive_prelattice_certs       := distributive_lattice_certs_dual (distributive_prelattice_certs lat)
 ; distributive_prelattice_ast          := Ast_bs_dual (distributive_prelattice_ast lat) 
@@ -334,7 +314,6 @@ Proof. intros S distributive_latticeS.
        reflexivity. 
 Qed. 
 
-
 Theorem correct_distributive_prelattice_dual : ∀ (S : Type) (distributive_latticeS: A_distributive_prelattice S), 
    distributive_prelattice_dual  (A2C_distributive_prelattice S distributive_latticeS)  
    =
@@ -343,14 +322,8 @@ Proof. intros S distributive_latticeS.
        unfold A_distributive_prelattice_dual, distributive_prelattice_dual, A2C_distributive_prelattice; simpl. 
        rewrite correct_distributive_lattice_certs_dual.
        destruct distributive_latticeS. simpl.
-       destruct A_distributive_prelattice_id_ann_proofs; simpl. unfold P2C_id_ann; simpl.
-       destruct A_id_ann_exists_times_id_d as [[id1 Q1] | P1];
-       destruct A_id_ann_exists_times_ann_d as [[an2 Q2] | P2];
-       destruct A_id_ann_exists_plus_id_d as [[id3 Q3] | P3];
-       destruct A_id_ann_exists_plus_ann_d as [[an4 Q4] | P4];
-       destruct A_id_ann_times_id_is_plus_ann_d as [[id5 Q5] | P5];
-       destruct A_id_ann_plus_id_is_times_ann_d as [[an6 Q6] | P6]; simpl;
-       reflexivity. 
+       unfold P2C_id_ann.
+       reflexivity.        
 Qed. 
 
 

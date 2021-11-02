@@ -162,7 +162,7 @@ Definition brel_transitive_dual (S : Type) (r : brel S) :=
 
 
 
-(* brel_transititivity_contrasitive 
+(* brel_transititivity_implies_dual
 
        (∀ s t u : S, r s t = true → r t u = true  → r s u = true)
       → ∀ s t u : S, r s t = true → r s u = false → r t u = false

@@ -128,7 +128,8 @@ Definition is_lub {S : Type} (lte : brel S) (a b c : S) :=
 
 Definition bop_is_glb {S : Type} (lte : brel S) (b : binary_op S) :=  ∀ s t : S,  is_glb lte s t (b s t).
 
-Definition bop_is_lub {S : Type} (lte : brel S) (b : binary_op S) :=  ∀ s t : S,  is_lub lte s t (b s t).                                                                                                          
+Definition bop_is_lub {S : Type} (lte : brel S) (b : binary_op S) :=  ∀ s t : S,  is_lub lte s t (b s t).
+
 Definition exists_glb {S : Type} (lte : brel S) := {b : binary_op S &  bop_is_glb lte b}.
 
-Definition exists_lub {S : Type} (lte : brel S) := {b : binary_op S &  bop_is_lub lte b}.                                                                                                          
+Definition exists_lub {S : Type} (lte : brel S) := {b : binary_op S &  bop_is_lub lte b}.  

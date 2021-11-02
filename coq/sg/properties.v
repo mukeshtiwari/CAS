@@ -2,7 +2,9 @@ Require Import CAS.coq.common.compute.
 
 Close Scope nat. 
 
-Section ACAS. 
+Section ACAS.
+
+(* required *)   
 
 Definition bop_congruence (S : Type) (r : brel S) (b : binary_op S) := 
    ∀ (s1 s2 t1 t2 : S), r s1 t1 = true -> r s2 t2 = true -> r (b s1 s2) (b t1 t2) = true.
@@ -55,37 +57,45 @@ Definition bop_idempotent_decidable  (S : Type) (r : brel S) (b : binary_op S) :
     (bop_idempotent S r b) + (bop_not_idempotent S r b). 
 
 
-(* Left/Right *) (* CLEAN UP ! 
+(*  
 
-    P(x) 
+    For every universally quantified property P we might have 
 
           P                   not_P 
     ∀ x, P(x) = true     {x & P(x) = false } 
 
         anti_P                not_anti_P 
     ∀ x, P(x) = false    {x & P(x) = true } 
-    ??
 
-    for nontrivial carriers we have 
+    For nontrivial carriers we have only three options 
 
     P  not_P   anti_P    not_anti_P 
-    -------------------------------
+   ------------------------------------------------------------
    T   F        F           T        always P 
    F   T        T           F        never P 
    F   T        F           T        sometimes P, somtimes not P 
 
+
+  For every existentially quantified property P we might have 
+
+          P                   not_P 
+    {x & P(x) = true }      ∀ x, P(x) = false    
+
+        anti_P                not_anti_P 
+    {x & P(x) = false }     ∀ x, P(x) = true 
+
+    For nontrivial carriers we have only three options 
+
+    P  not_P   anti_P    not_anti_P 
+   ------------------------------------------------------------
+   T   F        F           T        always P 
+   F   T        T           F        never P 
+   T   F        T           F        sometimes P, somtimes not P 
+
+   **** For now, only introduce anti_P and/or not_anti_P when needed ... 
+
 *) 
 
-(* 
-bop_is_left           r (b s t) s = true. 
-bop_anti_left         r (b s t) s = false. 
-bop_is_id             r (b s i) s = true
-                      r (b i s) s = true
-bop_is_ann            r (b a s) a = true
-                      r (b s a) a = true
-bop_left_cancellative r (b s t) (b s u) = true -> r t u = true.
-bop_left_constant     r (b s t) (b s u) = true. 
-*) 
 
 Definition bop_is_left (S : Type) (r : brel S) (b : binary_op S) 
     := ∀ s t : S, r (b s t) s = true. 
@@ -128,7 +138,7 @@ Definition bop_anti_right_decidable  (S : Type) (r : brel S) (b : binary_op S) :
 
 (* IDs Annihilators 
 
-  LEFT and RIGHT versions? 
+  need LEFT and RIGHT versions? 
  *)
 
 Definition bop_is_left_id (S : Type) (r : brel S) (b : binary_op S) (i : S) 

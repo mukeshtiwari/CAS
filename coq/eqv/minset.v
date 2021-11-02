@@ -260,8 +260,7 @@ Lemma minset_empty : [ms] nil = nil.
 Proof. compute; auto. Qed. 
 
 Lemma minset_singleton : ∀ (s : S), [ms] (s :: nil) = s :: nil. 
-Proof. intro s. compute; auto. Qed. 
-
+Proof. intro s. compute; auto. Qed.
 
 
 Lemma in_iterate_minset_implies_in_union (X : finite_set S) :
@@ -1331,84 +1330,21 @@ Definition brel_minset_finite_decidable (d : carrier_is_finite_decidable S rS) :
      | inr nfS => inr (brel_minset_is_not_finite nfS)                       
      end.
 
-
-(* other lemmas *)
-
-
-Lemma iterate_minset_bottom  (b : S) :
-  brel_is_bottom S lteS b -> (∀ (a : S),  b <<= a -> a <<= b -> b [=] a) -> 
-  ∀ (X : finite_set S), iterate_minset lteS (b :: nil) X [=MS] (b :: nil).
-Proof. intros A A' X. induction X. 
-       unfold iterate_minset. apply brel_minset_reflexive. 
+(*
+Lemma minset_total (t : S) (anti: brel_antisymmetric S rS lteS) (tot : brel_total S lteS) (X : finite_set S) :
+       ([ms] X = nil) + {s : S & [ms] X = (s ::nil)}. 
+Proof. induction X. 
+       left. compute. reflexivity. 
+       right. unfold uop_minset.
+       exists t.
        unfold iterate_minset.
-       case_eq(find (below lteS a) X). 
-          intros s B. fold (iterate_minset lteS (b :: nil) X). apply IHX. 
-          intro B.
-          case_eq(equiv lteS b a); intro R. 
-             destruct (equiv_elim _ _ R) as [R1 R2]. 
-             assert (R' := A' a R2 R1). 
-             assert (D : find (below lteS a) (b :: nil) = None).
-                compute.
-                assert (E: b <<= a). rewrite (lteCong _ _ _ _ R' (refS a)). apply lteRefl. 
-                assert (F: a <<= b). rewrite (lteCong _ _ _ _ (refS a) R'). apply lteRefl. 
-                rewrite E, F; auto. 
-              rewrite D. 
-              fold (iterate_minset lteS (a :: b :: nil) X). 
-              assert (E : (a :: b :: nil) [=S] (b::nil)).
-                 compute. rewrite R'.  rewrite (symS _ _ R'). rewrite refS; auto. 
-              assert (F := iterate_minset_left_congruence_weak X _ _ E). 
-              apply set_equal_implies_minset_equal in F. 
-              exact (brel_minset_transitive _ _ _ F IHX). 
-             assert (C : find (below lteS a) (b :: nil) = Some b).
-             case_eq(find (below lteS a) (b :: nil)); auto. 
-                intros s C.
-                   (* s =  b *)
-                   compute in C.
-                   case_eq(lteS b a); intro D; case_eq(lteS a b); intro E. 
-                      rewrite D in C. rewrite E in C. discriminate C. 
-                      rewrite D in C. rewrite E in C. auto. 
-                      rewrite D in C. discriminate C. 
-                      rewrite D in C. discriminate C. 
-                intros C.
-                   assert (D : b [in] (b :: nil)). apply in_set_cons_intro;auto.     
-                   assert (E := find_below_none _ _ C b D).
-                   assert (F := A a).
-                   apply below_false_elim in E. destruct E as [E | E]. 
-                      rewrite F in E. discriminate E.                    
-                      assert (L : a [~] b). apply equiv_intro; auto. 
-                      rewrite L in R. discriminate R. 
-         rewrite C. fold (iterate_minset lteS (b :: nil) X). apply IHX.        
-Qed. 
-
-
-
-Lemma minset_bottom_aux (X : finite_set S) (b : S) :
-     brel_is_bottom S lteS b -> (∀ t : S, b <<= t → t <<= b → b [=] t) ->  
-         ([ms] (b :: X)) [=MS] (b :: nil). 
-Proof. intros A A'. unfold uop_minset. 
-       unfold iterate_minset.        
-       assert (B : find (below lteS b) X = None).
-          case_eq(find (below lteS b) X); auto. 
-             intros s C. 
-             destruct (find_below_some _ _ _ C) as [D E]. 
-             assert (F := A s). apply below_elim in E.
-             rewrite F in E. destruct E as [_ E]. discriminate E. 
-       rewrite B.
-       assert (C : find (below lteS b) nil = None). compute; auto.
-       rewrite C.       
-       fold (iterate_minset lteS (b :: nil) X). 
-       apply iterate_minset_bottom; auto. 
-Qed.
-
-                                    
-Lemma minset_bottom_with_anti_symmetry (anti : brel_antisymmetric S rS lteS) (X : finite_set S) (b : S) :
-    brel_is_bottom S lteS b -> ([ms] (b :: X)) [=MS] (b :: nil). 
-Proof. intros A. assert (A' := anti b). apply minset_bottom_aux; auto. Qed. 
-
-Lemma minset_bottom_without_anti_symmetry (X : finite_set S) (b : S) :
-    brel_is_qo_bottom S rS lteS b -> ([ms] (b :: X)) [=MS] (b :: nil). 
-Proof. intros [A A']. apply minset_bottom_aux; auto. Qed. 
-
+       case_eq(find (below lteS a) X); intro b. intro A. 
+          fold (iterate_minset lteS nil X). admit. 
+          case_eq(find (below lteS a) nil); intro c. intro B. 
+             compute in B. discriminate B. 
+             fold (iterate_minset lteS (a :: nil) X). admit. 
+Admitted. 
+*) 
 End Theory.
 
 

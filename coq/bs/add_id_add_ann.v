@@ -30,7 +30,7 @@ Section Theory.
 Notation "a [+ann] b" := (bop_add_ann b a)       (at level 15).
 Notation "a [+id] b"  := (bop_add_id b a)       (at level 15).
 
-
+(*
 Lemma bops_add_id_add_ann_id_equals_ann : bops_id_equals_ann (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2).   
 Proof. unfold bops_id_equals_ann. 
        assert (is_id : bop_is_id (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (inl c)). 
@@ -69,7 +69,7 @@ Proof. unfold bops_not_id_equals_ann.
        right. exists (inr _ s''). compute. rewrite P. left. reflexivity.
        right. exists (inr _ s''). compute. rewrite Q. right. reflexivity.
 Defined. 
-
+*) 
 
 Lemma bops_add_id_add_ann_left_distributive  :
      bop_left_distributive S r b1 b2 ->   
@@ -205,7 +205,7 @@ Definition bops_add_zero_right_right_absorptive_decide :
    | inr nldS => inr _ (bops_add_id_add_ann_not_right_right_absorptive nldS)
    end.
 
-
+(*
 Definition bops_add_zero_ann_equals_id_decide :
      bops_id_equals_ann_decidable S r b2 b1 -> 
         bops_id_equals_ann_decidable (with_constant S) (brel_sum brel_constant r) (c [+ann] b2) (c [+id] b1)
@@ -214,7 +214,7 @@ Definition bops_add_zero_ann_equals_id_decide :
    | inl pS  => inl _ (bops_add_id_add_ann_ann_equals_id pS)
    | inr npS => inr _ (bops_add_id_add_ann_not_ann_equals_id npS)
    end. 
-
+*) 
 End Theory.
 
 Section ACAS.
@@ -262,6 +262,7 @@ Definition bs_proofs_add_zero :
 |}. 
 
 
+(*
 Definition id_ann_proofs_add_zero : 
   ∀ (S : Type) (rS : brel S) (c : cas_constant) (plusS timesS : binary_op S) (s : S), 
      eqv_proofs S rS -> 
@@ -282,7 +283,7 @@ let refS := A_eqv_reflexive S rS eqvS in
   ; A_id_ann_times_id_is_plus_ann_d :=
       bops_add_zero_ann_equals_id_decide S rS c plusS timesS s refS (A_id_ann_times_id_is_plus_ann_d S rS plusS timesS pS)
 |}.
-
+*) 
 (*
 ; A_bs_plus_id_is_times_ann_d := 
      
@@ -290,7 +291,7 @@ let refS := A_eqv_reflexive S rS eqvS in
 ; A_bs_times_id_is_plus_ann_d :=  
 *)
 
-
+(*
 Definition A_bs_add_zero : ∀ (S : Type),  A_bs S -> cas_constant -> A_bs (with_constant S) 
 := λ S bsS c, 
 {| 
@@ -325,7 +326,7 @@ Definition A_bs_add_zero : ∀ (S : Type),  A_bs S -> cas_constant -> A_bs (with
                                 (A_bs_proofs S bsS)
    ; A_bs_ast          := Ast_bs_add_zero (c, A_bs_ast S bsS)
 |}. 
-
+*) 
 (*
 Definition distributive_lattice_proofs_add_zero : 
   ∀ (S : Type) (rS : brel S) (c : cas_constant) (join meet : binary_op S), 
@@ -651,7 +652,7 @@ match dS with
      Certify_Not_Right_Right_Absorptive (S := (with_constant S)) (inr _ s1, inr _ s2)
 end.
 
-
+(*
 Definition bops_add_zero_times_id_is_plus_ann_check : 
    ∀ {S : Type}, @check_times_id_equals_plus_ann S-> @check_times_id_equals_plus_ann (with_constant S)
 := λ {S} dS,  
@@ -659,7 +660,7 @@ Definition bops_add_zero_times_id_is_plus_ann_check :
   | Certify_Times_Id_Equals_Plus_Ann s => Certify_Times_Id_Equals_Plus_Ann  (inr _ s) 
   | Certify_Not_Times_Id_Equals_Plus_Ann => Certify_Not_Times_Id_Equals_Plus_Ann  
   end . 
-
+*) 
 
 Definition bs_certs_add_zero : 
   ∀ {S : Type} (s : S), bs_certificates (S := S) -> bs_certificates (S := (with_constant S))
@@ -680,7 +681,7 @@ Definition bs_certs_add_zero :
 |}. 
 
 
-
+(*
 Definition id_ann_certs_add_zero {S : Type} (c : cas_constant) : 
      @id_ann_certificates S -> @id_ann_certificates (with_constant S) 
 := λ pS,
@@ -693,10 +694,10 @@ Definition id_ann_certs_add_zero {S : Type} (c : cas_constant) :
   ; id_ann_times_id_is_plus_ann_d := bops_add_zero_times_id_is_plus_ann_check (id_ann_times_id_is_plus_ann_d pS)
 |}.
 
+*) 
 
 
-
-
+(*
 Definition bs_add_zero : ∀ {S : Type},  @bs S -> cas_constant -> @bs (with_constant S)
   := λ {S} bsS c,
 let s :=   eqv_witness (bs_eqv bsS) in
@@ -711,7 +712,7 @@ let f :=   eqv_new (bs_eqv bsS) in
    ; bs_certs       := bs_certs_add_zero s (bs_certs bsS)
    ; bs_ast         := Ast_bs_add_zero (c, bs_ast bsS)
 |}. 
-
+*) 
 
 (*
 Definition semiring_certs_add_zero : 
@@ -847,7 +848,7 @@ Proof. intros S c rS plusS timesS eqvS [ ldS | [ [s1 [s2 s3]] nldS ] ];
        compute; reflexivity. 
 Qed. 
 
-
+(*
 Lemma bops_add_zero_times_id_equals_plus_ann_check_correct : 
 ∀ (S : Type) (c : cas_constant) (rS : brel S) (s : S) (plusS timesS : binary_op S)
   (eqvS : eqv_proofs S rS) 
@@ -861,7 +862,7 @@ Lemma bops_add_zero_times_id_equals_plus_ann_check_correct :
   =
   bops_add_zero_times_id_is_plus_ann_check (p2c_times_id_equals_plus_ann S rS plusS timesS pS). 
 Proof. intros S c rS s plusS timesS eqvS [ [i [P1 P2]] | R]; compute; reflexivity. Qed. 
-
+*) 
 
 
 Lemma bops_add_zero_left_left_absorbtive_check_correct : 
@@ -949,7 +950,7 @@ Proof. intros S c rS s plusS timesS eqvS bsS.
        reflexivity. 
 Defined.
 
-
+(*
 Lemma  correct_id_ann_certs_add_zero : 
   ∀ (S : Type) (c : cas_constant) (rS : brel S) (s : S) 
     (plusS timesS : binary_op S) 
@@ -983,7 +984,7 @@ Proof. intros S bsS c.
        rewrite correct_id_ann_certs_add_zero. 
        reflexivity. 
 Qed. 
-
+*) 
 (*
 Lemma  correct_semiring_certs_add_zero : 
   ∀ (S : Type) (c : cas_constant) (rS : brel S) (s : S) 

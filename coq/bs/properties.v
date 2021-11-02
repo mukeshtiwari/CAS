@@ -41,40 +41,55 @@ Definition bop_not_right_distributive (S : Type) (r : brel S) (add : binary_op S
 Definition bop_right_distributive_decidable (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
    := (bop_right_distributive S r add mul) + (bop_not_right_distributive S r add mul). 
 
-Definition bops_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-:= { i : S & (bop_is_id S r b1 i) * (bop_is_ann S r b2 i)}. 
+(*  id-ann pairs 
 
-Definition bops_not_id_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-:= ∀ (s : S), (bop_not_is_id S r b1 s) + (bop_not_is_ann S r b2 s). 
+   b1 id        b2 ann 
+   ----------------------
+1) not exists   not exists 
+2)     exists   not exists 
+3) not exists       exists         
+4)     exists       exists   equal
+5)     exists       exists   not equal
 
-Definition bops_id_equals_ann_decidable 
-   (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-   := (bops_id_equals_ann S r b1 b2) + (bops_not_id_equals_ann S r b1 b2). 
+*)   
 
-(* Used? 
-Definition bops_id_equals_id (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-:= { eI : bop_exists_id S r b1 & 
-   { eA : bop_exists_id S r b2 & r (projT1 eI) (projT1 eA)  = true }}. 
 
-Definition bops_not_id_equals_id (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-:=  ∀ (i a : S), bop_is_id S r b1 i -> bop_is_id S r b2 a -> r i a = false. 
 
-Definition bops_id_equals_id_decidable 
-   (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-   := (bops_id_equals_id S r b1 b2) + (bops_not_id_equals_id S r b1 b2). 
+Definition bops_exists_id_ann_equal (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
+  := { i : S & (bop_is_id S r b1 i) * (bop_is_ann S r b2 i)}.
 
-Definition bops_ann_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-:= { eI : bop_exists_ann S r b1 & 
-   { eA : bop_exists_ann S r b2 & r (projT1 eI) (projT1 eA)  = true }}. 
+Definition bops_exists_id_ann_not_equal (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S)
+  := { z : S * S & match z with (i, a) => (bop_is_id S r b1 i) * (bop_is_ann S r b2 a) * (r i a = false) end}.
 
-Definition bops_not_ann_equals_ann (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-:=  ∀ (i a : S), bop_is_ann S r b1 i -> bop_is_ann S r b2 a -> r i a = false. 
+Definition extract_exist_id_from_exists_id_ann_equal (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S)
+           (P : bops_exists_id_ann_equal S r b1 b2) : bop_exists_id S r b1 := 
+  existT (λ x : S, bop_is_id S r b1 x) (projT1 P) (fst (projT2 P)).
 
-Definition bops_ann_equals_ann_decidable 
-   (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S) 
-   := (bops_ann_equals_ann S r b1 b2) + (bops_not_ann_equals_ann S r b1 b2). 
-*) 
+Definition extract_exist_ann_from_exists_id_ann_equal (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S)
+           (P : bops_exists_id_ann_equal S r b1 b2) : bop_exists_ann S r b2 := 
+  existT (λ x : S, bop_is_ann S r b2 x) (projT1 P) (snd (projT2 P)).
 
+
+Definition extract_exist_id_from_exists_id_ann_not_equal (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S)
+           (P : bops_exists_id_ann_not_equal S r b1 b2) : bop_exists_id S r b1 :=
+  match P with
+  existT _ (i, a) p =>     
+     existT (λ x : S, bop_is_id S r b1 x) i (fst (fst p))
+  end. 
+
+Definition extract_exist_ann_from_exists_id_ann_not_equal (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S)
+           (P : bops_exists_id_ann_not_equal S r b1 b2) : bop_exists_ann S r b2 := 
+  match P with
+  existT _ (i, a) p =>     
+     existT (λ x : S, bop_is_ann S r b2 x) a (snd (fst p))
+  end. 
+
+Inductive exists_id_ann_decidable (S : Type) (eq : brel S) (b1 : binary_op S) (b2 : binary_op S)  : Type :=
+| Id_Ann_Proof_None      : (bop_not_exists_id S eq b1) * (bop_not_exists_ann S eq b2) -> exists_id_ann_decidable S eq b1 b2
+| Id_Ann_Proof_Id_None   : (bop_exists_id S eq b1) * (bop_not_exists_ann S eq b2)     -> exists_id_ann_decidable S eq b1 b2
+| Id_Ann_Proof_None_Ann  : (bop_not_exists_id S eq b1) * (bop_exists_ann S eq b2)     -> exists_id_ann_decidable S eq b1 b2
+| Id_Ann_Proof_Equal     : bops_exists_id_ann_equal S eq b1 b2                        -> exists_id_ann_decidable S eq b1 b2
+| Id_Ann_Proof_Not_Equal : bops_exists_id_ann_not_equal S eq b1 b2                    -> exists_id_ann_decidable S eq b1 b2. 
 
 (* Absorptivity *) 
 
@@ -114,28 +129,6 @@ Definition bops_not_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : bina
 Definition bops_right_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     (bops_right_right_absorptive S r b1 b2) + (bops_not_right_right_absorptive S r b1 b2). 
 
-(*
-Definition bops_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
-          (bops_left_left_absorptive S r b1 b2)  * 
-          (bops_left_right_absorptive S r b1 b2) * 
-          (bops_right_left_absorptive S r b1 b2) * 
-          (bops_right_right_absorptive S r b1 b2). 
-
-Definition bops_not_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
-          (bops_not_left_left_absorptive S r b1 b2)  + 
-          (bops_not_left_right_absorptive S r b1 b2) +  
-          (bops_not_right_left_absorptive S r b1 b2) + 
-          (bops_not_right_right_absorptive S r b1 b2). 
-
-Definition bops_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
-    (bops_absorptive S r b1 b2) + (bops_not_absorptive S r b1 b2). 
-
-
-(* experiments *) 
-
-Definition bops_left_left_dependent_distributive (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
-   := ∀ s t u : S, r t (add t u) = true -> r (mul s t) (add (mul s t) (mul s u)) = true. 
-*)
 
 End ACAS. 
 
@@ -160,19 +153,19 @@ Inductive check_right_distributive {S : Type} :=
 | Certify_Right_Distributive : @check_right_distributive S
 | Certify_Not_Right_Distributive : (S * (S * S)) → @check_right_distributive S.
 
-Inductive assert_plus_id_equals_times_ann {S : Type} := 
-| Assert_Plus_Id_Equals_Times_Ann : S → @assert_plus_id_equals_times_ann S. 
 
-Inductive check_plus_id_equals_times_ann {S : Type} := 
-| Certify_Plus_Id_Equals_Times_Ann : S → @check_plus_id_equals_times_ann S
-| Certify_Not_Plus_Id_Equals_Times_Ann : @check_plus_id_equals_times_ann S.
+Inductive assert_exists_id_ann_equal {S : Type} := 
+| Assert_Exists_Id_Ann_Equal : S → @assert_exists_id_ann_equal S. 
 
-Inductive assert_times_id_equals_plus_ann {S : Type} := 
-| Assert_Times_Id_Equals_Plus_Ann : S → @assert_times_id_equals_plus_ann S. 
+Inductive assert_exists_id_ann_not_equal {S : Type} := 
+| Assert_Exists_Id_Ann_Not_Equal : (S * S) → @assert_exists_id_ann_not_equal S.
 
-Inductive check_times_id_equals_plus_ann {S : Type} := 
-| Certify_Times_Id_Equals_Plus_Ann : S → @check_times_id_equals_plus_ann S
-| Certify_Not_Times_Id_Equals_Plus_Ann : @check_times_id_equals_plus_ann S.
+Inductive exists_id_ann_certificate {S : Type} : Type :=
+| Id_Ann_Cert_None      : @exists_id_ann_certificate S
+| Id_Ann_Cert_Id_None   : S -> @exists_id_ann_certificate S
+| Id_Ann_Cert_None_Ann  : S -> @exists_id_ann_certificate S
+| Id_Ann_Cert_Equal     : S -> @exists_id_ann_certificate S
+| Id_Ann_Cert_Not_Equal : (S * S) -> @exists_id_ann_certificate S. 
 
 
 Inductive assert_left_left_absorptive {S : Type} := 
@@ -273,31 +266,27 @@ Definition p2c_left_distributive_dual : ∀ (S : Type) (r : brel S) (b1 b2 : bin
    | inr p => Certify_Not_Left_Distributive_Dual (projT1 p) 
    end. 
 
-Definition p2c_plus_id_equals_times_ann_assert : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-       bops_id_equals_ann S r b1 b2 -> @assert_plus_id_equals_times_ann S 
-:= λ S r b1 b2 p, Assert_Plus_Id_Equals_Times_Ann (projT1 p).
 
 
-Definition p2c_plus_id_equals_times_ann : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-       bops_id_equals_ann_decidable S r b1 b2 -> @check_plus_id_equals_times_ann S 
-:= λ S r b1 b2 d, 
-   match d with 
-   | inl p => Certify_Plus_Id_Equals_Times_Ann (projT1 p)
-   | inr _ => Certify_Not_Plus_Id_Equals_Times_Ann 
-   end. 
+Definition p2c_exists_id_ann_equal
+           (S : Type) (r : brel S) (b1 b2 : binary_op S) (P : bops_exists_id_ann_equal S r b1 b2) : 
+             @assert_exists_id_ann_equal S 
+:= Assert_Exists_Id_Ann_Equal (projT1 P).
 
+Definition p2c_exists_id_ann_not_equal
+           (S : Type) (r : brel S) (b1 b2 : binary_op S) (P : bops_exists_id_ann_not_equal S r b1 b2) : 
+             @assert_exists_id_ann_not_equal S 
+:= Assert_Exists_Id_Ann_Not_Equal (projT1 P).
 
-Definition p2c_times_id_equals_plus_ann_assert : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-       bops_id_equals_ann S r b2 b1 -> @assert_times_id_equals_plus_ann S
-:= λ S r b1 b2 p, Assert_Times_Id_Equals_Plus_Ann (projT1 p). 
+Definition p2c_exists_id_ann
+           (S : Type) (eq : brel S) (b1 : binary_op S) (b2 : binary_op S) (P : exists_id_ann_decidable S eq b1 b2) :
+             @exists_id_ann_certificate S
+:= match P with 
+| Id_Ann_Proof_None _ _ _ _ (_, _)     => Id_Ann_Cert_None
+| Id_Ann_Proof_Id_None _ _ _ _ (Q, _)  => Id_Ann_Cert_Id_None (projT1 Q)
+| Id_Ann_Proof_None_Ann _ _ _ _ (_, Q) => Id_Ann_Cert_None_Ann (projT1 Q)
+| Id_Ann_Proof_Equal _ _ _ _ Q         => Id_Ann_Cert_Equal (projT1 Q)
+| Id_Ann_Proof_Not_Equal _ _ _ _ Q     => Id_Ann_Cert_Not_Equal (projT1 Q)
+end. 
 
-Definition p2c_times_id_equals_plus_ann : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-       bops_id_equals_ann_decidable S r b2 b1 -> @check_times_id_equals_plus_ann S
-:= λ S r b1 b2 d, 
-   match d with 
-   | inl p => Certify_Times_Id_Equals_Plus_Ann (projT1 p)
-   | inr _ => Certify_Not_Times_Id_Equals_Plus_Ann 
-   end. 
-
-  
 End Translation.   

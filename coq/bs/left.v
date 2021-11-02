@@ -48,12 +48,13 @@ Proof.  exists (cef_commutative_implies_not_is_left rS addS wS f).
            apply symS in J.  rewrite J in F. exact F.
 Defined.
 
+(*
 Lemma bops_sg_left_not_id_equals_ann : bops_not_id_equals_ann S rS addS bop_left. 
 Proof. compute. intros s. right. destruct (nt s) as [_ F]. exists (f s). right. exact F. Defined. 
 
 Lemma bops_left_sg_not_id_equals_ann : bops_not_id_equals_ann S rS bop_left addS. 
 Proof. compute. intros s. left. destruct (nt s) as [F _]. exists (f s). left. exact F. Defined. 
-
+*) 
 End Theory.
 
 

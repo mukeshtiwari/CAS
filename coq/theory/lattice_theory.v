@@ -190,25 +190,27 @@ Proof. intros [a P]. exists a. apply lattice_meet_annihilator_is_zero; auto. Def
 (*
   exists join id <-> join id = meet annihilator 
 *) 
-Lemma lattice_exists_join_id_implies_join_id_equals_meet_ann : bop_exists_id S eqv join -> bops_id_equals_ann S eqv join meet.
+Lemma lattice_exists_join_id_implies_join_id_equals_meet_ann : bop_exists_id S eqv join -> bops_exists_id_ann_equal S eqv join meet.
 Proof. intros [i P]. exists i. split. exact P. apply lattice_zero_is_meet_annihilator. exact P. Qed. 
 
+(*
 Lemma lattice_not_exists_join_id_implies_not_join_id_equals_meet_ann : bop_not_exists_id S eqv join -> bops_not_id_equals_ann S eqv join meet.
 Proof. unfold bops_not_id_equals_ann, bop_not_exists_id. intros H s. right.
        apply lattice_not_zero_is_not_meet_annihilator. apply H.
 Qed.        
-
+*) 
 (*
   exists meet id <-> meet id = join annihilator 
 *) 
-Lemma lattice_exists_meet_id_implies_meet_id_equals_join_ann : bop_exists_id S eqv meet -> bops_id_equals_ann S eqv meet join.
+Lemma lattice_exists_meet_id_implies_meet_id_equals_join_ann : bop_exists_id S eqv meet -> bops_exists_id_ann_equal S eqv meet join.
 Proof. intros [i P]. exists i. split. exact P. apply lattice_one_is_join_annihilator. exact P. Qed. 
 
+(*
 Lemma lattice_not_exists_meet_id_implies_not_meet_id_equals_join_ann : bop_not_exists_id S eqv meet -> bops_not_id_equals_ann S eqv meet join.
 Proof. unfold bops_not_id_equals_ann, bop_not_exists_id. intros H s. right.
        apply lattice_not_one_is_not_join_annihilator. apply H.
 Qed.
-
+*) 
 (* selectivity *) 
 Lemma join_selective_implies_meet_selective : bop_selective S eqv join -> bop_selective S eqv meet.
 Proof. intros selS a b. destruct (selS a b) as [J1 | J1].
@@ -287,7 +289,7 @@ a == a (m) 1
   == (a (m) 1) (j)  (a (m) b)
   == a (j) (a (m) b)
  *)
-Lemma lattice_fact : bops_id_equals_ann S eqv meet join -> bop_left_distributive S eqv join meet -> bops_left_left_absorptive S eqv join meet.
+Lemma lattice_fact : bops_exists_id_ann_equal S eqv meet join -> bop_left_distributive S eqv join meet -> bops_left_left_absorptive S eqv join meet.
 Proof. intros [i [P Q]] D a b.
        destruct (P a) as [_ R]. apply sym in R.
        destruct (Q b) as [U _]. apply sym in U.
@@ -298,7 +300,7 @@ Proof. intros [i [P Q]] D a b.
        exact C.
 Qed.        
 
-Lemma lattice_fact_dual : bops_id_equals_ann S eqv join meet -> bop_left_distributive S eqv meet join -> bops_left_left_absorptive S eqv meet join.
+Lemma lattice_fact_dual : bops_exists_id_ann_equal S eqv join meet -> bop_left_distributive S eqv meet join -> bops_left_left_absorptive S eqv meet join.
 Proof. intros [i [P Q]] D a b.
        destruct (P a) as [L R]. apply sym in R.
        destruct (Q b) as [U V]. apply sym in U.

@@ -22,8 +22,89 @@ Definition brel_not_antisymmetric (S : Type) (r1 : brel S) (r2 : brel S)
 Definition brel_antisymmetric_decidable (S : Type) (r1 : brel S) (r2 : brel S) := 
    (brel_antisymmetric S r1 r2) + (brel_not_antisymmetric S r1 r2). 
 
+Definition brel_total (S : Type) (r : brel S) := 
+    ∀ s t : S, (r s t = true) + (r t s = true). 
 
-(* top and bottom generalised for quasi-orders *)
+Definition brel_not_total (S : Type) (r : brel S) 
+   := { z : S * S & match z with (s, t) =>  (r s t = false) * (r t s = false) end}. 
+
+Definition brel_total_decidable (S : Type) (r : brel S) := 
+    (brel_total S r) + (brel_not_total S r).
+
+Definition brel_irreflexive (S : Type) (r : brel S) := 
+    ∀ s : S, r s s = false. 
+
+Definition brel_not_irreflexive (S : Type) (r : brel S) := 
+    {s : S & r s s = true}. 
+
+Definition brel_irreflexive_decidable (S : Type) (r : brel S) := 
+   (brel_irreflexive S r) + (brel_not_irreflexive S r). 
+
+
+Definition brel_strict (S : Type) (r : brel S) (lt : brel S) := 
+   ∀ s t : S, lt s t = true → r s t = false. 
+
+Definition brel_not_strict (S : Type) (r : brel S) (lt : brel S) 
+   := { z : S * S & match z with (s, t) => (lt s t = true) * (r s t = true) end}. 
+
+Definition brel_strict_decidable (S : Type) (r : brel S) (lt : brel S) := 
+   (brel_strict S r lt) + (brel_not_strict S r lt). 
+
+Lemma brel_strict_covered : forall (S : Type) (r : brel S) (lt : brel S),  
+   ((brel_strict S r lt) * (brel_not_strict S r lt)) -> False.  
+Proof. intros S r lt [str [[s t] [L R]]]. rewrite (str s t L) in R. discriminate. Defined. 
+
+(* 
+    asymmetric iff  anti-symmetric  and irreflexive
+               iff brel_strict S r r 
+*) 
+Definition brel_asymmetric (S : Type) (r : brel S) := 
+   ∀ s t : S, r s t = true → r t s = false. 
+
+Definition brel_not_asymmetric (S : Type) (r : brel S) 
+   := { z : S * S & match z with (s, t) =>  (r s t = true) * (r t s = true) end}. 
+
+
+Definition brel_asymmetric_decidable (S : Type) (r : brel S) := 
+   (brel_asymmetric S r) + (brel_not_asymmetric S r). 
+
+
+(* Bottom *)
+
+Definition brel_is_bottom (S : Type) (lte : brel S) (b : S) 
+  := ∀ s : S, (lte b s = true).
+
+Definition brel_not_is_bottom (S : Type) (lte : brel S) (b : S)
+    := {s : S & lte b s = false }.
+
+Definition brel_exists_bottom (S : Type) (lte : brel S)
+    := {b : S & brel_is_bottom S lte b}.
+
+Definition brel_not_exists_bottom (S : Type) (lte : brel S)
+    := ∀ b : S, brel_not_is_bottom S lte b.
+
+Definition brel_exists_bottom_decidable  (S : Type) (lte : brel S) := 
+    (brel_exists_bottom S lte) + (brel_not_exists_bottom S lte). 
+
+(* Top *)
+
+Definition brel_is_top (S : Type) (lte : brel S) (t : S) 
+    := ∀ s : S, (lte s t = true).
+
+Definition brel_not_is_top (S : Type) (lte : brel S) (t : S)
+    := {s : S & lte s t = false }.
+
+Definition brel_exists_top (S : Type) (lte : brel S)
+    := {t : S & brel_is_top S lte t}.
+
+Definition brel_not_exists_top (S : Type) (lte : brel S)
+    := ∀ t : S, brel_not_is_top S lte t.
+
+Definition brel_exists_top_decidable  (S : Type) (lte : brel S) := 
+    (brel_exists_top S lte) + (brel_not_exists_top S lte). 
+
+
+(* Bottom for quasi-orders*)
 
 Definition lte_equiv_unique (S : Type) (eq lte : brel S) (b : S) 
     := ∀ a : S, lte b a = true → lte a b = true → eq b a = true. 
@@ -31,17 +112,6 @@ Definition lte_equiv_unique (S : Type) (eq lte : brel S) (b : S)
 Definition lte_equiv_not_unique (S : Type) (eq lte : brel S) (b : S) 
   := {a : S & (lte b a = true) * (lte a b = true) * (eq b a = false)}.
 
-Definition brel_is_bottom (S : Type) (lte : brel S) (b : S) 
-    := ∀ s : S, (lte b s = true).
-
-Definition brel_not_is_bottom (S : Type) (lte : brel S) (b : S)
-    := {s : S & lte b s = false }.
-
-Definition brel_is_top (S : Type) (lte : brel S) (b : S) 
-    := ∀ s : S, (lte s b = true).
-
-Definition brel_not_is_top (S : Type) (lte : brel S) (b : S)
-    := {s : S & lte s b = false }.
 
 Definition brel_is_qo_bottom (S : Type) (eq lte : brel S) (b : S) 
     := (brel_is_bottom S lte b) * (lte_equiv_unique S eq lte b) . 
@@ -59,6 +129,7 @@ Definition brel_exists_qo_bottom_decidable  (S : Type) (eq lte : brel S) :=
     (brel_exists_qo_bottom S eq lte) + (brel_not_exists_qo_bottom S eq lte). 
 
 
+(* Top for quasi-orders*)
 Definition brel_is_qo_top (S : Type) (eq lte : brel S) (b : S) 
     := (brel_is_top S lte b) * (lte_equiv_unique S eq lte b) . 
 
@@ -74,25 +145,6 @@ Definition brel_not_exists_qo_top (S : Type) (eq lte : brel S)
 Definition brel_exists_qo_top_decidable  (S : Type) (eq lte : brel S) := 
     (brel_exists_qo_top S eq lte) + (brel_not_exists_qo_top S eq lte). 
 
-
-Definition brel_total (S : Type) (r : brel S) := 
-    ∀ s t : S, (r s t = true) + (r t s = true). 
-
-Definition brel_not_total (S : Type) (r : brel S) 
-(*     {s : S & { t : S & (r s t = false) * (r t s = false)}}. *) 
-   := { z : S * S & match z with (s, t) =>  (r s t = false) * (r t s = false) end}. 
-
-Definition brel_total_decidable (S : Type) (r : brel S) := 
-    (brel_total S r) + (brel_not_total S r).
-
-Definition brel_irreflexive (S : Type) (r : brel S) := 
-    ∀ s : S, r s s = false. 
-
-Definition brel_not_irreflexive (S : Type) (r : brel S) := 
-    {s : S & r s s = true}. 
-
-Definition brel_irreflexive_decidable (S : Type) (r : brel S) := 
-   (brel_irreflexive S r) + (brel_not_irreflexive S r). 
 
 
 (*  Needed? 
@@ -138,48 +190,6 @@ Proof. intros [[f w] P] [g Q].
        rewrite H1 in H3. exact H3. 
 Qed.
 
-(**************** NEW DEFS *************************)
-
-Definition brel_exists_bottom (S : Type) (lte : brel S)
-    := {b : S & brel_is_bottom S lte b}.
-
-Definition brel_not_exists_bottom (S : Type) (lte : brel S)
-    := ∀ b : S, brel_not_is_bottom S lte b.
-
-Definition brel_exists_bottom_decidable  (S : Type) (lte : brel S) := 
-    (brel_exists_bottom S lte) + (brel_not_exists_bottom S lte). 
-
-(*********************************************) 
-
-
-Definition brel_strict (S : Type) (r : brel S) (lt : brel S) := 
-   ∀ s t : S, lt s t = true → r s t = false. 
-
-Definition brel_not_strict (S : Type) (r : brel S) (lt : brel S) 
-   := { z : S * S & match z with (s, t) => (lt s t = true) * (r s t = true) end}. 
-
-Definition brel_strict_decidable (S : Type) (r : brel S) (lt : brel S) := 
-   (brel_strict S r lt) + (brel_not_strict S r lt). 
-
-Lemma brel_strict_covered : forall (S : Type) (r : brel S) (lt : brel S),  
-   ((brel_strict S r lt) * (brel_not_strict S r lt)) -> False.  
-Proof. intros S r lt [str [[s t] [L R]]]. rewrite (str s t L) in R. discriminate. Defined. 
-
-(* 
-    asymmetric iff  anti-symmetric  and irreflexive
-               iff brel_strict S r r 
-*) 
-Definition brel_asymmetric (S : Type) (r : brel S) := 
-   ∀ s t : S, r s t = true → r t s = false. 
-
-Definition brel_not_asymmetric (S : Type) (r : brel S) 
-   := { z : S * S & match z with (s, t) =>  (r s t = true) * (r t s = true) end}. 
-
-
-Definition brel_asymmetric_decidable (S : Type) (r : brel S) := 
-   (brel_asymmetric S r) + (brel_not_asymmetric S r). 
-
-
 
 End ACAS.
 
@@ -209,7 +219,25 @@ Inductive certify_exists_qo_top {S : Type} :=
 
 Inductive assert_exists_qo_top {S : Type} := 
 | Assert_Exists_Qo_Top : S → @assert_exists_qo_top S.
+
+
+
+Inductive certify_exists_bottom {S : Type} := 
+| Certify_Exists_Bottom : S → @certify_exists_bottom S
+| Certify_Not_Exists_Bottom : @certify_exists_bottom S. 
+
+Inductive assert_exists_bottom {S : Type} := 
+| Assert_Exists_Bottom : S → @assert_exists_bottom S.
   
+Inductive certify_exists_top {S : Type} := 
+| Certify_Exists_Top : S → @certify_exists_top S
+| Certify_Not_Exists_Top : @certify_exists_top S. 
+
+Inductive assert_exists_top {S : Type} := 
+| Assert_Exists_Top : S → @assert_exists_top S.
+
+
+
 Inductive certify_total {S : Type} := 
 | Certify_Total : @certify_total S
 | Certify_Not_Total : (S * S) → @certify_total S. 
@@ -279,6 +307,37 @@ Definition p2c_exists_qo_top_check : ∀ (S : Type) (eq lte : brel S),
 Definition p2c_exists_qo_top_assert : ∀ (S : Type) (eq lte : brel S),
        brel_exists_qo_top S eq lte -> @assert_exists_qo_top S     
 := λ S eq lte B, Assert_Exists_Qo_Top (projT1 B).    
+
+
+
+Definition p2c_exists_bottom_check : ∀ (S : Type) (lte : brel S), 
+       brel_exists_bottom_decidable S lte -> @certify_exists_bottom S 
+:= λ S lte d, 
+  match d with
+   | inl p  => Certify_Exists_Bottom (projT1 p)   
+   | inr _  => Certify_Not_Exists_Bottom
+   end. 
+
+Definition p2c_exists_bottom_assert : ∀ (S : Type) (lte : brel S),
+       brel_exists_bottom S lte -> @assert_exists_bottom S     
+:= λ S lte B, Assert_Exists_Bottom (projT1 B).    
+
+
+Definition p2c_exists_top_check : ∀ (S : Type) (lte : brel S), 
+       brel_exists_top_decidable S lte -> @certify_exists_top S 
+:= λ S lte d, 
+  match d with
+   | inl p  => Certify_Exists_Top (projT1 p)   
+   | inr _  => Certify_Not_Exists_Top
+   end. 
+
+Definition p2c_exists_top_assert : ∀ (S : Type) (lte : brel S),
+       brel_exists_top S lte -> @assert_exists_top S     
+:= λ S lte B, Assert_Exists_Top (projT1 B).    
+
+
+
+
 
 
 Definition p2c_total_check : ∀ (S : Type) (lte : brel S), 

@@ -331,7 +331,27 @@ Definition brel_set_finite_decidable (d : carrier_is_finite_decidable S eq) : ca
      | inr nfS => inr (brel_set_not_finite nfS)                       
      end.
 
+Lemma brel_subset_congruence : brel_congruence (finite_set S) (brel_set eq) (brel_subset eq).
+Proof. unfold brel_congruence. intros X Y V W A B.
+       apply brel_set_elim in A. destruct A as [A1 A2].
+       apply brel_set_elim in B. destruct B as [B1 B2].        
+       case_eq(brel_subset eq X Y); intro C; case_eq(brel_subset eq V W); intro D. 
+       + reflexivity. 
+       + assert (E : brel_subset eq V W = true).
+            assert (F := brel_subset_transitive _ _ _ A2 C).
+            exact (brel_subset_transitive _ _ _ F B1).              
+         rewrite E in D. discriminate D. 
+       + assert (E : brel_subset eq X Y = true).
+            assert (F := brel_subset_transitive _ _ _ A1 D).
+            exact (brel_subset_transitive _ _ _ F B2).              
+         rewrite E in C. discriminate C. 
+       + reflexivity. 
+Qed. 
+
 End Theory.
+
+
+
 
 Section ACAS.
 

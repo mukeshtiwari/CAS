@@ -90,13 +90,14 @@ Proof. apply bop_left_distributive_implies_right.
        exact bops_min_max_left_distributive. 
 Qed. 
 
+(*
 Lemma bops_not_id_equals_ann_min_max : bops_not_id_equals_ann nat brel_eq_nat bop_min bop_max.
 Proof. intro n. left. apply bop_min_not_exists_id.  Qed.
 
 Open Scope nat.
 Lemma bops_id_equals_ann_max_min : bops_id_equals_ann nat brel_eq_nat bop_max bop_min.
 Proof. exists 0. split. apply bop_max_zero_is_id. apply bop_min_zero_is_ann.  Defined. 
-
+*) 
 
 End Theory.
 
@@ -104,7 +105,7 @@ Section ACAS.
 
 Open Scope nat.
 
-
+(*
 Definition id_ann_proofs_min_max : id_ann_proofs nat brel_eq_nat bop_min bop_max := 
 {|
   A_id_ann_exists_plus_id_d       := inr bop_min_not_exists_id
@@ -114,7 +115,7 @@ Definition id_ann_proofs_min_max : id_ann_proofs nat brel_eq_nat bop_min bop_max
 ; A_id_ann_plus_id_is_times_ann_d := inr bops_not_id_equals_ann_min_max 
 ; A_id_ann_times_id_is_plus_ann_d := inl bops_id_equals_ann_max_min 
 |}.
-
+*) 
 
 Definition distributive_lattice_proofs_min_max : distributive_lattice_proofs nat brel_eq_nat bop_min bop_max := 
 {|
@@ -124,7 +125,7 @@ Definition distributive_lattice_proofs_min_max : distributive_lattice_proofs nat
 |}.
 
 (*
- *)
+
 Definition A_selective_distributive_prelattice_min_max : A_selective_distributive_prelattice  nat  := 
 {|
   A_selective_distributive_prelattice_eqv           := A_eqv_nat
@@ -137,12 +138,12 @@ Definition A_selective_distributive_prelattice_min_max : A_selective_distributiv
 ; A_selective_distributive_prelattice_ast           := Ast_min_max
 |}.
 
-  
+ *)  
 End ACAS.
 
 Section CAS.
 Open Scope nat.
-
+(*
 Definition id_ann_certs_min_max : @id_ann_certificates nat := 
 {|
   id_ann_exists_plus_id_d       := Certify_Not_Exists_Id
@@ -152,7 +153,7 @@ Definition id_ann_certs_min_max : @id_ann_certificates nat :=
 ; id_ann_plus_id_is_times_ann_d := Certify_Not_Plus_Id_Equals_Times_Ann 
 ; id_ann_times_id_is_plus_ann_d := Certify_Times_Id_Equals_Plus_Ann 0
 |}.
-
+*) 
 
 Definition distributive_lattice_certs_min_max : @distributive_lattice_certificates nat := 
 {|
@@ -160,7 +161,7 @@ Definition distributive_lattice_certs_min_max : @distributive_lattice_certificat
   ; distributive_lattice_absorptive_dual := Assert_Left_Left_Absorptive_Dual
   ; distributive_lattice_distributive    := Assert_Left_Distributive
 |}.
-
+(*
 Definition selective_distributive_prelattice_min_max : @selective_distributive_prelattice  nat  :=
 {|
   selective_distributive_prelattice_eqv          := eqv_eq_nat
@@ -173,17 +174,17 @@ Definition selective_distributive_prelattice_min_max : @selective_distributive_p
 ; selective_distributive_prelattice_ast          := Ast_min_max
 |}.
   
-
+*) 
 End CAS.
 
 Section Verify.
-
+(*
 Theorem correct_selective_distributive_prelattice_min_max : 
   selective_distributive_prelattice_min_max
   =
   A2C_selective_distributive_prelattice nat (A_selective_distributive_prelattice_min_max). 
 Proof. compute. reflexivity. Qed. 
-  
+*)   
  
 End Verify.   
   

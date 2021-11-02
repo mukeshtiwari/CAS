@@ -22,21 +22,22 @@ Section Theory.
 End Theory.
 
 Section ACAS.
-
+(*
 Definition A_distributive_prelattice_intersect_union (S : Type) (eqv : A_eqv S) : A_distributive_prelattice (finite_set S)
                := A_distributive_prelattice_dual _ (A_distributive_prelattice_union_intersect S eqv). 
+*) 
 End ACAS.
 
 Section CAS.
-
+(*
 Definition distributive_prelattice_intersect_union (S : Type) (eqv : @eqv S) : @distributive_prelattice (finite_set S) 
                := distributive_prelattice_dual (@distributive_prelattice_union_intersect S eqv).   
-
+*) 
 End CAS.
 
 Section Verify.
 
-
+(*
 
 Theorem correct_distributive_prelattice_intersect_union : ∀ (S : Type) (eqv: A_eqv S), 
     distributive_prelattice_intersect_union S (A2C_eqv S eqv)
@@ -47,7 +48,7 @@ Proof. intros S eqv.  unfold distributive_prelattice_intersect_union, A_distribu
        rewrite correct_distributive_prelattice_union_intersect.       
        reflexivity.
 Qed. 
-
+*) 
 
 End Verify.   
   

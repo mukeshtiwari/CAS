@@ -19,23 +19,60 @@ Record sg_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_sg_selective_d      : bop_selective_decidable S eq bop  
 ; A_sg_idempotent_d     : bop_idempotent_decidable S eq bop  
 
-(* needed to decide selectivity of product    *) 
+(* needed to decide selectivity of sg product    *) 
 ; A_sg_is_left_d        : bop_is_left_decidable S eq bop  
 ; A_sg_is_right_d       : bop_is_right_decidable S eq bop  
 
-(* needed to decide distributivity of (lex, product), on mult-part *) 
+(* needed to decide distributivity of (lex, product). For multiplicative operator *) 
 ; A_sg_left_cancel_d    : bop_left_cancellative_decidable S eq bop 
 ; A_sg_right_cancel_d   : bop_right_cancellative_decidable S eq bop 
 
-(* needed to decide distributivity of (lex, product, on mult-part *) 
+(* needed to decide distributivity of (lex, product). For multiplicative operator *) 
 ; A_sg_left_constant_d  : bop_left_constant_decidable S eq bop 
 ; A_sg_right_constant_d : bop_right_constant_decidable S eq bop 
 
-(* needed to decide absorptivity of (lex, product), on mult-part*) 
+(* needed to decide absorptivity of (lex, product). For multiplicative operator *) 
 ; A_sg_anti_left_d      : bop_anti_left_decidable S eq bop 
 ; A_sg_anti_right_d     : bop_anti_right_decidable S eq bop
 
-}. 
+}.
+
+
+(* semigroups 
+
+sg    = semigroup 
+asg   = additive semigroup (is either selective or idempotent, ignores "multiplicative" properties) 
+msg   = multiplicative semigroup (ignores "additive" properties) 
+sg_C  = commutative semigroup 
+sg_CI = commutative idempotent semigroup, not selective 
+sg_CS = commutative selective semigroup 
+sg_CK = commutative cancellative semigroup 
+
+           sg
+         / | \
+       asg | msg
+         \ | 
+          sg_C 
+         / |  \
+        /  |   \ 
+       /   |    \
+  sg_CI sg_CS  sg_CK
+
+Note, if cancellative, 
+
+    LK: a * b = a * c -> b = c      
+
+suppose c is any idempotent : c * c = c, then c = id 
+
+    c * a = (c * c) * a = c * (c * a) 
+    -LK-> a = c * a 
+
+     LK -> idem(c) -> left_id(c), etc 
+
+So any cancellative idempotent commutative semigroup will be trivial {id}. 
+Since all carriers are non-trivial, sg_CI, sg_CS, and sg_CK are distinct. 
+*) 
+
 
 Record sg_C_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
 {
@@ -71,21 +108,9 @@ Record sg_CI_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 ; A_sg_CI_congruence         : bop_congruence S eq bop   
 ; A_sg_CI_commutative        : bop_commutative S eq bop  
 ; A_sg_CI_idempotent         : bop_idempotent S eq bop  
-
-; A_sg_CI_selective_d        : bop_selective_decidable S eq bop
-
+; A_sg_CI_not_selective      : bop_not_selective S eq bop
 }. 
 
-
-Record sg_CINS_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
-{
-  A_sg_CINS_associative        : bop_associative S eq bop 
-; A_sg_CINS_congruence         : bop_congruence S eq bop   
-; A_sg_CINS_commutative        : bop_commutative S eq bop  
-; A_sg_CINS_idempotent         : bop_idempotent S eq bop  
-; A_sg_CINS_not_selective      : bop_not_selective S eq bop
-
-}. 
 
 Record sg_CK_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
 {
@@ -100,22 +125,29 @@ Record sg_CK_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 }.
 
 
-(* additive semigroup *) 
+
+
+(* additive semigroup 
+   idea : don't worry about "multiplicative properties". 
+   why? 
+*) 
 Record asg_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
 {
   A_asg_associative      : bop_associative S eq bop 
 ; A_asg_congruence       : bop_congruence S eq bop   
 ; A_asg_commutative      : bop_commutative S eq bop  
 
-(***)                                                  
+(** should this be ((bop_selective S eq bop) + ((bop_idempotent S eq bop) * (bop_not_selective S eq bop))) ? **) 
 ; A_asg_selective_d      : bop_selective_decidable S eq bop  
 ; A_asg_idempotent_d     : bop_idempotent_decidable S eq bop
-
-                                                    
 }.
 
 
-(* multiplicative semigroup *) 
+(* multiplicative semigroup 
+   idea: don't worry about selectivity/idempotence. 
+   Why? 
+
+*) 
 Record msg_proofs (S: Type) (eq : brel S) (bop : binary_op S) := 
 {
   A_msg_associative      : bop_associative S eq bop 
@@ -135,43 +167,8 @@ Record msg_proofs (S: Type) (eq : brel S) (bop : binary_op S) :=
 
 ; A_msg_anti_left_d      : bop_anti_left_decidable S eq bop 
 ; A_msg_anti_right_d     : bop_anti_right_decidable S eq bop
-
-                                                    
 }. 
 
-(* semigroups 
-
-sg    = semigroup 
-sg_C  = commutative semigroup 
-sg_CS = commutative idempotent semigroup 
-sg_CS = commutative selective semigroup 
-sg_CK = commutative cancellative semigroup 
-
-           sg
-           | 
-           | 
-           sg_C --
-           |      \ 
-           |       \ 
-         _sg_CI    sg_CK
-        /  | 
-       /   | 
-sg_CINS  sg_CS 
-
-If cancellative, 
-
-    LK: a * b = a * c -> b = c      
-
-suppose c is any idempotent : c * c = c, then c = id 
-
-    c * a = (c * c) * a = c * (c * a) 
-    -LK-> a = c * a 
-
-     LK -> idem(c) -> left_id(c), etc 
-
-So any cancellative idempotent commutative semigroup will be trivial {id}. 
-
-*) 
 
 Record A_sg (S : Type) := {
   A_sg_eq           : A_eqv S 
@@ -202,16 +199,6 @@ Record A_sg_CI (S : Type) := {
 ; A_sg_CI_ast          : cas_ast
 }.
 
-Record A_sg_CINS (S : Type) := {
-  A_sg_CINS_eqv          : A_eqv S
-; A_sg_CINS_bop          : binary_op S
-; A_sg_CINS_exists_id_d  : bop_exists_id_decidable S (A_eqv_eq S A_sg_CINS_eqv) A_sg_CINS_bop
-; A_sg_CINS_exists_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_sg_CINS_eqv) A_sg_CINS_bop
-; A_sg_CINS_proofs       : sg_CINS_proofs S (A_eqv_eq S A_sg_CINS_eqv) A_sg_CINS_bop
-; A_sg_CINS_ast          : cas_ast
-}.
-
-
 Record A_sg_CI_with_ann (S : Type) := {
   A_sg_CI_wa_eqv          : A_eqv S
 ; A_sg_CI_wa_bop          : binary_op S
@@ -220,6 +207,16 @@ Record A_sg_CI_with_ann (S : Type) := {
 ; A_sg_CI_wa_proofs       : sg_CI_proofs S (A_eqv_eq S A_sg_CI_wa_eqv) A_sg_CI_wa_bop
 ; A_sg_CI_wa_ast          : cas_ast
 }.
+
+Record A_sg_CI_with_id (S : Type) := {
+  A_sg_CI_wi_eqv          : A_eqv S
+; A_sg_CI_wi_bop          : binary_op S
+; A_sg_CI_wi_exists_id    : bop_exists_id S (A_eqv_eq S A_sg_CI_wi_eqv) A_sg_CI_wi_bop
+; A_sg_CI_wi_exists_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_sg_CI_wi_eqv) A_sg_CI_wi_bop
+; A_sg_CI_wi_proofs       : sg_CI_proofs S (A_eqv_eq S A_sg_CI_wi_eqv) A_sg_CI_wi_bop
+; A_sg_CI_wi_ast          : cas_ast
+}.
+
 
 (* sg_CS = commutative selective semigroup *) 
 Record A_sg_CS (S : Type) := {
@@ -301,7 +298,7 @@ Record sg_CS_certificates {S: Type}  :=
 {
   sg_CS_associative        : assert_associative (S := S) 
 ; sg_CS_congruence         : assert_bop_congruence (S := S) 
-; sg_CS_commutative        : assert_commutative (S := S) 
+; sg_CS_commutative        : assert_commutative (S := S)
 ; sg_CS_selective          : assert_selective (S := S)
 }. 
 
@@ -311,18 +308,9 @@ Record sg_CI_certificates {S: Type}  :=
 ; sg_CI_congruence         : assert_bop_congruence (S := S) 
 ; sg_CI_commutative        : assert_commutative (S := S) 
 ; sg_CI_idempotent         : assert_idempotent (S := S) 
-; sg_CI_selective_d        : check_selective (S := S)
+; sg_CI_not_selective        : assert_not_selective (S := S)                                             
 }. 
 
-
-Record sg_CINS_certificates {S: Type}  := 
-{
-  sg_CINS_associative        : assert_associative (S := S) 
-; sg_CINS_congruence         : assert_bop_congruence (S := S) 
-; sg_CINS_commutative        : assert_commutative (S := S) 
-; sg_CINS_idempotent         : assert_idempotent (S := S) 
-; sg_CINS_not_selective      : assert_not_selective (S := S)
-}. 
 
 Record sg_CK_certificates {S: Type}  := 
 {
@@ -388,15 +376,6 @@ Record sg_CI {S : Type} := {
 ; sg_CI_ast          : cas_ast
 }.
 
-Record sg_CINS {S : Type} := {
-  sg_CINS_eqv          : @eqv S 
-; sg_CINS_bop          : binary_op S
-; sg_CINS_exists_id_d  : @check_exists_id S
-; sg_CINS_exists_ann_d : @check_exists_ann S
-; sg_CINS_certs        : @sg_CINS_certificates S
-; sg_CINS_ast          : cas_ast
-}.
-
 Record sg_CI_with_ann {S : Type} := {
   sg_CI_wa_eqv          : @eqv S 
 ; sg_CI_wa_bop          : binary_op S
@@ -406,7 +385,14 @@ Record sg_CI_with_ann {S : Type} := {
 ; sg_CI_wa_ast          : cas_ast
 }.
 
-
+Record sg_CI_with_id {S : Type} := {
+  sg_CI_wi_eqv          : @eqv S 
+; sg_CI_wi_bop          : binary_op S
+; sg_CI_wi_exists_id    : @assert_exists_id S
+; sg_CI_wi_exists_ann_d : @check_exists_ann S
+; sg_CI_wi_certs        : @sg_CI_certificates S
+; sg_CI_wi_ast          : cas_ast
+}.
 
 Record sg_CS {S : Type} := {
   sg_CS_eqv          : @eqv S 
@@ -492,20 +478,9 @@ Definition P2C_sg_CI : ∀ (S : Type) (r : brel S) (b : binary_op S),
 ; sg_CI_congruence    := @Assert_Bop_Congruence S 
 ; sg_CI_commutative   := @Assert_Commutative S 
 ; sg_CI_idempotent    := @Assert_Idempotent S 
-; sg_CI_selective_d   := p2c_selective_check S r b (A_sg_CI_selective_d S r b P)
+; sg_CI_not_selective   := p2c_not_selective_assert S r b (A_sg_CI_not_selective S r b P)
 |}. 
 
-
-Definition P2C_sg_CINS : ∀ (S : Type) (r : brel S) (b : binary_op S),  
-         sg_CINS_proofs S r b -> @sg_CINS_certificates S 
-:= λ S r b P,
-{|
-  sg_CINS_associative   := @Assert_Associative S 
-; sg_CINS_congruence    := @Assert_Bop_Congruence S 
-; sg_CINS_commutative   := @Assert_Commutative S 
-; sg_CINS_idempotent    := @Assert_Idempotent S 
-; sg_CINS_not_selective := p2c_not_selective_assert S r b (A_sg_CINS_not_selective S r b P)
-|}. 
 
 
 Definition P2C_sg_CS : ∀ (S : Type) (r : brel S) (b : binary_op S),  
@@ -604,19 +579,6 @@ let eq := A_eqv_eq S (A_sg_CI_eqv S R) in
 ; sg_CI_ast          := A_sg_CI_ast S R
 |}. 
 
-Definition A2C_sg_CINS : ∀ (S : Type), A_sg_CINS S -> @sg_CINS S 
-:= λ S R,
-let b  := A_sg_CINS_bop S R in
-let eq := A_eqv_eq S (A_sg_CINS_eqv S R) in 
-{| 
-  sg_CINS_eqv          := A2C_eqv S (A_sg_CINS_eqv S R)
-; sg_CINS_bop          := b 
-; sg_CINS_exists_id_d  := p2c_exists_id_check S eq b (A_sg_CINS_exists_id_d S R)
-; sg_CINS_exists_ann_d := p2c_exists_ann_check S eq b (A_sg_CINS_exists_ann_d S R)
-; sg_CINS_certs        := P2C_sg_CINS S eq b (A_sg_CINS_proofs S R)
-; sg_CINS_ast          := A_sg_CINS_ast S R
-|}. 
-
 
 Definition A2C_sg_CI_with_ann : ∀ (S : Type), A_sg_CI_with_ann S -> @sg_CI_with_ann S 
 := λ S R,
@@ -632,6 +594,22 @@ let eq := A_eqv_eq S (A_sg_CI_wa_eqv S R) in
 |}. 
 
 
+Definition A2C_sg_CI_with_id : ∀ (S : Type), A_sg_CI_with_id S -> @sg_CI_with_id S 
+:= λ S R,
+let b  := A_sg_CI_wi_bop S R in
+let eq := A_eqv_eq S (A_sg_CI_wi_eqv S R) in 
+{| 
+  sg_CI_wi_eqv          := A2C_eqv S (A_sg_CI_wi_eqv S R)
+; sg_CI_wi_bop          := b 
+; sg_CI_wi_exists_id    := Assert_Exists_Id (projT1 (A_sg_CI_wi_exists_id S R))
+; sg_CI_wi_exists_ann_d := p2c_exists_ann_check S eq b (A_sg_CI_wi_exists_ann_d S R)
+; sg_CI_wi_certs        := P2C_sg_CI S eq b (A_sg_CI_wi_proofs S R)
+; sg_CI_wi_ast          := A_sg_CI_wi_ast S R
+|}. 
+
+
+
+  
 Definition A2C_sg_CS : ∀ (S : Type), A_sg_CS S -> @sg_CS S 
 := λ S R,
 let b := A_sg_CS_bop S R in
@@ -687,40 +665,25 @@ let eq := A_eqv_eq S (A_msg_eq S R) in
 |}. 
 
 
-(*************************** for downcasting ********************************************) 
-
-Definition P2C_sg_option : ∀ (S : Type) (r : brel S) (b : binary_op S), option(sg_proofs S r b) -> option(@sg_certificates S)
-  := λ S r b, option_map (P2C_sg S r b). 
-
-
-Definition A2C_sg_option : ∀ (S : Type), option(A_sg S) -> option(@sg S)
-  := λ S, option_map (A2C_sg S). 
-
-Definition P2C_sg_C_option : ∀ (S : Type) (r : brel S) (b : binary_op S),  option(sg_C_proofs S r b) -> option(@sg_C_certificates S)       
-  := λ S r b, option_map (P2C_sg_C S r b). 
-
-Definition A2C_sg_C_option : ∀ (S : Type), option(A_sg_C S) -> option(@sg_C S) 
-  := λ S, option_map (A2C_sg_C S). 
-
-Definition P2C_sg_CI_option : ∀ (S : Type) (r : brel S) (b : binary_op S), option(sg_CI_proofs S r b) -> option(@sg_CI_certificates S)  
-  := λ S r b, option_map (P2C_sg_CI S r b).          
-
-Definition A2C_sg_CI_option : ∀ (S : Type), option(A_sg_CI S) -> option(@sg_CI S) 
-  := λ S, option_map (A2C_sg_CI S). 
-
-Definition P2C_sg_CS_option : ∀ (S : Type) (r : brel S) (b : binary_op S), option(sg_CS_proofs S r b) -> option(@sg_CS_certificates S)   
-  := λ S r b, option_map (P2C_sg_CS S r b). 
-         
-Definition A2C_sg_CS_option : ∀ (S : Type), option(A_sg_CS S) -> option(@sg_CS S)
-  := λ S, option_map (A2C_sg_CS S). 
-
-Definition P2C_sg_CK_option : ∀ (S : Type) (r : brel S) (b : binary_op S), option(sg_CK_proofs S r b) -> option(@sg_CK_certificates S)   
-  := λ S r b, option_map (P2C_sg_CK S r b). 
-         
-Definition A2C_sg_CK_option : ∀ (S : Type), option(A_sg_CK S) -> option(@sg_CK S)
-  := λ S, option_map (A2C_sg_CK S). 
-
   
 End Translation.   
 
 
+Section Verify.
+(* Do we really need to prove things like this? 
+
+    ∀ (S : Type) (sgS : A_sg S),
+    sg_certs (A2C_sg (sgS)) = P2C_sg _ _ _ (A_sg_proofs sgS). 
+
+Hmm. Seems such things are true by construction.  
+For example, 
+
+Definition A2C_sg : ∀ (S : Type), A_sg S -> @sg S := 
+ ... 
+; sg_certs        := P2C_sg S eq b (A_sg_proofs S R)
+ ... 
+
+In addition, it seems that these facts are never 
+actually needed in verification proofs. 
+*) 
+End Verify.   

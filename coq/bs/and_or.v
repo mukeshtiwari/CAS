@@ -39,20 +39,20 @@ Lemma bops_and_or_right_right_absorptive  :
 Proof. intros x y. destruct x; destruct y; compute; reflexivity. Qed. 
 
 
-Lemma bops_and_or_id_equals_ann : bops_id_equals_ann bool brel_eq_bool bop_and bop_or. 
+Lemma bops_and_or_id_equals_ann : bops_exists_id_ann_equal bool brel_eq_bool bop_and bop_or. 
 Proof. exists true. split. apply bop_and_true_is_id. apply bop_or_true_is_ann. Defined. 
 
-Lemma bops_and_or_ann_equals_id : bops_id_equals_ann bool brel_eq_bool bop_or bop_and.
-Proof. exists false. split. apply bop_or_false_is_id. apply bop_and_false_is_ann. Defined.       
-  
-End Theory.
-
-Section ACAS.
+Lemma bops_and_or_ann_equals_id : bops_exists_id_ann_equal bool brel_eq_bool bop_or bop_and.
+Proof. exists false. split. apply bop_or_false_is_id. apply bop_and_false_is_ann. Defined.
 
 Lemma bops_or_and_left_left_absorptive  : 
      bops_left_left_absorptive bool brel_eq_bool bop_or bop_and.
 Proof. intros x y. destruct x; destruct y; compute; reflexivity. Qed. 
   
+End Theory.
+
+Section ACAS.
+
 
 Definition distributive_lattice_proofs_and_or : distributive_lattice_proofs bool  brel_eq_bool bop_and bop_or := 
   {|
@@ -98,10 +98,9 @@ Definition selective_distributive_lattice_and_or : @selective_distributive_latti
 ; selective_distributive_lattice_meet_certs  := sg_CS_certs sg_CS_or
 ; selective_distributive_lattice_id_ann_certs := 
     {|
-        bounded_plus_id_is_times_ann := Assert_Plus_Id_Equals_Times_Ann true
-      ; bounded_times_id_is_plus_ann := Assert_Times_Id_Equals_Plus_Ann false 
+        bounded_plus_id_is_times_ann := Assert_Exists_Id_Ann_Equal true
+      ; bounded_times_id_is_plus_ann := Assert_Exists_Id_Ann_Equal false
     |}    
-                                                            
 ; selective_distributive_lattice_certs       := distributive_lattice_certs_and_or
 ; selective_distributive_lattice_ast         := Ast_and_or
 |}.
@@ -109,6 +108,8 @@ Definition selective_distributive_lattice_and_or : @selective_distributive_latti
 
 
 End CAS.
+
+
 
 Section Verify.
 

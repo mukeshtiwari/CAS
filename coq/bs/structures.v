@@ -11,55 +11,37 @@ Require Import CAS.coq.bs.properties.
 
 
 
-Section ACAS. 
+Section ACAS.
 
 Record id_ann_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
 {
-  A_id_ann_exists_plus_id_d       : bop_exists_id_decidable S eq plus 
-; A_id_ann_exists_plus_ann_d      : bop_exists_ann_decidable S eq plus 
-; A_id_ann_exists_times_id_d      : bop_exists_id_decidable S eq times
-; A_id_ann_exists_times_ann_d     : bop_exists_ann_decidable S eq times 
-; A_id_ann_plus_id_is_times_ann_d : bops_id_equals_ann_decidable S eq plus times 
-; A_id_ann_times_id_is_plus_ann_d : bops_id_equals_ann_decidable S eq times plus 
+  A_id_ann_plus_times_d       : exists_id_ann_decidable S eq plus times (* 5 possibilities *)
+; A_id_ann_times_plus_d       : exists_id_ann_decidable S eq times plus (* 5 possibilities *)                                                        
 }.
 
-Record zero_one_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
+(* used in diode and ??? *) 
+Record dually_bounded_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
 {
-  A_zero_one_exists_plus_ann_d      : bop_exists_ann_decidable S eq plus
-; A_zero_one_exists_times_id        : bop_exists_id S eq times                                                         
-; A_zero_one_plus_id_is_times_ann   : bops_id_equals_ann S eq plus times 
-; A_zero_one_times_id_is_plus_ann_d : bops_id_equals_ann_decidable S eq times plus 
+  A_bounded_plus_id_is_times_ann : bops_exists_id_ann_equal S eq plus times 
+; A_bounded_times_id_is_plus_ann : bops_exists_id_ann_equal S eq times plus 
 }.
 
-
-Record with_one_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
+(* minimal requirement for semiring: plus id = times ann *)
+Record pid_is_tann_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
 {
-  A_with_one_exists_plus_id_d          : bop_exists_id_decidable S eq plus     
-; A_with_one_exists_plus_ann           : bop_exists_ann S eq plus
-; A_with_one_exists_times_id           : bop_exists_id S eq times
-; A_with_one_exists_times_ann_d        : bop_exists_ann_decidable S eq times
-; A_with_one_plus_id_is_times_ann_d    : bops_id_equals_ann_decidable S eq plus times                                                              
-; A_with_one_times_id_is_plus_ann      : bops_id_equals_ann S eq times plus 
+  A_pid_is_tann_plus_times   : bops_exists_id_ann_equal S eq plus times 
+; A_pid_is_tann_times_plus_d : exists_id_ann_decidable S eq times plus                                                         
 }.
 
-
-
-Record bounded_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
+(* used in A_pre_path_algebra_with_one *)
+Record pann_is_tid_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
 {
-  A_bounded_plus_id_is_times_ann : bops_id_equals_ann S eq plus times 
-; A_bounded_times_id_is_plus_ann : bops_id_equals_ann S eq times plus 
+  A_pann_is_tid_plus_times_d   : exists_id_ann_decidable S eq plus times 
+; A_pann_is_tid_times_plus     : bops_exists_id_ann_equal S eq times plus                                                         
 }.
 
 
-(* hack? *) 
-Record add_ann_mul_id_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
-{
-  A_add_ann_mul_id_plus_id_d              : bop_exists_id_decidable S eq plus 
-; A_add_ann_mul_id_plus_id_is_times_ann_d : bops_id_equals_ann_decidable S eq plus times 
-; A_add_ann_mul_id_times_id_is_plus_ann   : bops_id_equals_ann S eq times plus
-}.
-
-
+(* if plus is always commutative, then we only need two versions of absorption *) 
 Record bs_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
 {
   A_bs_left_distributive_d      : bop_left_distributive_decidable S eq plus times 
@@ -89,8 +71,6 @@ Record path_algebra_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times :
 }.
 
 
-
-
 Record lattice_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
 {
   A_lattice_absorptive           : bops_left_left_absorptive S eq plus times
@@ -110,11 +90,11 @@ Record distributive_lattice_proofs (S: Type) (eq : brel S) (plus : binary_op S) 
   
 
 Record A_bs (S : Type) := {
-  A_bs_eqv          : A_eqv S 
-; A_bs_plus         : binary_op S 
-; A_bs_times        : binary_op S 
-; A_bs_plus_proofs   : asg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus
-; A_bs_times_proofs  : msg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_times
+  A_bs_eqv           : A_eqv S 
+; A_bs_plus          : binary_op S 
+; A_bs_times         : binary_op S 
+; A_bs_plus_proofs   : asg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus    (* should we generalize to sg_proofs? note: asg is commutative! *) 
+; A_bs_times_proofs  : msg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_times   (* should we generalize to sg_proofs? *) 
 ; A_bs_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus A_bs_times                                 
 ; A_bs_proofs        : bs_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus A_bs_times
 ; A_bs_ast           : cas_ast
@@ -167,25 +147,25 @@ Record A_selective_presemiring (S : Type) := {
 
 
 Record A_semiring (S : Type) := {
-  A_semiring_eqv          : A_eqv S 
-; A_semiring_plus         : binary_op S 
-; A_semiring_times        : binary_op S 
-; A_semiring_plus_proofs  : sg_C_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus
-; A_semiring_times_proofs : msg_proofs S   (A_eqv_eq S A_semiring_eqv) A_semiring_times
-; A_semiring_id_ann_proofs : zero_one_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus A_semiring_times
-; A_semiring_proofs       : semiring_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus A_semiring_times
-; A_semiring_ast          : cas_ast
+  A_semiring_eqv           : A_eqv S 
+; A_semiring_plus          : binary_op S 
+; A_semiring_times         : binary_op S 
+; A_semiring_plus_proofs   : sg_C_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus
+; A_semiring_times_proofs  : msg_proofs S   (A_eqv_eq S A_semiring_eqv) A_semiring_times
+; A_semiring_id_ann_proofs : pid_is_tann_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus A_semiring_times
+; A_semiring_proofs        : semiring_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus A_semiring_times
+; A_semiring_ast           : cas_ast
 }.
 
 Record A_selective_semiring (S : Type) := {
-  A_selective_semiring_eqv          : A_eqv S 
-; A_selective_semiring_plus         : binary_op S 
-; A_selective_semiring_times        : binary_op S 
-; A_selective_semiring_plus_proofs  : sg_CS_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus
-; A_selective_semiring_times_proofs : msg_proofs S   (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_times
-; A_selective_semiring_id_ann_proofs : zero_one_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus A_selective_semiring_times
-; A_selective_semiring_proofs       : semiring_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus A_selective_semiring_times
-; A_selective_semiring_ast          : cas_ast
+  A_selective_semiring_eqv           : A_eqv S 
+; A_selective_semiring_plus          : binary_op S 
+; A_selective_semiring_times         : binary_op S 
+; A_selective_semiring_plus_proofs   : sg_CS_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus
+; A_selective_semiring_times_proofs  : msg_proofs S   (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_times
+; A_selective_semiring_id_ann_proofs : pid_is_tann_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus A_selective_semiring_times
+; A_selective_semiring_proofs        : semiring_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus A_selective_semiring_times
+; A_selective_semiring_ast           : cas_ast
 }.
 
 Record A_pre_path_algebra (S : Type) := {
@@ -200,27 +180,45 @@ Record A_pre_path_algebra (S : Type) := {
 }.
 
 
-Record A_pre_path_algebra_NS (S : Type) := {
-  A_pre_path_algebra_NS_eqv           : A_eqv S 
-; A_pre_path_algebra_NS_plus          : binary_op S 
-; A_pre_path_algebra_NS_times         : binary_op S 
-; A_pre_path_algebra_NS_plus_proofs   : sg_CINS_proofs S (A_eqv_eq S A_pre_path_algebra_NS_eqv) A_pre_path_algebra_NS_plus
-; A_pre_path_algebra_NS_times_proofs  : msg_proofs S   (A_eqv_eq S A_pre_path_algebra_NS_eqv) A_pre_path_algebra_NS_times
-; A_pre_path_algebra_NS_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_pre_path_algebra_NS_eqv) A_pre_path_algebra_NS_plus A_pre_path_algebra_NS_times
-; A_pre_path_algebra_NS_proofs        : path_algebra_proofs S (A_eqv_eq S A_pre_path_algebra_NS_eqv) A_pre_path_algebra_NS_plus A_pre_path_algebra_NS_times
-; A_pre_path_algebra_NS_ast           : cas_ast
-}.
+
 
 Record A_pre_path_algebra_with_one (S : Type) := {
   A_pre_path_algebra_with_one_eqv           : A_eqv S 
 ; A_pre_path_algebra_with_one_plus          : binary_op S 
 ; A_pre_path_algebra_with_one_times         : binary_op S 
-; A_pre_path_algebra_with_one_plus_proofs   : sg_CINS_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus
+; A_pre_path_algebra_with_one_plus_proofs   : sg_CI_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus
 ; A_pre_path_algebra_with_one_times_proofs  : msg_proofs S   (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_times
-; A_pre_path_algebra_with_one_id_ann_proofs : with_one_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus A_pre_path_algebra_with_one_times
-; A_pre_path_algebra_with_one_proofs        : path_algebra_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus A_pre_path_algebra_with_one_times
+; A_pre_path_algebra_with_one_id_ann_proofs : pann_is_tid_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus A_pre_path_algebra_with_one_times
+; A_pre_path_algebra_pann_is_tid_proofs        : path_algebra_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus A_pre_path_algebra_with_one_times
 ; A_pre_path_algebra_with_one_ast           : cas_ast
 }.
+
+
+Record A_path_algebra (S : Type) := {
+  A_path_algebra_eqv           : A_eqv S 
+; A_path_algebra_plus          : binary_op S 
+; A_path_algebra_times         : binary_op S 
+; A_path_algebra_plus_proofs   : sg_CI_proofs S (A_eqv_eq S A_path_algebra_eqv) A_path_algebra_plus
+; A_path_algebra_times_proofs  : msg_proofs S   (A_eqv_eq S A_path_algebra_eqv) A_path_algebra_times
+; A_path_algebra_id_ann_proofs : dually_bounded_proofs S (A_eqv_eq S A_path_algebra_eqv) A_path_algebra_plus A_path_algebra_times
+; A_path_algebra_proofs        : path_algebra_proofs S (A_eqv_eq S A_path_algebra_eqv) A_path_algebra_plus A_path_algebra_times
+; A_path_algebra_ast           : cas_ast
+}.
+
+
+Record A_selective_path_algebra (S : Type) := {
+  A_selective_path_algebra_eqv           : A_eqv S 
+; A_selective_path_algebra_plus          : binary_op S 
+; A_selective_path_algebra_times         : binary_op S 
+; A_selective_path_algebra_plus_proofs   : sg_CS_proofs S (A_eqv_eq S A_selective_path_algebra_eqv) A_selective_path_algebra_plus
+; A_selective_path_algebra_times_proofs  : msg_proofs S   (A_eqv_eq S A_selective_path_algebra_eqv) A_selective_path_algebra_times
+; A_selective_path_algebra_id_ann_proofs : dually_bounded_proofs S (A_eqv_eq S A_selective_path_algebra_eqv) A_selective_path_algebra_plus A_selective_path_algebra_times
+; A_selective_path_algebra_proofs        : path_algebra_proofs S (A_eqv_eq S A_selective_path_algebra_eqv) A_selective_path_algebra_plus A_selective_path_algebra_times
+; A_selective_path_algebra_ast           : cas_ast
+}.
+
+
+
 
 
 Record A_predioid_with_id (S : Type) := {
@@ -229,7 +227,7 @@ Record A_predioid_with_id (S : Type) := {
 ; A_pdwid_times         : binary_op S 
 ; A_pdwid_plus_proofs   : sg_CI_proofs S (A_eqv_eq S A_pdwid_eqv) A_pdwid_plus
 ; A_pdwid_times_proofs  : msg_proofs S   (A_eqv_eq S A_pdwid_eqv) A_pdwid_times
-; A_pdwid_id_ann_proofs : add_ann_mul_id_proofs S (A_eqv_eq S A_pdwid_eqv) A_pdwid_plus A_pdwid_times
+; A_pdwid_id_ann_proofs : pann_is_tid_proofs S (A_eqv_eq S A_pdwid_eqv) A_pdwid_plus A_pdwid_times
 ; A_pdwid_proofs        : semiring_proofs S (A_eqv_eq S A_pdwid_eqv) A_pdwid_plus A_pdwid_times
 ; A_pdwid_ast           : cas_ast
 }.
@@ -242,7 +240,7 @@ Record A_dioid (S : Type) := {
 ; A_dioid_times         : binary_op S 
 ; A_dioid_plus_proofs   : sg_CI_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus
 ; A_dioid_times_proofs  : msg_proofs S   (A_eqv_eq S A_dioid_eqv) A_dioid_times
-; A_dioid_id_ann_proofs : bounded_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
+; A_dioid_id_ann_proofs : dually_bounded_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
 ; A_dioid_proofs        : semiring_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
 ; A_dioid_ast           : cas_ast
 }.
@@ -253,7 +251,7 @@ Record A_selective_dioid (S : Type) := {
 ; A_selective_dioid_times        : binary_op S 
 ; A_selective_dioid_plus_proofs  : sg_CS_proofs S (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_plus
 ; A_selective_dioid_times_proofs : msg_proofs S   (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_times
-; A_selective_dioid_id_ann_proofs : bounded_proofs S (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_plus A_selective_dioid_times
+; A_selective_dioid_id_ann_proofs : dually_bounded_proofs S (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_plus A_selective_dioid_times
 ; A_selective_dioid_proofs       : semiring_proofs S (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_plus A_selective_dioid_times
 ; A_selective_dioid_ast          : cas_ast
 }.
@@ -312,7 +310,7 @@ Record A_lattice (S : Type) := {
 ; A_lattice_meet          : binary_op S 
 ; A_lattice_join_proofs   : sg_CI_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join
 ; A_lattice_meet_proofs   : sg_CI_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_meet
-; A_lattice_id_ann_proofs : bounded_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join A_lattice_meet      
+; A_lattice_id_ann_proofs : dually_bounded_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join A_lattice_meet      
 ; A_lattice_proofs        : lattice_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join A_lattice_meet
 ; A_lattice_ast           : cas_ast
 }.
@@ -323,7 +321,7 @@ Record A_distributive_lattice (S : Type) := {
 ; A_distributive_lattice_meet        : binary_op S 
 ; A_distributive_lattice_join_proofs : sg_CI_proofs S (A_eqv_eq S A_distributive_lattice_eqv) A_distributive_lattice_join
 ; A_distributive_lattice_meet_proofs : sg_CI_proofs S (A_eqv_eq S A_distributive_lattice_eqv) A_distributive_lattice_meet
-; A_distributive_lattice_id_ann_proofs : bounded_proofs S
+; A_distributive_lattice_id_ann_proofs : dually_bounded_proofs S
                                           (A_eqv_eq S A_distributive_lattice_eqv)
                                           A_distributive_lattice_join
                                           A_distributive_lattice_meet                                                        
@@ -340,7 +338,7 @@ Record A_selective_distributive_lattice (S : Type) := {
 ; A_selective_distributive_lattice_meet        : binary_op S 
 ; A_selective_distributive_lattice_join_proofs : sg_CS_proofs S (A_eqv_eq S A_selective_distributive_lattice_eqv) A_selective_distributive_lattice_join
 ; A_selective_distributive_lattice_meet_proofs : sg_CS_proofs S (A_eqv_eq S A_selective_distributive_lattice_eqv) A_selective_distributive_lattice_meet
-; A_selective_distributive_lattice_id_ann_proofs : bounded_proofs S
+; A_selective_distributive_lattice_id_ann_proofs : dually_bounded_proofs S
                                           (A_eqv_eq S A_selective_distributive_lattice_eqv)
                                           A_selective_distributive_lattice_join
                                           A_selective_distributive_lattice_meet                                                                  
@@ -355,56 +353,44 @@ End ACAS.
 
 Section CAS.
 
-
 Record id_ann_certificates {S: Type} := 
 {
-  id_ann_exists_plus_id_d       : @check_exists_id S 
-; id_ann_exists_plus_ann_d      : @check_exists_ann S 
-; id_ann_exists_times_id_d      : @check_exists_id S 
-; id_ann_exists_times_ann_d     : @check_exists_ann S 
-; id_ann_plus_id_is_times_ann_d : @check_plus_id_equals_times_ann S
-; id_ann_times_id_is_plus_ann_d : @check_times_id_equals_plus_ann S
+  id_ann_plus_times_d       : @exists_id_ann_certificate S
+; id_ann_times_plus_d       : @exists_id_ann_certificate S
 }.
 
-Record zero_one_certificates {S: Type} := 
+Record dually_bounded_certificates {S: Type} := 
 {
-  zero_one_exists_plus_ann_d      : @check_exists_ann S 
-; zero_one_exists_times_id        : @assert_exists_id S 
-; zero_one_plus_id_is_times_ann   : @assert_plus_id_equals_times_ann S
-; zero_one_times_id_is_plus_ann_d : @check_times_id_equals_plus_ann S
+  bounded_plus_id_is_times_ann : @assert_exists_id_ann_equal S 
+; bounded_times_id_is_plus_ann : @assert_exists_id_ann_equal S 
 }.
 
-Record with_one_certs {S: Type} := 
+Record pid_is_tann_certificates {S: Type} := 
 {
-  with_one_exists_plus_id_d          : @check_exists_id S 
-; with_one_exists_plus_ann           : @assert_exists_ann S 
-; with_one_exists_times_id           : @assert_exists_id S 
-; with_one_exists_times_ann_d        : @check_exists_ann S 
-; with_one_plus_id_is_times_ann_d    : @check_plus_id_equals_times_ann S
-; with_one_times_id_is_plus_ann      : @assert_times_id_equals_plus_ann S
+  pid_is_tann_plus_times   : @assert_exists_id_ann_equal S 
+; pid_is_tann_times_plus_d : @exists_id_ann_certificate S
 }.
 
-
-
-Record bounded_certificates {S: Type} := 
+Record pann_is_tid_certificates {S: Type} := 
 {
-  bounded_plus_id_is_times_ann : @assert_plus_id_equals_times_ann S
-; bounded_times_id_is_plus_ann : @assert_times_id_equals_plus_ann S
+  pann_is_tid_plus_times_d   : @exists_id_ann_certificate S
+; pann_is_tid_times_plus     : @assert_exists_id_ann_equal S 
 }.
+
 
 
 Record bs_certificates {S: Type} := 
 {
-  bs_left_distributive_d      : check_left_distributive (S := S) 
-; bs_right_distributive_d     : check_right_distributive (S := S) 
-; bs_left_left_absorptive_d   : check_left_left_absorptive (S := S) 
-; bs_left_right_absorptive_d  : check_left_right_absorptive (S := S) 
-; bs_right_left_absorptive_d  : check_right_left_absorptive (S := S) 
-; bs_right_right_absorptive_d : check_right_right_absorptive (S := S) 
+  bs_left_distributive_d      : @check_left_distributive S
+; bs_right_distributive_d     : @check_right_distributive S
+; bs_left_left_absorptive_d   : @check_left_left_absorptive S
+; bs_left_right_absorptive_d  : @check_left_right_absorptive S
+; bs_right_left_absorptive_d  : @check_right_left_absorptive S
+; bs_right_right_absorptive_d : @check_right_right_absorptive S
 }. 
 
 
-Record path_algebra_certs {S: Type} := 
+Record path_algebra_certificates {S: Type} := 
 {
   path_algebra_left_distributive      : @assert_left_distributive S 
 ; path_algebra_right_distributive     : @assert_right_distributive S 
@@ -482,33 +468,46 @@ Record pre_path_algebra {S : Type} := {
 ; pre_path_algebra_plus_certs   : @sg_CI_certificates S 
 ; pre_path_algebra_times_certs  : @msg_certificates S 
 ; pre_path_algebra_id_ann_certs : @id_ann_certificates S 
-; pre_path_algebra_certs        : @path_algebra_certs S 
+; pre_path_algebra_certs        : @path_algebra_certificates S 
 ; pre_path_algebra_ast          : cas_ast
 }.
 
-Record pre_path_algebra_NS {S : Type} := {
-  pre_path_algebra_NS_eqv          : @eqv S 
-; pre_path_algebra_NS_plus         : @binary_op S 
-; pre_path_algebra_NS_times        : @binary_op S 
-; pre_path_algebra_NS_plus_certs   : @sg_CINS_certificates S 
-; pre_path_algebra_NS_times_certs  : @msg_certificates S 
-; pre_path_algebra_NS_id_ann_certs : @id_ann_certificates S 
-; pre_path_algebra_NS_certs        : @path_algebra_certs S 
-; pre_path_algebra_NS_ast          : cas_ast
-}.
 
 
 Record pre_path_algebra_with_one {S : Type} := {
   pre_path_algebra_with_one_eqv          : @eqv S 
 ; pre_path_algebra_with_one_plus         : @binary_op S 
 ; pre_path_algebra_with_one_times        : @binary_op S 
-; pre_path_algebra_with_one_plus_certs   : @sg_CINS_certificates S 
+; pre_path_algebra_with_one_plus_certs   : @sg_CI_certificates S 
 ; pre_path_algebra_with_one_times_certs  : @msg_certificates S 
-; pre_path_algebra_with_one_id_ann_certs : @with_one_certs S 
-; pre_path_algebra_with_one_certs        : @path_algebra_certs S 
+; pre_path_algebra_with_one_id_ann_certs : @pann_is_tid_certificates S 
+; pre_path_algebra_with_one_certs        : @path_algebra_certificates S 
 ; pre_path_algebra_with_one_ast          : cas_ast
 }.
 
+
+Record path_algebra (S : Type) := {
+  path_algebra_eqv           : @eqv S 
+; path_algebra_plus          : binary_op S 
+; path_algebra_times         : binary_op S 
+; path_algebra_plus_certs    : @sg_CI_certificates S 
+; path_algebra_times_certs   : @msg_certificates S 
+; path_algebra_id_ann_certs  : @dually_bounded_certificates S 
+; path_algebra_certs         : @path_algebra_certificates S 
+; path_algebra_ast           : cas_ast
+}.
+
+
+Record selective_path_algebra (S : Type) := {
+  selective_path_algebra_eqv           : @eqv S 
+; selective_path_algebra_plus          : binary_op S 
+; selective_path_algebra_times         : binary_op S 
+; selective_path_algebra_plus_certs    : @sg_CS_certificates S 
+; selective_path_algebra_times_certs   : @msg_certificates S 
+; selective_path_algebra_id_ann_certs  : @dually_bounded_certificates S 
+; selective_path_algebra_certs         : @path_algebra_certificates S 
+; selective_path_algebra_ast           : cas_ast
+}.
 
 
 Record presemiring {S : Type} := {
@@ -541,7 +540,7 @@ Record semiring {S : Type} := {
 ; semiring_times        : binary_op S 
 ; semiring_plus_certs   : @sg_C_certificates S 
 ; semiring_times_certs  : @msg_certificates S
-; semiring_id_ann_certs : @zero_one_certificates S
+; semiring_id_ann_certs : @pid_is_tann_certificates S
 ; semiring_certs        : @semiring_certificates S
 ; semiring_ast          : cas_ast
 }.
@@ -553,7 +552,7 @@ Record selective_semiring {S : Type} := {
 ; selective_semiring_times        : binary_op S 
 ; selective_semiring_plus_certs   : @sg_CS_certificates S 
 ; selective_semiring_times_certs  : @msg_certificates S
-; selective_semiring_id_ann_certs : @zero_one_certificates S
+; selective_semiring_id_ann_certs : @pid_is_tann_certificates S
 ; selective_semiring_certs        : @semiring_certificates S
 ; selective_semiring_ast          : cas_ast
 }.
@@ -564,7 +563,7 @@ Record dioid {S : Type} := {
 ; dioid_times        : binary_op S 
 ; dioid_plus_certs   : @sg_CI_certificates S 
 ; dioid_times_certs  : @msg_certificates S
-; dioid_id_ann_certs : @bounded_certificates S
+; dioid_id_ann_certs : @dually_bounded_certificates S
 ; dioid_certs        : @semiring_certificates S
 ; dioid_ast          : cas_ast
 }.
@@ -575,7 +574,7 @@ Record selective_dioid {S : Type} := {
 ; selective_dioid_times        : binary_op S 
 ; selective_dioid_plus_certs   : @sg_CS_certificates S 
 ; selective_dioid_times_certs  : @msg_certificates S
-; selective_dioid_id_ann_certs : @bounded_certificates S                  
+; selective_dioid_id_ann_certs : @dually_bounded_certificates S                  
 ; selective_dioid_certs        : @semiring_certificates S
 ; selective_dioid_ast          : cas_ast
 }.
@@ -620,7 +619,7 @@ Record lattice {S : Type} := {
 ; lattice_meet         : binary_op S 
 ; lattice_join_certs   : @sg_CI_certificates S 
 ; lattice_meet_certs   : @sg_CI_certificates S
-; lattice_id_ann_certs : @bounded_certificates S
+; lattice_id_ann_certs : @dually_bounded_certificates S
 ; lattice_certs        : @lattice_certificates S
 ; lattice_ast          : cas_ast
 }.
@@ -632,7 +631,7 @@ Record distributive_lattice {S : Type} := {
 ; distributive_lattice_meet         : binary_op S 
 ; distributive_lattice_join_certs   : @sg_CI_certificates S 
 ; distributive_lattice_meet_certs   : @sg_CI_certificates S
-; distributive_lattice_id_ann_certs : @bounded_certificates S
+; distributive_lattice_id_ann_certs : @dually_bounded_certificates S
 ; distributive_lattice_certs        : @distributive_lattice_certificates S
 ; distributive_lattice_ast          : cas_ast
 }.
@@ -644,7 +643,7 @@ Record selective_distributive_lattice {S : Type} := {
 ; selective_distributive_lattice_meet       : binary_op S 
 ; selective_distributive_lattice_join_certs : @sg_CS_certificates S 
 ; selective_distributive_lattice_meet_certs : @sg_CS_certificates S
-; selective_distributive_lattice_id_ann_certs : @bounded_certificates S                                                                  
+; selective_distributive_lattice_id_ann_certs : @dually_bounded_certificates S                                                                  
 ; selective_distributive_lattice_certs      : @distributive_lattice_certificates S
 ; selective_distributive_lattice_ast        : cas_ast
 }.
@@ -656,38 +655,33 @@ End CAS.
 
 Section Translation. 
 
-Definition P2C_id_ann : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-             id_ann_proofs S r b1 b2 -> @id_ann_certificates S 
-:= λ S r b1 b2 R,
+Definition P2C_id_ann (S : Type) (r : brel S) (b1 b2 : binary_op S) (P : id_ann_proofs S r b1 b2) : 
+              @id_ann_certificates S := 
 {|
-  id_ann_exists_plus_id_d       := p2c_exists_id_check S r b1  (A_id_ann_exists_plus_id_d S r b1 b2 R)
-; id_ann_exists_plus_ann_d      := p2c_exists_ann_check S r b1  (A_id_ann_exists_plus_ann_d S r b1 b2 R)
-; id_ann_exists_times_id_d      := p2c_exists_id_check S r b2  (A_id_ann_exists_times_id_d S r b1 b2 R)
-; id_ann_exists_times_ann_d     := p2c_exists_ann_check S r b2  (A_id_ann_exists_times_ann_d S r b1 b2 R)
-; id_ann_plus_id_is_times_ann_d := p2c_plus_id_equals_times_ann S r b1 b2 (A_id_ann_plus_id_is_times_ann_d S r b1 b2 R)
-; id_ann_times_id_is_plus_ann_d := p2c_times_id_equals_plus_ann S r b1 b2  (A_id_ann_times_id_is_plus_ann_d S r b1 b2 R)
+  id_ann_plus_times_d := p2c_exists_id_ann _ _ b1 b2 (A_id_ann_plus_times_d _ _ _ _ P)
+; id_ann_times_plus_d := p2c_exists_id_ann _ _ b2 b1 (A_id_ann_times_plus_d _ _ _ _ P)
 |}.
 
-
-Definition P2C_zero_one : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-             zero_one_proofs S r b1 b2 -> @zero_one_certificates S 
-:= λ S r b1 b2 R,
+Definition P2C_dually_bounded (S : Type) (r : brel S) (b1 b2 : binary_op S) (R : dually_bounded_proofs S r b1 b2) :
+      @dually_bounded_certificates S := 
 {|
-  zero_one_exists_plus_ann_d      := p2c_exists_ann_check S r b1  (A_zero_one_exists_plus_ann_d S r b1 b2 R)
-; zero_one_exists_times_id        := p2c_exists_id_assert S r b2  (A_zero_one_exists_times_id S r b1 b2 R)
-; zero_one_plus_id_is_times_ann   := p2c_plus_id_equals_times_ann_assert S r b1 b2 (A_zero_one_plus_id_is_times_ann S r b1 b2 R)
-; zero_one_times_id_is_plus_ann_d := p2c_times_id_equals_plus_ann S r b1 b2  (A_zero_one_times_id_is_plus_ann_d S r b1 b2 R)
+  bounded_plus_id_is_times_ann := p2c_exists_id_ann_equal _ _ b1 b2 (A_bounded_plus_id_is_times_ann S r b1 b2 R)
+; bounded_times_id_is_plus_ann := p2c_exists_id_ann_equal _ _ b2 b1  (A_bounded_times_id_is_plus_ann S r b1 b2 R)
 |}.
 
-
-Definition P2C_bounded : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
-             bounded_proofs S r b1 b2 -> @bounded_certificates S 
-:= λ S r b1 b2 R,
+Definition P2C_pid_is_tann (S : Type) (r : brel S) (b1 b2 : binary_op S) (P : pid_is_tann_proofs S r b1 b2) :
+      @pid_is_tann_certificates S := 
 {|
-  bounded_plus_id_is_times_ann  := p2c_plus_id_equals_times_ann_assert S r b1 b2 (A_bounded_plus_id_is_times_ann S r b1 b2 R)
-; bounded_times_id_is_plus_ann := p2c_times_id_equals_plus_ann_assert S r b1 b2  (A_bounded_times_id_is_plus_ann S r b1 b2 R)
+  pid_is_tann_plus_times   := p2c_exists_id_ann_equal _ _ b1 b2 (A_pid_is_tann_plus_times S r b1 b2 P)
+; pid_is_tann_times_plus_d := p2c_exists_id_ann _ _ b2 b1 (A_pid_is_tann_times_plus_d _ _ _ _ P)
 |}.
 
+Definition P2C_pann_is_tid (S : Type) (r : brel S) (b1 b2 : binary_op S) (P : pann_is_tid_proofs S r b1 b2) :
+      @pann_is_tid_certificates S := 
+{|
+  pann_is_tid_plus_times_d   := p2c_exists_id_ann _ _ b1 b2 (A_pann_is_tid_plus_times_d _ _ _ _ P)
+; pann_is_tid_times_plus     := p2c_exists_id_ann_equal _ _ b2 b1 (A_pann_is_tid_times_plus S r b1 b2 P)
+|}.
 
 
 Definition P2C_bs : ∀ (S : Type) (r : brel S) (b1 b2 : binary_op S), 
@@ -913,9 +907,6 @@ Definition A2C_selective_presemiring : ∀ (S : Type), A_selective_presemiring S
 ; selective_presemiring_ast        := A_selective_presemiring_ast S R
 |}.
 
-
-
-
 Definition A2C_semiring : ∀ (S : Type), A_semiring S -> @semiring S 
 := λ S R,
 {|
@@ -928,7 +919,7 @@ Definition A2C_semiring : ∀ (S : Type), A_semiring S -> @semiring S
 ; semiring_times_certs := P2C_msg S (A_eqv_eq S (A_semiring_eqv S R)) 
                                 (A_semiring_times S R) 
                                 (A_semiring_times_proofs S R)
-; semiring_id_ann_certs := P2C_zero_one S (A_eqv_eq S (A_semiring_eqv S R)) 
+; semiring_id_ann_certs := P2C_pid_is_tann S (A_eqv_eq S (A_semiring_eqv S R)) 
                                    (A_semiring_plus S R) 
                                    (A_semiring_times S R) 
                                    (A_semiring_id_ann_proofs S R)         
@@ -951,7 +942,7 @@ Definition A2C_selective_semiring : ∀ (S : Type), A_selective_semiring S -> @s
 ; selective_semiring_times_certs := P2C_msg S (A_eqv_eq S (A_selective_semiring_eqv S R)) 
                                 (A_selective_semiring_times S R) 
                                 (A_selective_semiring_times_proofs S R)
-; selective_semiring_id_ann_certs := P2C_zero_one S (A_eqv_eq S (A_selective_semiring_eqv S R)) 
+; selective_semiring_id_ann_certs := P2C_pid_is_tann S (A_eqv_eq S (A_selective_semiring_eqv S R)) 
                                    (A_selective_semiring_plus S R) 
                                    (A_selective_semiring_times S R) 
                                    (A_selective_semiring_id_ann_proofs S R)         
@@ -975,7 +966,7 @@ Definition A2C_dioid : ∀ (S : Type), A_dioid S -> @dioid S
 ; dioid_times_certs := P2C_msg S (A_eqv_eq S (A_dioid_eqv S R)) 
                                 (A_dioid_times S R) 
                                 (A_dioid_times_proofs S R)
-; dioid_id_ann_certs := P2C_bounded S (A_eqv_eq S (A_dioid_eqv S R)) 
+; dioid_id_ann_certs := P2C_dually_bounded S (A_eqv_eq S (A_dioid_eqv S R)) 
                                    (A_dioid_plus S R) 
                                    (A_dioid_times S R) 
                                    (A_dioid_id_ann_proofs S R)
@@ -999,7 +990,7 @@ Definition A2C_selective_dioid : ∀ (S : Type), A_selective_dioid S -> @selecti
 ; selective_dioid_times_certs := P2C_msg S (A_eqv_eq S (A_selective_dioid_eqv S R)) 
                                 (A_selective_dioid_times S R) 
                                 (A_selective_dioid_times_proofs S R)
-; selective_dioid_id_ann_certs := P2C_bounded S (A_eqv_eq S (A_selective_dioid_eqv S R)) 
+; selective_dioid_id_ann_certs := P2C_dually_bounded S (A_eqv_eq S (A_selective_dioid_eqv S R)) 
                                    (A_selective_dioid_plus S R) 
                                    (A_selective_dioid_times S R) 
                                    (A_selective_dioid_id_ann_proofs S R)              
@@ -1038,7 +1029,7 @@ Definition A2C_lattice : ∀ (S : Type), A_lattice S -> @lattice S
 ; lattice_meet_certs := P2C_sg_CI S (A_eqv_eq S (A_lattice_eqv S R)) 
                                 (A_lattice_meet S R) 
                                 (A_lattice_meet_proofs S R)
-; lattice_id_ann_certs := P2C_bounded S (A_eqv_eq S (A_lattice_eqv S R)) 
+; lattice_id_ann_certs := P2C_dually_bounded S (A_eqv_eq S (A_lattice_eqv S R)) 
                                    (A_lattice_join S R) 
                                    (A_lattice_meet S R) 
                                    (A_lattice_id_ann_proofs S R)                                              
@@ -1072,7 +1063,7 @@ Definition A2C_distributive_lattice : ∀ (S : Type), A_distributive_lattice S -
 ; distributive_lattice_meet_certs := P2C_sg_CI S (A_eqv_eq S (A_distributive_lattice_eqv S R)) 
                                 (A_distributive_lattice_meet S R) 
                                 (A_distributive_lattice_meet_proofs S R)
-; distributive_lattice_id_ann_certs := P2C_bounded S (A_eqv_eq S (A_distributive_lattice_eqv S R)) 
+; distributive_lattice_id_ann_certs := P2C_dually_bounded S (A_eqv_eq S (A_distributive_lattice_eqv S R)) 
                                    (A_distributive_lattice_join S R) 
                                    (A_distributive_lattice_meet S R) 
                                    (A_distributive_lattice_id_ann_proofs S R)         
@@ -1098,7 +1089,7 @@ Definition A2C_selective_distributive_lattice : ∀ (S : Type), A_selective_dist
 ; selective_distributive_lattice_meet_certs := P2C_sg_CS S (A_eqv_eq S (A_selective_distributive_lattice_eqv S R)) 
                                 (A_selective_distributive_lattice_meet S R) 
                                 (A_selective_distributive_lattice_meet_proofs S R)
-; selective_distributive_lattice_id_ann_certs := P2C_bounded S (A_eqv_eq S (A_selective_distributive_lattice_eqv S R)) 
+; selective_distributive_lattice_id_ann_certs := P2C_dually_bounded S (A_eqv_eq S (A_selective_distributive_lattice_eqv S R)) 
                                    (A_selective_distributive_lattice_join S R) 
                                    (A_selective_distributive_lattice_meet S R) 
                                    (A_selective_distributive_lattice_id_ann_proofs S R)         
@@ -1174,15 +1165,6 @@ Definition P2C_path_algebra (S: Type) (eq : brel S) (plus : binary_op S) (times 
 ; path_algebra_left_right_absorptive  := @Assert_Left_Right_Absorptive S
 |}.
 
-Definition P2C_with_one (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) (P : with_one_proofs S eq plus times) := 
-{|
-  with_one_exists_plus_id_d          := p2c_exists_id_check S _ _ (A_with_one_exists_plus_id_d S eq plus times P)
-; with_one_exists_plus_ann           := p2c_exists_ann_assert S _ _ (A_with_one_exists_plus_ann S eq plus times P)
-; with_one_exists_times_id           := p2c_exists_id_assert S _ _ (A_with_one_exists_times_id S eq plus times P)
-; with_one_exists_times_ann_d        := p2c_exists_ann_check S _ _ (A_with_one_exists_times_ann_d S eq plus times P)
-; with_one_plus_id_is_times_ann_d    := p2c_plus_id_equals_times_ann S _ _ _ (A_with_one_plus_id_is_times_ann_d S eq plus times P)
-; with_one_times_id_is_plus_ann      := p2c_times_id_equals_plus_ann_assert S _ _ _ (A_with_one_times_id_is_plus_ann S eq plus times P)
-|}.
 
 
 Definition A2C_pre_path_algebra (S : Type) (P : A_pre_path_algebra S) := 
@@ -1198,32 +1180,44 @@ Definition A2C_pre_path_algebra (S : Type) (P : A_pre_path_algebra S) :=
 |}.
 
 
-Definition A2C_pre_path_algebra_NS (S : Type) (P : A_pre_path_algebra_NS S) := 
-{|
-  pre_path_algebra_NS_eqv           := A2C_eqv S (A_pre_path_algebra_NS_eqv S P)
-; pre_path_algebra_NS_plus          := A_pre_path_algebra_NS_plus S P 
-; pre_path_algebra_NS_times         := A_pre_path_algebra_NS_times S P 
-; pre_path_algebra_NS_plus_certs   := P2C_sg_CINS S _ _ (A_pre_path_algebra_NS_plus_proofs S P)
-; pre_path_algebra_NS_times_certs  := P2C_msg S _ _  (A_pre_path_algebra_NS_times_proofs S P) 
-; pre_path_algebra_NS_id_ann_certs := P2C_id_ann S _ _ _ (A_pre_path_algebra_NS_id_ann_proofs S P) 
-; pre_path_algebra_NS_certs        := P2C_path_algebra S _ _ _ (A_pre_path_algebra_NS_proofs S P) 
-; pre_path_algebra_NS_ast           := A_pre_path_algebra_NS_ast S P
-|}.
 
 Definition A2C_pre_path_algebra_with_one (S : Type) (P : A_pre_path_algebra_with_one S) := 
 {|
   pre_path_algebra_with_one_eqv           := A2C_eqv S (A_pre_path_algebra_with_one_eqv S P)
 ; pre_path_algebra_with_one_plus          := A_pre_path_algebra_with_one_plus S P 
 ; pre_path_algebra_with_one_times         := A_pre_path_algebra_with_one_times S P 
-; pre_path_algebra_with_one_plus_certs   := P2C_sg_CINS S _ _ (A_pre_path_algebra_with_one_plus_proofs S P)
+; pre_path_algebra_with_one_plus_certs   := P2C_sg_CI S _ _ (A_pre_path_algebra_with_one_plus_proofs S P)
 ; pre_path_algebra_with_one_times_certs  := P2C_msg S _ _  (A_pre_path_algebra_with_one_times_proofs S P) 
-; pre_path_algebra_with_one_id_ann_certs := P2C_with_one S _ _ _ (A_pre_path_algebra_with_one_id_ann_proofs S P) 
-; pre_path_algebra_with_one_certs        := P2C_path_algebra S _ _ _ (A_pre_path_algebra_with_one_proofs S P) 
+; pre_path_algebra_with_one_id_ann_certs := P2C_pann_is_tid S _ _ _ (A_pre_path_algebra_with_one_id_ann_proofs S P) 
+; pre_path_algebra_with_one_certs        := P2C_path_algebra S _ _ _ (A_pre_path_algebra_pann_is_tid_proofs S P) 
 ; pre_path_algebra_with_one_ast           := A_pre_path_algebra_with_one_ast S P
 |}.
 
 
 
+Definition A2C_path_algebra (S : Type) (P : A_path_algebra S) := 
+{|
+  path_algebra_eqv           := A2C_eqv S (A_path_algebra_eqv S P)
+; path_algebra_plus          := A_path_algebra_plus S P 
+; path_algebra_times         := A_path_algebra_times S P 
+; path_algebra_plus_certs   := P2C_sg_CI S _ _ (A_path_algebra_plus_proofs S P)
+; path_algebra_times_certs  := P2C_msg S _ _  (A_path_algebra_times_proofs S P) 
+; path_algebra_id_ann_certs := P2C_dually_bounded S _ _ _ (A_path_algebra_id_ann_proofs S P) 
+; path_algebra_certs        := P2C_path_algebra S _ _ _ (A_path_algebra_proofs S P) 
+; path_algebra_ast           := A_path_algebra_ast S P
+|}.
 
+
+Definition A2C_selective_path_algebra (S : Type) (P : A_selective_path_algebra S) := 
+{|
+  selective_path_algebra_eqv           := A2C_eqv S (A_selective_path_algebra_eqv S P)
+; selective_path_algebra_plus          := A_selective_path_algebra_plus S P 
+; selective_path_algebra_times         := A_selective_path_algebra_times S P 
+; selective_path_algebra_plus_certs   := P2C_sg_CS S _ _ (A_selective_path_algebra_plus_proofs S P)
+; selective_path_algebra_times_certs  := P2C_msg S _ _  (A_selective_path_algebra_times_proofs S P) 
+; selective_path_algebra_id_ann_certs := P2C_dually_bounded S _ _ _ (A_selective_path_algebra_id_ann_proofs S P) 
+; selective_path_algebra_certs        := P2C_path_algebra S _ _ _ (A_selective_path_algebra_proofs S P) 
+; selective_path_algebra_ast           := A_selective_path_algebra_ast S P
+|}.
 
 End Translation. 

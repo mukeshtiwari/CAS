@@ -47,12 +47,13 @@ Defined.
 Lemma bops_sg_right_left_right_absorptive : bops_left_right_absorptive S rS addS bop_right.
 Proof. intros s1 s2; compute.  exact (symS _ _ (idemS s1)).  Qed.   
 
+(*
 Lemma bops_sg_right_not_id_equals_ann : bops_not_id_equals_ann S rS addS bop_right. 
 Proof. compute. intros s. right. destruct (nt s) as [_ F]. exists (f s). left. exact F. Qed. 
 
 Lemma bops_right_sg_not_id_equals_ann : bops_not_id_equals_ann S rS bop_right addS. 
 Proof. compute. intros s. left. destruct (nt s) as [F _]. exists (f s). right. exact F. Qed. 
-
+*) 
 End Theory.
 
 Section ACAS.
