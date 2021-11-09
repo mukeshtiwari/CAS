@@ -1,5 +1,5 @@
 From Coq Require Import List Utf8
-  FunctionalExtensionality.
+  FunctionalExtensionality BinNatDef.
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
   coq.eqv.theory.
@@ -324,6 +324,23 @@ Section Matrix.
     | S n' => matrix_mul m (matrix_exp m n')
     end.
   
+
+  Fixpoint repeat_op_ntimes_rec (e : Matrix) (n : positive) : Matrix :=
+    match n with
+    | xH => e
+    | xO p => let ret := repeat_op_ntimes_rec e p in matrix_mul ret ret
+    | xI p => let ret := repeat_op_ntimes_rec e p in matrix_mul e (matrix_mul ret ret)
+    end.
+
+  Definition repeat_op_ntimes_N (e : Matrix) (n : N) :=
+    match n with
+    | N0 => I
+    | Npos p => repeat_op_ntimes_rec e p 
+    end.
+
+  
+  (* now prove that slow and fast computes the same value. *)
+
 
 
 
