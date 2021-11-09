@@ -1,5 +1,6 @@
 From Coq Require Import List Utf8
-  FunctionalExtensionality BinNatDef.
+  FunctionalExtensionality BinNatDef 
+  Lia Even.
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
   coq.eqv.theory.
@@ -318,13 +319,13 @@ Section Matrix.
 
     Then show that 0-stable, then it reaches a fixpoint
     *)
-  Fixpoint matrix_exp (m : Matrix) (n : nat) : Matrix :=
+  Fixpoint matrix_exp_unary (m : Matrix) (n : nat) : Matrix :=
     match n with 
     | 0%nat => I 
-    | S n' => matrix_mul m (matrix_exp m n')
+    | S n' => matrix_mul m (matrix_exp_unary m n')
     end.
   
-
+    
   Fixpoint repeat_op_ntimes_rec (e : Matrix) (n : positive) : Matrix :=
     match n with
     | xH => e
@@ -332,7 +333,7 @@ Section Matrix.
     | xI p => let ret := repeat_op_ntimes_rec e p in matrix_mul e (matrix_mul ret ret)
     end.
 
-  Definition repeat_op_ntimes_N (e : Matrix) (n : N) :=
+  Definition matrix_exp_binary (e : Matrix) (n : N) :=
     match n with
     | N0 => I
     | Npos p => repeat_op_ntimes_rec e p 
@@ -341,6 +342,53 @@ Section Matrix.
   
   (* now prove that slow and fast computes the same value. *)
 
+  Lemma binnat_zero : forall (n : nat), 0%N = N.of_nat n -> n = 0%nat.
+  Proof.
+    induction n; try lia.
+  Qed.
+
+ 
+  Lemma binnat_odd : forall (p : positive) (n : nat), N.pos (xI p) = N.of_nat n -> 
+    exists k,  n = (2 * k + 1)%nat /\  (N.pos p) = (N.of_nat k).
+  Proof.
+    intros p n Hp.
+    destruct (Even.even_or_odd n) as [H | H].
+    apply Even.even_equiv in H. destruct H as [k Hk].
+    (* Even (impossible) Case *)
+    rewrite Hk in Hp; lia.
+    (* Odd (possible) case *)
+    apply Even.odd_equiv in H. destruct H as [k Hk].
+    rewrite Hk in Hp. exists k.
+    split. exact Hk. lia.
+  Qed.
+
+
+
+  Lemma binnat_even : forall (p : positive) (n : nat), N.pos (xO p) = N.of_nat n :> N -> 
+    exists k, n = (Nat.mul 2 k) /\  (N.pos p) = (N.of_nat k).
+  Proof.
+    intros p n Hp.
+    destruct (Even.even_or_odd n) as [H | H].
+    apply Even.even_equiv in H. destruct H as [k Hk].
+    (* Even (possible) case*)
+    rewrite Hk in Hp. exists k.
+    split. exact Hk. lia.
+    (* Odd (impossible) case *)
+    apply Even.odd_equiv in H. 
+    destruct H as [k Hk].
+    rewrite Hk in Hp. lia.
+  Qed. 
+
+
+  Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d , matrix_exp e (k1 + k2)  c d = 
+    matrix_mul (matrix_exp e k1)  (matrix_exp e k2) c d.
+  Proof.
+    induction k1.
+    + intros ? ?; simpl. 
+      (* requires I * m = m *)
+      admit.
+    + admit.
+  Admitted.
 
 
 
