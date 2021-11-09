@@ -1,91 +1,58 @@
 From Coq Require Import List Utf8
   FunctionalExtensionality.
-From CAS Require Import coq.common.compute.
+From CAS Require Import coq.common.compute
+  coq.eqv.properties coq.eqv.structures
+  coq.eqv.theory.
 Import ListNotations.
 
-(* This code comes from eqv/properties.v and  
-  will go away, once I reorganise the repo to 
-  compile on my machine, in fact on any machine. 
-  For the moment, I am not 
-  able to import  coq.eqv.properties because 
-  there is no .vo file because 'make' is not producing 
-  object file. *)
-Section Compuation.
-
-  Fixpoint in_list {S : Type} (r : brel S) (l : list S) (s : S) : bool 
-    := match l with 
-      | nil => false 
-      | a :: rest => orb (r s a) (in_list r rest s)
-      end. 
-End Compuation.
-
-Section ACAS. 
-  Close Scope nat. 
-
-  Definition brel_not_trivial (S : Type) (r : brel S) (f : S -> S) 
-      := ∀ s : S, (r s (f s) = false) * (r (f s) s = false). 
-
-  Definition brel_congruence (S : Type) (eq : brel S) (r : brel S) := 
-    ∀ s t u v : S, eq s u = true → eq t v = true → r s t = r u v. 
-
-  Definition brel_reflexive (S : Type) (r : brel S) := 
-      ∀ s : S, r s s = true. 
-
-  Definition brel_not_reflexive (S : Type) (r : brel S) := 
-      {s : S &  r s s = false}. 
-
-  Definition brel_reflexive_decidable (S : Type) (r : brel S) := 
-      (brel_reflexive S r) + (brel_not_reflexive S r). 
-
-  Definition brel_transitive (S : Type) (r : brel S) := 
-      ∀ s t u: S, (r s t = true) → (r t u = true) → (r s u = true). 
-
-  Definition brel_not_transitive (S : Type) (r : brel S) 
-    := { z : S * (S * S) & match z with (s, (t, u)) => (r s t = true) * (r t u = true) * (r s u = false)  end}. 
-
-  Definition brel_transitive_decidable (S : Type) (r : brel S) := 
-    (brel_transitive S r) + (brel_not_transitive S r). 
-
-  Definition brel_symmetric (S : Type) (r : brel S) := 
-      ∀ s t : S, (r s t = true) → (r t s = true). 
-
-  Definition brel_not_symmetric (S : Type) (r : brel S) 
-  (*    {s : S & {t : S & (r s t = true) * (r t s = false)}}. *) 
-    := { z : S * S & match z with (s, t) =>  (r s t = true) * (r t s = false) end}. 
-
-  Definition brel_symmetric_decidable (S : Type) (r : brel S) := 
-    (brel_symmetric S r) + (brel_not_symmetric S r).
-
-End ACAS.
-
-
+(* See if it can be proved using coq/eqv/properties *)
+Definition eq_congruent (R : Type) (eqR : brel R) : Prop  := 
+  forall a b : R, eqR a b = true -> a = b.
 
 Section Matrix.
   Variables 
     (Node : Type)
     (finN : finite_set Node)
-    (eqN   : brel Node)
+    (eqN  : brel Node)
     (refN : brel_reflexive Node eqN)
     (symN : brel_symmetric Node eqN)
     (trnN : brel_transitive Node eqN)
-    (decN : forall c d : Node, (eqN c d = true) + (eqN c d = false))
     (memN : forall x : Node, in_list eqN finN x = true)
 
     (R : Type)
     (zeroR oneR : R) (* 0 and 1 *)
     (plusR mulR : R -> R -> R)
-    (eqR   : brel R)
+    (* Semiring Axiom on R *)
+    (zero_left_identity_plus  : forall r : R, plusR zeroR r = r)
+    (zero_right_identity_plus : forall r : R, plusR r zeroR = r)
+    (plus_associative : forall a b c : R, plusR a (plusR b c) = 
+      plusR (plusR a b) c)
+    (plus_commutative : forall a b : R, plusR a b = plusR b a)
+    (one_left_identity_mul    : forall r : R, mulR oneR r = r)
+    (one_right_identity_mul   : forall r : R, mulR r oneR = r)
+    (mult_associative : forall a b c : R, mulR a (mulR b c) = 
+      mulR (mulR a b) c)
+    (left_distributive_mul_over_plus : 
+      forall a b c : R, mulR a (plusR b c) = plusR (mulR a b) (mulR a c))
+    (right_distributive_mul_over_plus :
+      forall a b c : R, mulR (plusR a b) c = plusR (mulR a c) (mulR b c))
+    (zero_left_anhilator_mul  : forall a : R, mulR zeroR a = zeroR)
+    (zero_right_anhilator_mul : forall a : R, mulR a zeroR = zeroR)
+    (* end of axioms *)
+    (* equivalence relation on R *)
+    (eqR  : brel R)
     (refR : brel_reflexive R eqR)
     (symR : brel_symmetric R eqR)
-    (trnr : brel_transitive R eqR)
-    (decR : forall c d : R, (eqR c d = true) + (eqR c d = false)).
-
+    (trnR : brel_transitive R eqR)
+    (conR : eq_congruent R eqR).
+    (* end of equivalence relation *)
+    
     
     Declare Scope Mat_scope.
-    Local Open Scope Mat_scope.
     Delimit Scope Mat_scope with R.
-    
-
+    Bind Scope Mat_scope with R.
+    Local Open Scope Mat_scope.
+  
 
     Local Notation "0" := zeroR : Mat_scope.
     Local Notation "1" := oneR : Mat_scope.
@@ -94,6 +61,14 @@ Section Matrix.
     Local Infix "=r=" := eqR (at level 70) : Mat_scope.
     Local Infix "=n=" := eqN (at level 70) : Mat_scope.
 
+    
+    Theorem eqr_eq : forall a b : R, eqR a b = true <-> @eq R a b.
+    Proof.
+      intros a b; split; 
+      intro Hab.
+      + apply conR; exact Hab.
+      + subst; apply refR.
+    Qed. (* Qed or Defined, *)
 
     (* (square) matrix is a function. It's easy to prove various 
       properties of matrix with this representation. However, 
@@ -102,6 +77,8 @@ Section Matrix.
       efficient structure for computation *) 
     
     Definition Matrix : Type := Node -> Node -> R.
+
+
 
     (* returns the cth row of m *)
     Definition get_row (m : Matrix) (c : Node) : Node -> R := 
@@ -120,9 +97,9 @@ Section Matrix.
     (* identity matrix, mulitplicative identity of mul *)
     (* Idenitity Matrix *)
     Definition I : Matrix := fun (c d : Node) =>
-      match decN c d with 
-      | inl _ => 1
-      | inr _ => 0 
+      match c =n= d with 
+      | true => 1
+      | false => 0 
       end.
     
     
@@ -134,8 +111,7 @@ Section Matrix.
       (((transpose (transpose m)) c d) =r= (m c d)) = true.
     Proof. 
       intros ? ? ?; unfold transpose; 
-      simpl.  
-      (* Reflexivity *)
+      simpl. 
       apply refR.
     Defined.
 
@@ -154,12 +130,28 @@ Section Matrix.
     Proof.
       intros ? ?.
       induction l; simpl.
-      + (* 0 =r= (0 + 0). 
-        I need two proofs: 1) 0 + 0 = 0 because it's additive 
-        identity and eqR 0 0 = true. *) admit. 
-      + (* I definitely need associativity of plusR *) 
-    Admitted.
+      + rewrite zero_left_identity_plus.
+        apply refR.
+      + rewrite eqr_eq in IHl; rewrite IHl.
+        apply eqr_eq.
+        assert (Ht: f a + sum_fn f l + (g a + sum_fn g l) = 
+          f a + g a + (sum_fn f l + sum_fn g l)).
+        {
+          replace (g a + sum_fn g l) with (sum_fn g l + g a).
+          rewrite plus_associative, plus_commutative.
+          replace (f a + sum_fn f l + sum_fn g l) with 
+            (f a + (sum_fn f l + sum_fn g l)).
+          rewrite plus_associative with (c := sum_fn f l + sum_fn g l).
+          replace (f a + g a) with (g a + f a).
+          exact eq_refl.
+          apply plus_commutative.
+          apply plus_associative.
+          apply plus_commutative.
+        }
+        rewrite Ht. exact eq_refl.
+    Qed.
 
+    
     Lemma mul_constant_left : forall (f : Node -> R) (c : R) (l : list Node), 
       sum_fn (fun x => c * f x) l =r= (c * sum_fn f l) = true.
     Proof.
@@ -185,6 +177,7 @@ Section Matrix.
       (* Right distributive: (a + b) * c = a * c + b * c *)
   Admitted.
 
+  
 
   (* generalised matrix multiplication *)
   Definition matrix_mul_gen (m₁ m₂ : Matrix) (l : list Node) : Matrix :=
@@ -215,7 +208,7 @@ Section Matrix.
     + specialize (IHl₁ l₂ m₁ m₂ m₃ c d).
   Admitted.
 
-  
+
 
 
 
