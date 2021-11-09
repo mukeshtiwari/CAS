@@ -6,9 +6,15 @@ From CAS Require Import coq.common.compute
   coq.eqv.theory.
 Import ListNotations.
 
-(* See if there is something similar in coq/eqv/properties *)
-Definition eq_congruent (R : Type) (eqR : brel R) : Prop  := 
-  forall a b : R, eqR a b = true -> a = b.
+Section Congruence.
+  Variables (R : Type)
+    (eqR : brel R).
+
+  (* See if there is something similar in coq/eqv/properties *)
+  Definition eq_congruent  := 
+    forall a b : R, eqR a b = true -> a = b.
+  
+End Congruence.
 
 Section Matrix.
   Variables 
@@ -120,7 +126,7 @@ Section Matrix.
       fun c d => (m₁ c d + m₂ c d).
 
 
-    Theorem zero_add_left : forall c d m, 
+    Lemma zero_add_left : forall c d m, 
       matrix_add zero_matrix m c d = m c d.
     Proof.
       intros c d m.
@@ -129,7 +135,7 @@ Section Matrix.
       exact eq_refl.
     Qed. 
 
-    Theorem zero_add_right : forall c d m, 
+    Lemma zero_add_right : forall c d m, 
       matrix_add m zero_matrix c d = m c d.
     Proof.
       intros c d m.
@@ -137,6 +143,37 @@ Section Matrix.
       rewrite zero_right_identity_plus.
       exact eq_refl.
     Qed. 
+
+    Lemma matrix_add_assoc : forall m₁ m₂ m₃ c d, 
+      matrix_add m₁ (matrix_add m₂ m₃) c d =r= 
+      matrix_add (matrix_add m₁ m₂) m₃ c d = true.
+    Proof.
+      unfold matrix_add; intros.
+      apply eqr_eq. rewrite plus_associative;
+      exact eq_refl.
+    Qed.
+
+    Lemma matrix_add_assoc_eq : forall m₁ m₂ m₃ c d, 
+      matrix_add m₁ (matrix_add m₂ m₃) c d =
+      matrix_add (matrix_add m₁ m₂) m₃ c d.
+    Proof.
+      intros. apply eqr_eq;
+      apply matrix_add_assoc.
+    Qed.
+    
+    Lemma matrix_add_comm : forall m₁ m₂ c d, 
+      matrix_add m₁ m₂ c d =r= matrix_add m₂ m₁ c d = true.
+    Proof.
+      intros; unfold matrix_add.
+      apply eqr_eq; rewrite plus_commutative.
+      reflexivity.
+    Qed.
+
+    Lemma matrix_add_comm_eq : forall m₁ m₂ c d, 
+      matrix_add m₁ m₂ c d = matrix_add m₂ m₁ c d.
+    Proof.
+      intros. apply eqr_eq, matrix_add_comm.
+    Qed.
 
     Fixpoint sum_fn (f : Node -> R) (l : list Node) : R :=
       match l with 
@@ -221,6 +258,7 @@ Section Matrix.
       fun (c d : Node) => sum_fn (fun y => (m₁ c y * m₂ y d)) l.
 
 
+      
 
     (* This need right distributive (a + b) * c = a * c + b * c*)  
     Lemma push_mul_right_sum_fn : forall (l₂ l₁ : list Node) (m₁ m₂ m₃ : Matrix) a x x0,
@@ -379,7 +417,7 @@ Section Matrix.
     rewrite Hk in Hp. lia.
   Qed. 
 
-
+  (* 
   Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d , matrix_exp e (k1 + k2)  c d = 
     matrix_mul (matrix_exp e k1)  (matrix_exp e k2) c d.
   Proof.
@@ -388,7 +426,7 @@ Section Matrix.
       (* requires I * m = m *)
       admit.
     + admit.
-  Admitted.
+  Admitted. *)
 
 
 
