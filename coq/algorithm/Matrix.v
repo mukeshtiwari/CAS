@@ -3,18 +3,9 @@ From Coq Require Import List Utf8
   Lia Even.
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
-  coq.eqv.theory.
+  coq.eqv.theory coq.sg.properties.
 Import ListNotations.
 
-Section Congruence.
-  Variables (R : Type)
-    (eqR : brel R).
-
-  (* See if there is something similar in coq/eqv/properties *)
-  Definition eq_congruent  := 
-    forall a b : R, eqR a b = true -> a = b.
-  
-End Congruence.
 
 Section Matrix.
   Variables 
@@ -26,35 +17,42 @@ Section Matrix.
     (trnN : brel_transitive Node eqN)
     (memN : forall x : Node, in_list eqN finN x = true)
 
+    (* carrier set and the operators *)
     (R : Type)
     (zeroR oneR : R) (* 0 and 1 *)
-    (plusR mulR : R -> R -> R)
-    (* Semiring Axiom on R *)
-    (zero_left_identity_plus  : forall r : R, plusR zeroR r = r)
-    (zero_right_identity_plus : forall r : R, plusR r zeroR = r)
-    (plus_associative : forall a b c : R, plusR a (plusR b c) = 
-      plusR (plusR a b) c)
-    (plus_commutative : forall a b : R, plusR a b = plusR b a)
-    (one_left_identity_mul    : forall r : R, mulR oneR r = r)
-    (one_right_identity_mul   : forall r : R, mulR r oneR = r)
-    (mul_associative : forall a b c : R, mulR a (mulR b c) = 
-      mulR (mulR a b) c)
-    (left_distributive_mul_over_plus : 
-      forall a b c : R, mulR a (plusR b c) = plusR (mulR a b) (mulR a c))
-    (right_distributive_mul_over_plus :
-      forall a b c : R, mulR (plusR a b) c = plusR (mulR a c) (mulR b c))
-    (zero_left_anhilator_mul  : forall a : R, mulR zeroR a = zeroR)
-    (zero_right_anhilator_mul : forall a : R, mulR a zeroR = zeroR)
-    (* end of axioms *)
+    (plusR mulR : binary_op R)
+
     (* equivalence relation on R *)
     (eqR  : brel R)
     (refR : brel_reflexive R eqR)
     (symR : brel_symmetric R eqR)
     (trnR : brel_transitive R eqR)
-    (conR : eq_congruent R eqR).
     (* end of equivalence relation *)
+
+    (* Semiring Axiom on R *)
+    (zero_left_identity_plus  : forall r : R, eqR (plusR zeroR r) r = true)
+    (zero_right_identity_plus : forall r : R, eqR (plusR r zeroR) r = true)
+    (plus_associative : forall a b c : R, eqR (plusR a (plusR b c)) 
+      (plusR (plusR a b) c) = true)
+    (plus_commutative  : forall a b : R, eqR (plusR a b) (plusR b a) = true)
+    (one_left_identity_mul  : forall r : R, eqR (mulR oneR r) r = true)
+    (one_right_identity_mul : forall r : R, eqR (mulR r oneR) r = true)
+    (mul_associative : forall a b c : R, eqR (mulR a (mulR b c)) 
+      (mulR (mulR a b) c) = true)
+    (left_distributive_mul_over_plus : forall a b c : R, eqR (mulR a (plusR b c)) 
+      (plusR (mulR a b) (mulR a c)) = true)
+    (right_distributive_mul_over_plus : forall a b c : R, eqR (mulR (plusR a b) c) 
+      (plusR (mulR a c) (mulR b c)) = true)
+    (zero_left_anhilator_mul  : forall a : R, eqR (mulR zeroR a) zeroR = true)
+    (zero_right_anhilator_mul : forall a : R, eqR (mulR a zeroR) zeroR = true)
+    (* end of axioms *)
+
+    (* start of congruence relation *)
+    (congrP : bop_congruence R eqR plusR)
+    (congrM : bop_congruence R eqR mulR).
+    (* end of congruence *)
     
-    
+
     Declare Scope Mat_scope.
     Delimit Scope Mat_scope with R.
     Bind Scope Mat_scope with R.
@@ -69,14 +67,6 @@ Section Matrix.
     Local Infix "=n=" := eqN (at level 70) : Mat_scope.
 
     
-    Theorem eqr_eq : forall a b : R, eqR a b = true <-> @eq R a b.
-    Proof.
-      intros a b; split; 
-      intro Hab.
-      + apply conR; exact Hab.
-      + subst; apply refR.
-    Qed. (* Qed or Defined, *)
-
     (* (square) matrix is a function. It's easy to prove various 
       properties of matrix with this representation. However, 
       it's not very efficient, at least in my experience, 
@@ -127,7 +117,7 @@ Section Matrix.
 
 
     Lemma zero_add_left : forall c d m, 
-      matrix_add zero_matrix m c d = m c d.
+      eqR (matrix_add zero_matrix m c d) (m c d) = true.
     Proof.
       intros c d m.
       unfold matrix_add, zero_matrix.
@@ -136,7 +126,7 @@ Section Matrix.
     Qed. 
 
     Lemma zero_add_right : forall c d m, 
-      matrix_add m zero_matrix c d = m c d.
+      eqR (matrix_add m zero_matrix c d) (m c d) = true.
     Proof.
       intros c d m.
       unfold matrix_add, zero_matrix.
@@ -149,31 +139,19 @@ Section Matrix.
       matrix_add (matrix_add m₁ m₂) m₃ c d = true.
     Proof.
       unfold matrix_add; intros.
-      apply eqr_eq. rewrite plus_associative;
+      rewrite plus_associative;
       exact eq_refl.
     Qed.
 
-    Lemma matrix_add_assoc_eq : forall m₁ m₂ m₃ c d, 
-      matrix_add m₁ (matrix_add m₂ m₃) c d =
-      matrix_add (matrix_add m₁ m₂) m₃ c d.
-    Proof.
-      intros. apply eqr_eq;
-      apply matrix_add_assoc.
-    Qed.
     
     Lemma matrix_add_comm : forall m₁ m₂ c d, 
       matrix_add m₁ m₂ c d =r= matrix_add m₂ m₁ c d = true.
     Proof.
       intros; unfold matrix_add.
-      apply eqr_eq; rewrite plus_commutative.
+      rewrite plus_commutative.
       reflexivity.
     Qed.
 
-    Lemma matrix_add_comm_eq : forall m₁ m₂ c d, 
-      matrix_add m₁ m₂ c d = matrix_add m₂ m₁ c d.
-    Proof.
-      intros. apply eqr_eq, matrix_add_comm.
-    Qed.
 
     Fixpoint sum_fn (f : Node -> R) (l : list Node) : R :=
       match l with 
@@ -181,31 +159,30 @@ Section Matrix.
       | h :: t => f h + sum_fn f t
       end.
 
+
+    Theorem sum_fn_congr : forall (f g : Node -> R) (a : Node) (l : list Node),
+      (sum_fn (λ x : Node, f x + g x) l =r= sum_fn f l + sum_fn g l) = true ->
+      (f a + g a + sum_fn (λ x : Node, f x + g x) l =r= 
+      f a + sum_fn f l + (g a + sum_fn g l)) = true.
+    Proof.
+    Admitted.
+
+  
+
+    (* I need to prove that sum_fn is congruent by 
+    showing its arguments are congruent.
+
+    Look into the minset.v coq/eqv/minset.v *)
     Lemma sum_fn_add : forall (f g : Node -> R) (l : list Node), 
       (sum_fn (fun x => f x + g x) l) =r= (sum_fn f l +  sum_fn g l) = true.
     Proof.
       intros ? ?.
       induction l; simpl.
-      + rewrite zero_left_identity_plus.
-        apply refR.
-      + rewrite eqr_eq in IHl; rewrite IHl.
-        apply eqr_eq.
-        assert (Ht: f a + sum_fn f l + (g a + sum_fn g l) = 
-          f a + g a + (sum_fn f l + sum_fn g l)).
-        {
-          replace (g a + sum_fn g l) with (sum_fn g l + g a).
-          rewrite plus_associative, plus_commutative.
-          replace (f a + sum_fn f l + sum_fn g l) with 
-            (f a + (sum_fn f l + sum_fn g l)).
-          rewrite plus_associative with (c := sum_fn f l + sum_fn g l).
-          replace (f a + g a) with (g a + f a).
-          exact eq_refl.
-          apply plus_commutative.
-          apply plus_associative.
-          apply plus_commutative.
-        }
-        rewrite Ht. exact eq_refl.
+      + apply symR, zero_left_identity_plus.
+      + apply sum_fn_congr. exact IHl.
     Qed.
+
+    (* so far upto this point, everything is okay *)
 
     Lemma sum_fn_add_eq : forall (f g : Node -> R) (l : list Node), 
       (sum_fn (fun x => f x + g x) l) = (sum_fn f l +  sum_fn g l).
