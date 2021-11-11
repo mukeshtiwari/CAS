@@ -302,7 +302,13 @@ Section Matrix.
     Qed.
       
 
-  (* everything up to this point works *)
+  Local Lemma rewrite_gen_ind : forall a b c d e f g, 
+   a * d + f =r= g = true -> 
+   a * (b * c + d) + (e * c + f) =r= 
+   (a * b + e) * c + g = true.
+  Proof.
+    intros.
+  Admitted.
   
   Lemma matrix_mul_gen_assoc : forall l₁ l₂ m₁ m₂ m₃ (c d : Node),
     (matrix_mul_gen m₁ (matrix_mul_gen m₂ m₃ l₂) l₁ c d) =r= 
@@ -314,29 +320,45 @@ Section Matrix.
     intros ? ? ? ? ? ?. 
     +
       induction l₂; simpl.
-      ++ reflexivity. 
-      ++ rewrite <-IHl₂,
-        zero_left_anhilator_mul, zero_left_identity_plus.
-        exact eq_refl. 
+      ++ apply refR.
+      ++ apply symR.
+        assert (Ht: 0 * m₃ a d + sum_fn (λ y : Node, 0 * m₃ y d) l₂ =r= 
+          0 + sum_fn (λ y : Node, 0 * m₃ y d) l₂ = true).
+        apply congrP. apply zero_left_anhilator_mul.
+        apply refR. rewrite <-Ht; clear Ht.
+        apply congrR. apply refR.
+        assert (Ht : 0 + sum_fn (λ y : Node, 0 * m₃ y d) l₂ =r=
+          sum_fn (λ y : Node, 0 * m₃ y d) l₂ = true).
+        apply zero_left_identity_plus. apply symR in Ht.
+        rewrite <-Ht. apply congrR.
+        exact IHl₂. apply refR.
+    (* inductive case *)
     + specialize (IHl₁ l₂ m₁ m₂ m₃ c d).
-      rewrite IHl₁.
-      rewrite <-mul_constant_left_eq.
-      rewrite <-sum_fn_add_eq.
-      rewrite push_mul_right_sum_fn_eq.
-      clear IHl₁.
+      (* This one is going to be tricky *)
+      assert (Ht: m₁ c a * sum_fn (λ y : Node, m₂ a y * m₃ y d) l₂ +
+        sum_fn 
+          (λ y : Node, m₁ c y * 
+            sum_fn (λ y0 : Node, m₂ y y0 * m₃ y0 d) l₂) l₁ =r=
+        m₁ c a * sum_fn (λ y : Node, m₂ a y * m₃ y d) l₂ + 
+        sum_fn
+          (λ y : Node,
+             sum_fn (λ y0 : Node, m₁ c y0 * m₂ y0 y) l₁ * m₃ y d) l₂ = true).
+      apply congrP.
+      apply refR. exact IHl₁.
+      rewrite <-Ht.
+      apply congrR. apply refR.
+      clear Ht; clear IHl₁.
+      apply symR.
       induction l₂; simpl.
-      ++ reflexivity.
-      ++ rewrite IHl₂, mul_associative;
-        reflexivity.
+      ++ assert (Ht : m₁ c a * 0 + 0 =r= 0 + 0 = true).
+        apply congrP. apply zero_right_anhilator_mul.
+        apply refR.
+        rewrite <-Ht. apply congrR.
+        apply refR. apply symR.
+        apply zero_left_identity_plus.
+      ++ apply rewrite_gen_ind. exact IHl₂.
   Qed.
 
-  Lemma matrix_mul_gen_assoc_eq : forall l₁ l₂ m₁ m₂ m₃ (c d : Node),
-    (matrix_mul_gen m₁ (matrix_mul_gen m₂ m₃ l₂) l₁ c d) =
-    (matrix_mul_gen (matrix_mul_gen m₁ m₂ l₁) m₃ l₂ c d).
-  Proof.
-    intros; 
-    apply eqr_eq, matrix_mul_gen_assoc.
-  Qed.
 
 
   Definition matrix_mul (m₁ m₂ : Matrix) := 
@@ -351,14 +373,6 @@ Section Matrix.
     apply matrix_mul_gen_assoc.
   Qed.
 
-
-  Lemma matrix_mul_assoc_eq : forall m₁ m₂ m₃ (c d : Node),
-    matrix_mul m₁ (matrix_mul m₂ m₃) c d =  
-    matrix_mul (matrix_mul m₁ m₂) m₃ c d.
-  Proof.
-    intros;
-    apply eqr_eq, matrix_mul_assoc.
-  Qed.
 
 
   (* Now I need Matrix exponentiation *)
