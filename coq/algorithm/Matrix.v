@@ -302,14 +302,72 @@ Section Matrix.
     Qed.
       
 
-  Local Lemma rewrite_gen_ind : forall a b c d e f g, 
-   a * d + f =r= g = true -> 
-   a * (b * c + d) + (e * c + f) =r= 
-   (a * b + e) * c + g = true.
-  Proof.
-    intros.
-  Admitted.
-  
+    Local Lemma rewrite_gen_ind : forall a b c d e f g, 
+    a * d + f =r= g = true -> 
+    a * (b * c + d) + (e * c + f) =r= 
+    (a * b + e) * c + g = true.
+    Proof.
+      intros.
+      assert (Ht : a * (b * c + d) + (e * c + f) =r= 
+        a * b * c + a * d + (e * c + f) = true).
+      apply congrP.
+      assert (Hw : a * b * c + a * d =r= a * (b * c) + a * d = true).
+      apply congrP. apply symR. apply mul_associative.
+      apply refR. apply symR.
+      rewrite <-Hw; clear Hw. 
+      apply congrR. apply refR.
+      apply left_distributive_mul_over_plus.
+      apply refR.
+      rewrite <-Ht; clear Ht. 
+      apply congrR. 
+      apply refR. apply symR.
+      assert (Ht : a * b * c + a * d + (e * c + f) =r= 
+        a * b * c + (a * d + (e * c + f)) = true).
+      apply symR. apply plus_associative.
+      rewrite <-Ht; clear Ht. 
+      apply congrR.
+      apply refR. 
+      apply symR.
+      assert (Ht : a * b * c + (a * d + (e * c + f)) =r= 
+        a * b * c + (e * c + a * d + f) = true).
+      apply congrP. apply refR.
+      assert (Hw : a * d + (e * c + f) =r= 
+        a * d + e * c + f = true).
+      apply plus_associative.
+      rewrite <- Hw; clear Hw.
+      apply congrR. apply refR.
+      apply congrP. 
+      apply plus_commutative.
+      apply refR. 
+      rewrite <- Ht; clear Ht.
+      apply congrR.
+      apply refR. apply symR.
+      assert (Ht : (a * b + e) * c + g =r= 
+        a * b * c + e * c + g = true).
+      apply congrP.
+      apply right_distributive_mul_over_plus.
+      apply refR. apply symR in Ht.
+      rewrite <-Ht; clear Ht.
+      apply congrR. 
+      assert (Ht : a * b * c + e * c + g =r= 
+        a * b * c + (e * c + g) = true).
+      apply symR.
+      apply plus_associative. 
+      apply symR in Ht.
+      rewrite <- Ht; clear Ht.
+      apply congrR. apply congrP.
+      apply refR.
+      assert (Ht : e * c + g =r= e * c + (a * d + f) = true).
+      apply congrP. apply refR.
+      apply symR. exact H.
+      apply symR in Ht.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply symR.
+      apply plus_associative.
+      all: apply refR.
+    Qed.
+
+
   Lemma matrix_mul_gen_assoc : forall l₁ l₂ m₁ m₂ m₃ (c d : Node),
     (matrix_mul_gen m₁ (matrix_mul_gen m₂ m₃ l₂) l₁ c d) =r= 
     (matrix_mul_gen (matrix_mul_gen m₁ m₂ l₁) m₃ l₂ c d) = true.
