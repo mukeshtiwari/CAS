@@ -49,7 +49,8 @@ Section Matrix.
 
     (* start of congruence relation *)
     (congrP : bop_congruence R eqR plusR)
-    (congrM : bop_congruence R eqR mulR).
+    (congrM : bop_congruence R eqR mulR)
+    (congrR : brel_congruence R eqR eqR).
     (* end of congruence *)
     
 
@@ -159,14 +160,50 @@ Section Matrix.
       | h :: t => f h + sum_fn f t
       end.
 
+    Lemma sum_with_two_var : forall fn ga u v, 
+      fn =r= u + v= true -> ga + fn =r= u + (ga + v) = true.
+    Proof.
+      intros.
+      unfold bop_congruence in congrP.
+      assert (Ht: ga + fn =r= ga + (u + v) = true).
+      apply congrP; [apply refR | exact H].
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      assert (Ht : u + (ga + v) =r= u + (v + ga) = true).
+      apply congrP. apply refR.
+      apply plus_commutative.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      assert (Ht : (u + v) + ga =r= u + (v + ga) = true).
+      apply symR, plus_associative.
+      rewrite <-Ht. apply congrR.
+      apply plus_commutative. 
+      apply refR.
+    Qed.
 
+
+    Lemma sum_first_congr : forall fa ga u v fn, 
+      fn =r= u + v = true -> 
+      fa + ga + fn =r= fa + u + (ga + v) = true.
+    Proof.
+      intros.
+      pose proof (congrP fa (ga + fn) fa (u + (ga + v)) (refR fa)
+        (sum_with_two_var _ _ _ _ H)) as Href.
+      rewrite <-Href.
+      apply congrR, symR, plus_associative.
+      apply symR, plus_associative.
+    Qed.
+  
+    
     Theorem sum_fn_congr : forall (f g : Node -> R) (a : Node) (l : list Node),
       (sum_fn (λ x : Node, f x + g x) l =r= sum_fn f l + sum_fn g l) = true ->
       (f a + g a + sum_fn (λ x : Node, f x + g x) l =r= 
       f a + sum_fn f l + (g a + sum_fn g l)) = true.
     Proof.
-    Admitted.
-
+      intros. 
+      apply sum_first_congr.
+      exact H.
+    Qed.
   
 
     (* I need to prove that sum_fn is congruent by 
@@ -184,32 +221,18 @@ Section Matrix.
 
     (* so far upto this point, everything is okay *)
 
-    Lemma sum_fn_add_eq : forall (f g : Node -> R) (l : list Node), 
-      (sum_fn (fun x => f x + g x) l) = (sum_fn f l +  sum_fn g l).
-    Proof.
-      intros;
-      apply eqr_eq, sum_fn_add.
-    Qed.
+    
 
     Lemma mul_constant_left : forall (f : Node -> R) (c : R) (l : list Node), 
       sum_fn (fun x => c * f x) l =r= (c * sum_fn f l) = true.
     Proof.
       intros ? ?. 
       induction l; simpl.
-      + rewrite zero_right_anhilator_mul;
-        apply refR.
-      + apply eqr_eq in IHl; rewrite IHl.
-        rewrite left_distributive_mul_over_plus.
-        apply refR.
-    Qed.
-
-    Lemma mul_constant_left_eq : forall (f : Node -> R) (c : R) (l : list Node), 
-      sum_fn (fun x => c * f x) l = (c * sum_fn f l).
-    Proof.
-      intros;
-      apply eqr_eq, mul_constant_left.
-    Qed.
-
+      + apply symR,
+        zero_right_anhilator_mul.
+      +  (* I need to prove that *)
+    Admitted.
+    
     Lemma mul_constant_right : forall (f : Node -> R) (c : R) (l : list Node), 
       sum_fn (fun x => (f x * c)) l =r= (sum_fn f l * c) = true.
     Proof.
