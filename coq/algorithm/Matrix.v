@@ -195,7 +195,7 @@ Section Matrix.
     Qed.
   
     
-    Theorem sum_fn_congr : forall (f g : Node -> R) (a : Node) (l : list Node),
+    Lemma sum_fn_congr : forall (f g : Node -> R) (a : Node) (l : list Node),
       (sum_fn (λ x : Node, f x + g x) l =r= sum_fn f l + sum_fn g l) = true ->
       (f a + g a + sum_fn (λ x : Node, f x + g x) l =r= 
       f a + sum_fn f l + (g a + sum_fn g l)) = true.
@@ -206,10 +206,6 @@ Section Matrix.
     Qed.
   
 
-    (* I need to prove that sum_fn is congruent by 
-    showing its arguments are congruent.
-
-    Look into the minset.v coq/eqv/minset.v *)
     Lemma sum_fn_add : forall (f g : Node -> R) (l : list Node), 
       (sum_fn (fun x => f x + g x) l) =r= (sum_fn f l +  sum_fn g l) = true.
     Proof.
@@ -219,9 +215,22 @@ Section Matrix.
       + apply sum_fn_congr. exact IHl.
     Qed.
 
-    (* so far upto this point, everything is okay *)
-
+    Lemma mul_gen_left_distr : forall c fa fn gn, 
+      fn =r= c * gn = true -> c * fa + fn =r= c * (fa + gn) = true.
+    Proof.
+      intros.
+      assert (Ht : c * fa + fn =r= c * fa + c * gn = true).
+      apply congrP. apply refR. exact H.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      assert (Ht : c * (fa + gn) =r= c * fa + c * gn = true).
+      apply left_distributive_mul_over_plus.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply congrP; apply refR.
+    Qed.
     
+
 
     Lemma mul_constant_left : forall (f : Node -> R) (c : R) (l : list Node), 
       sum_fn (fun x => c * f x) l =r= (c * sum_fn f l) = true.
@@ -230,27 +239,36 @@ Section Matrix.
       induction l; simpl.
       + apply symR,
         zero_right_anhilator_mul.
-      +  (* I need to prove that *)
-    Admitted.
-    
+      + apply mul_gen_left_distr; exact IHl.
+    Qed.
+
+
+
+    Lemma mul_gen_right_distr : forall c fa fn gn, 
+      fn =r= gn * c = true -> fa * c + fn =r= (fa + gn) * c = true.
+    Proof.
+      intros.
+      assert (Ht : fa * c + fn =r= fa * c + gn * c = true).
+      apply congrP. apply refR. exact H.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      assert (Ht : (fa + gn) * c =r= fa * c + gn * c = true).
+      apply right_distributive_mul_over_plus.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply congrP; apply refR.
+    Qed.
+
+
     Lemma mul_constant_right : forall (f : Node -> R) (c : R) (l : list Node), 
       sum_fn (fun x => (f x * c)) l =r= (sum_fn f l * c) = true.
     Proof.
       intros ? ?.
       induction l; simpl.
-      + rewrite zero_left_anhilator_mul;
-        apply refR.
-      + apply eqr_eq in IHl; rewrite IHl.
-        rewrite right_distributive_mul_over_plus.
-        apply refR.
+      + apply symR, zero_left_anhilator_mul.
+      + apply mul_gen_right_distr; exact IHl.
     Qed.
 
-    Lemma mul_constant_right_eq : forall (f : Node -> R) (c : R) (l : list Node), 
-      sum_fn (fun x => (f x * c)) l = (sum_fn f l * c).
-    Proof.
-      intros; 
-      apply eqr_eq, mul_constant_right.
-    Qed.
 
 
     (* generalised matrix multiplication *)
@@ -258,7 +276,14 @@ Section Matrix.
       fun (c d : Node) => sum_fn (fun y => (m₁ c y * m₂ y d)) l.
 
 
-      
+    Lemma push_mul_right_gen : forall a b c d fn gn, 
+      fn =r= gn = true -> 
+      (a * b + c) * d + fn =r= a * b * d + c * d + gn = true.
+    Proof.
+      intros. apply congrP.
+      apply right_distributive_mul_over_plus.
+      exact H.
+    Qed.
 
     (* This need right distributive (a + b) * c = a * c + b * c*)  
     Lemma push_mul_right_sum_fn : forall (l₂ l₁ : list Node) (m₁ m₂ m₃ : Matrix) a x x0,
@@ -269,33 +294,21 @@ Section Matrix.
         (m₁ x a * m₂ a y * m₃ y x0 + 
           sum_fn (λ y0 : Node, m₁ x y0 * m₂ y0 y) l₁ * m₃ y x0)) l₂ = true.
     Proof.
-      intros; apply eqr_eq.
+      intros.
       revert l₁ m₁ m₂ m₃ a x x0.
       induction l₂; simpl; intros ? ? ? ? ? ? ?.
-      + apply eq_refl.
-      + rewrite IHl₂, right_distributive_mul_over_plus;
-        reflexivity.  
-    Qed.
-
-    Lemma push_mul_right_sum_fn_eq : forall (l₂ l₁ : list Node) (m₁ m₂ m₃ : Matrix) a x x0,
-      sum_fn (λ y : Node,
-        ((m₁ x a * m₂ a y + 
-          sum_fn (λ y0 : Node, m₁ x y0 * m₂ y0 y) l₁) * m₃ y x0)) l₂ = 
-      sum_fn (λ y : Node, 
-        (m₁ x a * m₂ a y * m₃ y x0 + 
-          sum_fn (λ y0 : Node, m₁ x y0 * m₂ y0 y) l₁ * m₃ y x0)) l₂.
-    Proof.
-      intros;
-      apply eqr_eq, push_mul_right_sum_fn.
+      + apply refR.
+      + apply push_mul_right_gen, IHl₂.
     Qed.
       
 
+  (* everything up to this point works *)
   
   Lemma matrix_mul_gen_assoc : forall l₁ l₂ m₁ m₂ m₃ (c d : Node),
     (matrix_mul_gen m₁ (matrix_mul_gen m₂ m₃ l₂) l₁ c d) =r= 
     (matrix_mul_gen (matrix_mul_gen m₁ m₂ l₁) m₃ l₂ c d) = true.
   Proof.
-    intros; rewrite eqr_eq;
+    intros.
       revert l₁ l₂ m₁ m₂ m₃ c d.
     unfold matrix_mul_gen; induction l₁; simpl;
     intros ? ? ? ? ? ?. 
