@@ -45,11 +45,31 @@ Section Lfn.
   Lemma list_mem_not : forall (l : list A) (c a : A), eqA c a = true ->
     in_list eqA l a = false -> in_list eqA l c = false.
   Proof.
+    induction l; simpl; intros ? ? Heq Hf.
+    + reflexivity.
+    + apply Bool.orb_false_iff in Hf.
+      destruct Hf as [Hfa Hfb].
+      apply Bool.orb_false_iff.
+      split. 
+      (* from Heq and Hfa, I have the conclusion *)
+      admit.
+      apply IHl with (a := a0).
+      exact Heq. exact Hfb.
   Admitted.
 
   Lemma list_mem_true_false : forall (l : list A) (a c : A),
     in_list eqA l a = false -> in_list eqA l c = true -> eqA c a = false.
   Proof.
+    induction l; simpl; intros ? ? Ha Hb.
+    + inversion Hb.
+    + apply Bool.orb_false_iff in Ha.
+      apply Bool.orb_true_iff in Hb.
+      destruct Ha as [Ha1 Ha2].
+      destruct Hb as [Hb | Hb].
+      apply symA in Hb.
+      (* eqA a0 a = false /\ eqA a c = true -> eqA a0 c = false *)
+      admit.
+      apply IHl; assumption.
   Admitted. 
 
   Lemma list_split : forall (l : list A) (c : A),
@@ -98,8 +118,7 @@ Section Lfn.
   Qed.
         
     
-
-Section Lfn.
+End Lfn.
 
 
 
@@ -521,38 +540,18 @@ Section Matrix.
     (* for this proof, I need l to be finite, non-empty, 
       but more importantly, non-duplicate. 
     *)
+    
     Lemma matrix_mul_left_identity : forall (l : list Node),
-      l <> [] -> (∀ x : Node, in_list eqN l x = true) -> NoDup l ->
-      forall (m : Matrix) (c d : Node),
+      l <> [] -> (∀ x : Node, in_list eqN l x = true) -> 
+      no_dup Node eqN l = true -> forall (m : Matrix) (c d : Node),
       matrix_mul_gen I m l c d =r= m c d = true.
     Proof.
       unfold matrix_mul_gen, I.
-      intros.
-      assert (Ht : exists l₁ l₂ : list Node, 
-        l = l₁ ++ [c] ++ l₂ /\ 
-        in_list eqN l₁ c = false /\ 
-        in_list eqN l₂ c = false). admit.
-      destruct Ht as [l₁ [l₂ [Ht₁ [Ht₂ Ht₃]]]].
-      rewrite Ht₁.
-
-      rewrite Ht.
-      (* Now, if c occurs just once in the list l, 
-        then (λ y : Node, (if c =n= y then 1 else 0) * m y d) 
-        is going to be (m c d) *) 
-      induction l; simpl; intros H₁ H₂ m c d.
-      + pose proof (H₂ c) as Hf.
-        inversion Hf.
-      + destruct l; simpl.
-        (* Now l is not empty *)
-        ++ simpl in H₂.
-          specialize (H₂ c).
-          apply Bool.orb_true_iff in H₂.
-          destruct H₂ as [H₂ | H₂].
-          rewrite H₂. admit.
-          inversion H₂.
-        ++ (* Now, here I need NoDup assumption. 
-          c =n= a = true, then first one is goind to be true and 
-          rest is 0 otherwise inductive hypothesis*) 
+      intros ? Hl Hx Hn ? ? ?.
+      destruct (list_split _ eqN refN symN trnN l c Hl (Hx c) 
+        Hn) as [la [lb [Hleq [Hina Hinb]]]].
+      (* I need to replace l by la ++ [c] ++ lb *)
+      
 
 
 
