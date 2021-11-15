@@ -535,7 +535,24 @@ Section Matrix.
     Qed.
 
     
-
+    Lemma sum_fn_list_app : forall (l₁ l₂ : list Node) (f : Node -> R), 
+    sum_fn f (l₁ ++ l₂) =r= (sum_fn f l₁ + sum_fn f l₂) = true.
+    Proof.
+      induction l₁; simpl.
+      intros ? ?.
+      + apply symR, zero_left_identity_plus.
+      + intros ? ?.
+        specialize (IHl₁ l₂ f).
+        assert (Ht : f a + sum_fn f l₁ + sum_fn f l₂ =r= 
+          f a + (sum_fn f l₁ + sum_fn f l₂) = true).
+        apply symR, plus_associative.
+        apply symR in Ht.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply congrP.
+        apply refR. exact IHl₁.
+        apply refR.
+    Qed.
+  
 
     (* for this proof, I need l to be finite, non-empty, 
       but more importantly, non-duplicate. 
@@ -551,7 +568,7 @@ Section Matrix.
       destruct (list_split _ eqN refN symN trnN l c Hl (Hx c) 
         Hn) as [la [lb [Hleq [Hina Hinb]]]].
       (* I need to replace l by la ++ [c] ++ lb *)
-      
+
 
 
 
