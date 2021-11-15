@@ -553,6 +553,18 @@ Section Matrix.
         apply refR.
     Qed.
   
+    Lemma sum_fn_three_list_app : forall (l₁ l₂ l₃ : list Node) 
+      (f : Node -> R), 
+      sum_fn f (l₁ ++ l₂ ++ l₃) =r= (sum_fn f l₁ + sum_fn f l₂ + sum_fn f l₃) 
+      = true.
+    Proof.
+      intros. 
+      assert (Ht : sum_fn f (l₁ ++ l₂ ++ l₃) =r= 
+        sum_fn f l₁ + sum_fn f (l₂ ++ l₃) = true).
+      apply sum_fn_list_app. rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+    Admitted.
+
 
     Lemma sum_fn_zero : forall (l₁ l₂ : list Node) (f : Node -> R),
       sum_fn f l₁ =r= 0 = true ->  
@@ -581,8 +593,9 @@ Section Matrix.
       list_equality Node eqN l (la ++ [c] ++ lb) = true ->
       sum_fn f l =r= sum_fn f (la ++ [c] ++ lb) = true.
     Proof.
-
     Admitted.
+
+
 
     Lemma sum_fn_not_mem : forall (l : list Node) (c d : Node) 
       (m : Node -> Node -> R), in_list eqN l c = false ->
@@ -617,7 +630,48 @@ Section Matrix.
       intros ? Hl Hx Hn ? ? ?.
       destruct (list_split _ eqN refN symN trnN l c Hl (Hx c) 
         Hn) as [la [lb [Hleq [Hina Hinb]]]].
-      eapply sum_fn_not_mem.
+      assert (Ht : 
+        sum_fn 
+          (λ y : Node, (if c =n= y then 1 else 0) * m y d) l =r= 
+        sum_fn 
+          (λ y : Node, (if c =n= y then 1 else 0) * m y d) (la ++ [c] ++ lb)
+        = true).
+      apply sum_fn_list_eqv. 
+      exact Hleq. rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR. 
+      assert (Ht : 
+        sum_fn 
+        (λ y : Node, (if c =n= y then 1 else 0) * m y d) (la ++ [c] ++ lb)
+        =r= 
+        sum_fn (λ y : Node, (if c =n= y then 1 else 0) * m y d) la + 
+        sum_fn (λ y : Node, (if c =n= y then 1 else 0) * m y d) [c] + 
+        sum_fn (λ y : Node, (if c =n= y then 1 else 0) * m y d) lb = true).
+      apply sum_fn_three_list_app.
+      rewrite <-Ht; clear Ht. apply congrR.
+      apply refR. simpl. 
+      assert (Hc : c =n= c = true).
+      apply refN. rewrite Hc; clear Hc.
+      apply symR.
+      assert (Ht : 
+        sum_fn 
+        (λ y : Node, (if c =n= y then 1 else 0) * m y d) la + 
+        (1 * m c d + 0) +
+        sum_fn 
+        (λ y : Node, (if c =n= y then 1 else 0) * m y d) lb =r= 
+        0 + (1 * m c d + 0) + 0 = true).
+      apply congrP. apply congrP.
+      apply sum_fn_not_mem. exact Hina.
+      apply refR.
+      apply sum_fn_not_mem. exact Hinb.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR.
+    Admitted.
+
+
+
+      
       (* I need to replace l by la ++ [c] ++ lb *)
 
 
