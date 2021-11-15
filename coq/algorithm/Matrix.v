@@ -536,7 +536,7 @@ Section Matrix.
 
     
     Lemma sum_fn_list_app : forall (l₁ l₂ : list Node) (f : Node -> R), 
-    sum_fn f (l₁ ++ l₂) =r= (sum_fn f l₁ + sum_fn f l₂) = true.
+      sum_fn f (l₁ ++ l₂) =r= (sum_fn f l₁ + sum_fn f l₂) = true.
     Proof.
       induction l₁; simpl.
       intros ? ?.
@@ -554,10 +554,60 @@ Section Matrix.
     Qed.
   
 
+    Lemma sum_fn_zero : forall (l₁ l₂ : list Node) (f : Node -> R),
+      sum_fn f l₁ =r= 0 = true ->  
+      sum_fn f (l₁ ++ l₂) =r= sum_fn f l₂ = true.
+    Proof.
+      intros ? ? ? Hf.
+      assert (sum_fn f (l₁ ++ l₂) =r= sum_fn f l₁ + sum_fn f l₂ = true).
+      apply sum_fn_list_app.
+      rewrite <-H; clear H.
+      apply congrR. apply refR.
+      assert (Ht : sum_fn f l₁ + sum_fn f l₂ =r= 0 + sum_fn f l₂ = true).
+      apply congrP. exact Hf.
+      apply refR. apply symR.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR. apply zero_left_identity_plus.
+    Qed.
+
+
     (* for this proof, I need l to be finite, non-empty, 
       but more importantly, non-duplicate. 
     *)
     
+    Lemma sum_fn_list_eqv : forall (l la lb : list Node) 
+      (c : Node) (f : Node -> R), 
+      list_equality Node eqN l (la ++ [c] ++ lb) = true ->
+      sum_fn f l =r= sum_fn f (la ++ [c] ++ lb) = true.
+    Proof.
+
+    Admitted.
+
+    Lemma sum_fn_not_mem : forall (l : list Node) (c d : Node) 
+      (m : Node -> Node -> R), in_list eqN l c = false ->
+      sum_fn (λ y : Node, (if c =n= y then 1 else 0) * m y d) l =r= 
+      0 = true.
+    Proof.
+      induction l; simpl; intros c d m H.
+      + apply refR.
+      + apply Bool.orb_false_iff in H.
+        destruct H as [Ha Hb]. 
+        rewrite Ha.
+        specialize (IHl c d m Hb).
+        assert (Ht : 0 * m a d + 
+          sum_fn (λ y : Node, (if c =n= y then 1 else 0) * m y d) l =r= 
+          0 + sum_fn (λ y : Node, (if c =n= y then 1 else 0) * m y d) l 
+          = true).
+        apply congrP. apply zero_left_anhilator_mul.
+        apply refR. rewrite <-Ht; clear Ht.
+        apply congrR. apply refR.
+        apply symR. 
+        rewrite <-IHl. apply congrR.
+        apply zero_left_identity_plus.
+        apply refR.
+    Qed.
+        
     Lemma matrix_mul_left_identity : forall (l : list Node),
       l <> [] -> (∀ x : Node, in_list eqN l x = true) -> 
       no_dup Node eqN l = true -> forall (m : Matrix) (c d : Node),
@@ -567,6 +617,7 @@ Section Matrix.
       intros ? Hl Hx Hn ? ? ?.
       destruct (list_split _ eqN refN symN trnN l c Hl (Hx c) 
         Hn) as [la [lb [Hleq [Hina Hinb]]]].
+      eapply sum_fn_not_mem.
       (* I need to replace l by la ++ [c] ++ lb *)
 
 
