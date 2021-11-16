@@ -563,7 +563,17 @@ Section Matrix.
         sum_fn f l₁ + sum_fn f (l₂ ++ l₃) = true).
       apply sum_fn_list_app. rewrite <-Ht; clear Ht.
       apply congrR. apply refR.
-    Admitted.
+      assert (Ht: sum_fn f l₁ + sum_fn f l₂ + sum_fn f l₃ =r= 
+        sum_fn f l₁ + (sum_fn f l₂ + sum_fn f l₃) = true).
+      apply symR. apply plus_associative.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply congrP. apply refR.
+      apply sum_fn_list_app.
+    Qed.
+
+      
+
 
 
     Lemma sum_fn_zero : forall (l₁ l₂ : list Node) (f : Node -> R),
