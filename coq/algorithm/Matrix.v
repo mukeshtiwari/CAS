@@ -15,12 +15,6 @@ Section Lfn.
     (symA : brel_symmetric A eqA)
     (trnA : brel_transitive A eqA).
 
-  Fixpoint no_dup (l : list A) : bool :=
-    match l with
-    | [] => true
-    | h :: t => negb (in_list eqA t h) &&
-        no_dup t
-    end.
 
   Fixpoint list_eqv (l₁ l₂ : list A) : bool := 
     match l₁ with 
@@ -41,6 +35,22 @@ Section Lfn.
     + simpl. apply Bool.andb_true_iff.
       split. apply refA. apply IHl.
   Qed.
+
+  Lemma list_eqv_sym: forall l₁ l₂ : list A, 
+    list_eqv l₁ l₂ = true -> list_eqv l₂ l₁ = true.
+  Proof.
+    induction l₁; simpl.
+    + intros ? Hl. destruct l₂.
+      reflexivity. inversion Hl.
+    + intros ? Hl. destruct l₂.
+      inversion Hl.
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Ha Hb].
+      simpl. apply Bool.andb_true_iff.
+      split. apply symA. exact Ha.
+      apply IHl₁. exact Hb.
+  Qed.
+
   
   Lemma list_mem_not : forall (l : list A) (c a : A), eqA c a = true ->
     in_list eqA l a = false -> in_list eqA l c = false.
@@ -72,6 +82,13 @@ Section Lfn.
       apply IHl; assumption.
   Admitted. 
 
+  Fixpoint no_dup (l : list A) : bool :=
+    match l with
+    | [] => true
+    | h :: t => negb (in_list eqA t h) &&
+        no_dup t
+    end.
+  
   Lemma list_split : forall (l : list A) (c : A),
     l <> [] -> in_list eqA l c = true -> 
     no_dup l = true -> exists l₁ l₂ : list A, 
@@ -915,7 +932,7 @@ Section Matrix.
       matrix_exp_unary e (k1 + k2)  c d =r= 
       matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2) c d = true.
     Proof.
-      induction k1.
+      induction k1; simpl.
       + intros ? ?; simpl.
         admit.
       + simpl. .admit.
