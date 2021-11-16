@@ -664,7 +664,7 @@ Section Matrix.
         apply refR.
     Qed.
         
-    Lemma matrix_mul_left_identity : forall (l : list Node),
+    Lemma matrix_mul_left_identity_gen : forall (l : list Node),
       l <> [] -> (∀ x : Node, in_list eqN l x = true) -> 
       no_dup Node eqN l = true -> forall (m : Matrix) (c d : Node),
       matrix_mul_gen I m l c d =r= m c d = true.
@@ -727,6 +727,104 @@ Section Matrix.
       apply symR. apply one_left_identity_mul.
     Qed.
 
+    
+
+    Lemma sum_fn_not_mem_dnode : forall (l : list Node) (c d : Node) 
+      (m : Node -> Node -> R), in_list eqN l d = false ->
+      sum_fn (λ y : Node, m c y * (if y =n= d then 1 else 0)) l =r= 
+      0 = true.
+    Proof.
+      induction l; simpl; intros c d m H.
+      + apply refR.
+      + apply Bool.orb_false_iff in H.
+        destruct H as [Ha Hb].
+        assert (a =n= d = false).
+        rewrite <-Ha.
+        (* now I have eqN a d = eqN d a *)
+        admit.
+        rewrite H.
+        assert (Ht : 
+          m c a * 0 +
+          sum_fn (λ y : Node, m c y * (if y =n= d then 1 else 0)) l =r= 
+          m c a * 0 + 0 = true).
+        apply congrP. apply refR.
+        specialize (IHl c d m Hb).
+        exact IHl.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply congrP. apply refR.
+        apply refR.
+        apply symR.
+        assert (Ht : m c a * 0 + 0 =r= m c a * 0 = true).
+        apply zero_right_identity_plus.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply refR.
+        apply symR.
+        apply zero_right_anhilator_mul.
+    Admitted.
+
+     
+
+    Lemma matrix_mul_right_identity_gen : forall (l : list Node),
+      l <> [] -> (∀ x : Node, in_list eqN l x = true) -> 
+      no_dup Node eqN l = true -> forall (m : Matrix) (c d : Node),
+      matrix_mul_gen m I l c d =r= m c d = true.
+    Proof.
+      unfold matrix_mul_gen, I.
+      intros ? Hl Hx Hn ? ? ?.
+      destruct (list_split _ eqN refN symN trnN l d Hl (Hx d) 
+        Hn) as [la [lb [Hleq [Hina Hinb]]]].
+      assert (Ht : 
+        sum_fn 
+          (λ y : Node, m c y * (if y =n= d then 1 else 0)) l =r= 
+        sum_fn 
+          (λ y : Node, m c y * (if y =n= d then 1 else 0)) (la ++ [d] ++ lb)
+        = true).
+      apply sum_fn_list_eqv. 
+      exact Hleq. rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR.
+      assert (Ht : 
+        sum_fn (λ y : Node, m c y * (if y =n= d then 1 else 0)) (la ++ [d] ++ lb)
+        =r= 
+        sum_fn (λ y : Node, m c y * (if y =n= d then 1 else 0)) la + 
+        sum_fn (λ y : Node, m c y * (if y =n= d then 1 else 0)) [d] + 
+        sum_fn (λ y : Node, m c y * (if y =n= d then 1 else 0)) lb = true).
+      apply sum_fn_three_list_app.
+      rewrite <-Ht; clear Ht. apply congrR.
+      apply refR. simpl. 
+      assert (Hd : d =n= d = true).
+      apply refN. rewrite Hd; clear Hd.
+      assert (Ht :
+        sum_fn (λ y : Node, m c y * (if y =n= d then 1 else 0)) la +
+        (m c d * 1 + 0) +
+        sum_fn (λ y : Node, m c y * (if y =n= d then 1 else 0)) lb =r= 
+        0 + (m c d * 1 + 0) + 0 = true).
+      apply congrP. apply congrP.
+      apply sum_fn_not_mem_dnode. exact Hina.
+      apply refR.
+      apply sum_fn_not_mem_dnode. exact Hinb.
+      apply symR.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR.
+      assert (Ht : 0 + (m c d * 1 + 0) + 0 =r= 
+        0 + (m c d * 1 + 0)  = true).
+      apply zero_right_identity_plus.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR.
+      assert (Ht: 0 + (m c d * 1 + 0) =r= (m c d * 1 + 0) = true).
+      apply zero_left_identity_plus.
+      rewrite <-Ht; clear Ht. 
+      apply congrR.
+      apply refR. apply symR.
+      assert (Ht : m c d * 1 + 0 =r= m c d * 1 = true).
+      apply zero_right_identity_plus. rewrite <-Ht; 
+      clear Ht. apply congrR. apply refR.
+      apply symR. apply one_right_identity_mul.
+    Qed.
+
 
     Definition matrix_mul (m₁ m₂ : Matrix) := 
       matrix_mul_gen m₁ m₂ finN.
@@ -740,6 +838,7 @@ Section Matrix.
       apply matrix_mul_gen_assoc.
     Qed.
 
+    
 
 
     (* Now I need Matrix exponentiation *)
