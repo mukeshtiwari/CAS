@@ -22,7 +22,7 @@ Section Lfn.
         no_dup t
     end.
 
-  Fixpoint list_equality (l₁ l₂ : list A) : bool := 
+  Fixpoint list_eqv (l₁ l₂ : list A) : bool := 
     match l₁ with 
     | [] => match l₂ with 
       | [] => true
@@ -30,11 +30,11 @@ Section Lfn.
       end
     | h₁ :: t₁ => match l₂ with
       | [] => false 
-      | h₂ :: t₂ => (eqA h₁ h₂) && (list_equality t₁ t₂) 
+      | h₂ :: t₂ => (eqA h₁ h₂) && (list_eqv t₁ t₂) 
       end
     end.   
 
-  Lemma list_equality_refl : forall l : list A, list_equality l l = true.
+  Lemma list_eqv_refl : forall l : list A, list_eqv l l = true.
   Proof.
     induction l.
     + simpl; reflexivity.
@@ -50,7 +50,7 @@ Section Lfn.
     + apply Bool.orb_false_iff in Hf.
       destruct Hf as [Hfa Hfb].
       apply Bool.orb_false_iff.
-      split. 
+      split.
       (* from Heq and Hfa, I have the conclusion *)
       admit.
       apply IHl with (a := a0).
@@ -75,7 +75,7 @@ Section Lfn.
   Lemma list_split : forall (l : list A) (c : A),
     l <> [] -> in_list eqA l c = true -> 
     no_dup l = true -> exists l₁ l₂ : list A, 
-    list_equality l (l₁ ++ [c] ++ l₂) = true /\ 
+    list_eqv l (l₁ ++ [c] ++ l₂) = true /\ 
     in_list eqA l₁ c = false /\ 
     in_list eqA l₂ c = false.
   Proof.
@@ -91,7 +91,7 @@ Section Lfn.
       apply Bool.negb_true_iff in Hl₃.
       split. apply Bool.andb_true_iff.
       split. apply symA. apply H₂.
-      apply list_equality_refl.
+      apply list_eqv_refl.
       split. auto.
       apply list_mem_not with (a := a).
       exact H₂. exact Hl₃.
@@ -594,15 +594,13 @@ Section Matrix.
     Qed.
 
 
-    (* for this proof, I need l to be finite, non-empty, 
-      but more importantly, non-duplicate. 
-    *)
     
     Lemma sum_fn_list_eqv : forall (l la lb : list Node) 
       (c : Node) (f : Node -> R), 
-      list_equality Node eqN l (la ++ [c] ++ lb) = true ->
+      list_eqv Node eqN l (la ++ [c] ++ lb) = true ->
       sum_fn f l =r= sum_fn f (la ++ [c] ++ lb) = true.
     Proof.
+      
     Admitted.
 
 
