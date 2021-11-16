@@ -147,7 +147,8 @@ Section Matrix.
     (refN : brel_reflexive Node eqN)
     (symN : brel_symmetric Node eqN)
     (trnN : brel_transitive Node eqN)
-    (dupN : no_dup Node eqN finN = true) (* finN should be duplicate free *)
+    (dupN : no_dup Node eqN finN = true) (* finN is duplicate free *)
+    (empN : finN <> []) (* finN is non-empty *)
     (memN : forall x : Node, in_list eqN finN x = true)
 
     (* carrier set and the operators *)
@@ -856,8 +857,25 @@ Section Matrix.
       apply matrix_mul_gen_assoc.
     Qed.
 
-    
+    Lemma matrix_mul_left_identity : forall m (c d : Node), 
+      matrix_mul I m c d =r= m c d = true.
+    Proof.
+      unfold matrix_mul.
+      apply matrix_mul_left_identity_gen.
+      apply empN. apply memN.
+      apply dupN.
+    Qed.
 
+    Lemma matrix_mul_right_identity : forall m (c d : Node), 
+      matrix_mul m I c d =r= m c d = true.
+    Proof.
+      unfold matrix_mul.
+      apply matrix_mul_right_identity_gen.
+      apply empN. apply memN.
+      apply dupN.
+    Qed.
+
+    
 
     (* Now I need Matrix exponentiation *)
     (* write a slow one, nat, and fast one, Binary nat and 
@@ -928,16 +946,23 @@ Section Matrix.
       rewrite Hk in Hp. lia.
     Qed. 
 
-    
+    (* for this one, I need matrix multiplication to be 
+      congruent 
+      bop_congruence Matrix mat_eq matrix_mul
+      *)
     Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d , 
       matrix_exp_unary e (k1 + k2)  c d =r= 
       matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2) c d = true.
     Proof.
       induction k1; simpl.
-      + intros ? ?; simpl.
-        admit.
-      + simpl. .admit.
-    Admitted. *)
+      + intros ? ? ? ?.
+        apply symR, matrix_mul_left_identity.
+      + intros ? ? ? ?.
+        assert (Ht : matrix_mul e (matrix_exp_unary e (k1 + k2)) c d =r=
+          matrix_mul e 
+          (matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2)) c d = true).
+        
+        
 
 
 
