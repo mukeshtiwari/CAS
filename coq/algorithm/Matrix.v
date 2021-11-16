@@ -667,14 +667,22 @@ Section Matrix.
       rewrite <-Ht; clear Ht.
       apply congrR. apply refR.
       apply symR.
-    Admitted.
-
-
-
-      
-      (* I need to replace l by la ++ [c] ++ lb *)
-
-
+      assert (Ht : 0 + (1 * m c d + 0) + 0 =r= 
+        0 + (1 * m c d + 0) = true).
+      apply zero_right_identity_plus. 
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR. 
+      assert (Ht: 0 + (1 * m c d + 0) =r= (1 * m c d + 0) = true).
+      apply zero_left_identity_plus.
+      rewrite <-Ht; clear Ht. 
+      apply congrR.
+      apply refR. apply symR.
+      assert (Ht : 1 * m c d + 0 =r= 1 * m c d = true).
+      apply zero_right_identity_plus. rewrite <-Ht; 
+      clear Ht. apply congrR. apply refR.
+      apply symR. apply one_left_identity_mul.
+    Qed.
 
 
     Definition matrix_mul (m₁ m₂ : Matrix) := 
