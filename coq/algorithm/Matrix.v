@@ -915,7 +915,8 @@ Section Matrix.
     Qed.
 
   
-    Lemma binnat_odd : forall (p : positive) (n : nat), N.pos (xI p) = N.of_nat n -> 
+    Lemma binnat_odd : forall (p : positive) (n : nat), 
+      N.pos (xI p) = N.of_nat n -> 
       exists k,  n = (2 * k + 1)%nat /\  (N.pos p) = (N.of_nat k).
     Proof.
       intros p n Hp.
@@ -931,7 +932,8 @@ Section Matrix.
 
 
 
-    Lemma binnat_even : forall (p : positive) (n : nat), N.pos (xO p) = N.of_nat n :> N -> 
+    Lemma binnat_even : forall (p : positive) (n : nat), 
+      N.pos (xO p) = N.of_nat n :> N -> 
       exists k, n = (Nat.mul 2 k) /\  (N.pos p) = (N.of_nat k).
     Proof.
       intros p n Hp.
@@ -944,12 +946,23 @@ Section Matrix.
       apply Even.odd_equiv in H. 
       destruct H as [k Hk].
       rewrite Hk in Hp. lia.
-    Qed. 
+    Qed.
 
     (* for this one, I need matrix multiplication to be 
       congruent 
       bop_congruence Matrix mat_eq matrix_mul
-      *)
+      
+      boolean equality on Matrix: 
+      List.map (fun '(c, d) => m c d ) (all_pairs finN)
+      =list-eqv= 
+      List.map (fun '(c, d) => n c d) (all_pairs finN)
+      Prove that it's reflexive, symmetric, 
+      transitive. 
+
+      congrMM: brel_congruence Matrix mat_eq matrix_mul
+    *)
+    
+    
     Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d , 
       matrix_exp_unary e (k1 + k2)  c d =r= 
       matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2) c d = true.
@@ -958,11 +971,29 @@ Section Matrix.
       + intros ? ? ? ?.
         apply symR, matrix_mul_left_identity.
       + intros ? ? ? ?.
+        specialize (IHk1 k2 e c d).
+        (* Now, I want to replace 
+          (matrix_exp_unary e (k1 + k2)) c d by the 
+          induction hypothesis IHk1. 
+          (matrix_exp_unary e (k1 + k2) c d =r=
+          matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2) c d) =
+          true
+        *)
         assert (Ht : matrix_mul e (matrix_exp_unary e (k1 + k2)) c d =r=
-          matrix_mul e 
-          (matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2)) c d = true).
-        
-        
+          matrix_mul e (matrix_mul (matrix_exp_unary e k1) 
+          (matrix_exp_unary e k2)) c d = true).
+        unfold bop_congruence in congrP.
+
+        admit.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply refR.
+        apply symR.
+        apply matrix_mul_assoc.
+    Admitted.
+
+
+
+
 
 
 
