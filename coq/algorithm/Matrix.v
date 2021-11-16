@@ -572,7 +572,6 @@ Section Matrix.
       apply sum_fn_list_app.
     Qed.
 
-      
 
 
 
@@ -593,16 +592,52 @@ Section Matrix.
       apply symR. apply zero_left_identity_plus.
     Qed.
 
+    Lemma sum_fn_list_eqv_gen : forall (l la lb : list Node) 
+      (f : Node -> R), 
+      list_eqv Node eqN l (la ++ lb) = true ->
+      sum_fn f l =r= sum_fn f (la ++ lb) = true.
+    Proof.
+      induction l.
+      + simpl; intros ? ? ? Hl.
+        destruct (la ++ lb).
+        simpl. apply refR.
+        inversion Hl.
+      + intros ? ? ? Hl. 
+        destruct la; destruct lb.
+        - inversion Hl.
+        - simpl in * |- *.
+          apply Bool.andb_true_iff in Hl.
+          destruct Hl as [Hla Hlb].
+          specialize (IHl [] lb f Hlb).
+          simpl in IHl. apply congrP.
+          (* because a =n= n = true, the goal, 
+            f a =n= f n = true *)
+          admit.
+          exact IHl.
+        - simpl in * |- *.
+          apply Bool.andb_true_iff in Hl.
+          destruct Hl as [Hla Hlb].
+          apply congrP.
+          admit.
+          specialize (IHl la [] f Hlb).
+          exact IHl.
+        - simpl in * |- *.
+          apply Bool.andb_true_iff in Hl.
+          destruct Hl as [Hla Hlb].
+          specialize(IHl la (n0 :: lb) f Hlb).
+          apply congrP.
+          admit.
+          exact IHl.
+    Admitted.
 
-    
     Lemma sum_fn_list_eqv : forall (l la lb : list Node) 
       (c : Node) (f : Node -> R), 
       list_eqv Node eqN l (la ++ [c] ++ lb) = true ->
       sum_fn f l =r= sum_fn f (la ++ [c] ++ lb) = true.
     Proof.
-      
-    Admitted.
-
+      intros ? ? ? ? ? Hl.
+      exact (sum_fn_list_eqv_gen l la ([c] ++ lb) f Hl).
+    Qed. 
 
 
     Lemma sum_fn_not_mem : forall (l : list Node) (c d : Node) 
@@ -776,15 +811,15 @@ Section Matrix.
       rewrite Hk in Hp. lia.
     Qed. 
 
-    (* 
-    Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d , matrix_exp e (k1 + k2)  c d = 
-      matrix_mul (matrix_exp e k1)  (matrix_exp e k2) c d.
+    
+    Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d , 
+      matrix_exp_unary e (k1 + k2)  c d =r= 
+      matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2) c d = true.
     Proof.
       induction k1.
-      + intros ? ?; simpl. 
-        (* requires I * m = m *)
+      + intros ? ?; simpl.
         admit.
-      + admit.
+      + simpl. .admit.
     Admitted. *)
 
 
