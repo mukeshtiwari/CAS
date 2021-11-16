@@ -147,6 +147,7 @@ Section Matrix.
     (refN : brel_reflexive Node eqN)
     (symN : brel_symmetric Node eqN)
     (trnN : brel_transitive Node eqN)
+    (dupN : no_dup Node eqN finN = true) (* finN should be duplicate free *)
     (memN : forall x : Node, in_list eqN finN x = true)
 
     (* carrier set and the operators *)
