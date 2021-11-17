@@ -1031,35 +1031,143 @@ Section Matrix.
 
       congrMM: brel_congruence Matrix mat_eq matrix_mul
     *)
+
+    Lemma add_r_cong : forall a b c d, a =r= c = true ->
+      b =r= d = true -> a + b =r= c + d = true.
+    Proof.
+      intros ? ? ? ? Hac Hbd.
+      apply congrP.
+      exact Hac.
+      exact Hbd.
+    Qed.
+
+    Lemma mat_pointwise_cong : forall a b c d e f g h 
+      (m₁ m₂ : Matrix), 
+      a =n= c = true -> b =n= d = true ->
+      e =n= g = true -> f =n= h = true ->
+      mat_cong m₁ -> mat_cong m₂ -> 
+      m₁ a b * m₂ e f =r=  m₁ c d * m₂ g h = true.
+    Proof.
+      intros ? ? ? ? ? ? ? ? ? ? Hac Hbd Heg Hfh
+        Hm₁ Hm₂.
+      apply congrM.
+      apply Hm₁; assumption.
+      apply Hm₂; assumption.
+    Qed.
+
+    Lemma sum_fn_mul_congr : forall l m₁ m₂ a b c d, 
+      (a =n= c) = true  -> (b =n= d) = true ->
+      mat_cong m₁ -> mat_cong m₂ ->
+      sum_fn (λ y : Node, m₁ a y * m₂ y b) l =r= 
+      sum_fn (λ y : Node, m₁ c y * m₂ y d) l = true.
+    Proof.
+      induction l; simpl; 
+      intros ? ? ? ? ? ? Hac Hbd Hm₁ Hm₂.
+      + apply refR.
+      + apply add_r_cong.
+        apply mat_pointwise_cong;
+        try assumption; try (apply refN).
+        apply IHl; assumption.
+    Qed.
+
+  
+    Lemma mat_mul_cong : forall m₁ m₂ a b c d, 
+      a =n= c= true -> b =n= d = true -> 
+      mat_cong m₁ -> mat_cong m₂ -> 
+      matrix_mul m₁ m₂ a b =r= matrix_mul m₁ m₂ c d = true.
+    Proof.
+      intros.
+      unfold matrix_mul, matrix_mul_gen.
+      apply sum_fn_mul_congr; assumption.
+    Qed.
+
+    Lemma identity_cong : forall a b c d, 
+      (a =n= c) = true -> (b =n= d) = true ->
+      I a b =r= I c d = true.
+    Proof.
+      intros ? ? ? ? Hac Hbd.
+      unfold I.
+      case_eq (a =n= b); intros Hf; auto.
+      assert (Ht1 := trnN _ _ _ Hf Hbd).
+      apply symN in Hac.
+      assert (Ht2 := trnN _ _ _ Hac Ht1).
+      rewrite Ht2. apply refR.
+      case_eq (c =n= d); intros Hcd; auto.
+      assert (Had := trnN _ _ _ Hac Hcd).
+      apply symN in Hbd.
+      assert (Habt := trnN _ _ _ Had Hbd).
+      rewrite Habt in Hf.
+      inversion Hf.
+    Qed.
+
+    Lemma mat_exp_cong : ∀ k e (a b c d : Node),
+      (a =n= c) = true → (b =n= d) = true →
+      mat_cong e →
+      matrix_exp_unary e k a b =r= 
+      matrix_exp_unary e k c d = true.
+    Proof.
+      induction k; simpl; 
+      intros ? ? ? ? ? Hac Hbd Hme.
+      + apply identity_cong; assumption.
+      + apply mat_mul_cong. exact Hac.
+        exact Hbd. exact Hme.
+        unfold mat_cong; intros.
+        apply IHk; assumption.
+    Qed.
+
+    (* two matrices are equal only if they are equal every point *)
+    Definition two_mat_congr (m₁ m₂ : Matrix) : Prop :=
+      forall c d, m₁ c d =r= m₂ c d = true.
     
-    
-    Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d , 
+    Lemma sum_fn_mul_congr_diff : forall l (e m₁ m₂ : Matrix) c d,
+      two_mat_congr m₁ m₂ ->  
+      sum_fn (λ y : Node, e c y * m₁ y d) l =r= 
+      sum_fn (λ y : Node, e c y * m₂ y d) l = true.
+    Proof.
+      induction l; simpl; 
+      intros  ? ? ? ? ? Hm.
+      + apply refR.
+      + apply add_r_cong.
+        apply congrM.
+        apply refR.
+        apply Hm.
+        apply IHl; assumption.
+    Qed.
+
+    (* naming is very difficult. I can't come up meaningful names *)
+    Lemma mat_mul_cong_diff : forall e m₁ m₂ c d,
+      two_mat_congr m₁ m₂ ->
+      matrix_mul e m₁ c d =r= matrix_mul e m₂ c d = true.
+    Proof.
+      intros ? ? ? ? ? Hm.
+      unfold matrix_mul, matrix_mul_gen.
+      apply sum_fn_mul_congr_diff.
+      exact Hm.
+    Qed.
+
+    Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d,
+      mat_cong e -> 
       matrix_exp_unary e (k1 + k2)  c d =r= 
       matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2) c d = true.
     Proof.
       induction k1; simpl.
-      + intros ? ? ? ?.
+      + intros ? ? ? ? ?.
         apply symR, matrix_mul_left_identity.
-      + intros ? ? ? ?.
-        specialize (IHk1 k2 e c d).
-        (* Now, I want to replace 
-          (matrix_exp_unary e (k1 + k2)) c d by the 
-          induction hypothesis IHk1. 
-          (matrix_exp_unary e (k1 + k2) c d =r=
-          matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2) c d) =
-          true
-        *)
+        unfold mat_cong. intros.
+        apply mat_exp_cong; assumption.
+      + intros ? ? ? ? He.
+        pose proof  (IHk1 k2 e c d He).
         assert (Ht : matrix_mul e (matrix_exp_unary e (k1 + k2)) c d =r=
           matrix_mul e (matrix_mul (matrix_exp_unary e k1) 
           (matrix_exp_unary e k2)) c d = true).
-        
-        admit.
+        apply mat_mul_cong_diff. 
+        unfold two_mat_congr; intros.
+        apply IHk1. exact He.
         rewrite <-Ht; clear Ht.
         apply congrR. apply refR.
         apply symR.
         apply matrix_mul_assoc.
-    Admitted.
-
+    Qed.
 
 
     Lemma matrix_exp_unary_binary_eqv : forall (n : N) (m : Matrix) c d, 
