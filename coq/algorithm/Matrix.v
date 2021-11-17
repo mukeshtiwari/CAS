@@ -826,7 +826,8 @@ Section Matrix.
         apply symR.
         apply zero_right_anhilator_mul.
     Qed.
-     
+
+      
 
     Lemma matrix_mul_right_identity_gen : forall (l : list Node),
       l <> [] -> (∀ x : Node, in_list eqN l x = true) -> 
@@ -946,16 +947,6 @@ Section Matrix.
     Qed.
 
     
-
-    (* Now I need Matrix exponentiation *)
-    (* write a slow one, nat, and fast one, Binary nat and 
-      prove that they are equal. 
-      For nat, 
-      proofs will be easy, but slow computation. For Binary nat, 
-      proofs be difficult but computation will be fast. 
-
-      Then show that 0-stable, then it reaches a fixpoint
-      *)
     Fixpoint matrix_exp_unary (m : Matrix) (n : nat) : Matrix :=
       match n with 
       | 0%nat => I 
@@ -1018,19 +1009,6 @@ Section Matrix.
       rewrite Hk in Hp. lia.
     Qed.
 
-    (* for this one, I need matrix multiplication to be 
-      congruent 
-      bop_congruence Matrix mat_eq matrix_mul
-      
-      boolean equality on Matrix: 
-      List.map (fun '(c, d) => m c d ) (all_pairs finN)
-      =list-eqv= 
-      List.map (fun '(c, d) => n c d) (all_pairs finN)
-      Prove that it's reflexive, symmetric, 
-      transitive. 
-
-      congrMM: brel_congruence Matrix mat_eq matrix_mul
-    *)
 
     Lemma add_r_cong : forall a b c d, a =r= c = true ->
       b =r= d = true -> a + b =r= c + d = true.
@@ -1169,17 +1147,90 @@ Section Matrix.
         apply matrix_mul_assoc.
     Qed.
 
+    (* more general version *)
+    Definition two_mat_congr_gen (m₁ m₂ : Matrix) : Prop :=
+      forall a b c d, a =n= c = true -> b =n= d = true -> 
+      m₁ a b =r= m₂ c d = true. 
 
-    Lemma matrix_exp_unary_binary_eqv : forall (n : N) (m : Matrix) c d, 
+    Lemma sum_fn_congr_gen : forall l m₁ m₂ m₃ m₄ a b c d,
+      a =n= c = true -> b =n= d = true ->
+      two_mat_congr_gen m₁ m₃ -> two_mat_congr_gen m₂ m₄ -> 
+      sum_fn (λ y : Node, m₁ a y * m₂ y b) l =r=
+      sum_fn (λ y : Node, m₃ c y * m₄ y d) l = true.
+    Proof.
+      induction l; simpl; 
+      intros ? ? ? ? ? ? ? ? Hac Hbd Hm₁ Hm₂.
+      + apply refR.
+      + apply congrP.
+        apply congrM.
+        apply Hm₁.
+        exact Hac. apply refN.
+        apply Hm₂.
+        apply refN. exact Hbd.
+        apply IHl; 
+        (try assumption; try (apply refN)).
+    Qed.
+
+    Lemma mat_mul_cong_gen : forall m₁ m₂ m₃ m₄ a b c d,
+      a =n= c = true -> b =n= d = true -> 
+      two_mat_congr_gen m₁ m₃ -> two_mat_congr_gen m₂ m₄ -> 
+      matrix_mul m₁ m₂ a b =r= matrix_mul m₃ m₄ c d = true.
+    Proof.
+      intros ? ? ? ? ? ? ? ? Hac Hbd H₁ H₂.
+      unfold matrix_mul, matrix_mul_gen.
+      apply sum_fn_congr_gen; assumption.
+    Qed.
+
+    Lemma mat_mul_identity_congr_gen : forall m,
+      two_mat_congr_gen (matrix_mul m I) m.
+    Proof.
+      unfold two_mat_congr_gen.
+      intros ? ? ? ? ? Hac Hbd.
+      apply matrix_mul_right_identity_gen.
+
+
+    Lemma matrix_exp_unary_binary_eqv : forall (n : N) (m : Matrix) c d,
+      mat_cong m -> 
       matrix_exp_unary m (N.to_nat n) c d =r= matrix_exp_binary m n c d 
       = true.
     Proof.
-      destruct n; simpl;
-      intros ? ? ?.
-      +  
-        apply refR.
-      + induction p.
-        - simpl.
+      destruct n;
+      intros ? ? ? Hm.
+      + apply refR.
+      + revert c d. induction p.
+        - 
+          assert (Ht : N.pos (xI p) = N.of_nat (N.to_nat (N.pos (xI p)))).
+          rewrite Nnat.N2Nat.id; reflexivity.
+          destruct (binnat_odd p (N.to_nat (N.pos (xI p))) Ht) as 
+            [k [Ha Hb]].
+          rewrite Ha.
+          rewrite Hb in IHp.
+          rewrite Nnat.Nat2N.id in IHp.
+          assert (Hw : (2 * k + 1 = 1 + (k + k))%nat).
+          lia. rewrite Hw; clear Hw. intros c d.
+          assert (Htt : matrix_exp_unary m (1 + (k + k)) c d =r= 
+            matrix_mul (matrix_exp_unary m 1)
+              (matrix_exp_unary m (k + k)) c d = true).
+          apply push_out_e_unary_nat_gen.
+          exact Hm. rewrite <-Htt; clear Htt.
+          apply congrR. apply refR. simpl.
+          assert (Htt : 
+            matrix_mul (matrix_mul m I) (matrix_exp_unary m (k + k)) c d
+            =r= 
+            matrix_mul m (matrix_exp_unary m (k + k)) c d
+            = true).
+          apply mat_mul_cong_gen.
+          apply refN. apply refN.
+          
+
+          assert (Htw : matrix_mul m I = m). admit.
+          rewrite Htt.
+          apply mat_mul_cong_diff.
+          unfold two_mat_congr; intros.
+          apply IHp.
+          apply 
+          
+
           (* (N.to_nat (N.pos (xI p)) can be written as 
             k + (k + 1) which means 
             matrix_exp_unary *)
