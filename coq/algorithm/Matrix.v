@@ -1186,8 +1186,15 @@ Section Matrix.
     Proof.
       unfold two_mat_congr_gen.
       intros ? ? ? ? ? Hac Hbd.
-      apply matrix_mul_right_identity_gen.
-
+      unfold matrix_mul, matrix_mul_gen, I.
+    Admitted.
+    
+    Lemma same_mat_cong : forall m, two_mat_congr_gen m m.
+    Proof.
+      intros m.
+      (* replace the m by m * I and apply 
+        the above lemma *)
+    Admitted.
 
     Lemma matrix_exp_unary_binary_eqv : forall (n : N) (m : Matrix) c d,
       mat_cong m -> 
@@ -1221,14 +1228,9 @@ Section Matrix.
             = true).
           apply mat_mul_cong_gen.
           apply refN. apply refN.
-          
+          apply mat_mul_identity_congr_gen.
+          apply same_mat_cong.
 
-          assert (Htw : matrix_mul m I = m). admit.
-          rewrite Htt.
-          apply mat_mul_cong_diff.
-          unfold two_mat_congr; intros.
-          apply IHp.
-          apply 
           
 
           (* (N.to_nat (N.pos (xI p)) can be written as 
