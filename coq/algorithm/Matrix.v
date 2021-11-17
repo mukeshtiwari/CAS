@@ -805,10 +805,7 @@ Section Matrix.
         case_eq (a =n= d); intro Hf; auto.
         apply symN in Hf.
         rewrite Hf in Ha.
-
-        rewrite <-Ha.
-        (* now I have eqN a d = eqN d a *)
-        admit.
+        inversion Ha.
         rewrite H.
         assert (Ht : 
           m c a * 0 +
@@ -828,17 +825,17 @@ Section Matrix.
         apply congrR. apply refR.
         apply symR.
         apply zero_right_anhilator_mul.
-    Admitted.
-
+    Qed.
      
 
     Lemma matrix_mul_right_identity_gen : forall (l : list Node),
       l <> [] -> (∀ x : Node, in_list eqN l x = true) -> 
       no_dup Node eqN l = true -> forall (m : Matrix) (c d : Node),
+      mat_cong m ->
       matrix_mul_gen m I l c d =r= m c d = true.
     Proof.
       unfold matrix_mul_gen, I.
-      intros ? Hl Hx Hn ? ? ?.
+      intros ? Hl Hx Hn ? ? ? Hm.
       destruct (list_split _ eqN refN symN trnN l d Hl (Hx d) 
         Hn) as [la [lb [Hleq [Hina Hinb]]]].
       assert (Ht : 
@@ -847,7 +844,30 @@ Section Matrix.
         sum_fn 
           (λ y : Node, m c y * (if y =n= d then 1 else 0)) (la ++ [d] ++ lb)
         = true).
-      apply sum_fn_list_eqv. 
+      apply sum_fn_list_eqv.
+      
+      unfold fncong.
+      intros.
+      destruct (a =n= d) eqn:Ht.
+      apply symN in H.
+      pose proof (trnN _ _ _ H Ht) as Hbd.
+      rewrite Hbd.
+      assert (Htt : m c a * 1 =r= m c a = true).
+      apply one_right_identity_mul.
+      rewrite <-Htt; clear Htt. 
+      apply congrR.
+      apply refR.
+      assert (Htt : m c b * 1 =r= m c b = true).
+      apply one_right_identity_mul.
+      rewrite <-Htt; clear Htt.
+      apply congrR. apply refR.
+      apply Hm. apply refN. 
+      apply symN in H. exact H.
+      case_eq (b =n= d); intros Hf; auto.
+      assert (Htt := trnN _ _ _ H Hf).
+      rewrite Ht in Htt.
+      inversion Htt.
+
       exact Hleq. rewrite <-Ht; clear Ht.
       apply congrR. apply refR.
       apply symR.
@@ -906,6 +926,7 @@ Section Matrix.
     Qed.
 
     Lemma matrix_mul_left_identity : forall m (c d : Node), 
+      mat_cong m -> 
       matrix_mul I m c d =r= m c d = true.
     Proof.
       unfold matrix_mul.
@@ -914,7 +935,8 @@ Section Matrix.
       apply dupN.
     Qed.
 
-    Lemma matrix_mul_right_identity : forall m (c d : Node), 
+    Lemma matrix_mul_right_identity : forall m (c d : Node),
+      mat_cong m -> 
       matrix_mul m I c d =r= m c d = true.
     Proof.
       unfold matrix_mul.
