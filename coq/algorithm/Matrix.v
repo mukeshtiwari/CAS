@@ -36,7 +36,7 @@ Section Lfn.
       split. apply refA. apply IHl.
   Qed.
 
-  Lemma list_eqv_sym: forall l₁ l₂ : list A, 
+  Lemma list_eqv_sym : forall l₁ l₂ : list A, 
     list_eqv l₁ l₂ = true -> list_eqv l₂ l₁ = true.
   Proof.
     induction l₁; simpl.
@@ -61,12 +61,18 @@ Section Lfn.
       destruct Hf as [Hfa Hfb].
       apply Bool.orb_false_iff.
       split.
-      (* from Heq and Hfa, I have the conclusion *)
-      admit.
+
+      case_eq (eqA c a); intro Hf; auto.
+      apply symA in Hf.
+      assert (Ht := trnA a c a0 Hf Heq).
+      apply symA in Ht. 
+      rewrite Hfa in Ht.
+      inversion Ht.
+
       apply IHl with (a := a0).
       exact Heq. exact Hfb.
-  Admitted.
-
+  Qed.
+  
   Lemma list_mem_true_false : forall (l : list A) (a c : A),
     in_list eqA l a = false -> in_list eqA l c = true -> eqA c a = false.
   Proof.
@@ -77,10 +83,16 @@ Section Lfn.
       destruct Ha as [Ha1 Ha2].
       destruct Hb as [Hb | Hb].
       apply symA in Hb.
-      (* eqA a0 a = false /\ eqA a c = true -> eqA a0 c = false *)
-      admit.
+
+      case_eq (eqA c a0); intros Hf; auto.
+      pose proof (trnA _ _ _ Hb Hf) as Ht.
+      apply symA in Ht. 
+      rewrite Ha1 in Ht.
+      inversion Ht.
+
       apply IHl; assumption.
-  Admitted. 
+  Qed.
+
 
   Fixpoint no_dup (l : list A) : bool :=
     match l with
@@ -611,51 +623,55 @@ Section Matrix.
       apply symR. apply zero_left_identity_plus.
     Qed.
 
+    (* f is congruent wrt =n= *)
+    Definition fncong (f : Node -> R) : Prop :=
+      forall a b : Node, a =n= b = true -> 
+        f a =r= f b = true.
+    
     Lemma sum_fn_list_eqv_gen : forall (l la lb : list Node) 
       (f : Node -> R), 
-      list_eqv Node eqN l (la ++ lb) = true ->
+      fncong f -> list_eqv Node eqN l (la ++ lb) = true ->
       sum_fn f l =r= sum_fn f (la ++ lb) = true.
     Proof.
       induction l.
-      + simpl; intros ? ? ? Hl.
+      + simpl; intros ? ? ? Hc Hl.
         destruct (la ++ lb).
         simpl. apply refR.
         inversion Hl.
-      + intros ? ? ? Hl. 
+      + intros ? ? ? Hc Hl. 
         destruct la; destruct lb.
         - inversion Hl.
         - simpl in * |- *.
           apply Bool.andb_true_iff in Hl.
           destruct Hl as [Hla Hlb].
-          specialize (IHl [] lb f Hlb).
+          specialize (IHl [] lb f Hc Hlb).
           simpl in IHl. apply congrP.
-          (* because a =n= n = true, the goal, 
-            f a =n= f n = true *)
-          admit.
+          apply Hc. exact Hla.
           exact IHl.
         - simpl in * |- *.
           apply Bool.andb_true_iff in Hl.
           destruct Hl as [Hla Hlb].
           apply congrP.
-          admit.
-          specialize (IHl la [] f Hlb).
+          apply Hc. 
+          exact Hla.
+          specialize (IHl la [] f Hc Hlb).
           exact IHl.
         - simpl in * |- *.
           apply Bool.andb_true_iff in Hl.
           destruct Hl as [Hla Hlb].
-          specialize(IHl la (n0 :: lb) f Hlb).
+          specialize(IHl la (n0 :: lb) f Hc Hlb).
           apply congrP.
-          admit.
+          apply Hc. exact Hla.
           exact IHl.
-    Admitted.
+    Qed.
 
     Lemma sum_fn_list_eqv : forall (l la lb : list Node) 
-      (c : Node) (f : Node -> R), 
+      (c : Node) (f : Node -> R), fncong f ->
       list_eqv Node eqN l (la ++ [c] ++ lb) = true ->
       sum_fn f l =r= sum_fn f (la ++ [c] ++ lb) = true.
     Proof.
-      intros ? ? ? ? ? Hl.
-      exact (sum_fn_list_eqv_gen l la ([c] ++ lb) f Hl).
+      intros ? ? ? ? ? Hc Hl.
+      exact (sum_fn_list_eqv_gen l la ([c] ++ lb) f Hc Hl).
     Qed. 
 
 
@@ -683,13 +699,19 @@ Section Matrix.
         apply refR.
     Qed.
         
+    (* congruence relation on matrix *)
+    Definition mat_cong (m : Matrix) : Prop :=
+      forall a b c d, a =n= c = true -> b =n= d = true ->
+      m a b =r= m c d = true.
+
     Lemma matrix_mul_left_identity_gen : forall (l : list Node),
       l <> [] -> (∀ x : Node, in_list eqN l x = true) -> 
       no_dup Node eqN l = true -> forall (m : Matrix) (c d : Node),
+      mat_cong m -> 
       matrix_mul_gen I m l c d =r= m c d = true.
     Proof.
       unfold matrix_mul_gen, I.
-      intros ? Hl Hx Hn ? ? ?.
+      intros ? Hl Hx Hn ? ? ? Hm.
       destruct (list_split _ eqN refN symN trnN l c Hl (Hx c) 
         Hn) as [la [lb [Hleq [Hina Hinb]]]].
       assert (Ht : 
@@ -698,7 +720,29 @@ Section Matrix.
         sum_fn 
           (λ y : Node, (if c =n= y then 1 else 0) * m y d) (la ++ [c] ++ lb)
         = true).
-      apply sum_fn_list_eqv. 
+      apply sum_fn_list_eqv.
+      unfold fncong.
+      intros.
+      destruct (c =n= a) eqn:Ht.
+      pose proof (trnN _ _ _ Ht H) as Hcb.
+      rewrite Hcb. 
+      assert (Htt : 1 * m a d =r= m a d = true).
+      apply one_left_identity_mul.
+      rewrite <-Htt; clear Htt. 
+      apply congrR.
+      apply refR.
+      assert (Htt : 1 * m b d =r= m b d = true).
+      apply one_left_identity_mul.
+      rewrite <-Htt; clear Htt.
+      apply congrR. apply refR.
+      apply Hm. exact H.
+      apply refN.
+      case_eq (c =n= b); intros Hf; auto.
+      apply symN in H.
+      assert (Htt := trnN _ _ _ Hf H).
+      rewrite Ht in Htt.
+      inversion Htt.
+
       exact Hleq. rewrite <-Ht; clear Ht.
       apply congrR. apply refR.
       apply symR. 
@@ -758,6 +802,10 @@ Section Matrix.
       + apply Bool.orb_false_iff in H.
         destruct H as [Ha Hb].
         assert (a =n= d = false).
+        case_eq (a =n= d); intro Hf; auto.
+        apply symN in Hf.
+        rewrite Hf in Ha.
+
         rewrite <-Ha.
         (* now I have eqN a d = eqN d a *)
         admit.
@@ -982,14 +1030,33 @@ Section Matrix.
         assert (Ht : matrix_mul e (matrix_exp_unary e (k1 + k2)) c d =r=
           matrix_mul e (matrix_mul (matrix_exp_unary e k1) 
           (matrix_exp_unary e k2)) c d = true).
-        unfold bop_congruence in congrP.
-
+        
         admit.
         rewrite <-Ht; clear Ht.
         apply congrR. apply refR.
         apply symR.
         apply matrix_mul_assoc.
     Admitted.
+
+
+
+    Lemma matrix_exp_unary_binary_eqv : forall (n : N) (m : Matrix) c d, 
+      matrix_exp_unary m (N.to_nat n) c d =r= matrix_exp_binary m n c d 
+      = true.
+    Proof.
+      destruct n; simpl;
+      intros ? ? ?.
+      +  
+        apply refR.
+      + induction p.
+        - simpl.
+          (* (N.to_nat (N.pos (xI p)) can be written as 
+            k + (k + 1) which means 
+            matrix_exp_unary *)
+        - admit.
+        - simpl; intros ? ? ?.
+          apply matrix_mul_right_identity.
+
 
 
 
