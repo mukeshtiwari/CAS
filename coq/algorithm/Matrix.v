@@ -250,7 +250,7 @@ Section Matrix.
     Definition transpose (m : Matrix) : Matrix := 
       fun (c d : Node) => m d c.
 
-    Definition transpose_transpose_id : ∀ (m : Matrix) (c d : Node), 
+    Definition transpose_transpose_id : ∀ (m : Matrix) (c d : Node),
       (((transpose (transpose m)) c d) =r= (m c d)) = true.
     Proof. 
       intros ? ? ?; unfold transpose; 
@@ -263,8 +263,8 @@ Section Matrix.
       fun c d => (m₁ c d + m₂ c d).
 
 
-    Lemma zero_add_left : forall c d m, 
-      eqR (matrix_add zero_matrix m c d) (m c d) = true.
+    Lemma zero_add_left : forall c d m,
+      matrix_add zero_matrix m c d =r= (m c d) = true.
     Proof.
       intros c d m.
       unfold matrix_add, zero_matrix.
@@ -273,7 +273,7 @@ Section Matrix.
     Qed. 
 
     Lemma zero_add_right : forall c d m, 
-      eqR (matrix_add m zero_matrix c d) (m c d) = true.
+      (matrix_add m zero_matrix c d) =r= (m c d) = true.
     Proof.
       intros c d m.
       unfold matrix_add, zero_matrix.
@@ -991,6 +991,7 @@ Section Matrix.
       split. exact Hk. lia.
     Qed.
 
+    
 
 
     Lemma binnat_even : forall (p : positive) (n : nat), 
@@ -1181,20 +1182,32 @@ Section Matrix.
       apply sum_fn_congr_gen; assumption.
     Qed.
 
-    Lemma mat_mul_identity_congr_gen : forall m,
-      two_mat_congr_gen (matrix_mul m I) m.
+    Lemma sum_fn_mat_ind : forall l m₁ m₂ u v, 
+      (forall c d, m₁ c d =r= m₂ c d = true) ->
+      sum_fn (λ y : Node, m₁ u y * m₁ y v) l =r=
+      sum_fn (λ y : Node, m₂ u y * m₂ y v) l = true.
     Proof.
-      unfold two_mat_congr_gen.
-      intros ? ? ? ? ? Hac Hbd.
-      unfold matrix_mul, matrix_mul_gen, I.
-    Admitted.
-    
-    Lemma same_mat_cong : forall m, two_mat_congr_gen m m.
+      induction l; simpl; 
+      intros  ? ? ? ? Hm.
+      + apply refR.
+      +
+        apply add_r_cong.
+        apply congrM. apply Hm.
+        apply Hm.
+        apply IHl; assumption.
+    Qed.
+
+
+    Lemma mat_equal_ind : forall m₁ m₂ u v,
+      (forall c d, m₁ c d =r= m₂ c d = true) ->
+      matrix_mul m₁ m₁ u v =r= matrix_mul m₂ m₂ u v = true.
     Proof.
-      intros m.
-      (* replace the m by m * I and apply 
-        the above lemma *)
-    Admitted.
+      intros ? ? ? ? Hcd.
+      unfold matrix_mul, matrix_mul_gen.
+      apply sum_fn_mat_ind.
+      apply Hcd.
+    Qed.
+
 
     Lemma matrix_exp_unary_binary_eqv : forall (n : N) (m : Matrix) c d,
       mat_cong m -> 
@@ -1204,41 +1217,32 @@ Section Matrix.
       destruct n;
       intros ? ? ? Hm.
       + apply refR.
-      + revert c d. induction p.
-        - 
+      + 
+        assert (Hw : forall w, matrix_exp_binary m (N.pos w) = 
+          repeat_op_ntimes_rec m w).
+        reflexivity.
+        revert c d. induction p.
+        rewrite Hw in IHp. rewrite Hw.
+        - intros ? ?.
           assert (Ht : N.pos (xI p) = N.of_nat (N.to_nat (N.pos (xI p)))).
           rewrite Nnat.N2Nat.id; reflexivity.
           destruct (binnat_odd p (N.to_nat (N.pos (xI p))) Ht) as 
             [k [Ha Hb]].
-          rewrite Ha.
-          rewrite Hb in IHp.
+          rewrite Ha. rewrite Hb in IHp.
           rewrite Nnat.Nat2N.id in IHp.
-          assert (Hw : (2 * k + 1 = 1 + (k + k))%nat).
-          lia. rewrite Hw; clear Hw. intros c d.
-          assert (Htt : matrix_exp_unary m (1 + (k + k)) c d =r= 
-            matrix_mul (matrix_exp_unary m 1)
-              (matrix_exp_unary m (k + k)) c d = true).
-          apply push_out_e_unary_nat_gen.
-          exact Hm. rewrite <-Htt; clear Htt.
-          apply congrR. apply refR. simpl.
-          assert (Htt : 
-            matrix_mul (matrix_mul m I) (matrix_exp_unary m (k + k)) c d
-            =r= 
-            matrix_mul m (matrix_exp_unary m (k + k)) c d
-            = true).
-          apply mat_mul_cong_gen.
-          apply refN. apply refN.
-          apply mat_mul_identity_congr_gen.
-          apply same_mat_cong.
-
+          assert (Hv : (2 * k + 1 = 1 + k + k)%nat).
+          lia. rewrite Hv; clear Hv.
+          simpl. apply mat_mul_cong_diff.
+          unfold two_mat_congr; intros u v.
+          pose proof push_out_e_unary_nat_gen k k m 
+            u v Hm as Htt.
+          rewrite <- Htt.
+          apply congrR. apply refR.
+          apply mat_equal_ind.
+          intros. apply symR. 
+          apply IHp.
+        - 
           
-
-          (* (N.to_nat (N.pos (xI p)) can be written as 
-            k + (k + 1) which means 
-            matrix_exp_unary *)
-        - admit.
-        - simpl; intros ? ? ?.
-          apply matrix_mul_right_identity.
 
 
 
