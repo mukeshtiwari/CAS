@@ -1241,7 +1241,30 @@ Section Matrix.
           apply mat_equal_ind.
           intros. apply symR. 
           apply IHp.
-        - 
+        - intros ? ?. rewrite Hw in IHp. rewrite Hw.
+          assert (Ht : N.pos (xO p) = N.of_nat (N.to_nat (N.pos (xO p)))).
+          rewrite Nnat.N2Nat.id; reflexivity.
+          destruct (binnat_even p (N.to_nat (N.pos (xO p))) Ht) as 
+            [k [Ha Hb]].
+          rewrite Ha. rewrite Hb in IHp.
+          rewrite Nnat.Nat2N.id in IHp.
+          assert (Hv : (2 * k = k + k)%nat).
+          lia. rewrite Hv; clear Hv.
+          simpl.
+          pose proof push_out_e_unary_nat_gen k k m 
+            c d Hm as Htt.
+          rewrite <- Htt; clear Htt.
+          apply congrR. apply refR.
+          apply mat_equal_ind.
+          intros. apply symR. simpl in IHp.
+          apply IHp.
+        - intros ? ?. simpl.
+          apply matrix_mul_right_identity.
+          exact Hm.
+    Qed. 
+
+
+
           
 
 
