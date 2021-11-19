@@ -1277,18 +1277,73 @@ Section Matrix.
       end 
     end.
 
-    (* list of all paths of lenghth k + 1 from c to d *)
+
+    (* list of all paths of lenghth k from c to d *)
     Fixpoint kpath (m : Matrix) (k : nat) 
       (c d : Node) : list (list (Node * Node * R)) :=
       match k with
-      | 0%nat => [[(c, d, m c d)]]
+      | 0%nat => []
+      | 1%nat => [[(c, d, m c d)]]
       | S k' => 
-          (* get all the paths from the intermediate nodes to d 
-            of lenght k' *)
-          let lf := List.concat (List.map (fun x => kpath m k' x d) finN) in
-          append_node_in_paths m c lf
+          (*get all the paths from the intermediate nodes to d of lenght k'*)
+          let lf := List.concat 
+            (List.map (fun x => kpath m k' x d) finN) 
+          in append_node_in_paths m c lf
       end.
 
+    Fixpoint atmost_kpath (m : Matrix) (k : nat) (c d : Node) :=
+      match k with 
+      | 0%nat => []
+      | S k' => (kpath m (S k') c d) ::
+         atmost_kpath m k' c d
+      end.
+
+    Fixpoint measure_of_path (l : list (Node * Node * R)) : R :=
+      match l with 
+      | [] => 1
+      | (_, _, v) :: t => v * measure_of_path t 
+      end.
+    
+    (*
+    matrix_exp_unary m n c d = s -> exists l : list Node * Node * R, 
+      Length l = n /\ measure_of_path (c :: l ++ [d]) = s 
+    *)
+
+    (* Now, let's focus on proving fixpoint *)
+    (* Now, I want to prove that if I exponentiate |finN| - 1 I will 
+      reach fixpoint *)
+    (* I need 0-stable assumption *)
+
+
+    (* Interesting, Carre paper assumes multiplication is commutative *)
+    (* under what circumstances, matrix_exp_unary m n c d =r= 
+      matrix_exp_unary m (n+1) c d ? *)
+    (* Law of Idempotency a + a =r= a 
+
+       Law of cancellation: forall a : R, 
+       eqR a 0 = false -> a * b =r= a * c => b = c. 
+
+       Order Relation: R a b := a + b =r= a
+
+       Lemma Rzero : forall a, R a 0. 
+       Proof by definition. 
+
+       Lemma Rab : forall a b, R (a + b) a. 
+       Proof. unfold R. 
+        (a + b) + a =r= (a + b)
+        LHS: (a + b) + a 
+          =r= a + (a + b) by commutative
+          =r= (a + a) + b by associativity
+          =r= a + b by  idempotence.
+          
+    *)
+
+
+    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d , 
+      matrix_exp_unary m (List.length finN) c d =r= 
+      matrix_exp_unary m (n + List.length finN) c d = true.
+    Proof.
+    Admitted.
 
 End Matrix.
 
@@ -1330,32 +1385,18 @@ Section Ins.
     | C, C => 8%Z 
     end.
 
+  Definition eqN (c d : node) : bool :=
+    match c, d with 
+    | A, A => true
+    | B, B => true 
+    | C, C => true
+    | _, _ => false
+    end.
+
   
   Eval compute in (kpath node fin_node Z m 2 A C).
 
 End Ins. 
-
-
-
-          
-
-
-    
-    (* Now, I want to prove that if I exponentiate |finN| - 1 I will 
-      reach fixpoint *)
-    (* I need 0-stable assumption *)
-
-    (* 
-      What does matrix_exp_unary n m c d means? 
-      
-
-    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d , 
-      matrix_exp_unary m (List.length finN) c d =r= 
-      matrix_exp_unary m (n + List.length finN) c d = true.
-    Proof.
-      induction n using (well_founded_induction Coq.Arith.Wf_nat.lt_wf).
-      intros.
-
 
 
 
