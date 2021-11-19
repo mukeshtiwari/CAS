@@ -1261,7 +1261,101 @@ Section Matrix.
         - intros ? ?. simpl.
           apply matrix_mul_right_identity.
           exact Hm.
-    Qed. 
+    Qed.
+
+
+    (* stick a node 'c' in all the paths, represented by l *)
+    Fixpoint append_node_in_paths (m : Matrix) 
+      (c : Node) (l : list (list (Node * Node * R))) : 
+      list (list (Node * Node * R)) := 
+    match l with 
+    | [] => []
+    | h :: t => match h with 
+      | [] => append_node_in_paths m c t 
+      | (x, _, _) :: ht => 
+        ((c, x, m c x) :: h) :: append_node_in_paths m c t
+      end 
+    end.
+
+    (* list of all paths of lenghth k + 1 from c to d *)
+    Fixpoint kpath (m : Matrix) (k : nat) 
+      (c d : Node) : list (list (Node * Node * R)) :=
+      match k with
+      | 0%nat => [[(c, d, m c d)]]
+      | S k' => 
+          (* get all the paths from the intermediate nodes to d 
+            of lenght k' *)
+          let lf := List.concat (List.map (fun x => kpath m k' x d) finN) in
+          append_node_in_paths m c lf
+      end.
+
+
+End Matrix.
+
+Require Import Psatz Utf8 ZArith.
+Section Ins.
+
+  Inductive node := A | B | C.
+
+  Definition fin_node := [A; B; C].
+
+  Lemma Hfin : forall x : node, In x fin_node.
+  Proof.
+    destruct x; unfold fin_node;
+    simpl; auto.
+  Qed.
+
+  Definition Hdec : forall c d : node, {c = d} + {c <> d}.
+  Proof.
+    destruct c; destruct d; firstorder.
+    right; intro. inversion  H.
+    right; intro. inversion  H.
+    right; intro. inversion  H.
+    right; intro. inversion  H.
+    right; intro. inversion  H.
+    right; intro. inversion  H.
+  Defined.
+    
+
+  Definition m (c d : node) := 
+    match c, d with 
+    | A, A => 0%Z
+    | A, B => 1%Z 
+    | A, C => 2%Z 
+    | B, A => 3%Z 
+    | B, B => 4%Z
+    | B, C => 5%Z
+    | C, A => 6%Z
+    | C, B => 7%Z 
+    | C, C => 8%Z 
+    end.
+
+  
+  Eval compute in (kpath node fin_node Z m 2 A C).
+
+End Ins. 
+
+
+
+          
+
+
+    
+    (* Now, I want to prove that if I exponentiate |finN| - 1 I will 
+      reach fixpoint *)
+    (* I need 0-stable assumption *)
+
+    (* 
+      What does matrix_exp_unary n m c d means? 
+      
+
+    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d , 
+      matrix_exp_unary m (List.length finN) c d =r= 
+      matrix_exp_unary m (n + List.length finN) c d = true.
+    Proof.
+      induction n using (well_founded_induction Coq.Arith.Wf_nat.lt_wf).
+      intros.
+
 
 
 
