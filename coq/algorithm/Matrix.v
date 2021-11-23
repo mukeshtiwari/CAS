@@ -947,11 +947,13 @@ Section Matrix.
     Qed.
 
     
+    
     Fixpoint matrix_exp_unary (m : Matrix) (n : nat) : Matrix :=
       match n with 
       | 0%nat => I 
       | S n' => matrix_mul m (matrix_exp_unary m n')
       end.
+    
     
       
     Fixpoint repeat_op_ntimes_rec (e : Matrix) (n : positive) : Matrix :=
@@ -967,6 +969,7 @@ Section Matrix.
       | Npos p => repeat_op_ntimes_rec e p 
       end.
 
+    
     
     (* now prove that slow and fast computes the same value. *)
 
@@ -1264,6 +1267,38 @@ Section Matrix.
     Qed.
 
 
+    (* Functions below are same as above, except they avoids idenity matrix *)
+    Fixpoint matrix_exp_unary_pone (m : Matrix) (n : nat) : Matrix :=
+      match n with 
+      | 0%nat => m
+      | S n' => matrix_mul m (matrix_exp_unary_pone m n')
+      end.
+
+      
+    Fixpoint repeat_op_ntimes_rec_pone (e : Matrix) (n : positive) : Matrix :=
+      match n with
+      | xH => matrix_mul e e 
+      | xO p => let ret := repeat_op_ntimes_rec_pone e p in matrix_mul ret ret
+      | xI p => let ret := repeat_op_ntimes_rec_pone e p in matrix_mul e (matrix_mul ret ret)
+      end.
+
+    Definition matrix_exp_binary_pone (e : Matrix) (n : N) :=
+      match n with
+      | N0 => e
+      | Npos p => repeat_op_ntimes_rec_pone e p 
+      end.
+
+    (* The functions above avoids the identity matrix *)
+  
+
+
+
+
+
+
+
+
+    (* not used anywhere *)
     (* stick a node 'c' in all the paths, represented by l *)
     Fixpoint append_node_in_paths (m : Matrix) 
       (c : Node) (l : list (list (Node * Node * R))) : 
@@ -1298,16 +1333,25 @@ Section Matrix.
          atmost_kpath m k' c d
       end.
 
-    Fixpoint measure_of_path (l : list (Node * Node * R)) : R :=
+    (* end of unused code *)
+
+
+
+    (* path strength between c and d *)
+    Fixpoint measure_of_path (c : Node) (l : list R)  (d : Node) 
+      (m : Matrix) : R :=
       match l with 
-      | [] => 1
-      | (_, _, v) :: t => v * measure_of_path t 
+      | [] => m c d
+      | v :: t => v * measure_of_path c t d m
       end.
     
-    (*
-    matrix_exp_unary m n c d = s -> exists l : list Node * Node * R, 
-      Length l = n /\ measure_of_path (c :: l ++ [d]) = s 
-    *)
+    
+    Lemma matrix_path : forall n s m c d, 
+      matrix_exp_unary m (S n) c d = s -> exists (l : list R), 
+      List.length l = n /\ measure_of_path c l d m = s.
+    Proof.
+      
+    
 
     (* Now, let's focus on proving fixpoint *)
     (* Now, I want to prove that if I exponentiate |finN| - 1 I will 
