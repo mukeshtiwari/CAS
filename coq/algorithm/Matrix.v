@@ -960,7 +960,8 @@ Section Matrix.
       match n with
       | xH => e
       | xO p => let ret := repeat_op_ntimes_rec e p in matrix_mul ret ret
-      | xI p => let ret := repeat_op_ntimes_rec e p in matrix_mul e (matrix_mul ret ret)
+      | xI p => let ret := repeat_op_ntimes_rec e p in 
+        matrix_mul e (matrix_mul ret ret)
       end.
 
     Definition matrix_exp_binary (e : Matrix) (n : N) :=
@@ -1277,15 +1278,16 @@ Section Matrix.
       
     Fixpoint repeat_op_ntimes_rec_pone (e : Matrix) (n : positive) : Matrix :=
       match n with
-      | xH => matrix_mul e e 
+      | xH => e 
       | xO p => let ret := repeat_op_ntimes_rec_pone e p in matrix_mul ret ret
-      | xI p => let ret := repeat_op_ntimes_rec_pone e p in matrix_mul e (matrix_mul ret ret)
+      | xI p => let ret := repeat_op_ntimes_rec_pone e p in 
+          matrix_mul e (matrix_mul ret ret)
       end.
 
     Definition matrix_exp_binary_pone (e : Matrix) (n : N) :=
       match n with
       | N0 => e
-      | Npos p => repeat_op_ntimes_rec_pone e p 
+      | Npos p => matrix_mul e (repeat_op_ntimes_rec_pone e p)
       end.
 
     Lemma push_out_e_unary_nat_gen_pone : forall k1 k2 e c d,
@@ -1320,6 +1322,16 @@ Section Matrix.
       matrix_exp_unary_pone m (N.to_nat n) c d =r= matrix_exp_binary_pone m n c d 
       = true.
     Proof.
+      destruct n;
+      intros ? ? ? Hm.
+      + apply refR.
+      + simpl in * |- *.
+        destruct (Pnat.Pos2Nat.is_succ p) as [n' Ht].
+        rewrite Ht. simpl.
+        apply mat_mul_cong_diff.
+        unfold two_mat_congr; intros u v.
+        generalize dependent n'.
+        induction p.
     Admitted.
 
   (* end of functions and proofs that avoids Identity *)
@@ -1385,8 +1397,8 @@ Section Matrix.
         - exact Hm.
       + simpl; intros ? ? ? ? Hm.
         unfold matrix_mul, matrix_mul_gen in Hm.
-        (* what can we infer from Hm? *)
-        a * b + c * d + e * f 
+        (* what can we infer from Hm? 
+        a * b + c * d + e * f  *)
         
 
       
