@@ -1288,13 +1288,41 @@ Section Matrix.
       | Npos p => repeat_op_ntimes_rec_pone e p 
       end.
 
-    (* The functions above avoids the identity matrix *)
-  
+    Lemma push_out_e_unary_nat_gen_pone : forall k1 k2 e c d,
+      mat_cong e -> 
+      matrix_mul e (matrix_exp_unary_pone e (k1 + k2))  c d =r= 
+      matrix_mul (matrix_exp_unary_pone e k1) (matrix_exp_unary_pone e k2) c d = true.
+    Proof.
+      induction k1; simpl.
+      + intros ? ? ? ? ?.
+        apply refR.
+      + intros ? ? ? ? He.
+        pose proof  (IHk1 k2 e c d He) as Ht.
+        assert (Htt : 
+          matrix_mul (matrix_mul e (matrix_exp_unary_pone e k1))
+          (matrix_exp_unary_pone e k2) c d =r= 
+          matrix_mul e (matrix_mul (matrix_exp_unary_pone e k1)
+          (matrix_exp_unary_pone e k2)) c d = true).
+        apply symR. apply matrix_mul_assoc.
+        apply symR in Htt.
+        rewrite <-Htt; clear Htt.
+        apply congrR.
+        apply mat_mul_cong_diff.
+        unfold two_mat_congr; intros u v.
+        apply IHk1; exact He.
+        apply refR.
+    Qed.
+        
+    
 
+    Lemma matrix_exp_unary_binary_eqv_pone : forall (n : N) (m : Matrix) c d,
+      mat_cong m -> 
+      matrix_exp_unary_pone m (N.to_nat n) c d =r= matrix_exp_binary_pone m n c d 
+      = true.
+    Proof.
+    Admitted.
 
-
-
-
+  (* end of functions and proofs that avoids Identity *)
 
 
 
@@ -1347,9 +1375,20 @@ Section Matrix.
     
     
     Lemma matrix_path : forall n s m c d, 
-      matrix_exp_unary m (S n) c d = s -> exists (l : list R), 
+      matrix_exp_unary_pone m n c d = s -> exists (l : list R), 
       List.length l = n /\ measure_of_path c l d m = s.
     Proof.
+      induction n.
+      + simpl; intros ? ? ? ? Hm.
+        exists []. split.
+        - reflexivity.
+        - exact Hm.
+      + simpl; intros ? ? ? ? Hm.
+        unfold matrix_mul, matrix_mul_gen in Hm.
+        (* what can we infer from Hm? *)
+        a * b + c * d + e * f 
+        
+
       
     
 
