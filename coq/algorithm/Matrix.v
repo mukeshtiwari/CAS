@@ -1268,7 +1268,7 @@ Section Matrix.
     Qed.
 
 
-    (* not used anywhere *)
+    (* not used anywhere, for the moment *)
     (* stick a node 'c' in all the paths, represented by l *)
     Fixpoint append_node_in_paths (m : Matrix) 
       (c : Node) (l : list (list (Node * Node * R))) : 
@@ -1306,18 +1306,50 @@ Section Matrix.
     (* end of unused code *)
 
 
-    (* path strength between c and d *)
-    Fixpoint measure_of_path (c : Node) (l : list R)  (d : Node) 
-      (m : Matrix) : R :=
+    
+     (* 
+    
+      Our current matrix_exp_unary is:
+      Fixpoint matrix_exp_unary (m : Matrix) (n : nat) : Matrix :=
+      match n with 
+      | 0%nat => I 
+      | S n' => matrix_mul m (matrix_exp_unary m n')
+      end. 
+
+
+      Instead, if we write this one: 
+      return matrix_exp_unary m n c d = 
+       | 0 => m 
+       | S n' => m * matrix_exp_unary m n' c d
+
+      Would it be devastating? 
+
+      What it means it that 
+      measure_of_path (c : Node) (l : list (Node * Node * R)) 
+      (d : Node) (m : Matrix) : R = 
       match l with 
-      | [] => if c =n= d then 1 else 0 
-      | v :: t => v * measure_of_path c t d m
+      | [] => m c d
+      | (_, _, v) :: t => v * measure_of_path c t d m 
+
+      Means empty list represent path of length 1 *)
+
+
+    
+    
+    (* path strength between c and d *)
+    Fixpoint measure_of_path (c : Node) (l : list (Node * Node * R))
+      (d : Node)  : R :=
+      match l with 
+      | [] => if c =n= d then 1 else 0
+      | [(_, _, v)] => v 
+      | (_, _, v) :: t => v * measure_of_path c t d
       end.
-    
-    
-    Lemma matrix_path : forall n s m c d, 
-      matrix_exp_unary m n c d = s -> exists (l : list R), 
-      List.length l = n /\ measure_of_path c l d m = s.
+  
+
+    Lemma matrix_path_forward : forall n s m c d, 
+      matrix_exp_unary m n c d =r= s = true -> 
+      exists (l : list (Node * Node * R)), (List.length l = n)%nat /\ 
+      measure_of_path c l d =r= s = true.
     Proof.
       induction n.
       + simpl; intros ? ? ? ? Hm.
@@ -1325,22 +1357,83 @@ Section Matrix.
         - reflexivity.
         - exact Hm.
       + simpl; intros ? ? ? ? Hm.
-        unfold matrix_mul, matrix_mul_gen in Hm.
-        (* what can we infer from Hm? 
-        a * b + c * d + e * f  *)
+        unfold matrix_mul, 
+          matrix_mul_gen in Hm.
+        (* destruct n = 1 or inductive case  *)
+      
         
+        
+        (* I need some concrete property about + and * *)
+        (* I have not assumed idempotence yet. Would it help? *)
+
+        (* what can we infer from Hm? 
+          Assume there is intermediate node x 
+          from which the strenght is s to node d.
+        *)
+    Admitted.
+
+    Lemma matrix_path_reverse : forall n s m c d (l : list (Node * Node * R)),
+      (List.length l = n)%nat -> measure_of_path c l d = s -> 
+      matrix_exp_unary m n c d = s.
+    Proof.
+      induction n.
+      + intros ? ? ? ? ? Hl Hm.
+        assert (Ht : l = []).
+        destruct l. reflexivity.
+        simpl in Hl. lia.
+        rewrite Ht in Hm.
+        simpl in * |- *.
+        unfold I. exact Hm.
+      + intros ? ? ? ? ? Hl Hm.
+        simpl.
+
+    Admitted.
+
+    (* Equation 3.5 from Carre *)
+    Lemma strenght_path_split_list : forall (c d : Node) 
+      (l₁ l₂ : list (Node * Node * R)) (a b : Node) (w s : R) ,
+      measure_of_path c (l₁ ++ (a, b, w) :: l₂) d =r= s = true <->
+      (measure_of_path c l₁ a) * w * 
+      (measure_of_path b l₂ d) =r= s = true.
+    Proof.
+    Admitted.
+      
+     
+    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d , 
+      matrix_exp_unary m (List.length finN) c d =r= 
+      matrix_exp_unary m (n + List.length finN) c d = true.
+    Proof.
+      (* Proof idea: 
+        Left hand side gives us a list of strenght s, say, of 
+        length (List.length finN).
+        We show that the right hand side also gives us a 
+        longer list, containing loop of length  
+        (n + List.length finN), whose strenght is s. 
+      
+      *)
+
+
+    Admitted.
+
+
+
+
+    (* Y := A * Y + B : Bellman ford *)
+    Fixpoint mul_left (a y b : Matrix) (k : nat) : Matrix :=
+      match k with
+      | 0%nat => matrix_add (matrix_mul a y) b 
+      | S k' => matrix_add (matrix_mul a (mul_left a y b k')) b
+      end.
+    
+    
+    (* Y := Y * A + B : Dijkstra *)
+    (* I need a function to multiply vector by matrix *)
+    (* Y : Node -> R, A : Matrix, B : Node -> R *)  
 
 
 
     
     (* Functions below are same as above, except they avoids idenity matrix *)
-
-    Fixpoint measure_of_path_pone (c : Node) (l : list R)  (d : Node) 
-      (m : Matrix) : R :=
-      match l with 
-      | [] => m c d
-      | v :: t => v * measure_of_path c t d m
-      end.
 
     Fixpoint matrix_exp_unary_pone (m : Matrix) (n : nat) : Matrix :=
       match n with 
@@ -1348,19 +1441,11 @@ Section Matrix.
       | S n' => matrix_mul m (matrix_exp_unary_pone m n')
       end.
 
-      
-    Fixpoint repeat_op_ntimes_rec_pone (e : Matrix) (n : positive) : Matrix :=
-      match n with
-      | xH => e 
-      | xO p => let ret := repeat_op_ntimes_rec_pone e p in matrix_mul ret ret
-      | xI p => let ret := repeat_op_ntimes_rec_pone e p in 
-          matrix_mul e (matrix_mul ret ret)
-      end.
 
     Definition matrix_exp_binary_pone (e : Matrix) (n : N) :=
       match n with
       | N0 => e
-      | Npos p => matrix_mul e (repeat_op_ntimes_rec_pone e p)
+      | Npos p => matrix_mul e (repeat_op_ntimes_rec e p)
       end.
 
     Lemma connection_unary_pone : forall (n : nat) (m : Matrix)  (c d : Node),
@@ -1374,43 +1459,52 @@ Section Matrix.
         apply matrix_mul_right_identity.
         exact Hm.
       - simpl; intros ? ? ? Hm.
-    Admitted.
-
-
-    Lemma push_out_e_unary_nat_gen_pone : forall k1 k2 e c d,
-      mat_cong e -> 
-      matrix_mul e (matrix_exp_unary_pone e (k1 + k2))  c d =r= 
-      matrix_mul (matrix_exp_unary_pone e k1) (matrix_exp_unary_pone e k2) c d = true.
-    Proof.
-      induction k1; simpl.
-      + intros ? ? ? ? ?.
-        apply refR.
-      + intros ? ? ? ? He.
-        pose proof  (IHk1 k2 e c d He) as Ht.
-        assert (Htt : 
-          matrix_mul (matrix_mul e (matrix_exp_unary_pone e k1))
-          (matrix_exp_unary_pone e k2) c d =r= 
-          matrix_mul e (matrix_mul (matrix_exp_unary_pone e k1)
-          (matrix_exp_unary_pone e k2)) c d = true).
-        apply symR. apply matrix_mul_assoc.
-        apply symR in Htt.
-        rewrite <-Htt; clear Htt.
-        apply congrR.
         apply mat_mul_cong_diff.
         unfold two_mat_congr; intros u v.
-        apply IHk1; exact He.
+        apply IHn. exact Hm.
+    Qed.
+    
+    Lemma connection_binary_pone : forall (n : N) (m : Matrix)  (c d : Node),
+      mat_cong m ->  
+      matrix_exp_binary_pone m n c d =r= 
+      matrix_mul m (matrix_exp_binary m n) c d = true.
+    Proof.
+      destruct n.
+      - simpl; intros ? ? ? H.
+        apply symR.
+        apply matrix_mul_right_identity.
+        exact H.
+      - simpl; intros ? ? ? H.
         apply refR.
     Qed.
-        
-    
+
 
     Lemma matrix_exp_unary_binary_eqv_pone : forall (n : N) (m : Matrix) c d,
       mat_cong m -> 
       matrix_exp_unary_pone m (N.to_nat n) c d =r= matrix_exp_binary_pone m n c d 
       = true.
     Proof.
-    Admitted.
+      intros ? ? ? ? Hm.
+      pose proof connection_unary_pone (N.to_nat n) m c d Hm as Ht.
+      rewrite <-Ht; clear Ht.
+      apply congrR.
+      apply refR.
+      pose proof connection_binary_pone n m c d Hm as Ht.
+      rewrite <-Ht; clear Ht.
+      apply congrR.
+      apply refR.
+      apply mat_mul_cong_diff.
+      unfold two_mat_congr; intros u v.
+      apply matrix_exp_unary_binary_eqv.
+      exact Hm.
+    Qed.
 
+    Fixpoint measure_of_path_pone (c : Node) (l : list R)  (d : Node) 
+      (m : Matrix) : R :=
+      match l with 
+      | [] => m c d
+      | v :: t => v * measure_of_path c t d m
+      end.
     (* end of functions and proofs that avoids Identity *)
 
     
@@ -1447,11 +1541,6 @@ Section Matrix.
     *)
 
 
-    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d , 
-      matrix_exp_unary m (List.length finN) c d =r= 
-      matrix_exp_unary m (n + List.length finN) c d = true.
-    Proof.
-    Admitted.
 
 End Matrix.
 
