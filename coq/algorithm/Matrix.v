@@ -1481,8 +1481,9 @@ Section Matrix.
         (λ x : Node, all_paths_klength m n x d)
         finN (List.tl x)) H) as [w [Hw Hv]].
         specialize (IHn m w d (List.tl x) Hv).
+    *)
 
-      *)
+        
 
   
     
@@ -1566,6 +1567,81 @@ Section Matrix.
       repeat split; assumption.
     Qed.
 
+    Lemma construct_wellfounded_path_append : forall l m c y,
+      In y l -> y <> [] -> well_formed_path_aux y = true -> 
+      forall x, In x (append_node_in_paths m c l) ->
+      well_formed_path_aux x = true.
+    Proof.
+      induction l.
+      - simpl; intros ? ? ? Hy Hf Hw x Hx.
+        inversion Hx.
+      - simpl; intros ? ? ? Hy Ha Hb x Hc.
+        destruct a.
+        destruct Hy. congruence.
+    Admitted.
+        
+
+
+    Lemma construct_wellfounded_path_aux : forall n m c d x,  
+      In x (all_paths_klength m n c d) ->
+      well_formed_path_aux x = true.
+    Proof.
+      induction n.
+      - simpl; intros ? ? ? ? Hin.
+        simpl in Hin. 
+        case (c =n= d) eqn:Ht.
+        simpl in Hin.
+        destruct Hin.
+        rewrite <-H.
+        simpl. reflexivity.
+        inversion H.
+        inversion Hin.
+      - simpl; intros ? ? ? ? Hin.
+        pose proof append_node_rest
+        (flat_map (λ x : Node, all_paths_klength m n x d) finN)
+        m c x Hin.
+        destruct (proj1 (in_flat_map 
+        (λ x : Node, all_paths_klength m n x d)
+        finN (List.tl x)) H) as [w [Hw Hv]].
+        specialize (IHn m w d (List.tl x) Hv).
+
+    Admitted.
+
+
+        
+
+
+
+    Lemma construct_ex_list : forall xs a c m, 
+      source c xs = true -> source a (List.tl xs) = true ->
+      exists l, xs = (c, a, m c a) :: l /\
+      source a l = true.
+    Proof.
+    Admitted.
+    
+    
+    Lemma construct_path : forall n m c a d x,  
+      In x (append_node_in_paths m c (all_paths_klength m n a d)) ->
+      List.hd (c, a, m c a) x = (c, a, m c a).
+    Proof.
+      intros ? ? ? ? ? ? Hin.
+      pose proof append_node_in_paths_eq
+      (all_paths_klength m n a d) m c x Hin as [Hl Hr].
+      pose proof append_node_rest 
+      (all_paths_klength m n a d) m c x Hin as Hw.
+      pose proof source_in_kpath n m a d (List.tl x) Hw as Hv.
+      induction x.
+      simpl. reflexivity.
+      simpl in *.
+      destruct a0.
+      destruct p.
+      simpl in Hin.
+      destruct Hin.
+      
+
+    Admitted.
+
+
 
 
       
@@ -1579,6 +1655,8 @@ Section Matrix.
       fold_right (λ b v : R, b + v) 0
         (map measure_of_path (all_paths_klength m n a d))) = true.
     Proof.
+      intros ? ? ? ? ?.
+
 
 
     Admitted.
@@ -1675,10 +1753,6 @@ Section Matrix.
 
 
 
-    
-     
-
-    (* Todo: need to rewrite the append_node_app using eqR *)
     (* x * l1 + x * l2 + x * l3 = x * (l1 + l2 + l3) *)
     Lemma fold_map_rel : forall l m n c d, 
       fold_right (λ u v : R, u + v) 0
