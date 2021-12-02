@@ -80,30 +80,25 @@ Proof. apply bop_left_distributive_implies_right.
 Qed. 
 
 Open Scope nat.
-(*
-Lemma bops_id_equals_ann_max_min : bops_id_equals_ann nat brel_eq_nat bop_max bop_min.
+
+
+Lemma bops_id_equals_ann_max_min : bops_exists_id_ann_equal nat brel_eq_nat bop_max bop_min.
 Proof. exists 0. split. apply bop_max_zero_is_id. apply bop_min_zero_is_ann.  Defined.
 
-Lemma bops_not_id_equals_ann_max_min : bops_not_id_equals_ann nat brel_eq_nat bop_min bop_max.
-Proof. intro n. left. apply bop_min_not_exists_id.  Qed.
-*) 
 End Theory.
 
 Section ACAS.
 
 Open Scope nat.
 
-(*
-Definition id_ann_proofs_max_min : id_ann_proofs nat brel_eq_nat bop_max bop_min := 
+
+Definition id_ann_proofs_max_min : pid_is_tann_proofs nat brel_eq_nat bop_max bop_min := 
 {|
-  A_id_ann_exists_plus_id_d       := inl bop_max_exists_id 
-; A_id_ann_exists_plus_ann_d      := inr bop_max_not_exists_ann
-; A_id_ann_exists_times_id_d      := inr bop_min_not_exists_id
-; A_id_ann_exists_times_ann_d     := inl bop_min_exists_ann
-; A_id_ann_plus_id_is_times_ann_d := inl bops_id_equals_ann_max_min 
-; A_id_ann_times_id_is_plus_ann_d := inr bops_not_id_equals_ann_max_min 
-|}.
-*) 
+   A_pid_is_tann_plus_times   := bops_id_equals_ann_max_min
+ ; A_pid_is_tann_times_plus_d := Id_Ann_Proof_None _ _ _ _ (bop_min_not_exists_id, bop_max_not_exists_ann)
+|}. 
+
+
 Definition distributive_lattice_proofs_max_min : distributive_lattice_proofs nat brel_eq_nat bop_max bop_min := 
 {|
     A_distributive_lattice_absorptive      := bops_max_min_left_left_absorptive
@@ -111,127 +106,57 @@ Definition distributive_lattice_proofs_max_min : distributive_lattice_proofs nat
   ; A_distributive_lattice_distributive    := bops_max_min_left_distributive
 |}.
 
-(*
-
-Definition A_selective_distributive_prelattice_max_min : A_selective_distributive_prelattice  nat  := 
+Definition A_max_min : A_selective_distributive_prelattice_with_zero  nat  := 
 {|
-  A_selective_distributive_prelattice_eqv           := A_eqv_nat
-; A_selective_distributive_prelattice_join          := bop_max
-; A_selective_distributive_prelattice_meet          := bop_min
-; A_selective_distributive_prelattice_join_proofs   := sg_CS_proofs_max
-; A_selective_distributive_prelattice_meet_proofs   := sg_CS_proofs_min
-; A_selective_distributive_prelattice_id_ann_proofs := id_ann_proofs_max_min                                                                  
-; A_selective_distributive_prelattice_proofs        :=  distributive_lattice_proofs_max_min
-; A_selective_distributive_prelattice_ast           := Ast_max_min
+  A_selective_distributive_prelattice_with_zero_eqv           := A_eqv_nat
+; A_selective_distributive_prelattice_with_zero_join          := bop_max
+; A_selective_distributive_prelattice_with_zero_meet          := bop_min
+; A_selective_distributive_prelattice_with_zero_join_proofs   := sg_CS_proofs_max
+; A_selective_distributive_prelattice_with_zero_meet_proofs   := sg_CS_proofs_min
+; A_selective_distributive_prelattice_with_zero_id_ann_proofs := id_ann_proofs_max_min                                                                  
+; A_selective_distributive_prelattice_with_zero_proofs        := distributive_lattice_proofs_max_min
+; A_selective_distributive_prelattice_with_zero_ast           := Ast_max_min
 |}.
 
- *)
-Definition path_algebra_proofs_max_min : path_algebra_proofs nat brel_eq_nat bop_max bop_min := 
-  {| 
-     A_path_algebra_left_distributive      := bops_max_min_left_distributive
-   ; A_path_algebra_right_distributive     := bops_max_min_right_distributive
-   ; A_path_algebra_left_left_absorptive   := bops_max_min_left_left_absorptive
-   ; A_path_algebra_left_right_absorptive  := bops_max_min_left_right_absorptive
-  |}.
 
-(*
-Definition A_pre_path_algebra_max_min : A_pre_path_algebra nat :=
-let eqvP := A_eqv_proofs _  A_eqv_nat in 
-let s := A_eqv_witness _ A_eqv_nat in 
-let f := A_eqv_new _ A_eqv_nat in 
-let nt := A_eqv_not_trivial _ A_eqv_nat in 
- {|
-  A_pre_path_algebra_eqv           := A_eqv_nat 
-; A_pre_path_algebra_plus          := bop_max
-; A_pre_path_algebra_times         := bop_min
-; A_pre_path_algebra_plus_proofs   := A_sg_CI_proofs_from_sg_CS_proofs _ _ _ sg_CS_proofs_max 
-; A_pre_path_algebra_times_proofs  := A_msg_proofs_from_sg_proofs _ _ _ (A_sg_proofs_from_sg_CS_proofs _ _ _ s f nt eqvP sg_CS_proofs_min)
-; A_pre_path_algebra_id_ann_proofs := id_ann_proofs_max_min                                                                  
-; A_pre_path_algebra_proofs        := path_algebra_proofs_max_min
-; A_pre_path_algebra_ast           := Ast_max_min (*FIX*)
-|}.
-
-*) 
-  
 End ACAS.
 
 Section CAS.
 Open Scope nat.
-(*
-Definition id_ann_certs_max_min : @id_ann_certificates nat := 
+
+
+Definition id_ann_certs_max_min : @pid_is_tann_certificates nat := 
 {|
-  id_ann_exists_plus_id_d       := Certify_Exists_Id 0 
-; id_ann_exists_plus_ann_d      := Certify_Not_Exists_Ann
-; id_ann_exists_times_id_d      := Certify_Not_Exists_Id
-; id_ann_exists_times_ann_d     := Certify_Exists_Ann 0 
-; id_ann_plus_id_is_times_ann_d := Certify_Plus_Id_Equals_Times_Ann 0
-; id_ann_times_id_is_plus_ann_d := Certify_Not_Times_Id_Equals_Plus_Ann 
-|}.
-*)
+   pid_is_tann_plus_times   := Assert_Exists_Id_Ann_Equal 0 
+ ; pid_is_tann_times_plus_d := Id_Ann_Cert_None
+|}. 
+
+
 Definition distributive_lattice_certs_max_min : @distributive_lattice_certificates nat := 
 {|
     distributive_lattice_absorptive       := Assert_Left_Left_Absorptive
   ; distributive_lattice_absorptive_dual := Assert_Left_Left_Absorptive_Dual
   ; distributive_lattice_distributive    := Assert_Left_Distributive
 |}.
-(*
-Definition selective_distributive_prelattice_max_min : @selective_distributive_prelattice  nat  :=
+
+Definition max_min : @selective_distributive_prelattice_with_zero  nat  :=
 {|
-  selective_distributive_prelattice_eqv          := eqv_eq_nat
-; selective_distributive_prelattice_join         := bop_max
-; selective_distributive_prelattice_meet         := bop_min
-; selective_distributive_prelattice_join_certs   := sg_CS_certs_max
-; selective_distributive_prelattice_meet_certs   := sg_CS_certs_min
-; selective_distributive_prelattice_id_ann_certs := id_ann_certs_max_min                                                                  
-; selective_distributive_prelattice_certs        := distributive_lattice_certs_max_min
-; selective_distributive_prelattice_ast          := Ast_max_min
-|}.
-*) 
-(*
-Definition path_algebra_certs_max_min : @path_algebra_certs nat := 
-  {| 
-     path_algebra_left_distributive      := Assert_Left_Distributive 
-   ; path_algebra_right_distributive     := Assert_Right_Distributive 
-   ; path_algebra_left_left_absorptive   := Assert_Left_Left_Absorptive 
-   ; path_algebra_left_right_absorptive  := Assert_Left_Right_Absorptive 
-  |}.
-*) 
-(*
-Definition pre_path_algebra_max_min : @pre_path_algebra nat :=
-let eq := eqv_eq eqv_eq_nat  in
-let s := eqv_witness eqv_eq_nat  in
-let f := eqv_new eqv_eq_nat  in     
-{|
-  pre_path_algebra_eqv         := eqv_eq_nat 
-; pre_path_algebra_plus        := bop_max
-; pre_path_algebra_times       := bop_min
-; pre_path_algebra_plus_certs  := sg_CI_certs_from_sg_CS_certs (sg_CS_certs sg_CS_max)
-; pre_path_algebra_times_certs := msg_certs_from_sg_certs (sg_certs_from_sg_CS_certs eq bop_min s f sg_CS_certs_min)
-; pre_path_algebra_id_ann_certs := id_ann_certs_max_min   
-; pre_path_algebra_certs       := path_algebra_certs_max_min 
-; pre_path_algebra_ast         := Ast_max_min (* FIX *) 
+  selective_distributive_prelattice_with_zero_eqv          := eqv_eq_nat
+; selective_distributive_prelattice_with_zero_join         := bop_max
+; selective_distributive_prelattice_with_zero_meet         := bop_min
+; selective_distributive_prelattice_with_zero_join_certs   := sg_CS_certs_max
+; selective_distributive_prelattice_with_zero_meet_certs   := sg_CS_certs_min
+; selective_distributive_prelattice_with_zero_id_ann_certs := id_ann_certs_max_min                                                                  
+; selective_distributive_prelattice_with_zero_certs        := distributive_lattice_certs_max_min
+; selective_distributive_prelattice_with_zero_ast          := Ast_max_min
 |}.
 
-*) 
 End CAS.
 
 Section Verify.
-(*
-Theorem correct_selective_distributive_prelattice_max_min : 
-  selective_distributive_prelattice_max_min
-  =
-  A2C_selective_distributive_prelattice nat (A_selective_distributive_prelattice_max_min). 
-Proof. compute. reflexivity. Qed. 
-*)   
-(*
-Theorem correct_pre_path_algebra_max_min : 
-  pre_path_algebra_max_min
-  =
-  A2C_pre_path_algebra nat (A_pre_path_algebra_max_min). 
-Proof. compute. reflexivity. Qed. 
-*)   
 
-
+Theorem correct_max_min : max_min = A2C_selective_distributive_prelattice_with_zero nat A_max_min. 
+Proof. compute. reflexivity. Qed. 
 
 
 End Verify.   

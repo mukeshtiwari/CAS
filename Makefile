@@ -99,8 +99,8 @@ CAS=\
    coq/bs/right_sum.v \
    coq/bs/min_max.v \
    coq/bs/max_min.v \
-   coq/bs/add_id_add_ann.v \
-   coq/bs/add_ann_add_id.v \
+   coq/bs/add_zero.v \
+   coq/bs/add_one.v \
    coq/bs/left.v \
    coq/bs/right.v \
    coq/bs/union_lift.v \

@@ -1,21 +1,29 @@
 Require Import CAS.coq.common.compute. 
 
 Require Import CAS.coq.eqv.nat.
-Require Import CAS.coq.eqv.bool.
-Require Import CAS.coq.eqv.list.
-Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.eqv.sum.
 Require Import CAS.coq.eqv.add_constant.
+(*
 Require Import CAS.coq.eqv.nat_ceiling.
-Require Import CAS.coq.eqv.minset. 
+Require Import CAS.coq.eqv.minset.
+Require Import CAS.coq.eqv.bool.
+Require Import CAS.coq.eqv.list.
+Require Import CAS.coq.eqv.set.
+*) 
 
 Require Import CAS.coq.sg.cast_up.
 Require Import CAS.coq.sg.cast_down.
 Require Import CAS.coq.sg.plus.
-Require Import CAS.coq.sg.times.
 Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.max.
+Require Import CAS.coq.sg.product.
+Require Import CAS.coq.sg.llex.
+Require Import CAS.coq.sg.add_id.
+Require Import CAS.coq.sg.add_ann.
+
+(*
+Require Import CAS.coq.sg.times.
 Require Import CAS.coq.sg.and.
 Require Import CAS.coq.sg.or.
 Require Import CAS.coq.sg.left.
@@ -23,10 +31,7 @@ Require Import CAS.coq.sg.right.
 Require Import CAS.coq.sg.left_sum.
 Require Import CAS.coq.sg.right_sum.
 Require Import CAS.coq.sg.concat.
-Require Import CAS.coq.sg.product.
-Require Import CAS.coq.sg.llex.
-Require Import CAS.coq.sg.add_id.
-Require Import CAS.coq.sg.add_ann.
+
 Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.intersect.
 Require Import CAS.coq.sg.minset_union. 
@@ -35,6 +40,7 @@ Require Import CAS.coq.sg.lift.
 
 Require Import CAS.coq.po.lte_nat. (* why is this not from_sg_left sg_min?*)
 Require Import CAS.coq.po.trivial.
+*) 
 (*
 Require Import CAS.coq.po.from_sg_left.
 Require Import CAS.coq.po.from_sg_right.
@@ -53,14 +59,16 @@ Require Import CAS.coq.po.right_sum.
 Require Import CAS.coq.bs.cast_up.
 Require Import CAS.coq.bs.cast_down.
 Require Import CAS.coq.bs.max_min.
-Require Import CAS.coq.bs.min_max.
 Require Import CAS.coq.bs.min_plus.
+Require Import CAS.coq.bs.product.
+Require Import CAS.coq.bs.add_zero.
+Require Import CAS.coq.bs.add_one.
+Require Import CAS.coq.bs.llex_product.
+
+(*
+Require Import CAS.coq.bs.min_max.
 Require Import CAS.coq.bs.max_plus.
 Require Import CAS.coq.bs.dual.
-Require Import CAS.coq.bs.product_product.
-Require Import CAS.coq.bs.add_ann_add_id.
-Require Import CAS.coq.bs.add_id_add_ann.
-Require Import CAS.coq.bs.llex_product.
 Require Import CAS.coq.bs.left_sum.
 Require Import CAS.coq.bs.right_sum.
 Require Import CAS.coq.bs.and_or.
@@ -70,8 +78,11 @@ Require Import CAS.coq.bs.intersect_union.
 Require Import CAS.coq.bs.union_lift.
 Require Import CAS.coq.bs.left.
 Require Import CAS.coq.bs.right.
+ *)
+Require Extraction.
 
-Require Extraction. 
+
+Cd "extraction".
 
 (* Require Import Coq.ExtrOcamlString. *) (* why does this not work?? *) 
 
@@ -160,7 +171,7 @@ Extract Inductive nat => int [ "0" "succ" ]
 Extraction Blacklist List String Int.
 
 
-Cd "extraction".
+
 
 (* Separate Extraction  *) 
 Extraction "Cas.ml"
@@ -168,19 +179,31 @@ Extraction "Cas.ml"
    eqv_eq_nat
    eqv_product
    eqv_add_constant
-   eqv_bool
+
+   selective_cancellative_pre_dioid_with_one_min_plus
+   selective_distributive_prelattice_with_zero_max_min   
+   llex_product_from_CS_CI
+   llex_product_from_CS_CS   
+   bs_add_zero
+   bs_add_one
+
+   
+(*******************
+   
+(*   eqv_bool
    eqv_sum
    eqv_list
    eqv_set
    eqv_nat_ceiling
    eqv_minset_from_po
-   eqv_minset_from_qo   
-(* semigroups *)
-   sg_C_times
-   sg_CS_max
-   sg_CS_min
+   eqv_minset_from_qo   *) 
+(* semigroups 
+   sg_C_times 
    sg_CS_and
    sg_CS_or   
+*)
+   sg_CS_max
+   sg_CS_min
    sg_CK_plus
    sg_product
    sg_C_product      
@@ -265,15 +288,17 @@ Extraction "Cas.ml"
    dioid_add_zero   
    lattice_add_zero
    distributive_lattice_add_zero 
-   selective_distributive_lattice_add_zero   *) 
+   selective_distributive_lattice_add_zero   
    bs_product
    semiring_product
    dioid_product
+*) 
 (*   
    semiring_sg_left
    semiring_sg_right
-*)
+
    bs_left_sum
+*)
 (* bs_right_sum *) 
    bs_llex_product
    bs_CS_llex_product
@@ -298,5 +323,6 @@ Extraction "Cas.ml"
    lattice_dual
    distributive_lattice_dual
    selective_distributive_lattice_dual
+*******************)
    .
 

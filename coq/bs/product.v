@@ -558,35 +558,35 @@ Definition bs_proofs_product :
 
 
 
-Definition path_algebra_proofs_product : 
+Definition dioid_proofs_product : 
   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS mulS : binary_op S) (addT mulT : binary_op T) (s : S) (t : T), 
     eqv_proofs S rS ->
     eqv_proofs T rT -> 
-    path_algebra_proofs S rS addS mulS ->
-    path_algebra_proofs T rT addT mulT ->     
-        path_algebra_proofs (S * T) (brel_product rS rT) (bop_product addS addT) (bop_product mulS mulT)
+    dioid_proofs S rS addS mulS ->
+    dioid_proofs T rT addT mulT ->     
+        dioid_proofs (S * T) (brel_product rS rT) (bop_product addS addT) (bop_product mulS mulT)
 := λ S T rS rT addS mulS addT mulT s t eqvS eqvT srS srT, 
 {|
-  A_path_algebra_left_distributive        :=
+  A_dioid_left_distributive        :=
     bop_product_left_distributive S T rS rT addS mulS addT mulT  
-        (A_path_algebra_left_distributive S rS addS mulS srS)
-        (A_path_algebra_left_distributive T rT addT mulT srT)                                  
+        (A_dioid_left_distributive S rS addS mulS srS)
+        (A_dioid_left_distributive T rT addT mulT srT)                                  
     
-; A_path_algebra_right_distributive       :=
+; A_dioid_right_distributive       :=
     bop_product_right_distributive S T rS rT addS mulS addT mulT  
-        (A_path_algebra_right_distributive S rS addS mulS srS)
-        (A_path_algebra_right_distributive T rT addT mulT srT)                                  
+        (A_dioid_right_distributive S rS addS mulS srS)
+        (A_dioid_right_distributive T rT addT mulT srT)                                  
 
                                                                      
-; A_path_algebra_left_left_absorptive   :=
+; A_dioid_left_left_absorptive   :=
     bop_product_left_left_absorptive S T rS rT addS mulS addT mulT
-        (A_path_algebra_left_left_absorptive S rS addS mulS srS)
-        (A_path_algebra_left_left_absorptive T rT addT mulT srT)                                  
+        (A_dioid_left_left_absorptive S rS addS mulS srS)
+        (A_dioid_left_left_absorptive T rT addT mulT srT)                                  
 
-; A_path_algebra_left_right_absorptive  :=
+; A_dioid_left_right_absorptive  :=
     bop_product_left_right_absorptive S T rS rT addS mulS addT mulT
-        (A_path_algebra_left_right_absorptive S rS addS mulS srS)
-        (A_path_algebra_left_right_absorptive T rT addT mulT srT)                                  
+        (A_dioid_left_right_absorptive S rS addS mulS srS)
+        (A_dioid_left_right_absorptive T rT addT mulT srT)                                  
 |}.
 
 
@@ -632,10 +632,10 @@ let timesT := A_bs_times T bsT in
 |}. 
 
 (*
-Definition A_pre_path_algebra_product : ∀ (S T : Type),  A_pre_path_algebra S -> A_pre_path_algebra T -> A_pre_path_algebra_NS (S * T) 
+Definition A_pre_dioid_product : ∀ (S T : Type),  A_pre_dioid S -> A_pre_dioid T -> A_pre_dioid_NS (S * T) 
 := λ S T bsS bsT,
-let eqvS   := A_pre_path_algebra_eqv S bsS   in
-let eqvT   := A_pre_path_algebra_eqv T bsT   in
+let eqvS   := A_pre_dioid_eqv S bsS   in
+let eqvT   := A_pre_dioid_eqv T bsT   in
 let peqvS  := A_eqv_proofs S eqvS in
 let peqvT  := A_eqv_proofs T eqvT in 
 let rS     := A_eqv_eq S eqvS  in 
@@ -646,27 +646,27 @@ let Pf     := A_eqv_not_trivial S eqvS in
 let t      := A_eqv_witness T eqvT in
 let g      := A_eqv_new T eqvT in
 let Pg     := A_eqv_not_trivial T eqvT in
-let plusS  := A_pre_path_algebra_plus S bsS  in 
-let plusT  := A_pre_path_algebra_plus T bsT  in
-let timesS := A_pre_path_algebra_times S bsS in 
-let timesT := A_pre_path_algebra_times T bsT in 
+let plusS  := A_pre_dioid_plus S bsS  in 
+let plusT  := A_pre_dioid_plus T bsT  in
+let timesS := A_pre_dioid_times S bsS in 
+let timesT := A_pre_dioid_times T bsT in 
 {| 
-     A_pre_path_algebra_NS_eqv        := A_eqv_product S T eqvS eqvT 
-   ; A_pre_path_algebra_NS_plus       := bop_product plusS plusT 
-   ; A_pre_path_algebra_NS_times      := bop_product timesS timesT 
-   ; A_pre_path_algebra_NS_plus_proofs := sg_CI_to_CINS_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
-                           (A_pre_path_algebra_plus_proofs S bsS) 
-                           (A_pre_path_algebra_plus_proofs T bsT) 
-   ; A_pre_path_algebra_NS_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
-                           (A_pre_path_algebra_times_proofs S bsS) 
-                           (A_pre_path_algebra_times_proofs T bsT)
-   ; A_pre_path_algebra_NS_id_ann_proofs := id_ann_proofs_product S T rS rT plusS timesS plusT timesT
-                           (A_pre_path_algebra_id_ann_proofs S bsS) 
-                           (A_pre_path_algebra_id_ann_proofs T bsT)                           
-   ; A_pre_path_algebra_NS_proofs    := path_algebra_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT
-                                        (A_pre_path_algebra_proofs S bsS) 
-                                       (A_pre_path_algebra_proofs T bsT)
-   ; A_pre_path_algebra_NS_ast        := Ast_bs_product(A_pre_path_algebra_ast S bsS, A_pre_path_algebra_ast T bsT) (* FIX *) 
+     A_pre_dioid_NS_eqv        := A_eqv_product S T eqvS eqvT 
+   ; A_pre_dioid_NS_plus       := bop_product plusS plusT 
+   ; A_pre_dioid_NS_times      := bop_product timesS timesT 
+   ; A_pre_dioid_NS_plus_proofs := sg_CI_to_CINS_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
+                           (A_pre_dioid_plus_proofs S bsS) 
+                           (A_pre_dioid_plus_proofs T bsT) 
+   ; A_pre_dioid_NS_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+                           (A_pre_dioid_times_proofs S bsS) 
+                           (A_pre_dioid_times_proofs T bsT)
+   ; A_pre_dioid_NS_id_ann_proofs := id_ann_proofs_product S T rS rT plusS timesS plusT timesT
+                           (A_pre_dioid_id_ann_proofs S bsS) 
+                           (A_pre_dioid_id_ann_proofs T bsT)                           
+   ; A_pre_dioid_NS_proofs    := dioid_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT
+                                        (A_pre_dioid_proofs S bsS) 
+                                       (A_pre_dioid_proofs T bsT)
+   ; A_pre_dioid_NS_ast        := Ast_bs_product(A_pre_dioid_ast S bsS, A_pre_dioid_ast T bsT) (* FIX *) 
 |}. 
 *) 
 
@@ -779,42 +779,6 @@ let timesT := A_semiring_times T sr2 in
    ; A_semiring_ast       := Ast_bs_product (A_semiring_ast S sr1, A_semiring_ast T sr2)
 |}.
 
-Definition A_dioid_product : ∀ (S T : Type),  A_dioid S ->  A_dioid T -> A_dioid (S * T) 
-:= λ S T sr1 sr2,
-let eqvS   := A_dioid_eqv S sr1   in
-let eqvT   := A_dioid_eqv T sr2   in
-let peqvS  := A_eqv_proofs S eqvS in
-let peqvT  := A_eqv_proofs T eqvT in 
-let rS     := A_eqv_eq S eqvS  in 
-let rT     := A_eqv_eq T eqvT  in
-let s      := A_eqv_witness S eqvS in
-let f      := A_eqv_new S eqvS in
-let Pf     := A_eqv_not_trivial S eqvS in
-let t      := A_eqv_witness T eqvT in
-let g      := A_eqv_new T eqvT in
-let Pg     := A_eqv_not_trivial T eqvT in
-let plusS  := A_dioid_plus S sr1  in 
-let plusT  := A_dioid_plus T sr2  in
-let timesS := A_dioid_times S sr1 in 
-let timesT := A_dioid_times T sr2 in 
-{| 
-     A_dioid_eqv          := A_eqv_product S T eqvS eqvT 
-   ; A_dioid_plus         := bop_product plusS plusT 
-   ; A_dioid_times        := bop_product timesS timesT 
-   ; A_dioid_plus_proofs  := sg_CI_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
-                                (A_dioid_plus_proofs S sr1)
-                                (A_dioid_plus_proofs T sr2)                                 
-   ; A_dioid_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
-                                (A_dioid_times_proofs S sr1)
-                                (A_dioid_times_proofs T sr2)
-   ; A_dioid_id_ann_proofs := dually_bounded_proofs_product S T rS rT plusS timesS plusT timesT
-                                   (A_dioid_id_ann_proofs S sr1) 
-                                   (A_dioid_id_ann_proofs T sr2)                           
-   ; A_dioid_proofs       := semiring_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT 
-                                   (A_dioid_proofs S sr1)
-                                   (A_dioid_proofs T sr2)
-   ; A_dioid_ast  := Ast_bs_product (A_dioid_ast S sr1, A_dioid_ast T sr2)
-|}.
 
 Definition distributive_lattice_proofs_product : 
   ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS mulS : binary_op S) (addT mulT : binary_op T), 
@@ -1293,74 +1257,50 @@ let mulT := semiring_times s2 in
    ; semiring_ast          := Ast_bs_product (semiring_ast s1, semiring_ast s2)
 |}.
 
-Definition dioid_product : ∀ (S T : Type),  @dioid S ->  @dioid T -> @dioid (S * T) 
-:= λ S T sr1 sr2,
-let eqvS   := dioid_eqv sr1   in
-let eqvT   := dioid_eqv sr2   in
-let rS     := eqv_eq eqvS  in 
-let rT     := eqv_eq eqvT  in
-let s      := eqv_witness eqvS in
-let f      := eqv_new eqvS in
-let t      := eqv_witness eqvT in
-let g      := eqv_new eqvT in
-let plusS  := dioid_plus sr1  in 
-let plusT  := dioid_plus sr2  in
-let timesS := dioid_times sr1 in 
-let timesT := dioid_times sr2 in 
-{| 
-     dioid_eqv          := eqv_product eqvS eqvT 
-   ; dioid_plus         := bop_product plusS plusT 
-   ; dioid_times        := bop_product timesS timesT 
-   ; dioid_plus_certs   := sg_CI_certs_product rS rT plusS plusT s f t g (dioid_plus_certs sr1)(dioid_plus_certs sr2)
-   ; dioid_times_certs  := msg_certs_product s t (dioid_times_certs sr1) (dioid_times_certs sr2)
-   ; dioid_id_ann_certs := dually_bounded_certs_product (dioid_id_ann_certs sr1) (dioid_id_ann_certs sr2)                                              
-   ; dioid_certs        := semiring_certs_product s t (dioid_certs sr1) (dioid_certs sr2)
-   ; dioid_ast          := Ast_bs_product (dioid_ast sr1, dioid_ast sr2)
-|}.
 
 
-Definition path_algebra_certs_product {S T : Type} (CS: @path_algebra_certificates S) (CT : @path_algebra_certificates T) : 
-        @path_algebra_certificates (S * T) := 
+Definition dioid_certs_product {S T : Type} (CS: @dioid_certificates S) (CT : @dioid_certificates T) : 
+        @dioid_certificates (S * T) := 
 {|
-  path_algebra_left_distributive      := Assert_Left_Distributive  
-; path_algebra_right_distributive     := Assert_Right_Distributive 
-; path_algebra_left_left_absorptive   := Assert_Left_Left_Absorptive  
-; path_algebra_left_right_absorptive  := Assert_Left_Right_Absorptive 
+  dioid_left_distributive      := Assert_Left_Distributive  
+; dioid_right_distributive     := Assert_Right_Distributive 
+; dioid_left_left_absorptive   := Assert_Left_Left_Absorptive  
+; dioid_left_right_absorptive  := Assert_Left_Right_Absorptive 
 |}.
 
 
 (*
-Definition pre_path_algebra_product {S T : Type} :  @pre_path_algebra S -> @pre_path_algebra T -> @pre_path_algebra_NS (S * T) 
+Definition pre_dioid_product {S T : Type} :  @pre_dioid S -> @pre_dioid T -> @pre_dioid_NS (S * T) 
 := λ bsS bsT,
-let eqvS   := pre_path_algebra_eqv bsS   in
-let eqvT   := pre_path_algebra_eqv bsT   in
+let eqvS   := pre_dioid_eqv bsS   in
+let eqvT   := pre_dioid_eqv bsT   in
 let rS     := eqv_eq eqvS in 
 let rT     := eqv_eq eqvT in 
 let s      := eqv_witness eqvS in
 let f      := eqv_new eqvS in
 let t      := eqv_witness eqvT in
 let g      := eqv_new eqvT in
-let plusS  := pre_path_algebra_plus bsS  in 
-let plusT  := pre_path_algebra_plus bsT  in
-let timesS := pre_path_algebra_times bsS in 
-let timesT := pre_path_algebra_times bsT in 
+let plusS  := pre_dioid_plus bsS  in 
+let plusT  := pre_dioid_plus bsT  in
+let timesS := pre_dioid_times bsS in 
+let timesT := pre_dioid_times bsT in 
 {| 
-     pre_path_algebra_NS_eqv        := eqv_product eqvS eqvT 
-   ; pre_path_algebra_NS_plus       := bop_product plusS plusT 
-   ; pre_path_algebra_NS_times      := bop_product timesS timesT 
-   ; pre_path_algebra_NS_plus_certs := sg_CI_to_CINS_certs_product rS rT plusS plusT s f t g 
-                           (pre_path_algebra_plus_certs bsS) 
-                           (pre_path_algebra_plus_certs bsT) 
-   ; pre_path_algebra_NS_times_certs := msg_certs_product s t 
-                           (pre_path_algebra_times_certs bsS) 
-                           (pre_path_algebra_times_certs bsT)
-   ; pre_path_algebra_NS_id_ann_certs := id_ann_certs_product 
-                           (pre_path_algebra_id_ann_certs bsS) 
-                           (pre_path_algebra_id_ann_certs bsT)                           
-   ; pre_path_algebra_NS_certs    := path_algebra_certs_product 
-                                        (pre_path_algebra_certs bsS) 
-                                       (pre_path_algebra_certs bsT)
-   ; pre_path_algebra_NS_ast        := Ast_bs_product(pre_path_algebra_ast bsS, pre_path_algebra_ast bsT) (* FIX *) 
+     pre_dioid_NS_eqv        := eqv_product eqvS eqvT 
+   ; pre_dioid_NS_plus       := bop_product plusS plusT 
+   ; pre_dioid_NS_times      := bop_product timesS timesT 
+   ; pre_dioid_NS_plus_certs := sg_CI_to_CINS_certs_product rS rT plusS plusT s f t g 
+                           (pre_dioid_plus_certs bsS) 
+                           (pre_dioid_plus_certs bsT) 
+   ; pre_dioid_NS_times_certs := msg_certs_product s t 
+                           (pre_dioid_times_certs bsS) 
+                           (pre_dioid_times_certs bsT)
+   ; pre_dioid_NS_id_ann_certs := id_ann_certs_product 
+                           (pre_dioid_id_ann_certs bsS) 
+                           (pre_dioid_id_ann_certs bsT)                           
+   ; pre_dioid_NS_certs    := dioid_certs_product 
+                                        (pre_dioid_certs bsS) 
+                                       (pre_dioid_certs bsT)
+   ; pre_dioid_NS_ast        := Ast_bs_product(pre_dioid_ast bsS, pre_dioid_ast bsT) (* FIX *) 
 |}. 
 *) 
 
@@ -1735,17 +1675,17 @@ Qed.
 
 
 (*
-Theorem correct_pre_path_algebra_product : ∀ (S T : Type) (bsS: A_pre_path_algebra S) (bsT : A_pre_path_algebra T), 
-   pre_path_algebra_product (A2C_pre_path_algebra S bsS) (A2C_pre_path_algebra T bsT)
+Theorem correct_pre_dioid_product : ∀ (S T : Type) (bsS: A_pre_dioid S) (bsT : A_pre_dioid T), 
+   pre_dioid_product (A2C_pre_dioid S bsS) (A2C_pre_dioid T bsT)
    =
-   A2C_pre_path_algebra_NS (S * T) (A_pre_path_algebra_product S T bsS bsT). 
+   A2C_pre_dioid_NS (S * T) (A_pre_dioid_product S T bsS bsT). 
 Proof. intros S T bsS bsT. 
-       unfold pre_path_algebra_product, A_pre_path_algebra_product, A2C_pre_path_algebra, A2C_pre_path_algebra_NS; simpl. 
+       unfold pre_dioid_product, A_pre_dioid_product, A2C_pre_dioid, A2C_pre_dioid_NS; simpl. 
        rewrite correct_eqv_product. 
        rewrite <- correct_msg_certs_product.
        rewrite correct_id_ann_certs_product.        
        rewrite <- correct_sg_CI_to_CINS_certs_product. 
-       unfold P2C_path_algebra. unfold path_algebra_certs_product. 
+       unfold P2C_dioid. unfold dioid_certs_product. 
        reflexivity. 
 Qed. 
 *) 
@@ -1763,20 +1703,6 @@ Proof. intros S T bsS bsT.
        reflexivity. 
 Qed. 
 
-
-Theorem correct_dioid_product : ∀ (S T : Type) (bsS: A_dioid S) (bsT : A_dioid T), 
-   dioid_product S T (A2C_dioid S bsS) (A2C_dioid T bsT)
-   =
-   A2C_dioid (S * T) (A_dioid_product S T bsS bsT). 
-Proof. intros S T bsS bsT. 
-       unfold dioid_product, A_dioid_product, A2C_dioid; simpl. 
-       rewrite correct_eqv_product. 
-       rewrite <- correct_msg_certs_product. 
-       rewrite <- correct_sg_CI_certs_product. 
-       rewrite <- correct_semiring_certs_product.
-       rewrite correct_dually_bounded_certs_product.        
-       reflexivity. 
-Qed.
 
 
 

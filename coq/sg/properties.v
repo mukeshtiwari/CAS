@@ -23,7 +23,6 @@ Definition bop_commutative (S : Type) (r : brel S) (b : binary_op S)
     := ∀ s t : S, r (b s t) (b t s) = true. 
 
 Definition bop_not_commutative(S : Type) (r : brel S) (b : binary_op S) 
-(*    := {s : S & {t : S & r (b s t) (b t s) = false}}. *) 
     := { z : S * S & match z with (s, t) => r (b s t) (b t s) = false end }. 
 
 Definition bop_commutative_decidable  (S : Type) (r : brel S) (b : binary_op S) := 

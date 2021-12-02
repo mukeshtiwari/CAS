@@ -131,7 +131,6 @@ Proof. exists 0. split. apply bop_plus_zero_is_id. apply bop_min_zero_is_ann. De
 End Theory.
 
 Section ACAS.
-
 Open Scope nat.
 
 Definition bop_min_plus_pann_tid_proofs : pann_is_tid_proofs nat brel_eq_nat bop_min bop_plus := 
@@ -139,89 +138,71 @@ Definition bop_min_plus_pann_tid_proofs : pann_is_tid_proofs nat brel_eq_nat bop
   A_pann_is_tid_plus_times_d := Id_Ann_Proof_None _ _ _ _ (bop_min_not_exists_id, bop_plus_not_exists_ann)
 ; A_pann_is_tid_times_plus   := bop_min_plus_exists_id_ann_equal
 |}. 
-
-  
-Definition semiring_proofs_min_plus : semiring_proofs nat brel_eq_nat bop_min bop_plus := 
+ 
+Definition dioid_proofs_min_plus : dioid_proofs nat brel_eq_nat bop_min bop_plus := 
   {| 
-     A_semiring_left_distributive      := bop_min_plus_left_distributive
-   ; A_semiring_right_distributive     := bop_min_plus_right_distributive
-   ; A_semiring_left_left_absorptive_d   := inl _ bops_min_plus_left_left_absorptive
-   ; A_semiring_left_right_absorptive_d  := inl _ bops_min_plus_left_right_absorptive
+     A_dioid_left_distributive      := bop_min_plus_left_distributive
+   ; A_dioid_right_distributive     := bop_min_plus_right_distributive
+   ; A_dioid_left_left_absorptive   := bops_min_plus_left_left_absorptive
+   ; A_dioid_left_right_absorptive  := bops_min_plus_left_right_absorptive
   |}.
 
 
-Definition A_selective_presemiring_min_plus : A_selective_presemiring nat := 
+
+Definition A_min_plus : A_selective_cancellative_pre_dioid_with_one nat := 
 {|
-  A_selective_presemiring_eqv          := A_eqv_nat 
-; A_selective_presemiring_plus         := bop_min
-; A_selective_presemiring_times        := bop_plus
-; A_selective_presemiring_plus_proofs  := A_sg_CS_proofs _ A_sg_CS_min
-; A_selective_presemiring_times_proofs := A_msg_proofs_plus
-; A_selective_presemiring_id_ann_proofs := 
-      id_ann_proofs_from_pann_is_tid_proofs _ _ _ _ bop_min_plus_pann_tid_proofs
-; A_selective_presemiring_proofs       := semiring_proofs_min_plus 
-; A_selective_presemiring_ast          := Ast_min_plus
-|}.
-
-
-
-Definition path_algebra_proofs_min_plus : path_algebra_proofs nat brel_eq_nat bop_min bop_plus := 
-  {| 
-     A_path_algebra_left_distributive      := bop_min_plus_left_distributive
-   ; A_path_algebra_right_distributive     := bop_min_plus_right_distributive
-   ; A_path_algebra_left_left_absorptive   := bops_min_plus_left_left_absorptive
-   ; A_path_algebra_left_right_absorptive  := bops_min_plus_left_right_absorptive
-  |}.
+   A_selective_cancellative_pre_dioid_with_one_eqv           := A_eqv_nat 
+ ; A_selective_cancellative_pre_dioid_with_one_plus          := bop_min 
+ ; A_selective_cancellative_pre_dioid_with_one_times         := bop_plus
+ ; A_selective_cancellative_pre_dioid_with_one_plus_proofs   := sg_CS_proofs_min
+ ; A_selective_cancellative_pre_dioid_with_one_times_proofs  := sg_CK_proofs_plus
+ ; A_selective_cancellative_pre_dioid_with_one_id_ann_proofs := bop_min_plus_pann_tid_proofs
+ ; A_selective_cancellative_pre_dioid_with_one_proofs        := dioid_proofs_min_plus
+ ; A_selective_cancellative_pre_dioid_with_one_ast           := Ast_min_plus
+|}. 
 
 End ACAS.
 
 
 Section CAS.
 
-Open Scope nat.  
+Open Scope nat.
 
-Definition semiring_certs_min_plus : @semiring_certificates nat := 
-  {| 
-     semiring_left_distributive      := Assert_Left_Distributive 
-   ; semiring_right_distributive     := Assert_Right_Distributive 
-   ; semiring_left_left_absorptive_d   := Certify_Left_Left_Absorptive 
-   ; semiring_left_right_absorptive_d  := Certify_Left_Right_Absorptive 
-  |}.
-
-Definition path_algebra_certs_min_plus : @path_algebra_certificates nat := 
-  {| 
-     path_algebra_left_distributive      := Assert_Left_Distributive 
-   ; path_algebra_right_distributive     := Assert_Right_Distributive 
-   ; path_algebra_left_left_absorptive   := Assert_Left_Left_Absorptive 
-   ; path_algebra_left_right_absorptive  := Assert_Left_Right_Absorptive 
-  |}.
-
-Definition bop_min_plus_pann_tid_certs : @pann_is_tid_certificates nat := 
+  Definition pann_tid_certs_min_plus : @pann_is_tid_certificates nat := 
 {|
   pann_is_tid_plus_times_d := Id_Ann_Cert_None
 ; pann_is_tid_times_plus   := Assert_Exists_Id_Ann_Equal 0
 |}. 
 
 
-Definition selective_presemiring_min_plus : @selective_presemiring nat := 
+
+Definition dioid_certs_min_plus : @dioid_certificates nat := 
+  {| 
+     dioid_left_distributive      := Assert_Left_Distributive 
+   ; dioid_right_distributive     := Assert_Right_Distributive 
+   ; dioid_left_left_absorptive   := Assert_Left_Left_Absorptive 
+   ; dioid_left_right_absorptive  := Assert_Left_Right_Absorptive 
+  |}.
+
+
+Definition min_plus : @selective_cancellative_pre_dioid_with_one nat := 
 {|
-  selective_presemiring_eqv         := eqv_eq_nat 
-; selective_presemiring_plus        := bop_min
-; selective_presemiring_times       := bop_plus
-; selective_presemiring_plus_certs  := sg_CS_certs sg_CS_min
-; selective_presemiring_times_certs := msg_certs_plus
-; selective_presemiring_id_ann_certs :=
-      id_ann_certs_from_pann_is_tid_certs bop_min_plus_pann_tid_certs    
-; selective_presemiring_certs       := semiring_certs_min_plus
-; selective_presemiring_ast         := Ast_min_plus
+  selective_cancellative_pre_dioid_with_one_eqv         := eqv_eq_nat 
+; selective_cancellative_pre_dioid_with_one_plus        := bop_min
+; selective_cancellative_pre_dioid_with_one_times       := bop_plus
+; selective_cancellative_pre_dioid_with_one_plus_certs  := sg_CS_certs sg_CS_min
+; selective_cancellative_pre_dioid_with_one_times_certs := sg_CK_certs_plus
+; selective_cancellative_pre_dioid_with_one_id_ann_certs := pann_tid_certs_min_plus
+; selective_cancellative_pre_dioid_with_one_certs       := dioid_certs_min_plus
+; selective_cancellative_pre_dioid_with_one_ast         := Ast_min_plus
 |}.
 
 End CAS.
 
 Section Verify.
 
-Theorem correct_selective_presemiring_min_plus : 
-   selective_presemiring_min_plus = A2C_selective_presemiring nat (A_selective_presemiring_min_plus). 
+Theorem correct_min_plus : 
+  min_plus = A2C_selective_cancellative_pre_dioid_with_one nat (A_min_plus). 
 Proof. compute. reflexivity. Qed. 
 
 End Verify.   

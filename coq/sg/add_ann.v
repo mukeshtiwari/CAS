@@ -76,11 +76,18 @@ Proof. unfold bop_not_anti_right. exists (inl c, inr wS); simpl. reflexivity.  D
 
 (* id, ann *) 
 
+Lemma bop_add_ann_is_ann : bop_is_ann (with_constant S) (brel_sum brel_constant rS) (c [+] bS) (inl c).
+Proof. intros [a | b]; compute; auto. Qed. 
+  
 Lemma bop_add_ann_exists_ann : bop_exists_ann (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
-Proof. exists (inl S c). intros [a | b]; compute; auto. Defined. 
+Proof. exists (inl S c). apply bop_add_ann_is_ann. Defined. 
+
+Lemma bop_add_ann_is_id (idS : S) : (bop_is_id S rS bS idS) -> 
+  bop_is_id (with_constant S) (brel_sum brel_constant rS) (c [+] bS) (inr idS).
+Proof. intros A [s | t]; compute; auto. Qed.
 
 Lemma bop_add_ann_exists_id : bop_exists_id S rS bS -> bop_exists_id (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
-Proof. intros [annS pS]. exists (inr _ annS). intros [s | t]; compute; auto. Defined. 
+Proof. intros [idS pS]. exists (inr _ idS). apply bop_add_ann_is_id; auto. Defined. 
 
 Lemma bop_add_ann_not_exists_id : bop_not_exists_id S rS bS -> bop_not_exists_id (with_constant S ) (brel_sum brel_constant rS) (c [+] bS).
 Proof. intros naS. intros [x | x]. exists (inr _ wS). compute; auto. destruct (naS x) as [y D].  exists (inr _ y). compute. exact D. Defined.

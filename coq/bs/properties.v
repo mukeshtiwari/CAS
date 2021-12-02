@@ -91,6 +91,28 @@ Inductive exists_id_ann_decidable (S : Type) (eq : brel S) (b1 : binary_op S) (b
 | Id_Ann_Proof_Equal     : bops_exists_id_ann_equal S eq b1 b2                        -> exists_id_ann_decidable S eq b1 b2
 | Id_Ann_Proof_Not_Equal : bops_exists_id_ann_not_equal S eq b1 b2                    -> exists_id_ann_decidable S eq b1 b2. 
 
+Definition extract_exists_id_decidable_from_exists_id_ann_decidable
+           (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S)
+           (P : exists_id_ann_decidable S r b1 b2) : bop_exists_id_decidable S r b1 :=
+match P with
+| Id_Ann_Proof_None _ _ _ _ (no_id, _)          => inr no_id 
+| Id_Ann_Proof_Id_None  _ _ _ _ (exists_id, _ ) => inl exists_id 
+| Id_Ann_Proof_None_Ann _ _ _ _ (no_id, _)      => inr no_id 
+| Id_Ann_Proof_Equal _ _ _ _ id_ann_eq          => inl (extract_exist_id_from_exists_id_ann_equal S r b1 b2 id_ann_eq) 
+| Id_Ann_Proof_Not_Equal _ _ _ _ id_ann_not_eq  => inl (extract_exist_id_from_exists_id_ann_not_equal S r b1 b2 id_ann_not_eq) 
+end.
+
+Definition extract_exists_ann_decidable_from_exists_id_ann_decidable
+           (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S)
+           (P : exists_id_ann_decidable S r b1 b2) : bop_exists_ann_decidable S r b2 :=
+match P with
+| Id_Ann_Proof_None _ _ _ _ (_, no_ann)         => inr no_ann
+| Id_Ann_Proof_Id_None  _ _ _ _ (_, no_ann)     => inr no_ann
+| Id_Ann_Proof_None_Ann _ _ _ _ (_, exists_ann) => inl exists_ann
+| Id_Ann_Proof_Equal _ _ _ _ id_ann_eq          => inl (extract_exist_ann_from_exists_id_ann_equal S r b1 b2 id_ann_eq) 
+| Id_Ann_Proof_Not_Equal _ _ _ _ id_ann_not_eq  => inl (extract_exist_ann_from_exists_id_ann_not_equal S r b1 b2 id_ann_not_eq) 
+end.
+
 (* Absorptivity *) 
 
 Definition bops_left_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
@@ -165,8 +187,54 @@ Inductive exists_id_ann_certificate {S : Type} : Type :=
 | Id_Ann_Cert_Id_None   : S -> @exists_id_ann_certificate S
 | Id_Ann_Cert_None_Ann  : S -> @exists_id_ann_certificate S
 | Id_Ann_Cert_Equal     : S -> @exists_id_ann_certificate S
-| Id_Ann_Cert_Not_Equal : (S * S) -> @exists_id_ann_certificate S. 
+| Id_Ann_Cert_Not_Equal : (S * S) -> @exists_id_ann_certificate S.
 
+(*
+Definition assert_exist_id_from_exists_id_ann_equal {S : Type} 
+           (P : @assert_exists_id_ann_equal S) : @assert_exists_id S:=
+  match P with
+  | Assert_Exists_Id_Ann_Equal id => Assert_Exists_Id id 
+  end. 
+
+Definition assert_exist_ann_from_exists_id_ann_equal {S : Type} 
+           (P : @assert_exists_id_ann_equal S) : @assert_exists_ann S := 
+  match P with
+  | Assert_Exists_Id_Ann_Equal id => Assert_Exists_Ann id 
+  end. 
+
+Definition assert_exist_id_from_exists_id_ann_not_equal {S : Type} 
+           (P : @assert_exists_id_ann_not_equal S) : @assert_exists_id S :=
+  match P with
+  | Assert_Exists_Id_Ann_Not_Equal (id, _) => Assert_Exists_Id id 
+  end. 
+
+Definition assert_exist_ann_from_exists_id_ann_not_equal {S : Type}
+           (P : @assert_exists_id_ann_not_equal S) : @assert_exists_ann S :=           
+  match P with
+  | Assert_Exists_Id_Ann_Not_Equal (_,ann) => Assert_Exists_Ann ann
+  end. 
+ *)
+
+
+Definition extract_exists_id_certifiable_from_exists_id_ann_certifiable
+           {S : Type} (P : @exists_id_ann_certificate S ) : @check_exists_id S  :=
+match P with
+| Id_Ann_Cert_None               => Certify_Not_Exists_Id 
+| Id_Ann_Cert_Id_None id         => Certify_Exists_Id id
+| Id_Ann_Cert_None_Ann ann       => Certify_Not_Exists_Id 
+| Id_Ann_Cert_Equal id_ann       => Certify_Exists_Id id_ann
+| Id_Ann_Cert_Not_Equal (id,ann) => Certify_Exists_Id id
+end.
+
+Definition extract_exists_ann_certifiable_from_exists_id_ann_certifiable
+           {S : Type} (P : @exists_id_ann_certificate S ) : @check_exists_ann S  :=
+match P with
+| Id_Ann_Cert_None               => Certify_Not_Exists_Ann 
+| Id_Ann_Cert_Id_None id         => Certify_Not_Exists_Ann 
+| Id_Ann_Cert_None_Ann ann       => Certify_Exists_Ann ann 
+| Id_Ann_Cert_Equal id_ann       => Certify_Exists_Ann id_ann
+| Id_Ann_Cert_Not_Equal (id,ann) => Certify_Exists_Ann ann 
+end.
 
 Inductive assert_left_left_absorptive {S : Type} := 
 | Assert_Left_Left_Absorptive : @assert_left_left_absorptive S.
@@ -289,4 +357,45 @@ Definition p2c_exists_id_ann
 | Id_Ann_Proof_Not_Equal _ _ _ _ Q     => Id_Ann_Cert_Not_Equal (projT1 Q)
 end. 
 
-End Translation.   
+End Translation.
+
+Section Verify.
+
+
+Lemma correct_extract_exists_id_certifiable_from_exists_id_ann_certifiable
+        (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S)
+        (P : exists_id_ann_decidable S r b1 b2) : 
+    p2c_exists_id_check _ _ _ (extract_exists_id_decidable_from_exists_id_ann_decidable S r b1 b2 P)
+    = 
+    extract_exists_id_certifiable_from_exists_id_ann_certifiable (p2c_exists_id_ann _ _ _ _ P). 
+Proof. unfold p2c_exists_id_check, p2c_exists_id_ann.
+       unfold extract_exists_id_certifiable_from_exists_id_ann_certifiable, 
+              extract_exists_id_decidable_from_exists_id_ann_decidable. 
+       destruct P; simpl.
+       destruct p as [A B]; reflexivity. 
+       destruct p as [[id A] B]; reflexivity. 
+       destruct p as [A [ann B]]; reflexivity. 
+       reflexivity. 
+       destruct b as [[id ann] B]. compute. reflexivity. 
+Qed.
+
+
+Lemma correct_extract_exists_ann_certifiable_from_exists_id_ann_certifiable
+        (S : Type) (r : brel S) (b1 : binary_op S) (b2 : binary_op S)
+        (P : exists_id_ann_decidable S r b1 b2) : 
+    p2c_exists_ann_check _ _ _ (extract_exists_ann_decidable_from_exists_id_ann_decidable S r b1 b2 P)
+    = 
+    extract_exists_ann_certifiable_from_exists_id_ann_certifiable (p2c_exists_id_ann _ _ _ _ P). 
+Proof. unfold p2c_exists_ann_check, p2c_exists_id_ann.
+       unfold extract_exists_ann_certifiable_from_exists_id_ann_certifiable, 
+              extract_exists_ann_decidable_from_exists_id_ann_decidable. 
+       destruct P; simpl.
+       destruct p as [A B]; reflexivity. 
+       destruct p as [[id A] B]; reflexivity. 
+       destruct p as [A [ann B]]; reflexivity. 
+       reflexivity. 
+       destruct b as [[id ann] B]. compute. reflexivity. 
+Qed.
+
+
+End Verify.   
