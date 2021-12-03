@@ -1268,13 +1268,6 @@ Section Matrix.
     Qed.
 
 
-    (* 
-      In Tim's slides, CAS_4, page 14, 
-      pi^0(i,i) = {eps} 
-      pi^0(i,j) = {}
-
-    *)
-
     (* a path is a triple *)
     Definition Path : Type := Node * Node * list (Node * Node * R). 
 
@@ -1299,21 +1292,21 @@ Section Matrix.
       | (_, _, v) :: t => v * measure_of_path t
       end.
 
-    Fixpoint well_formed_path_aux (l : list (Node * Node * R)) : bool :=
+    Fixpoint well_formed_path_aux (m : Matrix) (l : list (Node * Node * R)) : bool :=
       match l with 
       | [] => true
-      | (c, x, v) :: tl => match tl with 
+      | (c, x, v) :: tl => (m c x =r= v) && match tl with 
         | [] => true
-        | (y, _, _) :: _ => (x =n= y) && well_formed_path_aux tl
-      end 
+        | (y, _, _) :: _ => (x =n= y) && well_formed_path_aux m tl
+        end
       end.
   
   
     
-    Definition well_formed_path (p : Path) : bool :=
+    Definition well_formed_path (m : Matrix) (p : Path) : bool :=
       match p with 
       | (c, d, []) => c =n= d 
-      | (c, d, l) => well_formed_path_aux l && 
+      | (c, d, l) => well_formed_path_aux m l && 
           source c l && target d l
       end.
       
@@ -1406,8 +1399,59 @@ Section Matrix.
     Qed.
 
 
-    (* This proof will go away. *)  
     Lemma append_node_in_paths_eq : 
+      forall (l : list (list (Node * Node * R))) 
+      (m : Matrix) (c : Node) xs, 
+      In_eq_bool xs (append_node_in_paths m c l) = true -> 
+      exists y ys, triple_elem_list xs ((c, y, m c y) :: ys) = true /\
+      source c xs = true.
+    Proof.
+      induction l.
+      - simpl; intros ? ? ? Hf.
+        inversion Hf.
+      - intros ? ? ? H.
+        simpl in H.
+        destruct a.
+        apply IHl with (m := m) (c := c).
+        exact H.
+        repeat destruct p.
+        simpl in H.
+        apply Bool.orb_true_iff in H.
+        destruct H.
+        exists n, ((n, n0, r) :: a).
+        split. exact H.
+        destruct xs. simpl in H.
+        congruence. 
+        repeat destruct p.
+        simpl in H. simpl.
+        apply Bool.andb_true_iff in H.
+        destruct H as [Hl Hr].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hll Hlr].
+        apply Bool.andb_true_iff in Hll.
+        destruct Hll as [Hlll Hlllr].
+        apply symN. exact Hlll.
+        apply IHl with (m := m) (c := c).
+        exact H.
+    Qed.
+   
+   
+    (* list of all paths of lenghth k from c to d *)
+    Fixpoint all_paths_klength (m : Matrix) (k : nat) 
+      (c d : Node) : list (list (Node * Node * R)) :=
+      match k with
+      | O => if c =n= d then [[(c, d, 1)]] else []
+      | S k' =>
+          let lf := List.flat_map (fun x => all_paths_klength m k' x d) finN
+          in append_node_in_paths m c lf
+      end.
+
+
+
+    (* All the codes using = will go away. *)
+
+    (* This proof will go away. *)  
+    Lemma append_node_in_paths_eqt : 
       forall (l : list (list (Node * Node * R))) 
       (m : Matrix) (c : Node) x, 
       In x (append_node_in_paths m c l) -> x <> [] /\ 
@@ -1430,17 +1474,6 @@ Section Matrix.
         apply IHl with (m := m) (c := c).
         exact H.
     Qed.
-
-   
-    (* list of all paths of lenghth k from c to d *)
-    Fixpoint all_paths_klength (m : Matrix) (k : nat) 
-      (c d : Node) : list (list (Node * Node * R)) :=
-      match k with
-      | O => if c =n= d then [[(c, d, 1)]] else []
-      | S k' =>
-          let lf := List.flat_map (fun x => all_paths_klength m k' x d) finN
-          in append_node_in_paths m c lf
-      end.
 
   
     (* We need eqR so this would go away *)
@@ -1511,7 +1544,7 @@ Section Matrix.
 
 
 
-    (* We need =n= so this will also change *)
+
     Lemma target_tail : forall x d, 
       target d (tl x) = true -> target d x = true.
     Proof.
