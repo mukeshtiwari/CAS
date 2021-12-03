@@ -1302,7 +1302,7 @@ Section Matrix.
     Fixpoint well_formed_path_aux (l : list (Node * Node * R)) : bool :=
       match l with 
       | [] => true
-      | (c, x, _) :: tl => match tl with 
+      | (c, x, v) :: tl => match tl with 
         | [] => true
         | (y, _, _) :: _ => (x =n= y) && well_formed_path_aux tl
       end 
@@ -1364,6 +1364,31 @@ Section Matrix.
       end 
       end.
 
+    (* This function compares two lists for boolean equality *)
+    Fixpoint triple_elem_list (l₁ l₂ : list (Node * Node * R)) :=
+      match l₁ with 
+      | [] => match l₂ with 
+        | [] => true
+        | _ => false
+        end
+      | (a, b, c) :: t₁ => match l₂ with 
+        | [] => true
+        | (d, e, f) :: t₂ => ((a =n= d) && (b =n= e) && (c =r= f) && 
+          triple_elem_list t₁ t₂)%bool
+        end
+      end.
+
+
+    (* This function tests if l₁ in l₂ or not *)
+    Fixpoint In_eq_bool (l₁ : list (Node * Node * R))
+      (l₂ : list (list (Node * Node * R))) : bool :=
+      match l₂ with
+      | [] => false
+      | h :: t => ((triple_elem_list l₁ h) || (In_eq_bool l₁ t))%bool 
+      end.
+
+    
+
     
     Lemma append_node_in_paths_non_empty_list : 
       forall (l : list (list (Node * Node * R))) (m : Matrix) 
@@ -1380,7 +1405,8 @@ Section Matrix.
         simpl. apply IHl.
     Qed.
 
-    (* We are not using eqR so it's fine *)    
+
+    (* This proof will go away. *)  
     Lemma append_node_in_paths_eq : 
       forall (l : list (list (Node * Node * R))) 
       (m : Matrix) (c : Node) x, 
@@ -1417,7 +1443,7 @@ Section Matrix.
       end.
 
   
-  
+    (* We need eqR so this would go away *)
     Lemma non_empty_paths_in_kpath : forall (n : nat) (m : Matrix) 
       (c d : Node) x, In x (all_paths_klength m n c d) -> x <> [].
     Proof.
@@ -1483,10 +1509,8 @@ Section Matrix.
         specialize (IHn m w d (List.tl x) Hv).
     *)
 
-        
 
-  
-    
+
     (* We need =n= so this will also change *)
     Lemma target_tail : forall x d, 
       target d (tl x) = true -> target d x = true.
@@ -1505,6 +1529,8 @@ Section Matrix.
         simpl.
         exact H.
     Qed.
+
+
 
     Lemma source_in_kpath : forall (n : nat) (m : Matrix) 
       (c d : Node) x, In x (all_paths_klength m n c d) -> 
@@ -1567,21 +1593,68 @@ Section Matrix.
       repeat split; assumption.
     Qed.
 
-    Lemma construct_wellfounded_path_append : forall l m c y,
-      In y l -> y <> [] -> well_formed_path_aux y = true -> 
-      forall x, In x (append_node_in_paths m c l) ->
-      well_formed_path_aux x = true.
+    
+  
+    Lemma well_founded_path_extention : forall l y m c w,
+      In y l -> y <> [] -> (* well_formed_path_aux y = true -> *)
+      source w y = true ->
+      In ((c, w, m c w) :: y) (append_node_in_paths m c l) (* /\
+      well_formed_path_aux ((c, w, m c w) :: y) = true*).
     Proof.
       induction l.
-      - simpl; intros ? ? ? Hy Hf Hw x Hx.
-        inversion Hx.
-      - simpl; intros ? ? ? Hy Ha Hb x Hc.
-        destruct a.
-        destruct Hy. congruence.
+      - simpl; intros ? ? ? ? Hy Hny Hs.
+        inversion Hy.
+      - intros ? ? ? ? [Hy | Hy] Hny Hs.
+        subst. simpl.
+        assert (Ht : exists u t ys, y = (w, u, t) :: ys).
+        destruct y. congruence.
+        repeat destruct p.
+        simpl in Hs.
+        exists n0, r, y.
+        (* I should I have gone for =r= since beginning *)
+        admit.
+        destruct Ht as [u [t [ys Hy]]].
+        rewrite Hy.
+        simpl. left. reflexivity.
+        simpl.
+        assert (Ht : exists u t ys, y = (w, u, t) :: ys).
+        destruct y. congruence.
+        repeat destruct p.
+        simpl in Hs.
+        exists n0, r, y.
+        admit.
+        destruct Ht as [u [t [ys Hyy]]].
+        rewrite Hyy.
+        simpl. 
     Admitted.
+
+
+      
+      
         
 
+      
 
+
+    Lemma flat_map_ext : forall l m n w d y, 
+      In w l -> In y (all_paths_klength m n w d) ->
+      In y (flat_map (λ x : Node, all_paths_klength m n x d) l).
+    Proof.
+      induction l.
+      - simpl; intros ? ? ? ? ?  Hf; inversion Hf.
+      - simpl; intros ? ? ? ? ? [Hw | Hw]  Hy.
+        subst. 
+        apply in_app_iff.
+        left; exact Hy.
+        apply in_app_iff.
+        right; apply IHl with (w := w); assumption.
+    Qed.
+      
+
+      
+      
+
+    (* Paths constructed by all_paths_klength is well founded *)
     Lemma construct_wellfounded_path_aux : forall n m c d x,  
       In x (all_paths_klength m n c d) ->
       well_formed_path_aux x = true.
@@ -1596,7 +1669,7 @@ Section Matrix.
         simpl. reflexivity.
         inversion H.
         inversion Hin.
-      - simpl; intros ? ? ? ? Hin.
+      - simpl; intros ? ? ? ? Hin.        
         pose proof append_node_rest
         (flat_map (λ x : Node, all_paths_klength m n x d) finN)
         m c x Hin.
@@ -1604,47 +1677,89 @@ Section Matrix.
         (λ x : Node, all_paths_klength m n x d)
         finN (List.tl x)) H) as [w [Hw Hv]].
         specialize (IHn m w d (List.tl x) Hv).
-
+        pose proof source_target_in_kpath n m w d
+          (List.tl x) Hv as [Hz [Ha Hb]].
     Admitted.
-
+    (*
+        pose proof well_founded_path_extention (tl x)
+        (flat_map (λ x : Node, all_paths_klength m n x d) finN)  m c w d as Hu.
+        assert (Ht: In (tl x) (flat_map (λ x : Node, all_paths_klength m n x d) finN)).
+        apply flat_map_ext with (w := w); assumption.
+        specialize (Hu Ht Hz IHn Ha Hb x Hin).
+        destruct Hu as [ws [Hf Htt]].
+        exact Htt.
+    Qed. *)
 
         
 
 
 
-    Lemma construct_ex_list : forall xs a c m, 
-      source c xs = true -> source a (List.tl xs) = true ->
-      exists l, xs = (c, a, m c a) :: l /\
-      source a l = true.
+    Lemma fold_map_pullout : forall l w,
+      fold_right (fun a b => a + b) 0 
+        (map (fun y => w * measure_of_path y) l) =r=
+      w * fold_right (fun a b => a + b) 0 
+        (map measure_of_path l) = true.
     Proof.
-    Admitted.
+      induction l.
+      - simpl; intros ?.
+        apply symR, zero_right_anhilator_mul.
+      - simpl; intros ?.
+        assert (Ht: w *
+          (measure_of_path a +
+          fold_right (λ a0 b : R, a0 + b) 0 (map measure_of_path l)) =r= 
+         w * measure_of_path a + 
+         w * fold_right (λ a0 b : R, a0 + b) 0 (map measure_of_path l) = true).
+        apply left_distributive_mul_over_plus.
+        apply symR in Ht.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply congrP.
+        apply refR.
+        apply IHl.
+        apply refR.
+    Qed.
+
+
     
-    
-    Lemma construct_path : forall n m c a d x,  
-      In x (append_node_in_paths m c (all_paths_klength m n a d)) ->
-      List.hd (c, a, m c a) x = (c, a, m c a).
+     
+    Lemma map_measure_simp : forall m n c d a, 
+      list_eqv _ eqR 
+      (map measure_of_path
+        (append_node_in_paths m c (all_paths_klength m n a d)))
+      (map (fun y => m c a * measure_of_path y) 
+        (all_paths_klength m n a d)) = true.
     Proof.
-      intros ? ? ? ? ? ? Hin.
-      pose proof append_node_in_paths_eq
-      (all_paths_klength m n a d) m c x Hin as [Hl Hr].
-      pose proof append_node_rest 
-      (all_paths_klength m n a d) m c x Hin as Hw.
-      pose proof source_in_kpath n m a d (List.tl x) Hw as Hv.
-      induction x.
-      simpl. reflexivity.
-      simpl in *.
-      destruct a0.
-      destruct p.
-      simpl in Hin.
-      destruct Hin.
-      
+      intros.
+      (* Now, if I can establish that 
+        forall x, In x (append_node_in_paths m c (all_paths_klength m n a d)) ->
+        exists y, x = (c, a, m c a) :: y /\ In y (all_paths_klength m n a d). 
 
+        (all_paths_klength m n a d) will generate well founded paths 
+        and append will preserve it. 
+
+      *)
     Admitted.
 
 
 
 
-      
+    Lemma fold_right_congr : forall l₁ l₂,
+      list_eqv R eqR l₁ l₂ = true -> 
+      fold_right (fun a b => a + b) 0 l₁ =r= 
+      fold_right (fun a b => a + b) 0 l₂ = true.
+    Proof.
+      induction l₁; destruct l₂; simpl; intro H.
+      - apply refR.
+      - inversion H.
+      - inversion H.
+      - 
+        apply Bool.andb_true_iff in H.
+        destruct H as [Hl Hr].
+        apply congrP.
+        exact Hl.
+        apply IHl₁.
+        exact Hr.
+    Qed.
+
 
     (* x * l1 + x * l2 + x * l3 = x * (l1 + l2 + l3) *)
     Lemma fold_right_measure : forall n m c a d, 
@@ -1656,12 +1771,20 @@ Section Matrix.
         (map measure_of_path (all_paths_klength m n a d))) = true.
     Proof.
       intros ? ? ? ? ?.
-
-
-
-    Admitted.
-
-
+      assert (Ht : 
+      fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
+      (map measure_of_path
+         (append_node_in_paths m c (all_paths_klength m n a d))) =r= 
+      fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
+      (map (fun y => m c a * measure_of_path y) (all_paths_klength m n a d)) = true).
+      apply fold_right_congr.
+      apply map_measure_simp.
+      rewrite <-Ht; clear Ht.
+      apply congrR.
+      apply refR.
+      apply symR.
+      apply fold_map_pullout.
+    Qed.
 
 
 
