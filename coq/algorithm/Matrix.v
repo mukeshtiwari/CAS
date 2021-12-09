@@ -1342,6 +1342,17 @@ Section Matrix.
     end.
 
 
+    (* list of all paths of lenghth k from c to d *)
+    Fixpoint all_paths_klength (m : Matrix) (k : nat) 
+      (c d : Node) : list (list (Node * Node * R)) :=
+      match k with
+      | O => if c =n= d then [[(c, d, 1)]] else []
+      | S k' =>
+          let lf := List.flat_map (fun x => all_paths_klength m k' x d) finN
+          in append_node_in_paths m c lf
+      end.
+
+
     Definition non_empty_list {A : Type} (l : list A) : bool :=
       match l with 
       | [] => false
@@ -1401,10 +1412,10 @@ Section Matrix.
 
     Lemma append_node_in_paths_eq : 
       forall (l : list (list (Node * Node * R))) 
-      (m : Matrix) (c : Node) xs, 
+      (m : Matrix) (c : Node) (xs : list (Node * Node * R)), 
       In_eq_bool xs (append_node_in_paths m c l) = true -> 
       exists y ys, triple_elem_list xs ((c, y, m c y) :: ys) = true /\
-      source c xs = true.
+      source c xs = true /\ source y ys = true /\ ys <> [].
     Proof.
       induction l.
       - simpl; intros ? ? ? Hf.
@@ -1430,300 +1441,73 @@ Section Matrix.
         destruct Hl as [Hll Hlr].
         apply Bool.andb_true_iff in Hll.
         destruct Hll as [Hlll Hlllr].
-        apply symN. exact Hlll.
+        split. apply symN. 
+        exact Hlll. 
+        split. apply refN.
+        intro Hf. inversion Hf.
         apply IHl with (m := m) (c := c).
         exact H.
     Qed.
    
-   
-    (* list of all paths of lenghth k from c to d *)
-    Fixpoint all_paths_klength (m : Matrix) (k : nat) 
-      (c d : Node) : list (list (Node * Node * R)) :=
-      match k with
-      | O => if c =n= d then [[(c, d, 1)]] else []
-      | S k' =>
-          let lf := List.flat_map (fun x => all_paths_klength m k' x d) finN
-          in append_node_in_paths m c lf
-      end.
 
-
-
-    (* All the codes using = will go away. *)
-
-    (* This proof will go away. *)  
-    Lemma append_node_in_paths_eqt : 
-      forall (l : list (list (Node * Node * R))) 
-      (m : Matrix) (c : Node) x, 
-      In x (append_node_in_paths m c l) -> x <> [] /\ 
-      source c x = true.
-    Proof.
-      induction l.
-      - simpl; intros ? ? ? Hf.
-        inversion Hf.
-      - simpl; intros ? ? ? H.
-        destruct a in H.
-        apply IHl with (m := m) (c := c).
-        exact H.
-        repeat destruct p in H.
-        simpl in H. destruct H.
-        split.
-        intro Hf. rewrite Hf in H.
-        congruence.
-        rewrite <-H. simpl.
-        apply refN.
-        apply IHl with (m := m) (c := c).
-        exact H.
-    Qed.
-
-  
-    (* We need eqR so this would go away *)
     Lemma non_empty_paths_in_kpath : forall (n : nat) (m : Matrix) 
-      (c d : Node) x, In x (all_paths_klength m n c d) -> x <> [].
+      (c d : Node) (xs : list (Node * Node * R)), 
+      In_eq_bool xs (all_paths_klength m n c d) = true -> 
+      xs <> [].
     Proof.
       induction n.
       - simpl; intros ? ? ? ? Hin.
         case (c =n= d) eqn:Ht.
-        simpl in Hin. destruct Hin.
-        intros Hf. congruence.
-        congruence. 
         simpl in Hin.
+        apply Bool.orb_true_iff in Hin.
+        destruct Hin as [Hin | Hin].
+        intro Hf. rewrite Hf in Hin.
+        simpl in Hin. congruence.
         congruence.
+        intro Hf. rewrite Hf in Hin.
+        simpl in Hin. congruence.
       - simpl; intros ? ? ? ? Hin.
-        pose proof append_node_in_paths_eq
+        destruct (append_node_in_paths_eq
           (flat_map (λ x : Node, all_paths_klength m n x d) finN)
-          m c x Hin.
-        destruct H as [H₁ H₂].
-        exact H₁.
+          m c xs Hin) as [y [ys [Hl Hr]]].
+        intro Hf. rewrite Hf in Hl.
+        simpl in Hl. congruence.
     Qed.
-
-    (* We need eqR so this would go away *)
-    Local Lemma append_node_rest : forall l m c x,
-      In x (append_node_in_paths m c l) ->
-      In (tl x) l.
-    Proof.
-      induction l.
-      - simpl; intros.
-        inversion H.
-      - simpl; intros ? ? ? Hx. 
-        destruct a.
-        right. apply IHl with (m := m) (c := c).
-        exact Hx.
-        destruct p.
-        destruct p.
-        simpl in Hx.
-        destruct Hx as [H | H].
-        left. rewrite <-H.
-        simpl.
-        reflexivity.
-        right.
-        apply IHl with (m := m) (c := c).
-        exact H.
-    Qed.
-
-    (* 
-    Lemma path_lenght_in_kpath : forall (n : nat) (m : Matrix) 
-      (c d : Node) x, In x (all_paths_klength m n c d) -> 
-      (if c =n= d then List.length x = S n else List.length x = n).
-    Proof.
-      induction n.
-      - simpl; intros ? ? ? ? Hin.
-        case (c =n= d) eqn:Ht.
-        simpl in Hin. destruct Hin.
-        rewrite <-H. simpl.
-        reflexivity.
-        inversion H. inversion Hin.
-      - simpl; intros ? ? ? ? Hin.
-        pose proof append_node_rest
-        (flat_map (λ x : Node, all_paths_klength m n x d) finN)
-        m c x Hin.
-        destruct (proj1 (in_flat_map 
-        (λ x : Node, all_paths_klength m n x d)
-        finN (List.tl x)) H) as [w [Hw Hv]].
-        specialize (IHn m w d (List.tl x) Hv).
-    *)
-
-
-
-
-    Lemma target_tail : forall x d, 
-      target d (tl x) = true -> target d x = true.
-    Proof.
-      induction x.
-      - simpl; intros ? ?.
-        exact H.
-      - simpl; intros ? ?.
-        unfold target in H.
-        unfold target.
-        simpl.
-        destruct (rev x).
-        simpl. inversion H.
-        destruct p.
-        destruct p.
-        simpl.
-        exact H.
-    Qed.
-
-
 
     Lemma source_in_kpath : forall (n : nat) (m : Matrix) 
-      (c d : Node) x, In x (all_paths_klength m n c d) -> 
-      source c x = true.
+      (c d : Node) (xs : list (Node * Node * R)), 
+      In_eq_bool xs (all_paths_klength m n c d) = true -> 
+      source c xs = true.
     Proof.
       induction n.
       - simpl; intros ? ? ?? Hin.
         case (c =n= d) eqn:Ht.
         simpl in Hin.
-        destruct Hin.
-        rewrite <-H; simpl.
-        apply refN.
-        inversion H.
-        inversion Hin.
-      - simpl; intros.
-        pose proof append_node_in_paths_eq 
+        apply Bool.orb_true_iff in Hin.
+        destruct Hin as [Hin | Hin].
+        destruct xs.
+        simpl in Hin. 
+        congruence.
+        simpl in Hin.
+        simpl.
+        repeat destruct p.
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hr].
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hrr].
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hrrr].
+        apply symN. exact Hin.
+        congruence.
+        simpl in Hin.
+        congruence.
+      - simpl; intros ? ? ? ? Hin.
+        destruct (append_node_in_paths_eq 
           (flat_map (λ x : Node, all_paths_klength m n x d) finN)
-          m c x H as [Hl Hr].
+          m c xs Hin) as [y [ys [Hl [Hr Hw]]]].
         assumption.
     Qed.
-          
 
-
-
-    (* Here we need eqR so this would be rewritten with eqR *)
-    Lemma target_in_kpath : forall (n : nat) (m : Matrix) 
-      (c d : Node) x, In x (all_paths_klength m n c d) -> 
-      target d x = true.
-    Proof.
-      induction n.
-      - simpl; intros ? ? ? ? Hin;
-        unfold target.
-        case (c =n= d) eqn:Ht.
-        simpl in Hin.
-        destruct Hin.
-        rewrite <-H; simpl.
-        apply refN.
-        inversion H.
-        inversion Hin.
-      - simpl; intros ? ? ? ? Hin.
-        pose proof append_node_rest
-        (flat_map (λ x : Node, all_paths_klength m n x d) finN)
-        m c x Hin.
-        destruct (proj1 (in_flat_map 
-        (λ x : Node, all_paths_klength m n x d)
-        finN (List.tl x)) H) as [w [Hw Hv]].
-        specialize (IHn m w d (List.tl x) Hv).
-        apply target_tail.
-        exact IHn.
-    Qed.
-
-    Lemma source_target_in_kpath : forall (n : nat) (m : Matrix) 
-      (c d : Node) x, In x (all_paths_klength m n c d) -> 
-      x <> [] /\ source c x = true /\ target d x = true.
-    Proof.
-      intros ? ? ? ? ? Hin.
-      pose proof non_empty_paths_in_kpath n m c d x Hin as H₁.
-      pose proof source_in_kpath n m c d x Hin as H₂.
-      pose proof target_in_kpath n m c d x Hin as H₃.
-      repeat split; assumption.
-    Qed.
-
-    
-  
-    Lemma well_founded_path_extention : forall l y m c w,
-      In y l -> y <> [] -> (* well_formed_path_aux y = true -> *)
-      source w y = true ->
-      In ((c, w, m c w) :: y) (append_node_in_paths m c l) (* /\
-      well_formed_path_aux ((c, w, m c w) :: y) = true*).
-    Proof.
-      induction l.
-      - simpl; intros ? ? ? ? Hy Hny Hs.
-        inversion Hy.
-      - intros ? ? ? ? [Hy | Hy] Hny Hs.
-        subst. simpl.
-        assert (Ht : exists u t ys, y = (w, u, t) :: ys).
-        destruct y. congruence.
-        repeat destruct p.
-        simpl in Hs.
-        exists n0, r, y.
-        (* I should I have gone for =r= since beginning *)
-        admit.
-        destruct Ht as [u [t [ys Hy]]].
-        rewrite Hy.
-        simpl. left. reflexivity.
-        simpl.
-        assert (Ht : exists u t ys, y = (w, u, t) :: ys).
-        destruct y. congruence.
-        repeat destruct p.
-        simpl in Hs.
-        exists n0, r, y.
-        admit.
-        destruct Ht as [u [t [ys Hyy]]].
-        rewrite Hyy.
-        simpl. 
-    Admitted.
-
-
-      
-      
-        
-
-      
-
-
-    Lemma flat_map_ext : forall l m n w d y, 
-      In w l -> In y (all_paths_klength m n w d) ->
-      In y (flat_map (λ x : Node, all_paths_klength m n x d) l).
-    Proof.
-      induction l.
-      - simpl; intros ? ? ? ? ?  Hf; inversion Hf.
-      - simpl; intros ? ? ? ? ? [Hw | Hw]  Hy.
-        subst. 
-        apply in_app_iff.
-        left; exact Hy.
-        apply in_app_iff.
-        right; apply IHl with (w := w); assumption.
-    Qed.
-      
-
-      
-      
-
-    (* Paths constructed by all_paths_klength is well founded *)
-    Lemma construct_wellfounded_path_aux : forall n m c d x,  
-      In x (all_paths_klength m n c d) ->
-      well_formed_path_aux x = true.
-    Proof.
-      induction n.
-      - simpl; intros ? ? ? ? Hin.
-        simpl in Hin. 
-        case (c =n= d) eqn:Ht.
-        simpl in Hin.
-        destruct Hin.
-        rewrite <-H.
-        simpl. reflexivity.
-        inversion H.
-        inversion Hin.
-      - simpl; intros ? ? ? ? Hin.        
-        pose proof append_node_rest
-        (flat_map (λ x : Node, all_paths_klength m n x d) finN)
-        m c x Hin.
-        destruct (proj1 (in_flat_map 
-        (λ x : Node, all_paths_klength m n x d)
-        finN (List.tl x)) H) as [w [Hw Hv]].
-        specialize (IHn m w d (List.tl x) Hv).
-        pose proof source_target_in_kpath n m w d
-          (List.tl x) Hv as [Hz [Ha Hb]].
-    Admitted.
-    (*
-        pose proof well_founded_path_extention (tl x)
-        (flat_map (λ x : Node, all_paths_klength m n x d) finN)  m c w d as Hu.
-        assert (Ht: In (tl x) (flat_map (λ x : Node, all_paths_klength m n x d) finN)).
-        apply flat_map_ext with (w := w); assumption.
-        specialize (Hu Ht Hz IHn Ha Hb x Hin).
-        destruct Hu as [ws [Hf Htt]].
-        exact Htt.
-    Qed. *)
-
-        
 
 
 
@@ -1753,6 +1537,7 @@ Section Matrix.
 
 
     
+    
      
     Lemma map_measure_simp : forall m n c d a, 
       list_eqv _ eqR 
@@ -1762,7 +1547,8 @@ Section Matrix.
         (all_paths_klength m n a d)) = true.
     Proof.
       intros.
-      (* Now, if I can establish that 
+      (* 
+        Now, if I can establish that 
         forall x, In x (append_node_in_paths m c (all_paths_klength m n a d)) ->
         exists y, x = (c, a, m c a) :: y /\ In y (all_paths_klength m n a d). 
 
@@ -1784,8 +1570,7 @@ Section Matrix.
       - apply refR.
       - inversion H.
       - inversion H.
-      - 
-        apply Bool.andb_true_iff in H.
+      - apply Bool.andb_true_iff in H.
         destruct H as [Hl Hr].
         apply congrP.
         exact Hl.
