@@ -1381,7 +1381,19 @@ Section Matrix.
           triple_elem_list t₁ t₂)%bool
         end
       end.
-
+    
+    Lemma triple_elem_eq_list : forall l, 
+      triple_elem_list l l = true.
+    Proof.
+      induction l.
+      - simpl. reflexivity.
+      - simpl. destruct a.
+        destruct p.
+        repeat (apply Bool.andb_true_iff; split;
+          try (apply refN); try (apply IHl)).
+        apply refR.
+    Qed.
+    
 
     (* This function tests if l₁ in l₂ or not *)
     Fixpoint In_eq_bool (l₁ : list (Node * Node * R))
@@ -1508,7 +1520,18 @@ Section Matrix.
         assumption.
     Qed.
 
-
+    Lemma source_and_non_empty_kpath : forall (n : nat) (m : Matrix) 
+      (c d : Node) (xs : list (Node * Node * R)), 
+      In_eq_bool xs (all_paths_klength m n c d) = true ->
+      xs <> [] /\ source c xs = true.
+    Proof.
+      intros ? ? ? ? ? Hin.
+      split.
+      apply non_empty_paths_in_kpath with (n := n) (m := m) (c := c) (d := d).
+      exact Hin.
+      apply source_in_kpath with (n := n) (m := m) (d := d).
+      exact Hin.
+    Qed.
 
 
     Lemma fold_map_pullout : forall l w,
@@ -1536,28 +1559,57 @@ Section Matrix.
     Qed.
 
 
-    
+    Lemma map_measure_simp_gen :
+      forall (l : list (list (Node * Node * R))) 
+      (m : Matrix) (c a : Node),
+      mat_cong m ->
+      (forall xs, In_eq_bool xs l = true -> xs <> [] /\ source a xs = true) ->
+      list_eqv _ eqR 
+        (map measure_of_path (append_node_in_paths m c l))
+        (map (fun y => m c a * measure_of_path y) l) = true.
+    Proof.
+      induction l as [|ys yss IH].
+      - simpl; intros ? ? ? Hm Hin.
+        reflexivity.
+      - simpl; intros ? ? ? Hm Hin.
+        assert (Ht : (triple_elem_list ys ys || In_eq_bool ys yss)%bool = true).
+        apply Bool.orb_true_iff.
+        left. apply triple_elem_eq_list.
+        pose proof (Hin ys Ht) as Ha.
+        destruct Ha as [Ha Hs].
+        destruct ys. 
+        congruence. simpl.
+        repeat destruct p.
+        simpl. simpl in Hs.
+        apply Bool.andb_true_iff.
+        split.
+        apply congrM.
+        apply Hm. apply refN.
+        apply symN. exact Hs.
+        apply refR. 
+        apply IH. exact Hm.
+        intros ? Hxs.
+        apply Hin.
+        apply Bool.orb_true_iff.
+        right. exact Hxs.
+    Qed.
+
     
      
     Lemma map_measure_simp : forall m n c d a, 
+      mat_cong m -> 
       list_eqv _ eqR 
       (map measure_of_path
         (append_node_in_paths m c (all_paths_klength m n a d)))
       (map (fun y => m c a * measure_of_path y) 
         (all_paths_klength m n a d)) = true.
     Proof.
-      intros.
-      (* 
-        Now, if I can establish that 
-        forall x, In x (append_node_in_paths m c (all_paths_klength m n a d)) ->
-        exists y, x = (c, a, m c a) :: y /\ In y (all_paths_klength m n a d). 
-
-        (all_paths_klength m n a d) will generate well founded paths 
-        and append will preserve it. 
-
-      *)
-    Admitted.
-
+      intros ? ? ? ? ? Hm.
+      apply map_measure_simp_gen.
+      exact Hm.
+      intros ? Hin.
+      exact (source_and_non_empty_kpath n m a d xs Hin).
+    Qed.
 
 
 
@@ -1580,7 +1632,8 @@ Section Matrix.
 
 
     (* x * l1 + x * l2 + x * l3 = x * (l1 + l2 + l3) *)
-    Lemma fold_right_measure : forall n m c a d, 
+    Lemma fold_right_measure : forall n m c a d,
+      mat_cong m -> 
       (fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
       (map measure_of_path
         (append_node_in_paths m c (all_paths_klength m n a d))) =r=
@@ -1588,7 +1641,7 @@ Section Matrix.
       fold_right (λ b v : R, b + v) 0
         (map measure_of_path (all_paths_klength m n a d))) = true.
     Proof.
-      intros ? ? ? ? ?.
+      intros ? ? ? ? ? Hm.
       assert (Ht : 
       fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
       (map measure_of_path
@@ -1597,6 +1650,7 @@ Section Matrix.
       (map (fun y => m c a * measure_of_path y) (all_paths_klength m n a d)) = true).
       apply fold_right_congr.
       apply map_measure_simp.
+      exact Hm.
       rewrite <-Ht; clear Ht.
       apply congrR.
       apply refR.
@@ -1695,7 +1749,8 @@ Section Matrix.
 
 
     (* x * l1 + x * l2 + x * l3 = x * (l1 + l2 + l3) *)
-    Lemma fold_map_rel : forall l m n c d, 
+    Lemma fold_map_rel : forall l m n c d,
+      mat_cong m ->  
       fold_right (λ u v : R, u + v) 0
         (map measure_of_path
           (append_node_in_paths m c
@@ -1707,9 +1762,9 @@ Section Matrix.
       = true.
     Proof.
       induction l as [|a l IHL].
-      - simpl; intros ? ? ? ?.
+      - simpl; intros ? ? ? ? Hm.
         apply refR.
-      - simpl; intros ? ? ? ?.
+      - simpl; intros ? ? ? ? Hm.
         pose proof append_node_app (all_paths_klength m n a d)
           (flat_map (λ x : Node, all_paths_klength m n x d) l)
           m c as Ht.
@@ -1728,7 +1783,9 @@ Section Matrix.
         apply symR.
         apply congrP. 
         apply fold_right_measure.
+        exact Hm.
         apply IHL.
+        exact Hm.
     Qed.
     
 
@@ -1750,15 +1807,16 @@ Section Matrix.
 
 
     Lemma matrix_path_equation : forall n m c d,
+      mat_cong m -> 
       matrix_exp_unary m n c d =r= 
       sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) = true.
     Proof.
-      intros.
+      intros ? ? ? ? Hm.
       unfold sum_all_rvalues, get_all_rvalues, construct_all_paths;
       rewrite map_map.
-      revert n m c d.
+      revert n c d.
       induction n.
-      + simpl; intros ? ? ?; unfold I.
+      + simpl; intros ? ?; unfold I.
         destruct (c =n= d) eqn:Ht.
         - simpl. apply symR.
           assert (Htw: 1 * 1 + 0 =r= 1 + 0 = true).
@@ -1771,7 +1829,7 @@ Section Matrix.
           apply symR.
           apply zero_right_identity_plus.
         - simpl. apply refR.
-      + simpl; intros ? ? ?.
+      + simpl; intros ? ?.
         unfold matrix_mul, matrix_mul_gen.
         assert (Ht : 
         (sum_fn (λ y : Node, m c y * matrix_exp_unary m n y d) finN =r=
@@ -1801,6 +1859,7 @@ Section Matrix.
         apply refR.
         apply IHn.
         exact H.
+        exact Hm.
     Qed.
       
         
