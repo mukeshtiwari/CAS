@@ -1520,6 +1520,26 @@ Section Matrix.
         assumption.
     Qed.
 
+    Local Lemma target_tail_eq : forall x d, 
+      target d (tl x) = true -> target d x = true.
+    Proof.
+      induction x.
+      - simpl; intros ? ?.
+        exact H.
+      - simpl; intros ? ?.
+        unfold target in H.
+        unfold target.
+        simpl.
+        destruct (rev x).
+        simpl. inversion H.
+        destruct p.
+        destruct p.
+        simpl.
+        exact H.
+    Qed.
+
+
+
     Lemma source_and_non_empty_kpath : forall (n : nat) (m : Matrix) 
       (c d : Node) (xs : list (Node * Node * R)), 
       In_eq_bool xs (all_paths_klength m n c d) = true ->
@@ -1645,9 +1665,10 @@ Section Matrix.
       assert (Ht : 
       fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
       (map measure_of_path
-         (append_node_in_paths m c (all_paths_klength m n a d))) =r= 
+        (append_node_in_paths m c (all_paths_klength m n a d))) =r= 
       fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
-      (map (fun y => m c a * measure_of_path y) (all_paths_klength m n a d)) = true).
+      (map (fun y => m c a * measure_of_path y) 
+        (all_paths_klength m n a d)) = true).
       apply fold_right_congr.
       apply map_measure_simp.
       exact Hm.
@@ -2149,10 +2170,8 @@ Section Ins.
     end.
 
 
-  (* Eval compute in (bfs node eqN Z m A B fin_node 2). *)
-  (* I want to no-cycle path. Think Hard!*)
-  Eval compute in (kpath node fin_node eqN Z m 2 A D).
-
+  Eval vm_compute in (all_paths_klength node fin_node eqN Z 2%Z m 3 A D).
+  
 End Ins. 
 
 
