@@ -1352,12 +1352,32 @@ Section Matrix.
           in append_node_in_paths m c lf
       end.
 
+    
+    Definition construct_all_paths (m : Matrix) (k : nat) 
+      (c d : Node) : list Path :=
+      let lp := all_paths_klength m k c d in 
+      List.map (fun l => (c, d, l)) lp.
 
+    (* get all the R values from path *)
+    Definition get_all_rvalues (pl : list Path): list R :=
+      List.map (fun '(_, _, l) => measure_of_path l) pl.
+
+  
+    Definition sum_all_rvalues (pl : list R) :=
+      List.fold_right (fun b a => b + a) 0 pl.
+
+    
+    (* sum_fn using fold_right *)
+    Definition sum_fn_fold (f : Node -> R) (l : list Node) : R :=
+      List.fold_right (fun b a => f b + a) 0 l.
+
+    
     Definition non_empty_list {A : Type} (l : list A) : bool :=
       match l with 
       | [] => false
       | _ => true
       end.
+
 
     Fixpoint all_elems_non_empty_list {A : Type} (l : list (list A)) : bool :=
       match l with 
@@ -1367,6 +1387,7 @@ Section Matrix.
         | _ => all_elems_non_empty_list t
       end 
       end.
+
 
     (* This function compares two lists for boolean equality *)
     Fixpoint triple_elem_list (l₁ l₂ : list (Node * Node * R)) :=
@@ -1382,6 +1403,7 @@ Section Matrix.
         end
       end.
     
+
     Lemma triple_elem_eq_list : forall l, 
       triple_elem_list l l = true.
     Proof.
@@ -1679,25 +1701,6 @@ Section Matrix.
       apply fold_map_pullout.
     Qed.
 
-
-
-    Definition construct_all_paths (m : Matrix) (k : nat) 
-      (c d : Node) : list Path :=
-      let lp := all_paths_klength m k c d in 
-      List.map (fun l => (c, d, l)) lp.
-
-    (* get all the R values from path *)
-    Definition get_all_rvalues (pl : list Path): list R :=
-      List.map (fun '(_, _, l) => measure_of_path l) pl.
-
-  
-    Definition sum_all_rvalues (pl : list R) :=
-      List.fold_right (fun b a => b + a) 0 pl.
-
-    
-    (* sum_fn using fold_right *)
-    Definition sum_fn_fold (f : Node -> R) (l : list Node) : R :=
-      List.fold_right (fun b a => f b + a) 0 l.
 
     
     Lemma sum_fn_sum_fn_fold : forall l f, 
