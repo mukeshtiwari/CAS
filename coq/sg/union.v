@@ -17,7 +17,9 @@ Require Import CAS.coq.sg.and.
 Require Import CAS.coq.sg.or.
 
 Require Import CAS.coq.po.subset.
-Require Import CAS.coq.po.dual. 
+Require Import CAS.coq.po.theory. 
+Require Import CAS.coq.po.dual.
+Require Import CAS.coq.po.from_sg. 
 
 Require Import CAS.coq.os.properties.
 Require Import CAS.coq.os.structures. 
@@ -616,12 +618,13 @@ Proof. apply brel_subset_intro; auto.
 Qed.        
        
 Lemma bop_union_is_glb_wrt_lte_left : bop_is_glb (brel_lte_left (brel_set r) (bop_union r)) (bop_union r).
-Proof. apply bop_is_glb_wrt_lte_left.
+Proof. 
+       apply bop_is_glb_wrt_lte_left.
        apply brel_set_reflexive; auto. 
        apply brel_set_symmetric; auto. 
-       apply brel_set_transitive; auto. 
+       apply brel_set_transitive; auto.
+       apply bop_union_associative; auto.               
        apply bop_union_congruence; auto. 
-       apply bop_union_associative; auto.        
        apply bop_union_idempotent; auto.        
        apply bop_union_commutative; auto.        
 Qed. 
@@ -632,8 +635,8 @@ Proof. apply bop_is_lub_wrt_lte_right.
        apply brel_set_reflexive; auto. 
        apply brel_set_symmetric; auto. 
        apply brel_set_transitive; auto. 
-       apply bop_union_congruence; auto. 
-       apply bop_union_associative; auto.        
+       apply bop_union_associative; auto.
+       apply bop_union_congruence; auto.        
        apply bop_union_idempotent; auto.        
        apply bop_union_commutative; auto.        
 Qed. 

@@ -900,6 +900,14 @@ Proof. intros X Z Y W H1 H2.
 Qed.
 
 
+Lemma bop_lift_singletons: ∀ (a b : S),  
+    brel_set rS (bop_lift rS bS (a :: nil) (b :: nil)) ((bS a b) :: nil) = true.
+Proof. intros a b. 
+       apply brel_set_intro. split.
+          apply brel_subset_intro; auto.
+          apply brel_subset_intro; auto.
+Qed. 
+
 Lemma bop_lift_compute_1_by_2 : ∀ (a b c : S),  
     brel_set rS (bop_lift rS bS (a :: nil) (b :: c :: nil)) ((bS a b):: (bS a c) :: nil) = true.
 Proof. intros a b c.

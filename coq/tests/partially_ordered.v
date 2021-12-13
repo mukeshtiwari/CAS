@@ -12,9 +12,9 @@ Require Import CAS.coq.po.product.
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
 Require Import CAS.coq.bs.min_plus.
-Require Import CAS.coq.bs.product_product.
-Require Import CAS.coq.bs.add_ann_add_id.
-Require Import CAS.coq.bs.add_id_add_ann. 
+Require Import CAS.coq.bs.product.
+Require Import CAS.coq.bs.add_one. 
+Require Import CAS.coq.bs.add_zero. 
 
 Open Scope nat. 
 Definition one1 :=
@@ -29,35 +29,34 @@ Definition infinity :=
 ; constant_latex := "\\infty"
 |}.
 
-
+Check A_sg_CI_minset_union_from_po.
+(* 
+   A_sg_CI_minset_union_from_po  : ∀ S : Type, A_po S → A_sg_CI (finite_set S)
+*) 
+Check A_po_product.
 (*
-   examples: 
-   selective_cancellative_pre_dioid_with_one_min_plus
-   selective_distributive_prelattice_with_zero_max_min   
+   A_po_product : ∀ S T : Type, A_po S → A_po T → A_po (S * T)
 *) 
 
-Definition min_plus := selective_presemiring_min_plus.
-(*Definition sp := add_zero_to_selective_presemiring min_plus infinity.
-
-Definition ppa := selective_presemiring_product min_plus min_plus. 
-Definition ppa_with_one := add_one_to_pre_path_algebra ppa one1.
-
-Eval hnf in ppa_with_one.
-
-Eval cbv in pre_path_algebra_with_one_certs ppa_with_one.
-
-Eval cbv in pre_path_algebra_with_one_id_ann_certs ppa_with_one.
-
-Eval cbv in pre_path_algebra_with_one_times_certs ppa_with_one.
-
-Eval cbv in pre_path_algebra_with_one_plus_certs ppa_with_one.
-
-Check ppa_with_one. (* : pre_path_algebra_with_one *) 
-*) 
 
 (*  
 
 (1) think of of Martelli ... 
+
+
+From (S, <=, x) 
+  
+   N(P(S), <=, x) = (min_set_union(<=), minset_lift(<=, x))
+
+   M(P(S), <=, x) = (minset_lift(<=, x), min_set_union(<=))
+
+
+left(union)      : A = A union B     iff B subset A iff A superset B 
+right(intersect) : B = A intersect B iff B subset A iff A superset B
+
+left(intersect) : A = A intersect B iff A subset B iff B superset A 
+right(union)    : B = A union B     iff A subset B iff B superset A 
+
 
 From (subset, union) 
   
@@ -71,8 +70,7 @@ From (subset, union)
    M(<=, (.)) = (minset_lift(<=, (.)), minset_union(<=))             minset_lift_union
 *) 
 
-Check sg_CI_minset_union_from_po. 
-Check A_po_product. 
+
 
 
 

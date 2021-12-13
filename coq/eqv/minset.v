@@ -1059,7 +1059,21 @@ Proof. intro A. unfold uop_minset.
 Qed. 
 
 Lemma uop_minset_idempotent (X : finite_set S):   ([ms] ([ms] X)) [=S] ([ms] X).
-Proof.  exact (uop_minset_on_antichain ([ms] X) (uop_minset_is_antichain X)). Qed. 
+Proof.  exact (uop_minset_on_antichain ([ms] X) (uop_minset_is_antichain X)). Qed.
+
+
+Lemma in_minset_minset_intro (X : finite_set S) (a : S) (A : a [in] ([ms] X)) :  a [in] ([ms] ([ms] X)). 
+Proof. assert (B := uop_minset_idempotent X). 
+       rewrite <- ((in_set_congruence _ _ symS tranS _ _ _ _ B (refS a))) in A.
+       exact A.
+Qed. 
+
+Lemma in_minset_minset_elim (X : finite_set S) (a : S) (A : a [in] ([ms] ([ms] X))) :  a [in] ([ms] X). 
+Proof. assert (B := uop_minset_idempotent X). 
+       rewrite ((in_set_congruence _ _ symS tranS _ _ _ _ B (refS a))) in A.
+       exact A.
+Qed. 
+
 
 Lemma uop_minset_congruence : uop_congruence (finite_set S) (brel_minset rS lteS) (uop_minset lteS).
 Proof. unfold uop_congruence.

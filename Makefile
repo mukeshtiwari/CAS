@@ -78,6 +78,7 @@ CAS=\
    coq/po/minset_subset.v \
    coq/po/lex.v \
    coq/po/dual.v \
+   coq/po/from_sg.v \
    coq/tr/properties.v \
    coq/tr/structures.v \
    coq/tr/left/cayley.v \

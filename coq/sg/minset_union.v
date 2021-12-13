@@ -21,6 +21,7 @@ Require Import CAS.coq.po.theory.
 Require Import CAS.coq.po.subset.
 Require Import CAS.coq.po.minset_subset.
 Require Import CAS.coq.po.dual.
+Require Import CAS.coq.po.from_sg. 
 
 Require Import CAS.coq.os.properties.
 Require Import CAS.coq.os.structures. 
@@ -1200,7 +1201,7 @@ Qed.
 
 
 
-
+(*
 Lemma bop_minset_union_not_exists_ann_aux2 (bnf : bottoms_set_not_is_finite2 S rS lteS) : 
   ∀ X : finite_set S, {Z : finite_set S & (Z <U> X) [<>MS] X}.
 Proof. intro X. destruct bnf as [F P].
@@ -1240,7 +1241,7 @@ Proof. intro X. destruct bnf as [F P].
          assert (E := Q _ D).
          admit.    (* this does not seem to work!  *)
 Admitted. 
-
+*) 
 
        
 Lemma bop_minset_union_not_exists_ann (bnf : bottoms_set_not_is_finite S rS lteS) : 
@@ -1263,30 +1264,13 @@ Definition bop_minset_union_exists_ann_decide (bf_d : bottoms_set_is_finite_deci
     end.
 
 
-(******************************************)
-
-
-Lemma brel_subset_minset_union_left (X Y : finite_set S) : brel_subset rS ([ms] X) ([ms] (X <U> Y)) = true. 
-Admitted. 
-(*
-Proof. apply brel_subset_intro; auto. 
-       intros x A.  apply in_set_bop_union_intro. left. exact A. 
-Qed.
-*) 
-Lemma brel_subset_minset_union_right (X Y : finite_set S) : brel_subset rS ([ms] Y) ([ms] (X <U> Y)) = true. 
-Admitted. 
-(*
-Proof. apply brel_subset_intro; auto. 
-       intros x A.  apply in_set_bop_union_intro. right. exact A. 
-Qed.        
-*)        
 Lemma bop_minset_union_is_glb_wrt_lte_left : bop_is_glb (brel_lte_left (brel_minset rS lteS) bop_minset_union) bop_minset_union.
 Proof. apply bop_is_glb_wrt_lte_left.
        apply brel_minset_reflexive; auto. 
        apply brel_minset_symmetric; auto. 
        apply brel_minset_transitive; auto. 
-       apply bop_minset_union_congruence; auto. 
-       apply bop_minset_union_associative; auto.        
+       apply bop_minset_union_associative; auto.
+       apply bop_minset_union_congruence; auto.        
        apply bop_minset_union_idempotent; auto.        
        apply bop_minset_union_commutative; auto.        
 Qed. 
@@ -1297,12 +1281,13 @@ Proof. apply bop_is_lub_wrt_lte_right.
        apply brel_minset_reflexive; auto. 
        apply brel_minset_symmetric; auto. 
        apply brel_minset_transitive; auto. 
+       apply bop_minset_union_associative; auto.
        apply bop_minset_union_congruence; auto. 
-       apply bop_minset_union_associative; auto.        
        apply bop_minset_union_idempotent; auto.        
        apply bop_minset_union_commutative; auto.        
 Qed. 
 
+(*
 Lemma minset_subset_implies_lte_right (X Y : finite_set S) (A : brel_minset_subset rS lteS X Y = true) :
        brel_lte_right (brel_minset rS lteS) bop_minset_union X Y = true. 
 Proof. unfold brel_lte_right. unfold brel_minset. 
@@ -1340,10 +1325,11 @@ Proof. unfold brel_lte_right in A. unfold brel_minset_subset.
        assert (C := brel_subset_minset_union_left X Y). 
        exact (brel_subset_transitive S rS refS symS tranS _ _ _ C B).  
 Qed. 
+*) 
 
 (* Think of (brel_minset_subset r) as an "optimization" of 
    brel_lte_right (brel_minsetset r) (bop_minset_union r) 
-*) 
+
 Lemma bop_minset_union_lub : bop_is_lub (brel_minset_subset rS lteS) bop_minset_union. 
 Proof. intros X Y.
        destruct (bop_union_is_lub_wrt_lte_right X Y) as [A B].
@@ -1362,10 +1348,12 @@ Proof. intros X Y.
          assert (F := B U G).
          apply lte_right_implies_minset_subset. exact F. 
 Qed.
+ *)
 
+(*
 Lemma bop_minset_union_glb : bop_is_glb (brel_dual (brel_minset_subset rS lteS)) bop_minset_union. 
 Proof.  apply lub_implies_dual_glb. apply bop_minset_union_lub. Qed. 
-
+*) 
 
 
 End Theory.
