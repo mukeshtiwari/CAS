@@ -1271,6 +1271,7 @@ Section Matrix.
     (* a path is a triple *)
     Definition Path : Type := Node * Node * list (Node * Node * R). 
 
+
     Definition source (c : Node) (l : list (Node * Node * R)) : bool :=
       match l with 
       | [] => false
@@ -1278,13 +1279,64 @@ Section Matrix.
       end.
     
 
-    Definition target (d : Node) (l : list (Node * Node * R)) := 
+    Definition target_alt (d : Node) (l : list (Node * Node * R)) := 
       match List.rev l with
       | [] => false
-      | (_, y, _) :: _ => d =n= y
+      | (x, y, r) :: t => d =n= y
       end. 
-    
-  
+
+
+    Lemma target_alt_end : forall (l : list (Node * Node * R))
+      (x : Node * Node * R) (d : Node),
+      target_alt d (l ++ [x]) = target_alt d [x].
+    Proof.
+      intros ? ? ?.
+      unfold target_alt.
+      rewrite rev_unit.
+      assert (Ht : rev [x] = [x]).
+      reflexivity.
+      rewrite Ht; clear Ht.
+      reflexivity.
+    Qed.
+
+
+    Fixpoint target (d : Node) (l : list (Node * Node * R)) : bool :=
+      match l with
+      | [] => false
+      | (x, y, r) :: t => match t with 
+        | [] => d =n= y
+        | hs :: ts => target d t
+      end
+      end.
+
+
+    Lemma target_end : forall (l : list (Node * Node * R))
+      (x : Node * Node * R) (d : Node),
+      target d (l ++ [x]) = target d [x].
+    Proof.
+      induction l.
+      - simpl; intros ? ?. reflexivity.
+      - intros ? ?.
+        assert (Ht : target d ((a :: l) ++ [x]) = target d (l ++ [x])).
+        simpl. destruct a. destruct p.
+        destruct (l ++ [x]) eqn:Hv.
+        pose proof app_eq_nil l [x] Hv as Hw.
+        destruct Hw as [Hwl Hwr].
+        congruence. reflexivity.
+        rewrite Ht. apply IHl.
+    Qed.
+
+
+    Lemma target_target_alt_same : forall (l : list (Node * Node * R)) (d : Node), 
+      target d l = target_alt d l.
+    Proof.
+      induction l using rev_ind.
+      - unfold target_alt; simpl; intros ?.
+        reflexivity.
+      - intros ?. rewrite target_alt_end, target_end.
+        reflexivity.
+    Qed.
+
     (* path strength between c and d *)
     Fixpoint measure_of_path (l : list (Node * Node * R)) : R :=
       match l with 
@@ -1542,24 +1594,6 @@ Section Matrix.
         assumption.
     Qed.
 
-    Local Lemma target_tail_eq : forall x d, 
-      target d (tl x) = true -> target d x = true.
-    Proof.
-      induction x.
-      - simpl; intros ? ?.
-        exact H.
-      - simpl; intros ? ?.
-        unfold target in H.
-        unfold target.
-        simpl.
-        destruct (rev x).
-        simpl. inversion H.
-        destruct p.
-        destruct p.
-        simpl.
-        exact H.
-    Qed.
-
 
 
     Lemma source_and_non_empty_kpath : forall (n : nat) (m : Matrix) 
@@ -1574,6 +1608,8 @@ Section Matrix.
       apply source_in_kpath with (n := n) (m := m) (d := d).
       exact Hin.
     Qed.
+
+
 
 
     Lemma fold_map_pullout : forall l w,
@@ -1886,6 +1922,7 @@ Section Matrix.
         exact Hm.
     Qed.
       
+
         
         
         
