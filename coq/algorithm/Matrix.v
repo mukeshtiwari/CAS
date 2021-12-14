@@ -1449,7 +1449,7 @@ Section Matrix.
         | _ => false
         end
       | (a, b, c) :: t₁ => match l₂ with 
-        | [] => true
+        | [] => false
         | (d, e, f) :: t₂ => ((a =n= d) && (b =n= e) && (c =r= f) && 
           triple_elem_list t₁ t₂)%bool
         end
@@ -1560,6 +1560,7 @@ Section Matrix.
         simpl in Hl. congruence.
     Qed.
 
+
     Lemma source_in_kpath : forall (n : nat) (m : Matrix) 
       (c d : Node) (xs : list (Node * Node * R)), 
       In_eq_bool xs (all_paths_klength m n c d) = true -> 
@@ -1609,6 +1610,118 @@ Section Matrix.
       exact Hin.
     Qed.
 
+  
+    Lemma triple_trim_tail : forall (xs : list (Node * Node * R)) 
+      (a b : Node * Node * R) (c : list (Node * Node * R)),
+      triple_elem_list xs (a :: b :: c) = true ->
+      triple_elem_list (List.tl xs) (b :: c) = true.
+    Proof.
+      destruct xs.
+      - simpl; intros ? ? ? He.
+        congruence.
+      - simpl; intros ? ? ? He.
+        repeat destruct p in He.
+        destruct a in He.
+        destruct p in He.
+        apply Bool.andb_true_iff in He.
+        destruct He as [Hel Her].
+        exact Her.
+    Qed.
+
+
+    Local Lemma append_node_rest : forall l m c xs,
+      In_eq_bool xs (append_node_in_paths m c l) = true ->
+      In_eq_bool (List.tl xs) l = true.
+    Proof.
+      induction l.
+      - simpl; intros ? ? ? Hin.
+        inversion Hin.
+      - simpl; intros ? ? ? Hin. 
+        destruct a.
+        eapply Bool.orb_true_iff.
+        right. 
+        apply IHl with (m := m) (c := c).
+        exact Hin.
+        repeat destruct p.
+        simpl in Hin.
+        apply Bool.orb_true_iff in Hin.
+        destruct Hin as [H | H].
+        apply Bool.orb_true_iff.
+        left. apply triple_trim_tail with (a := (c, n, m c n)).
+        exact H.
+        apply Bool.orb_true_iff.
+        right. 
+        apply IHl with (m := m) (c := c).
+        exact H.
+    Qed.
+
+    Lemma target_tail : forall (xs : list (Node * Node * R)) (d : Node), 
+      target d (tl xs) = true -> target d xs = true.
+    Proof.
+      destruct xs.
+      - simpl; intros ? ?.
+        exact H.
+      - simpl; intros ? ?.
+        repeat destruct p.
+        destruct xs.
+        simpl in H.
+        congruence.
+        exact H.
+    Qed.
+
+
+    (* boolean equivalent of in_flat_map *)
+    Lemma in_flat_map_bool : forall (f : Node -> list (list (Node * Node * R)))
+      (l : list Node) (y : list (Node * Node * R)), 
+      In_eq_bool y (flat_map f l) = true <-> 
+      (exists x : Node, in_list eqN l x = true /\ 
+      In_eq_bool y (f x) = true).
+    Proof.
+    Admitted.
+    
+
+    Lemma target_in_kpath : forall (n : nat) (m : Matrix) 
+      (c d : Node) (xs : list (Node * Node * R)), 
+      In_eq_bool xs (all_paths_klength m n c d) = true -> 
+      target d xs = true.
+    Proof.
+      induction n.
+      - simpl; intros ? ? ? ? Hin.
+        case (c =n= d) eqn:Ht.
+        simpl in Hin.
+        apply Bool.orb_true_iff in Hin.
+        destruct Hin as [Hin | Hin].
+        destruct xs.
+        simpl in Hin. 
+        congruence.
+        simpl in Hin.
+        simpl.
+        repeat destruct p.
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hr].
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hrr].
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hrrr].
+        destruct xs.
+        apply symN. exact Hrrr.
+        simpl in Hr.
+        repeat destruct p.
+        congruence.
+        congruence.
+        simpl in Hin.
+        congruence.
+      - simpl; intros ? ? ? ? Hin.
+        pose proof append_node_rest
+        (flat_map (λ x : Node, all_paths_klength m n x d) finN)
+        m c xs Hin as Hv.
+        destruct (proj1 (in_flat_map_bool
+        (λ x : Node, all_paths_klength m n x d)
+        finN (List.tl xs)) Hv) as [w [Ha Hb]].
+        specialize (IHn m w d (List.tl xs) Hb).
+        apply target_tail.
+        exact IHn.
+    Qed.
 
 
 
