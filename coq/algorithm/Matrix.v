@@ -2100,26 +2100,162 @@ Section Matrix.
       exact Hc. exact Hl. exact Hr.
     Qed.
 
+    Lemma orb_eq : forall (a b c : bool), 
+      a = c -> (a || b = c || b)%bool.
+    Proof.
+      intros [|] [|] [|] H; simpl;
+      try reflexivity; try congruence.
+    Qed.
 
-    Lemma all_paths_cong : forall n m d, 
+    Lemma andb_eq : forall (a b c d e f g: bool), 
+      (a && b && c = e && f && g)%bool -> 
+      (a && b && c && d = e && f && g && d)%bool.
+    Proof.
+      intros [|] [|] [|] [|] [|] [|] [|] H; simpl in * |- *;
+      try reflexivity; try congruence.
+    Qed.
+
+    Lemma triple_eq_cong : forall l v y a₁ a₂
+      b₁ b₂ r₁ r₂,
+      a₁ =n= a₂ = true -> b₁ =n= b₂ = true -> 
+      r₁ =r= r₂ = true ->
+      triple_elem_list y ((a₁, b₁, r₁) :: v :: l) =
+      triple_elem_list y ((a₂, b₂, r₂) :: v :: l).
+    Proof.
+      intros ? ? ? ? ? ? ? ? ? H₁ H₂ H₃.
+      destruct y; simpl. reflexivity.
+      repeat destruct p. apply andb_eq.
+      
+      (* 
+        God, give me strenght to prove
+        this lemma! 
+      *)
+      case (n =n= a₁) eqn:Hn₁;
+      case (n0 =n= b₁) eqn:Hn₂;
+      case (r =r= r₁) eqn:Hr₁;
+      case (n =n= a₂) eqn:Hn₃;
+      case (n0 =n= b₂) eqn:Hn₄;
+      case (r =r= r₂) eqn:Hr₂; simpl;
+      auto.
+      pose proof (trnR _ _ _ Hr₁ H₃) as Hf.
+      rewrite Hf in Hr₂. congruence.
+      pose proof (trnN _ _ _ Hn₂ H₂) as Hf.
+      rewrite Hf in Hn₄. congruence.
+      pose proof (trnR _ _ _ Hr₁ H₃) as Hf.
+      rewrite Hf in Hr₂. congruence.
+      pose proof (trnN _ _ _ Hn₁ H₁) as Hf.
+      rewrite Hf in Hn₃. congruence.
+      pose proof (trnR _ _ _ Hr₁ H₃) as Hf.
+      rewrite Hf in Hr₂. congruence.
+      pose proof (trnN _ _ _ Hn₁ H₁) as Hf.
+      rewrite Hf in Hn₃. congruence.
+      pose proof (trnN _ _ _ Hn₁ H₁) as Hf.
+      rewrite Hf in Hn₃. congruence.
+      apply symR in H₃.
+      pose proof (trnR _ _ _ Hr₂ H₃) as Hf.
+      rewrite Hf in Hr₁. congruence.
+      apply symN in H₂.
+      pose proof (trnN _ _ _ Hn₄ H₂) as Hf.
+      rewrite Hf in Hn₂. congruence.
+      apply symN in H₂.
+      pose proof (trnN _ _ _ Hn₄ H₂) as Hf.
+      rewrite Hf in Hn₂. congruence.
+      apply symN in H₁.
+      pose proof (trnN _ _ _ Hn₃ H₁) as Hf.
+      rewrite Hf in Hn₁; congruence.
+      apply symR in H₃.
+      pose proof (trnR _ _ _ Hr₂ H₃) as Hf.
+      rewrite Hf in Hr₁. congruence.
+      apply symN in H₂.
+      pose proof (trnN _ _ _ Hn₄ H₂) as Hf.
+      rewrite Hf in Hn₂. congruence.
+      apply symN in H₂.
+      pose proof (trnN _ _ _ Hn₄ H₂) as Hf.
+      rewrite Hf in Hn₂. congruence.
+      (* Thank you, God! *)
+    Qed.
+
+
+
+    Lemma in_eq_append_cong : forall l m a x y,
+      mat_cong m -> 
+      a =n= x = true ->  
+      In_eq_bool y (append_node_in_paths m a l) =
+      In_eq_bool y (append_node_in_paths m x l).
+    Proof.
+      induction l.
+      - simpl; intros ? ? ? ? Hm Hax;
+        reflexivity.
+      - simpl; intros ? ? ? ? Hm Hax.
+        destruct a.
+        + apply IHl. exact Hm. exact Hax.
+        + repeat destruct p.
+          simpl. 
+          pose proof (IHl m a0 x y Hm Hax) as IH.
+          rewrite IH.
+          apply orb_eq.
+          apply triple_eq_cong.
+          exact Hax.
+          apply refN.
+          apply Hm. exact Hax.
+          apply refN.
+    Qed.
+    
+          
+
+
+    
+
+    Lemma all_paths_cong : forall n m d,
+      mat_cong m -> 
       in_eq_bool_cong (λ x : Node, all_paths_klength m n x d).
     Proof.
       unfold in_eq_bool_cong.
       induction n.
-      - simpl; intros ? ? ? ? ? Hxa.
-        admit.
-      - simpl; intros ? ? ? ? ? Hxa.
-    Admitted.
+      - simpl; intros ? ? Hm ? ? ? Hxa.
+        case_eq (a =n= d); intros Ht.
+        assert(Hv : x =n= d = true).
+        eapply trnN with a; assumption.
+        rewrite Hv; clear Hv.
+        destruct y; simpl.
+        reflexivity.
+        repeat destruct p.
+        repeat rewrite Bool.orb_false_r.
+        assert (Hv : (n =n= a) = (n =n= x)).
+        case_eq (n =n= a); intros Hna;
+        case_eq (n =n= x); intros Hnx; auto.
+        apply symN in Hxa.
+        pose proof (trnN _ _ _ Hna Hxa) as Hf.
+        rewrite Hf in Hnx; congruence.
+        pose proof (trnN _ _ _ Hnx Hxa) as Hf.
+        rewrite Hf in Hna; congruence.
+        rewrite Hv. reflexivity.
+        simpl; case_eq (x =n= d); 
+        intro Hx; auto.
+        apply symN in Hxa.
+        pose proof (trnN _ _ _ Hxa Hx) as Hw.
+        rewrite Ht in Hw.
+        congruence.    
+      - simpl; intros ? ? Hm ? ? ? Hxa.
+        remember (flat_map (λ x0 : Node, all_paths_klength m n x0 d) finN)
+        as l.
+        apply in_eq_append_cong.
+        exact Hm.
+        apply symN. exact Hxa.
+    Qed.
 
-    
+
+
+
 
     Lemma target_in_kpath : forall (n : nat) (m : Matrix) 
-      (c d : Node) (xs : list (Node * Node * R)), 
+      (c d : Node) (xs : list (Node * Node * R)),
+      mat_cong m ->
       In_eq_bool xs (all_paths_klength m n c d) = true -> 
       target d xs = true.
     Proof.
       induction n.
-      - simpl; intros ? ? ? ? Hin.
+      - simpl; intros ? ? ? ? Hm Hin.
         case (c =n= d) eqn:Ht.
         simpl in Hin.
         apply Bool.orb_true_iff in Hin.
@@ -2144,18 +2280,70 @@ Section Matrix.
         congruence.
         simpl in Hin.
         congruence.
-      - simpl; intros ? ? ? ? Hin.
+      - simpl; intros ? ? ? ? Hm Hin.
         pose proof append_node_rest
         (flat_map (λ x : Node, all_paths_klength m n x d) finN)
         m c xs Hin as Hv.
         destruct (proj1 (in_flat_map_bool finN (List.tl xs)
         (λ x : Node, all_paths_klength m n x d)
-        (all_paths_cong _ _ _)) Hv) as [w [Ha Hb]].
-        specialize (IHn m w d (List.tl xs) Hb).
+        (all_paths_cong _ _ _ Hm)) Hv) as [w [Ha Hb]].
+        specialize (IHn m w d (List.tl xs) Hm Hb).
         apply target_tail.
         exact IHn.
     Qed.    
         
+   
+
+    (* paths generated by all_paths_klength function are well formed *)
+    Lemma all_paths_well_formed_in_kpaths : forall (n : nat) (m : Matrix) 
+      (c d : Node) (xs : list (Node * Node * R)),
+      (forall c d, (c =n= d) = true -> m c d =r= 1) ->  
+      In_eq_bool xs (all_paths_klength m n c d) = true ->
+      well_formed_path_aux m xs = true.
+    Proof.
+      induction n.
+      - simpl; intros ? ? ? ? Hin.
+        case (c =n= d) eqn:Ht.
+        simpl in Hin.
+        apply Bool.orb_true_iff in Hin.
+        destruct Hin as [Hin | Hin].
+        destruct xs.
+        simpl in Hin. 
+        congruence.
+        simpl in Hin.
+        simpl.
+        repeat destruct p.
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hr].
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hrr].
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hrrr].
+        destruct xs.
+        apply Bool.andb_true_iff.
+        split.
+
+        admit. 
+        
+        
+        reflexivity.
+        simpl in Hr. repeat destruct p.
+        congruence.
+        congruence.
+        simpl in Hin.
+        congruence.
+
+    Admitted.
+
+    Lemma path_split_measure : forall l l₁ l₂ l₃, 
+      triple_elem_list l (l₁ ++ l₂ ++ l₃) = true  -> 
+      measure_of_path l =r= 
+      measure_of_path l₁ * measure_of_path l₂ * measure_of_path l₃ = true.
+    Proof.
+      intros.
+    Admitted.
+
+
         
       
 
