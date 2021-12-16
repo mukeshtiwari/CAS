@@ -2355,14 +2355,145 @@ Section Matrix.
         *)
     Admitted.
 
-    Lemma path_split_measure : forall l l₁ l₂ l₃, 
-      triple_elem_list l (l₁ ++ l₂ ++ l₃) = true  -> 
+    Lemma path_split_measure : forall l l₁ l₂, 
+      triple_elem_list l (l₁ ++ l₂) = true  -> 
       measure_of_path l =r= 
-      measure_of_path l₁ * measure_of_path l₂ * measure_of_path l₃ = true.
+      measure_of_path l₁ * measure_of_path l₂ = true.
     Proof.
-    Admitted.
+      induction l.
+      - simpl; intros ? ? Hl.
+        destruct l₁; destruct l₂; simpl in * |- *.
+        apply symR. apply one_left_identity_mul.
+        all: congruence.
+      - simpl; intros ? ? Hl.
+        destruct a. destruct p.
+        destruct l₁; destruct l₂; simpl in * |- *.
+        congruence.
+        repeat destruct p.
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hr].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hlr].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hlrr].
+        assert (Ht : 1 * (r0 * measure_of_path l₂) =r= 
+          (r0 * measure_of_path l₂) = true).
+        apply one_left_identity_mul.
+        apply symR in Ht.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply congrM.
+        exact Hlr.
+        pose proof (IHl [] l₂) as IHs.
+        simpl in IHs.
+        specialize (IHs Hr).
+        rewrite <-IHs.
+        apply congrR. 
+        apply refR.
+        apply symR.
+        apply one_left_identity_mul.
+        apply refR.
+        repeat destruct p.
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hr].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hlr].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hlrr].
+        specialize (IHl l₁ [] Hr).
+        simpl in IHl.
+        assert (Ht : r0 * (measure_of_path l₁ * 1) =r= 
+        r0 * measure_of_path l₁ * 1 = true).
+        apply mul_associative.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply congrM.
+        exact Hlr. exact IHl.
+        apply refR.
+        repeat destruct p.
+        destruct p0.
+        destruct p.
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hr].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hlr].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hlrr].
+        specialize (IHl l₁ ((n3, n4, r1) :: l₂) Hr).
+        simpl in IHl.
+        assert (Ht : r0 * (measure_of_path l₁ * (r1 * measure_of_path l₂)) =r= 
+        r0 * measure_of_path l₁ * (r1 * measure_of_path l₂) = true).
+        apply mul_associative.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply congrM.
+        exact Hlr.
+        exact IHl.
+        apply refR.
+    Qed.
 
-        
+
+
+    Fixpoint all_distinct_node (l : list Node) : bool :=
+      match l with 
+      | [] => true
+      | h :: t => negb (in_list eqN t h) && 
+        all_distinct_node t
+      end.
+
+    (* elementry path, when all nodes are distinct  *)
+    Definition elem_path_aux (l : list (Node * Node * R)) : bool :=
+      let lnode := List.map (fun '(x, _, _) => x) l in
+      all_distinct_node lnode.
+
+   
+    Lemma in_list_mem_true : forall (l : list Node) (a : Node),
+      in_list eqN l a = true -> 
+      exists l₁ l₂ : list Node, list_eqv _ eqN l (l₁ ++ [a] ++ l₂) = true.
+    Proof.
+      induction l.
+      - simpl; intros ? H; 
+        congruence.
+      - simpl; intros ? H.
+        apply Bool.orb_true_iff in H.
+        destruct H as [H | H].
+        exists [], l; simpl.
+        apply Bool.andb_true_iff.
+        split. apply symN. exact H.
+        apply list_eqv_refl; assumption.
+        destruct (IHl a0 H) as [l₁ [l₂ Ht]].
+        exists (a :: l₁), l₂.
+        simpl. apply Bool.andb_true_iff.
+        split. apply refN.
+        exact Ht.
+    Qed.
+
+
+
+    Lemma duplicate_node : forall (l : list Node),
+      all_distinct_node l = false -> 
+      exists (c : Node) (l₁ l₂  l₃ : list Node), 
+      list_eqv _ eqN l (l₁ ++ [c] ++ l₂ ++ [c] ++ l₃) = true. 
+    Proof.
+      induction l.
+      - simpl; intros Hf;
+        congruence.
+      - simpl; intros Ha.
+        apply Bool.andb_false_iff in Ha.
+        destruct Ha as [Ha | Ha].
+        apply Bool.negb_false_iff in Ha.
+        destruct (in_list_mem_true l a Ha) as 
+          [l₁ [l₂ Ht]].
+        exists a, [], l₁, l₂.
+        simpl. apply Bool.andb_true_iff.
+        split. apply refN.
+        exact Ht.
+        destruct (IHl Ha) as [c [l₁ [l₂ [l₃ Ht]]]].
+        exists c, (a :: l₁), l₂, l₃.
+        simpl.
+        apply Bool.andb_true_iff.
+        split. apply refN.
+        exact Ht.
+    Qed.
+
+
       
 
 
