@@ -2664,14 +2664,48 @@ Section Matrix.
     Lemma plus_a_b_c : forall a b c, Orel a b -> Orel (a + c) (b + c).
     Proof.
       unfold Orel; intros ? ? ? Ho.
-      apply congrP.
+      assert (Ht : a + c + (b + c) =r= 
+        a + (c + (b + c)) = true).
+      apply symR. apply plus_associative.
+      rewrite <-Ht; clear Ht.
+      apply congrR.
+      apply refR.
+      assert (Ht : a + c =r= a + b + c = true).
+      apply congrP. apply symR. exact Ho.
+      apply refR. rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR.
+      assert (Ht : a + b + c =r= a + b + (c + c) = true).
+      apply congrP. apply refR. 
+      apply symR. apply plus_idempotence.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR. 
+      assert (Ht : a + b + (c + c) =r= a + (b + (c + c)) = true).
+      apply symR. apply plus_associative.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply congrP. apply refR.
+      assert (Ht : c + (b + c) =r= b + c + c = true).
+      apply plus_commutative.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply plus_associative.
+    Qed.      
 
-    Admitted.
 
     Lemma mul_a_b_c : forall a b c, Orel a b -> Orel (a * c) (b * c).
     Proof.
       unfold Orel; intros ? ? ? Ho.
-    Admitted.
+      assert (Ht : a * c + b * c =r= (a + b) * c = true).
+      apply symR.
+      apply right_distributive_mul_over_plus.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply congrM. apply symR.
+      exact Ho.
+      apply refR.
+    Qed.
 
     (* Strict Order Relation *)
     Definition SOrel (a b : R) := Orel a b /\ 
@@ -2681,8 +2715,17 @@ Section Matrix.
     Lemma smult_a_b_c : forall a b c : R, c =r= 0 = false ->
       SOrel a b -> SOrel (a * c) (b * c).
     Proof.
+      unfold SOrel, Orel; intros ? ? ? Hc [H₁ H₂].
+      split.
+      assert (Ht : a * c + b * c =r= (a + b) * c = true).
+      apply symR. apply right_distributive_mul_over_plus.
+      rewrite <-Ht; clear Ht.
+      apply congrR.
+      apply refR.
+      apply congrM.
+      apply symR. exact H₁.
+      apply refR.
     Admitted.
-
 
 
     Lemma path_weight_rel : forall a b c : R, 
