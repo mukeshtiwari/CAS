@@ -2573,11 +2573,57 @@ Section Matrix.
 
     Definition Orel (a b : R) : Prop := a + b =r= a = true.
 
-    (* Prove that Orel is partial order *)
-
-    (* preccurlyeq Unicode 
-    Local Notation "⟨" := Rel : Mat_scope.
+    (* 
+      preccurlyeq Unicode 
+      Local Notation "⟨" := Rel : Mat_scope.
     *)
+
+    (* Orel is a partial order *)
+
+    Lemma orel_refl : forall a, Orel a a.
+    Proof.
+      unfold Orel; intros ?.
+      apply plus_idempotence.
+    Qed.
+
+    Lemma orel_anti_sym : forall a b, Orel a b -> Orel b a -> a =r= b = true.
+    Proof.
+      unfold Orel; intros ? ? Hab Hba.
+      assert (Ht : a =r= a + b = true).
+      apply symR. exact Hab.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR.
+      rewrite <-Hba.
+      apply congrR.
+      apply plus_commutative.
+      apply refR.
+    Qed.
+
+    Lemma orel_trans : forall a b c, Orel a b -> Orel b c -> Orel a c.
+    Proof.
+      unfold Orel; intros ? ? ? Hab Hbc.
+      assert (Ht : a + c =r= a + b + c = true).
+      apply congrP. apply symR.
+      exact Hab.
+      apply refR.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR.
+      rewrite <-Hab.
+      apply congrR.
+      assert (Ht : a + b + c =r= a + (b + c) = true).
+      apply symR. apply plus_associative.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply congrP. apply refR.
+      apply symR. exact Hbc.
+      apply refR.
+    Qed.
+
+    (* end of Orel partial order proof *)
+      
+
 
     Lemma neutral_abouve : forall (a : R), Orel a 0.
     Proof.
