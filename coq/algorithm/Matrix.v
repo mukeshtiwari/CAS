@@ -2293,13 +2293,14 @@ Section Matrix.
     Qed.    
         
    
-    Lemma well_formed_by_extending : forall xs ys c y m, 
-      ys <> [] ->  
+    Lemma well_formed_by_extending : 
+      forall xs ys c y m, ys <> [] ->  
       triple_elem_list xs ((c, y, m c y) :: ys) = true ->
       source c xs = true -> source y ys = true ->
       well_formed_path_aux m (tl xs) = true ->
       well_formed_path_aux m xs = true.
     Proof.
+      intros.
     Admitted.
 
 
@@ -2441,6 +2442,16 @@ Section Matrix.
 
 
 
+    (* In this function, we collect the nodes *)
+    Fixpoint get_nodes_path_aux (l : list (Node * Node * R)) : list Node :=
+      match l with
+      | [] => []
+      | (a, b, r) :: t => match t with 
+        | [] => [a; b] (* reached the end of path  *)
+        | _  => a :: get_nodes_path_aux t
+      end
+      end.
+
     Fixpoint all_distinct_node (l : list Node) : bool :=
       match l with 
       | [] => true
@@ -2450,7 +2461,7 @@ Section Matrix.
 
     (* elementry path, when all nodes are distinct  *)
     Definition elem_path_aux (l : list (Node * Node * R)) : bool :=
-      let lnode := List.map (fun '(x, _, _) => x) l in
+      let lnode := get_nodes_path_aux l in
       all_distinct_node lnode.
 
    
@@ -2502,6 +2513,9 @@ Section Matrix.
         split. apply refN.
         exact Ht.
     Qed.
+
+   
+
 
 
       
