@@ -2507,20 +2507,22 @@ Section Matrix.
       source c l = target c l.
 
     
-    (* Assumes that l is well formed path *)
-    Fixpoint nodes_distinct_in_path (m : Matrix) 
+
+    Fixpoint elem_path (m : Matrix) 
       (l : list (Node * Node * R)) : bool  :=
       match l with
       | [] => true
       | (a, b, _) :: t => (negb (a =n= b)) && 
-        nodes_distinct_in_path m t
+        elem_path m t
       end.
+
+  
 
 
 
     (* If the path is not elementry, then it has a loop *)
     Lemma elem_path_dup_node : forall (l : list (Node * Node * R)) m,
-      nodes_distinct_in_path m l = false -> 
+      elem_path m l = false -> 
       exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
       triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
       cyclic_path c l₂. 
@@ -2553,11 +2555,25 @@ Section Matrix.
     Qed.
 
 
-    (* Here onwards, I am going to use Idempotence *)
+
+
+    (* Here onwards, I am going to use Idempotence and 0-stable *)
 
     Variable (plus_idempotence : forall a, a + a =r= a = true).
+    Variable (zero_stable : forall a : R, 1 + a =r= 1 = true).
+
+
+    (* From Tim's email: 
+
+        Orel a b := a + b = a (Left Order)
+        Orel a b := a + b = b (Right Order)
+        Do we need both for this one? 
+    *)
+
 
     Definition Orel (a b : R) : Prop := a + b =r= a = true.
+
+    (* Prove that Orel is partial order *)
 
     (* preccurlyeq Unicode 
     Local Notation "⟨" := Rel : Mat_scope.
@@ -2584,7 +2600,89 @@ Section Matrix.
       apply refR.
     Qed.
 
-    
+
+    Lemma a_b_b : forall a b, Orel (a + b) b.
+    Proof.
+      unfold Orel; intros ? ?.
+      assert (Ht : a + b + b =r= a + (b + b) = true).
+      apply symR, plus_associative.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply congrP. apply refR.
+      apply symR.
+      rewrite plus_idempotence with (a :=b).
+      reflexivity.
+    Qed.
+
+
+    Lemma plus_a_b_c : forall a b c, Orel a b -> Orel (a + c) (b + c).
+    Proof.
+      unfold Orel; intros ? ? ? Ho.
+      apply congrP.
+
+    Admitted.
+
+    Lemma mul_a_b_c : forall a b c, Orel a b -> Orel (a * c) (b * c).
+    Proof.
+      unfold Orel; intros ? ? ? Ho.
+    Admitted.
+
+    (* Strict Order Relation *)
+    Definition SOrel (a b : R) := Orel a b /\ 
+      a =r= b = false.
+
+
+    Lemma smult_a_b_c : forall a b c : R, c =r= 0 = false ->
+      SOrel a b -> SOrel (a * c) (b * c).
+    Proof.
+    Admitted.
+
+
+
+    Lemma path_weight_rel : forall a b c : R, 
+      Orel (a * c) (a * b * c).
+    Proof.
+      unfold Orel; intros ? ? ?.
+      assert (Ht : a * c + a * b * c =r= 
+        a * c + a * (b * c) = true).
+      apply congrP. apply refR.
+      apply symR. apply mul_associative.
+      rewrite <-Ht; clear Ht. apply congrR.
+      apply refR.
+      apply symR.
+      assert (Ht : a * c + a * (b * c) =r= 
+        a * (c + b * c) = true).
+      apply symR.
+      apply left_distributive_mul_over_plus.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR. apply congrM.
+      apply refR.
+      assert (Ht : (1 * c + b * c) =r= 
+        (1 + b) * c = true).
+      apply symR.
+      apply right_distributive_mul_over_plus.
+      rewrite <-Ht; clear Ht.
+      apply congrR.
+      apply congrP.
+      apply symR.
+      apply one_left_identity_mul.
+      apply refR.
+      (* Now, I need 0-stable  *)
+      apply symR.
+      assert (Ht : (1 + b) * c =r= 
+        1 * c = true).
+      apply congrM. 
+      apply zero_stable.
+      apply refR.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR.
+      apply one_left_identity_mul.
+    Qed.
+      
+
+
 
 
      
