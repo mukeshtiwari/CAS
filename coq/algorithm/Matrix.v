@@ -2442,16 +2442,6 @@ Section Matrix.
 
 
 
-    (* In this function, we collect the nodes *)
-    Fixpoint get_nodes_path_aux (l : list (Node * Node * R)) : list Node :=
-      match l with
-      | [] => []
-      | (a, b, r) :: t => match t with 
-        | [] => [a; b] (* reached the end of path  *)
-        | _  => a :: get_nodes_path_aux t
-      end
-      end.
-
     Fixpoint all_distinct_node (l : list Node) : bool :=
       match l with 
       | [] => true
@@ -2459,10 +2449,6 @@ Section Matrix.
         all_distinct_node t
       end.
 
-    (* elementry path, when all nodes are distinct  *)
-    Definition elem_path_aux (l : list (Node * Node * R)) : bool :=
-      let lnode := get_nodes_path_aux l in
-      all_distinct_node lnode.
 
    
     Lemma in_list_mem_true : forall (l : list Node) (a : Node),
@@ -2513,6 +2499,99 @@ Section Matrix.
         split. apply refN.
         exact Ht.
     Qed.
+
+
+
+
+    Definition cyclic_path (c : Node) (l : list (Node * Node * R)) :=
+      source c l = target c l.
+
+    
+    (* Assumes that l is well formed path *)
+    Fixpoint nodes_distinct_in_path (m : Matrix) 
+      (l : list (Node * Node * R)) : bool  :=
+      match l with
+      | [] => true
+      | (a, b, _) :: t => (negb (a =n= b)) && 
+        nodes_distinct_in_path m t
+      end.
+
+
+
+    (* If the path is not elementry, then it has a loop *)
+    Lemma elem_path_dup_node : forall (l : list (Node * Node * R)) m,
+      nodes_distinct_in_path m l = false -> 
+      exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
+      triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
+      cyclic_path c l₂. 
+    Proof.
+      induction l.
+      - cbn; intros ? Hw.
+        congruence.
+      - simpl; intros ? Hw.
+        destruct a.
+        destruct p.
+        apply Bool.andb_false_iff in Hw.
+        destruct Hw as [Hw | Hw].
+        apply Bool.negb_false_iff in Hw.
+        exists n, [], [(n, n0, r)], l.
+        simpl. unfold cyclic_path.
+        simpl. split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        all:(try (apply refN); try (apply refR)).
+        apply triple_elem_eq_list.
+        rewrite Hw. apply refN.
+        destruct (IHl m Hw) as (c & l₁ & l₂ & l₃ & H₁ & H₂).
+        exists c, ([(n, n0, r)] ++ l₁), l₂, l₃.
+        simpl. split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        all:(try (apply refN); try (apply refR); assumption).
+    Qed.
+
+
+    (* Here onwards, I am going to use Idempotence *)
+
+    Variable (plus_idempotence : forall a, a + a =r= a = true).
+
+    Definition Orel (a b : R) : Prop := a + b =r= a = true.
+
+    (* preccurlyeq Unicode 
+    Local Notation "⟨" := Rel : Mat_scope.
+    *)
+
+    Lemma neutral_abouve : forall (a : R), Orel a 0.
+    Proof.
+      intro a; unfold Orel.
+      apply zero_right_identity_plus.
+    Qed.
+
+    Lemma a_b_a : forall a b, Orel (a + b) a.
+    Proof.
+      unfold Orel; intros ? ?.
+      assert (Ht : a + b + a =r= a + a + b = true).
+      pose proof (plus_commutative (a + b) a) as Hw.
+      rewrite <-Hw; clear Hw.
+      apply congrR. apply refR.
+      apply symR, plus_associative.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply congrP. apply symR.
+      apply plus_idempotence.
+      apply refR.
+    Qed.
+
+    
+
+
+     
+    
+
+    
+
 
    
 
