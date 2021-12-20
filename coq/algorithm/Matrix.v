@@ -2971,11 +2971,38 @@ Section Matrix.
       | S n' => a * exp_r a n'
       end.
 
+
+    Lemma exp_r_pow_add : forall (n m : nat) (a : R), 
+      exp_r a (n + m) =r= exp_r a n * exp_r a m = true.
+    Proof.
+      induction n.
+      - simpl; intros ? ?.
+        apply symR. 
+        apply one_left_identity_mul.
+      - simpl; intros ? ?.
+        apply symR.
+        assert (Ht : (a * exp_r a n * exp_r a m =r= a * exp_r a (n + m)) =
+          (a * (exp_r a n * exp_r a m) =r= a * exp_r a (n + m))).
+        apply congrR. 
+        apply symR.
+        apply mul_associative.
+        apply refR.
+        rewrite Ht; clear Ht.
+        apply congrM.
+        apply refR.
+        apply symR.
+        apply IHn.
+    Qed.
+
+
+
+
     Fixpoint partial_sum_r (a : R) (n : nat) : R :=
       match n with
       | O => 1
       | S n' => (partial_sum_r a n') + exp_r a n
       end.
+
 
     (* q-stable. 0-stable is special case when q = 0 *)
     Variable (q : nat)
@@ -2983,15 +3010,6 @@ Section Matrix.
       partial_sum_r a q =r= partial_sum_r a (S q) = true).
 
 
-      (* 
-    Lemma astar_aide : forall (t : nat) (a : R),
-      exp_r a (t + q) =r= exp_r a q = true.
-    Proof.
-      induction t.
-      - simpl; intros ?.
-        apply refR.
-      - simpl; intros ?.
-        simpl in q_stable. *)
     
     Lemma astar_exists : forall (t : nat) (a : R), 
       partial_sum_r a (t + q) =r= partial_sum_r a q = true.
