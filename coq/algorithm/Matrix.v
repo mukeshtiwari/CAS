@@ -29,7 +29,7 @@ Section Lfn.
     end.   
 
   Lemma list_eqv_refl : forall l : list A, list_eqv l l = true.
-  Proof.
+  Proof using A eqA refA.
     induction l.
     + simpl; reflexivity.
     + simpl. apply Bool.andb_true_iff.
@@ -38,7 +38,7 @@ Section Lfn.
 
   Lemma list_eqv_sym : forall l₁ l₂ : list A, 
     list_eqv l₁ l₂ = true -> list_eqv l₂ l₁ = true.
-  Proof.
+  Proof using A eqA symA.
     induction l₁; simpl.
     + intros ? Hl. destruct l₂.
       reflexivity. inversion Hl.
@@ -54,7 +54,7 @@ Section Lfn.
   
   Lemma list_mem_not : forall (l : list A) (c a : A), eqA c a = true ->
     in_list eqA l a = false -> in_list eqA l c = false.
-  Proof.
+  Proof using A eqA symA trnA.
     induction l; simpl; intros ? ? Heq Hf.
     + reflexivity.
     + apply Bool.orb_false_iff in Hf.
@@ -75,7 +75,7 @@ Section Lfn.
   
   Lemma list_mem_true_false : forall (l : list A) (a c : A),
     in_list eqA l a = false -> in_list eqA l c = true -> eqA c a = false.
-  Proof.
+  Proof using A eqA symA trnA.
     induction l; simpl; intros ? ? Ha Hb.
     + inversion Hb.
     + apply Bool.orb_false_iff in Ha.
@@ -89,7 +89,6 @@ Section Lfn.
       apply symA in Ht. 
       rewrite Ha1 in Ht.
       inversion Ht.
-
       apply IHl; assumption.
   Qed.
 
@@ -107,7 +106,7 @@ Section Lfn.
     list_eqv l (l₁ ++ [c] ++ l₂) = true /\ 
     in_list eqA l₁ c = false /\ 
     in_list eqA l₂ c = false.
-  Proof.
+  Proof using  A eqA refA symA trnA.
     induction l; simpl.
     + intros ? H₁ H₂ H₃.
       inversion H₂.
@@ -214,11 +213,13 @@ Section Matrix.
     Local Infix "=n=" := eqN (at level 70) : Mat_scope.
 
     
-    (* (square) matrix is a function. It's easy to prove various 
+    (* 
+      (square) matrix is a function. It's easy to prove various 
       properties of matrix with this representation. However, 
       it's not very efficient, at least in my experience, 
       so later we will replace it by another similar more 
-      efficient structure for computation *) 
+      efficient structure for computation 
+    *) 
     
     Definition Matrix : Type := Node -> Node -> R.
 
@@ -250,13 +251,15 @@ Section Matrix.
     Definition transpose (m : Matrix) : Matrix := 
       fun (c d : Node) => m d c.
 
-    Definition transpose_transpose_id : ∀ (m : Matrix) (c d : Node),
+
+    Lemma transpose_transpose_id : ∀ (m : Matrix) (c d : Node),
       (((transpose (transpose m)) c d) =r= (m c d)) = true.
-    Proof. 
+    Proof using Node R eqR refR.
       intros ? ? ?; unfold transpose; 
       simpl. 
       apply refR.
-    Defined.
+    Qed.
+
 
     (* pointwise addition to two matrices *)
     Definition matrix_add (m₁ m₂ : Matrix) : Matrix :=
@@ -265,16 +268,19 @@ Section Matrix.
 
     Lemma zero_add_left : forall c d m,
       matrix_add zero_matrix m c d =r= (m c d) = true.
-    Proof.
+    Proof using Node R eqR plusR zeroR 
+    zero_left_identity_plus.
       intros c d m.
       unfold matrix_add, zero_matrix.
       rewrite zero_left_identity_plus.
       exact eq_refl.
     Qed. 
 
+
     Lemma zero_add_right : forall c d m, 
       (matrix_add m zero_matrix c d) =r= (m c d) = true.
-    Proof.
+    Proof using Node R eqR plusR zeroR 
+    zero_right_identity_plus.
       intros c d m.
       unfold matrix_add, zero_matrix.
       rewrite zero_right_identity_plus.
@@ -284,7 +290,7 @@ Section Matrix.
     Lemma matrix_add_assoc : forall m₁ m₂ m₃ c d, 
       matrix_add m₁ (matrix_add m₂ m₃) c d =r= 
       matrix_add (matrix_add m₁ m₂) m₃ c d = true.
-    Proof.
+    Proof using Node R eqR plusR plus_associative.
       unfold matrix_add; intros.
       rewrite plus_associative;
       exact eq_refl.
@@ -293,7 +299,7 @@ Section Matrix.
     
     Lemma matrix_add_comm : forall m₁ m₂ c d, 
       matrix_add m₁ m₂ c d =r= matrix_add m₂ m₁ c d = true.
-    Proof.
+    Proof using Node R eqR plusR plus_commutative.
       intros; unfold matrix_add.
       rewrite plus_commutative.
       reflexivity.
@@ -308,7 +314,8 @@ Section Matrix.
 
     Lemma sum_with_two_var : forall fn ga u v, 
       fn =r= u + v= true -> ga + fn =r= u + (ga + v) = true.
-    Proof.
+    Proof using R congrP congrR eqR plusR plus_associative 
+    plus_commutative refR symR.
       intros.
       unfold bop_congruence in congrP.
       assert (Ht: ga + fn =r= ga + (u + v) = true).
@@ -331,7 +338,8 @@ Section Matrix.
     Lemma sum_first_congr : forall fa ga u v fn, 
       fn =r= u + v = true -> 
       fa + ga + fn =r= fa + u + (ga + v) = true.
-    Proof.
+    Proof using R congrP congrR eqR plusR refR symR
+    plus_associative plus_commutative.
       intros.
       pose proof (congrP fa (ga + fn) fa (u + (ga + v)) (refR fa)
         (sum_with_two_var _ _ _ _ H)) as Href.
@@ -345,7 +353,8 @@ Section Matrix.
       (sum_fn (λ x : Node, f x + g x) l =r= sum_fn f l + sum_fn g l) = true ->
       (f a + g a + sum_fn (λ x : Node, f x + g x) l =r= 
       f a + sum_fn f l + (g a + sum_fn g l)) = true.
-    Proof.
+    Proof using Node R congrP congrR eqR plusR 
+    plus_associative plus_commutative refR symR zeroR.
       intros. 
       apply sum_first_congr.
       exact H.
@@ -354,17 +363,20 @@ Section Matrix.
 
     Lemma sum_fn_add : forall (f g : Node -> R) (l : list Node), 
       (sum_fn (fun x => f x + g x) l) =r= (sum_fn f l +  sum_fn g l) = true.
-    Proof.
+    Proof using Node R congrP congrR eqR plusR plus_associative 
+    plus_commutative refR symR zeroR zero_left_identity_plus.
       intros ? ?.
       induction l; simpl.
       + apply symR, zero_left_identity_plus.
       + apply sum_fn_congr. exact IHl.
     Qed.
 
+
     Lemma mul_gen_left_distr : forall c fa fn gn, 
       fn =r= c * gn = true -> c * fa + fn =r= c * (fa + gn) = true.
-    Proof.
-      intros.
+    Proof using R congrP congrR eqR left_distributive_mul_over_plus 
+    mulR plusR refR.
+      intros ? ? ? ? H.
       assert (Ht : c * fa + fn =r= c * fa + c * gn = true).
       apply congrP. apply refR. exact H.
       rewrite <-Ht; clear Ht.
@@ -380,7 +392,8 @@ Section Matrix.
 
     Lemma mul_constant_left : forall (f : Node -> R) (c : R) (l : list Node), 
       sum_fn (fun x => c * f x) l =r= (c * sum_fn f l) = true.
-    Proof.
+    Proof using Node R congrP congrR eqR left_distributive_mul_over_plus 
+    mulR plusR refR symR zeroR zero_right_anhilator_mul.
       intros ? ?. 
       induction l; simpl.
       + apply symR,
@@ -392,7 +405,8 @@ Section Matrix.
 
     Lemma mul_gen_right_distr : forall c fa fn gn, 
       fn =r= gn * c = true -> fa * c + fn =r= (fa + gn) * c = true.
-    Proof.
+    Proof using R congrP congrR eqR mulR plusR refR
+    right_distributive_mul_over_plus.
       intros.
       assert (Ht : fa * c + fn =r= fa * c + gn * c = true).
       apply congrP. apply refR. exact H.
@@ -408,7 +422,8 @@ Section Matrix.
 
     Lemma mul_constant_right : forall (f : Node -> R) (c : R) (l : list Node), 
       sum_fn (fun x => (f x * c)) l =r= (sum_fn f l * c) = true.
-    Proof.
+    Proof using Node R congrP congrR eqR mulR plusR refR
+    right_distributive_mul_over_plus symR zeroR zero_left_anhilator_mul.
       intros ? ?.
       induction l; simpl.
       + apply symR, zero_left_anhilator_mul.
@@ -426,7 +441,8 @@ Section Matrix.
     Lemma push_mul_right_gen : forall a b c d fn gn, 
       fn =r= gn = true -> 
       (a * b + c) * d + fn =r= a * b * d + c * d + gn = true.
-    Proof.
+    Proof using R congrP eqR mulR plusR 
+    right_distributive_mul_over_plus.
       intros. apply congrP.
       apply right_distributive_mul_over_plus.
       exact H.
@@ -441,7 +457,8 @@ Section Matrix.
       sum_fn (λ y : Node, 
         (m₁ x a * m₂ a y * m₃ y x0 + 
           sum_fn (λ y0 : Node, m₁ x y0 * m₂ y0 y) l₁ * m₃ y x0)) l₂ = true.
-    Proof.
+    Proof using Node R congrP eqR mulR plusR refR
+    right_distributive_mul_over_plus zeroR.
       intros.
       revert l₁ m₁ m₂ m₃ a x x0.
       induction l₂; simpl; intros ? ? ? ? ? ? ?.
@@ -454,7 +471,9 @@ Section Matrix.
       a * d + f =r= g = true -> 
       a * (b * c + d) + (e * c + f) =r= 
       (a * b + e) * c + g = true.
-    Proof.
+    Proof using R congrP congrR eqR left_distributive_mul_over_plus mulR
+    mul_associative plusR plus_associative plus_commutative refR
+    right_distributive_mul_over_plus symR.
       intros.
       assert (Ht : a * (b * c + d) + (e * c + f) =r= 
         a * b * c + a * d + (e * c + f) = true).
@@ -519,7 +538,10 @@ Section Matrix.
     Lemma matrix_mul_gen_assoc : forall l₁ l₂ m₁ m₂ m₃ (c d : Node),
       (matrix_mul_gen m₁ (matrix_mul_gen m₂ m₃ l₂) l₁ c d) =r= 
       (matrix_mul_gen (matrix_mul_gen m₁ m₂ l₁) m₃ l₂ c d) = true.
-    Proof.
+    Proof using Node R congrP congrR eqR left_distributive_mul_over_plus mulR
+    mul_associative plusR plus_associative plus_commutative refR
+    right_distributive_mul_over_plus symR zeroR zero_left_anhilator_mul
+    zero_left_identity_plus zero_right_anhilator_mul.
       intros.
         revert l₁ l₂ m₁ m₂ m₃ c d.
       unfold matrix_mul_gen; induction l₁; simpl;
@@ -568,7 +590,8 @@ Section Matrix.
     
     Lemma sum_fn_list_app : forall (l₁ l₂ : list Node) (f : Node -> R), 
       sum_fn f (l₁ ++ l₂) =r= (sum_fn f l₁ + sum_fn f l₂) = true.
-    Proof.
+    Proof using Node R congrP congrR eqR plusR plus_associative 
+    refR symR zeroR zero_left_identity_plus.
       induction l₁; simpl.
       intros ? ?.
       + apply symR, zero_left_identity_plus.
@@ -588,7 +611,8 @@ Section Matrix.
       (f : Node -> R), 
       sum_fn f (l₁ ++ l₂ ++ l₃) =r= (sum_fn f l₁ + sum_fn f l₂ + sum_fn f l₃) 
       = true.
-    Proof.
+    Proof using Node R congrP congrR eqR plusR plus_associative 
+    refR symR zeroR zero_left_identity_plus.
       intros. 
       assert (Ht : sum_fn f (l₁ ++ l₂ ++ l₃) =r= 
         sum_fn f l₁ + sum_fn f (l₂ ++ l₃) = true).
@@ -609,7 +633,8 @@ Section Matrix.
     Lemma sum_fn_zero : forall (l₁ l₂ : list Node) (f : Node -> R),
       sum_fn f l₁ =r= 0 = true ->  
       sum_fn f (l₁ ++ l₂) =r= sum_fn f l₂ = true.
-    Proof.
+    Proof using Node R congrP congrR eqR plusR plus_associative 
+    refR symR zeroR zero_left_identity_plus.
       intros ? ? ? Hf.
       assert (sum_fn f (l₁ ++ l₂) =r= sum_fn f l₁ + sum_fn f l₂ = true).
       apply sum_fn_list_app.
@@ -620,19 +645,23 @@ Section Matrix.
       apply refR. apply symR.
       rewrite <-Ht; clear Ht.
       apply congrR. apply refR.
-      apply symR. apply zero_left_identity_plus.
+      apply symR. 
+      apply zero_left_identity_plus.
     Qed.
+
 
     (* f is congruent wrt =n= *)
     Definition fncong (f : Node -> R) : Prop :=
       forall a b : Node, a =n= b = true -> 
         f a =r= f b = true.
     
+
+
     Lemma sum_fn_list_eqv_gen : forall (l la lb : list Node) 
       (f : Node -> R), 
       fncong f -> list_eqv Node eqN l (la ++ lb) = true ->
       sum_fn f l =r= sum_fn f (la ++ lb) = true.
-    Proof.
+    Proof using Node R congrP eqN eqR plusR refR zeroR.
       induction l.
       + simpl; intros ? ? ? Hc Hl.
         destruct (la ++ lb).
@@ -669,7 +698,7 @@ Section Matrix.
       (c : Node) (f : Node -> R), fncong f ->
       list_eqv Node eqN l (la ++ [c] ++ lb) = true ->
       sum_fn f l =r= sum_fn f (la ++ [c] ++ lb) = true.
-    Proof.
+    Proof using Node R congrP eqN eqR plusR refR zeroR.
       intros ? ? ? ? ? Hc Hl.
       exact (sum_fn_list_eqv_gen l la ([c] ++ lb) f Hc Hl).
     Qed. 
@@ -679,7 +708,8 @@ Section Matrix.
       (m : Node -> Node -> R), in_list eqN l c = false ->
       sum_fn (λ y : Node, (if c =n= y then 1 else 0) * m y d) l =r= 
       0 = true.
-    Proof.
+    Proof using Node R congrP congrR eqN eqR mulR oneR plusR refR symR zeroR
+    zero_left_anhilator_mul zero_left_identity_plus.
       induction l; simpl; intros c d m H.
       + apply refR.
       + apply Bool.orb_false_iff in H.
@@ -709,7 +739,10 @@ Section Matrix.
       no_dup Node eqN l = true -> forall (m : Matrix) (c d : Node),
       mat_cong m -> 
       matrix_mul_gen I m l c d =r= m c d = true.
-    Proof.
+    Proof using Node R congrM congrP congrR eqN eqR mulR oneR
+    one_left_identity_mul plusR plus_associative refN refR 
+    symN symR trnN zeroR zero_left_anhilator_mul 
+    zero_left_identity_plus zero_right_identity_plus.
       unfold matrix_mul_gen, I.
       intros ? Hl Hx Hn ? ? ? Hm.
       destruct (list_split _ eqN refN symN trnN l c Hl (Hx c) 
@@ -796,7 +829,8 @@ Section Matrix.
       (m : Node -> Node -> R), in_list eqN l d = false ->
       sum_fn (λ y : Node, m c y * (if y =n= d then 1 else 0)) l =r= 
       0 = true.
-    Proof.
+    Proof using Node R congrP congrR eqN eqR mulR oneR plusR refR 
+    symN symR zeroR zero_right_anhilator_mul zero_right_identity_plus.
       induction l; simpl; intros c d m H.
       + apply refR.
       + apply Bool.orb_false_iff in H.
@@ -834,7 +868,9 @@ Section Matrix.
       no_dup Node eqN l = true -> forall (m : Matrix) (c d : Node),
       mat_cong m ->
       matrix_mul_gen m I l c d =r= m c d = true.
-    Proof.
+    Proof using Node R congrM congrP congrR eqN eqR mulR oneR
+    one_right_identity_mul plusR plus_associative refN refR symN symR trnN zeroR
+    zero_left_identity_plus zero_right_anhilator_mul zero_right_identity_plus.
       unfold matrix_mul_gen, I.
       intros ? Hl Hx Hn ? ? ? Hm.
       destruct (list_split _ eqN refN symN trnN l d Hl (Hx d) 
@@ -921,7 +957,10 @@ Section Matrix.
     Lemma matrix_mul_assoc : forall m₁ m₂ m₃ (c d : Node),
       matrix_mul m₁ (matrix_mul m₂ m₃) c d =r= 
       matrix_mul (matrix_mul m₁ m₂) m₃ c d = true.
-    Proof.
+    Proof using Node R congrP congrR eqR finN left_distributive_mul_over_plus
+    mulR mul_associative plusR plus_associative plus_commutative refR
+    right_distributive_mul_over_plus symR zeroR zero_left_anhilator_mul
+    zero_left_identity_plus zero_right_anhilator_mul.
       unfold matrix_mul.
       apply matrix_mul_gen_assoc.
     Qed.
@@ -929,7 +968,9 @@ Section Matrix.
     Lemma matrix_mul_left_identity : forall m (c d : Node), 
       mat_cong m -> 
       matrix_mul I m c d =r= m c d = true.
-    Proof.
+    Proof using Node R congrM congrP congrR dupN empN eqN eqR finN memN mulR oneR
+    one_left_identity_mul plusR plus_associative refN refR symN symR trnN zeroR
+    zero_left_anhilator_mul zero_left_identity_plus zero_right_identity_plus.
       unfold matrix_mul.
       apply matrix_mul_left_identity_gen.
       apply empN. apply memN.
@@ -939,7 +980,9 @@ Section Matrix.
     Lemma matrix_mul_right_identity : forall m (c d : Node),
       mat_cong m -> 
       matrix_mul m I c d =r= m c d = true.
-    Proof.
+    Proof using Node R congrM congrP congrR dupN empN eqN eqR finN memN mulR oneR
+    one_right_identity_mul plusR plus_associative refN refR symN symR trnN zeroR
+    zero_left_identity_plus zero_right_anhilator_mul zero_right_identity_plus.
       unfold matrix_mul.
       apply matrix_mul_right_identity_gen.
       apply empN. apply memN.
@@ -973,9 +1016,10 @@ Section Matrix.
     
     
     (* now prove that slow and fast computes the same value. *)
-
+    (* This is generic and does not use Section Variable, so move it 
+      to a new file/section. *)
     Lemma binnat_zero : forall (n : nat), 0%N = N.of_nat n -> n = 0%nat.
-    Proof.
+    Proof using -All.
       induction n; try lia.
     Qed.
 
@@ -983,7 +1027,7 @@ Section Matrix.
     Lemma binnat_odd : forall (p : positive) (n : nat), 
       N.pos (xI p) = N.of_nat n -> 
       exists k,  n = (2 * k + 1)%nat /\  (N.pos p) = (N.of_nat k).
-    Proof.
+    Proof using -All.
       intros p n Hp.
       destruct (Even.even_or_odd n) as [H | H].
       apply Even.even_equiv in H. destruct H as [k Hk].
@@ -1001,7 +1045,7 @@ Section Matrix.
     Lemma binnat_even : forall (p : positive) (n : nat), 
       N.pos (xO p) = N.of_nat n :> N -> 
       exists k, n = (Nat.mul 2 k) /\  (N.pos p) = (N.of_nat k).
-    Proof.
+    Proof using -All.
       intros p n Hp.
       destruct (Even.even_or_odd n) as [H | H].
       apply Even.even_equiv in H. destruct H as [k Hk].
@@ -1014,10 +1058,12 @@ Section Matrix.
       rewrite Hk in Hp. lia.
     Qed.
 
+    (* end of generic nat lemma *)
+
 
     Lemma add_r_cong : forall a b c d, a =r= c = true ->
       b =r= d = true -> a + b =r= c + d = true.
-    Proof.
+    Proof using R congrP eqR plusR.
       intros ? ? ? ? Hac Hbd.
       apply congrP.
       exact Hac.
@@ -1030,7 +1076,7 @@ Section Matrix.
       e =n= g = true -> f =n= h = true ->
       mat_cong m₁ -> mat_cong m₂ -> 
       m₁ a b * m₂ e f =r=  m₁ c d * m₂ g h = true.
-    Proof.
+    Proof using Node R congrM eqN eqR mulR.
       intros ? ? ? ? ? ? ? ? ? ? Hac Hbd Heg Hfh
         Hm₁ Hm₂.
       apply congrM.
@@ -1043,7 +1089,8 @@ Section Matrix.
       mat_cong m₁ -> mat_cong m₂ ->
       sum_fn (λ y : Node, m₁ a y * m₂ y b) l =r= 
       sum_fn (λ y : Node, m₁ c y * m₂ y d) l = true.
-    Proof.
+    Proof using Node R congrM congrP eqN eqR mulR 
+    plusR refN refR zeroR.
       induction l; simpl; 
       intros ? ? ? ? ? ? Hac Hbd Hm₁ Hm₂.
       + apply refR.
@@ -1058,7 +1105,8 @@ Section Matrix.
       a =n= c= true -> b =n= d = true -> 
       mat_cong m₁ -> mat_cong m₂ -> 
       matrix_mul m₁ m₂ a b =r= matrix_mul m₁ m₂ c d = true.
-    Proof.
+    Proof using Node R congrM congrP eqN eqR finN mulR 
+    plusR refN refR zeroR.
       intros.
       unfold matrix_mul, matrix_mul_gen.
       apply sum_fn_mul_congr; assumption.
@@ -1067,7 +1115,7 @@ Section Matrix.
     Lemma identity_cong : forall a b c d, 
       (a =n= c) = true -> (b =n= d) = true ->
       I a b =r= I c d = true.
-    Proof.
+    Proof using Node R eqN eqR oneR refR symN trnN zeroR.
       intros ? ? ? ? Hac Hbd.
       unfold I.
       case_eq (a =n= b); intros Hf; auto.
@@ -1083,12 +1131,14 @@ Section Matrix.
       inversion Hf.
     Qed.
 
+
     Lemma mat_exp_cong : ∀ k e (a b c d : Node),
       (a =n= c) = true → (b =n= d) = true →
       mat_cong e →
       matrix_exp_unary e k a b =r= 
       matrix_exp_unary e k c d = true.
-    Proof.
+    Proof using Node R congrM congrP eqN eqR finN 
+    mulR oneR plusR refN refR symN trnN zeroR.
       induction k; simpl; 
       intros ? ? ? ? ? Hac Hbd Hme.
       + apply identity_cong; assumption.
@@ -1106,7 +1156,7 @@ Section Matrix.
       two_mat_congr m₁ m₂ ->  
       sum_fn (λ y : Node, e c y * m₁ y d) l =r= 
       sum_fn (λ y : Node, e c y * m₂ y d) l = true.
-    Proof.
+    Proof using Node R congrM congrP eqR mulR plusR refR zeroR.
       induction l; simpl; 
       intros  ? ? ? ? ? Hm.
       + apply refR.
@@ -1121,18 +1171,23 @@ Section Matrix.
     Lemma mat_mul_cong_diff : forall e m₁ m₂ c d,
       two_mat_congr m₁ m₂ ->
       matrix_mul e m₁ c d =r= matrix_mul e m₂ c d = true.
-    Proof.
+    Proof using Node R congrM congrP eqR finN mulR plusR refR zeroR.
       intros ? ? ? ? ? Hm.
       unfold matrix_mul, matrix_mul_gen.
       apply sum_fn_mul_congr_diff.
       exact Hm.
     Qed.
 
+
     Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d,
       mat_cong e -> 
       matrix_exp_unary e (k1 + k2)  c d =r= 
       matrix_mul (matrix_exp_unary e k1) (matrix_exp_unary e k2) c d = true.
-    Proof.
+    Proof using Node R congrM congrP congrR dupN empN eqN eqR finN
+    left_distributive_mul_over_plus memN mulR mul_associative oneR
+    one_left_identity_mul plusR plus_associative plus_commutative refN refR
+    right_distributive_mul_over_plus symN symR trnN zeroR zero_left_anhilator_mul
+    zero_left_identity_plus zero_right_anhilator_mul zero_right_identity_plus.
       induction k1; simpl.
       + intros ? ? ? ? ?.
         apply symR, matrix_mul_left_identity.
@@ -1162,7 +1217,7 @@ Section Matrix.
       two_mat_congr_gen m₁ m₃ -> two_mat_congr_gen m₂ m₄ -> 
       sum_fn (λ y : Node, m₁ a y * m₂ y b) l =r=
       sum_fn (λ y : Node, m₃ c y * m₄ y d) l = true.
-    Proof.
+    Proof using Node R congrM congrP eqN eqR mulR plusR refN refR zeroR.
       induction l; simpl; 
       intros ? ? ? ? ? ? ? ? Hac Hbd Hm₁ Hm₂.
       + apply refR.
@@ -1180,7 +1235,8 @@ Section Matrix.
       a =n= c = true -> b =n= d = true -> 
       two_mat_congr_gen m₁ m₃ -> two_mat_congr_gen m₂ m₄ -> 
       matrix_mul m₁ m₂ a b =r= matrix_mul m₃ m₄ c d = true.
-    Proof.
+    Proof using Node R congrM congrP eqN eqR finN mulR 
+    plusR refN refR zeroR.
       intros ? ? ? ? ? ? ? ? Hac Hbd H₁ H₂.
       unfold matrix_mul, matrix_mul_gen.
       apply sum_fn_congr_gen; assumption.
@@ -1190,7 +1246,7 @@ Section Matrix.
       (forall c d, m₁ c d =r= m₂ c d = true) ->
       sum_fn (λ y : Node, m₁ u y * m₁ y v) l =r=
       sum_fn (λ y : Node, m₂ u y * m₂ y v) l = true.
-    Proof.
+    Proof using Node R congrM congrP eqR mulR plusR refR zeroR.
       induction l; simpl; 
       intros  ? ? ? ? Hm.
       + apply refR.
@@ -1205,7 +1261,8 @@ Section Matrix.
     Lemma mat_equal_ind : forall m₁ m₂ u v,
       (forall c d, m₁ c d =r= m₂ c d = true) ->
       matrix_mul m₁ m₁ u v =r= matrix_mul m₂ m₂ u v = true.
-    Proof.
+    Proof using Node R congrM congrP eqR finN mulR 
+    plusR refR zeroR.
       intros ? ? ? ? Hcd.
       unfold matrix_mul, matrix_mul_gen.
       apply sum_fn_mat_ind.
@@ -1217,7 +1274,12 @@ Section Matrix.
       mat_cong m -> 
       matrix_exp_unary m (N.to_nat n) c d =r= matrix_exp_binary m n c d 
       = true.
-    Proof.
+    Proof using Node R congrM congrP congrR dupN empN eqN eqR finN
+    left_distributive_mul_over_plus memN mulR mul_associative oneR
+    one_left_identity_mul one_right_identity_mul plusR plus_associative
+    plus_commutative refN refR right_distributive_mul_over_plus symN symR trnN
+    zeroR zero_left_anhilator_mul zero_left_identity_plus
+    zero_right_anhilator_mul zero_right_identity_plus.
       destruct n;
       intros ? ? ? Hm.
       + apply refR.
@@ -1286,10 +1348,11 @@ Section Matrix.
       end. 
 
 
+    (* generic lemma about list. It does not use any section assumption *)
     Lemma target_alt_end : forall (l : list (Node * Node * R))
       (x : Node * Node * R) (d : Node),
       target_alt d (l ++ [x]) = target_alt d [x].
-    Proof.
+    Proof using -All.
       intros ? ? ?.
       unfold target_alt.
       rewrite rev_unit.
@@ -1313,7 +1376,7 @@ Section Matrix.
     Lemma target_end : forall (l : list (Node * Node * R))
       (x : Node * Node * R) (d : Node),
       target d (l ++ [x]) = target d [x].
-    Proof.
+    Proof using -All.
       induction l.
       - simpl; intros ? ?. reflexivity.
       - intros ? ?.
@@ -1329,7 +1392,7 @@ Section Matrix.
 
     Lemma target_target_alt_same : forall (l : list (Node * Node * R)) (d : Node), 
       target d l = target_alt d l.
-    Proof.
+    Proof using -All.
       induction l using rev_ind.
       - unfold target_alt; simpl; intros ?.
         reflexivity.
@@ -1458,7 +1521,7 @@ Section Matrix.
 
     Lemma triple_elem_eq_list : forall l, 
       triple_elem_list l l = true.
-    Proof.
+    Proof using -All.
       induction l.
       - simpl. reflexivity.
       - simpl. destruct a.
@@ -1484,7 +1547,7 @@ Section Matrix.
       forall (l : list (list (Node * Node * R))) (m : Matrix) 
       (c : Node),  
       all_elems_non_empty_list (append_node_in_paths m c l) = true.
-    Proof.
+    Proof using -All.
       induction l.
       + simpl; intros ? ?. 
         reflexivity.
@@ -1502,7 +1565,7 @@ Section Matrix.
       In_eq_bool xs (append_node_in_paths m c l) = true -> 
       exists y ys, triple_elem_list xs ((c, y, m c y) :: ys) = true /\
       source c xs = true /\ source y ys = true /\ ys <> [].
-    Proof.
+    Proof using  Node R eqN eqR refN symN.
       induction l.
       - simpl; intros ? ? ? Hf.
         inversion Hf.
@@ -1540,7 +1603,7 @@ Section Matrix.
       (c d : Node) (xs : list (Node * Node * R)), 
       In_eq_bool xs (all_paths_klength m n c d) = true -> 
       xs <> [].
-    Proof.
+    Proof using Node R eqN eqR finN oneR refN symN.
       induction n.
       - simpl; intros ? ? ? ? Hin.
         case (c =n= d) eqn:Ht.
@@ -1565,7 +1628,7 @@ Section Matrix.
       (c d : Node) (xs : list (Node * Node * R)), 
       In_eq_bool xs (all_paths_klength m n c d) = true -> 
       source c xs = true.
-    Proof.
+    Proof using Node R eqN eqR finN oneR refN symN.
       induction n.
       - simpl; intros ? ? ?? Hin.
         case (c =n= d) eqn:Ht.
@@ -1601,7 +1664,7 @@ Section Matrix.
       (c d : Node) (xs : list (Node * Node * R)), 
       In_eq_bool xs (all_paths_klength m n c d) = true ->
       xs <> [] /\ source c xs = true.
-    Proof.
+    Proof using Node R eqN eqR finN oneR refN symN.
       intros ? ? ? ? ? Hin.
       split.
       apply non_empty_paths_in_kpath with (n := n) (m := m) (c := c) (d := d).
@@ -1618,7 +1681,8 @@ Section Matrix.
         (map (fun y => w * measure_of_path y) l) =r=
       w * fold_right (fun a b => a + b) 0 
         (map measure_of_path l) = true.
-    Proof.
+    Proof using Node R congrP congrR eqR left_distributive_mul_over_plus mulR
+    oneR plusR refR symR zeroR zero_right_anhilator_mul.
       induction l.
       - simpl; intros ?.
         apply symR, zero_right_anhilator_mul.
@@ -1646,7 +1710,7 @@ Section Matrix.
       list_eqv _ eqR 
         (map measure_of_path (append_node_in_paths m c l))
         (map (fun y => m c a * measure_of_path y) l) = true.
-    Proof.
+    Proof using Node R congrM eqN eqR mulR oneR refN refR symN.
       induction l as [|ys yss IH].
       - simpl; intros ? ? ? Hm Hin.
         reflexivity.
@@ -1682,7 +1746,7 @@ Section Matrix.
         (append_node_in_paths m c (all_paths_klength m n a d)))
       (map (fun y => m c a * measure_of_path y) 
         (all_paths_klength m n a d)) = true.
-    Proof.
+    Proof using Node R congrM eqN eqR finN mulR oneR refN refR symN.
       intros ? ? ? ? ? Hm.
       apply map_measure_simp_gen.
       exact Hm.
@@ -1696,7 +1760,7 @@ Section Matrix.
       list_eqv R eqR l₁ l₂ = true -> 
       fold_right (fun a b => a + b) 0 l₁ =r= 
       fold_right (fun a b => a + b) 0 l₂ = true.
-    Proof.
+    Proof using R congrP eqR plusR refR zeroR.
       induction l₁; destruct l₂; simpl; intro H.
       - apply refR.
       - inversion H.
@@ -1719,7 +1783,9 @@ Section Matrix.
       m c a *
       fold_right (λ b v : R, b + v) 0
         (map measure_of_path (all_paths_klength m n a d))) = true.
-    Proof.
+    Proof using Node R congrM congrP congrR eqN eqR finN
+    left_distributive_mul_over_plus mulR oneR plusR refN refR symN symR zeroR
+    zero_right_anhilator_mul.
       intros ? ? ? ? ? Hm.
       assert (Ht : 
       fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
@@ -1742,7 +1808,7 @@ Section Matrix.
     
     Lemma sum_fn_sum_fn_fold : forall l f, 
       sum_fn f l =r= sum_fn_fold f l = true.
-    Proof.
+    Proof using Node R congrP eqR plusR refR zeroR.
       induction l.
       + simpl; intros ?.
         apply refR.
@@ -1764,7 +1830,7 @@ Section Matrix.
         (map measure_of_path
           (append_node_in_paths m c l₁ ++ 
           append_node_in_paths m c l₂)) = true.
-    Proof.
+    Proof using Node R congrP eqR mulR oneR plusR refR zeroR.
       induction l₁ as [|a l₁ IHL₁].
       - simpl; intros ? ? ?.
         apply refR.
@@ -1782,7 +1848,7 @@ Section Matrix.
     Local Lemma fold_right_dist_eqr_aide :
       forall a b c d e : R, b =r= d + e = true ->
       a + b =r= a + d + e = true.
-    Proof.
+    Proof using R congrP congrR eqR plusR plus_associative refR symR.
       intros ? ? ? ? ? H.
       assert (Ht : a + d + e =r= a + (d + e) = true).
       apply symR. apply plus_associative.
@@ -1797,7 +1863,8 @@ Section Matrix.
       =r= 
       (fold_right (fun u₁ v₁ : R => u₁ + v₁) 0 l₁ + 
       fold_right (fun u₂ v₂ : R => u₂ + v₂) 0 l₂) = true.
-    Proof.
+    Proof using R congrP congrR eqR plusR plus_associative refR symR zeroR
+    zero_left_identity_plus.
       induction l₁.
       - simpl; intros ?.
         apply symR.
@@ -1821,7 +1888,9 @@ Section Matrix.
         (fold_right (fun b v => b + v) 0 
           (map measure_of_path (all_paths_klength m n x d))) + t) 0 l 
       = true.
-    Proof.
+    Proof using Node R congrM congrP congrR eqN eqR finN
+    left_distributive_mul_over_plus mulR oneR plusR plus_associative refN refR
+    symN symR zeroR zero_left_identity_plus zero_right_anhilator_mul.
       induction l as [|a l IHL].
       - simpl; intros ? ? ? ? Hm.
         apply refR.
@@ -1854,7 +1923,7 @@ Section Matrix.
     Lemma fold_right_cong : forall l (g f: Node -> R -> R) a,
       (forall x u v, u =r= v = true -> f x u =r= g x v = true) -> 
       fold_right f a l =r= fold_right g a l = true.
-    Proof.
+    Proof using Node R eqR refR.
       induction l.
       - simpl; intros ? ? ? Hx.
         apply refR.
@@ -1869,7 +1938,10 @@ Section Matrix.
       mat_cong m -> 
       matrix_exp_unary m n c d =r= 
       sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) = true.
-    Proof.
+    Proof using Node R congrM congrP congrR eqN eqR finN
+    left_distributive_mul_over_plus mulR oneR one_left_identity_mul plusR
+    plus_associative refN refR symN symR zeroR zero_left_identity_plus
+    zero_right_anhilator_mul zero_right_identity_plus.
       intros ? ? ? ? Hm.
       unfold sum_all_rvalues, get_all_rvalues, construct_all_paths;
       rewrite map_map.
@@ -1926,7 +1998,7 @@ Section Matrix.
       (a b : Node * Node * R) (c : list (Node * Node * R)),
       triple_elem_list xs (a :: b :: c) = true ->
       triple_elem_list (List.tl xs) (b :: c) = true.
-    Proof.
+    Proof using -All.
       destruct xs.
       - simpl; intros ? ? ? He.
         congruence.
@@ -1944,7 +2016,7 @@ Section Matrix.
     Local Lemma append_node_rest : forall l m c xs,
       In_eq_bool xs (append_node_in_paths m c l) = true ->
       In_eq_bool (List.tl xs) l = true.
-    Proof.
+    Proof using -All.
       induction l.
       - simpl; intros ? ? ? Hin.
         inversion Hin.
@@ -1971,7 +2043,7 @@ Section Matrix.
 
     Lemma target_tail : forall (xs : list (Node * Node * R)) (d : Node), 
       target d (tl xs) = true -> target d xs = true.
-    Proof.
+    Proof using -All.
       destruct xs.
       - simpl; intros ? ?.
         exact H.
@@ -1989,7 +2061,7 @@ Section Matrix.
       (y : list (Node * Node * R)), 
       In_eq_bool y (l₁ ++ l₂) = true -> 
       In_eq_bool y l₁ = true \/ In_eq_bool y l₂ = true.
-    Proof.
+    Proof using -All.
       induction l₁.
       - simpl; intros ? ? Hin.
         right. exact Hin.
@@ -2013,7 +2085,7 @@ Section Matrix.
       (y : list (Node * Node * R)),  
       In_eq_bool y l₁ = true \/ In_eq_bool y l₂ = true -> 
       In_eq_bool y (l₁ ++ l₂) = true.
-    Proof.
+    Proof using -All.
       induction l₁.
       - simpl; intros ? ? [Hin | Hin]; 
         congruence.
@@ -2036,7 +2108,7 @@ Section Matrix.
       In_eq_bool y (flat_map f l) = true -> 
       (exists x : Node, in_list eqN l x = true /\ 
       In_eq_bool y (f x) = true).
-    Proof.
+    Proof using Node R eqN eqR refN.
       induction l.
       - simpl; intros ? ? Hin.
         congruence.
@@ -2066,7 +2138,7 @@ Section Matrix.
       in_eq_bool_cong f -> 
       in_list eqN l x = true -> In_eq_bool y (f x) = true ->
       In_eq_bool y (flat_map f l) = true.
-    Proof.
+    Proof using -All.
       induction l.
       - simpl; intros ? ? ? Hc Hin Hf.
         congruence.
@@ -2092,7 +2164,7 @@ Section Matrix.
       In_eq_bool y (flat_map f l) = true <-> 
       (exists x : Node, in_list eqN l x = true /\ 
       In_eq_bool y (f x) = true).
-    Proof.
+    Proof using Node R eqN eqR refN.
       intros ? ? ? Hc; split; intros H.
       apply in_flat_map_bool_first; exact H.
       destruct H as [x [Hl Hr]].
@@ -2102,7 +2174,7 @@ Section Matrix.
 
     Lemma orb_eq : forall (a b c : bool), 
       a = c -> (a || b = c || b)%bool.
-    Proof.
+    Proof using -All.
       intros [|] [|] [|] H; simpl;
       try reflexivity; try congruence.
     Qed.
@@ -2110,7 +2182,7 @@ Section Matrix.
     Lemma andb_eq : forall (a b c d e f g: bool), 
       (a && b && c = e && f && g)%bool -> 
       (a && b && c && d = e && f && g && d)%bool.
-    Proof.
+    Proof using -All.
       intros [|] [|] [|] [|] [|] [|] [|] H; simpl in * |- *;
       try reflexivity; try congruence.
     Qed.
@@ -2121,7 +2193,7 @@ Section Matrix.
       r₁ =r= r₂ = true ->
       triple_elem_list y ((a₁, b₁, r₁) :: v :: l) =
       triple_elem_list y ((a₂, b₂, r₂) :: v :: l).
-    Proof.
+    Proof using Node R eqN eqR symN symR trnN trnR.
       intros ? ? ? ? ? ? ? ? ? H₁ H₂ H₃.
       destruct y; simpl. reflexivity.
       repeat destruct p. apply andb_eq.
@@ -2182,7 +2254,7 @@ Section Matrix.
       a =n= x = true ->  
       In_eq_bool y (append_node_in_paths m a l) =
       In_eq_bool y (append_node_in_paths m x l).
-    Proof.
+    Proof using Node R eqN eqR refN symN symR trnN trnR.
       induction l.
       - simpl; intros ? ? ? ? Hm Hax;
         reflexivity.
@@ -2209,7 +2281,7 @@ Section Matrix.
     Lemma all_paths_cong : forall n m d,
       mat_cong m -> 
       in_eq_bool_cong (λ x : Node, all_paths_klength m n x d).
-    Proof.
+    Proof using Node R eqN eqR finN oneR refN symN symR trnN trnR.
       unfold in_eq_bool_cong.
       induction n.
       - simpl; intros ? ? Hm ? ? ? Hxa.
@@ -2246,14 +2318,12 @@ Section Matrix.
 
 
 
-
-
     Lemma target_in_kpath : forall (n : nat) (m : Matrix) 
       (c d : Node) (xs : list (Node * Node * R)),
       mat_cong m ->
       In_eq_bool xs (all_paths_klength m n c d) = true -> 
       target d xs = true.
-    Proof.
+    Proof using Node R eqN eqR finN oneR refN symN symR trnN trnR.
       induction n.
       - simpl; intros ? ? ? ? Hm Hin.
         case (c =n= d) eqn:Ht.
@@ -2294,16 +2364,86 @@ Section Matrix.
         
    
     Lemma well_formed_by_extending : 
-      forall xs ys c y m, ys <> [] ->  
-      triple_elem_list xs ((c, y, m c y) :: ys) = true ->
+      forall xs ys c y m, mat_cong m -> ys <> [] ->  
+      triple_elem_list xs ((c, y, m c y) :: ys) = true -> 
       source c xs = true -> source y ys = true ->
       well_formed_path_aux m (tl xs) = true ->
       well_formed_path_aux m xs = true.
-    Proof.
-      intros.
-    Admitted.
+    Proof using Node R congrR eqN eqR refR symN symR trnN.
+      destruct xs.
+      - simpl; intros ? ? ? ? Hm Hys Ht Hs Hsy Hw.
+        congruence.
+      - intros ? ? ? ? Hm Hys Ht Hs Hsy Hw.
+        destruct xs.
+        + simpl in * |- *.
+          repeat destruct p.
+          apply Bool.andb_true_iff in Ht.
+          destruct Ht as [Ht Htr].
+          apply Bool.andb_true_iff in Ht.
+          destruct Ht as [Ht Htrr].
+          apply Bool.andb_true_iff in Ht.
+          destruct Ht as [Ht Hrrr].
+          apply Bool.andb_true_iff.
+          split. apply symR in Htrr.
+          rewrite <-Htrr.
+          apply congrR. apply Hm.
+          apply symN.
+          apply symN. exact Ht.
+          exact Hrrr.
+          apply refR.
+          reflexivity.
+        +
+          repeat destruct p. repeat destruct p0.
+          repeat destruct p.
+          assert (Hwt : well_formed_path_aux m (tl ((n, n0, r) :: (n1, n2, r0) :: xs)) =
+          well_formed_path_aux m (((n1, n2, r0) :: xs))).
+          reflexivity. rewrite Hwt in Hw; clear Hwt.
+          assert (Hg : well_formed_path_aux m ((n, n0, r) :: (n1, n2, r0) :: xs) =
+          ((m n n0 =r= r) &&
+          ((n0 =n= n1) && well_formed_path_aux m ((n1, n2, r0) :: xs)))%bool).
+          reflexivity. rewrite Hg; clear Hg.
+          assert (Hvt : triple_elem_list ((n, n0, r) :: (n1, n2, r0) :: xs)
+          ((c, y, m c y) :: ys) = 
+          ((n =n= c) && (n0 =n= y) && (r =r= m c y) &&
+          triple_elem_list ((n1, n2, r0) :: xs) ys)%bool).
+          reflexivity.
+          rewrite Hvt in Ht; clear Hvt.
+          apply Bool.andb_true_iff in Ht.
+          destruct Ht as [Ht Htr].
+          apply Bool.andb_true_iff in Ht.
+          destruct Ht as [Ht Htrr].
+          apply Bool.andb_true_iff in Ht.
+          destruct Ht as [Ht Hrrr].
+          apply Bool.andb_true_iff.
+          split.
+          apply symR in Htrr.
+          rewrite <-Htrr.
+          apply congrR. apply Hm.
+          apply symN.
+          apply symN. exact Ht.
+          exact Hrrr.
+          apply refR.
+          apply Bool.andb_true_iff.
+          split.
+          destruct ys.
+          simpl in Htr. congruence.
+          repeat destruct p.
+          simpl in Htr.
+          simpl in Hsy.
+          apply Bool.andb_true_iff in Htr.
+          destruct Htr as [Htr Htt].
+          apply Bool.andb_true_iff in Htr.
+          destruct Htr as [Htr Htrrt].
+          apply Bool.andb_true_iff in Htr.
+          destruct Htr as [Htr Hrrw].
+          pose proof (trnN _ _ _ Hrrr Hsy) as Ha.
+          apply symN in Htr.
+          exact (trnN _ _ _ Ha Htr).
+          exact Hw.
+    Qed.
 
 
+     
 
 
     (* paths generated by all_paths_klength function are well formed *)
@@ -2313,7 +2453,12 @@ Section Matrix.
       mat_cong m ->  
       In_eq_bool xs (all_paths_klength m n c d) = true ->
       well_formed_path_aux m xs = true.
-    Proof.
+    Proof using Node R congrM congrP congrR dupN empN eqN eqR finN
+    left_distributive_mul_over_plus memN mulR mul_associative oneR
+    one_left_identity_mul one_right_identity_mul plusR plus_associative
+    plus_commutative refN refR right_distributive_mul_over_plus symN symR trnN
+    trnR zeroR zero_left_anhilator_mul zero_left_identity_plus
+    zero_right_anhilator_mul zero_right_identity_plus.
       induction n.
       - simpl; intros ? ? ? ? Hcd Hm Hin.
         case (c =n= d) eqn:Ht.
@@ -2370,7 +2515,8 @@ Section Matrix.
       triple_elem_list l (l₁ ++ l₂) = true  -> 
       measure_of_path l =r= 
       measure_of_path l₁ * measure_of_path l₂ = true.
-    Proof.
+    Proof using Node R congrM congrR eqN eqR mulR mul_associative oneR
+    one_left_identity_mul refR symR.
       induction l.
       - simpl; intros ? ? Hl.
         destruct l₁; destruct l₂; simpl in * |- *.
@@ -2454,7 +2600,7 @@ Section Matrix.
     Lemma in_list_mem_true : forall (l : list Node) (a : Node),
       in_list eqN l a = true -> 
       exists l₁ l₂ : list Node, list_eqv _ eqN l (l₁ ++ [a] ++ l₂) = true.
-    Proof.
+    Proof using Node eqN refN symN.
       induction l.
       - simpl; intros ? H; 
         congruence.
@@ -2478,7 +2624,7 @@ Section Matrix.
       all_distinct_node l = false -> 
       exists (c : Node) (l₁ l₂  l₃ : list Node), 
       list_eqv _ eqN l (l₁ ++ [c] ++ l₂ ++ [c] ++ l₃) = true. 
-    Proof.
+    Proof using Node eqN refN symN.
       induction l.
       - simpl; intros Hf;
         congruence.
@@ -2526,7 +2672,7 @@ Section Matrix.
       exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
       triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
       cyclic_path c l₂. 
-    Proof.
+    Proof using Node R eqN eqR refN refR.
       induction l.
       - cbn; intros ? Hw.
         congruence.
@@ -2581,13 +2727,13 @@ Section Matrix.
     (* Orel is a partial order *)
 
     Lemma orel_refl : forall a, Orel a a.
-    Proof.
+    Proof using R eqR plusR plus_idempotence.
       unfold Orel; intros ?.
       apply plus_idempotence.
     Qed.
 
     Lemma orel_anti_sym : forall a b, Orel a b -> Orel b a -> a =r= b = true.
-    Proof.
+    Proof using R congrR eqR plusR plus_commutative refR symR.
       unfold Orel; intros ? ? Hab Hba.
       assert (Ht : a =r= a + b = true).
       apply symR. exact Hab.
@@ -2601,7 +2747,7 @@ Section Matrix.
     Qed.
 
     Lemma orel_trans : forall a b c, Orel a b -> Orel b c -> Orel a c.
-    Proof.
+    Proof using R congrP congrR eqR plusR plus_associative refR symR.
       unfold Orel; intros ? ? ? Hab Hbc.
       assert (Ht : a + c =r= a + b + c = true).
       apply congrP. apply symR.
@@ -2626,13 +2772,14 @@ Section Matrix.
 
 
     Lemma neutral_abouve : forall (a : R), Orel a 0.
-    Proof.
+    Proof using R eqR plusR zeroR zero_right_identity_plus.
       intro a; unfold Orel.
       apply zero_right_identity_plus.
     Qed.
 
     Lemma a_b_a : forall a b, Orel (a + b) a.
-    Proof.
+    Proof using R congrP congrR eqR plusR plus_associative 
+    plus_commutative plus_idempotence refR symR.
       unfold Orel; intros ? ?.
       assert (Ht : a + b + a =r= a + a + b = true).
       pose proof (plus_commutative (a + b) a) as Hw.
@@ -2648,7 +2795,8 @@ Section Matrix.
 
 
     Lemma a_b_b : forall a b, Orel (a + b) b.
-    Proof.
+    Proof using R congrP congrR eqR plusR 
+    plus_associative plus_idempotence refR symR.
       unfold Orel; intros ? ?.
       assert (Ht : a + b + b =r= a + (b + b) = true).
       apply symR, plus_associative.
@@ -2662,7 +2810,8 @@ Section Matrix.
 
 
     Lemma plus_a_b_c : forall a b c, Orel a b -> Orel (a + c) (b + c).
-    Proof.
+    Proof using R congrP congrR eqR plusR plus_associative plus_commutative
+    plus_idempotence refR symR.
       unfold Orel; intros ? ? ? Ho.
       assert (Ht : a + c + (b + c) =r= 
         a + (c + (b + c)) = true).
@@ -2695,7 +2844,8 @@ Section Matrix.
 
 
     Lemma mul_a_b_c : forall a b c, Orel a b -> Orel (a * c) (b * c).
-    Proof.
+    Proof using R congrM congrR eqR mulR plusR refR
+    right_distributive_mul_over_plus symR.
       unfold Orel; intros ? ? ? Ho.
       assert (Ht : a * c + b * c =r= (a + b) * c = true).
       apply symR.
@@ -2711,10 +2861,20 @@ Section Matrix.
     Definition SOrel (a b : R) := Orel a b /\ 
       a =r= b = false.
 
+    Variable (left_cancellative : forall a b c : R, 
+      a =r= 0 = false -> a * b =r= a * c = true ->
+      b =r= c = true).
 
+    Variable (right_cancellative : forall a b c : R, 
+      a =r= 0 = false -> b * a =r=  c * a = true ->
+      b =r= c = true).
+    (* This can't be proved with left_cancellative rule. 
+      In Carre's paper, multiplication is commutative, 2.1;
+      however, we don't have such assumption. *)  
     Lemma smult_a_b_c : forall a b c : R, c =r= 0 = false ->
       SOrel a b -> SOrel (a * c) (b * c).
-    Proof.
+    Proof using R congrM congrR eqR mulR plusR refR 
+    right_cancellative right_distributive_mul_over_plus symR zeroR.
       unfold SOrel, Orel; intros ? ? ? Hc [H₁ H₂].
       split.
       assert (Ht : a * c + b * c =r= (a + b) * c = true).
@@ -2725,12 +2885,21 @@ Section Matrix.
       apply congrM.
       apply symR. exact H₁.
       apply refR.
-    Admitted.
+      pose proof (right_cancellative c a b Hc) as Hl.
+      destruct (a * c =r= b * c) eqn:Ht.
+      specialize (Hl eq_refl).
+      rewrite Hl in H₂.
+      congruence.
+      reflexivity.
+    Qed.
 
+    (* end of strict order proof *)
 
     Lemma path_weight_rel : forall a b c : R, 
       Orel (a * c) (a * b * c).
-    Proof.
+    Proof using R congrM congrP congrR eqR left_distributive_mul_over_plus mulR
+    mul_associative oneR one_left_identity_mul plusR refR
+    right_distributive_mul_over_plus symR zero_stable.
       unfold Orel; intros ? ? ?.
       assert (Ht : a * c + a * b * c =r= 
         a * c + a * (b * c) = true).
@@ -2769,8 +2938,39 @@ Section Matrix.
       apply symR.
       apply one_left_identity_mul.
     Qed.
-      
 
+
+    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d , 
+      matrix_exp_unary m (List.length finN) c d =r= 
+      matrix_exp_unary m (n + List.length finN) c d = true.
+    Proof.
+    Admitted.
+
+
+    Fixpoint atmost_kpath (m : Matrix) (k : nat) (c d : Node) :=
+      match k with 
+      | 0%nat => if c =n= d then [[[(c, d, 1)]]] else []
+      | S k' => (all_paths_klength m k c d) ::
+         atmost_kpath m k' c d
+      end.
+    
+      (* q-stable: 
+        qth partial sum := x^0 + x^1 .....+ x^q
+        q-stable := qth partial sum = (q + 1)th partial sum
+
+        Matrices are v-1 stable. 
+
+        If semi ring is idempotence and there are 1's along 
+        the diagonal, 
+        qth partial sum = x^q. 
+      
+      
+      *)
+
+    
+
+    
+    
 
 
 
