@@ -2999,7 +2999,15 @@ Section Matrix.
       induction t.
       - simpl; intros ?.
         apply refR.
-      - simpl. simpl in q_stable. 
+      - simpl. simpl in q_stable; intros ?.
+        apply symR.
+        rewrite <-(q_stable a).
+        apply congrR. apply refR.
+        apply congrP. apply IHt.
+    Admitted.
+
+       
+        
         
   
     
@@ -3011,13 +3019,6 @@ Section Matrix.
       | S n' => matrix_add (partial_sum m n') (matrix_exp_unary m n)
       end.
     
-    
-    Variable (q : nat)
-    (q_stable : forall (m : Matrix) (c d : Node), 
-      partial_sum m q c d =r= partial_sum m (S q) c d = true).
-
-    
-
     
 
     
