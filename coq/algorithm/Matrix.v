@@ -2962,10 +2962,61 @@ Section Matrix.
 
         If semi ring is idempotence and there are 1's along 
         the diagonal, 
-        qth partial sum = x^q. 
-      
-      
+        qth partial sum = x^q.
       *)
+
+    Fixpoint exp_r (a : R) (n : nat) : R :=
+      match n with 
+      | O => 1
+      | S n' => a * exp_r a n'
+      end.
+
+    Fixpoint partial_sum_r (a : R) (n : nat) : R :=
+      match n with
+      | O => 1
+      | S n' => (partial_sum_r a n') + exp_r a n
+      end.
+
+    (* q-stable. 0-stable is special case when q = 0 *)
+    Variable (q : nat)
+      (q_stable : forall (a : R), 
+      partial_sum_r a q =r= partial_sum_r a (S q) = true).
+
+
+      (* 
+    Lemma astar_aide : forall (t : nat) (a : R),
+      exp_r a (t + q) =r= exp_r a q = true.
+    Proof.
+      induction t.
+      - simpl; intros ?.
+        apply refR.
+      - simpl; intros ?.
+        simpl in q_stable. *)
+    
+    Lemma astar_exists : forall (t : nat) (a : R), 
+      partial_sum_r a (t + q) =r= partial_sum_r a q = true.
+    Proof.
+      induction t.
+      - simpl; intros ?.
+        apply refR.
+      - simpl. simpl in q_stable. 
+        
+  
+    
+
+
+    Fixpoint partial_sum (m : Matrix) (n : nat) : Matrix :=
+      match n with
+      | O => I 
+      | S n' => matrix_add (partial_sum m n') (matrix_exp_unary m n)
+      end.
+    
+    
+    Variable (q : nat)
+    (q_stable : forall (m : Matrix) (c d : Node), 
+      partial_sum m q c d =r= partial_sum m (S q) c d = true).
+
+    
 
     
 
