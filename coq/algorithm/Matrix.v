@@ -2894,6 +2894,7 @@ Section Matrix.
 
     (* end of strict order proof *)
 
+
     Lemma path_weight_rel : forall a b c : R, 
       (forall a : R, 1 + a =r= 1 = true) ->
       Orel (a * c) (a * b * c).
@@ -3095,15 +3096,15 @@ Section Matrix.
 
    
     Lemma astar_aide_gen_q_stable : forall (t q : nat) (a : R),
-      partial_sum_r a q =r= partial_sum_r a (S q) = true -> 
+      (forall w : R, partial_sum_r w q =r= partial_sum_r w (S q) = true) -> 
       partial_sum_r a (t + q) + a * exp_r a (t + q) =r=
       partial_sum_r a (t + q) = true.
     Proof.
       induction t.
-      - simpl; intros ? ? H.
+      - simpl; intros ? ? q_stable.
         apply symR.
-        exact H.
-      - simpl; intros ? ? H.
+        exact (q_stable a).
+      - simpl; intros ? ? q_stable.
         simpl in IHt.
         assert (Ht:
         (partial_sum_r a (t + q) + a * exp_r a (t + q) + a * (a * exp_r a (t + q)) =r=
@@ -3142,12 +3143,12 @@ Section Matrix.
         apply one_left_identity_mul.
         rewrite Ht; clear Ht.
         apply congrM.
-
+        
 
 
     
     Lemma astar_exists_gen_q_stable : forall (t q : nat) (a : R),
-      partial_sum_r a q =r= partial_sum_r a (S q) = true -> 
+      (forall w : R, partial_sum_r w q =r= partial_sum_r w (S q) = true) -> 
       partial_sum_r a (t + q) =r= partial_sum_r a q = true.
     Proof.
       induction t.
