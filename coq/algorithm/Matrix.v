@@ -2856,41 +2856,44 @@ Section Matrix.
       apply refR.
     Qed.
 
-    (* Strict Order Relation *)
-    Definition SOrel (a b : R) := Orel a b /\ 
-      a =r= b = false.
+    Section StrictOrder.
+      (* Strict Order Relation *)
+      Definition SOrel (a b : R) := Orel a b /\ 
+        a =r= b = false.
 
-    Variable (left_cancellative : forall a b c : R, 
-      a =r= 0 = false -> a * b =r= a * c = true ->
-      b =r= c = true).
+      Variable (left_cancellative : forall a b c : R, 
+        a =r= 0 = false -> a * b =r= a * c = true ->
+        b =r= c = true).
 
-    Variable (right_cancellative : forall a b c : R, 
-      a =r= 0 = false -> b * a =r=  c * a = true ->
-      b =r= c = true).
-    (* This can't be proved with left_cancellative rule. 
-      In Carre's paper, multiplication is commutative, 2.1;
-      however, we don't have such assumption. *)  
-    Lemma smult_a_b_c : forall a b c : R, c =r= 0 = false ->
-      SOrel a b -> SOrel (a * c) (b * c).
-    Proof using R congrM congrR eqR mulR plusR refR 
-    right_cancellative right_distributive_mul_over_plus symR zeroR.
-      unfold SOrel, Orel; intros ? ? ? Hc [H₁ H₂].
-      split.
-      assert (Ht : a * c + b * c =r= (a + b) * c = true).
-      apply symR. apply right_distributive_mul_over_plus.
-      rewrite <-Ht; clear Ht.
-      apply congrR.
-      apply refR.
-      apply congrM.
-      apply symR. exact H₁.
-      apply refR.
-      pose proof (right_cancellative c a b Hc) as Hl.
-      destruct (a * c =r= b * c) eqn:Ht.
-      specialize (Hl eq_refl).
-      rewrite Hl in H₂.
-      congruence.
-      reflexivity.
-    Qed.
+      Variable (right_cancellative : forall a b c : R, 
+        a =r= 0 = false -> b * a =r=  c * a = true ->
+        b =r= c = true).
+      (* This can't be proved with left_cancellative rule. 
+        In Carre's paper, multiplication is commutative, 2.1;
+        however, we don't have such assumption. *)  
+      Lemma smult_a_b_c : forall a b c : R, c =r= 0 = false ->
+        SOrel a b -> SOrel (a * c) (b * c).
+      Proof using R congrM congrR eqR mulR plusR refR 
+      right_cancellative right_distributive_mul_over_plus symR zeroR.
+        unfold SOrel, Orel; intros ? ? ? Hc [H₁ H₂].
+        split.
+        assert (Ht : a * c + b * c =r= (a + b) * c = true).
+        apply symR. apply right_distributive_mul_over_plus.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        apply congrM.
+        apply symR. exact H₁.
+        apply refR.
+        pose proof (right_cancellative c a b Hc) as Hl.
+        destruct (a * c =r= b * c) eqn:Ht.
+        specialize (Hl eq_refl).
+        rewrite Hl in H₂.
+        congruence.
+        reflexivity.
+      Qed.
+
+    End StrictOrder.
 
     (* end of strict order proof *)
 
@@ -3162,7 +3165,9 @@ Section Matrix.
       (sum_fn (λ y : Node, m₁ c y * (m₂ y d + m₃ y d)) l =r=
       sum_fn (λ y : Node, m₁ c y * m₂ y d) l +
       sum_fn (λ y : Node, m₁ c y * m₃ y d) l) = true.
-    Proof.
+    Proof using Node R congrP congrR eqR left_distributive_mul_over_plus mulR
+    plusR plus_associative plus_commutative refR symR zeroR
+    zero_left_identity_plus.
       induction l.
       - simpl. intros ? ? ? ? ?.
         apply symR, zero_left_identity_plus.
@@ -3226,7 +3231,9 @@ Section Matrix.
       forall (m₁ m₂ m₃ : Matrix) (c d : Node), 
       (m₁ *M (m₂ +M m₃)) c d =r= 
       (m₁ *M m₂ +M m₁ *M m₃) c d = true.
-    Proof.
+    Proof using Node R congrP congrR eqR finN left_distributive_mul_over_plus
+    mulR plusR plus_associative plus_commutative refR symR zeroR
+    zero_left_identity_plus.
       intros *.
       unfold matrix_mul, matrix_mul_gen,
       matrix_add.
@@ -3234,18 +3241,18 @@ Section Matrix.
     Qed.
       
 
-    
+
 
     Lemma astar_aide_gen_q_stable_matrix :
       forall (t : nat) (m : Matrix) (c d : Node),
       (partial_sum_mat m (S t) c d) =r= 
       (I +M m *M partial_sum_mat m t) c d = true.
     Proof using Node R congrM congrP congrR dupN empN eqN eqR
-    finN left_cancellative left_distributive_mul_over_plus memN
+    finN left_distributive_mul_over_plus memN
     mulR mul_associative oneR one_left_identity_mul
     one_right_identity_mul plusR plus_associative
     plus_commutative plus_idempotence refN refR
-    right_cancellative right_distributive_mul_over_plus symN
+    right_distributive_mul_over_plus symN
     symR trnN trnR zeroR zero_left_anhilator_mul
     zero_left_identity_plus zero_right_anhilator_mul
     zero_right_identity_plus.
@@ -3294,7 +3301,12 @@ Section Matrix.
         partial_sum_mat w q c d =r= partial_sum_mat w (S q) c d = true) -> 
       forall (t : nat) (m : Matrix) (u v : Node), 
       partial_sum_mat m (t + q) u v  =r= partial_sum_mat m q u v = true.
-    Proof.
+    Proof using Node R congrM congrP congrR dupN empN eqN eqR finN
+    left_distributive_mul_over_plus memN mulR mul_associative oneR
+    one_left_identity_mul one_right_identity_mul plusR plus_associative
+    plus_commutative plus_idempotence refN refR right_distributive_mul_over_plus
+    symN symR trnN trnR zeroR zero_left_anhilator_mul zero_left_identity_plus
+    zero_right_anhilator_mul zero_right_identity_plus.
       intros * q_stable.
       induction t.
       - simpl; intros *.
