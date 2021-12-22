@@ -3160,7 +3160,7 @@ Section Matrix.
       apply refN.
     Qed.
 
-    Lemma sum_fn_mul_distribute_over_plus : 
+    Lemma sum_fn_mul_distribute_over_plus_left : 
       forall (l : list Node) (m₁ m₂ m₃ : Matrix) (c d : Node),
       (sum_fn (λ y : Node, m₁ c y * (m₂ y d + m₃ y d)) l =r=
       sum_fn (λ y : Node, m₁ c y * m₂ y d) l +
@@ -3237,7 +3237,7 @@ Section Matrix.
       intros *.
       unfold matrix_mul, matrix_mul_gen,
       matrix_add.
-      apply sum_fn_mul_distribute_over_plus.
+      apply sum_fn_mul_distribute_over_plus_left.
     Qed.
       
 
@@ -3329,6 +3329,84 @@ Section Matrix.
         specialize (IHt m ut vt).
         exact IHt.
     Qed.
+
+
+  Lemma sum_fn_mul_distribute_over_plus_right : 
+    forall (l : list Node) (m₁ m₂ m₃ : Matrix) (c d : Node),
+    (sum_fn (λ y : Node, (m₂ c y + m₃ c y) * m₁ y d) l =r=
+    sum_fn (λ y : Node, m₂ c y * m₁ y d) l +
+    sum_fn (λ y : Node, m₃ c y * m₁ y d) l) = true.
+  Proof.
+  Admitted.
+
+  Lemma right_distributive_mat_mul_over_plus : 
+    forall (m₁ m₂ m₃ : Matrix) (c d : Node), 
+    ((m₂ +M m₃) *M m₁) c d =r= 
+    (m₂ *M m₁ +M m₃ *M m₁) c d = true.
+  Proof.
+    intros *.
+    unfold matrix_mul, matrix_mul_gen,
+    matrix_add.
+    apply sum_fn_mul_distribute_over_plus_right.
+  Qed.
+
+
+  Lemma matrix_mul_simp : forall n m c d,
+    (m *M partial_sum_mat m n) c d  =r= 
+    matrix_exp_unary m (S n) c d = true.
+  Proof.
+    induction n.
+    - simpl; intros ? ? ?.
+      apply refR.
+    - simpl; intros ? ? ?.
+      simpl in IHn.
+      
+  Admitted.
+
+  Lemma matrix_pow_idempotence :
+    forall (n : nat) (m : Matrix) (c d : Node),
+    matrix_exp_unary (m +M I) n c d =r= 
+    partial_sum_mat m n c d = true.
+  Proof.
+    induction n.
+    - simpl; intros ? ? ?.
+      apply refR.
+    - simpl; intros ? ? ?.
+      pose proof (IHn m c d) as IHs.
+      assert (Ht : 
+      (((m +M I) *M matrix_exp_unary (m +M I) n) c d =r=
+      (partial_sum_mat m n +M m *M matrix_exp_unary m n) c d) =
+      (((m +M I) *M partial_sum_mat m n) c d =r=
+      (partial_sum_mat m n +M m *M matrix_exp_unary m n) c d)).
+      apply congrR.
+      apply mat_mul_cong_diff.
+      unfold two_mat_congr; intros u v.
+      exact (IHn m u v).
+      apply refR.
+      rewrite Ht; clear Ht.
+      assert (Ht : 
+      (((m +M I) *M partial_sum_mat m n) c d =r=
+      (partial_sum_mat m n +M m *M matrix_exp_unary m n) c d) =
+      (((m *M partial_sum_mat m n +M I *M partial_sum_mat m n) c d =r=
+      (partial_sum_mat m n +M m *M matrix_exp_unary m n) c d))).
+      apply congrR.
+      apply right_distributive_mat_mul_over_plus.
+      apply refR.
+      rewrite Ht; clear Ht.
+      assert (Ht : 
+      ((m *M partial_sum_mat m n +M I *M partial_sum_mat m n) c d =r=
+      (partial_sum_mat m n +M m *M matrix_exp_unary m n) c d) = 
+      ((m *M partial_sum_mat m n +M partial_sum_mat m n) c d =r=
+      (partial_sum_mat m n +M m *M matrix_exp_unary m n) c d)).
+      apply congrR.
+      apply mat_add_cong_gen.
+      unfold two_mat_congr; intros u v.
+      apply refR.
+      unfold two_mat_congr; intros u v.
+      apply matrix_mul_left_identity.
+      admit.
+      apply refR.
+      rewrite Ht; clear Ht.
 
 
 
