@@ -3401,15 +3401,6 @@ Section Matrix.
 
 
 
-
-    Lemma matrix_mul_simp : forall n m c d,
-      (forall c d : Node, (m +M m) c d =r= m c d = true) ->
-      (m *M partial_sum_mat m n) c d  =r= 
-      matrix_exp_unary m (S n) c d = true.
-    Proof.
-    
-    Admitted.
-
     Lemma partial_sum_mat_cong : forall n m,
       mat_cong m ->  
       mat_cong (partial_sum_mat m n).
@@ -3437,6 +3428,16 @@ Section Matrix.
     Qed.
 
     
+    Lemma mat_mul_idem_ind : forall n m c d,  
+      (m *M partial_sum_mat m n +M partial_sum_mat m n) c d =r=
+      (partial_sum_mat m (S n) c d) = true.
+    Proof.
+
+    Admitted.
+
+
+
+      
     
     Lemma matrix_pow_idempotence :
       forall (n : nat) (m : Matrix) (c d : Node),
@@ -3483,24 +3484,9 @@ Section Matrix.
         apply partial_sum_mat_cong; exact Hm.
         apply refR.
         rewrite Ht; clear Ht.
-        assert (Ht: 
-        ((m *M partial_sum_mat m n +M partial_sum_mat m n) c d =r=
-        (partial_sum_mat m n +M m *M matrix_exp_unary m n) c d) =
-        ((partial_sum_mat m n +M m *M partial_sum_mat m n) c d =r=
-        (partial_sum_mat m n +M m *M matrix_exp_unary m n) c d)).
-        apply congrR.
-        apply matrix_add_comm.
-        apply refR.
-        rewrite Ht; clear Ht.
-        apply mat_add_cong_gen.
-        unfold two_mat_congr; intros u v.
-        apply refR.
-        unfold two_mat_congr; intros u v.
-        apply matrix_mul_simp.
-        intros ut vt.
-        unfold matrix_add.
-        apply plus_idempotence.
+        apply mat_mul_idem_ind.
     Qed.
+
 
 
 
