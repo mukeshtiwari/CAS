@@ -2940,20 +2940,6 @@ Section Matrix.
       apply one_left_identity_mul.
     Qed.
 
-
-    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d , 
-      matrix_exp_unary m (List.length finN) c d =r= 
-      matrix_exp_unary m (n + List.length finN) c d = true.
-    Proof.
-    Admitted.
-
-
-    Fixpoint atmost_kpath (m : Matrix) (k : nat) (c d : Node) :=
-      match k with 
-      | 0%nat => if c =n= d then [[[(c, d, 1)]]] else []
-      | S k' => (all_paths_klength m k c d) ::
-         atmost_kpath m k' c d
-      end.
     
      
 
@@ -3055,7 +3041,7 @@ Section Matrix.
     Qed.
 
 
-    
+
     (* special case q := 0 *)
     Lemma astar_exists_zero_stable : forall (t : nat) (a : R),
       (forall a : R, 1 + a =r= 1 = true) -> 
@@ -3147,27 +3133,173 @@ Section Matrix.
         apply congrR. apply q_stable.
         apply refR.
     Qed.
-
-
-
-     
-
-
-        
-      
-       
-        
-        
-  
     
+    (* Print Grammar constr. *)
+    Local Infix "+M" := matrix_add (at level 50) : Mat_scope.
+    Local Infix "*M" := matrix_mul (at level 40) : Mat_scope.
 
-
-    Fixpoint partial_sum (m : Matrix) (n : nat) : Matrix :=
+    Fixpoint partial_sum_mat (m : Matrix) (n : nat) : Matrix :=
       match n with
       | O => I 
-      | S n' => matrix_add (partial_sum m n') (matrix_exp_unary m n)
+      | S n' => (partial_sum_mat m n') +M (matrix_exp_unary m n)
       end.
-    
+
+    Lemma mat_add_cong_gen : forall m₁ m₂ m₃ m₄ c d, 
+      two_mat_congr m₁ m₃ -> two_mat_congr m₂ m₄ -> 
+      matrix_add m₁ m₂ c d =r= matrix_add m₃ m₄ c d = true.
+    Proof using Node R congrP eqR plusR.
+      intros * H₁ H₂.
+      unfold matrix_add.
+      apply congrP.
+      apply H₁; intros *;
+      apply refN.
+      apply H₂; intros *;
+      apply refN.
+    Qed.
+
+    Lemma sum_fn_mul_distribute_over_plus : 
+      forall (l : list Node) (m₁ m₂ m₃ : Matrix) (c d : Node),
+      (sum_fn (λ y : Node, m₁ c y * (m₂ y d + m₃ y d)) l =r=
+      sum_fn (λ y : Node, m₁ c y * m₂ y d) l +
+      sum_fn (λ y : Node, m₁ c y * m₃ y d) l) = true.
+    Proof.
+      induction l.
+      - simpl. intros ? ? ? ? ?.
+        apply symR, zero_left_identity_plus.
+      - simpl; intros ? ? ? ? ?.
+        pose proof (IHl m₁ m₂ m₃ c d) as IHt.
+        remember (sum_fn (λ y : Node, m₁ c y * (m₂ y d + m₃ y d)) l) as sfn₁.
+        remember (sum_fn (λ y : Node, m₁ c y * m₂ y d) l) as sfn₂.
+        remember (sum_fn (λ y : Node, m₁ c y * m₃ y d) l) as sfn₃.
+        assert (Ht : (m₁ c a * (m₂ a d + m₃ a d) + sfn₁ =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃)) = 
+        ((m₁ c a * m₂ a d + m₁ c a * m₃ a d) + (sfn₂ + sfn₃) =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃))).
+        apply congrR.
+        apply congrP.
+        apply left_distributive_mul_over_plus.
+        apply IHt.
+        apply refR.
+        rewrite Ht; clear Ht.
+        
+        apply congrP.
+
+    Lemma left_distributive_mat_mul_over_plus : 
+      forall (m₁ m₂ m₃ : Matrix) (c d : Node), 
+      (m₁ *M (m₂ +M m₃)) c d =r= 
+      (m₁ *M m₂ +M m₁ *M m₃) c d = true.
+    Proof.
+      intros *.
+      unfold matrix_mul, matrix_mul_gen,
+      matrix_add.
+      
+
+    Admitted.
+
+
+    Lemma astar_aide_gen_q_stable_matrix :
+      forall (t : nat) (m : Matrix) (c d : Node),
+      (partial_sum_mat m (S t) c d) =r= 
+      (I +M m *M partial_sum_mat m t) c d = true.
+    Proof using Node R congrM congrP congrR dupN empN eqN eqR
+    finN left_cancellative left_distributive_mul_over_plus memN
+    mulR mul_associative oneR one_left_identity_mul
+    one_right_identity_mul plusR plus_associative
+    plus_commutative plus_idempotence refN refR
+    right_cancellative right_distributive_mul_over_plus symN
+    symR trnN trnR zeroR zero_left_anhilator_mul
+    zero_left_identity_plus zero_right_anhilator_mul
+    zero_right_identity_plus.
+      induction t.
+      - simpl; intros ? ? ?.
+        apply refR.
+      - simpl; intros ? ? ?.
+        remember (partial_sum_mat m t) as pmt.
+        remember (matrix_exp_unary m t) as umt.
+        assert (Ht : ((pmt +M m *M umt) +M m *M (m *M umt)) c d =r=
+          ((I +M m *M pmt) +M m *M (m *M umt)) c d = true).
+        apply mat_add_cong_gen.
+        unfold two_mat_congr;
+        intros u v. 
+        simpl in IHt.
+        pose proof (IHt m u v) as IHs.
+        rewrite <-Heqpmt in IHs.
+        rewrite <-Hequmt in IHs.
+        exact IHs.
+        unfold two_mat_congr; intros a b.
+        apply refR.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        apply symR.
+        assert (Ht : ((I +M m *M pmt) +M m *M (m *M umt)) c d =r= 
+          (I +M (m *M pmt +M m *M (m *M umt))) c d = true).
+        apply symR.
+        apply matrix_add_assoc.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        apply symR.
+        apply mat_add_cong_gen.
+        unfold two_mat_congr; intros a b.
+        apply refR.
+        unfold two_mat_congr; intros a b.
+        apply symR.
+        apply left_distributive_mat_mul_over_plus.
+    Qed.
+
+
+
+    Lemma astar_exists_gen_q_stable_matrix : forall (q : nat),
+      (forall (w : Matrix) (c d : Node), 
+        partial_sum_mat w q c d =r= partial_sum_mat w (S q) c d = true) -> 
+      forall (t : nat) (m : Matrix) (u v : Node), 
+      partial_sum_mat m (t + q) u v  =r= partial_sum_mat m q u v = true.
+    Proof.
+      intros * q_stable.
+      induction t.
+      - simpl; intros *.
+        apply refR.
+      - simpl; intros *.
+        pose proof (astar_aide_gen_q_stable_matrix (t + q) m u v) as IHs.
+        simpl in IHs.
+        rewrite <-IHs; clear IHs.
+        apply congrR.
+        apply refR.
+        pose proof (astar_aide_gen_q_stable_matrix q m u v) as Ht.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply q_stable.
+        apply mat_add_cong_gen.
+        unfold two_mat_congr; intros a b.
+        apply refR.
+        unfold two_mat_congr; intros a b.
+        apply mat_mul_cong_diff.
+        unfold two_mat_congr; intros ut vt.
+        specialize (IHt m ut vt).
+        exact IHt.
+    Qed.
+
+
+
+    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d , 
+      matrix_exp_unary m (List.length finN) c d =r= 
+      matrix_exp_unary m (n + List.length finN) c d = true.
+    Proof.
+    Admitted.
+
+
+    Fixpoint atmost_kpath (m : Matrix) (k : nat) (c d : Node) :=
+      match k with 
+      | 0%nat => if c =n= d then [[[(c, d, 1)]]] else []
+      | S k' => (all_paths_klength m k c d) ::
+         atmost_kpath m k' c d
+      end.
+
+
+
+        
+
+        
     
 
     
