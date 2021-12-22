@@ -2703,7 +2703,7 @@ Section Matrix.
 
 
 
-    (* Here onwards, I am going to use Idempotence and 0-stable *)
+    (* Here onwards, I am going to use Idempotence *)
 
     Variable (plus_idempotence : forall a, a + a =r= a = true).
     
@@ -3054,7 +3054,9 @@ Section Matrix.
       apply refR.
     Qed.
 
+
     
+    (* special case q := 0 *)
     Lemma astar_exists_zero_stable : forall (t : nat) (a : R),
       (forall a : R, 1 + a =r= 1 = true) -> 
       partial_sum_r a t =r= partial_sum_r a 0 = true.
@@ -3077,86 +3079,77 @@ Section Matrix.
 
 
 
-
-    (* q-stable: 
-      qth partial sum := x^0 + x^1 .....+ x^q
-      q-stable := qth partial sum = (q + 1)th partial sum
-
-      Matrices are v-1 stable. 
-
-      If semi ring is idempotence and there are 1's along 
-      the diagonal, 
-      qth partial sum = x^q.
-    
-     q-stable. 0-stable is special case when q = 0 
-     Variable (q : nat)
-     (q_stable : forall (a : R), 
-      partial_sum_r a q =r= partial_sum_r a (S q) = true).
-    *)
-
-   
-    Lemma astar_aide_gen_q_stable : forall (t q : nat) (a : R),
-      (forall w : R, partial_sum_r w q =r= partial_sum_r w (S q) = true) -> 
-      partial_sum_r a (t + q) + a * exp_r a (t + q) =r=
-      partial_sum_r a (t + q) = true.
-    Proof.
+    Lemma astar_aide_gen_q_stable :
+      forall (t : nat) (a : R),
+      (partial_sum_r a (S t)) =r= 
+      (1 + a * partial_sum_r a t) = true.
+    Proof using R congrP congrR eqR
+    left_distributive_mul_over_plus mulR oneR plusR
+    plus_associative refR symR.
       induction t.
-      - simpl; intros ? ? q_stable.
-        apply symR.
-        exact (q_stable a).
-      - simpl; intros ? ? q_stable.
+      - simpl; intros ?.
+        apply refR.
+      - simpl; intros ?.
         simpl in IHt.
-        assert (Ht:
-        (partial_sum_r a (t + q) + a * exp_r a (t + q) + a * (a * exp_r a (t + q)) =r=
-        partial_sum_r a (t + q) + a * exp_r a (t + q)) =
-        (partial_sum_r a (t + q) + (a * exp_r a (t + q) + a * (a * exp_r a (t + q))) =r=
-        partial_sum_r a (t + q) + a * exp_r a (t + q))).
-        apply congrR.
+        assert (Ht : 1 + a * (partial_sum_r a t + a * exp_r a t) =r=
+          (1 + (a * partial_sum_r a t + a * (a * exp_r a t))) = true).
+        apply congrP. apply refR.
+        apply left_distributive_mul_over_plus.
         apply symR.
-        apply plus_associative.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
         apply refR.
-        rewrite Ht; clear Ht.
+        assert (Ht : partial_sum_r a t + a * exp_r a t + a * (a * exp_r a t) =r=
+          1 + a * partial_sum_r a t + a * (a * exp_r a t) = true).
         apply congrP.
-        apply refR.
-        remember (a * exp_r a (t + q)) as aw.
-        assert (Ht : (aw + a * aw =r= aw) =
-          (1 * aw + a * aw =r= aw)).
-        apply congrR.
-        apply congrP.
+        apply IHt. apply refR.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply refR.
+        assert (Ht : 1 + a * partial_sum_r a t + a * (a * exp_r a t) =r= 
+          1 +  (a * partial_sum_r a t + a * (a * exp_r a t)) = true).
+        apply symR. apply plus_associative.
         apply symR.
-        apply one_left_identity_mul.
-        apply refR.
-        apply refR.
-        rewrite Ht; clear Ht.
-        assert (Ht : (1 * aw + a * aw =r= aw) =
-          ((1 + a) * aw =r= aw)).
-        apply congrR.
-        apply symR.
-        apply right_distributive_mul_over_plus.
-        apply refR.
-        rewrite Ht; clear Ht.
-        assert (Ht : ((1 + a) * aw =r= aw) = 
-          (((1 + a) * aw =r= 1 * aw))).
+        rewrite <-Ht; clear Ht.
         apply congrR.
         apply refR.
-        apply symR.
-        apply one_left_identity_mul.
-        rewrite Ht; clear Ht.
-        apply congrM.
+        apply refR.
+    Qed.
         
 
-
     
-    Lemma astar_exists_gen_q_stable : forall (t q : nat) (a : R),
+    Lemma astar_exists_gen_q_stable : forall (q : nat),
       (forall w : R, partial_sum_r w q =r= partial_sum_r w (S q) = true) -> 
+      forall (t : nat) (a : R), 
       partial_sum_r a (t + q) =r= partial_sum_r a q = true.
-    Proof.
+    Proof using R congrM congrP congrR eqR
+    left_distributive_mul_over_plus mulR oneR plusR
+    plus_associative refR symR.
+      intros ? q_stable.
       induction t.
-      - simpl; intros ? ? H.
+      - simpl; intros ?.
         apply refR.
-      - simpl; intros ? ? H.
-        simpl in IHt.
-        specialize (IHt q a H).
+      - simpl; intros ?.
+        pose proof (astar_aide_gen_q_stable (t + q) a) as Ht.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        assert (Ht : 1 + a * partial_sum_r a (t + q) =r= 
+          1 + a * partial_sum_r a q = true).
+        apply congrP. apply refR. 
+        apply congrM. apply refR.
+        apply IHt.
+        apply symR.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        pose proof (astar_aide_gen_q_stable q a) as Ht.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply q_stable.
+        apply refR.
+    Qed.
+
+
+
      
 
 
