@@ -3401,16 +3401,13 @@ Section Matrix.
 
 
 
+
     Lemma matrix_mul_simp : forall n m c d,
+      (forall c d : Node, (m +M m) c d =r= m c d = true) ->
       (m *M partial_sum_mat m n) c d  =r= 
       matrix_exp_unary m (S n) c d = true.
     Proof.
-      induction n.
-      - simpl; intros ? ? ?.
-        apply refR.
-      - simpl; intros ? ? ?.
-        simpl in IHn.
-        
+    
     Admitted.
 
     Lemma partial_sum_mat_cong : forall n m,
@@ -3500,6 +3497,9 @@ Section Matrix.
         apply refR.
         unfold two_mat_congr; intros u v.
         apply matrix_mul_simp.
+        intros ut vt.
+        unfold matrix_add.
+        apply plus_idempotence.
     Qed.
 
 
