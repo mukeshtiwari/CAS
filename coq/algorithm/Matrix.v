@@ -3181,8 +3181,46 @@ Section Matrix.
         apply IHt.
         apply refR.
         rewrite Ht; clear Ht.
-        
+        assert (Ht : 
+        (m₁ c a * m₂ a d + m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃)) = 
+        (m₁ c a * m₂ a d + (m₁ c a * m₃ a d + (sfn₂ + sfn₃)) =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃))).
+        apply congrR.
+        apply symR. apply plus_associative.
+        apply refR. 
+        rewrite Ht; clear Ht.
+        assert (Ht : 
+        (m₁ c a * m₂ a d + (m₁ c a * m₃ a d + (sfn₂ + sfn₃)) =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃)) =
+        (m₁ c a * m₂ a d + (m₁ c a * m₃ a d + (sfn₂ + sfn₃)) =r=
+        m₁ c a * m₂ a d + (sfn₂ + (m₁ c a * m₃ a d + sfn₃)))).
+        apply congrR.
+        apply refR.
+        apply symR.
+        apply plus_associative.
+        rewrite Ht; clear Ht.
         apply congrP.
+        apply refR.
+        assert (Ht : 
+        (m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r= sfn₂ + (m₁ c a * m₃ a d + sfn₃)) = 
+        (m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r= (m₁ c a * m₃ a d + sfn₃) + sfn₂)).
+        apply congrR.
+        apply refR.
+        apply plus_commutative.
+        rewrite Ht; clear Ht.
+        assert (Ht: 
+        (m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r= m₁ c a * m₃ a d + sfn₃ + sfn₂) =
+        (m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r= m₁ c a * m₃ a d + (sfn₃ + sfn₂))).
+        apply congrR. apply refR.
+        apply symR. apply plus_associative.
+        rewrite Ht; clear Ht.
+        apply congrP.
+        apply refR.
+        apply plus_commutative.
+    Qed.
+
+        
 
     Lemma left_distributive_mat_mul_over_plus : 
       forall (m₁ m₂ m₃ : Matrix) (c d : Node), 
@@ -3192,10 +3230,11 @@ Section Matrix.
       intros *.
       unfold matrix_mul, matrix_mul_gen,
       matrix_add.
+      apply sum_fn_mul_distribute_over_plus.
+    Qed.
       
 
-    Admitted.
-
+    
 
     Lemma astar_aide_gen_q_stable_matrix :
       forall (t : nat) (m : Matrix) (c d : Node),
