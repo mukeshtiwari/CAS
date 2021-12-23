@@ -3587,6 +3587,23 @@ Section Matrix.
     Qed.
 
 
+    Lemma name_hard : forall (m : Matrix) (s : R) (c d : Node),
+     matrix_exp_unary (m +M I) (length finN) c d = s ->
+     exists k, (k < length finN )%nat/\ 
+     matrix_exp_unary (m +M I) k c d = s.
+    Proof.
+    Admitted.
+
+
+
+    Lemma zero_stable_partial : forall m,
+      (forall a : R, 1 + a =r= 1 = true) ->
+      (forall (c d : Node), 
+        partial_sum_mat m (length finN) c d =r= 
+        partial_sum_mat m (S (length finN)) c d = true).
+    Proof.
+    Admitted.
+
 
 
     Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d,
