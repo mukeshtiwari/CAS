@@ -3336,7 +3336,9 @@ Section Matrix.
       (sum_fn (λ y : Node, (m₂ c y + m₃ c y) * m₁ y d) l =r=
       sum_fn (λ y : Node, m₂ c y * m₁ y d) l +
       sum_fn (λ y : Node, m₃ c y * m₁ y d) l) = true.
-    Proof.
+    Proof using Node R congrP congrR eqR mulR plusR plus_associative
+    plus_commutative refR right_distributive_mul_over_plus symR zeroR
+    zero_left_identity_plus.
       induction l.
       - simpl. intros ? ? ? ? ?.
         apply symR, zero_left_identity_plus.
@@ -3392,7 +3394,9 @@ Section Matrix.
       forall (m₁ m₂ m₃ : Matrix) (c d : Node), 
       ((m₂ +M m₃) *M m₁) c d =r= 
       (m₂ *M m₁ +M m₃ *M m₁) c d = true.
-    Proof.
+    Proof using Node R congrP congrR eqR finN mulR plusR plus_associative
+    plus_commutative refR right_distributive_mul_over_plus symR zeroR
+    zero_left_identity_plus.
       intros *.
       unfold matrix_mul, matrix_mul_gen,
       matrix_add.
@@ -3404,7 +3408,8 @@ Section Matrix.
     Lemma partial_sum_mat_cong : forall n m,
       mat_cong m ->  
       mat_cong (partial_sum_mat m n).
-    Proof.
+    Proof using Node R congrM congrP eqN eqR finN 
+    mulR oneR plusR refN refR symN trnN zeroR.
       unfold mat_cong.
       induction n.
       - simpl; intros ? ? ? ? ? Hm Hac Hbd.
@@ -3431,7 +3436,9 @@ Section Matrix.
     Lemma mat_mul_idem_ind : forall n m c d,  
       (m *M partial_sum_mat m n +M partial_sum_mat m n) c d =r=
       (partial_sum_mat m (S n) c d) = true.
-    Proof.
+    Proof using Node R congrP congrR eqN eqR finN left_distributive_mul_over_plus
+    mulR oneR plusR plus_associative plus_commutative plus_idempotence refR symR
+    zeroR zero_left_identity_plus.
       induction n.
       - simpl; intros ? ? ?.
         apply matrix_add_comm.
@@ -3531,7 +3538,11 @@ Section Matrix.
       mat_cong m ->
       matrix_exp_unary (m +M I) n c d =r= 
       partial_sum_mat m n c d = true.
-    Proof.
+    Proof using Node R congrM congrP congrR dupN empN eqN eqR finN
+    left_distributive_mul_over_plus memN mulR oneR one_left_identity_mul plusR
+    plus_associative plus_commutative plus_idempotence refN refR
+    right_distributive_mul_over_plus symN symR trnN zeroR zero_left_anhilator_mul
+    zero_left_identity_plus zero_right_identity_plus.
       induction n.
       - simpl; intros ? ? ? Hm.
         apply refR.
