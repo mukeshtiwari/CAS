@@ -3296,10 +3296,11 @@ Section Matrix.
 
 
 
-    Lemma astar_exists_gen_q_stable_matrix : forall (q : nat),
-      (forall (w : Matrix) (c d : Node), 
-        partial_sum_mat w q c d =r= partial_sum_mat w (S q) c d = true) -> 
-      forall (t : nat) (m : Matrix) (u v : Node), 
+    Lemma astar_exists_gen_q_stable_matrix : 
+      forall (q : nat) (m : Matrix),
+      (forall (c d : Node), 
+        partial_sum_mat m q c d =r= partial_sum_mat m (S q) c d = true) -> 
+      forall (t : nat)  (u v : Node), 
       partial_sum_mat m (t + q) u v  =r= partial_sum_mat m q u v = true.
     Proof using Node R congrM congrP congrR dupN empN eqN eqR finN
     left_distributive_mul_over_plus memN mulR mul_associative oneR
@@ -3326,7 +3327,7 @@ Section Matrix.
         unfold two_mat_congr; intros a b.
         apply mat_mul_cong_diff.
         unfold two_mat_congr; intros ut vt.
-        specialize (IHt m ut vt).
+        specialize (IHt ut vt).
         exact IHt.
     Qed.
 
@@ -3589,11 +3590,19 @@ Section Matrix.
 
 
     Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d,
-      mat_cong m ->  
+      mat_cong m ->
+      (forall (c d : Node), 
+        partial_sum_mat m (length finN) c d =r= 
+        partial_sum_mat m (S (length finN)) c d = true) ->  
       matrix_exp_unary (m +M I) (List.length finN) c d =r= 
       matrix_exp_unary (m +M I) (n + List.length finN) c d = true.
-    Proof.
-      intros ? ? ? ? Hm.
+    Proof using Node R congrM congrP congrR dupN empN eqN eqR finN
+    left_distributive_mul_over_plus memN mulR mul_associative oneR
+    one_left_identity_mul one_right_identity_mul plusR plus_associative
+    plus_commutative plus_idempotence refN refR right_distributive_mul_over_plus
+    symN symR trnN trnR zeroR zero_left_anhilator_mul zero_left_identity_plus
+    zero_right_anhilator_mul zero_right_identity_plus.
+      intros ? ? ? ? Hm q_stable.
       apply symR.
       assert (Ht:
       (matrix_exp_unary (m +M I) (n + length finN) c d =r=
@@ -3605,11 +3614,10 @@ Section Matrix.
       apply matrix_pow_idempotence; exact Hm.
       rewrite Ht; clear Ht.
       apply astar_exists_gen_q_stable_matrix.
-      (* q-stable assumption *)
+      intros ut vt.
+      apply q_stable.
+    Qed.
 
-
-
-    Admitted.
 
 
     Fixpoint atmost_kpath (m : Matrix) (k : nat) (c d : Node) :=
