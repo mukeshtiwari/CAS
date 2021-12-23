@@ -3432,10 +3432,97 @@ Section Matrix.
       (m *M partial_sum_mat m n +M partial_sum_mat m n) c d =r=
       (partial_sum_mat m (S n) c d) = true.
     Proof.
-
-    Admitted.
-
-
+      induction n.
+      - simpl; intros ? ? ?.
+        apply matrix_add_comm.
+      - simpl; intros ? ? ?.
+        pose proof (IHn m c d) as IHs.
+        simpl in IHs.
+        remember (partial_sum_mat m n) as m₁.
+        remember (matrix_exp_unary m n) as m₂.
+        assert (Ht :
+        ((m *M (m₁ +M m *M m₂) +M (m₁ +M m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) =
+        (((m *M m₁ +M m *M (m *M m₂)) +M (m₁ +M m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply congrP.
+        apply left_distributive_mat_mul_over_plus.
+        apply refR.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht:
+        (((m *M m₁ +M m *M (m *M m₂)) +M (m₁ +M m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) = 
+        (((m *M m₁ +M m *M (m *M m₂)) +M (m *M m₁ +M m₁)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply congrP.
+        apply congrP.
+        apply refR.
+        apply refR.
+        apply symR.
+        apply IHs.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht :
+        (((m *M m₁ +M m *M (m *M m₂)) +M (m *M m₁ +M m₁)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) =
+        (((m *M m₁ +M m₁) +M (m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply matrix_add_comm.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht:
+        (((m *M m₁ +M m₁) +M (m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) = 
+        (((m₁ +M m *M m₁) +M (m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply congrP.
+        apply matrix_add_comm.
+        apply refR.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht: 
+        (((m₁ +M m *M m₁) +M (m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) = 
+        (((m₁ +M m *M m₁ +M m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply matrix_add_assoc.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht:
+        ((((m₁ +M m *M m₁) +M m *M m₁) +M m *M (m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) =
+        (((m₁ +M m *M m₁) +M m *M (m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply congrP.
+        assert (Htv: 
+        (((m₁ +M m *M m₁) +M m *M m₁) c d =r= (m₁ +M m *M m₁) c d) =
+        ((m₁ +M (m *M m₁ +M m *M m₁)) c d =r= (m₁ +M m *M m₁) c d)).
+        apply congrR.
+        apply symR. 
+        apply matrix_add_assoc.
+        apply symR.
+        apply refR.
+        rewrite Htv; clear Htv.
+        apply congrP.
+        apply refR.
+        apply plus_idempotence.
+        apply refR.
+        apply refR.
+        rewrite Ht; clear Ht.
+        apply congrP.
+        rewrite <-IHs.
+        apply congrR.
+        apply matrix_add_comm.
+        apply refR.
+        apply refR.
+    Qed.
 
       
     
@@ -3490,10 +3577,27 @@ Section Matrix.
 
 
 
-    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d , 
-      matrix_exp_unary m (List.length finN) c d =r= 
-      matrix_exp_unary m (n + List.length finN) c d = true.
+    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix) c d,
+      mat_cong m ->  
+      matrix_exp_unary (m +M I) (List.length finN) c d =r= 
+      matrix_exp_unary (m +M I) (n + List.length finN) c d = true.
     Proof.
+      intros ? ? ? ? Hm.
+      apply symR.
+      assert (Ht:
+      (matrix_exp_unary (m +M I) (n + length finN) c d =r=
+      matrix_exp_unary (m +M I) (length finN) c d) =
+      (partial_sum_mat m (n + length finN) c d =r=
+      partial_sum_mat m (length finN) c d)).
+      apply congrR.
+      apply matrix_pow_idempotence; exact Hm.
+      apply matrix_pow_idempotence; exact Hm.
+      rewrite Ht; clear Ht.
+      apply astar_exists_gen_q_stable_matrix.
+      (* q-stable assumption *)
+
+
+
     Admitted.
 
 
