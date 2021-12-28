@@ -1,5 +1,7 @@
 Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute. 
+Require Extraction.
+
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
@@ -11,16 +13,24 @@ Require Import CAS.coq.po.product.
 
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
+Require Import CAS.coq.bs.cast_up. 
 Require Import CAS.coq.bs.min_plus.
+Require Import CAS.coq.bs.max_min.
 Require Import CAS.coq.bs.product.
 Require Import CAS.coq.bs.add_one. 
-Require Import CAS.coq.bs.add_zero. 
+Require Import CAS.coq.bs.add_zero.
+Require Import CAS.coq.bs.minset_union_lift. 
+
+Require Import CAS.coq.os.properties.
+Require Import CAS.coq.os.structures.
+Require Import CAS.coq.os.from_bs_left.
 
 Open Scope nat. 
-Definition one1 :=
+
+Definition self :=
 {|
-  constant_ascii := "one1"
-; constant_latex := "one1"
+  constant_ascii := "SELF"
+; constant_latex := "\\bot"
 |}.
 
 Definition infinity :=
@@ -29,268 +39,213 @@ Definition infinity :=
 ; constant_latex := "\\infty"
 |}.
 
-Check A_sg_CI_minset_union_from_po.
+Check A_min_plus.
+(*
+   A_min_plus : A_selective_cancellative_pre_dioid_with_one nat
+ *)
+Check A_selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one. 
+(*
+     : ∀ S : Type, A_selective_cancellative_pre_dioid_with_one S → A_selective_pre_dioid_with_one S
+*)
+Check A_add_zero_to_selective_pre_dioid_with_one.
+(*
+     : ∀ S : Type, A_selective_pre_dioid_with_one S → cas_constant → A_selective_dioid (with_constant S)
+*)          
+Definition A_shortest_paths :=
+      A_add_zero_to_selective_pre_dioid_with_one _
+           (A_selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one _ A_min_plus)
+           infinity. 
+Check A_shortest_paths. 
+(* A_selective_dioid (with_constant nat) *) 
+
+Check A_max_min.
+(*
+   A_max_min : A_selective_distributive_prelattice_with_zero nat
+*) 
+Check A_selective_pre_dioid_with_zero_from_selective_distributive_prelattice_with_zero.
+(*
+     : ∀ S : Type, A_selective_distributive_prelattice_with_zero S → A_selective_pre_dioid_with_zero S
+*)          
+Check A_add_one_to_selective_pre_dioid_with_zero.         
+(*
+     : ∀ S : Type, A_selective_pre_dioid_with_zero S → cas_constant → A_selective_dioid (with_constant S)
+*) 
+Definition A_widest_paths := 
+     A_add_one_to_selective_pre_dioid_with_zero _ 
+        (A_selective_pre_dioid_with_zero_from_selective_distributive_prelattice_with_zero _ A_max_min)
+        self. 
+Check A_widest_paths. 
+(*
+     : A_selective_dioid (with_constant nat)
+*) 
+Check A_dioid_product_from_selective_dioids. 
+(*
+    : ∀ S T : Type, A_selective_dioid S → A_selective_dioid T → A_dioid (S * T)
+*) 
+Definition A_shortest_and_widest_paths :=
+  A_dioid_product_from_selective_dioids _ _ A_shortest_paths A_widest_paths.
+
+Definition nsel := A_sg_CI_not_selective _ _ _ (A_dioid_plus_proofs _ A_shortest_and_widest_paths). 
+Definition pnsel := projT1 nsel. 
+Eval cbv in pnsel. 
+(*
+(inl {| constant_ascii := "INF"; constant_latex := "\\infty" |},
+       inl {| constant_ascii := "SELF"; constant_latex := "\\bot" |},
+       (inr 0, inr 0))
+     : with_constant nat * with_constant nat *
+       (with_constant nat * with_constant nat)
+*) 
+
+Definition step1 := A_posg_from_dioid _ A_shortest_and_widest_paths. 
+Check step1.
+(*
+     : A_bounded_monotone_increasing_posg
+         (with_constant nat * with_constant nat)
+ *)
+Definition nt := A_po_not_total _ _ _ (A_bmiposg_lte_proofs _ step1). 
+Check nt.
+(*
+     : brel_not_total (with_constant nat * with_constant nat)
+         (A_bmiposg_lte (with_constant nat * with_constant nat) step1)
+ *)
+Definition pnt := projT1 nt. 
+Check pnt. 
+(*     : with_constant nat * with_constant nat *
+       (with_constant nat * with_constant nat)
+Eval cbv in pnt.
+ *)
+
+Check A_minset_union_lift_from_bounded_monotone_increasing_posg.
+(*
+     : ∀ S : Type, A_bounded_monotone_increasing_posg S → A_dioid (finite_set S)
+*) 
+Check A_posg_from_dioid. 
 (* 
-   A_sg_CI_minset_union_from_po  : ∀ S : Type, A_po S → A_sg_CI (finite_set S)
-*) 
-Check A_po_product.
-(*
-   A_po_product : ∀ S T : Type, A_po S → A_po T → A_po (S * T)
-*) 
-
-
-(*  
-
-(1) think of of Martelli ... 
-
-
-From (S, <=, x) 
-  
-   N(P(S), <=, x) = (min_set_union(<=), minset_lift(<=, x))
-
-   M(P(S), <=, x) = (minset_lift(<=, x), min_set_union(<=))
-
-
-left(union)      : A = A union B     iff B subset A iff A superset B 
-right(intersect) : B = A intersect B iff B subset A iff A superset B
-
-left(intersect) : A = A intersect B iff A subset B iff B superset A 
-right(union)    : B = A union B     iff A subset B iff B superset A 
-
-
-From (subset, union) 
-  
-   N(subset, union) = (min_set_union(subset), minset_lift(subset, union))
-
-   M(subset, union) = (minset_lift(subset, union), min_set_union(subset))   (martelli's semiring) 
-
-? Generalize to
-
-   N(<=, (.)) = (minset_union(<=), minset_lift(<=, (.)))             minset_union_lift 
-   M(<=, (.)) = (minset_lift(<=, (.)), minset_union(<=))             minset_lift_union
-*) 
-
-
-
-
-
-(* 
-Now, look at SIGCOMM 2020 
-
-One way? 
-
-let bs_sigcomm2020_with_paths = 
-   bs_add_one self (
-          bs_min_set_union_lift_from_posg (
-	      posg_extend_right (posg_from_bs_left bs_bw_times_sp) (sg_sequence (ti_pair ti_int ti_int))))
-
-              extend_right((<=, (.)), (@)) = (<=', (#)) 
-
-              (a, b) (#) (c, d) = (a (.) c, b (@) d) 
-              (a, b) <=' (c, d) = a <= c 
-
-              now, minset_union_lift 
-
-              = (minset_union(<='), minset_lift(<=', (#)) 
-
-              NOTE: no reason to hope that idempotent(minset_lift(<=', (#)))
-
-              BUT. when does (<=', (#)) satisfy these? 
-              
-                    LSM2 : a <' b => ca <' cb 
-                    RSM2 : a <' b => ac <' bc
-
-              when (<=, (.)) does?   yes. 
-
-                    LSM1 : a < b => ca < cb 
-                    RSM1 : a < b => ac < bc
-             
-             Note: (posg_from_bs_left bs_bw_times_sp) does not but 
-                   (posg_from_bs_left bs_sp_times_sp) does (well, if we ignore 0!  REALLY need order-transform) 
-              Note: product needs only one to be strictly increasing! 
-
-              is bw monotone? NO.
-                          b <= a 
-                          a = max(a, b) => min(a, c) =?= max(min(a, c), min(a, b)) 
-              a <  c:                          a               a          b       OK 
-              b <= c <= a:                     c               c          b       OK 
-              c < b <= a :                     c               c          b   ****NO****
-
-
-
-             Q : does bs_min_set_union_lift_from_posg result in counter example to distributivity? 
-
-             see minset_union_lift.v 
-
-            (LM : os_left_monotone lteS bS)
-            (RM : os_right_monotone lteS bS)             
-            (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))) :       
-
-            BUT, can we get a counter-example to distributitivity with something like this? 
-
-            (LM : os_left_monotone lteS bS)
-            (RM : os_right_monotone lteS bS)             
-            (nanti : brel_not_antisymmetric S rS lteS)   x~y, x<>y
-            (NLSM  : os_not_left_strictly_monotone lteS bS)   a << b and ca !<< cb 
-
-                  {c} (ms{a, b}) <?> ms {ca, cb} 
-                          a 
-                  {ca} <?> ms {ca, cb} 
-
-           cases 1) cb <= ca ????? 
-                 2) ca ~ cb but ca<>cb OK 
-                 3) ca << cb  contradiction
-                 3) ca # cb  OK 
-*) 
-
-
-
-(*
-(*Roadmap 
-
-
-TODO
-
-po/
-  product (versions for qo with bottom) 
-
-os/
-  product (versions for qo with bottom) 
-  sg -> (trivial, sg) 
-  (length, concat) 
-
-bs -> (po, sg) -> (po_with_bottom, sg_with_id) -> bs 
-bs -> (po, sg) -> (qo, sg) -> (qo_with_bottom, sg_with_id) -> bs 
-
-bs_min_set_union_lift_from_posg 
-  (posg_add_bottom self (
-        posg_extend_right (
-            posg_from_bs_left bs_bw_times_sp)
-            sg_edge_paths))
-
-
-A_monotone_posg_from_predioid (S : Type) : A_predioid_with_id S -> A_monotone_posg S
-
-
-1) bs_bw_times_sp
-
-                    id     ann 
-   + = max x min    _       _
-   x = min x +      _       _
-
-2) bs_bw_times_sp.
-
-3) use A_monotone_posg_from_predioid  (Why id?) 
-
-4) construct posg_edge_paths (with length?, so strictly increasing) 
-
-5) posg direct product 3 and 4. 
-
-6) transform 5 to ordered transform 
-
-7) add_bottom_id to 6 (don't allow bottom in labels in order to preserve strictness) 
-
-8) minset_union_lift on 7 to produce distrubutive semigrop transform (AME) 
-
-*) 
-
-Require Import Coq.Strings.String.
-Require Import CAS.coq.common.compute. 
-Require Import CAS.coq.eqv.nat.
-Require Import CAS.coq.eqv.product.
-Require Import CAS.coq.bs.properties.
-Require Import CAS.coq.bs.structures. 
-Require Import CAS.coq.bs.product_product.
-Require Import CAS.coq.bs.add_ann_add_id. 
-Require Import CAS.coq.bs.min_plus.
-Require Import CAS.coq.bs.max_min.
-Require Import CAS.coq.bs.cast_up.
-Require Import CAS.coq.ot.properties.
-Require Import CAS.coq.ot.structures. 
-Require Import CAS.coq.ot.left.length_cons.
-Require Import CAS.coq.ot.left.from_bs_left.
-Require Import CAS.coq.ot.left.product_product. 
-
-Definition one1 :=
-{|
-  constant_ascii := "one1"
-; constant_latex := "one1"
-|}.
-
-(*
-ppa          : pre_path_algebra_NS
-ppa_with_one : pre_path_algebra_with_one
-poltr_mi     : poltr_monotone_increasing           
-length_cons  : wpltr_monotone_strictly_increasing  
-olt_msi      : qoltr_monotone_structly_increasing  
+     : ∀ S : Type, A_dioid S → A_bounded_monotone_increasing_posg S
 *)
 
+Definition A_minset_union_lift_from_dioid (S: Type) (D : A_dioid S) : A_dioid (finite_set S) :=
+    A_minset_union_lift_from_bounded_monotone_increasing_posg _ (A_posg_from_dioid _ D).
 
-Definition ppa := pre_path_algebra_product pre_path_algebra_max_min pre_path_algebra_min_plus. 
+Definition A_shortest_widest_pareto_paths := 
+  A_minset_union_lift_from_dioid _ A_shortest_and_widest_paths.
 
-Definition ppa_with_one := add_one_to_pre_path_algebra ppa one1.
-
-Definition poltr_mi := pre_path_algebra_to_poltr_mi _ ppa_with_one. 
-
-Definition length_cons := length_cons_wpltr_monotone_strictly_increasing (eqv_product eqv_eq_nat eqv_eq_nat). 
-
-Definition olt_msi := product_qoltr_monotone_strictly_increasing poltr_mi length_cons. 
+Check A_shortest_widest_pareto_paths. 
+(*      : A_dioid (finite_set (with_constant nat * with_constant nat))  *)
 
 
-Eval cbv in olt_msi. 
-
-Eval cbv in ppa_with_one. 
-
-Check length_cons. 
-
-Open Scope nat.
-
-Definition bs1 := bs_product bs_min_plus bs_max_min.
-
-Print bs1.
-
-(* Compute bs1. *) 
 
 
-Eval cbv in bs_plus_certs bs1.
 
-Eval cbv in bs_times_certs bs1. 
 
-Eval cbv in bs_certs bs1.
+Open Scope list_scope.
 
-Eval cbv in bs_certs bs_min_plus.
+Definition plus := A_dioid_plus _ A_shortest_widest_pareto_paths. 
+Definition times := A_dioid_times _ A_shortest_widest_pareto_paths.
+Check plus. 
+Definition v (a b : nat) : with_constant nat * with_constant nat := (inr a, inr b). 
+Definition set1 : finite_set (with_constant nat * with_constant nat):= (v 10 10) :: nil.
+Definition set2 : finite_set (with_constant nat * with_constant nat):= (v 100 100) :: nil.
 
-Eval cbv in bs_certs bs_max_min. 
+Eval cbv in (plus set1 set2).
+Eval cbv in (times set1 set2). 
+Eval cbv in times (plus set1 set2) (plus set1 set2).
+    
+(* NOW, do this again in AMCAS. *) 
 
-Eval cbv in bs_min_plus.
+Check A_bs_mcas_min_plus.   (* : A_bs_mcas nat *) 
+Check A_bs_mcas_max_min.    (* : A_bs_mcas nat *) 
 
-Eval cbv in length_cons_wpltr_monotone_structly_increasing.
+Check A_bs_mcas_add_one.
+(*  : ∀ S : Type, A_bs_mcas S → cas_constant → A_bs_mcas (with_constant S) *) 
 
-Definition plus := bs_plus bs1.
+Check A_bs_mcas_add_zero.
+(*  : ∀ S : Type, A_bs_mcas S → cas_constant → A_bs_mcas (with_constant S) *) 
 
-Eval cbv in plus (1, 2) (3, 4).
+Check A_bs_mcas_product.
+(*  : ∀ S T : Type, A_bs_mcas S → A_bs_mcas T → A_bs_mcas (S * T) *)
 
-Definition times := bs_times bs1.
+Definition test := A_bs_mcas_product _ _
+                                     (A_bs_mcas_add_zero _ A_bs_mcas_min_plus infinity)
+                                     (A_bs_mcas_add_one _ A_bs_mcas_max_min self).
+Check test. 
 
-Eval cbv in times (1, 2) (3, 4).
+Check A_bs_mcas_minset_union_lift. 
+(*      : ∀ S : Type, A_bs_mcas S → A_bs_mcas (finite_set S) *)
+
+Definition test2 := A_bs_mcas_minset_union_lift _ test.
+Check test2. 
+(*      : A_os_mcas (with_constant nat * with_constant nat) *) 
+
 
 (*
-let bs_sigcomm2020_with_paths = 
-   bs_add_one self (
-          bs_min_set_union_lift_from_posg (
-	      posg_extend_right (posg_from_bs_left bs_bw_times_sp) (sg_sequence (ti_pair ti_int ti_int))))
-*)
+Definition test3 := match test2 with | A_BS_dioid _ D => Some(A2C_dioid _ D) | _ => None end.
+Check test3.
 
-Definition edge_paths := sg_concat (eqv_product eqv_eq_nat eqv_eq_nat).
-
-Eval hnf in edge_paths. 
-Eval cbv in sg_certs edge_paths. 
-
-(* to do 
-
-  1) posg_from_bs_left
-  2) posg_extend_right
-  3) finish bs_min_set_union_lift_from_posg
-
+Definition t := Eval cbv in (match test3 with | None => None | Some d => Some(dioid_plus_certs _ d) end).
 *) 
+(* t contains dependent type junk! 
+
+Print t. 
+
+Assert_Not_Selective e 
+is over 18K lines long! 
+
+Extraction t. 
+*) 
+
+Definition p := Eval cbv in (match (match A_bs_from_mcas _ test with | A_BS_bs _ b => Some (A2C_bs _ b) | _ => None end) with
+                             | None => None
+                             | Some b => Some(asg_selective_d (bs_plus_certs b))
+                             end). 
+Print p.
+(*
+p = 
+Some
+  (Certify_Not_Selective
+     (inl {| constant_ascii := "INF"; constant_latex := "\\infty" |},
+     inl {| constant_ascii := "SELF"; constant_latex := "\\bot" |},
+     (inr 0, inr 0)))
+     : option check_selective
+*) 
+
+(*********************** NOW, do this again in MCAS. **************************************) 
+
+
+Check bs_mcas_min_plus.   (* : bs_mcas  *) 
+Check bs_mcas_max_min.    (* : bs_mcas *) 
+
+Check bs_mcas_add_one.
+(*  : bs_mcas S → cas_constant → bs_mcas *) 
+
+Check bs_mcas_add_zero.
+(*  : bs_mcas S → cas_constant → bs_mcas *) 
+
+Check bs_mcas_product.
+(*  :      : bs_mcas → bs_mcas → bs_mcas
+where
+?S : [ |- Type]
+?T : [ |- Type]
 *)
+
+Definition mtest := bs_mcas_product (bs_mcas_add_zero bs_mcas_min_plus infinity)
+                               (bs_mcas_add_one bs_mcas_max_min self).
+Check mtest.  (*      : bs_mcas *)  
+
+Eval cbv in match mtest with BS_bs B => bs_classify B | _ => BS_Error "nope" end. 
+(* is a BS_dioid *) 
+
+(* implement this *) 
+Check posg_from_bs.  (* : bs_mcas → os_mcas*) 
+
+(* implement this 
+A_minset_union_lift_from_bounded_monotone_increasing_posg
+becomes 
+ *)
+Check os_mcas_minset_union_lift. (* : os_mcas → bs_mcas *)
+
+Definition bs_mcas_minset_union_lift {S : Type} (A : @bs_mcas S) : @bs_mcas (finite_set S) :=
+  os_mcas_minset_union_lift (posg_from_bs A).
+
+Definition mtest2 := bs_mcas_minset_union_lift mtest. 
+Eval cbv in mtest2. 

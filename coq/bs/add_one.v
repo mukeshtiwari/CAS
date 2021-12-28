@@ -1,3 +1,4 @@
+Require Import Coq.Strings.String.
 Require Import Coq.Bool.Bool. 
 
 Require Import CAS.coq.common.compute.
@@ -10,12 +11,14 @@ Require Import CAS.coq.eqv.add_constant.
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.theory. 
 Require Import CAS.coq.sg.add_id.
 Require Import CAS.coq.sg.add_ann.
 Require Import CAS.coq.sg.cast_up. 
 
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
+Require Import CAS.coq.bs.cast_up. 
 Require Import CAS.coq.bs.theory. 
 
 
@@ -758,8 +761,45 @@ let comm   := A_sg_CI_commutative _ _ _ pproofs in
    ; A_dioid_ast          := Ast_bs_add_one (c, A_pre_dioid_with_zero_ast S bsS) (*FIX*)
 |}.
 
+Definition A_add_one_to_selective_pre_dioid_with_zero : ∀ (S : Type),  A_selective_pre_dioid_with_zero S -> cas_constant -> A_selective_dioid (with_constant S) 
+:= λ S bsS c,
+let eqvS  := A_selective_pre_dioid_with_zero_eqv S bsS in
+let peqvS := A_eqv_proofs S eqvS in
+let s     := A_eqv_witness S eqvS in
+let f     := A_eqv_new S eqvS in
+let Pf    := A_eqv_not_trivial S eqvS in 
+let rS    := A_eqv_eq S eqvS in   
+let plus  := A_selective_pre_dioid_with_zero_plus S bsS in
+let times := A_selective_pre_dioid_with_zero_times S bsS in
+let pproofs := A_selective_pre_dioid_with_zero_plus_proofs S bsS in
+let tproofs := A_selective_pre_dioid_with_zero_times_proofs S bsS in
+let idem   := bop_selective_implies_idempotent _ _ _ (A_sg_CS_selective _ _ _ pproofs) in
+let comm   := A_sg_CS_commutative _ _ _ pproofs in 
+{| 
+     A_selective_dioid_eqv          := A_eqv_add_constant S eqvS c 
+   ; A_selective_dioid_plus         := bop_add_ann plus c
+   ; A_selective_dioid_times        := bop_add_id times c
+   ; A_selective_dioid_plus_proofs  := sg_CS_proofs_add_ann S rS c plus s peqvS pproofs 
+   ; A_selective_dioid_times_proofs := msg_proofs_add_id S rS c times s f Pf peqvS tproofs
+   ; A_selective_dioid_id_ann_proofs := dually_bounded_proofs_add_one S _ c plus times  peqvS (A_selective_pre_dioid_with_zero_id_ann_proofs S bsS)
+   ; A_selective_dioid_proofs       := dioid_proofs_add_one S rS c plus times peqvS idem comm (A_selective_pre_dioid_with_zero_proofs S bsS)
+   ; A_selective_dioid_ast          := Ast_bs_add_one (c, A_selective_pre_dioid_with_zero_ast S bsS) (*FIX*)
+|}.
+
+
 End Combinators. 
 End ACAS.
+
+Section AMCAS. 
+
+Definition A_bs_mcas_add_one (S : Type) (A : A_bs_mcas S) (c : cas_constant) := 
+  match (A_bs_from_mcas _ A) with
+  | A_BS_bs _ B => A_BS_bs _ (A_bs_add_one _ B c)
+  | A_BS_Error _ str => A_BS_Error _ str                                                           
+  | _ => A_BS_Error _ "internal error : A_bs_mcas_add_one"
+  end.
+
+End AMCAS. 
 
 
 Section CAS. 
@@ -1035,7 +1075,20 @@ let tcerts := pre_dioid_with_zero_times_certs bsS in
 
 End Combinators.
 
-End CAS. 
+End CAS.
+
+Section MCAS. 
+
+Definition bs_mcas_add_one {S : Type} (A : @bs_mcas S) (c : cas_constant) := 
+  match (bs_from_mcas A) with
+  | BS_bs B => BS_bs (bs_add_one B c)
+  | BS_Error str => BS_Error str                                                           
+  | _ => BS_Error "internal error : A_bs_mcas_add_one"
+  end.
+
+End MCAS. 
+
+
 
 Section Verify.
 

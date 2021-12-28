@@ -1,4 +1,4 @@
-
+Require Import Coq.Strings.String.
 Require Import Coq.Bool.Bool. 
 
 Require Import CAS.coq.common.compute.
@@ -14,7 +14,7 @@ Require Import CAS.coq.sg.product.
 
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
-
+Require Import CAS.coq.bs.cast_up. 
 
 
 
@@ -629,7 +629,85 @@ let timesT := A_bs_times T bsT in
                            (A_bs_proofs S bsS) 
                            (A_bs_proofs T bsT)
    ; A_bs_ast        := Ast_bs_product(A_bs_ast S bsS, A_bs_ast T bsT)
+|}.
+
+
+Definition A_dioid_product : ∀ (S T : Type),  A_dioid S -> A_dioid T -> A_dioid (S * T) 
+:= λ S T bsS bsT,
+let eqvS   := A_dioid_eqv S bsS   in
+let eqvT   := A_dioid_eqv T bsT   in
+let peqvS  := A_eqv_proofs S eqvS in
+let peqvT  := A_eqv_proofs T eqvT in 
+let rS     := A_eqv_eq S eqvS  in 
+let rT     := A_eqv_eq T eqvT  in
+let s      := A_eqv_witness S eqvS in
+let f      := A_eqv_new S eqvS in
+let Pf     := A_eqv_not_trivial S eqvS in
+let t      := A_eqv_witness T eqvT in
+let g      := A_eqv_new T eqvT in
+let Pg     := A_eqv_not_trivial T eqvT in
+let plusS  := A_dioid_plus S bsS  in 
+let plusT  := A_dioid_plus T bsT  in
+let timesS := A_dioid_times S bsS in 
+let timesT := A_dioid_times T bsT in 
+{| 
+     A_dioid_eqv        := A_eqv_product S T eqvS eqvT 
+   ; A_dioid_plus       := bop_product plusS plusT 
+   ; A_dioid_times      := bop_product timesS timesT 
+   ; A_dioid_plus_proofs := sg_CI_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
+                           (A_dioid_plus_proofs S bsS) 
+                           (A_dioid_plus_proofs T bsT) 
+   ; A_dioid_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+                           (A_dioid_times_proofs S bsS) 
+                           (A_dioid_times_proofs T bsT)
+   ; A_dioid_id_ann_proofs := dually_bounded_proofs_product S T rS rT plusS timesS plusT timesT
+                           (A_dioid_id_ann_proofs S bsS) 
+                           (A_dioid_id_ann_proofs T bsT)                           
+   ; A_dioid_proofs    := dioid_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT
+                           (A_dioid_proofs S bsS) 
+                           (A_dioid_proofs T bsT)
+   ; A_dioid_ast        := Ast_bs_product (A_dioid_ast S bsS, A_dioid_ast T bsT)
 |}. 
+
+
+
+Definition A_dioid_product_from_selective_dioids : ∀ (S T : Type),  A_selective_dioid S -> A_selective_dioid T -> A_dioid (S * T) 
+:= λ S T bsS bsT,
+let eqvS   := A_selective_dioid_eqv S bsS   in
+let eqvT   := A_selective_dioid_eqv T bsT   in
+let peqvS  := A_eqv_proofs S eqvS in
+let peqvT  := A_eqv_proofs T eqvT in 
+let rS     := A_eqv_eq S eqvS  in 
+let rT     := A_eqv_eq T eqvT  in
+let s      := A_eqv_witness S eqvS in
+let f      := A_eqv_new S eqvS in
+let Pf     := A_eqv_not_trivial S eqvS in
+let t      := A_eqv_witness T eqvT in
+let g      := A_eqv_new T eqvT in
+let Pg     := A_eqv_not_trivial T eqvT in
+let plusS  := A_selective_dioid_plus S bsS  in 
+let plusT  := A_selective_dioid_plus T bsT  in
+let timesS := A_selective_dioid_times S bsS in 
+let timesT := A_selective_dioid_times T bsT in 
+{| 
+     A_dioid_eqv        := A_eqv_product S T eqvS eqvT 
+   ; A_dioid_plus       := bop_product plusS plusT 
+   ; A_dioid_times      := bop_product timesS timesT 
+   ; A_dioid_plus_proofs := sg_CI_proofs_product_from_sg_CS_proofs S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
+                           (A_selective_dioid_plus_proofs S bsS) 
+                           (A_selective_dioid_plus_proofs T bsT) 
+   ; A_dioid_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+                           (A_selective_dioid_times_proofs S bsS) 
+                           (A_selective_dioid_times_proofs T bsT)
+   ; A_dioid_id_ann_proofs := dually_bounded_proofs_product S T rS rT plusS timesS plusT timesT
+                           (A_selective_dioid_id_ann_proofs S bsS) 
+                           (A_selective_dioid_id_ann_proofs T bsT)                           
+   ; A_dioid_proofs    := dioid_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT
+                           (A_selective_dioid_proofs S bsS) 
+                           (A_selective_dioid_proofs T bsT)
+   ; A_dioid_ast        := Ast_bs_product (A_selective_dioid_ast S bsS, A_selective_dioid_ast T bsT)
+|}. 
+
 
 (*
 Definition A_pre_dioid_product : ∀ (S T : Type),  A_pre_dioid S -> A_pre_dioid T -> A_pre_dioid_NS (S * T) 
@@ -916,6 +994,24 @@ let meetT  := A_lattice_meet T sr2 in
 |}.
 
 End ACAS.
+
+Section AMCAS.
+
+Definition A_bs_mcas_product (S T : Type) (A : A_bs_mcas S) (B : A_bs_mcas T) : A_bs_mcas (S * T)  := 
+  match A_bs_from_mcas _ A with
+  | A_BS_bs _ C =>
+     match A_bs_from_mcas _ B with
+     | A_BS_bs _ D => A_BS_bs _ (A_bs_product _ _ C D)
+     | A_BS_Error _ str => A_BS_Error _ str                         
+     | _ => A_BS_Error _ "internal error : A_bs_mcas_product"
+     end
+  | A_BS_Error _ str => A_BS_Error _ str                                
+  | _ => A_BS_Error _ "internal error : A_bs_mcas_product"
+  end.
+    
+
+End AMCAS.   
+
 
 
 Section CAS.
@@ -1306,6 +1402,25 @@ let timesT := pre_dioid_times bsT in
 
   
 End CAS.
+
+Section MCAS.
+
+Definition bs_mcas_product {S T : Type} (A : @bs_mcas S) (B : @bs_mcas T) : @bs_mcas (S * T)  := 
+  match bs_from_mcas A with
+  | BS_bs C =>
+     match bs_from_mcas B with
+     | BS_bs D => BS_bs (bs_product C D)
+     | BS_Error str => BS_Error str                         
+     | _ => BS_Error "internal error : bs_mcas_product"
+     end
+  | BS_Error str => BS_Error str                                
+  | _ => BS_Error "internal error : bs_mcas_product"
+  end.
+    
+
+End MCAS.   
+
+
 
 Section Verify.
 

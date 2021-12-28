@@ -1,3 +1,4 @@
+Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.data.
 Require Import CAS.coq.common.ast.
@@ -441,7 +442,292 @@ Record A_selective_distributive_lattice (S : Type) := {
 
 
 
-End ACAS. 
+End ACAS.
+
+Section AMCAS.
+
+Inductive A_bs_mcas S : Type :=
+| A_BS_Error : string                 -> A_bs_mcas S
+| A_BS_bs : A_bs S                    -> A_bs_mcas S
+| A_BS_bs_CI : A_bs_CI S              -> A_bs_mcas S                                   
+| A_BS_bs_CS : A_bs_CS S              -> A_bs_mcas S                                     
+| A_BS_presemiring  : A_presemiring S -> A_bs_mcas S
+| A_BS_semiring  : A_semiring S       -> A_bs_mcas S
+| A_BS_pre_dioid  : A_pre_dioid S     -> A_bs_mcas S
+| A_BS_pre_dioid_with_one  : A_pre_dioid_with_one S -> A_bs_mcas S
+| A_BS_pre_dioid_with_zero  : A_pre_dioid_with_zero S -> A_bs_mcas S
+| A_BS_dioid  : A_dioid S              -> A_bs_mcas S
+| A_BS_prelattice  : A_prelattice S -> A_bs_mcas S
+| A_BS_distributive_prelattice  : A_distributive_prelattice S -> A_bs_mcas S
+| A_BS_lattice  : A_lattice S          -> A_bs_mcas S
+| A_BS_distributive_lattice  : A_distributive_lattice S -> A_bs_mcas S
+| A_BS_selective_presemiring  : A_selective_presemiring S -> A_bs_mcas S
+| A_BS_selective_semiring  : A_selective_semiring S -> A_bs_mcas S
+| A_BS_selective_pre_dioid  : A_selective_pre_dioid S -> A_bs_mcas S
+| A_BS_selective_pre_dioid_with_zero  : A_selective_pre_dioid_with_zero S -> A_bs_mcas S
+| A_BS_selective_pre_dioid_with_one  : A_selective_pre_dioid_with_one S -> A_bs_mcas S
+| A_BS_selective_dioid  : A_selective_dioid S -> A_bs_mcas S                                                                                          
+| A_BS_selective_cancellative_pre_dioid  : A_selective_cancellative_pre_dioid S -> A_bs_mcas S
+| A_BS_selective_cancellative_pre_dioid_with_zero  : A_selective_cancellative_pre_dioid_with_zero S -> A_bs_mcas S
+| A_BS_selective_cancellative_pre_dioid_with_one  : A_selective_cancellative_pre_dioid_with_one S -> A_bs_mcas S
+| A_BS_selective_cancellative_dioid  : A_selective_cancellative_dioid S -> A_bs_mcas S
+| A_BS_selective_distributive_prelattice  : A_selective_distributive_prelattice S -> A_bs_mcas S
+| A_BS_selective_distributive_prelattice_with_zero  : A_selective_distributive_prelattice_with_zero S -> A_bs_mcas S    
+| A_BS_selective_distributive_prelattice_with_one  : A_selective_distributive_prelattice_with_one S -> A_bs_mcas S
+| A_BS_selective_distributive_lattice  : A_selective_distributive_lattice S -> A_bs_mcas S
+. 
+
+Definition A_bs_classify (S : Type) (A : A_bs S) : A_bs_mcas S :=
+let ast     := A_bs_ast _ A in
+let eqv     := A_bs_eqv _ A in
+let plus    := A_bs_plus _ A in      
+let plusP   := A_bs_plus_proofs _ A in
+let passoc  := A_asg_associative _ _ _ plusP in
+let pcong   := A_asg_congruence _ _ _ plusP in
+let pcomm   := A_asg_commutative _ _ _ plusP in
+let sel_d   := A_asg_selective_d _ _ _ plusP in
+let idem_d  := A_asg_idempotent_d _ _ _ plusP in   
+let id_annP := A_bs_id_ann_proofs _ A in
+let pid_id_tann_d := A_id_ann_plus_times_d _ _ _ _ id_annP in
+let tid_id_pann_d := A_id_ann_times_plus_d _ _ _ _ id_annP in
+let times   := A_bs_times _ A in
+let timesP  := A_bs_times_proofs _ A in
+let comm_d  := A_msg_commutative_d _ _ _ timesP in
+(*
+let left_d  : = A_msg_is_left_d _ timesP in
+let right_d := A_msg_is_right_d _ timesP in
+*) 
+let left_can_d := A_msg_left_cancel_d  _ _ _ timesP in
+let right_can_d := A_msg_right_cancel_d  _ _ _ timesP in
+(*
+let left_con_d := A_msg_left_constant_d  _ timesP in
+let right_con_d := A_msg_right_constant_d  _ timesP in
+let anti_left_d := A_msg_anti_left_d  _ timesP in
+let anti_right_d := A_msg_anti_right_d  _ timesP in
+*) 
+let P       := A_bs_proofs _ A in
+let LD_d := A_bs_left_distributive_d _ _ _ _ P in 
+let RD_d := A_bs_right_distributive_d _ _ _ _ P in 
+let LLA_d := A_bs_left_left_absorptive_d _ _ _ _ P in 
+let LRA_d := A_bs_left_right_absorptive_d _ _ _ _ P in
+(* 
+let RLA_d := A_bs_right_left_absorptive_d _ _ _ _ P in 
+let RRA_d := A_bs_right_right_absorptive_d _ _ _ _ P in                      
+*)
+match sel_d with
+| inl sel  =>
+  (************* Selective *****************)
+  let sg_cs_p := {|
+                      A_sg_CS_associative    := passoc 
+                    ; A_sg_CS_congruence    := pcong 
+                    ; A_sg_CS_commutative   := pcomm 
+                    ; A_sg_CS_selective     := sel 
+                  |} in
+  let bs_cs := {|
+                    A_bs_CS_eqv           := eqv 
+                  ; A_bs_CS_plus          := plus
+                  ; A_bs_CS_times         := times 
+                  ; A_bs_CS_plus_proofs   := sg_cs_p 
+                  ; A_bs_CS_times_proofs  := timesP 
+                  ; A_bs_CS_id_ann_proofs := id_annP 
+                  ; A_bs_CS_proofs        := P 
+                  ; A_bs_CS_ast           := ast 
+                  |} in 
+  match LD_d with
+  | inl LD  =>
+    match RD_d with
+    | inl RD  =>
+      match LLA_d, LRA_d with
+      | inl LLA, inl LRA  =>
+        let doid_p :=
+            {|
+                A_dioid_left_distributive     := LD 
+              ; A_dioid_right_distributive    := RD 
+              ; A_dioid_left_left_absorptive  := LLA 
+              ; A_dioid_left_right_absorptive := LRA 
+              |} in
+        match pid_id_tann_d, tid_id_pann_d with
+        | Id_Ann_Proof_Equal _ _ _ _ plus_id_is_times_ann, Id_Ann_Proof_Equal _ _ _ _ times_id_is_plus_ann =>
+             A_BS_selective_dioid _
+               {|
+                   A_selective_dioid_eqv := eqv 
+                 ; A_selective_dioid_plus := plus
+                 ; A_selective_dioid_times := times 
+                 ; A_selective_dioid_plus_proofs := sg_cs_p 
+                 ; A_selective_dioid_times_proofs := timesP  
+                 ; A_selective_dioid_id_ann_proofs :=
+                     {|
+                         A_bounded_plus_id_is_times_ann := plus_id_is_times_ann
+                       ; A_bounded_times_id_is_plus_ann := times_id_is_plus_ann                      
+                     |} 
+                 ; A_selective_dioid_proofs := doid_p 
+                 ; A_selective_dioid_ast := ast 
+               |} 
+        | _ , Id_Ann_Proof_Equal _ _ _ _ times_id_is_plus_ann =>
+              A_BS_selective_pre_dioid_with_one _
+                {|
+                   A_selective_pre_dioid_with_one_eqv := eqv 
+                 ; A_selective_pre_dioid_with_one_plus := plus
+                 ; A_selective_pre_dioid_with_one_times := times 
+                 ; A_selective_pre_dioid_with_one_plus_proofs := sg_cs_p 
+                 ; A_selective_pre_dioid_with_one_times_proofs := timesP  
+                 ; A_selective_pre_dioid_with_one_id_ann_proofs :=
+                     {|
+                         A_pann_is_tid_plus_times_d  := pid_id_tann_d
+                       ; A_pann_is_tid_times_plus  := times_id_is_plus_ann                                             
+                     |} 
+                 ; A_selective_pre_dioid_with_one_proofs := doid_p 
+                 ; A_selective_pre_dioid_with_one_ast := ast 
+                |} 
+        | Id_Ann_Proof_Equal _ _ _ _ plus_id_is_times_ann, _ =>
+             A_BS_selective_pre_dioid_with_zero _
+                {|
+                   A_selective_pre_dioid_with_zero_eqv := eqv 
+                 ; A_selective_pre_dioid_with_zero_plus := plus
+                 ; A_selective_pre_dioid_with_zero_times := times 
+                 ; A_selective_pre_dioid_with_zero_plus_proofs := sg_cs_p 
+                 ; A_selective_pre_dioid_with_zero_times_proofs := timesP  
+                 ; A_selective_pre_dioid_with_zero_id_ann_proofs :=
+                     {|
+                         A_pid_is_tann_plus_times   := plus_id_is_times_ann
+                       ; A_pid_is_tann_times_plus_d := tid_id_pann_d                     
+                     |} 
+                 ; A_selective_pre_dioid_with_zero_proofs := doid_p 
+                 ; A_selective_pre_dioid_with_zero_ast := ast 
+                |} 
+        | _, _ => A_BS_selective_pre_dioid _
+               {|
+                   A_selective_pre_dioid_eqv := eqv 
+                 ; A_selective_pre_dioid_plus := plus
+                 ; A_selective_pre_dioid_times := times 
+                 ; A_selective_pre_dioid_plus_proofs := sg_cs_p 
+                 ; A_selective_pre_dioid_times_proofs := timesP  
+                 ; A_selective_pre_dioid_id_ann_proofs := id_annP
+                 ; A_selective_pre_dioid_proofs := doid_p 
+                 ; A_selective_pre_dioid_ast := ast 
+               |} 
+        end
+      | _, _ => A_BS_bs_CS _ bs_cs  (* selective semiring? *) 
+      end 
+    | inr nRD => A_BS_bs_CS _ bs_cs
+    end 
+  | inr nLD => A_BS_bs_CS _ bs_cs
+  end 
+| inr nsel =>
+  match idem_d with
+  | inl idem =>
+    (************* Idempotent, Not Selective *****************)
+    let sg_ci_p := {|
+                     A_sg_CI_associative    := passoc 
+                    ; A_sg_CI_congruence    := pcong 
+                    ; A_sg_CI_commutative   := pcomm 
+                    ; A_sg_CI_idempotent    := idem 
+                    ; A_sg_CI_not_selective := nsel 
+                  |} in
+    let bs_ci := {|
+                    A_bs_CI_eqv           := eqv 
+                  ; A_bs_CI_plus          := plus
+                  ; A_bs_CI_times         := times 
+                  ; A_bs_CI_plus_proofs   := sg_ci_p 
+                  ; A_bs_CI_times_proofs  := timesP 
+                  ; A_bs_CI_id_ann_proofs := id_annP 
+                  ; A_bs_CI_proofs        := P 
+                  ; A_bs_CI_ast           := ast 
+                  |} in 
+    match LD_d with
+    | inl LD =>
+      match RD_d with
+      | inl RD =>
+        match LLA_d with
+        | inl LLA  =>
+          match LRA_d with
+          | inl LRA  =>
+            let doid_p := {|
+                            A_dioid_left_distributive     := LD 
+                           ; A_dioid_right_distributive    := RD 
+                           ; A_dioid_left_left_absorptive  := LLA 
+                           ; A_dioid_left_right_absorptive := LRA 
+                |} in
+            match pid_id_tann_d, tid_id_pann_d with
+            | Id_Ann_Proof_Equal _ _ _ _ plus_id_is_times_ann, Id_Ann_Proof_Equal _ _ _ _ times_id_is_plus_ann =>
+              A_BS_dioid _ {|
+                             A_dioid_eqv := eqv 
+                           ; A_dioid_plus := plus
+                           ; A_dioid_times := times 
+                           ; A_dioid_plus_proofs := sg_ci_p 
+                           ; A_dioid_times_proofs := timesP  
+                           ; A_dioid_id_ann_proofs :=
+                               {|
+                                   A_bounded_plus_id_is_times_ann := plus_id_is_times_ann
+                                 ; A_bounded_times_id_is_plus_ann := times_id_is_plus_ann                      
+                               |} 
+                           ; A_dioid_proofs := doid_p 
+                           ; A_dioid_ast := ast 
+                           |} 
+            | _ , Id_Ann_Proof_Equal _ _ _ _ times_id_is_plus_ann =>
+              A_BS_pre_dioid_with_one _ {|
+                                        A_pre_dioid_with_one_eqv := eqv 
+                                        ; A_pre_dioid_with_one_plus := plus
+                                        ; A_pre_dioid_with_one_times := times 
+                                        ; A_pre_dioid_with_one_plus_proofs := sg_ci_p 
+                                        ; A_pre_dioid_with_one_times_proofs := timesP  
+                                        ; A_pre_dioid_with_one_id_ann_proofs :=
+                                            {|
+                                                A_pann_is_tid_plus_times_d  := pid_id_tann_d
+                                              ; A_pann_is_tid_times_plus := times_id_is_plus_ann                                             
+                                            |} 
+                                        ; A_pre_dioid_with_one_proofs := doid_p 
+                                        ; A_pre_dioid_with_one_ast := ast 
+                           |} 
+            | Id_Ann_Proof_Equal _ _ _ _ plus_id_is_times_ann, _ =>
+              A_BS_pre_dioid_with_zero _ {|
+                                         A_pre_dioid_with_zero_eqv := eqv 
+                                         ; A_pre_dioid_with_zero_plus := plus
+                                         ; A_pre_dioid_with_zero_times := times 
+                                         ; A_pre_dioid_with_zero_plus_proofs := sg_ci_p 
+                                         ; A_pre_dioid_with_zero_times_proofs := timesP  
+                                         ; A_pre_dioid_with_zero_id_ann_proofs :=
+                                             {|
+                                               A_pid_is_tann_plus_times   := plus_id_is_times_ann
+                                              ; A_pid_is_tann_times_plus_d := tid_id_pann_d                     
+                                             |} 
+                                         ; A_pre_dioid_with_zero_proofs := doid_p 
+                                         ; A_pre_dioid_with_zero_ast := ast 
+                           |} 
+            | _, _ => A_BS_pre_dioid _ {|
+                                       A_pre_dioid_eqv := eqv 
+                                       ; A_pre_dioid_plus := plus
+                                       ; A_pre_dioid_times := times 
+                                       ; A_pre_dioid_plus_proofs := sg_ci_p 
+                                       ; A_pre_dioid_times_proofs := timesP  
+                                       ; A_pre_dioid_id_ann_proofs := id_annP
+                                       ; A_pre_dioid_proofs := doid_p 
+                                       ; A_pre_dioid_ast := ast                                        
+                                       |} 
+            end
+          | inr nLRA => A_BS_bs_CI _ bs_ci
+          end 
+        | inr nLLA => A_BS_bs_CI _ bs_ci
+        end 
+      | _      => A_BS_bs_CI _ bs_ci
+      end 
+    |      _ => A_BS_bs_CI _ bs_ci 
+    end 
+  | inr nidem =>
+  (************* Not Idempotent *****************)         
+    match LD_d with
+    | inl LD =>
+      match RD_d with
+      | inl RD => A_BS_bs _ A (* No, check for semiring *) 
+      | _      => A_BS_bs _ A 
+      end 
+    |      _ => A_BS_bs _ A 
+    end 
+  end 
+end.
+
+
+End AMCAS.   
 
 Section CAS.
 
@@ -739,10 +1025,10 @@ Record prelattice {S : Type} := {
   prelattice_eqv           : @eqv S 
 ; prelattice_join          : binary_op S 
 ; prelattice_meet          : binary_op S 
-; prelattice_join_proofs   : @sg_CI_certificates S 
-; prelattice_meet_proofs   : @sg_CI_certificates S 
-; prelattice_id_ann_proofs : @id_ann_certificates S 
-; prelattice_proofs        : @lattice_certificates S 
+; prelattice_join_certs   : @sg_CI_certificates S 
+; prelattice_meet_certs   : @sg_CI_certificates S 
+; prelattice_id_ann_certs : @id_ann_certificates S 
+; prelattice_certs        : @lattice_certificates S 
 ; prelattice_ast           : cas_ast
 }.
 
@@ -824,13 +1110,14 @@ Record distributive_lattice {S : Type} := {
 ; distributive_lattice_certs        : @distributive_lattice_certificates S
 ; distributive_lattice_ast          : cas_ast
 }.
-
-
-
-
-
   
 End CAS. 
+
+
+
+
+
+
 
 Section Translation. 
 
@@ -1513,3 +1800,270 @@ End Translation.
 
 
 
+Section MCAS.
+
+Inductive bs_mcas {S : Type} :=
+| BS_Error : string               -> @bs_mcas S
+| BS_bs : @bs S                   -> @bs_mcas S
+| BS_bs_CI : @bs_CI S              -> @bs_mcas S                                   
+| BS_bs_CS : @bs_CS S              -> @bs_mcas S                                     
+| BS_presemiring  : @presemiring S -> @bs_mcas S
+| BS_semiring  : @semiring S       -> @bs_mcas S
+| BS_pre_dioid  : @pre_dioid S     -> @bs_mcas S
+| BS_pre_dioid_with_one  : @pre_dioid_with_one S -> @bs_mcas S
+| BS_pre_dioid_with_zero  : @pre_dioid_with_zero S -> @bs_mcas S
+| BS_dioid  : @dioid S              -> @bs_mcas S
+| BS_prelattice  : @prelattice S -> @bs_mcas S
+| BS_distributive_prelattice  : @distributive_prelattice S -> @bs_mcas S
+| BS_lattice  : @lattice S          -> @bs_mcas S
+| BS_distributive_lattice  : @distributive_lattice S -> @bs_mcas S
+| BS_selective_presemiring  : @selective_presemiring S -> @bs_mcas S
+| BS_selective_semiring  : @selective_semiring S -> @bs_mcas S
+| BS_selective_pre_dioid  : @selective_pre_dioid S -> @bs_mcas S
+| BS_selective_pre_dioid_with_zero  : @selective_pre_dioid_with_zero S -> @bs_mcas S
+| BS_selective_pre_dioid_with_one  : @selective_pre_dioid_with_one S -> @bs_mcas S
+| BS_selective_dioid  : @selective_dioid S -> @bs_mcas S                                                                                          
+| BS_selective_cancellative_pre_dioid  : @selective_cancellative_pre_dioid S -> @bs_mcas S
+| BS_selective_cancellative_pre_dioid_with_zero  : @selective_cancellative_pre_dioid_with_zero S -> @bs_mcas S
+| BS_selective_cancellative_pre_dioid_with_one  : @selective_cancellative_pre_dioid_with_one S -> @bs_mcas S
+| BS_selective_cancellative_dioid  : @selective_cancellative_dioid S -> @bs_mcas S
+| BS_selective_distributive_prelattice  : @selective_distributive_prelattice S -> @bs_mcas S
+| BS_selective_distributive_prelattice_with_zero  : @selective_distributive_prelattice_with_zero S -> @bs_mcas S    
+| BS_selective_distributive_prelattice_with_one  : @selective_distributive_prelattice_with_one S -> @bs_mcas S
+| BS_selective_distributive_lattice  : @selective_distributive_lattice S -> @bs_mcas S
+. 
+
+Definition bs_classify {S : Type} (A : @bs S) : @bs_mcas S :=
+let ast     := bs_ast A in
+let eqv     := bs_eqv A in
+let plus    := bs_plus A in      
+let plusP   := bs_plus_certs A in
+let sel_d   := asg_selective_d plusP in
+let idem_d  := asg_idempotent_d plusP in   
+let id_annP := bs_id_ann_certs A in
+let pid_id_tann_d := id_ann_plus_times_d id_annP in
+let tid_id_pann_d := id_ann_times_plus_d id_annP in
+let times   := bs_times A in
+let timesP  := bs_times_certs A in
+let comm_d  := msg_commutative_d timesP in
+let left_can_d := msg_left_cancel_d timesP in
+let right_can_d := msg_right_cancel_d timesP in
+let P       := bs_certs A in
+let LD_d := bs_left_distributive_d P in 
+let RD_d := bs_right_distributive_d P in 
+let LLA_d := bs_left_left_absorptive_d P in 
+let LRA_d := bs_left_right_absorptive_d P in
+match sel_d with
+| Certify_Selective  =>
+  (************* Selective *****************)
+  let sg_cs_p := {|
+                      sg_CS_associative   := Assert_Associative 
+                    ; sg_CS_congruence    := Assert_Bop_Congruence 
+                    ; sg_CS_commutative   := Assert_Commutative 
+                    ; sg_CS_selective     := Assert_Selective 
+                  |} in
+  let bs_cs := {|
+                    bs_CS_eqv          := eqv 
+                  ; bs_CS_plus         := plus
+                  ; bs_CS_times        := times 
+                  ; bs_CS_plus_certs   := sg_cs_p 
+                  ; bs_CS_times_certs  := timesP 
+                  ; bs_CS_id_ann_certs := id_annP 
+                  ; bs_CS_certs        := P 
+                  ; bs_CS_ast          := ast 
+                  |} in 
+  match LD_d with
+  | Certify_Left_Distributive  =>
+    match RD_d with
+    | Certify_Right_Distributive  =>
+      match LLA_d, LRA_d with
+      | Certify_Left_Left_Absorptive,   Certify_Left_Right_Absorptive =>
+        let doid_p :=
+            {|
+                dioid_left_distributive     := Assert_Left_Distributive
+              ; dioid_right_distributive    := Assert_Right_Distributive
+              ; dioid_left_left_absorptive  := Assert_Left_Left_Absorptive
+              ; dioid_left_right_absorptive := Assert_Left_Right_Absorptive
+              |} in
+        match pid_id_tann_d, tid_id_pann_d with
+        | Id_Ann_Cert_Equal plus_id_is_times_ann, Id_Ann_Cert_Equal times_id_is_plus_ann =>
+             BS_selective_dioid 
+               {|
+                   selective_dioid_eqv := eqv 
+                 ; selective_dioid_plus := plus
+                 ; selective_dioid_times := times 
+                 ; selective_dioid_plus_certs := sg_cs_p 
+                 ; selective_dioid_times_certs := timesP  
+                 ; selective_dioid_id_ann_certs :=
+                     {|
+                         bounded_plus_id_is_times_ann := Assert_Exists_Id_Ann_Equal plus_id_is_times_ann
+                       ; bounded_times_id_is_plus_ann := Assert_Exists_Id_Ann_Equal times_id_is_plus_ann                      
+                     |} 
+                 ; selective_dioid_certs := doid_p 
+                 ; selective_dioid_ast := ast 
+               |} 
+        | _ , Id_Ann_Cert_Equal times_id_is_plus_ann =>
+              BS_selective_pre_dioid_with_one 
+                {|
+                   selective_pre_dioid_with_one_eqv := eqv 
+                 ; selective_pre_dioid_with_one_plus := plus
+                 ; selective_pre_dioid_with_one_times := times 
+                 ; selective_pre_dioid_with_one_plus_certs := sg_cs_p 
+                 ; selective_pre_dioid_with_one_times_certs := timesP  
+                 ; selective_pre_dioid_with_one_id_ann_certs :=
+                     {|
+                         pann_is_tid_plus_times_d  := pid_id_tann_d
+                       ; pann_is_tid_times_plus  := Assert_Exists_Id_Ann_Equal times_id_is_plus_ann  
+                     |} 
+                 ; selective_pre_dioid_with_one_certs := doid_p 
+                 ; selective_pre_dioid_with_one_ast := ast 
+                |} 
+        | Id_Ann_Cert_Equal plus_id_is_times_ann, _ =>
+             BS_selective_pre_dioid_with_zero
+                {|
+                   selective_pre_dioid_with_zero_eqv := eqv 
+                 ; selective_pre_dioid_with_zero_plus := plus
+                 ; selective_pre_dioid_with_zero_times := times 
+                 ; selective_pre_dioid_with_zero_plus_certs := sg_cs_p 
+                 ; selective_pre_dioid_with_zero_times_certs := timesP  
+                 ; selective_pre_dioid_with_zero_id_ann_certs :=
+                     {|
+                         pid_is_tann_plus_times   := Assert_Exists_Id_Ann_Equal plus_id_is_times_ann
+                       ; pid_is_tann_times_plus_d := tid_id_pann_d                     
+                     |} 
+                 ; selective_pre_dioid_with_zero_certs := doid_p 
+                 ; selective_pre_dioid_with_zero_ast := ast 
+                |} 
+        | _, _ => BS_selective_pre_dioid 
+               {|
+                   selective_pre_dioid_eqv := eqv 
+                 ; selective_pre_dioid_plus := plus
+                 ; selective_pre_dioid_times := times 
+                 ; selective_pre_dioid_plus_certs := sg_cs_p 
+                 ; selective_pre_dioid_times_certs := timesP  
+                 ; selective_pre_dioid_id_ann_certs := id_annP
+                 ; selective_pre_dioid_certs := doid_p 
+                 ; selective_pre_dioid_ast := ast 
+               |} 
+        end
+      | _, _ => BS_bs_CS bs_cs  (* selective semiring? *) 
+      end 
+    | _ => BS_bs_CS bs_cs (* not RD *) 
+    end 
+  | _ => BS_bs_CS bs_cs (* not LD *) 
+  end 
+| Certify_Not_Selective nsel =>
+  match idem_d with
+  | Certify_Idempotent =>
+    (************* Idempotent, Not Selective *****************)
+    let sg_ci_p := {|
+                     sg_CI_associative    := Assert_Associative
+                    ; sg_CI_congruence    := Assert_Bop_Congruence 
+                    ; sg_CI_commutative   := Assert_Commutative 
+                    ; sg_CI_idempotent    := Assert_Idempotent 
+                    ; sg_CI_not_selective := Assert_Not_Selective nsel 
+                  |} in
+    let bs_ci := {|
+                    bs_CI_eqv           := eqv 
+                  ; bs_CI_plus          := plus
+                  ; bs_CI_times         := times 
+                  ; bs_CI_plus_certs   := sg_ci_p 
+                  ; bs_CI_times_certs  := timesP 
+                  ; bs_CI_id_ann_certs := id_annP 
+                  ; bs_CI_certs        := P 
+                  ; bs_CI_ast           := ast 
+                  |} in 
+    match LD_d with
+    | Certify_Left_Distributive  =>
+      match RD_d with
+      | Certify_Right_Distributive  =>
+        match LLA_d with
+        | Certify_Left_Left_Absorptive =>  
+          match LRA_d with
+          | Certify_Left_Right_Absorptive =>
+            let doid_p := {|
+                            dioid_left_distributive      := Assert_Left_Distributive
+                           ; dioid_right_distributive    := Assert_Right_Distributive
+                           ; dioid_left_left_absorptive  := Assert_Left_Left_Absorptive
+                           ; dioid_left_right_absorptive := Assert_Left_Right_Absorptive
+                |} in
+            match pid_id_tann_d, tid_id_pann_d with
+            | Id_Ann_Cert_Equal plus_id_is_times_ann, Id_Ann_Cert_Equal times_id_is_plus_ann =>
+              BS_dioid   {|
+                             dioid_eqv := eqv 
+                           ; dioid_plus := plus
+                           ; dioid_times := times 
+                           ; dioid_plus_certs := sg_ci_p 
+                           ; dioid_times_certs := timesP  
+                           ; dioid_id_ann_certs :=
+                               {|
+                                   bounded_plus_id_is_times_ann := Assert_Exists_Id_Ann_Equal plus_id_is_times_ann
+                                 ; bounded_times_id_is_plus_ann := Assert_Exists_Id_Ann_Equal times_id_is_plus_ann                      
+                               |} 
+                           ; dioid_certs := doid_p 
+                           ; dioid_ast := ast 
+                           |} 
+            | _ , Id_Ann_Cert_Equal times_id_is_plus_ann =>
+              BS_pre_dioid_with_one  {|
+                                        pre_dioid_with_one_eqv := eqv 
+                                        ; pre_dioid_with_one_plus := plus
+                                        ; pre_dioid_with_one_times := times 
+                                        ; pre_dioid_with_one_plus_certs := sg_ci_p 
+                                        ; pre_dioid_with_one_times_certs := timesP  
+                                        ; pre_dioid_with_one_id_ann_certs :=
+                                            {|
+                                                pann_is_tid_plus_times_d  := pid_id_tann_d
+                                              ; pann_is_tid_times_plus := Assert_Exists_Id_Ann_Equal times_id_is_plus_ann                                             
+                                            |} 
+                                        ; pre_dioid_with_one_certs := doid_p 
+                                        ; pre_dioid_with_one_ast := ast 
+                           |} 
+            | Id_Ann_Cert_Equal plus_id_is_times_ann, _ =>
+              BS_pre_dioid_with_zero  {|
+                                         pre_dioid_with_zero_eqv := eqv 
+                                         ; pre_dioid_with_zero_plus := plus
+                                         ; pre_dioid_with_zero_times := times 
+                                         ; pre_dioid_with_zero_plus_certs := sg_ci_p 
+                                         ; pre_dioid_with_zero_times_certs := timesP  
+                                         ; pre_dioid_with_zero_id_ann_certs :=
+                                             {|
+                                               pid_is_tann_plus_times   := Assert_Exists_Id_Ann_Equal plus_id_is_times_ann
+                                              ; pid_is_tann_times_plus_d := tid_id_pann_d                     
+                                             |} 
+                                         ; pre_dioid_with_zero_certs := doid_p 
+                                         ; pre_dioid_with_zero_ast := ast 
+                           |} 
+            | _, _ => BS_pre_dioid  {|
+                                       pre_dioid_eqv := eqv 
+                                       ; pre_dioid_plus := plus
+                                       ; pre_dioid_times := times 
+                                       ; pre_dioid_plus_certs := sg_ci_p 
+                                       ; pre_dioid_times_certs := timesP  
+                                       ; pre_dioid_id_ann_certs := id_annP
+                                       ; pre_dioid_certs := doid_p 
+                                       ; pre_dioid_ast := ast                                        
+                                       |} 
+            end
+          |  _ => BS_bs_CI bs_ci (* not LRA *) 
+          end 
+        | _  => BS_bs_CI bs_ci (* not LLA *) 
+        end 
+      | _      => BS_bs_CI bs_ci
+      end 
+    |      _ => BS_bs_CI bs_ci 
+    end 
+  | Certify_Not_Idempotent nidem =>
+  (************* Not Idempotent *****************)         
+    match LD_d with
+    | Certify_Left_Distributive =>
+      match RD_d with
+      | Certify_Right_Distributive => BS_bs A (* No, check for semiring *) 
+      | _      => BS_bs A 
+      end 
+    |      _ => BS_bs A 
+    end 
+  end 
+end.
+
+
+End MCAS.   

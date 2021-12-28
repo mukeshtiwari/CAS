@@ -520,10 +520,56 @@ End ACAS.
 
 Section CAS.
 
-Section Certify.   
+Section Certify.
+
+Definition brel_lte_left_total_certify {S : Type} 
+     (D : @check_selective S) : @certify_total S  := 
+     match D with
+     | Certify_Selective  => Certify_Total 
+     | Certify_Not_Selective p  => Certify_Not_Total p 
+     end.
+
+
+Definition brel_lte_left_exists_top_certify {S : Type} 
+           (D : @check_exists_id S) : @certify_exists_top S := 
+  match D with
+  | Certify_Exists_Id id  => Certify_Exists_Top id 
+  | Certify_Not_Exists_Id => Certify_Not_Exists_Top
+  end. 
+
+Definition brel_lte_left_exists_bottom_certify {S : Type} 
+           (D : @check_exists_ann S) : @certify_exists_bottom S := 
+  match D with
+  | Certify_Exists_Ann ann  => Certify_Exists_Bottom ann 
+  | Certify_Not_Exists_Ann => Certify_Not_Exists_Bottom
+  end. 
+    
 End Certify.
 
 Section Certificates.
+
+Definition po_certs_from_sg_CI_certs {S : Type} (P : @sg_CI_certificates S) : @po_certificates S :=
+{|  
+  po_congruence    := Assert_Brel_Congruence 
+; po_reflexive     := Assert_Reflexive 
+; po_transitive    := Assert_Transitive
+; po_antisymmetric := Assert_Antisymmetric 
+; po_not_total     := match sg_CI_not_selective P with
+                      | Assert_Not_Selective p => Assert_Not_Total p
+                      end
+|}.
+
+
+Definition to_certs_from_sg_CS_certs {S : Type} (P : @sg_CS_certificates S) : @to_certificates S :=
+{|  
+  to_congruence    := Assert_Brel_Congruence 
+; to_reflexive     := Assert_Reflexive 
+; to_transitive    := Assert_Transitive
+; to_antisymmetric := Assert_Antisymmetric 
+; to_total         := Assert_Total
+|}.
+
+  
 End Certificates.
 
 Section Combinators.
@@ -534,12 +580,16 @@ End CAS.
 Section Verify.
 
 Section Decide.   
+
+
 End Decide.
 
 Section Proofs.
+
 End Proofs.
 
 Section Combinators.
+
 End Combinators.
 
   

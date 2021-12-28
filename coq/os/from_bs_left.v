@@ -1,3 +1,5 @@
+Require Import Coq.Strings.String.
+
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 
@@ -7,10 +9,11 @@ Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
 Require Import CAS.coq.po.theory.
+Require Import CAS.coq.po.from_sg.
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
-Require Import CAS.coq.sg.from_sg. 
+
 
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
@@ -226,7 +229,7 @@ Lemma os_from_bs_left_not_right_increasing :
 Proof. intros [[s t] A]. exists (s, t). compute. auto. Qed.
 
 
-(*  need "anti-absorptive, left_decreasing, ... ? 
+(*  need anti-absorptive, left_decreasing, ... ? 
 
 
 Lemma os_from_bs_right_left_increasing : 
@@ -258,7 +261,7 @@ Admitted.
 
 Lemma os_from_bs_left_exists_top_ann_equal
       (P : bops_exists_id_ann_equal S eq plus times) :
-           os_exists_top_ann_equal eq left_lte times.
+           A_os_exists_top_ann_equal eq left_lte times.
 Proof. destruct P as [a [A B]].
        exists a; split; auto.
        apply brel_lte_left_is_top; auto.
@@ -266,7 +269,7 @@ Defined.
 
 Lemma os_from_bs_left_exists_top_ann_not_equal
       (P : bops_exists_id_ann_not_equal S eq plus times) :
-           os_exists_top_ann_not_equal eq left_lte times.
+           A_os_exists_top_ann_not_equal eq left_lte times.
 Proof. destruct P as [[a b] [[A B] C]].
        exists (a, b). split; auto. split; auto. 
        apply brel_lte_left_is_top; auto.
@@ -274,7 +277,7 @@ Defined.
 
 Lemma os_from_bs_left_exists_bottom_id_equal
       (P : bops_exists_id_ann_equal S eq times plus) :
-           os_exists_bottom_id_equal eq left_lte times.
+           A_os_exists_bottom_id_equal eq left_lte times.
 Proof. destruct P as [a [A B]].
        exists a; split; auto.
        apply brel_lte_left_is_bottom; auto.
@@ -282,7 +285,7 @@ Defined.
 
 Lemma os_from_bs_left_exists_bottom_id_not_equal
       (P : bops_exists_id_ann_not_equal S eq times plus) :
-           os_exists_bottom_id_not_equal eq left_lte times.
+           A_os_exists_bottom_id_not_equal eq left_lte times.
 Proof. destruct P as [[a b] [[A B] C]].
        exists (b, a); split; auto. split; auto. 
        apply brel_lte_left_is_bottom; auto.
@@ -326,13 +329,13 @@ Definition os_from_bs_left_exists_top_ann_equal_decidable
   | Id_Ann_Proof_None _ _ _ _ (no_id, no_ann)         =>
        Top_Ann_Proof_None _ _ _ _ (brel_lte_left_not_exists_top S eq sym trn plus plus_comm no_id, no_ann) 
   | Id_Ann_Proof_Id_None  _ _ _ _ (exists_id, no_ann) =>
-       Top_Ann_Proof_None_Ann _ _ _ _ (brel_lte_left_exists_top S eq sym trn plus plus_comm exists_id, no_ann)
+       Top_Ann_Proof_Top_None _ _ _ _ (brel_lte_left_exists_top S eq sym plus exists_id, no_ann)
   | Id_Ann_Proof_None_Ann _ _ _ _ (no_id, exists_ann) =>
-       Top_Ann_Proof_Top_None _ _ _ _ (brel_lte_left_not_exists_top S eq sym trn plus plus_comm no_id, exists_ann) 
+       Top_Ann_Proof_None_Ann _ _ _ _ (brel_lte_left_not_exists_top S eq sym trn plus plus_comm no_id, exists_ann) 
   | Id_Ann_Proof_Equal _ _ _ _ id_ann_eq              =>
-       Top_Ann_Proof_Equal _ _ _ _ (os_from_bs_left_exists_top_ann_equal S eq plus times id_ann_eq) 
+       Top_Ann_Proof_Equal _ _ _ _ (os_from_bs_left_exists_top_ann_equal S eq sym plus times id_ann_eq) 
   | Id_Ann_Proof_Not_Equal _ _ _ _ id_ann_not_eq      =>
-       Top_Ann_Proof_Not_Equal _ _ _ _ (os_from_bs_left_exists_top_ann_not_equal S eq plus times id_ann_not_eq) 
+       Top_Ann_Proof_Not_Equal _ _ _ _ (os_from_bs_left_exists_top_ann_not_equal S eq sym plus times id_ann_not_eq) 
 end.
 
 
@@ -344,89 +347,303 @@ Definition os_from_bs_left_exists_bottom_id_equal_decidable
   let trn := A_eqv_transitive _ _ eqvP in   
   match P with 
   | Id_Ann_Proof_None _ _ _ _ (no_id, no_ann)         =>
-       Bottom_Id_Proof_None _ _ _ _ (???, no_id) 
+       Bottom_Id_Proof_None _ _ _ _ (brel_lte_left_not_exists_bottom S eq sym trn plus plus_comm no_ann, no_id) 
   | Id_Ann_Proof_Id_None  _ _ _ _ (exists_id, no_ann) =>
-       Bottom_Id_Proof_None_Ann _ _ _ _ (???, exists_id)
+       Bottom_Id_Proof_None_Id _ _ _ _ (brel_lte_left_not_exists_bottom S eq sym trn plus plus_comm no_ann, exists_id)
   | Id_Ann_Proof_None_Ann _ _ _ _ (no_id, exists_ann) =>
-       Bottom_Id_Proof_Id_None _ _ _ _ (brel_lte_left_exists_bottom S eq sym trn plus plus_comm exists_ann, no_id)    
+       Bottom_Id_Proof_Bottom_None _ _ _ _ (brel_lte_left_exists_bottom S eq sym plus exists_ann, no_id)    
   | Id_Ann_Proof_Equal _ _ _ _ id_ann_eq              =>
-       Bottom_Id_Proof_Equal _ _ _ _ (os_from_bs_left_exists_bottom_id_equal S r b1 b2 id_ann_eq) 
+       Bottom_Id_Proof_Equal _ _ _ _ (os_from_bs_left_exists_bottom_id_equal S eq sym plus times id_ann_eq) 
   | Id_Ann_Proof_Not_Equal _ _ _ _ id_ann_not_eq      =>
-       Bottom_Id_Proof_Not_Equal _ _ _ _ (os_from_bs_left_exists_bottom_id_not_equal S r b1 b2 id_ann_not_eq) 
+       Bottom_Id_Proof_Not_Equal _ _ _ _ (os_from_bs_left_exists_bottom_id_not_equal S eq sym plus times id_ann_not_eq) 
 end.
   
-End Decide.     
-  
+End Decide.
 
-Definition os_from_bs_left_proofs (S: Type) (eq : brel S) (plus times : binary_op S) :
-  eqv_proofs S eq ->
-  bop_congruence S eq times -> 
-  semiring_proofs S eq plus times ->
-  monotone_os_proofs S (brel_lte_left eq plus) times 
-:= λ E tcong P,
-let ref := A_eqv_reflexive S eq E in
-let trn := A_eqv_transitive S eq E in  (* note: symmetry is not needed *) 
+Section Proofs. 
+
+Variables (S : Type) (eq : brel S) (eqvP : eqv_proofs S eq) (plus times : binary_op S).
+
+Definition os_bs_left_bottom_top_proofs_from_id_ann_proofs
+           (plus_comm : bop_commutative S eq plus)
+           (P : id_ann_proofs S eq plus times) :
+                os_bottom_top_proofs S eq (brel_lte_left eq plus) times := 
 {|
-  A_mos_left_monotonic     := os_from_bs_left_left_monotone S eq ref trn plus times tcong  (A_semiring_left_distributive S eq plus times P)
-; A_mos_right_monotonic    := os_from_bs_left_right_monotone S eq ref trn plus times tcong  (A_semiring_right_distributive S eq plus times P)
+  A_bottom_top_bottom_id_d :=
+    os_from_bs_left_exists_bottom_id_equal_decidable S eq eqvP plus times plus_comm (A_id_ann_times_plus_d _ _ _ _ P)
+; A_bottom_top_top_ann_d   :=
+    os_from_bs_left_exists_top_ann_equal_decidable S eq eqvP plus times plus_comm (A_id_ann_plus_times_d _ _ _ _ P)
+|}.
 
-; A_mos_left_increasing_d  := os_from_bs_left_left_increasing_decide S eq plus times (A_semiring_left_left_absorptive_d S eq plus times P)
-; A_mos_right_increasing_d := os_from_bs_left_right_increasing_decide S eq plus times (A_semiring_left_right_absorptive_d S eq plus times P)
+
+Definition os_bs_left_bounded_proofs_from_bs_bounded_proofs
+           (P : dually_bounded_proofs S eq plus times) :
+                os_bounded_proofs S eq (brel_lte_left eq plus) times := 
+let sym := A_eqv_symmetric _ _ eqvP in
+{|
+  A_bounded_bottom_id :=
+      os_from_bs_left_exists_bottom_id_equal S eq sym plus times (A_bounded_times_id_is_plus_ann _ _ _ _ P) 
+; A_bounded_top_ann   :=
+      os_from_bs_left_exists_top_ann_equal S eq sym plus times (A_bounded_plus_id_is_times_ann _ _ _ _ P)     
+|}.
+
+Definition os_bs_left_bottom_is_id_proofs_from_pann_is_tid_proofs
+           (plus_comm : bop_commutative S eq plus)           
+           (P : pann_is_tid_proofs S eq plus times) :
+             os_bottom_is_id_proofs S eq (brel_lte_left eq plus) times := 
+let sym := A_eqv_symmetric _ _ eqvP in
+{|
+  A_bottom_is_id           :=
+      os_from_bs_left_exists_bottom_id_equal S eq sym plus times (A_pann_is_tid_times_plus _ _ _ _ P)     
+; A_bottom_is_id_top_ann_d :=
+    os_from_bs_left_exists_top_ann_equal_decidable S eq eqvP plus times plus_comm (A_pann_is_tid_plus_times_d _ _ _ _ P)      
+|}.
+
+Definition os_bs_left_top_is_ann_proofs_from_pid_is_tann_proofs
+           (plus_comm : bop_commutative S eq plus)           
+           (P : pid_is_tann_proofs S eq plus times) :
+             os_top_is_ann_proofs S eq (brel_lte_left eq plus) times := 
+let sym := A_eqv_symmetric _ _ eqvP in           
+{|
+  A_top_is_ann_bottom_id_d :=
+    os_from_bs_left_exists_bottom_id_equal_decidable S eq eqvP plus times plus_comm (A_pid_is_tann_times_plus_d _ _ _ _ P)    
+; A_top_is_ann             :=
+      os_from_bs_left_exists_top_ann_equal S eq sym plus times (A_pid_is_tann_plus_times _ _ _ _ P)           
+|}.
+
+Definition os_bs_left_monotone_increasing_proofs_from_dioid_proofs
+           (times_cong : bop_congruence S eq times)
+           (P : dioid_proofs S eq plus times) :
+              os_monotone_increasing_proofs S (brel_lte_left eq plus) times := 
+let ref := A_eqv_reflexive _ _ eqvP in   
+let trn := A_eqv_transitive _ _ eqvP in   
+let LD  := A_dioid_left_distributive _ _ _ _ P in
+let RD  := A_dioid_right_distributive _ _ _ _ P in
+let LLA := A_dioid_left_left_absorptive _ _ _ _ P in
+let LRA := A_dioid_left_right_absorptive _ _ _ _ P in
+{|
+  A_mono_inc_left_monotonic   := os_from_bs_left_left_monotone S eq ref trn plus times times_cong LD 
+; A_mono_inc_right_monotonic  := os_from_bs_left_right_monotone S eq ref trn plus times times_cong RD
+
+; A_mono_inc_left_increasing  := os_from_bs_left_left_increasing S eq plus times LLA 
+; A_mono_inc_right_increasing := os_from_bs_left_right_increasing S eq plus times LRA 
 |}. 
+  
+End Proofs.
 
+Section Combinators.
 
-Lemma bops_id_equals_ann_to_exists_ann (S: Type) (eq : brel S) (b1 b2 : binary_op S): 
-  bops_id_equals_ann S eq b1 b2 -> (bop_exists_ann S eq b2).
-Proof. intros [i [idP annP]]. exists i; auto. Defined. 
-
-
-
-Definition from_bs_left_top_bottom_proofs (S: Type) (eq : brel S) (eqvP : eqv_proofs S eq)
-           (plus : binary_op S) (times : binary_op S) (commP : bop_commutative S eq plus): 
-  add_ann_mul_id_proofs S eq plus times -> top_bottom_ann_id_with_id_proofs S eq (lte S eq plus) times 
-:= λ P, 
-let symS := A_eqv_symmetric S eq eqvP in 
-let trnS := A_eqv_transitive S eq eqvP in 
+Definition A_posg_from_pre_dioid (S :Type) (D : A_pre_dioid S) : A_monotone_increasing_posg S :=
+let eqv        := A_pre_dioid_eqv _ D in
+let eq         := A_eqv_eq _ eqv in
+let eqvP       := A_eqv_proofs _ eqv in
+let plus       := A_pre_dioid_plus _ D in
+let plusP      := A_pre_dioid_plus_proofs _ D in
+let plus_comm  := A_sg_CI_commutative _ _ _ plusP in 
+let times      := A_pre_dioid_times _ D in
+let timesP     := A_pre_dioid_times_proofs _ D in
+let times_cong := A_msg_congruence _ _ _ timesP in 
 {|
-  A_top_ann_d := os_from_bs_left_top_equals_ann_decide S eq symS trnS plus times commP
-                          (A_add_ann_mul_id_plus_id_is_times_ann_d S eq plus times P)
-; A_bottom_id :=  os_from_bs_left_bottom_equals_id S eq symS plus times
-                          (A_add_ann_mul_id_times_id_is_plus_ann S eq plus times P)                                                    
+  A_miposg_eqv          := eqv 
+; A_miposg_lte          := brel_lte_left eq plus
+; A_miposg_times        := times 
+; A_miposg_lte_proofs   := po_proofs_from_sg_CI_proofs S eq eqvP plus plusP 
+; A_miposg_times_proofs := timesP 
+; A_miposg_top_bottom   := os_bs_left_bottom_top_proofs_from_id_ann_proofs S eq eqvP plus times plus_comm (A_pre_dioid_id_ann_proofs _ D)
+; A_miposg_proofs       := os_bs_left_monotone_increasing_proofs_from_dioid_proofs S eq eqvP plus times times_cong (A_pre_dioid_proofs _ D)
+; A_miposg_ast          := A_pre_dioid_ast _ D (* FIX *)
 |}.
 
-(*
-Definition A_monotone_mposg_from_predioid (S : Type) : A_predioid_with_id S -> A_monotone_posg S
-  := λ PDWI,
-let eqv   := A_pdwid_eqv S PDWI in
-let eq    := A_eqv_eq S eqv in                            
-let eqvP  := A_eqv_proofs S eqv in
-let plus  := A_pdwid_plus S PDWI in
-let times := A_pdwid_times S PDWI in                                                 
-let lte   := brel_lte_left eq plus in      
-let PSP   := A_pdwid_times_proofs S PDWI in
-let PSR   := A_pdwid_proofs S PDWI in
-let tcong := A_msg_congruence S eq times PSP in
-let commP := A_sg_CI_commutative S eq plus (A_pdwid_plus_proofs S PDWI) in                                                            
-let annP := bops_id_equals_ann_to_exists_ann S eq times plus 
-              (A_add_ann_mul_id_times_id_is_plus_ann S eq plus times (A_pdwid_id_ann_proofs S PDWI)) in 
-let id_d :=  A_add_ann_mul_id_plus_id_d S eq plus times (A_pdwid_id_ann_proofs S PDWI) in 
-{|     
-  A_mposg_eqv          := eqv
-; A_mposg_lte          := lte 
-; A_mposg_times        := A_pdwid_times S PDWI 
-; A_mposg_lte_proofs   := po_from_sg_left_proofs S eq eqvP plus id_d annP (A_pdwid_plus_proofs S PDWI) 
-; A_mposg_times_proofs := PSP
-; A_mposg_top_bottom   := from_bs_left_top_bottom_proofs S eq eqvP plus times commP (A_pdwid_id_ann_proofs S PDWI)
-; A_mposg_proofs       := os_from_bs_left_proofs S eq plus times eqvP tcong PSR
-; A_mposg_ast          := Ast_mposg_from_bs (A_pdwid_ast S PDWI)  
+
+Definition A_posg_from_dioid (S :Type) (D : A_dioid S) : A_bounded_monotone_increasing_posg S :=
+let eqv        := A_dioid_eqv _ D in
+let eq         := A_eqv_eq _ eqv in
+let eqvP       := A_eqv_proofs _ eqv in
+let plus       := A_dioid_plus _ D in
+let times      := A_dioid_times _ D in
+let timesP     := A_dioid_times_proofs _ D in
+let times_cong := A_msg_congruence _ _ _ timesP in 
+{|
+  A_bmiposg_eqv          := eqv 
+; A_bmiposg_lte          := brel_lte_left eq plus
+; A_bmiposg_times        := times 
+; A_bmiposg_lte_proofs   := po_proofs_from_sg_CI_proofs S eq eqvP plus (A_dioid_plus_proofs _ D)
+; A_bmiposg_times_proofs := timesP 
+; A_bmiposg_top_bottom   := os_bs_left_bounded_proofs_from_bs_bounded_proofs S eq eqvP plus times (A_dioid_id_ann_proofs _ D)
+; A_bmiposg_proofs       := os_bs_left_monotone_increasing_proofs_from_dioid_proofs S eq eqvP plus times times_cong (A_dioid_proofs _ D)
+; A_bmiposg_ast          := A_dioid_ast _ D (* FIX *)
 |}.
-*)
+
+
+End Combinators.   
   
 End ACAS.
 
+Section AMCAS.
+
+Definition A_bs_mcas_minset_union_lift (S : Type) (A : A_bs_mcas S) :=
+  match A with
+  | A_BS_bs _ B => 
+    match A_bs_classify _ B with 
+    | A_BS_dioid _ C => A_OS_bounded_monotone_increasing_posg _ (A_posg_from_dioid _ C)
+    | _ => A_OS_Error _ "structure is not a dioid"
+    end
+  | A_BS_dioid _ C => A_OS_bounded_monotone_increasing_posg _ (A_posg_from_dioid _ C)
+  | _ => A_OS_Error _ "ERROR : expecting dioid"
+  end. 
+
+End AMCAS.   
+
+
+
 Section CAS.
 
+
+Section Decide.
+
+ 
+Definition os_from_bs_left_left_increasing_certify {S : Type}
+  (d : @check_left_left_absorptive S) : @check_left_increasing S := 
+   match d with 
+   | Certify_Left_Left_Absorptive          => Certify_Left_Increasing 
+   | Certify_Not_Left_Left_Absorptive trip => Certify_Not_Left_Increasing trip
+   end. 
+
+
+Definition os_from_bs_left_right_increasing_certify {S : Type}
+  (d : @check_left_right_absorptive S) : @check_right_increasing S := 
+   match d with 
+   | Certify_Left_Right_Absorptive          => Certify_Right_Increasing 
+   | Certify_Not_Left_Right_Absorptive trip => Certify_Not_Right_Increasing trip
+   end. 
+
+
+Definition os_from_bs_left_exists_top_ann_equal_certify {S : Type} 
+       (P : @exists_id_ann_certificate S) : @os_exists_top_ann_certificate S :=
+match P with 
+  | Id_Ann_Cert_None                => Top_Ann_Cert_None 
+  | Id_Ann_Cert_Id_None  top        => Top_Ann_Cert_Top_None top 
+  | Id_Ann_Cert_None_Ann ann        => Top_Ann_Cert_None_Ann ann 
+  | Id_Ann_Cert_Equal top_ann       => Top_Ann_Cert_Equal top_ann 
+  | Id_Ann_Cert_Not_Equal (top,ann) => Top_Ann_Cert_Not_Equal (top, ann) 
+end.
+
+
+Definition os_from_bs_left_exists_bottom_id_equal_certify {S : Type} 
+       (P : @exists_id_ann_certificate S) : @os_exists_bottom_id_certificate S := 
+match P with 
+  | Id_Ann_Cert_None                => Bottom_Id_Cert_None 
+  | Id_Ann_Cert_Id_None id          => Bottom_Id_Cert_None_Id id 
+  | Id_Ann_Cert_None_Ann ann        => Bottom_Id_Cert_Bottom_None ann 
+  | Id_Ann_Cert_Equal id_ann        => Bottom_Id_Cert_Equal id_ann 
+  | Id_Ann_Cert_Not_Equal (id, ann) => Bottom_Id_Cert_Not_Equal (id, ann) 
+end.
+  
+End Decide.
+
+Section Certs. 
+
+Definition os_bs_left_bottom_top_certs_from_id_ann_certs {S : Type} 
+           (P : @id_ann_certificates S ) : @os_bottom_top_certs S := 
+{|
+  bottom_top_bottom_id_d := os_from_bs_left_exists_bottom_id_equal_certify (id_ann_times_plus_d P)
+; bottom_top_top_ann_d   := os_from_bs_left_exists_top_ann_equal_certify (id_ann_plus_times_d P)
+|}.
+
+
+Definition os_bs_left_bounded_certs_from_bs_bounded_certs {S : Type} 
+           (P : @dually_bounded_certificates S) : @os_bounded_certs S := 
+{|
+  bounded_bottom_id := match bounded_times_id_is_plus_ann P with
+                       | Assert_Exists_Id_Ann_Equal id_ann => Assert_Os_Exists_Bottom_Id_Equal id_ann
+                       end 
+; bounded_top_ann   := match bounded_plus_id_is_times_ann P with
+                       | Assert_Exists_Id_Ann_Equal id_ann => Assert_Os_Exists_Top_Ann_Equal id_ann
+                       end 
+|}.
+
+Definition os_bs_left_bottom_is_id_certs_from_pann_is_tid_certs {S : Type} 
+           (P : @pann_is_tid_certificates S) : @os_bottom_is_id_certs S := 
+{|
+  bottom_is_id           := match pann_is_tid_times_plus P with
+                            | Assert_Exists_Id_Ann_Equal id_ann => Assert_Os_Exists_Bottom_Id_Equal id_ann
+                            end 
+; bottom_is_id_top_ann_d := os_from_bs_left_exists_top_ann_equal_certify (pann_is_tid_plus_times_d P) 
+|}.
+
+Definition os_bs_left_top_is_ann_certs_from_pid_is_tann_certs {S : Type} 
+           (P : @pid_is_tann_certificates S) : @os_top_is_ann_certs S := 
+{|
+  top_is_ann_bottom_id_d := os_from_bs_left_exists_bottom_id_equal_certify (pid_is_tann_times_plus_d P)
+; top_is_ann             := match (pid_is_tann_plus_times P) with
+                            | Assert_Exists_Id_Ann_Equal id_ann => Assert_Os_Exists_Top_Ann_Equal id_ann
+                            end 
+|}.
+
+Definition os_bs_left_monotone_increasing_certs_from_dioid_certs {S : Type} 
+           (P : @dioid_certificates S) : @os_monotone_increasing_certificates S := 
+{|
+  mono_inc_left_monotonic   := Assert_Left_Monotone
+; mono_inc_right_monotonic  := Assert_Right_Monotone
+
+; mono_inc_left_increasing  := Assert_Left_Increasing
+; mono_inc_right_increasing := Assert_Right_Increasing
+|}. 
+  
+End Certs.
+
+Section Combinators.
+
+Definition posg_from_pre_dioid {S :Type} (D : @pre_dioid S) : @monotone_increasing_posg S :=
+let eqv        := pre_dioid_eqv D in
+let eq         := eqv_eq eqv in
+let plus       := pre_dioid_plus D in
+let plusP      := pre_dioid_plus_certs D in
+{|
+  miposg_eqv          := eqv 
+; miposg_lte          := brel_lte_left eq plus
+; miposg_times        := pre_dioid_times D
+; miposg_lte_certs    := po_certs_from_sg_CI_certs plusP 
+; miposg_times_certs  := pre_dioid_times_certs D
+; miposg_top_bottom   := os_bs_left_bottom_top_certs_from_id_ann_certs (pre_dioid_id_ann_certs D)
+; miposg_certs        := os_bs_left_monotone_increasing_certs_from_dioid_certs (pre_dioid_certs D)
+; miposg_ast          := pre_dioid_ast D (* FIX *)
+|}.
+
+
+Definition posg_from_dioid (S :Type) (D : @dioid S) : @bounded_monotone_increasing_posg S :=
+{|
+  bmiposg_eqv          := dioid_eqv _ D
+; bmiposg_lte          := brel_lte_left (eqv_eq (dioid_eqv _ D)) (dioid_plus _ D)
+; bmiposg_times        := dioid_times _ D 
+; bmiposg_lte_certs    := po_certs_from_sg_CI_certs (dioid_plus_certs _ D )
+; bmiposg_times_certs  := dioid_times_certs _ D 
+; bmiposg_top_bottom   := os_bs_left_bounded_certs_from_bs_bounded_certs (dioid_id_ann_certs _ D)
+; bmiposg_certs        := os_bs_left_monotone_increasing_certs_from_dioid_certs (dioid_certs _ D)
+; bmiposg_ast          := dioid_ast _ D (* FIX *)
+|}.
+
+
+End Combinators.  
 End CAS.
+
+
+Section MCAS.
+
+Definition posg_from_bs {S : Type} (A : @bs_mcas S) : @os_mcas S :=
+  match A with
+  | BS_bs B => 
+    match bs_classify B with 
+    | BS_dioid C => OS_bounded_monotone_increasing_posg (posg_from_dioid _ C)
+    | _ => OS_Error "structure is not a dioid"
+    end
+  | BS_dioid C => OS_bounded_monotone_increasing_posg (posg_from_dioid _ C)
+  | _ => OS_Error "ERROR : expecting dioid"
+  end. 
+
+End MCAS.   
+
+
 
 Section Verify.
  

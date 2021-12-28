@@ -1,3 +1,5 @@
+Require Import Coq.Strings.String.
+
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 
@@ -26,7 +28,6 @@ Require Import CAS.coq.bs.theory.
 
 Require Import CAS.coq.os.properties.
 Require Import CAS.coq.os.structures.
-
 
 
 
@@ -83,12 +84,6 @@ Variable lteTrans : brel_transitive S lteS.
 Variable bS : binary_op S. 
 Variable bCong : bop_congruence S rS bS. 
 Variable bAss : bop_associative S rS bS.
-
-(*
-Variable LM : os_left_monotone S lteS bS. (* ∀ s t u : S, lteS t u = true → lteS (bS s t) (bS s u) = true  *) 
-Variable RM : os_right_monotone S lteS bS. 
-*) 
-
 
 Notation "a [=] b"  := (rS a b = true)          (at level 15).
 Notation "a [<>] b" := (rS a b = false)         (at level 15).
@@ -290,7 +285,10 @@ Lemma minset_lift_right_uop_invariant_weak
      : ∀ X Y : finite_set S, ([ms] (X [^] ([ms] Y))) [=S] ([ms] (X [^] Y)).
 Admitted.
 
-
+(*
+Lemma martelli_1 (X Y : finite_set S)
+      X [^] Y [=S] { Z : finite_set S & (([ms] (X [^] Y)) [U] Z) * ()}
+*) 
 (* used in minset_union_lift_left_left_absorptive_strictly_increasing_weak *) 
 Lemma lift_left_strictly_increasing 
       (sinc : os_left_strictly_increasing lteS bS) 
@@ -378,7 +376,7 @@ Lemma minset_lift_union_exists_id_ann_equal_partial_order_version
       (LM : os_left_monotone lteS bS) 
       (RM : os_right_monotone lteS bS) 
       (anti : brel_antisymmetric S rS lteS)
-      (bot_id : os_exists_bottom_id_equal rS lteS bS) :
+      (bot_id : A_os_exists_bottom_id_equal rS lteS bS) :
       bops_exists_id_ann_equal (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS bS) (bop_minset_union S rS lteS).
 Proof. destruct bot_id as [bot [A B]]. 
        exists (bot :: nil). split.
@@ -390,12 +388,13 @@ Lemma minset_lift_union_exists_id_ann_equal_quasi_order_version
    (LM : os_left_monotone lteS bS)
    (RM : os_right_monotone lteS bS)             
    (smono : os_left_strictly_monotone lteS bS * os_right_strictly_monotone lteS bS): 
-   os_qo_exists_bottom_id_equal rS lteS bS ->   
+   A_os_qo_exists_bottom_id_equal rS lteS bS ->   
        bops_exists_id_ann_equal (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS bS) (bop_minset_union S rS lteS). 
 Proof. intros [b [[A B] C]]. exists (b :: nil). split. 
        apply bop_minset_lift_id_is_bottom; auto. (* here uses smono, LM, and RM *)
        apply bop_minset_union_exists_ann_is_bottom; auto. 
 Qed. 
+
 
 
 (***************** Distributivity ********************************) 
@@ -606,6 +605,56 @@ Proof. intros X Y Z.
 Qed.
 
 
+Lemma minset_union_lift_not_left_distributive_weak_v1 
+  (NLM : os_not_left_monotone lteS bS) : 
+     bop_not_left_distributive (finite_set S) (brel_set rS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
+Proof. destruct NLM as [[s [t u]] [A B]]. 
+       exists (s :: nil, (t :: nil, u :: nil)).
+
+(* Seems correct. 
+    ms {st} <> ms {st, su} 
+
+  
+
+*) 
+Admitted.
+
+
+
+Lemma minset_union_lift_not_left_distributive_weak_v2
+  (LM : os_left_monotone lteS bS)
+  (RM : os_right_monotone lteS bS)       
+  (NLSM : os_not_left_strictly_monotone lteS bS) : 
+     bop_not_left_distributive (finite_set S) (brel_set rS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
+Proof. destruct NLSM as [[s [t u]] [[A B] [C | C]]].
+       + admit. (* same as previous proof *)
+       + exists (s :: nil, (t :: nil, u :: nil)).
+(* Seems correct. 
+    ms {st} <> ms {st, su} 
+
+A : t <<= u
+  B : u !<<= t
+  C : bS s u <<= bS s t
+    
+   WE ALSO KNOW : bS s t <<= bS s u
+
+   So bS s t [~] bS s u
+
+   BUT, we don't know that these witness a violation of antisymmetry! 
+
+   So, we really want (negative) property: 
+
+   exists s, t u, not_anti_symm(s,t,u) and not_lsm(s,t,u))
+
+   So, we really want (positve) property: 
+
+   for all s, t u, anti_symm(s,t,u) or lsm(s,t,u))
+
+
+*) 
+Admitted.          
+
+         
 Lemma minset_union_lift_left_distributive
   (LM : os_left_monotone lteS bS)
   (RM : os_right_monotone lteS bS)             
@@ -684,13 +733,24 @@ Lemma minset_union_lift_left_right_absorptive_increasing_weak
 Proof.  apply  union_left_antisymmetric; auto. apply lift_right_increasing; auto. Qed.
 
 
-(* 
+Lemma minset_union_lift_ann_equals_id
+   (LM : os_left_monotone lteS bS)
+  (RM : os_right_monotone lteS bS)       
+  (P : A_os_exists_bottom_id_equal rS lteS bS)
+  (D : brel_antisymmetric S rS lteS +  (os_left_strictly_monotone lteS bS * os_right_strictly_monotone lteS bS)) : 
+  bops_exists_id_ann_equal (finite_set S) (brel_minset rS lteS)
+    (bop_minset_lift S rS lteS bS) (bop_minset_union S rS lteS). 
+Proof. destruct P as [bot_id [A B]].
+       exists (bot_id :: nil). split. 
+       apply bop_minset_lift_id_is_bottom; auto. (* uses all assumptions! *) 
+       admit. (* fix : apply bop_minset_union_is_ann. *) 
+Admitted. 
 
-Lemma minset_union_lift_left_left_absorptive    !!!!!!!!!!!!!!!!!!!
+Lemma minset_union_lift_left_left_absorptive 
       (anti : brel_antisymmetric S rS lteS)
       (LM : os_left_monotone lteS bS) 
       (RM : os_right_monotone lteS bS) 
-      (bot_id : os_bottom_equals_id rS lteS bS) :
+      (bot_id : A_os_exists_bottom_id_equal rS lteS bS) :
      bops_left_left_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
 Proof. apply id_ann_implies_left_left_absorptive.
        apply minset_reflexive. 
@@ -704,11 +764,11 @@ Qed.
 
 
 
-Lemma minset_union_lift_left_right_absorptive   !!!!!!!!!!!!!!!!!!!!!!
+Lemma minset_union_lift_left_right_absorptive   
       (anti : brel_antisymmetric S rS lteS)
       (LM : os_left_monotone lteS bS) 
       (RM : os_right_monotone lteS bS) 
-      (bot_id : os_bottom_equals_id rS lteS bS) :
+      (bot_id : A_os_exists_bottom_id_equal rS lteS bS) :
      bops_left_right_absorptive (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
 Proof. apply id_ann_implies_left_right_absorptive.
        apply minset_reflexive. 
@@ -721,7 +781,6 @@ Proof. apply id_ann_implies_left_right_absorptive.
        apply minset_union_lift_ann_equals_id; auto. 
 Qed. 
 
-*) 
        
 (* STRICT VERSIONS *)
 
@@ -848,129 +907,190 @@ Section Decide.
 End Decide.
 
 Section Proofs.
+
+Variables (S : Type)
+          (eq lte : brel S)
+          (eqvP : eqv_proofs S eq)
+          (times : binary_op S). 
+
+Definition  minset_union_lift_dioid_proofs_from_monotone_increasing_proofs
+            (anti : brel_antisymmetric S eq lte)
+            (times_cong : bop_congruence S eq times) 
+            (P : po_proofs S eq lte)
+            (G : msg_proofs S eq times)            
+            (M : os_monotone_increasing_proofs S lte times) :
+                dioid_proofs (finite_set S)
+                             (brel_minset eq lte)
+                             (bop_minset_union S eq lte)
+                             (bop_minset_lift S eq lte times) := 
+let lte_ref := A_po_reflexive _ _ _ P in 
+let lte_trn := A_po_transitive _ _ _ P in
+let lte_cong := A_po_congruence _ _ _ P in 
+let ref := A_eqv_reflexive _ _ eqvP in
+let sym := A_eqv_symmetric _ _ eqvP in
+let trn := A_eqv_transitive _ _ eqvP in      
+let LM := A_mono_inc_left_monotonic _ _ _ M in 
+let RM := A_mono_inc_right_monotonic _ _ _ M in 
+let LI := A_mono_inc_left_increasing _ _ _ M in
+let RI := A_mono_inc_right_increasing _ _ _ M in 
+{| 
+  A_dioid_left_distributive     := minset_union_lift_left_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM (inl anti) 
+; A_dioid_right_distributive    := minset_union_lift_right_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM (inl anti) 
+; A_dioid_left_left_absorptive  := minset_union_lift_left_left_absorptive_increasing S eq ref sym trn lte lte_cong lte_ref lte_trn times anti LI 
+; A_dioid_left_right_absorptive := minset_union_lift_left_right_absorptive_increasing S eq ref sym trn lte lte_cong lte_ref lte_trn times anti RI 
+|}. 
+
+Definition  minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs
+            (O : po_proofs S eq lte) 
+            (times_cong : bop_congruence S eq times)
+            (LM : os_left_monotone lte times)             
+            (RM : os_right_monotone lte times) 
+            (P : os_bounded_proofs S eq lte times)  :
+                dually_bounded_proofs (finite_set S)
+                                      (brel_minset eq lte)
+                                      (bop_minset_union S eq lte)
+                                      (bop_minset_lift S eq lte times) := 
+let ref := A_eqv_reflexive _ _ eqvP in   
+let sym := A_eqv_symmetric _ _ eqvP in
+let trn := A_eqv_transitive _ _ eqvP in
+let lte_ref := A_po_reflexive _ _ _ O in 
+let lte_trn := A_po_transitive _ _ _ O in
+let lte_cong := A_po_congruence _ _ _ O in 
+let anti := A_po_antisymmetric _ _ _ O in         
+let bot_id_equal := A_bounded_bottom_id _ _ _ _ P in
+{|
+  A_bounded_plus_id_is_times_ann := minset_union_lift_exists_id_ann_equal S eq ref sym trn lte lte_cong lte_ref lte_trn times 
+; A_bounded_times_id_is_plus_ann := minset_lift_union_exists_id_ann_equal_partial_order_version S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM anti bot_id_equal 
+|}.
+  
+    
 End Proofs.
 
-Section Combinators. 
+Section Combinators.
+
+Definition A_minset_union_lift_from_bounded_monotone_increasing_posg
+             (S : Type) 
+             (P : A_bounded_monotone_increasing_posg S) : A_dioid (finite_set S) := 
+let eqv    := A_bmiposg_eqv _ P in
+let eq     := A_eqv_eq _ eqv in
+let wS     := A_eqv_witness _ eqv in
+let f      := A_eqv_new _ eqv in
+let nt     := A_eqv_not_trivial _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in   
+let lte    := A_bmiposg_lte _ P in
+let lteP   := A_bmiposg_lte_proofs _ P in
+let anti   := A_po_antisymmetric _ _ _ lteP in 
+let times  := A_bmiposg_times _ P in
+let timesP := A_bmiposg_times_proofs _ P in
+let times_cong := A_msg_congruence _ _ _ timesP in 
+let MOS    := A_bmiposg_proofs _ P in
+let LM     := A_mono_inc_left_monotonic _ _ _ MOS in
+let RM     := A_mono_inc_right_monotonic _ _ _ MOS in 
+let PO     := A_po_from_bounded_monotone_increasing_posg _ P in
+{|
+  A_dioid_eqv           := A_eqv_minset_from_po _ PO 
+; A_dioid_plus          := bop_minset_union S eq lte
+; A_dioid_times         := bop_minset_lift S eq lte times 
+; A_dioid_plus_proofs   := sg_CI_proofs_minset_union_from_po S eq lte wS f nt eqvP lteP 
+; A_dioid_times_proofs  := A_minset_lift_monotone_increasing_os_proofs_to_msg_proofs S eq lte times eqvP wS f nt lteP timesP MOS  
+; A_dioid_id_ann_proofs := minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bmiposg_top_bottom _ P)
+; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP timesP (A_bmiposg_proofs _ _)
+; A_dioid_ast           := A_bmiposg_ast _ P 
+|}.
+
+  
 End Combinators.   
-
-(* 
-For distributivity need 
-
-  (LM : os_left_monotone lteS bS)
-  (RM : os_right_monotone lteS bS)       
-  (DDD : (brel_antisymmetric S rS lteS) +  ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS))) : 
-
-absorption 
-
-      (anti: brel_antisymmetric S rS lteS)
-      (inc : os_left_increasing lteS bS)       
-      (inc : os_right_increasing lteS bS)       
-
-id_ann? 
-
-*)   
-
 End ACAS. 
 
-(*
+
+Section AMCAS.
+
+Definition A_os_mcas_minset_union_lift (S : Type) (A : A_os_mcas S) :=
+  match A_os_classify _ A with
+  | A_OS_bounded_monotone_increasing_posg _ C =>  A_BS_dioid _ (A_minset_union_lift_from_bounded_monotone_increasing_posg _ C)
+  | _ => A_BS_Error _ "ERROR : expecting a bounded monotone increasing posg"
+  end. 
+
+End AMCAS.   
 
 
-
-Definition minset_union_lift_bottom_with_one_proofs_to_with_one_proofs
-           (S: Type) (eq lte : brel S) (times : binary_op S)             
-           (P  : bottom_with_one_proofs S eq lte times) :
-  with_one_proofs (finite_set S) (brel_minset S eq lte) (bop_minset_union S eq lte) (bop_minset_lift S eq lte times) :=  
-let top_d     := A_bottom_with_one_exists_top_d _ _ _ _ P in 
-let bot       := A_bottom_with_one_exists_bottom _ _ _ _ P in 
-let one       := A_bottom_with_one_exists_times _ _ _ _ P in 
-let ann_d     := A_bottom_with_one_exists_times_ann_d _ _ _ _ P in 
-let top_ann_d := A_bottom_with_one_top_ann_d _ _ _ _ P in 
-let bot_one   := A_bottom_with_one_bottom_one _ _ _ _ P in 
-{|
-  A_with_one_exists_plus_id_d          := inl (bop_minset_union_exists_id S eq ref sym trn lte lteCng lteRef lteTrn) 
-; A_with_one_exists_plus_ann           := bop_exists_ann S eq plus
-; A_with_one_exists_times_id           := bop_exists_id S eq times
-; A_with_one_exists_times_ann_d        := inl (bop_minset_union_exists_ann_with_antisymmetry S eq ref sym trn lte lteCng lteTrn anti bot) 
-; A_with_one_plus_id_is_times_ann_d    := inr (minset_union_lift_not_id_equals_ann) 
-; A_with_one_times_id_is_plus_ann      := minset_union_lift_ann_equals_id S eq ref sym trn lte lteCng lteRef lteTrn times timesCng LM RM anit bot_one 
-|}.
-r
-
-
-
-(*  
-Record A_monotone_posg (S : Type) := {
-  A_mposg_eqv          : A_eqv S 
-; A_mposg_lte          : brel S 
-; A_mposg_times        : binary_op S 
-; A_mposg_lte_proofs   : po_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_lte
-; A_mposg_times_proofs : msg_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_times
-; A_mposg_top_bottom   : top_bottom_ann_id_with_id_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_lte A_mposg_times                                    
-; A_mposg_proofs       : monotone_os_proofs S A_mposg_lte A_mposg_times 
-; A_mposg_ast          : cas_ast
-}.
-
-Record A_pre_path_algebra_with_one (S : Type) := {
-  A_pre_path_algebra_with_one_eqv           : A_eqv S 
-; A_pre_path_algebra_with_one_plus          : binary_op S 
-; A_pre_path_algebra_with_one_times         : binary_op S 
-; A_pre_path_algebra_with_one_plus_proofs   : sg_CI_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus
-; A_pre_path_algebra_with_one_times_proofs  : msg_proofs S   (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_times
-; A_pre_path_algebra_with_one_id_ann_proofs : with_one_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus A_pre_path_algebra_with_one_times
-; A_pre_path_algebra_with_one_proofs        : path_algebra_proofs S (A_eqv_eq S A_pre_path_algebra_with_one_eqv) A_pre_path_algebra_with_one_plus A_pre_path_algebra_with_one_times
-; A_pre_path_algebra_with_one_ast           : cas_ast
-}.
-
-
-
-
-Record path_algebra_proofs (S: Type) (eq : brel S) (plus : binary_op S) (times : binary_op S) := 
-{
-  A_path_algebra_left_distributive      : bop_left_distributive S eq plus times 
-; A_path_algebra_right_distributive     : bop_right_distributive S eq plus times 
-; A_path_algebra_left_left_absorptive   : bops_left_left_absorptive S eq plus times 
-; A_path_algebra_left_right_absorptive  : bops_left_right_absorptive S eq plus times 
-}.
-
-
-
-
-sg_CI_proofs_minset_union_from_po
-     : ∀ (S : Type) (rS lteS : brel S),
-         S
-         → ∀ f : S → S,
-             brel_not_trivial S rS f
-             → eqv_proofs S rS
-               → po_proofs S rS lteS
-                 → sg_CI_proofs (finite_set S) (brel_minset rS lteS)
-                     (bop_minset_union S rS lteS)
-
-A_minset_lift_monotone_os_proofs_to_msg_proofs
-     : ∀ (S : Type) (eq lte : brel S) (b : binary_op S),
-         eqv_proofs S eq
-         → S
-           → ∀ f : S → S,
-               brel_not_trivial S eq f
-               → bop_exists_id S eq b
-                 → po_proofs S eq lte
-                   → msg_proofs S eq b
-                     → monotone_os_proofs S lte b
-                       → msg_proofs (finite_set S) 
-                           (brel_minset eq lte) (bop_minset_lift S eq lte b)
-
-*) 
-
-
-
-
-
-End ACAS.
 
 Section CAS.
 
-End CAS.
+Section Decide.
+End Decide.
 
-Section Verify.
- 
-End Verify.     
-*) 
+Section Proofs.
+
+Definition  minset_union_lift_dioid_certs_from_monotone_increasing_certs {S : Type}
+            (P : @po_certificates S)
+            (G : @msg_certificates S )            
+            (M : @os_monotone_increasing_certificates S) :
+                 @dioid_certificates (finite_set S) := 
+{| 
+  dioid_left_distributive     := Assert_Left_Distributive
+; dioid_right_distributive    := Assert_Right_Distributive
+; dioid_left_left_absorptive  := Assert_Left_Left_Absorptive
+; dioid_left_right_absorptive := Assert_Left_Right_Absorptive
+|}. 
+
+
+Definition  minset_union_lift_bs_bounded_certs_from_os_bounded_certs {S : Type}
+            (O :  @po_certificates S) 
+            (LM : @assert_left_monotone S)             
+            (RM : @assert_right_monotone S) 
+            (P :  @os_bounded_certs S)  : @dually_bounded_certificates (finite_set S) :=
+match bounded_bottom_id P with
+| Assert_Os_Exists_Bottom_Id_Equal bot_id => 
+{|
+  bounded_plus_id_is_times_ann := Assert_Exists_Id_Ann_Equal nil 
+; bounded_times_id_is_plus_ann := Assert_Exists_Id_Ann_Equal (bot_id :: nil) 
+|}
+end.   
+  
+End Proofs.
+
+Section Combinators.
+
+Definition minset_union_lift_from_bounded_monotone_increasing_posg
+             {S : Type} 
+             (P : @bounded_monotone_increasing_posg S) : @dioid (finite_set S) := 
+let eqv    := bmiposg_eqv P in
+let eq     := eqv_eq eqv in
+let wS     := eqv_witness eqv in
+let f      := eqv_new eqv in
+let lte    := bmiposg_lte P in
+let lteP   := bmiposg_lte_certs P in
+let times  := bmiposg_times P in
+let timesP := bmiposg_times_certs P in
+let MOS    := bmiposg_certs P in
+let LM     := mono_inc_left_monotonic MOS in
+let RM     := mono_inc_right_monotonic MOS in 
+let PO     := po_from_bounded_monotone_increasing_posg P in
+{|
+  dioid_eqv           := eqv_minset_from_po PO 
+; dioid_plus          := bop_minset_union S eq lte
+; dioid_times         := bop_minset_lift S eq lte times 
+; dioid_plus_certs    := sg_CI_certs_minset_union_from_po lteP 
+; dioid_times_certs   := minset_lift_monotone_increasing_os_certs_to_msg_certs wS f timesP MOS
+; dioid_id_ann_certs  := minset_union_lift_bs_bounded_certs_from_os_bounded_certs lteP LM RM (bmiposg_top_bottom P)
+; dioid_certs         := minset_union_lift_dioid_certs_from_monotone_increasing_certs lteP timesP (bmiposg_certs P)
+; dioid_ast           := bmiposg_ast P 
+|}.
+  
+End Combinators.   
+End CAS. 
+
+
+Section MCAS.
+
+Definition os_mcas_minset_union_lift {S : Type} (A : @os_mcas S) : @bs_mcas (finite_set S) :=
+  match os_classify A with
+  | OS_bounded_monotone_increasing_posg C =>  BS_dioid (minset_union_lift_from_bounded_monotone_increasing_posg C)
+  | _ => BS_Error "ERROR : expecting a bounded monotone increasing posg"
+  end. 
+
+End MCAS.   
+
+
+

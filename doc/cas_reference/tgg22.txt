@@ -1,0 +1,4 @@
+
+   P = set of properties 
+   
+   DECIDE(P, B1) /\ DECIDE(P, B2) -> DECIDE(P, B1 op B2)

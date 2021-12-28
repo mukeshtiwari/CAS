@@ -21,10 +21,7 @@ Require Import CAS.coq.sg.lift.
 
 Require Import CAS.coq.os.properties.
 Require Import CAS.coq.os.structures.
-
-
-
-
+Require Import CAS.coq.os.cast_up. 
 
 
 Section Theory.
@@ -100,6 +97,16 @@ Definition below_pseudo_transitive_left := below_pseudo_transitive_left S lteS l
 Definition below_pseudo_transitive_right := below_pseudo_transitive_right S lteS lteTrans.
 Definition uop_minset_is_antichain := uop_minset_is_antichain S rS refS symS lteS lteCong lteRefl. 
 
+Lemma bop_minset_lift_congruence_weak : bop_congruence (finite_set S) (brel_set rS) bop_minset_lift.
+Proof. intros X1 X2 Y1 Y2 A B.
+       unfold bop_minset_lift.
+       apply set_equal_implies_minset_equal in A.
+       apply set_equal_implies_minset_equal in B.        
+       unfold brel_minset in A, B. 
+       assert (C := bop_lift_congruence _ _ _ _ A B).
+       assert (D := uop_minset_congruence_weak _ _ C).
+       exact D. 
+Qed.
 
 
 Lemma bop_minset_lift_congruence : bop_congruence (finite_set S) (brel_minset rS lteS) bop_minset_lift.
@@ -523,20 +530,19 @@ Proof. intros X Y.
 Qed.
 
 
-
-
-
-(*       
-Lemma bop_uop_minset_invariant (X Y : finite_set S): [ms] (([ms] X) [^] ([ms] Y)) [=MS] [ms] (X [^] Y). 
-Proof.  assert (A : [ms] (([ms] X) [^] ([ms] Y)) [=MS] [ms] (X [^] ([ms] Y))).
-          apply minset_lift_right_invariant. 
-        assert (B := bop_right_uop_minset_invariant_right X Y).
-        apply brel_minset_symmetric in B.   
-        exact (minset_transitive _ _ _ A B). 
-Qed.
- *)
-
-
+Lemma minset_lift_uop_invariant_weak
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
+      (DDD : (brel_antisymmetric S rS lteS) +
+               ((os_left_strictly_monotone lteS bS) * (os_right_strictly_monotone lteS bS)))
+      (X Y : finite_set S): ([ms] (([ms] X) [^] ([ms] Y))) [=S] ([ms] (X [^] Y)).
+Proof. assert (A : ([ms] (([ms] X) [^] ([ms] Y))) [=S]  ([ms] (([ms] X) [^] Y))).
+          exact (minset_lift_right_invariant_v0 LM RM DDD ([ms] X) Y).   
+       assert (B : ([ms] (([ms] X) [^] Y)) [=S] ([ms] (X [^] Y))).
+          exact (minset_lift_left_invariant_v0 LM RM DDD X Y).    
+       assert (C := set_transitive _ _ _ A B). 
+       exact C. 
+Qed.   
 
 Lemma bop_minset_lift_associative
       (LM : os_left_monotone lteS bS) 
@@ -1003,50 +1009,6 @@ Qed.
 End Theory.
 
 Section ACAS.
-(*  
-
-For associativity.  At least two versions 
-
-1) 
-      (LM : os_left_monotone lteS bS) 
-      (RM : os_right_monotone lteS bS) 
-      (anti: brel_antisymmetric S rS lteS)
-2) 
-      (LM  : os_left_monotone lteS bS) 
-      (RM  : os_right_monotone lteS bS) 
-      (LSM : os_left_strictly_monotone lteS bS)
-      (RSM : os_right_strictly_monotone lteS bS)
-
-currently, deciding selectivity: 
-
-      (nsel :bop_not_selective S rS bS)
-
-and idempotence : 
-
-      (anti : brel_antisymmetric S rS lteS) 
-      (idem : bop_idempotent S rS bS)
-      (LI : os_left_increasing lteS bS) 
-
-      (anti : brel_antisymmetric S rS lteS) 
-      (idem : bop_idempotent S rS bS)
-      (RI : os_right_increasing lteS bS) 
-
-
-from 
-
-Record A_monotone_posg (S : Type) := {
-  A_mposg_eqv          : A_eqv S 
-; A_mposg_lte          : brel S 
-; A_mposg_times        : binary_op S 
-; A_mposg_lte_proofs   : po_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_lte
-; A_mposg_times_proofs : msg_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_times
-; A_mposg_top_bottom   : top_bottom_ann_id_with_id_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_lte A_mposg_times                                    
-; A_mposg_proofs       : 
-; A_mposg_ast          : cas_ast
-}.
-
- *)
-
 
 Definition A_minset_lift_monotone_os_proofs_to_msg_proofs
            (S   : Type)
@@ -1088,7 +1050,58 @@ let RM :=  A_mono_right_monotonic _ _ _ MOS in
 ; A_msg_anti_right_d     := inr (bop_minset_lift_not_anti_right S eq lte b) 
 |}. 
 
+Definition A_minset_lift_monotone_increasing_os_proofs_to_msg_proofs
+           (S   : Type)
+           (eq lte : brel S)
+           (b   : binary_op S)
+           (EQ  : eqv_proofs S eq)
+           (wS  : S)
+           (f   : S -> S)
+           (nt  : brel_not_trivial S eq f)
+           (PO  : po_proofs S eq lte)            
+           (MSG : msg_proofs S eq b) 
+           (MOS : os_monotone_increasing_proofs S lte b) : msg_proofs (finite_set S) (brel_minset eq lte) (bop_minset_lift S eq lte b) 
+  := A_minset_lift_monotone_os_proofs_to_msg_proofs S eq lte b EQ wS f nt PO MSG
+                                                    (os_monotone_proofs_from_monotone_increasing_proofs S lte b MOS). 
 
+
+Definition sg_CI_proofs_minset_lift
+    (S : Type)
+    (rS lteS : brel S)
+    (s : S)
+    (f : S -> S)
+    (b   : binary_op S)
+    (ntS : brel_not_trivial S rS f)     
+    (eqvS : eqv_proofs S rS)
+    (poS : po_proofs S rS lteS)
+    (sgS : sg_CI_proofs S rS b)
+    (LM : os_left_monotone lteS b)
+    (RM : os_right_monotone lteS b) 
+    (LI : os_left_increasing lteS b) : 
+        sg_CI_proofs (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS b) := 
+let congS := A_eqv_congruence S rS eqvS in  
+let refS := A_eqv_reflexive S rS eqvS in
+let symS := A_eqv_symmetric S rS eqvS in
+let tranS := A_eqv_transitive S rS eqvS in
+
+let lteCong    := A_po_congruence S rS lteS poS in
+let lteRefl    := A_po_reflexive S rS lteS poS in
+let lteTran    := A_po_transitive S rS lteS poS in
+let anti       := A_po_antisymmetric S rS lteS poS in
+
+let bCong  := A_sg_CI_congruence _ _ _ sgS in
+let bAssoc := A_sg_CI_associative _ _ _ sgS in
+let bComm  := A_sg_CI_commutative _ _ _ sgS in
+let bIdem  := A_sg_CI_idempotent _ _ _ sgS in
+let NotSel := A_sg_CI_not_selective _ _ _ sgS in 
+{|
+  A_sg_CI_associative        := bop_minset_lift_associative S rS refS symS tranS lteS lteCong lteRefl lteTran  b bCong bAssoc LM RM (inl anti) 
+; A_sg_CI_congruence         := bop_minset_lift_congruence S rS refS symS tranS lteS lteCong lteRefl lteTran b bCong 
+; A_sg_CI_commutative        := bop_minset_lift_commutative S rS refS symS tranS lteS lteCong lteRefl lteTran b bCong bComm 
+; A_sg_CI_idempotent         := bop_minset_lift_idempotent_v2 S rS refS symS tranS lteS lteCong lteRefl lteTran b bCong anti bIdem LI
+; A_sg_CI_not_selective      := bop_minset_lift_not_selective_v1 S rS refS symS tranS lteS lteCong lteRefl lteTran b NotSel
+
+|}. 
 
 (* 
 
@@ -1243,9 +1256,48 @@ Why needed?
 
     3) sg_CI_with_ann 
 *) 
-
-
 End ACAS.
+
+
+Section CAS.
+
+
+Definition minset_lift_monotone_os_certs_to_msg_certs
+           {S   : Type} 
+           (wS  : S)
+           (f   : S -> S)
+           (MSG : @msg_certificates S) 
+           (MOS : @os_monotone_certificates S) : @msg_certificates (finite_set S) :=
+{| 
+  msg_associative      := Assert_Associative 
+; msg_congruence       := Assert_Bop_Congruence 
+; msg_commutative_d    := match msg_commutative_d MSG with
+                          | Certify_Commutative => Certify_Commutative
+                          | Certify_Not_Commutative (a, b) => Certify_Not_Commutative (a :: nil, b :: nil) 
+                          end 
+; msg_is_left_d        := Certify_Not_Is_Left (wS :: nil, nil)
+; msg_is_right_d       := Certify_Not_Is_Right (nil, wS :: nil)
+; msg_left_cancel_d    := Certify_Not_Left_Cancellative (nil, (wS :: nil, (f wS) :: nil))
+; msg_right_cancel_d   := Certify_Not_Right_Cancellative (nil, (wS :: nil, (f wS) :: nil))
+; msg_left_constant_d  := Certify_Not_Left_Constant (wS :: nil, (wS :: nil, nil))
+; msg_right_constant_d := Certify_Not_Right_Constant (wS :: nil, (wS :: nil, nil))
+; msg_anti_left_d      := Certify_Not_Anti_Left (nil, nil) 
+; msg_anti_right_d     := Certify_Not_Anti_Right (nil, nil) 
+|}. 
+
+
+Definition minset_lift_monotone_increasing_os_certs_to_msg_certs
+           {S   : Type} 
+           (wS  : S)
+           (f   : S -> S)
+           (MSG : @msg_certificates S) 
+           (MOS : @os_monotone_increasing_certificates S) : @msg_certificates (finite_set S) :=
+  minset_lift_monotone_os_certs_to_msg_certs wS f MSG
+      (os_monotone_certs_from_monotone_increasing_certs MOS). 
+
+  
+
+End CAS.   
 
 
 (*
@@ -1321,3 +1373,4 @@ End Verify.
   
 
 *) 
+ 

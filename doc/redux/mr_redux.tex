@@ -1,0 +1,152 @@
+\documentclass[sigconf,10pt]{acmart}
+
+%%%%%%%%%%%%%%
+%% Packages %%
+%%%%%%%%%%%%%%
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{rotating}
+\usepackage{natbib}
+\usepackage{xcolor}
+
+%%%%%%%%%%%%%
+%% SIGCOMM %%
+%%%%%%%%%%%%%
+
+\acmYear{2018}\copyrightyear{2018}
+\setcopyright{acmcopyright}
+\acmConference[SIGCOMM '18]{SIGCOMM '18: SIGCOMM 2018}{August 20--25, 2018}{Budapest, Hungary}
+\acmBooktitle{SIGCOMM '18: SIGCOMM 2018, August 20--25, 2018, Budapest, Hungary}
+\acmPrice{15.00}
+\acmDOI{10.1145/3230543.3230561}
+\acmISBN{978-1-4503-5567-4/18/08}
+
+%%%%%%%%%%
+%% Tikz %%
+%%%%%%%%%%
+
+\usepackage{tikz}
+\usetikzlibrary{arrows, decorations.markings, decorations.pathreplacing}
+
+% for double arrows a la chef
+\tikzstyle{vecArrow} = [thick, decoration={markings,mark=at position
+   1 with {\arrow[semithick]{open triangle 60}}},
+   double distance=2pt, shorten >= 5.5pt,
+   preaction = {decorate},
+   postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]
+\tikzstyle{innerWhite} = [semithick, white,line width=1.4pt, shorten >= 4.5pt]
+
+%%%%%%%%%%%%%%
+%% Environs %%
+%%%%%%%%%%%%%%
+
+\newtheoremstyle{mytheoremstyle} % name
+    {0.75em} 	% Space above
+    {0.5em} 	% Space below
+    {\scshape}  % Body font
+    {}          % Indent amount
+    {\bfseries} % Theorem head font
+    {.}         % Punctuation after theorem head
+    {.5em}      % Space after theorem head
+    {}  		% Theorem head spec
+
+\theoremstyle{mytheoremstyle}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+%%%%%%%%%%%%
+%% Macros %%
+%%%%%%%%%%%%
+
+\DeclareMathOperator{\best}{best}
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\NNinf}{\NN_\infty}
+\newcommand{\TT}{\mathbb{T}}
+\newcommand{\RR}{\mathbb{R}}
+
+\newcommand{\mtrx}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\mstar}[1]{\mtrx{#1}^{*}}
+\newcommand{\A}{\mtrx{A}}
+\newcommand{\I}{\mtrx{I}}
+\newcommand{\X}{\mtrx{X}}
+\newcommand{\Y}{\mtrx{Y}}
+\newcommand{\sigX}{\sigma(\X)}
+\newcommand{\sigsqX}{\sigma^2(\X)}
+\newcommand{\sigY}{\sigma(\Y)}
+
+\newcommand{\carrier}{S}
+\newcommand{\tcarrier}[1]{\mathbb{T}_n(#1)}
+\newcommand{\mcarrier}[1]{\mathbb{M}_n(#1)}
+\newcommand{\boxset}{D}
+\newcommand{\genalg}{(\carrier,\ \oplus,\ F,\ \one,\ \zero)}
+\newcommand{\zero}{\ensuremath{\overline{\infty}}}
+\newcommand{\one}{\ensuremath{\overline{0}}}
+\newcommand{\emptypath}{[\:]}
+\newcommand{\invalidpath}{\bot}
+
+\newcommand{\size}[1]{\left\vert #1 \right\vert}
+\newcommand*\rot{\rotatebox{90}}
+\newcommand{\tick}{\checkmark}
+
+\newcommand{\weightf}{weight}
+\newcommand{\pathf}{path}
+
+\newcommand{\postcasesep}{\vspace{0.5em}}
+\newenvironment{case}[2]{\noindent \underline{Case #1}: #2 \postcasesep} {}
+
+
+% Used to tweak item numbering in enumerations
+\newcommand\setItemnumber[1]{\setcounter{enumi}{\numexpr#1-1\relax}}
+
+%%%%%%%%%%%%%%
+%% Document %%
+%%%%%%%%%%%%%%
+
+\begin{document}
+
+\mathchardef\UrlBreakPenalty=10000
+
+\title[Metarouting Redux]{Metarouting Redux: Combinators for Algebraic Structures (CAS)}
+
+\author{Mukesh Tiwari}
+\affiliation{University of Cambridge}
+\email{mt707@cam.ac.uk}
+
+\author{Timothy G. Griffin}
+\affiliation{University of Cambridge}
+\email{tgg22@cam.ac.uk}
+
+\begin{abstract}
+\input{abstract.tex}
+\end{abstract}
+
+\maketitle
+
+\section{Theorems for free}
+\label{sec:introduction}
+\input{introduction.tex}
+
+\section{Basic concepts}
+\label{sec:basics}
+\input{basics.tex}
+
+\section{CAS in action}
+\label{sec:demo}
+\input{demo.tex}
+
+\section{Future work}
+\label{sec:conclusions}
+\input{conclusions.tex}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{bibliography}
+
+\end{document}

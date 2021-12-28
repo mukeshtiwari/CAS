@@ -1,3 +1,5 @@
+Require Import Coq.Strings.String.
+
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 
@@ -29,7 +31,7 @@ Variable eq : brel S.
 Variable plus times : binary_op S.
 
 (*  Note: Someday, after the CAS design has settled down a bit, it should be possible to generate 
-    this file from a high-level spec. 
+    this (very tedious) file from a high-level specification. 
 
 
                         id_ann_proofs
@@ -215,7 +217,8 @@ Definition semiring_proofs_from_distributive_lattice_proofs
 
 End Proofs.
 
-Section Combinators. 
+Section Combinators.
+
 (*            
 
 Need to add idempotent_semiring, idempotent_pre_semiring 
@@ -225,18 +228,19 @@ Need to add idempotent_semiring, idempotent_pre_semiring
         |               |
       2 |             1 |
         |               |             5
-   pre_semiring       bs_CI --------------
-      3 |             |                  |
-     semiring       7 |                lattice
-        |             |                  |
-      4 |       pre_dioid                | 
-        |      8 /  \ 9                  | 6
-pre_dioid_with_zero  pre_dioid_with_one  |
-              10 \   / 11                |
-                 dioid                   | 
-                     |                   |
+   pre_semiring       bs_CI <---------------- pre_lattice 
+      3 |             |                       /15     |
+     semiring       7 |                      /        |
+        |             |                lattice         | 13
+      4 |       pre_dioid                |             |
+        |      8 /  \ 9                  | 6           | 
+pre_dioid_with_zero  pre_dioid_with_one  |    ---- distributive_prelattice
+              10 \   / 11                |   /
+                 dioid                   |  / 14 
+                     |                   | /
                   12 |                   / 
                      distributive_lattice
+
  *)
 
 (* 1 *) 
@@ -318,26 +322,26 @@ let nt := A_eqv_not_trivial S eqv in
 
 
 (* 5 *)
-Definition A_bs_CI_from_lattice (S: Type) (lP : A_lattice S) : A_bs_CI S := 
-  let eqv  := A_lattice_eqv S lP     in               
+Definition A_bs_CI_from_prelattice (S: Type) (lP : A_prelattice S) : A_bs_CI S := 
+  let eqv  := A_prelattice_eqv S lP     in               
   let eq   := A_eqv_eq S eqv      in 
   let wS   := A_eqv_witness S eqv in 
   let f    := A_eqv_new S eqv     in
   let ntf  := A_eqv_not_trivial S eqv     in   
   let eqvP := A_eqv_proofs S eqv  in 
-  let join := A_lattice_join S lP    in
-  let joinP := A_lattice_join_proofs S lP in 
-  let meet := A_lattice_meet S lP    in
-  let meetP := A_lattice_meet_proofs S lP in   
+  let join := A_prelattice_join S lP    in
+  let joinP := A_prelattice_join_proofs S lP in 
+  let meet := A_prelattice_meet S lP    in
+  let meetP := A_prelattice_meet_proofs S lP in   
   {|
      A_bs_CI_eqv           := eqv 
    ; A_bs_CI_plus          := join 
    ; A_bs_CI_times         := meet 
    ; A_bs_CI_plus_proofs   := joinP 
    ; A_bs_CI_times_proofs  := A_msg_proofs_from_sg_proofs S eq meet (A_sg_proofs_from_sg_CI_proofs S eq meet wS f ntf eqvP meetP)
-   ; A_bs_CI_id_ann_proofs := id_ann_proofs_from_dually_bounded_proofs S eq join meet (A_lattice_id_ann_proofs S lP)
-   ; A_bs_CI_proofs        := bs_proofs_from_lattice_proofs S eq join meet eqvP joinP meetP (A_lattice_proofs S lP) 
-   ; A_bs_CI_ast           := Ast_bs_CI_from_lattice (A_lattice_ast S lP)
+   ; A_bs_CI_id_ann_proofs := A_prelattice_id_ann_proofs S lP
+   ; A_bs_CI_proofs        := bs_proofs_from_lattice_proofs S eq join meet eqvP joinP meetP (A_prelattice_proofs S lP) 
+   ; A_bs_CI_ast           := Ast_bs_CI_from_lattice (A_prelattice_ast S lP)
   |}.
 
 (* 6 *) 
@@ -465,6 +469,69 @@ let nt    := A_eqv_not_trivial S eqv in
 |}.
 
 
+(* 13 *) 
+Definition A_prelattice_from_distributive_prelattice (S: Type) (dS : A_distributive_prelattice S) : A_prelattice S := 
+let eqv   := A_distributive_prelattice_eqv S dS in
+let eqvP  := A_eqv_proofs S eqv in
+let eq    := A_eqv_eq S eqv in
+let join  := A_distributive_prelattice_join S dS in
+let joinP := A_distributive_prelattice_join_proofs S dS in
+let meet  := A_distributive_prelattice_meet S dS in
+let meetP := A_distributive_prelattice_meet_proofs S dS in
+let dPS   := A_distributive_prelattice_proofs S dS in 
+{|
+      A_prelattice_eqv           := eqv 
+    ; A_prelattice_join          := join 
+    ; A_prelattice_meet          := meet
+    ; A_prelattice_join_proofs   := joinP 
+    ; A_prelattice_meet_proofs   := meetP
+    ; A_prelattice_id_ann_proofs := A_distributive_prelattice_id_ann_proofs S dS 
+    ; A_prelattice_proofs        := lattice_proofs_from_distributive_lattice_proofs S eq join meet eqvP  joinP meetP dPS
+    ; A_prelattice_ast           := Ast_lattice_from_distributive_lattice (A_distributive_prelattice_ast S dS)
+|}.
+
+
+(* 14 *) 
+Definition A_distributive_prelattice_from_distributive_lattice (S: Type) (dS : A_distributive_lattice S) : A_distributive_prelattice S := 
+let eqv   := A_distributive_lattice_eqv S dS in
+let eqvP  := A_eqv_proofs S eqv in
+let eq    := A_eqv_eq S eqv in
+let join  := A_distributive_lattice_join S dS in
+let joinP := A_distributive_lattice_join_proofs S dS in
+let meet  := A_distributive_lattice_meet S dS in
+let meetP := A_distributive_lattice_meet_proofs S dS in
+{|
+      A_distributive_prelattice_eqv           := eqv 
+    ; A_distributive_prelattice_join          := join 
+    ; A_distributive_prelattice_meet          := meet
+    ; A_distributive_prelattice_join_proofs   := joinP 
+    ; A_distributive_prelattice_meet_proofs   := meetP
+    ; A_distributive_prelattice_id_ann_proofs := id_ann_proofs_from_dually_bounded_proofs _ _ _ _ (A_distributive_lattice_id_ann_proofs S dS)
+    ; A_distributive_prelattice_proofs        := A_distributive_lattice_proofs S dS 
+    ; A_distributive_prelattice_ast           := Ast_lattice_from_distributive_lattice (A_distributive_lattice_ast S dS)
+|}.
+
+(* 15 *) 
+Definition A_prelattice_from_lattice (S: Type) (dS : A_lattice S) : A_prelattice S := 
+let eqv   := A_lattice_eqv S dS in
+let eqvP  := A_eqv_proofs S eqv in
+let eq    := A_eqv_eq S eqv in
+let join  := A_lattice_join S dS in
+let joinP := A_lattice_join_proofs S dS in
+let meet  := A_lattice_meet S dS in
+let meetP := A_lattice_meet_proofs S dS in
+{|
+      A_prelattice_eqv           := eqv 
+    ; A_prelattice_join          := join 
+    ; A_prelattice_meet          := meet
+    ; A_prelattice_join_proofs   := joinP 
+    ; A_prelattice_meet_proofs   := meetP
+    ; A_prelattice_id_ann_proofs := id_ann_proofs_from_dually_bounded_proofs _ _ _ _ (A_lattice_id_ann_proofs S dS)
+    ; A_prelattice_proofs        := A_lattice_proofs S dS
+    ; A_prelattice_ast           := Ast_lattice_from_distributive_lattice (A_lattice_ast S dS)
+|}.
+
+
 (* Derived *) 
 
 (* two hops *) 
@@ -474,14 +541,17 @@ Definition A_bs_from_semiring (S: Type) (sr : A_semiring S) : A_bs S :=
 Definition A_bs_from_pre_dioid (S: Type) (pd : A_pre_dioid S) : A_bs S := 
   A_bs_from_bs_CI S (A_bs_CI_from_pre_dioid S pd).
 
-Definition A_bs_from_lattice (S: Type) (l : A_lattice S) : A_bs S := 
-  A_bs_from_bs_CI S (A_bs_CI_from_lattice S l). 
+Definition A_bs_from_prelattice (S: Type) (l : A_prelattice S) : A_bs S := 
+  A_bs_from_bs_CI S (A_bs_CI_from_prelattice S l). 
 
 Definition A_presemiring_from_pre_dioid_with_zero (S: Type) (pd : A_pre_dioid_with_zero S) : A_presemiring S := 
   A_presemiring_from_semiring S (A_semiring_from_pre_dioid_with_zero S pd). 
 
-Definition A_bs_CI_from_distributive_lattice (S: Type) (l : A_distributive_lattice S) : A_bs_CI S := 
-  A_bs_CI_from_lattice S (A_lattice_from_distributive_lattice S l). 
+Definition A_bs_CI_from_lattice (S: Type) (l : A_lattice S) : A_bs_CI S := 
+  A_bs_CI_from_prelattice S (A_prelattice_from_lattice S l).
+
+Definition A_bs_CI_from_distributive_prelattice (S: Type) (l : A_distributive_prelattice S) : A_bs_CI S := 
+  A_bs_CI_from_prelattice S (A_prelattice_from_distributive_prelattice S l). 
 
 Definition A_bs_CI_from_pre_dioid_with_zero (S: Type) (pd : A_pre_dioid_with_zero S) : A_bs_CI S := 
   A_bs_CI_from_pre_dioid S (A_pre_dioid_from_pre_dioid_with_zero S pd). 
@@ -498,6 +568,9 @@ Definition A_pre_dioid_with_zero_from_distributive_lattice (S: Type) (dl : A_dis
 Definition A_pre_dioid_with_one_from_distributive_lattice (S: Type) (dl : A_distributive_lattice S) : A_pre_dioid_with_one S := 
   A_pre_dioid_with_one_from_dioid S (A_dioid_from_distributive_lattice S dl). 
 
+Definition A_prelattice_from_distributive_lattice (S: Type) (dl : A_distributive_lattice S) : A_prelattice S := 
+  A_prelattice_from_distributive_prelattice S (A_distributive_prelattice_from_distributive_lattice S dl). 
+
 
 (* three hops *)
 Definition A_bs_from_pre_dioid_with_zero (S: Type) (pd : A_pre_dioid_with_zero S) : A_bs S := 
@@ -506,11 +579,17 @@ Definition A_bs_from_pre_dioid_with_zero (S: Type) (pd : A_pre_dioid_with_zero S
 Definition A_bs_from_pre_dioid_with_one (S: Type) (pd : A_pre_dioid_with_one S) : A_bs S := 
   A_bs_from_bs_CI S (A_bs_CI_from_pre_dioid_with_one S pd).
 
+Definition A_bs_from_distributive_prelattice (S: Type) (pd : A_distributive_prelattice S) : A_bs S := 
+  A_bs_from_bs_CI S (A_bs_CI_from_distributive_prelattice S pd).
+
+Definition A_bs_from_lattice (S: Type) (pd : A_lattice S) : A_bs S := 
+  A_bs_from_bs_CI S (A_bs_CI_from_lattice S pd).
+
 Definition A_bs_CI_from_dioid (S: Type) (pd : A_dioid S) : A_bs_CI S := 
   A_bs_CI_from_pre_dioid_with_zero S (A_pre_dioid_with_zero_from_dioid S pd).
 
-Definition A_bs_from_distributive_lattice (S: Type) (pd : A_distributive_lattice S) : A_bs S := 
-  A_bs_from_bs_CI S (A_bs_CI_from_distributive_lattice S pd).
+Definition A_bs_CI_from_distributive_lattice (S: Type) (pd : A_distributive_lattice S) : A_bs_CI S := 
+  A_bs_CI_from_prelattice S (A_prelattice_from_distributive_lattice S pd).
 
 Definition A_pre_dioid_from_distributive_lattice (S: Type) (dl : A_distributive_lattice S) : A_pre_dioid S := 
   A_pre_dioid_from_pre_dioid_with_zero S (A_pre_dioid_with_zero_from_distributive_lattice S dl).
@@ -518,6 +597,9 @@ Definition A_pre_dioid_from_distributive_lattice (S: Type) (dl : A_distributive_
 (* four hops *)
 Definition A_bs_from_dioid (S: Type) (pd : A_dioid S) : A_bs S := 
   A_bs_from_bs_CI S (A_bs_CI_from_dioid S pd).
+
+Definition A_bs_from_distributive_lattice (S: Type) (pd : A_distributive_lattice S) : A_bs S := 
+  A_bs_from_bs_CI S (A_bs_CI_from_distributive_lattice S pd).
 
 
 (*            
@@ -545,9 +627,10 @@ selective_pre_dioid_with_zero  selective_pre_dioid_with_one           |
              |                                                        | 
           11 |                                          A_selective_distributive_prelattice
              |                                        12 /                               \ 13
-             |             A_selective_distributive_prelattice_with_zero    A_selective_distributive_prelattice_with_one
+             |               selective_distributive_prelattice_with_zero      selective_distributive_prelattice_with_one
              |                                        14 \                              / 15 
-             ------------------------------------------- A_selective_distributive_lattice
+             -------------------------------------------  selective_distributive_lattice
+
 
 
 
@@ -560,9 +643,21 @@ selective_pre_dioid_with_zero    16|       selective_pre_dioid_with_one
     |                              |                           | 
  17 |                 selective_cancellative_pre_dioid         | 18
     |              19 /                               \ 20     |
-A_selective_cancellative_pre_dioid_with_zero  A_selective_cancellative_pre_dioid_with_one
+selective_cancellative_pre_dioid_with_zero     selective_cancellative_pre_dioid_with_one
                     21  \                              / 22
-                        A_selective_cancellative_dioid
+                          selective_cancellative_dioid
+
+
+
+
+
+selective_pre_dioid_with_zero                     selective_pre_dioid_with_one          
+             |                                              | 
+             | 23                                           | 24 
+             |                                              | 
+selective_distributive_prelattice_with_zero    selective_distributive_prelattice_with_one
+
+
 
 *)
 
@@ -975,9 +1070,68 @@ Definition A_selective_cancellative_pre_dioid_with_one_from_selective_cancellati
 ; A_selective_cancellative_pre_dioid_with_one_id_ann_proofs := pann_is_tid_proofs_from_dually_bounded_proofs _ _ _ _ (A_selective_cancellative_dioid_id_ann_proofs _ pd)
 ; A_selective_cancellative_pre_dioid_with_one_proofs        := A_selective_cancellative_dioid_proofs _ pd 
 ; A_selective_cancellative_pre_dioid_with_one_ast           := A_selective_cancellative_dioid_ast _ pd 
+|}.
+
+
+(* 23 *)
+Definition A_selective_pre_dioid_with_zero_from_selective_distributive_prelattice_with_zero
+           (S: Type) (dS : A_selective_distributive_prelattice_with_zero S) : A_selective_pre_dioid_with_zero S :=
+let eqv   := A_selective_distributive_prelattice_with_zero_eqv _ dS in
+let eqvP  := A_eqv_proofs S eqv in
+let eq    := A_eqv_eq S eqv in
+let wS := A_eqv_witness _ eqv in 
+let f := A_eqv_new _ eqv in
+let nt := A_eqv_not_trivial _ eqv in
+let plus  := A_selective_distributive_prelattice_with_zero_join S dS in
+let plusP := A_selective_distributive_prelattice_with_zero_join_proofs S dS in
+let times := A_selective_distributive_prelattice_with_zero_meet S dS in
+let timesP:= A_selective_distributive_prelattice_with_zero_meet_proofs S dS in
+let dPS   := A_selective_distributive_prelattice_with_zero_proofs S dS in
+let cong_plus  := A_sg_CS_congruence S eq plus plusP in   
+let comm_plus  := A_sg_CS_commutative S eq plus plusP in
+let comm_times := A_sg_CS_commutative S eq times timesP in   
+{|
+  A_selective_pre_dioid_with_zero_eqv           := eqv 
+; A_selective_pre_dioid_with_zero_plus          := plus 
+; A_selective_pre_dioid_with_zero_times         := times 
+; A_selective_pre_dioid_with_zero_plus_proofs   := plusP 
+; A_selective_pre_dioid_with_zero_times_proofs  := A_msg_proofs_from_sg_proofs S eq times (A_sg_proofs_from_sg_CS_proofs S eq times wS f nt eqvP timesP)
+; A_selective_pre_dioid_with_zero_id_ann_proofs := A_selective_distributive_prelattice_with_zero_id_ann_proofs _ dS
+; A_selective_pre_dioid_with_zero_proofs        := dioid_proofs_from_distributive_lattice_proofs S eq plus times eqvP cong_plus comm_plus comm_times dPS 
+; A_selective_pre_dioid_with_zero_ast           := A_selective_distributive_prelattice_with_zero_ast _ dS 
 |}.                                                                                                      
 
-  
+
+(* 24 *)
+Definition A_selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one
+           (S: Type) (dS : A_selective_distributive_prelattice_with_one S) : A_selective_pre_dioid_with_one S :=
+let eqv   := A_selective_distributive_prelattice_with_one_eqv _ dS in
+let eqvP  := A_eqv_proofs S eqv in
+let eq    := A_eqv_eq S eqv in
+let wS := A_eqv_witness _ eqv in 
+let f := A_eqv_new _ eqv in
+let nt := A_eqv_not_trivial _ eqv in
+let plus  := A_selective_distributive_prelattice_with_one_join S dS in
+let plusP := A_selective_distributive_prelattice_with_one_join_proofs S dS in
+let times := A_selective_distributive_prelattice_with_one_meet S dS in
+let timesP:= A_selective_distributive_prelattice_with_one_meet_proofs S dS in
+let dPS   := A_selective_distributive_prelattice_with_one_proofs S dS in
+let cong_plus  := A_sg_CS_congruence S eq plus plusP in   
+let comm_plus  := A_sg_CS_commutative S eq plus plusP in
+let comm_times := A_sg_CS_commutative S eq times timesP in   
+{|
+  A_selective_pre_dioid_with_one_eqv           := eqv 
+; A_selective_pre_dioid_with_one_plus          := plus 
+; A_selective_pre_dioid_with_one_times         := times 
+; A_selective_pre_dioid_with_one_plus_proofs   := plusP 
+; A_selective_pre_dioid_with_one_times_proofs  := A_msg_proofs_from_sg_proofs S eq times (A_sg_proofs_from_sg_CS_proofs S eq times wS f nt eqvP timesP)
+; A_selective_pre_dioid_with_one_id_ann_proofs := A_selective_distributive_prelattice_with_one_id_ann_proofs _ dS
+; A_selective_pre_dioid_with_one_proofs        := dioid_proofs_from_distributive_lattice_proofs S eq plus times eqvP cong_plus comm_plus comm_times dPS 
+; A_selective_pre_dioid_with_one_ast           := A_selective_distributive_prelattice_with_one_ast _ dS 
+|}.                                                                                                      
+
+
+
 (* Derived *) 
 
 (* two hops *)
@@ -1228,10 +1382,21 @@ Definition A_bs_from_selective_distributive_prelattice_with_zero
            (S: Type) (a : A_selective_distributive_prelattice_with_zero  S) : A_bs S := 
   A_bs_from_selective_distributive_prelattice S (A_selective_distributive_prelattice_from_selective_distributive_prelattice_with_zero S a).
 
+Definition A_bs_from_selective_distributive_prelattice_with_one 
+           (S: Type) (a : A_selective_distributive_prelattice_with_one  S) : A_bs S :=            
+  A_bs_from_selective_pre_dioid_with_one S
+       (A_selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one S a).
+
+
 (* 1,2,5,7,18 *)
 Definition A_bs_from_selective_cancellative_pre_dioid_with_one
            (S: Type) (a : A_selective_cancellative_pre_dioid_with_one  S) : A_bs S := 
   A_bs_from_selective_pre_dioid_with_one S (A_selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one S a).
+
+(* 1,2,5,6,17 *)
+Definition A_bs_from_selective_cancellative_pre_dioid_with_zero
+           (S: Type) (a : A_selective_cancellative_pre_dioid_with_zero  S) : A_bs S := 
+  A_bs_from_selective_pre_dioid_with_zero S (A_selective_pre_dioid_with_zero_from_selective_cancellative_pre_dioid_with_zero S a).
 
 (* 2,5,6,8,11 (or 2,5,10,12,14 or 2,3,4,8,11) *)
 Definition A_bs_CS_from_selective_distributive_lattice
@@ -1242,6 +1407,7 @@ Definition A_bs_CS_from_selective_distributive_lattice
 Definition A_bs_CS_from_selective_cancellative_dioid
            (S: Type) (a : A_selective_cancellative_dioid  S) : A_bs_CS S := 
   A_bs_CS_from_selective_cancellative_pre_dioid_with_zero S (A_selective_cancellative_pre_dioid_with_zero_from_selective_cancellative_dioid S a).
+
 
 (* six hops *)
 
@@ -1257,6 +1423,43 @@ Definition A_bs_from_selective_cancellative_dioid
 
 End Combinators. 
 End ACAS.
+
+
+Section AMCAS.
+
+Definition A_bs_from_mcas (S : Type) (A : A_bs_mcas S) := 
+match A with   
+| A_BS_Error _ _ => A 
+| A_BS_bs _ _    => A
+| A_BS_bs_CI _ B => A_BS_bs _ (A_bs_from_bs_CI _ B)
+| A_BS_bs_CS _ B => A_BS_bs _ (A_bs_from_bs_CS _ B)
+| A_BS_presemiring _ B => A_BS_bs _ (A_bs_from_presemiring _ B)
+| A_BS_semiring _ B => A_BS_bs _ (A_bs_from_semiring _ B)
+| A_BS_pre_dioid _ B => A_BS_bs _ (A_bs_from_pre_dioid _ B)
+| A_BS_pre_dioid_with_one _ B => A_BS_bs _ (A_bs_from_pre_dioid_with_one _ B)
+| A_BS_pre_dioid_with_zero _ B => A_BS_bs _ (A_bs_from_pre_dioid_with_zero _ B)
+| A_BS_dioid _ B => A_BS_bs _ (A_bs_from_dioid _ B)
+| A_BS_prelattice _ B => A_BS_bs _ (A_bs_from_prelattice _ B)
+| A_BS_distributive_prelattice _ B => A_BS_bs _ (A_bs_from_distributive_prelattice _ B)
+| A_BS_lattice _ B => A_BS_bs _ (A_bs_from_lattice _ B)                       
+| A_BS_distributive_lattice _ B => A_BS_bs _ (A_bs_from_distributive_lattice _ B)
+| A_BS_selective_presemiring  _ B => A_BS_bs _ (A_bs_from_selective_presemiring  _ B)
+| A_BS_selective_semiring _ B => A_BS_bs _ (A_bs_from_selective_semiring _ B)
+| A_BS_selective_pre_dioid _ B => A_BS_bs _ (A_bs_from_selective_pre_dioid _ B)
+| A_BS_selective_pre_dioid_with_zero _ B => A_BS_bs _ (A_bs_from_selective_pre_dioid_with_zero _ B)                       
+| A_BS_selective_pre_dioid_with_one _ B => A_BS_bs _ (A_bs_from_selective_pre_dioid_with_one _ B)
+| A_BS_selective_dioid _ B => A_BS_bs _ (A_bs_from_selective_dioid _ B)
+| A_BS_selective_cancellative_pre_dioid _ B => A_BS_bs _ (A_bs_from_selective_cancellative_pre_dioid _ B)
+| A_BS_selective_cancellative_pre_dioid_with_zero _ B => A_BS_bs _ (A_bs_from_selective_cancellative_pre_dioid_with_zero _ B)
+| A_BS_selective_cancellative_pre_dioid_with_one _ B => A_BS_bs _ (A_bs_from_selective_cancellative_pre_dioid_with_one _ B)                       
+| A_BS_selective_cancellative_dioid  _ B => A_BS_bs _ (A_bs_from_selective_cancellative_dioid  _ B)
+| A_BS_selective_distributive_prelattice _ B => A_BS_bs _ (A_bs_from_selective_distributive_prelattice _ B)
+| A_BS_selective_distributive_prelattice_with_zero _ B => A_BS_bs _ (A_bs_from_selective_distributive_prelattice_with_zero _ B)
+| A_BS_selective_distributive_prelattice_with_one _ B => A_BS_bs _ (A_bs_from_selective_distributive_prelattice_with_one _ B)
+| A_BS_selective_distributive_lattice _ B => A_BS_bs _ (A_bs_from_selective_distributive_lattice _ B)                       
+end.
+
+End AMCAS.   
 
 Section CAS.
 
@@ -1439,21 +1642,22 @@ let plus := pre_dioid_with_zero_plus dS  in
 
 
 (* 5 *)
-Definition bs_CI_from_lattice {S : Type} (lP : @lattice S) : @bs_CI S := 
-  let eqv  := lattice_eqv lP  in               
+
+Definition bs_CI_from_prelattice {S : Type} (lP : @prelattice S) : @bs_CI S := 
+  let eqv  := prelattice_eqv lP  in               
   let eq   := eqv_eq eqv      in 
   let wS   := eqv_witness eqv in 
   let f    := eqv_new eqv     in
-  let meet := lattice_meet lP in
+  let meet := prelattice_meet lP in
   {|
      bs_CI_eqv          := eqv 
-   ; bs_CI_plus         := lattice_join lP 
+   ; bs_CI_plus         := prelattice_join lP 
    ; bs_CI_times        := meet 
-   ; bs_CI_plus_certs   := lattice_join_certs lP
-   ; bs_CI_times_certs  := msg_certs_from_sg_certs S (sg_certs_from_sg_CI_certs S eq meet wS f (lattice_meet_certs lP))
-   ; bs_CI_id_ann_certs := id_ann_certs_from_dually_bounded_certs (lattice_id_ann_certs lP)
-   ; bs_CI_certs        := bs_certs_from_lattice_certs (lattice_certs lP) 
-   ; bs_CI_ast          := Ast_bs_CI_from_lattice (lattice_ast lP)
+   ; bs_CI_plus_certs   := prelattice_join_certs lP
+   ; bs_CI_times_certs  := msg_certs_from_sg_certs S (sg_certs_from_sg_CI_certs S eq meet wS f (prelattice_meet_certs lP))
+   ; bs_CI_id_ann_certs := prelattice_id_ann_certs lP
+   ; bs_CI_certs        := bs_certs_from_lattice_certs (prelattice_certs lP) 
+   ; bs_CI_ast          := Ast_bs_CI_from_lattice (prelattice_ast lP)
   |}.
 
 
@@ -1556,6 +1760,69 @@ let f     := eqv_new eqv in
 |}.
 
 
+(* 13 *) 
+Definition prelattice_from_distributive_prelattice {S: Type} (dS : @distributive_prelattice S) : @prelattice S := 
+let eqv   := distributive_prelattice_eqv dS in
+let eqvP  := eqv_certs eqv in
+let eq    := eqv_eq eqv in
+let join  := distributive_prelattice_join dS in
+let joinP := distributive_prelattice_join_certs dS in
+let meet  := distributive_prelattice_meet dS in
+let meetP := distributive_prelattice_meet_certs dS in
+let dPS   := distributive_prelattice_certs dS in 
+{|
+      prelattice_eqv           := eqv 
+    ; prelattice_join          := join 
+    ; prelattice_meet          := meet
+    ; prelattice_join_certs   := joinP 
+    ; prelattice_meet_certs   := meetP
+    ; prelattice_id_ann_certs := distributive_prelattice_id_ann_certs dS 
+    ; prelattice_certs        := lattice_certs_from_distributive_lattice_certs dPS
+    ; prelattice_ast           := Ast_lattice_from_distributive_lattice (distributive_prelattice_ast dS)
+|}.
+
+
+(* 14 *) 
+Definition distributive_prelattice_from_distributive_lattice {S: Type} (dS : @distributive_lattice S) : @distributive_prelattice S := 
+let eqv   := distributive_lattice_eqv dS in
+let eqvP  := eqv_certs eqv in
+let eq    := eqv_eq eqv in
+let join  := distributive_lattice_join dS in
+let joinP := distributive_lattice_join_certs dS in
+let meet  := distributive_lattice_meet dS in
+let meetP := distributive_lattice_meet_certs dS in
+{|
+      distributive_prelattice_eqv           := eqv 
+    ; distributive_prelattice_join          := join 
+    ; distributive_prelattice_meet          := meet
+    ; distributive_prelattice_join_certs   := joinP 
+    ; distributive_prelattice_meet_certs   := meetP
+    ; distributive_prelattice_id_ann_certs := id_ann_certs_from_dually_bounded_certs (distributive_lattice_id_ann_certs dS)
+    ; distributive_prelattice_certs        := distributive_lattice_certs dS 
+    ; distributive_prelattice_ast           := Ast_lattice_from_distributive_lattice (distributive_lattice_ast dS)
+|}.
+
+(* 15 *) 
+Definition prelattice_from_lattice {S: Type} (dS : @lattice S) : @prelattice S := 
+let eqv   := lattice_eqv dS in
+let eqvP  := eqv_certs eqv in
+let eq    := eqv_eq eqv in
+let join  := lattice_join dS in
+let joinP := lattice_join_certs dS in
+let meet  := lattice_meet dS in
+let meetP := lattice_meet_certs dS in
+{|
+      prelattice_eqv           := eqv 
+    ; prelattice_join          := join 
+    ; prelattice_meet          := meet
+    ; prelattice_join_certs   := joinP 
+    ; prelattice_meet_certs   := meetP
+    ; prelattice_id_ann_certs := id_ann_certs_from_dually_bounded_certs (lattice_id_ann_certs dS)
+    ; prelattice_certs        := lattice_certs dS
+    ; prelattice_ast           := Ast_lattice_from_distributive_lattice (lattice_ast dS)
+|}.
+
+
 (* Derived *) 
 
 (* two hops *) 
@@ -1565,14 +1832,17 @@ Definition bs_from_semiring {S : Type} (sr : @semiring S) : @bs S :=
 Definition bs_from_pre_dioid {S : Type} (pd : @pre_dioid S) : @bs S := 
   bs_from_bs_CI (bs_CI_from_pre_dioid pd).
 
-Definition bs_from_lattice {S : Type} (l : @lattice S) : @bs S := 
-  bs_from_bs_CI (bs_CI_from_lattice l). 
+Definition bs_from_prelattice {S: Type} (l : @prelattice S) : @bs S := 
+  bs_from_bs_CI (bs_CI_from_prelattice l). 
 
 Definition presemiring_from_pre_dioid_with_zero {S : Type} (pd : @pre_dioid_with_zero S) : @presemiring S := 
-  presemiring_from_semiring (semiring_from_pre_dioid_with_zero pd). 
+  presemiring_from_semiring (semiring_from_pre_dioid_with_zero pd).
 
-Definition bs_CI_from_distributive_lattice {S : Type} (l : @distributive_lattice S) : @bs_CI S := 
-  bs_CI_from_lattice (lattice_from_distributive_lattice l). 
+Definition bs_CI_from_lattice {S: Type} (l : @lattice S) : @bs_CI S := 
+  bs_CI_from_prelattice (prelattice_from_lattice l).
+
+Definition bs_CI_from_distributive_prelattice {S : Type} (l : @distributive_prelattice S) : @bs_CI S := 
+  bs_CI_from_prelattice (prelattice_from_distributive_prelattice l). 
 
 Definition bs_CI_from_pre_dioid_with_zero {S : Type} (pd : @pre_dioid_with_zero S) : @bs_CI S := 
   bs_CI_from_pre_dioid (pre_dioid_from_pre_dioid_with_zero pd). 
@@ -1589,6 +1859,9 @@ Definition pre_dioid_with_zero_from_distributive_lattice {S : Type} (dl : @distr
 Definition pre_dioid_with_one_from_distributive_lattice {S : Type} (dl : @distributive_lattice S) : @pre_dioid_with_one S := 
   pre_dioid_with_one_from_dioid (dioid_from_distributive_lattice dl). 
 
+Definition prelattice_from_distributive_lattice {S: Type} (dl : @distributive_lattice S) : @prelattice S := 
+  prelattice_from_distributive_prelattice (distributive_prelattice_from_distributive_lattice dl). 
+
 
 (* three hops *)
 Definition bs_from_pre_dioid_with_zero {S : Type} (pd : @pre_dioid_with_zero S) : @bs S := 
@@ -1597,11 +1870,17 @@ Definition bs_from_pre_dioid_with_zero {S : Type} (pd : @pre_dioid_with_zero S) 
 Definition bs_from_pre_dioid_with_one {S : Type} (pd : @pre_dioid_with_one S) : @bs S := 
   bs_from_bs_CI  (bs_CI_from_pre_dioid_with_one  pd).
 
+Definition bs_from_distributive_prelattice {S : Type} (pd : @distributive_prelattice S) : @bs S := 
+  bs_from_bs_CI  (bs_CI_from_distributive_prelattice  pd).
+
+Definition bs_from_lattice {S: Type} (pd : @lattice S) : @bs S := 
+  bs_from_bs_CI (bs_CI_from_lattice pd).
+
 Definition bs_CI_from_dioid {S : Type} (pd : @dioid S) : @bs_CI S := 
   bs_CI_from_pre_dioid_with_zero  (pre_dioid_with_zero_from_dioid  pd).
 
-Definition bs_from_distributive_lattice {S : Type} (pd : @distributive_lattice S) : @bs S := 
-  bs_from_bs_CI  (bs_CI_from_distributive_lattice  pd).
+Definition bs_CI_from_distributive_lattice {S: Type} (pd : @distributive_lattice S) : @bs_CI S := 
+  bs_CI_from_prelattice (prelattice_from_distributive_lattice pd).
 
 Definition pre_dioid_from_distributive_lattice {S : Type} (dl : @distributive_lattice S) : @pre_dioid S := 
   pre_dioid_from_pre_dioid_with_zero  (pre_dioid_with_zero_from_distributive_lattice  dl).
@@ -1609,6 +1888,10 @@ Definition pre_dioid_from_distributive_lattice {S : Type} (dl : @distributive_la
 (* four hops *)
 Definition bs_from_dioid {S : Type} (pd : @dioid S) : @bs S := 
   bs_from_bs_CI (bs_CI_from_dioid  pd).
+
+Definition bs_from_distributive_lattice {S: Type} (pd : @distributive_lattice S) : @bs S := 
+  bs_from_bs_CI (bs_CI_from_distributive_lattice pd).
+
 
 (***************** Selective versions **********************)
 
@@ -1710,7 +1993,6 @@ Definition selective_pre_dioid_from_selective_pre_dioid_with_one
 ; selective_pre_dioid_certs        := selective_pre_dioid_with_one_certs _ pd 
 ; selective_pre_dioid_ast           := selective_pre_dioid_with_one_ast _ pd 
 |}.                                                                                                      
-
 
 (* 8 *) 
 Definition selective_pre_dioid_with_zero_from_selective_dioid
@@ -1980,7 +2262,58 @@ Definition selective_cancellative_pre_dioid_with_one_from_selective_cancellative
 ; selective_cancellative_pre_dioid_with_one_ast           := selective_cancellative_dioid_ast _ pd 
 |}.                                                                                                      
 
-  
+
+(* 23 *)
+Definition selective_pre_dioid_with_zero_from_selective_distributive_prelattice_with_zero
+           {S: Type} (dS : @selective_distributive_prelattice_with_zero S) : @selective_pre_dioid_with_zero S :=
+let eqv   := selective_distributive_prelattice_with_zero_eqv dS in
+let eqvP  := eqv_certs eqv in
+let eq    := eqv_eq eqv in
+let wS := eqv_witness eqv in 
+let f := eqv_new eqv in
+let plus  := selective_distributive_prelattice_with_zero_join dS in
+let plusP := selective_distributive_prelattice_with_zero_join_certs dS in
+let times := selective_distributive_prelattice_with_zero_meet dS in
+let timesP:= selective_distributive_prelattice_with_zero_meet_certs dS in
+let dPS   := selective_distributive_prelattice_with_zero_certs dS in
+{|
+  selective_pre_dioid_with_zero_eqv           := eqv 
+; selective_pre_dioid_with_zero_plus          := plus 
+; selective_pre_dioid_with_zero_times         := times 
+; selective_pre_dioid_with_zero_plus_certs   := plusP 
+; selective_pre_dioid_with_zero_times_certs  := msg_certs_from_sg_certs _ (sg_certs_from_sg_CS_certs S eq times wS f timesP)
+; selective_pre_dioid_with_zero_id_ann_certs := selective_distributive_prelattice_with_zero_id_ann_certs dS
+; selective_pre_dioid_with_zero_certs        := dioid_certs_from_distributive_lattice_certs dPS 
+; selective_pre_dioid_with_zero_ast           := selective_distributive_prelattice_with_zero_ast dS 
+|}.                                                                                                      
+
+
+(* 24 *)
+Definition selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one
+           {S: Type} (dS : @selective_distributive_prelattice_with_one S) : @selective_pre_dioid_with_one S :=
+let eqv   := selective_distributive_prelattice_with_one_eqv dS in
+let eqvP  := eqv_certs eqv in
+let eq    := eqv_eq eqv in
+let wS := eqv_witness eqv in 
+let f := eqv_new eqv in
+let plus  := selective_distributive_prelattice_with_one_join dS in
+let plusP := selective_distributive_prelattice_with_one_join_certs dS in
+let times := selective_distributive_prelattice_with_one_meet dS in
+let timesP:= selective_distributive_prelattice_with_one_meet_certs dS in
+let dPS   := selective_distributive_prelattice_with_one_certs dS in
+{|
+  selective_pre_dioid_with_one_eqv           := eqv 
+; selective_pre_dioid_with_one_plus          := plus 
+; selective_pre_dioid_with_one_times         := times 
+; selective_pre_dioid_with_one_plus_certs   := plusP 
+; selective_pre_dioid_with_one_times_certs  := msg_certs_from_sg_certs _ (sg_certs_from_sg_CS_certs _ eq times wS f timesP)
+; selective_pre_dioid_with_one_id_ann_certs := selective_distributive_prelattice_with_one_id_ann_certs dS
+; selective_pre_dioid_with_one_certs        := dioid_certs_from_distributive_lattice_certs dPS 
+; selective_pre_dioid_with_one_ast           := selective_distributive_prelattice_with_one_ast dS 
+|}.                                                                                                      
+
+
+
 (* Derived *) 
 
 (* two hops *)
@@ -2232,10 +2565,24 @@ Definition bs_from_selective_distributive_prelattice_with_zero
            {S : Type} (a : @selective_distributive_prelattice_with_zero  S) : @bs S := 
   bs_from_selective_distributive_prelattice (selective_distributive_prelattice_from_selective_distributive_prelattice_with_zero S a).
 
+Definition bs_from_selective_distributive_prelattice_with_one 
+           {S: Type} (a : @selective_distributive_prelattice_with_one  S) : @bs S :=            
+  bs_from_selective_pre_dioid_with_one 
+       (selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one a).
+
+
+
 (* 1,2,5,7,18 *)
 Definition bs_from_selective_cancellative_pre_dioid_with_one
            {S : Type} (a : @selective_cancellative_pre_dioid_with_one  S) : @bs S := 
   bs_from_selective_pre_dioid_with_one (selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one a).
+
+(* 1,2,5,6,17 *)
+Definition bs_from_selective_cancellative_pre_dioid_with_zero
+           {S: Type} (a : @selective_cancellative_pre_dioid_with_zero  S) : @bs S := 
+  bs_from_selective_pre_dioid_with_zero (selective_pre_dioid_with_zero_from_selective_cancellative_pre_dioid_with_zero a).
+
+
 
 (* 2,5,6,8,11 (or 2,5,10,12,14 or 2,3,4,8,11) *)
 Definition bs_CS_from_selective_distributive_lattice
@@ -2476,4 +2823,39 @@ End Combinators.
 End Verify.   
 
 
+Section MCAS. 
                        
+Definition bs_from_mcas {S : Type} (A : @bs_mcas S) := 
+match A with   
+| BS_Error _ => A 
+| BS_bs _    => A
+| BS_bs_CI B => BS_bs (bs_from_bs_CI B)
+| BS_bs_CS B => BS_bs (bs_from_bs_CS B)
+| BS_presemiring B => BS_bs (bs_from_presemiring B)
+| BS_semiring B => BS_bs (bs_from_semiring B)
+| BS_pre_dioid B => BS_bs (bs_from_pre_dioid B)
+| BS_pre_dioid_with_one B => BS_bs (bs_from_pre_dioid_with_one B)
+| BS_pre_dioid_with_zero B => BS_bs (bs_from_pre_dioid_with_zero B)
+| BS_dioid B => BS_bs (bs_from_dioid B)
+| BS_prelattice B => BS_bs (bs_from_prelattice B)
+| BS_distributive_prelattice B => BS_bs (bs_from_distributive_prelattice B)
+| BS_lattice B => BS_bs (bs_from_lattice B)                       
+| BS_distributive_lattice B => BS_bs (bs_from_distributive_lattice B)
+| BS_selective_presemiring  B => BS_bs (bs_from_selective_presemiring  B)
+| BS_selective_semiring B => BS_bs (bs_from_selective_semiring B)
+| BS_selective_pre_dioid B => BS_bs (bs_from_selective_pre_dioid B)
+| BS_selective_pre_dioid_with_zero B => BS_bs (bs_from_selective_pre_dioid_with_zero B)                       
+| BS_selective_pre_dioid_with_one B => BS_bs (bs_from_selective_pre_dioid_with_one B)
+| BS_selective_dioid B => BS_bs (bs_from_selective_dioid B)
+| BS_selective_cancellative_pre_dioid B => BS_bs (bs_from_selective_cancellative_pre_dioid B)
+| BS_selective_cancellative_pre_dioid_with_zero B => BS_bs (bs_from_selective_cancellative_pre_dioid_with_zero B)
+| BS_selective_cancellative_pre_dioid_with_one B => BS_bs (bs_from_selective_cancellative_pre_dioid_with_one B)                       
+| BS_selective_cancellative_dioid  B => BS_bs (bs_from_selective_cancellative_dioid  B)
+| BS_selective_distributive_prelattice B => BS_bs (bs_from_selective_distributive_prelattice B)
+| BS_selective_distributive_prelattice_with_zero B => BS_bs (bs_from_selective_distributive_prelattice_with_zero B)
+| BS_selective_distributive_prelattice_with_one B => BS_bs (bs_from_selective_distributive_prelattice_with_one B)
+| BS_selective_distributive_lattice B => BS_bs (bs_from_selective_distributive_lattice B)                       
+end.
+
+End MCAS.   
+

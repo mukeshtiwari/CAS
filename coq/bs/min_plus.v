@@ -8,7 +8,6 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.eqv.nat.
-
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory.
@@ -163,7 +162,12 @@ Definition A_min_plus : A_selective_cancellative_pre_dioid_with_one nat :=
 
 End ACAS.
 
+Section MACAS.
 
+Definition A_bs_mcas_min_plus := A_BS_selective_cancellative_pre_dioid_with_one _ A_min_plus. 
+
+End MACAS.
+  
 Section CAS.
 
 Open Scope nat.
@@ -198,6 +202,14 @@ Definition min_plus : @selective_cancellative_pre_dioid_with_one nat :=
 |}.
 
 End CAS.
+
+Section MCAS.
+
+Definition bs_mcas_min_plus := BS_selective_cancellative_pre_dioid_with_one min_plus. 
+
+End MCAS.
+  
+
 
 Section Verify.
 

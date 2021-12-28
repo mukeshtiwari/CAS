@@ -53,6 +53,19 @@ Section Computation.
    some exotic network routing constructions ... 
 *)   
 
+Fixpoint  iterate_minset {S : Type} (lte : brel S) (W Y X : finite_set S): (finite_set S) * (finite_set S) := 
+      match X with
+         | nil => (W, Y) 
+         | a :: Z => match find (below lte a) Z with
+                     | None   => match find (below lte a) Y with
+                                 | None   => iterate_minset lte W (a :: Y) Z 
+                                 | Some _ => iterate_minset lte (a :: W) Y Z 
+                                 end 
+                     | Some _ => iterate_minset lte (a :: W) Y Z 
+                     end
+      end.
+
+(*
 Definition iterate_minset : ∀ {S : Type} (lte : brel S), (finite_set S)  -> (finite_set S)  -> (finite_set S) 
   := λ {S} lte,  fix f Y X  :=
       match X with
@@ -65,9 +78,10 @@ Definition iterate_minset : ∀ {S : Type} (lte : brel S), (finite_set S)  -> (f
                      | Some _ => f Y Z 
                      end
 end.
+*) 
 
-Definition uop_minset {S : Type} (lte :brel S) : unary_op (finite_set S) 
-  := λ X, iterate_minset lte nil X. 
+Definition uop_minset {S : Type} (lte :brel S) (X : finite_set S) : (finite_set S) := 
+    let (_, Y) := iterate_minset lte nil nil X in Y. 
 
 Definition brel_minset {S : Type} (eq lte : brel S)  : brel (finite_set S)
   := λ X Y, brel_set eq (uop_minset lte X) (uop_minset lte Y).
@@ -90,6 +104,7 @@ Variable tranS : brel_transitive S rS.
 
 Variable lteS : brel S. 
 Variable lteCong : brel_congruence S rS lteS.
+(* NB: antisymmetry is not assumed! *) 
 Variable lteRefl : brel_reflexive S lteS.
 Variable lteTrans : brel_transitive S lteS. 
 
@@ -108,6 +123,8 @@ Notation "a [!~|#] b"   := (equiv_or_incomp lteS b a = false) (at level 15).
 
 Notation "a [in] b"  := (in_set rS b a = true)   (at level 15).
 Notation "a [!in] b" := (in_set rS b a = false)  (at level 15).
+
+Notation "a [U] b"   := (bop_union rS a b)         (at level 15).
 
 Notation "a [=S] b"   := (brel_set rS a b = true)         (at level 15).
 Notation "a [<>S] b"  := (brel_set rS a b = false)        (at level 15).
@@ -262,27 +279,26 @@ Proof. compute; auto. Qed.
 Lemma minset_singleton : ∀ (s : S), [ms] (s :: nil) = s :: nil. 
 Proof. intro s. compute; auto. Qed.
 
-
 Lemma in_iterate_minset_implies_in_union (X : finite_set S) :
-      ∀ (s : S) (Y : finite_set S),  s [in] iterate_minset lteS Y X -> (s [in] Y) + (s [in] X). 
+      ∀ (s : S) (W Y : finite_set S),  s [in] snd(iterate_minset lteS W Y X) -> (s [in] Y) + (s [in] X). 
 Proof. induction X. 
-       intros s Y A. unfold iterate_minset in A; auto. 
-       intros s Y A. unfold iterate_minset in A. 
+       intros s W Y A. unfold iterate_minset in A; auto. 
+       intros s W Y A. unfold iterate_minset in A. 
        case_eq(find (below lteS a) X).
           intros t B. rewrite B in A. 
-          fold (iterate_minset lteS Y X) in A.
-          destruct (IHX s Y A) as [C | C]; auto. 
+          fold (iterate_minset lteS (a :: W) Y X) in A.
+          destruct (IHX s (a :: W) Y A) as [C | C]; auto. 
              right. apply in_set_cons_intro; auto.           
 
           intros B. rewrite B in A.
           case_eq(find (below lteS a) Y).          
              intros t C. rewrite C in A. 
-             fold (iterate_minset lteS Y X) in A.
-             destruct (IHX s Y A) as [D | D]; auto. 
+             fold (iterate_minset lteS (a :: W) Y X) in A.
+             destruct (IHX s (a :: W) Y A) as [D | D]; auto. 
                 right. apply in_set_cons_intro; auto.           
              intros C. rewrite C in A. 
-             fold (iterate_minset lteS (a ::Y) X) in A.
-             destruct (IHX s (a :: Y) A) as [D | D]; auto. 
+             fold (iterate_minset lteS W (a ::Y) X) in A.
+             destruct (IHX s W (a :: Y) A) as [D | D]; auto. 
                 apply in_set_cons_elim in D; auto. 
                 destruct D as [D | D]; auto. 
                    right. apply in_set_cons_intro; auto. 
@@ -293,7 +309,7 @@ Lemma in_minset_implies_in_set (X : finite_set S) :
       ∀ (s : S), s [in] ([ms] X) -> s [in] X. 
 Proof. intros s A.
        unfold uop_minset in A.
-       destruct (in_iterate_minset_implies_in_union _ _ _ A) as [B | B]; auto.
+       destruct (in_iterate_minset_implies_in_union _ _ _ _ A) as [B | B]; auto.
           compute in B. discriminate B.
 Qed.           
 
@@ -333,20 +349,20 @@ Qed.
 
 
 Lemma iterate_minset_is_antichain (X : finite_set S) :
-  ∀ (Y : finite_set S),
+  ∀ (W Y : finite_set S),
         is_antichain Y ->
         (∀ (s : S), s [in] X -> ∀ (t : S), t [in] Y → s !<< t) ->  
-        is_antichain (iterate_minset lteS Y X).
+        is_antichain (snd (iterate_minset lteS W Y X)).
 Proof. induction X.
-       intros Y A B. unfold iterate_minset. auto. 
-       intros Y A B. unfold iterate_minset.
+       intros W Y A B. unfold iterate_minset. auto. 
+       intros W Y A B. unfold iterate_minset.
        assert (B' : ∀ t : S, t [in] Y → a !<< t).
           intros t C.
           assert (D : a [in] (a :: X)). apply in_set_cons_intro; auto.
           exact (B a D t C). 
        case_eq(find (below lteS a) X). 
           intros u C. 
-          fold (iterate_minset lteS Y X).
+          fold (iterate_minset lteS (a :: W) Y X).
           assert (D : ∀ s : S, s [in] X → ∀ t : S, t [in] Y → s !<< t).
              intros s E t F. apply B; auto. apply in_set_cons_intro; auto. 
           apply IHX; auto. 
@@ -354,12 +370,12 @@ Proof. induction X.
           intros C.
           case_eq(find (below lteS a) Y).
              intros u D. 
-             fold (iterate_minset lteS Y X).
+             fold (iterate_minset lteS (a :: W) Y X).
              assert (E : ∀ s : S, s [in] X → ∀ t : S, t [in] Y → s !<< t).
                 intros s E t F. apply B; auto. apply in_set_cons_intro; auto.              
              apply IHX; auto.
              intros D. 
-             fold (iterate_minset lteS (a :: Y) X).
+             fold (iterate_minset lteS W (a :: Y) X).
              assert (F := find_below_none Y a D).                   
              assert (F' := find_below_none X a C).             
              assert (G : ∀ s : S, s [in] X → ∀ t : S, t [in] (a :: Y) → s !<< t).
@@ -395,24 +411,24 @@ Proof. induction X.
                       compute in M. rewrite L in M. rewrite K in M. discriminate M. 
 
                    exact (A _ H _ I). 
-             exact (IHX (a :: Y) H G).
+             exact (IHX W (a :: Y) H G).
 Qed. 
 
              
 Lemma uop_minset_is_antichain (X : finite_set S) : is_antichain ([ms] X). 
 Proof. assert (A : ∀ (s  : S), s [in] X -> ∀ (t : S), t [in] nil → s !<< t).
           intros s B t C. compute in C. discriminate C. 
-       exact (iterate_minset_is_antichain X nil empty_set_is_antichain A).
+       exact (iterate_minset_is_antichain X nil nil empty_set_is_antichain A).
 Qed.   
 
 
 Lemma in_iterate_minset_elim (X : finite_set S) :
-  ∀ (Y : finite_set S), 
+  ∀ (W Y : finite_set S), 
         is_antichain Y ->
         (∀ (s : S), s [in] X -> ∀ (t : S), t [in] Y → s !<< t) ->  
-        ∀ (s : S), s [in] (iterate_minset lteS Y X) -> (∀ (t : S), (t [in] Y) + (t [in] X) -> t !<< s).
+        ∀ (s : S), s [in] (snd (iterate_minset lteS W Y X)) -> (∀ (t : S), (t [in] Y) + (t [in] X) -> t !<< s).
 Proof. induction X.
-       intros Y A B s C t [D | D].
+       intros W Y A B s C t [D | D].
           unfold is_antichain in A.
           unfold iterate_minset  in C.
           assert (E := A s C t D).
@@ -423,7 +439,7 @@ Proof. induction X.
           
           compute in D. discriminate D. 
 
-       intros Y A B s C.
+       intros W Y A B s C.
        assert (B' : ∀ s : S, s [in] X → ∀ t : S, t [in] Y → s !<< t).
           intros u D t E.
           assert (F : u [in] (a :: X)). apply in_set_cons_intro; auto. 
@@ -431,12 +447,12 @@ Proof. induction X.
        unfold iterate_minset in C.
        case_eq(find (below lteS a) X). 
           intros t D. rewrite D in C.
-          fold (iterate_minset lteS Y X) in C. 
+          fold (iterate_minset lteS (a :: W) Y X) in C. 
           destruct (find_below_some X a t D) as [E F].
-          assert (H := IHX _ A B' s C). 
+          assert (H := IHX _ _ A B' s C). 
           intros u [I | I]. 
              exact (H u (inl I)).
-             destruct (in_iterate_minset_implies_in_union _ _ _ C) as [J | J].
+             destruct (in_iterate_minset_implies_in_union _ _ _ _ C) as [J | J].
                 exact(B _ I _ J).               
                 apply in_set_cons_elim in I; auto. 
                 destruct I as [I | I]. 
@@ -451,8 +467,8 @@ Proof. induction X.
           case_eq(find (below lteS a) Y).
             intros t F. rewrite F in C.
             destruct (find_below_some _ _  _ F) as [G H]. 
-            fold (iterate_minset lteS Y X) in C.
-            assert (J := IHX _ A B' _ C). 
+            fold (iterate_minset lteS (a :: W) Y X) in C.
+            assert (J := IHX _ _ A B' _ C). 
             intros u [K | K]. 
                exact (J u (inl K)). 
                apply in_set_cons_elim in K; auto.
@@ -504,7 +520,7 @@ Proof. induction X.
                   exact (E u J). 
                   exact (B' u J v I). 
 
-           assert (I := IHX _ A' B'' _ C).             
+           assert (I := IHX _ _ A' B'' _ C).             
 
            intros t [J | J].
                assert (K : t [in] (a :: Y)). apply in_set_cons_intro; auto. 
@@ -528,28 +544,28 @@ Proof. intros s A. split.
        unfold uop_minset in A.
        assert (B : ∀ (s : S), s [in] X -> ∀ (t : S), t [in] nil → s !<< t).
           intros a D t E. compute in E. discriminate E. 
-       assert (C := in_iterate_minset_elim X nil empty_set_is_antichain B s A).
+       assert (C := in_iterate_minset_elim X nil nil empty_set_is_antichain B s A).
        intros t D. exact (C t (inr D)). 
 Qed. 
 
 
 
 Lemma in_iterate_minset_intro (X : finite_set S) :
-  ∀ (Y : finite_set S), 
+  ∀ (W Y : finite_set S), 
         is_antichain Y ->
         (∀ (s : S), s [in] X -> ∀ (t : S), t [in] Y → s !<< t) ->  
         ∀ (s : S), (s [in] Y + s [in] X) * (∀ (t : S), (t [in] Y) + (t [in] X) -> t !<< s)
-                   -> s [in] (iterate_minset lteS Y X). 
+                   -> s [in] (snd (iterate_minset lteS W Y X)). 
 Proof. induction X. 
-       intros Y A B s [[C | C] D].
+       intros W Y A B s [[C | C] D].
           unfold iterate_minset; auto. 
           compute in C. discriminate C. 
 
-       intros Y A B s [[C | C] D].
+       intros W Y A B s [[C | C] D].
           unfold iterate_minset. 
           case_eq(find (below lteS a) X).
              intros t E.
-             fold (iterate_minset lteS Y X).
+             fold (iterate_minset lteS (a :: W) Y X).
              assert (F : ∀ s : S, s [in] X → ∀ t : S, t [in] Y → s !<< t).
                 intros u F v G.
                 assert (H: u [in] (a :: X)). apply in_set_cons_intro; auto. 
@@ -561,12 +577,12 @@ Proof. induction X.
                    destruct H as [_ H]; auto. 
                    assert (H: u [in] (a :: X)). apply in_set_cons_intro; auto. 
                    exact (D u (inr H)). 
-             exact (IHX _ A F s (inl C, G)).             
+             exact (IHX _ _ A F s (inl C, G)).             
              
              intro E.
              case_eq(find (below lteS a) Y).
                 intros t F. 
-                fold (iterate_minset lteS Y X).
+                fold (iterate_minset lteS (a :: W) Y X).
                    assert (G : ∀ s : S, s [in] X → ∀ t : S, t [in] Y → s !<< t).
                       intros u G v H. 
                       assert (I: u [in] (a :: X)). apply in_set_cons_intro; auto. 
@@ -576,7 +592,7 @@ Proof. induction X.
                          exact (D u (inl H)). 
                          assert (I: u [in] (a :: X)). apply in_set_cons_intro; auto. 
                          exact (D u (inr I)).
-                   exact (IHX _ A G s (inl C, H)).             
+                   exact (IHX _ _ A G s (inl C, H)).             
 
                 intro F.
                 fold (iterate_minset lteS (a :: Y) X).
@@ -622,13 +638,13 @@ Proof. induction X.
                       assert (J : t [in] (a :: X)). apply in_set_cons_intro; auto. 
                       exact (B t J s C). 
 
-                exact (IHX _ A' H s (inl G, J)).                  
+                exact (IHX _ _ A' H s (inl G, J)).                  
                 
 
           unfold iterate_minset. 
           case_eq(find (below lteS a) X).
              intros t E.
-             fold (iterate_minset lteS Y X).
+             fold (iterate_minset lteS (a :: W) Y X).
              assert (F : ∀ s : S, s [in] X → ∀ t : S, t [in] Y → s !<< t).
                 intros u F v G. 
                 assert (H: u [in] (a :: X)). apply in_set_cons_intro; auto. 
@@ -643,7 +659,7 @@ Proof. induction X.
                 assert (J := G t (inr H)). 
                 rewrite (below_congruence _ _ _ _ C (refS t)) in I. 
                 rewrite I in J. discriminate J. 
-                exact (IHX _ A F s (inr C, G)).             
+                exact (IHX _ _ A F s (inr C, G)).             
              
              intro E.
              case_eq(find (below lteS a) Y).
@@ -664,10 +680,10 @@ Proof. induction X.
                       assert (K := H t (inl I)). 
                       rewrite (below_congruence _ _ _ _ C (refS t)) in J. 
                       rewrite J in K. discriminate K. 
-                      exact (IHX _ A G s (inr C, H)).             
+                      exact (IHX _ _ A G s (inr C, H)).             
 
                 intro F.
-                fold (iterate_minset lteS (a :: Y) X).
+                fold (iterate_minset lteS W (a :: Y) X).
                 assert (A' : is_antichain (a :: Y)). 
                    unfold is_antichain. 
                    intros t H u I. 
@@ -707,8 +723,8 @@ Proof. induction X.
                      exact (D t (inr J)).
               apply in_set_cons_elim in C; auto. destruct C as [C | C].
                  assert (K : s [in] (a :: Y)). apply in_set_cons_intro; auto.
-                 exact (IHX _ A' H s (inl K, J)).                                
-                 exact (IHX _ A' H s (inr C, J)).                  
+                 exact (IHX _ _ A' H s (inl K, J)).                                
+                 exact (IHX _ _ A' H s (inr C, J)).                  
 Qed. 
        
 Lemma in_minset_intro (X : finite_set S) :
@@ -721,56 +737,56 @@ Proof. intros s [A B].
          intros t [D | D]. 
             compute in D. discriminate D. 
             exact (B t D). 
-       exact (in_iterate_minset_intro X nil empty_set_is_antichain C s (inr A, D)). 
+       exact (in_iterate_minset_intro X nil nil empty_set_is_antichain C s (inr A, D)). 
 Qed.  
 
 
 Lemma iterate_minset_subset (X : finite_set S) :
-  ∀ (Y : finite_set S), ∀ (s : S), s [in] Y -> s [in] iterate_minset lteS Y X.
+  ∀ (W Y : finite_set S), ∀ (s : S), s [in] Y -> s [in] snd(iterate_minset lteS W Y X).
 Proof. induction X.   
-       intros Y s A.
+       intros W Y s A.
        unfold iterate_minset; auto. 
 
-       intros Y s A.
+       intros W Y s A.
        unfold iterate_minset.
        case_eq(find (below lteS a) X).
           intros t B.
-          fold (iterate_minset lteS Y X). 
+          fold (iterate_minset lteS (a :: W) Y X). 
           apply IHX; auto. 
 
           intros B.
           case_eq(find (below lteS a) Y).
              intros t C.
-             fold (iterate_minset lteS Y X).
+             fold (iterate_minset lteS (a :: W) Y X).
              apply IHX; auto.              
 
-             intro C. fold (iterate_minset lteS (a :: Y) X). 
+             intro C. fold (iterate_minset lteS W (a :: Y) X). 
              apply IHX; auto.                           
              apply in_set_cons_intro; auto. 
 Qed.
 
 Lemma iterate_minset_subset_v2 (X : finite_set S) :
-  ∀ (Y : finite_set S), brel_subset rS Y (iterate_minset lteS Y X) = true. 
-Proof. intro Y. apply brel_subset_intro; auto.  apply iterate_minset_subset. Qed. 
+  ∀ (W Y : finite_set S), brel_subset rS Y (snd (iterate_minset lteS W Y X)) = true. 
+Proof. intros W Y. apply brel_subset_intro; auto.  apply iterate_minset_subset. Qed. 
 
 
 Lemma iterate_minset_left_congruence_weak (X : finite_set S):
-  ∀ (Y1 Y2: finite_set S), Y1 [=S] Y2 ->  iterate_minset lteS Y1 X [=S] iterate_minset lteS Y2 X.
+  ∀ (W Y1 Y2: finite_set S), Y1 [=S] Y2 ->  snd (iterate_minset lteS W Y1 X) [=S] snd(iterate_minset lteS W Y2 X).
 Proof. induction X.
-       intros Y1 Y2 A. unfold iterate_minset; auto. 
-       intros Y1 Y2 A. unfold iterate_minset. 
+       intros W Y1 Y2 A. unfold iterate_minset; auto. 
+       intros W Y1 Y2 A. unfold iterate_minset. 
        case_eq(find (below lteS a) X). 
           intros s B.
-          fold (iterate_minset lteS Y1 X). 
-          fold (iterate_minset lteS Y2 X).
+          fold (iterate_minset lteS (a :: W) Y1 X). 
+          fold (iterate_minset lteS (a :: W) Y2 X).
           apply IHX; auto. 
           intros B.
           case_eq(find (below lteS a) Y1).
              intros s C.              
-             fold (iterate_minset lteS Y1 X). 
+             fold (iterate_minset lteS (a :: W) Y1 X). 
              case_eq(find (below lteS a) Y2). 
              intros t D.              
-             fold (iterate_minset lteS Y2 X). 
+             fold (iterate_minset lteS (a :: W) Y2 X). 
              apply IHX; auto. 
              intros D.              
              destruct (find_below_some Y1 _ _ C) as [E F]. 
@@ -778,7 +794,7 @@ Proof. induction X.
              rewrite (in_set_congruence _ _ symS tranS _ _ _ _ A (refS s)) in E. 
              rewrite (G s E) in F. discriminate F.
              intros C.
-             fold (iterate_minset lteS (a :: Y1) X).              
+             fold (iterate_minset lteS W (a :: Y1) X).              
              case_eq(find (below lteS a) Y2). 
                 intros s D.
                 destruct (find_below_some Y2 _ _ D) as [E F]. 
@@ -787,7 +803,7 @@ Proof. induction X.
                 rewrite (in_set_congruence _ _ symS tranS _ _ _ _ A (refS s)) in E. 
                 rewrite (G s E) in F. discriminate F.
                 intros D.
-                fold (iterate_minset lteS (a :: Y2) X).              
+                fold (iterate_minset lteS W (a :: Y2) X).              
                 assert (E : (a :: Y1) [=S] (a :: Y2)). (* extract as lemma? *) 
                 apply brel_set_intro_prop; auto. split.
                     intros s E. 
@@ -805,13 +821,13 @@ Qed.
 
 
 Lemma in_set_iterate_minset_false_elim (X : finite_set S) :
-  ∀ (Y : finite_set S),
+  ∀ (W Y : finite_set S),
     is_antichain Y ->
      (∀ s : S, s [in] X → ∀ t : S, t [in] Y → s !<< t) -> 
-     (∀ (s : S), s [in] X -> s [!in] iterate_minset lteS Y X -> {t : S & t [in] (iterate_minset lteS Y X) * (t << s)}).
+     (∀ (s : S), s [in] X -> s [!in] snd (iterate_minset lteS W Y X) -> {t : S & t [in] snd(iterate_minset lteS W Y X) * (t << s)}).
 Proof. induction X.
-       intros U A A' s B. compute in B. discriminate B.
-       intros Y A A' s B C.
+       intros W U A A' s B. compute in B. discriminate B.
+       intros W Y A A' s B C.
        assert (A'' : ∀ s : S, s [in] X → ∀ t : S, t [in] Y → s !<< t). 
           intros u D t E.
           assert (F : u [in] (a :: X)). apply in_set_cons_intro; auto. 
@@ -820,55 +836,55 @@ Proof. induction X.
        unfold iterate_minset in C. 
        case_eq(find (below lteS a) X). 
           intros t D. rewrite D in C. 
-          fold (iterate_minset lteS Y X) in C. 
+          fold (iterate_minset lteS (a :: W) Y X) in C. 
           destruct B as [B | B].
-             case_eq(in_set rS (iterate_minset lteS Y (a :: X)) t); intro E.
+             case_eq(in_set rS (snd (iterate_minset lteS W Y (a :: X))) t); intro E.
                 exists t. split; auto.
                    rewrite (below_congruence _ _ _ _ (symS _ _ B) (refS t)).
                    destruct (find_below_some _ _ _ D) as [_ G]; auto. 
                 unfold iterate_minset in E. rewrite D in E. 
-                fold (iterate_minset lteS Y X) in E. 
+                fold (iterate_minset lteS (a :: W) Y X) in E. 
                 case_eq(in_set rS X t); intro F. 
-                  destruct (IHX Y A A'' t F E) as [u [G H]]. 
+                  destruct (IHX _ Y A A'' t F E) as [u [G H]]. 
                   exists u; split.
                      unfold iterate_minset.
                      rewrite D.                   
-                     fold (iterate_minset lteS Y X); auto. 
+                     fold (iterate_minset lteS (a :: W) Y X); auto. 
                      destruct (find_below_some _ _ _ D) as [I J]. 
                      assert (K := below_transitive _ _ _ H J).
                      rewrite (below_congruence _ _ _ _ (symS _ _ B) (refS u)); auto. 
                      apply find_below_some in D. destruct D as [D _].
                      rewrite D in F. discriminate F. 
-             destruct (IHX Y A A'' s B C) as [u [E F]].
+             destruct (IHX _ Y A A'' s B C) as [u [E F]].
              exists u. split; auto. 
                 unfold iterate_minset. rewrite D. 
-                fold (iterate_minset lteS Y X); auto. 
+                fold (iterate_minset lteS (a :: W) Y X); auto. 
           intros D. rewrite D in C.
           case_eq(find (below lteS a) Y). 
              intros u E. rewrite E in C. 
-             fold (iterate_minset lteS Y X) in C. 
+             fold (iterate_minset lteS (a :: W) Y X) in C. 
              destruct B as [B | B].
                 exists u. split. 
                    unfold iterate_minset. rewrite D. rewrite E. 
-                   fold (iterate_minset lteS Y X).
+                   fold (iterate_minset lteS (a :: W) Y X).
                    destruct (find_below_some Y _ _ E) as [F G]. 
                    apply iterate_minset_subset; auto.
                       
                    destruct (find_below_some Y _ _ E) as [F G]. 
                    rewrite (below_congruence _ _ _ _ (symS _ _ B) (refS u)); auto.                   
-                destruct (IHX Y A A'' s B C) as [v [F G]].
+                destruct (IHX _ Y A A'' s B C) as [v [F G]].
                 exists v. split; auto. 
                 unfold iterate_minset. rewrite D. rewrite E. 
                 fold (iterate_minset lteS Y X); auto. 
                 
              intro E. rewrite E in C. 
-             fold (iterate_minset lteS (a :: Y) X) in C. 
+             fold (iterate_minset lteS W (a :: Y) X) in C. 
              unfold iterate_minset. rewrite D. rewrite E. 
              fold (iterate_minset lteS (a :: Y) X).
              assert (F := find_below_none _  _ D).
              assert (G := find_below_none _  _ E).             
              destruct B as [B | B]. 
-                assert (I : s [in] iterate_minset lteS (a :: Y) X).
+                assert (I : s [in] snd (iterate_minset lteS W (a :: Y) X)).
                    assert (J : s [in] (a :: Y)). apply in_set_cons_intro; auto.
                    apply iterate_minset_subset; auto. 
                    rewrite I in C. discriminate C. 
@@ -895,7 +911,7 @@ Proof. unfold uop_minset.
        intros s A B.
        assert (C : ∀ s : S, s [in] X → ∀ t : S, t [in] nil → s !<< t).
           intros u C t D. compute in D. discriminate D. 
-       exact (in_set_iterate_minset_false_elim X nil empty_set_is_antichain C s A B). 
+       exact (in_set_iterate_minset_false_elim X nil nil empty_set_is_antichain C s A B). 
 Defined. 
 
        
@@ -962,7 +978,7 @@ Qed.
 Lemma bop_union_nil_v2 : ∀ (X : finite_set S), brel_set rS (bop_union rS X nil) X = true. 
 Proof. intro X.
        assert (A := bop_union_commutative _ _ refS symS tranS X nil).
-       assert (B := bop_union_nil _ _ refS symS tranS X).
+       assert (B := bop_union_with_nil_left _ _ refS symS tranS X).
        exact (set_transitive _ _ _ A B). 
 Qed. 
 
@@ -1012,13 +1028,13 @@ Qed.
 
 
 Lemma iterate_minset_on_anichain (X: finite_set S):
-  ∀ (Y : finite_set S), is_antichain (bop_union rS X Y) -> (iterate_minset lteS Y X) [=S] (bop_union rS X Y).
+  ∀ (W Y : finite_set S), is_antichain (bop_union rS X Y) -> snd(iterate_minset lteS W Y X) [=S] (bop_union rS X Y).
 Proof. induction X.
-       intros Y A. unfold iterate_minset.
-       assert (B := bop_union_nil _ _ refS symS tranS Y).
+       intros W Y A. unfold iterate_minset.
+       assert (B := bop_union_with_nil_left _ _ refS symS tranS Y).
        apply set_symmetric; auto. 
 
-       intros Y A.
+       intros W Y A.
        assert (B : a [in] bop_union rS (a :: X) Y).
           apply in_set_bop_union_intro; auto.
           left. apply in_set_cons_intro; auto. 
@@ -1041,7 +1057,7 @@ Proof. induction X.
              apply set_symmetric. 
              apply bop_union_shift. 
           exact (is_antichain_congruence _ _ E A). 
-       assert (F := IHX (a :: Y) E). 
+       assert (F := IHX W (a :: Y) E). 
        assert (G : bop_union rS X (a :: Y) [=S] bop_union rS (a :: X) Y).
           apply bop_union_shift. 
        exact (set_transitive _ _ _ F G). 
@@ -1053,7 +1069,7 @@ Proof. intro A. unfold uop_minset.
           assert (C : X [=S] (bop_union rS X nil)). 
              apply set_symmetric. apply bop_union_nil_v2.  
           exact (is_antichain_congruence _ _ C A). 
-       assert (C := iterate_minset_on_anichain X nil B).
+       assert (C := iterate_minset_on_anichain X nil nil B).
        assert (D : bop_union rS X nil [=S] X). apply bop_union_nil_v2.  
        exact (set_transitive _ _ _ C D). 
 Qed. 
@@ -1113,16 +1129,247 @@ Definition brel_minset_new : unary_op (finite_set S)
 Lemma brel_set_nil_singleton (s : S) (X : finite_set S) : nil [<>S] (s :: X). 
 Proof. compute; auto. Qed. 
 
-Lemma iterate_minset_singleton (Y : finite_set S) (s : S) :
-    (find (below lteS s) Y = None -> iterate_minset lteS Y (s :: nil) = (s :: Y)) *
-    (∀ t : S,  find (below lteS s) Y = Some t -> iterate_minset lteS Y (s :: nil) = Y). 
+Lemma iterate_minset_singleton (W Y : finite_set S) (s : S) :
+    (find (below lteS s) Y = None -> iterate_minset lteS W Y (s :: nil) = (W, s :: Y)) *
+    (∀ t : S,  find (below lteS s) Y = Some t -> iterate_minset lteS W Y (s :: nil) = (s :: W, Y)). 
 Proof. assert (B : find (below lteS s) nil = None). compute; auto.
        split.
        intro A. unfold iterate_minset.
        rewrite B. rewrite A. reflexivity. 
        intros t A. unfold iterate_minset.
        rewrite B. rewrite A. reflexivity. 
+Qed.
+
+
+Lemma iterate_minset_invariant_0 (X : finite_set S) : 
+  ∀ (W1 W2 Y : finite_set S), (snd (iterate_minset lteS W1 Y X)) = (snd (iterate_minset lteS W2 Y X)). 
+Proof. induction X. 
+       + intros W1 W2 Y. simpl. reflexivity. 
+       + intros W1 W2 Y.
+         unfold iterate_minset. 
+         case_eq(find (below lteS a) X).
+         ++ intros s B.
+            fold (iterate_minset lteS (a :: W1) Y X).
+            fold (iterate_minset lteS (a :: W2) Y X).
+            exact (IHX (a :: W1) (a :: W2) Y).
+         ++ intro B.
+            case_eq(find (below lteS a) Y).
+            +++ intros t C. 
+                fold (iterate_minset lteS (a :: W1) Y X).
+                fold (iterate_minset lteS (a :: W2) Y X).
+                exact (IHX (a :: W1) (a :: W2) Y).
+            +++ intro C. 
+                fold (iterate_minset lteS W1 (a :: Y) X).
+                fold (iterate_minset lteS W2 (a :: Y) X).
+                exact (IHX W1 W2 (a :: Y)).
 Qed. 
+            
+Lemma iterate_minset_invariant_1 (X : finite_set S) : 
+  ∀ (W Y : finite_set S), (W [U] (Y [U] X)) [=S] ((fst (iterate_minset lteS W Y X)) [U] (snd (iterate_minset lteS W Y X))). 
+Proof. induction X. 
+       + intros W Y. simpl. 
+         assert (A := bop_union_with_nil_right _ _ refS symS tranS Y). 
+         assert (B := bop_union_congruence _ _ refS symS tranS _ _ _ _ (set_reflexive W) A).
+         exact B. 
+
+       + intros W Y.
+         unfold iterate_minset.
+         assert (E1 : (W [U] (Y [U] (a :: X))) [=S] ((a :: W) [U] (Y [U] X))).
+             apply set_symmetric. 
+             assert (A := bop_union_shift_element S rS refS symS tranS X Y a).
+             assert (B := bop_union_push_element S rS refS symS tranS X Y a).          
+             assert (C := bop_union_shift_element S rS refS symS tranS (Y [U] X) W a).
+             assert (D := bop_union_congruence _ _ refS symS tranS _ _ _ _ (set_reflexive W) B).
+             assert (E := set_transitive _ _ _ C D).
+             assert (F := bop_union_congruence _ _ refS symS tranS _ _ _ _ (set_reflexive W) A).             
+             assert (G := set_transitive _ _ _ E F).
+             exact G. 
+         assert (E2 : (W [U] (Y [U] (a :: X))) [=S] (W [U] ((a :: Y) [U] X))).
+             assert (A := bop_union_shift_element S rS refS symS tranS X Y a).
+             assert (B := bop_union_congruence _ _ refS symS tranS _ _ _ _ (set_reflexive W) A).
+             apply set_symmetric.              
+             exact B.
+         case_eq(find (below lteS a) X).
+         ++ intros s A.        
+            fold(iterate_minset lteS (a :: W) Y X).               
+            assert (B := IHX (a :: W) Y).
+            exact (set_transitive _ _ _ E1 B). 
+
+         ++ intro A. 
+            case_eq(find (below lteS a) Y).
+            +++ intros t B. 
+                fold(iterate_minset lteS (a :: W) Y X).
+                assert (C := IHX (a :: W) Y).
+                exact (set_transitive _ _ _ E1 C). 
+            +++ intro B. 
+                fold(iterate_minset lteS W (a :: Y) X).
+                assert (C := IHX W (a :: Y)).
+                exact (set_transitive _ _ _ E2 C). 
+Qed. 
+
+Lemma iterate_minset_invariant_increasing (X : finite_set S) :
+  ∀ (W Y : finite_set S) (y : S), y [in] Y -> y [in] snd (iterate_minset lteS W Y X). 
+Proof. induction X.
+       + intros W Y y A. unfold iterate_minset. simpl. exact A. 
+       + intros W Y y A.
+         unfold iterate_minset. 
+         case_eq(find (below lteS a) X). 
+         ++ intros s B. 
+            fold (iterate_minset lteS (a :: W) Y X). 
+            exact (IHX (a :: W) Y y A). 
+         ++ intro B. 
+            case_eq(find (below lteS a) Y). 
+            +++ intros s C.
+                fold (iterate_minset lteS (a :: W) Y X). 
+                exact (IHX (a :: W) Y y A).                 
+            +++ intro C. 
+                fold (iterate_minset lteS W (a :: Y) X).
+                assert (D : y [in] (a :: Y)). apply in_set_cons_intro; auto. 
+                exact (IHX W (a :: Y) y D).                 
+Qed. 
+
+
+
+Lemma iterate_minset_invariants (X : finite_set S) : 
+  ∀ (W Y : finite_set S),
+    (∀ w : S,  w [in] W -> {t : S & (t [in] (Y [U] X)) * t << w}) ->
+    (∀ y x : S,  y [in] Y -> x [in] X -> x !<< y) ->     
+    (∀ w : S,  w [in] fst (iterate_minset lteS W Y X) -> {t : S & t [in] (snd(iterate_minset lteS W Y X)) * (t << w)}). 
+Proof. induction X. 
+       + intros W Y A B w C.
+         unfold iterate_minset in C. simpl in C.
+         unfold iterate_minset. simpl.
+         destruct (A _ C) as [t [D E]]. 
+         exists t. split; auto.
+         apply in_set_bop_union_elim in D; auto.
+         destruct D as [D | D]; auto.
+            compute in D. discriminate D. 
+       + intros W Y A B w C.
+         unfold iterate_minset in C. 
+         unfold iterate_minset.          
+         case_eq(find (below lteS a) X). 
+         ++ intros t D.
+            rewrite D in C.
+            fold (iterate_minset lteS (a :: W) Y X).
+            fold (iterate_minset lteS (a :: W) Y X) in C.
+            apply IHX.
+            +++ intros x E.
+                apply in_set_cons_elim in E; auto.
+                destruct E as [E | E].
+                ++++ apply find_below_some in D. destruct D as [D1 D2].
+                     rewrite (below_congruence _ _ _ _ E (refS t)) in D2.
+                     exists t. split; auto. 
+                     apply in_set_bop_union_intro; auto. 
+                ++++ destruct (A _ E) as [z [F G]].
+                     apply find_below_some in D. destruct D as [D1 D2].
+                     apply in_set_bop_union_elim in F; auto.                     
+                     destruct F as [F | F].
+                     +++++ exists z. split; auto.
+                           apply in_set_bop_union_intro; auto. 
+                     +++++ apply in_set_cons_elim in F; auto.                                            
+                           destruct F as [F | F].
+                           ++++++ exists t. split.
+                                  apply in_set_bop_union_intro; auto.
+                                  rewrite (below_congruence _ _ _ _ (refS x) (symS _ _ F)) in G.
+                                  exact (below_transitive _ _ _ D2 G). 
+                           ++++++ exists z. split; auto.
+                                 apply in_set_bop_union_intro; auto. 
+            +++ intros y x E F.
+                assert (G : x [in] (a :: X)). apply in_set_cons_intro; auto. 
+                apply B; auto.
+            +++ exact C. 
+         ++ intro D.
+            rewrite D in C.
+            case_eq (find (below lteS a) Y).
+            +++ intros t E.
+                rewrite E in C.
+                fold (iterate_minset lteS (a :: W) Y X).
+                fold (iterate_minset lteS (a :: W) Y X) in C.
+                apply IHX.
+                ++++ intros z F.
+                     apply in_set_cons_elim in F; auto.
+                     destruct F as [F | F].
+                     +++++ apply find_below_some in E. destruct E as [E1 E2].
+                           rewrite (below_congruence _ _ _ _ F (refS t)) in E2.                           
+                           exists t. split; auto. 
+                           apply in_set_bop_union_intro; auto.
+                     +++++ destruct (A _ F) as [v [G H]].
+                           apply in_set_bop_union_elim in G; auto. 
+                           destruct G as [G | G].
+                           ++++++ exists v. split; auto.
+                                  apply in_set_bop_union_intro; auto.
+                           ++++++ apply in_set_cons_elim in G; auto.
+                                  destruct G as [G | G].
+                                     apply find_below_some in E.  destruct E as [E1 E2].
+                                     rewrite (below_congruence _ _ _ _ G (refS t)) in E2.                           
+                                     exists t. split; auto. 
+                                     apply in_set_bop_union_intro; auto.
+                                     exact (below_transitive _ _ _ E2 H).                                      
+                                     exists v. split; auto.
+                                     apply in_set_bop_union_intro; auto.
+                ++++ intros y x F G.
+                     assert (H : x [in] (a :: X)). apply in_set_cons_intro; auto.
+                     exact (B _ _ F H). 
+                ++++ exact C. 
+            +++ intro E.
+                rewrite E in C.
+                fold (iterate_minset lteS W (a :: Y) X).
+                fold (iterate_minset lteS W (a :: Y) X) in C.
+                apply IHX.
+                ++++ intros z F.
+                     destruct (A _ F) as [v [G H]].
+                     exists v. split; auto.
+                     apply in_set_bop_union_intro; auto. 
+                     apply in_set_bop_union_elim in G; auto.
+                     destruct G as [G | G].
+                     +++++ left. apply in_set_cons_intro; auto. 
+                     +++++ apply in_set_cons_elim in G; auto.
+                           destruct G as [G | G]. 
+                           ++++++ left. apply in_set_cons_intro; auto. 
+                           ++++++ right. exact G.                        
+                ++++ intros y x F G.
+                     apply in_set_cons_elim in F; auto.
+                     destruct F as [F | F].
+                     +++++ assert (H := find_below_none _ _ D).
+                           assert (I := find_below_none _ _ E).
+                           assert (J := H _ G).
+                           rewrite (below_congruence _ _ _ _ (symS _ _ F) (refS x)).
+                           exact J. 
+                     +++++ assert (I : x [in] (a :: X)). apply in_set_cons_intro; auto.
+                           exact (B _ _ F I). 
+                ++++ exact C. 
+Qed. 
+         
+(* This theorem was inspired Lemma 1 in  Martelli's 1974 paper 
+  "An application of regular algebra to the enumeration of cut sets in a graph", 
+   Information Processing 74. 
+*) 
+Theorem fundamental_minset_theorem (X : finite_set S) : 
+   {Z : finite_set S &
+        (X [=S] (([ms] X) [U] Z) ) *
+        (∀ (s : S), s [in] Z -> {t : S & (t [in] ([ms] X)) * t << s })
+   }.
+Proof. unfold uop_minset.
+       assert (A := iterate_minset_invariant_1 X nil nil). 
+       exists (fst (iterate_minset lteS nil nil X)). split. 
+       + assert (B : X [=S] (nil [U] (nil [U] X))).
+            assert (C := bop_union_with_nil_left S rS refS symS tranS X). 
+            assert (D := bop_union_with_nil_left S rS refS symS tranS ((nil [U] X))). 
+            assert (E := set_transitive _ _ _ D C).
+            apply set_symmetric. exact E.
+         assert (C := set_transitive _ _ _ B A).
+         assert (D := bop_union_commutative _ _ refS symS tranS (fst (iterate_minset lteS nil nil X)) (snd (iterate_minset lteS nil nil X))).
+         assert (E := set_transitive _ _ _ C D). 
+         exact E. 
+       + intros s B.
+         assert (C : ∀ w : S, w [in] nil → {t : S & t [in] (nil [U] X) * t << w}).
+           intros w C. compute in C. discriminate C. 
+         assert (D : ∀ y x : S, y [in] nil → x [in] X → x !<< y).
+           intros y x D. compute in D. discriminate D.            
+         assert (E := iterate_minset_invariants X nil nil C D s B). unfold snd in E.
+         exact E. 
+Qed. 
+       
 
 Lemma brel_minset_nil_singleton (X : finite_set S) : ∀ (s : S), nil [<>MS] (s :: X).
   Proof. unfold brel_minset. rewrite minset_empty. unfold uop_minset. 
@@ -1135,15 +1382,17 @@ Lemma brel_minset_nil_singleton (X : finite_set S) : ∀ (s : S), nil [<>MS] (s 
                intros t A. 
                case_eq(find (below lteS a) X).
                   intros u B. 
-                  fold(iterate_minset lteS nil X). 
+                  fold(iterate_minset lteS (a :: s :: nil) nil X). 
                   assert (C := IHX a).                
                   unfold iterate_minset in C. rewrite B in C. 
-                  fold(iterate_minset lteS nil X) in C; auto. 
+                  fold(iterate_minset lteS (a :: nil) nil X) in C; auto.
+                  assert (D := iterate_minset_invariant_0 X (a :: nil) (a :: s :: nil) nil).
+                  unfold snd in D. rewrite D in C. exact C. 
                   intros B.
                   assert (C : find (below lteS a) nil = None). compute; auto. rewrite C. 
-                  fold(iterate_minset lteS (a :: nil) X). 
-                  case_eq(brel_set rS nil (iterate_minset lteS (a :: nil) X)); intro D; auto. 
-                    assert (E : brel_subset rS (a :: nil) (iterate_minset lteS  (a :: nil) X) = true).
+                  fold(iterate_minset lteS (s :: nil) (a :: nil) X). 
+                  case_eq(brel_set rS nil (snd (iterate_minset lteS (s :: nil) (a :: nil) X))); intro D; auto. 
+                    assert (E : brel_subset rS (a :: nil) (snd (iterate_minset lteS  (s :: nil) (a :: nil) X)) = true).
                       apply iterate_minset_subset_v2.
                   apply brel_set_elim in D; auto. destruct D as [_ D].
                   assert (F := brel_subset_transitive _ rS refS symS tranS _ _ _ E D). 
@@ -1154,9 +1403,9 @@ Lemma brel_minset_nil_singleton (X : finite_set S) : ∀ (s : S), nil [<>MS] (s 
                assert (C : find (below lteS s) nil = None). compute; auto. rewrite C.                   
                case_eq(find (below lteS a) X).
                   intros u B. 
-                  fold(iterate_minset lteS (s :: nil) X). 
-                  case_eq(brel_set rS nil (iterate_minset lteS (s :: nil) X)); intro D; auto. 
-                    assert (E : brel_subset rS (s :: nil) (iterate_minset lteS  (s :: nil) X) = true).
+                  fold(iterate_minset lteS (a :: nil) (s :: nil) X). 
+                  case_eq(brel_set rS nil (snd(iterate_minset lteS (a :: nil) (s :: nil) X))); intro D; auto. 
+                    assert (E : brel_subset rS (s :: nil) (snd (iterate_minset lteS (a :: nil) (s :: nil) X)) = true).
                       apply iterate_minset_subset_v2.
                     apply brel_set_elim in D; auto. destruct D as [_ D].
                     assert (F := brel_subset_transitive _ rS refS symS tranS _ _ _ E D). 
@@ -1166,9 +1415,9 @@ Lemma brel_minset_nil_singleton (X : finite_set S) : ∀ (s : S), nil [<>MS] (s 
                   intro B. 
                   case_eq(find (below lteS a) (s :: nil)).
                   intros w D. 
-                  fold(iterate_minset lteS (s :: nil) X).                   
-                  case_eq(brel_set rS nil (iterate_minset lteS (s :: nil) X)); intro E; auto. 
-                    assert (F : brel_subset rS (s :: nil) (iterate_minset lteS  (s :: nil) X) = true).
+                  fold(iterate_minset lteS (a :: nil) (s :: nil) X).                   
+                  case_eq(brel_set rS nil (snd (iterate_minset lteS (a :: nil) (s :: nil) X))); intro E; auto. 
+                    assert (F : brel_subset rS (s :: nil) (snd (iterate_minset lteS (a :: nil) (s :: nil) X)) = true).
                       apply iterate_minset_subset_v2.
                     apply brel_set_elim in E; auto. destruct E as [_ E].
                     assert (G := brel_subset_transitive _ rS refS symS tranS _ _ _ F E). 
@@ -1176,14 +1425,14 @@ Lemma brel_minset_nil_singleton (X : finite_set S) : ∀ (s : S), nil [<>MS] (s 
 
 
                   intros D. 
-                  fold(iterate_minset lteS (a :: s :: nil) X).                   
-                  case_eq(brel_set rS nil (iterate_minset lteS (a :: s :: nil) X)); intro E; auto. 
-                    assert (F : brel_subset rS (a :: s :: nil) (iterate_minset lteS  (a :: s :: nil) X) = true).
+                  fold(iterate_minset lteS nil (a :: s :: nil) X).                   
+                  case_eq(brel_set rS nil (snd (iterate_minset lteS nil (a :: s :: nil) X))); intro E; auto. 
+                    assert (F : brel_subset rS (a :: s :: nil) (snd (iterate_minset lteS  nil (a :: s :: nil) X)) = true).
                       apply iterate_minset_subset_v2.
                     apply brel_set_elim in E; auto. destruct E as [_ E].
                     assert (G := brel_subset_transitive _ rS refS symS tranS _ _ _ F E). 
                     compute in G. discriminate G. 
-Qed.                   
+Qed. 
                   
 Lemma brel_minset_singleton_nil (s : S) (X : finite_set S): (s :: X) [<>MS] nil.
  Proof. case_eq(brel_minset rS lteS (s :: X) nil); intro A; auto. 

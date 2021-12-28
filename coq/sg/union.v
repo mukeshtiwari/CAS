@@ -451,20 +451,28 @@ Section Union.
   Variable symS : brel_symmetric S r.
   Variable tranS : brel_transitive S r.
 
-Lemma in_set_bop_union_intro : ∀ (X Y : finite_set S) (a : S),
-       (in_set r X a = true) + (in_set r Y a = true) → in_set r (bop_union r X Y) a = true. 
-Proof. intros X Y a H. 
-       unfold bop_union. unfold bop_then_unary. unfold bop_concat. 
+Notation "a [=] b"  := (r a b = true)          (at level 15).
+Notation "a [<>] b" := (r a b = false)         (at level 15).
+
+Notation "a [in] b"  := (in_set r b a = true)   (at level 15).
+Notation "a [!in] b" := (in_set r b a = false)  (at level 15).
+
+Notation "a [U] b"   := (bop_union r a b)         (at level 15).
+
+Notation "a [=S] b"   := (brel_set r a b = true)         (at level 15).
+Notation "a [<>S] b"  := (brel_set r a b = false)         (at level 15).
+  
+
+Lemma in_set_bop_union_intro (X Y : finite_set S) (a : S) : 
+       (a [in] X) + (a [in] Y) → a [in] (X [U] Y). 
+Proof. intro H. unfold bop_union. unfold bop_then_unary. unfold bop_concat. 
        apply in_set_uop_duplicate_elim_intro; auto.
        apply in_set_concat_intro; auto. 
 Defined. 
 
-Lemma in_set_bop_union_elim : 
-   ∀ (X Y : finite_set S) (a : S),
-       in_set r (bop_union r X Y) a = true  →
-       (in_set r X a = true) + (in_set r Y a = true). 
-Proof. intros X Y a H. 
-       unfold bop_union in H. unfold bop_then_unary in H. unfold bop_concat in H. 
+Lemma in_set_bop_union_elim (X Y : finite_set S) (a : S): 
+       a [in] (X [U] Y)  → (a [in] X) + (a [in] Y). 
+Proof. intro H. unfold bop_union in H. unfold bop_then_unary in H. unfold bop_concat in H. 
        apply in_set_uop_duplicate_elim_elim in H. 
        apply in_set_concat_elim in H; auto.
 Defined. 
@@ -524,7 +532,7 @@ Proof. intros s f Pf.
           apply refS. 
 Defined.
 
-Lemma bop_union_nil : ∀ (X : finite_set S), brel_set r (bop_union r nil X) X = true. 
+Lemma bop_union_with_nil_left : ∀ (X : finite_set S), (nil [U] X) [=S] X. 
 Proof. intro X. 
        apply brel_set_intro. split. 
        apply brel_subset_intro; auto. 
@@ -534,13 +542,61 @@ Proof. intro X.
           assumption. 
        apply brel_subset_intro; auto. 
        intros a H. apply in_set_bop_union_intro; auto. 
-Defined. 
+Qed. 
+
+
+Lemma bop_union_with_nil_right : ∀ (X : finite_set S), (X [U] nil) [=S] X. 
+Proof. intro X. 
+       assert (A := bop_union_with_nil_left X).
+       assert (B := bop_union_commutative X nil).
+       assert (C := brel_set_transitive S r refS symS tranS _ _ _ B A).
+       exact C. 
+Qed. 
+
+
+Lemma bop_union_shift_element (X Y : finite_set S) (s : S) :
+  ((s :: Y) [U] X) [=S] (Y [U] (s :: X)). 
+Proof. apply brel_set_intro_prop; auto; split; intros a A. 
+       + apply in_set_bop_union_elim in A.
+         apply in_set_bop_union_intro.
+         destruct A as [A | A].
+         ++ apply in_set_cons_elim in A; auto. 
+            destruct A as [A | A]; auto. 
+            +++ right. apply in_set_cons_intro; auto. 
+         ++ right. apply in_set_cons_intro; auto.
+       + apply in_set_bop_union_elim in A.
+         apply in_set_bop_union_intro.
+         destruct A as [A | A].
+         ++ left. apply in_set_cons_intro; auto.
+         ++ apply in_set_cons_elim in A; auto. 
+            destruct A as [A | A]; auto. 
+            +++ left. apply in_set_cons_intro; auto. 
+Qed. 
+
+Lemma bop_union_push_element (X Y : finite_set S) (s : S) :
+  (s :: (Y [U] X)) [=S] ((s :: Y) [U] X). 
+Proof. apply brel_set_intro_prop; auto; split; intros a A. 
+       + apply in_set_cons_elim in A; auto. 
+         apply in_set_bop_union_intro.
+         destruct A as [A | A].
+         ++ left. apply in_set_cons_intro; auto.         
+         ++ apply in_set_bop_union_elim in A; auto. 
+            destruct A as [A | A]; auto. 
+            +++ left. apply in_set_cons_intro; auto. 
+       + apply in_set_bop_union_elim in A.
+         apply in_set_cons_intro; auto. 
+         destruct A as [A | A].
+         ++ apply in_set_cons_elim in A; auto. 
+            destruct A as [A | A]; auto. 
+            +++ right. apply in_set_bop_union_intro; auto.
+         ++ right. apply in_set_bop_union_intro; auto.
+Qed. 
 
 
 Lemma bop_union_nil_is_id : bop_is_id (finite_set S) (brel_set r) (bop_union r) nil.
 Proof. intro s. 
        assert (fact1 : brel_set r (bop_union r nil s) s = true). 
-          apply bop_union_nil; auto. 
+          apply bop_union_with_nil_left; auto. 
        assert (fact2 : brel_set r (bop_union r s nil) (bop_union r nil s) = true). 
           apply bop_union_commutative; auto. 
        assert (fact3 : brel_set r (bop_union r s nil) s = true). 

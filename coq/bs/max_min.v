@@ -121,6 +121,13 @@ Definition A_max_min : A_selective_distributive_prelattice_with_zero  nat  :=
 
 End ACAS.
 
+Section MACAS.
+
+Definition A_bs_mcas_max_min := A_BS_selective_distributive_prelattice_with_zero _ A_max_min. 
+
+End MACAS.
+
+
 Section CAS.
 Open Scope nat.
 
@@ -152,6 +159,14 @@ Definition max_min : @selective_distributive_prelattice_with_zero  nat  :=
 |}.
 
 End CAS.
+
+Section MACAS.
+
+Definition bs_mcas_max_min := BS_selective_distributive_prelattice_with_zero max_min. 
+
+End MACAS.
+
+
 
 Section Verify.
 

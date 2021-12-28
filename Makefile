@@ -108,9 +108,12 @@ CAS=\
    coq/bs/intersect_union.v \
    coq/bs/union_intersect.v \
    coq/bs/minset_union_lift.v \
+   coq/bs/minset_lift_union.v \
    coq/os/properties.v \
    coq/os/structures.v \
    coq/os/theory.v \
+   coq/os/cast_up.v \
+   coq/os/from_bs_left.v \
    coq/st/properties.v \
    coq/st/structures.v \
    coq/ot/properties.v \
