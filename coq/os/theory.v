@@ -9,6 +9,7 @@ Require Import CAS.coq.po.dual.
 Require Import CAS.coq.po.from_sg.
 
 Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.theory. 
 
 Require Import CAS.coq.os.properties.
 
@@ -16,7 +17,7 @@ Require Import CAS.coq.os.properties.
 
 (*********************** OS properties ************************************)
 
-Section GLB_LUB.
+Section GLB_LUB_DUALITY. 
   
 Variables (S : Type) (eq lte : brel S) (bS : binary_op S). 
 
@@ -57,9 +58,166 @@ Proof. intros s t.
          apply dual_lower_bound_implies_upper_bound; auto. 
 Qed. 
 
-End GLB_LUB.
+End GLB_LUB_DUALITY. 
 
-Section GLB_LUB_Right_Left. 
+
+Section LTE_LEFT_RIGHT_MONOTONE_INCREASING. 
+
+Variables (S : Type)
+          (eq lte : brel S)
+          (s : S) (f : S -> S)
+          (nt : brel_not_trivial S eq f)
+          (bS : binary_op S)
+          (refS : brel_reflexive S eq)
+          (symS : brel_symmetric S eq)
+          (trnS : brel_transitive S eq)          
+          (assoS : bop_associative S eq bS)
+          (congS : bop_congruence S eq bS)
+          (idemS : bop_idempotent S eq bS)
+          (commS : bop_commutative S eq bS).
+
+Notation "a == b"    := (eq a b = true) (at level 30).
+Notation "a != b"    := (eq a b = false) (at level 30).
+Notation "a (+) b"   := (bS a b) (at level 15).
+
+
+Lemma lte_left_is_left_monotone : os_left_monotone (brel_lte_left eq bS) bS.
+Proof. intros a b c. compute.   intro A.
+       assert (B := idemS (a (+) b)). apply symS in B.
+       assert (C := congS _ _ _ _ (refS a) A).
+       assert (D := assoS a b c).  apply symS in D. 
+       assert (E := trnS _ _ _ C D).
+       assert (F := congS _ _ _ _ (commS a b) (refS c)). 
+       assert (G := trnS _ _ _ E F).
+       assert (H := assoS b a c).  
+       assert (I := trnS _ _ _ G H).
+       assert (J := congS _ _ _ _ (refS (a (+) b)) I). 
+       assert (K := trnS _ _ _ B J).
+       assert (L := assoS (a (+) b) b (a (+) c)). apply symS in L. 
+       assert (M := trnS _ _ _ K L).
+       assert (N := assoS a b b).
+       assert (O := congS _ _ _ _ (refS a) (idemS b)).
+       assert (P := trnS _ _ _ N O).
+       assert (Q := congS _ _ _ _ P (refS (a (+) c))). 
+       assert (R := trnS _ _ _ M Q).
+       exact R. 
+Qed. 
+
+Lemma lte_left_is_right_monotone : os_right_monotone (brel_lte_left eq bS) bS.
+Proof. intros a b c. compute.   intro A.
+       assert (B := lte_left_is_left_monotone a b c A). compute in B.
+       assert (C := commS b a).
+       assert (D := trnS _ _ _ C B).
+       assert (E := congS _ _ _ _ C (commS c a)). apply symS in E. 
+       assert (F := trnS _ _ _ D E).
+       exact F.
+Qed. 
+
+Lemma lte_right_is_left_monotone : os_left_monotone (brel_lte_right eq bS) bS.
+Proof. intros a b c. compute.   intro A.
+       assert (B := commS b c).
+       assert (C := trnS _ _ _ A B). 
+       assert (D := lte_left_is_left_monotone a c b C). compute in D. 
+       assert (E := commS (a (+) c) (a (+) b)). 
+       assert (F := trnS _ _ _ D E). 
+       exact F.        
+Qed. 
+
+Lemma lte_right_is_right_monotone : os_right_monotone (brel_lte_right eq bS) bS.
+Proof. intros a b c. compute.   intro A.
+       assert (B := lte_right_is_left_monotone a b c A). compute in B.
+       assert (C := commS c a).
+       assert (D := trnS _ _ _ C B).
+       assert (E := congS _ _ _ _ (commS b a) C). apply symS in E. 
+       assert (F := trnS _ _ _ D E).
+       exact F.
+Qed. 
+            
+
+Lemma lte_left_is_not_left_decreasing : os_not_left_increasing (brel_lte_left eq bS) bS.
+Proof. compute.
+       destruct (bop_commutative_implies_not_is_left S eq bS s f nt symS trnS commS) as [[a b] A]. 
+       exists (a, b).
+       case_eq(eq a (a (+) (a (+) b))); intro B; auto.
+       assert (C := assoS a a b). apply symS in C. 
+       assert (D := trnS _ _ _ B C).
+       assert (E := congS _ _ _ _ (idemS a) (refS b)).
+       assert (F := trnS _ _ _ D E). apply symS in F. 
+       rewrite F in A.  discriminate A. 
+Qed. 
+
+Lemma lte_left_is_not_right_decreasing : os_not_right_increasing (brel_lte_left eq bS) bS.
+Proof. compute. destruct lte_left_is_not_left_decreasing as [[a b] A]. compute in A.
+       exists (a, b).
+       case_eq(eq a (a (+) (b (+) a))); intro B; auto.       
+       assert (C := congS _ _ _ _ (refS a) (commS b a)).
+       assert (D := trnS _ _ _ B C).
+       rewrite D in A. discriminate A. 
+Qed. 
+
+
+Lemma lte_left_is_left_decreasing : os_left_decreasing (brel_lte_left eq bS) bS.
+Proof. intros a b. compute.
+       assert (A := congS _ _ _ _ (idemS a) (refS b)). apply symS in A. 
+       assert (B := assoS a a b).
+       assert (C := trnS _ _ _ A B).
+       assert (D := commS a (a (+) b)). 
+       assert (E := trnS _ _ _ C D). 
+       exact E. 
+Qed. 
+
+Lemma  lte_left_is_right_decreasing : os_right_decreasing (brel_lte_left eq bS) bS.
+Proof. intros a b. compute.
+       assert (A := assoS b a a).
+       assert (B := congS _ _ _ _  (refS b) (idemS a)). 
+       assert (C := trnS _ _ _ A B). apply symS in C. 
+       exact C. 
+Qed. 
+
+
+Lemma lte_right_is_left_increasing : os_left_increasing (brel_lte_right eq bS) bS.
+Proof. intros a b. compute.
+       assert (A := assoS a a b).
+       assert (B := congS _ _ _ _ (idemS a) (refS b)). apply symS in B. 
+       assert (C := trnS _ _ _ B A).
+       exact C. 
+Qed. 
+
+Lemma  lte_right_is_right_increasing : os_right_increasing (brel_lte_right eq bS) bS.
+Proof. intros a b. compute.
+       assert (A := commS a (b (+) a)).
+       assert (B := assoS b a a).
+       assert (C := trnS _ _ _ A B).
+       assert (D := congS _ _ _ _ (refS b) (idemS a)). apply symS in B. 
+       assert (E := trnS _ _ _ C D). apply symS in E. 
+       exact E. 
+Qed. 
+
+
+Lemma lte_right_is_not_right_decreasing : os_not_right_decreasing (brel_lte_right eq bS) bS.
+Proof. compute.
+       destruct (bop_commutative_implies_not_is_right S eq bS s f nt symS trnS commS) as [[a b] A]. 
+       exists (b, a).
+       case_eq(eq b ((a (+) b) (+) b)); intro B; auto.
+       assert (C := assoS a b b). 
+       assert (D := trnS _ _ _ B C).
+       assert (E := congS _ _ _ _ (refS a) (idemS b)).
+       assert (F := trnS _ _ _ D E). apply symS in F. 
+       rewrite F in A.  discriminate A. 
+Qed. 
+
+Lemma lte_right_is_not_left_decreasing : os_not_left_decreasing (brel_lte_right eq bS) bS.
+Proof. compute. destruct lte_left_is_not_left_decreasing as [[a b] A]. compute in A.
+       exists (a, b).
+       case_eq(eq a ((a (+) b) (+) a)); intro B; auto.
+       assert (C := commS (a (+) b) a).       
+       assert (D := trnS _ _ _ B C).
+       rewrite D in A. discriminate A. 
+Qed. 
+
+End LTE_LEFT_RIGHT_MONOTONE_INCREASING.
+
+Section SG_CI_IS_SEMILATTICE.
 
 Variables (S : Type) (eq lte : brel S) (bS : binary_op S) 
          (refS : brel_reflexive S eq)
@@ -139,7 +297,136 @@ Proof. intros a b. split; compute. split.
        exact C.
 Qed.
 
-End GLB_LUB_Right_Left. 
+         
+End SG_CI_IS_SEMILATTICE.
+
+
+Section GLB_LUB_Order.
+
+Variables (S : Type)
+          (eq lte : brel S)
+          (refS : brel_reflexive S eq)
+          (symS : brel_symmetric S eq)                              
+          (trnS : brel_transitive S eq)                    
+          (lteCong : brel_congruence S eq lte)          
+          (lteRef : brel_reflexive S lte)
+          (anti : brel_antisymmetric S eq lte)
+          (bS : binary_op S)
+          (bCong : bop_congruence S eq bS)
+          (bAss : bop_associative S eq bS)                                        
+          (bIdem : bop_idempotent S eq bS)                              
+          (bComm : bop_commutative S eq bS).
+          
+Lemma glb_lte_true_implies_lte_left_true 
+      (GLB : bop_is_glb lte bS) (a b : S) : lte a b = true -> brel_lte_left eq bS a b = true. 
+Proof. compute in GLB. compute. intro A. 
+       destruct (GLB a b) as [[B C] D].       
+       assert (E := D _ (lteRef a, A)).
+       exact (anti _ _ E B).
+Qed.
+
+Lemma glb_lte_left_true_implies_lte_true
+      (GLB : bop_is_glb lte bS) (a b : S) : brel_lte_left eq bS a b = true -> lte a b = true. 
+Proof. compute in GLB. compute. intro A. 
+       destruct (GLB a b) as [[_ B] _].       
+       assert (C := lteCong _ _ _ _ A (refS b)).
+       rewrite B in C. exact C. 
+Qed.
+
+Lemma glb_lte_is_lte_left
+      (GLB : bop_is_glb lte bS) (a b : S) : lte a b = brel_lte_left eq bS a b.
+Proof. case_eq(lte a b); intro A; case_eq(brel_lte_left eq bS a b); intro B.
+       + reflexivity. 
+       + rewrite (glb_lte_true_implies_lte_left_true GLB _ _ A) in B. discriminate B.
+       + rewrite (glb_lte_left_true_implies_lte_true GLB _ _ B) in A. discriminate A. 
+       + reflexivity. 
+Qed.
+
+Lemma lub_lte_true_implies_lte_right_true 
+      (LUB : bop_is_lub lte bS) (a b : S) : lte a b = true -> brel_lte_right eq bS a b = true. 
+Proof. compute in LUB. compute. intro A. 
+       destruct (LUB b a) as [[B C] D].       
+       assert (E := D _ (lteRef b, A)).
+       assert (F := anti _ _ B E). 
+       assert (G := bComm b a).       
+       assert (H := trnS _ _ _ F G).
+       exact H. 
+Qed.
+
+Lemma lub_lte_right_true_implies_lte_true
+      (LUB : bop_is_lub lte bS) (a b : S) : brel_lte_right eq bS a b = true -> lte a b = true. 
+Proof. compute in LUB. compute. intro A. 
+       destruct (LUB a b) as [[B _] _].       
+       assert (C := lteCong _ _ _ _ (refS a) A).
+       rewrite B in C. exact C. 
+Qed.
+
+Lemma lub_lte_is_lte_right
+      (LUB : bop_is_lub lte bS) (a b : S) : lte a b = brel_lte_right eq bS a b.
+Proof. case_eq(lte a b); intro A; case_eq(brel_lte_right eq bS a b); intro B.
+       + reflexivity. 
+       + rewrite (lub_lte_true_implies_lte_right_true LUB _ _ A) in B. discriminate B.
+       + rewrite (lub_lte_right_true_implies_lte_true LUB _ _ B) in A. discriminate A. 
+       + reflexivity. 
+Qed.
+
+Theorem glb_is_left_monotone 
+  (GLB : bop_is_glb lte bS) : os_left_monotone lte bS. 
+Proof. assert (A := glb_lte_is_lte_left GLB).
+       intros a b c. 
+       assert (C := lte_left_is_left_monotone _ _ _ refS symS trnS bAss bCong bIdem bComm a b c).
+       rewrite (A b c). rewrite (A (bS a b) (bS a c)). 
+       exact C. 
+Qed. 
+
+Theorem glb_is_right_monotone 
+  (GLB : bop_is_glb lte bS) : os_right_monotone lte bS. 
+Proof. assert (A := glb_lte_is_lte_left GLB).
+       intros a b c. 
+       assert (C := lte_left_is_right_monotone _ _ _ refS symS trnS bAss bCong bIdem bComm a b c).
+       rewrite (A b c). rewrite (A (bS b a) (bS c a)). 
+       exact C. 
+Qed. 
+
+Theorem lub_is_left_monotone 
+  (LUB : bop_is_lub lte bS) : os_left_monotone lte bS. 
+Proof. assert (A := lub_lte_is_lte_right LUB).
+       intros a b c. 
+       assert (C := lte_right_is_left_monotone _ _ _ refS symS trnS bAss bCong bIdem bComm a b c).
+       rewrite (A b c). rewrite (A (bS a b) (bS a c)). 
+       exact C. 
+Qed. 
+
+Theorem lub_is_right_monotone 
+  (LUB : bop_is_lub lte bS) : os_right_monotone lte bS. 
+Proof. assert (A := lub_lte_is_lte_right LUB).
+       intros a b c. 
+       assert (C := lte_right_is_right_monotone _ _ _ refS symS trnS bAss bCong bIdem bComm a b c).
+       rewrite (A b c). rewrite (A (bS b a) (bS c a)). 
+       exact C. 
+Qed. 
+
+
+Theorem lub_is_left_increasing 
+  (LUB : bop_is_lub lte bS) : os_left_increasing lte bS. 
+Proof. assert (A := lub_lte_is_lte_right LUB).
+       intros a b. 
+       assert (C := lte_right_is_left_increasing _ _ _ refS symS trnS bAss bCong bIdem a b).
+       rewrite (A a (bS a b)). 
+       exact C. 
+Qed. 
+
+Theorem lub_is_right_increasing 
+  (LUB : bop_is_lub lte bS) : os_right_increasing lte bS. 
+Proof. assert (A := lub_lte_is_lte_right LUB).
+       intros a b. 
+       assert (C := lte_right_is_right_increasing _ _ _ refS symS trnS bAss bCong bIdem bComm a b).
+       rewrite (A a (bS b a)). 
+       exact C. 
+Qed. 
+
+
+End GLB_LUB_Order. 
 
 
 

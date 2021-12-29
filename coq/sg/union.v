@@ -804,6 +804,7 @@ let refS := A_eqv_reflexive S eq eqvP in
 let symS := A_eqv_symmetric S eq eqvP in
 let trnS := A_eqv_transitive S eq eqvP in bop_union_glb S eq refS symS trnS. 
 
+(*
 Definition msl_union_proofs {S : Type} (eqv : A_eqv S) :
       meet_semilattice_proofs (brel_set (A_eqv_eq S eqv)) (brel_dual (brel_subset (A_eqv_eq S eqv))) (bop_union (A_eqv_eq S eqv)) :=
 {|
@@ -823,7 +824,7 @@ let eq   := A_eqv_eq S eqv in
 (* ; A_msl_top_bottom_proofs : posg_top_bottom_id_ann_proofs S (A_eqv_eq S A_posg_eqv) A_posg_lte A_posg_times *) 
 ; A_msl_ast           := Ast_sg_union (A_eqv_ast S eqv) (* fix *)
 |}.
-
+*) 
 
 Definition bop_union_lub_proofs {S : Type} (eqv : A_eqv S) :
       bop_is_lub (brel_subset (A_eqv_eq S eqv)) (bop_union (A_eqv_eq S eqv)) :=
@@ -833,7 +834,7 @@ let refS := A_eqv_reflexive S eq eqvP in
 let symS := A_eqv_symmetric S eq eqvP in
 let trnS := A_eqv_transitive S eq eqvP in bop_union_lub S eq refS symS trnS. 
 
-
+(*
 Definition jsl_union_proofs {S : Type} (eqv : A_eqv S) :
       join_semilattice_proofs (brel_set (A_eqv_eq S eqv)) (brel_subset (A_eqv_eq S eqv)) (bop_union (A_eqv_eq S eqv)) :=
 {|
@@ -854,7 +855,7 @@ let eq   := A_eqv_eq S eqv in
 ; A_jsl_ast           := Ast_sg_union (A_eqv_ast S eqv) (* fix *)
 |}.
 
-
+*) 
 End ACAS.
 
 Section CAS.

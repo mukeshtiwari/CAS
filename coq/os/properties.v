@@ -46,6 +46,30 @@ Definition os_right_increasing_decidable {S : Type} (lte : brel S) (b : binary_o
    := (os_right_increasing lte b) + (os_not_right_increasing lte b). 
 
 
+(* decreasing *)
+
+Definition os_left_decreasing {S : Type} (lte : brel S) (b : binary_op S)  
+   := ∀ s t : S, lte (b s t) s = true. 
+
+Definition os_not_left_decreasing {S : Type} (lte : brel S) (b : binary_op S)  
+   := { z : S * S & match z with (s, t) => lte (b s t) s = false end }. 
+
+Definition os_left_decreasing_decidable {S : Type} (lte : brel S) (b : binary_op S)  
+   := (os_left_decreasing lte b) + (os_not_left_decreasing lte b). 
+
+Definition os_right_decreasing {S : Type} (lte : brel S) (b : binary_op S)  
+   := ∀ s t : S, lte (b t s) s = true. 
+
+Definition os_not_right_decreasing {S : Type} (lte : brel S) (b : binary_op S)  
+   := { z : S * S & match z with (s, t) => lte (b t s) s = false end }. 
+
+Definition os_right_decreasing_decidable {S : Type} (lte : brel S) (b : binary_op S)  
+   := (os_right_decreasing lte b) + (os_not_right_decreasing lte b). 
+
+
+
+
+(* strict *) 
 Definition os_left_strictly_increasing {S : Type} (lte : brel S) (b : binary_op S)  
    := ∀ s t : S, (lte s (b s t) = true) * (lte (b s t) s = false). 
 

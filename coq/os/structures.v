@@ -93,18 +93,6 @@ Record os_monotone_strictly_increasing_proofs (S: Type) (lte : brel S) (times : 
 }. 
 *) 
 
-Record meet_semilattice_proofs {S : Type} (eq lte : brel S) (meet : binary_op S) := {
-  A_msl_lte_proofs    : po_proofs S eq lte 
-; A_msl_meet_proofs   : sg_CI_proofs S eq meet 
-; A_msl_glb           : bop_is_glb lte meet 
-}.
-
-Record join_semilattice_proofs {S : Type} (eq lte : brel S) (join : binary_op S) := {
-  A_jsl_lte_proofs    : po_proofs S eq lte 
-; A_jsl_join_proofs   : sg_CI_proofs S eq join
-; A_jsl_lub           : bop_is_lub lte join
-}.
-
 
 Record A_posg (S : Type) := {
   A_posg_eqv               : A_eqv S 
@@ -161,36 +149,38 @@ Record A_bounded_monotone_increasing_posg_CI (S : Type) := {
 ; A_bmiposg_CI_ast          : cas_ast
 }.
 
-
-
-(*
-Record A_monotone_striclty_increasing_posg (S : Type) := {
-  A_msiposg_eqv          : A_eqv S 
-; A_msiposg_lte          : brel S 
-; A_msiposg_times        : binary_op S 
-; A_msiposg_lte_proofs   : po_proofs S (A_eqv_eq S A_msiposg_eqv) A_msiposg_lte
-; A_msiposg_times_proofs : msg_proofs S (A_eqv_eq S A_msiposg_eqv) A_msiposg_times
-; A_msiposg_top_bottom   : os_bottom_top_proofs S (A_eqv_eq S A_msiposg_eqv) A_msiposg_lte A_msiposg_times                                    
-; A_msiposg_proofs       : os_monotone_strictly_increasing_proofs S A_msiposg_lte A_msiposg_times 
-; A_msiposg_ast          : cas_ast
-}.
- *)
-
-Record A_meet_semilattice {S : Type} := {
+Record A_meet_semilattice (S : Type) := {
   A_msl_eqv           : A_eqv S 
 ; A_msl_lte           : brel S 
-; A_msl_meet          : binary_op S 
-; A_msl_proofs        : meet_semilattice_proofs (A_eqv_eq S A_msl_eqv) A_msl_lte A_msl_meet
+; A_msl_meet          : binary_op S
+; A_msl_lte_proofs    : po_proofs S (A_eqv_eq _ A_msl_eqv) A_msl_lte 
+; A_msl_meet_proofs   : sg_CI_proofs S (A_eqv_eq _ A_msl_eqv) A_msl_meet
+; A_msl_top_bottom    : os_bottom_top_proofs S (A_eqv_eq S A_msl_eqv) A_msl_lte A_msl_meet
+; A_msl_proofs        : bop_is_glb A_msl_lte A_msl_meet
 ; A_msl_ast           : cas_ast
-                                       }.
+}.
 
-Record A_join_semilattice {S : Type} := {
+Record A_join_semilattice (S : Type) := {
   A_jsl_eqv           : A_eqv S 
 ; A_jsl_lte           : brel S 
 ; A_jsl_join          : binary_op S 
-; A_jsl_proofs        : join_semilattice_proofs (A_eqv_eq S A_jsl_eqv) A_jsl_lte A_jsl_join
+; A_jsl_lte_proofs    : po_proofs S (A_eqv_eq _ A_jsl_eqv) A_jsl_lte 
+; A_jsl_join_proofs   : sg_CI_proofs S (A_eqv_eq _ A_jsl_eqv) A_jsl_join
+; A_jsl_top_bottom    : os_bottom_top_proofs S (A_eqv_eq S A_jsl_eqv) A_jsl_lte A_jsl_join
+; A_jsl_proofs        : bop_is_lub A_jsl_lte A_jsl_join
 ; A_jsl_ast           : cas_ast
-                                       }.
+}.
+
+Record A_bounded_join_semilattice (S : Type) := {
+  A_bjsl_eqv           : A_eqv S 
+; A_bjsl_lte           : brel S 
+; A_bjsl_join          : binary_op S 
+; A_bjsl_lte_proofs    : po_proofs S (A_eqv_eq _ A_bjsl_eqv) A_bjsl_lte 
+; A_bjsl_join_proofs   : sg_CI_proofs S (A_eqv_eq _ A_bjsl_eqv) A_bjsl_join
+; A_bjsl_top_bottom    : os_bounded_proofs S (A_eqv_eq S A_bjsl_eqv) A_bjsl_lte A_bjsl_join
+; A_bjsl_proofs        : bop_is_lub A_bjsl_lte A_bjsl_join
+; A_bjsl_ast           : cas_ast
+}.
 
 
 Section Projections.
@@ -224,6 +214,21 @@ let top_ann := A_bounded_top_ann _ _ _ _ B in
 ; A_po_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
 ; A_po_proofs        := A_bmiposg_CI_lte_proofs _ P 
 ; A_po_ast           := A_bmiposg_CI_ast _ P (* FIX *)
+|}.  
+
+Definition A_po_from_bounded_join_semilattice
+           (S : Type)
+           (P : A_bounded_join_semilattice S) : A_po S :=
+let B := A_bjsl_top_bottom _ P in 
+let bot_id := A_bounded_bottom_id _ _ _ _ B in
+let top_ann := A_bounded_top_ann _ _ _ _ B in 
+{|
+  A_po_eqv           := A_bjsl_eqv _ P 
+; A_po_lte           := A_bjsl_lte _ P 
+; A_po_exists_top_d  := inl (A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann ) 
+; A_po_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
+; A_po_proofs        := A_bjsl_lte_proofs _ P 
+; A_po_ast           := A_bjsl_ast _ P (* FIX *)
 |}.  
   
 
