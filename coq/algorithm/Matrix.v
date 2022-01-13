@@ -3541,7 +3541,7 @@ Section Matrix.
 
 
     Definition cyclic_path (c : Node) (l : list (Node * Node * R)) :=
-      source c l = target c l.
+      l <> [] /\ source c l = target c l.
 
     
 
@@ -3585,6 +3585,7 @@ Section Matrix.
         apply Bool.andb_true_iff; split.
         all:(try (apply refN); try (apply refR)).
         apply triple_elem_eq_list.
+        split. intro Hf. congruence.
         rewrite Hw. apply refN.
         (* second goal *)
         congruence.
