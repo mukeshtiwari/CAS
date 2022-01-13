@@ -2649,56 +2649,8 @@ Section Matrix.
 
 
 
-    Definition cyclic_path (c : Node) (l : list (Node * Node * R)) :=
-      source c l = target c l.
-
     
 
-    Fixpoint elem_path (m : Matrix) 
-      (l : list (Node * Node * R)) : bool  :=
-      match l with
-      | [] => true
-      | (a, b, _) :: t => (negb (a =n= b)) && 
-        elem_path m t
-      end.
-
-  
-
-
-
-    (* If the path is not elementry, then it has a loop *)
-    Lemma elem_path_dup_node : forall (l : list (Node * Node * R)) m,
-      elem_path m l = false -> 
-      exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
-      triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
-      cyclic_path c l₂. 
-    Proof using Node R eqN eqR refN refR.
-      induction l.
-      - cbn; intros ? Hw.
-        congruence.
-      - simpl; intros ? Hw.
-        destruct a.
-        destruct p.
-        apply Bool.andb_false_iff in Hw.
-        destruct Hw as [Hw | Hw].
-        apply Bool.negb_false_iff in Hw.
-        exists n, [], [(n, n0, r)], l.
-        simpl. unfold cyclic_path.
-        simpl. split.
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
-        all:(try (apply refN); try (apply refR)).
-        apply triple_elem_eq_list.
-        rewrite Hw. apply refN.
-        destruct (IHl m Hw) as (c & l₁ & l₂ & l₃ & H₁ & H₂).
-        exists c, ([(n, n0, r)] ++ l₁), l₂, l₃.
-        simpl. split.
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
-        all:(try (apply refN); try (apply refR); assumption).
-    Qed.
 
 
 
@@ -3587,15 +3539,94 @@ Section Matrix.
     Qed.
 
 
+
+    Definition cyclic_path (c : Node) (l : list (Node * Node * R)) :=
+      source c l = target c l.
+
+    
+
+    (* Elementry path where nodes at the 
+      end of a arc is unique *)
+    Fixpoint elem_path (m : Matrix) 
+      (l : list (Node * Node * R)) : bool  :=
+      match l with
+      | [] => true
+      | (a, b, s) :: t => (negb (a =n= b)) && 
+        (m a b =r= s) && elem_path m t
+      end.
+    
+    
+    
+    (* If a path is well formed but not elementry, then it has a loop *)
+    Lemma elem_path_dup_node : forall (l : list (Node * Node * R)) m,
+      well_formed_path_aux m l = true ->
+      elem_path m l = false ->
+      exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
+      triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
+      cyclic_path c l₂. 
+    Proof using Node R eqN eqR refN refR.
+      induction l.
+      - cbn; intros ? Hw.
+        congruence.
+      - simpl; intros ? Hv Hw.
+        destruct a as ((a, b), s).
+        apply Bool.andb_true_iff in Hv.
+        destruct Hv as [Hvl Hv].
+        apply Bool.andb_false_iff in Hw.
+        destruct Hw as [Hw | Hw].
+        apply Bool.andb_false_iff in Hw.
+        destruct Hw as [Hw | Hw].
+        apply Bool.negb_false_iff in Hw.
+        exists a, [], [(a, b, s)], l.
+        simpl. unfold cyclic_path.
+        simpl. split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        all:(try (apply refN); try (apply refR)).
+        apply triple_elem_eq_list.
+        rewrite Hw. apply refN.
+        (* second goal *)
+        congruence.
+        (* third goal *)
+        destruct l.
+        simpl in Hw.
+        congruence.
+        destruct p as ((p, q), t).
+        apply Bool.andb_true_iff in Hv.
+        destruct Hv as [Hvll Hvr].
+        destruct (IHl m Hvr Hw) as (c & l₁ & l₂ & l₃ & H₁ & H₂).
+        exists c, ([(a, b, s)] ++ l₁), l₂, l₃.
+        simpl. split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        all:(try (apply refN); try (apply refR); assumption).
+    Qed.
+
+
+
+
     Lemma matrix_fx_gen : forall (l : list Node)
       (m : Matrix) (s : R) (c d : Node),
       no_dup Node eqN l = true -> l <> [] ->
-      (forall x : Node, in_list eqN finN x = true) ->
-      matrix_exp_unary (m +M I) (length l) c d = s ->
+      (forall x : Node, in_list eqN l x = true) ->
+      matrix_exp_unary (m +M I) (length l) c d =r= s = true ->
       ∃ k, (k < length l)%nat /\ 
-      matrix_exp_unary (m +M I) k c d = s.
+      matrix_exp_unary (m +M I) k c d =r= s = true.
     Proof.
-      
+      Search matrix_exp_unary.
+      intros * Hn  Hl Hf Hm.
+      assert (Hv : partial_sum_mat m (length l) c d =r= s = true).
+      rewrite <-Hm.
+      apply congrR.
+      apply symR.
+      apply matrix_pow_idempotence.
+      admit.
+      admit.
+      exists (length l - 1)%nat.
+      split. admit.
+
     
     Admitted.
 
@@ -3603,9 +3634,9 @@ Section Matrix.
 
 
     Lemma matrix_fx : forall (m : Matrix) (s : R) (c d : Node),
-     matrix_exp_unary (m +M I) (length finN) c d = s ->
+     matrix_exp_unary (m +M I) (length finN) c d =r= s = true ->
      exists k, (k < length finN )%nat/\ 
-     matrix_exp_unary (m +M I) k c d = s.
+     matrix_exp_unary (m +M I) k c d =r= s = true.
     Proof.
       intros * Hm.
       eapply matrix_fx_gen; try assumption.
