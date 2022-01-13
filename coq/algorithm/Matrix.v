@@ -3606,27 +3606,13 @@ Section Matrix.
     Qed.
 
 
-
-
-    Lemma matrix_fx_gen : forall (l : list Node)
-      (m : Matrix) (s : R) (c d : Node),
-      no_dup Node eqN l = true -> l <> [] ->
-      (forall x : Node, in_list eqN l x = true) ->
-      matrix_exp_unary (m +M I) (length l) c d =r= s = true ->
-      ∃ k, (k < length l)%nat /\ 
-      matrix_exp_unary (m +M I) k c d =r= s = true.
+  
+    Lemma zero_stable_partial : forall m,
+      (forall a : R, 1 + a =r= 1 = true) ->
+      (forall (c d : Node), 
+        partial_sum_mat m (length finN - 1) c d =r= 
+        partial_sum_mat m (length finN) c d = true).
     Proof.
-      Search matrix_exp_unary.
-      intros * Hn  Hl Hf Hm.
-      assert (Hv : partial_sum_mat m (length l) c d =r= s = true).
-      rewrite <-Hm.
-      apply congrR.
-      apply symR.
-      apply matrix_pow_idempotence.
-      admit.
-      admit.
-      exists (length l - 1)%nat.
-      split. admit.
 
     
     Admitted.
@@ -3635,22 +3621,40 @@ Section Matrix.
 
 
     Lemma matrix_fx : forall (m : Matrix) (s : R) (c d : Node),
-     matrix_exp_unary (m +M I) (length finN) c d =r= s = true ->
-     exists k, (k < length finN )%nat/\ 
-     matrix_exp_unary (m +M I) k c d =r= s = true.
+      mat_cong m ->
+      (forall a : R, 1 + a =r= 1 = true) -> 
+      matrix_exp_unary (m +M I) (length finN) c d =r= s = true ->
+      exists k, (k < length finN )%nat/\ 
+      matrix_exp_unary (m +M I) k c d =r= s = true.
     Proof.
-      intros * Hm.
-      eapply matrix_fx_gen; try assumption.
+      intros * Hc Ha Hm.
+      exists (length finN - 1)%nat.
+      split.
+      destruct finN.
+      congruence.
+      simpl; lia.
+      assert (Hv : partial_sum_mat m (length finN) c d =r= s = true).
+      rewrite <-Hm.
+      apply congrR; apply symR.
+      apply matrix_pow_idempotence.
+      exact Hc.
+      apply refR.
+      pose proof (matrix_pow_idempotence (length finN - 1) m c d Hc) as Hr.
+      rewrite <-Hr.
+      apply congrR.
+      apply refR.
+      apply symR.
+      rewrite <-Hv.
+      apply congrR.
+      eapply zero_stable_partial.
+      exact Ha.
+      apply refR.
     Qed.
 
 
-    Lemma zero_stable_partial : forall m,
-      (forall a : R, 1 + a =r= 1 = true) ->
-      (forall (c d : Node), 
-        partial_sum_mat m (length finN) c d =r= 
-        partial_sum_mat m (S (length finN)) c d = true).
-    Proof.
-    Admitted.
+      
+
+   
 
 
 
