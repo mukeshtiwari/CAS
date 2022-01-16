@@ -926,7 +926,7 @@ Definition bs_proofs_left_sum :
     (plusT timesT : binary_op T) (s : S) (t : T), 
      eqv_proofs S rS -> 
      eqv_proofs T rT ->
-     asg_proofs T rT plusT ->      
+     sg_proofs T rT plusT ->      
      bs_proofs S rS plusS timesS -> 
      bs_proofs T rT plusT timesT -> 
         bs_proofs (S + T) 
@@ -940,7 +940,7 @@ Definition bs_proofs_left_sum :
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_reflexive T rT eqvT)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_asg_idempotent_d T rT plusT sgT)
+        (A_sg_idempotent_d T rT plusT sgT)
         (A_bs_left_distributive_d S rS plusS timesS pS)
         (A_bs_left_distributive_d T rT plusT timesT pT)
         (A_bs_left_left_absorptive_d T rT plusT timesT pT)
@@ -951,7 +951,7 @@ Definition bs_proofs_left_sum :
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_reflexive T rT eqvT)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_asg_idempotent_d T rT plusT sgT)
+        (A_sg_idempotent_d T rT plusT sgT)
         (A_bs_right_distributive_d S rS plusS timesS pS)
         (A_bs_right_distributive_d T rT plusT timesT pT)
         (A_bs_left_right_absorptive_d T rT plusT timesT pT)
@@ -961,7 +961,7 @@ Definition bs_proofs_left_sum :
     bop_left_sum_right_sum_left_left_absorptive_decide S T rS rT s plusS timesS plusT timesT
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_asg_idempotent_d T rT plusT sgT)
+        (A_sg_idempotent_d T rT plusT sgT)
         (A_bs_left_left_absorptive_d S rS plusS timesS pS)
         (A_bs_left_left_absorptive_d T rT plusT timesT pT)        
 
@@ -969,7 +969,7 @@ Definition bs_proofs_left_sum :
     bop_left_sum_right_sum_left_right_absorptive_decide S T rS rT s plusS timesS plusT timesT
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_asg_idempotent_d T rT plusT sgT)
+        (A_sg_idempotent_d T rT plusT sgT)
         (A_bs_left_right_absorptive_d S rS plusS timesS pS)
         (A_bs_left_right_absorptive_d T rT plusT timesT pT)        
 
@@ -977,7 +977,7 @@ Definition bs_proofs_left_sum :
     bop_left_sum_right_sum_right_left_absorptive_decide S T rS rT s plusS timesS plusT timesT
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_asg_idempotent_d T rT plusT sgT)
+        (A_sg_idempotent_d T rT plusT sgT)
         (A_bs_right_left_absorptive_d S rS plusS timesS pS)
         (A_bs_right_left_absorptive_d T rT plusT timesT pT)        
     
@@ -985,7 +985,7 @@ Definition bs_proofs_left_sum :
     bop_left_sum_right_sum_right_right_absorptive_decide S T rS rT s plusS timesS plusT timesT
         (A_eqv_reflexive S rS eqvS)                                                      
         (A_eqv_symmetric T rT eqvT)                                                      
-        (A_asg_idempotent_d T rT plusT sgT)
+        (A_sg_idempotent_d T rT plusT sgT)
         (A_bs_right_right_absorptive_d S rS plusS timesS pS)
         (A_bs_right_right_absorptive_d T rT plusT timesT pT)        
 |}.

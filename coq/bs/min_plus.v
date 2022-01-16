@@ -164,7 +164,7 @@ End ACAS.
 
 Section MACAS.
 
-Definition A_bs_mcas_min_plus := A_BS_selective_cancellative_pre_dioid_with_one _ A_min_plus. 
+Definition A_mcas_min_plus := A_BS_selective_cancellative_pre_dioid_with_one _ A_min_plus. 
 
 End MACAS.
   
@@ -194,7 +194,7 @@ Definition min_plus : @selective_cancellative_pre_dioid_with_one nat :=
   selective_cancellative_pre_dioid_with_one_eqv         := eqv_eq_nat 
 ; selective_cancellative_pre_dioid_with_one_plus        := bop_min
 ; selective_cancellative_pre_dioid_with_one_times       := bop_plus
-; selective_cancellative_pre_dioid_with_one_plus_certs  := sg_CS_certs sg_CS_min
+; selective_cancellative_pre_dioid_with_one_plus_certs  := sg_CS_wa_certs sg_min
 ; selective_cancellative_pre_dioid_with_one_times_certs := sg_CK_certs_plus
 ; selective_cancellative_pre_dioid_with_one_id_ann_certs := pann_tid_certs_min_plus
 ; selective_cancellative_pre_dioid_with_one_certs       := dioid_certs_min_plus
@@ -205,7 +205,7 @@ End CAS.
 
 Section MCAS.
 
-Definition bs_mcas_min_plus := BS_selective_cancellative_pre_dioid_with_one min_plus. 
+Definition mcas_min_plus := BS_selective_cancellative_pre_dioid_with_one min_plus. 
 
 End MCAS.
   
@@ -215,6 +215,11 @@ Section Verify.
 
 Theorem correct_min_plus : 
   min_plus = A2C_selective_cancellative_pre_dioid_with_one nat (A_min_plus). 
+Proof. compute. reflexivity. Qed.
+
+
+Theorem correct_mcas_min_plus : mcas_min_plus = A2C_mcas_bs nat A_mcas_min_plus.
 Proof. compute. reflexivity. Qed. 
+
 
 End Verify.   

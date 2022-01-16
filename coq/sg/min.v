@@ -127,20 +127,25 @@ Definition sg_CS_proofs_min : sg_CS_proofs nat brel_eq_nat bop_min :=
 
 
 
-Definition A_sg_CS_min : A_sg_CS nat 
+Definition A_sg_min : A_sg_CS_with_ann nat 
 := {| 
-     A_sg_CS_eqv         := A_eqv_nat 
-   ; A_sg_CS_bop         := bop_min
-   ; A_sg_CS_exists_id_d  := inr _ bop_min_not_exists_id
-   ; A_sg_CS_exists_ann_d := inl _ bop_min_exists_ann
-   ; A_sg_CS_proofs      := sg_CS_proofs_min
-   
-   ; A_sg_CS_ast         := Ast_sg_min 
+     A_sg_CS_wa_eqv            := A_eqv_nat 
+   ; A_sg_CS_wa_bop            := bop_min
+   ; A_sg_CS_wa_not_exists_id  := bop_min_not_exists_id
+   ; A_sg_CS_wa_exists_ann     := bop_min_exists_ann
+   ; A_sg_CS_wa_proofs         := sg_CS_proofs_min
+   ; A_sg_CS_wa_ast            := Ast_sg_min 
    |}. 
 
 
 End ACAS.
 
+
+Section AMCAS.
+
+Definition A_mcas_sg_min : A_sg_mcas nat := A_MCAS_sg_CS_with_ann nat A_sg_min.  
+
+End AMCAS.  
 
 Section CAS.
 Open Scope nat.   
@@ -155,22 +160,32 @@ Definition sg_CS_certs_min : @sg_CS_certificates nat
 
 
 
-Definition sg_CS_min : @sg_CS nat 
+Definition sg_min : @sg_CS_with_ann nat 
 := {| 
-     sg_CS_eqv   := eqv_eq_nat 
-   ; sg_CS_bop   := bop_min 
-   ; sg_CS_exists_id_d        := Certify_Not_Exists_Id 
-   ; sg_CS_exists_ann_d       := Certify_Exists_Ann 0
-   ; sg_CS_certs := sg_CS_certs_min
-   ; sg_CS_ast   := Ast_sg_min 
+     sg_CS_wa_eqv           := eqv_eq_nat 
+   ; sg_CS_wa_bop           := bop_min 
+   ; sg_CS_wa_not_exists_id := Assert_Not_Exists_Id 
+   ; sg_CS_wa_exists_ann    := Assert_Exists_Ann 0
+   ; sg_CS_wa_certs         := sg_CS_certs_min
+   ; sg_CS_wa_ast           := Ast_sg_min 
    |}. 
   
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_sg_min : @sg_mcas nat := MCAS_sg_CS_with_ann sg_min.  
+
+End MCAS.  
+
+
 Section Verify.
 
-Theorem correct_sg_CS_min : sg_CS_min = A2C_sg_CS nat (A_sg_CS_min). 
+Theorem correct_sg_min : sg_min = A2C_sg_CS_with_ann nat (A_sg_min). 
+Proof. compute. reflexivity. Qed. 
+
+Theorem correct_mcas_sg_min : mcas_sg_min = A2C_mcas_sg nat (A_mcas_sg_min). 
 Proof. compute. reflexivity. Qed. 
 
 End Verify.   

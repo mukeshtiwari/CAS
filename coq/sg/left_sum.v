@@ -1,3 +1,5 @@
+Require Import Coq.Strings.String.
+
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 
@@ -9,6 +11,7 @@ Require Import CAS.coq.eqv.sum.
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory.
+Require Import CAS.coq.sg.cast_up. 
 
 
 
@@ -499,45 +502,6 @@ End Theory.
 
 Section ACAS.
 
-Definition asg_proofs_left_sum : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (t : T),
-     eqv_proofs S rS -> eqv_proofs T rT -> asg_proofs S rS bS -> asg_proofs T rT bT -> 
-        asg_proofs (S + T) (brel_sum rS rT) (bop_left_sum bS bT)
-:= λ S T rS rT bS bT s t eqvS eqvT sgS sgT, 
-let refS := A_eqv_reflexive _ _ eqvS in 
-{|
-  A_asg_associative   := bop_left_sum_associative S T rS rT bS bT refS (A_asg_associative _ _ _ sgS) (A_asg_associative _ _ _ sgT) 
-; A_asg_congruence    := bop_left_sum_congruence S T rS rT bS bT (A_asg_congruence _ _ _ sgS) (A_asg_congruence _ _ _ sgT) 
-
-; A_asg_commutative   := bop_left_sum_commutative S T rS rT bS bT refS (A_asg_commutative _ _ _ sgS) (A_asg_commutative _ _ _ sgT) 
-; A_asg_selective_d   := bop_left_sum_selective_decide S T rS rT bS bT refS (A_asg_selective_d _ _ _ sgS) (A_asg_selective_d _ _ _ sgT) 
-; A_asg_idempotent_d  := bop_left_sum_idempotent_decide S T rS rT bS bT (A_asg_idempotent_d _ _ _ sgS) (A_asg_idempotent_d _ _ _ sgT)
-|}. 
-  
-
-Definition msg_proofs_left_sum : 
-   ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
-     brel_not_trivial S rS f -> brel_not_trivial T rT g -> 
-     eqv_proofs S rS -> eqv_proofs T rT -> msg_proofs S rS bS -> msg_proofs T rT bT -> 
-        msg_proofs (S + T) (brel_sum rS rT) (bop_left_sum bS bT)
-:= λ S T rS rT bS bT s f t g Pf Pg eqvS eqvT sgS sgT, 
-let refS := A_eqv_reflexive _ _ eqvS in 
-{|
-  A_msg_associative   := bop_left_sum_associative S T rS rT bS bT refS (A_msg_associative _ _ _ sgS) (A_msg_associative _ _ _ sgT) 
-; A_msg_congruence    := bop_left_sum_congruence S T rS rT bS bT (A_msg_congruence _ _ _ sgS) (A_msg_congruence _ _ _ sgT) 
-
-; A_msg_commutative_d := bop_left_sum_commutative_decide S T rS rT bS bT refS (A_msg_commutative_d _ _ _ sgS) (A_msg_commutative_d _ _ _ sgT) 
-; A_msg_is_left_d        := inr _ (bop_left_sum_not_is_left S T rS rT bS bT s t)
-; A_msg_is_right_d       := inr _ (bop_left_sum_not_is_right S T rS rT bS bT s t)
-; A_msg_left_cancel_d    := inr _ (bop_left_sum_not_left_cancellative S T rS rT bS bT s refS t g Pg)
-; A_msg_right_cancel_d   := inr _ (bop_left_sum_not_right_cancellative S T rS rT bS bT s refS t g Pg)
-; A_msg_left_constant_d  := inr _ (bop_left_sum_not_left_constant S T rS rT bS bT s f Pf t)
-; A_msg_right_constant_d := inr _ (bop_left_sum_not_right_constant S T rS rT bS bT s f Pf t)
-; A_msg_anti_left_d      := inr _ (bop_left_sum_not_anti_left S T rS rT bS bT s refS t)
-; A_msg_anti_right_d     := inr _ (bop_left_sum_not_anti_right S T rS rT bS bT s refS t)
-|}. 
-
-
   
 Definition sg_proofs_left_sum : 
    ∀ (S T : Type) (rS : brel S) (rT : brel T) (bS : binary_op S) (bT: binary_op T) (s : S) (f : S -> S) (t : T) (g : T -> T), 
@@ -618,8 +582,8 @@ let refS := A_eqv_reflexive _ _ eqvS in
 
 Definition A_sg_left_sum : ∀ (S T : Type),  A_sg S -> A_sg T -> A_sg (S + T) 
 := λ S T sgS sgT, 
-let eqvS := A_sg_eq S sgS in
-let eqvT := A_sg_eq T sgT in
+let eqvS := A_sg_eqv S sgS in
+let eqvT := A_sg_eqv T sgT in
 let bS   := A_sg_bop S sgS in
 let bT   := A_sg_bop T sgT in
 let rS   := A_eqv_eq S eqvS in
@@ -630,7 +594,7 @@ let t    := A_eqv_witness T eqvT in
 let g    := A_eqv_new T eqvT in
 let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in 
 {| 
-     A_sg_eq           := A_eqv_sum S T eqvS eqvT
+     A_sg_eqv           := A_eqv_sum S T eqvS eqvT
    ; A_sg_bop          := bop_left_sum  bS bT
    ; A_sg_exists_id_d  := bop_left_sum_exists_id_decide S T rS rT  bS bT refS t (A_sg_exists_id_d _ sgT) 
    ; A_sg_exists_ann_d := bop_left_sum_exists_ann_decide S T rS rT bS bT s refS (A_sg_exists_ann_d _ sgS)
@@ -645,6 +609,8 @@ let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
    ; A_sg_ast         := Ast_sg_left_sum (A_sg_ast S sgS, A_sg_ast T sgT)
 |}. 
 
+
+(*
 Definition A_sg_C_left_sum : ∀ (S T : Type),  A_sg_C S -> A_sg_C T -> A_sg_C (S + T) 
 := λ S T sgS sgT, 
 let eqvS := A_sg_C_eqv S sgS in 
@@ -724,8 +690,28 @@ let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in
    
    ; A_sg_CS_ast       := Ast_sg_left_sum (A_sg_CS_ast S sgS, A_sg_CS_ast T sgT)
 |}. 
-
+*) 
 End ACAS.
+
+Section AMCAS.
+
+Open Scope list_scope.
+Open Scope string_scope.
+
+  
+Definition A_mcas_sg_left_sum (S T : Type) (A : A_sg_mcas S)  (B : A_sg_mcas T)  : A_sg_mcas (S + T) :=
+match A_sg_mcas_cast_up _ A, A_sg_mcas_cast_up _ B with
+| A_MCAS_sg _ A', A_MCAS_sg _ B'               => A_sg_classify _ (A_MCAS_sg _ (A_sg_left_sum _ _ A' B'))
+| A_MCAS_sg_Error _ sl1, A_MCAS_sg_Error _ sl2 => A_MCAS_sg_Error _ (sl1 ++ sl2)
+| A_MCAS_sg_Error _ sl1, _                     => A_MCAS_sg_Error _ sl1
+| _,  A_MCAS_sg_Error _ sl2                    => A_MCAS_sg_Error _ sl2
+| _, _                                         => A_MCAS_sg_Error _ ("Internal Error : A_mcas_left_sum" :: nil)
+end.
+
+End AMCAS.
+
+
+
 
 Section CAS.
 
@@ -778,32 +764,6 @@ Definition check_commutative_left_sum : ∀ {S T : Type},
       | _, Certify_Not_Commutative (t1, t2)  => Certify_Not_Commutative ((inr _ t1), (inr _ t2))
       end. 
 
-
-Definition asg_certs_left_sum : ∀ {S T : Type},  @asg_certificates S -> @asg_certificates T -> @asg_certificates (S + T) 
-:= λ {S T} cS cT,  
-{|
-  asg_associative      := Assert_Associative 
-; asg_congruence       := Assert_Bop_Congruence 
-; asg_commutative      := Assert_Commutative
-; asg_idempotent_d     := check_idempotent_left_sum (asg_idempotent_d cS) (asg_idempotent_d cT)
-; asg_selective_d      := check_selective_left_sum (asg_selective_d cS) (asg_selective_d cT)
-|}.
-
-Definition msg_certs_left_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T -> T) -> @msg_certificates S -> @msg_certificates T -> @msg_certificates (S + T) 
-:= λ {S T} s f t g cS cT,  
-{|
-  msg_associative      := Assert_Associative 
-; msg_congruence       := Assert_Bop_Congruence 
-; msg_commutative_d    := check_commutative_left_sum (msg_commutative_d cS) (msg_commutative_d cT)
-; msg_is_left_d        := Certify_Not_Is_Left (inr t, inl s) 
-; msg_is_right_d       := Certify_Not_Is_Right (inl s, inr t) 
-; msg_left_cancel_d    := Certify_Not_Left_Cancellative (inl s, (inr t, inr (g t)))
-; msg_right_cancel_d   := Certify_Not_Right_Cancellative (inl s, (inr t, inr (g t)))
-; msg_left_constant_d  := Certify_Not_Left_Constant (inr t, (inl s, inl (f s)))
-; msg_right_constant_d := Certify_Not_Right_Constant (inr t, (inl s, inl (f s)))
-; msg_anti_left_d      := Certify_Not_Anti_Left (inl s, inr t) 
-; msg_anti_right_d     := Certify_Not_Anti_Right (inl s, inr t) 
-|}.
 
 
 Definition sg_certs_left_sum : ∀ {S T : Type},  S -> (S -> S) -> T -> (T -> T) -> @sg_certificates S -> @sg_certificates T -> @sg_certificates (S + T) 
@@ -876,20 +836,20 @@ Definition sg_CS_certs_left_sum : ∀ {S T : Type},  sg_CS_certificates (S := S)
 Definition sg_left_sum : ∀ {S T : Type},  sg (S := S) -> sg (S := T) -> sg (S := (S + T))
 := λ {S T} sgS sgT, 
    {| 
-     sg_eq     := eqv_sum (sg_eq sgS) (sg_eq sgT) 
+     sg_eqv     := eqv_sum (sg_eqv sgS) (sg_eqv sgT) 
    ; sg_bop    := bop_left_sum (sg_bop sgS) (sg_bop sgT) 
    ; sg_exists_id_d      := check_exists_id_left_sum (sg_exists_id_d  sgT)
    ; sg_exists_ann_d     := check_exists_ann_left_sum (sg_exists_ann_d sgS)
    ; sg_certs := sg_certs_left_sum 
-                    (eqv_witness (sg_eq sgS)) (eqv_new (sg_eq sgS))
-                    (eqv_witness (sg_eq sgT)) (eqv_new (sg_eq sgT)) 
+                    (eqv_witness (sg_eqv sgS)) (eqv_new (sg_eqv sgS))
+                    (eqv_witness (sg_eqv sgT)) (eqv_new (sg_eqv sgT)) 
                     (sg_certs sgS) 
                     (sg_certs sgT)
    
    ; sg_ast    := Ast_sg_left_sum (sg_ast sgS, sg_ast sgT)
    |}. 
 
-
+(*
 Definition sg_C_left_sum : ∀ {S T : Type},  sg_C (S := S) -> sg_C (S := T) -> sg_C (S := (S + T))
 := λ {S T} sgS sgT, 
    {| 
@@ -930,8 +890,27 @@ Definition sg_CS_left_sum : ∀ {S T : Type},  sg_CS (S := S) -> sg_CS (S := T) 
    ; sg_CS_ast       := Ast_sg_left_sum (sg_CS_ast sgS, sg_CS_ast sgT)
    |}. 
   
-
+*) 
 End CAS.
+
+Section MCAS.
+
+
+Open Scope list_scope.
+Open Scope string_scope.
+
+
+  
+Definition mcas_sg_left_sum {S T : Type} (A : @sg_mcas S)  (B : @sg_mcas T)  : @sg_mcas (S + T) :=
+match sg_mcas_cast_up _ A, sg_mcas_cast_up _ B with
+| MCAS_sg A', MCAS_sg B'               => sg_classify _ (MCAS_sg (sg_left_sum A' B'))
+| MCAS_sg_Error sl1, MCAS_sg_Error sl2 => MCAS_sg_Error (sl1 ++ sl2)
+| MCAS_sg_Error sl1, _                 => MCAS_sg_Error sl1
+| _,  MCAS_sg_Error sl2                => MCAS_sg_Error sl2
+| _, _                                 => MCAS_sg_Error ("Internal Error : mcas_left_sum" :: nil)
+end.
+
+End MCAS.
 
 Section Verify.
 
@@ -1030,33 +1009,6 @@ Section ProofsCorrect.
   Variable eT : eqv_proofs T rT. 
 
 
-Lemma correct_asg_certs_left_sum : ∀ (pS : asg_proofs S rS bS) (pT : asg_proofs T rT bT),
-
-      asg_certs_left_sum (P2C_asg S rS bS pS) (P2C_asg T rT bT pT) 
-      = 
-      P2C_asg (S + T) (brel_sum rS rT) 
-                      (bop_left_sum bS bT) 
-                      (asg_proofs_left_sum S T rS rT bS bT wS wT eS eT pS pT). 
-Proof. intros pS pT. 
-       unfold asg_proofs_left_sum, asg_certs_left_sum, P2C_asg; simpl. 
-       rewrite <- correct_check_selective_left_sum. 
-       rewrite correct_check_idempotent_left_sum. 
-       reflexivity.        
-Defined. 
-
-
-Lemma correct_msg_certs_left_sum : ∀ (pS : msg_proofs S rS bS) (pT : msg_proofs T rT bT),
-
-      msg_certs_left_sum wS f wT g (P2C_msg S rS bS pS) (P2C_msg T rT bT pT) 
-      = 
-      P2C_msg (S + T) (brel_sum rS rT) 
-                      (bop_left_sum bS bT) 
-                      (msg_proofs_left_sum S T rS rT bS bT wS f wT g Pf Pg eS eT pS pT). 
-Proof. intros pS pT. 
-       unfold msg_proofs_left_sum, msg_certs_left_sum, P2C_msg; simpl.
-       rewrite <- correct_check_commutative_left_sum. 
-       reflexivity.        
-Defined. 
 
 
 Lemma correct_sg_certs_left_sum : ∀ (pS : sg_proofs S rS bS) (pT : sg_proofs T rT bT),
@@ -1130,6 +1082,26 @@ Proof. intros S T sgS sgT.
        reflexivity. 
 Qed. 
 
+
+Theorem correct_mcas_sg_left_sum (S T : Type) (sgS : A_sg_mcas S) (sgT : A_sg_mcas T) : 
+         mcas_sg_left_sum (A2C_mcas_sg S sgS) (A2C_mcas_sg T sgT) 
+         = 
+         A2C_mcas_sg (S + T) (A_mcas_sg_left_sum S T sgS sgT). 
+Proof. unfold mcas_sg_left_sum, A_mcas_sg_left_sum. 
+       rewrite correct_sg_mcas_cast_up.
+       rewrite correct_sg_mcas_cast_up.       
+       destruct (A_sg_cas_up_is_error_or_sg S sgS) as [[l1 A] | [s1 A]];
+       destruct (A_sg_cas_up_is_error_or_sg T sgT) as [[l2 B] | [s2 B]].
+       + rewrite A, B. simpl. reflexivity. 
+       + rewrite A, B. simpl. reflexivity.
+       + rewrite A, B. simpl. reflexivity.
+       + rewrite A, B. simpl. rewrite correct_sg_left_sum.
+         apply correct_sg_classify_sg. 
+Qed. 
+
+
+
+(*
 Theorem correct_sg_C_left_sum : ∀ (S T : Type) (sgS : A_sg_C S) (sgT : A_sg_C T), 
       
          sg_C_left_sum (A2C_sg_C S sgS) (A2C_sg_C T sgT) 
@@ -1172,7 +1144,7 @@ Proof. intros S T sgS sgT.
        rewrite <- correct_check_exists_ann_left_sum.               
        reflexivity. 
 Qed. 
-  
+*)   
  
 End Verify.   
   

@@ -1,4 +1,4 @@
-
+Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 
@@ -12,6 +12,7 @@ Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory.
+Require Import CAS.coq.sg.cast_up. 
 Require Import CAS.coq.sg.and. 
 Require Import CAS.coq.sg.union. (* just for in_set_uop_duplicate_elim_elim ? *)
 
@@ -1898,35 +1899,6 @@ match ilD with
 end.
 
 
-Definition msg_lift_proofs (S: Type)
-           (eq : brel S)
-           (b : binary_op S)
-           (eqvP : eqv_proofs S eq)
-           (wS : S)
-           (f : S -> S)
-           (nt : brel_not_trivial S eq f)
-(*            (ex2_d : brel_exactly_two_decidable S eq)           NB *) 
-           (bP : msg_proofs S eq b) : msg_proofs (finite_set S) (brel_set eq) (bop_lift eq b)
-:=
-let refS := A_eqv_reflexive S eq eqvP    in
-let symS := A_eqv_symmetric S eq eqvP    in
-let trnS := A_eqv_transitive S eq eqvP   in
-let cong_b := A_msg_congruence S eq b bP  in
-let asso_b := A_msg_associative S eq b bP in
-{|
-  A_msg_associative      :=  bop_lift_associative S eq b refS trnS symS cong_b asso_b 
-; A_msg_congruence       :=  bop_lift_congruence S eq b refS trnS symS cong_b  
-; A_msg_commutative_d    :=  bop_lift_commutative_decide S eq b refS symS trnS cong_b (A_msg_commutative_d S eq b bP)
-; A_msg_is_left_d        :=  inr (bop_lift_not_is_left S eq b wS)
-; A_msg_is_right_d       :=  inr (bop_lift_not_is_right S eq b wS)
-; A_msg_left_cancel_d    :=  inr (bop_lift_not_left_cancellative S eq b wS f nt) 
-; A_msg_right_cancel_d   :=  inr (bop_lift_not_right_cancellative S eq b wS f nt) 
-; A_msg_left_constant_d  :=  inr (bop_lift_not_left_constant S eq b wS)
-; A_msg_right_constant_d :=  inr (bop_lift_not_right_constant S eq b wS)
-; A_msg_anti_left_d      :=  inr (bop_lift_not_anti_left S eq b)
-; A_msg_anti_right_d     :=  inr (bop_lift_not_anti_right S eq b)
-|}. 
-
 Definition sg_lift_proofs (S: Type)
            (eq : brel S)
            (b : binary_op S)
@@ -1966,7 +1938,7 @@ End ACAS_Proofs.
 
 Definition A_sg_lift : ∀ (S : Type),  A_sg S -> A_sg (finite_set S)
 := λ S sgS,
-  let eqv  := A_sg_eq S sgS in
+  let eqv  := A_sg_eqv S sgS in
   let eqvP := A_eqv_proofs S eqv in
   let refS := A_eqv_reflexive _ _ eqvP in
   let symS := A_eqv_symmetric _ _ eqvP in
@@ -1976,7 +1948,7 @@ Definition A_sg_lift : ∀ (S : Type),  A_sg S -> A_sg (finite_set S)
   let bS   := A_sg_bop S sgS in
   let wS   := A_eqv_witness S eqv in
    {| 
-     A_sg_eq           := A_eqv_set S eqv
+     A_sg_eqv           := A_eqv_set S eqv
    ; A_sg_bop          := bop_lift eq bS 
    ; A_sg_exists_id_d  :=  bop_lift_exists_id_decide S eq wS bS refS symS trnS cngb (A_sg_exists_id_d S sgS)
    ; A_sg_exists_ann_d :=  inl (bop_lift_exists_ann S eq bS)
@@ -1990,6 +1962,20 @@ Definition A_sg_lift : ∀ (S : Type),  A_sg S -> A_sg (finite_set S)
 
   
 End ACAS.
+
+Section AMCAS. 
+Open Scope string_scope.
+
+Definition A_mcas_sg_lift (S : Type) (A : A_sg_mcas S) : A_sg_mcas (finite_set S) :=
+match A_sg_mcas_cast_up _ A with
+| A_MCAS_sg _ A'         => A_sg_classify _ (A_MCAS_sg _ (A_sg_lift _ A'))
+| A_MCAS_sg_Error _ sl1  => A_MCAS_sg_Error _ sl1
+| _                      => A_MCAS_sg_Error _ ("Internal Error : mcas_lift" :: nil)
+end.
+
+End AMCAS.
+
+
 
 Section CAS.
 
@@ -2038,28 +2024,6 @@ match ilD with
 end.
 
 
-Definition msg_lift_certs (S: Type)
-           (eq : brel S) 
-           (wS : S)
-           (f : S -> S)
-           (* (ex2_d : @check_exactly_two S) NB *)
-           (bS : binary_op S)
-           (bP : @msg_certificates S) : @msg_certificates (finite_set S)
-:= {|
-  msg_associative      :=  Assert_Associative  
-; msg_congruence       :=  Assert_Bop_Congruence  
-; msg_commutative_d    :=  bop_lift_commutative_check (msg_commutative_d bP)
-; msg_is_left_d        :=  Certify_Not_Is_Left (wS :: nil, nil) 
-; msg_is_right_d       :=  Certify_Not_Is_Right (nil, wS :: nil) 
-; msg_left_cancel_d    :=  Certify_Not_Left_Cancellative (nil, (wS :: nil, (f wS) :: nil))
-; msg_right_cancel_d   :=  Certify_Not_Right_Cancellative (nil, (wS :: nil, (f wS) :: nil))
-; msg_left_constant_d  :=  Certify_Not_Left_Constant (wS :: nil, (wS ::nil, nil)) 
-; msg_right_constant_d :=  Certify_Not_Right_Constant (wS :: nil, (wS ::nil, nil)) 
-; msg_anti_left_d      :=  Certify_Not_Anti_Left (nil, nil) 
-; msg_anti_right_d     :=  Certify_Not_Anti_Right (nil, nil)
-|}. 
-
-
 Definition sg_lift_certs (S: Type)
            (eq : brel S) 
            (wS : S)
@@ -2090,11 +2054,11 @@ Definition sg_lift_certs (S: Type)
 
 Definition sg_lift : ∀ {S : Type},  @sg S -> @sg (finite_set S)
 := λ {S} sgS,
-  let eqv := sg_eq sgS in
+  let eqv := sg_eqv sgS in
   let eq := eqv_eq eqv in
   let bS := sg_bop sgS in 
    {| 
-     sg_eq        := eqv_set eqv
+     sg_eqv        := eqv_set eqv
    ; sg_bop       := bop_lift eq bS 
    ; sg_exists_id_d      :=  bop_lift_exists_id_check (sg_exists_id_d sgS)  
    ; sg_exists_ann_d     :=  Certify_Exists_Ann nil 
@@ -2105,6 +2069,19 @@ Definition sg_lift : ∀ {S : Type},  @sg S -> @sg (finite_set S)
 
   
 End CAS.
+
+Section MCAS. 
+Open Scope string_scope.
+
+Definition mcas_sg_lift (S : Type) (A : @sg_mcas S) : @sg_mcas (finite_set S) :=
+match sg_mcas_cast_up _ A with
+| MCAS_sg A'         => sg_classify _ (MCAS_sg (sg_lift A'))
+| MCAS_sg_Error sl1  => MCAS_sg_Error sl1
+| _                  => MCAS_sg_Error ("Internal Error : mcas_lift" :: nil)
+end.
+
+End MCAS.
+
 
 Section Verify.
 
@@ -2193,27 +2170,6 @@ Lemma correct_bop_lift_exists_id_check :
 Proof. intros. destruct idD as [ [id  ID] | NID ]; compute; auto. Qed. 
 
 
-Lemma correct_msg_lift_certs 
-  (S : Type)
-  (eq : brel S)
-  (wS : S)
-  (f : S -> S)
-  (bS : binary_op S)
-  (nt : brel_not_trivial S eq f)
-(*  (ex2_d : brel_exactly_two_decidable S eq) *) 
-  (eqvP : eqv_proofs S eq)   
-  (sgP : msg_proofs S eq bS) :
-  P2C_msg (finite_set S)
-          (brel_set eq)
-          (bop_lift eq bS)
-          (msg_lift_proofs S eq bS eqvP wS f nt sgP) 
-  =  
-  msg_lift_certs S eq wS f bS (P2C_msg S eq bS sgP).
-Proof. unfold msg_lift_proofs, msg_lift_certs, P2C_msg. simpl. 
-       rewrite correct_bop_lift_commutative_check; auto.
-Qed.   
-
-
 Lemma correct_sg_lift_certs 
   (S : Type)
   (eq : brel S)
@@ -2236,17 +2192,31 @@ Proof. unfold sg_lift_proofs, sg_lift_certs, P2C_sg. simpl.
        rewrite correct_bop_lift_commutative_check; auto.
 Qed.   
   
-Theorem correct_sg_lift  : ∀ (S : Type) (sgS : A_sg S), 
+Theorem correct_sg_lift  (S : Type) (sgS : A_sg S) : 
          sg_lift (A2C_sg S sgS) 
          = 
          A2C_sg (finite_set S) (A_sg_lift S sgS). 
-Proof. intros S sgS.
+Proof. 
        unfold A2C_sg, sg_lift, A_sg_lift. simpl.
        rewrite correct_eqv_set.
        rewrite correct_sg_lift_certs.
        rewrite correct_bop_lift_exists_id_check; 
        reflexivity. 
 Qed.
+
+
+Theorem correct_mcas_sg_lift (S : Type) (sgS : A_sg_mcas S) :
+         mcas_sg_lift _ (A2C_mcas_sg S sgS) 
+         = 
+         A2C_mcas_sg _ (A_mcas_sg_lift S sgS).
+Proof. unfold mcas_sg_lift, A_mcas_sg_lift. 
+       rewrite correct_sg_mcas_cast_up.       
+       destruct (A_sg_cas_up_is_error_or_sg S sgS) as [[l1 A] | [s1 A]]. 
+       + rewrite A; simpl. reflexivity. 
+       + rewrite A; simpl. rewrite correct_sg_lift. 
+         apply correct_sg_classify_sg. 
+Qed. 
+
 
 End Verify.
 

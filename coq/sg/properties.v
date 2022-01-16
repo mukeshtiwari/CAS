@@ -316,14 +316,20 @@ Inductive assert_associative {S : Type} :=
 | Assert_Associative : assert_associative (S := S). 
 
 Inductive assert_exists_id {S : Type} := 
-| Assert_Exists_Id : S -> assert_exists_id (S := S). 
+| Assert_Exists_Id : S -> assert_exists_id (S := S).
+
+Inductive assert_not_exists_id {S : Type} := 
+| Assert_Not_Exists_Id : @assert_not_exists_id S.
 
 Inductive check_exists_id {S : Type} := 
 | Certify_Exists_Id : S -> check_exists_id (S := S)
 | Certify_Not_Exists_Id : check_exists_id (S := S). 
 
 Inductive assert_exists_ann {S : Type} := 
-| Assert_Exists_Ann : S -> assert_exists_ann (S := S). 
+| Assert_Exists_Ann : S -> assert_exists_ann (S := S).
+
+Inductive assert_not_exists_ann {S : Type} := 
+| Assert_Not_Exists_Ann : @assert_not_exists_ann S.
 
 Inductive check_exists_ann {S : Type} := 
 | Certify_Exists_Ann : S -> check_exists_ann (S := S)
@@ -332,6 +338,9 @@ Inductive check_exists_ann {S : Type} :=
 
 Inductive assert_commutative {S : Type} := 
 | Assert_Commutative : assert_commutative (S := S). 
+
+Inductive assert_not_commutative {S : Type} := 
+| Assert_Not_Commutative : (S * S) → assert_not_commutative (S := S). 
 
 Inductive check_commutative {S : Type} := 
 | Certify_Commutative : check_commutative (S := S)
@@ -444,6 +453,11 @@ Definition p2c_exists_id_assert : ∀ (S : Type) (r : brel S) (b : binary_op S),
       bop_exists_id S r b -> @assert_exists_id S 
 := λ S eq b p, Assert_Exists_Id (projT1 p). 
 
+
+Definition p2c_not_exists_id_assert (S : Type) (r : brel S) (b : binary_op S)  
+      (P : bop_not_exists_id S r b) :  @assert_not_exists_id S 
+:= Assert_Not_Exists_Id.
+
 Definition p2c_exists_id_check : ∀ (S : Type) (r : brel S) (b : binary_op S), 
       bop_exists_id_decidable S r b -> @check_exists_id S 
 := λ S eq b d, 
@@ -455,7 +469,12 @@ Definition p2c_exists_id_check : ∀ (S : Type) (r : brel S) (b : binary_op S),
 
 Definition p2c_exists_ann_assert : ∀ (S : Type) (r : brel S) (b : binary_op S), 
       bop_exists_ann S r b -> @assert_exists_ann S 
-:= λ S eq b p, Assert_Exists_Ann (projT1 p).  
+  := λ S eq b p, Assert_Exists_Ann (projT1 p).
+
+Definition p2c_not_exists_ann_assert (S : Type) (r : brel S) (b : binary_op S)  
+      (P : bop_not_exists_ann S r b) : @assert_not_exists_ann S 
+:= Assert_Not_Exists_Ann. 
+
 
 Definition p2c_exists_ann_check : ∀ (S : Type) (r : brel S) (b : binary_op S), 
       bop_exists_ann_decidable S r b -> @check_exists_ann S 

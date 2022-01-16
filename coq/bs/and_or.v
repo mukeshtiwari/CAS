@@ -67,8 +67,8 @@ Definition A_selective_distributive_lattice_and_or : A_selective_distributive_la
   A_selective_distributive_lattice_eqv           := A_eqv_bool
 ; A_selective_distributive_lattice_join          := bop_and
 ; A_selective_distributive_lattice_meet          := bop_or
-; A_selective_distributive_lattice_join_proofs   := A_sg_CS_proofs _ A_sg_CS_and
-; A_selective_distributive_lattice_meet_proofs   := A_sg_CS_proofs _ A_sg_CS_or
+; A_selective_distributive_lattice_join_proofs   := A_sg_BCS_proofs _ A_sg_and
+; A_selective_distributive_lattice_meet_proofs   := A_sg_BCS_proofs _ A_sg_or
 ; A_selective_distributive_lattice_id_ann_proofs := 
     {|
         A_bounded_plus_id_is_times_ann := bops_and_or_id_equals_ann  
@@ -79,6 +79,12 @@ Definition A_selective_distributive_lattice_and_or : A_selective_distributive_la
 |}.
 
 End ACAS.
+
+Section AMCAS.
+
+Definition A_mcas_bs_and_or := A_BS_selective_distributive_lattice _   A_selective_distributive_lattice_and_or.
+  
+End AMCAS.   
 
 Section CAS.
 
@@ -94,8 +100,8 @@ Definition selective_distributive_lattice_and_or : @selective_distributive_latti
   selective_distributive_lattice_eqv          := eqv_bool 
 ; selective_distributive_lattice_join         := bop_and
 ; selective_distributive_lattice_meet        := bop_or
-; selective_distributive_lattice_join_certs  := sg_CS_certs sg_CS_and
-; selective_distributive_lattice_meet_certs  := sg_CS_certs sg_CS_or
+; selective_distributive_lattice_join_certs  := sg_BCS_certs sg_and
+; selective_distributive_lattice_meet_certs  := sg_BCS_certs sg_or
 ; selective_distributive_lattice_id_ann_certs := 
     {|
         bounded_plus_id_is_times_ann := Assert_Exists_Id_Ann_Equal true
@@ -109,12 +115,20 @@ Definition selective_distributive_lattice_and_or : @selective_distributive_latti
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_bs_and_or := BS_selective_distributive_lattice selective_distributive_lattice_and_or.
+  
+End MCAS.   
 
 
 Section Verify.
 
 Theorem correct_selective_distributive_lattice_and_or :
       selective_distributive_lattice_and_or = A2C_selective_distributive_lattice bool (A_selective_distributive_lattice_and_or). 
+Proof. compute. reflexivity. Qed. 
+
+Theorem correct_mcas_bs_and_or : mcas_bs_and_or = A2C_mcas_bs bool A_mcas_bs_and_or.
 Proof. compute. reflexivity. Qed. 
 
  

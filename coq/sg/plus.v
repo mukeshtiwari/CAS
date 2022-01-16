@@ -124,21 +124,23 @@ End Theory.
 
 Section ACAS.
 
-Definition A_msg_proofs_plus : msg_proofs nat brel_eq_nat bop_plus := 
+Definition A_sg_proofs_plus : sg_proofs nat brel_eq_nat bop_plus := 
 {| 
-  A_msg_associative        := bop_plus_associative
-; A_msg_congruence         := bop_plus_congruence
-; A_msg_commutative_d      := inl bop_plus_commutative
-; A_msg_is_left_d          := inr bop_plus_not_is_left
-; A_msg_is_right_d         := inr bop_plus_not_is_right
-; A_msg_left_cancel_d      := inl bop_plus_left_cancellative
-; A_msg_right_cancel_d     := inl bop_plus_right_cancellative
+  A_sg_associative        := bop_plus_associative
+; A_sg_congruence         := bop_plus_congruence
+; A_sg_commutative_d      := inl bop_plus_commutative
+; A_sg_selective_d        := inr bop_plus_not_selective
+; A_sg_idempotent_d       := inr bop_plus_not_idempotent
+; A_sg_is_left_d          := inr bop_plus_not_is_left
+; A_sg_is_right_d         := inr bop_plus_not_is_right
+; A_sg_left_cancel_d      := inl bop_plus_left_cancellative
+; A_sg_right_cancel_d     := inl bop_plus_right_cancellative
 
-; A_msg_left_constant_d    := inr bop_plus_not_left_constant
-; A_msg_right_constant_d   := inr bop_plus_not_right_constant
+; A_sg_left_constant_d    := inr bop_plus_not_left_constant
+; A_sg_right_constant_d   := inr bop_plus_not_right_constant
 
-; A_msg_anti_left_d        := inr bop_plus_not_anti_left
-; A_msg_anti_right_d       := inr bop_plus_not_anti_right
+; A_sg_anti_left_d        := inr bop_plus_not_anti_left
+; A_sg_anti_right_d       := inr bop_plus_not_anti_right
 |}. 
 
 
@@ -154,36 +156,43 @@ Definition sg_CK_proofs_plus : sg_CK_proofs nat brel_eq_nat bop_plus :=
 
 
 
-Definition A_sg_CK_plus : A_sg_CK nat 
+Definition A_sg_plus : A_sg_CK_with_id nat 
 := {| 
-       A_sg_CK_eqv          := A_eqv_nat 
-     ; A_sg_CK_bop          := bop_plus
-     ; A_sg_CK_exists_id_d  := inl bop_plus_exists_id
-     ; A_sg_CK_proofs       := sg_CK_proofs_plus
-     
-     ; A_sg_CK_ast          := Ast_sg_plus 
+       A_sg_CK_wi_eqv        := A_eqv_nat 
+     ; A_sg_CK_wi_bop        := bop_plus
+     ; A_sg_CK_wi_exists_id  := bop_plus_exists_id
+     ; A_sg_CK_wi_proofs     := sg_CK_proofs_plus
+     ; A_sg_CK_wi_ast        := Ast_sg_plus 
    |}. 
 
 
 End ACAS.
 
+Section AMCAS.
+
+Definition A_mcas_sg_plus : A_sg_mcas nat := A_MCAS_sg_CK_with_id nat A_sg_plus.  
+
+End AMCAS.  
+
 Section CAS.
 
 Open Scope nat.
 
-Definition msg_certs_plus : @msg_certificates nat := 
+Definition sg_certs_plus : @sg_certificates nat := 
 {| 
-  msg_associative        := Assert_Associative 
-; msg_congruence         := Assert_Bop_Congruence 
-; msg_commutative_d      := Certify_Commutative 
-; msg_is_left_d          := Certify_Not_Is_Left (0, 1)
-; msg_is_right_d         := Certify_Not_Is_Right (1, 0)
-; msg_left_cancel_d      := Certify_Left_Cancellative
-; msg_right_cancel_d     := Certify_Right_Cancellative
-; msg_left_constant_d    := Certify_Not_Left_Constant (0, (0, 1))
-; msg_right_constant_d   := Certify_Not_Right_Constant (0, (0, 1))
-; msg_anti_left_d        := Certify_Not_Anti_Left (0, 0) 
-; msg_anti_right_d       := Certify_Not_Anti_Right (0, 0) 
+  sg_associative        := Assert_Associative 
+; sg_congruence         := Assert_Bop_Congruence 
+; sg_commutative_d      := Certify_Commutative
+; sg_selective_d        := Certify_Not_Selective (1, 1)
+; sg_idempotent_d       := Certify_Not_Idempotent 1
+; sg_is_left_d          := Certify_Not_Is_Left (0, 1)
+; sg_is_right_d         := Certify_Not_Is_Right (1, 0)
+; sg_left_cancel_d      := Certify_Left_Cancellative
+; sg_right_cancel_d     := Certify_Right_Cancellative
+; sg_left_constant_d    := Certify_Not_Left_Constant (0, (0, 1))
+; sg_right_constant_d   := Certify_Not_Right_Constant (0, (0, 1))
+; sg_anti_left_d        := Certify_Not_Anti_Left (0, 0) 
+; sg_anti_right_d       := Certify_Not_Anti_Right (0, 0) 
 |}. 
 
 
@@ -194,29 +203,38 @@ Definition sg_CK_certs_plus : @sg_CK_certificates nat
    ; sg_CK_commutative    := Assert_Commutative 
    ; sg_CK_anti_left_d    := Certify_Not_Anti_Left (0, 0) 
    ; sg_CK_anti_right_d   := Certify_Not_Anti_Right (0, 0)
-   ; sg_CK_left_cancel    := Assert_Left_Cancellative
+   ; sg_CK_cancel    := Assert_Left_Cancellative
    |}.
 
 
-Definition sg_CK_plus : sg_CK (S := nat) 
+Definition sg_plus : @sg_CK_with_id nat
 := {| 
-     sg_CK_eqv         := eqv_eq_nat 
-   ; sg_CK_bop         := bop_plus
-   ; sg_CK_exists_id_d := Certify_Exists_Id 0 
-   ; sg_CK_certs       := sg_CK_certs_plus   
-   
-   ; sg_CK_ast         := Ast_sg_plus 
+     sg_CK_wi_eqv         := eqv_eq_nat 
+   ; sg_CK_wi_bop         := bop_plus
+   ; sg_CK_wi_exists_id   := Assert_Exists_Id 0 
+   ; sg_CK_wi_certs       := sg_CK_certs_plus   
+   ; sg_CK_wi_ast         := Ast_sg_plus 
    |}. 
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_sg_plus : @sg_mcas nat := MCAS_sg_CK_with_id sg_plus.  
+
+End MCAS.  
+
 Section Verify.
 
-Theorem correct_msg_certs_plus : msg_certs_plus = P2C_msg nat brel_eq_nat bop_plus (A_msg_proofs_plus). 
+Theorem correct_sg_certs_plus : sg_certs_plus = P2C_sg nat brel_eq_nat bop_plus (A_sg_proofs_plus). 
 Proof. compute. reflexivity. Qed. 
 
-Theorem correct_sg_CK_plus : sg_CK_plus = A2C_sg_CK nat (A_sg_CK_plus). 
-Proof. compute. reflexivity. Qed. 
+Theorem correct_sg_CK_plus : sg_plus = A2C_sg_CK_with_id nat (A_sg_plus). 
+Proof. compute. reflexivity. Qed.
+
+Theorem correct_mcas_plus : mcas_sg_plus = A2C_mcas_sg nat A_mcas_sg_plus. 
+Proof. compute. reflexivity. Qed.
+
 
 End Verify.   
 

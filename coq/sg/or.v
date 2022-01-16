@@ -116,19 +116,27 @@ Definition sg_CS_proofs_or : sg_CS_proofs bool brel_eq_bool bop_or :=
 |}. 
 
 
-Definition A_sg_CS_or : A_sg_CS bool
+Definition A_sg_or : A_sg_BCS bool
 := {| 
-     A_sg_CS_eqv          := A_eqv_bool
-   ; A_sg_CS_bop          := bop_or
-   ; A_sg_CS_proofs       := sg_CS_proofs_or
-   ; A_sg_CS_exists_id_d  := inl _ bop_or_exists_id 
-   ; A_sg_CS_exists_ann_d := inl _ bop_or_exists_ann
-   ; A_sg_CS_ast          := Ast_sg_or 
+     A_sg_BCS_eqv          := A_eqv_bool
+   ; A_sg_BCS_bop          := bop_or
+   ; A_sg_BCS_proofs       := sg_CS_proofs_or
+   ; A_sg_BCS_exists_id    := bop_or_exists_id 
+   ; A_sg_BCS_exists_ann   := bop_or_exists_ann
+   ; A_sg_BCS_ast          := Ast_sg_or 
    |}. 
 
 
 
 End ACAS.
+
+Section AMCAS.
+
+Definition A_mcas_sg_or := A_MCAS_sg_BCS bool A_sg_or. 
+
+End AMCAS.  
+
+
 
 Section CAS.
 
@@ -144,23 +152,33 @@ Definition sg_CS_certs_or : sg_CS_certificates (S := bool)
 
 
 
-Definition sg_CS_or : sg_CS (S := bool)
+Definition sg_or : @sg_BCS bool
 := {| 
-     sg_CS_eqv          := eqv_bool
-   ; sg_CS_bop          := bop_or
-   ; sg_CS_exists_id_d  := Certify_Exists_Id  false 
-   ; sg_CS_exists_ann_d := Certify_Exists_Ann  true
-   ; sg_CS_certs        := sg_CS_certs_or
-   ; sg_CS_ast          := Ast_sg_or 
+     sg_BCS_eqv          := eqv_bool
+   ; sg_BCS_bop          := bop_or
+   ; sg_BCS_exists_id    := Assert_Exists_Id  false 
+   ; sg_BCS_exists_ann   := Assert_Exists_Ann  true
+   ; sg_BCS_certs        := sg_CS_certs_or
+   ; sg_BCS_ast          := Ast_sg_or 
    |}. 
   
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_sg_or := MCAS_sg_BCS sg_or. 
+
+End MCAS.  
+
+
 Section Verify.
 
-Theorem correct_sg_CS_or : sg_CS_or = A2C_sg_CS bool (A_sg_CS_or). 
+Theorem correct_sg_CS_or : sg_or = A2C_sg_BCS bool (A_sg_or). 
+Proof. compute. reflexivity. Qed.
+
+Theorem correct_mcas_sg_CS_or : mcas_sg_or = A2C_mcas_sg bool A_mcas_sg_or.
 Proof. compute. reflexivity. Qed. 
- 
+
 End Verify.   
   

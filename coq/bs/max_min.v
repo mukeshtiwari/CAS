@@ -123,7 +123,7 @@ End ACAS.
 
 Section MACAS.
 
-Definition A_bs_mcas_max_min := A_BS_selective_distributive_prelattice_with_zero _ A_max_min. 
+Definition A_mcas_max_min := A_BS_selective_distributive_prelattice_with_zero _ A_max_min. 
 
 End MACAS.
 
@@ -162,7 +162,7 @@ End CAS.
 
 Section MACAS.
 
-Definition bs_mcas_max_min := BS_selective_distributive_prelattice_with_zero max_min. 
+Definition mcas_max_min := BS_selective_distributive_prelattice_with_zero max_min. 
 
 End MACAS.
 
@@ -171,6 +171,9 @@ End MACAS.
 Section Verify.
 
 Theorem correct_max_min : max_min = A2C_selective_distributive_prelattice_with_zero nat A_max_min. 
+Proof. compute. reflexivity. Qed. 
+
+Theorem correct_mcas_max_min : mcas_max_min = A2C_mcas_bs nat A_mcas_max_min.
 Proof. compute. reflexivity. Qed. 
 
 

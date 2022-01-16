@@ -16,6 +16,7 @@ Require Import CAS.coq.uop.properties.
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
 Require Import CAS.coq.po.theory.
+Require Import CAS.coq.po.set_lte. 
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
@@ -71,13 +72,6 @@ Variable bS : binary_op S.
 Variable bCong : bop_congruence S rS bS. 
 Variable bAss : bop_associative S rS bS.
 
-
-Variable LM : os_left_monotone lteS bS. 
-Variable RM : os_right_monotone lteS bS. 
-Variable anti : brel_antisymmetric S rS lteS. 
-
-
-
 Notation "a [=] b"  := (rS a b = true)          (at level 15).
 Notation "a [<>] b" := (rS a b = false)         (at level 15).
 Notation "a <<= b"  := (lteS a b = true)        (at level 15).
@@ -125,7 +119,7 @@ Definition set_equal_implies_minset_equal := set_equal_implies_minset_equal S rS
 Definition minset_union_left_uop_invariant_weak := minset_union_left_uop_invariant_weak S rS refS symS tranS lteS lteCong lteRefl lteTrans.
 Definition minset_union_right_uop_invariant_weak := minset_union_right_uop_invariant_weak S rS refS symS tranS lteS lteCong lteRefl lteTrans.
 Definition minset_union_uop_invariant_weak := minset_union_uop_invariant_weak S rS refS symS tranS lteS lteCong lteRefl lteTrans.
-Definition minset_lift_uop_invariant_weak := minset_lift_uop_invariant_weak S rS refS symS tranS lteS lteCong lteRefl lteTrans bS bCong LM RM (inl anti). 
+Definition minset_lift_uop_invariant_weak := minset_lift_uop_invariant_weak S rS refS symS tranS lteS lteCong lteRefl lteTrans bS bCong. 
 
 
 Lemma subset_lemma_1 (Z X : finite_set S) (a : S):
@@ -262,8 +256,8 @@ Qed.
 
 
 
-Lemma lemma_lemma (idem : bop_idempotent S rS bS)
-                   (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))
+Lemma partition_in_set_lemma (idem : bop_idempotent S rS bS)
+                   (LI : os_left_increasing lteS bS)
                    (X Y Z : finite_set S) :
       partition (in_set rS X) (X [^] X) = (Y, Z) -> (X [=S] Y) * (X [<=] Z).
 Proof. intro A.
@@ -282,37 +276,16 @@ Proof. intro A.
          destruct H as [x [y [[I J] K]]].
          exists x.
          rewrite (lteCong _ _ _ _ (refS x) K).
-         split; auto.
-         destruct LI_or_LUB as [LI | LUB]. 
-         ++ exact (LI x y).
-         ++ destruct (LUB x y) as [[L _] _ ].
-            exact L. 
+         split. exact I. exact (LI x y).
 Qed. 
-
-Lemma set_lte_lemma (X : finite_set S) :
-  ∀ (Y Z : finite_set S), (X [<=] Y) ->  (X [U] Z) [<=] Y.
-Proof. intros Y Z A s B.  
-       destruct (A s B) as [x [C D]].
-       exists x. split; auto. 
-       apply in_set_bop_union_intro; auto. 
-Defined.
-
-Lemma set_lte_lemma2 (X : finite_set S) :
-  ∀ (Y Z : finite_set S), (X [<=] Y) ->  (X [<=] Z) ->  X [<=] (Y [U] Z).
-Proof. intros Y Z A B s C.
-       apply in_set_bop_union_elim in C; auto.
-       destruct C as [C | C]. 
-       ++ exact (A _ C). 
-       ++ exact (B _ C).        
-Defined.
 
 Notation "[rej] x" := (snd (partition (in_set rS x) (x [^] x))) (at level 15).
 
 Lemma reject_lemma (idem : bop_idempotent S rS bS)
-                   (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))
+                   (LI : os_left_increasing lteS bS)
                    (X : finite_set S) : (X [^] X) [=S] (X [U] ([rej] X)). 
 Proof. case_eq(partition (in_set rS X) (X [^] X)); intros V W A. 
-       destruct (lemma_lemma idem LI_or_LUB _ _ _ A) as [B C]. simpl. 
+       destruct (partition_in_set_lemma idem LI _ _ _ A) as [B C]. simpl. 
        assert (F := partition_union _ (in_set_cong _) _ _ _ A).
        assert (E := bop_union_congruence _ _ refS symS tranS _ _ _ _ B (set_reflexive W)).
        apply set_symmetric in E.
@@ -321,9 +294,9 @@ Qed.
 
 Lemma reject_lemma_2
       (idem : bop_idempotent S rS bS)
-      (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))      
+      (LI : os_left_increasing lteS bS)
       (X : finite_set S) : X [<=] ([rej] X).
-       assert (A := lemma_lemma idem LI_or_LUB X). 
+       assert (A := partition_in_set_lemma idem LI X). 
        case_eq (partition (in_set rS X) (X [^] X)); intros W V C. 
        destruct (A _ _ C) as [D E].
        simpl. exact E. 
@@ -332,32 +305,24 @@ Qed.
 
 Lemma discard_lemma_left
       (idem : bop_idempotent S rS bS)
-      (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))            
+      (LI : os_left_increasing lteS bS)
       (X Y : finite_set S) : X [<=] (X [^] Y). 
 Proof. intros s A. apply in_set_bop_lift_elim in A; auto. 
        destruct A as [x [y [[A B] C]]].
        exists x.
        rewrite (lteCong _ _ _ _ (refS x) C).       
-       split; auto.        
-       destruct LI_or_LUB as [LI | LUB]. 
-       + exact (LI x y).
-       + destruct (LUB x y) as [[L _] _].
-         exact L.         
+       split. exact A. exact (LI x y).
 Qed.
 
 Lemma discard_lemma_right
       (idem : bop_idempotent S rS bS)
-      (RI_or_LUB : (os_right_increasing lteS bS) + (bop_is_lub lteS bS))            
+      (RI : os_right_increasing lteS bS)
       (X Y : finite_set S) : X [<=] (Y [^] X).
 Proof. intros s A. apply in_set_bop_lift_elim in A; auto. 
        destruct A as [x [y [[A B] C]]].
        exists y.
        rewrite (lteCong _ _ _ _ (refS y) C).       
-       split; auto. 
-       destruct RI_or_LUB as [RI | LUB]. 
-       + exact (RI y x).
-       + destruct (LUB x y) as [[_ L] _].
-         exact L. 
+       split. exact B. exact (RI y x).
 Qed.
 
 
@@ -431,7 +396,7 @@ Qed.
 
 Lemma distribution_lemma_1_5
   (idem : bop_idempotent S rS bS)
-  (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                  
+  (LI : os_left_increasing lteS bS)
   (X Y Z : finite_set S) : 
   ((X [U] Y) [^] (X [U] Z))
        [=S]
@@ -439,7 +404,7 @@ Lemma distribution_lemma_1_5
         [U]
        ((X [^] Z) [U] (Y [^] Z))). 
 Proof. assert (A := distribution_lemma_1 X Y Z).
-       assert (B := reject_lemma idem LI_or_LUB X).
+       assert (B := reject_lemma idem LI X).
        assert (C := bop_union_congruence _ _ refS symS tranS _ _ _ _ B (set_reflexive (Y [^] X))).       
        assert (D := bop_union_congruence _ _ refS symS tranS _ _ _ _ C (set_reflexive ((X [^] Z) [U] (Y [^] Z)))).               
        exact (set_transitive _ _ _ A D).
@@ -511,7 +476,7 @@ Qed.
        
  Lemma distribution_lemma_2
       (idem : bop_idempotent S rS bS)
-      (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                         
+      (LI : os_left_increasing lteS bS)
       (X Y Z : finite_set S) :
      ((X [U] Y) [^] (X [U] Z))
        [=S]
@@ -519,15 +484,15 @@ Qed.
           [U] (([rej] X)
                  [U] ((Y [^] X)
                         [U] (X [^] Z)))). 
-Proof. assert (A := distribution_lemma_1_5 idem LI_or_LUB X Y Z).
+Proof. assert (A := distribution_lemma_1_5 idem LI X Y Z).
        assert (B := shuffle_lemma X ([rej] X) (Y [^] X) (X [^] Z) (Y [^] Z)).
        exact (set_transitive _ _ _ A B). 
 Qed. 
                                       
 Lemma minset_lift_union_left_quasi_distributive
   (idem : bop_idempotent S rS bS)
-  (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                               
-  (RI_or_LUB : (os_right_increasing lteS bS) + (bop_is_lub lteS bS))                               
+  (LI : os_left_increasing lteS bS)
+  (RI : os_right_increasing lteS bS)
   (X Y Z : finite_set S) :         
   {D : finite_set S &
        ((X [U] Y) [^] (X [U] Z) [=S] ((X [U] (Y [^] Z)) [U] D)) * ((X [U] (Y [^] Z)) [<=] D)}.
@@ -536,11 +501,11 @@ Proof. exists (([rej] X)
                         [U] (X [^] Z))). 
        split. 
        + apply distribution_lemma_2; auto. 
-       + apply set_lte_lemma2. 
-         ++ apply set_lte_lemma. apply reject_lemma_2; auto. 
-         ++ apply set_lte_lemma2. 
-            +++ apply set_lte_lemma. apply discard_lemma_right; auto.
-            +++ apply set_lte_lemma. apply discard_lemma_left; auto. 
+       + apply set_lte_lemma2; auto. 
+         ++ apply set_lte_lemma; auto. apply reject_lemma_2; auto. 
+         ++ apply set_lte_lemma2; auto. 
+            +++ apply set_lte_lemma; auto. apply discard_lemma_right; auto.
+            +++ apply set_lte_lemma; auto. apply discard_lemma_left; auto. 
 Qed. 
 
 
@@ -552,9 +517,16 @@ Theorem fundamental_minset_theorem (X : finite_set S) :
         (∀ (s : S), s [in] Z -> {t : S & (t [in] ([ms] X)) * t << s })
    }.
 
+
+Should this be moved to eqv/minset.v?
+
 Q : do we want <= or << ? 
+A : perhaps we want two versions of each fundamental theorem: 
+    one with antisymmetry (using [<=]) and one without (using [<<])  
+
 *) 
-Lemma tmp1 (Y Z : finite_set S) : (Y [<=] Z) -> ([ms] (Y [U] Z)) [=S] ([ms] Y). 
+Lemma second_fundamental_minset_theorem (anti : brel_antisymmetric S rS lteS)
+           (Y Z : finite_set S) : (Y [<=] Z) -> ([ms] (Y [U] Z)) [=S] ([ms] Y). 
 Proof. intros A.
        apply brel_set_intro_prop; auto.
        split; intros a B. 
@@ -596,26 +568,28 @@ Proof. intros A.
 Qed. 
 
 Lemma minset_lift_union_left_distributive_weak
+      (anti : brel_antisymmetric S rS lteS)
       (idem : bop_idempotent S rS bS)
-      (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                               
-      (RI_or_LUB : (os_right_increasing lteS bS) + (bop_is_lub lteS bS))                               
+      (LI : os_left_increasing lteS bS)
+      (RI : os_right_increasing lteS bS)
       (X Y Z : finite_set S) :
       ([ms] (X [U] (Y [^] Z))) [=S] ([ms] ((X [U] Y) [^] (X [U] Z))). 
 Proof. apply set_symmetric. 
-       destruct (minset_lift_union_left_quasi_distributive idem LI_or_LUB RI_or_LUB X Y Z) as [D [C E]].
-       assert (F := tmp1 _ _ E).
+       destruct (minset_lift_union_left_quasi_distributive idem LI RI X Y Z) as [D [C E]].
+       assert (F := second_fundamental_minset_theorem anti _ _ E).
        assert (G := uop_minset_congruence_weak _ _ C). 
        assert (I := set_transitive _ _ _ G F).
        exact I. 
 Qed.
 
 Lemma minset_lift_union_right_distributive_weak
+      (anti : brel_antisymmetric S rS lteS)
       (idem : bop_idempotent S rS bS)
-      (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                               
-      (RI_or_LUB : (os_right_increasing lteS bS) + (bop_is_lub lteS bS))                               
+      (LI : os_left_increasing lteS bS)
+      (RI : os_right_increasing lteS bS)
       (X Y Z : finite_set S) :
       ([ms] ((Y [^] Z) [U] X)) [=S] ([ms] ((Y [U] X) [^] (Z [U] X))). 
-Proof. assert (A := minset_lift_union_left_distributive_weak idem LI_or_LUB RI_or_LUB X Y Z).
+Proof. assert (A := minset_lift_union_left_distributive_weak anti idem LI RI X Y Z).
        assert (B := bop_union_commutative _ _ refS symS tranS).
        assert (C := B (Y [^] Z) X).
        apply uop_minset_congruence_weak in C. 
@@ -631,45 +605,46 @@ Qed.
 
 
 Lemma abs_lemma_left (idem : bop_idempotent S rS bS)
-                (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                                     
+                (LI : os_left_increasing lteS bS)
                 (X Y : finite_set S) :
   (((X [^] (X [U] Y))) [=S] (X [U] (([rej] X) [U] (X [^] Y))) * (X [<=] (([rej] X) [U] (X [^] Y)))). 
 Proof. split. 
        + assert (A := lift_union_left_distributive X X Y).
-         assert (B := reject_lemma idem LI_or_LUB X).
+         assert (B := reject_lemma idem LI X).
          assert (C := bop_union_congruence _ _ refS symS tranS _ _ _ _ B (set_reflexive (X [^] Y))).
          assert (D := set_transitive _ _ _ A C). 
          assert (E := bop_union_associative _ _ refS symS tranS X ([rej] X) (X [^] Y)).
          assert (F := set_transitive _ _ _ D E).
          exact F. 
-       + apply set_lte_lemma2.
-         ++ exact (reject_lemma_2 idem LI_or_LUB X). 
-         ++ exact (discard_lemma_left idem LI_or_LUB X Y). 
+       + apply set_lte_lemma2; auto. 
+         ++ exact (reject_lemma_2 idem LI X). 
+         ++ exact (discard_lemma_left idem LI X Y). 
 Qed.
 
 Lemma abs_lemma_right (idem : bop_idempotent S rS bS)
-                (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                                           
+                (LI : os_left_increasing lteS bS) 
                 (X Y : finite_set S) :
   (((X [^] (Y [U] X))) [=S] (X [U] (([rej] X) [U] (X [^] Y))) * (X [<=] (([rej] X) [U] (X [^] Y)))).
 Proof. split. 
-       + destruct (abs_lemma_left idem LI_or_LUB X Y) as [A K]. 
+       + destruct (abs_lemma_left idem LI X Y) as [A K]. 
          assert (B := bop_union_commutative _ _ refS symS tranS).
          assert (C := B Y X).
          assert (D := bop_lift_congruence _ _ refS symS tranS bS bCong _ _ _ _ (set_reflexive X) C).
          assert (E := set_transitive _ _ _ D A). 
          exact E.
-       + apply set_lte_lemma2.
+       + apply set_lte_lemma2; auto. 
          ++ apply reject_lemma_2; auto. 
          ++ apply discard_lemma_left; auto. 
 Qed.
 
 Lemma minset_lift_union_left_left_absorption_weak
+      (anti : brel_antisymmetric S rS lteS)      
       (idem : bop_idempotent S rS bS)
-      (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                                                 
+      (LI : os_left_increasing lteS bS)
       (X Y : finite_set S) :
       ([ms] X) [=S] ([ms] (X [^] (X [U] Y))). 
-Proof. destruct (abs_lemma_left idem LI_or_LUB X Y) as [A B].
-       assert (C := tmp1 _ _ B). 
+Proof. destruct (abs_lemma_left idem LI X Y) as [A B].
+       assert (C := second_fundamental_minset_theorem anti _ _ B). 
        assert (D := uop_minset_congruence_weak _ _ A). 
        assert (E := set_transitive _ _ _ D C). 
        apply set_symmetric.
@@ -677,12 +652,13 @@ Proof. destruct (abs_lemma_left idem LI_or_LUB X Y) as [A B].
 Qed.
 
 Lemma minset_lift_union_left_right_absorption_weak
+      (anti : brel_antisymmetric S rS lteS)      
       (idem : bop_idempotent S rS bS)
-      (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                                                       
+      (LI : os_left_increasing lteS bS)
       (X Y : finite_set S) :
       ([ms] X) [=S] ([ms] (X [^] (Y [U] X))). 
-Proof. destruct (abs_lemma_right idem LI_or_LUB X Y) as [A B].
-       assert (C := tmp1 _ _ B). 
+Proof. destruct (abs_lemma_right idem LI X Y) as [A B].
+       assert (C := second_fundamental_minset_theorem anti _ _ B). 
        assert (D := uop_minset_congruence_weak _ _ A). 
        assert (E := set_transitive _ _ _ D C). 
        apply set_symmetric.
@@ -690,10 +666,13 @@ Proof. destruct (abs_lemma_right idem LI_or_LUB X Y) as [A B].
 Qed.
 
 
-Lemma minset_lift_union_left_distributive 
+Lemma minset_lift_union_left_distributive
+      (anti : brel_antisymmetric S rS lteS)      
       (idem : bop_idempotent S rS bS)
-      (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                               
-      (RI_or_LUB : (os_right_increasing lteS bS) + (bop_is_lub lteS bS)):                                
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS) 
+      (LI : os_left_increasing lteS bS)
+      (RI : os_right_increasing lteS bS): 
   bop_left_distributive (finite_set S)
                          (brel_minset rS lteS)
                          (bop_minset_lift S rS lteS bS)
@@ -721,7 +700,7 @@ Proof. intros X Y Z.
          )
 
         *)
-       assert (A := minset_lift_union_left_distributive_weak idem LI_or_LUB RI_or_LUB X Y Z).
+       assert (A := minset_lift_union_left_distributive_weak anti idem LI RI X Y Z).
        assert (B : ([ms] (([ms] X) [U] ([ms] ([ms] (([ms] Y) [^] ([ms] Z))))))
                      [=S]
                      ([ms] (X [U] (Y [^] Z)))).
@@ -732,7 +711,7 @@ Proof. intros X Y Z.
        minset_lift_uop_invariant_weak
        : ∀ X Y : finite_set S, ([ms] (([ms] X) [^] ([ms] Y))) [=S] ([ms] (X [^] Y))
         *)
-           assert (C := minset_lift_uop_invariant_weak Y Z).
+           assert (C := minset_lift_uop_invariant_weak LM RM (inl anti) Y Z).
            assert (D := uop_minset_idempotent (([ms] Y) [^] ([ms] Z))). 
            assert (E := set_transitive _ _ _ D C).
            assert (F := bop_union_congruence _ _ refS symS tranS _ _ _ _ (set_reflexive ([ms] X)) E).
@@ -745,7 +724,7 @@ Proof. intros X Y Z.
                      ([ms] (([ms] ([ms] (([ms] X) [U] ([ms] Y))))
                               [^]
                            ([ms] ([ms] (([ms] X) [U] ([ms] Z))))))).
-          assert (D := minset_lift_uop_invariant_weak (X [U] Y) (X [U] Z)).
+          assert (D := minset_lift_uop_invariant_weak LM RM (inl anti) (X [U] Y) (X [U] Z)).
           apply set_symmetric in D. 
           assert (E := minset_union_uop_invariant_weak X Y). 
           assert (F := minset_union_uop_invariant_weak X Z). 
@@ -765,15 +744,18 @@ Qed.
 
 
 Lemma minset_lift_union_right_distributive
+  (anti : brel_antisymmetric S rS lteS)      
   (idem : bop_idempotent S rS bS)
-  (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS))                               
-  (RI_or_LUB : (os_right_increasing lteS bS) + (bop_is_lub lteS bS)):                                
+  (LM : os_left_monotone lteS bS) 
+  (RM : os_right_monotone lteS bS)       
+  (LI : os_left_increasing lteS bS)
+  (RI : os_right_increasing lteS bS) :
   bop_right_distributive (finite_set S)
                           (brel_minset rS lteS)
                           (bop_minset_lift S rS lteS bS)
                           (bop_minset_union S rS lteS). 
 Proof. intros X Y Z.
-       assert (A := minset_lift_union_left_distributive idem LI_or_LUB RI_or_LUB X Y Z).
+       assert (A := minset_lift_union_left_distributive anti idem LM RM LI RI X Y Z).
        assert (B := bop_minset_union_commutative _ _ refS symS tranS lteS lteCong lteRefl lteTrans).
        assert (C := B (Y <^> Z) X).
        assert (D := minset_transitive _ _ _ C A). 
@@ -789,14 +771,17 @@ Qed.
 
 
 Lemma left_left_abs_rhs
-  (X Y Z : finite_set S) : 
+      (anti : brel_antisymmetric S rS lteS)      
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS)
+      (X Y Z : finite_set S) : 
   ([ms] (X <^> (Y <U> Z))) [=S] ([ms] (X [^] (Y [U] Z))). 
 Proof. unfold bop_minset_union.
        unfold bop_minset_lift.
        assert (A := uop_minset_idempotent (([ms] X)
                                                 [^]
                                                 ([ms] ([ms] (([ms] Y) [U] ([ms] Z)))))).
-       assert (B := minset_lift_uop_invariant_weak X ([ms] (([ms] Y) [U] ([ms] Z)))). 
+       assert (B := minset_lift_uop_invariant_weak LM RM (inl anti) X ([ms] (([ms] Y) [U] ([ms] Z)))). 
        assert (C := set_transitive _ _ _ A B). 
        assert (D := minset_union_uop_invariant_weak Y Z).
        assert (E := bop_lift_congruence _ _ refS symS tranS bS bCong).       
@@ -810,29 +795,35 @@ Proof. unfold bop_minset_union.
 Qed. 
       
 Lemma minset_lift_union_left_left_absorptive
+      (anti : brel_antisymmetric S rS lteS)      
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS)      
       (idem : bop_idempotent S rS bS)
-      (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS)) :                                      
+      (LI : os_left_increasing lteS bS) : 
   bops_left_left_absorptive (finite_set S)
                             (brel_minset rS lteS)
                             (bop_minset_lift S rS lteS bS)
                             (bop_minset_union S rS lteS). 
 Proof. intros X Y.
-       assert (A := minset_lift_union_left_left_absorption_weak idem LI_or_LUB X Y).
+       assert (A := minset_lift_union_left_left_absorption_weak anti idem LI X Y).
        unfold brel_minset.
-       assert (B := left_left_abs_rhs X X Y). apply set_symmetric in B. 
+       assert (B := left_left_abs_rhs anti LM RM X X Y). apply set_symmetric in B. 
        exact (set_transitive _ _ _ A B).
 Qed. 
 
   
 Lemma minset_lift_union_left_right_absorptive
-  (idem : bop_idempotent S rS bS)
-  (LI_or_LUB : (os_left_increasing lteS bS) + (bop_is_lub lteS bS)) :                                            
+      (anti : brel_antisymmetric S rS lteS)      
+      (idem : bop_idempotent S rS bS)
+      (LM : os_left_monotone lteS bS) 
+      (RM : os_right_monotone lteS bS)      
+      (LI : os_left_increasing lteS bS) :                                            
   bops_left_right_absorptive (finite_set S)
                             (brel_minset rS lteS)
                             (bop_minset_lift S rS lteS bS)
                             (bop_minset_union S rS lteS). 
 Proof. intros X Y.
-       assert (A := minset_lift_union_left_left_absorptive idem LI_or_LUB X Y).
+       assert (A := minset_lift_union_left_left_absorptive anti LM RM idem LI X Y).
        assert (B := bop_minset_union_commutative _ _ refS symS tranS lteS lteCong lteRefl lteTrans).       
        assert (C := bop_minset_lift_congruence _ _ refS symS tranS lteS lteCong lteRefl lteTrans bS bCong).       
        assert (D := B X Y). 
@@ -894,41 +885,15 @@ let bot_id_equal := A_bounded_bottom_id _ _ _ _ P in
 ; A_bounded_times_id_is_plus_ann := minset_union_lift_exists_id_ann_equal S eq ref sym trn lte lte_cong lte_ref lte_trn times 
 |}.
 
-Definition  minset_lift_union_dioid_proofs_from_monotone_increasing_proofs
+
+Definition  minset_lift_union_dioid_proofs_from_monotone_increasing_proofs 
             (times_cong : bop_congruence S eq times)
             (idem: bop_idempotent S eq times)             
             (P : po_proofs S eq lte)
-            (M : os_monotone_increasing_proofs S lte times) :
-                dioid_proofs (finite_set S)
-                             (brel_minset eq lte)
-                             (bop_minset_lift S eq lte times)                             
-                             (bop_minset_union S eq lte)   := 
-let lte_ref := A_po_reflexive _ _ _ P in 
-let lte_trn := A_po_transitive _ _ _ P in
-let lte_cong := A_po_congruence _ _ _ P in
-let anti := A_po_antisymmetric _ _ _ P in
-let ref := A_eqv_reflexive _ _ eqvP in
-let sym := A_eqv_symmetric _ _ eqvP in
-let trn := A_eqv_transitive _ _ eqvP in      
-let LM := A_mono_inc_left_monotonic _ _ _ M in 
-let RM := A_mono_inc_right_monotonic _ _ _ M in 
-let LI := inl (A_mono_inc_left_increasing _ _ _ M) in
-let RI := inl (A_mono_inc_right_increasing _ _ _ M) in 
-{| 
-  A_dioid_left_distributive     :=
-    minset_lift_union_left_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM anti idem LI RI
-; A_dioid_right_distributive    :=
-   minset_lift_union_right_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM anti idem LI RI
-; A_dioid_left_left_absorptive  :=
-    minset_lift_union_left_left_absorptive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM anti idem LI 
-; A_dioid_left_right_absorptive :=
-    minset_lift_union_left_right_absorptive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM anti idem LI 
-|}. 
-
-Definition  minset_lift_union_dioid_proofs_from_lub_proofs 
-            (P : po_proofs S eq lte)
-            (sg : sg_CI_proofs S eq times) 
-            (LUB : bop_is_lub lte times) :
+            (LM : os_left_monotone lte times)
+            (RM : os_right_monotone lte times)
+            (LI : os_left_increasing lte times)
+            (RI : os_right_increasing lte times) : 
                 dioid_proofs (finite_set S)
                              (brel_minset eq lte)
                              (bop_minset_lift S eq lte times)                             
@@ -941,87 +906,21 @@ let anti := A_po_antisymmetric _ _ _ P in
 let ref := A_eqv_reflexive _ _ eqvP in
 let sym := A_eqv_symmetric _ _ eqvP in
 let trn := A_eqv_transitive _ _ eqvP in
-
-let times_cong := A_sg_CI_congruence _ _ _ sg in 
-let assoc := A_sg_CI_associative _ _ _ sg in
-let idem  := A_sg_CI_idempotent _ _ _ sg in
-let comm  := A_sg_CI_commutative _ _ _ sg in
-
-let LM := lub_is_left_monotone _ _ _ ref sym trn lte_cong lte_ref anti times times_cong assoc idem comm LUB in 
-let RM := lub_is_right_monotone _ _ _ ref sym trn lte_cong lte_ref anti times times_cong assoc idem comm LUB in 
 {| 
   A_dioid_left_distributive     :=
-    minset_lift_union_left_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM anti idem (inr LUB) (inr LUB) 
+    minset_lift_union_left_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong anti idem LM RM LI RI 
 ; A_dioid_right_distributive    :=
-   minset_lift_union_right_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM anti idem (inr LUB) (inr LUB) 
+   minset_lift_union_right_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong anti idem LM RM LI RI 
 ; A_dioid_left_left_absorptive  :=
-    minset_lift_union_left_left_absorptive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM anti idem (inr LUB)
+    minset_lift_union_left_left_absorptive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong anti LM RM idem LI 
 ; A_dioid_left_right_absorptive :=
-    minset_lift_union_left_right_absorptive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM anti idem (inr LUB)
+    minset_lift_union_left_right_absorptive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong anti idem LM RM LI 
 |}. 
 
 End Proofs.   
   
 Section Combinators. 
-(*
-
-from A_bounded_monotone_increasing_posg_CI create doiod. 
-
-Record A_bounded_monotone_increasing_posg_CI (S : Type) := {
-  A_bmiposg_CI_eqv          : A_eqv S 
-; A_bmiposg_CI_lte          : brel S 
-; A_bmiposg_CI_times        : binary_op S 
-; A_bmiposg_CI_lte_proofs   : po_proofs S (A_eqv_eq S A_bmiposg_CI_eqv) A_bmiposg_CI_lte
-; A_bmiposg_CI_times_proofs : sg_CI_proofs S (A_eqv_eq S A_bmiposg_CI_eqv) A_bmiposg_CI_times
-; A_bmiposg_CI_top_bottom   : os_bounded_proofs S (A_eqv_eq S A_bmiposg_CI_eqv) A_bmiposg_CI_lte A_bmiposg_CI_times                                    
-; A_bmiposg_CI_proofs       : os_monotone_increasing_proofs S A_bmiposg_CI_lte A_bmiposg_CI_times 
-; A_bmiposg_CI_ast          : cas_ast
-}.
-
- *)
-
-Definition A_minset_lift_union_from_bounded_monotone_increasing_posg_CI
-             (S : Type) 
-             (P : A_bounded_monotone_increasing_posg_CI S) : A_dioid (finite_set S) := 
-let eqv    := A_bmiposg_CI_eqv _ P in
-let eq     := A_eqv_eq _ eqv in
-let s      := A_eqv_witness _ eqv in
-let f      := A_eqv_new _ eqv in
-let nt     := A_eqv_not_trivial _ eqv in
-let eqvP   := A_eqv_proofs _ eqv in   
-let lte    := A_bmiposg_CI_lte _ P in
-let lteP   := A_bmiposg_CI_lte_proofs _ P in
-let times  := A_bmiposg_CI_times _ P in
-let timesP := A_bmiposg_CI_times_proofs _ P in
-let idem   := A_sg_CI_idempotent _ _ _ timesP in 
-let times_cong := A_sg_CI_congruence _ _ _ timesP in 
-let MOS    := A_bmiposg_CI_proofs _ P in
-let LM     := A_mono_inc_left_monotonic _ _ _ MOS in
-let RM     := A_mono_inc_right_monotonic _ _ _ MOS in
-let LI     := A_mono_inc_left_increasing _ _ _ MOS in
-let PO     := A_po_from_bounded_monotone_increasing_posg_CI _ P in
-let Meqv   := A_eqv_minset_from_po _ PO  in 
-{|
-  A_dioid_eqv           := Meqv 
-; A_dioid_plus          := bop_minset_lift S eq lte times 
-; A_dioid_times         := bop_minset_union S eq lte
-; A_dioid_plus_proofs   := sg_CI_proofs_minset_lift S eq lte s f times nt eqvP lteP timesP LM RM LI
-(* note the loss of info here with the cast-up ... : *)                                                     
-; A_dioid_times_proofs  := A_msg_proofs_from_sg_CI_proofs
-                             (finite_set S)
-                             (brel_minset eq lte)
-                             (bop_minset_union S eq lte)
-                             (A_eqv_witness _ Meqv)
-                             (A_eqv_new _ Meqv)
-                             (A_eqv_not_trivial _ Meqv)
-                             (A_eqv_proofs _ Meqv)
-                             (sg_CI_proofs_minset_union_from_po S eq lte s f nt eqvP lteP)
-; A_dioid_id_ann_proofs := minset_lift_union_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bmiposg_CI_top_bottom _ P)
-; A_dioid_proofs        := minset_lift_union_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times times_cong idem lteP MOS 
-; A_dioid_ast           := A_bmiposg_CI_ast _ P 
-|}.
-
-(* create a dioid from one of these : 
+(* create a dioid from a A_bounded_join_semilattice : 
 
 Record A_bounded_join_semilattice {S : Type} := {
   A_bjsl_eqv           : A_eqv S 
@@ -1075,9 +974,11 @@ let Meqv   := A_eqv_minset_from_po _ PO  in
   A_dioid_eqv           := Meqv 
 ; A_dioid_plus          := bop_minset_lift S eq lte times 
 ; A_dioid_times         := bop_minset_union S eq lte
-; A_dioid_plus_proofs   := sg_CI_proofs_minset_lift S eq lte s f times nt eqvP lteP timesP LM RM LI
-(* again, loss of info ... *)                                                     
-; A_dioid_times_proofs  := A_msg_proofs_from_sg_CI_proofs
+; A_dioid_plus_proofs   := sg_CI_proofs_minset_lift_from_po S eq lte s f times nt eqvP lteP timesP LM RM LI
+(* Hmmm, note the loss of information here with this cast-up ... 
+   Should define a A_commutative_idempotent_dioid .... 
+*)                                                     
+; A_dioid_times_proofs  := A_sg_proofs_from_sg_CI_proofs
                              (finite_set S)
                              (brel_minset eq lte)
                              (bop_minset_union S eq lte)
@@ -1087,7 +988,7 @@ let Meqv   := A_eqv_minset_from_po _ PO  in
                              (A_eqv_proofs _ Meqv)
                              (sg_CI_proofs_minset_union_from_po S eq lte s f nt eqvP lteP)
 ; A_dioid_id_ann_proofs := minset_lift_union_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bjsl_top_bottom _ P)
-; A_dioid_proofs        := minset_lift_union_dioid_proofs_from_lub_proofs S eq lte eqvP times lteP timesP LUB 
+; A_dioid_proofs        := minset_lift_union_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times times_cong idem lteP LM RM LI RI 
 ; A_dioid_ast           := A_bjsl_ast _ P 
 |}.
 

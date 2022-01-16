@@ -205,7 +205,7 @@ let f    := A_eqv_new S eqvS in
 let nt   := A_eqv_not_trivial S eqvS in 
 let refS := A_eqv_reflexive _ _ eqvP in 
 {| 
-     A_sg_eq         := A_eqv_list S eqvS
+     A_sg_eqv         := A_eqv_list S eqvS
    ; A_sg_bop        := @bop_concat S
    ; A_sg_exists_id_d   := inl _ (bop_concat_exists_id S rS refS)
    ; A_sg_exists_ann_d  := inr _ (bop_concat_not_exists_ann S rS s)
@@ -215,6 +215,15 @@ let refS := A_eqv_reflexive _ _ eqvP in
 
 
 End ACAS.
+
+
+Section AMCAS.
+
+Definition A_mcas_sg_concat (S : Type) (A : A_eqv S) : A_sg_mcas (list S) :=
+       A_MCAS_sg (list S) (A_sg_concat S A).     
+
+End AMCAS.   
+
 
 Section CAS.
 
@@ -242,7 +251,7 @@ let t := f s in
 Definition sg_concat: ∀ {S : Type},  eqv (S := S) -> sg (S := (list S)) 
 := λ {S} eqvS, 
    {| 
-     sg_eq      := eqv_list eqvS 
+     sg_eqv      := eqv_list eqvS 
    ; sg_bop     := bop_concat
    ; sg_exists_id_d      := Certify_Exists_Id  nil 
    ; sg_exists_ann_d     := Certify_Not_Exists_Ann  
@@ -251,6 +260,14 @@ Definition sg_concat: ∀ {S : Type},  eqv (S := S) -> sg (S := (list S))
    |}. 
 
 End CAS.
+
+Section MCAS.
+
+Definition mcas_sg_concat {S : Type} (A : @eqv S) : @sg_mcas (list S) :=
+       MCAS_sg (sg_concat A).     
+
+End MCAS.   
+
 
 Section Verify.
 
@@ -273,6 +290,11 @@ Proof. intros S eS. unfold sg_concat, A2C_sg. simpl.
        reflexivity. 
 Qed. 
   
+Theorem correct_mcas_sg_left (S : Type) (eS : A_eqv S) : 
+         mcas_sg_concat (A2C_eqv S eS) 
+         = 
+         A2C_mcas_sg _ (A_mcas_sg_concat _ eS). 
+Proof.  compute. reflexivity. Qed. 
  
 End Verify.   
   

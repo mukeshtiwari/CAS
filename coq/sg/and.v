@@ -114,17 +114,23 @@ Definition sg_CS_proofs_and : sg_CS_proofs bool brel_eq_bool bop_and :=
 ; A_sg_CS_selective    := bop_and_selective
 |}. 
 
-Definition A_sg_CS_and : A_sg_CS bool
+Definition A_sg_and : A_sg_BCS bool
 := {| 
-     A_sg_CS_eqv          := A_eqv_bool
-   ; A_sg_CS_bop          := bop_and
-   ; A_sg_CS_exists_id_d  := inl _ bop_and_exists_id 
-   ; A_sg_CS_exists_ann_d := inl _ bop_and_exists_ann 
-   ; A_sg_CS_proofs       := sg_CS_proofs_and
-   ; A_sg_CS_ast          := Ast_sg_and 
+     A_sg_BCS_eqv          := A_eqv_bool
+   ; A_sg_BCS_bop          := bop_and
+   ; A_sg_BCS_exists_id    := bop_and_exists_id 
+   ; A_sg_BCS_exists_ann   := bop_and_exists_ann 
+   ; A_sg_BCS_proofs       := sg_CS_proofs_and
+   ; A_sg_BCS_ast          := Ast_sg_and 
    |}. 
 
 End ACAS.
+
+Section AMCAS.
+
+Definition A_mcas_sg_and := A_MCAS_sg_BCS bool A_sg_and. 
+
+End AMCAS.  
 
 Section CAS.
 
@@ -138,23 +144,34 @@ Definition sg_CS_certs_and : @sg_CS_certificates bool
    |}. 
 
 
-Definition sg_CS_and : @sg_CS bool
+Definition sg_and : @sg_BCS bool
 := {| 
-     sg_CS_eqv          := eqv_bool
-   ; sg_CS_bop          := bop_and
-   ; sg_CS_exists_id_d  := Certify_Exists_Id  true 
-   ; sg_CS_exists_ann_d := Certify_Exists_Ann  false 
-   ; sg_CS_certs        := sg_CS_certs_and
-   ; sg_CS_ast          := Ast_sg_and 
+     sg_BCS_eqv          := eqv_bool
+   ; sg_BCS_bop          := bop_and
+   ; sg_BCS_exists_id    := Assert_Exists_Id  true 
+   ; sg_BCS_exists_ann   := Assert_Exists_Ann  false 
+   ; sg_BCS_certs        := sg_CS_certs_and
+   ; sg_BCS_ast          := Ast_sg_and 
    |}. 
   
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_sg_and := MCAS_sg_BCS sg_and. 
+
+End MCAS.  
+
+
 Section Verify.
 
 
-Theorem correct_sg_CS_and : sg_CS_and = A2C_sg_CS bool (A_sg_CS_and). 
+Theorem correct_sg_CS_and : sg_and = A2C_sg_BCS bool A_sg_and. 
+Proof. compute. reflexivity. Qed. 
+
+
+Theorem correct_mcas_sg_CS_and : mcas_sg_and = A2C_mcas_sg bool A_mcas_sg_and. 
 Proof. compute. reflexivity. Qed. 
 
  

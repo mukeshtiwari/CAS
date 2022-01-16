@@ -93,39 +93,13 @@ let refS := A_eqv_reflexive _ _ eqvP in
 |}. 
 
   
-Definition msg_proofs_right : ∀ (S : Type) (eqvS : A_eqv S), msg_proofs S (A_eqv_eq S eqvS) (@bop_right S)
-:= λ S eqvS,
-let eqvP := A_eqv_proofs S eqvS in   
-let f    := A_eqv_new S eqvS in
-let s    := A_eqv_witness S eqvS in 
-let rS   := A_eqv_eq S eqvS in 
-let Pf   := A_eqv_not_trivial S eqvS in
-let refS := A_eqv_reflexive _ _ eqvP in 
-{| 
-  A_msg_associative   := bop_right_associative S rS (A_eqv_reflexive _ _ eqvP)
-; A_msg_congruence    := bop_right_congruence S rS 
-; A_msg_commutative_d := inr _ (bop_right_not_commutative S rS s f Pf) 
-; A_msg_is_left_d     := inr _ (bop_right_not_is_left S rS s f Pf) 
-; A_msg_is_right_d    := inl _ (bop_right_is_right S rS (A_eqv_reflexive _ _ eqvP))
-; A_msg_left_cancel_d    := inl _ (bop_right_left_cancellative S rS) 
-; A_msg_right_cancel_d   := inr _ (bop_right_not_right_cancellative S rS s f Pf (A_eqv_reflexive _ _ eqvP))
-; A_msg_left_constant_d  := inr _ (bop_right_not_left_constant S rS s f Pf)
-; A_msg_right_constant_d := inl _ (bop_right_right_constant S rS (A_eqv_reflexive _ _ eqvP))
-; A_msg_anti_left_d      := inr _ (bop_right_not_anti_left S rS s (A_eqv_reflexive _ _ eqvP))
-; A_msg_anti_right_d     := inr _ (bop_right_not_anti_right S rS s (A_eqv_reflexive _ _ eqvP))
-|}. 
-
-  
-
-
-
 Definition A_sg_right : ∀ (S : Type),  A_eqv S -> A_sg S 
 := λ S eqvS, 
   let f  := A_eqv_new S eqvS in 
   let rS := A_eqv_eq S eqvS in 
   let Pf := A_eqv_not_trivial S eqvS in 
   {| 
-     A_sg_eq         := eqvS
+     A_sg_eqv         := eqvS
    ; A_sg_bop        := @bop_right S 
    ; A_sg_exists_id_d   := inr _ (bop_right_not_exists_id S rS f Pf)
    ; A_sg_exists_ann_d  := inr _ (bop_right_not_exists_ann S rS f Pf) 
@@ -136,26 +110,17 @@ Definition A_sg_right : ∀ (S : Type),  A_eqv S -> A_sg S
 
 End ACAS.
 
+Section AMCAS.
+
+Definition A_mcas_sg_right (S : Type) (A : A_eqv S) : A_sg_mcas S :=
+       A_MCAS_sg S (A_sg_right S A).     
+
+End AMCAS.   
+
+
 Section CAS.
 
 
-Definition msg_certs_right : ∀ {S : Type}, @eqv S -> msg_certificates (S := S) 
-:= λ {S} eqvS,
-let s := eqv_witness eqvS in
-let f := eqv_new eqvS in   
-{|
-  msg_associative   := Assert_Associative 
-; msg_congruence    := Assert_Bop_Congruence 
-; msg_commutative_d := Certify_Not_Commutative (f s, s)
-; msg_is_left_d     := Certify_Not_Is_Left (f s, s)
-; msg_is_right_d    := Certify_Is_Right 
-; msg_left_cancel_d    := Certify_Left_Cancellative
-; msg_right_cancel_d   := Certify_Not_Right_Cancellative (s, (s, f s))
-; msg_left_constant_d  := Certify_Not_Left_Constant (s, (s, f s))
-; msg_right_constant_d := Certify_Right_Constant
-; msg_anti_left_d      := Certify_Not_Anti_Left (s, s) 
-; msg_anti_right_d     := Certify_Not_Anti_Right (s, s)
-|}. 
 
 Definition sg_certs_right : ∀ {S : Type},  @eqv S -> @sg_certificates S
 := λ {S} eqvS,
@@ -183,7 +148,7 @@ let f := eqv_new eqvS in
 Definition sg_right : ∀ {S : Type},  eqv (S := S) -> sg (S := S) 
 := λ {S} eqvS, 
    {| 
-     sg_eq        := eqvS
+     sg_eqv        := eqvS
    ; sg_bop       := bop_right
    ; sg_exists_id_d   := Certify_Not_Exists_Id  
    ; sg_exists_ann_d  := Certify_Not_Exists_Ann 
@@ -196,16 +161,15 @@ Definition sg_right : ∀ {S : Type},  eqv (S := S) -> sg (S := S)
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_sg_right {S : Type} (A : @eqv S) : @sg_mcas S :=
+       MCAS_sg (sg_right A).     
+
+End MCAS.   
+
+
 Section Verify.
-
-Lemma correct_msg_certs_right : 
-      ∀ (S : Type) (eS : A_eqv S), 
-       msg_certs_right  (A2C_eqv S eS) 
-       = 
-       P2C_msg S (A_eqv_eq S eS) (@bop_right S) (msg_proofs_right S eS). 
-Proof. intros S eS. compute. reflexivity. Defined. 
-
-  
 
 Lemma correct_sg_certs_right : 
       ∀ (S : Type) (eS : A_eqv S), 
@@ -225,6 +189,11 @@ Proof. intros S eS. unfold sg_right, A2C_sg; simpl.
        reflexivity. 
 Qed. 
 
+Theorem correct_mcas_sg_right (S : Type) (eS : A_eqv S) : 
+         mcas_sg_right (A2C_eqv S eS) 
+         = 
+         A2C_mcas_sg S (A_mcas_sg_right S eS). 
+Proof.  compute. reflexivity. Qed. 
 
   
  

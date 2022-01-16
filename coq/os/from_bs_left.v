@@ -442,7 +442,7 @@ let plusP      := A_pre_dioid_plus_proofs _ D in
 let plus_comm  := A_sg_CI_commutative _ _ _ plusP in 
 let times      := A_pre_dioid_times _ D in
 let timesP     := A_pre_dioid_times_proofs _ D in
-let times_cong := A_msg_congruence _ _ _ timesP in 
+let times_cong := A_sg_congruence _ _ _ timesP in 
 {|
   A_miposg_eqv          := eqv 
 ; A_miposg_lte          := brel_lte_left eq plus
@@ -462,7 +462,7 @@ let eqvP       := A_eqv_proofs _ eqv in
 let plus       := A_dioid_plus _ D in
 let times      := A_dioid_times _ D in
 let timesP     := A_dioid_times_proofs _ D in
-let times_cong := A_msg_congruence _ _ _ timesP in 
+let times_cong := A_sg_congruence _ _ _ timesP in 
 {|
   A_bmiposg_eqv          := eqv 
 ; A_bmiposg_lte          := brel_lte_left eq plus
@@ -481,20 +481,13 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_bs_mcas_minset_union_lift (S : Type) (A : A_bs_mcas S) :=
-  match A with
-  | A_BS_bs _ B => 
-    match A_bs_classify _ B with 
-    | A_BS_dioid _ C => A_OS_bounded_monotone_increasing_posg _ (A_posg_from_dioid _ C)
-    | _ => A_OS_Error _ "structure is not a dioid"
-    end
+Definition A_mcas_posg_from_bs_left  (S : Type) (A : A_bs_mcas S) :=
+  match A_bs_classify _ A with
   | A_BS_dioid _ C => A_OS_bounded_monotone_increasing_posg _ (A_posg_from_dioid _ C)
-  | _ => A_OS_Error _ "ERROR : expecting dioid"
+  | _ => A_OS_Error _ "structure is not a dioid"
   end. 
 
 End AMCAS.   
-
-
 
 Section CAS.
 
@@ -630,15 +623,11 @@ End CAS.
 
 Section MCAS.
 
-Definition posg_from_bs {S : Type} (A : @bs_mcas S) : @os_mcas S :=
-  match A with
-  | BS_bs B => 
-    match bs_classify B with 
-    | BS_dioid C => OS_bounded_monotone_increasing_posg (posg_from_dioid _ C)
-    | _ => OS_Error "structure is not a dioid"
-    end
+
+Definition mcas_posg_from_bs_left  (S : Type) (A : @bs_mcas S) :=
+  match bs_classify A with
   | BS_dioid C => OS_bounded_monotone_increasing_posg (posg_from_dioid _ C)
-  | _ => OS_Error "ERROR : expecting dioid"
+  | _ => OS_Error "structure is not a dioid"
   end. 
 
 End MCAS.   

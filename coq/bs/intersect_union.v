@@ -22,33 +22,55 @@ Section Theory.
 End Theory.
 
 Section ACAS.
-(*
-Definition A_distributive_prelattice_intersect_union (S : Type) (eqv : A_eqv S) : A_distributive_prelattice (finite_set S)
-               := A_distributive_prelattice_dual _ (A_distributive_prelattice_union_intersect S eqv). 
-*) 
+
+Definition A_bs_intersect_union (S : Type) (c : cas_constant) (eqv : A_eqv S) := 
+              A_distributive_lattice_dual _ (A_bs_union_intersect S c eqv). 
+
 End ACAS.
 
+Section AMCAS.
+
+Definition A_mcas_bs_intersect_union (S : Type) (c : cas_constant) (eqv : A_eqv S) :=
+    A_BS_distributive_lattice _ (A_bs_intersect_union S c eqv).
+
+End AMCAS.
+
+
 Section CAS.
-(*
-Definition distributive_prelattice_intersect_union (S : Type) (eqv : @eqv S) : @distributive_prelattice (finite_set S) 
-               := distributive_prelattice_dual (@distributive_prelattice_union_intersect S eqv).   
-*) 
+Definition bs_intersect_union {S : Type} (c : cas_constant) (eqv : @eqv S) := 
+               distributive_lattice_dual (bs_union_intersect c eqv).   
 End CAS.
+
+
+Section MCAS.
+
+Definition mcas_bs_intersect_union (S : Type) (c : cas_constant) (eqv : @eqv S) :=
+    BS_distributive_lattice (bs_intersect_union c eqv).
+
+End MCAS.
+
 
 Section Verify.
 
-(*
-
-Theorem correct_distributive_prelattice_intersect_union : ∀ (S : Type) (eqv: A_eqv S), 
-    distributive_prelattice_intersect_union S (A2C_eqv S eqv)
+Theorem correct_intersect_union (S : Type) (c : cas_constant) (eqv: A_eqv S) : 
+    bs_intersect_union c (A2C_eqv S eqv)
     =
-    A2C_distributive_prelattice _ (A_distributive_prelattice_intersect_union S eqv). 
-Proof. intros S eqv.  unfold distributive_prelattice_intersect_union, A_distributive_prelattice_intersect_union.
-       rewrite <- correct_distributive_prelattice_dual.
-       rewrite correct_distributive_prelattice_union_intersect.       
+    A2C_distributive_lattice _ (A_bs_intersect_union S c eqv). 
+Proof. unfold bs_intersect_union, A_bs_intersect_union.
+       rewrite <- correct_distributive_lattice_dual.
+       rewrite correct_union_intersect.       
        reflexivity.
 Qed. 
-*) 
+
+Theorem bop_mcas_intersect_union_correct (S : Type) (c : cas_constant) (eqvS : A_eqv S): 
+         mcas_bs_intersect_union _ c (A2C_eqv S eqvS)  
+         = 
+         A2C_mcas_bs _ (A_mcas_bs_intersect_union _ c eqvS). 
+Proof. unfold mcas_bs_intersect_union, A_mcas_bs_intersect_union, A2C_mcas_bs. 
+       rewrite correct_intersect_union. 
+       reflexivity. 
+Qed.  
+
 
 End Verify.   
   

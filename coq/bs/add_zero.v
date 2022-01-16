@@ -506,8 +506,8 @@ let timesP := A_bs_times_proofs S bsS in
      A_bs_eqv          := A_eqv_add_constant S eqv c 
    ; A_bs_plus         := bop_add_id plus c
    ; A_bs_times        := bop_add_ann times c
-   ; A_bs_plus_proofs  := asg_proofs_add_id S eq c plus wS eqvP plusP
-   ; A_bs_times_proofs := msg_proofs_add_ann S eq c times wS f nt eqvP timesP
+   ; A_bs_plus_proofs  := sg_proofs_add_id S eq c plus wS f nt eqvP plusP
+   ; A_bs_times_proofs := sg_proofs_add_ann S eq c times wS f nt eqvP timesP
    ; A_bs_id_ann_proofs := id_ann_proofs_add_zero S eq c plus times wS eqvP (A_bs_id_ann_proofs S bsS)
    ; A_bs_proofs       := bs_proofs_add_zero S eq c plus times eqvP (A_bs_proofs S bsS)
    ; A_bs_ast          := Ast_bs_add_zero (c, A_bs_ast S bsS)
@@ -531,7 +531,7 @@ let timesP := A_bs_CI_times_proofs S bsS in
    ; A_bs_CI_plus         := bop_add_id plus c
    ; A_bs_CI_times        := bop_add_ann times c
    ; A_bs_CI_plus_proofs  := sg_CI_proofs_add_id S eq c plus wS eqvP plusP
-   ; A_bs_CI_times_proofs := msg_proofs_add_ann S eq c times wS f nt eqvP timesP
+   ; A_bs_CI_times_proofs := sg_proofs_add_ann S eq c times wS f nt eqvP timesP
    ; A_bs_CI_id_ann_proofs := id_ann_proofs_add_zero S eq c plus times wS eqvP (A_bs_CI_id_ann_proofs S bsS)
    ; A_bs_CI_proofs       := bs_proofs_add_zero S eq c plus times eqvP (A_bs_CI_proofs S bsS)
    ; A_bs_CI_ast          := Ast_bs_add_zero (c, A_bs_CI_ast S bsS)
@@ -554,7 +554,7 @@ let timesP := A_bs_CS_times_proofs S bsS in
    ; A_bs_CS_plus         := bop_add_id plus c
    ; A_bs_CS_times        := bop_add_ann times c
    ; A_bs_CS_plus_proofs  := sg_CS_proofs_add_id S eq c plus wS eqvP plusP
-   ; A_bs_CS_times_proofs := msg_proofs_add_ann S eq c times wS f nt eqvP timesP
+   ; A_bs_CS_times_proofs := sg_proofs_add_ann S eq c times wS f nt eqvP timesP
    ; A_bs_CS_id_ann_proofs := id_ann_proofs_add_zero S eq c plus times wS eqvP (A_bs_CS_id_ann_proofs S bsS)
    ; A_bs_CS_proofs       := bs_proofs_add_zero S eq c plus times eqvP (A_bs_CS_proofs S bsS)
    ; A_bs_CS_ast          := Ast_bs_add_zero (c, A_bs_CS_ast S bsS)
@@ -577,7 +577,7 @@ let tproofs := A_pre_dioid_times_proofs S bsS in
    ; A_pre_dioid_with_zero_plus         := bop_add_id plus c
    ; A_pre_dioid_with_zero_times        := bop_add_ann times c
    ; A_pre_dioid_with_zero_plus_proofs  := sg_CI_proofs_add_id S rS c plus s peqvS pproofs 
-   ; A_pre_dioid_with_zero_times_proofs  := msg_proofs_add_ann S rS c times s f Pf peqvS tproofs
+   ; A_pre_dioid_with_zero_times_proofs  := sg_proofs_add_ann S rS c times s f Pf peqvS tproofs
    ; A_pre_dioid_with_zero_id_ann_proofs := pann_is_tid_proofs_add_zero S _ c plus times s peqvS (A_pre_dioid_id_ann_proofs S bsS)
    ; A_pre_dioid_with_zero_proofs        := dioid_proofs_add_zero S rS c plus times peqvS (A_pre_dioid_proofs S bsS)
    ; A_pre_dioid_with_zero_ast           := Ast_bs_add_one (c, A_pre_dioid_ast S bsS) (*FIX*)
@@ -600,7 +600,7 @@ let tproofs := A_pre_dioid_with_one_times_proofs S bsS in
    ; A_dioid_plus         := bop_add_id plus c
    ; A_dioid_times        := bop_add_ann times c
    ; A_dioid_plus_proofs  := sg_CI_proofs_add_id S rS c plus s peqvS pproofs 
-   ; A_dioid_times_proofs := msg_proofs_add_ann S rS c times s f Pf peqvS tproofs
+   ; A_dioid_times_proofs := sg_proofs_add_ann S rS c times s f Pf peqvS tproofs
    ; A_dioid_id_ann_proofs := dually_bounded_proofs_add_zero S _ c plus times  peqvS (A_pre_dioid_with_one_id_ann_proofs S bsS)
    ; A_dioid_proofs       := dioid_proofs_add_zero S rS c plus times peqvS (A_pre_dioid_with_one_proofs S bsS)
    ; A_dioid_ast          := Ast_bs_add_one (c, A_pre_dioid_with_one_ast S bsS) (*FIX*)
@@ -624,7 +624,7 @@ let tproofs := A_selective_pre_dioid_with_one_times_proofs S bsS in
    ; A_selective_dioid_plus         := bop_add_id plus c
    ; A_selective_dioid_times        := bop_add_ann times c
    ; A_selective_dioid_plus_proofs  := sg_CS_proofs_add_id S rS c plus s peqvS pproofs 
-   ; A_selective_dioid_times_proofs := msg_proofs_add_ann S rS c times s f Pf peqvS tproofs
+   ; A_selective_dioid_times_proofs := sg_proofs_add_ann S rS c times s f Pf peqvS tproofs
    ; A_selective_dioid_id_ann_proofs := dually_bounded_proofs_add_zero S _ c plus times  peqvS (A_selective_pre_dioid_with_one_id_ann_proofs S bsS)
    ; A_selective_dioid_proofs       := dioid_proofs_add_zero S rS c plus times peqvS (A_selective_pre_dioid_with_one_proofs S bsS)
    ; A_selective_dioid_ast          := Ast_bs_add_one (c, A_selective_pre_dioid_with_one_ast S bsS) (*FIX*)
@@ -633,13 +633,15 @@ let tproofs := A_selective_pre_dioid_with_one_times_proofs S bsS in
 End Combinators.   
 End ACAS.
 
-Section AMCAS. 
+Section AMCAS.
 
-Definition A_bs_mcas_add_zero (S : Type) (A : A_bs_mcas S) (c : cas_constant) := 
-  match (A_bs_from_mcas _ A) with
-  | A_BS_bs _ B => A_BS_bs _ (A_bs_add_zero _ B c)
+Open Scope string_scope.   
+
+Definition A_mcas_bs_add_zero (S : Type) (A : A_bs_mcas S) (c : cas_constant) := 
+  match (A_bs_mcas_cast_up _ A) with
+  | A_BS_bs _ B => A_bs_classify _ (A_BS_bs _ (A_bs_add_zero _ B c))
   | A_BS_Error _ str => A_BS_Error _ str                                                                                      
-  | _ => A_BS_Error _ "internal error : A_bs_mcas_add_zero"
+  | _ => A_BS_Error _ ("internal error : A_bs_mcas_add_zero" :: nil) 
   end.
 
 End AMCAS. 
@@ -818,8 +820,8 @@ let f :=   eqv_new (bs_eqv bsS) in
      bs_eqv         := eqv_add_constant (bs_eqv bsS) c 
    ; bs_plus        := bop_add_id (bs_plus bsS) c
    ; bs_times       := bop_add_ann (bs_times bsS) c
-   ; bs_plus_certs  := asg_certs_add_id c s (bs_plus_certs bsS) 
-   ; bs_times_certs := msg_certs_add_ann c s f (bs_times_certs bsS)
+   ; bs_plus_certs  := sg_certs_add_id c s f (bs_plus_certs bsS) 
+   ; bs_times_certs := sg_certs_add_ann c s f (bs_times_certs bsS)
    ; bs_id_ann_certs := id_ann_certs_add_zero c (bs_id_ann_certs bsS)
    ; bs_certs       := bs_certs_add_zero (bs_certs bsS)
    ; bs_ast         := Ast_bs_add_zero (c, bs_ast bsS)
@@ -881,11 +883,13 @@ End CAS.
 
 Section MCAS. 
 
-Definition bs_mcas_add_zero {S : Type} (A : @bs_mcas S) (c : cas_constant) := 
-  match (bs_from_mcas A) with
-  | BS_bs B => BS_bs (bs_add_zero B c)
+Open Scope string_scope.
+  
+Definition mcas_bs_add_zero {S : Type} (A : @bs_mcas S) (c : cas_constant) := 
+  match (bs_mcas_cast_up A) with
+  | BS_bs B => bs_classify (BS_bs (bs_add_zero B c))
   | BS_Error str => BS_Error str                                                                                      
-  | _ => BS_Error "internal error : A_bs_mcas_add_zero"
+  | _ => BS_Error ("internal error : A_bs_mcas_add_zero" :: nil) 
   end.
 
 End MCAS. 
@@ -1036,13 +1040,24 @@ Theorem correct_bs_add_zero (S : Type) (bsS: A_bs S) (c : cas_constant) :
    A2C_bs (with_constant S) (A_bs_add_zero S bsS c). 
 Proof. unfold bs_add_zero, A_bs_add_zero, A2C_bs; simpl. 
        rewrite correct_eqv_add_constant. 
-       rewrite <- correct_msg_certs_add_ann. 
-       rewrite <- correct_asg_certs_add_id. 
+       rewrite <- correct_sg_certs_add_ann. 
+       rewrite <- correct_sg_certs_add_id. 
        rewrite correct_bs_certs_add_zero.
        rewrite correct_id_ann_certs_add_zero. 
        reflexivity. 
 Qed. 
 
+Theorem correct_mcas_bs_add_zero (S : Type) (c : cas_constant) (sgS : A_bs_mcas S) : 
+         mcas_bs_add_zero (A2C_mcas_bs S sgS) c 
+         = 
+         A2C_mcas_bs (with_constant S) (A_mcas_bs_add_zero S sgS c).
+Proof. unfold mcas_bs_add_zero, A_mcas_bs_add_zero. 
+       rewrite correct_bs_mcas_cast_up.       
+       destruct (A_bs_cas_up_is_error_or_bs S sgS) as [[l1 A] | [s1 A]]. 
+       + rewrite A; simpl. reflexivity. 
+       + rewrite A; simpl. rewrite correct_bs_add_zero.
+         apply correct_bs_classify_bs.          
+Qed. 
 
 End Combinators. 
 

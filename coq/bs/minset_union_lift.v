@@ -17,6 +17,7 @@ Require Import CAS.coq.po.theory.
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
+Require Import CAS.coq.sg.cast_up. 
 Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.minset_union.
 Require Import CAS.coq.sg.lift.
@@ -28,6 +29,7 @@ Require Import CAS.coq.bs.theory.
 
 Require Import CAS.coq.os.properties.
 Require Import CAS.coq.os.structures.
+Require Import CAS.coq.os.theory. 
 
 
 
@@ -917,8 +919,10 @@ Definition  minset_union_lift_dioid_proofs_from_monotone_increasing_proofs
             (anti : brel_antisymmetric S eq lte)
             (times_cong : bop_congruence S eq times) 
             (P : po_proofs S eq lte)
-            (G : msg_proofs S eq times)            
-            (M : os_monotone_increasing_proofs S lte times) :
+            (LM : os_left_monotone lte times)
+            (RM : os_right_monotone lte times)
+            (LI : os_left_increasing lte times)
+            (RI : os_right_increasing lte times) : 
                 dioid_proofs (finite_set S)
                              (brel_minset eq lte)
                              (bop_minset_union S eq lte)
@@ -929,10 +933,6 @@ let lte_cong := A_po_congruence _ _ _ P in
 let ref := A_eqv_reflexive _ _ eqvP in
 let sym := A_eqv_symmetric _ _ eqvP in
 let trn := A_eqv_transitive _ _ eqvP in      
-let LM := A_mono_inc_left_monotonic _ _ _ M in 
-let RM := A_mono_inc_right_monotonic _ _ _ M in 
-let LI := A_mono_inc_left_increasing _ _ _ M in
-let RI := A_mono_inc_right_increasing _ _ _ M in 
 {| 
   A_dioid_left_distributive     := minset_union_lift_left_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM (inl anti) 
 ; A_dioid_right_distributive    := minset_union_lift_right_distributive S eq ref sym trn lte lte_cong lte_ref lte_trn times times_cong LM RM (inl anti) 
@@ -968,34 +968,97 @@ End Proofs.
 
 Section Combinators.
 
-Definition A_minset_union_lift_from_bounded_monotone_increasing_posg
+
+Definition A_minset_union_lift_from_bounded_join_semilattice
              (S : Type) 
-             (P : A_bounded_monotone_increasing_posg S) : A_dioid (finite_set S) := 
-let eqv    := A_bmiposg_eqv _ P in
+             (P : A_bounded_join_semilattice S) : A_dioid (finite_set S) := 
+let eqv    := A_bjsl_eqv _ P in
+let eq     := A_eqv_eq _ eqv in
+let wS     := A_eqv_witness _ eqv in
+let f      := A_eqv_new _ eqv in
+let nt     := A_eqv_not_trivial _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in
+let ref := A_eqv_reflexive _ _ eqvP in
+let sym := A_eqv_symmetric _ _ eqvP in
+let trn := A_eqv_transitive _ _ eqvP in
+
+
+let lte      := A_bjsl_lte _ P in
+let lteP     := A_bjsl_lte_proofs _ P in
+let lte_cong := A_po_congruence _ _ _ lteP in 
+let lte_ref  := A_po_reflexive _ _ _ lteP in 
+let anti     := A_po_antisymmetric _ _ _ lteP in 
+
+let times      := A_bjsl_join _ P in
+let timesP     := A_bjsl_join_proofs _ P in
+let times_cong := A_sg_CI_congruence _ _ _ timesP in
+let assoc      := A_sg_CI_associative _ _ _ timesP in
+let idem       := A_sg_CI_idempotent _ _ _ timesP in
+let comm       := A_sg_CI_commutative _ _ _ timesP in 
+
+let LUB    := A_bjsl_proofs _ P in
+let LM     := lub_is_left_monotone _ _ _ ref sym trn lte_cong lte_ref anti times times_cong assoc idem comm LUB in 
+let RM     := lub_is_right_monotone _ _ _ ref sym trn lte_cong lte_ref anti times times_cong assoc idem comm LUB in 
+let LI     := lub_is_left_increasing _ _ _ ref sym trn lte_cong lte_ref anti times times_cong assoc idem comm LUB in
+let RI     := lub_is_right_increasing _ _ _ ref sym trn lte_cong lte_ref anti times times_cong assoc idem comm LUB in 
+let PO     := A_po_from_bounded_join_semilattice _ P in
+let Deqv   := A_eqv_minset_from_po _ PO in 
+{|
+  A_dioid_eqv           := Deqv
+; A_dioid_plus          := bop_minset_union S eq lte
+; A_dioid_times         := bop_minset_lift S eq lte times 
+; A_dioid_plus_proofs   := sg_CI_proofs_minset_union_from_po S eq lte wS f nt eqvP lteP
+(* need A_commutative_idempotent_dioid  ? *)                                                            
+; A_dioid_times_proofs  := A_sg_proofs_from_sg_CI_proofs _ _ _ 
+                              (A_eqv_witness _ Deqv)
+                              (A_eqv_new _ Deqv)
+                              (A_eqv_not_trivial _ Deqv)
+                              (A_eqv_proofs _ Deqv) 
+                              (sg_CI_proofs_minset_lift_from_po S eq lte wS f times nt eqvP lteP timesP LM RM LI)
+; A_dioid_id_ann_proofs := minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bjsl_top_bottom _ P)
+; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP LM RM LI RI
+; A_dioid_ast           := A_bjsl_ast _ P 
+|}.
+
+  
+
+Definition A_minset_union_lift_from_bounded_monotone_increasing_posg_CNI
+             (S : Type) 
+             (P : A_bounded_monotone_increasing_posg_CNI S) : A_dioid (finite_set S) := 
+let eqv    := A_bmiposg_CNI_eqv _ P in
 let eq     := A_eqv_eq _ eqv in
 let wS     := A_eqv_witness _ eqv in
 let f      := A_eqv_new _ eqv in
 let nt     := A_eqv_not_trivial _ eqv in
 let eqvP   := A_eqv_proofs _ eqv in   
-let lte    := A_bmiposg_lte _ P in
-let lteP   := A_bmiposg_lte_proofs _ P in
+let lte    := A_bmiposg_CNI_lte _ P in
+let lteP   := A_bmiposg_CNI_lte_proofs _ P in
 let anti   := A_po_antisymmetric _ _ _ lteP in 
-let times  := A_bmiposg_times _ P in
-let timesP := A_bmiposg_times_proofs _ P in
-let times_cong := A_msg_congruence _ _ _ timesP in 
-let MOS    := A_bmiposg_proofs _ P in
+let times  := A_bmiposg_CNI_times _ P in
+let timesP := A_bmiposg_CNI_times_proofs _ P in
+let times_cong := A_sg_CNI_congruence _ _ _ timesP in 
+let MOS    := A_bmiposg_CNI_proofs _ P in
 let LM     := A_mono_inc_left_monotonic _ _ _ MOS in
 let RM     := A_mono_inc_right_monotonic _ _ _ MOS in 
-let PO     := A_po_from_bounded_monotone_increasing_posg _ P in
+let LI     := A_mono_inc_left_increasing _ _ _ MOS in
+let RI     := A_mono_inc_right_increasing _ _ _ MOS in
+let PO     := A_po_from_bounded_monotone_increasing_posg_CNI _ P in
+let Deqv   := A_eqv_minset_from_po _ PO in
 {|
-  A_dioid_eqv           := A_eqv_minset_from_po _ PO 
+  A_dioid_eqv           := Deqv
 ; A_dioid_plus          := bop_minset_union S eq lte
 ; A_dioid_times         := bop_minset_lift S eq lte times 
-; A_dioid_plus_proofs   := sg_CI_proofs_minset_union_from_po S eq lte wS f nt eqvP lteP 
-; A_dioid_times_proofs  := A_minset_lift_monotone_increasing_os_proofs_to_msg_proofs S eq lte times eqvP wS f nt lteP timesP MOS  
-; A_dioid_id_ann_proofs := minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bmiposg_top_bottom _ P)
-; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP timesP (A_bmiposg_proofs _ _)
-; A_dioid_ast           := A_bmiposg_ast _ P 
+; A_dioid_plus_proofs   := sg_CI_proofs_minset_union_from_po S eq lte wS f nt eqvP lteP
+(* need A_commutative_dioid  ? *)                                                                    
+; A_dioid_times_proofs  := A_sg_proofs_from_sg_CNI_proofs _ _ _ 
+                              (A_eqv_witness _ Deqv)
+                              (A_eqv_new _ Deqv)
+                              (A_eqv_not_trivial _ Deqv)
+                              (A_eqv_proofs _ Deqv) 
+                              (sg_CNI_proofs_minset_lift_from_po S eq lte wS f times nt eqvP lteP timesP LM RM)
+; A_dioid_id_ann_proofs := minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bmiposg_CNI_top_bottom _ P)
+; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP LM RM LI RI 
+; A_dioid_ast           := A_bmiposg_CNI_ast _ P 
 |}.
 
   
@@ -1005,10 +1068,12 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_os_mcas_minset_union_lift (S : Type) (A : A_os_mcas S) :=
-  match A_os_classify _ A with
-  | A_OS_bounded_monotone_increasing_posg _ C =>  A_BS_dioid _ (A_minset_union_lift_from_bounded_monotone_increasing_posg _ C)
-  | _ => A_BS_Error _ "ERROR : expecting a bounded monotone increasing posg"
+  Open Scope string_scope.
+
+Definition A_os_mcas_minset_union_lift_from_bounded_join_semilattice (S : Type) (A : A_os_mcas S) :=
+  match A with
+  | A_OS_bounded_join_semilattice _ C =>  A_BS_dioid _ (A_minset_union_lift_from_bounded_join_semilattice _ C)
+  | _ => A_BS_Error _ ("ERROR : expecting a bounded monotone increasing posg" :: nil) 
   end. 
 
 End AMCAS.   
@@ -1024,7 +1089,7 @@ Section Proofs.
 
 Definition  minset_union_lift_dioid_certs_from_monotone_increasing_certs {S : Type}
             (P : @po_certificates S)
-            (G : @msg_certificates S )            
+            (G : @sg_certificates S )            
             (M : @os_monotone_increasing_certificates S) :
                  @dioid_certificates (finite_set S) := 
 {| 
@@ -1052,6 +1117,7 @@ End Proofs.
 
 Section Combinators.
 
+(*  
 Definition minset_union_lift_from_bounded_monotone_increasing_posg
              {S : Type} 
              (P : @bounded_monotone_increasing_posg S) : @dioid (finite_set S) := 
@@ -1072,24 +1138,27 @@ let PO     := po_from_bounded_monotone_increasing_posg P in
 ; dioid_plus          := bop_minset_union S eq lte
 ; dioid_times         := bop_minset_lift S eq lte times 
 ; dioid_plus_certs    := sg_CI_certs_minset_union_from_po lteP 
-; dioid_times_certs   := minset_lift_monotone_increasing_os_certs_to_msg_certs wS f timesP MOS
+; dioid_times_certs   := minset_lift_monotone_increasing_os_certs_to_sg_certs wS f timesP MOS
 ; dioid_id_ann_certs  := minset_union_lift_bs_bounded_certs_from_os_bounded_certs lteP LM RM (bmiposg_top_bottom P)
 ; dioid_certs         := minset_union_lift_dioid_certs_from_monotone_increasing_certs lteP timesP (bmiposg_certs P)
 ; dioid_ast           := bmiposg_ast P 
 |}.
-  
+*)   
 End Combinators.   
 End CAS. 
 
 
 Section MCAS.
 
-Definition os_mcas_minset_union_lift {S : Type} (A : @os_mcas S) : @bs_mcas (finite_set S) :=
-  match os_classify A with
-  | OS_bounded_monotone_increasing_posg C =>  BS_dioid (minset_union_lift_from_bounded_monotone_increasing_posg C)
-  | _ => BS_Error "ERROR : expecting a bounded monotone increasing posg"
-  end. 
+Open Scope string_scope.
 
+(*
+Definition os_mcas_minset_union_lift_from_bounded_join_semilattice {S : Type} (A : @os_mcas S) : @bs_mcas (finite_set S) :=
+  match os_classify A with
+  | OS_bounded_join_semilattice C =>  BS_dioid (minset_union_lift_from_bounded_join_semilattice C)
+  | _ => BS_Error ("ERROR : expecting a bounded monotone increasing posg" :: nil) 
+  end. 
+*) 
 End MCAS.   
 
 

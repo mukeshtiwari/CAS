@@ -105,18 +105,23 @@ Definition sg_C_proofs_times : sg_C_proofs nat brel_eq_nat bop_times :=
 |}. 
 
 
-Definition A_sg_C_times : A_sg_C nat 
+Definition A_sg_times : A_sg_BC nat 
 := {| 
-     A_sg_C_eqv          := A_eqv_nat 
-   ; A_sg_C_bop          := bop_times
-   ; A_sg_C_exists_id_d  := inl _ bop_times_exists_id
-   ; A_sg_C_exists_ann_d := inl _ bop_times_exists_ann
-   ; A_sg_C_proofs       := sg_C_proofs_times
-   
-   ; A_sg_C_ast          := Ast_sg_times
+     A_sg_BC_eqv          := A_eqv_nat 
+   ; A_sg_BC_bop          := bop_times
+   ; A_sg_BC_exists_id    := bop_times_exists_id
+   ; A_sg_BC_exists_ann   := bop_times_exists_ann
+   ; A_sg_BC_proofs       := sg_C_proofs_times
+   ; A_sg_BC_ast          := Ast_sg_times
    |}. 
 
 End ACAS.
+
+Section AMCAS.
+
+Definition A_mcas_sg_times : A_sg_mcas nat := A_MCAS_sg_BC nat A_sg_times.  
+
+End AMCAS.  
 
 
 Section CAS.
@@ -136,25 +141,34 @@ Definition sg_C_certs_times : @sg_C_certificates nat
    ; sg_C_anti_right_d   := Certify_Not_Anti_Right (0, 0)
   |}.
 
-Definition sg_C_times : @sg_C nat 
+Definition sg_times : @sg_BC nat 
 := {| 
-     sg_C_eqv   := eqv_eq_nat 
-   ; sg_C_bop   := bop_times
-   ; sg_C_exists_id_d    := Certify_Exists_Id 1 
-   ; sg_C_exists_ann_d   := Certify_Exists_Ann 0
-   ; sg_C_certs := sg_C_certs_times
-   
-   ; sg_C_ast   := Ast_sg_times
+     sg_BC_eqv          := eqv_eq_nat 
+   ; sg_BC_bop          := bop_times
+   ; sg_BC_exists_id    := Assert_Exists_Id 1 
+   ; sg_BC_exists_ann   := Assert_Exists_Ann 0
+   ; sg_BC_certs        := sg_C_certs_times
+   ; sg_BC_ast          := Ast_sg_times
    |}. 
 
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_sg_times : @sg_mcas nat := MCAS_sg_BC sg_times.  
+
+End MCAS.  
+
+
 Section Verify.
 
-Theorem correct_sg_C_times : sg_C_times = A2C_sg_C nat (A_sg_C_times). 
+Theorem correct_sg_C_times : sg_times = A2C_sg_BC nat (A_sg_times). 
 Proof. compute. reflexivity. Qed.
 
- 
+
+Theorem correct_mcas_times : mcas_sg_times = A2C_mcas_sg nat A_mcas_sg_times. 
+Proof. compute. reflexivity. Qed.
+
 End Verify.   
   

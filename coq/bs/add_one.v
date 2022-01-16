@@ -566,14 +566,14 @@ let q := A_pid_is_tann_plus_times _ _ _ _ pS in
 
 
 Definition bs_proofs_add_one 
-     (ppS : asg_proofs S rS plusS)
+     (ppS : sg_proofs S rS plusS)
      (pS : bs_proofs S rS plusS timesS) : 
         bs_proofs 
            (with_constant S) 
            (brel_sum brel_constant rS)
            (bop_add_ann plusS c)
            (bop_add_id timesS c) :=
-let idemS_d := A_asg_idempotent_d S rS plusS ppS in
+let idemS_d := A_sg_idempotent_d S rS plusS ppS in
 let LD  := A_bs_left_distributive_d S rS plusS timesS pS in 
 let RD  := A_bs_right_distributive_d S rS plusS timesS pS in 
 let LLA := A_bs_left_left_absorptive_d S rS plusS timesS pS in
@@ -654,8 +654,8 @@ let tproofs := A_bs_times_proofs S bsS in
      A_bs_eqv           := A_eqv_add_constant S eqvS c 
    ; A_bs_plus          := bop_add_ann plus c
    ; A_bs_times         := bop_add_id times c
-   ; A_bs_plus_proofs   := asg_proofs_add_ann S rS c plus s peqvS pproofs 
-   ; A_bs_times_proofs  := msg_proofs_add_id S rS c times s f Pf peqvS tproofs
+   ; A_bs_plus_proofs   := sg_proofs_add_ann S rS c plus s f Pf peqvS pproofs 
+   ; A_bs_times_proofs  := sg_proofs_add_id S rS c times s f Pf peqvS tproofs
    ; A_bs_id_ann_proofs := id_ann_proofs_add_one  S rS c plus times s peqvS (A_bs_id_ann_proofs S bsS)
    ; A_bs_proofs        := bs_proofs_add_one S rS c plus times peqvS pproofs (A_bs_proofs S bsS)
    ; A_bs_ast           := Ast_bs_add_one (c, A_bs_ast S bsS)
@@ -678,10 +678,10 @@ let tproofs := A_bs_CI_times_proofs S bsS in
    ; A_bs_CI_plus          := bop_add_ann plus c
    ; A_bs_CI_times         := bop_add_id times c
    ; A_bs_CI_plus_proofs   := sg_CI_proofs_add_ann S rS c plus s peqvS pproofs 
-   ; A_bs_CI_times_proofs  := msg_proofs_add_id S rS c times s f Pf peqvS tproofs
+   ; A_bs_CI_times_proofs  := sg_proofs_add_id S rS c times s f Pf peqvS tproofs
    ; A_bs_CI_id_ann_proofs := id_ann_proofs_add_one  S rS c plus times s peqvS (A_bs_CI_id_ann_proofs S bsS)
    ; A_bs_CI_proofs        := bs_proofs_add_one S rS c plus times peqvS
-                                                (A_asg_proofs_from_sg_CI_proofs S rS plus s f Pf peqvS pproofs)
+                                                (A_sg_proofs_from_sg_CI_proofs S rS plus s f Pf peqvS pproofs)
                                                 (A_bs_CI_proofs S bsS)
    ; A_bs_CI_ast           := Ast_bs_add_one (c, A_bs_CI_ast S bsS)
 |}.
@@ -702,10 +702,10 @@ let tproofs := A_bs_CS_times_proofs S bsS in
    ; A_bs_CS_plus          := bop_add_ann plus c
    ; A_bs_CS_times         := bop_add_id times c
    ; A_bs_CS_plus_proofs   := sg_CS_proofs_add_ann S rS c plus s peqvS pproofs 
-   ; A_bs_CS_times_proofs  := msg_proofs_add_id S rS c times s f Pf peqvS tproofs
+   ; A_bs_CS_times_proofs  := sg_proofs_add_id S rS c times s f Pf peqvS tproofs
    ; A_bs_CS_id_ann_proofs := id_ann_proofs_add_one  S rS c plus times s peqvS (A_bs_CS_id_ann_proofs S bsS)
    ; A_bs_CS_proofs        := bs_proofs_add_one S rS c plus times peqvS
-                                                (A_asg_proofs_from_sg_CS_proofs S rS plus s f Pf peqvS pproofs)
+                                                (A_sg_proofs_from_sg_CS_proofs S rS plus s f Pf peqvS pproofs)
                                                 (A_bs_CS_proofs S bsS)
    ; A_bs_CS_ast           := Ast_bs_add_one (c, A_bs_CS_ast S bsS)
 |}.
@@ -730,7 +730,7 @@ let comm   := A_sg_CI_commutative _ _ _ pproofs in
    ; A_pre_dioid_with_one_plus         := bop_add_ann plus c
    ; A_pre_dioid_with_one_times        := bop_add_id times c
    ; A_pre_dioid_with_one_plus_proofs  := sg_CI_proofs_add_ann S rS c plus s peqvS pproofs 
-   ; A_pre_dioid_with_one_times_proofs := msg_proofs_add_id S rS c times s f Pf peqvS tproofs
+   ; A_pre_dioid_with_one_times_proofs := sg_proofs_add_id S rS c times s f Pf peqvS tproofs
    ; A_pre_dioid_with_one_id_ann_proofs := pann_is_tid_proofs_add_one S _ c plus times s peqvS (A_pre_dioid_id_ann_proofs S bsS)
    ; A_pre_dioid_with_one_proofs       := dioid_proofs_add_one S rS c plus times peqvS idem comm (A_pre_dioid_proofs S bsS)
    ; A_pre_dioid_with_one_ast          := Ast_bs_add_one (c, A_pre_dioid_ast S bsS) (*FIX*)
@@ -755,7 +755,7 @@ let comm   := A_sg_CI_commutative _ _ _ pproofs in
    ; A_dioid_plus         := bop_add_ann plus c
    ; A_dioid_times        := bop_add_id times c
    ; A_dioid_plus_proofs  := sg_CI_proofs_add_ann S rS c plus s peqvS pproofs 
-   ; A_dioid_times_proofs := msg_proofs_add_id S rS c times s f Pf peqvS tproofs
+   ; A_dioid_times_proofs := sg_proofs_add_id S rS c times s f Pf peqvS tproofs
    ; A_dioid_id_ann_proofs := dually_bounded_proofs_add_one S _ c plus times  peqvS (A_pre_dioid_with_zero_id_ann_proofs S bsS)
    ; A_dioid_proofs       := dioid_proofs_add_one S rS c plus times peqvS idem comm (A_pre_dioid_with_zero_proofs S bsS)
    ; A_dioid_ast          := Ast_bs_add_one (c, A_pre_dioid_with_zero_ast S bsS) (*FIX*)
@@ -780,7 +780,7 @@ let comm   := A_sg_CS_commutative _ _ _ pproofs in
    ; A_selective_dioid_plus         := bop_add_ann plus c
    ; A_selective_dioid_times        := bop_add_id times c
    ; A_selective_dioid_plus_proofs  := sg_CS_proofs_add_ann S rS c plus s peqvS pproofs 
-   ; A_selective_dioid_times_proofs := msg_proofs_add_id S rS c times s f Pf peqvS tproofs
+   ; A_selective_dioid_times_proofs := sg_proofs_add_id S rS c times s f Pf peqvS tproofs
    ; A_selective_dioid_id_ann_proofs := dually_bounded_proofs_add_one S _ c plus times  peqvS (A_selective_pre_dioid_with_zero_id_ann_proofs S bsS)
    ; A_selective_dioid_proofs       := dioid_proofs_add_one S rS c plus times peqvS idem comm (A_selective_pre_dioid_with_zero_proofs S bsS)
    ; A_selective_dioid_ast          := Ast_bs_add_one (c, A_selective_pre_dioid_with_zero_ast S bsS) (*FIX*)
@@ -792,11 +792,13 @@ End ACAS.
 
 Section AMCAS. 
 
-Definition A_bs_mcas_add_one (S : Type) (A : A_bs_mcas S) (c : cas_constant) := 
-  match (A_bs_from_mcas _ A) with
-  | A_BS_bs _ B => A_BS_bs _ (A_bs_add_one _ B c)
+Open Scope string_scope.
+  
+Definition A_mcas_bs_add_one (S : Type) (A : A_bs_mcas S) (c : cas_constant) := 
+  match (A_bs_mcas_cast_up _ A) with
+  | A_BS_bs _ B => A_bs_classify _ (A_BS_bs _ (A_bs_add_one _ B c))
   | A_BS_Error _ str => A_BS_Error _ str                                                           
-  | _ => A_BS_Error _ "internal error : A_bs_mcas_add_one"
+  | _ => A_BS_Error _ ("internal error : A_bs_mcas_add_one" :: nil) 
   end.
 
 End AMCAS. 
@@ -976,9 +978,9 @@ end.
 Definition bs_certs_add_one 
            {S : Type}
            (c : cas_constant)
-           (ppS : @asg_certificates S)
+           (ppS : @sg_certificates S)
            (pS : @bs_certificates S) : @bs_certificates (with_constant S) :=
-let idm := asg_idempotent_d ppS in
+let idm := sg_idempotent_d ppS in
 let LD  := bs_left_distributive_d pS in
 let RD  := bs_right_distributive_d pS in 
 let LLA := bs_left_left_absorptive_d pS in 
@@ -1024,8 +1026,8 @@ let tcerts := bs_times_certs bsS in
      bs_eqv         := eqv_add_constant eqvS c 
    ; bs_plus        := bop_add_ann plus c
    ; bs_times       := bop_add_id times c
-   ; bs_plus_certs  := asg_certs_add_ann c wS pcerts 
-   ; bs_times_certs := msg_certs_add_id c wS f tcerts
+   ; bs_plus_certs  := sg_certs_add_ann c wS f pcerts 
+   ; bs_times_certs := sg_certs_add_id c wS f tcerts
    ; bs_id_ann_certs := id_ann_certs_add_one c (bs_id_ann_certs bsS)
    ; bs_certs       := bs_certs_add_one c pcerts (bs_certs bsS)
    ; bs_ast         := Ast_bs_add_one (c, bs_ast bsS)
@@ -1046,7 +1048,7 @@ let tcerts := pre_dioid_times_certs bsS in
    ; pre_dioid_with_one_plus         := bop_add_ann (pre_dioid_plus bsS) c
    ; pre_dioid_with_one_times        := bop_add_id (pre_dioid_times bsS) c
    ; pre_dioid_with_one_plus_certs   := sg_CI_certs_add_ann c pcerts 
-   ; pre_dioid_with_one_times_certs  := msg_certs_add_id c wS f tcerts
+   ; pre_dioid_with_one_times_certs  := sg_certs_add_id c wS f tcerts
    ; pre_dioid_with_one_id_ann_certs := pann_is_tid_certs_add_one c (pre_dioid_id_ann_certs bsS)
    ; pre_dioid_with_one_certs        := dioid_certs_add_one c (pre_dioid_certs bsS)
    ; pre_dioid_with_one_ast          := Ast_bs_add_one (c, pre_dioid_ast bsS) (*FIX*)
@@ -1066,7 +1068,7 @@ let tcerts := pre_dioid_with_zero_times_certs bsS in
    ; dioid_plus         := bop_add_ann (pre_dioid_with_zero_plus bsS) c
    ; dioid_times        := bop_add_id (pre_dioid_with_zero_times bsS) c
    ; dioid_plus_certs   := sg_CI_certs_add_ann c pcerts 
-   ; dioid_times_certs  := msg_certs_add_id c wS f tcerts
+   ; dioid_times_certs  := sg_certs_add_id c wS f tcerts
    ; dioid_id_ann_certs := dually_bounded_certs_add_one c (pre_dioid_with_zero_id_ann_certs bsS)
    ; dioid_certs        := dioid_certs_add_one c (pre_dioid_with_zero_certs bsS)
    ; dioid_ast          := Ast_bs_add_one (c, pre_dioid_with_zero_ast bsS) (*FIX*)
@@ -1078,12 +1080,13 @@ End Combinators.
 End CAS.
 
 Section MCAS. 
-
-Definition bs_mcas_add_one {S : Type} (A : @bs_mcas S) (c : cas_constant) := 
-  match (bs_from_mcas A) with
-  | BS_bs B => BS_bs (bs_add_one B c)
+Open Scope string_scope.
+  
+Definition mcas_bs_add_one {S : Type} (A : @bs_mcas S) (c : cas_constant) := 
+  match (bs_mcas_cast_up A) with
+  | BS_bs B => bs_classify (BS_bs (bs_add_one B c))
   | BS_Error str => BS_Error str                                                           
-  | _ => BS_Error "internal error : A_bs_mcas_add_one"
+  | _ => BS_Error ("internal error : A_bs_mcas_add_one" :: nil) 
   end.
 
 End MCAS. 
@@ -1305,15 +1308,15 @@ Qed.
 
 
 Lemma  correct_bs_certs_add_one 
-    (sgS : asg_proofs S rS plusS)  (bsS : bs_proofs S rS plusS timesS): 
+    (sgS : sg_proofs S rS plusS)  (bsS : bs_proofs S rS plusS timesS): 
     P2C_bs (with_constant S) 
        (brel_sum brel_constant rS) 
        (bop_add_ann plusS c) 
        (bop_add_id timesS c) 
        (bs_proofs_add_one S rS c plusS timesS eqvS sgS bsS)
     =
-    bs_certs_add_one c (P2C_asg S rS plusS sgS) (P2C_bs S rS plusS timesS bsS). 
-Proof. unfold bs_certs_add_one, bs_proofs_add_one, P2C_bs, P2C_asg; simpl. 
+    bs_certs_add_one c (P2C_sg S rS plusS sgS) (P2C_bs S rS plusS timesS bsS). 
+Proof. unfold bs_certs_add_one, bs_proofs_add_one, P2C_bs, P2C_sg; simpl. 
        rewrite bops_add_one_left_distributive_check_correct. 
        rewrite bops_add_one_right_distributive_check_correct. 
        rewrite bops_add_one_left_left_absorbtive_check_correct .
@@ -1350,8 +1353,8 @@ Theorem correct_bs_add_one (S : Type) (bsS: A_bs S) (c : cas_constant):
    A2C_bs (with_constant S) (A_bs_add_one S bsS c). 
 Proof. unfold bs_add_one, A_bs_add_one, A2C_bs; simpl. 
        rewrite correct_eqv_add_constant. 
-       rewrite <- correct_asg_certs_add_ann. 
-       rewrite <- correct_msg_certs_add_id. 
+       rewrite <- correct_sg_certs_add_ann. 
+       rewrite <- correct_sg_certs_add_id. 
        rewrite correct_bs_certs_add_one.
        rewrite correct_id_ann_certs_add_one.        
        reflexivity. 
@@ -1365,7 +1368,7 @@ Theorem correct_add_one_to_pre_dioid (S : Type) (bsS: A_pre_dioid S) (c : cas_co
 Proof. unfold A2C_pre_dioid_with_one, A2C_pre_dioid, add_one_to_pre_dioid, A_add_one_to_pre_dioid; simpl. 
        rewrite correct_eqv_add_constant. 
        rewrite <- correct_sg_CI_certs_add_ann. 
-       rewrite <- correct_msg_certs_add_id. 
+       rewrite <- correct_sg_certs_add_id. 
        rewrite correct_dioid_certs_add_one. 
        rewrite pann_is_tid_certs_add_one_correct. 
        reflexivity. 
@@ -1381,10 +1384,23 @@ Proof. unfold A2C_dioid, A2C_pre_dioid_with_zero,
        rewrite correct_eqv_add_constant.
        rewrite correct_dioid_certs_add_one.        
        rewrite <- correct_sg_CI_certs_add_ann. 
-       rewrite <- correct_msg_certs_add_id. 
+       rewrite <- correct_sg_certs_add_id. 
        rewrite dually_bounded_certs_add_one_correct.
        reflexivity. 
+Qed.
+
+Theorem correct_mcas_bs_add_one (S : Type) (c : cas_constant) (sgS : A_bs_mcas S) : 
+         mcas_bs_add_one (A2C_mcas_bs S sgS) c 
+         = 
+         A2C_mcas_bs (with_constant S) (A_mcas_bs_add_one S sgS c).
+Proof. unfold mcas_bs_add_one, A_mcas_bs_add_one. 
+       rewrite correct_bs_mcas_cast_up.       
+       destruct (A_bs_cas_up_is_error_or_bs S sgS) as [[l1 A] | [s1 A]]. 
+       + rewrite A; simpl. reflexivity. 
+       + rewrite A; simpl. rewrite correct_bs_add_one.
+         apply correct_bs_classify_bs.          
 Qed. 
+
 
 End Combinators.   
 End Verify.   

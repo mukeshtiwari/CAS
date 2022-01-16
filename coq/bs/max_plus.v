@@ -142,14 +142,23 @@ Definition A_selective_presemiring_max_plus : A_selective_presemiring nat :=
   A_selective_presemiring_eqv          := A_eqv_nat 
 ; A_selective_presemiring_plus         := bop_max
 ; A_selective_presemiring_times        := bop_plus
-; A_selective_presemiring_plus_proofs  := A_sg_CS_proofs _ A_sg_CS_max
-; A_selective_presemiring_times_proofs := A_msg_proofs_plus
+; A_selective_presemiring_plus_proofs  := A_sg_CS_wi_proofs _ A_sg_max
+; A_selective_presemiring_times_proofs := A_sg_proofs_plus
 ; A_selective_presemiring_id_ann_proofs := bops_max_plus_id_ann_proofs
 ; A_selective_presemiring_proofs       := semiring_proofs_max_plus
 ; A_selective_presemiring_ast          := Ast_max_plus
 |}.
 
 End ACAS.
+
+Section AMCAS.
+
+Definition A_mcas_max_plus :=
+    A_BS_selective_presemiring _ A_selective_presemiring_max_plus.
+
+End AMCAS.
+
+
 Section CAS.
 
   Open Scope nat.
@@ -175,8 +184,8 @@ Definition selective_presemiring_max_plus : selective_presemiring (S := nat) :=
   selective_presemiring_eqv         := eqv_eq_nat 
 ; selective_presemiring_plus        := bop_max
 ; selective_presemiring_times       := bop_plus
-; selective_presemiring_plus_certs  := sg_CS_certs sg_CS_max
-; selective_presemiring_times_certs := msg_certs_plus
+; selective_presemiring_plus_certs  := sg_CS_wi_certs sg_max
+; selective_presemiring_times_certs := sg_certs_plus
 ; selective_presemiring_id_ann_certs := bops_max_plus_id_ann_certs
 ; selective_presemiring_certs       := semiring_certs_max_plus
 ; selective_presemiring_ast         := Ast_max_plus
@@ -184,11 +193,24 @@ Definition selective_presemiring_max_plus : selective_presemiring (S := nat) :=
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_max_plus :=
+    BS_selective_presemiring selective_presemiring_max_plus.
+
+End MCAS.
+
+
+
 Section Verify.
 
 Theorem correct_semiring_max_plus : 
    selective_presemiring_max_plus = A2C_selective_presemiring nat (A_selective_presemiring_max_plus). 
+Proof. compute. reflexivity. Qed.
+
+Theorem correct_mcas_max_plus : mcas_max_plus = A2C_mcas_bs nat A_mcas_max_plus.
 Proof. compute. reflexivity. Qed. 
+
 
 End Verify.   
   

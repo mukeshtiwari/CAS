@@ -423,8 +423,28 @@ Proof. assert (A := lub_lte_is_lte_right LUB).
        assert (C := lte_right_is_right_increasing _ _ _ refS symS trnS bAss bCong bIdem bComm a b).
        rewrite (A a (bS b a)). 
        exact C. 
-Qed. 
+Qed.
 
+Lemma lub_from_monotone_increasing 
+      (LM : os_left_monotone lte bS) (* Note : LM and commutativity gives RM *)
+      (RM : os_right_monotone lte bS) 
+      (LI : os_left_increasing lte bS) 
+      (RI : os_right_increasing lte bS) : bop_is_lub lte bS.
+Proof. compute. compute in LM, LI, RI. 
+       intros s t. split. split.
+       apply LI. apply RI.
+       intros u [A B].
+       assert (C := LM t s u A).
+       assert (E := LI u t).
+       rewrite (lteCong _ _ _ _ (refS u) (bComm u t)) in E.
+       assert (F : lte (bS t u) u = true).
+          assert (G := RM u t u B). 
+          rewrite (lteCong _ _ _ _ (refS (bS t u)) (bIdem u)) in G. 
+           exact G. 
+       assert (H := anti _ _ E F).
+       rewrite (lteCong _ _ _ _ (bComm s t) H). 
+       exact C. 
+Qed. 
 
 End GLB_LUB_Order. 
 

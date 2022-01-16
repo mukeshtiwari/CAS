@@ -1,3 +1,4 @@
+Require Import Coq.Strings.String.
 Require Import Coq.Bool.Bool. 
 
 Require Import CAS.coq.common.compute.
@@ -16,7 +17,8 @@ Require Import CAS.coq.sg.cast_up.
 
 Require Import CAS.coq.po.from_sg. 
 
-Require Import CAS.coq.os.theory. 
+Require Import CAS.coq.os.theory.
+
 
 (*** OUTLINE 
 
@@ -227,17 +229,6 @@ Proof. intros commT (s1, t1) (s2, t2).
           apply llex_p2_commutative; auto. 
 Qed. 
 
-
-Lemma bop_llex_not_is_left : bop_not_is_left (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
-Proof. destruct (bop_commutative_implies_not_is_left S rS bS wS f Pf symS tranS commS) as [[s1 s2] Q]. 
-       exists ((s1, wT), (s2, wT)). compute. rewrite Q. reflexivity. 
-Defined.
-
-Lemma bop_llex_not_is_right : bop_not_is_right (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
-Proof. destruct (bop_commutative_implies_not_is_right S rS bS wS f Pf symS tranS commS) as [[s1 s2] Q]. 
-       exists ((s1, wT), (s2, wT)). compute. rewrite Q. reflexivity. 
-Defined.
-
 Lemma bop_llex_selective : 
      bop_selective S rS bS → bop_selective T rT bT → bop_selective (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
 Proof. intros selS selT [s1 t1] [s2 t2].
@@ -275,7 +266,6 @@ Proof. intros selS [ [t1 t2] [A B]]. exists ((wS, t1), (wS, t2)). compute.
        assert (ID := bop_selective_implies_idempotent S rS bS selS). 
        assert (I := ID wS). rewrite I. apply symS in I. rewrite I. rewrite A, B. split; reflexivity. 
 Defined.
-
 
 
 Lemma bop_llex_is_id (iS : S ) (iT : T )
@@ -362,10 +352,546 @@ Proof. destruct D as [D | D].
 Defined. 
 
 
+(********************* "multiplicative" properties **************************************
+
+The only reason we need these results is that the AMCAS/MCAS version of llex 
+cast things up to the top of the hierarchy in order to avoid an HUGE number of 
+llex products defined lower in the hierarchy ... 
+ 
+*)
+
+Lemma bop_llex_not_anti_left_initial_proof  (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+  bop_not_anti_left (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Proof. destruct (Pf wS) as [A B]. 
+       case_eq (rS wS (wS *S (f wS))); intro C.
+       + exists ((wS, wT), (f wS, wT)). compute. 
+         rewrite C.
+         assert (D : rS (wS *S f wS) (f wS) = false).
+            case_eq(rS (wS *S f wS) (f wS)); intro E; auto.
+            assert (F := commS wS (f wS)).
+            assert (G := tranS _ _ _ C F). apply symS in F. 
+            assert (H := tranS _ _ _ G F).
+            assert (I := tranS _ _ _ H E).
+            rewrite I in A. discriminate A. 
+         rewrite D. apply refT. 
+       + case_eq (rS (f wS) (wS *S (f wS))); intro D.
+         ++ exists ((f wS, wT), (wS, wT)). compute.
+            assert (E : rS (f wS) ((f wS) *S wS) = true).
+               assert (F := commS wS (f wS)). exact (tranS _ _ _ D F). 
+            rewrite E.
+            assert (F : rS  ((f wS) *S wS) wS = false).
+               case_eq(rS (f wS *S wS) wS); intro K; auto.
+               assert (F := commS wS (f wS)).
+               assert (G := tranS _ _ _ F K). apply symS in G. 
+               rewrite G in C. discriminate C. 
+            rewrite F. apply refT. 
+         ++ destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ exists ((wS, argT), (wS, argT)). compute.
+                assert (E := idemS wS). rewrite E. apply symS in E. rewrite E.
+                destruct (idP argT) as [F _]. apply symT. exact F. 
+Defined.
+
+
+Definition witness_llex_not_anti_left :=
+  if rS wS (wS *S (f wS))
+  then ((wS, wT), (f wS, wT))
+  else if rS (f wS) (wS *S (f wS))
+       then ((f wS, wT), (wS, wT))
+       else ((wS, argT), (wS, argT)).
+
+Lemma bop_llex_not_anti_left  (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+  bop_not_anti_left (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Proof. exists (witness_llex_not_anti_left). unfold witness_llex_not_anti_left. 
+       destruct (Pf wS) as [A B]. 
+       case_eq (rS wS (wS *S (f wS))); intro C.
+       + compute. 
+         rewrite C.
+         assert (D : rS (wS *S f wS) (f wS) = false).
+            case_eq(rS (wS *S f wS) (f wS)); intro E; auto.
+            assert (F := commS wS (f wS)).
+            assert (G := tranS _ _ _ C F). apply symS in F. 
+            assert (H := tranS _ _ _ G F).
+            assert (I := tranS _ _ _ H E).
+            rewrite I in A. discriminate A. 
+         rewrite D. apply refT. 
+       + case_eq (rS (f wS) (wS *S (f wS))); intro D.
+         ++ compute.
+            assert (E : rS (f wS) ((f wS) *S wS) = true).
+               assert (F := commS wS (f wS)). exact (tranS _ _ _ D F). 
+            rewrite E.
+            assert (F : rS  ((f wS) *S wS) wS = false).
+               case_eq(rS (f wS *S wS) wS); intro K; auto.
+               assert (F := commS wS (f wS)).
+               assert (G := tranS _ _ _ F K). apply symS in G. 
+               rewrite G in C. discriminate C. 
+            rewrite F. apply refT. 
+         ++ destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ compute.
+                assert (E := idemS wS). rewrite E. apply symS in E. rewrite E.
+                destruct (idP argT) as [F _]. apply symT. exact F. 
+Defined.
+
+
+
+
+Lemma bop_llex_not_anti_right_initial_proof  (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+  bop_not_anti_right (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Proof. destruct (Pf wS) as [A B]. 
+       case_eq (rS (f wS) (wS *S (f wS))); intro C.
+       + exists ((f wS, wT), (wS, wT)). compute. 
+         rewrite C.
+         assert (D : rS wS (wS *S f wS) = false).
+            case_eq(rS wS (wS *S f wS)); intro E; auto. apply symS in C. 
+            assert (G := tranS _ _ _ E C). 
+            rewrite G in A. discriminate A. 
+         rewrite D. apply symS in C. rewrite C. apply refT. 
+       + case_eq (rS wS (wS *S (f wS))); intro D.
+         ++ exists ((wS, wT), (f wS, wT)). compute.
+            assert (E : rS wS ((f wS) *S wS) = true).
+               assert (F := commS wS (f wS)). exact (tranS _ _ _ D F). 
+            rewrite E.  apply symS in E. rewrite E. 
+            assert (F : rS  (f wS) ((f wS) *S wS) = false).
+               case_eq(rS (f wS) (f wS *S wS)); intro K; auto.
+               assert (F := commS (f wS) wS).
+               assert (G := tranS _ _ _ K F). 
+               rewrite G in C. discriminate C. 
+            rewrite F. apply refT. 
+         ++ destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+            +++ exists ((wS, argT), (wS, argT)). compute.
+                assert (E := idemS wS). rewrite E. apply symS in E. rewrite E.
+                destruct (idP argT) as [F _]. apply symT. exact F. 
+ Defined. 
+
+
+Definition witness_llex_not_anti_right :=
+  if rS (f wS) (wS *S (f wS))
+  then ((f wS, wT), (wS, wT))
+  else if rS wS (wS *S (f wS))
+       then ((wS, wT), (f wS, wT))
+       else ((wS, argT), (wS, argT)). 
+
+Lemma bop_llex_not_anti_right  (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+  bop_not_anti_right (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Proof. exists (witness_llex_not_anti_right). unfold witness_llex_not_anti_right.
+       destruct (Pf wS) as [A B]. 
+       case_eq (rS (f wS) (wS *S (f wS))); intro C.
+       + compute. 
+         rewrite C.
+         assert (D : rS wS (wS *S f wS) = false).
+            case_eq(rS wS (wS *S f wS)); intro E; auto. apply symS in C. 
+            assert (G := tranS _ _ _ E C). 
+            rewrite G in A. discriminate A. 
+         rewrite D. apply symS in C. rewrite C. apply refT. 
+       + case_eq (rS wS (wS *S (f wS))); intro D.
+         ++ compute.
+            assert (E : rS wS ((f wS) *S wS) = true).
+               assert (F := commS wS (f wS)). exact (tranS _ _ _ D F). 
+            rewrite E.  apply symS in E. rewrite E. 
+            assert (F : rS  (f wS) ((f wS) *S wS) = false).
+               case_eq(rS (f wS) (f wS *S wS)); intro K; auto.
+               assert (F := commS (f wS) wS).
+               assert (G := tranS _ _ _ K F). 
+               rewrite G in C. discriminate C. 
+            rewrite F. apply refT. 
+         ++ destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+            +++ compute.
+                assert (E := idemS wS). rewrite E. apply symS in E. rewrite E.
+                destruct (idP argT) as [F _]. apply symT. exact F. 
+ Defined. 
+
+
+Lemma bop_llex_not_left_constant_initial_proof (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+        bop_not_left_constant (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. destruct (Pf wS) as [A B]. destruct (Pg wT) as [A' B']. 
+       case_eq (rS wS (wS *S (f wS))); intro C; case_eq (rS (f wS) (wS *S (f wS))); intro D.  
+       + apply symS in D. rewrite (tranS _ _ _ C D) in A. discriminate A. 
+       + exists ((f wS, wT), ((wS, wT), (wS, g wT))). compute.
+         rewrite (refS ((f wS *S wS))).
+         assert (E := commS wS (f wS)).
+         assert (F := tranS _ _ _ C E). apply symS in F. rewrite F. 
+         assert (G : rS (f wS) (f wS *S wS) = false).
+             case_eq(rS (f wS) (f wS *S wS)); intro G; auto. 
+             apply symS in E. rewrite (tranS _ _ _ G E) in D. 
+             discriminate D. 
+         rewrite G. exact A'. 
+       + exists ((wS, wT), ((f wS, wT), (f wS, g wT))). compute.
+         rewrite (refS ((wS *S (f wS)))).
+         apply symS in D. rewrite D.
+         rewrite C. exact A'. 
+       + destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ exists ((wS, argT), ((wS, wT), (wS, g wT))). compute.
+                rewrite (refS ((wS *S wS))).
+                assert (E := idemS wS). rewrite E. apply symS in E. rewrite E.
+                destruct (idP wT) as [F G]. destruct (idP (g wT)) as [H I]. 
+                case_eq(rT (argT *T wT) (argT *T g wT)); intro J; auto. 
+                assert (K := tranT _ _ _ J H). apply symT in K. 
+                rewrite (tranT _ _ _ K F) in B'. discriminate B'. 
+Defined.
+
+
+Definition witness_llex_not_left_constant :=
+  if rS wS (wS *S (f wS))
+  then if rS (f wS) (wS *S (f wS))
+       then ((wS, wT), ((wS, wT), (wS, wT))) (* case cannot be reached *) 
+       else ((f wS, wT), ((wS, wT), (wS, g wT)))
+  else if rS (f wS) (wS *S (f wS))
+       then ((wS, wT), ((f wS, wT), (f wS, g wT)))
+       else ((wS, argT), ((wS, wT), (wS, g wT))). 
+
+Lemma bop_llex_not_left_constant (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+        bop_not_left_constant (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. exists witness_llex_not_left_constant; unfold witness_llex_not_left_constant. 
+       destruct (Pf wS) as [A B]. destruct (Pg wT) as [A' B']. 
+       case_eq (rS wS (wS *S (f wS))); intro C; case_eq (rS (f wS) (wS *S (f wS))); intro D.  
+       + apply symS in D. rewrite (tranS _ _ _ C D) in A. discriminate A. 
+       + compute.
+         rewrite (refS ((f wS *S wS))).
+         assert (E := commS wS (f wS)).
+         assert (F := tranS _ _ _ C E). apply symS in F. rewrite F. 
+         assert (G : rS (f wS) (f wS *S wS) = false).
+             case_eq(rS (f wS) (f wS *S wS)); intro G; auto. 
+             apply symS in E. rewrite (tranS _ _ _ G E) in D. 
+             discriminate D. 
+         rewrite G. exact A'. 
+       + compute.
+         rewrite (refS ((wS *S (f wS)))).
+         apply symS in D. rewrite D.
+         rewrite C. exact A'. 
+       + destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ compute.
+                rewrite (refS ((wS *S wS))).
+                assert (E := idemS wS). rewrite E. apply symS in E. rewrite E.
+                destruct (idP wT) as [F G]. destruct (idP (g wT)) as [H I]. 
+                case_eq(rT (argT *T wT) (argT *T g wT)); intro J; auto. 
+                assert (K := tranT _ _ _ J H). apply symT in K. 
+                rewrite (tranT _ _ _ K F) in B'. discriminate B'. 
+Defined.
+
+Lemma bop_llex_not_right_constant_initial_proof (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+        bop_not_right_constant (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. destruct (Pf wS) as [A B]. destruct (Pg wT) as [A' B']. 
+       case_eq (rS wS (wS *S (f wS))); intro C; case_eq (rS (f wS) (wS *S (f wS))); intro D.  
+       + apply symS in D. rewrite (tranS _ _ _ C D) in A. discriminate A. 
+       + exists ((f wS, wT), ((wS, wT), (wS, g wT))). compute.
+         rewrite (refS ((wS *S f wS))). rewrite C. 
+         assert (G : rS (wS *S (f wS)) (f wS) = false).
+             case_eq(rS (wS *S (f wS)) (f wS)); intro G; auto. 
+             apply symS in G. rewrite G in D. 
+             discriminate D. 
+         rewrite G. exact A'. 
+       + exists ((wS, wT), ((f wS, wT), (f wS, g wT))). compute.
+         rewrite (refS (((f wS) *S wS))). 
+         assert (E := commS wS (f wS)).
+         rewrite (tranS _ _ _ D E).
+         assert (F : rS (f wS *S wS) wS = false).
+            case_eq(rS (f wS *S wS) wS); intro G; auto. 
+            apply symS in G. apply symS in E. rewrite (tranS _ _ _ G E) in C. 
+             discriminate C. 
+         rewrite F. exact A'. 
+       + destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ exists ((wS, argT), ((wS, wT), (wS, g wT))). compute.
+                rewrite (refS ((wS *S wS))).
+                assert (E := idemS wS). rewrite E. apply symS in E. rewrite E.
+                destruct (idP wT) as [F G]. destruct (idP (g wT)) as [H I]. 
+                case_eq(rT (wT *T argT) (g wT *T argT)); intro J; auto. 
+                assert (K := tranT _ _ _ J I). apply symT in K. 
+                rewrite (tranT _ _ _ K G) in B'. discriminate B'. 
+Defined.
+
+Definition witness_llex_not_right_constant :=
+  if rS wS (wS *S (f wS))
+  then if rS (f wS) (wS *S (f wS))
+       then ((wS, wT), ((wS, wT), (wS, wT))) (* case cannot be reached *) 
+       else ((f wS, wT), ((wS, wT), (wS, g wT)))
+  else if rS (f wS) (wS *S (f wS))
+       then ((wS, wT), ((f wS, wT), (f wS, g wT)))
+       else ((wS, argT), ((wS, wT), (wS, g wT))). 
+
+
+Lemma bop_llex_not_right_constant (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+        bop_not_right_constant (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. exists witness_llex_not_right_constant; unfold witness_llex_not_right_constant. 
+       destruct (Pf wS) as [A B]. destruct (Pg wT) as [A' B']. 
+       case_eq (rS wS (wS *S (f wS))); intro C; case_eq (rS (f wS) (wS *S (f wS))); intro D.  
+       + apply symS in D. rewrite (tranS _ _ _ C D) in A. discriminate A. 
+       + compute.
+         rewrite (refS ((wS *S f wS))). rewrite C. 
+         assert (G : rS (wS *S (f wS)) (f wS) = false).
+             case_eq(rS (wS *S (f wS)) (f wS)); intro G; auto. 
+             apply symS in G. rewrite G in D. 
+             discriminate D. 
+         rewrite G. exact A'. 
+       + compute.
+         rewrite (refS (((f wS) *S wS))). 
+         assert (E := commS wS (f wS)).
+         rewrite (tranS _ _ _ D E).
+         assert (F : rS (f wS *S wS) wS = false).
+            case_eq(rS (f wS *S wS) wS); intro G; auto. 
+            apply symS in G. apply symS in E. rewrite (tranS _ _ _ G E) in C. 
+             discriminate C. 
+         rewrite F. exact A'. 
+       + destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ compute.
+                rewrite (refS ((wS *S wS))).
+                assert (E := idemS wS). rewrite E. apply symS in E. rewrite E.
+                destruct (idP wT) as [F G]. destruct (idP (g wT)) as [H I]. 
+                case_eq(rT (wT *T argT) (g wT *T argT)); intro J; auto. 
+                assert (K := tranT _ _ _ J I). apply symT in K. 
+                rewrite (tranT _ _ _ K G) in B'. discriminate B'. 
+Defined.
+
+
+Lemma bop_llex_not_left_cancellative_initial_proof (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+        bop_not_left_cancellative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. destruct (Pf wS) as [A B]. destruct (Pg wT) as [A' B']. 
+       case_eq (rS wS (wS *S (f wS))); intro C; case_eq (rS (f wS) (wS *S (f wS))); intro D.  
+       + apply symS in D. rewrite (tranS _ _ _ C D) in A. discriminate A. 
+       + exists ((wS, wT), ((f wS, wT), (f wS, g wT))). compute.
+         rewrite (refS ((wS *S f wS))). rewrite C. rewrite (refS (f wS)). 
+         assert (G : rS (wS *S (f wS)) (f wS) = false).
+             case_eq(rS (wS *S (f wS)) (f wS)); intro G; auto. 
+             apply symS in G. rewrite G in D. 
+             discriminate D. 
+         rewrite G. split. apply refT. exact A'. 
+       + exists ((f wS, wT), ((wS, wT), (wS, g wT))). compute.
+         rewrite (refS (((f wS) *S wS))). rewrite (refS wS).
+         assert (E := commS wS (f wS)).
+         rewrite (tranS _ _ _ D E).
+         assert (F : rS (f wS *S wS) wS = false).
+            case_eq(rS (f wS *S wS) wS); intro G; auto. 
+            apply symS in G. apply symS in E. rewrite (tranS _ _ _ G E) in C. 
+             discriminate C. 
+         rewrite F. split. apply refT. exact A'. 
+       + destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ exists ((wS, wT), ((f wS, wT), (f wS, g wT))). compute.
+                rewrite (refS ((wS *S (f wS)))). rewrite C.  rewrite (refS (f wS)).
+                assert (I : rS (wS *S f wS) (f wS) = false). 
+                   case_eq(rS (wS *S f wS) (f wS)); intro E; auto. 
+                   apply symS in E. rewrite E in D. discriminate D. 
+                rewrite I. split. apply refT. exact A'. 
+Defined.
+
+
+Definition witness_llex_not_left_cancellative :=
+  if rS wS (wS *S (f wS))
+  then if rS (f wS) (wS *S (f wS))
+       then ((wS, wT), ((wS, wT), (wS, wT)))  (* case not reached *) 
+       else ((wS, wT), ((f wS, wT), (f wS, g wT)))
+  else if rS (f wS) (wS *S (f wS))
+       then ((f wS, wT), ((wS, wT), (wS, g wT)))
+       else ((wS, wT), ((f wS, wT), (f wS, g wT))).
+
+Lemma bop_llex_not_left_cancellative (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+        bop_not_left_cancellative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. exists witness_llex_not_left_cancellative; unfold witness_llex_not_left_cancellative. 
+       destruct (Pf wS) as [A B]. destruct (Pg wT) as [A' B']. 
+       case_eq (rS wS (wS *S (f wS))); intro C; case_eq (rS (f wS) (wS *S (f wS))); intro D.  
+       + apply symS in D. rewrite (tranS _ _ _ C D) in A. discriminate A. 
+       + compute.
+         rewrite (refS ((wS *S f wS))). rewrite C. rewrite (refS (f wS)). 
+         assert (G : rS (wS *S (f wS)) (f wS) = false).
+             case_eq(rS (wS *S (f wS)) (f wS)); intro G; auto. 
+             apply symS in G. rewrite G in D. 
+             discriminate D. 
+         rewrite G. split. apply refT. exact A'. 
+       + compute.
+         rewrite (refS (((f wS) *S wS))). rewrite (refS wS).
+         assert (E := commS wS (f wS)).
+         rewrite (tranS _ _ _ D E).
+         assert (F : rS (f wS *S wS) wS = false).
+            case_eq(rS (f wS *S wS) wS); intro G; auto. 
+            apply symS in G. apply symS in E. rewrite (tranS _ _ _ G E) in C. 
+             discriminate C. 
+         rewrite F. split. apply refT. exact A'. 
+       + destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ compute.
+                rewrite (refS ((wS *S (f wS)))). rewrite C.  rewrite (refS (f wS)).
+                assert (I : rS (wS *S f wS) (f wS) = false). 
+                   case_eq(rS (wS *S f wS) (f wS)); intro E; auto. 
+                   apply symS in E. rewrite E in D. discriminate D. 
+                rewrite I. split. apply refT. exact A'. 
+Defined.
+
+
+Lemma bop_llex_not_right_cancellative_initial_proof (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+        bop_not_right_cancellative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. destruct (Pf wS) as [A B]. destruct (Pg wT) as [A' B']. 
+       case_eq (rS wS (wS *S (f wS))); intro C; case_eq (rS (f wS) (wS *S (f wS))); intro D.  
+       + apply symS in D. rewrite (tranS _ _ _ C D) in A. discriminate A. 
+       + exists ((wS, wT), ((f wS, wT), (f wS, g wT))). compute.
+         rewrite (refS ((f wS *S wS))). rewrite (refS (f wS)).
+         assert (E := commS (f wS) wS). apply symS in C.
+         rewrite (tranS _ _ _ E C). 
+         assert (G : rS (f wS) (f wS *S wS) = false).
+             case_eq(rS (f wS) (f wS *S wS)); intro G; auto. 
+             rewrite (tranS _ _ _ G E) in D. 
+             discriminate D. 
+         rewrite G. split. apply refT. exact A'. 
+       + exists ((f wS, wT), ((wS, wT), (wS, g wT))). compute.
+         rewrite (refS ((wS *S f wS))). rewrite (refS wS). apply symS in D. rewrite D. 
+         assert (F : rS wS (wS *S f wS) = false).
+            case_eq(rS wS (wS *S f wS)); intro G; auto.  rewrite G in C. 
+             discriminate C. 
+         rewrite F. split. apply refT. exact A'. 
+       + destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ exists ((wS, wT), ((f wS, wT), (f wS, g wT))). compute.
+                rewrite (refS ((f wS *S wS))). rewrite (refS (f wS)).
+                assert (E := commS (f wS) wS). 
+                assert (F : rS (f wS) (f wS *S wS) = false). 
+                   case_eq(rS (f wS) (f wS *S wS)); intro G; auto. 
+                   rewrite (tranS _ _ _ G E) in D. discriminate D. 
+                rewrite F.
+                assert (G : rS (f wS *S wS) wS = false). 
+                   case_eq(rS (f wS *S wS) wS); intro G; auto. 
+                   apply symS in G. rewrite (tranS _ _ _ G E) in C. discriminate C.
+                rewrite G. split. apply refT. exact A'. 
+                
+Defined.
+
+
+Definition witness_llex_not_right_cancellative :=
+  if rS wS (wS *S (f wS))
+  then if rS (f wS) (wS *S (f wS))
+       then ((wS, wT), ((wS, wT), (wS, wT)))  (* case not reached *) 
+       else ((wS, wT), ((f wS, wT), (f wS, g wT)))
+  else if rS (f wS) (wS *S (f wS))
+       then ((f wS, wT), ((wS, wT), (wS, g wT)))
+       else ((wS, wT), ((f wS, wT), (f wS, g wT))).
+
+Lemma bop_llex_not_right_cancellative (P : (bop_selective S rS bS) + (bop_is_id T rT bT argT)) : 
+        bop_not_right_cancellative (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. exists witness_llex_not_right_cancellative; unfold witness_llex_not_right_cancellative.
+       destruct (Pf wS) as [A B]. destruct (Pg wT) as [A' B']. 
+       case_eq (rS wS (wS *S (f wS))); intro C; case_eq (rS (f wS) (wS *S (f wS))); intro D.  
+       + apply symS in D. rewrite (tranS _ _ _ C D) in A. discriminate A. 
+       + compute.
+         rewrite (refS ((f wS *S wS))). rewrite (refS (f wS)).
+         assert (E := commS (f wS) wS). apply symS in C.
+         rewrite (tranS _ _ _ E C). 
+         assert (G : rS (f wS) (f wS *S wS) = false).
+             case_eq(rS (f wS) (f wS *S wS)); intro G; auto. 
+             rewrite (tranS _ _ _ G E) in D. 
+             discriminate D. 
+         rewrite G. split. apply refT. exact A'. 
+       + compute.
+         rewrite (refS ((wS *S f wS))). rewrite (refS wS). apply symS in D. rewrite D. 
+         assert (F : rS wS (wS *S f wS) = false).
+            case_eq(rS wS (wS *S f wS)); intro G; auto.  rewrite G in C. 
+             discriminate C. 
+         rewrite F. split. apply refT. exact A'. 
+       + destruct P as [sel | idP].
+            +++ destruct (sel wS (f wS)) as [E | E]. 
+                ++++ apply symS in E. rewrite E in C. discriminate C. 
+                ++++ apply symS in E. rewrite E in D. discriminate D. 
+            +++ compute.
+                rewrite (refS ((f wS *S wS))). rewrite (refS (f wS)).
+                assert (E := commS (f wS) wS). 
+                assert (F : rS (f wS) (f wS *S wS) = false). 
+                   case_eq(rS (f wS) (f wS *S wS)); intro G; auto. 
+                   rewrite (tranS _ _ _ G E) in D. discriminate D. 
+                rewrite F.
+                assert (G : rS (f wS *S wS) wS = false). 
+                   case_eq(rS (f wS *S wS) wS); intro G; auto. 
+                   apply symS in G. rewrite (tranS _ _ _ G E) in C. discriminate C.
+                rewrite G. split. apply refT. exact A'. 
+Defined.
+
+
+Lemma bop_llex_not_is_left_original_proof : bop_not_is_left (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. destruct (bop_commutative_implies_not_is_left S rS bS wS f Pf symS tranS commS) as [[s1 s2] Q]. 
+       exists ((s1, wT), (s2, wT)). compute. rewrite Q. reflexivity. 
+Defined.
+
+Definition witness_llex_not_is_left := 
+  match cef_commutative_implies_not_is_left rS bS wS f with
+  | (s1, s2) => ((s1, wT), (s2, wT))
+  end.
+
+(* hmmmm, seems like too much effort here ... 
+   redoing the proof of bop_commutative_implies_not_is_left? 
+*) 
+Lemma bop_llex_not_is_left : bop_not_is_left (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. exists witness_llex_not_is_left. compute. 
+       case_eq(rS (f wS *S wS) wS); intro A.
+       + rewrite A.
+         case_eq(rS (f wS *S wS) (f wS)); intro B.
+         ++ destruct (Pf wS) as [C D].
+            apply symS in A. rewrite (tranS _ _ _ A B) in C.
+            discriminate C. 
+         ++ reflexivity. 
+       + case_eq(rS (wS *S f wS) wS); intro B.
+         ++ assert (C := commS (f wS) wS).
+            assert (D := tranS _ _ _ C B).
+            rewrite D in A. discriminate A. 
+         ++ reflexivity. 
+Defined.
+
+
+Lemma bop_llex_not_is_right_initial_proof : bop_not_is_right (S * T) (rS <*> rT) (bS llex [rS, argT] bT).
+Proof. destruct (bop_commutative_implies_not_is_right S rS bS wS f Pf symS tranS commS) as [[s1 s2] Q]. 
+       exists ((s1, wT), (s2, wT)). compute. rewrite Q. reflexivity. 
+Defined.
+
+Definition witness_llex_not_is_right := 
+  match cef_commutative_implies_not_is_right rS bS wS f with
+  | (s1, s2) => ((s1, wT), (s2, wT))
+  end.
+
+Lemma bop_llex_not_is_right : bop_not_is_right (S * T) (rS <*> rT) (bS llex [rS, argT] bT). 
+Proof. exists witness_llex_not_is_right. compute. 
+       case_eq(rS (f wS *S wS) wS); intro A.
+       + case_eq(rS (f wS *S wS) (f wS)); intro B.
+         ++ destruct (Pf wS) as [C D].
+            apply symS in A. rewrite (tranS _ _ _ A B) in C.
+            discriminate C. 
+         ++ case_eq(rS (wS *S f wS) (f wS)); intro C.
+            +++ assert (D := commS (f wS) wS).
+                rewrite (tranS _ _ _ D C) in B.
+                discriminate B. 
+            +++ reflexivity.
+       + case_eq(rS (f wS *S wS) wS); intro B.
+         ++ rewrite B in A. discriminate A. 
+         ++ reflexivity. 
+Defined.
+
+
 
 (*================== ASSOCIATIVITY ========================
 
-A bit tedious .... 
+A bit tedious .... ;-) 
 
 *) 
 
@@ -1267,12 +1793,53 @@ Variable wT : T.                             (**)
 Variable argT : T.  
 Variable eqS : brel S.
 Variable eqT : brel T.
-Variable f : T → T.                         (**)
-Variable ntT : brel_not_trivial T eqT f.     (**)
+Variable f : S → S.                         (**)
+Variable ntS : brel_not_trivial S eqS f.     (**)
+Variable g : T → T.                         (**)
+Variable ntT : brel_not_trivial T eqT g.     (**)
 Variable bS : binary_op S. 
 Variable bT : binary_op T.
 Variable eqvS : eqv_proofs S eqS.
-Variable eqvT : eqv_proofs T eqT.   
+Variable eqvT : eqv_proofs T eqT.
+
+
+Definition sg_llex_proofs
+        (pS : sg_proofs S eqS bS)
+        (pT : sg_proofs T eqT bT)
+        (idemS : bop_idempotent S eqS bS)
+        (commS : bop_commutative S eqS bS)
+        (P : (bop_selective S eqS bS) + (bop_is_id T eqT bT argT)): 
+  sg_proofs (S * T) (brel_product eqS eqT) (bop_llex argT eqS bS bT) :=
+let congS := A_sg_congruence _ _ _ pS in     
+let congT := A_sg_congruence _ _ _ pT in
+let assS := A_sg_associative _ _ _ pS in     
+let assT := A_sg_associative _ _ _ pT in   
+let refS := A_eqv_reflexive S eqS eqvS in 
+let symS := A_eqv_symmetric S eqS eqvS in 
+let trnS := A_eqv_transitive S eqS eqvS in 
+let refT := A_eqv_reflexive T eqT eqvT in
+let symT := A_eqv_symmetric T eqT eqvT in
+let trnT := A_eqv_transitive T eqT eqvT in  
+{|
+  A_sg_associative      := match P with
+                           | inl sel => bop_llex_associative_holds_v2 _ _ argT eqS eqT bS bT eqvS eqvT sel commS congS assS assT
+                           | inr idP => bop_llex_associative_holds_v1 _ _ argT eqS eqT bS bT eqvS eqvT idemS commS congS assS assT idP 
+                           end
+; A_sg_congruence       := bop_llex_congruence_holds S T argT eqS eqT bS bT eqvS eqvT congS congT 
+; A_sg_commutative_d    := bop_llex_commutative_decide S T wS argT eqS eqT bS bT eqvS eqvT idemS commS (A_sg_commutative_d _ _ _ pT) 
+; A_sg_selective_d      := bop_llex_selective_decide S T wS wT argT eqS eqT bS bT eqvS eqvT (A_sg_selective_d _ _ _ pS)  (A_sg_selective_d _ _ _ pT) 
+; A_sg_idempotent_d     := bop_llex_idempotent_decide S T wS argT eqS eqT bS bT eqvS idemS (A_sg_idempotent_d _ _ _ pT) 
+; A_sg_is_left_d        := inr (bop_llex_not_is_left S T eqS eqT bS bT wS f ntS symS trnS wT argT commS) 
+; A_sg_is_right_d       := inr (bop_llex_not_is_right S T eqS eqT bS bT wS f ntS symS trnS wT argT commS) 
+; A_sg_left_cancel_d    := inr (bop_llex_not_left_cancellative S T eqS eqT bS bT wS f ntS refS symS trnS wT argT g ntT refT commS P)
+; A_sg_right_cancel_d   := inr (bop_llex_not_right_cancellative S T eqS eqT bS bT wS f ntS refS symS trnS wT argT g ntT refT commS P)
+; A_sg_left_constant_d  := inr (bop_llex_not_left_constant S T eqS eqT bS bT wS f ntS refS symS trnS wT argT g ntT symT trnT idemS commS P)
+; A_sg_right_constant_d := inr (bop_llex_not_right_constant S T eqS eqT bS bT wS f ntS refS symS trnS wT argT g ntT symT trnT idemS commS P)
+; A_sg_anti_left_d      := inr (bop_llex_not_anti_left S T eqS eqT bS bT wS f ntS symS trnS wT argT refT symT idemS commS P)
+; A_sg_anti_right_d     := inr (bop_llex_not_anti_right S T eqS eqT bS bT wS f ntS symS trnS wT argT refT symT idemS commS P)
+|}.
+ 
+
 
 
 Definition sg_CI_llex_proofs_v1
@@ -1344,12 +1911,50 @@ let assT     := A_sg_CS_associative _ _ _ pT in
 |}.
 
 
+
 End Proofs.   
 
 Section Combinators.
 
+Definition A_sg_llex_INTERNAL
+           (S T : Type)
+           (argT : T) 
+           (A : A_sg S)
+           (B : A_sg T)
+           (idemS : bop_idempotent S (A_eqv_eq _ (A_sg_eqv _ A)) (A_sg_bop _ A))
+           (commS : bop_commutative S (A_eqv_eq _ (A_sg_eqv _ A)) (A_sg_bop _ A))
+           (P : (bop_selective S (A_eqv_eq _ (A_sg_eqv _ A)) (A_sg_bop _ A)) +
+                (bop_is_id T (A_eqv_eq _ (A_sg_eqv _ B)) (A_sg_bop _ B) argT)) : A_sg (S * T)  :=
+let eqvS   := A_sg_eqv _ A in
+let eqvT   := A_sg_eqv _ B in
+let eqS    := A_eqv_eq _ eqvS in
+let eqT    := A_eqv_eq _ eqvT in
+let eqvPS  := A_eqv_proofs _ eqvS in
+let eqvPT  := A_eqv_proofs _ eqvT in
+let bS     := A_sg_bop _ A in
+let bT     := A_sg_bop _ B in
+let PS     := A_sg_proofs _ A in
+let PT     := A_sg_proofs _ B in
+let idS_d  := A_sg_exists_id_d _ A in
+let idT_d  := A_sg_exists_id_d _ B in
+(* these bits should move to the A_eqv structures *)
+let f      := A_eqv_new _ eqvS in
+let g      := A_eqv_new _ eqvT in
+let ntS    := A_eqv_not_trivial _ eqvS in
+let ntT    := A_eqv_not_trivial _ eqvT in
+let wS     := A_eqv_witness _ eqvS in
+let wT     := A_eqv_witness _ eqvT in
+{| 
+  A_sg_eqv          := A_eqv_product S T eqvS eqvT 
+; A_sg_bop          := bop_llex argT eqS bS bT 
+; A_sg_exists_id_d  := bop_llex_exists_id_decide S T argT eqS eqT bS bT eqvPS eqvPT idS_d idT_d 
+; A_sg_exists_ann_d := bop_llex_exists_ann_decide S T argT eqS eqT bS bT eqvPS eqvPT (A_sg_exists_ann_d _ A) (A_sg_exists_ann_d _ B) 
+; A_sg_proofs       := sg_llex_proofs S T wS wT argT eqS eqT f ntS g ntT bS bT eqvPS eqvPT PS PT idemS commS P
+; A_sg_ast          := Ast_sg_llex (A_sg_ast S A, A_sg_ast T B)
+|}.
 
-Definition A_sg_CI_llex_from_CI_CI (S T : Type) (A : A_sg_CI S) (B : A_sg_CI_with_id T) : A_sg_CI (S * T)  :=
+(*  
+Definition A_sg_CI_llex_from_CI_CI_with_id (S T : Type) (A : A_sg_CI S) (B : A_sg_CI_with_id T) : A_sg_CI (S * T)  :=
 let eqvS   := A_sg_CI_eqv _ A in
 let eqvT   := A_sg_CI_wi_eqv _ B in
 let eqS    := A_eqv_eq _ eqvS in
@@ -1360,9 +1965,6 @@ let bS     := A_sg_CI_bop _ A in
 let bT     := A_sg_CI_wi_bop _ B in
 let PS     := A_sg_CI_proofs _ A in
 let PT     := A_sg_CI_wi_proofs _ B in
-let idS_d  := A_sg_CI_exists_id_d _ A in
-let annS_d := A_sg_CI_exists_ann_d _ A in
-let annT_d := A_sg_CI_wi_exists_ann_d _ B in
 let exists_idT := A_sg_CI_wi_exists_id _ B in
 let idT    := projT1 exists_idT in
 let is_idT := projT2 exists_idT in 
@@ -1371,10 +1973,10 @@ let wT     := A_eqv_witness _ eqvT in
 {|
    A_sg_CI_eqv          := A_eqv_product S T eqvS eqvT                                                
  ; A_sg_CI_bop          := bop_llex idT eqS bS bT 
- ; A_sg_CI_exists_id_d  := bop_llex_exists_id_decide S T idT eqS eqT bS bT eqvPS eqvPT idS_d (inl exists_idT)
- ; A_sg_CI_exists_ann_d := bop_llex_exists_ann_decide S T idT eqS eqT bS bT eqvPS eqvPT annS_d annT_d                                                 
+ ; A_sg_CI_not_exists_id  := bop_llex_not_exists_id_left _ _ eqS eqT bS bT idT (A_sg_CI_not_exists_id _ A)
+ ; A_sg_CI_not_exists_ann := bop_llex_not_exists_ann_left _ _ eqS eqT bS bT idT (A_sg_CI_not_exists_ann _ A)
  ; A_sg_CI_proofs       := sg_CI_llex_proofs_v1 S T wT idT eqS eqT bS bT eqvPS eqvPT PS PT is_idT 
- ; A_sg_CI_ast          := Ast_sg_llex (A_sg_CI_ast S A, A_sg_CI_wi_ast T B)  (* Fix *) 
+ ; A_sg_CI_ast          := Ast_sg_llex (A_sg_CI_ast S A, A_sg_CI_wi_ast T B)
 |}.
 
   
@@ -1433,10 +2035,45 @@ let wT     := A_eqv_witness _ eqvT in
  ; A_sg_CS_proofs       := sg_CS_llex_proofs S T wT eqS eqT bS bT eqvPS eqvPT PS PT 
  ; A_sg_CS_ast          := Ast_sg_llex (A_sg_CS_ast S A, A_sg_CS_ast T B)  (* Fix *) 
 |}.     
-
+*) 
 End Combinators. 
 
 End ACAS.
+
+
+Section AMCAS.
+
+Open Scope list_scope.
+Open Scope string_scope.
+
+
+Definition A_mcas_sg_llex (S T : Type) (A : A_sg_mcas S)  (B : A_sg_mcas T)  : A_sg_mcas (S * T) :=
+match A_sg_mcas_cast_up _ A, A_sg_mcas_cast_up _ B with
+| A_MCAS_sg _ A', A_MCAS_sg _ B'               =>
+  let sgPS := A_sg_proofs _ A' in 
+  match A_sg_commutative_d _ _ _ sgPS, A_sg_idempotent_d _ _ _ sgPS with
+  | inl comm, inl idem =>
+    match A_sg_selective_d _ _ _ sgPS with
+    | inl sel => A_sg_classify _ (A_MCAS_sg _ (A_sg_llex_INTERNAL S T (A_eqv_witness _ (A_sg_eqv _ B')) A' B' idem comm (inl sel)))
+    | inr nsel =>
+      match A_sg_exists_id_d _ B' with
+      | inl (existT _ id idP) => A_sg_classify _ (A_MCAS_sg _ (A_sg_llex_INTERNAL S T id A' B' idem comm (inr idP)))
+      | inr _                => A_MCAS_sg_Error _ ("mcas_sg_llex : second semigroup must have an identity" :: nil)        
+      end 
+    end
+  | inl _, inr _       => A_MCAS_sg_Error _ ("mcas_sg_llex : first semigroup must be idempotent" :: nil)
+  | inr _, inl _       => A_MCAS_sg_Error _ ("mcas_sg_llex : first semigroup must be commutative" :: nil)        
+  | inr _, inr _       => A_MCAS_sg_Error _ ("mcas_sg_llex : first semigroup must be commutative and idempotent" :: nil)        
+  end
+| A_MCAS_sg_Error _ sl1, A_MCAS_sg_Error _ sl2 => A_MCAS_sg_Error _ (sl1 ++ sl2)
+| A_MCAS_sg_Error _ sl1, _                     => A_MCAS_sg_Error _ sl1
+| _,  A_MCAS_sg_Error _ sl2                    => A_MCAS_sg_Error _ sl2
+| _, _                                         => A_MCAS_sg_Error _ ("Internal Error : mcas_sg_llex" :: nil)
+end.
+
+End AMCAS.
+
+
 
 
 Section CAS.
@@ -1518,6 +2155,49 @@ End Certify.
 
 Section Certificates.
 
+Definition sg_llex_certificates {S T : Type}
+           (eqS : brel S) 
+           (wS : S)
+           (f : S -> S)           
+           (wT argT : T)
+           (g : T -> T)
+           (bS : binary_op S)            
+           (pS : @sg_certificates S)
+           (pT : @sg_certificates T)
+           (idemS : @assert_idempotent S)
+           (commS : @assert_commutative S)
+           (P : (@assert_selective S) + (@assert_exists_id T)) : @sg_certificates (S * T) :=
+{|
+  sg_associative      := Assert_Associative 
+; sg_congruence       := Assert_Bop_Congruence 
+; sg_commutative_d    := match sg_commutative_d pT with
+                         | Certify_Commutative              => Certify_Commutative
+                         | Certify_Not_Commutative (t1, t2) => Certify_Not_Commutative ((wS, t1), (wS, t2))
+                         end
+; sg_selective_d      := match sg_selective_d pS with
+                         | Certify_Selective       =>
+                           match sg_selective_d pT with
+                           | Certify_Selective       =>  Certify_Selective
+                           | Certify_Not_Selective (t1, t2) => Certify_Not_Selective ((wS, t1), (wS, t2))                                  
+                           end 
+                         | Certify_Not_Selective (s1, s2) => Certify_Not_Selective ((s1, wT), (s2, wT))
+                         end
+; sg_idempotent_d     := match sg_idempotent_d pT with
+                         | Certify_Idempotent       => Certify_Idempotent
+                         | Certify_Not_Idempotent t => Certify_Not_Idempotent (wS, t)
+                         end
+; sg_is_left_d        := Certify_Not_Is_Left (witness_llex_not_is_left S T eqS bS wS f wT) 
+; sg_is_right_d       := Certify_Not_Is_Right (witness_llex_not_is_right S T eqS bS wS f wT) 
+; sg_left_cancel_d    := Certify_Not_Left_Cancellative (witness_llex_not_left_cancellative S T eqS bS wS f wT g)
+; sg_right_cancel_d   := Certify_Not_Right_Cancellative (witness_llex_not_right_cancellative S T eqS bS wS f wT g)
+; sg_left_constant_d  := Certify_Not_Left_Constant (witness_llex_not_left_constant S T eqS bS wS f wT argT g)
+; sg_right_constant_d := Certify_Not_Right_Constant (witness_llex_not_right_constant S T eqS bS wS f wT argT g)
+; sg_anti_left_d      := Certify_Not_Anti_Left (witness_llex_not_anti_left S T eqS bS wS f wT argT)
+; sg_anti_right_d     := Certify_Not_Anti_Right (witness_llex_not_anti_right S T eqS bS wS f wT argT)
+|}.
+ 
+  
+
 Definition sg_CI_llex_certs_v1 {S T : Type} (wT : T) 
         (pS : @sg_CI_certificates S)
         (pT : @sg_CI_certificates T)
@@ -1561,6 +2241,36 @@ End Certificates.
 Section Combinators.
 
 
+Definition sg_llex_INTERNAL
+           {S T : Type} 
+           (argT : T) 
+           (A : @sg S)
+           (B : @sg T)
+           (idemS : @assert_idempotent S)
+           (commS : @assert_commutative S)
+           (P : (@assert_selective S) + (@assert_exists_id T)) : @sg (S * T)  :=
+let eqvS   := sg_eqv A in
+let eqvT   := sg_eqv B in  
+let eqS    := eqv_eq eqvS in
+let bS     := sg_bop A in
+let bT     := sg_bop B in
+let PS     := sg_certs A in
+let PT     := sg_certs B in
+let f      := eqv_new eqvS in
+let g      := eqv_new eqvT in
+let wS     := eqv_witness eqvS in
+let wT     := eqv_witness eqvT in
+{| 
+  sg_eqv          := eqv_product eqvS eqvT 
+; sg_bop          := bop_llex argT eqS bS bT 
+; sg_exists_id_d  := check_exists_id_llex (sg_exists_id_d A) (sg_exists_id_d B)
+; sg_exists_ann_d := check_exists_ann_llex (sg_exists_ann_d A) (sg_exists_ann_d B)
+; sg_certs        := sg_llex_certificates eqS wS f wT argT g bS PS PT idemS commS P
+; sg_ast          := Ast_sg_llex (sg_ast A, sg_ast B)
+|}.
+  
+
+(*
 Definition sg_CI_llex_from_CI_CI {S T : Type} (A : @sg_CI S) (B : @sg_CI_with_id T) : @sg_CI (S * T)  :=
 let eqvS   := sg_CI_eqv A in
 let eqvT   := sg_CI_wi_eqv B in
@@ -1633,9 +2343,46 @@ let annT_d := sg_CS_exists_ann_d B in
  ; sg_CS_certs        := sg_CS_llex_certs PS PT 
  ; sg_CS_ast          := Ast_sg_llex (sg_CS_ast A, sg_CS_ast B)  (* Fix *) 
 |}.
-  
+*)   
 End Combinators. 
+
+
 End CAS.
+
+
+
+Section AMCAS.
+
+Open Scope list_scope.
+Open Scope string_scope.
+
+
+Definition mcas_sg_llex {S T : Type} (A : @sg_mcas S)  (B : @sg_mcas T)  : @sg_mcas (S * T) :=
+match sg_mcas_cast_up _ A, sg_mcas_cast_up _ B with
+| MCAS_sg A', MCAS_sg B'               =>
+  let sgPS := sg_certs A' in 
+  match sg_commutative_d sgPS, sg_idempotent_d sgPS with
+  | Certify_Commutative, Certify_Idempotent =>
+    match sg_selective_d sgPS with
+    | Certify_Selective => sg_classify _ (MCAS_sg (sg_llex_INTERNAL (eqv_witness (sg_eqv B')) A' B' Assert_Idempotent Assert_Commutative (inl Assert_Selective)))
+    | Certify_Not_Selective _ => 
+      match sg_exists_id_d B' with
+      | Certify_Exists_Id id  => sg_classify _ (MCAS_sg (sg_llex_INTERNAL id A' B' Assert_Idempotent Assert_Commutative (inr (Assert_Exists_Id id))))
+      | Certify_Not_Exists_Id => MCAS_sg_Error ("mcas_sg_llex : second semigroup must have an identity" :: nil)        
+      end 
+    end
+  | Certify_Commutative, Certify_Not_Idempotent _       => MCAS_sg_Error ("mcas_sg_llex : first semigroup must be idempotent" :: nil)
+  | Certify_Not_Commutative _, Certify_Idempotent       => MCAS_sg_Error ("mcas_sg_llex : first semigroup must be commutative" :: nil)        
+  | Certify_Not_Commutative _, Certify_Not_Idempotent _ => MCAS_sg_Error ("mcas_sg_llex : first semigroup must be commutative and idempotent" :: nil)        
+  end
+| MCAS_sg_Error sl1, MCAS_sg_Error sl2 => MCAS_sg_Error (sl1 ++ sl2)
+| MCAS_sg_Error sl1, _                 => MCAS_sg_Error sl1
+| _,  MCAS_sg_Error sl2                => MCAS_sg_Error sl2
+| _, _                                 => MCAS_sg_Error ("Internal Error : mcas_sg_llex" :: nil)
+end.
+
+End AMCAS.
+
 
 Section Verify.
 
@@ -1690,12 +2437,61 @@ Variable wT : T.
 Variable argT : T.  
 Variable eqS : brel S.
 Variable eqT : brel T.
-Variable f : T → T. 
-Variable ntT : brel_not_trivial T eqT f.  
+Variable f : S → S. 
+Variable ntS : brel_not_trivial S eqS f.  
+Variable g : T → T. 
+Variable ntT : brel_not_trivial T eqT g.  
 Variable bS : binary_op S. 
 Variable bT : binary_op T.
 Variable eqvS : eqv_proofs S eqS.
 Variable eqvT : eqv_proofs T eqT.
+
+
+Lemma correct_sg_llex_certificates_CS_version 
+  (PS : sg_proofs S eqS bS)
+  (PT : sg_proofs T eqT bT)       
+  (idemS : bop_idempotent S eqS bS) 
+  (commS : bop_commutative S eqS bS) 
+  (selS  : bop_selective S eqS bS) : 
+ sg_llex_certificates eqS wS f wT wT g bS (P2C_sg S eqS bS PS) (P2C_sg T eqT bT PT) 
+                Assert_Idempotent
+                Assert_Commutative
+                (inl Assert_Selective)
+ =
+ P2C_sg (S * T) (brel_product eqS eqT) 
+                (bop_llex wT eqS bS bT) 
+                (sg_llex_proofs S T wS wT wT eqS eqT f ntS g ntT bS bT eqvS eqvT PS PT idemS commS (inl selS)). 
+Proof. unfold P2C_sg, sg_llex_certificates, sg_llex_proofs; simpl. 
+       destruct PS, PT; simpl.
+       destruct A_sg_commutative_d0 as [commT | [[t1 t2] A]]; 
+       destruct A_sg_selective_d as [selS' | [[s1 s2] [B C]]];
+       destruct A_sg_selective_d0 as [selT | [[t3 t4] [L R]]];          
+       destruct A_sg_idempotent_d0 as [idemT | [t5 D]]; simpl; try reflexivity. 
+Qed. 
+
+Lemma correct_sg_llex_certificates_CI_version
+  (id : T) 
+  (PS : sg_proofs S eqS bS)
+  (PT : sg_proofs T eqT bT)       
+  (idemS : bop_idempotent S eqS bS) 
+  (commS : bop_commutative S eqS bS) 
+  (idP  :  bop_is_id T eqT bT id) : 
+ sg_llex_certificates eqS wS f wT id g bS (P2C_sg S eqS bS PS) (P2C_sg T eqT bT PT) 
+                Assert_Idempotent
+                Assert_Commutative
+                (inr (Assert_Exists_Id id))
+ =
+ P2C_sg (S * T) (brel_product eqS eqT) 
+                (bop_llex id eqS bS bT) 
+                (sg_llex_proofs S T wS wT id eqS eqT f ntS g ntT bS bT eqvS eqvT PS PT idemS commS (inr idP)). 
+Proof. unfold P2C_sg, sg_llex_certificates, sg_llex_proofs; simpl. 
+       destruct PS, PT; simpl.
+       destruct A_sg_commutative_d0 as [commT | [[t1 t2] A]]; 
+       destruct A_sg_selective_d as [selS' | [[s1 s2] [B C]]];
+       destruct A_sg_selective_d0 as [selT | [[t3 t4] [L R]]];          
+       destruct A_sg_idempotent_d0 as [idemT | [t5 D]]; simpl; try reflexivity. 
+Qed. 
+
 
 
 
@@ -1721,6 +2517,7 @@ Lemma correct_sg_CI_llex_certs_v2 (pS : sg_CS_proofs S eqS bS) (pT : sg_CI_proof
                        (sg_CI_llex_proofs_v2 S T wS argT eqS eqT bS bT eqvS eqvT pS pT)
      =
      sg_CI_llex_certs_v2 wS (P2C_sg_CS S eqS bS pS) (P2C_sg_CI T eqT bT pT).
+
 Proof. unfold sg_CI_llex_proofs_v2, sg_CI_llex_certs_v2, P2C_sg_CI, P2C_sg_CS; simpl.
        destruct pS. simpl. destruct A_sg_CI_not_selective as [[s1 s2] [C D]]. simpl.
        unfold p2c_not_selective_assert. simpl. 
@@ -1741,7 +2538,81 @@ End Certificates.
 
 Section Combinators.
 
+Theorem correct_sg_llex_INTERNAL_CS_version
+        (S T : Type)
+        (sgS : A_sg S)
+        (sgT : A_sg T)
+        (idemS : bop_idempotent S (A_eqv_eq _ (A_sg_eqv _ sgS)) (A_sg_bop _ sgS))
+        (commS : bop_commutative S (A_eqv_eq _ (A_sg_eqv _ sgS)) (A_sg_bop _ sgS))
+        (selS  : bop_selective S (A_eqv_eq _ (A_sg_eqv _ sgS)) (A_sg_bop _ sgS)) : 
+         sg_llex_INTERNAL (A_eqv_witness T (A_sg_eqv T sgT))
+                          (A2C_sg S sgS)
+                          (A2C_sg T sgT)
+                          Assert_Idempotent
+                          Assert_Commutative
+                          (inl Assert_Selective)
+         = 
+         A2C_sg (S * T) (A_sg_llex_INTERNAL S T (A_eqv_witness T (A_sg_eqv T sgT)) sgS sgT idemS commS (inl selS)). 
+ Proof. unfold sg_llex_INTERNAL, A_sg_llex_INTERNAL, A2C_sg; simpl. 
+        rewrite correct_eqv_product.
+        rewrite correct_check_exists_id_llex. 
+        rewrite correct_check_exists_ann_llex.        
+        rewrite <- correct_sg_llex_certificates_CS_version. 
+        reflexivity.
+Qed. 
 
+
+Theorem correct_sg_llex_INTERNAL_CI_version
+        (S T : Type)
+        (id : T) 
+        (sgS : A_sg S)
+        (sgT : A_sg T)
+        (idemS : bop_idempotent S (A_eqv_eq _ (A_sg_eqv _ sgS)) (A_sg_bop _ sgS))
+        (commS : bop_commutative S (A_eqv_eq _ (A_sg_eqv _ sgS)) (A_sg_bop _ sgS))
+        (idP   : bop_is_id T (A_eqv_eq _ (A_sg_eqv _ sgT)) (A_sg_bop _ sgT) id) : 
+         sg_llex_INTERNAL id 
+                          (A2C_sg S sgS)
+                          (A2C_sg T sgT)
+                          Assert_Idempotent
+                          Assert_Commutative
+                          (inr (Assert_Exists_Id id))
+         = 
+         A2C_sg (S * T) (A_sg_llex_INTERNAL S T id sgS sgT idemS commS (inr idP)). 
+ Proof. unfold sg_llex_INTERNAL, A_sg_llex_INTERNAL, A2C_sg; simpl. 
+        rewrite correct_eqv_product.
+        rewrite correct_check_exists_id_llex. 
+        rewrite correct_check_exists_ann_llex.        
+        rewrite <- correct_sg_llex_certificates_CI_version. 
+        reflexivity.
+Qed. 
+
+
+ Theorem correct_mcas_sg_product (S T : Type) (sgS : A_sg_mcas S) (sgT : A_sg_mcas T): 
+         mcas_sg_llex (A2C_mcas_sg S sgS) (A2C_mcas_sg T sgT) 
+         = 
+         A2C_mcas_sg (S * T) (A_mcas_sg_llex S T sgS sgT).
+Proof. unfold mcas_sg_llex, A_mcas_sg_llex. 
+       rewrite correct_sg_mcas_cast_up.
+       rewrite correct_sg_mcas_cast_up.       
+       destruct (A_sg_cas_up_is_error_or_sg S sgS) as [[l1 A] | [s1 A]];
+       destruct (A_sg_cas_up_is_error_or_sg T sgT) as [[l2 B] | [s2 B]].
+       + rewrite A, B. simpl. reflexivity. 
+       + rewrite A, B. simpl. reflexivity.
+       + rewrite A, B. simpl. reflexivity.
+       + rewrite A, B. simpl.
+         destruct (A_sg_commutative_d S (A_eqv_eq S (A_sg_eqv S s1)) (A_sg_bop S s1) (A_sg_proofs S s1)) as [commS | ncommS];
+         destruct (A_sg_selective_d S (A_eqv_eq S (A_sg_eqv S s1)) (A_sg_bop S s1) (A_sg_proofs S s1)) as [selS | nselS];           
+         destruct (A_sg_idempotent_d S (A_eqv_eq S (A_sg_eqv S s1)) (A_sg_bop S s1) (A_sg_proofs S s1)) as [idemS | nidemS]; simpl; try reflexivity.
+         ++ rewrite (correct_sg_llex_INTERNAL_CS_version S T s1 s2 idemS commS selS). 
+            apply correct_sg_classify_sg.            
+         ++ destruct (A_sg_exists_id_d T s2) as [[id idP]| nid]; try reflexivity.
+            simpl. 
+            rewrite (correct_sg_llex_INTERNAL_CI_version S T id s1 s2 idemS commS idP).
+            apply correct_sg_classify_sg.            
+Qed. 
+
+
+(*
 Theorem correct_sg_CI_llex_from_CI_CI (S T : Type) (A : A_sg_CI S) (B : A_sg_CI_with_id T) : 
   sg_CI_llex_from_CI_CI (A2C_sg_CI S A) (A2C_sg_CI_with_id T B)
   =
@@ -1784,7 +2655,7 @@ Proof. unfold sg_CS_llex_from_CS_CS, A_sg_CS_llex_from_CS_CS.
        rewrite correct_sg_CS_certs_llex. 
        reflexivity. 
 Qed.
-  
+*)   
 End Combinators.   
 End Verify.
   

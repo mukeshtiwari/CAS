@@ -46,7 +46,6 @@ CAS=\
    coq/sg/theory.v \
    coq/sg/structures.v \
    coq/sg/cast_up.v \
-   coq/sg/cast_down.v \
    coq/sg/plus.v \
    coq/sg/times.v \
    coq/sg/and.v \
@@ -77,6 +76,7 @@ CAS=\
    coq/po/subset.v \
    coq/po/minset_subset.v \
    coq/po/lex.v \
+   coq/po/set_lte.v \
    coq/po/dual.v \
    coq/po/from_sg.v \
    coq/tr/properties.v \
@@ -88,7 +88,6 @@ CAS=\
    coq/bs/structures.v \
    coq/bs/theory.v \
    coq/bs/cast_up.v \
-   coq/bs/cast_down.v \
    coq/bs/min_plus.v \
    coq/bs/max_plus.v \
    coq/bs/dual.v \

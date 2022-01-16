@@ -616,10 +616,10 @@ let timesT := A_bs_times T bsT in
      A_bs_eqv        := A_eqv_product S T eqvS eqvT 
    ; A_bs_plus       := bop_product plusS plusT 
    ; A_bs_times      := bop_product timesS timesT 
-   ; A_bs_plus_proofs := asg_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
+   ; A_bs_plus_proofs := sg_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
                            (A_bs_plus_proofs S bsS) 
                            (A_bs_plus_proofs T bsT) 
-   ; A_bs_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+   ; A_bs_times_proofs := sg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                            (A_bs_times_proofs S bsS) 
                            (A_bs_times_proofs T bsT)
    ; A_bs_id_ann_proofs := id_ann_proofs_product S T rS rT plusS timesS plusT timesT
@@ -657,7 +657,7 @@ let timesT := A_dioid_times T bsT in
    ; A_dioid_plus_proofs := sg_CI_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
                            (A_dioid_plus_proofs S bsS) 
                            (A_dioid_plus_proofs T bsT) 
-   ; A_dioid_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+   ; A_dioid_times_proofs := sg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                            (A_dioid_times_proofs S bsS) 
                            (A_dioid_times_proofs T bsT)
    ; A_dioid_id_ann_proofs := dually_bounded_proofs_product S T rS rT plusS timesS plusT timesT
@@ -696,7 +696,7 @@ let timesT := A_selective_dioid_times T bsT in
    ; A_dioid_plus_proofs := sg_CI_proofs_product_from_sg_CS_proofs S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
                            (A_selective_dioid_plus_proofs S bsS) 
                            (A_selective_dioid_plus_proofs T bsT) 
-   ; A_dioid_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+   ; A_dioid_times_proofs := sg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                            (A_selective_dioid_times_proofs S bsS) 
                            (A_selective_dioid_times_proofs T bsT)
    ; A_dioid_id_ann_proofs := dually_bounded_proofs_product S T rS rT plusS timesS plusT timesT
@@ -707,47 +707,6 @@ let timesT := A_selective_dioid_times T bsT in
                            (A_selective_dioid_proofs T bsT)
    ; A_dioid_ast        := Ast_bs_product (A_selective_dioid_ast S bsS, A_selective_dioid_ast T bsT)
 |}. 
-
-
-(*
-Definition A_pre_dioid_product : ∀ (S T : Type),  A_pre_dioid S -> A_pre_dioid T -> A_pre_dioid_NS (S * T) 
-:= λ S T bsS bsT,
-let eqvS   := A_pre_dioid_eqv S bsS   in
-let eqvT   := A_pre_dioid_eqv T bsT   in
-let peqvS  := A_eqv_proofs S eqvS in
-let peqvT  := A_eqv_proofs T eqvT in 
-let rS     := A_eqv_eq S eqvS  in 
-let rT     := A_eqv_eq T eqvT  in
-let s      := A_eqv_witness S eqvS in
-let f      := A_eqv_new S eqvS in
-let Pf     := A_eqv_not_trivial S eqvS in
-let t      := A_eqv_witness T eqvT in
-let g      := A_eqv_new T eqvT in
-let Pg     := A_eqv_not_trivial T eqvT in
-let plusS  := A_pre_dioid_plus S bsS  in 
-let plusT  := A_pre_dioid_plus T bsT  in
-let timesS := A_pre_dioid_times S bsS in 
-let timesT := A_pre_dioid_times T bsT in 
-{| 
-     A_pre_dioid_NS_eqv        := A_eqv_product S T eqvS eqvT 
-   ; A_pre_dioid_NS_plus       := bop_product plusS plusT 
-   ; A_pre_dioid_NS_times      := bop_product timesS timesT 
-   ; A_pre_dioid_NS_plus_proofs := sg_CI_to_CINS_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
-                           (A_pre_dioid_plus_proofs S bsS) 
-                           (A_pre_dioid_plus_proofs T bsT) 
-   ; A_pre_dioid_NS_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
-                           (A_pre_dioid_times_proofs S bsS) 
-                           (A_pre_dioid_times_proofs T bsT)
-   ; A_pre_dioid_NS_id_ann_proofs := id_ann_proofs_product S T rS rT plusS timesS plusT timesT
-                           (A_pre_dioid_id_ann_proofs S bsS) 
-                           (A_pre_dioid_id_ann_proofs T bsT)                           
-   ; A_pre_dioid_NS_proofs    := dioid_proofs_product S T rS rT plusS timesS plusT timesT s t peqvS peqvT
-                                        (A_pre_dioid_proofs S bsS) 
-                                       (A_pre_dioid_proofs T bsT)
-   ; A_pre_dioid_NS_ast        := Ast_bs_product(A_pre_dioid_ast S bsS, A_pre_dioid_ast T bsT) (* FIX *) 
-|}. 
-*) 
-
 
 
 Definition semiring_proofs_product : 
@@ -807,7 +766,7 @@ let timesT := A_presemiring_times T sr2 in
    ; A_presemiring_plus_proofs  := sg_C_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
                                 (A_presemiring_plus_proofs S sr1)
                                 (A_presemiring_plus_proofs T sr2)                                 
-   ; A_presemiring_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+   ; A_presemiring_times_proofs := sg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                                 (A_presemiring_times_proofs S sr1)
                                 (A_presemiring_times_proofs T sr2)
    ; A_presemiring_id_ann_proofs := id_ann_proofs_product S T rS rT plusS timesS plusT timesT
@@ -845,7 +804,7 @@ let timesT := A_semiring_times T sr2 in
    ; A_semiring_plus_proofs  := sg_C_proofs_product S T rS rT plusS plusT s f t g Pf Pg peqvS peqvT 
                                 (A_semiring_plus_proofs S sr1)
                                 (A_semiring_plus_proofs T sr2)                                 
-   ; A_semiring_times_proofs := msg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
+   ; A_semiring_times_proofs := sg_proofs_product S T rS rT timesS timesT s f t g Pf Pg peqvS peqvT 
                                 (A_semiring_times_proofs S sr1)
                                 (A_semiring_times_proofs T sr2)
    ; A_semiring_id_ann_proofs := pid_is_tann_proofs_product S T rS rT plusS timesS plusT timesT
@@ -997,19 +956,18 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_bs_mcas_product (S T : Type) (A : A_bs_mcas S) (B : A_bs_mcas T) : A_bs_mcas (S * T)  := 
-  match A_bs_from_mcas _ A with
-  | A_BS_bs _ C =>
-     match A_bs_from_mcas _ B with
-     | A_BS_bs _ D => A_BS_bs _ (A_bs_product _ _ C D)
-     | A_BS_Error _ str => A_BS_Error _ str                         
-     | _ => A_BS_Error _ "internal error : A_bs_mcas_product"
-     end
-  | A_BS_Error _ str => A_BS_Error _ str                                
-  | _ => A_BS_Error _ "internal error : A_bs_mcas_product"
+Open Scope list_scope.
+Open Scope string_scope.     
+
+Definition A_mcas_bs_product (S T : Type) (A : A_bs_mcas S) (B : A_bs_mcas T) : A_bs_mcas (S * T)  := 
+  match A_bs_mcas_cast_up _ A, A_bs_mcas_cast_up _ B  with
+  | A_BS_bs _ C, A_BS_bs _ D            => A_bs_classify _ (A_BS_bs _ (A_bs_product _ _ C D))
+  | A_BS_Error _ sl1,  A_BS_Error _ sl2 => A_BS_Error _ (sl1 ++ sl2) 
+  | _,  A_BS_Error _ sl2                => A_BS_Error _ sl2
+  | A_BS_Error _ sl1, _                 => A_BS_Error _ sl1                                       
+  | _, _ => A_BS_Error _ ("internal error : A_bs_mcas_product" :: nil) 
   end.
     
-
 End AMCAS.   
 
 
@@ -1268,14 +1226,8 @@ Definition bs_product : ∀ {S T : Type},  @bs S -> @bs T -> @bs (S * T)
      bs_eqv         := eqv_product (bs_eqv bsS) (bs_eqv bsT) 
    ; bs_plus        := bop_product (bs_plus bsS) (bs_plus bsT) 
    ; bs_times       := bop_product (bs_times bsS) (bs_times bsT) 
-   ; bs_plus_certs  := asg_certs_product (eqv_eq (bs_eqv bsS)) (eqv_eq (bs_eqv bsT)) (bs_plus bsS) (bs_plus bsT) 
-                           (eqv_witness (bs_eqv bsS))
-                           (eqv_new (bs_eqv bsS))                                         
-                           (eqv_witness (bs_eqv bsT))
-                           (eqv_new (bs_eqv bsT))                                                                    
-                           (bs_plus_certs bsS) 
-                           (bs_plus_certs bsT) 
-   ; bs_times_certs := msg_certs_product 
+   ; bs_plus_certs  := sg_certs_product (eqv_witness (bs_eqv bsS)) (eqv_witness (bs_eqv bsT)) (bs_plus_certs bsS) (bs_plus_certs bsT) 
+   ; bs_times_certs := sg_certs_product 
                            (eqv_witness (bs_eqv bsS))
                            (eqv_witness (bs_eqv bsT))
                            (bs_times_certs bsS) 
@@ -1305,7 +1257,7 @@ Definition semiring_certs_product :
 |}.
 
 
-
+(*
 Definition presemiring_product : ∀ {S T : Type},  @presemiring S ->  @presemiring T -> @presemiring (S * T)
 := λ S T s1 s2,
 let wS := eqv_witness (presemiring_eqv s1) in
@@ -1323,7 +1275,7 @@ let mulT := presemiring_times s2 in
    ; presemiring_plus         := bop_product addS addT
    ; presemiring_times        := bop_product mulS mulT
    ; presemiring_plus_certs   := sg_C_certs_product eqS eqT addS addT wS fS wT fT (presemiring_plus_certs s1) (presemiring_plus_certs s2) 
-   ; presemiring_times_certs  := msg_certs_product wS wT (presemiring_times_certs s1) (presemiring_times_certs s2)
+   ; presemiring_times_certs  := sg_certs_product wS wT (presemiring_times_certs s1) (presemiring_times_certs s2)
    ; presemiring_id_ann_certs := id_ann_certs_product (presemiring_id_ann_certs s1) (presemiring_id_ann_certs s2) 
    ; presemiring_certs        := semiring_certs_product wS wT (presemiring_certs s1) (presemiring_certs s2)
    ; presemiring_ast          := Ast_bs_product (presemiring_ast s1, presemiring_ast s2)
@@ -1347,13 +1299,13 @@ let mulT := semiring_times s2 in
    ; semiring_plus         := bop_product addS addT
    ; semiring_times        := bop_product mulS mulT
    ; semiring_plus_certs   := sg_C_certs_product eqS eqT addS addT wS fS wT fT (semiring_plus_certs s1) (semiring_plus_certs s2) 
-   ; semiring_times_certs  := msg_certs_product wS wT (semiring_times_certs s1) (semiring_times_certs s2)
+   ; semiring_times_certs  := sg_certs_product wS wT (semiring_times_certs s1) (semiring_times_certs s2)
    ; semiring_id_ann_certs := pid_is_tann_certs_product (semiring_id_ann_certs s1) (semiring_id_ann_certs s2)        
    ; semiring_certs        := semiring_certs_product wS wT (semiring_certs s1) (semiring_certs s2)
    ; semiring_ast          := Ast_bs_product (semiring_ast s1, semiring_ast s2)
 |}.
 
-
+*)
 
 Definition dioid_certs_product {S T : Type} (CS: @dioid_certificates S) (CT : @dioid_certificates T) : 
         @dioid_certificates (S * T) := 
@@ -1405,21 +1357,20 @@ End CAS.
 
 Section MCAS.
 
-Definition bs_mcas_product {S T : Type} (A : @bs_mcas S) (B : @bs_mcas T) : @bs_mcas (S * T)  := 
-  match bs_from_mcas A with
-  | BS_bs C =>
-     match bs_from_mcas B with
-     | BS_bs D => BS_bs (bs_product C D)
-     | BS_Error str => BS_Error str                         
-     | _ => BS_Error "internal error : bs_mcas_product"
-     end
-  | BS_Error str => BS_Error str                                
-  | _ => BS_Error "internal error : bs_mcas_product"
+Open Scope list_scope.
+Open Scope string_scope.     
+
+Definition mcas_bs_product {S T : Type} (A : @bs_mcas S) (B : @bs_mcas T) : @bs_mcas (S * T)  := 
+  match bs_mcas_cast_up A, bs_mcas_cast_up B  with
+  | BS_bs C, BS_bs D            => bs_classify (BS_bs (bs_product C D))
+  | BS_Error sl1,  BS_Error sl2 => BS_Error (sl1 ++ sl2) 
+  | _,  BS_Error sl2            => BS_Error sl2
+  | BS_Error sl1, _             => BS_Error sl1                                       
+  | _, _                        => BS_Error ("internal error : A_bs_mcas_product" :: nil) 
   end.
     
-
 End MCAS.   
-
+  
 
 
 Section Verify.
@@ -1765,15 +1716,32 @@ Theorem correct_bs_product : ∀ (S T : Type) (bsS: A_bs S) (bsT : A_bs T),
 Proof. intros S T bsS bsT. 
        unfold bs_product, A_bs_product, A2C_bs; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_asg_certs_product. 
-       rewrite <- correct_msg_certs_product. 
+       rewrite <- correct_sg_certs_product. 
+       rewrite <- correct_sg_certs_product. 
        rewrite <- correct_bs_certs_product.
        rewrite correct_id_ann_certs_product. 
        reflexivity. 
 Qed.
 
 
+Theorem correct_mcas_bs_product (S T : Type) (bsS : A_bs_mcas S) (bsT : A_bs_mcas T): 
+         mcas_bs_product (A2C_mcas_bs S bsS) (A2C_mcas_bs T bsT) 
+         = 
+         A2C_mcas_bs (S * T) (A_mcas_bs_product S T bsS bsT).
+Proof. unfold mcas_bs_product, A_mcas_bs_product. 
+       rewrite correct_bs_mcas_cast_up.
+       rewrite correct_bs_mcas_cast_up.       
+       destruct (A_bs_cas_up_is_error_or_bs S bsS) as [[l1 A] | [s1 A]];
+       destruct (A_bs_cas_up_is_error_or_bs T bsT) as [[l2 B] | [s2 B]].
+       + rewrite A, B. simpl. reflexivity. 
+       + rewrite A, B. simpl. reflexivity.
+       + rewrite A, B. simpl. reflexivity.
+       + rewrite A, B. simpl. rewrite correct_bs_product.
+         apply correct_bs_classify_bs. 
+Qed. 
 
+
+(*
 Theorem correct_presemiring_product : ∀ (S T : Type) (bsS: A_presemiring S) (bsT : A_presemiring T), 
    presemiring_product (A2C_presemiring S bsS) (A2C_presemiring T bsT)
    =
@@ -1781,7 +1749,7 @@ Theorem correct_presemiring_product : ∀ (S T : Type) (bsS: A_presemiring S) (b
 Proof. intros S T bsS bsT. 
        unfold presemiring_product, A_presemiring_product, A2C_presemiring; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_msg_certs_product. 
+       rewrite <- correct_sg_certs_product. 
        rewrite <- correct_sg_C_certs_product. 
        rewrite <- correct_semiring_certs_product.
        rewrite correct_id_ann_certs_product. 
@@ -1789,7 +1757,7 @@ Proof. intros S T bsS bsT.
 Qed. 
 
 
-(*
+
 Theorem correct_pre_dioid_product : ∀ (S T : Type) (bsS: A_pre_dioid S) (bsT : A_pre_dioid T), 
    pre_dioid_product (A2C_pre_dioid S bsS) (A2C_pre_dioid T bsT)
    =
@@ -1803,7 +1771,7 @@ Proof. intros S T bsS bsT.
        unfold P2C_dioid. unfold dioid_certs_product. 
        reflexivity. 
 Qed. 
-*) 
+
 Theorem correct_semiring_product : ∀ (S T : Type) (bsS: A_semiring S) (bsT : A_semiring T), 
    semiring_product (A2C_semiring S bsS) (A2C_semiring T bsT)
    =
@@ -1811,14 +1779,14 @@ Theorem correct_semiring_product : ∀ (S T : Type) (bsS: A_semiring S) (bsT : A
 Proof. intros S T bsS bsT. 
        unfold semiring_product, A_semiring_product, A2C_semiring; simpl. 
        rewrite correct_eqv_product. 
-       rewrite <- correct_msg_certs_product. 
+       rewrite <- correct_sg_certs_product. 
        rewrite <- correct_sg_C_certs_product. 
        rewrite <- correct_semiring_certs_product.
        rewrite correct_pid_is_tann_certs_product. 
        reflexivity. 
 Qed. 
 
-
+*) 
 
 
 

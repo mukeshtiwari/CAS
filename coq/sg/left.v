@@ -66,28 +66,6 @@ End Theory.
 Section ACAS.
 
 
-Definition msg_proofs_left : ∀ (S : Type) (eqvS : A_eqv S), msg_proofs S (A_eqv_eq S eqvS) (@bop_left S)
-:= λ S eqvS, 
-let rS := A_eqv_eq S eqvS in   
-let f  := A_eqv_new S eqvS in
-let s  := A_eqv_witness S eqvS in 
-let Pf := A_eqv_not_trivial S eqvS in
-let refS := A_eqv_reflexive _ _ (A_eqv_proofs S eqvS) in 
-{| 
-  A_msg_associative      := bop_left_associative S rS refS 
-  ; A_msg_congruence       := bop_left_congruence S rS
-  ; A_msg_is_left_d        := inl _ (bop_left_is_left S rS refS)
-  ; A_msg_right_cancel_d   := inl _ (bop_left_right_cancellative S rS) 
-  ; A_msg_left_constant_d  := inl _ (bop_left_left_constant S rS refS) 
-                                  
-; A_msg_commutative_d    := inr _ (bop_left_not_commutative S rS s f Pf)
-; A_msg_is_right_d       := inr _ (bop_left_not_is_right S rS s f Pf)
-; A_msg_left_cancel_d    := inr _ (bop_left_not_left_cancellative S rS s f Pf refS)
-; A_msg_right_constant_d := inr _ (bop_left_not_right_constant S rS s f Pf)
-; A_msg_anti_left_d      := inr _ (bop_left_not_anti_left S rS s refS) 
-; A_msg_anti_right_d     := inr _ (bop_left_not_anti_right S rS s refS)
-|}.
-
 Definition sg_proofs_left : ∀ (S : Type) (eqvS : A_eqv S), sg_proofs S (A_eqv_eq S eqvS) (@bop_left S)
   := λ S eqvS,
 let rS := A_eqv_eq S eqvS in   
@@ -118,7 +96,7 @@ Definition A_sg_left: ∀ (S : Type),  A_eqv S -> A_sg S
    let f  := A_eqv_new S eqvS in 
    let Pf := A_eqv_not_trivial S eqvS in 
    {| 
-     A_sg_eq           := eqvS
+     A_sg_eqv           := eqvS
    ; A_sg_bop          := @bop_left S
    ; A_sg_exists_id_d  := inr _ (bop_left_not_exists_id S rS f Pf)
    ; A_sg_exists_ann_d := inr _ (bop_left_not_exists_ann S rS f Pf)
@@ -128,25 +106,14 @@ Definition A_sg_left: ∀ (S : Type),  A_eqv S -> A_sg S
 
 End ACAS.
 
-Section CAS.
+Section AMCAS.
 
-Definition msg_certs_left : ∀ {S : Type}, @eqv S -> @msg_certificates S 
-:= λ {S} eqvS,  
-let s := eqv_witness eqvS in
-let f := eqv_new eqvS in 
-{|
-  msg_associative      := Assert_Associative 
-; msg_congruence       := Assert_Bop_Congruence 
-; msg_commutative_d    := Certify_Not_Commutative (s, f s)
-; msg_is_left_d        := Certify_Is_Left 
-; msg_is_right_d       := Certify_Not_Is_Right (s, f s)
-; msg_left_cancel_d    := Certify_Not_Left_Cancellative  (s, (s, f s)) 
-; msg_right_cancel_d   := Certify_Right_Cancellative 
-; msg_left_constant_d  := Certify_Left_Constant 
-; msg_right_constant_d := Certify_Not_Right_Constant  (s, (s, f s)) 
-; msg_anti_left_d      := Certify_Not_Anti_Left  (s, s) 
-; msg_anti_right_d     := Certify_Not_Anti_Right  (s, s)
-|}. 
+Definition A_mcas_sg_left (S : Type) (A : A_eqv S) : A_sg_mcas S :=
+       A_MCAS_sg S (A_sg_left S A).     
+
+End AMCAS.   
+
+Section CAS.
 
   
 
@@ -175,45 +142,52 @@ let f := eqv_new eqvS in
 Definition sg_left: ∀ {S : Type},  @eqv S -> @sg S
 := λ {S} eqvS, 
    {| 
-     sg_eq      := eqvS
-   ; sg_bop     := bop_left
-   ; sg_exists_id_d      := Certify_Not_Exists_Id 
-   ; sg_exists_ann_d     := Certify_Not_Exists_Ann 
-   ; sg_certs   := sg_certs_left eqvS 
-   
-   ; sg_ast     := Ast_sg_left (eqv_ast eqvS)
+     sg_eqv           := eqvS
+   ; sg_bop           := bop_left
+   ; sg_exists_id_d   := Certify_Not_Exists_Id 
+   ; sg_exists_ann_d  := Certify_Not_Exists_Ann 
+   ; sg_certs         := sg_certs_left eqvS 
+      ; sg_ast        := Ast_sg_left (eqv_ast eqvS)
    |}. 
   
 
 End CAS.
 
+
+
+Section MCAS.
+
+Definition mcas_sg_left {S : Type} (A : @eqv S) : @sg_mcas S :=
+       MCAS_sg (sg_left A).     
+
+End MCAS.   
+
 Section Verify.
 
 
-Lemma correct_msg_certs_left :  ∀ (S : Type) (eS : A_eqv S),  
-       msg_certs_left (A2C_eqv S eS) 
+Lemma correct_sg_certs_left :  ∀ (S : Type) (eS : A_eqv S),  
+       sg_certs_left (A2C_eqv S eS) 
        = 
-       P2C_msg S (A_eqv_eq S eS) (@bop_left S) (msg_proofs_left S eS). 
+       P2C_sg S (A_eqv_eq S eS) (@bop_left S) (sg_proofs_left S eS). 
 Proof. intros S eS. compute. reflexivity. Defined. 
   
 
 
-Lemma correct_sg_certs_left : ∀ (S : Type) (eS : A_eqv S),  
-       sg_certs_left (A2C_eqv S eS) 
-       = 
-       P2C_sg S (A_eqv_eq S eS) (@bop_left S) (sg_proofs_left S eS).
-Proof. intros S eS. compute. reflexivity. Defined. 
 
-
-Theorem correct_sg_left :
-      ∀ (S : Type) (eS : A_eqv S), 
+Theorem correct_sg_left (S : Type) (eS : A_eqv S) : 
          sg_left (A2C_eqv S eS) 
          = 
          A2C_sg S (A_sg_left S eS). 
-Proof. intros S eS. unfold sg_left, A2C_sg; simpl. 
+Proof. unfold sg_left, A2C_sg; simpl. 
        rewrite <- correct_sg_certs_left.  
        reflexivity. 
-Qed. 
+Qed.
+
+Theorem correct_mcas_sg_left (S : Type) (eS : A_eqv S) : 
+         mcas_sg_left (A2C_eqv S eS) 
+         = 
+         A2C_mcas_sg S (A_mcas_sg_left S eS). 
+Proof.  compute. reflexivity. Qed. 
   
  
 End Verify.   

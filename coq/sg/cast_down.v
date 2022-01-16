@@ -54,7 +54,7 @@ Definition A_sg_C_option_from_sg : ∀ (S : Type),  A_sg S -> option (A_sg_C S)
    | None => None
    | Some sg_C_p => Some 
      {| 
-         A_sg_C_eqv          := A_sg_eq S sg
+         A_sg_C_eqv          := A_sg_eqv S sg
        ; A_sg_C_bop          := A_sg_bop S sg
        ; A_sg_C_exists_id_d  := A_sg_exists_id_d S sg
        ; A_sg_C_exists_ann_d := A_sg_exists_ann_d S sg
@@ -63,6 +63,7 @@ Definition A_sg_C_option_from_sg : ∀ (S : Type),  A_sg S -> option (A_sg_C S)
      |}
    end.
 
+(*
 Definition A_sg_CS_proofs_option_from_asg_proofs :
     ∀ (S : Type) (eqS : brel S) (bS : binary_op S), asg_proofs S eqS bS -> option (sg_CS_proofs S eqS bS)
 := λ S eqS bS sgS,
@@ -75,7 +76,7 @@ Definition A_sg_CS_proofs_option_from_asg_proofs :
                    ; A_sg_CS_selective        := sS
                  |}
     end.
- 
+ *) 
  Definition A_sg_CS_proofs_option_from_sg_C_proofs :
     ∀ (S : Type) (eqS : brel S) (bS : binary_op S), sg_C_proofs S eqS bS -> option (sg_CS_proofs S eqS bS)
 := λ S eqS bS sgS,
@@ -266,6 +267,7 @@ Definition P2C_sg_CK_option : ∀ (S : Type) (r : brel S) (b : binary_op S), opt
     |}
     end.   
 
+(*
   Definition sg_CS_certs_option_from_asg_certs :
     ∀ (S : Type), @asg_certificates S -> option (@sg_CS_certificates S)
 := λ S sgS,
@@ -279,7 +281,7 @@ Definition P2C_sg_CK_option : ∀ (S : Type) (r : brel S) (b : binary_op S), opt
                  |}
     end.
 
- 
+*)  
   Definition sg_CS_certs_option_from_sg_C_certs :
     ∀ (S : Type), @sg_C_certificates S -> option (@sg_CS_certificates S)
 := λ S sgS,
@@ -505,7 +507,7 @@ Proof. intros S r b sgS. destruct sgS.
        destruct A_sg_C_selective_d as [sel | [ [s1 s2] nsel]]; 
        simpl; reflexivity. 
 Defined. 
-
+(*
 Lemma correct_sg_CS_certs_option_from_asg_certs : 
    ∀ (S : Type) (r : brel S) (b : binary_op S) (sgS : asg_proofs S r b), 
        sg_CS_certs_option_from_asg_certs S (P2C_asg S r b sgS)
@@ -517,7 +519,7 @@ Proof. intros S r b sgS. destruct sgS.
        destruct A_asg_selective_d as [sel | [ [s1 s2] nsel]]; 
        simpl; reflexivity. 
 Defined. 
-
+*) 
 
 Lemma correct_sg_CK_certs_option_from_sg_C_certs : 
    ∀ (S : Type) (r : brel S) (b : binary_op S) (sgS : sg_C_proofs S r b), 
@@ -539,7 +541,7 @@ Proof. intros S P. destruct P.
        unfold A2C_sg, A2C_sg_C_option, sg_C_option_from_sg, A_sg_C_option_from_sg. simpl.  
        unfold A2C_sg_C, option_map.  
        rewrite correct_sg_C_certs_option_from_sg_certs. 
-       case (A_sg_C_proofs_option_from_sg_proofs S (A_eqv_eq S A_sg_eq) A_sg_bop); simpl. 
+       case (A_sg_C_proofs_option_from_sg_proofs S (A_eqv_eq S A_sg_eqv) A_sg_bop); simpl. 
           intro s. reflexivity. 
           reflexivity. 
 Defined. 

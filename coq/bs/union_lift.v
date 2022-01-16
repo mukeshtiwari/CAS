@@ -277,15 +277,15 @@ let idD  := A_msg_exists_id_d S rS bS sgS in
 Definition bs_proofs_union_lift : 
   ∀ (S : Type) (s : S) (rS : brel S) (bS : binary_op S) (f : S -> S) (ntS : brel_not_trivial S rS f) (fin_d : carrier_is_finite_decidable S rS), 
     eqv_proofs S rS ->
-    msg_proofs S rS bS -> 
+    sg_proofs S rS bS -> 
         bs_proofs (finite_set S) (brel_set rS) (bop_union rS) (bop_lift rS bS)
   := λ S s rS bS f ntS fin_d eqvS sgS,
 let refS := A_eqv_reflexive S rS eqvS  in
 let symS := A_eqv_symmetric S rS eqvS  in
 let trnS := A_eqv_transitive S rS eqvS in
-let cnbS := A_msg_congruence S rS bS sgS in
-let ilD  := A_msg_is_left_d S rS bS sgS in  
-let irD  := A_msg_is_right_d S rS bS sgS in  
+let cnbS := A_sg_congruence S rS bS sgS in
+let ilD  := A_sg_is_left_d S rS bS sgS in  
+let irD  := A_sg_is_right_d S rS bS sgS in  
 {|
   A_bs_left_distributive_d      := inl (bop_union_lift_left_distributive S rS bS refS symS trnS cnbS)
 ; A_bs_right_distributive_d     := inl (bop_union_lift_right_distributive S rS bS refS symS trnS cnbS)
@@ -374,10 +374,10 @@ end.
 
 
 
-Definition bs_certs_union_lift : ∀ {S : Type}, @msg_certificates S -> @bs_certificates (finite_set S) 
+Definition bs_certs_union_lift : ∀ {S : Type}, @sg_certificates S -> @bs_certificates (finite_set S) 
   := λ {S} sgS,
-let ilD  := msg_is_left_d sgS in  
-let irD  := msg_is_right_d sgS in  
+let ilD  := sg_is_left_d sgS in  
+let irD  := sg_is_right_d sgS in  
 {|
   bs_left_distributive_d      := Certify_Left_Distributive 
 ; bs_right_distributive_d     := Certify_Right_Distributive 
@@ -491,12 +491,12 @@ Lemma correct_bs_certs_union_lift
   (S : Type) (s : S) (eq : brel S) (f : S -> S) (ntS : brel_not_trivial S eq f) (fin_d : carrier_is_finite_decidable S eq) 
   (bS : binary_op S)
   (eqvP : eqv_proofs S eq) 
-  (sgP : msg_proofs S eq bS) : 
+  (sgP : sg_proofs S eq bS) : 
   P2C_bs (finite_set S) (brel_set eq) (bop_union eq) (bop_lift eq bS) (bs_proofs_union_lift S s eq bS f ntS fin_d eqvP sgP)
   = 
-  bs_certs_union_lift (P2C_msg S eq bS sgP).
-Proof. destruct sgP. unfold bs_proofs_union_lift, bs_certs_union_lift, P2C_msg, P2C_bs; simpl.
-       destruct A_msg_is_left_d as [L | [[a b] NL]]; destruct A_msg_is_right_d as [R | [[c d] NR]]; simpl; reflexivity. 
+  bs_certs_union_lift (P2C_sg S eq bS sgP).
+Proof. destruct sgP. unfold bs_proofs_union_lift, bs_certs_union_lift, P2C_sg, P2C_bs; simpl.
+       destruct A_sg_is_left_d as [L | [[a b] NL]]; destruct A_sg_is_right_d as [R | [[c d] NR]]; simpl; reflexivity. 
 Qed.
 
 (*

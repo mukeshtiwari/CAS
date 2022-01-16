@@ -1,3 +1,4 @@
+Require Import Coq.Strings.String.
 Require Import Coq.Bool.Bool. 
 
 Require Import CAS.coq.common.compute.
@@ -10,6 +11,7 @@ Require Import CAS.coq.eqv.add_constant.
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory.
+Require Import CAS.coq.sg.cast_up. 
 
 Section Theory.
 Variable S  : Type. 
@@ -150,42 +152,6 @@ End Theory.
 
 Section ACAS.
 
-Definition asg_proofs_add_ann : 
-   ∀ (S : Type) (rS : brel S) (c : cas_constant) (bS : binary_op S) (s : S),
-     eqv_proofs S rS -> asg_proofs S rS bS -> 
-        asg_proofs (with_constant S) (brel_sum brel_constant rS) (bop_add_ann bS c)
-:= λ S rS c bS s eqvS sgS,
-{|
-  A_asg_associative   := bop_add_ann_associative S rS c bS (A_asg_associative _ _ _ sgS)                                                
-; A_asg_congruence    := bop_add_ann_congruence S rS c bS (A_asg_congruence _ _ _ sgS)  
-; A_asg_commutative   := bop_add_ann_commutative S rS c bS (A_asg_commutative _ _ _ sgS)
-; A_asg_selective_d   := bop_add_ann_selective_decide S rS c bS (A_asg_selective_d _ _ _ sgS)
-; A_asg_idempotent_d  := bop_add_ann_idempotent_decide S rS c bS (A_asg_idempotent_d _ _ _ sgS)
-|}. 
-
-Definition msg_proofs_add_ann : 
-   ∀ (S : Type) (rS : brel S) (c : cas_constant) (bS : binary_op S) (s : S) (f : S -> S),
-     brel_not_trivial S rS f -> 
-     eqv_proofs S rS -> 
-     msg_proofs S rS bS -> 
-        msg_proofs (with_constant S) (brel_sum brel_constant rS) (bop_add_ann bS c)
-:= λ S rS c bS s f Pf eqvS sgS,
-{|
-  A_msg_associative   := bop_add_ann_associative S rS c bS (A_msg_associative _ _ _ sgS)                                                
-; A_msg_congruence    := bop_add_ann_congruence S rS c bS (A_msg_congruence _ _ _ sgS)  
-; A_msg_commutative_d := bop_add_ann_commutative_decide S rS c bS (A_msg_commutative_d _ _ _ sgS)
-; A_msg_is_left_d     := inr _ (bop_add_ann_not_is_left S rS c bS s) 
-; A_msg_is_right_d    := inr _ (bop_add_ann_not_is_right S rS c bS s)
-; A_msg_left_cancel_d    :=  inr _ (bop_add_ann_not_left_cancellative S rS c bS s f Pf)
-; A_msg_right_cancel_d   := inr _ (bop_add_ann_not_right_cancellative S rS c bS s f Pf)
-; A_msg_left_constant_d  := inr _ (bop_add_ann_not_left_constant S rS c bS s)
-; A_msg_right_constant_d := inr _ (bop_add_ann_not_right_constant S rS c bS s)
-; A_msg_anti_left_d      := inr _ (bop_add_ann_not_anti_left S rS c bS s)
-; A_msg_anti_right_d     := inr _ (bop_add_ann_not_anti_right S rS c bS s)
-|}. 
-
-
-
 Definition sg_proofs_add_ann : 
    ∀ (S : Type) (rS : brel S) (c : cas_constant) (bS : binary_op S) (s : S) (f : S -> S),
      brel_not_trivial S rS f -> 
@@ -259,60 +225,22 @@ Definition sg_CS_proofs_add_ann :
 Definition A_sg_add_ann : ∀ (S : Type) (c : cas_constant),  A_sg S -> A_sg (with_constant S) 
 := λ S c sgS, 
   let bS := A_sg_bop S sgS in
-  let s  := A_eqv_witness S (A_sg_eq S sgS) in
-  let rS := A_eqv_eq S (A_sg_eq S sgS) in
+  let s  := A_eqv_witness S (A_sg_eqv S sgS) in
+  let rS := A_eqv_eq S (A_sg_eqv S sgS) in
   {| 
-     A_sg_eq        := A_eqv_add_constant S (A_sg_eq S sgS) c  
+     A_sg_eqv        := A_eqv_add_constant S (A_sg_eqv S sgS) c  
    ; A_sg_bop       := bop_add_ann bS c 
    ; A_sg_exists_id_d   := bop_add_ann_exists_id_decide S rS c bS s (A_sg_exists_id_d _ sgS) 
    ; A_sg_exists_ann_d  := inl _ (bop_add_ann_exists_ann S rS c bS)
    ; A_sg_proofs    := sg_proofs_add_ann S rS c bS s 
-                                         (A_eqv_new S (A_sg_eq S sgS))
-                                         (A_eqv_not_trivial S (A_sg_eq S sgS)) 
-                                         (A_eqv_proofs S (A_sg_eq S sgS))
+                                         (A_eqv_new S (A_sg_eqv S sgS))
+                                         (A_eqv_not_trivial S (A_sg_eqv S sgS)) 
+                                         (A_eqv_proofs S (A_sg_eqv S sgS))
                                          (A_sg_proofs S sgS)
    ; A_sg_ast       := Ast_sg_add_ann (c, A_sg_ast S sgS)
    |}. 
 
-
-Definition A_asg_add_ann : ∀ (S : Type) (c : cas_constant),  A_asg S -> A_asg (with_constant S) 
-  := λ S c sgS,
-  let bS := A_asg_bop S sgS in
-  let s  := A_eqv_witness S (A_asg_eq S sgS) in
-  let rS := A_eqv_eq S (A_asg_eq S sgS) in
-   {| 
-     A_asg_eq        := A_eqv_add_constant S (A_asg_eq S sgS) c  
-   ; A_asg_bop       := bop_add_ann (A_asg_bop S sgS) c 
-   ; A_asg_exists_id_d   := bop_add_ann_exists_id_decide S rS c bS s (A_asg_exists_id_d _ sgS) 
-   ; A_asg_exists_ann_d  := inl _ (bop_add_ann_exists_ann S rS c bS)
-   ; A_asg_proofs    := asg_proofs_add_ann S (A_eqv_eq S (A_asg_eq S sgS)) c 
-                                         (A_asg_bop S sgS)
-                                         (A_eqv_witness S (A_asg_eq S sgS))
-                                         (A_eqv_proofs S (A_asg_eq S sgS))
-                                         (A_asg_proofs S sgS)
-   ; A_asg_ast       := Ast_sg_add_ann (c, A_asg_ast S sgS)
-   |}. 
-
-Definition A_msg_add_ann : ∀ (S : Type) (c : cas_constant),  A_msg S -> A_msg (with_constant S) 
-  := λ S c sgS,
-  let bS := A_msg_bop S sgS in
-  let s  := A_eqv_witness S (A_msg_eq S sgS) in
-  let rS := A_eqv_eq S (A_msg_eq S sgS) in
-   {| 
-     A_msg_eq        := A_eqv_add_constant S (A_msg_eq S sgS) c  
-   ; A_msg_bop       := bop_add_ann (A_msg_bop S sgS) c
-   ; A_msg_exists_id_d   := bop_add_ann_exists_id_decide S rS c bS s (A_msg_exists_id_d _ sgS) 
-   ; A_msg_exists_ann_d  := inl _ (bop_add_ann_exists_ann S rS c bS)                                      
-   ; A_msg_proofs    := msg_proofs_add_ann S (A_eqv_eq S (A_msg_eq S sgS)) c 
-                                         (A_msg_bop S sgS)
-                                         (A_eqv_witness S (A_msg_eq S sgS))
-                                         (A_eqv_new S (A_msg_eq S sgS))
-                                         (A_eqv_not_trivial S (A_msg_eq S sgS)) 
-                                         (A_eqv_proofs S (A_msg_eq S sgS))
-                                         (A_msg_proofs S sgS)
-   ; A_msg_ast       := Ast_sg_add_ann (c, A_msg_ast S sgS)
-   |}. 
-
+(*
 Definition A_sg_C_add_ann : ∀ (S : Type) (c : cas_constant),  A_sg_C S -> A_sg_C (with_constant S) 
   := λ S c sgS,
   let bS := A_sg_C_bop S sgS in
@@ -369,8 +297,44 @@ Definition A_sg_CS_add_ann : ∀ (S : Type) (c : cas_constant),  A_sg_CS S -> A_
                                                (A_sg_CS_proofs S sgS)
    ; A_sg_CS_ast       := Ast_sg_add_ann (c, A_sg_CS_ast S sgS)
    |}. 
-
+*) 
 End ACAS.
+
+
+
+Section AMCAS.
+
+Open Scope string_scope.
+
+(*
+Definition mcas_sg_proofs_product 
+           (S : Type)
+           (c : cas_constant) 
+           (eqS : brel S) 
+           (wS : S) 
+           (f : S -> S) 
+           (ntS : brel_not_trivial S eqS f)
+           (eqvPS : eqv_proofs S eqS)
+           (bS : binary_op S) 
+           (id_dS : bop_exists_id_decidable S eqS bS)
+           (PS : sg_proofs_mcas S eqS bS) : sg_proofs_mcas (with_constant S) (brel_sum brel_constant eqS) (bop_add_ann bS c) := 
+match A_sg_proofs_mcas_cast_up S eqS wS f ntS eqvPS bS id_dS PS with 
+| A_MCAS_Proof_sg _ _ _ A'          =>
+     sg_proof_classify _ _ _ (A_MCAS_Proof_sg _ _ _ (sg_proofs_add_ann S eqS c bS wS f ntS eqvPS A'))
+| A_MCAS_Proof_sg_Error _ _ _ sl1 => A_MCAS_Proof_sg_Error _ _ _ sl1
+| _                               => A_MCAS_Proof_sg_Error _ _ _ ("Internal Error : mcas_sg_proofs_add_ann" :: nil)
+end.
+ *)
+
+Definition A_mcas_sg_add_ann (S : Type) (c : cas_constant) (A : A_sg_mcas S) : A_sg_mcas (with_constant S) :=
+match A_sg_mcas_cast_up _ A with
+| A_MCAS_sg _ A'         => A_sg_classify _ (A_MCAS_sg _ (A_sg_add_ann _ c A'))
+| A_MCAS_sg_Error _ sl1  => A_MCAS_sg_Error _ sl1
+| _                      => A_MCAS_sg_Error _ ("Internal Error : mcas_add_ann" :: nil)
+end.
+
+End AMCAS.
+
 
 Section CAS.
 
@@ -426,34 +390,6 @@ Definition sg_certs_add_ann : ∀ {S : Type},  cas_constant -> S -> (S -> S) -> 
 |}. 
 
 
-Definition asg_certs_add_ann : ∀ {S : Type},  cas_constant -> S -> @asg_certificates S -> @asg_certificates (with_constant S)
-:= λ {S} c s sgS,  
-{|
-  asg_associative      := Assert_Associative  
-; asg_congruence       := Assert_Bop_Congruence  
-; asg_commutative      := Assert_Commutative
-; asg_selective_d      := bop_add_ann_selective_check (asg_selective_d sgS) 
-; asg_idempotent_d     := bop_add_ann_idempotent_check (asg_idempotent_d sgS)
-|}. 
-
-
-
-Definition msg_certs_add_ann : ∀ {S : Type},  cas_constant -> S -> (S -> S) -> @msg_certificates S -> @msg_certificates (with_constant S)
-:= λ {S} c s f sgS,  
-{|
-  msg_associative      := Assert_Associative  
-; msg_congruence       := Assert_Bop_Congruence  
-; msg_commutative_d    := bop_add_ann_commutative_check (msg_commutative_d sgS) 
-; msg_is_left_d        := Certify_Not_Is_Left (inr _ s, inl _ c)
-; msg_is_right_d       := Certify_Not_Is_Right  (inl _ c, inr _ s) 
-; msg_left_cancel_d    := Certify_Not_Left_Cancellative  (inl c, (inr s, inr (f s))) 
-; msg_right_cancel_d   := Certify_Not_Right_Cancellative  (inl c, (inr s, inr (f s))) 
-; msg_left_constant_d  := Certify_Not_Left_Constant  (inr s, (inr s, inl c))
-; msg_right_constant_d := Certify_Not_Right_Constant  (inr s, (inr s, inl c))
-; msg_anti_left_d      := Certify_Not_Anti_Left  (inl c, inr s) 
-; msg_anti_right_d     := Certify_Not_Anti_Right  (inl c, inr s)
-|}. 
-
 
 Definition sg_C_certs_add_ann : ∀ {S : Type},  cas_constant -> S -> (S -> S) -> sg_C_certificates (S := S) -> sg_C_certificates (S := (with_constant S)) 
 := λ {S} c s f sgS,  
@@ -498,38 +434,15 @@ Definition sg_CS_certs_add_ann : ∀ {S : Type},  cas_constant -> sg_CS_certific
 Definition sg_add_ann:  ∀ {S : Type},  cas_constant -> @sg S -> @sg (with_constant S)
 := λ {S} c sgS, 
    {| 
-     sg_eq      := eqv_add_constant (sg_eq sgS) c 
+     sg_eqv      := eqv_add_constant (sg_eqv sgS) c 
    ; sg_bop     := bop_add_ann (sg_bop sgS) c
    ; sg_exists_id_d      := bop_add_ann_exists_id_check (sg_exists_id_d sgS)
    ; sg_exists_ann_d     := Certify_Exists_Ann  (inl c)                                  
-   ; sg_certs   := sg_certs_add_ann c (eqv_witness (sg_eq sgS)) (eqv_new (sg_eq sgS)) (sg_certs sgS)
+   ; sg_certs   := sg_certs_add_ann c (eqv_witness (sg_eqv sgS)) (eqv_new (sg_eqv sgS)) (sg_certs sgS)
    ; sg_ast     := Ast_sg_add_ann (c, sg_ast sgS)
    |}. 
 
-
-Definition asg_add_ann:  ∀ {S : Type},  cas_constant -> @asg S -> @asg (with_constant S)
-:= λ {S} c sgS, 
-   {| 
-     asg_eq      := eqv_add_constant (asg_eq sgS) c 
-   ; asg_bop     := bop_add_ann (asg_bop sgS) c
-   ; asg_exists_id_d      := bop_add_ann_exists_id_check (asg_exists_id_d sgS)
-   ; asg_exists_ann_d     := Certify_Exists_Ann  (inl c)                                   
-   ; asg_certs   := asg_certs_add_ann c (eqv_witness (asg_eq sgS)) (asg_certs sgS)
-   ; asg_ast     := Ast_sg_add_ann (c, asg_ast sgS)
-   |}. 
-
-
-Definition msg_add_ann:  ∀ {S : Type},  cas_constant -> @msg S -> @msg (with_constant S)
-:= λ {S} c sgS, 
-   {| 
-     msg_eq      := eqv_add_constant (msg_eq sgS) c 
-   ; msg_bop     := bop_add_ann (msg_bop sgS) c
-   ; msg_exists_id_d      := bop_add_ann_exists_id_check (msg_exists_id_d sgS)
-   ; msg_exists_ann_d     := Certify_Exists_Ann  (inl c) 
-   ; msg_certs   := msg_certs_add_ann c (eqv_witness (msg_eq sgS)) (eqv_new (msg_eq sgS)) (msg_certs sgS)
-   ; msg_ast     := Ast_sg_add_ann (c, msg_ast sgS)
-   |}. 
-
+(*
 Definition sg_C_add_ann : ∀ {S : Type} (c : cas_constant),  sg_C (S := S) -> sg_C (S := (with_constant S)) 
 := λ {S} c sgS, 
    {| 
@@ -562,8 +475,23 @@ Definition sg_CS_add_ann : ∀ {S : Type} (c : cas_constant),  sg_CS (S := S) ->
    ; sg_CS_certs     := sg_CS_certs_add_ann c (sg_CS_certs sgS)
    ; sg_CS_ast       := Ast_sg_add_ann (c, sg_CS_ast sgS)
    |}. 
- 
+*)  
 End CAS.
+
+
+Section MCAS.
+
+Open Scope string_scope.
+
+Definition mcas_sg_add_ann {S : Type} (c : cas_constant) (A : @sg_mcas S) : @sg_mcas (with_constant S) :=
+match sg_mcas_cast_up _ A with
+| MCAS_sg A'         => sg_classify _ (MCAS_sg (sg_add_ann c A'))
+| MCAS_sg_Error sl1  => MCAS_sg_Error sl1
+| _                  => MCAS_sg_Error ("Internal Error : mcas_add_ann" :: nil)
+end.
+
+End MCAS.
+
 
 Section Verify.
 
@@ -613,34 +541,6 @@ Lemma bop_add_ann_exists_id_check_correct : ∀ (s : S) (p_d : bop_exists_id_dec
      bop_add_ann_exists_id_check (p2c_exists_id_check S r b p_d). 
 Proof. intros s [ [a p] | np ]; compute; reflexivity. Qed.
 
-Lemma correct_asg_certs_add_ann : ∀ (s : S) (P : asg_proofs S r b), 
-       asg_certs_add_ann c s (P2C_asg S r b P) 
-       = 
-       P2C_asg (with_constant S) 
-          (brel_sum brel_constant r) 
-          (bop_add_ann b c) 
-          (asg_proofs_add_ann S r c b s Q P). 
-Proof. intros s P. 
-       destruct P. destruct Q. 
-       unfold asg_proofs_add_ann, P2C_asg, asg_certs_add_ann; simpl. 
-       rewrite bop_add_ann_selective_check_correct. 
-       rewrite bop_add_ann_idempotent_check_correct. 
-       reflexivity. 
-Defined. 
-
-Lemma correct_msg_certs_add_ann : ∀ (s : S) (f : S-> S) (Pf : brel_not_trivial S r f) (P : msg_proofs S r b), 
-       msg_certs_add_ann c s f (P2C_msg S r b P) 
-       = 
-       P2C_msg (with_constant S) 
-          (brel_sum brel_constant r) 
-          (bop_add_ann b c) 
-          (msg_proofs_add_ann S r c b s f Pf Q P). 
-Proof. intros s f Pf P. 
-       destruct P. destruct Q. 
-       unfold msg_proofs_add_ann, P2C_msg, msg_certs_add_ann; simpl. 
-       rewrite bop_add_ann_commutative_check_correct. 
-       reflexivity. 
-Defined. 
 
 Lemma correct_sg_certs_add_ann : ∀ (s : S) (f : S-> S) (Pf : brel_not_trivial S r f) (P : sg_proofs S r b), 
        sg_certs_add_ann c s f (P2C_sg S r b P) 
@@ -720,6 +620,22 @@ Proof. intro sgS. unfold A2C_sg, sg_add_ann; simpl.
        reflexivity. 
 Qed. 
 
+Theorem correct_mcas_sg_add_ann (sgS : A_sg_mcas S) : 
+         mcas_sg_add_ann c (A2C_mcas_sg S sgS) 
+         = 
+         A2C_mcas_sg (with_constant S) (A_mcas_sg_add_ann S c sgS).
+Proof. unfold mcas_sg_add_ann, A_mcas_sg_add_ann. 
+       rewrite correct_sg_mcas_cast_up.       
+       destruct (A_sg_cas_up_is_error_or_sg S sgS) as [[l1 A] | [s1 A]]. 
+       + rewrite A; simpl. reflexivity. 
+       + rewrite A; simpl. rewrite correct_sg_add_ann. 
+         apply correct_sg_classify_sg. 
+Qed. 
+
+
+
+
+(*
 Theorem correct_sg_C_add_ann  : ∀ (sg_CS : A_sg_C S), 
          sg_C_add_ann c (A2C_sg_C S sg_CS) 
          = 
@@ -752,7 +668,7 @@ Proof. intro sg_CSS. unfold sg_CS_add_ann, A2C_sg_CS; simpl.
        rewrite bop_add_ann_exists_id_check_correct.       
        reflexivity. 
 Qed. 
-
+*) 
 End AddAnnCorrect.  
  
 End Verify.     

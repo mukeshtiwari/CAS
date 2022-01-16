@@ -147,18 +147,24 @@ Definition sg_CS_proofs_max : sg_CS_proofs nat brel_eq_nat bop_max :=
 |}. 
 
 
-Definition A_sg_CS_max : A_sg_CS nat 
+Definition A_sg_max : A_sg_CS_with_id nat 
 := {| 
-     A_sg_CS_eqv         := A_eqv_nat 
-   ; A_sg_CS_bop         := bop_max
-   ; A_sg_CS_exists_id_d  := inl _ bop_max_exists_id
-   ; A_sg_CS_exists_ann_d := inr _ bop_max_not_exists_ann
-   ; A_sg_CS_proofs      := sg_CS_proofs_max
-   
-   ; A_sg_CS_ast         := Ast_sg_max
+     A_sg_CS_wi_eqv         := A_eqv_nat 
+   ; A_sg_CS_wi_bop         := bop_max
+   ; A_sg_CS_wi_exists_id   := bop_max_exists_id
+   ; A_sg_CS_wi_not_exists_ann  := bop_max_not_exists_ann
+   ; A_sg_CS_wi_proofs      := sg_CS_proofs_max
+   ; A_sg_CS_wi_ast         := Ast_sg_max
    |}. 
 
 End ACAS.
+
+Section AMCAS.
+
+Definition A_mcas_sg_max : A_sg_mcas nat := A_MCAS_sg_CS_with_id nat A_sg_max.  
+
+End AMCAS.  
+
 
 Section CAS.
 Open Scope nat.   
@@ -172,24 +178,33 @@ Definition sg_CS_certs_max : @sg_CS_certificates nat
    |}. 
 
 
-Definition sg_CS_max : @sg_CS nat 
+Definition sg_max : @sg_CS_with_id nat 
 := {| 
-     sg_CS_eqv     := eqv_eq_nat 
-   ; sg_CS_bop     := bop_max
-   ; sg_CS_exists_id_d        := Certify_Exists_Id 0
-   ; sg_CS_exists_ann_d       := Certify_Not_Exists_Ann 
-   ; sg_CS_certs   := sg_CS_certs_max
-   
-   ; sg_CS_ast     := Ast_sg_max
+     sg_CS_wi_eqv            := eqv_eq_nat 
+   ; sg_CS_wi_bop            := bop_max
+   ; sg_CS_wi_exists_id      := Assert_Exists_Id 0
+   ; sg_CS_wi_not_exists_ann := Assert_Not_Exists_Ann 
+   ; sg_CS_wi_certs          := sg_CS_certs_max
+   ; sg_CS_wi_ast            := Ast_sg_max
    |}. 
 
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_sg_max : @sg_mcas nat := MCAS_sg_CS_with_id sg_max.  
+
+End MCAS.  
+
+
 Section Verify.
 
-Theorem correct_sg_CS_max : sg_CS_max = A2C_sg_CS nat (A_sg_CS_max). 
+Theorem correct_sg_CS_max : sg_max = A2C_sg_CS_with_id nat (A_sg_max). 
 Proof. compute. reflexivity. Qed. 
- 
+
+Theorem correct_mcas_sg_max : mcas_sg_max = A2C_mcas_sg nat (A_mcas_sg_max). 
+Proof. compute. reflexivity. Qed. 
+
 End Verify.   
   

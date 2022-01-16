@@ -53,14 +53,14 @@ Section ACAS.
 
 
 
-Definition ltr_cayley_proofs (S : Type) (eqS : brel S) (bS : binary_op S) (msgP : msg_proofs S eqS bS) : ltr_proofs S S eqS eqS (ltr_cayley bS) := 
+Definition ltr_cayley_proofs (S : Type) (eqS : brel S) (bS : binary_op S) (msgP : sg_proofs S eqS bS) : ltr_proofs S S eqS eqS (ltr_cayley bS) := 
 {|
-  A_ltr_congruence          := ltr_cayley_congruence S eqS bS (A_msg_congruence _ _ _ msgP)
-; A_ltr_is_right_d          := match A_msg_is_right_d _ _ _ msgP with
+  A_ltr_congruence          := ltr_cayley_congruence S eqS bS (A_sg_congruence _ _ _ msgP)
+; A_ltr_is_right_d          := match A_sg_is_right_d _ _ _ msgP with
                                    | inl IR => inl (ltr_cayley_is_right _ _ _ IR)
                                    | inr NIR => inr (ltr_cayley_not_is_right _ _ _ NIR)
                                    end 
-; A_ltr_left_cancellative_d := match A_msg_left_cancel_d _ _ _ msgP with
+; A_ltr_left_cancellative_d := match A_sg_left_cancel_d _ _ _ msgP with
                                    | inl LC => inl (ltr_cayley_cancellative _ _ _ LC)
                                    | inr NLC => inr (ltr_cayley_not_cancellative _ _ _ NLC)
                                    end 
@@ -82,14 +82,14 @@ End ACAS.
 
 Section CAS.
 
-Definition ltr_cayley_certs (S : Type) (msgP : @msg_certificates S) : @ltr_certificates S S := 
+Definition ltr_cayley_certs (S : Type) (msgP : @sg_certificates S) : @ltr_certificates S S := 
 {|
   ltr_congruence_a          := @Assert_Ltr_Congruence S S 
-; ltr_is_right_d          := match msg_is_right_d msgP with
+; ltr_is_right_d          := match sg_is_right_d msgP with
                                    | Certify_Is_Right => Certify_Ltr_Is_Right
                                    | Certify_Not_Is_Right p => Certify_Ltr_Not_Is_Right p
                                    end 
-; ltr_left_cancellative_d := match msg_left_cancel_d msgP with
+; ltr_left_cancellative_d := match sg_left_cancel_d msgP with
                                    | Certify_Left_Cancellative => Certify_Ltr_Left_Cancellative
                                    | Certify_Not_Left_Cancellative t => Certify_Ltr_Not_Left_Cancellative t
                                    end 
