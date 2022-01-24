@@ -2850,6 +2850,17 @@ Section Matrix.
     (* end of strict order proof *)
 
 
+    (* Matrix addition is idempotence: Section 2.2 of Carre
+    (i) Generalize Matrix Addition *)
+    Lemma matrix_add_idempotence : forall m c d, 
+      matrix_add m m c d =r= m c d = true.
+    Proof using Node R eqR plusR plus_idempotence.
+      unfold matrix_add; intros *.
+      apply plus_idempotence.
+    Qed.
+
+
+
     Lemma path_weight_rel : forall a b c : R, 
       (forall a : R, 1 + a =r= 1 = true) ->
       Orel (a * c) (a * b * c).
@@ -3555,7 +3566,26 @@ Section Matrix.
         (m a b =r= s) && elem_path m t
       end.
     
-    
+
+    Lemma all_paths_in_klength : ∀ (k : nat)
+      (m : Matrix) (c d : Node) xs,
+      In_eq_bool xs (all_paths_klength m k c d) = true ->
+      List.length xs = if c =n= d then S k else k.
+    Proof.
+      induction k.
+      + simpl; intros ? ? ? ? Hin.
+        destruct (c =n= d) eqn:Ht.
+        simpl in Hin.
+        apply Bool.orb_true_iff in Hin.
+        destruct Hin as [Hin | Hin].
+        admit.
+        admit.
+        admit.
+      + simpl; intros ? ? ? ? Hin.
+    Admitted.
+
+
+
     
     (* If a path is well formed but not elementry, then it has a loop *)
     Lemma elem_path_dup_node : forall (l : list (Node * Node * R)) m,
@@ -3601,7 +3631,7 @@ Section Matrix.
         simpl. split.
         apply Bool.andb_true_iff; split.
         apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.  
         all:(try (apply refN); try (apply refR); assumption).
     Qed.
 
@@ -3613,8 +3643,8 @@ Section Matrix.
         partial_sum_mat m (length finN - 1) c d =r= 
         partial_sum_mat m (length finN) c d = true).
     Proof.
-
-    
+      Print partial_sum_mat.
+      replace finN0 with l.
     Admitted.
 
 
