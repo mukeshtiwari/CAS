@@ -1613,6 +1613,31 @@ Section Matrix.
 
 
 
+    Lemma length_rewrite : forall xs ys,
+        triple_elem_list xs ys = true ->
+        List.length xs = List.length ys.
+    Proof.
+      induction xs.
+      + intros * Hin.
+        destruct ys.
+        reflexivity.
+        simpl in Hin.
+        congruence.
+      + intros * Hin.
+        destruct ys.
+        simpl in Hin.
+        destruct a as ((u, v), w).
+        congruence.
+        simpl in * |- *.
+        destruct a as ((au, av), aw).
+        destruct p as ((pu, pv), pw).
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [_ Hin].
+        apply f_equal.
+        apply IHxs; assumption.
+    Qed.
+
+
 
 
     
@@ -1625,6 +1650,29 @@ Section Matrix.
       | h :: t => ((triple_elem_list l₁ h) || (In_eq_bool l₁ t))%bool 
       end.
 
+    
+    Lemma path_tl_rewrite : forall lss xs ys, 
+      triple_elem_list xs ys = true ->
+      In_eq_bool xs lss = true -> In_eq_bool ys lss = true.
+    Proof.
+      induction lss.
+      + intros * Ht Hin.
+        simpl in Hin.
+        congruence.
+      + intros * Ht Hin.
+        simpl in Hin.
+        apply Bool.orb_true_iff in Hin.
+        destruct Hin as [Hin | Hin].
+        simpl.
+        apply Bool.orb_true_iff.
+        left.
+        apply triple_elem_eq_list_trans with xs.
+        apply triple_elem_eq_list_sym; assumption.
+        exact Hin.
+        simpl. apply Bool.orb_true_iff. 
+        right.
+        apply IHlss with xs; assumption.
+    Qed.
     
 
     
@@ -3649,175 +3697,9 @@ Section Matrix.
       | [] => true
       | (a, b, s) :: t => (negb (a =n= b)) && 
         (m a b =r= s) && elem_path m t
-      end.
-    
-
-
-    Lemma source_same_path : forall l₁ l₂ x y,
-      triple_elem_list l₁ l₂ = true -> 
-      source x l₁ = true -> source y l₂ = true ->
-      x =n= y = true.
-    Proof.
-      induction l₁.
-      + intros * Ht Hx Hy. 
-        simpl in * |-. 
-        congruence. 
-      + intros * Ht Hx Hy.
-        destruct l₂ as [|b l₂].
-        simpl in Hy; congruence.
-        destruct a as ((au, av), aw).
-        destruct b as ((bu, bv), bw).
-        simpl in * |-.
-        apply Bool.andb_true_iff in Ht.
-        destruct Ht as [Ht Htr].
-        apply Bool.andb_true_iff in Ht.
-        destruct Ht as [Ht Htrr].
-        apply Bool.andb_true_iff in Ht.
-        destruct Ht as [Ht Htrrr].
-        apply symN in Hy.
-        eapply trnN with au.
-        exact Hx.
-        apply trnN with bu; 
-        assumption.
-    Qed.
-
-
-    (*This is not true. 
-    Lemma all_paths_in_klength : ∀ (k : nat)
-      (m : Matrix) (c d : Node) xs,
-      In_eq_bool xs (all_paths_klength m k c d) = true ->
-      List.length xs = if c =n= d then S k else k.
-    Proof.
-      induction k.
-      + simpl; intros ? ? ? ? Hin.
-        case (c =n= d) eqn:Hcd.
-        destruct xs. 
-        simpl in Hin.
-        congruence.
-        simpl in Hin. destruct p as ((u, v), w).
-        apply Bool.andb_true_iff in Hin.
-        destruct Hin as [Hin _].
-        apply Bool.andb_true_iff in Hin.
-        destruct Hin as [Hl Hin].
-        simpl. destruct xs.
-        simpl. reflexivity.
-        simpl in Hin. 
-        destruct p as ((px, py), pw).
-        congruence.
-        simpl in Hin.
-        congruence.
-      + simpl; intros ? ? ? ? Hin.
-        pose proof append_node_in_paths_eq _ m c _ Hin as Hp.
-        destruct Hp as [y [ys [Hy [Hsc [Hsd Hyn]]]]].
-        apply append_node_rest in Hin.
-        apply in_flat_map_bool_first in Hin.
-        destruct Hin as [x [Hl Hr]].
-        pose proof IHk m x d (List.tl xs) Hr as Hind.
-        pose proof source_and_non_empty_kpath _ _ _ _ _ Hr as [Htl Hxy].
-        (* ys = List.tl xs that means y = x *)
-        assert(Htt: triple_elem_list (List.tl xs) ys = true).
-        destruct xs. simpl in Hsc; congruence.
-        simpl in Hy. simpl. destruct p as ((u, v), w).
-        apply Bool.andb_true_iff in Hy.
-        destruct Hy as [Hyl Hy]. exact Hy.
-        pose proof source_same_path _ _ _ _ Htt Hxy Hsd as Hp.
-    Admitted.*)
-
-    Lemma length_rewrite : forall xs ys,
-      triple_elem_list xs ys = true ->
-      List.length xs = List.length ys.
-    Proof.
-      induction xs.
-      + intros * Hin.
-        destruct ys.
-        reflexivity.
-        simpl in Hin.
-        congruence.
-      + intros * Hin.
-        destruct ys.
-        simpl in Hin.
-        destruct a as ((u, v), w).
-        congruence.
-        simpl in * |- *.
-        destruct a as ((au, av), aw).
-        destruct p as ((pu, pv), pw).
-        apply Bool.andb_true_iff in Hin.
-        destruct Hin as [_ Hin].
-        apply f_equal.
-        apply IHxs; assumption.
-    Qed.
-
-
-
-    Lemma path_tl_rewrite : forall lss xs ys, 
-      triple_elem_list xs ys = true ->
-      In_eq_bool xs lss = true -> In_eq_bool ys lss = true.
-    Proof.
-      induction lss.
-      + intros * Ht Hin.
-        simpl in Hin.
-        congruence.
-      + intros * Ht Hin.
-        simpl in Hin.
-        apply Bool.orb_true_iff in Hin.
-        destruct Hin as [Hin | Hin].
-        simpl.
-        apply Bool.orb_true_iff.
-        left.
-        apply triple_elem_eq_list_trans with xs.
-        apply triple_elem_eq_list_sym; assumption.
-        exact Hin.
-        simpl. apply Bool.orb_true_iff. 
-        right.
-        apply IHlss with xs; assumption.
-    Qed.
-    
-   
-
-    (* k has to be non-zero *)
-    Lemma all_paths_in_klength_elem : ∀ (k : nat)
-      (m : Matrix) (c d : Node) xs,
-      In_eq_bool xs (all_paths_klength m k c d) = true ->
-      elem_path m xs = true -> (List.length xs <= k)%nat.
-    Proof.
-      induction k.
-      + intros * Hin He.
-        simpl in Hin.
-    Admitted.
-
+      end.    
+        
       
-
-
-
-
-
-
-
-
-      (* 
-      intros * Hin.
-      simpl in Hin.
-      pose proof append_node_in_paths_eq _ m c _ Hin as Hp.
-      destruct Hp as [y [ys [Hy [Hsc [Hsd Hyn]]]]].
-      apply append_node_rest in Hin.
-      apply in_flat_map_bool_first in Hin.
-      destruct Hin as [x [Hl Hr]].
-      assert(Htt: triple_elem_list (List.tl xs) ys = true).
-      destruct xs. simpl in Hsc; congruence.
-      simpl in Hy. simpl. destruct p as ((u, v), w).
-      apply Bool.andb_true_iff in Hy.
-      destruct Hy as [Hyl Hy]. exact Hy.
-      replace (length xs) with (length ((c, y, m c y) :: ys)).
-      simpl. f_equal.
-      pose proof path_tl_rewrite _ (tl xs) ys Htt Hr as Hp.
-      clear Hr. 
-      revert dependent k.
-
-
-
-
-      pose proof length_rewrite _ _ Hy as Ha.
-      symmetry. exact Ha. *)
 
     
     (* If a path is well formed but not elementry, then it has a loop *)
@@ -3826,7 +3708,7 @@ Section Matrix.
       elem_path m l = false ->
       exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
       triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
-      cyclic_path c l₂. 
+      cyclic_path c l₂.
     Proof using Node R eqN eqR refN refR.
       induction l.
       - cbn; intros ? Hw.
@@ -3867,6 +3749,96 @@ Section Matrix.
         apply Bool.andb_true_iff; split.  
         all:(try (apply refN); try (apply refR); assumption).
     Qed.
+
+
+
+    Lemma source_same_path : forall l₁ l₂ x y,
+      triple_elem_list l₁ l₂ = true -> 
+      source x l₁ = true -> source y l₂ = true ->
+      x =n= y = true.
+    Proof.
+      induction l₁.
+      + intros * Ht Hx Hy. 
+        simpl in * |-. 
+        congruence. 
+      + intros * Ht Hx Hy.
+        destruct l₂ as [|b l₂].
+        simpl in Hy; congruence.
+        destruct a as ((au, av), aw).
+        destruct b as ((bu, bv), bw).
+        simpl in * |-.
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrrr].
+        apply symN in Hy.
+        eapply trnN with au.
+        exact Hx.
+        apply trnN with bu; 
+        assumption.
+    Qed.
+
+
+
+    Lemma list_tl_lia {A : Type} : forall (xs : list A) k, 
+      List.tl xs <> [] -> (length (List.tl xs) ≤ S k)%nat ->
+      (length xs <= S (S k))%nat.
+    Proof.
+      induction xs.
+      + intros * Hf Hin.
+        simpl. lia.
+      + intros * Hf Hin.
+        simpl in * |- *.
+        lia.
+    Qed.
+    
+
+
+    Lemma all_paths_in_klength : ∀ (k : nat)
+      (m : Matrix) (c d : Node) xs,
+      In_eq_bool xs (all_paths_klength m k c d) = true ->
+      (List.length xs <= S k)%nat.
+    Proof.
+      induction k.
+      + simpl; intros ? ? ? ? Hin.
+        case (c =n= d) eqn:Hcd.
+        destruct xs. 
+        simpl in Hin.
+        congruence.
+        simpl in Hin. destruct p as ((u, v), w).
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin _].
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hl Hin].
+        simpl. destruct xs.
+        simpl. reflexivity.
+        simpl in Hin. 
+        destruct p as ((px, py), pw).
+        congruence.
+        simpl in Hin.
+        congruence.
+      + simpl; intros ? ? ? ? Hin.
+        pose proof append_node_in_paths_eq _ m c _ Hin as Hp.
+        destruct Hp as [y [ys [Hy [Hsc [Hsd Hyn]]]]].
+        apply append_node_rest in Hin.
+        apply in_flat_map_bool_first in Hin.
+        destruct Hin as [x [Hl Hr]].
+        pose proof IHk m x d (List.tl xs) Hr as Hind.
+        pose proof source_and_non_empty_kpath _ _ _ _ _ Hr as [Htl Hxy].
+        (* ys = List.tl xs that means y = x *)
+        assert(Htt: triple_elem_list (List.tl xs) ys = true).
+        destruct xs. simpl in Hsc; congruence.
+        simpl in Hy. simpl. destruct p as ((u, v), w).
+        apply Bool.andb_true_iff in Hy.
+        destruct Hy as [Hyl Hy]. exact Hy.
+        pose proof source_same_path _ _ _ _ Htt Hxy Hsd as Hp.
+        apply list_tl_lia; assumption.
+    Qed.
+
+
+
 
 
   
