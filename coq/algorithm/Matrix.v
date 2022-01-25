@@ -3783,12 +3783,13 @@ Section Matrix.
 
 
     Lemma list_tl_lia {A : Type} : forall (xs : list A) k, 
-      List.tl xs <> [] -> (length (List.tl xs) ≤ S k)%nat ->
-      (length xs <= S (S k))%nat.
+      List.tl xs <> [] -> (length (List.tl xs) = S k)%nat ->
+      (length xs = S (S k))%nat.
     Proof.
       induction xs.
       + intros * Hf Hin.
-        simpl. lia.
+        simpl in * |- *.
+        congruence.
       + intros * Hf Hin.
         simpl in * |- *.
         lia.
@@ -3799,7 +3800,7 @@ Section Matrix.
     Lemma all_paths_in_klength : ∀ (k : nat)
       (m : Matrix) (c d : Node) xs,
       In_eq_bool xs (all_paths_klength m k c d) = true ->
-      (List.length xs <= S k)%nat.
+      (List.length xs = S k).
     Proof.
       induction k.
       + simpl; intros ? ? ? ? Hin.
@@ -3836,8 +3837,6 @@ Section Matrix.
         pose proof source_same_path _ _ _ _ Htt Hxy Hsd as Hp.
         apply list_tl_lia; assumption.
     Qed.
-
-
 
 
 
@@ -3984,8 +3983,8 @@ Section Ins.
     | _, _ => false
     end.
 
-
-  Eval vm_compute in (all_paths_klength node fin_node eqN Z 2%Z m 4 A A).
+  Check all_paths_klength.
+  Eval vm_compute in (all_paths_klength node fin_node eqN Z 1%Z m 1 A B).
   
 End Ins. 
 
