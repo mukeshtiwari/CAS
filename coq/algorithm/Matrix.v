@@ -144,7 +144,30 @@ Section Lfn.
         exact Hl₃. exact H₂.
         exact Hb. exact Hc.
   Qed.
-        
+      
+
+  Lemma list_split_gen : forall (l : list A) (c : A),
+    in_list eqA l c = true -> 
+    exists l₁ l₂ : list A, 
+    list_eqv l (l₁ ++ [c] ++ l₂) = true.
+  Proof.
+    induction l; simpl.
+    + intros ? H₁.
+      congruence.
+    + intros c H₁.
+      apply Bool.orb_true_iff in H₁.
+      destruct H₁ as [H₁ | H₁].
+      exists [], l.
+      simpl.
+      apply Bool.andb_true_iff.
+      split. apply symA; assumption.
+      apply list_eqv_refl.
+      destruct (IHl c H₁) as [l₁ [l₂ Hl]].
+      exists (a :: l₁), l₂.
+      simpl.
+      apply Bool.andb_true_iff; split.
+      apply refA. exact Hl.
+  Qed.
     
 End Lfn.
 
@@ -3685,12 +3708,12 @@ Section Matrix.
 
 
     Definition cyclic_path (c : Node) (l : list (Node * Node * R)) :=
-      l <> [] /\ source c l = target c l.
+      l <> [] /\ source c l = true /\ target c l = true.
 
     
 
     (* Elementry path where nodes at the 
-      end of a arc is unique *)
+      end of a arc is unique 
     Fixpoint elem_path (m : Matrix) 
       (l : list (Node * Node * R)) : bool  :=
       match l with
@@ -3698,14 +3721,208 @@ Section Matrix.
       | (a, b, s) :: t => (negb (a =n= b)) && 
         (m a b =r= s) && elem_path m t
       end.    
+    *)    
+    
+    (* assume that path is well_founded *)
+    Fixpoint collect_nodes_from_a_path  
+      (l : list (Node * Node * R)) : list Node :=
+      match l with
+      | [] => []
+      | (a, b, _) :: t => match t with
+        | [] => [a; b]
+        | _ :: _ => a :: collect_nodes_from_a_path t
+      end
+      end.
+         
+    (* if all nodes in a path are distinct *)
+    Fixpoint elem_path_aux (l : list Node) := 
+      match l with
+      | [] => true
+      | h :: t => (negb (in_list eqN t h) && elem_path_aux t)%bool
+      end.
+
+
+    Definition elem_path (l : list (Node * Node * R)) : bool :=
+      elem_path_aux (collect_nodes_from_a_path l).
+
+    (* Constructs well founded path *)  
+    Fixpoint construct_path_from_nodes (l : list Node) (m : Matrix) : 
+      list (Node * Node * R) :=
+      match l with 
+      | [] => []
+      | u :: t => match t with
+        | [] => []
+        | v :: _ => (u, v, m u v) :: construct_path_from_nodes t m
+      end
+      end.
+
+      
+    Lemma path_reconstruction : forall (l : list (Node * Node * R)) m,
+      mat_cong m ->
+      well_formed_path_aux m l = true -> 
+      triple_elem_list (construct_path_from_nodes (collect_nodes_from_a_path l) m) l = true.
+    Proof.
+      induction l.
+      + intros * Hm Hw. simpl; reflexivity.
+      + intros * Hm Hw. simpl.
+        destruct a as ((au, av), aw).
+        destruct l.
+        simpl in * |- *.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hw _].
+        repeat (apply Bool.andb_true_iff; split;
+        try (apply refN); try assumption).
+        reflexivity.
+        (* induction case *)
+        destruct p as ((pu, pv), pw). 
+        assert (Hwt: (well_formed_path_aux m ((au, av, aw) :: (pu, pv, pw) :: l) = 
+          (m au av =r= aw) && ((av =n= pu) && well_formed_path_aux m ((pu, pv, pw) :: l)))%bool).
+        simpl. reflexivity.
+        rewrite Hwt in Hw; clear Hwt.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        specialize (IHl m Hm Hw).
+        assert (Hwt: construct_path_from_nodes
+          (au :: collect_nodes_from_a_path ((pu, pv, pw) :: l)) m =
+          (au, pu, m au pu) :: 
+          construct_path_from_nodes (collect_nodes_from_a_path ((pu, pv, pw) :: l)) m).
+        simpl. destruct l.
+        reflexivity. reflexivity.
+        rewrite Hwt; clear Hwt.
+        remember (construct_path_from_nodes
+        (collect_nodes_from_a_path ((pu, pv, pw) :: l)) m) as ml.
+        remember ((pu, pv, pw) :: l) as pl.
+        simpl.
+        repeat (apply Bool.andb_true_iff; split).
+        apply refN. apply symN. exact Hwll.
+        rewrite <-Hwl. apply congrR.
+        apply Hm. apply refN.
+        apply symN. exact Hwll.
+        apply refR.
+        exact IHl.
+    Qed.
+
+   
+    Lemma source_target_list_consturction : forall l c m, 
+      well_formed_path_aux m l = true ->
+      source c l = true -> target c l = true -> 
+      triple_elem_list l [(c, c, m c c)] = true \/ 
+      exists (d e : Node) (lc : list (Node * Node * R)), 
+      triple_elem_list l ((c, d, m c d) :: lc ++ [(e, c, m e c)]) = true.
+    Proof.
+      induction l.
+      + intros ? ? Hw Hs Ht.
+        simpl in Hs.
+        congruence.
+      + intros ? ? Hw Hs Ht.
+        destruct l.
+        - left. destruct a as ((au, av), aw).
+          simpl in * |- *.
+          admit.
+        - right.  
+          destruct a as ((au, av), aw).
+          destruct p as ((pu, pv), pw).
+          assert (Hwt: (well_formed_path_aux m ((au, av, aw) :: (pu, pv, pw) :: l) = 
+          (m au av =r= aw) && ((av =n= pu) && well_formed_path_aux m ((pu, pv, pw) :: l)))%bool).
+          simpl. reflexivity.
+          rewrite Hwt in Hw; clear Hwt.
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwl Hw].
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwll Hw].
+          assert (Hwt : target c ((au, av, aw) :: (pu, pv, pw) :: l) = 
+            target c ((pu, pv, pw) :: l)). simpl. reflexivity.
+          rewrite Hwt in Ht; clear Hwt.
+    Admitted.          
+
+      
+
+    Lemma cyclic_path_non_elem : forall l c m,
+      well_formed_path_aux m l = true (* a well defined path *) -> 
+      cyclic_path c l -> elem_path l = false.
+    Proof.
+      intros ? ? ? Hw Hc.
+      unfold cyclic_path in Hc.
+      destruct Hc as [Hl [Hs Ht]].
+    Admitted.
+
+
+
+      
+    (* If a path is well formed but not elementry, then it has a loop *)
+    Lemma elem_path_dup_node : forall (l : list (Node * Node * R)) m,
+      mat_cong m ->
+      well_formed_path_aux m l = true ->
+      elem_path l = false ->
+      exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
+      triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
+      cyclic_path c l₂.
+    Proof.
+      unfold elem_path.
+      induction l.
+      + intros * Hm Hw He.
+        simpl in * |- *.
+        congruence.
+      + intros * Hm Hw He.
+        destruct a as ((au, av), aw).
+        simpl in He, Hw.
+        destruct l.
+        simpl in He.
+        apply Bool.andb_false_iff in He.
+        destruct He as [He | He].
+        apply Bool.negb_false_iff in He.
+        apply Bool.orb_true_iff in He.
+        destruct He as [He | He].
+        exists au, [], [(au, av, aw)], [].
+        split. simpl. 
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        all:(try (apply refN); try (apply refR)).
+        reflexivity.
+        unfold cyclic_path. split.
+        intros Hf; congruence.
+        split. simpl. apply refN.
+        simpl. exact He.
+        congruence.
+        congruence.
+        (* induction case *)
+        destruct p as ((pu, pv), pw).
+        remember (collect_nodes_from_a_path ((pu, pv, pw) :: l)) as t.
+        simpl in He.
+        apply Bool.andb_false_iff in He.
+        destruct He as [He | He].
+        apply Bool.negb_false_iff in He.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        destruct (list_split_gen Node eqN refN symN t au He) as [lf [lr Hlr]].
+        pose proof path_reconstruction ((pu, pv, pw) :: l)
+          m Hm Hw as Hp.
+        rewrite <-Heqt in Hp.
+        remember ((pu, pv, pw) :: l) as pl.
+        (* c = au 
+           l₁ = []
+           l₂ = (au, av, aw) :: 
+        *)
+        exists au.
+        repeat eexists.
+    Admitted.
+
         
+
+        
+    
       
 
     
-    (* If a path is well formed but not elementry, then it has a loop *)
+    (* If a path is well formed but not elementry, then it has a loop 
     Lemma elem_path_dup_node : forall (l : list (Node * Node * R)) m,
       well_formed_path_aux m l = true ->
-      elem_path m l = false ->
+      elem_path l = false ->
       exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
       triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
       cyclic_path c l₂.
@@ -3731,7 +3948,8 @@ Section Matrix.
         all:(try (apply refN); try (apply refR)).
         apply triple_elem_eq_list_refl.
         split. intro Hf. congruence.
-        rewrite Hw. apply refN.
+        rewrite Hw. split. apply refN.
+        reflexivity.
         (* second goal *)
         congruence.
         (* third goal *)
@@ -3749,7 +3967,7 @@ Section Matrix.
         apply Bool.andb_true_iff; split.  
         all:(try (apply refN); try (apply refR); assumption).
     Qed.
-
+    *)
 
 
     Lemma source_same_path : forall l₁ l₂ x y,
@@ -3839,6 +4057,17 @@ Section Matrix.
     Qed.
 
 
+   
+     
+          
+
+    Lemma all_paths_in_klength_paths_cycle : ∀ (l : list Node)
+      (m : Matrix) (c d : Node) xs, l <> [] ->
+      (forall x : Node, in_list eqN l x = true) ->
+      In_eq_bool xs (all_paths_klength m (List.length l) c d) = true ->
+      elem_path xs = false.
+    Admitted.
+
     Fixpoint partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
       match n with
       | O => I c d
@@ -3847,7 +4076,7 @@ Section Matrix.
       end.
 
     
-      
+
     Lemma connect_partial_sum_mat_paths : forall n m c d,
       mat_cong m -> 
       partial_sum_mat m n c d =r= partial_sum_paths m n c d = true.
@@ -3881,6 +4110,7 @@ Section Matrix.
     Qed.
 
 
+
   
     Lemma zero_stable_partial : forall m,
       (forall a : R, 1 + a =r= 1 = true) ->
@@ -3888,7 +4118,6 @@ Section Matrix.
         partial_sum_mat m (length finN - 1) c d =r= 
         partial_sum_mat m (length finN) c d = true).
     Proof.
-      Print partial_sum_mat.
       
     Admitted.
 
@@ -4024,8 +4253,12 @@ Section Ins.
     | _, _ => false
     end.
 
- 
-  Eval vm_compute in (all_paths_klength node fin_node eqN Z 1%Z m 3 A B).
+  Check elem_path node eqN Z (fun x y => x =? y)%Z m.
+
+  Eval vm_compute in List.map (elem_path node eqN Z (fun x y => x =? y)%Z m)
+  (all_paths_klength node fin_node eqN Z 1%Z m 3 A B).
+  Eval vm_compute in List.map (fun t => 
+  elem_path node eqN Z (fun x y => x =? y)%Z m t ) [[(A, B, 0%Z); (B, A, 0%Z)]].
   
 End Ins. 
 
