@@ -3839,6 +3839,35 @@ Section Matrix.
     Qed.
 
 
+    Fixpoint partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
+      match n with
+      | O => I c d
+      | S n' =>  partial_sum_paths m n' c d + 
+        sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d))
+      end.
+
+    
+    Lemma connect_partial_sum_mat_paths : forall n m c d,
+      mat_cong m -> 
+      partial_sum_mat m n c d =r= partial_sum_paths m n c d = true.
+    Proof.
+      induction n.
+      + intros * Hm; simpl;
+        apply refR.
+      + intros * Hm; simpl.
+        unfold matrix_mul, matrix_add.
+        apply congrP.
+        exact (IHn m c d Hm).
+        pose proof matrix_path_equation (S n) m c d Hm as Hp.
+        rewrite <-Hp.
+        apply congrR.
+        simpl. unfold matrix_mul, 
+        matrix_add.
+        apply refR.
+        apply refR.
+    Qed.
+
+
 
   
     Lemma zero_stable_partial : forall m,
