@@ -3764,7 +3764,7 @@ Section Matrix.
     Qed.
 
 
-    Lemma elim_path_aux_duplicate_node : forall (l : list Node),
+    Lemma elem_path_aux_duplicate_node : forall (l : list Node),
       elem_path_aux l = false -> 
       exists (c : Node) (l₁ l₂  l₃ : list Node), 
       list_eqv _ eqN l (l₁ ++ [c] ++ l₂ ++ [c] ++ l₃) = true. 
@@ -3852,49 +3852,110 @@ Section Matrix.
         exact IHl.
     Qed.
 
-   
-    Lemma source_target_list_consturction : forall l c m, 
-      well_formed_path_aux m l = true ->
-      source c l = true -> target c l = true -> 
-      triple_elem_list l [(c, c, m c c)] = true \/ 
-      exists (d e : Node) (lc : list (Node * Node * R)), 
-      triple_elem_list l ((c, d, m c d) :: lc ++ [(e, c, m e c)]) = true.
+    
+    Lemma source_list_consturction : forall l c m,
+      mat_cong m -> 
+      well_formed_path_aux m l = true -> source c l = true ->
+      exists d lc, triple_elem_list l ((c, d, m c d) :: lc) = true.
+    Proof.
+      destruct l.
+      + intros ? ? Hm Hw Hs.
+        simpl in Hs. congruence.
+      + intros ? ? Hm Hw Hs.
+        destruct p as ((u, v), w).
+        simpl in * |- *.
+        exists v, l.
+        repeat (apply Bool.andb_true_iff; split).
+        apply symN; assumption.
+        apply refN.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hw _].
+        apply symR. rewrite <-Hw.
+        apply congrR.
+        apply Hm. exact Hs.
+        apply refN.
+        apply refR.
+        apply triple_elem_eq_list_refl.
+    Qed.
+
+    Lemma target_list_consturction : forall l c m,
+      mat_cong m -> 
+      well_formed_path_aux m l = true -> target c l = true ->
+      exists d lc, triple_elem_list l (lc ++ [(d, c, m d c)]) = true.
     Proof.
       induction l.
-      + intros ? ? Hw Hs Ht.
-        simpl in Hs.
+      + intros ? ? Hm Hw Ht.
+        simpl in Ht.
         congruence.
-      + intros ? ? Hw Hs Ht.
+      + intros ? ? Hm Hw Ht.
         destruct l.
-        - left. destruct a as ((au, av), aw).
-          simpl in * |- *.
-          admit.
-        - right.  
-          destruct a as ((au, av), aw).
-          destruct p as ((pu, pv), pw).
-          assert (Hwt: (well_formed_path_aux m ((au, av, aw) :: (pu, pv, pw) :: l) = 
+        destruct a as ((au, av), aw).
+        simpl in * |-.
+        exists au, [].
+        simpl.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        all:(try (apply refN); try (apply refR)).
+        apply symN; assumption.
+        apply symR.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hw _].
+        rewrite <-Hw.
+        apply congrR.
+        apply Hm.
+        apply refN.
+        exact Ht.
+        apply refR.
+        reflexivity.
+        destruct a as ((au, av), aw).
+        destruct p as ((pu, pv), pw).
+        assert (Hwt: (well_formed_path_aux m ((au, av, aw) :: (pu, pv, pw) :: l) = 
           (m au av =r= aw) && ((av =n= pu) && well_formed_path_aux m ((pu, pv, pw) :: l)))%bool).
-          simpl. reflexivity.
-          rewrite Hwt in Hw; clear Hwt.
-          apply Bool.andb_true_iff in Hw.
-          destruct Hw as [Hwl Hw].
-          apply Bool.andb_true_iff in Hw.
-          destruct Hw as [Hwll Hw].
-          assert (Hwt : target c ((au, av, aw) :: (pu, pv, pw) :: l) = 
-            target c ((pu, pv, pw) :: l)). simpl. reflexivity.
-          rewrite Hwt in Ht; clear Hwt.
-    Admitted.          
+        simpl. reflexivity.
+        rewrite Hwt in Hw; clear Hwt.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        assert (Hwt : target c ((au, av, aw) :: (pu, pv, pw) :: l) = 
+        target c ((pu, pv, pw) :: l)). simpl. reflexivity.
+        rewrite Hwt in Ht; clear Hwt.
+        destruct (IHl c m Hm Hw Ht) as [d [lc Hlc]].
+        exists d, ((au, av, aw) :: lc).
+        rewrite <-List.app_comm_cons.
+        remember ((pu, pv, pw) :: l) as pl.
+        remember (lc ++ [(d, c, m d c)]) as ld.
+        simpl. 
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        apply Bool.andb_true_iff; split.
+        all:(try (apply refN); try (apply refR)).
+        exact Hlc.
+    Qed.
+
+
+
+
+
+   
 
       
 
     Lemma cyclic_path_non_elem : forall l c m,
+      mat_cong m ->
       well_formed_path_aux m l = true (* a well defined path *) -> 
       cyclic_path c l -> elem_path l = false.
     Proof.
-      intros ? ? ? Hw Hc.
+      intros ? ? ? Hm Hw Hc.
       unfold cyclic_path in Hc.
       destruct Hc as [Hl [Hs Ht]].
+      destruct (source_list_consturction l c m Hm Hw Hs) as [d [ld Hld]].
+      destruct (target_list_consturction l c m Hm Hw Ht) as [e [le Hle]].
+      (* What can I infer from Hld and Hle? *)
     Admitted.
+
+
 
 
 
