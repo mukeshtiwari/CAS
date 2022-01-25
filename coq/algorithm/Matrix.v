@@ -3742,6 +3742,54 @@ Section Matrix.
       end.
 
 
+    Lemma elem_path_aux_true : forall (l : list Node) (a : Node),
+      in_list eqN l a = true -> 
+      exists l₁ l₂ : list Node, list_eqv _ eqN l (l₁ ++ [a] ++ l₂) = true.
+    Proof using Node eqN refN symN.
+      induction l.
+      - simpl; intros ? H; 
+        congruence.
+      - simpl; intros ? H.
+        apply Bool.orb_true_iff in H.
+        destruct H as [H | H].
+        exists [], l; simpl.
+        apply Bool.andb_true_iff.
+        split. apply symN. exact H.
+        apply list_eqv_refl; assumption.
+        destruct (IHl a0 H) as [l₁ [l₂ Ht]].
+        exists (a :: l₁), l₂.
+        simpl. apply Bool.andb_true_iff.
+        split. apply refN.
+        exact Ht.
+    Qed.
+
+
+    Lemma elim_path_aux_duplicate_node : forall (l : list Node),
+      elem_path_aux l = false -> 
+      exists (c : Node) (l₁ l₂  l₃ : list Node), 
+      list_eqv _ eqN l (l₁ ++ [c] ++ l₂ ++ [c] ++ l₃) = true. 
+    Proof using Node eqN refN symN.
+      induction l.
+      - simpl; intros Hf;
+        congruence.
+      - simpl; intros Ha.
+        apply Bool.andb_false_iff in Ha.
+        destruct Ha as [Ha | Ha].
+        apply Bool.negb_false_iff in Ha.
+        destruct (in_list_mem_true l a Ha) as 
+          [l₁ [l₂ Ht]].
+        exists a, [], l₁, l₂.
+        simpl. apply Bool.andb_true_iff.
+        split. apply refN.
+        exact Ht.
+        destruct (IHl Ha) as [c [l₁ [l₂ [l₃ Ht]]]].
+        exists c, (a :: l₁), l₂, l₃.
+        simpl.
+        apply Bool.andb_true_iff.
+        split. apply refN.
+        exact Ht.
+    Qed.
+
     Definition elem_path (l : list (Node * Node * R)) : bool :=
       elem_path_aux (collect_nodes_from_a_path l).
 
