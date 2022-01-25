@@ -3847,6 +3847,7 @@ Section Matrix.
       end.
 
     
+      
     Lemma connect_partial_sum_mat_paths : forall n m c d,
       mat_cong m -> 
       partial_sum_mat m n c d =r= partial_sum_paths m n c d = true.
@@ -3867,6 +3868,17 @@ Section Matrix.
         apply refR.
     Qed.
 
+
+
+    Lemma connect_unary_matrix_exp_partial_sum_paths : forall n m c d,
+      mat_cong m -> 
+      matrix_exp_unary (m +M I) n c d =r= partial_sum_paths m n c d = true.
+    Proof.
+      intros * Hm.
+      pose proof matrix_pow_idempotence n m c d Hm as Hp.
+      pose proof connect_partial_sum_mat_paths n m c d Hm as Hpp.
+      eapply trnR with (partial_sum_mat m n c d); assumption.
+    Qed.
 
 
   
@@ -4012,8 +4024,8 @@ Section Ins.
     | _, _ => false
     end.
 
-  Check all_paths_klength.
-  Eval vm_compute in (all_paths_klength node fin_node eqN Z 1%Z m 1 A B).
+ 
+  Eval vm_compute in (all_paths_klength node fin_node eqN Z 1%Z m 3 A B).
   
 End Ins. 
 
