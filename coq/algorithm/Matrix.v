@@ -4000,14 +4000,75 @@ Section Matrix.
     Qed.
 
 
+    
 
+    Lemma in_list_mem_collect : forall l c d mcd, 
+      in_list eqN (collect_nodes_from_a_path (l ++ [(c, d, mcd)])) d = true.
+    Proof.
+      induction l.
+      + intros ? ? ?.
+        simpl.
+        apply Bool.orb_true_iff.
+        right. apply Bool.orb_true_iff.
+        left. apply refN.
+      + intros ? ? ?.
+        destruct a as ((au, av), aw).
+        rewrite <-List.app_comm_cons.
+        remember (l ++ [(c, d, mcd)]) as lcd.
+        simpl. 
+        destruct lcd.
+        assert (Hwt : exists w wl, l ++ [(c, d, mcd)] = w :: wl).
+        destruct l. simpl.
+        exists (c, d, mcd), [].
+        reflexivity.
+        simpl. exists p, (l ++ [(c, d, mcd)]).
+        reflexivity.
+        destruct Hwt as [w [wt Hwt]].
+        rewrite Hwt in Heqlcd.
+        congruence.
+        rewrite Heqlcd.
+        simpl.
+        apply Bool.orb_true_iff.
+        right.
+        apply IHl.
+    Qed.
 
-        
+    
+
     Lemma elem_path_false : forall l c d e m,
       well_formed_path_aux m ((c, d, m c d) :: l ++ [(e, c, m e c)]) = true -> 
       elem_path ((c, d, m c d) :: l ++ [(e, c, m e c)]) = false.
     Proof.
-    Admitted.
+      induction l as [|((au, av), aw) l IHl].
+      + intros ? ? ? ? Hw.
+        simpl in Hw.
+        unfold elem_path.
+        simpl.
+        apply Bool.andb_false_iff.
+        left.
+        apply Bool.negb_false_iff.
+        apply Bool.orb_true_iff.
+        right.
+        apply Bool.orb_true_iff.
+        left. apply refN.
+      + intros ? ? ? ? Hw.
+        unfold elem_path.
+        remember (((au, av, aw) :: l) ++ [(e, c, m e c)]) as al.
+        rewrite <-List.app_comm_cons in Heqal.
+        simpl. rewrite Heqal.
+        rewrite <-Heqal.
+        simpl.
+        apply Bool.andb_false_iff.
+        left.
+        apply Bool.negb_false_iff.
+        rewrite List.app_comm_cons in Heqal.
+        pose proof in_list_mem_collect ((au, av, aw) :: l) e c (m e c) as Ht.
+        rewrite Heqal.
+        exact Ht.
+    Qed.
+
+       
+         
 
    
           
