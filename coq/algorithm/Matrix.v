@@ -3934,13 +3934,81 @@ Section Matrix.
         exact Hlc.
     Qed.
 
-
-
-
-
    
 
+         
+
+    Lemma list_equality_cons_gen : forall l ld le c d mcd e f mef,
+      l <> [] -> triple_elem_list l ((c, d, mcd) :: ld) = true ->
+      triple_elem_list l (le ++ [(e, f, mef)]) = true ->
+      (triple_elem_list l [(c, d, mcd)] = true ∧ triple_elem_list l [(e, f, mef)] = true) ∨ 
+      (exists lm, 
+      triple_elem_list l ((c, d, mcd) :: lm ++ [(e, f, mef)]) = true).
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros * H He Hf.
+        congruence.
+      + intros * H He Hf.
+        destruct l as [|((bu, bv), bw) l].
+        destruct ld as [|((ldu, ldv), ldw) ld].
+        destruct le as [|((leu, lev), lew) le].
+        left.
+        simpl in * |-*.
+        split. exact He.
+        exact Hf.
+        simpl in Hf.
+        destruct le;
+        simpl in Hf; lia.
+        destruct ld;
+        simpl in He; lia.
+        destruct ld as [|((ldu, ldv), ldw) ld].
+        simpl in He. 
+        apply Bool.andb_true_iff in He.
+        lia.
+        destruct le as [|((leu, lev), lew) le].
+        simpl in Hf.
+        apply Bool.andb_true_iff in Hf.
+        lia.
+        remember ((bu, bv, bw) :: l) as bl.
+        remember ((ldu, ldv, ldw) :: ld) as dl.
+        assert (Hwt : (((leu, lev, lew) :: le) ++ [(e, f, mef)]) =
+        ((leu, lev, lew) :: (le ++ [(e, f, mef)]))).
+        simpl; reflexivity.
+        rewrite Hwt in Hf; clear Hwt.
+        simpl in He, Hf.
+        apply Bool.andb_true_iff in He, Hf.
+        destruct He as [He Her].
+        destruct Hf as [Hf Hfr].
+        subst.
+        assert (Hwt : (bu, bv, bw) :: l ≠ []).
+        intro Hff; congruence.
+        specialize(IHl _ _ _ _ _ _ _ _ Hwt Her Hfr).
+        destruct IHl as [[IHll IHlr] | [lm IHl]].
+        right.
+        exists [].
+        remember ((bu, bv, bw) :: l) as bl.
+        simpl.
+        apply Bool.andb_true_iff; split.
+        exact He. assumption.
+        right.
+        exists ((ldu, ldv, ldw) :: lm).
+        remember ((bu, bv, bw) :: l) as bl.
+        simpl.
+        apply Bool.andb_true_iff; split.
+        exact He.
+        exact IHl.
+    Qed.
+
+
+
+
+        
+    Lemma elem_path_false : forall l c d e m,
+      well_formed_path_aux m ((c, d, m c d) :: l ++ [(e, c, m e c)]) = true -> 
+      elem_path ((c, d, m c d) :: l ++ [(e, c, m e c)]) = false.
+    Proof.
       
+    Admitted.
 
     Lemma cyclic_path_non_elem : forall l c m,
       mat_cong m ->
@@ -3953,6 +4021,25 @@ Section Matrix.
       destruct (source_list_consturction l c m Hm Hw Hs) as [d [ld Hld]].
       destruct (target_list_consturction l c m Hm Hw Ht) as [e [le Hle]].
       (* What can I infer from Hld and Hle? *)
+      destruct (list_equality_cons_gen l ld le c d (m c d) e c (m e c)
+        Hl Hld Hle) as [[Hlwl Hlwr] | [lm Hlw]].
+      unfold elem_path.
+      destruct l as [|((bu, bv), bw) l]. 
+      simpl in Hlwl.
+      congruence.
+      destruct l as [|((cu, cv), cw) l]. 
+      simpl in Hlwl, Hlwr.
+      simpl. 
+      apply Bool.andb_false_iff.
+      left. 
+      apply Bool.negb_false_iff.
+      apply Bool.orb_true_iff.
+      left.
+      (* is this crime ;) *)
+      firstorder.
+      simpl in Hlwl. lia.
+      unfold elem_path.
+
     Admitted.
 
 
@@ -4172,10 +4259,14 @@ Section Matrix.
 
     Lemma all_paths_in_klength_paths_cycle : ∀ (l : list Node)
       (m : Matrix) (c d : Node) xs, l <> [] ->
-      (forall x : Node, in_list eqN l x = true) ->
-      In_eq_bool xs (all_paths_klength m (List.length l) c d) = true ->
+      (forall x : Node, in_list eqN l x = true) -> forall n, 
+      (List.length l <= n)%nat ->
+      In_eq_bool xs (all_paths_klength m n c d) = true ->
       elem_path xs = false.
+    Proof.
     Admitted.
+
+
 
     Fixpoint partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
       match n with
