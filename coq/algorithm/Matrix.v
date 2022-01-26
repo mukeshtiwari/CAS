@@ -4007,8 +4007,215 @@ Section Matrix.
       well_formed_path_aux m ((c, d, m c d) :: l ++ [(e, c, m e c)]) = true -> 
       elem_path ((c, d, m c d) :: l ++ [(e, c, m e c)]) = false.
     Proof.
-      
     Admitted.
+
+   
+          
+    Lemma in_list_collect : forall pl plw a b, 
+      (a =n= b = true) ->
+      triple_elem_list pl plw = true ->
+      in_list eqN (collect_nodes_from_a_path pl) a =
+      in_list eqN (collect_nodes_from_a_path plw) b.
+    Proof.
+      induction pl as [|((au, av), aw) pl].
+      + intros [|((bu, bv), bw) plw] ? ? Hab Ht.
+        reflexivity.
+        simpl in Ht; congruence.
+      + intros [|((bu, bv), bw) plw] ? ? Hab Ht.
+        simpl in Ht; congruence.
+        simpl in Ht.
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrrr].
+        specialize (IHpl plw a b Hab Htr).
+        destruct pl as [|((cu, cv), cw) pl].
+        destruct plw as [|((du, dv), dw) plw].
+        simpl.
+        f_equal.
+        case (a =n= au) eqn:Hau;
+        case (b =n= bu) eqn:Hbu.
+        reflexivity.
+        pose proof trnN _ _ _ Hau Ht as Hf.
+        apply symN in Hab.
+        pose proof trnN _ _ _ Hab Hf.
+        rewrite H in Hbu.
+        congruence.
+        pose proof trnN _ _ _ Hab Hbu.
+        pose proof trnN _ _ _ H (symN _ _ Ht) as Hf.
+        rewrite Hf in Hau. congruence.
+        reflexivity.
+        f_equal.
+        case (a =n= av) eqn:Hav;
+        case (b =n= bv) eqn:Hbv.
+        reflexivity.
+        pose proof trnN _ _ _ (symN _ _ Hab) (trnN _ _ _ Hav Htrrr) as Hf.
+        rewrite Hf in Hbv.
+        congruence.
+        pose proof trnN _ _ _ (trnN _ _ _ Hab Hbv) (symN _ _ Htrrr) as Hf.
+        rewrite Hf in Hav.
+        congruence.
+        reflexivity.
+        simpl in Htr.
+        congruence.
+        destruct plw as [|((du, dv), dw) plw].
+        simpl in Htr.
+        congruence.
+        remember ((cu, cv, cw) :: pl) as cpl.
+        remember ((du, dv, dw) :: plw) as dpl.
+        simpl.
+        rewrite Heqcpl, Heqdpl.
+        rewrite <-Heqcpl, <-Heqdpl.
+        simpl.
+        f_equal.
+        case (a =n= au) eqn:Hau;
+        case (b =n= bu) eqn:Hbu.
+        reflexivity.
+        pose proof trnN _ _ _ Hau Ht as Hf.
+        apply symN in Hab.
+        pose proof trnN _ _ _ Hab Hf.
+        rewrite H in Hbu.
+        congruence.
+        pose proof trnN _ _ _ Hab Hbu.
+        pose proof trnN _ _ _ H (symN _ _ Ht) as Hf.
+        rewrite Hf in Hau. congruence.
+        reflexivity.
+        exact IHpl.
+    Qed.
+
+
+    Lemma elem_path_rewrite : forall l lw,
+      triple_elem_list l lw = true ->
+      elem_path_aux (collect_nodes_from_a_path l) =
+      elem_path_aux (collect_nodes_from_a_path lw).
+    Proof.
+      induction l as [|((au, av), aw) l];
+      intros [|((bu, bv), bw) lw] He;
+      try reflexivity; simpl in He;
+      try lia.
+      simpl. destruct l; destruct lw.
+      simpl. f_equal. f_equal.
+      f_equal.
+      apply Bool.andb_true_iff in He.
+      destruct He as [He _].
+      apply Bool.andb_true_iff in He.
+      destruct He as [He _].
+      apply Bool.andb_true_iff in He.
+      destruct He as [Hel Her].
+      case (au =n= av) eqn:Hau;
+      case (bu =n= bv) eqn:Hbu.
+      reflexivity.
+      pose proof symN _ _ (trnN _ _ _ (symN _ _ (trnN _ _ _ Hau Her)) Hel) as Ht.
+      rewrite Ht in Hbu. congruence.
+      apply symN in Her.
+      pose proof trnN _ _ _ Hel Hbu as Ht.
+      pose proof trnN _ _ _ Ht Her as Hf.
+      rewrite Hf in Hau.
+      congruence.
+      reflexivity.
+      simpl in He;
+      apply Bool.andb_true_iff in He;
+      destruct He as [_ He];
+      congruence.
+      simpl in He;
+      destruct p as ((pu, pv), pw);
+      apply Bool.andb_true_iff in He;
+      destruct He as [_ He];
+      congruence.
+      apply Bool.andb_true_iff in He.
+      destruct He as [He Hel].
+      specialize (IHl (p0 :: lw) Hel).
+      remember (p :: l) as pl.
+      remember (p0 :: lw) as plw.
+      simpl. f_equal. f_equal.
+      apply in_list_collect.
+      apply Bool.andb_true_iff in He.
+      destruct He as [He _].
+      apply Bool.andb_true_iff in He.
+      destruct He as [He _].
+      exact He. exact Hel.
+      exact IHl.
+    Qed.
+
+    Lemma well_formed_path_rewrite : forall l lw m,
+      mat_cong m -> 
+      well_formed_path_aux m l = true ->
+      triple_elem_list l lw = true ->
+      well_formed_path_aux m lw = true.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros [|((bu, bv), bw) lw] ? Hm Hw Ht.
+        reflexivity.
+        simpl in Ht. lia.
+      + intros ? ? Hm Hw Ht.
+        destruct lw as [|((bu, bv), bw) lw].
+        simpl in Ht. congruence.
+        simpl in Ht.
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrrr].
+        (* Now, I need to know if l is well formed or not *)
+        destruct l as [|((cu, cv), cw) l].
+        destruct lw as [|((du, dv), dw) lw].
+        simpl. simpl in Hw.
+        apply Bool.andb_true_iff.
+        split. 
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hw _].
+        rewrite <-Hw.
+        apply congrR.
+        apply Hm.
+        apply symN; assumption.
+        apply symN; assumption.
+        apply symR; assumption.
+        reflexivity.
+        simpl in Htr.
+        congruence.
+        assert (Hwt: (well_formed_path_aux m ((au, av, aw) :: (cu, cv, cw) :: l) = 
+          (m au av =r= aw) && ((av =n= cu) && well_formed_path_aux m ((cu, cv, cw) :: l)))%bool).
+        simpl. reflexivity.
+        rewrite Hwt in Hw; clear Hwt.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        specialize (IHl lw m Hm Hw Htr).
+        simpl. apply Bool.andb_true_iff.
+        split. 
+        rewrite <-Hwl.
+        apply congrR.
+        apply Hm.
+        apply symN; assumption.
+        apply symN; assumption.
+        apply symR; assumption.
+        destruct lw. 
+        reflexivity.
+        destruct p as ((pu, pv), pw).
+        simpl in Htr.
+        apply Bool.andb_true_iff.
+        split.
+        apply Bool.andb_true_iff in Htr.
+        destruct Htr as [Htr Htrv].
+        apply Bool.andb_true_iff in Htr.
+        destruct Htr as [Htr Htrw].
+        apply Bool.andb_true_iff in Htr.
+        destruct Htr as [Htr Htwx].
+        apply trnN with cu.
+        apply symN in Htrrr.
+        apply trnN with av; assumption.
+        exact Htr.
+        exact IHl. 
+    Qed.       
+
+        
+      
+    
+
 
     Lemma cyclic_path_non_elem : forall l c m,
       mat_cong m ->
@@ -4023,7 +4230,6 @@ Section Matrix.
       (* What can I infer from Hld and Hle? *)
       destruct (list_equality_cons_gen l ld le c d (m c d) e c (m e c)
         Hl Hld Hle) as [[Hlwl Hlwr] | [lm Hlw]].
-      unfold elem_path.
       destruct l as [|((bu, bv), bw) l]. 
       simpl in Hlwl.
       congruence.
@@ -4039,9 +4245,11 @@ Section Matrix.
       firstorder.
       simpl in Hlwl. lia.
       unfold elem_path.
-
-    Admitted.
-
+      pose proof elem_path_rewrite l _ Hlw as Htt.
+      rewrite Htt; clear Htt.
+      apply elem_path_false. 
+      eapply well_formed_path_rewrite with l; assumption.
+    Qed. 
 
 
 
@@ -4310,7 +4518,27 @@ Section Matrix.
     Qed.
 
 
+    (* 
+    Why is this true? 
+    
+    What does partial_sum_mat m n c d represents?
+    partial_sum_mat m n c d = partial_sum_paths m n c d 
+    Where 
+    partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
+      match n with
+      | O => I c d
+      | S n' =>  partial_sum_paths m n' c d + 
+        sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d))
+      end.
 
+    partial_sum_path m n c d represents sum of all paths 
+    from [0, 1, ... n]
+
+    if n >= cardinality of the number of nodes - 1. 
+    Now if | *)
+
+
+    
   
     Lemma zero_stable_partial : forall m,
       (forall a : R, 1 + a =r= 1 = true) ->
