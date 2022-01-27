@@ -4575,7 +4575,21 @@ Section Matrix.
 
 
 
+
+    Lemma list_eqv_snoc : forall t pl xb,
+      list_eqv Node eqN t (pl ++ [xb]) = true ->
+      exists tp, list_eqv Node eqN t (tp ++ [xb]) = true /\ 
+      list_eqv _ eqN tp pl = true.
+    Proof.
+      intros ? ? ? Hl.
+      exists pl.
+      split. exact Hl.
+      apply list_eqv_refl; assumption.
+    Qed.
       
+
+
+
     Lemma contruct_path_proof : forall l t lf lr m au av aw
       pu pv pw, mat_cong m -> 
       (av =n= pu) = true -> (m au av =r= aw) = true ->
@@ -4679,12 +4693,22 @@ Section Matrix.
           xa xb xm Hwt Hw as Hf.
         clear Hwt.
         rewrite <-List.app_comm_cons in Hf.
-        rewrite <-Ht in Hf.
         destruct (well_formed_path_snoc ((pu, pv, pw) :: l) [(xa, xb, xm)] m
           Hw) as [Hwl Hwr].
-        rewrite List.app_comm_cons in Ht.
+        rewrite List.app_comm_cons in Ht, Hf.
         rewrite List.app_comm_cons.
         remember ((pu, pv, pw) :: l) as pl.
+        pose proof list_eqv_trans Node eqN trnN _ _ _ Ht Hf as Hwt.
+        destruct (list_eqv_snoc _ _ _ Hwt) as (tp & Htpl & Htpr).
+        apply list_eqv_sym in Htpl.
+        pose proof list_eqv_trans Node eqN trnN _ _ _ Htpl Hl as Hlrr.
+        specialize (IHl tp).
+    Admitted.
+        (* Now I am almost there 
+           In IHl:
+           t = tp.
+        
+        *)
         (* Now I have almost everyting, except aliging t and possible adjusting lf and lr *)
         
 
@@ -4752,13 +4776,61 @@ Section Matrix.
         pose proof path_reconstruction ((pu, pv, pw) :: l)
           m Hm Hw as Hp.
         rewrite <-Heqt in Hp.
-        exists au, [], (construct_path_from_nodes (au :: lf ++ [au]) m),
+
+
+        (* tmp *)
+        exists au, [],
+        (construct_path_from_nodes (au :: lf ++ [au]) m),
+          (construct_path_from_nodes lr m).
+        split. rewrite List.app_nil_l.
+        remember ((pu, pv, pw) :: l) as pl.
+        admit.
+         
+        unfold cyclic_path.
+        split.
+        simpl.
+        destruct lf;
+        simpl; 
+        intros Hf; congruence. 
+        split.
+        simpl.
+        destruct lf.
+        simpl. apply refN.
+        simpl. apply refN.
+        assert (Hwt : au :: lf <> []).
+        intro H; congruence.
+        exact (target_construct_path (au :: lf) m au Hwt).
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        destruct (IHl m Hm Hw He) as (c & l₁ & l₂ & l₃ & Ht & Hv).
+        exists c, ((au, av, aw) :: l₁), l₂, l₃.
+        split.
+        rewrite <-List.app_comm_cons.
+        remember ((pu, pv, pw) :: l) as pl.
+        remember (l₁ ++ l₂ ++ l₃) as lll.
+        simpl.
+        repeat (apply Bool.andb_true_iff; split;
+        try (apply refN); try (apply refR)).
+        all: assumption.
+
+        (* end of tmp *)
+
+
+
+        (* Everything below here works except the admit *)
+        exists au, [],
+        (construct_path_from_nodes (au :: lf ++ [au]) m),
           (construct_path_from_nodes (au :: lr) m).
-        split. rewrite List.app_nil_l.\
+        split. rewrite List.app_nil_l.
 
-        eapply contruct_path_proof with t; assumption.
+        
+        eapply contruct_path_proof with t; try assumption.
+        rewrite Heqt. apply list_eqv_refl.
+        assumption.
 
-        admit. 
+        
         
         unfold cyclic_path.
         split.
