@@ -4343,6 +4343,336 @@ Section Matrix.
         simpl. exact IHlf.
     Qed.
         
+    
+    Lemma list_equiv_simp : forall lf lr pu pv au, 
+      list_eqv Node eqN [pu; pv] (lf ++ [au] ++ lr) = true ->
+      (list_eqv Node eqN lf [] = true /\ 
+      pu =n= au = true /\ 
+      list_eqv Node eqN lr [pv] = true) ∨
+      (list_eqv Node eqN lf [pu] = true /\ 
+      pv =n= au = true /\ 
+      list_eqv Node eqN lr [] = true).
+    Proof.
+      intros [|u lf] [|v lr] ? ? ? Hle.
+      simpl in Hle.
+      apply Bool.andb_true_iff in Hle.
+      lia.
+      left.
+      split. 
+      reflexivity.
+      split.
+      simpl in Hle.
+      destruct lr.
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [Hle _].
+      exact Hle.
+      apply Bool.andb_true_iff in Hle.
+      lia.
+      destruct lr.
+      simpl in Hle.
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      simpl.  apply Bool.andb_true_iff in Hle.
+      destruct Hle as [Hle _].
+      apply Bool.andb_true_iff; split.
+      apply symN; assumption.
+      reflexivity.
+      simpl in Hle.
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      congruence.
+      rewrite List.app_nil_r in Hle.
+      right. split.
+      destruct lf.
+      simpl in Hle.
+      simpl.
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [Hle _].
+      apply Bool.andb_true_iff; split.
+      apply symN; assumption.
+      reflexivity.
+      simpl in Hle.
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      destruct lf; simpl in Hle; 
+      congruence.
+      split.
+      destruct lf.
+      simpl in Hle.
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [Hle _].
+      exact Hle.
+      simpl in Hle.
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      destruct lf; simpl in Hle; 
+      congruence.
+      reflexivity.
+      rewrite <-List.app_comm_cons in Hle.
+      simpl in Hle.
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      assert (Hwt : exists a b l, lf ++ au :: v :: lr = a :: b :: l).
+      destruct lf.
+      exists au, v, lr. reflexivity.
+      destruct lf.
+      exists n, au, (v :: lr).
+      simpl. reflexivity.
+      exists n, n0, (lf ++ [au] ++ v :: lr).
+      reflexivity.
+      destruct Hwt as (a & b & l & Hwt).
+      rewrite Hwt in Hle.
+      apply Bool.andb_true_iff in Hle.
+      destruct Hle as [_ Hle].
+      congruence.
+    Qed.
+      
+    
+    Lemma collect_nodes_from_a_path_app : forall l m a b mab,
+      l <> [] ->  well_formed_path_aux m (l ++ [(a, b, mab)]) = true ->
+      list_eqv _ eqN (collect_nodes_from_a_path (l ++ [(a, b, mab)]))
+      (collect_nodes_from_a_path l ++ [b]) = true.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros ? ? ? ? Hf Hw.
+        congruence.
+      + intros ? ? ? ? Hf Hw.
+        destruct l as [|((bu, bv), bw) l].
+        - simpl in * |- *.
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwl Hw].
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwll Hw].
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hw _].
+          repeat (apply Bool.andb_true_iff; split).
+          apply refN.
+          apply symN; assumption.
+          apply refN.
+          reflexivity.
+        - (* induction case *)
+          assert (Hwt: (bu, bv, bw) :: l ≠ []).
+          intros H; congruence.
+          rewrite <-List.app_comm_cons in Hw.
+          remember (((bu, bv, bw) :: l) ++ [(a, b, mab)]) as blm.
+          simpl in Hw. 
+          rewrite <-List.app_comm_cons in Heqblm.
+          rewrite Heqblm in Hw.
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwl Hw].
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwll Hw].
+          specialize (IHl m a b mab Hwt Hw).
+          simpl. 
+          apply Bool.andb_true_iff; split.
+          apply refN.
+          exact IHl.
+    Qed.
+
+
+    Lemma well_formed_path_snoc : forall ll lr m,
+      well_formed_path_aux m (ll ++ lr) = true ->
+      well_formed_path_aux m ll = true /\ 
+      well_formed_path_aux m lr = true.
+    Proof.
+      induction ll.
+      + intros ? ? Hw.
+        simpl in Hw.
+        split.
+        reflexivity.
+        exact Hw.
+      + intros ? ? Hw.
+        destruct a as ((au, av), aw).
+        simpl in Hw.
+        destruct ll;
+          destruct lr.
+        simpl in Hw.
+        simpl. split.
+        exact Hw.
+        reflexivity.
+        rewrite List.app_nil_l in Hw.
+        destruct p as ((pu, pv), pw).
+        split.
+        simpl.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        rewrite Hwl. reflexivity.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        exact Hw.
+        rewrite List.app_nil_r in Hw.
+        destruct p as ((pu, pv), pw).
+        split.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        specialize (IHll [] m).
+        rewrite List.app_nil_r in IHll.
+        specialize (IHll Hw).
+        remember ((pu, pv, pw) :: ll) as pl.
+        simpl. 
+        rewrite Heqpl.
+        apply Bool.andb_true_iff; split.
+        assumption.
+        apply Bool.andb_true_iff; split.
+        assumption.
+        rewrite <-Heqpl.
+        assumption.
+        reflexivity.
+        rewrite <-List.app_comm_cons in Hw.
+        destruct p as ((pu, pv), pw).
+        specialize (IHll (p0 :: lr) m).
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        rewrite <-List.app_comm_cons in IHll.
+        specialize (IHll Hw).
+        remember ((pu, pv, pw) :: ll) as pll.
+        split. simpl.
+        rewrite Heqpll.
+        apply Bool.andb_true_iff; split.
+        assumption.
+        apply Bool.andb_true_iff; split.
+        assumption.
+        destruct IHll as [IHlll IHllr].
+        rewrite <-Heqpll.
+        assumption.
+        destruct IHll as [IHlll IHllr].
+        assumption.
+    Qed.
+
+
+
+      
+    Lemma contruct_path_proof : forall l t lf lr m au av aw
+      pu pv pw, mat_cong m -> 
+      (av =n= pu) = true -> (m au av =r= aw) = true ->
+      well_formed_path_aux m ((pu, pv, pw) :: l) = true ->
+      t = collect_nodes_from_a_path ((pu, pv, pw) :: l) ->
+      list_eqv Node eqN t (lf ++ [au] ++ lr) = true ->
+      triple_elem_list ((au, av, aw) :: (pu, pv, pw) :: l)
+      (construct_path_from_nodes (au :: lf ++ [au]) m ++
+      construct_path_from_nodes (au :: lr) m) = true.
+    Proof.
+      induction l using List.rev_ind.
+      + intros ? ? ? ? ? ? ? ? ? ? Hm Hap Hmauv Hw Ht Hl.
+        simpl in Ht, Hw.
+        rewrite Ht in Hl.
+        destruct (list_equiv_simp lf lr pu pv au Hl) as [(H₁ & H₂ & H₃) | (H₁ & H₂ & H₃)].
+        destruct lf; destruct lr.
+        simpl in H₃; congruence.
+        destruct lr.
+        simpl in H₃.
+        simpl.
+        apply Bool.andb_true_iff in H₃.
+        destruct H₃ as [H₃ _].
+        repeat (apply Bool.andb_true_iff; split).
+        apply refN.
+        apply trnN with pu; assumption.
+        apply symR. rewrite <-Hmauv.
+        apply congrR.
+        apply Hm. apply refN.
+        apply symN.
+        apply trnN with pu; assumption.
+        apply refR.
+        exact H₂.
+        apply symN; assumption.
+        apply symR.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hw _].
+        rewrite <-Hw. 
+        apply congrR.
+        apply Hm.
+        apply symN; assumption.
+        exact H₃.
+        apply refR.
+        reflexivity.
+        simpl in H₃.
+        apply Bool.andb_true_iff in H₃.
+        lia.
+        simpl in H₃.
+        lia.
+        simpl in H₁.
+        lia.
+        destruct lf.
+        simpl in H₁;
+        congruence.
+        destruct lf.
+        destruct lr.
+        simpl in H₁.
+        apply Bool.andb_true_iff in H₁.
+        destruct H₁ as [H₁ _].
+        simpl in Hl.
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hll Hl].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hlll Hl].
+        simpl.
+        repeat (apply Bool.andb_true_iff; split).
+        apply refN.
+        apply symN in H₁.
+        apply trnN with pu; assumption.
+        apply symR.
+        rewrite <-Hmauv.
+        apply congrR.
+        apply Hm.
+        apply refN.
+        apply symN in Hap.
+        apply trnN with pu; assumption.
+        apply refR.
+        apply symN; assumption.
+        exact H₂.
+        apply symR.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hw _].
+        rewrite <-Hw.
+        apply congrR.
+        apply Hm.
+        assumption.
+        apply symN; assumption.
+        apply refR.
+        reflexivity.
+        simpl in H₃.
+        congruence.
+        simpl in H₁.
+        lia.
+      + intros ? ? ? ? ? ? ? ? ? ? Hm Hap Hmauv Hw Ht Hl.
+        destruct x as ((xa, xb), xm).
+        assert (Hwt: (pu, pv, pw) :: l ≠ []).
+        intro; congruence.
+        rewrite List.app_comm_cons in Hw.
+        pose proof collect_nodes_from_a_path_app ((pu, pv, pw) :: l) m 
+          xa xb xm Hwt Hw as Hf.
+        clear Hwt.
+        rewrite <-List.app_comm_cons in Hf.
+        rewrite <-Ht in Hf.
+        destruct (well_formed_path_snoc ((pu, pv, pw) :: l) [(xa, xb, xm)] m
+          Hw) as [Hwl Hwr].
+        (* Now I have almost everyting, except aliging t and possible adjusting lf and lr *)
+        
+
+
+        
+
+
+
+        
+
+        
 
 
 
@@ -4401,7 +4731,9 @@ Section Matrix.
         rewrite <-Heqt in Hp.
         exists au, [], (construct_path_from_nodes (au :: lf ++ [au]) m),
           (construct_path_from_nodes (au :: lr) m).
-        split. rewrite List.app_nil_l.
+        split. rewrite List.app_nil_l.\
+
+        eapply contruct_path_proof with t; assumption.
 
         admit. 
         
