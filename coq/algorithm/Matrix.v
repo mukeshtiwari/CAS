@@ -4033,7 +4033,7 @@ Section Matrix.
         apply IHl.
     Qed.
 
-    
+
 
     Lemma elem_path_false : forall l c d e m,
       well_formed_path_aux m ((c, d, m c d) :: l ++ [(e, c, m e c)]) = true -> 
@@ -4314,6 +4314,37 @@ Section Matrix.
 
 
 
+    Lemma target_construct_path : forall lf m a,
+      lf <> [] -> 
+      target a (construct_path_from_nodes (lf ++ [a]) m) = true.
+    Proof.
+      induction lf as [|u lf].
+      + intros ? ? Hf.
+        congruence.
+      + intros ? ? Hf.
+        destruct lf as [|v lf].
+        simpl. apply refN.
+        (* induction case *)
+        assert (Hwt : v :: lf <> []).
+        intro H; congruence.
+        specialize (IHlf m a Hwt).
+        clear Hwt.
+        rewrite <-List.app_comm_cons.
+        remember ((v :: lf) ++ [a]) as va.
+        simpl. rewrite Heqva.
+        rewrite <-List.app_comm_cons.
+        rewrite <-List.app_comm_cons in Heqva.
+        rewrite <-Heqva.
+        assert(Hwt: construct_path_from_nodes va m <> []).
+        rewrite Heqva. simpl.
+        destruct lf; simpl; intros H;
+        congruence.
+        apply target_tail.
+        simpl. exact IHlf.
+    Qed.
+        
+
+
 
       
     (* If a path is well formed but not elementry, then it has a loop *)
@@ -4368,13 +4399,40 @@ Section Matrix.
         pose proof path_reconstruction ((pu, pv, pw) :: l)
           m Hm Hw as Hp.
         rewrite <-Heqt in Hp.
+        exists au, [], (construct_path_from_nodes (au :: lf ++ [au]) m),
+          (construct_path_from_nodes (au :: lr) m).
+        split. rewrite List.app_nil_l.
+
+        admit. 
+        
+        unfold cyclic_path.
+        split.
+        simpl.
+        destruct lf;
+        simpl; 
+        intros Hf; congruence. 
+        split.
+        simpl.
+        destruct lf.
+        simpl. apply refN.
+        simpl. apply refN.
+        assert (Hwt : au :: lf <> []).
+        intro H; congruence.
+        exact (target_construct_path (au :: lf) m au Hwt).
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        destruct (IHl m Hm Hw He) as (c & l₁ & l₂ & l₃ & Ht & Hv).
+        exists c, ((au, av, aw) :: l₁), l₂, l₃.
+        split.
+        rewrite <-List.app_comm_cons.
         remember ((pu, pv, pw) :: l) as pl.
-        (* c = au 
-           l₁ = []
-           l₂ = (au, av, aw) :: 
-        *)
-        exists au.
-        repeat eexists.
+        remember (l₁ ++ l₂ ++ l₃) as lll.
+        simpl.
+        repeat (apply Bool.andb_true_iff; split;
+        try (apply refN); try (apply refR)).
+        all: assumption.
     Admitted.
 
         
