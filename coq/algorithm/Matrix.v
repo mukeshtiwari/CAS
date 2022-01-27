@@ -51,6 +51,24 @@ Section Lfn.
       apply IHl₁. exact Hb.
   Qed.
 
+  Lemma list_eqv_trans : forall l₁ l₂ l₃ : list A, 
+    list_eqv l₁ l₂ = true -> list_eqv l₂ l₃ = true ->
+    list_eqv l₁ l₃ = true.
+  Proof.
+    induction l₁ as [|a l₁];
+    destruct l₂ as [|b l₂];
+    destruct l₃ as [|c l₃];
+    intros Ha Hb; simpl in Ha, 
+    Hb; try congruence; try reflexivity.
+    simpl.
+    apply Bool.andb_true_iff in Ha, Hb.
+    apply Bool.andb_true_iff; split.
+    apply trnA with b; firstorder.
+    eapply IHl₁ with l₂; firstorder.
+  Qed.
+
+
+
   
   Lemma list_mem_not : forall (l : list A) (c a : A), eqA c a = true ->
     in_list eqA l a = false -> in_list eqA l c = false.
@@ -4562,16 +4580,17 @@ Section Matrix.
       pu pv pw, mat_cong m -> 
       (av =n= pu) = true -> (m au av =r= aw) = true ->
       well_formed_path_aux m ((pu, pv, pw) :: l) = true ->
-      t = collect_nodes_from_a_path ((pu, pv, pw) :: l) ->
+      list_eqv _ eqN t (collect_nodes_from_a_path ((pu, pv, pw) :: l)) = true ->
       list_eqv Node eqN t (lf ++ [au] ++ lr) = true ->
       triple_elem_list ((au, av, aw) :: (pu, pv, pw) :: l)
       (construct_path_from_nodes (au :: lf ++ [au]) m ++
       construct_path_from_nodes (au :: lr) m) = true.
     Proof.
       induction l using List.rev_ind.
-      + intros ? ? ? ? ? ? ? ? ? ? Hm Hap Hmauv Hw Ht Hl.
+      + intros ? ? ? ? ? ? ? ? ? ? Hm Hap Hmauv Hw Ht Hllv.
         simpl in Ht, Hw.
-        rewrite Ht in Hl.
+        apply list_eqv_sym in Ht.
+        pose proof list_eqv_trans Node eqN trnN _ _ _ Ht Hllv as Hl.
         destruct (list_equiv_simp lf lr pu pv au Hl) as [(H₁ & H₂ & H₃) | (H₁ & H₂ & H₃)].
         destruct lf; destruct lr.
         simpl in H₃; congruence.
@@ -4649,7 +4668,8 @@ Section Matrix.
         simpl in H₃.
         congruence.
         simpl in H₁.
-        lia.
+        lia. 
+        assumption.
       + intros ? ? ? ? ? ? ? ? ? ? Hm Hap Hmauv Hw Ht Hl.
         destruct x as ((xa, xb), xm).
         assert (Hwt: (pu, pv, pw) :: l ≠ []).
@@ -4662,6 +4682,9 @@ Section Matrix.
         rewrite <-Ht in Hf.
         destruct (well_formed_path_snoc ((pu, pv, pw) :: l) [(xa, xb, xm)] m
           Hw) as [Hwl Hwr].
+        rewrite List.app_comm_cons in Ht.
+        rewrite List.app_comm_cons.
+        remember ((pu, pv, pw) :: l) as pl.
         (* Now I have almost everyting, except aliging t and possible adjusting lf and lr *)
         
 
