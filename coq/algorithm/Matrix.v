@@ -3730,17 +3730,6 @@ Section Matrix.
 
     
 
-    (* Elementry path where nodes at the 
-      end of a arc is unique 
-    Fixpoint elem_path (m : Matrix) 
-      (l : list (Node * Node * R)) : bool  :=
-      match l with
-      | [] => true
-      | (a, b, s) :: t => (negb (a =n= b)) && 
-        (m a b =r= s) && elem_path m t
-      end.    
-    *)    
-    
     (* assume that path is well_founded *)
     Fixpoint collect_nodes_from_a_path  
       (l : list (Node * Node * R)) : list Node :=
@@ -3811,22 +3800,89 @@ Section Matrix.
     Definition elem_path (l : list (Node * Node * R)) : bool :=
       elem_path_aux (collect_nodes_from_a_path l).
 
-    Fixpoint elem_triple_path (au : Node) (l : list (Node * Node * R)) : bool :=
+
+    (* Checks if au is in the path and it's there then returns true *)      
+    Fixpoint elem_path_triple_aux (au : Node) (l : list (Node * Node * R)) : bool :=
       match l with
       | [] => false
-      | (bu, bv, _) :: t => (au =n= bu) || 
-        elem_triple_path au t
+      | (bu, bv, _) :: t => match t with
+        | [] => (au =n= bu) || (au =n= bv)
+        | _ :: _ =>  (au =n= bu) || elem_path_triple_aux au t
+      end
       end.   
 
+    (* elem_path_triple l = true mean no loop *)  
     Fixpoint elem_path_triple (l : list (Node * Node * R)) : bool := 
       match l with
       | [] => true 
-      | (au, av, aw) :: t => match t with
-        | [] => au =n= av
-        | _ :: _ => elem_triple_path au t && 
+      | (au, av, _) :: t => match t with
+        | [] => negb (au =n= av)
+        | _ :: _ => negb (elem_path_triple_aux au t) && 
           elem_path_triple t 
       end
       end. 
+
+  
+
+    Lemma elem_path_in_list : forall l a,
+      elem_path_triple_aux a l =
+      in_list eqN (collect_nodes_from_a_path l) a.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros ?.
+        reflexivity.
+      + intros ?.
+        destruct l as [|((pu, pv), pw) l].
+        - simpl.
+          case (a =n= au);
+          case (a =n= av); 
+          simpl; reflexivity.
+        - (* induction case *)
+          remember ((pu, pv, pw) :: l) as pl.
+          simpl.
+          rewrite Heqpl.
+          rewrite <-Heqpl.
+          simpl.
+          rewrite IHl.
+          reflexivity.
+    Qed.
+
+
+    (* Under the assumption that l is well formed path, 
+      elem_path_triple l and elem_path l are same *)
+    Lemma elem_path_triple_eqv_elem_path : forall l m, 
+      well_formed_path_aux m l = true ->
+      elem_path_triple l = elem_path l.
+    Proof.
+      unfold elem_path.
+      induction l as [|((au, av), aw) l].
+      + intros ? Hw.
+        reflexivity.
+      + intros ? Hw.
+        destruct l as [|((pu, pv), pw) l].
+        - simpl. 
+          case (au =n= av); simpl;
+          reflexivity.
+        - (* induction case *)
+          remember ((pu, pv, pw) :: l) as pl.
+          simpl.
+          rewrite Heqpl.
+          rewrite <-Heqpl.
+          simpl.
+          f_equal. f_equal.
+          apply elem_path_in_list.
+          simpl in Hw.
+          rewrite Heqpl in Hw.
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwl Hw].
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwll Hw].
+          apply IHl with m.
+          rewrite Heqpl; assumption.
+    Qed.
+         
+
+
       
     (* Constructs well founded path *)  
     Fixpoint construct_path_from_nodes (l : list Node) (m : Matrix) : 
@@ -4651,266 +4707,7 @@ Section Matrix.
          
 
 
-
-
-
-
-
-    Lemma contruct_path_proof : forall l t lf lr m au av aw
-      pu pv pw, mat_cong m -> 
-      (av =n= pu) = true -> (m au av =r= aw) = true ->
-      well_formed_path_aux m ((pu, pv, pw) :: l) = true ->
-      list_eqv _ eqN t (collect_nodes_from_a_path ((pu, pv, pw) :: l)) = true ->
-      list_eqv Node eqN t (lf ++ [au] ++ lr) = true ->
-      triple_elem_list ((au, av, aw) :: (pu, pv, pw) :: l)
-      (construct_path_from_nodes (au :: lf ++ [au]) m ++
-      construct_path_from_nodes (au :: lr) m) = true.
-    Proof.
-      
-      induction l using List.rev_ind.
-      + intros ? ? ? ? ? ? ? ? ? ? Hm Hap Hmauv Hw Ht Hllv.
-        simpl in Ht, Hw.
-        apply list_eqv_sym in Ht.
-        pose proof list_eqv_trans Node eqN trnN _ _ _ Ht Hllv as Hl.
-        destruct (list_equiv_simp lf lr pu pv au Hl) as [(H₁ & H₂ & H₃) | (H₁ & H₂ & H₃)].
-        destruct lf; destruct lr.
-        simpl in H₃; congruence.
-        destruct lr.
-        simpl in H₃.
-        simpl.
-        apply Bool.andb_true_iff in H₃.
-        destruct H₃ as [H₃ _].
-        repeat (apply Bool.andb_true_iff; split).
-        apply refN.
-        apply trnN with pu; assumption.
-        apply symR. rewrite <-Hmauv.
-        apply congrR.
-        apply Hm. apply refN.
-        apply symN.
-        apply trnN with pu; assumption.
-        apply refR.
-        exact H₂.
-        apply symN; assumption.
-        apply symR.
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hw _].
-        rewrite <-Hw. 
-        apply congrR.
-        apply Hm.
-        apply symN; assumption.
-        exact H₃.
-        apply refR.
-        reflexivity.
-        simpl in H₃.
-        apply Bool.andb_true_iff in H₃.
-        lia.
-        simpl in H₃.
-        lia.
-        simpl in H₁.
-        lia.
-        destruct lf.
-        simpl in H₁;
-        congruence.
-        destruct lf.
-        destruct lr.
-        simpl in H₁.
-        apply Bool.andb_true_iff in H₁.
-        destruct H₁ as [H₁ _].
-        simpl in Hl.
-        apply Bool.andb_true_iff in Hl.
-        destruct Hl as [Hll Hl].
-        apply Bool.andb_true_iff in Hl.
-        destruct Hl as [Hlll Hl].
-        simpl.
-        repeat (apply Bool.andb_true_iff; split).
-        apply refN.
-        apply symN in H₁.
-        apply trnN with pu; assumption.
-        apply symR.
-        rewrite <-Hmauv.
-        apply congrR.
-        apply Hm.
-        apply refN.
-        apply symN in Hap.
-        apply trnN with pu; assumption.
-        apply refR.
-        apply symN; assumption.
-        exact H₂.
-        apply symR.
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hw _].
-        rewrite <-Hw.
-        apply congrR.
-        apply Hm.
-        assumption.
-        apply symN; assumption.
-        apply refR.
-        reflexivity.
-        simpl in H₃.
-        congruence.
-        simpl in H₁.
-        lia. 
-        assumption.
-      + intros ? ? ? ? ? ? ? ? ? ? Hm Hap Hmauv Hw Ht Hl.
-        destruct x as ((xa, xb), xm).
-        assert (Hwt: (pu, pv, pw) :: l ≠ []).
-        intro; congruence.
-        rewrite List.app_comm_cons in Hw.
-        pose proof collect_nodes_from_a_path_app ((pu, pv, pw) :: l) m 
-          xa xb xm Hwt Hw as Hf.
-        clear Hwt.
-        rewrite <-List.app_comm_cons in Hf.
-        destruct (well_formed_path_snoc ((pu, pv, pw) :: l) [(xa, xb, xm)] m
-          Hw) as [Hwl Hwr].
-        rewrite List.app_comm_cons in Ht, Hf.
-        rewrite List.app_comm_cons.
-        remember ((pu, pv, pw) :: l) as pl.
-        pose proof list_eqv_trans Node eqN trnN _ _ _ Ht Hf as Hwt.
-        destruct (list_eqv_snoc _ _ _ Hwt) as (tp & Htpl & Htpr).
-        apply list_eqv_sym in Htpl.
-        pose proof list_eqv_trans Node eqN trnN _ _ _ Htpl Hl as Hlrr.
-        specialize (IHl tp).
-    Admitted.
-        (* Now I am almost there 
-           In IHl:
-           t = tp.
-        
-        *)
-        (* Now I have almost everyting, except aliging t and possible adjusting lf and lr *)
-        
-
-
-        
-
-    Lemma difficult_one :  forall l t lf lr m au av aw
-      pu pv pw, mat_cong m -> 
-      well_formed_path_aux m ((au, av, aw) :: (pu, pv, pw) :: l) = true ->
-      list_eqv _ eqN t (collect_nodes_from_a_path ((au, av, aw) :: (pu, pv, pw) :: l)) = true ->
-      list_eqv Node eqN t (au :: lf ++ [au] ++ lr) = true ->
-      triple_elem_list ((au, av, aw) :: (pu, pv, pw) :: l)
-        (construct_path_from_nodes (au :: lf ++ au :: lr) m) = true.
-    Proof.
-      induction l using List.rev_ind.
-      + intros * Hm Hw Ht Hlv.
-        simpl in Hw, Ht.
-        apply list_eqv_sym in Ht.
-        pose proof list_eqv_trans Node eqN trnN _ _ _ Ht Hlv as Hl.
-        assert (Hwt : list_eqv Node eqN [pu; pv] (lf ++ [au] ++ lr)= true).
-        simpl in Hl.
-        apply Bool.andb_true_iff in Hl.
-        destruct Hl as [_ Hl].
-        exact Hl.
-        destruct (list_equiv_simp lf lr pu pv au Hwt) as [(H₁ & H₂ & H₃) | (H₁ & H₂ & H₃)].
-        destruct lf; destruct lr.
-        simpl in H₃; congruence.
-        destruct lr.
-        simpl in H₃.
-        simpl.
-        apply Bool.andb_true_iff in H₃.
-        destruct H₃ as [H₃ _].
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hwl Hw].
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hwll Hw].
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hw _].
-        repeat (apply Bool.andb_true_iff; split).
-        apply refN.
-        apply trnN with pu; assumption.
-        apply symR. rewrite <-Hwl.
-        apply congrR.
-        apply Hm. apply refN.
-        apply symN.
-        apply trnN with pu; assumption.
-        apply refR.
-        exact H₂.
-        apply symN; assumption.
-        apply symR.
-        rewrite <-Hw. 
-        apply congrR.
-        apply Hm.
-        apply symN; assumption.
-        exact H₃.
-        apply refR.
-        reflexivity.
-        simpl in H₃.
-        apply Bool.andb_true_iff in H₃.
-        lia.
-        simpl in H₃.
-        lia.
-        simpl in H₁.
-        lia.
-        destruct lf.
-        simpl in H₁;
-        congruence.
-        destruct lf.
-        destruct lr.
-        simpl in H₁.
-        apply Bool.andb_true_iff in H₁.
-        destruct H₁ as [H₁ _].
-        simpl in Hl.
-        apply Bool.andb_true_iff in Hl.
-        destruct Hl as [Hll Hl].
-        apply Bool.andb_true_iff in Hl.
-        destruct Hl as [Hlll Hl].
-        simpl.
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hwl Hw].
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hwll Hw].
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hw _].
-        repeat (apply Bool.andb_true_iff; split).
-        apply refN.
-        apply symN in H₁.
-        apply trnN with pu; assumption.
-        apply symR.
-        rewrite <-Hwl.
-        apply congrR.
-        apply Hm.
-        apply refN.
-        apply symN in Hwll.
-        apply trnN with pu; assumption.
-        apply refR.
-        apply symN; assumption.
-        exact H₂.
-        apply symR.
-        rewrite <-Hw.
-        apply congrR.
-        apply Hm.
-        assumption.
-        apply symN; assumption.
-        apply refR.
-        reflexivity.
-        simpl in H₃.
-        congruence.
-        simpl in H₁.
-        lia. assumption.
-      + intros * Hm Hw Ht Hl.
-        destruct x as ((xa, xb), xm).
-        assert (Hwt: (au, av, aw) :: (pu, pv, pw) :: l ≠ []).
-        intro; congruence.
-        pose proof collect_nodes_from_a_path_app ((au, av, aw) :: (pu, pv, pw) :: l) m 
-          xa xb xm Hwt Hw as Hf.
-        rewrite <-List.app_comm_cons in Hf.
-        rewrite <-List.app_comm_cons in Hf.
-        destruct (well_formed_path_snoc ((au, av, aw) :: (pu, pv, pw) :: l) [(xa, xb, xm)] m
-          Hw) as [Hwl Hwr].
-        pose proof list_eqv_trans Node eqN trnN _ _ _ Ht Hf as Hwtt.
-        destruct (list_eqv_snoc _ _ _ Hf) as (tp & Htpl & Htpr).
-
-    Admitted.
-       
-        (* t = tp *)
-        (* Now I need to figure out how to massage *)
-
-
-
-    
-        
-
-        
-
+  
 
 
       
@@ -5026,61 +4823,6 @@ Section Matrix.
     Admitted.
 
         
-
-        
-    
-      
-
-    
-    (* If a path is well formed but not elementry, then it has a loop 
-    Lemma elem_path_dup_node : forall (l : list (Node * Node * R)) m,
-      well_formed_path_aux m l = true ->
-      elem_path l = false ->
-      exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
-      triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
-      cyclic_path c l₂.
-    Proof using Node R eqN eqR refN refR.
-      induction l.
-      - cbn; intros ? Hw.
-        congruence.
-      - simpl; intros ? Hv Hw.
-        destruct a as ((a, b), s).
-        apply Bool.andb_true_iff in Hv.
-        destruct Hv as [Hvl Hv].
-        apply Bool.andb_false_iff in Hw.
-        destruct Hw as [Hw | Hw].
-        apply Bool.andb_false_iff in Hw.
-        destruct Hw as [Hw | Hw].
-        apply Bool.negb_false_iff in Hw.
-        exists a, [], [(a, b, s)], l.
-        simpl. unfold cyclic_path.
-        simpl. split.
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
-        all:(try (apply refN); try (apply refR)).
-        apply triple_elem_eq_list_refl.
-        split. intro Hf. congruence.
-        rewrite Hw. split. apply refN.
-        reflexivity.
-        (* second goal *)
-        congruence.
-        (* third goal *)
-        destruct l.
-        simpl in Hw.
-        congruence.
-        destruct p as ((p, q), t).
-        apply Bool.andb_true_iff in Hv.
-        destruct Hv as [Hvll Hvr].
-        destruct (IHl m Hvr Hw) as (c & l₁ & l₂ & l₃ & H₁ & H₂).
-        exists c, ([(a, b, s)] ++ l₁), l₂, l₃.
-        simpl. split.
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.  
-        all:(try (apply refN); try (apply refR); assumption).
-    Qed.
-    *)
 
 
     Lemma source_same_path : forall l₁ l₂ x y,
@@ -5390,7 +5132,8 @@ Section Ins.
     | _, _ => false
     end.
 
-  Eval compute in  elem_path node eqN Z [(A, B, 1%Z); (B, C, 2%Z)].
+  Eval compute in  elem_path node eqN Z [(A, B, 1%Z); (B, A, 2%Z)].
+  Eval compute in elem_path_triple node eqN Z [(A, B, 1%Z); (B, A, 2%Z)].
   Eval compute in collect_nodes_from_a_path _ Z [(A, B, 1%Z); (B, A, 2%Z); (A, D, 3%Z)].
   Eval compute in (construct_path_from_nodes _ Z [A; B; A] m ++ 
     construct_path_from_nodes _ Z [A; D] m).
