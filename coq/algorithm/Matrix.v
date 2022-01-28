@@ -3811,6 +3811,8 @@ Section Matrix.
       end
       end.   
 
+
+
     (* elem_path_triple l = true mean no loop *)  
     Fixpoint elem_path_triple (l : list (Node * Node * R)) : bool := 
       match l with
@@ -3822,6 +3824,8 @@ Section Matrix.
       end
       end.
       
+
+
     Fixpoint keep_collecting (au : Node) (l : list (Node * Node * R)) :=
       match l with
       | [] => []
@@ -3841,6 +3845,46 @@ Section Matrix.
           else elem_path_triple_compute_loop t
       end
       end.
+
+
+
+    Lemma compute_loop_cycle : forall l lc,
+      Some lc = elem_path_triple_compute_loop l ->
+      exists au av aw lcc, Some ((au, av, aw) :: lcc) = Some lc /\ 
+      cyclic_path au lc.
+    Proof.
+      induction l as [|((auu, avv), aww) l].
+      + intros ? Hs.
+        simpl in Hs;
+        congruence.
+      + intros ? Hs.
+        destruct l as [|((bu, bv), bw) l].
+        simpl in Hs.
+        case (auu =n= avv) eqn:Hr.
+        exists auu, avv, aww, [].
+        simpl; split.
+        rewrite Hs.
+        reflexivity.
+        inversion Hs; subst; clear Hs.
+        unfold cyclic_path.
+        split. congruence.
+        split. 
+        simpl. 
+        apply refN.
+        simpl. 
+        exact Hr.
+        congruence.
+        (* induction hypothesis *)
+        remember ((bu, bv, bw) :: l) as bl.
+        simpl in Hs.
+        rewrite Heqbl in Hs.
+        case (elem_path_triple_aux auu ((bu, bv, bw) :: l)) eqn:Hw.
+        (* This is going to be challenge *)
+        admit.
+        eapply IHl.
+        rewrite Heqbl; assumption.
+    Admitted.
+
 
 
     
