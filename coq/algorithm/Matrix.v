@@ -4898,26 +4898,7 @@ Section Matrix.
         exact Hcy.
     Qed.
   
-    
-
-    Lemma elem_path_triple_aux_true_implies_loop : forall l a m,
-      l <> [] -> well_formed_path_aux m l = true -> 
-      elem_path_triple_aux a l = true ->
-      exists t w l₁ l₂, triple_elem_list l (l₁ ++ [(a, t, w)] ++ l₂) = true.
-    Proof.
-      induction l as [|((au, av), aw) l].
-      + intros ? ? Hf Hw He.
-        congruence.
-      + intros ? ? Hf Hw He.
-        destruct l as [|((bu, bv), bw) l].
-        - simpl in Hw, He.
-          apply Bool.andb_true_iff in Hw.
-          destruct Hw as [Hw _].
-          apply Bool.orb_true_iff in He.
-          destruct He as [He | He].
-          exists av, (m au av), [], [].
-          simpl.
-    Admitted.
+  
 
   
 
@@ -4931,37 +4912,7 @@ Section Matrix.
       triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
       cyclic_path c l₂.
     Proof.
-      induction l.
-      + intros * Hm Hw He.
-        simpl in * |- *.
-        congruence.
-      + intros * Hm Hw He.
-        destruct a as ((au, av), aw).
-        simpl in He, Hw.
-        destruct l.
-        simpl in He.
-        apply Bool.negb_false_iff in He.
-        exists au, [], [(au, av, aw)], [].
-        split. simpl. 
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
-        apply Bool.andb_true_iff; split.
-        all:(try (apply refN); try (apply refR)).
-        reflexivity.
-        unfold cyclic_path. split.
-        intros Hf; congruence.
-        split. simpl. apply refN.
-        simpl. exact He.
-        (* induction case *)
-        destruct p as ((pu, pv), pw).
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hwl Hw].
-        apply Bool.andb_true_iff in Hw.
-        destruct Hw as [Hwll Hw].
-        apply Bool.andb_false_iff in He.
-        destruct He as [He | He].
-        apply Bool.negb_false_iff in He.
-        exists au, [].
+      
     Admitted.
 
 
