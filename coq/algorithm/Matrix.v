@@ -3826,70 +3826,7 @@ Section Matrix.
       
 
 
-    Fixpoint keep_collecting (au : Node) (l : list (Node * Node * R)) :=
-      match l with
-      | [] => []
-      | (bu, bv, bw) :: t => if au =n= bu then [] (* I have hit the target*)
-        else (bu, bv, bw) :: keep_collecting au t
-      end.
-          
-      
-    Fixpoint elem_path_triple_compute_loop (l : list (Node * Node * R)) := 
-      match l with
-      | [] => None
-      | (au, av, aw) :: t => match t with
-        | [] => if au =n= av then Some [(au, av, aw)] else None
-        | _ :: _ => 
-          if elem_path_triple_aux au t then 
-            Some ((au, av, aw) :: keep_collecting au t) 
-          else elem_path_triple_compute_loop t
-      end
-      end.
-
-
-
-    Lemma compute_loop_cycle : forall l lc,
-      Some lc = elem_path_triple_compute_loop l ->
-      exists au av aw lcc, Some ((au, av, aw) :: lcc) = Some lc /\ 
-      cyclic_path au lc.
-    Proof.
-      induction l as [|((auu, avv), aww) l].
-      + intros ? Hs.
-        simpl in Hs;
-        congruence.
-      + intros ? Hs.
-        destruct l as [|((bu, bv), bw) l].
-        simpl in Hs.
-        case (auu =n= avv) eqn:Hr.
-        exists auu, avv, aww, [].
-        simpl; split.
-        rewrite Hs.
-        reflexivity.
-        inversion Hs; subst; clear Hs.
-        unfold cyclic_path.
-        split. congruence.
-        split. 
-        simpl. 
-        apply refN.
-        simpl. 
-        exact Hr.
-        congruence.
-        (* induction hypothesis *)
-        remember ((bu, bv, bw) :: l) as bl.
-        simpl in Hs.
-        rewrite Heqbl in Hs.
-        case (elem_path_triple_aux auu ((bu, bv, bw) :: l)) eqn:Hw.
-        (* This is going to be challenge *)
-        admit.
-        eapply IHl.
-        rewrite Heqbl; assumption.
-    Admitted.
-
-
-
     
-
-  
 
     Lemma elem_path_in_list : forall l a,
       elem_path_triple_aux a l =
@@ -4771,7 +4708,128 @@ Section Matrix.
         try (apply refN); try (apply refR);
         try (apply IHll).
     Qed.
-         
+        
+    
+
+
+    (* Checks if au is second element of path or not  *)      
+    Fixpoint elem_path_triple_tail (au : Node) (l : list (Node * Node * R)) : bool :=
+      match l with
+      | [] => false
+      | (bu, bv, _) :: t =>  (au =n= bv) || elem_path_triple_tail au t
+      end.
+
+
+    
+    Fixpoint keep_collecting (au : Node) (l : list (Node * Node * R)) :=
+      match l with
+      | [] => []
+      | (bu, bv, bw) :: t => if (au =n= bv) then [(bu, bv, bw)] else 
+          (bu, bv, bw) :: keep_collecting au t
+      end.
+      
+  
+
+    (* computes the loop in a path *)
+    Fixpoint elem_path_triple_compute_loop (l : list (Node * Node * R)) := 
+      match l with
+      | [] => None
+      | (au, av, aw) :: t => if au =n= av then Some [(au, av, aw)] (* loop at the head, 1 length *)
+        else 
+            if elem_path_triple_tail au t then Some ((au, av, aw) :: keep_collecting au t)
+            else elem_path_triple_compute_loop t
+      end.
+      
+
+    
+    Lemma elem_path_triple_tail_true : forall l av,
+      elem_path_triple_tail av l = true ->
+      exists ll au aw lr, triple_elem_list l (ll ++ [(au, av, aw)] ++ lr) = true.
+    Proof.
+      induction l as [|((ah, bh), ch) l].
+      + intros ? He.
+        simpl in He; congruence.
+      + intros ? He.
+        simpl in He.
+        apply Bool.orb_true_iff in He.
+        destruct He as [He | He].
+        exists [], ah, ch, l.
+        rewrite List.app_nil_l.
+        simpl. apply symN in He. 
+        rewrite He.
+        rewrite refN.
+        rewrite refR.
+        simpl.
+        apply triple_elem_eq_list_refl.
+        (* inductionc case *)
+        destruct (IHl av He) as [ll [au [aw [lr Hlr ]]]].
+        exists ((ah, bh, ch) :: ll), au, aw, lr.
+        rewrite <-List.app_comm_cons.
+        simpl.
+        repeat (rewrite refN).
+        rewrite refR.
+        simpl. exact Hlr.
+    Qed.
+
+
+    Lemma compute_loop_cycle : forall l lc m,
+      well_formed_path_aux m l = true -> 
+      Some lc = elem_path_triple_compute_loop l ->
+      exists au av aw lcc, Some ((au, av, aw) :: lcc) = Some lc /\ 
+      cyclic_path au lc.
+    Proof.
+      induction l.
+      + intros ? ? Hw Hl.
+        simpl in Hl; congruence.
+      + intros ? ? Hw Hl.
+        destruct a as ((au, av), aw).
+        simpl in Hl.
+        case (au =n= av) eqn:Hb.
+        (* loop of 1 lenght *)
+        exists au, av, aw, [].
+        split. eauto.
+        unfold cyclic_path.
+        split. congruence.
+        split. 
+        inversion Hl; subst; clear Hl;
+        simpl; apply refN.
+        inversion Hl; subst; clear Hl.
+        simpl. exact Hb.
+        (* loop of 2 or more length *)
+        case (elem_path_triple_tail au l) eqn:He.
+        exists au, av, aw, (keep_collecting au l).
+        split. symmetry.
+        exact Hl.
+        unfold cyclic_path.
+        split.
+        congruence.
+        split. 
+        inversion Hl; subst; 
+        simpl; apply refN.
+        destruct (elem_path_triple_tail_true l au He) as [ll [aut [awt [lr Hlr]]]].
+        inversion Hl; subst; clear Hl.
+        
+        (* my claim is:
+        if l is well founded, 
+        then keep_collecting au l = ll ++ [(aut, au, awt)]
+        
+        *)
+        admit.
+        pose proof well_formed_path_snoc [(au, av, aw)] l m as Hwf.
+        rewrite <-list_lemma1 in Hwf.
+        specialize (Hwf Hw).
+        destruct Hwf as [_ Hwf].
+        destruct (IHl _ _ Hwf Hl) as [aut [avt [awt [lcc [Hsl Hcy]]]]].
+        exists aut, avt, awt, lcc.
+        split.
+        exact Hsl.
+        exact Hcy.
+
+
+        
+    Admitted.        
+
+  
 
 
     Lemma elem_path_triple_aux_true_implies_loop : forall l a m,
@@ -5150,7 +5208,17 @@ Section Ins.
 
   
   Eval compute in  elem_path node eqN Z [(A, B, 1%Z); (B, A, 2%Z)].
-  Eval compute in elem_path_triple_compute_loop  node eqN Z [(A, B, 1%Z); (B, C, 2%Z)].
+  Eval compute in elem_path_triple_compute_loop  node eqN Z [(A, C, 2%Z); (C, B, 1%Z); (B, C, 1%Z)].
+  Eval compute in elem_path_triple_aux node eqN Z D [(C, B, 1%Z); 
+  (B, B, 1%Z); (B, A, 2%Z); (A, C , 1%Z)].
+  Eval compute in elem_path_triple_compute_loop  node eqN Z [(C, B, 1%Z); 
+  (B, B, 1%Z); (B, A, 2%Z); (A, C , 1%Z)].
+  Eval compute in elem_path_triple_tail node eqN Z C [ 
+  (B, B, 1%Z); (B, A, 2%Z); (A, C , 1%Z)].
+  Eval compute in keep_collecting node eqN Z C [ 
+    (B, B, 1%Z); (B, A, 2%Z); (A, C , 1%Z); (C, D, 2%Z)].
+
+  Eval compute in keep_collecting node eqN Z A [(B, A, 2%Z)].
   Eval compute in elem_path_triple node eqN Z [(A, B, 1%Z); (B, A, 2%Z)].
   Eval compute in collect_nodes_from_a_path _ Z [(A, B, 1%Z); (B, A, 2%Z); (A, D, 3%Z)].
   Eval compute in (construct_path_from_nodes _ Z [A; B; A] m ++ 
