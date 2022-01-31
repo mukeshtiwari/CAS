@@ -3813,7 +3813,7 @@ Section Matrix.
 
 
 
-    (* elem_path_triple l = true mean no loop *)  
+    (* elem_path_triple l = true mean no loop  *) 
     Fixpoint elem_path_triple (l : list (Node * Node * R)) : bool := 
       match l with
       | [] => true 
@@ -3822,10 +3822,19 @@ Section Matrix.
         | _ :: _ => negb (elem_path_triple_aux au t) && 
           elem_path_triple t 
       end
+      end. 
+     
+    (*  
+    Fixpoint elem_path_triple_simp (l : list (Node * Node * R)) : bool := 
+      match l with
+      | [] => true 
+      | (au, av, _) :: t => 
+          negb (au =n= av) && 
+          negb (elem_path_triple_aux au t) && 
+          elem_path_triple_simp t 
       end.
-      
-
-
+    *)
+    
     
 
     Lemma elem_path_in_list : forall l a,
@@ -4912,7 +4921,7 @@ Section Matrix.
       triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
       cyclic_path c l₂.
     Proof.
-      
+
     Admitted.
 
 
