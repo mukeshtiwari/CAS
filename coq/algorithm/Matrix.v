@@ -4716,7 +4716,7 @@ Section Matrix.
     Fixpoint elem_path_triple_tail (au : Node) (l : list (Node * Node * R)) : bool :=
       match l with
       | [] => false
-      | (bu, bv, _) :: t =>  (au =n= bv) || elem_path_triple_tail au t
+      | (bu, bv, _) :: t => (au =n= bv) || elem_path_triple_tail au t
       end.
 
 
@@ -4744,44 +4744,120 @@ Section Matrix.
     
     Lemma elem_path_triple_tail_true : forall l av,
       elem_path_triple_tail av l = true ->
-      exists ll au aw lr, triple_elem_list l (ll ++ [(au, av, aw)] ++ lr) = true.
+      exists ll au aw lr, triple_elem_list l (ll ++ [(au, av, aw)] ++ lr) = true /\ 
+        elem_path_triple_tail av ll = false.
     Proof.
       induction l as [|((ah, bh), ch) l].
       + intros ? He.
         simpl in He; congruence.
       + intros ? He.
         simpl in He.
-        apply Bool.orb_true_iff in He.
-        destruct He as [He | He].
+        case (av =n= bh) eqn:Hb.
         exists [], ah, ch, l.
+        split.
         rewrite List.app_nil_l.
-        simpl. apply symN in He. 
-        rewrite He.
+        simpl. apply symN in Hb. 
+        rewrite Hb.
         rewrite refN.
         rewrite refR.
         simpl.
         apply triple_elem_eq_list_refl.
-        (* inductionc case *)
-        destruct (IHl av He) as [ll [au [aw [lr Hlr ]]]].
+        simpl. reflexivity.
+        (* induction case *)
+        destruct (IHl av He) as [ll [au [aw [lr [Hlra Hlrb]]]]].
         exists ((ah, bh, ch) :: ll), au, aw, lr.
+        split.
         rewrite <-List.app_comm_cons.
         simpl.
         repeat (rewrite refN).
         rewrite refR.
-        simpl. exact Hlr.
+        simpl. exact Hlra.
+        simpl. rewrite Hb.
+        exact Hlrb.
+    Qed.
+        
+
+    Lemma elem_path_triple_tail_simp : forall l av, 
+      elem_path_triple_tail av l = true ->
+      exists ll au aw, triple_elem_list (ll ++ [(au, av, aw)]) 
+        (keep_collecting av l) = true.
+    Proof.
+      induction l as [|((ah, bh), ch) l].
+      + intros ? He.
+        simpl in He; congruence.
+      + intros ? He.
+        simpl in He.
+        case (av =n= bh) eqn:Hb.
+        exists [], ah, ch.
+        rewrite List.app_nil_l.
+        simpl.  
+        rewrite Hb.
+        rewrite refN.
+        rewrite refR.
+        rewrite Hb.
+        simpl. reflexivity.
+    
+        (* induction case *)
+        simpl in He.
+        destruct (IHl av He) as [ll [aut [awt Htr]]]. 
+        exists ((ah, bh, ch) :: ll), aut, awt.
+        rewrite <-List.app_comm_cons.
+        simpl.
+        rewrite Hb.
+        repeat (rewrite refN).
+        rewrite refR.
+        simpl. exact Htr.
     Qed.
 
+    Lemma keep_collecting_rewrite : forall ll lr au, 
+      triple_elem_list ll lr = true ->
+      target au ll = true -> target au lr = true.
+    Proof.
+      induction ll as [|((au, av), aw) ll].
+      + intros ? ? He Ht.
+        simpl in Ht. congruence. 
+      + intros [|((bu, bv), bw) lr] ? He Ht.
+        simpl in He.  congruence.
+        simpl in He.
+        apply Bool.andb_true_iff in He.
+        destruct He as [He Her].
+        apply Bool.andb_true_iff in He.
+        destruct He as [He Herr].
+        apply Bool.andb_true_iff in He.
+        destruct He as [He Herrr].
+        destruct ll; destruct lr.
+        simpl. simpl in Ht.
+        apply trnN with av;
+        assumption.
+        simpl in Her.
+        congruence.
+        simpl in Her.
+        destruct p as ((pu, pv), pw).
+        congruence.
+        remember (p :: ll) as pll.
+        simpl in Ht.
+        rewrite Heqpll in Ht.
+        subst.
+        specialize (IHll _ _ Her Ht).
+        remember (p0 :: lr) as plr.
+        simpl. rewrite Heqplr.
+        subst.
+        exact IHll.
+    Qed.
+  
+        
 
-    Lemma compute_loop_cycle : forall l lc m,
-      well_formed_path_aux m l = true -> 
+
+
+    Lemma compute_loop_cycle : forall l lc,
       Some lc = elem_path_triple_compute_loop l ->
       exists au av aw lcc, Some ((au, av, aw) :: lcc) = Some lc /\ 
       cyclic_path au lc.
     Proof.
       induction l.
-      + intros ? ? Hw Hl.
+      + intros ? Hl.
         simpl in Hl; congruence.
-      + intros ? ? Hw Hl.
+      + intros ? Hl.
         destruct a as ((au, av), aw).
         simpl in Hl.
         case (au =n= av) eqn:Hb.
@@ -4806,31 +4882,23 @@ Section Matrix.
         split. 
         inversion Hl; subst; 
         simpl; apply refN.
-        destruct (elem_path_triple_tail_true l au He) as [ll [aut [awt [lr Hlr]]]].
+        destruct (elem_path_triple_tail_true l au He) as [ll [aut [awt [lr [Hlra Hlrb]]]]].
         inversion Hl; subst; clear Hl.
-        
-        (* my claim is:
-        if l is well founded, 
-        then keep_collecting au l = ll ++ [(aut, au, awt)]
-        
-        *)
-        admit.
-        pose proof well_formed_path_snoc [(au, av, aw)] l m as Hwf.
-        rewrite <-list_lemma1 in Hwf.
-        specialize (Hwf Hw).
-        destruct Hwf as [_ Hwf].
-        destruct (IHl _ _ Hwf Hl) as [aut [avt [awt [lcc [Hsl Hcy]]]]].
+        destruct (elem_path_triple_tail_simp l au He) as (llt & autt & awtt & H).
+        apply target_tail.
+        simpl. 
+        eapply keep_collecting_rewrite with (llt ++ [(autt, au, awtt)]).
+        exact H.
+        erewrite target_end.
+        simpl. apply refN.
+        destruct (IHl _ Hl) as [aut [avt [awt [lcc [Hsl Hcy]]]]].
         exists aut, avt, awt, lcc.
         split.
         exact Hsl.
         exact Hcy.
-
-
-        
-    Admitted.        
-
+    Qed.
   
-
+    
 
     Lemma elem_path_triple_aux_true_implies_loop : forall l a m,
       l <> [] -> well_formed_path_aux m l = true -> 
