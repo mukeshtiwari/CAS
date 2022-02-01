@@ -3801,7 +3801,8 @@ Section Matrix.
       elem_path_aux (collect_nodes_from_a_path l).
 
 
-    (* Checks if au is in the path and it's there then returns true *)      
+    (* Checks if au is in the path and it's there then returns true *)    
+    (*  
     Fixpoint elem_path_triple_aux (au : Node) (l : list (Node * Node * R)) : bool :=
       match l with
       | [] => false
@@ -3823,18 +3824,7 @@ Section Matrix.
           elem_path_triple t 
       end
       end. 
-     
-    (*  
-    Fixpoint elem_path_triple_simp (l : list (Node * Node * R)) : bool := 
-      match l with
-      | [] => true 
-      | (au, av, _) :: t => 
-          negb (au =n= av) && 
-          negb (elem_path_triple_aux au t) && 
-          elem_path_triple_simp t 
-      end.
-    *)
-    
+   
     
 
     Lemma elem_path_in_list : forall l a,
@@ -4716,7 +4706,7 @@ Section Matrix.
         repeat (apply Bool.andb_true_iff; split);
         try (apply refN); try (apply refR);
         try (apply IHll).
-    Qed.
+    Qed. *)
         
     
 
@@ -4748,6 +4738,10 @@ Section Matrix.
             if elem_path_triple_tail au t then Some ((au, av, aw) :: keep_collecting au t)
             else elem_path_triple_compute_loop t
       end.
+
+        
+   
+    
       
 
     
@@ -4817,6 +4811,8 @@ Section Matrix.
         rewrite refR.
         simpl. exact Htr.
     Qed.
+
+
 
     Lemma keep_collecting_rewrite : forall ll lr au, 
       triple_elem_list ll lr = true ->
@@ -4906,6 +4902,20 @@ Section Matrix.
         exact Hsl.
         exact Hcy.
     Qed.
+
+
+       
+    Fixpoint elem_path_triple (l : list (Node * Node * R)) : bool := 
+      match l with
+      | [] => true 
+      | (au, av, _) :: t => 
+          negb (au =n= av) && 
+          negb (elem_path_triple_tail au t) && 
+          elem_path_triple t 
+      end.
+
+
+    
   
   
 
