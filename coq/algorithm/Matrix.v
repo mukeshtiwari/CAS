@@ -2762,67 +2762,6 @@ Section Matrix.
 
 
 
-    Fixpoint all_distinct_node (l : list Node) : bool :=
-      match l with 
-      | [] => true
-      | h :: t => negb (in_list eqN t h) && 
-        all_distinct_node t
-      end.
-
-
-   
-    Lemma in_list_mem_true : forall (l : list Node) (a : Node),
-      in_list eqN l a = true -> 
-      exists l₁ l₂ : list Node, list_eqv _ eqN l (l₁ ++ [a] ++ l₂) = true.
-    Proof using Node eqN refN symN.
-      induction l.
-      - simpl; intros ? H; 
-        congruence.
-      - simpl; intros ? H.
-        apply Bool.orb_true_iff in H.
-        destruct H as [H | H].
-        exists [], l; simpl.
-        apply Bool.andb_true_iff.
-        split. apply symN. exact H.
-        apply list_eqv_refl; assumption.
-        destruct (IHl a0 H) as [l₁ [l₂ Ht]].
-        exists (a :: l₁), l₂.
-        simpl. apply Bool.andb_true_iff.
-        split. apply refN.
-        exact Ht.
-    Qed.
-
-
-
-    Lemma duplicate_node : forall (l : list Node),
-      all_distinct_node l = false -> 
-      exists (c : Node) (l₁ l₂  l₃ : list Node), 
-      list_eqv _ eqN l (l₁ ++ [c] ++ l₂ ++ [c] ++ l₃) = true. 
-    Proof using Node eqN refN symN.
-      induction l.
-      - simpl; intros Hf;
-        congruence.
-      - simpl; intros Ha.
-        apply Bool.andb_false_iff in Ha.
-        destruct Ha as [Ha | Ha].
-        apply Bool.negb_false_iff in Ha.
-        destruct (in_list_mem_true l a Ha) as 
-          [l₁ [l₂ Ht]].
-        exists a, [], l₁, l₂.
-        simpl. apply Bool.andb_true_iff.
-        split. apply refN.
-        exact Ht.
-        destruct (IHl Ha) as [c [l₁ [l₂ [l₃ Ht]]]].
-        exists c, (a :: l₁), l₂, l₃.
-        simpl.
-        apply Bool.andb_true_iff.
-        split. apply refN.
-        exact Ht.
-    Qed.
-
-
-
-
     
 
 
@@ -4738,16 +4677,17 @@ Section Matrix.
             else elem_path_triple_compute_loop t
       end.
 
+
+
         
    
     
-      
-
-    
     Lemma elem_path_triple_tail_true : forall l av,
       elem_path_triple_tail av l = true ->
-      exists ll au aw lr, triple_elem_list l (ll ++ [(au, av, aw)] ++ lr) = true /\ 
-        elem_path_triple_tail av ll = false.
+      exists ll au aw lr, 
+        triple_elem_list l (ll ++ [(au, av, aw)] ++ lr) = true /\ 
+        elem_path_triple_tail av ll = false /\ 
+        triple_elem_list (ll ++ [(au, av, aw)]) (keep_collecting av l) = true.
     Proof.
       induction l as [|((ah, bh), ch) l].
       + intros ? He.
@@ -4764,9 +4704,14 @@ Section Matrix.
         rewrite refR.
         simpl.
         apply triple_elem_eq_list_refl.
+        split.
         simpl. reflexivity.
+        simpl. 
+        rewrite Hb.
+        rewrite Hb, refN, refR.
+        reflexivity.
         (* induction case *)
-        destruct (IHl av He) as [ll [au [aw [lr [Hlra Hlrb]]]]].
+        destruct (IHl av He) as [ll [au [aw [lr [Hlra [Hlrb Hlrc]]]]]].
         exists ((ah, bh, ch) :: ll), au, aw, lr.
         split.
         rewrite <-List.app_comm_cons.
@@ -4774,10 +4719,16 @@ Section Matrix.
         repeat (rewrite refN).
         rewrite refR.
         simpl. exact Hlra.
+        split.
         simpl. rewrite Hb.
         exact Hlrb.
+        simpl. 
+        rewrite Hb, refN, refR, refN.
+        exact Hlrc.
     Qed.
-        
+      
+
+  
 
     Lemma elem_path_triple_tail_simp : forall l av, 
       elem_path_triple_tail av l = true ->
@@ -4851,8 +4802,6 @@ Section Matrix.
   
         
 
-
-
     Lemma compute_loop_cycle : forall l lc,
       Some lc = elem_path_triple_compute_loop l ->
       exists au av aw lcc, Some ((au, av, aw) :: lcc) = Some lc /\ 
@@ -4886,21 +4835,20 @@ Section Matrix.
         split. 
         inversion Hl; subst; 
         simpl; apply refN.
-        destruct (elem_path_triple_tail_true l au He) as [ll [aut [awt [lr [Hlra Hlrb]]]]].
+        destruct (elem_path_triple_tail_true l au He) as [ll [aut [awt [lr [Hlra [Hlrb Hlrc]]]]]].
         inversion Hl; subst; clear Hl.
-        destruct (elem_path_triple_tail_simp l au He) as (llt & autt & awtt & H).
-        apply target_tail.
-        simpl. 
-        eapply keep_collecting_rewrite with (llt ++ [(autt, au, awtt)]).
-        exact H.
+        apply target_tail; simpl.
+        eapply keep_collecting_rewrite with (ll ++ [(aut, au, awt)]).
+        exact Hlrc.
         erewrite target_end.
-        simpl. apply refN.
+        simpl; apply refN.
         destruct (IHl _ Hl) as [aut [avt [awt [lcc [Hsl Hcy]]]]].
         exists aut, avt, awt, lcc.
         split.
         exact Hsl.
         exact Hcy.
     Qed.
+
 
 
        
