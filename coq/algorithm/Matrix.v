@@ -4850,6 +4850,19 @@ Section Matrix.
     Qed.
 
 
+    Lemma compute_loop_cycle_tim : forall l lcc au av aw,
+      Some ((au, av, aw) :: lcc) = elem_path_triple_compute_loop l ->
+      cyclic_path au ((au, av, aw) :: lcc).
+    Proof.
+      intros * Hs.
+      destruct (compute_loop_cycle l ((au, av, aw) :: lcc) Hs)  as 
+      (aut & avt & awt & lcct & Hss & Hcc).
+      inversion Hss; subst; clear Hss.
+      exact Hcc.
+    Qed.
+
+
+
 
     (* elem_path_triple l = true means l does not have any cycle *)     
     Fixpoint elem_path_triple (l : list (Node * Node * R)) : bool := 
@@ -4959,6 +4972,39 @@ Section Matrix.
         rewrite Haut.
         firstorder.
     Qed.
+
+
+    Lemma elim_path_triple_connect_compute_loop_false_second : 
+      forall l lc, 
+      Some lc = elem_path_triple_compute_loop l ->
+      elem_path_triple l = false.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros ? Hs; simpl in Hs;
+        congruence.
+      + intros ? Hs; simpl in * |- *.
+        case (au =n= av) eqn:Ha.
+        simpl. reflexivity.
+        case (elem_path_triple_tail au l) eqn:Hb.
+        simpl. reflexivity.
+        simpl.
+        eapply IHl; exact Hs.
+    Qed.
+
+
+
+    Lemma elim_path_triple_connect_compute_loop_false_eqv : forall l,
+      elem_path_triple l = false <-> exists au av aw lc lcc, 
+      Some lc = elem_path_triple_compute_loop l /\
+      ((au, av, aw) :: lcc) = lc /\ cyclic_path au lc.
+    Proof.
+      intros *; split; intros He.
+      apply  elim_path_triple_connect_compute_loop_false_first; assumption.
+      destruct He as (au & av & aw & lc & lcc & Hs & Hlcc & Hc).
+      eapply elim_path_triple_connect_compute_loop_false_second; 
+      exact Hs.
+    Qed.
+
     
 
 
