@@ -3729,7 +3729,7 @@ Section Matrix.
       l <> [] /\ source c l = true /\ target c l = true.
 
     
-
+    (*
     (* assume that path is well_founded *)
     Fixpoint collect_nodes_from_a_path  
       (l : list (Node * Node * R)) : list Node :=
@@ -3801,8 +3801,7 @@ Section Matrix.
       elem_path_aux (collect_nodes_from_a_path l).
 
 
-    (* Checks if au is in the path and it's there then returns true *)    
-    (*  
+    (* Checks if au is in the path and it's there then returns true *)  
     Fixpoint elem_path_triple_aux (au : Node) (l : list (Node * Node * R)) : bool :=
       match l with
       | [] => false
