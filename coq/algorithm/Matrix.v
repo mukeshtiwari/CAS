@@ -5041,6 +5041,27 @@ Section Matrix.
     Qed.
 
 
+    Lemma elem_path_triple_compute_loop_triple_middle_element : forall l ll lm lr, 
+      (ll, lm, lr) = elem_path_triple_compute_loop_triple l ->
+      lm = elem_path_triple_compute_loop l.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros ? ? ? Hl; simpl in Hl; simpl;
+        inversion Hl; subst; reflexivity.
+      + intros ? ? ? Hl.
+        simpl in * |- *.
+        case (au =n= av) eqn:Ha.
+        inversion Hl; subst; reflexivity.
+        case (elem_path_triple_tail au l) eqn:Hb.
+        inversion Hl; subst; reflexivity.
+        destruct (elem_path_triple_compute_loop_triple l) as ((al, bl), cl).
+        inversion Hl; subst; clear Hl.
+        eapply IHl.
+        reflexivity.
+    Qed.
+
+
+
     
 
 
