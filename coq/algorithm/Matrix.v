@@ -5093,6 +5093,157 @@ Section Matrix.
     Qed.
 
 
+
+    Lemma elem_path_triple_tail_rewrite : forall l lr au, 
+      triple_elem_list l lr = true ->
+      elem_path_triple_tail au l = false ->
+      elem_path_triple_tail au lr = false.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros [|((pur, pvr), pwr) lr] ? Ht He.
+        simpl. reflexivity.
+        simpl in Ht; congruence.
+      + intros [|((pur, pvr), pwr) lr] ? Ht He.
+        simpl in Ht; congruence.
+        simpl in * |- *.
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrrr].
+        apply Bool.orb_false_iff; split.
+        case (au0 =n= pvr) eqn:Hau.
+        apply symN in Htrrr.
+        pose proof trnN _ _ _ Hau Htrrr as Hf.
+        rewrite Hf in He. 
+        simpl in He. congruence.
+        reflexivity.
+        case ((au0 =n= av)) eqn:Hau.
+        simpl in He.
+        congruence.
+        simpl in He.
+        eapply IHl.
+        exact Htr.
+        exact He.
+    Qed.
+
+
+    Lemma elem_path_triple_tail_false : forall l ll lr au, 
+      elem_path_triple_tail au l = false ->
+      triple_elem_list l (ll ++ lr) = true ->
+      elem_path_triple_tail au ll = false /\
+      elem_path_triple_tail au lr = false.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros ? ? ? He Ht.
+        simpl in * |- *.
+        destruct ll; destruct lr;
+        simpl in * |- *; 
+        split; try reflexivity;
+        try congruence.
+      + intros ? ? ? He Ht.
+        destruct ll as [|((pu, pv), pw) ll].
+        destruct lr as [|((pur, pvr), pwr) lr].
+        simpl in Ht. congruence.
+        rewrite List.app_nil_l in Ht.
+        simpl.
+        split. reflexivity.
+        simpl in He, Ht.
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrrr].
+        case (au0 =n= av) eqn:Ha.
+        simpl in He.
+        congruence.
+        simpl in He.
+        apply Bool.orb_false_iff.
+        split.
+        case (au0 =n= pvr) eqn:Hau.
+        apply symN in Htrrr.
+        pose proof trnN _ _ _ Hau Htrrr as Hf.
+        rewrite Hf in Ha. congruence.
+        reflexivity.
+        eapply elem_path_triple_tail_rewrite.
+        exact Htr.
+        exact He.
+        rewrite <-List.app_comm_cons in Ht.
+        simpl in He, Ht.
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrrr].
+        simpl.
+        case (au0 =n= av) eqn:Ha.
+        simpl in He. congruence.
+        simpl in He.
+        destruct (IHl _ _ _ He Htr) as [Hl Hr].
+        split.
+        apply Bool.orb_false_iff.
+        split. 
+        case (au0 =n= pv) eqn:Hau.
+        apply symN in Htrrr.
+        pose proof trnN _ _ _ Hau Htrrr as Hf.
+        rewrite Hf in Ha. congruence.
+        reflexivity.
+        exact Hl.
+        exact Hr.
+    Qed.
+
+
+
+    Lemma elem_path_triple_compute_loop_first_element_elementry : forall l ll lm lr ,
+      (ll, lm, lr) = elem_path_triple_compute_loop_triple l ->
+      elem_path_triple ll = true.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros ? ? ? Hl;
+        simpl in Hl;
+        inversion Hl; subst;
+        reflexivity.
+      + intros ? ? ? Hl.
+        simpl in Hl.
+        case (au =n= av) eqn:Ha.
+        inversion Hl; subst;
+        reflexivity.
+        case (elem_path_triple_tail au l) eqn:Hb.
+        inversion Hl; subst;
+        reflexivity.
+        remember (elem_path_triple_compute_loop_triple l) as elp.
+        destruct elp as ((al, bl), cl).
+        inversion Hl; subst; clear Hl.
+        simpl.
+        rewrite Ha; simpl.
+        pose proof elem_path_triple_compute_loop_triple_combined_list l as Hep.
+        destruct (elem_path_triple_compute_loop_triple l) as ((atl, btl), ctl).
+        destruct btl.
+        apply Bool.andb_true_iff; split.
+        apply Bool.negb_true_iff.
+        destruct (elem_path_triple_tail_false l atl (l0 ++ ctl) _ Hb Hep) as (Hept & _).
+        inversion Heqelp.
+        exact Hept.
+        eapply IHl.
+        reflexivity.
+        apply Bool.andb_true_iff; split.
+        apply Bool.negb_true_iff.
+        destruct (elem_path_triple_tail_false l atl ctl _ Hb Hep) as (Hept & _).
+        inversion Heqelp.
+        exact Hept.
+        eapply IHl.
+        reflexivity.
+    Qed.
+
+        
+
+
+
+        
+
         
        
 
@@ -5116,22 +5267,6 @@ Section Matrix.
     
   
   
-
-  
-
-
-      
-    (* If a path is well formed but not elementry, then it has a loop *)
-    Lemma elem_path_dup_node : forall (l : list (Node * Node * R)) m,
-      mat_cong m -> well_formed_path_aux m l = true ->
-      elem_path_triple l = false ->
-      exists (c : Node) (l₁ l₂  l₃ : list (Node * Node * R)), 
-      triple_elem_list l (l₁ ++ l₂ ++ l₃) = true /\ 
-      cyclic_path c l₂.
-    Proof.
-
-    Admitted.
-
 
 
 
@@ -5222,19 +5357,7 @@ Section Matrix.
     Qed.
 
 
-   
-     
-          
-
-    Lemma all_paths_in_klength_paths_cycle : ∀ (l : list Node)
-      (m : Matrix) (c d : Node) xs, l <> [] ->
-      (forall x : Node, in_list eqN l x = true) -> forall n, 
-      (List.length l <= n)%nat ->
-      In_eq_bool xs (all_paths_klength m n c d) = true ->
-      elem_path xs = false.
-    Proof.
-    Admitted.
-
+  
 
 
     Fixpoint partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
