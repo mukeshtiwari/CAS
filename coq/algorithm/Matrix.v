@@ -5061,6 +5061,42 @@ Section Matrix.
     Qed.
 
 
+    Lemma elem_path_triple_compute_loop_triple_combined_list : forall l,
+      match elem_path_triple_compute_loop_triple l with
+      | (fp, None, tp) => triple_elem_list l (fp ++ tp) = true
+      | (fp, Some sp, tp) => triple_elem_list l  (fp ++ sp ++ tp) = true
+      end. 
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + simpl; reflexivity.
+      + simpl. destruct (elem_path_triple_compute_loop_triple l) as ((la, lb), lc).
+        case (au =n= av) eqn:Ha.
+        rewrite List.app_nil_l, 
+        <-List.app_comm_cons.
+        rewrite refN, refN, refR.
+        simpl. 
+        apply triple_elem_eq_list_refl.
+        case (elem_path_triple_tail au l) eqn:Hb.
+        simpl. 
+        rewrite refN, refN, refR.
+        simpl. 
+        apply keep_collecting_dropping_dual.
+        destruct lb eqn:Hc.
+        rewrite <-List.app_comm_cons.
+        rewrite refN, refN, refR.
+        simpl.
+        exact IHl.
+        rewrite <-List.app_comm_cons.
+        rewrite refN, refN, refR.
+        simpl.
+        exact IHl.
+    Qed.
+
+
+        
+       
+
+
 
     
 
