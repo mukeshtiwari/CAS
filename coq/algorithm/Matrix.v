@@ -5238,6 +5238,18 @@ Section Matrix.
         reflexivity.
     Qed.
 
+
+    (* 
+    Fixpoint remove_all_the_loop_from_a_path (l : list (Node * Node * R)) := 
+      match elem_path_triple_compute_loop_triple l with 
+      | (fp, None, tp) => fp ++ tp (* No loop in the path l *) 
+      | (fp, Some sp, tp) =>  
+        fp ++ match tp with 
+          | [] => [] 
+          | htp :: ttp => remove_all_the_loop_from_a_path ttp 
+        end
+      end.    
+      *)
         
 
 
