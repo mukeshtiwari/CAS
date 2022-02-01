@@ -4665,7 +4665,12 @@ Section Matrix.
           (bu, bv, bw) :: keep_collecting au t
       end.
       
-  
+    Fixpoint keep_dropping (au : Node) (l : list (Node * Node * R)) :=
+      match l with
+      | [] => []
+      | (bu, bv, bw) :: t => if (au =n= bv) then t else 
+        keep_dropping au t
+      end.
 
     (* computes the loop in a path *)
     Fixpoint elem_path_triple_compute_loop (l : list (Node * Node * R)) := 
@@ -4677,8 +4682,37 @@ Section Matrix.
             else elem_path_triple_compute_loop t
       end.
 
+    (* This function is very similar to the above one, except it returns the 
+      left over from the front *)  
+    Fixpoint elem_path_triple_compute_loop_pair (l : list (Node * Node * R)) := 
+      match l with
+      | [] => ([], None)
+      | (au, av, aw) :: t => if au =n= av then ([], Some [(au, av, aw)]) (* loop at the head, 1 length *)
+        else 
+            if elem_path_triple_tail au t then ([], Some ((au, av, aw) :: keep_collecting au t))
+            else match elem_path_triple_compute_loop_pair t with 
+              | (fp, sp) => ((au, av, aw) :: fp, sp)
+            end
+      end.
+  
+  
 
-
+    Lemma keep_collecting_dropping_dual : forall l au, 
+      triple_elem_list l (keep_collecting au l ++ keep_dropping au l) = true.
+    Proof.
+      induction l as [|((ah, bh), ch) l].
+      + intros ?; simpl; reflexivity.
+      + intros ?; simpl.
+        case (au =n= bh) eqn:Ha.
+        rewrite <-List.app_comm_cons.
+        rewrite refN, refN, refR.
+        simpl. 
+        apply triple_elem_eq_list_refl.
+        rewrite <-List.app_comm_cons.
+        rewrite refN, refN, refR.
+        simpl.
+        apply IHl.
+    Qed.
         
    
     
@@ -5004,9 +5038,9 @@ Section Matrix.
       eapply elim_path_triple_connect_compute_loop_false_second; 
       exact Hs.
     Qed.
-
     
 
+    
 
 
 
