@@ -4851,7 +4851,7 @@ Section Matrix.
 
 
 
-       
+    (* elem_path_triple l = true means l does not have any cycle *)     
     Fixpoint elem_path_triple (l : list (Node * Node * R)) : bool := 
       match l with
       | [] => true 
@@ -4862,6 +4862,119 @@ Section Matrix.
       end.
 
 
+    Lemma elim_path_triple_connect_compute_loop_true_first : forall l,
+      elem_path_triple l = true -> elem_path_triple_compute_loop l = None.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros He; simpl in He.
+        simpl. reflexivity.
+      + intros He; simpl in * |- *.
+        apply Bool.andb_true_iff in He.
+        destruct He as [He Her].
+        apply Bool.andb_true_iff in He.
+        destruct He as [He Herr].
+        apply Bool.negb_true_iff in Herr, He.
+        rewrite He, Herr.
+        apply IHl; assumption.
+    Qed.
+
+    Lemma elim_path_triple_connect_compute_loop_true_second : forall l,
+      elem_path_triple_compute_loop l = None -> elem_path_triple l = true.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros He; simpl in He.
+        simpl. reflexivity.
+      + intros He; simpl in * |- *.
+        case (au =n= av) eqn:Hb.
+        congruence.
+        simpl.
+        case (elem_path_triple_tail au l) eqn:Hbe.
+        congruence.
+        simpl. 
+        apply IHl; assumption.
+    Qed.
+
+
+
+    Lemma elim_path_triple_connect_compute_loop_true_none_eqv : forall l, 
+      elem_path_triple_compute_loop l = None <-> elem_path_triple l = true.
+    Proof.
+      intros ?; split; intro H.
+      apply elim_path_triple_connect_compute_loop_true_second; assumption.
+      apply elim_path_triple_connect_compute_loop_true_first; assumption.
+    Qed.
+
+
+
+    Lemma elim_path_triple_connect_compute_loop_false_first : forall l,
+      elem_path_triple l = false -> exists au av aw lc lcc, 
+      Some lc = elem_path_triple_compute_loop l /\
+      ((au, av, aw) :: lcc) = lc /\ cyclic_path au lc. 
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intro H; simpl in H.
+        congruence.
+      + intros He; simpl in He.
+        case (au =n= av) eqn:Ha.
+        simpl in He.
+        (* loop of lenght 1, at the head itself *)
+        exists au, av, aw, [(au, av, aw)], [].
+        split. simpl.
+        rewrite Ha.
+        f_equal.
+        split. 
+        f_equal.
+        unfold cyclic_path.
+        split.
+        congruence.
+        split; simpl.
+        apply refN.
+        exact Ha.
+        simpl in He.
+        (* loop starts here but of >= lenght 2 *)
+        case (elem_path_triple_tail au l) eqn:Hb.
+        simpl in He.
+        repeat eexists.
+        simpl. rewrite Ha, Hb.
+        f_equal.
+        congruence.
+        simpl. 
+        apply refN.
+        apply target_tail; simpl.
+        destruct (elem_path_triple_tail_simp _ _ Hb) as (ll & aut & awt & Ht).
+        erewrite keep_collecting_rewrite.
+        reflexivity.
+        exact Ht.
+        erewrite target_end.
+        simpl. apply refN.
+        simpl in He.
+        destruct (IHl He) as (aut & avt & awt & lc & lcc & Hlc & Haut & Hc).
+        repeat eexists.
+        simpl. rewrite Ha, Hb.
+        rewrite <-Haut in Hlc.
+        exact Hlc.
+        congruence.
+        simpl. apply refN.
+        unfold cyclic_path in Hc.
+        rewrite Haut.
+        firstorder.
+    Qed.
+    
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+    
     
   
   
