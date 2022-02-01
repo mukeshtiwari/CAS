@@ -4683,15 +4683,16 @@ Section Matrix.
       end.
 
     (* This function is very similar to the above one, except it returns the 
-      left over from the front *)  
-    Fixpoint elem_path_triple_compute_loop_pair (l : list (Node * Node * R)) := 
+      left over from the front ++ loop ++ rest of the list *)  
+    Fixpoint elem_path_triple_compute_loop_triple (l : list (Node * Node * R)) := 
       match l with
-      | [] => ([], None)
-      | (au, av, aw) :: t => if au =n= av then ([], Some [(au, av, aw)]) (* loop at the head, 1 length *)
+      | [] => ([], None, [])
+      | (au, av, aw) :: t => if au =n= av then ([], Some [(au, av, aw)], t) 
         else 
-            if elem_path_triple_tail au t then ([], Some ((au, av, aw) :: keep_collecting au t))
-            else match elem_path_triple_compute_loop_pair t with 
-              | (fp, sp) => ((au, av, aw) :: fp, sp)
+            if elem_path_triple_tail au t then 
+            ([], Some ((au, av, aw) :: keep_collecting au t), keep_dropping au t)
+            else match elem_path_triple_compute_loop_triple t with 
+              | (fp, sp, tp) => ((au, av, aw) :: fp, sp, tp)
             end
       end.
   
@@ -5038,7 +5039,7 @@ Section Matrix.
       eapply elim_path_triple_connect_compute_loop_false_second; 
       exact Hs.
     Qed.
-    
+
 
     
 
