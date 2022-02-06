@@ -22,7 +22,7 @@ Record A_ltr (L S : Type) :=
 ; A_ltr_label   : A_eqv L                                                       
 ; A_ltr_ltr   : left_transform L S (* T -> (S -> S) *) 
 ; A_ltr_proofs  : ltr_proofs L S (A_eqv_eq S A_ltr_carrier) (A_eqv_eq L A_ltr_label)  A_ltr_ltr
-; A_ltr_ast     : cas_ast
+; A_ltr_ast     : cas_ltr_ast
 }.
 
 End ACAS. 
@@ -44,7 +44,7 @@ Record ltr (L S : Type) :=
 ; ltr_label   : @eqv L                                                       
 ; ltr_ltr     : @left_transform L S (* T -> (S -> S) *) 
 ; ltr_certs   : @ltr_certificates L S
-; ltr_ast     : cas_ast
+; ltr_ast     : cas_ltr_ast
 }.
 
 End CAS.

@@ -114,7 +114,7 @@ Definition A_lte_nat : A_to nat
    ; A_to_exists_top_d    := inr brel_lte_nat_not_exists_top 
    ; A_to_exists_bottom   := brel_lte_nat_exists_bottom
    ; A_to_proofs          := to_proofs_brel_lte_nat
-   ; A_to_ast             := Ast_to_nat 
+   ; A_to_ast             := Ast_or_nat 
    |}. 
 
 
@@ -140,7 +140,7 @@ Definition lte_nat : @to nat
    ; to_exists_top_d    := Certify_Not_Exists_Top 
    ; to_exists_bottom   := Assert_Exists_Bottom 0
    ; to_certs           := to_certs_brel_lte_nat
-   ; to_ast             := Ast_to_nat 
+   ; to_ast             := Ast_or_nat 
    |}. 
 End CAS.
 

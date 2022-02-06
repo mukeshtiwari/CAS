@@ -54,7 +54,7 @@ Record A_or (S : Type) := {
 ; A_or_exists_top_d    : brel_exists_qo_top_decidable S (A_eqv_eq S A_or_eqv) A_or_lte           
 ; A_or_exists_bottom   : brel_exists_qo_bottom S (A_eqv_eq S A_or_eqv) A_or_lte
 ; A_or_proofs          : or_proofs S (A_eqv_eq S A_or_eqv) A_or_lte 
-; A_or_ast             : cas_ast
+; A_or_ast             : cas_or_ast
 }.
 
 
@@ -80,7 +80,7 @@ Record A_po (S : Type) := {
 ; A_po_exists_top_d    : brel_exists_top_decidable S A_po_lte           
 ; A_po_exists_bottom   : brel_exists_bottom S A_po_lte
 ; A_po_proofs          : po_proofs S (A_eqv_eq S A_po_eqv) A_po_lte 
-; A_po_ast             : cas_ast
+; A_po_ast             : cas_or_ast
 }.
 
 
@@ -98,7 +98,7 @@ Record A_to (S : Type) := {
 ; A_to_exists_top_d    : brel_exists_top_decidable S A_to_lte           
 ; A_to_exists_bottom   : brel_exists_bottom S A_to_lte
 ; A_to_proofs          : to_proofs S (A_eqv_eq S A_to_eqv) A_to_lte 
-; A_to_ast             : cas_ast
+; A_to_ast             : cas_or_ast
 }.
 
 
@@ -117,7 +117,7 @@ Record A_qo (S : Type) := {
 ; A_qo_exists_top_d    : brel_exists_qo_top_decidable S (A_eqv_eq S A_qo_eqv) A_qo_lte           
 ; A_qo_exists_bottom   : brel_exists_qo_bottom S (A_eqv_eq S A_qo_eqv) A_qo_lte
 ; A_qo_proofs          : qo_proofs S (A_eqv_eq S A_qo_eqv) A_qo_lte 
-; A_qo_ast             : cas_ast
+; A_qo_ast             : cas_or_ast
 }.
 
 
@@ -135,7 +135,7 @@ Record A_wo (S : Type) := {
 ; A_wo_exists_top_d    : brel_exists_qo_top_decidable S (A_eqv_eq S A_wo_eqv) A_wo_lte           
 ; A_wo_exists_bottom   : brel_exists_qo_bottom S (A_eqv_eq S A_wo_eqv) A_wo_lte
 ; A_wo_proofs          : wo_proofs S (A_eqv_eq S A_wo_eqv) A_wo_lte 
-; A_wo_ast             : cas_ast
+; A_wo_ast             : cas_or_ast
 }.
 
 
@@ -157,7 +157,7 @@ Record or {S : Type} := {
 ; or_exists_top_d    : @certify_exists_qo_top S 
 ; or_exists_bottom   : @assert_exists_qo_bottom S 
 ; or_certs           : @or_certificates S
-; or_ast             : cas_ast
+; or_ast             : cas_or_ast
 }.
   
 
@@ -177,7 +177,7 @@ Record po {S : Type} := {
 ; po_exists_top_d    : @certify_exists_top S 
 ; po_exists_bottom   : @assert_exists_bottom S 
 ; po_certs           : @po_certificates S
-; po_ast             : cas_ast
+; po_ast             : cas_or_ast
 }.
 
 
@@ -195,7 +195,7 @@ Record to {S : Type} := {
 ; to_exists_top_d    : @certify_exists_top S 
 ; to_exists_bottom   : @assert_exists_bottom S 
 ; to_certs           : @to_certificates S
-; to_ast             : cas_ast
+; to_ast             : cas_or_ast
 }.
 
 Record qo_certificates {S : Type}  := {
@@ -212,7 +212,7 @@ Record qo {S : Type} := {
 ; qo_exists_top_d    : @certify_exists_qo_top S 
 ; qo_exists_bottom   : @assert_exists_qo_bottom S                        
 ; qo_certs           : @qo_certificates S
-; qo_ast             : cas_ast
+; qo_ast             : cas_or_ast
 }.
  
 
@@ -230,7 +230,7 @@ Record wo {S : Type} := {
 ; wo_exists_top_d    : @certify_exists_qo_top S 
 ; wo_exists_bottom   : @assert_exists_qo_bottom S                        
 ; wo_certs           : @wo_certificates S
-; wo_ast             : cas_ast
+; wo_ast             : cas_or_ast
 }.
  
 End CAS.

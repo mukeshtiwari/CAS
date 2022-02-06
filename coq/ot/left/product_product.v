@@ -399,7 +399,7 @@ let LTT := A_poltr_ltr_proofs LT T AT in
                             eqS lteS ESP POS eqLS ELSP ltrS LTS
                             eqT lteT ETP POT eqLT ELTP ltrT LTT                                                    
                             (A_poltr_proofs LS S AS) (A_poltr_proofs LT T AT)
-; A_poltr_ast          := Ast_bs_product (A_poltr_ast LS S AS, A_poltr_ast LT T AT) (* FIX *) 
+; A_poltr_ast          := Ast_lotr_product (A_poltr_ast LS S AS, A_poltr_ast LT T AT) 
 |}.
 
 
@@ -479,7 +479,7 @@ let PT := A_woltr_msi_proofs _ _ Q in
 ; A_qoltr_msi_bottom_proofs := olt_product_with_bottom_proofs S T eqS lteS eqT lteT eqvPS lteReflS lteReflT
                                 (A_poltr_mi_bottom_proofs _ _ P) (A_woltr_msi_bottom_proofs _ _ Q) 
 ; A_qoltr_msi_proofs       := olt_product_qoltr_msi_proofs LS S LT T lteS ltrS PS lteT ltrT PT 
-; A_qoltr_msi_ast          := Ast_bs_product (A_poltr_mi_ast _ _ P, A_woltr_msi_ast _ _ Q) (* FIX *)
+; A_qoltr_msi_ast          := Ast_lotr_product (A_poltr_mi_ast _ _ P, A_woltr_msi_ast _ _ Q)
 |}.
   
 End ACAS.
@@ -563,7 +563,7 @@ let PT := woltr_msi_certs Q in
 ; qoltr_msi_ltr_certs   := ltr_product_certs wS wLS PTS wT wLT PTT
 ; qoltr_msi_bottom_certs := olt_product_with_bottom_certs (poltr_mi_bottom_certs P) (woltr_msi_bottom_certs Q)                                              
 ; qoltr_msi_certs       := olt_product_qoltr_msi_certs PS PT 
-; qoltr_msi_ast         := Ast_bs_product (poltr_mi_ast P, woltr_msi_ast Q) (* FIX *)
+; qoltr_msi_ast         := Ast_lotr_product (poltr_mi_ast P, woltr_msi_ast Q) (* FIX *)
 |}.
 
 

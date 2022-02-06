@@ -174,7 +174,7 @@ Record A_sg (S : Type) := {
 ; A_sg_exists_id_d  : bop_exists_id_decidable S (A_eqv_eq S A_sg_eqv) A_sg_bop
 ; A_sg_exists_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_sg_eqv) A_sg_bop
 ; A_sg_proofs       : sg_proofs S (A_eqv_eq S A_sg_eqv) A_sg_bop
-; A_sg_ast          : cas_ast
+; A_sg_ast          : cas_sg_ast
 }.
 
 
@@ -185,7 +185,7 @@ Record A_sg_C (S : Type) := {
 ; A_sg_C_not_exists_id  : bop_not_exists_id S (A_eqv_eq S A_sg_C_eqv) A_sg_C_bop
 ; A_sg_C_not_exists_ann : bop_not_exists_ann S (A_eqv_eq S A_sg_C_eqv) A_sg_C_bop
 ; A_sg_C_proofs         : sg_C_proofs S (A_eqv_eq S A_sg_C_eqv) A_sg_C_bop
-; A_sg_C_ast            : cas_ast
+; A_sg_C_ast            : cas_sg_ast
 }.
 
 Record A_sg_C_with_ann (S : Type) := {
@@ -194,7 +194,7 @@ Record A_sg_C_with_ann (S : Type) := {
 ; A_sg_C_wa_not_exists_id : bop_not_exists_id S (A_eqv_eq S A_sg_C_wa_eqv) A_sg_C_wa_bop
 ; A_sg_C_wa_exists_ann    : bop_exists_ann S (A_eqv_eq S A_sg_C_wa_eqv) A_sg_C_wa_bop
 ; A_sg_C_wa_proofs        : sg_C_proofs S (A_eqv_eq S A_sg_C_wa_eqv) A_sg_C_wa_bop
-; A_sg_C_wa_ast           : cas_ast
+; A_sg_C_wa_ast           : cas_sg_ast
 }.
 
 Record A_sg_C_with_id (S : Type) := {
@@ -203,7 +203,7 @@ Record A_sg_C_with_id (S : Type) := {
 ; A_sg_C_wi_exists_id      : bop_exists_id S (A_eqv_eq S A_sg_C_wi_eqv) A_sg_C_wi_bop
 ; A_sg_C_wi_not_exists_ann : bop_not_exists_ann S (A_eqv_eq S A_sg_C_wi_eqv) A_sg_C_wi_bop
 ; A_sg_C_wi_proofs         : sg_C_proofs S (A_eqv_eq S A_sg_C_wi_eqv) A_sg_C_wi_bop
-; A_sg_C_wi_ast            : cas_ast
+; A_sg_C_wi_ast            : cas_sg_ast
 }.
 
 (* bounded sg_C *) 
@@ -213,7 +213,7 @@ Record A_sg_BC (S : Type) := {
 ; A_sg_BC_exists_id    : bop_exists_id S (A_eqv_eq S A_sg_BC_eqv) A_sg_BC_bop
 ; A_sg_BC_exists_ann   : bop_exists_ann S (A_eqv_eq S A_sg_BC_eqv) A_sg_BC_bop
 ; A_sg_BC_proofs       : sg_C_proofs S (A_eqv_eq S A_sg_BC_eqv) A_sg_BC_bop
-; A_sg_BC_ast          : cas_ast
+; A_sg_BC_ast          : cas_sg_ast
 }.
 
 (*********************************** sg_NC = non-commutative semigroup ******************************) 
@@ -223,7 +223,7 @@ Record A_sg_NC (S : Type) := {
 ; A_sg_NC_not_exists_id  : bop_not_exists_id S (A_eqv_eq S A_sg_NC_eqv) A_sg_NC_bop
 ; A_sg_NC_not_exists_ann : bop_not_exists_ann S (A_eqv_eq S A_sg_NC_eqv) A_sg_NC_bop
 ; A_sg_NC_proofs         : sg_NC_proofs S (A_eqv_eq S A_sg_NC_eqv) A_sg_NC_bop
-; A_sg_NC_ast            : cas_ast
+; A_sg_NC_ast            : cas_sg_ast
 }.
 
 Record A_sg_NC_with_ann (S : Type) := {
@@ -232,7 +232,7 @@ Record A_sg_NC_with_ann (S : Type) := {
 ; A_sg_NC_wa_not_exists_id : bop_not_exists_id S (A_eqv_eq S A_sg_NC_wa_eqv) A_sg_NC_wa_bop
 ; A_sg_NC_wa_exists_ann    : bop_exists_ann S (A_eqv_eq S A_sg_NC_wa_eqv) A_sg_NC_wa_bop
 ; A_sg_NC_wa_proofs        : sg_NC_proofs S (A_eqv_eq S A_sg_NC_wa_eqv) A_sg_NC_wa_bop
-; A_sg_NC_wa_ast           : cas_ast
+; A_sg_NC_wa_ast           : cas_sg_ast
 }.
 
 Record A_sg_NC_with_id (S : Type) := {
@@ -241,7 +241,7 @@ Record A_sg_NC_with_id (S : Type) := {
 ; A_sg_NC_wi_exists_id      : bop_exists_id S (A_eqv_eq S A_sg_NC_wi_eqv) A_sg_NC_wi_bop
 ; A_sg_NC_wi_not_exists_ann : bop_not_exists_ann S (A_eqv_eq S A_sg_NC_wi_eqv) A_sg_NC_wi_bop
 ; A_sg_NC_wi_proofs         : sg_NC_proofs S (A_eqv_eq S A_sg_NC_wi_eqv) A_sg_NC_wi_bop
-; A_sg_NC_wi_ast            : cas_ast
+; A_sg_NC_wi_ast            : cas_sg_ast
 }.
 
 (* bounded sg_NC *) 
@@ -251,7 +251,7 @@ Record A_sg_BNC (S : Type) := {
 ; A_sg_BNC_exists_id    : bop_exists_id S (A_eqv_eq S A_sg_BNC_eqv) A_sg_BNC_bop
 ; A_sg_BNC_exists_ann   : bop_exists_ann S (A_eqv_eq S A_sg_BNC_eqv) A_sg_BNC_bop
 ; A_sg_BNC_proofs       : sg_NC_proofs S (A_eqv_eq S A_sg_BNC_eqv) A_sg_BNC_bop
-; A_sg_BNC_ast          : cas_ast
+; A_sg_BNC_ast          : cas_sg_ast
 }.
 
 (*********************** sg_CI = commutative idempotent semigroup ****************************) 
@@ -261,7 +261,7 @@ Record A_sg_CI (S : Type) := {
 ; A_sg_CI_not_exists_id  : bop_not_exists_id S (A_eqv_eq S A_sg_CI_eqv) A_sg_CI_bop
 ; A_sg_CI_not_exists_ann : bop_not_exists_ann S (A_eqv_eq S A_sg_CI_eqv) A_sg_CI_bop
 ; A_sg_CI_proofs         : sg_CI_proofs S (A_eqv_eq S A_sg_CI_eqv) A_sg_CI_bop
-; A_sg_CI_ast            : cas_ast
+; A_sg_CI_ast            : cas_sg_ast
 }.
 
 Record A_sg_CI_with_ann (S : Type) := {
@@ -270,7 +270,7 @@ Record A_sg_CI_with_ann (S : Type) := {
 ; A_sg_CI_wa_not_exists_id  : bop_not_exists_id S (A_eqv_eq S A_sg_CI_wa_eqv) A_sg_CI_wa_bop
 ; A_sg_CI_wa_exists_ann     : bop_exists_ann S (A_eqv_eq S A_sg_CI_wa_eqv) A_sg_CI_wa_bop
 ; A_sg_CI_wa_proofs         : sg_CI_proofs S (A_eqv_eq S A_sg_CI_wa_eqv) A_sg_CI_wa_bop
-; A_sg_CI_wa_ast            : cas_ast
+; A_sg_CI_wa_ast            : cas_sg_ast
 }.
 
 Record A_sg_CI_with_id (S : Type) := {
@@ -279,7 +279,7 @@ Record A_sg_CI_with_id (S : Type) := {
 ; A_sg_CI_wi_exists_id      : bop_exists_id S (A_eqv_eq S A_sg_CI_wi_eqv) A_sg_CI_wi_bop
 ; A_sg_CI_wi_not_exists_ann : bop_not_exists_ann S (A_eqv_eq S A_sg_CI_wi_eqv) A_sg_CI_wi_bop
 ; A_sg_CI_wi_proofs         : sg_CI_proofs S (A_eqv_eq S A_sg_CI_wi_eqv) A_sg_CI_wi_bop
-; A_sg_CI_wi_ast            : cas_ast
+; A_sg_CI_wi_ast            : cas_sg_ast
 }.
 
 (* bounded sg_CI *) 
@@ -289,7 +289,7 @@ Record A_sg_BCI (S : Type) := {
 ; A_sg_BCI_exists_id    : bop_exists_id S (A_eqv_eq S A_sg_BCI_eqv) A_sg_BCI_bop
 ; A_sg_BCI_exists_ann   : bop_exists_ann S (A_eqv_eq S A_sg_BCI_eqv) A_sg_BCI_bop
 ; A_sg_BCI_proofs       : sg_CI_proofs S (A_eqv_eq S A_sg_BCI_eqv) A_sg_BCI_bop
-; A_sg_BCI_ast          : cas_ast
+; A_sg_BCI_ast          : cas_sg_ast
 }.
 
 (*********************** sg_CNI = commutative not-idempotent semigroup ****************************) 
@@ -299,7 +299,7 @@ Record A_sg_CNI (S : Type) := {
 ; A_sg_CNI_not_exists_id  : bop_not_exists_id S (A_eqv_eq S A_sg_CNI_eqv) A_sg_CNI_bop
 ; A_sg_CNI_not_exists_ann : bop_not_exists_ann S (A_eqv_eq S A_sg_CNI_eqv) A_sg_CNI_bop
 ; A_sg_CNI_proofs         : sg_CNI_proofs S (A_eqv_eq S A_sg_CNI_eqv) A_sg_CNI_bop
-; A_sg_CNI_ast            : cas_ast
+; A_sg_CNI_ast            : cas_sg_ast
 }.
 
 Record A_sg_CNI_with_ann (S : Type) := {
@@ -308,7 +308,7 @@ Record A_sg_CNI_with_ann (S : Type) := {
 ; A_sg_CNI_wa_not_exists_id  : bop_not_exists_id S (A_eqv_eq S A_sg_CNI_wa_eqv) A_sg_CNI_wa_bop
 ; A_sg_CNI_wa_exists_ann     : bop_exists_ann S (A_eqv_eq S A_sg_CNI_wa_eqv) A_sg_CNI_wa_bop
 ; A_sg_CNI_wa_proofs         : sg_CNI_proofs S (A_eqv_eq S A_sg_CNI_wa_eqv) A_sg_CNI_wa_bop
-; A_sg_CNI_wa_ast            : cas_ast
+; A_sg_CNI_wa_ast            : cas_sg_ast
 }.
 
 Record A_sg_CNI_with_id (S : Type) := {
@@ -317,7 +317,7 @@ Record A_sg_CNI_with_id (S : Type) := {
 ; A_sg_CNI_wi_exists_id      : bop_exists_id S (A_eqv_eq S A_sg_CNI_wi_eqv) A_sg_CNI_wi_bop
 ; A_sg_CNI_wi_not_exists_ann : bop_not_exists_ann S (A_eqv_eq S A_sg_CNI_wi_eqv) A_sg_CNI_wi_bop
 ; A_sg_CNI_wi_proofs         : sg_CNI_proofs S (A_eqv_eq S A_sg_CNI_wi_eqv) A_sg_CNI_wi_bop
-; A_sg_CNI_wi_ast            : cas_ast
+; A_sg_CNI_wi_ast            : cas_sg_ast
 }.
 
 (* bounded sg_CNI *) 
@@ -327,7 +327,7 @@ Record A_sg_BCNI (S : Type) := {
 ; A_sg_BCNI_exists_id    : bop_exists_id S (A_eqv_eq S A_sg_BCNI_eqv) A_sg_BCNI_bop
 ; A_sg_BCNI_exists_ann   : bop_exists_ann S (A_eqv_eq S A_sg_BCNI_eqv) A_sg_BCNI_bop
 ; A_sg_BCNI_proofs       : sg_CNI_proofs S (A_eqv_eq S A_sg_BCNI_eqv) A_sg_BCNI_bop
-; A_sg_BCNI_ast          : cas_ast
+; A_sg_BCNI_ast          : cas_sg_ast
 }.
 
 (************************ sg_CS = commutative selective semigroup *************************) 
@@ -338,7 +338,7 @@ Record A_sg_CS (S : Type) := {
 ; A_sg_CS_not_exists_id  : bop_not_exists_id S (A_eqv_eq S A_sg_CS_eqv) A_sg_CS_bop
 ; A_sg_CS_not_exists_ann : bop_not_exists_ann  S (A_eqv_eq S A_sg_CS_eqv) A_sg_CS_bop
 ; A_sg_CS_proofs         : sg_CS_proofs S (A_eqv_eq S A_sg_CS_eqv) A_sg_CS_bop
-; A_sg_CS_ast            : cas_ast
+; A_sg_CS_ast            : cas_sg_ast
 }.
 
 Record A_sg_CS_with_ann (S : Type) := {
@@ -347,7 +347,7 @@ Record A_sg_CS_with_ann (S : Type) := {
 ; A_sg_CS_wa_not_exists_id  : bop_not_exists_id S (A_eqv_eq S A_sg_CS_wa_eqv) A_sg_CS_wa_bop
 ; A_sg_CS_wa_exists_ann     : bop_exists_ann S (A_eqv_eq S A_sg_CS_wa_eqv) A_sg_CS_wa_bop
 ; A_sg_CS_wa_proofs         : sg_CS_proofs S (A_eqv_eq S A_sg_CS_wa_eqv) A_sg_CS_wa_bop
-; A_sg_CS_wa_ast            : cas_ast
+; A_sg_CS_wa_ast            : cas_sg_ast
 }.
 
 Record A_sg_CS_with_id (S : Type) := {
@@ -356,7 +356,7 @@ Record A_sg_CS_with_id (S : Type) := {
 ; A_sg_CS_wi_exists_id      : bop_exists_id S (A_eqv_eq S A_sg_CS_wi_eqv) A_sg_CS_wi_bop
 ; A_sg_CS_wi_not_exists_ann : bop_not_exists_ann S (A_eqv_eq S A_sg_CS_wi_eqv) A_sg_CS_wi_bop
 ; A_sg_CS_wi_proofs         : sg_CS_proofs S (A_eqv_eq S A_sg_CS_wi_eqv) A_sg_CS_wi_bop
-; A_sg_CS_wi_ast            : cas_ast
+; A_sg_CS_wi_ast            : cas_sg_ast
 }.
 
 (* bounded sg_CS *) 
@@ -366,7 +366,7 @@ Record A_sg_BCS (S : Type) := {
 ; A_sg_BCS_exists_id    : bop_exists_id S (A_eqv_eq S A_sg_BCS_eqv) A_sg_BCS_bop
 ; A_sg_BCS_exists_ann   : bop_exists_ann S (A_eqv_eq S A_sg_BCS_eqv) A_sg_BCS_bop
 ; A_sg_BCS_proofs       : sg_CS_proofs S (A_eqv_eq S A_sg_BCS_eqv) A_sg_BCS_bop
-; A_sg_BCS_ast          : cas_ast
+; A_sg_BCS_ast          : cas_sg_ast
 }.
 
 
@@ -377,7 +377,7 @@ Record A_sg_CK (S : Type) := {
 ; A_sg_CK_bop           : binary_op S
 ; A_sg_CK_not_exists_id : bop_not_exists_id S (A_eqv_eq S A_sg_CK_eqv) A_sg_CK_bop
 ; A_sg_CK_proofs        : sg_CK_proofs S (A_eqv_eq S A_sg_CK_eqv) A_sg_CK_bop
-; A_sg_CK_ast           : cas_ast
+; A_sg_CK_ast           : cas_sg_ast
 }.
 
 Record A_sg_CK_with_id (S : Type) := {
@@ -385,7 +385,7 @@ Record A_sg_CK_with_id (S : Type) := {
 ; A_sg_CK_wi_bop          : binary_op S
 ; A_sg_CK_wi_exists_id    : bop_exists_id S (A_eqv_eq S A_sg_CK_wi_eqv) A_sg_CK_wi_bop
 ; A_sg_CK_wi_proofs       : sg_CK_proofs S (A_eqv_eq S A_sg_CK_wi_eqv) A_sg_CK_wi_bop
-; A_sg_CK_wi_ast          : cas_ast
+; A_sg_CK_wi_ast          : cas_sg_ast
 }.
 
 End ACAS.
@@ -1113,7 +1113,7 @@ Record sg {S : Type} := {
 ; sg_exists_id_d  : @check_exists_id S
 ; sg_exists_ann_d : @check_exists_ann S
 ; sg_certs        : @sg_certificates S
-; sg_ast          : cas_ast
+; sg_ast          : cas_sg_ast
 }.
 
 Record sg_C {S : Type} := {
@@ -1122,7 +1122,7 @@ Record sg_C {S : Type} := {
 ; sg_C_not_exists_id  : @assert_not_exists_id S
 ; sg_C_not_exists_ann : @assert_not_exists_ann S
 ; sg_C_certs          : @sg_C_certificates S
-; sg_C_ast            : cas_ast
+; sg_C_ast            : cas_sg_ast
 }.
 
 Record sg_C_with_id {S : Type} := {
@@ -1131,7 +1131,7 @@ Record sg_C_with_id {S : Type} := {
 ; sg_C_wi_exists_id      : @assert_exists_id S
 ; sg_C_wi_not_exists_ann : @assert_not_exists_ann S
 ; sg_C_wi_certs          : @sg_C_certificates S
-; sg_C_wi_ast            : cas_ast
+; sg_C_wi_ast            : cas_sg_ast
 }.
 
 Record sg_C_with_ann {S : Type} := {
@@ -1140,7 +1140,7 @@ Record sg_C_with_ann {S : Type} := {
 ; sg_C_wa_not_exists_id   : @assert_not_exists_id S
 ; sg_C_wa_exists_ann     : @assert_exists_ann S
 ; sg_C_wa_certs          : @sg_C_certificates S
-; sg_C_wa_ast            : cas_ast
+; sg_C_wa_ast            : cas_sg_ast
 }.
 
 Record sg_BC {S : Type} := {
@@ -1149,7 +1149,7 @@ Record sg_BC {S : Type} := {
 ; sg_BC_exists_id      : @assert_exists_id S
 ; sg_BC_exists_ann     : @assert_exists_ann S
 ; sg_BC_certs          : @sg_C_certificates S
-; sg_BC_ast            : cas_ast
+; sg_BC_ast            : cas_sg_ast
 }.
 
 
@@ -1159,7 +1159,7 @@ Record sg_NC {S : Type} := {
 ; sg_NC_not_exists_id  : @assert_not_exists_id S
 ; sg_NC_not_exists_ann : @assert_not_exists_ann S
 ; sg_NC_certs          : @sg_NC_certificates S
-; sg_NC_ast            : cas_ast
+; sg_NC_ast            : cas_sg_ast
 }.
 
 Record sg_NC_with_id {S : Type} := {
@@ -1168,7 +1168,7 @@ Record sg_NC_with_id {S : Type} := {
 ; sg_NC_wi_exists_id      : @assert_exists_id S
 ; sg_NC_wi_not_exists_ann : @assert_not_exists_ann S
 ; sg_NC_wi_certs          : @sg_NC_certificates S
-; sg_NC_wi_ast            : cas_ast
+; sg_NC_wi_ast            : cas_sg_ast
 }.
 
 Record sg_NC_with_ann {S : Type} := {
@@ -1177,7 +1177,7 @@ Record sg_NC_with_ann {S : Type} := {
 ; sg_NC_wa_not_exists_id  : @assert_not_exists_id S
 ; sg_NC_wa_exists_ann     : @assert_exists_ann S
 ; sg_NC_wa_certs          : @sg_NC_certificates S
-; sg_NC_wa_ast            : cas_ast
+; sg_NC_wa_ast            : cas_sg_ast
 }.
 
 Record sg_BNC {S : Type} := {
@@ -1186,7 +1186,7 @@ Record sg_BNC {S : Type} := {
 ; sg_BNC_exists_id      : @assert_exists_id S
 ; sg_BNC_exists_ann     : @assert_exists_ann S
 ; sg_BNC_certs          : @sg_NC_certificates S
-; sg_BNC_ast            : cas_ast
+; sg_BNC_ast            : cas_sg_ast
 }.
 
 
@@ -1197,7 +1197,7 @@ Record sg_CI {S : Type} := {
 ; sg_CI_not_exists_id  : @assert_not_exists_id S
 ; sg_CI_not_exists_ann : @assert_not_exists_ann S
 ; sg_CI_certs            : @sg_CI_certificates S
-; sg_CI_ast              : cas_ast
+; sg_CI_ast              : cas_sg_ast
 }.
 
 Record sg_CI_with_ann {S : Type} := {
@@ -1206,7 +1206,7 @@ Record sg_CI_with_ann {S : Type} := {
 ; sg_CI_wa_not_exists_id : @assert_not_exists_id S
 ; sg_CI_wa_exists_ann    : @assert_exists_ann S
 ; sg_CI_wa_certs         : @sg_CI_certificates S
-; sg_CI_wa_ast           : cas_ast
+; sg_CI_wa_ast           : cas_sg_ast
 }.
 
 Record sg_CI_with_id {S : Type} := {
@@ -1215,7 +1215,7 @@ Record sg_CI_with_id {S : Type} := {
 ; sg_CI_wi_exists_id      : @assert_exists_id S
 ; sg_CI_wi_not_exists_ann : @assert_not_exists_ann S
 ; sg_CI_wi_certs          : @sg_CI_certificates S
-; sg_CI_wi_ast            : cas_ast
+; sg_CI_wi_ast            : cas_sg_ast
                                   }.
 (* bounded sg_CI *) 
 Record sg_BCI {S : Type} := {
@@ -1224,7 +1224,7 @@ Record sg_BCI {S : Type} := {
 ; sg_BCI_exists_id    : @assert_exists_id S 
 ; sg_BCI_exists_ann   : @assert_exists_ann S 
 ; sg_BCI_certs        : @sg_CI_certificates S 
-; sg_BCI_ast          : cas_ast
+; sg_BCI_ast          : cas_sg_ast
 }.
 
 
@@ -1235,7 +1235,7 @@ Record sg_CNI {S : Type} := {
 ; sg_CNI_not_exists_id    : @assert_not_exists_id S
 ; sg_CNI_not_exists_ann   : @assert_not_exists_ann S
 ; sg_CNI_certs            : @sg_CNI_certificates S
-; sg_CNI_ast              : cas_ast
+; sg_CNI_ast              : cas_sg_ast
 }.
 
 Record sg_CNI_with_ann {S : Type} := {
@@ -1244,7 +1244,7 @@ Record sg_CNI_with_ann {S : Type} := {
 ; sg_CNI_wa_not_exists_id : @assert_not_exists_id S
 ; sg_CNI_wa_exists_ann    : @assert_exists_ann S
 ; sg_CNI_wa_certs         : @sg_CNI_certificates S
-; sg_CNI_wa_ast           : cas_ast
+; sg_CNI_wa_ast           : cas_sg_ast
 }.
 
 Record sg_CNI_with_id {S : Type} := {
@@ -1253,7 +1253,7 @@ Record sg_CNI_with_id {S : Type} := {
 ; sg_CNI_wi_exists_id      : @assert_exists_id S
 ; sg_CNI_wi_not_exists_ann : @assert_not_exists_ann S
 ; sg_CNI_wi_certs          : @sg_CNI_certificates S
-; sg_CNI_wi_ast            : cas_ast
+; sg_CNI_wi_ast            : cas_sg_ast
                                   }.
 (* bounded sg_CNI *) 
 Record sg_BCNI {S : Type} := {
@@ -1262,7 +1262,7 @@ Record sg_BCNI {S : Type} := {
 ; sg_BCNI_exists_id    : @assert_exists_id S 
 ; sg_BCNI_exists_ann   : @assert_exists_ann S 
 ; sg_BCNI_certs        : @sg_CNI_certificates S 
-; sg_BCNI_ast          : cas_ast
+; sg_BCNI_ast          : cas_sg_ast
 }.
 
 
@@ -1274,7 +1274,7 @@ Record sg_CS {S : Type} := {
 ; sg_CS_not_exists_id  : @assert_not_exists_id S
 ; sg_CS_not_exists_ann : @assert_not_exists_ann S
 ; sg_CS_certs          : @sg_CS_certificates S
-; sg_CS_ast            : cas_ast
+; sg_CS_ast            : cas_sg_ast
 }.
 
 Record sg_CS_with_ann {S : Type} := {
@@ -1283,7 +1283,7 @@ Record sg_CS_with_ann {S : Type} := {
 ; sg_CS_wa_not_exists_id : @assert_not_exists_id S
 ; sg_CS_wa_exists_ann    : @assert_exists_ann S
 ; sg_CS_wa_certs         : @sg_CS_certificates S
-; sg_CS_wa_ast           : cas_ast
+; sg_CS_wa_ast           : cas_sg_ast
 }.
 
 Record sg_CS_with_id {S : Type} := {
@@ -1292,7 +1292,7 @@ Record sg_CS_with_id {S : Type} := {
 ; sg_CS_wi_exists_id      : @assert_exists_id S
 ; sg_CS_wi_not_exists_ann : @assert_not_exists_ann S
 ; sg_CS_wi_certs          : @sg_CS_certificates S
-; sg_CS_wi_ast            : cas_ast
+; sg_CS_wi_ast            : cas_sg_ast
                                   }.
 (* bounded sg_CS *) 
 Record sg_BCS {S : Type} := {
@@ -1301,7 +1301,7 @@ Record sg_BCS {S : Type} := {
 ; sg_BCS_exists_id    : @assert_exists_id S 
 ; sg_BCS_exists_ann   : @assert_exists_ann S 
 ; sg_BCS_certs        : @sg_CS_certificates S 
-; sg_BCS_ast          : cas_ast
+; sg_BCS_ast          : cas_sg_ast
 }.
 
 Record sg_CK {S : Type} := {
@@ -1309,7 +1309,7 @@ Record sg_CK {S : Type} := {
 ; sg_CK_bop           : binary_op S
 ; sg_CK_not_exists_id : @assert_not_exists_id S
 ; sg_CK_certs         : @sg_CK_certificates S
-; sg_CK_ast           : cas_ast
+; sg_CK_ast           : cas_sg_ast
 }.
 
 Record sg_CK_with_id {S : Type} := {
@@ -1317,7 +1317,7 @@ Record sg_CK_with_id {S : Type} := {
 ; sg_CK_wi_bop           : binary_op S
 ; sg_CK_wi_exists_id     : @assert_exists_id S
 ; sg_CK_wi_certs         : @sg_CK_certificates S
-; sg_CK_wi_ast           : cas_ast
+; sg_CK_wi_ast           : cas_sg_ast
 }.
 
 End CAS.

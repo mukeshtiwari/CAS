@@ -260,7 +260,7 @@ Definition A_bs_from_bs_CI (S : Type) (bs : A_bs_CI S) : A_bs S :=
 ; A_bs_times_proofs := A_bs_CI_times_proofs S bs
 ; A_bs_id_ann_proofs := A_bs_CI_id_ann_proofs S bs                                            
 ; A_bs_proofs       := A_bs_CI_proofs S bs
-; A_bs_ast          := Ast_bs_from_bs_CI (A_bs_CI_ast S bs)
+; A_bs_ast          := A_bs_CI_ast S bs
 |}. 
 
 (* 2 *) 
@@ -282,7 +282,7 @@ let sg_plusP := A_presemiring_plus_proofs S s in
 ; A_bs_times_proofs  := A_presemiring_times_proofs S s
 ; A_bs_id_ann_proofs := A_presemiring_id_ann_proofs S s
 ; A_bs_proofs        := bs_proofs_from_semiring_proofs S eq plus times eqvP sg_plusP (A_presemiring_proofs S s)
-; A_bs_ast           := Ast_bs_from_presemiring (A_presemiring_ast S s)
+; A_bs_ast           := A_presemiring_ast S s
 |}.
 
 (* 3 *) 
@@ -299,7 +299,7 @@ let times := A_semiring_times S dS in
 ; A_presemiring_times_proofs  := A_semiring_times_proofs S dS 
 ; A_presemiring_id_ann_proofs := id_ann_proofs_from_pid_is_tann_proofs S eq plus times (A_semiring_id_ann_proofs S dS)
 ; A_presemiring_proofs        := A_semiring_proofs S dS 
-; A_presemiring_ast           := Ast_presemiring_from_semiring(A_semiring_ast S dS)
+; A_presemiring_ast           := A_semiring_ast S dS
 |}.
 
 (* 4 *) 
@@ -320,7 +320,7 @@ let nt := A_eqv_not_trivial S eqv in
 ; A_semiring_times_proofs  := A_pre_dioid_with_zero_times_proofs S dS
 ; A_semiring_id_ann_proofs := A_pre_dioid_with_zero_id_ann_proofs S dS                                                  
 ; A_semiring_proofs        := semiring_proofs_from_dioid_proofs S eq plus times (A_pre_dioid_with_zero_proofs S dS)
-; A_semiring_ast           := Ast_semiring_from_dioid (A_pre_dioid_with_zero_ast S dS)
+; A_semiring_ast           := A_pre_dioid_with_zero_ast S dS
 |}.  
 
 
@@ -344,7 +344,7 @@ Definition A_bs_CI_from_prelattice (S: Type) (lP : A_prelattice S) : A_bs_CI S :
    ; A_bs_CI_times_proofs  := A_sg_proofs_from_sg_CI_proofs S eq meet wS f ntf eqvP meetP
    ; A_bs_CI_id_ann_proofs := A_prelattice_id_ann_proofs S lP
    ; A_bs_CI_proofs        := bs_proofs_from_lattice_proofs S eq join meet eqvP joinP meetP (A_prelattice_proofs S lP) 
-   ; A_bs_CI_ast           := Ast_bs_CI_from_lattice (A_prelattice_ast S lP)
+   ; A_bs_CI_ast           := A_prelattice_ast S lP
   |}.
 
 (* 6 *) 
@@ -365,7 +365,7 @@ let dPS   := A_distributive_lattice_proofs S dS in
     ; A_lattice_meet_proofs   := meetP
     ; A_lattice_id_ann_proofs := A_distributive_lattice_id_ann_proofs S dS 
     ; A_lattice_proofs        := lattice_proofs_from_distributive_lattice_proofs S eq join meet eqvP  joinP meetP dPS
-    ; A_lattice_ast           := Ast_lattice_from_distributive_lattice (A_distributive_lattice_ast S dS)
+    ; A_lattice_ast           := A_distributive_lattice_ast S dS
 |}.
 
 
@@ -389,7 +389,7 @@ Definition A_bs_CI_from_pre_dioid (S: Type) (lP : A_pre_dioid S) : A_bs_CI S :=
    ; A_bs_CI_id_ann_proofs := A_pre_dioid_id_ann_proofs S lP
    ; A_bs_CI_proofs        := bs_proofs_from_dioid_proofs S eq plus times eqvP
                                 (A_sg_C_proofs_from_sg_CI_proofs S eq plus wS f ntf eqvP plusP) (A_pre_dioid_proofs S lP) 
-   ; A_bs_CI_ast           := Ast_bs_CI_from_lattice (A_pre_dioid_ast S lP)
+   ; A_bs_CI_ast           := A_pre_dioid_ast S lP
   |}.
 
 (* 8 *) 
@@ -468,7 +468,7 @@ let nt    := A_eqv_not_trivial S eqv in
 ; A_dioid_times_proofs := A_sg_proofs_from_sg_CI_proofs S eq times w f nt eqvP timesP
 ; A_dioid_id_ann_proofs := A_distributive_lattice_id_ann_proofs S dS 
 ; A_dioid_proofs       := dioid_proofs_from_distributive_lattice_proofs S eq plus times eqvP cong_plus comm_plus comm_times dPS
-; A_dioid_ast          := Ast_dioid_from_distributive_lattice (A_distributive_lattice_ast S dS)
+; A_dioid_ast          := A_distributive_lattice_ast S dS
 |}.
 
 
@@ -490,7 +490,7 @@ let dPS   := A_distributive_prelattice_proofs S dS in
     ; A_prelattice_meet_proofs   := meetP
     ; A_prelattice_id_ann_proofs := A_distributive_prelattice_id_ann_proofs S dS 
     ; A_prelattice_proofs        := lattice_proofs_from_distributive_lattice_proofs S eq join meet eqvP  joinP meetP dPS
-    ; A_prelattice_ast           := Ast_lattice_from_distributive_lattice (A_distributive_prelattice_ast S dS)
+    ; A_prelattice_ast           := A_distributive_prelattice_ast S dS
 |}.
 
 
@@ -511,7 +511,7 @@ let meetP := A_distributive_lattice_meet_proofs S dS in
     ; A_distributive_prelattice_meet_proofs   := meetP
     ; A_distributive_prelattice_id_ann_proofs := id_ann_proofs_from_dually_bounded_proofs _ _ _ _ (A_distributive_lattice_id_ann_proofs S dS)
     ; A_distributive_prelattice_proofs        := A_distributive_lattice_proofs S dS 
-    ; A_distributive_prelattice_ast           := Ast_lattice_from_distributive_lattice (A_distributive_lattice_ast S dS)
+    ; A_distributive_prelattice_ast           := A_distributive_lattice_ast S dS
 |}.
 
 (* 15 *) 
@@ -531,7 +531,7 @@ let meetP := A_lattice_meet_proofs S dS in
     ; A_prelattice_meet_proofs   := meetP
     ; A_prelattice_id_ann_proofs := id_ann_proofs_from_dually_bounded_proofs _ _ _ _ (A_lattice_id_ann_proofs S dS)
     ; A_prelattice_proofs        := A_lattice_proofs S dS
-    ; A_prelattice_ast           := Ast_lattice_from_distributive_lattice (A_lattice_ast S dS)
+    ; A_prelattice_ast           := A_lattice_ast S dS
 |}.
 
 
@@ -681,7 +681,7 @@ Definition A_bs_from_bs_CS (S : Type) (bs : A_bs_CS S) : A_bs S :=
 ; A_bs_times_proofs := A_bs_CS_times_proofs S bs
 ; A_bs_id_ann_proofs := A_bs_CS_id_ann_proofs S bs                                            
 ; A_bs_proofs       := A_bs_CS_proofs S bs
-; A_bs_ast          := Ast_bs_from_bs_CI (A_bs_CS_ast S bs)
+; A_bs_ast          := A_bs_CS_ast S bs
 |}.
 
 
@@ -706,7 +706,7 @@ Definition A_bs_CS_from_selective_presemiring :∀ (S: Type), A_selective_presem
    ; A_bs_CS_id_ann_proofs := A_selective_presemiring_id_ann_proofs S lP
    ; A_bs_CS_proofs        := bs_proofs_from_semiring_proofs S eq plus times eqvP
                                 (A_sg_C_proofs_from_sg_CS_proofs S eq plus wS f ntf eqvP plusP) (A_selective_presemiring_proofs S lP) 
-   ; A_bs_CS_ast           := Ast_bs_CI_from_lattice (A_selective_presemiring_ast S lP)
+   ; A_bs_CS_ast           := A_selective_presemiring_ast S lP
   |}.
 
 
@@ -727,7 +727,7 @@ let times := A_selective_semiring_times S dS in
 ; A_selective_presemiring_times_proofs  := A_selective_semiring_times_proofs S dS 
 ; A_selective_presemiring_id_ann_proofs := id_ann_proofs_from_pid_is_tann_proofs S eq plus times (A_selective_semiring_id_ann_proofs S dS)
 ; A_selective_presemiring_proofs        := A_selective_semiring_proofs S dS 
-; A_selective_presemiring_ast           := Ast_presemiring_from_semiring(A_selective_semiring_ast S dS)
+; A_selective_presemiring_ast           := A_selective_semiring_ast S dS
 |}.
 
 (* 4 *) 
@@ -748,7 +748,7 @@ let nt := A_eqv_not_trivial S eqv in
 ; A_selective_semiring_times_proofs  := A_selective_pre_dioid_with_zero_times_proofs S dS
 ; A_selective_semiring_id_ann_proofs := A_selective_pre_dioid_with_zero_id_ann_proofs S dS                                                  
 ; A_selective_semiring_proofs        := semiring_proofs_from_dioid_proofs S eq plus times (A_selective_pre_dioid_with_zero_proofs S dS)
-; A_selective_semiring_ast           := Ast_semiring_from_dioid (A_selective_pre_dioid_with_zero_ast S dS)
+; A_selective_semiring_ast           := A_selective_pre_dioid_with_zero_ast S dS
 |}.  
 
 (* 5 *) 
@@ -765,7 +765,7 @@ let times := A_selective_pre_dioid_times S dS in
 ; A_selective_presemiring_times_proofs  := A_selective_pre_dioid_times_proofs S dS 
 ; A_selective_presemiring_id_ann_proofs := A_selective_pre_dioid_id_ann_proofs S dS
 ; A_selective_presemiring_proofs        := semiring_proofs_from_dioid_proofs _ _ _ _ (A_selective_pre_dioid_proofs S dS) 
-; A_selective_presemiring_ast           := Ast_presemiring_from_semiring(A_selective_pre_dioid_ast S dS)
+; A_selective_presemiring_ast           := A_selective_pre_dioid_ast S dS
 |}.
 
 (* 6 *) 
@@ -849,7 +849,7 @@ let nt    := A_eqv_not_trivial S eqv in
 ; A_selective_pre_dioid_times_proofs := A_sg_proofs_from_sg_CS_proofs S eq times w f nt eqvP timesP
 ; A_selective_pre_dioid_id_ann_proofs := A_selective_distributive_prelattice_id_ann_proofs S dS 
 ; A_selective_pre_dioid_proofs        := dioid_proofs_from_distributive_lattice_proofs S eq plus times eqvP cong_plus comm_plus comm_times dPS
-; A_selective_pre_dioid_ast           := Ast_dioid_from_distributive_lattice (A_selective_distributive_prelattice_ast S dS)
+; A_selective_pre_dioid_ast           := A_selective_distributive_prelattice_ast S dS
 |}.
 
 (* 11 *) 
@@ -876,7 +876,7 @@ let nt    := A_eqv_not_trivial S eqv in
 ; A_selective_dioid_times_proofs := A_sg_proofs_from_sg_CS_proofs S eq times w f nt eqvP timesP
 ; A_selective_dioid_id_ann_proofs := A_selective_distributive_lattice_id_ann_proofs S dS 
 ; A_selective_dioid_proofs       := dioid_proofs_from_distributive_lattice_proofs S eq plus times eqvP cong_plus comm_plus comm_times dPS
-; A_selective_dioid_ast          := Ast_dioid_from_distributive_lattice (A_selective_distributive_lattice_ast S dS)
+; A_selective_dioid_ast          := A_selective_distributive_lattice_ast S dS
 |}.
 
 
@@ -1598,7 +1598,7 @@ Definition bs_from_bs_CI {S : Type} (B : @bs_CI S) : @bs S :=
 ; bs_times_certs  := bs_CI_times_certs B
 ; bs_id_ann_certs := bs_CI_id_ann_certs B
 ; bs_certs        := bs_CI_certs B
-; bs_ast          := Ast_bs_from_bs_CI (bs_CI_ast B)
+; bs_ast          := bs_CI_ast B
 |}. 
 
 (* 2 *)
@@ -1617,7 +1617,7 @@ let plus     := presemiring_plus s in
 ; bs_times_certs  := presemiring_times_certs s
 ; bs_id_ann_certs := presemiring_id_ann_certs s
 ; bs_certs        := bs_certs_from_semiring_certs (presemiring_certs s)
-; bs_ast          := Ast_bs_from_presemiring (presemiring_ast s)
+; bs_ast          := presemiring_ast s
 |}.
 
 (* 3 *) 
@@ -1630,7 +1630,7 @@ Definition presemiring_from_semiring {S : Type} (dS : @semiring S) : @presemirin
 ; presemiring_times_certs  := semiring_times_certs dS 
 ; presemiring_id_ann_certs := id_ann_certs_from_pid_is_tann_certs (semiring_id_ann_certs dS)
 ; presemiring_certs        := semiring_certs dS 
-; presemiring_ast          := Ast_presemiring_from_semiring(semiring_ast dS)
+; presemiring_ast          := semiring_ast dS
 |}.
 
 (* 4 *) 
@@ -1646,7 +1646,7 @@ let plus := pre_dioid_with_zero_plus dS  in
 ; semiring_times_certs  := pre_dioid_with_zero_times_certs dS
 ; semiring_id_ann_certs := pre_dioid_with_zero_id_ann_certs dS                                                  
 ; semiring_certs        := semiring_certs_from_dioid_certs (pre_dioid_with_zero_certs dS)
-; semiring_ast          := Ast_semiring_from_dioid (pre_dioid_with_zero_ast dS)
+; semiring_ast          := pre_dioid_with_zero_ast dS
 |}.  
 
 
@@ -1666,7 +1666,7 @@ Definition bs_CI_from_prelattice {S : Type} (lP : @prelattice S) : @bs_CI S :=
    ; bs_CI_times_certs  := sg_certs_from_sg_CI_certs S eq meet wS f (prelattice_meet_certs lP)
    ; bs_CI_id_ann_certs := prelattice_id_ann_certs lP
    ; bs_CI_certs        := bs_certs_from_lattice_certs (prelattice_certs lP) 
-   ; bs_CI_ast          := Ast_bs_CI_from_lattice (prelattice_ast lP)
+   ; bs_CI_ast          := prelattice_ast lP
   |}.
 
 
@@ -1680,7 +1680,7 @@ Definition lattice_from_distributive_lattice {S : Type} (dS : @distributive_latt
     ; lattice_meet_certs   := distributive_lattice_meet_certs dS
     ; lattice_id_ann_certs := distributive_lattice_id_ann_certs dS 
     ; lattice_certs        := lattice_certs_from_distributive_lattice_certs (distributive_lattice_certs dS)
-    ; lattice_ast          := Ast_lattice_from_distributive_lattice (distributive_lattice_ast dS)
+    ; lattice_ast          := distributive_lattice_ast dS
 |}.
 
 (* 7 *) 
@@ -1693,7 +1693,7 @@ Definition bs_CI_from_pre_dioid {S : Type} (lP : @pre_dioid S) : @bs_CI S :=
    ; bs_CI_times_certs  := pre_dioid_times_certs lP 
    ; bs_CI_id_ann_certs := pre_dioid_id_ann_certs lP
    ; bs_CI_certs        := bs_certs_from_dioid_certs (pre_dioid_certs lP) 
-   ; bs_CI_ast          := Ast_bs_CI_from_lattice (pre_dioid_ast lP)
+   ; bs_CI_ast          := pre_dioid_ast lP
   |}.
 
 (* 8 *) 
@@ -1765,7 +1765,7 @@ let f     := eqv_new eqv in
 ; dioid_times_certs  := sg_certs_from_sg_CI_certs S eq times w f timesP
 ; dioid_id_ann_certs := distributive_lattice_id_ann_certs dS 
 ; dioid_certs        := dioid_certs_from_distributive_lattice_certs (distributive_lattice_certs dS)
-; dioid_ast          := Ast_dioid_from_distributive_lattice (distributive_lattice_ast dS)
+; dioid_ast          := distributive_lattice_ast dS
 |}.
 
 
@@ -1787,7 +1787,7 @@ let dPS   := distributive_prelattice_certs dS in
     ; prelattice_meet_certs   := meetP
     ; prelattice_id_ann_certs := distributive_prelattice_id_ann_certs dS 
     ; prelattice_certs        := lattice_certs_from_distributive_lattice_certs dPS
-    ; prelattice_ast           := Ast_lattice_from_distributive_lattice (distributive_prelattice_ast dS)
+    ; prelattice_ast           := distributive_prelattice_ast dS
 |}.
 
 
@@ -1808,7 +1808,7 @@ let meetP := distributive_lattice_meet_certs dS in
     ; distributive_prelattice_meet_certs   := meetP
     ; distributive_prelattice_id_ann_certs := id_ann_certs_from_dually_bounded_certs (distributive_lattice_id_ann_certs dS)
     ; distributive_prelattice_certs        := distributive_lattice_certs dS 
-    ; distributive_prelattice_ast           := Ast_lattice_from_distributive_lattice (distributive_lattice_ast dS)
+    ; distributive_prelattice_ast           := distributive_lattice_ast dS
 |}.
 
 (* 15 *) 
@@ -1828,7 +1828,7 @@ let meetP := lattice_meet_certs dS in
     ; prelattice_meet_certs   := meetP
     ; prelattice_id_ann_certs := id_ann_certs_from_dually_bounded_certs (lattice_id_ann_certs dS)
     ; prelattice_certs        := lattice_certs dS
-    ; prelattice_ast           := Ast_lattice_from_distributive_lattice (lattice_ast dS)
+    ; prelattice_ast           := lattice_ast dS
 |}.
 
 
@@ -1919,7 +1919,7 @@ Definition bs_from_bs_CS {S : Type} (B : @bs_CS S) : @bs S :=
 ; bs_times_certs := bs_CS_times_certs B
 ; bs_id_ann_certs := bs_CS_id_ann_certs B
 ; bs_certs       := bs_CS_certs B
-; bs_ast          := Ast_bs_from_bs_CI (bs_CS_ast B)
+; bs_ast          := bs_CS_ast B
 |}.
 
 (* 2 *) 
@@ -1932,7 +1932,7 @@ Definition bs_CS_from_selective_presemiring {S : Type} (lP : @selective_presemir
    ; bs_CS_times_certs  := selective_presemiring_times_certs lP 
    ; bs_CS_id_ann_certs := selective_presemiring_id_ann_certs lP
    ; bs_CS_certs        := bs_certs_from_semiring_certs (selective_presemiring_certs lP) 
-   ; bs_CS_ast          := Ast_bs_CI_from_lattice (selective_presemiring_ast lP)
+   ; bs_CS_ast          := selective_presemiring_ast lP
   |}.
 
 (* 3 *) 
@@ -1945,7 +1945,7 @@ Definition selective_presemiring_from_selective_semiring {S : Type} (dS : @selec
 ; selective_presemiring_times_certs  := selective_semiring_times_certs dS 
 ; selective_presemiring_id_ann_certs := id_ann_certs_from_pid_is_tann_certs (selective_semiring_id_ann_certs dS)
 ; selective_presemiring_certs        := selective_semiring_certs dS 
-; selective_presemiring_ast          := Ast_presemiring_from_semiring(selective_semiring_ast dS)
+; selective_presemiring_ast          := selective_semiring_ast dS
 |}.
 
 (* 4 *)
@@ -1959,7 +1959,7 @@ Definition selective_semiring_from_selective_pre_dioid_with_zero
 ; selective_semiring_times_certs  := selective_pre_dioid_with_zero_times_certs S dS
 ; selective_semiring_id_ann_certs := selective_pre_dioid_with_zero_id_ann_certs S dS                                                  
 ; selective_semiring_certs        := semiring_certs_from_dioid_certs (selective_pre_dioid_with_zero_certs S dS)
-; selective_semiring_ast          := Ast_semiring_from_dioid (selective_pre_dioid_with_zero_ast S dS)
+; selective_semiring_ast          := selective_pre_dioid_with_zero_ast S dS
 |}.  
 
 (* 5 *) 
@@ -1972,7 +1972,7 @@ Definition selective_presemiring_from_selective_pre_dioid {S : Type} (dS : @sele
 ; selective_presemiring_times_certs  := selective_pre_dioid_times_certs S dS 
 ; selective_presemiring_id_ann_certs := selective_pre_dioid_id_ann_certs S dS
 ; selective_presemiring_certs        := semiring_certs_from_dioid_certs (selective_pre_dioid_certs S dS) 
-; selective_presemiring_ast          := Ast_presemiring_from_semiring(selective_pre_dioid_ast S dS)
+; selective_presemiring_ast          := selective_pre_dioid_ast S dS
 |}.
 
 (* 6 *) 
@@ -2051,7 +2051,7 @@ let times := selective_distributive_prelattice_meet dS in
                                                (selective_distributive_prelattice_meet_certs dS)
 ; selective_pre_dioid_id_ann_certs := selective_distributive_prelattice_id_ann_certs dS 
 ; selective_pre_dioid_certs        := dioid_certs_from_distributive_lattice_certs (selective_distributive_prelattice_certs dS)
-; selective_pre_dioid_ast          := Ast_dioid_from_distributive_lattice (selective_distributive_prelattice_ast dS)
+; selective_pre_dioid_ast          := selective_distributive_prelattice_ast dS
 |}.
 
 (* 11 *) 
@@ -2073,7 +2073,7 @@ let f     := eqv_new eqv in
 ; selective_dioid_times_certs  := sg_certs_from_sg_CS_certs S eq times w f timesP
 ; selective_dioid_id_ann_certs := selective_distributive_lattice_id_ann_certs dS 
 ; selective_dioid_certs        := dioid_certs_from_distributive_lattice_certs dPS
-; selective_dioid_ast          := Ast_dioid_from_distributive_lattice (selective_distributive_lattice_ast dS)
+; selective_dioid_ast          := selective_distributive_lattice_ast dS
 |}.
 
 

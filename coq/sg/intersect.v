@@ -327,7 +327,7 @@ Definition A_sg_intersect  {S : Type} (c : cas_constant) (eqv : A_eqv S) : A_sg_
    ; A_sg_BCI_exists_id    := bop_intersect_with_id_exists_id S c eqS refS symS 
    ; A_sg_BCI_exists_ann   := bop_intersect_with_id_exists_ann S c eqS refS symS trnS  
    ; A_sg_BCI_proofs       := sg_CI_proofs_add_id _ _ c bop nil (A_eqv_proofs _ new_eqv) (sg_CI_proofs_intersect S eqv)
-   ; A_sg_BCI_ast          := Ast_sg_add_id(c, Ast_sg_intersect (A_eqv_ast S eqv))
+   ; A_sg_BCI_ast          := Ast_sg_add_id(c, Ast_sg_intersect (c, A_eqv_ast S eqv))
    |}. 
   
 
@@ -371,7 +371,7 @@ Definition sg_intersect {S : Type} (c : cas_constant) (eqvS : @eqv S) : @sg_BCI 
    ; sg_BCI_exists_id  := Assert_Exists_Id (inl c) 
    ; sg_BCI_exists_ann := Assert_Exists_Ann (inr nil) 
    ; sg_BCI_certs      := sg_CI_certs_add_id c (sg_CI_certs_intersect eqvS)
-   ; sg_BCI_ast        := Ast_sg_add_id(c, Ast_sg_intersect (eqv_ast eqvS))
+   ; sg_BCI_ast        := Ast_sg_add_id(c, Ast_sg_intersect (c, eqv_ast eqvS))
    |}. 
 
 End CAS.

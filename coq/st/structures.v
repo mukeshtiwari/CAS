@@ -23,7 +23,7 @@ Record A_slt_CS (L S : Type) :=
 ; A_slt_CS_plus_proofs  : sg_CS_proofs S (A_eqv_eq S A_slt_CS_carrier) A_slt_CS_plus                                 
 ; A_slt_CS_trans_proofs : ltr_proofs L S (A_eqv_eq S A_slt_CS_carrier) (A_eqv_eq L A_slt_CS_label)  A_slt_CS_trans
 ; A_slt_CS_proofs       : slt_proofs L S (A_eqv_eq S A_slt_CS_carrier) A_slt_CS_plus A_slt_CS_trans                                  
-; A_slt_CS_ast          : cas_ast
+; A_slt_CS_ast          : cas_lstr_ast
 }.
 
 Record A_slt_CI (L S : Type) :=
@@ -35,7 +35,7 @@ Record A_slt_CI (L S : Type) :=
 ; A_slt_CI_plus_proofs  : sg_CI_proofs S (A_eqv_eq S A_slt_CI_carrier) A_slt_CI_plus                                 
 ; A_slt_CI_trans_proofs : ltr_proofs L S (A_eqv_eq S A_slt_CI_carrier) (A_eqv_eq L A_slt_CI_label)  A_slt_CI_trans
 ; A_slt_CI_proofs       : slt_proofs L S (A_eqv_eq S A_slt_CI_carrier) A_slt_CI_plus A_slt_CI_trans                                  
-; A_slt_CI_ast          : cas_ast 
+; A_slt_CI_ast          : cas_lstr_ast 
 }.
 
 

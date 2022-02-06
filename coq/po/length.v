@@ -91,7 +91,7 @@ Definition A_wo_length (S : Type): A_eqv S -> A_wo (list S)
    ; A_wo_exists_top_d    := inr (brel_length_not_exists_qo_top S eq wS)
    ; A_wo_exists_bottom   := brel_length_exists_qo_bottom S eq                                  
    ; A_wo_proofs          := wo_proofs_length S eq wS f nt
-   ; A_wo_ast             := Ast_qo_length (A_eqv_ast S eqv)
+   ; A_wo_ast             := Ast_or_length (A_eqv_ast S eqv)
    |}. 
 
 End ACAS.
@@ -119,7 +119,7 @@ Definition wo_length {S : Type} :  @eqv S -> @wo (list S)
    ; wo_exists_top_d    := Certify_Not_Exists_Qo_Top
    ; wo_exists_bottom   := Assert_Exists_Qo_Bottom nil 
    ; wo_certs          := wo_certs_length wS f 
-   ; wo_ast            := Ast_qo_length (eqv_ast eqv)
+   ; wo_ast            := Ast_or_length (eqv_ast eqv)
    |}. 
 
 

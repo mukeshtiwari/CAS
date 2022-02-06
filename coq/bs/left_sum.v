@@ -1114,7 +1114,7 @@ let timesT := A_bs_times T bsT in
                            (A_bs_plus_proofs T bsT)                            
                            (A_bs_proofs S bsS) 
                            (A_bs_proofs T bsT)
-   ; A_bs_ast        := Ast_bs_left_sum(A_bs_ast S bsS, A_bs_ast T bsT)
+   ; A_bs_ast        := Ast_bs_left_sum_right_sum(A_bs_ast S bsS, A_bs_ast T bsT)
 |}. 
 
 
@@ -1252,7 +1252,7 @@ let timesT := A_bs_times T bsT in
                            (A_bs_plus_proofs T bsT)                                                                                
                            (A_bs_proofs S bsS) 
                            (A_bs_proofs T bsT)
-   ; A_bs_ast        := Ast_bs_right_sum(A_bs_ast S bsS, A_bs_ast T bsT)
+   ; A_bs_ast        := Ast_bs_right_sum_left_sum(A_bs_ast S bsS, A_bs_ast T bsT)
 |}. 
 
 End ACAS.

@@ -328,7 +328,7 @@ let intersectP := sg_CI_proofs_intersect S eqv in
 ; A_distributive_lattice_join_proofs   := sg_CI_proofs_add_ann _ _ c union nil (A_eqv_proofs _ new_eqv) unionP 
 ; A_distributive_lattice_meet_proofs   := sg_CI_proofs_add_id _ _ c intersect nil (A_eqv_proofs _ new_eqv) intersectP
 ; A_distributive_lattice_proofs        := distributive_lattice_proofs_union_intersect_with_one S c eq eqvP
-; A_distributive_lattice_ast           := Ast_union_intersect (A_eqv_ast S eqv) 
+; A_distributive_lattice_ast           := Ast_union_intersect (c, A_eqv_ast S eqv) 
 |}.
 
 
@@ -380,7 +380,7 @@ let eq  := eqv_eq eqv in
 ; distributive_lattice_join_certs   := sg_CI_certs_add_ann c (sg_CI_certs_union eqv)
 ; distributive_lattice_meet_certs   := sg_CI_certs_add_id c (sg_CI_certs_intersect eqv)
 ; distributive_lattice_certs        := distributive_lattice_certs_union_intersect_with_one S
-; distributive_lattice_ast          := Ast_union_intersect (eqv_ast eqv) 
+; distributive_lattice_ast          := Ast_union_intersect (c, eqv_ast eqv) 
 |}.
   
 

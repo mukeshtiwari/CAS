@@ -58,7 +58,7 @@ Definition A_eqv_predicate_reduce
            (nt: brel_not_trivial S (brel_predicate_reduce s P (A_eqv_eq S eqvS)) f)
            (ex2 : brel_exactly_two_decidable S (brel_predicate_reduce s P (A_eqv_eq S eqvS)))
            (fnd : carrier_is_finite_decidable S (brel_predicate_reduce s P (A_eqv_eq S eqvS)))
-           (ast : cas_ast)
+           (ast : cas_eqv_ast)
            : A_eqv S
 := 
   let eq  := A_eqv_eq S eqvS          in
@@ -85,7 +85,7 @@ Section CAS.
 
 
 Definition eqv_predicate_reduce {S : Type}
-     (s : S) (P : pred S) (f : S -> S) (ex2 : @check_exactly_two S) (fnd : @check_is_finite S)(eqvS : @eqv S)  (ast : cas_ast) : @eqv S
+     (s : S) (P : pred S) (f : S -> S) (ex2 : @check_exactly_two S) (fnd : @check_is_finite S)(eqvS : @eqv S)  (ast : cas_eqv_ast) : @eqv S
 := 
   let eq := eqv_eq eqvS in
   let wS := eqv_witness eqvS in
@@ -116,7 +116,7 @@ Theorem correct_eqv_predicate_reduce : ∀ (S : Type) (E : A_eqv S) (s : S) (P :
       (nt: brel_not_trivial S (brel_predicate_reduce s P (A_eqv_eq S E)) f)
       (ex2 :  brel_exactly_two_decidable S (brel_predicate_reduce s P (A_eqv_eq S E)))
       (fnd :  carrier_is_finite_decidable S (brel_predicate_reduce s P (A_eqv_eq S E)))
-      (ast : cas_ast),  
+      (ast : cas_eqv_ast),  
     eqv_predicate_reduce s P f (p2c_exactly_two_check _ _ ex2) (p2c_is_finite_check _ _ fnd) (A2C_eqv S E) ast 
     =
     A2C_eqv S(A_eqv_predicate_reduce S E s P f nt ex2 fnd  ast).

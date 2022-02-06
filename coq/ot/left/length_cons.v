@@ -79,7 +79,7 @@ Definition A_length_cons_woltr_monotone_strictly_increasing (S : Type) (eqvS : A
 ; A_woltr_msi_ltr_proofs   := ltr_cons_proofs S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS)
 ; A_woltr_msi_bottom_proofs := length_cons_with_bottom_proofs S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS)                                              
 ; A_woltr_msi_proofs       := length_cons_qoltr_msi_proofs S 
-; A_woltr_msi_ast          := Ast_qo_length (A_eqv_ast S eqvS)
+; A_woltr_msi_ast          := Ast_lotr_length_cons (A_eqv_ast S eqvS)
 |}.
 
 
@@ -112,7 +112,7 @@ Definition length_cons_woltr_monotone_strictly_increasing {S : Type} (eqvS : @eq
 ; woltr_msi_ltr_certs    := ltr_cons_certs (eqv_witness eqvS)
 ; woltr_msi_bottom_certs := length_cons_with_bottom_certs       
 ; woltr_msi_certs        := length_cons_qoltr_msi_certs
-; woltr_msi_ast          := Ast_qo_length (eqv_ast eqvS)
+; woltr_msi_ast          := Ast_lotr_length_cons (eqv_ast eqvS)
 |}.
   
 

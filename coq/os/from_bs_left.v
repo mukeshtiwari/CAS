@@ -451,7 +451,7 @@ let times_cong := A_sg_congruence _ _ _ timesP in
 ; A_miposg_times_proofs := timesP 
 ; A_miposg_top_bottom   := os_bs_left_bottom_top_proofs_from_id_ann_proofs S eq eqvP plus times plus_comm (A_pre_dioid_id_ann_proofs _ D)
 ; A_miposg_proofs       := os_bs_left_monotone_increasing_proofs_from_dioid_proofs S eq eqvP plus times times_cong (A_pre_dioid_proofs _ D)
-; A_miposg_ast          := A_pre_dioid_ast _ D (* FIX *)
+; A_miposg_ast          := Ast_os_from_bs_left (A_pre_dioid_ast _ D) 
 |}.
 
 
@@ -471,7 +471,7 @@ let times_cong := A_sg_congruence _ _ _ timesP in
 ; A_bmiposg_times_proofs := timesP 
 ; A_bmiposg_top_bottom   := os_bs_left_bounded_proofs_from_bs_bounded_proofs S eq eqvP plus times (A_dioid_id_ann_proofs _ D)
 ; A_bmiposg_proofs       := os_bs_left_monotone_increasing_proofs_from_dioid_proofs S eq eqvP plus times times_cong (A_dioid_proofs _ D)
-; A_bmiposg_ast          := A_dioid_ast _ D (* FIX *)
+; A_bmiposg_ast          := Ast_os_from_bs_left (A_dioid_ast _ D)
 |}.
 
 
@@ -600,7 +600,7 @@ let plusP      := pre_dioid_plus_certs D in
 ; miposg_times_certs  := pre_dioid_times_certs D
 ; miposg_top_bottom   := os_bs_left_bottom_top_certs_from_id_ann_certs (pre_dioid_id_ann_certs D)
 ; miposg_certs        := os_bs_left_monotone_increasing_certs_from_dioid_certs (pre_dioid_certs D)
-; miposg_ast          := pre_dioid_ast D (* FIX *)
+; miposg_ast          := Ast_os_from_bs_left (pre_dioid_ast D)
 |}.
 
 
@@ -613,7 +613,7 @@ Definition posg_from_dioid (S :Type) (D : @dioid S) : @bounded_monotone_increasi
 ; bmiposg_times_certs  := dioid_times_certs _ D 
 ; bmiposg_top_bottom   := os_bs_left_bounded_certs_from_bs_bounded_certs (dioid_id_ann_certs _ D)
 ; bmiposg_certs        := os_bs_left_monotone_increasing_certs_from_dioid_certs (dioid_certs _ D)
-; bmiposg_ast          := dioid_ast _ D (* FIX *)
+; bmiposg_ast          := Ast_os_from_bs_left (dioid_ast _ D)
 |}.
 
 

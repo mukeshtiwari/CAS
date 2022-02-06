@@ -1017,7 +1017,7 @@ let Deqv   := A_eqv_minset_from_po _ PO in
                               (sg_CI_proofs_minset_lift_from_po S eq lte wS f times nt eqvP lteP timesP LM RM LI)
 ; A_dioid_id_ann_proofs := minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bjsl_top_bottom _ P)
 ; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP LM RM LI RI
-; A_dioid_ast           := A_bjsl_ast _ P 
+; A_dioid_ast           := Ast_minset_union_lift (A_bjsl_ast _ P)
 |}.
 
   
@@ -1058,7 +1058,7 @@ let Deqv   := A_eqv_minset_from_po _ PO in
                               (sg_CNI_proofs_minset_lift_from_po S eq lte wS f times nt eqvP lteP timesP LM RM)
 ; A_dioid_id_ann_proofs := minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bmiposg_CNI_top_bottom _ P)
 ; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP LM RM LI RI 
-; A_dioid_ast           := A_bmiposg_CNI_ast _ P 
+; A_dioid_ast           := Ast_minset_union_lift (A_bmiposg_CNI_ast _ P)
 |}.
 
   

@@ -989,7 +989,7 @@ let Meqv   := A_eqv_minset_from_po _ PO  in
                              (sg_CI_proofs_minset_union_from_po S eq lte s f nt eqvP lteP)
 ; A_dioid_id_ann_proofs := minset_lift_union_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bjsl_top_bottom _ P)
 ; A_dioid_proofs        := minset_lift_union_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times times_cong idem lteP LM RM LI RI 
-; A_dioid_ast           := A_bjsl_ast _ P 
+; A_dioid_ast           := Ast_minset_lift_union (A_bjsl_ast _ P)
 |}.
 
 End Combinators. 

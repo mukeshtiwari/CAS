@@ -87,7 +87,7 @@ Definition A_eqv_reduce
            (nt: brel_not_trivial S (brel_reduce (A_eqv_eq S eqvS) r) f)
            (ex2 : brel_exactly_two_decidable S (brel_reduce (A_eqv_eq S eqvS) r))
            (fin : carrier_is_finite_decidable S (brel_reduce (A_eqv_eq S eqvS) r))
-           (ast : cas_ast)
+           (ast : cas_eqv_ast)
            : A_eqv S
                                                                                          
 := 
@@ -114,7 +114,7 @@ Section CAS.
 
 
 Definition eqv_reduce {S : Type}
-      (r : S -> S) (f : S -> S) (ex2 : @check_exactly_two S) (fin : @check_is_finite S)  (eqvS : @eqv S) (ast : cas_ast) : @eqv S
+      (r : S -> S) (f : S -> S) (ex2 : @check_exactly_two S) (fin : @check_is_finite S)  (eqvS : @eqv S) (ast : cas_eqv_ast) : @eqv S
 := 
   let eq := eqv_eq eqvS in
   let s := eqv_witness eqvS in
@@ -145,7 +145,7 @@ Theorem correct_eqv_reduce : ∀ (S : Type) (E : A_eqv S) (r : unary_op S) (f : 
       (nt: brel_not_trivial S (brel_reduce (A_eqv_eq S E) r) f)
       (ex2 : brel_exactly_two_decidable S (brel_reduce (A_eqv_eq S E) r))
       (fin : carrier_is_finite_decidable S (brel_reduce (A_eqv_eq S E) r))
-      (ast : cas_ast),  
+      (ast : cas_eqv_ast),  
     
     eqv_reduce r f (p2c_exactly_two_check _ _ ex2) (p2c_is_finite_check _ _ fin) (A2C_eqv S E) ast
     =

@@ -755,7 +755,7 @@ let lteReflS := A_po_reflexive _ _ _ pS in
 ; A_po_exists_top_d  := ord_product_exists_top_decide S T lteS lteT lteReflS topS_d topT_d
 ; A_po_exists_bottom := ord_product_exists_bottom S T lteS lteT botS botT
 ; A_po_proofs        := po_product_proofs S T eqS lteS wS pS eqT lteT wT pT 
-; A_po_ast           := Ast_eqv_bool (* fix *) 
+; A_po_ast           := Ast_or_product (A_po_ast _ PS, A_po_ast _ PS)
 |}.
 
   
@@ -840,7 +840,7 @@ let pT := po_certs PT in
 ; po_exists_top_d  := ord_product_exists_top_check topS_d topT_d
 ; po_exists_bottom := ord_product_exists_bottom_assert botS botT
 ; po_certs         := po_product_certs pS wT pT 
-; po_ast           := Ast_eqv_bool (* fix *) 
+; po_ast           := Ast_or_product (po_ast PS, po_ast PS)
 |}.
 
 

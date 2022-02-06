@@ -102,7 +102,7 @@ Record A_posg (S : Type) := {
 ; A_posg_times_proofs      : sg_proofs S (A_eqv_eq S A_posg_eqv) A_posg_times
 ; A_posg_bottom_top_proofs : os_bottom_top_proofs S (A_eqv_eq S A_posg_eqv) A_posg_lte A_posg_times
 ; A_posg_proofs            : os_proofs S A_posg_lte A_posg_times 
-; A_posg_ast               : cas_ast
+; A_posg_ast               : cas_os_ast
 }.
 
 Record A_monotone_posg (S : Type) := {
@@ -113,7 +113,7 @@ Record A_monotone_posg (S : Type) := {
 ; A_mposg_times_proofs : sg_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_times
 ; A_mposg_top_bottom   : os_bottom_top_proofs S (A_eqv_eq S A_mposg_eqv) A_mposg_lte A_mposg_times                                    
 ; A_mposg_proofs       : os_monotone_proofs S A_mposg_lte A_mposg_times 
-; A_mposg_ast          : cas_ast
+; A_mposg_ast          : cas_os_ast
 }.
 
 Record A_monotone_increasing_posg (S : Type) := {
@@ -124,7 +124,7 @@ Record A_monotone_increasing_posg (S : Type) := {
 ; A_miposg_times_proofs : sg_proofs S (A_eqv_eq S A_miposg_eqv) A_miposg_times
 ; A_miposg_top_bottom   : os_bottom_top_proofs S (A_eqv_eq S A_miposg_eqv) A_miposg_lte A_miposg_times                                    
 ; A_miposg_proofs       : os_monotone_increasing_proofs S A_miposg_lte A_miposg_times 
-; A_miposg_ast          : cas_ast
+; A_miposg_ast          : cas_os_ast
 }.
 
 Record A_bounded_monotone_increasing_posg (S : Type) := {
@@ -135,7 +135,7 @@ Record A_bounded_monotone_increasing_posg (S : Type) := {
 ; A_bmiposg_times_proofs : sg_proofs S (A_eqv_eq S A_bmiposg_eqv) A_bmiposg_times
 ; A_bmiposg_top_bottom   : os_bounded_proofs S (A_eqv_eq S A_bmiposg_eqv) A_bmiposg_lte A_bmiposg_times                                    
 ; A_bmiposg_proofs       : os_monotone_increasing_proofs S A_bmiposg_lte A_bmiposg_times 
-; A_bmiposg_ast          : cas_ast
+; A_bmiposg_ast          : cas_os_ast
 }.
 
 
@@ -151,7 +151,7 @@ Record A_bounded_monotone_increasing_posg_CI (S : Type) := {
 ; A_bmiposg_CI_times_proofs : sg_CI_proofs S (A_eqv_eq S A_bmiposg_CI_eqv) A_bmiposg_CI_times
 ; A_bmiposg_CI_top_bottom   : os_bounded_proofs S (A_eqv_eq S A_bmiposg_CI_eqv) A_bmiposg_CI_lte A_bmiposg_CI_times                                    
 ; A_bmiposg_CI_proofs       : os_monotone_increasing_proofs S A_bmiposg_CI_lte A_bmiposg_CI_times 
-; A_bmiposg_CI_ast          : cas_ast
+; A_bmiposg_CI_ast          : cas_os_ast
 }.
 
 At first they seem slightly more general than a A_bounded_join_semilattice S, 
@@ -179,7 +179,7 @@ Record A_bounded_monotone_increasing_posg_CNI (S : Type) := {
 ; A_bmiposg_CNI_times_proofs : sg_CNI_proofs S (A_eqv_eq S A_bmiposg_CNI_eqv) A_bmiposg_CNI_times
 ; A_bmiposg_CNI_top_bottom   : os_bounded_proofs S (A_eqv_eq S A_bmiposg_CNI_eqv) A_bmiposg_CNI_lte A_bmiposg_CNI_times                                    
 ; A_bmiposg_CNI_proofs       : os_monotone_increasing_proofs S A_bmiposg_CNI_lte A_bmiposg_CNI_times 
-; A_bmiposg_CNI_ast          : cas_ast
+; A_bmiposg_CNI_ast          : cas_os_ast
 }.
 
 
@@ -191,7 +191,7 @@ Record A_meet_semilattice (S : Type) := {
 ; A_msl_meet_proofs   : sg_CI_proofs S (A_eqv_eq _ A_msl_eqv) A_msl_meet
 ; A_msl_top_bottom    : os_bottom_top_proofs S (A_eqv_eq S A_msl_eqv) A_msl_lte A_msl_meet
 ; A_msl_proofs        : bop_is_glb A_msl_lte A_msl_meet
-; A_msl_ast           : cas_ast
+; A_msl_ast           : cas_os_ast
 }.
 
 Record A_join_semilattice (S : Type) := {
@@ -202,7 +202,7 @@ Record A_join_semilattice (S : Type) := {
 ; A_jsl_join_proofs   : sg_CI_proofs S (A_eqv_eq _ A_jsl_eqv) A_jsl_join
 ; A_jsl_top_bottom    : os_bottom_top_proofs S (A_eqv_eq S A_jsl_eqv) A_jsl_lte A_jsl_join
 ; A_jsl_proofs        : bop_is_lub A_jsl_lte A_jsl_join
-; A_jsl_ast           : cas_ast
+; A_jsl_ast           : cas_os_ast
 }.
 
 Record A_bounded_join_semilattice (S : Type) := {
@@ -213,7 +213,7 @@ Record A_bounded_join_semilattice (S : Type) := {
 ; A_bjsl_join_proofs   : sg_CI_proofs S (A_eqv_eq _ A_bjsl_eqv) A_bjsl_join
 ; A_bjsl_top_bottom    : os_bounded_proofs S (A_eqv_eq S A_bjsl_eqv) A_bjsl_lte A_bjsl_join
 ; A_bjsl_proofs        : bop_is_lub A_bjsl_lte A_bjsl_join
-; A_bjsl_ast           : cas_ast
+; A_bjsl_ast           : cas_os_ast
 }.
 
 
@@ -231,7 +231,7 @@ let top_ann := A_bounded_top_ann _ _ _ _ B in
 ; A_po_exists_top_d  := inl (A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann ) 
 ; A_po_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
 ; A_po_proofs        := A_bmiposg_lte_proofs _ P 
-; A_po_ast           := A_bmiposg_ast _ P (* FIX *)
+; A_po_ast           := Ast_or_of_os (A_bmiposg_ast _ P)
 |}.  
   
 
@@ -248,7 +248,7 @@ let top_ann := A_bounded_top_ann _ _ _ _ B in
 ; A_po_exists_top_d  := inl (A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann ) 
 ; A_po_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
 ; A_po_proofs        := A_bmiposg_CNI_lte_proofs _ P 
-; A_po_ast           := A_bmiposg_CNI_ast _ P (* FIX *)
+; A_po_ast           := Ast_or_of_os (A_bmiposg_CNI_ast _ P)
 |}.  
   
 
@@ -266,7 +266,7 @@ let top_ann := A_bounded_top_ann _ _ _ _ B in
 ; A_po_exists_top_d  := inl (A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann ) 
 ; A_po_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
 ; A_po_proofs        := A_bjsl_lte_proofs _ P 
-; A_po_ast           := A_bjsl_ast _ P (* FIX *)
+; A_po_ast           :=  Ast_or_of_os (A_bjsl_ast _ P)
 |}.  
   
 
@@ -440,7 +440,7 @@ Record posg {S : Type} := {
 ; posg_times_certs      : @sg_certificates S 
 ; posg_bottom_top_certs : @os_bottom_top_certs S 
 ; posg_certs            : @os_certificates S 
-; posg_ast              : cas_ast
+; posg_ast              : cas_os_ast
 }.
 
 Record monotone_posg {S : Type} := {
@@ -451,7 +451,7 @@ Record monotone_posg {S : Type} := {
 ; mposg_times_certs  : @sg_certificates S 
 ; mposg_top_bottom   : @os_bottom_top_certs S 
 ; mposg_certs        : @os_monotone_certificates S 
-; mposg_ast          : cas_ast
+; mposg_ast          : cas_os_ast
 }.
 
 Record monotone_increasing_posg (S : Type) := {
@@ -462,7 +462,7 @@ Record monotone_increasing_posg (S : Type) := {
 ; miposg_times_certs  : @sg_certificates S 
 ; miposg_top_bottom   : @os_bottom_top_certs S 
 ; miposg_certs        : @os_monotone_increasing_certificates S 
-; miposg_ast          : cas_ast
+; miposg_ast          : cas_os_ast
 }.
 
 
@@ -475,7 +475,7 @@ Record bounded_monotone_increasing_posg {S : Type} :=
 ; bmiposg_times_certs : @sg_certificates S 
 ; bmiposg_top_bottom  : @os_bounded_certs S 
 ; bmiposg_certs       : @os_monotone_increasing_certificates S 
-; bmiposg_ast         : cas_ast 
+; bmiposg_ast         : cas_os_ast 
 }.
 
 
@@ -494,7 +494,7 @@ let B := bmiposg_top_bottom P in
                       | Assert_Os_Exists_Top_Ann_Equal top_ann => Assert_Exists_Bottom top_ann
                       end
 ; po_certs         := bmiposg_lte_certs P 
-; po_ast           := bmiposg_ast P (* FIX *)
+; po_ast           := Ast_or_of_os (bmiposg_ast P)
 |}.  
 
 

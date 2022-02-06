@@ -33,7 +33,7 @@ Record A_poltr (L S : Type) :=
 ; A_poltr_ltr_proofs   : ltr_proofs L S (A_eqv_eq S A_poltr_carrier) (A_eqv_eq L A_poltr_label)  A_poltr_ltr
 ; A_poltr_top_bottom_proofs : top_bottom_proofs S (A_eqv_eq S A_poltr_carrier) A_poltr_lte                                           
 ; A_poltr_proofs       : oltr_proofs L S A_poltr_lte A_poltr_ltr                                  
-; A_poltr_ast          : cas_ast 
+; A_poltr_ast          : cas_lotr_ast 
 }.
 
 
@@ -63,7 +63,7 @@ Record A_qoltr_monotone_strictly_increasing (L S : Type) :=
 ; A_qoltr_msi_ltr_proofs   : ltr_proofs L S (A_eqv_eq S A_qoltr_msi_carrier) (A_eqv_eq L A_qoltr_msi_label)  A_qoltr_msi_ltr
 ; A_qoltr_msi_bottom_proofs : with_bottom_proofs S (A_eqv_eq S A_qoltr_msi_carrier) A_qoltr_msi_lte                                           
 ; A_qoltr_msi_proofs       : qoltr_msi_proofs L S A_qoltr_msi_lte A_qoltr_msi_ltr                                  
-; A_qoltr_msi_ast          : cas_ast 
+; A_qoltr_msi_ast          : cas_lotr_ast 
 }.
 
 
@@ -78,7 +78,7 @@ Record A_woltr_monotone_strictly_increasing (L S : Type) :=
 ; A_woltr_msi_ltr_proofs   : ltr_proofs L S (A_eqv_eq S A_woltr_msi_carrier) (A_eqv_eq L A_woltr_msi_label)  A_woltr_msi_ltr
 ; A_woltr_msi_bottom_proofs : with_bottom_proofs S (A_eqv_eq S A_woltr_msi_carrier) A_woltr_msi_lte                                           
 ; A_woltr_msi_proofs       : qoltr_msi_proofs L S A_woltr_msi_lte A_woltr_msi_ltr                                  
-; A_woltr_msi_ast          : cas_ast 
+; A_woltr_msi_ast          : cas_lotr_ast 
 }.
 
 
@@ -100,7 +100,7 @@ Record A_poltr_monotone_increasing (L S : Type) :=
 ; A_poltr_mi_ltr_proofs   : ltr_proofs L S (A_eqv_eq S A_poltr_mi_carrier) (A_eqv_eq L A_poltr_mi_label)  A_poltr_mi_ltr
 ; A_poltr_mi_bottom_proofs : with_bottom_proofs S (A_eqv_eq S A_poltr_mi_carrier) A_poltr_mi_lte                                 
 ; A_poltr_mi_proofs       : poltr_mi_proofs L S A_poltr_mi_lte A_poltr_mi_ltr                                  
-; A_poltr_mi_ast          : cas_ast 
+; A_poltr_mi_ast          : cas_lotr_ast 
 }.
 
 
@@ -135,7 +135,7 @@ Record poltr {L S : Type} :=
 ; poltr_ltr_certs        : @ltr_certificates L S 
 ; poltr_top_bottom_certs : @top_bottom_certificates S 
 ; poltr_certs            : @oltr_certificates L S 
-; poltr_ast              : cas_ast 
+; poltr_ast              : cas_lotr_ast 
 }.
 
 
@@ -165,7 +165,7 @@ Record qoltr_monotone_strictly_increasing {L S : Type} :=
 ; qoltr_msi_ltr_certs    : @ltr_certificates L S
 ; qoltr_msi_bottom_certs : @with_bottom_certs S                                                                                          
 ; qoltr_msi_certs        : @qoltr_msi_certificates L S
-; qoltr_msi_ast          : cas_ast 
+; qoltr_msi_ast          : cas_lotr_ast 
 }.
 
 
@@ -180,7 +180,7 @@ Record woltr_monotone_strictly_increasing {L S : Type} :=
 ; woltr_msi_ltr_certs    : @ltr_certificates L S
 ; woltr_msi_bottom_certs : @with_bottom_certs S                                             
 ; woltr_msi_certs        : @qoltr_msi_certificates L S
-; woltr_msi_ast          : cas_ast 
+; woltr_msi_ast          : cas_lotr_ast 
 }.
 
 Record poltr_mi_certificates {L S : Type} := 
@@ -200,7 +200,7 @@ Record poltr_monotone_increasing {L S : Type} :=
 ; poltr_mi_ltr_certs    : @ltr_certificates L S
 ; poltr_mi_bottom_certs : @with_bottom_certs S                                                                                         
 ; poltr_mi_certs        : @poltr_mi_certificates L S 
-; poltr_mi_ast          : cas_ast 
+; poltr_mi_ast          : cas_lotr_ast 
 }.
 
 End CAS.

@@ -151,7 +151,7 @@ Definition A_bs_left (S : Type) (sg : A_sg S) : A_bs S :=
 ; A_bs_times_proofs  := sg_proofs_left _ (A_sg_eqv _ sg)
 ; A_bs_id_ann_proofs := bs_left_id_ann_proofs sg 
 ; A_bs_proofs        := bs_left_proofs sg 
-; A_bs_ast           := Ast_sg_left (A_sg_ast _ sg) (* Fix someday *) 
+; A_bs_ast           := Ast_bs_left (A_sg_ast _ sg) 
 |}.
 
 
@@ -230,7 +230,7 @@ let eqv  := sg_eqv sg in
 ; bs_times_certs  := sg_certs_left eqv
 ; bs_id_ann_certs := bs_left_id_ann_certs sg 
 ; bs_certs        := bs_left_certs S sg 
-; bs_ast          := Ast_sg_left (sg_ast sg) (* Fix someday *) 
+; bs_ast          := Ast_bs_left (sg_ast sg) 
 |}.
 
   

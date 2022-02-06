@@ -816,7 +816,7 @@ Definition A_sg_union {S : Type} (c : cas_constant) (eqv : A_eqv S) : A_sg_BCI (
    ; A_sg_BCI_exists_id  := bop_union_with_ann_exists_id S c eqS refS symS trnS 
    ; A_sg_BCI_exists_ann := bop_union_with_ann_exists_ann S c eqS 
    ; A_sg_BCI_proofs     := sg_CI_proofs_add_ann _ _ c bop nil (A_eqv_proofs _ eqv_union) (sg_CI_proofs_union eqv)
-   ; A_sg_BCI_ast        := Ast_sg_add_ann(c, Ast_sg_union (A_eqv_ast S eqv))
+   ; A_sg_BCI_ast        := Ast_sg_add_ann(c, Ast_sg_union (c, A_eqv_ast S eqv))
    |}.
 
 
@@ -925,7 +925,7 @@ Definition sg_union {S : Type} (c : cas_constant) (eqvS : @eqv S) : @sg_BCI (wit
    ; sg_BCI_exists_id  := Assert_Exists_Id (inr nil) 
    ; sg_BCI_exists_ann := Assert_Exists_Ann (inl c) 
    ; sg_BCI_certs      := sg_CI_certs_add_ann c (sg_CI_certs_union eqvS)
-   ; sg_BCI_ast        := Ast_sg_add_ann(c, Ast_sg_union (eqv_ast eqvS))
+   ; sg_BCI_ast        := Ast_sg_add_ann(c, Ast_sg_union (c, eqv_ast eqvS))
    |}. 
 
 

@@ -95,7 +95,7 @@ Record A_bs (S : Type) := {
 ; A_bs_times_proofs  : sg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_times   
 ; A_bs_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus A_bs_times                                 
 ; A_bs_proofs        : bs_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus A_bs_times
-; A_bs_ast           : cas_ast
+; A_bs_ast           : cas_bs_ast
 }.
 
 
@@ -107,7 +107,7 @@ Record A_bs_CS (S : Type) := {
 ; A_bs_CS_times_proofs  : sg_proofs S    (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_times
 ; A_bs_CS_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_plus A_bs_CS_times
 ; A_bs_CS_proofs        : bs_proofs S (A_eqv_eq S A_bs_CS_eqv) A_bs_CS_plus A_bs_CS_times
-; A_bs_CS_ast           : cas_ast
+; A_bs_CS_ast           : cas_bs_ast
 }.
 
 Record A_bs_CI (S : Type) := {
@@ -118,7 +118,7 @@ Record A_bs_CI (S : Type) := {
 ; A_bs_CI_times_proofs  : sg_proofs S    (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_times
 ; A_bs_CI_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_plus A_bs_CI_times
 ; A_bs_CI_proofs        : bs_proofs S (A_eqv_eq S A_bs_CI_eqv) A_bs_CI_plus A_bs_CI_times
-; A_bs_CI_ast           : cas_ast
+; A_bs_CI_ast           : cas_bs_ast
 }.
 
 Record A_presemiring (S : Type) := {
@@ -129,7 +129,7 @@ Record A_presemiring (S : Type) := {
 ; A_presemiring_times_proofs  : sg_proofs S   (A_eqv_eq S A_presemiring_eqv) A_presemiring_times
 ; A_presemiring_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_presemiring_eqv) A_presemiring_plus A_presemiring_times
 ; A_presemiring_proofs        : semiring_proofs S (A_eqv_eq S A_presemiring_eqv) A_presemiring_plus A_presemiring_times
-; A_presemiring_ast           : cas_ast
+; A_presemiring_ast           : cas_bs_ast
 }.
 Record A_semiring (S : Type) := {
   A_semiring_eqv           : A_eqv S 
@@ -139,7 +139,7 @@ Record A_semiring (S : Type) := {
 ; A_semiring_times_proofs  : sg_proofs S   (A_eqv_eq S A_semiring_eqv) A_semiring_times
 ; A_semiring_id_ann_proofs : pid_is_tann_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus A_semiring_times
 ; A_semiring_proofs        : semiring_proofs S (A_eqv_eq S A_semiring_eqv) A_semiring_plus A_semiring_times
-; A_semiring_ast           : cas_ast
+; A_semiring_ast           : cas_bs_ast
 }.
 
 
@@ -151,7 +151,7 @@ Record A_pre_dioid (S : Type) := {
 ; A_pre_dioid_times_proofs  : sg_proofs S   (A_eqv_eq S A_pre_dioid_eqv) A_pre_dioid_times
 ; A_pre_dioid_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_pre_dioid_eqv) A_pre_dioid_plus A_pre_dioid_times
 ; A_pre_dioid_proofs        : dioid_proofs S (A_eqv_eq S A_pre_dioid_eqv) A_pre_dioid_plus A_pre_dioid_times
-; A_pre_dioid_ast           : cas_ast
+; A_pre_dioid_ast           : cas_bs_ast
 }.
 
 
@@ -163,7 +163,7 @@ Record A_pre_dioid_with_one (S : Type) := {
 ; A_pre_dioid_with_one_times_proofs  : sg_proofs S   (A_eqv_eq S A_pre_dioid_with_one_eqv) A_pre_dioid_with_one_times
 ; A_pre_dioid_with_one_id_ann_proofs : pann_is_tid_proofs S (A_eqv_eq S A_pre_dioid_with_one_eqv) A_pre_dioid_with_one_plus A_pre_dioid_with_one_times
 ; A_pre_dioid_with_one_proofs        : dioid_proofs S (A_eqv_eq S A_pre_dioid_with_one_eqv) A_pre_dioid_with_one_plus A_pre_dioid_with_one_times
-; A_pre_dioid_with_one_ast           : cas_ast
+; A_pre_dioid_with_one_ast           : cas_bs_ast
 }.
 
 
@@ -176,7 +176,7 @@ Record A_pre_dioid_with_zero (S : Type) := {
 ; A_pre_dioid_with_zero_times_proofs  : sg_proofs S   (A_eqv_eq S A_pre_dioid_with_zero_eqv) A_pre_dioid_with_zero_times
 ; A_pre_dioid_with_zero_id_ann_proofs : pid_is_tann_proofs S (A_eqv_eq S A_pre_dioid_with_zero_eqv) A_pre_dioid_with_zero_plus A_pre_dioid_with_zero_times
 ; A_pre_dioid_with_zero_proofs        : dioid_proofs S (A_eqv_eq S A_pre_dioid_with_zero_eqv) A_pre_dioid_with_zero_plus A_pre_dioid_with_zero_times
-; A_pre_dioid_with_zero_ast           : cas_ast
+; A_pre_dioid_with_zero_ast           : cas_bs_ast
 }.
 
 
@@ -188,7 +188,7 @@ Record A_dioid (S : Type) := {
 ; A_dioid_times_proofs  : sg_proofs S   (A_eqv_eq S A_dioid_eqv) A_dioid_times
 ; A_dioid_id_ann_proofs : dually_bounded_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
 ; A_dioid_proofs        : dioid_proofs S (A_eqv_eq S A_dioid_eqv) A_dioid_plus A_dioid_times
-; A_dioid_ast           : cas_ast
+; A_dioid_ast           : cas_bs_ast
 }.
 
 
@@ -200,7 +200,7 @@ Record A_prelattice (S : Type) := {
 ; A_prelattice_meet_proofs   : sg_CI_proofs S (A_eqv_eq S A_prelattice_eqv) A_prelattice_meet
 ; A_prelattice_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_prelattice_eqv) A_prelattice_join A_prelattice_meet      
 ; A_prelattice_proofs        : lattice_proofs S (A_eqv_eq S A_prelattice_eqv) A_prelattice_join A_prelattice_meet
-; A_prelattice_ast           : cas_ast
+; A_prelattice_ast           : cas_bs_ast
 }.
 
 Record A_distributive_prelattice (S : Type) := {
@@ -217,7 +217,7 @@ Record A_distributive_prelattice (S : Type) := {
                                           (A_eqv_eq S A_distributive_prelattice_eqv)
                                           A_distributive_prelattice_join
                                           A_distributive_prelattice_meet
-; A_distributive_prelattice_ast         : cas_ast
+; A_distributive_prelattice_ast         : cas_bs_ast
 }.
 
 
@@ -229,7 +229,7 @@ Record A_lattice (S : Type) := {
 ; A_lattice_meet_proofs   : sg_CI_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_meet
 ; A_lattice_id_ann_proofs : dually_bounded_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join A_lattice_meet      
 ; A_lattice_proofs        : lattice_proofs S (A_eqv_eq S A_lattice_eqv) A_lattice_join A_lattice_meet
-; A_lattice_ast           : cas_ast
+; A_lattice_ast           : cas_bs_ast
 }.
 
 Record A_distributive_lattice (S : Type) := {
@@ -246,7 +246,7 @@ Record A_distributive_lattice (S : Type) := {
                                           (A_eqv_eq S A_distributive_lattice_eqv)
                                           A_distributive_lattice_join
                                           A_distributive_lattice_meet
-; A_distributive_lattice_ast         : cas_ast
+; A_distributive_lattice_ast         : cas_bs_ast
 }.
 
 Record A_selective_presemiring (S : Type) := {
@@ -257,7 +257,7 @@ Record A_selective_presemiring (S : Type) := {
 ; A_selective_presemiring_times_proofs  : sg_proofs S   (A_eqv_eq S A_selective_presemiring_eqv) A_selective_presemiring_times
 ; A_selective_presemiring_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_selective_presemiring_eqv) A_selective_presemiring_plus A_selective_presemiring_times
 ; A_selective_presemiring_proofs        : semiring_proofs S (A_eqv_eq S A_selective_presemiring_eqv) A_selective_presemiring_plus A_selective_presemiring_times
-; A_selective_presemiring_ast           : cas_ast
+; A_selective_presemiring_ast           : cas_bs_ast
 }.
 
 
@@ -270,7 +270,7 @@ Record A_selective_semiring (S : Type) := {
 ; A_selective_semiring_times_proofs  : sg_proofs S   (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_times
 ; A_selective_semiring_id_ann_proofs : pid_is_tann_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus A_selective_semiring_times
 ; A_selective_semiring_proofs        : semiring_proofs S (A_eqv_eq S A_selective_semiring_eqv) A_selective_semiring_plus A_selective_semiring_times
-; A_selective_semiring_ast           : cas_ast
+; A_selective_semiring_ast           : cas_bs_ast
 }.
 
 Record A_selective_pre_dioid (S : Type) := {
@@ -281,7 +281,7 @@ Record A_selective_pre_dioid (S : Type) := {
 ; A_selective_pre_dioid_times_proofs  : sg_proofs S   (A_eqv_eq S A_selective_pre_dioid_eqv) A_selective_pre_dioid_times
 ; A_selective_pre_dioid_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_selective_pre_dioid_eqv) A_selective_pre_dioid_plus A_selective_pre_dioid_times
 ; A_selective_pre_dioid_proofs        : dioid_proofs S (A_eqv_eq S A_selective_pre_dioid_eqv) A_selective_pre_dioid_plus A_selective_pre_dioid_times
-; A_selective_pre_dioid_ast           : cas_ast
+; A_selective_pre_dioid_ast           : cas_bs_ast
 }.
 
 Record A_selective_pre_dioid_with_zero (S : Type) := {
@@ -292,7 +292,7 @@ Record A_selective_pre_dioid_with_zero (S : Type) := {
 ; A_selective_pre_dioid_with_zero_times_proofs  : sg_proofs S   (A_eqv_eq S A_selective_pre_dioid_with_zero_eqv) A_selective_pre_dioid_with_zero_times
 ; A_selective_pre_dioid_with_zero_id_ann_proofs : pid_is_tann_proofs S (A_eqv_eq S A_selective_pre_dioid_with_zero_eqv) A_selective_pre_dioid_with_zero_plus A_selective_pre_dioid_with_zero_times
 ; A_selective_pre_dioid_with_zero_proofs        : dioid_proofs S (A_eqv_eq S A_selective_pre_dioid_with_zero_eqv) A_selective_pre_dioid_with_zero_plus A_selective_pre_dioid_with_zero_times
-; A_selective_pre_dioid_with_zero_ast           : cas_ast
+; A_selective_pre_dioid_with_zero_ast           : cas_bs_ast
 }.
 
 
@@ -304,7 +304,7 @@ Record A_selective_pre_dioid_with_one (S : Type) := {
 ; A_selective_pre_dioid_with_one_times_proofs  : sg_proofs S   (A_eqv_eq S A_selective_pre_dioid_with_one_eqv) A_selective_pre_dioid_with_one_times
 ; A_selective_pre_dioid_with_one_id_ann_proofs : pann_is_tid_proofs S (A_eqv_eq S A_selective_pre_dioid_with_one_eqv) A_selective_pre_dioid_with_one_plus A_selective_pre_dioid_with_one_times
 ; A_selective_pre_dioid_with_one_proofs        : dioid_proofs S (A_eqv_eq S A_selective_pre_dioid_with_one_eqv) A_selective_pre_dioid_with_one_plus A_selective_pre_dioid_with_one_times
-; A_selective_pre_dioid_with_one_ast           : cas_ast
+; A_selective_pre_dioid_with_one_ast           : cas_bs_ast
 }.
 
 
@@ -316,7 +316,7 @@ Record A_selective_dioid (S : Type) := {
 ; A_selective_dioid_times_proofs  : sg_proofs S   (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_times
 ; A_selective_dioid_id_ann_proofs : dually_bounded_proofs S (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_plus A_selective_dioid_times
 ; A_selective_dioid_proofs        : dioid_proofs S (A_eqv_eq S A_selective_dioid_eqv) A_selective_dioid_plus A_selective_dioid_times
-; A_selective_dioid_ast           : cas_ast
+; A_selective_dioid_ast           : cas_bs_ast
 }.
 
 Record A_selective_cancellative_pre_dioid (S : Type) := {
@@ -327,7 +327,7 @@ Record A_selective_cancellative_pre_dioid (S : Type) := {
 ; A_selective_cancellative_pre_dioid_times_proofs  : sg_CK_proofs S   (A_eqv_eq S A_selective_cancellative_pre_dioid_eqv) A_selective_cancellative_pre_dioid_times
 ; A_selective_cancellative_pre_dioid_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_selective_cancellative_pre_dioid_eqv) A_selective_cancellative_pre_dioid_plus A_selective_cancellative_pre_dioid_times
 ; A_selective_cancellative_pre_dioid_proofs        : dioid_proofs S (A_eqv_eq S A_selective_cancellative_pre_dioid_eqv) A_selective_cancellative_pre_dioid_plus A_selective_cancellative_pre_dioid_times
-; A_selective_cancellative_pre_dioid_ast           : cas_ast
+; A_selective_cancellative_pre_dioid_ast           : cas_bs_ast
 }.
 
 Record A_selective_cancellative_pre_dioid_with_zero (S : Type) := {
@@ -338,7 +338,7 @@ Record A_selective_cancellative_pre_dioid_with_zero (S : Type) := {
 ; A_selective_cancellative_pre_dioid_with_zero_times_proofs  : sg_CK_proofs S   (A_eqv_eq S A_selective_cancellative_pre_dioid_with_zero_eqv) A_selective_cancellative_pre_dioid_with_zero_times
 ; A_selective_cancellative_pre_dioid_with_zero_id_ann_proofs : pid_is_tann_proofs S (A_eqv_eq S A_selective_cancellative_pre_dioid_with_zero_eqv) A_selective_cancellative_pre_dioid_with_zero_plus A_selective_cancellative_pre_dioid_with_zero_times
 ; A_selective_cancellative_pre_dioid_with_zero_proofs        : dioid_proofs S (A_eqv_eq S A_selective_cancellative_pre_dioid_with_zero_eqv) A_selective_cancellative_pre_dioid_with_zero_plus A_selective_cancellative_pre_dioid_with_zero_times
-; A_selective_cancellative_pre_dioid_with_zero_ast           : cas_ast
+; A_selective_cancellative_pre_dioid_with_zero_ast           : cas_bs_ast
 }.
 
 Record A_selective_cancellative_pre_dioid_with_one (S : Type) := {
@@ -349,7 +349,7 @@ Record A_selective_cancellative_pre_dioid_with_one (S : Type) := {
 ; A_selective_cancellative_pre_dioid_with_one_times_proofs  : sg_CK_proofs S   (A_eqv_eq S A_selective_cancellative_pre_dioid_with_one_eqv) A_selective_cancellative_pre_dioid_with_one_times
 ; A_selective_cancellative_pre_dioid_with_one_id_ann_proofs : pann_is_tid_proofs S (A_eqv_eq S A_selective_cancellative_pre_dioid_with_one_eqv) A_selective_cancellative_pre_dioid_with_one_plus A_selective_cancellative_pre_dioid_with_one_times
 ; A_selective_cancellative_pre_dioid_with_one_proofs        : dioid_proofs S (A_eqv_eq S A_selective_cancellative_pre_dioid_with_one_eqv) A_selective_cancellative_pre_dioid_with_one_plus A_selective_cancellative_pre_dioid_with_one_times
-; A_selective_cancellative_pre_dioid_with_one_ast           : cas_ast
+; A_selective_cancellative_pre_dioid_with_one_ast           : cas_bs_ast
 }.
 
 Record A_selective_cancellative_dioid (S : Type) := {
@@ -360,7 +360,7 @@ Record A_selective_cancellative_dioid (S : Type) := {
 ; A_selective_cancellative_dioid_times_proofs  : sg_CK_proofs S   (A_eqv_eq S A_selective_cancellative_dioid_eqv) A_selective_cancellative_dioid_times
 ; A_selective_cancellative_dioid_id_ann_proofs : dually_bounded_proofs S (A_eqv_eq S A_selective_cancellative_dioid_eqv) A_selective_cancellative_dioid_plus A_selective_cancellative_dioid_times
 ; A_selective_cancellative_dioid_proofs        : dioid_proofs S (A_eqv_eq S A_selective_cancellative_dioid_eqv) A_selective_cancellative_dioid_plus A_selective_cancellative_dioid_times
-; A_selective_cancellative_dioid_ast           : cas_ast
+; A_selective_cancellative_dioid_ast           : cas_bs_ast
 }.
 
 
@@ -378,7 +378,7 @@ Record A_selective_distributive_prelattice (S : Type) := {
                                           (A_eqv_eq S A_selective_distributive_prelattice_eqv)
                                           A_selective_distributive_prelattice_join
                                           A_selective_distributive_prelattice_meet
-; A_selective_distributive_prelattice_ast         : cas_ast
+; A_selective_distributive_prelattice_ast         : cas_bs_ast
 }.
 
 Record A_selective_distributive_prelattice_with_zero (S : Type) := {
@@ -395,7 +395,7 @@ Record A_selective_distributive_prelattice_with_zero (S : Type) := {
                                           (A_eqv_eq S A_selective_distributive_prelattice_with_zero_eqv)
                                           A_selective_distributive_prelattice_with_zero_join
                                           A_selective_distributive_prelattice_with_zero_meet
-; A_selective_distributive_prelattice_with_zero_ast         : cas_ast
+; A_selective_distributive_prelattice_with_zero_ast         : cas_bs_ast
 }.
 
 
@@ -413,7 +413,7 @@ Record A_selective_distributive_prelattice_with_one (S : Type) := {
                                           (A_eqv_eq S A_selective_distributive_prelattice_with_one_eqv)
                                           A_selective_distributive_prelattice_with_one_join
                                           A_selective_distributive_prelattice_with_one_meet
-; A_selective_distributive_prelattice_with_one_ast         : cas_ast
+; A_selective_distributive_prelattice_with_one_ast         : cas_bs_ast
 }.
 
 
@@ -431,7 +431,7 @@ Record A_selective_distributive_lattice (S : Type) := {
                                           (A_eqv_eq S A_selective_distributive_lattice_eqv)
                                           A_selective_distributive_lattice_join
                                           A_selective_distributive_lattice_meet
-; A_selective_distributive_lattice_ast         : cas_ast
+; A_selective_distributive_lattice_ast         : cas_bs_ast
 }.
 
 
@@ -1357,7 +1357,7 @@ Record bs {S : Type} := {
 ; bs_times_certs   : sg_certificates (S := S)
 ; bs_id_ann_certs  : id_ann_certificates (S := S)
 ; bs_certs         : bs_certificates (S := S)
-; bs_ast           : cas_ast
+; bs_ast           : cas_bs_ast
 }.
 
 
@@ -1369,7 +1369,7 @@ Record bs_CS {S : Type} := {
 ; bs_CS_times_certs  : sg_certificates (S := S)
 ; bs_CS_id_ann_certs : id_ann_certificates (S := S) 
 ; bs_CS_certs        : bs_certificates (S := S)
-; bs_CS_ast          : cas_ast
+; bs_CS_ast          : cas_bs_ast
 }.
 
 Record bs_CI {S : Type} := {
@@ -1380,7 +1380,7 @@ Record bs_CI {S : Type} := {
 ; bs_CI_times_certs  : sg_certificates (S := S)
 ; bs_CI_id_ann_certs : id_ann_certificates (S := S)               
 ; bs_CI_certs        : bs_certificates (S := S)
-; bs_CI_ast          : cas_ast
+; bs_CI_ast          : cas_bs_ast
 }.
 
 Record presemiring {S : Type} := {
@@ -1391,7 +1391,7 @@ Record presemiring {S : Type} := {
 ; presemiring_times_certs  : @sg_certificates S
 ; presemiring_id_ann_certs : @id_ann_certificates S
 ; presemiring_certs        : @semiring_certificates S
-; presemiring_ast          : cas_ast
+; presemiring_ast          : cas_bs_ast
 }.
 
 Record selective_presemiring {S : Type} := {
@@ -1402,7 +1402,7 @@ Record selective_presemiring {S : Type} := {
 ; selective_presemiring_times_certs  : @sg_certificates S
 ; selective_presemiring_id_ann_certs : @id_ann_certificates S
 ; selective_presemiring_certs        : @semiring_certificates S
-; selective_presemiring_ast          : cas_ast
+; selective_presemiring_ast          : cas_bs_ast
 }.
 
 
@@ -1415,7 +1415,7 @@ Record semiring {S : Type} := {
 ; semiring_times_certs  : @sg_certificates S
 ; semiring_id_ann_certs : @pid_is_tann_certificates S
 ; semiring_certs        : @semiring_certificates S
-; semiring_ast          : cas_ast
+; semiring_ast          : cas_bs_ast
 }.
 
 Record selective_semiring {S : Type} := {
@@ -1426,7 +1426,7 @@ Record selective_semiring {S : Type} := {
 ; selective_semiring_times_certs  : @sg_certificates S
 ; selective_semiring_id_ann_certs : @pid_is_tann_certificates S
 ; selective_semiring_certs        : @semiring_certificates S
-; selective_semiring_ast          : cas_ast
+; selective_semiring_ast          : cas_bs_ast
 }.
 
 
@@ -1438,7 +1438,7 @@ Record pre_dioid {S : Type} := {
 ; pre_dioid_times_certs  : @sg_certificates S 
 ; pre_dioid_id_ann_certs : @id_ann_certificates S 
 ; pre_dioid_certs        : @dioid_certificates S 
-; pre_dioid_ast          : cas_ast
+; pre_dioid_ast          : cas_bs_ast
 }.
 
 Record pre_dioid_with_one {S : Type} := {
@@ -1449,7 +1449,7 @@ Record pre_dioid_with_one {S : Type} := {
 ; pre_dioid_with_one_times_certs  : @sg_certificates S 
 ; pre_dioid_with_one_id_ann_certs : @pann_is_tid_certificates S 
 ; pre_dioid_with_one_certs        : @dioid_certificates S 
-; pre_dioid_with_one_ast          : cas_ast
+; pre_dioid_with_one_ast          : cas_bs_ast
 }.
 
 Record pre_dioid_with_zero {S : Type} := {
@@ -1460,7 +1460,7 @@ Record pre_dioid_with_zero {S : Type} := {
 ; pre_dioid_with_zero_times_certs  : @sg_certificates S 
 ; pre_dioid_with_zero_id_ann_certs : @pid_is_tann_certificates S 
 ; pre_dioid_with_zero_certs        : @dioid_certificates S 
-; pre_dioid_with_zero_ast          : cas_ast
+; pre_dioid_with_zero_ast          : cas_bs_ast
 }.
 
 Record dioid (S : Type) := {
@@ -1471,7 +1471,7 @@ Record dioid (S : Type) := {
 ; dioid_times_certs   : @sg_certificates S 
 ; dioid_id_ann_certs  : @dually_bounded_certificates S 
 ; dioid_certs         : @dioid_certificates S 
-; dioid_ast           : cas_ast
+; dioid_ast           : cas_bs_ast
 }.
 
 
@@ -1483,7 +1483,7 @@ Record selective_pre_dioid (S : Type) := {
 ; selective_pre_dioid_times_certs   : @sg_certificates S 
 ; selective_pre_dioid_id_ann_certs  : @id_ann_certificates S 
 ; selective_pre_dioid_certs         : @dioid_certificates S 
-; selective_pre_dioid_ast           : cas_ast
+; selective_pre_dioid_ast           : cas_bs_ast
 }.
 
 Record selective_pre_dioid_with_one (S : Type) := {
@@ -1494,7 +1494,7 @@ Record selective_pre_dioid_with_one (S : Type) := {
 ; selective_pre_dioid_with_one_times_certs   : @sg_certificates S 
 ; selective_pre_dioid_with_one_id_ann_certs  : @pann_is_tid_certificates S 
 ; selective_pre_dioid_with_one_certs         : @dioid_certificates S 
-; selective_pre_dioid_with_one_ast           : cas_ast
+; selective_pre_dioid_with_one_ast           : cas_bs_ast
 }.
 
 Record selective_pre_dioid_with_zero (S : Type) := {
@@ -1505,7 +1505,7 @@ Record selective_pre_dioid_with_zero (S : Type) := {
 ; selective_pre_dioid_with_zero_times_certs   : @sg_certificates S 
 ; selective_pre_dioid_with_zero_id_ann_certs  : @pid_is_tann_certificates S 
 ; selective_pre_dioid_with_zero_certs         : @dioid_certificates S 
-; selective_pre_dioid_with_zero_ast           : cas_ast
+; selective_pre_dioid_with_zero_ast           : cas_bs_ast
 }.
 
 
@@ -1517,7 +1517,7 @@ Record selective_dioid (S : Type) := {
 ; selective_dioid_times_certs   : @sg_certificates S 
 ; selective_dioid_id_ann_certs  : @dually_bounded_certificates S 
 ; selective_dioid_certs         : @dioid_certificates S 
-; selective_dioid_ast           : cas_ast
+; selective_dioid_ast           : cas_bs_ast
 }.
 
 
@@ -1529,7 +1529,7 @@ Record selective_cancellative_pre_dioid (S : Type) := {
 ; selective_cancellative_pre_dioid_times_certs   : @sg_CK_certificates S 
 ; selective_cancellative_pre_dioid_id_ann_certs  : @id_ann_certificates S 
 ; selective_cancellative_pre_dioid_certs         : @dioid_certificates S 
-; selective_cancellative_pre_dioid_ast           : cas_ast
+; selective_cancellative_pre_dioid_ast           : cas_bs_ast
 }.
 
 Record selective_cancellative_pre_dioid_with_one (S : Type) := {
@@ -1540,7 +1540,7 @@ Record selective_cancellative_pre_dioid_with_one (S : Type) := {
 ; selective_cancellative_pre_dioid_with_one_times_certs   : @sg_CK_certificates S 
 ; selective_cancellative_pre_dioid_with_one_id_ann_certs  : @pann_is_tid_certificates S 
 ; selective_cancellative_pre_dioid_with_one_certs         : @dioid_certificates S 
-; selective_cancellative_pre_dioid_with_one_ast           : cas_ast
+; selective_cancellative_pre_dioid_with_one_ast           : cas_bs_ast
 }.
 
 Record selective_cancellative_pre_dioid_with_zero (S : Type) := {
@@ -1551,7 +1551,7 @@ Record selective_cancellative_pre_dioid_with_zero (S : Type) := {
 ; selective_cancellative_pre_dioid_with_zero_times_certs   : @sg_CK_certificates S 
 ; selective_cancellative_pre_dioid_with_zero_id_ann_certs  : @pid_is_tann_certificates S 
 ; selective_cancellative_pre_dioid_with_zero_certs         : @dioid_certificates S 
-; selective_cancellative_pre_dioid_with_zero_ast           : cas_ast
+; selective_cancellative_pre_dioid_with_zero_ast           : cas_bs_ast
 }.
 
 
@@ -1563,7 +1563,7 @@ Record selective_cancellative_dioid (S : Type) := {
 ; selective_cancellative_dioid_times_certs   : @sg_CK_certificates S 
 ; selective_cancellative_dioid_id_ann_certs  : @dually_bounded_certificates S 
 ; selective_cancellative_dioid_certs         : @dioid_certificates S 
-; selective_cancellative_dioid_ast           : cas_ast
+; selective_cancellative_dioid_ast           : cas_bs_ast
 }.
 
 
@@ -1576,7 +1576,7 @@ Record prelattice {S : Type} := {
 ; prelattice_meet_certs   : @sg_CI_certificates S 
 ; prelattice_id_ann_certs : @id_ann_certificates S 
 ; prelattice_certs        : @lattice_certificates S 
-; prelattice_ast           : cas_ast
+; prelattice_ast           : cas_bs_ast
 }.
 
 Record distributive_prelattice {S : Type} := {
@@ -1587,7 +1587,7 @@ Record distributive_prelattice {S : Type} := {
 ; distributive_prelattice_meet_certs    : @sg_CI_certificates S 
 ; distributive_prelattice_id_ann_certs  : @id_ann_certificates S
 ; distributive_prelattice_certs         : @distributive_lattice_certificates S
-; distributive_prelattice_ast           : cas_ast
+; distributive_prelattice_ast           : cas_bs_ast
 }.
 
 Record selective_distributive_prelattice {S : Type} := {
@@ -1598,7 +1598,7 @@ Record selective_distributive_prelattice {S : Type} := {
 ; selective_distributive_prelattice_meet_certs   : @sg_CS_certificates S 
 ; selective_distributive_prelattice_id_ann_certs : @id_ann_certificates S
 ; selective_distributive_prelattice_certs        : @distributive_lattice_certificates S
-; selective_distributive_prelattice_ast          : cas_ast
+; selective_distributive_prelattice_ast          : cas_bs_ast
 }.
 
 Record selective_distributive_prelattice_with_zero {S : Type} := {
@@ -1609,7 +1609,7 @@ Record selective_distributive_prelattice_with_zero {S : Type} := {
 ; selective_distributive_prelattice_with_zero_meet_certs   : @sg_CS_certificates S 
 ; selective_distributive_prelattice_with_zero_id_ann_certs : @pid_is_tann_certificates S
 ; selective_distributive_prelattice_with_zero_certs        : @distributive_lattice_certificates S
-; selective_distributive_prelattice_with_zero_ast          : cas_ast
+; selective_distributive_prelattice_with_zero_ast          : cas_bs_ast
 }.
 
 Record selective_distributive_prelattice_with_one {S : Type} := {
@@ -1620,7 +1620,7 @@ Record selective_distributive_prelattice_with_one {S : Type} := {
 ; selective_distributive_prelattice_with_one_meet_certs   : @sg_CS_certificates S 
 ; selective_distributive_prelattice_with_one_id_ann_certs : @pann_is_tid_certificates S
 ; selective_distributive_prelattice_with_one_certs        : @distributive_lattice_certificates S
-; selective_distributive_prelattice_with_one_ast          : cas_ast
+; selective_distributive_prelattice_with_one_ast          : cas_bs_ast
 }.
 
 Record selective_distributive_lattice {S : Type} := {
@@ -1631,7 +1631,7 @@ Record selective_distributive_lattice {S : Type} := {
 ; selective_distributive_lattice_meet_certs : @sg_CS_certificates S
 ; selective_distributive_lattice_id_ann_certs : @dually_bounded_certificates S                                                                  
 ; selective_distributive_lattice_certs      : @distributive_lattice_certificates S
-; selective_distributive_lattice_ast        : cas_ast
+; selective_distributive_lattice_ast        : cas_bs_ast
 }.
 
 
@@ -1643,7 +1643,7 @@ Record lattice {S : Type} := {
 ; lattice_meet_certs   : @sg_CI_certificates S
 ; lattice_id_ann_certs : @dually_bounded_certificates S
 ; lattice_certs        : @lattice_certificates S
-; lattice_ast          : cas_ast
+; lattice_ast          : cas_bs_ast
 }.
 
 
@@ -1655,7 +1655,7 @@ Record distributive_lattice {S : Type} := {
 ; distributive_lattice_meet_certs   : @sg_CI_certificates S
 ; distributive_lattice_id_ann_certs : @dually_bounded_certificates S
 ; distributive_lattice_certs        : @distributive_lattice_certificates S
-; distributive_lattice_ast          : cas_ast
+; distributive_lattice_ast          : cas_bs_ast
 }.
   
 End CAS. 

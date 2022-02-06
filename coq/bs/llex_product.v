@@ -2172,7 +2172,7 @@ match P with
 ; A_bs_times_proofs  := sg_proofs_product S T eqS eqT timesS timesT wS f wT g ntS ntT eqvPS eqvPT timesPS timesPT 
 ; A_bs_id_ann_proofs := id_ann_proofs_llex_product S T wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT id_annS id_annT 
 ; A_bs_proofs        := bs_proofs_llex_product_INTERNAL S T wS wT wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT plusPS plusPT timesPS timesPT pS pT idemS commT (inl sel) 
-; A_bs_ast           := Ast_bs_llex (A_bs_ast S A, A_bs_ast T B)
+; A_bs_ast           := Ast_bs_llex_product (A_bs_ast S A, A_bs_ast T B)
 |}
 | inr (idP, annP) =>
 {|
@@ -2183,7 +2183,7 @@ match P with
 ; A_bs_times_proofs  := sg_proofs_product S T eqS eqT timesS timesT wS f wT g ntS ntT eqvPS eqvPT timesPS timesPT 
 ; A_bs_id_ann_proofs := id_ann_proofs_llex_product S T argT eqS eqT plusS timesS plusT timesT eqvPS eqvPT id_annS id_annT 
 ; A_bs_proofs        := bs_proofs_llex_product_INTERNAL S T wS wT argT eqS eqT plusS timesS plusT timesT eqvPS eqvPT plusPS plusPT timesPS timesPT pS pT idemS commT (inr(idP, annP))
-; A_bs_ast           := Ast_bs_llex (A_bs_ast S A, A_bs_ast T B)
+; A_bs_ast           := Ast_bs_llex_product (A_bs_ast S A, A_bs_ast T B)
 |}
 end.    
 
@@ -2223,7 +2223,7 @@ let ntT    := A_eqv_not_trivial _ eqvT in
 ; A_bs_CI_times_proofs  := sg_proofs_product S T eqS eqT timesS timesT wS f wT g ntS ntT eqvPS eqvPT timesPS timesPT 
 ; A_bs_CI_id_ann_proofs := id_ann_proofs_llex_product S T wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT id_annS id_annT 
 ; A_bs_CI_proofs        := bs_proofs_llex_product_selective_case S T wS wT wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT plusPS plusPT timesPS timesPT pS pT 
-; A_bs_CI_ast           := Ast_bs_llex (A_bs_CS_ast S A, A_bs_CI_ast T B)
+; A_bs_CI_ast           := Ast_bs_llex_product (A_bs_CS_ast S A, A_bs_CI_ast T B)
 |}.
 
 
@@ -2261,7 +2261,7 @@ let ntT    := A_eqv_not_trivial _ eqvT in
 ; A_bs_CS_times_proofs  := sg_proofs_product S T eqS eqT timesS timesT wS f wT g ntS ntT eqvPS eqvPT timesPS timesPT 
 ; A_bs_CS_id_ann_proofs := id_ann_proofs_llex_product S T wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT id_annS id_annT 
 ; A_bs_CS_proofs        := bs_proofs_llex_product_v3 S T wS wT wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT plusPS plusPT timesPS timesPT pS pT 
-; A_bs_CS_ast           := Ast_bs_llex (A_bs_CS_ast S A, A_bs_CS_ast T B)
+; A_bs_CS_ast           := Ast_bs_llex_product (A_bs_CS_ast S A, A_bs_CS_ast T B)
 |}.
 
 
@@ -2904,7 +2904,7 @@ match P with
 ; bs_times_certs  := sg_certs_product wS wT timesPS timesPT 
 ; bs_id_ann_certs := id_ann_certs_llex_product S T id_annS id_annT 
 ; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT wT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT (inl Assert_Selective)
-; bs_ast           := Ast_bs_llex (bs_ast A, bs_ast B)
+; bs_ast           := Ast_bs_llex_product (bs_ast A, bs_ast B)
 |}
 | inr (idP, annP) =>
 {|
@@ -2915,7 +2915,7 @@ match P with
 ; bs_times_certs  := sg_certs_product wS wT timesPS timesPT 
 ; bs_id_ann_certs := id_ann_certs_llex_product S T id_annS id_annT 
 ; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT argT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT (inr (idP, annP))
-; bs_ast           := Ast_bs_llex (bs_ast A, bs_ast B)
+; bs_ast           := Ast_bs_llex_product (bs_ast A, bs_ast B)
 |}  
 end.
 

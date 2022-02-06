@@ -34,7 +34,7 @@ Record A_eqv (S : Type) := {
 ; A_eqv_rep_correct    : brel_rep_correct S eq rep
 ; A_eqv_rep_idempotent : brel_rep_idempotent S eq rep  
 *) 
-; A_eqv_ast         : cas_ast
+; A_eqv_ast         : cas_eqv_ast
 }.
 
 End ACAS.
@@ -62,7 +62,7 @@ Record eqv {S : Type} := {
                                          
 ; eqv_data          : S -> data 
 ; eqv_rep           : S -> S    
-; eqv_ast           : cas_ast
+; eqv_ast           : cas_eqv_ast
 }.  
 
 End CAS.

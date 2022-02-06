@@ -152,7 +152,7 @@ Definition A_bs_right (S : Type) (sg : A_sg S) : A_bs S :=
 ; A_bs_times_proofs  := sg_proofs_right _ (A_sg_eqv _ sg)
 ; A_bs_id_ann_proofs := bs_right_id_ann_proofs sg 
 ; A_bs_proofs        := bs_right_proofs sg 
-; A_bs_ast           := Ast_sg_right (A_sg_ast _ sg) (* Fix someday *) 
+; A_bs_ast           := Ast_bs_right (A_sg_ast _ sg) 
 |}.
 
 
@@ -231,7 +231,7 @@ let eqv  := sg_eqv sg in
 ; bs_times_certs  := sg_certs_right eqv
 ; bs_id_ann_certs := bs_right_id_ann_certs sg 
 ; bs_certs        := bs_right_certs S sg 
-; bs_ast          := Ast_sg_right (sg_ast sg) (* Fix someday *) 
+; bs_ast          := Ast_bs_right (sg_ast sg)
 |}.
 
 End CAS.
