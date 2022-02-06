@@ -10,7 +10,7 @@ val liftM : ('a -> 'b -> 'c) -> 'a option -> 'b option -> 'c option
 
 val liftN : ('a -> 'b -> 'c option) -> 'a option -> 'b option -> 'c option 
 
-(* combinators *)
+(* combinators 
 
 val make_constant : string -> string -> Cas.cas_constant
 val infinity      : Cas.cas_constant
@@ -101,3 +101,4 @@ val (<!**>)  : ('a Cas.bs) option -> ('b Cas.bs) option -> (('a * 'b) Cas.bs) op
 val (<**>)   : ('a Cas.bs) option -> ('b Cas.bs) option -> (('a * 'b) Cas.bs) option
 val (<!++>)  : ('a Cas.bs) option -> ('b Cas.bs) option -> ((('a , 'b) Cas.sum) Cas.bs) option
 
+*)

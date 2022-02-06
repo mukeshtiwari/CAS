@@ -5,6 +5,7 @@ COQDOC=coqdoc $(COQINCLUDES)
 COQDEP=coqdep -c
 COQEXEC=coqtop $(COQINCLUDES) -batch -load-vernac-source
 OCAMLBUILD=ocamlbuild
+OCAMLMKTOP=/usr/bin/ocamlmktop
 CAMLINCLUDES= -I extraction -I ocaml
 OCB_OPTIONS=\
   -j 2 \
@@ -165,7 +166,7 @@ casml: extraction/STAMP ocaml/Mcas.ml ocaml/Describe.ml
 	mk_casml.sh
 	chmod +x casml
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
-	cd _build/extraction && ocamlmktop -o casml $(CMOFILES)
+	cd _build/extraction && $(OCAMLMKTOP) -o casml $(CMOFILES)
 
 html: $(FILES:.v=.glob)
 	$(COQDOC) --html --toc --utf8 --charset utf8 --interpolate -d doc/html $(FILES)

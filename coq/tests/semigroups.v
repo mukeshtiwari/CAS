@@ -141,4 +141,5 @@ Check mcas_sg_minset_union_from_po.
 Print mcas_sg_minset_union_from_po. 
 Check eqv_minset_from_po.
 Check eqv_minset_from_qo. 
-Check minset_lift. 
+
+(* Check minset_lift. *) 

@@ -4,16 +4,15 @@ Require Import CAS.coq.eqv.nat.
 Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.eqv.sum.
 Require Import CAS.coq.eqv.add_constant.
-(*
-Require Import CAS.coq.eqv.nat_ceiling.
-Require Import CAS.coq.eqv.minset.
 Require Import CAS.coq.eqv.bool.
 Require Import CAS.coq.eqv.list.
 Require Import CAS.coq.eqv.set.
-*) 
+(*
+Require Import CAS.coq.eqv.nat_ceiling.
+Require Import CAS.coq.eqv.minset.
+
 
 Require Import CAS.coq.sg.cast_up.
-Require Import CAS.coq.sg.cast_down.
 Require Import CAS.coq.sg.plus.
 Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.max.
@@ -21,6 +20,7 @@ Require Import CAS.coq.sg.product.
 Require Import CAS.coq.sg.llex.
 Require Import CAS.coq.sg.add_id.
 Require Import CAS.coq.sg.add_ann.
+ *)
 
 (*
 Require Import CAS.coq.sg.times.
@@ -52,12 +52,14 @@ Require Import CAS.coq.po.product.
 Require Import CAS.coq.po.llex.
 Require Import CAS.coq.po.left_sum. 
 Require Import CAS.coq.po.right_sum. 
+
+Require Import CAS.coq.bs.cast_up.
+
 *) 
 
 
 
-Require Import CAS.coq.bs.cast_up.
-Require Import CAS.coq.bs.cast_down.
+
 Require Import CAS.coq.bs.max_min.
 Require Import CAS.coq.bs.min_plus.
 Require Import CAS.coq.bs.product.
@@ -180,12 +182,12 @@ Extraction "Cas.ml"
    eqv_product
    eqv_add_constant
 
-   selective_cancellative_pre_dioid_with_one_min_plus
-   selective_distributive_prelattice_with_zero_max_min   
-   llex_product_from_CS_CI
-   llex_product_from_CS_CS   
-   bs_add_zero
-   bs_add_one
+   mcas_min_plus
+   mcas_max_min   
+   mcas_bs_product
+   mcas_bs_llex_product   
+   mcas_bs_add_zero
+   mcas_bs_add_one. 
 
    
 (*******************
@@ -324,5 +326,5 @@ Extraction "Cas.ml"
    distributive_lattice_dual
    selective_distributive_lattice_dual
 *******************)
-   .
+
 

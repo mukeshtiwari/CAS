@@ -5,6 +5,7 @@ let char_list_to_string cl = String.concat "" (List.map (String.make 1) cl)
 
 type string_type = Ascii | Latex
 
+(*			     
 let rec data_to_string st = function 
 | DATA_nat n         -> string_of_int n 
 | DATA_bool b        -> string_of_bool b 
@@ -521,3 +522,4 @@ let bs_describe_fully bs =
 
 					     
 
+ *)

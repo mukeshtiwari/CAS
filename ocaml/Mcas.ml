@@ -21,6 +21,7 @@ let liftN f m n =
     mbind m (fun a -> 
     mbind n (fun b -> f a b))
 
+(*	  
 let make_constant s1 s2 = Cas.make_constant (explode s1) (explode s2)
 let infinity      = make_constant "INFINITY" "\\infty" 
 let self          = make_constant "SELF" "\\self" 
@@ -166,3 +167,4 @@ let (<+!>) m n = sg_right_sum m n
 let (<**>) m n = bs_product m n  
 let (<!**>) m n = bs_llex_product m n      
 let (<!++>) m n = bs_left_sum m n      
+ *)

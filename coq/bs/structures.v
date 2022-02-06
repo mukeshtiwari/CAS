@@ -566,6 +566,18 @@ Definition A_bs_classify_selective_distributive_prelattice_with_zero (S : Type) 
 Definition A_bs_classify_selective_distributive_prelattice (S : Type) (B : A_selective_distributive_prelattice S) : A_bs_mcas S :=
   A_BS_selective_distributive_prelattice _ B. 
 
+Definition A_bs_classify_distributive_lattice (S : Type) (B : A_distributive_lattice S) : A_bs_mcas S :=
+  A_BS_distributive_lattice _ B. 
+
+Definition A_bs_classify_lattice  (S : Type) (B : A_lattice  S) : A_bs_mcas S :=
+  A_BS_lattice  _ B. 
+
+Definition A_bs_classify_distributive_prelattice (S : Type) (B : A_distributive_prelattice S) : A_bs_mcas S :=
+  A_BS_distributive_prelattice _ B. 
+
+Definition A_bs_classify_prelattice (S : Type) (B : A_prelattice S) : A_bs_mcas S :=
+  A_BS_prelattice _ B. 
+
 Definition A_bs_classify_selective_cancellative_dioid (S : Type) (B : A_selective_cancellative_dioid S) : A_bs_mcas S :=
   A_BS_selective_cancellative_dioid _ B. 
 
@@ -587,6 +599,12 @@ Definition A_bs_classify_selective_pre_dioid_with_one (S : Type) (B : A_selectiv
 Definition A_bs_classify_selective_pre_dioid_with_zero (S : Type) (B : A_selective_pre_dioid_with_zero S) : A_bs_mcas S :=
   A_BS_selective_pre_dioid_with_zero _ B. 
 
+(*
+  selective_pre_dioid 
+  => selective_dioid 
+  => selective_pre_dioid_with_one
+  => selective_pre_dioid_with_zero 
+*) 
 Definition A_bs_classify_selective_pre_dioid (S : Type) (B : A_selective_pre_dioid S) : A_bs_mcas S :=
 
 let eqv     := A_selective_pre_dioid_eqv _ B in
@@ -647,84 +665,68 @@ with
    |}   
 | _, _ => A_BS_selective_pre_dioid _ B
 end. 
-  
 
-Definition A_bs_classify_selective_semiring (S : Type) (B : A_selective_semiring S) : A_bs_mcas S :=
-  A_BS_selective_semiring _ B. 
-
-
-Definition A_bs_classify_selective_presemiring (S : Type) (B : A_selective_presemiring S) : A_bs_mcas S :=
-let eqv     := A_selective_presemiring_eqv _ B in
-let plus    := A_selective_presemiring_plus _ B in
-let times   := A_selective_presemiring_times _ B in    
-let plusP   := A_selective_presemiring_plus_proofs _ B in
-let timesP  := A_selective_presemiring_times_proofs _ B in
-let id_annP := A_selective_presemiring_id_ann_proofs _ B in
-let bsP     := A_selective_presemiring_proofs _ B in
-let ast     := A_selective_presemiring_ast _ B in
-match A_semiring_left_left_absorptive_d _ _ _ _ bsP,
-      A_semiring_left_right_absorptive_d _ _ _ _ bsP
-with
-| inl lla, inl lra => A_bs_classify_selective_pre_dioid _
-       {|                                                         
-           A_selective_pre_dioid_eqv           := eqv
-         ; A_selective_pre_dioid_plus          := plus
-         ; A_selective_pre_dioid_times         := times
-         ; A_selective_pre_dioid_plus_proofs   := plusP
-         ; A_selective_pre_dioid_times_proofs  := timesP
-         ; A_selective_pre_dioid_id_ann_proofs := id_annP
-         ; A_selective_pre_dioid_proofs        :=
-                {|
-                    A_dioid_left_distributive     := A_semiring_left_distributive _ _ _ _ bsP
-                  ; A_dioid_right_distributive    := A_semiring_right_distributive _ _ _ _ bsP
-                  ; A_dioid_left_left_absorptive  := lla
-                  ; A_dioid_left_right_absorptive := lra              
-                 |} 
-         ; A_selective_pre_dioid_ast           := ast 
-       |}         
-| _, _ =>
-  match A_id_ann_plus_times_d _ _ _ _ id_annP with
-  | Id_Ann_Proof_Equal _ _ _ _ P => A_bs_classify_selective_semiring _
-          {| 
-              A_selective_semiring_eqv           := eqv
-            ; A_selective_semiring_plus          := plus
-            ; A_selective_semiring_times         := times
-            ; A_selective_semiring_plus_proofs   := plusP
-            ; A_selective_semiring_times_proofs  := timesP
-            ; A_selective_semiring_id_ann_proofs :=
-               {|
-                   A_pid_is_tann_plus_times   := P 
-                 ; A_pid_is_tann_times_plus_d := A_id_ann_times_plus_d  _ _ _ _ id_annP 
-              |}
-            ; A_selective_semiring_proofs        := bsP 
-            ; A_selective_semiring_ast           := ast 
-           |}                               
-  | _ => A_BS_selective_presemiring _ B
-  end
-end. 
-
-Definition A_bs_classify_distributive_lattice (S : Type) (B : A_distributive_lattice S) : A_bs_mcas S :=
-  A_BS_distributive_lattice _ B. 
-
-Definition A_bs_classify_lattice  (S : Type) (B : A_lattice  S) : A_bs_mcas S :=
-  A_BS_lattice  _ B. 
-
-Definition A_bs_classify_distributive_prelattice (S : Type) (B : A_distributive_prelattice S) : A_bs_mcas S :=
-  A_BS_distributive_prelattice _ B. 
-
-Definition A_bs_classify_prelattice (S : Type) (B : A_prelattice S) : A_bs_mcas S :=
-  A_BS_prelattice _ B. 
-
+(* do we want a cancellative dioid? *) 
 Definition A_bs_classify_dioid (S : Type) (B : A_dioid S) : A_bs_mcas S :=
   A_BS_dioid _ B. 
 
+(*
+  pre_dioid_with_zero
+  => dioid
+*) 
 Definition A_bs_classify_pre_dioid_with_zero (S : Type) (B : A_pre_dioid_with_zero S) : A_bs_mcas S :=
-  A_BS_pre_dioid_with_zero _ B. 
+let id_annP := A_pre_dioid_with_zero_id_ann_proofs _ B in
+match A_pid_is_tann_times_plus_d _ _ _ _ id_annP with
+|  Id_Ann_Proof_Equal _ _ _ _ P2 => A_bs_classify_dioid _ 
+   {|                                                               
+      A_dioid_eqv           := A_pre_dioid_with_zero_eqv _ B
+    ; A_dioid_plus          := A_pre_dioid_with_zero_plus _ B
+    ; A_dioid_times         := A_pre_dioid_with_zero_times _ B 
+    ; A_dioid_plus_proofs   := A_pre_dioid_with_zero_plus_proofs _ B 
+    ; A_dioid_times_proofs  := A_pre_dioid_with_zero_times_proofs _ B 
+    ; A_dioid_id_ann_proofs :=
+        {|
+           A_bounded_plus_id_is_times_ann := A_pid_is_tann_plus_times  _ _ _ _ id_annP
+         ; A_bounded_times_id_is_plus_ann := P2
+        |}
+    ; A_dioid_proofs        := A_pre_dioid_with_zero_proofs _ B 
+    ; A_dioid_ast           := A_pre_dioid_with_zero_ast _ B 
+   |}   
+| _ => A_BS_pre_dioid_with_zero _ B
+end. 
 
+(*
+  pre_dioid_with_one 
+  => dioid
+*) 
 Definition A_bs_classify_pre_dioid_with_one (S : Type) (B : A_pre_dioid_with_one S) : A_bs_mcas S :=
-  A_BS_pre_dioid_with_one _ B. 
+let id_annP := A_pre_dioid_with_one_id_ann_proofs _ B in
+match A_pann_is_tid_plus_times_d _ _ _ _ id_annP with
+|  Id_Ann_Proof_Equal _ _ _ _ P1 => A_bs_classify_dioid _ 
+   {|                                                               
+      A_dioid_eqv           := A_pre_dioid_with_one_eqv _ B
+    ; A_dioid_plus          := A_pre_dioid_with_one_plus _ B
+    ; A_dioid_times         := A_pre_dioid_with_one_times _ B 
+    ; A_dioid_plus_proofs   := A_pre_dioid_with_one_plus_proofs _ B 
+    ; A_dioid_times_proofs  := A_pre_dioid_with_one_times_proofs _ B 
+    ; A_dioid_id_ann_proofs :=
+        {|
+           A_bounded_plus_id_is_times_ann := P1 
+         ; A_bounded_times_id_is_plus_ann := A_pann_is_tid_times_plus _ _ _ _ id_annP
+        |}
+    ; A_dioid_proofs        := A_pre_dioid_with_one_proofs _ B 
+    ; A_dioid_ast           := A_pre_dioid_with_one_ast _ B 
+   |}   
+| _ => A_BS_pre_dioid_with_one _ B
+end. 
 
+(* 
+   pre_dioid
+   => dioid
+   => pre_dioid_with_zero
+   => pre_dioid_with_one
 
+*) 
 Definition A_bs_classify_pre_dioid (S : Type) (B : A_pre_dioid S) : A_bs_mcas S :=
 let eqv     := A_pre_dioid_eqv _ B in
 let plus    := A_pre_dioid_plus _ B in
@@ -785,13 +787,204 @@ with
 | _, _ => A_BS_pre_dioid _ B
 end. 
   
-  
+
+(*
+    selective_semiring
+     => selective_pre_dioid_with_zero
+ *)
+Definition A_bs_classify_selective_semiring (S : Type) (B : A_selective_semiring S) : A_bs_mcas S :=
+let P := A_selective_semiring_proofs _ B in
+match A_semiring_left_left_absorptive_d _ _ _ _ P,
+      A_semiring_left_right_absorptive_d _ _ _ _ P
+with
+|  inl lla, inl lra => A_bs_classify_selective_pre_dioid_with_zero _ 
+   {|                                                               
+      A_selective_pre_dioid_with_zero_eqv           := A_selective_semiring_eqv _ B
+    ; A_selective_pre_dioid_with_zero_plus          := A_selective_semiring_plus _ B
+    ; A_selective_pre_dioid_with_zero_times         := A_selective_semiring_times _ B 
+    ; A_selective_pre_dioid_with_zero_plus_proofs   := A_selective_semiring_plus_proofs _ B 
+    ; A_selective_pre_dioid_with_zero_times_proofs  := A_selective_semiring_times_proofs _ B 
+    ; A_selective_pre_dioid_with_zero_id_ann_proofs := A_selective_semiring_id_ann_proofs _ B
+    ; A_selective_pre_dioid_with_zero_proofs        :=
+                {|
+                    A_dioid_left_distributive     := A_semiring_left_distributive _ _ _ _ P
+                  ; A_dioid_right_distributive    := A_semiring_right_distributive _ _ _ _ P
+                  ; A_dioid_left_left_absorptive  := lla
+                  ; A_dioid_left_right_absorptive := lra              
+                 |} 
+    ; A_selective_pre_dioid_with_zero_ast           := A_selective_semiring_ast _ B 
+   |}   
+| _, _ => A_BS_selective_semiring _ B
+end. 
+
+
+(*
+   selective_presemiring
+   => selective_semiring
+   => selective_pre_dioid
+*) 
+Definition A_bs_classify_selective_presemiring (S : Type) (B : A_selective_presemiring S) : A_bs_mcas S :=
+let eqv     := A_selective_presemiring_eqv _ B in
+let plus    := A_selective_presemiring_plus _ B in
+let times   := A_selective_presemiring_times _ B in    
+let plusP   := A_selective_presemiring_plus_proofs _ B in
+let timesP  := A_selective_presemiring_times_proofs _ B in
+let id_annP := A_selective_presemiring_id_ann_proofs _ B in
+let bsP     := A_selective_presemiring_proofs _ B in
+let ast     := A_selective_presemiring_ast _ B in
+match A_semiring_left_left_absorptive_d _ _ _ _ bsP,
+      A_semiring_left_right_absorptive_d _ _ _ _ bsP
+with
+| inl lla, inl lra => A_bs_classify_selective_pre_dioid _
+       {|                                                         
+           A_selective_pre_dioid_eqv           := eqv
+         ; A_selective_pre_dioid_plus          := plus
+         ; A_selective_pre_dioid_times         := times
+         ; A_selective_pre_dioid_plus_proofs   := plusP
+         ; A_selective_pre_dioid_times_proofs  := timesP
+         ; A_selective_pre_dioid_id_ann_proofs := id_annP
+         ; A_selective_pre_dioid_proofs        :=
+                {|
+                    A_dioid_left_distributive     := A_semiring_left_distributive _ _ _ _ bsP
+                  ; A_dioid_right_distributive    := A_semiring_right_distributive _ _ _ _ bsP
+                  ; A_dioid_left_left_absorptive  := lla
+                  ; A_dioid_left_right_absorptive := lra              
+                 |} 
+         ; A_selective_pre_dioid_ast           := ast 
+       |}         
+| _, _ =>
+  match A_id_ann_plus_times_d _ _ _ _ id_annP with
+  | Id_Ann_Proof_Equal _ _ _ _ P => A_bs_classify_selective_semiring _
+          {| 
+              A_selective_semiring_eqv           := eqv
+            ; A_selective_semiring_plus          := plus
+            ; A_selective_semiring_times         := times
+            ; A_selective_semiring_plus_proofs   := plusP
+            ; A_selective_semiring_times_proofs  := timesP
+            ; A_selective_semiring_id_ann_proofs :=
+               {|
+                   A_pid_is_tann_plus_times   := P 
+                 ; A_pid_is_tann_times_plus_d := A_id_ann_times_plus_d  _ _ _ _ id_annP 
+              |}
+            ; A_selective_semiring_proofs        := bsP 
+            ; A_selective_semiring_ast           := ast 
+           |}                               
+  | _ => A_BS_selective_presemiring _ B
+  end
+end. 
+
+
+(* 
+   semiring
+   => selective_semiring 
+   => pre_dioid_with_zero 
+ *)
 Definition A_bs_classify_semiring (S : Type) (B : A_semiring S) : A_bs_mcas S :=
-  A_BS_semiring _ B. 
+let plusP   := A_semiring_plus_proofs _ B in
+let srP     := A_semiring_proofs _ B in  
+match A_sg_C_selective_d _ _ _ plusP with
+| inl selS => A_bs_classify_selective_semiring _
+          {|
+              A_selective_semiring_eqv           := A_semiring_eqv _ B 
+            ; A_selective_semiring_plus          := A_semiring_plus _ B 
+            ; A_selective_semiring_times         := A_semiring_times _ B 
+            ; A_selective_semiring_plus_proofs   :=
+                {|
+                    A_sg_CS_associative := A_sg_C_associative _ _ _ plusP
+                  ; A_sg_CS_congruence  := A_sg_C_congruence _ _ _ plusP
+                  ; A_sg_CS_commutative := A_sg_C_commutative _ _ _ plusP
+                  ; A_sg_CS_selective   := selS 
+                |}
+            ; A_selective_semiring_times_proofs  := A_semiring_times_proofs _ B
+            ; A_selective_semiring_id_ann_proofs := A_semiring_id_ann_proofs _ B 
+            ; A_selective_semiring_proofs        := A_semiring_proofs _ B 
+            ; A_selective_semiring_ast           := A_semiring_ast _ B 
+          |}                          
+| inr nselS =>
+  match A_sg_C_idempotent_d _ _ _ plusP,
+        A_semiring_left_left_absorptive_d _ _ _ _ srP,
+        A_semiring_left_right_absorptive_d _ _ _ _ srP
+  with
+  | inl idemS, inl lla, inl lra => A_bs_classify_pre_dioid_with_zero _
+          {|
+              A_pre_dioid_with_zero_eqv           := A_semiring_eqv _ B 
+            ; A_pre_dioid_with_zero_plus          := A_semiring_plus _ B 
+            ; A_pre_dioid_with_zero_times         := A_semiring_times _ B 
+            ; A_pre_dioid_with_zero_plus_proofs   :=
+                {|
+                    A_sg_CI_associative   := A_sg_C_associative _ _ _ plusP
+                  ; A_sg_CI_congruence    := A_sg_C_congruence _ _ _ plusP
+                  ; A_sg_CI_commutative   := A_sg_C_commutative _ _ _ plusP
+                  ; A_sg_CI_idempotent    := idemS 
+                  ; A_sg_CI_not_selective := nselS 
+                |}
+            ; A_pre_dioid_with_zero_times_proofs  := A_semiring_times_proofs _ B
+            ; A_pre_dioid_with_zero_id_ann_proofs := A_semiring_id_ann_proofs _ B
+            ; A_pre_dioid_with_zero_proofs        :=
+                {|
+                    A_dioid_left_distributive     := A_semiring_left_distributive _ _ _ _ srP
+                  ; A_dioid_right_distributive    := A_semiring_right_distributive _ _ _ _ srP
+                  ; A_dioid_left_left_absorptive  := lla 
+                  ; A_dioid_left_right_absorptive := lra                   
+                 |}
+            ; A_pre_dioid_with_zero_ast           := A_semiring_ast _ B 
+          |}      
+  | _, _, _  => A_BS_semiring _ B    
+  end 
+end. 
 
+(* 
+   presemiring
+   => selective_presemiring 
+   => semiring 
+                   FIX =====> PRE DIOID!!! 
+ *)
 Definition A_bs_classify_presemiring (S : Type) (B : A_presemiring S) : A_bs_mcas S :=
-  A_BS_presemiring _ B. 
+let plusP   := A_presemiring_plus_proofs _ B in
+match A_sg_C_selective_d _ _ _ plusP with
+| inl selS => A_bs_classify_selective_presemiring _
+          {|
+              A_selective_presemiring_eqv           := A_presemiring_eqv _ B 
+            ; A_selective_presemiring_plus          := A_presemiring_plus _ B 
+            ; A_selective_presemiring_times         := A_presemiring_times _ B 
+            ; A_selective_presemiring_plus_proofs   :=
+                {|
+                    A_sg_CS_associative := A_sg_C_associative _ _ _ plusP
+                  ; A_sg_CS_congruence  := A_sg_C_congruence _ _ _ plusP
+                  ; A_sg_CS_commutative := A_sg_C_commutative _ _ _ plusP
+                  ; A_sg_CS_selective   := selS 
+                |}
+            ; A_selective_presemiring_times_proofs  := A_presemiring_times_proofs _ B
+            ; A_selective_presemiring_id_ann_proofs := A_presemiring_id_ann_proofs _ B 
+            ; A_selective_presemiring_proofs        := A_presemiring_proofs _ B 
+            ; A_selective_presemiring_ast           := A_presemiring_ast _ B 
+          |}                          
+| inr nselS =>
+  match A_id_ann_plus_times_d _ _ _ _ (A_presemiring_id_ann_proofs _ B) with
+  | Id_Ann_Proof_Equal _ _ _ _ P => A_bs_classify_semiring _
+          {|
+              A_semiring_eqv           := A_presemiring_eqv _ B 
+            ; A_semiring_plus          := A_presemiring_plus _ B 
+            ; A_semiring_times         := A_presemiring_times _ B 
+            ; A_semiring_plus_proofs   := A_presemiring_plus_proofs _ B 
+            ; A_semiring_times_proofs  := A_presemiring_times_proofs _ B
+            ; A_semiring_id_ann_proofs :=
+                {|
+                   A_pid_is_tann_plus_times   := P
+                 ; A_pid_is_tann_times_plus_d := A_id_ann_times_plus_d _ _ _ _ (A_presemiring_id_ann_proofs _ B)
+                |}                
+            ; A_semiring_proofs        := A_presemiring_proofs _ B 
+            ; A_semiring_ast           := A_presemiring_ast _ B 
+          |}      
+  | _ => A_BS_presemiring _ B    
+  end 
+end. 
+  
 
+(*
+ bs_CS
+ => selective_presemiring 
+*) 
 Definition A_bs_classify_bs_CS (S : Type) (B : A_bs_CS S) : A_bs_mcas S :=
 let eqv     := A_bs_CS_eqv _ B in
 let plus    := A_bs_CS_plus _ B in
@@ -824,6 +1017,12 @@ with
 | _, _ => A_BS_bs_CS _ B 
 end. 
 
+(*
+   classify 
+   bs_CI
+   --> pre_dioid
+   --> pre_lattice (* not yet, need dual properties in A_bs! *) 
+*) 
 
 
 Definition A_bs_classify_bs_CI (S : Type) (B : A_bs_CI S) : A_bs_mcas S :=
@@ -859,6 +1058,16 @@ with
           |}                          
 | _, _, _, _ => A_BS_bs_CI _ B 
 end. 
+
+
+(*
+   classify 
+   bs 
+   --> bs_CI
+   --> bs_CI
+   --> bs_presemiring
+   --> bs_selective_presemiring
+*) 
 
 Definition A_bs_classify_bs (S : Type) (B : A_bs S) : A_bs_mcas S :=
 let eqv     := A_bs_eqv _ B in
@@ -1484,7 +1693,731 @@ Inductive bs_mcas {S : Type} :=
 | BS_selective_distributive_lattice  : @selective_distributive_lattice S -> @bs_mcas S
 . 
 
-Definition bs_classify {S : Type} (A : @bs_mcas S) : @bs_mcas S := A. 
+
+
+Definition bs_classify_selective_distributive_lattice (S : Type) (B : @selective_distributive_lattice S) : @bs_mcas S :=
+  BS_selective_distributive_lattice B. 
+
+Definition bs_classify_selective_distributive_prelattice_with_one (S : Type) (B : @selective_distributive_prelattice_with_one S) : @bs_mcas S :=
+  BS_selective_distributive_prelattice_with_one B. 
+
+Definition bs_classify_selective_distributive_prelattice_with_zero (S : Type) (B : @selective_distributive_prelattice_with_zero S) : @bs_mcas S :=
+  BS_selective_distributive_prelattice_with_zero B. 
+
+Definition bs_classify_selective_distributive_prelattice (S : Type) (B : @selective_distributive_prelattice S) : @bs_mcas S :=
+  BS_selective_distributive_prelattice B. 
+
+Definition bs_classify_distributive_lattice (S : Type) (B : @distributive_lattice S) : @bs_mcas S :=
+  BS_distributive_lattice B. 
+
+Definition bs_classify_lattice  (S : Type) (B : @lattice  S) : @bs_mcas S :=
+  BS_lattice  B. 
+
+Definition bs_classify_distributive_prelattice (S : Type) (B : @distributive_prelattice S) : @bs_mcas S :=
+  BS_distributive_prelattice B. 
+
+Definition bs_classify_prelattice (S : Type) (B : @prelattice S) : @bs_mcas S :=
+  BS_prelattice B. 
+
+Definition bs_classify_selective_cancellative_dioid (S : Type) (B : @selective_cancellative_dioid S) : @bs_mcas S :=
+  BS_selective_cancellative_dioid B. 
+
+Definition bs_classify_selective_cancellative_pre_dioid_with_one (S : Type) (B : @selective_cancellative_pre_dioid_with_one S) : @bs_mcas S :=
+  BS_selective_cancellative_pre_dioid_with_one B. 
+
+Definition bs_classify_selective_cancellative_pre_dioid_with_zero (S : Type) (B : @selective_cancellative_pre_dioid_with_zero S) : @bs_mcas S :=
+  BS_selective_cancellative_pre_dioid_with_zero B. 
+
+Definition bs_classify_selective_cancellative_pre_dioid (S : Type) (B : @selective_cancellative_pre_dioid S) : @bs_mcas S :=
+  BS_selective_cancellative_pre_dioid B. 
+
+Definition bs_classify_selective_dioid (S : Type) (B : @selective_dioid S) : @bs_mcas S :=
+  BS_selective_dioid B. 
+
+Definition bs_classify_selective_pre_dioid_with_one (S : Type) (B : @selective_pre_dioid_with_one S) : @bs_mcas S :=
+  BS_selective_pre_dioid_with_one B. 
+
+Definition bs_classify_selective_pre_dioid_with_zero (S : Type) (B : @selective_pre_dioid_with_zero S) : @bs_mcas S :=
+  BS_selective_pre_dioid_with_zero B. 
+
+(*
+  selective_pre_dioid 
+  => selective_dioid 
+  => selective_pre_dioid_with_one
+  => selective_pre_dioid_with_zero 
+ *)
+Definition bs_classify_selective_pre_dioid (S : Type) (B : @selective_pre_dioid S) : @bs_mcas S :=
+
+let eqv     := selective_pre_dioid_eqv _ B in
+let plus    := selective_pre_dioid_plus _ B in
+let times   := selective_pre_dioid_times _ B in    
+let plusP   := selective_pre_dioid_plus_certs _ B in
+let timesP  := selective_pre_dioid_times_certs _ B in
+let id_annP := selective_pre_dioid_id_ann_certs _ B in
+let bsP     := selective_pre_dioid_certs _ B in
+let ast     := selective_pre_dioid_ast _ B in
+match id_ann_plus_times_d id_annP,
+      id_ann_times_plus_d id_annP
+with
+|  Id_Ann_Cert_Equal s1, Id_Ann_Cert_Equal s2 => BS_selective_dioid
+   {|                                                               
+      selective_dioid_eqv           := eqv 
+    ; selective_dioid_plus          := plus
+    ; selective_dioid_times         := times
+    ; selective_dioid_plus_certs   := plusP 
+    ; selective_dioid_times_certs  := timesP 
+    ; selective_dioid_id_ann_certs :=
+        {|
+           bounded_plus_id_is_times_ann := Assert_Exists_Id_Ann_Equal s1
+         ; bounded_times_id_is_plus_ann := Assert_Exists_Id_Ann_Equal s2
+        |}
+    ; selective_dioid_certs        := bsP 
+    ; selective_dioid_ast           := ast 
+   |}   
+|  Id_Ann_Cert_Equal s, P2 => BS_selective_pre_dioid_with_zero
+   {|                                                               
+      selective_pre_dioid_with_zero_eqv           := eqv 
+    ; selective_pre_dioid_with_zero_plus          := plus
+    ; selective_pre_dioid_with_zero_times         := times
+    ; selective_pre_dioid_with_zero_plus_certs   := plusP 
+    ; selective_pre_dioid_with_zero_times_certs  := timesP 
+    ; selective_pre_dioid_with_zero_id_ann_certs :=
+        {|
+           pid_is_tann_plus_times   := Assert_Exists_Id_Ann_Equal s
+         ; pid_is_tann_times_plus_d := P2
+        |}
+    ; selective_pre_dioid_with_zero_certs        := bsP 
+    ; selective_pre_dioid_with_zero_ast           := ast 
+   |}   
+|  P1, Id_Ann_Cert_Equal s => BS_selective_pre_dioid_with_one
+   {|                                                               
+      selective_pre_dioid_with_one_eqv           := eqv 
+    ; selective_pre_dioid_with_one_plus          := plus
+    ; selective_pre_dioid_with_one_times         := times
+    ; selective_pre_dioid_with_one_plus_certs   := plusP 
+    ; selective_pre_dioid_with_one_times_certs  := timesP 
+    ; selective_pre_dioid_with_one_id_ann_certs :=
+        {|
+           pann_is_tid_plus_times_d := P1
+         ; pann_is_tid_times_plus   := Assert_Exists_Id_Ann_Equal s
+        |}
+    ; selective_pre_dioid_with_one_certs        := bsP 
+    ; selective_pre_dioid_with_one_ast           := ast 
+   |}   
+| _, _ => BS_selective_pre_dioid B
+end. 
+
+(* do we want a cancellative dioid? *) 
+Definition bs_classify_dioid (S : Type) (B : @dioid S) : @bs_mcas S :=
+  BS_dioid B. 
+
+(*
+  pre_dioid_with_zero
+  => dioid
+*) 
+Definition bs_classify_pre_dioid_with_zero (S : Type) (B : @pre_dioid_with_zero S) : @bs_mcas S :=
+let id_annP := pre_dioid_with_zero_id_ann_certs B in
+match pid_is_tann_times_plus_d id_annP with
+|  Id_Ann_Cert_Equal s => bs_classify_dioid _ 
+   {|                                                               
+      dioid_eqv           := pre_dioid_with_zero_eqv B
+    ; dioid_plus          := pre_dioid_with_zero_plus B
+    ; dioid_times         := pre_dioid_with_zero_times B 
+    ; dioid_plus_certs   := pre_dioid_with_zero_plus_certs B 
+    ; dioid_times_certs  := pre_dioid_with_zero_times_certs B 
+    ; dioid_id_ann_certs :=
+        {|
+           bounded_plus_id_is_times_ann := pid_is_tann_plus_times  id_annP
+         ; bounded_times_id_is_plus_ann := Assert_Exists_Id_Ann_Equal s
+        |}
+    ; dioid_certs        := pre_dioid_with_zero_certs B 
+    ; dioid_ast           := pre_dioid_with_zero_ast B 
+   |}   
+| _ => BS_pre_dioid_with_zero B
+end. 
+
+(*
+  pre_dioid_with_one 
+  => dioid
+*) 
+Definition bs_classify_pre_dioid_with_one (S : Type) (B : @pre_dioid_with_one S) : @bs_mcas S :=
+let id_annP := pre_dioid_with_one_id_ann_certs B in
+match pann_is_tid_plus_times_d id_annP with
+|  Id_Ann_Cert_Equal s => bs_classify_dioid _ 
+   {|                                                               
+      dioid_eqv           := pre_dioid_with_one_eqv B
+    ; dioid_plus          := pre_dioid_with_one_plus B
+    ; dioid_times         := pre_dioid_with_one_times B 
+    ; dioid_plus_certs   := pre_dioid_with_one_plus_certs B 
+    ; dioid_times_certs  := pre_dioid_with_one_times_certs B 
+    ; dioid_id_ann_certs :=
+        {|
+           bounded_plus_id_is_times_ann := Assert_Exists_Id_Ann_Equal s
+         ; bounded_times_id_is_plus_ann := pann_is_tid_times_plus id_annP
+        |}
+    ; dioid_certs        := pre_dioid_with_one_certs B 
+    ; dioid_ast           := pre_dioid_with_one_ast B 
+   |}   
+| _ => BS_pre_dioid_with_one B
+end. 
+
+(* 
+   pre_dioid
+   => dioid
+   => pre_dioid_with_zero
+   => pre_dioid_with_one
+
+*) 
+Definition bs_classify_pre_dioid (S : Type) (B : @pre_dioid S) : @bs_mcas S :=
+let eqv     := pre_dioid_eqv B in
+let plus    := pre_dioid_plus B in
+let times   := pre_dioid_times B in    
+let plusP   := pre_dioid_plus_certs B in
+let timesP  := pre_dioid_times_certs B in
+let id_annP := pre_dioid_id_ann_certs B in
+let bsP     := pre_dioid_certs B in
+let ast     := pre_dioid_ast B in
+match id_ann_plus_times_d id_annP,
+      id_ann_times_plus_d id_annP
+with
+|  Id_Ann_Cert_Equal s1, Id_Ann_Cert_Equal s2 => BS_dioid 
+   {|                                                               
+      dioid_eqv           := eqv 
+    ; dioid_plus          := plus
+    ; dioid_times         := times
+    ; dioid_plus_certs   := plusP 
+    ; dioid_times_certs  := timesP 
+    ; dioid_id_ann_certs :=
+        {|
+           bounded_plus_id_is_times_ann := Assert_Exists_Id_Ann_Equal s1
+         ; bounded_times_id_is_plus_ann := Assert_Exists_Id_Ann_Equal s2
+        |}
+    ; dioid_certs        := bsP 
+    ; dioid_ast           := ast 
+   |}   
+|  Id_Ann_Cert_Equal s, P2 => BS_pre_dioid_with_zero 
+   {|                                                               
+      pre_dioid_with_zero_eqv           := eqv 
+    ; pre_dioid_with_zero_plus          := plus
+    ; pre_dioid_with_zero_times         := times
+    ; pre_dioid_with_zero_plus_certs   := plusP 
+    ; pre_dioid_with_zero_times_certs  := timesP 
+    ; pre_dioid_with_zero_id_ann_certs :=
+        {|
+           pid_is_tann_plus_times   := Assert_Exists_Id_Ann_Equal s
+         ; pid_is_tann_times_plus_d := P2
+        |}
+    ; pre_dioid_with_zero_certs        := bsP 
+    ; pre_dioid_with_zero_ast           := ast 
+   |}   
+|  P1, Id_Ann_Cert_Equal s => BS_pre_dioid_with_one 
+   {|                                                               
+      pre_dioid_with_one_eqv           := eqv 
+    ; pre_dioid_with_one_plus          := plus
+    ; pre_dioid_with_one_times         := times
+    ; pre_dioid_with_one_plus_certs   := plusP 
+    ; pre_dioid_with_one_times_certs  := timesP 
+    ; pre_dioid_with_one_id_ann_certs :=
+        {|
+           pann_is_tid_plus_times_d   := P1
+         ; pann_is_tid_times_plus := Assert_Exists_Id_Ann_Equal s
+        |}
+    ; pre_dioid_with_one_certs        := bsP 
+    ; pre_dioid_with_one_ast           := ast 
+   |}   
+| _, _ => BS_pre_dioid B
+end. 
+  
+
+(*
+    selective_semiring
+     => selective_pre_dioid_with_zero
+ *)
+Definition bs_classify_selective_semiring (S : Type) (B : @selective_semiring S) : @bs_mcas S :=
+let P := selective_semiring_certs B in
+match semiring_left_left_absorptive_d P,
+      semiring_left_right_absorptive_d P
+with
+|  Certify_Left_Left_Absorptive, Certify_Left_Right_Absorptive =>
+   bs_classify_selective_pre_dioid_with_zero _ 
+   {|                                                               
+      selective_pre_dioid_with_zero_eqv           := selective_semiring_eqv B
+    ; selective_pre_dioid_with_zero_plus          := selective_semiring_plus B
+    ; selective_pre_dioid_with_zero_times         := selective_semiring_times B 
+    ; selective_pre_dioid_with_zero_plus_certs   := selective_semiring_plus_certs B 
+    ; selective_pre_dioid_with_zero_times_certs  := selective_semiring_times_certs B 
+    ; selective_pre_dioid_with_zero_id_ann_certs := selective_semiring_id_ann_certs B
+    ; selective_pre_dioid_with_zero_certs        :=
+                {|
+                    dioid_left_distributive     := semiring_left_distributive P
+                  ; dioid_right_distributive    := semiring_right_distributive P
+                  ; dioid_left_left_absorptive  := Assert_Left_Left_Absorptive
+                  ; dioid_left_right_absorptive := Assert_Left_Right_Absorptive
+                 |} 
+    ; selective_pre_dioid_with_zero_ast           := selective_semiring_ast B 
+   |}   
+| _, _ => BS_selective_semiring B
+end. 
+
+
+(*
+   selective_presemiring
+   => selective_semiring
+   => selective_pre_dioid
+*) 
+Definition bs_classify_selective_presemiring (S : Type) (B : @selective_presemiring S) : @bs_mcas S :=
+let eqv     := selective_presemiring_eqv B in
+let plus    := selective_presemiring_plus B in
+let times   := selective_presemiring_times B in    
+let plusP   := selective_presemiring_plus_certs B in
+let timesP  := selective_presemiring_times_certs B in
+let id_annP := selective_presemiring_id_ann_certs B in
+let bsP     := selective_presemiring_certs B in
+let ast     := selective_presemiring_ast B in
+match semiring_left_left_absorptive_d bsP,
+      semiring_left_right_absorptive_d bsP
+with
+|  Certify_Left_Left_Absorptive, Certify_Left_Right_Absorptive =>  
+  bs_classify_selective_pre_dioid _
+       {|                                                         
+           selective_pre_dioid_eqv           := eqv
+         ; selective_pre_dioid_plus          := plus
+         ; selective_pre_dioid_times         := times
+         ; selective_pre_dioid_plus_certs   := plusP
+         ; selective_pre_dioid_times_certs  := timesP
+         ; selective_pre_dioid_id_ann_certs := id_annP
+         ; selective_pre_dioid_certs        :=
+                {|
+                    dioid_left_distributive     := semiring_left_distributive bsP
+                  ; dioid_right_distributive    := semiring_right_distributive bsP
+                  ; dioid_left_left_absorptive  := Assert_Left_Left_Absorptive
+                  ; dioid_left_right_absorptive := Assert_Left_Right_Absorptive
+                 |} 
+         ; selective_pre_dioid_ast           := ast 
+       |}         
+| _, _ =>
+  match id_ann_plus_times_d id_annP with
+  | Id_Ann_Cert_Equal s => bs_classify_selective_semiring _
+          {| 
+              selective_semiring_eqv           := eqv
+            ; selective_semiring_plus          := plus
+            ; selective_semiring_times         := times
+            ; selective_semiring_plus_certs   := plusP
+            ; selective_semiring_times_certs  := timesP
+            ; selective_semiring_id_ann_certs :=
+               {|
+                   pid_is_tann_plus_times   := Assert_Exists_Id_Ann_Equal s
+                 ; pid_is_tann_times_plus_d := id_ann_times_plus_d  id_annP 
+              |}
+            ; selective_semiring_certs        := bsP 
+            ; selective_semiring_ast           := ast 
+           |}                               
+  | _ => BS_selective_presemiring B
+  end
+end. 
+
+
+(* 
+   semiring
+   => selective_semiring 
+   => pre_dioid_with_zero 
+ *)
+Definition bs_classify_semiring (S : Type) (B : @semiring S) : @bs_mcas S :=
+let plusP   := semiring_plus_certs B in
+let srP     := semiring_certs B in  
+match sg_C_selective_d plusP with  
+| Certify_Selective => bs_classify_selective_semiring _
+          {|
+              selective_semiring_eqv           := semiring_eqv B 
+            ; selective_semiring_plus          := semiring_plus B 
+            ; selective_semiring_times         := semiring_times B 
+            ; selective_semiring_plus_certs   :=
+                {|
+                    sg_CS_associative := sg_C_associative plusP
+                  ; sg_CS_congruence  := sg_C_congruence plusP
+                  ; sg_CS_commutative := sg_C_commutative plusP
+                  ; sg_CS_selective   := Assert_Selective 
+                |}
+            ; selective_semiring_times_certs  := semiring_times_certs B
+            ; selective_semiring_id_ann_certs := semiring_id_ann_certs B 
+            ; selective_semiring_certs        := semiring_certs B 
+            ; selective_semiring_ast           := semiring_ast B 
+          |}                          
+| Certify_Not_Selective (s1, s2) =>
+  match sg_C_idempotent_d plusP,
+        semiring_left_left_absorptive_d srP,
+        semiring_left_right_absorptive_d srP
+  with
+  |  Certify_Idempotent, Certify_Left_Left_Absorptive, Certify_Left_Right_Absorptive =>      
+     bs_classify_pre_dioid_with_zero _
+          {|
+              pre_dioid_with_zero_eqv           := semiring_eqv B 
+            ; pre_dioid_with_zero_plus          := semiring_plus B 
+            ; pre_dioid_with_zero_times         := semiring_times B 
+            ; pre_dioid_with_zero_plus_certs   :=
+                {|
+                    sg_CI_associative   := sg_C_associative plusP
+                  ; sg_CI_congruence    := sg_C_congruence plusP
+                  ; sg_CI_commutative   := sg_C_commutative plusP
+                  ; sg_CI_idempotent    := Assert_Idempotent
+                  ; sg_CI_not_selective := Assert_Not_Selective (s1, s2)
+                |}
+            ; pre_dioid_with_zero_times_certs  := semiring_times_certs B
+            ; pre_dioid_with_zero_id_ann_certs := semiring_id_ann_certs B
+            ; pre_dioid_with_zero_certs        :=
+                {|
+                    dioid_left_distributive     := semiring_left_distributive srP
+                  ; dioid_right_distributive    := semiring_right_distributive srP
+                  ; dioid_left_left_absorptive  := Assert_Left_Left_Absorptive
+                  ; dioid_left_right_absorptive := Assert_Left_Right_Absorptive
+                 |}
+            ; pre_dioid_with_zero_ast           := semiring_ast B 
+          |}      
+  | _, _, _ => BS_semiring B    
+  end 
+end. 
+
+(* 
+   presemiring
+   => selective_presemiring 
+   => semiring 
+ *)
+Definition bs_classify_presemiring (S : Type) (B : @presemiring S) : @bs_mcas S :=
+let plusP   := presemiring_plus_certs B in
+match sg_C_selective_d plusP with
+| Certify_Selective => bs_classify_selective_presemiring _
+          {|
+              selective_presemiring_eqv           := presemiring_eqv B 
+            ; selective_presemiring_plus          := presemiring_plus B 
+            ; selective_presemiring_times         := presemiring_times B 
+            ; selective_presemiring_plus_certs   :=
+                {|
+                    sg_CS_associative := sg_C_associative plusP
+                  ; sg_CS_congruence  := sg_C_congruence plusP
+                  ; sg_CS_commutative := sg_C_commutative plusP
+                  ; sg_CS_selective   := Assert_Selective 
+                |}
+            ; selective_presemiring_times_certs  := presemiring_times_certs B
+            ; selective_presemiring_id_ann_certs := presemiring_id_ann_certs B 
+            ; selective_presemiring_certs        := presemiring_certs B 
+            ; selective_presemiring_ast           := presemiring_ast B 
+          |}                          
+| _ =>
+  match id_ann_plus_times_d (presemiring_id_ann_certs B) with
+  | Id_Ann_Cert_Equal s => bs_classify_semiring _
+          {|
+              semiring_eqv           := presemiring_eqv B 
+            ; semiring_plus          := presemiring_plus B 
+            ; semiring_times         := presemiring_times B 
+            ; semiring_plus_certs   := presemiring_plus_certs B 
+            ; semiring_times_certs  := presemiring_times_certs B
+            ; semiring_id_ann_certs :=
+                {|
+                   pid_is_tann_plus_times   := Assert_Exists_Id_Ann_Equal s
+                 ; pid_is_tann_times_plus_d := id_ann_times_plus_d (presemiring_id_ann_certs B)
+                |}                
+            ; semiring_certs        := presemiring_certs B 
+            ; semiring_ast          := presemiring_ast B 
+          |}      
+  | _ => BS_presemiring B    
+  end 
+end. 
+  
+
+(*
+ bs_CS
+ => selective_presemiring 
+*) 
+Definition bs_classify_bs_CS (S : Type) (B : @bs_CS S) : @bs_mcas S :=
+let eqv     := bs_CS_eqv B in
+let plus    := bs_CS_plus B in
+let times   := bs_CS_times B in    
+let plusP   := bs_CS_plus_certs B in
+let timesP  := bs_CS_times_certs B in
+let id_annP := bs_CS_id_ann_certs B in
+let bsP     := bs_CS_certs B in
+let ast     := bs_CS_ast B in
+match bs_left_distributive_d bsP,
+      bs_right_distributive_d bsP
+with
+| Certify_Left_Distributive,  Certify_Right_Distributive =>
+  bs_classify_selective_presemiring _
+          {|
+              selective_presemiring_eqv           := eqv
+            ; selective_presemiring_plus           := plus
+            ; selective_presemiring_times         := times
+            ; selective_presemiring_plus_certs   := plusP
+            ; selective_presemiring_times_certs  := timesP
+            ; selective_presemiring_id_ann_certs := id_annP 
+            ; selective_presemiring_certs        :=
+                {|
+                    semiring_left_distributive       := Assert_Left_Distributive
+                  ; semiring_right_distributive      := Assert_Right_Distributive
+                  ; semiring_left_left_absorptive_d  := bs_left_left_absorptive_d bsP
+                  ; semiring_left_right_absorptive_d := bs_left_right_absorptive_d bsP
+                 |} 
+            ; selective_presemiring_ast           := ast 
+          |}                          
+| _, _ => BS_bs_CS B 
+end. 
+
+(*
+   classify 
+   bs_CI
+   --> pre_dioid
+   --> pre_lattice (* not yet, need dual properties in bs! *) 
+*) 
+Definition bs_classify_bs_CI (S : Type) (B : @bs_CI S) : @bs_mcas S :=
+let eqv     := bs_CI_eqv B in
+let plus    := bs_CI_plus B in
+let times   := bs_CI_times B in    
+let plusP   := bs_CI_plus_certs B in
+let timesP  := bs_CI_times_certs B in
+let id_annP := bs_CI_id_ann_certs B in
+let bsP     := bs_CI_certs B in
+let ast     := bs_CI_ast B in
+match bs_left_distributive_d bsP,
+      bs_right_distributive_d bsP,
+      bs_left_left_absorptive_d bsP,       
+      bs_left_right_absorptive_d bsP
+with
+| Certify_Left_Distributive,
+  Certify_Right_Distributive,
+  Certify_Left_Left_Absorptive,
+  Certify_Left_Right_Absorptive
+  =>  bs_classify_pre_dioid _
+          {|
+              pre_dioid_eqv           := eqv
+            ; pre_dioid_plus          := plus
+            ; pre_dioid_times         := times
+            ; pre_dioid_plus_certs   := plusP
+            ; pre_dioid_times_certs  := timesP
+            ; pre_dioid_id_ann_certs := id_annP 
+            ; pre_dioid_certs        :=
+                {|
+                    dioid_left_distributive     := Assert_Left_Distributive
+                  ; dioid_right_distributive    := Assert_Right_Distributive
+                  ; dioid_left_left_absorptive  := Assert_Left_Left_Absorptive
+                  ; dioid_left_right_absorptive := Assert_Left_Right_Absorptive
+                 |} 
+            ; pre_dioid_ast           := ast 
+          |}                          
+| _, _, _, _ => BS_bs_CI B 
+end. 
+
+
+(*
+   classify 
+   bs 
+   --> bs_CI
+   --> bs_CI
+   --> bs_presemiring
+   --> bs_selective_presemiring
+*) 
+
+Definition bs_classify_bs (S : Type) (B : @bs S) : @bs_mcas S :=
+let eqv     := bs_eqv B in
+let plus    := bs_plus B in
+let times   := bs_times B in    
+let plusP   := bs_plus_certs B in
+let timesP  := bs_times_certs B in
+let id_annP := bs_id_ann_certs B in
+let bsP     := bs_certs B in
+let ast     := bs_ast B in
+match sg_commutative_d plusP with
+| Certify_Commutative =>
+  match sg_idempotent_d plusP with
+  | Certify_Idempotent =>
+    match sg_selective_d plusP with
+    | Certify_Selective =>
+      let sg_CS_P :=
+                  {|
+                      sg_CS_associative := sg_associative plusP 
+                    ; sg_CS_congruence  := sg_congruence plusP 
+                    ; sg_CS_commutative := Assert_Commutative
+                    ; sg_CS_selective   := Assert_Selective
+                  |} in           
+      match bs_left_distributive_d bsP with
+      | Certify_Left_Distributive =>
+        match bs_right_distributive_d bsP with
+        | Certify_Right_Distributive => bs_classify_selective_presemiring _ 
+                 {|
+                     selective_presemiring_eqv           := eqv
+                   ; selective_presemiring_plus          := plus
+                   ; selective_presemiring_times         := times 
+                   ; selective_presemiring_plus_certs   := sg_CS_P
+                   ; selective_presemiring_times_certs  := timesP 
+                   ; selective_presemiring_id_ann_certs := id_annP
+                   ; selective_presemiring_certs        :=
+                       {|
+                           semiring_left_distributive       := Assert_Left_Distributive
+                         ; semiring_right_distributive      := Assert_Right_Distributive
+                         ; semiring_left_left_absorptive_d  := bs_left_left_absorptive_d bsP
+                         ; semiring_left_right_absorptive_d := bs_left_right_absorptive_d bsP
+                       |}
+                   ; selective_presemiring_ast           := ast
+                  |}
+        | _ => bs_classify_bs_CS _
+                  {|
+                      bs_CS_eqv           := eqv
+                    ; bs_CS_plus          := plus 
+                    ; bs_CS_times         := times 
+                    ; bs_CS_plus_certs   := sg_CS_P  
+                    ; bs_CS_times_certs  := timesP
+                    ; bs_CS_id_ann_certs := id_annP
+                    ; bs_CS_certs        := bsP 
+                    ; bs_CS_ast           := ast 
+                  |}                                         
+        end 
+      | _ => bs_classify_bs_CS _
+                  {|
+                      bs_CS_eqv           := eqv
+                    ; bs_CS_plus          := plus 
+                    ; bs_CS_times         := times 
+                    ; bs_CS_plus_certs   := sg_CS_P  
+                    ; bs_CS_times_certs  := timesP
+                    ; bs_CS_id_ann_certs := id_annP
+                    ; bs_CS_certs        := bsP 
+                    ; bs_CS_ast           := ast 
+                  |} 
+      end 
+    | Certify_Not_Selective (s1, s2) =>
+      let sg_CI_P :=
+                  {|
+                      sg_CI_associative   := sg_associative plusP 
+                    ; sg_CI_congruence    := sg_congruence plusP 
+                    ; sg_CI_commutative   := Assert_Commutative
+                    ; sg_CI_idempotent    := Assert_Idempotent
+                    ; sg_CI_not_selective := Assert_Not_Selective (s1, s2)
+                  |} in           
+      match bs_left_distributive_d bsP with
+      | Certify_Left_Distributive =>
+        match bs_right_distributive_d bsP with
+        | Certify_Right_Distributive => bs_classify_presemiring _
+                 {|
+                     presemiring_eqv           := eqv
+                   ; presemiring_plus          := plus
+                   ; presemiring_times         := times 
+                   ; presemiring_plus_certs   :=
+                        {|
+                            sg_C_associative  := sg_associative plusP 
+                          ; sg_C_congruence   := sg_congruence plusP 
+                          ; sg_C_commutative  := Assert_Commutative
+                          ; sg_C_selective_d  := sg_selective_d plusP
+                          ; sg_C_idempotent_d := sg_idempotent_d plusP
+                          ; sg_C_anti_left_d  := sg_anti_left_d plusP
+                          ; sg_C_anti_right_d := sg_anti_right_d plusP
+                          ; sg_C_cancel_d     := sg_left_cancel_d plusP
+                          ; sg_C_constant_d   := sg_left_constant_d plusP                                                   
+                        |} 
+                   ; presemiring_times_certs  := timesP 
+                   ; presemiring_id_ann_certs := id_annP
+                   ; presemiring_certs        :=
+                       {|
+                           semiring_left_distributive       := Assert_Left_Distributive
+                         ; semiring_right_distributive      := Assert_Right_Distributive
+                         ; semiring_left_left_absorptive_d  := bs_left_left_absorptive_d bsP
+                         ; semiring_left_right_absorptive_d := bs_left_right_absorptive_d bsP
+                       |}
+                   ; presemiring_ast           := ast
+                  |}
+        | _ => bs_classify_bs_CI _
+                  {|
+                      bs_CI_eqv           := eqv
+                    ; bs_CI_plus          := plus 
+                    ; bs_CI_times         := times 
+                    ; bs_CI_plus_certs   := sg_CI_P  
+                    ; bs_CI_times_certs  := timesP
+                    ; bs_CI_id_ann_certs := id_annP
+                    ; bs_CI_certs        := bsP 
+                    ; bs_CI_ast           := ast 
+                  |}                                         
+        end 
+      | _ => bs_classify_bs_CI _
+                  {|
+                      bs_CI_eqv           := eqv
+                    ; bs_CI_plus          := plus 
+                    ; bs_CI_times         := times 
+                    ; bs_CI_plus_certs   := sg_CI_P  
+                    ; bs_CI_times_certs  := timesP
+                    ; bs_CI_id_ann_certs := id_annP
+                    ; bs_CI_certs        := bsP 
+                    ; bs_CI_ast           := ast 
+                  |} 
+      end 
+    end
+  | nidem => (* not idempotent *) 
+    match bs_left_distributive_d bsP with
+    | Certify_Left_Distributive =>
+      match bs_right_distributive_d bsP with
+      | Certify_Right_Distributive => bs_classify_presemiring _
+                  {|
+                      presemiring_eqv          := eqv  
+                    ; presemiring_plus         := plus
+                    ; presemiring_times        := times 
+                    ; presemiring_plus_certs  :=
+                        {|
+                            sg_C_associative  := sg_associative plusP 
+                          ; sg_C_congruence   := sg_congruence plusP 
+                          ; sg_C_commutative  := Assert_Commutative
+                          ; sg_C_selective_d  := sg_selective_d plusP
+                          ; sg_C_idempotent_d := nidem
+                          ; sg_C_anti_left_d  := sg_anti_left_d plusP
+                          ; sg_C_anti_right_d := sg_anti_right_d plusP
+                          ; sg_C_cancel_d     := sg_left_cancel_d plusP
+                          ; sg_C_constant_d   := sg_left_constant_d plusP                                                   
+                        |} 
+                    ; presemiring_times_certs := timesP
+                    ; presemiring_id_ann_certs := id_annP                                                      
+                    ; presemiring_certs       :=
+                        {|                        
+                           semiring_left_distributive       := Assert_Left_Distributive
+                         ; semiring_right_distributive      := Assert_Right_Distributive
+                         ; semiring_left_left_absorptive_d  := bs_left_left_absorptive_d bsP
+                         ; semiring_left_right_absorptive_d := bs_left_right_absorptive_d bsP
+                        |}                         
+                    ; presemiring_ast          := ast 
+                  |}
+      | _ => BS_bs B                       
+      end 
+    | _ => BS_bs B               
+    end 
+  end 
+| _ => BS_bs B               
+end.
+
+Definition bs_classify {S : Type} (A : @bs_mcas S) : @bs_mcas S := 
+match A with
+| BS_Error _                                         => A
+| BS_bs B                                            => bs_classify_bs _ B
+| BS_bs_CI B                                         => bs_classify_bs_CI _ B
+| BS_bs_CS B                                         => bs_classify_bs_CS _ B
+| BS_presemiring B                                   => bs_classify_presemiring _ B
+| BS_semiring B                                      => bs_classify_semiring _ B
+| BS_pre_dioid B                                     => bs_classify_pre_dioid _ B
+| BS_pre_dioid_with_one B                            => bs_classify_pre_dioid_with_one _ B
+| BS_pre_dioid_with_zero B                           => bs_classify_pre_dioid_with_zero _ B
+| BS_dioid  B                                        => bs_classify_dioid _ B
+| BS_prelattice  B                                   => bs_classify_prelattice _ B
+| BS_distributive_prelattice  B                      => bs_classify_distributive_prelattice _ B
+| BS_lattice   B                                     => bs_classify_lattice _ B
+| BS_distributive_lattice   B                        => bs_classify_distributive_lattice _ B
+| BS_selective_presemiring   B                       => bs_classify_selective_presemiring _ B
+| BS_selective_semiring  B                           => bs_classify_selective_semiring _ B
+| BS_selective_pre_dioid B                           => bs_classify_selective_pre_dioid _ B
+| BS_selective_pre_dioid_with_zero  B                => bs_classify_selective_pre_dioid_with_zero _ B
+| BS_selective_pre_dioid_with_one   B                => bs_classify_selective_pre_dioid_with_one _ B
+| BS_selective_dioid   B                             => bs_classify_selective_dioid _ B
+| BS_selective_cancellative_pre_dioid  B             => bs_classify_selective_cancellative_pre_dioid _ B
+| BS_selective_cancellative_pre_dioid_with_zero  B   => bs_classify_selective_cancellative_pre_dioid_with_zero _ B
+| BS_selective_cancellative_pre_dioid_with_one   B   => bs_classify_selective_cancellative_pre_dioid_with_one _ B
+| BS_selective_cancellative_dioid   B                => bs_classify_selective_cancellative_dioid _ B
+| BS_selective_distributive_prelattice   B           => bs_classify_selective_distributive_prelattice _ B
+| BS_selective_distributive_prelattice_with_zero   B => bs_classify_selective_distributive_prelattice_with_zero _ B
+| BS_selective_distributive_prelattice_with_one   B  => bs_classify_selective_distributive_prelattice_with_one _ B
+| BS_selective_distributive_lattice   B              => bs_classify_selective_distributive_lattice _ B
+end. 
+
 
 
 End MCAS.   
@@ -1936,6 +2869,30 @@ Definition A2C_selective_distributive_lattice : ∀ (S : Type), A_selective_dist
 |}.
 
 
+Definition A2C_prelattice : ∀ (S : Type), A_prelattice S -> @prelattice S 
+:= λ S R,
+{|
+  prelattice_eqv         := A2C_eqv S (A_prelattice_eqv S R)
+; prelattice_join        := A_prelattice_join S R 
+; prelattice_meet        := A_prelattice_meet S R 
+; prelattice_join_certs  := P2C_sg_CI S (A_eqv_eq S (A_prelattice_eqv S R)) 
+                                (A_prelattice_join S R) 
+                                (A_prelattice_join_proofs S R)
+; prelattice_meet_certs := P2C_sg_CI S (A_eqv_eq S (A_prelattice_eqv S R)) 
+                                (A_prelattice_meet S R) 
+                                (A_prelattice_meet_proofs S R)
+; prelattice_id_ann_certs := P2C_id_ann S (A_eqv_eq S (A_prelattice_eqv S R)) 
+                                   (A_prelattice_join S R) 
+                                   (A_prelattice_meet S R) 
+                                   (A_prelattice_id_ann_proofs S R)         
+; prelattice_certs       := P2C_lattice S 
+                                        (A_eqv_eq S (A_prelattice_eqv S R)) 
+                                        (A_prelattice_join S R)
+                                        (A_prelattice_meet S R)                   
+                                        (A_prelattice_proofs S R)
+; prelattice_ast        := A_prelattice_ast S R
+|}.
+
 
 Definition A2C_distributive_prelattice : ∀ (S : Type), A_distributive_prelattice S -> @distributive_prelattice S 
 := λ S R,
@@ -2139,7 +3096,7 @@ match A with
 | A_BS_pre_dioid_with_one _ B => BS_pre_dioid_with_one (A2C_pre_dioid_with_one _ B)
 | A_BS_pre_dioid_with_zero _ B => BS_pre_dioid_with_zero (A2C_pre_dioid_with_zero _ B)
 | A_BS_dioid _ B => BS_dioid (A2C_dioid _ B)
-| A_BS_prelattice _ B => BS_Error nil (* BS_prelattice (A2C_prelattice _ B) *) 
+| A_BS_prelattice _ B => BS_prelattice (A2C_prelattice _ B)
 | A_BS_distributive_prelattice _ B => BS_distributive_prelattice (A2C_distributive_prelattice _ B)
 | A_BS_lattice _ B => BS_lattice (A2C_lattice _ B)
 | A_BS_distributive_lattice _ B => BS_distributive_lattice (A2C_distributive_lattice _ B)
@@ -2163,18 +3120,239 @@ End Translation.
 
 Section Verify.
 
+Variable S : Type.
 
-Theorem correct_bs_classify_bs (S : Type) (A : A_bs S) :                                           
-  bs_classify (BS_bs (A2C_bs S A))
+ 
+Lemma correct_bs_classify_selective_distributive_lattice (a : A_selective_distributive_lattice S) :
+  bs_classify_selective_distributive_lattice S (A2C_selective_distributive_lattice S a)
   =
-  A2C_mcas_bs S (A_bs_classify_bs S A).
+  BS_selective_distributive_lattice (A2C_selective_distributive_lattice S a).   
+Proof. unfold bs_classify_selective_distributive_lattice. reflexivity. Qed. 
+
+Lemma correct_bs_classify_selective_distributive_prelattice_with_one (a : A_selective_distributive_prelattice_with_one S) :
+  bs_classify_selective_distributive_prelattice_with_one S (A2C_selective_distributive_prelattice_with_one S a)
+  =
+  BS_selective_distributive_prelattice_with_one (A2C_selective_distributive_prelattice_with_one S a).   
+Proof. unfold bs_classify_selective_distributive_prelattice_with_one. reflexivity. Qed. 
+
+Lemma correct_bs_classify_selective_distributive_prelattice_with_zero (a : A_selective_distributive_prelattice_with_zero S) :
+  bs_classify_selective_distributive_prelattice_with_zero S (A2C_selective_distributive_prelattice_with_zero S a)
+  =
+  BS_selective_distributive_prelattice_with_zero (A2C_selective_distributive_prelattice_with_zero S a).   
+Proof. unfold bs_classify_selective_distributive_prelattice_with_zero. reflexivity. Qed.            
+
+Lemma correct_bs_classify_selective_distributive_prelattice (a : A_selective_distributive_prelattice S) :
+  bs_classify_selective_distributive_prelattice S (A2C_selective_distributive_prelattice S a)
+  =
+  BS_selective_distributive_prelattice (A2C_selective_distributive_prelattice S a).   
+Proof. unfold bs_classify_selective_distributive_prelattice. reflexivity. Qed.                                    
+
+
+Lemma correct_bs_classify_distributive_lattice (a : A_distributive_lattice S) :
+  bs_classify_distributive_lattice S (A2C_distributive_lattice S a)
+  =
+  BS_distributive_lattice (A2C_distributive_lattice S a).   
+Proof. unfold bs_classify_distributive_lattice. reflexivity. Qed.                                    
+
+Lemma correct_bs_classify_lattice (a : A_lattice S) :
+  bs_classify_lattice S (A2C_lattice S a)
+  =
+  BS_lattice (A2C_lattice S a).   
+Proof. unfold bs_classify_lattice. reflexivity. Qed.                                   
+
+Lemma correct_bs_classify_distributive_prelattice (a : A_distributive_prelattice S) :
+  bs_classify_distributive_prelattice S (A2C_distributive_prelattice S a)
+  =
+  BS_distributive_prelattice (A2C_distributive_prelattice S a).
+Proof. unfold bs_classify_distributive_prelattice. reflexivity. Qed.   
+
+Lemma correct_bs_classify_prelattice (a : A_prelattice S) :
+  bs_classify_prelattice S (A2C_prelattice S a)
+  =
+  BS_prelattice (A2C_prelattice S a).   
+Proof. unfold bs_classify_prelattice. reflexivity. Qed.            
+
+Lemma correct_bs_classify_selective_cancellative_dioid (a : A_selective_cancellative_dioid S) :
+  bs_classify_selective_cancellative_dioid S (A2C_selective_cancellative_dioid S a)
+  =
+  BS_selective_cancellative_dioid (A2C_selective_cancellative_dioid S a).   
+Proof. unfold bs_classify_selective_cancellative_dioid. reflexivity. Qed.            
+
+Lemma correct_bs_classify_selective_cancellative_pre_dioid_with_one (a : A_selective_cancellative_pre_dioid_with_one S) :
+  bs_classify_selective_cancellative_pre_dioid_with_one S (A2C_selective_cancellative_pre_dioid_with_one S a)
+  =
+  BS_selective_cancellative_pre_dioid_with_one (A2C_selective_cancellative_pre_dioid_with_one S a).   
+Proof. unfold bs_classify_selective_cancellative_pre_dioid_with_one. reflexivity. Qed.            
+
+Lemma correct_bs_classify_selective_cancellative_pre_dioid_with_zero (a : A_selective_cancellative_pre_dioid_with_zero S) :
+  bs_classify_selective_cancellative_pre_dioid_with_zero S (A2C_selective_cancellative_pre_dioid_with_zero S a)
+  =
+  BS_selective_cancellative_pre_dioid_with_zero (A2C_selective_cancellative_pre_dioid_with_zero S a).   
+Proof. unfold bs_classify_selective_cancellative_pre_dioid_with_zero. reflexivity. Qed.            
+
+Lemma correct_bs_classify_selective_cancellative_pre_dioid (a : A_selective_cancellative_pre_dioid S) :
+  bs_classify_selective_cancellative_pre_dioid S (A2C_selective_cancellative_pre_dioid S a)
+  =
+  BS_selective_cancellative_pre_dioid (A2C_selective_cancellative_pre_dioid S a).   
+Proof. unfold bs_classify_selective_cancellative_pre_dioid. reflexivity. Qed.            
+
+Lemma correct_bs_classify_selective_dioid (a : A_selective_dioid S) :
+  bs_classify_selective_dioid S (A2C_selective_dioid S a)
+  =
+  BS_selective_dioid (A2C_selective_dioid S a).   
+Proof. unfold bs_classify_selective_dioid. reflexivity. Qed.            
+
+Lemma correct_bs_classify_selective_pre_dioid_with_one (a : A_selective_pre_dioid_with_one S) :
+  bs_classify_selective_pre_dioid_with_one S (A2C_selective_pre_dioid_with_one S a)
+  =
+  BS_selective_pre_dioid_with_one (A2C_selective_pre_dioid_with_one S a).   
+Proof. unfold bs_classify_selective_pre_dioid_with_one. reflexivity. Qed.            
+
+Lemma correct_bs_classify_selective_pre_dioid_with_zero (a : A_selective_pre_dioid_with_zero S) :
+ bs_classify_selective_pre_dioid_with_zero S (A2C_selective_pre_dioid_with_zero S a)
+ =
+ BS_selective_pre_dioid_with_zero (A2C_selective_pre_dioid_with_zero S a).   
+Proof. unfold bs_classify_selective_pre_dioid_with_zero. reflexivity. Qed. 
+
+Lemma correct_bs_classify_dioid (a : A_dioid S) :
+  bs_classify_dioid S (A2C_dioid S a)
+  =
+  BS_dioid (A2C_dioid S a).   
+Proof. unfold bs_classify_dioid. reflexivity. Qed.                                    
+
+
+(*
+  selective_pre_dioid 
+  => selective_dioid 
+  => selective_pre_dioid_with_one
+  => selective_pre_dioid_with_zero 
+ *)
+Lemma correct_bs_classify_selective_pre_dioid (a : A_selective_pre_dioid S) :
+  bs_classify_selective_pre_dioid S (A2C_selective_pre_dioid S a)
+  =
+  A2C_mcas_bs S (A_bs_classify_selective_pre_dioid S a).   
+Proof. unfold A2C_selective_pre_dioid,
+       bs_classify_selective_pre_dioid,
+       A_bs_classify_selective_pre_dioid,
+       A2C_mcas_bs.
+       destruct a. destruct A_selective_pre_dioid_id_ann_proofs0. simpl. 
+       case_eq(A_id_ann_plus_times_d0); intros [A B] C; 
+         unfold p2c_exists_id_ann; simpl;
+           case_eq(A_id_ann_times_plus_d0); intros [D E] F;
+             ((try unfold A2C_selective_pre_dioid; reflexivity)
+              ||
+              (try unfold A2C_selective_pre_dioid_with_one; reflexivity)
+              ||
+              (try unfold A2C_selective_pre_dioid_with_zero; reflexivity)
+             ||
+              (try unfold A2C_selective_dioid; reflexivity)).                                 
+Qed. 
+         
+(*
+  pre_dioid_with_zero
+  => dioid
+*) 
+Lemma correct_bs_classify_pre_dioid_with_zero (a : A_pre_dioid_with_zero S) :
+  bs_classify_pre_dioid_with_zero S (A2C_pre_dioid_with_zero S a)
+  =
+  A2C_mcas_bs S (A_bs_classify_pre_dioid_with_zero S a).   
+Admitted.                                   
+
+Lemma correct_bs_classify_pre_dioid_with_one (a : A_pre_dioid_with_one S) :
+  bs_classify_pre_dioid_with_one S (A2C_pre_dioid_with_one S a)
+  =
+  A2C_mcas_bs S (A_bs_classify_pre_dioid_with_one S a)
+.   
+Admitted.                                   
+
+Lemma correct_bs_classify_pre_dioid (a : A_pre_dioid S) :
+  bs_classify_pre_dioid S (A2C_pre_dioid S a)
+  =
+ A2C_mcas_bs S (A_bs_classify_pre_dioid S a).   
+Admitted.                                   
+
+
+Lemma correct_bs_classify_selective_semiring (a : A_selective_semiring S) :
+  bs_classify_selective_semiring S (A2C_selective_semiring S a)
+  =
+  A2C_mcas_bs S (A_bs_classify_selective_semiring S a).   
+Admitted.                                   
+
+
+Lemma correct_bs_classify_selective_presemiring (a : A_selective_presemiring S) :
+  bs_classify_selective_presemiring S (A2C_selective_presemiring S a)
+  =
+  A2C_mcas_bs S (A_bs_classify_selective_presemiring S a).   
+Admitted.                                   
+
+
+
+Lemma correct_bs_classify_presemiring (a : A_presemiring S) :
+  bs_classify_presemiring S (A2C_presemiring S a)
+  =
+ A2C_mcas_bs S (A_bs_classify_presemiring S a).   
+Admitted.
+
+Lemma correct_bs_classify_semiring (a : A_semiring S) :
+  bs_classify_semiring S (A2C_semiring S a)
+  =
+ A2C_mcas_bs S (A_bs_classify_semiring S a).   
+Admitted.                                   
+
+
+
+Lemma correct_bs_classify_bs_CS (a : A_bs_CS S) : 
+  bs_classify_bs_CS S (A2C_bs_CS S a)
+  =
+  A2C_mcas_bs S (A_bs_classify_bs_CS S a). 
+Admitted.
+
+Lemma correct_bs_classify_bs_CI (a : A_bs_CI S) : 
+  bs_classify_bs_CI S (A2C_bs_CI S a)
+  =
+  A2C_mcas_bs S (A_bs_classify_bs_CI S a). 
+Admitted.
+
+Lemma correct_bs_classify_bs (A : A_bs S) :
+  bs_classify_bs S (A2C_bs S A)
+  =
+  A2C_mcas_bs S (A_bs_classify_bs S A). 
 Admitted.     
 
-Theorem correct_bs_classify (S : Type) (A : A_bs_mcas S) :   
+Theorem correct_bs_classify (A : A_bs_mcas S) :   
   bs_classify (A2C_mcas_bs S A)
   =
   A2C_mcas_bs S (A_bs_classify S A).
-Admitted.   
+Proof. unfold bs_classify, A_bs_classify; destruct A; simpl.
+       + reflexivity.
+       + apply correct_bs_classify_bs.
+       + apply correct_bs_classify_bs_CI.
+       + apply correct_bs_classify_bs_CS.
+       + apply correct_bs_classify_presemiring .
+       + apply correct_bs_classify_semiring.
+       + apply correct_bs_classify_pre_dioid.
+       + apply correct_bs_classify_pre_dioid_with_one.
+       + apply correct_bs_classify_pre_dioid_with_zero.
+       + apply correct_bs_classify_dioid.
+       + apply correct_bs_classify_prelattice.
+       + apply correct_bs_classify_distributive_prelattice .
+       + apply correct_bs_classify_lattice.
+       + apply correct_bs_classify_distributive_lattice.
+       + apply correct_bs_classify_selective_presemiring.
+       + apply correct_bs_classify_selective_semiring .
+       + apply correct_bs_classify_selective_pre_dioid .
+       + apply correct_bs_classify_selective_pre_dioid_with_zero.
+       + apply correct_bs_classify_selective_pre_dioid_with_one.
+       + apply correct_bs_classify_selective_dioid. 
+       + apply correct_bs_classify_selective_cancellative_pre_dioid .
+       + apply correct_bs_classify_selective_cancellative_pre_dioid_with_zero .
+       + apply correct_bs_classify_selective_cancellative_pre_dioid_with_one.
+       + apply correct_bs_classify_selective_cancellative_dioid .
+       + apply correct_bs_classify_selective_distributive_prelattice .
+       + apply correct_bs_classify_selective_distributive_prelattice_with_zero.
+       + apply correct_bs_classify_selective_distributive_prelattice_with_one .
+       + apply correct_bs_classify_selective_distributive_lattice .
+Qed. 
 
 End Verify.   
 

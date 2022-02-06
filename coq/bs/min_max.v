@@ -90,14 +90,10 @@ Proof. apply bop_left_distributive_implies_right.
        exact bops_min_max_left_distributive. 
 Qed. 
 
-(*
-Lemma bops_not_id_equals_ann_min_max : bops_not_id_equals_ann nat brel_eq_nat bop_min bop_max.
-Proof. intro n. left. apply bop_min_not_exists_id.  Qed.
-
 Open Scope nat.
-Lemma bops_id_equals_ann_max_min : bops_id_equals_ann nat brel_eq_nat bop_max bop_min.
-Proof. exists 0. split. apply bop_max_zero_is_id. apply bop_min_zero_is_ann.  Defined. 
-*) 
+
+Lemma bops_id_equals_ann_min_max : bops_exists_id_ann_equal nat brel_eq_nat bop_max bop_min. 
+Proof. exists 0. split. apply bop_max_zero_is_id. apply bop_min_zero_is_ann.  Defined.
 
 End Theory.
 
@@ -105,17 +101,12 @@ Section ACAS.
 
 Open Scope nat.
 
-(*
-Definition id_ann_proofs_min_max : id_ann_proofs nat brel_eq_nat bop_min bop_max := 
+Definition id_ann_proofs_min_max : pann_is_tid_proofs nat brel_eq_nat bop_min bop_max := 
 {|
-  A_id_ann_exists_plus_id_d       := inr bop_min_not_exists_id
-; A_id_ann_exists_plus_ann_d      := inl bop_min_exists_ann 
-; A_id_ann_exists_times_id_d      := inl bop_max_exists_id 
-; A_id_ann_exists_times_ann_d     := inr bop_max_not_exists_ann
-; A_id_ann_plus_id_is_times_ann_d := inr bops_not_id_equals_ann_min_max 
-; A_id_ann_times_id_is_plus_ann_d := inl bops_id_equals_ann_max_min 
+  A_pann_is_tid_plus_times_d   := Id_Ann_Proof_None _ _ _ _ (bop_min_not_exists_id, bop_max_not_exists_ann) 
+; A_pann_is_tid_times_plus     := bops_id_equals_ann_min_max 
 |}.
-*) 
+
 
 Definition distributive_lattice_proofs_min_max : distributive_lattice_proofs nat brel_eq_nat bop_min bop_max := 
 {|
@@ -124,36 +115,37 @@ Definition distributive_lattice_proofs_min_max : distributive_lattice_proofs nat
   ; A_distributive_lattice_distributive    := bops_min_max_left_distributive
 |}.
 
-(*
-
-Definition A_selective_distributive_prelattice_min_max : A_selective_distributive_prelattice  nat  := 
+Definition A_min_max : A_selective_distributive_prelattice_with_one  nat  := 
 {|
-  A_selective_distributive_prelattice_eqv           := A_eqv_nat
-; A_selective_distributive_prelattice_join          := bop_min
-; A_selective_distributive_prelattice_meet          := bop_max
-; A_selective_distributive_prelattice_join_proofs   := sg_CS_proofs_min
-; A_selective_distributive_prelattice_meet_proofs   := sg_CS_proofs_max
-; A_selective_distributive_prelattice_id_ann_proofs :=id_ann_proofs_min_max                                                                  
-; A_selective_distributive_prelattice_proofs        :=  distributive_lattice_proofs_min_max
-; A_selective_distributive_prelattice_ast           := Ast_min_max
+  A_selective_distributive_prelattice_with_one_eqv           := A_eqv_nat
+; A_selective_distributive_prelattice_with_one_join          := bop_min
+; A_selective_distributive_prelattice_with_one_meet          := bop_max
+; A_selective_distributive_prelattice_with_one_join_proofs   := sg_CS_proofs_min
+; A_selective_distributive_prelattice_with_one_meet_proofs   := sg_CS_proofs_max
+; A_selective_distributive_prelattice_with_one_id_ann_proofs := id_ann_proofs_min_max                                                                  
+; A_selective_distributive_prelattice_with_one_proofs        := distributive_lattice_proofs_min_max
+; A_selective_distributive_prelattice_with_one_ast           := Ast_min_max
 |}.
 
- *)  
+
 End ACAS.
+
+Section MACAS.
+
+Definition A_mcas_min_max := A_BS_selective_distributive_prelattice_with_one _ A_min_max. 
+
+End MACAS.
+
 
 Section CAS.
 Open Scope nat.
-(*
-Definition id_ann_certs_min_max : @id_ann_certificates nat := 
+
+Definition id_ann_certs_min_max : @pann_is_tid_certificates nat := 
 {|
-  id_ann_exists_plus_id_d       := Certify_Not_Exists_Id
-; id_ann_exists_plus_ann_d      := Certify_Exists_Ann 0 
-; id_ann_exists_times_id_d      := Certify_Exists_Id 0 
-; id_ann_exists_times_ann_d     := Certify_Not_Exists_Ann
-; id_ann_plus_id_is_times_ann_d := Certify_Not_Plus_Id_Equals_Times_Ann 
-; id_ann_times_id_is_plus_ann_d := Certify_Times_Id_Equals_Plus_Ann 0
-|}.
-*) 
+   pann_is_tid_plus_times_d   := Id_Ann_Cert_None
+ ; pann_is_tid_times_plus     := Assert_Exists_Id_Ann_Equal 0 
+|}. 
+
 
 Definition distributive_lattice_certs_min_max : @distributive_lattice_certificates nat := 
 {|
@@ -161,30 +153,38 @@ Definition distributive_lattice_certs_min_max : @distributive_lattice_certificat
   ; distributive_lattice_absorptive_dual := Assert_Left_Left_Absorptive_Dual
   ; distributive_lattice_distributive    := Assert_Left_Distributive
 |}.
-(*
-Definition selective_distributive_prelattice_min_max : @selective_distributive_prelattice  nat  :=
+
+Definition min_max : @selective_distributive_prelattice_with_one  nat  :=
 {|
-  selective_distributive_prelattice_eqv          := eqv_eq_nat
-; selective_distributive_prelattice_join         := bop_min
-; selective_distributive_prelattice_meet         := bop_max
-; selective_distributive_prelattice_join_certs   := sg_CS_certs_min
-; selective_distributive_prelattice_meet_certs   := sg_CS_certs_max
-; selective_distributive_prelattice_id_ann_certs := id_ann_certs_min_max                                                                  
-; selective_distributive_prelattice_certs        := distributive_lattice_certs_min_max
-; selective_distributive_prelattice_ast          := Ast_min_max
+  selective_distributive_prelattice_with_one_eqv          := eqv_eq_nat
+; selective_distributive_prelattice_with_one_join         := bop_min
+; selective_distributive_prelattice_with_one_meet         := bop_max
+; selective_distributive_prelattice_with_one_join_certs   := sg_CS_certs_max
+; selective_distributive_prelattice_with_one_meet_certs   := sg_CS_certs_min
+; selective_distributive_prelattice_with_one_id_ann_certs := id_ann_certs_min_max                                                                  
+; selective_distributive_prelattice_with_one_certs        := distributive_lattice_certs_min_max
+; selective_distributive_prelattice_with_one_ast          := Ast_min_max
 |}.
-  
-*) 
+
 End CAS.
 
+Section MACAS.
+
+Definition mcas_min_max := BS_selective_distributive_prelattice_with_one min_max. 
+
+End MACAS.
+
+
+
 Section Verify.
-(*
-Theorem correct_selective_distributive_prelattice_min_max : 
-  selective_distributive_prelattice_min_max
-  =
-  A2C_selective_distributive_prelattice nat (A_selective_distributive_prelattice_min_max). 
+
+Theorem correct_min_max : min_max = A2C_selective_distributive_prelattice_with_one nat A_min_max. 
 Proof. compute. reflexivity. Qed. 
-*)   
- 
+
+Theorem correct_mcas_min_max : mcas_min_max = A2C_mcas_bs nat A_mcas_min_max.
+Proof. compute. reflexivity. Qed. 
+
+
 End Verify.   
   
+

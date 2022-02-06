@@ -195,7 +195,7 @@ Defined.
 
 (* see cases 1-4 in the proof below *) 
 
-Definition a_witness_llex_product_not_left_distributive
+Definition A_witness_llex_product_not_left_distributive
       (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
@@ -225,6 +225,37 @@ Definition a_witness_llex_product_not_left_distributive
              end.   
 
 (* for use in CAS *) 
+Definition witness_llex_product_not_left_distributive_new
+      (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))
+      (s1 s2 s3 : S)
+      (t1 t2 t3 : T)
+:= if (rS (s2 +S s3) s2) 
+   then if rS (s2 +S s3) s3
+        then (* can't reach this branch *) 
+             ((s1, t1), ((s2, t2), (s3, t3)))
+        else  if rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))
+              then (* case 1 *) 
+                   if rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))
+                   then ((s1, t1), ((s2, t3), (s3, t2)))
+                   else ((s1, t1), ((s2, t2), (s3, t3)))
+              else (* case 2 *) 
+                   ((s1, t1), ((s2, t2), (s3, t3)))
+   else if rS (s2 +S s3) s3
+        then (* case 3 *) 
+             if rT (t1 *T t3) ((t1 *T t2) +T (t1 *T t3))
+             then ((s1, t1), ((s2, t3), (s3, t2)))
+             else ((s1, t1), ((s2, t2), (s3, t3)))
+        else (* case 4 *) 
+             match selS_or_id_annT with 
+             | inl _ => (* can't reach this branch *) 
+                       ((s1, t1), ((s2, t2), (s3, t3)))
+             | inr _ => if rT argT (t1 *T t2)
+                        then ((s1, t1), ((s2, argT), (s3, t3)))
+                        else ((s1, t1), ((s2, argT), (s3, t2)))
+             end.   
+
+
+(* for use in CAS 
 Definition witness_llex_product_not_left_distributive_without_selectivity
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
@@ -248,8 +279,8 @@ Definition witness_llex_product_not_left_distributive_without_selectivity
              if rT argT (t1 *T t2)
              then ((s1, t1), ((s2, argT), (s3, t3)))
              else ((s1, t1), ((s2, argT), (s3, t2))). 
-
-(* for use in CAS *) 
+*) 
+(* for use in CAS 
 Definition witness_llex_product_not_left_distributive_with_selectivity
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
@@ -273,6 +304,8 @@ Definition witness_llex_product_not_left_distributive_with_selectivity
              (* can't reach this branch *)           
              ((s1, t1), ((s2, t2), (s3, t3))). 
 
+*) 
+
 
 Lemma bop_llex_product_not_left_distributive_v3
       (a_commT : bop_commutative T rT addT) (*NB*)
@@ -288,8 +321,8 @@ Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
 
           In each of the four cases pick a, b, and c to make that case work. 
         *)
-       exists(a_witness_llex_product_not_left_distributive selS_or_id_annT s1 s2 s3 t1 t2 t3). 
-       unfold a_witness_llex_product_not_left_distributive. 
+       exists(A_witness_llex_product_not_left_distributive selS_or_id_annT s1 s2 s3 t1 t2 t3). 
+       unfold A_witness_llex_product_not_left_distributive. 
        unfold bop_product, brel_product, bop_llex.        
        case_eq(rS s2 (s2 +S s3)); intro H2; 
        case_eq(rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))); intro H4; simpl. 
@@ -315,7 +348,7 @@ Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
 
              if rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))
              then (t1 *T t3) ((t1 *T t2) +T (t1 *T t3)) = false
-                   a     b     a     c       a     b    (use a_commT) 
+                   a     b     a     c       a     b    (use a_commT  !!!) 
 
              else (t1 *T t2) ((t1 *T t2) +T (t1 *T t3)) = false
                    a      b     a     b      a     c 
@@ -381,7 +414,7 @@ Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
 
              if rT (t1 *T t3) ((t1 *T t2) +T (t1 *T t3))
              then (t1 *T t2) ((t1 *T t2) +T (t1 *T t3)) = false
-                   a     c     a     c       a     b    (use a_commT) 
+                   a     c     a     c       a     b    (use a_commT !!!) 
 
              else (t1 *T t3) ((t1 *T t2) +T (t1 *T t3)) = false
                    a     c      a     b       a     c 
@@ -479,6 +512,97 @@ Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
            assert (F3 := tranS _ _ _ F2 F1).
            rewrite F3 in H3. discriminate H3. 
 Defined. 
+
+
+
+(*
+Non-selective 
+s1 +S s2 <> s1
+s1 +S s2 <> s2
+
+We know that argT is an id for +T
+and +T is 
+
+exists t : artT *T t <> argT or t *T argT <> argT 
+
+want 
+
+case 1: artT *T t <> argT. 
+
+case 2:  t *T argT <> argT. 
+
+LHS = 
+(a, t) * ((s1, y) lex (s2, z)) 
+= (a, t) * (s1 + s2, argT) 
+= (a * (s1 + s2), t * argT) 
+<>
+= (a * (s1 + s2), T(a*s1, a*s2, t * y, x * z)) 
+= (a * s1, t * y) lex (a * s2, x * z)
+= (a, t) * (s1, y)) lex ((a, x) * (s2, z))
+
+
+T(a*s1, a*s2, t * y, x * z))
+= case a *s1 = a*s1 + a*s2 = a*s2 => (t * y) +T (x * z)
+       a *s1 = a*s1 + a*s2 <> a*s2 => (t * y) 
+       a *s1 <> a*s1 + a*s2 = a*s2 => (x * z)
+       a *s1 <> a*s1 + a*s2 <> a*s2 => argT 
+
+Note: if +S has an id we could use a = id to make this work. 
+LHS = 
+(id, t) * ((s1, y) lex (s2, z)) 
+= (id, t) * (s1 + s2, argT) 
+= (id * (s1 + s2), t * argT) 
+= (s1 + s2, t * argT) 
+<>
+= (s1 + s2, argT)
+= (s1, t * y) lex (s2, x * z)
+= (id * s1, t * y) lex (id * s2, x * z)
+= (id, t) * (s1, y)) lex ((id, x) * (s2, z))
+
+with no id? 
+
+G :  ∀ i exists s, i s <> s or s i <> s  
+
+------------
+If *S is cancellative? 
+  
+    a *s1 = a*s1 + a*s2  => a*(s1 + s2) = a*s1 
+                         => (s1 + s2) = s1  **** etc
+   so must have 
+       a *s1 <> a*s1 + a*s2 <> a*s2 => argT <> argT. 
+
+If *T is left_constant? 
+
+ *)
+Lemma bop_llex_product_not_left_distributive_testing_1_2_3 (a : S) (y z : T) 
+      (nselS : bop_not_selective S rS addS)
+      (nannT : bop_not_is_ann T rT mulT argT)
+      (ldS : bop_left_distributive S rS addS mulS)
+      (ldT : bop_left_distributive T rT addT mulT)
+      (D : (bop_left_cancellative S rS mulS) + (bop_left_constant T rT mulT)) :       
+  bop_not_left_distributive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Proof. destruct nselS as [[s1 s2] [A B]]; destruct nannT as [t F].
+       assert (A' : rS s1 (s1 +S s2) = false). admit.
+       assert (B' : rS s2 (s1 +S s2) = false). admit.        
+       destruct F as [F | F]; destruct D as [D | D]. 
+       + (* F : rT (argT *T t) argT = false   D : bop_left_cancellative S rS mulS *)
+         admit. 
+       + (* F : rT (argT *T t) argT = false   D : bop_left_constant T rT mulT     *)
+         admit. 
+       + (* F : rT (t *T argT) argT = false   D : bop_left_cancellative S rS mulS *)
+         exists ((a, t), ((s1, wT), (s2, wT))). compute. 
+         rewrite ldS. rewrite B. rewrite A'.
+         case_eq(rS (a *S s1) ((a *S s1) +S (a *S s2))); intro E;
+         case_eq(rS ((a *S s1) +S (a *S s2)) (a *S s2)); intro G.
+         ++ admit.  (* contradicts D *) 
+         ++ admit. (* contradicts D *) 
+         ++ admit. (* contradicts D *) 
+         ++ exact F. 
+       + (* F : rT (t *T argT) argT = false   D : bop_left_constant T rT mulT     *) 
+         admit. 
+Admitted. 
+
+
 
 
 
@@ -602,7 +726,7 @@ Defined.
 
 (* see cases 1-4 in the proof below *) 
 
-Definition a_witness_llex_product_not_right_distributive
+Definition A_witness_llex_product_not_right_distributive
       (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
@@ -632,6 +756,38 @@ Definition a_witness_llex_product_not_right_distributive
              end.   
 
 (* for use in CAS *) 
+Definition witness_llex_product_not_right_distributive_new
+      (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))
+      (s1 s2 s3 : S)
+      (t1 t2 t3 : T)
+:= if (rS (s2 +S s3) s2) 
+   then if rS (s2 +S s3) s3
+        then (* can't reach this branch *) 
+             ((s1, t1), ((s2, t2), (s3, t3)))
+        else  if rS (s2 *S s1) ((s2 *S s1) +S (s3 *S s1))
+              then (* case 1 *) 
+                   if rT (t2 *T t1) ((t2 *T t1) +T (t3 *T t1))
+                   then ((s1, t1), ((s2, t3), (s3, t2)))
+                   else ((s1, t1), ((s2, t2), (s3, t3)))
+              else (* case 2 *) 
+                   ((s1, t1), ((s2, t2), (s3, t3)))
+   else if rS (s2 +S s3) s3
+        then (* case 3 *) 
+             if rT (t3 *T t1) ((t2 *T t1) +T (t3 *T t1))
+             then ((s1, t1), ((s2, t3), (s3, t2)))
+             else ((s1, t1), ((s2, t2), (s3, t3)))
+        else (* case 4 *) 
+             match selS_or_id_annT with 
+             | inl _ => (* can't reach this branch *) 
+                       ((s1, t1), ((s2, t2), (s3, t3)))
+             | inr _ => if rT argT (t2 *T t1)
+                        then ((s1, t1), ((s2, argT), (s3, t3)))
+                        else ((s1, t1), ((s2, argT), (s3, t2)))
+             end.   
+
+
+
+(* for use in CAS 
 Definition witness_llex_product_not_right_distributive_without_selectivity 
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
@@ -655,8 +811,8 @@ Definition witness_llex_product_not_right_distributive_without_selectivity
              if rT argT (t2 *T t1)
              then ((s1, t1), ((s2, argT), (s3, t3)))
              else ((s1, t1), ((s2, argT), (s3, t2))). 
-
-(* for use in CAS *) 
+*) 
+(* for use in CAS 
 Definition witness_llex_product_not_right_distributive_with_selectivity 
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
@@ -680,7 +836,7 @@ Definition witness_llex_product_not_right_distributive_with_selectivity
              (* can't reach this branch *) 
              ((s1, t1), ((s2, t2), (s3, t3))). 
 
-
+*) 
 Lemma bop_llex_product_not_right_distributive_v3 
       (a_commT : bop_commutative T rT addT) (*NB*)
       (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))
@@ -695,8 +851,8 @@ Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
 
           In each of the four cases pick a, b, and c to make that case work. 
         *)
-       exists(a_witness_llex_product_not_right_distributive selS_or_id_annT s1 s2 s3 t1 t2 t3). 
-       unfold a_witness_llex_product_not_right_distributive. 
+       exists(A_witness_llex_product_not_right_distributive selS_or_id_annT s1 s2 s3 t1 t2 t3). 
+       unfold A_witness_llex_product_not_right_distributive. 
        unfold bop_product, brel_product, bop_llex.
        case_eq(rS s2 (s2 +S s3)); intro H2; 
        case_eq(rS (s2 *S s1) ((s2 *S s1) +S (s3 *S s1))); intro H4; simpl. 
@@ -1739,7 +1895,7 @@ let pT_id_ann_times_plus_d := A_id_ann_times_plus_d _ _ _ _ pT in
 (*   bs_proofs   *) 
 
 
-Definition bs_proofs_llex_product_v1
+Definition bs_proofs_llex_product_idempotent_case
            (id_is_annT : (bop_is_id T rT addT argT) * (bop_is_ann T rT mulT argT))
            (addPS : sg_CI_proofs S rS addS)
            (addPT : sg_CI_proofs T rT addT)
@@ -1792,7 +1948,7 @@ let RRAT := A_bs_right_right_absorptive_d _ _ _ _ pT in
                                                 cng_addS RRAS RRAT ARS 
 |}.
 
-Definition bs_proofs_llex_product_v2 
+Definition bs_proofs_llex_product_selective_case
            (addPS : sg_CS_proofs S rS addS)
            (addPT : sg_CI_proofs T rT addT)
            (mulPS : sg_proofs S rS mulS)
@@ -1981,10 +2137,6 @@ Definition A_llex_product_INTERNAL
                  (bop_is_ann T (A_eqv_eq _ (A_bs_eqv _ B)) (A_bs_times _ B) argT)
                 )
            ) : A_bs (S * T) :=
-let P' := match P with
-          | inl sel => inl sel
-          | inr (idP, _) => inr idP
-          end in 
 let eqvS   := A_bs_eqv _ A in
 let eqvT   := A_bs_eqv _ B in
 let eqS    := A_eqv_eq _ eqvS in
@@ -2009,17 +2161,31 @@ let f      := A_eqv_new _ eqvS in
 let ntS    := A_eqv_not_trivial _ eqvS in 
 let wT     := A_eqv_witness _ eqvT in
 let g      := A_eqv_new _ eqvT in
-let ntT    := A_eqv_not_trivial _ eqvT in 
+let ntT    := A_eqv_not_trivial _ eqvT in
+match P with
+| inl sel         =>
+{|
+  A_bs_eqv           := A_eqv_product S T eqvS eqvT 
+; A_bs_plus          := bop_llex wT eqS plusS plusT 
+; A_bs_times         := bop_product timesS timesT
+; A_bs_plus_proofs   := sg_llex_proofs S T wS wT wT eqS eqT f ntS g ntT plusS plusT eqvPS eqvPT plusPS plusPT idemS commS (inl sel)
+; A_bs_times_proofs  := sg_proofs_product S T eqS eqT timesS timesT wS f wT g ntS ntT eqvPS eqvPT timesPS timesPT 
+; A_bs_id_ann_proofs := id_ann_proofs_llex_product S T wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT id_annS id_annT 
+; A_bs_proofs        := bs_proofs_llex_product_INTERNAL S T wS wT wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT plusPS plusPT timesPS timesPT pS pT idemS commT (inl sel) 
+; A_bs_ast           := Ast_bs_llex (A_bs_ast S A, A_bs_ast T B)
+|}
+| inr (idP, annP) =>
 {|
   A_bs_eqv           := A_eqv_product S T eqvS eqvT 
 ; A_bs_plus          := bop_llex argT eqS plusS plusT 
 ; A_bs_times         := bop_product timesS timesT
-; A_bs_plus_proofs   := sg_llex_proofs S T wS wT argT eqS eqT f ntS g ntT plusS plusT eqvPS eqvPT plusPS plusPT idemS commS P'
+; A_bs_plus_proofs   := sg_llex_proofs S T wS wT argT eqS eqT f ntS g ntT plusS plusT eqvPS eqvPT plusPS plusPT idemS commS (inr idP)
 ; A_bs_times_proofs  := sg_proofs_product S T eqS eqT timesS timesT wS f wT g ntS ntT eqvPS eqvPT timesPS timesPT 
 ; A_bs_id_ann_proofs := id_ann_proofs_llex_product S T argT eqS eqT plusS timesS plusT timesT eqvPS eqvPT id_annS id_annT 
-; A_bs_proofs        := bs_proofs_llex_product_INTERNAL S T wS wT argT eqS eqT plusS timesS plusT timesT eqvPS eqvPT plusPS plusPT timesPS timesPT pS pT idemS commT P
+; A_bs_proofs        := bs_proofs_llex_product_INTERNAL S T wS wT argT eqS eqT plusS timesS plusT timesT eqvPS eqvPT plusPS plusPT timesPS timesPT pS pT idemS commT (inr(idP, annP))
 ; A_bs_ast           := Ast_bs_llex (A_bs_ast S A, A_bs_ast T B)
-|}.
+|}
+end.    
 
   
 
@@ -2056,7 +2222,7 @@ let ntT    := A_eqv_not_trivial _ eqvT in
 ; A_bs_CI_plus_proofs   := sg_CI_llex_proofs_v2 S T wS wT eqS eqT plusS plusT eqvPS eqvPT plusPS plusPT 
 ; A_bs_CI_times_proofs  := sg_proofs_product S T eqS eqT timesS timesT wS f wT g ntS ntT eqvPS eqvPT timesPS timesPT 
 ; A_bs_CI_id_ann_proofs := id_ann_proofs_llex_product S T wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT id_annS id_annT 
-; A_bs_CI_proofs        := bs_proofs_llex_product_v2 S T wS wT wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT plusPS plusPT timesPS timesPT pS pT 
+; A_bs_CI_proofs        := bs_proofs_llex_product_selective_case S T wS wT wT eqS eqT plusS timesS plusT timesT eqvPS eqvPT plusPS plusPT timesPS timesPT pS pT 
 ; A_bs_CI_ast           := Ast_bs_llex (A_bs_CS_ast S A, A_bs_CI_ast T B)
 |}.
 
@@ -2201,7 +2367,38 @@ Variable mulS : binary_op S.
 Variable addT : binary_op T.
 Variable mulT : binary_op T.
 
-Definition bops_llex_product_left_distributive_certify_with_selectivity 
+
+Definition bops_llex_product_left_distributive_certify_new
+     (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))
+     (lcS_d : @check_left_cancellative S) 
+     (lkT_d : @check_left_constant T) 
+     (ldS_d : @check_left_distributive S) 
+     (ldT_d : @check_left_distributive T) : 
+     @check_left_distributive (S * T) := 
+match ldS_d with 
+| Certify_Left_Distributive => 
+   match ldT_d with 
+   | Certify_Left_Distributive => 
+       match lcS_d with 
+       | Certify_Left_Cancellative => Certify_Left_Distributive  
+       | Certify_Not_Left_Cancellative (s1, (s2, s3)) => 
+            match lkT_d with 
+            | Certify_Left_Constant => Certify_Left_Distributive  
+            | Certify_Not_Left_Constant (t1, (t2, t3)) => 
+                  Certify_Not_Left_Distributive  
+                    (witness_llex_product_not_left_distributive_new S T rS rT argT addS mulS addT mulT selS_or_id_annT s1 s2 s3 t1 t2 t3 )
+            end 
+       end 
+   | Certify_Not_Left_Distributive (t1, (t2, t3)) => 
+          Certify_Not_Left_Distributive  ((wS, t1), ((wS, t2), (wS, t3))) 
+   end 
+| Certify_Not_Left_Distributive (s1, (s2, s3)) => 
+        Certify_Not_Left_Distributive  ((s1, wT), ((s2, wT), (s3, wT))) 
+end.
+
+
+(*
+Definition bops_llex_product_left_distributive_certify
      (lcS_d : @check_left_cancellative S) 
      (lkT_d : @check_left_constant T) 
      (ldS_d : @check_left_distributive S) 
@@ -2255,8 +2452,43 @@ match ldS_d with
 | Certify_Not_Left_Distributive (s1, (s2, s3)) => 
         Certify_Not_Left_Distributive  ((s1, wT), ((s2, wT), (s3, wT))) 
 end.
+*) 
 
-Definition bops_llex_product_right_distributive_certify_with_selectivity 
+
+
+Definition bops_llex_product_right_distributive_certify_new
+     (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))           
+     (lcS_d : check_right_cancellative (S := S)) 
+     (lkT_d : check_right_constant (S := T)) 
+     (ldS_d : check_right_distributive (S := S)) 
+     (ldT_d : check_right_distributive (S := T)) : 
+     check_right_distributive (S := (S * T)) 
+:= 
+match ldS_d with 
+| Certify_Right_Distributive => 
+   match ldT_d with 
+   | Certify_Right_Distributive => 
+       match lcS_d with 
+       | Certify_Right_Cancellative => Certify_Right_Distributive  
+       | Certify_Not_Right_Cancellative (s1, (s2, s3)) => 
+            match lkT_d with 
+            | Certify_Right_Constant => Certify_Right_Distributive  
+            | Certify_Not_Right_Constant (t1, (t2, t3)) => 
+                  Certify_Not_Right_Distributive  
+                     (witness_llex_product_not_right_distributive_new S T rS rT argT addS mulS addT mulT selS_or_id_annT s1 s2 s3 t1 t2 t3) 
+
+            end 
+       end 
+   | Certify_Not_Right_Distributive (t1, (t2, t3)) => 
+          Certify_Not_Right_Distributive  ((wS, t1), ((wS, t2), (wS, t3))) 
+   end 
+| Certify_Not_Right_Distributive (s1, (s2, s3)) => 
+        Certify_Not_Right_Distributive  ((s1, wT), ((s2, wT), (s3, wT))) 
+end.
+
+
+(*  
+Definition bops_llex_product_right_distributive_certify
      (lcS_d : check_right_cancellative (S := S)) 
      (lkT_d : check_right_constant (S := T)) 
      (ldS_d : check_right_distributive (S := S)) 
@@ -2313,6 +2545,8 @@ match ldS_d with
 | Certify_Not_Right_Distributive (s1, (s2, s3)) => 
         Certify_Not_Right_Distributive  ((s1, wT), ((s2, wT), (s3, wT))) 
 end.
+ *)
+
 
 Definition bops_llex_product_left_left_absorptive_certify 
      (dS : @check_left_left_absorptive S) 
@@ -2331,7 +2565,7 @@ match dS with
        end
      end 
 | Certify_Not_Left_Left_Absorptive (s1, s2) => 
-        Certify_Not_Left_Left_Absorptive  ((s1, wT), (s2, wT))
+        Certify_Not_Left_Left_Absorptive  ((s1, argT), (s2, argT))
 end. 
 
 
@@ -2426,7 +2660,7 @@ let pT_id_ann_times_plus_d := id_ann_times_plus_d pT in
 ; id_ann_times_plus_d := bops_llex_product_exists_id_ann_certify pS_id_ann_times_plus_d pT_id_ann_times_plus_d
 |}.
 
-
+(*
 Definition bs_certs_llex_product_without_selectivity
            (mulPS : @sg_certificates S)
            (mulPT : @sg_certificates T)
@@ -2466,7 +2700,7 @@ let RRAT := bs_right_right_absorptive_d pT in
 |}.
 
 
-Definition bs_certs_llex_product_with_selectivity
+Definition bs_certs_llex_product
            (mulPS : @sg_certificates S)
            (mulPT : @sg_certificates T)
            (pS : @bs_certificates  S)
@@ -2491,9 +2725,9 @@ let RRAS := bs_right_right_absorptive_d pS in
 let RRAT := bs_right_right_absorptive_d pT in
 {|
   bs_left_distributive_d    :=
-    bops_llex_product_left_distributive_certify_with_selectivity S T wS wT rS rT addS mulS addT mulT LC LK LDS LDT 
+    bops_llex_product_left_distributive_certify S T wS wT rS rT addS mulS addT mulT LC LK LDS LDT 
 ; bs_right_distributive_d   := 
-    bops_llex_product_right_distributive_certify_with_selectivity S T wS wT rS rT addS mulS addT mulT RC RK RDS RDT 
+    bops_llex_product_right_distributive_certify S T wS wT rS rT addS mulS addT mulT RC RK RDS RDT 
 ; bs_left_left_absorptive_d      := 
     bops_llex_product_left_left_absorptive_certify S T argT LLAS LLAT ALS 
 ; bs_left_right_absorptive_d      := 
@@ -2504,7 +2738,7 @@ let RRAT := bs_right_right_absorptive_d pT in
     bops_llex_product_right_right_absorptive_certify S T argT RRAS RRAT ARS 
 |}.
 
-
+*) 
 
 Definition bs_certs_llex_product_INTERNAL
            (addPS : @sg_certificates S)
@@ -2539,36 +2773,25 @@ let RLAT := bs_right_left_absorptive_d pT in
 let RRAS := bs_right_right_absorptive_d pS in
 let RRAT := bs_right_right_absorptive_d pT in
 {|
-  bs_left_distributive_d    :=
-    match P with
-    | inl _                        =>
-         bops_llex_product_left_distributive_certify_with_selectivity       S T wS wT      rS rT addS mulS addT mulT LC LK LDS LDT
-    | inr (Assert_Exists_Id id, _) =>
-         bops_llex_product_left_distributive_certify_without_selectivity S T wS wT id rS rT addS mulS addT mulT LC LK LDS LDT 
-    end
-; bs_right_distributive_d   := 
-    match P with
-    | inl _                        =>
-         bops_llex_product_right_distributive_certify_with_selectivity       S T wS wT      rS rT addS mulS addT mulT RC RK RDS RDT
-    | inr (Assert_Exists_Id id, _) =>
-         bops_llex_product_right_distributive_certify_without_selectivity S T wS wT id rS rT addS mulS addT mulT RC RK RDS RDT 
-    end
+  bs_left_distributive_d    := bops_llex_product_left_distributive_certify_new S T wS wT argT rS rT addS mulS addT mulT P LC LK LDS LDT 
+; bs_right_distributive_d   := bops_llex_product_right_distributive_certify_new S T wS wT argT rS rT addS mulS addT mulT P RC RK RDS RDT 
 ; bs_left_left_absorptive_d      := 
-    bops_llex_product_left_left_absorptive_certify S T argT LLAS LLAT ALS 
+    bops_llex_product_left_left_absorptive_certify S T wT LLAS LLAT ALS 
 ; bs_left_right_absorptive_d      := 
-    bops_llex_product_left_right_absorptive_certify S T argT LRAS LRAT ARS 
+    bops_llex_product_left_right_absorptive_certify S T wT LRAS LRAT ARS 
 ; bs_right_left_absorptive_d      := 
-    bops_llex_product_right_left_absorptive_certify S T argT RLAS RLAT ALS 
+    bops_llex_product_right_left_absorptive_certify S T wT RLAS RLAT ALS 
 ; bs_right_right_absorptive_d      := 
-    bops_llex_product_right_right_absorptive_certify S T argT RRAS RRAT ARS 
-
-|}.
+    bops_llex_product_right_right_absorptive_certify S T wT RRAS RRAT ARS 
+|}. 
 
   
 End Certificates.
 
 Section Combinators.
 
+
+(*  
 Definition llex_product_from_CS_CI {S T : Type} (A : @bs_CS S) (B : @bs_CI T) : @bs_CI (S * T) :=
 let eqvS   := bs_CS_eqv A in
 let eqvT   := bs_CI_eqv B in
@@ -2598,7 +2821,7 @@ let wT     := eqv_witness eqvT in
 ; bs_CI_plus_certs    := sg_CI_llex_certs_v2 wS plusPS plusPT 
 ; bs_CI_times_certs   := sg_certs_product wS wT timesPS timesPT 
 ; bs_CI_id_ann_certs  := id_ann_certs_llex_product S T id_annS id_annT 
-; bs_CI_certs         := bs_certs_llex_product_with_selectivity S T wS wT wT eqS eqT plusS timesS plusT timesT timesPS timesPT pS pT 
+; bs_CI_certs         := bs_certs_llex_product S T wS wT wT eqS eqT plusS timesS plusT timesT timesPS timesPT pS pT 
 ; bs_CI_ast           := Ast_bs_llex (bs_CS_ast A, bs_CI_ast B)
 |}.
 
@@ -2633,10 +2856,10 @@ let wT     := eqv_witness eqvT in
 ; bs_CS_plus_certs    := sg_CS_llex_certs plusPS plusPT 
 ; bs_CS_times_certs   := sg_certs_product wS wT timesPS timesPT 
 ; bs_CS_id_ann_certs  := id_ann_certs_llex_product S T id_annS id_annT 
-; bs_CS_certs         := bs_certs_llex_product_with_selectivity S T wS wT wT eqS eqT plusS timesS plusT timesT timesPS timesPT pS pT 
+; bs_CS_certs         := bs_certs_llex_product S T wS wT wT eqS eqT plusS timesS plusT timesT timesPS timesPT pS pT 
 ; bs_CS_ast           := Ast_bs_llex (bs_CS_ast A, bs_CS_ast B)
 |}.
-
+*) 
 
 Definition llex_product_INTERNAL
            {S T : Type}
@@ -2648,10 +2871,6 @@ Definition llex_product_INTERNAL
            (commT : @assert_commutative T)
            (P : (@assert_selective S) +
                 ((@assert_exists_id T) * (@assert_exists_ann T ))) : @bs (S * T) :=
-let P' := match P with
-          | inl Assert_Selective => inl Assert_Selective
-          | inr (idP, _) => inr idP
-          end in 
 let eqvS     := bs_eqv A in
 let eqvT     := bs_eqv B in
 let eqS      := eqv_eq eqvS in
@@ -2675,18 +2894,32 @@ let wS     := eqv_witness eqvS in
 let f      := eqv_new eqvS in
 let wT     := eqv_witness eqvT in
 let g      := eqv_new eqvT in
+match P with
+| inl Assert_Selective => 
+{|
+  bs_eqv          := eqv_product eqvS eqvT 
+; bs_plus         := bop_llex wT eqS plusS plusT 
+; bs_times        := bop_product timesS timesT
+; bs_plus_certs   := sg_llex_certificates eqS wS f wT wT g plusS plusPS plusPT idemS commS (inl Assert_Selective)
+; bs_times_certs  := sg_certs_product wS wT timesPS timesPT 
+; bs_id_ann_certs := id_ann_certs_llex_product S T id_annS id_annT 
+; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT wT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT (inl Assert_Selective)
+; bs_ast           := Ast_bs_llex (bs_ast A, bs_ast B)
+|}
+| inr (idP, annP) =>
 {|
   bs_eqv          := eqv_product eqvS eqvT 
 ; bs_plus         := bop_llex argT eqS plusS plusT 
 ; bs_times        := bop_product timesS timesT
-; bs_plus_certs   := sg_llex_certificates eqS wS f wT argT g plusS plusPS plusPT idemS commS P'
+; bs_plus_certs   := sg_llex_certificates eqS wS f wT argT g plusS plusPS plusPT idemS commS (inr idP)
 ; bs_times_certs  := sg_certs_product wS wT timesPS timesPT 
 ; bs_id_ann_certs := id_ann_certs_llex_product S T id_annS id_annT 
-; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT argT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT P
+; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT argT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT (inr (idP, annP))
 ; bs_ast           := Ast_bs_llex (bs_ast A, bs_ast B)
-|}.
+|}  
+end.
 
-End Combinators.
+ End Combinators.
 
 End CAS.
 
@@ -2852,102 +3085,20 @@ Proof. unfold p2c_exists_id_ann, bops_llex_product_exists_id_ann_decide_right,
          ++ destruct b as [[idS annS] [[A B] C]]; destruct b0 as [[idT annT] [[D E] F]]; simpl. reflexivity. 
 Qed. 
 
-
-Lemma correct_bops_llex_product_left_distributive_certify_with_selectivity
-  (selS : bop_selective S rS addS)
-  (com_addT : bop_commutative T rT addT)      
-  (cng_addS : bop_congruence S rS addS)
-  (cng_mulS : bop_congruence S rS mulS)
-  (cng_addT : bop_congruence T rT addT)
-  (LDS : bop_left_distributive_decidable S rS addS mulS)
-  (LDT : bop_left_distributive_decidable T rT addT mulT)
-  (LCS : bop_left_cancellative_decidable S rS mulS)
-  (LKT : bop_left_constant_decidable T rT mulT) : 
-  p2c_left_distributive (S * T)
-                      (brel_product rS rT)
-                      (bop_llex wT rS addS addT)
-                      (bop_product mulS mulT)
-                      (bops_llex_product_left_distributive_decide S T
-                                 wS wT wT rS rT addS mulS addT mulT eqvS eqvT
-                                 (bop_selective_implies_idempotent S rS addS selS)
-                                 cng_addS cng_mulS cng_addT com_addT 
-                                 (inl selS) LDS LDT LCS LKT)                                  
-   = 
-   bops_llex_product_left_distributive_certify_with_selectivity
-                              S T wS wT rS rT addS mulS addT mulT
-                              (p2c_left_cancel_check S rS mulS LCS) 
-                              (p2c_left_constant_check T rT mulT LKT)
-                              (p2c_left_distributive S rS addS mulS LDS) 
-                              (p2c_left_distributive T rT addT mulT LDT).
-Proof. destruct LCS as [lcS | [[x1 [x2 x3]] [A B]]];
-       destruct LKT as [lkT | [[y1 [y2 y3]] C]];
-       destruct LDS as [ldS | [[s1 [s2 s3]] nldS]];
-       destruct LDT as [ldT | [[t1 [t2 t3]] nldT]]; 
-       unfold p2c_left_distributive, p2c_left_cancel_check, p2c_left_constant_check,
-       p2c_left_distributive; 
-       unfold bops_llex_product_left_distributive_certify_with_selectivity,
-       bops_llex_product_left_distributive_decide; 
-       unfold a_witness_llex_product_not_left_distributive,
-       witness_llex_product_not_left_distributive_with_selectivity; simpl;
-       reflexivity. 
-Qed.
-
-
-Lemma correct_bops_llex_product_right_distributive_certify_with_selectivity
-  (selS : bop_selective S rS addS)
-  (cng_addS : bop_congruence S rS addS)      
-  (com_addT : bop_commutative T rT addT)      
-  (cng_addT : bop_congruence T rT addT)
-  (cng_mulS : bop_congruence S rS mulS)  
-  (RDS : bop_right_distributive_decidable S rS addS mulS)
-  (RDT : bop_right_distributive_decidable T rT addT mulT)
-  (RCS : bop_right_cancellative_decidable S rS mulS)
-  (RKT : bop_right_constant_decidable T rT mulT) : 
-  p2c_right_distributive (S * T)
-                      (brel_product rS rT)
-                      (bop_llex wT rS addS addT)
-                      (bop_product mulS mulT)
-                      (bops_llex_product_right_distributive_decide S T
-                                 wS wT wT rS rT addS mulS addT mulT eqvS eqvT
-                                 (bop_selective_implies_idempotent S rS addS selS)
-                                 cng_addS cng_mulS cng_addT com_addT 
-                                 (inl selS) RDS RDT RCS RKT)                                  
-   = 
-   bops_llex_product_right_distributive_certify_with_selectivity
-                              S T wS wT rS rT addS mulS addT mulT
-                              (p2c_right_cancel_check S rS mulS RCS) 
-                              (p2c_right_constant_check T rT mulT RKT)
-                              (p2c_right_distributive S rS addS mulS RDS) 
-                              (p2c_right_distributive T rT addT mulT RDT).
-Proof. destruct RCS as [lcS | [[x1 [x2 x3]] [A B]]];
-       destruct RKT as [lkT | [[y1 [y2 y3]] C]];
-       destruct RDS as [ldS | [[s1 [s2 s3]] nldS]];
-       destruct RDT as [ldT | [[t1 [t2 t3]] nldT]]; 
-       unfold p2c_right_distributive, p2c_right_cancel_check, p2c_right_constant_check,
-       p2c_right_distributive; 
-       unfold bops_llex_product_right_distributive_certify_with_selectivity,
-       bops_llex_product_right_distributive_decide; 
-       unfold a_witness_llex_product_not_right_distributive,
-       witness_llex_product_not_right_distributive_with_selectivity; simpl;
-       reflexivity. 
-Qed.
-
-
-
 Lemma correct_bops_llex_product_left_left_absorptive_certify
-  (selS : bop_selective S rS addS)
+  (t : T) 
+  (idemS : bop_idempotent S rS addS)
   (cng_addS : bop_congruence S rS addS)            
   (ALS  : bop_anti_left_decidable S rS mulS)
   (LLS  : bops_left_left_absorptive_decidable S rS addS mulS)
   (LLT  : bops_left_left_absorptive_decidable T rT addT mulT) : 
   p2c_left_left_absorptive (S * T)
                            (brel_product rS rT)
-                           (bop_llex wT rS addS addT)
+                           (bop_llex t rS addS addT)
                            (bop_product mulS mulT)
                            (bops_llex_product_left_left_absorptive_decide
-                                    S T wT wT rS rT addS mulS addT mulT eqvS eqvT 
-                                    (bop_selective_implies_idempotent S rS addS selS) 
-                                    cng_addS LLS LLT ALS) 
+                                    S T wT t rS rT addS mulS addT mulT eqvS eqvT 
+                                    idemS cng_addS LLS LLT ALS) 
   = 
   bops_llex_product_left_left_absorptive_certify S T wT
                                  (p2c_left_left_absorptive S rS addS mulS LLS)
@@ -2959,25 +3110,25 @@ Proof. destruct ALS as [lcS | [[x1 x2] A]];
        unfold p2c_left_left_absorptive, p2c_anti_left_check; 
        unfold bops_llex_product_left_left_absorptive_decide,
        bops_llex_product_left_left_absorptive_certify; simpl; 
-       reflexivity. 
+       try reflexivity. 
 Qed.
 
 
 
 Lemma correct_bops_llex_product_left_right_absorptive_certify
-  (selS : bop_selective S rS addS)
+  (t : T)       
+  (idemS : bop_idempotent S rS addS)      
   (cng_addS : bop_congruence S rS addS)            
   (ALS  : bop_anti_right_decidable S rS mulS)
   (LLS  : bops_left_right_absorptive_decidable S rS addS mulS)
   (LLT  : bops_left_right_absorptive_decidable T rT addT mulT) : 
   p2c_left_right_absorptive (S * T)
                            (brel_product rS rT)
-                           (bop_llex wT rS addS addT)
+                           (bop_llex t rS addS addT)
                            (bop_product mulS mulT)
                            (bops_llex_product_left_right_absorptive_decide
-                                    S T wT wT rS rT addS mulS addT mulT eqvS eqvT 
-                                    (bop_selective_implies_idempotent S rS addS selS) 
-                                    cng_addS LLS LLT ALS) 
+                                    S T wT t rS rT addS mulS addT mulT eqvS eqvT 
+                                    idemS cng_addS LLS LLT ALS) 
   = 
   bops_llex_product_left_right_absorptive_certify S T wT
                                  (p2c_left_right_absorptive S rS addS mulS LLS)
@@ -2994,19 +3145,19 @@ Qed.
 
 
 Lemma correct_bops_llex_product_right_left_absorptive_certify
-  (selS : bop_selective S rS addS)
+  (t : T)       
+  (idemS : bop_idempotent S rS addS)      
   (cng_addS : bop_congruence S rS addS)            
   (ALS  : bop_anti_left_decidable S rS mulS)
   (LLS  : bops_right_left_absorptive_decidable S rS addS mulS)
   (LLT  : bops_right_left_absorptive_decidable T rT addT mulT) : 
   p2c_right_left_absorptive (S * T)
                            (brel_product rS rT)
-                           (bop_llex wT rS addS addT)
+                           (bop_llex t rS addS addT)
                            (bop_product mulS mulT)
                            (bops_llex_product_right_left_absorptive_decide
-                                    S T wT wT rS rT addS mulS addT mulT eqvS eqvT 
-                                    (bop_selective_implies_idempotent S rS addS selS) 
-                                    cng_addS LLS LLT ALS) 
+                                    S T wT t rS rT addS mulS addT mulT eqvS eqvT 
+                                    idemS cng_addS LLS LLT ALS) 
   = 
   bops_llex_product_right_left_absorptive_certify S T wT
                                  (p2c_right_left_absorptive S rS addS mulS LLS)
@@ -3024,19 +3175,19 @@ Qed.
 
 
 Lemma correct_bops_llex_product_right_right_absorptive_certify
-  (selS : bop_selective S rS addS)
+  (t : T)       
+  (idemS : bop_idempotent S rS addS)      
   (cng_addS : bop_congruence S rS addS)            
   (ALS  : bop_anti_right_decidable S rS mulS)
   (LLS  : bops_right_right_absorptive_decidable S rS addS mulS)
   (LLT  : bops_right_right_absorptive_decidable T rT addT mulT) : 
   p2c_right_right_absorptive (S * T)
                            (brel_product rS rT)
-                           (bop_llex wT rS addS addT)
+                           (bop_llex t rS addS addT)
                            (bop_product mulS mulT)
                            (bops_llex_product_right_right_absorptive_decide
-                                    S T wT wT rS rT addS mulS addT mulT eqvS eqvT 
-                                    (bop_selective_implies_idempotent S rS addS selS) 
-                                    cng_addS LLS LLT ALS) 
+                                    S T wT t rS rT addS mulS addT mulT eqvS eqvT 
+                                    idemS cng_addS LLS LLT ALS) 
   = 
   bops_llex_product_right_right_absorptive_certify S T wT
                                  (p2c_right_right_absorptive S rS addS mulS LLS)
@@ -3051,6 +3202,213 @@ Proof. destruct ALS as [lcS | [[x1 x2] A]];
        reflexivity. 
 Qed.
 
+
+Lemma correct_bops_llex_product_left_distributive_certify
+  (P : (bop_selective S rS addS) + ((bop_is_id T rT addT argT) * (bop_is_ann T rT mulT argT)))
+  (idemS : bop_idempotent S rS addS)      
+  (com_addT : bop_commutative T rT addT)      
+  (cng_addS : bop_congruence S rS addS)
+  (cng_mulS : bop_congruence S rS mulS)
+  (cng_addT : bop_congruence T rT addT)
+  (LDS : bop_left_distributive_decidable S rS addS mulS)
+  (LDT : bop_left_distributive_decidable T rT addT mulT)
+  (LCS : bop_left_cancellative_decidable S rS mulS)
+  (LKT : bop_left_constant_decidable T rT mulT) : 
+  p2c_left_distributive (S * T)
+                      (brel_product rS rT)
+                      (bop_llex argT rS addS addT)
+                      (bop_product mulS mulT)
+                      (bops_llex_product_left_distributive_decide S T
+                                 wS wT argT rS rT addS mulS addT mulT eqvS eqvT
+                                 idemS cng_addS cng_mulS cng_addT com_addT 
+                                 P LDS LDT LCS LKT)                                  
+   = 
+   bops_llex_product_left_distributive_certify_new
+                              S T wS wT argT rS rT addS mulS addT mulT
+                              (match P with
+                               | inl _ => inl Assert_Selective
+                               | inr (P1, P2) => inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)
+                               end )
+                              (p2c_left_cancel_check S rS mulS LCS) 
+                              (p2c_left_constant_check T rT mulT LKT)
+                              (p2c_left_distributive S rS addS mulS LDS) 
+                              (p2c_left_distributive T rT addT mulT LDT).
+Proof. destruct LCS as [lcS | [[x1 [x2 x3]] [A B]]];
+       destruct LKT as [lkT | [[y1 [y2 y3]] C]];
+       destruct LDS as [ldS | [[s1 [s2 s3]] nldS]];
+       destruct LDT as [ldT | [[t1 [t2 t3]] nldT]]; 
+       unfold p2c_left_distributive, p2c_left_cancel_check, p2c_left_constant_check,
+       p2c_left_distributive; 
+       unfold bops_llex_product_left_distributive_certify_new,
+              bops_llex_product_left_distributive_decide; 
+       destruct P as [selS | [P1 P2]]; compute; try reflexivity.
+Qed.
+
+Lemma correct_bops_llex_product_right_distributive_certify
+  (P : (bop_selective S rS addS) + ((bop_is_id T rT addT argT) * (bop_is_ann T rT mulT argT)))      
+  (idemS : bop_idempotent S rS addS)      
+  (cng_addS : bop_congruence S rS addS)      
+  (com_addT : bop_commutative T rT addT)      
+  (cng_addT : bop_congruence T rT addT)
+  (cng_mulS : bop_congruence S rS mulS)  
+  (RDS : bop_right_distributive_decidable S rS addS mulS)
+  (RDT : bop_right_distributive_decidable T rT addT mulT)
+  (RCS : bop_right_cancellative_decidable S rS mulS)
+  (RKT : bop_right_constant_decidable T rT mulT) : 
+  p2c_right_distributive (S * T)
+                      (brel_product rS rT)
+                      (bop_llex argT rS addS addT)
+                      (bop_product mulS mulT)
+                      (bops_llex_product_right_distributive_decide S T
+                                 wS wT argT rS rT addS mulS addT mulT eqvS eqvT
+                                 idemS cng_addS cng_mulS cng_addT com_addT 
+                                 P RDS RDT RCS RKT)                                  
+   = 
+   bops_llex_product_right_distributive_certify_new
+                              S T wS wT argT rS rT addS mulS addT mulT
+                              (match P with
+                               | inl _ => inl Assert_Selective
+                               | inr (P1, P2) => inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)
+                               end )     
+                              (p2c_right_cancel_check S rS mulS RCS) 
+                              (p2c_right_constant_check T rT mulT RKT)
+                              (p2c_right_distributive S rS addS mulS RDS) 
+                              (p2c_right_distributive T rT addT mulT RDT).
+Proof. destruct RCS as [lcS | [[x1 [x2 x3]] [A B]]];
+       destruct RKT as [lkT | [[y1 [y2 y3]] C]];
+       destruct RDS as [ldS | [[s1 [s2 s3]] nldS]];
+       destruct RDT as [ldT | [[t1 [t2 t3]] nldT]]; 
+       unfold p2c_right_distributive, p2c_right_cancel_check, p2c_right_constant_check,
+       p2c_right_distributive; 
+       unfold bops_llex_product_right_distributive_certify_new,
+              bops_llex_product_right_distributive_decide; 
+       destruct P as [selS | [P1 P2]]; compute; try reflexivity.
+Qed.
+
+
+(*
+Lemma correct_bops_llex_product_left_distributive_certify_selective_case
+  (idemS : bop_idempotent S rS addS)
+  (selS : bop_selective S rS addS)      
+  (com_addT : bop_commutative T rT addT)      
+  (cng_addS : bop_congruence S rS addS)
+  (cng_mulS : bop_congruence S rS mulS)
+  (cng_addT : bop_congruence T rT addT)
+  (LDS : bop_left_distributive_decidable S rS addS mulS)
+  (LDT : bop_left_distributive_decidable T rT addT mulT)
+  (LCS : bop_left_cancellative_decidable S rS mulS)
+  (LKT : bop_left_constant_decidable T rT mulT) : 
+  p2c_left_distributive (S * T)
+                      (brel_product rS rT)
+                      (bop_llex wT rS addS addT)
+                      (bop_product mulS mulT)
+                      (bops_llex_product_left_distributive_decide S T
+                                 wS wT wT rS rT addS mulS addT mulT eqvS eqvT
+                                 idemS cng_addS cng_mulS cng_addT com_addT 
+                                 (inl selS) LDS LDT LCS LKT)                                  
+   = 
+   bops_llex_product_left_distributive_certify
+                              S T wS wT rS rT addS mulS addT mulT
+                              (p2c_left_cancel_check S rS mulS LCS) 
+                              (p2c_left_constant_check T rT mulT LKT)
+                              (p2c_left_distributive S rS addS mulS LDS) 
+                              (p2c_left_distributive T rT addT mulT LDT).
+Proof. destruct LCS as [lcS | [[x1 [x2 x3]] [A B]]];
+       destruct LKT as [lkT | [[y1 [y2 y3]] C]];
+       destruct LDS as [ldS | [[s1 [s2 s3]] nldS]];
+       destruct LDT as [ldT | [[t1 [t2 t3]] nldT]]; 
+       unfold p2c_left_distributive, p2c_left_cancel_check, p2c_left_constant_check,
+       p2c_left_distributive; 
+       unfold bops_llex_product_left_distributive_certify,
+       bops_llex_product_left_distributive_decide; 
+       unfold a_witness_llex_product_not_left_distributive,
+       witness_llex_product_not_left_distributive_with_selectivity; simpl; 
+       try reflexivity.
+Qed.
+
+
+
+Lemma correct_bops_llex_product_left_distributive_certify_idempotent_case
+  (idemS : bop_idempotent S rS addS)
+  (P : (bop_is_id T rT addT argT) * (bop_is_ann T rT mulT argT))    
+  (com_addT : bop_commutative T rT addT)      
+  (cng_addS : bop_congruence S rS addS)
+  (cng_mulS : bop_congruence S rS mulS)
+  (cng_addT : bop_congruence T rT addT)
+  (LDS : bop_left_distributive_decidable S rS addS mulS)
+  (LDT : bop_left_distributive_decidable T rT addT mulT)
+  (LCS : bop_left_cancellative_decidable S rS mulS)
+  (LKT : bop_left_constant_decidable T rT mulT) : 
+  p2c_left_distributive (S * T)
+                      (brel_product rS rT)
+                      (bop_llex argT rS addS addT)
+                      (bop_product mulS mulT)
+                      (bops_llex_product_left_distributive_decide S T
+                                 wS wT argT rS rT addS mulS addT mulT eqvS eqvT
+                                 idemS cng_addS cng_mulS cng_addT com_addT 
+                                 (inr P) LDS LDT LCS LKT)                                  
+   = 
+   bops_llex_product_left_distributive_certify
+                              S T wS wT rS rT addS mulS addT mulT
+                              (p2c_left_cancel_check S rS mulS LCS) 
+                              (p2c_left_constant_check T rT mulT LKT)
+                              (p2c_left_distributive S rS addS mulS LDS) 
+                              (p2c_left_distributive T rT addT mulT LDT).
+Proof. destruct LCS as [lcS | [[x1 [x2 x3]] [A B]]];
+       destruct LKT as [lkT | [[y1 [y2 y3]] C]];
+       destruct LDS as [ldS | [[s1 [s2 s3]] nldS]];
+       destruct LDT as [ldT | [[t1 [t2 t3]] nldT]]; 
+       unfold p2c_left_distributive, p2c_left_cancel_check, p2c_left_constant_check,
+       p2c_left_distributive; 
+       unfold bops_llex_product_left_distributive_certify,
+       bops_llex_product_left_distributive_decide; 
+       unfold a_witness_llex_product_not_left_distributive,
+       witness_llex_product_not_left_distributive_with_selectivity; simpl; 
+         try reflexivity.
+       destruct P as [P1 P2]. unfold a_witness_llex_product_not_left_distributive.
+       reflexivity.        
+Qed.
+
+Lemma correct_bops_llex_product_right_distributive_certify_with_selectivity
+  (idemS : bop_idempotent S rS addS)      
+  (selS : bop_selective S rS addS)
+  (cng_addS : bop_congruence S rS addS)      
+  (com_addT : bop_commutative T rT addT)      
+  (cng_addT : bop_congruence T rT addT)
+  (cng_mulS : bop_congruence S rS mulS)  
+  (RDS : bop_right_distributive_decidable S rS addS mulS)
+  (RDT : bop_right_distributive_decidable T rT addT mulT)
+  (RCS : bop_right_cancellative_decidable S rS mulS)
+  (RKT : bop_right_constant_decidable T rT mulT) : 
+  p2c_right_distributive (S * T)
+                      (brel_product rS rT)
+                      (bop_llex wT rS addS addT)
+                      (bop_product mulS mulT)
+                      (bops_llex_product_right_distributive_decide S T
+                                 wS wT wT rS rT addS mulS addT mulT eqvS eqvT
+                                 idemS cng_addS cng_mulS cng_addT com_addT 
+                                 (inl selS) RDS RDT RCS RKT)                                  
+   = 
+   bops_llex_product_right_distributive_certify
+                              S T wS wT rS rT addS mulS addT mulT
+                              (p2c_right_cancel_check S rS mulS RCS) 
+                              (p2c_right_constant_check T rT mulT RKT)
+                              (p2c_right_distributive S rS addS mulS RDS) 
+                              (p2c_right_distributive T rT addT mulT RDT).
+Proof. destruct RCS as [lcS | [[x1 [x2 x3]] [A B]]];
+       destruct RKT as [lkT | [[y1 [y2 y3]] C]];
+       destruct RDS as [ldS | [[s1 [s2 s3]] nldS]];
+       destruct RDT as [ldT | [[t1 [t2 t3]] nldT]]; 
+       unfold p2c_right_distributive, p2c_right_cancel_check, p2c_right_constant_check,
+       p2c_right_distributive; 
+       unfold bops_llex_product_right_distributive_certify,
+       bops_llex_product_right_distributive_decide; 
+       unfold a_witness_llex_product_not_right_distributive,
+       witness_llex_product_not_right_distributive_with_selectivity; simpl;
+       reflexivity. 
+Qed.
+
+*) 
 
 
 End Certify.     
@@ -3089,6 +3447,222 @@ Proof. destruct pS, pT; unfold P2C_id_ann, id_ann_proofs_llex_product, id_ann_ce
 Qed. 
 
 
+Lemma correct_bs_certs_llex_product_INTERNAL_selective 
+     (addPS : sg_proofs S rS addS) 
+     (mulPS : sg_proofs S rS mulS)
+     (addPT : sg_proofs T rT addT) 
+     (mulPT : sg_proofs T rT mulT)     
+     (pS : bs_proofs S rS addS mulS) 
+     (pT : bs_proofs T rT addT mulT)
+     (idemS : bop_idempotent S rS addS)
+     (commS : bop_commutative S rS addS)
+     (commT : bop_commutative T rT addT)
+     (sel : bop_selective S rS addS) : 
+  P2C_bs (S * T)
+         (brel_product rS rT) 
+         (bop_llex wT rS addS addT) 
+         (bop_product mulS mulT)
+         (bs_proofs_llex_product_INTERNAL S T wS wT wT rS rT addS mulS addT mulT eqvS eqvT 
+                      addPS addPT mulPS mulPT pS pT idemS commT (inl sel))
+  = 
+  bs_certs_llex_product_INTERNAL S T wS wT wT rS rT addS mulS addT mulT 
+                   (P2C_sg S rS addS addPS)
+                   (P2C_sg T rT addT addPT)
+                   (P2C_sg S rS mulS mulPS)
+                   (P2C_sg T rT mulT mulPT)
+                   (P2C_bs S rS addS mulS pS)
+                   (P2C_bs T rT addT mulT pT)
+                   Assert_Idempotent
+                   Assert_Commutative
+                   (inl Assert_Selective). 
+Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
+       unfold bs_proofs_llex_product_INTERNAL, bs_certs_llex_product_INTERNAL.
+       unfold P2C_bs, P2C_sg; simpl.
+       rewrite correct_bops_llex_product_left_distributive_certify.
+       rewrite correct_bops_llex_product_right_distributive_certify. 
+       rewrite correct_bops_llex_product_left_left_absorptive_certify. 
+       rewrite correct_bops_llex_product_left_right_absorptive_certify. 
+       rewrite correct_bops_llex_product_right_left_absorptive_certify.
+       rewrite correct_bops_llex_product_right_right_absorptive_certify. 
+       reflexivity.
+Qed.
+                                 
+
+Lemma correct_bs_certs_llex_product_INTERNAL_idempotent
+     (addPS : sg_proofs S rS addS) 
+     (mulPS : sg_proofs S rS mulS)
+     (addPT : sg_proofs T rT addT) 
+     (mulPT : sg_proofs T rT mulT)     
+     (pS : bs_proofs S rS addS mulS) 
+     (pT : bs_proofs T rT addT mulT)
+     (idemS : bop_idempotent S rS addS)
+     (commS : bop_commutative S rS addS)
+     (commT : bop_commutative T rT addT)
+     (P : (bop_is_id T rT addT argT) * (bop_is_ann T rT mulT argT)) : 
+  P2C_bs (S * T)
+         (brel_product rS rT) 
+         (bop_llex argT rS addS addT) 
+         (bop_product mulS mulT)
+         (bs_proofs_llex_product_INTERNAL S T wS wT argT rS rT addS mulS addT mulT eqvS eqvT 
+                      addPS addPT mulPS mulPT pS pT idemS commT (inr P))
+  = 
+  bs_certs_llex_product_INTERNAL S T wS wT argT rS rT addS mulS addT mulT 
+                   (P2C_sg S rS addS addPS)
+                   (P2C_sg T rT addT addPT)
+                   (P2C_sg S rS mulS mulPS)
+                   (P2C_sg T rT mulT mulPT)
+                   (P2C_bs S rS addS mulS pS)
+                   (P2C_bs T rT addT mulT pT)
+                   Assert_Idempotent
+                   Assert_Commutative
+                   (inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)). 
+Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
+       unfold bs_proofs_llex_product_INTERNAL, bs_certs_llex_product_INTERNAL.
+       unfold P2C_bs, P2C_sg; simpl.
+       destruct P as [P1 P2]. 
+       rewrite correct_bops_llex_product_left_distributive_certify.
+       rewrite correct_bops_llex_product_right_distributive_certify. 
+       rewrite correct_bops_llex_product_left_left_absorptive_certify. 
+       rewrite correct_bops_llex_product_left_right_absorptive_certify. 
+       rewrite correct_bops_llex_product_right_left_absorptive_certify. 
+       rewrite correct_bops_llex_product_right_right_absorptive_certify. 
+       reflexivity.
+Qed.
+
+(*
+Lemma correct_bs_certs_llex_product_INTERNAL
+     (addPS : sg_proofs S rS addS) 
+     (mulPS : sg_proofs S rS mulS)
+     (addPT : sg_proofs T rT addT) 
+     (mulPT : sg_proofs T rT mulT)     
+     (pS : bs_proofs S rS addS mulS) 
+     (pT : bs_proofs T rT addT mulT)
+     (idemS : bop_idempotent S rS addS)
+     (commS : bop_commutative S rS addS)
+     (commT : bop_commutative T rT addT)
+     (P : (bop_selective S rS addS) + ((bop_is_id T rT addT argT) * (bop_is_ann T rT mulT argT)))      :      
+  P2C_bs (S * T)
+         (brel_product rS rT) 
+         (bop_llex argT rS addS addT) 
+         (bop_product mulS mulT)
+         (bs_proofs_llex_product_INTERNAL S T wS wT argT rS rT addS mulS addT mulT eqvS eqvT 
+                      addPS addPT mulPS mulPT pS pT idemS commT P)
+  = 
+  bs_certs_llex_product_INTERNAL S T wS wT argT rS rT addS mulS addT mulT 
+                   (P2C_sg S rS addS addPS)
+                   (P2C_sg T rT addT addPT)
+                   (P2C_sg S rS mulS mulPS)
+                   (P2C_sg T rT mulT mulPT)
+                   (P2C_bs S rS addS mulS pS)
+                   (P2C_bs T rT addT mulT pT)
+                   Assert_Idempotent
+                   Assert_Commutative
+                   (match P with
+                               | inl _ => inl Assert_Selective
+                               | inr (P1, P2) => inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)
+                    end). 
+Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
+       unfold bs_proofs_llex_product_INTERNAL, bs_certs_llex_product_INTERNAL.
+       unfold P2C_bs, P2C_sg; simpl.
+       destruct P as [sel | [A B]]; 
+       rewrite correct_bops_llex_product_left_distributive_certify; 
+       rewrite correct_bops_llex_product_right_distributive_certify; 
+       rewrite correct_bops_llex_product_left_left_absorptive_certify; 
+       rewrite correct_bops_llex_product_left_right_absorptive_certify; 
+       rewrite correct_bops_llex_product_right_left_absorptive_certify; 
+       rewrite correct_bops_llex_product_right_right_absorptive_certify; 
+       try reflexivity.
+Qed.
+*)                                  
+
+(*
+
+Lemma correct_bs_certs_llex_product_INTERNAL_selective_case 
+     (addPS : sg_proofs S rS addS) 
+     (mulPS : sg_proofs S rS mulS)
+     (addPT : sg_proofs T rT addT) 
+     (mulPT : sg_proofs T rT mulT)     
+     (pS : bs_proofs S rS addS mulS) 
+     (pT : bs_proofs T rT addT mulT)
+     (idemS : bop_idempotent S rS addS)
+     (commS : bop_commutative S rS addS)
+     (commT : bop_commutative T rT addT)     
+     (selS  : bop_selective S rS addS) : 
+  P2C_bs (S * T)
+         (brel_product rS rT) 
+         (bop_llex wT rS addS addT) 
+         (bop_product mulS mulT)
+         (bs_proofs_llex_product_INTERNAL S T wS wT wT rS rT addS mulS addT mulT eqvS eqvT 
+                      addPS addPT mulPS mulPT pS pT idemS commT (inl selS))
+  = 
+  bs_certs_llex_product_INTERNAL S T wS wT wT rS rT addS mulS addT mulT 
+                   (P2C_sg S rS addS addPS)
+                   (P2C_sg T rT addT addPT)
+                   (P2C_sg S rS mulS mulPS)
+                   (P2C_sg T rT mulT mulPT)
+                   (P2C_bs S rS addS mulS pS)
+                   (P2C_bs T rT addT mulT pT)
+                   Assert_Idempotent
+                   Assert_Commutative
+                   (inl Assert_Selective). 
+Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
+       unfold bs_proofs_llex_product_INTERNAL, bs_certs_llex_product_INTERNAL.
+       unfold P2C_bs, P2C_sg; simpl.
+       rewrite correct_bops_llex_product_left_left_absorptive_certify. 
+       rewrite correct_bops_llex_product_left_right_absorptive_certify. 
+       rewrite correct_bops_llex_product_right_left_absorptive_certify. 
+       rewrite correct_bops_llex_product_right_right_absorptive_certify.       
+       rewrite correct_bops_llex_product_left_distributive_certify_with_selectivity.   
+       rewrite correct_bops_llex_product_right_distributive_certify_with_selectivity.   
+
+       reflexivity.
+Qed.        
+
+
+
+Lemma correct_bs_certs_llex_product_INTERNAL_idempotent_case 
+     (addPS : sg_proofs S rS addS) 
+     (mulPS : sg_proofs S rS mulS)
+     (addPT : sg_proofs T rT addT) 
+     (mulPT : sg_proofs T rT mulT)     
+     (pS : bs_proofs S rS addS mulS) 
+     (pT : bs_proofs T rT addT mulT)
+     (idemS : bop_idempotent S rS addS)
+     (commS : bop_commutative S rS addS)
+     (commT : bop_commutative T rT addT)     
+     (P : ((bop_is_id T rT addT argT) *
+           (bop_is_ann T rT mulT argT))) : 
+  P2C_bs (S * T)
+         (brel_product rS rT) 
+         (bop_llex argT rS addS addT) 
+         (bop_product mulS mulT)
+         (bs_proofs_llex_product_INTERNAL S T wS wT argT rS rT addS mulS addT mulT eqvS eqvT 
+                      addPS addPT mulPS mulPT pS pT idemS commT (inr P))
+  = 
+  bs_certs_llex_product_INTERNAL S T wS wT argT rS rT addS mulS addT mulT 
+                   (P2C_sg S rS addS addPS)
+                   (P2C_sg T rT addT addPT)
+                   (P2C_sg S rS mulS mulPS)
+                   (P2C_sg T rT mulT mulPT)
+                   (P2C_bs S rS addS mulS pS)
+                   (P2C_bs T rT addT mulT pT)
+                   Assert_Idempotent
+                   Assert_Commutative
+                   (inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)). 
+Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
+       unfold bs_proofs_llex_product_INTERNAL, bs_certs_llex_product_INTERNAL.
+       unfold P2C_bs, P2C_sg; simpl.
+       rewrite correct_bops_llex_product_left_left_absorptive_certify. 
+       rewrite correct_bops_llex_product_left_right_absorptive_certify. 
+       rewrite correct_bops_llex_product_right_left_absorptive_certify. 
+       rewrite correct_bops_llex_product_right_right_absorptive_certify.       
+       rewrite correct_bops_llex_product_left_distributive_certify_with_selectivity.   
+       rewrite correct_bops_llex_product_right_distributive_certify_with_selectivity.   
+
+       reflexivity.
+Qed.        
+
+
 Lemma correct_bs_certs_llex_product_v2 
      (addPS : sg_CS_proofs S rS addS) 
      (mulPS : sg_proofs S rS mulS)
@@ -3103,13 +3677,13 @@ Lemma correct_bs_certs_llex_product_v2
          (bs_proofs_llex_product_v2 S T wS wT wT rS rT addS mulS addT mulT eqvS eqvT 
                       addPS addPT mulPS mulPT pS pT)
   = 
-  bs_certs_llex_product_with_selectivity S T wS wT wT rS rT addS mulS addT mulT 
+  bs_certs_llex_product  S T wS wT wT rS rT addS mulS addT mulT 
                    (P2C_sg S rS mulS mulPS)
                    (P2C_sg T rT mulT mulPT)
                    (P2C_bs S rS addS mulS pS)
                    (P2C_bs T rT addT mulT pT). 
 Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
-       unfold bs_proofs_llex_product_v2, bs_certs_llex_product_with_selectivity.
+       unfold bs_proofs_llex_product_v2, bs_certs_llex_product.
        unfold P2C_bs, P2C_sg_CS, P2C_sg_CI, P2C_sg; simpl.
        rewrite correct_bops_llex_product_left_distributive_certify_with_selectivity.   
        rewrite correct_bops_llex_product_right_distributive_certify_with_selectivity.   
@@ -3135,13 +3709,13 @@ Lemma correct_bs_certs_llex_product_v3
          (bs_proofs_llex_product_v3 S T wS wT wT rS rT addS mulS addT mulT eqvS eqvT 
                       addPS addPT mulPS mulPT pS pT)
   = 
-  bs_certs_llex_product_with_selectivity S T wS wT wT rS rT addS mulS addT mulT 
+  bs_certs_llex_product S T wS wT wT rS rT addS mulS addT mulT 
                    (P2C_sg S rS mulS mulPS)
                    (P2C_sg T rT mulT mulPT)
                    (P2C_bs S rS addS mulS pS)
                    (P2C_bs T rT addT mulT pT). 
 Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
-       unfold bs_proofs_llex_product_v3, bs_certs_llex_product_with_selectivity.
+       unfold bs_proofs_llex_product_v3, bs_certs_llex_product.
        unfold P2C_bs, P2C_sg_CS, P2C_sg_CS, P2C_sg; simpl.
        rewrite correct_bops_llex_product_left_distributive_certify_with_selectivity.   
        rewrite correct_bops_llex_product_right_distributive_certify_with_selectivity.   
@@ -3151,11 +3725,12 @@ Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
        rewrite correct_bops_llex_product_right_right_absorptive_certify.
        reflexivity.
 Qed.        
-
+*) 
 End Certificates.     
 
 Section Combinators.
 
+  (*
 Theorem correct_llex_product_from_CS_CI (S T : Type) (A : A_bs_CS S) (B : A_bs_CI T) :
   A2C_bs_CI (S * T) (A_llex_product_from_CS_CI S T A B)
   =
@@ -3182,35 +3757,31 @@ Proof. destruct A, B; unfold A2C_bs_CS, A_llex_product_from_CS_CS, llex_product_
        reflexivity. 
 Qed.
 
-
-Check llex_product_INTERNAL. 
+*)
 
 Theorem correct_llex_product_INTERNAL_selective 
         (S T : Type)
-        (argT : T) 
+        (wT : T)         
         (A : A_bs S)
         (B : A_bs T)
         (idemS : bop_idempotent S (A_eqv_eq S (A_bs_eqv S A)) (A_bs_plus S A))
         (commS : bop_commutative S (A_eqv_eq S (A_bs_eqv S A)) (A_bs_plus S A))
         (commT : bop_commutative T (A_eqv_eq T (A_bs_eqv T B)) (A_bs_plus T B))
         (selS  : bop_selective S (A_eqv_eq S (A_bs_eqv S A)) (A_bs_plus S A)) : 
-  A2C_bs (S * T) (A_llex_product_INTERNAL S T ((A_eqv_witness T (A_bs_eqv T B))) A B idemS commS commT (inl selS))
+  A2C_bs (S * T) (A_llex_product_INTERNAL S T wT A B idemS commS commT (inl selS))
   =
-  llex_product_INTERNAL ((A_eqv_witness T (A_bs_eqv T B))) (A2C_bs S A) (A2C_bs T B) Assert_Idempotent Assert_Commutative Assert_Commutative (inl Assert_Selective) .
+  llex_product_INTERNAL wT (A2C_bs S A) (A2C_bs T B) Assert_Idempotent Assert_Commutative Assert_Commutative (inl Assert_Selective) .
 Proof. destruct A, B; unfold A2C_bs, A2C_bs, A_llex_product_INTERNAL, llex_product_INTERNAL; simpl. 
        rewrite correct_eqv_product.
        rewrite <- correct_sg_certs_product.
        rewrite correct_id_ann_certs_llex_product.       
        rewrite <- correct_sg_llex_certificates_CS_version. 
-       admit.
-(*       
-       rewrite correct_bs_certs_llex_product_v2. 
-       reflexivity. 
-*) 
-Admitted. 
+       rewrite correct_bs_certs_llex_product_INTERNAL_selective. 
+       reflexivity.
+       simpl in commS. exact commS. 
+Qed. 
 
-(*
-Theorem correct_llex_product_INTERNAL_not_selective 
+Theorem correct_llex_product_INTERNAL_idempotent
         (S T : Type)
         (argT : T) 
         (A : A_bs S)
@@ -3218,15 +3789,55 @@ Theorem correct_llex_product_INTERNAL_not_selective
         (idemS : bop_idempotent S (A_eqv_eq S (A_bs_eqv S A)) (A_bs_plus S A))
         (commS : bop_commutative S (A_eqv_eq S (A_bs_eqv S A)) (A_bs_plus S A))
         (commT : bop_commutative T (A_eqv_eq T (A_bs_eqv T B)) (A_bs_plus T B))
-        (P     : (bop_is_id T (A_eqv_eq T (A_bs_eqv T B)) (A_bs_plus T B) argT) *
-                 (bop_is_ann T (A_eqv_eq T (A_bs_eqv T B)) (A_bs_times T B) argT)) : 
-  A2C_bs (S * T) (A_llex_product_INTERNAL S T argT A B idemS commS commT P)
+        (C : bop_is_id T (A_eqv_eq T (A_bs_eqv T B)) (A_bs_plus T B) argT)
+        (D : bop_is_ann T (A_eqv_eq T (A_bs_eqv T B)) (A_bs_times T B) argT) : 
+  A2C_bs (S * T) (A_llex_product_INTERNAL S T argT A B idemS commS commT (inr (C, D)))
   =
-  llex_product_INTERNAL argT (A2C_bs_CS S A) (A2C_bs_CI T B) Assert_Idempotent Assert_Commutative Assert_Commutative ? 
-Proof. 
-Qed.
-*) 
+  llex_product_INTERNAL argT (A2C_bs S A) (A2C_bs T B)
+                        Assert_Idempotent
+                        Assert_Commutative
+                        Assert_Commutative
+                        (inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)). 
+Proof. destruct A, B; unfold A2C_bs, A2C_bs, A_llex_product_INTERNAL, llex_product_INTERNAL; simpl. 
+       rewrite correct_eqv_product.
+       rewrite <- correct_sg_certs_product.
+       rewrite correct_id_ann_certs_llex_product.
+       rewrite <- correct_sg_llex_certificates_CI_version. 
+       rewrite correct_bs_certs_llex_product_INTERNAL_idempotent.        
+       reflexivity.
+       simpl in commS. exact commS. 
+Qed. 
 
+
+(* this type of corrctness proof needs to be in properties and structures. 
+   Perhaps they can be generated automatically .... 
+*) 
+Lemma FF_commutative (U : Type) (A : A_bs U) :
+sg_commutative_d (bs_plus_certs (A2C_bs U A))
+= 
+p2c_commutative_check _ _ _ (A_sg_commutative_d U (A_eqv_eq U (A_bs_eqv U A))  (A_bs_plus U A) (A_bs_plus_proofs U A)).
+Admitted. 
+
+Lemma FF_selective (U : Type) (A : A_bs U) :
+sg_selective_d (bs_plus_certs (A2C_bs U A))
+= 
+p2c_selective_check _ _ _ (A_sg_selective_d U (A_eqv_eq U (A_bs_eqv U A))  (A_bs_plus U A) (A_bs_plus_proofs U A)).
+Admitted. 
+
+Lemma FF_idempotent (U : Type) (A : A_bs U) :
+sg_idempotent_d (bs_plus_certs (A2C_bs U A))
+= 
+p2c_idempotent_check _ _ _ (A_sg_idempotent_d U (A_eqv_eq U (A_bs_eqv U A))  (A_bs_plus U A) (A_bs_plus_proofs U A)).
+Admitted.
+
+Lemma FF_id_ann_plus_times (U : Type) (A : A_bs U) :
+  id_ann_plus_times_d (bs_id_ann_certs (A2C_bs U A))
+  =                       
+  p2c_exists_id_ann _ _ _ _ (A_id_ann_plus_times_d U (A_eqv_eq U (A_bs_eqv U A)) (A_bs_plus U A) (A_bs_times U A) (A_bs_id_ann_proofs U A)). 
+Admitted.
+
+
+(* this proof is a mess.  clean it up someday ... *) 
 Theorem correct_mcas_bs_llex_product (S T : Type) (bsS : A_bs_mcas S) (bsT : A_bs_mcas T): 
          mcas_bs_llex_product (A2C_mcas_bs S bsS) (A2C_mcas_bs T bsT) 
          = 
@@ -3239,23 +3850,41 @@ Proof. unfold mcas_bs_llex_product, A_mcas_bs_llex_product.
        + rewrite A, B. simpl. reflexivity. 
        + rewrite A, B. simpl. reflexivity.
        + rewrite A, B. simpl. reflexivity.
-       + rewrite A, B. simpl.
-         destruct s1, s2. destruct A_bs_plus_proofs, A_bs_plus_proofs0; simpl. 
-         destruct A_sg_commutative_d as [commS | [[a b] ncommS ]];
-         destruct A_sg_commutative_d0 as [commT | [[d e] ncommT ]];           
-         destruct A_sg_idempotent_d as [idemS | [c nidemS ]];
-         destruct A_sg_selective_d as [selS | [[h i] nselS ]]; simpl; try reflexivity.
-         (*
-            ++ rewrite <- correct_bs_llex_product_INTERNAL_selective. 
-               apply correct_bs_classify_bs.
-               reflexivity.
-            ++ rewrite <- correct_bs_llex_product_INTERNAL_not_selective. 
-               apply correct_bs_classify_bs.
-               reflexivity. 
-*) 
-Admitted. 
+       + rewrite A, B.
+         unfold A2C_mcas_bs.
+         rewrite FF_commutative. 
+         rewrite FF_commutative.
+         rewrite FF_idempotent.
+         rewrite FF_selective. 
+         destruct (A_sg_commutative_d S (A_eqv_eq S (A_bs_eqv S s1))  (A_bs_plus S s1) (A_bs_plus_proofs S s1))
+           as [commS | [[a b] ncommS ]]; unfold p2c_commutative_check.
+         ++ destruct (A_sg_commutative_d T (A_eqv_eq T (A_bs_eqv T s2)) (A_bs_plus T s2) (A_bs_plus_proofs T s2))
+             as [commT | [[d e] ncommT ]]; unfold p2c_commutative_check.
+            +++ destruct (A_sg_idempotent_d S (A_eqv_eq S (A_bs_eqv S s1)) (A_bs_plus S s1) (A_bs_plus_proofs S s1))
+                as [idemS | [c nidemS ]]; unfold p2c_idempotent_check.
+                ++++ destruct (A_sg_selective_d S (A_eqv_eq S (A_bs_eqv S s1)) (A_bs_plus S s1) (A_bs_plus_proofs S s1))
+                    as [selS | [[h i] nselS ]]; unfold p2c_selective_check.                     
+                     +++++ rewrite <- (correct_llex_product_INTERNAL_selective S T (eqv_witness (bs_eqv (A2C_bs T s2))) s1 s2 idemS commS commT selS).
+                           unfold bs_classify, A_bs_classify.
+                           assert (D := correct_bs_classify_bs _ (A_llex_product_INTERNAL S T (A_eqv_witness T (A_bs_eqv T s2)) s1 s2 idemS commS commT (inl selS))).
+                           unfold A2C_mcas_bs in D. exact D. 
+                     +++++ rewrite FF_id_ann_plus_times.
+                           case_eq (A_id_ann_plus_times_d T (A_eqv_eq T (A_bs_eqv T s2)) (A_bs_plus T s2) (A_bs_times T s2) (A_bs_id_ann_proofs T s2)).
+                             intros [X1 X2] Y. unfold p2c_exists_id_ann. reflexivity. 
+                             intros [X1 X2] Y. unfold p2c_exists_id_ann. reflexivity. 
+                             intros [X1 X2] Y. unfold p2c_exists_id_ann. reflexivity.
+                             intros [X1 [X3 X4]] Y. unfold p2c_exists_id_ann. unfold projT1.
+                             rewrite <- (correct_llex_product_INTERNAL_idempotent S T X1 s1 s2 idemS commS commT X3 X4).
+                             unfold bs_classify, A_bs_classify.
+                             assert (D := correct_bs_classify_bs _ (A_llex_product_INTERNAL S T X1 s1 s2 idemS commS commT (inr (X3, X4)))).
+                             unfold A2C_mcas_bs in D. exact D. 
+                             intros [X1 X2] Y. unfold p2c_exists_id_ann. reflexivity.                             
+                ++++ reflexivity. 
+            +++ reflexivity. 
+         ++ destruct (A_sg_commutative_d T (A_eqv_eq T (A_bs_eqv T s2)) (A_bs_plus T s2) (A_bs_plus_proofs T s2))
+             as [commT | [[d e] ncommT ]]; unfold p2c_commutative_check; reflexivity. 
+Qed.
 
-          
 
 End Combinators.   
 
