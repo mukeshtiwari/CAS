@@ -17,6 +17,16 @@ Require Import CAS.coq.sg.theory.
 Require Import CAS.coq.sg.and. 
 Require Import CAS.coq.sg.or. 
 
+Section Computation.
+
+Definition bop_product : ∀ {S T : Type}, binary_op S → binary_op T → binary_op (S * T) 
+:= λ {S T} U V x y,  
+   match x, y with
+    | (x1, x2), (y1, y2) => (U x1 y1, V x2 y2) 
+   end.
+  
+
+End Computation.   
 
 Section Theory.
 

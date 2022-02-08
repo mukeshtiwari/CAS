@@ -937,10 +937,11 @@ end.
    presemiring
    => selective_presemiring 
    => semiring 
-                   FIX =====> PRE DIOID!!! 
+   => pre dioid (link not in diagram!)
  *)
 Definition A_bs_classify_presemiring (S : Type) (B : A_presemiring S) : A_bs_mcas S :=
 let plusP   := A_presemiring_plus_proofs _ B in
+let srP     := A_presemiring_proofs _ B in    
 match A_sg_C_selective_d _ _ _ plusP with
 | inl selS => A_bs_classify_selective_presemiring _
           {|
@@ -976,7 +977,37 @@ match A_sg_C_selective_d _ _ _ plusP with
             ; A_semiring_proofs        := A_presemiring_proofs _ B 
             ; A_semiring_ast           := A_presemiring_ast _ B 
           |}      
-  | _ => A_BS_presemiring _ B    
+  | _ =>
+    match A_sg_C_idempotent_d _ _ _ plusP,
+          A_semiring_left_left_absorptive_d _ _ _ _ srP,
+          A_semiring_left_right_absorptive_d _ _ _ _ srP
+    with
+    | inl idemS, inl lla, inl lra => A_bs_classify_pre_dioid _
+         {|
+              A_pre_dioid_eqv           := A_presemiring_eqv _ B 
+            ; A_pre_dioid_plus          := A_presemiring_plus _ B 
+            ; A_pre_dioid_times         := A_presemiring_times _ B 
+            ; A_pre_dioid_plus_proofs   :=
+                {|
+                    A_sg_CI_associative   := A_sg_C_associative _ _ _ plusP
+                  ; A_sg_CI_congruence    := A_sg_C_congruence _ _ _ plusP
+                  ; A_sg_CI_commutative   := A_sg_C_commutative _ _ _ plusP
+                  ; A_sg_CI_idempotent    := idemS 
+                  ; A_sg_CI_not_selective := nselS 
+                |}
+            ; A_pre_dioid_times_proofs  := A_presemiring_times_proofs _ B
+            ; A_pre_dioid_id_ann_proofs := A_presemiring_id_ann_proofs _ B
+            ; A_pre_dioid_proofs        :=
+                {|
+                    A_dioid_left_distributive     := A_semiring_left_distributive _ _ _ _ srP
+                  ; A_dioid_right_distributive    := A_semiring_right_distributive _ _ _ _ srP
+                  ; A_dioid_left_left_absorptive  := lla 
+                  ; A_dioid_left_right_absorptive := lra                   
+                 |}
+            ; A_pre_dioid_ast           := A_presemiring_ast _ B 
+          |}      
+    | _, _, _ =>  A_BS_presemiring _ B
+    end
   end 
 end. 
   
@@ -2084,6 +2115,7 @@ end.
  *)
 Definition bs_classify_presemiring (S : Type) (B : @presemiring S) : @bs_mcas S :=
 let plusP   := presemiring_plus_certs B in
+let srP     := presemiring_certs B in    
 match sg_C_selective_d plusP with
 | Certify_Selective => bs_classify_selective_presemiring _
           {|
@@ -2101,8 +2133,8 @@ match sg_C_selective_d plusP with
             ; selective_presemiring_id_ann_certs := presemiring_id_ann_certs B 
             ; selective_presemiring_certs        := presemiring_certs B 
             ; selective_presemiring_ast           := presemiring_ast B 
-          |}                          
-| _ =>
+          |}
+| Certify_Not_Selective (s1, s2) =>
   match id_ann_plus_times_d (presemiring_id_ann_certs B) with
   | Id_Ann_Cert_Equal s => bs_classify_semiring _
           {|
@@ -2119,7 +2151,38 @@ match sg_C_selective_d plusP with
             ; semiring_certs        := presemiring_certs B 
             ; semiring_ast          := presemiring_ast B 
           |}      
-  | _ => BS_presemiring B    
+  | _ => 
+    match sg_C_idempotent_d plusP,
+        semiring_left_left_absorptive_d srP,
+        semiring_left_right_absorptive_d srP
+    with
+    |  Certify_Idempotent, Certify_Left_Left_Absorptive, Certify_Left_Right_Absorptive =>      
+       bs_classify_pre_dioid _
+          {|
+              pre_dioid_eqv           := presemiring_eqv B 
+            ; pre_dioid_plus          := presemiring_plus B 
+            ; pre_dioid_times         := presemiring_times B 
+            ; pre_dioid_plus_certs   :=
+                {|
+                    sg_CI_associative   := sg_C_associative plusP
+                  ; sg_CI_congruence    := sg_C_congruence plusP
+                  ; sg_CI_commutative   := sg_C_commutative plusP
+                  ; sg_CI_idempotent    := Assert_Idempotent
+                  ; sg_CI_not_selective := Assert_Not_Selective (s1, s2)
+                |}
+            ; pre_dioid_times_certs  := presemiring_times_certs B
+            ; pre_dioid_id_ann_certs := presemiring_id_ann_certs B
+            ; pre_dioid_certs        :=
+                {|
+                    dioid_left_distributive     := semiring_left_distributive srP
+                  ; dioid_right_distributive    := semiring_right_distributive srP
+                  ; dioid_left_left_absorptive  := Assert_Left_Left_Absorptive
+                  ; dioid_left_right_absorptive := Assert_Left_Right_Absorptive
+                 |}
+            ; pre_dioid_ast           := presemiring_ast B 
+          |}      
+  | _, _, _ => BS_presemiring B          
+    end 
   end 
 end. 
   
@@ -3126,99 +3189,147 @@ Variable S : Type.
 Lemma correct_bs_classify_selective_distributive_lattice (a : A_selective_distributive_lattice S) :
   bs_classify_selective_distributive_lattice S (A2C_selective_distributive_lattice S a)
   =
-  BS_selective_distributive_lattice (A2C_selective_distributive_lattice S a).   
-Proof. unfold bs_classify_selective_distributive_lattice. reflexivity. Qed. 
+  A2C_mcas_bs S (A_bs_classify_selective_distributive_lattice S a). 
+Proof. unfold bs_classify_selective_distributive_lattice, 
+              A_bs_classify_selective_distributive_lattice.
+       reflexivity.
+Qed. 
 
 Lemma correct_bs_classify_selective_distributive_prelattice_with_one (a : A_selective_distributive_prelattice_with_one S) :
   bs_classify_selective_distributive_prelattice_with_one S (A2C_selective_distributive_prelattice_with_one S a)
   =
-  BS_selective_distributive_prelattice_with_one (A2C_selective_distributive_prelattice_with_one S a).   
-Proof. unfold bs_classify_selective_distributive_prelattice_with_one. reflexivity. Qed. 
+  A2C_mcas_bs S (A_bs_classify_selective_distributive_prelattice_with_one S a). 
+Proof. unfold bs_classify_selective_distributive_prelattice_with_one,
+             A_bs_classify_selective_distributive_prelattice_with_one. 
+       reflexivity.
+Qed. 
 
 Lemma correct_bs_classify_selective_distributive_prelattice_with_zero (a : A_selective_distributive_prelattice_with_zero S) :
   bs_classify_selective_distributive_prelattice_with_zero S (A2C_selective_distributive_prelattice_with_zero S a)
   =
-  BS_selective_distributive_prelattice_with_zero (A2C_selective_distributive_prelattice_with_zero S a).   
-Proof. unfold bs_classify_selective_distributive_prelattice_with_zero. reflexivity. Qed.            
+  A2C_mcas_bs S (A_bs_classify_selective_distributive_prelattice_with_zero S a). 
+Proof. unfold bs_classify_selective_distributive_prelattice_with_zero,
+            A_bs_classify_selective_distributive_prelattice_with_zero.
+       reflexivity.
+Qed.            
 
 Lemma correct_bs_classify_selective_distributive_prelattice (a : A_selective_distributive_prelattice S) :
   bs_classify_selective_distributive_prelattice S (A2C_selective_distributive_prelattice S a)
   =
-  BS_selective_distributive_prelattice (A2C_selective_distributive_prelattice S a).   
-Proof. unfold bs_classify_selective_distributive_prelattice. reflexivity. Qed.                                    
+  A2C_mcas_bs S (A_bs_classify_selective_distributive_prelattice S a). 
+Proof. unfold bs_classify_selective_distributive_prelattice,
+       A_bs_classify_selective_distributive_prelattice. 
+       reflexivity.
+Qed.                                    
 
 
 Lemma correct_bs_classify_distributive_lattice (a : A_distributive_lattice S) :
   bs_classify_distributive_lattice S (A2C_distributive_lattice S a)
   =
-  BS_distributive_lattice (A2C_distributive_lattice S a).   
-Proof. unfold bs_classify_distributive_lattice. reflexivity. Qed.                                    
+  A2C_mcas_bs S (A_bs_classify_distributive_lattice S a). 
+Proof. unfold bs_classify_distributive_lattice,
+       A_bs_classify_distributive_lattice.
+       reflexivity.
+Qed.                                    
 
 Lemma correct_bs_classify_lattice (a : A_lattice S) :
   bs_classify_lattice S (A2C_lattice S a)
   =
-  BS_lattice (A2C_lattice S a).   
-Proof. unfold bs_classify_lattice. reflexivity. Qed.                                   
+ A2C_mcas_bs S (A_bs_classify_lattice S a). 
+Proof. unfold bs_classify_lattice, A_bs_classify_lattice.
+       reflexivity.
+Qed.                                   
 
 Lemma correct_bs_classify_distributive_prelattice (a : A_distributive_prelattice S) :
   bs_classify_distributive_prelattice S (A2C_distributive_prelattice S a)
   =
-  BS_distributive_prelattice (A2C_distributive_prelattice S a).
-Proof. unfold bs_classify_distributive_prelattice. reflexivity. Qed.   
+ A2C_mcas_bs S (A_bs_classify_distributive_prelattice S a). 
+Proof. unfold bs_classify_distributive_prelattice,
+       A_bs_classify_distributive_prelattice.
+       reflexivity.
+Qed.   
 
 Lemma correct_bs_classify_prelattice (a : A_prelattice S) :
   bs_classify_prelattice S (A2C_prelattice S a)
   =
-  BS_prelattice (A2C_prelattice S a).   
-Proof. unfold bs_classify_prelattice. reflexivity. Qed.            
+ A2C_mcas_bs S (A_bs_classify_prelattice S a). 
+Proof. unfold bs_classify_prelattice, A_bs_classify_prelattice.
+       reflexivity.
+Qed.            
 
 Lemma correct_bs_classify_selective_cancellative_dioid (a : A_selective_cancellative_dioid S) :
   bs_classify_selective_cancellative_dioid S (A2C_selective_cancellative_dioid S a)
   =
-  BS_selective_cancellative_dioid (A2C_selective_cancellative_dioid S a).   
-Proof. unfold bs_classify_selective_cancellative_dioid. reflexivity. Qed.            
+ A2C_mcas_bs S (A_bs_classify_selective_cancellative_dioid S a). 
+Proof. unfold bs_classify_selective_cancellative_dioid,
+       A_bs_classify_selective_cancellative_dioid.
+       reflexivity.
+Qed.            
 
 Lemma correct_bs_classify_selective_cancellative_pre_dioid_with_one (a : A_selective_cancellative_pre_dioid_with_one S) :
   bs_classify_selective_cancellative_pre_dioid_with_one S (A2C_selective_cancellative_pre_dioid_with_one S a)
   =
-  BS_selective_cancellative_pre_dioid_with_one (A2C_selective_cancellative_pre_dioid_with_one S a).   
-Proof. unfold bs_classify_selective_cancellative_pre_dioid_with_one. reflexivity. Qed.            
+ A2C_mcas_bs S (A_bs_classify_selective_cancellative_pre_dioid_with_one S a). 
+Proof. unfold bs_classify_selective_cancellative_pre_dioid_with_one,
+       A_bs_classify_selective_cancellative_pre_dioid_with_one.
+       reflexivity.
+Qed.            
 
 Lemma correct_bs_classify_selective_cancellative_pre_dioid_with_zero (a : A_selective_cancellative_pre_dioid_with_zero S) :
   bs_classify_selective_cancellative_pre_dioid_with_zero S (A2C_selective_cancellative_pre_dioid_with_zero S a)
   =
-  BS_selective_cancellative_pre_dioid_with_zero (A2C_selective_cancellative_pre_dioid_with_zero S a).   
-Proof. unfold bs_classify_selective_cancellative_pre_dioid_with_zero. reflexivity. Qed.            
+ A2C_mcas_bs S (A_bs_classify_selective_cancellative_pre_dioid_with_zero S a). 
+Proof. unfold bs_classify_selective_cancellative_pre_dioid_with_zero,
+       A_bs_classify_selective_cancellative_pre_dioid_with_zero. 
+       reflexivity.
+Qed.            
 
 Lemma correct_bs_classify_selective_cancellative_pre_dioid (a : A_selective_cancellative_pre_dioid S) :
   bs_classify_selective_cancellative_pre_dioid S (A2C_selective_cancellative_pre_dioid S a)
   =
-  BS_selective_cancellative_pre_dioid (A2C_selective_cancellative_pre_dioid S a).   
-Proof. unfold bs_classify_selective_cancellative_pre_dioid. reflexivity. Qed.            
+ A2C_mcas_bs S (A_bs_classify_selective_cancellative_pre_dioid S a). 
+Proof. unfold bs_classify_selective_cancellative_pre_dioid,
+       A_bs_classify_selective_cancellative_pre_dioid.
+       reflexivity.
+Qed.            
 
 Lemma correct_bs_classify_selective_dioid (a : A_selective_dioid S) :
   bs_classify_selective_dioid S (A2C_selective_dioid S a)
   =
-  BS_selective_dioid (A2C_selective_dioid S a).   
-Proof. unfold bs_classify_selective_dioid. reflexivity. Qed.            
+ A2C_mcas_bs S (A_bs_classify_selective_dioid S a). 
+Proof. unfold bs_classify_selective_dioid,
+       A_bs_classify_selective_dioid.
+       reflexivity.
+Qed.            
+
 
 Lemma correct_bs_classify_selective_pre_dioid_with_one (a : A_selective_pre_dioid_with_one S) :
   bs_classify_selective_pre_dioid_with_one S (A2C_selective_pre_dioid_with_one S a)
   =
-  BS_selective_pre_dioid_with_one (A2C_selective_pre_dioid_with_one S a).   
-Proof. unfold bs_classify_selective_pre_dioid_with_one. reflexivity. Qed.            
+ A2C_mcas_bs S (A_bs_classify_selective_pre_dioid_with_one S a). 
+Proof. unfold bs_classify_selective_pre_dioid_with_one,
+       A_bs_classify_selective_pre_dioid_with_one.
+       reflexivity.
+Qed.        
 
 Lemma correct_bs_classify_selective_pre_dioid_with_zero (a : A_selective_pre_dioid_with_zero S) :
  bs_classify_selective_pre_dioid_with_zero S (A2C_selective_pre_dioid_with_zero S a)
  =
- BS_selective_pre_dioid_with_zero (A2C_selective_pre_dioid_with_zero S a).   
-Proof. unfold bs_classify_selective_pre_dioid_with_zero. reflexivity. Qed. 
+ A2C_mcas_bs S (A_bs_classify_selective_pre_dioid_with_zero S a). 
+Proof. unfold bs_classify_selective_pre_dioid_with_zero,
+       A_bs_classify_selective_pre_dioid_with_zero.
+       reflexivity.
+Qed.        
+
 
 Lemma correct_bs_classify_dioid (a : A_dioid S) :
   bs_classify_dioid S (A2C_dioid S a)
   =
-  BS_dioid (A2C_dioid S a).   
-Proof. unfold bs_classify_dioid. reflexivity. Qed.                                    
+  A2C_mcas_bs S (A_bs_classify_dioid S a).   
+Proof. unfold bs_classify_dioid, A_bs_classify_dioid.
+       reflexivity.
+Qed.            
+
 
 
 (*
@@ -3226,28 +3337,69 @@ Proof. unfold bs_classify_dioid. reflexivity. Qed.
   => selective_dioid 
   => selective_pre_dioid_with_one
   => selective_pre_dioid_with_zero 
+
+Note on the proof style used here.  Spelling out each step explicitly (rather than 
+using tactics) makes it easir to evolve the classification code .... 
  *)
 Lemma correct_bs_classify_selective_pre_dioid (a : A_selective_pre_dioid S) :
   bs_classify_selective_pre_dioid S (A2C_selective_pre_dioid S a)
   =
   A2C_mcas_bs S (A_bs_classify_selective_pre_dioid S a).   
-Proof. unfold A2C_selective_pre_dioid,
-       bs_classify_selective_pre_dioid,
-       A_bs_classify_selective_pre_dioid,
-       A2C_mcas_bs.
-       destruct a. destruct A_selective_pre_dioid_id_ann_proofs0. simpl. 
-       case_eq(A_id_ann_plus_times_d0); intros [A B] C; 
-         unfold p2c_exists_id_ann; simpl;
-           case_eq(A_id_ann_times_plus_d0); intros [D E] F;
-             ((try unfold A2C_selective_pre_dioid; reflexivity)
-              ||
-              (try unfold A2C_selective_pre_dioid_with_one; reflexivity)
-              ||
-              (try unfold A2C_selective_pre_dioid_with_zero; reflexivity)
-             ||
-              (try unfold A2C_selective_dioid; reflexivity)).                                 
+Proof. destruct a, A_selective_pre_dioid_id_ann_proofs0. 
+       unfold bs_classify_selective_pre_dioid, A_bs_classify_selective_pre_dioid; simpl.
+       destruct A_id_ann_plus_times_d0. 
+       + destruct p as [A B]; unfold p2c_exists_id_ann.
+         destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity. 
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
+       + destruct p as [A B]; unfold p2c_exists_id_ann.
+         destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
+       + destruct p as [A B]; unfold p2c_exists_id_ann.
+         destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
+       + unfold p2c_exists_id_ann.
+         destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
+       + unfold p2c_exists_id_ann.
+         destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ destruct p as [C D]; unfold p2c_exists_id_ann.
+            unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
+         ++ unfold A2C_mcas_bs. reflexivity.
 Qed. 
-         
+
 (*
   pre_dioid_with_zero
   => dioid
@@ -3256,48 +3408,206 @@ Lemma correct_bs_classify_pre_dioid_with_zero (a : A_pre_dioid_with_zero S) :
   bs_classify_pre_dioid_with_zero S (A2C_pre_dioid_with_zero S a)
   =
   A2C_mcas_bs S (A_bs_classify_pre_dioid_with_zero S a).   
-Admitted.                                   
+Proof. destruct a.
+       unfold bs_classify_pre_dioid_with_zero,
+       A_bs_classify_pre_dioid_with_zero; simpl.
+       case_eq(A_pre_dioid_with_zero_id_ann_proofs0).
+       intros H1 H2 H3. unfold p2c_exists_id_ann; simpl. 
+       case_eq H2; intros [H4 H5] H6. 
+       + unfold A2C_mcas_bs. reflexivity.
+       + unfold A2C_mcas_bs. reflexivity.
+       + unfold A2C_mcas_bs. reflexivity.
+       + rewrite <- correct_bs_classify_dioid. reflexivity.
+       + unfold A2C_mcas_bs. reflexivity.                        
+Qed. 
+
 
 Lemma correct_bs_classify_pre_dioid_with_one (a : A_pre_dioid_with_one S) :
   bs_classify_pre_dioid_with_one S (A2C_pre_dioid_with_one S a)
   =
-  A2C_mcas_bs S (A_bs_classify_pre_dioid_with_one S a)
-.   
-Admitted.                                   
+  A2C_mcas_bs S (A_bs_classify_pre_dioid_with_one S a). 
+Proof. destruct a.
+       unfold bs_classify_pre_dioid_with_one,
+       A_bs_classify_pre_dioid_with_one; simpl.
+       case_eq(A_pre_dioid_with_one_id_ann_proofs0).
+       intros H1 H2 H3. unfold p2c_exists_id_ann; simpl. 
+       case_eq H1; intros [H4 H5] H6.
+       + unfold A2C_mcas_bs. reflexivity.
+       + unfold A2C_mcas_bs. reflexivity.
+       + unfold A2C_mcas_bs. reflexivity.
+       + unfold A2C_mcas_bs. reflexivity.
+       + unfold A2C_mcas_bs. reflexivity.                        
+Qed. 
+
 
 Lemma correct_bs_classify_pre_dioid (a : A_pre_dioid S) :
   bs_classify_pre_dioid S (A2C_pre_dioid S a)
   =
  A2C_mcas_bs S (A_bs_classify_pre_dioid S a).   
-Admitted.                                   
+Proof. destruct a, A_pre_dioid_id_ann_proofs0.
+       unfold bs_classify_pre_dioid, A_bs_classify_pre_dioid; simpl.
+       destruct A_id_ann_plus_times_d0.
+       + destruct p as [A B]; unfold p2c_exists_id_ann; 
+           destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [C D]. reflexivity. 
+         ++ destruct p as [C D]. reflexivity. 
+         ++ destruct p as [C D]. reflexivity. 
+         ++ unfold A2C_mcas_bs. reflexivity.               
+         ++ unfold A2C_mcas_bs. reflexivity.               
+       + destruct p as [C D]. unfold p2c_exists_id_ann;
+          destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [E F]. reflexivity. 
+         ++ destruct p as [E F]. reflexivity. 
+         ++ destruct p as [E F]. reflexivity. 
+         ++ unfold A2C_mcas_bs. reflexivity.               
+         ++ unfold A2C_mcas_bs. reflexivity.               
+       + destruct p as [A B]; unfold p2c_exists_id_ann; 
+           destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [C D]. reflexivity. 
+         ++ destruct p as [C D]. reflexivity. 
+         ++ destruct p as [C D]. reflexivity. 
+         ++ unfold A2C_mcas_bs. reflexivity.               
+         ++ unfold A2C_mcas_bs. reflexivity.               
+       + unfold p2c_exists_id_ann; destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [C D]. reflexivity. 
+         ++ destruct p as [C D]. reflexivity. 
+         ++ destruct p as [C D]. reflexivity. 
+         ++ unfold A2C_mcas_bs. reflexivity.               
+         ++ unfold A2C_mcas_bs. reflexivity.               
+       + unfold p2c_exists_id_ann; destruct A_id_ann_times_plus_d0.
+         ++ destruct p as [C D]. reflexivity. 
+         ++ destruct p as [C D]. reflexivity. 
+         ++ destruct p as [C D]. reflexivity. 
+         ++ unfold A2C_mcas_bs. reflexivity.               
+         ++ unfold A2C_mcas_bs. reflexivity.               
+Qed. 
 
 
 Lemma correct_bs_classify_selective_semiring (a : A_selective_semiring S) :
   bs_classify_selective_semiring S (A2C_selective_semiring S a)
   =
   A2C_mcas_bs S (A_bs_classify_selective_semiring S a).   
-Admitted.                                   
+Proof. destruct a, A_selective_semiring_proofs0. 
+       unfold bs_classify_selective_semiring, A_bs_classify_selective_semiring; simpl. 
+       destruct A_semiring_left_left_absorptive_d0 as [LLA | NLLA];
+         unfold p2c_left_left_absorptive.
+       + destruct A_semiring_left_right_absorptive_d0 as [LRA | NLRA];
+           unfold p2c_left_right_absorptive.
+         ++ rewrite <- correct_bs_classify_selective_pre_dioid_with_zero. reflexivity. 
+         ++ unfold A2C_mcas_bs. reflexivity.                          
+       + unfold A2C_mcas_bs. reflexivity.               
+Qed. 
 
 
 Lemma correct_bs_classify_selective_presemiring (a : A_selective_presemiring S) :
   bs_classify_selective_presemiring S (A2C_selective_presemiring S a)
   =
   A2C_mcas_bs S (A_bs_classify_selective_presemiring S a).   
-Admitted.                                   
-
-
-
-Lemma correct_bs_classify_presemiring (a : A_presemiring S) :
-  bs_classify_presemiring S (A2C_presemiring S a)
-  =
- A2C_mcas_bs S (A_bs_classify_presemiring S a).   
-Admitted.
+Proof. destruct a. destruct A_selective_presemiring_proofs0. 
+       unfold bs_classify_selective_presemiring,
+       A_bs_classify_selective_presemiring; simpl.
+       destruct A_semiring_left_left_absorptive_d0 as [LLA | NLLA];
+         unfold p2c_left_left_absorptive.
+       + destruct A_semiring_left_right_absorptive_d0 as [LRA | NLRA];
+           unfold p2c_left_right_absorptive.
+         ++ rewrite <- correct_bs_classify_selective_pre_dioid. reflexivity. 
+         ++ destruct A_selective_presemiring_id_ann_proofs0.
+            unfold p2c_exists_id_ann; simpl.
+            destruct A_id_ann_plus_times_d0.
+            +++ destruct p as [A B]. unfold A2C_mcas_bs. reflexivity.  
+            +++ destruct p as [A B]. unfold A2C_mcas_bs. reflexivity.  
+            +++ destruct p as [A B]. unfold A2C_mcas_bs. reflexivity.  
+            +++ rewrite <- correct_bs_classify_selective_semiring. reflexivity. 
+            +++ unfold A2C_mcas_bs. reflexivity.               
+       + destruct A_selective_presemiring_id_ann_proofs0.
+         unfold p2c_exists_id_ann; simpl.
+         destruct A_id_ann_plus_times_d0.
+         ++ destruct p as [A B]. unfold A2C_mcas_bs. reflexivity.  
+         ++ destruct p as [A B]. unfold A2C_mcas_bs. reflexivity.  
+         ++ destruct p as [A B]. unfold A2C_mcas_bs. reflexivity.  
+         ++ rewrite <- correct_bs_classify_selective_semiring. reflexivity. 
+         ++ unfold A2C_mcas_bs. reflexivity.               
+Qed. 
 
 Lemma correct_bs_classify_semiring (a : A_semiring S) :
   bs_classify_semiring S (A2C_semiring S a)
   =
  A2C_mcas_bs S (A_bs_classify_semiring S a).   
-Admitted.                                   
+Proof. destruct a, A_semiring_plus_proofs0, A_semiring_proofs0.
+       unfold bs_classify_semiring, A_bs_classify_semiring; simpl. 
+       destruct A_sg_C_selective_d as [sel | [[s1 s2] nsel]];
+         unfold p2c_selective_check; simpl. 
+       +  rewrite <- correct_bs_classify_selective_semiring. reflexivity. 
+       + destruct A_sg_C_idempotent_d as [idem | [s3 nidem]];
+           unfold p2c_idempotent_check; simpl.
+         ++ destruct A_semiring_left_left_absorptive_d0 as [LLA | NLLA];
+              unfold p2c_left_left_absorptive.
+            +++ destruct A_semiring_left_right_absorptive_d0 as [LRA | NLRA];
+                  unfold p2c_left_right_absorptive.
+                ++++ rewrite <- correct_bs_classify_pre_dioid_with_zero. reflexivity. 
+                ++++ unfold A2C_mcas_bs. reflexivity.  
+            +++ unfold A2C_mcas_bs. reflexivity.  
+         ++ unfold A2C_mcas_bs. reflexivity.  
+Qed.            
+
+Lemma correct_bs_classify_presemiring (a : A_presemiring S) :
+  bs_classify_presemiring S (A2C_presemiring S a)
+  =
+ A2C_mcas_bs S (A_bs_classify_presemiring S a).   
+Proof. destruct a, A_presemiring_plus_proofs0, A_presemiring_proofs0. 
+       unfold bs_classify_presemiring, A_bs_classify_presemiring. simpl. 
+       destruct A_sg_C_selective_d as [sel | [[s1 s2] nsel]]; unfold p2c_selective_check.
+       + rewrite <- correct_bs_classify_selective_presemiring. reflexivity. 
+       + case_eq(A_presemiring_id_ann_proofs0); 
+         intros H1 H2 H3; simpl;
+         case_eq H1; 
+         intros [H4 H5] H6; unfold p2c_exists_id_ann.
+         ++ destruct A_sg_C_idempotent_d as [idem | [i nidem]]; unfold p2c_idempotent_check.
+            +++ destruct A_semiring_left_left_absorptive_d0 as [LLA | NLLA];
+                  unfold p2c_left_left_absorptive.
+                ++++ destruct A_semiring_left_right_absorptive_d0 as [LRA | NLRA];
+                       unfold p2c_left_right_absorptive.
+                     +++++ rewrite <- correct_bs_classify_pre_dioid. reflexivity. 
+                     +++++ unfold A2C_mcas_bs. reflexivity.                        
+                ++++ unfold A2C_mcas_bs. reflexivity.  
+            +++ unfold A2C_mcas_bs. reflexivity.  
+         ++ destruct A_sg_C_idempotent_d as [idem | [i nidem]]; unfold p2c_idempotent_check.
+            +++ destruct A_semiring_left_left_absorptive_d0 as [LLA | NLLA];
+                  unfold p2c_left_left_absorptive.
+                ++++ destruct A_semiring_left_right_absorptive_d0 as [LRA | NLRA];
+                       unfold p2c_left_right_absorptive.
+                     +++++ rewrite <- correct_bs_classify_pre_dioid. reflexivity. 
+                     +++++ unfold A2C_mcas_bs. reflexivity.                        
+                ++++ unfold A2C_mcas_bs. reflexivity.  
+            +++ unfold A2C_mcas_bs. reflexivity.  
+         ++ destruct A_sg_C_idempotent_d as [idem | [i nidem]]; unfold p2c_idempotent_check.
+            +++ destruct A_semiring_left_left_absorptive_d0 as [LLA | NLLA];
+                  unfold p2c_left_left_absorptive.
+                ++++ destruct A_semiring_left_right_absorptive_d0 as [LRA | NLRA];
+                       unfold p2c_left_right_absorptive.
+                     +++++ rewrite <- correct_bs_classify_pre_dioid. reflexivity. 
+                     +++++ unfold A2C_mcas_bs. reflexivity.                        
+                ++++ unfold A2C_mcas_bs. reflexivity.  
+            +++ unfold A2C_mcas_bs. reflexivity.  
+         ++ destruct A_sg_C_idempotent_d as [idem | [i nidem]]; unfold p2c_idempotent_check.
+            +++ destruct A_semiring_left_left_absorptive_d0 as [LLA | NLLA];
+                  unfold p2c_left_left_absorptive.
+                ++++ destruct A_semiring_left_right_absorptive_d0 as [LRA | NLRA];
+                       unfold p2c_left_right_absorptive.
+                     +++++ rewrite <- correct_bs_classify_semiring. reflexivity. (* NB *)
+                     +++++ unfold A2C_mcas_bs. reflexivity.                        
+                ++++ unfold A2C_mcas_bs. reflexivity.  
+            +++ unfold A2C_mcas_bs. reflexivity.  
+         ++ destruct A_sg_C_idempotent_d as [idem | [i nidem]]; unfold p2c_idempotent_check.
+            +++ destruct A_semiring_left_left_absorptive_d0 as [LLA | NLLA];
+                  unfold p2c_left_left_absorptive.
+                ++++ destruct A_semiring_left_right_absorptive_d0 as [LRA | NLRA];
+                       unfold p2c_left_right_absorptive.
+                     +++++ rewrite <- correct_bs_classify_pre_dioid. reflexivity. 
+                     +++++ unfold A2C_mcas_bs. reflexivity.                        
+                ++++ unfold A2C_mcas_bs. reflexivity.  
+            +++ unfold A2C_mcas_bs. reflexivity.  
+Qed. 
 
 
 
@@ -3305,20 +3615,75 @@ Lemma correct_bs_classify_bs_CS (a : A_bs_CS S) :
   bs_classify_bs_CS S (A2C_bs_CS S a)
   =
   A2C_mcas_bs S (A_bs_classify_bs_CS S a). 
-Admitted.
+Proof. destruct a, A_bs_CS_proofs0. 
+       unfold bs_classify_bs_CS, A_bs_classify_bs_CS; simpl.
+       destruct A_bs_left_distributive_d0 as [LD | NLD];
+         unfold p2c_left_distributive.
+       + destruct A_bs_right_distributive_d0 as [RD | NRD];
+           unfold p2c_right_distributive.
+         ++ rewrite <- correct_bs_classify_selective_presemiring. reflexivity. 
+         ++ unfold A2C_mcas_bs. reflexivity.  
+       + unfold A2C_mcas_bs. reflexivity.  
+Qed.
 
 Lemma correct_bs_classify_bs_CI (a : A_bs_CI S) : 
   bs_classify_bs_CI S (A2C_bs_CI S a)
   =
   A2C_mcas_bs S (A_bs_classify_bs_CI S a). 
-Admitted.
+Proof. destruct a, A_bs_CI_proofs0. 
+       unfold bs_classify_bs_CI, A_bs_classify_bs_CI; simpl.
+       destruct A_bs_left_distributive_d0 as [LD | NLD];
+         unfold p2c_left_distributive.
+       + destruct A_bs_right_distributive_d0 as [RD | NRD];
+           unfold p2c_right_distributive.
+         ++ destruct A_bs_left_left_absorptive_d0 as [LLA | NLLA];
+              unfold p2c_left_left_absorptive.
+            +++ destruct A_bs_left_right_absorptive_d0 as [LRA | NLRA];
+                  unfold p2c_left_right_absorptive.
+                ++++ rewrite <- correct_bs_classify_pre_dioid. reflexivity. 
+                ++++ unfold A2C_mcas_bs. reflexivity.  
+            +++ unfold A2C_mcas_bs. reflexivity.  
+         ++ unfold A2C_mcas_bs. reflexivity.  
+       + unfold A2C_mcas_bs. reflexivity.  
+Qed.
 
 Lemma correct_bs_classify_bs (A : A_bs S) :
   bs_classify_bs S (A2C_bs S A)
   =
   A2C_mcas_bs S (A_bs_classify_bs S A). 
-Admitted.     
-
+Proof. destruct A, A_bs_plus_proofs0, A_bs_proofs0. 
+       unfold bs_classify_bs, A_bs_classify_bs; simpl. 
+       destruct A_sg_commutative_d as [commS | ncommS]; 
+         unfold p2c_commutative_check.
+       + destruct A_sg_idempotent_d as [idemS | nidemS]; 
+           unfold p2c_idempotent_check.
+         ++ destruct A_sg_selective_d as [selS | [[s1 s2] nselS]]; 
+              unfold p2c_selective_check.
+            +++ destruct A_bs_left_distributive_d0 as [LD | NLD];
+                  unfold p2c_left_distributive.
+                ++++ destruct A_bs_right_distributive_d0 as [RD | NRD];
+                       unfold p2c_right_distributive.
+                     +++++ rewrite <- correct_bs_classify_selective_presemiring. reflexivity. 
+                     +++++ rewrite <- correct_bs_classify_bs_CS. reflexivity.                       
+                ++++ rewrite <- correct_bs_classify_bs_CS. reflexivity.                       
+            +++ unfold projT1.
+                destruct A_bs_left_distributive_d0 as [LD | NLD];
+                  unfold p2c_left_distributive.
+                ++++ destruct A_bs_right_distributive_d0 as [RD | NRD];
+                       unfold p2c_right_distributive.
+                     +++++ rewrite <- correct_bs_classify_presemiring. reflexivity. 
+                     +++++ rewrite <- correct_bs_classify_bs_CI. reflexivity.                       
+                ++++ rewrite <- correct_bs_classify_bs_CI. reflexivity.  
+         ++ destruct A_bs_left_distributive_d0 as [LD | NLD];
+              unfold p2c_left_distributive.
+            +++ destruct A_bs_right_distributive_d0 as [RD | NRD];
+                       unfold p2c_right_distributive.
+                ++++ rewrite <- correct_bs_classify_presemiring. reflexivity. 
+                ++++ unfold A2C_mcas_bs. reflexivity.  
+            +++ unfold A2C_mcas_bs. reflexivity.  
+       + reflexivity. 
+Qed. 
+       
 Theorem correct_bs_classify (A : A_bs_mcas S) :   
   bs_classify (A2C_mcas_bs S A)
   =

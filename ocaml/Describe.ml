@@ -2,6 +2,14 @@ open Cas
 
 let nl s = s ^ "\n"       
 let char_list_to_string cl = String.concat "" (List.map (String.make 1) cl)
+let rec from_to start finish =
+  if start > finish
+  then []
+  else start :: (from_to (start + 1) finish);;
+
+let string_to_char_list s = List.map (String.get s) (from_to 0 ((String.length s) - 1));;
+
+let make_constant' s1 s2 = make_constant (string_to_char_list s1) (string_to_char_list s2);;  
 
 type string_type = Ascii | Latex
 

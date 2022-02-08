@@ -5,7 +5,20 @@ Require Import CAS.coq.common.data.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.theory.
-Require Import CAS.coq.eqv.list. 
+Require Import CAS.coq.eqv.list.
+
+Section Computation.
+
+Definition brel_sum : ∀ {S T : Type}, brel S → brel T → brel (S + T)
+:= λ  {S} {T} U V x y, 
+   match x, y with
+   | (inl a), (inl b) => U a b 
+   | (inl _), (inr _) => false 
+   | (inr _), (inl _) => false 
+   | (inr a), (inr b) => V a b
+   end.
+  
+End Computation.   
 
 
 Section Theory.

@@ -128,14 +128,6 @@ Definition brel2_product : ∀ {S T U V : Type}, brel2 S U → brel2 T V → bre
    end.
 
 
-Definition brel_sum : ∀ {S T : Type}, brel S → brel T → brel (S + T)
-:= λ  {S} {T} U V x y, 
-   match x, y with
-   | (inl a), (inl b) => U a b 
-   | (inl _), (inr _) => false 
-   | (inr _), (inl _) => false 
-   | (inr a), (inr b) => V a b
-   end.
 
 
 Definition brel_add_top : ∀ {S : Type}, brel S → cas_constant → brel (cas_constant + S)
@@ -267,48 +259,7 @@ Definition bop_reduce_args {S : Type} (r : unary_op S) (b : binary_op S) : binar
 Definition bop_full_reduce {S : Type} (r : unary_op S) (b : binary_op S) : binary_op S
   := λ x y,  r(b (r x) (r y)).   
 
-Definition bop_product : ∀ {S T : Type}, binary_op S → binary_op T → binary_op (S * T) 
-:= λ {S T} U V x y,  
-   match x, y with
-    | (x1, x2), (y1, y2) => (U x1 y1, V x2 y2) 
-   end.
 
-Definition bop_left_sum : ∀ {S T : Type}, binary_op S → binary_op T → binary_op (S + T)
-:= λ {S T }opS opT x y,  
-      match x, y with
-         | (inl a), (inl b) => inl _ (opS a b)
-         | (inl _), (inr _) => x
-         | (inr _), (inl _) => y
-         | (inr a), (inr b) => inr _ (opT a b)
-      end.
-
-Definition bop_right_sum : ∀ {S T : Type}, binary_op S → binary_op T → binary_op (S + T)
-:= λ {S T} opS opT x y,  
-      match x, y with
-         | (inl a), (inl b) => inl _ (opS a b)
-         | (inl _), (inr _) => y
-         | (inr _), (inl _) => x
-         | (inr a), (inr b) => inr _ (opT a b)
-      end.
-
-
-Definition bop_add_id : ∀ {S : Type}, binary_op S → cas_constant → binary_op (cas_constant + S)
-:= λ  {S} bS c x y, 
-   match x, y with
-   | (inl _), (inl _) => y 
-   | (inl _), (inr _) => y
-   | (inr _), (inl _) => x
-   | (inr a), (inr b) => inr _ (bS a b)
-   end.
-
-Definition bop_add_ann : ∀ {S : Type}, binary_op S → cas_constant → binary_op (cas_constant + S)
-:= λ {S} bS c x y, 
-   match x, y with
-   | (inl _), (inl _) => x
-   | (inl _), (inr _) => x
-   | (inr _), (inl _) => y
-   | (inr a), (inr b) => inr _ (bS a b)
-   end.
 
 Definition ltran_list_product : ∀ {S : Type} (bs : binary_op S), left_transform S (list S) 
 := fix f {S} bs a y := 

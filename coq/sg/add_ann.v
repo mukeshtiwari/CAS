@@ -7,11 +7,25 @@ Require Import CAS.coq.common.ast.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.add_constant.
+Require Import CAS.coq.eqv.sum. 
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory.
-Require Import CAS.coq.sg.cast_up. 
+Require Import CAS.coq.sg.cast_up.
+
+Section Computation.
+  
+Definition bop_add_ann : ∀ {S : Type}, binary_op S → cas_constant → binary_op (cas_constant + S)
+:= λ {S} bS c x y, 
+   match x, y with
+   | (inl _), (inl _) => x
+   | (inl _), (inr _) => x
+   | (inr _), (inl _) => y
+   | (inr a), (inr b) => inr _ (bS a b)
+   end.
+
+End Computation. 
 
 Section Theory.
 Variable S  : Type. 

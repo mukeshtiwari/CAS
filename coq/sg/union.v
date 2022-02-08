@@ -10,6 +10,7 @@ Require Import CAS.coq.uop.properties.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.set.
+Require Import CAS.coq.eqv.sum. 
 Require Import CAS.coq.eqv.add_constant.
 
 Require Import CAS.coq.sg.properties.

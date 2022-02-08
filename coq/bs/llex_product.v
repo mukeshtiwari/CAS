@@ -3816,25 +3816,26 @@ Lemma FF_commutative (U : Type) (A : A_bs U) :
 sg_commutative_d (bs_plus_certs (A2C_bs U A))
 = 
 p2c_commutative_check _ _ _ (A_sg_commutative_d U (A_eqv_eq U (A_bs_eqv U A))  (A_bs_plus U A) (A_bs_plus_proofs U A)).
-Admitted. 
+Proof. destruct A. destruct A_bs_proofs. simpl. reflexivity. Qed. 
+       
 
 Lemma FF_selective (U : Type) (A : A_bs U) :
 sg_selective_d (bs_plus_certs (A2C_bs U A))
 = 
 p2c_selective_check _ _ _ (A_sg_selective_d U (A_eqv_eq U (A_bs_eqv U A))  (A_bs_plus U A) (A_bs_plus_proofs U A)).
-Admitted. 
+Proof. destruct A. destruct A_bs_proofs. simpl. reflexivity. Qed. 
 
 Lemma FF_idempotent (U : Type) (A : A_bs U) :
 sg_idempotent_d (bs_plus_certs (A2C_bs U A))
 = 
 p2c_idempotent_check _ _ _ (A_sg_idempotent_d U (A_eqv_eq U (A_bs_eqv U A))  (A_bs_plus U A) (A_bs_plus_proofs U A)).
-Admitted.
+Proof. destruct A. destruct A_bs_proofs. simpl. reflexivity. Qed. 
 
 Lemma FF_id_ann_plus_times (U : Type) (A : A_bs U) :
   id_ann_plus_times_d (bs_id_ann_certs (A2C_bs U A))
   =                       
   p2c_exists_id_ann _ _ _ _ (A_id_ann_plus_times_d U (A_eqv_eq U (A_bs_eqv U A)) (A_bs_plus U A) (A_bs_times U A) (A_bs_id_ann_proofs U A)). 
-Admitted.
+Proof. destruct A. destruct A_bs_proofs. simpl. reflexivity. Qed. 
 
 
 (* this proof is a mess.  clean it up someday ... *) 

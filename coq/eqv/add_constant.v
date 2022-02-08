@@ -7,12 +7,12 @@ Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.eqv.sum.
 
-Section Operations.
+Section Computation. 
 
 Definition brel_constant : brel cas_constant
 := λ  x y, true. (* all constants equal! *) 
 
-End Operations.
+End Computation. 
 
 Section Theory.
 

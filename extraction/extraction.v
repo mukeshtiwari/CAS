@@ -7,12 +7,11 @@ Require Import CAS.coq.eqv.add_constant.
 Require Import CAS.coq.eqv.bool.
 Require Import CAS.coq.eqv.list.
 Require Import CAS.coq.eqv.set.
+Require Import CAS.coq.eqv.minset. 
 (*
 Require Import CAS.coq.eqv.nat_ceiling.
-Require Import CAS.coq.eqv.minset.
-
-
 Require Import CAS.coq.sg.cast_up.
+*)
 Require Import CAS.coq.sg.plus.
 Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.max.
@@ -20,9 +19,6 @@ Require Import CAS.coq.sg.product.
 Require Import CAS.coq.sg.llex.
 Require Import CAS.coq.sg.add_id.
 Require Import CAS.coq.sg.add_ann.
- *)
-
-(*
 Require Import CAS.coq.sg.times.
 Require Import CAS.coq.sg.and.
 Require Import CAS.coq.sg.or.
@@ -31,17 +27,16 @@ Require Import CAS.coq.sg.right.
 Require Import CAS.coq.sg.left_sum.
 Require Import CAS.coq.sg.right_sum.
 Require Import CAS.coq.sg.concat.
-
 Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.intersect.
 Require Import CAS.coq.sg.minset_union. 
 Require Import CAS.coq.sg.lift.
-(* Require Import CAS.coq.sg.minset_lift. *) 
+
+
+(* Require Import CAS.coq.sg.minset_lift.
 
 Require Import CAS.coq.po.lte_nat. (* why is this not from_sg_left sg_min?*)
 Require Import CAS.coq.po.trivial.
-*) 
-(*
 Require Import CAS.coq.po.from_sg_left.
 Require Import CAS.coq.po.from_sg_right.
 Require Import CAS.coq.po.length.
@@ -57,29 +52,27 @@ Require Import CAS.coq.bs.cast_up.
 
 *) 
 
-
-
-
+Require Import CAS.coq.bs.and_or.
+Require Import CAS.coq.bs.or_and.
 Require Import CAS.coq.bs.max_min.
+Require Import CAS.coq.bs.min_max.
 Require Import CAS.coq.bs.min_plus.
+Require Import CAS.coq.bs.max_plus.
 Require Import CAS.coq.bs.product.
 Require Import CAS.coq.bs.add_zero.
 Require Import CAS.coq.bs.add_one.
 Require Import CAS.coq.bs.llex_product.
-
-(*
-Require Import CAS.coq.bs.min_max.
-Require Import CAS.coq.bs.max_plus.
-Require Import CAS.coq.bs.dual.
 Require Import CAS.coq.bs.left_sum.
 Require Import CAS.coq.bs.right_sum.
-Require Import CAS.coq.bs.and_or.
-Require Import CAS.coq.bs.or_and.
 Require Import CAS.coq.bs.union_intersect.
 Require Import CAS.coq.bs.intersect_union.
-Require Import CAS.coq.bs.union_lift.
 Require Import CAS.coq.bs.left.
 Require Import CAS.coq.bs.right.
+(*
+
+Require Import CAS.coq.bs.dual.
+Require Import CAS.coq.bs.union_lift.
+
  *)
 Require Extraction.
 
@@ -145,20 +138,6 @@ Set Extraction KeepSingleton.
 Unset Extraction Optimize.
 Unset Extraction AutoInline.
 
-(*
-Extraction Inline 
-   brel_eq_bool
-   brel_eq_nat 
-   bop_and
-   bop_or
-   bop_plus
-   bop_times 
-   bop_min 
-   bop_max
-   bop_concat
-   . 
-*)
-
 
 Extraction Language OCaml. 
 Extract Inductive unit => "unit" [ "()" ].
@@ -171,160 +150,65 @@ Extract Inductive nat => int [ "0" "succ" ]
 
 (* Avoid name clashes *)
 Extraction Blacklist List String Int.
-
-
-
-
-(* Separate Extraction  *) 
+(*  *) 
 Extraction "Cas.ml"
-   make_constant 
-   eqv_eq_nat
+   make_constant
+   eqv_eq_nat           
+   eqv_bool
+   eqv_list
+   eqv_set   
    eqv_product
    eqv_add_constant
+   eqv_sum
+   eqv_minset_from_po
+   eqv_minset_from_qo
 
+   mcas_sg_and
+   mcas_sg_or
+   mcas_sg_min
+   mcas_sg_max   
+   mcas_sg_plus
+   mcas_sg_times
+   mcas_sg_product 
+   mcas_sg_llex
+   mcas_sg_add_id
+   mcas_sg_add_ann
+   mcas_sg_left
+   mcas_sg_right
+   mcas_sg_left_sum
+   mcas_sg_right_sum
+   mcas_sg_union
+   mcas_sg_intersect
+   mcas_sg_minset_union_from_po
+   mcas_sg_lift 
+(*  
+concat?
+   mcas_sg_minset_union_from_qo
+   mcas_sg_minset_lift 
+*) 
+
+   mcas_bs_and_or
+   mcas_bs_or_and     
    mcas_min_plus
-   mcas_max_min   
+   mcas_max_plus   
+   mcas_max_min
+   mcas_min_max      
    mcas_bs_product
    mcas_bs_llex_product   
    mcas_bs_add_zero
-   mcas_bs_add_one. 
+   mcas_bs_add_one
+   mcas_bs_union_intersect
+   mcas_bs_intersect_union
+   mcas_bs_left
+   mcas_bs_right
+. 
 
-   
-(*******************
-   
-(*   eqv_bool
-   eqv_sum
-   eqv_list
-   eqv_set
-   eqv_nat_ceiling
-   eqv_minset_from_po
-   eqv_minset_from_qo   *) 
-(* semigroups 
-   sg_C_times 
-   sg_CS_and
-   sg_CS_or   
-*)
-   sg_CS_max
-   sg_CS_min
-   sg_CK_plus
-   sg_product
-   sg_C_product      
-   sg_CI_product
-   sg_CK_product
-   sg_llex            
-   sg_C_llex         
-   sg_CI_llex      
-   sg_CS_llex
-   sg_add_ann
-   sg_C_add_ann
-   sg_CI_add_ann
-   sg_CS_add_ann            
-   sg_add_id
-   sg_C_add_id
-   sg_CI_add_id
-   sg_CS_add_id
-   sg_left
-   sg_right
-   sg_concat
-   sg_left_sum   
-   sg_C_left_sum
-   sg_CI_left_sum         
-   sg_CS_left_sum      
-   sg_right_sum
-   sg_C_right_sum            
-   sg_CI_right_sum         
-   sg_CS_right_sum
-   sg_CI_union 
-   sg_CI_intersect
-   sg_CI_minset_union_from_qo   
-   sg_CI_minset_union_from_po
-   sg_lift
-   (* sg casting *)
-   msg_from_sg   
-   sg_from_sg_C
-   sg_from_sg_CS
-   sg_from_sg_CI
-   sg_from_sg_CK
-   sg_C_from_sg_CI
-   sg_C_from_sg_CS
-   sg_C_from_sg_CK
-   sg_CI_from_sg_CS
-   sg_C_option_from_sg
-   sg_CI_option_from_sg
-   sg_CK_option_from_sg
-   sg_CS_option_from_sg 
-   sg_CS_option_from_sg_C
-   sg_CI_option_from_sg_C
-   sg_CK_option_from_sg_C
-   sg_CS_option_from_sg_CI
-   (* order *)
-   lte_nat
-   wp_trivial 
-(**
-   po_add_bottom    
-   to_bool 
-   to_nat 
-   po_dual 
-   to_dual
-   to_llte  
-   to_rlte  
-   po_llte  
-   po_rlte  
-   to_add_top
-   to_add_bottom 
-   po_add_top
+(*
+mcas_union_lift 
+mcas_lift_union
+mcas_left_sum_right_sum
+mcas_right_sum_left_sum  
 
-**)   
-   (* bi-semigroups *)
-   selective_presemiring_max_plus 
-   selective_presemiring_min_plus
-   selective_distributive_prelattice_min_max
-   selective_distributive_prelattice_max_min  
-   selective_distributive_lattice_and_or
-   selective_distributive_lattice_or_and
-   bs_add_one
-(* lattice_add_one
-   distributive_lattice_add_one   *)
-   bs_add_zero
-(* semiring_add_zero 
-   dioid_add_zero   
-   lattice_add_zero
-   distributive_lattice_add_zero 
-   selective_distributive_lattice_add_zero   
-   bs_product
-   semiring_product
-   dioid_product
+orders
+order_semigroups
 *) 
-(*   
-   semiring_sg_left
-   semiring_sg_right
-
-   bs_left_sum
-*)
-(* bs_right_sum *) 
-   bs_llex_product
-   bs_CS_llex_product
-   bs_CI_union_lift 
-   distributive_prelattice_union_intersect
-   distributive_prelattice_intersect_union 
-   (* cast up *) 
-   bs_from_bs_CI
-   bs_from_semiring
-   semiring_from_dioid
-   bs_from_dioid 
-   bs_from_selective_dioid  
-   dioid_from_distributive_lattice
-   bs_from_distributive_prelattice         
-   bs_from_distributive_lattice 
-   bs_from_selective_distributive_lattice
-   bs_from_selective_distributive_prelattice
-   bs_from_selective_presemiring   
-   (* cast down *) 
-   bs_CS_option_from_bs
-   (* lattice duals *) 
-   lattice_dual
-   distributive_lattice_dual
-   selective_distributive_lattice_dual
-*******************)
-
-

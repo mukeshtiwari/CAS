@@ -60,6 +60,26 @@ Proof. intros X Y Z.
        apply in_set_bop_union_intro; auto. 
 Qed. 
 
+(* just a test *) 
+Lemma bop_union_lift_left_distributive_dual : 
+        bop_left_distributive (finite_set S) (brel_set r)  (bop_lift r bS) (bop_union r). 
+Proof. intros X Y Z. 
+       apply brel_set_intro_prop; auto.
+       split; intros a H.
+          apply in_set_bop_union_elim in H.
+          destruct H as [H | H].
+          + admit. (* need idempotence *) 
+          + admit. (* need (X U Y) [^] (Z [^] W) = (X [^] Z) U (X [^] W) U (Y [^] Z) U (X [^] W) *) 
+Admitted. 
+
+(* just a test *) 
+Lemma bop_union_lift_not_left_distributive_dual :
+        bop_not_idempotent S r bS -> 
+        bop_not_left_distributive (finite_set S) (brel_set r)  (bop_lift r bS) (bop_union r). 
+Proof. intros [i nidem]. exists (i :: nil, (nil, nil)).  compute.
+       rewrite nidem. assert (H : r i (bS i i) = false). admit.  rewrite H. reflexivity. 
+Admitted. 
+
         
 Lemma bop_union_lift_right_distributive : 
         bop_right_distributive (finite_set S) (brel_set r) (bop_union r) (bop_lift r bS). 
@@ -96,6 +116,13 @@ Proof. intros IL X Y.
              assert (H5 := tranS _ _ _ H3 H4).
              apply symS in H5. assert (H6 := in_set_right_congruence _ _ symS tranS _ _ _ H5 H1). exact H6. 
 Qed. 
+
+(* just a test *) 
+Lemma bops_union_lift_left_left_absorptive_dual : 
+        bop_is_left S r bS -> bops_left_left_absorptive (finite_set S) (brel_set r) (bop_lift r bS) (bop_union r). 
+Proof. intros IL X Y. 
+       (* hmm, should work as well *) 
+Admitted.
 
 Lemma bops_union_lift_not_left_left_absorptive : 
         bop_not_is_left S r bS -> bops_not_left_left_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_lift r bS). 

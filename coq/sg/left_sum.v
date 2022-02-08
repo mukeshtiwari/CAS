@@ -13,7 +13,18 @@ Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory.
 Require Import CAS.coq.sg.cast_up. 
 
+Section Computation.
 
+Definition bop_left_sum : ∀ {S T : Type}, binary_op S → binary_op T → binary_op (S + T)
+:= λ {S T }opS opT x y,  
+      match x, y with
+         | (inl a), (inl b) => inl _ (opS a b)
+         | (inl _), (inr _) => x
+         | (inr _), (inl _) => y
+         | (inr a), (inr b) => inr _ (opT a b)
+      end.
+
+End Computation.   
 
 Section Theory.
 
