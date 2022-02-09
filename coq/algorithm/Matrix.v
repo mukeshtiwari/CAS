@@ -3883,6 +3883,7 @@ Section Matrix.
         apply refR.
         exact IHl.
     Qed.
+    *)
 
     
     Lemma source_list_consturction : forall l c m,
@@ -4033,7 +4034,7 @@ Section Matrix.
 
 
     
-
+    (*
     Lemma in_list_mem_collect : forall l c d mcd, 
       in_list eqN (collect_nodes_from_a_path (l ++ [(c, d, mcd)])) d = true.
     Proof.
@@ -4064,7 +4065,7 @@ Section Matrix.
         right.
         apply IHl.
     Qed.
-
+  
 
 
     Lemma elem_path_false : forall l c d e m,
@@ -4231,6 +4232,8 @@ Section Matrix.
       exact He. exact Hel.
       exact IHl.
     Qed.
+    *)
+
 
     Lemma well_formed_path_rewrite : forall l lw m,
       mat_cong m -> 
@@ -4309,7 +4312,7 @@ Section Matrix.
       
     
 
-
+    (*
     Lemma cyclic_path_non_elem : forall l c m,
       mat_cong m ->
       well_formed_path_aux m l = true (* a well defined path *) -> 
@@ -4374,7 +4377,7 @@ Section Matrix.
         apply target_tail.
         simpl. exact IHlf.
     Qed.
-        
+    *)    
     
     Lemma list_equiv_simp : forall lf lr pu pv au, 
       list_eqv Node eqN [pu; pv] (lf ++ [au] ++ lr) = true ->
@@ -4468,6 +4471,7 @@ Section Matrix.
     Qed.
       
     
+    (*
     Lemma collect_nodes_from_a_path_app : forall l m a b mab,
       l <> [] ->  well_formed_path_aux m (l ++ [(a, b, mab)]) = true ->
       list_eqv _ eqN (collect_nodes_from_a_path (l ++ [(a, b, mab)]))
@@ -4508,7 +4512,7 @@ Section Matrix.
           apply refN.
           exact IHl.
     Qed.
-
+    *)
 
     Lemma well_formed_path_snoc : forall ll lr m,
       well_formed_path_aux m (ll ++ lr) = true ->
@@ -4602,6 +4606,7 @@ Section Matrix.
     Qed.
       
 
+    (*
     Lemma construct_path_from_nodes_app : forall ll lr a b m,
       triple_elem_list 
         (construct_path_from_nodes (a :: ll ++ [b]) m ++
@@ -4644,7 +4649,8 @@ Section Matrix.
         repeat (apply Bool.andb_true_iff; split);
         try (apply refN); try (apply refR);
         try (apply IHll).
-    Qed. *)
+    Qed. 
+    *)
         
     
 
