@@ -2221,10 +2221,5 @@ Qed.
 End Verify.
 
 (*
-
-correct_sg_C_lift
-
-correct_sg_CI_lift  : CS -> CI 
-
 *) 
 

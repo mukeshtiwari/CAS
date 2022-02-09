@@ -134,7 +134,8 @@ Extraction Library ident.
 *) 
 
 
-Set Extraction KeepSingleton. 
+Set Extraction KeepSingleton.
+(* Set Extraction Conservative Types. *) 
 Unset Extraction Optimize.
 Unset Extraction AutoInline.
 
@@ -169,22 +170,22 @@ Extraction "Cas.ml"
    mcas_sg_max   
    mcas_sg_plus
    mcas_sg_times
+   mcas_sg_concat
+   mcas_sg_left
+   mcas_sg_right
+   mcas_sg_union
+   mcas_sg_intersect   
    mcas_sg_product 
    mcas_sg_llex
    mcas_sg_add_id
    mcas_sg_add_ann
-   mcas_sg_left
-   mcas_sg_right
    mcas_sg_left_sum
    mcas_sg_right_sum
-   mcas_sg_union
-   mcas_sg_intersect
    mcas_sg_minset_union_from_po
    mcas_sg_lift 
 (*  
-concat?
-   mcas_sg_minset_union_from_qo
    mcas_sg_minset_lift 
+   mcas_sg_minset_union_from_qo
 *) 
 
    mcas_bs_and_or
@@ -205,9 +206,10 @@ concat?
 
 (*
 mcas_union_lift 
-mcas_lift_union
 mcas_left_sum_right_sum
 mcas_right_sum_left_sum  
+mcas_minset_union_lift 
+mcas_minset_lift_union
 
 orders
 order_semigroups

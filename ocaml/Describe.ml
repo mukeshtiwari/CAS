@@ -1,7 +1,9 @@
 open Cas
 
 let nl s = s ^ "\n"       
+
 let char_list_to_string cl = String.concat "" (List.map (String.make 1) cl)
+
 let rec from_to start finish =
   if start > finish
   then []
@@ -9,9 +11,118 @@ let rec from_to start finish =
 
 let string_to_char_list s = List.map (String.get s) (from_to 0 ((String.length s) - 1));;
 
-let make_constant' s1 s2 = make_constant (string_to_char_list s1) (string_to_char_list s2);;  
+let make_constant' s1 s2 = make_constant (string_to_char_list s1) (string_to_char_list s2);;
+
+let infinity = make_constant' "INF"  "\\infty";;
 
 type string_type = Ascii | Latex
+
+
+(* 
+type cas_eqv_ast =
+| Ast_eqv_bool
+| Ast_eqv_nat
+| Ast_eqv_list of cas_eqv_ast
+| Ast_eqv_set of cas_eqv_ast
+| Ast_eqv_product of (cas_eqv_ast*cas_eqv_ast)
+| Ast_eqv_sum of (cas_eqv_ast*cas_eqv_ast)
+| Ast_eqv_add_constant of (cas_constant*cas_eqv_ast)
+| Ast_eqv_nat_ceiling of int
+| Ast_eqv_minset of cas_or_ast
+| Ast_eqv_of_or of cas_or_ast
+| Ast_eqv_of_sg of cas_sg_ast
+| Ast_eqv_of_bs of cas_bs_ast
+| Ast_eqv_of_os of cas_os_ast
+and cas_or_ast =
+| Ast_or_nat
+| Ast_or_bool
+| Ast_or_add_bottom of (cas_constant*cas_or_ast)
+| Ast_or_add_top of (cas_constant*cas_or_ast)
+| Ast_or_dual of cas_or_ast
+| Ast_or_llte of cas_sg_ast
+| Ast_or_rlte of cas_sg_ast
+| Ast_or_length of cas_eqv_ast
+| Ast_or_llex of (cas_or_ast*cas_or_ast)
+| Ast_or_product of (cas_or_ast*cas_or_ast)
+| Ast_or_subset of cas_eqv_ast
+| Ast_or_set of cas_eqv_ast
+| Ast_or_left_sum of (cas_or_ast*cas_or_ast)
+| Ast_or_right_sum of (cas_or_ast*cas_or_ast)
+| Ast_or_trivial of cas_eqv_ast
+| Ast_or_of_os of cas_os_ast
+and cas_sg_ast =
+| Ast_sg_times
+| Ast_sg_plus
+| Ast_sg_or
+| Ast_sg_and
+| Ast_sg_min
+| Ast_sg_max
+| Ast_sg_add_id of (cas_constant*cas_sg_ast)
+| Ast_sg_add_ann of (cas_constant*cas_sg_ast)
+| Ast_sg_concat of cas_eqv_ast
+| Ast_sg_union of (cas_constant*cas_eqv_ast)
+| Ast_sg_intersect of (cas_constant*cas_eqv_ast)
+| Ast_sg_left of cas_eqv_ast
+| Ast_sg_right of cas_eqv_ast
+| Ast_sg_left_sum of (cas_sg_ast*cas_sg_ast)
+| Ast_sg_right_sum of (cas_sg_ast*cas_sg_ast)
+| Ast_sg_lift of cas_sg_ast
+| Ast_sg_llex of (cas_sg_ast*cas_sg_ast)
+| Ast_sg_product of (cas_sg_ast*cas_sg_ast)
+| Ast_sg_minset_lift of cas_os_ast
+| Ast_sg_minset_union of cas_or_ast
+| Ast_sg_plus_of_bs of cas_bs_ast
+| Ast_sg_times_of_bs of cas_bs_ast
+| Ast_sg_times_of_os of cas_os_ast
+and cas_bs_ast =
+| Ast_min_plus
+| Ast_max_plus
+| Ast_and_or
+| Ast_or_and
+| Ast_max_min
+| Ast_min_max
+| Ast_bs_add_zero of (cas_constant*cas_bs_ast)
+| Ast_bs_add_one of (cas_constant*cas_bs_ast)
+| Ast_bs_product of (cas_bs_ast*cas_bs_ast)
+| Ast_bs_llex_product of (cas_bs_ast*cas_bs_ast)
+| Ast_bs_union_lift of cas_sg_ast
+| Ast_bs_left_sum_right_sum of (cas_bs_ast*cas_bs_ast)
+| Ast_bs_right_sum_left_sum of (cas_bs_ast*cas_bs_ast)
+| Ast_bs_left of cas_sg_ast
+| Ast_bs_right of cas_sg_ast
+| Ast_union_intersect of (cas_constant*cas_eqv_ast)
+| Ast_intersect_union of (cas_constant*cas_eqv_ast)
+| Ast_bs_dual of cas_bs_ast
+| Ast_minset_lift_union of cas_os_ast
+| Ast_minset_union_lift of cas_os_ast
+| Ast_lift_union of cas_sg_ast
+| Ast_union_lift of cas_sg_ast
+and cas_os_ast =
+| Ast_os_from_bs_left of cas_bs_ast
+| Ast_os_from_bs_right of cas_bs_ast
+| Ast_os_llex_product of (cas_os_ast*cas_os_ast)
+| Ast_os_product of (cas_os_ast*cas_os_ast)
+| Ast_os_add_bottom_id of (cas_constant*cas_os_ast)
+| Ast_os_add_top_ann of (cas_constant*cas_os_ast)
+and cas_ltr_ast =
+| Ast_ltr_cons of cas_eqv_ast
+| Ast_ltr_product of (cas_ltr_ast*cas_ltr_ast)
+| Ast_ltr_left_sum of (cas_ltr_ast*cas_ltr_ast)
+| Ast_ltr_right_sum of (cas_ltr_ast*cas_ltr_ast)
+| Ast_ltr_lift of cas_ltr_ast
+| Ast_ltr_from_sg of cas_ltr_ast
+| Ast_ltr_with_policy of cas_ltr_ast
+and cas_lstr_ast =
+| Ast_lstr_product of (cas_lstr_ast*cas_lstr_ast)
+| Ast_lstr_llex_product of (cas_lstr_ast*cas_lstr_ast)
+and cas_lotr_ast =
+| Ast_lotr_length_cons of cas_eqv_ast
+| Ast_lotr_product of (cas_lotr_ast*cas_lotr_ast)
+| Ast_lotr_llex_product of (cas_lotr_ast*cas_lotr_ast)
+
+ *) 
+
+			     
 
 (*			     
 let rec data_to_string st = function 
