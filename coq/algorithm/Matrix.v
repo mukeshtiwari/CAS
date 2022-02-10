@@ -5379,36 +5379,53 @@ Section Matrix.
       eapply trnR with (partial_sum_mat m n c d); assumption.
     Qed.
 
-
-    (* 
-    Why is this true? 
     
-    What does partial_sum_mat m n c d represents?
-    partial_sum_mat m n c d = partial_sum_paths m n c d 
-    Where 
-    partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
-      match n with
-      | O => I c d
-      | S n' =>  partial_sum_paths m n' c d + 
-        sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d))
-      end.
-
-    partial_sum_path m n c d represents sum of all paths 
-    from [0, 1, ... n]
-
-    if n >= cardinality of the number of nodes - 1. 
-    Now if | *)
-
-
+    Lemma all_paths_in_klength_paths_cycle : forall (l : list Node)
+      (m : Matrix) (c d : Node) xs, l <> [] ->
+      (forall x : Node, in_list eqN l x = true) -> forall n, 
+      (List.length l <= n)%nat ->
+      In_eq_bool xs (all_paths_klength m n c d) = true ->
+      elem_path_triple xs = false.
+    Proof.
+      intros ? ? ? ? ? Hl Hin.
+    Admitted.
     
+
+
+
+    Lemma zero_stable_partial_sum_path : forall k m,
+      (forall a : R, 1 + a =r= 1 = true) ->
+      mat_cong m -> 
+      (forall (c d : Node), 
+        partial_sum_paths m (length finN - 1) c d =r= 
+        partial_sum_paths m (k + length finN - 1) c d = true).
+    Proof.
+      (*
+      Why is this true? 
+      partial_sum_paths m n c d, represents 
+      sum of path of length:
+       0 -> I c d)
+       1 -> m c d
+       2 -> m c --all intermediate nodes-- d
+
+       If I have type A with k, = length finN,  elements, k <> 0, then 
+       I have any path >= k has loop and we 
+       can chop the loop to bring it back <= k - 1
+      *)
+    Admitted.
+
+
   
     Lemma zero_stable_partial : forall m,
       (forall a : R, 1 + a =r= 1 = true) ->
+      mat_cong m -> 
       (forall (c d : Node), 
         partial_sum_mat m (length finN - 1) c d =r= 
         partial_sum_mat m (length finN) c d = true).
     Proof.
-      
+      (* This can be proved using the 
+       (i) connect_partial_sum_mat_paths and 
+       (ii) zero_stable_partial_sum_path *)
     Admitted.
 
 
@@ -5442,6 +5459,7 @@ Section Matrix.
       apply congrR.
       eapply zero_stable_partial.
       exact Ha.
+      exact Hc.
       apply refR.
     Qed.
 
