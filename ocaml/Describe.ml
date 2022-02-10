@@ -223,7 +223,7 @@ let string_of_check_commutative eq bop data = function
        let rhs = bop b a in
        if eq lhs rhs
        then "INTERNAL ERROR\n"
-       else "Not Commutative -> \n" ^
+       else "Not Commutative: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data lhs)) ^ "\n" ^
 	      "   " ^ (data_to_ascii (data b)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data rhs)) ^ "\n"
 
@@ -233,7 +233,7 @@ let string_of_check_idempotent eq bop data = function
        let result = bop a a in
        if eq a result
        then "INTERNAL ERROR\n"
-       else "Not Idempotent -> \n" ^
+       else "Not Idempotent: \n" ^
 	    "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n" 
 
 let string_of_check_selective eq bop data = function 
@@ -242,7 +242,7 @@ let string_of_check_selective eq bop data = function
        let result = bop a b in
        if (eq a result) || (eq b result)
        then "INTERNAL ERROR\n"
-       else "Not Selective -> \n" ^
+       else "Not Selective: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
 
 let string_of_check_anti_left eq bop data = function 
@@ -250,7 +250,7 @@ let string_of_check_anti_left eq bop data = function
     | Certify_Not_Anti_Left (a, b) ->
        let result = bop a b in
        if eq a result 
-       then "Not Anti Left -> \n" ^
+       then "Not Anti Left: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
        else "INTERNAL ERROR\n"
 
@@ -259,7 +259,7 @@ let string_of_check_anti_right eq bop data = function
     | Certify_Not_Anti_Right (s, t) -> 
        let result = bop t s in
        if eq s result 
-       then "Not Anti Right -> \n" ^
+       then "Not Anti Right: \n" ^
 	      "   " ^ (data_to_ascii (data t)) ^  "." ^ (data_to_ascii (data s)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
        else "INTERNAL ERROR\n"
 
@@ -270,7 +270,7 @@ let string_of_check_is_left eq bop data = function
        let result = bop a b in
        if eq a result 
        then "INTERNAL ERROR\n"
-       else "Not Is Left -> \n" ^
+       else "Not Is Left: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
 
 let string_of_check_is_right eq bop data = function 
@@ -279,7 +279,7 @@ let string_of_check_is_right eq bop data = function
        let result = bop a b in
        if eq b result 
        then "INTERNAL ERROR\n"
-       else "Not Is Right -> \n" ^
+       else "Not Is Right: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
 															   
 
@@ -292,7 +292,7 @@ let string_of_check_left_cancellative eq bop data = function
        if eq b c 
        then "INTERNAL ERROR\n"
        else if eq ab ac
-            then "Not Left Cancellative -> \n" ^
+            then "Not Left Cancellative: \n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data ab)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data c)) ^ " = " ^ (data_to_ascii (data ac)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data b)) ^ " <> " ^ (data_to_ascii (data c)) ^ "\n" 	       
@@ -307,7 +307,7 @@ let string_of_check_right_cancellative eq bop data = function
        if eq b c 
        then "INTERNAL ERROR\n"
        else if eq ba ca
-            then "Not Right Cancellative -> \n" ^
+            then "Not Right Cancellative: \n" ^
 		   "   " ^ (data_to_ascii (data b)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ba)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data c)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ca)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data b)) ^ " <> " ^ (data_to_ascii (data c)) ^ "\n" 	       
@@ -321,7 +321,7 @@ let string_of_check_left_constant eq bop data = function
        let ac = bop a c in       
        if eq ab ac 
        then "INTERNAL ERROR\n"
-       else "Not Left Constant -> \n" ^
+       else "Not Left Constant: \n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data ab)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data c)) ^ " = " ^ (data_to_ascii (data ac)) ^ "\n"
 
@@ -334,7 +334,7 @@ let string_of_check_right_constant eq bop data = function
        let ca = bop c a in       
        if eq ba ca 
        then "INTERNAL ERROR\n"
-       else "Not Right Constant -> \n" ^
+       else "Not Right Constant: \n" ^
 		   "   " ^ (data_to_ascii (data b)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ba)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data c)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ca)) ^ "\n"
 
@@ -350,11 +350,11 @@ let string_of_check_left_distributive eq plus times data = function
        let rhs = plus  times_a_b  times_a_c in
        if eq lhs rhs
        then "INTERNAL ERROR\n"
-       else "Not Left Distributive -> \n" ^
+       else "Not Left Distributive:\n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
 	      "   c = " ^ (data_to_ascii (data c)) ^ "\n" ^				  
-	      "   lhs = a*(b + c) <> a*b + a*c = rhs -> \n" ^
+	      "   lhs = a*(b + c) <> a*b + a*c = rhs: \n" ^
 	      "   b + c = " ^ (data_to_ascii (data plus_b_c)) ^ "\n" ^
 	      "   a*b = " ^ (data_to_ascii (data times_a_b)) ^ "\n" ^
 	      "   a*c = " ^ (data_to_ascii (data times_a_c)) ^ "\n" ^
@@ -372,11 +372,11 @@ let string_of_check_right_distributive eq plus times data = function
        let rhs = plus  times_b_a  times_c_a in
        if eq lhs rhs
        then "INTERNAL ERROR\n"
-       else "Not Right Distributive -> \n" ^
+       else "Not Right Distributive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
 	      "   c = " ^ (data_to_ascii (data c)) ^ "\n" ^				  
-	      "   lhs = (b + c)*a <> b*a + c*a = rhs -> \n" ^
+	      "   lhs = (b + c)*a <> b*a + c*a = rhs: \n" ^
 	      "   b + c = " ^ (data_to_ascii (data plus_b_c)) ^ "\n" ^
 	      "   b*a = " ^ (data_to_ascii (data times_b_a)) ^ "\n" ^
 	      "   c*a = " ^ (data_to_ascii (data times_c_a)) ^ "\n" ^
@@ -392,10 +392,10 @@ let string_of_check_left_left_absorptive eq plus times data = function
        let rhs = plus a times_a_b in
        if eq a rhs
        then "INTERNAL ERROR\n"
-       else "Not Left left Absorptive -> \n" ^
+       else "Not Left left Absorptive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
-	      "   a <> a + a*b = rhs -> \n" ^
+	      "   a <> a + a*b = rhs: \n" ^
 	      "   a*b = " ^ (data_to_ascii (data times_a_b)) ^ "\n" ^
 	      "   rhs = " ^ (data_to_ascii (data rhs)) ^ "\n" 
 
@@ -407,10 +407,10 @@ let string_of_check_left_right_absorptive eq plus times data = function
        let rhs = plus a times_b_a in
        if eq a rhs
        then "INTERNAL ERROR\n"
-       else "Not Left Right Absorptive -> \n" ^
+       else "Not Left Right Absorptive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
-	      "   a <> a + b*a = rhs -> \n" ^
+	      "   a <> a + b*a = rhs: \n" ^
 	      "   b*a = " ^ (data_to_ascii (data times_b_a)) ^ "\n" ^
 	      "   rhs = " ^ (data_to_ascii (data rhs)) ^ "\n" 
 
@@ -423,10 +423,10 @@ let string_of_check_right_left_absorptive eq plus times data = function
        let rhs = plus times_a_b a in
        if eq a rhs
        then "INTERNAL ERROR\n"
-       else "Not Right left Absorptive -> \n" ^
+       else "Not Right left Absorptive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
-	      "   a <> a*b + a = rhs -> \n" ^
+	      "   a <> a*b + a = rhs: \n" ^
 	      "   a*b = " ^ (data_to_ascii (data times_a_b)) ^ "\n" ^
 	      "   rhs = " ^ (data_to_ascii (data rhs)) ^ "\n" 
        
@@ -439,10 +439,10 @@ let string_of_check_right_right_absorptive eq plus times data = function
        let rhs = plus times_b_a a in
        if eq a rhs
        then "INTERNAL ERROR\n"
-       else "Not Right left Absorptive -> \n" ^
+       else "Not Right left Absorptive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
-	      "   a <> b*a + a = rhs -> \n" ^
+	      "   a <> b*a + a = rhs: \n" ^
 	      "   b*a = " ^ (data_to_ascii (data times_b_a)) ^ "\n" ^
 	      "   rhs = " ^ (data_to_ascii (data rhs)) ^ "\n" 
 (*       
@@ -512,7 +512,7 @@ let sg_describe_fully sg =
    sg_certs_describe_fully sg.sg_eqv.eqv_eq sg.sg_bop sg.sg_eqv.eqv_data sg.sg_certs)
 
 let bs_certs_describe eq plus times data certs = 
-  (print_string "\nInteraction of Additive and Multiplicative operations-> \n";
+  (print_string "Interaction of Additive and Multiplicative operations: \n";
    print_string   "-------------------------------------------------------\n"; 
    print_string (string_of_check_left_distributive eq plus times data (certs.bs_left_distributive_d) ); 
    print_string (string_of_check_right_distributive eq plus times data (certs.bs_right_distributive_d) );
@@ -523,7 +523,7 @@ let bs_certs_describe eq plus times data certs =
   )
 
 let bs_certs_describe_fully eq plus times data certs = 
-     (print_string "\nInteraction of Additive and Multiplicative operations-> \n";
+     (print_string "Interaction of Additive and Multiplicative operations\n";
       print_string   "-------------------------------------------------------\n";    
        print_string (string_of_check_left_distributive eq plus times data (certs.bs_left_distributive_d) ); 
        print_string (string_of_check_right_distributive eq plus times data (certs.bs_right_distributive_d) );
@@ -543,7 +543,11 @@ let bs_describe bs =
     let plus        = bs.bs_plus         in
     let times       = bs.bs_times        in
     let ast         = bs.bs_ast          in             
-    (sg_certs_describe eq plus data plus_certs;
+    (print_string "Additive properties:\n";
+     print_string "--------------------\n";         
+     sg_certs_describe eq plus data plus_certs;
+     print_string "Multiplicative properties:\n";
+     print_string "-------------------------\n";              
      sg_certs_describe eq times data times_certs; 
      bs_certs_describe eq plus times data certs
       )
@@ -557,7 +561,11 @@ let bs_describe_fully bs =
     let plus        = bs.bs_plus         in
     let times       = bs.bs_times        in
     let ast         = bs.bs_ast          in             
-    (sg_certs_describe_fully eq plus data plus_certs;
+    (print_string "Additive properties:\n";
+     print_string "--------------------\n";    
+     sg_certs_describe_fully eq plus data plus_certs;
+     print_string "Multiplicative properties:\n";
+     print_string "-------------------------\n";         
      sg_certs_describe_fully eq times data times_certs; 
      bs_certs_describe_fully eq plus times data certs
     )

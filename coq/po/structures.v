@@ -7,7 +7,7 @@ Require Import CAS.coq.po.properties.
 
 (* order structures 
 
-               ord 
+                or
               /   \
              /     \
     antisymm/       \not 
