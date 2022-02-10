@@ -5,7 +5,7 @@ COQDOC=coqdoc $(COQINCLUDES)
 COQDEP=coqdep -c
 COQEXEC=coqtop $(COQINCLUDES) -batch -load-vernac-source
 OCAMLBUILD=ocamlbuild
-OCAMLMKTOP=/usr/bin/ocamlmktop
+OCAMLMKTOP=ocamlmktop
 CAMLINCLUDES= -I extraction -I ocaml
 OCB_OPTIONS=\
   -j 2 \
@@ -121,7 +121,7 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
-
+   coq/algorithm/Matrix.v \
 
    # coq/tr/left/left_cayley.v \
    # coq/tr/left/product.v \
@@ -163,7 +163,7 @@ extraction/STAMP: $(FILES:.v=.vo) extraction/extraction.v
 	touch extraction/STAMP
 
 casml: extraction/STAMP ocaml/Mcas.ml ocaml/Describe.ml
-	mk_casml.sh
+	./mk_casml.sh
 	chmod +x casml
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
 	cd _build/extraction && $(OCAMLMKTOP) -o casml $(CMOFILES)

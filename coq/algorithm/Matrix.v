@@ -5561,7 +5561,7 @@ Section Ins.
     | _, _ => false
     end.
 
-  
+  (*  
   Eval compute in  elem_path node eqN Z [(A, B, 1%Z); (B, A, 2%Z)].
   Eval compute in elem_path_triple_compute_loop  node eqN Z [(A, C, 2%Z); (C, B, 1%Z); (B, C, 1%Z)].
   Eval compute in elem_path_triple_aux node eqN Z D [(C, B, 1%Z); 
@@ -5579,6 +5579,7 @@ Section Ins.
   Eval compute in (construct_path_from_nodes _ Z [A; B; A] m ++ 
     construct_path_from_nodes _ Z [A; D] m).
   Eval compute in collect_nodes_from_a_path _ Z [(A, A, 1%Z)].
+  *)
 
 
   
