@@ -2773,8 +2773,438 @@ End Certificates.
 
 Section Combinators.
 
-(* 1 *)   
-Theorem correct_bs_from_bs_CI (S : Type) (P : A_bs_CI S) : 
+
+Lemma correct_bs_from_bs_CS (S : Type) (a : A_bs_CS S) : 
+  bs_from_bs_CS (A2C_bs_CS S a)
+  =
+  A2C_bs S (A_bs_from_bs_CS S a). 
+Proof. unfold bs_from_bs_CS, A_bs_from_bs_CS.
+       unfold A2C_bs; simpl.
+       unfold sg_certs_from_sg_CS_certs, A_sg_proofs_from_sg_CS_proofs.  
+       rewrite <- correct_sg_certs_from_sg_C_certs.
+       rewrite <- correct_sg_C_certs_from_sg_CS_certs.
+       reflexivity. 
+Qed.
+
+Lemma correct_bs_CS_from_selective_presemiring (S: Type) (a : A_selective_presemiring S) : 
+  bs_CS_from_selective_presemiring (A2C_selective_presemiring S a)
+  =
+  A2C_bs_CS S (A_bs_CS_from_selective_presemiring S a).
+Proof. unfold bs_CS_from_selective_presemiring,
+       A_bs_CS_from_selective_presemiring.
+       unfold A2C_bs_CS; simpl.
+       rewrite correct_bs_certs_from_semiring_certs. 
+       reflexivity.
+Qed.        
+
+
+Lemma correct_bs_from_selective_presemiring (S: Type) (a : A_selective_presemiring S) : 
+  bs_from_selective_presemiring (A2C_selective_presemiring S a)
+  =
+  A2C_bs S (A_bs_from_selective_presemiring S a).
+Proof. unfold bs_from_selective_presemiring, A_bs_from_selective_presemiring.
+       rewrite correct_bs_CS_from_selective_presemiring.
+       rewrite correct_bs_from_bs_CS.
+       reflexivity.
+Qed.        
+
+Lemma correct_selective_presemiring_from_selective_semiring
+      (S: Type) (a : A_selective_semiring S) :
+  selective_presemiring_from_selective_semiring
+    (A2C_selective_semiring S a)
+  =
+  A2C_selective_presemiring S (A_selective_presemiring_from_selective_semiring S a).
+Proof. unfold selective_presemiring_from_selective_semiring,
+       A_selective_presemiring_from_selective_semiring.
+       unfold A2C_selective_presemiring; simpl. 
+       reflexivity.
+Qed.        
+       
+Lemma correct_bs_from_selective_semiring (S: Type) (a : A_selective_semiring S) : 
+  bs_from_selective_semiring (A2C_selective_semiring S a)
+  =
+ A2C_bs S (A_bs_from_selective_semiring S a).
+Proof. unfold bs_from_selective_semiring,
+       A_bs_from_selective_semiring.
+       rewrite correct_selective_presemiring_from_selective_semiring.
+       rewrite correct_bs_from_selective_presemiring. 
+       reflexivity.
+Qed.        
+
+Lemma correct_selective_presemiring_from_selective_pre_dioid
+      (S: Type) (a : A_selective_pre_dioid S) :
+  selective_presemiring_from_selective_pre_dioid (A2C_selective_pre_dioid S a)
+  =
+  A2C_selective_presemiring S (A_selective_presemiring_from_selective_pre_dioid S a). 
+Proof. unfold selective_presemiring_from_selective_pre_dioid,
+       A_selective_presemiring_from_selective_pre_dioid.
+       unfold A2C_selective_presemiring; simpl. 
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_from_selective_pre_dioid (S: Type) (a : A_selective_pre_dioid S) : 
+  bs_from_selective_pre_dioid (A2C_selective_pre_dioid S a)
+  =
+  A2C_bs S (A_bs_from_selective_pre_dioid S a).
+Proof. unfold bs_from_selective_pre_dioid, A_bs_from_selective_pre_dioid.
+       rewrite correct_selective_presemiring_from_selective_pre_dioid.
+       rewrite correct_bs_from_selective_presemiring. 
+       reflexivity.
+Qed.        
+
+Lemma correct_selective_semiring_from_selective_pre_dioid_with_zero
+      (S: Type) (a : A_selective_pre_dioid_with_zero S) :
+  selective_semiring_from_selective_pre_dioid_with_zero
+    (A2C_selective_pre_dioid_with_zero S a)
+  =
+  A2C_selective_semiring S (A_selective_semiring_from_selective_pre_dioid_with_zero S a). 
+Proof. unfold selective_semiring_from_selective_pre_dioid_with_zero,
+       A_selective_semiring_from_selective_pre_dioid_with_zero.
+       unfold A2C_selective_semiring; simpl. 
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_from_selective_pre_dioid_with_zero (S: Type) (a : A_selective_pre_dioid_with_zero S) :  
+  bs_from_selective_pre_dioid_with_zero (A2C_selective_pre_dioid_with_zero S a)
+  =
+ A2C_bs S (A_bs_from_selective_pre_dioid_with_zero S a).
+Proof. unfold bs_from_selective_pre_dioid_with_zero,
+       A_bs_from_selective_pre_dioid_with_zero. 
+       rewrite correct_selective_semiring_from_selective_pre_dioid_with_zero.
+       rewrite correct_bs_from_selective_semiring.
+       reflexivity.
+Qed.        
+
+
+Lemma correct_selective_pre_dioid_from_selective_pre_dioid_with_one
+  (S: Type) (a : A_selective_pre_dioid_with_one S) :
+    selective_pre_dioid_from_selective_pre_dioid_with_one
+      (A2C_selective_pre_dioid_with_one S a)
+    =
+    A2C_selective_pre_dioid S (A_selective_pre_dioid_from_selective_pre_dioid_with_one S a). 
+Proof. unfold selective_pre_dioid_from_selective_pre_dioid_with_one,
+       A_selective_pre_dioid_from_selective_pre_dioid_with_one.
+       unfold A2C_selective_pre_dioid; simpl. 
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_from_selective_pre_dioid_with_one (S: Type) (a : A_selective_pre_dioid_with_one S) :   
+  bs_from_selective_pre_dioid_with_one (A2C_selective_pre_dioid_with_one S a)
+  =
+ A2C_bs S (A_bs_from_selective_pre_dioid_with_one S a).
+Proof. unfold bs_from_selective_pre_dioid_with_one ,
+       A_bs_from_selective_pre_dioid_with_one.
+       rewrite correct_selective_pre_dioid_from_selective_pre_dioid_with_one.
+       rewrite correct_bs_from_selective_pre_dioid.
+       reflexivity.
+Qed.        
+
+Lemma correct_selective_pre_dioid_with_zero_from_selective_dioid
+  (S: Type) (a : A_selective_dioid S) :
+    selective_pre_dioid_with_zero_from_selective_dioid
+      (A2C_selective_dioid S a)
+    =
+    A2C_selective_pre_dioid_with_zero S (A_selective_pre_dioid_with_zero_from_selective_dioid S a).
+Proof. unfold selective_pre_dioid_with_zero_from_selective_dioid,
+       A_selective_pre_dioid_with_zero_from_selective_dioid.
+       unfold A2C_selective_pre_dioid_with_zero; simpl. 
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_from_selective_dioid (S: Type) (a : A_selective_dioid S) : 
+  bs_from_selective_dioid (A2C_selective_dioid S a)
+  =
+  A2C_bs S (A_bs_from_selective_dioid S a). 
+Proof. unfold bs_from_selective_dioid, A_bs_from_selective_dioid.
+       rewrite correct_selective_pre_dioid_with_zero_from_selective_dioid.
+       rewrite correct_bs_from_selective_pre_dioid_with_zero. 
+       reflexivity.
+Qed.        
+
+
+Lemma correct_selective_pre_dioid_from_selective_cancellative_pre_dioid
+      (S: Type) (a : A_selective_cancellative_pre_dioid S) :
+  selective_pre_dioid_from_selective_cancellative_pre_dioid
+    (A2C_selective_cancellative_pre_dioid S a)
+  =
+  A2C_selective_pre_dioid S (A_selective_pre_dioid_from_selective_cancellative_pre_dioid S a). 
+Proof. unfold selective_pre_dioid_from_selective_cancellative_pre_dioid,
+       A_selective_pre_dioid_from_selective_cancellative_pre_dioid.
+       unfold A2C_selective_pre_dioid; simpl.
+       rewrite <- correct_extract_exists_id_certifiable_from_exists_id_ann_certifiable.        
+       unfold sg_certs_from_sg_CK_certs, A_sg_proofs_from_sg_CK_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs. 
+       unfold sg_C_certs_from_sg_CK_certs, A_sg_C_proofs_from_sg_CK_proofs.
+       rewrite <- correct_sg_C_certs_from_sg_CNI_certs. 
+       rewrite <- correct_sg_CNI_certs_from_sg_CK_certs.
+       reflexivity.
+       (* why is this junk needed? *) 
+       destruct a; simpl.
+       destruct A_selective_cancellative_pre_dioid_eqv. simpl.
+       exact A_eqv_proofs. 
+Qed. 
+       
+       
+
+Lemma correct_bs_from_selective_cancellative_pre_dioid (S: Type) (a : A_selective_cancellative_pre_dioid S) :  
+  bs_from_selective_cancellative_pre_dioid (A2C_selective_cancellative_pre_dioid S a)
+  =
+  A2C_bs S (A_bs_from_selective_cancellative_pre_dioid S a). 
+Proof. unfold bs_from_selective_cancellative_pre_dioid,
+       A_bs_from_selective_cancellative_pre_dioid.
+       rewrite correct_selective_pre_dioid_from_selective_cancellative_pre_dioid.
+       rewrite correct_bs_from_selective_pre_dioid.
+       reflexivity.
+Qed.        
+       
+
+Lemma correct_selective_pre_dioid_with_zero_from_selective_cancellative_pre_dioid_with_zero
+      (S: Type) (a : A_selective_cancellative_pre_dioid_with_zero S) :
+  selective_pre_dioid_with_zero_from_selective_cancellative_pre_dioid_with_zero
+    (A2C_selective_cancellative_pre_dioid_with_zero S a)
+  =
+  A2C_selective_pre_dioid_with_zero S (A_selective_pre_dioid_with_zero_from_selective_cancellative_pre_dioid_with_zero S a).
+Proof. unfold selective_pre_dioid_with_zero_from_selective_cancellative_pre_dioid_with_zero,
+       A_selective_pre_dioid_with_zero_from_selective_cancellative_pre_dioid_with_zero.
+       unfold A2C_selective_pre_dioid_with_zero; simpl.
+       rewrite <- correct_extract_exists_id_certifiable_from_exists_id_ann_certifiable.        
+       unfold sg_certs_from_sg_CK_certs, A_sg_proofs_from_sg_CK_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs. 
+       unfold sg_C_certs_from_sg_CK_certs, A_sg_C_proofs_from_sg_CK_proofs.
+       rewrite <- correct_sg_C_certs_from_sg_CNI_certs. 
+       rewrite <- correct_sg_CNI_certs_from_sg_CK_certs.
+       reflexivity.
+       (* why is this junk needed? *) 
+       destruct a; simpl.
+       destruct A_selective_cancellative_pre_dioid_with_zero_eqv. simpl.
+       exact A_eqv_proofs. 
+Qed. 
+
+Lemma correct_bs_from_selective_cancellative_pre_dioid_with_zero (S: Type) (a : A_selective_cancellative_pre_dioid_with_zero S) :  
+  bs_from_selective_cancellative_pre_dioid_with_zero (A2C_selective_cancellative_pre_dioid_with_zero S a)
+  =
+  A2C_bs S (A_bs_from_selective_cancellative_pre_dioid_with_zero S a). 
+Proof. unfold bs_from_selective_cancellative_pre_dioid_with_zero,
+       A_bs_from_selective_cancellative_pre_dioid_with_zero.
+       rewrite correct_selective_pre_dioid_with_zero_from_selective_cancellative_pre_dioid_with_zero.
+       rewrite correct_bs_from_selective_pre_dioid_with_zero.
+       reflexivity.
+Qed.        
+
+
+Lemma correct_selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one
+      (S: Type) (a : A_selective_cancellative_pre_dioid_with_one S) :
+  selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one
+    (A2C_selective_cancellative_pre_dioid_with_one S a)
+  =
+  A2C_selective_pre_dioid_with_one S (A_selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one S a).
+Proof. unfold selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one,
+       A_selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one.
+       unfold A2C_selective_pre_dioid_with_one; simpl.
+       reflexivity.
+Qed.        
+
+
+Lemma correct_bs_from_selective_cancellative_pre_dioid_with_one (S: Type) (a : A_selective_cancellative_pre_dioid_with_one S) :   
+  bs_from_selective_cancellative_pre_dioid_with_one (A2C_selective_cancellative_pre_dioid_with_one S a)
+  =
+ A2C_bs S (A_bs_from_selective_cancellative_pre_dioid_with_one S a). 
+Proof. unfold bs_from_selective_cancellative_pre_dioid_with_one,
+       A_bs_from_selective_cancellative_pre_dioid_with_one.
+       rewrite correct_selective_pre_dioid_with_one_from_selective_cancellative_pre_dioid_with_one.
+       rewrite correct_bs_from_selective_pre_dioid_with_one.
+       reflexivity.
+Qed.        
+
+          
+Lemma  correct_selective_cancellative_pre_dioid_with_one_from_selective_cancellative_dioid
+       (S: Type) (a : A_selective_cancellative_dioid S) :
+   selective_cancellative_pre_dioid_with_one_from_selective_cancellative_dioid
+      (A2C_selective_cancellative_dioid S a)
+   =
+   A2C_selective_cancellative_pre_dioid_with_one S (A_selective_cancellative_pre_dioid_with_one_from_selective_cancellative_dioid S a).
+Proof. unfold selective_cancellative_pre_dioid_with_one_from_selective_cancellative_dioid,
+       A_selective_cancellative_pre_dioid_with_one_from_selective_cancellative_dioid.
+       unfold A2C_selective_cancellative_pre_dioid_with_one; simpl. 
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_from_selective_cancellative_dioid (S: Type) (a : A_selective_cancellative_dioid S) :   
+  bs_from_selective_cancellative_dioid (A2C_selective_cancellative_dioid S a)
+  =
+  A2C_bs S (A_bs_from_selective_cancellative_dioid S a). 
+Proof. unfold bs_from_selective_cancellative_dioid,
+       A_bs_from_selective_cancellative_dioid.
+       rewrite correct_selective_cancellative_pre_dioid_with_one_from_selective_cancellative_dioid.
+       rewrite correct_bs_from_selective_cancellative_pre_dioid_with_one. 
+       reflexivity.
+Qed.        
+
+
+Lemma correct_selective_pre_dioid_from_selective_distributive_prelattice (S: Type) (a : A_selective_distributive_prelattice S) :
+  selective_pre_dioid_from_selective_distributive_prelattice
+    (A2C_selective_distributive_prelattice S a)
+  =
+  A2C_selective_pre_dioid S (A_selective_pre_dioid_from_selective_distributive_prelattice S a).
+Proof. unfold selective_pre_dioid_from_selective_distributive_prelattice,
+       A_selective_pre_dioid_from_selective_distributive_prelattice.
+       unfold A2C_selective_pre_dioid; simpl.
+       unfold sg_certs_from_sg_CS_certs, A_sg_proofs_from_sg_CS_proofs. 
+       rewrite <- correct_sg_certs_from_sg_C_certs.       
+       rewrite <- correct_sg_C_certs_from_sg_CS_certs.
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_from_selective_distributive_prelattice (S: Type) (a : A_selective_distributive_prelattice S) :    
+  bs_from_selective_distributive_prelattice (A2C_selective_distributive_prelattice S a)
+  =
+  A2C_bs S (A_bs_from_selective_distributive_prelattice S a). 
+Proof. unfold bs_from_selective_distributive_prelattice,
+       A_bs_from_selective_distributive_prelattice.
+       rewrite correct_selective_pre_dioid_from_selective_distributive_prelattice.
+       rewrite correct_bs_from_selective_pre_dioid. 
+       reflexivity.
+Qed.        
+       
+  
+Lemma correct_selective_distributive_prelattice_from_selective_distributive_prelattice_with_zero
+      (S: Type) (a : A_selective_distributive_prelattice_with_zero S) : 
+      selective_distributive_prelattice_from_selective_distributive_prelattice_with_zero S
+          (A2C_selective_distributive_prelattice_with_zero S a)
+      =
+      A2C_selective_distributive_prelattice S
+         (A_selective_distributive_prelattice_from_selective_distributive_prelattice_with_zero S a). 
+Proof. unfold selective_distributive_prelattice_from_selective_distributive_prelattice_with_zero,
+       A_selective_distributive_prelattice_from_selective_distributive_prelattice_with_zero.
+       unfold A2C_selective_distributive_prelattice; simpl. 
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_from_selective_distributive_prelattice_with_zero (S: Type) (a : A_selective_distributive_prelattice_with_zero S) :     
+  bs_from_selective_distributive_prelattice_with_zero (A2C_selective_distributive_prelattice_with_zero S a)
+  =
+  A2C_bs S (A_bs_from_selective_distributive_prelattice_with_zero S a).
+Proof. unfold bs_from_selective_distributive_prelattice_with_zero,
+       A_bs_from_selective_distributive_prelattice_with_zero.
+       rewrite correct_selective_distributive_prelattice_from_selective_distributive_prelattice_with_zero.
+       rewrite correct_bs_from_selective_distributive_prelattice. 
+       reflexivity.
+Qed.        
+
+Lemma correct_selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one
+      (S: Type) (a : A_selective_distributive_prelattice_with_one S) :      
+selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one
+  (A2C_selective_distributive_prelattice_with_one S a)
+=
+A2C_selective_pre_dioid_with_one S (A_selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one S a).
+Proof. unfold selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one,
+       A_selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one.
+       unfold A2C_selective_pre_dioid_with_one; simpl.
+       rewrite correct_dioid_certs_from_distributive_lattice_certs.
+       unfold sg_certs_from_sg_CS_certs, A_sg_proofs_from_sg_CS_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs.       
+       rewrite <- correct_sg_C_certs_from_sg_CS_certs.
+       reflexivity.
+Qed.        
+       
+Lemma correct_bs_from_selective_distributive_prelattice_with_one (S: Type) (a : A_selective_distributive_prelattice_with_one S) :      
+  bs_from_selective_distributive_prelattice_with_one (A2C_selective_distributive_prelattice_with_one S a)
+  =
+  A2C_bs S (A_bs_from_selective_distributive_prelattice_with_one S a).
+Proof. unfold bs_from_selective_distributive_prelattice_with_one,
+       A_bs_from_selective_distributive_prelattice_with_one.
+       rewrite correct_selective_pre_dioid_with_one_from_selective_distributive_prelattice_with_one.
+       rewrite correct_bs_from_selective_pre_dioid_with_one.
+       reflexivity. 
+Qed.
+
+
+Lemma correct_selective_dioid_from_selective_distributive_lattice (S: Type) (a : A_selective_distributive_lattice S) :     
+selective_dioid_from_selective_distributive_lattice (A2C_selective_distributive_lattice S a) 
+=
+A2C_selective_dioid S (A_selective_dioid_from_selective_distributive_lattice S a). 
+Proof. unfold selective_dioid_from_selective_distributive_lattice,
+       A_selective_dioid_from_selective_distributive_lattice.
+       unfold A2C_selective_dioid; simpl.
+       rewrite correct_dioid_certs_from_distributive_lattice_certs.
+       unfold sg_certs_from_sg_CS_certs, A_sg_proofs_from_sg_CS_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs. 
+       reflexivity. 
+Qed.
+
+Lemma correct_bs_from_selective_distributive_lattice (S: Type) (a : A_selective_distributive_lattice S) :     
+  bs_from_selective_distributive_lattice (A2C_selective_distributive_lattice S a)
+  =
+ A2C_bs S (A_bs_from_selective_distributive_lattice S a).
+Proof. unfold bs_from_selective_distributive_lattice, A_bs_from_selective_distributive_lattice.
+       rewrite correct_selective_dioid_from_selective_distributive_lattice. 
+       rewrite correct_bs_from_selective_dioid. 
+       reflexivity.
+Qed.
+
+Lemma correct_semiring_from_pre_dioid_with_zero (S: Type) (dS : A_pre_dioid_with_zero S) : 
+    semiring_from_pre_dioid_with_zero (A2C_pre_dioid_with_zero S dS) = A2C_semiring S (A_semiring_from_pre_dioid_with_zero S dS).  
+Proof. destruct dS. 
+       unfold semiring_from_pre_dioid_with_zero, A_semiring_from_pre_dioid_with_zero, A2C_semiring, A2C_pre_dioid_with_zero; simpl.
+       rewrite correct_semiring_certs_from_dioid_certs.
+       rewrite <- correct_sg_C_certs_from_sg_CI_certs.
+       reflexivity. 
+Qed.
+  
+
+Lemma correct_pre_dioid_from_pre_dioid_with_zero (S: Type) (pd :A_pre_dioid_with_zero S) : 
+  pre_dioid_from_pre_dioid_with_zero (A2C_pre_dioid_with_zero S pd)
+  =
+  A2C_pre_dioid S (A_pre_dioid_from_pre_dioid_with_zero S pd). 
+Proof. unfold pre_dioid_from_pre_dioid_with_zero, A_pre_dioid_from_pre_dioid_with_zero.
+       unfold A2C_pre_dioid; simpl.
+       reflexivity. 
+Qed.
+
+Lemma correct_pre_dioid_from_pre_dioid_with_one (S: Type) (pd :A_pre_dioid_with_one S) : 
+  pre_dioid_from_pre_dioid_with_one (A2C_pre_dioid_with_one S pd)
+  =
+  A2C_pre_dioid S (A_pre_dioid_from_pre_dioid_with_one S pd).  
+Proof. unfold pre_dioid_from_pre_dioid_with_one, A_pre_dioid_from_pre_dioid_with_one.
+       unfold A2C_pre_dioid; simpl.
+       reflexivity. 
+Qed.
+       
+
+Lemma correct_pre_dioid_with_zero_from_dioid (S: Type) (d :A_dioid S) : 
+  pre_dioid_with_zero_from_dioid (A2C_dioid S d)
+  =
+  A2C_pre_dioid_with_zero S (A_pre_dioid_with_zero_from_dioid S d). 
+Proof. unfold pre_dioid_with_zero_from_dioid, A_pre_dioid_with_zero_from_dioid. 
+       unfold A2C_pre_dioid_with_zero; simpl.
+       reflexivity. 
+Qed.
+
+       
+Lemma correct_pre_dioid_with_one_from_dioid (S: Type) (d :A_dioid S) : 
+  pre_dioid_with_one_from_dioid (A2C_dioid S d)
+  =
+  A2C_pre_dioid_with_one S (A_pre_dioid_with_one_from_dioid S d). 
+Proof. unfold pre_dioid_with_one_from_dioid, A_pre_dioid_with_one_from_dioid.
+       unfold A2C_pre_dioid_with_one; simpl.
+       reflexivity. 
+Qed.
+       
+
+Lemma correct_dioid_from_distributive_lattice (S: Type) (d : A_distributive_lattice S) : 
+  dioid_from_distributive_lattice (A2C_distributive_lattice S d)
+  =
+  A2C_dioid S (A_dioid_from_distributive_lattice S d). 
+Proof. unfold dioid_from_distributive_lattice, A_dioid_from_distributive_lattice.
+       unfold A2C_dioid; simpl. 
+       rewrite correct_dioid_certs_from_distributive_lattice_certs.
+       unfold sg_certs_from_sg_CI_certs, A_sg_proofs_from_sg_CI_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs.
+       rewrite <- correct_sg_C_certs_from_sg_CI_certs.        
+       reflexivity.        
+Qed. 
+
+Lemma correct_bs_from_bs_CI (S : Type) (P : A_bs_CI S) : 
     bs_from_bs_CI (A2C_bs_CI S P) = A2C_bs S (A_bs_from_bs_CI S P).
 Proof. destruct P.
        unfold bs_from_bs_CI, A_bs_from_bs_CI, A2C_bs_CI, A2C_bs; simpl.
@@ -2784,20 +3214,21 @@ Proof. destruct P.
        rewrite <- correct_sg_C_certs_from_sg_CI_certs. 
        reflexivity. 
 Qed.
-  
-(* 2 *) 
-Theorem correct_bs_from_presemiring (S : Type) (P : A_presemiring S) : 
+
+
+
+Lemma correct_bs_from_presemiring (S : Type) (P : A_presemiring S) : 
   bs_from_presemiring (A2C_presemiring S P) = A2C_bs S (A_bs_from_presemiring S P).
-Admitted.
-(*
 Proof. destruct P.
-       unfold bs_from_presemiring, A_bs_from_presemiring, A2C_presemiring, A2C_bs; simpl.
+       unfold bs_from_presemiring, A_bs_from_presemiring; simpl. 
+       unfold A2C_bs; simpl.
        rewrite correct_bs_certs_from_semiring_certs.
+       rewrite <- correct_sg_certs_from_sg_C_certs.
        reflexivity. 
 Qed.
-*) 
-(* 3 *) 
-Theorem correct_presemiring_from_semiring (S: Type) (sr : A_semiring S) :
+
+
+Lemma correct_presemiring_from_semiring (S: Type) (sr : A_semiring S) :
     presemiring_from_semiring (A2C_semiring S sr) = A2C_presemiring S (A_presemiring_from_semiring S sr).
 Proof. destruct sr.
        unfold presemiring_from_semiring, A_presemiring_from_semiring, A2C_semiring, A2C_presemiring; simpl.
@@ -2805,77 +3236,298 @@ Proof. destruct sr.
        reflexivity. 
 Qed.
 
-(* 4 *) 
-Theorem correct_semiring_from_pre_dioid_with_zero (S: Type) (dS : A_pre_dioid_with_zero S) : 
-    semiring_from_pre_dioid_with_zero (A2C_pre_dioid_with_zero S dS) = A2C_semiring S (A_semiring_from_pre_dioid_with_zero S dS).  
-Proof. destruct dS. 
-       unfold semiring_from_pre_dioid_with_zero, A_semiring_from_pre_dioid_with_zero, A2C_semiring, A2C_pre_dioid_with_zero; simpl.
-       rewrite correct_semiring_certs_from_dioid_certs.
-       rewrite <- correct_sg_C_certs_from_sg_CI_certs.
+Lemma correct_bs_from_bs_semiring (S : Type) (P : A_semiring S) : 
+  bs_from_semiring (A2C_semiring S P)
+  =
+  A2C_bs S (A_bs_from_semiring S P).
+Proof. unfold bs_from_semiring, A_bs_from_semiring.
+       rewrite correct_presemiring_from_semiring. 
+       rewrite correct_bs_from_presemiring. 
        reflexivity. 
 Qed.
-  
-(* 5 *)
-Theorem correct_bs_CI_from_lattice (S: Type) (lP : A_lattice S) : 
-  bs_CI_from_lattice (A2C_lattice S lP) = A2C_bs_CI S (A_bs_CI_from_lattice S lP). 
-Admitted. 
-    
-(* 6 *) 
-Theorem correct_lattice_from_distributive_lattice (S: Type) (dS : A_distributive_lattice S) : 
-  lattice_from_distributive_lattice (A2C_distributive_lattice S dS)
-  =
-  A2C_lattice S (A_lattice_from_distributive_lattice S dS). 
-Admitted. 
 
-(* 7 *) 
-Theorem correct_bs_CI_from_pre_dioid (S: Type) (pd : A_pre_dioid S) : 
+Lemma correct_bs_CI_from_pre_dioid (S: Type) (pd : A_pre_dioid S) : 
    bs_CI_from_pre_dioid (A2C_pre_dioid S pd) = A2C_bs_CI S (A_bs_CI_from_pre_dioid S pd).
-Admitted. 
+Proof. unfold bs_CI_from_pre_dioid, A_bs_CI_from_pre_dioid.
+       unfold A2C_bs_CI. simpl.
+       unfold bs_certs_from_dioid_certs, bs_proofs_from_dioid_proofs. 
+       rewrite <- correct_semiring_certs_from_dioid_certs.
+       rewrite correct_bs_certs_from_semiring_certs. 
+       reflexivity. 
+Qed. 
 
-(* 8 *) 
-Theorem correct_pre_dioid_from_pre_dioid_with_zero (S: Type) (pd :A_pre_dioid_with_zero S) : 
-  pre_dioid_from_pre_dioid_with_zero (A2C_pre_dioid_with_zero S pd)
+Lemma correct_bs_CI_from_pre_dioid_with_one (S : Type) (P : A_pre_dioid_with_one S) : 
+  bs_CI_from_pre_dioid_with_one (A2C_pre_dioid_with_one S P)
   =
-  A2C_pre_dioid S (A_pre_dioid_from_pre_dioid_with_zero S pd). 
-Admitted. 
+  A2C_bs_CI S (A_bs_CI_from_pre_dioid_with_one S P).
+Proof. unfold bs_CI_from_pre_dioid_with_one, A_bs_CI_from_pre_dioid_with_one.
+       rewrite correct_pre_dioid_from_pre_dioid_with_one. 
+       rewrite correct_bs_CI_from_pre_dioid. 
+       reflexivity.
+Qed.
 
-(* 9 *) 
-Theorem correct_pre_dioid_from_pre_dioid_with_one (S: Type) (pd :A_pre_dioid_with_one S) : 
-  pre_dioid_from_pre_dioid_with_one (A2C_pre_dioid_with_one S pd)
+Lemma correct_bs_CI_from_pre_dioid_with_zero (S : Type) (P : A_pre_dioid_with_zero S) : 
+  bs_CI_from_pre_dioid_with_zero (A2C_pre_dioid_with_zero S P)
   =
-  A2C_pre_dioid S (A_pre_dioid_from_pre_dioid_with_one S pd).  
-Admitted.
+  A2C_bs_CI S (A_bs_CI_from_pre_dioid_with_zero S P).
+Proof. unfold bs_CI_from_pre_dioid_with_zero, A_bs_CI_from_pre_dioid_with_zero.
+       rewrite correct_pre_dioid_from_pre_dioid_with_zero. 
+       rewrite correct_bs_CI_from_pre_dioid. 
+       reflexivity.
+Qed.
 
-(* 10 *) 
-Theorem correct_pre_dioid_with_zero_from_dioid (S: Type) (d :A_dioid S) : 
-  pre_dioid_with_zero_from_dioid (A2C_dioid S d)
+
+Lemma correct_bs_from_pre_dioid_with_zero (S : Type) (P : A_pre_dioid_with_zero S) : 
+  bs_from_pre_dioid_with_zero (A2C_pre_dioid_with_zero S P)
   =
-  A2C_pre_dioid_with_zero S (A_pre_dioid_with_zero_from_dioid S d). 
-Admitted.
+  A2C_bs S (A_bs_from_pre_dioid_with_zero S P).
+Proof. unfold bs_from_pre_dioid_with_zero, A_bs_from_pre_dioid_with_zero.
+       rewrite correct_bs_CI_from_pre_dioid_with_zero. 
+       rewrite correct_bs_from_bs_CI. 
+       reflexivity.
+Qed.
 
-(* 11 *) 
-Theorem correct_pre_dioid_with_one_from_dioid (S: Type) (d :A_dioid S) : 
-  pre_dioid_with_one_from_dioid (A2C_dioid S d) = A2C_pre_dioid_with_one S (A_pre_dioid_with_one_from_dioid S d). 
-Admitted.
+Lemma correct_bs_from_pre_dioid_with_one (S : Type) (P : A_pre_dioid_with_one S) : 
+  bs_from_pre_dioid_with_one (A2C_pre_dioid_with_one S P)
+  =
+  A2C_bs S (A_bs_from_pre_dioid_with_one S P).
+Proof. unfold bs_from_pre_dioid_with_one, A_bs_from_pre_dioid_with_one.
+       rewrite correct_bs_CI_from_pre_dioid_with_one.
+       rewrite correct_bs_from_bs_CI. 
+       reflexivity.
+Qed.
 
-(* 12 *) 
-Theorem correct_dioid_from_distributive_lattice (S: Type) (d : A_distributive_lattice S) : 
-  dioid_from_distributive_lattice (A2C_distributive_lattice S d) = A2C_dioid S (A_dioid_from_distributive_lattice S d). 
-Admitted.
 
-(*************** selective versions **********************)
+Lemma correct_bs_CI_from_dioid (S: Type) (pd : A_dioid S) : 
+   bs_CI_from_dioid (A2C_dioid S pd) = A2C_bs_CI S (A_bs_CI_from_dioid S pd).
+Proof. unfold bs_CI_from_dioid, A_bs_CI_from_dioid.
+       rewrite correct_pre_dioid_with_zero_from_dioid. 
+       rewrite correct_bs_CI_from_pre_dioid_with_zero. 
+       reflexivity.
+Qed.
+       
 
-(*** TODO .... *****) 
+Lemma correct_bs_from_bs_pre_dioid (S : Type) (P : A_pre_dioid S) : 
+  bs_from_pre_dioid (A2C_pre_dioid S P)
+  =
+  A2C_bs S (A_bs_from_pre_dioid S P).
+Proof. unfold bs_from_pre_dioid, A_bs_from_pre_dioid.
+       rewrite correct_bs_CI_from_pre_dioid. 
+       rewrite correct_bs_from_bs_CI.
+       reflexivity.
+Qed.
 
+
+Lemma correct_bs_from_bs_dioid (S : Type) (P : A_dioid S) : 
+  bs_from_dioid (A2C_dioid S P)
+  =
+  A2C_bs S (A_bs_from_dioid S P).
+Proof. unfold bs_from_dioid, A_bs_from_dioid.
+       rewrite correct_bs_CI_from_dioid.       
+       rewrite correct_bs_from_bs_CI. 
+       reflexivity.
+Qed.
+
+Lemma correct_bs_CI_from_prelattice (S: Type) (lP : A_prelattice S) : 
+  bs_CI_from_prelattice (A2C_prelattice S lP) = A2C_bs_CI S (A_bs_CI_from_prelattice S lP). 
+Proof. unfold bs_CI_from_prelattice, A_bs_CI_from_prelattice.
+       unfold A2C_bs_CI; simpl.
+       rewrite correct_bs_certs_from_lattice_certs.
+       unfold sg_certs_from_sg_CI_certs, A_sg_proofs_from_sg_CI_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs.        
+       rewrite <- correct_sg_C_certs_from_sg_CI_certs.
+       reflexivity.
+Qed.
+              
+
+Lemma correct_bs_from_prelattice (S : Type) (P : A_prelattice S) : 
+  bs_from_prelattice (A2C_prelattice S P)
+  =
+  A2C_bs S (A_bs_from_prelattice S P). 
+Proof. unfold bs_from_prelattice, A_bs_from_prelattice. 
+       rewrite correct_bs_CI_from_prelattice.
+       rewrite correct_bs_from_bs_CI. 
+       reflexivity.
+Qed.        
+
+
+Lemma correct_prelattice_from_distributive_prelattice (S: Type) (dS : A_distributive_prelattice S) : 
+  prelattice_from_distributive_prelattice (A2C_distributive_prelattice S dS)
+  =
+  A2C_prelattice S (A_prelattice_from_distributive_prelattice S dS).
+Proof. unfold prelattice_from_distributive_prelattice,
+       A_prelattice_from_distributive_prelattice.
+       unfold A2C_prelattice; simpl. 
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_CI_from_distributive_prelattice (S: Type) (lP : A_distributive_prelattice S) : 
+  bs_CI_from_distributive_prelattice (A2C_distributive_prelattice S lP)
+  =
+  A2C_bs_CI S (A_bs_CI_from_distributive_prelattice S lP). 
+Proof. unfold bs_CI_from_distributive_prelattice, A_bs_CI_from_distributive_prelattice.
+       rewrite correct_prelattice_from_distributive_prelattice.
+       rewrite correct_bs_CI_from_prelattice.
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_from_distributive_prelattice (S : Type) (P : A_distributive_prelattice S) : 
+  bs_from_distributive_prelattice (A2C_distributive_prelattice S P)
+  =
+  A2C_bs S (A_bs_from_distributive_prelattice S P).
+Proof. unfold bs_from_distributive_prelattice, A_bs_from_distributive_prelattice.
+       rewrite correct_bs_CI_from_distributive_prelattice.
+       rewrite correct_bs_from_bs_CI. 
+       reflexivity.
+Qed.        
+
+
+Lemma correct_prelattice_from_lattice (S : Type) (P : A_lattice S) :   
+  prelattice_from_lattice (A2C_lattice S P)
+  =
+  A2C_prelattice S (A_prelattice_from_lattice S P).
+Proof. unfold prelattice_from_lattice, A_prelattice_from_lattice.
+       unfold A2C_prelattice; simpl.
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_CI_from_lattice (S : Type) (P : A_lattice S) : 
+  bs_CI_from_lattice (A2C_lattice S P)
+  =
+  A2C_bs_CI S (A_bs_CI_from_lattice S P).
+Proof. unfold bs_CI_from_lattice, A_bs_CI_from_lattice.
+       rewrite correct_prelattice_from_lattice.
+       rewrite correct_bs_CI_from_prelattice.
+       reflexivity.
+Qed.        
+
+Lemma correct_bs_from_lattice (S : Type) (P : A_lattice S) : 
+  bs_from_lattice (A2C_lattice S P)
+  =
+  A2C_bs S (A_bs_from_lattice S P).
+Proof. unfold bs_from_lattice, A_bs_from_lattice.
+       rewrite correct_bs_CI_from_lattice.
+       rewrite correct_bs_from_bs_CI. 
+       reflexivity. 
+Qed. 
+
+
+
+Lemma correct_distributive_prelattice_from_distributive_lattice (S: Type) (dS : A_distributive_lattice S) : 
+  distributive_prelattice_from_distributive_lattice (A2C_distributive_lattice S dS)
+  =                                                          
+  A2C_distributive_prelattice S (A_distributive_prelattice_from_distributive_lattice S dS).
+Proof. unfold distributive_prelattice_from_distributive_lattice,
+       A_distributive_prelattice_from_distributive_lattice.
+       unfold A2C_distributive_prelattice; simpl.
+       reflexivity.
+Qed.        
+
+Lemma correct_prelattice_from_distributive_lattice (S: Type) (dS : A_distributive_lattice S) : 
+  prelattice_from_distributive_lattice (A2C_distributive_lattice S dS)
+  =
+  A2C_prelattice S (A_prelattice_from_distributive_lattice S dS).
+Proof. unfold prelattice_from_distributive_lattice, A_prelattice_from_distributive_lattice.
+       rewrite correct_distributive_prelattice_from_distributive_lattice. 
+       rewrite correct_prelattice_from_distributive_prelattice.      
+       reflexivity.
+Qed.        
+       
+Lemma correct_bs_CI_from_distributive_lattice (S : Type) (P : A_distributive_lattice S) : 
+  bs_CI_from_distributive_lattice (A2C_distributive_lattice S P)
+  =
+  A2C_bs_CI S (A_bs_CI_from_distributive_lattice S P).
+Proof. unfold A_bs_CI_from_distributive_lattice, bs_CI_from_distributive_lattice.
+       rewrite correct_prelattice_from_distributive_lattice.
+       rewrite correct_bs_CI_from_prelattice. 
+       reflexivity.
+Qed.
+
+Lemma correct_bs_from_distributive_lattice (S : Type) (P : A_distributive_lattice S) : 
+  bs_from_distributive_lattice (A2C_distributive_lattice S P)
+  =
+  A2C_bs S (A_bs_from_distributive_lattice S P).
+Proof. unfold A_bs_from_distributive_lattice, bs_from_distributive_lattice. 
+       rewrite correct_bs_CI_from_distributive_lattice.
+       rewrite correct_bs_from_bs_CI.
+       reflexivity.
+Qed.        
 
 Theorem correct_bs_mcas_cast_up (S : Type) (P : A_bs_mcas S) : 
          bs_mcas_cast_up (A2C_mcas_bs  S P) = A2C_mcas_bs  S (A_bs_mcas_cast_up S P).
-Admitted.
-
+Proof. destruct P; simpl.
+       + reflexivity.        
+       + reflexivity. 
+       + rewrite <- correct_bs_from_bs_CI. reflexivity.
+       + rewrite <- correct_bs_from_bs_CS. reflexivity.
+       + rewrite <- correct_bs_from_presemiring. reflexivity.
+       + rewrite <- correct_bs_from_bs_semiring. reflexivity.         
+       + rewrite <- correct_bs_from_bs_pre_dioid. reflexivity.
+       + rewrite <- correct_bs_from_pre_dioid_with_one. reflexivity.
+       + rewrite <- correct_bs_from_pre_dioid_with_zero. reflexivity.
+       + rewrite <- correct_bs_from_bs_dioid. reflexivity.         
+       + rewrite <- correct_bs_from_prelattice. reflexivity.
+       + rewrite <- correct_bs_from_distributive_prelattice. reflexivity.         
+       + rewrite <- correct_bs_from_lattice. reflexivity.
+       + rewrite <- correct_bs_from_distributive_lattice. reflexivity.
+       + rewrite <- correct_bs_from_selective_presemiring. reflexivity.
+       + rewrite <- correct_bs_from_selective_semiring. reflexivity.
+       + rewrite <- correct_bs_from_selective_pre_dioid. reflexivity.
+       + rewrite <- correct_bs_from_selective_pre_dioid_with_zero. reflexivity.
+       + rewrite <- correct_bs_from_selective_pre_dioid_with_one. reflexivity.
+       + rewrite <- correct_bs_from_selective_dioid. reflexivity.
+       + rewrite <- correct_bs_from_selective_cancellative_pre_dioid. reflexivity.         
+       + rewrite <- correct_bs_from_selective_cancellative_pre_dioid_with_zero. reflexivity.
+       + rewrite <- correct_bs_from_selective_cancellative_pre_dioid_with_one. reflexivity.
+       + rewrite <- correct_bs_from_selective_cancellative_dioid. reflexivity.
+       + rewrite <- correct_bs_from_selective_distributive_prelattice. reflexivity.
+       + rewrite <- correct_bs_from_selective_distributive_prelattice_with_zero. reflexivity.
+       + rewrite <- correct_bs_from_selective_distributive_prelattice_with_one. reflexivity.
+       + rewrite <- correct_bs_from_selective_distributive_lattice. reflexivity.         
+Qed. 
+         
+         
 Theorem A_bs_cas_up_is_error_or_bs (S : Type) (P : A_bs_mcas S) :
   {l : list string & P = A_BS_Error _ l} + 
   {A : A_bs S & A_bs_mcas_cast_up S P = A_BS_bs _ A}. 
-Admitted.
+Proof. destruct P; simpl. 
+       + left. exists l. reflexivity.
+       + right. exists a. reflexivity.
+       + right. exists (A_bs_from_bs_CI S a). reflexivity.
+       + right. exists (A_bs_from_bs_CS S a). reflexivity.
+       + right. exists (A_bs_from_presemiring S a). reflexivity.
+       + right. exists (A_bs_from_semiring S a). reflexivity.
+       + right. exists (A_bs_from_pre_dioid S a). reflexivity.
+       + right. exists (A_bs_from_pre_dioid_with_one S a). reflexivity.         
+       + right. exists (A_bs_from_pre_dioid_with_zero S a). reflexivity.
+       + right. exists (A_bs_from_dioid S a). reflexivity.
+       + right. exists (A_bs_from_prelattice S a). reflexivity.
+       + right. exists (A_bs_from_distributive_prelattice S a). reflexivity.
+       + right. exists (A_bs_from_lattice S a). reflexivity.         
+       + right. exists (A_bs_from_distributive_lattice S a). reflexivity.
+       + right. exists (A_bs_from_selective_presemiring S a). reflexivity.
+       + right. exists (A_bs_from_selective_semiring S a). reflexivity.
+       + right. exists (A_bs_from_selective_pre_dioid S a). reflexivity.
+       + right. exists (A_bs_from_selective_pre_dioid_with_zero S a). reflexivity.         
+       + right. exists (A_bs_from_selective_pre_dioid_with_one S a). reflexivity.
+       + right. exists (A_bs_from_selective_dioid S a). reflexivity.
+       + right. exists (A_bs_from_selective_cancellative_pre_dioid S a). reflexivity.
+       + right. exists (A_bs_from_selective_cancellative_pre_dioid_with_zero S a). reflexivity.
+       + right. exists (A_bs_from_selective_cancellative_pre_dioid_with_one S a). reflexivity.         
+       + right. exists (A_bs_from_selective_cancellative_dioid S a). reflexivity.
+       + right. exists (A_bs_from_selective_distributive_prelattice S a). reflexivity.
+       + right. exists (A_bs_from_selective_distributive_prelattice_with_zero S a). reflexivity.
+       + right. exists (A_bs_from_selective_distributive_prelattice_with_one S a). reflexivity.
+       + right. exists (A_bs_from_selective_distributive_lattice S a). reflexivity.         
+Qed. 
 
 End Combinators. 
 End Verify.   
+
+
+
+
+
+
+
+
