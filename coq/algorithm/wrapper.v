@@ -12,13 +12,16 @@ Check matrix_exp_unary.
 Check matrix_fixpoint.
 *)
 Open Scope string_scope.
+Open Scope list_scope. 
 
 Definition A_instantiate_matrix_exp_unary (U : Type) 
            (A : A_bs_mcas U)
            (Node : Type)
            (F : finite_set Node) (eqN : brel Node)
-  : (Matrix Node U -> nat -> Matrix Node U) + string :=
-  match A_bs_mcas_cast_up U A with
+  : (Matrix Node U -> nat -> Matrix Node U) + (list string) :=
+  let B := A_bs_mcas_cast_up U A in 
+  match B with
+  | A_BS_Error _ l => inr l 
   | A_BS_bs _ A' =>
     let bsP := A_bs_proofs _ A' in
     let eqv := A_bs_eqv _ A' in
@@ -33,17 +36,17 @@ Definition A_instantiate_matrix_exp_unary (U : Type)
           | inl _ =>
             match A_sg_commutative_d _ _ _ (A_bs_plus_proofs _ A') with
             | inl _ => inl (matrix_exp_unary Node F eqN U (projT1 zeroP) (projT1 oneP) (A_bs_plus _ A') (A_bs_times _ A')) 
-            | inr _ => inr "Error : the algebra must have a commutative addition"
+            | inr _ => inr ("Error : the algebra must have a commutative addition" :: nil) 
             end 
-          | inr _ => inr "Error : the algebra is not right distributive"
+          | inr _ => inr ("Error : the algebra is not right distributive" :: nil)
           end 
-        | inr _ => inr "Error : the algebra is not left distributive"
+        | inr _ => inr ("Error : the algebra is not left distributive" :: nil) 
         end 
-      | _ => inr "Error : the multiplicative id must be additive annihilator"
+      | _ => inr ("Error : the multiplicative id must be additive annihilator" :: nil) 
       end
-    | _ => inr "Error : the additive id must be multiplicative annihilator"
+    | _ => inr ("Error : the additive id must be multiplicative annihilator" :: nil)
     end
-  | _    => inr "Internal Error : instantiate_matrix_exp_unary"
+  | _    => inr ("Internal Error : instantiate_matrix_exp_unary" :: nil) 
   end.
   
   
@@ -97,6 +100,73 @@ Proof.
 Admitted.
 
 
-
+Definition instantiate_matrix_exp_unary {U : Type} 
+           (A : @bs_mcas U)
+           (Node : Type)
+           (F : finite_set Node) (eqN : brel Node)
+  : (Matrix Node U -> nat -> Matrix Node U) + (list string) :=
+  let B := bs_mcas_cast_up A in 
+  match B with
+  | BS_Error l => inr l 
+  | BS_bs A' =>
+    let bsP := bs_certs A' in
+    let eqv := bs_eqv A' in
+    let id_annP := bs_id_ann_certs A' in
+    match id_ann_plus_times_d id_annP with
+    | Id_Ann_Cert_Equal zero =>
+      match id_ann_times_plus_d id_annP with
+      | Id_Ann_Cert_Equal one =>
+        match bs_left_distributive_d bsP with
+        | Certify_Left_Distributive =>
+          match bs_right_distributive_d bsP with
+          | Certify_Right_Distributive =>
+            match sg_commutative_d (bs_plus_certs A') with
+            | Certify_Commutative =>
+              inl (matrix_exp_unary Node F eqN U zero one (bs_plus A') (bs_times A')) 
+            | _ => inr ("Error : the algebra must have a commutative addition" :: nil) 
+            end 
+          | _ => inr ("Error : the algebra is not right distributive" :: nil)
+          end 
+        | _ => inr ("Error : the algebra is not left distributive" :: nil) 
+        end 
+      | _ => inr ("Error : the multiplicative id must be additive annihilator" :: nil) 
+      end
+    | _ => inr ("Error : the additive id must be multiplicative annihilator" :: nil)
+    end
+  | _    => inr ("Internal Error : instantiate_matrix_exp_unary" :: nil) 
+  end.
 
   
+Theorem correct_instantiate_matrix_exp_unary {U : Type} 
+           (A : A_bs_mcas U)
+           (Node : Type)
+           (F : finite_set Node) (eqN : brel Node) :
+  instantiate_matrix_exp_unary (A2C_mcas_bs _ A) Node F eqN
+  =
+  A_instantiate_matrix_exp_unary U A Node F eqN. 
+Proof. unfold instantiate_matrix_exp_unary, A_instantiate_matrix_exp_unary.
+       case_eq(A_bs_cas_up_is_error_or_bs _ A).
+       + intros [l J] K. rewrite J. compute. reflexivity. 
+       + intros [B J] K. rewrite correct_bs_mcas_cast_up. rewrite J. 
+         unfold A2C_mcas_bs; simpl.
+         destruct A_bs_id_ann_proofs.
+         destruct A_id_ann_plus_times_d; simpl.
+         ++ destruct p as [P1 P2]. reflexivity. 
+         ++ destruct p as [P1 P2]. reflexivity. 
+         ++ destruct p as [P1 P2]. reflexivity. 
+         ++ destruct b as [id_ann [P1 P2]].
+            destruct A_id_ann_times_plus_d; simpl.
+            +++ destruct p as [Q1 Q2]. reflexivity. 
+            +++ destruct p as [Q1 Q2]. reflexivity. 
+            +++ destruct p as [Q1 Q2]. reflexivity. 
+            +++ destruct A_bs_proofs.
+                destruct A_bs_left_distributive_d as [LD | [trip1 NLD]];
+                  destruct A_bs_right_distributive_d as [RD | [trip2 NRD]]; simpl;
+                    try reflexivity.
+                destruct A_bs_plus_proofs; simpl. 
+                destruct A_sg_commutative_d as [Comm | [[x y] Q]]; simpl. 
+                ++++ reflexivity.
+                ++++ reflexivity.                                   
+            +++ reflexivity.              
+         ++ reflexivity. 
+Qed. 

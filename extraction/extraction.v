@@ -68,7 +68,10 @@ Require Import CAS.coq.bs.union_intersect.
 Require Import CAS.coq.bs.intersect_union.
 Require Import CAS.coq.bs.left.
 Require Import CAS.coq.bs.right.
-Require Import CAS.coq.bs.cast_up. 
+Require Import CAS.coq.bs.cast_up.
+
+Require Import CAS.coq.algorithm.Matrix.
+Require Import CAS.coq.algorithm.wrapper. 
 (*
 
 Require Import CAS.coq.bs.dual.
@@ -203,6 +206,8 @@ Extraction "Cas.ml"
    mcas_bs_intersect_union
    mcas_bs_left
    mcas_bs_right
+
+   instantiate_matrix_exp_unary
 . 
 
 (*
