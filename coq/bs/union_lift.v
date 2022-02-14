@@ -663,19 +663,70 @@ Lemma correct_bops_union_lift_right_right_absorptive_check
   bops_union_lift_right_right_absorptive_check (p2c_is_right_check S eq bS ir_d). 
 Proof. destruct ir_d as [IR | [ [s1 s2] NIR ]]; simpl; reflexivity. Qed. 
 
-(* 
-Lemma correct_bs_certs_union_lift 
-  (S : Type) (s : S) (eq : brel S) (f : S -> S) (ntS : brel_not_trivial S eq f) (fin_d : carrier_is_finite_decidable S eq) 
-  (bS : binary_op S)
-  (eqvP : eqv_proofs S eq) 
-  (sgP : sg_proofs S eq bS) : 
-  P2C_bs (finite_set S) (brel_set eq) (bop_union eq) (bop_lift eq bS) (bs_proofs_union_lift S s eq bS f ntS fin_d eqvP sgP)
+
+Lemma correct_bs_certs_union_lift_aux 
+  (S : Type) (bS : binary_op S) (eqvS : A_eqv S) (sgP : sg_proofs S (A_eqv_eq S eqvS) bS) : 
+  P2C_bs _ _ _ _ (bs_proofs_union_lift_aux S bS eqvS sgP)
   = 
-  bs_certs_union_lift (P2C_sg S eq bS sgP).
-Proof. destruct sgP. unfold bs_proofs_union_lift, bs_certs_union_lift, P2C_sg, P2C_bs; simpl.
+  bs_certs_union_lift_aux (P2C_sg S (A_eqv_eq S eqvS) bS sgP).
+Proof. destruct sgP. unfold bs_proofs_union_lift_aux, bs_certs_union_lift_aux, P2C_sg, P2C_bs; simpl.
        destruct A_sg_is_left_d as [L | [[a b] NL]]; destruct A_sg_is_right_d as [R | [[c d] NR]]; simpl; reflexivity. 
 Qed.
 
+Theorem correct_bs_union_lift (S : Type) (sgS: A_sg S) (c : cas_constant):  
+   bs_union_lift (A2C_sg S sgS) c
+   =
+   A2C_bs _ (A_bs_union_lift S sgS c). 
+Proof. unfold bs_union_lift, bs_union_lift, A2C_bs, A2C_sg. destruct sgS. simpl.
+       rewrite correct_eqv_set.              
+       rewrite correct_eqv_add_constant. 
+       rewrite bop_union_certs_correct.
+       rewrite <- correct_sg_certs_add_ann. 
+       rewrite <- correct_sg_certs_add_id.       
+       rewrite correct_sg_lift_certs. 
+
+       (*
+       Check correct_bs_certs_union_lift_aux.              
+       Check correct_bs_certs_add_one.       
+
+
+       rewrite correct_id_ann_certs_union_lift.
+
+      bs_certs_union_lift (A2C_eqv S A_sg_eqv)
+        (P2C_sg S (A_eqv_eq S A_sg_eqv) A_sg_bop A_sg_proofs) c;
+       
+      P2C_bs (with_constant (finite_set S))
+        (brel_sum brel_constant (brel_set (A_eqv_eq S A_sg_eqv)))
+        (bop_add_ann (bop_union (A_eqv_eq S A_sg_eqv)) c)
+        (bop_add_id (bop_lift (A_eqv_eq S A_sg_eqv) A_sg_bop) c)
+        (bs_proofs_union_lift S (A_eqv_witness S A_sg_eqv) A_sg_bop A_sg_eqv
+           A_sg_proofs c);
+
+correct_bs_certs_union_lift_aux
+     : ∀ (S : Type) (bS : binary_op S) (eqvS : A_eqv S) 
+         (sgP : sg_proofs S (A_eqv_eq S eqvS) bS),
+         P2C_bs (finite_set S) (brel_set (A_eqv_eq S eqvS))
+           (bop_union (A_eqv_eq S eqvS)) (bop_lift (A_eqv_eq S eqvS) bS)
+           (bs_proofs_union_lift_aux S bS eqvS sgP) =
+         bs_certs_union_lift_aux (P2C_sg S (A_eqv_eq S eqvS) bS sgP)
+
+correct_bs_certs_add_one
+     : ∀ (S : Type) (c : cas_constant) (rS : brel S) 
+         (eqvS : eqv_proofs S rS) (plusS timesS : binary_op S) 
+         (sgS : sg_proofs S rS plusS) (bsS : bs_proofs S rS plusS timesS),
+         P2C_bs (with_constant S) (brel_sum brel_constant rS)
+           (bop_add_ann plusS c) (bop_add_id timesS c)
+           (bs_proofs_add_one S rS c plusS timesS eqvS sgS bsS) =
+         bs_certs_add_one c (P2C_sg S rS plusS sgS)
+           (P2C_bs S rS plusS timesS bsS)
+      
+
+       reflexivity.
+Qed. 
+        *)
+Admitted.        
+
+(* 
 Theorem correct_bs_union_lift : ∀ (S : Type) (sgS: A_msg S), 
    bs_CI_union_lift S (A2C_msg S sgS) 
    =
