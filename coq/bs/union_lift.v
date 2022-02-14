@@ -10,16 +10,21 @@ Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.theory. 
 Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.eqv.add_constant.
+Require Import CAS.coq.eqv.sum. 
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory. 
 Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.lift.
+Require Import CAS.coq.sg.cast_up.
+Require Import CAS.coq.sg.add_id.
+Require Import CAS.coq.sg.add_ann. 
 
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
-Require Import CAS.coq.bs.theory. 
+Require Import CAS.coq.bs.theory.
+Require Import CAS.coq.bs.add_one. 
 
 Section Theory.
 
@@ -237,12 +242,27 @@ Definition bops_union_lift_right_right_absorptive_decide (rd : bop_is_right_deci
      | inr nlra => inr (bops_union_lift_not_right_right_absorptive nlra)
      end.                                                          
 
-(*
-Lemma bops_union_lift_id_equals_ann : bops_id_equals_ann (finite_set S) (brel_set r) (bop_union r) (bop_lift r bS).
+
+
+Lemma bops_union_lift_id_equals_ann : bops_exists_id_ann_equal (finite_set S) (brel_set r) (bop_union r) (bop_lift r bS).
 Proof. exists nil; split. 
        apply bop_union_nil_is_id; auto. 
        apply bop_lift_nil_is_ann; auto.       
 Defined.
+
+
+
+
+
+(*
+Lemma bops_lift_union_id_equals_ann (has_id : bop_exists_id S r bS) :
+           bops_exists_id_ann_equal (finite_set S) (brel_set r) (bop_lift r bS) (bop_union r).
+Proof. destruct has_id as [id P]. exists (id :: nil); split.
+       apply bop_lift_is_id; auto.              
+       apply bop_union_nil_is_ann; auto. 
+
+Defined.
+
 
 Lemma bops_union_lift_not_ann_equals_id (bS_id_d : bop_exists_id_decidable S r bS) (fin_d : carrier_is_finite_decidable S r):
               bops_not_id_equals_ann (finite_set S) (brel_set r) (bop_lift r bS) (bop_union r).
@@ -276,40 +296,25 @@ End Theory.
 
 Section ACAS.
 
-(* before mm 
-Definition bs_proofs_union_lift : 
-  ∀ (S : Type) (s : S) (rS : brel S) (bS : binary_op S) (f : S -> S) (ntS : brel_not_trivial S rS f) (fin_d : carrier_is_finite_decidable S rS), 
-     eqv_proofs S rS -> msg_proofs S rS bS -> 
-        bs_proofs (finite_set S) (brel_set rS) (bop_union rS) (bop_lift rS bS)
-  := λ S s rS bS f ntS fin_d eqvS sgS,
-let refS := A_eqv_reflexive S rS eqvS  in
-let symS := A_eqv_symmetric S rS eqvS  in
-let trnS := A_eqv_transitive S rS eqvS in
-let cnbS := A_msg_congruence S rS bS sgS in
-let ilD  := A_msg_is_left_d S rS bS sgS  in
-let irD  := A_msg_is_right_d S rS bS sgS in
-let idD  := A_msg_exists_id_d S rS bS sgS in 
-{|
-  A_bs_left_distributive_d      := inl (bop_union_lift_left_distributive S rS bS refS symS trnS cnbS)
-; A_bs_right_distributive_d     := inl (bop_union_lift_right_distributive S rS bS refS symS trnS cnbS)
-; A_bs_left_left_absorptive_d   := bops_union_lift_left_left_absorptive_decide S rS bS refS symS trnS cnbS ilD 
-; A_bs_left_right_absorptive_d  := bops_union_lift_left_right_absorptive_decide S rS bS refS symS trnS cnbS irD 
-; A_bs_right_left_absorptive_d  := bops_union_lift_right_left_absorptive_decide S rS bS refS symS trnS cnbS ilD 
-; A_bs_right_right_absorptive_d := bops_union_lift_right_right_absorptive_decide S rS bS refS symS trnS cnbS irD
-; A_bs_plus_id_is_times_ann_d   := inl (bops_union_lift_id_equals_ann S rS bS refS symS trnS)
-; A_bs_times_id_is_plus_ann_d   := inr (bops_union_lift_not_ann_equals_id S rS s f ntS bS refS symS trnS cnbS idD fin_d)
-|}. 
- *)
+Section Proofs.   
 
-Definition bs_proofs_union_lift : 
-  ∀ (S : Type) (s : S) (rS : brel S) (bS : binary_op S) (f : S -> S) (ntS : brel_not_trivial S rS f) (fin_d : carrier_is_finite_decidable S rS), 
-    eqv_proofs S rS ->
-    sg_proofs S rS bS -> 
-        bs_proofs (finite_set S) (brel_set rS) (bop_union rS) (bop_lift rS bS)
-  := λ S s rS bS f ntS fin_d eqvS sgS,
-let refS := A_eqv_reflexive S rS eqvS  in
-let symS := A_eqv_symmetric S rS eqvS  in
-let trnS := A_eqv_transitive S rS eqvS in
+Variables (S : Type)
+          (wS : S)
+          (rS : brel S)
+          (bS : binary_op S)
+          (f : S -> S)
+          (ntS : brel_not_trivial S rS f)
+          (* (fin_d : carrier_is_finite_decidable S rS)  *)
+          (eqvS : A_eqv S)
+          (sgS : sg_proofs S (A_eqv_eq _ eqvS) bS).         
+
+Definition bs_proofs_union_lift_aux : 
+  bs_proofs (finite_set S) (brel_set (A_eqv_eq _ eqvS)) (bop_union (A_eqv_eq _ eqvS)) (bop_lift (A_eqv_eq _ eqvS) bS) :=
+let eqvP := A_eqv_proofs _ eqvS in
+let rS   := A_eqv_eq _ eqvS in  
+let refS := A_eqv_reflexive S rS eqvP  in
+let symS := A_eqv_symmetric S rS eqvP  in
+let trnS := A_eqv_transitive S rS eqvP in
 let cnbS := A_sg_congruence S rS bS sgS in
 let ilD  := A_sg_is_left_d S rS bS sgS in  
 let irD  := A_sg_is_right_d S rS bS sgS in  
@@ -321,6 +326,65 @@ let irD  := A_sg_is_right_d S rS bS sgS in
 ; A_bs_right_left_absorptive_d  := bops_union_lift_right_left_absorptive_decide S rS bS refS symS trnS cnbS ilD 
 ; A_bs_right_right_absorptive_d := bops_union_lift_right_right_absorptive_decide S rS bS refS symS trnS cnbS irD
 |}.
+
+
+Definition bs_proofs_union_lift (c : cas_constant) : 
+  bs_proofs (with_constant (finite_set S))
+            (brel_sum brel_constant (brel_set (A_eqv_eq _ eqvS)))
+            (bop_add_ann (bop_union (A_eqv_eq _ eqvS)) c) 
+            (bop_add_id (bop_lift (A_eqv_eq _ eqvS) bS) c) :=
+  let eq   := (A_eqv_eq _ eqvS) in
+  let eqvP := A_eqv_proofs _ eqvS in 
+   bs_proofs_add_one (finite_set S)
+                     (brel_set eq)
+                     c
+                     (bop_union eq)
+                     (bop_lift eq bS)
+                     (eqv_proofs_set S eq eqvP)
+                     (A_sg_proofs_from_sg_CI_proofs
+                        (finite_set S)
+                        (brel_set eq)
+                        (bop_union eq)
+                        (wS :: nil)
+                        (λ (l : finite_set S), if brel_set eq nil l then (wS :: nil) else nil) (* fix someday *) 
+                        (brel_set_not_trivial S eq wS)
+                        (eqv_proofs_set S  eq eqvP) 
+                        (sg_CI_proofs_union eqvS))
+                     bs_proofs_union_lift_aux.
+
+Definition id_ann_proofs_union_lift (c : cas_constant) : 
+  id_ann_proofs
+            (with_constant (finite_set S))
+            (brel_sum brel_constant (brel_set (A_eqv_eq _ eqvS)))
+            (bop_add_ann (bop_union (A_eqv_eq _ eqvS)) c) 
+            (bop_add_id (bop_lift (A_eqv_eq _ eqvS) bS) c) :=
+let eq      := A_eqv_eq _ eqvS in
+let eqvP    := A_eqv_proofs _ eqvS in  
+let refS    := A_eqv_reflexive _ _ eqvP in
+let symS    := A_eqv_symmetric _ _ eqvP in
+let trnS    := A_eqv_transitive _ _ eqvP in 
+let set_ref := brel_set_reflexive _ _ refS symS in
+{|
+  A_id_ann_plus_times_d :=
+    Id_Ann_Proof_Equal _ _ _ _ 
+    (bops_add_one_exists_id_ann_equal_left
+      (finite_set S)
+      (brel_set eq)
+      c
+      (bop_union eq)
+      (bop_lift eq bS)
+      set_ref 
+      (bops_union_lift_id_equals_ann S eq bS refS symS trnS ))
+  ; A_id_ann_times_plus_d :=
+      Id_Ann_Proof_Equal _ _ _ _ 
+    (bops_add_one_exists_id_ann_equal_right
+      (finite_set S)
+      (brel_set eq)
+      c
+      (bop_union eq)
+      (bop_lift eq bS)
+      set_ref)
+|}. 
 
 
 (*
@@ -347,7 +411,60 @@ let ilD  := A_msg_is_left_d S rS bS sgS in
     ; A_id_ann_times_id_is_plus_ann_d := inr (bops_union_lift_not_ann_equals_id S rS s f ntS bS refS symS trnS cnbS exists_idS fin_d)
 |}.
 
-  
+ *)
+
+End Proofs.   
+
+Section Combinators.
+
+
+Definition A_bs_union_lift (S : Type) (sgS : A_sg S) (c : cas_constant) : A_bs (with_constant (finite_set S)) := 
+let eqvS  := A_sg_eqv S sgS in
+let rS    := A_eqv_eq S eqvS in   
+let bS    := A_sg_bop S sgS in
+let eqvP  := A_eqv_proofs S eqvS in
+let s     := A_eqv_witness S eqvS in
+let f     := A_eqv_new S eqvS in
+let Pf    := A_eqv_not_trivial S eqvS in 
+{| 
+  A_bs_eqv           := A_eqv_add_constant _ (A_eqv_set S eqvS) c 
+   ; A_bs_plus          := bop_add_ann (bop_union rS) c 
+   ; A_bs_times         := bop_add_id (bop_lift rS bS) c 
+   ; A_bs_plus_proofs   := sg_proofs_add_ann
+                             (finite_set S)
+                             (brel_set rS)
+                             c
+                             (bop_union rS)
+                             (s :: nil)
+                             (λ (l : finite_set S), if brel_set rS nil l then (s :: nil) else nil) (* fix someday *) 
+                             (brel_set_not_trivial S rS s)
+                             (eqv_proofs_set S  rS eqvP) 
+                             (A_sg_proofs_from_sg_CI_proofs
+                                (finite_set S)
+                                (brel_set rS)
+                                (bop_union rS)
+                                (s :: nil)
+                                (λ (l : finite_set S), if brel_set rS nil l then (s :: nil) else nil) (* fix someday *) 
+                                (brel_set_not_trivial S rS s)
+                                (eqv_proofs_set S  rS eqvP) 
+                                (sg_CI_proofs_union eqvS))
+   ; A_bs_times_proofs  := sg_proofs_add_id
+                             (finite_set S)
+                             (brel_set rS)
+                             c
+                             (bop_lift rS bS)
+                             (s :: nil)
+                             (λ (l : finite_set S), if brel_set rS nil l then (s :: nil) else nil) (* fix someday *) 
+                             (brel_set_not_trivial S rS s)
+                             (eqv_proofs_set S  rS eqvP) 
+                             (sg_lift_proofs S rS bS eqvP s f Pf (A_eqv_exactly_two_d _ eqvS) (A_sg_proofs S sgS))
+   ; A_bs_id_ann_proofs := id_ann_proofs_union_lift S bS eqvS c 
+   ; A_bs_proofs        := bs_proofs_union_lift S s bS eqvS (A_sg_proofs S sgS) c
+   ; A_bs_ast           := Ast_bs_union_lift (A_sg_ast S sgS)
+|}.
+
+
+(* 
 Definition A_bs_CI_union_lift : ∀ (S : Type),  A_msg S -> A_bs_CI (finite_set S)
 := λ S sgS,
 let eqvS  := A_msg_eq S sgS in
@@ -368,11 +485,14 @@ let Pf    := A_eqv_not_trivial S eqvS in
    ; A_bs_CI_ast           := Ast_bs_union_lift (A_msg_ast S sgS)
 |}.
 *) 
-  
+End Combinators.   
+
 End ACAS.
 
 Section CAS.
 
+
+Section Checks.   
 
 Definition bops_union_lift_left_left_absorptive_check {S : Type} (ilD : @check_is_left S) : @check_left_left_absorptive (finite_set S) :=
 match ilD with
@@ -399,10 +519,12 @@ match ilD with
 | Certify_Not_Is_Right (s1, s2) => Certify_Not_Right_Right_Absorptive ((s2 :: nil), (s1 :: nil))
 end.
 
+End Checks. 
 
 
-Definition bs_certs_union_lift : ∀ {S : Type}, @sg_certificates S -> @bs_certificates (finite_set S) 
-  := λ {S} sgS,
+Section Proofs. 
+
+Definition bs_certs_union_lift_aux {S : Type} (sgS : @sg_certificates S) : @bs_certificates (finite_set S) := 
 let ilD  := sg_is_left_d sgS in  
 let irD  := sg_is_right_d sgS in  
 {|
@@ -414,39 +536,67 @@ let irD  := sg_is_right_d sgS in
 ; bs_right_right_absorptive_d := bops_union_lift_right_right_absorptive_check irD
 |}.
 
-(*
-Definition id_ann_certs_union_lift : ∀ {S : Type}, @check_exists_id S -> @check_is_finite S -> @id_ann_certificates (finite_set S)
-:= λ {S} exists_id_d finite_d,
+
+Definition bs_certs_union_lift {S : Type} (eqvS : @eqv S) (sgS : @sg_certificates S) (c : cas_constant) : 
+  @bs_certificates (with_constant (finite_set S)) := 
+  let eq   := eqv_eq eqvS in
+  let wS   := eqv_witness eqvS in 
+   bs_certs_add_one c
+                     (sg_certs_from_sg_CI_certs
+                        (finite_set S)
+                        (brel_set eq)
+                        (bop_union eq)
+                        (wS :: nil)
+                        (λ (l : finite_set S), if brel_set eq nil l then (wS :: nil) else nil) (* fix someday *) 
+                        (sg_CI_certs_union eqvS))
+                     (bs_certs_union_lift_aux sgS).
+
+
+Definition id_ann_certs_union_lift {S : Type} (c : cas_constant) : 
+  @id_ann_certificates (with_constant (finite_set S)) := 
 {|
-      id_ann_exists_plus_id_d        := Certify_Exists_Id nil 
-    ; id_ann_exists_plus_ann_d       := check_union_exists_ann finite_d
-    ; id_ann_exists_times_id_d       := bop_lift_exists_id_check exists_id_d  
-    ; id_ann_exists_times_ann_d      := Certify_Exists_Ann nil 
-    ; id_ann_plus_id_is_times_ann_d  := Certify_Plus_Id_Equals_Times_Ann nil
-    ; id_ann_times_id_is_plus_ann_d  := Certify_Not_Times_Id_Equals_Plus_Ann 
-|}.
+  id_ann_plus_times_d := Id_Ann_Cert_Equal (inr nil) 
+; id_ann_times_plus_d := Id_Ann_Cert_Equal (inl c) 
+|}. 
+
+End Proofs.   
+
+Section Combinators.
 
 
-Definition bs_CI_union_lift : ∀ (S : Type),  @msg S -> @bs_CI (finite_set S)
-:= λ S sgS,
-let eqvS  := msg_eq sgS in
+Definition bs_union_lift {S : Type} (sgS : @sg S) (c : cas_constant) :@bs (with_constant (finite_set S)) := 
+let eqvS  := sg_eqv sgS in
 let rS    := eqv_eq eqvS in   
-let bS    := msg_bop sgS in
+let bS    := sg_bop sgS in
 let s     := eqv_witness eqvS in
 let f     := eqv_new eqvS in
 {| 
-     bs_CI_eqv          := eqv_set eqvS
-   ; bs_CI_plus         := bop_union rS
-   ; bs_CI_times        := bop_lift rS bS
-   ; bs_CI_id_ann_certs := id_ann_certs_union_lift (msg_exists_id_d sgS) (eqv_finite_d eqvS)             
-   ; bs_CI_plus_certs   := sg_CI_certs_union eqvS
-   ; bs_CI_times_certs  := msg_lift_certs S rS s f bS (msg_certs sgS)
-   ; bs_CI_certs        := bs_certs_union_lift (msg_certs sgS)
-   ; bs_CI_ast          := Ast_bs_union_lift (msg_ast sgS)
+     bs_eqv           := eqv_add_constant (eqv_set eqvS) c 
+   ; bs_plus          := bop_add_ann (bop_union rS) c 
+   ; bs_times         := bop_add_id (bop_lift rS bS) c 
+   ; bs_plus_certs   := sg_certs_add_ann
+                             c
+                             (s :: nil)
+                             (λ (l : finite_set S), if brel_set rS nil l then (s :: nil) else nil) (* fix someday *) 
+                             (sg_certs_from_sg_CI_certs
+                                (finite_set S)
+                                (brel_set rS)
+                                (bop_union rS)
+                                (s :: nil)
+                                (λ (l : finite_set S), if brel_set rS nil l then (s :: nil) else nil) (* fix someday *) 
+                                (sg_CI_certs_union eqvS))
+   ; bs_times_certs  := sg_certs_add_id
+                             c
+                             (s :: nil)
+                             (λ (l : finite_set S), if brel_set rS nil l then (s :: nil) else nil) (* fix someday *) 
+                             (sg_lift_certs S rS s f (eqv_exactly_two_d eqvS) bS (sg_certs sgS))
+   ; bs_id_ann_certs := id_ann_certs_union_lift c 
+   ; bs_certs        := bs_certs_union_lift eqvS (sg_certs sgS) c
+   ; bs_ast          := Ast_bs_union_lift (sg_ast sgS)
 |}.
-*) 
+  
 
-
+End Combinators.   
 
 End CAS.
 
@@ -513,7 +663,7 @@ Lemma correct_bops_union_lift_right_right_absorptive_check
   bops_union_lift_right_right_absorptive_check (p2c_is_right_check S eq bS ir_d). 
 Proof. destruct ir_d as [IR | [ [s1 s2] NIR ]]; simpl; reflexivity. Qed. 
 
-
+(* 
 Lemma correct_bs_certs_union_lift 
   (S : Type) (s : S) (eq : brel S) (f : S -> S) (ntS : brel_not_trivial S eq f) (fin_d : carrier_is_finite_decidable S eq) 
   (bS : binary_op S)
@@ -525,33 +675,6 @@ Lemma correct_bs_certs_union_lift
 Proof. destruct sgP. unfold bs_proofs_union_lift, bs_certs_union_lift, P2C_sg, P2C_bs; simpl.
        destruct A_sg_is_left_d as [L | [[a b] NL]]; destruct A_sg_is_right_d as [R | [[c d] NR]]; simpl; reflexivity. 
 Qed.
-
-(*
-Lemma correct_id_ann_certs_union_lift 
-      (S : Type) 
-      (eqv : A_eqv S)
-      (bS : binary_op S) 
-      (id_d : bop_exists_id_decidable S (A_eqv_eq S eqv) bS)
-      (msgP : msg_proofs S (A_eqv_eq S eqv) bS): 
-    id_ann_certs_union_lift (p2c_exists_id_check S (A_eqv_eq S eqv) bS id_d)
-                            (p2c_is_finite_check S (A_eqv_eq S eqv) (A_eqv_finite_d S eqv))
-    = 
-    P2C_id_ann (finite_set S) 
-               (brel_set (A_eqv_eq S eqv))
-               (bop_union (A_eqv_eq S eqv))
-               (bop_lift (A_eqv_eq S eqv) bS)
-               (id_ann_proofs_union_lift S (A_eqv_witness S eqv) (A_eqv_eq S eqv) bS 
-                                         (A_eqv_new S eqv)
-                                         (A_eqv_not_trivial S eqv)
-                                         (A_eqv_finite_d S eqv)
-                                         id_d
-                                         (A_eqv_proofs S eqv)
-                                         msgP). 
-Proof. unfold id_ann_certs_union_lift, id_ann_proofs_union_lift, P2C_id_ann, p2c_exists_id_check, p2c_is_finite_check. 
-       destruct id_d as [ [id Pid] | Nid];
-       destruct eqv; destruct msgP;
-       destruct A_eqv_finite_d as [[f Pf] | NF]; simpl in *; simpl; try reflexivity. 
-Qed. 
 
 Theorem correct_bs_union_lift : ∀ (S : Type) (sgS: A_msg S), 
    bs_CI_union_lift S (A2C_msg S sgS) 
