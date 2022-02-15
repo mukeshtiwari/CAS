@@ -1,4 +1,5 @@
 Require Import Coq.Bool.Bool.
+Require Import Coq.Strings.String.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
@@ -24,7 +25,8 @@ Require Import CAS.coq.sg.add_ann.
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
 Require Import CAS.coq.bs.theory.
-Require Import CAS.coq.bs.add_one. 
+Require Import CAS.coq.bs.add_one.
+Require Import CAS.coq.bs.cast_up. 
 
 Section Theory.
 
@@ -489,6 +491,22 @@ End Combinators.
 
 End ACAS.
 
+Section AMCAS.
+
+Open Scope string_scope.
+
+Definition A_mcas_bs_union_lift (S : Type) (A : A_sg_mcas S) (c : cas_constant) : A_bs_mcas (with_constant (finite_set S)) :=
+match A_sg_mcas_cast_up _ A with
+| A_MCAS_sg _ B         => A_bs_classify _ (A_BS_bs _ (A_bs_union_lift _ B c))
+| A_MCAS_sg_Error _ sl  => A_BS_Error _ sl
+| _                     => A_BS_Error _ ("Internal Error : mcas_bs_union_lift" :: nil)
+end.
+
+End AMCAS.
+
+
+
+
 Section CAS.
 
 
@@ -600,6 +618,20 @@ End Combinators.
 
 End CAS.
 
+Section AMCAS.
+
+Open Scope string_scope.
+
+Definition mcas_bs_union_lift {S : Type} (A : @sg_mcas S) (c : cas_constant) : @bs_mcas (with_constant (finite_set S)) :=
+match sg_mcas_cast_up _ A with
+| MCAS_sg B         => bs_classify (BS_bs (bs_union_lift B c))
+| MCAS_sg_Error sl  => BS_Error sl
+| _                 => BS_Error ("Internal Error : mcas_bs_union_lift" :: nil)
+end.
+
+End AMCAS.
+
+
 Section Verify.
 
 
@@ -673,6 +705,20 @@ Proof. destruct sgP. unfold bs_proofs_union_lift_aux, bs_certs_union_lift_aux, P
        destruct A_sg_is_left_d as [L | [[a b] NL]]; destruct A_sg_is_right_d as [R | [[c d] NR]]; simpl; reflexivity. 
 Qed.
 
+
+Lemma correct_id_ann_certs_union_lift (S : Type) (bS : binary_op S) (eqvS : A_eqv S) (c : cas_constant) :
+      id_ann_certs_union_lift c
+      = 
+      P2C_id_ann
+        (with_constant (finite_set S))
+        (brel_sum brel_constant (brel_set (A_eqv_eq _ eqvS)))
+        (bop_add_ann (bop_union (A_eqv_eq _ eqvS)) c)
+        (bop_add_id (bop_lift (A_eqv_eq _ eqvS) bS) c)
+        (id_ann_proofs_union_lift S bS eqvS c).
+Proof.   unfold id_ann_certs_union_lift, id_ann_proofs_union_lift, P2C_id_ann; simpl. 
+         reflexivity. 
+Qed.
+
 Theorem correct_bs_union_lift (S : Type) (sgS: A_sg S) (c : cas_constant):  
    bs_union_lift (A2C_sg S sgS) c
    =
@@ -683,48 +729,27 @@ Proof. unfold bs_union_lift, bs_union_lift, A2C_bs, A2C_sg. destruct sgS. simpl.
        rewrite bop_union_certs_correct.
        rewrite <- correct_sg_certs_add_ann. 
        rewrite <- correct_sg_certs_add_id.       
-       rewrite correct_sg_lift_certs. 
-
-       (*
-       Check correct_bs_certs_union_lift_aux.              
-       Check correct_bs_certs_add_one.       
-
-
-       rewrite correct_id_ann_certs_union_lift.
-
-      bs_certs_union_lift (A2C_eqv S A_sg_eqv)
-        (P2C_sg S (A_eqv_eq S A_sg_eqv) A_sg_bop A_sg_proofs) c;
-       
-      P2C_bs (with_constant (finite_set S))
-        (brel_sum brel_constant (brel_set (A_eqv_eq S A_sg_eqv)))
-        (bop_add_ann (bop_union (A_eqv_eq S A_sg_eqv)) c)
-        (bop_add_id (bop_lift (A_eqv_eq S A_sg_eqv) A_sg_bop) c)
-        (bs_proofs_union_lift S (A_eqv_witness S A_sg_eqv) A_sg_bop A_sg_eqv
-           A_sg_proofs c);
-
-correct_bs_certs_union_lift_aux
-     : ∀ (S : Type) (bS : binary_op S) (eqvS : A_eqv S) 
-         (sgP : sg_proofs S (A_eqv_eq S eqvS) bS),
-         P2C_bs (finite_set S) (brel_set (A_eqv_eq S eqvS))
-           (bop_union (A_eqv_eq S eqvS)) (bop_lift (A_eqv_eq S eqvS) bS)
-           (bs_proofs_union_lift_aux S bS eqvS sgP) =
-         bs_certs_union_lift_aux (P2C_sg S (A_eqv_eq S eqvS) bS sgP)
-
-correct_bs_certs_add_one
-     : ∀ (S : Type) (c : cas_constant) (rS : brel S) 
-         (eqvS : eqv_proofs S rS) (plusS timesS : binary_op S) 
-         (sgS : sg_proofs S rS plusS) (bsS : bs_proofs S rS plusS timesS),
-         P2C_bs (with_constant S) (brel_sum brel_constant rS)
-           (bop_add_ann plusS c) (bop_add_id timesS c)
-           (bs_proofs_add_one S rS c plusS timesS eqvS sgS bsS) =
-         bs_certs_add_one c (P2C_sg S rS plusS sgS)
-           (P2C_bs S rS plusS timesS bsS)
-      
-
+       rewrite correct_sg_lift_certs.
+       unfold bs_certs_union_lift, bs_proofs_union_lift.
+       rewrite <- correct_bs_certs_union_lift_aux.              
+       rewrite correct_bs_certs_add_one.       
+       rewrite <- correct_id_ann_certs_union_lift.
        reflexivity.
+Qed.
+
+Theorem correct_mcas_bs_union_lift (S : Type) (sgS : A_sg_mcas S) (c : cas_constant) : 
+         mcas_bs_union_lift (A2C_mcas_sg S sgS) c 
+         = 
+         A2C_mcas_bs _ (A_mcas_bs_union_lift _ sgS c).
+Proof. unfold mcas_bs_union_lift, A_mcas_bs_union_lift. 
+       rewrite correct_sg_mcas_cast_up.       
+       destruct (A_sg_cas_up_is_error_or_sg S sgS) as [[l1 A] | [s1 A]]. 
+       + rewrite A; simpl. reflexivity. 
+       + rewrite A; simpl. rewrite correct_bs_union_lift. 
+         apply correct_bs_classify_bs. 
 Qed. 
-        *)
-Admitted.        
+
+
 
 (* 
 Theorem correct_bs_union_lift : ∀ (S : Type) (sgS: A_msg S), 
@@ -742,6 +767,10 @@ Proof. intros S sgS.
 Qed. 
 
 *) 
+
+
+
+
 End Verify. 
 
 
