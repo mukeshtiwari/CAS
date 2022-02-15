@@ -243,7 +243,7 @@ Definition A_sg_add_ann : ∀ (S : Type) (c : cas_constant),  A_sg S -> A_sg (wi
   let rS := A_eqv_eq S (A_sg_eqv S sgS) in
   {| 
      A_sg_eqv        := A_eqv_add_constant S (A_sg_eqv S sgS) c  
-   ; A_sg_bop       := bop_add_ann bS c 
+   ; A_sg_bop        := bop_add_ann bS c 
    ; A_sg_exists_id_d   := bop_add_ann_exists_id_decide S rS c bS s (A_sg_exists_id_d _ sgS) 
    ; A_sg_exists_ann_d  := inl _ (bop_add_ann_exists_ann S rS c bS)
    ; A_sg_proofs    := sg_proofs_add_ann S rS c bS s 
