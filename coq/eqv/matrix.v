@@ -1,6 +1,8 @@
 Section Computation.
 
-(* define = for matricies *)   
+(* define type matrix 
+   define = for matricies 
+*)   
   
 End Computation. 
 
