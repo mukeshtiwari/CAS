@@ -208,6 +208,7 @@ Extraction "Cas.ml"
    mcas_bs_right
 
    instantiate_matrix_exp_unary
+   call_instantiate_matrix_exp_unary_curry
 . 
 
 (*
