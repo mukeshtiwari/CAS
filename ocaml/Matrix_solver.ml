@@ -51,7 +51,7 @@ let square_matrix_from_adj_list (n : int) (l : (int * (int * 'a) list) list) (al
       (let (zero, one) = fetch_zero_and_one_from_algebra alg in 
       List.fold_left 
         update_square_matrix 
-        (fun c d -> if c = d then zero else one)
+        (fun c d -> if c = d then one else zero) 
         (massage_adj_list l));
     algebra = alg
   } 
