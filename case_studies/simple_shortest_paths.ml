@@ -15,7 +15,7 @@ let simple_shortest_paths = mcas_bs_add_zero mcas_min_plus infinity;;
 (* now, configure an adjacency matrix *)
 let sq_mat = square_matrix_from_adj_list 4 [(1, [(2, Inr 10); (0, Inr 20)])] simple_shortest_paths
 
-let _ =  List.map (fun (x, y) -> (x, y, sq_mat.mat x y)) (compute_pair [0; 1; 2])
+let _ =  List.map (fun (x, y) -> (x, y, sq_mat.mat x y)) (compute_pair (List.rev (list_enum 4)))
 
 (*
 [(0, 0, Inr 0);
