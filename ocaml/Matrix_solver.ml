@@ -64,7 +64,7 @@ let matrix_solver (algo : algorithm) (alge : 'a bs_mcas) :
 ('a Cas.square_matrix -> 'a Cas.square_matrix, char list list) Cas.sum =
   match algo with
   | Matrix_power -> call_instantiate_matrix_exp_unary_curry alge 
-  | Not_implemented_yet -> raise (Msg "algorithm not implemented yet")
+  | _ -> raise (Msg "algorithm not implemented yet")
 
 
 
