@@ -7,6 +7,8 @@ Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
 Require Import CAS.coq.bs.cast_up. 
+Require Import List.
+Import ListNotations.
 (*
 Check matrix_exp_unary.
 Check matrix_fixpoint.
@@ -14,6 +16,8 @@ Check matrix_fixpoint.
 Open Scope string_scope.
 Open Scope list_scope. 
 
+
+(* Get rid of this function *)
 Definition A_instantiate_matrix_exp_unary (U : Type) 
            (A : A_bs_mcas U)
            (Node : Type)
@@ -49,9 +53,45 @@ Definition A_instantiate_matrix_exp_unary (U : Type)
   | _    => inr ("Internal Error : instantiate_matrix_exp_unary" :: nil) 
   end.
   
+
+Definition A_instantiate_matrix_exp_unary_curry (U : Type) 
+  (A : A_bs_mcas U)
+  (Node : Type)
+  : (finite_set Node -> brel Node -> Matrix Node U -> nat -> Matrix Node U) + (list string) :=
+  let B := A_bs_mcas_cast_up U A in 
+  match B with
+  | A_BS_Error _ l => inr l 
+  | A_BS_bs _ A' =>
+  let bsP := A_bs_proofs _ A' in
+  let eqv := A_bs_eqv _ A' in
+  let id_annP := A_bs_id_ann_proofs _ A' in
+  match A_id_ann_plus_times_d _ _ _ _ id_annP with
+  | Id_Ann_Proof_Equal _ _ _ _ zeroP =>
+  match A_id_ann_times_plus_d _ _ _ _ id_annP with
+  | Id_Ann_Proof_Equal _ _ _ _ oneP =>
+  match A_bs_left_distributive_d _ _ _ _ bsP with
+  | inl _ =>
+  match A_bs_right_distributive_d _ _ _ _ bsP with
+  | inl _ =>
+    match A_sg_commutative_d _ _ _ (A_bs_plus_proofs _ A') with
+    | inl _ => inl (fun (F : finite_set Node) (eqN : brel Node) => 
+      matrix_exp_unary Node F eqN U (projT1 zeroP) (projT1 oneP) (A_bs_plus _ A') (A_bs_times _ A')) 
+    | inr _ => inr ("Error : the algebra must have a commutative addition" :: nil) 
+    end 
+  | inr _ => inr ("Error : the algebra is not right distributive" :: nil)
+  end 
+  | inr _ => inr ("Error : the algebra is not left distributive" :: nil) 
+  end 
+  | _ => inr ("Error : the multiplicative id must be additive annihilator" :: nil) 
+  end
+  | _ => inr ("Error : the additive id must be multiplicative annihilator" :: nil)
+  end
+  | _    => inr ("Internal Error : instantiate_matrix_exp_unary" :: nil) 
+  end.
+
   
 
-(* matrix_fixpoint properties *)
+(* Change this lemma to reflect new funciton matrix_fixpoint properties *)
 Lemma a_instantiated : forall (R : Type) (A : A_bs_mcas R) (Node : Type) 
   (F : finite_set Node) (eqN : brel Node) zeroR oneR plusR mulR,
   A_instantiate_matrix_exp_unary R A Node F eqN = 
@@ -100,6 +140,7 @@ Proof.
 Admitted.
 
 
+(* Get rid of this function*)
 Definition instantiate_matrix_exp_unary {U : Type} 
            (A : @bs_mcas U)
            (Node : Type)
@@ -136,7 +177,46 @@ Definition instantiate_matrix_exp_unary {U : Type}
   | _    => inr ("Internal Error : instantiate_matrix_exp_unary" :: nil) 
   end.
 
+
+
+Definition instantiate_matrix_exp_unary_curry {U : Type} 
+           (A : @bs_mcas U) (Node : Type)
+  : (finite_set Node -> brel Node -> Matrix Node U -> nat -> Matrix Node U) 
+  + (list string) :=
+  let B := bs_mcas_cast_up A in 
+  match B with
+  | BS_Error l => inr l 
+  | BS_bs A' =>
+    let bsP := bs_certs A' in
+    let eqv := bs_eqv A' in
+    let id_annP := bs_id_ann_certs A' in
+    match id_ann_plus_times_d id_annP with
+    | Id_Ann_Cert_Equal zero =>
+      match id_ann_times_plus_d id_annP with
+      | Id_Ann_Cert_Equal one =>
+        match bs_left_distributive_d bsP with
+        | Certify_Left_Distributive =>
+          match bs_right_distributive_d bsP with
+          | Certify_Right_Distributive =>
+            match sg_commutative_d (bs_plus_certs A') with
+            | Certify_Commutative =>
+              inl (fun (F : finite_set Node) (eqN : brel Node) => 
+              matrix_exp_unary Node F eqN U zero one (bs_plus A') (bs_times A')) 
+            | _ => inr ("Error : the algebra must have a commutative addition" :: nil) 
+            end 
+          | _ => inr ("Error : the algebra is not right distributive" :: nil)
+          end 
+        | _ => inr ("Error : the algebra is not left distributive" :: nil) 
+        end 
+      | _ => inr ("Error : the multiplicative id must be additive annihilator" :: nil) 
+      end
+    | _ => inr ("Error : the additive id must be multiplicative annihilator" :: nil)
+    end
+  | _    => inr ("Internal Error : instantiate_matrix_exp_unary" :: nil) 
+  end.
+
   
+(* Write a new theorem for the changed functions *)  
 Theorem correct_instantiate_matrix_exp_unary {U : Type} 
            (A : A_bs_mcas U)
            (Node : Type)
@@ -169,4 +249,46 @@ Proof. unfold instantiate_matrix_exp_unary, A_instantiate_matrix_exp_unary.
                 ++++ reflexivity.                                   
             +++ reflexivity.              
          ++ reflexivity. 
-Qed. 
+Qed.
+
+
+
+Record square_matrix (A : Type) := mk_square_matrix {
+  size : nat;
+  mat : nat -> nat -> A;
+  algebra : @bs_mcas A
+}.
+
+
+Fixpoint list_enum (n : nat) : list nat :=
+  match n with
+  | O => []
+  | S n' => n' :: list_enum n' 
+  end.
+  
+
+Definition call_instantiate_matrix_exp_unary_curry (A : Type) (alg : @bs_mcas A) 
+  : (square_matrix A -> square_matrix A) + (list string).
+  refine(
+  let insmat := @instantiate_matrix_exp_unary_curry A alg nat in
+  match insmat with
+  | inr x => inr x
+  | inl mp => inl (fun ms => _)
+  end).
+  exact (mk_square_matrix _ (size _ ms) 
+    (mp (List.rev (list_enum (size _ ms))) Nat.eqb (mat _ ms) (Nat.sub (size _ ms) 1))
+    (algebra _ ms)).
+Defined.
+
+
+
+
+
+
+  
+
+
+    
+
+
+
