@@ -142,7 +142,9 @@ FILES=$(BASE) $(CAS)
 CMOFILES=\
 Cas.cmo \
 ../ocaml/Describe.cmo \
-../ocaml/Mcas.cmo
+../ocaml/Mcas.cmo \
+../ocaml/Matrix_solver.cmo 
+
 # 
 
 .PHONY: all casml html clean test
@@ -163,7 +165,7 @@ extraction/STAMP: $(FILES:.v=.vo) extraction/extraction.v
 	$(COQEXEC) extraction/extraction.v
 	touch extraction/STAMP
 
-casml: extraction/STAMP ocaml/Mcas.ml ocaml/Describe.ml
+casml: extraction/STAMP ocaml/Mcas.ml ocaml/Describe.ml ocaml/Matrix_solver.ml
 	./mk_casml.sh
 	chmod +x casml
 	$(OCAMLBUILD) $(OCB_OPTIONS) Driver.byte
