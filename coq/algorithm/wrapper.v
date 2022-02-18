@@ -55,7 +55,15 @@ Definition A_instantiate_matrix_exp_unary_curry (U : Type)
 
   
 
-
+(* One problem is that A_bs_mcas hides a lot of information, including 
+  equality, +, *, 0, and 1. Now, the challenge is that I am quanitifying
+  someof these operations universally, which is creating problems and not true 
+  as well. 
+  Solution: Find a way to fetch the zero, one, plus, mult, eq from
+  A. 
+  
+  *)
+Print A_bs_mcas.
 Lemma a_instantiated : forall (R : Type) (A : A_bs_mcas R) (Node : Type) 
   (F : finite_set Node) (eqN : brel Node) zeroR oneR plusR mulR,
   A_instantiate_matrix_exp_unary_curry R A Node  = 
@@ -82,6 +90,63 @@ Lemma a_instantiated : forall (R : Type) (A : A_bs_mcas R) (Node : Type)
   (forall a : R, eqR (mulR zeroR a) zeroR = true) (* zero_left_anhilator_mul *) /\
   (forall a : R, eqR (mulR a zeroR) zeroR = true) (* zero_right_anhilator_mul *).
 Proof.
+  intros * Hf Hb * Ha.
+  destruct A;
+  unfold A_instantiate_matrix_exp_unary_curry in Ha; 
+  simpl in Ha; try congruence.
+  destruct (A_id_ann_plus_times_d R (structures.A_eqv_eq R (A_bs_eqv R a))
+  (A_bs_plus R a) (A_bs_times R a) (A_bs_id_ann_proofs R a));
+  try congruence.
+  destruct (A_id_ann_times_plus_d R (structures.A_eqv_eq R (A_bs_eqv R a))
+  (A_bs_plus R a) (A_bs_times R a) (A_bs_id_ann_proofs R a)); simpl in Ha;
+  try congruence.
+  destruct (A_bs_left_distributive_d R (structures.A_eqv_eq R (A_bs_eqv R a))
+  (A_bs_plus R a) (A_bs_times R a) (A_bs_proofs R a)); simpl in Ha; 
+  try congruence.
+  destruct (A_bs_right_distributive_d R
+  (structures.A_eqv_eq R (A_bs_eqv R a)) 
+  (A_bs_plus R a) (A_bs_times R a) (A_bs_proofs R a)); simpl in Ha;
+  try congruence.
+  destruct (A_sg_commutative_d R (structures.A_eqv_eq R (A_bs_eqv R a))
+  (A_bs_plus R a) (A_bs_plus_proofs R a)); try congruence.
+  inversion Ha as (Ht). admit.
+
+
+  admit.
+  all: try congruence.
+
+  simpl in Ha.
+
+  destruct (A_bs_cas_up_is_error_or_bs R A) as [[l Hl] | [a Hr]].
+  rewrite Hl in Ha;
+  unfold A_instantiate_matrix_exp_unary_curry in Ha;
+  simpl in Ha;
+  congruence.
+  destruct a; destruct
+  A_bs_eqv; simpl in *.
+  exists A_eqv_eq.
+  destruct A_eqv_proofs.
+  split. assumption.
+  split. assumption.
+  split. assumption.
+  simpl in *.
+  destruct A_bs_plus_proofs;
+  destruct A_bs_times_proofs;
+  destruct A_bs_id_ann_proofs; 
+  destruct A_bs_proofs;
+  simpl in *.
+  split.
+  admit.
+  split.
+  admit.
+  split.
+  unfold bop_associative in A_sg_associative.
+  intros *. apply A_eqv_symmetric.
+  (* I can't apply A_sg_associative *)
+  Fail eapply A_sg_associative.
+  
+
+
 Admitted.
 
 
