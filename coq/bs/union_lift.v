@@ -610,7 +610,7 @@ Proof. unfold bs_union_lift, bs_union_lift, A2C_bs, A2C_sg. destruct sgS. simpl.
        rewrite correct_sg_lift_certs.
        rewrite <- correct_bs_certs_union_lift.              
        rewrite <- correct_id_ann_certs_union_lift.
-       rewrite bop_union_certs_correct.
+       rewrite correct_bop_union_certs.
        unfold sg_certs_from_sg_CI_certs, A_sg_proofs_from_sg_CI_proofs.
        rewrite <- correct_sg_certs_from_sg_C_certs.               
        rewrite <- correct_sg_C_certs_from_sg_CI_certs.

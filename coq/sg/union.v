@@ -18,6 +18,7 @@ Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.and.
 Require Import CAS.coq.sg.or.
 Require Import CAS.coq.sg.add_ann. 
+Require Import CAS.coq.sg.cast_up. 
 
 Require Import CAS.coq.po.subset.
 Require Import CAS.coq.po.theory. 
@@ -799,7 +800,7 @@ let tranS := A_eqv_transitive S rS eqvP in
 |}.
 
 
-Definition A_sg_union {S : Type} (c : cas_constant) (eqv : A_eqv S) : A_sg_BCI (with_constant(finite_set S)) := 
+Definition A_sg_union_with_ann {S : Type} (c : cas_constant) (eqv : A_eqv S) : A_sg_BCI (with_constant(finite_set S)) := 
   let eqvP := A_eqv_proofs S eqv in
   let symS := A_eqv_symmetric _ _ eqvP in
   let refS := A_eqv_reflexive _ _ eqvP in
@@ -817,8 +818,36 @@ Definition A_sg_union {S : Type} (c : cas_constant) (eqv : A_eqv S) : A_sg_BCI (
    ; A_sg_BCI_exists_id  := bop_union_with_ann_exists_id S c eqS refS symS trnS 
    ; A_sg_BCI_exists_ann := bop_union_with_ann_exists_ann S c eqS 
    ; A_sg_BCI_proofs     := sg_CI_proofs_add_ann _ _ c bop nil (A_eqv_proofs _ eqv_union) (sg_CI_proofs_union eqv)
-   ; A_sg_BCI_ast        := Ast_sg_add_ann(c, Ast_sg_union (c, A_eqv_ast S eqv))
+   ; A_sg_BCI_ast        := Ast_sg_add_ann(c, Ast_sg_union (A_eqv_ast S eqv))
    |}.
+
+
+Definition A_sg_union {S : Type} (eqv : A_eqv S) : A_sg (finite_set S) := 
+  let eqvP := A_eqv_proofs S eqv in
+  let symS := A_eqv_symmetric _ _ eqvP in
+  let refS := A_eqv_reflexive _ _ eqvP in
+  let trnS := A_eqv_transitive _ _ eqvP in     
+  let eqS  := A_eqv_eq S eqv in
+  let s    := A_eqv_witness S eqv in
+  let f    := A_eqv_new S eqv in
+  let ntS  := A_eqv_not_trivial S eqv in
+   {| 
+     A_sg_eqv          := A_eqv_set S eqv 
+   ; A_sg_bop          := bop_union eqS 
+   ; A_sg_exists_id_d  := inl (bop_union_exists_id S eqS refS symS trnS) 
+   ; A_sg_exists_ann_d := bop_union_exists_ann_decide S eqS refS symS trnS (A_eqv_finite_d _ eqv) 
+   ; A_sg_proofs       := A_sg_proofs_from_sg_CI_proofs
+                                (finite_set S)
+                                (brel_set eqS)
+                                (bop_union eqS)
+                                (s :: nil)
+                                (λ (l : finite_set S), if brel_set eqS nil l then (s :: nil) else nil) (* fix someday *) 
+                                (brel_set_not_trivial S eqS s)
+                                (eqv_proofs_set S eqS eqvP)                             
+                            (sg_CI_proofs_union eqv)
+   ; A_sg_ast          := Ast_sg_union (A_eqv_ast S eqv)
+   |}.
+
 
 
 Definition bop_union_glb_proofs {S : Type} (eqv : A_eqv S) :
@@ -886,8 +915,11 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_mcas_sg_union (S : Type) (c : cas_constant) (A : A_eqv S) :=
-   A_MCAS_sg_BCI _ (A_sg_union c A).  
+Definition A_mcas_sg_union_with_ann (S : Type) (c : cas_constant) (A : A_eqv S) :=
+  A_MCAS_sg_BCI _ (A_sg_union_with_ann c A).
+
+Definition A_mcas_sg_union (S : Type) (A : A_eqv S) :=
+   A_sg_classify _ (A_MCAS_sg _ (A_sg_union A)).  
 
 End AMCAS.   
 
@@ -900,6 +932,11 @@ Definition  check_union_exists_ann {S : Type} (d : @check_is_finite S) : @check_
      | Certify_Is_Not_Finite => Certify_Not_Exists_Ann
      end.
 
+Definition bop_union_exists_ann_certify {S : Type} (fin_d : @check_is_finite S) : @check_exists_ann (finite_set S) 
+ := match fin_d with
+     | Certify_Is_Finite h  => Certify_Exists_Ann (h tt) 
+     | Certify_Is_Not_Finite  => Certify_Not_Exists_Ann 
+    end.
 
 Definition sg_CI_certs_union : ∀ {S : Type}, @eqv S -> @sg_CI_certificates (finite_set S)
 := λ {S} eqvS,  
@@ -914,7 +951,7 @@ let f   := eqv_new eqvS in
 |}. 
 
 
-Definition sg_union {S : Type} (c : cas_constant) (eqvS : @eqv S) : @sg_BCI (with_constant (finite_set S)) := 
+Definition sg_union_with_ann {S : Type} (c : cas_constant) (eqvS : @eqv S) : @sg_BCI (with_constant (finite_set S)) := 
   let eqS := eqv_eq eqvS in
   let s   := eqv_witness eqvS in
   let f   := eqv_new eqvS in
@@ -926,52 +963,115 @@ Definition sg_union {S : Type} (c : cas_constant) (eqvS : @eqv S) : @sg_BCI (wit
    ; sg_BCI_exists_id  := Assert_Exists_Id (inr nil) 
    ; sg_BCI_exists_ann := Assert_Exists_Ann (inl c) 
    ; sg_BCI_certs      := sg_CI_certs_add_ann c (sg_CI_certs_union eqvS)
-   ; sg_BCI_ast        := Ast_sg_add_ann(c, Ast_sg_union (c, eqv_ast eqvS))
+   ; sg_BCI_ast        := Ast_sg_add_ann(c, Ast_sg_union (eqv_ast eqvS))
    |}. 
+ 
+
+Definition sg_union {S : Type} (eqv : @eqv S) : @sg (finite_set S) := 
+  let eqS  := eqv_eq eqv in
+  let s    := eqv_witness eqv in
+  let f    := eqv_new eqv in
+   {| 
+     sg_eqv          := eqv_set eqv 
+   ; sg_bop          := bop_union eqS 
+   ; sg_exists_id_d  := Certify_Exists_Id nil 
+   ; sg_exists_ann_d := bop_union_exists_ann_certify (eqv_finite_d eqv) 
+   ; sg_certs        := sg_certs_from_sg_CI_certs 
+                                (finite_set S)
+                                (brel_set eqS)
+                                (bop_union eqS)
+                                (s :: nil)
+                                (λ (l : finite_set S), if brel_set eqS nil l then (s :: nil) else nil) (* fix someday *) 
+                                (sg_CI_certs_union eqv)
+   ; sg_ast          := Ast_sg_union (eqv_ast eqv)
+   |}.
 
 
 End CAS.
 
 Section MCAS.
 
-Definition mcas_sg_union {S : Type} (c : cas_constant) (A : @eqv S) :=
-   MCAS_sg_BCI (sg_union c A).  
+Definition mcas_sg_union_with_ann {S : Type} (c : cas_constant) (A : @eqv S) :=
+   MCAS_sg_BCI (sg_union_with_ann c A).  
+
+Definition mcas_sg_union {S : Type} (A : @eqv S) :=
+   sg_classify _ (MCAS_sg (sg_union A)).  
 
 End MCAS.   
 
 Section Verify.
 
 
-Lemma bop_union_certs_correct : 
-    ∀ (S : Type) (eqvS : A_eqv S), 
+Lemma correct_bop_union_certs (S : Type) (eqvS : A_eqv S): 
       sg_CI_certs_union (A2C_eqv S eqvS)
       =                        
       P2C_sg_CI (finite_set S) (brel_set (A_eqv_eq S eqvS)) (bop_union (A_eqv_eq S eqvS))
                 (sg_CI_proofs_union eqvS).
-Proof. intros S eqvS.
-       destruct eqvS.
+Proof. destruct eqvS.
        unfold sg_CI_certs_union, sg_CI_proofs_union. unfold P2C_sg_CI. simpl.
        reflexivity.        
+Qed.
+
+Lemma correct_bop_union_exists_ann_certify (S : Type) (eqvS : A_eqv S): 
+      bop_union_exists_ann_certify (p2c_is_finite_check S (A_eqv_eq S eqvS) (A_eqv_finite_d S eqvS))
+      = 
+      p2c_exists_ann_check (finite_set S) (brel_set (A_eqv_eq S eqvS)) (bop_union (A_eqv_eq S eqvS))
+           (bop_union_exists_ann_decide S (A_eqv_eq S eqvS)
+               (A_eqv_reflexive S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS))
+               (A_eqv_symmetric S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS))
+               (A_eqv_transitive S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS))
+               (A_eqv_finite_d S eqvS)).
+Proof. unfold bop_union_exists_ann_certify, bop_union_exists_ann_decide, p2c_exists_ann_check;
+       destruct (A_eqv_finite_d S eqvS) as [[h finP] | nfinP]; simpl; reflexivity. 
 Qed. 
   
 
-Theorem bop_union_correct (S : Type) (c : cas_constant) (eqvS : A_eqv S) : 
-         sg_union c (A2C_eqv S eqvS)  =  A2C_sg_BCI _ (A_sg_union c eqvS). 
-Proof. unfold sg_union, A_sg_union, A2C_sg_BCI; simpl. 
+Theorem correct_bop_union_with_ann (S : Type) (c : cas_constant) (eqvS : A_eqv S) : 
+  sg_union_with_ann c (A2C_eqv S eqvS)
+  =
+  A2C_sg_BCI _ (A_sg_union_with_ann c eqvS). 
+Proof. unfold sg_union_with_ann, A_sg_union_with_ann, A2C_sg_BCI; simpl. 
        rewrite correct_eqv_set.        
        rewrite correct_eqv_add_constant.
-       rewrite bop_union_certs_correct.
+       rewrite correct_bop_union_certs.
        rewrite <- correct_sg_CI_certs_add_ann. 
        reflexivity. 
 Qed. 
 
-Theorem bop_mcas_union_correct (S : Type) (c : cas_constant)(eqvS : A_eqv S): 
-         mcas_sg_union c (A2C_eqv S eqvS)  
+
+Theorem correct_bop_union (S : Type) (eqvS : A_eqv S) : 
+  sg_union  (A2C_eqv S eqvS)
+  =
+  A2C_sg _ (A_sg_union eqvS). 
+Proof. unfold sg_union, A_sg_union, A2C_sg; simpl. 
+       rewrite correct_eqv_set.        
+       rewrite correct_bop_union_certs.
+       unfold sg_certs_from_sg_CI_certs, A_sg_proofs_from_sg_CI_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs.               
+       rewrite <- correct_sg_C_certs_from_sg_CI_certs.
+       rewrite <- correct_bop_union_exists_ann_certify.
+       reflexivity. 
+Qed. 
+
+Theorem correct_bop_mcas_union_with_ann (S : Type) (c : cas_constant)(eqvS : A_eqv S): 
+         mcas_sg_union_with_ann c (A2C_eqv S eqvS)  
          = 
-         A2C_mcas_sg _ (A_mcas_sg_union _ c eqvS). 
-Proof. unfold mcas_sg_union, A_mcas_sg_union.
+         A2C_mcas_sg _ (A_mcas_sg_union_with_ann _ c eqvS). 
+Proof. unfold mcas_sg_union_with_ann, A_mcas_sg_union_with_ann.
        unfold A2C_mcas_sg.
-       rewrite bop_union_correct.
+       rewrite correct_bop_union_with_ann.
+       reflexivity. 
+Qed.  
+
+
+Theorem correct_bop_mcas_union (S : Type) (eqvS : A_eqv S): 
+         mcas_sg_union (A2C_eqv S eqvS)  
+         = 
+         A2C_mcas_sg _ (A_mcas_sg_union _ eqvS). 
+Proof. unfold mcas_sg_union, A_mcas_sg_union.
+       rewrite correct_bop_union.       
+       rewrite <- correct_sg_classify.
+       unfold A2C_mcas_sg.
        reflexivity. 
 Qed.  
 

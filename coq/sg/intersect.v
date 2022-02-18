@@ -16,7 +16,9 @@ Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.theory.
 Require Import CAS.coq.sg.and.
-Require Import CAS.coq.sg.add_id. 
+Require Import CAS.coq.sg.union. 
+Require Import CAS.coq.sg.add_id.
+Require Import CAS.coq.sg.cast_up. 
 
 Section Computation.
 
@@ -266,26 +268,6 @@ Definition bop_intersect_exists_id_decide (fin_d : carrier_is_finite_decidable S
      | inr nfs => inr (bop_intersect_not_exists_id nfs)
     end.
 
-(*
-Lemma bop_intersect_somthing_is_finite : something_is_finite (finite_set S) (brel_set eq) (bop_intersect eq).
-Proof. exact (exists_ann_implies_something_is_finite _ _ _ 
-              bop_intersect_congruence 
-              (brel_set_reflexive _ _ refS symS)
-              (brel_set_symmetric _ eq) 
-              (brel_set_transitive  _ _ refS symS tranS)
-              bop_intersect_commutative
-              bop_intersect_idempotent
-              (λ l : finite_set S, if brel_set eq nil l then wS :: nil else nil)
-              (brel_set_not_trivial S eq wS)
-              bop_intersect_exists_ann). 
-Defined.
-*) 
-
-
-
-(*********** "multiplicative" properties are all false,
-              see sg/theory.v and sg/cast-up.v
-****************)
 
 End Theory.
 
@@ -311,7 +293,7 @@ let tranS := A_eqv_transitive S rS eqvP in
 |}. 
 
 
-Definition A_sg_intersect  {S : Type} (c : cas_constant) (eqv : A_eqv S) : A_sg_BCI (with_constant (finite_set S)) := 
+Definition A_sg_intersect_with_id  {S : Type} (c : cas_constant) (eqv : A_eqv S) : A_sg_BCI (with_constant (finite_set S)) := 
   let eqvP := A_eqv_proofs S eqv in
   let symS := A_eqv_symmetric _ _ eqvP in
   let refS := A_eqv_reflexive _ _ eqvP in
@@ -328,7 +310,34 @@ Definition A_sg_intersect  {S : Type} (c : cas_constant) (eqv : A_eqv S) : A_sg_
    ; A_sg_BCI_exists_id    := bop_intersect_with_id_exists_id S c eqS refS symS 
    ; A_sg_BCI_exists_ann   := bop_intersect_with_id_exists_ann S c eqS refS symS trnS  
    ; A_sg_BCI_proofs       := sg_CI_proofs_add_id _ _ c bop nil (A_eqv_proofs _ new_eqv) (sg_CI_proofs_intersect S eqv)
-   ; A_sg_BCI_ast          := Ast_sg_add_id(c, Ast_sg_intersect (c, A_eqv_ast S eqv))
+   ; A_sg_BCI_ast          := Ast_sg_add_id(c, Ast_sg_intersect (A_eqv_ast S eqv))
+   |}. 
+  
+
+Definition A_sg_intersect  {S : Type} (eqv : A_eqv S) : A_sg (finite_set S) := 
+  let eqvP := A_eqv_proofs S eqv in
+  let symS := A_eqv_symmetric _ _ eqvP in
+  let refS := A_eqv_reflexive _ _ eqvP in
+  let trnS := A_eqv_transitive _ _ eqvP in     
+  let eqS  := A_eqv_eq S eqv in
+  let s    := A_eqv_witness S eqv in
+  let f    := A_eqv_new S eqv in
+  let ntS  := A_eqv_not_trivial S eqv in       
+  {| 
+     A_sg_eqv          := A_eqv_set S eqv 
+   ; A_sg_bop          := bop_intersect eqS 
+   ; A_sg_exists_id_d  := bop_intersect_exists_id_decide S eqS refS symS trnS (A_eqv_finite_d _ eqv) 
+   ; A_sg_exists_ann_d := inl (bop_intersect_exists_ann S eqS refS symS trnS)
+   ; A_sg_proofs       := A_sg_proofs_from_sg_CI_proofs
+                                (finite_set S)
+                                (brel_set eqS)
+                                (bop_intersect eqS)
+                                (s :: nil)
+                                (λ (l : finite_set S), if brel_set eqS nil l then (s :: nil) else nil) (* fix someday *) 
+                                (brel_set_not_trivial S eqS s)
+                                (eqv_proofs_set S eqS eqvP)   
+                                (sg_CI_proofs_intersect S eqv)
+   ; A_sg_ast          := Ast_sg_intersect (A_eqv_ast S eqv)
    |}. 
   
 
@@ -337,8 +346,11 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_mcas_sg_intersect (S : Type) (c : cas_constant) (A : A_eqv S) :=
-   A_MCAS_sg_BCI _ (A_sg_intersect c A).  
+Definition A_mcas_sg_intersect_with_id (S : Type) (c : cas_constant) (A : A_eqv S) :=
+  A_MCAS_sg_BCI _ (A_sg_intersect_with_id c A).
+
+Definition A_mcas_sg_intersect (S : Type) (A : A_eqv S) :=
+   A_sg_classify _ (A_MCAS_sg _ (A_sg_intersect A)).  
 
 End AMCAS.   
 
@@ -364,7 +376,7 @@ let f   := eqv_new eqvS in
 ; sg_CI_not_selective      := Assert_Not_Selective ((s :: nil), ((f s) :: nil))
 |}. 
 
-Definition sg_intersect {S : Type} (c : cas_constant) (eqvS : @eqv S) : @sg_BCI (with_constant (finite_set S)) := 
+Definition sg_intersect_with_id {S : Type} (c : cas_constant) (eqvS : @eqv S) : @sg_BCI (with_constant (finite_set S)) := 
   let eqS := eqv_eq eqvS in
    {| 
      sg_BCI_eqv        := eqv_add_constant (eqv_set eqvS) c 
@@ -372,21 +384,52 @@ Definition sg_intersect {S : Type} (c : cas_constant) (eqvS : @eqv S) : @sg_BCI 
    ; sg_BCI_exists_id  := Assert_Exists_Id (inl c) 
    ; sg_BCI_exists_ann := Assert_Exists_Ann (inr nil) 
    ; sg_BCI_certs      := sg_CI_certs_add_id c (sg_CI_certs_intersect eqvS)
-   ; sg_BCI_ast        := Ast_sg_add_id(c, Ast_sg_intersect (c, eqv_ast eqvS))
-   |}. 
+   ; sg_BCI_ast        := Ast_sg_add_id(c, Ast_sg_intersect (eqv_ast eqvS))
+   |}.
+
+Definition bop_intersect_exists_id_certify {S : Type} (fin_d : @check_is_finite S) : @check_exists_id (finite_set S) 
+ := match fin_d with
+     | Certify_Is_Finite h  => Certify_Exists_Id (h tt) 
+     | Certify_Is_Not_Finite  => Certify_Not_Exists_Id
+    end.
+
+
+Definition sg_intersect {S : Type} (eqv : @eqv S) : @sg (finite_set S) := 
+  let eqS  := eqv_eq eqv in
+  let s    := eqv_witness eqv in
+  let f    := eqv_new eqv in
+   {| 
+     sg_eqv          := eqv_set eqv 
+   ; sg_bop          := bop_intersect eqS 
+   ; sg_exists_id_d  := bop_intersect_exists_id_certify (eqv_finite_d eqv) 
+   ; sg_exists_ann_d := Certify_Exists_Ann nil 
+   ; sg_certs        := sg_certs_from_sg_CI_certs 
+                                (finite_set S)
+                                (brel_set eqS)
+                                (bop_intersect eqS)
+                                (s :: nil)
+                                (λ (l : finite_set S), if brel_set eqS nil l then (s :: nil) else nil) (* fix someday *) 
+                                (sg_CI_certs_intersect eqv)
+   ; sg_ast          := Ast_sg_intersect (eqv_ast eqv)
+   |}.
+
 
 End CAS.
 
 Section MCAS.
 
-Definition mcas_sg_intersect {S : Type} (c : cas_constant) (A : @eqv S) :=
-   MCAS_sg_BCI (sg_intersect c A).  
+Definition mcas_sg_intersect_with_id {S : Type} (c : cas_constant) (A : @eqv S) :=
+   MCAS_sg_BCI (sg_intersect_with_id c A).  
+
+
+Definition mcas_sg_intersect {S : Type} (A : @eqv S) :=
+   sg_classify _ (MCAS_sg (sg_intersect A)).  
 
 End MCAS.   
 
 Section Verify.
 
-Theorem bop_intersect_certs_correct (S : Type) (eqvS : A_eqv S) : 
+Theorem correct_bop_intersect_certs (S : Type) (eqvS : A_eqv S) : 
       sg_CI_certs_intersect (A2C_eqv S eqvS)  
       =                        
        P2C_sg_CI (finite_set S) (brel_set (A_eqv_eq S eqvS)) (bop_intersect (A_eqv_eq S eqvS))
@@ -396,27 +439,66 @@ Proof. destruct eqvS.
        reflexivity.        
 Qed. 
 
-  
+
+Lemma correct_bop_intersect_exists_id_certify (S : Type) (eqvS : A_eqv S): 
+      bop_intersect_exists_id_certify (p2c_is_finite_check S (A_eqv_eq S eqvS) (A_eqv_finite_d S eqvS))
+      = 
+      p2c_exists_id_check (finite_set S) (brel_set (A_eqv_eq S eqvS)) (bop_intersect (A_eqv_eq S eqvS))
+           (bop_intersect_exists_id_decide S (A_eqv_eq S eqvS)
+               (A_eqv_reflexive S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS))
+               (A_eqv_symmetric S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS))
+               (A_eqv_transitive S (A_eqv_eq S eqvS) (A_eqv_proofs S eqvS))
+               (A_eqv_finite_d S eqvS)).
+Proof. unfold bop_intersect_exists_id_certify, bop_intersect_exists_id_decide, p2c_exists_ann_check;
+       destruct (A_eqv_finite_d S eqvS) as [[h finP] | nfinP]; simpl; reflexivity. 
+Qed. 
+
     
-Theorem bop_intersect_correct (S : Type) (c : cas_constant)(eqvS : A_eqv S): 
-         sg_intersect c (A2C_eqv S eqvS)  
+Theorem correct_bop_intersect_with_id (S : Type) (c : cas_constant)(eqvS : A_eqv S): 
+         sg_intersect_with_id c (A2C_eqv S eqvS)  
          = 
-         A2C_sg_BCI _ (A_sg_intersect c eqvS). 
-Proof. unfold sg_intersect, A_sg_intersect. unfold A2C_sg_BCI. simpl.
+         A2C_sg_BCI _ (A_sg_intersect_with_id c eqvS). 
+Proof. unfold sg_intersect_with_id, A_sg_intersect_with_id. unfold A2C_sg_BCI. simpl.
        rewrite correct_eqv_set.
        rewrite correct_eqv_add_constant.       
-       rewrite bop_intersect_certs_correct.       
+       rewrite correct_bop_intersect_certs.       
        rewrite <- correct_sg_CI_certs_add_id. 
        reflexivity. 
 Qed.
 
-Theorem bop_mcas_intersect_correct (S : Type) (c : cas_constant)(eqvS : A_eqv S): 
-         mcas_sg_intersect c (A2C_eqv S eqvS)  
+
+Theorem correct_bop_intersect (S : Type) (eqvS : A_eqv S) : 
+  sg_intersect  (A2C_eqv S eqvS)
+  =
+  A2C_sg _ (A_sg_intersect eqvS). 
+Proof. unfold sg_intersect, A_sg_intersect, A2C_sg; simpl. 
+       rewrite correct_eqv_set.        
+       rewrite correct_bop_intersect_certs.
+       unfold sg_certs_from_sg_CI_certs, A_sg_proofs_from_sg_CI_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs.               
+       rewrite <- correct_sg_C_certs_from_sg_CI_certs.
+       rewrite <- correct_bop_intersect_exists_id_certify.
+       reflexivity. 
+Qed. 
+
+Theorem correct_bop_mcas_intersect_with_id (S : Type) (c : cas_constant)(eqvS : A_eqv S): 
+         mcas_sg_intersect_with_id c (A2C_eqv S eqvS)  
          = 
-         A2C_mcas_sg _ (A_mcas_sg_intersect _ c eqvS). 
-Proof. unfold mcas_sg_intersect, A_mcas_sg_intersect.
+         A2C_mcas_sg _ (A_mcas_sg_intersect_with_id _ c eqvS). 
+Proof. unfold mcas_sg_intersect_with_id, A_mcas_sg_intersect_with_id.
        unfold A2C_mcas_sg.
-       rewrite bop_intersect_correct.
+       rewrite correct_bop_intersect_with_id.
+       reflexivity. 
+Qed.  
+
+Theorem correct_bop_mcas_intersect (S : Type) (eqvS : A_eqv S): 
+         mcas_sg_intersect (A2C_eqv S eqvS)  
+         = 
+         A2C_mcas_sg _ (A_mcas_sg_intersect _ eqvS). 
+Proof. unfold mcas_sg_intersect, A_mcas_sg_intersect.
+       rewrite correct_bop_intersect.       
+       rewrite <- correct_sg_classify.
+       unfold A2C_mcas_sg.
        reflexivity. 
 Qed.  
 

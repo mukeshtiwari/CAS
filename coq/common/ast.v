@@ -42,8 +42,8 @@ with cas_sg_ast : Type :=
    | Ast_sg_add_id       : cas_constant * cas_sg_ast → cas_sg_ast
    | Ast_sg_add_ann      : cas_constant * cas_sg_ast → cas_sg_ast    
    | Ast_sg_concat       : cas_eqv_ast → cas_sg_ast         
-   | Ast_sg_union        : cas_constant * cas_eqv_ast → cas_sg_ast
-   | Ast_sg_intersect    : cas_constant * cas_eqv_ast → cas_sg_ast  
+   | Ast_sg_union        : cas_eqv_ast → cas_sg_ast
+   | Ast_sg_intersect    : cas_eqv_ast → cas_sg_ast  
    | Ast_sg_left         : cas_eqv_ast → cas_sg_ast
    | Ast_sg_right        : cas_eqv_ast → cas_sg_ast
    | Ast_sg_left_sum     : cas_sg_ast * cas_sg_ast → cas_sg_ast
@@ -72,8 +72,8 @@ with cas_bs_ast : Type :=
    | Ast_bs_right_sum_left_sum  : cas_bs_ast * cas_bs_ast → cas_bs_ast 
    | Ast_bs_left   : cas_sg_ast  → cas_bs_ast
    | Ast_bs_right  : cas_sg_ast  → cas_bs_ast      
-   | Ast_union_intersect : cas_constant * cas_eqv_ast → cas_bs_ast
-   | Ast_intersect_union : cas_constant * cas_eqv_ast → cas_bs_ast    
+   | Ast_union_intersect : cas_eqv_ast → cas_bs_ast
+   | Ast_intersect_union : cas_eqv_ast → cas_bs_ast    
    | Ast_bs_dual : cas_bs_ast → cas_bs_ast   
    | Ast_minset_lift_union : cas_os_ast → cas_bs_ast    
    | Ast_minset_union_lift : cas_os_ast → cas_bs_ast

@@ -179,7 +179,9 @@ Extraction "Cas.ml"
    mcas_sg_left
    mcas_sg_right
    mcas_sg_union
-   mcas_sg_intersect   
+   mcas_sg_union_with_ann    
+   mcas_sg_intersect
+   mcas_sg_intersect_with_id    
    mcas_sg_product 
    mcas_sg_llex
    mcas_sg_add_id
@@ -204,7 +206,9 @@ Extraction "Cas.ml"
    mcas_bs_add_zero
    mcas_bs_add_one
    mcas_bs_union_intersect
-   mcas_bs_intersect_union
+   mcas_bs_union_intersect_with_one
+   mcas_bs_intersect_union_with_zero
+(*   mcas_bs_intersect_union   *) 
    mcas_bs_left
    mcas_bs_right
    mcas_bs_union_lift 
@@ -212,7 +216,6 @@ Extraction "Cas.ml"
 . 
 
 (*
-mcas_union_lift 
 mcas_left_sum_right_sum
 mcas_right_sum_left_sum  
 mcas_minset_union_lift 

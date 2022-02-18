@@ -17,6 +17,16 @@ End Theory.
 
 Section ACAS.
 
+
+Definition A_dually_bounded_proofs_dual (S : Type) (eq : brel S) (join meet : binary_op S)   (dbp : dually_bounded_proofs S eq join meet) 
+           : dually_bounded_proofs S eq meet join := 
+    {|
+        A_bounded_plus_id_is_times_ann := A_bounded_times_id_is_plus_ann S _ _ _ dbp
+      ; A_bounded_times_id_is_plus_ann := A_bounded_plus_id_is_times_ann S _ _ _ dbp
+    |}.                                                                            
+                                                                                                
+  
+
 Definition lattice_proofs_dual (S: Type) (eqv : brel S) (join meet : binary_op S) :
           lattice_proofs S eqv join meet -> lattice_proofs S eqv meet join
 := λ pfs,
@@ -145,6 +155,7 @@ Definition selective_distributive_lattice_proofs_dual (S: Type) (rS : brel S) (j
                                                   (A_distributive_lattice_distributive S rS join meet pfs) 
 |}.
 
+
 Definition A_selective_distributive_lattice_dual : ∀ (S : Type), A_selective_distributive_lattice S -> A_selective_distributive_lattice S
 := λ S lat,
 {|  
@@ -153,12 +164,7 @@ Definition A_selective_distributive_lattice_dual : ∀ (S : Type), A_selective_d
 ; A_selective_distributive_lattice_meet         := A_selective_distributive_lattice_join S lat 
 ; A_selective_distributive_lattice_join_proofs  := A_selective_distributive_lattice_meet_proofs S lat 
 ; A_selective_distributive_lattice_meet_proofs  := A_selective_distributive_lattice_join_proofs S lat
-; A_selective_distributive_lattice_id_ann_proofs :=
-    {|
-        A_bounded_plus_id_is_times_ann := A_bounded_times_id_is_plus_ann S _ _ _ (A_selective_distributive_lattice_id_ann_proofs S lat)
-      ; A_bounded_times_id_is_plus_ann := A_bounded_plus_id_is_times_ann S _ _ _ (A_selective_distributive_lattice_id_ann_proofs S lat)
-    |}                                                                            
-                                                                                                
+; A_selective_distributive_lattice_id_ann_proofs := A_dually_bounded_proofs_dual _ _ _ _ (A_selective_distributive_lattice_id_ann_proofs S lat)
 ; A_selective_distributive_lattice_proofs       := selective_distributive_lattice_proofs_dual S
                                              (A_eqv_eq S (A_selective_distributive_lattice_eqv S lat))
                                              (A_selective_distributive_lattice_join S lat)
@@ -193,7 +199,15 @@ Definition bounded_certs_dual {S : Type} (c : @dually_bounded_certificates S) : 
       {|
         bounded_plus_id_is_times_ann := bounded_times_id_is_plus_ann c 
       ; bounded_times_id_is_plus_ann := bounded_plus_id_is_times_ann c
+      |}.
+
+(*
+Definition id_ann_certs_dual {S : Type} (c : @id_ann_certificates S) : @id_ann_certificates S := 
+      {|
+        bounded_plus_id_is_times_ann := bounded_times_id_is_plus_ann c 
+      ; bounded_times_id_is_plus_ann := bounded_plus_id_is_times_ann c
       |}. 
+*)  
   
 Definition lattice_dual : ∀ {S : Type}, @lattice S -> @lattice S
 := λ {S} lat,
