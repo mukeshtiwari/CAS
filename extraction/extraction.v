@@ -208,7 +208,7 @@ Extraction "Cas.ml"
    mcas_bs_left
    mcas_bs_right
    mcas_bs_union_lift 
-   instantiate_matrix_exp_unary
+   instantiate_matrix_exp_unary_curry
    call_instantiate_matrix_exp_unary_curry
 . 
 
