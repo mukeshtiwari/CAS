@@ -7,16 +7,16 @@ Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
 Require Import CAS.coq.bs.cast_up. 
-Require Import List.
+Require Import List. 
 Import ListNotations.
-(*
-Check matrix_exp_unary.
-Check matrix_fixpoint.
-*)
 Open Scope string_scope.
 Open Scope list_scope. 
 
 
+(*
+Check matrix_exp_unary.
+Check matrix_fixpoint.
+*)
 
 
 Definition A_instantiate_matrix_exp_unary_curry (U : Type) 
@@ -52,102 +52,6 @@ Definition A_instantiate_matrix_exp_unary_curry (U : Type)
     end
   | _    => inr ("Internal Error : instantiate_matrix_exp_unary" :: nil) 
   end.
-
-  
-
-(* One problem is that A_bs_mcas hides a lot of information, including 
-  equality, +, *, 0, and 1. Now, the challenge is that I am quanitifying
-  someof these operations universally, which is creating problems and not true 
-  as well. 
-  Solution: Find a way to fetch the zero, one, plus, mult, eq from
-  A. 
-  
-  *)
-Print A_bs_mcas.
-Lemma a_instantiated : forall (R : Type) (A : A_bs_mcas R) (Node : Type) 
-  (F : finite_set Node) (eqN : brel Node) zeroR oneR plusR mulR,
-  A_instantiate_matrix_exp_unary_curry R A Node  = 
-  inl (fun F eqN => matrix_exp_unary Node F eqN R zeroR oneR plusR mulR) ->
-  exists eqR,
-  properties.brel_reflexive R eqR /\ 
-  properties.brel_symmetric R eqR /\
-  properties.brel_transitive R eqR /\ 
-  (forall r : R, eqR (plusR zeroR r) r = true) (* zero_left_identity_plus *) /\ 
-  (forall r : R, eqR (plusR r zeroR) r = true) (* zero_right_identity_plus *) /\ 
-  (forall a b c : R, eqR (plusR a (plusR b c)) 
-    (plusR (plusR a b) c) = true) (* plus_associative *) /\ 
-  (forall a b : R, eqR (plusR a b) (plusR b a) = true)  (* plus_commutative *) /\ 
-  (forall a, eqR (plusR a a) a = true) (* plus_idempotence *) /\ 
-  (forall a b c : R, eqR (mulR a (plusR b c)) 
-    (plusR (mulR a b) (mulR a c)) = true) (* left_distributive_mul_over_plus *) /\ 
-  (forall a b c : R, eqR (mulR (plusR a b) c) 
-    (plusR (mulR a c) (mulR b c)) = true) (* right_distributive_mul_over_plus *) /\ 
-  (forall a b c : R, eqR (mulR a (mulR b c)) 
-    (mulR (mulR a b) c) = true)  (* mul_associative *) /\ 
-  (forall r : R, eqR (mulR oneR r) r = true) (* one_left_identity_mul *) /\ 
-  (forall r : R, eqR (mulR r oneR) r = true) (* one_right_identity_mul *) /\ 
-  (forall a : R, eqR (plusR oneR a) oneR = true) (* multiplicative identity is additive annihilator *)/\ 
-  (forall a : R, eqR (mulR zeroR a) zeroR = true) (* zero_left_anhilator_mul *) /\
-  (forall a : R, eqR (mulR a zeroR) zeroR = true) (* zero_right_anhilator_mul *).
-Proof.
-  intros * Hf Hb * Ha.
-  destruct A;
-  unfold A_instantiate_matrix_exp_unary_curry in Ha; 
-  simpl in Ha; try congruence.
-  destruct (A_id_ann_plus_times_d R (structures.A_eqv_eq R (A_bs_eqv R a))
-  (A_bs_plus R a) (A_bs_times R a) (A_bs_id_ann_proofs R a));
-  try congruence.
-  destruct (A_id_ann_times_plus_d R (structures.A_eqv_eq R (A_bs_eqv R a))
-  (A_bs_plus R a) (A_bs_times R a) (A_bs_id_ann_proofs R a)); simpl in Ha;
-  try congruence.
-  destruct (A_bs_left_distributive_d R (structures.A_eqv_eq R (A_bs_eqv R a))
-  (A_bs_plus R a) (A_bs_times R a) (A_bs_proofs R a)); simpl in Ha; 
-  try congruence.
-  destruct (A_bs_right_distributive_d R
-  (structures.A_eqv_eq R (A_bs_eqv R a)) 
-  (A_bs_plus R a) (A_bs_times R a) (A_bs_proofs R a)); simpl in Ha;
-  try congruence.
-  destruct (A_sg_commutative_d R (structures.A_eqv_eq R (A_bs_eqv R a))
-  (A_bs_plus R a) (A_bs_plus_proofs R a)); try congruence.
-  inversion Ha as (Ht). admit.
-
-
-  admit.
-  all: try congruence.
-
-  simpl in Ha.
-
-  destruct (A_bs_cas_up_is_error_or_bs R A) as [[l Hl] | [a Hr]].
-  rewrite Hl in Ha;
-  unfold A_instantiate_matrix_exp_unary_curry in Ha;
-  simpl in Ha;
-  congruence.
-  destruct a; destruct
-  A_bs_eqv; simpl in *.
-  exists A_eqv_eq.
-  destruct A_eqv_proofs.
-  split. assumption.
-  split. assumption.
-  split. assumption.
-  simpl in *.
-  destruct A_bs_plus_proofs;
-  destruct A_bs_times_proofs;
-  destruct A_bs_id_ann_proofs; 
-  destruct A_bs_proofs;
-  simpl in *.
-  split.
-  admit.
-  split.
-  admit.
-  split.
-  unfold bop_associative in A_sg_associative.
-  intros *. apply A_eqv_symmetric.
-  (* I can't apply A_sg_associative *)
-  Fail eapply A_sg_associative.
-  
-
-
-Admitted.
 
 
 
