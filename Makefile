@@ -70,6 +70,7 @@ CAS=\
    coq/sg/minset_lift.v \
    coq/po/structures.v \
    coq/po/properties.v \
+   coq/po/cast_up.v \
    coq/po/theory.v \
    coq/po/product.v \
    coq/po/lte_nat.v \
