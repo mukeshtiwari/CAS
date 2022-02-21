@@ -68,3 +68,11 @@ let matrix_solver (algo : algorithm) (alge : 'a bs_mcas) :
 
 
 
+
+(* 
+In the future, we want 
+'a Cas.square_matrix -> 'a Cas.square_matrix to be an abstract data type 
+because we will more algorithms, e.g., Dijkstra, Floyd Warshall, 
+solver for X = A * X + B, etc. 
+
+*)
