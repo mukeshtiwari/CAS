@@ -264,6 +264,125 @@ Proof.
   all: congruence.
 Qed.
   
+Lemma brel_square_matrix_eq_row_congruence :
+  forall (n m : nat), 
+  brel_congruence _ (square_matrix_eq_row eq n m)
+  (square_matrix_eq_row eq n m).
+Proof.
+  unfold brel_congruence.
+  induction n; simpl.
+  + intros * Ha Hb.
+    case (eq (s m 0) (t m 0)) eqn:Hsm;
+    case (eq (u m 0) (v m 0)) eqn:Hum.
+    reflexivity.
+    apply sym in Ha.
+    assert (Hut := trn _ _ _ Ha Hsm).
+    assert (A := trn _ _ _ Hut Hb).
+    rewrite A in Hum.
+    congruence.
+    apply sym in Hb.
+    assert (A := trn _ _ _ Ha Hum).
+    assert (B := trn _ _ _ A Hb).
+    rewrite B in Hsm.
+    congruence.
+    reflexivity.
+  + intros * Ha Hb.
+    apply Bool.andb_true_iff in Ha, Hb.
+    destruct Ha as [Hal Har].
+    destruct Hb as [Hbl Hbr].
+    f_equal.
+    case (eq (s m (Datatypes.S n)) (t m (Datatypes.S n))) eqn:Ha;
+    case (eq (u m (Datatypes.S n)) (v m (Datatypes.S n))) eqn:Hb.
+    reflexivity.
+    apply sym in Hal.
+    assert (A := trn _ _ _ Hal Ha).
+    assert (B := trn _ _ _ A Hbl).
+    rewrite B in Hb.
+    congruence.
+    apply sym in Hbl.
+    assert (A := trn _ _ _ Hal Hb).
+    assert (B := trn _ _ _ A Hbl).
+    rewrite B in Ha.
+    congruence.
+    reflexivity.
+    eapply IHn; try assumption.
+Qed.
+
+  
+
+Lemma brel_square_matrix_eq_all_rows_congruence : 
+  forall (n m : nat),
+  brel_congruence _ (square_matrix_eq_all_rows eq n m)
+  (square_matrix_eq_all_rows eq n m).
+Proof.
+  unfold brel_congruence.
+  induction n; simpl. 
+  + intros * Ha Hb.
+    eapply brel_square_matrix_eq_row_congruence;
+    try assumption.
+  + intros * Ha Hb.
+    apply Bool.andb_true_iff in Ha, Hb.
+    destruct Ha as [Hal Har].
+    destruct Hb as [Hbl Hbr].
+    f_equal.
+    eapply brel_square_matrix_eq_row_congruence;
+    try assumption.
+    eapply IHn;
+    try assumption.
+Qed.
+
+
+Lemma brel_square_matrix_eq_aux_congruence :  
+  forall n, 
+  brel_congruence _ (square_matrix_eq_aux eq n)
+  (square_matrix_eq_aux eq n).
+Proof.
+  unfold brel_congruence.
+  destruct n; simpl.
+  + intros ? ? ? ? ? ?.
+    reflexivity.
+  + intros ? ? ? ? Ha Hb.
+    eapply brel_square_matrix_eq_all_rows_congruence;
+    [exact Ha | exact Hb].
+Qed.
+
+
+
+
+
+Lemma brel_square_matrix_eq_congruence : 
+  brel_congruence _ (square_matrix_eq eq)
+  (square_matrix_eq eq).
+Proof.
+  unfold brel_congruence;
+  intros * Ha Hb.
+  unfold square_matrix_eq in *.
+  case (Nat.eqb (sm_size s) (sm_size u)) eqn:Hsu;
+  case (Nat.eqb (sm_size t) (sm_size v)) eqn:Htv;
+  case (Nat.eqb (sm_size s) (sm_size t)) eqn:Hst; 
+  case (Nat.eqb (sm_size u) (sm_size v)) eqn:Huv;
+  try congruence.
+  rewrite PeanoNat.Nat.eqb_eq in Hsu, Htv, Hst, Huv.
+  rewrite Hsu.
+  eapply brel_square_matrix_eq_aux_congruence;
+  try assumption.
+  rewrite <-Hsu; exact Ha.
+  assert (Ht : (sm_size u) = (sm_size t)).
+  nia. rewrite Ht; clear Ht.
+  exact Hb.
+  rewrite PeanoNat.Nat.eqb_eq in Hsu, Htv, Hst.
+  rewrite PeanoNat.Nat.eqb_neq in Huv.
+  congruence.
+  rewrite PeanoNat.Nat.eqb_eq in Hsu, Htv, Huv.
+  rewrite PeanoNat.Nat.eqb_neq in Hst.
+  congruence.
+Qed.
+
+
+  
+
+
+
 
 
 End Theory.   
