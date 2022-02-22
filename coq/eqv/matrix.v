@@ -1,9 +1,9 @@
-
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import CAS.coq.eqv.theory.
 Require Import Lia.
 Local Open Scope bool_scope.
 Local Open Scope nat_scope.
@@ -379,7 +379,155 @@ Proof.
 Qed.
 
 
+(* We need a witness on S *)
+Variables 
+  (s : S). 
   
+Definition unit_matrix : @square_matrix S := 
+    {|
+      sm_size := 1;
+      sm_matrix := fun _ _ => s
+    |}.
+
+Definition two_by_two_matrix : @square_matrix S :=
+    {|
+      sm_size := 2;
+      sm_matrix := fun _ _ => s
+    |}.
+
+Definition three_by_three_matrix : @square_matrix S :=
+    {|
+      sm_size := 3;
+      sm_matrix := fun _ _ => s
+    |}.
+
+
+    
+    
+Definition brel_square_matrix_new : @square_matrix S -> @square_matrix S :=
+  fun mt => 
+    if @square_matrix_eq S eq mt unit_matrix then two_by_two_matrix 
+    else unit_matrix.
+    
+  
+Lemma brel_square_matrix_eq_not_trivial : 
+  brel_not_trivial 
+    (@square_matrix S)  (* Type *)
+    (@square_matrix_eq S eq) (* binary relation *)
+    brel_square_matrix_new. (*fun square matris -> square matrix *)
+Proof.
+  unfold brel_not_trivial; intros u.
+  unfold brel_square_matrix_new.
+  case (square_matrix_eq eq u unit_matrix) eqn:Hes.
+  split.
+  case (square_matrix_eq eq u two_by_two_matrix) eqn:Heu.
+  rewrite <-Heu in Hes.
+  unfold square_matrix_eq in * |-.
+  simpl in *.
+  case (Nat.eqb (sm_size u) 1) eqn:Hsuo;
+  case (Nat.eqb (sm_size u) 2) eqn:Hsut.
+  rewrite PeanoNat.Nat.eqb_eq in Hsuo, Hsut.
+  try nia.
+  congruence.
+  rewrite PeanoNat.Nat.eqb_neq in Hsuo.
+  rewrite PeanoNat.Nat.eqb_eq in Hsut.
+  unfold square_matrix_eq_aux in * |-.
+  rewrite Hsut in Hes, Heu.
+  simpl in *.
+  rewrite <-Hes in Heu.
+  congruence.
+  congruence.
+  reflexivity.
+
+  case (square_matrix_eq eq two_by_two_matrix u) eqn:Heu.
+  rewrite <-Heu in Hes. 
+  unfold square_matrix_eq in * |-.
+  assert (Ht : (sm_size unit_matrix) = 1).
+  reflexivity.
+  rewrite Ht in Hes; clear Ht.
+  assert (Ht : (sm_size two_by_two_matrix) = 2).
+  reflexivity.
+  rewrite Ht in Hes; clear Ht.
+  case (Nat.eqb (sm_size u) 1) eqn:Hsuo;
+  case (Nat.eqb 2 (sm_size u)) eqn:Hsut.
+  rewrite PeanoNat.Nat.eqb_eq in Hsuo, Hsut.
+  try nia.
+  rewrite PeanoNat.Nat.eqb_eq in Hsuo.
+  rewrite PeanoNat.Nat.eqb_neq in Hsut.
+  unfold square_matrix_eq_aux in * |-.
+  rewrite Hsuo in Hes, Heu.
+  simpl in *.
+  congruence.
+  assert (Ht : (sm_size two_by_two_matrix) = 2).
+  reflexivity.
+  rewrite Ht in Heu; clear Ht.
+  rewrite Hsut in Heu.
+  rewrite <-Hes in Heu.
+  congruence.
+  assert (Ht : (sm_size two_by_two_matrix) = 2).
+  reflexivity.
+  rewrite Ht in Heu.
+  rewrite Hsut in Heu.
+  congruence.
+  reflexivity.
+  
+  split.
+  exact Hes.
+  unfold square_matrix_eq in *.
+  assert (Ht : (sm_size unit_matrix) = 1).
+  reflexivity.
+  rewrite Ht in Hes.
+  rewrite Ht.
+  case (Nat.eqb (sm_size u) 1) eqn:Hsuo.
+  rewrite PeanoNat.Nat.eqb_eq in Hsuo.
+  rewrite Hsuo in Hes.
+  rewrite Hsuo.
+  simpl in *. 
+  case (eq s (sm_matrix u 0 0)) eqn:Hsm.
+  apply sym in Hsm.
+  rewrite Hes in Hsm.
+  congruence.
+  reflexivity.
+  rewrite PeanoNat.Nat.eqb_neq in Hsuo.
+  case (Nat.eqb 1 (sm_size u)) eqn:Hst.
+  rewrite PeanoNat.Nat.eqb_eq in Hst.
+  nia.
+  reflexivity.
+Qed.
+
+
+
+
+Lemma brel_square_matrix_eq_not_exactly_two :  
+  brel_not_exactly_two 
+    (@square_matrix S) 
+    (@square_matrix_eq _ eq).
+Proof.
+  unfold brel_not_exactly_two.
+  apply brel_at_least_thee_implies_not_exactly_two.
+  apply brel_square_matrix_eq_symmetric.
+  apply brel_square_matrix_eq_transitive.
+  unfold brel_at_least_three.
+  exists (unit_matrix, (two_by_two_matrix, three_by_three_matrix)).
+  unfold square_matrix_eq; simpl;
+  repeat (split; try reflexivity).
+Qed.
+
+
+
+
+
+(*
+How to prove this? 
+*)
+Lemma brel_square_matrix_is_not_finite : 
+  carrier_is_not_finite 
+    (@square_matrix S) 
+    (@square_matrix_eq S eq).
+Proof.
+  unfold carrier_is_not_finite.
+  intros ?.
+Admitted.
 
 
 
@@ -409,6 +557,41 @@ Definition eqv_proofs_square_matrix_eq : forall (S : Type)
     end.
 
 
+Definition A_eqv_square_matrix_eq : forall (S : Type),
+  A_eqv S -> A_eqv (@square_matrix S).
+Proof.
+  intros ? H.
+  destruct H.
+  econstructor.
+  +
+  eapply eqv_proofs_square_matrix_eq;
+  exact A_eqv_proofs.
+  +
+  exact (@unit_matrix _ A_eqv_witness).
+  +
+  eapply brel_square_matrix_eq_not_trivial;
+  destruct A_eqv_proofs; try assumption.
+  +
+  destruct A_eqv_proofs;
+  exact (inr (brel_square_matrix_eq_not_exactly_two S A_eqv_eq 
+    A_eqv_symmetric
+    A_eqv_transitive
+    A_eqv_witness)).
+  + destruct A_eqv_proofs;
+    exact (inr (brel_square_matrix_is_not_finite S A_eqv_eq
+      A_eqv_reflexive
+      A_eqv_symmetric
+      A_eqv_transitive
+      A_eqv_witness)).
+  + admit.
+  + exact (brel_square_matrix_new S A_eqv_eq A_eqv_witness).
+  + exact A_eqv_ast.
+  
+Admitted.
+
+
+
+ 
 End ACAS. 
 
 
