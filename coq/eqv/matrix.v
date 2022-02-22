@@ -389,6 +389,26 @@ End Theory.
 
 Section ACAS.
 
+
+Definition eqv_proofs_square_matrix_eq : forall (S : Type) 
+  (r : brel S), eqv_proofs S r -> eqv_proofs _ (square_matrix_eq r) 
+  := λ (S : Type) (r : brel S) (H : eqv_proofs S r),
+    match H with
+    | {|
+        A_eqv_congruence := _;
+        A_eqv_reflexive  := Hrefl;
+        A_eqv_transitive := Htrn;
+        A_eqv_symmetric  := Hsym
+      |} =>
+            {|
+              A_eqv_congruence := brel_square_matrix_eq_congruence S r Hsym Htrn;
+              A_eqv_reflexive  := brel_square_matrix_eq_reflexive S r Hrefl;
+              A_eqv_transitive := brel_square_matrix_eq_transitive S r Htrn;
+              A_eqv_symmetric  := brel_square_matrix_eq_symmetric S r Hsym
+            |}
+    end.
+
+
 End ACAS. 
 
 
