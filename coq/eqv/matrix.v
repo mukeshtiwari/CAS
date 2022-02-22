@@ -518,7 +518,7 @@ Qed.
 
 
 (*
-How to prove this? 
+How to prove this?
 *)
 Lemma brel_square_matrix_is_not_finite : 
   carrier_is_not_finite 
@@ -583,7 +583,7 @@ Proof.
       A_eqv_symmetric
       A_eqv_transitive
       A_eqv_witness)).
-  + admit.
+  + (* circular dependency? *) admit.
   + exact (brel_square_matrix_new S A_eqv_eq A_eqv_witness).
   + exact A_eqv_ast.
   
@@ -597,6 +597,31 @@ End ACAS.
 
 Section CAS.
 
+Definition eqv_square_matrix_eq : forall {S : Type},
+  @eqv S -> @eqv (@square_matrix S).
+Proof.
+  intros ? H.
+  destruct H.
+  econstructor.
+  + exact (@square_matrix_eq S eqv_eq).
+  + econstructor.
+    ++ exact (@Assert_Brel_Congruence (@square_matrix S)).
+    ++ exact (@Assert_Reflexive (@square_matrix S)).
+    ++ exact ((@Assert_Transitive (@square_matrix S))).
+    ++ exact ((@Assert_Symmetric (@square_matrix S))).
+  + exact (@unit_matrix _ eqv_witness).
+  + exact (@brel_square_matrix_new _ eqv_eq eqv_witness).
+  + exact (Certify_Not_Exactly_Two
+    (not_ex2 (@square_matrix_eq _ eqv_eq) (@unit_matrix _ eqv_witness) 
+      (@two_by_two_matrix _ eqv_witness)
+      (@three_by_three_matrix _ eqv_witness))).
+  + exact Certify_Is_Not_Finite.
+  + admit.
+  + exact (@brel_square_matrix_new _ eqv_eq eqv_witness).  
+  + admit.
+Admitted.
+  
+  
 End CAS. 
 
 
