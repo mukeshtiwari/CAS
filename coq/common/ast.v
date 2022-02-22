@@ -2,6 +2,7 @@ Require Import CAS.coq.common.compute.
 
   
 Inductive cas_eqv_ast : Type :=
+   | Ast_eqv_ascii         : cas_eqv_ast
    | Ast_eqv_bool          : cas_eqv_ast
    | Ast_eqv_nat           : cas_eqv_ast
    | Ast_eqv_list          : cas_eqv_ast → cas_eqv_ast
