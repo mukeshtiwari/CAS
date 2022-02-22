@@ -4,6 +4,7 @@ Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
+Require Import Lia.
 Local Open Scope bool_scope.
 Local Open Scope nat_scope.
 
@@ -99,6 +100,7 @@ Proof. unfold brel_reflexive.
        + simpl. apply brel_square_matrix_eq_all_rows_reflexive. 
 Qed.          
 
+
 Lemma brel_square_matrix_eq_reflexive : 
   brel_reflexive (@square_matrix S) (square_matrix_eq eq). 
 Proof. unfold brel_reflexive.
@@ -128,6 +130,9 @@ Proof.
 Qed.
 
 
+
+
+
 Lemma brel_square_matrix_eq_all_rows_symmetric : 
   forall (n m : nat),
   brel_symmetric _ (square_matrix_eq_all_rows eq n m).
@@ -145,7 +150,9 @@ Proof.
     reflexivity.
     exact Hsql.
 Qed.  
-     
+
+
+
 
 Lemma brel_square_matrix_eq_aux_symmetric :  
   forall n, brel_symmetric _ (square_matrix_eq_aux eq n).
@@ -158,6 +165,7 @@ Proof.
     eapply brel_square_matrix_eq_all_rows_symmetric;
     assumption.
 Qed.
+
 
 
 Lemma brel_square_matrix_eq_symmetric : 
@@ -178,6 +186,84 @@ Proof.
 Qed.
   
 
+Lemma brel_square_matrix_eq_row_transitive :
+  forall (n m : nat), 
+  brel_transitive _ (square_matrix_eq_row eq n m).
+Proof.
+  unfold brel_transitive.
+  induction n; simpl.
+  + intros * Heq.
+    apply trn;
+    assumption.
+  + intros * Ha Hb.
+    apply Bool.andb_true_iff in Ha, Hb.
+    destruct Ha as [Hal Har].
+    destruct Hb as [Hbl Hbr].
+    erewrite IHn, trn.
+    reflexivity.
+    exact Hal.
+    exact Hbl.
+    exact Har.
+    exact Hbr.
+Qed.  
+
+
+Lemma brel_square_matrix_eq_all_rows_transitive : 
+  forall (n m : nat),
+  brel_transitive _ (square_matrix_eq_all_rows eq n m).
+Proof.
+  unfold brel_transitive.
+  induction n; simpl.
+  + intros ? ? ? Ha Hb.
+    eapply brel_square_matrix_eq_row_transitive;
+    assumption.
+  + intros * Ha Hb.
+    apply Bool.andb_true_iff in Ha, Hb.
+    destruct Ha as [Hal Har].
+    destruct Hb as [Hbl Hbr].
+    erewrite IHn,
+    brel_square_matrix_eq_row_transitive;
+    try reflexivity.
+    exact Hal.
+    exact Hbl.
+    exact Har.
+    exact Hbr.
+Qed.
+      
+
+Lemma brel_square_matrix_eq_aux_transitive :  
+  forall n, brel_transitive _ (square_matrix_eq_aux eq n).
+Proof.
+  unfold brel_transitive.
+  destruct n; simpl.
+  + intros ? ? ? ? ?.
+    reflexivity.
+  + intros ? ? ? Ha Hb.
+    eapply brel_square_matrix_eq_all_rows_transitive;
+    [exact Ha | exact Hb].
+Qed.
+
+Lemma brel_square_matrix_eq_transitive : 
+  brel_transitive _ (square_matrix_eq eq).
+Proof.
+  unfold brel_transitive;
+  intros * Ha Hb.
+  unfold square_matrix_eq in *.
+  case (Nat.eqb (sm_size s) (sm_size t)) eqn:Hat;
+  case (Nat.eqb (sm_size t) (sm_size u)) eqn:Hbt.
+  assert (Hn : Nat.eqb (sm_size s) (sm_size u) = true).
+  rewrite PeanoNat.Nat.eqb_eq in Hat. 
+  rewrite Hat.
+  exact Hbt.
+  rewrite Hn; clear Hn.
+  eapply brel_square_matrix_eq_aux_transitive.
+  exact Ha.
+  rewrite PeanoNat.Nat.eqb_eq in Hat. 
+  rewrite Hat.
+  exact Hb.
+  all: congruence.
+Qed.
+  
 
 
 End Theory.   
