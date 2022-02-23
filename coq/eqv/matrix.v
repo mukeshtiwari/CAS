@@ -4,7 +4,8 @@ Require Import CAS.coq.common.data.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.theory.
-Require Import Lia.
+Require Import Lia List.
+Import ListNotations.
 Local Open Scope bool_scope.
 Local Open Scope nat_scope.
 
@@ -514,12 +515,72 @@ Proof.
 Qed.
 
 
+Fixpoint compute_max_dimension 
+  (l : list (@square_matrix S)) : nat :=
+  match l with
+  | [] => 0
+  | h :: t => 
+    Nat.max (sm_size h) (compute_max_dimension t)
+  end.
+  
+
+
+Lemma max_plus_one_not_member : 
+  forall (l : list (@square_matrix S)) (m : @square_matrix S),
+  compute_max_dimension l < sm_size m ->
+  in_list (square_matrix_eq eq) l m = false.
+Proof.
+  induction l.
+  + simpl; intros * Hn.
+    reflexivity.
+  + simpl; intros * Hn.
+    assert (Ht : ((compute_max_dimension l) < (sm_size a)) 
+      \/ ((compute_max_dimension l) = (sm_size a))
+      \/ ((sm_size a) < (compute_max_dimension l))).
+    nia.
+    destruct Ht as [Ht | [Ht | Ht]].
+    assert (Hnm : Nat.max (sm_size a) (compute_max_dimension l) = 
+      (sm_size a)).
+    nia.
+    rewrite Hnm in Hn.
+    apply Bool.orb_false_iff.
+    split.
+    unfold square_matrix_eq.
+    assert (Hna: Nat.eqb (sm_size m) (sm_size a) = false).
+    apply PeanoNat.Nat.eqb_neq. nia.
+    rewrite Hna; clear Hna.
+    reflexivity.
+    apply IHl.
+    nia.
+    rewrite Ht in Hn.
+    rewrite PeanoNat.Nat.max_id in Hn.
+    apply Bool.orb_false_iff.
+    split.
+    unfold square_matrix_eq.
+    assert (Hna: Nat.eqb (sm_size m) (sm_size a) = false).
+    apply PeanoNat.Nat.eqb_neq. nia.
+    rewrite Hna; clear Hna.
+    reflexivity.
+    apply IHl.
+    nia.
+    assert (Hnm : Nat.max (sm_size a) (compute_max_dimension l) = 
+      (compute_max_dimension l)).
+    nia.
+    rewrite Hnm in Hn; clear Hnm.
+    apply Bool.orb_false_iff.
+    split.
+    unfold square_matrix_eq.
+    assert (Hna: Nat.eqb (sm_size m) (sm_size a) = false).
+    apply PeanoNat.Nat.eqb_neq. nia.
+    rewrite Hna; clear Hna.
+    reflexivity.
+    apply IHl.
+    nia.
+Qed. 
+  
 
 
 
-(*
-How to prove this?
-*)
 Lemma brel_square_matrix_is_not_finite : 
   carrier_is_not_finite 
     (@square_matrix S) 
@@ -527,7 +588,18 @@ Lemma brel_square_matrix_is_not_finite :
 Proof.
   unfold carrier_is_not_finite.
   intros ?.
-Admitted.
+  remember (f tt) as lst.
+  pose proof max_plus_one_not_member lst
+  ({| sm_size := compute_max_dimension lst + 1; sm_matrix := fun _ _ => s |}) as Ht.
+  simpl in Ht.
+  assert (Htt : compute_max_dimension lst < compute_max_dimension lst + 1).
+  nia.
+  specialize (Ht Htt); clear Htt.
+  simpl in Ht.
+  eauto.
+Qed.
+
+  
 
 
 
@@ -619,6 +691,7 @@ Proof.
   + admit.
   + exact (@brel_square_matrix_new _ eqv_eq eqv_witness).  
   + admit.
+  Show Proof.
 Admitted.
   
   
