@@ -1,6 +1,7 @@
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
+Require Import CAS.coq.common.matrix_def.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.theory.
@@ -10,16 +11,6 @@ Local Open Scope bool_scope.
 Local Open Scope nat_scope.
 
 Section Computation.
-
-(* define type matrix 
-   define = for matricies 
-*)
-
-Record square_matrix {S: Type} := 
-{
-  sm_size   : nat 
-; sm_matrix : nat -> nat -> S
-}.
 
 
 
@@ -599,10 +590,6 @@ Proof.
   eauto.
 Qed.
 
-  
-
-
-
 
 
 End Theory.   
@@ -635,33 +622,24 @@ Proof.
   intros ? H.
   destruct H.
   econstructor.
-  +
-  eapply eqv_proofs_square_matrix_eq;
-  exact A_eqv_proofs.
-  +
-  exact (@unit_matrix _ A_eqv_witness).
-  +
-  eapply brel_square_matrix_eq_not_trivial;
-  destruct A_eqv_proofs; try assumption.
-  +
-  destruct A_eqv_proofs;
-  exact (inr (brel_square_matrix_eq_not_exactly_two S A_eqv_eq 
-    A_eqv_symmetric
-    A_eqv_transitive
-    A_eqv_witness)).
+  + apply eqv_proofs_square_matrix_eq;
+    exact A_eqv_proofs.
+  + exact (@unit_matrix _ A_eqv_witness).
+  + apply brel_square_matrix_eq_not_trivial;
+    destruct A_eqv_proofs;
+    exact A_eqv_symmetric.
   + destruct A_eqv_proofs;
-    exact (inr (brel_square_matrix_is_not_finite S A_eqv_eq
-      A_eqv_reflexive
+    exact (inr (brel_square_matrix_eq_not_exactly_two S A_eqv_eq 
       A_eqv_symmetric
       A_eqv_transitive
       A_eqv_witness)).
-  + (* circular dependency? *) admit.
+  + exact (inr (brel_square_matrix_is_not_finite S A_eqv_eq A_eqv_witness)).
+  + apply DATA_square_matrix.
   + exact (brel_square_matrix_new S A_eqv_eq A_eqv_witness).
   + exact A_eqv_ast.
-  
-Admitted.
-
-
+  Unshelve.
+  exact A_eqv_witness.
+Defined.
 
  
 End ACAS. 
@@ -688,17 +666,18 @@ Proof.
       (@two_by_two_matrix _ eqv_witness)
       (@three_by_three_matrix _ eqv_witness))).
   + exact Certify_Is_Not_Finite.
-  + admit.
+  + eapply DATA_square_matrix.
   + exact (@brel_square_matrix_new _ eqv_eq eqv_witness).  
-  + admit.
-  Show Proof.
-Admitted.
+  + exact Ast_eqv_matrix.
+Defined.
   
   
 End CAS. 
 
 
 Section Verify.
+
+  
 
 
 End Verify. 

@@ -5,6 +5,7 @@ Inductive cas_eqv_ast : Type :=
    | Ast_eqv_ascii         : cas_eqv_ast
    | Ast_eqv_bool          : cas_eqv_ast
    | Ast_eqv_nat           : cas_eqv_ast
+   | Ast_eqv_matrix        : cas_eqv_ast       
    | Ast_eqv_list          : cas_eqv_ast → cas_eqv_ast
    | Ast_eqv_set           : cas_eqv_ast → cas_eqv_ast
    | Ast_eqv_product       : cas_eqv_ast * cas_eqv_ast → cas_eqv_ast

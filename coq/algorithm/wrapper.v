@@ -1,6 +1,7 @@
 
 Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute. 
+Require Import CAS.coq.common.matrix_def.
 Require Import CAS.coq.algorithm.Matrix.
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
@@ -126,12 +127,13 @@ Qed.
   
 
 
-
+(*
 Record square_matrix (A : Type) := mk_square_matrix {
   size : nat;
   mat : nat -> nat -> A;
   algebra : @bs_mcas A
 }.
+*)
 
 
 Fixpoint list_enum (n : nat) : list nat :=
@@ -142,16 +144,20 @@ Fixpoint list_enum (n : nat) : list nat :=
   
 
 Definition call_instantiate_matrix_exp_unary_curry (A : Type) (alg : @bs_mcas A) 
-  : (square_matrix A -> square_matrix A) + (list string).
+  : (@square_matrix A -> @square_matrix A) + (list string).
   refine(
   let insmat := @instantiate_matrix_exp_unary_curry A alg nat in
   match insmat with
   | inr x => inr x
   | inl mp => inl (fun ms => _)
   end).
-  exact (mk_square_matrix _ (size _ ms) 
+  exact ({|sm_size := (sm_size ms);
+    sm_matrix := (mp (List.rev (list_enum (sm_size ms))) Nat.eqb (sm_matrix ms) (Nat.sub (sm_size ms) 1)) |}).
+  (*
+    exact (mk_square_matrix _ (size _ ms) 
     (mp (List.rev (list_enum (size _ ms))) Nat.eqb (mat _ ms) (Nat.sub (size _ ms) 1))
-    (algebra _ ms)).
+    (algebra _ ms)). 
+  *)
 Defined.
 
 
