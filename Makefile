@@ -34,6 +34,7 @@ CAS=\
    coq/eqv/structures.v \
    coq/eqv/theory.v \
    coq/eqv/nat.v \
+   coq/eqv/matrix.v  \
    coq/eqv/bool.v \
    coq/eqv/list.v \
    coq/eqv/set.v \
