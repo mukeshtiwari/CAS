@@ -230,7 +230,7 @@ Definition A2C_poltr (L S : Type) (A : A_poltr L S) :=
 ; poltr_label            := A2C_eqv _ (A_poltr_label _ _ A) 
 ; poltr_lte              := A_poltr_lte _ _ A 
 ; poltr_ltr              := A_poltr_ltr _ _ A 
-; poltr_lte_certs        := P2C_po _ _ _ (A_poltr_lte_proofs _ _ A) 
+; poltr_lte_certs        := P2C_po _ _ (A_poltr_lte_proofs _ _ A) 
 ; poltr_ltr_certs        := P2C_ltr _ _ _ _ _ (A_poltr_ltr_proofs _ _ A) 
 ; poltr_top_bottom_certs := P2C_top_bottom _ _ _ (A_poltr_top_bottom_proofs _ _ A) 
 ; poltr_certs            := P2C_oltr _ _ _ _ (A_poltr_proofs _ _ A) 
@@ -266,7 +266,7 @@ Definition A2C_qoltr_monotone_strictly_increasing (L S : Type) (Q : A_qoltr_mono
 ; qoltr_msi_label        := A2C_eqv L (A_qoltr_msi_label L S Q) 
 ; qoltr_msi_lte          := A_qoltr_msi_lte L S Q
 ; qoltr_msi_ltr          := A_qoltr_msi_ltr L S Q
-; qoltr_msi_lte_certs    := P2C_qo S _ _ (A_qoltr_msi_lte_proofs L S Q)
+; qoltr_msi_lte_certs    := P2C_qo _ _ (A_qoltr_msi_lte_proofs L S Q)
 ; qoltr_msi_ltr_certs    := P2C_ltr L S _ _ _ (A_qoltr_msi_ltr_proofs L S Q)
 ; qoltr_msi_bottom_certs := P2C_with_bottom _ _ _ (A_qoltr_msi_bottom_proofs L S Q)
 ; qoltr_msi_certs        := P2C_qoltr_msi L S _ _ (A_qoltr_msi_proofs L S Q)
@@ -280,7 +280,7 @@ Definition A2C_woltr_monotone_strictly_increasing (L S : Type) (Q : A_woltr_mono
 ; woltr_msi_label        := A2C_eqv L (A_woltr_msi_label L S Q) 
 ; woltr_msi_lte          := A_woltr_msi_lte L S Q
 ; woltr_msi_ltr          := A_woltr_msi_ltr L S Q
-; woltr_msi_lte_certs    := P2C_wo S _ _ (A_woltr_msi_lte_proofs L S Q)
+; woltr_msi_lte_certs    := P2C_wo _ _ (A_woltr_msi_lte_proofs L S Q)
 ; woltr_msi_ltr_certs    := P2C_ltr L S _ _ _ (A_woltr_msi_ltr_proofs L S Q)
 ; woltr_msi_bottom_certs := P2C_with_bottom _ _ _ (A_woltr_msi_bottom_proofs L S Q)                                    
 ; woltr_msi_certs        := P2C_qoltr_msi L S _ _ (A_woltr_msi_proofs L S Q)
@@ -299,7 +299,7 @@ Definition A2C_poltr_monotone_increasing (L S : Type) (P : A_poltr_monotone_incr
 ; poltr_mi_label       := A2C_eqv L (A_poltr_mi_label L S P) 
 ; poltr_mi_lte         := A_poltr_mi_lte L S P 
 ; poltr_mi_ltr         := A_poltr_mi_ltr L S P 
-; poltr_mi_lte_certs   := P2C_po S _ _  (A_poltr_mi_lte_proofs L S P)
+; poltr_mi_lte_certs   := P2C_po _ _  (A_poltr_mi_lte_proofs L S P)
 ; poltr_mi_ltr_certs   := P2C_ltr L S _ _  _ (A_poltr_mi_ltr_proofs L S P)
 ; poltr_mi_bottom_certs := P2C_with_bottom _ _ _ (A_poltr_mi_bottom_proofs L S P)                                                                      
 ; poltr_mi_certs       := P2C_poltr_mi L S _ _ (A_poltr_mi_proofs L S P) 

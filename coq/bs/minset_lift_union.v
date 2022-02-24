@@ -933,8 +933,9 @@ Record A_bounded_join_semilattice {S : Type} := {
 ; A_bjsl_ast           : cas_ast
 }.
 *) 
-
-
+End Combinators. 
+End ACAS.   
+(*
 Definition A_minset_lift_union_from_bounded_join_semilattice
              (S : Type) 
              (P : A_bounded_join_semilattice S) : A_dioid (finite_set S) := 
@@ -994,3 +995,4 @@ let Meqv   := A_eqv_minset_from_po _ PO  in
 
 End Combinators. 
 End ACAS.   
+*) 

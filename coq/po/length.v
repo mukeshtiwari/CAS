@@ -9,14 +9,18 @@ Require Import CAS.coq.po.structures.
 
 
 Require Import CAS.coq.eqv.list.
-Require Import CAS.coq.po.lte_nat.
+Require Import CAS.coq.eqv.nat. 
+Require Import CAS.coq.sg.properties. 
+Require Import CAS.coq.sg.min. 
 
 Open Scope list_scope.
 
 Section Compute.
 
 Definition brel_length {S : Type} :  brel (list S)  :=
-   λ l1 l2 , brel_lte_nat (length l1) (length l2).  
+  λ l1 l2 ,
+  let n1 := (length l1) in
+  let n2 := (length l2) in brel_eq_nat n1 (bop_min n1 n2). 
 
 End Compute.   
 
@@ -25,27 +29,54 @@ Section Theory.
 Variable S  : Type.
 Variable eq : brel S.
 Variable wS : S.
-  
+
+
+Lemma length_congruence (l1 l2 : list S) (P : brel_list eq l1 l2 = true) : brel_eq_nat (length l1) (length l2) = true.
+Proof. induction l1.
+       + compute in P. destruct l2.
+         ++ apply brel_eq_nat_reflexive. 
+         ++ discriminate P. 
+       +  destruct l2.
+          ++ compute in P. discriminate P. 
+          ++ unfold length. fold (length l1). fold (length l2). 
+             unfold brel_list in P.
+Admitted.              
+
 
 Lemma brel_length_congruence : brel_congruence (list S) (brel_list eq) brel_length. 
+Proof. unfold brel_congruence, brel_length.
+       intros s t u v A B. 
 Admitted. 
 
 Lemma brel_length_reflexive : brel_reflexive (list S) brel_length. 
-Proof. intros a. unfold brel_length. apply brel_lte_nat_reflexive; auto. Qed. 
+Proof. intros a. unfold brel_length.
+       assert (A := bop_min_idempotent (length a)).
+       assert (B := brel_eq_nat_reflexive (length a)). 
+       assert (C := brel_eq_nat_congruence _ _ _ _ B A).
+       rewrite C. exact B. 
+Qed. 
 
 Lemma brel_length_transitive : brel_transitive (list S) brel_length. 
-Proof. intros a b c. unfold brel_length. apply brel_lte_nat_transitive; auto. Qed. 
+Proof. unfold brel_length. intros a b c A B.
+Admitted. 
 
 Lemma brel_length_not_antisymmetric (f  : S -> S) (nt : brel_not_trivial S eq f):
      brel_not_antisymmetric (list S) (brel_list eq) brel_length. 
-Proof. exists (wS :: nil, (f wS) :: nil). compute; intros; auto.
-       destruct (nt wS) as [A B]. rewrite A. auto. 
+Proof. exists (wS :: nil, (f wS) :: nil). compute; intros; auto. split. auto. 
+       destruct (nt wS) as [A B]. rewrite A. reflexivity. 
 Defined. 
 
 
 Lemma brel_length_total : brel_total (list S) brel_length. 
-Proof. intros a b. unfold brel_length. apply brel_lte_nat_total. Qed. 
-
+Proof. intros a b. unfold brel_length.
+       assert (A := bop_min_commutative (length a) (length b)).
+       destruct (bop_min_selective (length a) (length b)) as [B | B]. 
+       + left. apply brel_eq_nat_symmetric. exact B. 
+       + right. apply brel_eq_nat_symmetric. 
+         assert (C := brel_eq_nat_congruence _ _ _ _ A (brel_eq_nat_reflexive (length b))).         
+         rewrite B in C. rewrite <- C. reflexivity. 
+Qed. 
+         
 Lemma brel_length_empty_is_bottom : brel_is_bottom (list S) brel_length nil.
 Proof. intro l. compute; auto. Qed. 
 
@@ -58,10 +89,16 @@ Lemma brel_length_exists_qo_bottom : brel_exists_qo_bottom (list S) (brel_list e
 Proof. exists nil. apply brel_length_empty_is_qo_bottom.  Defined. 
 
 Lemma brel_length_not_exists_qo_top : brel_not_exists_qo_top (list S) (brel_list eq) brel_length. 
-Proof. intros l. left. exists (wS :: l). induction l. 
-          compute; auto. 
+Proof. intros l. left. unfold brel_not_is_top. exists (wS :: l). induction l. 
+       + compute; auto. 
+       + assert (A : brel_length (wS :: a :: l) = brel_length (a :: wS :: l)). admit.
+         rewrite A.
+         assert (B : brel_length (a :: wS :: l) (a :: l) = brel_length (wS :: l) l). admit.
+         rewrite B. exact IHl. 
 Admitted. 
 
+Lemma brel_length_not_trivial : order_not_trivial (list S) brel_length. 
+Proof. exists (wS :: nil, nil). compute. reflexivity. Defined. 
 
 End Theory.
 
@@ -72,31 +109,33 @@ Definition wo_proofs_length (S : Type) (eq : brel S) (wS : S) (f : S → S) (nt 
 {|
   A_wo_congruence    := brel_length_congruence S eq wS 
 ; A_wo_reflexive     := brel_length_reflexive S 
-; A_wo_transitive    := brel_length_transitive S 
+; A_wo_transitive    := brel_length_transitive S eq wS
 ; A_wo_not_antisymmetric := brel_length_not_antisymmetric S eq wS f nt
 ; A_wo_total         := brel_length_total S
+; A_wo_trivial_d      := inr (brel_length_not_trivial S wS)
 |}. 
 
 
 
-Definition A_wo_length (S : Type): A_eqv S -> A_wo (list S)
+Definition A_order_length (S : Type): A_eqv S -> A_wo_with_bottom (list S)
 := λ eqv,
   let wS := A_eqv_witness S eqv in
   let f  := A_eqv_new S eqv in
   let nt := A_eqv_not_trivial S eqv in      
   let eq := A_eqv_eq S eqv in
   {| 
-     A_wo_eqv             := A_eqv_list S eqv 
-   ; A_wo_lte             := brel_length
-   ; A_wo_exists_top_d    := inr (brel_length_not_exists_qo_top S eq wS)
-   ; A_wo_exists_bottom   := brel_length_exists_qo_bottom S eq                                  
-   ; A_wo_proofs          := wo_proofs_length S eq wS f nt
-   ; A_wo_ast             := Ast_or_length (A_eqv_ast S eqv)
+     A_wo_wb_eqv            := A_eqv_list S eqv 
+   ; A_wo_wb_lte            := brel_length
+   ; A_wo_wb_not_exists_top := brel_length_not_exists_qo_top S eq wS
+   ; A_wo_wb_exists_bottom   := brel_length_exists_qo_bottom S eq                                  
+   ; A_wo_wb_proofs          := wo_proofs_length S eq wS f nt
+   ; A_wo_wb_ast             := Ast_or_length (A_eqv_ast S eqv)
    |}. 
 
 End ACAS.
  
 
+(*
 Section CAS.
 
 Definition wo_certs_length {S : Type} (wS : S) (f : S -> S) : @wo_certificates (list S) := 
@@ -146,4 +185,4 @@ Qed.
 
 
 End Verify.   
-  
+*)   

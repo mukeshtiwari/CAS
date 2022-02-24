@@ -597,5 +597,85 @@ Qed.
 
 (***************************************************)
 
+(* a few trivial lemmas needed in classify in po/structures.v and po/cast_up.v 
+*)
+
+(* for classify : *)
+Lemma brel_exists_bottom_from_brel_exists_qo_bottom
+      (P : brel_exists_qo_bottom S eq lte) : brel_exists_bottom S lte.
+Proof. destruct P as [bot [A B]]. exists bot; auto. Defined. 
+
+Lemma brel_not_exists_bottom_from_brel_not_exists_qo_bottom
+      (anti : brel_antisymmetric S eq lte) 
+      (P : brel_not_exists_qo_bottom S eq lte) : brel_not_exists_bottom S lte.
+Proof. intro b. 
+       destruct (P b) as [Q | Q].
+       + exact Q. 
+       + destruct Q as [a [[A B] C]].
+         rewrite (anti b a A B) in C.
+         discriminate C. 
+Defined.
+
+Lemma brel_exists_top_from_brel_exists_qo_top
+     (P : brel_exists_qo_top S eq lte) : brel_exists_top S lte.
+Proof. destruct P as [top [A B]]. exists top; auto. Defined. 
+
+Lemma brel_not_exists_top_from_brel_not_exists_qo_top
+      (anti : brel_antisymmetric S eq lte) 
+      (P : brel_not_exists_qo_top S eq lte) : brel_not_exists_top S lte.
+Proof. intro b. 
+       destruct (P b) as [Q | Q].
+       + exact Q. 
+       + destruct Q as [a [[A B] C]].
+         rewrite (anti b a A B) in C.
+         discriminate C. 
+Defined.
+
+(* other direction for cast_up : *) 
+Lemma brel_exists_qo_bottom_from_brel_exists_bottom
+      (anti : brel_antisymmetric S eq lte)       
+      (P : brel_exists_bottom S lte) : brel_exists_qo_bottom S eq lte.
+Proof. destruct P as [bot A]. exists bot. split; auto. 
+       exact (anti bot). 
+Defined. 
+
+Lemma brel_not_exists_qo_bottom_from_brel_not_exists_bottom
+      (P : brel_not_exists_bottom S lte) : brel_not_exists_qo_bottom S eq lte.
+Proof. intro b. left. exact (P b).  Defined. 
+
+Lemma brel_exists_qo_top_from_brel_exists_top
+      (anti : brel_antisymmetric S eq lte)       
+      (P : brel_exists_top S lte) : brel_exists_qo_top S eq lte.
+Proof. destruct P as [top A]. exists top. split; auto. 
+       exact (anti top). 
+Defined. 
+
+
+Lemma brel_not_exists_qo_top_from_brel_not_exists_top
+      (P : brel_not_exists_top S lte) : brel_not_exists_qo_top S eq lte.
+Proof. intro b. left. exact (P b).  Defined. 
+
+(* triviality *)
+
+Lemma order_trivial_implies_total (TS : order_trivial S lte) : brel_total S lte. 
+Proof. intros s1 s2. rewrite (TS s1 s2). left. reflexivity. Qed.        
+
+Lemma order_not_total_implies_not_trivial (TS : brel_not_total S lte) : order_not_trivial S lte. 
+Proof. destruct TS as [[s1 s2] [A B]]. exists (s1, s2). exact A.  Defined.   
+
+Definition witness_antisymmetric_implies_order_not_trivial (wS : S) (f : S -> S) :=
+  if lte wS (f wS) then (f wS, wS) else (wS, f wS).
+
+Lemma antisymmetric_implies_order_not_trivial (wS : S) (f : S -> S) (nt : brel_not_trivial S eq f) 
+      (anti : brel_antisymmetric S eq lte) : order_not_trivial S lte.
+Proof. exists (witness_antisymmetric_implies_order_not_trivial wS f). 
+       destruct (nt wS) as [L R].
+       unfold witness_antisymmetric_implies_order_not_trivial.               
+       case_eq(lte wS (f wS)); intro A. 
+       + case_eq(lte (f wS) wS); intro B. 
+         ++ rewrite (anti wS (f wS) A B) in L. discriminate L. 
+         ++ reflexivity. 
+       + exact A.          
+Defined.   
  
 End Theory. 

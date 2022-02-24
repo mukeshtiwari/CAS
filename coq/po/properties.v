@@ -126,8 +126,7 @@ Definition brel_not_exists_qo_bottom (S : Type) (eq lte : brel S)
     := ∀ b : S, brel_not_is_qo_bottom S eq lte b.
 
 Definition brel_exists_qo_bottom_decidable  (S : Type) (eq lte : brel S) := 
-    (brel_exists_qo_bottom S eq lte) + (brel_not_exists_qo_bottom S eq lte). 
-
+  (brel_exists_qo_bottom S eq lte) + (brel_not_exists_qo_bottom S eq lte).
 
 (* Top for quasi-orders*)
 Definition brel_is_qo_top (S : Type) (eq lte : brel S) (b : S) 
@@ -143,8 +142,20 @@ Definition brel_not_exists_qo_top (S : Type) (eq lte : brel S)
     := ∀ b : S, brel_not_is_qo_top S eq lte b.
 
 Definition brel_exists_qo_top_decidable  (S : Type) (eq lte : brel S) := 
-    (brel_exists_qo_top S eq lte) + (brel_not_exists_qo_top S eq lte). 
+  (brel_exists_qo_top S eq lte) + (brel_not_exists_qo_top S eq lte).
 
+
+(* triviality *)
+
+Definition order_trivial (S : Type) (r : brel S) 
+    := ∀ s t : S, (r s t = true). 
+
+Definition order_not_trivial (S : Type) (r : brel S) 
+   := { z : S * S & match z with (s, t) =>  (r s t = false) end}. 
+
+
+Definition order_trivial_decidable (S : Type) (r : brel S) := 
+   (order_trivial S r) + (order_not_trivial S r).
 
 
 (*  Needed? 
@@ -205,39 +216,6 @@ Inductive assert_antisymmetric {S : Type} :=
 Inductive assert_not_antisymmetric {S : Type} := 
 | Assert_Not_Antisymmetric : (S * S) → @assert_not_antisymmetric S. 
   
-
-Inductive certify_exists_qo_bottom {S : Type} := 
-| Certify_Exists_Qo_Bottom : S → @certify_exists_qo_bottom S
-| Certify_Not_Exists_Qo_Bottom : @certify_exists_qo_bottom S. 
-
-Inductive assert_exists_qo_bottom {S : Type} := 
-| Assert_Exists_Qo_Bottom : S → @assert_exists_qo_bottom S.
-  
-Inductive certify_exists_qo_top {S : Type} := 
-| Certify_Exists_Qo_Top : S → @certify_exists_qo_top S
-| Certify_Not_Exists_Qo_Top : @certify_exists_qo_top S. 
-
-Inductive assert_exists_qo_top {S : Type} := 
-| Assert_Exists_Qo_Top : S → @assert_exists_qo_top S.
-
-
-
-Inductive certify_exists_bottom {S : Type} := 
-| Certify_Exists_Bottom : S → @certify_exists_bottom S
-| Certify_Not_Exists_Bottom : @certify_exists_bottom S. 
-
-Inductive assert_exists_bottom {S : Type} := 
-| Assert_Exists_Bottom : S → @assert_exists_bottom S.
-  
-Inductive certify_exists_top {S : Type} := 
-| Certify_Exists_Top : S → @certify_exists_top S
-| Certify_Not_Exists_Top : @certify_exists_top S. 
-
-Inductive assert_exists_top {S : Type} := 
-| Assert_Exists_Top : S → @assert_exists_top S.
-
-
-
 Inductive certify_total {S : Type} := 
 | Certify_Total : @certify_total S
 | Certify_Not_Total : (S * S) → @certify_total S. 
@@ -248,7 +226,6 @@ Inductive assert_total {S : Type} :=
 Inductive assert_not_total {S : Type} := 
 | Assert_Not_Total : (S * S) → @assert_not_total S. 
 
-
 Inductive assert_asymmetric {S : Type} := 
 | Assert_Asymmetric : assert_asymmetric (S := S). 
 
@@ -257,115 +234,143 @@ Inductive certify_asymmetric {S : Type} :=
 | Certify_Not_Asymmetric : (S * S) → certify_asymmetric (S := S). 
 
 
+
+Inductive assert_exists_qo_top {S : Type} := 
+| Assert_Exists_Qo_Top : S → @assert_exists_qo_top S.
+
+Inductive assert_not_exists_qo_top {S : Type} := 
+| Assert_Not_Exists_Qo_Top : @assert_not_exists_qo_top S.
+
+Inductive assert_exists_qo_bottom {S : Type} := 
+| Assert_Exists_Qo_Bottom : S → @assert_exists_qo_bottom S.
+
+Inductive assert_not_exists_qo_bottom {S : Type} := 
+| Assert_Not_Exists_Qo_Bottom : @assert_not_exists_qo_bottom S.
+
+Inductive certify_exists_qo_top {S : Type} := 
+| Certify_Exists_Qo_Top : S → @certify_exists_qo_top S
+| Certify_Not_Exists_Qo_Top : @certify_exists_qo_top S. 
+
+Inductive certify_exists_qo_bottom {S : Type} := 
+| Certify_Exists_Qo_Bottom : S → @certify_exists_qo_bottom S
+| Certify_Not_Exists_Qo_Bottom : @certify_exists_qo_bottom S. 
+
+
+Inductive assert_exists_top {S : Type} := 
+| Assert_Exists_Top : S → @assert_exists_top S.
+
+Inductive assert_not_exists_top {S : Type} := 
+| Assert_Not_Exists_Top : @assert_not_exists_top S.
+
+Inductive assert_exists_bottom {S : Type} := 
+| Assert_Exists_Bottom : S → @assert_exists_bottom S.
+
+Inductive assert_not_exists_bottom {S : Type} := 
+| Assert_Not_Exists_Bottom : @assert_not_exists_bottom S.
+
+Inductive certify_exists_top {S : Type} := 
+| Certify_Exists_Top : S → @certify_exists_top S
+| Certify_Not_Exists_Top : @certify_exists_top S.
+
+Inductive certify_exists_bottom {S : Type} := 
+| Certify_Exists_Bottom : S → @certify_exists_bottom S
+| Certify_Not_Exists_Bottom : @certify_exists_bottom S. 
+
 Inductive certify_bottoms_finite {S : Type} := 
 | Certify_Bottoms_Finite : ((unit -> list S) * (S -> S))  → certify_bottoms_finite (S := S)
-| Certify_Not_Bottoms_Finite : ((list S) -> S) -> certify_bottoms_finite (S := S). 
+| Certify_Not_Bottoms_Finite : ((list S) -> S) -> certify_bottoms_finite (S := S).
+
+
+
+Inductive order_trivial_certifiable {S : Type} :=
+  | Certify_Order_Trivial     : @order_trivial_certifiable S
+  | Certify_Order_Not_Trivial : S * S -> @order_trivial_certifiable S. 
+
 
 End CAS.
 
 Section Translation.
 
-Definition p2c_antisymmetric_check : ∀ (S : Type) (eq lte : brel S), 
-       brel_antisymmetric_decidable S eq lte -> @certify_antisymmetric S 
-:= λ S eq lte d, 
+Variables (S : Type) (eq lte : brel S).   
+
+Definition p2c_order_trivial_certificate (d : order_trivial_decidable S lte) : @order_trivial_certifiable S  :=
+match d with     
+| inl _     =>  Certify_Order_Trivial
+| inr p     =>  Certify_Order_Not_Trivial (projT1 p)   
+end.
+
+Definition p2c_antisymmetric_check (d : brel_antisymmetric_decidable S eq lte) : @certify_antisymmetric S := 
   match d with
    | inl _ => Certify_Antisymmetric 
    | inr p => Certify_Not_Antisymmetric (projT1 p)   
    end. 
 
-Definition p2c_antisymmetric_assert : ∀ (S : Type) (eq lte : brel S), 
-       brel_antisymmetric S eq lte -> @assert_antisymmetric S 
-:= λ S eq lte NA, Assert_Antisymmetric. 
+Definition p2c_antisymmetric_assert (d : brel_antisymmetric S eq lte) : @assert_antisymmetric S := 
+        Assert_Antisymmetric. 
 
-Definition p2c_not_antisymmetric_assert : ∀ (S : Type) (eq lte : brel S), 
-       brel_not_antisymmetric S eq lte -> @assert_not_antisymmetric S 
-:= λ S eq lte NA, Assert_Not_Antisymmetric (projT1 NA).    
+Definition p2c_not_antisymmetric_assert (p : brel_not_antisymmetric S eq lte) : @assert_not_antisymmetric S := 
+        Assert_Not_Antisymmetric (projT1 p).    
 
-
-
-Definition p2c_exists_qo_bottom_check : ∀ (S : Type) (eq lte : brel S), 
-       brel_exists_qo_bottom_decidable S eq lte -> @certify_exists_qo_bottom S 
-:= λ S eq lte d, 
-  match d with
-   | inl p  => Certify_Exists_Qo_Bottom (projT1 p)   
-   | inr _  => Certify_Not_Exists_Qo_Bottom
-   end. 
-
-Definition p2c_exists_qo_bottom_assert : ∀ (S : Type) (eq lte : brel S),
-       brel_exists_qo_bottom S eq lte -> @assert_exists_qo_bottom S     
-:= λ S eq lte B, Assert_Exists_Qo_Bottom (projT1 B).    
-
-
-Definition p2c_exists_qo_top_check : ∀ (S : Type) (eq lte : brel S), 
-       brel_exists_qo_top_decidable S eq lte -> @certify_exists_qo_top S 
-:= λ S eq lte d, 
-  match d with
-   | inl p  => Certify_Exists_Qo_Top (projT1 p)   
-   | inr _  => Certify_Not_Exists_Qo_Top
-   end. 
-
-Definition p2c_exists_qo_top_assert : ∀ (S : Type) (eq lte : brel S),
-       brel_exists_qo_top S eq lte -> @assert_exists_qo_top S     
-:= λ S eq lte B, Assert_Exists_Qo_Top (projT1 B).    
-
-
-
-Definition p2c_exists_bottom_check : ∀ (S : Type) (lte : brel S), 
-       brel_exists_bottom_decidable S lte -> @certify_exists_bottom S 
-:= λ S lte d, 
-  match d with
-   | inl p  => Certify_Exists_Bottom (projT1 p)   
-   | inr _  => Certify_Not_Exists_Bottom
-   end. 
-
-Definition p2c_exists_bottom_assert : ∀ (S : Type) (lte : brel S),
-       brel_exists_bottom S lte -> @assert_exists_bottom S     
-:= λ S lte B, Assert_Exists_Bottom (projT1 B).    
-
-
-Definition p2c_exists_top_check : ∀ (S : Type) (lte : brel S), 
-       brel_exists_top_decidable S lte -> @certify_exists_top S 
-:= λ S lte d, 
-  match d with
-   | inl p  => Certify_Exists_Top (projT1 p)   
-   | inr _  => Certify_Not_Exists_Top
-   end. 
-
-Definition p2c_exists_top_assert : ∀ (S : Type) (lte : brel S),
-       brel_exists_top S lte -> @assert_exists_top S     
-:= λ S lte B, Assert_Exists_Top (projT1 B).    
-
-
-
-
-
-
-Definition p2c_total_check : ∀ (S : Type) (lte : brel S), 
-       brel_total_decidable S lte -> @certify_total S 
-:= λ S lte d, 
+Definition p2c_total_check (d : brel_total_decidable S lte) : @certify_total S := 
   match d with
    | inl _             => @Certify_Total S
    | inr p => Certify_Not_Total (projT1 p)
    end. 
 
-Definition p2c_total_assert : ∀ (S : Type) (lte : brel S), 
-       brel_total S lte -> @assert_total S 
-:= λ S lte d, @Assert_Total S. 
+Definition p2c_total_assert (d : brel_total S lte) : @assert_total S := @Assert_Total S. 
 
-Definition p2c_not_total_assert : ∀ (S : Type) (lte : brel S), 
-       brel_not_total S lte -> @assert_not_total S 
-:= λ S lte d, Assert_Not_Total (projT1 d).  
+Definition p2c_not_total_assert (d : brel_not_total S lte) : @assert_not_total S := Assert_Not_Total (projT1 d).  
 
+Definition p2c_exists_qo_top_assert (d : brel_exists_qo_top S eq lte) : @assert_exists_qo_top S := 
+   Assert_Exists_Qo_Top (projT1 d).    
 
-Definition p2c_bottoms_finite_check : ∀ (S : Type) (eq lte : brel S), 
-       bottoms_finite_decidable S eq lte -> @certify_bottoms_finite S 
-:= λ S eq lte d, 
+Definition p2c_not_exists_qo_top_assert (d : brel_not_exists_qo_top S eq lte) : @assert_not_exists_qo_top S := 
+  Assert_Not_Exists_Qo_Top.    
+
+Definition p2c_exists_qo_bottom_assert (d : brel_exists_qo_bottom S eq lte) : @assert_exists_qo_bottom S := 
+  Assert_Exists_Qo_Bottom (projT1 d).    
+
+Definition p2c_not_exists_qo_bottom_assert (d : brel_not_exists_qo_bottom S eq lte) : @assert_not_exists_qo_bottom S := 
+  Assert_Not_Exists_Qo_Bottom.    
+
+Definition p2c_exists_qo_top_check (d : brel_exists_qo_top_decidable S eq lte) : @certify_exists_qo_top S := 
+  match d with
+   | inl p  => Certify_Exists_Qo_Top (projT1 p)   
+   | inr _  => Certify_Not_Exists_Qo_Top
+   end. 
+
+Definition p2c_exists_qo_bottom_check (d : brel_exists_qo_bottom_decidable S eq lte) : @certify_exists_qo_bottom S := 
+  match d with
+   | inl p  => Certify_Exists_Qo_Bottom (projT1 p)   
+   | inr _  => Certify_Not_Exists_Qo_Bottom
+   end. 
+
+Definition p2c_exists_top_assert (d : brel_exists_top S lte) : @assert_exists_top S := Assert_Exists_Top (projT1 d).    
+
+Definition p2c_not_exists_top_assert (d : brel_not_exists_top S lte) : @assert_not_exists_top S := Assert_Not_Exists_Top.    
+
+Definition p2c_exists_bottom_assert (d : brel_exists_bottom S lte) : @assert_exists_bottom S := 
+  Assert_Exists_Bottom (projT1 d).    
+
+Definition p2c_not_exists_bottom_assert (d : brel_not_exists_bottom S lte) : @assert_not_exists_bottom S := 
+    Assert_Not_Exists_Bottom.    
+
+Definition p2c_exists_top_check (d : brel_exists_top_decidable S lte) : @certify_exists_top S := 
+  match d with
+   | inl p  => Certify_Exists_Top (projT1 p)   
+   | inr _  => Certify_Not_Exists_Top
+   end. 
+
+Definition p2c_exists_bottom_check (d : brel_exists_bottom_decidable S lte) : @certify_exists_bottom S := 
+  match d with
+   | inl p  => Certify_Exists_Bottom (projT1 p)   
+   | inr _  => Certify_Not_Exists_Bottom
+   end. 
+
+Definition p2c_bottoms_finite_check (d : bottoms_finite_decidable S eq lte) : @certify_bottoms_finite S := 
   match d with
    | inl p  => Certify_Bottoms_Finite (projT1 p)   
    | inr p  => Certify_Not_Bottoms_Finite (projT1 p)   
    end. 
 
-
-
-  
 End Translation.  

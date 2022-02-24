@@ -32,6 +32,8 @@ CAS=\
    coq/eqv/properties.v \
    coq/eqv/structures.v \
    coq/eqv/theory.v \
+   coq/eqv/ascii.v \
+   coq/eqv/string.v \
    coq/eqv/nat.v \
    coq/eqv/bool.v \
    coq/eqv/list.v \

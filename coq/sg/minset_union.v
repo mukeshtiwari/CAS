@@ -1,3 +1,4 @@
+Require Import Coq.Strings.String.
 Require Import Coq.Lists.List.
 
 Require Import CAS.coq.common.compute.
@@ -17,6 +18,7 @@ Require Import CAS.coq.sg.union.
 
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
+Require Import CAS.coq.po.cast_up. 
 Require Import CAS.coq.po.theory.
 Require Import CAS.coq.po.subset.
 Require Import CAS.coq.po.minset_subset.
@@ -1421,35 +1423,6 @@ let tot        := A_po_not_total S rS lteS poS in
 ; A_sg_CI_not_selective        := bop_minset_union_not_selective S rS refS symS tranS lteS lteCong lteRefl lteTran tot 
 |}. 
 
-
-Definition A_sg_minset_union_from_po : ∀ (S : Type),  A_po S -> A_sg_BCI (finite_set S)
-  := λ S po,
-  let eqvS := A_po_eqv S po in
-  let botP := A_po_exists_bottom S po in 
-  let eqP  := A_eqv_proofs _ eqvS in
-  let congS := A_eqv_congruence _ _ eqP in    
-  let refS := A_eqv_reflexive _ _ eqP in
-  let symS := A_eqv_symmetric _ _ eqP in
-  let tranS := A_eqv_transitive _ _ eqP in
-  let eq   := A_eqv_eq _ eqvS in  
-  let s    := A_eqv_witness _ eqvS in
-  let f    := A_eqv_new _ eqvS in
-  let ntS  := A_eqv_not_trivial _ eqvS in
-  let lteS := A_po_lte _ po in
-  let poP  := A_po_proofs _ po in
-  let lteCong    := A_po_congruence _ _ _ poP in
-  let lteRefl    := A_po_reflexive _ _ _ poP in
-  let lteTran    := A_po_transitive _ _ _ poP in
-  let anti       := A_po_antisymmetric _ _ _ poP in
-  {| 
-     A_sg_BCI_eqv          := A_eqv_minset_from_po S po   
-   ; A_sg_BCI_bop          := bop_minset_union S eq lteS
-   ; A_sg_BCI_exists_id    := bop_minset_union_exists_id S eq refS symS tranS lteS lteCong lteRefl lteTran
-   ; A_sg_BCI_exists_ann   := bop_minset_union_exists_ann_with_antisymmetry S eq refS symS tranS lteS lteCong lteRefl lteTran anti botP
-   ; A_sg_BCI_proofs       := sg_CI_proofs_minset_union_from_po S eq lteS s f ntS eqP poP 
-   ; A_sg_BCI_ast          := Ast_sg_minset_union (A_po_ast S po)                                                                   
-  |}.
-
 (* Uhg!  huge duplication here ... change mostly "po" -> "qo"! *)
 Definition sg_CI_proofs_minset_union_from_qo : 
   ∀ (S : Type) (rS lteS : brel S) (s : S) (f : S -> S) ,
@@ -1476,10 +1449,9 @@ let lteNotAntiSym := A_qo_not_antisymmetric S rS lteS qoS in
 |}. 
 
 
-Definition A_sg_minset_union_from_qo : ∀ (S : Type),  A_qo S -> A_sg_BCI (finite_set S)
-  := λ S qo,
-  let eqvS := A_qo_eqv S qo in
-  let botP := A_qo_exists_bottom S qo in 
+Definition A_sg_minset_union_from_po_with_bottom (S : Type) (A : A_po_with_bottom S) : A_sg_BCI (finite_set S) := 
+  let eqvS := A_po_wb_eqv S A in
+  let botP := A_po_wb_exists_bottom S A in 
   let eqP  := A_eqv_proofs _ eqvS in
   let congS := A_eqv_congruence _ _ eqP in    
   let refS := A_eqv_reflexive _ _ eqP in
@@ -1489,19 +1461,103 @@ Definition A_sg_minset_union_from_qo : ∀ (S : Type),  A_qo S -> A_sg_BCI (fini
   let s    := A_eqv_witness _ eqvS in
   let f    := A_eqv_new _ eqvS in
   let ntS  := A_eqv_not_trivial _ eqvS in
-  let lteS := A_qo_lte _ qo in
-  let poP  := A_qo_proofs _ qo in
+  let lteS := A_po_wb_lte _ A in
+  let poP  := A_po_wb_proofs _ A in
+  let lteCong    := A_po_congruence _ _ _ poP in
+  let lteRefl    := A_po_reflexive _ _ _ poP in
+  let lteTran    := A_po_transitive _ _ _ poP in
+  let anti       := A_po_antisymmetric _ _ _ poP in
+  {| 
+     A_sg_BCI_eqv          := A_eqv_minset_from_or S (A_or_from_po_with_bottom A)
+   ; A_sg_BCI_bop          := bop_minset_union S eq lteS
+   ; A_sg_BCI_exists_id    := bop_minset_union_exists_id S eq refS symS tranS lteS lteCong lteRefl lteTran
+   ; A_sg_BCI_exists_ann   := bop_minset_union_exists_ann_with_antisymmetry S eq refS symS tranS lteS lteCong lteRefl lteTran anti botP
+   ; A_sg_BCI_proofs       := sg_CI_proofs_minset_union_from_po S eq lteS s f ntS eqP poP 
+   ; A_sg_BCI_ast          := Ast_sg_minset_union (A_po_wb_ast S A)                                                                   
+  |}.
+
+Definition A_sg_minset_union_from_po_bounded (S : Type) (A : A_po_bounded S) : A_sg_BCI (finite_set S) := 
+  let eqvS := A_po_bd_eqv S A in
+  let botP := A_po_bd_exists_bottom S A in 
+  let eqP  := A_eqv_proofs _ eqvS in
+  let congS := A_eqv_congruence _ _ eqP in    
+  let refS := A_eqv_reflexive _ _ eqP in
+  let symS := A_eqv_symmetric _ _ eqP in
+  let tranS := A_eqv_transitive _ _ eqP in
+  let eq   := A_eqv_eq _ eqvS in  
+  let s    := A_eqv_witness _ eqvS in
+  let f    := A_eqv_new _ eqvS in
+  let ntS  := A_eqv_not_trivial _ eqvS in
+  let lteS := A_po_bd_lte _ A in
+  let poP  := A_po_bd_proofs _ A in
+  let lteCong    := A_po_congruence _ _ _ poP in
+  let lteRefl    := A_po_reflexive _ _ _ poP in
+  let lteTran    := A_po_transitive _ _ _ poP in
+  let anti       := A_po_antisymmetric _ _ _ poP in
+  {| 
+     A_sg_BCI_eqv          := A_eqv_minset_from_or S (A_or_from_po_bounded A)
+   ; A_sg_BCI_bop          := bop_minset_union S eq lteS
+   ; A_sg_BCI_exists_id    := bop_minset_union_exists_id S eq refS symS tranS lteS lteCong lteRefl lteTran
+   ; A_sg_BCI_exists_ann   := bop_minset_union_exists_ann_with_antisymmetry S eq refS symS tranS lteS lteCong lteRefl lteTran anti botP
+   ; A_sg_BCI_proofs       := sg_CI_proofs_minset_union_from_po S eq lteS s f ntS eqP poP 
+   ; A_sg_BCI_ast          := Ast_sg_minset_union (A_po_bd_ast S A)                                                                   
+  |}.
+
+
+
+Definition A_sg_minset_union_from_qo_with_bottom (S : Type) (A : A_qo_with_bottom S) : A_sg_BCI (finite_set S) := 
+  let eqvS := A_qo_wb_eqv S A in
+  let botP := A_qo_wb_exists_bottom S A in 
+  let eqP  := A_eqv_proofs _ eqvS in
+  let congS := A_eqv_congruence _ _ eqP in    
+  let refS := A_eqv_reflexive _ _ eqP in
+  let symS := A_eqv_symmetric _ _ eqP in
+  let tranS := A_eqv_transitive _ _ eqP in
+  let eq   := A_eqv_eq _ eqvS in  
+  let s    := A_eqv_witness _ eqvS in
+  let f    := A_eqv_new _ eqvS in
+  let ntS  := A_eqv_not_trivial _ eqvS in
+  let lteS := A_qo_wb_lte _ A in
+  let poP  := A_qo_wb_proofs _ A in
   let lteCong    := A_qo_congruence _ _ _ poP in
   let lteRefl    := A_qo_reflexive _ _ _ poP in
   let lteTran    := A_qo_transitive _ _ _ poP in
 
   {| 
-     A_sg_BCI_eqv          := A_eqv_minset_from_qo S qo   
+     A_sg_BCI_eqv          := A_eqv_minset_from_or S (A_or_from_qo_with_bottom A)
    ; A_sg_BCI_bop          := bop_minset_union S eq lteS
    ; A_sg_BCI_exists_id    := bop_minset_union_exists_id S eq refS symS tranS lteS lteCong lteRefl lteTran
    ; A_sg_BCI_exists_ann   := bop_minset_union_exists_ann_without_antisymmetry S eq refS symS tranS lteS lteCong lteRefl lteTran botP
    ; A_sg_BCI_proofs       := sg_CI_proofs_minset_union_from_qo S eq lteS s f ntS eqP poP 
-   ; A_sg_BCI_ast          := Ast_sg_minset_union (A_qo_ast S qo)                                                                   
+   ; A_sg_BCI_ast          := Ast_sg_minset_union (A_qo_wb_ast S A)                                                                   
+  |}.
+
+
+Definition A_sg_minset_union_from_qo_bounded (S : Type) (A : A_qo_bounded S) : A_sg_BCI (finite_set S) := 
+  let eqvS := A_qo_bd_eqv S A in
+  let botP := A_qo_bd_exists_bottom S A in 
+  let eqP  := A_eqv_proofs _ eqvS in
+  let congS := A_eqv_congruence _ _ eqP in    
+  let refS := A_eqv_reflexive _ _ eqP in
+  let symS := A_eqv_symmetric _ _ eqP in
+  let tranS := A_eqv_transitive _ _ eqP in
+  let eq   := A_eqv_eq _ eqvS in  
+  let s    := A_eqv_witness _ eqvS in
+  let f    := A_eqv_new _ eqvS in
+  let ntS  := A_eqv_not_trivial _ eqvS in
+  let lteS := A_qo_bd_lte _ A in
+  let poP  := A_qo_bd_proofs _ A in
+  let lteCong    := A_qo_congruence _ _ _ poP in
+  let lteRefl    := A_qo_reflexive _ _ _ poP in
+  let lteTran    := A_qo_transitive _ _ _ poP in
+
+  {| 
+     A_sg_BCI_eqv          := A_eqv_minset_from_or S (A_or_from_qo_bounded A)
+   ; A_sg_BCI_bop          := bop_minset_union S eq lteS
+   ; A_sg_BCI_exists_id    := bop_minset_union_exists_id S eq refS symS tranS lteS lteCong lteRefl lteTran
+   ; A_sg_BCI_exists_ann   := bop_minset_union_exists_ann_without_antisymmetry S eq refS symS tranS lteS lteCong lteRefl lteTran botP
+   ; A_sg_BCI_proofs       := sg_CI_proofs_minset_union_from_qo S eq lteS s f ntS eqP poP 
+   ; A_sg_BCI_ast          := Ast_sg_minset_union (A_qo_bd_ast S A)                                                                   
   |}.
 
 
@@ -1509,17 +1565,39 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_mcas_sg_minset_union_from_po (S : Type) (A : A_po S) :=
-   A_MCAS_sg_BCI _ (A_sg_minset_union_from_po _ A).  
+Open Scope string_scope.   
+
+Definition A_mcas_sg_minset_union_from_order {S : Type} (A : @A_or_mcas S) : A_sg_mcas (finite_set S) :=
+match A with
+| A_OR_Error sl         => A_MCAS_sg_Error _ sl
+| A_OR_po_with_bottom B => A_sg_classify _ (A_MCAS_sg_BCI _ (A_sg_minset_union_from_po_with_bottom _ B))
+| A_OR_po_bounded B     => A_sg_classify _ (A_MCAS_sg_BCI _ (A_sg_minset_union_from_po_bounded _ B))
+| A_OR_qo_with_bottom B => A_sg_classify _ (A_MCAS_sg_BCI _ (A_sg_minset_union_from_qo_with_bottom _ B))
+| A_OR_qo_bounded B     => A_sg_classify _ (A_MCAS_sg_BCI _ (A_sg_minset_union_from_qo_bounded _ B))
+ (*****) 
+| A_OR_to_with_bottom B => A_MCAS_sg_Error _ ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+| A_OR_to_bounded B     => A_MCAS_sg_Error _ ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+| A_OR_wo_with_bottom B => A_MCAS_sg_Error _ ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+| A_OR_wo_bounded  B    => A_MCAS_sg_Error _ ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+ (*****) 
+| A_OR_or _          => A_MCAS_sg_Error _ ("Internal Error : mcas_sg_minset_union_from_or : the order is not classified!" :: nil)
+ (*****)                                      
+| A_OR_po _          => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
+| A_OR_po_with_top _ => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
+| A_OR_to _          => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
+| A_OR_to_with_top _ => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
+| A_OR_qo _          => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
+| A_OR_qo_with_top _ => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
+| A_OR_wo _          => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
+| A_OR_wo_with_top _ => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
+end.
 
 End AMCAS.   
-
-
-
 
 Section CAS.
 
 (*  
+
 Definition  check_minset_union_exists_ann {S : Type} (df_d : @check_bottoms_finite S) : @check_exists_ann (finite_set S)
   := match df_d with
      | Certify_Bottoms_Finite (f, _)  => Certify_Exists_Ann (f tt)
@@ -1532,7 +1610,10 @@ Definition assert_minset_union_not_selective {S : Type} (ntot : @assert_not_tota
      | Assert_Not_Total (s, t) => Assert_Not_Selective (s :: nil, t :: nil)
      end.
 
-
+Definition  assert_minset_union_not_selective_from_not_antisymmetric {S : Type} (nanti : @assert_not_antisymmetric S) : @assert_not_selective (finite_set S)
+  := match nanti with
+     | Assert_Not_Antisymmetric (s, t) => Assert_Not_Selective (s :: nil, t :: nil)
+     end.
 
 Definition sg_CI_certs_minset_union_from_po : ∀ {S : Type},  @po_certificates S -> @sg_CI_certificates (finite_set S)
 := λ {S} po,  
@@ -1543,30 +1624,7 @@ Definition sg_CI_certs_minset_union_from_po : ∀ {S : Type},  @po_certificates 
 ; sg_CI_idempotent         := Assert_Idempotent  
 (*; sg_CI_selective_d        := assert_minset_union_not_selective (po_not_total po) *) 
 ; sg_CI_not_selective      := assert_minset_union_not_selective (po_not_total po)
-|}. 
-
-Definition sg_minset_union_from_po : ∀ {S : Type}, @po S -> @sg_BCI (finite_set S)
-  := λ S po,
-  let eqvS := po_eqv po   in
-  let eq   := eqv_eq eqvS in  
-  let lteS := po_lte po   in   
-   {| 
-     sg_BCI_eqv           := eqv_minset_from_po po
-   ; sg_BCI_bop           := bop_minset_union S eq lteS 
-   ; sg_BCI_exists_id     := Assert_Exists_Id nil 
-   ; sg_BCI_exists_ann    := match po_exists_bottom po with Assert_Exists_Bottom b => Assert_Exists_Ann (b :: nil) end 
-   ; sg_BCI_certs         := sg_CI_certs_minset_union_from_po (po_certs po)
-   ; sg_BCI_ast           := Ast_sg_minset_union (po_ast po)                                                                   
-   |}.
-
-
-
-Definition  assert_minset_union_not_selective_from_not_antisymmetric {S : Type} (nanti : @assert_not_antisymmetric S) : @assert_not_selective (finite_set S)
-  := match nanti with
-     | Assert_Not_Antisymmetric (s, t) => Assert_Not_Selective (s :: nil, t :: nil)
-     end.
-
-
+|}.
 
 Definition sg_CI_certs_minset_union_from_qo : ∀ {S : Type},  @qo_certificates S -> @sg_CI_certificates (finite_set S)
 := λ {S} qo,  
@@ -1578,18 +1636,68 @@ Definition sg_CI_certs_minset_union_from_qo : ∀ {S : Type},  @qo_certificates 
 ; sg_CI_not_selective        := assert_minset_union_not_selective_from_not_antisymmetric  (qo_not_antisymmetric qo)
 |}. 
 
-Definition sg_minset_union_from_qo : ∀ {S : Type}, @qo S -> @sg_BCI (finite_set S)
-  := λ S qo,
-  let eqvS := qo_eqv qo   in
+
+Definition sg_minset_union_from_po_with_bottom {S : Type} (A : @po_with_bottom S) : @sg_BCI (finite_set S) := 
+  let eqvS := po_wb_eqv A   in
+  let lteS := po_wb_lte A   in     
   let eq   := eqv_eq eqvS in  
-  let lteS := qo_lte qo   in   
+
    {| 
-     sg_BCI_eqv           := eqv_minset_from_qo qo
+     sg_BCI_eqv           := eqv_minset_from_or (or_from_po_with_bottom A)
    ; sg_BCI_bop           := bop_minset_union S eq lteS 
    ; sg_BCI_exists_id     := Assert_Exists_Id nil 
-   ; sg_BCI_exists_ann    := match qo_exists_bottom qo with Assert_Exists_Qo_Bottom b => Assert_Exists_Ann (b :: nil) end 
-   ; sg_BCI_certs         := sg_CI_certs_minset_union_from_qo (qo_certs qo)
-   ; sg_BCI_ast           := Ast_sg_minset_union (qo_ast qo)                                                                   
+   ; sg_BCI_exists_ann    := match po_wb_exists_bottom A with
+                             | Assert_Exists_Bottom b => Assert_Exists_Ann (b :: nil)
+                             end 
+   ; sg_BCI_certs         := sg_CI_certs_minset_union_from_po (po_wb_certs A)
+   ; sg_BCI_ast           := Ast_sg_minset_union (po_wb_ast A)                                                                   
+   |}.
+
+Definition sg_minset_union_from_po_bounded {S : Type} (A : @po_bounded S) : @sg_BCI (finite_set S) := 
+  let eqvS := po_bd_eqv A   in
+  let lteS := po_bd_lte A   in     
+  let eq   := eqv_eq eqvS in  
+
+   {| 
+     sg_BCI_eqv           := eqv_minset_from_or (or_from_po_bounded A)
+   ; sg_BCI_bop           := bop_minset_union S eq lteS 
+   ; sg_BCI_exists_id     := Assert_Exists_Id nil 
+   ; sg_BCI_exists_ann    := match po_bd_exists_bottom A with
+                             | Assert_Exists_Bottom b => Assert_Exists_Ann (b :: nil)
+                             end 
+   ; sg_BCI_certs         := sg_CI_certs_minset_union_from_po (po_bd_certs A)
+   ; sg_BCI_ast           := Ast_sg_minset_union (po_bd_ast A)                                                                   
+   |}.
+
+Definition sg_minset_union_from_qo_with_bottom {S : Type} (A : @qo_with_bottom S) : @sg_BCI (finite_set S) := 
+  let eqvS := qo_wb_eqv A   in
+  let eq   := eqv_eq eqvS in  
+  let lteS := qo_wb_lte A   in   
+   {| 
+     sg_BCI_eqv           := eqv_minset_from_or (or_from_qo_with_bottom A)
+   ; sg_BCI_bop           := bop_minset_union S eq lteS 
+   ; sg_BCI_exists_id     := Assert_Exists_Id nil 
+   ; sg_BCI_exists_ann    := match qo_wb_exists_bottom A with
+                             | Assert_Exists_Qo_Bottom b => Assert_Exists_Ann (b :: nil)
+                             end 
+   ; sg_BCI_certs         := sg_CI_certs_minset_union_from_qo (qo_wb_certs A)
+   ; sg_BCI_ast           := Ast_sg_minset_union (qo_wb_ast A)                                                                   
+   |}.
+
+
+Definition sg_minset_union_from_qo_bounded {S : Type} (A : @qo_bounded S) : @sg_BCI (finite_set S) := 
+  let eqvS := qo_bd_eqv A   in
+  let eq   := eqv_eq eqvS in  
+  let lteS := qo_bd_lte A   in   
+   {| 
+     sg_BCI_eqv           := eqv_minset_from_or (or_from_qo_bounded A)
+   ; sg_BCI_bop           := bop_minset_union S eq lteS 
+   ; sg_BCI_exists_id     := Assert_Exists_Id nil 
+   ; sg_BCI_exists_ann    := match qo_bd_exists_bottom A with
+                             | Assert_Exists_Qo_Bottom b => Assert_Exists_Ann (b :: nil)
+                             end 
+   ; sg_BCI_certs         := sg_CI_certs_minset_union_from_qo (qo_bd_certs A)
+   ; sg_BCI_ast           := Ast_sg_minset_union (qo_bd_ast A)                                                                   
    |}.
 
 
@@ -1597,8 +1705,32 @@ End CAS.
 
 Section MCAS.
 
-Definition mcas_sg_minset_union_from_po (S : Type) (A : @po S) :=
-   MCAS_sg_BCI (sg_minset_union_from_po A).  
+Open Scope string_scope.   
+
+Definition mcas_sg_minset_union_from_order {S : Type} (A : @or_mcas S) : @sg_mcas (finite_set S) :=
+match A with
+| OR_Error sl         => MCAS_sg_Error sl
+| OR_po_with_bottom B => sg_classify _ (MCAS_sg_BCI (sg_minset_union_from_po_with_bottom B))
+| OR_po_bounded B     => sg_classify _ (MCAS_sg_BCI (sg_minset_union_from_po_bounded B))
+| OR_qo_with_bottom B => sg_classify _ (MCAS_sg_BCI (sg_minset_union_from_qo_with_bottom B))
+| OR_qo_bounded B     => sg_classify _ (MCAS_sg_BCI (sg_minset_union_from_qo_bounded B))
+ (*****) 
+| OR_to_with_bottom B => MCAS_sg_Error ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+| OR_to_bounded B     => MCAS_sg_Error ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+| OR_wo_with_bottom B => MCAS_sg_Error ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+| OR_wo_bounded  B    => MCAS_sg_Error ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+ (*****) 
+| OR_or _          => MCAS_sg_Error ("Internal Error : mcas_sg_minset_union_from_or : the order is not classified!" :: nil)
+ (*****)                                      
+| OR_po _          => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
+| OR_po_with_top _ => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
+| OR_to _          => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
+| OR_to_with_top _ => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
+| OR_qo _          => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
+| OR_qo_with_top _ => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
+| OR_wo _          => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
+| OR_wo_with_top _ => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
+end.
 
 End MCAS.   
 
@@ -1608,7 +1740,7 @@ Section Verify.
 
 Lemma bop_minset_union_from_po_certs_correct 
       (S : Type) (eq lte : brel S) (s : S) (f : S -> S) (nt : brel_not_trivial S eq f) (eqv : eqv_proofs S eq) (po : po_proofs S eq lte) : 
-      sg_CI_certs_minset_union_from_po (P2C_po S eq lte po) 
+      sg_CI_certs_minset_union_from_po (P2C_po eq lte po) 
       =                        
       P2C_sg_CI (finite_set S) (brel_minset eq lte) (bop_minset_union S eq lte)
                 (sg_CI_proofs_minset_union_from_po S eq lte s f nt eqv po).
@@ -1616,22 +1748,10 @@ Proof. destruct eqv, po.
        unfold sg_CI_certs_minset_union_from_po, sg_CI_proofs_minset_union_from_po, P2C_sg_CI, P2C_po; simpl.
        destruct A_po_not_total as [[a b] [L R]]; simpl; reflexivity. 
 Qed. 
-  
-
-Theorem bop_minset_union_from_po_correct (S : Type) (po : A_po S) : 
-         sg_minset_union_from_po (A2C_po S po)  =  A2C_sg_BCI (finite_set S) (A_sg_minset_union_from_po S po). 
-Proof. unfold sg_minset_union_from_po, A_sg_minset_union_from_po, A2C_sg_BCI; simpl.
-       rewrite <- correct_eqv_minset_from_po.  destruct po. unfold A2C_po; simpl. 
-       rewrite <- bop_minset_union_from_po_certs_correct.
-       destruct A_po_exists_bottom as [b P]. simpl. 
-       unfold bop_minset_union_exists_ann_with_antisymmetry. 
-       reflexivity. 
-Qed.
-
 
 Lemma bop_minset_union_from_qo_certs_correct 
       (S : Type) (eq lte : brel S) (s : S) (f : S -> S) (nt : brel_not_trivial S eq f) (eqv : eqv_proofs S eq) (qo : qo_proofs S eq lte) : 
-      sg_CI_certs_minset_union_from_qo (P2C_qo S eq lte qo) 
+      sg_CI_certs_minset_union_from_qo (P2C_qo eq lte qo) 
       =                        
       P2C_sg_CI (finite_set S) (brel_minset eq lte) (bop_minset_union S eq lte)
                 (sg_CI_proofs_minset_union_from_qo S eq lte s f nt eqv qo).
@@ -1642,23 +1762,73 @@ Proof. destruct eqv, qo.
 Qed. 
   
 
-Theorem bop_minset_union_from_qo_correct (S : Type) (qo : A_qo S) : 
-         sg_minset_union_from_qo (A2C_qo S qo)  =  A2C_sg_BCI (finite_set S) (A_sg_minset_union_from_qo S qo). 
-Proof. unfold sg_minset_union_from_qo, A_sg_minset_union_from_qo, A2C_sg_BCI; simpl.
-       rewrite <- correct_eqv_minset_from_qo.  destruct qo. unfold A2C_qo; simpl. 
-       rewrite <- bop_minset_union_from_qo_certs_correct.
-       destruct A_qo_exists_bottom as [b [P Q]]. simpl. 
+
+Theorem correct_minset_union_from_po_with_bottom (S : Type) (A : A_po_with_bottom S) : 
+  sg_minset_union_from_po_with_bottom (A2C_po_with_bottom A)
+  =
+  A2C_sg_BCI (finite_set S) (A_sg_minset_union_from_po_with_bottom S A). 
+Proof. unfold sg_minset_union_from_po_with_bottom, A_sg_minset_union_from_po_with_bottom, A2C_sg_BCI; simpl.
+       rewrite <- bop_minset_union_from_po_certs_correct.       
+       destruct A_po_wb_exists_bottom as [b P]. simpl. 
+       unfold bop_minset_union_exists_ann_with_antisymmetry. 
+       rewrite <- correct_eqv_minset_from_or.
+       destruct A. unfold A2C_qo_with_bottom; simpl.
+       unfold A_or_from_qo_with_bottom, or_from_qo_with_bottom, A2C_or; simpl. 
+       reflexivity. 
+Qed.
+
+Theorem correct_minset_union_from_po_bounded (S : Type) (A : A_po_bounded S) : 
+  sg_minset_union_from_po_bounded (A2C_po_bounded A)
+  =
+  A2C_sg_BCI (finite_set S) (A_sg_minset_union_from_po_bounded S A). 
+Proof. unfold sg_minset_union_from_po_bounded, A_sg_minset_union_from_po_bounded, A2C_sg_BCI; simpl.
+       rewrite <- bop_minset_union_from_po_certs_correct.       
+       destruct A_po_bd_exists_bottom as [b P]. simpl. 
+       unfold bop_minset_union_exists_ann_with_antisymmetry. 
+       rewrite <- correct_eqv_minset_from_or.
+       destruct A. unfold A2C_po_bounded; simpl.
+       unfold A_or_from_po_bounded, or_from_po_bounded, A2C_or; simpl. 
        reflexivity. 
 Qed.
 
 
-Theorem bop_mcas_intersect_correct (S : Type) (poS : A_po S): 
-         mcas_sg_minset_union_from_po _ (A2C_po S poS)  
-         = 
-         A2C_mcas_sg _ (A_mcas_sg_minset_union_from_po _ poS). 
-Proof. unfold mcas_sg_minset_union_from_po, A_mcas_sg_minset_union_from_po, A2C_mcas_sg; simpl. 
-       rewrite bop_minset_union_from_po_correct.
+Theorem correct_minset_union_from_qo_with_bottom (S : Type) (A : A_qo_with_bottom S) : 
+  sg_minset_union_from_qo_with_bottom (A2C_qo_with_bottom A)
+  =
+  A2C_sg_BCI (finite_set S) (A_sg_minset_union_from_qo_with_bottom S A). 
+Proof. unfold sg_minset_union_from_qo_with_bottom, A_sg_minset_union_from_qo_with_bottom, A2C_sg_BCI; simpl.
+       rewrite <- bop_minset_union_from_qo_certs_correct.       
+       destruct A_qo_wb_exists_bottom as [b [P Q]]. simpl. 
+       rewrite <- correct_eqv_minset_from_or.
+       destruct A. unfold A2C_qo_with_bottom; simpl.
+       unfold A_or_from_qo_with_bottom, or_from_qo_with_bottom, A2C_or; simpl. 
        reflexivity. 
+Qed.
+
+Theorem correct_minset_union_from_qo_bounded (S : Type) (A : A_qo_bounded S) : 
+  sg_minset_union_from_qo_bounded (A2C_qo_bounded A)
+  =
+  A2C_sg_BCI (finite_set S) (A_sg_minset_union_from_qo_bounded S A). 
+Proof. unfold sg_minset_union_from_qo_bounded, A_sg_minset_union_from_qo_bounded, A2C_sg_BCI; simpl.
+       rewrite <- bop_minset_union_from_qo_certs_correct.       
+       destruct A_qo_bd_exists_bottom as [b [P Q]]. simpl. 
+       rewrite <- correct_eqv_minset_from_or.
+       destruct A. unfold A2C_qo_bounded; simpl.
+       unfold A_or_from_qo_bounded, or_from_qo_bounded, A2C_or; simpl. 
+       reflexivity. 
+Qed.
+
+
+Theorem correct_mcas_sg_minset_union_from_order (S : Type) (A : @A_or_mcas S): 
+         mcas_sg_minset_union_from_order (A2C_mcas_or A)  
+         = 
+         A2C_mcas_sg _ (A_mcas_sg_minset_union_from_order A).
+Proof. unfold mcas_sg_minset_union_from_order, A_mcas_sg_minset_union_from_order, A2C_mcas_sg; simpl.
+       destruct A; unfold A2C_mcas_or; try reflexivity.
+       rewrite correct_minset_union_from_po_with_bottom. reflexivity. 
+       rewrite correct_minset_union_from_po_bounded. reflexivity.
+       rewrite correct_minset_union_from_qo_with_bottom. reflexivity.        
+       rewrite correct_minset_union_from_qo_bounded. reflexivity.        
 Qed.  
 
 
