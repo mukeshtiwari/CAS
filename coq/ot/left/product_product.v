@@ -335,6 +335,7 @@ let antiT    := A_po_antisymmetric T eqT lteT POT in
                                                                 (A_poltr_strictly_increasing_d LT T lteT ltrT PT)                                           
 |}.
 
+(*
 Definition poltr_product_top_bottom_proofs (S T : Type) (eqS lteS : brel S) (eqT lteT : brel T) (eqvP : eqv_proofs S eqS)
     (lteReflS : brel_reflexive S lteS) (lteReflT : brel_reflexive T lteT) 
     (PS : top_bottom_proofs S eqS lteS)  (PT : top_bottom_proofs T eqT lteT) := 
@@ -481,7 +482,7 @@ let PT := A_woltr_msi_proofs _ _ Q in
 ; A_qoltr_msi_proofs       := olt_product_qoltr_msi_proofs LS S LT T lteS ltrS PS lteT ltrT PT 
 ; A_qoltr_msi_ast          := Ast_lotr_product (A_poltr_mi_ast _ _ P, A_woltr_msi_ast _ _ Q)
 |}.
-  
+*)  
 End ACAS.
 
 Section CAS.
@@ -530,7 +531,7 @@ let botT   := with_bottom_exists PT in
 |}.
 
 
-
+(*
 Definition product_qoltr_monotone_strictly_increasing {LS S LT T : Type}
     (P : @poltr_monotone_increasing LS S) 
     (Q : @woltr_monotone_strictly_increasing LT T) :
@@ -566,9 +567,10 @@ let PT := woltr_msi_certs Q in
 ; qoltr_msi_ast         := Ast_lotr_product (poltr_mi_ast P, woltr_msi_ast Q) (* FIX *)
 |}.
 
-
+*) 
 End CAS.
 
+(*
 Section Verify.
 
 
@@ -621,3 +623,4 @@ Qed.
 
 
 End Verify.   
+*) 

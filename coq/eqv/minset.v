@@ -1615,6 +1615,23 @@ End Theory.
 Section ACAS.
 
 
+Definition eqv_proofs_brel_minset_from_or :
+ ∀ (S : Type) (r : brel S) (lteS : brel S), eqv_proofs S r → or_proofs S r lteS → eqv_proofs (finite_set S) (brel_minset r lteS)
+:= λ S r lteS eqv lteP,
+  let refS := A_eqv_reflexive S r eqv in
+  let symS := A_eqv_symmetric S r eqv in
+  let trnS := A_eqv_transitive S r eqv in
+  let lteCong := A_or_congruence _ _ _ lteP in
+  let lteRefl := A_or_reflexive _ _ _ lteP in
+  let lteTrns := A_or_transitive _ _ _ lteP in     
+   {| 
+     A_eqv_congruence  := brel_minset_congruence S r refS symS trnS lteS lteCong lteRefl lteTrns
+   ; A_eqv_reflexive   := brel_minset_reflexive S r  refS symS lteS
+   ; A_eqv_transitive  := brel_minset_transitive S r refS symS trnS lteS
+   ; A_eqv_symmetric   := brel_minset_symmetric S r lteS
+   |}.
+
+
 
 Definition eqv_proofs_brel_minset_from_po :
  ∀ (S : Type) (r : brel S) (lteS : brel S), eqv_proofs S r → po_proofs S r lteS → eqv_proofs (finite_set S) (brel_minset r lteS)
@@ -1631,6 +1648,56 @@ Definition eqv_proofs_brel_minset_from_po :
    ; A_eqv_transitive  := brel_minset_transitive S r refS symS trnS lteS
    ; A_eqv_symmetric   := brel_minset_symmetric S r lteS
    |}.
+
+
+(* Uhg!  huge duplication here ... only change "po" -> "qo"! *)
+Definition eqv_proofs_brel_minset_from_qo :
+ ∀ (S : Type) (r : brel S) (lteS : brel S), eqv_proofs S r → qo_proofs S r lteS → eqv_proofs (finite_set S) (brel_minset r lteS)
+:= λ S r lteS eqv lteP,
+  let refS := A_eqv_reflexive S r eqv in
+  let symS := A_eqv_symmetric S r eqv in
+  let trnS := A_eqv_transitive S r eqv in
+  let lteCong := A_qo_congruence _ _ _ lteP in
+  let lteRefl := A_qo_reflexive _ _ _ lteP in
+  let lteTrns := A_qo_transitive _ _ _ lteP in     
+   {| 
+     A_eqv_congruence  := brel_minset_congruence S r refS symS trnS lteS lteCong lteRefl lteTrns
+   ; A_eqv_reflexive   := brel_minset_reflexive S r  refS symS lteS
+   ; A_eqv_transitive  := brel_minset_transitive S r refS symS trnS lteS
+   ; A_eqv_symmetric   := brel_minset_symmetric S r lteS
+   |}.
+
+
+Definition A_eqv_minset_from_or : ∀ (S : Type),  A_or S -> A_eqv (finite_set S) 
+  := λ S poS,
+  let eqvS  := A_or_eqv S poS in 
+  let rS    := A_eqv_eq S eqvS in
+  let wS    := A_eqv_witness S eqvS in
+  let fS    := A_eqv_new S eqvS in
+  let nt    := A_eqv_not_trivial S eqvS in
+  let eqP   := A_eqv_proofs S eqvS in
+  let congS := A_eqv_congruence S rS eqP in 
+  let refS  := A_eqv_reflexive S rS eqP in  
+  let symS  := A_eqv_symmetric S rS eqP in
+  let trnS  := A_eqv_transitive S rS eqP in
+  let lteS  := A_or_lte S poS in
+  let lteP  := A_or_proofs S poS in 
+  let lte_congS := A_or_congruence S rS lteS lteP in 
+  let lte_refS  := A_or_reflexive S rS lteS lteP in  
+  let lte_trnS  := A_or_transitive S rS lteS lteP in  
+   {| 
+      A_eqv_eq            := brel_minset rS lteS 
+    ; A_eqv_proofs        := eqv_proofs_brel_minset_from_or S rS lteS eqP lteP 
+    ; A_eqv_witness       := nil 
+    ; A_eqv_new           := brel_minset_new S rS wS 
+    ; A_eqv_not_trivial   := brel_minset_not_trivial S rS wS refS symS trnS lteS 
+    ; A_eqv_exactly_two_d := inr (brel_minset_not_exactly_two S rS wS fS nt refS symS trnS lteS)                              
+    ; A_eqv_data          := λ l, DATA_list (List.map (A_eqv_data S eqvS) (uop_minset rS l))   
+    ; A_eqv_rep           := λ l, List.map (A_eqv_rep S eqvS) (uop_minset rS l)
+    ; A_eqv_finite_d      := brel_minset_finite_decidable S rS wS fS nt congS refS symS trnS lteS lte_congS lte_refS lte_trnS (A_eqv_finite_d S eqvS)
+    ; A_eqv_ast           := Ast_eqv_minset (A_or_ast S poS)
+   |}. 
+
 
 Definition A_eqv_minset_from_po : ∀ (S : Type),  A_po S -> A_eqv (finite_set S) 
   := λ S poS,
@@ -1663,23 +1730,6 @@ Definition A_eqv_minset_from_po : ∀ (S : Type),  A_po S -> A_eqv (finite_set S
    |}. 
 
 
-(* Uhg!  huge duplication here ... only change "po" -> "qo"! *)
-
-Definition eqv_proofs_brel_minset_from_qo :
- ∀ (S : Type) (r : brel S) (lteS : brel S), eqv_proofs S r → qo_proofs S r lteS → eqv_proofs (finite_set S) (brel_minset r lteS)
-:= λ S r lteS eqv lteP,
-  let refS := A_eqv_reflexive S r eqv in
-  let symS := A_eqv_symmetric S r eqv in
-  let trnS := A_eqv_transitive S r eqv in
-  let lteCong := A_qo_congruence _ _ _ lteP in
-  let lteRefl := A_qo_reflexive _ _ _ lteP in
-  let lteTrns := A_qo_transitive _ _ _ lteP in     
-   {| 
-     A_eqv_congruence  := brel_minset_congruence S r refS symS trnS lteS lteCong lteRefl lteTrns
-   ; A_eqv_reflexive   := brel_minset_reflexive S r  refS symS lteS
-   ; A_eqv_transitive  := brel_minset_transitive S r refS symS trnS lteS
-   ; A_eqv_symmetric   := brel_minset_symmetric S r lteS
-   |}.
 
 Definition A_eqv_minset_from_qo : ∀ (S : Type),  A_qo S -> A_eqv (finite_set S) 
   := λ S poS,
@@ -1723,6 +1773,34 @@ Definition check_brel_minset_finite {S : Type} (lteS : brel S) (d : @check_is_fi
      end.
 
 
+Definition eqv_minset_from_or : ∀ {S : Type},  @or S -> @eqv (finite_set S)
+:= λ {S} poS,
+  let eqvS := or_eqv poS in  
+  let rS   := eqv_eq eqvS in
+  let wS   := eqv_witness eqvS in
+  let fS   := eqv_new eqvS in  
+  let lteS := or_lte poS in 
+   {| 
+      eqv_eq            := brel_minset rS lteS 
+    ; eqv_certs := 
+     {|
+       eqv_congruence     := @Assert_Brel_Congruence (finite_set S)
+     ; eqv_reflexive      := @Assert_Reflexive (finite_set S)
+     ; eqv_transitive     := @Assert_Transitive (finite_set S)
+     ; eqv_symmetric      := @Assert_Symmetric (finite_set S)
+     |}  
+    ; eqv_witness       := nil 
+    ; eqv_new           := brel_minset_new S rS wS 
+    ; eqv_exactly_two_d := Certify_Not_Exactly_Two (minset_negate S wS fS lteS) 
+    ; eqv_data          := λ l, DATA_list (List.map (eqv_data eqvS) (uop_minset rS l))   
+    ; eqv_rep           := λ l, List.map (eqv_rep eqvS) (uop_minset rS  l)
+    ; eqv_finite_d      := check_brel_minset_finite lteS (eqv_finite_d eqvS)  
+    ; eqv_ast           := Ast_eqv_minset (or_ast poS)
+   |}.
+
+
+
+
 Definition eqv_minset_from_po : ∀ {S : Type},  @po S -> @eqv (finite_set S)
 := λ {S} poS,
   let eqvS := po_eqv poS in  
@@ -1747,6 +1825,8 @@ Definition eqv_minset_from_po : ∀ {S : Type},  @po S -> @eqv (finite_set S)
     ; eqv_finite_d      := check_brel_minset_finite lteS (eqv_finite_d eqvS)  
     ; eqv_ast           := Ast_eqv_minset (po_ast poS)
    |}.
+
+
 
 Definition eqv_minset_from_qo : ∀ {S : Type},  @qo S -> @eqv (finite_set S)
 := λ {S} poS,
@@ -1778,8 +1858,19 @@ End CAS.
 
 Section Verify.
 
+Theorem correct_eqv_minset_from_or : ∀ (S : Type) (P : A_or S),  
+    eqv_minset_from_or (A2C_or P) = A2C_eqv (finite_set S) (A_eqv_minset_from_or S P).
+Proof. intros S P. 
+       unfold eqv_minset_from_or, A_eqv_minset_from_or, A2C_eqv; simpl. 
+       destruct P; simpl.
+       destruct A_or_proofs; destruct A_or_eqv; simpl.
+       destruct A_eqv_finite_d as [ [fS FS] | NFS ]; simpl; auto. 
+Qed.        
+
+  
+
 Theorem correct_eqv_minset_from_po : ∀ (S : Type) (P : A_po S),  
-    eqv_minset_from_po (A2C_po S P) = A2C_eqv (finite_set S) (A_eqv_minset_from_po S P).
+    eqv_minset_from_po (A2C_po P) = A2C_eqv (finite_set S) (A_eqv_minset_from_po S P).
 Proof. intros S P. 
        unfold eqv_minset_from_po, A_eqv_minset_from_po, A2C_eqv; simpl. 
        destruct P; simpl.
@@ -1789,7 +1880,7 @@ Qed.
 
 
 Theorem correct_eqv_minset_from_qo : ∀ (S : Type) (P : A_qo S),  
-    eqv_minset_from_qo (A2C_qo S P) = A2C_eqv (finite_set S) (A_eqv_minset_from_qo S P).
+    eqv_minset_from_qo (A2C_qo P) = A2C_eqv (finite_set S) (A_eqv_minset_from_qo S P).
 Proof. intros S P. 
        unfold eqv_minset_from_qo, A_eqv_minset_from_qo, A2C_eqv; simpl. 
        destruct P; simpl.
