@@ -503,7 +503,7 @@ Proof.
   exists (unit_matrix, (two_by_two_matrix, three_by_three_matrix)).
   unfold square_matrix_eq; simpl;
   repeat (split; try reflexivity).
-Qed.
+Defined.
 
 
 Fixpoint compute_max_dimension 
@@ -636,7 +636,7 @@ Proof.
   + exact (inr (brel_square_matrix_is_not_finite S A_eqv_eq A_eqv_witness)).
   + apply DATA_square_matrix.
   + exact (brel_square_matrix_new S A_eqv_eq A_eqv_witness).
-  + exact A_eqv_ast.
+  + exact Ast_eqv_matrix.
   Unshelve.
   exact A_eqv_witness.
 Defined.
@@ -677,7 +677,16 @@ End CAS.
 
 Section Verify.
 
-  
-
+Lemma correct_eqv_matrix : forall (S : Type) (A : A_eqv S), 
+  @eqv_square_matrix_eq S (A2C_eqv _ A) = 
+  A2C_eqv _ (A_eqv_square_matrix_eq S A).
+Proof.
+  intros ? ?.
+  destruct A, 
+  A_eqv_proofs.
+  unfold eqv_square_matrix_eq, A2C_eqv,
+    A_eqv_square_matrix_eq; simpl.
+  reflexivity.
+Qed.
 
 End Verify. 
