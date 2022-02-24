@@ -1,8 +1,9 @@
 open Cas
 
-exception Error of string 
+exception Error of string list 
 
-let complain s = raise (Error s) 
+let error s = raise (Error [s])
+let errors sl = raise (Error sl) 		    
        
 let nl s = s ^ "\n"       
 
@@ -573,7 +574,7 @@ let bs_describe_fully bs =
 
 let string_of_bs_mcas_class mbs = 
 match mbs with 
-| BS_Error cll -> complain ("ERROR: " ^ (String.concat "; " (List.map char_list_to_string cll))) 
+| BS_Error cll -> errors (List.map char_list_to_string cll)
 | BS_bs _ -> "Bi-semigroup"
 | BS_bs_CI _ -> "Commuative and Idempotent Bi-semigroup" 
 | BS_bs_CS _ -> "Commuative and Selective Bi-semigroup" 
@@ -602,17 +603,15 @@ match mbs with
 | BS_selective_distributive_prelattice_with_one _ -> "Selective Distributive Pre-Lattice with One"
 | BS_selective_distributive_lattice _ -> "Selective Distributive Lattice"
 
-      
-
 
 let mcas_bs_describe mbs =
   (print_string ("Class : " ^ (string_of_bs_mcas_class mbs) ^ "\n"); 
   match bs_mcas_cast_up mbs with
   | BS_bs bs -> bs_describe bs
-  | _        -> complain "internal error mcas_bs_describe_fully")
+  | _        -> error "internal error: mcas_bs_describe")
       
 let mcas_bs_describe_fully mbs =
   (print_string ("Class : " ^ (string_of_bs_mcas_class mbs) ^ "\n");   
   match bs_mcas_cast_up mbs with
   | BS_bs bs -> bs_describe_fully bs
-  | _        -> complain "internal error mcas_bs_describe_fully" )
+  | _        -> error "internal error: mcas_bs_describe_fully" )
