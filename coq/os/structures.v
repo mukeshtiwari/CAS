@@ -48,8 +48,10 @@ Record os_proofs (S: Type) (lte : brel S) (times : binary_op S) :=
 ; A_posg_left_increasing_d           : os_left_increasing_decidable lte times 
 ; A_posg_right_increasing_d          : os_right_increasing_decidable lte times 
 
+(*                                                                     
 ; A_posg_left_strictly_increasing_d  : os_left_strictly_increasing_decidable lte times 
 ; A_posg_right_strictly_increasing_d : os_right_strictly_increasing_decidable lte times 
+*) 
 }.
 
 
@@ -61,12 +63,7 @@ Record os_monotone_proofs (S: Type) (lte : brel S) (times : binary_op S) :=
 ; A_mono_left_increasing_d           : os_left_increasing_decidable lte times 
 ; A_mono_right_increasing_d          : os_right_increasing_decidable lte times 
 
-(* not yet                                                                      
-; A_mono_left_strictly_increasing_d  : os_left_strictly_increasing_decidable lte times 
-; A_mono_right_strictly_increasing_d : os_right_strictly_increasing_decidable lte times 
-*) 
 }. 
-
 
 Record os_monotone_increasing_proofs (S: Type) (lte : brel S) (times : binary_op S) := 
 {
@@ -75,23 +72,18 @@ Record os_monotone_increasing_proofs (S: Type) (lte : brel S) (times : binary_op
 
 ; A_mono_inc_left_increasing             : os_left_increasing lte times 
 ; A_mono_inc_right_increasing            : os_right_increasing lte times 
-
-(*  Not yet 
-; A_mono_inc_left_strictly_increasing_d  : os_left_strictly_increasing_decidable lte times 
-; A_mono_inc_right_strictly_increasing_d : os_right_strictly_increasing_decidable lte times 
-*) 
 }. 
 
-(*
-Record os_monotone_strictly_increasing_proofs (S: Type) (lte : brel S) (times : binary_op S) := 
-{
-  A_mono_sinc_left_monotonic              : os_left_monotone lte times 
-; A_mono_sinc_right_monotonic             : os_right_monotone lte times 
-
-; A_mono_sinc_left_strictly_increasing_d  : os_left_strictly_increasing_decidable lte times 
-; A_mono_sinc_right_strictly_increasing_d : os_right_strictly_increasing_decidable lte times 
-}. 
-*) 
+Record A_orsg (S : Type) := {
+  A_orsg_eqv               : A_eqv S 
+; A_orsg_lte               : brel S 
+; A_orsg_times             : binary_op S 
+; A_orsg_lte_proofs        : or_proofs S (A_eqv_eq S A_orsg_eqv) A_orsg_lte
+; A_orsg_times_proofs      : sg_proofs S (A_eqv_eq S A_orsg_eqv) A_orsg_times
+; A_orsg_bottom_top_proofs : os_bottom_top_proofs S (A_eqv_eq S A_orsg_eqv) A_orsg_lte A_orsg_times
+; A_orsg_proofs            : os_proofs S A_orsg_lte A_orsg_times 
+; A_orsg_ast               : cas_os_ast
+}.
 
 
 Record A_posg (S : Type) := {
@@ -221,52 +213,50 @@ Section Projections.
   
 Definition A_po_from_bounded_monotone_increasing_posg
            (S : Type)
-           (P : A_bounded_monotone_increasing_posg S) : A_po S :=
+           (P : A_bounded_monotone_increasing_posg S) : A_po_bounded S :=
 let B := A_bmiposg_top_bottom _ P in 
 let bot_id := A_bounded_bottom_id _ _ _ _ B in
 let top_ann := A_bounded_top_ann _ _ _ _ B in 
 {|
-  A_po_eqv           := A_bmiposg_eqv _ P 
-; A_po_lte           := A_bmiposg_lte _ P 
-; A_po_exists_top_d  := inl (A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann ) 
-; A_po_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
-; A_po_proofs        := A_bmiposg_lte_proofs _ P 
-; A_po_ast           := Ast_or_of_os (A_bmiposg_ast _ P)
+  A_po_bd_eqv           := A_bmiposg_eqv _ P 
+; A_po_bd_lte           := A_bmiposg_lte _ P 
+; A_po_bd_exists_top    := A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann
+; A_po_bd_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
+; A_po_bd_proofs        := A_bmiposg_lte_proofs _ P 
+; A_po_bd_ast           := Ast_or_of_os (A_bmiposg_ast _ P)
 |}.  
   
 
 
 Definition A_po_from_bounded_monotone_increasing_posg_CNI
            (S : Type)
-           (P : A_bounded_monotone_increasing_posg_CNI S) : A_po S :=
+           (P : A_bounded_monotone_increasing_posg_CNI S) : A_po_bounded S :=
 let B := A_bmiposg_CNI_top_bottom _ P in 
 let bot_id := A_bounded_bottom_id _ _ _ _ B in
 let top_ann := A_bounded_top_ann _ _ _ _ B in 
 {|
-  A_po_eqv           := A_bmiposg_CNI_eqv _ P 
-; A_po_lte           := A_bmiposg_CNI_lte _ P 
-; A_po_exists_top_d  := inl (A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann ) 
-; A_po_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
-; A_po_proofs        := A_bmiposg_CNI_lte_proofs _ P 
-; A_po_ast           := Ast_or_of_os (A_bmiposg_CNI_ast _ P)
+  A_po_bd_eqv           := A_bmiposg_CNI_eqv _ P 
+; A_po_bd_lte           := A_bmiposg_CNI_lte _ P 
+; A_po_bd_exists_top    := A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann
+; A_po_bd_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
+; A_po_bd_proofs        := A_bmiposg_CNI_lte_proofs _ P 
+; A_po_bd_ast           := Ast_or_of_os (A_bmiposg_CNI_ast _ P)
 |}.  
-  
-
 
 
 Definition A_po_from_bounded_join_semilattice
            (S : Type)
-           (P : A_bounded_join_semilattice S) : A_po S :=
+           (P : A_bounded_join_semilattice S) : A_po_bounded S :=
 let B := A_bjsl_top_bottom _ P in 
 let bot_id := A_bounded_bottom_id _ _ _ _ B in
 let top_ann := A_bounded_top_ann _ _ _ _ B in 
 {|
-  A_po_eqv           := A_bjsl_eqv _ P 
-; A_po_lte           := A_bjsl_lte _ P 
-; A_po_exists_top_d  := inl (A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann ) 
-; A_po_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
-; A_po_proofs        := A_bjsl_lte_proofs _ P 
-; A_po_ast           :=  Ast_or_of_os (A_bjsl_ast _ P)
+  A_po_bd_eqv           := A_bjsl_eqv _ P 
+; A_po_bd_lte           := A_bjsl_lte _ P 
+; A_po_bd_exists_top    := A_extract_exist_top_from_exists_top_ann_equal _ _ _ _ top_ann 
+; A_po_bd_exists_bottom := A_extract_exist_bottom_from_exists_bottom_id_equal _ _ _ _ bot_id 
+; A_po_bd_proofs        := A_bjsl_lte_proofs _ P 
+; A_po_bd_ast           := Ast_or_of_os (A_bjsl_ast _ P)
 |}.  
   
 
@@ -278,6 +268,7 @@ Section AMCAS.
 
 Inductive A_os_mcas S : Type :=
 | A_OS_Error                            : string                               -> A_os_mcas S
+| A_OS_orsg                             : A_orsg S                             -> A_os_mcas S
 | A_OS_posg                             : A_posg S                             -> A_os_mcas S
 | A_OS_monotone_posg                    : A_monotone_posg S                    -> A_os_mcas S
 | A_OS_monotone_increasing_posg         : A_monotone_increasing_posg S         -> A_os_mcas S
@@ -357,10 +348,37 @@ Definition A_os_classify_posg (S : Type) (A : A_posg S) : A_os_mcas S :=
   | _ , _ => A_OS_posg _ A
   end. 
 
+Definition A_os_classify_orsg (S : Type) (A : A_orsg S) : A_os_mcas S :=
+  let P := A_orsg_lte_proofs _ A in 
+  match A_or_antisymmetric_d _ _ _ P, A_or_total_d _ _ _ P  with 
+  | inl anti, inr ntot =>
+    A_os_classify_posg _     
+     {|
+         A_posg_eqv          := A_orsg_eqv _ A 
+       ; A_posg_lte          := A_orsg_lte _ A 
+       ; A_posg_times        := A_orsg_times _ A 
+       ; A_posg_lte_proofs   :=
+           {|
+               A_po_congruence    := A_or_congruence _ _ _ P
+             ; A_po_reflexive     := A_or_reflexive _ _ _ P
+             ; A_po_transitive    := A_or_transitive _ _ _ P
+             ; A_po_antisymmetric := anti
+             ; A_po_not_total     := ntot 
+           |}
+       ; A_posg_times_proofs := A_orsg_times_proofs _ A 
+       ; A_posg_bottom_top_proofs   := A_orsg_bottom_top_proofs _ A 
+       ; A_posg_proofs       := A_orsg_proofs _ A 
+       ; A_posg_ast          := A_orsg_ast _ A 
+     |}
+  | _ , _ => A_OS_orsg _ A
+  end. 
+
+
 
 Definition A_os_classify (S : Type) (A : A_os_mcas S) : A_os_mcas S :=
 match A with
-| A_OS_Error _ _                            => A 
+| A_OS_Error _ _                            => A
+| A_OS_orsg _ B                             => A_os_classify_orsg _ B                                                  
 | A_OS_posg _ B                             => A_os_classify_posg _ B 
 | A_OS_monotone_posg _ B                    => A_os_classify_monotone_posg _ B 
 | A_OS_monotone_increasing_posg _ B         => A_os_classify_monotone_increasing_posg _ B 
@@ -408,8 +426,10 @@ Record os_certificates {S: Type} :=
 ; posg_left_increasing_d           : @check_left_increasing S
 ; posg_right_increasing_d          : @check_right_increasing S
 
+(*                                                             
 ; posg_left_strictly_increasing_d  : @check_left_strictly_increasing S
 ; posg_right_strictly_increasing_d : @check_right_strictly_increasing S
+*) 
 }.
 
 
@@ -431,6 +451,17 @@ Record os_monotone_increasing_certificates {S: Type} :=
 ; mono_inc_right_increasing            : @assert_right_increasing S
 }.
 
+
+Record orsg {S : Type} := {
+  orsg_eqv              : @eqv S 
+; orsg_lte              : @brel S 
+; orsg_times            : @binary_op S 
+; orsg_lte_certs        : @or_certificates S 
+; orsg_times_certs      : @sg_certificates S 
+; orsg_bottom_top_certs : @os_bottom_top_certs S 
+; orsg_certs            : @os_certificates S 
+; orsg_ast              : cas_os_ast
+}.
 
 Record posg {S : Type} := {
   posg_eqv              : @eqv S 
@@ -482,23 +513,20 @@ Record bounded_monotone_increasing_posg {S : Type} :=
 Section Projections.
 Definition po_from_bounded_monotone_increasing_posg
            {S : Type}
-           (P : @bounded_monotone_increasing_posg S) : @po S :=
+           (P : @bounded_monotone_increasing_posg S) : @po_bounded S :=
 let B := bmiposg_top_bottom P in 
 {|
-  po_eqv           := bmiposg_eqv P 
-; po_lte           := bmiposg_lte P 
-; po_exists_top_d  := match bounded_bottom_id B with
-                      | Assert_Os_Exists_Bottom_Id_Equal bot_id => Certify_Exists_Top bot_id
+  po_bd_eqv           := bmiposg_eqv P 
+; po_bd_lte           := bmiposg_lte P 
+; po_bd_exists_top    := match bounded_bottom_id B with
+                      | Assert_Os_Exists_Bottom_Id_Equal bot_id => Assert_Exists_Top bot_id
                       end
-; po_exists_bottom := match bounded_top_ann B with 
+; po_bd_exists_bottom := match bounded_top_ann B with 
                       | Assert_Os_Exists_Top_Ann_Equal top_ann => Assert_Exists_Bottom top_ann
                       end
-; po_certs         := bmiposg_lte_certs P 
-; po_ast           := Ast_or_of_os (bmiposg_ast P)
+; po_bd_certs         := bmiposg_lte_certs P 
+; po_bd_ast           := Ast_or_of_os (bmiposg_ast P)
 |}.  
-
-
-
 
 End Projections.   
 
@@ -508,11 +536,11 @@ Section MCAS.
 
 Inductive os_mcas {S : Type} :=
 | OS_Error                            : string                              -> @os_mcas S
-| OS_posg                             : @posg S                             -> @os_mcas S
+| OS_orsg                             : @orsg S                             -> @os_mcas S
+| OS_posg                             : @posg S                             -> @os_mcas S                     
 | OS_monotone_posg                    : @monotone_posg S                    -> @os_mcas S
 | OS_monotone_increasing_posg         : @monotone_increasing_posg S         -> @os_mcas S
 | OS_bounded_monotone_increasing_posg : @bounded_monotone_increasing_posg S -> @os_mcas S
-(* | OS_bounded_join_semilattice         : @bounded_join_semilattice S         -> @os_mcas S *) 
 .
 
 (* HELP : how to classify OS_bounded_monotone_increasing_posg_CI ??? *)
@@ -590,10 +618,37 @@ Definition os_classify_posg {S : Type} (A : @posg S) : @os_mcas S :=
   | _ , _ => OS_posg A
   end. 
 
+Definition os_classify_orsg {S : Type} (A : @orsg S) : @os_mcas S :=
+  let P := orsg_lte_certs A in 
+  match or_antisymmetric_d P, or_total_d P  with 
+  | Certify_Antisymmetric, Certify_Not_Total p2 =>
+    os_classify_posg 
+     {|
+         posg_eqv          := orsg_eqv A 
+       ; posg_lte          := orsg_lte A 
+       ; posg_times        := orsg_times A 
+       ; posg_lte_certs   :=
+           {|
+               po_congruence    := Assert_Brel_Congruence
+             ; po_reflexive     := Assert_Reflexive
+             ; po_transitive    := Assert_Transitive
+             ; po_antisymmetric := Assert_Antisymmetric 
+             ; po_not_total     := Assert_Not_Total p2 
+           |}
+       ; posg_times_certs        := orsg_times_certs A 
+       ; posg_bottom_top_certs   := orsg_bottom_top_certs A 
+       ; posg_certs              := orsg_certs A 
+       ; posg_ast                := orsg_ast A 
+     |}
+  | _ , _ => OS_orsg A
+  end. 
+
+
 
 Definition os_classify {S : Type} (A : @os_mcas S) : @os_mcas S :=
 match A with
-| OS_Error _                            => A 
+| OS_Error _                            => A
+| OS_orsg B                             => os_classify_orsg B                                              
 | OS_posg B                             => os_classify_posg B 
 | OS_monotone_posg B                    => os_classify_monotone_posg B 
 | OS_monotone_increasing_posg B         => os_classify_monotone_increasing_posg B 
@@ -604,6 +659,128 @@ end.
 End MCAS. 
   
 Section Translation.
+
+Section Proofs.
+
+Variables (S : Type) (eq lte : brel S) (b : binary_op S).
+
+            
+Definition P2C_os_proofs (C : os_proofs S lte b) := 
+{|
+  posg_left_monotonic_d            := p2c_left_monotone S lte b (A_posg_left_monotonic_d S lte b C)
+; posg_right_monotonic_d           := p2c_right_monotone S lte b (A_posg_right_monotonic_d S lte b C)
+; posg_left_increasing_d           := p2c_left_increasing S lte b (A_posg_left_increasing_d S lte b C)
+; posg_right_increasing_d          := p2c_right_increasing S lte b (A_posg_right_increasing_d S lte b C)
+|}.
+
+Definition P2C_os_monotone_proofs (C : os_monotone_proofs S lte b) := 
+{|
+  mono_left_monotonic              := Assert_Left_Monotone 
+; mono_right_monotonic             := Assert_Right_Monotone 
+; mono_left_increasing_d           := p2c_left_increasing S lte b (A_mono_left_increasing_d S lte b C)
+; mono_right_increasing_d          := p2c_right_increasing S lte b (A_mono_right_increasing_d S lte b C)
+|}.
+
+
+Definition P2C_os_monotone_increasing_proofs (C : os_monotone_increasing_proofs S lte b) := 
+{|
+  mono_inc_left_monotonic            := @Assert_Left_Monotone S
+; mono_inc_right_monotonic           := @Assert_Right_Monotone S
+; mono_inc_left_increasing           := @Assert_Left_Increasing S
+; mono_inc_right_increasing          := @Assert_Right_Increasing S 
+|}.
+
+
+Definition P2C_os_bottom_top_proofs  (P : os_bottom_top_proofs S eq lte b) :=
+{|
+  bottom_top_bottom_id_d := p2c_os_exists_bottom_id_decidable _ _ _ _ (A_bottom_top_bottom_id_d S eq lte b P)
+; bottom_top_top_ann_d   := p2c_os_exists_top_ann_decidable _ _ _ _ (A_bottom_top_top_ann_d S eq lte b P)
+|}.
+
+Definition P2C_os_bottom_is_id_proofs (P : os_bottom_is_id_proofs S eq lte b) :=
+{|
+  bottom_is_id           := p2c_os_exists_bottom_id_equal _ _ _ _ (A_bottom_is_id S eq lte b P)
+; bottom_is_id_top_ann_d := p2c_os_exists_top_ann_decidable _ _ _ _ (A_bottom_is_id_top_ann_d S eq lte b P)
+|}.
+
+Definition P2C_os_top_is_ann_proofs (P : os_top_is_ann_proofs S eq lte b) :=
+{|
+  top_is_ann_bottom_id_d := p2c_os_exists_bottom_id_decidable _ _ _ _ (A_top_is_ann_bottom_id_d S eq lte b P)
+; top_is_ann             := p2c_os_exists_top_ann_equal _ _ _ _ (A_top_is_ann S eq lte b P)
+|}.
+
+Definition P2C_os_bounded_proofs (P : os_bounded_proofs S eq lte b) :=
+{|
+  bounded_bottom_id := p2c_os_exists_bottom_id_equal _ _ _ _ (A_bounded_bottom_id S eq lte b P)
+; bounded_top_ann   := p2c_os_exists_top_ann_equal  _ _ _ _ (A_bounded_top_ann S eq lte b P)
+|}.
+
+
+End Proofs.
+
+Definition A2C_orsg {S : Type} (A : A_orsg S) : @orsg S := 
+{|
+  orsg_eqv              := A2C_eqv _ (A_orsg_eqv _ A)
+; orsg_lte              := A_orsg_lte _ A 
+; orsg_times            := A_orsg_times _ A 
+; orsg_lte_certs        := P2C_or _ _ (A_orsg_lte_proofs _ A)
+; orsg_times_certs      := P2C_sg _ _ _ (A_orsg_times_proofs _ A)
+; orsg_bottom_top_certs := P2C_os_bottom_top_proofs _ _ _ _ (A_orsg_bottom_top_proofs _ A) 
+; orsg_certs            := P2C_os_proofs _ _ _ (A_orsg_proofs _ A)
+; orsg_ast              := A_orsg_ast _ A 
+|}.
+
+Definition A2C_posg {S : Type} (A : A_posg S) : @posg S := 
+{|
+  posg_eqv              := A2C_eqv _ (A_posg_eqv _ A)
+; posg_lte              := A_posg_lte _ A 
+; posg_times            := A_posg_times _ A 
+; posg_lte_certs        := P2C_po _ _ (A_posg_lte_proofs _ A)
+; posg_times_certs      := P2C_sg _ _ _ (A_posg_times_proofs _ A)
+; posg_bottom_top_certs := P2C_os_bottom_top_proofs _ _ _ _ (A_posg_bottom_top_proofs _ A) 
+; posg_certs            := P2C_os_proofs _ _ _ (A_posg_proofs _ A)
+; posg_ast              := A_posg_ast _ A 
+|}.
+
+
+Definition A2C_monotone_posg {S : Type} (A : A_monotone_posg S) : @monotone_posg S := 
+{|
+  mposg_eqv              := A2C_eqv _ (A_mposg_eqv _ A)
+; mposg_lte              := A_mposg_lte _ A 
+; mposg_times            := A_mposg_times _ A 
+; mposg_lte_certs        := P2C_po _ _ (A_mposg_lte_proofs _ A)
+; mposg_times_certs      := P2C_sg _ _ _ (A_mposg_times_proofs _ A)
+; mposg_top_bottom       := P2C_os_bottom_top_proofs _ _ _ _ (A_mposg_top_bottom _ A) 
+; mposg_certs            := P2C_os_monotone_proofs _ _ _ (A_mposg_proofs _ A)
+; mposg_ast              := A_mposg_ast _ A 
+|}.
+
+
+Definition A2C_monotone_increasing_posg {S : Type} (A : A_monotone_increasing_posg S) : @monotone_increasing_posg S := 
+{|
+  miposg_eqv              := A2C_eqv _ (A_miposg_eqv _ A)
+; miposg_lte              := A_miposg_lte _ A 
+; miposg_times            := A_miposg_times _ A 
+; miposg_lte_certs        := P2C_po _ _ (A_miposg_lte_proofs _ A)
+; miposg_times_certs      := P2C_sg _ _ _ (A_miposg_times_proofs _ A)
+; miposg_top_bottom       := P2C_os_bottom_top_proofs _ _ _ _ (A_miposg_top_bottom _ A) 
+; miposg_certs            := P2C_os_monotone_increasing_proofs _ _ _ (A_miposg_proofs _ A)
+; miposg_ast              := A_miposg_ast _ A 
+|}.
+
+Definition A2C_bounded_monotone_increasing_posg {S : Type}
+    (A : A_bounded_monotone_increasing_posg S) : @bounded_monotone_increasing_posg S := 
+{|
+  bmiposg_eqv              := A2C_eqv _ (A_bmiposg_eqv _ A)
+; bmiposg_lte              := A_bmiposg_lte _ A 
+; bmiposg_times            := A_bmiposg_times _ A 
+; bmiposg_lte_certs        := P2C_po _ _ (A_bmiposg_lte_proofs _ A)
+; bmiposg_times_certs      := P2C_sg _ _ _ (A_bmiposg_times_proofs _ A)
+; bmiposg_top_bottom       := P2C_os_bounded_proofs _ _ _ _ (A_bmiposg_top_bottom _ A) 
+; bmiposg_certs            := P2C_os_monotone_increasing_proofs _ _ _ (A_bmiposg_proofs _ A)
+; bmiposg_ast              := A_bmiposg_ast _ A 
+|}.
+
 
 End Translation.   
 

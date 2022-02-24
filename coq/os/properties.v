@@ -329,49 +329,6 @@ Inductive assert_right_strictly_increasing {S : Type} :=
 Inductive check_right_strictly_increasing {S : Type} := 
 | Certify_Right_Strictly_Increasing : @check_right_strictly_increasing S
 | Certify_Not_Right_Strictly_Increasing : (S * S) → @check_right_strictly_increasing S.
-  
-
-
-End CAS. 
-
-
-Section Translation.
-
-Definition p2c_left_monotone (S : Type) (lte : brel S) (b : binary_op S)
-       (d : os_left_monotone_decidable lte b) : @check_left_monotone S := 
-   match d with 
-   | inl _ => Certify_Left_Monotone 
-   | inr p => Certify_Not_Left_Monotone (projT1 p) 
-   end. 
-
-Definition p2c_right_monotone (S : Type) (lte : brel S) (b : binary_op S)
-       (d : os_right_monotone_decidable lte b) : @check_right_monotone S := 
-   match d with 
-   | inl _ => Certify_Right_Monotone
-   | inr p => Certify_Not_Right_Monotone (projT1 p)
-   end. 
-
-
-Definition p2c_left_increasing (S : Type) (lte : brel S) (b : binary_op S)
-       (d : os_left_increasing_decidable lte b) : @check_left_increasing S := 
-   match d with 
-   | inl _ => Certify_Left_Increasing 
-   | inr p => Certify_Not_Left_Increasing (projT1 p) 
-   end. 
-
-Definition p2c_right_increasing (S : Type) (lte : brel S) (b : binary_op S)
-       (d : os_right_increasing_decidable lte b) : @check_right_increasing S := 
-   match d with 
-   | inl _ => Certify_Right_Increasing
-   | inr p => Certify_Not_Right_Increasing (projT1 p)
-   end. 
-  
-End Translation. 
-
-
-Section Verify.
-
-End Verify.   
 
 
 (********************** Top, bottom vs id ann *****************************************)
@@ -489,9 +446,9 @@ Definition extract_exists_ann_certificate_from_exists_top_ann_certificate
            {S : Type} 
            (P : @os_exists_top_ann_certificate S) : @check_exists_ann S :=
 match P with
-| Top_Ann_Cert_None              => Certify_Not_Exists_Ann
-| Top_Ann_Cert_Top_None  _    => Certify_Not_Exists_Ann 
-| Top_Ann_Cert_None_Ann ann        => Certify_Exists_Ann ann
+| Top_Ann_Cert_None               => Certify_Not_Exists_Ann
+| Top_Ann_Cert_Top_None  _        => Certify_Not_Exists_Ann 
+| Top_Ann_Cert_None_Ann ann       => Certify_Exists_Ann ann
 | Top_Ann_Cert_Equal top_ann      => Certify_Exists_Ann top_ann
 | Top_Ann_Cert_Not_Equal (_, ann) => Certify_Exists_Ann ann  
 end.
@@ -501,9 +458,89 @@ Definition extract_exists_top_certificate_from_exists_top_ann_certificate
            (P : @os_exists_top_ann_certificate S) : @certify_exists_top S :=
 match P with
 | Top_Ann_Cert_None                => Certify_Not_Exists_Top 
-| Top_Ann_Cert_Top_None  top    => Certify_Exists_Top top
-| Top_Ann_Cert_None_Ann _           => Certify_Not_Exists_Top 
-| Top_Ann_Cert_Equal top_ann        => Certify_Exists_Top top_ann
+| Top_Ann_Cert_Top_None  top       => Certify_Exists_Top top
+| Top_Ann_Cert_None_Ann _          => Certify_Not_Exists_Top 
+| Top_Ann_Cert_Equal top_ann       => Certify_Exists_Top top_ann
 | Top_Ann_Cert_Not_Equal (top, _)  => Certify_Exists_Top top
 end.
+
+End CAS. 
+
+
+Section Translation.
+
+Variables (S : Type) (eq lte : brel S) (b : binary_op S).
+  
+Definition p2c_left_monotone (d : os_left_monotone_decidable lte b) : @check_left_monotone S := 
+   match d with 
+   | inl _ => Certify_Left_Monotone 
+   | inr p => Certify_Not_Left_Monotone (projT1 p) 
+   end. 
+
+Definition p2c_right_monotone (d : os_right_monotone_decidable lte b) : @check_right_monotone S := 
+   match d with 
+   | inl _ => Certify_Right_Monotone
+   | inr p => Certify_Not_Right_Monotone (projT1 p)
+   end. 
+
+
+Definition p2c_left_increasing (d : os_left_increasing_decidable lte b) : @check_left_increasing S := 
+   match d with 
+   | inl _ => Certify_Left_Increasing 
+   | inr p => Certify_Not_Left_Increasing (projT1 p) 
+   end. 
+
+Definition p2c_right_increasing (d : os_right_increasing_decidable lte b) : @check_right_increasing S := 
+   match d with 
+   | inl _ => Certify_Right_Increasing
+   | inr p => Certify_Not_Right_Increasing (projT1 p)
+   end.
+
+Definition p2c_os_exists_bottom_id_decidable (d : os_exists_bottom_id_decidable S eq lte b) :
+              @os_exists_bottom_id_certificate S :=
+match d with
+| Bottom_Id_Proof_None _ _ _ _ (_,_)         => Bottom_Id_Cert_None   
+| Bottom_Id_Proof_Bottom_None _ _ _ _ (P, _) => Bottom_Id_Cert_Bottom_None (projT1 P) 
+| Bottom_Id_Proof_None_Id _ _ _ _ (_, P)     => Bottom_Id_Cert_None_Id (projT1 P) 
+| Bottom_Id_Proof_Equal _ _ _ _ P            => Bottom_Id_Cert_Equal (projT1 P) 
+| Bottom_Id_Proof_Not_Equal _ _ _ _ P        => Bottom_Id_Cert_Not_Equal (projT1 P)  
+end. 
+
+Definition p2c_os_exists_top_ann_decidable (d : os_exists_top_ann_decidable S eq lte b) :
+              @os_exists_top_ann_certificate S :=
+match d with
+| Top_Ann_Proof_None _ _ _ _ (_,_)         => Top_Ann_Cert_None   
+| Top_Ann_Proof_Top_None _ _ _ _ (P, _)    => Top_Ann_Cert_Top_None (projT1 P) 
+| Top_Ann_Proof_None_Ann _ _ _ _ (_, P)    => Top_Ann_Cert_None_Ann (projT1 P) 
+| Top_Ann_Proof_Equal _ _ _ _ P            => Top_Ann_Cert_Equal (projT1 P) 
+| Top_Ann_Proof_Not_Equal _ _ _ _ P        => Top_Ann_Cert_Not_Equal (projT1 P)  
+end.
+
+
+Definition p2c_os_exists_bottom_id_equal
+           (d : A_os_exists_bottom_id_equal eq lte b) : @os_exists_bottom_id_equal S := 
+ Assert_Os_Exists_Bottom_Id_Equal (projT1 d). 
+
+Definition p2c_os_exists_bottom_id_not_equal
+           (d : A_os_exists_bottom_id_not_equal eq lte b) : @os_exists_bottom_id_not_equal S := 
+ Assert_Os_Exists_Bottom_Id_Not_Equal (projT1 d). 
+
+Definition p2c_os_exists_top_ann_equal
+           (d : A_os_exists_top_ann_equal eq lte b) : @os_exists_top_ann_equal S := 
+ Assert_Os_Exists_Top_Ann_Equal (projT1 d). 
+
+Definition p2c_os_exists_top_ann_not_equal
+           (d : A_os_exists_top_ann_not_equal eq lte b) : @os_exists_top_ann_not_equal S := 
+ Assert_Os_Exists_Top_Ann_Not_Equal (projT1 d). 
+  
+End Translation. 
+
+
+Section Verify.
+
+
+
+
+End Verify.   
+
 

@@ -670,7 +670,7 @@ Proof.
   + exact (@brel_square_matrix_new _ eqv_eq eqv_witness).  
   + exact Ast_eqv_matrix.
 Defined.
-  
+
   
 End CAS. 
 

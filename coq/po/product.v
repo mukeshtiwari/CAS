@@ -1,4 +1,5 @@
 Require Import Coq.Bool.Bool.    
+Require Import Coq.Strings.String.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
@@ -16,6 +17,7 @@ Require Import CAS.coq.sg.and.
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
 Require Import CAS.coq.po.theory.
+Require Import CAS.coq.po.cast_up. 
 
 Section Theory.
 
@@ -27,15 +29,23 @@ Variable wT : T.
 Variable eqS : brel S. 
 Variable eqT : brel T.
 
+Variable refS : brel_reflexive S eqS.
+Variable symS : brel_symmetric S eqS.
+Variable trnS : brel_transitive S eqS.
+
+Variable refT : brel_reflexive T eqT.
+Variable symT : brel_symmetric T eqT.
+Variable trnT : brel_transitive T eqT.
+
 Variable lteS : brel S. 
 Variable lteT : brel T.
 
-
 Variable lteReflS : brel_reflexive S lteS.
 Variable lteReflT : brel_reflexive T lteT.
+(* NB : anti-symmetry is not assumed! *) 
 
-Variable trnS : brel_transitive S lteS. 
-Variable trnT : brel_transitive T lteT.
+Variable lteTrnS : brel_transitive S lteS. 
+Variable lteTrnT : brel_transitive T lteT.
 
 Notation "a <*> b"  := (brel_product a b) (at level 15).
 
@@ -120,10 +130,10 @@ Defined.
 
 
 
-Definition ord_product_antisymmetric_decide: 
-  S -> T -> brel_antisymmetric_decidable S eqS lteS → brel_antisymmetric_decidable T eqT lteT → 
-        brel_antisymmetric_decidable (S * T) (eqS <*> eqT) (lteS <*> lteT)
-:= λ wS wT dS dT,  
+Definition ord_product_antisymmetric_decide
+    (dS : brel_antisymmetric_decidable S eqS lteS)
+    (dT : brel_antisymmetric_decidable T eqT lteT) : 
+      brel_antisymmetric_decidable (S * T) (eqS <*> eqT) (lteS <*> lteT) := 
        match dS with 
        | inl asymS => 
          match dT with 
@@ -154,7 +164,7 @@ Proof. intros N (s, t). destruct (N s) as [[w L] | [w [[A B] C]]].
        rewrite (lteReflT t). auto. 
 Defined. 
 
-Lemma ord_product_not_exists_qo_bottom_right (refS : brel_reflexive S eqS) :
+Lemma ord_product_not_exists_qo_bottom_right :
   (brel_not_exists_qo_bottom T eqT lteT) → brel_not_exists_qo_bottom (S * T) (eqS <*> eqT) (lteS <*> lteT). 
 Proof. intros N (s, t). destruct (N t) as [[w L] | [w [[A B] C]]]. 
        left. exists (s, w). compute. rewrite L. rewrite (lteReflS s); auto. 
@@ -163,14 +173,14 @@ Proof. intros N (s, t). destruct (N t) as [[w L] | [w [[A B] C]]].
 Defined.
 
 
-Definition ord_product_exists_qo_bottom_decide (refS : brel_reflexive S eqS)
+Definition ord_product_exists_qo_bottom_decide 
      (DS : brel_exists_qo_bottom_decidable S eqS lteS)
      (DT : brel_exists_qo_bottom_decidable T eqT lteT) : 
            brel_exists_qo_bottom_decidable (S * T) (eqS <*> eqT) (lteS <*> lteT) := 
 match DS with 
 | inl botS  => match DT with
                | inl botT => inl (ord_product_exists_qo_bottom botS botT)
-               | inr nbot => inr (ord_product_not_exists_qo_bottom_right refS nbot)
+               | inr nbot => inr (ord_product_not_exists_qo_bottom_right nbot)
                end 
 | inr nbot => inr (ord_product_not_exists_qo_bottom_left nbot)
 end.
@@ -197,7 +207,7 @@ Proof. intros N (s, t). destruct (N s) as [[w L] | [w [[A B] C]]].
 Defined. 
 
 
-Lemma ord_product_not_exists_qo_top_right (refS : brel_reflexive S eqS) :
+Lemma ord_product_not_exists_qo_top_right :
   (brel_not_exists_qo_top T eqT lteT) 
   → brel_not_exists_qo_top (S * T) (eqS <*> eqT) (lteS <*> lteT). 
 Proof. intros N (s, t). destruct (N t) as [[w L] | [w [[A B] C]]]. 
@@ -207,14 +217,14 @@ Proof. intros N (s, t). destruct (N t) as [[w L] | [w [[A B] C]]].
 Defined. 
 
 
-Definition ord_product_exists_qo_top_decide (refS : brel_reflexive S eqS)
+Definition ord_product_exists_qo_top_decide 
      (DS : brel_exists_qo_top_decidable S eqS lteS)
      (DT : brel_exists_qo_top_decidable T eqT lteT) : 
            brel_exists_qo_top_decidable (S * T) (eqS <*> eqT) (lteS <*> lteT) := 
 match DS with 
 | inl topS  => match DT with
                | inl topT => inl (ord_product_exists_qo_top topS topT)
-               | inr ntop => inr (ord_product_not_exists_qo_top_right refS ntop)
+               | inr ntop => inr (ord_product_not_exists_qo_top_right ntop)
                end 
 | inr ntop => inr (ord_product_not_exists_qo_top_left ntop)
 end.
@@ -276,40 +286,76 @@ end.
 
 Close Scope nat_scope. 
 
-Lemma total_split (U : Type) (eq lte: brel U) (s : U) ( f : U -> U) :
-      brel_reflexive U eq ->  
-      brel_reflexive U lte ->
-      brel_congruence U eq lte ->     
-      brel_total U lte -> 
-      brel_not_trivial U lte f -> 
-      brel_antisymmetric U eq lte -> 
-      {s1 : U & {s2 : U & (lte s2 s1 = true) * (lte s1 s2 = false) }}. 
-Proof. intros ref lteRef cong tot Pf anti. 
-       destruct (Pf s) as [L R].
-       case_eq(lte s (f s)); intro F1;  case_eq(lte (f s) s); intro F2.
-          assert (A := anti _ _ F1 F2).
-          rewrite (cong _ _ _ _ A (ref (f s))) in L. 
-          rewrite lteRef in L. discriminate L. 
-          exists (f s); exists s; split; assumption. 
-          exists s; exists (f s); split; assumption. 
-          destruct (tot s (f s)) as [F | F].          
-             rewrite F in F1. discriminate.
-             rewrite F in F2. discriminate.
+Lemma or_product_trivial (TS : order_trivial S lteS) (TT : order_trivial T lteT) : 
+  order_trivial (S * T) (lteS <*> lteT).
+Proof. intros [s1 t1]  [s2 t2]. compute. 
+       rewrite (TS s1 s2). rewrite (TT t1 t2). 
+       reflexivity.
+Qed.
+
+Lemma or_product_not_trivial_left (TS : order_not_trivial S lteS) : 
+          order_not_trivial (S * T) (lteS <*> lteT).
+Proof. destruct TS as [[s1 s2] A]. 
+       exists ((s1, wT), (s2, wT)). compute.
+       rewrite A. reflexivity.
+Defined. 
+
+Lemma or_product_not_trivial_right (TT : order_not_trivial T lteT) : 
+          order_not_trivial (S * T) (lteS <*> lteT).
+Proof. destruct TT as [[t1 t2] A]. 
+       exists ((wS, t1), (wS, t2)). compute.
+       rewrite A. rewrite lteReflS. reflexivity.
 Defined.
 
-Lemma ord_product_not_total_v1 ( f : S -> S) (g : T -> T) :
-      brel_reflexive S eqS ->
-      brel_congruence S eqS lteS ->       
-      brel_total S lteS -> 
-      brel_not_trivial S lteS f ->
-      brel_not_trivial T lteT g ->       
-      brel_antisymmetric S eqS lteS -> 
-              brel_not_total (S * T) (lteS <*> lteT). 
-Proof. intros refS lteCong TS NTS NTT ANS.
-       destruct (total_split S eqS lteS wS f refS lteReflS lteCong TS NTS ANS) as [s1 [s2 [A B]]].
-       exists ((s1, wT), (s2, g wT)). compute. 
-       rewrite A, B. destruct (NTT wT) as [C D]. 
-       rewrite D; auto. 
+Definition ord_product_order_trivial_decide 
+     (trvS_d : order_trivial_decidable S lteS)
+     (trvT_d : order_trivial_decidable T lteT): 
+        order_trivial_decidable (S * T) (lteS <*> lteT) := 
+       match trvS_d with 
+       | inl trvS => 
+         match trvT_d with 
+         | inl trvT  => inl (or_product_trivial trvS trvT)
+         | inr ntrvT => inr (or_product_not_trivial_right ntrvT)
+         end 
+       | inr ntrvS   => inr (or_product_not_trivial_left ntrvS)
+       end. 
+
+
+
+Lemma ord_product_total (TS : order_trivial S lteS) (TT : order_trivial T lteT) : 
+       brel_total (S * T) (lteS <*> lteT). 
+Proof. exact (order_trivial_implies_total _ _ (or_product_trivial TS TT)). Qed.
+
+Lemma ord_product_total_left (totS : brel_total S lteS) (TT : order_trivial T lteT) : 
+       brel_total (S * T) (lteS <*> lteT). 
+Proof. intros [s1 t1]  [s2 t2]. compute. 
+       rewrite (TT t1 t2). rewrite (TT t2 t1).
+       destruct (totS s1 s2) as [A | A]; rewrite A. 
+       + left. reflexivity. 
+       + right. reflexivity. 
+Qed. 
+
+Lemma ord_product_total_right (TS : order_trivial S lteS) (totT : brel_total T lteT) : 
+       brel_total (S * T) (lteS <*> lteT). 
+Proof. intros [s1 t1]  [s2 t2]. compute. 
+       rewrite (TS s1 s2). rewrite (TS s2 s1).
+       destruct (totT t1 t2) as [A | A]; rewrite A. 
+       + left. reflexivity. 
+       + right. reflexivity. 
+Qed. 
+
+Lemma ord_product_not_total :
+      brel_total S lteS ->
+      brel_total T lteT ->
+      order_not_trivial S lteS ->
+      order_not_trivial T lteT ->  brel_not_total (S * T) (lteS <*> lteT). 
+Proof. intros TS TT [[s1 s2] P] [[t1 t2] Q].
+       exists ((s2, t1), (s1, t2)). 
+       destruct (TS s1 s2) as [A | A].
+       + rewrite A in P. discriminate P. 
+       + destruct (TT t1 t2) as [B | B]. 
+         ++ rewrite B in Q. discriminate Q. 
+         ++ compute. rewrite A, P, Q. auto.  
 Defined.
 
 Lemma ord_product_not_total_left :
@@ -325,14 +371,33 @@ Proof. intros [[t1 t2] [A B]]. exists ((wS, t1), (wS, t2)). compute.
        rewrite A, B; auto. rewrite (lteRef wS). auto. 
 Defined.
 
+Definition ord_product_total_decide
+           (totS_d : brel_total_decidable S lteS) 
+           (totT_d : brel_total_decidable T lteT) 
+           (trvS_d : order_trivial_decidable S lteS) 
+           (trvT_d : order_trivial_decidable T lteT) : 
+                 brel_total_decidable (S * T) (lteS <*> lteT) := 
+match totS_d with
+| inl totS =>
+  match totT_d with
+  | inl totT =>
+    match trvS_d with
+    | inl trvS => inl (ord_product_total_right trvS totT) 
+    | inr ntrvS =>
+      match trvT_d with
+      | inl trvT => inl (ord_product_total_left totS trvT) 
+      | inr ntrvT => inr (ord_product_not_total totS totT ntrvS ntrvT)
+      end
+    end 
+  | inr ntotT => inr (ord_product_not_total_right lteReflS ntotT)    
+  end 
+| inr ntotS => inr (ord_product_not_total_left ntotS)
+end.     
+
+
 
 (* bottoms *)
 Section Bottoms.
-
-(* interesting that these not needed until now *)   
-Variable symS : brel_symmetric S eqS.
-Variable refT : brel_reflexive T eqT.
-Variable symT : brel_symmetric T eqT. 
 
 Definition bop_product_w (BS : list S) (BT : list T) (fS : S ->S) (fT : T -> T) (p : S * T) :=
   match p with (s, t) =>
@@ -717,95 +782,128 @@ End Theory.
 
 Section ACAS.
 
-Definition po_product_proofs (S T : Type) (eqS lteS : brel S) (wS : S) 
-               (P : po_proofs S eqS lteS)  (eqT lteT : brel T) (wT : T) (Q : po_proofs T eqT lteT) :
-    po_proofs (S * T) (brel_product eqS eqT) (brel_product lteS lteT) := 
-let lteReflS := A_po_reflexive _ _ _ P in
-let lteReflT := A_po_reflexive _ _ _ Q in
-let lteTrnS := A_po_transitive _ _ _ P in
-let lteTrnT := A_po_transitive _ _ _ Q in    
+Section Proofs.
+    
+Variables (S T : Type) 
+          (eqS : brel S) (wS : S) (eqvPS : eqv_proofs S eqS) 
+          (eqT : brel T) (wT : T) (eqvPT : eqv_proofs T eqT) 
+          (lteS : brel S)
+          (lteT : brel T).
+          
+Definition or_product_proofs (P : or_proofs S eqS lteS)  (Q : or_proofs T eqT lteT) :
+  or_proofs (S * T) (brel_product eqS eqT) (brel_product lteS lteT) :=
+let symS     := A_eqv_symmetric _ _ eqvPS in
+let symT     := A_eqv_symmetric _ _ eqvPT in  
+let lteReflS := A_or_reflexive _ _ _ P in
+let lteReflT := A_or_reflexive _ _ _ Q in
+let lteTrnS  := A_or_transitive _ _ _ P in
+let lteTrnT  := A_or_transitive _ _ _ Q in    
 {|
-  A_po_congruence        := brel_product_congruence S T eqS eqT lteS lteT (A_po_congruence S eqS lteS P) (A_po_congruence T eqT lteT Q)
-; A_po_reflexive         := brel_product_reflexive S T lteS lteT lteReflS lteReflT 
-; A_po_transitive        := brel_product_transitive S T lteS lteT lteTrnS lteTrnT 
-; A_po_antisymmetric     := ord_product_antisymmetric S T eqS eqT lteS lteT (A_po_antisymmetric S eqS lteS P) (A_po_antisymmetric T eqT lteT Q)
-; A_po_not_total         := ord_product_not_total_left S T wT lteS lteT (A_po_not_total S eqS lteS P)
+  A_or_congruence        := brel_product_congruence S T eqS eqT lteS lteT
+                                (A_or_congruence S eqS lteS P) 
+                                (A_or_congruence T eqT lteT Q)                                                    
+; A_or_reflexive         := brel_product_reflexive S T lteS lteT lteReflS lteReflT 
+; A_or_transitive        := brel_product_transitive S T lteS lteT lteTrnS lteTrnT 
+; A_or_antisymmetric_d   := ord_product_antisymmetric_decide S T wS wT eqS eqT symS symT lteS lteT lteReflS lteReflT
+                                (A_or_antisymmetric_d S eqS lteS P)
+                                (A_or_antisymmetric_d T eqT lteT Q)
+; A_or_total_d           := ord_product_total_decide S T wS wT lteS lteT lteReflS 
+                                (A_or_total_d S eqS lteS P)
+                                (A_or_total_d T eqT lteT Q)
+                                (A_or_trivial_d S eqS lteS P)
+                                (A_or_trivial_d T eqT lteT Q)
+; A_or_trivial_d         := ord_product_order_trivial_decide S T wS wT lteS lteT lteReflS 
+                                (A_or_trivial_d S eqS lteS P)
+                                (A_or_trivial_d T eqT lteT Q)
 |}.
+  
+End Proofs.
+  
+Section Combinators.
 
 
-Definition A_po_product (S T : Type) (PS : A_po S) (PT : A_po T) : A_po(S * T) :=
-let eqvS := A_po_eqv _ PS in
-let eqvT := A_po_eqv _ PT in
-let eqS := A_eqv_eq _ eqvS in
-let eqT := A_eqv_eq _ eqvT in
-let wS := A_eqv_witness _ eqvS in
-let wT := A_eqv_witness _ eqvT in
-let lteS := A_po_lte _ PS in 
-let lteT := A_po_lte _ PT in
-let botS := A_po_exists_bottom _ PS in
-let botT := A_po_exists_bottom _ PT in
-let topS_d := A_po_exists_top_d _ PS in
-let topT_d := A_po_exists_top_d _ PT in 
-let pS := A_po_proofs _ PS in 
-let pT := A_po_proofs _ PT in
-let lteReflS := A_po_reflexive _ _ _ pS in 
+Definition A_or_product (S T : Type) (PS : A_or S) (PT : A_or T) : A_or(S * T) :=
+let eqvS := A_or_eqv _ PS in
+let eqvT := A_or_eqv _ PT in
+let eqvPS := A_eqv_proofs _ eqvS in
+let eqvPT := A_eqv_proofs _ eqvT in
+let refS  := A_eqv_reflexive _ _ eqvPS in
+let eqS  := A_eqv_eq _ eqvS in
+let eqT  := A_eqv_eq _ eqvT in
+let wS   := A_eqv_witness _ eqvS in
+let wT   := A_eqv_witness _ eqvT in
+let lteS := A_or_lte _ PS in 
+let lteT := A_or_lte _ PT in
+let botS := A_or_exists_bottom_d _ PS in
+let botT := A_or_exists_bottom_d _ PT in
+let topS := A_or_exists_top_d _ PS in
+let topT := A_or_exists_top_d _ PT in 
+let pS   := A_or_proofs _ PS in 
+let pT   := A_or_proofs _ PT in
+let lteReflS := A_or_reflexive _ _ _ pS in
+let lteReflT := A_or_reflexive _ _ _ pT in 
 {|
-  A_po_eqv           := A_eqv_product S T eqvS eqvT
-; A_po_lte           := brel_product lteS lteT 
-; A_po_exists_top_d  := ord_product_exists_top_decide S T lteS lteT lteReflS topS_d topT_d
-; A_po_exists_bottom := ord_product_exists_bottom S T lteS lteT botS botT
-; A_po_proofs        := po_product_proofs S T eqS lteS wS pS eqT lteT wT pT 
-; A_po_ast           := Ast_or_product (A_po_ast _ PS, A_po_ast _ PS)
+  A_or_eqv             := A_eqv_product S T eqvS eqvT
+; A_or_lte             := brel_product lteS lteT 
+; A_or_exists_top_d    := ord_product_exists_qo_top_decide S T eqS eqT refS lteS lteT lteReflS lteReflT topS topT
+; A_or_exists_bottom_d := ord_product_exists_qo_bottom_decide S T eqS eqT refS lteS lteT lteReflS lteReflT botS botT 
+; A_or_proofs          := or_product_proofs S T eqS wS eqvPS eqT wT eqvPT lteS lteT pS pT
+; A_or_ast             := Ast_or_product (A_or_ast _ PS, A_or_ast _ PS)
 |}.
 
   
-
-Definition ord_po_wo_product_proofs (S T : Type) (eqS lteS : brel S) (wS : S) 
-               (P : po_proofs S eqS lteS)  (eqT lteT : brel T) (wT : T) (Q : wo_proofs T eqT lteT) :
-    qo_proofs (S * T) (brel_product eqS eqT) (brel_product lteS lteT) := 
-let lteReflS := A_po_reflexive _ _ _ P in
-let lteReflT := A_wo_reflexive _ _ _ Q in
-let lteTrnS := A_po_transitive _ _ _ P in
-let lteTrnT := A_wo_transitive _ _ _ Q in    
-{|
-  A_qo_congruence        := brel_product_congruence S T eqS eqT lteS lteT (A_po_congruence S eqS lteS P) (A_wo_congruence T eqT lteT Q)
-; A_qo_reflexive         := brel_product_reflexive S T lteS lteT lteReflS lteReflT 
-; A_qo_transitive        := brel_product_transitive S T lteS lteT lteTrnS lteTrnT 
-; A_qo_not_antisymmetric := ord_product_not_antisymmetric_right S T wS eqS eqT lteS lteT lteReflS (A_wo_not_antisymmetric T eqT lteT Q)
-; A_qo_not_total         := ord_product_not_total_left S T wT lteS lteT (A_po_not_total S eqS lteS P)
-|}.
-     
+End Combinators. 
   
 End ACAS.
 
-Section CAS.
 
-Definition po_product_certs {S T : Type} (P : @po_certificates S) (wT : T) (Q : @po_certificates T) :
-   @ po_certificates (S * T) := 
-{|
-  po_congruence        := Assert_Brel_Congruence 
-; po_reflexive         := Assert_Reflexive
-; po_transitive        := Assert_Transitive
-; po_antisymmetric     := Assert_Antisymmetric 
-; po_not_total         := match po_not_total P with
-                          | Assert_Not_Total (s1, s2) => Assert_Not_Total ((s1, wT), (s2, wT))
-                          end
-|}.
+Section AMCAS.
 
+Open Scope list_scope.
+Open Scope string_scope.
 
-Definition ord_product_exists_top_check {S T : Type}
-     (DS : @certify_exists_top S )
-     (DT : @certify_exists_top T ) : 
-           @certify_exists_top (S * T) := 
-match DS with 
-| Certify_Exists_Top topS  => 
-               match DT with
-               | Certify_Exists_Top topT => Certify_Exists_Top (topS, topT)
-               | Certify_Not_Exists_Top  => Certify_Not_Exists_Top  
-               end 
-| Certify_Not_Exists_Top => Certify_Not_Exists_Top  
+  
+Definition A_mcas_or_product (S T : Type) (A : @A_or_mcas S)  (B : @A_or_mcas T)  : @A_or_mcas (S * T) :=
+match A_or_mcas_cast_up A, A_or_mcas_cast_up B with
+| A_OR_or A', A_OR_or B'         => A_or_classify (A_OR_or (A_or_product _ _ A' B'))
+| A_OR_Error sl1, A_OR_Error sl2 => A_OR_Error (sl1 ++ sl2)
+| A_OR_Error sl1, _              => A_OR_Error sl1
+| _,  A_OR_Error sl2             => A_OR_Error sl2
+| _, _                           => A_OR_Error ("Internal Error : mcas_or_product" :: nil)
 end.
 
+End AMCAS.
+
+
+
+Section CAS.
+
+
+Definition ord_product_exists_qo_top_check {S T : Type}
+     (DS : @certify_exists_qo_top S )
+     (DT : @certify_exists_qo_top T ) : 
+           @certify_exists_qo_top (S * T) := 
+match DS with 
+| Certify_Exists_Qo_Top topS  => 
+               match DT with
+               | Certify_Exists_Qo_Top topT => Certify_Exists_Qo_Top (topS, topT)
+               | Certify_Not_Exists_Qo_Top  => Certify_Not_Exists_Qo_Top  
+               end 
+| Certify_Not_Exists_Qo_Top => Certify_Not_Exists_Qo_Top  
+end.
+
+Definition ord_product_exists_qo_bottom_check {S T : Type}
+     (DS : @certify_exists_qo_bottom S )
+     (DT : @certify_exists_qo_bottom T ) : 
+           @certify_exists_qo_bottom (S * T) := 
+match DS with 
+| Certify_Exists_Qo_Bottom botS  => 
+               match DT with
+               | Certify_Exists_Qo_Bottom botT => Certify_Exists_Qo_Bottom (botS, botT)
+               | Certify_Not_Exists_Qo_Bottom  => Certify_Not_Exists_Qo_Bottom  
+               end 
+| Certify_Not_Exists_Qo_Bottom => Certify_Not_Exists_Qo_Bottom  
+end.
 
 Definition ord_product_exists_bottom_assert {S T : Type}
      (DS : @assert_exists_bottom S )
@@ -818,122 +916,273 @@ match DS with
                end 
 end.
 
-  
-Definition po_product {S T : Type} (PS : @po S) (PT : @po T) : @po(S * T) :=
-let eqvS := po_eqv PS in
-let eqvT := po_eqv PT in
-let eqS := eqv_eq eqvS in
-let eqT := eqv_eq eqvT in
-let wS := eqv_witness eqvS in
-let wT := eqv_witness eqvT in
-let lteS := po_lte PS in 
-let lteT := po_lte PT in
-let botS :=  po_exists_bottom PS in
-let botT := po_exists_bottom PT in
-let topS_d := po_exists_top_d PS in
-let topT_d := po_exists_top_d PT in 
-let pS := po_certs PS in 
-let pT := po_certs PT in
+
+Definition ord_product_antisymmetric_certify {S T : Type} (wS : S) (wT : T) 
+    (dS : @certify_antisymmetric S)
+    (dT : @certify_antisymmetric T) : @certify_antisymmetric (S * T) := 
+       match dS with 
+       | Certify_Antisymmetric => 
+         match dT with 
+         | Certify_Antisymmetric              => Certify_Antisymmetric
+         | Certify_Not_Antisymmetric (t1, t2) => Certify_Not_Antisymmetric ((wS, t1), (wS, t2))
+         end 
+       | Certify_Not_Antisymmetric (s1, s2)   => Certify_Not_Antisymmetric ((s1, wT), (s2, wT))
+       end.
+
+Definition ord_product_order_trivial_certify {S T : Type} (wS : S) (wT : T) 
+     (trvS_d : @order_trivial_certifiable S)
+     (trvT_d : @order_trivial_certifiable T): @order_trivial_certifiable (S * T) := 
+       match trvS_d with 
+       | Certify_Order_Trivial => 
+         match trvT_d with 
+         | Certify_Order_Trivial  => Certify_Order_Trivial
+         | Certify_Order_Not_Trivial (t1, t2) => Certify_Order_Not_Trivial ((wS, t1), (wS, t2))
+         end 
+       | Certify_Order_Not_Trivial (s1, s2) => Certify_Order_Not_Trivial ((s1, wT), (s2, wT))
+       end. 
+
+Definition ord_product_total_certify {S T : Type} (wS : S) (wT : T) 
+           (totS_d : @certify_total S) 
+           (totT_d : @certify_total  T) 
+           (trvS_d : @order_trivial_certifiable S) 
+           (trvT_d : @order_trivial_certifiable T) : @certify_total (S * T) := 
+match totS_d with
+| Certify_Total =>
+  match totT_d with
+  | Certify_Total =>
+    match trvS_d with
+    | Certify_Order_Trivial                => Certify_Total 
+    | Certify_Order_Not_Trivial (s1, s2)   =>
+      match trvT_d with
+      | Certify_Order_Trivial              => Certify_Total
+      | Certify_Order_Not_Trivial (t1, t2) => Certify_Not_Total ((s2, t1), (s1, t2))
+      end
+    end 
+  | Certify_Not_Total (t1, t2) => Certify_Not_Total ((wS, t1), (wS, t2))
+  end 
+| Certify_Not_Total (s1, s2) => Certify_Not_Total ((s1, wT), (s2, wT))
+end.     
+
+
+Definition or_product_certs {S T : Type} (wS : S) (wT : T)
+           (P : @or_certificates S)
+           (Q : @or_certificates T) : @or_certificates (S * T) := 
 {|
-  po_eqv           := eqv_product eqvS eqvT
-; po_lte           := brel_product lteS lteT 
-; po_exists_top_d  := ord_product_exists_top_check topS_d topT_d
-; po_exists_bottom := ord_product_exists_bottom_assert botS botT
-; po_certs         := po_product_certs pS wT pT 
-; po_ast           := Ast_or_product (po_ast PS, po_ast PS)
+  or_congruence        := Assert_Brel_Congruence 
+; or_reflexive         := Assert_Reflexive
+; or_transitive        := Assert_Transitive
+; or_antisymmetric_d   := ord_product_antisymmetric_certify wS wT
+                               (or_antisymmetric_d P) 
+                               (or_antisymmetric_d Q)
+; or_total_d           := ord_product_total_certify wS wT
+                               (or_total_d P) 
+                               (or_total_d Q)
+                               (or_trivial_d P) 
+                               (or_trivial_d Q)                               
+; or_trivial_d         := ord_product_order_trivial_certify wS wT
+                               (or_trivial_d P) 
+                               (or_trivial_d Q)   
 |}.
 
-
-
-
-Definition ord_po_wo_product_certs {S T : Type} (wS : S) (P : @po_certificates S)  (wT : T) (Q : @wo_certificates T) :
-    @qo_certificates (S * T) := 
+Definition or_product {S T : Type} (PS : @or S) (PT : @or T) : @or(S * T) :=
+let eqvS   := or_eqv PS in
+let eqvT   := or_eqv PT in
+let eqS    := eqv_eq eqvS in
+let eqT    := eqv_eq eqvT in
+let wS     := eqv_witness eqvS in
+let wT     := eqv_witness eqvT in
+let lteS   := or_lte PS in 
+let lteT   := or_lte PT in
+let botS_d := or_exists_bottom_d PS in
+let botT_d := or_exists_bottom_d PT in
+let topS_d := or_exists_top_d PS in
+let topT_d := or_exists_top_d PT in 
+let pS     := or_certs PS in 
+let pT     := or_certs PT in
 {|
-  qo_congruence        := Assert_Brel_Congruence 
-; qo_reflexive         := Assert_Reflexive
-; qo_transitive        := Assert_Transitive
-; qo_not_antisymmetric := match wo_not_antisymmetric Q with
-                          | Assert_Not_Antisymmetric (t1, t2) => Assert_Not_Antisymmetric ((wS, t1), (wS, t2))
-                          end
-; qo_not_total       := match po_not_total P with
-                          | Assert_Not_Total (s1, s2) => Assert_Not_Total ((s1, wT), (s2, wT))
-                          end
+  or_eqv             := eqv_product eqvS eqvT
+; or_lte             := brel_product lteS lteT 
+; or_exists_top_d    := ord_product_exists_qo_top_check topS_d topT_d
+; or_exists_bottom_d := ord_product_exists_qo_bottom_check botS_d botT_d
+; or_certs           := or_product_certs wS wT pS pT 
+; or_ast             := Ast_or_product (or_ast PS, or_ast PS)
 |}.
-  
 
 End CAS.
 
+Section MCAS.
+
+Open Scope list_scope.
+Open Scope string_scope.
+
+  
+Definition mcas_or_product {S T : Type} (A : @or_mcas S)  (B : @or_mcas T)  : @or_mcas (S * T) :=
+match or_mcas_cast_up A, or_mcas_cast_up B with
+| OR_or A', OR_or B'           => or_classify (OR_or (or_product A' B'))
+| OR_Error sl1, OR_Error sl2   => OR_Error (sl1 ++ sl2)
+| OR_Error sl1, _              => OR_Error sl1
+| _,  OR_Error sl2             => OR_Error sl2
+| _, _                         => OR_Error ("Internal Error : mcas_or_product" :: nil)
+end.
+
+End MCAS.
+
+
 Section Verify.
 
+Section Decide.
 
-Lemma correct_ord_po_wo_product_certs (S T: Type) (eqS lteS : brel S) (wS : S) 
-               (P : po_proofs S eqS lteS)  (eqT lteT : brel T) (wT : T) (Q : wo_proofs T eqT lteT) :
-   ord_po_wo_product_certs wS (P2C_po S eqS lteS P) wT (P2C_wo T eqT lteT Q) 
-   =   
-   P2C_qo _ _ _ (ord_po_wo_product_proofs S T eqS lteS wS P eqT lteT wT Q). 
-Proof. destruct P. destruct Q.
-       unfold ord_po_wo_product_certs, ord_po_wo_product_proofs, P2C_qo, P2C_po, P2C_wo. 
-       destruct A_wo_not_antisymmetric as [[t1 t2] [[A B] C]];                                                                
-       destruct A_po_not_total as [[s1 s2] [D E]]; simpl.               
-       unfold p2c_not_antisymmetric_assert. simpl. 
-       unfold p2c_not_total_assert. simpl. 
-       reflexivity. 
-Qed. 
+Variables (S T: Type)
+          (eqS lteS : brel S) (wS : S)
+          (eqT lteT : brel T) (wT : T)
+          (refS    : brel_reflexive S eqS)
+          (symS    : brel_symmetric S eqS)          
+          (refT    : brel_reflexive T eqT)
+          (symT    : brel_symmetric T eqT)                    
+          (lteRefS : brel_reflexive S lteS)
+          (lteRefT : brel_reflexive T lteT). 
 
-
-Lemma correct_po_product_certs (S T: Type) (eqS lteS : brel S) (wS : S) 
-               (P : po_proofs S eqS lteS)  (eqT lteT : brel T) (wT : T) (Q : po_proofs T eqT lteT) :
-   po_product_certs (P2C_po S eqS lteS P) wT (P2C_po T eqT lteT Q) 
-   =   
-   P2C_po _ _ _ (po_product_proofs S T eqS lteS wS P eqT lteT wT Q). 
-Proof. destruct P. destruct Q.
-       unfold po_product_certs, po_product_proofs, P2C_po. 
-       destruct A_po_not_total as [[s1 s2] [D E]]; simpl.               
-       unfold p2c_not_total_assert. simpl. 
-       reflexivity. 
-Qed. 
-
-Lemma correct_po_product_exists_top_check
-  (S T: Type) (lteS : brel S) (lteT : brel T)
-  (lteReflS : brel_reflexive S lteS)
-  (topS : brel_exists_top_decidable S lteS)
-  (topT : brel_exists_top_decidable T lteT) : 
-  ord_product_exists_top_check (p2c_exists_top_check S lteS topS) (p2c_exists_top_check T lteT topT)
+Lemma correct_po_product_exists_qo_top_check
+  (topS : brel_exists_qo_top_decidable S eqS lteS)
+  (topT : brel_exists_qo_top_decidable T eqT lteT) : 
+  ord_product_exists_qo_top_check
+    (p2c_exists_qo_top_check S eqS lteS topS)
+    (p2c_exists_qo_top_check T eqT lteT topT)
   = 
-  p2c_exists_top_check (S * T) (brel_product lteS lteT)
-                       (ord_product_exists_top_decide S T lteS lteT lteReflS topS topT). 
-Proof. unfold p2c_exists_top_check, ord_product_exists_top_check, ord_product_exists_top_decide.
+  p2c_exists_qo_top_check (S * T) (brel_product eqS eqT) (brel_product lteS lteT)
+    (ord_product_exists_qo_top_decide S T eqS eqT refS lteS lteT lteRefS lteRefT topS topT). 
+Proof. unfold p2c_exists_qo_top_check, ord_product_exists_qo_top_check, ord_product_exists_qo_top_decide.
        destruct topS; destruct topT; simpl; auto. 
-       destruct b as [s A]. destruct b0 as [t B]. simpl. auto. 
+       destruct b as [s [A B]]. destruct b0 as [t [C D]]. simpl. reflexivity. 
 Defined.
 
 
-Lemma correct_po_product_exists_bottom_assert
-  (S T: Type) (lteS : brel S) (lteT : brel T)
-  (botS : brel_exists_bottom S lteS)
-  (botT : brel_exists_bottom T lteT) : 
-  ord_product_exists_bottom_assert (p2c_exists_bottom_assert S lteS botS) (p2c_exists_bottom_assert T lteT botT)
+Lemma correct_po_product_exists_qo_bottom_check
+  (bottomS : brel_exists_qo_bottom_decidable S eqS lteS)
+  (bottomT : brel_exists_qo_bottom_decidable T eqT lteT) : 
+  ord_product_exists_qo_bottom_check
+    (p2c_exists_qo_bottom_check S eqS lteS bottomS)
+    (p2c_exists_qo_bottom_check T eqT lteT bottomT)
   = 
-  p2c_exists_bottom_assert (S * T) (brel_product lteS lteT)
-                       (ord_product_exists_bottom S T lteS lteT botS botT). 
-Proof. unfold p2c_exists_bottom_assert, ord_product_exists_bottom_assert. 
-       destruct botS; destruct botT; simpl; auto. 
+  p2c_exists_qo_bottom_check (S * T) (brel_product eqS eqT) (brel_product lteS lteT)
+    (ord_product_exists_qo_bottom_decide S T eqS eqT refS lteS lteT lteRefS lteRefT bottomS bottomT). 
+Proof. unfold p2c_exists_qo_bottom_check, ord_product_exists_qo_bottom_check, ord_product_exists_qo_bottom_decide.
+       destruct bottomS; destruct bottomT; simpl; auto. 
+       destruct b as [s [A B]]. destruct b0 as [t [C D]]. simpl. reflexivity. 
 Defined.
 
-Lemma correct_po_product (S T: Type) (P : A_po S )  (Q : A_po T) :
-   po_product (A2C_po S P) (A2C_po T Q) 
-   =   
-   A2C_po (S * T) (A_po_product S T P Q). 
-Proof. destruct P. destruct Q.
-       unfold A_po_product, po_product, A2C_po. simpl.
-       rewrite <- correct_eqv_product.       
-       rewrite <- correct_po_product_certs.
-       rewrite <- correct_po_product_exists_top_check.
-       (* rewrite <- correct_po_product_exists_bottom_assert. *) 
-       destruct A_po_exists_bottom. destruct A_po_exists_bottom0. simpl.
-       unfold p2c_exists_bottom_assert. simpl.        
-       reflexivity. 
+Lemma correct_ord_product_antisymmetric_certify
+    (dS : brel_antisymmetric_decidable S eqS lteS)
+    (dT : brel_antisymmetric_decidable T eqT lteT) : 
+      p2c_antisymmetric_check (S * T) (brel_product eqS eqT) (brel_product lteS lteT)
+        (ord_product_antisymmetric_decide S T wS wT eqS eqT symS symT lteS lteT lteRefS lteRefT dS dT)
+      = 
+      ord_product_antisymmetric_certify wS wT
+        (p2c_antisymmetric_check S eqS lteS dS) 
+        (p2c_antisymmetric_check T eqT lteT dT). 
+Proof. unfold ord_product_antisymmetric_decide, ord_product_antisymmetric_certify, p2c_antisymmetric_check; simpl. 
+       destruct dS as [antiS | [[s1 s2] [ [A B] C]]];
+       destruct dT as [antiT | [[t1 t2] [ [D E] F]]]; simpl; reflexivity. 
+Qed.   
+
+Lemma correct_product_order_trivial_decide
+     (trvS_d : order_trivial_decidable S lteS)
+     (trvT_d : order_trivial_decidable T lteT): 
+      p2c_order_trivial_certificate (S * T) (brel_product lteS lteT)
+        (ord_product_order_trivial_decide S T wS wT lteS lteT lteRefS trvS_d trvT_d)
+        =
+        ord_product_order_trivial_certify wS wT
+        (p2c_order_trivial_certificate S lteS trvS_d)
+        (p2c_order_trivial_certificate T lteT trvT_d). 
+Proof. unfold ord_product_order_trivial_decide, ord_product_order_trivial_certify, p2c_order_trivial_certificate; simpl. 
+       destruct trvS_d as [trvS | [[s1 s2] A]]; 
+       destruct trvT_d as [trvT | [[t1 t2] B]]; simpl; reflexivity.          
+Qed.   
+
+  
+Lemma correct_ord_product_total_certify
+           (totS_d : brel_total_decidable S lteS) 
+           (totT_d : brel_total_decidable T lteT) 
+           (trvS_d : order_trivial_decidable S lteS) 
+           (trvT_d : order_trivial_decidable T lteT) : 
+      p2c_total_check (S * T) (brel_product lteS lteT)
+        (ord_product_total_decide S T wS wT lteS lteT lteRefS totS_d totT_d trvS_d trvT_d)
+        = 
+        ord_product_total_certify wS wT
+        (p2c_total_check S lteS totS_d)
+        (p2c_total_check T lteT totT_d)
+        (p2c_order_trivial_certificate S lteS trvS_d)
+        (p2c_order_trivial_certificate T lteT trvT_d).
+Proof. unfold ord_product_total_certify, ord_product_total_decide.
+       unfold p2c_total_check, p2c_order_trivial_certificate; simpl.
+       destruct totS_d as [totS | [[s1 s2] [A B]]];
+       destruct totT_d as [totT | [[t1 t2] [C D]]];
+       destruct trvS_d as [trvS | [[s3 s4] E]];
+       destruct trvT_d as [trvT | [[t3 t4] F]];
+         simpl; try reflexivity.
 Qed. 
+
+
+End Decide.
+
+Section Proofs.
+
+
+Variables (S T: Type)
+          (eqS lteS : brel S) (wS : S)
+          (eqT lteT : brel T) (wT : T)
+          (eqvPS    : eqv_proofs S eqS)
+          (eqvPT    : eqv_proofs T eqT).
+
+Lemma correct_or_product_certs (P : or_proofs S eqS lteS) (Q : or_proofs T eqT lteT) :
+   or_product_certs wS wT (P2C_or eqS lteS P) (P2C_or eqT lteT Q) 
+   =   
+   P2C_or _ _ (or_product_proofs S T eqS wS eqvPS eqT wT eqvPT lteS lteT P Q). 
+Proof. unfold or_product_certs, or_product_proofs, P2C_or; simpl. 
+       rewrite correct_ord_product_total_certify. 
+       rewrite correct_product_order_trivial_decide.
+       rewrite correct_ord_product_antisymmetric_certify. 
+       reflexivity. 
+Qed.
+
+
+End Proofs.   
+
+
+Section Combinators.
+
+Lemma correct_or_product (S T: Type) (P : A_or S )  (Q : A_or T) :
+   or_product (A2C_or P) (A2C_or Q) 
+   =   
+   A2C_or (A_or_product S T P Q). 
+Proof. destruct P. destruct Q.
+       unfold A_or_product, or_product, A2C_or. simpl.
+       rewrite <- correct_eqv_product.       
+       rewrite <- correct_po_product_exists_qo_top_check.
+       rewrite <- correct_po_product_exists_qo_bottom_check.       
+       rewrite <- correct_or_product_certs.
+       reflexivity. 
+Qed.
+
+
+Theorem correct_mcas_or_product (S T : Type) (orS : @A_or_mcas S) (orT : @A_or_mcas T): 
+         mcas_or_product (A2C_mcas_or orS) (A2C_mcas_or orT) 
+         = 
+         A2C_mcas_or (A_mcas_or_product S T orS orT).
+Proof. unfold mcas_or_product, A_mcas_or_product. 
+       rewrite correct_or_mcas_cast_up.
+       rewrite correct_or_mcas_cast_up.       
+       destruct (A_or_cast_up_is_error_or_or S orS) as [[l1 A] | [s1 A]];
+       destruct (A_or_cast_up_is_error_or_or T orT) as [[l2 B] | [s2 B]].
+       + rewrite A, B. simpl. reflexivity. 
+       + rewrite A, B. simpl. reflexivity.
+       + rewrite A, B. simpl. reflexivity.
+       + rewrite A, B. simpl. rewrite correct_or_product.
+         apply correct_or_classify_or. 
+Qed. 
+
+
+End Combinators.     
 
 End Verify.   
   

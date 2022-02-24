@@ -1,4 +1,6 @@
 Require Import CAS.coq.common.compute.
+Require Import Coq.Strings.String.
+Require Import CAS.coq.common.ast. 
 
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures. 
@@ -491,33 +493,219 @@ let idem  := bop_selective_implies_idempotent S eq plus sel in
 ; A_to_total         := brel_lte_left_total S eq sym trn plus comm sel 
 |}.
 
-
-(*
-Record qo_proofs (S : Type) (eq lte : brel S) := {
-  A_qo_congruence      : brel_congruence S eq lte
-; A_qo_reflexive       : brel_reflexive S lte            
-; A_qo_transitive      : brel_transitive S lte           
-; A_qo_not_antisymmetric : brel_not_antisymmetric S eq lte
-; A_qo_not_total        : brel_not_total S lte           
-}.
-
-Record wo_proofs (S : Type) (eq lte : brel S) := {
-  A_wo_congruence       : brel_congruence S eq lte
-; A_wo_reflexive         : brel_reflexive S lte            
-; A_wo_transitive        : brel_transitive S lte           
-; A_wo_not_antisymmetric : brel_not_antisymmetric S eq lte
-; A_wo_total             : brel_total S lte           
-}.
-*) 
   
 End Proofs.
 
 Section Combinators.
+
+
+Definition A_left_to_from_sg_CS {S : Type} (A : A_sg_CS S) : @A_to S :=
+let eqv    := A_sg_CS_eqv _ A in
+let eq     := A_eqv_eq _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in
+let symS   := A_eqv_symmetric _ _ eqvP in
+let trnS   := A_eqv_transitive _ _ eqvP in 
+let bop    := A_sg_CS_bop _ A in
+let sgP    := A_sg_CS_proofs _ A in
+let nidP   := A_sg_CS_not_exists_id _ A in
+let nannP  := A_sg_CS_not_exists_ann _ A in
+let comm   := A_sg_CS_commutative  _ _ _ sgP in 
+{|
+  A_to_eqv               := eqv 
+; A_to_lte               := brel_lte_left eq bop 
+; A_to_not_exists_top    := brel_lte_left_not_exists_top S eq symS trnS bop comm nidP
+; A_to_not_exists_bottom := brel_lte_left_not_exists_bottom S eq symS trnS bop comm nannP
+; A_to_proofs            := to_proofs_from_sg_CS_proofs S eq eqvP bop sgP 
+; A_to_ast               := Ast_or_llte (A_sg_CS_ast _ A) 
+|}.
+  
+
+Definition A_left_to_with_top_from_sg_CS_with_id {S : Type} (A : A_sg_CS_with_id S) : @A_to_with_top S :=
+let eqv    := A_sg_CS_wi_eqv _ A in
+let eq     := A_eqv_eq _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in
+let symS   := A_eqv_symmetric _ _ eqvP in
+let trnS   := A_eqv_transitive _ _ eqvP in 
+let bop    := A_sg_CS_wi_bop _ A in
+let sgP    := A_sg_CS_wi_proofs _ A in
+let idP    := A_sg_CS_wi_exists_id _ A in
+let nannP  := A_sg_CS_wi_not_exists_ann _ A in
+let comm   := A_sg_CS_commutative  _ _ _ sgP in 
+{|
+  A_to_wt_eqv               := eqv 
+; A_to_wt_lte               := brel_lte_left eq bop 
+; A_to_wt_exists_top        := brel_lte_left_exists_top S eq symS bop idP
+; A_to_wt_not_exists_bottom := brel_lte_left_not_exists_bottom S eq symS trnS bop comm nannP
+; A_to_wt_proofs            := to_proofs_from_sg_CS_proofs S eq eqvP bop sgP 
+; A_to_wt_ast               := Ast_or_llte (A_sg_CS_wi_ast _ A) 
+|}.
+  
+
+Definition A_left_to_with_bottom_from_sg_CS_with_ann {S : Type} (A : A_sg_CS_with_ann S) : @A_to_with_bottom S :=
+let eqv    := A_sg_CS_wa_eqv _ A in
+let eq     := A_eqv_eq _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in
+let symS   := A_eqv_symmetric _ _ eqvP in
+let trnS   := A_eqv_transitive _ _ eqvP in 
+let bop    := A_sg_CS_wa_bop _ A in
+let sgP    := A_sg_CS_wa_proofs _ A in
+let nidP   := A_sg_CS_wa_not_exists_id _ A in
+let annP   := A_sg_CS_wa_exists_ann _ A in
+let comm   := A_sg_CS_commutative  _ _ _ sgP in 
+{|
+  A_to_wb_eqv               := eqv 
+; A_to_wb_lte               := brel_lte_left eq bop 
+; A_to_wb_not_exists_top    := brel_lte_left_not_exists_top S eq symS trnS bop comm nidP
+; A_to_wb_exists_bottom     := brel_lte_left_exists_bottom S eq symS bop annP
+; A_to_wb_proofs            := to_proofs_from_sg_CS_proofs S eq eqvP bop sgP 
+; A_to_wb_ast               := Ast_or_llte (A_sg_CS_wa_ast _ A) 
+|}.
+
+Definition A_left_to_bounded_from_sg_CS_bounded {S : Type} (A : A_sg_BCS S) : @A_to_bounded S :=
+let eqv    := A_sg_BCS_eqv _ A in
+let eq     := A_eqv_eq _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in
+let symS   := A_eqv_symmetric _ _ eqvP in
+let trnS   := A_eqv_transitive _ _ eqvP in 
+let bop    := A_sg_BCS_bop _ A in
+let sgP    := A_sg_BCS_proofs _ A in
+let idP    := A_sg_BCS_exists_id _ A in
+let annP   := A_sg_BCS_exists_ann _ A in
+{|
+  A_to_bd_eqv               := eqv 
+; A_to_bd_lte               := brel_lte_left eq bop 
+; A_to_bd_exists_top        := brel_lte_left_exists_top S eq symS bop idP
+; A_to_bd_exists_bottom     := brel_lte_left_exists_bottom S eq symS bop annP
+; A_to_bd_proofs            := to_proofs_from_sg_CS_proofs S eq eqvP bop sgP 
+; A_to_bd_ast               := Ast_or_llte (A_sg_BCS_ast _ A) 
+|}.
+
+Definition A_left_po_from_sg_CI {S : Type} (A : A_sg_CI S) : @A_po S :=
+let eqv    := A_sg_CI_eqv _ A in
+let eq     := A_eqv_eq _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in
+let symS   := A_eqv_symmetric _ _ eqvP in
+let trnS   := A_eqv_transitive _ _ eqvP in 
+let bop    := A_sg_CI_bop _ A in
+let sgP    := A_sg_CI_proofs _ A in
+let nidP   := A_sg_CI_not_exists_id _ A in
+let nannP  := A_sg_CI_not_exists_ann _ A in
+let comm   := A_sg_CI_commutative  _ _ _ sgP in 
+{|
+  A_po_eqv               := eqv 
+; A_po_lte               := brel_lte_left eq bop 
+; A_po_not_exists_top    := brel_lte_left_not_exists_top S eq symS trnS bop comm nidP
+; A_po_not_exists_bottom := brel_lte_left_not_exists_bottom S eq symS trnS bop comm nannP
+; A_po_proofs            := po_proofs_from_sg_CI_proofs S eq eqvP bop sgP 
+; A_po_ast               := Ast_or_llte (A_sg_CI_ast _ A) 
+|}.
+  
+
+Definition A_left_po_with_top_from_sg_CI_with_id {S : Type} (A : A_sg_CI_with_id S) : @A_po_with_top S :=
+let eqv    := A_sg_CI_wi_eqv _ A in
+let eq     := A_eqv_eq _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in
+let symS   := A_eqv_symmetric _ _ eqvP in
+let trnS   := A_eqv_transitive _ _ eqvP in 
+let bop    := A_sg_CI_wi_bop _ A in
+let sgP    := A_sg_CI_wi_proofs _ A in
+let idP    := A_sg_CI_wi_exists_id _ A in
+let nannP  := A_sg_CI_wi_not_exists_ann _ A in
+let comm   := A_sg_CI_commutative  _ _ _ sgP in 
+{|
+  A_po_wt_eqv               := eqv 
+; A_po_wt_lte               := brel_lte_left eq bop 
+; A_po_wt_exists_top        := brel_lte_left_exists_top S eq symS bop idP
+; A_po_wt_not_exists_bottom := brel_lte_left_not_exists_bottom S eq symS trnS bop comm nannP
+; A_po_wt_proofs            := po_proofs_from_sg_CI_proofs S eq eqvP bop sgP 
+; A_po_wt_ast               := Ast_or_llte (A_sg_CI_wi_ast _ A) 
+|}.
+  
+
+Definition A_left_po_with_bottom_from_sg_CI_with_ann {S : Type} (A : A_sg_CI_with_ann S) : @A_po_with_bottom S :=
+let eqv    := A_sg_CI_wa_eqv _ A in
+let eq     := A_eqv_eq _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in
+let symS   := A_eqv_symmetric _ _ eqvP in
+let trnS   := A_eqv_transitive _ _ eqvP in 
+let bop    := A_sg_CI_wa_bop _ A in
+let sgP    := A_sg_CI_wa_proofs _ A in
+let nidP   := A_sg_CI_wa_not_exists_id _ A in
+let annP   := A_sg_CI_wa_exists_ann _ A in
+let comm   := A_sg_CI_commutative  _ _ _ sgP in 
+{|
+  A_po_wb_eqv               := eqv 
+; A_po_wb_lte               := brel_lte_left eq bop 
+; A_po_wb_not_exists_top    := brel_lte_left_not_exists_top S eq symS trnS bop comm nidP
+; A_po_wb_exists_bottom     := brel_lte_left_exists_bottom S eq symS bop annP
+; A_po_wb_proofs            := po_proofs_from_sg_CI_proofs S eq eqvP bop sgP 
+; A_po_wb_ast               := Ast_or_llte (A_sg_CI_wa_ast _ A) 
+|}.
+
+Definition A_left_po_bounded_from_sg_CI_bounded {S : Type} (A : A_sg_BCI S) : @A_po_bounded S :=
+let eqv    := A_sg_BCI_eqv _ A in
+let eq     := A_eqv_eq _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in
+let symS   := A_eqv_symmetric _ _ eqvP in
+let trnS   := A_eqv_transitive _ _ eqvP in 
+let bop    := A_sg_BCI_bop _ A in
+let sgP    := A_sg_BCI_proofs _ A in
+let idP    := A_sg_BCI_exists_id _ A in
+let annP   := A_sg_BCI_exists_ann _ A in
+{|
+  A_po_bd_eqv               := eqv 
+; A_po_bd_lte               := brel_lte_left eq bop 
+; A_po_bd_exists_top        := brel_lte_left_exists_top S eq symS bop idP
+; A_po_bd_exists_bottom     := brel_lte_left_exists_bottom S eq symS bop annP
+; A_po_bd_proofs            := po_proofs_from_sg_CI_proofs S eq eqvP bop sgP 
+; A_po_bd_ast               := Ast_or_llte (A_sg_BCI_ast _ A) 
+|}.
+
+
+
+  
 End Combinators.
 
 End ACAS. 
 
 
+
+Section AMCAS.
+
+Local Open Scope string_scope.   
+
+Definition A_mcas_left_order_from_sg (S : Type) (A : A_sg_mcas S) : @A_or_mcas S :=
+match A with
+  | A_MCAS_sg_Error _ sl           => A_OR_Error sl 
+  | A_MCAS_sg _ _                  => A_OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | A_MCAS_sg_C _ B                => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | A_MCAS_sg_C_with_id _ B        => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | A_MCAS_sg_C_with_ann _ B       => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | A_MCAS_sg_BC _ B               => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | A_MCAS_sg_NC _ B               => A_OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | A_MCAS_sg_NC_with_id _ B       => A_OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | A_MCAS_sg_NC_with_ann _ B      => A_OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | A_MCAS_sg_BNC _ B              => A_OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | A_MCAS_sg_CS _ B               => A_OR_to (A_left_to_from_sg_CS B)
+  | A_MCAS_sg_CS_with_id _ B       => A_OR_to_with_top (A_left_to_with_top_from_sg_CS_with_id B)
+  | A_MCAS_sg_CS_with_ann _ B      => A_OR_to_with_bottom (A_left_to_with_bottom_from_sg_CS_with_ann B)
+  | A_MCAS_sg_BCS _ B              => A_OR_to_bounded (A_left_to_bounded_from_sg_CS_bounded B)
+  | A_MCAS_sg_CI _ B               => A_OR_po (A_left_po_from_sg_CI B)
+  | A_MCAS_sg_CI_with_id _ B       => A_OR_po_with_top (A_left_po_with_top_from_sg_CI_with_id B)
+  | A_MCAS_sg_CI_with_ann _ B      => A_OR_po_with_bottom (A_left_po_with_bottom_from_sg_CI_with_ann B)
+  | A_MCAS_sg_BCI _ B              => A_OR_po_bounded (A_left_po_bounded_from_sg_CI_bounded B)
+  | A_MCAS_sg_CNI _ B              => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | A_MCAS_sg_CNI_with_id _ B      => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | A_MCAS_sg_CNI_with_ann _ B     => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | A_MCAS_sg_BCNI _ B             => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | A_MCAS_sg_CK _ B               => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | A_MCAS_sg_CK_with_id _ B       => A_OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+end.     
+
+End AMCAS.
+
+  
+  
 Section CAS.
 
 Section Certify.

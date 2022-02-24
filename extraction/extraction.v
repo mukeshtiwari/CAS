@@ -188,7 +188,7 @@ Extraction "Cas.ml"
    mcas_sg_add_ann
    mcas_sg_left_sum
    mcas_sg_right_sum
-   mcas_sg_minset_union_from_po
+(*   mcas_sg_minset_union_from_po *) 
    mcas_sg_lift 
 (*  
    mcas_sg_minset_lift 
