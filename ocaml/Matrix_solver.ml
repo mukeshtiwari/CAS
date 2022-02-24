@@ -46,14 +46,13 @@ let fetch_zero_and_one_from_algebra (alg : 'a bs_mcas) =
 let square_matrix_from_adj_list (n : int) (l : (int * (int * 'a) list) list) (alg : 'a bs_mcas)
   : 'a square_matrix =
   {
-    size = n;
-    mat = 
+    sm_size = n;
+    sm_matrix = 
       (let (zero, one) = fetch_zero_and_one_from_algebra alg in 
       List.fold_left 
         update_square_matrix 
         (fun c d -> if c = d then one else zero) 
-        (massage_adj_list l));
-    algebra = alg
+        (massage_adj_list l))
   } 
 
 
@@ -73,6 +72,5 @@ let matrix_solver (algo : algorithm) (alge : 'a bs_mcas) :
 In the future, we want 
 'a Cas.square_matrix -> 'a Cas.square_matrix to be an abstract data type 
 because we will more algorithms, e.g., Dijkstra, Floyd Warshall, 
-solver for X = A * X + B, etc. 
-
+solver for X = A * X + B, etc.
 *)

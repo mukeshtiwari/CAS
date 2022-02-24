@@ -18,6 +18,7 @@ BASE=\
    coq/common/compute.v \
    coq/common/ast.v \
    coq/common/data.v \
+   coq/common/matrix_def.v  \
    coq/theory/set.v \
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
@@ -72,7 +73,6 @@ CAS=\
    coq/sg/minset_lift.v \
    coq/po/structures.v \
    coq/po/properties.v \
-   coq/po/cast_up.v \
    coq/po/theory.v \
    coq/po/product.v \
    coq/po/lte_nat.v \
