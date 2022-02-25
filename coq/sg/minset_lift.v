@@ -978,7 +978,9 @@ End Theory.
 
 Section ACAS.
 
-Definition sg_CI_proofs_minset_lift_from_po
+Section Proofs.
+
+Variables     
     (S : Type)
     (rS lteS : brel S)
     (s : S)
@@ -987,9 +989,11 @@ Definition sg_CI_proofs_minset_lift_from_po
     (ntS : brel_not_trivial S rS f)     
     (eqvS : eqv_proofs S rS)
     (poS : po_proofs S rS lteS)
-    (sgS : sg_CI_proofs S rS b)
     (LM : os_left_monotone lteS b)
-    (RM : os_right_monotone lteS b) 
+    (RM : os_right_monotone lteS b). 
+
+Definition sg_CI_proofs_minset_lift_from_po
+    (sgS : sg_CI_proofs S rS b)
     (LI : os_left_increasing lteS b) : 
         sg_CI_proofs (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS b) := 
 let congS := A_eqv_congruence S rS eqvS in  
@@ -1017,17 +1021,7 @@ let NotSel := A_sg_CI_not_selective _ _ _ sgS in
 |}. 
 
 Definition sg_CNI_proofs_minset_lift_from_po
-    (S : Type)
-    (rS lteS : brel S)
-    (s : S)
-    (f : S -> S)
-    (b   : binary_op S)
-    (ntS : brel_not_trivial S rS f)     
-    (eqvS : eqv_proofs S rS)
-    (poS : po_proofs S rS lteS)
-    (sgS : sg_CNI_proofs S rS b)
-    (LM : os_left_monotone lteS b)
-    (RM : os_right_monotone lteS b) : 
+    (sgS : sg_CNI_proofs S rS b) : 
         sg_CNI_proofs (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS b) := 
 let congS := A_eqv_congruence S rS eqvS in  
 let refS := A_eqv_reflexive S rS eqvS in
@@ -1056,131 +1050,45 @@ let nIdem  := A_sg_CNI_not_idempotent _ _ _ sgS in
                                                                    
 |}. 
 
-(* 
+End Proofs.
 
+Section Combinators. 
 
-
-Definition sg_CI_proofs_minset_lift_from_po : 
-  ∀ (S : Type) (rS lteS : brel S) (s : S) (f : S -> S) ,
-     brel_not_trivial S rS f ->     
-     eqv_proofs S rS -> po_proofs S rS lteS -> 
-        sg_CI_proofs (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS)
-  := λ S rS lteS s f ntS eqvS poS,
-let congS := A_eqv_congruence S rS eqvS in  
-let refS := A_eqv_reflexive S rS eqvS in
-let symS := A_eqv_symmetric S rS eqvS in
-let tranS := A_eqv_transitive S rS eqvS in
-
-let lteCong    := A_po_congruence S rS lteS poS in
-let lteRefl    := A_po_reflexive S rS lteS poS in
-let lteTran    := A_po_transitive S rS lteS poS in
-let lteAntiSym := A_po_antisymmetric S rS lteS poS in 
-let tot_d      := A_po_total_d S rS lteS poS in 
+(* VERY CLOSE 
+Definition A_sg_BCI_minset_lift (S : Type) (A : A_bounded_monotone_increasing_posg S) : A_sg_BCI S :=
+let eqv := A_bmiposg_eqv _ A in
+let eqvP := A_eqv_proofs _ eqv in
+let refS := A_eqv_reflexive _ _ eqvP in
+let symS := A_eqv_symmetric _ _ eqvP in
+let trnS := A_eqv_transitive _ _ eqvP in 
+let eq  := A_eqv_eq _ eqv in
+let lte := A_bmiposg_lte _ A in 
+let bop := A_bmiposg_times _ A in
+let lteP := A_bmiposg_lte_proofs _ A in
+let lteCong := A_po_congruence _ _ _ lteP in 
+let lteRef  := A_po_reflexive  _ _ _ lteP in 
+let lteTrn  := A_po_transitive  _ _ _ lteP in             
+let lteAnti := A_po_antisymmetric  _ _ _ lteP in             
+let bopP := A_bmiposg_times_proofs _ A in
+let bopCong := A_sg_congruence _ _ _ bopP in
+let bottom_id_equal := A_bounded_bottom_id  _ _ _ _ (A_bmiposg_top_bottom _ A) in
+let idP  := A_extract_exist_id_from_exists_bottom_id_equal _ _ _ _ bottom_id_equal in 
+let AP   := A_bmiposg_proofs _ A in
+let LM   := A_mono_inc_left_monotonic _ _ _ AP in 
+let RM   := A_mono_inc_right_monotonic _ _ _ AP in 
+let LI   := A_mono_inc_left_increasing _ _ _ AP in 
 {|
-  A_sg_CI_associative        := bop_minset_lift_associative S rS refS symS tranS lteS lteCong lteRefl lteTran 
-; A_sg_CI_congruence         := bop_minset_lift_congruence S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_commutative        := bop_minset_lift_commutative S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_idempotent         := bop_minset_lift_idempotent S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_selective_d        := bop_minset_lift_selective_decide S rS s f ntS congS refS symS tranS lteS lteCong lteRefl lteTran tot_d
-|}. 
-
-
-
-Definition sg_CI_proofs_minset_lift_from_qo : 
-  ∀ (S : Type) (rS lteS : brel S) (s : S) (f : S -> S) ,
-     brel_not_trivial S rS f ->     
-     eqv_proofs S rS -> qo_proofs S rS lteS -> 
-        sg_CI_proofs (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS)
-  := λ S rS lteS s f ntS eqvS qoS,
-let congS := A_eqv_congruence S rS eqvS in  
-let refS := A_eqv_reflexive S rS eqvS in
-let symS := A_eqv_symmetric S rS eqvS in
-let tranS := A_eqv_transitive S rS eqvS in
-
-let lteCong    := A_qo_congruence S rS lteS qoS in
-let lteRefl    := A_qo_reflexive S rS lteS qoS in
-let lteTran    := A_qo_transitive S rS lteS qoS in
-let lteNotAntiSym := A_qo_not_antisymmetric S rS lteS qoS in 
-{|
-  A_sg_CI_associative        := bop_minset_lift_associative S rS refS symS tranS lteS lteCong lteRefl lteTran 
-; A_sg_CI_congruence         := bop_minset_lift_congruence S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_commutative        := bop_minset_lift_commutative S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_idempotent         := bop_minset_lift_idempotent S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_selective_d        := inr (brel_not_antisymmetric_implies_bop_minset_lift_not_selective S rS refS symS tranS lteS lteCong lteRefl lteTran lteNotAntiSym)
-|}. 
-*) 
-
-(*
-Definition A_sg_CI_minset_lift : ∀ (S : Type),  A_qo_with_bottom S -> A_sg_CI (finite_set S)
-  := λ S qo,
-  let eqvS := A_qowb_eqv S qo in
-  let botP := A_qowb_exists_bottom S qo in 
-  let eqP  := A_eqv_proofs _ eqvS in
-  let congS := A_eqv_congruence _ _ eqP in    
-  let refS := A_eqv_reflexive _ _ eqP in
-  let symS := A_eqv_symmetric _ _ eqP in
-  let tranS := A_eqv_transitive _ _ eqP in
-  let eq   := A_eqv_eq _ eqvS in  
-  let s    := A_eqv_witness _ eqvS in
-  let f    := A_eqv_new _ eqvS in
-  let ntS  := A_eqv_not_trivial _ eqvS in
-  let lteS := A_qowb_lte _ qo in
-  let poP  := A_qowb_proofs _ qo in
-  let lteCong    := A_qo_congruence _ _ _ poP in
-  let lteRefl    := A_qo_reflexive _ _ _ poP in
-  let lteTran    := A_qo_transitive _ _ _ poP in
-
-  {| 
-     A_sg_CI_eqv          := A_eqv_minset S qo   HERE need eqv_minset built from qo ! *****************************
-   ; A_sg_CI_bop          := bop_minset_lift S eq lteS
-   ; A_sg_CI_exists_id_d  := inl (bop_minset_lift_exists_id S eq congS refS symS tranS lteS lteCong lteRefl)
-   ; A_sg_CI_exists_ann_d := inl (bop_minset_lift_exists_ann S eq f ntS congS refS symS tranS lteS lteCong lteRefl lteTran botP)
-   ; A_sg_CI_proofs       := sg_CI_proofs_minset_lift_from_qo S eq lteS s f ntS eqP poP 
-   ; A_sg_CI_ast          := Ast_sg_minset_lift (A_po_ast S qo)                                                                   
-  |}.
+  A_sg_BCI_eqv        := A_eqv_minset_from_po _ (A_po_from_bounded_monotone_increasing_posg _ A) 
+; A_sg_BCI_bop        := bop_minset_lift S eq lte bop
+; A_sg_BCI_exists_id  := bop_minset_lift_exists_id S eq refS symS trnS lte lteCong lteRef lteTrn bop bopCong idP LM RM (inr lteAnti) 
+; A_sg_BCI_exists_ann := bop_minset_lift_exists_ann S eq refS symS trnS lte lteCong lteRef lteTrn bop 
+; A_sg_BCI_proofs     := sg_CI_proofs_minset_lift_from_po S eq lte bop eqvP lteP LM RM bopP LI 
+; A_sg_BCI_ast        := Ast_sg_minset_lift (A_bmiposg_ast _ A)
+|}.  
 
 *) 
+End Combinators.   
 
-(*
-
-from po:   with bottom? 
-
-Definition A_sg_CI_minset_lift : ∀ (S : Type),  A_po S -> A_sg_CI (finite_set S)
-  := λ S po,
-  let eqvS := A_po_eqv S po in
-  let eqP  := A_eqv_proofs _ eqvS in
-  let congS := A_eqv_congruence _ _ eqP in    
-  let refS := A_eqv_reflexive _ _ eqP in
-  let symS := A_eqv_symmetric _ _ eqP in
-  let tranS := A_eqv_transitive _ _ eqP in
-  let eq   := A_eqv_eq _ eqvS in  
-  let s    := A_eqv_witness _ eqvS in
-  let f    := A_eqv_new _ eqvS in
-  let ntS  := A_eqv_not_trivial _ eqvS in
-  let lteS := A_po_lte _ po in
-  let poP  := A_po_proofs _ po in
-  let lteCong    := A_po_congruence _ _ _ poP in
-  let lteRefl    := A_po_reflexive _ _ _ poP in
-  let lteTran    := A_po_transitive _ _ _ poP in
-  let lteAntiSym := A_po_antisymmetric _ _ _ poP in 
-  let bf_d := A_po_bottoms_finite_d _ _ _ poP in 
-  {| 
-     A_sg_CI_eqv          := A_eqv_minset S po
-   ; A_sg_CI_bop          := bop_minset_lift S eq lteS
-   ; A_sg_CI_exists_id_d  := inl (bop_minset_lift_exists_id S eq congS refS symS tranS lteS lteCong lteRefl)
-   ; A_sg_CI_exists_ann_d := bop_minset_lift_exists_ann_decide S eq s f ntS congS refS symS tranS lteS lteCong lteRefl lteTran lteAntiSym bf_d
-   ; A_sg_CI_proofs       := sg_CI_proofs_minset_lift S eq lteS s f ntS eqP poP 
-   
-   ; A_sg_CI_ast          := Ast_sg_minset_lift (A_po_ast S po)                                                                   
-  |}.
-
-
-
-
-Why needed? 
-
-    3) sg_CI_with_ann 
-*) 
 End ACAS.
 
 
