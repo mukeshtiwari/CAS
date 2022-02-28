@@ -5420,6 +5420,10 @@ Section Matrix.
 
 
   
+    (* This can be proved using the 
+       (i) connect_partial_sum_mat_paths and 
+       (ii) zero_stable_partial_sum_path *)
+       
     Lemma zero_stable_partial : forall m,
       (forall a : R, 1 + a =r= 1 = true) ->
       mat_cong m -> 
@@ -5427,10 +5431,24 @@ Section Matrix.
         partial_sum_mat m (length finN - 1) c d =r= 
         partial_sum_mat m (length finN) c d = true).
     Proof.
-      (* This can be proved using the 
-       (i) connect_partial_sum_mat_paths and 
-       (ii) zero_stable_partial_sum_path *)
-    Admitted.
+      intros * zero_stable Hm ? ?.
+      rewrite <-(connect_partial_sum_mat_paths
+        (length finN - 1) m c d Hm).
+      apply congrR.
+      apply refR.
+      rewrite <-(connect_partial_sum_mat_paths
+        (length finN) m c d Hm).
+      apply congrR.
+      apply refR.
+      pose proof zero_stable_partial_sum_path
+        1 m zero_stable Hm c d as Ht.
+      assert (Hwt: (1 + length finN - 1 = length finN)%nat).
+      nia.
+      rewrite Hwt in Ht;
+      clear Hwt.
+      exact Ht.
+    Qed.
+      
 
 
 
