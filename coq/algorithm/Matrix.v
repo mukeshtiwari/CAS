@@ -5404,6 +5404,16 @@ Section Matrix.
         partial_sum_paths m (length finN - 1) c d =r= 
         partial_sum_paths m (k + length finN - 1) c d = true).
     Proof.
+      induction k.
+      + simpl.
+        intros ? Ha Hm ? ?.
+        apply refR.
+      + simpl. 
+        intros ? Ha Hm ? ?.
+        specialize (IHk m Ha 
+          Hm c d).
+        rewrite PeanoNat.Nat.sub_0_r.
+        
       (*
       Why is this true? 
       partial_sum_paths m n c d, represents 
@@ -5423,7 +5433,7 @@ Section Matrix.
     (* This can be proved using the 
        (i) connect_partial_sum_mat_paths and 
        (ii) zero_stable_partial_sum_path *)
-       
+
     Lemma zero_stable_partial : forall m,
       (forall a : R, 1 + a =r= 1 = true) ->
       mat_cong m -> 
