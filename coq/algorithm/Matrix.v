@@ -6,6 +6,7 @@ From CAS Require Import coq.common.compute
   coq.eqv.theory coq.sg.properties.
 Import ListNotations.
 
+
 Section Lfn.
   (* This is temporary section and the functions defined 
     here will move to another file.*)
@@ -5379,15 +5380,18 @@ Section Matrix.
       eapply trnR with (partial_sum_mat m n c d); assumption.
     Qed.
 
+
+      
     
-    Lemma all_paths_in_klength_paths_cycle : forall (l : list Node)
+
+    Lemma all_paths_in_klength_paths_cycle : 
+      forall (n : nat) (l : list Node)
       (m : Matrix) (c d : Node) xs, l <> [] ->
-      (forall x : Node, in_list eqN l x = true) -> forall n, 
+      (forall x : Node, in_list eqN l x = true) ->
       (List.length l <= n)%nat ->
       In_eq_bool xs (all_paths_klength m n c d) = true ->
       elem_path_triple xs = false.
     Proof.
-      intros ? ? ? ? ? Hl Hin.
     Admitted.
     
 
@@ -5507,6 +5511,199 @@ Section Matrix.
       | S k' => (all_paths_klength m k c d) ::
          atmost_kpath m k' c d
       end.
+
+
+
+    (* Compute X := A * X + B. But it's 
+       not constant space.
+
+       Left Distributive  
+       0 => X 
+       1 => A * X + B
+       2 => A * (A * X + B) + B
+       3 => A * (A * (A * X + B) + B) + B
+    *)
+    Fixpoint mul_iterative_left (n : nat) 
+      (A : Matrix) (B : Matrix) (X : Matrix) 
+      : Matrix :=
+      match n with
+      | O => X
+      | S n' => A *M (mul_iterative_left n' A B X) +M B 
+      end. 
+
+
+
+    Lemma mul_iterative_left_dist : ∀ (n : nat)
+      (A B X : Matrix) (c d : Node),
+      mul_iterative_left n A B (A *M X +M B) c d  =r= 
+      (A *M mul_iterative_left n A B X +M B) c d = true.
+    Proof using Node R congrM congrP eqR finN
+    mulR plusR refR zeroR.
+      induction n.
+      + simpl.
+        intros *.
+        eapply refR.
+      + simpl.
+        intros *.
+        apply congrP.
+        eapply mat_mul_cong_diff.
+        unfold two_mat_congr.
+        intros e f.
+        eapply IHn.
+        apply refR.
+    Qed.
+        
+      
+   
+
+    (* Same as above but it's constant space. *)
+    Fixpoint mul_iterative_left_constant_space 
+      (n : nat)  (A : Matrix) (B : Matrix) 
+      (X : Matrix) : Matrix :=
+      match n with
+      | O => X
+      | S n' => 
+        mul_iterative_left_constant_space 
+          n' A B (A *M X +M B)
+      end.
+
+
+      
+    Lemma mul_iterative_left_and_same : forall (n : nat)
+      (A B X : Matrix) (c d : Node), 
+      mul_iterative_left n A B X c d =r= 
+      mul_iterative_left_constant_space n A B X c d = true.
+    Proof using Node R congrM congrP congrR eqR finN
+    mulR plusR refR symR zeroR.
+      induction n. 
+      + intros *. 
+        simpl.
+        apply refR.
+      + simpl. 
+        intros ? ? ? ? ?.
+        specialize (IHn A B (A *M X +M B) c d).
+        rewrite <-IHn.
+        apply congrR.
+        apply symR.
+        apply mul_iterative_left_dist.
+        apply refR.
+    Qed.
+
+
+
+    (* 
+      X := X * A + B (not constant space)
+
+      0 => X
+      1 => X * A + B 
+      2 => (X * A + B) * A + B 
+      3 => ((X * A + B) * A + B) * A + B
+
+    *)
+    Fixpoint mul_iterative_right (n : nat) 
+      (A : Matrix) (B : Matrix) (X : Matrix) 
+      : Matrix :=
+      match n with
+      | O => X
+      | S n' => (mul_iterative_right n' A B X) *M A +M B 
+      end. 
+
+  
+    Lemma sum_fn_mul_congr_right : 
+      forall l (e m₁ m₂ : Matrix) c d,
+      two_mat_congr m₁ m₂ ->  
+      sum_fn (λ y : Node, m₁ c y * e y d) l =r= 
+      sum_fn (λ y : Node, m₂ c y * e y d) l = true.
+    Proof using Node R congrM congrP eqR mulR
+    plusR refR zeroR.
+      induction l; simpl; 
+      intros  ? ? ? ? ? Hm.
+      + apply refR.
+      + apply add_r_cong.
+        apply congrM.
+        eapply Hm.
+        apply refR.
+        apply IHl; 
+        assumption.
+    Qed.
+
+
+    Lemma mat_mul_cong_right : forall e m₁ m₂ c d,
+      two_mat_congr m₁ m₂ ->
+      matrix_mul m₁ e c d =r= matrix_mul m₂ e c d = true.
+    Proof using Node R congrM congrP eqR finN mulR
+    plusR refR zeroR.
+      intros ? ? ? ? ? Hm.
+      unfold matrix_mul, matrix_mul_gen.
+      eapply sum_fn_mul_congr_right;
+      exact Hm.
+    Qed.
+
+
+    Lemma mul_iterative_right_dist : ∀ (n : nat)
+      (A B X : Matrix) (c d : Node),
+      mul_iterative_right n A B (X *M A +M B) c d  =r= 
+      ((mul_iterative_right n A B X) *M A +M B) c d = true.
+    Proof using Node R congrM congrP eqR finN mulR 
+    plusR refR zeroR.
+      induction n.
+      + simpl.
+        intros *.
+        eapply refR.
+      + simpl.
+        intros *.
+        apply congrP.
+        eapply mat_mul_cong_right.
+        unfold two_mat_congr.
+        intros e f.
+        apply IHn.
+        apply refR.
+    Qed.
+
+
+    (* Same as above, mul_iterative_right, 
+      but it's constant space. *)
+    Fixpoint mul_iterative_right_constant_space 
+      (n : nat)  (A : Matrix) (B : Matrix) 
+      (X : Matrix) : Matrix :=
+      match n with
+      | O => X
+      | S n' => 
+        mul_iterative_right_constant_space 
+          n' A B (X *M A +M B)
+      end.
+
+
+
+
+    Lemma mul_iterative_right_and_same : forall (n : nat)
+      (A B X : Matrix) (c d : Node), 
+      mul_iterative_right n A B X c d =r= 
+      mul_iterative_right_constant_space n A B X c d = true.
+    Proof using Node R congrM congrP congrR eqR finN mulR
+    plusR refR symR zeroR.
+      induction n. 
+      + intros *. 
+        simpl.
+        apply refR.
+      + simpl. 
+        intros ? ? ? ? ?.
+        specialize (IHn A B (X *M A +M B) c d).
+        rewrite <-IHn.
+        apply congrR.
+        apply symR.
+        apply mul_iterative_right_dist.
+        apply refR.
+    Qed.
+
+
+    
+
+
+
+
+
+
 
 
 
