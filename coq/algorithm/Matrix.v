@@ -3669,7 +3669,7 @@ Section Matrix.
       l <> [] /\ source c l = true /\ target c l = true.
 
     
-    (*
+    
     (* assume that path is well_founded *)
     Fixpoint collect_nodes_from_a_path  
       (l : list (Node * Node * R)) : list Node :=
@@ -3680,14 +3680,15 @@ Section Matrix.
         | _ :: _ => a :: collect_nodes_from_a_path t
       end
       end.
-         
+    
+    (* 
     (* if all nodes in a path are distinct *)
     Fixpoint elem_path_aux (l : list Node) := 
       match l with
       | [] => true
       | h :: t => (negb (in_list eqN t h) && elem_path_aux t)%bool
       end.
-
+    *)
 
     Lemma elem_path_aux_true : forall (l : list Node) (a : Node),
       in_list eqN l a = true -> 
@@ -3710,7 +3711,7 @@ Section Matrix.
         exact Ht.
     Qed.
 
-
+    (* 
     Lemma elem_path_aux_duplicate_node : forall (l : list Node),
       elem_path_aux l = false -> 
       exists (c : Node) (l₁ l₂  l₃ : list Node), 
@@ -3763,7 +3764,7 @@ Section Matrix.
           elem_path_triple t 
       end
       end. 
-   
+    
     
 
     Lemma elem_path_in_list : forall l a,
@@ -4035,7 +4036,7 @@ Section Matrix.
 
 
     
-    (*
+    
     Lemma in_list_mem_collect : forall l c d mcd, 
       in_list eqN (collect_nodes_from_a_path (l ++ [(c, d, mcd)])) d = true.
     Proof.
@@ -4068,7 +4069,7 @@ Section Matrix.
     Qed.
   
 
-
+    (* 
     Lemma elem_path_false : forall l c d e m,
       well_formed_path_aux m ((c, d, m c d) :: l ++ [(e, c, m e c)]) = true -> 
       elem_path ((c, d, m c d) :: l ++ [(e, c, m e c)]) = false.
@@ -4100,7 +4101,7 @@ Section Matrix.
         rewrite Heqal.
         exact Ht.
     Qed.
-
+    *)
        
          
 
@@ -4180,7 +4181,7 @@ Section Matrix.
         exact IHpl.
     Qed.
 
-
+    (*
     Lemma elem_path_rewrite : forall l lw,
       triple_elem_list l lw = true ->
       elem_path_aux (collect_nodes_from_a_path l) =
@@ -4472,7 +4473,7 @@ Section Matrix.
     Qed.
       
     
-    (*
+    
     Lemma collect_nodes_from_a_path_app : forall l m a b mab,
       l <> [] ->  well_formed_path_aux m (l ++ [(a, b, mab)]) = true ->
       list_eqv _ eqN (collect_nodes_from_a_path (l ++ [(a, b, mab)]))
@@ -4513,7 +4514,7 @@ Section Matrix.
           apply refN.
           exact IHl.
     Qed.
-    *)
+
 
     Lemma well_formed_path_snoc : forall ll lr m,
       well_formed_path_aux m (ll ++ lr) = true ->
@@ -5380,19 +5381,105 @@ Section Matrix.
       eapply trnR with (partial_sum_mat m n c d); assumption.
     Qed.
 
+    
+    (* c covers l, i.e., every element of l appears in c *)
+    Definition covers (c l : list Node) : Prop :=
+      forall x, in_list eqN l x = true ->  
+        in_list eqN c x = true.
 
+    
       
     
+    Lemma length_leq_lt : ∀ (l : list (Node * Node * R)),
+      l <> [] -> 
+      ((List.length l) < 
+        List.length (collect_nodes_from_a_path l))%nat.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + simpl.
+        intro H.
+        congruence.
+      + simpl. 
+        intro H.
+        destruct l as [|((bu, bv), bw) l].
+        simpl.
+        nia.
+        remember ((bu, bv, bw) :: l) as bl.
+        simpl.
+        assert (Hne: bl <> []).
+        intro Hf.
+        congruence.
+        specialize (IHl Hne);
+        try nia.
+    Qed.
+
+        
+
+
+
+   
+    Lemma length_collect_node_gen :
+      forall (c : list Node) (l : list (Node * Node * R)),
+      c <> [] ->  
+      (List.length c <= List.length l)%nat ->
+      (List.length c < 
+      List.length (collect_nodes_from_a_path l))%nat.
+    Proof.
+      intros ? ? Hne Hfin.
+      pose proof length_leq_lt l as IHl.
+      assert (Hlne: l <> []).
+      destruct l. 
+      intros Hf.
+      destruct c.
+      congruence.
+      simpl in Hfin.
+      nia.
+      intro Hf.
+      congruence.
+      specialize (IHl Hlne).
+      nia.
+    Qed.
+
+
+
 
     Lemma all_paths_in_klength_paths_cycle : 
-      forall (n : nat) (l : list Node)
-      (m : Matrix) (c d : Node) xs, l <> [] ->
-      (forall x : Node, in_list eqN l x = true) ->
-      (List.length l <= n)%nat ->
-      In_eq_bool xs (all_paths_klength m n c d) = true ->
-      elem_path_triple xs = false.
+      forall (c : list Node),
+      (forall y, in_list eqN c y = true) -> 
+      forall (l : list (Node * Node * R)),
+      (List.length c < List.length (collect_nodes_from_a_path l))%nat ->
+      ∃ (ll lm lr : list (Node * Node * R)),
+        (ll, Some lm, lr) = elem_path_triple_compute_loop_triple l.
     Proof.
     Admitted.
+
+
+        
+        
+
+
+      
+
+    (* if you give me path of length >= finN then there is loop *)
+    Lemma all_paths_in_klength_paths_cycle_finN : 
+      forall (l : list (Node * Node * R)) m,
+      (List.length finN <= List.length l)%nat ->
+      well_formed_path_aux m l = true ->
+      ∃ (ll lm lr : list (Node * Node * R)),
+        (ll, Some lm, lr) = elem_path_triple_compute_loop_triple l.
+    Proof.
+    Admitted.
+     
+
+        
+
+        
+
+
+
+
+
+    
     
 
 
@@ -5545,22 +5632,26 @@ Section Matrix.
     (* Compute X := A * X + B. But it's 
        not constant space.
 
-       Left Distributive  
-       0 => X 
-       1 => A * X + B
-       2 => A * (A * X + B) + B
-       3 => A * (A * (A * X + B) + B) + B
     *)
-    Fixpoint mul_iterative_left (n : nat) 
-      (A : Matrix) (B : Matrix) (X : Matrix) 
-      : Matrix :=
+    Fixpoint left_matrix_iteration (n : nat) 
+      (A : Matrix) : Matrix :=
       match n with
-      | O => X
-      | S n' => A *M (mul_iterative_left n' A B X) +M B 
+      | O => I
+      | S n' => A *M (left_matrix_iteration n' A) +M I 
       end. 
 
 
+    Fixpoint right_matrix_iteration (n : nat) 
+      (A : Matrix)
+      : Matrix :=
+      match n with
+      | O => I 
+      | S n' => (right_matrix_iteration n' A) *M A +M I 
+      end.
 
+
+
+  (* 
     Lemma mul_iterative_left_dist : ∀ (n : nat)
       (A B X : Matrix) (c d : Node),
       mul_iterative_left n A B (A *M X +M B) c d  =r= 
@@ -5579,7 +5670,7 @@ Section Matrix.
         intros e f.
         eapply IHn.
         apply refR.
-    Qed.
+    Qed. 
         
       
    
@@ -5616,7 +5707,7 @@ Section Matrix.
         apply mul_iterative_left_dist.
         apply refR.
     Qed.
-
+    *)
 
 
     (* 
@@ -5628,15 +5719,9 @@ Section Matrix.
       3 => ((X * A + B) * A + B) * A + B
 
     *)
-    Fixpoint mul_iterative_right (n : nat) 
-      (A : Matrix) (B : Matrix) (X : Matrix) 
-      : Matrix :=
-      match n with
-      | O => X
-      | S n' => (mul_iterative_right n' A B X) *M A +M B 
-      end. 
+   
 
-  
+    (* 
     Lemma sum_fn_mul_congr_right : 
       forall l (e m₁ m₂ : Matrix) c d,
       two_mat_congr m₁ m₂ ->  
@@ -5722,7 +5807,8 @@ Section Matrix.
         apply symR.
         apply mul_iterative_right_dist.
         apply refR.
-    Qed.
+    Qed.*)
+
 
 
     
