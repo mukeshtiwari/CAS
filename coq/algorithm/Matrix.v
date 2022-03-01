@@ -3824,7 +3824,7 @@ Section Matrix.
           rewrite Heqpl; assumption.
     Qed.
          
-
+    *)
 
       
     (* Constructs well founded path *)  
@@ -3885,7 +3885,7 @@ Section Matrix.
         apply refR.
         exact IHl.
     Qed.
-    *)
+    
 
     
     Lemma source_list_consturction : forall l c m,
@@ -5386,6 +5386,33 @@ Section Matrix.
     Definition covers (c l : list Node) : Prop :=
       forall x, in_list eqN l x = true ->  
         in_list eqN c x = true.
+
+    Lemma covers_list_elem : 
+      forall (c l : list Node), 
+      (forall y : Node, in_list eqN c y = true) ->
+      covers c l.
+    Proof.
+      unfold covers.
+      destruct c as [|a c].
+      + intros ? Hy ? Hl.
+        specialize (Hy x).
+        simpl in Hy.
+        congruence.
+      + intros ? Hy ? Hl.
+        simpl in *.
+        exact (Hy x). 
+    Qed.
+    
+
+    Lemma covers_dup : 
+      forall (c l : list Node),
+      covers c l ->  (List.length c < List.length l)%nat -> 
+      exists a l₁ l₂ l₃, 
+        list_eqv Node eqN l (l₁ ++ [a] ++ l₂ ++ [a] ++ l₃) = true.
+    Proof.
+    Admitted. 
+
+
 
     
       
