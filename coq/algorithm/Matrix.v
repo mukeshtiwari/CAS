@@ -5703,10 +5703,46 @@ Section Matrix.
         case ((elem_path_triple_tail au bl)) eqn:Hep.
         reflexivity.
         simpl.
-        
 
+        (* appears like inductive proof but I can't think right now *)
         destruct (list_split_gen Node eqN 
           refN symN _ _ Hb) as (l₁ & l₂ & H).
+        rewrite Heqbl in Hep.
+        simpl in Hep.
+        apply Bool.orb_false_iff in Hep.
+        destruct Hep as [Hepl Hepr].
+        rewrite Heqbl in Hb.
+        simpl in Hb.
+        destruct l as [|((cu, cv), cw) l].
+        simpl in Hb.
+        rewrite Hepl in Hb.
+        case (au =n= bu) eqn:Haubu.
+        simpl in Hb.
+        clear Hb.
+        apply symN in Har.
+        pose proof (trnN _ _ _ Haubu Har) as Hf.
+        rewrite Hf in Hauv.
+        congruence.
+        simpl in Hb.
+        congruence.
+        remember ((cu, cv, cw) :: l) as cl.
+        simpl in Hb.
+        case (au =n= bu) eqn:Haubu.
+        simpl in Hb.
+        clear Hb.
+        apply symN in Har.
+        pose proof (trnN _ _ _ Haubu Har) as Hf.
+        rewrite Hf in Hauv.
+        congruence.
+        simpl in Hb.
+        rewrite Heqbl.
+        rewrite Heqcl.
+        simpl.
+        (* end of manipulaiotn *)
+
+
+
+
         admit.
         apply Bool.andb_false_iff.
         right.
