@@ -10,6 +10,7 @@ Require Import CAS.coq.uop.properties.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.set.
+
 Require Import CAS.coq.eqv.sum. 
 Require Import CAS.coq.eqv.add_constant.
 
@@ -915,11 +916,17 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_mcas_sg_union_with_ann (S : Type) (c : cas_constant) (A : A_eqv S) :=
-  A_MCAS_sg_BCI _ (A_sg_union_with_ann c A).
+Definition A_mcas_sg_union_with_ann (S : Type) (c : cas_constant) (A : @A_mcas_eqv S) :=
+match A with
+| A_EQV_eqv B    => A_MCAS_sg_BCI _ (A_sg_union_with_ann c B)
+| A_EQV_Error sl => A_MCAS_sg_Error _ sl 
+end.
 
-Definition A_mcas_sg_union (S : Type) (A : A_eqv S) :=
-   A_sg_classify _ (A_MCAS_sg _ (A_sg_union A)).  
+Definition A_mcas_sg_union (S : Type) (A : @A_mcas_eqv S) :=
+match A with
+| A_EQV_eqv B    => A_sg_classify _ (A_MCAS_sg _ (A_sg_union B))
+| A_EQV_Error sl => A_MCAS_sg_Error _ sl 
+end.
 
 End AMCAS.   
 
@@ -991,11 +998,19 @@ End CAS.
 
 Section MCAS.
 
-Definition mcas_sg_union_with_ann {S : Type} (c : cas_constant) (A : @eqv S) :=
-   MCAS_sg_BCI (sg_union_with_ann c A).  
+Definition mcas_sg_union_with_ann {S : Type} (c : cas_constant) (A : @mcas_eqv S) :=
+match A with
+| EQV_eqv B    => MCAS_sg_BCI (sg_union_with_ann c B)
+| EQV_Error sl => MCAS_sg_Error sl 
+end.
 
-Definition mcas_sg_union {S : Type} (A : @eqv S) :=
-   sg_classify _ (MCAS_sg (sg_union A)).  
+Definition mcas_sg_union {S : Type} (A : @mcas_eqv S) :=
+match A with
+| EQV_eqv B    => sg_classify _ (MCAS_sg (sg_union B))
+| EQV_Error sl => MCAS_sg_Error sl 
+end.
+
+   
 
 End MCAS.   
 
@@ -1053,26 +1068,28 @@ Proof. unfold sg_union, A_sg_union, A2C_sg; simpl.
        reflexivity. 
 Qed. 
 
-Theorem correct_bop_mcas_union_with_ann (S : Type) (c : cas_constant)(eqvS : A_eqv S): 
-         mcas_sg_union_with_ann c (A2C_eqv S eqvS)  
+Theorem correct_bop_mcas_union_with_ann (S : Type) (c : cas_constant)(eqvS : @A_mcas_eqv S): 
+         mcas_sg_union_with_ann c (A2C_mcas_eqv S eqvS)  
          = 
          A2C_mcas_sg _ (A_mcas_sg_union_with_ann _ c eqvS). 
 Proof. unfold mcas_sg_union_with_ann, A_mcas_sg_union_with_ann.
        unfold A2C_mcas_sg.
-       rewrite correct_bop_union_with_ann.
-       reflexivity. 
+       destruct eqvS; simpl.
+       + reflexivity. 
+       + rewrite correct_bop_union_with_ann. reflexivity. 
 Qed.  
 
 
-Theorem correct_bop_mcas_union (S : Type) (eqvS : A_eqv S): 
-         mcas_sg_union (A2C_eqv S eqvS)  
+Theorem correct_bop_mcas_union (S : Type) (eqvS : @A_mcas_eqv S): 
+         mcas_sg_union (A2C_mcas_eqv S eqvS)  
          = 
          A2C_mcas_sg _ (A_mcas_sg_union _ eqvS). 
 Proof. unfold mcas_sg_union, A_mcas_sg_union.
-       rewrite correct_bop_union.       
-       rewrite <- correct_sg_classify.
-       unfold A2C_mcas_sg.
-       reflexivity. 
+       destruct eqvS; simpl.
+       + reflexivity.
+       + rewrite correct_bop_union.       
+         rewrite correct_sg_classify_sg.
+         reflexivity. 
 Qed.  
 
 

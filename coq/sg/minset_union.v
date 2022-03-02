@@ -1567,7 +1567,7 @@ Section AMCAS.
 
 Open Scope string_scope.   
 
-Definition A_mcas_sg_minset_union_from_order {S : Type} (A : @A_or_mcas S) : A_sg_mcas (finite_set S) :=
+Definition A_mcas_sg_minset_union {S : Type} (A : @A_or_mcas S) : A_sg_mcas (finite_set S) :=
 match A with
 | A_OR_Error sl         => A_MCAS_sg_Error _ sl
 | A_OR_po_with_bottom B => A_sg_classify _ (A_MCAS_sg_BCI _ (A_sg_minset_union_from_po_with_bottom _ B))
@@ -1575,21 +1575,21 @@ match A with
 | A_OR_qo_with_bottom B => A_sg_classify _ (A_MCAS_sg_BCI _ (A_sg_minset_union_from_qo_with_bottom _ B))
 | A_OR_qo_bounded B     => A_sg_classify _ (A_MCAS_sg_BCI _ (A_sg_minset_union_from_qo_bounded _ B))
  (*****) 
-| A_OR_to_with_bottom B => A_MCAS_sg_Error _ ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
-| A_OR_to_bounded B     => A_MCAS_sg_Error _ ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
-| A_OR_wo_with_bottom B => A_MCAS_sg_Error _ ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
-| A_OR_wo_bounded  B    => A_MCAS_sg_Error _ ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+| A_OR_to_with_bottom B => A_MCAS_sg_Error _ ("minset_union : there is no point in constructing minset union over a total order" :: nil)
+| A_OR_to_bounded B     => A_MCAS_sg_Error _ ("minset_union : there is no point in constructing minset union over a total order" :: nil)
+| A_OR_wo_with_bottom B => A_MCAS_sg_Error _ ("minset_union : there is no point in constructing minset union over a total order" :: nil)
+| A_OR_wo_bounded  B    => A_MCAS_sg_Error _ ("minset_union : there is no point in constructing minset union over a total order" :: nil)
  (*****) 
 | A_OR_or _          => A_MCAS_sg_Error _ ("Internal Error : mcas_sg_minset_union_from_or : the order is not classified!" :: nil)
  (*****)                                      
-| A_OR_po _          => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
-| A_OR_po_with_top _ => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
-| A_OR_to _          => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
-| A_OR_to_with_top _ => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
-| A_OR_qo _          => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
-| A_OR_qo_with_top _ => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
-| A_OR_wo _          => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
-| A_OR_wo_with_top _ => A_MCAS_sg_Error _ ("minset_union_from_order : order must have a bottom" :: nil)
+| A_OR_po _          => A_MCAS_sg_Error _ ("minset_union : order must have a bottom" :: nil)
+| A_OR_po_with_top _ => A_MCAS_sg_Error _ ("minset_union : order must have a bottom" :: nil)
+| A_OR_to _          => A_MCAS_sg_Error _ ("minset_union : order must have a bottom" :: nil)
+| A_OR_to_with_top _ => A_MCAS_sg_Error _ ("minset_union : order must have a bottom" :: nil)
+| A_OR_qo _          => A_MCAS_sg_Error _ ("minset_union : order must have a bottom" :: nil)
+| A_OR_qo_with_top _ => A_MCAS_sg_Error _ ("minset_union : order must have a bottom" :: nil)
+| A_OR_wo _          => A_MCAS_sg_Error _ ("minset_union : order must have a bottom" :: nil)
+| A_OR_wo_with_top _ => A_MCAS_sg_Error _ ("minset_union : order must have a bottom" :: nil)
 end.
 
 End AMCAS.   
@@ -1707,7 +1707,7 @@ Section MCAS.
 
 Open Scope string_scope.   
 
-Definition mcas_sg_minset_union_from_order {S : Type} (A : @or_mcas S) : @sg_mcas (finite_set S) :=
+Definition mcas_sg_minset_union {S : Type} (A : @or_mcas S) : @sg_mcas (finite_set S) :=
 match A with
 | OR_Error sl         => MCAS_sg_Error sl
 | OR_po_with_bottom B => sg_classify _ (MCAS_sg_BCI (sg_minset_union_from_po_with_bottom B))
@@ -1715,21 +1715,21 @@ match A with
 | OR_qo_with_bottom B => sg_classify _ (MCAS_sg_BCI (sg_minset_union_from_qo_with_bottom B))
 | OR_qo_bounded B     => sg_classify _ (MCAS_sg_BCI (sg_minset_union_from_qo_bounded B))
  (*****) 
-| OR_to_with_bottom B => MCAS_sg_Error ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
-| OR_to_bounded B     => MCAS_sg_Error ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
-| OR_wo_with_bottom B => MCAS_sg_Error ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
-| OR_wo_bounded  B    => MCAS_sg_Error ("minset_union_from_order : there is no point in constructing minset union over a total order" :: nil)
+| OR_to_with_bottom B => MCAS_sg_Error ("minset_union : there is no point in constructing minset union over a total order" :: nil)
+| OR_to_bounded B     => MCAS_sg_Error ("minset_union : there is no point in constructing minset union over a total order" :: nil)
+| OR_wo_with_bottom B => MCAS_sg_Error ("minset_union : there is no point in constructing minset union over a total order" :: nil)
+| OR_wo_bounded  B    => MCAS_sg_Error ("minset_union : there is no point in constructing minset union over a total order" :: nil)
  (*****) 
 | OR_or _          => MCAS_sg_Error ("Internal Error : mcas_sg_minset_union_from_or : the order is not classified!" :: nil)
  (*****)                                      
-| OR_po _          => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
-| OR_po_with_top _ => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
-| OR_to _          => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
-| OR_to_with_top _ => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
-| OR_qo _          => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
-| OR_qo_with_top _ => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
-| OR_wo _          => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
-| OR_wo_with_top _ => MCAS_sg_Error ("minset_union_from_order : order must have a bottom" :: nil)
+| OR_po _          => MCAS_sg_Error ("minset_union : order must have a bottom" :: nil)
+| OR_po_with_top _ => MCAS_sg_Error ("minset_union : order must have a bottom" :: nil)
+| OR_to _          => MCAS_sg_Error ("minset_union : order must have a bottom" :: nil)
+| OR_to_with_top _ => MCAS_sg_Error ("minset_union : order must have a bottom" :: nil)
+| OR_qo _          => MCAS_sg_Error ("minset_union : order must have a bottom" :: nil)
+| OR_qo_with_top _ => MCAS_sg_Error ("minset_union : order must have a bottom" :: nil)
+| OR_wo _          => MCAS_sg_Error ("minset_union : order must have a bottom" :: nil)
+| OR_wo_with_top _ => MCAS_sg_Error ("minset_union : order must have a bottom" :: nil)
 end.
 
 End MCAS.   
@@ -1819,11 +1819,11 @@ Proof. unfold sg_minset_union_from_qo_bounded, A_sg_minset_union_from_qo_bounded
 Qed.
 
 
-Theorem correct_mcas_sg_minset_union_from_order (S : Type) (A : @A_or_mcas S): 
-         mcas_sg_minset_union_from_order (A2C_mcas_or A)  
+Theorem correct_mcas_sg_minset_union (S : Type) (A : @A_or_mcas S): 
+         mcas_sg_minset_union (A2C_mcas_or A)  
          = 
-         A2C_mcas_sg _ (A_mcas_sg_minset_union_from_order A).
-Proof. unfold mcas_sg_minset_union_from_order, A_mcas_sg_minset_union_from_order, A2C_mcas_sg; simpl.
+         A2C_mcas_sg _ (A_mcas_sg_minset_union A).
+Proof. unfold mcas_sg_minset_union, A_mcas_sg_minset_union, A2C_mcas_sg; simpl.
        destruct A; unfold A2C_mcas_or; try reflexivity.
        rewrite correct_minset_union_from_po_with_bottom. reflexivity. 
        rewrite correct_minset_union_from_po_bounded. reflexivity.

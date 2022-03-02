@@ -267,7 +267,7 @@ End ACAS.
 Section AMCAS.
 
 Inductive A_os_mcas S : Type :=
-| A_OS_Error                            : string                               -> A_os_mcas S
+| A_OS_Error                            : list string                           -> A_os_mcas S
 | A_OS_orsg                             : A_orsg S                             -> A_os_mcas S
 | A_OS_posg                             : A_posg S                             -> A_os_mcas S
 | A_OS_monotone_posg                    : A_monotone_posg S                    -> A_os_mcas S
@@ -535,7 +535,7 @@ End CAS.
 Section MCAS.
 
 Inductive os_mcas {S : Type} :=
-| OS_Error                            : string                              -> @os_mcas S
+| OS_Error                            : list string                         -> @os_mcas S
 | OS_orsg                             : @orsg S                             -> @os_mcas S
 | OS_posg                             : @posg S                             -> @os_mcas S                     
 | OS_monotone_posg                    : @monotone_posg S                    -> @os_mcas S
@@ -781,6 +781,19 @@ Definition A2C_bounded_monotone_increasing_posg {S : Type}
 ; bmiposg_ast              := A_bmiposg_ast _ A 
 |}.
 
+Local Open Scope string_scope.
+Local Open Scope list_scope. 
+
+Definition A2C_mcas_os {S : Type} (A : @A_os_mcas S) := 
+match A with 
+| A_OS_Error _ sl                           => OS_Error sl
+| A_OS_orsg  _ B                            => OS_orsg (A2C_orsg B) 
+| A_OS_posg  _ B                            => OS_posg (A2C_posg B) 
+| A_OS_monotone_posg _ B                    => OS_monotone_posg (A2C_monotone_posg B) 
+| A_OS_monotone_increasing_posg _ B         => OS_monotone_increasing_posg (A2C_monotone_increasing_posg B) 
+| A_OS_bounded_monotone_increasing_posg _ B => OS_bounded_monotone_increasing_posg (A2C_bounded_monotone_increasing_posg B)
+| A_OS_bounded_join_semilattice _ _         => OS_Error ("A2C_mcas_os : case for bounded_join_semilattice not yet implemented" :: nil) 
+end. 
 
 End Translation.   
 

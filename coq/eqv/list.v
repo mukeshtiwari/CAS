@@ -361,7 +361,21 @@ Definition eqv_list : ∀ {S : Type},  @eqv S -> @eqv (list S)
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_eqv_list {S : Type} (A : @mcas_eqv S) : @mcas_eqv (list S) :=
+match A with
+| EQV_eqv B    => EQV_eqv (eqv_list B)
+| EQV_Error sl => EQV_Error sl
+end.                  
+
+End MCAS.
+
+    
 Section Verify.
+
+
+
 
 Theorem correct_eqv_list : ∀ (S : Type) (E : A_eqv S),  
          eqv_list (A2C_eqv S E) = A2C_eqv (list S) (A_eqv_list S E). 

@@ -108,8 +108,11 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_mcas_sg_left (S : Type) (A : A_eqv S) : A_sg_mcas S :=
-       A_MCAS_sg S (A_sg_left S A).     
+Definition A_mcas_sg_left (S : Type) (A : @A_mcas_eqv S) : A_sg_mcas S :=
+match A with
+| A_EQV_eqv B    => A_MCAS_sg S (A_sg_left S B)  (* classify? *) 
+| A_EQV_Error sl => A_MCAS_sg_Error _ sl 
+end.
 
 End AMCAS.   
 
@@ -157,8 +160,11 @@ End CAS.
 
 Section MCAS.
 
-Definition mcas_sg_left {S : Type} (A : @eqv S) : @sg_mcas S :=
-       MCAS_sg (sg_left A).     
+Definition mcas_sg_left {S : Type} (A : @mcas_eqv S) : @sg_mcas S :=
+match A with
+| EQV_eqv B    => MCAS_sg (sg_left B)  (* classify? *) 
+| EQV_Error sl => MCAS_sg_Error sl 
+end.
 
 End MCAS.   
 
@@ -183,11 +189,11 @@ Proof. unfold sg_left, A2C_sg; simpl.
        reflexivity. 
 Qed.
 
-Theorem correct_mcas_sg_left (S : Type) (eS : A_eqv S) : 
-         mcas_sg_left (A2C_eqv S eS) 
+Theorem correct_mcas_sg_left (S : Type) (eS : @A_mcas_eqv S) : 
+         mcas_sg_left (A2C_mcas_eqv S eS) 
          = 
          A2C_mcas_sg S (A_mcas_sg_left S eS). 
-Proof.  compute. reflexivity. Qed. 
+Proof.  destruct eS; compute; reflexivity. Qed. 
   
  
 End Verify.   

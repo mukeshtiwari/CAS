@@ -481,10 +481,13 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_mcas_posg_from_bs_left  (S : Type) (A : A_bs_mcas S) :=
+Local Open Scope string_scope.
+Local Open Scope list_scope.     
+
+Definition A_mcas_os_from_bs_left  (S : Type) (A : A_bs_mcas S) :=
   match A_bs_classify _ A with
   | A_BS_dioid _ C => A_OS_bounded_monotone_increasing_posg _ (A_posg_from_dioid _ C)
-  | _ => A_OS_Error _ "structure is not a dioid"
+  | _ => A_OS_Error _ ("mcas_posg_from_bs_left : this combinator (currently) requires a dioid" :: nil) 
   end. 
 
 End AMCAS.   
@@ -623,11 +626,13 @@ End CAS.
 
 Section MCAS.
 
+Local Open Scope string_scope.
+Local Open Scope list_scope.     
 
-Definition mcas_posg_from_bs_left  (S : Type) (A : @bs_mcas S) :=
+Definition mcas_os_from_bs_left  (S : Type) (A : @bs_mcas S) :=
   match bs_classify A with
   | BS_dioid C => OS_bounded_monotone_increasing_posg (posg_from_dioid _ C)
-  | _ => OS_Error "structure is not a dioid"
+  | _ => OS_Error ("mcas_posg_from_bs_left : this combinator (currently) requires a dioid" :: nil) 
   end. 
 
 End MCAS.   

@@ -71,18 +71,20 @@ CAS=\
    coq/sg/lift.v \
    coq/sg/minset_union.v \
    coq/sg/minset_lift.v \
-   coq/po/structures.v \
    coq/po/properties.v \
+   coq/po/structures.v \
    coq/po/theory.v \
+   coq/po/cast_up.v \
+   coq/po/add_bottom.v \
+   coq/po/from_sg.v \
+   coq/po/add_top.v \
    coq/po/product.v \
-   coq/po/lte_nat.v \
    coq/po/length.v \
+   coq/po/lex.v \
    coq/po/subset.v \
    coq/po/minset_subset.v \
-   coq/po/lex.v \
    coq/po/set_lte.v \
    coq/po/dual.v \
-   coq/po/from_sg.v \
    coq/tr/properties.v \
    coq/tr/structures.v \
    coq/tr/left/cayley.v \

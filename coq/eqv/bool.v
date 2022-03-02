@@ -102,6 +102,12 @@ Definition eqv_bool : @eqv bool
   
 End CAS.
 
+Section MCAS.
+
+Definition mcas_eqv_bool := EQV_eqv eqv_bool.   
+
+End MCAS.   
+
 Section Verify.
 
 Theorem correct_eqv_bool : eqv_bool = A2C_eqv bool (A_eqv_bool). 

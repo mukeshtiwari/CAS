@@ -411,6 +411,20 @@ Definition eqv_product : ∀ {S T : Type},  @eqv S -> @eqv T -> @eqv (S * T)
 
 End CAS.
 
+
+Section MCAS.
+
+Definition mcas_eqv_product {S T : Type} (A : @mcas_eqv S) (B : @mcas_eqv T) : @mcas_eqv (S * T) :=
+match A, B with
+| EQV_eqv C, EQV_eqv D         => EQV_eqv (eqv_product C D)
+| EQV_Error sl, EQV_eqv _      => EQV_Error sl
+| EQV_eqv _, EQV_Error sl      => EQV_Error sl
+| EQV_Error sl1, EQV_Error sl2 => EQV_Error (sl1 ++ sl2)                                                                           
+end.                  
+
+End MCAS.
+
+
 Section Verify.
 
 Lemma correct_eqv_product_decidable (S : Type) (T : Type) (wS : S) (wT : T) (eqS : brel S) (eqT : brel T)

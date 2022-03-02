@@ -1,16 +1,20 @@
 Require Import Coq.Bool.Bool. 
+Require Import Coq.Strings.String.
 
-Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.compute. 
 Require Import CAS.coq.common.ast.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
-Require Import CAS.coq.po.properties.
-Require Import CAS.coq.po.structures.
-
 Require Import CAS.coq.eqv.add_constant.
 Require Import CAS.coq.eqv.sum. 
 
-Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.po.properties.
+Require Import CAS.coq.po.structures.
+Require Import CAS.coq.po.cast_up. 
+
+
+
 
 
 Section Compute.
@@ -36,6 +40,7 @@ Variable refl : brel_reflexive S eq.
 
 Variable lte : brel S.
 Variable lteTran : brel_transitive S lte.
+Variable lteRefl : brel_reflexive S lte. 
 Variable lteCong : brel_congruence S eq lte.
 
 Notation "a [+] b"  := (brel_add_bottom b a)       (at level 15).
@@ -43,21 +48,8 @@ Notation "a [+] b"  := (brel_add_bottom b a)       (at level 15).
 Lemma brel_add_bottom_congruence : brel_congruence (with_constant S ) (brel_sum brel_constant eq) (bottom [+] lte). 
 Proof. unfold brel_congruence. intros [s1 | t1] [s2 | t2] [s3 | t3] [s4 | t4]; compute; intros A B; auto; discriminate. Qed. 
 
-Lemma brel_add_bottom_reflexive (lteRefl : brel_reflexive S lte) : brel_reflexive (with_constant S ) (bottom [+] lte). 
+Lemma brel_add_bottom_reflexive : brel_reflexive (with_constant S ) (bottom [+] lte). 
 Proof. intros [c | s]; compute; auto. Qed. 
-
-Lemma brel_add_bottom_not_reflexive (NlteRefl : brel_not_reflexive S lte) :
-     brel_not_reflexive (with_constant S ) (bottom [+] lte). 
-Proof. destruct NlteRefl as [s P]. exists (inr _ s); compute; auto. Defined.
-
-Definition brel_add_bottom_reflexive_decide : 
-     brel_reflexive_decidable S lte  → brel_reflexive_decidable (with_constant S) (bottom [+] lte)
-:= λ dS,  
-   match dS with 
-   | inl refl  => inl _ (brel_add_bottom_reflexive refl)
-   | inr nrefl => inr _ (brel_add_bottom_not_reflexive nrefl)
-   end.  
-
 
 Lemma brel_add_bottom_transitive : brel_transitive (with_constant S ) (bottom [+] lte). 
 Proof. intros [c1 | s1] [c2 | s2] [c3 | s3]; compute; intros A B; auto. 
@@ -70,7 +62,7 @@ Proof. intros [c1 | s1] [c2 | s2]; compute; intros A B; auto. Qed.
 
 Lemma brel_add_bottom_not_antisymmetric (nanti : brel_not_antisymmetric S eq lte):
      brel_not_antisymmetric (with_constant S ) (brel_sum brel_constant eq) (bottom [+] lte). 
-Proof. destruct nanti as [[s1 s2] [A B] _]. exists (inr s1, inr s2); compute; auto. Defined.
+Proof. destruct nanti as [[s1 s2] [A B]]. exists (inr s1, inr s2); compute; auto. Defined.
 
 Definition brel_add_bottom_antisymmetic_decide : 
   brel_antisymmetric_decidable S eq lte  →
@@ -163,42 +155,65 @@ Definition brel_add_bottom_total_decide :
    match dS with 
    | inl tot  => inl _ (brel_add_bottom_total tot)
    | inr ntot => inr _ (brel_add_bottom_not_total ntot)
-   end.  
+   end.
+
+Lemma brel_add_bottom_not_trivial (wS : S) : order_not_trivial (with_constant S ) (bottom [+] lte). 
+Proof. exists (inr wS, inl bottom). compute. reflexivity. Defined. 
+
 
 End Theory.
 
 Section ACAS.
-  
-Definition qo_proofs_add_bottom : 
-   ∀ (S : Type) (eq lte : brel S) (c : cas_constant) (s : S),
-     qo_proofs S eq lte -> qo_proofs (with_constant S) (brel_sum brel_constant eq) (brel_add_bottom lte c)
-:= λ S eq lte c s qoP,
+
+Section Proofs.   
+
+Variables (S : Type) (eq lte : brel S) (bottom : cas_constant) (wS : S).
+
+Definition or_proofs_add_bottom (orP : or_proofs S eq lte) : 
+      or_proofs (with_constant S) (brel_sum brel_constant eq) (brel_add_bottom lte bottom) := 
 {|
-  A_qo_congruence    := brel_add_bottom_congruence c S eq lte (A_qo_congruence _ _ _ qoP)  
-; A_qo_reflexive     := brel_add_bottom_reflexive c S lte (A_qo_reflexive _ _ _ qoP)
-; A_qo_transitive    := brel_add_bottom_transitive c S lte (A_qo_transitive _ _ _ qoP)                                                    
-; A_qo_not_antisymmetric := brel_add_bottom_not_antisymmetric c S eq lte (A_qo_not_antisymmetric _ _ _ qoP)   
-; A_qo_not_total     := brel_add_bottom_not_total c S lte (A_qo_not_total _ _ _ qoP)
+  A_or_congruence      := brel_add_bottom_congruence bottom S eq lte (A_or_congruence _ _ _ orP)  
+; A_or_reflexive       := brel_add_bottom_reflexive bottom S lte (A_or_reflexive _ _ _ orP)
+; A_or_transitive      := brel_add_bottom_transitive bottom S lte (A_or_transitive _ _ _ orP)                                                    
+; A_or_antisymmetric_d := brel_add_bottom_antisymmetic_decide bottom S eq lte (A_or_antisymmetric_d _ _ _ orP) 
+; A_or_total_d         := brel_add_bottom_total_decide bottom S lte (A_or_total_d _ _ _ orP) 
+; A_or_trivial_d       := inr (brel_add_bottom_not_trivial bottom S lte wS) 
 |}. 
 
+End Proofs.
 
+Section Combinators.
 
-Definition A_po_add_bottom : ∀ (S : Type) (c : cas_constant),  A_qo S -> A_qo_with_bottom (with_constant S) 
-:= λ S c qoS,
-  let lte := A_qo_lte S qoS in
-  let s  := A_eqv_witness S (A_qo_eqv S qoS) in
-  let eq := A_eqv_eq S (A_qo_eqv S qoS) in
-  {| 
-     A_qowb_eqv             := A_eqv_add_constant S (A_qo_eqv S qoS) c  
-   ; A_qowb_lte            := brel_add_bottom lte c
-   ; A_qowb_exists_top_d   := brel_add_bottom_exists_qo_top_decide c S eq lte s (A_qo_exists_top_d S qoS)
-   ; A_qowb_exists_bottom  := brel_add_bottom_exists_qo_bottom c S eq lte 
-   ; A_qowb_proofs         := qo_proofs_add_bottom S eq lte c s (A_qo_proofs S qoS)
-   ; A_qowb_ast            := Ast_po_add_bottom (c, A_qo_ast S qoS)
-   |}. 
+Definition A_or_add_bottom (S : Type) (A : @A_or S) (c : cas_constant) : @A_or (cas_constant + S) :=
+let eqv := A_or_eqv _ A in
+let wS  := A_eqv_witness _ eqv in
+let eq  := A_eqv_eq _ eqv in
+let lte := A_or_lte _ A in   
+{|
+  A_or_eqv             := A_eqv_add_constant S eqv c 
+; A_or_lte             := brel_add_bottom lte c 
+; A_or_exists_top_d    := brel_add_bottom_exists_qo_top_decide c S eq lte wS (A_or_exists_top_d _ A)
+; A_or_exists_bottom_d := inl (brel_add_bottom_exists_qo_bottom c S eq lte) 
+; A_or_proofs          := or_proofs_add_bottom S eq lte c wS (A_or_proofs _ A) 
+; A_or_ast             := Ast_or_add_bottom (c, A_or_ast _ A) 
+|}.   
 
+End Combinators.   
 
 End ACAS.
+
+Section AMCAS.
+
+Open Scope string_scope.
+
+Definition A_mcas_or_add_bottom (S : Type) (A : @A_or_mcas S) (c : cas_constant)  : @A_or_mcas (with_constant S) :=
+match A_or_mcas_cast_up A with
+| A_OR_or A'      => A_or_classify (A_OR_or (A_or_add_bottom _ A' c))
+| A_OR_Error sl1  => A_OR_Error sl1
+| _               => A_OR_Error ("Internal Error : mcas_or_add_bottom" :: nil)
+end.
+
+End AMCAS. 
 
 
 Section CAS.
@@ -213,8 +228,9 @@ Definition brel_add_bottom_reflexive_check :
    | Certify_Not_Reflexive s => Certify_Not_Reflexive (inr _ s)
    end. 
 
+
 Definition brel_add_bottom_total_check : 
-   ∀ {S : Type},  @check_total S → @check_total (with_constant S)
+   ∀ {S : Type},  @certify_total S → @certify_total (with_constant S)
 := λ {S} dS,  
    match dS with 
    | Certify_Total            => Certify_Total
@@ -223,7 +239,7 @@ Definition brel_add_bottom_total_check :
 
 
 Definition brel_add_bottom_exists_bottom_check : 
-   ∀ {S : Type},  @check_exists_bottom S → @check_exists_bottom (with_constant S)
+   ∀ {S : Type},  @certify_exists_bottom S → @certify_exists_bottom (with_constant S)
 := λ {S} dS,  
    match dS with 
    | Certify_Exists_Bottom b   => Certify_Exists_Bottom (inr b)
@@ -232,7 +248,7 @@ Definition brel_add_bottom_exists_bottom_check :
 
 
 Definition brel_add_bottom_exists_qo_bottom_check : 
-   ∀ {S : Type},  @check_exists_qo_bottom S → @check_exists_qo_bottom (with_constant S)
+   ∀ {S : Type},  @certify_exists_qo_bottom S → @certify_exists_qo_bottom (with_constant S)
 := λ {S} dS,  
    match dS with 
    | Certify_Exists_Qo_Bottom b   => Certify_Exists_Qo_Bottom (inr b)
@@ -241,7 +257,7 @@ Definition brel_add_bottom_exists_qo_bottom_check :
 
 
 Definition brel_add_bottom_exists_qo_top_check : 
-   ∀ {S : Type},  @check_exists_qo_top S → @check_exists_qo_top (with_constant S)
+   ∀ {S : Type},  @certify_exists_qo_top S → @certify_exists_qo_top (with_constant S)
 := λ {S} dS,  
    match dS with 
    | Certify_Exists_Qo_Top b   => Certify_Exists_Qo_Top (inr b)
@@ -249,70 +265,104 @@ Definition brel_add_bottom_exists_qo_top_check :
    end. 
 
 
-
-Definition qo_certs_add_bottom {S : Type} : 
-      @qo_certificates S -> @qo_certificates (with_constant S)
-:= λ qoP,
+Definition or_certs_add_bottom {S : Type} (wS : S) (c : cas_constant) 
+      (orP: @or_certificates S) : @or_certificates (with_constant S) := 
 {|
-  qo_congruence    := Assert_Brel_Congruence
-; qo_reflexive     := Assert_Reflexive 
-; qo_transitive    := Assert_Transitive 
-; qo_not_antisymmetric := match qo_not_antisymmetric qoP with
-                          | Assert_Not_Antisymmetric (s, t) => Assert_Not_Antisymmetric (inr s, inr t) 
+  or_congruence      := Assert_Brel_Congruence
+; or_reflexive       := Assert_Reflexive 
+; or_transitive      := Assert_Transitive 
+; or_antisymmetric_d := match or_antisymmetric_d orP with
+                          | Certify_Antisymmetric => Certify_Antisymmetric
+                          | Certify_Not_Antisymmetric (s, t) => Certify_Not_Antisymmetric (inr s, inr t) 
                           end 
-; qo_not_total  := match qo_not_total qoP with
-                 | Assert_Not_Total (s, t) => Assert_Not_Total (inr s, inr t)
-                 end 
+; or_total_d         :=  match or_total_d orP with
+                          | Certify_Total => Certify_Total
+                          | Certify_Not_Total (s, t) => Certify_Not_Total (inr s, inr t) 
+                         end
+; or_trivial_d       :=  Certify_Order_Not_Trivial (inr wS, inl c) 
 |}. 
 
 
-Definition po_add_bottom {S : Type} (c : cas_constant):  @qo S -> @qo_with_bottom (with_constant S) 
-:= λ qoS,
+Definition or_add_bottom {S : Type} (orS : @or S) (c : cas_constant) : @or (with_constant S) :=
+let wS := eqv_witness (or_eqv orS) in   
   {| 
-     qowb_eqv            := eqv_add_constant (qo_eqv qoS) c  
-   ; qowb_lte            := brel_add_bottom (qo_lte qoS) c
-   ; qowb_exists_top_d   := brel_add_bottom_exists_qo_top_check (qo_exists_top_d qoS)
-   ; qowb_exists_bottom  := Assert_Exists_Qo_Bottom (inl c)
-   ; qowb_certs          := qo_certs_add_bottom (qo_certs qoS) 
-   ; qowb_ast            := Ast_po_add_bottom (c, qo_ast qoS)
+     or_eqv             := eqv_add_constant (or_eqv orS) c  
+   ; or_lte             := brel_add_bottom (or_lte orS) c
+   ; or_exists_top_d    := brel_add_bottom_exists_qo_top_check (or_exists_top_d orS)
+   ; or_exists_bottom_d := Certify_Exists_Qo_Bottom (inl c)
+   ; or_certs           := or_certs_add_bottom wS c (or_certs orS) 
+   ; or_ast             := Ast_or_add_bottom (c, or_ast orS)
    |}. 
-
 
 
  
 End CAS.
 
+Section MCAS.
+
+Open Scope string_scope.
+
+Definition mcas_or_add_bottom {S : Type}  (A : @or_mcas S) (c : cas_constant) : @or_mcas (with_constant S) :=
+match or_mcas_cast_up A with
+| OR_or A'      => or_classify (OR_or (or_add_bottom A' c))
+| OR_Error sl1  => OR_Error sl1
+| _             => OR_Error ("Internal Error : mcas_or_add_bottom" :: nil)
+end.
+
+End MCAS.
+
+
+
 Section Verify.
 
+Section Proofs.
 
-  
-Lemma correct_po_certs_add_bottom (S : Type) (eq lte : brel S) (wS : S) (b : cas_constant) (P : qo_proofs S eq lte) : 
-       qo_certs_add_bottom (P2C_qo S eq lte P) 
+Variables (S : Type) (eq lte : brel S) (wS : S) (b : cas_constant).   
+
+
+Lemma correct_or_certs_add_bottom (P : or_proofs S eq lte) : 
+       or_certs_add_bottom wS b (P2C_or eq lte P) 
        = 
-       P2C_qo (with_constant S) 
+       P2C_or 
           (brel_sum brel_constant eq) 
           (brel_add_bottom lte b) 
-          (qo_proofs_add_bottom S eq lte b wS P).
-Proof. destruct P.  unfold qo_proofs_add_bottom, qo_certs_add_bottom, P2C_qo; simpl.
-       destruct A_qo_not_antisymmetric as [[s t] [A B]]. simpl.
-       unfold p2c_not_antisymmetric_assert.
-       destruct A_qo_not_total as [[st] [C D]]; simpl; reflexivity. 
+          (or_proofs_add_bottom S eq lte b wS P).
+Proof. destruct P; unfold or_proofs_add_bottom, or_certs_add_bottom, P2C_or; simpl.
+       destruct A_or_antisymmetric_d as [ anti | [[s1 s2] [[A B] C]]];
+       destruct A_or_total_d as [ tot | [[s3 s4] [D E]]];
+       destruct A_or_trivial_d as [ triv | [[s5 s6] F]]; simpl; try reflexivity. 
 Defined. 
 
+End Proofs. 
 
-Theorem correct_sg_add_bottom (S : Type) (b : cas_constant) (qoS : A_qo S):  
-         po_add_bottom b (A2C_qo S qoS) 
+Section Combinators.
+  
+Theorem correct_or_add_bottom (S : Type) (b : cas_constant) (orS : @A_or S):  
+         or_add_bottom (A2C_or orS) b  
          = 
-         A2C_qo_with_bottom (with_constant S) (A_po_add_bottom S b qoS). 
-Proof. destruct qoS. unfold po_add_bottom, A_po_add_bottom, A2C_qo, A2C_qo_with_bottom; simpl.
+         A2C_or (A_or_add_bottom S orS b). 
+Proof. destruct orS; unfold or_add_bottom, A_or_add_bottom, A2C_or; simpl.
        rewrite correct_eqv_add_constant. 
-       rewrite <- correct_po_certs_add_bottom.
+       rewrite <- correct_or_certs_add_bottom.
        unfold brel_add_bottom_exists_qo_bottom.
-       unfold p2c_exists_qo_bottom_assert. simpl.
-       destruct A_qo_exists_top_d as [[t [A B]] | Q];
-       unfold p2c_exists_qo_top_check; simpl; reflexivity.        
+       destruct A_or_exists_top_d as [[t [A B]] | P]; simpl; try reflexivity.        
+Qed.
+
+Theorem correct_mcas_or_add_bottom (S : Type) (orS : @A_or_mcas S) (c : cas_constant): 
+         mcas_or_add_bottom (A2C_mcas_or orS) c
+         = 
+         A2C_mcas_or (A_mcas_or_add_bottom S orS c).
+Proof. unfold mcas_or_add_bottom, A_mcas_or_add_bottom.  
+       rewrite correct_or_mcas_cast_up.       
+       destruct (A_or_cast_up_is_error_or_or _ orS) as [[l1 A] | [s1 A]]. 
+       + rewrite A; simpl. reflexivity. 
+       + rewrite A; simpl. rewrite correct_or_add_bottom. 
+         apply correct_or_classify_or. 
 Qed. 
 
+
+
+End Combinators. 
 
 End Verify.   
   

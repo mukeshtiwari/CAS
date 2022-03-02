@@ -426,6 +426,18 @@ Definition eqv_set : ∀ {S : Type},  @eqv S -> @eqv (finite_set S)
 
 End CAS.
 
+
+Section MCAS.
+
+Definition mcas_eqv_set {S : Type} (A : @mcas_eqv S) : @mcas_eqv (finite_set S) :=
+match A with
+| EQV_eqv B    => EQV_eqv (eqv_set B)
+| EQV_Error sl => EQV_Error sl
+end.                  
+
+End MCAS.
+
+
 Section Verify.
 
 

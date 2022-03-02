@@ -1,4 +1,5 @@
 Require Import Coq.Lists.List.
+Require Import Coq.Strings.String.
 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
@@ -15,6 +16,7 @@ Require Import CAS.coq.eqv.list.
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
 Require Import CAS.coq.po.theory.
+Require Import CAS.coq.po.cast_up. 
 
 Require Import CAS.coq.sg.union. 
 
@@ -1730,6 +1732,37 @@ Definition A_eqv_minset_from_po : ∀ (S : Type),  A_po S -> A_eqv (finite_set S
    |}. 
 
 
+Definition A_eqv_minset_from_po_bounded : ∀ (S : Type),  A_po_bounded S -> A_eqv (finite_set S) 
+  := λ S poS,
+  let eqvS  := A_po_bd_eqv S poS in 
+  let rS    := A_eqv_eq S eqvS in
+  let wS    := A_eqv_witness S eqvS in
+  let fS    := A_eqv_new S eqvS in
+  let nt    := A_eqv_not_trivial S eqvS in
+  let eqP   := A_eqv_proofs S eqvS in
+  let congS := A_eqv_congruence S rS eqP in 
+  let refS  := A_eqv_reflexive S rS eqP in  
+  let symS  := A_eqv_symmetric S rS eqP in
+  let trnS  := A_eqv_transitive S rS eqP in
+  let lteS  := A_po_bd_lte S poS in
+  let lteP  := A_po_bd_proofs S poS in 
+  let lte_congS := A_po_congruence S rS lteS lteP in 
+  let lte_refS  := A_po_reflexive S rS lteS lteP in  
+  let lte_trnS  := A_po_transitive S rS lteS lteP in  
+   {| 
+      A_eqv_eq            := brel_minset rS lteS 
+    ; A_eqv_proofs        := eqv_proofs_brel_minset_from_po S rS lteS eqP lteP 
+    ; A_eqv_witness       := nil 
+    ; A_eqv_new           := brel_minset_new S rS wS 
+    ; A_eqv_not_trivial   := brel_minset_not_trivial S rS wS refS symS trnS lteS 
+    ; A_eqv_exactly_two_d := inr (brel_minset_not_exactly_two S rS wS fS nt refS symS trnS lteS)                              
+    ; A_eqv_data          := λ l, DATA_list (List.map (A_eqv_data S eqvS) (uop_minset rS l))   
+    ; A_eqv_rep           := λ l, List.map (A_eqv_rep S eqvS) (uop_minset rS l)
+    ; A_eqv_finite_d      := brel_minset_finite_decidable S rS wS fS nt congS refS symS trnS lteS lte_congS lte_refS lte_trnS (A_eqv_finite_d S eqvS)
+    ; A_eqv_ast           := Ast_eqv_minset (A_po_bd_ast S poS)
+   |}. 
+
+
 
 Definition A_eqv_minset_from_qo : ∀ (S : Type),  A_qo S -> A_eqv (finite_set S) 
   := λ S poS,
@@ -1827,6 +1860,32 @@ Definition eqv_minset_from_po : ∀ {S : Type},  @po S -> @eqv (finite_set S)
    |}.
 
 
+Definition eqv_minset_from_po_bounded : ∀ {S : Type},  @po_bounded S -> @eqv (finite_set S)
+:= λ {S} poS,
+  let eqvS := po_bd_eqv poS in  
+  let rS   := eqv_eq eqvS in
+  let wS   := eqv_witness eqvS in
+  let fS   := eqv_new eqvS in  
+  let lteS := po_bd_lte poS in 
+   {| 
+      eqv_eq            := brel_minset rS lteS 
+    ; eqv_certs := 
+     {|
+       eqv_congruence     := @Assert_Brel_Congruence (finite_set S)
+     ; eqv_reflexive      := @Assert_Reflexive (finite_set S)
+     ; eqv_transitive     := @Assert_Transitive (finite_set S)
+     ; eqv_symmetric      := @Assert_Symmetric (finite_set S)
+     |}  
+    ; eqv_witness       := nil 
+    ; eqv_new           := brel_minset_new S rS wS 
+    ; eqv_exactly_two_d := Certify_Not_Exactly_Two (minset_negate S wS fS lteS) 
+    ; eqv_data          := λ l, DATA_list (List.map (eqv_data eqvS) (uop_minset rS l))   
+    ; eqv_rep           := λ l, List.map (eqv_rep eqvS) (uop_minset rS  l)
+    ; eqv_finite_d      := check_brel_minset_finite lteS (eqv_finite_d eqvS)  
+    ; eqv_ast           := Ast_eqv_minset (po_bd_ast poS)
+   |}.
+
+
 
 Definition eqv_minset_from_qo : ∀ {S : Type},  @qo S -> @eqv (finite_set S)
 := λ {S} poS,
@@ -1856,6 +1915,22 @@ Definition eqv_minset_from_qo : ∀ {S : Type},  @qo S -> @eqv (finite_set S)
   
 End CAS.
 
+
+Section MCAS.
+
+Local Open Scope string_scope.
+
+Definition mcas_eqv_minset {S : Type}  (A : @or_mcas S) : @mcas_eqv (finite_set S) :=
+match or_mcas_cast_up A with
+| OR_or B       => EQV_eqv (eqv_minset_from_or B)
+| OR_Error sl   => EQV_Error sl
+| _             => EQV_Error ("Internal Error : mcas_eqv_minset" :: nil)
+end.
+
+End MCAS.
+
+
+
 Section Verify.
 
 Theorem correct_eqv_minset_from_or : ∀ (S : Type) (P : A_or S),  
@@ -1875,6 +1950,18 @@ Proof. intros S P.
        unfold eqv_minset_from_po, A_eqv_minset_from_po, A2C_eqv; simpl. 
        destruct P; simpl.
        destruct A_po_proofs; destruct A_po_eqv; simpl.
+       destruct A_eqv_finite_d as [ [fS FS] | NFS ]; simpl; auto. 
+Qed.        
+
+
+Theorem correct_eqv_minset_from_po_bounded : ∀ (S : Type) (P : A_po_bounded S),  
+    eqv_minset_from_po_bounded (A2C_po_bounded P)
+    =
+    A2C_eqv (finite_set S) (A_eqv_minset_from_po_bounded S P).
+Proof. intros S P. 
+       unfold eqv_minset_from_po_bounded, A_eqv_minset_from_po_bounded, A2C_eqv; simpl. 
+       destruct P; simpl.
+       destruct A_po_bd_proofs; destruct A_po_bd_eqv; simpl.
        destruct A_eqv_finite_d as [ [fS FS] | NFS ]; simpl; auto. 
 Qed.        
 

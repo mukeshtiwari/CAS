@@ -1,3 +1,4 @@
+Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.data.
 Require Import CAS.coq.common.ast.
@@ -39,6 +40,15 @@ Record A_eqv (S : Type) := {
 
 End ACAS.
 
+Section AMCAS.
+
+Inductive A_mcas_eqv {S : Type} := 
+| A_EQV_Error          : list string -> @A_mcas_eqv S
+| A_EQV_eqv            : A_eqv S     -> @A_mcas_eqv S
+. 
+
+End AMCAS.   
+
 Section CAS.
 
 Record eqv_certificates {S : Type} := 
@@ -67,11 +77,20 @@ Record eqv {S : Type} := {
 
 End CAS.
 
+Section AMCAS.
+
+Inductive mcas_eqv {S : Type} := 
+| EQV_Error          : list string -> @mcas_eqv S
+| EQV_eqv            : @eqv S     -> @mcas_eqv S
+. 
+
+End AMCAS.   
+
+
 Section Translation.
 
 
-  Definition A2C_eqv : ∀ (S : Type), A_eqv S -> @eqv S 
-:= λ S E,
+Definition A2C_eqv (S : Type) (E : A_eqv S) : @eqv S := 
 let eq := A_eqv_eq S E in   
 {| 
   eqv_eq      := eq
@@ -92,6 +111,9 @@ let eq := A_eqv_eq S E in
 ; eqv_ast     := A_eqv_ast S E
 |}. 
 
-
-
+Definition A2C_mcas_eqv (S : Type) (E : @A_mcas_eqv S) : @mcas_eqv S :=
+match E with
+| A_EQV_Error sl   => EQV_Error sl     
+| A_EQV_eqv A      => EQV_eqv (A2C_eqv _ A)
+end.                               
 End Translation.   

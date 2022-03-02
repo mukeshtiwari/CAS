@@ -13,7 +13,8 @@ Require Import CAS.coq.po.dual.
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures. 
-Require Import CAS.coq.sg.theory. 
+Require Import CAS.coq.sg.theory.
+Require Import CAS.coq.sg.cast_up. 
 
 Section Computation. 
 
@@ -184,7 +185,9 @@ Proof. compute in commS. intros s t H1 H2.
        exact C. 
 Qed.
 
-(* note : need something stronger than not_commutative to get not_antisymmetric 
+(* note : need something stronger than not_commutative to get not_antisymmetric. 
+
+Explore this further????
 
 *) 
 Lemma brel_lte_left_not_antisymmetric
@@ -198,7 +201,10 @@ Proof. destruct ncommS as [a [b [[A B] C]]]. exists (a, b). compute.
        rewrite E in A. discriminate A. 
 Qed.
 
-(* just checking that this is an iff .... *) 
+(* just checking that this is an iff .... 
+
+Explore this further????
+*) 
 Lemma brel_lte_left_antisymmetric_v2
       (commS : ∀ s t : S, (s (+) t == t (+) s) + (s != (s (+) t)) + (t != (t (+) s))) :
          brel_antisymmetric S eq (brel_lte_left eq bS).
@@ -761,22 +767,347 @@ Definition to_certs_from_sg_CS_certs {S : Type} (P : @sg_CS_certificates S) : @t
 End Certificates.
 
 Section Combinators.
+
+Definition left_to_from_sg_CS {S : Type} (A : @sg_CS S) : @to S :=
+let eqv    := sg_CS_eqv A in
+let eq     := eqv_eq eqv in
+let bop    := sg_CS_bop A in
+let sgP    := sg_CS_certs A in
+{|
+  to_eqv               := eqv 
+; to_lte               := brel_lte_left eq bop 
+; to_not_exists_top    := Assert_Not_Exists_Top 
+; to_not_exists_bottom := Assert_Not_Exists_Bottom
+; to_certs             := to_certs_from_sg_CS_certs sgP 
+; to_ast               := Ast_or_llte (sg_CS_ast A) 
+|}.
+  
+
+Definition left_to_with_top_from_sg_CS_with_id {S : Type} (A : @sg_CS_with_id S) : @to_with_top S :=
+let eqv    := sg_CS_wi_eqv A in
+let eq     := eqv_eq eqv in
+{|
+  to_wt_eqv               := eqv 
+; to_wt_lte               := brel_lte_left eq (sg_CS_wi_bop A)
+; to_wt_exists_top        := match sg_CS_wi_exists_id A with
+                             | Assert_Exists_Id id => Assert_Exists_Top id
+                             end
+; to_wt_not_exists_bottom := Assert_Not_Exists_Bottom
+; to_wt_certs             := to_certs_from_sg_CS_certs(sg_CS_wi_certs A)
+; to_wt_ast               := Ast_or_llte (sg_CS_wi_ast A) 
+|}.
+
+Definition left_to_with_bottom_from_sg_CS_with_ann {S : Type} (A : @sg_CS_with_ann S) : @to_with_bottom S :=
+let eqv    := sg_CS_wa_eqv A in
+let eq     := eqv_eq eqv in
+let bop    := sg_CS_wa_bop A in
+let sgP    := sg_CS_wa_certs A in
+{|
+  to_wb_eqv               := eqv 
+; to_wb_lte               := brel_lte_left eq bop 
+; to_wb_not_exists_top    := Assert_Not_Exists_Top 
+; to_wb_exists_bottom     := match sg_CS_wa_exists_ann A with
+                             | Assert_Exists_Ann ann => Assert_Exists_Bottom ann
+                             end
+; to_wb_certs             := to_certs_from_sg_CS_certs sgP 
+; to_wb_ast               := Ast_or_llte (sg_CS_wa_ast A) 
+|}.
+
+Definition left_to_bounded_from_sg_CS_bounded {S : Type} (A : @sg_BCS S) : @to_bounded S :=
+let eqv    := sg_BCS_eqv A in
+let eq     := eqv_eq eqv in
+let bop    := sg_BCS_bop A in
+let sgP    := sg_BCS_certs A in
+{|
+  to_bd_eqv               := eqv 
+; to_bd_lte               := brel_lte_left eq bop 
+; to_bd_exists_top        := match sg_BCS_exists_id A with
+                             | Assert_Exists_Id id => Assert_Exists_Top id 
+                             end
+; to_bd_exists_bottom     := match sg_BCS_exists_ann A with
+                             | Assert_Exists_Ann ann => Assert_Exists_Bottom ann
+                             end
+; to_bd_certs             := to_certs_from_sg_CS_certs sgP 
+; to_bd_ast               := Ast_or_llte (sg_BCS_ast A) 
+|}.
+
+Definition left_po_from_sg_CI {S : Type} (A : @sg_CI S) : @po S :=
+let eqv    := sg_CI_eqv A in
+let eq     := eqv_eq eqv in
+let bop    := sg_CI_bop A in
+let sgP    := sg_CI_certs A in
+{|
+  po_eqv               := eqv 
+; po_lte               := brel_lte_left eq bop 
+; po_not_exists_top    := Assert_Not_Exists_Top
+; po_not_exists_bottom := Assert_Not_Exists_Bottom
+; po_certs             := po_certs_from_sg_CI_certs sgP 
+; po_ast               := Ast_or_llte (sg_CI_ast A) 
+|}.
+
+Definition left_po_with_top_from_sg_CI_with_id {S : Type} (A : @sg_CI_with_id S) : @po_with_top S :=
+let eqv    := sg_CI_wi_eqv A in
+let eq     := eqv_eq eqv in
+let bop    := sg_CI_wi_bop A in
+let sgP    := sg_CI_wi_certs A in
+{|
+  po_wt_eqv               := eqv 
+; po_wt_lte               := brel_lte_left eq bop 
+; po_wt_exists_top        := match sg_CI_wi_exists_id A with
+                             | Assert_Exists_Id id => Assert_Exists_Top id 
+                             end
+; po_wt_not_exists_bottom := Assert_Not_Exists_Bottom 
+; po_wt_certs             := po_certs_from_sg_CI_certs sgP 
+; po_wt_ast               := Ast_or_llte (sg_CI_wi_ast A) 
+|}.
+  
+
+Definition left_po_with_bottom_from_sg_CI_with_ann {S : Type} (A : @sg_CI_with_ann S) : @po_with_bottom S :=
+let eqv    := sg_CI_wa_eqv A in
+let eq     := eqv_eq eqv in
+let bop    := sg_CI_wa_bop A in
+let sgP    := sg_CI_wa_certs A in
+{|
+  po_wb_eqv               := eqv 
+; po_wb_lte               := brel_lte_left eq bop 
+; po_wb_not_exists_top    := Assert_Not_Exists_Top
+; po_wb_exists_bottom     := match sg_CI_wa_exists_ann A with
+                             | Assert_Exists_Ann ann => Assert_Exists_Bottom ann 
+                             end
+; po_wb_certs             := po_certs_from_sg_CI_certs sgP 
+; po_wb_ast               := Ast_or_llte (sg_CI_wa_ast A) 
+|}.
+
+Definition left_po_bounded_from_sg_CI_bounded {S : Type} (A : @sg_BCI S) : @po_bounded S :=
+let eqv    := sg_BCI_eqv A in
+let eq     := eqv_eq eqv in
+let bop    := sg_BCI_bop A in
+let sgP    := sg_BCI_certs A in
+{|
+  po_bd_eqv               := eqv 
+; po_bd_lte               := brel_lte_left eq bop 
+; po_bd_exists_top        := match sg_BCI_exists_id A with
+                             | Assert_Exists_Id id => Assert_Exists_Top id
+                             end
+; po_bd_exists_bottom     := match sg_BCI_exists_ann A with
+                             | Assert_Exists_Ann ann => Assert_Exists_Bottom ann 
+                             end
+; po_bd_certs             := po_certs_from_sg_CI_certs sgP 
+; po_bd_ast               := Ast_or_llte (sg_BCI_ast A) 
+|}.
+  
+
 End Combinators.
 
 End CAS.
 
+
+Section MCAS.
+
+Local Open Scope string_scope.   
+
+
+Definition mcas_left_order_from_sg {S : Type} (A : @sg_mcas S) : @or_mcas S :=
+match A with
+  | MCAS_sg_Error sl           => OR_Error sl 
+  | MCAS_sg _                  => OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | MCAS_sg_C B                => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | MCAS_sg_C_with_id B        => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | MCAS_sg_C_with_ann B       => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | MCAS_sg_BC B               => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | MCAS_sg_NC B               => OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | MCAS_sg_NC_with_id B       => OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | MCAS_sg_NC_with_ann B      => OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | MCAS_sg_BNC B              => OR_Error ("left_order_from_sg: semirgroup must be commutative and idempotent" :: nil)
+  | MCAS_sg_CS B               => OR_to (left_to_from_sg_CS B)
+  | MCAS_sg_CS_with_id B       => OR_to_with_top (left_to_with_top_from_sg_CS_with_id B)
+  | MCAS_sg_CS_with_ann B      => OR_to_with_bottom (left_to_with_bottom_from_sg_CS_with_ann B)
+  | MCAS_sg_BCS B              => OR_to_bounded (left_to_bounded_from_sg_CS_bounded B)
+  | MCAS_sg_CI B               => OR_po (left_po_from_sg_CI B)
+  | MCAS_sg_CI_with_id B       => OR_po_with_top (left_po_with_top_from_sg_CI_with_id B)
+  | MCAS_sg_CI_with_ann B      => OR_po_with_bottom (left_po_with_bottom_from_sg_CI_with_ann B)
+  | MCAS_sg_BCI B              => OR_po_bounded (left_po_bounded_from_sg_CI_bounded B)
+  | MCAS_sg_CNI B              => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | MCAS_sg_CNI_with_id B      => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | MCAS_sg_CNI_with_ann B     => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | MCAS_sg_BCNI B             => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | MCAS_sg_CK B               => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+  | MCAS_sg_CK_with_id B       => OR_Error ("left_order_from_sg: semirgroup must be idempotent" :: nil)
+end.     
+
+End MCAS.
+
+
+
 Section Verify.
 
 Section Decide.   
-
-
 End Decide.
 
 Section Proofs.
 
+Variables   
+      (S : Type)
+      (eq : brel S)
+      (eqvP : eqv_proofs S eq)
+      (bop : binary_op S). 
+
+Lemma correct_to_certs_from_sg_CS_certs
+      (P : sg_CS_proofs S eq bop) :
+      P2C_to eq (brel_lte_left eq bop) (to_proofs_from_sg_CS_proofs S eq eqvP bop P)
+      = 
+      to_certs_from_sg_CS_certs (P2C_sg_CS S eq bop P).
+Proof. destruct P; unfold to_proofs_from_sg_CS_proofs, to_certs_from_sg_CS_certs,
+                   P2C_to, P2C_sg_CS; simpl.
+       reflexivity. 
+Qed. 
+
+Lemma correct_po_certs_from_sg_CI_certs
+      (P : sg_CI_proofs S eq bop) : 
+      P2C_po eq (brel_lte_left eq bop) (po_proofs_from_sg_CI_proofs S eq eqvP bop P)
+      = 
+      po_certs_from_sg_CI_certs (P2C_sg_CI S eq bop P). 
+Proof. destruct P; unfold po_proofs_from_sg_CI_proofs, po_certs_from_sg_CI_certs,
+                   P2C_po, P2C_sg_CI; simpl.
+       destruct A_sg_CI_not_selective as [[s1 s2] [A B]]; simpl.
+       unfold p2c_not_total_assert. simpl. 
+       reflexivity. 
+Qed. 
+
+
+  
 End Proofs.
 
 Section Combinators.
+
+Theorem correct_left_to_from_sg_CS (S : Type) (a : A_sg_CS S) : 
+  left_to_from_sg_CS (A2C_sg_CS S a)
+  =
+  A2C_to (A_left_to_from_sg_CS a). 
+Proof. destruct a; unfold left_to_from_sg_CS, A_left_to_from_sg_CS, A2C_to, A2C_sg_CS; simpl. 
+       unfold p2c_not_exists_top_assert, p2c_not_exists_bottom_assert.
+       rewrite correct_to_certs_from_sg_CS_certs. 
+       reflexivity. 
+Qed. 
+
+Theorem correct_left_to_with_top_from_sg_CS_with_id (S : Type) (a : A_sg_CS_with_id S) : 
+  left_to_with_top_from_sg_CS_with_id (A2C_sg_CS_with_id S a)
+  =
+  A2C_to_with_top (A_left_to_with_top_from_sg_CS_with_id a). 
+Proof. destruct a; unfold left_to_with_top_from_sg_CS_with_id,
+                   A_left_to_with_top_from_sg_CS_with_id, A2C_to_with_top,
+                   A2C_sg_CS_with_id; simpl.
+       rewrite correct_to_certs_from_sg_CS_certs.        
+       unfold p2c_not_exists_bottom_assert.
+       destruct A_sg_CS_wi_exists_id as [id P]; simpl.
+       unfold p2c_exists_top_assert; simpl. 
+       reflexivity. 
+Qed. 
+
+  
+Theorem correct_left_to_with_bottom_from_sg_CS_with_ann (S : Type) (a : A_sg_CS_with_ann S) : 
+  left_to_with_bottom_from_sg_CS_with_ann (A2C_sg_CS_with_ann S a)
+  =
+  A2C_to_with_bottom (A_left_to_with_bottom_from_sg_CS_with_ann a).
+Proof. destruct a; unfold left_to_with_bottom_from_sg_CS_with_ann,
+                   A_left_to_with_bottom_from_sg_CS_with_ann, A2C_to_with_bottom,
+                   A2C_sg_CS_with_ann; simpl.
+       rewrite correct_to_certs_from_sg_CS_certs.        
+       unfold p2c_not_exists_top_assert.
+       destruct A_sg_CS_wa_exists_ann as [ann P]; simpl.
+       unfold p2c_exists_bottom_assert; simpl. 
+       reflexivity. 
+Qed. 
+
+Theorem correct_left_to_bounded_from_sg_CS_bounded (S : Type) (a : A_sg_BCS S) : 
+  left_to_bounded_from_sg_CS_bounded (A2C_sg_BCS S a)
+  =
+  A2C_to_bounded (A_left_to_bounded_from_sg_CS_bounded a).
+Proof. destruct a; unfold left_to_bounded_from_sg_CS_bounded,
+                   A_left_to_bounded_from_sg_CS_bounded, A2C_to_bounded,
+                   A2C_sg_BCS; simpl.
+       rewrite correct_to_certs_from_sg_CS_certs.        
+       destruct A_sg_BCS_exists_ann as [ann P]; simpl.
+       unfold p2c_exists_bottom_assert; simpl.
+       destruct A_sg_BCS_exists_id as [id Q]; simpl.
+       unfold p2c_exists_top_assert; simpl.
+       reflexivity. 
+Qed. 
+
+
+Theorem correct_left_po_from_sg_CI (S : Type) (a : A_sg_CI S) : 
+  left_po_from_sg_CI (A2C_sg_CI S a)
+  =
+  A2C_po (A_left_po_from_sg_CI a). 
+Proof. destruct a; unfold left_po_from_sg_CI, A_left_po_from_sg_CI, A2C_po, A2C_sg_CI; simpl. 
+       unfold p2c_not_exists_top_assert, p2c_not_exists_bottom_assert.
+       rewrite correct_po_certs_from_sg_CI_certs. 
+       reflexivity. 
+Qed. 
+
+
+Theorem correct_left_po_with_top_from_sg_CI_with_id (S : Type) (a : A_sg_CI_with_id S) : 
+  left_po_with_top_from_sg_CI_with_id (A2C_sg_CI_with_id S a)
+  =
+  A2C_po_with_top (A_left_po_with_top_from_sg_CI_with_id a). 
+Proof. destruct a; unfold left_po_with_top_from_sg_CI_with_id,
+                   A_left_po_with_top_from_sg_CI_with_id, A2C_po_with_top,
+                   A2C_sg_CI_with_id; simpl.
+       rewrite correct_po_certs_from_sg_CI_certs.        
+       unfold p2c_not_exists_bottom_assert.
+       destruct A_sg_CI_wi_exists_id as [id P]; simpl.
+       unfold p2c_exists_top_assert; simpl. 
+       reflexivity. 
+Qed. 
+
+
+Theorem correct_left_po_with_bottom_from_sg_CI_with_ann (S : Type) (a : A_sg_CI_with_ann S) : 
+  left_po_with_bottom_from_sg_CI_with_ann (A2C_sg_CI_with_ann S a)
+  =
+  A2C_po_with_bottom (A_left_po_with_bottom_from_sg_CI_with_ann a). 
+Proof. destruct a; unfold left_po_with_bottom_from_sg_CI_with_ann,
+                   A_left_po_with_bottom_from_sg_CI_with_ann, A2C_po_with_bottom,
+                   A2C_sg_CI_with_ann; simpl.
+       rewrite correct_po_certs_from_sg_CI_certs.        
+       unfold p2c_not_exists_top_assert.
+       destruct A_sg_CI_wa_exists_ann as [ann P]; simpl.
+       unfold p2c_exists_bottom_assert; simpl. 
+       reflexivity. 
+Qed. 
+
+
+Theorem correct_left_po_bounded_from_sg_CI_bounded (S : Type) (a : A_sg_BCI S) : 
+  left_po_bounded_from_sg_CI_bounded (A2C_sg_BCI S a)
+  =
+  A2C_po_bounded (A_left_po_bounded_from_sg_CI_bounded a). 
+Proof. destruct a; unfold left_po_bounded_from_sg_CI_bounded,
+                   A_left_po_bounded_from_sg_CI_bounded, A2C_po_bounded,
+                   A2C_sg_BCI; simpl.
+       rewrite correct_po_certs_from_sg_CI_certs.        
+       destruct A_sg_BCI_exists_ann as [ann P]; simpl.
+       unfold p2c_exists_bottom_assert; simpl.
+       destruct A_sg_BCI_exists_id as [id Q]; simpl.
+       unfold p2c_exists_top_assert; simpl.
+       reflexivity. 
+Qed. 
+
+
+  
+Theorem correct_mcas_left_order_from_sg (S : Type) (sgS : A_sg_mcas S) : 
+         mcas_left_order_from_sg (A2C_mcas_sg S sgS) 
+         = 
+         A2C_mcas_or (A_mcas_left_order_from_sg S sgS).
+Proof. destruct sgS; unfold mcas_left_order_from_sg, A_mcas_left_order_from_sg,
+       A2C_mcas_sg, A2C_mcas_or; simpl; try reflexivity.
+       + rewrite correct_left_to_with_top_from_sg_CS_with_id; reflexivity. 
+       + rewrite correct_left_to_with_bottom_from_sg_CS_with_ann ; reflexivity. 
+       + rewrite correct_left_to_bounded_from_sg_CS_bounded ; reflexivity. 
+       + rewrite correct_left_po_from_sg_CI; reflexivity. 
+       + rewrite correct_left_po_with_top_from_sg_CI_with_id ; reflexivity. 
+       + rewrite correct_left_po_with_bottom_from_sg_CI_with_ann ; reflexivity. 
+       + rewrite correct_left_po_bounded_from_sg_CI_bounded ; reflexivity. 
+Qed. 
+
 
 End Combinators.
 

@@ -379,11 +379,19 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_mcas_bs_union_intersect_with_one (S : Type) (c : cas_constant) (eqv : A_eqv S) :=
-    A_BS_distributive_lattice _ (A_bs_union_intersect_with_one S c eqv).
+Definition A_mcas_bs_union_intersect_with_one (S : Type) (c : cas_constant) (eqv : @A_mcas_eqv S) :=
+match eqv with
+| A_EQV_eqv A    => A_BS_distributive_lattice _ (A_bs_union_intersect_with_one S c A)
+| A_EQV_Error sl => A_BS_Error _ sl     
+end.
 
-Definition A_mcas_bs_union_intersect (S : Type) (eqv : A_eqv S) :=
-    A_bs_classify _ (A_BS_distributive_prelattice _ (A_bs_union_intersect _ eqv)).
+Definition A_mcas_bs_union_intersect (S : Type) (eqv : @A_mcas_eqv S) :=
+match eqv with
+| A_EQV_eqv A    => A_bs_classify _ (A_BS_distributive_prelattice _ (A_bs_union_intersect _ A))
+| A_EQV_Error sl => A_BS_Error _ sl     
+end.
+  
+    
 
 End AMCAS.
 
@@ -466,11 +474,19 @@ End CAS.
 
 Section MCAS.
 
-Definition mcas_bs_union_intersect_with_one (S : Type) (c : cas_constant) (eqv : @eqv S) :=
-  BS_distributive_lattice (bs_union_intersect_with_one c eqv).
+Definition mcas_bs_union_intersect_with_one (S : Type) (c : cas_constant) (eqv : @mcas_eqv S) :=
+match eqv with
+| EQV_eqv A    => BS_distributive_lattice (bs_union_intersect_with_one c A)
+| EQV_Error sl => BS_Error sl     
+end.
 
-Definition mcas_bs_union_intersect (S : Type) (eqv : @eqv S) :=
-    bs_classify (BS_distributive_prelattice (bs_union_intersect eqv)).
+Definition mcas_bs_union_intersect (S : Type) (eqv : @mcas_eqv S) :=
+match eqv with
+| EQV_eqv A    => bs_classify (BS_distributive_prelattice (bs_union_intersect A))
+| EQV_Error sl => BS_Error sl     
+end.
+    
+    
 
 End MCAS.
 
@@ -560,22 +576,26 @@ Proof. unfold bs_union_intersect, A_bs_union_intersect, A2C_distributive_prelatt
        reflexivity.
 Qed. 
 
-Theorem correct_bop_mcas_union_intersect_with_one (S : Type) (c : cas_constant) (eqvS : A_eqv S): 
-         mcas_bs_union_intersect_with_one _ c (A2C_eqv S eqvS)  
+Theorem correct_bop_mcas_union_intersect_with_one (S : Type) (c : cas_constant) (eqvS : @A_mcas_eqv S): 
+         mcas_bs_union_intersect_with_one _ c (A2C_mcas_eqv S eqvS)  
          = 
          A2C_mcas_bs _ (A_mcas_bs_union_intersect_with_one _ c eqvS). 
-Proof. unfold mcas_bs_union_intersect_with_one, A_mcas_bs_union_intersect_with_one, A2C_mcas_bs. 
-       rewrite correct_union_intersect_with_one. 
-       reflexivity. 
+Proof. destruct eqvS; simpl.
+       + reflexivity. 
+       + unfold mcas_bs_union_intersect_with_one, A_mcas_bs_union_intersect_with_one, A2C_mcas_bs. 
+         rewrite correct_union_intersect_with_one. 
+         reflexivity. 
 Qed.  
 
-Theorem correct_bop_mcas_union_intersect (S : Type) (eqvS : A_eqv S): 
-         mcas_bs_union_intersect _ (A2C_eqv S eqvS)  
+Theorem correct_bop_mcas_union_intersect (S : Type) (eqvS : @A_mcas_eqv S): 
+         mcas_bs_union_intersect _ (A2C_mcas_eqv S eqvS)  
          = 
          A2C_mcas_bs _ (A_mcas_bs_union_intersect _ eqvS). 
-Proof. unfold mcas_bs_union_intersect, A_mcas_bs_union_intersect, A2C_mcas_bs. 
-       rewrite correct_union_intersect. 
-       reflexivity. 
+Proof. destruct eqvS; simpl.
+       + reflexivity. 
+       + unfold mcas_bs_union_intersect, A_mcas_bs_union_intersect, A2C_mcas_bs. 
+         rewrite correct_union_intersect. 
+         reflexivity.        
 Qed.  
 
  

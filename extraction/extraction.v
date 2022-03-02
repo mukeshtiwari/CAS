@@ -31,25 +31,23 @@ Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.intersect.
 Require Import CAS.coq.sg.minset_union. 
 Require Import CAS.coq.sg.lift.
+Require Import CAS.coq.sg.minset_lift.
 
+Require Import CAS.coq.po.add_bottom.
+Require Import CAS.coq.po.add_top.
+Require Import CAS.coq.po.from_sg.
+Require Import CAS.coq.po.product.
 
-(* Require Import CAS.coq.sg.minset_lift.
+(* 
 
 Require Import CAS.coq.po.lte_nat. (* why is this not from_sg_left sg_min?*)
 Require Import CAS.coq.po.trivial.
-Require Import CAS.coq.po.from_sg_left.
-Require Import CAS.coq.po.from_sg_right.
 Require Import CAS.coq.po.length.
-Require Import CAS.coq.po.add_bottom.
-Require Import CAS.coq.po.add_top.
 Require Import CAS.coq.po.po_to_qo.
-Require Import CAS.coq.po.product.
 Require Import CAS.coq.po.llex.
 Require Import CAS.coq.po.left_sum. 
 Require Import CAS.coq.po.right_sum. 
-
 Require Import CAS.coq.bs.cast_up.
-
 *) 
 
 Require Import CAS.coq.bs.and_or.
@@ -70,17 +68,13 @@ Require Import CAS.coq.bs.left.
 Require Import CAS.coq.bs.right.
 Require Import CAS.coq.bs.union_lift. 
 Require Import CAS.coq.bs.cast_up.
+Require Import CAS.coq.bs.minset_union_lift.
+(* Require Import CAS.coq.bs.dual.*)
+Require Import CAS.coq.os.from_bs_left. 
 
 Require Import CAS.coq.algorithm.Matrix.
 Require Import CAS.coq.algorithm.wrapper. 
-(*
-
-Require Import CAS.coq.bs.dual.
-Require Import CAS.coq.bs.union_lift.
-
- *)
 Require Extraction.
-
 
 Cd "extraction".
 
@@ -159,16 +153,15 @@ Extraction Blacklist List String Int.
 (*  *) 
 Extraction "Cas.ml"
    make_constant
-   eqv_eq_nat           
-   eqv_bool
-   eqv_list
-   eqv_set   
-   eqv_product
-   eqv_add_constant
-   eqv_sum
-   eqv_minset_from_po
-   eqv_minset_from_qo
-
+   mcas_eqv_eq_nat           
+   mcas_eqv_bool
+   mcas_eqv_list
+   mcas_eqv_set   
+   mcas_eqv_product
+   mcas_eqv_add_constant
+   mcas_eqv_sum
+   mcas_eqv_minset
+   (* semigroups *) 
    mcas_sg_and
    mcas_sg_or
    mcas_sg_min
@@ -178,22 +171,26 @@ Extraction "Cas.ml"
    mcas_sg_concat
    mcas_sg_left
    mcas_sg_right
-   mcas_sg_union
-   mcas_sg_union_with_ann    
-   mcas_sg_intersect
-   mcas_sg_intersect_with_id    
    mcas_sg_product 
    mcas_sg_llex
    mcas_sg_add_id
    mcas_sg_add_ann
    mcas_sg_left_sum
    mcas_sg_right_sum
-(*   mcas_sg_minset_union_from_po *) 
-   mcas_sg_lift 
-(*  
-   mcas_sg_minset_lift 
-   mcas_sg_minset_union_from_qo
- *)
+   mcas_sg_lift
+   mcas_sg_union
+   mcas_sg_union_with_ann    
+   mcas_sg_intersect
+   mcas_sg_intersect_with_id    
+   mcas_sg_minset_union
+    mcas_minset_lift
+   (* orders *)
+   mcas_or_add_top
+   mcas_or_add_bottom
+   mcas_or_product
+   mcas_left_order_from_sg
+   (* mcas_right_order_from_sg *) 
+   (* b-semigroups *)    
    bs_mcas_cast_up
    mcas_bs_and_or
    mcas_bs_or_and     
@@ -205,23 +202,24 @@ Extraction "Cas.ml"
    mcas_bs_llex_product   
    mcas_bs_add_zero
    mcas_bs_add_one
+   mcas_bs_union_lift 
    mcas_bs_union_intersect
    mcas_bs_union_intersect_with_one
+   (* mcas_bs_intersect_union *) 
    mcas_bs_intersect_union_with_zero
-(*   mcas_bs_intersect_union   *) 
    mcas_bs_left
    mcas_bs_right
-   mcas_bs_union_lift 
+   mcas_minset_union_lift
+(*
+   mcas_minset_lift_union
+   mcas_left_sum_right_sum
+   mcas_right_sum_left_sum  
+
+ *)
+   (* order semirgroups *)
+   mcas_os_from_bs_left
+   (* algorithms *)      
    instantiate_matrix_exp_unary_curry
    call_instantiate_matrix_exp_unary_curry
 . 
 
-(*
-mcas_left_sum_right_sum
-mcas_right_sum_left_sum  
-mcas_minset_union_lift 
-mcas_minset_lift_union
-
-orders
-order_semigroups
-*) 

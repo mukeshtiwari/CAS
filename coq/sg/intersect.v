@@ -346,11 +346,18 @@ End ACAS.
 
 Section AMCAS.
 
-Definition A_mcas_sg_intersect_with_id (S : Type) (c : cas_constant) (A : A_eqv S) :=
-  A_MCAS_sg_BCI _ (A_sg_intersect_with_id c A).
+Definition A_mcas_sg_intersect_with_id (S : Type) (c : cas_constant) (A : @A_mcas_eqv S) :=
+match A with
+| A_EQV_eqv B    => A_MCAS_sg_BCI _ (A_sg_intersect_with_id c B)
+| A_EQV_Error sl => A_MCAS_sg_Error _ sl 
+end.
 
-Definition A_mcas_sg_intersect (S : Type) (A : A_eqv S) :=
-   A_sg_classify _ (A_MCAS_sg _ (A_sg_intersect A)).  
+Definition A_mcas_sg_intersect (S : Type) (A : @A_mcas_eqv S) :=
+match A with
+| A_EQV_eqv B    => A_sg_classify _ (A_MCAS_sg _ (A_sg_intersect B))
+| A_EQV_Error sl => A_MCAS_sg_Error _ sl 
+end.
+   
 
 End AMCAS.   
 
@@ -418,12 +425,18 @@ End CAS.
 
 Section MCAS.
 
-Definition mcas_sg_intersect_with_id {S : Type} (c : cas_constant) (A : @eqv S) :=
-   MCAS_sg_BCI (sg_intersect_with_id c A).  
+Definition mcas_sg_intersect_with_id {S : Type} (c : cas_constant) (A : @mcas_eqv S) :=
+match A with
+| EQV_eqv B    => MCAS_sg_BCI (sg_intersect_with_id c B)
+| EQV_Error sl => MCAS_sg_Error sl 
+end.
 
-
-Definition mcas_sg_intersect {S : Type} (A : @eqv S) :=
-   sg_classify _ (MCAS_sg (sg_intersect A)).  
+Definition mcas_sg_intersect {S : Type} (A : @mcas_eqv S) :=
+match A with
+| EQV_eqv B    => sg_classify _ (MCAS_sg (sg_intersect B))
+| EQV_Error sl => MCAS_sg_Error sl 
+end.
+  
 
 End MCAS.   
 
@@ -481,24 +494,27 @@ Proof. unfold sg_intersect, A_sg_intersect, A2C_sg; simpl.
        reflexivity. 
 Qed. 
 
-Theorem correct_bop_mcas_intersect_with_id (S : Type) (c : cas_constant)(eqvS : A_eqv S): 
-         mcas_sg_intersect_with_id c (A2C_eqv S eqvS)  
+Theorem correct_bop_mcas_intersect_with_id (S : Type) (c : cas_constant)(eqvS : @A_mcas_eqv S): 
+         mcas_sg_intersect_with_id c (A2C_mcas_eqv S eqvS)  
          = 
          A2C_mcas_sg _ (A_mcas_sg_intersect_with_id _ c eqvS). 
 Proof. unfold mcas_sg_intersect_with_id, A_mcas_sg_intersect_with_id.
-       unfold A2C_mcas_sg.
-       rewrite correct_bop_intersect_with_id.
-       reflexivity. 
+       destruct eqvS; simpl.
+       + reflexivity. 
+       + unfold A2C_mcas_sg.
+         rewrite correct_bop_intersect_with_id.
+         reflexivity. 
 Qed.  
 
-Theorem correct_bop_mcas_intersect (S : Type) (eqvS : A_eqv S): 
-         mcas_sg_intersect (A2C_eqv S eqvS)  
+Theorem correct_bop_mcas_intersect (S : Type) (eqvS : @A_mcas_eqv S): 
+         mcas_sg_intersect (A2C_mcas_eqv S eqvS)  
          = 
          A2C_mcas_sg _ (A_mcas_sg_intersect _ eqvS). 
 Proof. unfold mcas_sg_intersect, A_mcas_sg_intersect.
-       rewrite correct_bop_intersect.       
-       rewrite <- correct_sg_classify.
-       unfold A2C_mcas_sg.
+       destruct eqvS; simpl.
+       + reflexivity. 
+       + rewrite correct_bop_intersect.       
+       rewrite <- correct_sg_classify_sg.
        reflexivity. 
 Qed.  
 
