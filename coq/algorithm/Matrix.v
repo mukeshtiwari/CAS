@@ -5540,8 +5540,32 @@ Section Matrix.
     Proof.
     Admitted. 
 
-       
+    Lemma in_list_true : 
+      forall l₁ l₂ a, 
+      in_list eqN (l₁ ++ a :: l₂) a = true.
+    Proof.
+    Admitted.
+
+    Lemma no_dup_false_one : 
+      forall l₁ l₂ l₃ a, 
+      no_dup Node eqN (l₁ ++ a :: l₂ ++ a :: l₃) = false.
+    Proof.
+      induction l₁.
+      + simpl.
+        intros *.
+        rewrite in_list_true.
+        simpl.
+        reflexivity.
+      + simpl.
+        intros *.
+        rewrite IHl₁.
+        apply Bool.andb_false_iff.
+        right.
+        reflexivity.
+    Qed.
     
+
+
     Lemma all_paths_in_klength_paths_cycle : 
       forall (c : list Node)
       (l : list (Node * Node * R)) m,
@@ -5559,32 +5583,39 @@ Section Matrix.
       eapply list_eqv_no_dup_rewrite.
       exact Hll.
       simpl.
-
-
-      
-      
-    Admitted.
+      apply no_dup_false_one.
+    Qed.
 
 
         
 
 
         
-        
-
-
-      
 
     (* if you give me path of length >= finN then there is loop *)
     Lemma all_paths_in_klength_paths_cycle_finN : 
       forall (l : list (Node * Node * R)) m,
       (List.length finN <= List.length l)%nat ->
       well_formed_path_aux m l = true ->
+      exists au av aw lc lcc, 
+      Some lc = elem_path_triple_compute_loop l /\
+      ((au, av, aw) :: lcc) = lc /\ cyclic_path au lc.
+      (*  
       ∃ (ll lm lr : list (Node * Node * R)),
-        (ll, Some lm, lr) = elem_path_triple_compute_loop_triple l.
+        (ll, Some lm, lr) = elem_path_triple_compute_loop_triple l. *)
     Proof.
-    Admitted.
-     
+      intros ? ? Hfin Hw.
+      pose proof length_collect_node_gen finN 
+        l empN Hfin as Hf.
+      pose proof covers_list_elem finN 
+        (collect_nodes_from_a_path l) memN as Hcov.
+      pose proof all_paths_in_klength_paths_cycle
+        finN l m Hw Hcov Hf as Hwt.
+      eapply elim_path_triple_connect_compute_loop_false_first in 
+        Hwt.
+      exact Hwt.
+    Qed.
+    
 
         
 
