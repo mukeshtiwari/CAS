@@ -5129,6 +5129,31 @@ Section Matrix.
     Qed.
      
 
+    Lemma length_Sn : 
+      forall l₁ l₂ c a n, 
+      length c = S n -> 
+      list_eqv Node eqN c (l₁ ++ [a] ++ l₂) = true ->
+      length (l₁ ++ [a] ++ l₂) = S n.
+    Proof.
+    Admitted.
+     
+    Lemma list_eqv_in_list_rewrite :
+      forall l c x, 
+      list_eqv Node eqN c l = true ->
+      in_list eqN c x = true ->
+      in_list eqN l x = true.
+    Proof.
+    Admitted.
+
+
+    Lemma in_list_mem_ex_one : 
+      forall l₁ l₂ a x, 
+      x =n= a = false -> 
+      in_list eqN (l₁ ++ a :: l₂) x = true ->
+      in_list eqN (l₁ ++ l₂) x = true.
+    Proof.
+    Admitted.
+      
 
     Lemma covers_dup : 
       forall (n : nat) (c : list Node),
@@ -5176,7 +5201,14 @@ Section Matrix.
         (* rewrite Hal in Hlc and infer that 
           lenght (l₁ ++ l₂) = n *)
         assert(Hv: length (l₁ ++ l₂) = n).
-        admit.
+        pose proof length_Sn _ _ _ 
+          _ _ Hlc Hal as Hw.
+        simpl in *.
+        rewrite app_length in Hw.
+        simpl in Hw.
+        rewrite PeanoNat.Nat.add_succ_r in Hw.
+        rewrite <-app_length in Hw.
+        nia.
         assert (Hlt: (length (l₁ ++ l₂) < length l)%nat).
         nia.
         specialize (IHn (l₁ ++ l₂) Hv l).
@@ -5193,9 +5225,13 @@ Section Matrix.
         specialize (Hcx Hx).
         (* rewrite Hal in Hcx *)
         assert (Hincx : in_list eqN (l₁ ++ [a] ++ l₂) x = true).
-        admit.
+        eapply list_eqv_in_list_rewrite.
+        exact Hal.
+        assumption.
         simpl in Hincx.
-        admit.
+        eapply in_list_mem_ex_one.
+        exact Hxa.
+        exact Hincx.
         destruct (IHn Hcov Hlt) as
           (av & lv₁ & lv₂ & lv₃ & Hlp).
         exists av, (a :: lv₁), lv₂, lv₃.
@@ -5204,8 +5240,8 @@ Section Matrix.
         simpl.
         simpl in Hlp.
         exact Hlp.
-    Admitted.
-        
+    Qed.
+    
 
 
         
@@ -5496,16 +5532,37 @@ Section Matrix.
     Qed.
     
 
+    Lemma list_eqv_no_dup_rewrite :
+      forall l₁ l₂, 
+      list_eqv Node eqN l₁ l₂ = true ->
+      no_dup Node eqN l₂ = false ->
+      no_dup Node eqN l₁ = false.
+    Proof.
+    Admitted. 
 
-
+       
+    
     Lemma all_paths_in_klength_paths_cycle : 
-      forall (n : nat) (c : list Node)
-      (l : list (Node * Node * R)),
-      length c = n ->
+      forall (c : list Node)
+      (l : list (Node * Node * R)) m,
+      well_formed_path_aux m l = true ->
       covers c (collect_nodes_from_a_path l) -> 
       (List.length c < List.length (collect_nodes_from_a_path l))%nat ->
       elem_path_triple l = false.
     Proof.
+      intros * Hw Hc Hl.
+      eapply elem_path_collect_node_from_path_second.
+      exact Hw.
+      destruct (covers_dup (List.length c) c 
+        eq_refl _ Hc Hl) as 
+      [a [l₁ [l₂ [l₃ Hll]]]].
+      eapply list_eqv_no_dup_rewrite.
+      exact Hll.
+      simpl.
+
+
+      
+      
     Admitted.
 
 
