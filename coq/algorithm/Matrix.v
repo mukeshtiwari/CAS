@@ -5611,9 +5611,8 @@ Section Matrix.
         (collect_nodes_from_a_path l) memN as Hcov.
       pose proof all_paths_in_klength_paths_cycle
         finN l m Hw Hcov Hf as Hwt.
-      eapply elim_path_triple_connect_compute_loop_false_first in 
-        Hwt.
-      exact Hwt.
+      eapply elim_path_triple_connect_compute_loop_false_first;
+      try assumption.
     Qed.
     
 
