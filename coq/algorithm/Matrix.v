@@ -5185,8 +5185,26 @@ Section Matrix.
       list_eqv Node eqN c l = true ->
       (length l < n)%nat.
     Proof.
-
-    Admitted.
+      induction l.
+      + simpl;
+        intros * Ha Hb.
+        nia.
+      + simpl; 
+        intros * Ha Hb.
+        simpl in *.
+        destruct c.
+        - simpl in Hb.
+          congruence.
+        - simpl in Ha, Hb.
+          apply Bool.andb_true_iff in Hb.
+          destruct Hb as [Hbl Hbr].
+          destruct n.
+          nia.
+          assert (Hc: (length c < n)%nat).
+          nia.
+          specialize (IHl _ _ Hc Hbr).
+          nia.
+    Qed.
       
 
     Lemma covers_dup : 
@@ -5607,7 +5625,7 @@ Section Matrix.
            exact Har.
            exact Hb.
     Qed.
-    
+
     
 
     Lemma in_list_true : 
