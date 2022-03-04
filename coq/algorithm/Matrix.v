@@ -5180,11 +5180,12 @@ Section Matrix.
     Qed.
 
     Lemma length_le_Sn : 
-      forall l₁ l₂ c a n, 
-      (length c < S n)%nat -> 
-      list_eqv Node eqN c (l₁ ++ [a] ++ l₂) = true ->
-      (length (l₁ ++ [a] ++ l₂) < S n)%nat.
+      forall l c n, 
+      (length c < n)%nat -> 
+      list_eqv Node eqN c l = true ->
+      (length l < n)%nat.
     Proof.
+
     Admitted.
       
 
@@ -5238,8 +5239,8 @@ Section Matrix.
         simpl in Hinc;
         exact Hinc].
         specialize (IHl Hcov).
-        pose proof length_le_Sn _ _ _ 
-          _ _ Hb Hlt as Hwt.
+        pose proof length_le_Sn  
+          _ _ _ Hb Hlt as Hwt.
         simpl in Hwt.
         rewrite app_length in Hwt.
         simpl in Hwt.
@@ -5535,7 +5536,41 @@ Section Matrix.
         exact Ha.
         exact Hb.
     Qed.
+
+
     
+    
+    Lemma list_eqv_in_list_rewrite_gen :
+      forall l₁ l₂ a n,
+      a =n= n = true ->  
+      list_eqv Node eqN l₁ l₂ = true ->
+      in_list eqN l₂ n = true ->
+      in_list eqN l₁ a = true.
+    Proof.
+      induction l₁ as [|a₁ l₁]; 
+      destruct l₂ as [|b₂ l₂]; 
+      simpl;
+      intros ? ? Ha Hb Hc.
+      + congruence.
+      + congruence.
+      + congruence.
+      + apply Bool.andb_true_iff in Hb.
+        destruct Hb as [Hbl Hbr].
+        case (n =n= b₂) eqn:Hxn.
+        pose proof (trnN _ _ _ Ha Hxn) as Han.
+        apply symN in Hbl.
+        rewrite (trnN _ _ _ Han Hbl).
+        reflexivity.
+        simpl in Hc.
+        erewrite IHl₁.
+        apply Bool.orb_true_iff.
+        right.
+        reflexivity.
+        exact Ha.
+        exact Hbr.
+        exact Hc.
+    Qed.
+
 
     Lemma list_eqv_no_dup_rewrite :
       forall l₁ l₂, 
@@ -5561,6 +5596,7 @@ Section Matrix.
            destruct Ha as [Hal Har].
            apply Bool.andb_false_iff in Hb.
            destruct Hb as [Hb | Hb].
+           apply Bool.negb_false_iff in Hb.
            admit.
 
     Admitted.
