@@ -5511,13 +5511,47 @@ Section Matrix.
       no_dup Node eqN l₂ = false ->
       no_dup Node eqN l₁ = false.
     Proof.
-    Admitted. 
+      induction l₁.
+      + simpl.
+        intros ? Ha Hb.
+        destruct l₂.
+        ++ simpl in Hb.
+           congruence.
+        ++ congruence.
+      + (* inductive case *)
+        simpl.
+        intros ? Ha Hb.
+        destruct l₂.
+        ++ simpl in Hb.
+           congruence.
+        ++ simpl in Hb.
+           apply Bool.andb_true_iff in Ha.
+           destruct Ha as [Hal Har].
+           apply Bool.andb_false_iff in Hb.
+           destruct Hb as [Hb | Hb].
+           admit.
+
+    Admitted.
+    
+    
 
     Lemma in_list_true : 
       forall l₁ l₂ a, 
       in_list eqN (l₁ ++ a :: l₂) a = true.
     Proof.
-    Admitted.
+      induction l₁.
+      + simpl.
+        intros ? ?.
+        rewrite refN.
+        reflexivity.
+      + simpl.
+        intros ? ?.
+        rewrite IHl₁.
+        apply Bool.orb_true_iff.
+        right.
+        reflexivity.
+    Qed.
+    
 
     Lemma no_dup_false_one : 
       forall l₁ l₂ l₃ a, 
