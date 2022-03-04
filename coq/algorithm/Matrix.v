@@ -5129,14 +5129,7 @@ Section Matrix.
     Qed.
      
 
-    Lemma length_Sn : 
-      forall l₁ l₂ c a n, 
-      length c = S n -> 
-      list_eqv Node eqN c (l₁ ++ [a] ++ l₂) = true ->
-      length (l₁ ++ [a] ++ l₂) = S n.
-    Proof.
-    Admitted.
-     
+
     Lemma list_eqv_in_list_rewrite :
       forall l c x, 
       list_eqv Node eqN c l = true ->
@@ -5153,103 +5146,83 @@ Section Matrix.
       in_list eqN (l₁ ++ l₂) x = true.
     Proof.
     Admitted.
+
+    Lemma length_le_Sn : 
+      forall l₁ l₂ c a n, 
+      (length c < S n)%nat -> 
+      list_eqv Node eqN c (l₁ ++ [a] ++ l₂) = true ->
+      (length (l₁ ++ [a] ++ l₂) < S n)%nat.
+    Proof.
+    Admitted.
       
 
     Lemma covers_dup : 
-      forall (n : nat) (c : list Node),
-      (length c = n) -> forall l, 
+      forall l (c : list Node), 
       covers c l ->  (length c < List.length l)%nat -> 
       exists a l₁ l₂ l₃, 
         list_eqv Node eqN l (l₁ ++ [a] ++ l₂ ++ [a] ++ l₃) = true.
     Proof.
-      induction n.
-      + intros * Hlc ? Hc Hl.
-        unfold covers in Hc.
-        rewrite Hlc in Hl.
-        destruct l as [|a l]. 
-        simpl in Hl.
+      induction l. 
+      + simpl.
+        intros * Ha Hb.
         nia.
-        rewrite (proj1 (length_zero_iff_nil c) Hlc) in Hc.
-        simpl in Hc.
-        pose proof (Hc a) as Ht.
-        rewrite refN in Ht.
-        simpl in Ht.
-        specialize (Ht eq_refl).
-        congruence.
-      + intros * Hlc ? Hc Hl.
-        unfold covers in Hc.
-        rewrite Hlc in Hl.
-        destruct l as [|a l]. 
-        simpl in Hl.
-        nia.
-        simpl in Hl.
-        destruct (in_list eqN l a) eqn:Ht.
-        destruct (list_split_gen Node eqN refN symN l a Ht) as 
-          [l₁ [l₂ Hal]].
+      +
+        (* a can be repeated or not *)
+        simpl.
+        intros * Ha Hb.
+        unfold covers in Ha.
+        destruct (in_list eqN l a) eqn:Hal.
+        (* a in in the list and we have loop *)
+        destruct (list_split_gen Node eqN refN symN l a Hal) as 
+          [l₁ [l₂ Hlt]].
         exists a, [], l₁, l₂.
-        simpl.
-        rewrite refN.
-        simpl.
-        exact Hal.
-        pose proof (Hc a) as Hca.
-        simpl in Hca.
-        rewrite refN in Hca.
-        simpl in Hca.
-        specialize (Hca eq_refl).
-        destruct (list_split_gen Node eqN refN symN c a Hca) as 
-          [l₁ [l₂ Hal]].
-        (* rewrite Hal in Hlc and infer that 
-          lenght (l₁ ++ l₂) = n *)
-        assert(Hv: length (l₁ ++ l₂) = n).
-        pose proof length_Sn _ _ _ 
-          _ _ Hlc Hal as Hw.
         simpl in *.
-        rewrite app_length in Hw.
+        rewrite refN, Hlt.
+        reflexivity.
+        (* a is not in l *)
+        pose proof (Ha a) as Hw.
         simpl in Hw.
-        rewrite PeanoNat.Nat.add_succ_r in Hw.
-        rewrite <-app_length in Hw.
-        nia.
-        assert (Hlt: (length (l₁ ++ l₂) < length l)%nat).
-        nia.
-        specialize (IHn (l₁ ++ l₂) Hv l).
+        rewrite refN in Hw.
+        simpl in Hw.
+        specialize (Hw eq_refl).
+        destruct (list_split_gen Node eqN refN symN c a Hw) as 
+        [l₁ [l₂ Hlt]].
+        specialize (IHl (l₁ ++ l₂)).
         assert (Hcov : covers (l₁ ++ l₂) l).
         unfold covers.
-        intros ? Hx.
-        (* from Ht and Hx, infer that x <> a *)
-        pose proof list_mem_true_false _ eqN symN trnN 
-          l _ _ Ht Hx as Hxa.
-        pose proof (Hc x) as Hcx.
-        simpl in Hcx.
-        rewrite Hxa in Hcx.
-        simpl in Hcx.
-        specialize (Hcx Hx).
-        (* rewrite Hal in Hcx *)
-        assert (Hincx : in_list eqN (l₁ ++ [a] ++ l₂) x = true).
-        eapply list_eqv_in_list_rewrite.
-        exact Hal.
-        assumption.
-        simpl in Hincx.
-        eapply in_list_mem_ex_one.
-        exact Hxa.
-        exact Hincx.
-        destruct (IHn Hcov Hlt) as
+        intros ? Hin.
+        (* from Hal and Hin, we know that x <> a *)
+        pose proof list_mem_true_false _ eqN 
+          symN trnN _ _ _ Hal Hin as Hax.
+        (* get a concrete instance *)
+        pose proof (Ha x) as Hx.
+        simpl in Hx.
+        rewrite Hax, Hin in Hx.
+        specialize (Hx eq_refl).
+        pose proof list_eqv_in_list_rewrite _ _ _ 
+          Hlt Hx as Hinc.
+        eapply in_list_mem_ex_one;
+        [exact Hax|
+        simpl in Hinc;
+        exact Hinc].
+        specialize (IHl Hcov).
+        pose proof length_le_Sn _ _ _ 
+          _ _ Hb Hlt as Hwt.
+        simpl in Hwt.
+        rewrite app_length in Hwt.
+        simpl in Hwt.
+        rewrite PeanoNat.Nat.add_succ_r in Hwt.
+        rewrite <-app_length in Hwt.
+        assert (Hvt : (length (l₁ ++ l₂) < length l)%nat).
+        nia.
+        destruct (IHl Hvt) as
           (av & lv₁ & lv₂ & lv₃ & Hlp).
         exists av, (a :: lv₁), lv₂, lv₃.
         simpl.
         rewrite refN.
-        simpl.
-        simpl in Hlp.
+        simpl in *.
         exact Hlp.
     Qed.
-    
-
-
-        
-
-        
-
-        
-
 
     
       
@@ -5577,8 +5550,8 @@ Section Matrix.
       intros * Hw Hc Hl.
       eapply elem_path_collect_node_from_path_second.
       exact Hw.
-      destruct (covers_dup (List.length c) c 
-        eq_refl _ Hc Hl) as 
+      destruct (covers_dup 
+         _ _ Hc Hl) as 
       [a [l₁ [l₂ [l₃ Hll]]]].
       eapply list_eqv_no_dup_rewrite.
       exact Hll.
