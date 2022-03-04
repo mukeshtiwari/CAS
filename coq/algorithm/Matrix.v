@@ -5136,7 +5136,26 @@ Section Matrix.
       in_list eqN c x = true ->
       in_list eqN l x = true.
     Proof.
-    Admitted.
+      induction l; 
+      destruct c; 
+      simpl;
+      intros ? Ha Hb.
+      + congruence.
+      + congruence.
+      + congruence.
+      + apply Bool.andb_true_iff in Ha.
+        destruct Ha as [Hal Har].
+        case (x =n= n) eqn:Hxn.
+        rewrite (trnN _ _ _ Hxn Hal).
+        reflexivity.
+        simpl in Hb.
+        erewrite IHl.
+        apply Bool.orb_true_iff.
+        right.
+        reflexivity.
+        exact Har.
+        exact Hb.
+    Qed.
 
 
     Lemma in_list_mem_ex_one : 
@@ -5145,7 +5164,20 @@ Section Matrix.
       in_list eqN (l₁ ++ a :: l₂) x = true ->
       in_list eqN (l₁ ++ l₂) x = true.
     Proof.
-    Admitted.
+      induction l₁;
+      simpl; 
+      intros ? ? ? Hxa Hlx.
+      + rewrite Hxa in Hlx.
+        simpl in Hlx.
+        exact Hlx.
+      + case (x =n= a) eqn:Ha.
+        reflexivity.
+        simpl.
+        eapply IHl₁.
+        exact Hxa.
+        simpl in Hlx.
+        exact Hlx.   
+    Qed.
 
     Lemma length_le_Sn : 
       forall l₁ l₂ c a n, 
@@ -5551,7 +5583,7 @@ Section Matrix.
         right.
         reflexivity.
     Qed.
-    
+
 
     Lemma no_dup_false_one : 
       forall l₁ l₂ l₃ a, 
