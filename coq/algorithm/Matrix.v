@@ -5538,7 +5538,7 @@ Section Matrix.
     Qed.
 
 
-    
+
     
     Lemma list_eqv_in_list_rewrite_gen :
       forall l₁ l₂ a n,
@@ -5597,9 +5597,16 @@ Section Matrix.
            apply Bool.andb_false_iff in Hb.
            destruct Hb as [Hb | Hb].
            apply Bool.negb_false_iff in Hb.
-           admit.
-
-    Admitted.
+           rewrite (list_eqv_in_list_rewrite_gen _ _ 
+           _ _ Hal Har Hb).
+           reflexivity.
+           erewrite IHl₁.
+           apply Bool.andb_false_iff.
+           right.
+           reflexivity.
+           exact Har.
+           exact Hb.
+    Qed.
     
     
 
