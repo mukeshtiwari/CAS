@@ -5716,6 +5716,47 @@ Section Matrix.
     Qed.
     
 
+    
+    Lemma triple_compute_connect_with_triple_elem : 
+      forall l, 
+      elem_path_triple l = false ->
+      exists ll lm lr, (ll, Some lm, lr) = 
+      elem_path_triple_compute_loop_triple l.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + simpl;
+        intros Ha.
+        congruence.
+      + simpl.
+        intros Ha.
+        case (au =n= av) eqn:Hauv.
+        eauto.
+        simpl in Ha.
+        case (elem_path_triple_tail au l) eqn:Hel.
+        eauto.
+        simpl in Ha.
+        destruct (IHl Ha) as 
+        (ll & lm & lr & Hb).
+        destruct (elem_path_triple_compute_loop_triple l) as 
+        ((bu, bv), bw).
+        exists ((au, av, aw) :: bu),
+          lm, lr.
+        f_equal.
+        f_equal.
+        inversion Hb; subst;
+        reflexivity.
+        inversion Hb; subst;
+        reflexivity.
+    Qed.
+
+       
+
+
+    
+
+
+
+
         
 
         
