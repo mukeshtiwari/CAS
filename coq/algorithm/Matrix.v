@@ -5716,6 +5716,10 @@ Section Matrix.
     Qed.
     
 
+    
+        
+
+
 
     Lemma triple_compute_connect_with_triple_elem_forward : 
       forall l, 
@@ -5794,7 +5798,124 @@ Section Matrix.
       exact Hal.
     Qed.
 
-    
+
+    Lemma triple_compute_connect_with_triple_elem_stronger : 
+      forall l, 
+      elem_path_triple l = false ->
+      exists ll au av aw lm lr, (ll, Some ((au, av, aw) :: lm), lr) = 
+      elem_path_triple_compute_loop_triple l /\ 
+      cyclic_path au ((au, av, aw) :: lm) /\ 
+      elem_path_triple ll = true /\ 
+      triple_elem_list l (ll ++  ((au, av, aw) :: lm) ++ lr) = true.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + simpl;
+        intros Ha.
+        congruence.
+      + simpl.
+        intros Ha.
+        case (au =n= av) eqn:Hauv.
+        exists [], au, av, aw, 
+          [], l. 
+        simpl.
+        split.
+        reflexivity.
+        split.
+        unfold cyclic_path; 
+        simpl; split. 
+        intro H; congruence.
+        split. apply refN. 
+        exact Hauv.
+        split.
+        reflexivity.
+        repeat rewrite refN.
+        rewrite refR.
+        apply triple_elem_eq_list_refl.
+        simpl in Ha.
+        case (elem_path_triple_tail au l) eqn:Hel.
+        simpl in Ha.
+        exists [], au, av, aw,
+        (keep_collecting au l),
+        (keep_dropping au l).
+        simpl.
+        repeat split;
+        try reflexivity.
+        congruence.
+        unfold source;
+        apply refN.
+        destruct (elem_path_triple_tail_true l au Hel) as 
+        (ll & aut & awt & lrt & Hb & Hc & Hd).
+        (* From Hd, 
+          Hd: triple_elem_list (ll ++ [(aut, au, awt)]) (keep_collecting au l) = true,
+          we can infer that target au (au, av, aw) :: keep_collecting au l) = true *)
+        admit.
+        repeat rewrite refN.
+        rewrite refR.
+        rewrite keep_collecting_dropping_dual.
+        reflexivity.
+        (* Inductive case *)
+        simpl in Ha.
+        destruct (IHl Ha) as 
+        (ll & aut & avt & awt & lmt & lrt & Hb & Hc & Hd & He).
+        destruct (elem_path_triple_compute_loop_triple l) as 
+        ((bu, bv), bw).
+        exists ((au, av, aw) :: bu),
+        aut, avt, awt, lmt, bw.
+        split.
+        f_equal.
+        f_equal.
+        inversion Hb;
+        reflexivity.
+        split.
+        exact Hc.
+        split.
+        simpl.
+        rewrite Hauv.
+        simpl.
+        (* This one is also tricky *)
+        destruct(elem_path_triple_tail_false
+         _ _ _ _ Hel He) as [Helt Hert].
+        inversion Hb; subst.
+        rewrite Helt, Hd.
+        reflexivity.
+        simpl.
+        repeat (rewrite refN).
+        rewrite refR.
+        simpl.
+        simpl in He.
+        inversion Hb;
+        subst.
+        exact He.
+    Admitted.
+
+
+    (* if you give me path of length >= finN then there is loop *)
+    Lemma all_paths_in_klength_paths_cycle_finN_stronger : 
+      forall (l : list (Node * Node * R)) m,
+      (List.length finN <= List.length l)%nat ->
+      well_formed_path_aux m l = true ->
+      exists ll au av aw lm lr, 
+      (ll, Some ((au, av, aw) :: lm), lr) = 
+      elem_path_triple_compute_loop_triple l /\ 
+      cyclic_path au ((au, av, aw) :: lm) /\  (* Loop so we can remove this *)
+      elem_path_triple ll = true /\ (* Elementry Path *)
+      triple_elem_list l (ll ++  ((au, av, aw) :: lm) ++ lr) = true. (* lr is the rest of path *)
+    Proof.
+      intros ? ? Hfin Hw.
+      pose proof length_collect_node_gen finN 
+        l empN Hfin as Hf.
+      pose proof covers_list_elem finN 
+        (collect_nodes_from_a_path l) memN as Hcov.
+      pose proof all_paths_in_klength_paths_cycle
+        finN l m Hw Hcov Hf as Hwt.
+      eapply triple_compute_connect_with_triple_elem_stronger.
+      exact Hwt.
+    Qed.
+      
+
+
+
+
 
 
        
