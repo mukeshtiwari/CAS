@@ -5798,6 +5798,17 @@ Section Matrix.
       exact Hal.
     Qed.
 
+    
+    Lemma target_keep_collect_rewrite :
+      forall lm ln au av aw,  
+      triple_elem_list lm ln = true ->
+      target au ((au, av, aw) :: ln) = true ->
+      target au ((au, av, aw) :: lm) = true.
+    Proof.
+    Admitted.
+    
+    
+
 
     Lemma triple_compute_connect_with_triple_elem_stronger : 
       forall l, 
@@ -5848,7 +5859,15 @@ Section Matrix.
         (* From Hd, 
           Hd: triple_elem_list (ll ++ [(aut, au, awt)]) (keep_collecting au l) = true,
           we can infer that target au (au, av, aw) :: keep_collecting au l) = true *)
-        admit.
+        erewrite target_keep_collect_rewrite. 
+        reflexivity.
+        apply triple_elem_eq_list_sym.
+        exact Hd.
+        eapply target_tail.
+        simpl.
+        rewrite target_end.
+        simpl. 
+        apply refN.
         repeat rewrite refN.
         rewrite refR.
         rewrite keep_collecting_dropping_dual.
@@ -5886,7 +5905,7 @@ Section Matrix.
         inversion Hb;
         subst.
         exact He.
-    Admitted.
+    Qed.
 
 
     (* if you give me path of length >= finN then there is loop *)
