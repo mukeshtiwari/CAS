@@ -5751,7 +5751,7 @@ Section Matrix.
 
 
 
-    
+
     Lemma triple_compute_connect_with_triple_elem_backward : 
       forall l ll lm lr, 
       (ll, Some lm, lr) = 
@@ -5777,7 +5777,24 @@ Section Matrix.
     Qed.
         
 
+    Lemma triple_compute_connect_with_triple_elem : 
+      forall l, 
+      elem_path_triple l = false <->
+      exists ll lm lr, (ll, Some lm, lr) = 
+      elem_path_triple_compute_loop_triple l.
+    Proof.
+      intros ?; 
+      split;
+      intros He.
+      eapply triple_compute_connect_with_triple_elem_forward;
+      try assumption.
+      destruct He as (ll & lm & lr & Hal).
+      eapply triple_compute_connect_with_triple_elem_backward;
+      try assumption.
+      exact Hal.
+    Qed.
 
+    
 
 
        
