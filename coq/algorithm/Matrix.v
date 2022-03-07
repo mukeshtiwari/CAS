@@ -5798,15 +5798,47 @@ Section Matrix.
       exact Hal.
     Qed.
 
-    
+
     Lemma target_keep_collect_rewrite :
-      forall lm ln au av aw,  
+      forall lm ln a au av aw,  
       triple_elem_list lm ln = true ->
-      target au ((au, av, aw) :: ln) = true ->
-      target au ((au, av, aw) :: lm) = true.
+      target a ((au, av, aw) :: ln) = true ->
+      target a ((au, av, aw) :: lm) = true.
     Proof.
-    Admitted.
-    
+      induction lm as [|((au, av), aw) lm].
+      + destruct ln as [|((bu, bv), bw) ln];
+        simpl;
+        intros ? ? ? ? Ha Hb;
+        congruence.      
+      + destruct ln as [|((bu, bv), bw) ln]. 
+        intros ? ? ? ? Ha Hb.
+        simpl in Ha.
+        congruence.
+        intros ? ? ? ? Ha Hb.
+        simpl in Ha.
+        apply Bool.andb_true_iff in Ha.
+        destruct Ha as [Ha Har].
+        apply Bool.andb_true_iff in Ha.
+        destruct Ha as [Ha Harr].
+        remember ((bu, bv, bw) :: ln) as cln.
+        remember ((au, av, aw) :: lm) as alm.
+        simpl in Hb.
+        rewrite Heqcln in Hb.
+        simpl.
+        rewrite Heqalm.
+        apply Bool.andb_true_iff in Ha.
+        destruct Ha as [Halt Hart].
+        eapply IHlm.
+        exact Har.
+        simpl in Hb.
+        simpl.
+        destruct ln. 
+        eapply trnN.
+        exact Hb.
+        apply symN; 
+        exact Hart.
+        exact Hb.
+    Qed.
     
 
 
@@ -5930,30 +5962,6 @@ Section Matrix.
       eapply triple_compute_connect_with_triple_elem_stronger.
       exact Hwt.
     Qed.
-      
-
-
-
-
-
-
-       
-
-
-    
-
-
-
-
-        
-
-        
-
-
-
-
-
-    
     
 
 
