@@ -3020,6 +3020,7 @@ Section Matrix.
       apply one_left_identity_mul.
     Qed.
 
+
     
      
 
@@ -5962,6 +5963,80 @@ Section Matrix.
       eapply triple_compute_connect_with_triple_elem_stronger.
       exact Hwt.
     Qed.
+    
+
+    Lemma cycle_path_dup_remove : 
+      forall ll lm lr, 
+      (forall a : R, 1 + a =r= 1 = true) ->
+      Orel 
+        (measure_of_path (ll ++ lr))
+        (measure_of_path (ll ++ lm ++ lr)). 
+    Proof.
+      intros * zero_stable.
+      unfold Orel.
+      assert (Ht : (measure_of_path (ll ++ lr) + measure_of_path (ll ++ lm ++ lr) =r=
+        measure_of_path (ll ++ lr)) = 
+        ((measure_of_path ll * measure_of_path lr) + 
+         (measure_of_path ll * (measure_of_path lm * measure_of_path lr)) =r= 
+         (measure_of_path ll * measure_of_path lr))).
+      apply congrR.
+      apply congrP.
+      apply path_split_measure;
+      apply triple_elem_eq_list_refl.
+      rewrite <- (path_split_measure (ll ++ lm ++ lr)
+        ll (lm ++ lr) (triple_elem_eq_list_refl (ll ++ lm ++ lr))). 
+      apply congrR.
+      apply refR.
+      apply congrM.
+      apply refR.
+      apply symR.
+      apply path_split_measure;
+      apply triple_elem_eq_list_refl.
+      apply path_split_measure;
+      apply triple_elem_eq_list_refl.
+      rewrite Ht; clear Ht.
+      remember (measure_of_path ll) as a.
+      remember (measure_of_path lm) as b.
+      remember (measure_of_path lr) as c.
+      assert (Ht : (a * c + a * (b * c) =r= a * c) = 
+        (a * c + a * b * c =r= a * c)).
+      apply congrR.
+      apply congrP.
+      apply refR.
+      apply mul_associative.
+      apply refR.
+      rewrite Ht; clear Ht.
+      apply path_weight_rel.
+      apply zero_stable.
+    Qed.
+      
+
+    
+    Lemma elem_path_length : 
+      forall (l : list (Node * Node * R)), 
+      elem_path_triple l = true -> 
+      (List.length l < List.length finN)%nat.
+    Proof.
+
+    Admitted.
+
+    (* I can take any path l and turn it into elementry path 
+      by keep appling *)
+    Lemma reduce_path_into_elem_path : 
+      forall (l : list (Node * Node * R)) m,
+      well_formed_path_aux m l = true ->
+      exists lm, 
+        well_formed_path_aux m lm = true /\ 
+        elem_path_triple lm = true /\ 
+        Orel 
+          (measure_of_path lm)
+          (measure_of_path l).
+    Proof.
+    Admitted.
+
+
+    
+
     
 
 
