@@ -5688,10 +5688,7 @@ Section Matrix.
     Qed.
 
 
-        
 
-
-        
 
     (* if you give me path of length >= finN then there is loop *)
     Lemma all_paths_in_klength_paths_cycle_finN : 
@@ -5701,9 +5698,6 @@ Section Matrix.
       exists au av aw lc lcc, 
       Some lc = elem_path_triple_compute_loop l /\
       ((au, av, aw) :: lcc) = lc /\ cyclic_path au lc.
-      (*  
-      ∃ (ll lm lr : list (Node * Node * R)),
-        (ll, Some lm, lr) = elem_path_triple_compute_loop_triple l. *)
     Proof.
       intros ? ? Hfin Hw.
       pose proof length_collect_node_gen finN 
@@ -5951,7 +5945,8 @@ Section Matrix.
       elem_path_triple_compute_loop_triple l /\ 
       cyclic_path au ((au, av, aw) :: lm) /\  (* Loop so we can remove this *)
       elem_path_triple ll = true /\ (* Elementry Path *)
-      triple_elem_list l (ll ++  ((au, av, aw) :: lm) ++ lr) = true. (* lr is the rest of path *)
+      triple_elem_list l (ll ++  ((au, av, aw) :: lm) ++ lr) = true. 
+      (* lr is the rest of path *)
     Proof.
       intros ? ? Hfin Hw.
       pose proof length_collect_node_gen finN 
@@ -6012,13 +6007,15 @@ Section Matrix.
       
 
     
+
     Lemma elem_path_length : 
       forall (l : list (Node * Node * R)), 
       elem_path_triple l = true -> 
       (List.length l < List.length finN)%nat.
     Proof.
-
+      
     Admitted.
+
 
     (* I can take any path l and turn it into elementry path 
       by keep appling *)
@@ -6032,6 +6029,8 @@ Section Matrix.
           (measure_of_path lm)
           (measure_of_path l).
     Proof.
+      
+
     Admitted.
 
 
