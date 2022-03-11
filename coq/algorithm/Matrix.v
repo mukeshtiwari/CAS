@@ -6007,43 +6007,18 @@ Section Matrix.
       
     
 
-    (* Well founded proof for list *)
-    Require Import Coq.Arith.Wf_nat.
+   
+    
 
-    Let f (a : list (Node * Node * R)) := List.length a.
-
-    Definition zwf (x y : list (Node * Node * R)) := (f x < f y)%nat.
+    Definition zwf (x y : list (Node * Node * R)) := 
+        (List.length x < List.length y)%nat.
 
     Lemma zwf_well_founded : well_founded zwf.
     Proof.
-      exact (well_founded_ltof _ f).
+      exact (Wf_nat.well_founded_ltof _ 
+        (fun x => List.length x)).
     Defined.
-
-    Lemma list_acc (x : list (Node * Node * R)) : 
-      forall (a : list (Node * Node * R)), 
-      (f a < f x)%nat -> Acc zwf a.
-    Proof.
-      induction (zwf_well_founded x) as [z Hz IHz].
-      intros ? Hxa.
-      constructor; intros y Hy.
-      eapply IHz with (y := a).
-      unfold zwf. 
-      unfold f in * |- *.
-      abstract nia. 
-      unfold zwf in Hy.
-      unfold f in * |- *.
-      abstract nia.
-    Defined.
-
-    Lemma list_lt_wf : forall up, Acc (fun x y => zwf x y) up.
-    Proof.
-      intros up.
-      constructor;
-      intros y Hy.
-      eapply list_acc with up.
-      unfold zwf in Hy.
-      exact Hy.
-    Defined.
+    
 
      
 
@@ -6071,8 +6046,8 @@ Section Matrix.
           (measure_of_path l).
     Proof.
       intros l.
-      induction (list_lt_wf l) as [l Hf IHl].
-      unfold zwf, f in * |- *.
+      induction (zwf_well_founded l) as [l Hf IHl].
+      unfold zwf in * |- *.
       intros ? Hw.
   
       (* check if list is empty of not empty *)
@@ -6114,7 +6089,7 @@ Section Matrix.
           case (au =n= av) eqn:Hauv.
           (* discard it *)
           admit.
-          
+
           destruct (IHl m Hwr) as 
           (lm & Hwe & He & Ho).
           exists lm.
