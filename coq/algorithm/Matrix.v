@@ -6005,9 +6005,49 @@ Section Matrix.
       apply zero_stable.
     Qed.
       
-
     
 
+    (* Well founded proof for list *)
+    Require Import Coq.Arith.Wf_nat.
+
+    Let f (a : list (Node * Node * R)) := List.length a.
+
+    Definition zwf (x y : list (Node * Node * R)) := (f x < f y)%nat.
+
+    Lemma zwf_well_founded : well_founded zwf.
+    Proof.
+      exact (well_founded_ltof _ f).
+    Defined.
+
+    Lemma list_acc (x : list (Node * Node * R)) : 
+      forall (a : list (Node * Node * R)), 
+      (f a < f x)%nat -> Acc zwf a.
+    Proof.
+      induction (zwf_well_founded x) as [z Hz IHz].
+      intros ? Hxa.
+      constructor; intros y Hy.
+      eapply IHz with (y := a).
+      unfold zwf. 
+      unfold f in * |- *.
+      abstract nia. 
+      unfold zwf in Hy.
+      unfold f in * |- *.
+      abstract nia.
+    Defined.
+
+    Lemma list_lt_wf : forall up, Acc (fun x y => zwf x y) up.
+    Proof.
+      intros up.
+      constructor;
+      intros y Hy.
+      eapply list_acc with up.
+      unfold zwf in Hy.
+      exact Hy.
+    Defined.
+
+     
+
+    (* easy proof List.length finN <= List.length l -> loop *)
     Lemma elem_path_length : 
       forall (l : list (Node * Node * R)), 
       elem_path_triple l = true -> 
@@ -6015,7 +6055,8 @@ Section Matrix.
     Proof.
       
     Admitted.
-
+      
+    
 
     (* I can take any path l and turn it into elementry path 
       by keep appling *)
@@ -6029,12 +6070,83 @@ Section Matrix.
           (measure_of_path lm)
           (measure_of_path l).
     Proof.
-      
+      intros l.
+      induction (list_lt_wf l) as [l Hf IHl].
+      unfold zwf, f in * |- *.
+      intros ? Hw.
+  
+      (* check if list is empty of not empty *)
+      destruct l as [|((au, av), aw) l].
+      + simpl.
+        exists [].
+        repeat split.
+        simpl. 
+        apply orel_refl.
+      + (*  *)
+        destruct l as [|((bu, bv), bw) l].
+        - simpl.
+          case (au =n= av) eqn:Hauv.
+          exists [].
+          repeat split.
+          simpl.
+          unfold Orel.
+          admit.
+          exists [(au, av, aw)].
+          simpl.
+          repeat split.
+          simpl in Hw.
+          exact Hw.
+          rewrite Hauv.
+          reflexivity.
+          apply orel_refl.
+        - (* l is non-empty *)
+          remember ((bu, bv, bw) :: l) as bl.
+          simpl.
+          rewrite Heqbl.
+          rewrite <-Heqbl.
+          simpl in Hw.
+          rewrite Heqbl in Hw.
+          rewrite <-Heqbl in Hw.
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwl Hw].
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hw Hwr].
+          case (au =n= av) eqn:Hauv.
+          (* discard it *)
+          admit.
+          
+          destruct (IHl m Hwr) as 
+          (lm & Hwe & He & Ho).
+          exists lm.
+          repeat split.
+          exact Hwe.
+          exact He.
+          unfold Orel.
+          rewrite Heqbl in Ho.
+          rewrite Heqbl.
+          simpl in Ho.
+          simpl.
+          (* use zero_stable argument *)
+          admit.
+          (* au <> av but au can appear inside bl *)
+          case (elem_path_triple_tail au bl) eqn:Heab.
+          destruct (elem_path_triple_tail_true bl _ Heab) as 
+          (llt & aut & awt & lrt & Ha & Hb & Hc).
+          (* discard (llt ++ [(aut, au, awt)]) and 
+            call the recursive function on lrt *)
+          assert (Hd : well_formed_path_aux m lrt = true).
+          admit.
+          (* call the function recursively 
+          destruct (IHl m Hd) as 
+          (lm & Hwe & He & Ho).
+          *)
+
+          
+
+
 
     Admitted.
 
-
-    
 
     
 
