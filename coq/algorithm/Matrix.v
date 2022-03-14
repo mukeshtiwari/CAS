@@ -6024,12 +6024,27 @@ Section Matrix.
 
     (* easy proof List.length finN <= List.length l -> loop *)
     Lemma elem_path_length : 
-      forall (l : list (Node * Node * R)), 
-      elem_path_triple l = true -> 
+      forall (l : list (Node * Node * R)) m, 
+      elem_path_triple l = true ->
+      well_formed_path_aux m l = true -> 
       (List.length l < List.length finN)%nat.
     Proof.
-      
-    Admitted.
+      intros l m He Hw.
+      assert (Hwt : (length l < length finN)%nat \/ 
+      (length finN <= length l)%nat).
+      nia.
+      destruct Hwt as [Hwt | Hwt].
+      exact Hwt.
+      pose proof length_collect_node_gen finN 
+      l empN Hwt as Hf.
+      pose proof covers_list_elem finN 
+        (collect_nodes_from_a_path l) memN as Hcov.
+      pose proof all_paths_in_klength_paths_cycle
+        finN l m Hw Hcov Hf as Hat.
+      rewrite Hat in He.
+      congruence.
+    Qed.
+
       
 
     Lemma triple_elem_eq : 
@@ -6058,7 +6073,7 @@ Section Matrix.
         specialize (IHbl _ Ha).
         nia.
     Qed.
-    
+
 
     Lemma triple_elem_rewrite_le : 
       forall bl llt awt lrt, 
