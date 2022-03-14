@@ -6203,6 +6203,26 @@ Section Matrix.
     Qed.
 
 
+    Lemma reduce_path_into_elem_path_gen : 
+      forall (l : list (Node * Node * R)) m,
+      mat_cong m -> 
+      well_formed_path_aux m l = true ->
+      exists lm, 
+        well_formed_path_aux m lm = true /\ 
+        elem_path_triple lm = true /\ 
+        (List.length lm < List.length finN)%nat.
+    Proof.
+      intros ? ? Hm Hw.
+      destruct (reduce_path_into_elem_path l m Hm Hw) 
+      as (lm & Hwa & Hwe).
+      pose proof (elem_path_length lm m Hwe Hwa) as Hp.
+      exists lm.
+      repeat split; try assumption.
+    Qed.
+
+
+
+
 
     
 
