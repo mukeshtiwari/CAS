@@ -6031,32 +6031,92 @@ Section Matrix.
       
     Admitted.
       
+
+    Lemma triple_elem_eq : 
+      forall bl lrt, 
+      triple_elem_list bl lrt = true ->
+      (length lrt < S (S (length bl)))%nat.
+    Proof.
+      (* proof by nia? *)
+      induction bl as [|((bau, bav), baw) bl].
+      + intros [|((aau, aav), aaw) lrt].
+        intros Ha.
+        simpl.
+        nia.
+        intros Ha.
+        simpl in Ha.
+        congruence.
+      + intros [|((aau, aav), aaw) lrt].
+        intros Ha.
+        simpl.
+        nia.
+        intros Ha.
+        simpl in Ha.
+        simpl.
+        apply Bool.andb_true_iff in Ha.
+        destruct Ha as [_ Ha].
+        specialize (IHbl _ Ha).
+        nia.
+    Qed.
+    
+
+    Lemma triple_elem_rewrite_le : 
+      forall bl llt awt lrt, 
+      triple_elem_list bl (llt ++ [awt] ++ lrt) = true ->
+      (length lrt < S (length bl))%nat.
+    Proof.
+      induction bl as [|((bau, bav), baw) bl].
+      + simpl.
+        intros * Ha.
+        assert (Hlt : exists avt llw, llt ++ awt :: lrt = avt :: llw).
+        destruct llt.
+        simpl.
+        exists awt, lrt.
+        reflexivity.
+        simpl.
+        exists p, (llt ++ awt :: lrt).
+        reflexivity.
+        destruct Hlt as [avt [llw Hlw]].
+        rewrite Hlw in Ha.
+        congruence.
+      + 
+        intros * Ha.
+        simpl.
+        destruct llt as [|((llta, lltb), lltc) llt].
+        simpl in Ha.
+        destruct awt as ((awta, awtb), awtc).
+        apply Bool.andb_true_iff in Ha.
+        destruct Ha as [_ Ha].
+        eapply triple_elem_eq.
+        exact Ha.
+        simpl in Ha.
+        apply Bool.andb_true_iff in Ha.
+        destruct Ha as [_ Ha].
+        specialize (IHbl _ _ _ Ha).
+        nia.
+    Qed.
+
     
 
     (* I can take any path l and turn it into elementry path 
-      by keep appling *)
+      by keep applying *)
     Lemma reduce_path_into_elem_path : 
       forall (l : list (Node * Node * R)) m,
+      mat_cong m -> 
       well_formed_path_aux m l = true ->
       exists lm, 
         well_formed_path_aux m lm = true /\ 
-        elem_path_triple lm = true /\ 
-        Orel 
-          (measure_of_path lm)
-          (measure_of_path l).
+        elem_path_triple lm = true.
     Proof.
       intros l.
       induction (zwf_well_founded l) as [l Hf IHl].
       unfold zwf in * |- *.
-      intros ? Hw.
-  
+      intros ? Hm Hw.
       (* check if list is empty of not empty *)
       destruct l as [|((au, av), aw) l].
       + simpl.
         exists [].
         repeat split.
-        simpl. 
-        apply orel_refl.
       + (*  *)
         destruct l as [|((bu, bv), bw) l].
         - simpl.
@@ -6064,8 +6124,6 @@ Section Matrix.
           exists [].
           repeat split.
           simpl.
-          unfold Orel.
-          admit.
           exists [(au, av, aw)].
           simpl.
           repeat split.
@@ -6073,12 +6131,8 @@ Section Matrix.
           exact Hw.
           rewrite Hauv.
           reflexivity.
-          apply orel_refl.
         - (* l is non-empty *)
           remember ((bu, bv, bw) :: l) as bl.
-          simpl.
-          rewrite Heqbl.
-          rewrite <-Heqbl.
           simpl in Hw.
           rewrite Heqbl in Hw.
           rewrite <-Heqbl in Hw.
@@ -6087,22 +6141,18 @@ Section Matrix.
           apply Bool.andb_true_iff in Hw.
           destruct Hw as [Hw Hwr].
           case (au =n= av) eqn:Hauv.
-          (* discard it *)
-          admit.
-
-          destruct (IHl m Hwr) as 
-          (lm & Hwe & He & Ho).
+          (* There is a loop of length 1 
+          at the front. Discard it and call 
+          the function/Induction hypothesis
+          on the remaining list. *)
+          assert (Hwt : (length bl < length ((au, av, aw) :: bl))%nat).
+          simpl. nia.
+          destruct (IHl bl Hwt m Hm Hwr) as 
+          (lm & Hwe & He).
           exists lm.
           repeat split.
           exact Hwe.
           exact He.
-          unfold Orel.
-          rewrite Heqbl in Ho.
-          rewrite Heqbl.
-          simpl in Ho.
-          simpl.
-          (* use zero_stable argument *)
-          admit.
           (* au <> av but au can appear inside bl *)
           case (elem_path_triple_tail au bl) eqn:Heab.
           destruct (elem_path_triple_tail_true bl _ Heab) as 
@@ -6110,17 +6160,33 @@ Section Matrix.
           (* discard (llt ++ [(aut, au, awt)]) and 
             call the recursive function on lrt *)
           assert (Hd : well_formed_path_aux m lrt = true).
-          admit.
-          (* call the function recursively 
-          destruct (IHl m Hd) as 
-          (lm & Hwe & He & Ho).
-          *)
+          pose proof well_formed_path_rewrite _ _ m Hm 
+            Hwr Ha as Hwf.
+          rewrite List.app_assoc in Hwf.
+          destruct (well_formed_path_snoc _ _ _ 
+            Hwf) as [Hwfl Hwfr].
+          exact Hwfr.
+          assert(Hwt : (length lrt < length ((au, av, aw) :: bl))%nat).
+          simpl.
+          eapply triple_elem_rewrite_le.
+          exact Ha.
+          destruct (IHl lrt Hwt m Hm Hd) as 
+          (lm & Hwe & He).
+          exists lm. 
+          split.
+          exact Hwe.
+          exact He.
+          (* no loop at the head so continue *)
+          assert (Hwt : (length bl < length ((au, av, aw) :: bl))%nat).
+          simpl. nia.
+          destruct (IHl bl Hwt m Hm Hwr) as 
+          (lm & Hwe & He).
+          exists lm. 
+          split.
+          exact Hwe.
+          exact He.
+    Qed.
 
-          
-
-
-
-    Admitted.
 
 
     
