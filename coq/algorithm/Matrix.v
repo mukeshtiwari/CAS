@@ -6203,6 +6203,107 @@ Section Matrix.
     Qed.
 
 
+    (* Section 3.2 Network Tracks 
+      Every elementry path 
+      μ* <= (Orel) μ  
+    *)
+    (* This is going to be tricky proof *)
+    Lemma reduce_path_into_elem_path_orel : 
+      forall (l : list (Node * Node * R)) m,
+      (forall a : R, 1 + a =r= 1 = true) ->
+      mat_cong m -> 
+      well_formed_path_aux m l = true ->
+      exists lm, 
+        Orel (measure_of_path lm) (measure_of_path l).
+    Proof.
+      intro l. 
+      induction (zwf_well_founded l) as [l Hf IHl].
+      unfold zwf in * |- *.
+      intros ? zero_stable Hm Hw.
+      (* check if list is empty of not empty *)
+      destruct l as [|((au, av), aw) l].
+      + exists [].
+        simpl.
+        apply orel_refl.
+      + destruct l as [|((bu, bv), bw) l].
+        - simpl.
+          case (au =n= av) eqn:Hauv.
+          (* unit loop *)
+          exists [].
+          simpl.
+          unfold Orel.
+          apply zero_stable.
+          (* no unit loop *)
+          exists [(au, av, aw)].
+          simpl.
+          apply orel_refl.
+        - (* l is non-empty *)
+          remember ((bu, bv, bw) :: l) as bl.
+          simpl in Hw.
+          rewrite Heqbl in Hw.
+          rewrite <-Heqbl in Hw.
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hwl Hw].
+          apply Bool.andb_true_iff in Hw.
+          destruct Hw as [Hw Hwr].
+          case (au =n= av) eqn:Hauv.
+          (* loop at the front sos discard it *)
+          assert (Hwt : (length bl < length ((au, av, aw) :: bl))%nat).
+          simpl. nia.
+          destruct (IHl bl Hwt m zero_stable Hm Hwr) as 
+          (lm & Ho).
+          exists lm.
+          simpl.
+          unfold Orel.
+          unfold Orel in Ho.
+          pose proof path_weight_rel 
+            1 (aw * measure_of_path bl) 
+            (measure_of_path lm) zero_stable.
+          unfold Orel in H.
+          (* Appears true *)
+          admit.
+          (* au <> av but au can appear inside bl *)
+          case (elem_path_triple_tail au bl) eqn:Heab.
+          destruct (elem_path_triple_tail_true bl _ Heab) as 
+          (llt & aut & awt & lrt & Ha & Hb & Hc).
+          (* discard (llt ++ [(aut, au, awt)]) and 
+            call the recursive function on lrt *)
+          assert (Hd : well_formed_path_aux m lrt = true).
+          pose proof well_formed_path_rewrite _ _ m Hm 
+            Hwr Ha as Hwf.
+          rewrite List.app_assoc in Hwf.
+          destruct (well_formed_path_snoc _ _ _ 
+            Hwf) as [Hwfl Hwfr].
+          exact Hwfr.
+          assert(Hwt : (length lrt < length ((au, av, aw) :: bl))%nat).
+          simpl.
+          eapply triple_elem_rewrite_le.
+          exact Ha.
+          destruct (IHl lrt Hwt m zero_stable Hm Hd) as 
+          (lm & Ho).
+          exists lm.
+          unfold Orel in * |- *.
+          admit.
+          (* no loop at the head so continue *)
+          assert (Hwt : (length bl < length ((au, av, aw) :: bl))%nat).
+          simpl. nia.
+          destruct (IHl bl Hwt m zero_stable Hm Hwr) as 
+          (lm & Ho).
+          exists lm.
+          simpl.
+          unfold Orel in * |- *.
+          simpl.
+    Admitted. 
+
+
+          
+
+
+
+
+    (* Every well formed path can be reduced into 
+      an well formed elementry path, i.e., path 
+      without loop and it's length < finN *)
     Lemma reduce_path_into_elem_path_gen : 
       forall (l : list (Node * Node * R)) m,
       mat_cong m -> 
@@ -6223,6 +6324,20 @@ Section Matrix.
 
 
 
+    (* Zero stable and idempotence would lead to this proof *)
+    Lemma reduce_cycle_val : 
+      forall n m c d, 
+      (forall a : R, 1 + a =r= 1 = true) -> 
+      (length finN <= n)%nat -> 
+      exists k, (k < length finN)%nat /\  
+      sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) =r= 
+      sum_all_rvalues (get_all_rvalues (construct_all_paths m k c d)) = true.
+    Proof.
+      induction n. 
+      + admit.
+      + simpl. 
+
+    Admitted.
 
     
 
@@ -6244,6 +6359,24 @@ Section Matrix.
         specialize (IHk m Ha 
           Hm c d).
         rewrite PeanoNat.Nat.sub_0_r.
+
+        rewrite <-IHk.
+        apply congrR.
+        apply refR.
+        apply symR.
+
+        (* 
+          Fixpoint partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
+      match n with
+      | O => I c d
+      | S n' =>  partial_sum_paths m n' c d + 
+        sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d))
+      end.
+
+      We can replace every path by path that is < length finN. 
+
+        *)
+
         
       (*
       Why is this true? 
