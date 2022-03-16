@@ -6371,9 +6371,41 @@ Section Matrix.
       apply matrix_pow_idempotence;
       try assumption.
     Qed.
-    
+
     
     *)
+
+
+    (* 
+      What is the relation between 
+      sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) and 
+      sum_all_rvalues (get_all_rvalues (construct_all_paths m (n + 1) c d))? 
+
+      Observation: 
+      for every path xs in (construct_all_paths m n c d) -> 
+      there exists n, length finN, paths, say ys, in 
+      (construct_all_paths m (n + 1) c d) such that 
+      xs = xs1 ++ xs2 -> 
+      ys = xs1 ++ ts ++ xs2
+
+
+      Data to test this observation:
+      https://gist.github.com/mukeshtiwari/a12b06f913b5b2938f04e6afd2b09356
+    
+    *)
+
+    Lemma connect_n_and_Sn_paths :
+      forall n m c d, 
+      List.length (construct_all_paths m (S n) c d) = 
+      ((List.length finN) * List.length (construct_all_paths m n c d))%nat.
+    Proof.
+      unfold construct_all_paths.
+      simpl.
+      intros *.
+      rewrite map_length.
+      rewrite map_length.
+    Admitted.
+
 
     (* Zero stable and idempotence would lead to this proof *)
     Lemma reduce_cycle_val : 
