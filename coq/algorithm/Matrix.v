@@ -6296,6 +6296,10 @@ Section Matrix.
     Admitted. 
 
 
+          
+
+
+
 
     (* Every well formed path can be reduced into 
       an well formed elementry path, i.e., path 
@@ -6336,8 +6340,8 @@ Section Matrix.
       sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) (le) c d)) =r= 
       sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) (n + k) c d)) = true. 
 
-    *)
-    Lemma matrix_exp_unary_proof : 
+
+      Lemma matrix_exp_unary_proof : 
       (forall a : R, 1 + a =r= 1 = true) ->
       forall m, 
       mat_cong m ->
@@ -6367,6 +6371,108 @@ Section Matrix.
       apply matrix_pow_idempotence;
       try assumption.
     Qed.
+    
+    
+    *)
+
+    (* Zero stable and idempotence would lead to this proof *)
+    Lemma reduce_cycle_val : 
+      forall n m c d, 
+      (forall a : R, 1 + a =r= 1 = true) -> 
+      (length finN <= n)%nat -> 
+      exists k, (k < length finN)%nat /\  
+      sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) =r= 
+      sum_all_rvalues (get_all_rvalues (construct_all_paths m k c d)) = true.
+    Proof.
+      induction n. 
+      + admit.
+      + simpl. 
+
+    Admitted.
+
+    
+
+
+
+    Lemma zero_stable_partial_sum_path : forall k m,
+      (forall a : R, 1 + a =r= 1 = true) ->
+      mat_cong m -> 
+      (forall (c d : Node), 
+        partial_sum_paths m (length finN - 1) c d =r= 
+        partial_sum_paths m (k + length finN - 1) c d = true).
+    Proof.
+      induction k.
+      + simpl.
+        intros ? Ha Hm ? ?.
+        apply refR.
+      + simpl. 
+        intros ? Ha Hm ? ?.
+        specialize (IHk m Ha 
+          Hm c d).
+        rewrite PeanoNat.Nat.sub_0_r.
+
+        rewrite <-IHk.
+        apply congrR.
+        apply refR.
+        apply symR.
+
+        (* 
+          Fixpoint partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
+      match n with
+      | O => I c d
+      | S n' =>  partial_sum_paths m n' c d + 
+        sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d))
+      end.
+
+      We can replace every path by path that is < length finN. 
+
+        *)
+
+        
+      (*
+      Why is this true? 
+      partial_sum_paths m n c d, represents 
+      sum of path of length:
+       0 -> I c d)
+       1 -> m c d
+       2 -> m c --all intermediate nodes-- d
+
+       If I have type A with k, = length finN,  elements, k <> 0, then 
+       I have any path >= k has loop and we 
+       can chop the loop to bring it back <= k - 1
+      *)
+    Admitted.
+
+
+  
+    (* This can be proved using the 
+       (i) connect_partial_sum_mat_paths and 
+       (ii) zero_stable_partial_sum_path *)
+
+    Lemma zero_stable_partial : forall m,
+      (forall a : R, 1 + a =r= 1 = true) ->
+      mat_cong m -> 
+      (forall (c d : Node), 
+        partial_sum_mat m (length finN - 1) c d =r= 
+        partial_sum_mat m (length finN) c d = true).
+    Proof.
+      intros * zero_stable Hm ? ?.
+      rewrite <-(connect_partial_sum_mat_paths
+        (length finN - 1) m c d Hm).
+      apply congrR.
+      apply refR.
+      rewrite <-(connect_partial_sum_mat_paths
+        (length finN) m c d Hm).
+      apply congrR.
+      apply refR.
+      pose proof zero_stable_partial_sum_path
+        1 m zero_stable Hm c d as Ht.
+      assert (Hwt: (1 + length finN - 1 = length finN)%nat).
+      nia.
+      rewrite Hwt in Ht;
+      clear Hwt.
+      exact Ht.
+    Qed.
       
 
 
@@ -6376,7 +6482,7 @@ Section Matrix.
       mat_cong m ->
       (forall a : R, 1 + a =r= 1 = true) -> 
       matrix_exp_unary (m +M I) (length finN) c d =r= s = true ->
-      exists k, (k < length finN )%nat /\ 
+      exists k, (k < length finN )%nat/\ 
       matrix_exp_unary (m +M I) k c d =r= s = true.
     Proof.
       intros * Hc Ha Hm.
@@ -6483,7 +6589,7 @@ Section Matrix.
 
 End Matrix.
 
-
+(* 
 Require Import Psatz Utf8 ZArith.
 Section Ins.
 
@@ -6533,9 +6639,7 @@ Section Ins.
     | _, _ => false
     end.
 
-
-  Eval compute in all_paths_klength node fin_node eqN Z 0%Z m 4 C D.
-    
+  
   Eval compute in  elem_path node eqN Z [(A, B, 1%Z); (B, A, 2%Z)].
   Eval compute in elem_path_triple_compute_loop  node eqN Z [(A, C, 2%Z); (C, B, 1%Z); (B, C, 1%Z)].
   Eval compute in elem_path_triple_aux node eqN Z D [(C, B, 1%Z); 
@@ -6556,7 +6660,7 @@ Section Ins.
 
   
 End Ins. 
-
+*)
 
           
 
