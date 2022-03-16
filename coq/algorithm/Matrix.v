@@ -6318,33 +6318,6 @@ Section Matrix.
     Qed.
 
 
-
-
-    (* Zero stable and idempotence would lead to this proof *)
-    Lemma reduce_cycle_val : 
-      forall n m c d, 
-      (forall a : R, 1 + a =r= 1 = true) -> 
-      (length finN <= n)%nat -> 
-      exists k, (k < length finN)%nat /\  
-      sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) =r= 
-      sum_all_rvalues (get_all_rvalues (construct_all_paths m k c d)) = true.
-    Proof.
-      unfold construct_all_paths,
-        get_all_rvalues,
-        sum_all_rvalues.
-      intros.
-      repeat (rewrite map_map).
-      eexists. split.
-      admit.
-      apply symR.
-      rewrite map_map.
-
-    Admitted.
-
-    
-
-
-
        
     (* 
     Proof of this lemma comes from 
@@ -6356,7 +6329,13 @@ Section Matrix.
     I need to prove that 
     sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) ((length finN - 1)) c d)) =r= 
     sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) (length finN) c d)) = true. 
-    
+
+    Can I prove this one? 
+      forall n k, 
+      length finN - 1 <= n -> 
+      sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) (le) c d)) =r= 
+      sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) (n + k) c d)) = true. 
+
     *)
     Lemma matrix_exp_unary_proof : 
       (forall a : R, 1 + a =r= 1 = true) ->
