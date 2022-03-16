@@ -6347,7 +6347,15 @@ Section Matrix.
 
        
     (* 
-    
+    Proof of this lemma comes from 
+    Lemma matrix_path_equation : forall n m c d,
+      mat_cong m -> 
+      matrix_exp_unary m n c d =r= 
+      sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) = true.
+
+    I need to prove that 
+    sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) ((length finN - 1)) c d)) =r= 
+    sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) (length finN) c d)) = true. 
     
     *)
     Lemma matrix_exp_unary_proof : 
