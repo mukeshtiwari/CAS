@@ -6378,6 +6378,22 @@ Section Matrix.
 
 
 
+    Lemma elem_path_le_k : 
+      forall l m c d, l <> [] -> 
+      source c l = true ->
+      target d l = true -> 
+      elem_path_triple l = true ->
+      well_formed_path_aux m l = true ->
+      exists k,
+        (k < List.length finN)%nat /\  
+        In_eq_bool l (all_paths_klength m k c d) = true.
+    Proof.
+    Admitted.
+          
+      
+      
+     
+      
 
 
 
