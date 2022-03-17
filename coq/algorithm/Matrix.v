@@ -6204,8 +6204,8 @@ Section Matrix.
 
 
     (* Section 3.2 Network Tracks 
-      Every elementry path 
-      μ* <= (Orel) μ  
+      Every elementry path  
+      measuare μ* <= measure μ  
     *)
     (* This is going to be tricky proof *)
     Lemma reduce_path_into_elem_path_orel : 
@@ -6322,107 +6322,63 @@ Section Matrix.
     Qed.
 
 
-       
-    (* 
-    Proof of this lemma comes from 
-    Lemma matrix_path_equation : forall n m c d,
-      mat_cong m -> 
-      matrix_exp_unary m n c d =r= 
-      sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) = true.
-
-    I need to prove that 
-    sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) ((length finN - 1)) c d)) =r= 
-    sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) (length finN) c d)) = true. 
-
-    Can I prove this one? 
-      forall n k, 
-      length finN - 1 <= n -> 
-      sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) (le) c d)) =r= 
-      sum_all_rvalues (get_all_rvalues (construct_all_paths (m +M I) (n + k) c d)) = true. 
+    
+    
 
 
-      Lemma matrix_exp_unary_proof : 
-      (forall a : R, 1 + a =r= 1 = true) ->
-      forall m, 
-      mat_cong m ->
-      forall (c d : Node), 
-      matrix_exp_unary (m +M I) (length finN - 1) c d =r= 
-      matrix_exp_unary (m +M I) (length finN) c d = true.
-    Proof.
 
-    Admitted. 
-  
-   
-    Lemma zero_stable_partial : forall m,
+
+    (* What do we get from this? 
+      Well, we can reduce every path of lenght >= finN 
+      into a path of length < finN. 
+
+
+     Fixpoint partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
+      match n with
+      | O => I c d
+      | S n' =>  partial_sum_paths m n' c d + 
+        sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d))
+      end.
+      
+    For any n, >= finN > 0, we can write 
+    partial_sum_paths (m : Matrix) (n : nat) (c d : Node) :=
+    partial_sum_paths (m : Matrix) (n' : nat) (c d : Node) + 
+    sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)).
+
+    But we know that for any path of of length >= finN, 
+    there is a loop and we can reduce this path to an
+    elementry path < finN. It means we can reduce all the 
+    paths in (construct_all_paths m n c d) to an elementry 
+    path that would be the member of (construct_all_paths m k c d),
+    for some k < finN. 
+    Loop reduction : 1 + a = a 
+    Plus idempotence : a + a = a 
+    would lead to the proof of 
+
+    Lemma zero_stable_partial_sum_path : forall k m,
       (forall a : R, 1 + a =r= 1 = true) ->
       mat_cong m -> 
       (forall (c d : Node), 
-        partial_sum_mat m (length finN - 1) c d =r= 
-        partial_sum_mat m (length finN) c d = true).
-    Proof.
-      intros * zero_stable Hm ? ?.
-      rewrite <-(matrix_exp_unary_proof zero_stable
-        m Hm c d).
-      apply congrR.
-      apply symR.
-      apply matrix_pow_idempotence;
-      try assumption.
-      apply symR.
-      apply matrix_pow_idempotence;
-      try assumption.
-    Qed.
+        partial_sum_paths m (length finN - 1) c d =r= 
+        partial_sum_paths m (k + length finN - 1) c d = true).
+
 
     
     *)
-
-
-    (* 
-      What is the relation between 
-      sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) and 
-      sum_all_rvalues (get_all_rvalues (construct_all_paths m (n + 1) c d))? 
-
-      Observation: 
-      for every path xs in (construct_all_paths m n c d) -> 
-      there exists n, length finN, paths, say ys, in 
-      (construct_all_paths m (n + 1) c d) such that 
-      xs = xs1 ++ xs2 -> 
-      ys = xs1 ++ ts ++ xs2
-
-
-      Data to test this observation:
-      https://gist.github.com/mukeshtiwari/a12b06f913b5b2938f04e6afd2b09356
-    
-    *)
-
-    Lemma connect_n_and_Sn_paths :
-      forall n m c d, 
-      List.length (construct_all_paths m (S n) c d) = 
-      ((List.length finN) * List.length (construct_all_paths m n c d))%nat.
-    Proof.
-      unfold construct_all_paths.
-      simpl.
-      intros *.
-      rewrite map_length.
-      rewrite map_length.
-    Admitted.
-
-
-    (* Zero stable and idempotence would lead to this proof *)
-    Lemma reduce_cycle_val : 
-      forall n m c d, 
+    Lemma reduce_path : 
+      forall n m c d,
       (forall a : R, 1 + a =r= 1 = true) -> 
       (length finN <= n)%nat -> 
-      exists k, (k < length finN)%nat /\  
-      sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) =r= 
-      sum_all_rvalues (get_all_rvalues (construct_all_paths m k c d)) = true.
+      forall xs, In_eq_bool xs (all_paths_klength m n c d) = true ->
+      exists k ys, 
+        (k < length finN)%nat /\ 
+        In_eq_bool ys (all_paths_klength m k c d) = true.
     Proof.
-      induction n. 
-      + admit.
-      + simpl. 
-
     Admitted.
 
-    
+
+
+
 
 
 
@@ -6433,6 +6389,7 @@ Section Matrix.
         partial_sum_paths m (length finN - 1) c d =r= 
         partial_sum_paths m (k + length finN - 1) c d = true).
     Proof.
+
       induction k.
       + simpl.
         intros ? Ha Hm ? ?.
@@ -6447,32 +6404,6 @@ Section Matrix.
         apply congrR.
         apply refR.
         apply symR.
-
-        (* 
-          Fixpoint partial_sum_paths (m : Matrix) (n : nat) (c d : Node) : R :=
-      match n with
-      | O => I c d
-      | S n' =>  partial_sum_paths m n' c d + 
-        sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d))
-      end.
-
-      We can replace every path by path that is < length finN. 
-
-        *)
-
-        
-      (*
-      Why is this true? 
-      partial_sum_paths m n c d, represents 
-      sum of path of length:
-       0 -> I c d)
-       1 -> m c d
-       2 -> m c --all intermediate nodes-- d
-
-       If I have type A with k, = length finN,  elements, k <> 0, then 
-       I have any path >= k has loop and we 
-       can chop the loop to bring it back <= k - 1
-      *)
     Admitted.
 
 
