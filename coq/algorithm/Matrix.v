@@ -6441,6 +6441,17 @@ Section Matrix.
     *)
     
 
+    Lemma append_node_in_paths_eq_rev : 
+      forall (l : list (list (Node * Node * R))) 
+      (m : Matrix) (c : Node) (xs : list (Node * Node * R)),
+      xs <> [] ->
+      source c xs = true ->  
+      well_formed_path_aux m xs = true -> 
+      In_eq_bool (List.tl xs) l = true -> 
+      In_eq_bool xs (append_node_in_paths m c l) = true.
+    Admitted.  
+      
+
     Lemma elem_path_membership : 
       forall l l' m c d,
       (* all_paths_well_formed_in_kpaths 
@@ -6501,7 +6512,7 @@ Section Matrix.
           rewrite refN; reflexivity.
           assert (Hdt : target d bl = true).
           admit.
-          
+
     Admitted.
 
 
