@@ -6438,8 +6438,8 @@ Section Matrix.
     Also, we can say that 
     measure (ys ++ [(d, d, 1)]) =r=
     measure ys because 1 + a =r= 1. 
-
     *)
+    
 
     Lemma elem_path_membership : 
       forall l l' m c d,
@@ -6501,7 +6501,9 @@ Section Matrix.
           rewrite refN; reflexivity.
           assert (Hdt : target d bl = true).
           admit.
-           
+          
+    Admitted.
+
 
 
 
@@ -6532,46 +6534,22 @@ Section Matrix.
         
 
 
-
-
-
-
-    Lemma elem_path_membership : 
-      forall l m c d,
-      (* all_paths_well_formed_in_kpaths 
-      (forall c d, (c =n= d) = true -> (m c d =r= 1) = true) -> 
-      mat_cong m -> *) l <> [] -> 
-      source c l = true ->
-      target d l = true -> 
-      elem_path_triple l = true ->
-      well_formed_path_aux m l = true ->
-      exists k,
-        (k < List.length finN)%nat /\  
-        In_eq_bool l (all_paths_klength m k c d) = true.
-    Proof.
-      induction l as [|((au, av), aw) l].
-      + intros * Hf Hs Ht He Hw.
-        congruence.
-      + (* non empty list *) 
-        intros * Hf Hs Ht He Hw.
-        (* check if l is one element list or many element list *)
-        destruct l as [|((bu, bv), bw) l].
-        simpl in * |- *.
-        exists O.
-        split.
-        admit.
-        simpl.
-        apply Bool.andb_true_iff in He.
-        destruct He as [He _].
-        apply Bool.andb_true_iff in He.
-        destruct He as [He _].
-        apply Bool.negb_true_iff in He.
-
-    Admitted.
-
+    
+    
   
    
-
+    (*
+    I need something like this: 
+    Lemma reverse_rewrite :
+      forall n m c d,
+      (forall a : R, 1 + a =r= 1 = true) ->
+      (List.length finN <= n)%nat -> 
+      exists (kl : list nat),
+        sum_all_rvalues (get_all_rvalues (construct_all_paths m n c d)) =r= 
+        sum_all_rvalues (List.map (fun k => get_all_rvalues (construct_all_paths m k c d)) kl) = true.
+    Proof.
+    Admitted.
+    *)
 
 
 
