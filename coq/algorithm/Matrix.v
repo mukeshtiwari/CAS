@@ -6425,10 +6425,90 @@ Section Matrix.
       (forall (c d : Node), 
         partial_sum_paths m (length finN - 1) c d =r= 
         partial_sum_paths m (k + length finN - 1) c d = true).
-
-
-    
     *)
+
+
+    (* 
+    
+    The idea I have right now is:
+    Take any arbitrary path xs, reduce it to ys and 
+    add a unit loop [(d, d, 1)] in the end of ys,
+    show that (ys ++ [(d, d, 1)]) is an element 
+    of all_paths_klength m (length ys) c d).
+    Also, we can say that 
+    measure (ys ++ [(d, d, 1)]) =r=
+    measure ys because 1 + a =r= 1. 
+
+    *)
+
+    Lemma elem_path_membership : 
+      forall l l' m c d,
+      (* all_paths_well_formed_in_kpaths 
+      (forall c d, (c =n= d) = true -> (m c d =r= 1) = true) -> *)
+      mat_cong m -> 
+      triple_elem_list l (l' ++ [(d, d, 1)]) = true ->
+      source c l = true ->
+      target d l = true ->
+      well_formed_path_aux m l = true ->
+      In_eq_bool l (all_paths_klength m (List.length l') c d) = true.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros * Hm Hte Hs Ht Hw.
+        simpl in *.
+        congruence.
+      + intros * Hm Hte Hs Ht Hw.
+        destruct l as [|((bu, bv), bw) l].
+        - (* l is one element list and it 
+          implies that l' is empty *)
+          assert (Hlt: l' = []).
+          destruct l' as [|((cu, cv), cw) l'].
+          reflexivity.
+          simpl in Hte.
+          admit.
+          rewrite Hlt in Hte.
+          simpl in Hte.
+          rewrite Hlt.
+          simpl.
+          simpl in *.
+          admit.
+        - (* ls has more than one element and it implies that 
+          l' is not empty *) 
+          assert (Htw : exists lt, 
+            triple_elem_list  (l' ++ [(d, d, 1)])
+              ((au, av, aw) :: lt ++ [(d, d, 1)]) = true /\ 
+            triple_elem_list (lt ++ [(d, d, 1)])
+              ((bu, bv, bw) :: l) = true).
+          admit.
+          destruct Htw as (lt & Ha & Hb).
+          assert (Hlt : length l' = S (length lt)).
+          admit.
+          rewrite Hlt.
+          simpl.
+          remember ((bu, bv, bw) :: l) as bl.
+          simpl in Hs.
+          simpl in Hw.
+          rewrite Heqbl in Hw.
+          rewrite <-Heqbl in Hw.
+          (* 
+            I need to infer that 
+            In_eq_bool bl 
+              (all_path_klength m (length lt) bu d)
+          *)
+          apply triple_elem_eq_list_sym in Hb.
+          specialize (IHl lt m bu d Hm Hb).
+          assert (Hst : source bu bl = true).
+          rewrite Heqbl; simpl;
+          rewrite refN; reflexivity.
+          assert (Hdt : target d bl = true).
+          admit.
+           
+
+
+
+
+
+
+
     Lemma reduce_path : 
       forall n m c d,
       (forall a : R, 1 + a =r= 1 = true) -> 
@@ -6446,47 +6526,8 @@ Section Matrix.
 
 
 
-    Lemma elem_path_membership : 
-      forall l m c d,
-      (* all_paths_well_formed_in_kpaths *)
-      (forall c d, (c =n= d) = true -> (m c d =r= 1) = true) -> 
-      mat_cong m ->
-      l <> [] ->
-      source c l = true ->
-      target d l = true ->
-      well_formed_path_aux m l = true ->
-      exists k : nat, 
-        (k <= List.length finN)%nat /\ 
-        In_eq_bool l (all_paths_klength m k c d) = true.
-    Proof.
-      induction l as [|((au, av), aw) l].
-      + intros * Hcd Hm Ha Hs Ht Hw.
-        simpl in *.
-        congruence.
-      + (* non empty list *) 
-        intros * Hcd Hm Ha Hs Ht Hw.
-        (* check if l is one element list or many element list *)
-        destruct l as [|((bu, bv), bw) l].
-        simpl in * |- *.
-        case (c =n= d) eqn:Heqn.
-        exists O.
-        simpl.
-        split.
-        nia.
-        rewrite Heqn.
-        simpl.
-        apply symN in Hs;
-        rewrite Hs.
-        apply symN in Ht; 
-        rewrite Ht.
-        specialize (Hcd _ _ Heqn).
-        simpl.
-        admit.
-        exists (S O).
-        simpl.
-        split.
-        admit.
-        simpl.
+  
+     
 
         
 
