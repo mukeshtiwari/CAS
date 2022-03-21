@@ -6321,7 +6321,71 @@ Section Matrix.
       repeat split; try assumption.
     Qed.
 
-
+    
+    (* Now, we know that every path coming out of 
+      all_paths_klenght has a loop in the end.  
+    *)
+    Lemma path_end_loop : 
+      forall k l m c d, 
+      In_eq_bool l (all_paths_klength m k c d) = true ->
+      exists l', 
+        triple_elem_list l (l' ++ [(d, d, 1)]) = true.   
+    Proof.
+      induction k.
+      + simpl. 
+        intros ? ? ? ? Hin.
+        case (c =n= d) eqn:Hcd.
+        exists [].
+        simpl.
+        destruct l as [|((au, av), aw) l].
+        simpl in Hin;
+        congruence.
+        destruct l as [|((bu, bv), bw) l].
+        simpl in * |- *.
+        rewrite Bool.orb_false_r in Hin.
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin _].
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hin Hinr].
+        apply Bool.andb_true_iff in Hin.
+        destruct Hin as [Hinl Hinrr].
+        rewrite (trnN _ _ _ Hinl Hcd),
+        Hinrr, Hinr; reflexivity.
+        simpl in Hin.
+        rewrite Bool.orb_false_r, 
+          Bool.andb_false_r in Hin.
+        congruence.
+        simpl in Hin.
+        congruence.
+      + simpl. 
+        intros ? ? ? ? Hin.
+        destruct (append_node_in_paths_eq
+          (flat_map (λ x : Node, all_paths_klength m k x d) finN)
+          m c l Hin) as [y [ys [Hl Hr]]].
+        pose proof append_node_rest _ _ _ _ 
+          Hin as Hap.
+        destruct (in_flat_map_bool_first _ _ _ 
+          Hap) as (x & Hf & Heb).
+        simpl in Heb.
+        destruct (IHk _ _ _ _ Heb) as 
+        (l' & Hte).
+        exists ((c, y, m c y) :: l').
+        simpl.
+        destruct l as [|((au, av), aw) l].
+        simpl in Hl;
+        congruence.
+        simpl in Hl, Hte.
+        simpl.
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hlr].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hlrr].
+        apply Bool.andb_true_iff in Hl.
+        destruct Hl as [Hl Hlrrr].
+        rewrite Hl, Hlrrr, Hlrr.
+        simpl.
+        exact Hte.
+    Qed.
     
     
 
@@ -6378,8 +6442,64 @@ Section Matrix.
 
 
 
-    Lemma elem_path_le_k : 
-      forall l m c d, l <> [] -> 
+    
+
+
+
+    Lemma elem_path_membership : 
+      forall l m c d,
+      (* all_paths_well_formed_in_kpaths *)
+      (forall c d, (c =n= d) = true -> (m c d =r= 1) = true) -> 
+      mat_cong m ->
+      l <> [] ->
+      source c l = true ->
+      target d l = true ->
+      well_formed_path_aux m l = true ->
+      exists k : nat, 
+        (k <= List.length finN)%nat /\ 
+        In_eq_bool l (all_paths_klength m k c d) = true.
+    Proof.
+      induction l as [|((au, av), aw) l].
+      + intros * Hcd Hm Ha Hs Ht Hw.
+        simpl in *.
+        congruence.
+      + (* non empty list *) 
+        intros * Hcd Hm Ha Hs Ht Hw.
+        (* check if l is one element list or many element list *)
+        destruct l as [|((bu, bv), bw) l].
+        simpl in * |- *.
+        case (c =n= d) eqn:Heqn.
+        exists O.
+        simpl.
+        split.
+        nia.
+        rewrite Heqn.
+        simpl.
+        apply symN in Hs;
+        rewrite Hs.
+        apply symN in Ht; 
+        rewrite Ht.
+        specialize (Hcd _ _ Heqn).
+        simpl.
+        admit.
+        exists (S O).
+        simpl.
+        split.
+        admit.
+        simpl.
+
+        
+
+
+
+
+
+
+    Lemma elem_path_membership : 
+      forall l m c d,
+      (* all_paths_well_formed_in_kpaths 
+      (forall c d, (c =n= d) = true -> (m c d =r= 1) = true) -> 
+      mat_cong m -> *) l <> [] -> 
       source c l = true ->
       target d l = true -> 
       elem_path_triple l = true ->
@@ -6388,12 +6508,28 @@ Section Matrix.
         (k < List.length finN)%nat /\  
         In_eq_bool l (all_paths_klength m k c d) = true.
     Proof.
+      induction l as [|((au, av), aw) l].
+      + intros * Hf Hs Ht He Hw.
+        congruence.
+      + (* non empty list *) 
+        intros * Hf Hs Ht He Hw.
+        (* check if l is one element list or many element list *)
+        destruct l as [|((bu, bv), bw) l].
+        simpl in * |- *.
+        exists O.
+        split.
+        admit.
+        simpl.
+        apply Bool.andb_true_iff in He.
+        destruct He as [He _].
+        apply Bool.andb_true_iff in He.
+        destruct He as [He _].
+        apply Bool.negb_true_iff in He.
+
     Admitted.
-          
-      
-      
-     
-      
+
+  
+   
 
 
 
