@@ -125,8 +125,12 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
-   coq/algorithm/Matrix.v \
-   coq/algorithm/wrapper.v \
+   coq/algorithm/Listprop.v
+
+
+   
+   # coq/algorithm/Matrix.v \
+   # coq/algorithm/wrapper.v \
 
    # coq/tr/left/left_cayley.v \
    # coq/tr/left/product.v \
