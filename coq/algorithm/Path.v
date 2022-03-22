@@ -146,9 +146,136 @@ Section Pathdefs.
   Definition sum_fn_fold (f : Node -> R) (l : list Node) : R :=
     List.fold_right (fun b a => f b + a) 0 l.
 
+
+  
+
 End Pathdefs.
 
 Section Pathprops.
+
+  Variables 
+    (Node : Type)
+    (eqN  : brel Node)
+    (refN : brel_reflexive Node eqN)
+    (symN : brel_symmetric Node eqN)
+    (trnN : brel_transitive Node eqN).
+
+    (* carrier set and the operators *)
+    Variables
+    (R : Type)
+    (zeroR oneR : R) (* 0 and 1 *)
+    (plusR mulR : binary_op R)
+    (eqR  : brel R)
+    (refR : brel_reflexive R eqR)
+    (symR : brel_symmetric R eqR)
+    (trnR : brel_transitive R eqR).
+
+  (* append node path function contains only 
+    non-empty list *)  
+  Lemma append_node_in_paths_non_empty_list : 
+    forall (l : list (list (Node * Node * R))) 
+      (m : Matrix Node R) (c : Node),  
+    all_elems_non_empty_list _ 
+    (append_node_in_paths Node R m c l) = true.
+  Proof.
+    induction l as [|a l IHl].
+    + simpl; intros ? ?. 
+      reflexivity.
+    + simpl.
+      destruct a. 
+      apply IHl.
+      intros. 
+      destruct p. 
+      destruct p.
+      simpl. 
+      apply IHl.
+  Qed.
+
+  
+  Lemma append_node_in_paths_eq : 
+    forall (l : list (list (Node * Node * R))) 
+    (m : Matrix Node R) (c : Node) 
+    (xs : list (Node * Node * R)), 
+    In_eq_bool _ _ _  eqN eqN eqR xs 
+      (append_node_in_paths Node R m c l) = true -> 
+    exists y ys, 
+      triple_elem_list _ _ _ eqN eqN eqR 
+        xs ((c, y, m c y) :: ys) = true /\
+      source Node eqN R c xs = true /\ 
+      source Node eqN R y ys = true /\ 
+      ys <> [].
+  Proof.
+    induction l.
+    - simpl; intros ? ? ? Hf.
+      inversion Hf.
+    - intros ? ? ? H.
+      simpl in H.
+      destruct a.
+      apply IHl with (m := m) (c := c).
+      exact H.
+      repeat destruct p.
+      simpl in H.
+      apply Bool.orb_true_iff in H.
+      destruct H.
+      exists n, ((n, n0, r) :: a).
+      split. exact H.
+      destruct xs. simpl in H.
+      congruence. 
+      repeat destruct p.
+      simpl in H. simpl.
+      apply Bool.andb_true_iff in H.
+      destruct H as [Hl Hr].
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hll Hlr].
+      apply Bool.andb_true_iff in Hll.
+      destruct Hll as [Hlll Hlllr].
+      split. 
+      apply symN. 
+      exact Hlll. 
+      split. 
+      apply refN.
+      intro Hf. 
+      inversion Hf.
+      apply IHl with (m := m) (c := c).
+      exact H.
+  Qed.
+
+  
+  Lemma non_empty_paths_in_kpath : 
+    forall (n : nat) (m : Matrix Node R) 
+    (c d : Node) (xs : list (Node * Node * R))
+    (finN : list Node), 
+    In_eq_bool _ _ _ eqN eqN eqR xs 
+      (all_paths_klength _ eqN _ oneR finN m n c d) = true -> 
+    xs <> [].
+  Proof.
+    induction n.
+    - simpl; intros ? ? ? ? ? Hin.
+      case (eqN c d) eqn:Ht.
+      simpl in Hin.
+      apply Bool.orb_true_iff in Hin.
+      destruct Hin as [Hin | Hin].
+      intro Hf. 
+      rewrite Hf in Hin.
+      simpl in Hin. 
+      congruence.
+      congruence.
+      intro Hf. 
+      rewrite Hf in Hin.
+      simpl in Hin. 
+      congruence.
+    - simpl; intros ? ? ? ? ? Hin.
+      destruct (append_node_in_paths_eq
+        (flat_map (λ x : Node, 
+          all_paths_klength  _ eqN _ oneR finN m n x d) finN)
+        m c xs Hin) as [y [ys [Hl Hr]]].
+      intro Hf. 
+      rewrite Hf in Hl.
+      simpl in Hl. 
+      congruence.
+  Qed.
+
+
 
 
 End Pathprops.
