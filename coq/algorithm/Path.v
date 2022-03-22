@@ -3,35 +3,21 @@ From Coq Require Import List Utf8
   Lia Even.
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
-  coq.eqv.theory coq.sg.properties.
+  coq.eqv.theory coq.sg.properties
+  coq.algorithm.Listprop.
 Import ListNotations.
 
-Section Computation.
+Section Pathdefs.
   Variables 
     (Node : Type)
-    (eqN  : brel Node)
-    (refN : brel_reflexive Node eqN)
-    (symN : brel_symmetric Node eqN)
-    (trnN : brel_transitive Node eqN).
+    (eqN  : brel Node).
 
   (* carrier set and the operators *)
   Variables
     (R : Type)
     (zeroR oneR : R) (* 0 and 1 *)
     (plusR mulR : binary_op R)
-    (* equivalence relation on R *)
-    (eqR  : brel R)
-    (refR : brel_reflexive R eqR)
-    (symR : brel_symmetric R eqR)
-    (trnR : brel_transitive R eqR).
-    (* end of equivalence relation *)
-
-    (* start of congruence relation *)
-  Variables 
-    (congrP : bop_congruence R eqR plusR)
-    (congrM : bop_congruence R eqR mulR)
-    (congrR : brel_congruence R eqR eqR).
-    (* end of congruence *)
+    (eqR  : brel R).
       
   
   Declare Scope Mat_scope.
@@ -76,90 +62,99 @@ Section Computation.
     end.
 
 
-    (* path strength between c and d *)
-    Fixpoint measure_of_path (l : list (Node * Node * R)) : R :=
-      match l with 
-      | [] => 1
-      | (_, _, v) :: t => v * measure_of_path t
-      end.
-
-
-    Fixpoint well_formed_path_aux (m : Node -> Node -> R) 
-      (l : list (Node * Node * R)) : bool :=
-      match l with 
-      | [] => true
-      | (c, x, v) :: tl => (m c x =r= v) && match tl with 
-        | [] => true
-        | (y, _, _) :: _ => (x =n= y) && well_formed_path_aux m tl
-        end
-      end.
-  
-  
-    
-    Definition fp (p : Path) : Node :=
-      match p with
-      |(a, _, _) => a
-      end. 
-
-    Definition sp (p : Path) : Node :=
-      match p with
-      |(_, b, _) => b
-      end. 
-    
-    Definition tp (p : Path) : list (Node * Node * R):=
-      match p with
-      |(_, _, l) => l
-      end.
-
-     
-    (* stick a node 'c' in all the paths, represented by l *)
-    Fixpoint append_node_in_paths (m : Node -> Node -> R) 
-      (c : Node) (l : list (list (Node * Node * R))) : 
-      list (list (Node * Node * R)) := 
+  (* path strength between c and d *)
+  Fixpoint measure_of_path (l : list (Node * Node * R)) : R :=
     match l with 
-    | [] => []
-    | h :: t => match h with 
-      | [] => append_node_in_paths m c t
-      | (x, _, _) :: ht => 
-        ((c, x, m c x) :: h) :: append_node_in_paths m c t
-      end 
+    | [] => 1
+    | (_, _, v) :: t => v * measure_of_path t
     end.
 
 
-    (* list of all paths of lenghth k from c to d. 
-      xs is list of all candidates *)
-    Fixpoint all_paths_klength (xs : list Node) 
-      (m : Node -> Node -> R) (k : nat) 
-      (c d : Node) : list (list (Node * Node * R)) :=
-      match k with
-      | O => if c =n= d then [[(c, d, 1)]] else []
-      | S k' =>
-          let lf := List.flat_map (fun x => all_paths_klength xs m k' x d) xs
-          in append_node_in_paths m c lf
-      end.
+  Definition Matrix := Node -> Node -> R.
+  
+  
+  Fixpoint well_formed_path_aux (m : Matrix) 
+    (l : list (Node * Node * R)) : bool :=
+    match l with 
+    | [] => true
+    | (c, x, v) :: tl => (m c x =r= v) && match tl with 
+      | [] => true
+      | (y, _, _) :: _ => (x =n= y) && well_formed_path_aux m tl
+      end
+    end.
 
-    
-    Definition construct_all_paths (xs : list Node) 
-      (m : Node -> Node -> R) (k : nat) 
-      (c d : Node) : list Path :=
-      let lp := all_paths_klength xs m k c d in 
-      List.map (fun l => (c, d, l)) lp.
-
-    (* get all the R values from path *)
-    Definition get_all_rvalues (pl : list Path): list R :=
-      List.map (fun '(_, _, l) => measure_of_path l) pl.
 
   
-    Definition sum_all_rvalues (pl : list R) :=
-      List.fold_right (fun b a => b + a) 0 pl.
+  Definition fp (p : Path) : Node :=
+    match p with
+    |(a, _, _) => a
+    end. 
 
-    (* sum_fn using fold_right *)
-    Definition sum_fn_fold (f : Node -> R) (l : list Node) : R :=
-      List.fold_right (fun b a => f b + a) 0 l.
+  Definition sp (p : Path) : Node :=
+    match p with
+    |(_, b, _) => b
+    end. 
+  
+  Definition tp (p : Path) : list (Node * Node * R):=
+    match p with
+    |(_, _, l) => l
+    end.
 
-End Computation.
+    
+  (* stick a node 'c' in all the paths, represented by l *)
+  Fixpoint append_node_in_paths (m : Matrix) 
+    (c : Node) (l : list (list (Node * Node * R))) : 
+    list (list (Node * Node * R)) := 
+  match l with 
+  | [] => []
+  | h :: t => match h with 
+    | [] => append_node_in_paths m c t
+    | (x, _, _) :: ht => 
+      ((c, x, m c x) :: h) :: append_node_in_paths m c t
+    end 
+  end.
 
 
+  (* list of all paths of lenghth k from c to d. 
+    xs is list of all candidates *)
+  Fixpoint all_paths_klength (xs : list Node) 
+    (m : Matrix) (k : nat) 
+    (c d : Node) : list (list (Node * Node * R)) :=
+    match k with
+    | O => if c =n= d then [[(c, d, 1)]] else []
+    | S k' =>
+        let lf := List.flat_map (fun x => all_paths_klength xs m k' x d) xs
+        in append_node_in_paths m c lf
+    end.
+
+  
+  Definition construct_all_paths (xs : list Node) 
+    (m : Node -> Node -> R) (k : nat) 
+    (c d : Node) : list Path :=
+    let lp := all_paths_klength xs m k c d in 
+    List.map (fun l => (c, d, l)) lp.
+
+  (* get all the R values from path *)
+  Definition get_all_rvalues (pl : list Path): list R :=
+    List.map (fun '(_, _, l) => measure_of_path l) pl.
+
+
+  Definition sum_all_rvalues (pl : list R) :=
+    List.fold_right (fun b a => b + a) 0 pl.
+
+  (* sum_fn using fold_right *)
+  Definition sum_fn_fold (f : Node -> R) (l : list Node) : R :=
+    List.fold_right (fun b a => f b + a) 0 l.
+
+End Pathdefs.
+
+Section Pathprops.
+
+
+End Pathprops.
+
+
+  
 
 
 
