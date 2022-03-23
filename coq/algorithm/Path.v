@@ -995,7 +995,7 @@ Section Pathprops.
 
   Lemma target_target_alt_same : 
     forall (l : list (Node * Node * R)) (d : Node), 
-    target d l = target_alt d l.
+    target _ eqN _ d l = target_alt _ eqN _ d l.
   Proof using -All.
     induction l using rev_ind.
     - unfold target_alt; simpl; intros ?.
@@ -1003,6 +1003,61 @@ Section Pathprops.
     - intros ?. rewrite target_alt_end, target_end.
       reflexivity.
   Qed.
+
+  
+ 
+  Lemma append_node_rest_rev : 
+    forall l m c xs,
+    source _ eqN _ c xs = true -> 
+    List.tl xs <> [] ->
+    well_formed_path_aux Node eqN R eqR m xs = true ->
+    In_eq_bool _ _ _ eqN eqN eqR (List.tl xs) l = true ->
+    In_eq_bool _ _ _ eqN eqN eqR xs 
+    (append_node_in_paths _ _ m c l) = true.
+  Proof.
+    induction l as [|al l IHl].
+    + intros * Hs Hl Hw Hin.
+      simpl in *.
+      congruence.
+    + intros * Hs Hl Hw Hin.
+      simpl in Hin.
+      simpl.
+      assert (Hat : exists au av aw ys, 
+        al = ((au, av), aw) :: ys).
+      admit.
+      destruct Hat as (au & av & aw & ys & Hat).
+      assert (Hst : xs = (c, au, m c au) :: al).
+      admit.
+      
+      apply Bool.orb_true_iff in Hin.
+      destruct Hin as [Hin | Hin].
+      rewrite Hat.
+      
+      rewrite Hst.
+      rewrite Hat.
+      simpl.
+      repeat (rewrite refN).
+      repeat rewrite refR.
+      simpl.
+      apply Bool.orb_true_iff.
+      left.
+      apply triple_elem_eq_list_refl;
+      try assumption.
+
+      (* inductive hypothesis *)
+      rewrite Hat.
+      rewrite Hst.
+      rewrite Hat.
+
+
+  Admitted.
+    
+
+
+
+
+    
+
 
   (* We need to prove in reverse direction. *)
   Lemma source_target_non_empty_kpath_and_well_formed_rev : 
@@ -1049,6 +1104,21 @@ Section Pathprops.
       simpl; apply refN.
       specialize (IHxs m bu d Hm Hst Htt Hw).
       rewrite Hwt.
+      rewrite Hwt in IHxs.
+
+
+      eapply  append_node_rest_rev.
+      simpl.
+      exact Hs.
+      simpl.
+      intro Hf; congruence.
+      remember ((bu, bv, bw) :: ys) as bys.
+      simpl.
+      rewrite Heqbys.
+      rewrite <-Heqbys.
+      admit.
+      simpl.
+
       (* I need a lemma which is reverse of 
         append_node_in_paths_eq *)
   Admitted.
