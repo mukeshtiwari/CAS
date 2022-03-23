@@ -864,6 +864,22 @@ Section Pathprops.
   Qed.
 
 
+  (* We need to prove in reverse direction. *)
+  Lemma source_target_non_empty_kpath_and_well_formed_rev : 
+    ∀ (xs : list (Node * Node * R)) 
+    (m : Matrix Node R) (c d : Node) ,
+    mat_cong Node eqN R eqR m ->
+    xs <> [] ->
+    source _ eqN _ c xs = true ->
+    target _ eqN _ d xs = true ->
+    well_formed_path_aux Node eqN R eqR m xs = true ->
+    In_eq_bool _ _ _ eqN eqN eqR xs 
+      (all_paths_klength _ eqN _ oneR 
+        finN m (List.length xs - 1) c d) = true.
+  Proof.
+  Admitted.
+
+
 
 
 
@@ -1035,7 +1051,7 @@ Section Pathprops.
   Qed.
 
 
-  
+
   Lemma map_measure_simp : 
     forall m n c d a, 
     mat_cong Node eqN R eqR m -> 
