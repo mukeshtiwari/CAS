@@ -1147,8 +1147,22 @@ Section Listtripleprops.
         nia.
     Qed.
 
-End Listtripleprops.
+    Lemma list_tl_lia : forall (xs : list A) k, 
+      List.tl xs <> [] -> (length (List.tl xs) = S k)%nat ->
+      (length xs = S (S k))%nat.
+    Proof using -All.
+      induction xs.
+      + intros * Hf Hin.
+        simpl in * |- *.
+        congruence.
+      + intros * Hf Hin.
+        simpl in * |- *.
+        lia.
+    Qed.
 
+
+    
+End Listtripleprops.
     
 
     
