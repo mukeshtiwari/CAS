@@ -956,6 +956,54 @@ Section Pathprops.
   Qed.
 
 
+  (* generic lemma about list. It does not use any section assumption *)
+  Lemma target_alt_end : 
+    forall (l : list (Node * Node * R))
+    (x : Node * Node * R) (d : Node),
+    target_alt _ eqN _ d (l ++ [x]) = 
+    target_alt _ eqN _ d [x].
+  Proof using -All.
+    intros ? ? ?.
+    unfold target_alt.
+    rewrite rev_unit.
+    assert (Ht : rev [x] = [x]).
+    reflexivity.
+    rewrite Ht; clear Ht.
+    reflexivity.
+  Qed.
+
+
+  Lemma target_end : 
+    forall (l : list (Node * Node * R))
+    (x : Node * Node * R) (d : Node),
+    target _ eqN _ d (l ++ [x]) = 
+    target _ eqN _ d [x].
+  Proof using -All.
+    induction l.
+    - simpl; intros ? ?. reflexivity.
+    - intros ? ?.
+      assert (Ht : target _ eqN _ d ((a :: l) ++ [x]) = 
+        target _ eqN _ d (l ++ [x])).
+      simpl. destruct a. destruct p.
+      destruct (l ++ [x]) eqn:Hv.
+      pose proof app_eq_nil l [x] Hv as Hw.
+      destruct Hw as [Hwl Hwr].
+      congruence. reflexivity.
+      rewrite Ht. apply IHl.
+  Qed.
+
+
+  Lemma target_target_alt_same : 
+    forall (l : list (Node * Node * R)) (d : Node), 
+    target d l = target_alt d l.
+  Proof using -All.
+    induction l using rev_ind.
+    - unfold target_alt; simpl; intros ?.
+      reflexivity.
+    - intros ?. rewrite target_alt_end, target_end.
+      reflexivity.
+  Qed.
+
   (* We need to prove in reverse direction. *)
   Lemma source_target_non_empty_kpath_and_well_formed_rev : 
     ∀ (xs : list (Node * Node * R)) 
@@ -994,7 +1042,13 @@ Section Pathprops.
       destruct Hw as [Hwl Hw].
       apply Bool.andb_true_iff in Hw.
       destruct Hw as [Hwll Hw].
-      
+      assert (Hst: source Node eqN R bu (xs ++ [(d, d, 1)]) = true).
+      rewrite Hwt; simpl; apply refN.
+      assert (Htt: target Node eqN R d (xs ++ [(d, d, 1)]) = true).
+      rewrite target_end;
+      simpl; apply refN.
+      specialize (IHxs m bu d Hm Hst Htt Hw).
+      rewrite Hwt.
       (* I need a lemma which is reverse of 
         append_node_in_paths_eq *)
   Admitted.
