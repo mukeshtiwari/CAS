@@ -153,6 +153,13 @@ Section Pathdefs.
     b =n= d = true -> m a b =r= m c d = true.
   
 
+  Definition in_eq_bool_cong 
+    (f : Node → list (list (Node * Node * R))) :=
+    forall (x a : Node) (y : list (Node * Node * R)),  
+    (x =n= a) = true -> 
+    In_eq_bool _ _ _ eqN eqN eqR y (f a) = 
+    In_eq_bool _ _ _ eqN eqN eqR y (f x). 
+
 End Pathdefs.
 
 Section Pathprops.
@@ -368,24 +375,583 @@ Section Pathprops.
       assumption.
   Qed.
 
+  
 
-  Lemma source_and_non_empty_kpath : 
+  Lemma append_node_rest : 
+    forall l m c xs,
+    In_eq_bool _ _ _ eqN eqN eqR xs 
+      (append_node_in_paths Node R m c l) = true ->
+    In_eq_bool _ _ _ eqN eqN eqR 
+      (List.tl xs) l = true.
+  Proof using -All.
+    induction l.
+    - simpl; 
+      intros ? ? ? Hin.
+      inversion Hin.
+    - simpl; 
+      intros ? ? ? Hin. 
+      destruct a.
+      eapply Bool.orb_true_iff.
+      right. 
+      apply IHl with (m := m) (c := c).
+      exact Hin.
+      repeat destruct p.
+      simpl in Hin.
+      apply Bool.orb_true_iff in Hin.
+      destruct Hin as [H | H].
+      apply Bool.orb_true_iff.
+      left. 
+      apply triple_trim_tail 
+        with (a := (c, n, m c n)).
+      exact H.
+      apply Bool.orb_true_iff.
+      right. 
+      apply IHl with (m := m) (c := c).
+      exact H.
+  Qed.
+
+
+  
+  Lemma target_tail_forward : 
+    forall (xs : list (Node * Node * R)) (d : Node), 
+    target Node eqN R d (List.tl xs) = true -> 
+    target Node eqN R d xs = true.
+  Proof using -All.
+    destruct xs.
+    - simpl; intros ? ?.
+      exact H.
+    - simpl; intros ? ?.
+      repeat destruct p.
+      destruct xs.
+      simpl in H.
+      congruence.
+      exact H.
+  Qed.
+
+  Lemma target_tail_backward : 
+    forall (xs : list (Node * Node * R)) (d : Node),
+    List.tl xs <> [] -> 
+    target Node eqN R d xs = true -> 
+    target Node eqN R d (List.tl xs) = true.
+  Proof using -All.
+    destruct xs.
+    - simpl; intros ? ?.
+      congruence.
+    - intros ? ? Ht.
+      simpl in H.
+      simpl.
+      destruct xs.
+      congruence.
+      remember (p0 :: xs) as pxs.
+      repeat destruct p.
+      simpl in Ht.
+      rewrite Heqpxs in Ht.
+      rewrite <-Heqpxs in Ht.
+      exact Ht.
+  Qed.
+
+
+  Lemma in_eq_append_cong : 
+    forall l m a x y,
+    mat_cong Node eqN R eqR m -> 
+    a =n= x = true ->  
+    In_eq_bool _ _ _ eqN eqN eqR y 
+      (append_node_in_paths _ _  m a l) =
+    In_eq_bool _ _ _ eqN eqN eqR y 
+    (append_node_in_paths _ _ m x l).
+  Proof using Node R eqN eqR refN symN symR trnN trnR.
+    induction l.
+    - simpl; intros ? ? ? ? Hm Hax;
+      reflexivity.
+    - simpl; intros ? ? ? ? Hm Hax.
+      destruct a.
+      + apply IHl. exact Hm. exact Hax.
+      + repeat destruct p.
+        simpl. 
+        pose proof (IHl m a0 x y Hm Hax) as IH.
+        rewrite IH.
+        apply orb_eq.
+        apply triple_eq_cong;
+        try assumption.
+        apply refN.
+        apply Hm.
+        exact Hax.
+        apply refN.
+  Qed.
+  
+
+
+  Lemma all_paths_cong : 
+    forall n m d,
+    mat_cong Node eqN R eqR m -> 
+    in_eq_bool_cong Node eqN R eqR (λ x : Node, 
+        all_paths_klength  _ eqN _ oneR finN m n x d).
+  Proof using Node R eqN eqR finN oneR 
+  refN symN symR trnN trnR.
+    unfold in_eq_bool_cong.
+    induction n.
+    - simpl; intros ? ? Hm ? ? ? Hxa.
+      case_eq (a =n= d); intros Ht.
+      assert(Hv : x =n= d = true).
+      eapply trnN with a; assumption.
+      rewrite Hv; clear Hv.
+      destruct y; simpl.
+      reflexivity.
+      repeat destruct p.
+      repeat rewrite Bool.orb_false_r.
+      assert (Hv : (n =n= a) = (n =n= x)).
+      case_eq (n =n= a); intros Hna;
+      case_eq (n =n= x); intros Hnx; auto.
+      apply symN in Hxa.
+      pose proof (trnN _ _ _ Hna Hxa) as Hf.
+      rewrite Hf in Hnx; congruence.
+      pose proof (trnN _ _ _ Hnx Hxa) as Hf.
+      rewrite Hf in Hna; congruence.
+      rewrite Hv. reflexivity.
+      simpl; case_eq (x =n= d); 
+      intro Hx; auto.
+      apply symN in Hxa.
+      pose proof (trnN _ _ _ Hxa Hx) as Hw.
+      rewrite Ht in Hw.
+      congruence.    
+    - simpl; intros ? ? Hm ? ? ? Hxa.
+      remember (flat_map (λ x0 : Node, all_paths_klength _ eqN _ oneR 
+      finN m n x0 d) finN)
+      as l.
+      apply in_eq_append_cong.
+      exact Hm.
+      apply symN. 
+      exact Hxa.
+  Qed.
+
+
+ 
+  Lemma target_in_kpath : 
+    forall (n : nat) (m : Matrix Node R) 
+    (c d : Node) (xs : list (Node * Node * R)),
+    mat_cong Node eqN R eqR m ->
+    In_eq_bool _ _ _ eqN eqN eqR xs 
+      (all_paths_klength _ eqN _ 
+      oneR finN m n c d) = true -> 
+    target Node eqN R d xs = true.
+  Proof using Node R eqN eqR finN 
+  oneR refN symN symR trnN trnR.
+    induction n.
+    - simpl; intros ? ? ? ? Hm Hin.
+      case (c =n= d) eqn:Ht.
+      simpl in Hin.
+      apply Bool.orb_true_iff in Hin.
+      destruct Hin as [Hin | Hin].
+      destruct xs.
+      simpl in Hin. 
+      congruence.
+      simpl in Hin.
+      simpl.
+      repeat destruct p.
+      apply Bool.andb_true_iff in Hin.
+      destruct Hin as [Hin Hr].
+      apply Bool.andb_true_iff in Hin.
+      destruct Hin as [Hin Hrr].
+      apply Bool.andb_true_iff in Hin.
+      destruct Hin as [Hin Hrrr].
+      destruct xs.
+      apply symN. 
+      exact Hrrr.
+      simpl in Hr.
+      repeat destruct p.
+      congruence.
+      congruence.
+      simpl in Hin.
+      congruence.
+    - simpl; intros ? ? ? ? Hm Hin.
+      pose proof append_node_rest
+      (flat_map (λ x : Node, all_paths_klength _ eqN _ 
+      oneR finN m n x d) finN)
+      m c xs Hin as Hv.
+      destruct (proj1 (in_flat_map_bool _ _ _ 
+        eqN eqN eqR refN finN (List.tl xs)
+        (λ x : Node, all_paths_klength _ eqN _ 
+        oneR finN m n x d)
+        (all_paths_cong _ _ _ Hm)) Hv) as [w [Ha Hb]].
+      specialize (IHn m w d (List.tl xs) Hm Hb).
+      apply target_tail_forward.
+      exact IHn.
+  Qed.    
+      
+
+  
+  
+  Lemma source_target_and_non_empty_kpath : 
     ∀ (n : nat) (m : Matrix Node R) 
-    (c d : Node) (xs : list (Node * Node * R)), 
+    (c d : Node) (xs : list (Node * Node * R)),
+    mat_cong Node eqN R eqR m ->  
     In_eq_bool _ _ _ eqN eqN eqR xs 
       (all_paths_klength _ eqN _ oneR 
         finN m n c d) = true ->
-    xs <> [] /\ source _ eqN _ c xs = true.
-  Proof using Node R eqN eqR finN oneR refN symN.
-    intros ? ? ? ? ? Hin.
+    xs <> [] ∧
+    source _ eqN _ c xs = true ∧
+    target _ eqN _ d xs = true.
+  Proof using Node R eqN eqR finN 
+  oneR refN symN symR trnN trnR.
+    intros ? ? ? ? ? Hm Hin.
     split.
     apply non_empty_paths_in_kpath with 
       (n := n) (m := m) (c := c) (d := d).
     exact Hin.
+    split.
     apply source_in_kpath with 
       (n := n) (m := m) (d := d).
     exact Hin.
+    eapply target_in_kpath with 
+    (n := n) (m := m) (d := d).
+    exact Hm.
+    exact Hin.
   Qed.
+    
+
+  Lemma well_formed_by_extending : 
+    forall xs ys c y m, 
+    mat_cong Node eqN R eqR m -> 
+    ys <> [] ->  
+    triple_elem_list _ _ _ eqN eqN eqR 
+      xs ((c, y, m c y) :: ys) = true -> 
+    source Node eqN _ c xs = true -> 
+    source _ eqN _ y ys = true ->
+    well_formed_path_aux Node eqN R eqR m (List.tl xs) = true ->
+    well_formed_path_aux Node eqN R eqR m xs = true.
+  Proof using Node R congrR eqN eqR refR symN symR trnN.
+    destruct xs.
+    - simpl; intros ? ? ? ? Hm Hys Ht Hs Hsy Hw.
+      congruence.
+    - intros ? ? ? ? Hm Hys Ht Hs Hsy Hw.
+      destruct xs.
+      + simpl in * |- *.
+        repeat destruct p.
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Hrrr].
+        apply Bool.andb_true_iff.
+        split. apply symR in Htrr.
+        rewrite <-Htrr.
+        apply congrR. apply Hm.
+        apply symN.
+        apply symN. exact Ht.
+        exact Hrrr.
+        apply refR.
+        reflexivity.
+      +
+        repeat destruct p. 
+        repeat destruct p0.
+        repeat destruct p.
+        assert (Hwt : well_formed_path_aux Node eqN R eqR m (tl ((n, n0, r) :: (n1, n2, r0) :: xs)) =
+        well_formed_path_aux Node eqN R eqR m (((n1, n2, r0) :: xs))).
+        reflexivity. rewrite Hwt in Hw; clear Hwt.
+        assert (Hg : well_formed_path_aux Node eqN R eqR m ((n, n0, r) :: (n1, n2, r0) :: xs) =
+        ((m n n0 =r= r) &&
+        ((n0 =n= n1) && well_formed_path_aux Node eqN R eqR m ((n1, n2, r0) :: xs)))%bool).
+        reflexivity. rewrite Hg; clear Hg.
+        assert (Hvt : triple_elem_list _ _ _ eqN eqN eqR ((n, n0, r) :: (n1, n2, r0) :: xs)
+        ((c, y, m c y) :: ys) = 
+        ((n =n= c) && (n0 =n= y) && (r =r= m c y) &&
+        triple_elem_list _ _ _ eqN eqN eqR ((n1, n2, r0) :: xs) ys)%bool).
+        reflexivity.
+        rewrite Hvt in Ht; clear Hvt.
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Hrrr].
+        apply Bool.andb_true_iff.
+        split.
+        apply symR in Htrr.
+        rewrite <-Htrr.
+        apply congrR. apply Hm.
+        apply symN.
+        apply symN. exact Ht.
+        exact Hrrr.
+        apply refR.
+        apply Bool.andb_true_iff.
+        split.
+        destruct ys.
+        simpl in Htr. congruence.
+        repeat destruct p.
+        simpl in Htr.
+        simpl in Hsy.
+        apply Bool.andb_true_iff in Htr.
+        destruct Htr as [Htr Htt].
+        apply Bool.andb_true_iff in Htr.
+        destruct Htr as [Htr Htrrt].
+        apply Bool.andb_true_iff in Htr.
+        destruct Htr as [Htr Hrrw].
+        pose proof (trnN _ _ _ Hrrr Hsy) as Ha.
+        apply symN in Htr.
+        exact (trnN _ _ _ Ha Htr).
+        exact Hw.
+  Qed.
+
+
+
+
+
+  (* paths generated by all_paths_klength function are well formed *)
+  Lemma all_paths_well_formed_in_kpaths : 
+    forall (n : nat) (m : Matrix Node R) 
+    (c d : Node) (xs : list (Node * Node * R)),
+    (forall c d, (c =n= d) = true -> (m c d =r= 1) = true) -> 
+    mat_cong Node eqN R eqR m ->  
+    In_eq_bool _ _ _ eqN eqN eqR xs (all_paths_klength _ eqN _ 
+    oneR finN m n c d) = true ->
+    well_formed_path_aux Node eqN R eqR m xs = true.
+  Proof using Node R congrR eqN eqR finN oneR refN 
+  refR symN symR trnN trnR. 
+    induction n.
+    - simpl; intros ? ? ? ? Hcd Hm Hin.
+      case (c =n= d) eqn:Ht.
+      simpl in Hin.
+      apply Bool.orb_true_iff in Hin.
+      destruct Hin as [Hin | Hin].
+      destruct xs.
+      simpl in Hin. 
+      congruence.
+      simpl in Hin.
+      simpl.
+      repeat destruct p.
+      apply Bool.andb_true_iff in Hin.
+      destruct Hin as [Hin Hr].
+      apply Bool.andb_true_iff in Hin.
+      destruct Hin as [Hin Hrr].
+      apply Bool.andb_true_iff in Hin.
+      destruct Hin as [Hin Hrrr].
+      destruct xs.
+      apply Bool.andb_true_iff.
+      split. apply symN in Ht.
+      pose proof (trnN _ _ _ Hrrr Ht) as Hv.
+      pose proof (trnN _ _ _ Hv (symN  _ _ Hin)) as Hw.
+      apply symN in Hw.
+      pose proof (Hcd _ _ Hw) as Hwt.
+      rewrite <-Hwt.
+      apply congrR. apply refR.
+      exact Hrr.
+      reflexivity.
+      simpl in Hr. 
+      repeat destruct p.
+      congruence.
+      congruence.
+      simpl in Hin.
+      congruence.
+  -   simpl; intros ? ? ? ? Hcd Hm Hin.
+      pose proof append_node_rest
+      (flat_map (λ x : Node, all_paths_klength _ eqN _ 
+      oneR finN m n x d) finN)
+      m c xs Hin as Hv.
+      destruct (proj1 (in_flat_map_bool  _ _ _ 
+      eqN eqN eqR refN finN (List.tl xs)
+      (λ x : Node, all_paths_klength _ eqN _ 
+      oneR finN m n x d)
+      (all_paths_cong _ _ _ Hm)) Hv) as [w [Ha Hb]].
+      specialize (IHn m w d (List.tl xs) Hcd Hm Hb).
+      destruct (append_node_in_paths_eq
+      (flat_map (λ x : Node, all_paths_klength _ eqN _ 
+      oneR finN m n x d) finN)
+      m c xs Hin) as [y [ys [Hu [Hvt [Hwl Hwr]]]]].
+      apply well_formed_by_extending with (ys := ys) (c := c) (y := y);
+      assumption.
+  Qed.
+
+
+  Lemma path_end_unit_loop : 
+    forall k l m c d, 
+    In_eq_bool _ _ _ eqN eqN eqR l 
+    (all_paths_klength _ eqN _ 
+      oneR finN m k c d) = true ->
+    exists l', 
+      triple_elem_list _ _ _ eqN eqN eqR 
+        l (l' ++ [(d, d, 1)]) = true.   
+  Proof using Node R eqN eqR finN oneR refN symN trnN.
+    induction k.
+    + simpl. 
+      intros ? ? ? ? Hin.
+      case (c =n= d) eqn:Hcd.
+      exists [].
+      simpl.
+      destruct l as [|((au, av), aw) l].
+      simpl in Hin;
+      congruence.
+      destruct l as [|((bu, bv), bw) l].
+      simpl in * |- *.
+      rewrite Bool.orb_false_r in Hin.
+      apply Bool.andb_true_iff in Hin.
+      destruct Hin as [Hin _].
+      apply Bool.andb_true_iff in Hin.
+      destruct Hin as [Hin Hinr].
+      apply Bool.andb_true_iff in Hin.
+      destruct Hin as [Hinl Hinrr].
+      rewrite (trnN _ _ _ Hinl Hcd),
+      Hinrr, Hinr; reflexivity.
+      simpl in Hin.
+      rewrite Bool.orb_false_r, 
+        Bool.andb_false_r in Hin.
+      congruence.
+      simpl in Hin.
+      congruence.
+    + simpl. 
+      intros ? ? ? ? Hin.
+      destruct (append_node_in_paths_eq
+        (flat_map (λ x : Node, all_paths_klength _ eqN _ 
+        oneR finN m k x d) finN)
+        m c l Hin) as [y [ys [Hl Hr]]].
+      pose proof append_node_rest _ _ _ _ 
+        Hin as Hap.
+      destruct (in_flat_map_bool_first _ _ _ 
+        eqN eqN eqR refN finN _ _ Hap) as (x & Hf & Heb).
+      simpl in Heb.
+      destruct (IHk _ _ _ _ Heb) as 
+      (l' & Hte).
+      exists ((c, y, m c y) :: l').
+      simpl.
+      destruct l as [|((au, av), aw) l].
+      simpl in Hl;
+      congruence.
+      simpl in Hl, Hte.
+      simpl.
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hlr].
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hlrr].
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hlrrr].
+      rewrite Hl, Hlrrr, Hlrr.
+      simpl.
+      exact Hte.
+  Qed.
+
+
+  Lemma source_target_non_empty_kpath_and_well_formed : 
+    ∀ (n : nat) (m : Matrix Node R) 
+    (c d : Node) (xs : list (Node * Node * R)),
+    (forall c d, (c =n= d) = true -> (m c d =r= 1) = true) -> 
+    mat_cong Node eqN R eqR m ->  
+    In_eq_bool _ _ _ eqN eqN eqR xs 
+      (all_paths_klength _ eqN _ oneR 
+        finN m n c d) = true ->
+    xs <> [] ∧
+    source _ eqN _ c xs = true ∧
+    target _ eqN _ d xs = true ∧
+    well_formed_path_aux Node eqN R eqR m xs = true.
+  Proof using Node R congrR eqN eqR finN oneR 
+    refN refR symN symR trnN trnR. 
+    intros ? ? ? ? ? Hcd Hm Hin.
+    split.
+    apply non_empty_paths_in_kpath with 
+      (n := n) (m := m) (c := c) (d := d).
+    exact Hin.
+    split.
+    apply source_in_kpath with 
+      (n := n) (m := m) (d := d).
+    exact Hin.
+    split.
+    eapply target_in_kpath with 
+    (n := n) (m := m) (d := d).
+    exact Hm.
+    exact Hin.
+    eapply  all_paths_well_formed_in_kpaths;
+    try assumption.
+    exact Hin.
+  Qed.
+
+
+
+
+
+  Lemma path_split_measure : forall l l₁ l₂, 
+    triple_elem_list _ _ _ eqN eqN eqR l (l₁ ++ l₂) = true  -> 
+    measure_of_path _ _ oneR mulR l =r= 
+    measure_of_path _ _ oneR mulR l₁ * 
+    measure_of_path _ _ oneR mulR l₂ = true.
+  Proof using Node R congrM congrR eqN eqR mulR 
+  mul_associative oneR one_left_identity_mul refR symR.
+    induction l.
+    - simpl; intros ? ? Hl.
+      destruct l₁; 
+      destruct l₂; 
+      simpl in * |- *.
+      apply symR. 
+      apply one_left_identity_mul.
+      all: congruence.
+    - simpl; intros ? ? Hl.
+      destruct a. 
+      destruct p.
+      destruct l₁; 
+      destruct l₂; 
+      simpl in * |- *.
+      congruence.
+      repeat destruct p.
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hr].
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hlr].
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hlrr].
+      assert (Ht : 1 * (r0 * measure_of_path _ _ oneR mulR l₂) =r= 
+        (r0 * measure_of_path _ _ oneR mulR l₂) = true).
+      apply one_left_identity_mul.
+      apply symR in Ht.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply congrM.
+      exact Hlr.
+      pose proof (IHl [] l₂) as IHs.
+      simpl in IHs.
+      specialize (IHs Hr).
+      rewrite <-IHs.
+      apply congrR. 
+      apply refR.
+      apply symR.
+      apply one_left_identity_mul.
+      apply refR.
+      repeat destruct p.
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hr].
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hlr].
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hlrr].
+      specialize (IHl l₁ [] Hr).
+      simpl in IHl.
+      assert (Ht : r0 * (measure_of_path _ _ oneR mulR l₁ * 1) =r= 
+      r0 * measure_of_path _ _ oneR mulR l₁ * 1 = true).
+      apply mul_associative.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply congrM.
+      exact Hlr. exact IHl.
+      apply refR.
+      repeat destruct p.
+      destruct p0.
+      destruct p.
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hr].
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hlr].
+      apply Bool.andb_true_iff in Hl.
+      destruct Hl as [Hl Hlrr].
+      specialize (IHl l₁ ((n3, n4, r1) :: l₂) Hr).
+      simpl in IHl.
+      assert (Ht : r0 * (measure_of_path _ _ oneR mulR l₁ * 
+        (r1 * measure_of_path _ _ oneR mulR l₂)) =r= 
+        r0 * measure_of_path _ _ oneR mulR l₁ * 
+        (r1 * measure_of_path _ _ oneR mulR l₂) = true).
+      apply mul_associative.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply congrM.
+      exact Hlr.
+      exact IHl.
+      apply refR.
+  Qed.
+
+
 
   
   Lemma fold_map_pullout : forall l w,
@@ -467,6 +1033,56 @@ Section Pathprops.
       right. 
       exact Hxs.
   Qed.
+
+
+  
+  Lemma map_measure_simp : 
+    forall m n c d a, 
+    mat_cong Node eqN R eqR m -> 
+    list_eqv _ eqR 
+    (map (measure_of_path _ _  oneR mulR) 
+      (append_node_in_paths Node R m c 
+        (all_paths_klength _ eqN _ oneR finN m n a d)))
+    (map (fun y => m c a * measure_of_path _ _ oneR mulR y) 
+      (all_paths_klength _ eqN _ oneR finN m n a d)) = true.
+  Proof using Node R congrM eqN eqR finN 
+  mulR oneR refN refR symN symR trnN trnR.
+    intros ? ? ? ? ? Hm.
+    apply map_measure_simp_gen.
+    exact Hm.
+    intros ? Hin.
+    pose proof source_target_and_non_empty_kpath n m a d xs 
+      Hm Hin as (Ha & Hb & Hc).
+    split; assumption.
+  Qed.
+
+
+
+  Lemma fold_right_congr : 
+    forall l₁ l₂,
+    list_eqv R eqR l₁ l₂ = true -> 
+    fold_right (fun a b => a + b) 0 l₁ =r= 
+    fold_right (fun a b => a + b) 0 l₂ = true.
+  Proof using R congrP eqR plusR refR zeroR.
+    induction l₁; destruct l₂; simpl; intro H.
+    - apply refR.
+    - inversion H.
+    - inversion H.
+    - apply Bool.andb_true_iff in H.
+      destruct H as [Hl Hr].
+      apply congrP.
+      exact Hl.
+      apply IHl₁.
+      exact Hr.
+  Qed.
+
+
+
+
+
+  
+
+
 
 
 
