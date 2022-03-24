@@ -1105,9 +1105,8 @@ Section Pathprops.
       specialize (IHxs m bu d Hm Hst Htt Hw).
       rewrite Hwt.
       rewrite Hwt in IHxs.
-
-
-      eapply  append_node_rest_rev.
+      (* Proof hinges on this lemma *)
+      eapply append_node_rest_rev.
       simpl.
       exact Hs.
       simpl.
@@ -1116,12 +1115,19 @@ Section Pathprops.
       simpl.
       rewrite Heqbys.
       rewrite <-Heqbys.
-      admit.
+      rewrite Hwl, Hwll.
+      rewrite Hwt in Hw.
+      rewrite Hw.
+      reflexivity.
       simpl.
-
-      (* I need a lemma which is reverse of 
-        append_node_in_paths_eq *)
-  Admitted.
+      eapply in_flat_map_bool_second.
+      intros ? ? ? Hxa.
+      apply all_paths_cong.
+      exact Hm.
+      exact Hxa.
+      apply memN.
+      exact IHxs.
+  Qed.
       
       
 
