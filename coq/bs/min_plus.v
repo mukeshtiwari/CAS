@@ -32,7 +32,7 @@ Proof. induction u; induction s; simpl.
 Defined. 
 
 
-(* a + (b min c) = (a + c) min (b + c) *) 
+(* a + (b min c) = (a + b) min (a + c) *) 
 Lemma bop_min_plus_left_distributive : 
         bop_left_distributive nat brel_eq_nat bop_min bop_plus. 
 Proof. unfold bop_left_distributive, bop_plus, bop_min. 

@@ -1009,7 +1009,7 @@ let Deqv   := A_eqv_minset_from_po_bounded _ PO in
 ; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP LM RM LI RI 
 ; A_dioid_ast           := Ast_minset_union_lift (A_bmiposg_ast _ P)
 |}.
-Check sg_CNI_proofs_minset_lift_from_po. 
+
 
 Definition A_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION 
              (S : Type) 

@@ -43,116 +43,118 @@ let rec data_to_string st = function
 			 | Latex -> "[" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "]")
 | DATA_set l         -> (match st with
 			 | Ascii -> "{" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "}"	 
-                         | Latex -> "\\{" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "\\}")		    
+                         | Latex -> "\\{" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "\\}")
+| DATA_ascii c       -> "DATA_ascii : Not Yet Implemented"
+| DATA_square_matrix _ -> "DATA_square_matrix : Not Yet Implemented"
 			     
 let rec data_to_ascii = data_to_string Ascii
 let rec data_to_latex = data_to_string Latex 
 			     
 
 
-(* 
-type cas_eqv_ast =
-| Ast_eqv_bool
-| Ast_eqv_nat
-| Ast_eqv_list of cas_eqv_ast
-| Ast_eqv_set of cas_eqv_ast
-| Ast_eqv_product of (cas_eqv_ast*cas_eqv_ast)
-| Ast_eqv_sum of (cas_eqv_ast*cas_eqv_ast)
-| Ast_eqv_add_constant of (cas_constant*cas_eqv_ast)
-| Ast_eqv_nat_ceiling of int
-| Ast_eqv_minset of cas_or_ast
-| Ast_eqv_of_or of cas_or_ast
-| Ast_eqv_of_sg of cas_sg_ast
-| Ast_eqv_of_bs of cas_bs_ast
-| Ast_eqv_of_os of cas_os_ast
-and cas_or_ast =
-| Ast_or_nat
-| Ast_or_bool
-| Ast_or_add_bottom of (cas_constant*cas_or_ast)
-| Ast_or_add_top of (cas_constant*cas_or_ast)
-| Ast_or_dual of cas_or_ast
-| Ast_or_llte of cas_sg_ast
-| Ast_or_rlte of cas_sg_ast
-| Ast_or_length of cas_eqv_ast
-| Ast_or_llex of (cas_or_ast*cas_or_ast)
-| Ast_or_product of (cas_or_ast*cas_or_ast)
-| Ast_or_subset of cas_eqv_ast
-| Ast_or_set of cas_eqv_ast
-| Ast_or_left_sum of (cas_or_ast*cas_or_ast)
-| Ast_or_right_sum of (cas_or_ast*cas_or_ast)
-| Ast_or_trivial of cas_eqv_ast
-| Ast_or_of_os of cas_os_ast
-and cas_sg_ast =
-| Ast_sg_times
-| Ast_sg_plus
-| Ast_sg_or
-| Ast_sg_and
-| Ast_sg_min
-| Ast_sg_max
-| Ast_sg_add_id of (cas_constant*cas_sg_ast)
-| Ast_sg_add_ann of (cas_constant*cas_sg_ast)
-| Ast_sg_concat of cas_eqv_ast
-| Ast_sg_union of (cas_constant*cas_eqv_ast)
-| Ast_sg_intersect of (cas_constant*cas_eqv_ast)
-| Ast_sg_left of cas_eqv_ast
-| Ast_sg_right of cas_eqv_ast
-| Ast_sg_left_sum of (cas_sg_ast*cas_sg_ast)
-| Ast_sg_right_sum of (cas_sg_ast*cas_sg_ast)
-| Ast_sg_lift of cas_sg_ast
-| Ast_sg_llex of (cas_sg_ast*cas_sg_ast)
-| Ast_sg_product of (cas_sg_ast*cas_sg_ast)
-| Ast_sg_minset_lift of cas_os_ast
-| Ast_sg_minset_union of cas_or_ast
-| Ast_sg_plus_of_bs of cas_bs_ast
-| Ast_sg_times_of_bs of cas_bs_ast
-| Ast_sg_times_of_os of cas_os_ast
-and cas_bs_ast =
-| Ast_min_plus
-| Ast_max_plus
-| Ast_and_or
-| Ast_or_and
-| Ast_max_min
-| Ast_min_max
-| Ast_bs_add_zero of (cas_constant*cas_bs_ast)
-| Ast_bs_add_one of (cas_constant*cas_bs_ast)
-| Ast_bs_product of (cas_bs_ast*cas_bs_ast)
-| Ast_bs_llex_product of (cas_bs_ast*cas_bs_ast)
-| Ast_bs_union_lift of cas_sg_ast
-| Ast_bs_left_sum_right_sum of (cas_bs_ast*cas_bs_ast)
-| Ast_bs_right_sum_left_sum of (cas_bs_ast*cas_bs_ast)
-| Ast_bs_left of cas_sg_ast
-| Ast_bs_right of cas_sg_ast
-| Ast_union_intersect of (cas_constant*cas_eqv_ast)
-| Ast_intersect_union of (cas_constant*cas_eqv_ast)
-| Ast_bs_dual of cas_bs_ast
-| Ast_minset_lift_union of cas_os_ast
-| Ast_minset_union_lift of cas_os_ast
-| Ast_lift_union of cas_sg_ast
-| Ast_union_lift of cas_sg_ast
-and cas_os_ast =
-| Ast_os_from_bs_left of cas_bs_ast
-| Ast_os_from_bs_right of cas_bs_ast
-| Ast_os_llex_product of (cas_os_ast*cas_os_ast)
-| Ast_os_product of (cas_os_ast*cas_os_ast)
-| Ast_os_add_bottom_id of (cas_constant*cas_os_ast)
-| Ast_os_add_top_ann of (cas_constant*cas_os_ast)
-and cas_ltr_ast =
-| Ast_ltr_cons of cas_eqv_ast
-| Ast_ltr_product of (cas_ltr_ast*cas_ltr_ast)
-| Ast_ltr_left_sum of (cas_ltr_ast*cas_ltr_ast)
-| Ast_ltr_right_sum of (cas_ltr_ast*cas_ltr_ast)
-| Ast_ltr_lift of cas_ltr_ast
-| Ast_ltr_from_sg of cas_ltr_ast
-| Ast_ltr_with_policy of cas_ltr_ast
-and cas_lstr_ast =
-| Ast_lstr_product of (cas_lstr_ast*cas_lstr_ast)
-| Ast_lstr_llex_product of (cas_lstr_ast*cas_lstr_ast)
-and cas_lotr_ast =
-| Ast_lotr_length_cons of cas_eqv_ast
-| Ast_lotr_product of (cas_lotr_ast*cas_lotr_ast)
-| Ast_lotr_llex_product of (cas_lotr_ast*cas_lotr_ast)
-
- *) 
+let rec describe_eqv_ast = function 
+| Ast_eqv_ascii  -> "ascii" 
+| Ast_eqv_bool   -> "bool" 
+| Ast_eqv_nat    -> "nat" 
+| Ast_eqv_matrix -> "matrix?" 
+| Ast_eqv_list eqv -> "(" ^ (describe_eqv_ast eqv) ^ ") list"
+| Ast_eqv_set eqv -> "(" ^ (describe_eqv_ast eqv) ^ ") set"
+| Ast_eqv_product (eqv1, eqv2) -> "(" ^ (describe_eqv_ast eqv1) ^ ") * (" ^ (describe_eqv_ast eqv2) ^ ")" 
+| Ast_eqv_sum (eqv1, eqv2) -> "(" ^ (describe_eqv_ast eqv1) ^ ") + (" ^ (describe_eqv_ast eqv2) ^ ")" 
+| Ast_eqv_add_constant (c, eqv) -> "{" ^ (char_list_to_string c.constant_ascii) ^ "} + (" ^ (describe_eqv_ast eqv) ^ ")" 
+| Ast_eqv_nat_ceiling n -> "[" ^ (string_of_int n) ^ "]"
+| Ast_eqv_minset orsg -> "(" ^ (describe_or_ast orsg) ^ ") minimal_set"
+| Ast_eqv_of_or ord -> "Ast_eqv_of_or ord : Fix me" 
+| Ast_eqv_of_sg sg -> "Ast_eqv_of_sg : Fix me"
+| Ast_eqv_of_bs gs -> "Ast_eqv_of_bs : Fix me"
+| Ast_eqv_of_os os -> "Ast_eqv_of_or : Fix me"
+and describe_or_ast = function 
+| Ast_or_nat -> "(nat, <=)"
+| Ast_or_bool -> "or_bool : NEEDED?"
+| Ast_or_add_bottom (c, ord) -> "add_bottom(" ^ (char_list_to_string c.constant_ascii) ^ "," ^ (describe_or_ast ord) ^ ")" 
+| Ast_or_add_top (c, ord) -> "add_top(" ^ (char_list_to_string c.constant_ascii) ^ "," ^ (describe_or_ast ord) ^ ")" 
+| Ast_or_dual ord -> "dual(" ^ (describe_or_ast ord) ^ ")" 
+| Ast_or_llte sg -> "left_lte_from_sg(" ^ (describe_sg_ast sg) ^ ")" 
+| Ast_or_rlte sg -> "right_lte_from_sg(" ^ (describe_sg_ast sg) ^ ")" 
+| Ast_or_length eqv -> "list_length(" ^ (describe_eqv_ast eqv) ^ ")" 
+| Ast_or_llex (ord1, ord2) -> "order_llex_product(" ^ (describe_or_ast ord1) ^ ") * (" ^ (describe_or_ast ord2) ^ ")" 
+| Ast_or_product (ord1, ord2) -> "order_product(" ^ (describe_or_ast ord1) ^ ") * (" ^ (describe_or_ast ord2) ^ ")" 
+| Ast_or_subset eqv -> "or_subset : NEEDED?"
+| Ast_or_set eqv -> "or_set : NEEDED?"
+| Ast_or_left_sum (ord1, ord2) -> "left_sum(" ^ (describe_or_ast ord1) ^ ") * (" ^ (describe_or_ast ord2) ^ ")" 
+| Ast_or_right_sum (ord1, ord2) -> "right_sum(" ^ (describe_or_ast ord1) ^ ") * (" ^ (describe_or_ast ord2) ^ ")" 
+| Ast_or_trivial eqv -> "trivial_order(" ^ (describe_eqv_ast eqv) ^ ")" 
+| Ast_or_of_os os -> "Ast_or_of_os : fix me"
+and describe_sg_ast = function 
+| Ast_sg_times -> "(nat, *" ^ ")"
+| Ast_sg_plus -> "(nat, +)"
+| Ast_sg_or -> "(bool, or)"
+| Ast_sg_and -> "(bool, and)"
+| Ast_sg_min -> "(nat, min)"
+| Ast_sg_max -> "(nat, max)"
+| Ast_sg_add_id (c, sg) -> "add_id(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (describe_sg_ast sg) ^ ")"
+| Ast_sg_add_ann (c, sg) -> "add_ann(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (describe_sg_ast sg) ^ ")"
+| Ast_sg_concat eqv -> "sg_concat(" ^ (describe_eqv_ast eqv) ^ ")"
+| Ast_sg_union eqv -> "sg_union(" ^ (describe_eqv_ast eqv) ^ ")"
+| Ast_sg_intersect eqv -> "sg_intersect(" ^ (describe_eqv_ast eqv) ^ ")"
+| Ast_sg_left eqv -> "sg_left(" ^ (describe_eqv_ast eqv) ^ ")"
+| Ast_sg_right eqv -> "sg_right(" ^ (describe_eqv_ast eqv) ^ ")"
+| Ast_sg_left_sum (sg1, sg2) -> "sg_left_sum(" ^ (describe_sg_ast sg1) ^ ", " ^ (describe_sg_ast sg2) ^ ")" 
+| Ast_sg_right_sum (sg1, sg2) -> "sg_right_sum(" ^ (describe_sg_ast sg1) ^ ", " ^ (describe_sg_ast sg2) ^ ")" 
+| Ast_sg_lift sg -> "lift(" ^ (describe_sg_ast sg) ^ ")"
+| Ast_sg_llex (sg1, sg2) -> "sg_llex(" ^ (describe_sg_ast sg1) ^ ", " ^ (describe_sg_ast sg2) ^ ")" 
+| Ast_sg_product (sg1, sg2) -> "sg_product(" ^ (describe_sg_ast sg1) ^ ", " ^ (describe_sg_ast sg2) ^ ")" 
+| Ast_sg_minset_lift os -> "sg_minset_lift(" ^ (describe_os_ast os) ^ ")"
+| Ast_sg_minset_union ord -> "sg_minset_union(" ^ (describe_or_ast ord) ^ ")"
+| Ast_sg_plus_of_bs bs -> "Ast_sg_plus_of_bs : fix me" 
+| Ast_sg_times_of_bs bs -> "Ast_sg_times_of_bs : fix me" 
+| Ast_sg_times_of_os os -> "Ast_sg_times_of_os : fix me" 
+and describe_bs_ast = function 
+| Ast_min_plus -> "(nat, min, +)" 
+| Ast_max_plus -> "(nat, max, +)" 
+| Ast_and_or -> "(bool, and, or)" 
+| Ast_or_and -> "(bool, or, and)" 
+| Ast_max_min -> "(nat, max, min)" 
+| Ast_min_max -> "(nat, min, max)" 
+| Ast_bs_add_zero (c, bs) -> "add_zero(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (describe_bs_ast bs) ^ ")"
+| Ast_bs_add_one (c, bs) -> "add_one(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (describe_bs_ast bs) ^ ")"
+| Ast_bs_product (bs1, bs2) -> "product(" ^ (describe_bs_ast bs1) ^ ", " ^ (describe_bs_ast bs2) ^ ")" 
+| Ast_bs_llex_product (bs1, bs2) -> "llex_product(" ^ (describe_bs_ast bs1) ^ ", " ^ (describe_bs_ast bs2) ^ ")" 
+| Ast_bs_union_lift sg -> "union_lift(" ^ (describe_sg_ast sg) ^ ")"
+| Ast_bs_left_sum_right_sum (bs1, bs2) -> "left_sum_right_sum(" ^ (describe_bs_ast bs1) ^ ", " ^ (describe_bs_ast bs2) ^ ")" 
+| Ast_bs_right_sum_left_sum (bs1, bs2) -> "right_sum_left_sum(" ^ (describe_bs_ast bs1) ^ ", " ^ (describe_bs_ast bs2) ^ ")" 
+| Ast_bs_left sg  -> "bs_left(" ^ (describe_sg_ast sg) ^ ")"
+| Ast_bs_right sg -> "bs_right(" ^ (describe_sg_ast sg) ^ ")"
+| Ast_union_intersect eqv  -> "union_intersect(" ^ (describe_eqv_ast eqv) ^ ")" 
+| Ast_intersect_union eqv  -> "intersect_union(" ^ (describe_eqv_ast eqv) ^ ")" 
+| Ast_bs_dual bs           -> "dual(" ^ (describe_bs_ast bs) ^ ")" 
+| Ast_minset_lift_union os -> "minset_lift_union(" ^ (describe_os_ast os) ^ ")"
+| Ast_minset_union_lift os -> "minset_union_lift(" ^ (describe_os_ast os) ^ ")"
+| Ast_lift_union sg        -> "lift_union(" ^ (describe_sg_ast sg) ^ ")"
+| Ast_union_lift sg        -> "union_lift(" ^ (describe_sg_ast sg) ^ ")"
+and describe_os_ast = function 
+| Ast_os_from_bs_left bs  -> "os_from_bs_left(" ^ (describe_bs_ast bs) ^ ")" 
+| Ast_os_from_bs_right bs  -> "os_from_bs_right(" ^ (describe_bs_ast bs) ^ ")" 
+| Ast_os_llex_product (os1, os2) -> "os_llex_product(" ^ (describe_os_ast os1) ^ ", " ^ (describe_os_ast os2) ^ ")" 
+| Ast_os_product (os1, os2) -> "os_product(" ^ (describe_os_ast os1) ^ ", " ^ (describe_os_ast os2) ^ ")" 
+| Ast_os_add_bottom_id (c, os) -> "os_add_bottom_id(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (describe_os_ast os) ^ ")"
+| Ast_os_add_top_ann (c, os) -> "os_add_top_ann(" ^ (char_list_to_string c.constant_ascii) ^ ", " ^ (describe_os_ast os) ^ ")"
+and describe_ltr_ast = function 
+| Ast_ltr_cons eqv  -> "ltr_cons(" ^ (describe_eqv_ast eqv) ^ ")" 
+| Ast_ltr_product (ltr1, ltr2) -> "ltr_product(" ^ (describe_ltr_ast ltr1) ^ ", " ^ (describe_ltr_ast ltr2) ^ ")" 
+| Ast_ltr_left_sum (ltr1, ltr2) -> "ltr_left_sum(" ^ (describe_ltr_ast ltr1) ^ ", " ^ (describe_ltr_ast ltr2) ^ ")" 
+| Ast_ltr_right_sum (ltr1, ltr2) -> "ltr_right_sum(" ^ (describe_ltr_ast ltr1) ^ ", " ^ (describe_ltr_ast ltr2) ^ ")" 
+| Ast_ltr_lift ltr -> "ltr_lift(" ^ (describe_ltr_ast ltr) ^ ")"
+| Ast_ltr_from_sg ltr -> "ltr_from_sg : constructor has wrong type"
+| Ast_ltr_with_policy ltr -> "ltr_from_policy : Not Yet Implemented"
+and destribe_lstr_ast = function 
+| Ast_lstr_product (lstr1, lstr2) -> "lstr_product : Not Yet Implemented"
+| Ast_lstr_llex_product (lstr1, lstr2) -> "lstr_product : Not Yet Implemented"
+and describe_lotr_ast = function 
+| Ast_lotr_length_cons eqv  -> "length_cons(" ^ (describe_eqv_ast eqv) ^ ")" 
+| Ast_lotr_product (lotr1, lotr2) -> "lotr_product(" ^ (describe_lotr_ast lotr1) ^ ", " ^ (describe_lotr_ast lotr2) ^ ")" 
+| Ast_lotr_llex_product (lotr1, lotr2) -> "lotr_llex_product(" ^ (describe_lotr_ast lotr1) ^ ", " ^ (describe_lotr_ast lotr2) ^ ")" 
+ 
 
 			     
 
@@ -206,8 +208,6 @@ let ast_to_ascii = ast_to_string Ascii
 let ast_to_latex = ast_to_string Latex 									     
 
  *)
-
-
 							     
 let string_of_check_exists_id data = function 
     | Certify_Not_Exists_Id -> "No Identity\n" 
@@ -223,7 +223,7 @@ let string_of_check_commutative eq bop data = function
        let lhs = bop a b in
        let rhs = bop b a in
        if eq lhs rhs
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Commutative\n"
        else "Not Commutative: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data lhs)) ^ "\n" ^
 	      "   " ^ (data_to_ascii (data b)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data rhs)) ^ "\n"
@@ -233,7 +233,7 @@ let string_of_check_idempotent eq bop data = function
     | Certify_Not_Idempotent a ->
        let result = bop a a in
        if eq a result
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Idempotent\n"
        else "Not Idempotent: \n" ^
 	    "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n" 
 
@@ -242,7 +242,7 @@ let string_of_check_selective eq bop data = function
     | Certify_Not_Selective (a, b) ->
        let result = bop a b in
        if (eq a result) || (eq b result)
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Selective\n"
        else "Not Selective: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
 
@@ -253,7 +253,7 @@ let string_of_check_anti_left eq bop data = function
        if eq a result 
        then "Not Anti Left: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
-       else "INTERNAL ERROR\n"
+       else "INTERNAL ERROR : Not Anti Left\n"
 
 let string_of_check_anti_right eq bop data = function 
     | Certify_Anti_Right -> "Anti Right\n" 
@@ -262,7 +262,7 @@ let string_of_check_anti_right eq bop data = function
        if eq s result 
        then "Not Anti Right: \n" ^
 	      "   " ^ (data_to_ascii (data t)) ^  "." ^ (data_to_ascii (data s)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
-       else "INTERNAL ERROR\n"
+       else "INTERNAL ERROR : Not Anti Right\n"
 
 
 let string_of_check_is_left eq bop data = function 
@@ -270,7 +270,7 @@ let string_of_check_is_left eq bop data = function
     | Certify_Not_Is_Left (a, b) ->
        let result = bop a b in
        if eq a result 
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Is Left\n"
        else "Not Is Left: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
 
@@ -279,7 +279,7 @@ let string_of_check_is_right eq bop data = function
     | Certify_Not_Is_Right (a, b) -> 
        let result = bop a b in
        if eq b result 
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Is Right\n"
        else "Not Is Right: \n" ^
 	      "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data result)) ^ "\n"
 															   
@@ -291,7 +291,7 @@ let string_of_check_left_cancellative eq bop data = function
        let ab = bop a b in
        let ac = bop a c in       
        if eq b c 
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Left Cancellative\n"
        else if eq ab ac
             then "Not Left Cancellative: \n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data ab)) ^ "\n" ^
@@ -306,7 +306,7 @@ let string_of_check_right_cancellative eq bop data = function
        let ba = bop b a in
        let ca = bop c a in       
        if eq b c 
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Right Cancellative\n"
        else if eq ba ca
             then "Not Right Cancellative: \n" ^
 		   "   " ^ (data_to_ascii (data b)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ba)) ^ "\n" ^
@@ -321,7 +321,7 @@ let string_of_check_left_constant eq bop data = function
        let ab = bop a b in
        let ac = bop a c in       
        if eq ab ac 
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR Not Left Constant\n"
        else "Not Left Constant: \n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data b)) ^ " = " ^ (data_to_ascii (data ab)) ^ "\n" ^
 		   "   " ^ (data_to_ascii (data a)) ^  "." ^ (data_to_ascii (data c)) ^ " = " ^ (data_to_ascii (data ac)) ^ "\n"
@@ -329,15 +329,15 @@ let string_of_check_left_constant eq bop data = function
 
 let string_of_check_right_constant eq bop data = function 
     | Certify_Right_Constant -> "Right Constant\n" 
-    | Certify_Not_Right_Constant (a, (b, c)) -> 
-       (* ba <> ca *) 
-       let ba = bop b a in
-       let ca = bop c a in       
-       if eq ba ca 
-       then "INTERNAL ERROR\n"
+    | Certify_Not_Right_Constant (s, (t, u)) -> 
+       (* ts <> us *) 
+       let ts = bop t s in
+       let us = bop u s in       
+       if eq ts us 
+       then "INTERNAL ERROR : Not Right Constant???: \n" 
        else "Not Right Constant: \n" ^
-		   "   " ^ (data_to_ascii (data b)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ba)) ^ "\n" ^
-		   "   " ^ (data_to_ascii (data c)) ^  "." ^ (data_to_ascii (data a)) ^ " = " ^ (data_to_ascii (data ca)) ^ "\n"
+		   "   " ^ (data_to_ascii (data t)) ^  "." ^ (data_to_ascii (data s)) ^ " = " ^ (data_to_ascii (data ts)) ^ "\n" ^
+		   "   " ^ (data_to_ascii (data u)) ^  "." ^ (data_to_ascii (data s)) ^ " = " ^ (data_to_ascii (data us)) ^ "\n"
 
 
 let string_of_check_left_distributive eq plus times data = function 
@@ -350,7 +350,7 @@ let string_of_check_left_distributive eq plus times data = function
        let times_a_c = times a c in
        let rhs = plus  times_a_b  times_a_c in
        if eq lhs rhs
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Left Distributive\n"
        else "Not Left Distributive:\n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
@@ -372,7 +372,7 @@ let string_of_check_right_distributive eq plus times data = function
        let times_c_a = times c a in
        let rhs = plus  times_b_a  times_c_a in
        if eq lhs rhs
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Right Distributive\n"
        else "Not Right Distributive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
@@ -392,7 +392,7 @@ let string_of_check_left_left_absorptive eq plus times data = function
        let times_a_b = times a b in
        let rhs = plus a times_a_b in
        if eq a rhs
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Left left Absorptive\n"
        else "Not Left left Absorptive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
@@ -407,7 +407,7 @@ let string_of_check_left_right_absorptive eq plus times data = function
        let times_b_a = times b a in
        let rhs = plus a times_b_a in
        if eq a rhs
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Left Right Absorptive\n"
        else "Not Left Right Absorptive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
@@ -423,7 +423,7 @@ let string_of_check_right_left_absorptive eq plus times data = function
        let times_a_b = times a b in
        let rhs = plus times_a_b a in
        if eq a rhs
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Right left Absorptive\n"
        else "Not Right left Absorptive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
@@ -439,7 +439,7 @@ let string_of_check_right_right_absorptive eq plus times data = function
        let times_b_a = times b a in
        let rhs = plus times_b_a a in
        if eq a rhs
-       then "INTERNAL ERROR\n"
+       then "INTERNAL ERROR : Not Right left Absorptive\n"
        else "Not Right left Absorptive: \n" ^
 	      "   a = " ^ (data_to_ascii (data a)) ^ "\n" ^
 	      "   b = " ^ (data_to_ascii (data b)) ^ "\n" ^
@@ -533,41 +533,79 @@ let bs_certs_describe_fully eq plus times data certs =
        print_string (string_of_check_right_left_absorptive eq plus times data (certs.bs_right_left_absorptive_d) ); 
        print_string (string_of_check_right_right_absorptive eq plus times data (certs.bs_right_right_absorptive_d) )
       )
-    
+
+let eqv_describe_fully eqv =
+  print_string ((describe_eqv_ast eqv.eqv_ast) ^ "\n");;
+
+let describe_id data = function 
+| Id_Ann_Cert_None                -> print_string "No identity\n"
+| Id_Ann_Cert_Id_None id          -> print_string ("Identity = " ^ (data_to_ascii (data id)) ^ "\n")
+| Id_Ann_Cert_None_Ann _          -> print_string "No identity\n"
+| Id_Ann_Cert_Equal id_ann        -> print_string ("Identity = " ^ (data_to_ascii (data id_ann)) ^ "\n")
+| Id_Ann_Cert_Not_Equal (id, _)   -> print_string ("Identity = " ^ (data_to_ascii (data id)) ^ "\n");; 
+
+let describe_ann data = function 
+| Id_Ann_Cert_None                -> print_string "No annihilator\n"
+| Id_Ann_Cert_Id_None _           -> print_string "No annihilator\n"
+| Id_Ann_Cert_None_Ann ann        -> print_string ("Annihilator = " ^ (data_to_ascii (data ann)) ^ "\n")
+| Id_Ann_Cert_Equal id_ann        -> print_string ("Annihilator = " ^ (data_to_ascii (data id_ann)) ^ "\n")
+| Id_Ann_Cert_Not_Equal (_, ann)  -> print_string ("Annihilator = " ^ (data_to_ascii (data ann)) ^ "\n");; 
+						  
+  
+let id_ann_certs_describe_plus data id_ann_certs =
+  (describe_id data id_ann_certs.id_ann_plus_times_d;
+   describe_ann data id_ann_certs.id_ann_times_plus_d);; 
+
+let id_ann_certs_describe_times data id_ann_certs =
+  (describe_id data id_ann_certs.id_ann_times_plus_d;
+   describe_ann data id_ann_certs.id_ann_plus_times_d);; 
+                                                      
 
 let bs_describe bs =
+    let eqv         = bs.bs_eqv          in        
     let eq          = bs.bs_eqv.eqv_eq   in   
     let data        = bs.bs_eqv.eqv_data in 
     let plus_certs  = bs.bs_plus_certs   in 
-    let times_certs = bs.bs_times_certs  in 
+    let times_certs = bs.bs_times_certs  in
+    let id_ann_certs = bs.bs_id_ann_certs  in     
     let certs       = bs.bs_certs        in
     let plus        = bs.bs_plus         in
     let times       = bs.bs_times        in
     let ast         = bs.bs_ast          in             
-    (print_string "Additive properties:\n";
+    (print_string "Carrier set:\n";
+     eqv_describe_fully eqv;
+     print_string "Additive properties:\n";
      print_string "--------------------\n";         
      sg_certs_describe eq plus data plus_certs;
+     id_ann_certs_describe_plus data id_ann_certs;
      print_string "Multiplicative properties:\n";
      print_string "-------------------------\n";              
-     sg_certs_describe eq times data times_certs; 
+     sg_certs_describe eq times data times_certs;
+     id_ann_certs_describe_times data id_ann_certs;
      bs_certs_describe eq plus times data certs
       )
 
 let bs_describe_fully bs =
-    let eq          = bs.bs_eqv.eqv_eq   in   
+    let eqv         = bs.bs_eqv          in      
+    let eq          = eqv.eqv_eq         in   
     let data        = bs.bs_eqv.eqv_data in 
     let plus_certs  = bs.bs_plus_certs   in 
-    let times_certs = bs.bs_times_certs  in 
+    let times_certs = bs.bs_times_certs  in
+    let id_ann_certs = bs.bs_id_ann_certs  in         
     let certs       = bs.bs_certs        in
     let plus        = bs.bs_plus         in
     let times       = bs.bs_times        in
     let ast         = bs.bs_ast          in             
-    (print_string "Additive properties:\n";
+    (print_string "Carrier set:\n";
+     eqv_describe_fully eqv; 
+     print_string "Additive properties:\n";
      print_string "--------------------\n";    
      sg_certs_describe_fully eq plus data plus_certs;
+     id_ann_certs_describe_plus data id_ann_certs;
      print_string "Multiplicative properties:\n";
      print_string "-------------------------\n";         
-     sg_certs_describe_fully eq times data times_certs; 
+     sg_certs_describe_fully eq times data times_certs;
+     id_ann_certs_describe_times data id_ann_certs;
      bs_certs_describe_fully eq plus times data certs
     )
 
@@ -615,3 +653,99 @@ let mcas_bs_describe_fully mbs =
   match bs_mcas_cast_up mbs with
   | BS_bs bs -> bs_describe_fully bs
   | _        -> error "internal error: mcas_bs_describe_fully" )
+
+
+(* **** *)
+
+let get_plus = function 
+| BS_Error cll -> errors (List.map char_list_to_string cll)
+| BS_bs bs -> bs.bs_plus 
+| BS_bs_CI bs -> bs.bs_CI_plus 
+| BS_bs_CS bs -> bs.bs_CS_plus  
+| BS_presemiring bs -> bs.presemiring_plus  
+| BS_semiring  bs ->  bs.semiring_plus  
+| BS_pre_dioid  bs ->  bs.pre_dioid_plus  
+| BS_pre_dioid_with_one bs ->  bs.pre_dioid_with_one_plus  
+| BS_pre_dioid_with_zero bs ->  bs.pre_dioid_with_zero_plus  
+| BS_dioid bs ->  bs.dioid_plus  
+| BS_prelattice bs ->  bs.prelattice_join
+| BS_distributive_prelattice bs ->  bs.distributive_prelattice_join   
+| BS_lattice bs ->  bs.lattice_join   
+| BS_distributive_lattice bs ->  bs.distributive_lattice_join   
+| BS_selective_presemiring bs ->  bs.selective_presemiring_plus  
+| BS_selective_semiring bs ->  bs.selective_semiring_plus  
+| BS_selective_pre_dioid bs ->  bs.selective_pre_dioid_plus  
+| BS_selective_pre_dioid_with_zero bs -> bs.selective_pre_dioid_with_zero_plus  
+| BS_selective_pre_dioid_with_one bs ->  bs.selective_pre_dioid_with_one_plus  
+| BS_selective_dioid bs ->  bs.selective_dioid_plus  
+| BS_selective_cancellative_pre_dioid bs -> bs.selective_cancellative_pre_dioid_plus   
+| BS_selective_cancellative_pre_dioid_with_zero bs -> bs.selective_cancellative_pre_dioid_with_zero_plus    
+| BS_selective_cancellative_pre_dioid_with_one  bs ->  bs.selective_cancellative_pre_dioid_with_one_plus    
+| BS_selective_cancellative_dioid bs ->  bs.selective_cancellative_dioid_plus    
+| BS_selective_distributive_prelattice bs ->  bs.selective_distributive_prelattice_join
+| BS_selective_distributive_prelattice_with_zero bs -> bs.selective_distributive_prelattice_with_zero_join
+| BS_selective_distributive_prelattice_with_one bs -> bs.selective_distributive_prelattice_with_one_join
+| BS_selective_distributive_lattice bs -> bs.selective_distributive_lattice_join
+
+let get_times = function 
+| BS_Error cll -> errors (List.map char_list_to_string cll)
+| BS_bs bs -> bs.bs_times 
+| BS_bs_CI bs -> bs.bs_CI_times 
+| BS_bs_CS bs -> bs.bs_CS_times  
+| BS_presemiring bs -> bs.presemiring_times  
+| BS_semiring  bs ->  bs.semiring_times  
+| BS_pre_dioid  bs ->  bs.pre_dioid_times  
+| BS_pre_dioid_with_one bs ->  bs.pre_dioid_with_one_times  
+| BS_pre_dioid_with_zero bs ->  bs.pre_dioid_with_zero_times  
+| BS_dioid bs ->  bs.dioid_times  
+| BS_prelattice bs ->  bs.prelattice_meet
+| BS_distributive_prelattice bs ->  bs.distributive_prelattice_meet   
+| BS_lattice bs ->  bs.lattice_meet   
+| BS_distributive_lattice bs ->  bs.distributive_lattice_meet   
+| BS_selective_presemiring bs ->  bs.selective_presemiring_times  
+| BS_selective_semiring bs ->  bs.selective_semiring_times  
+| BS_selective_pre_dioid bs ->  bs.selective_pre_dioid_times  
+| BS_selective_pre_dioid_with_zero bs -> bs.selective_pre_dioid_with_zero_times  
+| BS_selective_pre_dioid_with_one bs ->  bs.selective_pre_dioid_with_one_times  
+| BS_selective_dioid bs ->  bs.selective_dioid_times  
+| BS_selective_cancellative_pre_dioid bs -> bs.selective_cancellative_pre_dioid_times   
+| BS_selective_cancellative_pre_dioid_with_zero bs -> bs.selective_cancellative_pre_dioid_with_zero_times    
+| BS_selective_cancellative_pre_dioid_with_one  bs ->  bs.selective_cancellative_pre_dioid_with_one_times    
+| BS_selective_cancellative_dioid bs ->  bs.selective_cancellative_dioid_times    
+| BS_selective_distributive_prelattice bs ->  bs.selective_distributive_prelattice_meet
+| BS_selective_distributive_prelattice_with_zero bs -> bs.selective_distributive_prelattice_with_zero_meet
+| BS_selective_distributive_prelattice_with_one bs -> bs.selective_distributive_prelattice_with_one_meet
+| BS_selective_distributive_lattice bs -> bs.selective_distributive_lattice_meet
+
+
+let get_eq = function 
+| BS_Error cll -> errors (List.map char_list_to_string cll)
+| BS_bs bs -> bs.bs_eqv.eqv_eq
+| BS_bs_CI bs -> bs.bs_CI_times 
+| BS_bs_CS bs -> bs.bs_CS_times  
+| BS_presemiring bs -> bs.presemiring_times  
+| BS_semiring  bs ->  bs.semiring_times  
+| BS_pre_dioid  bs ->  bs.pre_dioid_times  
+| BS_pre_dioid_with_one bs ->  bs.pre_dioid_with_one_times  
+| BS_pre_dioid_with_zero bs ->  bs.pre_dioid_with_zero_times  
+| BS_dioid bs ->  bs.dioid_times  
+| BS_prelattice bs ->  bs.prelattice_meet
+| BS_distributive_prelattice bs ->  bs.distributive_prelattice_meet   
+| BS_lattice bs ->  bs.lattice_meet   
+| BS_distributive_lattice bs ->  bs.distributive_lattice_meet   
+| BS_selective_presemiring bs ->  bs.selective_presemiring_times  
+| BS_selective_semiring bs ->  bs.selective_semiring_times  
+| BS_selective_pre_dioid bs ->  bs.selective_pre_dioid_times  
+| BS_selective_pre_dioid_with_zero bs -> bs.selective_pre_dioid_with_zero_times  
+| BS_selective_pre_dioid_with_one bs ->  bs.selective_pre_dioid_with_one_times  
+| BS_selective_dioid bs ->  bs.selective_dioid_times  
+| BS_selective_cancellative_pre_dioid bs -> bs.selective_cancellative_pre_dioid_times   
+| BS_selective_cancellative_pre_dioid_with_zero bs -> bs.selective_cancellative_pre_dioid_with_zero_times    
+| BS_selective_cancellative_pre_dioid_with_one  bs ->  bs.selective_cancellative_pre_dioid_with_one_times    
+| BS_selective_cancellative_dioid bs ->  bs.selective_cancellative_dioid_times    
+| BS_selective_distributive_prelattice bs ->  bs.selective_distributive_prelattice_meet
+| BS_selective_distributive_prelattice_with_zero bs -> bs.selective_distributive_prelattice_with_zero_meet
+| BS_selective_distributive_prelattice_with_one bs -> bs.selective_distributive_prelattice_with_one_meet
+| BS_selective_distributive_lattice bs -> bs.selective_distributive_lattice_meet
+					    
+    

@@ -19,10 +19,10 @@ Require Import CAS.coq.tr.left.product.
 
 (* move these ... *)
 
-Definition ltr_eqv_reflexive (L S : Type) (lte : brel S) (ltr : left_transform L S) := 
+Definition ltr_eqv_reflexive (L S : Type) (lte : brel S) (ltr : ltr_type L S) := 
            ∀ (l : L) (s t : S), lte s t = true → lte t s = true → lte (ltr l s) (ltr l t) = true. 
 
-Lemma olt_strictly_monotone_implies_monotone (L S : Type) (eqL : brel L) (eqS lte : brel S) (ltr : left_transform L S)
+Lemma olt_strictly_monotone_implies_monotone (L S : Type) (eqL : brel L) (eqS lte : brel S) (ltr : ltr_type L S)
       (refS : brel_reflexive S eqS) (refL : brel_reflexive L eqL)
       (lteRef : brel_reflexive S lte) (lteCong : brel_congruence S eqS lte)
       (ltrCong : ltr_congruence L S eqL eqS ltr)
@@ -52,7 +52,7 @@ Section Theory.
   Variable wS   : S.
   Variable wLS  : LS.
   Variable lteS : brel S.
-  Variable ltrS : left_transform LS S .
+  Variable ltrS : ltr_type LS S .
 
   Variable refS     : brel_reflexive S eqS.       
   Variable refLS    : brel_reflexive LS eqLS.
@@ -67,7 +67,7 @@ Section Theory.
   Variable wT   : T.
   Variable wLT  : LT.
   Variable lteT : brel T.
-  Variable ltrT : left_transform LT T.
+  Variable ltrT : ltr_type LT T.
  
   Variable refT     : brel_reflexive T eqT.       
   Variable refLT    : brel_reflexive LT eqLT.
@@ -291,13 +291,13 @@ End Theory.
 Section ACAS.
 
 
-Definition poltr_product_oltr_proofs (LS S LT T: Type) (wLS : LS) (wS : S) (wLT : LT) (wT : T) 
+Definition poltr_product_oleft_transform_proofs (LS S LT T: Type) (wLS : LS) (wS : S) (wLT : LT) (wT : T) 
            (eqS lteS : brel S) (eqvS : eqv_proofs S eqS) (POS : po_proofs S eqS lteS)
            (eqLS : brel LS) (eqvLS : eqv_proofs LS eqLS)
-           (ltrS : left_transform LS S) (LTS : ltr_proofs LS S eqS eqLS ltrS) 
+           (ltrS : ltr_type LS S) (LTS : left_transform_proofs LS S eqS eqLS ltrS) 
            (eqT lteT : brel T) (eqvT : eqv_proofs T eqT) (POT : po_proofs T eqT lteT)
            (eqLT : brel LT) (eqvLT : eqv_proofs LT eqLT)           
-           (ltrT : left_transform LT T) (LTT : ltr_proofs LT T eqT eqLT ltrT) 
+           (ltrT : ltr_type LT T) (LTT : left_transform_proofs LT T eqT eqLT ltrT) 
            (PS : oltr_proofs LS S lteS ltrS)
            (PT : oltr_proofs LT T lteT ltrT) :
   oltr_proofs (LS * LT) (S * T) (brel_product lteS lteT) (ltr_product ltrS ltrT) :=
@@ -306,14 +306,14 @@ let refS     := A_eqv_reflexive S eqS eqvS in
 let refLS    := A_eqv_reflexive LS eqLS eqvLS in 
 let lteRefS  := A_po_reflexive S eqS lteS POS in
 let lteCongS := A_po_congruence S eqS lteS POS in
-let ltrCongS := A_ltr_congruence LS S eqS eqLS ltrS LTS in
+let ltrCongS := A_left_transform_congruence LS S eqS eqLS ltrS LTS in
 let antiS    := A_po_antisymmetric S eqS lteS POS in
 
 let refT     := A_eqv_reflexive T eqT eqvT in 
 let refLT    := A_eqv_reflexive LT eqLT eqvLT in 
 let lteRefT  := A_po_reflexive T eqT lteT POT in
 let lteCongT := A_po_congruence T eqT lteT POT in
-let ltrCongT := A_ltr_congruence LT T eqT eqLT ltrT LTT in 
+let ltrCongT := A_left_transform_congruence LT T eqT eqLT ltrT LTT in 
 let antiT    := A_po_antisymmetric T eqT lteT POT in
 {|
   A_poltr_monotone_d             := olt_product_monotone_decide S LS wS wLS lteS ltrS lteRefS T LT wT wLT lteT ltrT lteRefT
@@ -385,21 +385,21 @@ let lteReflS := A_po_reflexive _ _ _ POS in
 let POT := A_poltr_lte_proofs LT T AT in  
 let lteReflT := A_po_reflexive _ _ _ POT in
 
-let LTS := A_poltr_ltr_proofs LS S AS in
-let LTT := A_poltr_ltr_proofs LT T AT in 
+let LTS := A_poltr_left_transform_proofs LS S AS in
+let LTT := A_poltr_left_transform_proofs LT T AT in 
 {|
   A_poltr_carrier      := A_eqv_product S T (A_poltr_carrier LS S AS) (A_poltr_carrier LT T AT)
 ; A_poltr_label        := A_eqv_product LS LT (A_poltr_label LS S AS) (A_poltr_label LT T AT)
 ; A_poltr_lte          := brel_product lteS lteT 
 ; A_poltr_ltr          := ltr_product ltrS ltrT 
 ; A_poltr_lte_proofs   := po_product_proofs S T eqS lteS wS POS eqT lteT wT POT 
-; A_poltr_ltr_proofs   := ltr_product_proofs LS S LT T eqS eqLS wS wLS ltrS refS LTS eqT eqLT wT wLT ltrT refT LTT 
+; A_poltr_left_transform_proofs   := ltr_product_proofs LS S LT T eqS eqLS wS wLS ltrS refS LTS eqT eqLT wT wLT ltrT refT LTT 
 ; A_poltr_top_bottom_proofs := poltr_product_top_bottom_proofs S T eqS lteS eqT lteT ESP lteReflS lteReflT
                             (A_poltr_top_bottom_proofs LS S AS) (A_poltr_top_bottom_proofs LT T AT) 
-; A_poltr_proofs       := poltr_product_oltr_proofs LS S LT T wLS wS wLT wT
+; A_poleft_transform_proofs       := poltr_product_oleft_transform_proofs LS S LT T wLS wS wLT wT
                             eqS lteS ESP POS eqLS ELSP ltrS LTS
                             eqT lteT ETP POT eqLT ELTP ltrT LTT                                                    
-                            (A_poltr_proofs LS S AS) (A_poltr_proofs LT T AT)
+                            (A_poleft_transform_proofs LS S AS) (A_poleft_transform_proofs LT T AT)
 ; A_poltr_ast          := Ast_lotr_product (A_poltr_ast LS S AS, A_poltr_ast LT T AT) 
 |}.
 
@@ -408,8 +408,8 @@ let LTT := A_poltr_ltr_proofs LT T AT in
 
   (* THINK ABOUT THESE HACKS *) 
 
-Definition olt_product_qoltr_msi_proofs (LS S LT T : Type) (lteS : brel S) (ltrS : left_transform LS S) (PS : poltr_mi_proofs LS S lteS ltrS)
-           (lteT : brel T) (ltrT : left_transform LT T) (PT : qoltr_msi_proofs LT T lteT ltrT) :
+Definition olt_product_qoltr_msi_proofs (LS S LT T : Type) (lteS : brel S) (ltrS : ltr_type LS S) (PS : poltr_mi_proofs LS S lteS ltrS)
+           (lteT : brel T) (ltrT : ltr_type LT T) (PT : qoltr_msi_proofs LT T lteT ltrT) :
            qoltr_msi_proofs (LS * LT) (S * T) (brel_product lteS lteT) (ltr_product ltrS ltrT) :=
 let MS := A_poltr_mi_monotone LS S lteS ltrS PS in
 let MT := A_qoltr_msi_monotone LT T lteT ltrT PT in   
@@ -453,7 +453,7 @@ let lteS := A_poltr_mi_lte _ _ P in
 let ltrS := A_poltr_mi_ltr _ _ P in  
 let POS := A_poltr_mi_lte_proofs _ _ P in
 let lteReflS := A_po_reflexive _ _ _ POS in 
-let PTS := A_poltr_mi_ltr_proofs _ _ P in
+let PTS := A_poltr_mi_left_transform_proofs _ _ P in
 let PS := A_poltr_mi_proofs _ _ P in
 
 let eqvT := A_woltr_msi_carrier _ _ Q in
@@ -468,7 +468,7 @@ let lteT := A_woltr_msi_lte _ _ Q in
 let ltrT := A_woltr_msi_ltr _ _ Q in  
 let POT := A_woltr_msi_lte_proofs _ _ Q in
 let lteReflT := A_wo_reflexive _ _ _ POT in 
-let PTT := A_woltr_msi_ltr_proofs _ _ Q in
+let PTT := A_woltr_msi_left_transform_proofs _ _ Q in
 let PT := A_woltr_msi_proofs _ _ Q in
 {|
   A_qoltr_msi_carrier      := A_eqv_product S T eqvS eqvT
@@ -476,7 +476,7 @@ let PT := A_woltr_msi_proofs _ _ Q in
 ; A_qoltr_msi_lte          := brel_product lteS lteT
 ; A_qoltr_msi_ltr          := ltr_product ltrS ltrT
 ; A_qoltr_msi_lte_proofs   := ord_po_wo_product_proofs S T eqS lteS wS POS eqT lteT wT POT
-; A_qoltr_msi_ltr_proofs   := ltr_product_proofs LS S LT T eqS eqLS wS wLS ltrS refS PTS eqT eqLT wT wLT ltrT refT PTT
+; A_qoltr_msi_left_transform_proofs   := ltr_product_proofs LS S LT T eqS eqLS wS wLS ltrS refS PTS eqT eqLT wT wLT ltrT refT PTT
 ; A_qoltr_msi_bottom_proofs := olt_product_with_bottom_proofs S T eqS lteS eqT lteT eqvPS lteReflS lteReflT
                                 (A_poltr_mi_bottom_proofs _ _ P) (A_woltr_msi_bottom_proofs _ _ Q) 
 ; A_qoltr_msi_proofs       := olt_product_qoltr_msi_proofs LS S LT T lteS ltrS PS lteT ltrT PT 
@@ -575,8 +575,8 @@ Section Verify.
 
 
 Lemma correct_olt_product_qoltr_msi_proofs (LS S LT T : Type)
-            (lteS : brel S) (ltrS : left_transform LS S) (PS : poltr_mi_proofs LS S lteS ltrS)
-            (lteT : brel T) (ltrT : left_transform LT T) (PT : qoltr_msi_proofs LT T lteT ltrT) :
+            (lteS : brel S) (ltrS : ltr_type LS S) (PS : poltr_mi_proofs LS S lteS ltrS)
+            (lteT : brel T) (ltrT : ltr_type LT T) (PT : qoltr_msi_proofs LT T lteT ltrT) :
    olt_product_qoltr_msi_certs (P2C_poltr_mi LS S lteS ltrS PS) (P2C_qoltr_msi LT T lteT ltrT PT)
    =
    P2C_qoltr_msi _ _ _ _ (olt_product_qoltr_msi_proofs LS S LT T lteS ltrS PS lteT ltrT PT).

@@ -1,4 +1,4 @@
-
+Require Import Coq.Init.Datatypes. 
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 Require Import CAS.coq.eqv.properties.
@@ -15,9 +15,6 @@ Require Import CAS.coq.po.lte_nat.
 Require Import CAS.coq.po.length. 
 Require Import CAS.coq.tr.left.cons. 
 
-Close Scope nat. 
-
-
 
 Section Theory.
 
@@ -27,22 +24,21 @@ Variable S   : Type.
 Lemma olt_length_cons_id_monotone : olt_monotone S (list S) brel_length ltr_cons. 
 Proof. intros s l1 l2 A.
        unfold brel_length. unfold ltr_cons.
-       unfold length. fold (length l1). fold (length l2). 
+       unfold length. fold (length l1). fold (length l2).
 Admitted. 
 
 Lemma olt_length_cons_id_strictly_monotone : olt_strictly_monotone S (list S) brel_length ltr_cons. 
-Proof. intros s l1 l2 A.
+Proof. intros s l1 l2 A B.
        unfold brel_length. unfold ltr_cons.
        unfold length. fold (length l1). fold (length l2). 
 Admitted. 
-
 
 Lemma olt_length_cons_id_strictly_increasing   : 
       olt_strictly_increasing S (list S) brel_length ltr_cons. 
 Proof. intros s l. induction l. 
           compute; auto. 
           unfold ltr_cons.  unfold brel_length.
-          unfold length. fold (length l). fold (length (a::l)).           
+          unfold length. fold (length l). fold (length (a::l)).
 Admitted. 
 
 End Theory. 
@@ -70,7 +66,7 @@ Definition A_length_cons_woltr_monotone_strictly_increasing (S : Type) (eqvS : A
 ; A_woltr_msi_lte          := brel_length 
 ; A_woltr_msi_ltr          := ltr_cons 
 ; A_woltr_msi_lte_proofs   := wo_proofs_length S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS) (A_eqv_new S eqvS) (A_eqv_not_trivial S eqvS)
-; A_woltr_msi_ltr_proofs   := ltr_cons_proofs S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS)
+; A_woltr_msi_ltr_proofs   := ltr_cons_proofs S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS) (A_eqv_proofs S eqvS)
 ; A_woltr_msi_bottom_proofs := length_cons_with_bottom_proofs S (A_eqv_eq S eqvS) (A_eqv_witness S eqvS)                                              
 ; A_woltr_msi_proofs       := length_cons_qoltr_msi_proofs S 
 ; A_woltr_msi_ast          := Ast_lotr_length_cons (A_eqv_ast S eqvS)

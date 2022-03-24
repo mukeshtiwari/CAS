@@ -196,7 +196,7 @@ Defined.
 (* see cases 1-4 in the proof below *) 
 
 Definition A_witness_llex_product_not_left_distributive
-      (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))
+(*      (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT)) *) 
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
 := if (rS (s2 +S s3) s2) 
@@ -215,18 +215,18 @@ Definition A_witness_llex_product_not_left_distributive
              if rT (t1 *T t3) ((t1 *T t2) +T (t1 *T t3))
              then ((s1, t1), ((s2, t3), (s3, t2)))
              else ((s1, t1), ((s2, t2), (s3, t3)))
-        else (* case 4 *) 
+        else (* case 4 
              match selS_or_id_annT with 
              | inl _ => (* can't reach this branch *) 
                        ((s1, t1), ((s2, t2), (s3, t3)))
-             | inr _ => if rT argT (t1 *T t2)
+             | inr _ => *) if rT argT (t1 *T t2)
                         then ((s1, t1), ((s2, argT), (s3, t3)))
                         else ((s1, t1), ((s2, argT), (s3, t2)))
-             end.   
+             (*end *).   
 
 (* for use in CAS *) 
 Definition witness_llex_product_not_left_distributive_new
-      (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))
+(*      (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T)) *) 
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
 := if (rS (s2 +S s3) s2) 
@@ -245,14 +245,19 @@ Definition witness_llex_product_not_left_distributive_new
              if rT (t1 *T t3) ((t1 *T t2) +T (t1 *T t3))
              then ((s1, t1), ((s2, t3), (s3, t2)))
              else ((s1, t1), ((s2, t2), (s3, t3)))
-        else (* case 4 *) 
+        else (* case 4 
              match selS_or_id_annT with 
-             | inl _ => (* can't reach this branch *) 
+             | inl Assert_Bop_Selective =>
+                       (* can't reach this branch 
+                          Note: If we write "inl _" here, we get "magic" in extracted OCaml! 
+                       *) 
                        ((s1, t1), ((s2, t2), (s3, t3)))
-             | inr _ => if rT argT (t1 *T t2)
+             | inr (Assert_Exists_Id _, Assert_Exists_Ann _) =>
+              *) 
+                        if rT argT (t1 *T t2)
                         then ((s1, t1), ((s2, argT), (s3, t3)))
                         else ((s1, t1), ((s2, argT), (s3, t2)))
-             end.   
+             (*end*).   
 
 
 (* for use in CAS 
@@ -321,7 +326,7 @@ Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
 
           In each of the four cases pick a, b, and c to make that case work. 
         *)
-       exists(A_witness_llex_product_not_left_distributive selS_or_id_annT s1 s2 s3 t1 t2 t3). 
+       exists(A_witness_llex_product_not_left_distributive (* selS_or_id_annT *) s1 s2 s3 t1 t2 t3). 
        unfold A_witness_llex_product_not_left_distributive. 
        unfold bop_product, brel_product, bop_llex.        
        case_eq(rS s2 (s2 +S s3)); intro H2; 
@@ -727,7 +732,7 @@ Defined.
 (* see cases 1-4 in the proof below *) 
 
 Definition A_witness_llex_product_not_right_distributive
-      (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT))
+(*      (selS_or_id_annT : bop_selective S rS addS + (bop_is_id T rT addT argT * bop_is_ann T rT mulT argT)) *) 
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
 := if (rS (s2 +S s3) s2) 
@@ -746,18 +751,18 @@ Definition A_witness_llex_product_not_right_distributive
              if rT (t3 *T t1) ((t2 *T t1) +T (t3 *T t1))
              then ((s1, t1), ((s2, t3), (s3, t2)))
              else ((s1, t1), ((s2, t2), (s3, t3)))
-        else (* case 4 *) 
+        else (* case 4 
              match selS_or_id_annT with 
              | inl _ => (* can't reach this branch *) 
                        ((s1, t1), ((s2, t2), (s3, t3)))
-             | inr _ => if rT argT (t2 *T t1)
+             | inr _ => *) if rT argT (t2 *T t1)
                         then ((s1, t1), ((s2, argT), (s3, t3)))
                         else ((s1, t1), ((s2, argT), (s3, t2)))
-             end.   
+             (* end *).   
 
 (* for use in CAS *) 
 Definition witness_llex_product_not_right_distributive_new
-      (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))
+(*      (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T)) *) 
       (s1 s2 s3 : S)
       (t1 t2 t3 : T)
 := if (rS (s2 +S s3) s2) 
@@ -776,14 +781,17 @@ Definition witness_llex_product_not_right_distributive_new
              if rT (t3 *T t1) ((t2 *T t1) +T (t3 *T t1))
              then ((s1, t1), ((s2, t3), (s3, t2)))
              else ((s1, t1), ((s2, t2), (s3, t3)))
-        else (* case 4 *) 
+        else (* case 4 
              match selS_or_id_annT with 
-             | inl _ => (* can't reach this branch *) 
+             | inl Assert_Bop_Selective
+                 => (* can't reach this branch *) 
                        ((s1, t1), ((s2, t2), (s3, t3)))
-             | inr _ => if rT argT (t2 *T t1)
+             | inr (Assert_Exists_Id _, Assert_Exists_Ann _)
+                     =>
+             *)         if rT argT (t2 *T t1)
                         then ((s1, t1), ((s2, argT), (s3, t3)))
                         else ((s1, t1), ((s2, argT), (s3, t2)))
-             end.   
+             (*end*).   
 
 
 
@@ -851,7 +859,7 @@ Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
 
           In each of the four cases pick a, b, and c to make that case work. 
         *)
-       exists(A_witness_llex_product_not_right_distributive selS_or_id_annT s1 s2 s3 t1 t2 t3). 
+       exists(A_witness_llex_product_not_right_distributive (* selS_or_id_annT *) s1 s2 s3 t1 t2 t3). 
        unfold A_witness_llex_product_not_right_distributive. 
        unfold bop_product, brel_product, bop_llex.
        case_eq(rS s2 (s2 +S s3)); intro H2; 
@@ -2369,7 +2377,7 @@ Variable mulT : binary_op T.
 
 
 Definition bops_llex_product_left_distributive_certify_new
-     (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))
+(*     (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T)) *) 
      (lcS_d : @check_left_cancellative S) 
      (lkT_d : @check_left_constant T) 
      (ldS_d : @check_left_distributive S) 
@@ -2386,7 +2394,7 @@ match ldS_d with
             | Certify_Left_Constant => Certify_Left_Distributive  
             | Certify_Not_Left_Constant (t1, (t2, t3)) => 
                   Certify_Not_Left_Distributive  
-                    (witness_llex_product_not_left_distributive_new S T rS rT argT addS mulS addT mulT selS_or_id_annT s1 s2 s3 t1 t2 t3 )
+                    (witness_llex_product_not_left_distributive_new S T rS rT argT addS mulS addT mulT (* selS_or_id_annT *) s1 s2 s3 t1 t2 t3 )
             end 
        end 
    | Certify_Not_Left_Distributive (t1, (t2, t3)) => 
@@ -2457,7 +2465,7 @@ end.
 
 
 Definition bops_llex_product_right_distributive_certify_new
-     (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))           
+(*     (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))  *) 
      (lcS_d : check_right_cancellative (S := S)) 
      (lkT_d : check_right_constant (S := T)) 
      (ldS_d : check_right_distributive (S := S)) 
@@ -2475,7 +2483,7 @@ match ldS_d with
             | Certify_Right_Constant => Certify_Right_Distributive  
             | Certify_Not_Right_Constant (t1, (t2, t3)) => 
                   Certify_Not_Right_Distributive  
-                     (witness_llex_product_not_right_distributive_new S T rS rT argT addS mulS addT mulT selS_or_id_annT s1 s2 s3 t1 t2 t3) 
+                     (witness_llex_product_not_right_distributive_new S T rS rT argT addS mulS addT mulT (* selS_or_id_annT *) s1 s2 s3 t1 t2 t3) 
 
             end 
        end 
@@ -2749,9 +2757,9 @@ Definition bs_certs_llex_product_INTERNAL
            (pT :    @bs_certificates  T)
            (idem_addS : @assert_idempotent S)
            (comm_addT : @assert_commutative T) 
-           (P : (@assert_selective S) +
+          (* (P : (@assert_selective S) +
                              ((@assert_exists_id T) *
-                              (@assert_exists_ann T))) : 
+                              (@assert_exists_ann T))) *) : 
                 @bs_certificates (S * T) := 
 
 let LC := sg_left_cancel_d mulPS  in 
@@ -2773,8 +2781,8 @@ let RLAT := bs_right_left_absorptive_d pT in
 let RRAS := bs_right_right_absorptive_d pS in
 let RRAT := bs_right_right_absorptive_d pT in
 {|
-  bs_left_distributive_d    := bops_llex_product_left_distributive_certify_new S T wS wT argT rS rT addS mulS addT mulT P LC LK LDS LDT 
-; bs_right_distributive_d   := bops_llex_product_right_distributive_certify_new S T wS wT argT rS rT addS mulS addT mulT P RC RK RDS RDT 
+  bs_left_distributive_d    := bops_llex_product_left_distributive_certify_new S T wS wT argT rS rT addS mulS addT mulT (* P *) LC LK LDS LDT 
+; bs_right_distributive_d   := bops_llex_product_right_distributive_certify_new S T wS wT argT rS rT addS mulS addT mulT (* P *)  RC RK RDS RDT 
 ; bs_left_left_absorptive_d      := 
     bops_llex_product_left_left_absorptive_certify S T wT LLAS LLAT ALS 
 ; bs_left_right_absorptive_d      := 
@@ -2869,8 +2877,8 @@ Definition llex_product_INTERNAL
            (idemS : @assert_idempotent S)
            (commS : @assert_commutative S) 
            (commT : @assert_commutative T)
-           (P : (@assert_selective S) +
-                ((@assert_exists_id T) * (@assert_exists_ann T ))) : @bs (S * T) :=
+           (* (P : (@assert_selective S) +
+                ((@assert_exists_id T) * (@assert_exists_ann T ))) *) : @bs (S * T) :=
 let eqvS     := bs_eqv A in
 let eqvT     := bs_eqv B in
 let eqS      := eqv_eq eqvS in
@@ -2894,32 +2902,80 @@ let wS     := eqv_witness eqvS in
 let f      := eqv_new eqvS in
 let wT     := eqv_witness eqvT in
 let g      := eqv_new eqvT in
-match P with
+(*match P with
 | inl Assert_Selective => 
 {|
   bs_eqv          := eqv_product eqvS eqvT 
 ; bs_plus         := bop_llex wT eqS plusS plusT 
 ; bs_times        := bop_product timesS timesT
-; bs_plus_certs   := sg_llex_certificates eqS wS f wT wT g plusS plusPS plusPT idemS commS (inl Assert_Selective)
+; bs_plus_certs   := sg_llex_certificates eqS wS f wT wT g plusS plusPS plusPT idemS commS (* (inl Assert_Selective) *) 
 ; bs_times_certs  := sg_certs_product wS wT timesPS timesPT 
 ; bs_id_ann_certs := id_ann_certs_llex_product S T id_annS id_annT 
-; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT wT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT (inl Assert_Selective)
+; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT wT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT (* (inl Assert_Selective) *) 
 ; bs_ast           := Ast_bs_llex_product (bs_ast A, bs_ast B)
-|}
+|}.
+  
 | inr (idP, annP) =>
+*)
 {|
   bs_eqv          := eqv_product eqvS eqvT 
 ; bs_plus         := bop_llex argT eqS plusS plusT 
 ; bs_times        := bop_product timesS timesT
-; bs_plus_certs   := sg_llex_certificates eqS wS f wT argT g plusS plusPS plusPT idemS commS (inr idP)
+; bs_plus_certs   := sg_llex_certificates eqS wS f wT argT g plusS plusPS plusPT idemS commS (* (inr idP) *) 
 ; bs_times_certs  := sg_certs_product wS wT timesPS timesPT 
 ; bs_id_ann_certs := id_ann_certs_llex_product S T id_annS id_annT 
-; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT argT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT (inr (idP, annP))
+; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT argT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT (* (inr (idP, annP)) *) 
 ; bs_ast           := Ast_bs_llex_product (bs_ast A, bs_ast B)
-|}  
-end.
+|} . 
+(*end*) 
 
- End Combinators.
+
+
+Definition llex_product_INTERNAL_selective
+           {S T : Type}
+           (argT : T) 
+           (A : @bs S)
+           (B : @bs T)
+           (idemS : @assert_idempotent S)
+           (commS : @assert_commutative S) 
+           (commT : @assert_commutative T)
+           (* (P : (@assert_selective S) +
+                ((@assert_exists_id T) * (@assert_exists_ann T ))) *) : @bs (S * T) :=
+let eqvS     := bs_eqv A in
+let eqvT     := bs_eqv B in
+let eqS      := eqv_eq eqvS in
+let eqT      := eqv_eq eqvT in
+let eqvPS    := eqv_certs eqvS in
+let eqvPT    := eqv_certs eqvT in
+let plusS    := bs_plus A in
+let plusT    := bs_plus B in
+let timesS   := bs_times A in
+let timesT   := bs_times B in
+let id_annS  := bs_id_ann_certs A in
+let id_annT  := bs_id_ann_certs B in
+let plusPS   := bs_plus_certs A in
+let plusPT   := bs_plus_certs B in
+let timesPS  := bs_times_certs A in
+let timesPT  := bs_times_certs B in
+let pS       := bs_certs A in
+let pT       := bs_certs B in 
+
+let wS     := eqv_witness eqvS in
+let f      := eqv_new eqvS in
+let wT     := eqv_witness eqvT in
+let g      := eqv_new eqvT in
+{|
+  bs_eqv          := eqv_product eqvS eqvT 
+; bs_plus         := bop_llex wT eqS plusS plusT 
+; bs_times        := bop_product timesS timesT
+; bs_plus_certs   := sg_llex_certificates eqS wS f wT wT g plusS plusPS plusPT idemS commS (* (inl Assert_Selective) *) 
+; bs_times_certs  := sg_certs_product wS wT timesPS timesPT 
+; bs_id_ann_certs := id_ann_certs_llex_product S T id_annS id_annT 
+; bs_certs        := bs_certs_llex_product_INTERNAL S T wS wT wT eqS eqT plusS timesS plusT timesT plusPS plusPT timesPS timesPT pS pT idemS commT (* (inl Assert_Selective) *) 
+; bs_ast           := Ast_bs_llex_product (bs_ast A, bs_ast B)
+|}.
+
+End Combinators.
 
 End CAS.
 
@@ -2939,13 +2995,13 @@ match bs_mcas_cast_up A, bs_mcas_cast_up B with
     match sg_idempotent_d sgPS with
     | Certify_Idempotent => 
       match sg_selective_d sgPS with
-      | Certify_Selective => bs_classify (BS_bs (llex_product_INTERNAL
+      | Certify_Selective => bs_classify (BS_bs (llex_product_INTERNAL_selective
                                                    (eqv_witness (bs_eqv B'))
                                                    A' B'
                                                    Assert_Idempotent
                                                    Assert_Commutative
                                                    Assert_Commutative
-                                                   (inl Assert_Selective)))
+                                                   (* (inl Assert_Selective) *) ))
       | _ =>
         match id_ann_plus_times_d (bs_id_ann_certs B') with 
         | Id_Ann_Cert_Equal id =>
@@ -2954,7 +3010,7 @@ match bs_mcas_cast_up A, bs_mcas_cast_up B with
                                 Assert_Idempotent
                                 Assert_Commutative
                                 Assert_Commutative
-                                (inr (Assert_Exists_Id id, Assert_Exists_Ann id))))
+                                (* (inr (Assert_Exists_Id id, Assert_Exists_Ann id)) *) ))
         | _  => BS_Error ("mcas_llex_product : second algebra must have an additive identity that is a multiplicative annihilator" :: nil)     
         end
       end
@@ -3221,14 +3277,14 @@ Lemma correct_bops_llex_product_left_distributive_certify
                       (bops_llex_product_left_distributive_decide S T
                                  wS wT argT rS rT addS mulS addT mulT eqvS eqvT
                                  idemS cng_addS cng_mulS cng_addT com_addT 
-                                 P LDS LDT LCS LKT)                                  
+                                  P LDS LDT LCS LKT)                                  
    = 
    bops_llex_product_left_distributive_certify_new
                               S T wS wT argT rS rT addS mulS addT mulT
-                              (match P with
+(*                              (match P with
                                | inl _ => inl Assert_Selective
                                | inr (P1, P2) => inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)
-                               end )
+                               end ) *) 
                               (p2c_left_cancel_check S rS mulS LCS) 
                               (p2c_left_constant_check T rT mulT LKT)
                               (p2c_left_distributive S rS addS mulS LDS) 
@@ -3266,10 +3322,10 @@ Lemma correct_bops_llex_product_right_distributive_certify
    = 
    bops_llex_product_right_distributive_certify_new
                               S T wS wT argT rS rT addS mulS addT mulT
-                              (match P with
+(*                              (match P with
                                | inl _ => inl Assert_Selective
                                | inr (P1, P2) => inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)
-                               end )     
+                               end )     *)
                               (p2c_right_cancel_check S rS mulS RCS) 
                               (p2c_right_constant_check T rT mulT RKT)
                               (p2c_right_distributive S rS addS mulS RDS) 
@@ -3474,7 +3530,7 @@ Lemma correct_bs_certs_llex_product_INTERNAL_selective
                    (P2C_bs T rT addT mulT pT)
                    Assert_Idempotent
                    Assert_Commutative
-                   (inl Assert_Selective). 
+                   (*(inl Assert_Selective) *). 
 Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
        unfold bs_proofs_llex_product_INTERNAL, bs_certs_llex_product_INTERNAL.
        unfold P2C_bs, P2C_sg; simpl.
@@ -3515,7 +3571,7 @@ Lemma correct_bs_certs_llex_product_INTERNAL_idempotent
                    (P2C_bs T rT addT mulT pT)
                    Assert_Idempotent
                    Assert_Commutative
-                   (inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)). 
+                   (*(inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)) *). 
 Proof. destruct addPS, mulPS, addPT, mulPT, pS, pT.
        unfold bs_proofs_llex_product_INTERNAL, bs_certs_llex_product_INTERNAL.
        unfold P2C_bs, P2C_sg; simpl.
@@ -3770,8 +3826,8 @@ Theorem correct_llex_product_INTERNAL_selective
         (selS  : bop_selective S (A_eqv_eq S (A_bs_eqv S A)) (A_bs_plus S A)) : 
   A2C_bs (S * T) (A_llex_product_INTERNAL S T wT A B idemS commS commT (inl selS))
   =
-  llex_product_INTERNAL wT (A2C_bs S A) (A2C_bs T B) Assert_Idempotent Assert_Commutative Assert_Commutative (inl Assert_Selective) .
-Proof. destruct A, B; unfold A2C_bs, A2C_bs, A_llex_product_INTERNAL, llex_product_INTERNAL; simpl. 
+  llex_product_INTERNAL_selective wT (A2C_bs S A) (A2C_bs T B) Assert_Idempotent Assert_Commutative Assert_Commutative (*(inl Assert_Selective)*) .
+Proof. destruct A, B; unfold A2C_bs, A2C_bs, A_llex_product_INTERNAL, llex_product_INTERNAL_selective; simpl. 
        rewrite correct_eqv_product.
        rewrite <- correct_sg_certs_product.
        rewrite correct_id_ann_certs_llex_product.       
@@ -3797,7 +3853,7 @@ Theorem correct_llex_product_INTERNAL_idempotent
                         Assert_Idempotent
                         Assert_Commutative
                         Assert_Commutative
-                        (inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)). 
+                        (*(inr (Assert_Exists_Id argT, Assert_Exists_Ann argT)) *). 
 Proof. destruct A, B; unfold A2C_bs, A2C_bs, A_llex_product_INTERNAL, llex_product_INTERNAL; simpl. 
        rewrite correct_eqv_product.
        rewrite <- correct_sg_certs_product.

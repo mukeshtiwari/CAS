@@ -1521,7 +1521,13 @@ Definition bs_certs_from_semiring_certs {S: Type} (sr : @semiring_certificates S
 
 (* 2 *)
 Definition semiring_certs_from_dioid_certs 
-       {S : Type} (dlp : @dioid_certificates S) : @semiring_certificates S := 
+           {S : Type}
+           (* (dlp : @dioid_certificates S) <<< this causes magic in extracted OCaml.  why? 
+
+              val semiring_certs_from_dioid_certs : __ -> 'a1 semiring_certificates
+
+           *) 
+           : @semiring_certificates S := 
 {|
   semiring_left_distributive        := Assert_Left_Distributive 
 ; semiring_right_distributive       := Assert_Right_Distributive 
@@ -1541,7 +1547,9 @@ Definition dioid_certs_from_distributive_lattice_certs
 
 (* 4 *)  
 Definition lattice_certs_from_distributive_lattice_certs
-        {S : Type} (dP : @distributive_lattice_certificates S): @lattice_certificates S := 
+           {S : Type}
+           (* (dP : @distributive_lattice_certificates S) <<< causes magic in extracted OCaml *) 
+           : @lattice_certificates S := 
    {|
       lattice_absorptive          := Assert_Left_Left_Absorptive 
     ; lattice_absorptive_dual     := Assert_Left_Left_Absorptive_Dual  
@@ -1568,16 +1576,18 @@ Definition bs_certs_from_lattice_certs
 (* Derived *)
 
 Definition bs_certs_from_dioid_certs 
-           {S : Type} (di : @dioid_certificates S) : @bs_certificates S := 
-  bs_certs_from_semiring_certs (semiring_certs_from_dioid_certs di).
+           {S : Type}
+           (* (di : @dioid_certificates S) << no magic! *) 
+           : @bs_certificates S := 
+  bs_certs_from_semiring_certs (semiring_certs_from_dioid_certs (* di *) ).
 
 Definition bs_certs_from_distributive_lattice_certs 
            {S : Type} (dP : @distributive_lattice_certificates S) : @bs_certificates S := 
-  bs_certs_from_lattice_certs (lattice_certs_from_distributive_lattice_certs dP). 
+  bs_certs_from_lattice_certs (lattice_certs_from_distributive_lattice_certs (*dP *) ). 
 
 Definition semiring_certs_from_distributive_lattice_certs
        {S : Type} (dlp : @distributive_lattice_certificates S) : @semiring_certificates S :=
-          semiring_certs_from_dioid_certs (dioid_certs_from_distributive_lattice_certs dlp). 
+          semiring_certs_from_dioid_certs (* (dioid_certs_from_distributive_lattice_certs dlp) *) . 
 
 End Certificates.       
 
@@ -1645,7 +1655,7 @@ let plus := pre_dioid_with_zero_plus dS  in
 ; semiring_plus_certs   := sg_C_certs_from_sg_CI_certs S eq plus (eqv_witness eqv) (eqv_new eqv) (pre_dioid_with_zero_plus_certs dS)
 ; semiring_times_certs  := pre_dioid_with_zero_times_certs dS
 ; semiring_id_ann_certs := pre_dioid_with_zero_id_ann_certs dS                                                  
-; semiring_certs        := semiring_certs_from_dioid_certs (pre_dioid_with_zero_certs dS)
+; semiring_certs        := semiring_certs_from_dioid_certs (* (pre_dioid_with_zero_certs dS) *) 
 ; semiring_ast          := pre_dioid_with_zero_ast dS
 |}.  
 
@@ -1679,7 +1689,7 @@ Definition lattice_from_distributive_lattice {S : Type} (dS : @distributive_latt
     ; lattice_join_certs   := distributive_lattice_join_certs dS 
     ; lattice_meet_certs   := distributive_lattice_meet_certs dS
     ; lattice_id_ann_certs := distributive_lattice_id_ann_certs dS 
-    ; lattice_certs        := lattice_certs_from_distributive_lattice_certs (distributive_lattice_certs dS)
+    ; lattice_certs        := lattice_certs_from_distributive_lattice_certs (* (distributive_lattice_certs dS) *) 
     ; lattice_ast          := distributive_lattice_ast dS
 |}.
 
@@ -1692,7 +1702,7 @@ Definition bs_CI_from_pre_dioid {S : Type} (lP : @pre_dioid S) : @bs_CI S :=
    ; bs_CI_plus_certs   := pre_dioid_plus_certs lP
    ; bs_CI_times_certs  := pre_dioid_times_certs lP 
    ; bs_CI_id_ann_certs := pre_dioid_id_ann_certs lP
-   ; bs_CI_certs        := bs_certs_from_dioid_certs (pre_dioid_certs lP) 
+   ; bs_CI_certs        := bs_certs_from_dioid_certs (* (pre_dioid_certs lP) *) 
    ; bs_CI_ast          := pre_dioid_ast lP
   |}.
 
@@ -1786,7 +1796,7 @@ let dPS   := distributive_prelattice_certs dS in
     ; prelattice_join_certs   := joinP 
     ; prelattice_meet_certs   := meetP
     ; prelattice_id_ann_certs := distributive_prelattice_id_ann_certs dS 
-    ; prelattice_certs        := lattice_certs_from_distributive_lattice_certs dPS
+    ; prelattice_certs        := lattice_certs_from_distributive_lattice_certs (* dPS *) 
     ; prelattice_ast           := distributive_prelattice_ast dS
 |}.
 
@@ -1958,7 +1968,7 @@ Definition selective_semiring_from_selective_pre_dioid_with_zero
 ; selective_semiring_plus_certs   := selective_pre_dioid_with_zero_plus_certs S dS
 ; selective_semiring_times_certs  := selective_pre_dioid_with_zero_times_certs S dS
 ; selective_semiring_id_ann_certs := selective_pre_dioid_with_zero_id_ann_certs S dS                                                  
-; selective_semiring_certs        := semiring_certs_from_dioid_certs (selective_pre_dioid_with_zero_certs S dS)
+; selective_semiring_certs        := semiring_certs_from_dioid_certs (* (selective_pre_dioid_with_zero_certs S dS) *) 
 ; selective_semiring_ast          := selective_pre_dioid_with_zero_ast S dS
 |}.  
 
@@ -1971,7 +1981,7 @@ Definition selective_presemiring_from_selective_pre_dioid {S : Type} (dS : @sele
 ; selective_presemiring_plus_certs   := selective_pre_dioid_plus_certs S dS 
 ; selective_presemiring_times_certs  := selective_pre_dioid_times_certs S dS 
 ; selective_presemiring_id_ann_certs := selective_pre_dioid_id_ann_certs S dS
-; selective_presemiring_certs        := semiring_certs_from_dioid_certs (selective_pre_dioid_certs S dS) 
+; selective_presemiring_certs        := semiring_certs_from_dioid_certs (* (selective_pre_dioid_certs S dS) *) 
 ; selective_presemiring_ast          := selective_pre_dioid_ast S dS
 |}.
 
@@ -2723,7 +2733,7 @@ Qed.
 Definition correct_semiring_certs_from_dioid_certs (dp : dioid_proofs S eq plus times) : 
   P2C_semiring _ _ _ _  (semiring_proofs_from_dioid_proofs S eq plus times dp) 
   =                                     
-  semiring_certs_from_dioid_certs (P2C_dioid _ _ _ _ dp). 
+  semiring_certs_from_dioid_certs. (* (P2C_dioid _ _ _ _ dp). *) 
 Proof. destruct dp.
        unfold P2C_semiring, P2C_dioid, semiring_proofs_from_dioid_proofs, semiring_certs_from_dioid_certs; simpl.
        reflexivity.        
@@ -2750,7 +2760,7 @@ Lemma correct_lattice_certs_from_distributive_lattice_certs
       (plusP : sg_CI_proofs S (A_eqv_eq S eqv) plus)
       (timesP : sg_CI_proofs S (A_eqv_eq S eqv) times)
       (bp : distributive_lattice_proofs S (A_eqv_eq S eqv) plus times): 
-   lattice_certs_from_distributive_lattice_certs (P2C_distributive_lattice S (A_eqv_eq S eqv) plus times bp)
+   lattice_certs_from_distributive_lattice_certs (* (P2C_distributive_lattice S (A_eqv_eq S eqv) plus times bp) *) 
    =
    P2C_lattice S (A_eqv_eq S eqv) plus times (lattice_proofs_from_distributive_lattice_proofs S (A_eqv_eq S eqv) plus times (A_eqv_proofs S eqv) plusP timesP bp).
 Proof. destruct bp.
@@ -3251,7 +3261,7 @@ Lemma correct_bs_CI_from_pre_dioid (S: Type) (pd : A_pre_dioid S) :
 Proof. unfold bs_CI_from_pre_dioid, A_bs_CI_from_pre_dioid.
        unfold A2C_bs_CI. simpl.
        unfold bs_certs_from_dioid_certs, bs_proofs_from_dioid_proofs. 
-       rewrite <- correct_semiring_certs_from_dioid_certs.
+       unfold semiring_certs_from_dioid_certs.
        rewrite correct_bs_certs_from_semiring_certs. 
        reflexivity. 
 Qed. 

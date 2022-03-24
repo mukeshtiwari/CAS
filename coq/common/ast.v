@@ -89,7 +89,8 @@ with cas_os_ast : Type :=
    | Ast_os_add_bottom_id : cas_constant * cas_os_ast → cas_os_ast
    | Ast_os_add_top_ann : cas_constant * cas_os_ast → cas_os_ast 
 with cas_ltr_ast : Type :=
-   | Ast_ltr_cons          : cas_eqv_ast            → cas_ltr_ast    
+   | Ast_ltr_cons          : cas_eqv_ast            → cas_ltr_ast
+   | Ast_ltr_insert        : cas_eqv_ast            → cas_ltr_ast                                                         
    | Ast_ltr_product       : cas_ltr_ast * cas_ltr_ast  → cas_ltr_ast
    | Ast_ltr_left_sum      : cas_ltr_ast * cas_ltr_ast  → cas_ltr_ast
    | Ast_ltr_right_sum     : cas_ltr_ast * cas_ltr_ast  → cas_ltr_ast

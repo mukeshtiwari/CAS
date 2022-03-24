@@ -18,8 +18,6 @@ Require Import CAS.coq.sg.union. (* just for in_set_uop_duplicate_elim_elim ? *)
 
 Section Computation.
 
-
-  
 Definition bop_lift : ∀ {S : Type}, brel S → binary_op S → binary_op(finite_set S) := 
     λ {S} eq bS X Y, uop_duplicate_elim eq (bop_list_product_left bS X Y). 
 

@@ -283,7 +283,18 @@ Not Right left Absorptive:
  *)   
 
   
-(* now, configure an adjacency matrix *)
+(* Alternatives? 
 
-(* now, run a few path finding algorithms *) 
+let next_hop_sets  = mcas_bs_union_lift (mcas_sg_left eqv_eq_nat);;
+let pre_sp_with_nh_sets = mcas_bs_add_zero (mcas_bs_llex_product mcas_min_plus next_hop_sets) infinity;;  (semiring) 
+let sp_with_nh_sets = mcas_bs_add_one pre_sp_with_nh_sets self ;; (bs_CI) LD, not RD 
+
+
+slt_union_singleton? 
+slt_union_lift? 
+sltr_lex_product? 
+
+
+
+ *) 
 

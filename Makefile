@@ -89,6 +89,8 @@ CAS=\
    coq/tr/structures.v \
    coq/tr/left/cayley.v \
    coq/tr/left/cons.v \
+   coq/tr/left/insert.v \
+   coq/tr/left/lift.v \
    coq/tr/left/product.v \
    coq/bs/properties.v \
    coq/bs/structures.v \

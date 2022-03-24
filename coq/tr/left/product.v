@@ -7,7 +7,7 @@ Require Import CAS.coq.tr.structures.
 
 
 Definition ltr_product :
-   ∀ {LS S LT T: Type}, left_transform LS S → left_transform LT T → left_transform (LS * LT) (S * T)
+   ∀ {LS S LT T: Type}, ltr_type LS S → ltr_type LT T → ltr_type (LS * LT) (S * T)
    := λ {LS S LT T} ltrS ltrT x y,  
      match x, y with
      | (x1, x2), (y1, y2) => (ltrS x1 y1, ltrT x2 y2) 
@@ -21,12 +21,12 @@ Variable eqS : brel S.
 Variable eqLS : brel LS.
 Variable wS : S.
 Variable wLS : LS.
-Variable ltrS : left_transform LS S.
+Variable ltrS : ltr_type LS S.
 Variable eqT : brel T.
 Variable eqLT : brel LT.
 Variable wT : T.
 Variable wLT : LT.
-Variable ltrT : left_transform LT T.
+Variable ltrT : ltr_type LT T.
 
 Variable refS : brel_reflexive S eqS.
 Variable refT : brel_reflexive T eqT. 
@@ -106,7 +106,7 @@ Defined.
 
 
 
-Definition ltr_product_left_cancellative_decidable 
+Definition ltr_product_left_cancellative_decide
       (DS : ltr_left_cancellative_decidable LS S eqS ltrS)      
       (DT : ltr_left_cancellative_decidable LT T eqT ltrT) : 
    ltr_left_cancellative_decidable (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT) := 
@@ -116,28 +116,149 @@ match DS with
             | inr NRT => inr (ltr_product_not_left_cancellative_right NRT)
             end 
 | inr NRS => inr (ltr_product_not_left_cancellative_left NRS)
-end. 
+end.
+
+
+Lemma ltr_product_left_constant
+      (RS : ltr_left_constant LS S eqS ltrS)      
+      (RT : ltr_left_constant LT T eqT ltrT) : 
+   ltr_left_constant (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT).     
+Proof. intros [lS lT] [s1 t1] [s2 t2]. compute.
+       rewrite (RS lS s1 s2). rewrite (RT lT t1 t2). reflexivity. 
+Qed.        
+
+Lemma ltr_product_not_left_constant_left
+      (NRS : ltr_not_left_constant LS S eqS ltrS) :
+   ltr_not_left_constant (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT).     
+Proof. destruct NRS as [[l [s1 s2]] A]. exists ((l, wLT), ((s1, wT), (s2, wT))). compute. 
+       rewrite A. reflexivity. 
+Defined.        
+
+Lemma ltr_product_not_left_constant_right
+      (NRT : ltr_not_left_constant LT T eqT ltrT) :
+   ltr_not_left_constant (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT).     
+Proof. destruct NRT as [[l [t1 t2]] A]. exists ((wLS, l), ((wS, t1), (wS, t2))). compute. 
+       rewrite A. rewrite refS. reflexivity. 
+Defined.        
+
+
+
+Definition ltr_product_left_constant_decide
+      (DS : ltr_left_constant_decidable LS S eqS ltrS)      
+      (DT : ltr_left_constant_decidable LT T eqT ltrT) : 
+   ltr_left_constant_decidable (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT) := 
+match DS with 
+| inl RS => match DT with
+            | inl RT => inl (ltr_product_left_constant RS RT)
+            | inr NRT => inr (ltr_product_not_left_constant_right NRT)
+            end 
+| inr NRS => inr (ltr_product_not_left_constant_left NRS)
+end.
+
+
+
+Lemma ltr_product_is_id (lS : LS) (lT : LT) (idS : ltr_is_id LS S eqS ltrS lS) (idT : ltr_is_id LT T eqT ltrT lT) : 
+  ltr_is_id (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT) (lS, lT). 
+Proof. intros [s t]. compute. rewrite (idS s). rewrite (idT t). reflexivity. Qed. 
+
+Lemma ltr_product_exists_id (idS : ltr_exists_id LS S eqS ltrS) (idT : ltr_exists_id LT T eqT ltrT) : 
+  ltr_exists_id (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT). 
+Proof. destruct idS as [lS PS]; destruct idT as [lT PT].
+       exists (lS, lT). apply ltr_product_is_id; auto. 
+Defined. 
+
+Lemma ltr_product_not_exists_id_left (nidS : ltr_not_exists_id LS S eqS ltrS) : 
+  ltr_not_exists_id (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT).
+Proof. unfold ltr_not_exists_id. intros [lS lT]. 
+       destruct (nidS lS) as [s P]. 
+       exists (s, wT). compute. rewrite P. reflexivity. 
+Defined. 
+
+Lemma ltr_product_not_exists_id_right (nidT : ltr_not_exists_id LT T eqT ltrT) : 
+  ltr_not_exists_id (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT).
+Proof. unfold ltr_not_exists_id. intros [lS lT]. 
+       destruct (nidT lT) as [t P]. 
+       exists (wS, t). compute. rewrite P.
+       case_eq(eqS (ltrS lS wS) wS); intro Q; auto. 
+Defined.
+
+Definition ltr_product_exists_id_decidable 
+      (DS : ltr_exists_id_decidable LS S eqS ltrS)      
+      (DT : ltr_exists_id_decidable LT T eqT ltrT) : 
+   ltr_exists_id_decidable (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT) := 
+match DS with 
+| inl RS => match DT with
+            | inl RT => inl (ltr_product_exists_id RS RT)
+            | inr NRT => inr (ltr_product_not_exists_id_right NRT)
+            end 
+| inr NRS => inr (ltr_product_not_exists_id_left NRS)
+end.
+
+
+Lemma ltr_product_is_ann (s : S) (t : T) (annS : ltr_is_ann LS S eqS ltrS s) (annT : ltr_is_ann LT T eqT ltrT t) : 
+  ltr_is_ann (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT) (s, t). 
+Proof. intros [lS lT]. compute. rewrite (annS lS). rewrite (annT lT). reflexivity. Qed. 
+
+Lemma ltr_product_exists_ann (annS : ltr_exists_ann LS S eqS ltrS) (annT : ltr_exists_ann LT T eqT ltrT) : 
+  ltr_exists_ann (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT). 
+Proof. destruct annS as [s P]; destruct annT as [t Q].
+       exists (s, t). apply ltr_product_is_ann; auto. 
+Defined. 
+
+Lemma ltr_product_not_exists_ann_left (nannS : ltr_not_exists_ann LS S eqS ltrS) : 
+  ltr_not_exists_ann (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT).
+Proof. unfold ltr_not_exists_ann. intros [s t]. 
+       destruct (nannS s) as [lS P]. 
+       exists (lS, wLT). compute. rewrite P. reflexivity. 
+Defined. 
+
+Lemma ltr_product_not_exists_ann_right (nannT : ltr_not_exists_ann LT T eqT ltrT) : 
+  ltr_not_exists_ann (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT).
+Proof. unfold ltr_not_exists_ann. intros [s t]. 
+       destruct (nannT t) as [lT P]. 
+       exists (wLS, lT). compute. rewrite P.
+       case_eq(eqS (ltrS wLS s) s); intro Q; auto. 
+Defined.
+
+Definition ltr_product_exists_ann_decidable 
+      (DS : ltr_exists_ann_decidable LS S eqS ltrS)      
+      (DT : ltr_exists_ann_decidable LT T eqT ltrT) : 
+   ltr_exists_ann_decidable (LS * LT) (S * T) (eqS <*> eqT)  (ltrS [*] ltrT) := 
+match DS with 
+| inl RS => match DT with
+            | inl RT => inl (ltr_product_exists_ann RS RT)
+            | inr NRT => inr (ltr_product_not_exists_ann_right NRT)
+            end 
+| inr NRS => inr (ltr_product_not_exists_ann_left NRS)
+end.
 
 
 End Theory.
 
 Section ACAS.
 
-
-Definition ltr_product_proofs (LS S LT T: Type)
-      (eqS : brel S) (eqLS : brel LS) (wS : S) (wLS : LS) (ltrS : left_transform LS S) (refS : brel_reflexive S eqS) (PS : ltr_proofs LS S eqS eqLS ltrS)
-      (eqT : brel T) (eqLT : brel LT) (wT : T) (wLT : LT) (ltrT : left_transform LT T) (refT : brel_reflexive T eqT) (PT : ltr_proofs LT T eqT eqLT ltrT) :
-              ltr_proofs (LS * LT) (S * T) (brel_product eqS eqT) (brel_product eqLS eqLT) (ltr_product ltrS ltrT) :=
+Variables
+  (LS S LT T: Type)  
+  (eqS : brel S) (eqLS : brel LS) (wS : S) (wLS : LS) (ltrS : ltr_type LS S) (refS : brel_reflexive S eqS)
+  (eqT : brel T) (eqLT : brel LT) (wT : T) (wLT : LT) (ltrT : ltr_type LT T) (refT : brel_reflexive T eqT). 
+  
+Definition ltr_product_proofs 
+       (PS : left_transform_proofs LS S eqS eqLS ltrS)
+       (PT : left_transform_proofs LT T eqT eqLT ltrT) :
+              left_transform_proofs (LS * LT) (S * T) (brel_product eqS eqT) (brel_product eqLS eqLT) (ltr_product ltrS ltrT) :=
 {|
-  A_ltr_congruence          := ltr_product_congruence LS S LT T eqS eqLS ltrS eqT eqLT ltrT
-                                  (A_ltr_congruence LS S eqS eqLS ltrS PS)
-                                  (A_ltr_congruence LT T eqT eqLT ltrT PT)                                                      
-; A_ltr_is_right_d          := ltr_product_is_right_decidable LS S LT T eqS wS wLS ltrS eqT wT wLT ltrT
-                                  (A_ltr_is_right_d LS S eqS eqLS ltrS PS)
-                                  (A_ltr_is_right_d LT T eqT eqLT ltrT PT)                                                      
-; A_ltr_left_cancellative_d := ltr_product_left_cancellative_decidable LS S LT T eqS wS wLS ltrS eqT wT wLT ltrT refS refT
-                                  (A_ltr_left_cancellative_d LS S eqS eqLS ltrS PS)
-                                  (A_ltr_left_cancellative_d LT T eqT eqLT ltrT PT)                                                        
+  A_left_transform_congruence          := ltr_product_congruence LS S LT T eqS eqLS ltrS eqT eqLT ltrT
+                                  (A_left_transform_congruence LS S eqS eqLS ltrS PS)
+                                  (A_left_transform_congruence LT T eqT eqLT ltrT PT)                                                      
+; A_left_transform_is_right_d          := ltr_product_is_right_decidable LS S LT T eqS wS wLS ltrS eqT wT wLT ltrT
+                                  (A_left_transform_is_right_d LS S eqS eqLS ltrS PS)
+                                  (A_left_transform_is_right_d LT T eqT eqLT ltrT PT)
+; A_left_transform_left_constant_d := ltr_product_left_constant_decide LS S LT T eqS wS wLS ltrS eqT wT wLT ltrT refS 
+                                  (A_left_transform_left_constant_d LS S eqS eqLS ltrS PS)
+                                  (A_left_transform_left_constant_d LT T eqT eqLT ltrT PT)   
+; A_left_transform_left_cancellative_d := ltr_product_left_cancellative_decide LS S LT T eqS wS wLS ltrS eqT wT wLT ltrT refS refT
+                                  (A_left_transform_left_cancellative_d LS S eqS eqLS ltrS PS)
+                                  (A_left_transform_left_cancellative_d LT T eqT eqLT ltrT PT)                                                        
 |}.
 
 
@@ -175,19 +296,36 @@ match DS with
 end. 
 
 
+Definition ltr_product_left_constant_check {LS S LT T: Type} (wS : S) (wLS : LS) (wT : T) (wLT : LT) 
+      (DS : @check_ltr_left_constant LS S)      
+      (DT : @check_ltr_left_constant LT T) : 
+            @check_ltr_left_constant (LS * LT) (S * T) := 
+match DS with 
+| Certify_Ltr_Left_Constant =>
+            match DT with
+            | Certify_Ltr_Left_Constant => Certify_Ltr_Left_Constant
+            | Certify_Ltr_Not_Left_Constant (l, (t1, t2))  => Certify_Ltr_Not_Left_Constant ((wLS, l), ((wS, t1), (wS, t2)))
+            end 
+| Certify_Ltr_Not_Left_Constant (l, (s1, s2))  => Certify_Ltr_Not_Left_Constant ((l, wLT), ((s1, wT), (s2, wT)))
+end. 
+
+
 
 Definition ltr_product_certs {LS S LT T: Type}
-      (wS : S) (wLS : LS) (PS : @ltr_certificates LS S)
-      (wT : T) (wLT : LT) (PT : @ltr_certificates LT T) :
-              @ltr_certificates (LS * LT) (S * T) :=
+      (wS : S) (wLS : LS) (PS : @left_transform_certificates LS S)
+      (wT : T) (wLT : LT) (PT : @left_transform_certificates LT T) :
+              @left_transform_certificates (LS * LT) (S * T) :=
 {|
-  ltr_congruence_a          := Assert_Ltr_Congruence                                                       
-; ltr_is_right_d := ltr_product_is_right_check wS wLS wT wLT 
-                                  (ltr_is_right_d PS)
-                                  (ltr_is_right_d PT)                                                      
-; ltr_left_cancellative_d := ltr_product_left_cancellative_check wS wLS wT wLT 
-                                  (ltr_left_cancellative_d PS)
-                                  (ltr_left_cancellative_d PT)                                                        
+  left_transform_congruence          := Assert_Ltr_Congruence                                                       
+; left_transform_is_right_d := ltr_product_is_right_check wS wLS wT wLT 
+                                  (left_transform_is_right_d PS)
+                                  (left_transform_is_right_d PT)
+; left_transform_left_constant_d := ltr_product_left_constant_check wS wLS wT wLT 
+                                  (left_transform_left_constant_d PS)
+                                  (left_transform_left_constant_d PT)                                                        
+; left_transform_left_cancellative_d := ltr_product_left_cancellative_check wS wLS wT wLT 
+                                  (left_transform_left_cancellative_d PS)
+                                  (left_transform_left_cancellative_d PT)                                                        
 |}.
 
   
@@ -196,17 +334,24 @@ End CAS.
 
 Section Verify.
 
-Lemma correct_ltr_product_certs (LS S LT T: Type)
-      (eqS : brel S) (eqLS : brel LS) (wS : S) (wLS : LS) (ltrS : left_transform LS S) (refS : brel_reflexive S eqS) (PS : ltr_proofs LS S eqS eqLS ltrS)
-      (eqT : brel T) (eqLT : brel LT) (wT : T) (wLT : LT) (ltrT : left_transform LT T) (refT : brel_reflexive T eqT) (PT : ltr_proofs LT T eqT eqLT ltrT) :
-   ltr_product_certs wS wLS (P2C_ltr _ _ _ _ _ PS) wT wLT (P2C_ltr _ _ _ _ _ PT) 
+Variables
+  (LS S LT T: Type)
+  (eqS : brel S) (eqLS : brel LS) (wS : S) (wLS : LS) (ltrS : ltr_type LS S) (refS : brel_reflexive S eqS)
+  (eqT : brel T) (eqLT : brel LT) (wT : T) (wLT : LT) (ltrT : ltr_type LT T) (refT : brel_reflexive T eqT). 
+
+Lemma correct_ltr_product_certs 
+      (PS : left_transform_proofs LS S eqS eqLS ltrS)
+      (PT : left_transform_proofs LT T eqT eqLT ltrT) :
+   ltr_product_certs wS wLS  (P2C_left_transform _ _ _ _ _ PS) wT wLT (P2C_left_transform _ _ _ _ _ PT) 
    =
-   P2C_ltr _ _ _ _ _ (ltr_product_proofs LS S LT T eqS eqLS wS wLS ltrS refS PS eqT eqLT wT wLT ltrT refT PT).
-Proof. destruct PS. destruct PT. unfold ltr_product_certs, ltr_product_proofs, P2C_ltr; simpl. 
-       destruct A_ltr_is_right_d as [IRS | [[lS s] A]];
-       destruct A_ltr_is_right_d0 as [IRT | [[lT t] B]];
-       destruct A_ltr_left_cancellative_d as [ILCS | [[l1 [s1 s2]] [C D]]];
-       destruct A_ltr_left_cancellative_d0 as [ILCT | [[l2 [t1 t2]] [E F]]]; simpl; auto.          
+   P2C_left_transform _ _ _ _ _ (ltr_product_proofs LS S LT T eqS eqLS wS wLS ltrS refS eqT eqLT wT wLT ltrT refT PS PT).
+Proof. destruct PS. destruct PT. unfold ltr_product_certs, ltr_product_proofs, P2C_left_transform; simpl. 
+       destruct A_left_transform_is_right_d as [IRS | [[lS s] A]];
+       destruct A_left_transform_is_right_d0 as [IRT | [[lT t] B]];
+       destruct A_left_transform_left_constant_d as [ILKS | [[l1' [s1' s2']] C']];
+       destruct A_left_transform_left_constant_d0 as [ILKT | [[l2' [t1' t2']] E']];         
+       destruct A_left_transform_left_cancellative_d as [ILCS | [[l1 [s1 s2]] [C D]]];
+       destruct A_left_transform_left_cancellative_d0 as [ILCT | [[l2 [t1 t2]] [E F]]]; simpl; auto.          
 Qed. 
 End Verify.   
   

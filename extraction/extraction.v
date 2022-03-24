@@ -69,6 +69,7 @@ Require Import CAS.coq.bs.right.
 Require Import CAS.coq.bs.union_lift. 
 Require Import CAS.coq.bs.cast_up.
 Require Import CAS.coq.bs.minset_union_lift.
+Require Import CAS.coq.bs.minset_lift_union.
 (* Require Import CAS.coq.bs.dual.*)
 Require Import CAS.coq.os.from_bs_left. 
 
@@ -205,13 +206,13 @@ Extraction "Cas.ml"
    mcas_bs_union_lift 
    mcas_bs_union_intersect
    mcas_bs_union_intersect_with_one
-   (* mcas_bs_intersect_union *) 
+   mcas_bs_intersect_union 
    mcas_bs_intersect_union_with_zero
    mcas_bs_left
    mcas_bs_right
    mcas_minset_union_lift
-(*
    mcas_minset_lift_union
+(*
    mcas_left_sum_right_sum
    mcas_right_sum_left_sum  
 

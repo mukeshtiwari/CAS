@@ -21,8 +21,8 @@ Definition bProp (S : Type)             := S → bool. (* replace with pred *)
 Definition pred (S : Type)              := S → bool. 
 Definition unary_op (S : Type)          := S → S. 
 Definition binary_op (S : Type)         := S → S → S.  
-Definition left_transform (L S : Type)  := L → S → S.  
-Definition right_transform (L S : Type) := S → L → S. 
+Definition ltr_type (L S : Type)  := L → S → S.  
+Definition rtr_type (L S : Type) := S → L → S. 
 Definition finite_set (S : Type)        := list S.     (* improve someday ... *) 
 
 End BasicTypes.
@@ -261,14 +261,14 @@ Definition bop_full_reduce {S : Type} (r : unary_op S) (b : binary_op S) : binar
 
 
 
-Definition ltran_list_product : ∀ {S : Type} (bs : binary_op S), left_transform S (list S) 
+Definition ltran_list_product : ∀ {S : Type} (bs : binary_op S), ltr_type S (list S) 
 := fix f {S} bs a y := 
       match y with
          | nil => nil 
          | b :: rest => (bs a b ) :: (f bs a rest)
       end.
 
-Definition rtran_list_product : ∀ {S : Type} (bS : binary_op S), right_transform S (list S) 
+Definition rtran_list_product : ∀ {S : Type} (bS : binary_op S), rtr_type S (list S) 
 := fix f {S} bS Y a := 
       match Y with
          | nil => nil 
@@ -308,15 +308,6 @@ Definition is_empty : ∀ {S : Type}, bProp (finite_set S)
 
 Definition singleton : ∀ {S : Type}, S → finite_set S 
 := λ {S} s, s :: nil. 
-
-(*
-Definition ltr_insert : ∀ {S : Type}, brel S → left_transform S (finite_set S) 
-:= λ {S} r s X,  if in_set r X s then X else (s :: X). 
-
-Definition ltr_delete : ∀ {S : Type}, brel S → left_transform S (finite_set S) 
-:= λ {S} r s X,  if in_set r X s then (uop_filter (λ x, negb (r x s)) X) else X. 
-*) 
-
 
 
 
