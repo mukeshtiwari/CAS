@@ -1005,9 +1005,67 @@ Section Pathprops.
   Qed.
 
   
+  Lemma triple_elem_rewrite :
+    forall xs ys m c au av aw,
+    mat_cong Node eqN R eqR m ->
+    tl xs ≠ [] ->  
+    source Node eqN R c xs = true ->
+    well_formed_path_aux Node eqN R eqR m xs = true ->
+    triple_elem_list Node Node R eqN eqN eqR 
+      (List.tl xs) ((au, av, aw) :: ys) = true ->
+    triple_elem_list Node Node R eqN eqN eqR 
+      xs ((c, au, m c au) :: (au, av, aw) :: ys) = true.
+  Proof using Node R congrR eqN eqR refR symN symR trnN.
+    intros * Hm Ha Hs Hw Ht.
+    destruct xs as [|((bbu, bbv), bbw) xs].
+    simpl in Ha;
+    congruence.
+    destruct xs as [|((cbu, cbv), cbw) xs].
+    simpl in Ha;
+    congruence.
+    simpl in Ha, Hs.
+    remember ((cbu, cbv, cbw) :: xs) as cxs.
+    simpl in Hw, Ht.
+    simpl.
+    rewrite Heqcxs in Hw.
+    apply Bool.andb_true_iff in Hw.
+    destruct Hw as [Hwl Hw].
+    apply Bool.andb_true_iff in Hw.
+    destruct Hw as [Hwll Hw].
+    apply symN in Hs;
+    rewrite Hs, Ht.
+    simpl.
+    rewrite Heqcxs in Ht.
+    simpl in Ht.
+    apply Bool.andb_true_iff in Ht.
+    destruct Ht as [Ht Htr].
+    apply Bool.andb_true_iff in Ht.
+    destruct Ht as [Ht Htll].
+    apply Bool.andb_true_iff in Ht.
+    destruct Ht as [Ht Htlr].
+    rewrite (trnN _ _ _ Hwll Ht).
+    simpl.
+    apply Bool.andb_true_iff.
+    split.
+    apply symR.
+    rewrite <-Hwl.
+    apply congrR.
+    apply Hm.
+    apply symN; 
+    exact Hs.
+    apply symN.
+    apply trnN with cbu;
+    try assumption.
+    apply refR.
+    reflexivity.
+  Qed.
+
+
+  
  
   Lemma append_node_rest_rev : 
     forall l m c xs,
+    mat_cong Node eqN R eqR m -> 
     source _ eqN _ c xs = true -> 
     List.tl xs <> [] ->
     well_formed_path_aux Node eqN R eqR m xs = true ->
@@ -1016,50 +1074,80 @@ Section Pathprops.
     (append_node_in_paths _ _ m c l) = true.
   Proof.
     induction l as [|al l IHl].
-    + intros * Hs Hl Hw Hin.
+    + intros * Hm Hs Hl Hw Hin.
       simpl in *.
       congruence.
-    + intros * Hs Hl Hw Hin.
+    + intros * Hm Hs Hl Hw Hin.
       simpl in Hin.
       simpl.
-      assert (Hat : exists au av aw ys, 
-        al = ((au, av), aw) :: ys).
-      admit.
-      destruct Hat as (au & av & aw & ys & Hat).
-      assert (Hst : xs = (c, au, m c au) :: al).
-      admit.
-      
       apply Bool.orb_true_iff in Hin.
       destruct Hin as [Hin | Hin].
+      assert (Hat : exists au av aw ys, 
+        al = ((au, av), aw) :: ys).
+      destruct xs as [|((bu, bv), bw) xs].
+      simpl in Hl;
+      congruence.
+      simpl in Hl, Hin.
+      destruct xs as [|((cu, cv), cw) xs].
+      simpl in Hl; 
+      congruence.
+      destruct al as [|((alu, alv), alw) al].
+      simpl in Hin;
+      congruence.
+      exists alu, alv, alw, al. 
+      reflexivity.
+      destruct Hat as (au & av & aw & ys & Hat).
       rewrite Hat.
-      
-      rewrite Hst.
+      assert (Hst : triple_elem_list Node Node R 
+        eqN eqN eqR xs ((c, au, m c au) :: al) = true).
       rewrite Hat.
-      simpl.
-      repeat (rewrite refN).
-      repeat rewrite refR.
+      eapply triple_elem_rewrite; 
+      try assumption.
+      rewrite Hat in Hin.
+      exact Hin.
+      eapply path_tl_rewrite;
+      try assumption.
+      apply triple_elem_eq_list_sym;
+      try assumption.
+      exact Hst.
       simpl.
       apply Bool.orb_true_iff.
       left.
+      repeat (rewrite refN).
+      repeat rewrite refR.
+      simpl.
+      rewrite Hat.
       apply triple_elem_eq_list_refl;
       try assumption.
-
       (* inductive hypothesis *)
-      rewrite Hat.
-      rewrite Hst.
-      rewrite Hat.
+      destruct al as [|((alu, alv), alw) al].
+      apply IHl; try
+      assumption.
+      destruct xs as [|((cu, cv), cw) xs].
+      simpl in Hl;
+      congruence.
+      simpl in Hl.
+      destruct xs as [|((du, dv), dw) xs].
+      simpl in Hl; 
+      congruence.
+      simpl.
+      apply Bool.orb_true_iff.
+      right. 
+      remember ((cu, cv, cw) :: (du, dv, dw) :: xs) as cxs.
+      apply IHl;
+      try assumption.
+      intro Hf;
+      rewrite Heqcxs in Hf;
+      simpl in Hf;
+      congruence.
+  Qed.
 
 
-  Admitted.
+
     
 
 
-
-
-    
-
-
-  (* We need to prove in reverse direction. *)
+  (* *)
   Lemma source_target_non_empty_kpath_and_well_formed_rev : 
     ∀ (xs : list (Node * Node * R)) 
     (m : Matrix Node R) (c d : Node) ,
@@ -1108,6 +1196,7 @@ Section Pathprops.
       (* Proof hinges on this lemma *)
       eapply append_node_rest_rev.
       simpl.
+      exact Hm.
       exact Hs.
       simpl.
       intro Hf; congruence.
@@ -1128,6 +1217,7 @@ Section Pathprops.
       apply memN.
       exact IHxs.
   Qed.
+  
       
       
 
