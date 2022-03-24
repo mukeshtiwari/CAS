@@ -159,7 +159,94 @@ Section Pathdefs.
     forall (x a : Node) (y : list (Node * Node * R)),  
     (x =n= a) = true -> 
     In_eq_bool _ _ _ eqN eqN eqR y (f a) = 
-    In_eq_bool _ _ _ eqN eqN eqR y (f x). 
+    In_eq_bool _ _ _ eqN eqN eqR y (f x).
+    
+    
+  Definition cyclic_path (c : Node) 
+    (l : list (Node * Node * R)) :=
+    l <> [] /\ source c l = true /\ 
+    target c l = true.
+
+  
+  
+  (* assume that path is well_founded *)
+  Fixpoint collect_nodes_from_a_path  
+    (l : list (Node * Node * R)) : list Node :=
+    match l with
+    | [] => []
+    | (a, b, _) :: t => match t with
+      | [] => [a; b]
+      | _ :: _ => a :: collect_nodes_from_a_path t
+    end
+    end.
+
+  (* Constructs well founded path *)  
+  Fixpoint construct_path_from_nodes (l : list Node) (m : Matrix) : 
+  list (Node * Node * R) :=
+  match l with 
+  | [] => []
+  | u :: t => match t with
+    | [] => []
+    | v :: _ => (u, v, m u v) :: construct_path_from_nodes t m
+  end
+  end.
+
+  (* Checks if au is second element of path or not  *)      
+  Fixpoint elem_path_triple_tail (au : Node) (l : list (Node * Node * R)) : bool :=
+    match l with
+    | [] => false
+    | (bu, bv, _) :: t => (au =n= bv) || elem_path_triple_tail au t
+    end.
+
+
+  
+  Fixpoint keep_collecting (au : Node) (l : list (Node * Node * R)) :=
+    match l with
+    | [] => []
+    | (bu, bv, bw) :: t => if (au =n= bv) then [(bu, bv, bw)] else 
+        (bu, bv, bw) :: keep_collecting au t
+    end.
+    
+  Fixpoint keep_dropping (au : Node) (l : list (Node * Node * R)) :=
+    match l with
+    | [] => []
+    | (bu, bv, bw) :: t => if (au =n= bv) then t else 
+      keep_dropping au t
+    end.
+
+  (* computes the loop in a path *)
+  Fixpoint elem_path_triple_compute_loop (l : list (Node * Node * R)) := 
+    match l with
+    | [] => None
+    | (au, av, aw) :: t => if au =n= av then Some [(au, av, aw)] (* loop at the head, 1 length *)
+      else 
+          if elem_path_triple_tail au t then Some ((au, av, aw) :: keep_collecting au t)
+          else elem_path_triple_compute_loop t
+    end.
+
+  (* This function is very similar to the above one, except it returns the 
+    left over from the front ++ loop ++ rest of the list *)  
+  Fixpoint elem_path_triple_compute_loop_triple (l : list (Node * Node * R)) := 
+    match l with
+    | [] => ([], None, [])
+    | (au, av, aw) :: t => if au =n= av then ([], Some [(au, av, aw)], t) 
+      else 
+          if elem_path_triple_tail au t then 
+          ([], Some ((au, av, aw) :: keep_collecting au t), keep_dropping au t)
+          else match elem_path_triple_compute_loop_triple t with 
+            | (fp, sp, tp) => ((au, av, aw) :: fp, sp, tp)
+          end
+    end.
+
+  (* elem_path_triple l = true means l does not have any cycle *)     
+  Fixpoint elem_path_triple (l : list (Node * Node * R)) : bool := 
+    match l with
+    | [] => true 
+    | (au, av, _) :: t => 
+        negb (au =n= av) && 
+        negb (elem_path_triple_tail au t) && 
+        elem_path_triple t 
+    end.
 
 End Pathdefs.
 
@@ -1217,7 +1304,24 @@ Section Pathprops.
       apply memN.
       exact IHxs.
   Qed.
-  
+
+
+
+  (*
+
+  Lemma I_need_this : 
+    forall xs c d, 
+    source c (xs ++ [(d, d, 1)]) = true ->
+    target d (xs ++ [(d, d, 1)]) = true ->
+    well_formed_path_aux m (xs ++ [(d, d, 1)]) = true ->
+    exists ys, 
+      (List.lenght ys < List.length finN) /\ 
+      source c (ys ++ [(d, d, 1)]) = true /\ 
+      target d (ys ++ [(d, d, 1)]) = true /\
+      well_formed_path_aux m (xs ++ [(d, d, 1)]) = true 
+
+  *)
+
       
       
 
