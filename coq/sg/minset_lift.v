@@ -917,6 +917,70 @@ Proof. apply brel_set_intro_prop; auto. split.
               rewrite (A2 x B1) in G. discriminate G. 
 Qed. 
 
+(*
+Print os_left_increasing. 
+
+Lemma bop_minset_lift_idempotent_v2_aux'
+      (anti : brel_antisymmetric S rS lteS)
+      (idem : bop_idempotent S rS bS)
+      (LI : os_right_increasing lteS bS) 
+      (X : finite_set S) :
+                [ms] (([ms] X) [^] ([ms] X)) [=S] ([ms] X).
+Proof. apply brel_set_intro_prop; auto. split. 
+       - intros a A.
+         apply in_minset_elim in A; auto. destruct A as [A1 A2].          
+         apply in_set_bop_lift_elim in A1; auto. 
+         destruct A1 as [x [y [[B C] D]]].     
+         assert (F := LI x y). 
+         case_eq(in_set rS X a); intro E. 
+         + apply in_minset_intro; auto. split; auto. 
+           intros t G. 
+           case_eq(in_set rS ([ms] X) t); intro H. 
+           * apply A2. 
+             assert (I := idem t).
+             apply (in_set_right_congruence S rS symS tranS _ _ _ I).
+             apply in_set_bop_lift_intro; auto.
+           * apply in_set_minset_false_elim in H; auto. 
+             destruct H as [u [I J]]. 
+             case_eq(below lteS a t); intro K; auto. 
+                assert (L := below_transitive _ lteS lteTrans _ _ _ J K). 
+                assert (M : u [in] (([ms] X) [^] ([ms] X))). 
+                   assert (H := idem u).
+                   apply (in_set_right_congruence S rS symS tranS _ _ _ H).
+                   apply in_set_bop_lift_intro; auto.
+                rewrite (A2 _ M) in L. discriminate L. 
+         + assert (G : x [in] (([ms] X) [^] ([ms] X))).
+              assert (H := idem x).
+              apply (in_set_right_congruence S rS symS tranS _ _ _ H).
+              apply in_set_bop_lift_intro; auto.
+           assert (H := A2 _ G).
+           rewrite (below_congruence S rS lteS lteCong _ _ _ _ D (refS x)) in H.           
+           apply below_false_elim in H. destruct H as [H | H]. 
+           * rewrite F in H. discriminate H. 
+           * assert (I := anti _ _ H F).            (* only use of anti *)
+             assert (J := tranS _ _ _ D I). apply symS in J. 
+             apply (in_set_right_congruence S rS symS tranS _ _ _ J).
+             exact B. (* could also get contradiction from a [!in] X *)
+       - intros a A. 
+         apply in_minset_intro; auto. split. 
+         + assert (B := idem a).  
+           apply (in_set_right_congruence S rS symS tranS _ _ _ B).
+           apply in_set_bop_lift_intro; auto. 
+         + intros t B.
+           apply in_set_bop_lift_elim in B; auto. 
+           destruct B as [x [y [[B C] D]]].
+           rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS a) D). 
+           case_eq(below lteS a (bS x y)); intro E; auto. 
+              apply in_minset_elim in A; auto. destruct A as [A1 A2].
+              assert (F := LI x y). 
+              assert (G := below_pseudo_transitive_left _ _ _ F E).
+              apply in_minset_elim in B; auto. destruct B as [B1 B2].
+              rewrite (A2 x B1) in G. discriminate G. 
+Qed. 
+*) 
+
+
+
 Lemma bop_minset_lift_idempotent_v2
       (anti : brel_antisymmetric S rS lteS) 
       (idem : bop_idempotent S rS bS)

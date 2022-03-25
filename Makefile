@@ -120,6 +120,7 @@ CAS=\
    coq/os/structures.v \
    coq/os/theory.v \
    coq/os/cast_up.v \
+   coq/os/from_sg.v \
    coq/os/from_bs_left.v \
    coq/st/properties.v \
    coq/st/structures.v \

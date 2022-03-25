@@ -71,7 +71,8 @@ Require Import CAS.coq.bs.cast_up.
 Require Import CAS.coq.bs.minset_union_lift.
 Require Import CAS.coq.bs.minset_lift_union.
 (* Require Import CAS.coq.bs.dual.*)
-Require Import CAS.coq.os.from_bs_left. 
+Require Import CAS.coq.os.from_bs_left.
+Require Import CAS.coq.os.from_sg. 
 
 Require Import CAS.coq.algorithm.Matrix.
 Require Import CAS.coq.algorithm.wrapper. 
@@ -219,6 +220,7 @@ Extraction "Cas.ml"
  *)
    (* order semirgroups *)
    mcas_os_from_bs_left
+   mcas_os_from_sg_right   
    (* algorithms *)      
    instantiate_matrix_exp_unary_curry
    call_instantiate_matrix_exp_unary_curry

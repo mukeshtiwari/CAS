@@ -82,8 +82,10 @@ with cas_bs_ast : Type :=
    | Ast_lift_union : cas_sg_ast → cas_bs_ast    
    | Ast_union_lift : cas_sg_ast → cas_bs_ast                          
 with cas_os_ast : Type :=
+   | Ast_os_from_sg_left : cas_sg_ast  → cas_os_ast
+   | Ast_os_from_sg_right : cas_sg_ast  → cas_os_ast
    | Ast_os_from_bs_left : cas_bs_ast  → cas_os_ast
-   | Ast_os_from_bs_right : cas_bs_ast  → cas_os_ast
+   | Ast_os_from_bs_right : cas_bs_ast  → cas_os_ast                                            
    | Ast_os_llex_product : cas_os_ast * cas_os_ast  → cas_os_ast
    | Ast_os_product : cas_os_ast * cas_os_ast  → cas_os_ast
    | Ast_os_add_bottom_id : cas_constant * cas_os_ast → cas_os_ast
