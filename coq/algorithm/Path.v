@@ -3396,8 +3396,129 @@ Section Pathprops.
     repeat split; try assumption.
   Qed.
 
+  (*
+    source_target_non_empty_kpath_and_well_formed and
+    source_target_non_empty_kpath_and_well_formed_rev are the
+    important ingredient
+  *)
 
-  
+  Lemma reduce_path_into_simpl_path :
+    forall (l : list (Node * Node * R)) m c d,
+    mat_cong Node eqN R eqR m -> 
+    well_formed_path_aux Node eqN R eqR m (l ++ [(d, d, 1)]) = true ->
+    source _ eqN _ c (l ++ [(d, d, 1)]) = true -> 
+    target _ eqN _ d (l ++ [(d, d, 1)]) = true ->
+    exists ys, 
+      (List.length ys < List.length finN)%nat ∧
+      well_formed_path_aux Node eqN R eqR m (ys ++ [(d, d, 1)]) = true ∧
+      source _ eqN _ c (ys ++ [(d, d, 1)]) = true ∧
+      target _ eqN _ d (ys ++ [(d, d, 1)]) = true.
+  Proof.
+    intros l.
+    induction (zwf_well_founded l) as [l Hf IHl].
+    unfold zwf in * |- *.
+    intros ? ? ? Hm Hw Hs Ht.
+    (* check if list is empty of not empty *)
+    destruct l as [|((au, av), aw) l].
+    + simpl.
+      exists [].
+      repeat split.
+      simpl; try nia.
+      exact Hw.
+      exact Hs.
+      exact Ht.
+    + (* List is not empty *)
+
+
+
+
+
+
+
+
+
+
+
+
+      (*
+      assert (Hwt: exists bu bv bw ys, 
+        l ++ [(d, d, 1)] = (bu, bv, bw) :: ys).
+      destruct l as [|((cu, cv), cw) xs].
+      exists d, d, 1, [].
+      reflexivity.
+      simpl.
+      exists cu, cv, cw, (xs ++ [(d, d, 1)]).
+      reflexivity.
+      destruct Hwt as (bu & bv & bw & ys & Hwt).
+      simpl in Hs.
+      assert (Hwtt : (((au, av, aw) :: l) ++ [(d, d, 1)]) = 
+        (((au, av, aw) :: l ++ [(d, d, 1)]))).
+      simpl. reflexivity.
+      rewrite Hwtt in Hw.
+      rewrite Hwt in Hw.
+      remember ((bu, bv, bw) :: ys) as bys.
+      case (au =n= av) eqn:Hauv.
+      (* discard this unit loop and call 
+        the loop trimmer, IHl, again*)
+      eapply IHl.
+      instantiate (1 := l).
+      simpl; nia.
+      exact Hm.
+      simpl in Hw.
+      rewrite Heqbys in Hw.
+      rewrite <-Heqbys in Hw.
+      rewrite Hwt.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwl Hw]. 
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwll Hw].
+      exact Hw.
+      rewrite Hwt.
+      rewrite Heqbys.
+      simpl.
+      simpl in Hw.
+      rewrite Heqbys in Hw.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwl Hw]. 
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwll Hw].
+      apply trnN with au.
+      exact Hs.
+      apply trnN with av; 
+      try assumption.
+      rewrite target_end.
+      simpl; apply refN.
+      (* Now we know that 
+        there is not loop at the front 
+        but au can appear somewhere inside *)
+      case (elem_path_triple_tail Node eqN R au bys) eqn:Heab.
+      destruct (elem_path_triple_tail_true bys _ Heab) as 
+        (llt & aut & awt & lrt & Ha & Hb & Hc).
+      simpl in Hw.
+      rewrite Heqbys in Hw.
+      rewrite <-Heqbys in Hw.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwl Hw]. 
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwll Hw].
+      pose proof well_formed_path_rewrite _ _ _ 
+        Hm Hw Ha as Hwf.
+      rewrite List.app_assoc in Hwf.
+      destruct (well_formed_path_snoc _ _ _ 
+          Hwf) as [Hwfl Hwfr].
+
+      *)
+  Admitted.
+      
+      
+      
+    
+      
+      
+    
+
+
+
 
 
 
