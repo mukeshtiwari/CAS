@@ -1160,6 +1160,67 @@ Section Listtripleprops.
         lia.
     Qed.
 
+  Lemma elem_path_aux_true : 
+    forall (l : list A) (a : A),
+    in_list rA l a = true -> 
+    exists l₁ l₂ : list A, 
+    list_eqv _ rA l (l₁ ++ [a] ++ l₂) = true.
+  Proof using A rA refA symA.
+    induction l.
+    - simpl; intros ? H; 
+      congruence.
+    - simpl; intros ? H.
+      apply Bool.orb_true_iff in H.
+      destruct H as [H | H].
+      exists [], l; simpl.
+      apply Bool.andb_true_iff.
+      split.
+      apply symA; exact H.
+      apply list_eqv_refl; assumption.
+      destruct (IHl a0 H) as [l₁ [l₂ Ht]].
+      exists (a :: l₁), l₂.
+      simpl. apply Bool.andb_true_iff.
+      split. apply refA.
+      exact Ht.
+  Qed.
+
+ 
+  Lemma in_list_true : 
+    forall l₁ l₂ a, 
+    in_list rA (l₁ ++ a :: l₂) a = true.
+  Proof.
+    induction l₁.
+    + simpl.
+      intros ? ?.
+      rewrite refA.
+      reflexivity.
+    + simpl.
+      intros ? ?.
+      rewrite IHl₁.
+      apply Bool.orb_true_iff.
+      right.
+      reflexivity.
+  Qed.
+
+
+  Lemma no_dup_false_one : 
+    forall l₁ l₂ l₃ a, 
+    no_dup A rA (l₁ ++ a :: l₂ ++ a :: l₃) = false.
+  Proof.
+    induction l₁.
+    + simpl.
+      intros *.
+      rewrite in_list_true.
+      simpl.
+      reflexivity.
+    + simpl.
+      intros *.
+      rewrite IHl₁.
+      apply Bool.andb_false_iff.
+      right.
+      reflexivity.
+  Qed.
+  
 
     
 End Listtripleprops.
