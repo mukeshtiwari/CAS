@@ -1539,9 +1539,226 @@ Section Pathprops.
 
 
 
-
+  Lemma path_reconstruction : 
+    forall (l : list (Node * Node * R)) m,
+    mat_cong Node eqN R eqR m ->
+    well_formed_path_aux _ eqN _ eqR m l = true -> 
+    triple_elem_list _ _ _ eqN eqN eqR 
+      (construct_path_from_nodes _ _ 
+        (collect_nodes_from_a_path Node R l) m)
+      l = true.
+  Proof using Node R congrR eqN eqR refN refR symN.
+    induction l.
+    + intros * Hm Hw. 
+      simpl; reflexivity.
+    + intros * Hm Hw. 
+      simpl.
+      destruct a as ((au, av), aw).
+      destruct l.
+      simpl in * |- *.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hw _].
+      repeat (apply Bool.andb_true_iff; split;
+      try (apply refN); try assumption).
+      reflexivity.
+      (* induction case *)
+      destruct p as ((pu, pv), pw). 
+      assert (Hwt: (well_formed_path_aux _ eqN _ eqR m 
+        ((au, av, aw) :: (pu, pv, pw) :: l) = 
+        (m au av =r= aw) && ((av =n= pu) && 
+        well_formed_path_aux _ eqN _ eqR m ((pu, pv, pw) :: l)))%bool).
+      simpl. reflexivity.
+      rewrite Hwt in Hw; clear Hwt.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwl Hw].
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwll Hw].
+      specialize (IHl m Hm Hw).
+      assert (Hwt: construct_path_from_nodes _ _ 
+        (au :: collect_nodes_from_a_path Node R ((pu, pv, pw) :: l)) m =
+        (au, pu, m au pu) :: 
+        construct_path_from_nodes _ _ 
+          (collect_nodes_from_a_path _ _ ((pu, pv, pw) :: l)) m).
+      simpl. destruct l.
+      reflexivity. reflexivity.
+      rewrite Hwt; clear Hwt.
+      remember (construct_path_from_nodes _ _ 
+      (collect_nodes_from_a_path _ _ ((pu, pv, pw) :: l)) m) as ml.
+      remember ((pu, pv, pw) :: l) as pl.
+      simpl.
+      repeat (apply Bool.andb_true_iff; split).
+      apply refN. apply symN. exact Hwll.
+      rewrite <-Hwl. apply congrR.
+      apply Hm. apply refN.
+      apply symN. exact Hwll.
+      apply refR.
+      exact IHl.
+  Qed.
 
   
+  Lemma source_list_construction : forall l c m,
+    mat_cong Node eqN R eqR m -> 
+    well_formed_path_aux _ eqN _ eqR  m l = true -> 
+    source _ eqN R c l = true ->
+    exists d lc, 
+    triple_elem_list _ _ _ eqN eqN eqR 
+      l ((c, d, m c d) :: lc) = true.
+  Proof using Node R congrR 
+  eqN eqR refN refR symN symR.
+    destruct l.
+    + intros ? ? Hm Hw Hs.
+      simpl in Hs. congruence.
+    + intros ? ? Hm Hw Hs.
+      destruct p as ((u, v), w).
+      simpl in * |- *.
+      exists v, l.
+      repeat (apply Bool.andb_true_iff; split).
+      apply symN; assumption.
+      apply refN.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hw _].
+      apply symR. rewrite <-Hw.
+      apply congrR.
+      apply Hm. exact Hs.
+      apply refN.
+      apply refR.
+      apply triple_elem_eq_list_refl;
+      try assumption.
+  Qed.
+
+
+  Lemma target_list_construction : 
+    forall l c m,
+    mat_cong Node eqN R eqR m -> 
+    well_formed_path_aux _ eqN _ eqR m l = true -> 
+    target _ eqN R c l = true ->
+    exists d lc, 
+    triple_elem_list  _ _ _ eqN eqN eqR 
+      l (lc ++ [(d, c, m d c)]) = true.
+  Proof.
+    induction l.
+    + intros ? ? Hm Hw Ht.
+      simpl in Ht.
+      congruence.
+    + intros ? ? Hm Hw Ht.
+      destruct l.
+      destruct a as ((au, av), aw).
+      simpl in * |-.
+      exists au, [].
+      simpl.
+      apply Bool.andb_true_iff; split.
+      apply Bool.andb_true_iff; split.
+      apply Bool.andb_true_iff; split.
+      all:(try (apply refN); try (apply refR)).
+      apply symN; assumption.
+      apply symR.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hw _].
+      rewrite <-Hw.
+      apply congrR.
+      apply Hm.
+      apply refN.
+      exact Ht.
+      apply refR.
+      reflexivity.
+      destruct a as ((au, av), aw).
+      destruct p as ((pu, pv), pw).
+      assert (Hwt: (well_formed_path_aux _ eqN _ eqR m ((au, av, aw) :: (pu, pv, pw) :: l) = 
+        (m au av =r= aw) && ((av =n= pu) && well_formed_path_aux _ eqN _ eqR m ((pu, pv, pw) :: l)))%bool).
+      simpl. reflexivity.
+      rewrite Hwt in Hw; clear Hwt.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwl Hw].
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwll Hw].
+      assert (Hwt : target _ eqN R c ((au, av, aw) :: (pu, pv, pw) :: l) = 
+      target _ eqN R c ((pu, pv, pw) :: l)). simpl. reflexivity.
+      rewrite Hwt in Ht; clear Hwt.
+      destruct (IHl c m Hm Hw Ht) as [d [lc Hlc]].
+      exists d, ((au, av, aw) :: lc).
+      rewrite <-List.app_comm_cons.
+      remember ((pu, pv, pw) :: l) as pl.
+      remember (lc ++ [(d, c, m d c)]) as ld.
+      simpl. 
+      apply Bool.andb_true_iff; split.
+      apply Bool.andb_true_iff; split.
+      apply Bool.andb_true_iff; split.
+      all:(try (apply refN); try (apply refR)).
+      exact Hlc.
+  Qed.
+
+
+  Lemma list_equality_cons_gen : 
+    forall l ld le c d mcd e f mef,
+    l <> [] -> 
+    triple_elem_list _ _ _ eqN eqN eqR  l ((c, d, mcd) :: ld) = true ->
+    triple_elem_list _ _ _ eqN eqN eqR  l (le ++ [(e, f, mef)]) = true ->
+    (triple_elem_list _ _ _ eqN eqN eqR l [(c, d, mcd)] = true ∧ 
+     triple_elem_list _ _ _ eqN eqN eqR l [(e, f, mef)] = true) 
+     ∨ 
+    (exists lm, 
+      triple_elem_list _ _ _ eqN eqN eqR  
+      l ((c, d, mcd) :: lm ++ [(e, f, mef)]) = true).
+  Proof.
+    induction l as [|((au, av), aw) l].
+    + intros * H He Hf.
+      congruence.
+    + intros * H He Hf.
+      destruct l as [|((bu, bv), bw) l].
+      destruct ld as [|((ldu, ldv), ldw) ld].
+      destruct le as [|((leu, lev), lew) le].
+      left.
+      simpl in * |-*.
+      split. exact He.
+      exact Hf.
+      simpl in Hf.
+      destruct le;
+      simpl in Hf; lia.
+      destruct ld;
+      simpl in He; lia.
+      destruct ld as [|((ldu, ldv), ldw) ld].
+      simpl in He. 
+      apply Bool.andb_true_iff in He.
+      lia.
+      destruct le as [|((leu, lev), lew) le].
+      simpl in Hf.
+      apply Bool.andb_true_iff in Hf.
+      lia.
+      remember ((bu, bv, bw) :: l) as bl.
+      remember ((ldu, ldv, ldw) :: ld) as dl.
+      assert (Hwt : (((leu, lev, lew) :: le) ++ [(e, f, mef)]) =
+      ((leu, lev, lew) :: (le ++ [(e, f, mef)]))).
+      simpl; reflexivity.
+      rewrite Hwt in Hf; clear Hwt.
+      simpl in He, Hf.
+      apply Bool.andb_true_iff in He, Hf.
+      destruct He as [He Her].
+      destruct Hf as [Hf Hfr].
+      subst.
+      assert (Hwt : (bu, bv, bw) :: l ≠ []).
+      intro Hff; congruence.
+      specialize(IHl _ _ _ _ _ _ _ _ Hwt Her Hfr).
+      destruct IHl as [[IHll IHlr] | [lm IHl]].
+      right.
+      exists [].
+      remember ((bu, bv, bw) :: l) as bl.
+      simpl.
+      apply Bool.andb_true_iff; split.
+      exact He. assumption.
+      right.
+      exists ((ldu, ldv, ldw) :: lm).
+      remember ((bu, bv, bw) :: l) as bl.
+      simpl.
+      apply Bool.andb_true_iff; split.
+      exact He.
+      exact IHl.
+  Qed.
+
+  
+
+
+
+
 
 
 
