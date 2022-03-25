@@ -3213,7 +3213,194 @@ Section Pathprops.
       subst.
       exact He.
   Qed.
+
+
+  (* if you give me path of length >= finN then there is loop *)
+  Lemma all_paths_in_klength_paths_cycle_finN_stronger : 
+    forall (l : list (Node * Node * R)) m,
+    (List.length finN <= List.length l)%nat ->
+    well_formed_path_aux Node eqN R eqR m l = true ->
+    exists ll au av aw lm lr, 
+    (ll, Some ((au, av, aw) :: lm), lr) = 
+    elem_path_triple_compute_loop_triple Node eqN R l /\ 
+    cyclic_path Node eqN R au ((au, av, aw) :: lm) /\  (* Loop so we can remove this *)
+    elem_path_triple Node eqN R ll = true /\ (* Elementry Path *)
+    triple_elem_list _ _ _ eqN eqN eqR l (ll ++  ((au, av, aw) :: lm) ++ lr) = true. 
+    (* lr is the rest of path *)
+  Proof.
+    intros ? ? Hfin Hw.
+    assert(empN : finN <> []).
+    destruct finN.
+    simpl in lenN; try nia.
+    intro H. congruence.
+    pose proof length_collect_node_gen finN 
+      l empN Hfin as Hf.
+    pose proof covers_list_elem Node eqN finN 
+      (collect_nodes_from_a_path Node R l) memN as Hcov.
+    pose proof all_paths_in_klength_paths_cycle
+      finN l m Hw Hcov Hf as Hwt.
+    eapply triple_compute_connect_with_triple_elem_stronger.
+    exact Hwt.
+  Qed.
+
+
+
+  Definition zwf (x y : list (Node * Node * R)) := 
+      (List.length x < List.length y)%nat.
+
+  Lemma zwf_well_founded : well_founded zwf.
+  Proof.
+    exact (Wf_nat.well_founded_ltof _ 
+      (fun x => List.length x)).
+  Defined.
   
+
+    
+
+  (* easy proof List.length finN <= List.length l -> loop *)
+  Lemma elem_path_length : 
+    forall (l : list (Node * Node * R)) m, 
+    elem_path_triple Node eqN R l = true ->
+    well_formed_path_aux Node eqN R eqR m l = true -> 
+    (List.length l < List.length finN)%nat.
+  Proof.
+    intros l m He Hw.
+    assert (Hwt : (length l < length finN)%nat \/ 
+    (length finN <= length l)%nat).
+    nia.
+    destruct Hwt as [Hwt | Hwt].
+    exact Hwt.
+    assert(empN : finN <> []).
+    destruct finN.
+    simpl in lenN; try nia.
+    intro H. congruence.
+    pose proof length_collect_node_gen finN 
+    l empN Hwt as Hf.
+    pose proof covers_list_elem _ _ finN 
+      (collect_nodes_from_a_path Node R l) memN as Hcov.
+    pose proof all_paths_in_klength_paths_cycle
+      finN l m Hw Hcov Hf as Hat.
+    rewrite Hat in He.
+    congruence.
+  Qed.
+
+  
+  (* I can take any path l and turn it into elementry path 
+      by keep applying *)
+  Lemma reduce_path_into_elem_path : 
+    forall (l : list (Node * Node * R)) m,
+    mat_cong Node eqN R eqR m -> 
+    well_formed_path_aux Node eqN R eqR m l = true ->
+    exists lm, 
+      well_formed_path_aux Node eqN R eqR m lm = true /\ 
+      elem_path_triple Node eqN R lm = true.
+  Proof.
+    intros l.
+    induction (zwf_well_founded l) as [l Hf IHl].
+    unfold zwf in * |- *.
+    intros ? Hm Hw.
+    (* check if list is empty of not empty *)
+    destruct l as [|((au, av), aw) l].
+    + simpl.
+      exists [].
+      repeat split.
+    + (*  *)
+      destruct l as [|((bu, bv), bw) l].
+      - simpl.
+        case (au =n= av) eqn:Hauv.
+        exists [].
+        repeat split.
+        simpl.
+        exists [(au, av, aw)].
+        simpl.
+        repeat split.
+        simpl in Hw.
+        exact Hw.
+        rewrite Hauv.
+        reflexivity.
+      - (* l is non-empty *)
+        remember ((bu, bv, bw) :: l) as bl.
+        simpl in Hw.
+        rewrite Heqbl in Hw.
+        rewrite <-Heqbl in Hw.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hw Hwr].
+        case (au =n= av) eqn:Hauv.
+        (* There is a loop of length 1 
+        at the front. Discard it and call 
+        the function/Induction hypothesis
+        on the remaining list. *)
+        assert (Hwt : (length bl < length ((au, av, aw) :: bl))%nat).
+        simpl. nia.
+        destruct (IHl bl Hwt m Hm Hwr) as 
+        (lm & Hwe & He).
+        exists lm.
+        repeat split.
+        exact Hwe.
+        exact He.
+        (* au <> av but au can appear inside bl *)
+        case (elem_path_triple_tail Node eqN R au bl) eqn:Heab.
+        destruct (elem_path_triple_tail_true bl _ Heab) as 
+        (llt & aut & awt & lrt & Ha & Hb & Hc).
+        (* discard (llt ++ [(aut, au, awt)]) and 
+          call the recursive function on lrt *)
+        assert (Hd : well_formed_path_aux Node eqN R eqR m lrt = true).
+        pose proof well_formed_path_rewrite _ _ m Hm 
+          Hwr Ha as Hwf.
+        rewrite List.app_assoc in Hwf.
+        destruct (well_formed_path_snoc _ _ _ 
+          Hwf) as [Hwfl Hwfr].
+        exact Hwfr.
+        assert(Hwt : (length lrt < length ((au, av, aw) :: bl))%nat).
+        simpl.
+        eapply triple_elem_rewrite_le.
+        exact Ha.
+        destruct (IHl lrt Hwt m Hm Hd) as 
+        (lm & Hwe & He).
+        exists lm. 
+        split.
+        exact Hwe.
+        exact He.
+        (* no loop at the head so continue *)
+        assert (Hwt : (length bl < length ((au, av, aw) :: bl))%nat).
+        simpl. nia.
+        destruct (IHl bl Hwt m Hm Hwr) as 
+        (lm & Hwe & He).
+        exists lm. 
+        split.
+        exact Hwe.
+        exact He.
+  Qed.
+
+
+
+  (* Every well formed path can be reduced into 
+      an well formed elementry path, i.e., path 
+      without loop and it's length < finN *)
+  Lemma reduce_path_into_elem_path_gen : 
+    forall (l : list (Node * Node * R)) m,
+    mat_cong Node eqN R eqR m -> 
+    well_formed_path_aux Node eqN R eqR m l = true ->
+    exists lm, 
+      well_formed_path_aux Node eqN R eqR m lm = true /\ 
+      elem_path_triple Node eqN R lm = true /\ 
+      (List.length lm < List.length finN)%nat.
+  Proof.
+    intros ? ? Hm Hw.
+    destruct (reduce_path_into_elem_path l m Hm Hw) 
+    as (lm & Hwa & Hwe).
+    pose proof (elem_path_length lm m Hwe Hwa) as Hp.
+    exists lm.
+    repeat split; try assumption.
+  Qed.
+
+
+  
+
+
+
 
 
 
