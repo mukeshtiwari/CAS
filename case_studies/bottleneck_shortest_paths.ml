@@ -136,7 +136,31 @@ w(5,6) = (3, 2)
  \   / \   /
   \ /   \ /
    2     5
-*)   
+*)
+
+let plus =
+  match bottleneck_shortest_paths with
+  | BS_dioid d -> d.dioid_plus
+  | _ -> error "plus: nope!" ;; 
+
+let times =
+  match bottleneck_shortest_paths with
+  | BS_dioid d -> d.dioid_times
+  | _ -> error "times: nope!" ;; 
+  
+let upper = [[Inr (1, 1); Inr(1,3); Inr(3,1)]];;
+let lower = [[Inr(1, 1); Inr(2,3); Inr(2,2); Inr(3,2)]];; 
+
+(* from example in Section 4.1.  
+   This seems to work. 
+
+plus upper lower;;
+- : (int * int) Cas.with_constant Cas.finite_set Cas.finite_set =
+[[Inr (1, 1); Inr (1, 3); Inr (3, 1)]]
+
+ *) 
+
+  
 let figure_3_1 = 
   { adj_size = 7;
     adj_list = 
@@ -153,9 +177,9 @@ let sol_1 = bsp_solve_adj_list figure_3_1;;
 (*
 
 Note : the 0 to 6 value is not exactly 
-what the paper seems to claim. 
-Either paper is wrong or I've coded 
-up the order in the wrong way.... 
+what the paper seems to imply. 
+This is because all paths are explored, not just 
+the upper and lower paths. 
 
 #print_length 1000;;
 list_sq_matrix sol_1;; 
@@ -212,3 +236,4 @@ list_sq_matrix sol_1;;
 
   
  *) 
+
