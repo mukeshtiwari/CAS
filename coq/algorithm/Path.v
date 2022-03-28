@@ -3396,11 +3396,131 @@ Section Pathprops.
     repeat split; try assumption.
   Qed.
 
-  (*
-    source_target_non_empty_kpath_and_well_formed and
-    source_target_non_empty_kpath_and_well_formed_rev are the
-    important ingredient
-  *)
+
+  Lemma well_founded_rev : 
+    forall lm aut avt awt au av aw cut cvt cwt lr m,
+    mat_cong Node eqN R eqR m ->
+    well_formed_path_aux Node eqN R eqR m
+      ([(aut, avt, awt)] ++ ((au, av, aw) :: lm) ++ (cut, cvt, cwt) :: lr) = true ->
+    cyclic_path Node eqN R au ((au, av, aw) :: lm) ->
+    avt =n= cut = true. 
+  Proof.
+    intros * Hm Hw Hc.
+    unfold cyclic_path in Hc. 
+    destruct Hc as (_ & Hcb & Hcc).
+    assert (Hwt: well_formed_path_aux Node eqN R eqR m 
+    ((au, av, aw) :: lm) = true).
+    apply well_formed_path_snoc in Hw.
+    destruct Hw as [_ Hw].
+    apply well_formed_path_snoc in Hw.
+    destruct Hw as [Hw _].
+    exact Hw.
+    pose proof target_list_construction _ _ _ Hm Hwt Hcc.
+
+
+  (* 
+    destruct lm using List.rev_ind.
+    + intros * Hw Hc.
+      simpl in Hw.
+      unfold cyclic_path in Hc.
+      destruct Hc as (Hca & Hcb & Hcc).
+      clear Hca.
+      simpl in Hcb, Hcc.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwl Hw].
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwll Hw].
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwlll Hw].
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwllll Hw].
+      apply trnN with au.
+      exact Hwll.
+      apply trnN with av;
+      try assumption.
+    + intros * Hw Hc.
+
+      destruct x as ((xa, xb), xc).
+    *)
+  Admitted.
+
+
+
+
+
+
+  
+  Lemma well_formed_loop_removal : 
+    forall ll lr lm au av aw m,
+    well_formed_path_aux Node eqN R eqR m 
+      (ll ++ ((au, av, aw) :: lm) ++ lr) = true ->
+    cyclic_path Node eqN R au ((au, av, aw) :: lm) ->
+    well_formed_path_aux Node eqN R eqR m ((ll ++ lr)) = true.
+  Proof.
+    induction ll as [|((aut, avt), awt) ll].
+    + intros * Hw Hc.
+      rewrite List.app_nil_l in Hw.
+      rewrite List.app_nil_l.
+      destruct (well_formed_path_snoc _ _ m Hw) as [_ Hwt].
+      exact Hwt.
+    + intros * Hw Hc.
+      simpl.
+      destruct ll as [|((but, bvt), bwt) ll].
+      simpl.
+      destruct lr as [|((cut, cvt), cwt) lr].
+      destruct (well_formed_path_snoc _ _ _ Hw) as [Ha Hb].
+      simpl in Ha.
+      exact Ha.
+      apply Bool.andb_true_iff.
+      split.
+      simpl in Hw.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hw _].
+      exact Hw.
+      apply Bool.andb_true_iff.
+      split.
+
+      admit.
+      apply well_formed_path_snoc in Hw.
+      destruct Hw as [_ Hw].
+      apply well_formed_path_snoc in Hw.
+      destruct Hw as [_ Hw].
+      exact Hw.
+      assert(Hlt : ((but, bvt, bwt) :: ll) ++ lr = 
+        (but, bvt, bwt) :: ll ++ lr).
+      simpl; reflexivity.
+      rewrite Hlt.
+      assert (Hbt : (((aut, avt, awt) :: (but, bvt, bwt) :: ll) ++ ((au, av, aw) :: lm) ++ lr) = 
+        (aut, avt, awt) :: ((but, bvt, bwt) :: ll ++ ((au, av, aw) :: lm) ++ lr)).
+      simpl; reflexivity.
+      rewrite Hbt in Hw.
+      clear Hbt.
+      remember ((but, bvt, bwt) :: ll ++ ((au, av, aw) :: lm) ++ lr) as bl.
+      simpl in Hw.
+      rewrite Heqbl in Hw.
+      rewrite <-Heqbl in Hw.
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwl Hw].
+      apply Bool.andb_true_iff in Hw.
+      destruct Hw as [Hwll Hw].
+      apply Bool.andb_true_iff.
+      split.
+      exact Hwl.
+      apply Bool.andb_true_iff.
+      split.
+      exact Hwll.
+      rewrite Heqbl in Hw.
+      exact (IHll _ _ _ _ _ _ Hw Hc).
+  Admitted.
+
+      
+      
+
+
+
+
+
+  
 
   Lemma reduce_path_into_simpl_path :
     forall (l : list (Node * Node * R)) m c d,
@@ -3425,7 +3545,14 @@ Section Pathprops.
       m Hfl Ha) as (ll & au & av & aw & lm & lr & He 
       & Hc & Hep & Hte).
     assert (Hlt : (length (ll ++ lr) < length l)%nat).
-    admit.
+    pose proof (length_rewrite _ _ _ eqN eqN eqR _ _ Hte) as Hlf.
+    rewrite Hlf. 
+    simpl.
+    rewrite app_length.
+    rewrite app_length.
+    simpl.
+    rewrite app_length.
+    nia.
     assert (Hdisj : (length (ll ++ lr) < length finN)%nat ∨ 
       (length finN <= length (ll ++ lr))%nat).
     nia.
@@ -3433,6 +3560,9 @@ Section Pathprops.
     exists (ll ++ lr).
     repeat split.
     exact Hdisj.
+    pose proof well_formed_loop_removal.
+
+    
     (* 
       How can I discharge this?
       Hw: well_formed_path_aux Node eqN R eqR m (l ++ [(d, d, 1)]) = true
