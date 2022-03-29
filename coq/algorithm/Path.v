@@ -3938,7 +3938,20 @@ Section Pathprops.
     triple_elem_list Node Node R eqN eqN eqR l₁ l₂ = true ->
     source Node eqN R c l₂ = true.
   Proof.
-  Admitted.
+    destruct l₁ as [|((au, av), aw) l₁];
+    destruct l₂ as [|((bu, bv), bw) l₂];
+    intros ? Hs Ht;
+    simpl in * |- *;
+    try assumption;
+    try congruence.
+    apply trnN with au;
+    try assumption.
+    case (au =n= bu) eqn:Haubu.
+    reflexivity.
+    simpl in Ht;
+    congruence.
+  Qed.
+  
 
 
   Lemma target_rewrite_gen : 
@@ -3947,11 +3960,42 @@ Section Pathprops.
     triple_elem_list Node Node R eqN eqN eqR l₁ l₂ = true ->
     target Node eqN R c l₂ = true.
   Proof.
-  Admitted.
-
-
-
-
+    induction l₁ as [|((au, av), aw) l₁];
+    destruct l₂ as [|((bu, bv), bw) l₂];
+    intros ? Htn Hte;
+    simpl in Hte;
+    try congruence.
+    apply Bool.andb_true_iff in Hte.
+    destruct Hte as [Hte Hter].
+    apply Bool.andb_true_iff in Hte.
+    destruct Hte as [Hte Hterr].
+    destruct l₁ as [|((cu, cv), cw) l₁];
+    destruct l₂ as [|((du, dv), dw) l₂].
+    simpl.
+    simpl in Htn.
+    apply trnN with av;
+    try assumption.
+    apply Bool.andb_true_iff in Hte.
+    destruct Hte as [_ Hte];
+    exact Hte.
+    simpl in Hter;
+    congruence.
+    simpl in Hter;
+    congruence.
+    remember ((cu, cv, cw) :: l₁) as cl.
+    remember ((du, dv, dw) :: l₂) as dl.
+    simpl.
+    rewrite Heqdl.
+    rewrite <-Heqdl.
+    simpl in Htn.
+    rewrite Heqcl in Htn.
+    rewrite <-Heqcl in Htn.
+    eapply IHl₁.
+    exact Htn.
+    exact Hter.
+  Qed.
+  
+  
   Lemma reduce_path_gen_lemma : 
     ∀ (n : nat) (m : Matrix Node R) 
     (c d : Node) (xs : list (Node * Node * R)),
