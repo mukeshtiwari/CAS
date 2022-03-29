@@ -3816,7 +3816,21 @@ Section Pathprops.
       l₁ l₂ = true ->
     source Node eqN R c (l₂ ++ [(d, d, 1)]) = true.
   Proof.
-  Admitted.
+    destruct l₁ as [|((au, av), aw) l₁];
+    destruct l₂ as [|((bu, bv), bw) l₂];
+    intros ? ? Hs Ht;
+    simpl in * |- *;
+    try assumption;
+    try congruence.
+    apply trnN with au;
+    try assumption.
+    case (au =n= bu) eqn:Haubu.
+    reflexivity.
+    simpl in Ht;
+    congruence.
+  Qed.
+  
+
 
   Lemma triple_source_rewrite :
     forall l ll lm lr c d au av aw, 
@@ -3917,6 +3931,8 @@ Section Pathprops.
     exact Hsn.
     exact Htn.
   Qed.
+
+  
 
   
 
