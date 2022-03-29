@@ -3284,6 +3284,7 @@ Section Pathprops.
     congruence.
   Qed.
 
+
   
   (* I can take any path l and turn it into elementry path 
       by keep applying *)
@@ -3569,6 +3570,151 @@ Section Pathprops.
     
 
 
+  Lemma source_loop_removal : 
+    forall ll lr lm au av aw c d m,
+    mat_cong Node eqN R eqR m ->
+    well_formed_path_aux Node eqN R eqR m
+         (ll ++ ((au, av, aw) :: lm) ++ lr ++ [(d, d, 1)]) = true -> 
+    source Node eqN R c
+      (ll ++ ((au, av, aw) :: lm) ++ lr ++ [(d, d, 1)]) = true ->
+    cyclic_path Node eqN R au ((au, av, aw) :: lm) ->
+    source Node eqN R c ((ll ++ lr) ++ [(d, d, 1)]) = true.
+  Proof.
+    intros * Hw Hm Hs Hc.
+    assert (Hlt : lm = [] ∨ exists c d mcd lm',
+      lm = lm' ++ [((c, d), mcd)]).
+    destruct lm as [|((pa, pb), pc) lm]. 
+    left; reflexivity.
+    right.
+    assert (Hne : (pa, pb, pc) :: lm  <> []).
+    intro Hf; congruence.
+    destruct (@exists_last _ ((pa, pb, pc) :: lm) Hne) 
+    as (lm' & ((but, bvt), bwt) & Hd).
+    exists but, bvt, bwt, lm'.
+    exact Hd.
+
+    destruct ll as [|((bu, bv), bw) ll];
+    destruct lr as [|((cu, cv), cw) lr].
+    destruct Hlt as [Hlt | Hlt].
+    rewrite Hlt in Hc, Hs, Hm.
+    simpl in * |- *.
+    unfold cyclic_path in Hc.
+    simpl in Hc.
+    destruct Hc as (_ & _ & Hc).
+    apply trnN with au;
+    try assumption.
+    apply trnN with av; 
+    try assumption.
+    apply Bool.andb_true_iff in Hm.
+    destruct Hm as [_ Hm].
+    apply Bool.andb_true_iff in Hm.
+    destruct Hm as [Hm _].
+    exact Hm.
+    destruct Hlt as (cx & dx & mcd & lm' & Hlm).
+    simpl.
+    rewrite Hlm in Hm, Hc.
+    simpl in Hs.
+    rewrite List.app_nil_l in Hm.
+    unfold cyclic_path in Hc.
+    assert (Htt : ((au, av, aw) :: lm' ++ [(cx, dx, mcd)]) ++ [] ++ [(d, d, 1)] =
+    ((au, av, aw) :: lm') ++ [(cx, dx, mcd)] ++ [(d, d, 1)]).
+    simpl.
+    f_equal.
+    rewrite <-List.app_assoc.
+    reflexivity.
+    rewrite Htt in Hm;
+    clear Htt.
+    pose proof well_formed_path_snoc _ _ _ 
+      Hm as (Ha & Hb).
+    simpl in Hb.
+    destruct Hc as (_ & _ & Hc).
+    assert (Htt : (au, av, aw) :: lm' ++ [(cx, dx, mcd)] = 
+    ((au, av, aw) :: lm') ++ [(cx, dx, mcd)]).
+    simpl; reflexivity.
+    rewrite Htt in Hc;
+    clear Htt.
+    rewrite target_end in Hc.
+    simpl in Hc.
+    apply trnN with au;
+    try assumption.
+    apply trnN with dx;
+    try assumption.
+    apply Bool.andb_true_iff in Hb.
+    destruct Hb as [_ Hb].
+    apply Bool.andb_true_iff in Hb.
+    destruct Hb as [Hb _].
+    exact Hb.
+    destruct Hlt as [Hlt | Hlt].
+    rewrite Hlt in Hm, Hs, Hc.
+    simpl.
+    simpl in Hs.
+    rewrite List.app_nil_l in Hm.
+    simpl in Hm.
+    unfold cyclic_path in Hc.
+    destruct Hc as (_ & _ & Hc).
+    simpl in Hc.
+    apply Bool.andb_true_iff in Hm.
+    destruct Hm as [_ Hm].
+    apply Bool.andb_true_iff in Hm.
+    destruct Hm as [Hm _].
+    apply trnN with au;
+    try assumption.
+    apply trnN with av;
+    try assumption.
+    destruct Hlt as (cx & dx & mcd & lm' & Hlm).
+    simpl.
+    rewrite Hlm in Hm, Hc.
+    simpl in Hs.
+    rewrite List.app_nil_l in Hm.
+    assert (Htt : ((au, av, aw) :: lm' ++ [(cx, dx, mcd)]) ++ ((cu, cv, cw) :: lr) ++ [(d, d, 1)] = 
+    ((au, av, aw) :: lm') ++ [(cx, dx, mcd)] ++ ((cu, cv, cw) :: lr) ++ [(d, d, 1)]).
+    simpl.
+    f_equal.
+    rewrite <-List.app_assoc.
+    simpl; reflexivity.
+    rewrite Htt in Hm;
+    clear Htt.
+    pose proof well_formed_path_snoc _ _ _ 
+      Hm as (Ha & Hb).
+    simpl in Hb.
+    unfold cyclic_path in Hc.
+    destruct Hc as (_ & _ & Hc).
+    assert (Htt : (au, av, aw) :: lm' ++ [(cx, dx, mcd)] = 
+    ((au, av, aw) :: lm') ++ [(cx, dx, mcd)]).
+    simpl; reflexivity.
+    rewrite Htt in Hc;
+    clear Htt.
+    rewrite target_end in Hc.
+    simpl in Hc.
+    apply trnN with au;
+    try assumption.
+    apply trnN with dx;
+    try assumption.
+    apply Bool.andb_true_iff in Hb.
+    destruct Hb as [_ Hb].
+    apply Bool.andb_true_iff in Hb.
+    destruct Hb as [Hb _].
+    exact Hb.
+    simpl.
+    simpl in Hs.
+    exact Hs.
+    simpl.
+    simpl in Hs.
+    exact Hs.
+  Qed.
+  
+
+
+  Lemma triple_source_rewrite :
+    forall l ll lm lr c d au av aw, 
+    source Node eqN R c 
+      (l ++ [(d, d, 1)]) = true ->
+    triple_elem_list Node Node R eqN eqN eqR 
+      l (ll ++ ((au, av, aw) :: lm) ++ lr) = true ->
+    source Node eqN R c
+      (ll ++ ((au, av, aw) :: lm) ++ lr ++ [(d, d, 1)]) = true.
+  Proof.
+  Admitted.
 
   
 
@@ -3614,28 +3760,10 @@ Section Pathprops.
     pose proof well_formed_loop_removal _ _ _ _ _ _ _ Hm Hvt Hc as Han.
     rewrite <-List.app_assoc.
     exact Han.
-  
-    (* 
-      How can I discharge this?
-      Hw: well_formed_path_aux Node eqN R eqR m (l ++ [(d, d, 1)]) = true
-      Hte: triple_elem_list Node Node R eqN eqN eqR l (ll ++ ((au, av, aw) :: lm) ++ lr) = true
-      Hc: cyclic_path Node eqN R au ((au, av, aw) :: lm)
-      --------------------------------------------------
-      It's true
-
-    *)
-    (* admit discharged *)
-    (*
-      I have 
-      Hw: well_formed_path_aux Node eqN R eqR m (l ++ [(d, d, 1)]) = true
-      Hs: source Node eqN R c (l ++ [(d, d, 1)]) = true
-      Hte: triple_elem_list Node Node R eqN eqN eqR l (ll ++ ((au, av, aw) :: lm) ++ lr) = true
-      Hc: cyclic_path Node eqN R au ((au, av, aw) :: lm)
-      -------------------------------------
-      If I remove the cycle, source won't change
-    
-    *)
-    admit.
+    pose proof triple_source_rewrite _ _ _ _ _ _ _ _ _ Hs Hte as Hvta.
+    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hw Hte as Hvtb.
+    pose proof source_loop_removal _ _ _ _ _ _ _ _ _ Hm Hvtb Hvta Hc as Han.
+    exact Han.
     rewrite target_end.
     simpl; apply refN.
     (* Now we are in Inductive case *)
@@ -3646,9 +3774,11 @@ Section Pathprops.
     pose proof well_formed_loop_removal _ _ _ _ _ _ _ Hm Hvt Hc as Han.
     rewrite <-List.app_assoc.
     exact Han.
-    (* admit discharged *)
     assert (Hst : source Node eqN R c ((ll ++ lr) ++ [(d, d, 1)]) = true).
-    admit.
+    pose proof triple_source_rewrite _ _ _ _ _ _ _ _ _ Hs Hte as Hvta.
+    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hw Hte as Hvtb.
+    pose proof source_loop_removal _ _ _ _ _ _ _ _ _ Hm Hvtb Hvta Hc as Han.
+    exact Han.
     assert (Htt: target Node eqN R d ((ll ++ lr) ++ [(d, d, 1)]) = true).
     rewrite target_end;
     simpl; apply refN.
@@ -3660,8 +3790,9 @@ Section Pathprops.
     exact Hwf.
     exact Hsn.
     exact Htn.
-  Admitted.
+  Qed.
 
+  
 
 
 
