@@ -3555,6 +3555,16 @@ Section Pathprops.
       
       
 
+  Lemma triple_well_formed_rewrite_gen :
+    forall l₁ l₂ m d,
+    well_formed_path_aux Node eqN R eqR m 
+      (l₁ ++ [(d, d, 1)]) = true ->
+    triple_elem_list Node Node R eqN eqN eqR
+      l₁ l₂ = true ->
+    well_formed_path_aux  Node eqN R eqR m 
+      (l₂ ++ [(d, d, 1)]) = true.
+  Proof.
+  Admitted.
 
 
   Lemma triple_well_formed_rewrite :
@@ -3566,8 +3576,22 @@ Section Pathprops.
     well_formed_path_aux Node eqN R eqR m
       (ll ++ ((au, av, aw) :: lm) ++ lr ++ [(d, d, 1)]) = true.
   Proof.
-  Admitted.
-    
+    intros * Hw Ht.
+    simpl.
+    assert (Htt : ll ++ (au, av, aw) :: lm ++ lr ++ [(d, d, 1)] = 
+      (ll ++ (au, av, aw) :: lm ++ lr) ++ [(d, d, 1)]).
+    rewrite <-List.app_assoc; simpl.
+    f_equal.
+    f_equal.
+    rewrite <-List.app_assoc;
+    reflexivity.
+    rewrite Htt; clear Htt.
+    eapply triple_well_formed_rewrite_gen;
+    try assumption.
+    exact Hw.
+    exact Ht.
+  Qed.
+
 
 
   Lemma source_loop_removal : 
@@ -3702,8 +3726,17 @@ Section Pathprops.
     simpl in Hs.
     exact Hs.
   Qed.
-  
 
+
+  Lemma triple_source_rewrite_gen :
+    forall l₁ l₂ c d,  
+    source Node eqN R c 
+      (l₁ ++ [(d, d, 1)]) = true ->
+    triple_elem_list Node Node R eqN eqN eqR 
+      l₁ l₂ = true ->
+    source Node eqN R c (l₂ ++ [(d, d, 1)]) = true.
+  Proof.
+  Admitted.
 
   Lemma triple_source_rewrite :
     forall l ll lm lr c d au av aw, 
@@ -3714,8 +3747,21 @@ Section Pathprops.
     source Node eqN R c
       (ll ++ ((au, av, aw) :: lm) ++ lr ++ [(d, d, 1)]) = true.
   Proof.
-  Admitted.
-
+    intros * Hs Ht.
+    simpl.
+    assert (Htt : ll ++ (au, av, aw) :: lm ++ lr ++ [(d, d, 1)] = 
+      (ll ++ (au, av, aw) :: lm ++ lr) ++ [(d, d, 1)]).
+    rewrite <-List.app_assoc; simpl.
+    f_equal.
+    f_equal.
+    rewrite <-List.app_assoc;
+    reflexivity.
+    rewrite Htt; clear Htt.
+    eapply triple_source_rewrite_gen.
+    exact Hs.
+    exact Ht.
+  Qed.
+  
   
 
   Lemma reduce_path_into_simpl_path :
@@ -3793,79 +3839,6 @@ Section Pathprops.
   Qed.
 
   
-
-
-
-
-    (*
-     y = ll ++ lr and we know that 
-     length y < length l (because we are removing the loop, see Hte)
-     
-     So we have two cases:
-     1. length y < lenght finN
-     and therefore ys = ll ++ lr 
-     and I need a lemma that 
-     says 
-     well_formed m l -> l = ll ++ loop ++ lr ->
-     well_formed m (ll ++ lr)
-     
-     How can I discharge
-     source c (ll ++ rr ++ [(d, d, 1)]) = true ?
-
-     I assumption I have 
-     source Node eqN R c (l ++ [(d, d, 1)]) = true 
-     source Node eqN R c (ll ++ loop ++ lr ++ [(d, d, 1)]) = true
-     It's true 
-
-     2. length y >= lenght finN
-        
-
-    
-    *)      
-      
-      
-    
-      
-      
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
