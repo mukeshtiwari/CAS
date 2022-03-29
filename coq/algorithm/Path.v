@@ -3556,19 +3556,99 @@ Section Pathprops.
       
 
   Lemma triple_well_formed_rewrite_gen :
-    forall l₁ l₂ m d,
+    forall l lw m d,
+    mat_cong Node eqN R eqR m ->
     well_formed_path_aux Node eqN R eqR m 
-      (l₁ ++ [(d, d, 1)]) = true ->
+      (l ++ [(d, d, 1)]) = true ->
     triple_elem_list Node Node R eqN eqN eqR
-      l₁ l₂ = true ->
+      l lw = true ->
     well_formed_path_aux  Node eqN R eqR m 
-      (l₂ ++ [(d, d, 1)]) = true.
+      (lw ++ [(d, d, 1)]) = true.
   Proof.
-  Admitted.
+    induction l as [|((au, av), aw) l].
+      + intros [|((bu, bv), bw) lw] ? ? Hm Hw Ht.
+        exact Hw.
+        simpl in Ht. 
+        lia.
+      + intros ? ? ? Hm Hw Ht.
+        destruct lw as [|((bu, bv), bw) lw].
+        simpl in Ht. congruence.
+        simpl in Ht.
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrr].
+        apply Bool.andb_true_iff in Ht.
+        destruct Ht as [Ht Htrrr].
+        (* Now, I need to know if l is well formed or not *)
+        destruct l as [|((cu, cv), cw) l].
+        destruct lw as [|((du, dv), dw) lw].
+        simpl. simpl in Hw.
+        apply Bool.andb_true_iff.
+        split. 
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hw _].
+        rewrite <-Hw.
+        apply congrR.
+        apply Hm.
+        apply symN; assumption.
+        apply symN; assumption.
+        apply symR; assumption.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [_ Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hwr].
+        apply Bool.andb_true_iff in Hwr.
+        destruct Hwr as [Hwr _].
+        rewrite Hwr.
+        simpl.
+        rewrite Bool.andb_true_r.
+        apply symN in Htrrr.
+        apply trnN with av;
+        try assumption.
+        simpl in Htr.
+        congruence.
+        assert (Hwt: (well_formed_path_aux _ eqN _ eqR m (((au, av, aw) :: (cu, cv, cw) :: l) ++ [(d, d, 1)]) = 
+          (m au av =r= aw) && ((av =n= cu) && well_formed_path_aux _ eqN _ eqR m ((cu, cv, cw) :: l ++ [(d, d, 1)])))%bool).
+        simpl. reflexivity.
+        rewrite Hwt in Hw; clear Hwt.
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwl Hw].
+        apply Bool.andb_true_iff in Hw.
+        destruct Hw as [Hwll Hw].
+        specialize (IHl lw m d Hm Hw Htr).
+        simpl. apply Bool.andb_true_iff.
+        split. 
+        rewrite <-Hwl.
+        apply congrR.
+        apply Hm.
+        apply symN; assumption.
+        apply symN; assumption.
+        apply symR; assumption.
+        destruct lw.
+        simpl in Htr;
+        congruence. 
+        destruct p as ((pu, pv), pw).
+        simpl in Htr.
+        apply Bool.andb_true_iff.
+        split.
+        apply Bool.andb_true_iff in Htr.
+        destruct Htr as [Htr Htrv].
+        apply Bool.andb_true_iff in Htr.
+        destruct Htr as [Htr Htrw].
+        apply Bool.andb_true_iff in Htr.
+        destruct Htr as [Htr Htwx].
+        apply trnN with cu.
+        apply symN in Htrrr.
+        apply trnN with av; assumption.
+        exact Htr.
+        exact IHl.
+  Qed.
 
 
   Lemma triple_well_formed_rewrite :
-    forall l ll lm lr m d au av aw, 
+    forall l ll lm lr m d au av aw,
+    mat_cong Node eqN R eqR m -> 
     well_formed_path_aux Node eqN R eqR m 
       (l ++ [(d, d, 1)]) = true ->
     triple_elem_list Node Node R eqN eqN eqR 
@@ -3576,7 +3656,7 @@ Section Pathprops.
     well_formed_path_aux Node eqN R eqR m
       (ll ++ ((au, av, aw) :: lm) ++ lr ++ [(d, d, 1)]) = true.
   Proof.
-    intros * Hw Ht.
+    intros * Hm Hw Ht.
     simpl.
     assert (Htt : ll ++ (au, av, aw) :: lm ++ lr ++ [(d, d, 1)] = 
       (ll ++ (au, av, aw) :: lm ++ lr) ++ [(d, d, 1)]).
@@ -3762,7 +3842,7 @@ Section Pathprops.
     exact Ht.
   Qed.
   
-  
+
 
   Lemma reduce_path_into_simpl_path :
     forall (l : list (Node * Node * R)) m c d,
@@ -3802,12 +3882,12 @@ Section Pathprops.
     exists (ll ++ lr).
     repeat split.
     exact Hdisj.
-    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hw Hte as Hvt.
+    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hm Hw Hte as Hvt.
     pose proof well_formed_loop_removal _ _ _ _ _ _ _ Hm Hvt Hc as Han.
     rewrite <-List.app_assoc.
     exact Han.
     pose proof triple_source_rewrite _ _ _ _ _ _ _ _ _ Hs Hte as Hvta.
-    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hw Hte as Hvtb.
+    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hm Hw Hte as Hvtb.
     pose proof source_loop_removal _ _ _ _ _ _ _ _ _ Hm Hvtb Hvta Hc as Han.
     exact Han.
     rewrite target_end.
@@ -3816,13 +3896,13 @@ Section Pathprops.
     specialize (IHl (ll ++ lr) Hlt m c d Hdisj Hm).
     (* By same reasoning that I did in non inductive case *)
     assert (Hwt : well_formed_path_aux Node eqN R eqR m ((ll ++ lr) ++ [(d, d, 1)]) = true).
-    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hw Hte as Hvt.
+    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hm Hw Hte as Hvt.
     pose proof well_formed_loop_removal _ _ _ _ _ _ _ Hm Hvt Hc as Han.
     rewrite <-List.app_assoc.
     exact Han.
     assert (Hst : source Node eqN R c ((ll ++ lr) ++ [(d, d, 1)]) = true).
     pose proof triple_source_rewrite _ _ _ _ _ _ _ _ _ Hs Hte as Hvta.
-    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hw Hte as Hvtb.
+    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hm Hw Hte as Hvtb.
     pose proof source_loop_removal _ _ _ _ _ _ _ _ _ Hm Hvtb Hvta Hc as Han.
     exact Han.
     assert (Htt: target Node eqN R d ((ll ++ lr) ++ [(d, d, 1)]) = true).
