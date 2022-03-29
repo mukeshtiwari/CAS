@@ -3408,24 +3408,21 @@ Section Pathprops.
     intros * Hm Hw Hc.
     unfold cyclic_path in Hc. 
     destruct Hc as (_ & Hcb & Hcc).
-    assert (Hwt: well_formed_path_aux Node eqN R eqR m 
-    ((au, av, aw) :: lm) = true).
-    apply well_formed_path_snoc in Hw.
-    destruct Hw as [_ Hw].
-    apply well_formed_path_snoc in Hw.
-    destruct Hw as [Hw _].
-    exact Hw.
-    pose proof target_list_construction _ _ _ Hm Hwt Hcc.
-
-
-  (* 
-    destruct lm using List.rev_ind.
-    + intros * Hw Hc.
-      simpl in Hw.
-      unfold cyclic_path in Hc.
-      destruct Hc as (Hca & Hcb & Hcc).
-      clear Hca.
-      simpl in Hcb, Hcc.
+    assert (Hlt : lm = [] ∨ exists c d mcd lm',
+      lm = lm' ++ [((c, d), mcd)]).
+    destruct lm as [|((pa, pb), pc) lm]. 
+    left; reflexivity.
+    right.
+    assert (Hne : (pa, pb, pc) :: lm  <> []).
+    intro Hf; congruence.
+    destruct (@exists_last _ ((pa, pb, pc) :: lm) Hne) 
+    as (lm' & ((but, bvt), bwt) & Hc).
+    exists but, bvt, bwt, lm'.
+    exact Hc.
+    destruct Hlt as [Hlt | Hlt].
+    +
+      rewrite Hlt in Hw, Hcb, Hcc.
+      simpl in Hw. 
       apply Bool.andb_true_iff in Hw.
       destruct Hw as [Hwl Hw].
       apply Bool.andb_true_iff in Hw.
@@ -3438,11 +3435,48 @@ Section Pathprops.
       exact Hwll.
       apply trnN with av;
       try assumption.
-    + intros * Hw Hc.
+    +
+      destruct Hlt as (c & d & mcd & lm' & Hlm).
+      rewrite Hlm in Hw, Hcb, Hcc.
+      assert (Htt : (au, av, aw) :: lm' ++ [(c, d, mcd)] = 
+      ((au, av, aw) :: lm') ++ [(c, d, mcd)]).
+      simpl; reflexivity.
+      rewrite Htt in Hcc.
+      rewrite target_end in Hcc.
+      simpl in Hcc.
+      clear Htt.
+      assert (Htt : [(aut, avt, awt)] ++ ((au, av, aw) :: lm' ++ [(c, d, mcd)]) ++ (cut, cvt, cwt) :: lr =
+      [(aut, avt, awt); (au, av, aw)] ++ (lm' ++ [(c, d, mcd)] ++ (cut, cvt, cwt) :: lr)).
+      simpl. f_equal.
+      f_equal.
+      rewrite <-List.app_assoc.
+      f_equal.
+      rewrite Htt in Hw; 
+      clear Htt. 
+      destruct (well_formed_path_snoc [(aut, avt, awt); (au, av, aw)] _ 
+        m Hw) as (Ha & Hb).
+      simpl in Ha.
+      destruct (well_formed_path_snoc lm' _
+        m Hb) as (Hc & Hd).
+      simpl in Hd.
+      apply Bool.andb_true_iff in Ha.
+      destruct Ha as [Hal Ha].
+      apply Bool.andb_true_iff in Ha.
+      destruct Ha as [Ha _].
+      apply Bool.andb_true_iff in Hd.
+      destruct Hd as [Hdl Hd].
+      apply Bool.andb_true_iff in Hd.
+      destruct Hd as [Hd _].
+      apply trnN with au.
+      exact Ha.
+      apply trnN with d;
+      try assumption.
+  Qed.
+      
 
-      destruct x as ((xa, xb), xc).
-    *)
-  Admitted.
+    
+
+
 
 
 
@@ -3452,18 +3486,19 @@ Section Pathprops.
   
   Lemma well_formed_loop_removal : 
     forall ll lr lm au av aw m,
+    mat_cong Node eqN R eqR m -> 
     well_formed_path_aux Node eqN R eqR m 
       (ll ++ ((au, av, aw) :: lm) ++ lr) = true ->
     cyclic_path Node eqN R au ((au, av, aw) :: lm) ->
     well_formed_path_aux Node eqN R eqR m ((ll ++ lr)) = true.
   Proof.
     induction ll as [|((aut, avt), awt) ll].
-    + intros * Hw Hc.
+    + intros * Hm Hw Hc.
       rewrite List.app_nil_l in Hw.
       rewrite List.app_nil_l.
       destruct (well_formed_path_snoc _ _ m Hw) as [_ Hwt].
       exact Hwt.
-    + intros * Hw Hc.
+    + intros * Hm Hw Hc.
       simpl.
       destruct ll as [|((but, bvt), bwt) ll].
       simpl.
@@ -3479,8 +3514,12 @@ Section Pathprops.
       exact Hw.
       apply Bool.andb_true_iff.
       split.
+      eapply well_founded_rev; 
+      try assumption.
+      exact Hm.
+      exact Hw.
+      exact Hc.
 
-      admit.
       apply well_formed_path_snoc in Hw.
       destruct Hw as [_ Hw].
       apply well_formed_path_snoc in Hw.
@@ -3510,13 +3549,24 @@ Section Pathprops.
       split.
       exact Hwll.
       rewrite Heqbl in Hw.
-      exact (IHll _ _ _ _ _ _ Hw Hc).
+      exact (IHll _ _ _ _ _ _ Hm Hw Hc).
+  Qed.
+      
+      
+
+
+
+  Lemma triple_well_formed_rewrite :
+    forall l ll lm lr m d au av aw, 
+    well_formed_path_aux Node eqN R eqR m 
+      (l ++ [(d, d, 1)]) = true ->
+    triple_elem_list Node Node R eqN eqN eqR 
+      l (ll ++ ((au, av, aw) :: lm) ++ lr) = true ->
+    well_formed_path_aux Node eqN R eqR m
+      (ll ++ ((au, av, aw) :: lm) ++ lr ++ [(d, d, 1)]) = true.
+  Proof.
   Admitted.
-
-      
-      
-
-
+    
 
 
 
@@ -3560,9 +3610,11 @@ Section Pathprops.
     exists (ll ++ lr).
     repeat split.
     exact Hdisj.
-    pose proof well_formed_loop_removal.
-
-    
+    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hw Hte as Hvt.
+    pose proof well_formed_loop_removal _ _ _ _ _ _ _ Hm Hvt Hc as Han.
+    rewrite <-List.app_assoc.
+    exact Han.
+  
     (* 
       How can I discharge this?
       Hw: well_formed_path_aux Node eqN R eqR m (l ++ [(d, d, 1)]) = true
@@ -3572,7 +3624,7 @@ Section Pathprops.
       It's true
 
     *)
-    admit.
+    (* admit discharged *)
     (*
       I have 
       Hw: well_formed_path_aux Node eqN R eqR m (l ++ [(d, d, 1)]) = true
@@ -3590,7 +3642,11 @@ Section Pathprops.
     specialize (IHl (ll ++ lr) Hlt m c d Hdisj Hm).
     (* By same reasoning that I did in non inductive case *)
     assert (Hwt : well_formed_path_aux Node eqN R eqR m ((ll ++ lr) ++ [(d, d, 1)]) = true).
-    admit.
+    pose proof triple_well_formed_rewrite _ _ _ _ _ _ _ _ _ Hw Hte as Hvt.
+    pose proof well_formed_loop_removal _ _ _ _ _ _ _ Hm Hvt Hc as Han.
+    rewrite <-List.app_assoc.
+    exact Han.
+    (* admit discharged *)
     assert (Hst : source Node eqN R c ((ll ++ lr) ++ [(d, d, 1)]) = true).
     admit.
     assert (Htt: target Node eqN R d ((ll ++ lr) ++ [(d, d, 1)]) = true).
