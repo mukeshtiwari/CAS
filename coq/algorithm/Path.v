@@ -3932,11 +3932,63 @@ Section Pathprops.
     exact Htn.
   Qed.
 
+  Lemma source_rewrite_gen : 
+    ∀ (l₁ l₂ : list (Node * Node * R)) (c : Node),
+    source Node eqN R c l₁ = true ->
+    triple_elem_list Node Node R eqN eqN eqR l₁ l₂ = true ->
+    source Node eqN R c l₂ = true.
+  Proof.
+  Admitted.
+
+
+  Lemma target_rewrite_gen : 
+    ∀ (l₁ l₂ : list (Node * Node * R)) (c : Node),
+    target Node eqN R c l₁ = true ->
+    triple_elem_list Node Node R eqN eqN eqR l₁ l₂ = true ->
+    target Node eqN R c l₂ = true.
+  Proof.
+  Admitted.
 
 
 
 
-
+  Lemma reduce_path_gen_lemma : 
+    ∀ (n : nat) (m : Matrix Node R) 
+    (c d : Node) (xs : list (Node * Node * R)),
+    (length finN <= n)%nat ->
+    (forall c d, (c =n= d) = true -> (m c d =r= 1) = true) -> 
+    mat_cong Node eqN R eqR m ->  
+    In_eq_bool _ _ _ eqN eqN eqR xs 
+      (all_paths_klength _ eqN _ oneR 
+        finN m n c d) = true ->
+    exists ys, 
+      (length ys < length finN)%nat /\ 
+      In_eq_bool Node Node R eqN eqN eqR (ys ++ [(d, d, 1)])
+        (all_paths_klength Node eqN R 1 finN m (length ys) c d) = true.
+  Proof.
+    intros * Hfin Hcd Hm Hin.
+    destruct (source_target_non_empty_kpath_and_well_formed 
+      n m c d xs Hcd Hm Hin) as 
+    (Hxs & Hsn & Htn & Hw & Hl & xs' & Hxs').
+    pose proof reduce_path_into_simpl_path xs' m c d as Hpath.
+    pose proof length_rewrite _ _ _ eqN eqN eqR _ _ Hxs' as Hlen.
+    rewrite app_length in Hlen.
+    simpl in Hlen.
+    assert (Hxsp : length xs' = n).
+    nia.
+    assert (Hfn : (length finN <= length xs')%nat).
+    nia.
+    clear Hlen; clear Hxsp.
+    destruct (Hpath Hfn Hm (well_formed_path_rewrite _ _ _ Hm Hw Hxs')
+      (source_rewrite_gen _ _ _ Hsn Hxs')
+      (target_rewrite_gen _ _ _ Htn Hxs')) as 
+    (ys & Hly & Hwfy & Hsy & Hty).
+    pose proof source_target_non_empty_kpath_and_well_formed_rev ys m 
+      c d Hm Hsy Hty Hwfy.
+    exists ys.
+    repeat split;
+    try assumption.
+  Qed.
   
 
 
