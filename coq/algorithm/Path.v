@@ -3932,7 +3932,10 @@ Section Pathprops.
     exact Htn.
   Qed.
 
-  
+
+
+
+
 
   
 
