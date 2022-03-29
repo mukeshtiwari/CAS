@@ -1303,27 +1303,7 @@ Section Pathprops.
       exact Hxa.
       apply memN.
       exact IHxs.
-  Qed.
-
-
-
-  (*
-
-  Lemma I_need_this : 
-    forall xs c d, 
-    source c (xs ++ [(d, d, 1)]) = true ->
-    target d (xs ++ [(d, d, 1)]) = true ->
-    well_formed_path_aux m (xs ++ [(d, d, 1)]) = true ->
-    exists ys, 
-      (List.lenght ys < List.length finN) /\ 
-      source c (ys ++ [(d, d, 1)]) = true /\ 
-      target d (ys ++ [(d, d, 1)]) = true /\
-      well_formed_path_aux m (xs ++ [(d, d, 1)]) = true 
-
-  *)
-
-      
-      
+  Qed.      
 
 
 
