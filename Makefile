@@ -127,6 +127,7 @@ CAS=\
    coq/uop/properties.v \
    coq/algorithm/Listprop.v \
    coq/algorithm/Path.v \
+   coq/algorithm/Orel.v \
    coq/algorithm/Matrix.v \
    coq/algorithm/wrapper.v
 

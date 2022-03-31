@@ -4,7 +4,8 @@ From Coq Require Import List Utf8
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
   coq.eqv.theory coq.sg.properties
-  coq.algorithm.Listprop.
+  coq.algorithm.Listprop 
+  coq.algorithm.Orel.
 Import ListNotations.
 
 
@@ -248,6 +249,8 @@ Section Pathdefs.
         elem_path_triple t 
     end.
 
+
+  
 End Pathdefs.
 
 Section Pathprops.
@@ -298,7 +301,8 @@ Section Pathprops.
     (plus_associative : forall a b c : R, a + (b + c) =r= 
       (a + b) + c = true)
     (plus_commutative  : forall a b : R, a + b =r= b + a = true)
-    (plus_idempotence : forall a, a + a =r= a = true)
+    (plus_idempotence : forall a : R, a + a =r= a = true)
+    (zero_stable : forall a : R, 1 + a =r= 1 = true)
     (one_left_identity_mul  : forall r : R, 1 * r =r= r = true)
     (one_right_identity_mul : forall r : R, r * 1 =r= r = true)
     (mul_associative : forall a b c : R, a * (b * c) =r= 
@@ -3837,6 +3841,70 @@ Section Pathprops.
   Qed.
   
 
+  Lemma cycle_path_dup_remove : 
+    forall ll lm lr,
+    Orel R plusR eqR
+      (measure_of_path Node R oneR mulR (ll ++ lr))
+      (measure_of_path Node R oneR mulR (ll ++ lm ++ lr)). 
+  Proof.
+    intros *.
+    unfold Orel.
+    assert (Ht : (measure_of_path Node R oneR mulR (ll ++ lr) + 
+      measure_of_path Node R oneR mulR (ll ++ lm ++ lr) =r=
+      measure_of_path Node R oneR mulR (ll ++ lr)) = 
+      ((measure_of_path Node R oneR mulR ll * measure_of_path Node R oneR mulR lr) + 
+        (measure_of_path Node R oneR mulR ll * 
+        (measure_of_path Node R oneR mulR lm * measure_of_path Node R oneR mulR lr)) =r= 
+        (measure_of_path Node R oneR mulR ll * measure_of_path Node R oneR mulR lr))).
+    apply congrR.
+    apply congrP.
+    apply path_split_measure;
+    apply triple_elem_eq_list_refl;
+    try assumption.
+    rewrite <- (path_split_measure (ll ++ lm ++ lr)
+      ll (lm ++ lr) (triple_elem_eq_list_refl _ _ _ eqN eqN eqR refN refN refR (ll ++ lm ++ lr))). 
+    apply congrR.
+    apply refR.
+    apply congrM.
+    apply refR.
+    apply symR.
+    apply path_split_measure;
+    apply triple_elem_eq_list_refl;
+    try assumption.
+    apply path_split_measure;
+    apply triple_elem_eq_list_refl;
+    try assumption.
+    rewrite Ht; clear Ht.
+    remember (measure_of_path Node R oneR mulR ll) as a.
+    remember (measure_of_path Node R oneR mulR lm) as b.
+    remember (measure_of_path Node R oneR mulR lr) as c.
+    assert (Ht : (a * c + a * (b * c) =r= a * c) = 
+      (a * c + a * b * c =r= a * c)).
+    apply congrR.
+    apply congrP.
+    apply refR.
+    apply mul_associative.
+    apply refR.
+    rewrite Ht; clear Ht.
+    eapply path_weight_rel;
+    try assumption.
+    apply zero_stable.
+    apply one_left_identity_mul.
+  Qed.
+  
+
+  Lemma orel_rewrite :
+    forall l lm lr,  
+    triple_elem_list Node Node R eqN eqN eqR
+      l lm = true ->
+    Orel R plusR eqR (measure_of_path Node R 1 mulR lr)
+      (measure_of_path Node R 1 mulR lm) ->
+    Orel R plusR eqR (measure_of_path Node R 1 mulR lr)
+      (measure_of_path Node R 1 mulR l).
+  Proof.
+    intros * Ht Ho.
+  Admitted.   
+
 
   Lemma reduce_path_into_simpl_path :
     forall (l : list (Node * Node * R)) m c d,
@@ -3849,7 +3917,10 @@ Section Pathprops.
       (List.length ys < List.length finN)%nat ∧
       well_formed_path_aux Node eqN R eqR m (ys ++ [(d, d, 1)]) = true ∧
       source _ eqN _ c (ys ++ [(d, d, 1)]) = true ∧
-      target _ eqN _ d (ys ++ [(d, d, 1)]) = true.
+      target _ eqN _ d (ys ++ [(d, d, 1)]) = true ∧
+      Orel R plusR eqR 
+        (measure_of_path Node R oneR mulR ys)
+        (measure_of_path Node R oneR mulR l).
   Proof.
     intros l.
     induction (zwf_well_founded l) as [l Hf IHl].
@@ -3886,6 +3957,11 @@ Section Pathprops.
     exact Han.
     rewrite target_end.
     simpl; apply refN.
+    eapply orel_rewrite.
+    try assumption.
+    exact Hte.
+    eapply cycle_path_dup_remove.
+
     (* Now we are in Inductive case *)
     specialize (IHl (ll ++ lr) Hlt m c d Hdisj Hm).
     (* By same reasoning that I did in non inductive case *)
@@ -3903,15 +3979,25 @@ Section Pathprops.
     rewrite target_end;
     simpl; apply refN.
     destruct (IHl Hwt Hst Htt) as 
-    (ys & Hlfin & Hwf & Hsn & Htn).
+    (ys & Hlfin & Hwf & Hsn & Htn & Horel).
     exists ys.
     repeat split.
     exact Hlfin.
     exact Hwf.
     exact Hsn.
     exact Htn.
+    eapply orel_rewrite.
+    exact Hte.
+    pose proof cycle_path_dup_remove 
+      ll ((au, av, aw) :: lm) lr as Hcp.
+    eapply orel_trans;
+    try assumption.
+    exact Horel.
+    exact Hcp.
   Qed.
 
+
+  
   Lemma source_rewrite_gen : 
     ∀ (l₁ l₂ : list (Node * Node * R)) (c : Node),
     source Node eqN R c l₁ = true ->
@@ -3986,9 +4072,12 @@ Section Pathprops.
       (all_paths_klength _ eqN _ oneR 
         finN m n c d) = true ->
     exists ys, 
-      (length ys < length finN)%nat /\ 
+      (length ys < length finN)%nat ∧
       In_eq_bool Node Node R eqN eqN eqR (ys ++ [(d, d, 1)])
-        (all_paths_klength Node eqN R 1 finN m (length ys) c d) = true.
+        (all_paths_klength Node eqN R 1 finN m (length ys) c d) = true ∧
+      Orel R plusR eqR 
+        (measure_of_path Node R oneR mulR ys)
+        (measure_of_path Node R oneR mulR xs).
   Proof.
     intros * Hfin Hcd Hm Hin.
     destruct (source_target_non_empty_kpath_and_well_formed 
@@ -4006,12 +4095,47 @@ Section Pathprops.
     destruct (Hpath Hfn Hm (well_formed_path_rewrite _ _ _ Hm Hw Hxs')
       (source_rewrite_gen _ _ _ Hsn Hxs')
       (target_rewrite_gen _ _ _ Htn Hxs')) as 
-    (ys & Hly & Hwfy & Hsy & Hty).
+    (ys & Hly & Hwfy & Hsy & Hty & Horel).
     pose proof source_target_non_empty_kpath_and_well_formed_rev ys m 
       c d Hm Hsy Hty Hwfy.
     exists ys.
     repeat split;
     try assumption.
+    eapply orel_rewrite.
+    exact Hxs'.
+    unfold Orel.
+    assert(Htt: 
+      (measure_of_path Node R 1 mulR ys + measure_of_path Node R 1 mulR (xs' ++ [(d, d, 1)]) =r=
+      measure_of_path Node R 1 mulR ys) = 
+      (measure_of_path Node R 1 mulR ys + 
+      (measure_of_path Node R 1 mulR xs' * measure_of_path Node R 1 mulR [(d, d, 1)]) =r=
+      measure_of_path Node R 1 mulR ys)).
+    apply congrR.
+    apply congrP.
+    apply refR.
+    eapply path_split_measure.
+    apply triple_elem_eq_list_refl;
+    try assumption.
+    apply refR.
+    rewrite Htt; clear Htt.
+    simpl.
+    unfold Orel in Horel.
+    rewrite <-Horel.
+    apply congrR.
+    apply congrP.
+    apply refR.
+    remember (measure_of_path Node R 1 mulR xs') as axs.
+    assert (Htt: (axs * (1 * 1) =r= axs) = 
+    (axs * (1 * 1) =r= axs * 1)).
+    apply congrR.
+    apply refR.
+    apply symR.
+    apply one_right_identity_mul.
+    rewrite Htt; clear Htt.
+    apply congrM.
+    apply refR.
+    apply one_right_identity_mul.
+    apply refR.
   Qed.
   
 
