@@ -251,6 +251,19 @@ Section Pathdefs.
 
 
   
+  Fixpoint partial_sum_paths (l : list Node) (m : Matrix) (n : nat) (c d : Node) : R :=
+    match n with
+    | O => 
+      match c =n= d with 
+      | true => 1
+      | false => 0 
+      end
+    | S n' =>  partial_sum_paths l m n' c d + 
+      sum_all_rvalues (get_all_rvalues (construct_all_paths l m n c d))
+    end.
+
+
+  
 End Pathdefs.
 
 Section Pathprops.
@@ -4164,7 +4177,23 @@ Section Pathprops.
     apply one_right_identity_mul.
     apply refR.
   Qed.
+
   
+  Lemma zero_stable_partial_sum_path : 
+    forall k m,
+    mat_cong Node eqN R eqR m -> 
+    (forall (c d : Node), 
+      partial_sum_paths _ eqN _  0 1 plusR mulR finN m (length finN - 1)%nat c d =r= 
+      partial_sum_paths _ eqN _  0 1 plusR mulR finN m (k + length finN - 1)%nat c d = true).
+  Proof.
+    induction k.
+    + simpl. admit.
+    + intros * Hm ? ?.
+      simpl. 
+
+
+
+  Admitted.
 
 
 
