@@ -3902,8 +3902,35 @@ Section Pathprops.
     Orel R plusR eqR (measure_of_path Node R 1 mulR lr)
       (measure_of_path Node R 1 mulR l).
   Proof.
-    intros * Ht Ho.
-  Admitted.   
+    induction l as [|((au, av), aw) l];
+    destruct lm as [|((bu, bv), bw) lm];
+    intros * Ht Horel;
+    simpl in Ht; try congruence.
+    simpl.
+    simpl in Horel.
+    apply Bool.andb_true_iff in Ht.
+    destruct Ht as [Ht Htr].
+    apply Bool.andb_true_iff in Ht.
+    destruct Ht as [Ht Htrr].
+    apply Bool.andb_true_iff in Ht.
+    destruct Ht as [Ht Htrrr].
+    unfold Orel in * |- *.
+    rewrite <-Horel.
+    apply congrR.
+    apply congrP.
+    apply refR.
+    apply congrM.
+    exact Htrr.
+    pose proof path_split_measure l [] lm as Hlm.
+    simpl in Hlm.
+    specialize (Hlm Htr).
+    rewrite <-Hlm.
+    apply congrR.
+    apply refR.
+    apply symR.
+    apply one_left_identity_mul.
+    apply refR.
+  Qed.
 
 
   Lemma reduce_path_into_simpl_path :
