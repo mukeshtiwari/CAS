@@ -262,6 +262,19 @@ Section Pathdefs.
       sum_all_rvalues (get_all_rvalues (construct_all_paths l m n c d))
     end.
 
+  
+  Definition enum_all_paths (l : list Node) 
+    (m : Matrix) (n : nat) (c d : Node) : list (list Path) :=
+    List.map (fun n' => (construct_all_paths l m n c d)) (enum_list_inc n). 
+    
+  Definition get_all_paths_rvalues (l : list (list Path)) : list (list R) :=
+    List.map get_all_rvalues l.
+
+  Definition sum_individual_paths_rvalues (l : list (list R)) : list R :=
+    List.map sum_all_rvalues l.
+  
+
+  
 
   
 End Pathdefs.
@@ -333,6 +346,8 @@ Section Pathprops.
     (congrM : bop_congruence R eqR mulR)
     (congrR : brel_congruence R eqR eqR).
     (* end of congruence *)
+
+
 
 
   (* append node path function contains only 
@@ -3605,8 +3620,10 @@ Section Pathprops.
         try assumption.
         simpl in Htr.
         congruence.
-        assert (Hwt: (well_formed_path_aux _ eqN _ eqR m (((au, av, aw) :: (cu, cv, cw) :: l) ++ [(d, d, 1)]) = 
-          (m au av =r= aw) && ((av =n= cu) && well_formed_path_aux _ eqN _ eqR m ((cu, cv, cw) :: l ++ [(d, d, 1)])))%bool).
+        assert (Hwt: (well_formed_path_aux _ eqN _ eqR m 
+          (((au, av, aw) :: (cu, cv, cw) :: l) ++ [(d, d, 1)]) = 
+          (m au av =r= aw) && ((av =n= cu) && 
+          well_formed_path_aux _ eqN _ eqR m ((cu, cv, cw) :: l ++ [(d, d, 1)])))%bool).
         simpl. reflexivity.
         rewrite Hwt in Hw; clear Hwt.
         apply Bool.andb_true_iff in Hw.
@@ -4178,6 +4195,186 @@ Section Pathprops.
     apply refR.
   Qed.
 
+
+  Lemma fold_right_dist_eqr_aide :
+    forall a b c d e : R, b =r= d + e = true ->
+    a + b =r= a + d + e = true.
+  Proof using R congrP congrR eqR plusR plus_associative refR symR.
+    intros ? ? ? ? ? H.
+    assert (Ht : a + d + e =r= a + (d + e) = true).
+    apply symR. 
+    apply plus_associative.
+    apply symR. 
+    rewrite <-Ht; clear Ht.
+    apply congrR. 
+    apply refR.
+    apply congrP. 
+    apply refR.
+    exact H.
+  Qed.
+
+  Lemma fold_right_dist_eqr : forall l₁ l₂ : list R, 
+    (fold_right (fun u v : R => u + v) 0 (l₁ ++ l₂))
+    =r= 
+    (fold_right (fun u₁ v₁ : R => u₁ + v₁) 0 l₁ + 
+    fold_right (fun u₂ v₂ : R => u₂ + v₂) 0 l₂) = true.
+  Proof using R congrP congrR eqR plusR plus_associative refR symR zeroR
+  zero_left_identity_plus.
+    induction l₁.
+    - simpl; intros ?.
+      apply symR.
+      apply zero_left_identity_plus.
+    - simpl; intros ?.
+      apply fold_right_dist_eqr_aide. 
+      exact a.
+      apply IHl₁.
+  Qed.
+  
+  
+
+
+  Lemma fold_right_rewrite : 
+    forall l₁ l₂ x, 
+    list_eqv _ eqR l₁ l₂ = true ->
+    (fold_right (λ b a : R, b + a) 0 l₂ =r= 
+    x + fold_right (λ b a : R, b + a) 0 l₂) = true ->
+    (fold_right (λ b a : R, b + a) 0 l₁ =r= 
+    x + fold_right (λ b a : R, b + a) 0 l₁) = true.
+  Proof.
+    intros * Hl Hf.
+    rewrite <-Hf.
+    apply congrR.
+    exact (fold_right_congr _ _ Hl).
+    apply congrP.
+    apply refR.
+    exact (fold_right_congr _ _ Hl).
+  Qed.
+
+  
+
+
+  Lemma fold_right_replace : 
+    forall l a,
+    fold_right (λ x y : R, x + y) a l =r= 
+    a + fold_right (λ x y : R, x + y) 0 l = true.
+  Proof.
+    induction l.
+    + intros *.
+      simpl.
+      apply symR.
+      apply zero_right_identity_plus.
+    + intros *.
+      simpl. 
+      specialize (IHl a0).
+      remember (fold_right (λ x y : R, x + y) a0 l) as al0.
+      remember (fold_right (λ x y : R, x + y) 0 l) as al. 
+      assert (Htt : 
+      (a + al0 =r= a0 + (a + al)) =
+      (a + al0 =r= (a + al) + a0)).
+      apply congrR.
+      apply refR.
+      apply plus_commutative.
+      rewrite Htt; clear Htt.
+      assert (Htt : 
+      (a + al0 =r= a + al + a0) = 
+      (a + al0 =r= a + (al + a0))).
+      apply congrR.
+      apply refR.
+      apply symR.
+      apply plus_associative.
+      rewrite Htt; clear Htt.
+      apply congrP.
+      apply refR.
+      rewrite <-IHl.
+      apply congrR.
+      apply refR.
+      apply plus_commutative.
+  Qed.
+
+
+
+  Lemma plus_idempotence_reduction : 
+    forall (l : list R) (x : R),
+    in_list eqR l x = true ->
+    sum_all_rvalues R zeroR plusR l =r= 
+    x + sum_all_rvalues R zeroR plusR l = true.
+  Proof.
+    intros ? ? Hl.
+    unfold sum_all_rvalues.
+    destruct (list_split_gen R eqR refR symR l x Hl) as 
+    (l₁ & l₂ & Hlt).
+    eapply fold_right_rewrite.
+    exact Hlt.
+    rewrite <- (fold_right_dist_eqr l₁ ([x] ++ l₂)).
+    apply congrR.
+    apply refR.
+    simpl.
+    rewrite fold_right_app.
+    simpl.
+    remember (fold_right (λ b a : R, b + a) 0 l₂) as fl₂.
+    simpl.
+    assert (Htt : 
+    (x + fold_right (λ b a : R, b + a) (x + fl₂) l₁ =r=
+    fold_right (λ u₁ v₁ : R, u₁ + v₁) 0 l₁ + (x + fl₂)) =
+    (x + ((x + fl₂) + fold_right (λ b a : R, b + a) 0 l₁) =r=
+    fold_right (λ u₁ v₁ : R, u₁ + v₁) 0 l₁ + (x + fl₂))).
+    apply congrR.
+    apply congrP.
+    apply refR.
+    erewrite <-fold_right_replace.
+    apply congrR.
+    apply refR.
+    apply refR.
+    apply refR.
+    rewrite Htt; clear Htt.
+    remember (fold_right (λ b a : R, b + a) 0 l₁) as fl₁.
+    (* use idempotence *)
+    apply symR.
+    assert(Htt : (fl₁ + (x + fl₂) =r= x + (x + fl₂ + fl₁)) = 
+    (fl₁ + (x + fl₂) =r= x + (x + (fl₂ + fl₁)))).
+    apply congrR.
+    apply refR.
+    apply congrP.
+    apply refR.
+    apply symR.
+    apply plus_associative.
+    rewrite Htt;
+    clear Htt.
+    assert(Htt : 
+    (fl₁ + (x + fl₂) =r= x + (x + (fl₂ + fl₁))) =
+    (fl₁ + (x + fl₂) =r= (x + x) + (fl₂ + fl₁))).
+    apply congrR.
+    apply refR.
+    apply plus_associative.
+    rewrite Htt;
+    clear Htt.
+    assert (Htt: 
+    (fl₁ + (x + fl₂) =r= x + x + (fl₂ + fl₁)) =
+    (fl₁ + (x + fl₂) =r= x + (fl₂ + fl₁))).
+    apply congrR.
+    apply refR.
+    apply congrP.
+    apply plus_idempotence.
+    apply refR.
+    rewrite Htt;
+    clear Htt.
+    assert (Htt: 
+    (fl₁ + (x + fl₂) =r= x + (fl₂ + fl₁)) =
+    ((x + fl₂ + fl₁) =r= x + (fl₂ + fl₁))).
+    apply congrR.
+    apply plus_commutative.
+    apply refR.
+    rewrite Htt;
+    clear Htt.
+    apply symR.
+    apply plus_associative.
+  Qed.
+    
+
+
+
+
+     
   
   Lemma zero_stable_partial_sum_path : 
     forall k m,
@@ -4187,10 +4384,22 @@ Section Pathprops.
       partial_sum_paths _ eqN _  0 1 plusR mulR finN m (k + length finN - 1)%nat c d = true).
   Proof.
     induction k.
-    + simpl. admit.
     + intros * Hm ? ?.
-      simpl. 
+      simpl.
+      apply refR.
 
+    + intros * Hm ? ?.
+      assert (Htt : (S k + length finN - 1)%nat = 
+      S (k + length finN - 1)). nia.
+      rewrite Htt; clear Htt.
+      simpl.
+      (* Now that goal is to show that 
+        every path in the *)
+      unfold get_all_rvalues, construct_all_paths.
+      rewrite List.map_map.
+      unfold sum_all_rvalues.
+      pose proof reduce_path_gen_lemma (S (k + length finN - 1)) m c d.
+      
 
 
   Admitted.

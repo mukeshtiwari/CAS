@@ -35,6 +35,18 @@ Section Listsingledefs.
     in_list eqA l x = true ->  
     in_list eqA c x = true.
 
+  Fixpoint enum_list_inc (n : nat) : list nat :=
+    match n with
+    | O => [O]
+    | S n' => enum_list_inc n' ++ [n]
+    end.
+
+  Fixpoint enum_list_dec (n : nat) : list nat :=
+    match n with
+    | O => [O]
+    | S n' => n :: enum_list_dec n' 
+    end.
+ 
 End Listsingledefs.
 
 Section Listsingleprops.
@@ -133,6 +145,35 @@ Section Listsingleprops.
       exact Hfb.
   Qed.
 
+  Lemma enum_list_inc_dec_rev : 
+    forall n : nat,
+    enum_list_inc n = List.rev (enum_list_dec n).
+  Proof.
+    induction n.
+    + simpl.
+      reflexivity.
+    + simpl;
+      rewrite IHn; 
+      reflexivity.
+  Qed.
+
+  
+  Lemma enum_list_dec_inc_rev : 
+    forall n : nat,
+    enum_list_dec n = List.rev (enum_list_inc n).
+  Proof.
+    induction n. 
+    + simpl.
+      reflexivity.
+    + simpl.
+      rewrite rev_app_distr;
+      simpl;
+      rewrite IHn; 
+      reflexivity.
+  Qed.
+
+  
+  
 
   Lemma list_mem_true_false : 
     forall (l : list A) (a c : A),
