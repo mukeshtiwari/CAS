@@ -144,7 +144,21 @@ Definition A_sg_proofs_plus : sg_proofs nat brel_eq_nat bop_plus :=
 |}. 
 
 
-Definition sg_CK_proofs_plus : sg_CK_proofs nat brel_eq_nat bop_plus := 
+Definition A_sg_C_proofs_plus : sg_C_proofs nat brel_eq_nat bop_plus := 
+{| 
+  A_sg_C_associative      := bop_plus_associative
+; A_sg_C_congruence       := bop_plus_congruence
+; A_sg_C_commutative      := bop_plus_commutative
+; A_sg_C_selective_d        := inr bop_plus_not_selective
+; A_sg_C_idempotent_d       := inr bop_plus_not_idempotent
+; A_sg_C_cancel_d           := inl bop_plus_left_cancellative
+; A_sg_C_constant_d         := inr bop_plus_not_left_constant
+; A_sg_C_anti_left_d        := inr bop_plus_not_anti_left
+; A_sg_C_anti_right_d       := inr bop_plus_not_anti_right
+|}. 
+
+
+Definition A_sg_CK_proofs_plus : sg_CK_proofs nat brel_eq_nat bop_plus := 
 {| 
   A_sg_CK_associative        := bop_plus_associative
 ; A_sg_CK_congruence         := bop_plus_congruence
@@ -161,7 +175,7 @@ Definition A_sg_plus : A_sg_CK_with_id nat
        A_sg_CK_wi_eqv        := A_eqv_nat 
      ; A_sg_CK_wi_bop        := bop_plus
      ; A_sg_CK_wi_exists_id  := bop_plus_exists_id
-     ; A_sg_CK_wi_proofs     := sg_CK_proofs_plus
+     ; A_sg_CK_wi_proofs     := A_sg_CK_proofs_plus
      ; A_sg_CK_wi_ast        := Ast_sg_plus 
    |}. 
 
@@ -195,6 +209,18 @@ Definition sg_certs_plus : @sg_certificates nat :=
 ; sg_anti_right_d       := Certify_Not_Anti_Right (0, 0) 
 |}. 
 
+Definition sg_C_certs_plus : @sg_C_certificates nat := 
+{| 
+  sg_C_associative      := Assert_Associative 
+; sg_C_congruence       := Assert_Bop_Congruence 
+; sg_C_commutative      := Assert_Commutative
+; sg_C_selective_d      := Certify_Not_Selective (1, 1)
+; sg_C_idempotent_d     := Certify_Not_Idempotent 1
+; sg_C_cancel_d         := Certify_Left_Cancellative
+; sg_C_constant_d       := Certify_Not_Left_Constant (0, (0, 1))
+; sg_C_anti_left_d      := Certify_Not_Anti_Left (0, 0) 
+; sg_C_anti_right_d     := Certify_Not_Anti_Right (0, 0) 
+|}. 
 
 Definition sg_CK_certs_plus : @sg_CK_certificates nat 
 := {|
@@ -227,6 +253,12 @@ End MCAS.
 Section Verify.
 
 Theorem correct_sg_certs_plus : sg_certs_plus = P2C_sg nat brel_eq_nat bop_plus (A_sg_proofs_plus). 
+Proof. compute. reflexivity. Qed. 
+
+Theorem correct_sg_C_certs_plus : sg_C_certs_plus = P2C_sg_C nat brel_eq_nat bop_plus (A_sg_C_proofs_plus). 
+Proof. compute. reflexivity. Qed. 
+
+Theorem correct_sg_CK_certs_plus : sg_CK_certs_plus = P2C_sg_CK nat brel_eq_nat bop_plus (A_sg_CK_proofs_plus). 
 Proof. compute. reflexivity. Qed. 
 
 Theorem correct_sg_CK_plus : sg_plus = A2C_sg_CK_with_id nat (A_sg_plus). 

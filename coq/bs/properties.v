@@ -134,7 +134,20 @@ Definition bops_left_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 
     (bops_left_right_absorptive S r b1 b2) + (bops_not_left_right_absorptive S r b1 b2). 
 
 Definition bops_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
-    ∀ (s t : S), r s (b1 (b2 s t) s) = true.
+  ∀ (s t : S), r s (b1 (b2 s t) s) = true.
+
+(*** introduced for st/left/from_bs.v ***)
+
+Definition bops_strictly_left_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), (r s (b1 s (b2 t s)) = true) * (r (b2 t s) (b1 s (b2 t s)) = false). 
+
+Definition bops_not_strictly_left_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S)
+   := { z : S * S & match z with (s, t) => (r s (b1 s (b2 t s)) = false) + (r (b2 t s) (b1 s (b2 t s)) = true) end }. 
+
+Definition bops_left_right_strictly_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    (bops_strictly_left_right_absorptive S r b1 b2) + (bops_not_strictly_left_right_absorptive S r b1 b2). 
+
+(***)
 
 Definition bops_not_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) 
    := { z : S * S & match z with (s, t) =>  r s (b1 (b2 s t) s) = false end }. 

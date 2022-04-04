@@ -1,7 +1,6 @@
 open Cas
 open Describe
 
-
        
 (* utility function *)
 let rec compute_pair_gen (l : 'a list) (m : 'b list) : ('a * 'b) list = 
@@ -17,6 +16,19 @@ let list_sq_matrix m =
   let mk_trip (x, y) = (x, y, m.sm_matrix x y) 
   in List.map mk_trip (enumerate_matrix_indicies m.sm_size);;
 
+let print_sq_matrix string_of_elem m =
+  let print_trip (x, y) =
+    let x_str = string_of_int x in
+    let y_str = string_of_int y in
+    let v_str = string_of_elem (m.sm_matrix x y) in 
+    let trip_str = "(" ^ x_str ^ ", " ^ y_str ^ "): " ^ v_str ^ "\n"
+    in print_string trip_str 
+  in List.iter print_trip (enumerate_matrix_indicies m.sm_size);;
+
+
+let print_solution alg = print_sq_matrix (fun x -> data_to_string Ascii (get_data alg x));; 
+
+  
 let update_square_matrix (f : int -> int -> 'a) 
   ((u, v, w) : int * int * 'a) : int -> int -> 'a =
   fun c d -> if c = u && d = v then w else f c d
@@ -37,7 +49,7 @@ let fetch_zero_and_one_from_algebra (alg : 'a bs_mcas) =
   match b with
   | BS_Error l -> errors (List.map char_list_to_string l)
   | BS_bs a ->
-     let bsP = a.bs_certs in
+     (*     let bsP = a.bs_certs in *) 
      let id_annP = a.bs_id_ann_certs in
      (match id_annP.id_ann_plus_times_d with
      | Id_Ann_Cert_Equal zero -> 
@@ -45,7 +57,7 @@ let fetch_zero_and_one_from_algebra (alg : 'a bs_mcas) =
           | Id_Ann_Cert_Equal one -> (zero, one)
           | _ -> error "fetch_zero_and_one_from_algebra : expecting a one")
      | _ -> error "fetch_zero_and_one_from_algebra : expecting a zero")
-
+  | _  -> error "fetch_zero_and_one_from_algebra : internal error"
 
 let square_matrix_from_adj_list' (n : int) (l : (int * (int * 'a) list) list) (alg : 'a bs_mcas)
   : 'a square_matrix =

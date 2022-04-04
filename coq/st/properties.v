@@ -26,7 +26,7 @@ Definition slt_strictly_absorptive (L S : Type) (r : brel S) (add : binary_op S)
   := ∀ (l : L) (s : S), ((r s (add s (ltr l s)) = true) * (r (ltr l s) (add s (ltr l s)) = false)).
 
 Definition slt_not_strictly_absorptive (L S : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) 
-   := { z : L * S  & match z with (l, s) =>  ((r s (add s (ltr l s)) = false)  +  (r s (add (ltr l s) (ltr l s)) = true)) end }. 
+   := { z : L * S  & match z with (l, s) =>  ((r s (add s (ltr l s)) = false)  +  (r (ltr l s) (add s (ltr l s)) = true)) end }. 
 
 Definition slt_strictly_absorptive_decidable (L S : Type) (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) 
    := (slt_strictly_absorptive L S r add ltr) + (slt_not_strictly_absorptive L S r add ltr). 

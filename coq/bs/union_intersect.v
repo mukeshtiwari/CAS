@@ -77,6 +77,7 @@ Proof. intros s t.
 Qed. 
 
 
+
 Lemma bops_union_intersect_left_right_absorptive : 
         bops_left_right_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r) . 
 Proof. apply bops_left_left_absorptive_implies_left_right; auto. 
@@ -86,8 +87,15 @@ Proof. apply bops_left_left_absorptive_implies_left_right; auto.
        apply bop_intersect_commutative; auto. 
        apply bops_union_intersect_left_left_absorptive; auto. 
 Qed. 
+(***************)
+Lemma bops_union_intersect_not_strictly_left_right_absorptive : 
+  bops_not_strictly_left_right_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r) .
+Proof. exists (nil, nil). right.   compute. reflexivity. Defined. 
 
-
+Lemma bops_intersect_union_not_strictly_left_right_absorptive : 
+  bops_not_strictly_left_right_absorptive (finite_set S) (brel_set r) (bop_intersect r) (bop_union r).
+Proof. exists (nil, nil). right.   compute. reflexivity. Defined. 
+(***************)
 Lemma bops_union_intersect_right_left_absorptive : 
         bops_right_left_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
 Proof. apply bops_left_right_absorptive_implies_right_left. 

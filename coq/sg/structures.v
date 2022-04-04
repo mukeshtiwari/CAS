@@ -968,7 +968,7 @@ match A_sg_proofs_classify_sg _ _ _ (A_sg_proofs _ A) with
                   ; A_sg_CK_proofs         := P 
                   ; A_sg_CK_ast            := A_sg_ast _ A 
                 |}
-  | _, inl annP => A_MCAS_sg_Error _ ("Internal Error (2) : sg_classify_sg" :: nil) 
+  | _, _ => A_MCAS_sg_Error _ ("Internal Error (2) : sg_classify_sg" :: nil) 
   end   
 end.
 
@@ -2302,7 +2302,7 @@ match sg_certificates_classify_sg (sg_certs A) with
                   ; sg_CK_certs         := P 
                   ; sg_CK_ast            := sg_ast A 
                 |}
-  | _, Certify_Exists_Ann ann => MCAS_sg_Error ("Internal Error (2) : sg_classify_sg"  :: nil)
+  | _, _ => MCAS_sg_Error ("Internal Error (2) : sg_classify_sg"  :: nil)
   end   
 end.
 
@@ -2341,8 +2341,6 @@ match A with
 | MCAS_sg_CK _           => A 
 | MCAS_sg_CK_with_id _   => A 
 end.
-
-Print sg_certs_mcas. 
 
 Definition mcas_sg_certs {S : Type} (A : @sg_mcas S) : @sg_certs_mcas S :=
 match A with

@@ -542,10 +542,11 @@ Proof. intros [[[lS s] A] [absS [[lT t] B]]]; compute.
        destruct A as [A | A]. 
        + rewrite A in C. discriminate C. 
        + assert (D : eqS (s +S (lS |S> s)) (lS |S> s) = true).
-            assert (E := a_idemS (lS |S> s)). 
-            assert (F := trnS _ _ _ A E). 
-            apply symS in C. 
-            exact (trnS _ _ _ C F). 
+            apply symS in C.
+            assert (H := trnS _ _ _ A C). 
+            assert (E := a_idemS (lS |S> s)).
+            apply symS in H. 
+            exact (trnS _ _ _ C H). 
         rewrite D.
          exact B. 
 Defined.
@@ -595,18 +596,10 @@ Proof. intros [[[lS s] A] [absS [[lT t] B]]]; compute.
        exists ((lS, lT), (s, t)). rewrite C.
        destruct A as [A | A]. 
        + rewrite A in C. discriminate C.          
-       + assert (D : eqS (s +S (lS |S> s)) (lS |S> s) = true).
-            assert (E := a_idemS (lS |S> s)). 
-            assert (F := trnS _ _ _ A E). 
-            apply symS in C. 
-            exact (trnS _ _ _ C F). 
-        rewrite D.
+       + rewrite A. 
         destruct B as [B | B].
-         ++ left. exact B.
-         ++ rewrite A.
-            assert (E := a_idemS ((lS |S> s))).
-            rewrite E. apply symS in E. rewrite E. 
-            right. exact B. 
+         ++ left. apply symS in A. rewrite A. exact B. 
+         ++ rewrite (symS _ _ A). right. exact B.
 Qed.             
 
 End Theory. 
@@ -616,8 +609,6 @@ Section ACAS.
 
 Section Decide.
 
-Print A_eqv.     
-    
 Variables (LS S LT T : Type)  
           (eqLS : brel LS)
           (eqLT : brel LT)
@@ -736,7 +727,7 @@ match sabsS_d with
   | inl absS  =>
     match absT_d with
     | inl absT  => inl(slt_llex_product_strictly_absorptive LS S LT T eqS eqT argT addS addT ltrS ltrT symS refT (inr (absS, absT)))
-    | inr nabsT => inr(slt_llex_product_not_strictly_absorptive_right LS S LT T eqS eqT argT addS addT ltrS ltrT symS trnS idemS (nsabsS, (absS, nabsT)))
+    | inr nabsT => inr(slt_llex_product_not_strictly_absorptive_right LS S LT T eqS eqT argT addS addT ltrS ltrT symS (nsabsS, (absS, nabsT)))
     end 
   | inr nabsS => inr (slt_llex_product_not_strictly_absorptive_left LS S LT T eqS eqT argT wT wLT addS addT ltrS ltrT nabsS)
   end
@@ -754,18 +745,18 @@ Definition stl_llex_product_proofs
              (brel_product eqS eqT)
              (bop_llex argT eqS addS addT)
              (ltr_product ltrS ltrT) :=
-let DS_d := slt_distributive_d _ _ _ _ _ PS in
-let DT_d := slt_distributive_d _ _ _ _ _ PT in
+let DS_d := A_slt_distributive_d _ _ _ _ _ PS in
+let DT_d := A_slt_distributive_d _ _ _ _ _ PT in
 let CS_d := A_left_transform_left_cancellative_d _ _ _ _ _ QS in
 let KT_d := A_left_transform_left_constant_d _ _ _ _ _ QT in
-let asbS_d := slt_absorptive_d _ _ _ _ _ PS in
-let asbT_d := slt_absorptive_d _ _ _ _ _ PT in
-let sasbS_d := slt_strictly_absorptive_d _ _ _ _ _ PS in
-let sasbT_d := slt_strictly_absorptive_d _ _ _ _ _ PT in
+let asbS_d := A_slt_absorptive_d _ _ _ _ _ PS in
+let asbT_d := A_slt_absorptive_d _ _ _ _ _ PT in
+let sasbS_d := A_slt_strictly_absorptive_d _ _ _ _ _ PS in
+let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
 {|
-  slt_distributive_d          := slt_llex_product_distributive_decide commT selS_or_id_annT DS_d DT_d CS_d KT_d 
-; slt_absorptive_d            := slt_llex_product_absorptive_decide sasbS_d asbS_d asbT_d
-; slt_strictly_absorptive_d   := slt_llex_product_strictly_absorptive_decide sasbS_d asbS_d sasbT_d
+  A_slt_distributive_d          := slt_llex_product_distributive_decide commT selS_or_id_annT DS_d DT_d CS_d KT_d 
+; A_slt_absorptive_d            := slt_llex_product_absorptive_decide sasbS_d asbS_d asbT_d
+; A_slt_strictly_absorptive_d   := slt_llex_product_strictly_absorptive_decide sasbS_d asbS_d sasbT_d
 |}.
 
 End Decide.     

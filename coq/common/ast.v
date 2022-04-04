@@ -59,6 +59,7 @@ with cas_sg_ast : Type :=
    | Ast_sg_times_of_bs  : cas_bs_ast → cas_sg_ast
    | Ast_sg_times_of_os  : cas_os_ast → cas_sg_ast
 with cas_bs_ast : Type :=
+   | Ast_plus_times : cas_bs_ast  
    | Ast_min_plus : cas_bs_ast
    | Ast_max_plus : cas_bs_ast
    | Ast_and_or   : cas_bs_ast
@@ -91,6 +92,8 @@ with cas_os_ast : Type :=
    | Ast_os_add_bottom_id : cas_constant * cas_os_ast → cas_os_ast
    | Ast_os_add_top_ann : cas_constant * cas_os_ast → cas_os_ast 
 with cas_ltr_ast : Type :=
+    | Ast_ltr_plus_one     : cas_ltr_ast
+   | Ast_ltr_singleton     : cas_eqv_ast            → cas_ltr_ast                            
    | Ast_ltr_cons          : cas_eqv_ast            → cas_ltr_ast
    | Ast_ltr_insert        : cas_eqv_ast            → cas_ltr_ast                                                         
    | Ast_ltr_product       : cas_ltr_ast * cas_ltr_ast  → cas_ltr_ast

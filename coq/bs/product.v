@@ -128,6 +128,67 @@ Lemma bop_product_not_left_right_absorptive_right :
          bops_not_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
 Proof. intros [ [t1 t2] P ]. exists ((wS, t1), (wS, t2)). simpl. rewrite P. simpl. apply andb_comm.  Defined. 
 
+
+(* Strictly left right *)
+
+Lemma bop_product_strictly_left_right_absorptive : 
+      bops_strictly_left_right_absorptive S rS addS mulS → 
+      bops_strictly_left_right_absorptive T rT addT mulT → 
+         bops_strictly_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2]. compute. 
+       destruct (ldT t1 t2) as [A B].  rewrite A. rewrite B.
+       destruct (ldS s1 s2) as [C D].  rewrite C. rewrite D. auto.        
+Qed.
+
+Lemma bop_product_strictly_left_right_absorptive_left : 
+      bops_strictly_left_right_absorptive S rS addS mulS → 
+      bops_left_right_absorptive T rT addT mulT → 
+         bops_strictly_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2]. simpl. rewrite ldT.
+       destruct (ldS s1 s2) as [A B].  rewrite A. rewrite B. compute. auto. 
+Qed.
+
+Lemma bop_product_strictly_left_right_absorptive_right : 
+      bops_left_right_absorptive S rS addS mulS → 
+      bops_strictly_left_right_absorptive T rT addT mulT → 
+         bops_strictly_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros ldS ldT [s1 t1] [s2 t2]. simpl. rewrite ldS.
+       destruct (ldT t1 t2) as [A B].  rewrite A. rewrite B. compute.
+       case_eq(rS (s2 *S s1) (s1 +S (s2 *S s1))); intro C; auto. 
+Qed.
+
+Lemma bop_product_not_strictly_left_right_absorptive : 
+      bops_not_strictly_left_right_absorptive S rS addS mulS →
+      bops_not_strictly_left_right_absorptive T rT addT mulT →   
+         bops_not_strictly_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 s2] P ] [ [t1 t2] Q ].
+       exists ((s1, t1), (s2, t2)). compute.
+       destruct P as [P | P]; destruct Q as [Q | Q].
+       + rewrite P. left; auto. 
+       + rewrite P. left; auto. 
+       + rewrite P. rewrite Q.
+         case_eq(rS s1 (s1 +S (s2 *S s1))); intro H; left; auto. 
+       + rewrite P, Q. right. auto. 
+Defined. 
+
+Lemma bop_product_not_strictly_left_right_absorptive_left : 
+      bops_not_left_right_absorptive S rS addS mulS →
+         bops_not_strictly_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [s1 s2] P ].
+       exists ((s1, wT), (s2, wT)). compute.
+       rewrite P. left; auto. 
+Defined. 
+
+Lemma bop_product_not_strictly_left_right_absorptive_right : 
+      bops_not_left_right_absorptive T rT addT mulT →
+         bops_not_strictly_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
+Proof. intros [ [t1 t2] P ].
+       exists ((wS, t1), (wS, t2)). compute.
+       rewrite P.
+       case_eq(rS wS (wS +S (wS *S wS))); intro Q; left; auto. 
+Defined. 
+
+
 (* right left *) 
 Lemma bop_product_right_left_absorptive : 
       bops_right_left_absorptive S rS addS mulS → 

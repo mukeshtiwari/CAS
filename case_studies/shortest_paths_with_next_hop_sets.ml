@@ -285,16 +285,8 @@ Not Right left Absorptive:
   
 (* Alternatives? 
 
-let next_hop_sets  = mcas_bs_union_lift (mcas_sg_left eqv_eq_nat);;
-let pre_sp_with_nh_sets = mcas_bs_add_zero (mcas_bs_llex_product mcas_min_plus next_hop_sets) infinity;;  (semiring) 
-let sp_with_nh_sets = mcas_bs_add_one pre_sp_with_nh_sets self ;; (bs_CI) LD, not RD 
-
-
-slt_union_singleton? 
-slt_union_lift? 
-sltr_lex_product? 
-
-
+let next_hop_sets    = mcas_slt_union_singleton eqv_eq_nat;;
+let slt_min_plus_nhs = mcas_slt_llex_product mcas_slt_min_plus_one next_hop_sets
 
  *) 
 

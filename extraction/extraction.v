@@ -54,6 +54,7 @@ Require Import CAS.coq.bs.and_or.
 Require Import CAS.coq.bs.or_and.
 Require Import CAS.coq.bs.max_min.
 Require Import CAS.coq.bs.min_max.
+Require Import CAS.coq.bs.plus_times.
 Require Import CAS.coq.bs.min_plus.
 Require Import CAS.coq.bs.max_plus.
 Require Import CAS.coq.bs.product.
@@ -197,7 +198,8 @@ Extraction "Cas.ml"
    mcas_bs_and_or
    mcas_bs_or_and     
    mcas_min_plus
-   mcas_max_plus   
+   mcas_max_plus
+   mcas_plus_times
    mcas_max_min
    mcas_min_max      
    mcas_bs_product

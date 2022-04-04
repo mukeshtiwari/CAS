@@ -11,11 +11,11 @@ Experiments with a generalized Martelli combinator:
    where 
    (+)  = min(<=, lift(x)) 
    (x') = min(<=, union)
-   NOTE: The construction (currently) requires (x) to be commutative, idempotent, and not selective. 
-
    That is, 
    X (+) Y = min(<=, {x (x) y | x in X, y in Y}
    X (x') Y = min(<=, X union Y)
+
+   NOTE: The construction (currently) requires (x) to be commutative, idempotent, and not selective. 
 
 A*[i,j] = (+)_{p in P(i,j)} w(p) 
         = (+)_{p in P(i,j)} min(<=, U_{e in p} w(e))
@@ -43,16 +43,14 @@ A*[i,j] = (+)_{p in P(i,j)} w(p)
    X (+) Y  = min(subset_eq, {x union y | x in X, y in Y}
    X (x') Y = min(subset_eq, X union Y)
    4) Finally, what is S?  It is S = E, the arc-set for the directed graph G = (V, E). 
-      w(i, j) = ({(i, j)}}. 
+      w(i, j) = {{(i, j)}}, or w(e) = {{e}}, for e in E. 
 
 From above 
 
 A*[i,j] = min(<=, { w(e_1) (x) w(e_2) ... (x) w(e_k) | e_1 in p_1, ... e_k in p_k}
-        = min(<=, { {{e_1}} union {{e_2}} ... union {{e_k}} | e_1 in p_1, ... e_k in p_k}
-        = min(<=, { {{e_1, e_2, ... e_k}} | e_1 in p_1, ... e_k in p_k}
+        = min(subset_eq, { {{e_1}} union {{e_2}} ... union {{e_k}} | e_1 in p_1, ... e_k in p_k}
+        = min(subset_eq, { {{e_1, e_2, ... e_k}} | e_1 in p_1, ... e_k in p_k}
 *)   
-
-
 
 let eqv_edge = mcas_eqv_product mcas_eqv_eq_nat mcas_eqv_eq_nat;;
 let bs_edge_sets_intersect_union = mcas_bs_add_zero (mcas_bs_intersect_union eqv_edge) infinity;;
@@ -126,8 +124,6 @@ list_sq_matrix martelli_sol_1;;
     |  /      |	  
     1 ------- 2
 *) 
-  
-
 let martelli_adj_2 = 
   { adj_size = 4;
     adj_list = 
@@ -195,20 +191,41 @@ let martelli_sol_2 = martelli_solve_adj_list martelli_adj_2;;
 
  *) 
 
-(* Now, an experiment with a generalized version *)
+(* Now, an experiment with a generalized version 
 
-let bs_bool_intersect_union = mcas_bs_add_zero (mcas_bs_intersect_union mcas_eqv_bool) infinity;;
-let os_bool_sets_intersect_union = mcas_os_from_bs_left bs_bool_intersect_union;;
-let bool_martelli = mcas_minset_lift_union os_bool_sets_intersect_union;;
+   Minimal cutsets can explode exponentially in size. 
+   However, there are applications of the generalized 
+   martelli semiring that do not.  
 
-let bool_martelli_solver = instantiate_algorithm bool_martelli Matrix_power;; 
+   Suppose our network relies on 3 resources R = {1, 2, 3}. 
+   That is, every arc in the graph is assigned some subset of 
+   R.  For example,  w(i,j) = {{1,3}}, this means that if both 
+   resources 1 and 3 fail, then this link will fail. 
+   If w(i, j) = {{}}, then the link does not depend on any 
+   of the resources in R. 
+   
+   Examples of resources:
+   1) a tunnel in Baltimore 
+   2) a power station 
+   3) the lack of a flood. 
+   4) a software/hardware version 
+   ... 
 
-let bool_martelli_solve_adj_list adjl =
-  match bool_martelli_solver with
+   Now, when X in A*[i,j], then we can call X a "shared risk group" for 
+   the connectivity of i and j.  That is, if the resources of X fail, 
+   then the path can fail. 
+*)
+let bs_nat_intersect_union = mcas_bs_add_zero (mcas_bs_intersect_union mcas_eqv_eq_nat) infinity;;
+let os_nat_sets_intersect_union = mcas_os_from_bs_left bs_nat_intersect_union;;
+let risk_groups = mcas_minset_lift_union os_nat_sets_intersect_union;;
+let risk_groups_solver = instantiate_algorithm risk_groups Matrix_power;; 
+
+let risk_groups_solve_adj_list adjl =
+  match risk_groups_solver with
   | Matrix_Power_Instance(algebra, mf ) -> mf (square_matrix_from_adj_list algebra adjl)
   | _ -> error "martelli_solve_adj_list : internal error";; 
 
-let bmt_w i j b = [Inr [b]] ;;
+let rg_w i j w = [Inr w] ;;
 
 (*       
     0 ------ 3
@@ -221,297 +238,42 @@ let bmt_w i j b = [Inr [b]] ;;
 *) 
   
 
-let bool_martelli_adj_1 = 
+let risk_groups_adj_1 = 
   { adj_size = 4;
     adj_list = 
   [
-    (0, [(1, bmt_w 0 1 true); (3, bmt_w 0 3 false)]);
+    (0, [(1, rg_w 0 1 [1]); (3, rg_w 0 3 [3])]);
     
-    (1, [(0, bmt_w 1 0 true); (2, bmt_w 1 2 true); (3, bmt_w 1 3 false)]);
+    (1, [(0, rg_w 1 0 [2]); (2, rg_w 1 2 [2]); (3, rg_w 1 3 [2])]);
 
-    (2, [(1, bmt_w 2 1 false); (3, bmt_w 2 3 true)]);    
+    (2, [(1, rg_w 2 1 [1;3]); (3, rg_w 2 3 [2;3])]);    
     
-    (3, [(0, bmt_w 3 0 true); (1, bmt_w 3 1 false); (2, bmt_w 3 2 true)])
+    (3, [(0, rg_w 3 0 [1]); (1, rg_w 3 1 [1]); (2, rg_w 3 2 [1])])
   ]};; 
 
-let bool_martelli_sol_1 = bool_martelli_solve_adj_list bool_martelli_adj_1;; 
+let risk_groups_sol_1 = risk_groups_solve_adj_list risk_groups_adj_1;; 
   
 (*
-list_sq_matrix bool_martelli_sol_1;; 
-- : (int * int * bool Cas.finite_set Cas.with_constant Cas.finite_set) list =
-[(0, 0, []); 
- (0, 1, [Inr [true; false]]); 
- (0, 2, [Inr [true]]);
- (0, 3, [Inr [true; false]]); 
+list_sq_matrix risk_groups_sol_1;; 
 
- (1, 0, [Inr [true]]); 
- (1, 1, []);
- (1, 2, [Inr [true]]); 
- (1, 3, [Inr [true; false]]); 
-
- (2, 0, [Inr [true]]);
- (2, 1, [Inr [false; true]]); 
- (2, 2, []); 
- (2, 3, [Inr [false; true]]);
- 
- (3, 0, [Inr [true]]); 
- (3, 1, [Inr [true; false]]); 
- (3, 2, [Inr [true]]);
- (3, 3, [])]
-
+- : (int * int * int Cas.finite_set Cas.with_constant Cas.finite_set) list =
+[
+(0, 0, []); 
+(0, 1, [Inr [1]]); 
+(0, 2, [Inr [2; 3]; Inr [1]]);
+(0, 3, [Inr [2; 3]; Inr [1; 3]]); 
+(1, 0, [Inr [2]]); 
+(1, 1, []);
+(1, 2, [Inr [2]]); 
+(1, 3, [Inr [2]]);
+(2, 0, [Inr [2; 1]; Inr [2; 3]; Inr [3; 1]]); 
+(2, 1, [Inr [3; 1]]);
+(2, 2, []); 
+(2, 3, [Inr [2; 3]]); 
+(3, 0, [Inr [1]]); 
+(3, 1, [Inr [1]]);
+(3, 2, [Inr [1]]); 
+(3, 3, [])]
  *)
 
 
-
-let bool_martelli_adj_2 = 
-  { adj_size = 4;
-    adj_list = 
-  [
-    (0, [(1, bmt_w 0 1 true); (3, bmt_w 0 3 false)]);
-    
-    (1, [(0, bmt_w 1 0 true); (2, bmt_w 1 2 false); (3, bmt_w 1 3 true)]);
-
-    (2, [(1, bmt_w 2 1 false); (3, bmt_w 2 3 false)]);    
-    
-    (3, [(0, bmt_w 3 0 false); (1, bmt_w 3 1 false); (2, bmt_w 3 2 true)])
-  ]};; 
-
-let bool_martelli_sol_2 = bool_martelli_solve_adj_list bool_martelli_adj_2;; 
-(*
-list_sq_matrix bool_martelli_sol_2;;
-list_sq_matrix bool_martelli_sol_2;;
-- : (int * int * bool Cas.finite_set Cas.with_constant Cas.finite_set) list =
-[(0, 0, []); 
- (0, 1, [Inr [true; false]]); 
- (0, 2, [Inr [true; false]]);
- (0, 3, [Inr [true; false]]); 
- (1, 0, [Inr [true; false]]); 
- (1, 1, []);
- (1, 2, [Inr [false; true]]); 
- (1, 3, [Inr [false; true]]);
- (2, 0, [Inr [false]]); 
- (2, 1, [Inr [false]]); 
- (2, 2, []);
- (2, 3, [Inr [false]]); 
- (3, 0, [Inr [false]]); 
- (3, 1, [Inr [false]]);
- (3, 2, [Inr [false; true]]); 
- (3, 3, [])]
- *)
-
-
-(*  what if we start with  (P(S), intersect, lift(x))?
-   NOTE : distributivity requires and INJECTIVE (x) ! 
-
-   2) construct an order-semigroup (os) as follows: 
-       os_from_bs_left (P(S), intersect, lift(x)) = (P(S), subset_eq, lift(x)). 
-   3) Let (P(P(S)), (+), (x')) = minset_lift_union (P(S), subset_eq, lift(x)). 
-   where 
-   (+)  = min(subset_eq, lift(lift(x))) 
-   (x') = min(subset_eq, union)
-   That is, 
-   X (+) Y  = min(subset_eq, {x lift(x) y | x in X, y in Y}
-   X (x') Y = min(subset_eq, X union Y)
-
-A*[i,j] = min(<=, {w(e_1) (x) w(e_2) ... (x) w(e_k) | e_1 in p_1, ... e_k in p_k})
-        = min(<=, {w(e_1) lift(x) w(e_2) ... lift(x) w(e_k) | e_1 in p_1, ... e_k in p_k})
-        = 
- *) 
-
-(* Now, another experiment with a generalized version *) 
-
-
-(* C + int *)   
-let bs_bw = mcas_bs_add_one mcas_max_min infinity;; 
-
-(* (C + int) x (C + int) *)     
-let bs_bw_x_bw = mcas_bs_product bs_bw bs_bw ;; 
-
-(* (C + int) x (C + int)  with <= = max x max *)       
-let os_bw_x_bw = mcas_os_from_bs_left bs_bw_x_bw;;
-
-(* (C + int) x (C + int) set *)       
-let g_martelli_bw_x_bw = mcas_minset_lift_union os_bw_x_bw;;
-
-(*
- A[i,j] = {w(i, j)} = {(w_1(i,j), w2(i,j))}
-
-A*[i,j] = min(<=, {w(e_1) (x) w(e_2) ... (x) w(e_k) | e_1 in p_1, ... e_k in p_k}
-
-        ?=? min(<=,  w (Martelli[i, j])   (by idempotence?) 
-*)
-
-
-(*
-mcas_bs_describe_fully g_martelli_bw_x_bw;; 
-Class : Dioid
-Additive properties:
---------------------
-Idempotent
-Commutative
-Not Selective: 
-   [(inl(INF), inr(0))].[(inr(0), inl(INF))] = [(inr(0), inr(0))]
-Not Left Cancellative: 
-   [(inr(0), inr(0))].[(inl(INF), inr(0))] = [(inr(0), inr(0))]
-   [(inr(0), inr(0))].[(inr(0), inl(INF))] = [(inr(0), inr(0))]
-   [(inl(INF), inr(0))] <> [(inr(0), inl(INF))]
-Not Right Cancellative: 
-   [(inl(INF), inr(0))].[(inr(0), inr(0))] = [(inr(0), inr(0))]
-   [(inr(0), inl(INF))].[(inr(0), inr(0))] = [(inr(0), inr(0))]
-   [(inl(INF), inr(0))] <> [(inr(0), inl(INF))]
-Not Left Constant: 
-   [(inl(INF), inl(INF))].[] = []
-   [(inl(INF), inl(INF))].[(inl(INF), inl(INF))] = [(inl(INF), inl(INF))]
-Not Right Constant: 
-   [].[(inl(INF), inl(INF))] = []
-   [(inl(INF), inl(INF))].[(inl(INF), inl(INF))] = [(inl(INF), inl(INF))]
-Not Anti Left: 
-   [].[] = []
-Not Anti Right: 
-   [].[] = []
-Not Is Left: 
-   [(inl(INF), inl(INF))].[] = []
-Not Is Right: 
-   [].[(inl(INF), inl(INF))] = []
-Multiplicative properties:
--------------------------
-Idempotent
-Commutative
-Not Selective: 
-   [(inr(0), inl(INF))].[(inl(INF), inr(0))] = [(inr(0), inl(INF)), (inl(INF), inr(0))]
-Not Left Cancellative: 
-   [(inr(0), inl(INF)), (inl(INF), inr(0))].[(inr(0), inl(INF))] = [(inl(INF), inr(0)), (inr(0), inl(INF))]
-   [(inr(0), inl(INF)), (inl(INF), inr(0))].[(inl(INF), inr(0))] = [(inr(0), inl(INF)), (inl(INF), inr(0))]
-   [(inr(0), inl(INF))] <> [(inl(INF), inr(0))]
-Not Right Cancellative: 
-   [(inr(0), inl(INF))].[(inr(0), inl(INF)), (inl(INF), inr(0))] = [(inr(0), inl(INF)), (inl(INF), inr(0))]
-   [(inl(INF), inr(0))].[(inr(0), inl(INF)), (inl(INF), inr(0))] = [(inr(0), inl(INF)), (inl(INF), inr(0))]
-   [(inr(0), inl(INF))] <> [(inl(INF), inr(0))]
-Not Left Constant: 
-   [].[(inl(INF), inl(INF))] = [(inl(INF), inl(INF))]
-   [].[] = []
-Not Right Constant: 
-   [(inl(INF), inl(INF))].[] = [(inl(INF), inl(INF))]
-   [].[] = []
-Not Anti Left: 
-   [].[] = []
-Not Anti Right: 
-   [].[] = []
-Not Is Left: 
-   [].[(inl(INF), inl(INF))] = [(inl(INF), inl(INF))]
-Not Is Right: 
-   [(inl(INF), inl(INF))].[] = [(inl(INF), inl(INF))]
-Interaction of Additive and Multiplicative operations
--------------------------------------------------------
-Left Distributive
-Right Distributive 
-Left Left Absorptive
-Left_Right Absorptive 
-Right_Left Absorptive
-Right_Right Absorptive 
-
-
-
-*)   
-
-(* now, configure an adjacency matrix *)
-
-let g_martelli_bw_x_bw_solver = instantiate_algorithm g_martelli_bw_x_bw Matrix_power;; 
-
-let g_martelli_bw_x_bw_solve_adj_list adjl =
-  match g_martelli_bw_x_bw_solver with
-  | Matrix_Power_Instance(algebra, mf ) -> mf (square_matrix_from_adj_list algebra adjl)
-  | _ -> error "g_martelli_bw_x_bw_solve_adj_list : internal error";; 
-
-let mk_w b1 b2 = [(Inr b1, Inr b2)] ;;
-
-let adj_1 = 
-  (* 0 = u, 1 = w, 2 = x, 3 = v*)
-  { adj_size = 4;
-    adj_list = 
-  [
-    (0, [(1, mk_w 5 1); (3, mk_w 10 3)]);
-    
-    (1, [(2, mk_w 20 1)]);
-    
-    (3, [(1, mk_w 20 4); (2, mk_w 10 2)])
-  ]};; 
-
-let sol_1 = g_martelli_bw_x_bw_solve_adj_list adj_1;; 
-(*
-
-0->2 is only interesting case 
-(0, 2, [(Inr 10, Inr 1)])
-
-paths: 
-p1 = 0,1,2
-p2 = 0,3,2
-p3 = 0,3,1,2
-
-have to look at |p1| x |p2| x |p3| = 2 x 2 x 3 = 12 products 
-then, take "max x max" minset. 
-
-minimal cut-sets: 
- 
-   {(0,1), (0,3)} 
-   {(1,2), (0,3)} 
-   {(0,1), (3, 2), (0,3)} 
-   {(1,2), (3, 2), (0,3)} 
-   {(0,1), (0,3), (1, 2)} 
-
-list_sq_matrix sol_1;; 
-- : (int * int *
-     (int Cas.with_constant * int Cas.with_constant) Cas.finite_set)
-    list
-=
-[(0, 0, []); (0, 1, [(Inr 5, Inr 1)]); (0, 2, [(Inr 10, Inr 1)]);
- (0, 3, [(Inr 10, Inr 3)]);
- (1, 0,
-  [(Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']},
-    Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']})]);
- (1, 1, []); (1, 2, [(Inr 20, Inr 1)]);
- (1, 3,
-  [(Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']},
-    Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']})]);
- (2, 0,
-  [(Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']},
-    Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']})]);
- (2, 1,
-  [(Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']},
-    Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']})]);
- (2, 2, []);
- (2, 3,
-  [(Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']},
-    Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']})]);
- (3, 0,
-  [(Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']},
-    Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']})]);
- (3, 1, [(Inr 20, Inr 4)]); (3, 2, [(Inr 10, Inr 2)]); (3, 3, [])]
-
-
- *)
-  

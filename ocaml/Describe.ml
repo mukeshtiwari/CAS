@@ -19,7 +19,30 @@ let string_to_char_list s = List.map (String.get s) (from_to 0 ((String.length s
 let make_constant' s1 s2 = make_constant (string_to_char_list s1) (string_to_char_list s2);;
 
 let infinity = make_constant' "INF"  "\\infty";;
-let self = make_constant' "SELF"  "\\bot";;  
+let self = make_constant' "SELF"  "\\bot";;
+
+
+(* expand these ... *)
+let get_plus bs =
+  match bs with
+  | BS_dioid d -> d.dioid_plus
+  | _ -> error "get_plus: nope!" ;; 
+
+let get_times bs =
+  match bs with
+  | BS_dioid d -> d.dioid_times
+  | _ -> error "get_times: nope!" ;;
+
+let get_eq bs =
+  match bs with
+  | BS_dioid d -> d.dioid_eqv.eqv_eq
+  | _ -> error "get_eq : nope!" ;; 
+  
+let get_data bs =
+  match bs with
+  | BS_dioid d -> d.dioid_eqv.eqv_data
+  | _ -> error "get_data : nope!" ;; 
+  
 
 type string_type = Ascii | Latex
 

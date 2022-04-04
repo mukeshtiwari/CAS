@@ -1,7 +1,6 @@
 (* This file attempts to use CAS to explore this paper. 
 
-Bottleneck shortest paths
-on a partially ordered scale
+Bottleneck shortest paths on a partially ordered scale
 Jérôme Monnot and Olivier Spanjaard 
 LAMSADE - Université Paris Dauphine, Place du Maréchal De Lattre de Tassigny,
 75775 Paris Cedex 16, France.
