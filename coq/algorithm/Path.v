@@ -4700,6 +4700,14 @@ Section Pathprops.
     (construct_all_paths Node eqN R 1 finN m (S (k + length finN - 1)) c d)
     (enum_all_paths_flat Node eqN R 1 finN m (k + length finN - 1) c d) = true.
   Proof.
+    intros *.
+    unfold construct_all_paths.
+    assert(Hl : (length finN <= S (k + length finN - 1))%nat).
+    nia.
+    pose proof reduce_path_gen_lemma.
+
+
+    unfold path_membership.
     induction k.
     + intros *.
       simpl. 
