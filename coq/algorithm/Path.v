@@ -251,7 +251,8 @@ Section Pathdefs.
 
 
   
-  Fixpoint partial_sum_paths (l : list Node) (m : Matrix) (n : nat) (c d : Node) : R :=
+  Fixpoint partial_sum_paths (l : list Node) 
+    (m : Matrix) (n : nat) (c d : Node) : R :=
     match n with
     | O => 
       match c =n= d with 
@@ -263,16 +264,14 @@ Section Pathdefs.
     end.
 
   
-  Definition enum_all_paths (l : list Node) 
-    (m : Matrix) (n : nat) (c d : Node) : list (list Path) :=
-    List.map (fun n' => (construct_all_paths l m n c d)) (enum_list_inc n). 
-    
-  Definition get_all_paths_rvalues (l : list (list Path)) : list (list R) :=
-    List.map get_all_rvalues l.
-
-  Definition sum_individual_paths_rvalues (l : list (list R)) : list R :=
-    List.map sum_all_rvalues l.
   
+  (* Get all the paths in one big list *)
+  Definition enum_all_paths_flat (l : list Node) 
+    (m : Matrix) (n : nat) (c d : Node) : list Path :=
+    List.flat_map 
+      (fun n' => (construct_all_paths l m n c d)) 
+      (enum_list_inc n). 
+    
 
   
 
