@@ -4740,17 +4740,6 @@ Section Pathprops.
     (map (λ '(y, lt), let '(_, _) := y in lt)
      (enum_all_paths_flat Node eqN R 1 finN m n c d)) = true.
   Proof.
-
-
-
-  
-  Admitted.
-  (* 
-    intros.
-    unfold enum_all_paths_flat.
-    unfold construct_all_paths.
-
-
     induction n. 
     + intros * Hl Hin.
       destruct w.
@@ -4764,11 +4753,23 @@ Section Pathprops.
       nia.
     + intros * Hl Hin.
       simpl.
-     
-        
-    
-  Admitted.
-  *)
+      rewrite map_app.
+      unfold construct_all_paths.
+      rewrite map_map, map_id.
+      apply in_eq_bool_mem_second.
+      assert (Htw : w = S n \/ (w <= n)%nat).
+      nia.
+      destruct Htw as [Htw | Htw].
+      left.
+      rewrite <-Htw.
+      exact Hin.
+      right.
+      specialize (IHn w ys m c d Htw Hin).
+      exact IHn.
+  Qed.
+
+
+
 
   Lemma sum_all_flat_paths_fixpoint : 
     forall k c d m,
