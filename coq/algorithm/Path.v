@@ -284,16 +284,7 @@ Section Pathdefs.
     end.
 
   
-  (* Checks if every path in l appears in lm or not *)
-  Fixpoint path_membership (l : list Path) (lm : list Path) : bool :=
-    match l with
-    | [] => true
-    | (_, _, lp) :: t => 
-      (In_eq_bool _ _ _ eqN eqN eqR lp 
-        (List.map (fun '(_, _, lt) => lt) lm)) &&
-      path_membership t lm 
-    end. 
-
+  
   
 
   
@@ -4524,235 +4515,56 @@ Section Pathprops.
         apply fold_right_sum_all_flat_paths.
   Qed.
 
-  Lemma in_eq_bool_path_measure : 
-    forall lm lh, 
-    In_eq_bool Node Node R eqN eqN eqR lh
-      (map (λ '(_, _, lt), lt) lm) = true ->
-    measure_of_path Node R 1 mulR lh + 
-    sum_all_flat_paths Node R 0 1 plusR mulR lm =r= 
-    sum_all_flat_paths Node R 0 1 plusR mulR lm = true.
-  Proof.
-    induction lm as [|((au, av), lmh) lm].
-    + intros ? Hin.
-      simpl in Hin.
-      congruence.
-    + intros ? Hin.
-      simpl in Hin.
-      simpl.
-      apply Bool.orb_true_iff in Hin.
-      destruct Hin as [Hin | Hin].
-      remember (measure_of_path Node R 1 mulR lh) as lhr.
-      remember (measure_of_path Node R 1 mulR lmh) as lmhr.
-      remember (sum_all_flat_paths Node R 0 1 plusR mulR lm) as sumr.
-      assert (Htt: (lhr + (lmhr + sumr) =r= lmhr + sumr) = 
-      ((lhr + lmhr) + sumr =r= lmhr + sumr)).
-      apply congrR.
-      apply plus_associative.
-      apply refR.
-      rewrite Htt; clear Htt.
-      subst.
-      pose proof path_split_measure lh [] lmh Hin as Hr.
-      simpl in Hr.
-      apply congrP.
-      assert (Htt: 
-      (measure_of_path Node R 1 mulR lh + measure_of_path Node R 1 mulR lmh =r=
-      measure_of_path Node R 1 mulR lmh) =
-      (1 * measure_of_path Node R 1 mulR lmh + measure_of_path Node R 1 mulR lmh =r=
-      measure_of_path Node R 1 mulR lmh)).
-      apply congrR.
-      apply congrP.
-      apply Hr.
-      apply refR.
-      apply refR.
-      rewrite Htt; clear Htt.
-      assert (Htt: 
-      (1 * measure_of_path Node R 1 mulR lmh + measure_of_path Node R 1 mulR lmh =r=
-      measure_of_path Node R 1 mulR lmh) = 
-      (measure_of_path Node R 1 mulR lmh + measure_of_path Node R 1 mulR lmh =r=
-      measure_of_path Node R 1 mulR lmh)).
-      apply congrR.
-      apply congrP.
-      apply one_left_identity_mul.
-      apply refR.
-      apply refR.
-      rewrite Htt; clear Htt.
-      apply plus_idempotence.
-      apply refR.
-      specialize (IHlm _ Hin).
-      remember (measure_of_path Node R 1 mulR lh) as lhr.
-      remember (measure_of_path Node R 1 mulR lmh) as lmhr.
-      remember (sum_all_flat_paths Node R 0 1 plusR mulR lm) as sumr.
-      assert (Htt: 
-      (lhr + (lmhr + sumr) =r= lmhr + sumr) =
-      (lhr + (sumr + lmhr) =r= lmhr + sumr)).
-      apply congrR.
-      apply congrP.
-      apply refR.
-      apply plus_commutative.
-      apply refR.
-      rewrite Htt; clear Htt.
-      assert (Htt: 
-      (lhr + (sumr + lmhr) =r= lmhr + sumr) =
-      (lhr + sumr + lmhr =r= lmhr + sumr)).
-      apply congrR.
-      apply plus_associative.
-      apply refR.
-      rewrite Htt; clear Htt.
-      assert(Htt: 
-      (lhr + sumr + lmhr =r= lmhr + sumr) =
-      (lhr + sumr + lmhr =r= sumr + lmhr)).
-      apply congrR.
-      apply refR.
-      apply plus_commutative.
-      rewrite Htt; clear Htt.
-      apply congrP.
-      apply IHlm.
-      apply refR.
-  Qed.
   
-
-      
-
-  Lemma sum_all_flat_paths_idempotence : 
-    forall l lm, 
-    path_membership Node eqN R eqR l lm = true -> 
-    sum_all_flat_paths Node R zeroR oneR plusR mulR (l ++ lm) =r= 
-    sum_all_flat_paths Node R zeroR oneR plusR mulR lm = true.
-  Proof.
-    induction l as [|((au, av), lh) l].
-    + intros ? Hp.
-      simpl.
-      apply refR.
-    + intros ? Hp.
-      simpl in Hp.
-      simpl.
-      apply Bool.andb_true_iff in Hp.
-      destruct Hp as [Hpl Hpr].
-      pose proof in_eq_bool_path_measure _ _ Hpl as Hr.
-      specialize (IHl _ Hpr).
-      assert (Htt: 
-      (measure_of_path Node R 1 mulR lh +
-      sum_all_flat_paths Node R 0 1 plusR mulR (l ++ lm) =r=
-      sum_all_flat_paths Node R 0 1 plusR mulR lm)  = 
-      (measure_of_path Node R 1 mulR lh +
-      (sum_all_flat_paths Node R 0 1 plusR mulR l + 
-      sum_all_flat_paths Node R 0 1 plusR mulR lm) =r=
-      sum_all_flat_paths Node R 0 1 plusR mulR lm)).
-      apply congrR.
-      apply congrP.
-      apply refR.
-      apply sum_all_flat_paths_app.
-      apply refR.
-      rewrite Htt; clear Htt.
-      remember (measure_of_path Node R 1 mulR lh) as lhr.
-      remember (sum_all_flat_paths Node R 0 1 plusR mulR l) as lr.
-      remember ( sum_all_flat_paths Node R 0 1 plusR mulR lm) as lmr.
-      assert (Htt:
-      (lhr + (lr + lmr) =r= lmr) = (lhr + (lmr + lr) =r= lmr)).
-      apply congrR.
-      apply congrP.
-      apply refR.
-      apply plus_commutative.
-      apply refR.
-      rewrite Htt; clear Htt.
-      assert (Htt: 
-      (lhr + (lmr + lr) =r= lmr) = (lhr + lmr + lr =r= lmr)).
-      apply congrR.
-      apply plus_associative.
-      apply refR.
-      rewrite Htt; clear Htt.
-      assert(Htt: (lhr + lmr + lr =r= lmr) =
-      (lmr + lr =r= lmr)).
-      apply congrR.
-      apply congrP.
-      exact Hr.
-      apply refR.
-      apply refR.
-      rewrite Htt; clear Htt.
-      assert (Htt: (lmr + lr =r= lmr) = (lr + lmr =r= lmr)).
-      apply congrR.
-      apply plus_commutative.
-      apply refR.
-      rewrite Htt; clear Htt.
-      subst.
-      assert(Htt:
-      (sum_all_flat_paths Node R 0 1 plusR mulR l +
-      sum_all_flat_paths Node R 0 1 plusR mulR lm =r=
-      sum_all_flat_paths Node R 0 1 plusR mulR lm) =
-      (sum_all_flat_paths Node R 0 1 plusR mulR (l ++lm) =r=
-      sum_all_flat_paths Node R 0 1 plusR mulR lm)).
-      apply congrR.
-      apply symR.
-      apply sum_all_flat_paths_app.
-      apply refR.
-      rewrite Htt; clear Htt.
-      exact IHl.
-  Qed.
-
-
-      
-
-
-
-  Lemma path_membership_true :
-    forall k m c d,
-    path_membership Node eqN R eqR
-    (construct_all_paths Node eqN R 1 finN m (S (k + length finN - 1)) c d)
-    (enum_all_paths_flat Node eqN R 1 finN m (k + length finN - 1) c d) = true.
-  Proof.
-    intros *.
-    unfold construct_all_paths.
-    assert(Hl : (length finN <= S (k + length finN - 1))%nat).
-    nia.
-    pose proof reduce_path_gen_lemma.
-
-
-    unfold path_membership.
-    induction k.
-    + intros *.
-      simpl. 
-  Admitted.
-
-
       
 
   Lemma sum_all_flat_paths_fixpoint : 
     forall k c d m,
+    (∀ u v : Node, (u =n= v) = true → (m u v =r= 1) = true) ->
+    mat_cong Node eqN R eqR m ->
     sum_all_flat_paths Node R zeroR oneR plusR mulR
       (enum_all_paths_flat Node eqN R oneR finN m (length finN - 1)%nat c d) =r=
     sum_all_flat_paths Node R zeroR oneR plusR mulR
       (enum_all_paths_flat Node eqN R oneR finN m (k + length finN - 1)%nat c d) = true.
   Proof.
     induction k.
-    + intros ? ? ?.
+    + intros ? ? ? Huv Hm.
       simpl.
       apply refR. 
-    + intros ? ? ?.
+    + intros ? ? ? Huv Hm.
       assert (Htt : (S k + length finN - 1)%nat = 
       S (k + length finN - 1)). nia.
       rewrite Htt; clear Htt.
       simpl.
-      remember (construct_all_paths Node eqN R 1 finN m (S (k + length finN - 1)) c d) as lt. 
-      remember (enum_all_paths_flat Node eqN R 1 finN m (k + length finN - 1) c d) as ltt.
-      pose proof  sum_all_flat_paths_idempotence lt ltt as Hs.
-      assert (Hpp : path_membership Node eqN R eqR lt ltt = true).
-      subst.
-      eapply path_membership_true.
-      specialize (Hs Hpp).
-      assert(Htt: 
-      (sum_all_flat_paths Node R 0 1 plusR mulR
-      (enum_all_paths_flat Node eqN R 1 finN m (length finN - 1) c d) =r=
-        sum_all_flat_paths Node R 0 1 plusR mulR (lt ++ ltt)) =
-      (sum_all_flat_paths Node R 0 1 plusR mulR
-      (enum_all_paths_flat Node eqN R 1 finN m (length finN - 1) c d) =r=
-        sum_all_flat_paths Node R 0 1 plusR mulR ltt)).
-      apply congrR.
-      apply refR.
-      apply Hs.
-      rewrite Htt; clear Htt.
-      subst.
-      eapply IHk.
-  Qed.   
+      remember (construct_all_paths Node eqN R 1 finN m (S (k + length finN - 1)) c d) as ls.
+      remember (enum_all_paths_flat Node eqN R 1 finN m (k + length finN - 1) c d) as lss.
+      assert(Htt:
+        (sum_all_flat_paths Node R 0 1 plusR mulR
+        (enum_all_paths_flat Node eqN R 1 finN m (length finN - 1) c d) =r=
+        sum_all_flat_paths Node R 0 1 plusR mulR (ls ++ lss)) =
+        (sum_all_flat_paths Node R 0 1 plusR mulR
+        (enum_all_paths_flat Node eqN R 1 finN m (length finN - 1) c d) =r=
+        sum_all_flat_paths Node R 0 1 plusR mulR ls +
+        sum_all_flat_paths Node R 0 1 plusR mulR lss)).
+        apply congrR.
+        apply refR.
+        apply sum_all_flat_paths_app.
+        rewrite Htt; clear Htt.
+        subst.
+        unfold construct_all_paths.
+        assert(Hl : (length finN <= S (k + length finN - 1))%nat).
+        nia.
+        pose proof reduce_path_gen_lemma (S (k + length finN - 1))
+          m c d as Hpl.
+        unfold Orel in Hpl.
+        (* 
+        I know that every single path 
+        in 
+        (map (λ l : list (Node * Node * R), (c, d, l))
+        (all_paths_klength Node eqN R 1 finN m (S (k + length finN - 1)) c d))  
+        can be shorten in to 
+        
+        *)
 
 
  
