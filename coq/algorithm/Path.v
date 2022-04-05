@@ -283,7 +283,13 @@ Section Pathdefs.
       sum_all_flat_paths t
     end.
 
-  
+  (* Checks if a path p appears in lpp or not *)
+  Definition In_path_membership (p : Path) (lpp : list Path) : bool :=
+    match p with
+    | (_, _, lp) => 
+      (In_eq_bool _ _ _ eqN eqN eqR lp 
+        (List.map (fun '(_, _, lt) => lt) lpp))
+    end. 
   
   
 
@@ -4516,6 +4522,52 @@ Section Pathprops.
   Qed.
 
   
+
+  Lemma sum_all_flat_paths_idempotence : 
+    forall lp lpp, 
+    (forall xs, In_path_membership Node eqN R eqR xs lp = true ->
+     exists ys, 
+      In_path_membership Node eqN R eqR ys lpp = true ∧ 
+      measure_of_path Node R 1 mulR (tp Node R ys) +
+      measure_of_path Node R 1 mulR (tp Node R xs) =r=
+      measure_of_path Node R 1 mulR (tp Node R ys) = true) ->
+    sum_all_flat_paths Node R 0 1 plusR mulR lp +
+    sum_all_flat_paths Node R 0 1 plusR mulR lpp =r= 
+    sum_all_flat_paths Node R 0 1 plusR mulR lpp = true.
+  Proof.
+    induction lp as [|((au, av), alph) lp].
+    + intros * Hin.
+      simpl.
+      apply zero_left_identity_plus.
+    + intros * Hin.
+      simpl.
+      assert (Htt : In_path_membership Node eqN R eqR (au, av, alph) ((au, av, alph) :: lp) = true).
+      simpl.
+      rewrite triple_elem_eq_list_refl;
+      try assumption.
+      reflexivity.
+      destruct (Hin _ Htt) as (ys & Ha & Hb).
+      simpl in Hb.
+      destruct ys as((ays, bys), ys).
+      unfold In_path_membership in Ha.
+      simpl in Hb.
+
+
+      (* 
+        Proof strategy:
+        From Ha : In_path_membership Node eqN R eqR ys lpp = true,
+        I can write lpp = lppa ++ [ys] ++ lppb
+        and rewrite lpp in the goal.
+        Now use Hb to get rid of alph and rewrite 
+        the terms back. 
+      
+      *)
+      admit.
+
+      
+
+
+  
       
 
   Lemma sum_all_flat_paths_fixpoint : 
@@ -4551,18 +4603,32 @@ Section Pathprops.
         apply sum_all_flat_paths_app.
         rewrite Htt; clear Htt.
         subst.
-        unfold construct_all_paths.
         assert(Hl : (length finN <= S (k + length finN - 1))%nat).
         nia.
         pose proof reduce_path_gen_lemma (S (k + length finN - 1))
           m c d as Hpl.
         unfold Orel in Hpl.
+
+        (* 
+        remember (construct_all_paths Node eqN R 1 finN m (S (k + length finN - 1)) c d) as lp.
+        remember (enum_all_paths_flat Node eqN R 1 finN m (k + length finN - 1) c d) as lpp.
+        *) unfold construct_all_paths.
+        remember ((all_paths_klength Node eqN R 1 finN m (S (k + length finN - 1)) c d)) as lpt.
+        destruct lpt.
+        simpl.
+        admit.
+        simpl.
+        specialize (Hpl l Hl Huv Hm).
+        simpl.
+        
+
+        
         (* 
         I know that every single path 
         in 
         (map (λ l : list (Node * Node * R), (c, d, l))
         (all_paths_klength Node eqN R 1 finN m (S (k + length finN - 1)) c d))  
-        can be shorten in to 
+        
         
         *)
 
