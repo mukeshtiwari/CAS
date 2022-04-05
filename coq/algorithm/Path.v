@@ -4771,6 +4771,7 @@ Section Pathprops.
 
 
 
+
   Lemma sum_all_flat_paths_fixpoint : 
     forall k c d m,
     (∀ u v : Node, (u =n= v) = true → (m u v =r= 1) = true) ->
@@ -4900,11 +4901,7 @@ Section Pathprops.
       apply symR.
       exact Hsu.
   Qed.
-      
 
-      
-      
-        
 
  
   Lemma zero_stable_partial_sum_path : 
@@ -4930,11 +4927,6 @@ Section Pathprops.
     apply sum_all_flat_paths_fixpoint;
     try assumption.
   Qed.
-
-
-
-   
-
 
 
 End Pathprops.
