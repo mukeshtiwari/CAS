@@ -2,7 +2,7 @@
 open Cas;;
 open Describe;;
 
-let next_hop_sets  = mcas_bs_union_lift (mcas_sg_left eqv_eq_nat);;
+let next_hop_sets  = mcas_bs_union_lift (mcas_sg_left mcas_eqv_eq_nat);;
   
 (* mcas_bs_describe_fully next_hop_sets;;
 

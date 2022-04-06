@@ -74,12 +74,15 @@ Section Theory.
  Lemma ltr_insert_not_exists_id : ltr_not_exists_id S (finite_set S) (brel_set eq) (ltr_insert eq). 
  Proof. unfold ltr_not_exists_id. intro s. unfold ltr_not_is_id. exists nil. compute; auto. Defined.
 
- 
-Lemma ltr_insert_exists_ann (enum : carrier_is_finite S eq) : ltr_exists_ann S (finite_set S) (brel_set eq) (ltr_insert eq). 
-  assert (A := bop_union_enum_is_ann S eq ref sym trn enum).
-  exists (projT1 enum tt). intro s. unfold ltr_insert.
-  destruct (A (s :: nil)) as [B C]. exact C. 
-Defined.
+Lemma ltr_insert_enum_is_ann (enum : carrier_is_finite S eq) : 
+  ltr_is_ann S (finite_set S) (brel_set eq) (ltr_insert eq) ((projT1 enum) tt).
+Proof. assert (A := bop_union_enum_is_ann S eq ref sym trn enum).
+         intro s. unfold ltr_insert.
+         destruct (A (s :: nil)) as [B C]. exact C. 
+Qed. 
+
+Lemma ltr_insert_exists_ann (enum : carrier_is_finite S eq) : ltr_exists_ann S (finite_set S) (brel_set eq) (ltr_insert eq).
+Proof. exists (projT1 enum tt). apply ltr_insert_enum_is_ann. Defined.
 
 Lemma ltr_insert_not_exists_ann (nfin : carrier_is_not_finite S eq) : ltr_not_exists_ann S (finite_set S) (brel_set eq) (ltr_insert eq). 
   intros s. unfold carrier_is_not_finite in nfin. 

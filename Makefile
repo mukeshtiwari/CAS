@@ -120,6 +120,7 @@ CAS=\
    coq/bs/union_intersect.v \
    coq/bs/minset_union_lift.v \
    coq/bs/minset_lift_union.v \
+   coq/bs/union_union.v \
    coq/os/properties.v \
    coq/os/structures.v \
    coq/os/theory.v \
@@ -131,6 +132,7 @@ CAS=\
    coq/st/left/min_plus_one.v \
    coq/st/left/from_bs.v \
    coq/st/left/llex_product.v \
+   coq/st/left/union_insert.v \
    coq/ot/properties.v \
    coq/ot/structures.v \
    coq/ot/left/length_cons.v \
@@ -144,14 +146,6 @@ CAS=\
 
 
 
-   # coq/tr/left/left_cayley.v \
-   # coq/tr/left/product.v \
-   # coq/tr/left/product_of_sum.v \
-   # coq/tr/left/sum_of_product.v \
-   # coq/str/properties.v \
-   # coq/str/structures.v \
-   # coq/str/left/product_product.v \
-   # coq/str/left/left_sum_sum_of_product.v \
 
 FILES=$(BASE) $(CAS)
 

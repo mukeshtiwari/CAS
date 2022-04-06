@@ -70,11 +70,14 @@ with cas_bs_ast : Type :=
    | Ast_bs_add_one    : cas_constant * cas_bs_ast → cas_bs_ast  
    | Ast_bs_product    : cas_bs_ast * cas_bs_ast → cas_bs_ast
    | Ast_bs_llex_product       : cas_bs_ast * cas_bs_ast → cas_bs_ast
+   | Ast_bs_twin : cas_sg_ast → cas_bs_ast                                                             
    | Ast_bs_union_lift : cas_sg_ast → cas_bs_ast
    | Ast_bs_left_sum_right_sum   : cas_bs_ast * cas_bs_ast → cas_bs_ast
    | Ast_bs_right_sum_left_sum  : cas_bs_ast * cas_bs_ast → cas_bs_ast 
    | Ast_bs_left   : cas_sg_ast  → cas_bs_ast
-   | Ast_bs_right  : cas_sg_ast  → cas_bs_ast      
+   | Ast_bs_right  : cas_sg_ast  → cas_bs_ast
+   | Ast_union_union : cas_eqv_ast → cas_bs_ast
+   | Ast_intersect_intersect : cas_eqv_ast → cas_bs_ast                                       
    | Ast_union_intersect : cas_eqv_ast → cas_bs_ast
    | Ast_intersect_union : cas_eqv_ast → cas_bs_ast    
    | Ast_bs_dual : cas_bs_ast → cas_bs_ast   
