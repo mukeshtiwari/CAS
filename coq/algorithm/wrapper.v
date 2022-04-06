@@ -1,8 +1,8 @@
-
 Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute. 
 Require Import CAS.coq.common.matrix_def.
-Require Import CAS.coq.algorithm.Matrix.
+Require Import CAS.coq.algorithm.Mat
+  CAS.coq.algorithm.Path.
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.bs.properties.
@@ -13,11 +13,6 @@ Import ListNotations.
 Open Scope string_scope.
 Open Scope list_scope. 
 
-
-(*
-Check matrix_exp_unary.
-Check matrix_fixpoint.
-*)
 
 
 Definition A_instantiate_matrix_exp_unary_curry (U : Type) 
@@ -40,7 +35,7 @@ Definition A_instantiate_matrix_exp_unary_curry (U : Type)
           | inl _ =>
             match A_sg_commutative_d _ _ _ (A_bs_plus_proofs _ A') with
             | inl _ => inl (fun (F : finite_set Node) (eqN : brel Node) => 
-              matrix_exp_unary Node F eqN U (projT1 zeroP) (projT1 oneP) (A_bs_plus _ A') (A_bs_times _ A')) 
+              matrix_exp_unary Node eqN F U (projT1 zeroP) (projT1 oneP) (A_bs_plus _ A') (A_bs_times _ A')) 
             | inr _ => inr ("Error : the algebra must have a commutative addition" :: nil) 
             end 
           | inr _ => inr ("Error : the algebra is not right distributive" :: nil)
@@ -78,7 +73,7 @@ Definition instantiate_matrix_exp_unary_curry {U : Type}
             match sg_commutative_d (bs_plus_certs A') with
             | Certify_Commutative =>
               inl (fun (F : finite_set Node) (eqN : brel Node) => 
-              matrix_exp_unary Node F eqN U zero one (bs_plus A') (bs_times A')) 
+              matrix_exp_unary Node eqN F U zero one (bs_plus A') (bs_times A')) 
             | _ => inr ("Error : the algebra must have a commutative addition" :: nil) 
             end 
           | _ => inr ("Error : the algebra is not right distributive" :: nil)
