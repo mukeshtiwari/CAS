@@ -770,6 +770,146 @@ End Combinators.
 End ACAS.
 
 Section CAS.
+
+Section Decide.
+
+(*  
+Variables (LS S LT T : Type)  
+          (eqLS : brel LS)
+          (eqLT : brel LT)
+          (eqS : brel S)
+          (eqT : brel T)
+          (argT : T)
+          (wLS : LS)
+          (wLT : LT)                     
+          (wS : S)
+          (wT : T)           
+          (addS : binary_op S) 
+          (addT : binary_op T)
+          (idemS : bop_idempotent S eqS addS)
+          (commS : bop_commutative S eqS addS)
+          (commT : bop_commutative T eqT addT)                     
+          (ltrS : ltr_type LS S)
+          (ltrT : ltr_type LT T).
+
+Definition slt_llex_product_distributive_certify
+           (a_commT : bop_commutative T eqT addT) 
+           (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
+           (LDS_d : slt_distributive_decidable LS S eqS addS ltrS)
+           (LDT_d : slt_distributive_decidable LT T eqT addT ltrT)
+           (LCS_d : ltr_left_cancellative_decidable LS S eqS ltrS)
+           (LKT_d : ltr_left_constant_decidable LT T eqT ltrT): 
+  @slt_distributive_decidable (LS * LT) (S * T) := 
+let selS_or_annT :=
+    match selS_or_id_annT with
+    | inl sel         => inl sel
+    | inr (_, is_ann) => inr is_ann 
+    end
+in       
+match LDS_d with
+| inl LDS  =>
+  match LDT_d with
+  | inl LDT  =>
+    match LCS_d with
+    | inl LCS  => inl (slt_llex_product_distributive LS S LT T eqLS eqS eqT argT addS addT ltrS ltrT congS refS symS trnS refT trnT refLS a_congS ltr_congS idemS selS_or_annT LDS LDT (inl LCS))
+    | inr nLCS =>
+      match LKT_d with
+      | inl LKT  => inl (slt_llex_product_distributive LS S LT T eqLS eqS eqT argT addS addT ltrS ltrT congS refS symS trnS refT trnT refLS a_congS ltr_congS idemS selS_or_annT LDS LDT (inr LKT))
+      | inr nLKT => inr (slt_llex_product_not_distributive_v3 LS S LT T eqLS eqS eqT argT addS addT ltrS ltrT refS symS trnS refT symT trnT refLS a_congS a_congT ltr_congS idemS commT selS_or_id_annT LDS LDT nLCS nLKT) 
+      end 
+    end 
+  | inr nLDT => inr (slt_llex_product_not_distributive_v2 LS S LT T eqLS eqS eqT argT wS wLS addS addT ltrS ltrT symS trnS refLS ltr_congS idemS LDS nLDT)    
+  end 
+| inr nLDS => inr (slt_llex_product_not_distributive_v1 LS S LT T eqS eqT argT wT wLT addS addT ltrS ltrT nLDS) 
+end.     
+
+
+Definition slt_llex_product_absorptive_decide
+           (sabsS_d : slt_strictly_absorptive_decidable LS S eqS addS ltrS)
+           (absS_d : slt_absorptive_decidable LS S eqS addS ltrS)
+           (absT_d : slt_absorptive_decidable LT T eqT addT ltrT) :
+  slt_absorptive_decidable
+             (LS * LT)
+             (S * T)
+             (brel_product eqS eqT)
+             (bop_llex argT eqS addS addT)
+             (ltr_product ltrS ltrT) :=
+let refS := A_eqv_reflexive _ _ eqvS in 
+let symS := A_eqv_symmetric _ _ eqvS in
+let trnS := A_eqv_transitive _ _ eqvS in
+let refT := A_eqv_reflexive _ _ eqvT in 
+match sabsS_d with
+| inl sabsS  => inl(slt_llex_product_absorptive LS S LT T eqS eqT argT addS addT ltrS ltrT symS refT (inl sabsS))
+| inr nsabsS =>
+  match absS_d with
+  | inl absS  =>
+    match absT_d with
+    | inl absT  => inl(slt_llex_product_absorptive LS S LT T eqS eqT argT addS addT ltrS ltrT symS refT (inr (absS, absT)))
+    | inr nabsT => inr(slt_llex_product_not_absorptive_right LS S LT T eqS eqT argT addS addT ltrS ltrT symS trnS idemS (nsabsS, (absS, nabsT)))
+    end 
+  | inr nabsS => inr (slt_llex_product_not_absorptive_left LS S LT T eqS eqT argT wT wLT addS addT ltrS ltrT nabsS)
+  end
+end.     
+
+Definition slt_llex_product_strictly_absorptive_decide
+           (sabsS_d : slt_strictly_absorptive_decidable LS S eqS addS ltrS)
+           (absS_d : slt_absorptive_decidable LS S eqS addS ltrS)
+           (absT_d : slt_strictly_absorptive_decidable LT T eqT addT ltrT) :
+  slt_strictly_absorptive_decidable
+             (LS * LT)
+             (S * T)
+             (brel_product eqS eqT)
+             (bop_llex argT eqS addS addT)
+             (ltr_product ltrS ltrT) :=    
+let refS := A_eqv_reflexive _ _ eqvS in 
+let symS := A_eqv_symmetric _ _ eqvS in
+let trnS := A_eqv_transitive _ _ eqvS in
+let refT := A_eqv_reflexive _ _ eqvT in  
+match sabsS_d with
+| inl sabsS  => inl(slt_llex_product_strictly_absorptive LS S LT T eqS eqT argT addS addT ltrS ltrT symS refT (inl sabsS))
+| inr nsabsS =>
+  match absS_d with
+  | inl absS  =>
+    match absT_d with
+    | inl absT  => inl(slt_llex_product_strictly_absorptive LS S LT T eqS eqT argT addS addT ltrS ltrT symS refT (inr (absS, absT)))
+    | inr nabsT => inr(slt_llex_product_not_strictly_absorptive_right LS S LT T eqS eqT argT addS addT ltrS ltrT symS (nsabsS, (absS, nabsT)))
+    end 
+  | inr nabsS => inr (slt_llex_product_not_strictly_absorptive_left LS S LT T eqS eqT argT wT wLT addS addT ltrS ltrT nabsS)
+  end
+end.
+
+Definition stl_llex_product_proofs
+           (a_commT : bop_commutative T eqT addT) 
+           (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
+           (QS : left_transform_proofs LS S eqS eqLS ltrS)
+           (QT : left_transform_proofs LT T eqT eqLT ltrT)           
+           (PS : slt_proofs LS S eqS addS ltrS)
+           (PT : slt_proofs LT T eqT addT ltrT) : 
+  slt_proofs (LS * LT)
+             (S * T)
+             (brel_product eqS eqT)
+             (bop_llex argT eqS addS addT)
+             (ltr_product ltrS ltrT) :=
+let DS_d := A_slt_distributive_d _ _ _ _ _ PS in
+let DT_d := A_slt_distributive_d _ _ _ _ _ PT in
+let CS_d := A_left_transform_left_cancellative_d _ _ _ _ _ QS in
+let KT_d := A_left_transform_left_constant_d _ _ _ _ _ QT in
+let asbS_d := A_slt_absorptive_d _ _ _ _ _ PS in
+let asbT_d := A_slt_absorptive_d _ _ _ _ _ PT in
+let sasbS_d := A_slt_strictly_absorptive_d _ _ _ _ _ PS in
+let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
+{|
+  A_slt_distributive_d          := slt_llex_product_distributive_decide commT selS_or_id_annT DS_d DT_d CS_d KT_d 
+; A_slt_absorptive_d            := slt_llex_product_absorptive_decide sasbS_d asbS_d asbT_d
+; A_slt_strictly_absorptive_d   := slt_llex_product_strictly_absorptive_decide sasbS_d asbS_d sasbT_d
+|}.
+
+End Decide.     
+*) 
+Section Combinators.
+
+End Combinators.   
+  
 End CAS.
 
 Section Verify.

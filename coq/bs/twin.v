@@ -20,55 +20,72 @@ Require Import CAS.coq.bs.cast_up.
 
 Section Theory. 
 
-Variable S  : Type. 
-Variable T  : Type. 
-Variable rS : brel S. 
-Variable rT : brel T.
-Variable wS : S.
-Variable wT : T.
-Variable addS  mulS : binary_op S. 
-Variable addT mulT : binary_op T. 
+Variables (S  : Type)
+          (eq : brel S)
+          (wS : S)
+          (f : S -> S)
+          (nt : brel_not_trivial S eq f)
+          (add : binary_op S)
+          (ref : brel_reflexive S eq)                     
+          (sym : brel_symmetric S eq)           
+          (trn : brel_transitive S eq)
+          (cong : bop_congruence S eq add)                    
+          (asso : bop_associative S eq add)          
+          (idem : bop_idempotent S eq add)
+          (comm : bop_commutative S eq add).
 
-Notation "a =S b"  := (rS a b = true) (at level 15).
-Notation "a =T b"  := (rT a b = true) (at level 15).
-Notation "a +S b"  := (addS a b) (at level 15).
-Notation "a +T b"  := (addT a b) (at level 15).
-Notation "a *S b"  := (mulS a b) (at level 15).
-Notation "a *T b"  := (mulT a b) (at level 15).
+Local Notation "a == b"  := (eq a b = true) (at level 15).
+Local Notation "a != b"  := (eq a b = false) (at level 15).
+Local Notation "a +S b"  := (add a b) (at level 15).
 
-Notation "a <*> b" := (brel_product a b) (at level 15).
-Notation "a [*] b" := (bop_product a b) (at level 15).
-
-
-
-(* note : should be able to abstract away and universally quantfied predicate .... *) 
-
-Lemma bop_product_left_distributive
-      (idem : bop_idempotent S rS addS) :  
-      bop_left_distributive S rS addS addS. 
+Lemma bop_twin_left_distributive : bop_left_distributive S eq add add. 
 Proof. intros s t u.
 Admitted.        
 
+Lemma bop_twin_right_distributive : bop_right_distributive S eq add add. 
+Proof. intros s t u.
+Admitted.        
 
+(* interesting!  can prove not(bop_is_left S eq add), but can't seem to produce a 
+   witness for (bop_not_is_left S eq add) *)
+Lemma commutative_implies_not_left : bop_is_left S eq add -> (true = false).
+Proof. intro F.
+       assert (A := F wS (f wS)).
+       assert (B := F (f wS) wS).
+       assert (C := comm wS (f wS)).
+       assert (D := trn _ _ _ C B). apply sym in D. 
+       assert (E := trn _ _ _ D A). 
+       destruct (nt wS) as [F1 F2].
+       rewrite E in F2.
+       exact F2. 
+Qed.
 
-Lemma bop_product_left_left_absorptive : 
-      bops_left_left_absorptive S rS addS addS.
-Proof. intros s1 s2. 
-Admitted. 
+Lemma bop_twin_not_left_left_absorptive (nl : bop_not_is_left S eq add) : bops_not_left_left_absorptive S eq add add.
+Proof. destruct nl as [[s t] P].
+       exists (s, t).
+       case_eq(eq s (s +S (s +S t))); intro A; auto.
+       assert (B : (s +S (s +S t)) == (s +S t)).
+          assert (C := idem s).
+          assert (D := asso s s t). apply sym in D. 
+          assert (E := cong _ _ _ _ C (ref t)).
+          exact (trn _ _ _ D E). 
+       assert (C := trn _ _ _  A B). apply sym in C.
+       rewrite C in P. discriminate P. 
+Defined. 
 
 
 Lemma bop_product_left_right_absorptive : 
-      bops_left_right_absorptive S rS addS addS.
+      bops_left_right_absorptive S eq add add.
 Proof. intros s1 s2. 
 Admitted. 
 
 Lemma bop_product_right_left_absorptive : 
-      bops_right_left_absorptive S rS addS addS.
+      bops_right_left_absorptive S eq add add.
 Proof. intros s1 s2. 
 Admitted. 
 
 Lemma bop_product_right_right_absorptive : 
-      bops_right_right_absorptive S rS addS addS.
+      bops_right_right_absorptive S eq add add.
 Proof. intros s1 s2. 
 Admitted. 
 
@@ -385,33 +402,33 @@ Definition bs_proofs_product :
 
 
 Definition dioid_proofs_product : 
-  ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS mulS : binary_op S) (addT mulT : binary_op T) (s : S) (t : T), 
+  ∀ (S T : Type) (rS : brel S) (rT : brel T) (add mulS : binary_op S) (addT mulT : binary_op T) (s : S) (t : T), 
     eqv_proofs S rS ->
     eqv_proofs T rT -> 
-    dioid_proofs S rS addS mulS ->
+    dioid_proofs S rS add mulS ->
     dioid_proofs T rT addT mulT ->     
-        dioid_proofs (S * T) (brel_product rS rT) (bop_product addS addT) (bop_product mulS mulT)
-:= λ S T rS rT addS mulS addT mulT s t eqvS eqvT srS srT, 
+        dioid_proofs (S * T) (brel_product rS rT) (bop_product add addT) (bop_product mulS mulT)
+:= λ S T rS rT add mulS addT mulT s t eqvS eqvT srS srT, 
 {|
   A_dioid_left_distributive        :=
-    bop_product_left_distributive S T rS rT addS mulS addT mulT  
-        (A_dioid_left_distributive S rS addS mulS srS)
+    bop_product_left_distributive S T rS rT add mulS addT mulT  
+        (A_dioid_left_distributive S rS add mulS srS)
         (A_dioid_left_distributive T rT addT mulT srT)                                  
     
 ; A_dioid_right_distributive       :=
-    bop_product_right_distributive S T rS rT addS mulS addT mulT  
-        (A_dioid_right_distributive S rS addS mulS srS)
+    bop_product_right_distributive S T rS rT add mulS addT mulT  
+        (A_dioid_right_distributive S rS add mulS srS)
         (A_dioid_right_distributive T rT addT mulT srT)                                  
 
                                                                      
 ; A_dioid_left_left_absorptive   :=
-    bop_product_left_left_absorptive S T rS rT addS mulS addT mulT
-        (A_dioid_left_left_absorptive S rS addS mulS srS)
+    bop_product_left_left_absorptive S T rS rT add mulS addT mulT
+        (A_dioid_left_left_absorptive S rS add mulS srS)
         (A_dioid_left_left_absorptive T rT addT mulT srT)                                  
 
 ; A_dioid_left_right_absorptive  :=
-    bop_product_left_right_absorptive S T rS rT addS mulS addT mulT
-        (A_dioid_left_right_absorptive S rS addS mulS srS)
+    bop_product_left_right_absorptive S T rS rT add mulS addT mulT
+        (A_dioid_left_right_absorptive S rS add mulS srS)
         (A_dioid_left_right_absorptive T rT addT mulT srT)                                  
 |}.
 
@@ -536,33 +553,33 @@ let timesT := A_selective_dioid_times T bsT in
 
 
 Definition semiring_proofs_product : 
-  ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS mulS : binary_op S) (addT mulT : binary_op T) (s : S) (t : T), 
+  ∀ (S T : Type) (rS : brel S) (rT : brel T) (add mulS : binary_op S) (addT mulT : binary_op T) (s : S) (t : T), 
     eqv_proofs S rS ->
     eqv_proofs T rT -> 
-    semiring_proofs S rS addS mulS ->
+    semiring_proofs S rS add mulS ->
     semiring_proofs T rT addT mulT ->     
-        semiring_proofs (S * T) (brel_product rS rT) (bop_product addS addT) (bop_product mulS mulT)
-:= λ S T rS rT addS mulS addT mulT s t eqvS eqvT srS srT, 
+        semiring_proofs (S * T) (brel_product rS rT) (bop_product add addT) (bop_product mulS mulT)
+:= λ S T rS rT add mulS addT mulT s t eqvS eqvT srS srT, 
 {|
   A_semiring_left_distributive        :=
-    bop_product_left_distributive S T rS rT addS mulS addT mulT  
-        (A_semiring_left_distributive S rS addS mulS srS)
+    bop_product_left_distributive S T rS rT add mulS addT mulT  
+        (A_semiring_left_distributive S rS add mulS srS)
         (A_semiring_left_distributive T rT addT mulT srT)                                  
     
 ; A_semiring_right_distributive       :=
-    bop_product_right_distributive S T rS rT addS mulS addT mulT  
-        (A_semiring_right_distributive S rS addS mulS srS)
+    bop_product_right_distributive S T rS rT add mulS addT mulT  
+        (A_semiring_right_distributive S rS add mulS srS)
         (A_semiring_right_distributive T rT addT mulT srT)                                  
 
                                                                      
 ; A_semiring_left_left_absorptive_d   :=
-    bops_product_left_left_absorptive_decide S T rS rT s t addS mulS addT mulT
-        (A_semiring_left_left_absorptive_d S rS addS mulS srS)
+    bops_product_left_left_absorptive_decide S T rS rT s t add mulS addT mulT
+        (A_semiring_left_left_absorptive_d S rS add mulS srS)
         (A_semiring_left_left_absorptive_d T rT addT mulT srT)                                  
 
 ; A_semiring_left_right_absorptive_d  :=
-    bops_product_left_right_absorptive_decide S T rS rT s t addS mulS addT mulT
-        (A_semiring_left_right_absorptive_d S rS addS mulS srS)
+    bops_product_left_right_absorptive_decide S T rS rT s t add mulS addT mulT
+        (A_semiring_left_right_absorptive_d S rS add mulS srS)
         (A_semiring_left_right_absorptive_d T rT addT mulT srT)                                  
 
 |}.
@@ -644,28 +661,28 @@ let timesT := A_semiring_times T sr2 in
 
 
 Definition distributive_lattice_proofs_product : 
-  ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS mulS : binary_op S) (addT mulT : binary_op T), 
+  ∀ (S T : Type) (rS : brel S) (rT : brel T) (add mulS : binary_op S) (addT mulT : binary_op T), 
     eqv_proofs S rS ->
     eqv_proofs T rT -> 
-    distributive_lattice_proofs S rS addS mulS ->
+    distributive_lattice_proofs S rS add mulS ->
     distributive_lattice_proofs T rT addT mulT ->     
-        distributive_lattice_proofs (S * T) (brel_product rS rT) (bop_product addS addT) (bop_product mulS mulT)
-:= λ S T rS rT addS mulS addT mulT eqvS eqvT srS srT, 
+        distributive_lattice_proofs (S * T) (brel_product rS rT) (bop_product add addT) (bop_product mulS mulT)
+:= λ S T rS rT add mulS addT mulT eqvS eqvT srS srT, 
 {|
   A_distributive_lattice_absorptive        := 
-    bop_product_left_left_absorptive S T rS rT addS mulS addT mulT
-        (A_distributive_lattice_absorptive S rS addS mulS srS)
+    bop_product_left_left_absorptive S T rS rT add mulS addT mulT
+        (A_distributive_lattice_absorptive S rS add mulS srS)
         (A_distributive_lattice_absorptive T rT addT mulT srT)                                  
                                      
 ; A_distributive_lattice_absorptive_dual   :=
-    bop_product_left_left_absorptive S T rS rT mulS addS mulT addT
-        (A_distributive_lattice_absorptive_dual S rS addS mulS srS)
+    bop_product_left_left_absorptive S T rS rT mulS add mulT addT
+        (A_distributive_lattice_absorptive_dual S rS add mulS srS)
         (A_distributive_lattice_absorptive_dual T rT addT mulT srT)                                  
 
     
 ; A_distributive_lattice_distributive        :=
-    bop_product_left_distributive S T rS rT addS mulS addT mulT  
-        (A_distributive_lattice_distributive S rS addS mulS srS)
+    bop_product_left_distributive S T rS rT add mulS addT mulT  
+        (A_distributive_lattice_distributive S rS add mulS srS)
         (A_distributive_lattice_distributive T rT addT mulT srT)                                  
     
 |}.
@@ -709,33 +726,33 @@ let meetT  := A_distributive_lattice_meet T sr2 in
 
 
 Definition lattice_proofs_product : 
-  ∀ (S T : Type) (rS : brel S) (rT : brel T) (addS mulS : binary_op S) (addT mulT : binary_op T) (s : S) (t : T), 
+  ∀ (S T : Type) (rS : brel S) (rT : brel T) (add mulS : binary_op S) (addT mulT : binary_op T) (s : S) (t : T), 
     eqv_proofs S rS ->
     eqv_proofs T rT -> 
-    lattice_proofs S rS addS mulS ->
+    lattice_proofs S rS add mulS ->
     lattice_proofs T rT addT mulT ->     
-        lattice_proofs (S * T) (brel_product rS rT) (bop_product addS addT) (bop_product mulS mulT)
-:= λ S T rS rT addS mulS addT mulT s t eqvS eqvT srS srT, 
+        lattice_proofs (S * T) (brel_product rS rT) (bop_product add addT) (bop_product mulS mulT)
+:= λ S T rS rT add mulS addT mulT s t eqvS eqvT srS srT, 
 {|
   A_lattice_absorptive        := 
-    bop_product_left_left_absorptive S T rS rT addS mulS addT mulT
-        (A_lattice_absorptive S rS addS mulS srS)
+    bop_product_left_left_absorptive S T rS rT add mulS addT mulT
+        (A_lattice_absorptive S rS add mulS srS)
         (A_lattice_absorptive T rT addT mulT srT)                                  
                                      
 ; A_lattice_absorptive_dual   :=
-    bop_product_left_left_absorptive S T rS rT mulS addS mulT addT
-        (A_lattice_absorptive_dual S rS addS mulS srS)
+    bop_product_left_left_absorptive S T rS rT mulS add mulT addT
+        (A_lattice_absorptive_dual S rS add mulS srS)
         (A_lattice_absorptive_dual T rT addT mulT srT)                                  
 
     
 ; A_lattice_distributive_d        :=
-     bop_product_left_distributive_decide S T rS rT s t addS mulS addT mulT 
-        (A_lattice_distributive_d S rS addS mulS srS)
+     bop_product_left_distributive_decide S T rS rT s t add mulS addT mulT 
+        (A_lattice_distributive_d S rS add mulS srS)
         (A_lattice_distributive_d T rT addT mulT  srT)
 
 ; A_lattice_distributive_dual_d        :=
-     bop_product_left_distributive_decide S T rS rT s t mulS addS mulT addT 
-        (A_lattice_distributive_dual_d S rS addS mulS srS)
+     bop_product_left_distributive_decide S T rS rT s t mulS add mulT addT 
+        (A_lattice_distributive_dual_d S rS add mulS srS)
         (A_lattice_distributive_dual_d T rT addT mulT  srT)
         
 |}.
@@ -1092,15 +1109,15 @@ let fS := eqv_new (presemiring_eqv s1) in
 let fT := eqv_new (presemiring_eqv s2) in
 let eqS := eqv_eq (presemiring_eqv s1) in
 let eqT := eqv_eq (presemiring_eqv s2) in
-let addS := presemiring_plus s1 in
+let add := presemiring_plus s1 in
 let mulS := presemiring_times s1 in
 let addT := presemiring_plus s2 in 
 let mulT := presemiring_times s2 in 
 {| 
      presemiring_eqv          := eqv_product (presemiring_eqv s1) (presemiring_eqv s2) 
-   ; presemiring_plus         := bop_product addS addT
+   ; presemiring_plus         := bop_product add addT
    ; presemiring_times        := bop_product mulS mulT
-   ; presemiring_plus_certs   := sg_C_certs_product eqS eqT addS addT wS fS wT fT (presemiring_plus_certs s1) (presemiring_plus_certs s2) 
+   ; presemiring_plus_certs   := sg_C_certs_product eqS eqT add addT wS fS wT fT (presemiring_plus_certs s1) (presemiring_plus_certs s2) 
    ; presemiring_times_certs  := sg_certs_product wS wT (presemiring_times_certs s1) (presemiring_times_certs s2)
    ; presemiring_id_ann_certs := id_ann_certs_product (presemiring_id_ann_certs s1) (presemiring_id_ann_certs s2) 
    ; presemiring_certs        := semiring_certs_product wS wT (presemiring_certs s1) (presemiring_certs s2)
@@ -1116,15 +1133,15 @@ let fS := eqv_new (semiring_eqv s1) in
 let fT := eqv_new (semiring_eqv s2) in
 let eqS := eqv_eq (semiring_eqv s1) in
 let eqT := eqv_eq (semiring_eqv s2) in
-let addS := semiring_plus s1 in
+let add := semiring_plus s1 in
 let mulS := semiring_times s1 in
 let addT := semiring_plus s2 in
 let mulT := semiring_times s2 in 
 {| 
      semiring_eqv          := eqv_product (semiring_eqv s1) (semiring_eqv s2) 
-   ; semiring_plus         := bop_product addS addT
+   ; semiring_plus         := bop_product add addT
    ; semiring_times        := bop_product mulS mulT
-   ; semiring_plus_certs   := sg_C_certs_product eqS eqT addS addT wS fS wT fT (semiring_plus_certs s1) (semiring_plus_certs s2) 
+   ; semiring_plus_certs   := sg_C_certs_product eqS eqT add addT wS fS wT fT (semiring_plus_certs s1) (semiring_plus_certs s2) 
    ; semiring_times_certs  := sg_certs_product wS wT (semiring_times_certs s1) (semiring_times_certs s2)
    ; semiring_id_ann_certs := pid_is_tann_certs_product (semiring_id_ann_certs s1) (semiring_id_ann_certs s2)        
    ; semiring_certs        := semiring_certs_product wS wT (semiring_certs s1) (semiring_certs s2)
