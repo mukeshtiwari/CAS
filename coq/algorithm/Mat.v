@@ -1533,7 +1533,6 @@ Section Matrix_proofs.
         rewrite Ht; clear Ht.
         unfold sum_fn_fold.
         apply symR.
-        Print fold_map_rel.
         rewrite <-(fold_map_rel Node eqN refN symN trnN finN R 0 1 plusR mulR eqR refR 
           symR trnR zero_left_identity_plus plus_associative left_distributive_mul_over_plus
           zero_right_anhilator_mul congrP 
