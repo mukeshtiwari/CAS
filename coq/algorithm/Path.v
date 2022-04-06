@@ -1566,6 +1566,75 @@ Section Pathprops.
       exact Hr.
   Qed.
 
+  Lemma append_node_app : 
+    forall (l₁ l₂ : list (list (Node * Node * R))) 
+    (m : Matrix Node R) (c : Node), 
+    fold_right (λ u v : R, u + v) 0
+      (map (measure_of_path Node R 1 mulR)
+        (append_node_in_paths Node R m c
+          (l₁ ++ l₂))) 
+    =r=
+    fold_right (λ u v : R, u + v) 0
+      (map (measure_of_path Node R 1 mulR)
+        (append_node_in_paths Node R m c l₁ ++ 
+        append_node_in_paths Node R m c l₂)) = true.
+  Proof using Node R congrP eqR mulR oneR plusR refR zeroR.
+    induction l₁ as [|a l₁ IHL₁].
+    - simpl; intros ? ? ?.
+      apply refR.
+    - simpl; intros ? ? ?.
+      destruct a.
+      apply IHL₁.
+      repeat destruct p.
+      simpl. 
+      apply congrP.
+      apply refR.
+      apply IHL₁.
+  Qed.
+
+
+  (* x * l1 + x * l2 + x * l3 = x * (l1 + l2 + l3) *)
+  Lemma fold_right_measure : forall n m c a d,
+    mat_cong Node eqN R eqR m -> 
+    (fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
+    (map (measure_of_path Node R 1 mulR)
+      (append_node_in_paths Node R m c 
+        (all_paths_klength _ eqN _ oneR finN m n a d))) =r=
+    m c a *
+    fold_right (λ b v : R, b + v) 0
+      (map (measure_of_path Node R 1 mulR) 
+        (all_paths_klength _ eqN _ oneR finN m n a d))) = true.
+  Proof using Node R congrM congrP congrR eqN eqR finN
+  left_distributive_mul_over_plus mulR oneR plusR refN refR symN symR trnN trnR
+  zeroR zero_right_anhilator_mul.
+    intros ? ? ? ? ? Hm.
+    assert (Ht : 
+    fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
+    (map (measure_of_path Node R 1 mulR)
+      (append_node_in_paths Node R m c 
+        (all_paths_klength _ eqN _ oneR finN m n a d))) =r= 
+    fold_right (λ u₁ v₁ : R, u₁ + v₁) 0
+    (map (fun y => m c a * measure_of_path Node R 1 mulR y) 
+      (all_paths_klength _ eqN _ oneR finN m n a d)) = true).
+    apply fold_right_congr.
+    apply map_measure_simp.
+    exact Hm.
+    rewrite <-Ht; clear Ht.
+    apply congrR.
+    apply refR.
+    apply symR.
+    apply fold_map_pullout.
+  Qed.
+
+
+  
+  
+
+
+
+
+
+
 
 
   Lemma path_reconstruction : 
@@ -4245,6 +4314,64 @@ Section Pathprops.
       apply fold_right_dist_eqr_aide. 
       exact a.
       apply IHl₁.
+  Qed.
+
+
+  (* x * l1 + x * l2 + x * l3 = x * (l1 + l2 + l3) *)
+  Lemma fold_map_rel : forall l m n c d,
+    mat_cong _ eqN _ eqR m ->  
+    fold_right (λ u v : R, u + v) 0
+      (map (measure_of_path Node R 1 mulR)
+        (append_node_in_paths Node R m c
+          (flat_map (λ x : Node, all_paths_klength _ eqN _ oneR finN m n x d) l))) 
+    =r= 
+    fold_right (fun x t => m c x * 
+      (fold_right (fun b v => b + v) 0 
+        (map (measure_of_path Node R 1 mulR) (all_paths_klength _ eqN _ oneR finN m n x d))) + t) 0 l 
+    = true.
+  Proof using Node R congrM congrP congrR eqN eqR finN
+  left_distributive_mul_over_plus mulR oneR plusR plus_associative refN refR
+  symN symR trnN trnR zeroR zero_left_identity_plus zero_right_anhilator_mul.
+    induction l as [|a l IHL].
+    - simpl; intros ? ? ? ? Hm.
+      apply refR.
+    - simpl; intros ? ? ? ? Hm.
+      pose proof append_node_app (all_paths_klength _ eqN _ oneR finN m n a d)
+        (flat_map (λ x : Node, all_paths_klength _ eqN _ oneR finN m n x d) l)
+        m c as Ht.
+      rewrite <-Ht; clear Ht.
+      apply congrR. apply refR.
+      apply symR.
+      rewrite map_app.
+      pose proof fold_right_dist_eqr 
+      (map (measure_of_path Node R 1 mulR)
+        (append_node_in_paths Node R m c (all_paths_klength _ eqN _ oneR finN m n a d)))
+      (map (measure_of_path Node R 1 mulR)
+      (append_node_in_paths Node R m c
+        (flat_map (λ x : Node, all_paths_klength _ eqN _ oneR finN m n x d) l))) as Ht.
+      rewrite <-Ht; clear Ht.
+      apply congrR. 
+      apply refR.
+      apply symR.
+      apply congrP. 
+      apply fold_right_measure.
+      exact Hm.
+      apply IHL.
+      exact Hm.
+  Qed.
+
+
+  Lemma fold_right_cong : 
+    forall l (g f: Node -> R -> R) a,
+    (forall x u v, u =r= v = true -> f x u =r= g x v = true) -> 
+    fold_right f a l =r= fold_right g a l = true.
+  Proof using Node R eqR refR.
+    induction l.
+    - simpl; intros ? ? ? Hx.
+      apply refR.
+    - simpl; intros ? ? ? Hx.
+      pose proof (IHl g f a0 Hx) as Hw.
+      apply Hx. exact Hw.
   Qed.
   
   
