@@ -30,6 +30,10 @@ Lemma bops_and_or_left_right_absorptive  :
      bops_left_right_absorptive bool brel_eq_bool bop_and bop_or.
 Proof. intros x y. destruct x; destruct y; compute; reflexivity. Qed. 
 
+Lemma bops_and_or_not_strictly_left_right_absorptive  : 
+     bops_not_strictly_left_right_absorptive bool brel_eq_bool bop_and bop_or.
+Proof. exists (true, true). compute. right. auto. Defined. 
+
 Lemma bops_and_or_right_left_absorptive  : 
      bops_right_left_absorptive bool brel_eq_bool bop_and bop_or.
 Proof. intros x y. destruct x; destruct y; compute; reflexivity. Qed. 

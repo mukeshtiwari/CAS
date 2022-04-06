@@ -157,6 +157,17 @@ Definition eqv_add_constant : ∀ {S : Type},  @eqv S -> cas_constant -> @eqv (c
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_eqv_add_constant {S : Type} (A : @mcas_eqv S) (c : cas_constant) : @mcas_eqv (cas_constant + S) :=
+match A with
+| EQV_eqv B    => EQV_eqv (eqv_add_constant B c)
+| EQV_Error sl => EQV_Error sl
+end.                  
+
+End MCAS.
+
+
 Section Verify.
 
 Theorem correct_eqv_add_constant : ∀ (S : Type) (c : cas_constant) (E : A_eqv S),  

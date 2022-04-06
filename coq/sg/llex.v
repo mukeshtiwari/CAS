@@ -2166,7 +2166,8 @@ Definition sg_llex_certificates {S T : Type}
            (pT : @sg_certificates T)
            (idemS : @assert_idempotent S)
            (commS : @assert_commutative S)
-           (P : (@assert_selective S) + (@assert_exists_id T)) : @sg_certificates (S * T) :=
+           (* (P : (@assert_selective S) + (@assert_exists_id T))   <<< this causes "magic" to appear in extracted code (why?) *) 
+           : @sg_certificates (S * T) :=
 {|
   sg_associative      := Assert_Associative 
 ; sg_congruence       := Assert_Bop_Congruence 
@@ -2248,7 +2249,8 @@ Definition sg_llex_INTERNAL
            (B : @sg T)
            (idemS : @assert_idempotent S)
            (commS : @assert_commutative S)
-           (P : (@assert_selective S) + (@assert_exists_id T)) : @sg (S * T)  :=
+           (* (P : (@assert_selective S) + (@assert_exists_id T)) <<< this causes magic in extraction *) 
+           : @sg (S * T)  :=
 let eqvS   := sg_eqv A in
 let eqvT   := sg_eqv B in  
 let eqS    := eqv_eq eqvS in
@@ -2265,7 +2267,7 @@ let wT     := eqv_witness eqvT in
 ; sg_bop          := bop_llex argT eqS bS bT 
 ; sg_exists_id_d  := check_exists_id_llex (sg_exists_id_d A) (sg_exists_id_d B)
 ; sg_exists_ann_d := check_exists_ann_llex (sg_exists_ann_d A) (sg_exists_ann_d B)
-; sg_certs        := sg_llex_certificates eqS wS f wT argT g bS PS PT idemS commS P
+; sg_certs        := sg_llex_certificates eqS wS f wT argT g bS PS PT idemS commS (* P *) 
 ; sg_ast          := Ast_sg_llex (sg_ast A, sg_ast B)
 |}.
   
@@ -2364,10 +2366,10 @@ match sg_mcas_cast_up _ A, sg_mcas_cast_up _ B with
   match sg_commutative_d sgPS, sg_idempotent_d sgPS with
   | Certify_Commutative, Certify_Idempotent =>
     match sg_selective_d sgPS with
-    | Certify_Selective => sg_classify _ (MCAS_sg (sg_llex_INTERNAL (eqv_witness (sg_eqv B')) A' B' Assert_Idempotent Assert_Commutative (inl Assert_Selective)))
+    | Certify_Selective => sg_classify _ (MCAS_sg (sg_llex_INTERNAL (eqv_witness (sg_eqv B')) A' B' Assert_Idempotent Assert_Commutative (* (inl Assert_Selective) *)))
     | Certify_Not_Selective _ => 
       match sg_exists_id_d B' with
-      | Certify_Exists_Id id  => sg_classify _ (MCAS_sg (sg_llex_INTERNAL id A' B' Assert_Idempotent Assert_Commutative (inr (Assert_Exists_Id id))))
+      | Certify_Exists_Id id  => sg_classify _ (MCAS_sg (sg_llex_INTERNAL id A' B' Assert_Idempotent Assert_Commutative (* (inr (Assert_Exists_Id id)) *) ))
       | Certify_Not_Exists_Id => MCAS_sg_Error ("mcas_sg_llex : second semigroup must have an identity" :: nil)        
       end 
     end
@@ -2456,7 +2458,7 @@ Lemma correct_sg_llex_certificates_CS_version
  sg_llex_certificates eqS wS f wT wT g bS (P2C_sg S eqS bS PS) (P2C_sg T eqT bT PT) 
                 Assert_Idempotent
                 Assert_Commutative
-                (inl Assert_Selective)
+                (* (inl Assert_Selective) *) 
  =
  P2C_sg (S * T) (brel_product eqS eqT) 
                 (bop_llex wT eqS bS bT) 
@@ -2479,7 +2481,7 @@ Lemma correct_sg_llex_certificates_CI_version
  sg_llex_certificates eqS wS f wT id g bS (P2C_sg S eqS bS PS) (P2C_sg T eqT bT PT) 
                 Assert_Idempotent
                 Assert_Commutative
-                (inr (Assert_Exists_Id id))
+                (* (inr (Assert_Exists_Id id)) *) 
  =
  P2C_sg (S * T) (brel_product eqS eqT) 
                 (bop_llex id eqS bS bT) 
@@ -2550,7 +2552,7 @@ Theorem correct_sg_llex_INTERNAL_CS_version
                           (A2C_sg T sgT)
                           Assert_Idempotent
                           Assert_Commutative
-                          (inl Assert_Selective)
+                          (* (inl Assert_Selective) *) 
          = 
          A2C_sg (S * T) (A_sg_llex_INTERNAL S T (A_eqv_witness T (A_sg_eqv T sgT)) sgS sgT idemS commS (inl selS)). 
  Proof. unfold sg_llex_INTERNAL, A_sg_llex_INTERNAL, A2C_sg; simpl. 
@@ -2575,7 +2577,7 @@ Theorem correct_sg_llex_INTERNAL_CI_version
                           (A2C_sg T sgT)
                           Assert_Idempotent
                           Assert_Commutative
-                          (inr (Assert_Exists_Id id))
+                          (* (inr (Assert_Exists_Id id)) *) 
          = 
          A2C_sg (S * T) (A_sg_llex_INTERNAL S T id sgS sgT idemS commS (inr idP)). 
  Proof. unfold sg_llex_INTERNAL, A_sg_llex_INTERNAL, A2C_sg; simpl. 

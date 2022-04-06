@@ -134,6 +134,13 @@ Definition eqv_eq_nat : eqv (S := nat)
 
 End CAS.
 
+Section MCAS.
+
+Definition mcas_eqv_eq_nat := EQV_eqv eqv_eq_nat.   
+
+End MCAS.   
+
+
 Section Verify.
 
 Theorem correct_eqv_nat : eqv_eq_nat = A2C_eqv nat (A_eqv_nat). 

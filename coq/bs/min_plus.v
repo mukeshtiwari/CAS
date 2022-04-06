@@ -32,7 +32,7 @@ Proof. induction u; induction s; simpl.
 Defined. 
 
 
-(* a + (b min c) = (a + c) min (b + c) *) 
+(* a + (b min c) = (a + b) min (a + c) *) 
 Lemma bop_min_plus_left_distributive : 
         bop_left_distributive nat brel_eq_nat bop_min bop_plus. 
 Proof. unfold bop_left_distributive, bop_plus, bop_min. 
@@ -154,7 +154,7 @@ Definition A_min_plus : A_selective_cancellative_pre_dioid_with_one nat :=
  ; A_selective_cancellative_pre_dioid_with_one_plus          := bop_min 
  ; A_selective_cancellative_pre_dioid_with_one_times         := bop_plus
  ; A_selective_cancellative_pre_dioid_with_one_plus_proofs   := sg_CS_proofs_min
- ; A_selective_cancellative_pre_dioid_with_one_times_proofs  := sg_CK_proofs_plus
+ ; A_selective_cancellative_pre_dioid_with_one_times_proofs  := A_sg_CK_proofs_plus
  ; A_selective_cancellative_pre_dioid_with_one_id_ann_proofs := bop_min_plus_pann_tid_proofs
  ; A_selective_cancellative_pre_dioid_with_one_proofs        := dioid_proofs_min_plus
  ; A_selective_cancellative_pre_dioid_with_one_ast           := Ast_min_plus

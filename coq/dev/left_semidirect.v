@@ -1,20 +1,20 @@
 Require Import Coq.Bool.Bool.
 Require Export CAS.coq.common.compute.
-Require Import CAS.coq.theory.facts.
 
 
-Definition ltr_congruence (S T : Type) (rS : brel S) (rT : brel T) (f : left_transform S T) := 
+
+Definition ltr_congruence (S T : Type) (rS : brel S) (rT : brel T) (f : ltr_type S T) := 
    ∀ (s1 s2 : S) (t1 t2 : T), rS s1 s2 = true -> rT t1 t2 = true -> rT (f s1 t1) (f s2 t2) = true.
 
 (*  
     f : S -> T -> T         
 
-    s |> === f s t
+    s |> t === f s t
  
     (s.s') |> t = s |> (s' |> t)    [f (s.s') t = f s' (f s t)]
 
 *) 
-Definition ltr_associative (S T: Type) (rT : brel T) (bS : binary_op S) (f : left_transform S T)
+Definition ltr_associative (S T: Type) (rT : brel T) (bS : binary_op S) (f : ltr_type S T)
   := ∀ (s1 s2 : S) (t : T), rT (f (bS s1 s2) t) (f s1 (f s2 t)) = true.
 
 (*
@@ -23,7 +23,7 @@ Definition ltr_associative (S T: Type) (rT : brel T) (bS : binary_op S) (f : lef
 
 *)
 
-Definition ltr_distributive (S T: Type) (rT : brel T) (bT : binary_op T) (f : left_transform S T)
+Definition ltr_distributive (S T: Type) (rT : brel T) (bT : binary_op T) (f : ltr_type S T)
    := ∀ (s : S) (t1 t2 : T), rT (f s (bT t1 t2)) (bT (f s t1) (f s t2)) = true. 
 
 Definition ltr_idempotent (S T: Type) (rT : brel T) (bT : binary_op T) (f : left_transform S T)
@@ -208,39 +208,6 @@ Notation "a [!+] b" := (bop_llex eqS a b) (at level 15).
 
 
 
-Lemma bop_left_semidirect_associative : bop_associative (S * T) (brel_product eqS eqT) left_semidirect. 
-Proof. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
-       apply andb_is_true_right. split. 
-          (* show ((s1 *S f t1 s2) *S f (t1 # t2) s3) =S (s1 *S f t1 (s2 *S f t2 s3))
-
-               ((s1 *S f t1 s2) *S f (t1 # t2) s3) 
-            = {f_ass} 
-               ((s1 *S f t1 s2) *S f t1 (f t2 s3))
-            = {times_assS} 
-               s1 *S ((f t1 s2) *S f t1 (f t2 s3)))
-            = {diss} 
-               s1 *S (f t1 (s2 *S f t2 s3))
-          *) 
-          assert (fact1 := f_ass t1 t2 s3). 
-          assert (fact2 := disf t1 s2 (f t2 s3)).
-          assert (fact3 := congS _ _ _ _ (refS (s1 *S f t1 s2)) fact1). 
-          assert (fact4 := times_assS s1 (f t1 s2) (f t1 (f t2 s3))). 
-          assert (fact5 := tranS _ _ _ fact3 fact4). 
-          assert (fact6 := congS _ _ _ _ (refS s1) fact2). apply symS in fact6.
-          assert (fact7 := tranS _ _ _ fact5 fact6). 
-          assumption. 
-          apply times_assT.
-Defined.  
-
-
-Lemma bop_left_semidirect_congruence : bop_congruence (S * T) (brel_product eqS eqT) left_semidirect.
-Proof. intros [s1 s2] [t1 t2] [u1 u2] [w1 w2]; simpl. intros H1 H2. 
-       destruct (andb_is_true_left _ _ H1) as [C1 C2].
-       destruct (andb_is_true_left _ _ H2) as [C3 C4].
-       apply andb_is_true_right. split.  
-          apply congS. assumption. apply congf. assumption. assumption. 
-          apply congT. assumption. assumption. 
-Defined.
 
 
 Lemma bop_left_semidirect_exists_id : bop_exists_id (S * T) (brel_product eqS eqT) left_semidirect. 
@@ -307,34 +274,6 @@ Proof. intros F [annT P] (s, t). compute in F.
           rewrite R in Q. discriminate.           
 Qed.
 
-
-Lemma bop_left_semidirect_idempotent : 
-      ltr_idempotent T S eqS timesS f → 
-      bop_idempotent T eqT timesT → 
-         bop_idempotent (S * T) (brel_product eqS eqT) left_semidirect. 
-Proof. 
-   unfold bop_idempotent. intros L R (s, t). simpl. 
-   apply andb_is_true_right. split. 
-      rewrite L. reflexivity. 
-      rewrite R. reflexivity. 
-Defined. 
-
-
-Lemma bop_left_semidirect_not_idempotent_v1 : 
-      ltr_not_idempotent T S eqS timesS f → 
-         bop_not_idempotent (S * T) (brel_product eqS eqT) left_semidirect. 
-Proof. intros [ [t s] P]. 
-       exists (s, t). simpl. 
-       apply andb_is_false_right. left. assumption. 
-Defined. 
-
-Lemma bop_left_semidirect_not_idempotent_v2 (s : S) : 
-      bop_not_idempotent T eqT timesT → 
-         bop_not_idempotent (S * T) (brel_product eqS eqT) left_semidirect. 
-Proof. intros [ t P ]. 
-       exists (s, t). simpl. 
-       apply andb_is_false_right. right . assumption. 
-Defined. 
 
 (* *) 
 Lemma bop_left_semidirect_left_cancellative :
@@ -542,107 +481,7 @@ Admitted.
 
 
 
-(*        
 
-  Strange: 
-  Q = 
-   ∀ (s1 s2 : S) (t1 t2 : T), 
-    ( (s1 =S (s1 *S f t1 s2)) *  (t1 =T (t1 *T t2)) ) 
-       +
-    ( (s2 =S (s1 *S f t1 s2)) *  (t2 =T (t1 *T t2)) )
-
-  (Q idS s t idT) simplifies to 
-    (idS =S f t s)  + ( (s =S (f idT s)) *  (idT =T t) )
-
-  (Q s idS idT t) simplifies to 
-    ( (s =S (s *S f idT idS)) *  (idT =T (idT *T t)) ) 
-       +
-    ( (idS =S (s *S f idT idS)) *  (t =T (idT *T t)) )
-    
-
-Use    f (t1 *T t2) s =S f t1 (f t2 s)         
-       f t (s1 *S s2) =S (f t s1) *S (f t s2)       
-to explore? 
-
-    
-
-
-*)
-
-(* needs negation *) 
-Lemma bop_left_semidirect_selective :
-  (∀ (s1 s2 : S) (t1 t2 : T), 
-    ( (s1 =S (s1 *S f t1 s2)) *  (t1 =T (t1 *T t2)) ) 
-       +
-    ( (s2 =S (s1 *S f t1 s2)) *  (t2 =T (t1 *T t2)) )
-   ) → 
-   bop_selective (S * T) (brel_product eqS eqT) left_semidirect. 
-Proof. intros P [s1 t1] [s2 t2]; compute.
-       assert (Q := P s1 s2 t1 t2).
-       destruct Q as [[H1 H2]| [H1 H2]].
-       apply symS in H1. apply symT in H2. rewrite H1, H2. left. reflexivity. 
-       apply symS in H1. apply symT in H2. rewrite H1, H2. right. reflexivity.
-Qed.        
-
-
-(* STRANGE : s1 + (f t1 s2) = s2 + (f t2 s1) *)
-Definition ltr_commutative (S T: Type) (eqT : brel T) (timesT : binary_op T) (f : left_transform S T)
-   := ∀ (s1 s2 : S) (t1 t2 : T), eqT (timesT t1 (f s1 t2)) (timesT t2 (f s2 t1)) = true. 
-
-Definition ltr_not_commutative (S T: Type) (eqT : brel T) (timesT : binary_op T) (f : left_transform S T)
-   := { z : (S * S) * (T * T) & 
-        match z with ((s1, s2), (t1, t2)) => 
-              eqT (timesT t1 (f s1 t2)) (timesT t2 (f s2 t1)) = false 
-        end 
-      }. 
-
-(*
-bop_commutative T eqT timesT → f t2 (f t1 s) s =S f t1 (f t2 s)
-
-ltr_commutative T S eqS timesS f → 
-    f t (s1 *S s2) =S (f t s1) *S (f t s2)
-                  =S s2 *S (f t' (f t s1))
-                  =S s2 *S (f (t' *T t) s1)
-                  =S s1 *S (f t'' s2)
-Hmm, what to do with this? Contradict pres of ann? 
-
-what if "f t idS = idS"?   
-Then ltr_commutative IFF (f t s = s and *S is commutative).  
-
-    f t s =S idS *S (f t s) 
-          =S s *S (f t' idS)   (ltr_commutative) 
-          =S s *S idS 
-          =S s 
-
-Require "f t idS = idS"?   
-
-*) 
-Lemma bop_left_semidirect_commutative :
-      ltr_commutative T S eqS timesS f →    (* s1 *S (f t1 s2) =S s2 *S (f t2 s1) *) 
-      bop_commutative T eqT timesT → 
-         bop_commutative (S * T) (brel_product eqS eqT) left_semidirect. 
-Proof. intros L R (s1, t1) (s2, t2). simpl. 
-       apply andb_is_true_right. split. 
-          rewrite L. reflexivity.           
-          rewrite R. reflexivity. 
-Defined. 
-
-Lemma bop_semidirec_not_commutative_v1 : 
-      ltr_not_commutative T S eqS timesS f → 
-         bop_not_commutative (S * T) (brel_product eqS eqT) left_semidirect. 
-Proof. intros [[ [t1 t2] [s1 s2 ] ] P]. 
-       exists ((s1, t1), (s2, t2)). simpl. 
-       apply andb_is_false_right. left. assumption. 
-Defined. 
-
-
-Lemma bop_semidirec_not_commutative_v2 (s : S) : 
-      bop_not_commutative T eqT timesT → 
-         bop_not_commutative (S * T) (brel_product eqS eqT) left_semidirect. 
-Proof. intros [ [t1 t2] P]. 
-       exists ((s, t1), (s, t2)). simpl. 
-       apply andb_is_false_right. right. assumption. 
-Defined.
 
 
 Lemma bop_product_left_semidirect_left_distributive : 

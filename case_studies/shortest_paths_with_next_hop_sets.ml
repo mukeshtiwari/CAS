@@ -283,7 +283,10 @@ Not Right left Absorptive:
  *)   
 
   
-(* now, configure an adjacency matrix *)
+(* Alternatives? 
 
-(* now, run a few path finding algorithms *) 
+let next_hop_sets    = mcas_slt_union_singleton eqv_eq_nat;;
+let slt_min_plus_nhs = mcas_slt_llex_product mcas_slt_min_plus_one next_hop_sets
+
+ *) 
 

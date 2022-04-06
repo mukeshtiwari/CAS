@@ -288,6 +288,16 @@ Proof. intros [NID | NLRA].
 Defined. 
 
 
+
+
+
+(* strictly left right *) 
+Lemma bops_add_one_not_strictly_left_right_absorptive  : 
+        bops_not_strictly_left_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
+Proof.  exists (inl c, inl c). compute. right; auto. Defined. 
+
+
+
 (* right left *) 
 Lemma bops_add_one_right_left_absorptive  : 
      bop_idempotent S r b1 -> 

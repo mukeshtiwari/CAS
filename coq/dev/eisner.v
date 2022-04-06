@@ -1,6 +1,11 @@
 Require Import Coq.Bool.Bool.
 Require Export CAS.coq.common.compute.
-Require Import CAS.coq.theory.facts.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.product.
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.and.
+Require Import CAS.coq.sg.theory. 
+Require Import CAS.coq.bs.properties. 
 Require Import CAS.coq.sg.product.
 
 Definition bop_eisner (S : Type) (addS : binary_op S) (mulS : binary_op S) : binary_op (S * S) 
@@ -43,7 +48,7 @@ Notation "a [.] b"  := (bop_eisner S rS a b) (at level 15).
 
 Lemma bop_eisner_associative : bop_associative (S * S) (brel_product rS rS) eisner. 
 Proof. intros [s1 t1] [s2 t2] [s3 t3]. simpl.  
-       apply andb_is_true_right. split.
+       apply bop_and_intro. 
 (* Interesting : associativity requires left and right distributivity: 
    
          ((s1 [*] t2)         [+]  (t1 [*] s2)) [*] t3  [+]  (t1 [*] t2) [*] s3
@@ -73,9 +78,9 @@ Qed.
 
 Lemma bop_eisner_congruence : bop_congruence (S * S) (brel_product rS rS) eisner.
 Proof. intros [s1 s2] [t1 t2] [u1 u2] [w1 w2]; simpl. intros H1 H2. 
-       destruct (andb_is_true_left _ _ H1) as [C1 C2].
-       destruct (andb_is_true_left _ _ H2) as [C3 C4].
-       apply andb_is_true_right. split.  
+       destruct (bop_and_elim _ _ H1) as [C1 C2].
+       destruct (bop_and_elim _ _ H2) as [C3 C4].
+       apply bop_and_intro. 
           apply c_add; auto. 
           apply c_mul; auto.
 Qed.           
@@ -84,7 +89,7 @@ Lemma bop_eisner_idempotent :
       (∀ (s t : S), ((s [*] t) [+] (t [*] s)) =S s) → 
       bop_idempotent S rS mulS → 
          bop_idempotent (S * S) (brel_product rS rS) eisner. 
-Proof. intros H I (s, t). simpl. apply andb_is_true_right. split. 
+Proof. intros H I (s, t). simpl. apply bop_and_intro. 
        apply H. 
        rewrite I. reflexivity. 
 Qed. 
@@ -135,7 +140,7 @@ Lemma bop_eisner_product_anti_left :
     bop_anti_left S rS mulS -> 
   bop_anti_left (S * S) (brel_product rS rS) eisner. 
 Proof. 
-  intros AL [s1 t1] [s2 t2]; simpl. apply andb_is_false_right.
+  intros AL [s1 t1] [s2 t2]; simpl. apply bop_and_false_intro. 
   right. apply AL. 
 Qed. 
 
@@ -143,7 +148,7 @@ Lemma bop_eisner_product_anti_left_v2 :
   ((∀ (s1 s2 t1 t2 : S), s1 !=S ((s1 [*] t2) [+] (t1 [*] s2))) + (bop_anti_left S rS mulS)) →
   bop_anti_left (S * S) (brel_product rS rS) eisner. 
 Proof. 
-  intros [H | H] [s1 t1] [s2 t2]; simpl; apply andb_is_false_right.
+  intros [H | H] [s1 t1] [s2 t2]; simpl; apply bop_and_false_intro. 
   left. apply H. right. apply H. 
 Qed. 
 
@@ -151,7 +156,7 @@ Lemma bop_eisner_anti_right :
   ((∀ (s1 s2 t1 t2 : S), s1 !=S ((s2 [*] t1) [+] (t2 [*] s1))) + (bop_anti_right S rS mulS)) → 
       bop_anti_right (S * S) (brel_product rS rS) eisner. 
 Proof. 
-  intros [H | H] [s1 t1] [s2 t2]; simpl; apply andb_is_false_right.
+  intros [H | H] [s1 t1] [s2 t2]; simpl; apply bop_and_false_intro. 
   left. apply H. right. apply H. 
 Qed. 
 
@@ -165,7 +170,7 @@ Lemma bop_eisner_left_cancellative :
       bop_left_cancellative (S * S) (brel_product rS rS) eisner. 
 Proof. 
    intros J K [s1 t1] [s2 t2] [s3 t3]; simpl. 
-   intro H. apply andb_is_true_left in H. destruct H as [HL HR]. 
+   intro H. apply bop_and_elim in H. destruct H as [HL HR]. 
    apply K in HR. apply J in HL. rewrite HL, HR. simpl. reflexivity. 
 Defined.
 
@@ -173,7 +178,7 @@ Lemma bop_eisner_is_left :
       (∀ (s1 s2 t1 t2 : S), ((s1 [*] t2) [+] (t1 [*] s2)) =S s1) → 
       bop_is_left S rS mulS → 
       bop_is_left (S * S) (brel_product rS rS) eisner. 
-Proof. intros L R (s1, t1) (s2, t2). simpl. apply andb_is_true_right. split.
+Proof. intros L R (s1, t1) (s2, t2). simpl. apply bop_and_intro. 
           apply L. 
           apply R. 
 Defined. 
@@ -184,7 +189,7 @@ Lemma bop_eisner_is_right :
       (∀ (s1 s2 t1 t2 : S), ((s1 [*] t2) [+] (t1 [*] s2)) =S s2) → 
       bop_is_right S rS mulS → 
       bop_is_right (S * S) (brel_product rS rS) eisner. 
-Proof. intros L R (s1, t1) (s2, t2). simpl. apply andb_is_true_right. split.
+Proof. intros L R (s1, t1) (s2, t2). simpl. apply bop_and_intro. 
           apply L. 
           apply R. 
 Defined.
@@ -194,7 +199,7 @@ Lemma bop_eisner_is_right_v2 :
       bop_is_right S rS addS → 
       bop_is_right S rS mulS → 
       bop_is_right (S * S) (brel_product rS rS) eisner. 
-Proof. intros L R (s1, t1) (s2, t2). simpl. apply andb_is_true_right. split.
+Proof. intros L R (s1, t1) (s2, t2). simpl. apply bop_and_intro. 
           assert (K := L (s1 [*] t2) (t1 [*] s2)).
           assert (J := R t1 s2).
           assert (M := tranS _ _ _ K J).
@@ -209,7 +214,7 @@ Lemma bop_eisner_left_constant :
       bop_left_constant (S * S) (brel_product rS rS) eisner. 
 Proof. 
    intros L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
-   apply andb_is_true_right. split. apply L. apply R. 
+   apply bop_and_intro. apply L. apply R. 
 Defined. 
 
 
@@ -219,7 +224,7 @@ Lemma bop_eisner_right_constant :
       bop_right_constant (S * S) (brel_product rS rS) eisner. 
 Proof. 
    intros L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
-   apply andb_is_true_right. split. apply L. apply R. 
+   apply bop_and_intro.  apply L. apply R. 
 Defined.
 
 
@@ -239,6 +244,27 @@ Proof. intros H J K [s1 t1] [s2 t2]; compute.
        destruct (H s1 s2 t1 t2) as [Q | Q].
        rewrite Q. left. apply (J _ _ _ _ Q). 
        rewrite Q. right. apply (K _ _ _ _ Q). 
+Qed.
+
+
+Lemma bop_eisner_selective_v2 :
+   bop_selective (S * S) (brel_product rS rS) eisner. 
+Proof. intros [s1 t1] [s2 t2]; compute.
+       case_eq(rS ((s1 [*] t2) [+] (t1 [*] s2)) s1); intro A;
+       case_eq(rS ((s1 [*] t2) [+] (t1 [*] s2)) s2); intro B;
+       case_eq(rS (t1 [*] t2) t1); intro C;   
+       case_eq(rS (t1 [*] t2) t2); intro D; auto.
+       + admit. 
+       + admit. 
+       + admit. 
+       + admit. 
+       + admit. 
+       + admit. 
+       + admit. 
+       + admit. 
+       + admit.
+Admitted.          
+
 Qed.
 
 
@@ -283,49 +309,74 @@ Proof.  intros H [a P] [i Q]. exists (a, i). intros [s t]. compute.
         rewrite F3, F4. auto.
 Defined.
 
-Lemma bop_product_eisner_left_distributive : 
-      bop_left_distributive S rS addS mulS → 
-             bop_left_distributive (S * S) (brel_product rS rS) (bop_product addS addS) (eisner). 
-Proof. intros ldS . unfold bop_left_distributive. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
-       apply andb_is_true_right. split.
-          (*
-              ((s1 [*] (t2 [+] t3)) [+] (t1 [*] (s2 [+] s3))) 
-            =S (s1 [*] t2) [+] (s1 [*] t3) [+]  (t1 [*] s2)  (t1 [*] s3)
-                 ... comm + ... 
-           =S (((s1 [*] t2) [+] (t1 [*] s2)) [+] ((s1 [*] t3) [+] (t1 [*] s3)))
+Lemma bop_product_eisner_left_distributive
+      (a_comm : bop_commutative S rS addS)
+      (ldS : bop_left_distributive S rS addS mulS) : 
+             bop_left_distributive (S * S) (brel_product rS rS) (bop_product addS addS) eisner. 
+Proof. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
+       apply bop_and_intro. 
+       + assert (A := ldS s1 t2 t3).
+         assert (B := ldS t1 s2 s3). 
+         assert (C := c_add _ _ _ _ A B). 
+         assert (D : (((s1 [*] t2) [+] (s1 [*] t3)) [+] ((t1 [*] s2) [+] (t1 [*] s3)))
+                     =S
+                     ((s1 [*] t2) [+] ((s1 [*] t3) [+] ((t1 [*] s2) [+] (t1 [*] s3))))).
+            apply a_add.
+         assert (E : (((s1 [*] t3) [+] (t1 [*] s2)) [+] (t1 [*] s3))
+                     =S
+                     ((s1 [*] t3) [+] ((t1 [*] s2) [+] (t1 [*] s3)))). 
+            apply a_add.
+         assert (F : ((s1 [*] t2) [+] ((s1 [*] t3) [+] ((t1 [*] s2) [+] (t1 [*] s3))))
+                     =S
+                     ((s1 [*] t2) [+] (((s1 [*] t3) [+] (t1 [*] s2)) [+] (t1 [*] s3)))).
+            exact (c_add _ _ _ _ (refS (s1 [*] t2)) (symS _ _ E)). 
+         assert (G := a_comm (s1 [*] t3) (t1 [*] s2)).
+         assert (H : ((s1 [*] t2) [+] (((s1 [*] t3) [+] (t1 [*] s2)) [+] (t1 [*] s3)))   
 
-           OK 
-          *) 
-          admit. 
-          apply ldS. 
+                     =S
+                     ((s1 [*] t2) [+] (((t1 [*] s2) [+] (s1 [*] t3)) [+] (t1 [*] s3)))).
+            exact (c_add _ _ _ _ (refS (s1 [*] t2)) (c_add _ _ _ _ G (refS (t1 [*] s3)))).
+         assert (I : ((s1 [*] t2) [+] (((t1 [*] s2) [+] (s1 [*] t3)) [+] (t1 [*] s3)))
+                     =S 
+                     ((s1 [*] t2) [+] ((t1 [*] s2) [+] ((s1 [*] t3) [+] (t1 [*] s3))))).
+            exact (c_add _ _ _ _ (refS (s1 [*] t2)) (a_add (t1 [*] s2) (s1 [*] t3) (t1 [*] s3))).
+         assert (J : ((s1 [*] t2) [+] ((t1 [*] s2) [+] ((s1 [*] t3) [+] (t1 [*] s3))))
+                     =S 
+                     (((s1 [*] t2) [+] (t1 [*] s2)) [+] ((s1 [*] t3) [+] (t1 [*] s3)))).
+            exact (symS _ _ (a_add (s1 [*] t2) (t1 [*] s2) ((s1 [*] t3) [+] (t1 [*] s3)))).
+         exact (tranS _ _ _ C (tranS _ _ _ D (tranS _ _ _ F (tranS _ _ _ H (tranS _ _ _ I J))))). 
+       + apply ldS.
+Qed. 
+
+Lemma bop_product_eisner_right_distributive : 
+      bop_right_distributive S rS addS mulS → 
+             bop_right_distributive (S * S) (brel_product rS rS) (bop_product addS addS) (eisner). 
+Proof. intros rdS . unfold bop_right_distributive. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
+       apply bop_and_intro. 
+          admit. (* same as above *) 
+          apply rdS. 
 Admitted. 
 
 
 Lemma bop_product_eisner_left_left_absorption : 
       bops_left_left_absorptive S rS addS mulS → 
              bops_left_left_absorptive (S * S) (brel_product rS rS) (bop_product addS addS) (eisner). 
-Proof. intros laS . unfold bops_left_left_absorptive. intros [s1 t1] [s2 t2]. simpl.
-       apply andb_is_true_right. split. unfold bops_left_left_absorptive in laS. 
-       (* 
-        laS : ∀ s t : S, s =S (s [+] (s [*] t))
-
-        so 
-
-        s1 =S s1 [+] (s1 [*] t2) 
-
-        so 
-        (s1 [+] ((s1 [*] t2) [+] (t1 [*] s2))) 
-        =S 
-        s1 [+] (t1 [*] s2)
-        
-        want 
-        s1 =S (s1 [+] ((s1 [*] t2) [+] (t1 [*] s2))) 
-
-       *) 
-       admit.  (* NEVER !!! *) 
-       apply laS.
+Proof. intros laS . unfold bops_left_left_absorptive. intros [s1 t1] [s2 t2]. compute.
+       rewrite laS. 
+       case_eq(rS s1 (s1 [+] ((s1 [*] t2) [+] (t1 [*] s2)))); intro A.
+       + reflexivity. 
+       + admit. (* need a contradiction from   s1 !=S (s1 [+] ((s1 [*] t2) [+] (t1 [*] s2)))  *)  
 Admitted.        
 
+Lemma bop_product_eisner_not_left_left_absorption (nabsS : bops_not_left_left_absorptive S rS addS mulS) (wS : S): 
+  bops_not_left_left_absorptive (S * S) (brel_product rS rS) (bop_product addS addS) (eisner).
+Proof. destruct nabsS as [[s t] P]. 
+       exists ((wS, s), (wS, t)). compute.
+       case_eq(rS wS (wS [+] ((wS [*] t) [+] (s [*] wS)))); intro A.
+       + exact P. 
+       + reflexivity.
+Defined. 
 
+         
 End Test. 
 

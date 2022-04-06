@@ -11,6 +11,79 @@ let widest_shortest_paths =
 (* now, inspect this algebra 
 
 mcas_bs_describe_fully widest_shortest_paths;;
+
+Class : Selective Dioid
+Carrier set:
+{INF} + ((nat) * ({INF} + (nat)))
+Additive properties:
+--------------------
+Idempotent
+Commutative
+Selective 
+Not Left Cancellative: 
+   inr((0, inl(INF))).inr((0, inl(INF))) = inr((0, inl(INF)))
+   inr((0, inl(INF))).inl(INF) = inr((0, inl(INF)))
+   inr((0, inl(INF))) <> inl(INF)
+Not Right Cancellative: 
+   inr((0, inl(INF))).inr((0, inl(INF))) = inr((0, inl(INF)))
+   inl(INF).inr((0, inl(INF))) = inr((0, inl(INF)))
+   inr((0, inl(INF))) <> inl(INF)
+Not Left Constant: 
+   inl(INF).inr((0, inl(INF))) = inr((0, inl(INF)))
+   inl(INF).inl(INF) = inl(INF)
+Not Right Constant: 
+   inr((0, inl(INF))).inl(INF) = inr((0, inl(INF)))
+   inl(INF).inl(INF) = inl(INF)
+Not Anti Left: 
+   inl(INF).inl(INF) = inl(INF)
+Not Anti Right: 
+   inl(INF).inl(INF) = inl(INF)
+Not Is Left: 
+   inl(INF).inr((0, inl(INF))) = inr((0, inl(INF)))
+Not Is Right: 
+   inr((0, inl(INF))).inl(INF) = inr((0, inl(INF)))
+Identity = inl(INF)
+Annihilator = inr((0, inl(INF)))
+Multiplicative properties:
+-------------------------
+Not Idempotent: 
+   inr((1, inl(INF))).inr((1, inl(INF))) = inr((2, inl(INF)))
+Commutative
+Not Selective: 
+   inr((0, inr(0))).inr((1, inl(INF))) = inr((1, inr(0)))
+Not Left Cancellative: 
+   inl(INF).inr((0, inl(INF))) = inl(INF)
+   inl(INF).inr((1, inl(INF))) = inl(INF)
+   inr((0, inl(INF))) <> inr((1, inl(INF)))
+Not Right Cancellative: 
+   inr((0, inl(INF))).inl(INF) = inl(INF)
+   inr((1, inl(INF))).inl(INF) = inl(INF)
+   inr((0, inl(INF))) <> inr((1, inl(INF)))
+Not Left Constant: 
+   inr((0, inl(INF))).inr((0, inl(INF))) = inr((0, inl(INF)))
+   inr((0, inl(INF))).inl(INF) = inl(INF)
+Not Right Constant: 
+   inr((0, inl(INF))).inr((0, inl(INF))) = inr((0, inl(INF)))
+   inl(INF).inr((0, inl(INF))) = inl(INF)
+Not Anti Left: 
+   inl(INF).inr((0, inl(INF))) = inl(INF)
+Not Anti Right: 
+   inr((0, inl(INF))).inl(INF) = inl(INF)
+Not Is Left: 
+   inr((0, inl(INF))).inl(INF) = inl(INF)
+Not Is Right: 
+   inl(INF).inr((0, inl(INF))) = inl(INF)
+Identity = inr((0, inl(INF)))
+Annihilator = inl(INF)
+Interaction of Additive and Multiplicative operations
+-------------------------------------------------------
+Left Distributive
+Right Distributive 
+Left Left Absorptive
+Left_Right Absorptive 
+Right_Left Absorptive
+Right_Right Absorptive 
+
 *)
 
 (* now, configure an adjacency matrix *)

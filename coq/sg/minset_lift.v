@@ -1,4 +1,4 @@
-
+Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 
@@ -917,6 +917,70 @@ Proof. apply brel_set_intro_prop; auto. split.
               rewrite (A2 x B1) in G. discriminate G. 
 Qed. 
 
+(*
+Print os_left_increasing. 
+
+Lemma bop_minset_lift_idempotent_v2_aux'
+      (anti : brel_antisymmetric S rS lteS)
+      (idem : bop_idempotent S rS bS)
+      (LI : os_right_increasing lteS bS) 
+      (X : finite_set S) :
+                [ms] (([ms] X) [^] ([ms] X)) [=S] ([ms] X).
+Proof. apply brel_set_intro_prop; auto. split. 
+       - intros a A.
+         apply in_minset_elim in A; auto. destruct A as [A1 A2].          
+         apply in_set_bop_lift_elim in A1; auto. 
+         destruct A1 as [x [y [[B C] D]]].     
+         assert (F := LI x y). 
+         case_eq(in_set rS X a); intro E. 
+         + apply in_minset_intro; auto. split; auto. 
+           intros t G. 
+           case_eq(in_set rS ([ms] X) t); intro H. 
+           * apply A2. 
+             assert (I := idem t).
+             apply (in_set_right_congruence S rS symS tranS _ _ _ I).
+             apply in_set_bop_lift_intro; auto.
+           * apply in_set_minset_false_elim in H; auto. 
+             destruct H as [u [I J]]. 
+             case_eq(below lteS a t); intro K; auto. 
+                assert (L := below_transitive _ lteS lteTrans _ _ _ J K). 
+                assert (M : u [in] (([ms] X) [^] ([ms] X))). 
+                   assert (H := idem u).
+                   apply (in_set_right_congruence S rS symS tranS _ _ _ H).
+                   apply in_set_bop_lift_intro; auto.
+                rewrite (A2 _ M) in L. discriminate L. 
+         + assert (G : x [in] (([ms] X) [^] ([ms] X))).
+              assert (H := idem x).
+              apply (in_set_right_congruence S rS symS tranS _ _ _ H).
+              apply in_set_bop_lift_intro; auto.
+           assert (H := A2 _ G).
+           rewrite (below_congruence S rS lteS lteCong _ _ _ _ D (refS x)) in H.           
+           apply below_false_elim in H. destruct H as [H | H]. 
+           * rewrite F in H. discriminate H. 
+           * assert (I := anti _ _ H F).            (* only use of anti *)
+             assert (J := tranS _ _ _ D I). apply symS in J. 
+             apply (in_set_right_congruence S rS symS tranS _ _ _ J).
+             exact B. (* could also get contradiction from a [!in] X *)
+       - intros a A. 
+         apply in_minset_intro; auto. split. 
+         + assert (B := idem a).  
+           apply (in_set_right_congruence S rS symS tranS _ _ _ B).
+           apply in_set_bop_lift_intro; auto. 
+         + intros t B.
+           apply in_set_bop_lift_elim in B; auto. 
+           destruct B as [x [y [[B C] D]]].
+           rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS a) D). 
+           case_eq(below lteS a (bS x y)); intro E; auto. 
+              apply in_minset_elim in A; auto. destruct A as [A1 A2].
+              assert (F := LI x y). 
+              assert (G := below_pseudo_transitive_left _ _ _ F E).
+              apply in_minset_elim in B; auto. destruct B as [B1 B2].
+              rewrite (A2 x B1) in G. discriminate G. 
+Qed. 
+*) 
+
+
+
 Lemma bop_minset_lift_idempotent_v2
       (anti : brel_antisymmetric S rS lteS) 
       (idem : bop_idempotent S rS bS)
@@ -993,24 +1057,22 @@ Variables
     (RM : os_right_monotone lteS b). 
 
 Definition sg_CI_proofs_minset_lift_from_po
-    (sgS : sg_CI_proofs S rS b)
+    (bComm  : bop_commutative S rS b) 
+    (bIdem  : bop_idempotent S rS b) 
+    (NotSel : bop_not_selective S rS b) 
+    (sgS : sg_proofs S rS b)
     (LI : os_left_increasing lteS b) : 
         sg_CI_proofs (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS b) := 
 let congS := A_eqv_congruence S rS eqvS in  
 let refS := A_eqv_reflexive S rS eqvS in
 let symS := A_eqv_symmetric S rS eqvS in
 let tranS := A_eqv_transitive S rS eqvS in
-
 let lteCong    := A_po_congruence S rS lteS poS in
 let lteRefl    := A_po_reflexive S rS lteS poS in
 let lteTran    := A_po_transitive S rS lteS poS in
 let anti       := A_po_antisymmetric S rS lteS poS in
-
-let bCong  := A_sg_CI_congruence _ _ _ sgS in
-let bAssoc := A_sg_CI_associative _ _ _ sgS in
-let bComm  := A_sg_CI_commutative _ _ _ sgS in
-let bIdem  := A_sg_CI_idempotent _ _ _ sgS in
-let NotSel := A_sg_CI_not_selective _ _ _ sgS in 
+let bCong  := A_sg_congruence _ _ _ sgS in
+let bAssoc := A_sg_associative _ _ _ sgS in
 {|
   A_sg_CI_associative        := bop_minset_lift_associative S rS refS symS tranS lteS lteCong lteRefl lteTran  b bCong bAssoc LM RM (inl anti) 
 ; A_sg_CI_congruence         := bop_minset_lift_congruence S rS refS symS tranS lteS lteCong lteRefl lteTran b bCong 
@@ -1021,7 +1083,9 @@ let NotSel := A_sg_CI_not_selective _ _ _ sgS in
 |}. 
 
 Definition sg_CNI_proofs_minset_lift_from_po
-    (sgS : sg_CNI_proofs S rS b) : 
+           (sgS : sg_proofs S rS b)
+           (bComm  : bop_commutative S rS b) 
+           (nIdem  : bop_not_idempotent S rS b) : 
         sg_CNI_proofs (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS b) := 
 let congS := A_eqv_congruence S rS eqvS in  
 let refS := A_eqv_reflexive S rS eqvS in
@@ -1033,10 +1097,8 @@ let lteRefl    := A_po_reflexive S rS lteS poS in
 let lteTran    := A_po_transitive S rS lteS poS in
 let anti       := A_po_antisymmetric S rS lteS poS in
 
-let bCong  := A_sg_CNI_congruence _ _ _ sgS in
-let bAssoc := A_sg_CNI_associative _ _ _ sgS in
-let bComm  := A_sg_CNI_commutative _ _ _ sgS in
-let nIdem  := A_sg_CNI_not_idempotent _ _ _ sgS in
+let bCong  := A_sg_congruence _ _ _ sgS in
+let bAssoc := A_sg_associative _ _ _ sgS in
 {|
   A_sg_CNI_associative      := bop_minset_lift_associative S rS refS symS tranS lteS lteCong lteRefl lteTran  b bCong bAssoc LM RM (inl anti) 
 ; A_sg_CNI_congruence       := bop_minset_lift_congruence S rS refS symS tranS lteS lteCong lteRefl lteTran b bCong 
@@ -1047,15 +1109,58 @@ let nIdem  := A_sg_CNI_not_idempotent _ _ _ sgS in
 ; A_sg_CNI_constant_d       := inr (bop_minset_lift_not_left_constant S rS s lteS b)
 ; A_sg_CNI_anti_left_d      := inr (bop_minset_lift_not_anti_left S rS lteS b)
 ; A_sg_CNI_anti_right_d     := inr (bop_minset_lift_not_anti_right S rS lteS b)
-                                                                   
 |}. 
 
 End Proofs.
 
 Section Combinators. 
 
-(* VERY CLOSE 
-Definition A_sg_BCI_minset_lift (S : Type) (A : A_bounded_monotone_increasing_posg S) : A_sg_BCI S :=
+
+Definition A_sg_CNI_minset_lift_GUARDED 
+           (S : Type)
+           (A : A_bounded_monotone_increasing_posg S) 
+           (bComm : bop_commutative S (A_eqv_eq _ (A_bmiposg_eqv _ A)) (A_bmiposg_times _ A)) 
+           (bNotIdem : bop_not_idempotent S (A_eqv_eq _ (A_bmiposg_eqv _ A)) (A_bmiposg_times _ A)) : A_sg_BCNI (finite_set S) :=             
+let eqv := A_bmiposg_eqv _ A in
+let eqvP := A_eqv_proofs _ eqv in
+let refS := A_eqv_reflexive _ _ eqvP in
+let symS := A_eqv_symmetric _ _ eqvP in
+let trnS := A_eqv_transitive _ _ eqvP in 
+let eq  := A_eqv_eq _ eqv in
+let wS  := A_eqv_witness _ eqv in
+let f  := A_eqv_new _ eqv in
+let nt  := A_eqv_not_trivial _ eqv in
+let lte := A_bmiposg_lte _ A in 
+let bop := A_bmiposg_times _ A in
+let lteP := A_bmiposg_lte_proofs _ A in
+let lteCong := A_po_congruence _ _ _ lteP in 
+let lteRef  := A_po_reflexive  _ _ _ lteP in 
+let lteTrn  := A_po_transitive  _ _ _ lteP in             
+let lteAnti := A_po_antisymmetric  _ _ _ lteP in             
+let bopP := A_bmiposg_times_proofs _ A in
+let bopCong := A_sg_congruence _ _ _ bopP in
+let bottom_id_equal := A_bounded_bottom_id  _ _ _ _ (A_bmiposg_top_bottom _ A) in
+let idP  := A_extract_exist_id_from_exists_bottom_id_equal _ _ _ _ bottom_id_equal in 
+let AP   := A_bmiposg_proofs _ A in
+let LM   := A_mono_inc_left_monotonic _ _ _ AP in 
+let RM   := A_mono_inc_right_monotonic _ _ _ AP in 
+let LI   := A_mono_inc_left_increasing _ _ _ AP in 
+{|
+  A_sg_BCNI_eqv        := A_eqv_minset_from_po_bounded _ (A_po_from_bounded_monotone_increasing_posg _ A)
+; A_sg_BCNI_bop        := bop_minset_lift S eq lte bop
+; A_sg_BCNI_exists_id  := bop_minset_lift_exists_id S eq refS symS trnS lte lteCong lteRef lteTrn bop bopCong idP LM RM (inl lteAnti) 
+; A_sg_BCNI_exists_ann := bop_minset_lift_exists_ann S eq refS symS trnS lte lteCong lteRef lteTrn bop 
+; A_sg_BCNI_proofs     := sg_CNI_proofs_minset_lift_from_po S eq lte wS f bop nt eqvP lteP LM RM bopP bComm bNotIdem 
+; A_sg_BCNI_ast        := Ast_sg_minset_lift (A_bmiposg_ast _ A)
+|}.  
+
+
+Definition A_sg_BCI_minset_lift_GUARDED 
+           (S : Type)
+           (A : A_bounded_monotone_increasing_posg S) 
+           (bComm : bop_commutative S (A_eqv_eq _ (A_bmiposg_eqv _ A)) (A_bmiposg_times _ A)) 
+           (bIdem : bop_idempotent S (A_eqv_eq _ (A_bmiposg_eqv _ A)) (A_bmiposg_times _ A)) 
+           (bNotSel : bop_not_selective S (A_eqv_eq _ (A_bmiposg_eqv _ A)) (A_bmiposg_times _ A)) : A_sg_BCI (finite_set S) :=             
 let eqv := A_bmiposg_eqv _ A in
 let eqvP := A_eqv_proofs _ eqv in
 let refS := A_eqv_reflexive _ _ eqvP in
@@ -1078,131 +1183,276 @@ let LM   := A_mono_inc_left_monotonic _ _ _ AP in
 let RM   := A_mono_inc_right_monotonic _ _ _ AP in 
 let LI   := A_mono_inc_left_increasing _ _ _ AP in 
 {|
-  A_sg_BCI_eqv        := A_eqv_minset_from_po _ (A_po_from_bounded_monotone_increasing_posg _ A) 
+  A_sg_BCI_eqv        := A_eqv_minset_from_po_bounded _ (A_po_from_bounded_monotone_increasing_posg _ A)
 ; A_sg_BCI_bop        := bop_minset_lift S eq lte bop
-; A_sg_BCI_exists_id  := bop_minset_lift_exists_id S eq refS symS trnS lte lteCong lteRef lteTrn bop bopCong idP LM RM (inr lteAnti) 
+; A_sg_BCI_exists_id  := bop_minset_lift_exists_id S eq refS symS trnS lte lteCong lteRef lteTrn bop bopCong idP LM RM (inl lteAnti) 
 ; A_sg_BCI_exists_ann := bop_minset_lift_exists_ann S eq refS symS trnS lte lteCong lteRef lteTrn bop 
-; A_sg_BCI_proofs     := sg_CI_proofs_minset_lift_from_po S eq lte bop eqvP lteP LM RM bopP LI 
+; A_sg_BCI_proofs     := sg_CI_proofs_minset_lift_from_po S eq lte bop eqvP lteP LM RM bComm bIdem bNotSel bopP LI 
 ; A_sg_BCI_ast        := Ast_sg_minset_lift (A_bmiposg_ast _ A)
 |}.  
 
-*) 
+
 End Combinators.   
 
 End ACAS.
 
+Section AMCAS.
+
+Local Open Scope string_scope.
+
+
+Definition A_mcas_minset_lift (S : Type) (M : A_os_mcas S) : A_sg_mcas (finite_set S ) :=
+match M with
+| A_OS_bounded_monotone_increasing_posg _ A => 
+  let bopP   := A_bmiposg_times_proofs _ A in
+  let comm_d := A_sg_commutative_d _ _ _ bopP in
+  let idem_d := A_sg_idempotent_d _ _ _ bopP in
+  let sel_d  := A_sg_selective_d _ _ _ bopP in
+  match comm_d with
+  | inl comm =>
+    match idem_d with 
+    | inl idem  =>
+      match sel_d with
+      | inl _    => A_MCAS_sg_Error _ ("mcas_minset_lift : (currently) multiplication cannot be selective" :: nil)
+      | inr nsel => A_MCAS_sg_BCI _ (A_sg_BCI_minset_lift_GUARDED S A comm idem nsel) 
+      end 
+    | inr nidem => A_MCAS_sg_BCNI _ (A_sg_CNI_minset_lift_GUARDED S A comm nidem) 
+    end        
+  | inr _    => A_MCAS_sg_Error _ ("mcas_minset_lift : (currently) multiplication must be commutative" :: nil)
+  end
+| _ => A_MCAS_sg_Error _ ("mcas_minset_lift : (currently) can only be applied to a bounded, monotone, and increasing order-semigroup" :: nil)
+end. 
+
+End AMCAS.
+
 
 Section CAS.
+Section Proofs.
 
-(*
-Definition minset_lift_monotone_os_certs_to_msg_certs
-           {S   : Type} 
-           (wS  : S)
-           (f   : S -> S)
-           (MSG : @msg_certificates S) 
-           (MOS : @os_monotone_certificates S) : @msg_certificates (finite_set S) :=
-{| 
-  msg_associative      := Assert_Associative 
-; msg_congruence       := Assert_Bop_Congruence 
-; msg_commutative_d    := match msg_commutative_d MSG with
-                          | Certify_Commutative => Certify_Commutative
-                          | Certify_Not_Commutative (a, b) => Certify_Not_Commutative (a :: nil, b :: nil) 
-                          end 
-; msg_is_left_d        := Certify_Not_Is_Left (wS :: nil, nil)
-; msg_is_right_d       := Certify_Not_Is_Right (nil, wS :: nil)
-; msg_left_cancel_d    := Certify_Not_Left_Cancellative (nil, (wS :: nil, (f wS) :: nil))
-; msg_right_cancel_d   := Certify_Not_Right_Cancellative (nil, (wS :: nil, (f wS) :: nil))
-; msg_left_constant_d  := Certify_Not_Left_Constant (wS :: nil, (wS :: nil, nil))
-; msg_right_constant_d := Certify_Not_Right_Constant (wS :: nil, (wS :: nil, nil))
-; msg_anti_left_d      := Certify_Not_Anti_Left (nil, nil) 
-; msg_anti_right_d     := Certify_Not_Anti_Right (nil, nil) 
-|}. 
+Variables     
+    (S : Type)
+    (wS : S)
+    (f : S -> S).
 
-
-Definition minset_lift_monotone_increasing_os_certs_to_msg_certs
-           {S   : Type} 
-           (wS  : S)
-           (f   : S -> S)
-           (MSG : @msg_certificates S) 
-           (MOS : @os_monotone_increasing_certificates S) : @msg_certificates (finite_set S) :=
-  minset_lift_monotone_os_certs_to_msg_certs wS f MSG
-      (os_monotone_certs_from_monotone_increasing_certs MOS). 
-
-  
-*) 
-End CAS.   
-
-
-(*
-Section CAS.
-
-Definition  check_minset_lift_exists_ann {S : Type} (df_d : @check_bottoms_finite S) : @check_exists_ann (finite_set S)
-  := match df_d with
-     | Certify_Bottoms_Finite (f, _)  => Certify_Exists_Ann (f tt)
-     | Certify_Is_Not_Bottoms_Finite => Certify_Not_Exists_Ann
-     end.
-
-Definition  check_minset_lift_selective {S : Type} (tot_d : @check_total S) : @check_selective (finite_set S)
-  := match tot_d with
-     | Certify_Total            => Certify_Selective 
-     | Certify_Not_Total (s, t) => Certify_Not_Selective (s :: nil, t :: nil)
-     end.
-
-
-
-Definition sg_CI_certs_minset_lift : ∀ {S : Type},  @po_certificates S -> @sg_CI_certificates (finite_set S)
-:= λ {S} po,  
+Definition sg_CI_certs_minset_lift_from_po
+    (bComm  : @assert_commutative S) 
+    (bIdem  : @assert_idempotent S) 
+    (NotSel : @assert_not_selective S) : @sg_CI_certificates (finite_set S) := 
+match NotSel with
+| Assert_Not_Selective (s1, s2) =>     
 {|
-  sg_CI_associative        := Assert_Associative  
-; sg_CI_congruence         := Assert_Bop_Congruence  
-; sg_CI_commutative        := Assert_Commutative  
-; sg_CI_idempotent         := Assert_Idempotent  
-; sg_CI_selective_d        := check_minset_lift_selective (po_total_d po)
-|}. 
+  sg_CI_associative        := Assert_Associative 
+; sg_CI_congruence         := Assert_Bop_Congruence 
+; sg_CI_commutative        := Assert_Commutative 
+; sg_CI_idempotent         := Assert_Idempotent 
+; sg_CI_not_selective      := Assert_Not_Selective (s1 :: nil, s2 :: nil)
+|}
+end. 
 
-Definition sg_CI_minset_lift : ∀ {S : Type}, @po S -> @sg_CI (finite_set S)
-  := λ S po,
-  let eqvS := po_eqv po   in
-  let eq   := eqv_eq eqvS in  
-  let lteS := po_lte po   in   
-   {| 
-     sg_CI_eqv       := eqv_minset po
-   ; sg_CI_bop       := bop_minset_lift S eq lteS 
-   ; sg_CI_exists_id_d       := Certify_Exists_Id nil 
-   ; sg_CI_exists_ann_d       := check_minset_lift_exists_ann (po_bottoms_finite_d (po_certs po))
-   ; sg_CI_certs     := sg_CI_certs_minset_lift (po_certs po)
-   
-   ; sg_CI_ast       := Ast_sg_minset_lift (po_ast po)                                                                   
-   |}. 
+Definition sg_CNI_certs_minset_lift_from_po
+           (bComm  : @assert_commutative S) 
+           (nIdem  : @assert_not_idempotent S) : @sg_CNI_certificates (finite_set S) := 
+match nIdem with
+| Assert_Not_Idempotent i =>     
+{|
+  sg_CNI_associative      := Assert_Associative 
+; sg_CNI_congruence       := Assert_Bop_Congruence 
+; sg_CNI_commutative      := Assert_Commutative 
+; sg_CNI_not_idempotent   := Assert_Not_Idempotent (i :: nil) 
+
+; sg_CNI_cancel_d         := Certify_Not_Left_Cancellative (nil, (wS :: nil, (f wS) :: nil))
+; sg_CNI_constant_d       := Certify_Not_Left_Constant (wS :: nil, (wS :: nil, nil))
+; sg_CNI_anti_left_d      := Certify_Not_Anti_Left (nil, nil) 
+; sg_CNI_anti_right_d     := Certify_Not_Anti_Right (nil, nil) 
+|}
+end. 
+
+End Proofs.
+
+Section Combinators. 
+
+Definition sg_CNI_minset_lift_GUARDED 
+           (S : Type)
+           (A : @bounded_monotone_increasing_posg S) 
+           (bComm : @assert_commutative S) 
+           (bNotIdem : @assert_not_idempotent S) : @sg_BCNI (finite_set S) :=             
+let eqv := bmiposg_eqv A in
+let eq  := eqv_eq eqv in
+let wS  := eqv_witness eqv in
+let f  := eqv_new eqv in
+let lte := bmiposg_lte A in 
+let bop := bmiposg_times A in
+{|
+  sg_BCNI_eqv        := eqv_minset_from_po_bounded (po_from_bounded_monotone_increasing_posg A)
+; sg_BCNI_bop        := bop_minset_lift S eq lte bop
+; sg_BCNI_exists_id  := match bounded_bottom_id (bmiposg_top_bottom A) with
+                        | Assert_Os_Exists_Bottom_Id_Equal bottom =>
+                          Assert_Exists_Id (bottom :: nil) 
+                        end 
+; sg_BCNI_exists_ann := Assert_Exists_Ann nil 
+; sg_BCNI_certs      := sg_CNI_certs_minset_lift_from_po S wS f bComm bNotIdem 
+; sg_BCNI_ast        := Ast_sg_minset_lift (bmiposg_ast A)
+|}.  
+
+
+Definition sg_BCI_minset_lift_GUARDED 
+           (S : Type)
+           (A : @bounded_monotone_increasing_posg S) 
+           (bComm : @assert_commutative S) 
+           (bIdem : @assert_idempotent S)
+           (bNotSel : @assert_not_selective S) : @sg_BCI (finite_set S) :=             
+let eqv := bmiposg_eqv A in
+let eq  := eqv_eq eqv in
+let wS  := eqv_witness eqv in
+let f  := eqv_new eqv in
+let lte := bmiposg_lte A in 
+let bop := bmiposg_times A in
+{|
+  sg_BCI_eqv        := eqv_minset_from_po_bounded (po_from_bounded_monotone_increasing_posg A)
+; sg_BCI_bop        := bop_minset_lift S eq lte bop
+; sg_BCI_exists_id  := match bounded_bottom_id (bmiposg_top_bottom A) with
+                        | Assert_Os_Exists_Bottom_Id_Equal bottom =>
+                          Assert_Exists_Id (bottom :: nil) 
+                        end 
+; sg_BCI_exists_ann := Assert_Exists_Ann nil 
+; sg_BCI_certs      := sg_CI_certs_minset_lift_from_po S bComm bIdem bNotSel
+; sg_BCI_ast        := Ast_sg_minset_lift (bmiposg_ast A)
+|}.  
+
+
+End Combinators.   
 
 End CAS.
- *)
 
-(*
+Section AMCAS.
+
+Local Open Scope string_scope.
+
+Definition mcas_minset_lift {S : Type} (M : @os_mcas S) : @sg_mcas (finite_set S ) :=
+match M with
+| OS_bounded_monotone_increasing_posg A => 
+  let bopP   := bmiposg_times_certs A in
+  let comm_d := sg_commutative_d bopP in
+  let idem_d := sg_idempotent_d bopP in
+  let sel_d  := sg_selective_d bopP in
+  match comm_d with
+  | Certify_Commutative =>
+    match idem_d with 
+    | Certify_Idempotent  =>
+      match sel_d with
+      | Certify_Selective =>
+           MCAS_sg_Error ("mcas_minset_lift : (currently) multiplication cannot be selective" :: nil)
+      | Certify_Not_Selective p  =>
+           MCAS_sg_BCI (sg_BCI_minset_lift_GUARDED _ A  Assert_Commutative Assert_Idempotent (Assert_Not_Selective p))
+      end 
+    | Certify_Not_Idempotent i => MCAS_sg_BCNI (sg_CNI_minset_lift_GUARDED _ A Assert_Commutative (Assert_Not_Idempotent i)) 
+    end        
+  | i_    => MCAS_sg_Error ("mcas_minset_lift : (currently) multiplication must be commutative" :: nil)
+  end
+| _ => MCAS_sg_Error ("mcas_minset_lift : (currently) can only be applied to a bounded, monotone, and increasing order-semigroup" :: nil)
+end. 
+
+End AMCAS.
+
 Section Verify.
 
-Lemma bop_minset_lift_certs_correct 
-      (S : Type) (eq lte : brel S) (s : S) (f : S -> S) (nt : brel_not_trivial S eq f) (eqv : eqv_proofs S eq) (po : po_proofs S eq lte) : 
-      sg_CI_certs_minset_lift (P2C_po S eq lte po) 
-      =                        
-      P2C_sg_CI (finite_set S) (brel_minset eq lte) (bop_minset_lift S eq lte)
-                (sg_CI_proofs_minset_lift S eq lte s f nt eqv po).
-Proof. destruct eqv, po. 
-       unfold sg_CI_certs_minset_lift, sg_CI_proofs_minset_lift, P2C_sg_CI, P2C_po; simpl.
-       destruct A_po_total_d as [tot | [[a b] [L R]]]; simpl; reflexivity. 
-Qed. 
-  
+Section Proofs.
 
-Theorem bop_minset_lift_correct (S : Type) (po : A_po S) : 
-         sg_CI_minset_lift (A2C_po S po)  =  A2C_sg_CI (finite_set S) (A_sg_CI_minset_lift S po). 
-Proof. unfold sg_CI_minset_lift, A_sg_CI_minset_lift, A2C_sg_CI, A2C_po; simpl.
-       rewrite <- bop_minset_lift_certs_correct.
-       rewrite <- correct_eqv_minset.
-       destruct A_po_bottoms_finite_d as [[[F w] bf] | nbf];         
+Variables (S : Type)
+          (eq lte : brel S)
+          (wS : S) (f : S -> S)
+          (nt : brel_not_trivial S eq f)
+          (eqvP : eqv_proofs S eq)
+          (bop : binary_op S) 
+          (bopP : sg_proofs S eq bop)
+          (LM : os_left_monotone lte bop)
+          (RM : os_right_monotone lte bop)
+          (LI : os_left_increasing lte bop) 
+          (comm : bop_commutative S eq bop).
+
+Lemma correct_sg_CNI_certs_minset_lift_from_po (nidem : bop_not_idempotent S eq bop) (po : po_proofs S eq lte) :
+  P2C_sg_CNI (finite_set S)
+             (brel_minset eq lte)
+             (bop_minset_lift S eq lte bop)
+             (sg_CNI_proofs_minset_lift_from_po S eq lte wS f bop nt eqvP po LM RM bopP comm nidem)
+      =
+      sg_CNI_certs_minset_lift_from_po S wS f Assert_Commutative (Assert_Not_Idempotent (projT1 nidem)).
+Proof. unfold sg_CNI_certs_minset_lift_from_po, sg_CNI_proofs_minset_lift_from_po,  P2C_sg_CNI; simpl.
+       destruct nidem as [i A]; simpl. 
+       reflexivity.
+Qed.        
+
+
+Lemma correct_sg_CI_certs_minset_lift_from_po (idem : bop_idempotent S eq bop) (nsel : bop_not_selective S eq bop) (po : po_proofs S eq lte) :
+  P2C_sg_CI (finite_set S)
+             (brel_minset eq lte)
+             (bop_minset_lift S eq lte bop)
+             (sg_CI_proofs_minset_lift_from_po S eq lte bop eqvP po LM RM comm idem nsel bopP LI)
+      =
+      sg_CI_certs_minset_lift_from_po S Assert_Commutative Assert_Idempotent (Assert_Not_Selective (projT1 nsel)).
+Proof. unfold sg_CI_certs_minset_lift_from_po, sg_CI_proofs_minset_lift_from_po,  P2C_sg_CI; simpl.
+       destruct nsel as [[s1 s2] [A B]]; simpl. unfold p2c_not_selective_assert. simpl. 
+       reflexivity.
+Qed.        
+
+End Proofs.
+
+Section Combinators.
+
+Theorem correct_sg_BCI_minset_lift_GUARDED  (S : Type)
+        (A : A_bounded_monotone_increasing_posg S) 
+        (comm : bop_commutative S (A_eqv_eq S (A_bmiposg_eqv S A)) (A_bmiposg_times S A))
+        (idem : bop_idempotent S (A_eqv_eq S (A_bmiposg_eqv S A)) (A_bmiposg_times S A))
+        (nSel : bop_not_selective S (A_eqv_eq S (A_bmiposg_eqv S A)) (A_bmiposg_times S A)) : 
+  A2C_sg_BCI (finite_set S) (A_sg_BCI_minset_lift_GUARDED S A comm idem nSel)                          
+  =
+  sg_BCI_minset_lift_GUARDED S
+       (A2C_bounded_monotone_increasing_posg A)
+       (Assert_Commutative)
+       (Assert_Idempotent)
+       (Assert_Not_Selective (projT1 nSel)). 
+Proof. unfold A_sg_BCI_minset_lift_GUARDED, sg_BCI_minset_lift_GUARDED.
+       destruct A; unfold A2C_sg_BCI, A2C_bounded_monotone_increasing_posg. simpl. 
+       rewrite <- correct_eqv_minset_from_po_bounded.
+       rewrite correct_sg_CI_certs_minset_lift_from_po.
        reflexivity. 
 Qed.
+
+Theorem correct_sg_BCNI_minset_lift_GUARDED  (S : Type)
+        (A : A_bounded_monotone_increasing_posg S) 
+        (comm : bop_commutative S (A_eqv_eq S (A_bmiposg_eqv S A)) (A_bmiposg_times S A))
+        (nidem : bop_not_idempotent S (A_eqv_eq S (A_bmiposg_eqv S A)) (A_bmiposg_times S A)) : 
+  A2C_sg_BCNI (finite_set S) (A_sg_CNI_minset_lift_GUARDED S A comm nidem)                          
+  =
+  sg_CNI_minset_lift_GUARDED S
+       (A2C_bounded_monotone_increasing_posg A)
+       (Assert_Commutative)
+       (Assert_Not_Idempotent (projT1 nidem)).      
+Proof. unfold A_sg_CNI_minset_lift_GUARDED, sg_CNI_minset_lift_GUARDED.
+       destruct A; unfold A2C_sg_BCNI, A2C_bounded_monotone_increasing_posg. simpl. 
+       rewrite <- correct_eqv_minset_from_po_bounded.
+       rewrite correct_sg_CNI_certs_minset_lift_from_po.
+       reflexivity. 
+Qed.
+
+Theorem correct_mcas_minset_lift (S : Type) (M : A_os_mcas S) :
+  mcas_minset_lift (A2C_mcas_os M) 
+  = 
+  A2C_mcas_sg _ (A_mcas_minset_lift S M).
+Proof. unfold mcas_minset_lift, A_mcas_minset_lift.
+       destruct M; simpl; try reflexivity. 
+       destruct a; simpl. destruct A_bmiposg_times_proofs; simpl.
+       destruct A_sg_commutative_d as [comm | ncomm]; simpl.
+       + destruct A_sg_idempotent_d as [idem | [i nidem]]; simpl.
+         ++ destruct A_sg_selective_d as [sel | nsel]; simpl. (* destruct A_sg_selective_d as [sel | [[s1 s2] [A B]]]; simpl.*)
+            +++ reflexivity. 
+            +++ rewrite correct_sg_BCI_minset_lift_GUARDED. reflexivity. 
+         ++ rewrite correct_sg_BCNI_minset_lift_GUARDED. reflexivity. 
+       + reflexivity. 
+Qed. 
+
+  
+End Combinators.     
  
 End Verify.   
   
-
-*) 

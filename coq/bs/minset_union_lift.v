@@ -965,11 +965,95 @@ let bot_id_equal := A_bounded_bottom_id _ _ _ _ P in
   
     
 End Proofs.
-End ACAS.
-(*
+
 Section Combinators.
 
+Definition A_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION 
+             (S : Type) 
+             (P : A_bounded_monotone_increasing_posg S)
+             (comm : bop_commutative S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) 
+             (idem : bop_idempotent S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) 
+             (nsel : bop_not_selective S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) : A_dioid (finite_set S) := 
+let eqv    := A_bmiposg_eqv _ P in
+let eq     := A_eqv_eq _ eqv in
+let wS     := A_eqv_witness _ eqv in
+let f      := A_eqv_new _ eqv in
+let nt     := A_eqv_not_trivial _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in   
+let lte    := A_bmiposg_lte _ P in
+let lteP   := A_bmiposg_lte_proofs _ P in
+let anti   := A_po_antisymmetric _ _ _ lteP in 
+let times  := A_bmiposg_times _ P in
+let timesP := A_bmiposg_times_proofs _ P in
+let times_cong := A_sg_congruence _ _ _ timesP in 
+let MOS    := A_bmiposg_proofs _ P in
+let LM     := A_mono_inc_left_monotonic _ _ _ MOS in
+let RM     := A_mono_inc_right_monotonic _ _ _ MOS in 
+let LI     := A_mono_inc_left_increasing _ _ _ MOS in
+let RI     := A_mono_inc_right_increasing _ _ _ MOS in
+let PO     := A_po_from_bounded_monotone_increasing_posg _ P in
+let Deqv   := A_eqv_minset_from_po_bounded _ PO in
+{|
+  A_dioid_eqv           := Deqv
+; A_dioid_plus          := bop_minset_union S eq lte
+; A_dioid_times         := bop_minset_lift S eq lte times 
+; A_dioid_plus_proofs   := sg_CI_proofs_minset_union_from_po S eq lte wS f nt eqvP lteP
+(* ouch.  loss of info. need A_commutative_dioid  ? *)                                                                    
+; A_dioid_times_proofs  := A_sg_proofs_from_sg_CI_proofs _ _ _ 
+                              (A_eqv_witness _ Deqv)
+                              (A_eqv_new _ Deqv)
+                              (A_eqv_not_trivial _ Deqv)
+                              (A_eqv_proofs _ Deqv) 
+                              (sg_CI_proofs_minset_lift_from_po S eq lte times eqvP lteP LM RM comm idem nsel timesP LI )
+; A_dioid_id_ann_proofs := minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bmiposg_top_bottom _ P)
+; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP LM RM LI RI 
+; A_dioid_ast           := Ast_minset_union_lift (A_bmiposg_ast _ P)
+|}.
 
+
+Definition A_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION 
+             (S : Type) 
+             (P : A_bounded_monotone_increasing_posg S)
+             (comm : bop_commutative S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) 
+             (nidem : bop_not_idempotent S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) : A_dioid (finite_set S) := 
+let eqv    := A_bmiposg_eqv _ P in
+let eq     := A_eqv_eq _ eqv in
+let wS     := A_eqv_witness _ eqv in
+let f      := A_eqv_new _ eqv in
+let nt     := A_eqv_not_trivial _ eqv in
+let eqvP   := A_eqv_proofs _ eqv in   
+let lte    := A_bmiposg_lte _ P in
+let lteP   := A_bmiposg_lte_proofs _ P in
+let anti   := A_po_antisymmetric _ _ _ lteP in 
+let times  := A_bmiposg_times _ P in
+let timesP := A_bmiposg_times_proofs _ P in
+let times_cong := A_sg_congruence _ _ _ timesP in 
+let MOS    := A_bmiposg_proofs _ P in
+let LM     := A_mono_inc_left_monotonic _ _ _ MOS in
+let RM     := A_mono_inc_right_monotonic _ _ _ MOS in 
+let LI     := A_mono_inc_left_increasing _ _ _ MOS in
+let RI     := A_mono_inc_right_increasing _ _ _ MOS in
+let PO     := A_po_from_bounded_monotone_increasing_posg _ P in
+let Deqv   := A_eqv_minset_from_po_bounded _ PO in
+{|
+  A_dioid_eqv           := Deqv
+; A_dioid_plus          := bop_minset_union S eq lte
+; A_dioid_times         := bop_minset_lift S eq lte times 
+; A_dioid_plus_proofs   := sg_CI_proofs_minset_union_from_po S eq lte wS f nt eqvP lteP
+(* ouch.  loss of info. need A_commutative_dioid  ? *)                                                                    
+; A_dioid_times_proofs  := A_sg_proofs_from_sg_CNI_proofs _ _ _ 
+                              (A_eqv_witness _ Deqv)
+                              (A_eqv_new _ Deqv)
+                              (A_eqv_not_trivial _ Deqv)
+                              (A_eqv_proofs _ Deqv) 
+                              (sg_CNI_proofs_minset_lift_from_po S eq lte wS f times nt eqvP lteP LM RM timesP comm nidem)
+; A_dioid_id_ann_proofs := minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bmiposg_top_bottom _ P)
+; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP LM RM LI RI 
+; A_dioid_ast           := Ast_minset_union_lift (A_bmiposg_ast _ P)
+|}.
+
+
+(*
 Definition A_minset_union_lift_from_bounded_join_semilattice
              (S : Type) 
              (P : A_bounded_join_semilattice S) : A_dioid (finite_set S) := 
@@ -1020,48 +1104,7 @@ let Deqv   := A_eqv_minset_from_po _ PO in
 ; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP LM RM LI RI
 ; A_dioid_ast           := Ast_minset_union_lift (A_bjsl_ast _ P)
 |}.
-
-  
-
-Definition A_minset_union_lift_from_bounded_monotone_increasing_posg_CNI
-             (S : Type) 
-             (P : A_bounded_monotone_increasing_posg_CNI S) : A_dioid (finite_set S) := 
-let eqv    := A_bmiposg_CNI_eqv _ P in
-let eq     := A_eqv_eq _ eqv in
-let wS     := A_eqv_witness _ eqv in
-let f      := A_eqv_new _ eqv in
-let nt     := A_eqv_not_trivial _ eqv in
-let eqvP   := A_eqv_proofs _ eqv in   
-let lte    := A_bmiposg_CNI_lte _ P in
-let lteP   := A_bmiposg_CNI_lte_proofs _ P in
-let anti   := A_po_antisymmetric _ _ _ lteP in 
-let times  := A_bmiposg_CNI_times _ P in
-let timesP := A_bmiposg_CNI_times_proofs _ P in
-let times_cong := A_sg_CNI_congruence _ _ _ timesP in 
-let MOS    := A_bmiposg_CNI_proofs _ P in
-let LM     := A_mono_inc_left_monotonic _ _ _ MOS in
-let RM     := A_mono_inc_right_monotonic _ _ _ MOS in 
-let LI     := A_mono_inc_left_increasing _ _ _ MOS in
-let RI     := A_mono_inc_right_increasing _ _ _ MOS in
-let PO     := A_po_from_bounded_monotone_increasing_posg_CNI _ P in
-let Deqv   := A_eqv_minset_from_po _ PO in
-{|
-  A_dioid_eqv           := Deqv
-; A_dioid_plus          := bop_minset_union S eq lte
-; A_dioid_times         := bop_minset_lift S eq lte times 
-; A_dioid_plus_proofs   := sg_CI_proofs_minset_union_from_po S eq lte wS f nt eqvP lteP
-(* need A_commutative_dioid  ? *)                                                                    
-; A_dioid_times_proofs  := A_sg_proofs_from_sg_CNI_proofs _ _ _ 
-                              (A_eqv_witness _ Deqv)
-                              (A_eqv_new _ Deqv)
-                              (A_eqv_not_trivial _ Deqv)
-                              (A_eqv_proofs _ Deqv) 
-                              (sg_CNI_proofs_minset_lift_from_po S eq lte wS f times nt eqvP lteP timesP LM RM)
-; A_dioid_id_ann_proofs := minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S eq lte eqvP times lteP times_cong LM RM (A_bmiposg_CNI_top_bottom _ P)
-; A_dioid_proofs        := minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S eq lte eqvP times anti times_cong lteP LM RM LI RI 
-; A_dioid_ast           := Ast_minset_union_lift (A_bmiposg_CNI_ast _ P)
-|}.
-
+*) 
   
 End Combinators.   
 End ACAS. 
@@ -1069,13 +1112,29 @@ End ACAS.
 
 Section AMCAS.
 
-  Open Scope string_scope.
+Local Open Scope string_scope.
 
-Definition A_os_mcas_minset_union_lift_from_bounded_join_semilattice (S : Type) (A : A_os_mcas S) :=
-  match A with
-  | A_OS_bounded_join_semilattice _ C =>  A_BS_dioid _ (A_minset_union_lift_from_bounded_join_semilattice _ C)
-  | _ => A_BS_Error _ ("ERROR : expecting a bounded monotone increasing posg" :: nil) 
-  end. 
+Definition A_mcas_minset_union_lift (S : Type) (M : A_os_mcas S) : A_bs_mcas (finite_set S ) :=
+match M with
+| A_OS_bounded_monotone_increasing_posg _ A => 
+  let bopP   := A_bmiposg_times_proofs _ A in
+  let comm_d := A_sg_commutative_d _ _ _ bopP in
+  let idem_d := A_sg_idempotent_d _ _ _ bopP in
+  let sel_d  := A_sg_selective_d _ _ _ bopP in
+  match comm_d with
+  | inl comm =>
+    match idem_d with 
+    | inl idem  =>
+      match sel_d with
+      | inl _    => A_BS_Error _ ("mcas_minset_union_lift : (currently) multiplication cannot be selective" :: nil)
+      | inr nsel => A_BS_dioid _ (A_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION  S A comm idem nsel) 
+      end 
+    | inr nidem => A_BS_dioid _ (A_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION S A comm nidem) 
+    end        
+  | inr _    => A_BS_Error _ ("mcas_minset_union_lift : (currently) multiplication must be commutative" :: nil)
+  end
+| _ => A_BS_Error _ ("mcas_minset_union_lift : (currently) can only be applied to a bounded, monotone, and increasing order-semigroup" :: nil)
+end. 
 
 End AMCAS.   
 
@@ -1090,7 +1149,6 @@ Section Proofs.
 
 Definition  minset_union_lift_dioid_certs_from_monotone_increasing_certs {S : Type}
             (P : @po_certificates S)
-            (G : @sg_certificates S )            
             (M : @os_monotone_increasing_certificates S) :
                  @dioid_certificates (finite_set S) := 
 {| 
@@ -1118,10 +1176,13 @@ End Proofs.
 
 Section Combinators.
 
-(*  
-Definition minset_union_lift_from_bounded_monotone_increasing_posg
+
+Definition minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION
              {S : Type} 
-             (P : @bounded_monotone_increasing_posg S) : @dioid (finite_set S) := 
+             (P : @bounded_monotone_increasing_posg S)
+             (bComm  : @assert_commutative S) 
+             (bIdem  : @assert_idempotent S) 
+             (NotSel : @assert_not_selective S) : @dioid (finite_set S) := 
 let eqv    := bmiposg_eqv P in
 let eq     := eqv_eq eqv in
 let wS     := eqv_witness eqv in
@@ -1132,36 +1193,251 @@ let times  := bmiposg_times P in
 let timesP := bmiposg_times_certs P in
 let MOS    := bmiposg_certs P in
 let LM     := mono_inc_left_monotonic MOS in
-let RM     := mono_inc_right_monotonic MOS in 
+let RM     := mono_inc_right_monotonic MOS in
+let LI     := mono_inc_left_increasing MOS in
 let PO     := po_from_bounded_monotone_increasing_posg P in
+let Deqv   := eqv_minset_from_po_bounded PO in 
 {|
-  dioid_eqv           := eqv_minset_from_po PO 
+  dioid_eqv           := Deqv 
 ; dioid_plus          := bop_minset_union S eq lte
 ; dioid_times         := bop_minset_lift S eq lte times 
 ; dioid_plus_certs    := sg_CI_certs_minset_union_from_po lteP 
-; dioid_times_certs   := minset_lift_monotone_increasing_os_certs_to_sg_certs wS f timesP MOS
+; dioid_times_certs   := sg_certs_from_sg_CI_certs _ 
+                              (brel_minset eq lte)
+                              (bop_minset_lift S eq lte times)                     
+                              (eqv_witness Deqv)
+                              (eqv_new Deqv)
+                              (sg_CI_certs_minset_lift_from_po S bComm bIdem NotSel)
 ; dioid_id_ann_certs  := minset_union_lift_bs_bounded_certs_from_os_bounded_certs lteP LM RM (bmiposg_top_bottom P)
-; dioid_certs         := minset_union_lift_dioid_certs_from_monotone_increasing_certs lteP timesP (bmiposg_certs P)
-; dioid_ast           := bmiposg_ast P 
-|}.
-*)   
+; dioid_certs         := minset_union_lift_dioid_certs_from_monotone_increasing_certs lteP MOS
+; dioid_ast           := Ast_minset_union_lift (bmiposg_ast P)
+|}
+. 
+
+Definition minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION
+             {S : Type} 
+             (P : @bounded_monotone_increasing_posg S)
+             (bComm  : @assert_commutative S) 
+             (bNotIdem  : @assert_not_idempotent S) : @dioid (finite_set S) :=  
+let eqv    := bmiposg_eqv P in
+let eq     := eqv_eq eqv in
+let wS     := eqv_witness eqv in
+let f      := eqv_new eqv in
+let lte    := bmiposg_lte P in
+let lteP   := bmiposg_lte_certs P in
+let times  := bmiposg_times P in
+let timesP := bmiposg_times_certs P in
+let MOS    := bmiposg_certs P in
+let LM     := mono_inc_left_monotonic MOS in
+let RM     := mono_inc_right_monotonic MOS in
+let LI     := mono_inc_left_increasing MOS in
+let PO     := po_from_bounded_monotone_increasing_posg P in
+let Deqv   := eqv_minset_from_po_bounded PO in 
+{|
+  dioid_eqv           := Deqv 
+; dioid_plus          := bop_minset_union S eq lte
+; dioid_times         := bop_minset_lift S eq lte times 
+; dioid_plus_certs    := sg_CI_certs_minset_union_from_po lteP 
+; dioid_times_certs   := sg_certs_from_sg_CNI_certs _ 
+                              (brel_minset eq lte)
+                              (bop_minset_lift S eq lte times)                     
+                              (eqv_witness Deqv)
+                              (eqv_new Deqv)
+                              (sg_CNI_certs_minset_lift_from_po S wS f bComm bNotIdem)
+; dioid_id_ann_certs  := minset_union_lift_bs_bounded_certs_from_os_bounded_certs lteP LM RM (bmiposg_top_bottom P)
+; dioid_certs         := minset_union_lift_dioid_certs_from_monotone_increasing_certs lteP MOS
+; dioid_ast           := Ast_minset_union_lift (bmiposg_ast P)
+|}
+. 
+
+
 End Combinators.   
 End CAS. 
 
 
 Section MCAS.
 
-Open Scope string_scope.
+Local Open Scope string_scope.
+Local Open Scope list_scope.  
 
-(*
-Definition os_mcas_minset_union_lift_from_bounded_join_semilattice {S : Type} (A : @os_mcas S) : @bs_mcas (finite_set S) :=
-  match os_classify A with
-  | OS_bounded_join_semilattice C =>  BS_dioid (minset_union_lift_from_bounded_join_semilattice C)
-  | _ => BS_Error ("ERROR : expecting a bounded monotone increasing posg" :: nil) 
-  end. 
-*) 
+Definition mcas_minset_union_lift {S : Type} (M : @os_mcas S) : @bs_mcas (finite_set S ) :=
+match M with
+| OS_bounded_monotone_increasing_posg A => 
+  let bopP   := bmiposg_times_certs A in
+  let comm_d := sg_commutative_d bopP in
+  let idem_d := sg_idempotent_d bopP in
+  let sel_d  := sg_selective_d bopP in
+  match comm_d with
+  | Certify_Commutative =>
+    match idem_d with 
+    | Certify_Idempotent  =>
+      match sel_d with
+      | Certify_Selective       => BS_Error ("mcas_minset_union_lift : (currently) multiplication cannot be selective" :: nil)
+      | Certify_Not_Selective p => BS_dioid (minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION A Assert_Commutative Assert_Idempotent (Assert_Not_Selective p))
+      end 
+    | Certify_Not_Idempotent i => BS_dioid (minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION A Assert_Commutative (Assert_Not_Idempotent i))
+    end        
+  | _    => BS_Error ("mcas_minset_union_lift : (currently) multiplication must be commutative" :: nil)
+  end
+| _ => BS_Error ("mcas_minset_union_lift : (currently) can only be applied to a bounded, monotone, and increasing order-semigroup" :: nil)
+end. 
+
 End MCAS.   
 
+Section Verify.
+
+Section Proofs.
+
+Variables (S : Type)
+          (eq lte : brel S)
+          (eqvP : eqv_proofs S eq)
+          (times : binary_op S). 
+
+Lemma correct_minset_union_lift_bs_bounded_certs_from_os_bounded_certs 
+            (O : po_proofs S eq lte) 
+            (times_cong : bop_congruence S eq times)
+            (LM : os_left_monotone lte times)             
+            (RM : os_right_monotone lte times) 
+            (P : os_bounded_proofs S eq lte times) : 
+     P2C_dually_bounded
+        (finite_set S)
+        (brel_minset eq lte)
+        (bop_minset_union S eq lte)
+        (bop_minset_lift S eq lte times) 
+        (minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs S
+           eq lte eqvP times O times_cong LM RM P)              
+      =
+      minset_union_lift_bs_bounded_certs_from_os_bounded_certs
+        (P2C_po eq lte O) Assert_Left_Monotone Assert_Right_Monotone
+        (P2C_os_bounded_proofs S eq lte times P). 
+Proof. unfold minset_union_lift_bs_bounded_certs_from_os_bounded_certs,
+       minset_union_lift_bs_bounded_proofs_from_os_bounded_proofs, P2C_dually_bounded; simpl.
+       unfold p2c_exists_id_ann_equal.
+       destruct A_bounded_bottom_id as [id [A B]]; simpl.
+       reflexivity.
+Qed.        
+
+Lemma correct_minset_union_lift_dioid_certs_from_monotone_increasing_certs
+            (anti : brel_antisymmetric S eq lte)
+            (times_cong : bop_congruence S eq times) 
+            (P  : po_proofs S eq lte)
+            (Q : os_monotone_increasing_proofs S lte times) 
+            (LM : os_left_monotone lte times)
+            (RM : os_right_monotone lte times)
+            (LI : os_left_increasing lte times)
+            (RI : os_right_increasing lte times) : 
+    P2C_dioid (finite_set S) 
+        (brel_minset eq lte) 
+        (bop_minset_union S eq lte)
+        (bop_minset_lift S eq lte times) 
+        (minset_union_lift_dioid_proofs_from_monotone_increasing_proofs S
+          eq lte eqvP times anti times_cong P
+          (A_mono_inc_left_monotonic _ _ _ Q)
+          (A_mono_inc_right_monotonic _ _ _ Q)          
+          (A_mono_inc_left_increasing _ _ _ Q)
+          (A_mono_inc_right_increasing _ _ _ Q))
+    =         
+    minset_union_lift_dioid_certs_from_monotone_increasing_certs 
+        (P2C_po eq lte P) 
+        (P2C_os_monotone_increasing_proofs S lte times Q). 
+Proof. unfold minset_union_lift_dioid_certs_from_monotone_increasing_certs,
+       minset_union_lift_dioid_proofs_from_monotone_increasing_proofs, 
+       P2C_dioid; simpl.
+       reflexivity. 
+Qed.
+
+End Proofs.     
+
+Section Combinators.
+
+Theorem correct_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION (S : Type)
+             (P : A_bounded_monotone_increasing_posg S)
+             (comm : bop_commutative S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) 
+             (idem : bop_idempotent S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) 
+             (nsel : bop_not_selective S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) :          
+  A2C_dioid (finite_set S)
+            (A_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION S P comm idem nsel)
+  = 
+  minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION
+    (A2C_bounded_monotone_increasing_posg P)
+    Assert_Commutative Assert_Idempotent
+    (Assert_Not_Selective (projT1 nsel)).
+Proof. unfold A_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION,
+       minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION, A2C_dioid; simpl.
+       rewrite <- correct_eqv_minset_from_po_bounded.
+       rewrite <- bop_minset_union_from_po_certs_correct.
+       destruct nsel as [[s1 s2] [A B]]; simpl.
+       (* need a lemma correct_sg_certs_from_sg_CI_certs *) 
+       unfold sg_certs_from_sg_CI_certs, A_sg_proofs_from_sg_CI_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs.
+       rewrite <- correct_sg_C_certs_from_sg_CI_certs.
+       rewrite correct_sg_CI_certs_minset_lift_from_po.
+       rewrite correct_minset_union_lift_bs_bounded_certs_from_os_bounded_certs.
+       rewrite correct_minset_union_lift_dioid_certs_from_monotone_increasing_certs.
+       reflexivity.
+       (* fix this....*)
+       destruct P; destruct A_bmiposg_proofs; auto. 
+       destruct P; destruct A_bmiposg_proofs; auto.
+       destruct P; destruct A_bmiposg_proofs; auto.
+       destruct P; destruct A_bmiposg_proofs; auto.        
+Qed.          
 
 
-*)
+Theorem correct_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION (S : Type)
+             (P : A_bounded_monotone_increasing_posg S)
+             (comm : bop_commutative S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) 
+             (nidem : bop_not_idempotent S (A_eqv_eq _ (A_bmiposg_eqv _ P)) (A_bmiposg_times _ P)) :
+  A2C_dioid (finite_set S)
+            (A_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION S P comm nidem)
+  = 
+  minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION
+    (A2C_bounded_monotone_increasing_posg P)
+    Assert_Commutative 
+    (Assert_Not_Idempotent (projT1 nidem)).
+Proof. unfold A_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION,
+       minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION, A2C_dioid; simpl.
+       rewrite <- correct_eqv_minset_from_po_bounded.
+       rewrite <- bop_minset_union_from_po_certs_correct.
+       rewrite correct_minset_union_lift_bs_bounded_certs_from_os_bounded_certs.
+       rewrite correct_minset_union_lift_dioid_certs_from_monotone_increasing_certs.
+       (* need a lemma correct_sg_certs_from_sg_CNI_certs *) 
+       unfold sg_certs_from_sg_CNI_certs, A_sg_proofs_from_sg_CNI_proofs.
+       rewrite <- correct_sg_certs_from_sg_C_certs.
+       rewrite <- correct_sg_C_certs_from_sg_CNI_certs.
+       rewrite correct_sg_CNI_certs_minset_lift_from_po.
+       reflexivity.
+       (* fix this....*)
+       exact (eqv_proofs_brel_minset_from_po S
+                (A_eqv_eq S (A_bmiposg_eqv S P))
+                (A_bmiposg_lte S P)
+                (A_eqv_proofs _ (A_bmiposg_eqv S P))
+                (A_bmiposg_lte_proofs S P)).
+       destruct P; destruct A_bmiposg_proofs; auto.   
+       destruct P; destruct A_bmiposg_proofs; auto.
+       destruct P; destruct A_bmiposg_proofs; auto.
+       destruct P; destruct A_bmiposg_proofs; auto.        
+Qed. 
+
+Theorem correct_mcas_minset_lift (S : Type) (M : A_os_mcas S) :
+  mcas_minset_union_lift (A2C_mcas_os M) 
+  = 
+  A2C_mcas_bs _ (A_mcas_minset_union_lift S M).
+Proof. unfold mcas_minset_union_lift, A_mcas_minset_union_lift.
+       destruct M; simpl; try reflexivity. 
+       destruct a; simpl. destruct A_bmiposg_times_proofs; simpl.
+       destruct A_sg_commutative_d as [comm | ncomm]; simpl.
+       + destruct A_sg_idempotent_d as [idem | [i nidem]]; simpl.
+         ++ destruct A_sg_selective_d as [sel | nsel]; simpl. 
+            +++ reflexivity. 
+            +++ rewrite correct_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION.
+                reflexivity. 
+         ++ rewrite correct_minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION.
+            reflexivity. 
+       + reflexivity. 
+Qed. 
+  
+End Combinators.   
+  
+End Verify.   
+
+

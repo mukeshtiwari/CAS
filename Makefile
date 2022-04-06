@@ -72,27 +72,34 @@ CAS=\
    coq/sg/lift.v \
    coq/sg/minset_union.v \
    coq/sg/minset_lift.v \
-   coq/po/structures.v \
    coq/po/properties.v \
+   coq/po/structures.v \
    coq/po/theory.v \
+   coq/po/cast_up.v \
+   coq/po/add_bottom.v \
+   coq/po/from_sg.v \
+   coq/po/add_top.v \
    coq/po/product.v \
-   coq/po/lte_nat.v \
    coq/po/length.v \
+   coq/po/lex.v \
    coq/po/subset.v \
    coq/po/minset_subset.v \
-   coq/po/lex.v \
    coq/po/set_lte.v \
    coq/po/dual.v \
-   coq/po/from_sg.v \
    coq/tr/properties.v \
    coq/tr/structures.v \
-   coq/tr/left/cayley.v \
+   coq/tr/left/from_sg.v \
+   coq/tr/left/plus_one.v \
    coq/tr/left/cons.v \
+   coq/tr/left/singleton.v \
+   coq/tr/left/insert.v \
+   coq/tr/left/lift.v \
    coq/tr/left/product.v \
    coq/bs/properties.v \
    coq/bs/structures.v \
    coq/bs/theory.v \
    coq/bs/cast_up.v \
+   coq/bs/plus_times.v \
    coq/bs/min_plus.v \
    coq/bs/max_plus.v \
    coq/bs/dual.v \
@@ -117,9 +124,13 @@ CAS=\
    coq/os/structures.v \
    coq/os/theory.v \
    coq/os/cast_up.v \
+   coq/os/from_sg.v \
    coq/os/from_bs_left.v \
    coq/st/properties.v \
    coq/st/structures.v \
+   coq/st/left/min_plus_one.v \
+   coq/st/left/from_bs.v \
+   coq/st/left/llex_product.v \
    coq/ot/properties.v \
    coq/ot/structures.v \
    coq/ot/left/length_cons.v \
