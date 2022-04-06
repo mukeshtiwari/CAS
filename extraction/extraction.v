@@ -76,7 +76,7 @@ Require Import CAS.coq.bs.minset_lift_union.
 Require Import CAS.coq.os.from_bs_left.
 Require Import CAS.coq.os.from_sg. 
 
-Require Import CAS.coq.algorithm.Matrix.
+Require Import CAS.coq.algorithm.Mat.
 Require Import CAS.coq.algorithm.wrapper. 
 Require Extraction.
 

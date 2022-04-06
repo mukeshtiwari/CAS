@@ -116,6 +116,26 @@ Section Matrix_def.
     | Npos p => repeat_op_ntimes_rec e p 
     end.
 
+    (* Print Grammar constr. *)
+  Local Infix "+M" := matrix_add (at level 50) : Mat_scope.
+  Local Infix "*M" := matrix_mul (at level 40) : Mat_scope.
+
+
+  Fixpoint left_matrix_iteration (n : nat) 
+    (A : Matrix Node R) : Matrix Node R:=
+    match n with
+    | O => I
+    | S n' => A *M (left_matrix_iteration n' A) +M I 
+    end. 
+
+
+  Fixpoint right_matrix_iteration (n : nat) 
+    (A : Matrix Node R) : Matrix Node R :=
+    match n with
+    | O => I 
+    | S n' => (right_matrix_iteration n' A) *M A +M I 
+    end.
+
 
 
   Fixpoint exp_r (a : R) (n : nat) : R :=
@@ -132,10 +152,7 @@ Section Matrix_def.
     end.
 
 
-  (* Print Grammar constr. *)
-  Local Infix "+M" := matrix_add (at level 50) : Mat_scope.
-  Local Infix "*M" := matrix_mul (at level 40) : Mat_scope.
-
+  
   Fixpoint partial_sum_mat (m : Matrix Node R) (n : nat) : Matrix Node R :=
     match n with
     | O => I 
