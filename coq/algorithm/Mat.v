@@ -87,20 +87,10 @@ Section Matrix_def.
       sum_fn (fun y => (m₁ c y * m₂ y d)) l.
 
 
-  (* f is congruent wrt =n= *)
-  Definition fncong (f : Node -> R) : Prop :=
-    forall a b : Node, a =n= b = true -> 
-    f a =r= f b = true.
-
-  (* congruence relation on matrix *)
-  Definition mat_cong (m : Matrix Node R) : Prop :=
-    forall a b c d, a =n= c = true -> 
-    b =n= d = true -> m a b =r= m c d = true.
 
   
   (* Specialised form of general multiplicaiton *)
-  Definition matrix_mul  
-    (m₁ m₂ : Matrix Node R) := 
+  Definition matrix_mul (m₁ m₂ : Matrix Node R) := 
     matrix_mul_gen m₁ m₂ finN.
 
   
@@ -127,12 +117,6 @@ Section Matrix_def.
     end.
 
 
-  
-  (* more general version *)
-  Definition two_mat_congr_gen (m₁ m₂ : Matrix Node R) : Prop :=
-    forall a b c d, a =n= c = true -> b =n= d = true -> 
-    m₁ a b =r= m₂ c d = true. 
-
 
   Fixpoint exp_r (a : R) (n : nat) : R :=
     match n with 
@@ -157,6 +141,28 @@ Section Matrix_def.
     | O => I 
     | S n' => (partial_sum_mat m n') +M (matrix_exp_unary m n)
     end.
+
+  
+
+  (* f is congruent wrt =n= *)
+  Definition fncong (f : Node -> R) : Prop :=
+    forall a b : Node, a =n= b = true -> 
+    f a =r= f b = true.
+
+  (* congruence relation on matrix *)
+  Definition mat_cong (m : Matrix Node R) : Prop :=
+    forall a b c d, a =n= c = true -> 
+    b =n= d = true -> m a b =r= m c d = true.
+
+
+  (* two matrices are equal only if they are equal every point *)
+  Definition two_mat_congr (m₁ m₂ : Matrix Node R) : Prop :=
+    forall c d, m₁ c d =r= m₂ c d = true.
+
+  (* more general version *)
+  Definition two_mat_congr_gen (m₁ m₂ : Matrix Node R) : Prop :=
+    forall a b c d, a =n= c = true -> b =n= d = true -> 
+    m₁ a b =r= m₂ c d = true. 
 
   
 End Matrix_def.
@@ -1026,10 +1032,1308 @@ Section Matrix_proofs.
       apply one_right_identity_mul.
     Qed.
 
+   
+    Lemma matrix_mul_assoc : 
+      forall m₁ m₂ m₃ (c d : Node),
+      matrix_mul Node finN R 0 plusR mulR m₁ 
+        (matrix_mul Node finN R 0 plusR mulR m₂ m₃) c d =r= 
+      matrix_mul Node finN R 0 plusR mulR 
+        (matrix_mul Node finN R 0 plusR mulR m₁ m₂) m₃ c d = true.
+    Proof using Node R congrP congrR eqR finN left_distributive_mul_over_plus
+    mulR mul_associative plusR plus_associative plus_commutative refR
+    right_distributive_mul_over_plus symR zeroR zero_left_anhilator_mul
+    zero_left_identity_plus zero_right_anhilator_mul.
+      unfold matrix_mul.
+      apply matrix_mul_gen_assoc.
+    Qed.
+
+    
+    Theorem empN : finN <> [].
+    Proof.
+      intro Hfin.
+      destruct finN.
+      simpl in lenN;
+      nia.
+      congruence.
+    Qed.
+
+
+    Lemma matrix_mul_left_identity : 
+      forall m (c d : Node), 
+      mat_cong Node eqN R eqR m -> 
+      matrix_mul Node finN R 0 plusR mulR 
+        (I Node eqN R 0 1) m c d =r= m c d = true.
+    Proof using Node R congrM congrP congrR dupN eqN eqR finN lenN memN mulR oneR
+    one_left_identity_mul plusR plus_associative refN refR symN symR trnN zeroR
+    zero_left_anhilator_mul zero_left_identity_plus zero_right_identity_plus.
+      unfold matrix_mul.
+      apply matrix_mul_left_identity_gen.
+      intro Hfin.
+      destruct finN.
+      simpl in lenN;
+      nia.
+      congruence.
+      apply memN.
+      apply dupN.
+    Qed.
+
+    Lemma matrix_mul_right_identity : 
+      forall m (c d : Node),
+      mat_cong Node eqN R eqR m -> 
+      matrix_mul Node finN R 0 plusR mulR 
+        m (I Node eqN R 0 1) c d =r= m c d = true.
+    Proof using Node R congrM congrP congrR dupN eqN eqR finN memN lenN mulR oneR
+    one_right_identity_mul plusR plus_associative refN refR symN symR trnN zeroR
+    zero_left_identity_plus zero_right_anhilator_mul zero_right_identity_plus.
+      unfold matrix_mul.
+      apply matrix_mul_right_identity_gen.
+      apply empN. 
+      apply memN.
+      apply dupN.
+    Qed.
+
+
+    (* now prove that slow and fast computes the same value. *)
+    Lemma binnat_zero : 
+      forall (n : nat), 
+      0%N = N.of_nat n -> 
+      n = 0%nat.
+    Proof.
+      induction n; 
+      try lia.
+    Qed.
+
+  
+    Lemma binnat_odd : forall (p : positive) (n : nat), 
+      N.pos (xI p) = N.of_nat n -> 
+      exists k,  n = (2 * k + 1)%nat /\  (N.pos p) = (N.of_nat k).
+    Proof.
+      intros p n Hp.
+      destruct (Even.even_or_odd n) as [H | H].
+      apply Even.even_equiv in H. 
+      destruct H as [k Hk].
+      (* Even (impossible) Case *)
+      rewrite Hk in Hp; lia.
+      (* Odd (possible) case *)
+      apply Even.odd_equiv in H. 
+      destruct H as [k Hk].
+      rewrite Hk in Hp. 
+      exists k.
+      split. 
+      exact Hk. 
+      lia.
+    Qed.
+
     
 
 
+    Lemma binnat_even : forall (p : positive) (n : nat), 
+      N.pos (xO p) = N.of_nat n :> N -> 
+      exists k, n = (Nat.mul 2 k) /\  (N.pos p) = (N.of_nat k).
+    Proof.
+      intros p n Hp.
+      destruct (Even.even_or_odd n) as [H | H].
+      apply Even.even_equiv in H. 
+      destruct H as [k Hk].
+      (* Even (possible) case*)
+      rewrite Hk in Hp. 
+      exists k.
+      split. 
+      exact Hk. lia.
+      (* Odd (impossible) case *)
+      apply Even.odd_equiv in H. 
+      destruct H as [k Hk].
+      rewrite Hk in Hp. lia.
+    Qed.
+
+    (* end of generic nat lemma *)
+
+
+    Lemma add_r_cong : 
+      forall a b c d, a =r= c = true ->
+      b =r= d = true -> a + b =r= c + d = true.
+    Proof using R congrP eqR plusR.
+      intros ? ? ? ? Hac Hbd.
+      apply congrP.
+      exact Hac.
+      exact Hbd.
+    Qed.
+
+    Lemma mat_pointwise_cong : 
+      forall a b c d e f g h 
+      (m₁ m₂ : Matrix Node R), 
+      a =n= c = true -> 
+      b =n= d = true ->
+      e =n= g = true -> 
+      f =n= h = true ->
+      mat_cong Node eqN R eqR m₁ -> 
+      mat_cong Node eqN R eqR m₂ -> 
+      m₁ a b * m₂ e f =r=  m₁ c d * m₂ g h = true.
+    Proof using Node R congrM eqN eqR mulR.
+      intros ? ? ? ? ? ? ? ? ? ? Hac Hbd Heg Hfh
+        Hm₁ Hm₂.
+      apply congrM.
+      apply Hm₁; assumption.
+      apply Hm₂; assumption.
+    Qed.
+
+    Lemma sum_fn_mul_congr : forall l m₁ m₂ a b c d, 
+      (a =n= c) = true  -> (b =n= d) = true ->
+      mat_cong Node eqN R eqR m₁ -> 
+      mat_cong Node eqN R eqR m₂ ->
+      sum_fn Node R zeroR plusR (λ y : Node, m₁ a y * m₂ y b) l =r= 
+      sum_fn Node R zeroR plusR (λ y : Node, m₁ c y * m₂ y d) l = true.
+    Proof using Node R congrM congrP eqN eqR mulR 
+    plusR refN refR zeroR.
+      induction l; simpl; 
+      intros ? ? ? ? ? ? Hac Hbd Hm₁ Hm₂.
+      + apply refR.
+      + apply add_r_cong.
+        apply mat_pointwise_cong;
+        try assumption; try (apply refN).
+        apply IHl; assumption.
+    Qed.
+
+  
+    Lemma mat_mul_cong : 
+      forall m₁ m₂ a b c d, 
+      a =n= c= true -> 
+      b =n= d = true -> 
+      mat_cong Node eqN R eqR m₁ -> 
+      mat_cong Node eqN R eqR m₂ -> 
+      matrix_mul Node finN R 0 plusR mulR m₁ m₂ a b =r= 
+      matrix_mul Node finN R 0 plusR mulR m₁ m₂ c d = true.
+    Proof using Node R congrM congrP eqN eqR finN mulR 
+    plusR refN refR zeroR.
+      intros.
+      unfold matrix_mul, matrix_mul_gen.
+      apply sum_fn_mul_congr; assumption.
+    Qed.
+
+    Lemma identity_cong : 
+      forall a b c d, 
+      (a =n= c) = true -> 
+      (b =n= d) = true ->
+      I Node eqN R 0 1 a b =r= I Node eqN R 0 1 c d = true.
+    Proof using Node R eqN eqR oneR refR symN trnN zeroR.
+      intros ? ? ? ? Hac Hbd.
+      unfold I.
+      case_eq (a =n= b); intros Hf; auto.
+      assert (Ht1 := trnN _ _ _ Hf Hbd).
+      apply symN in Hac.
+      assert (Ht2 := trnN _ _ _ Hac Ht1).
+      rewrite Ht2. 
+      apply refR.
+      case_eq (c =n= d); intros Hcd; auto.
+      assert (Had := trnN _ _ _ Hac Hcd).
+      apply symN in Hbd.
+      assert (Habt := trnN _ _ _ Had Hbd).
+      rewrite Habt in Hf.
+      inversion Hf.
+    Qed.
+
     
+    Lemma mat_exp_cong : 
+      ∀ k e (a b c d : Node),
+      (a =n= c) = true → 
+      (b =n= d) = true →
+      mat_cong Node eqN R eqR e →
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR e k a b =r= 
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR e k c d = true.
+    Proof using Node R congrM congrP eqN eqR finN 
+    mulR oneR plusR refN refR symN trnN zeroR.
+      induction k; simpl; 
+      intros ? ? ? ? ? Hac Hbd Hme.
+      + apply identity_cong; assumption.
+      + apply mat_mul_cong. 
+        exact Hac.
+        exact Hbd. 
+        exact Hme.
+        unfold mat_cong; intros.
+        apply IHk; assumption.
+    Qed.
+
+    
+    Lemma sum_fn_mul_congr_diff : 
+      forall l (e m₁ m₂ : Matrix Node R) c d,
+      two_mat_congr Node R eqR m₁ m₂ ->  
+      sum_fn Node R 0 plusR (λ y : Node, e c y * m₁ y d) l =r= 
+      sum_fn Node R 0 plusR (λ y : Node, e c y * m₂ y d) l = true.
+    Proof using Node R congrM congrP eqR mulR plusR refR zeroR.
+      induction l; simpl; 
+      intros  ? ? ? ? ? Hm.
+      + apply refR.
+      + apply add_r_cong.
+        apply congrM.
+        apply refR.
+        apply Hm.
+        apply IHl; assumption.
+    Qed.
+
+    (* naming is very difficult. I can't come up meaningful names *)
+    Lemma mat_mul_cong_diff : 
+      forall e m₁ m₂ c d,
+      two_mat_congr  Node R eqR m₁ m₂ ->
+      matrix_mul Node finN R 0 plusR mulR e m₁ c d =r= 
+      matrix_mul Node finN R 0 plusR mulR e m₂ c d = true.
+    Proof using Node R congrM congrP eqR finN mulR plusR refR zeroR.
+      intros ? ? ? ? ? Hm.
+      unfold matrix_mul, matrix_mul_gen.
+      apply sum_fn_mul_congr_diff.
+      exact Hm.
+    Qed.
+
+    
+    Lemma push_out_e_unary_nat_gen : forall k1 k2 e c d,
+      mat_cong Node eqN R eqR e -> 
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR e (k1 + k2)  c d =r= 
+      matrix_mul Node finN R 0 plusR mulR 
+        (matrix_exp_unary Node eqN finN R 0 1 plusR mulR e k1) 
+        (matrix_exp_unary Node eqN finN R 0 1 plusR mulR e k2) c d = true.
+    Proof using Node R congrM congrP congrR dupN lenN eqN eqR finN
+    left_distributive_mul_over_plus memN mulR mul_associative oneR
+    one_left_identity_mul plusR plus_associative plus_commutative refN refR
+    right_distributive_mul_over_plus symN symR trnN zeroR zero_left_anhilator_mul
+    zero_left_identity_plus zero_right_anhilator_mul zero_right_identity_plus.
+      induction k1; simpl.
+      + intros ? ? ? ? ?.
+        apply symR, matrix_mul_left_identity.
+        unfold mat_cong. intros.
+        apply mat_exp_cong; assumption.
+      + intros ? ? ? ? He.
+        pose proof  (IHk1 k2 e c d He).
+        assert (Ht : matrix_mul Node finN R 0 plusR mulR e 
+            (matrix_exp_unary Node eqN finN R 0 1 plusR mulR e (k1 + k2)) c d =r=
+          matrix_mul  Node finN R 0 plusR mulR e 
+            (matrix_mul Node finN R 0 plusR mulR
+            (matrix_exp_unary Node eqN finN R 0 1 plusR mulR e k1) 
+            (matrix_exp_unary Node eqN finN R 0 1 plusR mulR e k2)) c d = true).
+        apply mat_mul_cong_diff. 
+        unfold two_mat_congr; intros.
+        apply IHk1. 
+        exact He.
+        rewrite <-Ht; clear Ht.
+        apply congrR. 
+        apply refR.
+        apply symR.
+        apply matrix_mul_assoc.
+    Qed.
+
+
+    
+    Lemma sum_fn_congr_gen : 
+      forall l m₁ m₂ m₃ m₄ a b c d,
+      a =n= c = true -> 
+      b =n= d = true ->
+      two_mat_congr_gen Node eqN R eqR m₁ m₃ -> 
+      two_mat_congr_gen Node eqN R eqR m₂ m₄ -> 
+      sum_fn Node R 0 plusR (λ y : Node, m₁ a y * m₂ y b) l =r=
+      sum_fn Node R 0 plusR (λ y : Node, m₃ c y * m₄ y d) l = true.
+    Proof using Node R congrM congrP eqN eqR mulR plusR refN refR zeroR.
+      induction l; simpl; 
+      intros ? ? ? ? ? ? ? ? Hac Hbd Hm₁ Hm₂.
+      + apply refR.
+      + apply congrP.
+        apply congrM.
+        apply Hm₁.
+        exact Hac. 
+        apply refN.
+        apply Hm₂.
+        apply refN. 
+        exact Hbd.
+        apply IHl; 
+        (try assumption; try (apply refN)).
+    Qed.
+
+    Lemma mat_mul_cong_gen : 
+      forall m₁ m₂ m₃ m₄ a b c d,
+      a =n= c = true -> 
+      b =n= d = true -> 
+      two_mat_congr_gen Node eqN R eqR m₁ m₃ -> 
+      two_mat_congr_gen Node eqN R eqR m₂ m₄ -> 
+      matrix_mul Node finN R 0 plusR mulR m₁ m₂ a b =r= 
+      matrix_mul Node finN R 0 plusR mulR m₃ m₄ c d = true.
+    Proof using Node R congrM congrP eqN eqR finN mulR 
+    plusR refN refR zeroR.
+      intros ? ? ? ? ? ? ? ? Hac Hbd H₁ H₂.
+      unfold matrix_mul, matrix_mul_gen.
+      apply sum_fn_congr_gen; assumption.
+    Qed.
+
+    Lemma sum_fn_mat_ind : 
+      forall l m₁ m₂ u v, 
+      (forall c d, m₁ c d =r= m₂ c d = true) ->
+      sum_fn Node R 0 plusR (λ y : Node, m₁ u y * m₁ y v) l =r=
+      sum_fn Node R 0 plusR (λ y : Node, m₂ u y * m₂ y v) l = true.
+    Proof using Node R congrM congrP eqR mulR plusR refR zeroR.
+      induction l; simpl; 
+      intros  ? ? ? ? Hm.
+      + apply refR.
+      +
+        apply add_r_cong.
+        apply congrM. 
+        apply Hm.
+        apply Hm.
+        apply IHl; assumption.
+    Qed.
+
+
+    Lemma mat_equal_ind : 
+      forall m₁ m₂ u v,
+      (forall c d, m₁ c d =r= m₂ c d = true) ->
+      matrix_mul Node finN R 0 plusR mulR m₁ m₁ u v =r= 
+      matrix_mul Node finN R 0 plusR mulR m₂ m₂ u v = true.
+    Proof using Node R congrM congrP eqR finN mulR 
+    plusR refR zeroR.
+      intros ? ? ? ? Hcd.
+      unfold matrix_mul, matrix_mul_gen.
+      apply sum_fn_mat_ind.
+      apply Hcd.
+    Qed.
+
+
+    Lemma matrix_exp_unary_binary_eqv : 
+      forall (n : N) (m : Matrix Node R) c d,
+      mat_cong Node eqN R eqR m -> 
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR m (N.to_nat n) c d =r= 
+      matrix_exp_binary Node eqN finN R 0 1 plusR mulR m n c d = true.
+    Proof using Node R congrM congrP congrR dupN eqN eqR finN
+    left_distributive_mul_over_plus lenN memN mulR mul_associative oneR
+    one_left_identity_mul one_right_identity_mul plusR plus_associative
+    plus_commutative refN refR right_distributive_mul_over_plus symN symR trnN zeroR
+    zero_left_anhilator_mul zero_left_identity_plus zero_right_anhilator_mul
+    zero_right_identity_plus.
+      destruct n;
+      intros ? ? ? Hm.
+      + apply refR.
+      + 
+        assert (Hw : forall w, matrix_exp_binary Node eqN finN R 0 1 plusR mulR m (N.pos w) = 
+          repeat_op_ntimes_rec Node finN R 0 plusR mulR m w).
+        reflexivity.
+        revert c d. 
+        induction p.
+        rewrite Hw in IHp. 
+        rewrite Hw.
+        - intros ? ?.
+          assert (Ht : N.pos (xI p) = N.of_nat (N.to_nat (N.pos (xI p)))).
+          rewrite Nnat.N2Nat.id; reflexivity.
+          destruct (binnat_odd p (N.to_nat (N.pos (xI p))) Ht) as 
+            [k [Ha Hb]].
+          rewrite Ha. 
+          rewrite Hb in IHp.
+          rewrite Nnat.Nat2N.id in IHp.
+          assert (Hv : (2 * k + 1 = 1 + k + k)%nat).
+          lia. 
+          rewrite Hv; clear Hv.
+          simpl. 
+          apply mat_mul_cong_diff.
+          unfold two_mat_congr; intros u v.
+          pose proof push_out_e_unary_nat_gen k k m 
+            u v Hm as Htt.
+          rewrite <- Htt.
+          apply congrR. 
+          apply refR.
+          apply mat_equal_ind.
+          intros. 
+          apply symR. 
+          apply IHp.
+        - intros ? ?. 
+          rewrite Hw in IHp. 
+          rewrite Hw.
+          assert (Ht : N.pos (xO p) = N.of_nat (N.to_nat (N.pos (xO p)))).
+          rewrite Nnat.N2Nat.id; reflexivity.
+          destruct (binnat_even p (N.to_nat (N.pos (xO p))) Ht) as 
+            [k [Ha Hb]].
+          rewrite Ha. 
+          rewrite Hb in IHp.
+          rewrite Nnat.Nat2N.id in IHp.
+          assert (Hv : (2 * k = k + k)%nat).
+          lia. 
+          rewrite Hv; clear Hv.
+          simpl.
+          pose proof push_out_e_unary_nat_gen k k m 
+            c d Hm as Htt.
+          rewrite <- Htt; clear Htt.
+          apply congrR. 
+          apply refR.
+          apply mat_equal_ind.
+          intros. 
+          apply symR. 
+          simpl in IHp.
+          apply IHp.
+        - intros ? ?. 
+          simpl.
+          apply matrix_mul_right_identity.
+          exact Hm.
+    Qed.
+
+    Lemma sum_fn_sum_fn_fold : 
+      forall l f, 
+      sum_fn Node R 0 plusR f l =r= 
+      sum_fn_fold Node R 0 plusR f l = true.
+    Proof using Node R congrP eqR plusR refR zeroR.
+      induction l.
+      + simpl; intros ?.
+        apply refR.
+      + simpl; intros ?.
+        apply congrP.
+        apply refR.
+        apply IHl.
+    Qed.
+
+
+
+    Lemma matrix_path_equation : forall n m c d,
+      mat_cong Node eqN R eqR m -> 
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n c d =r= 
+      sum_all_rvalues R 0 plusR 
+        (get_all_rvalues Node R 1 mulR 
+          (construct_all_paths Node eqN R 1 finN m n c d)) = true.
+    Proof using Node R congrM congrP congrR eqN eqR finN
+    left_distributive_mul_over_plus mulR oneR one_left_identity_mul plusR
+    plus_associative refN refR symN symR trnN trnR zeroR zero_left_identity_plus
+    zero_right_anhilator_mul zero_right_identity_plus.
+      intros ? ? ? ? Hm.
+      unfold sum_all_rvalues, get_all_rvalues, construct_all_paths;
+      rewrite map_map.
+      revert n c d.
+      induction n.
+      + simpl; intros ? ?; unfold I.
+        destruct (c =n= d) eqn:Ht.
+        - simpl. apply symR.
+          assert (Htw: 1 * 1 + 0 =r= 1 + 0 = true).
+          apply congrP.
+          apply one_left_identity_mul.
+          apply refR.
+          rewrite <- Htw; clear Htw.
+          apply congrR.
+          apply refR.
+          apply symR.
+          apply zero_right_identity_plus.
+        - simpl. apply refR.
+      + simpl; intros ? ?.
+        unfold matrix_mul, matrix_mul_gen.
+        assert (Ht : 
+        (sum_fn Node R 0 plusR 
+          (λ y : Node, m c y * matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n y d) finN =r=
+        fold_right (λ b a : R, b + a) 0
+          (map (λ x : list (Node * Node * R), measure_of_path Node R 1 mulR x)
+             (append_node_in_paths Node R m c
+                (flat_map (λ x : Node, all_paths_klength Node eqN R 1 finN m n x d) finN))))
+        =
+        (sum_fn_fold Node R 0 plusR  
+          (λ y : Node, m c y * matrix_exp_unary Node eqN finN R 0 1 plusR mulR  m n y d) finN =r=
+        fold_right (λ b a : R, b + a) 0
+          (map (λ x : list (Node * Node * R), measure_of_path Node R 1 mulR x)
+             (append_node_in_paths Node R m c
+                (flat_map (λ x : Node, all_paths_klength Node eqN R 1 finN m n x d) finN))))).
+        apply congrR.
+        apply sum_fn_sum_fn_fold.
+        apply refR.
+        rewrite Ht; clear Ht.
+        unfold sum_fn_fold.
+        apply symR.
+        Print fold_map_rel.
+        rewrite <-(fold_map_rel Node eqN refN symN trnN finN R 0 1 plusR mulR eqR refR 
+          symR trnR zero_left_identity_plus plus_associative left_distributive_mul_over_plus
+          zero_right_anhilator_mul congrP 
+          congrM congrR finN m n c d).
+        apply congrR.
+        apply refR.
+        apply fold_right_cong;
+        try assumption.
+        intros.
+        apply congrP.
+        apply congrM.
+        apply refR.
+        apply IHn.
+        exact H.
+        exact Hm.
+    Qed.
+
+    
+    Lemma matrix_add_idempotence : forall m c d, 
+      matrix_add Node R plusR m m c d =r= m c d = true.
+    Proof using Node R eqR plusR plus_idempotence.
+      unfold matrix_add; intros *.
+      apply plus_idempotence.
+    Qed.
+
+
+  
+    Lemma exp_r_pow_add : 
+      forall (n m : nat) (a : R), 
+      exp_r _ 1 mulR a (n + m) =r= 
+      exp_r  _ 1 mulR a n * exp_r  _ 1 mulR a m = true.
+    Proof using R congrM congrR eqR mulR mul_associative oneR
+    one_left_identity_mul refR symR.
+      induction n.
+      - simpl; intros ? ?.
+        apply symR. 
+        apply one_left_identity_mul.
+      - simpl; intros ? ?.
+        apply symR.
+        assert (Ht : (a * exp_r  _ 1 mulR a n * exp_r  _ 1 mulR a m =r= 
+          a * exp_r  _ 1 mulR a (n + m)) =
+          (a * (exp_r  _ 1 mulR a n * exp_r  _ 1 mulR a m) =r= a * exp_r  _ 1 mulR a (n + m))).
+        apply congrR. 
+        apply symR.
+        apply mul_associative.
+        apply refR.
+        rewrite Ht; clear Ht.
+        apply congrM.
+        apply refR.
+        apply symR.
+        apply IHn.
+    Qed.
+
+
+  
+
+     
+    Lemma astar_aide_zero_stable : 
+      forall (t : nat) (a : R),
+      partial_sum_r R 1 plusR mulR a t + a * exp_r  _ 1 mulR a t =r=
+      partial_sum_r R 1 plusR mulR a t = true.
+    Proof using R congrM congrP congrR eqR mulR oneR one_left_identity_mul
+    one_right_identity_mul plusR plus_associative refR
+    right_distributive_mul_over_plus symR zero_stable.
+      induction t.
+      - simpl; intros ?. 
+        rewrite <-(zero_stable a).
+        apply congrR.
+        apply congrP.
+        apply refR.
+        apply one_right_identity_mul.
+        apply refR.
+      - simpl; intros ?. 
+      assert (Ht:
+      (partial_sum_r R 1 plusR mulR a t + a * exp_r R 1 mulR a t + a * (a * exp_r R 1 mulR a t) =r=
+      partial_sum_r R 1 plusR mulR a t + a * exp_r R 1 mulR a t) =
+      (partial_sum_r R 1 plusR mulR a t + (a * exp_r R 1 mulR a t + a * (a * exp_r R 1 mulR a t)) =r=
+      partial_sum_r R 1 plusR mulR a t + a * exp_r R 1 mulR a t)).
+      apply congrR.
+      apply symR.
+      apply plus_associative.
+      apply refR.
+      rewrite Ht; clear Ht.
+      apply congrP.
+      apply refR.
+      remember (a * exp_r R 1 mulR a t) as aw.
+      assert (Ht : (aw + a * aw =r= aw) =
+        (1 * aw + a * aw =r= aw)).
+      apply congrR.
+      apply congrP.
+      apply symR.
+      apply one_left_identity_mul.
+      apply refR.
+      apply refR.
+      rewrite Ht; clear Ht.
+      assert (Ht : (1 * aw + a * aw =r= aw) =
+        ((1 + a) * aw =r= aw)).
+      apply congrR.
+      apply symR.
+      apply right_distributive_mul_over_plus.
+      apply refR.
+      rewrite Ht; clear Ht.
+      assert (Ht : ((1 + a) * aw =r= aw) = 
+        (((1 + a) * aw =r= 1 * aw))).
+      apply congrR.
+      apply refR.
+      apply symR.
+      apply one_left_identity_mul.
+      rewrite Ht; clear Ht.
+      apply congrM.
+      apply zero_stable.
+      apply refR.
+    Qed.
+
+
+
+    (* special case q := 0 *)
+    Lemma astar_exists_zero_stable : 
+      forall (t : nat) (a : R), 
+      partial_sum_r R 1 plusR mulR a t =r= partial_sum_r R 1 plusR mulR a 0 = true.
+    Proof using R congrM congrP congrR eqR mulR oneR one_left_identity_mul
+    one_right_identity_mul plusR plus_associative refR
+    right_distributive_mul_over_plus symR zero_stable.
+      induction t.
+      - simpl; intros ?.
+        apply refR.
+      - simpl; intros ?.
+        rewrite <-(astar_aide_zero_stable t a).
+        apply congrR.
+        apply refR.
+        simpl in IHt.
+        apply symR.
+        exact (IHt a).
+    Qed.
+
+
+
+
+    Lemma astar_aide_gen_q_stable :
+      forall (t : nat) (a : R),
+      (partial_sum_r R 1 plusR mulR a (S t)) =r= 
+      (1 + a * partial_sum_r R 1 plusR mulR a t) = true.
+    Proof using R congrP congrR eqR
+    left_distributive_mul_over_plus mulR oneR plusR
+    plus_associative refR symR.
+      induction t.
+      - simpl; intros ?.
+        apply refR.
+      - simpl; intros ?.
+        simpl in IHt.
+        assert (Ht : 1 + a * (partial_sum_r R 1 plusR mulR a t + a * exp_r R 1 mulR  a t) =r=
+          (1 + (a * partial_sum_r R 1 plusR mulR a t + a * (a * exp_r R 1 mulR  a t))) = true).
+        apply congrP. apply refR.
+        apply left_distributive_mul_over_plus.
+        apply symR.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        assert (Ht : partial_sum_r R 1 plusR mulR a t + 
+          a * exp_r R 1 mulR  a t + a * (a * exp_r R 1 mulR  a t) =r=
+          1 + a * partial_sum_r R 1 plusR mulR a t + a * (a * exp_r R 1 mulR  a t) = true).
+        apply congrP.
+        apply IHt. apply refR.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply refR.
+        assert (Ht : 1 + a * partial_sum_r R 1 plusR mulR a t + a * (a * exp_r R 1 mulR a t) =r= 
+          1 +  (a * partial_sum_r R 1 plusR mulR a t + a * (a * exp_r R 1 mulR a t)) = true).
+        apply symR. apply plus_associative.
+        apply symR.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        apply refR.
+    Qed.
+        
+
+    
+    Lemma astar_exists_gen_q_stable : 
+      forall (q : nat),
+      (forall w : R, partial_sum_r R 1 plusR mulR w q =r= 
+        partial_sum_r R 1 plusR mulR w (S q) = true) -> 
+      forall (t : nat) (a : R), 
+      partial_sum_r R 1 plusR mulR a (t + q) =r= 
+      partial_sum_r R 1 plusR mulR a q = true.
+    Proof using R congrM congrP congrR eqR
+    left_distributive_mul_over_plus mulR oneR plusR
+    plus_associative refR symR.
+      intros ? q_stable.
+      induction t.
+      - simpl; intros ?.
+        apply refR.
+      - simpl; intros ?.
+        pose proof (astar_aide_gen_q_stable (t + q) a) as Ht.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        assert (Ht : 1 + a * partial_sum_r R 1 plusR mulR a (t + q) =r= 
+          1 + a * partial_sum_r R 1 plusR mulR a q = true).
+        apply congrP. apply refR. 
+        apply congrM. apply refR.
+        apply IHt.
+        apply symR.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        pose proof (astar_aide_gen_q_stable q a) as Ht.
+        rewrite <-Ht; clear Ht.
+        apply congrR. 
+        apply q_stable.
+        apply refR.
+    Qed.
+
+    
+    Lemma mat_add_cong_gen : 
+      forall m₁ m₂ m₃ m₄ c d, 
+      two_mat_congr Node R eqR m₁ m₃ -> 
+      two_mat_congr Node R eqR m₂ m₄ -> 
+      matrix_add Node R plusR m₁ m₂ c d =r= 
+      matrix_add Node R plusR m₃ m₄ c d = true.
+    Proof using Node R congrP eqR plusR.
+      intros * H₁ H₂.
+      unfold matrix_add.
+      apply congrP.
+      apply H₁; intros *;
+      apply refN.
+      apply H₂; intros *;
+      apply refN.
+    Qed.
+
+    
+    Lemma sum_fn_mul_distribute_over_plus_left : 
+      forall (l : list Node) 
+      (m₁ m₂ m₃ : Matrix Node R) (c d : Node),
+      (sum_fn Node R 0 plusR (λ y : Node, m₁ c y * (m₂ y d + m₃ y d)) l =r=
+      sum_fn Node R 0 plusR (λ y : Node, m₁ c y * m₂ y d) l +
+      sum_fn Node R 0 plusR (λ y : Node, m₁ c y * m₃ y d) l) = true.
+    Proof using Node R congrP congrR eqR left_distributive_mul_over_plus mulR
+    plusR plus_associative plus_commutative refR symR zeroR
+    zero_left_identity_plus.
+      induction l.
+      - simpl. intros ? ? ? ? ?.
+        apply symR, zero_left_identity_plus.
+      - simpl; intros ? ? ? ? ?.
+        pose proof (IHl m₁ m₂ m₃ c d) as IHt.
+        remember (sum_fn Node R 0 plusR (λ y : Node, m₁ c y * (m₂ y d + m₃ y d)) l) as sfn₁.
+        remember (sum_fn Node R 0 plusR (λ y : Node, m₁ c y * m₂ y d) l) as sfn₂.
+        remember (sum_fn Node R 0 plusR (λ y : Node, m₁ c y * m₃ y d) l) as sfn₃.
+        assert (Ht : (m₁ c a * (m₂ a d + m₃ a d) + sfn₁ =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃)) = 
+        ((m₁ c a * m₂ a d + m₁ c a * m₃ a d) + (sfn₂ + sfn₃) =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃))).
+        apply congrR.
+        apply congrP.
+        apply left_distributive_mul_over_plus.
+        apply IHt.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht : 
+        (m₁ c a * m₂ a d + m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃)) = 
+        (m₁ c a * m₂ a d + (m₁ c a * m₃ a d + (sfn₂ + sfn₃)) =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃))).
+        apply congrR.
+        apply symR. apply plus_associative.
+        apply refR. 
+        rewrite Ht; clear Ht.
+        assert (Ht : 
+        (m₁ c a * m₂ a d + (m₁ c a * m₃ a d + (sfn₂ + sfn₃)) =r=
+        m₁ c a * m₂ a d + sfn₂ + (m₁ c a * m₃ a d + sfn₃)) =
+        (m₁ c a * m₂ a d + (m₁ c a * m₃ a d + (sfn₂ + sfn₃)) =r=
+        m₁ c a * m₂ a d + (sfn₂ + (m₁ c a * m₃ a d + sfn₃)))).
+        apply congrR.
+        apply refR.
+        apply symR.
+        apply plus_associative.
+        rewrite Ht; clear Ht.
+        apply congrP.
+        apply refR.
+        assert (Ht : 
+        (m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r= sfn₂ + (m₁ c a * m₃ a d + sfn₃)) = 
+        (m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r= (m₁ c a * m₃ a d + sfn₃) + sfn₂)).
+        apply congrR.
+        apply refR.
+        apply plus_commutative.
+        rewrite Ht; clear Ht.
+        assert (Ht: 
+        (m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r= m₁ c a * m₃ a d + sfn₃ + sfn₂) =
+        (m₁ c a * m₃ a d + (sfn₂ + sfn₃) =r= m₁ c a * m₃ a d + (sfn₃ + sfn₂))).
+        apply congrR. apply refR.
+        apply symR. apply plus_associative.
+        rewrite Ht; clear Ht.
+        apply congrP.
+        apply refR.
+        apply plus_commutative.
+    Qed.
+
+
+    (* Print Grammar constr. *)
+    Local Infix "+M" := (matrix_add Node R plusR) (at level 50) : Mat_scope.
+    Local Infix "*M" := (matrix_mul Node finN R 0 plusR mulR) (at level 40) : Mat_scope.
+        
+
+    Lemma left_distributive_mat_mul_over_plus : 
+      forall (m₁ m₂ m₃ : Matrix Node R) (c d : Node), 
+      (m₁ *M (m₂ +M m₃)) c d =r= 
+      (m₁ *M m₂ +M m₁ *M m₃) c d = true.
+    Proof using Node R congrP congrR eqR finN left_distributive_mul_over_plus
+    mulR plusR plus_associative plus_commutative refR symR zeroR
+    zero_left_identity_plus.
+      intros *.
+      unfold matrix_mul, matrix_mul_gen,
+      matrix_add.
+      apply sum_fn_mul_distribute_over_plus_left.
+    Qed.
+      
+
+
+
+    Lemma astar_aide_gen_q_stable_matrix :
+      forall (t : nat) (m : Matrix Node R) (c d : Node),
+      (partial_sum_mat Node eqN finN R 0 1 plusR mulR m (S t) c d) =r= 
+      (I Node eqN R 0 1 +M 
+      m *M partial_sum_mat Node eqN finN R 0 1 plusR mulR m t) c d = true.
+    Proof using Node R congrM congrP congrR dupN eqN eqR
+    finN left_distributive_mul_over_plus memN
+    mulR mul_associative oneR one_left_identity_mul
+    one_right_identity_mul plusR plus_associative
+    plus_commutative plus_idempotence refN refR
+    right_distributive_mul_over_plus symN
+    symR trnN trnR zeroR zero_left_anhilator_mul
+    zero_left_identity_plus zero_right_anhilator_mul
+    zero_right_identity_plus.
+      induction t.
+      - simpl; intros ? ? ?.
+        apply refR.
+      - simpl; intros ? ? ?.
+        remember (partial_sum_mat Node eqN finN R 0 1 plusR mulR m t) as pmt.
+        remember (matrix_exp_unary Node eqN finN R 0 1 plusR mulR m t) as umt.
+        assert (Ht : ((pmt +M m *M umt) +M m *M (m *M umt)) c d =r=
+          ((I Node eqN R 0 1 +M m *M pmt) +M m *M (m *M umt)) c d = true).
+        apply mat_add_cong_gen.
+        unfold two_mat_congr;
+        intros u v. 
+        simpl in IHt.
+        pose proof (IHt m u v) as IHs.
+        rewrite <-Heqpmt in IHs.
+        rewrite <-Hequmt in IHs.
+        exact IHs.
+        unfold two_mat_congr; intros a b.
+        apply refR.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        apply symR.
+        assert (Ht : ((I Node eqN R 0 1 +M m *M pmt) +M m *M (m *M umt)) c d =r= 
+          (I Node eqN R 0 1 +M (m *M pmt +M m *M (m *M umt))) c d = true).
+        apply symR.
+        apply matrix_add_assoc.
+        rewrite <-Ht; clear Ht.
+        apply congrR.
+        apply refR.
+        apply symR.
+        apply mat_add_cong_gen.
+        unfold two_mat_congr; intros a b.
+        apply refR.
+        unfold two_mat_congr; intros a b.
+        apply symR.
+        apply left_distributive_mat_mul_over_plus.
+    Qed.
+
+
+
+    Lemma astar_exists_gen_q_stable_matrix : 
+      forall (q : nat) (m : Matrix Node R),
+      (forall (c d : Node), 
+        partial_sum_mat Node eqN finN R 0 1 plusR mulR m q c d =r= 
+        partial_sum_mat Node eqN finN R 0 1 plusR mulR m (S q) c d = true) -> 
+      forall (t : nat)  (u v : Node), 
+      partial_sum_mat Node eqN finN R 0 1 plusR mulR m (t + q) u v =r= 
+      partial_sum_mat Node eqN finN R 0 1 plusR mulR m q u v = true.
+    Proof using Node R congrM congrP congrR dupN eqN eqR finN
+    left_distributive_mul_over_plus memN mulR mul_associative oneR
+    one_left_identity_mul one_right_identity_mul plusR plus_associative
+    plus_commutative plus_idempotence refN refR right_distributive_mul_over_plus
+    symN symR trnN trnR zeroR zero_left_anhilator_mul zero_left_identity_plus
+    zero_right_anhilator_mul zero_right_identity_plus.
+      intros * q_stable.
+      induction t.
+      - simpl; intros *.
+        apply refR.
+      - simpl; intros *.
+        pose proof (astar_aide_gen_q_stable_matrix (t + q) m u v) as IHs.
+        simpl in IHs.
+        rewrite <-IHs; clear IHs.
+        apply congrR.
+        apply refR.
+        pose proof (astar_aide_gen_q_stable_matrix q m u v) as Ht.
+        rewrite <-Ht; clear Ht.
+        apply congrR. apply q_stable.
+        apply mat_add_cong_gen.
+        unfold two_mat_congr; intros a b.
+        apply refR.
+        unfold two_mat_congr; intros a b.
+        apply mat_mul_cong_diff.
+        unfold two_mat_congr; intros ut vt.
+        specialize (IHt ut vt).
+        exact IHt.
+    Qed.
+
+
+
+    
+    Lemma sum_fn_mul_distribute_over_plus_right : 
+      forall (l : list Node) (m₁ m₂ m₃ : Matrix Node R) (c d : Node),
+      (sum_fn Node R 0 plusR (λ y : Node, (m₂ c y + m₃ c y) * m₁ y d) l =r=
+      sum_fn Node R 0 plusR (λ y : Node, m₂ c y * m₁ y d) l +
+      sum_fn Node R 0 plusR (λ y : Node, m₃ c y * m₁ y d) l) = true.
+    Proof using Node R congrP congrR eqR mulR plusR plus_associative
+    plus_commutative refR right_distributive_mul_over_plus symR zeroR
+    zero_left_identity_plus.
+      induction l.
+      - simpl. intros ? ? ? ? ?.
+        apply symR, zero_left_identity_plus.
+      - simpl; intros ? ? ? ? ?.
+        pose proof (IHl m₁ m₂ m₃ c d) as IHt.
+        remember (sum_fn Node R 0 plusR (λ y : Node, (m₂ c y + m₃ c y) * m₁ y d) l) as sfn₁.
+        remember (sum_fn Node R 0 plusR (λ y : Node, m₂ c y * m₁ y d) l) as sfn₂.
+        remember (sum_fn Node R 0 plusR (λ y : Node, m₃ c y * m₁ y d) l) as sfn₃.
+        assert (Ht: 
+        ((m₂ c a + m₃ c a) * m₁ a d + sfn₁ =r=
+        m₂ c a * m₁ a d + sfn₂ + (m₃ c a * m₁ a d + sfn₃)) =
+        ((m₂ c a * m₁ a d + m₃ c a * m₁ a d) + (sfn₂ + sfn₃) =r=
+        m₂ c a * m₁ a d + sfn₂ + (m₃ c a * m₁ a d + sfn₃))).
+        apply congrR.
+        apply congrP.
+        apply right_distributive_mul_over_plus.
+        exact IHt.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert(Ht: 
+        (m₂ c a * m₁ a d + m₃ c a * m₁ a d + (sfn₂ + sfn₃) =r=
+        m₂ c a * m₁ a d + sfn₂ + (m₃ c a * m₁ a d + sfn₃)) =
+        (m₂ c a * m₁ a d + (m₃ c a * m₁ a d + (sfn₂ + sfn₃)) =r=
+        m₂ c a * m₁ a d + (sfn₂ + (m₃ c a * m₁ a d + sfn₃)))).
+        apply congrR.
+        apply symR. apply plus_associative.
+        apply symR. apply plus_associative.
+        rewrite Ht; clear Ht.
+        apply congrP.
+        apply refR.
+        assert (Ht : 
+        (m₃ c a * m₁ a d + (sfn₂ + sfn₃) =r= sfn₂ + (m₃ c a * m₁ a d + sfn₃)) = 
+        (m₃ c a * m₁ a d + (sfn₂ + sfn₃) =r= (m₃ c a * m₁ a d + sfn₃) + sfn₂)).
+        apply congrR.
+        apply refR.
+        apply plus_commutative.
+        rewrite Ht; clear Ht.
+        assert (Ht: 
+        (m₃ c a * m₁ a d + (sfn₂ + sfn₃) =r= m₃ c a * m₁ a d + sfn₃ + sfn₂) =
+        (m₃ c a * m₁ a d + (sfn₂ + sfn₃) =r= m₃ c a * m₁ a d + (sfn₃ + sfn₂))).
+        apply congrR. apply refR.
+        apply symR. apply plus_associative.
+        rewrite Ht; clear Ht.
+        apply congrP.
+        apply refR.
+        apply plus_commutative.
+    Qed.
+    
+
+    Lemma right_distributive_mat_mul_over_plus : 
+      forall (m₁ m₂ m₃ : Matrix Node R) (c d : Node), 
+      ((m₂ +M m₃) *M m₁) c d =r= 
+      (m₂ *M m₁ +M m₃ *M m₁) c d = true.
+    Proof using Node R congrP congrR eqR finN mulR plusR plus_associative
+    plus_commutative refR right_distributive_mul_over_plus symR zeroR
+    zero_left_identity_plus.
+      intros *.
+      unfold matrix_mul, matrix_mul_gen,
+      matrix_add.
+      apply sum_fn_mul_distribute_over_plus_right.
+    Qed.
+
+
+  
+    Lemma partial_sum_mat_cong : forall n m,
+      mat_cong Node eqN R eqR m ->  
+      mat_cong Node eqN R eqR (partial_sum_mat Node eqN finN 
+      R zeroR oneR plusR mulR m n).
+    Proof using Node R congrM congrP eqN eqR finN 
+    mulR oneR plusR refN refR symN trnN zeroR.
+      unfold mat_cong.
+      induction n.
+      - simpl; intros ? ? ? ? ? Hm Hac Hbd.
+        apply identity_cong; assumption.
+      - simpl; intros ? ? ? ? ? HM Hac Hbd.
+        remember (partial_sum_mat Node eqN finN 
+        R zeroR oneR plusR mulR m n) as pmn.
+        remember (matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n) as men.
+        unfold matrix_add, matrix_mul, 
+        matrix_mul_gen.
+        apply congrP.
+        rewrite Heqpmn.
+        apply IHn; assumption.
+        apply sum_fn_mul_congr.
+        assumption.
+        assumption.
+        assumption.
+        unfold mat_cong.
+        intros au av bu bv Hab Hcd.
+        rewrite Heqmen.
+        apply mat_exp_cong; assumption.
+    Qed.
+
+    
+    Lemma mat_mul_idem_ind : 
+      forall n m c d,  
+      (m *M partial_sum_mat Node eqN finN R zeroR oneR plusR mulR m n +M 
+        partial_sum_mat Node eqN finN 
+        R zeroR oneR plusR mulR m n) c d =r=
+      (partial_sum_mat Node eqN finN 
+      R zeroR oneR plusR mulR m (S n) c d) = true.
+    Proof using Node R congrP congrR eqN eqR finN left_distributive_mul_over_plus
+    mulR oneR plusR plus_associative plus_commutative plus_idempotence refR symR
+    zeroR zero_left_identity_plus.
+      induction n.
+      - simpl; intros ? ? ?.
+        apply matrix_add_comm.
+      - simpl; intros ? ? ?.
+        pose proof (IHn m c d) as IHs.
+        simpl in IHs.
+        remember (partial_sum_mat Node eqN finN 
+        R zeroR oneR plusR mulR m n) as m₁.
+        remember (matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n) as m₂.
+        assert (Ht :
+        ((m *M (m₁ +M m *M m₂) +M (m₁ +M m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) =
+        (((m *M m₁ +M m *M (m *M m₂)) +M (m₁ +M m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply congrP.
+        apply left_distributive_mat_mul_over_plus.
+        apply refR.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht:
+        (((m *M m₁ +M m *M (m *M m₂)) +M (m₁ +M m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) = 
+        (((m *M m₁ +M m *M (m *M m₂)) +M (m *M m₁ +M m₁)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply congrP.
+        apply congrP.
+        apply refR.
+        apply refR.
+        apply symR.
+        apply IHs.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht :
+        (((m *M m₁ +M m *M (m *M m₂)) +M (m *M m₁ +M m₁)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) =
+        (((m *M m₁ +M m₁) +M (m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply matrix_add_comm.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht:
+        (((m *M m₁ +M m₁) +M (m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) = 
+        (((m₁ +M m *M m₁) +M (m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply congrP.
+        apply matrix_add_comm.
+        apply refR.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht: 
+        (((m₁ +M m *M m₁) +M (m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) = 
+        (((m₁ +M m *M m₁ +M m *M m₁ +M m *M (m *M m₂))) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply matrix_add_assoc.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht:
+        ((((m₁ +M m *M m₁) +M m *M m₁) +M m *M (m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d) =
+        (((m₁ +M m *M m₁) +M m *M (m *M m₂)) c d =r=
+        ((m₁ +M m *M m₂) +M m *M (m *M m₂)) c d)).
+        apply congrR.
+        apply congrP.
+        assert (Htv: 
+        (((m₁ +M m *M m₁) +M m *M m₁) c d =r= (m₁ +M m *M m₁) c d) =
+        ((m₁ +M (m *M m₁ +M m *M m₁)) c d =r= (m₁ +M m *M m₁) c d)).
+        apply congrR.
+        apply symR. 
+        apply matrix_add_assoc.
+        apply symR.
+        apply refR.
+        rewrite Htv; clear Htv.
+        apply congrP.
+        apply refR.
+        apply plus_idempotence.
+        apply refR.
+        apply refR.
+        rewrite Ht; clear Ht.
+        apply congrP.
+        rewrite <-IHs.
+        apply congrR.
+        apply matrix_add_comm.
+        apply refR.
+        apply refR.
+    Qed.
+
+      
+    
+    Lemma matrix_pow_idempotence :
+      forall (n : nat) (m : Matrix Node R) 
+      (c d : Node),
+      mat_cong Node eqN R eqR m ->
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR (m +M I Node eqN R 0 1) n c d =r= 
+      partial_sum_mat Node eqN finN 
+      R zeroR oneR plusR mulR m n c d = true.
+    Proof using Node R congrM congrP congrR dupN eqN eqR finN
+    left_distributive_mul_over_plus lenN memN mulR oneR one_left_identity_mul plusR
+    plus_associative plus_commutative plus_idempotence refN refR
+    right_distributive_mul_over_plus symN symR trnN zeroR zero_left_anhilator_mul
+    zero_left_identity_plus zero_right_identity_plus.
+      induction n.
+      - simpl; intros ? ? ? Hm.
+        apply refR.
+      - simpl; intros ? ? ? Hm.
+        pose proof (IHn m c d) as IHs.
+        assert (Ht : 
+        (((m +M I Node eqN R 0 1) *M matrix_exp_unary Node eqN finN R 0 1 plusR mulR (m +M I Node eqN R 0 1) n) c d =r=
+        (partial_sum_mat Node eqN finN R 0 1 plusR mulR m n +M 
+          m *M matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n) c d) =
+        (((m +M I Node eqN R 0 1) *M partial_sum_mat Node eqN finN R 0 1 plusR mulR m n) c d =r=
+        (partial_sum_mat Node eqN finN R 0 1 plusR mulR m n +M 
+          m *M matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n) c d)).
+        apply congrR.
+        apply mat_mul_cong_diff.
+        unfold two_mat_congr; intros u v.
+        exact (IHn m u v Hm).
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht : 
+        (((m +M I Node eqN R 0 1) *M partial_sum_mat Node eqN finN R 0 1 plusR mulR m n) c d =r=
+        (partial_sum_mat Node eqN finN R 0 1 plusR mulR m n +M m 
+          *M matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n) c d) =
+        (((m *M partial_sum_mat Node eqN finN R 0 1 plusR mulR m n +M 
+          I Node eqN R 0 1 *M partial_sum_mat Node eqN finN R 0 1 plusR mulR m n) c d =r=
+        (partial_sum_mat Node eqN finN R 0 1 plusR mulR m n +M m 
+        *M matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n) c d))).
+        apply congrR.
+        apply right_distributive_mat_mul_over_plus.
+        apply refR.
+        rewrite Ht; clear Ht.
+        assert (Ht : 
+        ((m *M partial_sum_mat Node eqN finN R 0 1 plusR mulR m n +M I Node eqN R 0 1 
+          *M partial_sum_mat Node eqN finN R 0 1 plusR mulR m n) c d =r=
+        (partial_sum_mat Node eqN finN R 0 1 plusR mulR m n +M m 
+          *M matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n) c d) = 
+        ((m *M partial_sum_mat Node eqN finN R 0 1 plusR mulR m n +M 
+          partial_sum_mat Node eqN finN R 0 1 plusR mulR m n) c d =r=
+        (partial_sum_mat Node eqN finN R 0 1 plusR mulR m n +M m 
+        *M matrix_exp_unary Node eqN finN R 0 1 plusR mulR m n) c d)).
+        apply congrR.
+        apply mat_add_cong_gen.
+        unfold two_mat_congr; intros u v.
+        apply refR.
+        unfold two_mat_congr; intros u v.
+        apply matrix_mul_left_identity.
+        apply partial_sum_mat_cong; exact Hm.
+        apply refR.
+        rewrite Ht; clear Ht.
+        apply mat_mul_idem_ind.
+    Qed.
+
+    
+    Lemma connect_partial_sum_mat_paths : forall n m c d,
+      mat_cong Node eqN R eqR m -> 
+      partial_sum_mat Node eqN finN R 0 1 plusR mulR m n c d =r= 
+      partial_sum_paths Node eqN R 0 1 plusR mulR finN m n c d = true.
+    Proof.
+      induction n.
+      + intros * Hm; simpl;
+        apply refR.
+      + intros * Hm; simpl.
+        unfold matrix_mul, matrix_add.
+        apply congrP.
+        exact (IHn m c d Hm).
+        pose proof matrix_path_equation (S n) m c d Hm as Hp.
+        rewrite <-Hp.
+        apply congrR.
+        simpl. unfold matrix_mul, 
+        matrix_add.
+        apply refR.
+        apply refR.
+    Qed.
+
+
+    Lemma connect_unary_matrix_exp_partial_sum_paths : forall n m c d,
+      mat_cong Node eqN R eqR m -> 
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR (m +M I Node eqN R 0 1) n c d =r= 
+      partial_sum_paths Node eqN R 0 1 plusR mulR finN m n c d = true.
+    Proof.
+      intros * Hm.
+      pose proof matrix_pow_idempotence n m c d Hm as Hp.
+      pose proof connect_partial_sum_mat_paths n m c d Hm as Hpp.
+      eapply trnR with (partial_sum_mat Node eqN finN R 0 1 plusR mulR m n c d); assumption.
+    Qed.
+
+
+   
+
+
+    Lemma zero_stable_partial : forall m,
+      mat_cong Node eqN R eqR m -> 
+      (∀ u v : Node, (u =n= v) = true → (m u v =r= 1) = true) ->
+      (forall (c d : Node), 
+        partial_sum_mat Node eqN finN R 0 1 plusR mulR  m (length finN - 1) c d =r= 
+        partial_sum_mat Node eqN finN R 0 1 plusR mulR  m (length finN) c d = true).
+    Proof.
+      intros * Hm Huv ? ?.
+      rewrite <-(connect_partial_sum_mat_paths
+        (length finN - 1) m c d Hm).
+      apply congrR.
+      apply refR.
+      rewrite <-(connect_partial_sum_mat_paths
+        (length finN) m c d Hm).
+      apply congrR.
+      apply refR.
+      assert (Hwt: (1 + length finN - 1 = length finN)%nat).
+      nia.
+      rewrite <-Hwt at 2;
+      clear Hwt.
+      eapply zero_stable_partial_sum_path with (k := S O) (eqR := eqR)
+        (Node := Node) (eqN := eqN) (R := R) (zeroR := 0)
+        (oneR := 1) (plusR := plusR) (mulR := mulR)
+        (finN := finN) (m := m) (c := c) (d := d);
+      try assumption.
+    Qed.
+
+
+
+    Lemma matrix_fixpoint : forall (n : nat) (m : Matrix Node R) c d,
+      mat_cong Node eqN R eqR m ->
+      (forall (c d : Node), 
+        partial_sum_mat Node eqN finN R 0 1 plusR mulR m (length finN) c d =r= 
+        partial_sum_mat Node eqN finN R 0 1 plusR mulR m (S (length finN)) c d = true) ->  
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR 
+      (m +M I Node eqN R 0 1) (List.length finN) c d =r= 
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR 
+      (m +M I Node eqN R 0 1) (n + List.length finN) c d = true.
+    Proof using Node R congrM congrP congrR dupN eqN eqR finN
+    left_distributive_mul_over_plus lenN memN mulR mul_associative oneR
+    one_left_identity_mul one_right_identity_mul plusR plus_associative
+    plus_commutative plus_idempotence refN refR right_distributive_mul_over_plus symN
+    symR trnN trnR zeroR zero_left_anhilator_mul zero_left_identity_plus
+    zero_right_anhilator_mul zero_right_identity_plus.
+      intros ? ? ? ? Hm q_stable.
+      apply symR.
+      assert (Ht:
+      (matrix_exp_unary Node eqN finN R 0 1 plusR mulR 
+        (m +M I Node eqN R 0 1) (n + length finN) c d =r=
+      matrix_exp_unary Node eqN finN R 0 1 plusR mulR 
+        (m +M I Node eqN R 0 1) (length finN) c d) =
+      (partial_sum_mat Node eqN finN R 0 1 plusR mulR m (n + length finN) c d =r=
+      partial_sum_mat Node eqN finN R 0 1 plusR mulR m (length finN) c d)).
+      apply congrR.
+      apply matrix_pow_idempotence; exact Hm.
+      apply matrix_pow_idempotence; exact Hm.
+      rewrite Ht; clear Ht.
+      apply astar_exists_gen_q_stable_matrix.
+      intros ut vt.
+      apply q_stable.
+    Qed.
+
+
+End Matrix_proofs.
+
+
+
+
+      
+
+      
+      
+  
+    
+    
+
+
+
+
+  
 
 
 
