@@ -138,6 +138,7 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
+   coq/algorithm/Matrix.v \
    coq/algorithm/Listprop.v \
    coq/algorithm/Path.v \
    coq/algorithm/Orel.v \
