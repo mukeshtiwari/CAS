@@ -139,7 +139,7 @@ CAS=\
    coq/algorithm/Listprop.v \
    coq/algorithm/Path.v \
    coq/algorithm/Orel.v \
-   coq/algorithm/Matrix.v \
+   coq/algorithm/Mat.v \
    coq/algorithm/wrapper.v
 
 
