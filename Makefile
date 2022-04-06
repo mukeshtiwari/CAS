@@ -36,6 +36,7 @@ CAS=\
    coq/eqv/ascii.v \
    coq/eqv/string.v \
    coq/eqv/nat.v \
+   coq/eqv/matrix.v  \
    coq/eqv/bool.v \
    coq/eqv/list.v \
    coq/eqv/set.v \
@@ -137,8 +138,13 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
+   coq/algorithm/Listprop.v \
+   coq/algorithm/Path.v \
+   coq/algorithm/Orel.v \
    coq/algorithm/Matrix.v \
-   coq/algorithm/wrapper.v \
+   coq/algorithm/wrapper.v
+
+
 
 
 FILES=$(BASE) $(CAS)
