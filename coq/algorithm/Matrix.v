@@ -6074,7 +6074,7 @@ Section Matrix.
         nia.
     Qed.
 
-
+(*
     Lemma triple_elem_rewrite_le : 
       forall bl llt awt lrt, 
       triple_elem_list bl (llt ++ [awt] ++ lrt) = true ->
@@ -6110,11 +6110,11 @@ Section Matrix.
         specialize (IHbl _ _ _ Ha).
         nia.
     Qed.
-
+*)
     
 
     (* I can take any path l and turn it into elementry path 
-      by keep applying *)
+      by keep applying 
     Lemma reduce_path_into_elem_path : 
       forall (l : list (Node * Node * R)) m,
       mat_cong m -> 
@@ -6202,14 +6202,14 @@ Section Matrix.
           exact He.
     Qed.
 
-
+*)
     
 
 
 
     (* Every well formed path can be reduced into 
       an well formed elementry path, i.e., path 
-      without loop and it's length < finN *)
+      without loop and it's length < finN 
     Lemma reduce_path_into_elem_path_gen : 
       forall (l : list (Node * Node * R)) m,
       mat_cong m -> 
@@ -6226,11 +6226,11 @@ Section Matrix.
       exists lm.
       repeat split; try assumption.
     Qed.
-
+*)
     
     (* Now, we know that every path coming out of 
       all_paths_klenght has a loop in the end.  
-    *)
+    
     Lemma path_end_loop : 
       forall k l m c d, 
       In_eq_bool l (all_paths_klength m k c d) = true ->
@@ -6292,7 +6292,7 @@ Section Matrix.
         simpl.
         exact Hte.
     Qed.
-    
+*)    
   
   
    
@@ -6422,43 +6422,6 @@ Section Matrix.
       intros ut vt.
       apply q_stable.
     Qed.
-
-
-
-    Fixpoint atmost_kpath (m : Matrix) (k : nat) (c d : Node) :=
-      match k with 
-      | 0%nat => if c =n= d then [[[(c, d, 1)]]] else []
-      | S k' => (all_paths_klength m k c d) ::
-         atmost_kpath m k' c d
-      end.
-
-
-
-    (* Compute X := A * X + B. But it's 
-       not constant space.
-
-    *)
-    Fixpoint left_matrix_iteration (n : nat) 
-      (A : Matrix) : Matrix :=
-      match n with
-      | O => I
-      | S n' => A *M (left_matrix_iteration n' A) +M I 
-      end. 
-
-
-    Fixpoint right_matrix_iteration (n : nat) 
-      (A : Matrix)
-      : Matrix :=
-      match n with
-      | O => I 
-      | S n' => (right_matrix_iteration n' A) *M A +M I 
-      end.
-
-    
-
-
-
-
 
 
 
