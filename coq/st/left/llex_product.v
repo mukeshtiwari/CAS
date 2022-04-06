@@ -904,8 +904,9 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
 ; A_slt_strictly_absorptive_d   := slt_llex_product_strictly_absorptive_decide sasbS_d asbS_d sasbT_d
 |}.
 
-End Decide.     
-*) 
+
+ *)
+End Decide.       
 Section Combinators.
 
 End Combinators.   
