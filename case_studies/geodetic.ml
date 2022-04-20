@@ -250,5 +250,8 @@ Not Right left Absorptive:
 
  *)   
 
+  (* BUT, to solve path problems need to use a left_transform!!!
 
+
+*) 
   
