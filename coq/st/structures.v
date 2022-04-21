@@ -6,7 +6,7 @@ Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures. 
 Require Import CAS.coq.tr.structures.
 
-Require Import CAS.coq.st.properties. 
+Require Import CAS.coq.st.properties.
 
 (* SLT = Semigroup with a Left Transform 
 
@@ -74,32 +74,24 @@ So, we need absorption!
 
 Section ACAS.
   
-Record slt_proofs (L S : Type) (r : brel S) (add : binary_op S) (ltr : ltr_type L S) :=
+Record slt_proofs {L S : Type} (r : brel S) (add : binary_op S) (ltr : ltr_type L S) :=
 {
-  A_slt_distributive_d          : slt_distributive_decidable L S r add ltr
-; A_slt_absorptive_d            : slt_absorptive_decidable L S r add ltr
-; A_slt_strictly_absorptive_d   : slt_strictly_absorptive_decidable L S r add ltr                                                                              }.
-
-Record left_semiring_proofs (L S : Type) (r : brel S) (add : binary_op S) (ltr : ltr_type L S) :=
-{
-  A_left_semiring_distributive            : slt_distributive L S r add ltr
-; A_left_semiring_not_absorptive          : slt_not_absorptive L S r add ltr                                               
+  A_slt_distributive_d          : slt_distributive_decidable r add ltr
+; A_slt_absorptive_d            : slt_absorptive_decidable r add ltr
+; A_slt_strictly_absorptive_d   : slt_strictly_absorptive_decidable r add ltr  
 }.
 
-Record left_dioid_proofs (L S : Type) (r : brel S) (add : binary_op S) (ltr : ltr_type L S) :=
+
+
+Record left_dioid_proofs {L S : Type} (r : brel S) (add : binary_op S) (ltr : ltr_type L S) :=
 {
-  A_left_dioid_distributive            : slt_distributive L S r add ltr
-; A_left_dioid_absorptive              : slt_absorptive L S r add ltr                                               
-; A_left_dioid_not_strictly_absorptive : slt_not_strictly_absorptive L S r add ltr 
+  A_left_dioid_distributive            : slt_distributive r add ltr
+; A_left_dioid_absorptive              : slt_absorptive r add ltr                                               
+; A_left_dioid_strictly_absorptive_d : slt_strictly_absorptive_decidable r add ltr 
 }.
 
-Record strictly_absorptive_left_dioid_proofs (L S : Type) (r : brel S) (add : binary_op S) (ltr : ltr_type L S) :=
-{
-  A_strictly_absorptive_left_dioid_distributive          : slt_distributive L S r add ltr
-; A_strictly_absorptive_left_dioid_strictly_absorptive   : slt_strictly_absorptive L S r add ltr 
-}.
 
-Record A_slt (L S : Type) :=
+Record A_slt {L S : Type} :=
 {
   A_slt_carrier        : A_eqv S
 ; A_slt_label          : A_eqv L
@@ -108,42 +100,17 @@ Record A_slt (L S : Type) :=
 ; A_slt_plus_proofs    : sg_proofs S (A_eqv_eq S A_slt_carrier) A_slt_plus                                 
 ; A_slt_trans_proofs   : left_transform_proofs L S (A_eqv_eq S A_slt_carrier) (A_eqv_eq L A_slt_label)  A_slt_trans
 ; A_slt_exists_plus_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_slt_carrier) A_slt_plus                                 
-; A_stl_id_ann_proofs  : stl_exists_id_ann_decidable L S (A_eqv_eq S A_slt_carrier) A_slt_plus  A_slt_trans                        
-; A_slt_proofs         : slt_proofs L S (A_eqv_eq S A_slt_carrier) A_slt_plus A_slt_trans                                  
+; A_stl_id_ann_proofs  : slt_exists_id_ann_decidable (A_eqv_eq S A_slt_carrier) A_slt_plus  A_slt_trans                        
+; A_slt_proofs         : slt_proofs (A_eqv_eq S A_slt_carrier) A_slt_plus A_slt_trans                                  
 ; A_slt_ast            : cas_lstr_ast
 }.
 
 
-Record A_slt_CS (L S : Type) :=
-{
-  A_slt_CS_carrier        : A_eqv S
-; A_slt_CS_label          : A_eqv L
-; A_slt_CS_plus           : binary_op S                                               
-; A_slt_CS_trans          : ltr_type L S (* L -> (S -> S) *)
-; A_slt_CS_plus_proofs    : sg_CS_proofs S (A_eqv_eq S A_slt_CS_carrier) A_slt_CS_plus                                 
-; A_slt_CS_trans_proofs   : left_transform_proofs L S (A_eqv_eq S A_slt_CS_carrier) (A_eqv_eq L A_slt_CS_label)  A_slt_CS_trans
-; A_slt_CS_exists_plus_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_slt_CS_carrier) A_slt_CS_plus                                 
-; A_stl_CS_id_ann_proofs  : stl_exists_id_ann_decidable L S (A_eqv_eq S A_slt_CS_carrier) A_slt_CS_plus  A_slt_CS_trans                        
-; A_slt_CS_proofs         : slt_proofs L S (A_eqv_eq S A_slt_CS_carrier) A_slt_CS_plus A_slt_CS_trans                                  
-; A_slt_CS_ast            : cas_lstr_ast
-}.
-
-Record A_slt_CI (L S : Type) :=
-{
-  A_slt_CI_carrier      : A_eqv S
-; A_slt_CI_label        : A_eqv L
-; A_slt_CI_plus         : binary_op S                                               
-; A_slt_CI_trans        : ltr_type L S (* L -> (S -> S) *)
-; A_slt_CI_plus_proofs  : sg_CI_proofs S (A_eqv_eq S A_slt_CI_carrier) A_slt_CI_plus                                 
-; A_slt_CI_trans_proofs : left_transform_proofs L S (A_eqv_eq S A_slt_CI_carrier) (A_eqv_eq L A_slt_CI_label)  A_slt_CI_trans
-; A_slt_CI_exists_plus_ann_d : bop_exists_ann_decidable S (A_eqv_eq S A_slt_CI_carrier) A_slt_CI_plus                                 
-; A_stl_CI_id_ann_proofs  : stl_exists_id_ann_decidable L S (A_eqv_eq S A_slt_CI_carrier) A_slt_CI_plus  A_slt_CI_trans                        
-; A_slt_CI_proofs       : slt_proofs L S (A_eqv_eq S A_slt_CI_carrier) A_slt_CI_plus A_slt_CI_trans                                  
-; A_slt_CI_ast          : cas_lstr_ast 
-}.
 
 
-Record A_selective_left_dioid (L S : Type) :=
+
+
+Record A_selective_left_dioid {L S : Type} :=
 {
   A_selective_left_dioid_carrier      : A_eqv S
 ; A_selective_left_dioid_label        : A_eqv L
@@ -157,17 +124,18 @@ Record A_selective_left_dioid (L S : Type) :=
 ; A_selective_left_dioid_exists_plus_ann : bop_exists_ann S
                                                           (A_eqv_eq S A_selective_left_dioid_carrier)
                                                           A_selective_left_dioid_plus                                 
-; A_selective_left_dioid_id_ann_proofs  : stl_exists_id_ann_equal L S
+; A_selective_left_dioid_id_ann_proofs  : slt_exists_id_ann_equal 
                                                                   (A_eqv_eq S A_selective_left_dioid_carrier)
                                                                   A_selective_left_dioid_plus
                                                                   A_selective_left_dioid_trans                        
-; A_selective_left_dioid_proofs       : left_dioid_proofs L S (A_eqv_eq S A_selective_left_dioid_carrier)
+; A_selective_left_dioid_proofs       : left_dioid_proofs (A_eqv_eq S A_selective_left_dioid_carrier)
                                                           A_selective_left_dioid_plus
                                                           A_selective_left_dioid_trans                                  
 ; A_selective_left_dioid_ast          : cas_lstr_ast 
 }.
 
-Record A_left_dioid (L S : Type) :=
+
+Record A_left_dioid {L S : Type} :=
 {
   A_left_dioid_carrier         : A_eqv S
 ; A_left_dioid_label           : A_eqv L
@@ -176,8 +144,8 @@ Record A_left_dioid (L S : Type) :=
 ; A_left_dioid_plus_proofs     : sg_CI_proofs S (A_eqv_eq S A_left_dioid_carrier) A_left_dioid_plus                                 
 ; A_left_dioid_trans_proofs    : left_transform_proofs L S (A_eqv_eq S A_left_dioid_carrier) (A_eqv_eq L A_left_dioid_label)  A_left_dioid_trans
 ; A_left_dioid_exists_plus_ann : bop_exists_ann S (A_eqv_eq S A_left_dioid_carrier) A_left_dioid_plus                                 
-; A_left_dioid_id_ann_proofs   : stl_exists_id_ann_equal L S (A_eqv_eq S A_left_dioid_carrier) A_left_dioid_plus  A_left_dioid_trans 
-; A_left_dioid_proofs          : left_dioid_proofs L S (A_eqv_eq S A_left_dioid_carrier) A_left_dioid_plus A_left_dioid_trans 
+; A_left_dioid_id_ann_proofs   : slt_exists_id_ann_equal (A_eqv_eq S A_left_dioid_carrier) A_left_dioid_plus  A_left_dioid_trans 
+; A_left_dioid_proofs          : left_dioid_proofs (A_eqv_eq S A_left_dioid_carrier) A_left_dioid_plus A_left_dioid_trans 
 ; A_left_dioid_ast             : cas_lstr_ast 
 }.
 
@@ -185,14 +153,92 @@ End ACAS.
 
 Section AMCAS.                                                    
 
-Inductive A_slt_mcas (L S : Type) :=
-| A_SLT_Error : list string                          -> A_slt_mcas L S
-| A_SLT : A_slt L S                                  -> A_slt_mcas L S
-| A_SLT_CS : A_slt_CS L S                            -> A_slt_mcas L S
-| A_SLT_CI : A_slt_CI L S                            -> A_slt_mcas L S
-| A_SLT_Dioid : A_left_dioid L S                     -> A_slt_mcas L S
-| A_SLT_Selective_Dioid : A_selective_left_dioid L S -> A_slt_mcas L S
+Inductive A_slt_mcas {L S : Type} :=
+| A_SLT_Error : list string                          -> @A_slt_mcas L S
+| A_SLT : @A_slt L S                                  -> @A_slt_mcas L S
+| A_SLT_Dioid : @A_left_dioid L S                     -> @A_slt_mcas L S
+| A_SLT_Selective_Dioid : @A_selective_left_dioid L S -> @A_slt_mcas L S
 .
+
+Inductive A_slt_mcas_proofs {L S : Type} (r : brel S) (add : binary_op S) (ltr : ltr_type L S)  :=
+| A_SLT_proof  : @slt_proofs L S r add ltr ->  @A_slt_mcas_proofs L S r add ltr
+| A_SLT_dioid_proof : @left_dioid_proofs L S r add ltr -> @A_slt_mcas_proofs L S r add ltr.
+
+Definition A_stl_classify_proofs {L S : Type}  (r : brel S) 
+  (add : binary_op S) 
+  (ltr : ltr_type L S)  
+  (A : @slt_proofs L S r add ltr) : @A_slt_mcas_proofs L S r add ltr :=
+  match A_slt_distributive_d _ _ _ A with
+  | inl ld => match A_slt_absorptive_d _ _ _ A with
+    | inl la => A_SLT_dioid_proof _ _ _ 
+      {|
+          A_left_dioid_distributive            := ld
+        ; A_left_dioid_absorptive              := la                                               
+        ; A_left_dioid_strictly_absorptive_d := A_slt_strictly_absorptive_d _ _ _ A 
+      |}
+    | inr _ => A_SLT_proof _ _ _ A
+  end
+  | inr _  =>  A_SLT_proof _ _ _ A      
+  end.
+
+
+
+Definition A_stl_classify_slt {L S : Type} (A : @A_slt L S) : A_slt_mcas :=
+  let plus_proofs := A_slt_plus_proofs A in
+  match A_stl_classify_proofs _ _  _  (A_slt_proofs A) with 
+  | A_SLT_proof _ _ _ _ =>  A_SLT A
+  | A_SLT_dioid_proof _ _ _ pf => 
+    match A_slt_exists_plus_ann_d A with 
+    | inl ann =>  
+      match  A_stl_id_ann_proofs A with
+      | SLT_Id_Ann_Proof_Equal _ _ _ ppf =>  
+        match sg_proof_classify _ _ _ (A_MCAS_Proof_sg _ _ _ plus_proofs) with
+        | A_MCAS_Proof_sg_CS _ _ _ B    =>
+          A_SLT_Selective_Dioid 
+            {|
+              A_selective_left_dioid_carrier         := A_slt_carrier A
+            ; A_selective_left_dioid_label           := A_slt_label A
+            ; A_selective_left_dioid_plus            := A_slt_plus A                                              
+            ; A_selective_left_dioid_trans           := A_slt_trans A  (* L -> (S -> S) *)
+            ; A_selective_left_dioid_plus_proofs     := B                                 
+            ; A_selective_left_dioid_trans_proofs    := A_slt_trans_proofs A 
+            ; A_selective_left_dioid_exists_plus_ann := ann                               
+            ; A_selective_left_dioid_id_ann_proofs   := ppf
+            ; A_selective_left_dioid_proofs          := pf
+            ; A_selective_left_dioid_ast             := A_slt_ast A
+            |}
+        | A_MCAS_Proof_sg_CI _ _ _ B    => 
+            A_SLT_Dioid
+            {|
+              A_left_dioid_carrier         := A_slt_carrier A
+            ; A_left_dioid_label           := A_slt_label A
+            ; A_left_dioid_plus            := A_slt_plus A                                              
+            ; A_left_dioid_trans           := A_slt_trans A  (* L -> (S -> S) *)
+            ; A_left_dioid_plus_proofs     := B                                 
+            ; A_left_dioid_trans_proofs    := A_slt_trans_proofs A 
+            ; A_left_dioid_exists_plus_ann := ann                               
+            ; A_left_dioid_id_ann_proofs   := ppf
+            ; A_left_dioid_proofs          := pf
+            ; A_left_dioid_ast             := A_slt_ast A
+            |}
+        | _ => A_SLT A 
+        end
+      | _ => A_SLT A
+      end
+    | inr _  => A_SLT A
+    end 
+  end. 
+    
+ 
+
+
+Definition A_stl_classify {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
+  match A with
+  | A_SLT_Error ls => A
+  | A_SLT slt => A_stl_classify_slt slt
+  | A_SLT_Dioid slt => A
+  | A_SLT_Selective_Dioid slt => A 
+  end.  
 
 End AMCAS.                                                    
 

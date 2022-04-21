@@ -9,7 +9,7 @@ Require Import CAS.coq.bs.min_plus.
 Require Import CAS.coq.tr.left.plus_one.
 Require Import CAS.coq.st.properties.
 Require Import CAS.coq.st.structures.
-
+From Coq Require Import Lia.
 Section Theory.
 
 Open Scope nat.
@@ -31,10 +31,17 @@ Qed.
 
 Lemma ltr_plus_one_increasing (s t : nat) : bop_min t (ltr_plus_one s t) = t.
 Proof.  unfold bop_min. unfold ltr_plus_one. unfold bop_plus. 
-Admitted. 
+       rewrite Min.min_comm.
+       eapply min_add.
+Qed. 
 
 Lemma ltr_plus_one_strictly_increasing (s t : nat) : brel_eq_nat (ltr_plus_one s t) t = false. 
-Admitted.
+Proof.
+  unfold brel_eq_nat, ltr_plus_one,
+    bop_plus.
+  eapply PeanoNat.Nat.eqb_neq.
+  lia.
+Qed.
 
 
 Lemma min_plus_one_slt_strictly_absorptive : 
@@ -47,6 +54,7 @@ Qed.
 End Theory.
 
 Section ACAS.
+  
 
 End ACAS.
 

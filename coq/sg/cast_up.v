@@ -1791,6 +1791,10 @@ Proof. destruct P; simpl.
 Qed. 
 
 
+
+
+
+
        
 End Combinators.  
 End Verify.   
