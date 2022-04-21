@@ -4,6 +4,7 @@ From Coq Require Import List Utf8
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
   coq.eqv.theory coq.sg.properties
+  coq.algorithm.Matrix
   coq.algorithm.Listprop 
   coq.algorithm.Orel.
 Import ListNotations.
@@ -72,10 +73,8 @@ Section Pathdefs.
     end.
 
 
-  Definition Matrix := Node -> Node -> R.
   
-  
-  Fixpoint well_formed_path_aux (m : Matrix) 
+  Fixpoint well_formed_path_aux (m : Matrix Node R) 
     (l : list (Node * Node * R)) : bool :=
     match l with 
     | [] => true
@@ -104,7 +103,7 @@ Section Pathdefs.
 
     
   (* stick a node 'c' in all the paths, represented by l *)
-  Fixpoint append_node_in_paths (m : Matrix) 
+  Fixpoint append_node_in_paths (m : Matrix Node R) 
     (c : Node) (l : list (list (Node * Node * R))) : 
     list (list (Node * Node * R)) := 
   match l with 
@@ -120,7 +119,7 @@ Section Pathdefs.
   (* list of all paths of lenghth k from c to d. 
     xs is list of all candidates *)
   Fixpoint all_paths_klength (xs : list Node) 
-    (m : Matrix) (k : nat) 
+    (m : Matrix Node R) (k : nat) 
     (c d : Node) : list (list (Node * Node * R)) :=
     match k with
     | O => if c =n= d then [[(c, d, 1)]] else []
@@ -150,7 +149,7 @@ Section Pathdefs.
 
 
   (* congruence relation on matrix *)
-  Definition mat_cong (m : Matrix) : Prop :=
+  Definition mat_cong (m : Matrix Node R) : Prop :=
     forall a b c d, a =n= c = true -> 
     b =n= d = true -> m a b =r= m c d = true.
   
@@ -182,7 +181,7 @@ Section Pathdefs.
     end.
 
   (* Constructs well founded path *)  
-  Fixpoint construct_path_from_nodes (l : list Node) (m : Matrix) : 
+  Fixpoint construct_path_from_nodes (l : list Node) (m : Matrix Node R) : 
   list (Node * Node * R) :=
   match l with 
   | [] => []
@@ -252,7 +251,7 @@ Section Pathdefs.
 
   
   Fixpoint partial_sum_paths (l : list Node) 
-    (m : Matrix) (n : nat) (c d : Node) : R :=
+    (m : Matrix Node R) (n : nat) (c d : Node) : R :=
     match n with
     | O => 
       match c =n= d with 
@@ -267,7 +266,7 @@ Section Pathdefs.
   
   (* Get all the paths in one big list *)
   Fixpoint enum_all_paths_flat (l : list Node) 
-    (m : Matrix) (n : nat) (c d : Node) : list Path :=
+    (m : Matrix Node R) (n : nat) (c d : Node) : list Path :=
   match n with
   | O => construct_all_paths l m O c d
   | S n' => 

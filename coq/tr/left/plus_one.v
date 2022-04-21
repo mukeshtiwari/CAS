@@ -15,10 +15,15 @@ Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
 
 
-Section Compute.
+Section Compute.  
 
 Definition ltr_plus_one : ltr_type nat nat
-    := λ l x,  bop_plus (S l) x. 
+  := λ l x,  bop_plus (S l) x.
+(* change to 
+    := λ l x,  if brel_eq_nat l 0 then bop_plus (S l) else bop_plus (S l)
+
+Or, use positive datatype? 
+*) 
 
 End Compute.  
 
@@ -100,8 +105,15 @@ Definition A_left_transform_plus_one : A_left_transform nat nat :=
   
 End ACAS. 
 
+Section AMCAS.
 
-Section ACAS.
+Definition A_mcas_ltr_plus_one := A_MCAS_ltr _ _ A_left_transform_plus_one.    
+
+End AMCAS.   
+
+
+
+Section CAS.
 
 Open Scope nat.
   
@@ -125,7 +137,13 @@ Definition left_transform_plus_one : @left_transform nat nat :=
 ; left_transform_ast          := Ast_ltr_plus_one
 |}.
   
-End ACAS. 
+End CAS.
+
+Section MCAS.
+
+Definition mcas_ltr_plus_one := MCAS_ltr left_transform_plus_one.    
+
+End MCAS.   
 
 
 Section Verify.

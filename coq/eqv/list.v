@@ -73,7 +73,16 @@ Proof. induction X.
              assert (K := IHX U b R). destruct K as [KL | KR].
                 left. apply in_list_cons_intro. right. exact KL. 
                 right. exact KR. 
-Defined. 
+Defined.
+
+Lemma brel_list_cons_intro (x y : S) (X Y : list S) : 
+       eq x y = true -> brel_list eq X Y = true -> brel_list eq (x :: X) (y :: Y) = true. 
+Proof. intros A B. simpl. rewrite A, B. compute; auto. Qed. 
+
+Lemma brel_list_cons_elim (x y : S) (X Y : list S) : 
+       brel_list eq (x :: X) (y :: Y) = true -> (eq x y = true) * (brel_list eq X Y = true).
+Proof. intro A. simpl in A. apply bop_and_elim in A. exact A. Qed. 
+
 
 
 End IntroElim.   

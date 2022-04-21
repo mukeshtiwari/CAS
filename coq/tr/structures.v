@@ -1,3 +1,4 @@
+Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.data.
 Require Import CAS.coq.common.ast.
@@ -27,7 +28,17 @@ Record A_left_transform (L S : Type) :=
 ; A_left_transform_ast          : cas_ltr_ast
 }.
 
-End ACAS. 
+End ACAS.
+
+
+Section MACAS.
+
+Inductive A_ltr_mcas (L S : Type) := 
+| A_MCAS_ltr_Error        : list string             -> A_ltr_mcas L S
+| A_MCAS_ltr              : A_left_transform L S    -> A_ltr_mcas L S
+.  
+
+End MACAS.   
 
 Section CAS. 
 
@@ -51,6 +62,16 @@ Record left_transform (L S : Type) :=
 }.
 
 End CAS.
+
+Section MCAS.
+
+Inductive ltr_mcas {L S : Type} := 
+| MCAS_ltr_Error        : list string             -> @ltr_mcas L S
+| MCAS_ltr              : @left_transform L S    -> @ltr_mcas L S
+.  
+
+End MCAS.   
+
 
 Section Translate.
 
@@ -79,6 +100,13 @@ let eqL := A_eqv_eq L eqvL in
 ; left_transform_exists_ann_d := p2c_ltr_exists_ann _ _ _ _ (A_left_transform_exists_ann_d L S R)
 ; left_transform_certs        := P2C_left_transform L S eqS eqL ltr (A_left_transform_proofs L S R)
 ; left_transform_ast          := A_left_transform_ast L S R
-|}.   
+|}.
+
+Definition A2C_mcas_ltr (L S : Type) (A : A_ltr_mcas L S) : @ltr_mcas L S :=
+match A with
+| A_MCAS_ltr_Error _ _ s        => MCAS_ltr_Error s
+| A_MCAS_ltr _ _ B              => MCAS_ltr (A2C_left_transform _ _ B)
+end. 
 
 End Translate.   
+

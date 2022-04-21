@@ -29,22 +29,24 @@ Proof. unfold slt_absorptive. intros s t. unfold ltr_plus_one.
        apply bops_min_plus_left_right_absorptive.
 Qed. 
 
+Lemma ltr_plus_one_increasing (s t : nat) : bop_min t (ltr_plus_one s t) = t.
+Proof.  unfold bop_min. unfold ltr_plus_one. unfold bop_plus. 
+Admitted. 
+
+Lemma ltr_plus_one_strictly_increasing (s t : nat) : brel_eq_nat (ltr_plus_one s t) t = false. 
+Admitted.
+
+
 Lemma min_plus_one_slt_strictly_absorptive : 
        slt_strictly_absorptive nat nat brel_eq_nat bop_min ltr_plus_one. 
 Proof. unfold slt_strictly_absorptive. intros s t. split. 
        + apply min_plus_one_slt_absorptive. 
-       + unfold ltr_plus_one. 
-         induction t.
-         ++ compute. reflexivity. 
-         ++ admit. 
-Admitted. 
-
-
+       + rewrite ltr_plus_one_increasing.
+         rewrite ltr_plus_one_strictly_increasing; auto. 
+Qed. 
 End Theory.
 
 Section ACAS.
-Open Scope nat.
-
 
 End ACAS.
 

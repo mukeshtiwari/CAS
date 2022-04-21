@@ -52,6 +52,19 @@ Variable symT : brel_symmetric T rT.
 Variable trnT : brel_transitive T rT. 
 
 
+
+Lemma brel_product_intro (a c : S) (b d : T) (A : rS a c = true) (B : rT b d = true): brel_product rS rT (a, b) (c, d) = true.
+Proof. compute. rewrite A, B. reflexivity. Qed.
+
+Lemma brel_product_elim (a c : S) (b d : T) (A: brel_product rS rT (a, b) (c, d) = true) : (rS a c = true) * (rT b d = true). 
+Proof. compute in A.
+       case_eq(rS a c); intro B; case_eq(rT b d); intro C.
+       + auto. 
+       + rewrite B, C in A. congruence. 
+       + rewrite B in A. congruence. 
+       + rewrite B in A. congruence. 
+Qed.
+
 Definition uop_product_new (f : S -> S) (p : S * T) := let (s, t) := p in (f s, t). 
 
 Lemma brel_product_not_trivial : brel_not_trivial (S * T) (rS <*> rT) (uop_product_new f).

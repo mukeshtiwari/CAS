@@ -1,4 +1,6 @@
+Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute.
+Require Import CAS.coq.common.ast.
 Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
@@ -237,6 +239,7 @@ End Theory.
 
 Section ACAS.
 
+Section Proofs.   
 Variables
   (LS S LT T: Type)  
   (eqS : brel S) (eqLS : brel LS) (wS : S) (wLS : LS) (ltrS : ltr_type LS S) (refS : brel_reflexive S eqS)
@@ -260,10 +263,61 @@ Definition ltr_product_proofs
                                   (A_left_transform_left_cancellative_d LS S eqS eqLS ltrS PS)
                                   (A_left_transform_left_cancellative_d LT T eqT eqLT ltrT PT)                                                        
 |}.
+End Proofs.   
+
+Section Combinators.
+  
+Definition A_left_transform_product {L L' S S' : Type} (A : A_left_transform L S) (B : A_left_transform L' S') : A_left_transform (L * L') (S * S') :=
+  let eqvS := A_left_transform_carrier _ _ A in
+  let eqS := A_eqv_eq _ eqvS in
+  let eqvPS := A_eqv_proofs _ eqvS in
+  let refS := A_eqv_reflexive _ _ eqvPS in   
+  let wS := A_eqv_witness _ eqvS in    
+  let eqvS' := A_left_transform_carrier _ _ B in
+  let eqS' := A_eqv_eq _ eqvS' in
+  let eqvPS' := A_eqv_proofs _ eqvS' in
+  let refS' := A_eqv_reflexive _ _ eqvPS' in   
+  let wS' := A_eqv_witness _ eqvS' in      
+  let eqvL := A_left_transform_label _ _ A in
+  let eqL := A_eqv_eq _ eqvL in        
+  let wL := A_eqv_witness _ eqvL in        
+  let eqvL' := A_left_transform_label _ _ B in
+  let eqL' := A_eqv_eq _ eqvL' in          
+  let wL' := A_eqv_witness _ eqvL' in          
+  let ltrA := A_left_transform_ltr _ _ A in
+  let ltrB := A_left_transform_ltr _ _ B in     
+{|
+  A_left_transform_carrier      := A_eqv_product _ _ eqvS eqvS' 
+; A_left_transform_label        := A_eqv_product _ _ eqvL eqvL' 
+; A_left_transform_ltr          := ltr_product ltrA ltrB 
+; A_left_transform_exists_id_d  := ltr_product_exists_id_decidable L S L' S' eqS wS ltrA eqS' wS' ltrB
+                                                                    (A_left_transform_exists_id_d _ _ A) (A_left_transform_exists_id_d _ _ B)
+; A_left_transform_exists_ann_d := ltr_product_exists_ann_decidable L S L' S' eqS wL ltrA eqS' wL' ltrB
+                                                                    (A_left_transform_exists_ann_d _ _ A) (A_left_transform_exists_ann_d _ _ B)
+; A_left_transform_proofs       := ltr_product_proofs L S L' S' eqS eqL wS wL ltrA refS eqS' eqL' wS' wL' ltrB refS'
+                                                      (A_left_transform_proofs _ _ A) (A_left_transform_proofs _ _ B)
+; A_left_transform_ast          := Ast_ltr_product (A_left_transform_ast _ _ A, A_left_transform_ast _ _ B) 
+|}.
 
 
+End Combinators.   
 
 End ACAS.
+
+
+Section AMCAS.
+
+  Definition A_mcas_ltr_product {LS S LT T} (A : A_ltr_mcas LS S) (B : A_ltr_mcas LT T) :=
+    match A, B with
+    | A_MCAS_ltr _ _ A', A_MCAS_ltr _ _ B' => A_MCAS_ltr _ _ (A_left_transform_product A' B')
+    | A_MCAS_ltr_Error _ _ sl1, A_MCAS_ltr_Error _ _ sl2 =>  A_MCAS_ltr_Error _ _ (sl1 ++ sl2)
+    | A_MCAS_ltr_Error _ _ sl, _ =>  A_MCAS_ltr_Error _ _ sl
+    | _, A_MCAS_ltr_Error _ _ sl =>  A_MCAS_ltr_Error _ _ sl                                       
+   end.
+  
+
+  
+End AMCAS.   
 
 Section CAS.
 
@@ -328,16 +382,121 @@ Definition ltr_product_certs {LS S LT T: Type}
                                   (left_transform_left_cancellative_d PT)                                                        
 |}.
 
-  
+Definition ltr_product_exists_id_certifiable {LS S LT T : Type}
+      (DS : @check_ltr_exists_id LS S)      
+      (DT : @check_ltr_exists_id LT T) : 
+   @check_ltr_exists_id (LS * LT) (S * T) := 
+match DS with 
+| Certify_Ltr_Exists_Id idS =>
+            match DT with
+            | Certify_Ltr_Exists_Id idT => Certify_Ltr_Exists_Id(idS, idT) 
+            | Certify_Ltr_Not_Exists_Id => Certify_Ltr_Not_Exists_Id
+            end 
+| Certify_Ltr_Not_Exists_Id => Certify_Ltr_Not_Exists_Id
+end.
+
+
+Definition ltr_product_exists_ann_certifiable {LS S LT T : Type}
+      (DS : @check_ltr_exists_ann LS S)      
+      (DT : @check_ltr_exists_ann LT T) : 
+   @check_ltr_exists_ann (LS * LT) (S * T) := 
+match DS with 
+| Certify_Ltr_Exists_Ann annS =>
+            match DT with
+            | Certify_Ltr_Exists_Ann annT => Certify_Ltr_Exists_Ann (annS, annT) 
+            | Certify_Ltr_Not_Exists_Ann => Certify_Ltr_Not_Exists_Ann
+            end 
+| Certify_Ltr_Not_Exists_Ann => Certify_Ltr_Not_Exists_Ann
+end.
+
+
+Section Combinators.
+  Check ltr_product_certs. 
+Definition left_transform_product {L L' S S' : Type} (A : @left_transform L S) (B : @left_transform L' S') : @left_transform (L * L') (S * S') :=
+  let eqvS := left_transform_carrier _ _ A in
+  let wS := eqv_witness eqvS in
+  let eqvS' := left_transform_carrier _ _ B in
+  let wS' := eqv_witness eqvS' in      
+  let eqvL := left_transform_label _ _ A in
+  let wL := eqv_witness eqvL in        
+  let eqvL' := left_transform_label _ _ B in
+  let wL' := eqv_witness eqvL' in          
+  let ltrA := left_transform_ltr _ _ A in
+  let ltrB := left_transform_ltr _ _ B in     
+{|
+  left_transform_carrier      := eqv_product eqvS eqvS' 
+; left_transform_label        := eqv_product eqvL eqvL' 
+; left_transform_ltr          := ltr_product ltrA ltrB 
+; left_transform_exists_id_d  := ltr_product_exists_id_certifiable (left_transform_exists_id_d _ _ A) (left_transform_exists_id_d _ _ B)
+; left_transform_exists_ann_d := ltr_product_exists_ann_certifiable (left_transform_exists_ann_d  _ _ A) (left_transform_exists_ann_d _ _ B)
+; left_transform_certs        := ltr_product_certs wS wL  (left_transform_certs _ _ A) wS' wL' (left_transform_certs _ _ B)
+; left_transform_ast          := Ast_ltr_product (left_transform_ast _ _ A, left_transform_ast _ _ B) 
+|}.
+
+End Combinators.
 
 End CAS.
 
+Section MCAS.
+
+  Definition mcas_ltr_product {LS S LT T} (A : @ltr_mcas LS S) (B : @ltr_mcas LT T) :=
+    match A, B with
+    | MCAS_ltr A', MCAS_ltr B' => MCAS_ltr (left_transform_product A' B')
+    | MCAS_ltr_Error sl1, MCAS_ltr_Error sl2 =>  MCAS_ltr_Error (sl1 ++ sl2)
+    | MCAS_ltr_Error sl, _ =>  MCAS_ltr_Error sl
+    | _, MCAS_ltr_Error sl =>  MCAS_ltr_Error sl                                       
+    end.
+
+  
+End MCAS.   
+
+
 Section Verify.
 
+Section Proofs.   
 Variables
   (LS S LT T: Type)
   (eqS : brel S) (eqLS : brel LS) (wS : S) (wLS : LS) (ltrS : ltr_type LS S) (refS : brel_reflexive S eqS)
-  (eqT : brel T) (eqLT : brel LT) (wT : T) (wLT : LT) (ltrT : ltr_type LT T) (refT : brel_reflexive T eqT). 
+  (eqT : brel T) (eqLT : brel LT) (wT : T) (wLT : LT) (ltrT : ltr_type LT T) (refT : brel_reflexive T eqT).
+
+Lemma correct_ltr_product_exists_ann_certifiable
+      (annS_d : ltr_exists_ann_decidable LS S eqS ltrS)
+      (annT_d : ltr_exists_ann_decidable LT T eqT ltrT): 
+      ltr_product_exists_ann_certifiable
+        (p2c_ltr_exists_ann LS S eqS ltrS annS_d)
+        (p2c_ltr_exists_ann LT T eqT ltrT annT_d)
+      = 
+      p2c_ltr_exists_ann
+        (LS * LT)
+        (S * T)
+        (brel_product eqS eqT) 
+        (ltr_product ltrS ltrT)
+        (ltr_product_exists_ann_decidable LS S LT T
+           eqS wLS ltrS eqT wLT ltrT annS_d annT_d).
+Proof. destruct annS_d as [ [annS annPS] | nannS ]; 
+       destruct annT_d as [ [annT annPT] | nannT ]; simpl; 
+       reflexivity.
+Qed. 
+
+Lemma correct_ltr_product_exists_id_certifiable
+      (idS_d : ltr_exists_id_decidable LS S eqS ltrS)
+      (idT_d : ltr_exists_id_decidable LT T eqT ltrT): 
+      ltr_product_exists_id_certifiable
+        (p2c_ltr_exists_id LS S eqS ltrS idS_d)
+        (p2c_ltr_exists_id LT T eqT ltrT idT_d)
+      = 
+      p2c_ltr_exists_id
+        (LS * LT)
+        (S * T)
+        (brel_product eqS eqT) 
+        (ltr_product ltrS ltrT)
+        (ltr_product_exists_id_decidable LS S LT T
+           eqS wS ltrS eqT wT ltrT idS_d idT_d).
+Proof. destruct idS_d as [ [idS idPS] | nidS ]; 
+       destruct idT_d as [ [idT idPT] | nidT ]; simpl; 
+       reflexivity.
+Qed. 
+
 
 Lemma correct_ltr_product_certs 
       (PS : left_transform_proofs LS S eqS eqLS ltrS)
@@ -352,6 +511,38 @@ Proof. destruct PS. destruct PT. unfold ltr_product_certs, ltr_product_proofs, P
        destruct A_left_transform_left_constant_d0 as [ILKT | [[l2' [t1' t2']] E']];         
        destruct A_left_transform_left_cancellative_d as [ILCS | [[l1 [s1 s2]] [C D]]];
        destruct A_left_transform_left_cancellative_d0 as [ILCT | [[l2 [t1 t2]] [E F]]]; simpl; auto.          
-Qed. 
+Qed.
+
+End Proofs.
+
+Section Combinators.
+
+  Theorem correct_left_transform_product (L L' S S' : Type) (A : A_left_transform L S) (B : A_left_transform L' S') : 
+    A2C_left_transform _ _ (A_left_transform_product A B)
+    =                        
+    left_transform_product (A2C_left_transform _ _ A) (A2C_left_transform _ _ B).
+  Proof. unfold A2C_left_transform, A_left_transform_product, left_transform_product. simpl. 
+         rewrite <- correct_ltr_product_certs.
+         rewrite correct_eqv_product.
+         rewrite correct_eqv_product.
+         rewrite <- correct_ltr_product_exists_id_certifiable. 
+         rewrite <- correct_ltr_product_exists_ann_certifiable. 
+         reflexivity. 
+  Qed.
+
+
+  Theorem correct_mcas_left_transform_product (L L' S S' : Type) (A : A_ltr_mcas L S) (B : A_ltr_mcas L' S') : 
+    A2C_mcas_ltr _ _ (A_mcas_ltr_product A B)
+    =                        
+    mcas_ltr_product (A2C_mcas_ltr _ _ A) (A2C_mcas_ltr _ _ B).
+  Proof. unfold A_mcas_ltr_product, mcas_ltr_product, A2C_mcas_ltr. simpl.
+         destruct A, B; simpl; try reflexivity. 
+         rewrite correct_left_transform_product.
+         reflexivity. 
+  Qed.
+
+  
+End Combinators.   
+
 End Verify.   
   
