@@ -4,7 +4,7 @@ From Coq Require Import List Utf8
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
   coq.eqv.theory coq.sg.properties
-  coq.algorithm.Matrix
+  coq.algorith.Mat
   coq.algorithm.Listprop 
   coq.algorithm.Orel.
 Import ListNotations.
