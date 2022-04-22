@@ -89,12 +89,12 @@ Section CAS.
    | Assert_Slt_Exists_Id_Ann_Not_Equal : S * S -> assert_slt_exists_id_ann_not_equal.
 
 
-   Inductive check_slt_exists_id_ann_decidable {L S : Type} : Type :=
-   | Certify_SLT_Id_Ann_Proof_None : check_slt_exists_id_ann_decidable
-   | Certify_SLT_Id_Ann_Proof_Id_None : S  -> check_slt_exists_id_ann_decidable
-   | Certify_SLT_Id_Ann_Proof_None_Ann : S -> check_slt_exists_id_ann_decidable
-   | Certify_SLT_Id_Ann_Proof_Equal     : S -> check_slt_exists_id_ann_decidable
-   | Certify_SLT_Id_Ann_Proof_Not_Equal : S * S -> check_slt_exists_id_ann_decidable.
+   Inductive check_slt_exists_id_ann {L S : Type} : Type :=
+   | Certify_SLT_Id_Ann_Proof_None : check_slt_exists_id_ann
+   | Certify_SLT_Id_Ann_Proof_Id_None : S  -> check_slt_exists_id_ann
+   | Certify_SLT_Id_Ann_Proof_None_Ann : S -> check_slt_exists_id_ann
+   | Certify_SLT_Id_Ann_Proof_Equal     : S -> check_slt_exists_id_ann
+   | Certify_SLT_Id_Ann_Proof_Not_Equal : S * S -> check_slt_exists_id_ann.
 
 
 
@@ -172,7 +172,7 @@ Section Translation.
   
   Definition p2c_slt_exists_id_ann_check
     {L S : Type} (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) : 
-    slt_exists_id_ann_decidable r add ltr -> @check_slt_exists_id_ann_decidable L S :=
+    slt_exists_id_ann_decidable r add ltr -> @check_slt_exists_id_ann L S :=
   λ slt, match slt with
     | SLT_Id_Ann_Proof_None _ _ _ (_, _) => Certify_SLT_Id_Ann_Proof_None 
     | SLT_Id_Ann_Proof_Id_None  _ _ _ (p, _) => Certify_SLT_Id_Ann_Proof_Id_None (projT1 p)

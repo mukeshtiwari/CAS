@@ -90,10 +90,10 @@ Notation "a [*] b" := (ltr_product a b) (at level 15).
 (* Note : this is a minor modification of the proof from bs/llex_product.v .... *) 
 Lemma slt_llex_product_distributive
       (selS_or_annT : bop_selective S eqS addS + ltr_is_ann LT T eqT ltrT argT)      
-      (ldS : slt_distributive LS S eqS addS ltrS)
-      (ldT : slt_distributive LT T eqT addT ltrT) 
+      (ldS : slt_distributive eqS addS ltrS)
+      (ldT : slt_distributive eqT addT ltrT) 
       (D : ((ltr_left_cancellative LS S eqS ltrS) + (ltr_left_constant LT T eqT ltrT))): 
-             slt_distributive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT). 
+             slt_distributive (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT). 
 Proof. intros [s1 t1] [s2 t2] [s3 t3].
        unfold ltr_product, bop_llex, brel_product. 
        apply andb_true_intro. split.  
@@ -193,11 +193,11 @@ Qed.
 
 
 Lemma slt_llex_product_not_distributive_v1 : 
-      slt_not_distributive LS S eqS addS ltrS → slt_not_distributive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT). 
+      slt_not_distributive eqS addS ltrS → slt_not_distributive (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT). 
 Proof. intros [ [s1 [s2 s3 ] ] nld ]. exists ((s1, wLT), ((s2, wT), (s3, wT))); simpl. rewrite nld. simpl. reflexivity. Defined. 
 
-Lemma slt_llex_product_not_distributive_v2 (dS : slt_distributive LS S eqS addS ltrS): 
-  slt_not_distributive LT T eqT addT ltrT → slt_not_distributive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
+Lemma slt_llex_product_not_distributive_v2 (dS : slt_distributive eqS addS ltrS): 
+  slt_not_distributive eqT addT ltrT → slt_not_distributive  (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
 Proof. intros [ [t1 [t2 t3 ] ] nld ].
        exists ((wLS, t1), ((wS, t2), (wS, t3))); simpl.        
        unfold brel_product, llex_p2.
@@ -277,11 +277,11 @@ Definition witness_slt_llex_product_not_left_distributive_new
 Lemma slt_llex_product_not_distributive_v3
       (a_commT : bop_commutative T eqT addT) (*NB*)
       (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
-      (ldS : slt_distributive LS S eqS addS ltrS)
-      (ldT : slt_distributive LT T eqT addT ltrT) : 
+      (ldS : slt_distributive eqS addS ltrS)
+      (ldT : slt_distributive eqT addT ltrT) : 
       ltr_not_left_cancellative LS S eqS ltrS →
       ltr_not_left_constant LT T eqT ltrT → 
-         slt_not_distributive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
+         slt_not_distributive (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
 Proof. intros [ [s1 [s2 s3 ] ] [E N] ] [ [t1 [ t2 t3 ]] F].
        (* to understand the cases below, assume we have done this: 
           
@@ -507,9 +507,9 @@ Defined.
  *)
 
 Lemma slt_llex_product_absorptive : 
-      (slt_strictly_absorptive LS S eqS addS ltrS) +  
-      ((slt_absorptive LS S eqS addS ltrS) * (slt_absorptive LT T eqT addT ltrT)) → 
-         slt_absorptive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
+      (slt_strictly_absorptive eqS addS ltrS) +  
+      ((slt_absorptive eqS addS ltrS) * (slt_absorptive eqT addT ltrT)) → 
+         slt_absorptive (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
 Proof. intros [sabsS | [absS absT]].
        + intros [lS lT] [s t].
          destruct (sabsS lS s) as [A B]. compute. 
@@ -527,15 +527,15 @@ Proof. intros [sabsS | [absS absT]].
 Qed. 
 
 Lemma slt_llex_product_not_absorptive_left : 
-      slt_not_absorptive LS S eqS addS ltrS → 
-         slt_not_absorptive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT). 
+      slt_not_absorptive eqS addS ltrS → 
+         slt_not_absorptive (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT). 
 Proof. intros [ [s1 s2] P ]. exists ((s1, wLT), (s2, wT)). simpl. rewrite P. simpl. reflexivity. Defined. 
 
 
 Lemma slt_llex_product_not_absorptive_right : 
-      (slt_not_strictly_absorptive LS S eqS addS ltrS) *  
-      ((slt_absorptive LS S eqS addS ltrS) * (slt_not_absorptive LT T eqT addT ltrT)) → 
-         slt_not_absorptive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
+      (slt_not_strictly_absorptive eqS addS ltrS) *  
+      ((slt_absorptive eqS addS ltrS) * (slt_not_absorptive eqT addT ltrT)) → 
+         slt_not_absorptive (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
 Proof. intros [[[lS s] A] [absS [[lT t] B]]]; compute.
        assert (C := absS lS s).
        exists ((lS, lT), (s, t)). rewrite C.
@@ -554,9 +554,9 @@ Defined.
 
 
 Lemma slt_llex_product_strictly_absorptive : 
-      (slt_strictly_absorptive LS S eqS addS ltrS) +  
-      ((slt_absorptive LS S eqS addS ltrS) * (slt_strictly_absorptive LT T eqT addT ltrT)) → 
-         slt_strictly_absorptive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
+      (slt_strictly_absorptive eqS addS ltrS) +  
+      ((slt_absorptive eqS addS ltrS) * (slt_strictly_absorptive eqT addT ltrT)) → 
+         slt_strictly_absorptive (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
 Proof. intros [sabsS | [absS sabsT]].
        + intros [lS lT] [s t].
          destruct (sabsS lS s) as [A B]. split; compute. 
@@ -582,15 +582,15 @@ Qed.
 
 
 Lemma slt_llex_product_not_strictly_absorptive_left : 
-      slt_not_absorptive LS S eqS addS ltrS → 
-         slt_not_strictly_absorptive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT). 
+      slt_not_absorptive eqS addS ltrS → 
+         slt_not_strictly_absorptive (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT). 
 Proof. intros [ [s1 s2] P ]. exists ((s1, wLT), (s2, wT)). simpl. rewrite P. simpl. left. reflexivity. Defined. 
 
 
 Lemma slt_llex_product_not_strictly_absorptive_right : 
-      (slt_not_strictly_absorptive LS S eqS addS ltrS) *  
-      ((slt_absorptive LS S eqS addS ltrS) * (slt_not_strictly_absorptive LT T eqT addT ltrT)) → 
-         slt_not_strictly_absorptive (LS * LT) (S * T) (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
+      (slt_not_strictly_absorptive eqS addS ltrS) *  
+      ((slt_absorptive eqS addS ltrS) * (slt_not_strictly_absorptive eqT addT ltrT)) → 
+         slt_not_strictly_absorptive (eqS <*> eqT) (addS [+] addT) (ltrS [*] ltrT).
 Proof. intros [[[lS s] A] [absS [[lT t] B]]]; compute.
        assert (C := absS lS s).
        exists ((lS, lT), (s, t)). rewrite C.
@@ -637,13 +637,11 @@ Variables (LS S LT T : Type)
 Definition slt_llex_product_distributive_decide
            (a_commT : bop_commutative T eqT addT) 
            (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
-           (LDS_d : slt_distributive_decidable LS S eqS addS ltrS)
-           (LDT_d : slt_distributive_decidable LT T eqT addT ltrT)
+           (LDS_d : slt_distributive_decidable eqS addS ltrS)
+           (LDT_d : slt_distributive_decidable eqT addT ltrT)
            (LCS_d : ltr_left_cancellative_decidable LS S eqS ltrS)
            (LKT_d : ltr_left_constant_decidable LT T eqT ltrT): 
   slt_distributive_decidable
-             (LS * LT)
-             (S * T)
              (brel_product eqS eqT)
              (bop_llex argT eqS addS addT)
              (ltr_product ltrS ltrT) :=
@@ -680,12 +678,10 @@ end.
 
 
 Definition slt_llex_product_absorptive_decide
-           (sabsS_d : slt_strictly_absorptive_decidable LS S eqS addS ltrS)
-           (absS_d : slt_absorptive_decidable LS S eqS addS ltrS)
-           (absT_d : slt_absorptive_decidable LT T eqT addT ltrT) :
+           (sabsS_d : slt_strictly_absorptive_decidable eqS addS ltrS)
+           (absS_d : slt_absorptive_decidable eqS addS ltrS)
+           (absT_d : slt_absorptive_decidable eqT addT ltrT) :
   slt_absorptive_decidable
-             (LS * LT)
-             (S * T)
              (brel_product eqS eqT)
              (bop_llex argT eqS addS addT)
              (ltr_product ltrS ltrT) :=
@@ -707,12 +703,10 @@ match sabsS_d with
 end.     
 
 Definition slt_llex_product_strictly_absorptive_decide
-           (sabsS_d : slt_strictly_absorptive_decidable LS S eqS addS ltrS)
-           (absS_d : slt_absorptive_decidable LS S eqS addS ltrS)
-           (absT_d : slt_strictly_absorptive_decidable LT T eqT addT ltrT) :
+           (sabsS_d : slt_strictly_absorptive_decidable eqS addS ltrS)
+           (absS_d : slt_absorptive_decidable eqS addS ltrS)
+           (absT_d : slt_strictly_absorptive_decidable eqT addT ltrT) :
   slt_strictly_absorptive_decidable
-             (LS * LT)
-             (S * T)
              (brel_product eqS eqT)
              (bop_llex argT eqS addS addT)
              (ltr_product ltrS ltrT) :=    
@@ -738,21 +732,20 @@ Definition stl_llex_product_proofs
            (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
            (QS : left_transform_proofs LS S eqS eqLS ltrS)
            (QT : left_transform_proofs LT T eqT eqLT ltrT)           
-           (PS : slt_proofs LS S eqS addS ltrS)
-           (PT : slt_proofs LT T eqT addT ltrT) : 
-  slt_proofs (LS * LT)
-             (S * T)
+           (PS : slt_proofs eqS addS ltrS)
+           (PT : slt_proofs eqT addT ltrT) : 
+  slt_proofs 
              (brel_product eqS eqT)
              (bop_llex argT eqS addS addT)
              (ltr_product ltrS ltrT) :=
-let DS_d := A_slt_distributive_d _ _ _ _ _ PS in
-let DT_d := A_slt_distributive_d _ _ _ _ _ PT in
+let DS_d := A_slt_distributive_d _ _ _ PS in
+let DT_d := A_slt_distributive_d _ _ _ PT in
 let CS_d := A_left_transform_left_cancellative_d _ _ _ _ _ QS in
 let KT_d := A_left_transform_left_constant_d _ _ _ _ _ QT in
-let asbS_d := A_slt_absorptive_d _ _ _ _ _ PS in
-let asbT_d := A_slt_absorptive_d _ _ _ _ _ PT in
-let sasbS_d := A_slt_strictly_absorptive_d _ _ _ _ _ PS in
-let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
+let asbS_d := A_slt_absorptive_d _ _ _ PS in
+let asbT_d := A_slt_absorptive_d _ _ _ PT in
+let sasbS_d := A_slt_strictly_absorptive_d _ _ _ PS in
+let sasbT_d := A_slt_strictly_absorptive_d _ _ _ PT in
 {|
   A_slt_distributive_d          := slt_llex_product_distributive_decide commT selS_or_id_annT DS_d DT_d CS_d KT_d 
 ; A_slt_absorptive_d            := slt_llex_product_absorptive_decide sasbS_d asbS_d asbT_d
