@@ -420,6 +420,23 @@ Section Translation.
     |}.
       
 
+  Definition A2C_slt {L S : Type} :
+    @A_slt L S -> @slt L S :=
+    λ A, 
+    {|
+        slt_carrier := A2C_eqv _ (A_slt_carrier A)
+      ; slt_label := A2C_eqv _ (A_slt_label A)
+      ; slt_plus := A_slt_plus A
+      ; slt_trans := A_slt_trans A
+      ; slt_plus_certs := P2C_sg _ _ _ (A_slt_plus_proofs A)
+      ; slt_trans_certs := P2C_left_transform _ _ _ _ _ (A_slt_trans_proofs A) 
+      ; slt_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_slt_exists_plus_ann_d A)
+      ; slt_id_ann_certs_d := @p2c_slt_exists_id_ann_check L S _ _ _ (A_slt_id_ann_proofs_d A) 
+      ; slt_certs := @P2C_slt L S _ _ _ (A_slt_proofs A)
+      ; slt_ast := A_slt_ast  A
+    |}.
+
+    
 
 
 End Translation.
