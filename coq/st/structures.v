@@ -291,11 +291,13 @@ Definition A_slt_classify {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :
   | A_SLT_Selective_Dioid slt => A 
   end.  
 
-End AMCAS.                                                    
+End AMCAS.       
+
+
 
 Section CAS. 
 
-  Record slt_ceritificates {L S : Type} :=
+  Record slt_certificates {L S : Type} :=
     {
       slt_distributive_d          : @check_slt_distributive L S
     ; slt_absorptive_d            : @check_slt_absorptive L S 
@@ -328,7 +330,7 @@ Section CAS.
     ; slt_trans_certs   : @left_transform_certificates L S
     ; slt_exists_plus_ann_d : @check_exists_ann S                              
     ; slt_id_ann_certs_d : @check_slt_exists_id_ann L S                 
-    ; slt_certs         : @slt_ceritificates L S                                
+    ; slt_certs         : @slt_certificates L S                                
     ; slt_ast            : cas_lstr_ast
     }.
    
@@ -380,11 +382,138 @@ Section CAS.
     
 End CAS.
 
+
+Section MCAS.
+
+  Inductive slt_mcas {L S : Type} :=
+  | SLT_Error : list string                          -> @slt_mcas L S
+  | SLT : @slt L S                                  -> @slt_mcas L S
+  | SLT_Dioid : @left_dioid L S                     -> @slt_mcas L S
+  | SLT_Selective_Dioid : @selective_left_dioid L S -> @slt_mcas L S
+  | SLT_Semiring : @left_semiring L S -> @slt_mcas L S. 
+
+
+  Inductive slt_mcas_certificates {L S : Type} :=
+  | SLT_certs  : @slt_certificates L S ->  @slt_mcas_certificates L S
+  | SLT_dioid_certs : @left_dioid_certificates L S -> @slt_mcas_certificates L S
+  | SLT_semiring_certs : @left_semiring_certificates L S -> @slt_mcas_certificates L S.
+  
+  
+  
+  Definition slt_classify_certificates {L S : Type} 
+    (A : @slt_certificates L S) : @slt_mcas_certificates L S :=
+    match slt_distributive_d A with
+    | Certify_Slt_Distributive =>
+        match slt_absorptive_d A with
+        | Certify_Slt_Absorptive => 
+            SLT_dioid_certs 
+            {|
+                left_dioid_distributive := Assert_Slt_Distributive 
+              ; left_dioid_absorptive := Assert_Slt_Absorptive
+              ; left_dioid_strictly_absorptive_d := slt_strictly_absorptive_d A  
+            |}
+        | Certify_Slt_Not_Absorptive pf => 
+            SLT_semiring_certs 
+            {|
+                left_semiring_distributive := Assert_Slt_Distributive
+              ; left_semiring_not_absorptive := Assert_Slt_Not_Absorptive pf
+
+            |}
+        end
+    | Certify_Slt_Not_Distributive _ => SLT_certs A 
+    end. 
+
+
+  
+  Definition slt_classify_slt {L S : Type} (A : @slt L S) : @slt_mcas L S :=
+    let plus_certificates := slt_plus_certs A in
+    match slt_classify_certificates (slt_certs A) with 
+    | SLT_certs _ => SLT A 
+    | SLT_semiring_certs pf =>
+        match  slt_id_ann_certs_d A with
+        | Certify_SLT_Id_Ann_Proof_Equal ppf => 
+            match sg_certificates_classify (MCAS_Cert_sg plus_certificates) with
+            | MCAS_Cert_sg_C B => 
+                SLT_Semiring 
+                {|
+                  left_semiring_carrier         := slt_carrier A
+                ; left_semiring_label           := slt_label A
+                ; left_semiring_plus            := slt_plus A                                              
+                ; left_semiring_trans           := slt_trans A  (* L -> (S -> S) *)
+                ; left_semiring_plus_certs     := B                                 
+                ; left_semiring_trans_certs    := slt_trans_certs A 
+                ; left_semiring_exists_plus_ann_d := slt_exists_plus_ann_d A                               
+                ; left_semiring_id_ann_certs   := Assert_Slt_Exists_Id_Ann_Equal ppf
+                ; left_semiring_certs          := pf
+                ; left_semiring_ast             := slt_ast A
+                |}
+            | _ => SLT A
+            end
+        | _ => SLT A
+        end
+    | SLT_dioid_certs pf =>
+        match slt_exists_plus_ann_d A with 
+        | Certify_Exists_Ann ann => 
+            match slt_id_ann_certs_d A with
+            | Certify_SLT_Id_Ann_Proof_Equal ppf =>  
+                match sg_certificates_classify (MCAS_Cert_sg plus_certificates) with
+                | MCAS_Cert_sg_CS B => 
+                    SLT_Selective_Dioid 
+                    {|
+                      selective_left_dioid_carrier         := slt_carrier A
+                    ; selective_left_dioid_label           := slt_label A
+                    ; selective_left_dioid_plus            := slt_plus A                                              
+                    ; selective_left_dioid_trans           := slt_trans A  (* L -> (S -> S) *)
+                    ; selective_left_dioid_plus_certs     := B                                 
+                    ; selective_left_dioid_trans_certs    := slt_trans_certs A 
+                    ; selective_left_dioid_exists_plus_ann := Assert_Exists_Ann ann                               
+                    ; selective_left_dioid_id_ann_certs   := Assert_Slt_Exists_Id_Ann_Equal ppf
+                    ; selective_left_dioid_certs          := pf
+                    ; selective_left_dioid_ast             := slt_ast A
+                    |}
+                | MCAS_Cert_sg_CI B => 
+                    SLT_Dioid
+                    {|
+                      left_dioid_carrier         := slt_carrier A
+                    ; left_dioid_label           := slt_label A
+                    ; left_dioid_plus            := slt_plus A                                              
+                    ; left_dioid_trans           := slt_trans A  (* L -> (S -> S) *)
+                    ; left_dioid_plus_certs     := B                                 
+                    ; left_dioid_trans_certs    := slt_trans_certs A 
+                    ; left_dioid_exists_plus_ann := Assert_Exists_Ann ann                               
+                    ; left_dioid_id_ann_certs   := Assert_Slt_Exists_Id_Ann_Equal ppf
+                    ; left_dioid_certs          := pf
+                    ; left_dioid_ast             := slt_ast A
+                    |}
+                | _ => SLT A
+                end 
+            | _ => SLT A
+            end
+        | Certify_Not_Exists_Ann => SLT A
+        end
+    end. 
+
+
+
+  Definition slt_classify {L S : Type} (A : @slt_mcas L S) : @slt_mcas L S :=
+    match A with
+    | SLT_Error ls => A
+    | SLT slt => slt_classify_slt slt
+    | SLT_Dioid slt => A
+    | SLT_Semiring slt => A 
+    | SLT_Selective_Dioid slt => A 
+    end.  
+
+
+
+End MCAS.
+
+
 Section Translation.
 
 
   Definition P2C_slt {L S : Type}  (r : brel S) (add : binary_op S) (ltr : ltr_type L S) :
-    @slt_proofs L S r add ltr -> @slt_ceritificates L S :=
+    @slt_proofs L S r add ltr -> @slt_certificates L S :=
     λ A,  
     {|
       slt_distributive_d          := p2c_slt_distributive_check r add ltr 
