@@ -470,7 +470,23 @@ Section Translation.
       ; left_dioid_ast  := A_left_dioid_ast A  
     |}.
 
-    
+
+  Definition A2C_left_semiring {L S : Type} :
+    @A_left_semiring L S -> @left_semiring L S :=
+    λ A, 
+    {|
+        left_semiring_carrier := A2C_eqv _ (A_left_semiring_carrier A)
+      ; left_semiring_label := A2C_eqv _ (A_left_semiring_label A)
+      ; left_semiring_plus := A_left_semiring_plus A
+      ; left_semiring_trans := A_left_semiring_trans A
+      ; left_semiring_plus_certs := P2C_sg_C _ _ _ (A_left_semiring_plus_proofs A)
+      ; left_semiring_trans_certs := P2C_left_transform _ _ _ _ _ (A_left_semiring_trans_proofs A)
+      ; left_semiring_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_left_semiring_exists_plus_ann_d A)
+      ; left_semiring_id_ann_certs :=  @p2c_slt_exists_id_ann_equal_assert L S _ _ _ (A_left_semiring_id_ann_proofs A)
+      ; left_semiring_certs := P2C_left_semiring _ _ _ (A_left_semiring_proofs A)
+      ; left_semiring_ast  := A_left_semiring_ast A 
+    |}.
+
 
 
 End Translation.
