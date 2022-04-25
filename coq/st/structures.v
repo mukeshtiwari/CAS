@@ -451,7 +451,26 @@ Section Translation.
       ; selective_left_dioid_id_ann_certs := @p2c_slt_exists_id_ann_equal_assert L S _ _ _ (A_selective_left_dioid_id_ann_proofs A)
       ; selective_left_dioid_certs := @P2C_left_dioid L S _ _ _ (A_selective_left_dioid_proofs A)
       ; selective_left_dioid_ast := A_selective_left_dioid_ast A   
-    |} .
+    |}.
+
+    
+  Definition A2C_left_dioid  {L S : Type} :
+    @A_left_dioid L S -> @left_dioid L S :=
+    λ A, 
+    {|
+        left_dioid_carrier := A2C_eqv _ (A_left_dioid_carrier A)
+      ; left_dioid_label := A2C_eqv _ (A_left_dioid_label A)
+      ; left_dioid_plus := A_left_dioid_plus A
+      ; left_dioid_trans  := A_left_dioid_trans A
+      ; left_dioid_plus_certs := P2C_sg_CI _ _ _ (A_left_dioid_plus_proofs A)
+      ; left_dioid_trans_certs := P2C_left_transform _ _ _ _ _ (A_left_dioid_trans_proofs A)
+      ; left_dioid_exists_plus_ann := p2c_exists_ann_assert _ _ _ (A_left_dioid_exists_plus_ann A)
+      ; left_dioid_id_ann_certs := @p2c_slt_exists_id_ann_equal_assert L S _ _ _ (A_left_dioid_id_ann_proofs A)
+      ; left_dioid_certs := @P2C_left_dioid L S _ _ _ (A_left_dioid_proofs A)
+      ; left_dioid_ast  := A_left_dioid_ast A  
+    |}.
+
+    
 
 
 End Translation.
