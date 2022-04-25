@@ -436,7 +436,22 @@ Section Translation.
       ; slt_ast := A_slt_ast  A
     |}.
 
-    
+
+  Definition A2C_selective_left_dioid {L S : Type} :
+    @A_selective_left_dioid L S -> @selective_left_dioid L S :=
+    λ A, 
+    {|
+        selective_left_dioid_carrier := A2C_eqv _ (A_selective_left_dioid_carrier A) 
+      ; selective_left_dioid_label := A2C_eqv _ (A_selective_left_dioid_label A)
+      ; selective_left_dioid_plus := A_selective_left_dioid_plus A
+      ; selective_left_dioid_trans  := A_selective_left_dioid_trans A
+      ; selective_left_dioid_plus_certs := P2C_sg_CS _ _ _ (A_selective_left_dioid_plus_proofs A)
+      ; selective_left_dioid_trans_certs := P2C_left_transform _ _ _ _ _ (A_selective_left_dioid_trans_proofs A)
+      ; selective_left_dioid_exists_plus_ann := p2c_exists_ann_assert _ _ _ (A_selective_left_dioid_exists_plus_ann A)
+      ; selective_left_dioid_id_ann_certs := @p2c_slt_exists_id_ann_equal_assert L S _ _ _ (A_selective_left_dioid_id_ann_proofs A)
+      ; selective_left_dioid_certs := @P2C_left_dioid L S _ _ _ (A_selective_left_dioid_proofs A)
+      ; selective_left_dioid_ast := A_selective_left_dioid_ast A   
+    |} .
 
 
 End Translation.
