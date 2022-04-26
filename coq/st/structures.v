@@ -617,5 +617,79 @@ Section Translation.
     |}.
 
 
+  
+
+  Definition A2C_mcas_slt {L S : Type} :
+    @A_slt_mcas L S -> @slt_mcas L S :=
+    λ A, match A with
+      | A_SLT_Error err => SLT_Error err    
+      | A_SLT pf => SLT (A2C_slt pf)
+      | A_SLT_Dioid pf => SLT_Dioid (A2C_left_dioid pf) 
+      | A_SLT_Selective_Dioid pf => SLT_Selective_Dioid (A2C_selective_left_dioid pf)
+      | A_SLT_Semiring pf => SLT_Semiring (A2C_left_semiring pf) 
+    end. 
+
 
 End Translation.
+
+Section Verify.
+
+  
+  Context 
+    {L S : Type}.
+
+  Lemma correctness_slt_classify_slt : 
+    forall pf,
+    slt_classify_slt (A2C_slt pf) = 
+    @A2C_mcas_slt L S (A_slt_classify_slt pf).
+  Proof.
+
+  
+  Admitted.
+
+
+  Lemma correctness_A2C_left_dioid : 
+    forall pf, 
+    SLT_Dioid (A2C_left_dioid pf) = 
+    @SLT_Dioid L S (A2C_left_dioid pf).
+  Proof.
+    intros pf.
+    reflexivity.
+  Qed.
+  
+
+  Lemma correctness_A2C_selective_left_dioid : 
+    forall pf, 
+    SLT_Selective_Dioid (A2C_selective_left_dioid pf) =
+    @SLT_Selective_Dioid L S (A2C_selective_left_dioid pf).
+  Proof.
+    intros ?.
+    reflexivity.
+  Qed.
+
+
+  Lemma correctness_A2C_left_semiring : 
+    forall pf, 
+    SLT_Semiring (A2C_left_semiring pf) = 
+    @SLT_Semiring L S (A2C_left_semiring pf).
+  Proof.
+    intros ?.
+    reflexivity.
+  Qed.
+  
+  
+  Lemma correctness_slt_classify : 
+    forall pf,  
+    slt_classify (A2C_mcas_slt pf) = 
+    @A2C_mcas_slt L S (A_slt_classify pf).
+  Proof.
+    destruct pf; simpl.
+    + reflexivity.
+    + eapply correctness_slt_classify_slt.
+    + eapply correctness_A2C_left_dioid.
+    + eapply correctness_A2C_selective_left_dioid.
+    + eapply correctness_A2C_left_semiring.
+  Qed.      
+
+
+End Verify.
