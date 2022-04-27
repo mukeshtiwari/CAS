@@ -630,6 +630,18 @@ Section Translation.
     end. 
 
 
+
+  Definition P2C_proofs_mcas_slt {L S : Type} 
+    (r : brel S) (add : binary_op S) (ltr : ltr_type L S) :
+    @A_slt_mcas_proofs L S r add ltr -> @slt_mcas_certificates L S :=
+    λ A, match A with
+    | A_SLT_proofs _ _ _ pf => SLT_certs (P2C_slt r add ltr pf)
+    | A_SLT_dioid_proofs  _ _ _ pf => SLT_dioid_certs (P2C_left_dioid r add ltr pf)
+    | A_SLT_semiring_proofs _ _ _ pf => SLT_semiring_certs (P2C_left_semiring r add ltr pf)
+    end.
+
+
+
 End Translation.
 
 Section Verify.
@@ -638,106 +650,59 @@ Section Verify.
   Context 
     {L S : Type}.
 
-  (*
+  
   Lemma corectness_slt_classify_certificates_proofs 
     (r : brel S) (add : binary_op S) (ltr : ltr_type L S)
     (s : slt_proofs r add ltr) :
-    slt_classify_certificates
-      (P2C_slt r add ltr s) = 
-    A2C_mcas_slt (A_slt_classify_proofs r add ltr s). 
-   *) 
+    slt_classify_certificates (P2C_slt r add ltr s) = 
+    P2C_proofs_mcas_slt r add ltr (A_slt_classify_proofs r add ltr s).
+  Proof.
+      unfold slt_classify_certificates, 
+      A_slt_classify_proofs; compute.
+      destruct s; simpl.
+      destruct A_slt_distributive_d0;
+      simpl.
+      + destruct A_slt_absorptive_d0.
+        ++ reflexivity.
+        ++ reflexivity.   
+      + reflexivity.
+  Qed.  
 
-  
+
+
   Lemma correctness_slt_classify_slt : 
     forall pf,
     slt_classify_slt (A2C_slt pf) = 
     @A2C_mcas_slt L S (A_slt_classify_slt pf).
   Proof.
-    (*
     unfold slt_classify_slt,
     A_slt_classify_slt;
     destruct pf; simpl.
-    Check slt_classify_certificates.
-    Check P2C_slt.
-    Check A_slt_classify_proofs.
-    Check A2C_mcas_slt.
-    *)
-
-
-
-
-
-
-    destruct pf;
-    simpl.
-    unfold A2C_slt,
-    slt_classify_slt,
-    A_slt_classify_slt,
-    A2C_mcas_slt,
-    P2C_slt,
-    slt_classify_certificates,
-    A_slt_classify_proofs,
-    A_slt_distributive_d,
-    p2c_slt_distributive_check;
-    simpl.
-    destruct A_slt_proofs0;
-    simpl.
-    destruct A_slt_distributive_d0 as [Ha | Ha].
-    (* Left case *)
-    + unfold p2c_slt_absorptive_check. 
-      destruct A_slt_absorptive_d0 as [Hb | Hb].
-      ++  unfold p2c_exists_ann_check. 
-          destruct A_slt_exists_plus_ann_d0 as [Hc | Hc].
-          +++ 
-            unfold p2c_slt_exists_id_ann_check. 
-            destruct A_slt_id_ann_proofs_d0 as [p | p | p | p | p];
-            (destruct p; simpl; try reflexivity).
-            unfold sg_certificates_classify_sg,
-            sg_commutative_d, P2C_sg,
-            p2c_commutative_check,
-            A_sg_commutative_d;
-            simpl.
-            destruct A_slt_plus_proofs0.
-            destruct A_sg_commutative_d;
-            simpl; try reflexivity.
-            unfold sg_certificates_classify_sg_C,
-            p2c_idempotent_check;
-            simpl.
-            destruct A_sg_idempotent_d.
-            unfold p2c_selective_check.
-            destruct A_sg_selective_d;
-            simpl; try reflexivity.
-            unfold A_sg_proofs_classify_sg;
-            simpl; try reflexivity.
-          +++ reflexivity.
-        ++  unfold p2c_slt_exists_id_ann_check.
-            destruct A_slt_id_ann_proofs_d0 as [p | p | p | p | p];
-            try(destruct p; reflexivity).
-            unfold sg_certificates_classify_sg,
-            P2C_sg; simpl.
-            unfold p2c_commutative_check,
-            A_sg_commutative_d; simpl.
-            destruct A_slt_plus_proofs0;
-            simpl.
-            destruct A_sg_commutative_d;
-            simpl.
-            unfold sg_certificates_classify_sg_C;
-            simpl.
-            unfold p2c_idempotent_check;
-            simpl.
-            destruct A_sg_idempotent_d;
-            simpl; try reflexivity.
-            unfold p2c_selective_check;
-            destruct A_sg_selective_d;
-            simpl; try reflexivity.
-            unfold A2C_slt;
-            simpl; try reflexivity.
-    + reflexivity. 
+    rewrite corectness_slt_classify_certificates_proofs.
+    destruct ((A_slt_classify_proofs (A_eqv_eq S A_slt_carrier0) A_slt_plus0
+    A_slt_trans0 A_slt_proofs0)); simpl.
+    + reflexivity.
+    + destruct A_slt_exists_plus_ann_d0; simpl.
+      ++ 
+      destruct A_slt_id_ann_proofs_d0; simpl;
+      try reflexivity;
+      try (destruct p; simpl; reflexivity).
+      rewrite correct_sg_certificates_classify_sg.
+      destruct (A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_carrier0) A_slt_plus0
+      A_slt_plus_proofs0);
+      simpl;
+      try reflexivity.
+      ++
+      reflexivity.
+    + destruct A_slt_id_ann_proofs_d0;
+      simpl; try reflexivity;
+      try (destruct p; simpl; reflexivity).
+      rewrite correct_sg_certificates_classify_sg.
+      destruct (A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_carrier0) A_slt_plus0
+      A_slt_plus_proofs0);
+      simpl;
+      try reflexivity.
   Qed.
-  
-
-
-
 
   Lemma correctness_A2C_left_dioid : 
     forall pf, 
