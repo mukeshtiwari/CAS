@@ -684,16 +684,15 @@ Section Verify.
     + reflexivity.
     + destruct A_slt_exists_plus_ann_d0; simpl.
       ++ 
-      destruct A_slt_id_ann_proofs_d0; simpl;
-      try reflexivity;
-      try (destruct p; simpl; reflexivity).
-      rewrite correct_sg_certificates_classify_sg.
-      destruct (A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_carrier0) A_slt_plus0
-      A_slt_plus_proofs0);
-      simpl;
-      try reflexivity.
+        destruct A_slt_id_ann_proofs_d0; simpl;
+        try reflexivity;
+        try (destruct p; simpl; reflexivity).
+        rewrite correct_sg_certificates_classify_sg.
+        destruct (A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_carrier0) A_slt_plus0
+        A_slt_plus_proofs0);
+        simpl; reflexivity.
       ++
-      reflexivity.
+        reflexivity.
     + destruct A_slt_id_ann_proofs_d0;
       simpl; try reflexivity;
       try (destruct p; simpl; reflexivity).
