@@ -679,8 +679,9 @@ Section Verify.
     A_slt_classify_slt;
     destruct pf; simpl.
     rewrite corectness_slt_classify_certificates_proofs.
-    destruct ((A_slt_classify_proofs (A_eqv_eq S A_slt_carrier0) A_slt_plus0
-    A_slt_trans0 A_slt_proofs0)); simpl.
+    destruct ((A_slt_classify_proofs 
+      (A_eqv_eq S A_slt_carrier0) A_slt_plus0
+      A_slt_trans0 A_slt_proofs0)); simpl.
     + reflexivity.
     + destruct A_slt_exists_plus_ann_d0; simpl.
       ++ 
@@ -689,7 +690,8 @@ Section Verify.
         +++ destruct p; simpl; reflexivity.
         +++ destruct p; simpl; reflexivity.
         +++ rewrite correct_sg_certificates_classify_sg;
-            destruct (A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_carrier0) A_slt_plus0
+            destruct (A_sg_proofs_classify_sg S 
+            (A_eqv_eq S A_slt_carrier0) A_slt_plus0
             A_slt_plus_proofs0);
             simpl; reflexivity.
         +++ reflexivity.
@@ -700,8 +702,9 @@ Section Verify.
       ++ destruct p; simpl; reflexivity.
       ++ destruct p; simpl; reflexivity.
       ++ rewrite correct_sg_certificates_classify_sg;
-      destruct (A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_carrier0) A_slt_plus0
-      A_slt_plus_proofs0);
+      destruct (A_sg_proofs_classify_sg S 
+        (A_eqv_eq S A_slt_carrier0) A_slt_plus0
+        A_slt_plus_proofs0);
       simpl; reflexivity.
       ++ reflexivity.
   Qed. 
