@@ -73,7 +73,9 @@ Lemma ltr_plus_one_not_exists_ann : ltr_not_exists_ann nat nat brel_eq_nat ltr_p
 Proof. unfold ltr_not_exists_ann.
        intro s.  unfold ltr_not_is_ann, ltr_plus_one. 
        exists 0. unfold brel_eq_nat. unfold bop_plus.
-Admitted. 
+       rewrite PeanoNat.Nat.eqb_neq.
+       auto with arith.
+Qed.
 
 
 
