@@ -60,7 +60,7 @@ Section ACAS.
   
   
 
-  Definition A_selective_left_pre_dioid_proof : @A_selective_left_pre_dioid nat nat :=
+  Definition A_slt_min_plus_one : @A_selective_left_pre_dioid nat nat :=
     {|
       A_selective_left_pre_dioid_carrier := A_eqv_nat;
       A_selective_left_pre_dioid_label := A_eqv_nat;
@@ -87,10 +87,65 @@ Section ACAS.
     |}.
 
 
-
-
          
 End ACAS.
+
+Section AMCAS.
+  
+  Definition A_mcas_slt_min_plus_one := @A_SLT_Selective_Left_Pre_Dioid _ _ A_slt_min_plus_one.
+
+
+End AMCAS.
+
+Section CAS. 
+
+  Definition slt_min_plus_one : @selective_left_pre_dioid nat nat :=
+    {|
+      selective_left_pre_dioid_carrier := eqv_eq_nat;
+      selective_left_pre_dioid_label := eqv_eq_nat;
+      selective_left_pre_dioid_plus := bop_min;
+      selective_left_pre_dioid_trans := ltr_plus_one;
+      selective_left_pre_dioid_plus_certs := sg_CS_certs_min;
+      selective_left_pre_dioid_trans_certs := ltr_plus_one_certs;
+      selective_left_pre_dioid_exists_plus_ann :=
+      properties.Assert_Exists_Ann 0%nat;
+      selective_left_pre_dioid_id_ann_certs_d := Certify_SLT_Id_Ann_Proof_None;
+      selective_left_pre_dioid_certs :=
+        {|
+          left_dioid_distributive := Assert_Slt_Distributive;
+          left_dioid_absorptive := Assert_Slt_Absorptive;
+          left_dioid_strictly_absorptive_d := Certify_Slt_Strictly_Absorptive
+        |};
+      selective_left_pre_dioid_ast := Cas_ast "slt_min_plus_one" nil
+    |}.
+    
+    
+
+End CAS.
+
+Section MCAS.
+
+  Definition mcas_slt_min_plus_one := SLT_Selective_Left_Pre_Dioid slt_min_plus_one.
+
+End MCAS.
+
+Section Verify.
+
+  Theorem correct_slt_min_plus_one : 
+    slt_min_plus_one = A2C_selective_left_pre_dioid A_slt_min_plus_one.
+  Proof.
+    Time compute.
+    reflexivity.
+  Qed.
+
+  Theorem correct_mcas_slt_min_plus_one : 
+    mcas_slt_min_plus_one = A2C_mcas_slt A_mcas_slt_min_plus_one.
+  Proof.
+    Time compute.
+    reflexivity.
+  Qed.
+
+End Verify.
 
 
 
