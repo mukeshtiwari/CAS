@@ -134,14 +134,12 @@ Section Verify.
   Theorem correct_slt_min_plus_one : 
     slt_min_plus_one = A2C_selective_left_pre_dioid A_slt_min_plus_one.
   Proof.
-    Time compute.
     reflexivity.
   Qed.
 
   Theorem correct_mcas_slt_min_plus_one : 
     mcas_slt_min_plus_one = A2C_mcas_slt A_mcas_slt_min_plus_one.
   Proof.
-    Time compute.
     reflexivity.
   Qed.
 
