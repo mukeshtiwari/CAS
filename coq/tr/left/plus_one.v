@@ -152,15 +152,12 @@ Section Verify.
 
 Theorem correct_ltr_plus_one :
     left_transform_plus_one = A2C_left_transform nat nat A_left_transform_plus_one. 
-Proof. compute. reflexivity. Qed. 
+Proof. reflexivity. Qed. 
 
 
 Theorem correct_mcas_ltr_plus_one : 
     mcas_ltr_plus_one = A2C_mcas_ltr _  _ A_mcas_ltr_plus_one.
-Proof. 
-    compute.
-    reflexivity.
-Qed.
+Proof. reflexivity. Qed.
 
 
 End Verify.   
