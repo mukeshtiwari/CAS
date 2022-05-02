@@ -11,7 +11,7 @@ Require Import CAS.coq.st.properties.
 Require Import CAS.coq.st.structures.
 Require Import CAS.coq.sg.cast_up
   CAS.coq.sg.min.
-From Coq Require Import Lia.
+From Coq Require Import Lia String.
 Section Theory.
 
 Open Scope nat.
@@ -58,56 +58,38 @@ End Theory.
 
 Section ACAS.
   
-(* 
-       I need to build left pre semiring
-*)
-
   
-  Definition A_left_semiring_proof : @A_left_pre_semiring nat nat.
-  Proof.
-    econstructor.
-    + 
-      instantiate (1 := bop_min).
-      instantiate (1 := A_eqv_nat).
-      exact (A_sg_C_proofs_from_sg_CS_proofs 
-        nat (A_eqv_eq nat A_eqv_nat) bop_min O S
-        brel_eq_nat_not_trivial
-        eqv_proofs_eq_nat
-        min.sg_CS_proofs_min).
-    +
-      instantiate (1 := ltr_plus_one).
-      instantiate (1 := A_eqv_nat).
-      exact ltr_plus_one_proofs.
-    + 
-      unfold properties.bop_exists_ann_decidable.
-      left;
-      exact bop_min_exists_ann.
-    + Search slt_exists_id_ann_decidable.
-      constructor; split.
-      eapply bop_min_not_exists_id.
-      eapply ltr_plus_one_not_exists_ann.
-    + 
-      (* I realised that I need to discharge 
-        slt_not_absorptive (A_eqv_eq nat A_eqv_nat) bop_min ltr_plus_one
-        but Tim has proved that 
-        slt_strictly_absorptive brel_eq_nat bop_min ltr_plus_one. 
-        So, I need to add another record in structures.v file 
-        
-        Record left_pre_semiring_proofs {L S : Type} (r : brel S) 
-        (add : binary_op S) (ltr : ltr_type L S) :=
-        {
-          A_left_pre_semiring_distributive  : slt_distributive r add ltr
-        ; A_left_pre_semiring_strictly_absorptive : slt_strictly_absorptive brel_eq_nat bop_min ltr_plus_one                                              
-        }.
 
-        But this one appears to be after left semiring and before left_dioid but I could be wrong.
+  Definition A_selective_left_pre_dioid_proof : @A_selective_left_pre_dioid nat nat :=
+    {|
+      A_selective_left_pre_dioid_carrier := A_eqv_nat;
+      A_selective_left_pre_dioid_label := A_eqv_nat;
+      A_selective_left_pre_dioid_plus := bop_min;
+      A_selective_left_pre_dioid_trans := ltr_plus_one;
+      A_selective_left_pre_dioid_plus_proofs := sg_CS_proofs_min;
+      A_selective_left_pre_dioid_trans_proofs := ltr_plus_one_proofs;
+      A_selective_left_pre_dioid_exists_plus_ann :=
+      existT
+          (λ a : nat,
+            properties.bop_is_ann nat (A_eqv_eq nat A_eqv_nat) bop_min a) 0%nat
+          bop_min_zero_is_ann;
+      A_selective_left_pre_dioid_id_ann_proofs_d :=
+        SLT_Id_Ann_Proof_None (A_eqv_eq nat A_eqv_nat) bop_min ltr_plus_one
+          (bop_min_not_exists_id, ltr_plus_one_not_exists_ann);
+      A_selective_left_pre_dioid_proofs :=
+        {|
+          A_left_dioid_distributive := slt_min_plus_one_distributive;
+          A_left_dioid_absorptive := min_plus_one_slt_absorptive;
+          A_left_dioid_strictly_absorptive_d :=
+            inl min_plus_one_slt_strictly_absorptive
+        |};
+      A_selective_left_pre_dioid_ast := Cas_ast "slt_min_plus_one" nil
+    |}.
 
-      *)
-      constructor. 
-      eapply slt_min_plus_one_distributive.
-      
-  Admitted.
-    
+
+
+
+         
 End ACAS.
 
 

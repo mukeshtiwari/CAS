@@ -1,6 +1,9 @@
 Require Import CAS.coq.common.compute.
-
+From Coq Require Import String.
   
+Inductive cas_ast : Type :=
+   | Cas_ast : string -> list cas_ast -> cas_ast. 
+
 Inductive cas_eqv_ast : Type :=
    | Ast_eqv_ascii         : cas_eqv_ast
    | Ast_eqv_bool          : cas_eqv_ast
@@ -106,6 +109,7 @@ with cas_ltr_ast : Type :=
    | Ast_ltr_from_sg       : cas_ltr_ast             → cas_ltr_ast
    | Ast_ltr_with_policy   : cas_ltr_ast            → cas_ltr_ast
 with cas_lstr_ast : Type :=
+| Ast_lstr_min_plus_one : cas_lstr_ast
 | Ast_lstr_product         : cas_lstr_ast * cas_lstr_ast  → cas_lstr_ast
 | Ast_lstr_llex_product    : cas_lstr_ast * cas_lstr_ast  → cas_lstr_ast
 with cas_lotr_ast : Type :=

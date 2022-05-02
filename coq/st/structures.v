@@ -126,7 +126,7 @@ Record A_slt {L S : Type} :=
                   (A_eqv_eq S A_slt_carrier) 
                   A_slt_plus 
                   A_slt_trans                                  
-; A_slt_ast : cas_lstr_ast
+; A_slt_ast : cas_ast
 }.
 
 
@@ -158,7 +158,7 @@ Record A_selective_left_dioid {L S : Type} :=
                                     (A_eqv_eq S A_selective_left_dioid_carrier)
                                     A_selective_left_dioid_plus
                                     A_selective_left_dioid_trans                                  
-; A_selective_left_dioid_ast : cas_lstr_ast 
+; A_selective_left_dioid_ast : cas_ast 
 }.
 
 
@@ -188,7 +188,7 @@ Record A_selective_left_pre_dioid {L S : Type} :=
                                         (A_eqv_eq S A_selective_left_pre_dioid_carrier)
                                         A_selective_left_pre_dioid_plus
                                         A_selective_left_pre_dioid_trans                                  
-  ; A_selective_left_pre_dioid_ast : cas_lstr_ast 
+  ; A_selective_left_pre_dioid_ast : cas_ast 
 }.
 
 
@@ -216,7 +216,7 @@ Record A_left_dioid {L S : Type} :=
                                     (A_eqv_eq S A_left_dioid_carrier) 
                                     A_left_dioid_plus 
                                     A_left_dioid_trans 
-  ; A_left_dioid_ast             : cas_lstr_ast 
+  ; A_left_dioid_ast             : cas_ast 
   }.
 
 
@@ -244,7 +244,7 @@ Record A_left_pre_semiring {L S : Type} :=
                                           (A_eqv_eq S A_left_pre_semiring_carrier) 
                                           A_left_pre_semiring_plus 
                                           A_left_pre_semiring_trans 
-  ; A_left_pre_semiring_ast             : cas_lstr_ast 
+  ; A_left_pre_semiring_ast             : cas_ast 
 }.
 
 
@@ -273,7 +273,7 @@ Record A_left_semiring {L S : Type} :=
                                       (A_eqv_eq S A_left_semiring_carrier) 
                                       A_left_semiring_plus 
                                       A_left_semiring_trans 
-  ; A_left_semiring_ast             : cas_lstr_ast 
+  ; A_left_semiring_ast             : cas_ast 
 }.
 
 
@@ -444,7 +444,7 @@ Section CAS.
     ; slt_exists_plus_ann_d : @check_exists_ann S                              
     ; slt_id_ann_certs_d : @check_slt_exists_id_ann L S                 
     ; slt_certs         : @slt_certificates L S                                
-    ; slt_ast            : cas_lstr_ast
+    ; slt_ast            : cas_ast
     }.
    
   
@@ -459,7 +459,7 @@ Section CAS.
       ; selective_left_pre_dioid_exists_plus_ann : @assert_exists_ann S                               
       ; selective_left_pre_dioid_id_ann_certs_d :  @check_slt_exists_id_ann L S                      
       ; selective_left_pre_dioid_certs : @left_dioid_certificates L S                                
-      ; selective_left_pre_dioid_ast : cas_lstr_ast 
+      ; selective_left_pre_dioid_ast : cas_ast 
     }.
 
   Record selective_left_dioid {L S : Type} :=
@@ -473,7 +473,7 @@ Section CAS.
     ; selective_left_dioid_exists_plus_ann : @assert_exists_ann S                              
     ; selective_left_dioid_id_ann_certs  : @assert_slt_exists_id_ann_equal L S                      
     ; selective_left_dioid_certs  : @left_dioid_certificates L S                                
-    ; selective_left_dioid_ast          : cas_lstr_ast 
+    ; selective_left_dioid_ast          : cas_ast 
     }.
 
 
@@ -488,7 +488,7 @@ Section CAS.
     ; left_dioid_exists_plus_ann : @assert_exists_ann S                               
     ; left_dioid_id_ann_certs   : @assert_slt_exists_id_ann_equal L S
     ; left_dioid_certs          : @left_dioid_certificates L S
-    ; left_dioid_ast             : cas_lstr_ast 
+    ; left_dioid_ast             : cas_ast 
     }.
     
   
@@ -503,7 +503,7 @@ Section CAS.
       ; left_pre_semiring_exists_plus_ann_d : @check_exists_ann S                                
       ; left_pre_semiring_id_ann_certs_d   : @check_slt_exists_id_ann L S 
       ; left_pre_semiring_certs          : @left_semiring_certificates L S
-      ; left_pre_semiring_ast             : cas_lstr_ast 
+      ; left_pre_semiring_ast             : cas_ast 
     }.
 
   Record left_semiring {L S : Type} :=
@@ -517,7 +517,7 @@ Section CAS.
     ; left_semiring_exists_plus_ann_d : @check_exists_ann S                                
     ; left_semiring_id_ann_certs   : @assert_slt_exists_id_ann_equal L S 
     ; left_semiring_certs          : @left_semiring_certificates L S
-    ; left_semiring_ast             : cas_lstr_ast 
+    ; left_semiring_ast             : cas_ast 
     }.  
     
     
