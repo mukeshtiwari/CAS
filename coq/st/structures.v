@@ -92,8 +92,7 @@ Record left_dioid_proofs {L S : Type} (r : brel S)
 {
   A_left_dioid_distributive : slt_distributive r add ltr
 ; A_left_dioid_absorptive : slt_absorptive r add ltr                                               
-; A_left_dioid_strictly_absorptive_d : 
-    slt_strictly_absorptive_decidable r add ltr 
+; A_left_dioid_strictly_absorptive_d : slt_strictly_absorptive_decidable r add ltr 
 }.
 
 
@@ -163,30 +162,62 @@ Record A_selective_left_dioid {L S : Type} :=
 }.
 
 
-Record A_left_dioid {L S : Type} :=
+
+
+Record A_selective_left_pre_dioid {L S : Type} :=
 {
-  A_left_dioid_carrier         : A_eqv S
-; A_left_dioid_label           : A_eqv L
-; A_left_dioid_plus            : binary_op S                                               
-; A_left_dioid_trans           : ltr_type L S (* L -> (S -> S) *)
-; A_left_dioid_plus_proofs     : sg_CI_proofs S (A_eqv_eq S A_left_dioid_carrier) A_left_dioid_plus                                 
-; A_left_dioid_trans_proofs    : left_transform_proofs L S 
-                                    (A_eqv_eq S A_left_dioid_carrier) 
-                                    (A_eqv_eq L A_left_dioid_label) 
-                                    A_left_dioid_trans
-; A_left_dioid_exists_plus_ann : bop_exists_ann S 
-                                  (A_eqv_eq S A_left_dioid_carrier) 
-                                  A_left_dioid_plus                                 
-; A_left_dioid_id_ann_proofs   : slt_exists_id_ann_equal 
-                                  (A_eqv_eq S A_left_dioid_carrier) 
-                                  A_left_dioid_plus  
-                                  A_left_dioid_trans 
-; A_left_dioid_proofs          : left_dioid_proofs 
-                                  (A_eqv_eq S A_left_dioid_carrier) 
-                                  A_left_dioid_plus 
-                                  A_left_dioid_trans 
-; A_left_dioid_ast             : cas_lstr_ast 
+    A_selective_left_pre_dioid_carrier      : A_eqv S
+  ; A_selective_left_pre_dioid_label        : A_eqv L
+  ; A_selective_left_pre_dioid_plus         : binary_op S                                               
+  ; A_selective_left_pre_dioid_trans        : ltr_type L S (* L -> (S -> S) *)
+  ; A_selective_left_pre_dioid_plus_proofs  : sg_CS_proofs S 
+                                              (A_eqv_eq S A_selective_left_pre_dioid_carrier) 
+                                              A_selective_left_pre_dioid_plus 
+  ; A_selective_left_pre_dioid_trans_proofs : left_transform_proofs L S
+                                              (A_eqv_eq S A_selective_left_pre_dioid_carrier)
+                                              (A_eqv_eq L A_selective_left_pre_dioid_label)
+                                              A_selective_left_pre_dioid_trans
+  ; A_selective_left_pre_dioid_exists_plus_ann : bop_exists_ann S
+                                                (A_eqv_eq S A_selective_left_pre_dioid_carrier)
+                                                A_selective_left_pre_dioid_plus                                 
+  ; A_selective_left_pre_dioid_id_ann_proofs_d : slt_exists_id_ann_decidable 
+                                                (A_eqv_eq S A_selective_left_pre_dioid_carrier)
+                                                A_selective_left_pre_dioid_plus
+                                                A_selective_left_pre_dioid_trans                        
+  ; A_selective_left_pre_dioid_proofs : left_dioid_proofs 
+                                        (A_eqv_eq S A_selective_left_pre_dioid_carrier)
+                                        A_selective_left_pre_dioid_plus
+                                        A_selective_left_pre_dioid_trans                                  
+  ; A_selective_left_pre_dioid_ast : cas_lstr_ast 
 }.
+
+
+
+
+Record A_left_dioid {L S : Type} :=
+  {
+    A_left_dioid_carrier         : A_eqv S
+  ; A_left_dioid_label           : A_eqv L
+  ; A_left_dioid_plus            : binary_op S                                               
+  ; A_left_dioid_trans           : ltr_type L S (* L -> (S -> S) *)
+  ; A_left_dioid_plus_proofs     : sg_CI_proofs S (A_eqv_eq S A_left_dioid_carrier) A_left_dioid_plus                                 
+  ; A_left_dioid_trans_proofs    : left_transform_proofs L S 
+                                      (A_eqv_eq S A_left_dioid_carrier) 
+                                      (A_eqv_eq L A_left_dioid_label) 
+                                      A_left_dioid_trans
+  ; A_left_dioid_exists_plus_ann : bop_exists_ann S 
+                                    (A_eqv_eq S A_left_dioid_carrier) 
+                                    A_left_dioid_plus                                 
+  ; A_left_dioid_id_ann_proofs   : slt_exists_id_ann_equal 
+                                    (A_eqv_eq S A_left_dioid_carrier) 
+                                    A_left_dioid_plus  
+                                    A_left_dioid_trans 
+  ; A_left_dioid_proofs          : left_dioid_proofs 
+                                    (A_eqv_eq S A_left_dioid_carrier) 
+                                    A_left_dioid_plus 
+                                    A_left_dioid_trans 
+  ; A_left_dioid_ast             : cas_lstr_ast 
+  }.
 
 
 Record A_left_pre_semiring {L S : Type} :=
@@ -220,29 +251,29 @@ Record A_left_pre_semiring {L S : Type} :=
 
 Record A_left_semiring {L S : Type} :=
 {
-  A_left_semiring_carrier         : A_eqv S
-; A_left_semiring_label           : A_eqv L
-; A_left_semiring_plus            : binary_op S                                               
-; A_left_semiring_trans           : ltr_type L S (* L -> (S -> S) *)
-; A_left_semiring_plus_proofs     : sg_C_proofs S 
-                                    (A_eqv_eq S A_left_semiring_carrier) 
-                                    A_left_semiring_plus                                 
-; A_left_semiring_trans_proofs    : left_transform_proofs L S 
-                                    (A_eqv_eq S A_left_semiring_carrier) 
-                                    (A_eqv_eq L A_left_semiring_label)  
-                                    A_left_semiring_trans
-; A_left_semiring_exists_plus_ann_d : bop_exists_ann_decidable S 
+    A_left_semiring_carrier         : A_eqv S
+  ; A_left_semiring_label           : A_eqv L
+  ; A_left_semiring_plus            : binary_op S                                               
+  ; A_left_semiring_trans           : ltr_type L S (* L -> (S -> S) *)
+  ; A_left_semiring_plus_proofs     : sg_C_proofs S 
                                       (A_eqv_eq S A_left_semiring_carrier) 
                                       A_left_semiring_plus                                 
-; A_left_semiring_id_ann_proofs   : slt_exists_id_ann_equal 
-                                    (A_eqv_eq S A_left_semiring_carrier) 
-                                    A_left_semiring_plus  
-                                    A_left_semiring_trans 
-; A_left_semiring_proofs          : left_semiring_proofs 
-                                    (A_eqv_eq S A_left_semiring_carrier) 
-                                    A_left_semiring_plus 
-                                    A_left_semiring_trans 
-; A_left_semiring_ast             : cas_lstr_ast 
+  ; A_left_semiring_trans_proofs    : left_transform_proofs L S 
+                                      (A_eqv_eq S A_left_semiring_carrier) 
+                                      (A_eqv_eq L A_left_semiring_label)  
+                                      A_left_semiring_trans
+  ; A_left_semiring_exists_plus_ann_d : bop_exists_ann_decidable S 
+                                        (A_eqv_eq S A_left_semiring_carrier) 
+                                        A_left_semiring_plus                                 
+  ; A_left_semiring_id_ann_proofs   : slt_exists_id_ann_equal 
+                                      (A_eqv_eq S A_left_semiring_carrier) 
+                                      A_left_semiring_plus  
+                                      A_left_semiring_trans 
+  ; A_left_semiring_proofs          : left_semiring_proofs 
+                                      (A_eqv_eq S A_left_semiring_carrier) 
+                                      A_left_semiring_plus 
+                                      A_left_semiring_trans 
+  ; A_left_semiring_ast             : cas_lstr_ast 
 }.
 
 
@@ -254,6 +285,7 @@ Inductive A_slt_mcas {L S : Type} :=
 | A_SLT_Error : list string                          -> @A_slt_mcas L S
 | A_SLT : @A_slt L S                                  -> @A_slt_mcas L S
 | A_SLT_Dioid : @A_left_dioid L S                     -> @A_slt_mcas L S
+| A_SLT_Selective_Left_Pre_Dioid : @A_selective_left_pre_dioid L S -> @A_slt_mcas L S
 | A_SLT_Selective_Dioid : @A_selective_left_dioid L S -> @A_slt_mcas L S
 | A_SLT_Left_Pre_Semiring : @A_left_pre_semiring L S -> @A_slt_mcas L S 
 | A_SLT_Semiring : @A_left_semiring L S -> @A_slt_mcas L S. 
@@ -364,6 +396,7 @@ Definition A_slt_classify {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :
   | A_SLT_Error ls => A
   | A_SLT slt => A_slt_classify_slt slt
   | A_SLT_Dioid slt => A
+  | A_SLT_Selective_Left_Pre_Dioid slt => A
   | A_SLT_Left_Pre_Semiring slt => A 
   | A_SLT_Semiring slt => A
   | A_SLT_Selective_Dioid slt => A 
@@ -389,6 +422,8 @@ Section CAS.
     ; left_dioid_strictly_absorptive_d : @check_slt_strictly_absorptive L S
     }.
 
+    
+
 
   Record left_semiring_certificates {L S : Type} :=
     {
@@ -413,6 +448,20 @@ Section CAS.
     }.
    
   
+    Record selective_left_pre_dioid {L S : Type} :=
+    {
+        selective_left_pre_dioid_carrier      : @eqv S
+      ; selective_left_pre_dioid_label        : @eqv L
+      ; selective_left_pre_dioid_plus         : binary_op S                                               
+      ; selective_left_pre_dioid_trans        : ltr_type L S (* L -> (S -> S) *)
+      ; selective_left_pre_dioid_plus_certs   : @sg_CS_certificates S
+      ; selective_left_pre_dioid_trans_certs  : @left_transform_certificates L S
+      ; selective_left_pre_dioid_exists_plus_ann : @assert_exists_ann S                               
+      ; selective_left_pre_dioid_id_ann_certs_d :  @check_slt_exists_id_ann L S                      
+      ; selective_left_pre_dioid_certs : @left_dioid_certificates L S                                
+      ; selective_left_pre_dioid_ast : cas_lstr_ast 
+    }.
+
   Record selective_left_dioid {L S : Type} :=
     {
       selective_left_dioid_carrier      : @eqv S
@@ -478,10 +527,11 @@ End CAS.
 Section MCAS.
 
   Inductive slt_mcas {L S : Type} :=
-  | SLT_Error : list string                          -> @slt_mcas L S
+  | SLT_Error : list string                         -> @slt_mcas L S
   | SLT : @slt L S                                  -> @slt_mcas L S
   | SLT_Dioid : @left_dioid L S                     -> @slt_mcas L S
   | SLT_Selective_Dioid : @selective_left_dioid L S -> @slt_mcas L S
+  | SLT_Selective_Left_Pre_Dioid : @selective_left_pre_dioid L S -> @slt_mcas L S
   | SLT_Left_Pre_Semiring : @left_pre_semiring L S -> @slt_mcas L S
   | SLT_Semiring : @left_semiring L S -> @slt_mcas L S. 
 
@@ -594,7 +644,8 @@ Section MCAS.
     | SLT slt => slt_classify_slt slt
     | SLT_Dioid slt => A
     | SLT_Left_Pre_Semiring slt => A
-    | SLT_Semiring slt => A 
+    | SLT_Semiring slt => A
+    | SLT_Selective_Left_Pre_Dioid slt => A
     | SLT_Selective_Dioid slt => A 
     end.  
 
@@ -676,6 +727,23 @@ Section Translation.
       ; selective_left_dioid_ast := A_selective_left_dioid_ast A   
     |}.
 
+  Definition A2C_selective_left_pre_dioid {L S : Type} :
+    @A_selective_left_pre_dioid L S -> @selective_left_pre_dioid L S :=
+    λ A,
+    {|
+        selective_left_pre_dioid_carrier      := A2C_eqv _ (A_selective_left_pre_dioid_carrier A) 
+      ; selective_left_pre_dioid_label        := A2C_eqv _ (A_selective_left_pre_dioid_label A)
+      ; selective_left_pre_dioid_plus         := A_selective_left_pre_dioid_plus A                                               
+      ; selective_left_pre_dioid_trans        := A_selective_left_pre_dioid_trans A
+      ; selective_left_pre_dioid_plus_certs   := P2C_sg_CS _ _ _ (A_selective_left_pre_dioid_plus_proofs A)
+      ; selective_left_pre_dioid_trans_certs  := P2C_left_transform _ _ _ _ _ (A_selective_left_pre_dioid_trans_proofs A)
+      ; selective_left_pre_dioid_exists_plus_ann := p2c_exists_ann_assert _ _ _ (A_selective_left_pre_dioid_exists_plus_ann A)                         
+      ; selective_left_pre_dioid_id_ann_certs_d := p2c_slt_exists_id_ann_check _ _ _ (A_selective_left_pre_dioid_id_ann_proofs_d A)                 
+      ; selective_left_pre_dioid_certs :=  @P2C_left_dioid L S _ _ _ (A_selective_left_pre_dioid_proofs A)                              
+      ; selective_left_pre_dioid_ast := A_selective_left_pre_dioid_ast A   
+    |}.
+  
+
     
   Definition A2C_left_dioid  {L S : Type} :
     @A_left_dioid L S -> @left_dioid L S :=
@@ -738,6 +806,7 @@ Section Translation.
       | A_SLT pf => SLT (A2C_slt pf)
       | A_SLT_Dioid pf => SLT_Dioid (A2C_left_dioid pf) 
       | A_SLT_Selective_Dioid pf => SLT_Selective_Dioid (A2C_selective_left_dioid pf)
+      | A_SLT_Selective_Left_Pre_Dioid pf => SLT_Selective_Left_Pre_Dioid (A2C_selective_left_pre_dioid pf)
       | A_SLT_Left_Pre_Semiring pf => SLT_Left_Pre_Semiring (A2C_pre_left_semiring pf) 
       | A_SLT_Semiring pf => SLT_Semiring (A2C_left_semiring pf) 
     end. 
@@ -842,6 +911,15 @@ Section Verify.
     reflexivity.
   Qed.
 
+  Lemma correctness_A2C_selective_left_pre_dioid : 
+    forall pf,
+    SLT_Selective_Left_Pre_Dioid (A2C_selective_left_pre_dioid pf) =
+    @SLT_Selective_Left_Pre_Dioid L S (A2C_selective_left_pre_dioid pf).
+  Proof.
+    intros ?.
+    reflexivity.
+  Qed.
+
   Lemma correctness_A2C_pre_left_semiring : 
     forall pf, 
     SLT_Left_Pre_Semiring (A2C_pre_left_semiring pf) =
@@ -872,6 +950,7 @@ Section Verify.
     + reflexivity.
     + eapply correctness_slt_classify_slt.
     + eapply correctness_A2C_left_dioid.
+    + eapply correctness_A2C_selective_left_pre_dioid.
     + eapply correctness_A2C_selective_left_dioid.
     + eapply correctness_A2C_pre_left_semiring.
     + eapply correctness_A2C_left_semiring.
