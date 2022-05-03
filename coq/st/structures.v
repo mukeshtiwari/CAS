@@ -110,7 +110,7 @@ Record A_slt {L S : Type} :=
 ; A_slt_label          : A_eqv L
 ; A_slt_plus           : binary_op S                                               
 ; A_slt_trans          : ltr_type L S (* L -> (S -> S) *)
-; A_slt_plus_proofs    : sg_proofs S (A_eqv_eq S A_slt_carrier) A_slt_plus                                 
+; A_slt_plus_proofs    : sg_proofs S (A_eqv_eq S A_slt_carrier) A_slt_plus                           
 ; A_slt_trans_proofs   :  left_transform_proofs L S 
                             (A_eqv_eq S A_slt_carrier) 
                             (A_eqv_eq L A_slt_label)  
@@ -121,7 +121,7 @@ Record A_slt {L S : Type} :=
 ; A_slt_id_ann_proofs_d  : slt_exists_id_ann_decidable 
                             (A_eqv_eq S A_slt_carrier) 
                             A_slt_plus  
-                            A_slt_trans                        
+                            A_slt_trans                                               
 ; A_slt_proofs : slt_proofs 
                   (A_eqv_eq S A_slt_carrier) 
                   A_slt_plus 
@@ -130,6 +130,85 @@ Record A_slt {L S : Type} :=
 }.
 
 
+Record A_slt_CS {L S : Type} :=
+{
+    A_slt_CS_carrier        : A_eqv S
+  ; A_slt_CS_label          : A_eqv L
+  ; A_slt_CS_plus           : binary_op S                                               
+  ; A_slt_CS_trans          : ltr_type L S (* L -> (S -> S) *)
+  ; A_slt_CS_plus_proofs    : sg_CS_proofs S (A_eqv_eq S A_slt_CS_carrier) A_slt_CS_plus                         
+  ; A_slt_CS_trans_proofs   : left_transform_proofs L S 
+                              (A_eqv_eq S A_slt_CS_carrier) 
+                              (A_eqv_eq L A_slt_CS_label)  
+                              A_slt_CS_trans
+  ; A_slt_CS_exists_plus_ann_d : bop_exists_ann_decidable S 
+                              (A_eqv_eq S A_slt_CS_carrier) 
+                              A_slt_CS_plus                                 
+  ; A_slt_CS_id_ann_proofs_d  : slt_exists_id_ann_decidable 
+                              (A_eqv_eq S A_slt_CS_carrier) 
+                              A_slt_CS_plus  
+                              A_slt_CS_trans                                          
+  ; A_slt_CS_proofs : slt_proofs 
+                      (A_eqv_eq S A_slt_CS_carrier) 
+                      A_slt_CS_plus 
+                      A_slt_CS_trans                                  
+  ; A_slt_CS_ast : cas_ast
+}.
+
+
+Record A_slt_CI {L S : Type} :=
+{
+    A_slt_CI_carrier        : A_eqv S
+  ; A_slt_CI_label          : A_eqv L
+  ; A_slt_CI_plus           : binary_op S                                               
+  ; A_slt_CI_trans          : ltr_type L S (* L -> (S -> S) *)
+  ; A_slt_CI_plus_proofs    : sg_CI_proofs S (A_eqv_eq S A_slt_CI_carrier) A_slt_CI_plus                         
+  ; A_slt_CI_trans_proofs   : left_transform_proofs L S 
+                              (A_eqv_eq S A_slt_CI_carrier) 
+                              (A_eqv_eq L A_slt_CI_label)  
+                              A_slt_CI_trans
+  ; A_slt_CI_exists_plus_ann_d : bop_exists_ann_decidable S 
+                              (A_eqv_eq S A_slt_CI_carrier) 
+                              A_slt_CI_plus                                 
+  ; A_slt_CI_id_ann_proofs_d  : slt_exists_id_ann_decidable 
+                              (A_eqv_eq S A_slt_CI_carrier) 
+                              A_slt_CI_plus  
+                              A_slt_CI_trans                                          
+  ; A_slt_CI_proofs : slt_proofs 
+                    (A_eqv_eq S A_slt_CI_carrier) 
+                    A_slt_CI_plus 
+                    A_slt_CI_trans                                  
+  ; A_slt_CI_ast : cas_ast
+}.
+
+
+
+Record A_slt_zero_is_ltr_ann {L S : Type} :=
+{
+    A_slt_zero_is_ltr_ann_carrier        : A_eqv S
+  ; A_slt_zero_is_ltr_ann_label          : A_eqv L
+  ; A_slt_zero_is_ltr_ann_plus           : binary_op S                                               
+  ; A_slt_zero_is_ltr_ann_trans          : ltr_type L S (* L -> (S -> S) *)
+  ; A_slt_zero_is_ltr_ann_plus_proofs    : sg_proofs S 
+                                            (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier) 
+                                            A_slt_zero_is_ltr_ann_plus                           
+  ; A_slt_zero_is_ltr_ann_trans_proofs   :  left_transform_proofs L S 
+                                            (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier) 
+                                            (A_eqv_eq L A_slt_zero_is_ltr_ann_label)  
+                                            A_slt_zero_is_ltr_ann_trans
+  ; A_slt_zero_is_ltr_ann_exists_plus_ann_d : bop_exists_ann_decidable S 
+                                              (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier) 
+                                              A_slt_zero_is_ltr_ann_plus                                 
+  ; A_slt_zero_is_ltr_ann_id_ann_proofs  : slt_exists_id_ann_equal
+                                            (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier) 
+                                            A_slt_zero_is_ltr_ann_plus  
+                                            A_slt_zero_is_ltr_ann_trans                                               
+  ; A_slt_zero_is_ltr_ann_proofs : slt_proofs 
+                                    (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier) 
+                                    A_slt_zero_is_ltr_ann_plus 
+                                    A_slt_zero_is_ltr_ann_trans                                  
+  ; A_slt_zero_is_ltr_ann_ast : cas_ast
+}.
 
 
 
@@ -284,6 +363,9 @@ Section AMCAS.
 Inductive A_slt_mcas {L S : Type} :=
 | A_SLT_Error : list string                          -> @A_slt_mcas L S
 | A_SLT : @A_slt L S                                  -> @A_slt_mcas L S
+| A_SLT_CS : @A_slt_CS L S                            -> @A_slt_mcas L S
+| A_SLT_CI : @A_slt_CI L S                            -> @A_slt_mcas L S
+| A_SLT_Zero_Is_Ltr_Ann : @A_slt_zero_is_ltr_ann L S  -> @A_slt_mcas L S
 | A_SLT_Dioid : @A_left_dioid L S                     -> @A_slt_mcas L S
 | A_SLT_Selective_Left_Pre_Dioid : @A_selective_left_pre_dioid L S -> @A_slt_mcas L S
 | A_SLT_Selective_Dioid : @A_selective_left_dioid L S -> @A_slt_mcas L S
@@ -386,15 +468,36 @@ Definition A_slt_classify_slt {L S : Type} (A : @A_slt L S) : A_slt_mcas :=
       end
     | inr _  => A_SLT A
     end 
-  end. 
-    
- 
+  end.
+  
+  
+
+Definition A_slt_classify_slt_CS {L S : Type} (A : @A_slt_CS L S) : @A_slt_mcas L S.
+Proof.
+Admitted.
+
+
+
+Definition A_slt_classify_slt_CI {L S : Type} (A : @A_slt_CI L S) : @A_slt_mcas L S.
+Proof.
+Admitted.
+
+
+Definition A_slt_classify_slt_zero_is_ltr_ann {L S : Type} 
+  (A : @A_slt_zero_is_ltr_ann L S) : @A_slt_mcas L S.
+Proof.
+Admitted.
+
+(* Work up to this point *) 
 
 
 Definition A_slt_classify {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
   match A with
   | A_SLT_Error ls => A
   | A_SLT slt => A_slt_classify_slt slt
+  | A_SLT_CS slt => A_slt_classify_slt_CS slt (* write *)
+  | A_SLT_CI slt => A_slt_classify_slt_CI slt (* write*)
+  | A_SLT_Zero_Is_Ltr_Ann slt => A_slt_classify_slt_zero_is_ltr_ann slt (* write *)
   | A_SLT_Dioid slt => A
   | A_SLT_Selective_Left_Pre_Dioid slt => A
   | A_SLT_Left_Pre_Semiring slt => A 
