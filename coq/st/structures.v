@@ -481,6 +481,34 @@ Definition A_slt_classify_slt {L S : Type} (A : @A_slt L S) : A_slt_mcas :=
             ; A_left_semiring_proofs          := pf
             ; A_left_semiring_ast             := A_slt_ast A
             |}
+      | A_MCAS_Proof_sg_CS _ _ _ B  =>
+          A_SLT_Selective_Semiring
+          {|
+                A_left_selective_semiring_carrier := A_slt_carrier A
+              ; A_left_selective_semiring_label  := A_slt_label A
+              ; A_left_selective_semiring_plus := A_slt_plus A                                              
+              ; A_left_selective_semiring_trans := A_slt_trans A  (* L -> (S -> S) *)
+              ; A_left_selective_semiring_plus_proofs := B                                
+              ; A_left_selective_semiring_trans_proofs := A_slt_trans_proofs A 
+              ; A_left_selective_semiring_exists_plus_ann_d := A_slt_exists_plus_ann_d A                              
+              ; A_left_selective_semiring_id_ann_proofs   := ppf
+              ; A_left_selective_semiring_proofs := pf
+              ; A_left_selective_semiring_ast  := A_slt_ast A
+          |}
+      | A_MCAS_Proof_sg_CI _ _ _ B  =>
+          A_SLT_Idempotent_Semiring
+          {|
+              A_left_idempotent_semiring_carrier :=   A_slt_carrier A
+            ; A_left_idempotent_semiring_label  :=  A_slt_label A
+            ; A_left_idempotent_semiring_plus := A_slt_plus A                                          
+            ; A_left_idempotent_semiring_trans  := A_slt_trans A  (* L -> (S -> S) *)
+            ; A_left_idempotent_semiring_plus_proofs  := B                           
+            ; A_left_idempotent_semiring_trans_proofs  := A_slt_trans_proofs A 
+            ; A_left_idempotent_semiring_exists_plus_ann_d := A_slt_exists_plus_ann_d A                                 
+            ; A_left_idempotent_semiring_id_ann_proofs := ppf 
+            ; A_left_idempotent_semiring_proofs  := pf
+            ; A_left_idempotent_semiring_ast     := A_slt_ast A
+          |}
       | _ => A_SLT A
       end
     | _ => A_SLT A
@@ -561,7 +589,7 @@ Definition A_slt_classify_slt_CS {L S : Type} (A : @A_slt_CS L S) : @A_slt_mcas 
             | SLT_Id_Ann_Proof_Equal _ _ _ ppf => 
                 A_SLT_Selective_Left_Pre_Dioid
                   {| 
-                  A_selective_left_pre_dioid_carrier := A_slt_CS_carrier A
+                    A_selective_left_pre_dioid_carrier := A_slt_CS_carrier A
                   ; A_selective_left_pre_dioid_label := A_slt_CS_label A 
                   ; A_selective_left_pre_dioid_plus  := A_slt_CS_plus A                                              
                   ; A_selective_left_pre_dioid_trans := A_slt_CS_trans A
@@ -653,6 +681,34 @@ Definition A_slt_classify_slt_zero_is_ltr_ann {L S : Type}
               ; A_left_semiring_id_ann_proofs  := A_slt_zero_is_ltr_ann_id_ann_proofs A
               ; A_left_semiring_proofs          := pf
               ; A_left_semiring_ast             := A_slt_zero_is_ltr_ann_ast A
+            |}
+        | A_MCAS_Proof_sg_CS _ _ _ B => 
+            A_SLT_Selective_Semiring
+            {|
+                  A_left_selective_semiring_carrier := A_slt_zero_is_ltr_ann_carrier A
+                ; A_left_selective_semiring_label  := A_slt_zero_is_ltr_ann_label A
+                ; A_left_selective_semiring_plus := A_slt_zero_is_ltr_ann_plus A                                              
+                ; A_left_selective_semiring_trans := A_slt_zero_is_ltr_ann_trans A  (* L -> (S -> S) *)
+                ; A_left_selective_semiring_plus_proofs := B                                
+                ; A_left_selective_semiring_trans_proofs := A_slt_zero_is_ltr_ann_trans_proofs A 
+                ; A_left_selective_semiring_exists_plus_ann_d := inl ann                                
+                ; A_left_selective_semiring_id_ann_proofs   := A_slt_zero_is_ltr_ann_id_ann_proofs A
+                ; A_left_selective_semiring_proofs := pf
+                ; A_left_selective_semiring_ast  := A_slt_zero_is_ltr_ann_ast A
+            |}
+        | A_MCAS_Proof_sg_CI _ _ _ B => 
+            A_SLT_Idempotent_Semiring
+            {|
+                A_left_idempotent_semiring_carrier :=  A_slt_zero_is_ltr_ann_carrier A
+              ; A_left_idempotent_semiring_label  := A_slt_zero_is_ltr_ann_label A
+              ; A_left_idempotent_semiring_plus :=  A_slt_zero_is_ltr_ann_plus A                                       
+              ; A_left_idempotent_semiring_trans  := A_slt_zero_is_ltr_ann_trans A  (* L -> (S -> S) *)
+              ; A_left_idempotent_semiring_plus_proofs  := B                           
+              ; A_left_idempotent_semiring_trans_proofs  := A_slt_zero_is_ltr_ann_trans_proofs A 
+              ; A_left_idempotent_semiring_exists_plus_ann_d := inl ann                             
+              ; A_left_idempotent_semiring_id_ann_proofs := A_slt_zero_is_ltr_ann_id_ann_proofs A
+              ; A_left_idempotent_semiring_proofs  := pf
+              ; A_left_idempotent_semiring_ast     := A_slt_zero_is_ltr_ann_ast A
             |}
         | _ =>  A_SLT_Zero_Is_Ltr_Ann A
         end 
