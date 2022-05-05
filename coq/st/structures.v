@@ -914,9 +914,71 @@ Section CAS.
     ; slt_certs         : @slt_certificates L S                                
     ; slt_ast            : cas_ast
     }.
-   
+
   
-    Record selective_left_pre_dioid {L S : Type} :=
+
+  Record slt_CS {L S : Type} :=
+    {
+        slt_CS_carrier        : @eqv S
+      ; slt_CS_label          : @eqv L
+      ; slt_CS_plus           : binary_op S                                               
+      ; slt_CS_trans          : ltr_type L S (* L -> (S -> S) *)
+      ; slt_CS_plus_certs     : @sg_CS_certificates S                         
+      ; slt_CS_trans_certs   : @left_transform_certificates L S
+      ; slt_CS_exists_plus_ann_d : @check_exists_ann S                                 
+      ; slt_CS_id_ann_certs_d  : @check_slt_exists_id_ann L S                                          
+      ; slt_CS_certs : @slt_certificates L S                                  
+      ; slt_CS_ast : cas_ast
+    }.
+  
+      
+  Record slt_CI {L S : Type} :=
+    {
+        slt_CI_carrier        : @eqv S
+      ; slt_CI_label          : @eqv L
+      ; slt_CI_plus           : binary_op S                                               
+      ; slt_CI_trans          : ltr_type L S (* L -> (S -> S) *)
+      ; slt_CI_plus_certs    : @sg_CI_certificates S                         
+      ; slt_CI_trans_certs   : @left_transform_certificates L S
+      ; slt_CI_exists_plus_ann_d : @check_exists_ann S                                  
+      ; slt_CI_id_ann_certs_d  : @check_slt_exists_id_ann L S                                      
+      ; slt_CI_proofs : @slt_certificates L S                                 
+      ; slt_CI_ast : cas_ast
+    }.
+
+
+  Record slt_zero_is_ltr_ann {L S : Type} :=
+    {
+        slt_zero_is_ltr_ann_carrier        : @eqv S
+      ; slt_zero_is_ltr_ann_label          : @eqv L
+      ; slt_zero_is_ltr_ann_plus           : binary_op S                                               
+      ; slt_zero_is_ltr_ann_trans          : ltr_type L S (* L -> (S -> S) *)
+      ; slt_zero_is_ltr_ann_plus_certs    : @sg_certificates S                         
+      ; slt_zero_is_ltr_ann_trans_certs   : @left_transform_certificates L S 
+      ; slt_zero_is_ltr_ann_exists_plus_ann_d :  @check_exists_ann S                                 
+      ; slt_zero_is_ltr_ann_id_ann_certs  : @check_slt_exists_id_ann L S                                              
+      ; slt_zero_is_ltr_ann_certs : @slt_certificates L S                                  
+      ; slt_zero_is_ltr_ann_ast : cas_ast
+    }.
+
+
+  Record selective_left_dioid {L S : Type} :=
+    {
+        selective_left_dioid_carrier      : @eqv S
+      ; selective_left_dioid_label        : @eqv L
+      ; selective_left_dioid_plus         : binary_op S                                               
+      ; selective_left_dioid_trans        : ltr_type L S (* L -> (S -> S) *)
+      ; selective_left_dioid_plus_certs   : @sg_CS_certificates S
+      ; selective_left_dioid_trans_certs : @left_transform_certificates L S
+      ; selective_left_dioid_exists_plus_ann : @assert_exists_ann S                               
+      ; selective_left_dioid_id_ann_certs  : @assert_slt_exists_id_ann_equal L S                        
+      ; selective_left_dioid_certs : @left_dioid_certificates L S                                 
+      ; selective_left_dioid_ast : cas_ast 
+    }.   
+
+  
+
+  Record selective_left_pre_dioid {L S : Type} :=
     {
         selective_left_pre_dioid_carrier      : @eqv S
       ; selective_left_pre_dioid_label        : @eqv L
@@ -988,6 +1050,38 @@ Section CAS.
     ; left_semiring_ast             : cas_ast 
     }.  
     
+
+  Record left_idempotent_semiring {L S : Type} :=
+    {
+        left_idempotent_semiring_carrier         : @eqv S
+      ; left_idempotent_semiring_label           : @eqv L
+      ; left_idempotent_semiring_plus            : binary_op S                                               
+      ; left_idempotent_semiring_trans           : ltr_type L S (* L -> (S -> S) *)
+      ; left_idempotent_semiring_plus_certs     : @sg_CI_certificates S                                 
+      ; left_idempotent_semiring_trans_certs    : @left_transform_certificates L S
+      ; left_idempotent_semiring_exists_plus_ann_d : @check_exists_ann S                         
+      ; left_idempotent_semiring_id_ann_certs : @assert_slt_exists_id_ann_equal L S
+      ; left_idempotent_semiring_certs  : @left_semiring_certificates L S
+      ; left_idempotent_semiring_ast         : cas_ast 
+    }.
+
+
+
+  Record left_selective_semiring {L S : Type} :=
+    {
+        left_selective_semiring_carrier         : @eqv S
+      ; left_selective_semiring_label           : @eqv L
+      ; left_selective_semiring_plus            : binary_op S                                               
+      ; left_selective_semiring_trans           : ltr_type L S (* L -> (S -> S) *)
+      ; left_selective_semiring_plus_certs      : @sg_CS_certificates S                                  
+      ; left_selective_semiring_trans_certs     : @left_transform_certificates L S
+      ; left_selective_semiring_exists_plus_ann_d : @check_exists_ann S                                 
+      ; left_selective_semiring_id_ann_certs   : @assert_slt_exists_id_ann_equal L S
+      ; left_selective_semiring_proofs  : @left_semiring_certificates L S
+      ; left_selective_semiring_ast             : cas_ast 
+    }.  
+    
+(* Everything up to this works *)    
     
 End CAS.
 
