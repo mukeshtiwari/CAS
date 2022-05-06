@@ -942,7 +942,7 @@ Section CAS.
       ; slt_CI_trans_certs   : @left_transform_certificates L S
       ; slt_CI_exists_plus_ann_d : @check_exists_ann S                                  
       ; slt_CI_id_ann_certs_d  : @check_slt_exists_id_ann L S                                      
-      ; slt_CI_proofs : @slt_certificates L S                                 
+      ; slt_CI_certs : @slt_certificates L S                                 
       ; slt_CI_ast : cas_ast
     }.
 
@@ -992,20 +992,7 @@ Section CAS.
       ; selective_left_pre_dioid_ast : cas_ast 
     }.
 
-  Record selective_left_dioid {L S : Type} :=
-    {
-      selective_left_dioid_carrier      : @eqv S
-    ; selective_left_dioid_label        : @eqv L
-    ; selective_left_dioid_plus         : binary_op S                                               
-    ; selective_left_dioid_trans        : ltr_type L S (* L -> (S -> S) *)
-    ; selective_left_dioid_plus_certs : @sg_CS_certificates S
-    ; selective_left_dioid_trans_certs : @left_transform_certificates L S
-    ; selective_left_dioid_exists_plus_ann : @assert_exists_ann S                              
-    ; selective_left_dioid_id_ann_certs  : @assert_slt_exists_id_ann_equal L S                      
-    ; selective_left_dioid_certs  : @left_dioid_certificates L S                                
-    ; selective_left_dioid_ast          : cas_ast 
-    }.
-
+  
 
   Record left_dioid {L S : Type} :=
     {
@@ -1272,6 +1259,44 @@ Section Translation.
       ; slt_ast := A_slt_ast  A
     |}.
 
+
+  Definition A2C_slt_cs {L S : Type} :
+    @A_slt_CS L S -> @slt_CS L S :=
+    λ A, 
+    {|
+        slt_CS_carrier := A2C_eqv _ (A_slt_CS_carrier A)
+      ; slt_CS_label := A2C_eqv _ (A_slt_CS_label A) 
+      ; slt_CS_plus  := A_slt_CS_plus A                                               
+      ; slt_CS_trans   := A_slt_CS_trans A 
+      ; slt_CS_plus_certs  := P2C_sg_CS _ _ _ (A_slt_CS_plus_proofs A)   (* This is wrong *)                    
+      ; slt_CS_trans_certs := P2C_left_transform _ _ _ _ _ (A_slt_CS_trans_proofs A) 
+      ; slt_CS_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_slt_CS_exists_plus_ann_d A)                                 
+      ; slt_CS_id_ann_certs_d  := @p2c_slt_exists_id_ann_check L S _ _ _ (A_slt_CS_id_ann_proofs_d A)                                          
+      ; slt_CS_certs := @P2C_slt L S _ _ _ (A_slt_CS_proofs A)                               
+      ; slt_CS_ast := A_slt_CS_ast  A 
+    |}.
+
+
+
+    
+  Definition A2C_slt_ci {L S : Type} :
+    @A_slt_CI L S -> @slt_CI L S :=
+    λ A,
+    {|
+        slt_CI_carrier := A2C_eqv _ (A_slt_CI_carrier A)
+      ; slt_CI_label := A2C_eqv _ (A_slt_CI_label A) 
+      ; slt_CI_plus  := A_slt_CI_plus A                                               
+      ; slt_CI_trans   := A_slt_CI_trans A 
+      ; slt_CI_plus_certs  := P2C_sg_CI _ _ _ (A_slt_CI_plus_proofs A)   (* This is wrong *)                    
+      ; slt_CI_trans_certs := P2C_left_transform _ _ _ _ _ (A_slt_CI_trans_proofs A) 
+      ; slt_CI_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_slt_CI_exists_plus_ann_d A)                                 
+      ; slt_CI_id_ann_certs_d  := @p2c_slt_exists_id_ann_check L S _ _ _ (A_slt_CI_id_ann_proofs_d A)                                          
+      ; slt_CI_certs := @P2C_slt L S _ _ _ (A_slt_CI_proofs A)                               
+      ; slt_CI_ast := A_slt_CI_ast  A 
+    |}.
+
+
+  
 
   Definition A2C_selective_left_dioid {L S : Type} :
     @A_selective_left_dioid L S -> @selective_left_dioid L S :=
