@@ -956,7 +956,7 @@ Section CAS.
       ; slt_zero_is_ltr_ann_plus_certs    : @sg_certificates S                         
       ; slt_zero_is_ltr_ann_trans_certs   : @left_transform_certificates L S 
       ; slt_zero_is_ltr_ann_exists_plus_ann_d :  @check_exists_ann S                                 
-      ; slt_zero_is_ltr_ann_id_ann_certs  : @check_slt_exists_id_ann L S                                              
+      ; slt_zero_is_ltr_ann_id_ann_certs  : @assert_slt_exists_id_ann_equal L S                                              
       ; slt_zero_is_ltr_ann_certs : @slt_certificates L S                                  
       ; slt_zero_is_ltr_ann_ast : cas_ast
     }.
@@ -1064,11 +1064,11 @@ Section CAS.
       ; left_selective_semiring_trans_certs     : @left_transform_certificates L S
       ; left_selective_semiring_exists_plus_ann_d : @check_exists_ann S                                 
       ; left_selective_semiring_id_ann_certs   : @assert_slt_exists_id_ann_equal L S
-      ; left_selective_semiring_proofs  : @left_semiring_certificates L S
+      ; left_selective_semiring_certs  : @left_semiring_certificates L S
       ; left_selective_semiring_ast             : cas_ast 
     }.  
     
-(* Everything up to this works *)    
+  
     
 End CAS.
 
@@ -1078,11 +1078,16 @@ Section MCAS.
   Inductive slt_mcas {L S : Type} :=
   | SLT_Error : list string                         -> @slt_mcas L S
   | SLT : @slt L S                                  -> @slt_mcas L S
+  | SLT_CS : @slt_CS L S                            -> @slt_mcas L S
+  | SLT_CI : @slt_CI L S                            -> @slt_mcas L S
+  | SLT_Zero_Is_Ltr_Ann : @slt_zero_is_ltr_ann L S -> @slt_mcas L S
   | SLT_Dioid : @left_dioid L S                     -> @slt_mcas L S
   | SLT_Selective_Dioid : @selective_left_dioid L S -> @slt_mcas L S
   | SLT_Selective_Left_Pre_Dioid : @selective_left_pre_dioid L S -> @slt_mcas L S
   | SLT_Left_Pre_Semiring : @left_pre_semiring L S -> @slt_mcas L S
-  | SLT_Semiring : @left_semiring L S -> @slt_mcas L S. 
+  | SLT_Semiring : @left_semiring L S -> @slt_mcas L S
+  | SLT_Idempotent_Semiring : @left_idempotent_semiring L S -> @slt_mcas L S
+  | SLT_Selective_Semiring : @left_selective_semiring L S -> @slt_mcas L S.
 
 
   Inductive slt_mcas_certificates {L S : Type} :=
@@ -1186,7 +1191,7 @@ Section MCAS.
     end. 
 
 
-
+  (* 
   Definition slt_classify {L S : Type} (A : @slt_mcas L S) : @slt_mcas L S :=
     match A with
     | SLT_Error ls => A
@@ -1197,7 +1202,7 @@ Section MCAS.
     | SLT_Selective_Left_Pre_Dioid slt => A
     | SLT_Selective_Dioid slt => A 
     end.  
-
+  *)
 
 
 End MCAS.
@@ -1278,7 +1283,7 @@ Section Translation.
 
 
 
-    
+
   Definition A2C_slt_ci {L S : Type} :
     @A_slt_CI L S -> @slt_CI L S :=
     λ A,
@@ -1287,7 +1292,7 @@ Section Translation.
       ; slt_CI_label := A2C_eqv _ (A_slt_CI_label A) 
       ; slt_CI_plus  := A_slt_CI_plus A                                               
       ; slt_CI_trans   := A_slt_CI_trans A 
-      ; slt_CI_plus_certs  := P2C_sg_CI _ _ _ (A_slt_CI_plus_proofs A)   (* This is wrong *)                    
+      ; slt_CI_plus_certs  := P2C_sg_CI _ _ _ (A_slt_CI_plus_proofs A)                    
       ; slt_CI_trans_certs := P2C_left_transform _ _ _ _ _ (A_slt_CI_trans_proofs A) 
       ; slt_CI_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_slt_CI_exists_plus_ann_d A)                                 
       ; slt_CI_id_ann_certs_d  := @p2c_slt_exists_id_ann_check L S _ _ _ (A_slt_CI_id_ann_proofs_d A)                                          
@@ -1296,6 +1301,22 @@ Section Translation.
     |}.
 
 
+  Definition A2C_slt_zero_is_ltr_ann {L S : Type} :  
+    @A_slt_zero_is_ltr_ann L S -> @slt_zero_is_ltr_ann L S :=
+    λ A, 
+    {|
+        slt_zero_is_ltr_ann_carrier  := A2C_eqv _ (A_slt_zero_is_ltr_ann_carrier A)
+      ; slt_zero_is_ltr_ann_label := A2C_eqv _ (A_slt_zero_is_ltr_ann_label A) 
+      ; slt_zero_is_ltr_ann_plus   := A_slt_zero_is_ltr_ann_plus A                                                 
+      ; slt_zero_is_ltr_ann_trans    := A_slt_zero_is_ltr_ann_trans A
+      ; slt_zero_is_ltr_ann_plus_certs  := P2C_sg _ _ _ (A_slt_zero_is_ltr_ann_plus_proofs A)                       
+      ; slt_zero_is_ltr_ann_trans_certs  := P2C_left_transform _ _ _ _ _ (A_slt_zero_is_ltr_ann_trans_proofs A) 
+      ; slt_zero_is_ltr_ann_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_slt_zero_is_ltr_ann_exists_plus_ann_d A)                             
+      ; slt_zero_is_ltr_ann_id_ann_certs  := @p2c_slt_exists_id_ann_equal_assert L S _ _ _ (A_slt_zero_is_ltr_ann_id_ann_proofs A)                                       
+      ; slt_zero_is_ltr_ann_certs := @P2C_slt L S _ _ _ (A_slt_zero_is_ltr_ann_proofs A)                                
+      ; slt_zero_is_ltr_ann_ast := A_slt_zero_is_ltr_ann_ast A 
+    |}.
+  
   
 
   Definition A2C_selective_left_dioid {L S : Type} :
@@ -1367,6 +1388,8 @@ Section Translation.
 
     
 
+
+
   Definition A2C_left_semiring {L S : Type} :
     @A_left_semiring L S -> @left_semiring L S :=
     λ A, 
@@ -1384,6 +1407,40 @@ Section Translation.
     |}.
 
 
+  Definition A2C_left_idempotent_semiring {L S : Type} : 
+    @A_left_idempotent_semiring L S -> @left_idempotent_semiring L S :=
+    λ A,
+    {|
+        left_idempotent_semiring_carrier := A2C_eqv _ (A_left_idempotent_semiring_carrier A)
+      ; left_idempotent_semiring_label := A2C_eqv _ (A_left_idempotent_semiring_label A)
+      ; left_idempotent_semiring_plus := A_left_idempotent_semiring_plus A
+      ; left_idempotent_semiring_trans := A_left_idempotent_semiring_trans A
+      ; left_idempotent_semiring_plus_certs := P2C_sg_CI _ _ _ (A_left_idempotent_semiring_plus_proofs A)
+      ; left_idempotent_semiring_trans_certs := P2C_left_transform _ _ _ _ _ (A_left_idempotent_semiring_trans_proofs A)
+      ; left_idempotent_semiring_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_left_idempotent_semiring_exists_plus_ann_d A)
+      ; left_idempotent_semiring_id_ann_certs :=  @p2c_slt_exists_id_ann_equal_assert L S _ _ _ (A_left_idempotent_semiring_id_ann_proofs A)
+      ; left_idempotent_semiring_certs := P2C_left_semiring _ _ _ (A_left_idempotent_semiring_proofs A)
+      ; left_idempotent_semiring_ast  := A_left_idempotent_semiring_ast A 
+    |}.
+
+  
+  Definition A2C_left_selective_semiring {L S : Type} :
+    @A_left_selective_semiring L S -> @left_selective_semiring L S :=
+    λ A, 
+    {|
+        left_selective_semiring_carrier := A2C_eqv _ (A_left_selective_semiring_carrier A)
+      ; left_selective_semiring_label := A2C_eqv _ (A_left_selective_semiring_label A)
+      ; left_selective_semiring_plus := A_left_selective_semiring_plus A
+      ; left_selective_semiring_trans := A_left_selective_semiring_trans A
+      ; left_selective_semiring_plus_certs := P2C_sg_CS _ _ _ (A_left_selective_semiring_plus_proofs A)
+      ; left_selective_semiring_trans_certs := P2C_left_transform _ _ _ _ _ (A_left_selective_semiring_trans_proofs A)
+      ; left_selective_semiring_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_left_selective_semiring_exists_plus_ann_d A)
+      ; left_selective_semiring_id_ann_certs :=  @p2c_slt_exists_id_ann_equal_assert L S _ _ _ (A_left_selective_semiring_id_ann_proofs A)
+      ; left_selective_semiring_certs := P2C_left_semiring _ _ _ (A_left_selective_semiring_proofs A)
+      ; left_selective_semiring_ast  := A_left_selective_semiring_ast A 
+    |}.
+
+
   
 
   Definition A2C_mcas_slt {L S : Type} :
@@ -1391,11 +1448,16 @@ Section Translation.
     λ A, match A with
       | A_SLT_Error err => SLT_Error err    
       | A_SLT pf => SLT (A2C_slt pf)
+      | A_SLT_CS pf => SLT_CS (A2C_slt_cs pf)
+      | A_SLT_CI pf => SLT_CI (A2C_slt_ci pf)
+      | A_SLT_Zero_Is_Ltr_Ann pf => SLT_Zero_Is_Ltr_Ann (A2C_slt_zero_is_ltr_ann pf)
       | A_SLT_Dioid pf => SLT_Dioid (A2C_left_dioid pf) 
       | A_SLT_Selective_Dioid pf => SLT_Selective_Dioid (A2C_selective_left_dioid pf)
       | A_SLT_Selective_Left_Pre_Dioid pf => SLT_Selective_Left_Pre_Dioid (A2C_selective_left_pre_dioid pf)
       | A_SLT_Left_Pre_Semiring pf => SLT_Left_Pre_Semiring (A2C_pre_left_semiring pf) 
       | A_SLT_Semiring pf => SLT_Semiring (A2C_left_semiring pf) 
+      | A_SLT_Selective_Semiring  pf => SLT_Selective_Semiring (A2C_left_selective_semiring pf)
+      | A_SLT_Idempotent_Semiring pf => SLT_Idempotent_Semiring (A2C_left_idempotent_semiring pf)
     end. 
 
 
@@ -1411,7 +1473,7 @@ Section Translation.
 
 
 
-End Translation.
+End Translation.j
 
 Section Verify.
 
