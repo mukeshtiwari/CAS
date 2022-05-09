@@ -504,59 +504,79 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
 
 
 
-  
-  
-
-(* This function classified a selective_left_pre_dioid into 
-  a selective_left_dioid or leave it as it is *)  
-Definition A_slt_classify_selective_left_pre_dioid_slt {L S : Type} 
-  (A : @A_selective_left_pre_dioid L S) : A_slt_mcas :=
-  match A_selective_left_pre_dioid_id_ann_proofs_d  A with
-  | SLT_Id_Ann_Proof_Equal _ _ _ pf => 
-      A_SLT_Selective_Dioid 
-      {|
-          A_selective_left_dioid_carrier  :=  A_selective_left_pre_dioid_carrier A
-        ; A_selective_left_dioid_label := A_selective_left_pre_dioid_label A
-        ; A_selective_left_dioid_plus := A_selective_left_pre_dioid_plus A                                
-        ; A_selective_left_dioid_trans  := A_selective_left_pre_dioid_trans A
-        ; A_selective_left_dioid_plus_proofs := A_selective_left_pre_dioid_plus_proofs A  
-        ; A_selective_left_dioid_trans_proofs := A_selective_left_pre_dioid_trans_proofs A 
-        ; A_selective_left_dioid_exists_plus_ann := A_selective_left_pre_dioid_exists_plus_ann A                                 
-        ; A_selective_left_dioid_id_ann_proofs  := pf                      
-        ; A_selective_left_dioid_proofs := A_selective_left_pre_dioid_proofs A                                 
-        ; A_selective_left_dioid_ast := A_selective_left_pre_dioid_ast A 
-      
-      |}
-  | _ => A_SLT_Selective_Left_Pre_Dioid A 
-  end.
-  
-
-Definition A_slt_classify_left_selective_semiring_slt {L S : Type} 
-  (A : @A_left_selective_semiring L S) : A_slt_mcas :=
-  A_SLT_Selective_Semiring A. 
- (* 
-  We cannot turn semiring proofs to dioid proofs  
-  match A_left_selective_semiring_exists_plus_ann_d A with 
-  | inl ann => 
-
-      {|
-          A_selective_left_dioid_carrier  :=  A_left_selective_semiring_carrier A
-        ; A_selective_left_dioid_label := A_left_selective_semiring_label A
-        ; A_selective_left_dioid_plus := A_left_selective_semiring_plus A                                
-        ; A_selective_left_dioid_trans  := A_left_selective_semiring_trans A
-        ; A_selective_left_dioid_plus_proofs := A_left_selective_semiring_plus_proofs A  
-        ; A_selective_left_dioid_trans_proofs := A_left_selective_semiring_trans_proofs A 
-        ; A_selective_left_dioid_exists_plus_ann := ann                                 
-        ; A_selective_left_dioid_id_ann_proofs  := A_left_selective_semiring_id_ann_proofs A                   
-        ; A_selective_left_dioid_proofs := A_left_selective_semiring_proofs A                                 
-        ; A_selective_left_dioid_ast := A_left_selective_semiring_ast A 
-
-      |}
-  | _ => A_SLT_Selective_Semiring A 
-  end.
-  *)
 
 (* 
+  First, we classify the plus_proofs. If it is A_SLT_proofs, 
+  then we go down further and see if CS, CI, or Zero proof. 
+  If it is not A_SLT_proof, then we do nothing and simply
+  return the value. 
+
+*)  
+
+Definition A_slt_classify_slt {L S : Type} (A : @A_slt L S) : A_slt_mcas :=
+  let plus_proofs := A_slt_plus_proofs A in
+  match A_slt_classify_proofs _ _  _  (A_slt_proofs A) with 
+  | A_SLT_proofs _ _ _ pf =>
+      match sg_proof_classify _ _ _ (A_MCAS_Proof_sg _ _ _ plus_proofs) with
+      | A_MCAS_Proof_sg_CS _ _ _ B => 
+          A_SLT_CS
+          {|
+                A_slt_CS_carrier := A_slt_carrier A 
+              ; A_slt_CS_label := A_slt_label A 
+              ; A_slt_CS_plus := A_slt_plus A                                               
+              ; A_slt_CS_trans := A_slt_trans A  (* L -> (S -> S) *)
+              ; A_slt_CS_plus_proofs := B                       
+              ; A_slt_CS_trans_proofs := A_slt_trans_proofs A
+              ; A_slt_CS_exists_plus_ann_d := A_slt_exists_plus_ann_d A                           
+              ; A_slt_CS_id_ann_proofs_d  := A_slt_id_ann_proofs_d A                                      
+              ; A_slt_CS_proofs := pf                             
+              ; A_slt_CS_ast := A_slt_ast A
+          
+          |}     
+      | A_MCAS_Proof_sg_CI _ _ _ B  =>
+          A_SLT_CI
+          {|
+                A_slt_CI_carrier := A_slt_carrier A 
+              ; A_slt_CI_label := A_slt_label A 
+              ; A_slt_CI_plus := A_slt_plus A                                               
+              ; A_slt_CI_trans := A_slt_trans A  (* L -> (S -> S) *)
+              ; A_slt_CI_plus_proofs := B                       
+              ; A_slt_CI_trans_proofs := A_slt_trans_proofs A
+              ; A_slt_CI_exists_plus_ann_d := A_slt_exists_plus_ann_d A                           
+              ; A_slt_CI_id_ann_proofs_d  := A_slt_id_ann_proofs_d A                                      
+              ; A_slt_CI_proofs := pf                             
+              ; A_slt_CI_ast := A_slt_ast A
+          |}
+      | _ => 
+          match A_slt_exists_plus_ann_d A with
+          | inl ann =>
+                match A_slt_id_ann_proofs_d A with 
+                | SLT_Id_Ann_Proof_Equal _ _ _ ppf => 
+                    A_SLT_Zero_Is_Ltr_Ann
+                    {|
+                          A_slt_zero_is_ltr_ann_carrier := A_slt_carrier A
+                        ; A_slt_zero_is_ltr_ann_label := A_slt_label A 
+                        ; A_slt_zero_is_ltr_ann_plus  := A_slt_plus A                                             
+                        ; A_slt_zero_is_ltr_ann_trans  := A_slt_trans A  (* L -> (S -> S) *)
+                        ; A_slt_zero_is_ltr_ann_plus_proofs    := A_slt_plus_proofs A                       
+                        ; A_slt_zero_is_ltr_ann_trans_proofs   := A_slt_trans_proofs A
+                        ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := inl ann                              
+                        ; A_slt_zero_is_ltr_ann_id_ann_proofs  := ppf                                               
+                        ; A_slt_zero_is_ltr_ann_proofs := pf                                 
+                        ; A_slt_zero_is_ltr_ann_ast := A_slt_ast A  
+                    |}
+                | _ => A_SLT A  
+                end
+          | inr nann => A_SLT A
+          end
+      end
+  | _ => A_SLT A 
+  end. 
+
+
+  (* Everything is good upto this point *)
+  
+
 Definition A_slt_classify_slt {L S : Type} (A : @A_slt L S) : A_slt_mcas :=
   let plus_proofs := A_slt_plus_proofs A in
   match A_slt_classify_proofs _ _  _  (A_slt_proofs A) with 
@@ -868,7 +888,7 @@ Definition A_slt_classify {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :
   | A_SLT_Selective_Dioid slt => A  (*Already at the bottom *)
   | A_SLT_Selective_Semiring slt => A_slt_classify_left_selective_semiring_slt slt
   | A_SLT_Idempotent_Semiring slt => A_slt_classify_left_idempotent_semiring_slt slt
-  end. *)
+  end. 
 
 End AMCAS.       
 
@@ -1473,7 +1493,7 @@ Section Translation.
 
 
 
-End Translation.j
+End Translation.
 
 Section Verify.
 
