@@ -916,76 +916,75 @@ Section MCAS.
     end. 
 
 
+  Definition slt_CS_classify_slt {L S : Type} (A : @slt_CS L S) : slt_mcas :=
+      SLT_CS A.
+      
+  Definition slt_CI_classify_slt {L S : Type} (A : @slt_CI L S) : slt_mcas :=
+    SLT_CI A.
+
+  Definition slt_zero_is_ltr_ann_classify_slt {L S : Type} 
+    (A : @slt_zero_is_ltr_ann L S) : slt_mcas :=
+    SLT_Zero_Is_Ltr_Ann A.
+
   
-  Definition slt_classify_slt {L S : Type} (A : @slt L S) : @slt_mcas L S :=
+  Definition slt_classify_slt {L S : Type} (A : @slt L S) : slt_mcas :=
     let plus_certificates := slt_plus_certs A in
-    match slt_classify_certificates (slt_certs A) with 
-    | SLT_certs _ => SLT A 
-    | SLT_semiring_certs pf =>
-        match  slt_id_ann_certs_d A with
-        | Certify_SLT_Id_Ann_Proof_Equal ppf => 
-            match sg_certificates_classify (MCAS_Cert_sg plus_certificates) with
-            | MCAS_Cert_sg_C B => 
-                SLT_Semiring 
-                {|
-                  left_semiring_carrier         := slt_carrier A
-                ; left_semiring_label           := slt_label A
-                ; left_semiring_plus            := slt_plus A                                              
-                ; left_semiring_trans           := slt_trans A  (* L -> (S -> S) *)
-                ; left_semiring_plus_certs     := B                                 
-                ; left_semiring_trans_certs    := slt_trans_certs A 
-                ; left_semiring_exists_plus_ann_d := slt_exists_plus_ann_d A                               
-                ; left_semiring_id_ann_certs   := Assert_Slt_Exists_Id_Ann_Equal ppf
-                ; left_semiring_certs          := pf
-                ; left_semiring_ast             := slt_ast A
-                |}
-            | _ => SLT A
-            end
+    match sg_certificates_classify (MCAS_Cert_sg plus_certificates) with
+    | MCAS_Cert_sg_CS B =>  
+        slt_CS_classify_slt
+        ({|
+              slt_CS_carrier := slt_carrier A 
+            ; slt_CS_label := slt_label A 
+            ; slt_CS_plus := slt_plus A                                               
+            ; slt_CS_trans := slt_trans A  (* L -> (S -> S) *)
+            ; slt_CS_plus_certs := B                       
+            ; slt_CS_trans_certs := slt_trans_certs A
+            ; slt_CS_exists_plus_ann_d := slt_exists_plus_ann_d A                           
+            ; slt_CS_id_ann_certs_d  := slt_id_ann_certs_d A                                      
+            ; slt_CS_certs := slt_certs A                             
+            ; slt_CS_ast := slt_ast A
+        |})     
+    | MCAS_Cert_sg_CI B  =>
+        slt_CI_classify_slt
+        ({|
+              slt_CI_carrier := slt_carrier A 
+            ; slt_CI_label := slt_label A 
+            ; slt_CI_plus := slt_plus A                                               
+            ; slt_CI_trans := slt_trans A  (* L -> (S -> S) *)
+            ; slt_CI_plus_certs := B                       
+            ; slt_CI_trans_certs := slt_trans_certs A
+            ; slt_CI_exists_plus_ann_d := slt_exists_plus_ann_d A                           
+            ; slt_CI_id_ann_certs_d  := slt_id_ann_certs_d A                                      
+            ; slt_CI_certs := slt_certs A                             
+            ; slt_CI_ast := slt_ast A
+        |})
+    | _ => 
+        match slt_exists_plus_ann_d A with
+        | Certify_Exists_Ann ann =>
+              match slt_id_ann_certs_d A with 
+              | Certify_SLT_Id_Ann_Proof_Equal ppf => 
+                  slt_zero_is_ltr_ann_classify_slt
+                  ({|
+                        slt_zero_is_ltr_ann_carrier := slt_carrier A
+                      ; slt_zero_is_ltr_ann_label := slt_label A 
+                      ; slt_zero_is_ltr_ann_plus  := slt_plus A                                             
+                      ; slt_zero_is_ltr_ann_trans  := slt_trans A  (* L -> (S -> S) *)
+                      ; slt_zero_is_ltr_ann_plus_certs    := slt_plus_certs A                       
+                      ; slt_zero_is_ltr_ann_trans_certs   := slt_trans_certs A
+                      ; slt_zero_is_ltr_ann_exists_plus_ann_d :=  Certify_Exists_Ann ann                             
+                      ; slt_zero_is_ltr_ann_id_ann_certs  := Assert_Slt_Exists_Id_Ann_Equal ppf                                            
+                      ; slt_zero_is_ltr_ann_certs := slt_certs A                               
+                      ; slt_zero_is_ltr_ann_ast := slt_ast A  
+                  |})
+              | _ => SLT A  
+              end
         | _ => SLT A
         end
-    | SLT_dioid_certs pf =>
-        match slt_exists_plus_ann_d A with 
-        | Certify_Exists_Ann ann => 
-            match slt_id_ann_certs_d A with
-            | Certify_SLT_Id_Ann_Proof_Equal ppf =>  
-                match sg_certificates_classify (MCAS_Cert_sg plus_certificates) with
-                | MCAS_Cert_sg_CS B => 
-                    SLT_Selective_Dioid 
-                    {|
-                      selective_left_dioid_carrier         := slt_carrier A
-                    ; selective_left_dioid_label           := slt_label A
-                    ; selective_left_dioid_plus            := slt_plus A                                              
-                    ; selective_left_dioid_trans           := slt_trans A  (* L -> (S -> S) *)
-                    ; selective_left_dioid_plus_certs     := B                                 
-                    ; selective_left_dioid_trans_certs    := slt_trans_certs A 
-                    ; selective_left_dioid_exists_plus_ann := Assert_Exists_Ann ann                               
-                    ; selective_left_dioid_id_ann_certs   := Assert_Slt_Exists_Id_Ann_Equal ppf
-                    ; selective_left_dioid_certs          := pf
-                    ; selective_left_dioid_ast             := slt_ast A
-                    |}
-                | MCAS_Cert_sg_CI B => 
-                    SLT_Dioid
-                    {|
-                      left_dioid_carrier         := slt_carrier A
-                    ; left_dioid_label           := slt_label A
-                    ; left_dioid_plus            := slt_plus A                                              
-                    ; left_dioid_trans           := slt_trans A  (* L -> (S -> S) *)
-                    ; left_dioid_plus_certs     := B                                 
-                    ; left_dioid_trans_certs    := slt_trans_certs A 
-                    ; left_dioid_exists_plus_ann := Assert_Exists_Ann ann                               
-                    ; left_dioid_id_ann_certs   := Assert_Slt_Exists_Id_Ann_Equal ppf
-                    ; left_dioid_certs          := pf
-                    ; left_dioid_ast             := slt_ast A
-                    |}
-                | _ => SLT A
-                end 
-            | _ => SLT A
-            end
-        | Certify_Not_Exists_Ann => SLT A
-        end
-    end. 
+    end.
+    
 
-
+  
+  (* Every thing is working up to this point *)
   (* 
   Definition slt_classify {L S : Type} (A : @slt_mcas L S) : @slt_mcas L S :=
     match A with
