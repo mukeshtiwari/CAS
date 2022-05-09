@@ -982,21 +982,92 @@ Section MCAS.
         end
     end.
     
-
+    
+  Definition slt_classify_selective_left_dioid_slt {L S : Type} 
+    (A : @selective_left_dioid L S) : slt_mcas :=
+    SLT_Selective_Dioid A.
   
-  (* Every thing is working up to this point *)
-  (* 
+  Definition slt_classify_selective_left_pre_dioid_slt
+    {L S : Type} (A : @selective_left_pre_dioid L S) : @slt_mcas L S :=
+    match selective_left_pre_dioid_id_ann_certs_d A with
+    | Certify_SLT_Id_Ann_Proof_Equal ppf =>
+      slt_classify_selective_left_dioid_slt
+        {|
+            selective_left_dioid_carrier := selective_left_pre_dioid_carrier A 
+          ; selective_left_dioid_label :=  selective_left_pre_dioid_label A
+          ; selective_left_dioid_plus := selective_left_pre_dioid_plus A                                             
+          ; selective_left_dioid_trans := selective_left_pre_dioid_trans A  (* L -> (S -> S) *)
+          ; selective_left_dioid_plus_certs :=  selective_left_pre_dioid_plus_certs A
+          ; selective_left_dioid_trans_certs := selective_left_pre_dioid_trans_certs A 
+          ; selective_left_dioid_exists_plus_ann := selective_left_pre_dioid_exists_plus_ann A                               
+          ; selective_left_dioid_id_ann_certs  := Assert_Slt_Exists_Id_Ann_Equal ppf                  
+          ; selective_left_dioid_certs := selective_left_pre_dioid_certs A                               
+          ; selective_left_dioid_ast := selective_left_pre_dioid_ast A 
+        |}
+    | _ => SLT_Selective_Left_Pre_Dioid A
+    end.
+  
+    
+   
+  Definition slt_classify_left_dioid_slt {L S : Type} 
+    (A : @left_dioid L S) : @slt_mcas L S :=
+    SLT_Dioid A.
+
+
+  Definition slt_classify_left_selective_semiring_slt {L S : Type}
+    (A : @left_selective_semiring L S) : slt_mcas :=
+    SLT_Selective_Semiring A.
+
+  Definition slt_classify_left_idempotent_semiring_slt {L S : Type}
+    (A : @left_idempotent_semiring L S) : slt_mcas :=
+    SLT_Idempotent_Semiring A.
+
+  (* Discuss this with Tim *)
+  Definition slt_classify_left_semiring_slt {L S : Type} 
+    (A : @left_semiring L S) : slt_mcas :=
+    SLT_Semiring A.
+
+
+  Definition slt_classify_left_pre_semiring_slt {L S : Type}
+    (A : @left_pre_semiring L S) : slt_mcas :=
+    match left_pre_semiring_exists_plus_ann_d A with 
+    | Certify_Exists_Ann ann => 
+        match left_pre_semiring_id_ann_certs_d A with
+        | Certify_SLT_Id_Ann_Proof_Equal ppf => 
+            slt_classify_left_semiring_slt
+            {|
+                  left_semiring_carrier         := left_pre_semiring_carrier A
+                ; left_semiring_label           := left_pre_semiring_label A
+                ; left_semiring_plus            := left_pre_semiring_plus A                                              
+                ; left_semiring_trans           := left_pre_semiring_trans A  (* L -> (S -> S) *)
+                ; left_semiring_plus_certs     := left_pre_semiring_plus_certs A                                 
+                ; left_semiring_trans_certs    := left_pre_semiring_trans_certs A 
+                ; left_semiring_exists_plus_ann_d := Certify_Exists_Ann ann                             
+                ; left_semiring_id_ann_certs  := Assert_Slt_Exists_Id_Ann_Equal ppf  
+                ; left_semiring_certs          := left_pre_semiring_certs A
+                ; left_semiring_ast             := left_pre_semiring_ast A
+            |}
+        | _ => SLT_Left_Pre_Semiring A
+        end
+    | _ => SLT_Left_Pre_Semiring A
+    end. 
+  
+  
   Definition slt_classify {L S : Type} (A : @slt_mcas L S) : @slt_mcas L S :=
     match A with
     | SLT_Error ls => A
-    | SLT slt => slt_classify_slt slt
-    | SLT_Dioid slt => A
-    | SLT_Left_Pre_Semiring slt => A
-    | SLT_Semiring slt => A
-    | SLT_Selective_Left_Pre_Dioid slt => A
-    | SLT_Selective_Dioid slt => A 
-    end.  
-  *)
+    | SLT slt => slt_classify_slt slt 
+    | SLT_CS slt => slt_CS_classify_slt slt
+    | SLT_CI slt => slt_CI_classify_slt slt 
+    | SLT_Zero_Is_Ltr_Ann slt => slt_zero_is_ltr_ann_classify_slt slt
+    | SLT_Left_Pre_Semiring slt => slt_classify_left_pre_semiring_slt slt  
+    | SLT_Dioid slt => slt_classify_left_dioid_slt slt 
+    | SLT_Selective_Left_Pre_Dioid slt => slt_classify_selective_left_pre_dioid_slt slt
+    | SLT_Semiring slt => slt_classify_left_semiring_slt slt 
+    | SLT_Selective_Dioid slt => slt_classify_selective_left_dioid_slt slt 
+    | SLT_Selective_Semiring slt => slt_classify_left_selective_semiring_slt slt
+    | SLT_Idempotent_Semiring slt => slt_classify_left_idempotent_semiring_slt slt
+    end. 
 
 
 End MCAS.
