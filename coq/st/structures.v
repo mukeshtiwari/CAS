@@ -1347,7 +1347,7 @@ Section Verify.
     {L S : Type}.
 
   
-  Lemma corectness_slt_classify_certificates_proofs 
+  Lemma correctness_slt_classify_certificates_proofs 
     (r : brel S) (add : binary_op S) (ltr : ltr_type L S)
     (s : slt_proofs r add ltr) :
     slt_classify_certificates (P2C_slt r add ltr s) = 
@@ -1365,6 +1365,7 @@ Section Verify.
   Qed.  
 
 
+  (* Everything is working upto this point. *)
 
   Lemma correctness_slt_classify_slt : 
     forall pf,
@@ -1372,7 +1373,8 @@ Section Verify.
     @A2C_mcas_slt L S (A_slt_classify_slt pf).
   Proof.
     unfold slt_classify_slt,
-    A_slt_classify_slt;
+    A_slt_classify_slt,
+    sg_certificates_classify;
     destruct pf; simpl.
     rewrite corectness_slt_classify_certificates_proofs.
     destruct ((A_slt_classify_proofs 
@@ -1404,6 +1406,7 @@ Section Verify.
       simpl; reflexivity.
       ++ reflexivity.
   Qed. 
+  
 
 
   Lemma correctness_A2C_left_dioid : 
@@ -1462,6 +1465,8 @@ Section Verify.
   Proof.
     destruct pf; simpl.
     + reflexivity.
+    + admit. 
+    + admit. 
     + eapply correctness_slt_classify_slt.
     + eapply correctness_A2C_left_dioid.
     + eapply correctness_A2C_selective_left_pre_dioid.
