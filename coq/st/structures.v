@@ -1684,14 +1684,35 @@ Section Verify.
   Qed.
 
 
- 
+
   
   Lemma correctness_slt_classify_slt : 
     forall pf,
     slt_classify_slt (A2C_slt pf) = 
     @A2C_mcas_slt L S (A_slt_classify_slt pf).
   Proof.
-  Admitted.
+    unfold slt_classify_slt,
+    A_slt_classify_slt,
+    sg_certificates_classify;
+    destruct pf; simpl.
+    rewrite correct_sg_certificates_classify_sg.
+    destruct ((A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_carrier0) A_slt_plus0
+    A_slt_plus_proofs0)); simpl.
+    + destruct A_slt_exists_plus_ann_d0; simpl.
+      ++ 
+        destruct A_slt_id_ann_proofs_d0; simpl.
+        +++ destruct p; simpl; reflexivity.
+        +++ destruct p; simpl; reflexivity.
+        +++ destruct p; simpl; reflexivity.
+        +++ reflexivity.   
+           rewrite correct_sg_certificates_classify_sg;
+            destruct (A_sg_proofs_classify_sg S 
+            (A_eqv_eq S A_slt_carrier0) A_slt_plus0
+            A_slt_plus_proofs0);
+            simpl; reflexivity.
+        +++ reflexivity.
+      ++ reflexivity.
+    
   (* 
     unfold slt_classify_slt,
     A_slt_classify_slt,
