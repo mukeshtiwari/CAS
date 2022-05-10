@@ -3,7 +3,7 @@ Require Import Coq.Strings.Ascii.
 Require Import Coq.Arith.Arith.     
 Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute.
-Require Import CAS.coq.common.matrix_def. 
+(* Require Import CAS.coq.algorithm.matrix_definition. *) 
 
 Inductive data : Type :=
    | DATA_ascii : ascii -> data 
@@ -16,5 +16,5 @@ Inductive data : Type :=
    | DATA_inr : data -> data 
    | DATA_list : list data -> data
    | DATA_set : list data -> data
-   | DATA_square_matrix {S : Type} : @square_matrix S -> data                                  
+(*   | DATA_square_matrix {S : Type} : @square_matrix S -> data                                  *) 
    . 

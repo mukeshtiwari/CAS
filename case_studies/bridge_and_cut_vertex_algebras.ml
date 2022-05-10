@@ -6,6 +6,8 @@ open Matrix_solver;;
    This file contains the two examples from Section 4.8.1 
    of "Path Problems in Networks" by Baras and Theodorakopoulos. 
 
+   A*[i,j] = set of all arcs common to all paths from i to j 
+
 *) 
 let eqv_edge = mcas_eqv_product mcas_eqv_eq_nat mcas_eqv_eq_nat;;
 

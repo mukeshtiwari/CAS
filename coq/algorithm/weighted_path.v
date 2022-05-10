@@ -5,51 +5,89 @@ From CAS Require Import
   coq.common.compute
   coq.eqv.properties
   coq.eqv.list
+  coq.eqv.nat
   coq.eqv.product   
-  coq.sg.properties  
+  coq.sg.properties
+  coq.tr.properties  
   coq.sg.and
   coq.algorithm.matrix_definition
-  coq.algorithm.matrix_equality. 
+  coq.algorithm.matrix_algorithms
+  coq.algorithm.matrix_multiplication. 
 
-Section Weighted_Paths. 
+
+Section Weighted_Paths.
+
+  Local Open Scope nat_scope. 
+  
 Variables 
-    (Node : Type)
-    (eqN  : brel Node)
-    (* carrier set and the operators *)
-    (R : Type)
-    (zeroR oneR : R) (* 0 and 1 *)
-    (plusR mulR : binary_op R)
-    (eqR  : brel R)
-    (conN : brel_congruence Node eqN eqN)        
-    (refN : brel_reflexive Node eqN)
-    (symN : brel_symmetric Node eqN)
-    (trnN : brel_transitive Node eqN)
+    (L R : Type)
+    (zero one : R) (* 0 and 1 *)
+    (plus : binary_op R)
+    (ltr : ltr_type L R)    
+    (eqL  : brel L)
+    (eqR  : brel R)    
     (conR : brel_congruence R eqR eqR)            
     (refR :  brel_reflexive R eqR)
     (symR : brel_symmetric R eqR)
-    (trnR : brel_transitive R eqR).
+    (trnR : brel_transitive R eqR)
+    (conL : brel_congruence L eqL eqL)            
+    (refL :  brel_reflexive L eqL)
+    (symL : brel_symmetric L eqL)
+    (trnL : brel_transitive L eqL)
+    (congrP : bop_congruence R eqR plus)
+    .
       
-  Definition is_eqR a b          := eqR a b = true.
-  Definition is_eqN a b          := eqN a b = true.
-  Definition not_eqN a b          := eqN a b = false.      
-  Local Notation "0" := zeroR.
-  Local Notation "1" := oneR.
-  Local Infix "+" := plusR.
-  Local Infix "*" := mulR.
+  Definition is_eqR a b       := eqR a b = true.
+  Definition is_eqL a b       := eqL a b = true.    
+  Definition is_eq_nat a b    := brel_eq_nat a b = true.
+  Definition not_eq_nat a b   := brel_eq_nat a b = false.      
+  Local Notation "0" := zero.
+  Local Notation "1" := one.
+  Local Infix "+" := plus.
+  Local Infix "|>" := ltr (at level 70).
+  Local Infix "=l=" := is_eqL (at level 70).  
   Local Infix "=r=" := is_eqR (at level 70).
-  Local Infix "=n=" := is_eqN (at level 70).
-  Local Infix "<n>" := not_eqN (at level 70).    
+  Local Infix "=n=" := is_eq_nat (at level 70).
+  Local Infix "<n>" := not_eq_nat (at level 70).    
   Local Infix "=r?=" := eqR (at level 70).
-  Local Infix "=n?=" := eqN (at level 70).
-
-  Definition weighted_arc : Type      := Node * Node * R. 
-
-  Definition weighted_path : Type     := list weighted_arc.
+  Local Infix "=l?=" := eqL (at level 70).  
+  Local Infix "=n?=" := brel_eq_nat (at level 70).
 
   Definition value_list : Type        := list R.
 
-  Local Definition Cong m              := mat_cong Node eqN R eqR m.
+  Definition label_list : Type        := list L.  
 
+  Definition weighted_arc : Type      := nat * nat * L. 
+
+  Definition weighted_path : Type     := list weighted_arc.
+
+  Definition weighted_path_set : Type := finite_set weighted_path.
+
+  Local Definition CongR := functional_matrix_congruence R eqR.
+  Local Definition CongL := functional_matrix_congruence L eqL.  
+
+  Local Notation "a =M= b" := (eq_functional_matrix_prop R eqR a b) (at level 70).
+
+  Local Infix "+M" := (matrix_add plus ) (at level 70).
+  
+  Local Notation "a *[ n ]>  b" := (left_matrix_mul zero plus ltr n a b) (at level 70).
+
+
+  (********************** matrix_equality (move this?)  ***********************)
+
+  Lemma matrix_equality_reflexive : 
+    ∀X, X =M= X.
+  Proof. intros X i j. apply refR. Qed. 
+
+  Lemma matrix_equality_symmetric :
+    ∀X Y, X =M= Y -> Y =M= X.
+  Proof. intros X Y A i j. exact (symR _ _ (A i j)). Qed. 
+
+  Lemma matrix_equality_transitive :
+    ∀X Y Z, X =M= Y -> Y =M= Z -> X =M= Z.
+  Proof. intros X Y Z A B i j. exact (trnR _ _ _ (A i j) (B i j)). Qed. 
+  
+  
   (********************** value_list equality ***********************)
 
   Definition eq_value_list : brel value_list := brel_list eqR. 
@@ -78,44 +116,79 @@ Variables
     ∀ (v v' : R) (l l' : value_list), (v :: l) =vl= (v' :: l') -> (v =r= v') ∧ (l =vl= l').
   Proof. intros v v' l l' A. apply brel_list_cons_elim in A. destruct A as [A B]. auto. Qed. 
   
+  (********************** label_list equality ***********************)
+
+  Definition eq_label_list : brel label_list := brel_list eqL. 
+
+  Lemma eq_label_list_congurence : brel_congruence _ eq_label_list eq_label_list.
+  Proof. apply brel_list_congruence; auto. Qed.
+
+  Lemma eq_label_list_reflexive : brel_reflexive _ eq_label_list.
+  Proof. apply brel_list_reflexive; auto. Qed.
+
+  Lemma eq_label_list_symmetric : brel_symmetric _ eq_label_list.
+  Proof. apply brel_list_symmetric; auto. Qed.
+  
+  Lemma eq_label_list_transitive : brel_transitive _ eq_label_list.
+  Proof. apply brel_list_transitive; auto.  Qed.
+
+  Definition eq_label_list_is_true l1 l2 := eq_label_list l1 l2 = true.  
+  Local Infix "=ll=" :=  eq_label_list_is_true (at level 70).
+
+  Definition eq_label_list_intro :
+    ∀ (l l' : L) (ls ls' : label_list), l =l= l' -> ls =ll= ls' -> (l :: ls) =ll= (l' :: ls').
+  Proof. intros l l' ls ls' A B. apply brel_list_cons_intro; auto. Qed. 
+         
+  Definition eq_label_list_elim :
+    ∀ (l l' : L) (ls ls' : label_list), (l :: ls) =ll= (l' :: ls') -> (l =l= l') ∧ (ls =ll= ls').
+  Proof. intros l l' ls ls' A. apply brel_list_cons_elim in A. destruct A as [A B]. auto. Qed. 
+  
   
   (********************** weighted arc equality ***********************)
 
   Definition eq_weighted_arc : brel weighted_arc :=
-        brel_product (brel_product eqN eqN) eqR. 
+        brel_product (brel_product brel_eq_nat brel_eq_nat) eqL. 
 
   Lemma eq_weighted_arc_congruence : brel_congruence weighted_arc eq_weighted_arc eq_weighted_arc.
-  Proof. apply brel_product_congruence; auto. 
-         apply brel_product_congruence; auto. 
+  Proof. apply brel_product_congruence; auto.
+         apply brel_product_congruence; auto.
+         apply brel_eq_nat_congruence.
+         apply brel_eq_nat_congruence.          
   Qed.          
     
   Lemma eq_weighted_arc_reflexive : brel_reflexive weighted_arc eq_weighted_arc.
   Proof. apply brel_product_reflexive; auto. 
-         apply brel_product_reflexive; auto. 
+         apply brel_product_reflexive; auto.
+         apply brel_eq_nat_reflexive.
+         apply brel_eq_nat_reflexive.                  
   Qed.          
 
   Lemma eq_weighted_arc_symmetric : brel_symmetric weighted_arc eq_weighted_arc. 
   Proof. apply brel_product_symmetric; auto. 
          apply brel_product_symmetric; auto.
+         apply brel_eq_nat_symmetric.
+         apply brel_eq_nat_symmetric.                  
   Qed. 
 
   Lemma eq_weighted_arc_transitive : brel_transitive weighted_arc eq_weighted_arc.
   Proof. apply brel_product_transitive; auto.
          apply brel_product_transitive; auto.
+         apply brel_eq_nat_transitive.
+         apply brel_eq_nat_transitive.                  
   Qed. 
 
   Definition eq_weighted_arc_is_true a1 a2 := eq_weighted_arc a1 a2 = true.  
   Local Infix "=a=" :=  eq_weighted_arc_is_true (at level 70).
 
   Lemma eq_weighted_arc_intro :
-    ∀ (a b c d : Node) (s t : R), a =n= b -> c=n=d -> s =r= t -> ((a, c), s) =a= ((b, d), t).
+    ∀ (a b c d : nat) (s t : L), a =n= b -> c=n=d -> s =l= t -> ((a, c), s) =a= ((b, d), t).
   Proof. intros a b c d s t A B C.
          apply brel_product_intro; auto. 
          apply brel_product_intro; auto. 
   Qed.
   
   Lemma eq_weighted_arc_elim :
-    ∀ (a b c d : Node) (s t : R), ((a, c), s) =a= ((b, d), t) -> a =n= b ∧ c=n=d ∧ s =r= t.
+    ∀ (a b c d : nat) (s t : L), ((a, c), s) =a= ((b, d), t) -> a =n= b ∧ c=n=d ∧ s =l= t.
   Proof. intros a b c d s t A.
          apply brel_product_elim in A. destruct A as [A B]. 
          apply brel_product_elim in A. destruct A as [A C].
@@ -126,7 +199,7 @@ Variables
   
   Definition eq_weighted_path : brel weighted_path := brel_list eq_weighted_arc. 
 
-   Lemma eq_weighted_pathcongruence : brel_congruence _ eq_weighted_path eq_weighted_path.
+   Lemma eq_weighted_path_congruence : brel_congruence _ eq_weighted_path eq_weighted_path.
    Proof. apply brel_list_congruence.
           exact eq_weighted_arc_symmetric.
           exact eq_weighted_arc_transitive.
@@ -157,15 +230,42 @@ Variables
          split; auto. 
   Qed. 
 
+(********************** weighted path set equality ***********************)     
+  
+  Definition eq_weighted_path_set : brel weighted_path_set := brel_list eq_weighted_path. 
+
+   Lemma eq_weighted_path_set_congruence : brel_congruence _ eq_weighted_path_set eq_weighted_path_set.
+   Proof. apply brel_list_congruence.
+          exact eq_weighted_path_symmetric.
+          exact eq_weighted_path_transitive.
+          exact eq_weighted_path_congruence.
+   Qed.     
+
+  Lemma eq_weighted_path_set_reflexive : brel_reflexive weighted_path_set eq_weighted_path_set. 
+   Proof. apply brel_list_reflexive. exact eq_weighted_path_reflexive. Qed.
+
+  Lemma eq_weighted_path_set_symmetric : brel_symmetric weighted_path_set eq_weighted_path_set. 
+   Proof. apply brel_list_symmetric. exact eq_weighted_path_symmetric. Qed.
+  
+  Lemma eq_weighted_path_set_transitive : brel_transitive weighted_path_set eq_weighted_path_set. 
+   Proof. apply brel_list_transitive. exact eq_weighted_path_transitive. Qed.
+
+  
+  Definition in_path_set p X       := in_list eq_weighted_path X p = true.
+  Definition test_in_path_set p X  := in_list eq_weighted_path X p.
+  
+  Local Infix "[in set]"   := in_path_set (at level 70).
+  Local Infix "[?in set?]" := test_in_path_set (at level 70).    
+
          
   (****************** Source and target of a weighted path ********************)
 
-  Definition arc_source (a : weighted_arc) : Node := 
+  Definition arc_source (a : weighted_arc) : nat := 
     match a with 
     | (s, _, _) => s 
     end.
 
-  Definition arc_target (a : weighted_arc) : Node := 
+  Definition arc_target (a : weighted_arc) : nat := 
     match a with 
     | (_, t, _) => t
     end.
@@ -177,29 +277,34 @@ Variables
          compute. destruct A as [_ [A _]]. exact A. 
   Qed. 
   
-  Definition test_path_source (c : Node) (l : weighted_path) : bool :=
+  Definition test_path_source (c : nat) (l : weighted_path) : bool :=
     match l with 
     | [] => false
     | a :: _ => c =n?= (arc_source a)
     end.
 
+  
+  Definition refN := brel_eq_nat_reflexive.  
+  Definition symN := brel_eq_nat_symmetric.  
+  Definition trnN := brel_eq_nat_transitive.
+
   Lemma test_path_source_congruence : 
     ∀ n n' p p', n =n= n' -> p =p= p' -> test_path_source n p = test_path_source n' p'.
   Proof. intros n n' p p' A B. 
-         destruct p; destruct p'; compute. 
-         + reflexivity. 
+         destruct p; destruct p'. 
+         + compute. reflexivity. 
          + compute in B. congruence.
          + compute in B. congruence.
          + apply eq_weighted_path_elim in B. destruct B as [B C].
-           destruct w as [[a b] v]; destruct w0 as [[a' b'] v'].
-           apply eq_weighted_arc_elim in B. destruct B as [B [D E]]. 
+           destruct w as [[a b] v]; destruct w0 as [[a' b'] v']. simpl. 
+           apply eq_weighted_arc_elim in B. destruct B as [B [D E]].
            case_eq(n =n?= a); intro F; case_eq(n' =n?= a'); intro G; auto.
            ++ rewrite (trnN _ _ _ (symN _ _ A) (trnN _ _ _ F B)) in G. congruence. 
            ++ rewrite (trnN _ _ _ (trnN _ _ _ A G) (symN _ _ B)) in F. congruence. 
   Qed.            
 
            
-  Fixpoint test_path_target (d : Node) (l : weighted_path) : bool :=
+  Fixpoint test_path_target (d : nat) (l : weighted_path) : bool :=
     match l with
     | [] => false
     | [a] => d =n?= (arc_target a)
@@ -230,7 +335,7 @@ Variables
   Proof. intros a p G. destruct p.
          + compute in G. congruence. 
          + destruct w. destruct p0. 
-           exists ((n, n0, r), p). split. 
+           exists ((n, n0, l), p). split. 
            ++ apply eq_weighted_path_reflexive. 
            ++ compute in G. exact G. 
   Qed.
@@ -251,7 +356,6 @@ Variables
 Qed. 
 
 
-  
   (****************** congruence of map ********************)
 
   Lemma map_path_congruence
@@ -265,6 +369,21 @@ Qed.
          + intros A. simpl. 
            apply eq_weighted_path_elim in A. destruct A as [A B].
            apply eq_value_list_intro. 
+           ++ exact (conf _ _ A). 
+           ++ exact (IHp _ B). 
+  Qed. 
+
+    Lemma map_label_list_congruence
+        (f : weighted_arc -> L)
+        (conf : ∀ a a', a =a= a' -> (f a) =l= (f a')) : 
+       ∀ (p q : weighted_path),  p =p= q -> map f p =ll= map f q. 
+  Proof. induction p;  destruct q. 
+         + intros A. compute. reflexivity. 
+         + intros A. compute in A. congruence.
+         + intros A. compute in A. congruence.            
+         + intros A. simpl. 
+           apply eq_weighted_path_elim in A. destruct A as [A B].
+           apply eq_label_list_intro. 
            ++ exact (conf _ _ A). 
            ++ exact (IHp _ B). 
   Qed. 
@@ -303,109 +422,91 @@ Qed.
     Qed.
 
 
+  Lemma fold_right_label_list_congruence
+        (f : L -> R -> R)
+        (conf : ltr_congruence L R eqL eqR f) : 
+      ∀ (l₁ l₂ : label_list) (v : R), (l₁ =ll= l₂) -> fold_right f v l₁ =r= fold_right f v l₂.
+    Proof. induction l₁;  destruct l₂. 
+         + intros v A. compute. apply refR. 
+         + intros v A. compute in A. congruence.
+         + intros v A. compute in A. congruence.            
+         + intros v A. simpl. 
+           apply eq_label_list_elim in A. destruct A as [A B].
+           assert (C := IHl₁ _ v B).
+           exact (conf _ _ _ _ A C). 
+    Qed.
+    
+
  (****************** the weight of a weighted path ********************)
 
   
- Definition weight_of_arc (a : weighted_arc) : R :=
+ Definition label_of_arc (a : weighted_arc) : L :=
     match a with 
-    | (_, _, v) => v 
+    | (_, _, l) => l
     end.
 
- Lemma weight_of_arc_congruence : ∀ a a', a =a= a' -> weight_of_arc a =r= weight_of_arc a'.
- Proof. intros a a' A. unfold weight_of_arc.
+ Lemma label_of_arc_congruence : ∀ a a', a =a= a' -> label_of_arc a =l= label_of_arc a'.
+ Proof. intros a a' A. unfold label_of_arc.
         destruct a as [[a b] v]; destruct a' as [[a' b'] v'].
         apply eq_weighted_arc_elim in A. destruct A as [_ [_ A]]. 
         exact A. 
  Qed.         
 
- Definition left_product_of_list : value_list -> R := fold_right mulR 1.
+ Definition ltr_of_list : label_list -> R := fold_right ltr 1. 
 
- Lemma left_product_of_list_congruence (congrM : bop_congruence R eqR mulR) : 
-     ∀l1 l2 : value_list, l1 =vl= l2 -> left_product_of_list l1 =r= left_product_of_list l2.
+ Lemma ltr_of_list_congruence (ltr_cong : ltr_congruence L R eqL eqR ltr) : 
+     ∀l1 l2 : label_list, l1 =ll= l2 -> ltr_of_list l1 =r= ltr_of_list l2.
  Proof. intros l1 l2 A.
-        unfold left_product_of_list.
-        apply fold_right_value_list_congruence; auto. 
+        unfold ltr_of_list.
+        apply fold_right_label_list_congruence; auto. 
  Qed. 
  
-  (* call this left_weight_of_path? *) 
-  Definition measure_of_path (p : weighted_path) : R := left_product_of_list (map weight_of_arc p). 
+  Definition left_weight_of_path (p : weighted_path) : R := ltr_of_list (map label_of_arc p). 
 
-  Definition w := measure_of_path. 
-
-  Lemma map_weight_of_arc_congruence : ∀ p q, p =p= q -> map weight_of_arc p =vl= map weight_of_arc q.
+  Definition lw := left_weight_of_path.
+  
+  Lemma map_label_of_arc_congruence : ∀ p q, p =p= q -> map label_of_arc p =ll= map label_of_arc q.
   Proof. intros p q A.
-         apply map_path_congruence; auto.
-         apply weight_of_arc_congruence. 
+         apply map_label_list_congruence; auto.
+         apply label_of_arc_congruence. 
   Qed. 
   
-  Lemma measure_of_path_congruence (congrM : bop_congruence R eqR mulR):
-        ∀ p q, p =p= q -> w p =r= w q. 
-  Proof. intros p q E. unfold w, measure_of_path.
-         unfold left_product_of_list.
-         assert (A := map_weight_of_arc_congruence p q E). 
-         apply fold_right_value_list_congruence; auto.
-  Qed. 
-
-
-  Lemma w_distributes_over_concat 
-        (mulID : bop_is_id R eqR mulR 1)    
-        (congrM : bop_congruence R eqR mulR)
-        (mul_associative : bop_associative R eqR mulR):
-     ∀ q₁ q₂, w (q₁ ++ q₂) =r= (w q₁) * (w q₂).
-  Proof. intros q₁ q₂.
-         induction q₁.
-         + simpl. apply symR. destruct (mulID (w q₂)) as [A _]. exact A. 
-         + destruct a as ((a, b), v).          
-           rewrite <- app_comm_cons.
-           unfold w at 1 2. 
-           unfold measure_of_path. simpl. 
-           assert (A := congrM _ _ _ _ (refR v) IHq₁).
-           assert (B := mul_associative v (w q₁) (w q₂)). apply symR in B. 
-           exact (trnR _ _ _ A B). 
-Qed. 
-
-  (* change name to something reasonable? 
-  *) 
-  Lemma path_split_measure
-        (mulID : bop_is_id R eqR mulR 1)    
-        (congrM : bop_congruence R eqR mulR)
-        (assocM : bop_associative R eqR mulR):
-   ∀ p q₁ q₂, p =p= (q₁ ++ q₂) -> (w p) =r= (w q₁ * w q₂).
-  Proof. intros p q₁ q₂ A.
-         assert (B := measure_of_path_congruence congrM _ _ A).
-         assert (C := w_distributes_over_concat mulID congrM assocM q₁ q₂). 
-         exact (trnR _ _ _ B C).          
+  Lemma left_weight_of_path_congruence (ltr_cong : ltr_congruence L R eqL eqR ltr) : 
+        ∀ p q, p =p= q -> lw p =r= lw q. 
+  Proof. intros p q E. unfold lw, left_weight_of_path.
+         unfold ltr_of_list.
+         assert (A := map_label_of_arc_congruence p q E). 
+         apply fold_right_label_list_congruence; auto.
   Qed. 
 
   
 (****************** Define when a path is well-formed wrt a matrix  ********************)
 
-   Definition arc_has_matrix_weight (m : Matrix Node R) (a : weighted_arc) : bool :=
+   Definition arc_has_matrix_label (m : functional_matrix L) (a : weighted_arc) : bool :=
      match a with
-       ((b, c), v) =>  (m b c) =r?= v
+       ((b, c), v) =>  (m b c) =l?= v
      end.
 
-   Lemma arc_has_matrix_weight_congruence (m : Matrix Node R) (cong : Cong m) : 
-     ∀ a a', a =a= a' -> arc_has_matrix_weight m a = arc_has_matrix_weight m a'.
+
+   Lemma arc_has_matrix_label_congruence (m : functional_matrix L) (cong : CongL m) : 
+     ∀ a a', a =a= a' -> arc_has_matrix_label m a = arc_has_matrix_label m a'.
    Proof. intros a a' A.
           destruct a as [[a b] v]; destruct a' as [[a' b'] v']. 
           apply eq_weighted_arc_elim in A. destruct A as [A [B C]]. 
           compute.
           assert (D := cong _ _ _ _ A B).
-          case_eq(m a b =r?= v); intro E; case_eq(m a' b' =r?= v'); intro F; auto.
-          ++ rewrite (trnR _ _ _ (trnR _ _ _ (symR _ _ D) E) C) in F. congruence. 
-          ++ rewrite (trnR _ _ _ D (trnR _ _ _ F (symR _ _ C))) in E. congruence. 
+          case_eq(m a b =l?= v); intro E; case_eq(m a' b' =l?= v'); intro F; auto.
+          ++ rewrite (trnL _ _ _ (trnL _ _ _ (symL _ _ D) E) C) in F. congruence. 
+          ++ rewrite (trnL _ _ _ D (trnL _ _ _ F (symL _ _ C))) in E. congruence. 
    Qed.             
     
    
-   Definition path_has_matrix_weights (m : Matrix Node R) (p : weighted_path) : bool :=
-     forallb (arc_has_matrix_weight m) p.
+   Definition path_has_matrix_labels (m : functional_matrix L) (p : weighted_path) : bool :=
+     forallb (arc_has_matrix_label m) p.
 
-
-
-   Lemma path_has_matrix_weights_congruence (m : Matrix Node R) (cong : Cong m):
-     ∀ p q,  p =p= q -> path_has_matrix_weights m p = path_has_matrix_weights m q. 
-   Proof. unfold path_has_matrix_weights.
+   Lemma path_has_matrix_labels_congruence (m : functional_matrix L) (cong : CongL m):
+     ∀ p q,  p =p= q -> path_has_matrix_labels m p = path_has_matrix_labels m q. 
+   Proof. unfold path_has_matrix_labels.
           induction p; destruct q.
           + compute; auto. 
           + intro A; compute in A; congruence. 
@@ -413,20 +514,9 @@ Qed.
           + intro A. simpl.
             apply eq_weighted_path_elim in A; destruct A as [A B].
             rewrite (IHp _ B).
-            rewrite (arc_has_matrix_weight_congruence m cong _ _ A). 
+            rewrite (arc_has_matrix_label_congruence m cong _ _ A). 
             reflexivity. 
    Qed.           
-
-   Lemma path_has_matrix_weights_distributes_over_concat (m : Matrix Node R) :
-     ∀ p q, path_has_matrix_weights m (p ++ q) = true ->
-            (path_has_matrix_weights m p = true) ∧ (path_has_matrix_weights m q = true). 
-   Proof. unfold path_has_matrix_weights.
-          intros p q A. 
-          rewrite forallb_app in A. 
-          apply bop_and_elim in A. destruct A as [A B].
-          split; auto. 
-   Qed. 
-   
 
    Definition arc_is_consistent_with_path  (a : weighted_arc) (p : weighted_path) : bool :=
      match p with
@@ -465,86 +555,265 @@ Qed.
             reflexivity. 
    Qed.
 
-   Lemma arc_is_consistent_with_path_concat_elim : 
-   ∀ a p q, arc_is_consistent_with_path a (p ++ q) = true ->
-            (p = [] /\ arc_is_consistent_with_path a q = true) \/ ( p <> [] /\ arc_is_consistent_with_path a p = true).
-   Proof. intros a p q A.
-          destruct p.
-          + rewrite app_nil_l in A. 
-            left. auto.
-          + right. split.
-            ++ congruence. 
-            ++ destruct a as [[a b] v]; destruct w0 as [[a' b'] v'].
-               unfold  arc_is_consistent_with_path in *.
-               rewrite <- app_comm_cons in A. 
-               simpl in *.
-               exact A. 
-   Qed.
+(****************** Matrix of weighted paths of length k  *************************)
 
+   Definition zeroP : weighted_path_set := [].
+   Definition oneP : weighted_path_set := [[]].
 
-   Lemma path_is_arc_consistent_distributes_over_concat : 
-     ∀ p q, path_is_arc_consistent (p ++ q) = true ->
-            (path_is_arc_consistent p = true) /\ (path_is_arc_consistent q = true). 
-   Proof. induction p; destruct q; simpl; intro A.
-          + compute. auto. 
-          + rewrite A. auto. 
-          + rewrite app_nil_r in A. rewrite A. split; congruence. 
-          + apply bop_and_elim in A. destruct A as [A B].
-            destruct (IHp _ B) as [C D].
-            simpl in D. apply bop_and_elim in D. destruct D as [D E].             
-            rewrite C, D, E. simpl. split; auto.
-            apply bop_and_intro; auto.
-            destruct (arc_is_consistent_with_path_concat_elim _ _ _ A) as [[F G] | [F G]].            
-            ++ rewrite F. compute; auto. 
-            ++ exact G. 
-   Qed.               
-
+   Definition plusP : binary_op weighted_path_set :=
+     fun X => fun Y => X ++ Y.
    
-   Definition weighted_path_is_well_formed m p := bop_and (path_is_arc_consistent p) (path_has_matrix_weights m p).
+   Definition ltr_extend_path : ltr_type weighted_arc weighted_path :=
+    fun a => fun p =>  if test_path_source (arc_target a) p then a :: p else []. 
 
-   Definition Wf m p := weighted_path_is_well_formed m p = true. 
+   Definition path_adjacency_arcs (m : functional_matrix L) : functional_matrix weighted_arc := 
+    fun (i j : nat) =>  ((i, j), m i j). 
+    
+   Definition ltr_extend_paths : ltr_type weighted_arc weighted_path_set :=
+     fun a (X : weighted_path_set) => List.map (ltr_extend_path a) X.
 
-   Lemma Wf_intro (m : Matrix Node R):   
-        ∀ p, path_is_arc_consistent p = true -> path_has_matrix_weights m p =true -> Wf m p.
-     Proof. intros p A B.
-            unfold Wf, weighted_path_is_well_formed.
-            rewrite A, B.
-            compute; auto.
-     Qed.             
+   Definition matrix_of_k_length_paths m n k :=
+     left_matrix_exponentiation zeroP oneP plusP ltr_extend_paths n (path_adjacency_arcs m) k.
+   
 
-     Lemma Wf_elim (m : Matrix Node R):   
-        ∀ p, Wf m p -> (path_is_arc_consistent p = true) /\ (path_has_matrix_weights m p =true). 
-     Proof.  unfold Wf, weighted_path_is_well_formed.
-             intros p A. apply bop_and_elim in A. destruct A as [A B]. 
-             split; auto.
-     Qed.
+   (******* Local definitions ****************************************)
+   
+   Local Notation "Pk[ m , n ]^ k"  := (matrix_of_k_length_paths m n k) (at level 70).
 
-     Lemma Wf_congruence (m : Matrix Node R) (cong : Cong m):
-           ∀ p q,  p =p= q -> Wf m p -> Wf m q.
-     Proof. intros p q A B.
-            apply Wf_elim in B. destruct B as [B C]. 
-            apply Wf_intro.
-            + rewrite <- (path_is_arc_consistent_congruence _ _ A). exact B. 
-            + rewrite <- (path_has_matrix_weights_congruence m cong  _ _ A). exact C. 
-     Qed.               
+   Local Notation "LW[ X ]" := (sum_fn zero plus lw X) (at level 70). 
 
-     Lemma well_formed_path_rewrite (m : Matrix Node R) (cong : Cong m) :
-         ∀ p q,  Wf m p -> p =p= q -> Wf m q.
-     Proof. intros p q A B. exact (Wf_congruence m cong p q B A). Qed. 
+   Local Notation "LWP[ X ]" := (fun i j => LW[ X i j]) (at level 100).
 
-     Lemma well_formed_path_snoc (m : Matrix Node R): 
-       forall p q, Wf m (p ++ q) → Wf m p  ∧  Wf m q.
-     Proof. intros p q A.
-         apply Wf_elim in A. destruct A as [A B].
-         apply path_has_matrix_weights_distributes_over_concat in B.
-         destruct B as [B C].
-         apply path_is_arc_consistent_distributes_over_concat in A.
-         destruct A as [A D].
-         split.
-         + apply Wf_intro; auto. 
-         + apply Wf_intro; auto.
-     Qed.            
+   Local Notation "[I]" := (matrix_mul_identity zero one) (at level 70).
 
+   Local Notation "[IP]" := (matrix_mul_identity zeroP oneP) (at level 70).
+
+   Local Notation "A[ m ]" := (path_adjacency_arcs m) (at level 70).
+
+   Local Infix "*[| n |]>" := (left_matrix_mul zeroP plusP ltr_extend_paths n) (at level 70).
+   
+   Local Infix "+PM" := (matrix_add plusP ) (at level 70).
+   
+   Local Infix "+P" := (plusP) (at level 70).
+
+   Local Notation "a =PM= b" := (eq_functional_matrix_prop weighted_path_set eq_weighted_path_set a b) (at level 70).   
+
+   (*****************************************************************************)
+
+
+   Lemma unfold_Pk (m : functional_matrix L) (n : nat) : 
+     ∀ k, Pk[ m, n ]^(S k) =PM= (A[ m ] *[| n |]> (Pk[ m , n ]^k)). 
+   Proof. intro k. unfold matrix_of_k_length_paths. 
+          exact (unfold_left_matrix_exponentiation _ _
+                    eq_weighted_path_set
+                    plusP
+                    zeroP
+                    oneP
+                    ltr_extend_paths
+                    eq_weighted_path_set_reflexive
+                    (A[ m ])
+                    n
+                    k).
+   Qed.           
+
+  Lemma identity_is_weight_of_matrix_of_paths_of_length_zero
+        (plusID : bop_is_id R eqR plus 0)
+        (m : functional_matrix L) (n : nat) : 
+             [I] =M= LWP[ Pk[ m , n ]^0  ].
+  Proof. intros i j.  unfold matrix_of_k_length_paths.
+         simpl. unfold matrix_mul_identity.         
+         case_eq(i =n?= j); intro A; compute. 
+         + destruct (plusID 1) as [C D].
+           apply symR in D. exact D. 
+         + apply refR. 
+  Qed.
+
+  Lemma LWP_of_path_identity_is_identity (plusID : bop_is_id R eqR plus 0) :
+         LWP[ [IP] ] =M= [I]. 
+ Proof. intros i j. unfold matrix_mul_identity.
+        unfold zeroP, oneP.
+        case_eq(i =n?= j); intro A; compute. 
+        + destruct (plusID 1) as [B C]. exact C. 
+        + apply refR. 
+ Qed.
+
+ 
+ Lemma LWP_of_path_identity_is_weight_of_matrix_of_paths_of_length_zero
+       (plusID : bop_is_id R eqR plus 0)
+       (m : functional_matrix L) (n : nat) :        
+         LWP[ [IP] ] =M= LWP[ Pk[ m , n ]^0  ].
+ Proof. intros i j.
+        assert (A := identity_is_weight_of_matrix_of_paths_of_length_zero plusID m n i j).
+        assert (B := LWP_of_path_identity_is_identity plusID i j).
+        simpl in A, B. 
+        exact (trnR _ _ _ B A). 
+ Qed.
+
+ Lemma LW_distributes_over_path_plus
+       (assoc : bop_associative R eqR plus)
+       (comm : bop_commutative R eqR plus)
+       (idP : bop_is_id R eqR plus 0) 
+       (X Y : functional_matrix weighted_path_set): 
+  ∀ i j, LW[ (X i j) +P (Y i j) ] =r= LW[ X i j ] + LW[ Y i j ]. 
+ Proof. intros i j. apply sum_fn_distributes_over_concat; auto.  Qed. 
+
+(*
+  Lemma tst : 
+  ∀m n i j,  1 < n -> (m *[ n ]> ([I])) i j = if i =n?= j then m i j |> 1 else zero. 
+  Proof. intros m n i j C.
+         unfold matrix_mul_identity.
+         unfold left_matrix_mul.
+         unfold sum_fn. unfold left_row_i_dot_col_j. 
+         induction n.
+         + admit. (* C : 1 < 0 *)
+         + simpl.
+           assert (D : 1 < n). admit. 
+           rewrite (IHn D).
+           case_eq(n =n?= j); intro A; case_eq(i =n?= j); intro B. 
+           ++ admit. (* (m i n |> 1) + (m i j |> 1) = (m i j |> 1) *) 
+           ++ admit. (* (n =n?= j) = true -> (m i n |> 1) + 0 = 0 *) 
+           ++ admit. (* (m i n |> 0) + (m i j |> 1) = (m i j |> 1) *) 
+           ++ admit. (* (m i n |> 0) + 0 = 0 *)
+  Admitted.
+
+  Lemma tst2 : 
+  ∀m n i j,  1 < n -> ((A[ m]) *[| n |]> ([IP])) i j = if i =n?= j then [[((i, i), m i i)]]else zeroP. 
+  Proof. intros m n i j C.
+         unfold path_adjacency_arcs, matrix_mul_identity, zeroP.
+         unfold left_matrix_mul, plusP, ltr_extend_paths, oneP. 
+         unfold ltr_extend_path, sum_fn.
+         unfold left_row_i_dot_col_j, arc_target.
+  Admitted.          
+
+
+ Lemma LWP_distributes_over_matrix_add_base_case_aux :  
+   ∀m n, (LWP[ (A[ m]) *[| n |]> ([IP])])
+          =M= 
+          (m *[ n ]> [I]). 
+ Proof. intros m n i j. simpl. 
+        unfold left_matrix_mul at 2. 
+ Admitted.
+ 
+ Lemma LWP_distributes_over_matrix_add_base_case :  
+   ∀m n, (LWP[ (A[ m]) *[| n |]> ([IP])])
+          =M= 
+          (m *[ n ]> (LWP[ Pk[ m, n ]^ 0])).
+ Proof. intros m n i j.
+        unfold left_matrix_mul at 2. 
+        unfold left_row_i_dot_col_j.
+        unfold sum_fn at 3.
+        unfold matrix_of_k_length_paths.
+        unfold left_matrix_exponentiation.
+        unfold matrix_mul_identity at 2.
+        unfold oneP, zeroP.
+ Admitted.
+
+ 
+ Lemma LWP_distributes_over_matrix_add
+       (assoc : bop_associative R eqR plus)
+       (comm : bop_commutative R eqR plus)
+       (idP : bop_is_id R eqR plus 0) : 
+            ∀ X Y, LWP[ X +PM Y ] =M= LWP[ X ] +M LWP[ Y ]. 
+ Proof. intros X Y i j. unfold matrix_add.
+        apply LW_distributes_over_path_plus; auto. 
+ Qed. 
+*)              
+
+  Lemma LWP_distributes_over_left_exponentiation (m : functional_matrix L) (n : nat) : 
+        ∀ k, LWP[ A[ m ] *[| n |]> (Pk[ m , n ]^k) ] =M= (m *[ n ]> LWP[ Pk[ m , n ]^k ]).
+  Admitted. 
+
+  Lemma  base_case_of_fundamental_theorem_on_paths_of_length_k
+         (assoc : bop_associative R eqR plus)
+         (comm : bop_commutative R eqR plus)
+         (plusID : bop_is_id R eqR plus 0) :
+        ∀ m n, LWP[ Pk[ m, n ]^1 ] =M= ((m *[ n ]> LWP[ Pk[ m, n ]^0 ])).
+  Proof. intros m n. 
+         unfold matrix_of_k_length_paths at 1. 
+         unfold left_matrix_exponentiation.
+         (* Show: 
+          (LWP[ ((A[ m ]) *[| n |]> ([IP])) +PM ([IP])]) =M= ((m *[ n ]> (LWP[ Pk[ m, n ]^ 0])))
+         Proof: 
+          
+          LWP[ ((A[ m ]) *[| n |]> ([IP])) +PM ([IP])]
+          =M= {LWP_distributes_over_matrix_add}
+          LWP[ ((A[ m ]) *[| n |]> ([IP])) ] +M LWP[ [IP] ]
+          =M= {LWP_of_path_identity_is_identity} 
+          LWP[ ((A[ m ]) *[| n |]> ([IP])) ] +M I ]
+          =M= {} 
+          ((m *[ n ]> (LWP[ Pk[ m, n ]^ 0])) +M ([I]))
+          
+         assert (B := LWP_distributes_over_matrix_add assoc comm plusID ((A[ m]) *[| n |]> ([IP])) ([IP])).
+         assert (C : ((LWP[ (A[ m]) *[| n |]> ([IP])]) +M (LWP[ [IP]]))
+                     =M=
+                     ((LWP[ (A[ m]) *[| n |]> ([IP])]) +M [I])).
+            apply matrix_add_congruence; auto.
+            apply matrix_equality_reflexive. 
+            apply LWP_of_path_identity_is_identity.
+            apply plusID.
+         assert (D : ((LWP[ (A[ m]) *[| n |]> ([IP])]) +M [I])
+                     =M= 
+                     ((m *[ n ]> (LWP[ Pk[ m, n ]^ 0])) +M ([I]))).
+            apply matrix_add_congruence; auto. 
+            apply LWP_distributes_over_matrix_add_base_case.
+            apply matrix_equality_reflexive.             
+         assert (CD := matrix_equality_transitive _ _ _ C D).
+         assert (BCD := matrix_equality_transitive _ _ _ B CD).
+         exact BCD. 
+  Qed. 
+          *)
+         Admitted. 
+
+
+  Lemma LWP_congruence (ltr_cong : ltr_congruence L R eqL eqR ltr) : 
+    ∀ X Y, X =PM= Y -> LWP[ X ] =M= LWP[ Y ].
+  Proof. intros X Y A i j.
+         assert (B := A i j).
+         assert (C := sum_fn_congruence_general R eqR plus zero refR congrP). 
+         exact (C weighted_path lw lw eq_weighted_path (left_weight_of_path_congruence ltr_cong) _ _ B). 
+  Qed. 
+
+  Theorem fundamental_theorem_on_paths_of_length_k
+         (assoc : bop_associative R eqR plus)
+         (comm : bop_commutative R eqR plus)
+         (plusID : bop_is_id R eqR plus 0)
+         (ltr_cong : ltr_congruence L R eqL eqR ltr)
+         (m : functional_matrix L) (n : nat) : 
+    ∀ k, LWP[ Pk[ m , n ]^(k + 1) ]
+          =M=
+          (m *[ n ]> (LWP[ Pk[ m , n]^k ])). 
+  Proof. induction k.
+         + apply base_case_of_fundamental_theorem_on_paths_of_length_k; auto. 
+         + (* Show: 
+             IHk : (LWP[ Pk[ m, n ]^(k + 1)])  =M= (m *[ n ]> (LWP[ Pk[ m, n ]^ k]))
+             ============================
+             (LWP[ Pk[ m, n ]^((S k) + 1)])  =M= (m *[ n ]> (LWP[ Pk[ m, n ]^(S k)]))
+
+             Proof: 
+             LWP[ Pk[ m, n ]^((k + 1) + 1)]
+             = {unfold_left_matrix_exponentiation} 
+             LWP[ (A[ m ] *[| n |]> (Pk[ m , n ]^(k + 1)))]
+             = {LWP_distributes_over_left_exponentiation, congruence}
+             (m *[ n ]> (LWP[ Pk[ m, n ]^(k + 1)]))
+            *)
+           assert (B : LWP[ Pk[ m, n ]^((S k) + 1)]
+                       =M=
+                       LWP[ (A[ m ] *[| n |]> (Pk[ m , n ]^(S k))) ]).
+               assert (C := unfold_Pk m n (S k)).             
+               apply LWP_congruence; auto. 
+               assert (D : S (S k) = ((S k) + 1)%nat). (* Ugh! *) 
+                  assert (E := theory.plus_SS k 0).
+                  rewrite <- plus_n_O in E.
+                  rewrite E. reflexivity. 
+               rewrite D in C. exact C. 
+           assert (D : LWP[   (A[ m ] *[| n |]> (Pk[ m , n ]^(S k)))   ] 
+                       =M=
+                       (m *[ n ]> (LWP[ Pk[ m, n ]^(S k)]))).
+              apply LWP_distributes_over_left_exponentiation. 
+           exact (eq_functional_matrix_prop_transitive _ eqR trnR _ _ _ B D).
+  Qed.
+
+    
 End Weighted_Paths. 
          
   

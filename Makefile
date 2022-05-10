@@ -18,7 +18,6 @@ BASE=\
    coq/common/compute.v \
    coq/common/ast.v \
    coq/common/data.v \
-   coq/common/matrix_def.v  \
    coq/theory/set.v \
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
@@ -36,7 +35,6 @@ CAS=\
    coq/eqv/ascii.v \
    coq/eqv/string.v \
    coq/eqv/nat.v \
-   coq/eqv/matrix.v  \
    coq/eqv/bool.v \
    coq/eqv/list.v \
    coq/eqv/set.v \
@@ -138,12 +136,15 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
-   coq/algorithm/Matrix.v \
-   coq/algorithm/Listprop.v \
-   coq/algorithm/Path.v \
-   coq/algorithm/Orel.v \
-   coq/algorithm/Mat.v \
-   coq/algorithm/wrapper.v
+   coq/algorithm/list_congruences.v \
+   coq/algorithm/matrix_definition.v \
+   coq/algorithm/matrix_algorithms.v \
+   coq/algorithm/matrix_addition.v \
+   coq/algorithm/matrix_multiplication.v \
+   coq/algorithm/weighted_path.v \
+   coq/algorithm/matrix_exp.v 
+#   coq/algorithm/Path.v \
+#   coq/algorithm/wrapper.v
 
 
 

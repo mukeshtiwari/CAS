@@ -1,8 +1,9 @@
 Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute. 
-Require Import CAS.coq.common.matrix_def.
-Require Import CAS.coq.algorithm.Mat
-  CAS.coq.algorithm.Path.
+Require Import
+        CAS.coq.algorithm.matrix_definition 
+        CAS.coq.algorithm.matrix_exponentiation_algorithm
+        CAS.coq.algorithm.Path.
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.bs.properties.
@@ -129,8 +130,6 @@ Record square_matrix (A : Type) := mk_square_matrix {
   algebra : @bs_mcas A
 }.
 *)
-
-
 Fixpoint list_enum (n : nat) : list nat :=
   match n with
   | O => []
