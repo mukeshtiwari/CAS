@@ -505,6 +505,45 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
 
 
 
+  Definition A_slt_classify_left_dioid_slt {L S : Type} 
+    (A : @A_left_dioid L S) : @A_slt_mcas L S :=
+    A_SLT_Dioid A.
+
+
+  Definition A_slt_classify_left_selective_semiring_slt {L S : Type}
+    (A : @A_left_selective_semiring L S) : A_slt_mcas :=
+    A_SLT_Selective_Semiring A.
+
+  Definition A_slt_classify_left_idempotent_semiring_slt {L S : Type}
+    (A : @A_left_idempotent_semiring L S) : A_slt_mcas :=
+    A_SLT_Idempotent_Semiring A.
+
+  (* Discuss this with Tim *)
+  Definition A_slt_classify_left_semiring_slt {L S : Type} 
+    (A : @A_left_semiring L S) : A_slt_mcas :=
+    A_SLT_Semiring A.
+
+
+  Definition A_slt_classify_left_pre_semiring_slt {L S : Type}
+    (A : @A_left_pre_semiring L S) : A_slt_mcas :=
+    match A_left_pre_semiring_id_ann_proofs_d A with
+    | SLT_Id_Ann_Proof_Equal _ _ _ ppf => 
+        A_slt_classify_left_semiring_slt
+        {|
+              A_left_semiring_carrier         := A_left_pre_semiring_carrier A
+            ; A_left_semiring_label           := A_left_pre_semiring_label A
+            ; A_left_semiring_plus            := A_left_pre_semiring_plus A                                              
+            ; A_left_semiring_trans           := A_left_pre_semiring_trans A  (* L -> (S -> S) *)
+            ; A_left_semiring_plus_proofs     := A_left_pre_semiring_plus_proofs A                                 
+            ; A_left_semiring_trans_proofs    := A_left_pre_semiring_trans_proofs A 
+            ; A_left_semiring_exists_plus_ann_d := A_left_pre_semiring_exists_plus_ann_d A                           
+            ; A_left_semiring_id_ann_proofs  := ppf
+            ; A_left_semiring_proofs          := A_left_pre_semiring_proofs A
+            ; A_left_semiring_ast             := A_left_pre_semiring_ast A
+        |}
+    | _ => A_SLT_Left_Pre_Semiring A
+    end.
+
 
 
 
@@ -512,7 +551,52 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
     A_SLT_CS A.
 
   Definition A_slt_CI_classify_slt {L S : Type} (A : @A_slt_CI L S) : A_slt_mcas :=
-    A_SLT_CI A.
+    let slt_proof := A_slt_CI_proofs A in 
+    match A_slt_classify_proofs _ _ _ slt_proof with 
+    | A_SLT_proofs _ _ _ pf =>  A_SLT_CI A 
+    | A_SLT_dioid_proofs _ _ _ pf =>
+        match A_slt_CI_exists_plus_ann_d A with
+        | inl ann => 
+            match A_slt_CI_id_ann_proofs_d A with 
+            | SLT_Id_Ann_Proof_Equal _ _ _ ppf =>
+                A_slt_classify_left_dioid_slt
+                  {|
+                      A_left_dioid_carrier := A_slt_CI_carrier A 
+                    ; A_left_dioid_label := A_slt_CI_label A
+                    ; A_left_dioid_plus  := A_slt_CI_plus A                                             
+                    ; A_left_dioid_trans := A_slt_CI_trans A
+                    ; A_left_dioid_plus_proofs  := A_slt_CI_plus_proofs A
+                    ; A_left_dioid_trans_proofs := A_slt_CI_trans_proofs A
+                    ; A_left_dioid_exists_plus_ann := ann                              
+                    ; A_left_dioid_id_ann_proofs   := ppf
+                    ; A_left_dioid_proofs := pf 
+                    ; A_left_dioid_ast := A_slt_CI_ast A
+                  |}
+            | _ => A_SLT_CI A 
+            end
+        | _ => A_SLT_CI A    
+        end
+    | A_SLT_semiring_proofs _ _ _ pf => 
+        match A_slt_CI_id_ann_proofs_d A with 
+        | SLT_Id_Ann_Proof_Equal _ _ _ ppf =>
+            A_slt_classify_left_idempotent_semiring_slt
+            {|
+                  A_left_idempotent_semiring_carrier :=  A_slt_CI_carrier A 
+                ; A_left_idempotent_semiring_label  := A_slt_CI_label A
+                ; A_left_idempotent_semiring_plus   := A_slt_CI_plus A                                            
+                ; A_left_idempotent_semiring_trans   := A_slt_CI_trans A
+                ; A_left_idempotent_semiring_plus_proofs := A_slt_CI_plus_proofs A                              
+                ; A_left_idempotent_semiring_trans_proofs := A_slt_CI_trans_proofs A
+                ; A_left_idempotent_semiring_exists_plus_ann_d := A_slt_CI_exists_plus_ann_d A                              
+                ; A_left_idempotent_semiring_id_ann_proofs := ppf
+                ; A_left_idempotent_semiring_proofs  := pf
+                ; A_left_idempotent_semiring_ast := A_slt_CI_ast A
+            |}
+        | _ => A_SLT_CI A
+        end
+    end.
+
+   
 
   Definition A_slt_zero_is_ltr_ann_classify_slt {L S : Type} 
     (A : @A_slt_zero_is_ltr_ann L S) : A_slt_mcas :=
@@ -600,49 +684,7 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
   
     
    
-  Definition A_slt_classify_left_dioid_slt {L S : Type} 
-    (A : @A_left_dioid L S) : @A_slt_mcas L S :=
-    A_SLT_Dioid A.
-
-
-  Definition A_slt_classify_left_selective_semiring_slt {L S : Type}
-    (A : @A_left_selective_semiring L S) : A_slt_mcas :=
-    A_SLT_Selective_Semiring A.
-
-  Definition A_slt_classify_left_idempotent_semiring_slt {L S : Type}
-    (A : @A_left_idempotent_semiring L S) : A_slt_mcas :=
-    A_SLT_Idempotent_Semiring A.
-
-  (* Discuss this with Tim *)
-  Definition A_slt_classify_left_semiring_slt {L S : Type} 
-    (A : @A_left_semiring L S) : A_slt_mcas :=
-    A_SLT_Semiring A.
-
-
-  Definition A_slt_classify_left_pre_semiring_slt {L S : Type}
-    (A : @A_left_pre_semiring L S) : A_slt_mcas :=
-    match A_left_pre_semiring_exists_plus_ann_d A with 
-    | inl ann => 
-        match A_left_pre_semiring_id_ann_proofs_d A with
-        | SLT_Id_Ann_Proof_Equal _ _ _ ppf => 
-            A_slt_classify_left_semiring_slt
-            {|
-                  A_left_semiring_carrier         := A_left_pre_semiring_carrier A
-                ; A_left_semiring_label           := A_left_pre_semiring_label A
-                ; A_left_semiring_plus            := A_left_pre_semiring_plus A                                              
-                ; A_left_semiring_trans           := A_left_pre_semiring_trans A  (* L -> (S -> S) *)
-                ; A_left_semiring_plus_proofs     := A_left_pre_semiring_plus_proofs A                                 
-                ; A_left_semiring_trans_proofs    := A_left_pre_semiring_trans_proofs A 
-                ; A_left_semiring_exists_plus_ann_d := inl ann                             
-                ; A_left_semiring_id_ann_proofs  := ppf
-                ; A_left_semiring_proofs          := A_left_pre_semiring_proofs A
-                ; A_left_semiring_ast             := A_left_pre_semiring_ast A
-            |}
-        | _ => A_SLT_Left_Pre_Semiring A
-        end
-    | inr _ => A_SLT_Left_Pre_Semiring A
-    end. 
-
+  
 
 
 
@@ -1362,11 +1404,11 @@ Section Verify.
         ++ reflexivity.
         ++ reflexivity.   
       + reflexivity.
-  Qed.  
+  Qed.
 
 
-  (* Everything is working upto this point. *)
-
+  (* Everything is working upto this point. 
+  
   Lemma correctness_slt_classify_slt : 
     forall pf,
     slt_classify_slt (A2C_slt pf) = 
@@ -1374,9 +1416,11 @@ Section Verify.
   Proof.
     unfold slt_classify_slt,
     A_slt_classify_slt,
-    sg_certificates_classify;
+    sg_certificates_classify.
     destruct pf; simpl.
-    rewrite corectness_slt_classify_certificates_proofs.
+
+
+    rewrite correctness_slt_classify_certificates_proofs.
     destruct ((A_slt_classify_proofs 
       (A_eqv_eq S A_slt_carrier0) A_slt_plus0
       A_slt_trans0 A_slt_proofs0)); simpl.
@@ -1454,7 +1498,7 @@ Section Verify.
     intros ?.
     reflexivity.
   Qed.
-  
+  *)
  
   (* Now, I need to work on proof *)
   
@@ -1465,7 +1509,10 @@ Section Verify.
   Proof.
     destruct pf; simpl.
     + reflexivity.
-    + admit. 
+    +  
+    
+    
+    admit. 
     + admit. 
     + eapply correctness_slt_classify_slt.
     + eapply correctness_A2C_left_dioid.
