@@ -1756,8 +1756,10 @@ Lemma correctness_slt_classify_left_dioid_slt :
   forall a, 
   slt_classify_left_dioid_slt (A2C_left_dioid a) = 
   @SLT_Dioid L S (A2C_left_dioid a).
-Proof. 
-Admitted. 
+Proof.
+  intros ?.
+  reflexivity.
+Qed.
 
 Lemma correctness_slt_classify_selective_left_pre_dioid_slt :
   forall a, 
@@ -1771,7 +1773,10 @@ Lemma correctness_slt_classify_selective_left_dioid_slt :
   slt_classify_selective_left_dioid_slt (A2C_selective_left_dioid a) =
   @SLT_Selective_Dioid L S (A2C_selective_left_dioid a).
 Proof.
-Admitted.
+  intros ?.
+  reflexivity.
+Qed.
+
 
 Lemma correctness_slt_classify_left_pre_semiring_slt :
   forall a, 
@@ -1785,21 +1790,29 @@ Lemma correctness_slt_classify_left_semiring_slt :
   slt_classify_left_semiring_slt (A2C_left_semiring a) =
   @SLT_Semiring L S (A2C_left_semiring a).
 Proof.
-Admitted.
+  intros ?.
+  reflexivity.
+Qed.
+
 
 Lemma correctness_slt_classify_left_selective_semiring_slt :
   forall a,
   slt_classify_left_selective_semiring_slt (A2C_left_selective_semiring a) =
   @SLT_Selective_Semiring L S (A2C_left_selective_semiring a).
 Proof.
-Admitted.
+  intros ?.
+  reflexivity.
+Qed.
+
 
 Lemma correctness_slt_classify_left_idempotent_semiring_slt :
   forall a, 
   slt_classify_left_idempotent_semiring_slt (A2C_left_idempotent_semiring a) =
   @SLT_Idempotent_Semiring L S (A2C_left_idempotent_semiring a).
 Proof.
-Admitted.
+  intros ?.
+  reflexivity.
+Qed.
 
 
 Lemma correctness_slt_classify : 
