@@ -1684,13 +1684,15 @@ Section Verify.
   Qed.
 
 
-  (* Everything is working upto this point. 
+ 
   
   Lemma correctness_slt_classify_slt : 
     forall pf,
     slt_classify_slt (A2C_slt pf) = 
     @A2C_mcas_slt L S (A_slt_classify_slt pf).
   Proof.
+  Admitted.
+  (* 
     unfold slt_classify_slt,
     A_slt_classify_slt,
     sg_certificates_classify.
@@ -1727,77 +1729,98 @@ Section Verify.
       simpl; reflexivity.
       ++ reflexivity.
   Qed. 
+ *) 
   
+Lemma correctness_slt_CS_classify_slt : 
+  forall a, 
+  slt_CS_classify_slt (A2C_slt_cs a) = 
+  @A2C_mcas_slt L S (A_slt_CS_classify_slt a).
+Proof.
+Admitted.
+
+Lemma correctness_slt_CI_classify_slt :
+  forall a,
+  slt_CI_classify_slt (A2C_slt_ci a) = 
+  @A2C_mcas_slt L S (A_slt_CI_classify_slt a).
+Proof.
+Admitted.
+
+Lemma correctness_slt_zero_is_ltr_ann_classify_slt :
+  forall a, 
+  slt_zero_is_ltr_ann_classify_slt (A2C_slt_zero_is_ltr_ann a) =
+  @A2C_mcas_slt L S (A_slt_zero_is_ltr_ann_classify_slt a).
+Proof.
+Admitted.
+
+Lemma correctness_slt_classify_left_dioid_slt :
+  forall a, 
+  slt_classify_left_dioid_slt (A2C_left_dioid a) = 
+  @SLT_Dioid L S (A2C_left_dioid a).
+Proof. 
+Admitted. 
+
+Lemma correctness_slt_classify_selective_left_pre_dioid_slt :
+  forall a, 
+  slt_classify_selective_left_pre_dioid_slt (A2C_selective_left_pre_dioid a) =
+  @A2C_mcas_slt L S (A_slt_classify_selective_left_pre_dioid_slt a).
+Proof.
+Admitted.
+
+Lemma correctness_slt_classify_selective_left_dioid_slt :
+  forall a, 
+  slt_classify_selective_left_dioid_slt (A2C_selective_left_dioid a) =
+  @SLT_Selective_Dioid L S (A2C_selective_left_dioid a).
+Proof.
+Admitted.
+
+Lemma correctness_slt_classify_left_pre_semiring_slt :
+  forall a, 
+  slt_classify_left_pre_semiring_slt (A2C_pre_left_semiring a) =
+  @A2C_mcas_slt L S (A_slt_classify_left_pre_semiring_slt a).
+Proof.
+Admitted.
+
+Lemma correctness_slt_classify_left_semiring_slt :
+  forall a, 
+  slt_classify_left_semiring_slt (A2C_left_semiring a) =
+  @SLT_Semiring L S (A2C_left_semiring a).
+Proof.
+Admitted.
+
+Lemma correctness_slt_classify_left_selective_semiring_slt :
+  forall a,
+  slt_classify_left_selective_semiring_slt (A2C_left_selective_semiring a) =
+  @SLT_Selective_Semiring L S (A2C_left_selective_semiring a).
+Proof.
+Admitted.
+
+Lemma correctness_slt_classify_left_idempotent_semiring_slt :
+  forall a, 
+  slt_classify_left_idempotent_semiring_slt (A2C_left_idempotent_semiring a) =
+  @SLT_Idempotent_Semiring L S (A2C_left_idempotent_semiring a).
+Proof.
+Admitted.
 
 
-  Lemma correctness_A2C_left_dioid : 
-    forall pf, 
-    SLT_Dioid (A2C_left_dioid pf) = 
-    @SLT_Dioid L S (A2C_left_dioid pf).
-  Proof.
-    intros pf.
-    reflexivity.
-  Qed.
-  
-
-  Lemma correctness_A2C_selective_left_dioid : 
-    forall pf, 
-    SLT_Selective_Dioid (A2C_selective_left_dioid pf) =
-    @SLT_Selective_Dioid L S (A2C_selective_left_dioid pf).
-  Proof.
-    intros ?.
-    reflexivity.
-  Qed.
-
-  Lemma correctness_A2C_selective_left_pre_dioid : 
-    forall pf,
-    SLT_Selective_Left_Pre_Dioid (A2C_selective_left_pre_dioid pf) =
-    @SLT_Selective_Left_Pre_Dioid L S (A2C_selective_left_pre_dioid pf).
-  Proof.
-    intros ?.
-    reflexivity.
-  Qed.
-
-  Lemma correctness_A2C_pre_left_semiring : 
-    forall pf, 
-    SLT_Left_Pre_Semiring (A2C_pre_left_semiring pf) =
-    @SLT_Left_Pre_Semiring L S (A2C_pre_left_semiring pf).
-  Proof.
-    intros ?.
-    reflexivity.
-  Qed.
-
-  Lemma correctness_A2C_left_semiring : 
-    forall pf, 
-    SLT_Semiring (A2C_left_semiring pf) = 
-    @SLT_Semiring L S (A2C_left_semiring pf).
-  Proof.
-    intros ?.
-    reflexivity.
-  Qed.
-  *)
- 
-  (* Now, I need to work on proof *)
-  
-  Lemma correctness_slt_classify : 
-    forall pf,  
-    slt_classify (A2C_mcas_slt pf) = 
-    @A2C_mcas_slt L S (A_slt_classify pf).
-  Proof.
-    destruct pf; simpl.
-    + reflexivity.
-    +   
-    
-    
-    admit. 
-    + admit. 
-    + eapply correctness_slt_classify_slt.
-    + eapply correctness_A2C_left_dioid.
-    + eapply correctness_A2C_selective_left_pre_dioid.
-    + eapply correctness_A2C_selective_left_dioid.
-    + eapply correctness_A2C_pre_left_semiring.
-    + eapply correctness_A2C_left_semiring.
-  Qed.      
+Lemma correctness_slt_classify : 
+  forall pf,  
+  slt_classify (A2C_mcas_slt pf) = 
+  @A2C_mcas_slt L S (A_slt_classify pf).
+Proof.
+  destruct pf; simpl.
+  + reflexivity.
+  + apply correctness_slt_classify_slt.  
+  + apply correctness_slt_CS_classify_slt.
+  + apply correctness_slt_CI_classify_slt.
+  + apply correctness_slt_zero_is_ltr_ann_classify_slt.
+  + apply correctness_slt_classify_left_dioid_slt.
+  + apply correctness_slt_classify_selective_left_pre_dioid_slt.
+  + apply correctness_slt_classify_selective_left_dioid_slt.
+  + apply correctness_slt_classify_left_pre_semiring_slt.
+  + apply correctness_slt_classify_left_semiring_slt.
+  + apply correctness_slt_classify_left_selective_semiring_slt.
+  + apply correctness_slt_classify_left_idempotent_semiring_slt.          
+Qed.      
 
 
 End Verify.
