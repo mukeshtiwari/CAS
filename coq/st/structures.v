@@ -1123,27 +1123,24 @@ Section MCAS.
 
   Definition slt_classify_left_pre_semiring_slt {L S : Type}
     (A : @left_pre_semiring L S) : slt_mcas :=
-    match left_pre_semiring_exists_plus_ann_d A with 
-    | Certify_Exists_Ann ann => 
-        match left_pre_semiring_id_ann_certs_d A with
-        | Certify_SLT_Id_Ann_Proof_Equal ppf => 
-            slt_classify_left_semiring_slt
-            {|
-                  left_semiring_carrier         := left_pre_semiring_carrier A
-                ; left_semiring_label           := left_pre_semiring_label A
-                ; left_semiring_plus            := left_pre_semiring_plus A                                              
-                ; left_semiring_trans           := left_pre_semiring_trans A  (* L -> (S -> S) *)
-                ; left_semiring_plus_certs     := left_pre_semiring_plus_certs A                                 
-                ; left_semiring_trans_certs    := left_pre_semiring_trans_certs A 
-                ; left_semiring_exists_plus_ann_d := Certify_Exists_Ann ann                             
-                ; left_semiring_id_ann_certs  := Assert_Slt_Exists_Id_Ann_Equal ppf  
-                ; left_semiring_certs          := left_pre_semiring_certs A
-                ; left_semiring_ast             := left_pre_semiring_ast A
-            |}
-        | _ => SLT_Left_Pre_Semiring A
-        end
+    match left_pre_semiring_id_ann_certs_d A with
+    | Certify_SLT_Id_Ann_Proof_Equal ppf => 
+        slt_classify_left_semiring_slt
+        {|
+              left_semiring_carrier         := left_pre_semiring_carrier A
+            ; left_semiring_label           := left_pre_semiring_label A
+            ; left_semiring_plus            := left_pre_semiring_plus A                                              
+            ; left_semiring_trans           := left_pre_semiring_trans A  (* L -> (S -> S) *)
+            ; left_semiring_plus_certs     := left_pre_semiring_plus_certs A                                 
+            ; left_semiring_trans_certs    := left_pre_semiring_trans_certs A 
+            ; left_semiring_exists_plus_ann_d := left_pre_semiring_exists_plus_ann_d A                            
+            ; left_semiring_id_ann_certs  := Assert_Slt_Exists_Id_Ann_Equal ppf  
+            ; left_semiring_certs          := left_pre_semiring_certs A
+            ; left_semiring_ast             := left_pre_semiring_ast A
+        |}
     | _ => SLT_Left_Pre_Semiring A
-    end. 
+    end.
+  
     
 
 
@@ -1757,29 +1754,59 @@ Section Verify.
     slt_classify_left_pre_semiring_slt (A2C_left_pre_semiring a) =
     @A2C_mcas_slt L S (A_slt_classify_left_pre_semiring_slt a).
   Proof.
-    destruct a; simpl.
     unfold slt_classify_left_pre_semiring_slt,
-    A2C_pre_left_semiring,
+    A2C_left_pre_semiring,
     A2C_mcas_slt,
     A_slt_classify_left_pre_semiring_slt;
-    simpl.
+    destruct a; simpl.
     destruct A_left_pre_semiring_id_ann_proofs_d0;
     destruct A_left_pre_semiring_exists_plus_ann_d0;
     simpl;
     try (destruct p; simpl; reflexivity).
     + rewrite <- correctness_slt_classify_left_semiring_slt;
       f_equal.
-    +  
-    
-      rewrite <- correctness_slt_classify_left_semiring_slt;
-      f_equal.    
-
-
-
+    + reflexivity.
+    + reflexivity.
+    + reflexivity.   
+  Qed.  
   
   
-    
-
+  Lemma correctness_slt_CS_classify_slt : 
+    forall a, 
+    slt_CS_classify_slt (A2C_slt_cs a) = 
+    @A2C_mcas_slt L S (A_slt_CS_classify_slt a).
+  Proof.
+    unfold slt_CS_classify_slt,
+    A2C_slt_cs,
+    A_slt_CS_classify_slt,
+    A2C_mcas_slt;
+    destruct a; simpl.
+    rewrite correctness_slt_classify_certificates_proofs.
+    destruct (A_slt_classify_proofs (A_eqv_eq S A_slt_CS_carrier0) 
+      A_slt_CS_plus0 A_slt_CS_trans0
+      A_slt_CS_proofs0);
+    simpl.
+    + reflexivity.
+    + destruct A_slt_CS_exists_plus_ann_d0; simpl.
+      unfold A_slt_classify_selective_left_pre_dioid_slt, 
+      slt_classify_selective_left_pre_dioid_slt;
+      simpl.
+      destruct A_slt_CS_id_ann_proofs_d0;
+      simpl.
+      ++ destruct p; simpl; reflexivity.
+      ++ destruct p; simpl; reflexivity.
+      ++ destruct p; simpl; reflexivity.
+      ++ reflexivity.
+      ++ reflexivity.
+      ++ reflexivity.
+    + destruct A_slt_CS_id_ann_proofs_d0;
+      simpl.
+      ++ destruct p; simpl; reflexivity.
+      ++ destruct p; simpl; reflexivity.
+      ++ destruct p; simpl; reflexivity.
+      ++ reflexivity.
+      ++ reflexivity.
+    Qed.
 
 
   Lemma correctness_slt_zero_is_ltr_ann_classify_slt :
@@ -1792,21 +1819,24 @@ Section Verify.
     slt_zero_is_ltr_ann_classify_slt;
     destruct a; simpl.
     rewrite correctness_slt_classify_certificates_proofs.
-
-  Admitted.  
-    
-
-
-  Lemma correctness_slt_CS_classify_slt : 
-    forall a, 
-    slt_CS_classify_slt (A2C_slt_cs a) = 
-    @A2C_mcas_slt L S (A_slt_CS_classify_slt a).
-  Proof.
-    destruct a; simpl.
-    unfold A2C_slt_cs, 
-    A_slt_CS_classify_slt;
+    destruct (A_slt_classify_proofs (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier0)
+    A_slt_zero_is_ltr_ann_plus0 A_slt_zero_is_ltr_ann_trans0 A_slt_zero_is_ltr_ann_proofs0);
     simpl.
-  Admitted.
+    + reflexivity.
+    + destruct A_slt_zero_is_ltr_ann_exists_plus_ann_d0;
+      simpl.
+      rewrite correct_sg_certificates_classify_sg.
+      destruct ((A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier0)
+      A_slt_zero_is_ltr_ann_plus0 A_slt_zero_is_ltr_ann_plus_proofs0));
+      simpl; try reflexivity.
+      f_equal.
+    + rewrite correct_sg_certificates_classify_sg. 
+      destruct ((A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier0)
+      A_slt_zero_is_ltr_ann_plus0 A_slt_zero_is_ltr_ann_plus_proofs0));
+      simpl; try reflexivity.
+  Qed. 
+
+  
 
   Lemma correctness_slt_CI_classify_slt :
     forall a,
