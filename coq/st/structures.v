@@ -1843,8 +1843,36 @@ Section Verify.
     slt_CI_classify_slt (A2C_slt_ci a) = 
     @A2C_mcas_slt L S (A_slt_CI_classify_slt a).
   Proof.
-  Admitted.
-  
+    unfold slt_CI_classify_slt,
+    A2C_slt_ci,
+    A_slt_CI_classify_slt,
+    A2C_mcas_slt;
+    destruct a; simpl.
+    rewrite correctness_slt_classify_certificates_proofs.
+    destruct (A_slt_classify_proofs (A_eqv_eq S A_slt_CI_carrier0) 
+      A_slt_CI_plus0 A_slt_CI_trans0
+      A_slt_CI_proofs0);
+    simpl.
+    + reflexivity.
+    + destruct A_slt_CI_exists_plus_ann_d0; simpl.
+      destruct A_slt_CI_id_ann_proofs_d0;
+      simpl.
+      ++ destruct p; simpl; reflexivity.
+      ++ destruct p; simpl; reflexivity.
+      ++ destruct p; simpl; reflexivity.
+      ++ reflexivity.
+      ++ reflexivity.
+      ++ reflexivity.
+    + destruct A_slt_CI_id_ann_proofs_d0;
+      simpl.
+      ++ destruct p; simpl; reflexivity.
+      ++ destruct p; simpl; reflexivity.
+      ++ destruct p; simpl; reflexivity.
+      ++ reflexivity.
+      ++ reflexivity.
+    Qed.
+    
+
   Lemma correctness_slt_classify_slt : 
     forall pf,
     slt_classify_slt (A2C_slt pf) = 
@@ -1919,16 +1947,6 @@ Section Verify.
       ++ reflexivity.
   Qed. 
   
-
-
-
-
-
-
-
-
-
-
 
 
 
