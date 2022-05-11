@@ -1554,7 +1554,7 @@ Section Translation.
     |}.
 
   
-  Definition A2C_pre_left_semiring {L S : Type} :
+  Definition A2C_left_pre_semiring {L S : Type} :
     @A_left_pre_semiring L S -> @left_pre_semiring L S :=
     λ A, 
     {|
@@ -1638,7 +1638,7 @@ Section Translation.
       | A_SLT_Dioid pf => SLT_Dioid (A2C_left_dioid pf) 
       | A_SLT_Selective_Dioid pf => SLT_Selective_Dioid (A2C_selective_left_dioid pf)
       | A_SLT_Selective_Left_Pre_Dioid pf => SLT_Selective_Left_Pre_Dioid (A2C_selective_left_pre_dioid pf)
-      | A_SLT_Left_Pre_Semiring pf => SLT_Left_Pre_Semiring (A2C_pre_left_semiring pf) 
+      | A_SLT_Left_Pre_Semiring pf => SLT_Left_Pre_Semiring (A2C_left_pre_semiring pf) 
       | A_SLT_Semiring pf => SLT_Semiring (A2C_left_semiring pf) 
       | A_SLT_Selective_Semiring  pf => SLT_Selective_Semiring (A2C_left_selective_semiring pf)
       | A_SLT_Idempotent_Semiring pf => SLT_Idempotent_Semiring (A2C_left_idempotent_semiring pf)
@@ -1683,8 +1683,137 @@ Section Verify.
       + reflexivity.
   Qed.
 
+  Lemma correctness_slt_classify_left_dioid_slt :
+    forall a, 
+    slt_classify_left_dioid_slt (A2C_left_dioid a) = 
+    @SLT_Dioid L S (A2C_left_dioid a).
+  Proof.
+    intros ?.
+    reflexivity.
+  Qed.
 
 
+  Lemma correctness_slt_classify_selective_left_dioid_slt :
+    forall a, 
+    slt_classify_selective_left_dioid_slt (A2C_selective_left_dioid a) =
+    @SLT_Selective_Dioid L S (A2C_selective_left_dioid a).
+  Proof.
+    intros ?.
+    reflexivity.
+  Qed.
+
+
+  Lemma correctness_slt_classify_selective_left_pre_dioid_slt :
+    forall a, 
+    slt_classify_selective_left_pre_dioid_slt (A2C_selective_left_pre_dioid a) =
+    @A2C_mcas_slt L S (A_slt_classify_selective_left_pre_dioid_slt a).
+  Proof.
+    unfold slt_classify_selective_left_pre_dioid_slt,
+    A2C_selective_left_pre_dioid,
+    A2C_mcas_slt,
+    A_slt_classify_selective_left_pre_dioid_slt;
+    destruct a; simpl.
+    destruct A_selective_left_pre_dioid_id_ann_proofs_d0; 
+    simpl.
+    + destruct p; simpl; reflexivity.
+    + destruct p; simpl; reflexivity.
+    + destruct p; simpl; reflexivity.
+    + rewrite <- correctness_slt_classify_selective_left_dioid_slt;
+      f_equal.
+    + f_equal.
+  Qed.
+
+  Lemma correctness_slt_classify_left_semiring_slt :
+    forall a, 
+    slt_classify_left_semiring_slt (A2C_left_semiring a) =
+    @SLT_Semiring L S (A2C_left_semiring a).
+  Proof.
+    intros ?.
+    reflexivity.
+  Qed.
+
+
+  Lemma correctness_slt_classify_left_selective_semiring_slt :
+    forall a,
+    slt_classify_left_selective_semiring_slt (A2C_left_selective_semiring a) =
+    @SLT_Selective_Semiring L S (A2C_left_selective_semiring a).
+  Proof.
+    intros ?.
+    reflexivity.
+  Qed.
+
+
+  Lemma correctness_slt_classify_left_idempotent_semiring_slt :
+    forall a, 
+    slt_classify_left_idempotent_semiring_slt (A2C_left_idempotent_semiring a) =
+    @SLT_Idempotent_Semiring L S (A2C_left_idempotent_semiring a).
+  Proof.
+    intros ?.
+    reflexivity.
+  Qed.
+
+  Lemma correctness_slt_classify_left_pre_semiring_slt :
+    forall a, 
+    slt_classify_left_pre_semiring_slt (A2C_left_pre_semiring a) =
+    @A2C_mcas_slt L S (A_slt_classify_left_pre_semiring_slt a).
+  Proof.
+    destruct a; simpl.
+    unfold slt_classify_left_pre_semiring_slt,
+    A2C_pre_left_semiring,
+    A2C_mcas_slt,
+    A_slt_classify_left_pre_semiring_slt;
+    simpl.
+    destruct A_left_pre_semiring_id_ann_proofs_d0;
+    destruct A_left_pre_semiring_exists_plus_ann_d0;
+    simpl;
+    try (destruct p; simpl; reflexivity).
+    + rewrite <- correctness_slt_classify_left_semiring_slt;
+      f_equal.
+    +  
+    
+      rewrite <- correctness_slt_classify_left_semiring_slt;
+      f_equal.    
+
+
+
+  
+  
+    
+
+
+
+  Lemma correctness_slt_zero_is_ltr_ann_classify_slt :
+    forall a, 
+    slt_zero_is_ltr_ann_classify_slt (A2C_slt_zero_is_ltr_ann a) =
+    @A2C_mcas_slt L S (A_slt_zero_is_ltr_ann_classify_slt a).
+  Proof.
+    unfold A2C_slt_zero_is_ltr_ann,
+    A_slt_zero_is_ltr_ann_classify_slt,
+    slt_zero_is_ltr_ann_classify_slt;
+    destruct a; simpl.
+    rewrite correctness_slt_classify_certificates_proofs.
+
+  Admitted.  
+    
+
+
+  Lemma correctness_slt_CS_classify_slt : 
+    forall a, 
+    slt_CS_classify_slt (A2C_slt_cs a) = 
+    @A2C_mcas_slt L S (A_slt_CS_classify_slt a).
+  Proof.
+    destruct a; simpl.
+    unfold A2C_slt_cs, 
+    A_slt_CS_classify_slt;
+    simpl.
+  Admitted.
+
+  Lemma correctness_slt_CI_classify_slt :
+    forall a,
+    slt_CI_classify_slt (A2C_slt_ci a) = 
+    @A2C_mcas_slt L S (A_slt_CI_classify_slt a).
+  Proof.
+  Admitted.
   
   Lemma correctness_slt_classify_slt : 
     forall pf,
@@ -1704,136 +1833,73 @@ Section Verify.
         +++ destruct p; simpl; reflexivity.
         +++ destruct p; simpl; reflexivity.
         +++ destruct p; simpl; reflexivity.
-        +++ reflexivity.   
-           rewrite correct_sg_certificates_classify_sg;
-            destruct (A_sg_proofs_classify_sg S 
-            (A_eqv_eq S A_slt_carrier0) A_slt_plus0
-            A_slt_plus_proofs0);
-            simpl; reflexivity.
+        +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt.
+            f_equal. 
+        +++ reflexivity. 
+      ++ reflexivity.
+    + destruct A_slt_exists_plus_ann_d0; 
+      cbn.
+      ++  destruct A_slt_id_ann_proofs_d0; simpl.
+          +++ destruct p; simpl; reflexivity.
+          +++ destruct p; simpl; reflexivity.
+          +++ destruct p; simpl; reflexivity.
+          +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt.
+              f_equal.
+          +++ reflexivity.
+      ++ reflexivity.
+    + destruct A_slt_exists_plus_ann_d0; cbn. 
+      ++  destruct A_slt_id_ann_proofs_d0; simpl.
+        +++ destruct p; simpl; reflexivity.
+        +++ destruct p; simpl; reflexivity.
+        +++ destruct p; simpl; reflexivity.
+        +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt.
+            f_equal.
         +++ reflexivity.
       ++ reflexivity.
-    
-  (* 
-    unfold slt_classify_slt,
-    A_slt_classify_slt,
-    sg_certificates_classify.
-    destruct pf; simpl.
-
-
-    rewrite correctness_slt_classify_certificates_proofs.
-    destruct ((A_slt_classify_proofs 
-      (A_eqv_eq S A_slt_carrier0) A_slt_plus0
-      A_slt_trans0 A_slt_proofs0)); simpl.
-    + reflexivity.
-    + destruct A_slt_exists_plus_ann_d0; simpl.
-      ++ 
-        destruct A_slt_id_ann_proofs_d0; simpl.
-        +++ destruct p; simpl; reflexivity.
-        +++ destruct p; simpl; reflexivity.
-        +++ destruct p; simpl; reflexivity.
-        +++ rewrite correct_sg_certificates_classify_sg;
-            destruct (A_sg_proofs_classify_sg S 
-            (A_eqv_eq S A_slt_carrier0) A_slt_plus0
-            A_slt_plus_proofs0);
-            simpl; reflexivity.
-        +++ reflexivity.
+    +  destruct A_slt_exists_plus_ann_d0; cbn. 
+      ++  destruct A_slt_id_ann_proofs_d0; simpl.
+          +++ destruct p; simpl; reflexivity.
+          +++ destruct p; simpl; reflexivity.
+          +++ destruct p; simpl; reflexivity.
+          +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt.
+              f_equal.
+          +++ reflexivity.
       ++ reflexivity.
-    + destruct A_slt_id_ann_proofs_d0; 
-      simpl.
-      ++ destruct p; simpl; reflexivity.
-      ++ destruct p; simpl; reflexivity.
-      ++ destruct p; simpl; reflexivity.
-      ++ rewrite correct_sg_certificates_classify_sg;
-      destruct (A_sg_proofs_classify_sg S 
-        (A_eqv_eq S A_slt_carrier0) A_slt_plus0
-        A_slt_plus_proofs0);
-      simpl; reflexivity.
+    + rewrite <- correctness_slt_CS_classify_slt.
+      f_equal.
+    + rewrite <- correctness_slt_CI_classify_slt.
+      f_equal.
+    +  destruct A_slt_exists_plus_ann_d0; cbn. 
+      ++  destruct A_slt_id_ann_proofs_d0; simpl.
+          +++ destruct p; simpl; reflexivity.
+          +++ destruct p; simpl; reflexivity.
+          +++ destruct p; simpl; reflexivity.
+          +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt.
+              f_equal.
+          +++ reflexivity.
+      ++ reflexivity.
+    +  destruct A_slt_exists_plus_ann_d0; cbn. 
+      ++  destruct A_slt_id_ann_proofs_d0; simpl.
+          +++ destruct p; simpl; reflexivity.
+          +++ destruct p; simpl; reflexivity.
+          +++ destruct p; simpl; reflexivity.
+          +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt.
+              f_equal.
+          +++ reflexivity.
       ++ reflexivity.
   Qed. 
- *) 
   
-Lemma correctness_slt_CS_classify_slt : 
-  forall a, 
-  slt_CS_classify_slt (A2C_slt_cs a) = 
-  @A2C_mcas_slt L S (A_slt_CS_classify_slt a).
-Proof.
-Admitted.
-
-Lemma correctness_slt_CI_classify_slt :
-  forall a,
-  slt_CI_classify_slt (A2C_slt_ci a) = 
-  @A2C_mcas_slt L S (A_slt_CI_classify_slt a).
-Proof.
-Admitted.
-
-Lemma correctness_slt_zero_is_ltr_ann_classify_slt :
-  forall a, 
-  slt_zero_is_ltr_ann_classify_slt (A2C_slt_zero_is_ltr_ann a) =
-  @A2C_mcas_slt L S (A_slt_zero_is_ltr_ann_classify_slt a).
-Proof.
-Admitted.
-
-Lemma correctness_slt_classify_left_dioid_slt :
-  forall a, 
-  slt_classify_left_dioid_slt (A2C_left_dioid a) = 
-  @SLT_Dioid L S (A2C_left_dioid a).
-Proof.
-  intros ?.
-  reflexivity.
-Qed.
-
-Lemma correctness_slt_classify_selective_left_pre_dioid_slt :
-  forall a, 
-  slt_classify_selective_left_pre_dioid_slt (A2C_selective_left_pre_dioid a) =
-  @A2C_mcas_slt L S (A_slt_classify_selective_left_pre_dioid_slt a).
-Proof.
-Admitted.
-
-Lemma correctness_slt_classify_selective_left_dioid_slt :
-  forall a, 
-  slt_classify_selective_left_dioid_slt (A2C_selective_left_dioid a) =
-  @SLT_Selective_Dioid L S (A2C_selective_left_dioid a).
-Proof.
-  intros ?.
-  reflexivity.
-Qed.
 
 
-Lemma correctness_slt_classify_left_pre_semiring_slt :
-  forall a, 
-  slt_classify_left_pre_semiring_slt (A2C_pre_left_semiring a) =
-  @A2C_mcas_slt L S (A_slt_classify_left_pre_semiring_slt a).
-Proof.
-Admitted.
-
-Lemma correctness_slt_classify_left_semiring_slt :
-  forall a, 
-  slt_classify_left_semiring_slt (A2C_left_semiring a) =
-  @SLT_Semiring L S (A2C_left_semiring a).
-Proof.
-  intros ?.
-  reflexivity.
-Qed.
 
 
-Lemma correctness_slt_classify_left_selective_semiring_slt :
-  forall a,
-  slt_classify_left_selective_semiring_slt (A2C_left_selective_semiring a) =
-  @SLT_Selective_Semiring L S (A2C_left_selective_semiring a).
-Proof.
-  intros ?.
-  reflexivity.
-Qed.
 
 
-Lemma correctness_slt_classify_left_idempotent_semiring_slt :
-  forall a, 
-  slt_classify_left_idempotent_semiring_slt (A2C_left_idempotent_semiring a) =
-  @SLT_Idempotent_Semiring L S (A2C_left_idempotent_semiring a).
-Proof.
-  intros ?.
-  reflexivity.
-Qed.
+
+
+
+
+
 
 
 Lemma correctness_slt_classify : 
