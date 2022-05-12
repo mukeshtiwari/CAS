@@ -76,10 +76,58 @@ Require Import CAS.coq.st.properties.
       A_slt_CS    A_slt_zero_is_ltr_ann     A_slt_CI
 
 *)  
+Section Proofs.
+
+  Context 
+    {L S : Type}
+    (r : brel S)
+    (add : binary_op S)
+    (ltr : ltr_type L S).
+
+  Lemma semiring_not_strictly_absorptive :  
+    left_semiring_proofs r add ltr -> 
+    slt_strictly_absorptive_decidable r add ltr.
+  Proof.
+    intros [Al [(x, y) Hx]].
+    right; econstructor.
+    instantiate (1 := (x, y)).
+    left; exact Hx.
+  Defined. (* becuase we the structure of simplify *)
+
+End Proofs.    
 
 
 Section Compute.
+  
+  Context 
+    {L S : Type}
+    (r : brel S)
+    (add : binary_op S)
+    (ltr : ltr_type L S).
+  
+  Definition cast_slt_proof_to_slt_proof (A : slt_proofs r add ltr) :
+    slt_proofs r add ltr := A. 
 
+    
+  Definition cast_left_dioid_proof_to_slt_proof 
+    (A : left_dioid_proofs r add ltr) : slt_proofs r add ltr :=
+    {|
+        A_slt_distributive_d := inl (A_left_dioid_distributive r add ltr A)
+      ; A_slt_absorptive_d := inl (A_left_dioid_absorptive r add ltr A)
+      ; A_slt_strictly_absorptive_d := A_left_dioid_strictly_absorptive_d r add ltr A   
+    |}.
 
+  
 
+  Definition cast_left_semiring_proofs_to_slt_proofs 
+    (A : left_semiring_proofs r add ltr) : slt_proofs r add ltr :=
+  {|
+        A_slt_distributive_d := inl (A_left_semiring_distributive r add ltr A)
+      ; A_slt_absorptive_d := inr (A_left_semiring_not_absorptive r add ltr A) 
+      ; A_slt_strictly_absorptive_d := 
+          semiring_not_strictly_absorptive r add ltr A
+    |}.
+
+    
 End Compute.
+
