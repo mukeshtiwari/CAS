@@ -94,6 +94,24 @@ Section Proofs.
     left; exact Hx.
   Defined. (* becuase we the structure of simplify *)
 
+
+  Lemma A_selective_left_dioid_to_sg_proofs 
+    (A : A_selective_left_dioid) :
+    sg_proofs S
+    (A_eqv_eq S (A_selective_left_dioid_carrier A))
+    (@A_selective_left_dioid_plus L S A).
+  Proof.
+    destruct A, 
+    A_selective_left_dioid_plus_proofs; simpl.
+    econstructor; try assumption.
+    left; exact A_sg_CS_commutative.
+    left; exact A_sg_CS_selective.
+  Admitted.
+    
+
+
+
+
 End Proofs.    
 
 
@@ -235,7 +253,76 @@ Section ACAS.
 
 
 
+
+    Definition cast_A_left_dioid_to_A_slt_CI 
+      {L S : Type} (A : @A_left_dioid L S) : @A_slt_CI L S :=
+      {|
+          A_slt_CI_carrier  := A_left_dioid_carrier A
+        ; A_slt_CI_label := A_left_dioid_label A 
+        ; A_slt_CI_plus := A_left_dioid_plus A                                              
+        ; A_slt_CI_trans := A_left_dioid_trans A
+        ; A_slt_CI_plus_proofs  := A_left_dioid_plus_proofs A                       
+        ; A_slt_CI_trans_proofs := A_left_dioid_trans_proofs A
+        ; A_slt_CI_exists_plus_ann_d := inl (A_left_dioid_exists_plus_ann A)                               
+        ; A_slt_CI_id_ann_proofs_d :=
+            SLT_Id_Ann_Proof_Equal _ _ _ (A_left_dioid_id_ann_proofs A)                                         
+        ; A_slt_CI_proofs := cast_left_dioid_proof_to_slt_proof 
+            (A_eqv_eq S (A_left_dioid_carrier A))
+            (A_left_dioid_plus A)
+            (A_left_dioid_trans A) 
+            (A_left_dioid_proofs A)                                   
+        ; A_slt_CI_ast := A_left_dioid_ast A 
+      |}. 
   
+
+    Definition cast_A_left_idempotent_semiring_to_A_slt_CI 
+      {L S : Type} (A : @A_left_idempotent_semiring L S) : @A_slt_CI L S :=
+      {|
+          A_slt_CI_carrier  := A_left_idempotent_semiring_carrier A
+        ; A_slt_CI_label := A_left_idempotent_semiring_label A 
+        ; A_slt_CI_plus := A_left_idempotent_semiring_plus A                                              
+        ; A_slt_CI_trans := A_left_idempotent_semiring_trans A
+        ; A_slt_CI_plus_proofs  := A_left_idempotent_semiring_plus_proofs A                       
+        ; A_slt_CI_trans_proofs := A_left_idempotent_semiring_trans_proofs A
+        ; A_slt_CI_exists_plus_ann_d := A_left_idempotent_semiring_exists_plus_ann_d A                              
+        ; A_slt_CI_id_ann_proofs_d :=
+            SLT_Id_Ann_Proof_Equal _ _ _ (A_left_idempotent_semiring_id_ann_proofs A)                                         
+        ; A_slt_CI_proofs := cast_left_semiring_proof_to_slt_proof 
+            (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
+            (A_left_idempotent_semiring_plus A)
+            (A_left_idempotent_semiring_trans A) 
+            (A_left_idempotent_semiring_proofs A)                                   
+        ; A_slt_CI_ast := A_left_idempotent_semiring_ast A 
+      |}. 
+    
+
+
+    Definition cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann 
+      {L S : Type} (A : @A_selective_left_dioid L S) : 
+      @A_slt_zero_is_ltr_ann L S.
+    Proof.
+      refine  
+      {|
+
+          A_slt_zero_is_ltr_ann_carrier := A_selective_left_dioid_carrier A 
+        ; A_slt_zero_is_ltr_ann_label := A_selective_left_dioid_label A
+        ; A_slt_zero_is_ltr_ann_plus  := A_selective_left_dioid_plus A 
+        ; A_slt_zero_is_ltr_ann_trans := A_selective_left_dioid_trans A 
+        ; A_slt_zero_is_ltr_ann_plus_proofs  := _                            
+        ; A_slt_zero_is_ltr_ann_trans_proofs := A_selective_left_dioid_trans_proofs A 
+        ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := inl (A_selective_left_dioid_exists_plus_ann A)                                
+        ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_selective_left_dioid_id_ann_proofs A  
+        ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_dioid_proof_to_slt_proof 
+          (A_eqv_eq S (A_selective_left_dioid_carrier A))
+          (A_selective_left_dioid_plus A)
+          (A_selective_left_dioid_trans A) 
+          (A_selective_left_dioid_proofs A)                                  
+        ; A_slt_zero_is_ltr_ann_ast := A_selective_left_dioid_ast A 
+      |}.
+      destruct A; simpl.
+      econstructor.
+      (* I need a way to turn s*)
+      exact A_selective_left_dioid_plus_proofs.
 
     
 End ACAS.
