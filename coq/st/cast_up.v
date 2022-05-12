@@ -97,19 +97,20 @@ Section Proofs.
 End Proofs.    
 
 
-Section Compute.
+Section ACAS.
   
-  Context 
-    {L S : Type}
-    (r : brel S)
-    (add : binary_op S)
-    (ltr : ltr_type L S).
+   
+   
   
-  Definition cast_slt_proof_to_slt_proof (A : slt_proofs r add ltr) :
+  Definition cast_slt_proof_to_slt_proof  {L S : Type} 
+    (r : brel S) (add : binary_op S)
+    (ltr : ltr_type L S) (A : slt_proofs r add ltr) :
     slt_proofs r add ltr := A. 
 
-    
-  Definition cast_left_dioid_proof_to_slt_proof 
+
+  Definition cast_left_dioid_proof_to_slt_proof {L S : Type} 
+    (r : brel S) (add : binary_op S)
+    (ltr : ltr_type L S)
     (A : left_dioid_proofs r add ltr) : slt_proofs r add ltr :=
     {|
         A_slt_distributive_d := inl (A_left_dioid_distributive r add ltr A)
@@ -119,15 +120,123 @@ Section Compute.
 
   
 
-  Definition cast_left_semiring_proofs_to_slt_proofs 
+  Definition cast_left_semiring_proof_to_slt_proof 
+    {L S : Type} 
+    (r : brel S) (add : binary_op S)
+    (ltr : ltr_type L S)
     (A : left_semiring_proofs r add ltr) : slt_proofs r add ltr :=
-  {|
+    {|
         A_slt_distributive_d := inl (A_left_semiring_distributive r add ltr A)
       ; A_slt_absorptive_d := inr (A_left_semiring_not_absorptive r add ltr A) 
       ; A_slt_strictly_absorptive_d := 
           semiring_not_strictly_absorptive r add ltr A
     |}.
 
+  
+  Definition cast_A_left_dioid_to_A_left_dioid  {L S : Type} 
+    (A : @A_left_dioid L S) : A_left_dioid := A.
+
+  Definition cast_selective_left_dioid_to_selective_left_dioid 
+    {L S : Type} (A : @A_selective_left_dioid L S) : 
+    @A_selective_left_dioid L S := A.
+
+
     
-End Compute.
+  Definition cast_A_selective_left_dioid_to_A_selective_left_pre_dioid 
+    {L S : Type} (A : @A_selective_left_dioid L S) : @A_selective_left_pre_dioid L S :=
+    {|
+      A_selective_left_pre_dioid_carrier := A_selective_left_dioid_carrier A 
+    ; A_selective_left_pre_dioid_label := A_selective_left_dioid_label A 
+    ; A_selective_left_pre_dioid_plus := A_selective_left_dioid_plus A                                            
+    ; A_selective_left_pre_dioid_trans := A_selective_left_dioid_trans A 
+    ; A_selective_left_pre_dioid_plus_proofs := A_selective_left_dioid_plus_proofs A
+    ; A_selective_left_pre_dioid_trans_proofs := A_selective_left_dioid_trans_proofs A
+    ; A_selective_left_pre_dioid_exists_plus_ann := A_selective_left_dioid_exists_plus_ann A                                
+    ; A_selective_left_pre_dioid_id_ann_proofs_d := 
+      SLT_Id_Ann_Proof_Equal _ _ _ (A_selective_left_dioid_id_ann_proofs A)                
+    ; A_selective_left_pre_dioid_proofs := A_selective_left_dioid_proofs A                                
+    ; A_selective_left_pre_dioid_ast := A_selective_left_dioid_ast A 
+  |}.
+  
+
+  Definition cast_A_left_selective_semiring_to_A_left_selective_semiring
+    {L S : Type}  (A : @A_left_selective_semiring L S : Type) : 
+    @A_left_selective_semiring L S := A.
+
+  
+  Definition cast_A_left_idempotent_semiring_to_A_left_idempotent_semiring 
+    {L S : Type}  (A : @A_left_idempotent_semiring L S) : 
+    @A_left_idempotent_semiring L S := A.
+
+
+  Definition cast_A_left_semiring_to_A_left_semiring 
+    {L S : Type} (A : @A_left_semiring L S) : @A_left_semiring L S := A.
+
+
+  Definition cast_A_left_semiring_to_A_left_pre_semiring
+    {L S : Type} (A : @A_left_semiring L S) : @A_left_pre_semiring L S :=
+    {|
+      A_left_pre_semiring_carrier := A_left_semiring_carrier A 
+    ; A_left_pre_semiring_label := A_left_semiring_label A
+    ; A_left_pre_semiring_plus := A_left_semiring_plus A                                               
+    ; A_left_pre_semiring_trans := A_left_semiring_trans A 
+    ; A_left_pre_semiring_plus_proofs := A_left_semiring_plus_proofs A                                
+    ; A_left_pre_semiring_trans_proofs := A_left_semiring_trans_proofs A 
+    ; A_left_pre_semiring_exists_plus_ann_d := A_left_semiring_exists_plus_ann_d A                            
+    ; A_left_pre_semiring_id_ann_proofs_d  :=
+        SLT_Id_Ann_Proof_Equal _ _ _ (A_left_semiring_id_ann_proofs A)
+    ; A_left_pre_semiring_proofs := A_left_semiring_proofs A 
+    ; A_left_pre_semiring_ast  := A_left_semiring_ast A 
+  |}.
+  
+  
+
+
+  Definition cast_A_selective_left_pre_dioid_to_A_slt_CS 
+    {L S : Type} (A : @A_selective_left_pre_dioid L S) : @A_slt_CS L S :=
+    {|
+        A_slt_CS_carrier  := A_selective_left_pre_dioid_carrier A 
+      ; A_slt_CS_label := A_selective_left_pre_dioid_label A
+      ; A_slt_CS_plus := A_selective_left_pre_dioid_plus A                                               
+      ; A_slt_CS_trans := A_selective_left_pre_dioid_trans A 
+      ; A_slt_CS_plus_proofs := A_selective_left_pre_dioid_plus_proofs A                        
+      ; A_slt_CS_trans_proofs := A_selective_left_pre_dioid_trans_proofs A
+      ; A_slt_CS_exists_plus_ann_d := inl (A_selective_left_pre_dioid_exists_plus_ann A)                                
+      ; A_slt_CS_id_ann_proofs_d  := A_selective_left_pre_dioid_id_ann_proofs_d A                                         
+      ; A_slt_CS_proofs := cast_left_dioid_proof_to_slt_proof 
+          (A_eqv_eq S (A_selective_left_pre_dioid_carrier A))
+          (A_selective_left_pre_dioid_plus A)
+          (A_selective_left_pre_dioid_trans A) 
+          (A_selective_left_pre_dioid_proofs A)                           
+      ; A_slt_CS_ast := A_selective_left_pre_dioid_ast A
+    |}.
+ 
+  
+  
+    Definition cast_A_left_selective_semiring_to_A_slt_CS 
+      {L S : Type} (A : @A_left_selective_semiring L S) : @A_slt_CS L S :=
+      {|
+          A_slt_CS_carrier  := A_left_selective_semiring_carrier A
+        ; A_slt_CS_label := A_left_selective_semiring_label A 
+        ; A_slt_CS_plus := A_left_selective_semiring_plus A                                              
+        ; A_slt_CS_trans := A_left_selective_semiring_trans A 
+        ; A_slt_CS_plus_proofs := A_left_selective_semiring_plus_proofs A                        
+        ; A_slt_CS_trans_proofs := A_left_selective_semiring_trans_proofs A
+        ; A_slt_CS_exists_plus_ann_d := A_left_selective_semiring_exists_plus_ann_d A                               
+        ; A_slt_CS_id_ann_proofs_d  := 
+            SLT_Id_Ann_Proof_Equal _ _ _ (A_left_selective_semiring_id_ann_proofs A)                                         
+        ; A_slt_CS_proofs := cast_left_semiring_proof_to_slt_proof 
+            (A_eqv_eq S (A_left_selective_semiring_carrier A))
+            (A_left_selective_semiring_plus A)
+            (A_left_selective_semiring_trans A) 
+            (A_left_selective_semiring_proofs A)                           
+        ; A_slt_CS_ast := A_left_selective_semiring_ast A
+      |}.
+
+
+
+  
+
+    
+End ACAS.
 
