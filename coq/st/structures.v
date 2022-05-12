@@ -76,41 +76,68 @@ So, we need absorption!
 
 (*
 
-                                 A_Slt
-                                 0 | 
-          ----------------------------------------------------------- 
-        1 |               2 |                3 |                  4 |
-      A_slt_CS    A_slt_zero_is_ltr_ann     A_slt_CI           A_left_pre_semirings
+1.                A_slt_proof
+                     |
+             ------------------------     
+            |                       |
+    A_slt_dioid_proof      A_slt_semiring_proof
 
-
-                          1
+ 2.   
+                  left_dioid
+                     |
+                  left_dioid
+ 3.                
+              selective_left_dioid
+                      |
+              selective_left_dioid   
+4.
+              selective_left_pre_dioid
+                      |
+              selective_left_dioid
+5.
+              left_selective_semiring
+                      |
+              left_selective_semiring
+6.
+              left_idempotent_semiring
+                      |
+              left_idempotent_semiring
+7.
+              left_semiring
+                  |
+              left_semiring
+8.
+              left_pre_semiring
+                  |
+              left_semiring
+9.                           
                        A_slt_CS 
+                          | 
     ---------------------------------------------------------- 
-               5 |                             6 |
+                 |                              |            
     A_selective_left_pre_dioid        A_left_selective_semiring
-                 |                               |
-                 ---------------------------------
-                            7 | 
-                    A_selective_left_dioid
+10.
+                        A_slt_CI
+                          |
+       -------------------------------------                
+      |                             |                   
+  left_dioid              left_idempotent_semiring    
 
+11.
 
-                        2
                 A_slt_zero_is_ltr_ann
-    ----------------------------------------------------------
-            6 |                                 8 |
-    A_left_selective_semiring       A_left_idempotent_semiring
-                                                9 |
-                                            A_left_dioid
+    --------------------------------------------------------------------
+           |                      |              |                   |
+    selective_left_dioid      left_dioid     left_semiring   left_idempotent_semiring
 
+12.    
 
-          3                       4
-      A_slt_CI           A_left_pre_semirings
-          |                        |
-      ---------------------------------------
-                   8 | 
-          A_left_idempotent_semiring
-                   9 |
-                A_left_dioid
+                        A_slt
+                          | 
+          ------------------------------------------
+          |                |                 |    
+      A_slt_CS    A_slt_zero_is_ltr_ann     A_slt_CI
+
 *)  
 
 
