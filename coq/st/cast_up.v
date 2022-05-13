@@ -7,6 +7,7 @@ Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.tr.structures.
 Require Import CAS.coq.st.structures.
 Require Import CAS.coq.st.properties.
+Require Import CAS.coq.sg.cast_up.
 
 
 
@@ -298,12 +299,11 @@ Section ACAS.
 
 
     Definition cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann 
-      {L S : Type} (A : @A_selective_left_dioid L S) : 
+      {L S : Type} (s : S) (f : S -> S) (A : @A_selective_left_dioid L S)
+      (H : properties.brel_not_trivial S (A_eqv_eq S (A_selective_left_dioid_carrier A)) f) : 
       @A_slt_zero_is_ltr_ann L S.
-    Proof.
       refine  
       {|
-
           A_slt_zero_is_ltr_ann_carrier := A_selective_left_dioid_carrier A 
         ; A_slt_zero_is_ltr_ann_label := A_selective_left_dioid_label A
         ; A_slt_zero_is_ltr_ann_plus  := A_selective_left_dioid_plus A 
@@ -319,11 +319,19 @@ Section ACAS.
           (A_selective_left_dioid_proofs A)                                  
         ; A_slt_zero_is_ltr_ann_ast := A_selective_left_dioid_ast A 
       |}.
-      destruct A; simpl.
-      econstructor.
-      (* I need a way to turn s*)
-      exact A_selective_left_dioid_plus_proofs.
+      pose proof (A_sg_C_proofs_from_sg_CS_proofs 
+        S (A_eqv_eq S (A_selective_left_dioid_carrier A))
+        (A_selective_left_dioid_plus A)
+        s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
+        (A_selective_left_dioid_plus_proofs A)) as sg_C_proof;
+      exact (A_sg_proofs_from_sg_C_proofs 
+        S (A_eqv_eq S (A_selective_left_dioid_carrier A))
+        (A_selective_left_dioid_plus A)
+        s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
+        sg_C_proof).
+    Defined.
 
+    
     
 End ACAS.
 
