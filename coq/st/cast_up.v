@@ -97,18 +97,46 @@ Section Proofs.
 
 
   Lemma A_selective_left_dioid_to_sg_proofs 
-    (A : A_selective_left_dioid) :
+    (A : A_selective_left_dioid) (s : S)
+    (f : S -> S) 
+    (H : properties.brel_not_trivial S
+      (A_eqv_eq S (A_selective_left_dioid_carrier A)) f) :
     sg_proofs S
     (A_eqv_eq S (A_selective_left_dioid_carrier A))
     (@A_selective_left_dioid_plus L S A).
   Proof.
-    destruct A, 
-    A_selective_left_dioid_plus_proofs; simpl.
-    econstructor; try assumption.
-    left; exact A_sg_CS_commutative.
-    left; exact A_sg_CS_selective.
-  Admitted.
-    
+    pose proof (A_sg_C_proofs_from_sg_CS_proofs 
+        S (A_eqv_eq S (A_selective_left_dioid_carrier A))
+        (A_selective_left_dioid_plus A)
+        s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
+        (A_selective_left_dioid_plus_proofs A)) as sg_C_proof;
+      exact (A_sg_proofs_from_sg_C_proofs 
+        S (A_eqv_eq S (A_selective_left_dioid_carrier A))
+        (A_selective_left_dioid_plus A)
+        s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
+        sg_C_proof).
+  Defined.    
+ 
+  Lemma A_left_dioid_to_sg_proofs 
+    (A : A_left_dioid) (s : S)
+    (f : S -> S) 
+    (H : properties.brel_not_trivial S
+      (A_eqv_eq S (A_left_dioid_carrier A)) f) :
+    sg_proofs S
+    (A_eqv_eq S (A_left_dioid_carrier A))
+    (@A_left_dioid_plus L S A).
+  Proof.
+    pose proof (A_sg_C_proofs_from_sg_CI_proofs 
+        S (A_eqv_eq S (A_left_dioid_carrier A))
+        (A_left_dioid_plus A)
+        s f H (A_eqv_proofs S (A_left_dioid_carrier A))
+        (A_left_dioid_plus_proofs A)) as sg_C_proof;
+      exact (A_sg_proofs_from_sg_C_proofs 
+        S (A_eqv_eq S (A_left_dioid_carrier A))
+        (A_left_dioid_plus A)
+        s f H (A_eqv_proofs S (A_left_dioid_carrier A))
+        sg_C_proof).
+  Defined.
 
 
 
@@ -301,14 +329,13 @@ Section ACAS.
     Definition cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann 
       {L S : Type} (s : S) (f : S -> S) (A : @A_selective_left_dioid L S)
       (H : properties.brel_not_trivial S (A_eqv_eq S (A_selective_left_dioid_carrier A)) f) : 
-      @A_slt_zero_is_ltr_ann L S.
-      refine  
+      @A_slt_zero_is_ltr_ann L S :=  
       {|
           A_slt_zero_is_ltr_ann_carrier := A_selective_left_dioid_carrier A 
         ; A_slt_zero_is_ltr_ann_label := A_selective_left_dioid_label A
         ; A_slt_zero_is_ltr_ann_plus  := A_selective_left_dioid_plus A 
         ; A_slt_zero_is_ltr_ann_trans := A_selective_left_dioid_trans A 
-        ; A_slt_zero_is_ltr_ann_plus_proofs  := _                            
+        ; A_slt_zero_is_ltr_ann_plus_proofs  := A_selective_left_dioid_to_sg_proofs A s f H                          
         ; A_slt_zero_is_ltr_ann_trans_proofs := A_selective_left_dioid_trans_proofs A 
         ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := inl (A_selective_left_dioid_exists_plus_ann A)                                
         ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_selective_left_dioid_id_ann_proofs A  
@@ -319,31 +346,20 @@ Section ACAS.
           (A_selective_left_dioid_proofs A)                                  
         ; A_slt_zero_is_ltr_ann_ast := A_selective_left_dioid_ast A 
       |}.
-      pose proof (A_sg_C_proofs_from_sg_CS_proofs 
-        S (A_eqv_eq S (A_selective_left_dioid_carrier A))
-        (A_selective_left_dioid_plus A)
-        s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
-        (A_selective_left_dioid_plus_proofs A)) as sg_C_proof;
-      exact (A_sg_proofs_from_sg_C_proofs 
-        S (A_eqv_eq S (A_selective_left_dioid_carrier A))
-        (A_selective_left_dioid_plus A)
-        s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
-        sg_C_proof).
-    Defined.
+
 
    
-    
+
     Definition A_left_dioid_to_A_slt_zero_is_ltr_ann   
       {L S : Type} (s : S) (f : S -> S) (A : @A_left_dioid L S)
       (H : properties.brel_not_trivial S (A_eqv_eq S (A_left_dioid_carrier A)) f) : 
-      @A_slt_zero_is_ltr_ann L S.
-      refine  
+      @A_slt_zero_is_ltr_ann L S :=
       {|
           A_slt_zero_is_ltr_ann_carrier := A_left_dioid_carrier A 
         ; A_slt_zero_is_ltr_ann_label := A_left_dioid_label A
         ; A_slt_zero_is_ltr_ann_plus  := A_left_dioid_plus A 
         ; A_slt_zero_is_ltr_ann_trans := A_left_dioid_trans A 
-        ; A_slt_zero_is_ltr_ann_plus_proofs  := _                            
+        ; A_slt_zero_is_ltr_ann_plus_proofs  := A_left_dioid_to_sg_proofs A s f H                            
         ; A_slt_zero_is_ltr_ann_trans_proofs := A_left_dioid_trans_proofs A 
         ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := inl (A_left_dioid_exists_plus_ann A)                                
         ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_left_dioid_id_ann_proofs A  
@@ -354,17 +370,8 @@ Section ACAS.
           (A_left_dioid_proofs A)                                  
         ; A_slt_zero_is_ltr_ann_ast := A_left_dioid_ast A 
       |}.
-      pose proof (A_sg_C_proofs_from_sg_CI_proofs 
-        S (A_eqv_eq S (A_left_dioid_carrier A))
-        (A_left_dioid_plus A)
-        s f H (A_eqv_proofs S (A_left_dioid_carrier A))
-        (A_left_dioid_plus_proofs A)) as sg_C_proof;
-      exact (A_sg_proofs_from_sg_C_proofs 
-        S (A_eqv_eq S (A_left_dioid_carrier A))
-        (A_left_dioid_plus A)
-        s f H (A_eqv_proofs S (A_left_dioid_carrier A))
-        sg_C_proof).
-    Defined.
+
+      
       
 
 
