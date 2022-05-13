@@ -372,6 +372,33 @@ Section ACAS.
       |}.
 
       
+    Definition A_left_semiring_to_A_slt_zero_is_ltr_ann   
+      {L S : Type} (s : S) (f : S -> S) (A : @A_left_semiring L S)
+      (H : properties.brel_not_trivial S (A_eqv_eq S (A_left_semiring_carrier A)) f) : 
+      @A_slt_zero_is_ltr_ann L S :=
+    {|
+        A_slt_zero_is_ltr_ann_carrier := A_left_semiring_carrier A 
+      ; A_slt_zero_is_ltr_ann_label := A_left_semiring_label A
+      ; A_slt_zero_is_ltr_ann_plus  := A_left_semiring_plus A 
+      ; A_slt_zero_is_ltr_ann_trans := A_left_semiring_trans A 
+      ; A_slt_zero_is_ltr_ann_plus_proofs  := A_sg_proofs_from_sg_C_proofs 
+            S (A_eqv_eq S (A_left_semiring_carrier A))
+            (A_left_semiring_plus A)
+            s f H (A_eqv_proofs S (A_left_semiring_carrier A))
+            (A_left_semiring_plus_proofs A)                          
+      ; A_slt_zero_is_ltr_ann_trans_proofs := A_left_semiring_trans_proofs A 
+      ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := A_left_semiring_exists_plus_ann_d A                                 
+      ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_left_semiring_id_ann_proofs A  
+      ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_semiring_proof_to_slt_proof 
+        (A_eqv_eq S (A_left_semiring_carrier A))
+        (A_left_semiring_plus A)
+        (A_left_semiring_trans A) 
+        (A_left_semiring_proofs A)                                  
+      ; A_slt_zero_is_ltr_ann_ast := A_left_semiring_ast A 
+    
+    |}.
+    
+
       
 
 
