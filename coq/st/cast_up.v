@@ -414,7 +414,7 @@ Section ACAS.
 
    
 
-    Definition A_left_dioid_to_A_slt_zero_is_ltr_ann   
+    Definition cast_A_left_dioid_to_A_slt_zero_is_ltr_ann   
       {L S : Type} (s : S) (f : S -> S) (A : @A_left_dioid L S)
       (H : properties.brel_not_trivial S (A_eqv_eq S (A_left_dioid_carrier A)) f) : 
       @A_slt_zero_is_ltr_ann L S :=
@@ -437,7 +437,7 @@ Section ACAS.
 
       
 
-    Definition A_left_semiring_to_A_slt_zero_is_ltr_ann   
+    Definition cast_A_left_semiring_to_A_slt_zero_is_ltr_ann   
       {L S : Type} (s : S) (f : S -> S) (A : @A_left_semiring L S)
       (H : properties.brel_not_trivial S (A_eqv_eq S (A_left_semiring_carrier A)) f) : 
       @A_slt_zero_is_ltr_ann L S :=
@@ -464,7 +464,7 @@ Section ACAS.
     |}.
     
 
-    Definition A_left_idempotent_semiring_to_A_slt_zero_is_ltr_ann 
+    Definition cast_A_left_idempotent_semiring_to_A_slt_zero_is_ltr_ann 
       {L S : Type} (s : S) (f : S -> S) (A : @A_left_idempotent_semiring L S)
       (H : properties.brel_not_trivial S 
         (A_eqv_eq S (A_left_idempotent_semiring_carrier A)) f) : 
@@ -489,7 +489,7 @@ Section ACAS.
 
 
     
-    Definition A_slt_CS_to_A_slt 
+    Definition cast_A_slt_CS_to_A_slt 
       {L S : Type} (s : S) (f : S -> S) (A : @A_slt_CS L S)
       (H : properties.brel_not_trivial S 
         (A_eqv_eq S (A_slt_CS_carrier A)) f) : 
@@ -508,7 +508,7 @@ Section ACAS.
       |}.
       
       
-    Definition A_slt_zero_is_ltr_ann_to_A_slt 
+    Definition cast_A_slt_zero_is_ltr_ann_to_A_slt 
       {L S : Type} (s : S) (f : S -> S) 
       (A : @A_slt_zero_is_ltr_ann L S)
       (H : properties.brel_not_trivial S 
@@ -529,7 +529,7 @@ Section ACAS.
       |}.
 
     
-    Definition A_slt_CI_to_A_slt 
+    Definition cast_A_slt_CI_to_A_slt 
       {L S : Type} (s : S) (f : S -> S) (A : @A_slt_CI L S)
       (H : properties.brel_not_trivial S 
         (A_eqv_eq S (A_slt_CI_carrier A)) f) : 
@@ -546,6 +546,59 @@ Section ACAS.
           ; A_slt_proofs := A_slt_CI_proofs A                                 
           ; A_slt_ast := A_slt_CI_ast A 
       |}.
+
+
+    Definition cast_A_selective_left_pre_dioid_to_A_slt 
+      {L S : Type}  (s : S) (f : S -> S) 
+      (A : @A_selective_left_pre_dioid L S)
+      (H : properties.brel_not_trivial S 
+        (A_eqv_eq S (A_selective_left_pre_dioid_carrier A)) f) : @A_slt L S :=
+      let As := @cast_A_selective_left_pre_dioid_to_A_slt_CS L S A in 
+      @cast_A_slt_CS_to_A_slt L S s f As H.
+      
+
+
+    Definition cast_A_left_selective_semiring_to_A_slt
+      {L S : Type}  (s : S) (f : S -> S) 
+      (A : @A_left_selective_semiring L S)
+      (H : properties.brel_not_trivial S 
+        (A_eqv_eq S (A_left_selective_semiring_carrier A)) f) : @A_slt L S :=
+      let As := @cast_A_left_selective_semiring_to_A_slt_CS L S A in 
+      @cast_A_slt_CS_to_A_slt L S s f As H.
+
+
+    Definition cast_A_left_dioid_to_A_slt 
+      {L S : Type}  (s : S) (f : S -> S) 
+      (A : @A_left_dioid L S)
+      (H : properties.brel_not_trivial S 
+        (A_eqv_eq S (A_left_dioid_carrier A)) f) : @A_slt L S :=
+      let As := @cast_A_left_dioid_to_A_slt_CI L S A in
+      @cast_A_slt_CI_to_A_slt L S s f As H.
+
+
+    Definition cast_A_left_idempotent_semiring_to_A_slt 
+      {L S : Type}  (s : S) (f : S -> S) 
+      (A : @A_left_idempotent_semiring L S)
+      (H : properties.brel_not_trivial S 
+        (A_eqv_eq S (A_left_idempotent_semiring_carrier A)) f) : @A_slt L S :=
+      let As := @cast_A_left_idempotent_semiring_to_A_slt_CI L S A in 
+      @cast_A_slt_CI_to_A_slt L S s f As H.
+
+
+    Definition cast_A_selective_left_dioid_to_A_slt
+      {L S : Type}  (s : S) (f : S -> S) 
+      (A : @A_selective_left_dioid L S)
+      (H : properties.brel_not_trivial S 
+        (A_eqv_eq S (A_selective_left_dioid_carrier A)) f) : @A_slt L S :=
+      let As := @cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann L S s f A H in 
+      @cast_A_slt_zero_is_ltr_ann_to_A_slt L S s f As H.
+
+
+
+
+
+
+
 
 
 
