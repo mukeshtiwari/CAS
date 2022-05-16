@@ -106,15 +106,15 @@ Section Proofs.
     (@A_selective_left_dioid_plus L S A).
   Proof.
     pose proof (A_sg_C_proofs_from_sg_CS_proofs 
-        S (A_eqv_eq S (A_selective_left_dioid_carrier A))
-        (A_selective_left_dioid_plus A)
-        s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
-        (A_selective_left_dioid_plus_proofs A)) as sg_C_proof;
-      exact (A_sg_proofs_from_sg_C_proofs 
-        S (A_eqv_eq S (A_selective_left_dioid_carrier A))
-        (A_selective_left_dioid_plus A)
-        s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
-        sg_C_proof).
+      S (A_eqv_eq S (A_selective_left_dioid_carrier A))
+      (A_selective_left_dioid_plus A)
+      s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
+      (A_selective_left_dioid_plus_proofs A)) as sg_C_proof;
+    exact (A_sg_proofs_from_sg_C_proofs 
+      S (A_eqv_eq S (A_selective_left_dioid_carrier A))
+      (A_selective_left_dioid_plus A)
+      s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
+      sg_C_proof).
   Defined.    
  
 
@@ -128,15 +128,15 @@ Section Proofs.
     (@A_left_dioid_plus L S A).
   Proof.
     pose proof (A_sg_C_proofs_from_sg_CI_proofs 
-        S (A_eqv_eq S (A_left_dioid_carrier A))
-        (A_left_dioid_plus A)
-        s f H (A_eqv_proofs S (A_left_dioid_carrier A))
-        (A_left_dioid_plus_proofs A)) as sg_C_proof;
-      exact (A_sg_proofs_from_sg_C_proofs 
-        S (A_eqv_eq S (A_left_dioid_carrier A))
-        (A_left_dioid_plus A)
-        s f H (A_eqv_proofs S (A_left_dioid_carrier A))
-        sg_C_proof).
+      S (A_eqv_eq S (A_left_dioid_carrier A))
+      (A_left_dioid_plus A)
+      s f H (A_eqv_proofs S (A_left_dioid_carrier A))
+      (A_left_dioid_plus_proofs A)) as sg_C_proof;
+    exact (A_sg_proofs_from_sg_C_proofs 
+      S (A_eqv_eq S (A_left_dioid_carrier A))
+      (A_left_dioid_plus A)
+      s f H (A_eqv_proofs S (A_left_dioid_carrier A))
+      sg_C_proof).
   Defined.
 
 
@@ -150,17 +150,58 @@ Section Proofs.
     (@A_left_idempotent_semiring_plus L S A).
   Proof.
     pose proof (A_sg_C_proofs_from_sg_CI_proofs 
-    S (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
-    (A_left_idempotent_semiring_plus A)
-    s f H (A_eqv_proofs S (A_left_idempotent_semiring_carrier A))
-    (A_left_idempotent_semiring_plus_proofs A)) as sg_C_proof;
-  exact (A_sg_proofs_from_sg_C_proofs 
-    S (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
-    (A_left_idempotent_semiring_plus A)
-    s f H (A_eqv_proofs S (A_left_idempotent_semiring_carrier A))
-    sg_C_proof).
+      S (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
+      (A_left_idempotent_semiring_plus A)
+      s f H (A_eqv_proofs S (A_left_idempotent_semiring_carrier A))
+      (A_left_idempotent_semiring_plus_proofs A)) as sg_C_proof;
+    exact (A_sg_proofs_from_sg_C_proofs 
+      S (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
+      (A_left_idempotent_semiring_plus A)
+      s f H (A_eqv_proofs S (A_left_idempotent_semiring_carrier A))
+      sg_C_proof).
   Defined.
 
+  Lemma A_slt_CS_to_sg_proof 
+    (A : A_slt_CS) (s : S)
+    (f : S -> S) 
+    (H : properties.brel_not_trivial S
+      (A_eqv_eq S (A_slt_CS_carrier A)) f) :
+    sg_proofs S
+    (A_eqv_eq S (A_slt_CS_carrier A))
+    (@A_slt_CS_plus L S A).
+  Proof.
+    pose proof (A_sg_C_proofs_from_sg_CS_proofs 
+      S (A_eqv_eq S (A_slt_CS_carrier A))
+      (A_slt_CS_plus A)
+      s f H (A_eqv_proofs S (A_slt_CS_carrier A))
+      (A_slt_CS_plus_proofs A)) as sg_C_proof;
+    exact (A_sg_proofs_from_sg_C_proofs 
+      S (A_eqv_eq S (A_slt_CS_carrier A))
+      (A_slt_CS_plus A)
+      s f H (A_eqv_proofs S (A_slt_CS_carrier A))
+      sg_C_proof).
+  Defined.
+
+  Lemma A_slt_CI_to_sg_proof 
+    (A : A_slt_CI) (s : S)
+    (f : S -> S) 
+    (H : properties.brel_not_trivial S
+      (A_eqv_eq S (A_slt_CI_carrier A)) f) :
+    sg_proofs S
+    (A_eqv_eq S (A_slt_CI_carrier A))
+    (@A_slt_CI_plus L S A).
+  Proof.
+    pose proof (A_sg_C_proofs_from_sg_CI_proofs 
+      S (A_eqv_eq S (A_slt_CI_carrier A))
+      (A_slt_CI_plus A)
+      s f H (A_eqv_proofs S (A_slt_CI_carrier A))
+      (A_slt_CI_plus_proofs A)) as sg_C_proof;
+    exact (A_sg_proofs_from_sg_C_proofs 
+      S (A_eqv_eq S (A_slt_CI_carrier A))
+      (A_slt_CI_plus A)
+      s f H (A_eqv_proofs S (A_slt_CI_carrier A))
+      sg_C_proof).
+  Defined.
 
 
 
@@ -448,6 +489,72 @@ Section ACAS.
 
 
     
+    Definition A_slt_CS_to_A_slt 
+      {L S : Type} (s : S) (f : S -> S) (A : @A_slt_CS L S)
+      (H : properties.brel_not_trivial S 
+        (A_eqv_eq S (A_slt_CS_carrier A)) f) : 
+      @A_slt L S :=
+      {|
+            A_slt_carrier := A_slt_CS_carrier A
+          ; A_slt_label := A_slt_CS_label A
+          ; A_slt_plus := A_slt_CS_plus A                                               
+          ; A_slt_trans := A_slt_CS_trans A 
+          ; A_slt_plus_proofs := A_slt_CS_to_sg_proof A s f H                        
+          ; A_slt_trans_proofs := A_slt_CS_trans_proofs A 
+          ; A_slt_exists_plus_ann_d :=  A_slt_CS_exists_plus_ann_d A                                
+          ; A_slt_id_ann_proofs_d  := A_slt_CS_id_ann_proofs_d A                                              
+          ; A_slt_proofs := A_slt_CS_proofs A                                 
+          ; A_slt_ast := A_slt_CS_ast A 
+      |}.
+      
+      
+    Definition A_slt_zero_is_ltr_ann_to_A_slt 
+      {L S : Type} (s : S) (f : S -> S) 
+      (A : @A_slt_zero_is_ltr_ann L S)
+      (H : properties.brel_not_trivial S 
+        (A_eqv_eq S (A_slt_zero_is_ltr_ann_carrier A)) f) :
+      @A_slt L S :=
+      {|
+          A_slt_carrier := A_slt_zero_is_ltr_ann_carrier A
+        ; A_slt_label := A_slt_zero_is_ltr_ann_label A
+        ; A_slt_plus := A_slt_zero_is_ltr_ann_plus A                                               
+        ; A_slt_trans := A_slt_zero_is_ltr_ann_trans A 
+        ; A_slt_plus_proofs := A_slt_zero_is_ltr_ann_plus_proofs A                       
+        ; A_slt_trans_proofs := A_slt_zero_is_ltr_ann_trans_proofs A 
+        ; A_slt_exists_plus_ann_d :=  A_slt_zero_is_ltr_ann_exists_plus_ann_d A                                
+        ; A_slt_id_ann_proofs_d  := 
+            SLT_Id_Ann_Proof_Equal _ _ _ (A_slt_zero_is_ltr_ann_id_ann_proofs A)                                              
+        ; A_slt_proofs := A_slt_zero_is_ltr_ann_proofs A                                 
+        ; A_slt_ast := A_slt_zero_is_ltr_ann_ast A
+      |}.
+
+    
+    Definition A_slt_CI_to_A_slt 
+      {L S : Type} (s : S) (f : S -> S) (A : @A_slt_CI L S)
+      (H : properties.brel_not_trivial S 
+        (A_eqv_eq S (A_slt_CI_carrier A)) f) : 
+      @A_slt L S.
+    Proof.
+      refine
+      {|
+            A_slt_carrier := A_slt_CI_carrier A
+          ; A_slt_label := A_slt_CI_label A
+          ; A_slt_plus := A_slt_CI_plus A                                               
+          ; A_slt_trans := A_slt_CI_trans A 
+          ; A_slt_plus_proofs := A_slt_CI_to_sg_proof A s f H                        
+          ; A_slt_trans_proofs := A_slt_CI_trans_proofs A 
+          ; A_slt_exists_plus_ann_d :=  A_slt_CI_exists_plus_ann_d A                                
+          ; A_slt_id_ann_proofs_d  := A_slt_CI_id_ann_proofs_d A                                              
+          ; A_slt_proofs := A_slt_CI_proofs A                                 
+          ; A_slt_ast := A_slt_CI_ast A 
+      |}.
+
+
+      
+
+
+    
+
 
       
 
