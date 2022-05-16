@@ -533,9 +533,7 @@ Section ACAS.
       {L S : Type} (s : S) (f : S -> S) (A : @A_slt_CI L S)
       (H : properties.brel_not_trivial S 
         (A_eqv_eq S (A_slt_CI_carrier A)) f) : 
-      @A_slt L S.
-    Proof.
-      refine
+      @A_slt L S :=
       {|
             A_slt_carrier := A_slt_CI_carrier A
           ; A_slt_label := A_slt_CI_label A
@@ -550,7 +548,7 @@ Section ACAS.
       |}.
 
 
-      
+
 
 
     
