@@ -82,6 +82,11 @@ Section Proofs.
   Context 
     {L S : Type}
     (r : brel S)
+    (b : binary_op S)
+    (s : S)
+    (f : S -> S)
+    (Pf : properties.brel_not_trivial S r f)
+    (eqvS : eqv_proofs S r)
     (add : binary_op S)
     (ltr : ltr_type L S).
 
@@ -95,116 +100,22 @@ Section Proofs.
     left; exact Hx.
   Defined. (* becuase we the structure of simplify *)
 
-
-  Lemma A_selective_left_dioid_to_sg_proofs 
-    (A : A_selective_left_dioid) (s : S)
-    (f : S -> S) 
-    (H : properties.brel_not_trivial S
-      (A_eqv_eq S (A_selective_left_dioid_carrier A)) f) :
-    sg_proofs S
-    (A_eqv_eq S (A_selective_left_dioid_carrier A))
-    (@A_selective_left_dioid_plus L S A).
-  Proof.
-    pose proof (A_sg_C_proofs_from_sg_CS_proofs 
-      S (A_eqv_eq S (A_selective_left_dioid_carrier A))
-      (A_selective_left_dioid_plus A)
-      s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
-      (A_selective_left_dioid_plus_proofs A)) as sg_C_proof;
-    exact (A_sg_proofs_from_sg_C_proofs 
-      S (A_eqv_eq S (A_selective_left_dioid_carrier A))
-      (A_selective_left_dioid_plus A)
-      s f H (A_eqv_proofs S (A_selective_left_dioid_carrier A))
-      sg_C_proof).
-  Defined.    
  
-
-  Lemma A_left_dioid_to_sg_proofs 
-    (A : A_left_dioid) (s : S)
-    (f : S -> S) 
-    (H : properties.brel_not_trivial S
-      (A_eqv_eq S (A_left_dioid_carrier A)) f) :
-    sg_proofs S
-    (A_eqv_eq S (A_left_dioid_carrier A))
-    (@A_left_dioid_plus L S A).
+  Lemma sg_CS_to_sg_proof (A : sg_CS_proofs S r b) : sg_proofs S r b.
   Proof.
-    pose proof (A_sg_C_proofs_from_sg_CI_proofs 
-      S (A_eqv_eq S (A_left_dioid_carrier A))
-      (A_left_dioid_plus A)
-      s f H (A_eqv_proofs S (A_left_dioid_carrier A))
-      (A_left_dioid_plus_proofs A)) as sg_C_proof;
-    exact (A_sg_proofs_from_sg_C_proofs 
-      S (A_eqv_eq S (A_left_dioid_carrier A))
-      (A_left_dioid_plus A)
-      s f H (A_eqv_proofs S (A_left_dioid_carrier A))
-      sg_C_proof).
+    pose proof (A_sg_C_proofs_from_sg_CS_proofs S r b s f Pf eqvS A) 
+    as sg_C_proof.
+    exact (A_sg_proofs_from_sg_C_proofs S r b s f Pf eqvS sg_C_proof).
   Defined.
+    
 
-
-  Lemma A_left_idempotent_semiring_to_sg_proof 
-    (A : A_left_idempotent_semiring) (s : S)
-    (f : S -> S) 
-    (H : properties.brel_not_trivial S
-      (A_eqv_eq S (A_left_idempotent_semiring_carrier A)) f) :
-    sg_proofs S
-    (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
-    (@A_left_idempotent_semiring_plus L S A).
+  Lemma sg_CI_to_sg_proof (A : sg_CI_proofs S r b) : sg_proofs S r b.
   Proof.
-    pose proof (A_sg_C_proofs_from_sg_CI_proofs 
-      S (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
-      (A_left_idempotent_semiring_plus A)
-      s f H (A_eqv_proofs S (A_left_idempotent_semiring_carrier A))
-      (A_left_idempotent_semiring_plus_proofs A)) as sg_C_proof;
-    exact (A_sg_proofs_from_sg_C_proofs 
-      S (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
-      (A_left_idempotent_semiring_plus A)
-      s f H (A_eqv_proofs S (A_left_idempotent_semiring_carrier A))
-      sg_C_proof).
+    pose proof (A_sg_C_proofs_from_sg_CI_proofs S r b s f Pf eqvS A) 
+    as sg_C_proof.
+    exact (A_sg_proofs_from_sg_C_proofs S r b s f Pf eqvS sg_C_proof).
   Defined.
-
-  Lemma A_slt_CS_to_sg_proof 
-    (A : A_slt_CS) (s : S)
-    (f : S -> S) 
-    (H : properties.brel_not_trivial S
-      (A_eqv_eq S (A_slt_CS_carrier A)) f) :
-    sg_proofs S
-    (A_eqv_eq S (A_slt_CS_carrier A))
-    (@A_slt_CS_plus L S A).
-  Proof.
-    pose proof (A_sg_C_proofs_from_sg_CS_proofs 
-      S (A_eqv_eq S (A_slt_CS_carrier A))
-      (A_slt_CS_plus A)
-      s f H (A_eqv_proofs S (A_slt_CS_carrier A))
-      (A_slt_CS_plus_proofs A)) as sg_C_proof;
-    exact (A_sg_proofs_from_sg_C_proofs 
-      S (A_eqv_eq S (A_slt_CS_carrier A))
-      (A_slt_CS_plus A)
-      s f H (A_eqv_proofs S (A_slt_CS_carrier A))
-      sg_C_proof).
-  Defined.
-
-  Lemma A_slt_CI_to_sg_proof 
-    (A : A_slt_CI) (s : S)
-    (f : S -> S) 
-    (H : properties.brel_not_trivial S
-      (A_eqv_eq S (A_slt_CI_carrier A)) f) :
-    sg_proofs S
-    (A_eqv_eq S (A_slt_CI_carrier A))
-    (@A_slt_CI_plus L S A).
-  Proof.
-    pose proof (A_sg_C_proofs_from_sg_CI_proofs 
-      S (A_eqv_eq S (A_slt_CI_carrier A))
-      (A_slt_CI_plus A)
-      s f H (A_eqv_proofs S (A_slt_CI_carrier A))
-      (A_slt_CI_plus_proofs A)) as sg_C_proof;
-    exact (A_sg_proofs_from_sg_C_proofs 
-      S (A_eqv_eq S (A_slt_CI_carrier A))
-      (A_slt_CI_plus A)
-      s f H (A_eqv_proofs S (A_slt_CI_carrier A))
-      sg_C_proof).
-  Defined.
-
-
-
+ 
 End Proofs.    
 
 
@@ -414,16 +325,21 @@ Section ACAS.
     @A_slt_zero_is_ltr_ann L S := A. 
 
 
+
   Definition cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann 
     {L S : Type} (s : S) (f : S -> S) (A : @A_selective_left_dioid L S)
     (H : properties.brel_not_trivial S (A_eqv_eq S (A_selective_left_dioid_carrier A)) f) : 
-    @A_slt_zero_is_ltr_ann L S :=  
+    @A_slt_zero_is_ltr_ann L S :=
     {|
         A_slt_zero_is_ltr_ann_carrier := A_selective_left_dioid_carrier A 
       ; A_slt_zero_is_ltr_ann_label := A_selective_left_dioid_label A
       ; A_slt_zero_is_ltr_ann_plus  := A_selective_left_dioid_plus A 
       ; A_slt_zero_is_ltr_ann_trans := A_selective_left_dioid_trans A 
-      ; A_slt_zero_is_ltr_ann_plus_proofs  := A_selective_left_dioid_to_sg_proofs A s f H                          
+      ; A_slt_zero_is_ltr_ann_plus_proofs  := sg_CS_to_sg_proof 
+          (A_eqv_eq S (A_selective_left_dioid_carrier A))
+          (A_selective_left_dioid_plus A) s f H 
+          (A_eqv_proofs _ (A_selective_left_dioid_carrier A))
+          (A_selective_left_dioid_plus_proofs A)                 
       ; A_slt_zero_is_ltr_ann_trans_proofs := A_selective_left_dioid_trans_proofs A 
       ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := inl (A_selective_left_dioid_exists_plus_ann A)                                
       ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_selective_left_dioid_id_ann_proofs A  
@@ -447,7 +363,11 @@ Section ACAS.
       ; A_slt_zero_is_ltr_ann_label := A_left_dioid_label A
       ; A_slt_zero_is_ltr_ann_plus  := A_left_dioid_plus A 
       ; A_slt_zero_is_ltr_ann_trans := A_left_dioid_trans A 
-      ; A_slt_zero_is_ltr_ann_plus_proofs  := A_left_dioid_to_sg_proofs A s f H                            
+      ; A_slt_zero_is_ltr_ann_plus_proofs  := sg_CI_to_sg_proof 
+        (A_eqv_eq S (A_left_dioid_carrier A))
+        (A_left_dioid_plus A) s f H 
+        (A_eqv_proofs _ (A_left_dioid_carrier A))
+        (A_left_dioid_plus_proofs A)                              
       ; A_slt_zero_is_ltr_ann_trans_proofs := A_left_dioid_trans_proofs A 
       ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := inl (A_left_dioid_exists_plus_ann A)                                
       ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_left_dioid_id_ann_proofs A  
@@ -499,7 +419,11 @@ Section ACAS.
       ; A_slt_zero_is_ltr_ann_label := A_left_idempotent_semiring_label A
       ; A_slt_zero_is_ltr_ann_plus  := A_left_idempotent_semiring_plus A 
       ; A_slt_zero_is_ltr_ann_trans := A_left_idempotent_semiring_trans A 
-      ; A_slt_zero_is_ltr_ann_plus_proofs  := A_left_idempotent_semiring_to_sg_proof A s f H
+      ; A_slt_zero_is_ltr_ann_plus_proofs  := sg_CI_to_sg_proof 
+          (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
+          (A_left_idempotent_semiring_plus A) s f H 
+          (A_eqv_proofs _ (A_left_idempotent_semiring_carrier A))
+          (A_left_idempotent_semiring_plus_proofs A)              
       ; A_slt_zero_is_ltr_ann_trans_proofs := A_left_idempotent_semiring_trans_proofs A 
       ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := A_left_idempotent_semiring_exists_plus_ann_d A
       ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_left_idempotent_semiring_id_ann_proofs A  
@@ -523,7 +447,11 @@ Section ACAS.
         ; A_slt_label := A_slt_CS_label A
         ; A_slt_plus := A_slt_CS_plus A                                               
         ; A_slt_trans := A_slt_CS_trans A 
-        ; A_slt_plus_proofs := A_slt_CS_to_sg_proof A s f H                        
+        ; A_slt_plus_proofs := sg_CS_to_sg_proof 
+            (A_eqv_eq S (A_slt_CS_carrier A))
+            (A_slt_CS_plus A) s f H 
+            (A_eqv_proofs _ (A_slt_CS_carrier A))
+            (A_slt_CS_plus_proofs A)                        
         ; A_slt_trans_proofs := A_slt_CS_trans_proofs A 
         ; A_slt_exists_plus_ann_d :=  A_slt_CS_exists_plus_ann_d A                                
         ; A_slt_id_ann_proofs_d  := A_slt_CS_id_ann_proofs_d A                                              
@@ -563,7 +491,11 @@ Section ACAS.
         ; A_slt_label := A_slt_CI_label A
         ; A_slt_plus := A_slt_CI_plus A                                               
         ; A_slt_trans := A_slt_CI_trans A 
-        ; A_slt_plus_proofs := A_slt_CI_to_sg_proof A s f H                        
+        ; A_slt_plus_proofs := sg_CI_to_sg_proof 
+          (A_eqv_eq S (A_slt_CI_carrier A))
+          (A_slt_CI_plus A) s f H 
+          (A_eqv_proofs _ (A_slt_CI_carrier A))
+          (A_slt_CI_plus_proofs A)                              
         ; A_slt_trans_proofs := A_slt_CI_trans_proofs A 
         ; A_slt_exists_plus_ann_d :=  A_slt_CI_exists_plus_ann_d A                                
         ; A_slt_id_ann_proofs_d  := A_slt_CI_id_ann_proofs_d A                                              
@@ -580,15 +512,7 @@ Section ACAS.
     let As := @cast_A_selective_left_pre_dioid_to_A_slt_CS L S A in 
     @cast_A_slt_CS_to_A_slt L S s f As H.
 
-  (*
-  Definition cast_A_selective_left_dioid_to_A_slt
-    {L S : Type} (s : S) (f : S -> S) 
-    (A : @A_selective_left_dioid L S)
-    (H : properties.brel_not_trivial S 
-      (A_eqv_eq S (A_selective_left_dioid_carrier A)) f) := 
-    let As := @cast_A_selective_left_dioid_to_A_slt_CS L S A in 
-    cast_A_slt_CS_to_A_slt s f As H. 
-  *)  
+  
 
 
   Definition cast_A_left_selective_semiring_to_A_slt
@@ -959,32 +883,67 @@ Section AMCAS.
     end.
 
 
-    Definition A_slt_mcas_upto_A_slt_CI {L S : Type}
-      {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
-      match A with
-      | A_SLT_Error ls => A_SLT_Error ls 
-      | A_SLT slt => 
-          A_SLT_Error ["Can not cast up A_slt to A_SLT_CI"]
-      | A_SLT_CS slt => 
-          A_SLT_Error ["Can not cast up A_slt_CS to A_SLT_CI"]
-      | A_SLT_CI slt => 
-          A_SLT_CI (cast_A_slt_CI_to_A_slt_CI slt)
-      | A_SLT_Zero_Is_Ltr_Ann slt => 
-          A_SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_SLT_CI"]
-      | A_SLT_Left_Pre_Semiring slt => 
-          A_SLT_Error ["Can not cast up A_left_pre_semiring to A_SLT_CI"]
-      | A_SLT_Dioid slt =>
-          A_SLT_CI (cast_A_left_dioid_to_A_slt_CI  slt)
-      | A_SLT_Selective_Left_Pre_Dioid slt => 
-          A_SLT_Error ["Can not cast up A_selective_left_pre_dioid to A_SLT_CI"]
-      | A_SLT_Semiring slt => 
-          A_SLT_Error ["Can not cast up A_left_semiring to A_SLT_CI"]
-      | A_SLT_Selective_Dioid slt => A_SLT_Error [""]
-      | A_SLT_Selective_Semiring slt => 
-          A_SLT_Error ["Can not cast up A_left_selective_semiring to A_SLT_CI"]
-      | A_SLT_Idempotent_Semiring slt => 
-         A_SLT_CI (cast_A_left_idempotent_semiring_to_A_slt_CI  slt)
-      end.
+  Definition A_slt_mcas_upto_A_slt_CI {L S : Type}
+    {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
+    match A with
+    | A_SLT_Error ls => A_SLT_Error ls 
+    | A_SLT slt => 
+        A_SLT_Error ["Can not cast up A_slt to A_SLT_CI"]
+    | A_SLT_CS slt => 
+        A_SLT_Error ["Can not cast up A_slt_CS to A_SLT_CI"]
+    | A_SLT_CI slt => 
+        A_SLT_CI (cast_A_slt_CI_to_A_slt_CI slt)
+    | A_SLT_Zero_Is_Ltr_Ann slt => 
+        A_SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_SLT_CI"]
+    | A_SLT_Left_Pre_Semiring slt => 
+        A_SLT_Error ["Can not cast up A_left_pre_semiring to A_SLT_CI"]
+    | A_SLT_Dioid slt =>
+        A_SLT_CI (cast_A_left_dioid_to_A_slt_CI  slt)
+    | A_SLT_Selective_Left_Pre_Dioid slt => 
+        A_SLT_Error ["Can not cast up A_selective_left_pre_dioid to A_SLT_CI"]
+    | A_SLT_Semiring slt => 
+        A_SLT_Error ["Can not cast up A_left_semiring to A_SLT_CI"]
+    | A_SLT_Selective_Dioid slt => A_SLT_Error [""]
+    | A_SLT_Selective_Semiring slt => 
+        A_SLT_Error ["Can not cast up A_left_selective_semiring to A_SLT_CI"]
+    | A_SLT_Idempotent_Semiring slt => 
+        A_SLT_CI (cast_A_left_idempotent_semiring_to_A_slt_CI  slt)
+    end.
+
+  (* Every work upto here*)
+  Definition A_slt_mcas_upto_A_slt_zero_is_ltr_ann
+    {L S : Type} (s : S) (f : S -> S) (br : brel S)
+    (H : properties.brel_not_trivial S br f)
+    (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
+    match A with
+    | A_SLT_Error ls => A_SLT_Error ls 
+    | A_SLT slt => 
+        A_SLT_Error ["Can not cast up A_slt to A_selective_left_pre_dioid"]
+    | A_SLT_CS slt => 
+        A_SLT_Error ["Can not cast up A_slt_CS to A_selective_left_pre_dioid"]
+    | A_SLT_CI slt => 
+        A_SLT_Error ["Can not cast up A_slt_CI to A_selective_left_pre_dioid"]
+    | A_SLT_Zero_Is_Ltr_Ann slt => 
+        A_SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_selective_left_pre_dioid"]
+    | A_SLT_Left_Pre_Semiring slt => 
+        A_SLT_Error ["Can not cast up A_left_pre_semiring to A_selective_left_pre_dioid"]
+    | A_SLT_Dioid slt =>
+        A_SLT_Error ["Can not cast up A_left_dioid to A_selective_left_pre_dioid"]
+    | A_SLT_Selective_Left_Pre_Dioid slt => 
+        A_SLT_Error [""]
+    | A_SLT_Semiring slt => 
+        A_SLT_Error ["Can not cast up A_left_semiring to A_selective_left_pre_dioid"]
+    | A_SLT_Selective_Dioid slt => 
+      A_SLT_Zero_Is_Ltr_Ann (cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann s f slt H)
+    | A_SLT_Selective_Semiring slt => 
+        A_SLT_Error [""]
+    | A_SLT_Idempotent_Semiring slt => 
+        A_SLT_Error [""]
+    end.
+
+
+
+
 
 
 
