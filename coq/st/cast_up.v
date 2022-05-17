@@ -579,7 +579,16 @@ Section ACAS.
       (A_eqv_eq S (A_selective_left_pre_dioid_carrier A)) f) : @A_slt L S :=
     let As := @cast_A_selective_left_pre_dioid_to_A_slt_CS L S A in 
     @cast_A_slt_CS_to_A_slt L S s f As H.
-    
+
+  (*
+  Definition cast_A_selective_left_dioid_to_A_slt
+    {L S : Type} (s : S) (f : S -> S) 
+    (A : @A_selective_left_dioid L S)
+    (H : properties.brel_not_trivial S 
+      (A_eqv_eq S (A_selective_left_dioid_carrier A)) f) := 
+    let As := @cast_A_selective_left_dioid_to_A_slt_CS L S A in 
+    cast_A_slt_CS_to_A_slt s f As H. 
+  *)  
 
 
   Definition cast_A_left_selective_semiring_to_A_slt
