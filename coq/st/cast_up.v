@@ -643,10 +643,12 @@ Section AMCAS.
 
   From Coq Require Import List String.
   Local Open Scope string_scope.
-  Local Open Scope list_scope.
   Import ListNotations.
   
 
+  (* For the moment, there is nothing below the left_dioid 
+    so most of the cases are error, except the left_dioid
+    itself where we simply call an identity function. *)
   Definition A_slt_mcas_upto_left_dioid 
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
     match A with
@@ -662,7 +664,7 @@ Section AMCAS.
     | A_SLT_Left_Pre_Semiring slt => 
         A_SLT_Error ["Can not cast up A_left_pre_semiring to A_left_dioid"]
     | A_SLT_Dioid slt => 
-        A_SLT_Dioid (cast_A_left_dioid_to_A_left_dioid slt)
+        A_SLT_Dioid (cast_A_left_dioid_to_A_left_dioid slt) (* identity function *)
     | A_SLT_Selective_Left_Pre_Dioid slt => 
         A_SLT_Error ["Can not cast up A_selective_left_pre_dioid to A_left_dioid"]
     | A_SLT_Semiring slt => 
@@ -676,6 +678,9 @@ Section AMCAS.
     end.
 
 
+
+  (* A_selective_left_dioid is also a bottom 
+    structure and there is nothing below it. *)
   Definition  A_slt_mcas_upto_selective_left_dioid 
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
     match A with
@@ -697,14 +702,20 @@ Section AMCAS.
     | A_SLT_Semiring slt => 
         A_SLT_Error ["Can not cast up A_left_semiring to A_selective_left_dioid"]
     | A_SLT_Selective_Dioid slt => 
-        A_SLT_Selective_Dioid (cast_selective_left_dioid_to_selective_left_dioid slt)
+        A_SLT_Selective_Dioid (cast_selective_left_dioid_to_selective_left_dioid slt) (* identity function *)
     | A_SLT_Selective_Semiring slt => 
         A_SLT_Error ["Can not cast up A_left_selective_semiring to A_selective_left_dioid"]
     | A_SLT_Idempotent_Semiring slt => 
         A_SLT_Error ["Can not cast up A_left_idempotent_semiring to A_selective_left_dioid"]
     end.
 
-  
+  (* 
+    selective_left_pre_dioid
+          |
+    selective_left_dioid
+    The only structure below selective_left_pre_dioid is selective_left_dioid and 
+    therefore we return values in these two cases and rest are errors.
+  *)
   Definition A_slt_mcas_upto_selective_left_pre_dioid
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
     match A with 
@@ -721,7 +732,9 @@ Section AMCAS.
         A_SLT_Error ["Can not cast up A_left_pre_semiring to A_selective_left_pre_dioid"]
     | A_SLT_Dioid slt =>
         A_SLT_Error ["Can not cast up A_left_dioid to A_selective_left_pre_dioid"]
-    | A_SLT_Selective_Left_Pre_Dioid slt => A (* No identity function for this so I need write one*)
+    | A_SLT_Selective_Left_Pre_Dioid slt => 
+        A_SLT_Selective_Left_Pre_Dioid 
+          (cast_A_selective_left_pre_dioid_to_A_selective_left_pre_dioid slt)
     | A_SLT_Semiring slt => 
         A_SLT_Error ["Can not cast up A_left_semiring to A_selective_left_pre_dioid"]
     | A_SLT_Selective_Dioid slt => 
@@ -731,6 +744,8 @@ Section AMCAS.
     | A_SLT_Idempotent_Semiring slt => 
         A_SLT_Error ["Can not cast up A_left_idempotent_semiring to A_selective_left_pre_dioid"]
     end.
+   
+   (* Everything good upto this point*) 
 
   Definition A_slt_mcas_upto_left_selective_semiring 
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
