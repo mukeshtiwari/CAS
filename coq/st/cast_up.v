@@ -72,9 +72,9 @@ Require Import CAS.coq.sg.cast_up.
 
                         A_slt
                           | 
-          ------------------------------------------
-          |                |                 |    
-      A_slt_CS    A_slt_zero_is_ltr_ann     A_slt_CI
+          --------------------------------------------------------------
+          |                |                 |                  |
+      A_slt_CS    A_slt_zero_is_ltr_ann     A_slt_CI     A_left_pre_semiring
 
 *)  
 Section Proofs.
