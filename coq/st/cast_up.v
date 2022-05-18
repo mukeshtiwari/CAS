@@ -1056,6 +1056,26 @@ Section CAS.
     {L S : Type} (A : @selective_left_pre_dioid L S) :
     @selective_left_pre_dioid L S := A.
 
+  Definition cast_selective_left_dioid_to_selective_left_pre_dioid 
+    {L S : Type} (A : @selective_left_dioid L S) : @selective_left_pre_dioid L S :=
+    {|
+      selective_left_pre_dioid_carrier := selective_left_dioid_carrier A 
+    ; selective_left_pre_dioid_label := selective_left_dioid_label A 
+    ; selective_left_pre_dioid_plus := selective_left_dioid_plus A                                            
+    ; selective_left_pre_dioid_trans := selective_left_dioid_trans A 
+    ; selective_left_pre_dioid_plus_certs := selective_left_dioid_plus_certs A
+    ; selective_left_pre_dioid_trans_certs := selective_left_dioid_trans_certs A
+    ; selective_left_pre_dioid_exists_plus_ann := selective_left_dioid_exists_plus_ann A                                
+    ; selective_left_pre_dioid_id_ann_certs_d := 
+      Certify_SLT_Id_Ann_Proof_Equal 
+        (match selective_left_dioid_id_ann_certs A with
+        | Assert_Slt_Exists_Id_Ann_Equal s => s 
+        end)             
+    ; selective_left_pre_dioid_certs := selective_left_dioid_certs A                                
+    ; selective_left_pre_dioid_ast := selective_left_dioid_ast A 
+  |}.
+  
+
      
 
 End CAS. 
