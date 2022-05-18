@@ -162,7 +162,7 @@ Section ACAS.
   Definition cast_A_left_dioid_to_A_left_dioid  {L S : Type} 
     (A : @A_left_dioid L S) : A_left_dioid := A.
 
-  Definition cast_selective_left_dioid_to_selective_left_dioid 
+  Definition cast_A_selective_left_dioid_to_A_selective_left_dioid 
     {L S : Type} (A : @A_selective_left_dioid L S) : 
     @A_selective_left_dioid L S := A.
 
@@ -653,7 +653,7 @@ Section AMCAS.
     | A_SLT_Semiring slt => 
         A_SLT_Error ["Can not cast up A_left_semiring to A_selective_left_dioid"]
     | A_SLT_Selective_Dioid slt => 
-        A_SLT_Selective_Dioid (cast_selective_left_dioid_to_selective_left_dioid slt) (* identity function *)
+        A_SLT_Selective_Dioid (cast_A_selective_left_dioid_to_A_selective_left_dioid slt) (* identity function *)
     | A_SLT_Selective_Semiring slt => 
         A_SLT_Error ["Can not cast up A_left_selective_semiring to A_selective_left_dioid"]
     | A_SLT_Idempotent_Semiring slt => 
@@ -972,4 +972,91 @@ Section AMCAS.
 
 
 End AMCAS.
+
+
+Section Certs.
+
+  Context 
+    {L S : Type}
+    (r : brel S)
+    (b : binary_op S)
+    (s : S)
+    (f : S -> S).
+  
+  Lemma semiring_not_strictly_absorptive_cert :  
+    @left_semiring_certificates L S -> 
+    @check_slt_strictly_absorptive L S.
+  Proof.
+    intros [Al [p]].
+    right. exact p.
+  Defined. 
+
+ 
+  Lemma sg_CS_to_sg_cert (A : @sg_CS_certificates S) : @sg_certificates S.
+  Proof.
+    pose proof (sg_C_certs_from_sg_CS_certs S r b s f A) 
+    as sg_C_cert;
+    exact (sg_certs_from_sg_C_certs S r b s f sg_C_cert).
+  Defined.
+    
+
+  Lemma sg_CI_to_sg_cert (A : @sg_CI_certificates S) : @sg_certificates S.
+  Proof.
+    pose proof (sg_C_certs_from_sg_CI_certs S r b s f A) 
+    as sg_C_cert;
+    exact (sg_certs_from_sg_C_certs S r b s f sg_C_cert).
+  Defined.
+
+  Lemma sg_C_to_sg_cert (A : @sg_C_certificates S) : @sg_certificates S.
+  Proof.
+    exact (sg_certs_from_sg_C_certs S r b s f A).
+  Defined.
+ 
+End Certs.    
+
+
+Section CAS. 
+
+  Definition cast_slt_certificate_to_slt_certificate  {L S : Type}
+    (A : @slt_certificates L S) :
+    slt_certificates := A. 
+
+
+  Definition cast_left_dioid_certificate_to_slt_certificate {L S : Type} 
+    (A : @left_dioid_certificates L S) : @slt_certificates L S :=
+    {|
+        slt_distributive_d := Certify_Slt_Distributive
+      ; slt_absorptive_d := Certify_Slt_Absorptive
+      ; slt_strictly_absorptive_d := left_dioid_strictly_absorptive_d A   
+    |}.
+
+
+  Definition cast_left_semiring_certificate_to_slt_certificate 
+    {L S : Type}
+    (A : @left_semiring_certificates L S) : @slt_certificates L S :=
+    {|
+        slt_distributive_d := Certify_Slt_Distributive
+      ; slt_absorptive_d := Certify_Slt_Not_Absorptive 
+          (match left_semiring_not_absorptive A with 
+          | Assert_Slt_Not_Absorptive p => p
+          end)
+      ; slt_strictly_absorptive_d := 
+          semiring_not_strictly_absorptive_cert A
+    |}.
+    
+  Definition cast_left_dioid_to_left_dioid  {L S : Type} 
+    (A : @left_dioid L S) : left_dioid := A.
+
+  Definition cast_selective_left_dioid_to_selective_left_dioid 
+    {L S : Type} (A : @A_selective_left_dioid L S) : 
+    @A_selective_left_dioid L S := A.
+
+
+  Definition cast_selective_left_pre_dioid_to_selective_left_pre_dioid
+    {L S : Type} (A : @selective_left_pre_dioid L S) :
+    @selective_left_pre_dioid L S := A.
+
+     
+
+End CAS. 
 
