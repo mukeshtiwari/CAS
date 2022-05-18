@@ -177,14 +177,14 @@ Section ACAS.
     {|
       A_selective_left_pre_dioid_carrier := A_selective_left_dioid_carrier A 
     ; A_selective_left_pre_dioid_label := A_selective_left_dioid_label A 
-    ; A_selective_left_pre_dioid_plus := A_selective_left_dioid_plus A                                            
+    ; A_selective_left_pre_dioid_plus := A_selective_left_dioid_plus A     
     ; A_selective_left_pre_dioid_trans := A_selective_left_dioid_trans A 
     ; A_selective_left_pre_dioid_plus_proofs := A_selective_left_dioid_plus_proofs A
     ; A_selective_left_pre_dioid_trans_proofs := A_selective_left_dioid_trans_proofs A
-    ; A_selective_left_pre_dioid_exists_plus_ann := A_selective_left_dioid_exists_plus_ann A                                
+    ; A_selective_left_pre_dioid_exists_plus_ann := A_selective_left_dioid_exists_plus_ann A   
     ; A_selective_left_pre_dioid_id_ann_proofs_d := 
-      SLT_Id_Ann_Proof_Equal _ _ _ (A_selective_left_dioid_id_ann_proofs A)                
-    ; A_selective_left_pre_dioid_proofs := A_selective_left_dioid_proofs A                                
+      SLT_Id_Ann_Proof_Equal _ _ _ (A_selective_left_dioid_id_ann_proofs A)   
+    ; A_selective_left_pre_dioid_proofs := A_selective_left_dioid_proofs A     
     ; A_selective_left_pre_dioid_ast := A_selective_left_dioid_ast A 
   |}.
   
@@ -265,8 +265,8 @@ Section ACAS.
       ; A_slt_CS_trans := A_selective_left_pre_dioid_trans A 
       ; A_slt_CS_plus_proofs := A_selective_left_pre_dioid_plus_proofs A                        
       ; A_slt_CS_trans_proofs := A_selective_left_pre_dioid_trans_proofs A
-      ; A_slt_CS_exists_plus_ann_d := inl (A_selective_left_pre_dioid_exists_plus_ann A)                                
-      ; A_slt_CS_id_ann_proofs_d  := A_selective_left_pre_dioid_id_ann_proofs_d A                                         
+      ; A_slt_CS_exists_plus_ann_d := inl (A_selective_left_pre_dioid_exists_plus_ann A) 
+      ; A_slt_CS_id_ann_proofs_d  := A_selective_left_pre_dioid_id_ann_proofs_d A 
       ; A_slt_CS_proofs := cast_left_dioid_proof_to_slt_proof 
           (A_eqv_eq S (A_selective_left_pre_dioid_carrier A))
           (A_selective_left_pre_dioid_plus A)
@@ -343,7 +343,7 @@ Section ACAS.
       ; A_slt_CI_trans_proofs := A_left_idempotent_semiring_trans_proofs A
       ; A_slt_CI_exists_plus_ann_d := A_left_idempotent_semiring_exists_plus_ann_d A                              
       ; A_slt_CI_id_ann_proofs_d :=
-          SLT_Id_Ann_Proof_Equal _ _ _ (A_left_idempotent_semiring_id_ann_proofs A)                                         
+          SLT_Id_Ann_Proof_Equal _ _ _ (A_left_idempotent_semiring_id_ann_proofs A) 
       ; A_slt_CI_proofs := cast_left_semiring_proof_to_slt_proof 
           (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
           (A_left_idempotent_semiring_plus A)
@@ -513,7 +513,7 @@ Section ACAS.
       ; A_slt_trans_proofs := A_slt_zero_is_ltr_ann_trans_proofs A 
       ; A_slt_exists_plus_ann_d :=  A_slt_zero_is_ltr_ann_exists_plus_ann_d A                                
       ; A_slt_id_ann_proofs_d  := 
-          SLT_Id_Ann_Proof_Equal _ _ _ (A_slt_zero_is_ltr_ann_id_ann_proofs A)                                              
+          SLT_Id_Ann_Proof_Equal _ _ _ (A_slt_zero_is_ltr_ann_id_ann_proofs A)
       ; A_slt_proofs := A_slt_zero_is_ltr_ann_proofs A                                 
       ; A_slt_ast := A_slt_zero_is_ltr_ann_ast A
     |}.
@@ -1061,20 +1061,396 @@ Section CAS.
     {|
       selective_left_pre_dioid_carrier := selective_left_dioid_carrier A 
     ; selective_left_pre_dioid_label := selective_left_dioid_label A 
-    ; selective_left_pre_dioid_plus := selective_left_dioid_plus A                                            
+    ; selective_left_pre_dioid_plus := selective_left_dioid_plus A
     ; selective_left_pre_dioid_trans := selective_left_dioid_trans A 
     ; selective_left_pre_dioid_plus_certs := selective_left_dioid_plus_certs A
     ; selective_left_pre_dioid_trans_certs := selective_left_dioid_trans_certs A
-    ; selective_left_pre_dioid_exists_plus_ann := selective_left_dioid_exists_plus_ann A                                
+    ; selective_left_pre_dioid_exists_plus_ann := selective_left_dioid_exists_plus_ann A
     ; selective_left_pre_dioid_id_ann_certs_d := 
       Certify_SLT_Id_Ann_Proof_Equal 
         (match selective_left_dioid_id_ann_certs A with
         | Assert_Slt_Exists_Id_Ann_Equal s => s 
         end)             
-    ; selective_left_pre_dioid_certs := selective_left_dioid_certs A                                
+    ; selective_left_pre_dioid_certs := selective_left_dioid_certs A
     ; selective_left_pre_dioid_ast := selective_left_dioid_ast A 
   |}.
   
+  Definition cast_left_selective_semiring_to_left_selective_semiring
+    {L S : Type}  (A : @left_selective_semiring L S) : 
+    @left_selective_semiring L S := A.
+
+  
+  Definition cast_left_idempotent_semiring_to_left_idempotent_semiring 
+    {L S : Type}  (A : @left_idempotent_semiring L S) : 
+    @left_idempotent_semiring L S := A.
+
+
+  Definition cast_left_semiring_to_left_semiring 
+    {L S : Type} (A : @left_semiring L S) : 
+    @left_semiring L S := A.
+
+  Definition cast_left_semiring_to_left_pre_semiring
+    {L S : Type} (A : @left_semiring L S) : 
+    @left_pre_semiring L S :=
+    {|
+        left_pre_semiring_carrier := left_semiring_carrier A 
+      ; left_pre_semiring_label := left_semiring_label A
+      ; left_pre_semiring_plus := left_semiring_plus A                                               
+      ; left_pre_semiring_trans := left_semiring_trans A 
+      ; left_pre_semiring_plus_certs := left_semiring_plus_certs A                                
+      ; left_pre_semiring_trans_certs := left_semiring_trans_certs A 
+      ; left_pre_semiring_exists_plus_ann_d := left_semiring_exists_plus_ann_d A                            
+      ; left_pre_semiring_id_ann_certs_d  :=
+          Certify_SLT_Id_Ann_Proof_Equal 
+            (match left_semiring_id_ann_certs A with
+            | Assert_Slt_Exists_Id_Ann_Equal s => s 
+            end)
+      ; left_pre_semiring_certs := left_semiring_certs A 
+      ; left_pre_semiring_ast  := left_semiring_ast A 
+    |}.
+
+
+  Definition cast_left_pre_semiring_to_left_pre_semiring
+    {L S : Type} (A : @left_pre_semiring L S) : 
+    @left_pre_semiring L S := A.
+
+  Check sg_C_to_sg_cert.
+  Definition cast_left_pre_semiring_to_slt 
+    {L S : Type} (A : @left_pre_semiring L S) : 
+    @slt L S :=
+    {|
+        slt_carrier := left_pre_semiring_carrier A
+      ; slt_label := left_pre_semiring_label A
+      ; slt_plus := left_pre_semiring_plus A                                               
+      ; slt_trans := left_pre_semiring_trans A 
+      ; slt_plus_certs := sg_C_to_sg_cert 
+        (eqv_eq (left_pre_semiring_carrier A)) 
+        (left_pre_semiring_plus A) 
+        (eqv_witness (left_pre_semiring_carrier A)) 
+        (eqv_new (left_pre_semiring_carrier A))
+        (left_pre_semiring_plus_certs A)  
+      ; slt_trans_certs := left_pre_semiring_trans_certs A 
+      ; slt_exists_plus_ann_d :=  left_pre_semiring_exists_plus_ann_d A                                
+      ; slt_id_ann_certs_d  := left_pre_semiring_id_ann_certs_d A                                              
+      ; slt_certs := cast_left_semiring_certificate_to_slt_certificate
+        (left_pre_semiring_certs A)                   
+      ; slt_ast := left_pre_semiring_ast A 
+    |}.
+  
+    
+  Definition cast_slt_CS_to_slt_CS {L S : Type} 
+    (A : @slt_CS L S) : @slt_CS L S := A.
+
+
+  Definition cast_selective_left_pre_dioid_to_slt_CS 
+    {L S : Type} (A : @selective_left_pre_dioid L S) : @slt_CS L S :=
+    {|
+        slt_CS_carrier  := selective_left_pre_dioid_carrier A 
+      ; slt_CS_label := selective_left_pre_dioid_label A
+      ; slt_CS_plus := selective_left_pre_dioid_plus A                                               
+      ; slt_CS_trans := selective_left_pre_dioid_trans A 
+      ; slt_CS_plus_certs := selective_left_pre_dioid_plus_certs A                        
+      ; slt_CS_trans_certs := selective_left_pre_dioid_trans_certs A
+      ; slt_CS_exists_plus_ann_d := Certify_Exists_Ann 
+          (match  selective_left_pre_dioid_exists_plus_ann A with 
+            | Assert_Exists_Ann s => s
+            end)                             
+      ; slt_CS_id_ann_certs_d  := selective_left_pre_dioid_id_ann_certs_d A                                         
+      ; slt_CS_certs := cast_left_dioid_certificate_to_slt_certificate 
+          (selective_left_pre_dioid_certs A)                           
+      ; slt_CS_ast := selective_left_pre_dioid_ast A
+    |}.
+
+
+  Definition cast_selective_left_dioid_to_slt_CS 
+    {L S : Type} (A : @selective_left_dioid L S) : @slt_CS L S :=
+    let As :=  cast_selective_left_dioid_to_selective_left_pre_dioid A in 
+    cast_selective_left_pre_dioid_to_slt_CS As. 
+
+
+ 
+  
+
+  Definition cast_left_selective_semiring_to_slt_CS 
+    {L S : Type} (A : @left_selective_semiring L S) : @slt_CS L S :=
+    {|
+        slt_CS_carrier  := left_selective_semiring_carrier A
+      ; slt_CS_label := left_selective_semiring_label A 
+      ; slt_CS_plus := left_selective_semiring_plus A                                              
+      ; slt_CS_trans := left_selective_semiring_trans A 
+      ; slt_CS_plus_certs := left_selective_semiring_plus_certs A                        
+      ; slt_CS_trans_certs := left_selective_semiring_trans_certs A
+      ; slt_CS_exists_plus_ann_d := left_selective_semiring_exists_plus_ann_d A                               
+      ; slt_CS_id_ann_certs_d  :=  Certify_SLT_Id_Ann_Proof_Equal 
+          (match left_selective_semiring_id_ann_certs A with
+          | Assert_Slt_Exists_Id_Ann_Equal s => s 
+          end)                                
+      ; slt_CS_certs := cast_left_semiring_certificate_to_slt_certificate
+          (left_selective_semiring_certs A)                           
+      ; slt_CS_ast := left_selective_semiring_ast A
+    |}.
+    
+    
+  Definition cast_slt_CI_to_slt_CI {L S : Type} 
+    (A : @slt_CI L S) : @slt_CI L S := A.
+
+  Definition cast_left_dioid_to_slt_CI 
+    {L S : Type} (A : @left_dioid L S) : @slt_CI L S :=
+    {|
+        slt_CI_carrier := left_dioid_carrier A
+      ; slt_CI_label := left_dioid_label A 
+      ; slt_CI_plus := left_dioid_plus A                                              
+      ; slt_CI_trans := left_dioid_trans A
+      ; slt_CI_plus_certs  := left_dioid_plus_certs A                       
+      ; slt_CI_trans_certs := left_dioid_trans_certs A
+      ; slt_CI_exists_plus_ann_d := Certify_Exists_Ann 
+          (match left_dioid_exists_plus_ann A with 
+            | Assert_Exists_Ann s => s
+            end)                                                     
+      ; slt_CI_id_ann_certs_d :=
+        Certify_SLT_Id_Ann_Proof_Equal 
+          (match left_dioid_id_ann_certs A with
+          | Assert_Slt_Exists_Id_Ann_Equal s => s 
+          end)                                         
+      ; slt_CI_certs:= cast_left_dioid_certificate_to_slt_certificate  
+          (left_dioid_certs A)                                   
+      ; slt_CI_ast := left_dioid_ast A 
+    |}.
+    
+   
+    
+  Definition cast_left_idempotent_semiring_to_slt_CI 
+    {L S : Type} (A : @left_idempotent_semiring L S) : @slt_CI L S :=
+    {|
+        slt_CI_carrier  := left_idempotent_semiring_carrier A
+      ; slt_CI_label := left_idempotent_semiring_label A 
+      ; slt_CI_plus := left_idempotent_semiring_plus A                                              
+      ; slt_CI_trans := left_idempotent_semiring_trans A
+      ; slt_CI_plus_certs  := left_idempotent_semiring_plus_certs A                       
+      ; slt_CI_trans_certs := left_idempotent_semiring_trans_certs A
+      ; slt_CI_exists_plus_ann_d := left_idempotent_semiring_exists_plus_ann_d A                              
+      ; slt_CI_id_ann_certs_d :=
+          Certify_SLT_Id_Ann_Proof_Equal 
+            (match left_idempotent_semiring_id_ann_certs A with
+            | Assert_Slt_Exists_Id_Ann_Equal s => s 
+            end)                    
+      ; slt_CI_certs := cast_left_semiring_certificate_to_slt_certificate 
+          (left_idempotent_semiring_certs A)                                   
+      ; slt_CI_ast := left_idempotent_semiring_ast A 
+    |}.
+    
+    
+  Definition cast_slt_zero_is_ltr_ann_to_slt_zero_is_ltr_ann 
+    {L S : Type} (A : @slt_zero_is_ltr_ann L S) : 
+    @slt_zero_is_ltr_ann L S := A.
+    
+  
+  Definition cast_selective_left_dioid_to_slt_zero_is_ltr_ann 
+    {L S : Type}  (A : @selective_left_dioid L S) : 
+    @slt_zero_is_ltr_ann L S :=
+    {|
+        slt_zero_is_ltr_ann_carrier := selective_left_dioid_carrier A 
+      ; slt_zero_is_ltr_ann_label := selective_left_dioid_label A
+      ; slt_zero_is_ltr_ann_plus  := selective_left_dioid_plus A 
+      ; slt_zero_is_ltr_ann_trans := selective_left_dioid_trans A 
+      ; slt_zero_is_ltr_ann_plus_certs  := sg_CS_to_sg_cert
+          (eqv_eq (selective_left_dioid_carrier A))
+          (selective_left_dioid_plus A)  
+          (eqv_witness (selective_left_dioid_carrier A)) 
+          (eqv_new (selective_left_dioid_carrier A)) 
+          (selective_left_dioid_plus_certs A)                 
+      ; slt_zero_is_ltr_ann_trans_certs := selective_left_dioid_trans_certs A 
+      ; slt_zero_is_ltr_ann_exists_plus_ann_d :=  Certify_Exists_Ann 
+          (match selective_left_dioid_exists_plus_ann A with 
+            | Assert_Exists_Ann s => s
+            end)
+      ; slt_zero_is_ltr_ann_id_ann_certs  := selective_left_dioid_id_ann_certs A  
+      ; slt_zero_is_ltr_ann_certs :=  cast_left_dioid_certificate_to_slt_certificate 
+        (selective_left_dioid_certs A)                                  
+      ; slt_zero_is_ltr_ann_ast := selective_left_dioid_ast A 
+    |}.
+
+  
+  Definition cast_left_dioid_to_slt_zero_is_ltr_ann   
+    {L S : Type} (A : @left_dioid L S) : 
+    @slt_zero_is_ltr_ann L S :=
+    {|
+        slt_zero_is_ltr_ann_carrier := left_dioid_carrier A 
+      ; slt_zero_is_ltr_ann_label := left_dioid_label A
+      ; slt_zero_is_ltr_ann_plus  := left_dioid_plus A 
+      ; slt_zero_is_ltr_ann_trans := left_dioid_trans A 
+      ; slt_zero_is_ltr_ann_plus_certs  := sg_CI_to_sg_cert 
+        (eqv_eq (left_dioid_carrier A))
+        (left_dioid_plus A) 
+        (eqv_witness (left_dioid_carrier A)) 
+        (eqv_new (left_dioid_carrier A))
+        (left_dioid_plus_certs A)                              
+      ; slt_zero_is_ltr_ann_trans_certs := left_dioid_trans_certs A 
+      ; slt_zero_is_ltr_ann_exists_plus_ann_d := Certify_Exists_Ann 
+          (match left_dioid_exists_plus_ann A with 
+            | Assert_Exists_Ann s => s
+            end)                              
+      ; slt_zero_is_ltr_ann_id_ann_certs  := left_dioid_id_ann_certs A  
+      ; slt_zero_is_ltr_ann_certs :=  cast_left_dioid_certificate_to_slt_certificate
+        (left_dioid_certs A)                                  
+      ; slt_zero_is_ltr_ann_ast := left_dioid_ast A 
+    |}.
+
+
+  
+  Definition cast_left_semiring_to_slt_zero_is_ltr_ann   
+    {L S : Type} (A : @left_semiring L S) : 
+    @slt_zero_is_ltr_ann L S :=
+    {|
+        slt_zero_is_ltr_ann_carrier := left_semiring_carrier A 
+      ; slt_zero_is_ltr_ann_label := left_semiring_label A
+      ; slt_zero_is_ltr_ann_plus  := left_semiring_plus A 
+      ; slt_zero_is_ltr_ann_trans := left_semiring_trans A 
+      ; slt_zero_is_ltr_ann_plus_certs  := sg_C_to_sg_cert
+            (eqv_eq (left_semiring_carrier A))
+            (left_semiring_plus A)
+            (eqv_witness (left_semiring_carrier A)) 
+            (eqv_new (left_semiring_carrier A))
+            (left_semiring_plus_certs A)                          
+      ; slt_zero_is_ltr_ann_trans_certs := left_semiring_trans_certs A 
+      ; slt_zero_is_ltr_ann_exists_plus_ann_d := left_semiring_exists_plus_ann_d A                                 
+      ; slt_zero_is_ltr_ann_id_ann_certs  := left_semiring_id_ann_certs A  
+      ; slt_zero_is_ltr_ann_certs :=  cast_left_semiring_certificate_to_slt_certificate
+        (left_semiring_certs A)                                  
+      ; slt_zero_is_ltr_ann_ast := left_semiring_ast A
+    |}.
+
+
+  Definition cast_left_idempotent_semiring_to_slt_zero_is_ltr_ann 
+    {L S : Type} (A : @left_idempotent_semiring L S) : 
+    @slt_zero_is_ltr_ann L S :=
+    ({|
+
+        slt_zero_is_ltr_ann_carrier := left_idempotent_semiring_carrier A 
+      ; slt_zero_is_ltr_ann_label := left_idempotent_semiring_label A
+      ; slt_zero_is_ltr_ann_plus  := left_idempotent_semiring_plus A 
+      ; slt_zero_is_ltr_ann_trans := left_idempotent_semiring_trans A 
+      ; slt_zero_is_ltr_ann_plus_certs  := sg_CI_to_sg_cert 
+          (eqv_eq (left_idempotent_semiring_carrier A))
+          (left_idempotent_semiring_plus A) 
+          (eqv_witness (left_idempotent_semiring_carrier A)) 
+          (eqv_new (left_idempotent_semiring_carrier A)) 
+          (left_idempotent_semiring_plus_certs A)              
+      ; slt_zero_is_ltr_ann_trans_certs := left_idempotent_semiring_trans_certs A 
+      ; slt_zero_is_ltr_ann_exists_plus_ann_d := left_idempotent_semiring_exists_plus_ann_d A
+      ; slt_zero_is_ltr_ann_id_ann_certs  := left_idempotent_semiring_id_ann_certs A  
+      ; slt_zero_is_ltr_ann_certs :=  cast_left_semiring_certificate_to_slt_certificate  
+        (left_idempotent_semiring_certs A)
+      ; slt_zero_is_ltr_ann_ast := left_idempotent_semiring_ast A 
+    |}).
+    
+    
+  Definition cast_slt_CS_to_slt 
+    {L S : Type} (A : @slt_CS L S) : 
+    @slt L S :=
+    {|
+          slt_carrier := slt_CS_carrier A
+        ; slt_label := slt_CS_label A
+        ; slt_plus := slt_CS_plus A                                               
+        ; slt_trans := slt_CS_trans A 
+        ; slt_plus_certs := sg_CS_to_sg_cert 
+            (eqv_eq (slt_CS_carrier A))
+            (slt_CS_plus A)
+            (eqv_witness (slt_CS_carrier A)) 
+            (eqv_new (slt_CS_carrier A))
+            (slt_CS_plus_certs A)                        
+        ; slt_trans_certs := slt_CS_trans_certs A 
+        ; slt_exists_plus_ann_d :=  slt_CS_exists_plus_ann_d A                                
+        ; slt_id_ann_certs_d  := slt_CS_id_ann_certs_d A                                              
+        ; slt_certs := slt_CS_certs A                                 
+        ; slt_ast := slt_CS_ast A 
+    |}.
+    
+    
+  Definition cast_slt_zero_is_ltr_ann_to_slt 
+    {L S : Type} 
+    (A : @slt_zero_is_ltr_ann L S)  : @slt L S :=
+    {|
+        slt_carrier := slt_zero_is_ltr_ann_carrier A
+      ; slt_label := slt_zero_is_ltr_ann_label A
+      ; slt_plus := slt_zero_is_ltr_ann_plus A                                               
+      ; slt_trans := slt_zero_is_ltr_ann_trans A 
+      ; slt_plus_certs := slt_zero_is_ltr_ann_plus_certs A                       
+      ; slt_trans_certs := slt_zero_is_ltr_ann_trans_certs A 
+      ; slt_exists_plus_ann_d :=  slt_zero_is_ltr_ann_exists_plus_ann_d A                                
+      ; slt_id_ann_certs_d  := Certify_SLT_Id_Ann_Proof_Equal 
+          (match slt_zero_is_ltr_ann_id_ann_certs A with
+          | Assert_Slt_Exists_Id_Ann_Equal s => s 
+          end)                                             
+      ; slt_certs := slt_zero_is_ltr_ann_certs A                                 
+      ; slt_ast := slt_zero_is_ltr_ann_ast A
+    |}.
+    
+    
+
+  Definition cast_slt_CI_to_slt 
+    {L S : Type} (A : @slt_CI L S) : 
+    @slt L S :=
+    {|
+          slt_carrier := slt_CI_carrier A
+        ; slt_label := slt_CI_label A
+        ; slt_plus := slt_CI_plus A                                               
+        ; slt_trans := slt_CI_trans A 
+        ; slt_plus_certs := sg_CI_to_sg_cert 
+          (eqv_eq (slt_CI_carrier A))
+          (slt_CI_plus A) 
+          (eqv_witness (slt_CI_carrier A)) 
+          (eqv_new (slt_CI_carrier A))
+          (slt_CI_plus_certs A)                              
+        ; slt_trans_certs := slt_CI_trans_certs A 
+        ; slt_exists_plus_ann_d :=  slt_CI_exists_plus_ann_d A                                
+        ; slt_id_ann_certs_d  := slt_CI_id_ann_certs_d A                                              
+        ; slt_certs := slt_CI_certs A                                 
+        ; slt_ast := slt_CI_ast A 
+    |}.
+    
+    
+
+  Definition cast_selective_left_pre_dioid_to_slt 
+    {L S : Type} 
+    (A : @selective_left_pre_dioid L S) : @slt L S :=
+    let As := @cast_selective_left_pre_dioid_to_slt_CS L S A in 
+    @cast_slt_CS_to_slt L S As.
+
+  
+
+
+  Definition cast_left_selective_semiring_to_slt
+    {L S : Type}  
+    (A : @left_selective_semiring L S) : @slt L S :=
+    let As := @cast_left_selective_semiring_to_slt_CS L S A in 
+    @cast_slt_CS_to_slt L S As.
+
+
+  Definition cast_left_dioid_to_slt 
+    {L S : Type}  
+    (A : @left_dioid L S) : @slt L S :=
+    let As := @cast_left_dioid_to_slt_CI L S A in
+    @cast_slt_CI_to_slt L S As.
+
+  Definition cast_left_idempotent_semiring_to_slt 
+    {L S : Type} 
+    (A : @left_idempotent_semiring L S) : @slt L S :=
+    let As := @cast_left_idempotent_semiring_to_slt_CI L S A in 
+    @cast_slt_CI_to_slt L S As.
+
+
+  Definition cast_selective_left_dioid_to_slt
+    {L S : Type} 
+    (A : @selective_left_dioid L S)  : @slt L S :=
+    let As := @cast_selective_left_dioid_to_slt_zero_is_ltr_ann L S A in 
+    @cast_slt_zero_is_ltr_ann_to_slt L S As.
+
+
+  Definition cast_left_semiring_to_slt 
+    {L S : Type} (A : @left_semiring L S) : @slt L S  :=
+    let As := @cast_left_semiring_to_slt_zero_is_ltr_ann L S A in 
+    @cast_slt_zero_is_ltr_ann_to_slt L S As.
 
      
 
