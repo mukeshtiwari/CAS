@@ -911,27 +911,27 @@ Section AMCAS.
     match A with
     | A_SLT_Error ls => A_SLT_Error ls 
     | A_SLT slt => 
-        A_SLT_Error ["Can not cast up A_slt to A_selective_left_pre_dioid"]
+        A_SLT_Error ["Can not cast up A_slt to A_slt_zero_is_ltr_ann"]
     | A_SLT_CS slt => 
-        A_SLT_Error ["Can not cast up A_slt_CS to A_selective_left_pre_dioid"]
+        A_SLT_Error ["Can not cast up A_slt_CS to A_slt_zero_is_ltr_ann"]
     | A_SLT_CI slt => 
-        A_SLT_Error ["Can not cast up A_slt_CI to A_selective_left_pre_dioid"]
+        A_SLT_Error ["Can not cast up A_slt_CI to A_slt_zero_is_ltr_ann"]
     | A_SLT_Zero_Is_Ltr_Ann slt => 
-        A_SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_selective_left_pre_dioid"]
+        A_SLT_Zero_Is_Ltr_Ann (cast_A_slt_zero_is_ltr_ann_to_A_slt_zero_is_ltr_ann slt)
     | A_SLT_Left_Pre_Semiring slt => 
-        A_SLT_Error ["Can not cast up A_left_pre_semiring to A_selective_left_pre_dioid"]
+        A_SLT_Error ["Can not cast up A_left_pre_semiring to A_slt_zero_is_ltr_ann"]
     | A_SLT_Dioid slt =>
-        A_SLT_Error ["Can not cast up A_left_dioid to A_selective_left_pre_dioid"]
+        A_SLT_Zero_Is_Ltr_Ann (cast_A_left_dioid_to_A_slt_zero_is_ltr_ann slt)
     | A_SLT_Selective_Left_Pre_Dioid slt => 
         A_SLT_Error [""]
     | A_SLT_Semiring slt => 
-        A_SLT_Error ["Can not cast up A_left_semiring to A_selective_left_pre_dioid"]
+        A_SLT_Zero_Is_Ltr_Ann (cast_A_left_semiring_to_A_slt_zero_is_ltr_ann slt)
     | A_SLT_Selective_Dioid slt => 
-      A_SLT_Zero_Is_Ltr_Ann (cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann slt)
+        A_SLT_Zero_Is_Ltr_Ann (cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann slt)
     | A_SLT_Selective_Semiring slt => 
         A_SLT_Error [""]
     | A_SLT_Idempotent_Semiring slt => 
-        A_SLT_Error [""]
+        A_SLT_Zero_Is_Ltr_Ann (cast_A_left_idempotent_semiring_to_A_slt_zero_is_ltr_ann slt)
     end.
 
     
