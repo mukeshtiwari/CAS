@@ -115,6 +115,12 @@ Section Proofs.
     as sg_C_proof.
     exact (A_sg_proofs_from_sg_C_proofs S r b s f Pf eqvS sg_C_proof).
   Defined.
+
+  Lemma sg_C_to_sg_proof (A : sg_C_proofs S r b) : sg_proofs S r b.
+  Proof.
+    exact (A_sg_proofs_from_sg_C_proofs S r b s f Pf eqvS A).
+  Defined.
+
  
 End Proofs.    
 
@@ -217,6 +223,33 @@ Section ACAS.
   Definition cast_A_left_pre_semiring_to_A_left_pre_semiring
     {L S : Type} (A : @A_left_pre_semiring L S) : 
     @A_left_pre_semiring L S := A.
+
+  Definition cast_A_left_pre_semiring_to_A_slt 
+    {L S : Type} (A : @A_left_pre_semiring L S) : 
+    @A_slt L S :=
+    {|
+        A_slt_carrier := A_left_pre_semiring_carrier A
+      ; A_slt_label := A_left_pre_semiring_label A
+      ; A_slt_plus := A_left_pre_semiring_plus A                                               
+      ; A_slt_trans := A_left_pre_semiring_trans A 
+      ; A_slt_plus_proofs := sg_C_to_sg_proof 
+          (A_eqv_eq S (A_left_pre_semiring_carrier A))
+          (A_left_pre_semiring_plus A)
+          (A_eqv_witness _ (A_left_pre_semiring_carrier A)) 
+          (A_eqv_new _ (A_left_pre_semiring_carrier A)) 
+          (A_eqv_not_trivial _ (A_left_pre_semiring_carrier A))
+          (A_eqv_proofs _ (A_left_pre_semiring_carrier A))
+          (A_left_pre_semiring_plus_proofs A)                     
+      ; A_slt_trans_proofs := A_left_pre_semiring_trans_proofs A 
+      ; A_slt_exists_plus_ann_d :=  A_left_pre_semiring_exists_plus_ann_d A                                
+      ; A_slt_id_ann_proofs_d  := A_left_pre_semiring_id_ann_proofs_d A                                              
+      ; A_slt_proofs := cast_left_semiring_proof_to_slt_proof 
+        (A_eqv_eq S (A_left_pre_semiring_carrier A))
+        (A_left_pre_semiring_plus A)
+        (A_left_pre_semiring_trans A) 
+        (A_left_pre_semiring_proofs A)                               
+      ; A_slt_ast := A_left_pre_semiring_ast A 
+    |}.
 
 
   Definition cast_A_slt_CS_to_A_slt_CS {L S : Type} 
@@ -567,7 +600,7 @@ Section AMCAS.
   (* For the moment, there is nothing below the left_dioid 
     so most of the cases are error, except the left_dioid
     itself where we simply call an identity function. *)
-  Definition A_slt_mcas_upto_A_left_dioid 
+  Definition cast_A_slt_mcas_upto_A_left_dioid 
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
     match A with
     | A_SLT_Error ls => A_SLT_Error ls 
@@ -599,7 +632,7 @@ Section AMCAS.
 
   (* A_selective_left_dioid is also a bottom 
     structure and there is nothing below it. *)
-  Definition  A_slt_mcas_upto_A_selective_left_dioid 
+  Definition  cast_A_slt_mcas_upto_A_selective_left_dioid 
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
     match A with
     | A_SLT_Error ls => A_SLT_Error ls 
@@ -634,7 +667,7 @@ Section AMCAS.
     The only structure below selective_left_pre_dioid is selective_left_dioid and 
     therefore we return values in these two cases and rest are errors.
   *)
-  Definition A_slt_mcas_upto_A_selective_left_pre_dioid
+  Definition cast_A_slt_mcas_upto_A_selective_left_pre_dioid
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
     match A with 
     | A_SLT_Error ls => A_SLT_Error ls 
@@ -670,7 +703,7 @@ Section AMCAS.
     left_selective_semiring
   
   *)
-  Definition A_slt_mcas_upto_A_left_selective_semiring 
+  Definition cast_A_slt_mcas_upto_A_left_selective_semiring 
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
     match A with 
     | A_SLT_Error ls => A_SLT_Error ls 
@@ -704,7 +737,7 @@ Section AMCAS.
      A_left_idempotent_semiring is a structure at the bottom,
      so all cases are error, except the  A_left_idempotent_semiring case itself
   *)
-  Definition A_slt_mcas_upto_A_left_idempotent_semiring 
+  Definition cast_A_slt_mcas_upto_A_left_idempotent_semiring 
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
     match A with
     | A_SLT_Error ls => A_SLT_Error ls 
@@ -739,7 +772,7 @@ Section AMCAS.
     A_left_semiring is a bottom structure, so all cases are 
     error, except the left_semiring itself. 
   *)
-  Definition A_slt_mcas_upto_A_left_semiring 
+  Definition cast_A_slt_mcas_upto_A_left_semiring 
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
     match A with
     | A_SLT_Error ls => A_SLT_Error ls 
@@ -779,7 +812,7 @@ Section AMCAS.
   
   *)   
 
-  Definition A_slt_mcas_upto_A_left_pre_semiring   
+  Definition cast_A_slt_mcas_upto_A_left_pre_semiring   
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
     match A with 
     | A_SLT_Error ls => A_SLT_Error ls 
@@ -809,34 +842,7 @@ Section AMCAS.
         A_SLT_Error ["Can not cast up A_left_idempotent_semiring to A_left_pre_semring"]
     end.
 
-    (*
     
-       match A with
-    | A_SLT_Error ls => A_SLT_Error ls 
-    | A_SLT slt => 
-        A_SLT_Error ["Can not cast up A_slt to A_selective_left_pre_dioid"]
-    | A_SLT_CS slt => 
-        A_SLT_Error ["Can not cast up A_slt_CS to A_selective_left_pre_dioid"]
-    | A_SLT_CI slt => 
-        A_SLT_Error ["Can not cast up A_slt_CI to A_selective_left_pre_dioid"]
-    | A_SLT_Zero_Is_Ltr_Ann slt => 
-        A_SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_selective_left_pre_dioid"]
-    | A_SLT_Left_Pre_Semiring slt => 
-        A_SLT_Error ["Can not cast up A_left_pre_semiring to A_selective_left_pre_dioid"]
-    | A_SLT_Dioid slt =>
-        A_SLT_Error ["Can not cast up A_left_dioid to A_selective_left_pre_dioid"]
-    | A_SLT_Selective_Left_Pre_Dioid slt => 
-        A_SLT_Error [""]
-    | A_SLT_Semiring slt => 
-        A_SLT_Error ["Can not cast up A_left_semiring to A_selective_left_pre_dioid"]
-    | A_SLT_Selective_Dioid slt => A_SLT_Error [""]
-    | A_SLT_Selective_Semiring slt => 
-        A_SLT_Error [""]
-    | A_SLT_Idempotent_Semiring slt => 
-        A_SLT_Error [""]
-    end.
-    *)
-
 
   (*
                         A_slt_CS 
@@ -848,7 +854,7 @@ Section AMCAS.
 
     
   *)
-  Definition A_slt_mcas_upto_A_slt_CS {L S : Type}
+  Definition cast_A_slt_mcas_upto_A_slt_CS {L S : Type}
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
     match A with
     | A_SLT_Error ls => A_SLT_Error ls 
@@ -877,7 +883,7 @@ Section AMCAS.
     end.
 
 
-  Definition A_slt_mcas_upto_A_slt_CI {L S : Type}
+  Definition cast_A_slt_mcas_upto_A_slt_CI {L S : Type}
     {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
     match A with
     | A_SLT_Error ls => A_SLT_Error ls 
@@ -934,19 +940,34 @@ Section AMCAS.
         A_SLT_Zero_Is_Ltr_Ann (cast_A_left_idempotent_semiring_to_A_slt_zero_is_ltr_ann slt)
     end.
 
-    
-
-
-
-
 
   
-
-
-
-
-    
-    
+  Definition cast_A_mcas_to_A_slt 
+    {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :=
+    match A with
+    | A_SLT_Error ls => A_SLT_Error ls 
+    | A_SLT slt => A
+    | A_SLT_CS slt => 
+        A_SLT (cast_A_slt_CS_to_A_slt slt)
+    | A_SLT_CI slt => 
+        A_SLT (cast_A_slt_CI_to_A_slt slt)
+    | A_SLT_Zero_Is_Ltr_Ann slt => 
+        A_SLT (cast_A_slt_zero_is_ltr_ann_to_A_slt slt)
+    | A_SLT_Left_Pre_Semiring slt => 
+        A_SLT (cast_A_left_pre_semiring_to_A_slt slt)
+    | A_SLT_Dioid slt =>
+        A_SLT (cast_A_left_dioid_to_A_slt slt)
+    | A_SLT_Selective_Left_Pre_Dioid slt => 
+        A_SLT (cast_A_selective_left_pre_dioid_to_A_slt slt)
+    | A_SLT_Semiring slt => 
+        A_SLT (cast_A_left_semiring_to_A_slt slt)
+    | A_SLT_Selective_Dioid slt => 
+        A_SLT (cast_A_selective_left_dioid_to_A_slt slt)
+    | A_SLT_Selective_Semiring slt => 
+        A_SLT (cast_A_left_selective_semiring_to_A_slt slt)
+    | A_SLT_Idempotent_Semiring slt => 
+        A_SLT (cast_A_left_idempotent_semiring_to_A_slt slt)
+    end.
 
 
 
