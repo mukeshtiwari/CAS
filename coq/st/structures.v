@@ -200,6 +200,7 @@ Record A_slt {L S : Type} :=
 }.
 
 
+
 Record A_slt_CS {L S : Type} :=
 {
     A_slt_CS_carrier        : A_eqv S
