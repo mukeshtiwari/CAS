@@ -855,7 +855,7 @@ Section AMCAS.
     
   *)
   Definition cast_A_slt_mcas_upto_A_slt_CS {L S : Type}
-    {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
+    (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
     match A with
     | A_SLT_Error ls => A_SLT_Error ls 
     | A_SLT slt => 
@@ -884,7 +884,7 @@ Section AMCAS.
 
 
   Definition cast_A_slt_mcas_upto_A_slt_CI {L S : Type}
-    {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
+    (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
     match A with
     | A_SLT_Error ls => A_SLT_Error ls 
     | A_SLT slt => 
@@ -1669,7 +1669,7 @@ Section MCAS.
     end.
 
   Definition cast_slt_mcas_upto_slt_CS {L S : Type}
-    {L S : Type} (A : @slt_mcas L S) : @slt_mcas L S  :=
+   (A : @slt_mcas L S) : @slt_mcas L S  :=
     match A with
     | SLT_Error ls => SLT_Error ls 
     | SLT slt => 
@@ -1697,7 +1697,7 @@ Section MCAS.
     end.
 
   Definition cast_slt_mcas_upto_slt_CI {L S : Type}
-    {L S : Type} (A : @slt_mcas L S) : @slt_mcas L S  :=
+    (A : @slt_mcas L S) : @slt_mcas L S  :=
     match A with
     | SLT_Error ls => SLT_Error ls 
     | SLT slt => 
@@ -1831,7 +1831,49 @@ Section Correctness.
   Qed.
 
 
+  Lemma correctness_left_idempotent_semiring : 
+    forall pf,  
+    cast_slt_mcas_upto_left_idempotent_semiring (A2C_mcas_slt pf) =
+    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_left_idempotent_semiring pf).
+  Proof.
+    destruct_and_solve pf.
+  Qed.
 
+  Lemma correct_left_semiring :
+    forall pf, 
+    cast_slt_mcas_upto_left_semiring (A2C_mcas_slt pf) = 
+    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_left_semiring  pf).
+  Proof.
+    destruct_and_solve pf.
+  Qed.
+
+  Lemma correctness_left_pre_semiring : 
+    forall pf, 
+    cast_slt_mcas_upto_left_pre_semiring (A2C_mcas_slt pf) =
+    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_left_pre_semiring pf).
+  Proof.
+    destruct_and_solve pf.
+  Qed.
+
+  Lemma selective_semiring_to_slt_CS :
+    forall a, 
+    cast_left_selective_semiring_to_slt_CS (A2C_left_selective_semiring a) =
+    @A2C_slt_cs L S (cast_A_left_selective_semiring_to_A_slt_CS a).
+  Proof.
+  Admitted.
+
+  Lemma correctness_slt_CS : 
+    forall pf, 
+    cast_slt_mcas_upto_slt_CS (A2C_mcas_slt pf) =
+    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_slt_CS pf).
+  Proof.
+    destruct_and_solve pf.
+    rewrite selective_semiring_to_slt_CS;
+    reflexivity.
+  Qed.
+
+  
+  
 
 End Correctness.
 
