@@ -1897,6 +1897,13 @@ Section Correctness.
     cast_left_dioid_to_slt_zero_is_ltr_ann (A2C_left_dioid a) =
     @A2C_slt_zero_is_ltr_ann L S (cast_A_left_dioid_to_A_slt_zero_is_ltr_ann a).
   Proof.
+    destruct a; simpl.
+    unfold A2C_slt_zero_is_ltr_ann,
+    A2C_left_dioid,
+    cast_left_dioid_to_slt_zero_is_ltr_ann; 
+    simpl.
+    f_equal.
+    (* Proof about certificate  *)
   Admitted.
 
   Lemma correctness_selective_left_dioid_to_zero_is_ltr_ann:
@@ -1905,6 +1912,14 @@ Section Correctness.
     @A2C_slt_zero_is_ltr_ann L S
     (cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann a).
   Proof.
+    destruct a; simpl.
+    unfold A2C_selective_left_dioid,
+    A2C_slt_zero_is_ltr_ann,
+    cast_selective_left_dioid_to_slt_zero_is_ltr_ann;
+    simpl.
+    f_equal.
+    (* proof again about certificates *)
+
   Admitted. 
 
   Lemma correctness_left_semiring_zero_is_ltr_ann:
@@ -1912,6 +1927,14 @@ Section Correctness.
     cast_left_semiring_to_slt_zero_is_ltr_ann (A2C_left_semiring a) =
     @A2C_slt_zero_is_ltr_ann L S (cast_A_left_semiring_to_A_slt_zero_is_ltr_ann a).
   Proof. 
+    destruct a; simpl.
+    unfold A2C_left_semiring,
+    cast_left_semiring_to_slt_zero_is_ltr_ann,
+    A2C_slt_zero_is_ltr_ann; simpl.
+    f_equal.
+    (* proof about certificates *)
+    + admit.
+    + admit.  
   Admitted.
 
 
@@ -1922,6 +1945,16 @@ Section Correctness.
     @A2C_slt_zero_is_ltr_ann L S 
     (cast_A_left_idempotent_semiring_to_A_slt_zero_is_ltr_ann a).
   Proof.
+    destruct a; simpl.
+    unfold cast_A_left_idempotent_semiring_to_A_slt_zero_is_ltr_ann,
+    A2C_left_idempotent_semiring,
+    A2C_slt_zero_is_ltr_ann,
+    cast_left_idempotent_semiring_to_slt_zero_is_ltr_ann; 
+    simpl.
+    f_equal.
+    (* Proof about certificate *)
+    + admit.
+    + admit. 
   Admitted.
 
 
