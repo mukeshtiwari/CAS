@@ -1855,6 +1855,7 @@ Section Correctness.
     destruct_and_solve pf.
   Qed.
 
+  (* 
   Lemma correctness_selective_semiring_to_slt_CS :
     forall a, 
     cast_left_selective_semiring_to_slt_CS (A2C_left_selective_semiring a) =
@@ -1889,6 +1890,7 @@ Section Correctness.
     rewrite correctness_left_idempotent_semiring_to_slt_CI;
     f_equal.
   Qed.
+  *)
 
   Lemma correctness_left_dioid_to_zero_is_ltr_ann :
     forall a, 
@@ -1931,7 +1933,7 @@ Section Correctness.
     destruct_and_solve pf;
     f_equal.
     + apply correctness_left_dioid_to_zero_is_ltr_ann.
-    + apply  correctness_selective_left_dioid_to_zero_is_ltr_ann.
+    + apply correctness_selective_left_dioid_to_zero_is_ltr_ann.
     + apply correctness_left_semiring_zero_is_ltr_ann.
     + apply correctness_left_idempotent_semiring_to_zero_is_ltr_ann.
   Qed.
@@ -1941,54 +1943,142 @@ Section Correctness.
     forall a, 
     cast_slt_CS_to_slt (A2C_slt_cs a) = 
     @A2C_slt L S (cast_A_slt_CS_to_A_slt a).
+  Proof.
+    destruct a; simpl; try reflexivity.
+    unfold A2C_slt, A2C_slt_cs,
+    cast_slt_CS_to_slt; simpl.
+    f_equal.
+    (* I need proof for the certificates *)
   Admitted. 
 
   Lemma correctness_slt_CI_to_slt : 
     forall a, 
     cast_slt_CI_to_slt (A2C_slt_ci a) = 
-    @A2C_slt L S (cast_A_slt_CI_to_A_slt a).  
+    @A2C_slt L S (cast_A_slt_CI_to_A_slt a).
+  Proof.
+    destruct a; simpl.
+    unfold A2C_slt,
+    A2C_slt_ci, 
+    cast_slt_CI_to_slt; simpl.
+    f_equal.
+    (* proof about certificate *)
   Admitted.
 
   Lemma correctness_left_dioid_to_slt :   
     forall a, 
     cast_left_dioid_to_slt (A2C_left_dioid a) =
     @A2C_slt L S (cast_A_left_dioid_to_A_slt a). 
+  Proof.
+    destruct a; simpl.
+    unfold A2C_slt, 
+    A2C_left_dioid,
+    cast_left_dioid_to_slt,
+    cast_left_dioid_to_slt_CI,
+    cast_slt_CI_to_slt;
+    simpl.
+    f_equal.
+    (* Proof about certificate *)
   Admitted.
 
   Lemma correctness_selective_left_pre_dioid_to_slt :
     forall a, 
     cast_selective_left_pre_dioid_to_slt (A2C_selective_left_pre_dioid a) =
     @A2C_slt L S (cast_A_selective_left_pre_dioid_to_A_slt a).
+  Proof.
+    destruct a; simpl.
+    unfold A2C_slt, 
+    A2C_selective_left_pre_dioid,
+    cast_selective_left_pre_dioid_to_slt,
+    cast_selective_left_pre_dioid_to_slt_CS,
+    cast_slt_CS_to_slt;
+    simpl.
+    f_equal.
+    (* and proof about certificate *)
   Admitted.
 
   Lemma correctness_selective_left_dioid_to_slt:
     forall a, 
     cast_selective_left_dioid_to_slt (A2C_selective_left_dioid a) =
     @A2C_slt L S (cast_A_selective_left_dioid_to_A_slt a).
+  Proof.
+    destruct a; simpl.
+    unfold A2C_slt, 
+    A2C_selective_left_dioid,
+    cast_selective_left_dioid_to_slt,
+    cast_selective_left_dioid_to_slt_zero_is_ltr_ann,
+    cast_slt_zero_is_ltr_ann_to_slt; simpl.
+    f_equal.
+    (* proof about certificate again *)
   Admitted. 
 
   Lemma correctness_left_pre_semiring_to_slt:
     forall a, 
     cast_left_pre_semiring_to_slt (A2C_left_pre_semiring a) =
     @A2C_slt L S (cast_A_left_pre_semiring_to_A_slt a).
+  Proof.
+    destruct a; simpl.
+    unfold A2C_slt, 
+    A2C_left_pre_semiring,
+    cast_left_pre_semiring_to_slt; 
+    simpl.
+    f_equal.
+    (* proof about certificates *)
+    + admit.
+    + admit. 
   Admitted.
 
   Lemma correctness_left_semiring_to_slt: 
     forall a, 
     cast_left_semiring_to_slt (A2C_left_semiring a) =
     @A2C_slt L S (cast_A_left_semiring_to_A_slt a).
+  Proof.
+    destruct a; simpl.
+    unfold A2C_slt,
+    A2C_left_semiring,
+    cast_left_semiring_to_slt,
+    cast_left_semiring_to_slt_zero_is_ltr_ann,
+    cast_slt_zero_is_ltr_ann_to_slt;
+    simpl.
+    f_equal.
+    (* proof about certificats *)
+    + admit.
+    + admit.  
   Admitted. 
 
   Lemma correctness_left_selective_semiring_to_slt:
     forall a,
     cast_left_selective_semiring_to_slt (A2C_left_selective_semiring a) =
     @A2C_slt L S (cast_A_left_selective_semiring_to_A_slt a).
+  Proof.
+    destruct a; simpl.
+    unfold A2C_slt, 
+    A2C_left_selective_semiring,
+    cast_left_selective_semiring_to_slt,
+    cast_left_selective_semiring_to_slt_CS,
+    cast_slt_CS_to_slt;
+    simpl.
+    f_equal.
+    (* Proof about certificates *)
+    + admit.
+    + admit.  
   Admitted. 
 
   Lemma correctness_left_idempotent_semiring_to_slt:
     forall a, 
     cast_left_idempotent_semiring_to_slt (A2C_left_idempotent_semiring a) =
     @A2C_slt L S (cast_A_left_idempotent_semiring_to_A_slt a).
+  Proof.
+    destruct a; simpl.
+    unfold A2C_slt, 
+    A2C_left_idempotent_semiring,
+    cast_left_idempotent_semiring_to_slt,
+    cast_left_idempotent_semiring_to_slt_CI,
+    cast_slt_CI_to_slt; 
+    simpl.
+    f_equal.
+    (* proof about certificates *)
+    + admit.
+    + admit.
   Admitted.
 
   Lemma correctness_slt : 
