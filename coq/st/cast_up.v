@@ -1556,27 +1556,27 @@ Section MCAS.
     match A with 
     | SLT_Error ls => SLT_Error ls 
     | SLT slt => 
-        SLT_Error ["Can not cast up slt to left_selective_semiring"]
+        SLT_Error ["Can not cast up A_slt to A_left_selective_semiring"]
     | SLT_CS slt => 
-        SLT_Error ["Can not cast up slt_CS to left_selective_semiring"]
+        SLT_Error ["Can not cast up A_slt_CS to A_left_selective_semiring"]
     | SLT_CI slt => 
-        SLT_Error ["Can not cast up slt_CI to left_selective_semiring"]
+        SLT_Error ["Can not cast up A_slt_CI to A_left_selective_semiring"]
     | SLT_Zero_Is_Ltr_Ann slt => 
-        SLT_Error ["Can not cast up slt_zero_is_ltr_ann to left_selective_semiring"]
+        SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_left_selective_semiring"]
     | SLT_Left_Pre_Semiring slt => 
-        SLT_Error ["Can not cast up left_pre_semiring to left_selective_semiring"]
+        SLT_Error ["Can not cast up A_left_pre_semiring to A_left_selective_semiring"]
     | SLT_Dioid slt =>
-        SLT_Error ["Can not cast up left_dioid to left_selective_semiring"]
+        SLT_Error ["Can not cast up A_left_dioid to A_left_selective_semiring"]
     | SLT_Selective_Left_Pre_Dioid slt => 
-        SLT_Error ["Can not cast up a selective_left_pre_dioid to left_selective_semiring"]
+        SLT_Error ["Can not cast up a A_selective_left_pre_dioid to A_left_selective_semiring"]
     | SLT_Semiring slt => 
-        SLT_Error ["Can not cast up left_semiring to left_selective_semiring"]
+        SLT_Error ["Can not cast up A_left_semiring to A_left_selective_semiring"]
     | SLT_Selective_Dioid slt => 
-        SLT_Error ["Can not cast up selective_left_dioid to left_selective_semiring"]
+        SLT_Error ["Can not cast up A_selective_left_dioid to A_left_selective_semiring"]
     | SLT_Selective_Semiring slt => 
         SLT_Selective_Semiring (cast_left_selective_semiring_to_left_selective_semiring slt)
     | SLT_Idempotent_Semiring slt => 
-        SLT_Error ["Can not cast up left_idempotent_semiring left_selective_semiring"]
+        SLT_Error ["Can not cast up A_left_idempotent_semiring A_left_selective_semiring"]
     end.
     
   Definition cast_slt_mcas_upto_left_idempotent_semiring 
@@ -1584,25 +1584,25 @@ Section MCAS.
     match A with
     | SLT_Error ls => SLT_Error ls 
     | SLT slt => 
-        SLT_Error ["Can not cast up slt to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_slt to A_left_idempotent_semiring"]
     | SLT_CS slt => 
-        SLT_Error ["Can not cast up slt_CS to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_slt_CS to A_left_idempotent_semiring"]
     | SLT_CI slt => 
-        SLT_Error ["Can not cast up slt_CI to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_slt_CI to A_left_idempotent_semiring"]
     | SLT_Zero_Is_Ltr_Ann slt => 
-        SLT_Error ["Can not cast up slt_zero_is_ltr_ann to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_left_idempotent_semiring"]
     | SLT_Left_Pre_Semiring slt => 
-        SLT_Error ["Can not cast up left_pre_semiring to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_left_pre_semiring to A_left_idempotent_semiring"]
     | SLT_Dioid slt =>
-        SLT_Error ["Can not cast up left_dioid to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_left_dioid to A_left_idempotent_semiring"]
     | SLT_Selective_Left_Pre_Dioid slt => 
-        SLT_Error ["Can not cast up selective_left_pre_dioid to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_selective_left_pre_dioid to A_left_idempotent_semiring"]
     | SLT_Semiring slt => 
-        SLT_Error ["Can not cast up left_semiring to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_left_semiring to A_left_idempotent_semiring"]
     | SLT_Selective_Dioid slt => 
-        SLT_Error ["Can not cast up selective_left_dioid to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_selective_left_dioid to A_left_idempotent_semiring"]
     | SLT_Selective_Semiring slt => 
-        SLT_Error ["Can not cast up selective_semiring to left_idempotent_semiring"]
+        SLT_Error ["Can not cast up A_selective_semiring to A_left_idempotent_semiring"]
     | SLT_Idempotent_Semiring slt => 
         SLT_Idempotent_Semiring 
           (cast_left_idempotent_semiring_to_left_idempotent_semiring slt)
@@ -1614,27 +1614,27 @@ Section MCAS.
     match A with
     | SLT_Error ls => SLT_Error ls 
     | SLT slt => 
-        SLT_Error ["Can not cast up slt to left_semiring"]
+        SLT_Error ["Can not cast up A_slt to A_left_semiring"]
     | SLT_CS slt => 
-        SLT_Error ["Can not cast up slt_CS to left_semiring"]
+        SLT_Error ["Can not cast up A_slt_CS to A_left_semiring"]
     | SLT_CI slt => 
-        SLT_Error ["Can not cast up slt_CI to left_semiring"]
+        SLT_Error ["Can not cast up A_slt_CI to A_left_semiring"]
     | SLT_Zero_Is_Ltr_Ann slt => 
-        SLT_Error ["Can not cast up slt_zero_is_ltr_ann to left_semiring"]
+        SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_left_semiring"]
     | SLT_Left_Pre_Semiring slt => 
-        SLT_Error ["Can not cast up left_pre_semiring to left_semiring"]
+        SLT_Error ["Can not cast up A_left_pre_semiring to A_left_semiring"]
     | SLT_Dioid slt =>
-        SLT_Error ["Can not cast up left_dioid to left_semiring"]
+        SLT_Error ["Can not cast up A_left_dioid to A_left_semiring"]
     | SLT_Selective_Left_Pre_Dioid slt => 
-        SLT_Error ["Can not cast up selective_left_pre_dioid to left_semiring"]
+        SLT_Error ["Can not cast up A_selective_left_pre_dioid to A_left_semiring"]
     | SLT_Semiring slt => 
         SLT_Semiring (cast_left_semiring_to_left_semiring slt)
     | SLT_Selective_Dioid slt => 
-        SLT_Error ["Can not cast up selective_left_dioid to left_semiring"]
+        SLT_Error ["Can not cast up A_selective_left_dioid to A_left_semiring"]
     | SLT_Selective_Semiring slt => 
-        SLT_Error ["Can not cast up left_selective_semiring to left_semiring"]
+        SLT_Error ["Can not cast up A_left_selective_semiring to A_left_semiring"]
     | SLT_Idempotent_Semiring slt => 
-        SLT_Error ["Can not cast up left_idempotent_semiring to left_semiring"]
+        SLT_Error ["Can not cast up A_left_idempotent_semiring to A_left_semiring"]
     end.
     
   
@@ -1643,29 +1643,29 @@ Section MCAS.
     match A with 
     | SLT_Error ls => SLT_Error ls 
     | SLT slt => 
-        SLT_Error ["Can not cast up slt to left_pre_semring"]
+        SLT_Error ["Can not cast up A_slt to A_left_pre_semring"]
     | SLT_CS slt => 
-        SLT_Error ["Can not cast up slt_CS to left_pre_semring"]
+        SLT_Error ["Can not cast up A_slt_CS to A_left_pre_semring"]
     | SLT_CI slt => 
-        SLT_Error ["Can not cast up slt_CI to left_pre_semring"]
+        SLT_Error ["Can not cast up A_slt_CI to A_left_pre_semring"]
     | SLT_Zero_Is_Ltr_Ann slt => 
-        SLT_Error ["Can not cast up slt_zero_is_ltr_ann to left_pre_semring"]
+        SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_left_pre_semring"]
     | SLT_Left_Pre_Semiring slt => 
         SLT_Left_Pre_Semiring 
           (cast_left_pre_semiring_to_left_pre_semiring slt)
     | SLT_Dioid slt =>
-        SLT_Error ["Can not cast up left_dioid to left_pre_semring"]
+        SLT_Error ["Can not cast up A_left_dioid to A_left_pre_semring"]
     | SLT_Selective_Left_Pre_Dioid slt => 
-        SLT_Error ["Can not cast up selective_left_pre_dioid to left_pre_semring"]
+        SLT_Error ["Can not cast up A_selective_left_pre_dioid to A_left_pre_semring"]
     | SLT_Semiring slt => 
         SLT_Left_Pre_Semiring 
           (cast_left_semiring_to_left_pre_semiring slt)
     | SLT_Selective_Dioid slt => 
-        SLT_Error ["Can not cast up selective_left_dioid to left_pre_semring"]
+        SLT_Error ["Can not cast up A_selective_left_dioid to A_left_pre_semring"]
     | SLT_Selective_Semiring slt => 
-        SLT_Error ["Can not cast up left_selective_semiring to left_pre_semring"]
+        SLT_Error ["Can not cast up A_left_selective_semiring to A_left_pre_semring"]
     | SLT_Idempotent_Semiring slt => 
-        SLT_Error ["Can not cast up left_idempotent_semiring to left_pre_semring"]
+        SLT_Error ["Can not cast up A_left_idempotent_semiring to A_left_pre_semring"]
     end.
 
   Definition cast_slt_mcas_upto_slt_CS {L S : Type}
@@ -1673,27 +1673,27 @@ Section MCAS.
     match A with
     | SLT_Error ls => SLT_Error ls 
     | SLT slt => 
-        SLT_Error ["Can not cast up slt to slt_CS"]
+        SLT_Error ["Can not cast up A_slt to A_slt_CS"]
     | SLT_CS slt => 
         SLT_CS (cast_slt_CS_to_slt_CS slt)
     | SLT_CI slt => 
-        SLT_Error ["Can not cast up slt_CI to slt_CS"]
+        SLT_Error ["Can not cast up A_slt_CI to A_slt_CS"]
     | SLT_Zero_Is_Ltr_Ann slt => 
-        SLT_Error ["Can not cast up slt_zero_is_ltr_ann to slt_CS"]
+        SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_slt_CS"]
     | SLT_Left_Pre_Semiring slt => 
-        SLT_Error ["Can not cast up left_pre_semiring to slt_CS"]
+        SLT_Error ["Can not cast up A_left_pre_semiring to A_slt_CS"]
     | SLT_Dioid slt =>
-        SLT_Error ["Can not cast up left_dioid to slt_CS"]
+        SLT_Error ["Can not cast up A_left_dioid to A_slt_CS"]
     | SLT_Selective_Left_Pre_Dioid slt => 
         SLT_CS (cast_selective_left_pre_dioid_to_slt_CS slt)
     | SLT_Semiring slt => 
-        SLT_Error ["Can not cast up left_semiring to slt_CS"]
+        SLT_Error ["Can not cast up A_left_semiring to A_slt_CS"]
     | SLT_Selective_Dioid slt =>    
         SLT_CS (cast_selective_left_dioid_to_slt_CS slt)
     | SLT_Selective_Semiring slt => 
         SLT_CS (cast_left_selective_semiring_to_slt_CS slt)
     | SLT_Idempotent_Semiring slt => 
-        SLT_Error ["Can not cast up left_idempotent_semiring to slt_CS"]
+        SLT_Error ["Can not cast up A_left_idempotent_semiring to A_slt_CS"]
     end.
 
   Definition cast_slt_mcas_upto_slt_CI {L S : Type}
@@ -1701,24 +1701,24 @@ Section MCAS.
     match A with
     | SLT_Error ls => SLT_Error ls 
     | SLT slt => 
-        SLT_Error ["Can not cast up slt to SLT_CI"]
+        SLT_Error ["Can not cast up A_slt to A_SLT_CI"]
     | SLT_CS slt => 
-        SLT_Error ["Can not cast up slt_CS to SLT_CI"]
+        SLT_Error ["Can not cast up A_slt_CS to A_SLT_CI"]
     | SLT_CI slt => 
         SLT_CI (cast_slt_CI_to_slt_CI slt)
     | SLT_Zero_Is_Ltr_Ann slt => 
-        SLT_Error ["Can not cast up slt_zero_is_ltr_ann to SLT_CI"]
+        SLT_Error ["Can not cast up A_slt_zero_is_ltr_ann to A_SLT_CI"]
     | SLT_Left_Pre_Semiring slt => 
-        SLT_Error ["Can not cast up left_pre_semiring to SLT_CI"]
+        SLT_Error ["Can not cast up A_left_pre_semiring to A_SLT_CI"]
     | SLT_Dioid slt =>
         SLT_CI (cast_left_dioid_to_slt_CI  slt)
     | SLT_Selective_Left_Pre_Dioid slt => 
-        SLT_Error ["Can not cast up selective_left_pre_dioid to SLT_CI"]
+        SLT_Error ["Can not cast up A_selective_left_pre_dioid to A_SLT_CI"]
     | SLT_Semiring slt => 
-        SLT_Error ["Can not cast up left_semiring to SLT_CI"]
+        SLT_Error ["Can not cast up A_left_semiring to A_SLT_CI"]
     | SLT_Selective_Dioid slt => SLT_Error [""]
     | SLT_Selective_Semiring slt => 
-        SLT_Error ["Can not cast up left_selective_semiring to SLT_CI"]
+        SLT_Error ["Can not cast up A_left_selective_semiring to A_SLT_CI"]
     | SLT_Idempotent_Semiring slt => 
         SLT_CI (cast_left_idempotent_semiring_to_slt_CI  slt)
     end.
@@ -1728,15 +1728,15 @@ Section MCAS.
     match A with
     | SLT_Error ls => SLT_Error ls 
     | SLT slt => 
-        SLT_Error ["Can not cast up slt to slt_zero_is_ltr_ann"]
+        SLT_Error ["Can not cast up A_slt to A_slt_zero_is_ltr_ann"]
     | SLT_CS slt => 
-        SLT_Error ["Can not cast up slt_CS to slt_zero_is_ltr_ann"]
+        SLT_Error ["Can not cast up A_slt_CS to A_slt_zero_is_ltr_ann"]
     | SLT_CI slt => 
-        SLT_Error ["Can not cast up slt_CI to slt_zero_is_ltr_ann"]
+        SLT_Error ["Can not cast up A_slt_CI to A_slt_zero_is_ltr_ann"]
     | SLT_Zero_Is_Ltr_Ann slt => 
         SLT_Zero_Is_Ltr_Ann (cast_slt_zero_is_ltr_ann_to_slt_zero_is_ltr_ann slt)
     | SLT_Left_Pre_Semiring slt => 
-        SLT_Error ["Can not cast up left_pre_semiring to slt_zero_is_ltr_ann"]
+        SLT_Error ["Can not cast up A_left_pre_semiring to A_slt_zero_is_ltr_ann"]
     | SLT_Dioid slt =>
         SLT_Zero_Is_Ltr_Ann (cast_left_dioid_to_slt_zero_is_ltr_ann slt)
     | SLT_Selective_Left_Pre_Dioid slt => 
@@ -1783,4 +1783,55 @@ Section MCAS.
 
 
 End MCAS.
+
+
+Section Correctness.
+
+  
+  Context 
+    {L S : Type}.
+  
+  Ltac destruct_and_solve pf := 
+    destruct pf;
+    simpl; try reflexivity.
+
+  Lemma correctness_left_dioid : 
+    forall pf,
+    cast_slt_mcas_upto_left_dioid (A2C_mcas_slt pf) =  
+    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_left_dioid  pf).
+  Proof.
+    destruct_and_solve pf.
+  Qed.
+
+  
+  Lemma correctness_selective_left_dioid : 
+    forall pf,  
+    cast_slt_mcas_upto_selective_left_dioid (A2C_mcas_slt pf) = 
+    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_selective_left_dioid pf).
+  Proof.
+    destruct_and_solve pf.
+  Qed.
+
+
+  Lemma correctness_selective_left_pre_dioid : 
+    forall pf, 
+    cast_slt_mcas_upto_selective_left_pre_dioid (A2C_mcas_slt pf) =
+    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_selective_left_pre_dioid pf).
+  Proof.
+    destruct_and_solve pf.
+  Qed.
+
+
+  Lemma correctness_left_selective_semiring : 
+    forall pf, 
+    cast_slt_mcas_upto_left_selective_semiring (A2C_mcas_slt pf) = 
+    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_left_selective_semiring pf).
+  Proof.
+    destruct_and_solve pf.
+  Qed.
+
+
+
+
+End Correctness.
 
