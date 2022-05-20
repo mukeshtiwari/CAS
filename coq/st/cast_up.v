@@ -1983,9 +1983,10 @@ Section Correctness.
     cast_selective_left_dioid_to_slt_zero_is_ltr_ann;
     simpl.
     f_equal.
-    (* proof again about certificates *)
+    erewrite sg_CS_to_sg_cert_correctness.
+    f_equal.
+  Qed.
 
-  Admitted. 
 
   Lemma correctness_left_semiring_zero_is_ltr_ann:
     forall a, 
@@ -1997,9 +1998,16 @@ Section Correctness.
     cast_left_semiring_to_slt_zero_is_ltr_ann,
     A2C_slt_zero_is_ltr_ann; simpl.
     f_equal.
-    (* proof about certificates *)
-    + admit.
-    + admit.  
+    + 
+      erewrite sg_C_to_sg_cert_correctness.
+      f_equal.
+    + unfold cast_left_semiring_certificate_to_slt_certificate.
+      unfold P2C_slt.
+      f_equal. 
+      unfold semiring_not_strictly_absorptive_cert, 
+      p2c_slt_strictly_absorptive_check.
+      admit.
+
   Admitted.
 
 
@@ -2015,10 +2023,10 @@ Section Correctness.
     A2C_left_idempotent_semiring,
     A2C_slt_zero_is_ltr_ann,
     cast_left_idempotent_semiring_to_slt_zero_is_ltr_ann; 
-    simpl.
+    simpl;
     f_equal.
-    (* Proof about certificate *)
-    + admit.
+    + erewrite sg_CI_to_sg_cert_correctness.
+      f_equal.
     + admit. 
   Admitted.
 
@@ -2046,8 +2054,10 @@ Section Correctness.
     unfold A2C_slt, A2C_slt_cs,
     cast_slt_CS_to_slt; simpl.
     f_equal.
-    (* I need proof for the certificates *)
-  Admitted. 
+    erewrite sg_CS_to_sg_cert_correctness.
+    f_equal.
+  Qed.
+  
 
   Lemma correctness_slt_CI_to_slt : 
     forall a, 
@@ -2059,8 +2069,10 @@ Section Correctness.
     A2C_slt_ci, 
     cast_slt_CI_to_slt; simpl.
     f_equal.
-    (* proof about certificate *)
-  Admitted.
+    erewrite sg_CI_to_sg_cert_correctness.
+    f_equal.
+  Qed.
+  
 
   Lemma correctness_left_dioid_to_slt :   
     forall a, 
@@ -2075,8 +2087,10 @@ Section Correctness.
     cast_slt_CI_to_slt;
     simpl.
     f_equal.
-    (* Proof about certificate *)
-  Admitted.
+    erewrite sg_CI_to_sg_cert_correctness.
+    f_equal.
+  Qed.
+  
 
   Lemma correctness_selective_left_pre_dioid_to_slt :
     forall a, 
@@ -2091,8 +2105,10 @@ Section Correctness.
     cast_slt_CS_to_slt;
     simpl.
     f_equal.
-    (* and proof about certificate *)
-  Admitted.
+    erewrite sg_CS_to_sg_cert_correctness.
+    f_equal.
+  Qed.
+  
 
   Lemma correctness_selective_left_dioid_to_slt:
     forall a, 
@@ -2106,8 +2122,10 @@ Section Correctness.
     cast_selective_left_dioid_to_slt_zero_is_ltr_ann,
     cast_slt_zero_is_ltr_ann_to_slt; simpl.
     f_equal.
-    (* proof about certificate again *)
-  Admitted. 
+    erewrite sg_CS_to_sg_cert_correctness.
+    f_equal.
+  Qed.
+  
 
   Lemma correctness_left_pre_semiring_to_slt:
     forall a, 
@@ -2120,8 +2138,8 @@ Section Correctness.
     cast_left_pre_semiring_to_slt; 
     simpl.
     f_equal.
-    (* proof about certificates *)
-    + admit.
+    + erewrite sg_C_to_sg_cert_correctness.
+      f_equal.
     + admit. 
   Admitted.
 
@@ -2138,8 +2156,8 @@ Section Correctness.
     cast_slt_zero_is_ltr_ann_to_slt;
     simpl.
     f_equal.
-    (* proof about certificats *)
-    + admit.
+    + erewrite sg_C_to_sg_cert_correctness.
+      f_equal.
     + admit.  
   Admitted. 
 
@@ -2156,8 +2174,8 @@ Section Correctness.
     cast_slt_CS_to_slt;
     simpl.
     f_equal.
-    (* Proof about certificates *)
-    + admit.
+    + erewrite sg_CS_to_sg_cert_correctness.
+      f_equal.
     + admit.  
   Admitted. 
 
@@ -2174,8 +2192,8 @@ Section Correctness.
     cast_slt_CI_to_slt; 
     simpl.
     f_equal.
-    (* proof about certificates *)
-    + admit.
+    + erewrite sg_CI_to_sg_cert_correctness.
+      f_equal.
     + admit.
   Admitted.
 
