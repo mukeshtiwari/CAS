@@ -101,7 +101,7 @@ Section Proofs.
   Defined. (* becuase we the structure of simplify *)
 
  
-  Lemma sg_CS_to_sg_proof (A : sg_CS_proofs S r b) : sg_proofs S r b.
+  Lemma A_sg_CS_proofs_to_sg_proofs (A : sg_CS_proofs S r b) : sg_proofs S r b.
   Proof.
     pose proof (A_sg_C_proofs_from_sg_CS_proofs S r b s f Pf eqvS A) 
     as sg_C_proof.
@@ -109,14 +109,14 @@ Section Proofs.
   Defined.
     
 
-  Lemma sg_CI_to_sg_proof (A : sg_CI_proofs S r b) : sg_proofs S r b.
+  Lemma A_sg_CI_proofs_to_sg_proofs (A : sg_CI_proofs S r b) : sg_proofs S r b.
   Proof.
     pose proof (A_sg_C_proofs_from_sg_CI_proofs S r b s f Pf eqvS A) 
     as sg_C_proof.
     exact (A_sg_proofs_from_sg_C_proofs S r b s f Pf eqvS sg_C_proof).
   Defined.
 
-  Lemma sg_C_to_sg_proof (A : sg_C_proofs S r b) : sg_proofs S r b.
+  Lemma A_sg_C_proofs_to_sg_proofs (A : sg_C_proofs S r b) : sg_proofs S r b.
   Proof.
     exact (A_sg_proofs_from_sg_C_proofs S r b s f Pf eqvS A).
   Defined.
@@ -128,13 +128,13 @@ End Proofs.
 Section ACAS.
   
 
-  Definition cast_slt_proof_to_slt_proof  {L S : Type} 
+  Definition cast_slt_proofs_to_slt_proofs  {L S : Type} 
     (r : brel S) (add : binary_op S)
     (ltr : ltr_type L S) (A : slt_proofs r add ltr) :
     slt_proofs r add ltr := A. 
 
 
-  Definition cast_left_dioid_proof_to_slt_proof {L S : Type} 
+  Definition cast_left_dioid_proofs_to_slt_proofs {L S : Type} 
     (r : brel S) (add : binary_op S)
     (ltr : ltr_type L S)
     (A : left_dioid_proofs r add ltr) : slt_proofs r add ltr :=
@@ -146,7 +146,7 @@ Section ACAS.
 
   
 
-  Definition cast_left_semiring_proof_to_slt_proof 
+  Definition cast_left_semiring_proofs_to_slt_proofs 
     {L S : Type} 
     (r : brel S) (add : binary_op S)
     (ltr : ltr_type L S)
@@ -232,7 +232,7 @@ Section ACAS.
       ; A_slt_label := A_left_pre_semiring_label A
       ; A_slt_plus := A_left_pre_semiring_plus A                                               
       ; A_slt_trans := A_left_pre_semiring_trans A 
-      ; A_slt_plus_proofs := sg_C_to_sg_proof 
+      ; A_slt_plus_proofs := A_sg_C_proofs_to_sg_proofs 
           (A_eqv_eq S (A_left_pre_semiring_carrier A))
           (A_left_pre_semiring_plus A)
           (A_eqv_witness _ (A_left_pre_semiring_carrier A)) 
@@ -243,7 +243,7 @@ Section ACAS.
       ; A_slt_trans_proofs := A_left_pre_semiring_trans_proofs A 
       ; A_slt_exists_plus_ann_d :=  A_left_pre_semiring_exists_plus_ann_d A                                
       ; A_slt_id_ann_proofs_d  := A_left_pre_semiring_id_ann_proofs_d A                                              
-      ; A_slt_proofs := cast_left_semiring_proof_to_slt_proof 
+      ; A_slt_proofs := cast_left_semiring_proofs_to_slt_proofs 
         (A_eqv_eq S (A_left_pre_semiring_carrier A))
         (A_left_pre_semiring_plus A)
         (A_left_pre_semiring_trans A) 
@@ -267,7 +267,7 @@ Section ACAS.
       ; A_slt_CS_trans_proofs := A_selective_left_pre_dioid_trans_proofs A
       ; A_slt_CS_exists_plus_ann_d := inl (A_selective_left_pre_dioid_exists_plus_ann A) 
       ; A_slt_CS_id_ann_proofs_d  := A_selective_left_pre_dioid_id_ann_proofs_d A 
-      ; A_slt_CS_proofs := cast_left_dioid_proof_to_slt_proof 
+      ; A_slt_CS_proofs := cast_left_dioid_proofs_to_slt_proofs 
           (A_eqv_eq S (A_selective_left_pre_dioid_carrier A))
           (A_selective_left_pre_dioid_plus A)
           (A_selective_left_pre_dioid_trans A) 
@@ -297,7 +297,7 @@ Section ACAS.
       ; A_slt_CS_exists_plus_ann_d := A_left_selective_semiring_exists_plus_ann_d A                               
       ; A_slt_CS_id_ann_proofs_d  := 
           SLT_Id_Ann_Proof_Equal _ _ _ (A_left_selective_semiring_id_ann_proofs A)                                         
-      ; A_slt_CS_proofs := cast_left_semiring_proof_to_slt_proof 
+      ; A_slt_CS_proofs := cast_left_semiring_proofs_to_slt_proofs 
           (A_eqv_eq S (A_left_selective_semiring_carrier A))
           (A_left_selective_semiring_plus A)
           (A_left_selective_semiring_trans A) 
@@ -323,7 +323,7 @@ Section ACAS.
       ; A_slt_CI_exists_plus_ann_d := inl (A_left_dioid_exists_plus_ann A)                               
       ; A_slt_CI_id_ann_proofs_d :=
           SLT_Id_Ann_Proof_Equal _ _ _ (A_left_dioid_id_ann_proofs A)                                         
-      ; A_slt_CI_proofs := cast_left_dioid_proof_to_slt_proof 
+      ; A_slt_CI_proofs := cast_left_dioid_proofs_to_slt_proofs 
           (A_eqv_eq S (A_left_dioid_carrier A))
           (A_left_dioid_plus A)
           (A_left_dioid_trans A) 
@@ -344,7 +344,7 @@ Section ACAS.
       ; A_slt_CI_exists_plus_ann_d := A_left_idempotent_semiring_exists_plus_ann_d A                              
       ; A_slt_CI_id_ann_proofs_d :=
           SLT_Id_Ann_Proof_Equal _ _ _ (A_left_idempotent_semiring_id_ann_proofs A) 
-      ; A_slt_CI_proofs := cast_left_semiring_proof_to_slt_proof 
+      ; A_slt_CI_proofs := cast_left_semiring_proofs_to_slt_proofs 
           (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
           (A_left_idempotent_semiring_plus A)
           (A_left_idempotent_semiring_trans A) 
@@ -366,7 +366,7 @@ Section ACAS.
       ; A_slt_zero_is_ltr_ann_label := A_selective_left_dioid_label A
       ; A_slt_zero_is_ltr_ann_plus  := A_selective_left_dioid_plus A 
       ; A_slt_zero_is_ltr_ann_trans := A_selective_left_dioid_trans A 
-      ; A_slt_zero_is_ltr_ann_plus_proofs  := sg_CS_to_sg_proof 
+      ; A_slt_zero_is_ltr_ann_plus_proofs  := A_sg_CS_proofs_to_sg_proofs 
           (A_eqv_eq S (A_selective_left_dioid_carrier A))
           (A_selective_left_dioid_plus A)  
           (A_eqv_witness _ (A_selective_left_dioid_carrier A)) 
@@ -377,7 +377,7 @@ Section ACAS.
       ; A_slt_zero_is_ltr_ann_trans_proofs := A_selective_left_dioid_trans_proofs A 
       ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := inl (A_selective_left_dioid_exists_plus_ann A)                                
       ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_selective_left_dioid_id_ann_proofs A  
-      ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_dioid_proof_to_slt_proof 
+      ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_dioid_proofs_to_slt_proofs 
         (A_eqv_eq S (A_selective_left_dioid_carrier A))
         (A_selective_left_dioid_plus A)
         (A_selective_left_dioid_trans A) 
@@ -397,7 +397,7 @@ Section ACAS.
       ; A_slt_zero_is_ltr_ann_label := A_left_dioid_label A
       ; A_slt_zero_is_ltr_ann_plus  := A_left_dioid_plus A 
       ; A_slt_zero_is_ltr_ann_trans := A_left_dioid_trans A 
-      ; A_slt_zero_is_ltr_ann_plus_proofs  := sg_CI_to_sg_proof 
+      ; A_slt_zero_is_ltr_ann_plus_proofs  := A_sg_CI_proofs_to_sg_proofs 
         (A_eqv_eq S (A_left_dioid_carrier A))
         (A_left_dioid_plus A) 
         (A_eqv_witness _ (A_left_dioid_carrier A)) 
@@ -408,7 +408,7 @@ Section ACAS.
       ; A_slt_zero_is_ltr_ann_trans_proofs := A_left_dioid_trans_proofs A 
       ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := inl (A_left_dioid_exists_plus_ann A)                                
       ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_left_dioid_id_ann_proofs A  
-      ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_dioid_proof_to_slt_proof 
+      ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_dioid_proofs_to_slt_proofs 
         (A_eqv_eq S (A_left_dioid_carrier A))
         (A_left_dioid_plus A)
         (A_left_dioid_trans A) 
@@ -437,7 +437,7 @@ Section ACAS.
     ; A_slt_zero_is_ltr_ann_trans_proofs := A_left_semiring_trans_proofs A 
     ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := A_left_semiring_exists_plus_ann_d A                                 
     ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_left_semiring_id_ann_proofs A  
-    ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_semiring_proof_to_slt_proof 
+    ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_semiring_proofs_to_slt_proofs 
       (A_eqv_eq S (A_left_semiring_carrier A))
       (A_left_semiring_plus A)
       (A_left_semiring_trans A) 
@@ -456,7 +456,7 @@ Section ACAS.
       ; A_slt_zero_is_ltr_ann_label := A_left_idempotent_semiring_label A
       ; A_slt_zero_is_ltr_ann_plus  := A_left_idempotent_semiring_plus A 
       ; A_slt_zero_is_ltr_ann_trans := A_left_idempotent_semiring_trans A 
-      ; A_slt_zero_is_ltr_ann_plus_proofs  := sg_CI_to_sg_proof 
+      ; A_slt_zero_is_ltr_ann_plus_proofs  := A_sg_CI_proofs_to_sg_proofs 
           (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
           (A_left_idempotent_semiring_plus A) 
           (A_eqv_witness _ (A_left_idempotent_semiring_carrier A)) 
@@ -467,7 +467,7 @@ Section ACAS.
       ; A_slt_zero_is_ltr_ann_trans_proofs := A_left_idempotent_semiring_trans_proofs A 
       ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := A_left_idempotent_semiring_exists_plus_ann_d A
       ; A_slt_zero_is_ltr_ann_id_ann_proofs  := A_left_idempotent_semiring_id_ann_proofs A  
-      ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_semiring_proof_to_slt_proof 
+      ; A_slt_zero_is_ltr_ann_proofs :=  cast_left_semiring_proofs_to_slt_proofs 
         (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
         (A_left_idempotent_semiring_plus A)
         (A_left_idempotent_semiring_trans A) 
@@ -485,7 +485,7 @@ Section ACAS.
         ; A_slt_label := A_slt_CS_label A
         ; A_slt_plus := A_slt_CS_plus A                                               
         ; A_slt_trans := A_slt_CS_trans A 
-        ; A_slt_plus_proofs := sg_CS_to_sg_proof 
+        ; A_slt_plus_proofs := A_sg_CS_proofs_to_sg_proofs 
             (A_eqv_eq S (A_slt_CS_carrier A))
             (A_slt_CS_plus A)
             (A_eqv_witness _ (A_slt_CS_carrier A)) 
@@ -527,7 +527,7 @@ Section ACAS.
         ; A_slt_label := A_slt_CI_label A
         ; A_slt_plus := A_slt_CI_plus A                                               
         ; A_slt_trans := A_slt_CI_trans A 
-        ; A_slt_plus_proofs := sg_CI_to_sg_proof 
+        ; A_slt_plus_proofs := A_sg_CI_proofs_to_sg_proofs 
           (A_eqv_eq S (A_slt_CI_carrier A))
           (A_slt_CI_plus A) 
           (A_eqv_witness _ (A_slt_CI_carrier A)) 
@@ -1786,7 +1786,7 @@ End MCAS.
 
 Section ProofCertCorrect.
 
-  
+
   Lemma sg_CI_to_sg_cert_correctness 
     {L S : Type}
     (r : brel S)
@@ -1799,10 +1799,10 @@ Section ProofCertCorrect.
     sg_CI_to_sg_cert r b s f 
       (P2C_sg_CI S r b pf)  = 
     P2C_sg S r b 
-      (sg_CI_to_sg_proof r b s f Pf eqvS pf).
+      (A_sg_CI_proofs_to_sg_proofs r b s f Pf eqvS pf).
   Proof.
     intros pf.
-    unfold sg_CI_to_sg_proof.
+    unfold A_sg_CI_proofs_to_sg_proofs.
     rewrite <-correct_sg_certs_from_sg_C_certs.
     rewrite <-correct_sg_C_certs_from_sg_CI_certs.
     unfold sg_CI_to_sg_cert.
@@ -1822,10 +1822,10 @@ Section ProofCertCorrect.
     sg_CS_to_sg_cert r b s f 
       (P2C_sg_CS S r b pf)  = 
     P2C_sg S r b 
-      (sg_CS_to_sg_proof r b s f Pf eqvS pf).
+      (A_sg_CS_proofs_to_sg_proofs r b s f Pf eqvS pf).
   Proof.
     intros pf.
-    unfold sg_CS_to_sg_proof.
+    unfold A_sg_CS_proofs_to_sg_proofs.
     rewrite <-correct_sg_certs_from_sg_C_certs.
     rewrite <-correct_sg_C_certs_from_sg_CS_certs.
     unfold sg_CS_to_sg_cert.
@@ -1845,10 +1845,10 @@ Section ProofCertCorrect.
     sg_C_to_sg_cert r b s f 
       (P2C_sg_C S r b pf)  = 
     P2C_sg S r b 
-      (sg_C_to_sg_proof r b s f Pf eqvS pf).
+      (A_sg_C_proofs_to_sg_proofs r b s f Pf eqvS pf).
   Proof.
     intros pf.
-    unfold sg_C_to_sg_proof,
+    unfold A_sg_C_proofs_to_sg_proofs,
     sg_C_to_sg_cert.
     rewrite <-correct_sg_certs_from_sg_C_certs.
     reflexivity.
@@ -1865,11 +1865,11 @@ Section ProofCertCorrect.
     cast_left_semiring_certificate_to_slt_certificate   
       (P2C_left_semiring r add ltr pf) = 
     P2C_slt r add ltr 
-      (cast_left_semiring_proof_to_slt_proof r add ltr pf).
+      (cast_left_semiring_proofs_to_slt_proofs r add ltr pf).
   Proof.
     intros pf.
     unfold cast_left_semiring_certificate_to_slt_certificate,
-    cast_left_semiring_proof_to_slt_proof, P2C_slt; simpl.
+    cast_left_semiring_proofs_to_slt_proofs, P2C_slt; simpl.
     f_equal.
     unfold A_left_semiring_not_absorptive, 
     p2c_slt_strictly_absorptive_check; simpl.
