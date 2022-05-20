@@ -1784,6 +1784,37 @@ Section MCAS.
 
 End MCAS.
 
+Section ProofCertCorrect.
+
+  Context 
+    {L S : Type}
+    (r : brel S)
+    (b : binary_op S)
+    (s : S)
+    (f : S -> S)
+    (Pf : properties.brel_not_trivial S r f)
+    (eqvS : eqv_proofs S r)
+    (add : binary_op S)
+    (ltr : ltr_type L S).
+
+  Lemma sg_CI_to_sg_cert_correctness :
+    forall pf,  
+    sg_CI_to_sg_cert r b s f 
+      (P2C_sg_CI S r b pf)  = 
+    P2C_sg S r b 
+      (sg_CI_to_sg_proof r b s f Pf eqvS pf).
+  Proof.
+    intros pf.
+    unfold sg_CI_to_sg_proof.
+    rewrite <-correct_sg_certs_from_sg_C_certs.
+    rewrite <-correct_sg_C_certs_from_sg_CI_certs.
+    unfold sg_CI_to_sg_cert.
+    reflexivity.
+  Qed.
+
+
+
+End ProofCertCorrect.
 
 Section Correctness.
 
@@ -1903,8 +1934,11 @@ Section Correctness.
     cast_left_dioid_to_slt_zero_is_ltr_ann; 
     simpl.
     f_equal.
-    (* Proof about certificate  *)
-  Admitted.
+    erewrite sg_CI_to_sg_cert_correctness.
+    f_equal.
+  Qed.
+
+  
 
   Lemma correctness_selective_left_dioid_to_zero_is_ltr_ann:
     forall a, 
