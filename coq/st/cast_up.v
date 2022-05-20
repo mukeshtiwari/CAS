@@ -1813,6 +1813,37 @@ Section ProofCertCorrect.
   Qed.
 
 
+  Lemma sg_CS_to_sg_cert_correctness :
+    forall pf,  
+    sg_CS_to_sg_cert r b s f 
+      (P2C_sg_CS S r b pf)  = 
+    P2C_sg S r b 
+      (sg_CS_to_sg_proof r b s f Pf eqvS pf).
+  Proof.
+    intros pf.
+    unfold sg_CS_to_sg_proof.
+    rewrite <-correct_sg_certs_from_sg_C_certs.
+    rewrite <-correct_sg_C_certs_from_sg_CS_certs.
+    unfold sg_CS_to_sg_cert.
+    reflexivity.
+  Qed.
+
+
+  Lemma sg_C_to_sg_cert_correctness :
+    forall pf,  
+    sg_C_to_sg_cert r b s f 
+      (P2C_sg_C S r b pf)  = 
+    P2C_sg S r b 
+      (sg_C_to_sg_proof r b s f Pf eqvS pf).
+  Proof.
+    intros pf.
+    unfold sg_C_to_sg_proof,
+    sg_C_to_sg_cert.
+    rewrite <-correct_sg_certs_from_sg_C_certs.
+    reflexivity.
+  Qed.
+  
+
 
 End ProofCertCorrect.
 
