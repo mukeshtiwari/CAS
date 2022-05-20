@@ -1786,6 +1786,7 @@ End MCAS.
 
 Section ProofCertCorrect.
 
+  (* 
   Context 
     {L S : Type}
     (r : brel S)
@@ -1796,8 +1797,16 @@ Section ProofCertCorrect.
     (eqvS : eqv_proofs S r)
     (add : binary_op S)
     (ltr : ltr_type L S).
+    *)
 
-  Lemma sg_CI_to_sg_cert_correctness :
+  Lemma sg_CI_to_sg_cert_correctness 
+    {L S : Type}
+    (r : brel S)
+    (b : binary_op S)
+    (s : S)
+    (f : S -> S)
+    (Pf : properties.brel_not_trivial S r f)
+    (eqvS : eqv_proofs S r) : 
     forall pf,  
     sg_CI_to_sg_cert r b s f 
       (P2C_sg_CI S r b pf)  = 
@@ -1813,7 +1822,14 @@ Section ProofCertCorrect.
   Qed.
 
 
-  Lemma sg_CS_to_sg_cert_correctness :
+  Lemma sg_CS_to_sg_cert_correctness
+    {L S : Type}
+    (r : brel S)
+    (b : binary_op S)
+    (s : S)
+    (f : S -> S)
+    (Pf : properties.brel_not_trivial S r f)
+    (eqvS : eqv_proofs S r) : 
     forall pf,  
     sg_CS_to_sg_cert r b s f 
       (P2C_sg_CS S r b pf)  = 
@@ -1829,7 +1845,14 @@ Section ProofCertCorrect.
   Qed.
 
 
-  Lemma sg_C_to_sg_cert_correctness :
+  Lemma sg_C_to_sg_cert_correctness 
+    {L S : Type}
+    (r : brel S)
+    (b : binary_op S)
+    (s : S)
+    (f : S -> S)
+    (Pf : properties.brel_not_trivial S r f)
+    (eqvS : eqv_proofs S r) : 
     forall pf,  
     sg_C_to_sg_cert r b s f 
       (P2C_sg_C S r b pf)  = 
@@ -1843,6 +1866,30 @@ Section ProofCertCorrect.
     reflexivity.
   Qed.
   
+
+  
+  Lemma cast_left_semiring_certificate_to_slt_certificate_correctness 
+    {L S : Type}
+    (r : brel S)
+    (add : binary_op S)
+    (ltr : ltr_type L S) : 
+    forall pf, 
+    cast_left_semiring_certificate_to_slt_certificate   
+      (P2C_left_semiring r add ltr pf) = 
+    P2C_slt r add ltr 
+      (cast_left_semiring_proof_to_slt_proof r add ltr pf).
+  Proof.
+    intros pf.
+    unfold cast_left_semiring_certificate_to_slt_certificate,
+    cast_left_semiring_proof_to_slt_proof, P2C_slt; simpl.
+    f_equal.
+    unfold A_left_semiring_not_absorptive, 
+    p2c_slt_strictly_absorptive_check; simpl.
+    destruct pf; simpl.
+    destruct A_left_semiring_not_absorptive; simpl.
+    destruct x as (l, s); simpl.
+    reflexivity.
+  Qed.
 
 
 End ProofCertCorrect.
@@ -1917,42 +1964,7 @@ Section Correctness.
     destruct_and_solve pf.
   Qed.
 
-  (* 
-  Lemma correctness_selective_semiring_to_slt_CS :
-    forall a, 
-    cast_left_selective_semiring_to_slt_CS (A2C_left_selective_semiring a) =
-    @A2C_slt_cs L S (cast_A_left_selective_semiring_to_A_slt_CS a).
-  Proof.
-  Admitted.
-
-  Lemma correctness_slt_CS : 
-    forall pf, 
-    cast_slt_mcas_upto_slt_CS (A2C_mcas_slt pf) =
-    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_slt_CS pf).
-  Proof.
-    destruct_and_solve pf.
-    rewrite correctness_selective_semiring_to_slt_CS;
-    reflexivity.
-  Qed.
-
-  Lemma correctness_left_idempotent_semiring_to_slt_CI: 
-    forall a, 
-    cast_left_idempotent_semiring_to_slt_CI (A2C_left_idempotent_semiring a) =
-    @A2C_slt_ci L S (cast_A_left_idempotent_semiring_to_A_slt_CI a).
-  Proof.
-  Admitted.
   
-
-  Lemma correctness_slt_CI : 
-    forall pf, 
-    cast_slt_mcas_upto_slt_CI (A2C_mcas_slt pf) = 
-    @A2C_mcas_slt L S (cast_A_slt_mcas_upto_A_slt_CI pf).
-  Proof.
-    destruct_and_solve pf.
-    rewrite correctness_left_idempotent_semiring_to_slt_CI;
-    f_equal.
-  Qed.
-  *)
 
   Lemma correctness_left_dioid_to_zero_is_ltr_ann :
     forall a, 
@@ -1967,6 +1979,8 @@ Section Correctness.
     f_equal.
     erewrite sg_CI_to_sg_cert_correctness.
     f_equal.
+    Unshelve. 
+    auto.
   Qed.
 
   
@@ -1985,6 +1999,8 @@ Section Correctness.
     f_equal.
     erewrite sg_CS_to_sg_cert_correctness.
     f_equal.
+    Unshelve.
+    auto.
   Qed.
 
 
@@ -2001,14 +2017,11 @@ Section Correctness.
     + 
       erewrite sg_C_to_sg_cert_correctness.
       f_equal.
-    + unfold cast_left_semiring_certificate_to_slt_certificate.
-      unfold P2C_slt.
-      f_equal. 
-      unfold semiring_not_strictly_absorptive_cert, 
-      p2c_slt_strictly_absorptive_check.
-      admit.
-
-  Admitted.
+    +
+      apply cast_left_semiring_certificate_to_slt_certificate_correctness.
+      Unshelve.
+      auto.
+  Qed.
 
 
   Lemma correctness_left_idempotent_semiring_to_zero_is_ltr_ann:
@@ -2027,9 +2040,10 @@ Section Correctness.
     f_equal.
     + erewrite sg_CI_to_sg_cert_correctness.
       f_equal.
-    + admit. 
-  Admitted.
-
+    + apply cast_left_semiring_certificate_to_slt_certificate_correctness.
+      Unshelve. auto. 
+  Qed.
+  
 
   Lemma correctness_zero_is_ltr_ann:
     forall pf, 
@@ -2056,6 +2070,8 @@ Section Correctness.
     f_equal.
     erewrite sg_CS_to_sg_cert_correctness.
     f_equal.
+    Unshelve.
+    auto.
   Qed.
   
 
@@ -2071,6 +2087,8 @@ Section Correctness.
     f_equal.
     erewrite sg_CI_to_sg_cert_correctness.
     f_equal.
+    Unshelve.
+    auto.
   Qed.
   
 
@@ -2089,6 +2107,8 @@ Section Correctness.
     f_equal.
     erewrite sg_CI_to_sg_cert_correctness.
     f_equal.
+    Unshelve.
+    auto.
   Qed.
   
 
@@ -2107,6 +2127,8 @@ Section Correctness.
     f_equal.
     erewrite sg_CS_to_sg_cert_correctness.
     f_equal.
+    Unshelve.
+    auto.
   Qed.
   
 
@@ -2124,6 +2146,8 @@ Section Correctness.
     f_equal.
     erewrite sg_CS_to_sg_cert_correctness.
     f_equal.
+    Unshelve.
+    auto.
   Qed.
   
 
@@ -2140,8 +2164,11 @@ Section Correctness.
     f_equal.
     + erewrite sg_C_to_sg_cert_correctness.
       f_equal.
-    + admit. 
-  Admitted.
+    + eapply cast_left_semiring_certificate_to_slt_certificate_correctness.
+      Unshelve.
+      auto.
+  Qed.
+  
 
   Lemma correctness_left_semiring_to_slt: 
     forall a, 
@@ -2158,8 +2185,11 @@ Section Correctness.
     f_equal.
     + erewrite sg_C_to_sg_cert_correctness.
       f_equal.
-    + admit.  
-  Admitted. 
+    + eapply cast_left_semiring_certificate_to_slt_certificate_correctness.
+      Unshelve.
+      auto.
+  Qed.
+  
 
   Lemma correctness_left_selective_semiring_to_slt:
     forall a,
@@ -2176,8 +2206,11 @@ Section Correctness.
     f_equal.
     + erewrite sg_CS_to_sg_cert_correctness.
       f_equal.
-    + admit.  
-  Admitted. 
+    + eapply cast_left_semiring_certificate_to_slt_certificate_correctness.
+      Unshelve.
+      auto. 
+  Qed.
+  
 
   Lemma correctness_left_idempotent_semiring_to_slt:
     forall a, 
@@ -2194,8 +2227,11 @@ Section Correctness.
     f_equal.
     + erewrite sg_CI_to_sg_cert_correctness.
       f_equal.
-    + admit.
-  Admitted.
+    + eapply cast_left_semiring_certificate_to_slt_certificate_correctness.
+      Unshelve.
+      auto.
+  Qed.
+  
 
   Lemma correctness_slt : 
     forall pf, 
