@@ -1786,19 +1786,7 @@ End MCAS.
 
 Section ProofCertCorrect.
 
-  (* 
-  Context 
-    {L S : Type}
-    (r : brel S)
-    (b : binary_op S)
-    (s : S)
-    (f : S -> S)
-    (Pf : properties.brel_not_trivial S r f)
-    (eqvS : eqv_proofs S r)
-    (add : binary_op S)
-    (ltr : ltr_type L S).
-    *)
-
+  
   Lemma sg_CI_to_sg_cert_correctness 
     {L S : Type}
     (r : brel S)
