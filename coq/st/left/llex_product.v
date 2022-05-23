@@ -9,13 +9,19 @@ Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.llex.
 Require Import CAS.coq.sg.and. 
+Require Import CAS.coq.sg.product.
+Require Import CAS.coq.sg.theory.
 
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures. 
 Require Import CAS.coq.tr.left.product. 
 
 Require Import CAS.coq.st.properties.
-Require Import CAS.coq.st.structures. 
+Require Import CAS.coq.st.structures.
+Require Import CAS.coq.st.cast_up. 
+
+
+
 (* why? *) 
 Definition ltr_weak_congruence (L S : Type) (rS : brel S) (lt : ltr_type L S) := 
    ∀ (l : L) (s1 s2 : S), rS s1 s2 = true -> rS (lt l s1) (lt l s2) = true.
@@ -902,6 +908,147 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
 End Decide.       
 Section Combinators.
 
+  (* By looking at the bs/llex_product.v, I will take two algebra and build another 
+    using lexicographic producet. For example, the first algebra could be A_slt_CS and 
+    and second could be A_slt_CI, 
+
+    lexproduct {L1 S1 L2 S2 :  Type} (A : @A_slt_CS S1 T1) (B : @A_slt_CI S2 T2) : 
+      A_slt_?? (lexproduct S1 S2) (directproduct L1 L2) 
+    What do we need cast_up.v ? 
+    *)
+   
+
+    (* I think the type of A : @A_slt L1 S1 and B : @A_slt_CS L2 S2 
+      because at some point, during the slt_proof, it demands   
+      bop_commutative S₂ (A_eqv_eq S₂ (A_slt_carrier B)) (A_slt_plus B)
+      but if we go by the below data type, B : A_slt L2 S2, we don't 
+      know if it's commutative (because it's decidable )
+    *)
+    Definition A_llex_product_from_A_slt_CS_A_slt {L₁ S₁ L₂ S₂: Type} 
+      (A : @A_slt_CS L₁ S₁) (B : @A_slt L₂ S₂) : @A_slt (L₁ * L₂) (S₁ * S₂).
+      refine 
+      {|
+          A_slt_carrier := A_eqv_product _ _ (A_slt_CS_carrier A) (A_slt_carrier B)
+        ; A_slt_label := A_eqv_product _ _ (A_slt_CS_label A) (A_slt_label B)
+        ; A_slt_plus := bop_llex 
+            (A_eqv_witness _ (A_slt_carrier B))
+            (A_eqv_eq _ (A_slt_CS_carrier A)) 
+            (A_slt_CS_plus A) (A_slt_plus B)
+        ; A_slt_trans := ltr_product (A_slt_CS_trans A) (A_slt_trans B) 
+        ; A_slt_plus_proofs := sg_llex_proofs S₁ S₂ 
+            (A_eqv_witness _ (A_slt_CS_carrier A))
+            (A_eqv_witness _ (A_slt_carrier B))
+            _ 
+            (A_eqv_eq _ (A_slt_CS_carrier A)) 
+            (A_eqv_eq _ (A_slt_carrier B)) 
+            (A_eqv_new _ (A_slt_CS_carrier A)) 
+            (A_eqv_not_trivial _ (A_slt_CS_carrier A))
+            (A_eqv_new _ (A_slt_carrier B)) 
+            (A_eqv_not_trivial _ (A_slt_carrier B))  
+            (A_slt_CS_plus A)
+            (A_slt_plus B) 
+            (A_eqv_proofs _ (A_slt_CS_carrier A)) 
+            (A_eqv_proofs _ (A_slt_carrier B)) 
+            (A_sg_CS_proofs_to_sg_proofs 
+            (A_eqv_eq _ (A_slt_CS_carrier A))
+            (A_slt_CS_plus A)
+            (A_eqv_witness _ (A_slt_CS_carrier A)) 
+            (A_eqv_new _ (A_slt_CS_carrier A)) 
+            (A_eqv_not_trivial _ (A_slt_CS_carrier A))
+            (A_eqv_proofs _ (A_slt_CS_carrier A))
+            (A_slt_CS_plus_proofs A))
+            (A_slt_plus_proofs B) 
+            (bop_selective_implies_idempotent _ _ _ 
+              (A_sg_CS_selective _ _ _ (A_slt_CS_plus_proofs A))) 
+            (A_sg_CS_commutative _ _ _ (A_slt_CS_plus_proofs A))
+            (inl
+            (A_sg_CS_selective S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A))
+               (A_slt_CS_plus A) (A_slt_CS_plus_proofs A)))                    
+        ; A_slt_trans_proofs := ltr_product_proofs L₁ S₁ L₂ S₂ 
+            (A_eqv_eq _ (A_slt_CS_carrier A)) 
+            (A_eqv_eq _ (A_slt_CS_label A))  
+            (A_eqv_witness _ (A_slt_CS_carrier A))  
+            (A_eqv_witness _ (A_slt_CS_label A))
+            (A_slt_CS_trans A) 
+            (A_eqv_reflexive _ _ (A_eqv_proofs _ (A_slt_CS_carrier A)))
+            (A_eqv_eq _ (A_slt_carrier B)) 
+            (A_eqv_eq _ (A_slt_label B))  
+            (A_eqv_witness _ (A_slt_carrier B))  
+            (A_eqv_witness _ (A_slt_label B))
+            (A_slt_trans B) 
+            (A_eqv_reflexive _ _ (A_eqv_proofs _ (A_slt_carrier B)))
+            (A_slt_CS_trans_proofs A) (A_slt_trans_proofs B)
+        ; A_slt_exists_plus_ann_d := bop_llex_exists_ann_decide S₁ S₂ 
+            (A_eqv_witness S₂ (A_slt_carrier B))
+            (A_eqv_eq S₁ (A_slt_CS_carrier A)) (A_eqv_eq S₂ (A_slt_carrier B))
+            (A_slt_CS_plus A) (A_slt_plus B) 
+            (A_eqv_proofs _ (A_slt_CS_carrier A)) 
+            (A_eqv_proofs _ (A_slt_carrier B)) 
+            (A_slt_CS_exists_plus_ann_d A) 
+            (A_slt_exists_plus_ann_d B) 
+        ; A_slt_id_ann_proofs_d  := _
+        ; A_slt_proofs :=  _
+
+        ; A_slt_ast := _ 
+      |}.
+      admit.
+     
+      Check stl_llex_product_proofs.
+
+      (* 
+          slt_proofs
+            (A_eqv_eq (S₁ * S₂)
+              (A_eqv_product S₁ S₂ (A_slt_CS_carrier A) (A_slt_carrier B)))
+            (bop_llex (A_eqv_witness S₂ (A_slt_carrier B))
+              (A_eqv_eq S₁ (A_slt_CS_carrier A)) (A_slt_CS_plus A) 
+              (A_slt_plus B)) (ltr_product (A_slt_CS_trans A) (A_slt_trans B))
+        This proof demands 
+        bop_commutative S₂ (A_eqv_eq S₂ (A_slt_carrier B)) (A_slt_plus B)
+        but we have no idea so, this function should be 
+        (A : A_slt L1 S1) (B : A_slt_CS l2 S2)
+        or change the return type to 
+        @A_slt (L₂ * L₁) (S₂ * S₁)
+
+      *)
+      apply stl_llex_product_proofs with 
+      (eqLS :=  (A_eqv_eq _ (A_slt_CS_label A)))
+      (eqLT :=  (A_eqv_eq _ (A_slt_label B))).
+      Check stl_llex_product_proofs L₂ S₂ L₁ S₁.
+
+
+    
+      (*
+        stl_llex_product_proofs L₁ S₁ L₂ S₂ 
+          (A_eqv_eq _ (A_slt_CS_label A)) 
+          (A_eqv_eq _ (A_slt_label B))
+          (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
+          (A_eqv_eq S₂ (A_slt_carrier B))
+          (A_eqv_witness S₂ (A_slt_carrier B)) 
+          (A_eqv_witness _ (A_slt_CS_label A))  
+          (A_eqv_witness _ (A_slt_label B))
+          (A_eqv_witness _ (A_slt_CS_carrier A))  
+          (A_eqv_witness _ (A_slt_carrier B)) 
+          (A_eqv_proofs _ (A_slt_CS_label A)) 
+          (A_eqv_proofs _ (A_slt_CS_carrier A)) 
+          (A_eqv_proofs _ (A_slt_carrier B)) 
+          (A_slt_CS_plus A) 
+          (A_slt_plus B) 
+          (bop_selective_implies_idempotent _ _ _ 
+            (A_sg_CS_selective _ _ _ (A_slt_CS_plus_proofs A))) 
+          _ 
+          (A_slt_CS_trans A) 
+          (A_slt_trans B) 
+          _ 
+          _ _ _ _ _ _ _ _   
+      *)
+
+
+    Definition A_llex_product_from_A_slt_CI_A_slt_zero_is_ltr_ann 
+      {L₁ S₁ L₂ S₂: Type} (A : @A_slt_CI L₁ S₁) 
+      (B : @A_slt_zero_is_ltr_ann L₂ S₂) :  @A_slt (L₁ * L₂) (S₁ * S₂).
+    Admitted.
+
+  
 End Combinators.   
   
 End CAS.
