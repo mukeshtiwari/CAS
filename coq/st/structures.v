@@ -841,12 +841,44 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
       |}
    end.
 
-   (* Everything works upto this point*)
-
+   
   Definition A_slt_C_classify_slt {L S : Type} (A : @A_slt_C L S) : @A_slt_mcas L S :=
     let slt_proof := A_slt_C_proofs A in
     match A_slt_classify_proofs _ _ _ slt_proof with
      | A_SLT_proofs _ _ _ pf => 
+        match A_sg_proofs_classify_sg_C  _ _ _ 
+          (A_slt_C_plus_proofs A) with
+        | A_MCAS_Proof_sg_CS _ _ _ ppf => 
+            A_slt_CS_classify_slt 
+            {|
+                  A_slt_CS_carrier  := A_slt_C_carrier A
+                ; A_slt_CS_label  := A_slt_C_label A 
+                ; A_slt_CS_plus  := A_slt_C_plus A                                            
+                ; A_slt_CS_trans   := A_slt_C_trans A 
+                ; A_slt_CS_plus_proofs := ppf                       
+                ; A_slt_CS_trans_proofs := A_slt_C_trans_proofs A 
+                ; A_slt_CS_exists_plus_ann_d := A_slt_C_exists_plus_ann_d A                                
+                ; A_slt_CS_id_ann_proofs_d  := A_slt_C_id_ann_proofs_d A                                       
+                ; A_slt_CS_proofs := pf                              
+                ; A_slt_CS_ast := A_slt_C_ast A
+            
+            |}
+        | A_MCAS_Proof_sg_CI _ _ _ ppf => 
+            A_slt_CI_classify_slt
+            {|
+                  A_slt_CI_carrier  := A_slt_C_carrier A
+                ; A_slt_CI_label  := A_slt_C_label A 
+                ; A_slt_CI_plus  := A_slt_C_plus A                                            
+                ; A_slt_CI_trans   := A_slt_C_trans A 
+                ; A_slt_CI_plus_proofs := ppf                       
+                ; A_slt_CI_trans_proofs := A_slt_C_trans_proofs A 
+                ; A_slt_CI_exists_plus_ann_d := A_slt_C_exists_plus_ann_d A                                
+                ; A_slt_CI_id_ann_proofs_d  := A_slt_C_id_ann_proofs_d A                                       
+                ; A_slt_CI_proofs := pf                              
+                ; A_slt_CI_ast := A_slt_C_ast A
+            
+            |}
+        | _ => 
           match A_slt_C_id_ann_proofs_d A with 
           | SLT_Id_Ann_Proof_Equal _ _ _ ppf =>  
               A_slt_C_zero_is_ltr_ann_classify_slt 
@@ -865,6 +897,7 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
               |}
           | _ => A_SLT_C A
           end
+        end
      | A_SLT_dioid_proofs _ _ _ pf => A_SLT_C A
      | A_SLT_semiring_proofs _ _ _ pf => 
         A_slt_classify_left_pre_semiring_slt
@@ -883,64 +916,28 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
     end.
 
    
-
-    
-
   Definition A_slt_classify_slt {L S : Type} (A : @A_slt L S) : A_slt_mcas :=
     let plus_proofs := A_slt_plus_proofs A in
-    match sg_proof_classify _ _ _ (A_MCAS_Proof_sg _ _ _ plus_proofs) with
-    | A_MCAS_Proof_sg_CS _ _ _ B =>  
-      A_slt_CS_classify_slt
-        ({|
-              A_slt_CS_carrier := A_slt_carrier A 
-            ; A_slt_CS_label := A_slt_label A 
-            ; A_slt_CS_plus := A_slt_plus A                                               
-            ; A_slt_CS_trans := A_slt_trans A  (* L -> (S -> S) *)
-            ; A_slt_CS_plus_proofs := B                       
-            ; A_slt_CS_trans_proofs := A_slt_trans_proofs A
-            ; A_slt_CS_exists_plus_ann_d := A_slt_exists_plus_ann_d A                           
-            ; A_slt_CS_id_ann_proofs_d  := A_slt_id_ann_proofs_d A                                      
-            ; A_slt_CS_proofs := A_slt_proofs A                             
-            ; A_slt_CS_ast := A_slt_ast A
-        |})     
-    | A_MCAS_Proof_sg_CI _ _ _ B  =>
-      A_slt_CI_classify_slt
-        ({|
-              A_slt_CI_carrier := A_slt_carrier A 
-            ; A_slt_CI_label := A_slt_label A 
-            ; A_slt_CI_plus := A_slt_plus A                                               
-            ; A_slt_CI_trans := A_slt_trans A  (* L -> (S -> S) *)
-            ; A_slt_CI_plus_proofs := B                       
-            ; A_slt_CI_trans_proofs := A_slt_trans_proofs A
-            ; A_slt_CI_exists_plus_ann_d := A_slt_exists_plus_ann_d A                           
-            ; A_slt_CI_id_ann_proofs_d  := A_slt_id_ann_proofs_d A                                      
-            ; A_slt_CI_proofs := A_slt_proofs A                             
-            ; A_slt_CI_ast := A_slt_ast A
-        |})
-    | _ => 
-        match A_slt_exists_plus_ann_d A with
-        | inl ann =>
-              match A_slt_id_ann_proofs_d A with 
-              | SLT_Id_Ann_Proof_Equal _ _ _ ppf => 
-                A_slt_zero_is_ltr_ann_classify_slt
-                  ({|
-                        A_slt_zero_is_ltr_ann_carrier := A_slt_carrier A
-                      ; A_slt_zero_is_ltr_ann_label := A_slt_label A 
-                      ; A_slt_zero_is_ltr_ann_plus  := A_slt_plus A                                             
-                      ; A_slt_zero_is_ltr_ann_trans  := A_slt_trans A  (* L -> (S -> S) *)
-                      ; A_slt_zero_is_ltr_ann_plus_proofs    := A_slt_plus_proofs A                       
-                      ; A_slt_zero_is_ltr_ann_trans_proofs   := A_slt_trans_proofs A
-                      ; A_slt_zero_is_ltr_ann_exists_plus_ann_d := inl ann                              
-                      ; A_slt_zero_is_ltr_ann_id_ann_proofs  := ppf                                               
-                      ; A_slt_zero_is_ltr_ann_proofs := A_slt_proofs A                               
-                      ; A_slt_zero_is_ltr_ann_ast := A_slt_ast A  
-                  |})
-              | _ => A_SLT A  
-              end
-        | inr nann => A_SLT A
-        end
-    end.
+    match sg_proof_classify _ _ _ (A_MCAS_Proof_sg _ _ _ plus_proofs) with 
+    | A_MCAS_Proof_sg_C _ _ _ pf => 
+        A_slt_C_classify_slt
+        {|
+              A_slt_C_carrier  := A_slt_carrier A
+            ; A_slt_C_label  := A_slt_label A 
+            ; A_slt_C_plus  := A_slt_plus A                                            
+            ; A_slt_C_trans   := A_slt_trans A 
+            ; A_slt_C_plus_proofs := pf                       
+            ; A_slt_C_trans_proofs := A_slt_trans_proofs A 
+            ; A_slt_C_exists_plus_ann_d := A_slt_exists_plus_ann_d A                                
+            ; A_slt_C_id_ann_proofs_d  := A_slt_id_ann_proofs_d A                                       
+            ; A_slt_C_proofs := A_slt_proofs A                             
+            ; A_slt_C_ast := A_slt_ast A
+        |}
+    | _ => A_SLT A  
+    end. 
 
+    
+  (* Everything works upto this point *)
 
 
 
