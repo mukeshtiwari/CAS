@@ -200,6 +200,31 @@ Record A_slt {L S : Type} :=
 }.
 
 
+Record A_slt_C {L S : Type} :=
+{
+    A_slt_C_carrier        : A_eqv S
+  ; A_slt_C_label          : A_eqv L
+  ; A_slt_C_plus           : binary_op S                                               
+  ; A_slt_C_trans          : ltr_type L S (* L -> (S -> S) *)
+  ; A_slt_C_plus_proofs    : sg_C_proofs S (A_eqv_eq S A_slt_C_carrier) A_slt_C_plus                           
+  ; A_slt_C_trans_proofs   : left_transform_proofs L S 
+                              (A_eqv_eq S A_slt_C_carrier) 
+                              (A_eqv_eq L A_slt_C_label)  
+                              A_slt_C_trans
+  ; A_slt_C_exists_plus_ann_d : bop_exists_ann_decidable S 
+                              (A_eqv_eq S A_slt_C_carrier) 
+                              A_slt_C_plus                                 
+  ; A_slt_C_id_ann_proofs_d  : slt_exists_id_ann_decidable 
+                              (A_eqv_eq S A_slt_C_carrier) 
+                              A_slt_C_plus  
+                              A_slt_C_trans                                               
+  ; A_slt_C_proofs : slt_proofs 
+                    (A_eqv_eq S A_slt_C_carrier) 
+                    A_slt_C_plus 
+                    A_slt_C_trans                                  
+  ; A_slt_C_ast : cas_ast
+}.
+
 
 Record A_slt_CS {L S : Type} :=
 {
@@ -260,7 +285,7 @@ Record A_slt_zero_is_ltr_ann {L S : Type} :=
   ; A_slt_zero_is_ltr_ann_label          : A_eqv L
   ; A_slt_zero_is_ltr_ann_plus           : binary_op S                                               
   ; A_slt_zero_is_ltr_ann_trans          : ltr_type L S (* L -> (S -> S) *)
-  ; A_slt_zero_is_ltr_ann_plus_proofs    : sg_proofs S 
+  ; A_slt_zero_is_ltr_ann_plus_proofs    : sg_C_proofs S 
                                             (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier) 
                                             A_slt_zero_is_ltr_ann_plus                           
   ; A_slt_zero_is_ltr_ann_trans_proofs   :  left_transform_proofs L S 
