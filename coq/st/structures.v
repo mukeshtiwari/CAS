@@ -278,7 +278,7 @@ Record A_slt_CI {L S : Type} :=
 }.
 
 
-
+(* This would go away *)
 Record A_slt_zero_is_ltr_ann {L S : Type} :=
 {
     A_slt_zero_is_ltr_ann_carrier        : A_eqv S
@@ -652,7 +652,8 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
     | _ => A_SLT_Left_Pre_Semiring A
     end.
 
-
+  
+    
 
 
   Definition A_slt_CS_classify_slt {L S : Type} (A : @A_slt_CS L S) : A_slt_mcas :=
@@ -826,6 +827,51 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
       end 
     end.
 
+
+
+  (* come back to this later *)
+  Definition A_slt_C_zero_is_ltr_ann_classify_slt {L S : Type} 
+    (A : @A_slt_C_zero_is_ltr_ann L S) : A_slt_mcas := 
+    A_SLT_C_Zero_Is_Ltr_ann A.
+
+  Definition A_slt_C_classify_slt {L S : Type} (A : @A_slt_C L S) : @A_slt_mcas L S :=
+    let slt_proof := A_slt_C_proofs A in
+    match A_slt_classify_proofs _ _ _ slt_proof with
+     | A_SLT_proofs _ _ _ pf => 
+          match A_slt_C_id_ann_proofs_d A with 
+          | SLT_Id_Ann_Proof_Equal _ _ _ ppf =>  
+              A_slt_C_zero_is_ltr_ann_classify_slt 
+              {|
+                    A_slt_C_zero_is_ltr_ann_carrier := A_slt_C_carrier A 
+                  ; A_slt_C_zero_is_ltr_ann_label := A_slt_C_label A
+                  ; A_slt_C_zero_is_ltr_ann_plus  := A_slt_C_plus A                               
+                  ; A_slt_C_zero_is_ltr_ann_trans   := A_slt_C_trans A 
+                  ; A_slt_C_zero_is_ltr_ann_plus_proofs  := A_slt_C_plus_proofs A                           
+                  ; A_slt_C_zero_is_ltr_ann_trans_proofs := A_slt_C_trans_proofs A 
+                  ; A_slt_C_zero_is_ltr_ann_exists_plus_ann_d := A_slt_C_exists_plus_ann_d A                               
+                  ; A_slt_C_zero_is_ltr_ann_id_ann_proofs := ppf                                             
+                  ; A_slt_C_zero_is_ltr_ann_proofs := pf                              
+                  ; A_slt_C_zero_is_ltr_ann_ast := A_slt_C_ast A 
+              
+              |}
+          | _ => A_SLT_C A
+          end
+     | A_SLT_dioid_proofs _ _ _ pf => A_SLT_C A
+     | A_SLT_semiring_proofs _ _ _ pf => 
+        A_slt_classify_left_pre_semiring_slt
+        {|
+              A_left_pre_semiring_carrier :=  A_slt_C_carrier A
+            ; A_left_pre_semiring_label := A_slt_C_label A
+            ; A_left_pre_semiring_plus  := A_slt_C_plus A                                            
+            ; A_left_pre_semiring_trans := A_slt_C_trans A
+            ; A_left_pre_semiring_plus_proofs  := A_slt_C_plus_proofs A                             
+            ; A_left_pre_semiring_trans_proofs  := A_slt_C_trans_proofs A
+            ; A_left_pre_semiring_exists_plus_ann_d := A_slt_C_exists_plus_ann_d A                              
+            ; A_left_pre_semiring_id_ann_proofs_d := A_slt_C_id_ann_proofs_d A
+            ; A_left_pre_semiring_proofs := pf
+            ; A_left_pre_semiring_ast   := A_slt_C_ast A
+        |}
+    end.
 
    
 
