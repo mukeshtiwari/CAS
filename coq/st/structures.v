@@ -285,7 +285,7 @@ Record A_slt_zero_is_ltr_ann {L S : Type} :=
   ; A_slt_zero_is_ltr_ann_label          : A_eqv L
   ; A_slt_zero_is_ltr_ann_plus           : binary_op S                                               
   ; A_slt_zero_is_ltr_ann_trans          : ltr_type L S (* L -> (S -> S) *)
-  ; A_slt_zero_is_ltr_ann_plus_proofs    : sg_C_proofs S 
+  ; A_slt_zero_is_ltr_ann_plus_proofs    : sg_proofs S 
                                             (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier) 
                                             A_slt_zero_is_ltr_ann_plus                           
   ; A_slt_zero_is_ltr_ann_trans_proofs   :  left_transform_proofs L S 
@@ -306,6 +306,33 @@ Record A_slt_zero_is_ltr_ann {L S : Type} :=
   ; A_slt_zero_is_ltr_ann_ast : cas_ast
 }.
 
+
+Record A_slt_C_zero_is_ltr_ann {L S : Type} :=
+{
+    A_slt_C_zero_is_ltr_ann_carrier        : A_eqv S
+  ; A_slt_C_zero_is_ltr_ann_label          : A_eqv L
+  ; A_slt_C_zero_is_ltr_ann_plus           : binary_op S                                               
+  ; A_slt_C_zero_is_ltr_ann_trans          : ltr_type L S (* L -> (S -> S) *)
+  ; A_slt_C_zero_is_ltr_ann_plus_proofs    : sg_C_proofs S 
+                                            (A_eqv_eq S A_slt_C_zero_is_ltr_ann_carrier) 
+                                            A_slt_C_zero_is_ltr_ann_plus                           
+  ; A_slt_C_zero_is_ltr_ann_trans_proofs   :  left_transform_proofs L S 
+                                            (A_eqv_eq S A_slt_C_zero_is_ltr_ann_carrier) 
+                                            (A_eqv_eq L A_slt_C_zero_is_ltr_ann_label)  
+                                            A_slt_C_zero_is_ltr_ann_trans
+  ; A_slt_C_zero_is_ltr_ann_exists_plus_ann_d : bop_exists_ann_decidable S 
+                                              (A_eqv_eq S A_slt_C_zero_is_ltr_ann_carrier) 
+                                              A_slt_C_zero_is_ltr_ann_plus                                 
+  ; A_slt_C_zero_is_ltr_ann_id_ann_proofs  : slt_exists_id_ann_equal
+                                            (A_eqv_eq S A_slt_C_zero_is_ltr_ann_carrier) 
+                                            A_slt_C_zero_is_ltr_ann_plus  
+                                            A_slt_C_zero_is_ltr_ann_trans                                               
+  ; A_slt_C_zero_is_ltr_ann_proofs : slt_proofs 
+                                    (A_eqv_eq S A_slt_C_zero_is_ltr_ann_carrier) 
+                                    A_slt_C_zero_is_ltr_ann_plus 
+                                    A_slt_C_zero_is_ltr_ann_trans                                  
+  ; A_slt_C_zero_is_ltr_ann_ast : cas_ast
+}.
 
 
 Record A_selective_left_pre_dioid {L S : Type} :=
@@ -517,8 +544,10 @@ Section AMCAS.
 Inductive A_slt_mcas {L S : Type} :=
 | A_SLT_Error : list string                          -> @A_slt_mcas L S
 | A_SLT : @A_slt L S                                  -> @A_slt_mcas L S
+| A_SLT_C : @A_slt_C L S                              -> @A_slt_mcas L S
 | A_SLT_CS : @A_slt_CS L S                            -> @A_slt_mcas L S
 | A_SLT_CI : @A_slt_CI L S                            -> @A_slt_mcas L S
+| A_SLT_C_Zero_Is_Ltr_ann : @A_slt_C_zero_is_ltr_ann L S  -> @A_slt_mcas L S
 | A_SLT_Zero_Is_Ltr_Ann : @A_slt_zero_is_ltr_ann L S  -> @A_slt_mcas L S
 | A_SLT_Dioid : @A_left_dioid L S                     -> @A_slt_mcas L S
 | A_SLT_Selective_Left_Pre_Dioid : @A_selective_left_pre_dioid L S -> @A_slt_mcas L S
@@ -719,6 +748,7 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
 
    
 
+  
   Definition A_slt_zero_is_ltr_ann_classify_slt {L S : Type} 
     (A : @A_slt_zero_is_ltr_ann L S) : A_slt_mcas := 
     let slt_proofs := A_slt_zero_is_ltr_ann_proofs A in 
@@ -875,7 +905,7 @@ Definition A_slt_classify {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :
   | A_SLT_Selective_Dioid slt => A_slt_classify_selective_left_dioid_slt slt 
   | A_SLT_Selective_Semiring slt => A_slt_classify_left_selective_semiring_slt slt
   | A_SLT_Idempotent_Semiring slt => A_slt_classify_left_idempotent_semiring_slt slt
-  end. 
+  end.
 
 End AMCAS.       
 
@@ -1692,7 +1722,7 @@ Section Translation.
       | A_SLT_Semiring pf => SLT_Semiring (A2C_left_semiring pf) 
       | A_SLT_Selective_Semiring  pf => SLT_Selective_Semiring (A2C_left_selective_semiring pf)
       | A_SLT_Idempotent_Semiring pf => SLT_Idempotent_Semiring (A2C_left_idempotent_semiring pf)
-    end. 
+    end.
 
 
 
