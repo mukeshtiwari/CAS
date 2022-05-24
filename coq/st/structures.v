@@ -775,7 +775,7 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
 
    
 
-  (* Everything works upto this point*)
+  
 
  
   Definition A_slt_C_zero_is_ltr_ann_classify_slt {L S : Type} 
@@ -783,7 +783,48 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
    let slt_proof := A_slt_C_zero_is_ltr_ann_proofs A in 
    match  A_slt_classify_proofs _ _ _ slt_proof with 
    | A_SLT_proofs _ _ _ pf => A_SLT_C_Zero_Is_Ltr_ann A 
-   | A_SLT_dioid_proofs _ _ _ pf => A_SLT_C_Zero_Is_Ltr_ann A
+   | A_SLT_dioid_proofs _ _ _ pf =>
+      match A_sg_proofs_classify_sg_C  _ _ _ 
+        (A_slt_C_zero_is_ltr_ann_plus_proofs A) with 
+      | A_MCAS_Proof_sg_CS _ _ _ ppf => 
+          match A_slt_C_zero_is_ltr_ann_exists_plus_ann_d A with
+          | inl ann => 
+            A_slt_classify_selective_left_dioid_slt
+            {|
+                  A_selective_left_dioid_carrier := A_slt_C_zero_is_ltr_ann_carrier A
+                ; A_selective_left_dioid_label  := A_slt_C_zero_is_ltr_ann_label A
+                ; A_selective_left_dioid_plus  := A_slt_C_zero_is_ltr_ann_plus A                                             
+                ; A_selective_left_dioid_trans := A_slt_C_zero_is_ltr_ann_trans A
+                ; A_selective_left_dioid_plus_proofs  := ppf 
+                ; A_selective_left_dioid_trans_proofs := A_slt_C_zero_is_ltr_ann_trans_proofs A
+                ; A_selective_left_dioid_exists_plus_ann := ann                             
+                ; A_selective_left_dioid_id_ann_proofs  := A_slt_C_zero_is_ltr_ann_id_ann_proofs A                  
+                ; A_selective_left_dioid_proofs := pf                                
+                ; A_selective_left_dioid_ast := A_slt_C_zero_is_ltr_ann_ast A 
+            |}
+          | _ => A_SLT_C_Zero_Is_Ltr_ann A
+          end
+      | A_MCAS_Proof_sg_CI _ _ _ ppf => 
+          match A_slt_C_zero_is_ltr_ann_exists_plus_ann_d A with
+          | inl ann => 
+              A_slt_classify_left_dioid_slt 
+              {|
+                      A_left_dioid_carrier := A_slt_C_zero_is_ltr_ann_carrier A
+                    ; A_left_dioid_label := A_slt_C_zero_is_ltr_ann_label A
+                    ; A_left_dioid_plus  := A_slt_C_zero_is_ltr_ann_plus A                                      
+                    ; A_left_dioid_trans := A_slt_C_zero_is_ltr_ann_trans A
+                    ; A_left_dioid_plus_proofs  := ppf  
+                    ; A_left_dioid_trans_proofs := A_slt_C_zero_is_ltr_ann_trans_proofs A
+                    ; A_left_dioid_exists_plus_ann := ann                                
+                    ; A_left_dioid_id_ann_proofs  := A_slt_C_zero_is_ltr_ann_id_ann_proofs A 
+                    ; A_left_dioid_proofs := pf 
+                    ; A_left_dioid_ast := A_slt_C_zero_is_ltr_ann_ast A 
+              
+              |}
+          | _ => A_SLT_C_Zero_Is_Ltr_ann A 
+          end    
+      |  _ => A_SLT_C_Zero_Is_Ltr_ann A 
+      end
    | A_SLT_semiring_proofs _ _ _ pf => 
       A_slt_classify_left_semiring_slt 
       {|
@@ -800,6 +841,7 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
       |}
    end.
 
+   (* Everything works upto this point*)
 
   Definition A_slt_C_classify_slt {L S : Type} (A : @A_slt_C L S) : @A_slt_mcas L S :=
     let slt_proof := A_slt_C_proofs A in
