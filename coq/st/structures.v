@@ -542,7 +542,6 @@ Inductive A_slt_mcas {L S : Type} :=
 | A_SLT_CS : @A_slt_CS L S                            -> @A_slt_mcas L S
 | A_SLT_CI : @A_slt_CI L S                            -> @A_slt_mcas L S
 | A_SLT_C_Zero_Is_Ltr_ann : @A_slt_C_zero_is_ltr_ann L S  -> @A_slt_mcas L S
-| A_SLT_Zero_Is_Ltr_Ann : @A_slt_zero_is_ltr_ann L S  -> @A_slt_mcas L S
 | A_SLT_Dioid : @A_left_dioid L S                     -> @A_slt_mcas L S
 | A_SLT_Selective_Left_Pre_Dioid : @A_selective_left_pre_dioid L S -> @A_slt_mcas L S
 | A_SLT_Selective_Dioid : @A_selective_left_dioid L S -> @A_slt_mcas L S
@@ -579,7 +578,7 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
   | inr _  =>  A_SLT_proofs _ _ _ A      
   end.
 
-
+ 
 
   Definition A_slt_classify_left_dioid_slt {L S : Type} 
     (A : @A_left_dioid L S) : @A_slt_mcas L S :=
@@ -620,11 +619,46 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
     (A : @A_left_idempotent_semiring L S) : A_slt_mcas :=
     A_SLT_Idempotent_Semiring A.
 
+ 
 
+  
   Definition A_slt_classify_left_semiring_slt {L S : Type} 
     (A : @A_left_semiring L S) : A_slt_mcas :=
-    A_SLT_Semiring A.
+    let plus_proof := A_left_semiring_plus_proofs A in 
+    match A_sg_proofs_classify_sg_C  _ _ _ plus_proof with 
+    | A_MCAS_Proof_sg_CS _ _ _ pf =>  
+        A_slt_classify_left_selective_semiring_slt 
+        {|
+            A_left_selective_semiring_carrier := A_left_semiring_carrier A
+          ; A_left_selective_semiring_label  := A_left_semiring_label A
+          ; A_left_selective_semiring_plus   := A_left_semiring_plus A                                          
+          ; A_left_selective_semiring_trans   := A_left_semiring_trans A
+          ; A_left_selective_semiring_plus_proofs  := pf                                
+          ; A_left_selective_semiring_trans_proofs  := A_left_semiring_trans_proofs A
+          ; A_left_selective_semiring_exists_plus_ann_d := A_left_semiring_exists_plus_ann_d A                              
+          ; A_left_selective_semiring_id_ann_proofs  := A_left_semiring_id_ann_proofs A
+          ; A_left_selective_semiring_proofs := A_left_semiring_proofs A
+          ; A_left_selective_semiring_ast  := A_left_semiring_ast A
+        |}
+    | A_MCAS_Proof_sg_CI _ _ _ pf =>  
+        A_slt_classify_left_idempotent_semiring_slt 
+        {|
+            A_left_idempotent_semiring_carrier := A_left_semiring_carrier A
+          ; A_left_idempotent_semiring_label := A_left_semiring_label A
+          ; A_left_idempotent_semiring_plus  := A_left_semiring_plus A                                              
+          ; A_left_idempotent_semiring_trans  := A_left_semiring_trans A  
+          ; A_left_idempotent_semiring_plus_proofs := pf                                 
+          ; A_left_idempotent_semiring_trans_proofs  := A_left_semiring_trans_proofs A
+          ; A_left_idempotent_semiring_exists_plus_ann_d  := A_left_semiring_exists_plus_ann_d A                               
+          ; A_left_idempotent_semiring_id_ann_proofs  := A_left_semiring_id_ann_proofs A
+          ; A_left_idempotent_semiring_proofs  := A_left_semiring_proofs A
+          ; A_left_idempotent_semiring_ast := A_left_semiring_ast A  
+        |}
+    | _ =>  A_SLT_Semiring A
+    end.
 
+
+     (* Everything works upto this point *)
 
   Definition A_slt_classify_left_pre_semiring_slt {L S : Type}
     (A : @A_left_pre_semiring L S) : A_slt_mcas :=
