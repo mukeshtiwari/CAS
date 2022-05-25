@@ -105,7 +105,11 @@ So, we need absorption!
 7.
               left_semiring
                   |
-              left_semiring
+    ------------------------------------------
+        |                             |
+  left_idempotent_semiring      left_selective_semiring
+
+
 8.
               left_pre_semiring
                   |
@@ -116,6 +120,8 @@ So, we need absorption!
     ---------------------------------------------------------- 
                  |                              |            
     A_selective_left_pre_dioid        A_left_selective_semiring
+
+
 10.
                         A_slt_CI
                           |
@@ -125,39 +131,25 @@ So, we need absorption!
 
 11.
 
-                    A_slt_zero_is_ltr_ann
-                              |
-    --------------------------------------------------------------------
-           |                      |              |                   |
-    selective_left_dioid      left_dioid     left_semiring   left_idempotent_semiring
-
-
-12.
                 A_slt_C_zero_is_ltr_ann
-                        |
-                  A_left_semiring
+    ------------------------------------------------------
+           |                      |              |        
+    selective_left_dioid      left_dioid     left_semiring  
 
-
-13.
-                   A_slt_C
-                      |
-      -----------------------------------------
-            |                           |
-  A_slt_C_zero_is_ltr_ann         A_left_pre_semiring
-
-14.    
+12.    
 
                         A_slt_C
                           | 
-          -------------------------------------
-          |                |                 |    
-      A_slt_CS    A_slt_C_zero_is_ltr_ann     A_slt_CI  
+      --------------------------------------------------------------
+          |                |                 |                  |
+      A_slt_CS    A_slt_C_zero_is_ltr_ann     A_slt_CI     A_left_pre_semiring
+
+13.
+                        A_slt
+                          |
+                        A_slt_C
 
 
-15. 
-                  A_slt 
-                    |
-                  A_slt_C 
 
 *)  
 
