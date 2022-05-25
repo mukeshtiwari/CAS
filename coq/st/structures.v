@@ -1480,71 +1480,119 @@ Section MCAS.
         |}
     end.
     
-  (* everything works upto this point *)  
-    
-  Definition slt_classify_slt {L S : Type} (A : @slt L S) : slt_mcas :=
-    let plus_certificates := slt_plus_certs A in
-    match sg_certificates_classify (MCAS_Cert_sg plus_certificates) with
-    | MCAS_Cert_sg_CS B =>  
-        slt_CS_classify_slt
-        ({|
-              slt_CS_carrier := slt_carrier A 
-            ; slt_CS_label := slt_label A 
-            ; slt_CS_plus := slt_plus A                                               
-            ; slt_CS_trans := slt_trans A  (* L -> (S -> S) *)
-            ; slt_CS_plus_certs := B                       
-            ; slt_CS_trans_certs := slt_trans_certs A
-            ; slt_CS_exists_plus_ann_d := slt_exists_plus_ann_d A                           
-            ; slt_CS_id_ann_certs_d  := slt_id_ann_certs_d A                                      
-            ; slt_CS_certs := slt_certs A                             
-            ; slt_CS_ast := slt_ast A
-        |})     
-    | MCAS_Cert_sg_CI B  =>
-        slt_CI_classify_slt
-        ({|
-              slt_CI_carrier := slt_carrier A 
-            ; slt_CI_label := slt_label A 
-            ; slt_CI_plus := slt_plus A                                               
-            ; slt_CI_trans := slt_trans A  (* L -> (S -> S) *)
-            ; slt_CI_plus_certs := B                       
-            ; slt_CI_trans_certs := slt_trans_certs A
-            ; slt_CI_exists_plus_ann_d := slt_exists_plus_ann_d A                           
-            ; slt_CI_id_ann_certs_d  := slt_id_ann_certs_d A                                      
-            ; slt_CI_certs := slt_certs A                             
-            ; slt_CI_ast := slt_ast A
-        |})
-    | _ => 
-        match slt_exists_plus_ann_d A with
-        | Certify_Exists_Ann ann =>
-              match slt_id_ann_certs_d A with 
-              | Certify_SLT_Id_Ann_Proof_Equal ppf => 
-                  slt_zero_is_ltr_ann_classify_slt
-                  ({|
-                        slt_zero_is_ltr_ann_carrier := slt_carrier A
-                      ; slt_zero_is_ltr_ann_label := slt_label A 
-                      ; slt_zero_is_ltr_ann_plus  := slt_plus A                                             
-                      ; slt_zero_is_ltr_ann_trans  := slt_trans A  (* L -> (S -> S) *)
-                      ; slt_zero_is_ltr_ann_plus_certs    := slt_plus_certs A                       
-                      ; slt_zero_is_ltr_ann_trans_certs   := slt_trans_certs A
-                      ; slt_zero_is_ltr_ann_exists_plus_ann_d :=  Certify_Exists_Ann ann                             
-                      ; slt_zero_is_ltr_ann_id_ann_certs  := Assert_Slt_Exists_Id_Ann_Equal ppf                                            
-                      ; slt_zero_is_ltr_ann_certs := slt_certs A                               
-                      ; slt_zero_is_ltr_ann_ast := slt_ast A  
-                  |})
-              | _ => SLT A  
-              end
-        | _ => SLT A
-        end
-    end.
+
+
+
   
+  
+  Definition slt_C_classify_slt {L S : Type} 
+    (A : @slt_C L S) : @slt_mcas L S :=
+    let slt_certificate := slt_C_certs A in
+    match slt_classify_certificates slt_certificate with
+     | SLT_certs pf => 
+        match sg_certificates_classify_sg_C 
+          (slt_C_plus_certs A) with
+        | MCAS_Cert_sg_CS ppf => 
+            slt_CS_classify_slt 
+            {|
+                  slt_CS_carrier  := slt_C_carrier A
+                ; slt_CS_label  := slt_C_label A 
+                ; slt_CS_plus  := slt_C_plus A                                            
+                ; slt_CS_trans   := slt_C_trans A 
+                ; slt_CS_plus_certs := ppf                       
+                ; slt_CS_trans_certs := slt_C_trans_certs A 
+                ; slt_CS_exists_plus_ann_d := slt_C_exists_plus_ann_d A                                
+                ; slt_CS_id_ann_certs_d  := slt_C_id_ann_certs_d A                                       
+                ; slt_CS_certs := pf                              
+                ; slt_CS_ast := slt_C_ast A
+            
+            |}
+        | MCAS_Cert_sg_CI ppf => 
+            slt_CI_classify_slt
+            {|
+                  slt_CI_carrier  := slt_C_carrier A
+                ; slt_CI_label  := slt_C_label A 
+                ; slt_CI_plus  := slt_C_plus A                                            
+                ; slt_CI_trans   := slt_C_trans A 
+                ; slt_CI_plus_certs := ppf                       
+                ; slt_CI_trans_certs := slt_C_trans_certs A 
+                ; slt_CI_exists_plus_ann_d := slt_C_exists_plus_ann_d A                                
+                ; slt_CI_id_ann_certs_d  := slt_C_id_ann_certs_d A                                       
+                ; slt_CI_certs := pf                              
+                ; slt_CI_ast := slt_C_ast A
+            
+            |}
+        | _ => 
+          match slt_C_id_ann_certs_d A with 
+          |  Certify_SLT_Id_Ann_Proof_Equal ppf =>  
+              slt_C_zero_is_ltr_ann_classify_slt 
+              {|
+                    slt_C_zero_is_ltr_ann_carrier := slt_C_carrier A 
+                  ; slt_C_zero_is_ltr_ann_label := slt_C_label A
+                  ; slt_C_zero_is_ltr_ann_plus  := slt_C_plus A                               
+                  ; slt_C_zero_is_ltr_ann_trans   := slt_C_trans A 
+                  ; slt_C_zero_is_ltr_ann_plus_certs  := slt_C_plus_certs A                           
+                  ; slt_C_zero_is_ltr_ann_trans_certs := slt_C_trans_certs A 
+                  ; slt_C_zero_is_ltr_ann_exists_plus_ann_d := slt_C_exists_plus_ann_d A                               
+                  ; slt_C_zero_is_ltr_ann_id_ann_certs := Assert_Slt_Exists_Id_Ann_Equal ppf                                            
+                  ; slt_C_zero_is_ltr_ann_certs := pf                              
+                  ; slt_C_zero_is_ltr_ann_ast := slt_C_ast A 
+              
+              |}
+          | _ => SLT_C A
+          end
+        end
+     | SLT_dioid_certs _ => SLT_C A
+     | SLT_semiring_certs pf => 
+        slt_classify_left_pre_semiring_slt
+        {|
+              left_pre_semiring_carrier :=  slt_C_carrier A
+            ; left_pre_semiring_label := slt_C_label A
+            ; left_pre_semiring_plus  := slt_C_plus A                                            
+            ; left_pre_semiring_trans := slt_C_trans A
+            ; left_pre_semiring_plus_certs  := slt_C_plus_certs A                             
+            ; left_pre_semiring_trans_certs  := slt_C_trans_certs A
+            ; left_pre_semiring_exists_plus_ann_d := slt_C_exists_plus_ann_d A                              
+            ; left_pre_semiring_id_ann_certs_d := slt_C_id_ann_certs_d A
+            ; left_pre_semiring_certs := pf
+            ; left_pre_semiring_ast   := slt_C_ast A
+        |}
+    end.
+
+
+  
+
+
+  Definition slt_classify_slt {L S : Type} (A : @slt L S) : slt_mcas :=
+    let plus_certificate := slt_plus_certs A in
+    match sg_certificates_classify (MCAS_Cert_sg plus_certificate) with 
+    | MCAS_Cert_sg_C pf => 
+        slt_C_classify_slt
+        {|
+              slt_C_carrier  := slt_carrier A
+            ; slt_C_label  := slt_label A 
+            ; slt_C_plus  := slt_plus A                                            
+            ; slt_C_trans   := slt_trans A 
+            ; slt_C_plus_certs := pf                       
+            ; slt_C_trans_certs := slt_trans_certs A 
+            ; slt_C_exists_plus_ann_d := slt_exists_plus_ann_d A                                
+            ; slt_C_id_ann_certs_d  := slt_id_ann_certs_d A                                       
+            ; slt_C_certs := slt_certs A                             
+            ; slt_C_ast := slt_ast A
+        |}
+    | _ => SLT A  
+    end.
+
+
   
   Definition slt_classify {L S : Type} (A : @slt_mcas L S) : @slt_mcas L S :=
     match A with
     | SLT_Error ls => A
-    | SLT slt => slt_classify_slt slt 
+    | SLT slt => slt_classify_slt slt
+    | SLT_C slt => slt_C_classify_slt slt 
     | SLT_CS slt => slt_CS_classify_slt slt
     | SLT_CI slt => slt_CI_classify_slt slt 
-    | SLT_Zero_Is_Ltr_Ann slt => slt_zero_is_ltr_ann_classify_slt slt
+    | SLT_C_Zero_Is_Ltr_ann slt => slt_C_zero_is_ltr_ann_classify_slt slt
     | SLT_Left_Pre_Semiring slt => slt_classify_left_pre_semiring_slt slt  
     | SLT_Dioid slt => slt_classify_left_dioid_slt slt 
     | SLT_Selective_Left_Pre_Dioid slt => slt_classify_selective_left_pre_dioid_slt slt
@@ -1554,6 +1602,7 @@ Section MCAS.
     | SLT_Idempotent_Semiring slt => slt_classify_left_idempotent_semiring_slt slt
     end. 
 
+  (* all good upto here*)
 
 End MCAS.
 
