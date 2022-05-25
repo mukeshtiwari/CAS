@@ -937,7 +937,6 @@ Definition A_slt_classify_proofs {L S : Type}  (r : brel S)
     end. 
 
     
-  (* Everything works upto this point *)
 
 
 
@@ -947,9 +946,10 @@ Definition A_slt_classify {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S :
   match A with
   | A_SLT_Error ls => A
   | A_SLT slt => A_slt_classify_slt slt 
+  | A_SLT_C slt => A_slt_C_classify_slt slt
   | A_SLT_CS slt => A_slt_CS_classify_slt slt
-  | A_SLT_CI slt => A_slt_CI_classify_slt slt 
-  | A_SLT_Zero_Is_Ltr_Ann slt => A_slt_zero_is_ltr_ann_classify_slt slt
+  | A_SLT_CI slt => A_slt_CI_classify_slt slt
+  | A_SLT_C_Zero_Is_Ltr_ann slt => A_slt_C_zero_is_ltr_ann_classify_slt slt
   | A_SLT_Left_Pre_Semiring slt => A_slt_classify_left_pre_semiring_slt slt  
   | A_SLT_Dioid slt => A_slt_classify_left_dioid_slt slt 
   | A_SLT_Selective_Left_Pre_Dioid slt => A_slt_classify_selective_left_pre_dioid_slt slt
