@@ -1004,6 +1004,19 @@ Section CAS.
     ; slt_ast            : cas_ast
     }.
 
+  Record slt_C {L S : Type} :=
+    {
+        slt_C_carrier : @eqv S
+      ; slt_C_label : @eqv L
+      ; slt_C_plus  : binary_op S                                               
+      ; slt_C_trans : ltr_type L S (* L -> (S -> S) *)
+      ; slt_C_plus_certs    : @sg_C_certificates S                           
+      ; slt_C_trans_certs   : @left_transform_certificates L S
+      ; slt_C_exists_plus_ann_d :  @check_exists_ann S                               
+      ; slt_C_id_ann_certs_d  : @check_slt_exists_id_ann L S                                              
+      ; slt_C_certs : @slt_certificates L S                                 
+      ; slt_C_ast : cas_ast
+    }.  
   
 
   Record slt_CS {L S : Type} :=
@@ -1036,18 +1049,18 @@ Section CAS.
     }.
 
 
-  Record slt_zero_is_ltr_ann {L S : Type} :=
+    Record slt_C_zero_is_ltr_ann {L S : Type} :=
     {
-        slt_zero_is_ltr_ann_carrier        : @eqv S
-      ; slt_zero_is_ltr_ann_label          : @eqv L
-      ; slt_zero_is_ltr_ann_plus           : binary_op S                                               
-      ; slt_zero_is_ltr_ann_trans          : ltr_type L S (* L -> (S -> S) *)
-      ; slt_zero_is_ltr_ann_plus_certs    : @sg_certificates S                         
-      ; slt_zero_is_ltr_ann_trans_certs   : @left_transform_certificates L S 
-      ; slt_zero_is_ltr_ann_exists_plus_ann_d :  @check_exists_ann S                                 
-      ; slt_zero_is_ltr_ann_id_ann_certs  : @assert_slt_exists_id_ann_equal L S                                              
-      ; slt_zero_is_ltr_ann_certs : @slt_certificates L S                                  
-      ; slt_zero_is_ltr_ann_ast : cas_ast
+        slt_C_zero_is_ltr_ann_carrier : @eqv S 
+      ; slt_C_zero_is_ltr_ann_label : @eqv L
+      ; slt_C_zero_is_ltr_ann_plus  : binary_op S                                               
+      ; slt_C_zero_is_ltr_ann_trans  : ltr_type L S (* L -> (S -> S) *)
+      ; slt_C_zero_is_ltr_ann_plus_certs : @sg_C_certificates S                          
+      ; slt_C_zero_is_ltr_ann_trans_certs : @left_transform_certificates L S
+      ; slt_C_zero_is_ltr_ann_exists_plus_ann_d :  @check_exists_ann S                                
+      ; slt_C_zero_is_ltr_ann_id_ann_certs  : @assert_slt_exists_id_ann_equal L S                                             
+      ; slt_C_zero_is_ltr_ann_proofs :  @slt_certificates L S                                  
+      ; slt_C_zero_is_ltr_ann_ast : cas_ast
     }.
 
 
@@ -1167,9 +1180,10 @@ Section MCAS.
   Inductive slt_mcas {L S : Type} :=
   | SLT_Error : list string                         -> @slt_mcas L S
   | SLT : @slt L S                                  -> @slt_mcas L S
+  | SLT_C : @slt_C L S                              -> @slt_mcas L S
   | SLT_CS : @slt_CS L S                            -> @slt_mcas L S
   | SLT_CI : @slt_CI L S                            -> @slt_mcas L S
-  | SLT_Zero_Is_Ltr_Ann : @slt_zero_is_ltr_ann L S -> @slt_mcas L S
+  | SLT_C_Zero_Is_Ltr_ann : @slt_C_zero_is_ltr_ann L S  -> @slt_mcas L S
   | SLT_Dioid : @left_dioid L S                     -> @slt_mcas L S
   | SLT_Selective_Dioid : @selective_left_dioid L S -> @slt_mcas L S
   | SLT_Selective_Left_Pre_Dioid : @selective_left_pre_dioid L S -> @slt_mcas L S
@@ -1249,12 +1263,45 @@ Section MCAS.
   Definition slt_classify_left_idempotent_semiring_slt {L S : Type}
     (A : @left_idempotent_semiring L S) : slt_mcas :=
     SLT_Idempotent_Semiring A.
+   
 
-  (* Discuss this with Tim *)
+  
   Definition slt_classify_left_semiring_slt {L S : Type} 
     (A : @left_semiring L S) : slt_mcas :=
-    SLT_Semiring A.
+    let plus_certificate := left_semiring_plus_certs A in 
+    match sg_certificates_classify_sg_C plus_certificate with 
+    | MCAS_Cert_sg_CS pf =>  
+        slt_classify_left_selective_semiring_slt 
+        {|
+            left_selective_semiring_carrier := left_semiring_carrier A
+          ; left_selective_semiring_label  := left_semiring_label A
+          ; left_selective_semiring_plus   := left_semiring_plus A                                          
+          ; left_selective_semiring_trans   := left_semiring_trans A
+          ; left_selective_semiring_plus_certs  := pf                                
+          ; left_selective_semiring_trans_certs  := left_semiring_trans_certs A
+          ; left_selective_semiring_exists_plus_ann_d := left_semiring_exists_plus_ann_d A                              
+          ; left_selective_semiring_id_ann_certs  := left_semiring_id_ann_certs A
+          ; left_selective_semiring_certs := left_semiring_certs A
+          ; left_selective_semiring_ast  := left_semiring_ast A
+        |}
+    | MCAS_Cert_sg_CI pf =>  
+        slt_classify_left_idempotent_semiring_slt 
+        {|
+            left_idempotent_semiring_carrier := left_semiring_carrier A
+          ; left_idempotent_semiring_label := left_semiring_label A
+          ; left_idempotent_semiring_plus  := left_semiring_plus A                                              
+          ; left_idempotent_semiring_trans  := left_semiring_trans A  
+          ; left_idempotent_semiring_plus_certs := pf                                 
+          ; left_idempotent_semiring_trans_certs  := left_semiring_trans_certs A
+          ; left_idempotent_semiring_exists_plus_ann_d  := left_semiring_exists_plus_ann_d A                               
+          ; left_idempotent_semiring_id_ann_certs  := left_semiring_id_ann_certs A
+          ; left_idempotent_semiring_certs  := left_semiring_certs A
+          ; left_idempotent_semiring_ast := left_semiring_ast A  
+        |}
+    | _ =>  SLT_Semiring A
+    end.  
 
+  (* everything works upto this point *)
 
   Definition slt_classify_left_pre_semiring_slt {L S : Type}
     (A : @left_pre_semiring L S) : slt_mcas :=
