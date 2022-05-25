@@ -1983,21 +1983,18 @@ Section Verify.
     @A2C_mcas_slt L S (A_slt_classify_left_semiring_slt a).
   Proof.
     unfold slt_classify_left_semiring_slt,
-    A2C_left_semiring; destruct a; 
+    A_slt_classify_left_semiring_slt; destruct a; 
     simpl.
     rewrite correct_sg_certificates_classify_sg_C.
     destruct (A_sg_proofs_classify_sg_C S (A_eqv_eq S A_left_semiring_carrier0)
     A_left_semiring_plus0 A_left_semiring_plus_proofs0); 
     simpl; try reflexivity.
+  Qed.
    
-
-  Admitted.  
-
   
 
 
 
-  
   Lemma correctness_slt_classify_left_pre_semiring_slt :
     forall a, 
     slt_classify_left_pre_semiring_slt (A2C_left_pre_semiring a) =
