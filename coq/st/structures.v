@@ -1956,19 +1956,6 @@ Section Verify.
     + reflexivity.
   Qed.
 
-
-  Lemma correctness_slt_classify_left_semiring_slt :
-    forall a, 
-    slt_classify_left_semiring_slt (A2C_left_semiring a) =
-    @A2C_mcas_slt L S (A_slt_classify_left_semiring_slt a).
-  Proof.
-    unfold slt_classify_left_semiring_slt,
-    A2C_left_semiring; destruct a; 
-    simpl.
-    rewrite correct_sg_certificates_classify_sg_C.
-    
-  Admitted.  
-
   Lemma correctness_slt_classify_left_selective_semiring_slt :
     forall a,
     slt_classify_left_selective_semiring_slt (A2C_left_selective_semiring a) =
@@ -1989,6 +1976,25 @@ Section Verify.
   Qed.
 
 
+
+  Lemma correctness_slt_classify_left_semiring_slt :
+    forall a, 
+    slt_classify_left_semiring_slt (A2C_left_semiring a) =
+    @A2C_mcas_slt L S (A_slt_classify_left_semiring_slt a).
+  Proof.
+    unfold slt_classify_left_semiring_slt,
+    A2C_left_semiring; destruct a; 
+    simpl.
+    rewrite correct_sg_certificates_classify_sg_C.
+    destruct (A_sg_proofs_classify_sg_C S (A_eqv_eq S A_left_semiring_carrier0)
+    A_left_semiring_plus0 A_left_semiring_plus_proofs0); 
+    simpl; try reflexivity.
+   
+
+  Admitted.  
+
+  
+
   Lemma correctness_slt_classify_left_pre_semiring_slt :
     forall a, 
     slt_classify_left_pre_semiring_slt (A2C_left_pre_semiring a) =
@@ -2000,7 +2006,10 @@ Section Verify.
     destruct a,
     A_left_pre_semiring_id_ann_proofs_d0;
     simpl; try (destruct p; reflexivity).
-  Admitted.
+    + rewrite <-correctness_slt_classify_left_semiring_slt.
+      reflexivity.
+    + reflexivity.
+  Qed.  
 
 
   
@@ -2009,6 +2018,7 @@ Section Verify.
     slt_C_classify_slt (A2C_slt_c a) = 
     @A2C_mcas_slt L S (A_slt_C_classify_slt a).
   Proof.
+
   Admitted.
   
 
@@ -2046,8 +2056,29 @@ Section Verify.
     slt_C_zero_is_ltr_ann_classify_slt (A2C_slt_C_zero_is_ltr_ann a) =
     @A2C_mcas_slt L S (A_slt_C_zero_is_ltr_ann_classify_slt a).
   Proof.
-  Admitted.
-
+    unfold slt_C_zero_is_ltr_ann_classify_slt,
+    A_slt_C_zero_is_ltr_ann_classify_slt;
+    destruct a; simpl.
+    rewrite correctness_slt_classify_certificates_proofs.
+    destruct (A_slt_classify_proofs (A_eqv_eq S A_slt_C_zero_is_ltr_ann_carrier0)
+    A_slt_C_zero_is_ltr_ann_plus0 A_slt_C_zero_is_ltr_ann_trans0
+    A_slt_C_zero_is_ltr_ann_proofs0); simpl;
+    try reflexivity.
+    + 
+      rewrite correct_sg_certificates_classify_sg_C.
+      destruct (A_sg_proofs_classify_sg_C S
+      (A_eqv_eq S A_slt_C_zero_is_ltr_ann_carrier0)
+      A_slt_C_zero_is_ltr_ann_plus0 A_slt_C_zero_is_ltr_ann_plus_proofs0);
+      simpl; try reflexivity.
+      destruct A_slt_C_zero_is_ltr_ann_exists_plus_ann_d0; 
+      simpl; try reflexivity.
+      destruct A_slt_C_zero_is_ltr_ann_exists_plus_ann_d0;
+      simpl; try reflexivity.
+    + 
+      rewrite <-correctness_slt_classify_left_semiring_slt.
+      f_equal.
+  Qed.
+  
 
   Lemma correctness_slt_CI_classify_slt :
     forall a,
