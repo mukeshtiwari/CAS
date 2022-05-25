@@ -1663,6 +1663,24 @@ Section Translation.
       ; slt_ast := A_slt_ast  A
     |}.
 
+  Definition A2C_slt_c {L S : Type} :
+    @A_slt_C L S -> @slt_C L S := 
+    λ A,
+    {|
+        slt_C_carrier := A2C_eqv _ (A_slt_C_carrier A)
+      ; slt_C_label := A2C_eqv _ (A_slt_C_label A)
+      ; slt_C_plus  := A_slt_C_plus A                                             
+      ; slt_C_trans := A_slt_C_trans A
+      ; slt_C_plus_certs := P2C_sg_C _ _ _ (A_slt_C_plus_proofs A)                         
+      ; slt_C_trans_certs  := P2C_left_transform _ _ _ _ _ (A_slt_C_trans_proofs A) 
+      ; slt_C_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_slt_C_exists_plus_ann_d A)                             
+      ; slt_C_id_ann_certs_d  := @p2c_slt_exists_id_ann_check L S _ _ _ (A_slt_C_id_ann_proofs_d A)                                        
+      ; slt_C_certs := @P2C_slt L S _ _ _ (A_slt_C_proofs A)                             
+      ; slt_C_ast := A_slt_C_ast A
+    |}.
+    
+    
+
 
   Definition A2C_slt_cs {L S : Type} :
     @A_slt_CS L S -> @slt_CS L S :=
@@ -1699,23 +1717,21 @@ Section Translation.
       ; slt_CI_ast := A_slt_CI_ast  A 
     |}.
 
-
-  Definition A2C_slt_zero_is_ltr_ann {L S : Type} :  
-    @A_slt_zero_is_ltr_ann L S -> @slt_zero_is_ltr_ann L S :=
-    λ A, 
+  Definition A2C_slt_C_zero_is_ltr_ann {L S : Type} :  
+    @A_slt_C_zero_is_ltr_ann L S -> @slt_C_zero_is_ltr_ann L S := 
+    λ A,
     {|
-        slt_zero_is_ltr_ann_carrier  := A2C_eqv _ (A_slt_zero_is_ltr_ann_carrier A)
-      ; slt_zero_is_ltr_ann_label := A2C_eqv _ (A_slt_zero_is_ltr_ann_label A) 
-      ; slt_zero_is_ltr_ann_plus   := A_slt_zero_is_ltr_ann_plus A                                                 
-      ; slt_zero_is_ltr_ann_trans    := A_slt_zero_is_ltr_ann_trans A
-      ; slt_zero_is_ltr_ann_plus_certs  := P2C_sg _ _ _ (A_slt_zero_is_ltr_ann_plus_proofs A)                       
-      ; slt_zero_is_ltr_ann_trans_certs  := P2C_left_transform _ _ _ _ _ (A_slt_zero_is_ltr_ann_trans_proofs A) 
-      ; slt_zero_is_ltr_ann_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_slt_zero_is_ltr_ann_exists_plus_ann_d A)                             
-      ; slt_zero_is_ltr_ann_id_ann_certs  := @p2c_slt_exists_id_ann_equal_assert L S _ _ _ (A_slt_zero_is_ltr_ann_id_ann_proofs A)                                       
-      ; slt_zero_is_ltr_ann_certs := @P2C_slt L S _ _ _ (A_slt_zero_is_ltr_ann_proofs A)                                
-      ; slt_zero_is_ltr_ann_ast := A_slt_zero_is_ltr_ann_ast A 
-    |}.
-  
+        slt_C_zero_is_ltr_ann_carrier  := A2C_eqv _ (A_slt_C_zero_is_ltr_ann_carrier A)
+      ; slt_C_zero_is_ltr_ann_label := A2C_eqv _ (A_slt_C_zero_is_ltr_ann_label A)
+      ; slt_C_zero_is_ltr_ann_plus  := A_slt_C_zero_is_ltr_ann_plus A                                                 
+      ; slt_C_zero_is_ltr_ann_trans := A_slt_C_zero_is_ltr_ann_trans A
+      ; slt_C_zero_is_ltr_ann_plus_certs  := P2C_sg_C _ _ _ (A_slt_C_zero_is_ltr_ann_plus_proofs A)                           
+      ; slt_C_zero_is_ltr_ann_trans_certs := P2C_left_transform _ _ _ _ _ (A_slt_C_zero_is_ltr_ann_trans_proofs A) 
+      ; slt_C_zero_is_ltr_ann_exists_plus_ann_d := p2c_exists_ann_check _ _ _ (A_slt_C_zero_is_ltr_ann_exists_plus_ann_d A)                                                          
+      ; slt_C_zero_is_ltr_ann_id_ann_certs  := @p2c_slt_exists_id_ann_equal_assert L S _ _ _ (A_slt_C_zero_is_ltr_ann_id_ann_proofs A)                                                                                  
+      ; slt_C_zero_is_ltr_ann_certs:= @P2C_slt L S _ _ _ (A_slt_C_zero_is_ltr_ann_proofs A)                                 
+      ; slt_C_zero_is_ltr_ann_ast := A_slt_C_zero_is_ltr_ann_ast A 
+    |}. 
   
 
   Definition A2C_selective_left_dioid {L S : Type} :
@@ -1847,9 +1863,10 @@ Section Translation.
     λ A, match A with
       | A_SLT_Error err => SLT_Error err    
       | A_SLT pf => SLT (A2C_slt pf)
+      | A_SLT_C pf => SLT_C (A2C_slt_c pf)
       | A_SLT_CS pf => SLT_CS (A2C_slt_cs pf)
       | A_SLT_CI pf => SLT_CI (A2C_slt_ci pf)
-      | A_SLT_Zero_Is_Ltr_Ann pf => SLT_Zero_Is_Ltr_Ann (A2C_slt_zero_is_ltr_ann pf)
+      | A_SLT_C_Zero_Is_Ltr_ann pf => SLT_C_Zero_Is_Ltr_ann (A2C_slt_C_zero_is_ltr_ann pf)
       | A_SLT_Dioid pf => SLT_Dioid (A2C_left_dioid pf) 
       | A_SLT_Selective_Dioid pf => SLT_Selective_Dioid (A2C_selective_left_dioid pf)
       | A_SLT_Selective_Left_Pre_Dioid pf => SLT_Selective_Left_Pre_Dioid (A2C_selective_left_pre_dioid pf)
@@ -1943,12 +1960,14 @@ Section Verify.
   Lemma correctness_slt_classify_left_semiring_slt :
     forall a, 
     slt_classify_left_semiring_slt (A2C_left_semiring a) =
-    @SLT_Semiring L S (A2C_left_semiring a).
+    @A2C_mcas_slt L S (A_slt_classify_left_semiring_slt a).
   Proof.
-    intros ?.
-    reflexivity.
-  Qed.
-
+    unfold slt_classify_left_semiring_slt,
+    A2C_left_semiring; destruct a; 
+    simpl.
+    rewrite correct_sg_certificates_classify_sg_C.
+    
+  Admitted.  
 
   Lemma correctness_slt_classify_left_selective_semiring_slt :
     forall a,
@@ -1981,12 +2000,18 @@ Section Verify.
     destruct a,
     A_left_pre_semiring_id_ann_proofs_d0;
     simpl; try (destruct p; reflexivity).
-    + rewrite <- correctness_slt_classify_left_semiring_slt;
-      reflexivity.
-    + reflexivity.
-  Qed.  
+  Admitted.
+
+
   
+  Lemma correctness_slt_C_classify_slt : 
+    forall a, 
+    slt_C_classify_slt (A2C_slt_c a) = 
+    @A2C_mcas_slt L S (A_slt_C_classify_slt a).
+  Proof.
+  Admitted.
   
+
   Lemma correctness_slt_CS_classify_slt : 
     forall a, 
     slt_CS_classify_slt (A2C_slt_cs a) = 
@@ -2015,59 +2040,14 @@ Section Verify.
     Qed.       
 
 
-
-
-
-
-
-
-  Lemma correctness_slt_zero_is_ltr_ann_classify_slt :
-    forall a, 
-    slt_zero_is_ltr_ann_classify_slt (A2C_slt_zero_is_ltr_ann a) =
-    @A2C_mcas_slt L S (A_slt_zero_is_ltr_ann_classify_slt a).
-  Proof.
-    unfold 
-      A_slt_zero_is_ltr_ann_classify_slt,
-      slt_zero_is_ltr_ann_classify_slt.
-    destruct a; simpl.
-    rewrite correctness_slt_classify_certificates_proofs.
-    destruct (A_slt_classify_proofs (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier0)
-      A_slt_zero_is_ltr_ann_plus0 A_slt_zero_is_ltr_ann_trans0 A_slt_zero_is_ltr_ann_proofs0);
-    simpl.
-    + reflexivity.
-    + destruct A_slt_zero_is_ltr_ann_exists_plus_ann_d0;
-      simpl. 
-      ++ rewrite correct_sg_certificates_classify_sg.
-         destruct ((A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier0)
-         A_slt_zero_is_ltr_ann_plus0 A_slt_zero_is_ltr_ann_plus_proofs0));
-         simpl.
-         +++ reflexivity.
-         +++ reflexivity.
-         +++ reflexivity.
-         +++ reflexivity.
-         +++ rewrite <-correctness_slt_classify_selective_left_dioid_slt;
-             reflexivity.
-         +++ rewrite <-correctness_slt_classify_left_dioid_slt;
-             reflexivity.
-         +++ reflexivity.
-         +++ reflexivity.
-      ++ reflexivity.
-    + rewrite correct_sg_certificates_classify_sg. 
-      destruct ((A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_zero_is_ltr_ann_carrier0)
-      A_slt_zero_is_ltr_ann_plus0 A_slt_zero_is_ltr_ann_plus_proofs0));
-      simpl.
-      ++ reflexivity.
-      ++ reflexivity.
-      ++ reflexivity.
-      ++ reflexivity.
-      ++ reflexivity.
-      ++ rewrite <-correctness_slt_classify_left_idempotent_semiring_slt;
-         reflexivity.
-      ++ reflexivity.
-      ++ reflexivity. 
-  Qed.
-
   
+  Lemma correctness_slt_C_zero_is_ltr_ann_classify_slt :
+    forall a, 
+    slt_C_zero_is_ltr_ann_classify_slt (A2C_slt_C_zero_is_ltr_ann a) =
+    @A2C_mcas_slt L S (A_slt_C_zero_is_ltr_ann_classify_slt a).
+  Proof.
+  Admitted.
+
 
   Lemma correctness_slt_CI_classify_slt :
     forall a,
@@ -2109,62 +2089,10 @@ Section Verify.
     rewrite correct_sg_certificates_classify_sg.
     destruct ((A_sg_proofs_classify_sg S (A_eqv_eq S A_slt_carrier0) 
       A_slt_plus0 A_slt_plus_proofs0));
-      unfold P2C_proofs_mcas_sg.
-    + destruct A_slt_exists_plus_ann_d0; simpl.
-      ++ 
-        destruct A_slt_id_ann_proofs_d0; simpl;
-        try (destruct p; reflexivity).
-        +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt;
-            reflexivity. 
-        +++ reflexivity. 
-      ++ reflexivity.
-    + destruct A_slt_exists_plus_ann_d0; simpl.
-      ++  
-        destruct A_slt_id_ann_proofs_d0; simpl;
-        try (destruct p; reflexivity).
-        +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt;
-            reflexivity.
-        +++ reflexivity.
-      ++ reflexivity.
-    + destruct A_slt_exists_plus_ann_d0; simpl.
-      ++  
-        destruct A_slt_id_ann_proofs_d0; simpl;
-        try (destruct p; reflexivity).
-        +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt;
-            reflexivity.
-        +++ reflexivity.
-      ++ reflexivity.
-    + destruct A_slt_exists_plus_ann_d0; simpl.
-      ++  
-        destruct A_slt_id_ann_proofs_d0; simpl;
-        try (destruct p; reflexivity).
-        +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt;
-            reflexivity.
-        +++ reflexivity.
-      ++ reflexivity.
-    + rewrite <- correctness_slt_CS_classify_slt;
+      unfold P2C_proofs_mcas_sg; try reflexivity.
+    + rewrite <-correctness_slt_C_classify_slt.
       reflexivity.
-    + rewrite <- correctness_slt_CI_classify_slt;
-      reflexivity.
-    + destruct A_slt_exists_plus_ann_d0; simpl.
-      ++  
-        destruct A_slt_id_ann_proofs_d0; simpl;
-        try (destruct p; reflexivity).
-        +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt;
-            reflexivity.
-        +++ reflexivity.
-      ++ reflexivity.
-    + destruct A_slt_exists_plus_ann_d0; simpl.
-      ++  
-        destruct A_slt_id_ann_proofs_d0; simpl;
-        try (destruct p; reflexivity).
-        +++ rewrite <-correctness_slt_zero_is_ltr_ann_classify_slt;
-            reflexivity.
-        +++ reflexivity.
-      ++ reflexivity.
-  Qed. 
-  
-
+  Qed.
 
 
 Lemma correctness_slt_classify : 
@@ -2175,9 +2103,10 @@ Proof.
   destruct pf; simpl.
   + reflexivity.
   + apply correctness_slt_classify_slt.  
+  + apply correctness_slt_C_classify_slt. 
   + apply correctness_slt_CS_classify_slt.
   + apply correctness_slt_CI_classify_slt.
-  + apply correctness_slt_zero_is_ltr_ann_classify_slt.
+  + apply correctness_slt_C_zero_is_ltr_ann_classify_slt.
   + apply correctness_slt_classify_left_dioid_slt.
   + apply correctness_slt_classify_selective_left_pre_dioid_slt.
   + apply correctness_slt_classify_selective_left_dioid_slt.
