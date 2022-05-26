@@ -582,13 +582,135 @@ Section ACAS.
   (* One layer finished. *)  
 
 
+  Definition cast_A_left_dioid_A_slt_C
+    {L S : Type} (A : @A_left_dioid L S) : @A_slt_C L S :=
+    let As := cast_A_left_dioid_to_A_slt_CI A in
+    cast_A_slt_CI_to_A_slt_C As.
+
+
+  (* start of multilayer fusion *)
+
+  
+  (* casting selective_left_dioid to all the way to the top*)
+
   Definition cast_A_selective_left_dioid_to_A_slt_CS 
     {L S : Type} (A : @A_selective_left_dioid L S) : @A_slt_CS L S :=
     let As :=  cast_A_selective_left_dioid_to_A_selective_left_pre_dioid A in 
     cast_A_selective_left_pre_dioid_to_A_slt_CS As. 
 
 
- 
+  Definition cast_A_selective_left_dioid_to_A_slt_C
+    {L S : Type} 
+    (A : @A_selective_left_dioid L S)  : @A_slt_C L S :=
+    let As := @cast_A_selective_left_dioid_to_A_slt_CS L S A in 
+    @cast_A_slt_CS_to_A_slt_C _ _ As.
+
+
+  Definition cast_A_selective_left_dioid_to_A_slt
+    {L S : Type} 
+    (A : @A_selective_left_dioid L S)  : @A_slt L S :=
+    let As := @cast_A_selective_left_dioid_to_A_slt_C L S A in 
+    @cast_A_slt_C_to_A_slt _ _ As.
+
+  (* end of casting selective_left_dioids *)
+  
+  (* start of selective_left_pre_dioid casting *)
+
+  Definition cast_A_selective_left_pre_dioid_to_A_slt_C 
+    {L S : Type} (A : @A_selective_left_pre_dioid L S) :
+    @A_slt_C L S :=
+    let As := cast_A_selective_left_pre_dioid_to_A_slt_CS A in 
+    cast_A_slt_CS_to_A_slt_C As.
+
+  Definition cast_A_selective_left_pre_dioid_to_A_slt  
+    {L S : Type} (A : @A_selective_left_pre_dioid L S) :
+    @A_slt L S :=
+    let As := cast_A_selective_left_pre_dioid_to_A_slt_C A 
+    in cast_A_slt_C_to_A_slt As.
+
+  (* end of casting of A_selective_left_pre_dioid all the way to top*)
+
+  (* start of left_selective_semiring casting *)
+
+  Definition cast_A_left_selective_semiring_to_A_slt_C 
+    {L S : Type} (A : @A_left_selective_semiring L S) :
+    @A_slt_C L S :=
+    let As := cast_A_left_selective_semiring_to_A_slt_CS A in 
+    cast_A_slt_CS_to_A_slt_C As.
+
+
+  Definition cast_A_left_selective_semiring_to_A_slt 
+    {L S : Type} (A : @A_left_selective_semiring L S) :
+    @A_slt L S :=
+    let As := cast_A_left_selective_semiring_to_A_slt_C A in 
+    cast_A_slt_C_to_A_slt As.
+
+  (* end of left selective semiring *)
+
+  (* casting of left idempotent semiring *)
+
+  Definition cast_A_left_idempotent_semiring_to_A_left_pre_semiring 
+    {L S : Type} (A : @A_left_idempotent_semiring L S) :
+    @A_left_pre_semiring L S :=
+    let As := cast_A_left_idempotent_semiring_to_A_left_semiring A in 
+    cast_A_left_semiring_to_A_left_pre_semiring As.
+
+  Definition cast_A_left_idempotent_semiring_to_A_slt_C
+    {L S : Type} (A : @A_left_idempotent_semiring L S) :
+    @A_slt_C L S :=
+    let As := cast_A_left_idempotent_semiring_to_A_left_pre_semiring A in 
+    cast_A_left_pre_semiring_to_A_slt_C As.
+    
+  Definition cast_A_left_idempotent_semiring_to_A_slt
+    {L S : Type} (A : @A_left_idempotent_semiring L S) :
+    @A_slt L S :=
+    let As := cast_A_left_idempotent_semiring_to_A_slt_C A in 
+    cast_A_slt_C_to_A_slt As.
+
+  (* end of casting left_idempotent semiring *)
+
+  (* cast up left selective semiring  *)
+  
+  
+  Definition cast_A_left_selective_semiring_to_A_left_pre_semiring 
+    {L S : Type} (A : @A_left_selective_semiring L S) :
+    @A_left_pre_semiring L S :=
+    let As := cast_A_left_selective_semiring_to_A_left_semiring A in 
+    cast_A_left_semiring_to_A_left_pre_semiring As.
+
+  (* en dof casting left selective semiring *)
+
+  (* cast up A_left_semiring *)
+
+  Definition cast_A_left_semiring_to_A_slt_C 
+    {L S : Type} (A : @A_left_semiring L S) :
+    @A_slt_C L S :=
+    let As := cast_A_left_semiring_to_A_left_pre_semiring A in 
+    cast_A_left_pre_semiring_to_A_slt_C As.
+
+  Definition cast_A_left_semiring_to_A_slt 
+    {L S : Type} (A : @A_left_semiring L S) :
+    @A_slt L S :=
+    let As :=  cast_A_left_semiring_to_A_slt_C A in 
+    cast_A_slt_C_to_A_slt As.
+
+  (* end of casting left semiring *)
+
+  (* start of casting up left pre semiring *)
+
+  Definition cast_A_left_pre_semiring_to_A_slt 
+    {L S : Type} (A : @A_left_pre_semiring L S) :
+    @A_slt L S :=
+    let As := cast_A_left_pre_semiring_to_A_slt_C A in 
+    cast_A_slt_C_to_A_slt As.
+  
+  (* end of left pre semiring casting *)
+
+  (* *)
+
+
+
+
   Definition cast_A_selective_left_pre_dioid_to_A_slt 
     {L S : Type} 
     (A : @A_selective_left_pre_dioid L S) : @A_slt L S :=
@@ -619,11 +741,7 @@ Section ACAS.
     @cast_A_slt_CI_to_A_slt L S As.
 
 
-  Definition cast_A_selective_left_dioid_to_A_slt
-    {L S : Type} 
-    (A : @A_selective_left_dioid L S)  : @A_slt L S :=
-    let As := @cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann L S A in 
-    @cast_A_slt_zero_is_ltr_ann_to_A_slt L S As.
+  
 
 
   Definition cast_A_left_semiring_to_A_slt 
