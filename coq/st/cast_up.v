@@ -43,7 +43,11 @@ Require Import CAS.coq.sg.cast_up.
 7.
               left_semiring
                   |
-              left_semiring
+    ------------------------------------------
+        |                             |
+  left_idempotent_semiring      left_selective_semiring
+
+
 8.
               left_pre_semiring
                   |
@@ -54,6 +58,8 @@ Require Import CAS.coq.sg.cast_up.
     ---------------------------------------------------------- 
                  |                              |            
     A_selective_left_pre_dioid        A_left_selective_semiring
+
+
 10.
                         A_slt_CI
                           |
@@ -63,18 +69,24 @@ Require Import CAS.coq.sg.cast_up.
 
 11.
 
-                A_slt_zero_is_ltr_ann
-    --------------------------------------------------------------------
-           |                      |              |                   |
-    selective_left_dioid      left_dioid     left_semiring   left_idempotent_semiring
+                A_slt_C_zero_is_ltr_ann
+    ------------------------------------------------------
+           |                      |              |        
+    selective_left_dioid      left_dioid     left_semiring  
 
 12.    
 
-                        A_slt
+                        A_slt_C
                           | 
           --------------------------------------------------------------
           |                |                 |                  |
-      A_slt_CS    A_slt_zero_is_ltr_ann     A_slt_CI     A_left_pre_semiring
+      A_slt_CS    A_slt_C_zero_is_ltr_ann     A_slt_CI     A_left_pre_semiring
+
+13.
+                        A_slt
+                          |
+                        A_slt_C
+
 
 *)  
 Section Proofs.
@@ -158,6 +170,8 @@ Section ACAS.
           semiring_not_strictly_absorptive r add ltr A
     |}.
 
+    (* Everything works upto this point q*)
+
   
   Definition cast_A_left_dioid_to_A_left_dioid  {L S : Type} 
     (A : @A_left_dioid L S) : A_left_dioid := A.
@@ -199,6 +213,8 @@ Section ACAS.
     @A_left_idempotent_semiring L S := A.
 
 
+
+
   Definition cast_A_left_semiring_to_A_left_semiring 
     {L S : Type} (A : @A_left_semiring L S) : @A_left_semiring L S := A.
 
@@ -218,6 +234,8 @@ Section ACAS.
     ; A_left_pre_semiring_proofs := A_left_semiring_proofs A 
     ; A_left_pre_semiring_ast  := A_left_semiring_ast A 
   |}.
+
+  
   
 
   Definition cast_A_left_pre_semiring_to_A_left_pre_semiring
