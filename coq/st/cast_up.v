@@ -582,10 +582,7 @@ Section ACAS.
   (* One layer finished. *)  
 
 
-  Definition cast_A_left_dioid_A_slt_C
-    {L S : Type} (A : @A_left_dioid L S) : @A_slt_C L S :=
-    let As := cast_A_left_dioid_to_A_slt_CI A in
-    cast_A_slt_CI_to_A_slt_C As.
+  
 
 
   (* start of multilayer fusion *)
@@ -706,50 +703,21 @@ Section ACAS.
   
   (* end of left pre semiring casting *)
 
-  (* *)
+  (* start of left dioid casting up *)
 
-
-
-
-  Definition cast_A_selective_left_pre_dioid_to_A_slt 
-    {L S : Type} 
-    (A : @A_selective_left_pre_dioid L S) : @A_slt L S :=
-    let As := @cast_A_selective_left_pre_dioid_to_A_slt_CS L S A in 
-    @cast_A_slt_CS_to_A_slt L S As.
-
-  
-
-
-  Definition cast_A_left_selective_semiring_to_A_slt
-    {L S : Type}  
-    (A : @A_left_selective_semiring L S) : @A_slt L S :=
-    let As := @cast_A_left_selective_semiring_to_A_slt_CS L S A in 
-    @cast_A_slt_CS_to_A_slt L S As.
-
+  Definition cast_A_left_dioid_to_A_slt_C
+    {L S : Type} (A : @A_left_dioid L S) : @A_slt_C L S :=
+    let As := cast_A_left_dioid_to_A_slt_CI A in
+    cast_A_slt_CI_to_A_slt_C As.
 
   Definition cast_A_left_dioid_to_A_slt 
-    {L S : Type}  
-    (A : @A_left_dioid L S) : @A_slt L S :=
-    let As := @cast_A_left_dioid_to_A_slt_CI L S A in
-    @cast_A_slt_CI_to_A_slt L S As.
+    {L S : Type} (A : @A_left_dioid L S) : 
+    @A_slt L S :=
+    let As := cast_A_left_dioid_to_A_slt_C A in 
+    cast_A_slt_C_to_A_slt As.
 
-
-  Definition cast_A_left_idempotent_semiring_to_A_slt 
-    {L S : Type} 
-    (A : @A_left_idempotent_semiring L S) : @A_slt L S :=
-    let As := @cast_A_left_idempotent_semiring_to_A_slt_CI L S A in 
-    @cast_A_slt_CI_to_A_slt L S As.
-
-
-  
-
-
-  Definition cast_A_left_semiring_to_A_slt 
-    {L S : Type} (A : @A_left_semiring L S) : @A_slt L S  :=
-    let As := @cast_A_left_semiring_to_A_slt_zero_is_ltr_ann L S A in 
-    @cast_A_slt_zero_is_ltr_ann_to_A_slt L S As.
-
-
+  (* end of left of dioid *)
+ 
     
 End ACAS.
 
