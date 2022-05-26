@@ -170,7 +170,7 @@ Section ACAS.
           semiring_not_strictly_absorptive r add ltr A
     |}.
 
-    (* Everything works upto this point q*)
+   
 
   
   Definition cast_A_left_dioid_to_A_left_dioid  {L S : Type} 
@@ -214,9 +214,57 @@ Section ACAS.
 
 
 
-
   Definition cast_A_left_semiring_to_A_left_semiring 
     {L S : Type} (A : @A_left_semiring L S) : @A_left_semiring L S := A.
+
+  
+  Definition cast_A_left_idempotent_semiring_to_A_left_semiring 
+    {L S : Type} (A : @A_left_idempotent_semiring L S) : 
+    @A_left_semiring L S  :=
+    {|
+          A_left_semiring_carrier := A_left_idempotent_semiring_carrier A
+        ; A_left_semiring_label := A_left_idempotent_semiring_label A
+        ; A_left_semiring_plus  := A_left_idempotent_semiring_plus A                                            
+        ; A_left_semiring_trans  :=  A_left_idempotent_semiring_trans A
+        ; A_left_semiring_plus_proofs  :=  A_sg_C_proofs_from_sg_CI_proofs _  
+            (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
+            (A_left_idempotent_semiring_plus A)
+            (A_eqv_witness _ (A_left_idempotent_semiring_carrier A)) 
+            (A_eqv_new _ (A_left_idempotent_semiring_carrier A)) 
+            (A_eqv_not_trivial _ (A_left_idempotent_semiring_carrier A))
+            (A_eqv_proofs _ (A_left_idempotent_semiring_carrier A))
+            (A_left_idempotent_semiring_plus_proofs A)                            
+        ; A_left_semiring_trans_proofs := A_left_idempotent_semiring_trans_proofs A
+        ; A_left_semiring_exists_plus_ann_d := A_left_idempotent_semiring_exists_plus_ann_d A                              
+        ; A_left_semiring_id_ann_proofs  := A_left_idempotent_semiring_id_ann_proofs A
+        ; A_left_semiring_proofs  := A_left_idempotent_semiring_proofs A 
+        ; A_left_semiring_ast  := A_left_idempotent_semiring_ast A
+    |}.
+
+   
+  Definition cast_A_left_selective_semiring_to_A_left_semiring 
+    {L S : Type} (A : @A_left_selective_semiring L S) : 
+    @A_left_semiring L S :=
+    {|
+          A_left_semiring_carrier := A_left_selective_semiring_carrier A
+        ; A_left_semiring_label := A_left_selective_semiring_label A
+        ; A_left_semiring_plus  := A_left_selective_semiring_plus A                                            
+        ; A_left_semiring_trans  :=  A_left_selective_semiring_trans A
+        ; A_left_semiring_plus_proofs  :=  A_sg_C_proofs_from_sg_CS_proofs _  
+            (A_eqv_eq S (A_left_selective_semiring_carrier A))
+            (A_left_selective_semiring_plus A)
+            (A_eqv_witness _ (A_left_selective_semiring_carrier A)) 
+            (A_eqv_new _ (A_left_selective_semiring_carrier A)) 
+            (A_eqv_not_trivial _ (A_left_selective_semiring_carrier A))
+            (A_eqv_proofs _ (A_left_selective_semiring_carrier A))
+            (A_left_selective_semiring_plus_proofs A)                            
+        ; A_left_semiring_trans_proofs := A_left_selective_semiring_trans_proofs A
+        ; A_left_semiring_exists_plus_ann_d := A_left_selective_semiring_exists_plus_ann_d A                              
+        ; A_left_semiring_id_ann_proofs  := A_left_selective_semiring_id_ann_proofs A
+        ; A_left_semiring_proofs  := A_left_selective_semiring_proofs A 
+        ; A_left_semiring_ast  := A_left_selective_semiring_ast A
+    |}.  
+    
 
 
   Definition cast_A_left_semiring_to_A_left_pre_semiring
@@ -235,6 +283,7 @@ Section ACAS.
     ; A_left_pre_semiring_ast  := A_left_semiring_ast A 
   |}.
 
+  (* Everything works upto here *)
   
   
 
