@@ -462,44 +462,124 @@ Section ACAS.
     |}.
    
   
-   (* All good upto here*) 
+   
 
 
-
-
-
-
-
-
-  Definition cast_A_left_pre_semiring_to_A_slt 
-    {L S : Type} (A : @A_left_pre_semiring L S) : 
-    @A_slt L S :=
+  Definition cast_A_slt_CS_to_A_slt_C {L S : Type} 
+    (A : @A_slt_CS L S) : @A_slt_C L S :=
     {|
-        A_slt_carrier := A_left_pre_semiring_carrier A
-      ; A_slt_label := A_left_pre_semiring_label A
-      ; A_slt_plus := A_left_pre_semiring_plus A                                               
-      ; A_slt_trans := A_left_pre_semiring_trans A 
-      ; A_slt_plus_proofs := A_sg_C_proofs_to_sg_proofs 
-          (A_eqv_eq S (A_left_pre_semiring_carrier A))
-          (A_left_pre_semiring_plus A)
-          (A_eqv_witness _ (A_left_pre_semiring_carrier A)) 
-          (A_eqv_new _ (A_left_pre_semiring_carrier A)) 
-          (A_eqv_not_trivial _ (A_left_pre_semiring_carrier A))
-          (A_eqv_proofs _ (A_left_pre_semiring_carrier A))
-          (A_left_pre_semiring_plus_proofs A)                     
-      ; A_slt_trans_proofs := A_left_pre_semiring_trans_proofs A 
-      ; A_slt_exists_plus_ann_d :=  A_left_pre_semiring_exists_plus_ann_d A                                
-      ; A_slt_id_ann_proofs_d  := A_left_pre_semiring_id_ann_proofs_d A                                              
-      ; A_slt_proofs := cast_left_semiring_proofs_to_slt_proofs 
+        A_slt_C_carrier := A_slt_CS_carrier A
+      ; A_slt_C_label := A_slt_CS_label A
+      ; A_slt_C_plus := A_slt_CS_plus A                                               
+      ; A_slt_C_trans := A_slt_CS_trans A 
+      ; A_slt_C_plus_proofs := A_sg_C_proofs_from_sg_CS_proofs _ 
+          (A_eqv_eq S (A_slt_CS_carrier A))
+          (A_slt_CS_plus A)
+          (A_eqv_witness _ (A_slt_CS_carrier A)) 
+          (A_eqv_new _ (A_slt_CS_carrier A)) 
+          (A_eqv_not_trivial _ (A_slt_CS_carrier A))
+          (A_eqv_proofs _ (A_slt_CS_carrier A))
+          (A_slt_CS_plus_proofs A)                        
+      ; A_slt_C_trans_proofs := A_slt_CS_trans_proofs A 
+      ; A_slt_C_exists_plus_ann_d :=  A_slt_CS_exists_plus_ann_d A                                
+      ; A_slt_C_id_ann_proofs_d  := A_slt_CS_id_ann_proofs_d A                                              
+      ; A_slt_C_proofs := A_slt_CS_proofs A                                 
+      ; A_slt_C_ast := A_slt_CS_ast A 
+    
+    |}.
+
+
+   
+  Definition cast_A_slt_C_zero_is_ltr_ann_to_A_slt_C 
+    {L S : Type} 
+    (A : @A_slt_C_zero_is_ltr_ann L S)  : @A_slt_C L S :=
+    {|
+        A_slt_C_carrier := A_slt_C_zero_is_ltr_ann_carrier A
+      ; A_slt_C_label := A_slt_C_zero_is_ltr_ann_label A
+      ; A_slt_C_plus := A_slt_C_zero_is_ltr_ann_plus A                                               
+      ; A_slt_C_trans := A_slt_C_zero_is_ltr_ann_trans A 
+      ; A_slt_C_plus_proofs := A_slt_C_zero_is_ltr_ann_plus_proofs A                       
+      ; A_slt_C_trans_proofs := A_slt_C_zero_is_ltr_ann_trans_proofs A 
+      ; A_slt_C_exists_plus_ann_d :=  A_slt_C_zero_is_ltr_ann_exists_plus_ann_d A                                
+      ; A_slt_C_id_ann_proofs_d  := 
+          SLT_Id_Ann_Proof_Equal _ _ _ (A_slt_C_zero_is_ltr_ann_id_ann_proofs A)
+      ; A_slt_C_proofs := A_slt_C_zero_is_ltr_ann_proofs A                                 
+      ; A_slt_C_ast := A_slt_C_zero_is_ltr_ann_ast A
+    |}.
+
+
+  Definition cast_A_slt_CI_to_A_slt_C {L S : Type} 
+    (A : @A_slt_CI L S) : @A_slt_C L S :=
+    {|
+        A_slt_C_carrier := A_slt_CI_carrier A
+      ; A_slt_C_label := A_slt_CI_label A
+      ; A_slt_C_plus := A_slt_CI_plus A                                               
+      ; A_slt_C_trans := A_slt_CI_trans A 
+      ; A_slt_C_plus_proofs := A_sg_C_proofs_from_sg_CI_proofs _ 
+          (A_eqv_eq S (A_slt_CI_carrier A))
+          (A_slt_CI_plus A)
+          (A_eqv_witness _ (A_slt_CI_carrier A)) 
+          (A_eqv_new _ (A_slt_CI_carrier A)) 
+          (A_eqv_not_trivial _ (A_slt_CI_carrier A))
+          (A_eqv_proofs _ (A_slt_CI_carrier A))
+          (A_slt_CI_plus_proofs A)                        
+      ; A_slt_C_trans_proofs := A_slt_CI_trans_proofs A 
+      ; A_slt_C_exists_plus_ann_d :=  A_slt_CI_exists_plus_ann_d A                                
+      ; A_slt_C_id_ann_proofs_d  := A_slt_CI_id_ann_proofs_d A                                              
+      ; A_slt_C_proofs := A_slt_CI_proofs A                                 
+      ; A_slt_C_ast := A_slt_CI_ast A 
+    
+    |}.
+
+
+
+
+  Definition cast_A_left_pre_semiring_to_A_slt_C 
+    {L S : Type} (A : @A_left_pre_semiring L S) : 
+    @A_slt_C L S :=
+    {|
+        A_slt_C_carrier := A_left_pre_semiring_carrier A
+      ; A_slt_C_label := A_left_pre_semiring_label A
+      ; A_slt_C_plus := A_left_pre_semiring_plus A                                               
+      ; A_slt_C_trans := A_left_pre_semiring_trans A 
+      ; A_slt_C_plus_proofs := A_left_pre_semiring_plus_proofs A                
+      ; A_slt_C_trans_proofs := A_left_pre_semiring_trans_proofs A 
+      ; A_slt_C_exists_plus_ann_d :=  A_left_pre_semiring_exists_plus_ann_d A                                
+      ; A_slt_C_id_ann_proofs_d  := A_left_pre_semiring_id_ann_proofs_d A                                              
+      ; A_slt_C_proofs := cast_left_semiring_proofs_to_slt_proofs 
         (A_eqv_eq S (A_left_pre_semiring_carrier A))
         (A_left_pre_semiring_plus A)
         (A_left_pre_semiring_trans A) 
         (A_left_pre_semiring_proofs A)                               
-      ; A_slt_ast := A_left_pre_semiring_ast A 
+      ; A_slt_C_ast := A_left_pre_semiring_ast A 
     |}.
 
 
-  
+
+  Definition cast_A_slt_C_to_A_slt 
+    {L S : Type} (A : @A_slt_C L S) : 
+    @A_slt L S :=
+    {|
+          A_slt_carrier := A_slt_C_carrier A
+        ; A_slt_label := A_slt_C_label A
+        ; A_slt_plus := A_slt_C_plus A                                               
+        ; A_slt_trans := A_slt_C_trans A 
+        ; A_slt_plus_proofs := A_sg_C_proofs_to_sg_proofs 
+            (A_eqv_eq S (A_slt_C_carrier A))
+            (A_slt_C_plus A)
+            (A_eqv_witness _ (A_slt_C_carrier A)) 
+            (A_eqv_new _ (A_slt_C_carrier A)) 
+            (A_eqv_not_trivial _ (A_slt_C_carrier A))
+            (A_eqv_proofs _ (A_slt_C_carrier A))
+            (A_slt_C_plus_proofs A)                        
+        ; A_slt_trans_proofs := A_slt_C_trans_proofs A 
+        ; A_slt_exists_plus_ann_d :=  A_slt_C_exists_plus_ann_d A                                
+        ; A_slt_id_ann_proofs_d  := A_slt_C_id_ann_proofs_d A                                              
+        ; A_slt_proofs := A_slt_C_proofs A                                 
+        ; A_slt_ast := A_slt_C_ast A 
+    |}.
+
+  (* One layer finished. *)  
 
 
   Definition cast_A_selective_left_dioid_to_A_slt_CS 
@@ -509,65 +589,6 @@ Section ACAS.
 
 
  
-  
-
-  
-
-
-
-
-  
-  
-  
-  Definition cast_A_slt_CS_to_A_slt 
-    {L S : Type} (A : @A_slt_CS L S) : 
-    @A_slt L S :=
-    {|
-          A_slt_carrier := A_slt_CS_carrier A
-        ; A_slt_label := A_slt_CS_label A
-        ; A_slt_plus := A_slt_CS_plus A                                               
-        ; A_slt_trans := A_slt_CS_trans A 
-        ; A_slt_plus_proofs := A_sg_CS_proofs_to_sg_proofs 
-            (A_eqv_eq S (A_slt_CS_carrier A))
-            (A_slt_CS_plus A)
-            (A_eqv_witness _ (A_slt_CS_carrier A)) 
-            (A_eqv_new _ (A_slt_CS_carrier A)) 
-            (A_eqv_not_trivial _ (A_slt_CS_carrier A))
-            (A_eqv_proofs _ (A_slt_CS_carrier A))
-            (A_slt_CS_plus_proofs A)                        
-        ; A_slt_trans_proofs := A_slt_CS_trans_proofs A 
-        ; A_slt_exists_plus_ann_d :=  A_slt_CS_exists_plus_ann_d A                                
-        ; A_slt_id_ann_proofs_d  := A_slt_CS_id_ann_proofs_d A                                              
-        ; A_slt_proofs := A_slt_CS_proofs A                                 
-        ; A_slt_ast := A_slt_CS_ast A 
-    |}.
-    
-    
-    
-  Definition cast_A_slt_CI_to_A_slt 
-    {L S : Type} (A : @A_slt_CI L S) : 
-    @A_slt L S :=
-    {|
-          A_slt_carrier := A_slt_CI_carrier A
-        ; A_slt_label := A_slt_CI_label A
-        ; A_slt_plus := A_slt_CI_plus A                                               
-        ; A_slt_trans := A_slt_CI_trans A 
-        ; A_slt_plus_proofs := A_sg_CI_proofs_to_sg_proofs 
-          (A_eqv_eq S (A_slt_CI_carrier A))
-          (A_slt_CI_plus A) 
-          (A_eqv_witness _ (A_slt_CI_carrier A)) 
-          (A_eqv_new _ (A_slt_CI_carrier A)) 
-          (A_eqv_not_trivial _ (A_slt_CI_carrier A))
-          (A_eqv_proofs _ (A_slt_CI_carrier A))
-          (A_slt_CI_plus_proofs A)                              
-        ; A_slt_trans_proofs := A_slt_CI_trans_proofs A 
-        ; A_slt_exists_plus_ann_d :=  A_slt_CI_exists_plus_ann_d A                                
-        ; A_slt_id_ann_proofs_d  := A_slt_CI_id_ann_proofs_d A                                              
-        ; A_slt_proofs := A_slt_CI_proofs A                                 
-        ; A_slt_ast := A_slt_CI_ast A 
-    |}.
-
-
   Definition cast_A_selective_left_pre_dioid_to_A_slt 
     {L S : Type} 
     (A : @A_selective_left_pre_dioid L S) : @A_slt L S :=
