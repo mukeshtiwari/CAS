@@ -627,6 +627,13 @@ Section ACAS.
 
   (* end of casting of A_selective_left_pre_dioid all the way to top*)
 
+  (* start of casting of A_slt_cs to A_slt *)
+  Definition cast_A_slt_CS_to_A_slt 
+    {L S : Type} (A : @A_slt_CS L S) : A_slt :=
+    let As := cast_A_slt_CS_to_A_slt_C A in 
+    cast_A_slt_C_to_A_slt As.
+  (* end of casting *)
+
   (* start of left_selective_semiring casting *)
 
   Definition cast_A_left_selective_semiring_to_A_slt_C 
@@ -644,6 +651,7 @@ Section ACAS.
 
   (* end of left selective semiring *)
 
+  
   (* casting of left idempotent semiring *)
 
   Definition cast_A_left_idempotent_semiring_to_A_left_pre_semiring 
@@ -730,6 +738,21 @@ Section ACAS.
     let As := cast_A_left_selective_semiring_to_A_left_semiring A in 
     cast_A_left_semiring_to_A_slt_C_zero_is_ltr_ann As.
  
+  Definition cast_A_slt_CI_to_A_slt 
+    {L S : Type} (A : @A_slt_CI L S) : A_slt :=
+    let As := cast_A_slt_CI_to_A_slt_C A in 
+    cast_A_slt_C_to_A_slt As.
+
+  Definition cast_A_slt_C_zero_is_ltr_ann_to_A_slt 
+    {L S : Type} (A : @A_slt_C_zero_is_ltr_ann L S) : A_slt :=
+    let As := cast_A_slt_C_zero_is_ltr_ann_to_A_slt_C A in 
+    cast_A_slt_C_to_A_slt As.
+
+  
+
+
+
+
     
 End ACAS.
 
@@ -1119,10 +1142,34 @@ Section AMCAS.
     end.
   
 
-
-
-
-
+  Definition cast_A_slt_mcas_to_A_slt 
+    {L S : Type} (A : @A_slt_mcas L S) : @A_slt_mcas L S  :=
+    match A with
+    | A_SLT_Error ls => A_SLT_Error ls 
+    | A_SLT slt =>  A
+    | A_SLT_C slt => 
+        A_SLT (cast_A_slt_C_to_A_slt slt)       
+    | A_SLT_CS slt => 
+        A_SLT (cast_A_slt_CS_to_A_slt slt)
+    | A_SLT_CI slt => 
+        A_SLT (cast_A_slt_CI_to_A_slt slt)
+    | A_SLT_C_Zero_Is_Ltr_ann slt => 
+        A_SLT (cast_A_slt_C_zero_is_ltr_ann_to_A_slt slt) 
+    | A_SLT_Left_Pre_Semiring slt => 
+        A_SLT (cast_A_left_pre_semiring_to_A_slt slt)
+    | A_SLT_Dioid slt =>
+        A_SLT (cast_A_left_dioid_to_A_slt slt)
+    | A_SLT_Selective_Left_Pre_Dioid slt => 
+        A_SLT (cast_A_selective_left_pre_dioid_to_A_slt slt)
+    | A_SLT_Semiring slt => 
+        A_SLT (cast_A_left_semiring_to_A_slt slt)
+    | A_SLT_Selective_Dioid slt => 
+        A_SLT (cast_A_selective_left_dioid_to_A_slt slt)
+    | A_SLT_Selective_Semiring slt => 
+        A_SLT (cast_A_left_selective_semiring_to_A_slt slt)
+    | A_SLT_Idempotent_Semiring slt => 
+        A_SLT (cast_A_left_idempotent_semiring_to_A_slt slt)
+    end.
    
   
 End AMCAS.
