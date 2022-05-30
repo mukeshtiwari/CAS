@@ -2339,15 +2339,7 @@ Section Correctness.
     destruct pf;
     simpl; try reflexivity.
 
-  Lemma correctness_cast_slt_mcas_to_left_dioid : 
-    forall pf,
-    cast_slt_mcas_to_left_dioid (A2C_mcas_slt pf) =  
-    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_dioid  pf).
-  Proof.
-    destruct_and_solve pf.
-  Qed.
 
-  
   Lemma correctness_cast_slt_mcas_to_selective_left_dioid : 
     forall pf,  
     cast_slt_mcas_to_selective_left_dioid (A2C_mcas_slt pf) = 
@@ -2373,6 +2365,57 @@ Section Correctness.
   Proof.
     destruct_and_solve pf.
   Qed.
+
+  Lemma correctness_cast_left_selective_semiring_to_slt_CS :
+    forall a,  
+    cast_left_selective_semiring_to_slt_CS (A2C_left_selective_semiring a) =
+    @A2C_slt_cs L S (cast_A_left_selective_semiring_to_A_slt_CS a).
+  Proof.
+    unfold cast_left_selective_semiring_to_slt_CS,
+    cast_A_left_selective_semiring_to_A_slt_CS;
+    destruct a; simpl;
+    unfold A2C_slt_cs; simpl;
+    f_equal.
+    rewrite correctness_cast_left_semiring_certificates_to_slt_certificates.
+    reflexivity.
+  Qed.
+    
+
+
+
+  Lemma correctness_cast_slt_mcas_to_slt_CS :
+    forall pf, 
+    cast_slt_mcas_to_slt_CS (A2C_mcas_slt pf) = 
+    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_slt_CS pf).
+  Proof.
+    unfold cast_slt_mcas_to_slt_CS,
+    cast_A_slt_mcas_to_A_slt_CS;
+    destruct pf; simpl;
+    try reflexivity.
+    rewrite  correctness_cast_left_selective_semiring_to_slt_CS;
+    reflexivity.
+  Qed.
+
+  (* Everything works upto this point *)
+  
+   
+
+
+  Lemma correctness_cast_slt_mcas_to_left_dioid : 
+    forall pf,
+    cast_slt_mcas_to_left_dioid (A2C_mcas_slt pf) =  
+    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_dioid  pf).
+  Proof.
+    destruct_and_solve pf.
+  Qed.
+
+  
+ 
+
+  
+
+
+  
 
 
   Lemma correctness_cast_slt_mcas_to_left_idempotent_semiring : 
@@ -2666,12 +2709,13 @@ Section Correctness.
       Unshelve.
       auto.
   Qed.
+ *) 
   
 
   Lemma correctness_cast_slt_mcas_to_slt : 
     forall pf, 
     cast_slt_mcas_to_slt (A2C_mcas_slt pf) =
-    @A2C_mcas_slt L S (cast_A_mcas_to_A_slt pf).
+    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_slt pf).
   Proof.
     destruct_and_solve pf;
     f_equal.
