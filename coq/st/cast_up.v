@@ -1460,8 +1460,179 @@ Section CAS.
     |}.
     
     
+
+  Definition cast_selective_left_dioid_to_slt_C_zero_is_ltr_ann 
+    {L S : Type} (A : @selective_left_dioid L S) :
+    @slt_C_zero_is_ltr_ann L S :=
+    {|
+        slt_C_zero_is_ltr_ann_carrier := selective_left_dioid_carrier A 
+      ; slt_C_zero_is_ltr_ann_label := selective_left_dioid_label A
+      ; slt_C_zero_is_ltr_ann_plus  := selective_left_dioid_plus A 
+      ; slt_C_zero_is_ltr_ann_trans := selective_left_dioid_trans A 
+      ; slt_C_zero_is_ltr_ann_plus_certs  :=  sg_C_certs_from_sg_CS_certs _ 
+          (eqv_eq (selective_left_dioid_carrier A))
+          (selective_left_dioid_plus A)  
+          (eqv_witness (selective_left_dioid_carrier A)) 
+          (eqv_new (selective_left_dioid_carrier A)) 
+          (selective_left_dioid_plus_certs A)                 
+      ; slt_C_zero_is_ltr_ann_trans_certs := selective_left_dioid_trans_certs A 
+      ; slt_C_zero_is_ltr_ann_exists_plus_ann_d := Certify_Exists_Ann 
+          (match selective_left_dioid_exists_plus_ann A with 
+          | Assert_Exists_Ann s => s
+          end)                             
+      ; slt_C_zero_is_ltr_ann_id_ann_certs  := selective_left_dioid_id_ann_certs A  
+      ; slt_C_zero_is_ltr_ann_certs :=  cast_left_dioid_certificates_to_slt_certificates
+        (selective_left_dioid_certs A)                                  
+      ; slt_C_zero_is_ltr_ann_ast := selective_left_dioid_ast A
+    |}.   
+
+  
+  Definition cast_left_dioid_to_slt_C_zero_is_ltr_ann   
+    {L S : Type} (A : @left_dioid L S) : 
+    @slt_C_zero_is_ltr_ann L S :=
+    {|
+        slt_C_zero_is_ltr_ann_carrier := left_dioid_carrier A 
+      ; slt_C_zero_is_ltr_ann_label := left_dioid_label A
+      ; slt_C_zero_is_ltr_ann_plus  := left_dioid_plus A 
+      ; slt_C_zero_is_ltr_ann_trans := left_dioid_trans A 
+      ; slt_C_zero_is_ltr_ann_plus_certs  := sg_C_certs_from_sg_CI_certs _ 
+        (eqv_eq (left_dioid_carrier A))
+        (left_dioid_plus A) 
+        (eqv_witness (left_dioid_carrier A)) 
+        (eqv_new (left_dioid_carrier A))
+        (left_dioid_plus_certs A)                              
+      ; slt_C_zero_is_ltr_ann_trans_certs := left_dioid_trans_certs A 
+      ; slt_C_zero_is_ltr_ann_exists_plus_ann_d := Certify_Exists_Ann 
+          (match left_dioid_exists_plus_ann A with 
+          | Assert_Exists_Ann s => s
+          end)                                                      
+      ; slt_C_zero_is_ltr_ann_id_ann_certs  := left_dioid_id_ann_certs A  
+      ; slt_C_zero_is_ltr_ann_certs :=  cast_left_dioid_certificates_to_slt_certificates
+        (left_dioid_certs A)                                  
+      ; slt_C_zero_is_ltr_ann_ast := left_dioid_ast A 
+    |}.
+    
+  Definition cast_left_semiring_to_slt_C_zero_is_ltr_ann   
+    {L S : Type} (A : @left_semiring L S) : 
+    @slt_C_zero_is_ltr_ann L S :=
+    {|
+        slt_C_zero_is_ltr_ann_carrier := left_semiring_carrier A 
+      ; slt_C_zero_is_ltr_ann_label := left_semiring_label A
+      ; slt_C_zero_is_ltr_ann_plus  := left_semiring_plus A 
+      ; slt_C_zero_is_ltr_ann_trans := left_semiring_trans A 
+      ; slt_C_zero_is_ltr_ann_plus_certs  := left_semiring_plus_certs A        
+      ; slt_C_zero_is_ltr_ann_trans_certs := left_semiring_trans_certs A 
+      ; slt_C_zero_is_ltr_ann_exists_plus_ann_d := left_semiring_exists_plus_ann_d A                                 
+      ; slt_C_zero_is_ltr_ann_id_ann_certs  := left_semiring_id_ann_certs A  
+      ; slt_C_zero_is_ltr_ann_certs :=  cast_left_semiring_certificates_to_slt_certificates
+        (left_semiring_certs A)                                  
+      ; slt_C_zero_is_ltr_ann_ast := left_semiring_ast A
+    |}.
+
+  Definition cast_slt_CS_to_slt_C {L S : Type} 
+    (A : @slt_CS L S) : @slt_C L S :=
+    {|
+        slt_C_carrier := slt_CS_carrier A
+      ; slt_C_label := slt_CS_label A
+      ; slt_C_plus := slt_CS_plus A                                               
+      ; slt_C_trans := slt_CS_trans A 
+      ; slt_C_plus_certs := sg_C_certs_from_sg_CS_certs _ 
+          (eqv_eq (slt_CS_carrier A))
+          (slt_CS_plus A)
+          (eqv_witness (slt_CS_carrier A)) 
+          (eqv_new (slt_CS_carrier A))
+          (slt_CS_plus_certs A)                        
+      ; slt_C_trans_certs := slt_CS_trans_certs A 
+      ; slt_C_exists_plus_ann_d :=  slt_CS_exists_plus_ann_d A                                
+      ; slt_C_id_ann_certs_d  := slt_CS_id_ann_certs_d A                                              
+      ; slt_C_certs := slt_CS_certs A                                 
+      ; slt_C_ast := slt_CS_ast A 
+    
+    |}.
+
+
+  Definition cast_slt_C_zero_is_ltr_ann_to_slt_C 
+    {L S : Type} 
+    (A : @slt_C_zero_is_ltr_ann L S)  : @slt_C L S :=
+    {|
+        slt_C_carrier := slt_C_zero_is_ltr_ann_carrier A
+      ; slt_C_label := slt_C_zero_is_ltr_ann_label A
+      ; slt_C_plus := slt_C_zero_is_ltr_ann_plus A                                               
+      ; slt_C_trans := slt_C_zero_is_ltr_ann_trans A 
+      ; slt_C_plus_certs := slt_C_zero_is_ltr_ann_plus_certs A                       
+      ; slt_C_trans_certs := slt_C_zero_is_ltr_ann_trans_certs A 
+      ; slt_C_exists_plus_ann_d :=  slt_C_zero_is_ltr_ann_exists_plus_ann_d A                                
+      ; slt_C_id_ann_certs_d  := Certify_SLT_Id_Ann_Proof_Equal 
+      (match slt_C_zero_is_ltr_ann_id_ann_certs A with
+      | Assert_Slt_Exists_Id_Ann_Equal s => s 
+      end)                     
+      ; slt_C_certs := slt_C_zero_is_ltr_ann_certs A                                 
+      ; slt_C_ast := slt_C_zero_is_ltr_ann_ast A
+    |}.
+   
+
+  Definition cast_slt_CI_to_slt_C {L S : Type} 
+    (A : @slt_CI L S) : @slt_C L S :=
+    {|
+        slt_C_carrier := slt_CI_carrier A
+      ; slt_C_label := slt_CI_label A
+      ; slt_C_plus := slt_CI_plus A                                               
+      ; slt_C_trans := slt_CI_trans A 
+      ; slt_C_plus_certs := sg_C_certs_from_sg_CI_certs _ 
+          (eqv_eq (slt_CI_carrier A))
+          (slt_CI_plus A)
+          (eqv_witness (slt_CI_carrier A)) 
+          (eqv_new (slt_CI_carrier A))
+          (slt_CI_plus_certs A)                        
+      ; slt_C_trans_certs := slt_CI_trans_certs A 
+      ; slt_C_exists_plus_ann_d :=  slt_CI_exists_plus_ann_d A                                
+      ; slt_C_id_ann_certs_d  := slt_CI_id_ann_certs_d A                                              
+      ; slt_C_certs := slt_CI_certs A                                 
+      ; slt_C_ast := slt_CI_ast A 
+    
+    |}.
+    
     
 
+  Definition cast_left_pre_semiring_to_slt_C 
+    {L S : Type} (A : @left_pre_semiring L S) : 
+    @slt_C L S :=
+    {|
+        slt_C_carrier := left_pre_semiring_carrier A
+      ; slt_C_label := left_pre_semiring_label A
+      ; slt_C_plus := left_pre_semiring_plus A                                               
+      ; slt_C_trans := left_pre_semiring_trans A 
+      ; slt_C_plus_certs := left_pre_semiring_plus_certs A                
+      ; slt_C_trans_certs := left_pre_semiring_trans_certs A 
+      ; slt_C_exists_plus_ann_d :=  left_pre_semiring_exists_plus_ann_d A                                
+      ; slt_C_id_ann_certs_d  := left_pre_semiring_id_ann_certs_d A                                              
+      ; slt_C_certs := cast_left_semiring_certificates_to_slt_certificates
+        (left_pre_semiring_certs A)                               
+      ; slt_C_ast := left_pre_semiring_ast A 
+    |}.
+
+  Definition cast_slt_C_to_slt 
+    {L S : Type} (A : @slt_C L S) : 
+    @slt L S :=
+    {|
+          slt_carrier := slt_C_carrier A
+        ; slt_label := slt_C_label A
+        ; slt_plus := slt_C_plus A                                               
+        ; slt_trans := slt_C_trans A 
+        ; slt_plus_certs := sg_C_certs_to_sg_certs 
+            (eqv_eq (slt_C_carrier A))
+            (slt_C_plus A)
+            (eqv_witness (slt_C_carrier A)) 
+            (eqv_new (slt_C_carrier A)) 
+            (slt_C_plus_certs A)                        
+        ; slt_trans_certs := slt_C_trans_certs A 
+        ; slt_exists_plus_ann_d :=  slt_C_exists_plus_ann_d A                                
+        ; slt_id_ann_certs_d  := slt_C_id_ann_certs_d A                                              
+        ; slt_certs := slt_C_certs A                                 
+        ; slt_ast := slt_C_ast A 
+    |}.
+
+ (* One layer finished. *)     
  (* Everything works upto this point *)
 
 
