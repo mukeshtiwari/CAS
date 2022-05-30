@@ -2708,317 +2708,185 @@ Section Correctness.
   Qed.
 
 
-
-
-
-
-
-  (* Everything works upto this point *)
-  
-   
-
-  
-  Lemma correctness_cast_slt_mcas_to_left_dioid : 
-    forall pf,
-    cast_slt_mcas_to_left_dioid (A2C_mcas_slt pf) =  
-    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_dioid  pf).
-  Proof.
-    destruct_and_solve pf.
-  Qed.
-
-  
- 
-
-  
-
-
-  
-
-
-  
-
-  
-
-  
-  
-
-  Lemma correctness_cast_left_dioid_to_slt_zero_is_ltr_ann :
+  Lemma correctness_cast_slt_C_to_slt :  
     forall a, 
-    cast_left_dioid_to_slt_zero_is_ltr_ann (A2C_left_dioid a) =
-    @A2C_slt_zero_is_ltr_ann L S (cast_A_left_dioid_to_A_slt_zero_is_ltr_ann a).
+    cast_slt_C_to_slt (A2C_slt_c a) = 
+    @A2C_slt L S (cast_A_slt_C_to_A_slt a).
   Proof.
-    destruct a; simpl.
-    unfold A2C_slt_zero_is_ltr_ann,
-    A2C_left_dioid,
-    cast_left_dioid_to_slt_zero_is_ltr_ann; 
-    simpl.
-    f_equal.
-    erewrite correctness_sg_CI_certs_to_sg_certs.
-    f_equal.
-    Unshelve. 
-    auto.
-  Qed.
-
-  
-
-  Lemma correctness_cast_selective_left_dioid_to_slt_zero_is_ltr_ann:
-    forall a, 
-    cast_selective_left_dioid_to_slt_zero_is_ltr_ann (A2C_selective_left_dioid a) =
-    @A2C_slt_zero_is_ltr_ann L S
-    (cast_A_selective_left_dioid_to_A_slt_zero_is_ltr_ann a).
-  Proof.
-    destruct a; simpl.
-    unfold A2C_selective_left_dioid,
-    A2C_slt_zero_is_ltr_ann,
-    cast_selective_left_dioid_to_slt_zero_is_ltr_ann;
-    simpl.
-    f_equal.
-    erewrite correctness_sg_CS_certs_to_sg_certs.
-    f_equal.
-    Unshelve.
-    auto.
-  Qed.
-
-
-  Lemma correctness_cast_left_semiring_to_slt_zero_is_ltr_ann:
-    forall a, 
-    cast_left_semiring_to_slt_zero_is_ltr_ann (A2C_left_semiring a) =
-    @A2C_slt_zero_is_ltr_ann L S (cast_A_left_semiring_to_A_slt_zero_is_ltr_ann a).
-  Proof. 
-    destruct a; simpl.
-    unfold A2C_left_semiring,
-    cast_left_semiring_to_slt_zero_is_ltr_ann,
-    A2C_slt_zero_is_ltr_ann; simpl.
-    f_equal.
-    + 
-      erewrite correctness_sg_C_certs_to_sg_certs.
-      f_equal.
-    +
-      apply correctness_cast_left_semiring_certificates_to_slt_certificates.
-      Unshelve.
-      auto.
-  Qed.
-
-
-  Lemma correctness_cast_left_idempotent_semiring_to_slt_zero_is_ltr_ann:
-    forall a, 
-    cast_left_idempotent_semiring_to_slt_zero_is_ltr_ann
-    (A2C_left_idempotent_semiring a) =
-    @A2C_slt_zero_is_ltr_ann L S 
-    (cast_A_left_idempotent_semiring_to_A_slt_zero_is_ltr_ann a).
-  Proof.
-    destruct a; simpl.
-    unfold cast_A_left_idempotent_semiring_to_A_slt_zero_is_ltr_ann,
-    A2C_left_idempotent_semiring,
-    A2C_slt_zero_is_ltr_ann,
-    cast_left_idempotent_semiring_to_slt_zero_is_ltr_ann; 
+    unfold cast_slt_C_to_slt,
+    cast_A_slt_C_to_A_slt,
+    A2C_slt; destruct a; 
     simpl;
     f_equal.
-    + erewrite correctness_sg_CI_certs_to_sg_certs.
-      f_equal.
-    + apply correctness_cast_left_semiring_certificates_to_slt_certificates.
-      Unshelve. auto. 
+    erewrite correctness_sg_C_certs_to_sg_certs;
+    reflexivity.
+    Unshelve. auto.
   Qed.
-  
 
-  Lemma correctness_cast_slt_mcas_to_slt_zero_is_ltr_ann:
-    forall pf, 
-    cast_slt_mcas_to_slt_zero_is_ltr_ann (A2C_mcas_slt pf) =
-    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_slt_zero_is_ltr_ann pf).
-  Proof.
-    destruct_and_solve pf;
-    f_equal.
-    + apply correctness_cast_left_dioid_to_slt_zero_is_ltr_ann.
-    + apply correctness_cast_selective_left_dioid_to_slt_zero_is_ltr_ann.
-    + apply correctness_cast_left_semiring_to_slt_zero_is_ltr_ann.
-    + apply correctness_cast_left_idempotent_semiring_to_slt_zero_is_ltr_ann.
-  Qed.
-  
+
 
   Lemma correctness_cast_slt_CS_to_slt: 
     forall a, 
     cast_slt_CS_to_slt (A2C_slt_cs a) = 
     @A2C_slt L S (cast_A_slt_CS_to_A_slt a).
   Proof.
-    destruct a; simpl; try reflexivity.
-    unfold A2C_slt, A2C_slt_cs,
-    cast_slt_CS_to_slt; simpl.
-    f_equal.
-    erewrite correctness_sg_CS_certs_to_sg_certs.
-    f_equal.
-    Unshelve.
-    auto.
+    unfold cast_slt_CS_to_slt,
+    cast_A_slt_CS_to_A_slt.
+    intros a.
+    rewrite <-correctness_cast_slt_C_to_slt;
+    reflexivity.
   Qed.
-  
 
-  Lemma correctness_cast_slt_CI_to_slt : 
+
+  Lemma correctness_cast_slt_CI_to_slt :  
     forall a, 
     cast_slt_CI_to_slt (A2C_slt_ci a) = 
     @A2C_slt L S (cast_A_slt_CI_to_A_slt a).
   Proof.
-    destruct a; simpl.
-    unfold A2C_slt,
-    A2C_slt_ci, 
-    cast_slt_CI_to_slt; simpl.
+    unfold cast_slt_CI_to_slt,
+    cast_A_slt_CI_to_A_slt.
+    intros a.
+    rewrite <-correctness_cast_slt_C_to_slt;
     f_equal.
-    erewrite correctness_sg_CI_certs_to_sg_certs.
-    f_equal.
-    Unshelve.
-    auto.
+    rewrite correctness_cast_slt_CI_to_slt_C;
+    reflexivity.
   Qed.
   
 
-  Lemma correctness_cast_left_dioid_to_slt :   
+  Lemma correctness_cast_slt_C_zero_is_ltr_ann_to_slt :  
+    forall a, 
+    cast_slt_C_zero_is_ltr_ann_to_slt (A2C_slt_C_zero_is_ltr_ann a) =
+    @A2C_slt L S (cast_A_slt_C_zero_is_ltr_ann_to_A_slt a).
+  Proof.
+    unfold cast_slt_C_zero_is_ltr_ann_to_slt,
+    cast_A_slt_C_zero_is_ltr_ann_to_A_slt.
+    intros a.
+    rewrite <-correctness_cast_slt_C_to_slt;
+    f_equal.
+  Qed.
+
+
+  Lemma correctness_cast_left_dioid_to_slt :  
     forall a, 
     cast_left_dioid_to_slt (A2C_left_dioid a) =
-    @A2C_slt L S (cast_A_left_dioid_to_A_slt a). 
+    @A2C_slt L S (cast_A_left_dioid_to_A_slt a).
   Proof.
-    destruct a; simpl.
-    unfold A2C_slt, 
-    A2C_left_dioid,
-    cast_left_dioid_to_slt,
-    cast_left_dioid_to_slt_CI,
-    cast_slt_CI_to_slt;
-    simpl.
+    unfold cast_left_dioid_to_slt,
+    cast_A_left_dioid_to_A_slt.
+    intros a.
+    rewrite <-correctness_cast_slt_C_to_slt;
     f_equal.
-    erewrite correctness_sg_CI_certs_to_sg_certs.
-    f_equal.
-    Unshelve.
-    auto.
+    rewrite correctness_cast_left_dioid_to_slt_C;
+    reflexivity.
   Qed.
-  
 
-  Lemma correctness_cast_selective_left_pre_dioid_to_slt :
+
+  Lemma correctness_cast_selective_left_pre_dioid_to_slt :  
     forall a, 
     cast_selective_left_pre_dioid_to_slt (A2C_selective_left_pre_dioid a) =
     @A2C_slt L S (cast_A_selective_left_pre_dioid_to_A_slt a).
   Proof.
-    destruct a; simpl.
-    unfold A2C_slt, 
-    A2C_selective_left_pre_dioid,
-    cast_selective_left_pre_dioid_to_slt,
-    cast_selective_left_pre_dioid_to_slt_CS,
-    cast_slt_CS_to_slt;
-    simpl.
+    unfold cast_selective_left_pre_dioid_to_slt,
+    cast_A_selective_left_pre_dioid_to_A_slt.
+    intro a.
+    rewrite <-correctness_cast_slt_C_to_slt;
     f_equal.
-    erewrite correctness_sg_CS_certs_to_sg_certs.
-    f_equal.
-    Unshelve.
-    auto.
   Qed.
-  
 
-  Lemma correctness_cast_selective_left_dioid_to_slt:
+
+  Lemma correctness_cast_selective_left_dioid_to_slt: 
     forall a, 
     cast_selective_left_dioid_to_slt (A2C_selective_left_dioid a) =
     @A2C_slt L S (cast_A_selective_left_dioid_to_A_slt a).
   Proof.
-    destruct a; simpl.
-    unfold A2C_slt, 
-    A2C_selective_left_dioid,
-    cast_selective_left_dioid_to_slt,
-    cast_selective_left_dioid_to_slt_zero_is_ltr_ann,
-    cast_slt_zero_is_ltr_ann_to_slt; simpl.
+    unfold cast_selective_left_dioid_to_slt,
+    cast_A_selective_left_dioid_to_A_slt.
+    intros a.
+    rewrite <-correctness_cast_slt_C_to_slt;
     f_equal.
-    erewrite correctness_sg_CS_certs_to_sg_certs.
-    f_equal.
-    Unshelve.
-    auto.
   Qed.
-  
 
-  Lemma correctness_cast_left_pre_semiring_to_slt:
+
+
+  Lemma correctness_cast_left_pre_semiring_to_slt : 
     forall a, 
     cast_left_pre_semiring_to_slt (A2C_left_pre_semiring a) =
-    @A2C_slt L S (cast_A_left_pre_semiring_to_A_slt a).
+    @A2C_slt L S (cast_A_left_pre_semiring_to_A_slt a). 
   Proof.
-    destruct a; simpl.
-    unfold A2C_slt, 
-    A2C_left_pre_semiring,
-    cast_left_pre_semiring_to_slt; 
-    simpl.
+    unfold cast_left_pre_semiring_to_slt,
+    cast_A_left_pre_semiring_to_A_slt.
+    intros a.
+    rewrite <-correctness_cast_slt_C_to_slt;
     f_equal.
-    + erewrite correctness_sg_C_certs_to_sg_certs.
-      f_equal.
-    + eapply correctness_cast_left_semiring_certificates_to_slt_certificates.
-      Unshelve.
-      auto.
+    rewrite correctness_cast_left_pre_semiring_to_slt_C;
+    reflexivity.
   Qed.
-  
 
-  Lemma correctness_cast_left_semiring_to_slt: 
+
+
+  Lemma correctness_cast_left_semiring_to_slt :  
     forall a, 
     cast_left_semiring_to_slt (A2C_left_semiring a) =
     @A2C_slt L S (cast_A_left_semiring_to_A_slt a).
   Proof.
-    destruct a; simpl.
-    unfold A2C_slt,
-    A2C_left_semiring,
-    cast_left_semiring_to_slt,
-    cast_left_semiring_to_slt_zero_is_ltr_ann,
-    cast_slt_zero_is_ltr_ann_to_slt;
-    simpl.
+    unfold cast_left_semiring_to_slt,
+    cast_A_left_semiring_to_A_slt.
+    intros a.
+    rewrite <-correctness_cast_slt_C_to_slt;
     f_equal.
-    + erewrite correctness_sg_C_certs_to_sg_certs.
-      f_equal.
-    + eapply correctness_cast_left_semiring_certificates_to_slt_certificates.
-      Unshelve.
-      auto.
+    rewrite correctness_cast_left_semiring_to_slt_C;
+    reflexivity.
   Qed.
-  
 
-  Lemma correctness_cast_left_selective_semiring_to_slt:
-    forall a,
+
+
+
+  Lemma correctness_cast_left_selective_semiring_to_slt :  
+    forall a, 
     cast_left_selective_semiring_to_slt (A2C_left_selective_semiring a) =
     @A2C_slt L S (cast_A_left_selective_semiring_to_A_slt a).
   Proof.
-    destruct a; simpl.
-    unfold A2C_slt, 
-    A2C_left_selective_semiring,
-    cast_left_selective_semiring_to_slt,
-    cast_left_selective_semiring_to_slt_CS,
-    cast_slt_CS_to_slt;
-    simpl.
+    unfold cast_left_selective_semiring_to_slt,
+    cast_A_left_selective_semiring_to_A_slt.
+    intros a.
+    rewrite <-correctness_cast_slt_C_to_slt;
     f_equal.
-    + erewrite correctness_sg_CS_certs_to_sg_certs.
-      f_equal.
-    + eapply correctness_cast_left_semiring_certificates_to_slt_certificates.
-      Unshelve.
-      auto. 
+    rewrite correctness_cast_left_selective_semiring_to_slt_C;
+    reflexivity.
   Qed.
-  
+
+ 
+
 
   Lemma correctness_cast_left_idempotent_semiring_to_slt:
     forall a, 
     cast_left_idempotent_semiring_to_slt (A2C_left_idempotent_semiring a) =
     @A2C_slt L S (cast_A_left_idempotent_semiring_to_A_slt a).
   Proof.
-    destruct a; simpl.
-    unfold A2C_slt, 
-    A2C_left_idempotent_semiring,
-    cast_left_idempotent_semiring_to_slt,
-    cast_left_idempotent_semiring_to_slt_CI,
-    cast_slt_CI_to_slt; 
-    simpl.
+    unfold cast_left_idempotent_semiring_to_slt,
+    cast_A_left_idempotent_semiring_to_A_slt.
+    intros a.
+    rewrite <-correctness_cast_slt_C_to_slt;
     f_equal.
-    + erewrite correctness_sg_CI_certs_to_sg_certs.
-      f_equal.
-    + eapply correctness_cast_left_semiring_certificates_to_slt_certificates.
-      Unshelve.
-      auto.
+    rewrite correctness_cast_left_idempotent_semiring_to_slt_C;
+    reflexivity.
   Qed.
- *) 
-  
+
 
   Lemma correctness_cast_slt_mcas_to_slt : 
     forall pf, 
-    cast_slt_mcas_to_slt (A2C_mcas_slt pf) =
+    cast_slt_mcas_to_slt (A2C_mcas_slt pf) = 
     @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_slt pf).
   Proof.
-    destruct_and_solve pf;
-    f_equal.
+    unfold cast_slt_mcas_to_slt,
+    cast_A_slt_mcas_to_A_slt;
+    destruct pf; simpl; 
+    try reflexivity;
+    f_equal. 
+    + apply correctness_cast_slt_C_to_slt.
     + apply correctness_cast_slt_CS_to_slt.
     + apply correctness_cast_slt_CI_to_slt.
+    + apply correctness_cast_slt_C_zero_is_ltr_ann_to_slt.
     + apply correctness_cast_left_dioid_to_slt.
     + apply correctness_cast_selective_left_pre_dioid_to_slt.
     + apply correctness_cast_selective_left_dioid_to_slt.
@@ -3028,7 +2896,9 @@ Section Correctness.
     + apply correctness_cast_left_idempotent_semiring_to_slt.
   Qed.       
 
-  
+
+
+
 
 End Correctness.
 
