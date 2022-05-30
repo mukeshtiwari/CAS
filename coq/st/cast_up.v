@@ -8,6 +8,9 @@ Require Import CAS.coq.tr.structures.
 Require Import CAS.coq.st.structures.
 Require Import CAS.coq.st.properties.
 Require Import CAS.coq.sg.cast_up.
+From Coq Require Import List String.
+Local Open Scope string_scope.
+Import ListNotations.
 
 
 
@@ -759,10 +762,7 @@ End ACAS.
 
 Section AMCAS.
 
-  From Coq Require Import List String.
-  Local Open Scope string_scope.
-  Import ListNotations.
-
+  
 
   (* A_selective_left_dioid is at bottom 
     structure and there is nothing below it. *)
@@ -1807,9 +1807,7 @@ End CAS.
 
 Section MCAS.
 
-  From Coq Require Import List String.
-  Local Open Scope string_scope.
-  Import ListNotations.
+  
 
 
 
