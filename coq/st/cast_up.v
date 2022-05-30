@@ -2396,11 +2396,215 @@ Section Correctness.
     reflexivity.
   Qed.
 
+
+
+  Lemma correctness_cast_slt_mcas_to_left_idempotent_semiring : 
+    forall pf,  
+    cast_slt_mcas_to_left_idempotent_semiring (A2C_mcas_slt pf) =
+    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_idempotent_semiring pf).
+  Proof.
+    destruct_and_solve pf.
+  Qed.
+
+  Lemma correctness_cast_left_idempotent_semiring_to_left_semiring : 
+    forall a,  
+    cast_left_idempotent_semiring_to_left_semiring
+      (A2C_left_idempotent_semiring a) =
+    @A2C_left_semiring L S
+      (cast_A_left_idempotent_semiring_to_A_left_semiring a).
+  Proof.
+    unfold cast_left_idempotent_semiring_to_left_semiring,
+    cast_A_left_idempotent_semiring_to_A_left_semiring;
+    destruct a; simpl;
+    unfold A2C_left_semiring;
+    simpl; f_equal.
+    rewrite <-correct_sg_C_certs_from_sg_CI_certs; 
+    reflexivity.
+  Qed.
+  
+
+  Lemma correctness_cast_slt_mcas_to_left_semiring :
+    forall pf, 
+    cast_slt_mcas_to_left_semiring (A2C_mcas_slt pf) = 
+    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_semiring  pf).
+  Proof.
+    unfold cast_slt_mcas_to_left_semiring,
+    cast_A_slt_mcas_to_A_left_semiring;
+    destruct_and_solve pf;
+    f_equal.
+    rewrite correctness_cast_left_idempotent_semiring_to_left_semiring;
+    reflexivity.
+  Qed.
+
+
+  Lemma correctness_cast_left_idempotent_semiring_to_left_pre_semiring : 
+    forall a, 
+    cast_left_idempotent_semiring_to_left_pre_semiring
+      (A2C_left_idempotent_semiring a) =
+    @A2C_left_pre_semiring L S
+      (cast_A_left_idempotent_semiring_to_A_left_pre_semiring a).
+  Proof.
+    unfold cast_left_idempotent_semiring_to_left_pre_semiring,
+    cast_A_left_idempotent_semiring_to_A_left_pre_semiring,
+    cast_left_semiring_to_left_pre_semiring,
+    cast_left_idempotent_semiring_to_left_semiring,
+    cast_A_left_semiring_to_A_left_pre_semiring,
+    cast_A_left_idempotent_semiring_to_A_left_semiring;
+    destruct a; simpl;
+    unfold A2C_left_pre_semiring; 
+    simpl; f_equal.
+    rewrite <-correct_sg_C_certs_from_sg_CI_certs; 
+    reflexivity.
+  Qed.
+
+
+
+
+  Lemma correctness_cast_slt_mcas_to_left_pre_semiring : 
+    forall pf, 
+    cast_slt_mcas_to_left_pre_semiring (A2C_mcas_slt pf) =
+    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_pre_semiring pf).
+  Proof.
+    destruct_and_solve pf;
+    f_equal.
+    rewrite correctness_cast_left_idempotent_semiring_to_left_pre_semiring;
+    reflexivity.
+  Qed.
+
+
+  Lemma correctness_cast_slt_mcas_to_left_dioid : 
+    forall pf, 
+    cast_slt_mcas_to_left_dioid (A2C_mcas_slt pf) = 
+    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_dioid pf).
+  Proof.
+    unfold cast_slt_mcas_to_left_dioid,
+    cast_A_slt_mcas_to_A_left_dioid; 
+    destruct pf; simpl;
+    try reflexivity.
+  Qed.
+
+  Lemma correctness_cast_left_idempotent_semiring_to_slt_CI :   
+    forall a, 
+    cast_left_idempotent_semiring_to_slt_CI 
+      (A2C_left_idempotent_semiring a) =
+    @A2C_slt_ci L S 
+      (cast_A_left_idempotent_semiring_to_A_slt_CI a).
+  Proof.
+    unfold cast_left_idempotent_semiring_to_slt_CI,
+    cast_A_left_idempotent_semiring_to_A_slt_CI;
+    destruct_and_solve a;
+    unfold A2C_slt_ci;
+    simpl;
+    f_equal.
+    rewrite correctness_cast_left_semiring_certificates_to_slt_certificates.
+    reflexivity.
+  Qed.
+
+
+  Lemma correctness_cast_slt_mcas_to_slt_CI : 
+    forall pf, 
+    cast_slt_mcas_to_slt_CI (A2C_mcas_slt pf) = 
+    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_slt_CI pf).
+  Proof.
+    unfold cast_slt_mcas_to_slt_CI,
+    cast_A_slt_mcas_to_A_slt_CI;
+    destruct pf; simpl;
+    try reflexivity;
+    f_equal.
+    rewrite correctness_cast_left_idempotent_semiring_to_slt_CI;
+    reflexivity.
+  Qed.
+
+  Lemma correctness_cast_left_dioid_to_slt_C_zero_is_ltr_ann : 
+    forall a,  
+    cast_left_dioid_to_slt_C_zero_is_ltr_ann (A2C_left_dioid a) =
+    @A2C_slt_C_zero_is_ltr_ann L S (cast_A_left_dioid_to_A_slt_C_zero_is_ltr_ann a).
+  Proof.
+    unfold cast_left_dioid_to_slt_C_zero_is_ltr_ann,
+    cast_A_left_dioid_to_A_slt_C_zero_is_ltr_ann; 
+    destruct a; simpl;
+    unfold A2C_slt_C_zero_is_ltr_ann; 
+    simpl; f_equal.
+    rewrite <-correct_sg_C_certs_from_sg_CI_certs; 
+    reflexivity.
+  Qed.
+
+
+
+  Lemma correctness_cast_left_semiring_to_slt_C_zero_is_ltr_ann : 
+    forall a,  
+    cast_left_semiring_to_slt_C_zero_is_ltr_ann (A2C_left_semiring a) =
+    @A2C_slt_C_zero_is_ltr_ann L S 
+      (cast_A_left_semiring_to_A_slt_C_zero_is_ltr_ann a).
+  Proof.
+    unfold cast_left_semiring_to_slt_C_zero_is_ltr_ann,
+    cast_A_left_semiring_to_A_slt_C_zero_is_ltr_ann;
+    destruct a; simpl;
+    unfold  A2C_slt_C_zero_is_ltr_ann; 
+    simpl; f_equal.
+    rewrite correctness_cast_left_semiring_certificates_to_slt_certificates;
+    reflexivity.
+  Qed.
+     
+
+  Lemma correctness_cast_left_selective_semiring_to_slt_C_zero_is_ltr_ann : 
+    forall a, 
+    cast_left_selective_semiring_to_slt_C_zero_is_ltr_ann
+      (A2C_left_selective_semiring a) =
+    @A2C_slt_C_zero_is_ltr_ann L S 
+      (cast_A_left_selective_semiring_to_A_slt_C_zero_is_ltr_ann a).
+  Proof.
+    intros a.
+    unfold cast_left_selective_semiring_to_slt_C_zero_is_ltr_ann,
+    cast_A_left_selective_semiring_to_A_slt_C_zero_is_ltr_ann.
+    rewrite <-correctness_cast_left_semiring_to_slt_C_zero_is_ltr_ann.
+    f_equal.
+  Qed.
+
+
+
+  Lemma correctness_cast_left_idempotent_semiring_to_slt_C_zero_is_ltr_ann : 
+    forall a, 
+    cast_left_idempotent_semiring_to_slt_C_zero_is_ltr_ann
+      (A2C_left_idempotent_semiring a) =
+    @A2C_slt_C_zero_is_ltr_ann L S 
+      (cast_A_left_idempotent_semiring_to_A_slt_C_zero_is_ltr_ann a).
+  Proof.
+    intros *.
+    unfold cast_left_idempotent_semiring_to_slt_C_zero_is_ltr_ann,
+    cast_A_left_idempotent_semiring_to_A_slt_C_zero_is_ltr_ann.
+    rewrite <-correctness_cast_left_semiring_to_slt_C_zero_is_ltr_ann;
+    f_equal.
+    apply correctness_cast_left_idempotent_semiring_to_left_semiring.
+  Qed.
+
+
+  Lemma correctness_cast_slt_mcas_to_slt_C_zero_is_ltr_ann : 
+    forall pf, 
+    cast_slt_mcas_to_slt_C_zero_is_ltr_ann (A2C_mcas_slt pf) = 
+    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_slt_C_zero_is_ltr_ann pf).
+  Proof.
+    unfold cast_slt_mcas_to_slt_C_zero_is_ltr_ann,
+    cast_A_slt_mcas_to_A_slt_C_zero_is_ltr_ann;
+    destruct pf; simpl; 
+    try reflexivity;
+    f_equal.
+    + apply correctness_cast_left_dioid_to_slt_C_zero_is_ltr_ann.
+    + apply correctness_cast_left_semiring_to_slt_C_zero_is_ltr_ann.
+    + apply correctness_cast_left_selective_semiring_to_slt_C_zero_is_ltr_ann.
+    + apply  correctness_cast_left_idempotent_semiring_to_slt_C_zero_is_ltr_ann.
+  Qed. 
+
+
+
+
+
+
   (* Everything works upto this point *)
   
    
 
-
+  
   Lemma correctness_cast_slt_mcas_to_left_dioid : 
     forall pf,
     cast_slt_mcas_to_left_dioid (A2C_mcas_slt pf) =  
@@ -2418,30 +2622,11 @@ Section Correctness.
   
 
 
-  Lemma correctness_cast_slt_mcas_to_left_idempotent_semiring : 
-    forall pf,  
-    cast_slt_mcas_to_left_idempotent_semiring (A2C_mcas_slt pf) =
-    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_idempotent_semiring pf).
-  Proof.
-    destruct_and_solve pf.
-  Qed.
+  
 
-  Lemma correctness_cast_slt_mcas_to_left_semiring :
-    forall pf, 
-    cast_slt_mcas_to_left_semiring (A2C_mcas_slt pf) = 
-    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_semiring  pf).
-  Proof.
-    destruct_and_solve pf.
-  Qed.
+  
 
-  Lemma correctness_cast_slt_mcas_to_left_pre_semiring : 
-    forall pf, 
-    cast_slt_mcas_to_left_pre_semiring (A2C_mcas_slt pf) =
-    @A2C_mcas_slt L S (cast_A_slt_mcas_to_A_left_pre_semiring pf).
-  Proof.
-    destruct_and_solve pf.
-  Qed.
-
+  
   
 
   Lemma correctness_cast_left_dioid_to_slt_zero_is_ltr_ann :
