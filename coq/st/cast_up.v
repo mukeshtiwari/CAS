@@ -1244,6 +1244,7 @@ Section CAS.
       ; slt_strictly_absorptive_d := 
           semiring_not_strictly_absorptive_cert A
     |}.
+
     
   Definition cast_left_dioid_to_left_dioid  {L S : Type} 
     (A : @left_dioid L S) : left_dioid := A.
@@ -1275,7 +1276,9 @@ Section CAS.
     ; selective_left_pre_dioid_certs := selective_left_dioid_certs A
     ; selective_left_pre_dioid_ast := selective_left_dioid_ast A 
   |}.
-  
+
+
+
   Definition cast_left_selective_semiring_to_left_selective_semiring
     {L S : Type}  (A : @left_selective_semiring L S) : 
     @left_selective_semiring L S := A.
@@ -1289,6 +1292,54 @@ Section CAS.
   Definition cast_left_semiring_to_left_semiring 
     {L S : Type} (A : @left_semiring L S) : 
     @left_semiring L S := A.
+
+ 
+
+ 
+  Definition cast_left_idempotent_semiring_to_left_semiring 
+    {L S : Type} (A : @left_idempotent_semiring L S) : 
+    @left_semiring L S := 
+    {|
+          left_semiring_carrier := left_idempotent_semiring_carrier A
+        ; left_semiring_label := left_idempotent_semiring_label A
+        ; left_semiring_plus  := left_idempotent_semiring_plus A                                            
+        ; left_semiring_trans  :=  left_idempotent_semiring_trans A
+        ; left_semiring_plus_certs  := sg_C_certs_from_sg_CI_certs _  
+            (eqv_eq (left_idempotent_semiring_carrier A))
+            (left_idempotent_semiring_plus A)
+            (eqv_witness (left_idempotent_semiring_carrier A)) 
+            (eqv_new (left_idempotent_semiring_carrier A)) 
+            (left_idempotent_semiring_plus_certs A)                            
+        ; left_semiring_trans_certs := left_idempotent_semiring_trans_certs A
+        ; left_semiring_exists_plus_ann_d := left_idempotent_semiring_exists_plus_ann_d A                              
+        ; left_semiring_id_ann_certs  := left_idempotent_semiring_id_ann_certs A
+        ; left_semiring_certs  := left_idempotent_semiring_certs A 
+        ; left_semiring_ast  := left_idempotent_semiring_ast A
+    |}.
+
+
+    Definition cast_left_selective_semiring_to_left_semiring 
+      {L S : Type} (A : @left_selective_semiring L S) : 
+      @left_semiring L S :=
+      {|
+            left_semiring_carrier := left_selective_semiring_carrier A
+          ; left_semiring_label := left_selective_semiring_label A
+          ; left_semiring_plus  := left_selective_semiring_plus A                                            
+          ; left_semiring_trans  :=  left_selective_semiring_trans A
+          ; left_semiring_plus_certs  :=  sg_C_certs_from_sg_CS_certs _  
+              (eqv_eq (left_selective_semiring_carrier A))
+              (left_selective_semiring_plus A)
+              (eqv_witness (left_selective_semiring_carrier A)) 
+              (eqv_new (left_selective_semiring_carrier A))
+              (left_selective_semiring_plus_certs A)                            
+          ; left_semiring_trans_certs := left_selective_semiring_trans_certs A
+          ; left_semiring_exists_plus_ann_d := left_selective_semiring_exists_plus_ann_d A                              
+          ; left_semiring_id_ann_certs  := left_selective_semiring_id_ann_certs A
+          ; left_semiring_certs  := left_selective_semiring_certs A 
+          ; left_semiring_ast  := left_selective_semiring_ast A
+      |}.  
+
+
 
   Definition cast_left_semiring_to_left_pre_semiring
     {L S : Type} (A : @left_semiring L S) : 
@@ -1309,11 +1360,14 @@ Section CAS.
       ; left_pre_semiring_certs := left_semiring_certs A 
       ; left_pre_semiring_ast  := left_semiring_ast A 
     |}.
-
-
+    
+    
   Definition cast_left_pre_semiring_to_left_pre_semiring
     {L S : Type} (A : @left_pre_semiring L S) : 
     @left_pre_semiring L S := A.
+
+ (* Everything works upto this point *)
+
 
  
   Definition cast_left_pre_semiring_to_slt 
