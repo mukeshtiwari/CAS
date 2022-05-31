@@ -1029,23 +1029,104 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
         eapply ltr_product_not_exists_ann_left.
         exact l₂.
         exact pb.
-      +  
+      + clear p.
+        eapply SLT_Id_Ann_Proof_Id_None; split.
+        destruct q as ((x, y) & (p₁, p₂) & p₃).
+        eapply bop_llex_exists_id;
+        destruct Hc, Hd; try assumption.
+        exists x; exact p₁.
+        eapply ltr_product_not_exists_ann_left.
+        exact l₂.
+        exact pb.
+      + clear p; clear p0.
+        eapply SLT_Id_Ann_Proof_None; split.
+        eapply bop_llex_not_exists_id_right;
+        destruct Hc; try assumption.
+        eapply ltr_product_not_exists_ann_right.
+        exact l₁.
+        exact qb.
+      + clear p; clear p0.
+        eapply SLT_Id_Ann_Proof_None; split.
+        eapply bop_llex_not_exists_id_left;
+        destruct Hc; try assumption.
+        eapply ltr_product_not_exists_ann_right.
+        exact l₁.
+        exact qb. 
+      + clear p; clear p0.
+        eapply SLT_Id_Ann_Proof_None_Ann; split.
+        eapply bop_llex_not_exists_id_left;
+        destruct Hc; try assumption.
+        eapply ltr_product_exists_ann;
+        try assumption.
+      + clear p.
+        eapply SLT_Id_Ann_Proof_None_Ann; split.
+        eapply bop_llex_not_exists_id_left;
+        destruct Hc; try assumption.
+        eapply ltr_product_exists_ann;
+        try assumption.
+        destruct q as (x & p₁ & p₂).
+        exists x; exact p₂.
+      + clear p.
+        eapply SLT_Id_Ann_Proof_None_Ann; split.
+        eapply bop_llex_not_exists_id_left;
+        destruct Hc; try assumption.
+        eapply ltr_product_exists_ann;
+        try assumption.
+        destruct q as ((x, y) & (p₁, p₂) & p₃).
+        exists y; exact p₂.
+      + clear p0.
+        destruct p as (x & p₁ & p₂).
+        eapply SLT_Id_Ann_Proof_None; split.
+        eapply bop_llex_not_exists_id_right;
+        destruct Hc; try assumption.
+        eapply ltr_product_not_exists_ann_right.
+        exact l₁.
+        exact qb.
+      + clear p0.
+        destruct p as (x & p₁ & p₂).
+        eapply SLT_Id_Ann_Proof_Id_None; split.
+        eapply bop_llex_exists_id;
+        destruct Hc, Hd; try assumption.
+        exists x; exact p₁.
+        eapply ltr_product_not_exists_ann_right.
+        exact l₁.
+        exact qb.
+      + clear p0.
+        destruct p as (x & p₁ & p₂).
+        eapply SLT_Id_Ann_Proof_None_Ann; split.
+        eapply bop_llex_not_exists_id_right;
+        destruct Hc; try assumption.
+        eapply ltr_product_exists_ann;
+        try assumption.
+        exists x; exact p₂.
+      + eapply SLT_Id_Ann_Proof_Equal. 
+        destruct p as (x & p₁ & p₂).
+        destruct q as (y & q₁ & q₂).
+        exists (x, y); split.
+        eapply bop_llex_is_id; 
+        destruct Hc, Hd; 
+        try assumption.
+        eapply ltr_product_is_ann;
+        try assumption.
+      +
+        eapply SLT_Id_Ann_Proof_Not_Equal. 
+        unfold slt_exists_id_ann_not_equal.
+        destruct p as (x & p₁ & p₂).
+        destruct q as ((i, a) & (q₁, q₂) & q₃).
+        exists (x, i, (x, a)); repeat split.
+        Search brel_product.
+        unfold brel_product.        
+
+
+        
 
 
 
-         
 
 
 
 
-     
-
-     
-
-      
-     
-
-      
+       
 
 
   Admitted.
