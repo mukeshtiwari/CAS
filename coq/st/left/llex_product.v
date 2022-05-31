@@ -905,6 +905,152 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
 
 
  *)
+
+
+ (* (* 
+      A_eqv_eq: brel S₁
+      A_eqv_proofs: eqv_proofs S₁ A_eqv_eq
+      A_eqv_witness: S₁
+
+      A_eqv_eq0: brel L₁
+      A_eqv_proofs0: eqv_proofs L₁ A_eqv_eq0
+      A_eqv_witness0: L₁
+
+      A_eqv_eq: brel S₂
+      A_eqv_proofs: eqv_proofs S₂ A_eqv_eq
+      A_eqv_witness: S₂
+
+      A_eqv_eq0: brel L₂
+      A_eqv_proofs0: eqv_proofs L₂ A_eqv_eq0
+      A_eqv_witness0: L₂
+
+    *)
+    *)
+
+
+  Definition bops_llex_product_exists_id_ann_decide :
+    forall (L₁ S₁ L₂ S₂ : Type)
+      (l₁ : L₁)
+      (l₂ : L₂)
+      (s₁ : S₁)
+      (s₂ : S₂)
+      (brelL₁ : brel L₁)
+      (brelL₂ : brel L₂) 
+      (brelS₁ : brel S₁)
+      (brelS₂ : brel S₂)
+      (eqv_proofL₁ : eqv_proofs L₁ brelL₁)
+      (eqv_proofL₂ : eqv_proofs L₂ brelL₂)
+      (eqv_proofS₁ : eqv_proofs S₁ brelS₁)
+      (eqv_proofS₂ : eqv_proofs S₂ brelS₂)
+      (bopS₁ : binary_op S₁)
+      (bopS₂ : binary_op S₂)
+      (ltr₁ : ltr_type L₁ S₁)
+      (ltr₂ : ltr_type L₂ S₂),
+    slt_exists_id_ann_decidable brelS₁ bopS₁ ltr₁ ->
+    slt_exists_id_ann_decidable brelS₂ bopS₂ ltr₂ ->
+    slt_exists_id_ann_decidable
+      (brel_product brelS₁ brelS₂)
+      (bop_llex s₂ brelS₁ bopS₁ bopS₂) 
+      (ltr_product ltr₁ ltr₂).
+  Proof.
+    intros * ? ? ? ? ? ? ? ? 
+      Ha Hb Hc Hd ? ? ? ? H.
+    refine 
+    (match H with
+      | SLT_Id_Ann_Proof_None _ _ _ (pa, pb) => fun Hlt => _ 
+      | SLT_Id_Ann_Proof_Id_None _ _ _ (pa, pb) => fun Hlt => 
+          match Hlt with 
+          | SLT_Id_Ann_Proof_None _ _ _ (qa, qb)  => _ 
+          | SLT_Id_Ann_Proof_Id_None _ _ _ (qa, qb) => _ 
+          | SLT_Id_Ann_Proof_None_Ann _ _ _ (qa, qb) => _
+          | SLT_Id_Ann_Proof_Equal _ _ _ q  => _ 
+          | SLT_Id_Ann_Proof_Not_Equal _ _ _ q => _
+          end
+      | SLT_Id_Ann_Proof_None_Ann _ _ _ (pa, pb) => fun Hlt => 
+          match Hlt with 
+          | SLT_Id_Ann_Proof_None _ _ _ (qa, qb) => _ 
+          | SLT_Id_Ann_Proof_Id_None _ _ _ (qa, qb) => _ 
+          | SLT_Id_Ann_Proof_None_Ann _ _ _ (qa, qb) => _
+          | SLT_Id_Ann_Proof_Equal _ _ _ q => _ 
+          | SLT_Id_Ann_Proof_Not_Equal _ _ _ q => _
+          end
+      | SLT_Id_Ann_Proof_Equal _ _ _ p => fun Hlt => 
+          match Hlt with 
+          | SLT_Id_Ann_Proof_None _ _ _ (qa, qb) => _ 
+          | SLT_Id_Ann_Proof_Id_None _ _ _ (qa, qb) => _ 
+          | SLT_Id_Ann_Proof_None_Ann _ _ _ (qa, qb) => _
+          | SLT_Id_Ann_Proof_Equal _ _ _ q => _ 
+          | SLT_Id_Ann_Proof_Not_Equal _ _ _ q => _
+          end
+      | SLT_Id_Ann_Proof_Not_Equal _ _ _ p => fun Hlt => 
+          match Hlt with 
+          | SLT_Id_Ann_Proof_None _ _ _ (qa, qb) => _ 
+          | SLT_Id_Ann_Proof_Id_None _ _ _ (qa, qb) => _ 
+          | SLT_Id_Ann_Proof_None_Ann _ _ _ (qa, qb) => _
+          | SLT_Id_Ann_Proof_Equal _ _ _ q  => _ 
+          | SLT_Id_Ann_Proof_Not_Equal _ _ _ q => _
+          end
+      end).
+      + clear p. 
+        eapply SLT_Id_Ann_Proof_None; split.
+        eapply bop_llex_not_exists_id_left.
+        exact pa.
+        eapply ltr_product_not_exists_ann_left.
+        exact l₂.
+        exact pb.
+      + clear p; clear p0.
+        eapply SLT_Id_Ann_Proof_None; split.
+        eapply bop_llex_not_exists_id_right.
+        destruct Hc; try assumption.
+        exact qa.
+        eapply ltr_product_not_exists_ann_left.
+        exact l₂.
+        exact pb.
+      + clear p; clear p0.
+        eapply SLT_Id_Ann_Proof_Id_None; split.
+        eapply bop_llex_exists_id; 
+        destruct Hc, Hd; try assumption.
+        eapply ltr_product_not_exists_ann_left.
+        exact l₂.
+        exact pb.
+      + clear p; clear p0.
+        eapply SLT_Id_Ann_Proof_None; split.
+        eapply bop_llex_not_exists_id_right;
+        destruct Hc; try assumption.
+        eapply ltr_product_not_exists_ann_left.
+        exact l₂.
+        exact pb.
+      + clear p.
+        eapply SLT_Id_Ann_Proof_Id_None; split.
+        destruct q as (x & p₁ & p₂).
+        eapply bop_llex_exists_id;
+        destruct Hc, Hd; try assumption.
+        exists x; exact p₁.
+        eapply ltr_product_not_exists_ann_left.
+        exact l₂.
+        exact pb.
+      +  
+
+
+
+         
+
+
+
+
+     
+
+     
+
+      
+     
+
+      
+
+
+  Admitted.
+
+
 End Decide.       
 Section Combinators.
 
@@ -1022,7 +1168,7 @@ Section Combinators.
             (A_sg_C_congruence _ _ _ (A_slt_C_plus_proofs B)) 
             (A_left_transform_congruence _ _ _ _ _ (A_slt_CS_trans_proofs A))
             (A_sg_C_commutative _ _ _ (A_slt_C_plus_proofs B)) 
-            _
+            (inl (A_sg_CS_selective _ _ _ (A_slt_CS_plus_proofs A)))
             (A_slt_CS_trans_proofs A) 
             (A_slt_C_trans_proofs B)
             (A_slt_CS_proofs A)
@@ -1030,7 +1176,50 @@ Section Combinators.
 
         ; A_slt_ast := _ 
       |}.
-      
+
+   
+    (* 
+      A_eqv_eq: brel S₁
+      A_eqv_proofs: eqv_proofs S₁ A_eqv_eq
+      A_eqv_witness: S₁
+
+      A_eqv_eq0: brel L₁
+      A_eqv_proofs0: eqv_proofs L₁ A_eqv_eq0
+      A_eqv_witness0: L₁
+
+      A_eqv_eq: brel S₂
+      A_eqv_proofs: eqv_proofs S₂ A_eqv_eq
+      A_eqv_witness: S₂
+
+      A_eqv_eq0: brel L₂
+      A_eqv_proofs0: eqv_proofs L₂ A_eqv_eq0
+      A_eqv_witness0: L₂
+
+    *)
+   
+    apply  bops_llex_product_exists_id_ann_decide with 
+    (brelL₁ := (A_eqv_eq _ (A_slt_CS_label A))) 
+    (brelL₂ := (A_eqv_eq _ (A_slt_C_label B))).
+    destruct A, A_slt_CS_carrier,
+    A_slt_CS_label; try assumption.
+    destruct B, A_slt_C_carrier,
+    A_slt_C_label; try assumption.
+    destruct A, A_slt_CS_carrier,
+    A_slt_CS_label; try assumption.
+
+    destruct A, A_slt_CS_label; simpl;
+    try assumption.
+    destruct B, A_slt_C_label; simpl;
+    try assumption.
+    destruct A, A_slt_CS_carrier; simpl;
+    try assumption.
+    destruct B, A_slt_C_carrier; simpl;
+    try assumption.
+    destruct A; simpl; try assumption.
+    destruct B; simpl; try assumption.
+    (* so I can discharge all the assumptions *)
+
+  
 
     Admitted.
 
