@@ -26,7 +26,7 @@ Require Import CAS.coq.st.properties.
 
     s |> t === f s t
  
-    (s.s') |> t = s |> (s' |> t)    [f (s.s') t = f s' (f s t)]
+    (s.s') |> t = s |> (s' |> t)    [f (s.s') t = f s (f s' t)]
 
 *) 
 Definition ltr_is_action (T S: Type) (rS : brel S) (bT : binary_op T) (f : ltr_type T S)

@@ -1,4 +1,7 @@
-  (* Print Grammar constr. *)
+
+
+
+(* Print Grammar constr. *)
   Local Infix "+M" := matrix_add (at level 50) : Mat_scope.
   Local Infix "*M" := matrix_mul (at level 40) : Mat_scope.
 

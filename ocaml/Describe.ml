@@ -68,7 +68,7 @@ let rec data_to_string st = function
 			 | Ascii -> "{" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "}"	 
                          | Latex -> "\\{" ^ (String.concat ", " (List.map (data_to_string st) l)) ^ "\\}")
 | DATA_ascii c       -> "DATA_ascii : Not Yet Implemented"
-| DATA_square_matrix _ -> "DATA_square_matrix : Not Yet Implemented"
+(*| DATA_square_matrix _ -> "DATA_square_matrix : Not Yet Implemented"*) 
 			     
 let rec data_to_ascii = data_to_string Ascii
 let rec data_to_latex = data_to_string Latex 

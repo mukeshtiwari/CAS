@@ -250,6 +250,19 @@ Section Theory.
   Proof. intro l. apply (sum_fn_congruence_general nat f g brel_eq_nat cong). 
          apply brel_list_reflexive. apply brel_eq_nat_reflexive. 
   Qed.
+
+  Lemma sum_fn_congruence_v2  (f g : nat -> R) (gcong : ∀ i j, i =n= j -> (g i) =r= (g j)) (cong : ∀ i, (f i) =r= (g i)):
+    ∀ l, sum_fn zero plus f l =r= sum_fn zero plus g l.
+  Proof. intro l.
+         assert (cong2 : ∀ i j, i =n= j -> (f i) =r= (g j)).
+            intros i j A.
+            assert (B := gcong i j A).
+            assert (C := cong i).
+            exact (trnR _ _ _ C B). 
+         apply (sum_fn_congruence_general nat f g brel_eq_nat cong2). 
+         apply brel_list_reflexive. apply brel_eq_nat_reflexive. 
+  Qed.
+
   
   (* try to make this as general as possible *) 
   Lemma fold_right_lemma {A B : Type}

@@ -709,6 +709,7 @@ Qed.
  Admitted.
 
  
+*)              
  Lemma LWP_distributes_over_matrix_add
        (assoc : bop_associative R eqR plus)
        (comm : bop_commutative R eqR plus)
@@ -716,12 +717,61 @@ Qed.
             ∀ X Y, LWP[ X +PM Y ] =M= LWP[ X ] +M LWP[ Y ]. 
  Proof. intros X Y i j. unfold matrix_add.
         apply LW_distributes_over_path_plus; auto. 
- Qed. 
-*)              
+ Qed.
 
+  Lemma LWP_distributes_over_left_exponentiation_base_case (m : functional_matrix L) (n : nat) :  
+    (LWP[ (A[ m]) *[| n |]> ([IP])]) =M= (m *[ n ]> (LWP[ [IP]])).
+  Proof.  unfold left_matrix_mul. intros i j.
+           unfold left_row_i_dot_col_j, ltr_extend_paths.
+           unfold matrix_mul_identity. unfold ltr_extend_path.
+           unfold path_adjacency_arcs. unfold sum_fn. 
+           admit.
+
+  Admitted.
+
+
+  Lemma LWP_distributes_over_left_matrix_mul
+        (m : functional_matrix L) (n : nat) (P : functional_matrix weighted_path_set) : 
+    LWP[ A[ m ] *[| n |]> P ] =M= (m *[ n ]> LWP[ P ]).
+  Proof. intros i j. unfold left_matrix_mul.
+         unfold left_row_i_dot_col_j, ltr_extend_paths.
+         unfold ltr_extend_path, sum_fn, path_adjacency_arcs.
+  Admitted. 
+  
   Lemma LWP_distributes_over_left_exponentiation (m : functional_matrix L) (n : nat) : 
         ∀ k, LWP[ A[ m ] *[| n |]> (Pk[ m , n ]^k) ] =M= (m *[ n ]> LWP[ Pk[ m , n ]^k ]).
+  Proof. induction k. 
+         + (* (LWP[ (A[ m]) *[| n |]> (Pk[ m, n ]^ 0)]) 
+               =M=
+              (m *[ n ]> (LWP[ Pk[ m, n ]^ 0]))
+            *)
+           unfold matrix_of_k_length_paths. simpl.
+           apply LWP_distributes_over_left_exponentiation_base_case. 
+         + (*  IHk : (LWP[ (A[ m]) *[| n |]> (Pk[ m, n ]^ k)]) 
+                     =M=
+                     (m *[ n ]> (LWP[ Pk[ m, n ]^ k]))
+               ============================
+               (LWP[ (A[ m]) *[| n |]> (Pk[ m, n ]^ S k)]) 
+               =M=
+               (m *[ n ]> (LWP[ Pk[ m, n ]^ S k]))
+           
+               Proof: 
+               LWP[ (A[ m]) *[| n |]> (Pk[ m, n ]^ S k)]
+               =M= {unfold_Pk} 
+               LWP[ (A[ m]) *[| n |]> (A[ m ] *[| n |]> (Pk[ m , n ]^k))]
+               =M={LWP_distributes_over_left_matrix_mul} 
+               (m *[ n ]> LWP[ (A[ m ] *[| n |]> (Pk[ m , n ]^k)) ])
+               =M= {IHk} 
+               (m *[ n ]> (m *[ n ]> (LWP[ Pk[ m, n ]^ k]))
+               =M= {unfold}
+               (m *[ n ]> (LWP[ Pk[ m, n ]^ S k]))
+            *)
+           
   Admitted. 
+
+
+
+
 
   Lemma  base_case_of_fundamental_theorem_on_paths_of_length_k
          (assoc : bop_associative R eqR plus)
@@ -732,9 +782,11 @@ Qed.
          unfold matrix_of_k_length_paths at 1. 
          unfold left_matrix_exponentiation.
          (* Show: 
-          (LWP[ ((A[ m ]) *[| n |]> ([IP])) +PM ([IP])]) =M= ((m *[ n ]> (LWP[ Pk[ m, n ]^ 0])))
-         Proof: 
-          
+          (LWP[ ((A[ m ]) *[| n |]> ([IP])) +PM ([IP])]) 
+           =M= 
+          ((m *[ n ]> (LWP[ Pk[ m, n ]^ 0])))
+         
+          Proof: 
           LWP[ ((A[ m ]) *[| n |]> ([IP])) +PM ([IP])]
           =M= {LWP_distributes_over_matrix_add}
           LWP[ ((A[ m ]) *[| n |]> ([IP])) ] +M LWP[ [IP] ]

@@ -74,7 +74,7 @@ Section Matrix_Equality.
     ∀ m m' m'', m =M= m' -> m' =M= m'' -> m =M= m''. 
   Proof. intros m m' m'' A B i j. exact (trnR _ _ _ (A i j) (B i j)). Qed.
 
-  (* what exactly do we require? *) 
+  (* what exactly do we require? 
   Lemma eq_square_matrix_is_sound (m₁ m₂ : @square_matrix R) : 
     eq_functional_matrix_prop (sqm_functional_matrix m₁) (sqm_functional_matrix m₂) -> eq_square_matrix eqR m₁ m₂ = true. 
   Proof. intro A. destruct m₁, m₂. 
@@ -84,6 +84,6 @@ Section Matrix_Equality.
          + admit. 
          + unfold eq_square_matrix. admit.
 Admitted. 
-
+*) 
   
 End Matrix_Equality.   
