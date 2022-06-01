@@ -19,7 +19,9 @@ Require Import CAS.coq.tr.left.product.
 Require Import CAS.coq.st.properties.
 Require Import CAS.coq.st.structures.
 Require Import CAS.coq.st.cast_up. 
-Require Import CAS.coq.bs.llex_product.
+From Coq Require Import String List.
+Local Open Scope string_scope.
+Import ListNotations.
 
 
 
@@ -1184,25 +1186,8 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
 
 End Decide.       
 Section Combinators.
-
-
-
-  (* By looking at the bs/llex_product.v, I will take two algebra and build another 
-    using lexicographic producet. For example, the first algebra could be A_slt_CS and 
-    and second could be A_slt_CI, 
-
-    lexproduct {L1 S1 L2 S2 :  Type} (A : @A_slt_CS S1 T1) (B : @A_slt_CI S2 T2) : 
-      A_slt_?? (lexproduct S1 S2) (directproduct L1 L2) 
-    What do we need cast_up.v ? 
-    *)
-   
     
-    (* I think the type of A : @A_slt L1 S1 and B : @A_slt_CS L2 S2 
-      because at some point, during the slt_proof, it demands   
-      bop_commutative S₂ (A_eqv_eq S₂ (A_slt_carrier B)) (A_slt_plus B)
-      but if we go by the below data type, B : A_slt L2 S2, we don't 
-      know if it's commutative (because it's decidable )
-    *)
+   
     Definition A_llex_product_from_A_slt_CS_A_slt_C {L₁ S₁ L₂ S₂: Type} 
       (A : @A_slt_CS L₁ S₁) (B : @A_slt_C L₂ S₂) : @A_slt (L₁ * L₂) (S₁ * S₂).
       refine 
@@ -1274,7 +1259,20 @@ Section Combinators.
             (A_eqv_proofs _ (A_slt_C_carrier B)) 
             (A_slt_CS_exists_plus_ann_d A) 
             (A_slt_C_exists_plus_ann_d B) 
-        ; A_slt_id_ann_proofs_d  := _
+        ; A_slt_id_ann_proofs_d  := bops_llex_product_exists_id_ann_decide
+            L₁ S₁ L₂ S₂ 
+            (A_eqv_witness _ (A_slt_CS_label A))  
+            (A_eqv_witness _ (A_slt_C_label B))
+            (A_eqv_witness _ (A_slt_CS_carrier A))  
+            (A_eqv_witness _ (A_slt_C_carrier B))  
+            _ _ _ _ 
+            (A_eqv_proofs _ (A_slt_CS_label A)) 
+            (A_eqv_proofs _ (A_slt_C_label B)) 
+            (A_eqv_proofs _ (A_slt_CS_carrier A))
+            (A_eqv_proofs _ (A_slt_C_carrier B))  
+            _ _ _ _ 
+            (A_slt_CS_id_ann_proofs_d A)
+            (A_slt_C_id_ann_proofs_d B) 
         ; A_slt_proofs :=   stl_llex_product_proofs L₁ S₁ L₂ S₂ 
             (A_eqv_eq _ (A_slt_CS_label A)) 
             (A_eqv_eq _ (A_slt_C_label B))
@@ -1303,57 +1301,11 @@ Section Combinators.
             (A_slt_CS_trans_proofs A) 
             (A_slt_C_trans_proofs B)
             (A_slt_CS_proofs A)
-            (A_slt_C_proofs B)   
-
-        ; A_slt_ast := _ 
+            (A_slt_C_proofs B)
+        ; A_slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
+          [A_slt_CS_ast A; A_slt_C_ast B]
       |}.
-
-   
-    (* 
-      A_eqv_eq: brel S₁
-      A_eqv_proofs: eqv_proofs S₁ A_eqv_eq
-      A_eqv_witness: S₁
-
-      A_eqv_eq0: brel L₁
-      A_eqv_proofs0: eqv_proofs L₁ A_eqv_eq0
-      A_eqv_witness0: L₁
-
-      A_eqv_eq: brel S₂
-      A_eqv_proofs: eqv_proofs S₂ A_eqv_eq
-      A_eqv_witness: S₂
-
-      A_eqv_eq0: brel L₂
-      A_eqv_proofs0: eqv_proofs L₂ A_eqv_eq0
-      A_eqv_witness0: L₂
-
-    *)
-   
-    apply  bops_llex_product_exists_id_ann_decide with 
-    (brelL₁ := (A_eqv_eq _ (A_slt_CS_label A))) 
-    (brelL₂ := (A_eqv_eq _ (A_slt_C_label B))).
-    destruct A, A_slt_CS_carrier,
-    A_slt_CS_label; try assumption.
-    destruct B, A_slt_C_carrier,
-    A_slt_C_label; try assumption.
-    destruct A, A_slt_CS_carrier,
-    A_slt_CS_label; try assumption.
-
-    destruct A, A_slt_CS_label; simpl;
-    try assumption.
-    destruct B, A_slt_C_label; simpl;
-    try assumption.
-    destruct A, A_slt_CS_carrier; simpl;
-    try assumption.
-    destruct B, A_slt_C_carrier; simpl;
-    try assumption.
-    destruct A; simpl; try assumption.
-    destruct B; simpl; try assumption.
-    (* so I can discharge all the assumptions *)
-
-  
-
-    Admitted.
-
+    Defined.
 
     Definition A_llex_product_from_A_slt_CI_A_slt_zero_is_ltr_ann 
       {L₁ S₁ L₂ S₂: Type} (A : @A_slt_CI L₁ S₁) 
