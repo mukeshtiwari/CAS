@@ -1356,7 +1356,9 @@ Section Combinators.
               (A_eqv_not_trivial _ (A_slt_C_zero_is_ltr_ann_carrier B))
               (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier B))
               (A_slt_C_zero_is_ltr_ann_plus_proofs B))    
-            _ _ _ 
+            (A_sg_CI_idempotent _ _ _ (A_slt_CI_plus_proofs A)) 
+            (A_sg_CI_commutative _ _ _ (A_slt_CI_plus_proofs A)) 
+            _ 
                                       
         ; A_slt_trans_proofs  := ltr_product_proofs L₁ S₁ L₂ S₂ 
             (A_eqv_eq _ (A_slt_CI_carrier A)) 
@@ -1401,11 +1403,67 @@ Section Combinators.
             [A_slt_CI_ast A; A_slt_C_zero_is_ltr_ann_ast B]
     
     |}.
-      
 
-    Admitted.
+    (* I need to go right *)
+    right.
+    (* 
+      Lemma bop_cancellative_implies_idempotent_is_id : 
+   ∀ (S : Type) (r : brel S) (b : binary_op S), 
+      brel_reflexive S r -> 
+      brel_symmetric S r -> 
+      brel_transitive S r -> 
+      bop_associative S r b -> 
+      bop_congruence S r b -> 
+      bop_left_cancellative S r b -> 
+      bop_right_cancellative S r b -> 
+      ∀ i : S, r (b i i) i = true -> bop_is_id S r b i. 
 
-  
+      So, we need bop_left_cancellative and 
+      bop_right_cancellative but all we have is 
+
+      A_sg_C_cancel_d: bop_left_cancellative_decidable S₂
+                    (A_eqv_eq S₂ A_slt_C_zero_is_ltr_ann_carrier)
+                    A_slt_C_zero_is_ltr_ann_plus
+
+
+
+
+    
+    *)
+    Print bop_left_cancellative.
+
+    eapply bop_cancellative_implies_idempotent_is_id.
+    Search bop_left_cancellative.
+    Print A_sg_C_proofs.
+    
+    destruct B, A_slt_C_zero_is_ltr_ann_carrier,
+    A_eqv_proofs; 
+    simpl; try assumption.
+    destruct B, A_slt_C_zero_is_ltr_ann_carrier,
+    A_eqv_proofs; 
+    simpl; try assumption.
+    destruct B, A_slt_C_zero_is_ltr_ann_carrier,
+    A_eqv_proofs; 
+    simpl; try assumption.
+    destruct B, A_slt_C_zero_is_ltr_ann_plus_proofs; 
+    simpl; try assumption.
+    destruct B, A_slt_C_zero_is_ltr_ann_plus_proofs; 
+    simpl; try assumption.
+    Print A_slt_C_zero_is_ltr_ann_plus_proofs.
+    Print sg_C_proofs.
+    
+    destruct B, A_slt_C_zero_is_ltr_ann_plus_proofs; 
+    simpl.
+    
+    destruct A_sg_C_cancel_d as [Ha | Ha].
+    exact Ha.
+    unfold bop_not_left_cancellative in Ha.
+    unfold bop_anti_left_decidable in A_sg_C_anti_left_d.
+    (* I think we need 
+
+    *)
+
+
 End Combinators.   
   
 End CAS.
