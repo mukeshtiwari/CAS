@@ -1307,29 +1307,34 @@ Section Combinators.
       |}.
     Defined.
 
+    (*
+   
+    *)
+    Check bop_llex .
+    Check ltr_product_proofs.
+
     Definition A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann 
       {L₁ S₁ L₂ S₂: Type} (A : @A_slt_CI L₁ S₁) 
       (B : @A_slt_C_zero_is_ltr_ann L₂ S₂) :  @A_slt (L₁ * L₂) (S₁ * S₂).
     refine 
     {|
           A_slt_carrier := A_eqv_product _ _ 
-            (A_slt_CI_carrier A) 
-            (A_slt_C_zero_is_ltr_ann_carrier B)
+            (A_slt_CI_carrier A) (A_slt_C_zero_is_ltr_ann_carrier B)
         ; A_slt_label := A_eqv_product _ _ 
             (A_slt_CI_label A) 
             (A_slt_C_zero_is_ltr_ann_label B)
         ; A_slt_plus := bop_llex 
-            (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_carrier B))
+            (projT1 (A_slt_C_zero_is_ltr_ann_id_ann_proofs B))
             (A_eqv_eq _ (A_slt_CI_carrier A)) 
             (A_slt_CI_plus A) 
-            (A_slt_C_zero_is_ltr_ann_plus B)                                           
+            (A_slt_C_zero_is_ltr_ann_plus B)                                          
         ; A_slt_trans  := ltr_product 
             (A_slt_CI_trans A) 
             (A_slt_C_zero_is_ltr_ann_trans B)
-        ; A_slt_plus_proofs   := sg_llex_proofs S₁ S₂ 
+        ; A_slt_plus_proofs   := @sg_llex_proofs S₁ S₂ 
             (A_eqv_witness _ (A_slt_CI_carrier A))
             (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_carrier B))
-            _ 
+            (projT1 (A_slt_C_zero_is_ltr_ann_id_ann_proofs B))
             (A_eqv_eq _ (A_slt_CI_carrier A)) 
             (A_eqv_eq _ (A_slt_C_zero_is_ltr_ann_carrier B)) 
             (A_eqv_new _ (A_slt_CI_carrier A)) 
@@ -1359,7 +1364,7 @@ Section Combinators.
             (A_sg_CI_idempotent _ _ _ (A_slt_CI_plus_proofs A)) 
             (A_sg_CI_commutative _ _ _ (A_slt_CI_plus_proofs A)) 
             _ 
-                                      
+                                          
         ; A_slt_trans_proofs  := ltr_product_proofs L₁ S₁ L₂ S₂ 
             (A_eqv_eq _ (A_slt_CI_carrier A)) 
             (A_eqv_eq _ (A_slt_CI_label A))  
@@ -1375,42 +1380,32 @@ Section Combinators.
             (A_eqv_reflexive _ _ (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier B)))
             (A_slt_CI_trans_proofs A) (A_slt_C_zero_is_ltr_ann_trans_proofs B) 
         ; A_slt_exists_plus_ann_d := bop_llex_exists_ann_decide S₁ S₂ 
-            (A_eqv_witness S₂ (A_slt_C_zero_is_ltr_ann_carrier B))
+            (projT1 (A_slt_C_zero_is_ltr_ann_id_ann_proofs B))
             (A_eqv_eq S₁ (A_slt_CI_carrier A)) 
             (A_eqv_eq S₂ (A_slt_C_zero_is_ltr_ann_carrier B))
             (A_slt_CI_plus A) (A_slt_C_zero_is_ltr_ann_plus B) 
             (A_eqv_proofs _ (A_slt_CI_carrier A)) 
             (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier B)) 
             (A_slt_CI_exists_plus_ann_d A) 
-            (A_slt_C_zero_is_ltr_ann_exists_plus_ann_d B)                              
-        ; A_slt_id_ann_proofs_d := bops_llex_product_exists_id_ann_decide
-            L₁ S₁ L₂ S₂ 
-            (A_eqv_witness _ (A_slt_CI_label A))  
-            (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_label B))
-            (A_eqv_witness _ (A_slt_CI_carrier A))  
-            (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_carrier B))  
-            _ _ _ _ 
-            (A_eqv_proofs _ (A_slt_CI_label A)) 
-            (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_label B)) 
-            (A_eqv_proofs _ (A_slt_CI_carrier A))
-            (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier B))  
-            _ _ _ _ 
-            (A_slt_CI_id_ann_proofs_d A)
-            (SLT_Id_Ann_Proof_Equal _ _ _ 
-               (A_slt_C_zero_is_ltr_ann_id_ann_proofs B))                                      
-        ; A_slt_proofs := _                           
+            (A_slt_C_zero_is_ltr_ann_exists_plus_ann_d B)                         
+        ; A_slt_id_ann_proofs_d :=_                              
+        ; A_slt_proofs := _                         
         ; A_slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [A_slt_CI_ast A; A_slt_C_zero_is_ltr_ann_ast B]
     
     |}.
+    
+   
 
     (* I need to go right *)
     right.
     destruct B, A_slt_C_zero_is_ltr_ann_plus_proofs,
-    A_slt_C_zero_is_ltr_ann_carrier;
+    A_slt_C_zero_is_ltr_ann_carrier, A_slt_C_zero_is_ltr_ann_id_ann_proofs; 
     simpl in *.
-    destruct A_slt_C_zero_is_ltr_ann_id_ann_proofs.
-
+    destruct p as (pa & pb).
+    exact pa.
+    
+    
   Admitted.
 
 End Combinators.   
