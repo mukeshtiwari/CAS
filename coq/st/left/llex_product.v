@@ -19,6 +19,8 @@ Require Import CAS.coq.tr.left.product.
 Require Import CAS.coq.st.properties.
 Require Import CAS.coq.st.structures.
 Require Import CAS.coq.st.cast_up. 
+Require Import CAS.coq.bs.llex_product.
+
 
 
 
@@ -1108,28 +1110,76 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
         try assumption.
         eapply ltr_product_is_ann;
         try assumption.
-      +
-        eapply SLT_Id_Ann_Proof_Not_Equal. 
+      + eapply SLT_Id_Ann_Proof_Not_Equal.
         unfold slt_exists_id_ann_not_equal.
-        destruct p as (x & p₁ & p₂).
-        destruct q as ((i, a) & (q₁, q₂) & q₃).
-        exists (x, i, (x, a)); repeat split.
-        Search brel_product.
-        unfold brel_product.        
+        destruct p as (px & p₁ & p₂).
+        destruct q as ((qx, qy) & (q₁, q₂) & q₃).
+        exists ((px, qx), (px, qy)).
+        split.
+        split.
+        eapply bop_llex_is_id;
+        destruct Hc, Hd; 
+        try assumption.
+        eapply ltr_product_is_ann;
+        try assumption.
+        simpl; rewrite q₃; 
+        apply andb_false_r.
+      + clear p0. 
+        eapply SLT_Id_Ann_Proof_None; split.
+        eapply bop_llex_not_exists_id_right;
+        destruct Hc; try assumption.
+        eapply ltr_product_not_exists_ann_right.
+        exact l₁.
+        exact qb.
+      + clear p0.
+        eapply SLT_Id_Ann_Proof_Id_None; split.
+        destruct p as ((x, y) & (p₁, p₂) & p₃).
+        eapply bop_llex_exists_id;
+        destruct Hc, Hd; try assumption.
+        exists x; exact p₁.
+        eapply ltr_product_not_exists_ann_right.
+        exact l₁.
+        exact qb.
+      + clear p0.
+        eapply SLT_Id_Ann_Proof_None_Ann; split.
+        eapply bop_llex_not_exists_id_right;
+        destruct Hc; try assumption.
+        eapply ltr_product_exists_ann;
+        try assumption.
+        unfold ltr_exists_ann.
+        destruct p as ((x, y) & (p₁, p₂) & p₃).
+        exists y; exact p₂.
+      + destruct p as ((px, py) & (p₁, p₂) & p₃).
+        destruct q as (qx & q₁ & q₂).  
+        eapply SLT_Id_Ann_Proof_Not_Equal.
+        unfold slt_exists_id_ann_not_equal.
+        exists ((px, qx), (py, qx)).
+        split.
+        split.
+        eapply bop_llex_is_id;
+        destruct Hc, Hd; 
+        try assumption.
+        eapply ltr_product_is_ann;
+        try assumption.
+        simpl; rewrite p₃; 
+        reflexivity.
+      + eapply SLT_Id_Ann_Proof_Not_Equal. 
+        destruct p as ((px, py) & (p₁, p₂) & p₃).
+        destruct q as ((qx, qy) & (q₁, q₂) & q₃).
+        unfold slt_exists_id_ann_not_equal.
+        exists ((px, qx), (py, qy)).
+        split. 
+        split.
+        eapply bop_llex_is_id;
+        destruct Hc, Hd; 
+        try assumption.
+        eapply ltr_product_is_ann;
+        try assumption.
+        simpl; rewrite p₃; 
+        reflexivity.
+  Defined.
 
 
-        
-
-
-
-
-
-
-
-       
-
-
-  Admitted.
 
 
 End Decide.       
