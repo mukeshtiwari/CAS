@@ -1456,26 +1456,6 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
  *)
 
 
- (* (* 
-      A_eqv_eq: brel S₁
-      A_eqv_proofs: eqv_proofs S₁ A_eqv_eq
-      A_eqv_witness: S₁
-
-      A_eqv_eq0: brel L₁
-      A_eqv_proofs0: eqv_proofs L₁ A_eqv_eq0
-      A_eqv_witness0: L₁
-
-      A_eqv_eq: brel S₂
-      A_eqv_proofs: eqv_proofs S₂ A_eqv_eq
-      A_eqv_witness: S₂
-
-      A_eqv_eq0: brel L₂
-      A_eqv_proofs0: eqv_proofs L₂ A_eqv_eq0
-      A_eqv_witness0: L₂
-
-    *)
-    *)
-
 
   
 
@@ -1540,9 +1520,9 @@ Section Combinators.
       ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
         [slt_CS_ast A; slt_C_ast B]
     |}.
+  Admitted.
   
-  Search slt_certificates.
-  
+
 
 End Combinators.   
   
