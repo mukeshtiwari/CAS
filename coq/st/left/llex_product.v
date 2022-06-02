@@ -1521,12 +1521,85 @@ Section Combinators.
         [slt_CS_ast A; slt_C_ast B]
     |}.
   Admitted.
+
+   Definition llex_product_from_slt_CI_slt_C_zero_is_ltr_ann 
+    {L₁ S₁ L₂ S₂: Type} (A : @slt_CI L₁ S₁) 
+    (B : @slt_C_zero_is_ltr_ann L₂ S₂) :  @slt (L₁ * L₂) (S₁ * S₂).
+    refine
+    {|
+        slt_carrier := eqv_product
+          (slt_CI_carrier A) (slt_C_zero_is_ltr_ann_carrier B)
+      ; slt_label := eqv_product 
+          (slt_CI_label A) 
+          (slt_C_zero_is_ltr_ann_label B)
+      ; slt_plus  := bop_llex 
+          (match slt_C_zero_is_ltr_ann_id_ann_certs B with
+            | Assert_Slt_Exists_Id_Ann_Equal s => s
+          end) 
+          (eqv_eq (slt_CI_carrier A)) 
+          (slt_CI_plus A) 
+          (slt_C_zero_is_ltr_ann_plus B)                                             
+      ; slt_trans := ltr_product 
+          (slt_CI_trans A) 
+          (slt_C_zero_is_ltr_ann_trans B) 
+      ; slt_plus_certs := _                             
+      ; slt_trans_certs  := ltr_product_certs 
+          (eqv_witness (slt_CI_carrier A))
+          (eqv_witness (slt_CI_label A))
+          (slt_CI_trans_certs A)
+          (eqv_witness (slt_C_zero_is_ltr_ann_carrier B))
+          (eqv_witness (slt_C_zero_is_ltr_ann_label B))
+          (slt_C_zero_is_ltr_ann_trans_certs B) 
+      ; slt_exists_plus_ann_d := check_exists_ann_llex
+          (slt_CI_exists_plus_ann_d A)
+          (slt_C_zero_is_ltr_ann_exists_plus_ann_d B)                        
+      ; slt_id_ann_certs_d := _                 
+      ; slt_certs := _ 
+      ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
+            [slt_CI_ast A; slt_C_zero_is_ltr_ann_ast B]
+    |}.
+  Admitted.  
+
+   
   
 
 
 End Combinators.   
   
 End CAS.
+
+Section MCAS.
+
+  (* name should change *)
+  Definition cast_first_to_slt_CS_and_second_to_slt_C {L₁ S₁ L₂ S₂: Type}
+    (A : @slt_mcas L₁ S₁) (B : @slt_mcas L₂ S₂) 
+    : @slt_mcas (L₁ * L₂) (S₁ * S₂) :=
+    match cast_slt_mcas_to_slt_CS A with
+    | SLT_CS slt₁ => 
+        match cast_slt_mcas_to_slt_C B with 
+        | SLT_C slt₂ => 
+            slt_classify_slt (llex_product_from_slt_CS_slt_C slt₁ slt₂)
+        | _ => 
+            SLT_Error ["Cannot cast the second componento of A_slt_C"] 
+        end
+    | _  => 
+        match cast_slt_mcas_to_slt_CI A with  
+        | SLT_CI slt₃ => 
+          match cast_slt_mcas_to_slt_C_zero_is_ltr_ann B with 
+          | SLT_C_Zero_Is_Ltr_ann slt₄ => 
+              slt_classify_slt 
+                (llex_product_from_slt_CI_slt_C_zero_is_ltr_ann slt₃ slt₄)
+          | _ => 
+             SLT_Error ["Cannot cast the second componento of A_slt_C_zero_is_ltr_ann"]
+          end
+        | _ => SLT_Error ["Cannot cast up the first component of A_SLT_CS and A_SLT_CI"]
+        end
+    end.
+    
+    
+
+End MCAS.
+
 
 Section Verify.
 
