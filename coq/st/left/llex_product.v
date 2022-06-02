@@ -1287,7 +1287,7 @@ From Coq Require Import String.
 Open Scope string_scope.
 Section AMCAS.
 
-
+  (* change the name *)
   Definition cast_first_to_A_slt_CS_and_second_to_A_slt_C {L₁ S₁ L₂ S₂: Type}
     (A : @A_slt_mcas L₁ S₁) (B : @A_slt_mcas L₂ S₂) 
     : @A_slt_mcas (L₁ * L₂) (S₁ * S₂) :=
@@ -1602,6 +1602,18 @@ End MCAS.
 
 
 Section Verify.
+  Context 
+    {L₁ S₁ L₂ S₂ : Type}.
+
+  (* name? *)
+  Lemma correctness_proof :
+   forall pf₁ pf₂, 
+    cast_first_to_slt_CS_and_second_to_slt_C 
+      (A2C_mcas_slt pf₁) (A2C_mcas_slt pf₂) = 
+    @A2C_mcas_slt (L₁ * L₂) (S₁ * S₂)  
+      (cast_first_to_A_slt_CS_and_second_to_A_slt_C pf₁ pf₂).
+  Proof.
+  Admitted.
 
 End Verify.   
   
