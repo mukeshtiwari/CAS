@@ -1283,6 +1283,40 @@ End Combinators.
   
 End ACAS.
 
+From Coq Require Import String.
+Open Scope string_scope.
+Section AMCAS.
+
+
+  Definition cast_first_to_A_slt_CS_and_second_to_A_slt_C {L₁ S₁ L₂ S₂: Type}
+    (A : @A_slt_mcas L₁ S₁) (B : @A_slt_mcas L₂ S₂) 
+    : @A_slt_mcas (L₁ * L₂) (S₁ * S₂) :=
+    match cast_A_slt_mcas_to_A_slt_CS A with
+    | A_SLT_CS slt₁ => 
+        match cast_A_slt_mcas_to_A_slt_C B with 
+        | A_SLT_C slt₂ => 
+            A_slt_classify_slt (A_llex_product_from_A_slt_CS_A_slt_C slt₁ slt₂)
+        | _ => 
+            A_SLT_Error ["Cannot cast the second componento of A_slt_C"] 
+        end
+    | _  => 
+        match cast_A_slt_mcas_to_A_slt_CI A with  
+        | A_SLT_CI slt₃ => 
+          match cast_A_slt_mcas_to_A_slt_C_zero_is_ltr_ann B with 
+          | A_SLT_C_Zero_Is_Ltr_ann slt₄ => 
+              A_slt_classify_slt 
+                (A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann slt₃ slt₄)
+          | _ => 
+             A_SLT_Error ["Cannot cast the second componento of A_slt_C_zero_is_ltr_ann"]
+          end
+        | _ => A_SLT_Error ["Cannot cast up the first component of A_SLT_CS and A_SLT_CI"]
+        end
+    end.
+    
+    
+
+End AMCAS.
+
 Section CAS.
 
 Section Decide.
