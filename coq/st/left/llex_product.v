@@ -737,7 +737,7 @@ match sabsS_d with
   end
 end.
 
-Definition stl_llex_product_proofs
+Definition slt_llex_product_proofs
            (a_commT : bop_commutative T eqT addT) 
            (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
            (QS : left_transform_proofs LS S eqS eqLS ltrS)
@@ -1103,7 +1103,7 @@ Section Combinators.
             _ _ _ _ 
             (A_slt_CS_id_ann_proofs_d A)
             (A_slt_C_id_ann_proofs_d B) 
-        ; A_slt_proofs :=   stl_llex_product_proofs L₁ S₁ L₂ S₂ 
+        ; A_slt_proofs :=   slt_llex_product_proofs L₁ S₁ L₂ S₂ 
             (A_eqv_eq _ (A_slt_CS_label A)) 
             (A_eqv_eq _ (A_slt_C_label B))
             (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
@@ -1250,7 +1250,7 @@ Section Combinators.
     simpl in *.
     destruct p as (pa & pb).
     exact pa.
-    eapply  stl_llex_product_proofs.
+    eapply  slt_llex_product_proofs.
     exact (A_eqv_witness _ (A_slt_CI_label A)).
     exact (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_label B)).
     exact (A_eqv_witness _ (A_slt_CI_carrier A)).
@@ -1426,7 +1426,7 @@ match sabsS_d with
   end
 end.
 
-Definition stl_llex_product_proofs
+Definition slt_llex_product_proofs
            (a_commT : bop_commutative T eqT addT) 
            (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
            (QS : left_transform_proofs LS S eqS eqLS ltrS)
@@ -1483,10 +1483,66 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
 
 End Decide.       
 Section Combinators.
-    
-   
+
+  Definition llex_product_from_slt_CS_slt_C {L₁ S₁ L₂ S₂: Type} 
+    (A : @slt_CS L₁ S₁) (B : @slt_C L₂ S₂) : @slt (L₁ * L₂) (S₁ * S₂).
+  refine
+    {|
+        slt_carrier := eqv_product (slt_CS_carrier A) (slt_C_carrier B) 
+      ; slt_label := eqv_product (slt_CS_label A) (slt_C_label B)
+      ; slt_plus  :=   bop_llex 
+          (eqv_witness (slt_C_carrier B))
+          (eqv_eq (slt_CS_carrier A)) 
+          (slt_CS_plus A) 
+          (slt_C_plus B)                                          
+      ; slt_trans := ltr_product 
+          (slt_CS_trans A) 
+          (slt_C_trans B) 
+      ; slt_plus_certs := sg_llex_certificates 
+          (eqv_eq (slt_CS_carrier A)) 
+          (eqv_witness (slt_CS_carrier A)) 
+          (eqv_new (slt_CS_carrier A)) 
+          (eqv_witness (slt_C_carrier B)) 
+          (eqv_witness (slt_C_carrier B))
+          (eqv_new (slt_C_carrier B)) 
+          (slt_CS_plus A)
+          (sg_CS_certs_to_sg_certs  
+            (eqv_eq (slt_CS_carrier A))
+            (slt_CS_plus A)
+            (eqv_witness (slt_CS_carrier A))
+            (eqv_new (slt_CS_carrier A))
+            (slt_CS_plus_certs A))
+          (sg_C_certs_to_sg_certs  
+            (eqv_eq (slt_C_carrier B))
+            (slt_C_plus B)
+            (eqv_witness (slt_C_carrier B))
+            (eqv_new (slt_C_carrier B))
+            (slt_C_plus_certs B))
+          _
+          (sg_CS_commutative (slt_CS_plus_certs A)) 
+
+      ; slt_trans_certs := ltr_product_certs 
+          (eqv_witness (slt_CS_carrier A))
+          (eqv_witness (slt_CS_label A))
+          (slt_CS_trans_certs A)
+          (eqv_witness (slt_C_carrier B))
+          (eqv_witness (slt_C_label B))
+          (slt_C_trans_certs B) 
+
+
+      ; slt_exists_plus_ann_d := check_exists_ann_llex
+          (slt_CS_exists_plus_ann_d A)
+          (slt_C_exists_plus_ann_d B)
+
+
+      ; slt_id_ann_certs_d := _                 
+      ; slt_certs := _                               
+      ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
+        [slt_CS_ast A; slt_C_ast B]
+    |}.
   
-    
+  Search slt_certificates.
+  
 
 End Combinators.   
   
