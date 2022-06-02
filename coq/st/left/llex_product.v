@@ -1307,11 +1307,7 @@ Section Combinators.
       |}.
     Defined.
 
-    (*
    
-    *)
-    Check bop_llex .
-    Check ltr_product_proofs.
 
     Definition A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann 
       {L₁ S₁ L₂ S₂: Type} (A : @A_slt_CI L₁ S₁) 
@@ -1378,7 +1374,8 @@ Section Combinators.
             (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_label B))
             (A_slt_C_zero_is_ltr_ann_trans B) 
             (A_eqv_reflexive _ _ (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier B)))
-            (A_slt_CI_trans_proofs A) (A_slt_C_zero_is_ltr_ann_trans_proofs B) 
+            (A_slt_CI_trans_proofs A) 
+            (A_slt_C_zero_is_ltr_ann_trans_proofs B) 
         ; A_slt_exists_plus_ann_d := bop_llex_exists_ann_decide S₁ S₂ 
             (projT1 (A_slt_C_zero_is_ltr_ann_id_ann_proofs B))
             (A_eqv_eq S₁ (A_slt_CI_carrier A)) 
@@ -1388,14 +1385,33 @@ Section Combinators.
             (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier B)) 
             (A_slt_CI_exists_plus_ann_d A) 
             (A_slt_C_zero_is_ltr_ann_exists_plus_ann_d B)                         
-        ; A_slt_id_ann_proofs_d :=_                              
-        ; A_slt_proofs := _                         
+        ; A_slt_id_ann_proofs_d :=  bops_llex_product_exists_id_ann_decide L₁ S₁ L₂ S₂
+            (A_eqv_witness L₁ (A_slt_CI_label A))
+            (A_eqv_witness L₂ (A_slt_C_zero_is_ltr_ann_label B))
+            (A_eqv_witness S₁ (A_slt_CI_carrier A))
+            (projT1 (A_slt_C_zero_is_ltr_ann_id_ann_proofs B))
+            (A_eqv_eq L₁ (A_slt_CI_label A))
+            (A_eqv_eq L₂ (A_slt_C_zero_is_ltr_ann_label B))
+            (A_eqv_eq S₁ (A_slt_CI_carrier A))
+            (A_eqv_eq S₂ (A_slt_C_zero_is_ltr_ann_carrier B))
+            (A_eqv_proofs L₁ (A_slt_CI_label A))
+            (A_eqv_proofs L₂ (A_slt_C_zero_is_ltr_ann_label B))
+            (A_eqv_proofs S₁ (A_slt_CI_carrier A))
+            (A_eqv_proofs S₂ (A_slt_C_zero_is_ltr_ann_carrier B))
+            (A_slt_CI_plus A) (A_slt_C_zero_is_ltr_ann_plus B)
+            (A_slt_CI_trans A) (A_slt_C_zero_is_ltr_ann_trans B)
+            (A_slt_CI_id_ann_proofs_d A)
+            (SLT_Id_Ann_Proof_Equal
+              (A_eqv_eq S₂ (A_slt_C_zero_is_ltr_ann_carrier B))
+              (A_slt_C_zero_is_ltr_ann_plus B)
+              (A_slt_C_zero_is_ltr_ann_trans B)
+              (A_slt_C_zero_is_ltr_ann_id_ann_proofs B))
+        ; A_slt_proofs := _                       
         ; A_slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [A_slt_CI_ast A; A_slt_C_zero_is_ltr_ann_ast B]
     
     |}.
     
-   
 
     (* I need to go right *)
     right.
@@ -1404,9 +1420,36 @@ Section Combinators.
     simpl in *.
     destruct p as (pa & pb).
     exact pa.
+    eapply  stl_llex_product_proofs.
+    exact (A_eqv_witness _ (A_slt_CI_label A)).
+    exact (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_label B)).
+    exact (A_eqv_witness _ (A_slt_CI_carrier A)).
+    exact (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_carrier B)).
+    exact (A_eqv_proofs _ (A_slt_CI_label A)).
+    exact (A_eqv_proofs _ (A_slt_CI_carrier A)).
+    exact (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier B)).
+    exact (A_sg_CI_idempotent _ _ _ (A_slt_CI_plus_proofs A)).
+    exact (A_sg_C_commutative _ _ _ 
+      (A_slt_C_zero_is_ltr_ann_plus_proofs B)).
+    exact (A_sg_CI_congruence _ _ _ (A_slt_CI_plus_proofs A)).
+    exact (A_sg_C_congruence _ _ _ 
+      (A_slt_C_zero_is_ltr_ann_plus_proofs B)).
+    exact (A_left_transform_congruence _ _ _ _ _ 
+      (A_slt_CI_trans_proofs A)).
+    exact (A_sg_C_commutative _ _ _ (A_slt_C_zero_is_ltr_ann_plus_proofs B)).
+    right.
+    destruct B, A_slt_C_zero_is_ltr_ann_plus_proofs,
+    A_slt_C_zero_is_ltr_ann_carrier, A_slt_C_zero_is_ltr_ann_id_ann_proofs; 
+    simpl in *.
+    exact p. 
+    exact (A_slt_CI_trans_proofs A).
+    exact (A_slt_C_zero_is_ltr_ann_trans_proofs B).
+    exact (A_slt_CI_proofs A).
+    exact (A_slt_C_zero_is_ltr_ann_proofs B).
+  Defined.
+
+  
     
-    
-  Admitted.
 
 End Combinators.   
   
