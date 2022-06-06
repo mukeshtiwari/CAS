@@ -763,7 +763,7 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ PT in
 |}.
 
 
-Definition bops_llex_product_exists_id_ann_decide :
+Definition bops_llex_product_proofs_exists_id_ann_decide :
     forall (L₁ S₁ L₂ S₂ : Type)
       (l₁ : L₁)
       (l₂ : L₂)
@@ -1089,7 +1089,7 @@ Section Combinators.
             (A_eqv_proofs _ (A_slt_C_carrier B)) 
             (A_slt_CS_exists_plus_ann_d A) 
             (A_slt_C_exists_plus_ann_d B) 
-        ; A_slt_id_ann_proofs_d  := bops_llex_product_exists_id_ann_decide
+        ; A_slt_id_ann_proofs_d  := bops_llex_product_proofs_exists_id_ann_decide
             L₁ S₁ L₂ S₂ 
             (A_eqv_witness _ (A_slt_CS_label A))  
             (A_eqv_witness _ (A_slt_C_label B))
@@ -1215,7 +1215,7 @@ Section Combinators.
             (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier B)) 
             (A_slt_CI_exists_plus_ann_d A) 
             (A_slt_C_zero_is_ltr_ann_exists_plus_ann_d B)                         
-        ; A_slt_id_ann_proofs_d :=  bops_llex_product_exists_id_ann_decide L₁ S₁ L₂ S₂
+        ; A_slt_id_ann_proofs_d :=  bops_llex_product_proofs_exists_id_ann_decide L₁ S₁ L₂ S₂
             (A_eqv_witness L₁ (A_slt_CI_label A))
             (A_eqv_witness L₂ (A_slt_C_zero_is_ltr_ann_label B))
             (A_eqv_witness S₁ (A_slt_CI_carrier A))
@@ -1455,27 +1455,13 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
 
  *)
 
-
-  Definition bops_llex_product_certs_exists_id_ann_decide :
-    forall (L₁ S₁ L₂ S₂ : Type)
-      (l₁ : L₁)
-      (l₂ : L₂)
-      (s₁ : S₁)
-      (s₂ : S₂)
-      (brelL₁ : brel L₁)
-      (brelL₂ : brel L₂) 
-      (brelS₁ : brel S₁)
-      (brelS₂ : brel S₂)
-      (bopS₁ : binary_op S₁)
-      (bopS₂ : binary_op S₂)
-      (ltr₁ : ltr_type L₁ S₁)
-      (ltr₂ : ltr_type L₂ S₂),
+  
+  Definition bops_llex_product_certs_exists_id_ann_decide {L₁ S₁ L₂ S₂ : Type}:
     @check_slt_exists_id_ann L₁ S₁ ->
     @check_slt_exists_id_ann L₂ S₂ ->
     @check_slt_exists_id_ann (L₁ * L₂) (S₁ * S₂).
   Proof.
-    intros * ? ? ? ? ? ? ? ? ? ? ? ? Ha Hb.
-    Print check_slt_exists_id_ann.
+    intros Ha Hb.
     refine 
       (match Ha as Hat return Ha = Hat -> _ with
       | Certify_SLT_Id_Ann_Proof_None =>  _ 
@@ -1511,7 +1497,7 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
           | Certify_SLT_Id_Ann_Proof_Equal tx => _ 
           | Certify_SLT_Id_Ann_Proof_Not_Equal (tx, ty) => _ 
           end eq_refl
-      end _).
+      end eq_refl).
     + intros ?.
       eapply Certify_SLT_Id_Ann_Proof_None.
     + intros ? ?.
@@ -1524,8 +1510,51 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
     + intros ? ?.
       eapply Certify_SLT_Id_Ann_Proof_Id_None.
       exact (x, tx).
-  Admitted.
-
+    + intros ? ?. 
+      eapply Certify_SLT_Id_Ann_Proof_Id_None.
+      exact (x, tx). (* is this correct? *) 
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None.
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None.
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None_Ann.
+      exact (x, tx).
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None_Ann.
+      exact (x, tx).
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None_Ann.
+      exact (x, tx). (* is this correct? *)
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None.
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_Id_None.
+      exact (x, tx).
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None_Ann.
+      exact (x, tx).
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_Equal.
+      exact (x, tx).
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_Not_Equal.
+      exact (x, tx, (x, ty)).
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None.
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_Id_None.
+      exact (x, tx). (* Is this correct? It will be evident in proof *)    
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None_Ann.
+      exact (x, tx).
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_Not_Equal.
+      exact (x, tx, (y, tx)).
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_Not_Equal.
+      exact (x, tx, (y, ty)).
+  Defined.  
 
 
 
@@ -1587,12 +1616,14 @@ Section Combinators.
           (slt_C_exists_plus_ann_d B)
 
 
-      ; slt_id_ann_certs_d := _                 
+      ; slt_id_ann_certs_d :=  bops_llex_product_certs_exists_id_ann_decide 
+          (slt_CS_id_ann_certs_d A)  
+          (slt_C_id_ann_certs_d B)                 
       ; slt_certs := _                               
       ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
         [slt_CS_ast A; slt_C_ast B]
     |}.
-    
+   
     (* Proof idea: 
       From coq/sg/theory.v we get 
       Lemma bop_selective_implies_idempotent : ∀ (S : Type) (r : brel S) (b : binary_op S),
@@ -1610,22 +1641,6 @@ Section Combinators.
     *)
 
     admit.
-    destruct A; simpl.
-    destruct B; simpl.
-    Check @slt_CS_id_ann_certs_d.
-    Check @check_slt_exists_id_ann 
-    Locate check_slt_exists_id_ann.
-    (* Now I need certificate version of 
-      bops_llex_product_exists_id_ann_decide
-
-    *)
-    Print check_slt_exists_id_ann.
-    destruct A; simpl.
-    destruct slt_CS_certs; simpl.
-
-    econstructor.
-
-
 
   Admitted.
 
