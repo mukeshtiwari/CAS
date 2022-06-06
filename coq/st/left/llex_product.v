@@ -1562,7 +1562,42 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
     @slt_certificates L₂ S₂ ->
     @slt_certificates (L₁ * L₂) (S₁ * S₂).
   Proof.
-    intros [Ha Hb Hc] [Hd He Hf].
+    intros [Ha Hb Hc] [Hd He Hf];
+    constructor.
+    refine 
+      match Ha, Hd with 
+      | Certify_Slt_Distributive, Certify_Slt_Distributive => 
+          Certify_Slt_Distributive 
+      | Certify_Slt_Distributive,  Certify_Slt_Not_Distributive pf =>  
+          _ 
+      | Certify_Slt_Not_Distributive pf,  Certify_Slt_Distributive =>  
+          _ 
+      | Certify_Slt_Not_Distributive pf₁,  Certify_Slt_Not_Distributive pf₂ => 
+         _ 
+      end.
+      admit.
+      admit.
+      admit.
+      refine 
+        match Hb, He with 
+        | Certify_Slt_Absorptive, Certify_Slt_Absorptive => 
+            Certify_Slt_Absorptive 
+        | Certify_Slt_Absorptive,  Certify_Slt_Not_Absorptive pf =>  
+            _ 
+        | Certify_Slt_Not_Absorptive pf,  Certify_Slt_Absorptive =>  
+            _ 
+        | Certify_Slt_Not_Absorptive pf₁,  Certify_Slt_Not_Absorptive pf₂ => 
+          _ 
+        end.
+      admit.
+      admit.
+      admit.
+
+    Admitted.
+     
+      
+  
+    
     (* Now, I need to write lex product for 
       Ha: @check_slt_distributive L₁ S₁
       Hb: @check_slt_absorptive L₁ S₁
@@ -1712,7 +1747,7 @@ Section Combinators.
             (eqv_witness (slt_C_zero_is_ltr_ann_carrier B))
             (eqv_new (slt_C_zero_is_ltr_ann_carrier B))
             (slt_C_zero_is_ltr_ann_plus_certs B))
-          Assert_Idempotent (* Simialar to above, 
+          Assert_Idempotent (* Similar to above, 
           there is just one way to 
           construct assert_idempotent. so I am giving 
           here the constructor. In diagram commutes, 
