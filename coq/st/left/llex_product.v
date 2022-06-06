@@ -1557,6 +1557,23 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
   Defined.  
 
 
+  Definition slt_llex_product_certs {L₁ S₁ L₂ S₂ : Type} :
+    @slt_certificates L₁ S₁ ->
+    @slt_certificates L₂ S₂ ->
+    @slt_certificates (L₁ * L₂) (S₁ * S₂).
+  Proof.
+    intros [Ha Hb Hc] [Hd He Hf].
+    (* Now, I need to write lex product for 
+      Ha: @check_slt_distributive L₁ S₁
+      Hb: @check_slt_absorptive L₁ S₁
+      Hc: @check_slt_strictly_absorptive L₁ S₁
+      Hd: @check_slt_distributive L₂ S₂
+      He: @check_slt_absorptive L₂ S₂
+      Hf: @check_slt_strictly_absorptive L₂ S₂
+    
+    *)
+  Admitted.
+
 
   
 
@@ -1623,16 +1640,18 @@ Section Combinators.
           ; slt_id_ann_certs_d :=  bops_llex_product_certs_exists_id_ann_decide 
               (slt_CS_id_ann_certs_d A)  
               (slt_C_id_ann_certs_d B)                 
-          ; slt_certs := _                               
+          ; slt_certs := slt_llex_product_certs 
+              (slt_CS_certs A)
+              (slt_C_certs B)                             
           ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [slt_CS_ast A; slt_C_ast B]
         |}.
+    Defined.
        
         (* Now, I need to write certificate version of 
           slt_llex_product_proofs. Then I am good*)
 
-        Locate slt_llex_product_proofs.
-
+    
       
         (* 
           No longer need this:
@@ -1652,7 +1671,6 @@ Section Combinators.
         
         *)
 
-    Admitted.
 
    Definition llex_product_from_slt_CI_slt_C_zero_is_ltr_ann 
     {L₁ S₁ L₂ S₂: Type} (A : @slt_CI L₁ S₁) 
@@ -1716,15 +1734,13 @@ Section Combinators.
             (match slt_C_zero_is_ltr_ann_id_ann_certs B with
               | Assert_Slt_Exists_Id_Ann_Equal s => s
             end))              
-      ; slt_certs := _ 
+      ; slt_certs := slt_llex_product_certs 
+          (slt_CI_certs A)
+          (slt_C_zero_is_ltr_ann_certs B)
       ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [slt_CI_ast A; slt_C_zero_is_ltr_ann_ast B]
     |}.
-    
-  Admitted.  
-
-   
-  
+  Defined.
 
 
 End Combinators.   
@@ -1776,6 +1792,21 @@ Section Verify.
     @A2C_mcas_slt (L₁ * L₂) (S₁ * S₂)  
       (cast_first_to_A_slt_CS_and_second_to_A_slt_C pf₁ pf₂).
   Proof.
+    unfold cast_first_to_slt_CS_and_second_to_slt_C,
+    cast_first_to_A_slt_CS_and_second_to_A_slt_C;
+    destruct pf₁, pf₂; simpl;
+    try reflexivity.
+    (* Wow! 62 subgoals! *)
+    Search slt_classify_slt.
+    rewrite <-correctness_slt_classify_slt.
+    f_equal.
+    Search llex_product_from_slt_CS_slt_C.
+    (* I can't proceed because llex_product_from_slt_CS_slt_C is admitted. *)
+    unfold A_llex_product_from_A_slt_CS_A_slt_C, 
+    llex_product_from_slt_CS_slt_C; 
+    destruct a, a0; simpl.
+
+
   Admitted.
 
 End Verify.   
