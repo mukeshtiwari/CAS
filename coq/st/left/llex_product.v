@@ -1564,6 +1564,7 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
 
 End Decide.       
 Section Combinators.
+   
 
     Definition llex_product_from_slt_CS_slt_C {L₁ S₁ L₂ S₂: Type} 
       (A : @slt_CS L₁ S₁) (B : @slt_C L₂ S₂) : @slt (L₁ * L₂) (S₁ * S₂).
@@ -1623,8 +1624,14 @@ Section Combinators.
           ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [slt_CS_ast A; slt_C_ast B]
         |}.
-        Set Printing Implicit.
-        
+       
+        admit.
+        Print slt_certificates.
+        (* Now, I need to write certificate version of 
+          slt_llex_product_proofs. Then I am good*)
+
+        Locate slt_llex_product_proofs.
+
       
         (* Proof idea: 
           From coq/sg/theory.v we get 
@@ -1666,7 +1673,28 @@ Section Combinators.
       ; slt_trans := ltr_product 
           (slt_CI_trans A) 
           (slt_C_zero_is_ltr_ann_trans B) 
-      ; slt_plus_certs := _                             
+      ; slt_plus_certs := sg_llex_certificates 
+          (eqv_eq (slt_CI_carrier A)) 
+          (eqv_witness (slt_CI_carrier A)) 
+          (eqv_new (slt_CI_carrier A)) 
+          (eqv_witness (slt_C_zero_is_ltr_ann_carrier B)) 
+          (eqv_witness (slt_C_zero_is_ltr_ann_carrier B))
+          (eqv_new (slt_C_zero_is_ltr_ann_carrier B)) 
+          (slt_CI_plus A)
+          (sg_CI_certs_to_sg_certs  
+            (eqv_eq (slt_CI_carrier A))
+            (slt_CI_plus A)
+            (eqv_witness (slt_CI_carrier A))
+            (eqv_new (slt_CI_carrier A))
+            (slt_CI_plus_certs A))
+          (sg_C_certs_to_sg_certs  
+            (eqv_eq (slt_C_zero_is_ltr_ann_carrier B))
+            (slt_C_zero_is_ltr_ann_plus B)
+            (eqv_witness (slt_C_zero_is_ltr_ann_carrier B))
+            (eqv_new (slt_C_zero_is_ltr_ann_carrier B))
+            (slt_C_zero_is_ltr_ann_plus_certs B))
+          _
+          (sg_CI_commutative (slt_CI_plus_certs A))                              
       ; slt_trans_certs  := ltr_product_certs 
           (eqv_witness (slt_CI_carrier A))
           (eqv_witness (slt_CI_label A))
@@ -1687,7 +1715,7 @@ Section Combinators.
       ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [slt_CI_ast A; slt_C_zero_is_ltr_ann_ast B]
     |}.
-  
+    
   Admitted.  
 
    
