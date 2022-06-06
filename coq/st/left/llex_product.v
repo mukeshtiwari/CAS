@@ -1600,7 +1600,10 @@ Section Combinators.
                 (eqv_witness (slt_C_carrier B))
                 (eqv_new (slt_C_carrier B))
                 (slt_C_plus_certs B))
-              _
+              Assert_Idempotent (* There is just one way to 
+               construct assert_idempotent. so I am giving 
+               here the constructor. In diagram commutes, 
+               both values will reduce to Assert_idempotent *)
               (sg_CS_commutative (slt_CS_plus_certs A)) 
 
           ; slt_trans_certs := ltr_product_certs 
@@ -1625,15 +1628,15 @@ Section Combinators.
             [slt_CS_ast A; slt_C_ast B]
         |}.
        
-        admit.
-        Print slt_certificates.
         (* Now, I need to write certificate version of 
           slt_llex_product_proofs. Then I am good*)
 
         Locate slt_llex_product_proofs.
 
       
-        (* Proof idea: 
+        (* 
+          No longer need this:
+          Proof idea: 
           From coq/sg/theory.v we get 
           Lemma bop_selective_implies_idempotent : ∀ (S : Type) (r : brel S) (b : binary_op S),
             bop_selective S r b -> bop_idempotent S r b.
@@ -1648,8 +1651,6 @@ Section Combinators.
           And prove that diagram commutes! 
         
         *)
-
-        admit.
 
     Admitted.
 
@@ -1693,7 +1694,11 @@ Section Combinators.
             (eqv_witness (slt_C_zero_is_ltr_ann_carrier B))
             (eqv_new (slt_C_zero_is_ltr_ann_carrier B))
             (slt_C_zero_is_ltr_ann_plus_certs B))
-          _
+          Assert_Idempotent (* Simialar to above, 
+          there is just one way to 
+          construct assert_idempotent. so I am giving 
+          here the constructor. In diagram commutes, 
+          both values will reduce to Assert_idempotent *)
           (sg_CI_commutative (slt_CI_plus_certs A))                              
       ; slt_trans_certs  := ltr_product_certs 
           (eqv_witness (slt_CI_carrier A))
