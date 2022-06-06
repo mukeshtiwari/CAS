@@ -1456,6 +1456,78 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
  *)
 
 
+  Definition bops_llex_product_certs_exists_id_ann_decide :
+    forall (L₁ S₁ L₂ S₂ : Type)
+      (l₁ : L₁)
+      (l₂ : L₂)
+      (s₁ : S₁)
+      (s₂ : S₂)
+      (brelL₁ : brel L₁)
+      (brelL₂ : brel L₂) 
+      (brelS₁ : brel S₁)
+      (brelS₂ : brel S₂)
+      (bopS₁ : binary_op S₁)
+      (bopS₂ : binary_op S₂)
+      (ltr₁ : ltr_type L₁ S₁)
+      (ltr₂ : ltr_type L₂ S₂),
+    @check_slt_exists_id_ann L₁ S₁ ->
+    @check_slt_exists_id_ann L₂ S₂ ->
+    @check_slt_exists_id_ann (L₁ * L₂) (S₁ * S₂).
+  Proof.
+    intros * ? ? ? ? ? ? ? ? ? ? ? ? Ha Hb.
+    Print check_slt_exists_id_ann.
+    refine 
+      (match Ha as Hat return Ha = Hat -> _ with
+      | Certify_SLT_Id_Ann_Proof_None =>  _ 
+      | Certify_SLT_Id_Ann_Proof_Id_None x =>
+          match Hb as Hbt return Hb = Hbt -> _ with 
+          | Certify_SLT_Id_Ann_Proof_None => _ 
+          | Certify_SLT_Id_Ann_Proof_Id_None tx => _ 
+          | Certify_SLT_Id_Ann_Proof_None_Ann tx  => _ 
+          | Certify_SLT_Id_Ann_Proof_Equal tx => _ 
+          | Certify_SLT_Id_Ann_Proof_Not_Equal (tx, ty) => _ 
+          end eq_refl 
+      | Certify_SLT_Id_Ann_Proof_None_Ann x =>
+          match Hb as Hbt return Hb = Hbt -> _ with 
+          | Certify_SLT_Id_Ann_Proof_None => _ 
+          | Certify_SLT_Id_Ann_Proof_Id_None tx => _ 
+          | Certify_SLT_Id_Ann_Proof_None_Ann tx  => _ 
+          | Certify_SLT_Id_Ann_Proof_Equal tx => _ 
+          | Certify_SLT_Id_Ann_Proof_Not_Equal (tx, ty) => _ 
+          end eq_refl
+      | Certify_SLT_Id_Ann_Proof_Equal x =>
+          match Hb as Hbt return Hb = Hbt -> _ with 
+          | Certify_SLT_Id_Ann_Proof_None => _ 
+          | Certify_SLT_Id_Ann_Proof_Id_None tx => _ 
+          | Certify_SLT_Id_Ann_Proof_None_Ann tx  => _ 
+          | Certify_SLT_Id_Ann_Proof_Equal tx => _ 
+          | Certify_SLT_Id_Ann_Proof_Not_Equal (tx, ty) => _ 
+          end eq_refl
+      | Certify_SLT_Id_Ann_Proof_Not_Equal (x, y) =>
+          match Hb as Hbt return Hb = Hbt -> _ with 
+          | Certify_SLT_Id_Ann_Proof_None => _ 
+          | Certify_SLT_Id_Ann_Proof_Id_None tx => _ 
+          | Certify_SLT_Id_Ann_Proof_None_Ann tx  => _ 
+          | Certify_SLT_Id_Ann_Proof_Equal tx => _ 
+          | Certify_SLT_Id_Ann_Proof_Not_Equal (tx, ty) => _ 
+          end eq_refl
+      end _).
+    + intros ?.
+      eapply Certify_SLT_Id_Ann_Proof_None.
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None.
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_Id_None.
+      exact (x, tx).
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_None.
+    + intros ? ?.
+      eapply Certify_SLT_Id_Ann_Proof_Id_None.
+      exact (x, tx).
+  Admitted.
+
+
+
 
   
 
@@ -1520,6 +1592,41 @@ Section Combinators.
       ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
         [slt_CS_ast A; slt_C_ast B]
     |}.
+    
+    (* Proof idea: 
+      From coq/sg/theory.v we get 
+      Lemma bop_selective_implies_idempotent : ∀ (S : Type) (r : brel S) (b : binary_op S),
+        bop_selective S r b -> bop_idempotent S r b.
+      so we have bop_idempotent:
+      Then I need to write a small program in 
+      coq/sg/properties.v
+      Definition p2c_idempotent_assert : 
+        forall (S : Type) (r : brel S) (b : binary_op S), 
+        bop_idempotent S r b -> @assert_idempotent S :=
+      λ S r b d, @Assert_Idempotent S
+    
+      And prove that diagram commutes! 
+    
+    *)
+
+    admit.
+    destruct A; simpl.
+    destruct B; simpl.
+    Check @slt_CS_id_ann_certs_d.
+    Check @check_slt_exists_id_ann 
+    Locate check_slt_exists_id_ann.
+    (* Now I need certificate version of 
+      bops_llex_product_exists_id_ann_decide
+
+    *)
+    Print check_slt_exists_id_ann.
+    destruct A; simpl.
+    destruct slt_CS_certs; simpl.
+
+    econstructor.
+
+
+
   Admitted.
 
    Definition llex_product_from_slt_CI_slt_C_zero_is_ltr_ann 
@@ -1616,4 +1723,5 @@ Section Verify.
   Admitted.
 
 End Verify.   
-  
+
+
