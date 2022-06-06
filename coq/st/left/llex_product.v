@@ -1565,84 +1565,86 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
 End Decide.       
 Section Combinators.
 
-  Definition llex_product_from_slt_CS_slt_C {L₁ S₁ L₂ S₂: Type} 
-    (A : @slt_CS L₁ S₁) (B : @slt_C L₂ S₂) : @slt (L₁ * L₂) (S₁ * S₂).
-  refine
-    {|
-        slt_carrier := eqv_product (slt_CS_carrier A) (slt_C_carrier B) 
-      ; slt_label := eqv_product (slt_CS_label A) (slt_C_label B)
-      ; slt_plus  :=   bop_llex 
-          (eqv_witness (slt_C_carrier B))
-          (eqv_eq (slt_CS_carrier A)) 
-          (slt_CS_plus A) 
-          (slt_C_plus B)                                          
-      ; slt_trans := ltr_product 
-          (slt_CS_trans A) 
-          (slt_C_trans B) 
-      ; slt_plus_certs := sg_llex_certificates 
-          (eqv_eq (slt_CS_carrier A)) 
-          (eqv_witness (slt_CS_carrier A)) 
-          (eqv_new (slt_CS_carrier A)) 
-          (eqv_witness (slt_C_carrier B)) 
-          (eqv_witness (slt_C_carrier B))
-          (eqv_new (slt_C_carrier B)) 
-          (slt_CS_plus A)
-          (sg_CS_certs_to_sg_certs  
-            (eqv_eq (slt_CS_carrier A))
-            (slt_CS_plus A)
-            (eqv_witness (slt_CS_carrier A))
-            (eqv_new (slt_CS_carrier A))
-            (slt_CS_plus_certs A))
-          (sg_C_certs_to_sg_certs  
-            (eqv_eq (slt_C_carrier B))
-            (slt_C_plus B)
-            (eqv_witness (slt_C_carrier B))
-            (eqv_new (slt_C_carrier B))
-            (slt_C_plus_certs B))
-          _
-          (sg_CS_commutative (slt_CS_plus_certs A)) 
+    Definition llex_product_from_slt_CS_slt_C {L₁ S₁ L₂ S₂: Type} 
+      (A : @slt_CS L₁ S₁) (B : @slt_C L₂ S₂) : @slt (L₁ * L₂) (S₁ * S₂).
+      refine
+        {|
+            slt_carrier := eqv_product (slt_CS_carrier A) (slt_C_carrier B) 
+          ; slt_label := eqv_product (slt_CS_label A) (slt_C_label B)
+          ; slt_plus  :=   bop_llex 
+              (eqv_witness (slt_C_carrier B))
+              (eqv_eq (slt_CS_carrier A)) 
+              (slt_CS_plus A) 
+              (slt_C_plus B)                                          
+          ; slt_trans := ltr_product 
+              (slt_CS_trans A) 
+              (slt_C_trans B) 
+          ; slt_plus_certs := sg_llex_certificates 
+              (eqv_eq (slt_CS_carrier A)) 
+              (eqv_witness (slt_CS_carrier A)) 
+              (eqv_new (slt_CS_carrier A)) 
+              (eqv_witness (slt_C_carrier B)) 
+              (eqv_witness (slt_C_carrier B))
+              (eqv_new (slt_C_carrier B)) 
+              (slt_CS_plus A)
+              (sg_CS_certs_to_sg_certs  
+                (eqv_eq (slt_CS_carrier A))
+                (slt_CS_plus A)
+                (eqv_witness (slt_CS_carrier A))
+                (eqv_new (slt_CS_carrier A))
+                (slt_CS_plus_certs A))
+              (sg_C_certs_to_sg_certs  
+                (eqv_eq (slt_C_carrier B))
+                (slt_C_plus B)
+                (eqv_witness (slt_C_carrier B))
+                (eqv_new (slt_C_carrier B))
+                (slt_C_plus_certs B))
+              _
+              (sg_CS_commutative (slt_CS_plus_certs A)) 
 
-      ; slt_trans_certs := ltr_product_certs 
-          (eqv_witness (slt_CS_carrier A))
-          (eqv_witness (slt_CS_label A))
-          (slt_CS_trans_certs A)
-          (eqv_witness (slt_C_carrier B))
-          (eqv_witness (slt_C_label B))
-          (slt_C_trans_certs B) 
-
-
-      ; slt_exists_plus_ann_d := check_exists_ann_llex
-          (slt_CS_exists_plus_ann_d A)
-          (slt_C_exists_plus_ann_d B)
+          ; slt_trans_certs := ltr_product_certs 
+              (eqv_witness (slt_CS_carrier A))
+              (eqv_witness (slt_CS_label A))
+              (slt_CS_trans_certs A)
+              (eqv_witness (slt_C_carrier B))
+              (eqv_witness (slt_C_label B))
+              (slt_C_trans_certs B) 
 
 
-      ; slt_id_ann_certs_d :=  bops_llex_product_certs_exists_id_ann_decide 
-          (slt_CS_id_ann_certs_d A)  
-          (slt_C_id_ann_certs_d B)                 
-      ; slt_certs := _                               
-      ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
-        [slt_CS_ast A; slt_C_ast B]
-    |}.
-   
-    (* Proof idea: 
-      From coq/sg/theory.v we get 
-      Lemma bop_selective_implies_idempotent : ∀ (S : Type) (r : brel S) (b : binary_op S),
-        bop_selective S r b -> bop_idempotent S r b.
-      so we have bop_idempotent:
-      Then I need to write a small program in 
-      coq/sg/properties.v
-      Definition p2c_idempotent_assert : 
-        forall (S : Type) (r : brel S) (b : binary_op S), 
-        bop_idempotent S r b -> @assert_idempotent S :=
-      λ S r b d, @Assert_Idempotent S
-    
-      And prove that diagram commutes! 
-    
-    *)
+          ; slt_exists_plus_ann_d := check_exists_ann_llex
+              (slt_CS_exists_plus_ann_d A)
+              (slt_C_exists_plus_ann_d B)
 
-    admit.
 
-  Admitted.
+          ; slt_id_ann_certs_d :=  bops_llex_product_certs_exists_id_ann_decide 
+              (slt_CS_id_ann_certs_d A)  
+              (slt_C_id_ann_certs_d B)                 
+          ; slt_certs := _                               
+          ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
+            [slt_CS_ast A; slt_C_ast B]
+        |}.
+        Set Printing Implicit.
+        
+      
+        (* Proof idea: 
+          From coq/sg/theory.v we get 
+          Lemma bop_selective_implies_idempotent : ∀ (S : Type) (r : brel S) (b : binary_op S),
+            bop_selective S r b -> bop_idempotent S r b.
+          so we have bop_idempotent:
+          Then I need to write a small program in 
+          coq/sg/properties.v
+          Definition p2c_idempotent_assert : 
+            forall (S : Type) (r : brel S) (b : binary_op S), 
+            bop_idempotent S r b -> @assert_idempotent S :=
+          λ S r b d, @Assert_Idempotent S
+        
+          And prove that diagram commutes! 
+        
+        *)
+
+        admit.
+
+    Admitted.
 
    Definition llex_product_from_slt_CI_slt_C_zero_is_ltr_ann 
     {L₁ S₁ L₂ S₂: Type} (A : @slt_CI L₁ S₁) 
@@ -1675,11 +1677,17 @@ Section Combinators.
       ; slt_exists_plus_ann_d := check_exists_ann_llex
           (slt_CI_exists_plus_ann_d A)
           (slt_C_zero_is_ltr_ann_exists_plus_ann_d B)                        
-      ; slt_id_ann_certs_d := _                 
+      ; slt_id_ann_certs_d := bops_llex_product_certs_exists_id_ann_decide 
+          (slt_CI_id_ann_certs_d A) 
+          (Certify_SLT_Id_Ann_Proof_Equal 
+            (match slt_C_zero_is_ltr_ann_id_ann_certs B with
+              | Assert_Slt_Exists_Id_Ann_Equal s => s
+            end))              
       ; slt_certs := _ 
       ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [slt_CI_ast A; slt_C_zero_is_ltr_ann_ast B]
     |}.
+  
   Admitted.  
 
    
