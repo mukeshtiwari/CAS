@@ -2895,6 +2895,67 @@ Section Correctness.
   Qed.       
 
 
+  Lemma cast_A_slt_mcas_to_A_slt_CS_is_A_slt_CS_or_error : 
+    forall pf,
+    {A : @A_slt_CS L S | cast_A_slt_mcas_to_A_slt_CS pf = A_SLT_CS A} + 
+    {l | cast_A_slt_mcas_to_A_slt_CS pf = A_SLT_Error l}.
+  Proof.
+    destruct pf; simpl;
+    try
+      (right; eexists;
+       reflexivity);
+    try
+      (left; eexists;
+       f_equal).
+  Qed.
+   
+
+  Lemma cast_A_slt_mcas_to_A_slt_C_is_A_slt_C_or_error : 
+    forall pf,
+    {A : @A_slt_C L S | cast_A_slt_mcas_to_A_slt_C pf = A_SLT_C A} + 
+    {l | cast_A_slt_mcas_to_A_slt_C pf = A_SLT_Error l}.
+  Proof.
+    destruct pf; simpl;
+    try
+      (right; eexists;
+       reflexivity);
+    try
+      (left; eexists;
+       f_equal).
+  Qed.
+
+    
+  Lemma cast_A_slt_mcas_to_A_slt_CI_is_A_slt_CI_or_error : 
+    forall pf,
+    {A : @A_slt_CI L S | cast_A_slt_mcas_to_A_slt_CI pf = A_SLT_CI A} + 
+    {l | cast_A_slt_mcas_to_A_slt_CI pf = A_SLT_Error l}.
+  Proof.
+    destruct pf; simpl;
+    try
+      (right; eexists;
+       reflexivity);
+    try
+      (left; eexists;
+       f_equal).
+  Qed. 
+
+  Lemma cast_A_slt_mcas_to_A_slt_C_zero_is_ltr_ann_to_A_slt_C_zero_is_ltr_ann_or_error: 
+    forall pf,
+    {A : @A_slt_C_zero_is_ltr_ann L S 
+      | cast_A_slt_mcas_to_A_slt_C_zero_is_ltr_ann pf = A_SLT_C_Zero_Is_Ltr_ann A} + 
+    {l | cast_A_slt_mcas_to_A_slt_C_zero_is_ltr_ann pf = A_SLT_Error l}.
+  Proof. 
+    destruct pf; simpl;
+    try
+      (right; eexists;
+       reflexivity);
+    try
+      (left; eexists;
+       f_equal).
+  Qed.
+    
+  
+  
 
 
 

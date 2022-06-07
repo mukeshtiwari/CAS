@@ -26,6 +26,7 @@ Import ListNotations.
 
 
 
+
 (* why? *) 
 Definition ltr_weak_congruence (L S : Type) (rS : brel S) (lt : ltr_type L S) := 
    ∀ (l : L) (s1 s2 : S), rS s1 s2 = true -> rS (lt l s1) (lt l s2) = true.
@@ -1750,7 +1751,30 @@ Section Verify.
   Context 
     {L₁ S₁ L₂ S₂ : Type}.
 
-  (* name? *)
+
+  Lemma correct_llex_product_from_slt_CS_slt_C : 
+    forall A B, 
+    slt_classify_slt
+      (llex_product_from_slt_CS_slt_C (A2C_slt_cs A) (A2C_slt_c B)) =
+    @A2C_mcas_slt (L₁ * L₂) (S₁ * S₂) 
+      (A_slt_classify_slt (A_llex_product_from_A_slt_CS_A_slt_C A B)).
+  Proof.
+    intros ? ?.
+    unfold llex_product_from_slt_CS_slt_C,
+    A_llex_product_from_A_slt_CS_A_slt_C.
+
+  Admitted.
+
+  Lemma correct_llex_product_from_slt_CI_slt_C_zero_is_ltr_ann : 
+    forall b c , 
+    slt_classify_slt
+      (llex_product_from_slt_CI_slt_C_zero_is_ltr_ann 
+        (A2C_slt_ci b) (A2C_slt_C_zero_is_ltr_ann c)) =
+    @A2C_mcas_slt (L₁ * L₂) (S₁ * S₂)  
+      (A_slt_classify_slt
+        (A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann b c)).
+  Admitted.
+    
   Lemma correct_mcas_slt_llex_product :
    forall pf₁ pf₂, 
    mcas_slt_llex_product 
@@ -1758,22 +1782,49 @@ Section Verify.
     @A2C_mcas_slt (L₁ * L₂) (S₁ * S₂)  
       (A_mcas_slt_llex_product pf₁ pf₂).
   Proof.
-    unfold cast_first_to_slt_CS_and_second_to_slt_C,
-    cast_first_to_A_slt_CS_and_second_to_A_slt_C;
-    destruct pf₁, pf₂; simpl;
-    try reflexivity.
-    (* Wow! 62 subgoals! *)
-    Search slt_classify_slt.
-    rewrite <-correctness_slt_classify_slt.
-    f_equal.
-    Search llex_product_from_slt_CS_slt_C.
-    (* I can't proceed because llex_product_from_slt_CS_slt_C is admitted. *)
-    unfold A_llex_product_from_A_slt_CS_A_slt_C, 
-    llex_product_from_slt_CS_slt_C; 
-    destruct a, a0; simpl.
+    intros pf₁ pf₂.
+    unfold mcas_slt_llex_product,
+    A_mcas_slt_llex_product.
+    rewrite correctness_cast_slt_mcas_to_slt_CS.
+    rewrite correctness_cast_slt_mcas_to_slt_CI.
+    rewrite correctness_cast_slt_mcas_to_slt_C.
+    rewrite correctness_cast_slt_mcas_to_slt_C_zero_is_ltr_ann.
+    destruct (cast_A_slt_mcas_to_A_slt_CS_is_A_slt_CS_or_error pf₁) as [[A Ha] | [al Ha]].
+    + 
+      rewrite Ha; simpl.
+      destruct(cast_A_slt_mcas_to_A_slt_C_is_A_slt_C_or_error pf₂) as [[b Hb] | [bl Hb]].
+      ++ 
+        rewrite Hb; simpl.
+        rewrite correct_llex_product_from_slt_CS_slt_C;
+        reflexivity.
+      ++ 
+        destruct(cast_A_slt_mcas_to_A_slt_C_is_A_slt_C_or_error pf₂) as [[c Hc] | [cl Hc]].
+        +++ 
+          rewrite Hc; simpl.
+          rewrite correct_llex_product_from_slt_CS_slt_C;
+          reflexivity.
+        +++ rewrite Hc; simpl.
+            reflexivity.
+    + 
+      rewrite Ha; simpl.
+      destruct(cast_A_slt_mcas_to_A_slt_CI_is_A_slt_CI_or_error pf₁) as [[b Hb] | [bl Hb]].
+      ++ 
+        rewrite Hb; simpl.
+        destruct 
+        (cast_A_slt_mcas_to_A_slt_C_zero_is_ltr_ann_to_A_slt_C_zero_is_ltr_ann_or_error pf₂)
+        as [[c Hc] | [cl Hc]].
+        +++
+          rewrite Hc; simpl.
+          rewrite correct_llex_product_from_slt_CI_slt_C_zero_is_ltr_ann;
+          reflexivity.
+        +++
+          rewrite Hc; simpl;
+          reflexivity.
+      ++ 
+        rewrite Hb; simpl;
+        reflexivity.
+  Qed.
 
-
-  Admitted.
 
 End Verify.   
 
