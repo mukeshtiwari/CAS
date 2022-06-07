@@ -253,7 +253,7 @@ Definition A_witness_slt_llex_product_not_left_distributive
                         else ((s1, t1), ((s2, argT), (s3, t2)))
              end.   
 
-(* for use in CAS 
+(* for use in CAS  
 Definition witness_slt_llex_product_not_left_distributive_new
       (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))
       (s1 : LS) (s2 s3 : S)
@@ -1287,8 +1287,8 @@ From Coq Require Import String.
 Open Scope string_scope.
 Section AMCAS.
 
-  (* change the name *)
-  Definition cast_first_to_A_slt_CS_and_second_to_A_slt_C {L₁ S₁ L₂ S₂: Type}
+ 
+  Definition A_mcas_slt_llex_product {L₁ S₁ L₂ S₂: Type}
     (A : @A_slt_mcas L₁ S₁) (B : @A_slt_mcas L₂ S₂) 
     : @A_slt_mcas (L₁ * L₂) (S₁ * S₂) :=
     match cast_A_slt_mcas_to_A_slt_CS A with
@@ -1321,139 +1321,133 @@ Section CAS.
 
 Section Decide.
 
-(*  
+
 Variables (LS S LT T : Type)  
+          (* 
           (eqLS : brel LS)
           (eqLT : brel LT)
           (eqS : brel S)
-          (eqT : brel T)
+          (eqT : brel T) *)
           (argT : T)
           (wLS : LS)
           (wLT : LT)                     
           (wS : S)
-          (wT : T)           
+          (wT : T)       
+          (*     
           (addS : binary_op S) 
-          (addT : binary_op T)
-          (idemS : bop_idempotent S eqS addS)
-          (commS : bop_commutative S eqS addS)
-          (commT : bop_commutative T eqT addT)                     
+          (addT : binary_op T)                
           (ltrS : ltr_type LS S)
-          (ltrT : ltr_type LT T).
-
-Definition slt_llex_product_distributive_certify
-           (a_commT : bop_commutative T eqT addT) 
-           (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
-           (LDS_d : slt_distributive_decidable LS S eqS addS ltrS)
-           (LDT_d : slt_distributive_decidable LT T eqT addT ltrT)
-           (LCS_d : ltr_left_cancellative_decidable LS S eqS ltrS)
-           (LKT_d : ltr_left_constant_decidable LT T eqT ltrT): 
-  @slt_distributive_decidable (LS * LT) (S * T) := 
-let selS_or_annT :=
-    match selS_or_id_annT with
-    | inl sel         => inl sel
-    | inr (_, is_ann) => inr is_ann 
-    end
-in       
-match LDS_d with
-| inl LDS  =>
-  match LDT_d with
-  | inl LDT  =>
-    match LCS_d with
-    | inl LCS  => inl (slt_llex_product_distributive LS S LT T eqLS eqS eqT argT addS addT ltrS ltrT congS refS symS trnS refT trnT refLS a_congS ltr_congS idemS selS_or_annT LDS LDT (inl LCS))
-    | inr nLCS =>
-      match LKT_d with
-      | inl LKT  => inl (slt_llex_product_distributive LS S LT T eqLS eqS eqT argT addS addT ltrS ltrT congS refS symS trnS refT trnT refLS a_congS ltr_congS idemS selS_or_annT LDS LDT (inr LKT))
-      | inr nLKT => inr (slt_llex_product_not_distributive_v3 LS S LT T eqLS eqS eqT argT addS addT ltrS ltrT refS symS trnS refT symT trnT refLS a_congS a_congT ltr_congS idemS commT selS_or_id_annT LDS LDT nLCS nLKT) 
-      end 
-    end 
-  | inr nLDT => inr (slt_llex_product_not_distributive_v2 LS S LT T eqLS eqS eqT argT wS wLS addS addT ltrS ltrT symS trnS refLS ltr_congS idemS LDS nLDT)    
-  end 
-| inr nLDS => inr (slt_llex_product_not_distributive_v1 LS S LT T eqS eqT argT wT wLT addS addT ltrS ltrT nLDS) 
-end.     
+          (ltrT : ltr_type LT T) *).
 
 
-Definition slt_llex_product_absorptive_decide
-           (sabsS_d : slt_strictly_absorptive_decidable LS S eqS addS ltrS)
-           (absS_d : slt_absorptive_decidable LS S eqS addS ltrS)
-           (absT_d : slt_absorptive_decidable LT T eqT addT ltrT) :
-  slt_absorptive_decidable
-             (LS * LT)
-             (S * T)
-             (brel_product eqS eqT)
-             (bop_llex argT eqS addS addT)
-             (ltr_product ltrS ltrT) :=
-let refS := A_eqv_reflexive _ _ eqvS in 
-let symS := A_eqv_symmetric _ _ eqvS in
-let trnS := A_eqv_transitive _ _ eqvS in
-let refT := A_eqv_reflexive _ _ eqvT in 
-match sabsS_d with
-| inl sabsS  => inl(slt_llex_product_absorptive LS S LT T eqS eqT argT addS addT ltrS ltrT symS refT (inl sabsS))
-| inr nsabsS =>
-  match absS_d with
-  | inl absS  =>
-    match absT_d with
-    | inl absT  => inl(slt_llex_product_absorptive LS S LT T eqS eqT argT addS addT ltrS ltrT symS refT (inr (absS, absT)))
-    | inr nabsT => inr(slt_llex_product_not_absorptive_right LS S LT T eqS eqT argT addS addT ltrS ltrT symS trnS idemS (nsabsS, (absS, nabsT)))
-    end 
-  | inr nabsS => inr (slt_llex_product_not_absorptive_left LS S LT T eqS eqT argT wT wLT addS addT ltrS ltrT nabsS)
-  end
-end.     
+  Definition slt_llex_product_distributive_certify 
+    (selS_or_id_annT : @assert_selective S + 
+      (@assert_exists_id T * @assert_exists_ann T))    
+    (LDS_d : @check_slt_distributive LS S)
+    (LDT_d : @check_slt_distributive LT T)
+    (LCS_d : @check_ltr_left_cancellative LS S)
+    (LKT_d : @check_ltr_left_constant LT T) : 
+    @check_slt_distributive (LS * LT) (S * T).
+    refine
+      (let selS_or_annT :=
+        match selS_or_id_annT with 
+        | inl sel => inl sel 
+        | inr (_, is_ann) => inr is_ann 
+        end 
+      in
+      match LDS_d with
+      | Certify_Slt_Distributive  =>
+        match LDT_d with
+        | Certify_Slt_Distributive  =>
+          match LCS_d with
+          | Certify_Ltr_Left_Cancellative  => Certify_Slt_Distributive
+          | Certify_Ltr_Not_Left_Cancellative (axx, (ayy, azz)) =>
+            match LKT_d with
+            | Certify_Ltr_Left_Constant  => Certify_Slt_Distributive 
+            | Certify_Ltr_Not_Left_Constant (bxx, (byy, bzz)) => 
+                Certify_Slt_Not_Distributive  (axx, bxx, (ayy, byy, (azz, bzz)))
+            end 
+          end 
+        | Certify_Slt_Not_Distributive (cxx, (cyy, czz)) => 
+            Certify_Slt_Not_Distributive (wLS, cxx, (wS, cyy, (wS, czz)))
+        end 
+      | Certify_Slt_Not_Distributive (dxx, (dyy, dzz)) => 
+          Certify_Slt_Not_Distributive (dxx, wLT, (dyy, wT, (dzz, wT)))
+      end).
+    Defined.
+  
 
-Definition slt_llex_product_strictly_absorptive_decide
-           (sabsS_d : slt_strictly_absorptive_decidable LS S eqS addS ltrS)
-           (absS_d : slt_absorptive_decidable LS S eqS addS ltrS)
-           (absT_d : slt_strictly_absorptive_decidable LT T eqT addT ltrT) :
-  slt_strictly_absorptive_decidable
-             (LS * LT)
-             (S * T)
-             (brel_product eqS eqT)
-             (bop_llex argT eqS addS addT)
-             (ltr_product ltrS ltrT) :=    
-let refS := A_eqv_reflexive _ _ eqvS in 
-let symS := A_eqv_symmetric _ _ eqvS in
-let trnS := A_eqv_transitive _ _ eqvS in
-let refT := A_eqv_reflexive _ _ eqvT in  
-match sabsS_d with
-| inl sabsS  => inl(slt_llex_product_strictly_absorptive LS S LT T eqS eqT argT addS addT ltrS ltrT symS refT (inl sabsS))
-| inr nsabsS =>
-  match absS_d with
-  | inl absS  =>
-    match absT_d with
-    | inl absT  => inl(slt_llex_product_strictly_absorptive LS S LT T eqS eqT argT addS addT ltrS ltrT symS refT (inr (absS, absT)))
-    | inr nabsT => inr(slt_llex_product_not_strictly_absorptive_right LS S LT T eqS eqT argT addS addT ltrS ltrT symS (nsabsS, (absS, nabsT)))
-    end 
-  | inr nabsS => inr (slt_llex_product_not_strictly_absorptive_left LS S LT T eqS eqT argT wT wLT addS addT ltrS ltrT nabsS)
-  end
-end.
-
-Definition slt_llex_product_proofs
-           (a_commT : bop_commutative T eqT addT) 
-           (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
-           (QS : left_transform_proofs LS S eqS eqLS ltrS)
-           (QT : left_transform_proofs LT T eqT eqLT ltrT)           
-           (PS : slt_proofs LS S eqS addS ltrS)
-           (PT : slt_proofs LT T eqT addT ltrT) : 
-  slt_proofs (LS * LT)
-             (S * T)
-             (brel_product eqS eqT)
-             (bop_llex argT eqS addS addT)
-             (ltr_product ltrS ltrT) :=
-let DS_d := A_slt_distributive_d _ _ _ _ _ PS in
-let DT_d := A_slt_distributive_d _ _ _ _ _ PT in
-let CS_d := A_left_transform_left_cancellative_d _ _ _ _ _ QS in
-let KT_d := A_left_transform_left_constant_d _ _ _ _ _ QT in
-let asbS_d := A_slt_absorptive_d _ _ _ _ _ PS in
-let asbT_d := A_slt_absorptive_d _ _ _ _ _ PT in
-let sasbS_d := A_slt_strictly_absorptive_d _ _ _ _ _ PS in
-let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
-{|
-  A_slt_distributive_d          := slt_llex_product_distributive_decide commT selS_or_id_annT DS_d DT_d CS_d KT_d 
-; A_slt_absorptive_d            := slt_llex_product_absorptive_decide sasbS_d asbS_d asbT_d
-; A_slt_strictly_absorptive_d   := slt_llex_product_strictly_absorptive_decide sasbS_d asbS_d sasbT_d
-|}.
+  Definition slt_llex_product_absorptive_certify
+    (sabsS_d : @check_slt_strictly_absorptive LS S)
+    (absS_d : @check_slt_absorptive LS S)
+    (absT_d : @check_slt_absorptive LT T) :
+    @check_slt_absorptive (LS * LT) (S * T).
+    refine 
+      match sabsS_d with
+      | Certify_Slt_Strictly_Absorptive  => Certify_Slt_Absorptive
+      | Certify_Slt_Not_Strictly_Absorptive (axx, ayy) =>
+        match absS_d with
+        | Certify_Slt_Absorptive  =>
+          match absT_d with
+          | Certify_Slt_Absorptive   => Certify_Slt_Absorptive  
+          | Certify_Slt_Not_Absorptive (bxx, byy) => 
+              Certify_Slt_Not_Absorptive (axx, bxx, (ayy, byy))
+          end 
+        | Certify_Slt_Not_Absorptive  (cxx, cyy) => 
+            Certify_Slt_Not_Absorptive (cxx, wLT, (cyy, wT)) 
+        end
+      end.
+    Defined. 
 
 
- *)
+
+  Definition slt_llex_product_strictly_absorptive_certify
+    (sabsS_d : @check_slt_strictly_absorptive LS S)
+    (absS_d : @check_slt_absorptive LS S)
+    (absT_d : @check_slt_strictly_absorptive LT T) :
+    @check_slt_strictly_absorptive (LS * LT) (S * T).
+    refine  
+      match sabsS_d with
+      | Certify_Slt_Strictly_Absorptive  => Certify_Slt_Strictly_Absorptive
+      | Certify_Slt_Not_Strictly_Absorptive (axx, ayy) =>
+        match absS_d with
+        | Certify_Slt_Absorptive  => 
+          match absT_d with
+          | Certify_Slt_Strictly_Absorptive  =>  Certify_Slt_Strictly_Absorptive 
+          | Certify_Slt_Not_Strictly_Absorptive (bxx, byy) => 
+              Certify_Slt_Not_Strictly_Absorptive (axx, bxx, (ayy, byy))
+          end 
+        | Certify_Slt_Not_Absorptive (cxx, cyy) => 
+            Certify_Slt_Not_Strictly_Absorptive (cxx, wLT, (cyy, wT))
+        end
+      end.
+  Defined.
+
+
+  Definition slt_llex_product_certs 
+    (selS_or_id_annT : @assert_selective S + 
+      (@assert_exists_id T * @assert_exists_ann T))
+    (QS : @left_transform_certificates LS S)
+    (QT : @left_transform_certificates LT T)           
+    (PS : @slt_certificates LS S)
+    (PT : @slt_certificates LT T) : 
+    @slt_certificates (LS * LT) (S * T) :=
+      let DS_d := slt_distributive_d PS in
+      let DT_d := slt_distributive_d PT in
+      let CS_d := left_transform_left_cancellative_d QS in
+      let KT_d := left_transform_left_constant_d QT in
+      let asbS_d := slt_absorptive_d  PS in
+      let asbT_d := slt_absorptive_d  PT in
+      let sasbS_d := slt_strictly_absorptive_d PS in
+      let sasbT_d := slt_strictly_absorptive_d PT in 
+      {|
+        slt_distributive_d := slt_llex_product_distributive_certify selS_or_id_annT DS_d DT_d CS_d KT_d 
+      ; slt_absorptive_d  := slt_llex_product_absorptive_certify sasbS_d asbS_d asbT_d
+      ; slt_strictly_absorptive_d := slt_llex_product_strictly_absorptive_certify sasbS_d asbS_d sasbT_d
+      |}.
+    
+
+
 
   
   Definition bops_llex_product_certs_exists_id_ann_decide {L₁ S₁ L₂ S₂ : Type}:
@@ -1554,70 +1548,14 @@ let sasbT_d := A_slt_strictly_absorptive_d _ _ _ _ _ PT in
     + intros ? ?.
       eapply Certify_SLT_Id_Ann_Proof_Not_Equal.
       exact (x, tx, (y, ty)).
-  Defined.  
-
-
-  Definition slt_llex_product_certs {L₁ S₁ L₂ S₂ : Type} :
-    @slt_certificates L₁ S₁ ->
-    @slt_certificates L₂ S₂ ->
-    @slt_certificates (L₁ * L₂) (S₁ * S₂).
-  Proof.
-    intros [Ha Hb Hc] [Hd He Hf];
-    constructor.
-    refine 
-      match Ha, Hd with 
-      | Certify_Slt_Distributive, Certify_Slt_Distributive => 
-          Certify_Slt_Distributive 
-      | Certify_Slt_Distributive,  Certify_Slt_Not_Distributive pf =>  
-          _ 
-      | Certify_Slt_Not_Distributive pf,  Certify_Slt_Distributive =>  
-          _ 
-      | Certify_Slt_Not_Distributive pf₁,  Certify_Slt_Not_Distributive pf₂ => 
-         _ 
-      end.
-      admit.
-      admit.
-      admit.
-      refine 
-        match Hb, He with 
-        | Certify_Slt_Absorptive, Certify_Slt_Absorptive => 
-            Certify_Slt_Absorptive 
-        | Certify_Slt_Absorptive,  Certify_Slt_Not_Absorptive pf =>  
-            _ 
-        | Certify_Slt_Not_Absorptive pf,  Certify_Slt_Absorptive =>  
-            _ 
-        | Certify_Slt_Not_Absorptive pf₁,  Certify_Slt_Not_Absorptive pf₂ => 
-          _ 
-        end.
-      admit.
-      admit.
-      admit.
-
-    Admitted.
-     
-      
-  
-    
-    (* Now, I need to write lex product for 
-      Ha: @check_slt_distributive L₁ S₁
-      Hb: @check_slt_absorptive L₁ S₁
-      Hc: @check_slt_strictly_absorptive L₁ S₁
-      Hd: @check_slt_distributive L₂ S₂
-      He: @check_slt_absorptive L₂ S₂
-      Hf: @check_slt_strictly_absorptive L₂ S₂
-    
-    *)
-  Admitted.
-
-
-  
-
+  Defined.
 
 
 End Decide.       
 Section Combinators.
    
 
+Check slt_llex_product_certs.
     Definition llex_product_from_slt_CS_slt_C {L₁ S₁ L₂ S₂: Type} 
       (A : @slt_CS L₁ S₁) (B : @slt_C L₂ S₂) : @slt (L₁ * L₂) (S₁ * S₂).
       refine
@@ -1652,10 +1590,7 @@ Section Combinators.
                 (eqv_witness (slt_C_carrier B))
                 (eqv_new (slt_C_carrier B))
                 (slt_C_plus_certs B))
-              Assert_Idempotent (* There is just one way to 
-               construct assert_idempotent. so I am giving 
-               here the constructor. In diagram commutes, 
-               both values will reduce to Assert_idempotent *)
+              Assert_Idempotent
               (sg_CS_commutative (slt_CS_plus_certs A)) 
 
           ; slt_trans_certs := ltr_product_certs 
@@ -1675,36 +1610,23 @@ Section Combinators.
           ; slt_id_ann_certs_d :=  bops_llex_product_certs_exists_id_ann_decide 
               (slt_CS_id_ann_certs_d A)  
               (slt_C_id_ann_certs_d B)                 
-          ; slt_certs := slt_llex_product_certs 
+          ; slt_certs := slt_llex_product_certs L₁ S₁ L₂ S₂
+              (eqv_witness (slt_CS_label A)) 
+              (eqv_witness (slt_C_label B))
+              (eqv_witness (slt_CS_carrier A)) 
+              (eqv_witness (slt_C_carrier B))
+              ((inl (sg_CS_selective (slt_CS_plus_certs A))))
+              (slt_CS_trans_certs A) 
+              (slt_C_trans_certs B)
               (slt_CS_certs A)
-              (slt_C_certs B)                             
+              (slt_C_certs B)
+                                 
           ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [slt_CS_ast A; slt_C_ast B]
         |}.
     Defined.
        
-        (* Now, I need to write certificate version of 
-          slt_llex_product_proofs. Then I am good*)
-
-    
-      
-        (* 
-          No longer need this:
-          Proof idea: 
-          From coq/sg/theory.v we get 
-          Lemma bop_selective_implies_idempotent : ∀ (S : Type) (r : brel S) (b : binary_op S),
-            bop_selective S r b -> bop_idempotent S r b.
-          so we have bop_idempotent:
-          Then I need to write a small program in 
-          coq/sg/properties.v
-          Definition p2c_idempotent_assert : 
-            forall (S : Type) (r : brel S) (b : binary_op S), 
-            bop_idempotent S r b -> @assert_idempotent S :=
-          λ S r b d, @Assert_Idempotent S
-        
-          And prove that diagram commutes! 
-        
-        *)
+       
 
 
    Definition llex_product_from_slt_CI_slt_C_zero_is_ltr_ann 
@@ -1747,11 +1669,7 @@ Section Combinators.
             (eqv_witness (slt_C_zero_is_ltr_ann_carrier B))
             (eqv_new (slt_C_zero_is_ltr_ann_carrier B))
             (slt_C_zero_is_ltr_ann_plus_certs B))
-          Assert_Idempotent (* Similar to above, 
-          there is just one way to 
-          construct assert_idempotent. so I am giving 
-          here the constructor. In diagram commutes, 
-          both values will reduce to Assert_idempotent *)
+          Assert_Idempotent
           (sg_CI_commutative (slt_CI_plus_certs A))                              
       ; slt_trans_certs  := ltr_product_certs 
           (eqv_witness (slt_CI_carrier A))
@@ -1769,12 +1687,25 @@ Section Combinators.
             (match slt_C_zero_is_ltr_ann_id_ann_certs B with
               | Assert_Slt_Exists_Id_Ann_Equal s => s
             end))              
-      ; slt_certs := slt_llex_product_certs 
+      ; slt_certs := slt_llex_product_certs L₁ S₁ L₂ S₂
+          (eqv_witness (slt_CI_label A)) 
+          (eqv_witness (slt_C_zero_is_ltr_ann_label B))
+          (eqv_witness (slt_CI_carrier A)) 
+          (eqv_witness (slt_C_zero_is_ltr_ann_carrier B))
+          _ 
+          (slt_CI_trans_certs A) 
+          (slt_C_zero_is_ltr_ann_trans_certs B)
           (slt_CI_certs A)
           (slt_C_zero_is_ltr_ann_certs B)
       ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [slt_CI_ast A; slt_C_zero_is_ltr_ann_ast B]
     |}.
+    right.
+    refine 
+      match slt_C_zero_is_ltr_ann_id_ann_certs B with 
+      | Assert_Slt_Exists_Id_Ann_Equal s => 
+          (Assert_Exists_Id s, Assert_Exists_Ann s) 
+      end.
   Defined.
 
 
@@ -1784,8 +1715,8 @@ End CAS.
 
 Section MCAS.
 
-  (* name should change *)
-  Definition cast_first_to_slt_CS_and_second_to_slt_C {L₁ S₁ L₂ S₂: Type}
+  
+  Definition mcas_slt_llex_product {L₁ S₁ L₂ S₂: Type}
     (A : @slt_mcas L₁ S₁) (B : @slt_mcas L₂ S₂) 
     : @slt_mcas (L₁ * L₂) (S₁ * S₂) :=
     match cast_slt_mcas_to_slt_CS A with
@@ -1820,12 +1751,12 @@ Section Verify.
     {L₁ S₁ L₂ S₂ : Type}.
 
   (* name? *)
-  Lemma correctness_proof :
+  Lemma correct_mcas_slt_llex_product :
    forall pf₁ pf₂, 
-    cast_first_to_slt_CS_and_second_to_slt_C 
+   mcas_slt_llex_product 
       (A2C_mcas_slt pf₁) (A2C_mcas_slt pf₂) = 
     @A2C_mcas_slt (L₁ * L₂) (S₁ * S₂)  
-      (cast_first_to_A_slt_CS_and_second_to_A_slt_C pf₁ pf₂).
+      (A_mcas_slt_llex_product pf₁ pf₂).
   Proof.
     unfold cast_first_to_slt_CS_and_second_to_slt_C,
     cast_first_to_A_slt_CS_and_second_to_A_slt_C;
