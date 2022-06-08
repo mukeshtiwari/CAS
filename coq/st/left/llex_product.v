@@ -1556,7 +1556,7 @@ End Decide.
 Section Combinators.
    
 
-Check slt_llex_product_certs.
+
     Definition llex_product_from_slt_CS_slt_C {L₁ S₁ L₂ S₂: Type} 
       (A : @slt_CS L₁ S₁) (B : @slt_C L₂ S₂) : @slt (L₁ * L₂) (S₁ * S₂).
       refine
@@ -1751,7 +1751,23 @@ Section Verify.
   Context 
     {L₁ S₁ L₂ S₂ : Type}.
 
+  
+  Check A_sg_proofs_classify_sg.
+  Search sg_certificates_classify_sg.
+  Print P2C_sg.
 
+  (* 1. slt_plus_certs and slt_plus proof are same (modulo translations) 
+  Lemma correct_sg_llex_certificates_and_sg_llex_proofs :
+    slt_classify_slt (sg_llex_certificates ) =
+    A2C_mcas_slt (A_slt_classify_slt (sg_llex_proofs  ) *)
+
+
+  (* 2. slt_trans_cert and A_slt_trans_proofs are same (modulo translation)
+  Lemma correct_ltr_product_certs_and_ltr_product_proofs :
+    slt_classify_slt (ltr_product_certs ) =
+    A2C_mcas_slt (A_slt_classify_slt (ltr_product_proofs ) *)
+
+  
   Lemma correct_llex_product_from_slt_CS_slt_C : 
     forall A B, 
     slt_classify_slt
@@ -1762,17 +1778,84 @@ Section Verify.
     intros ? ?.
     unfold llex_product_from_slt_CS_slt_C,
     A_llex_product_from_A_slt_CS_A_slt_C.
+    rewrite <-correctness_slt_classify_slt.
+    f_equal.
+    unfold A2C_slt; simpl;
+    f_equal.
+    + rewrite correct_eqv_product;
+      reflexivity.
+    + rewrite correct_eqv_product; 
+      reflexivity.
+    + rewrite <-correct_sg_llex_certificates_CS_version.
+      f_equal.
+      ++
+        erewrite <-correctness_sg_CS_certs_to_sg_certs.
+        f_equal.
+        Unshelve.
+        auto.
+      ++ erewrite <-correctness_sg_C_certs_to_sg_certs.
+        f_equal.
+        Unshelve.
+        auto.
+    + rewrite <-correct_ltr_product_certs.
+      f_equal.
+    + erewrite <-correct_check_exists_ann_llex.
+      f_equal.
+    + (* I need to write a lemma for this *)
+      admit.
+    + (* I need to write *)
+      admit.
+  Admitted. 
 
-  Admitted.
+
+
+
+   
+
 
   Lemma correct_llex_product_from_slt_CI_slt_C_zero_is_ltr_ann : 
-    forall b c , 
+    forall A B, 
     slt_classify_slt
       (llex_product_from_slt_CI_slt_C_zero_is_ltr_ann 
-        (A2C_slt_ci b) (A2C_slt_C_zero_is_ltr_ann c)) =
+        (A2C_slt_ci A) (A2C_slt_C_zero_is_ltr_ann B)) =
     @A2C_mcas_slt (L₁ * L₂) (S₁ * S₂)  
       (A_slt_classify_slt
-        (A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann b c)).
+        (A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann A B)).
+  Proof.
+    intros ? ?.
+    unfold llex_product_from_slt_CI_slt_C_zero_is_ltr_ann,
+    A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann.
+    rewrite <-correctness_slt_classify_slt.
+    f_equal.
+    unfold A2C_slt; simpl;
+    f_equal.
+    + rewrite correct_eqv_product;
+      reflexivity.
+    + rewrite correct_eqv_product; 
+      reflexivity.
+    + rewrite <-correct_sg_llex_certificates_CI_version.
+      f_equal.
+      ++
+        destruct B; simpl. 
+        destruct A_slt_C_zero_is_ltr_ann_id_ann_proofs,
+        A_slt_C_zero_is_ltr_ann_carrier; simpl in *|- *.
+        admit.
+      ++
+        erewrite <-correctness_sg_CI_certs_to_sg_certs.
+        f_equal.
+        Unshelve.
+        auto.
+      ++ 
+        erewrite <-correctness_sg_C_certs_to_sg_certs.
+        f_equal.
+        Unshelve.
+        auto.
+    + rewrite <-correct_ltr_product_certs.
+      f_equal.
+    + erewrite <-correct_check_exists_ann_llex.
+      f_equal.
+    + admit.
+    + admit. 
   Admitted.
     
   Lemma correct_mcas_slt_llex_product :
