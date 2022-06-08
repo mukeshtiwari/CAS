@@ -1650,12 +1650,19 @@ Section Combinators.
       ; slt_trans := ltr_product 
           (slt_CI_trans A) 
           (slt_C_zero_is_ltr_ann_trans B) 
+          (* 
+          A_slt_plus_proofs   := @sg_llex_proofs S₁ S₂ 
+            (A_eqv_witness _ (A_slt_CI_carrier A))
+            (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_carrier B))
+            (projT1 (A_slt_C_zero_is_ltr_ann_id_ann_proofs B)) *)
       ; slt_plus_certs := sg_llex_certificates 
           (eqv_eq (slt_CI_carrier A)) 
           (eqv_witness (slt_CI_carrier A)) 
           (eqv_new (slt_CI_carrier A)) 
           (eqv_witness (slt_C_zero_is_ltr_ann_carrier B)) 
-          (eqv_witness (slt_C_zero_is_ltr_ann_carrier B))
+          (match slt_C_zero_is_ltr_ann_id_ann_certs B with
+          | Assert_Slt_Exists_Id_Ann_Equal s => s
+          end)
           (eqv_new (slt_C_zero_is_ltr_ann_carrier B)) 
           (slt_CI_plus A)
           (sg_CI_certs_to_sg_certs  
@@ -1835,11 +1842,6 @@ Section Verify.
       reflexivity.
     + rewrite <-correct_sg_llex_certificates_CI_version.
       f_equal.
-      ++
-        destruct B; simpl. 
-        destruct A_slt_C_zero_is_ltr_ann_id_ann_proofs,
-        A_slt_C_zero_is_ltr_ann_carrier; simpl in *|- *.
-        admit.
       ++
         erewrite <-correctness_sg_CI_certs_to_sg_certs.
         f_equal.
