@@ -1772,19 +1772,19 @@ Section Verify.
     (eqv_proofL₂ : eqv_proofs L₂ brelL₂)
     (eqv_proofS₁ : eqv_proofs S₁ brelS₁)
     (eqv_proofS₂ : eqv_proofs S₂ brelS₂),
-      bops_llex_product_certs_exists_id_ann_decide 
-        (p2c_slt_exists_id_ann_check brelS₁ bopS₁ ltr₁ pf₁)
-        (p2c_slt_exists_id_ann_check brelS₂ bopS₂ ltr₂ pf₂) = 
-      p2c_slt_exists_id_ann_check 
-        (brel_product brelS₁ brelS₂)
-        (bop_llex s₂ brelS₁ bopS₁ bopS₂)
-        (ltr_product ltr₁ ltr₂)
-        (bops_llex_product_proofs_exists_id_ann_decide L₁ S₁ L₂ S₂
-          l₁ l₂ s₁ s₂ brelL₁ brelL₂ brelS₁ brelS₂
-          eqv_proofL₁ eqv_proofL₂ 
-          eqv_proofS₁ eqv_proofS₂
-          bopS₁ bopS₂ ltr₁ ltr₂ 
-          pf₁ pf₂).
+    bops_llex_product_certs_exists_id_ann_decide 
+      (p2c_slt_exists_id_ann_check brelS₁ bopS₁ ltr₁ pf₁)
+      (p2c_slt_exists_id_ann_check brelS₂ bopS₂ ltr₂ pf₂) = 
+    p2c_slt_exists_id_ann_check 
+      (brel_product brelS₁ brelS₂)
+      (bop_llex s₂ brelS₁ bopS₁ bopS₂)
+      (ltr_product ltr₁ ltr₂)
+      (bops_llex_product_proofs_exists_id_ann_decide L₁ S₁ L₂ S₂
+        l₁ l₂ s₁ s₂ brelL₁ brelL₂ brelS₁ brelS₂
+        eqv_proofL₁ eqv_proofL₂ 
+        eqv_proofS₁ eqv_proofS₂
+        bopS₁ bopS₂ ltr₁ ltr₂ 
+        pf₁ pf₂).
   Proof.
     intros *.
     destruct pf₁, pf₂; simpl.
@@ -1831,8 +1831,6 @@ Section Verify.
   Qed.
       
 
-  Check (inl Assert_Selective).
-  Check slt_llex_product_certs.
 
     (*
     slt_llex_product_certs L₁ S₁ L₂ S₂ (A_eqv_witness L₁ (A_slt_CS_label A))
@@ -1988,7 +1986,7 @@ Check A_slt_CS_plus_proofs.
     + erewrite <-correct_check_exists_ann_llex.
       f_equal.
     + apply correct_bops_llex_product_certs_exists_id_ann_decide.
-    + (* I need to write *)
+    +  (* I need to write *)
       admit.
   Admitted. 
 
@@ -2030,8 +2028,9 @@ Check A_slt_CS_plus_proofs.
       f_equal.
     + erewrite <-correct_check_exists_ann_llex.
       f_equal.
-    + admit.
-    + admit. 
+    + rewrite <-correct_bops_llex_product_certs_exists_id_ann_decide.
+      reflexivity.
+    +  
   Admitted.
     
 
