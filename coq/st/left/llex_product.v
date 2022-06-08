@@ -1650,11 +1650,6 @@ Section Combinators.
       ; slt_trans := ltr_product 
           (slt_CI_trans A) 
           (slt_C_zero_is_ltr_ann_trans B) 
-          (* 
-          A_slt_plus_proofs   := @sg_llex_proofs S₁ S₂ 
-            (A_eqv_witness _ (A_slt_CI_carrier A))
-            (A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_carrier B))
-            (projT1 (A_slt_C_zero_is_ltr_ann_id_ann_proofs B)) *)
       ; slt_plus_certs := sg_llex_certificates 
           (eqv_eq (slt_CI_carrier A)) 
           (eqv_witness (slt_CI_carrier A)) 
