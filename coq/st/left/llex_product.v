@@ -1520,7 +1520,7 @@ Variables (LS S LT T : Type)
       exact (x, tx).
     + intros ? ?.
       eapply Certify_SLT_Id_Ann_Proof_None_Ann.
-      exact (x, tx). (* is this correct? *)
+      exact (x, ty). (* ??? is this correct? *)
     + intros ? ?.
       eapply Certify_SLT_Id_Ann_Proof_None.
     + intros ? ?.
@@ -1542,7 +1542,7 @@ Variables (LS S LT T : Type)
       exact (x, tx). (* Is this correct? It will be evident in proof *)    
     + intros ? ?.
       eapply Certify_SLT_Id_Ann_Proof_None_Ann.
-      exact (x, tx).
+      exact (y, tx).
     + intros ? ?.
       eapply Certify_SLT_Id_Ann_Proof_Not_Equal.
       exact (x, tx, (y, tx)).
@@ -1754,34 +1754,218 @@ Section Verify.
     {L₁ S₁ L₂ S₂ : Type}.
 
   
-  Check A_sg_proofs_classify_sg.
-  Search sg_certificates_classify_sg.
-  Print P2C_sg.
+  Lemma correct_bops_llex_product_certs_exists_id_ann_decide :
+    forall 
+    (l₁ : L₁) (s₁ : S₁) 
+    (l₂ : L₂) (s₂ : S₂)
+    (brelS₁ : brel S₁) 
+    (brelS₂ : brel S₂)
+    (brelL₁ : brel L₁)
+    (brelL₂ : brel L₂) 
+    (bopS₁ : binary_op S₁)
+    (bopS₂ : binary_op S₂) 
+    (ltr₁ : ltr_type L₁ S₁)
+    (ltr₂ : ltr_type L₂ S₂) 
+    (pf₁ : slt_exists_id_ann_decidable brelS₁ bopS₁ ltr₁)
+    (pf₂ : slt_exists_id_ann_decidable brelS₂ bopS₂ ltr₂)
+    (eqv_proofL₁ : eqv_proofs L₁ brelL₁)
+    (eqv_proofL₂ : eqv_proofs L₂ brelL₂)
+    (eqv_proofS₁ : eqv_proofs S₁ brelS₁)
+    (eqv_proofS₂ : eqv_proofs S₂ brelS₂),
+      bops_llex_product_certs_exists_id_ann_decide 
+        (p2c_slt_exists_id_ann_check brelS₁ bopS₁ ltr₁ pf₁)
+        (p2c_slt_exists_id_ann_check brelS₂ bopS₂ ltr₂ pf₂) = 
+      p2c_slt_exists_id_ann_check 
+        (brel_product brelS₁ brelS₂)
+        (bop_llex s₂ brelS₁ bopS₁ bopS₂)
+        (ltr_product ltr₁ ltr₂)
+        (bops_llex_product_proofs_exists_id_ann_decide L₁ S₁ L₂ S₂
+          l₁ l₂ s₁ s₂ brelL₁ brelL₂ brelS₁ brelS₂
+          eqv_proofL₁ eqv_proofL₂ 
+          eqv_proofS₁ eqv_proofS₂
+          bopS₁ bopS₂ ltr₁ ltr₂ 
+          pf₁ pf₂).
+  Proof.
+    intros *.
+    destruct pf₁, pf₂; simpl.
+    + destruct p; simpl; reflexivity.
+    + destruct p; simpl; reflexivity.
+    + destruct p; simpl; reflexivity.
+    + destruct p; simpl; reflexivity.
+    + destruct p; simpl; reflexivity.
+    + destruct p, p0; simpl; reflexivity.
+    + destruct p, p0, b, b0,
+      eqv_proofS₁, eqv_proofS₂; simpl; reflexivity.
+    + destruct p, p0; simpl; reflexivity.
+    + destruct p, b, s, p, 
+      eqv_proofS₁, eqv_proofS₂; reflexivity.
+    + destruct p, s, b, x, 
+      eqv_proofS₁, eqv_proofS₂, y, p; reflexivity.
+    + destruct p, p0; simpl; reflexivity.
+    + destruct p, p0; simpl; reflexivity.
+    + destruct p, p0, l, l0; reflexivity.
+    + destruct p, l, s, p; reflexivity. 
+    + destruct p, l, s, x0, y, p; reflexivity.
+    + destruct p, s, p; reflexivity.
+    + destruct p, s, p,
+      eqv_proofS₁, eqv_proofS₂, 
+      b; reflexivity.
+    + destruct p, l, s, p; reflexivity.
+    + destruct s, p, s0, p; reflexivity.
+    + destruct s0, s, x, y, p, p0; reflexivity.
+    + destruct s, p, eqv_proofL₁,
+      eqv_proofL₂, eqv_proofS₁,
+      eqv_proofS₂, x; reflexivity.
+    + destruct s, p, eqv_proofL₁,
+      eqv_proofL₂, eqv_proofS₁,
+      eqv_proofS₂, x, y, p, b; reflexivity.
+    + destruct s, p, x, y, p, eqv_proofL₁,
+      eqv_proofL₂, eqv_proofS₁,
+      eqv_proofS₂, l; reflexivity.
+    + destruct s0, s, x0, y, p, 
+      eqv_proofL₁,
+      eqv_proofL₂, eqv_proofS₁,
+      eqv_proofS₂, p0; reflexivity.
+    + destruct s0, s, x0, x, y,
+      y0, p0, p; reflexivity.
+  Qed.
+      
 
-  (* 1. slt_plus_certs and slt_plus proof are same (modulo translations) 
-  Lemma correct_sg_llex_certificates_and_sg_llex_proofs :
-    slt_classify_slt (sg_llex_certificates ) =
-    A2C_mcas_slt (A_slt_classify_slt (sg_llex_proofs  ) *)
+  Check (inl Assert_Selective).
+  Check slt_llex_product_certs.
+
+    (*
+    slt_llex_product_certs L₁ S₁ L₂ S₂ (A_eqv_witness L₁ (A_slt_CS_label A))
+  (A_eqv_witness L₂ (A_slt_C_label B)) (A_eqv_witness S₁ (A_slt_CS_carrier A))
+  (A_eqv_witness S₂ (A_slt_C_carrier B)) (inl Assert_Selective)
+  (P2C_left_transform L₁ S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A))
+     (A_eqv_eq L₁ (A_slt_CS_label A)) (A_slt_CS_trans A) 
+     (A_slt_CS_trans_proofs A))
+  (P2C_left_transform L₂ S₂ (A_eqv_eq S₂ (A_slt_C_carrier B))
+     (A_eqv_eq L₂ (A_slt_C_label B)) (A_slt_C_trans B) (A_slt_C_trans_proofs B))
+  (P2C_slt (A_eqv_eq S₁ (A_slt_CS_carrier A)) (A_slt_CS_plus A) 
+     (A_slt_CS_trans A) (A_slt_CS_proofs A))
+  (P2C_slt (A_eqv_eq S₂ (A_slt_C_carrier B)) (A_slt_C_plus B) 
+     (A_slt_C_trans B) (A_slt_C_proofs B)) =
+P2C_slt
+  (brel_product (A_eqv_eq S₁ (A_slt_CS_carrier A)) (A_eqv_eq S₂ (A_slt_C_carrier B)))
+  (bop_llex (A_eqv_witness S₂ (A_slt_C_carrier B))
+     (A_eqv_eq S₁ (A_slt_CS_carrier A)) (A_slt_CS_plus A) 
+     (A_slt_C_plus B)) (ltr_product (A_slt_CS_trans A) (A_slt_C_trans B))
+  (slt_llex_product_proofs L₁ S₁ L₂ S₂ (A_eqv_eq L₁ (A_slt_CS_label A))
+     (A_eqv_eq L₂ (A_slt_C_label B)) (A_eqv_eq S₁ (A_slt_CS_carrier A))
+     (A_eqv_eq S₂ (A_slt_C_carrier B)) (A_eqv_witness S₂ (A_slt_C_carrier B))
+     (A_eqv_witness L₁ (A_slt_CS_label A)) (A_eqv_witness L₂ (A_slt_C_label B))
+     (A_eqv_witness S₁ (A_slt_CS_carrier A)) (A_eqv_witness S₂ (A_slt_C_carrier B))
+     (A_eqv_proofs L₁ (A_slt_CS_label A)) (A_eqv_proofs S₁ (A_slt_CS_carrier A))
+     (A_eqv_proofs S₂ (A_slt_C_carrier B)) (A_slt_CS_plus A) 
+     (A_slt_C_plus B)
+     (bop_selective_implies_idempotent S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A))
+        (A_slt_CS_plus A)
+        (A_sg_CS_selective S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
+           (A_slt_CS_plus A) (A_slt_CS_plus_proofs A)))
+     (A_sg_C_commutative S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
+        (A_slt_C_plus B) (A_slt_C_plus_proofs B)) (A_slt_CS_trans A)
+     (A_slt_C_trans B)
+     (A_sg_CS_congruence S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
+        (A_slt_CS_plus A) (A_slt_CS_plus_proofs A))
+     (A_sg_C_congruence S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
+        (A_slt_C_plus B) (A_slt_C_plus_proofs B))
+     (A_left_transform_congruence L₁ S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A))
+        (A_eqv_eq L₁ (A_slt_CS_label A)) (A_slt_CS_trans A)
+        (A_slt_CS_trans_proofs A))
+     (A_sg_C_commutative S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
+        (A_slt_C_plus B) (A_slt_C_plus_proofs B))
+     (inl
+        (A_sg_CS_selective S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
+           (A_slt_CS_plus A) (A_slt_CS_plus_proofs A))) 
+     (A_slt_CS_trans_proofs A) (A_slt_C_trans_proofs B) 
+     (A_slt_CS_proofs A) (A_slt_C_proofs B))
+    
+    
+
+Check slt_llex_product_proofs.
+Check A_slt_CS_plus_proofs.
+  
+  Lemma correct_slt_llex_product_certs :
+    forall 
+    (l₁ : L₁) (s₁ : S₁) 
+    (l₂ : L₂) (s₂ : S₂)
+    (brelS₁ : brel S₁) 
+    (brelS₂ : brel S₂)
+    (brelL₁ : brel L₁)
+    (brelL₂ : brel L₂) 
+    (bopS₁ : binary_op S₁)
+    (bopS₂ : binary_op S₂) 
+    (ltr₁ : ltr_type L₁ S₁)
+    (ltr₂ : ltr_type L₂ S₂) 
+    (pf₁ : slt_proofs brelS₁ bopS₁ ltr₁)
+    (pf₂ : slt_proofs brelS₂ bopS₂ ltr₂)
+    (pf₃ : assert_selective + assert_exists_id * assert_exists_ann)
+    (ltrpf₁ : left_transform_proofs L₁ S₁ brelS₁ breL₁ ltr₁)
+    (ltrpf₂ : left_transform_proofs L₂ S₂ brelS₂ breL₂ ltr₂)
+    (pppf₁ : )
+    (eqv_proofL₁ : eqv_proofs L₁ brelL₁)
+    (eqv_proofL₂ : eqv_proofs L₂ brelL₂)
+    (eqv_proofS₁ : eqv_proofs S₁ brelS₁)
+    (eqv_proofS₂ : eqv_proofs S₂ brelS₂),
+    slt_llex_product_certs L₁ S₁ L₂ S₂
+      l₁ l₂ s₁ s₂ pf₃
+      (P2C_left_transform L₁ S₁ brelS₁ breL₁ ltr₁ ltrpf₁)
+      (P2C_left_transform L₂ S₂ brelS₂ breL₂ ltr₂ ltrpf₂)
+      (P2C_slt brelS₁ bopS₁ ltr₁ pf₁)
+      (P2C_slt brelS₂ bopS₂ ltr₂ pf₂) =
+      P2C_slt
+      (brel_product brelS₁ brelS₂)
+      (bop_llex s₂ brelS₁ bopS₁ ltr₂)
+      (ltr_product ltr₁ ltr₂)
+      (slt_llex_product_proofs L₁ S₁ L₂ S₂ brelL₁
+         brelL₂ brelS₁
+         brelS₂ s₂
+         l₁ l₂ s₁ s₂
+         eqv_proofL₁
+         eqv_proofS₁
+         eqv_proofS₂ 
+         bopS₁ bopS₂
+         (bop_selective_implies_idempotent S₁ brelS₁
+           bopS₁
+            (A_sg_CS_selective S₁ brelS₁ 
+               bopS₁ (A_slt_CS_plus_proofs A)))
+         (A_sg_C_commutative S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
+            (A_slt_C_plus B) (A_slt_C_plus_proofs B)) (A_slt_CS_trans A)
+         (A_slt_C_trans B)
+         (A_sg_CS_congruence S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
+            (A_slt_CS_plus A) (A_slt_CS_plus_proofs A))
+         (A_sg_C_congruence S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
+            (A_slt_C_plus B) (A_slt_C_plus_proofs B))
+         (A_left_transform_congruence L₁ S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A))
+            (A_eqv_eq L₁ (A_slt_CS_label A)) (A_slt_CS_trans A)
+            (A_slt_CS_trans_proofs A))
+         (A_sg_C_commutative S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
+            (A_slt_C_plus B) (A_slt_C_plus_proofs B))
+         (inl
+            (A_sg_CS_selective S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
+               (A_slt_CS_plus A) (A_slt_CS_plus_proofs A))) 
+         (A_slt_CS_trans_proofs A) (A_slt_C_trans_proofs B) 
+         (A_slt_CS_proofs A) (A_slt_C_proofs B)) *)
+    
 
 
-  (* 2. slt_trans_cert and A_slt_trans_proofs are same (modulo translation)
-  Lemma correct_ltr_product_certs_and_ltr_product_proofs :
-    slt_classify_slt (ltr_product_certs ) =
-    A2C_mcas_slt (A_slt_classify_slt (ltr_product_proofs ) *)
+
+  
+
+ 
 
   
   Lemma correct_llex_product_from_slt_CS_slt_C : 
     forall A B, 
-    slt_classify_slt
-      (llex_product_from_slt_CS_slt_C (A2C_slt_cs A) (A2C_slt_c B)) =
-    @A2C_mcas_slt (L₁ * L₂) (S₁ * S₂) 
-      (A_slt_classify_slt (A_llex_product_from_A_slt_CS_A_slt_C A B)).
+      llex_product_from_slt_CS_slt_C (A2C_slt_cs A) (A2C_slt_c B) =
+      @A2C_slt (L₁ * L₂) (S₁ * S₂) 
+      (A_llex_product_from_A_slt_CS_A_slt_C A B).
   Proof.
     intros ? ?.
     unfold llex_product_from_slt_CS_slt_C,
     A_llex_product_from_A_slt_CS_A_slt_C.
-    rewrite <-correctness_slt_classify_slt.
-    f_equal.
     unfold A2C_slt; simpl;
     f_equal.
     + rewrite correct_eqv_product;
@@ -1803,8 +1987,7 @@ Section Verify.
       f_equal.
     + erewrite <-correct_check_exists_ann_llex.
       f_equal.
-    + (* I need to write a lemma for this *)
-      admit.
+    + apply correct_bops_llex_product_certs_exists_id_ann_decide.
     + (* I need to write *)
       admit.
   Admitted. 
@@ -1816,19 +1999,15 @@ Section Verify.
 
 
   Lemma correct_llex_product_from_slt_CI_slt_C_zero_is_ltr_ann : 
-    forall A B, 
-    slt_classify_slt
-      (llex_product_from_slt_CI_slt_C_zero_is_ltr_ann 
-        (A2C_slt_ci A) (A2C_slt_C_zero_is_ltr_ann B)) =
-    @A2C_mcas_slt (L₁ * L₂) (S₁ * S₂)  
-      (A_slt_classify_slt
-        (A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann A B)).
+    forall A B,
+      llex_product_from_slt_CI_slt_C_zero_is_ltr_ann 
+        (A2C_slt_ci A) (A2C_slt_C_zero_is_ltr_ann B) =
+    @A2C_slt (L₁ * L₂) (S₁ * S₂)
+        (A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann A B).
   Proof.
     intros ? ?.
     unfold llex_product_from_slt_CI_slt_C_zero_is_ltr_ann,
     A_llex_product_from_A_slt_CI_A_slt_C_zero_is_ltr_ann.
-    rewrite <-correctness_slt_classify_slt.
-    f_equal.
     unfold A2C_slt; simpl;
     f_equal.
     + rewrite correct_eqv_product;
@@ -1855,6 +2034,7 @@ Section Verify.
     + admit. 
   Admitted.
     
+
   Lemma correct_mcas_slt_llex_product :
    forall pf₁ pf₂, 
    mcas_slt_llex_product 
@@ -1875,12 +2055,16 @@ Section Verify.
       destruct(cast_A_slt_mcas_to_A_slt_C_is_A_slt_C_or_error pf₂) as [[b Hb] | [bl Hb]].
       ++ 
         rewrite Hb; simpl.
+        rewrite <-correctness_slt_classify_slt.
+        f_equal.
         rewrite correct_llex_product_from_slt_CS_slt_C;
         reflexivity.
       ++ 
         destruct(cast_A_slt_mcas_to_A_slt_C_is_A_slt_C_or_error pf₂) as [[c Hc] | [cl Hc]].
         +++ 
           rewrite Hc; simpl.
+          rewrite <-correctness_slt_classify_slt.
+          f_equal.
           rewrite correct_llex_product_from_slt_CS_slt_C;
           reflexivity.
         +++ rewrite Hc; simpl.
@@ -1895,6 +2079,8 @@ Section Verify.
         as [[c Hc] | [cl Hc]].
         +++
           rewrite Hc; simpl.
+          rewrite <-correctness_slt_classify_slt.
+          f_equal.
           rewrite correct_llex_product_from_slt_CI_slt_C_zero_is_ltr_ann;
           reflexivity.
         +++
@@ -1903,7 +2089,7 @@ Section Verify.
       ++ 
         rewrite Hb; simpl;
         reflexivity.
-  Qed.
+  Time Qed.
 
 
 End Verify.   
