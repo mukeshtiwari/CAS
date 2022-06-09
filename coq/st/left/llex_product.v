@@ -611,7 +611,7 @@ Proof. intros [[[lS s] A] [absS [[lT t] B]]]; compute.
         destruct B as [B | B].
          ++ left. apply symS in A. rewrite A. exact B. 
          ++ rewrite (symS _ _ A). right. exact B.
-Qed.             
+Defined.            
 
 End Theory. 
 
@@ -1324,23 +1324,24 @@ Section Decide.
 
 
 Variables (LS S LT T : Type)  
-          (* 
-          (eqLS : brel LS)
-          (eqLT : brel LT)
-          (eqS : brel S)
-          (eqT : brel T) *)
           (argT : T)
           (wLS : LS)
           (wLT : LT)                     
           (wS : S)
-          (wT : T)       
-          (*     
-          (addS : binary_op S) 
-          (addT : binary_op T)                
-          (ltrS : ltr_type LS S)
-          (ltrT : ltr_type LT T) *).
+          (wT : T).
 
 
+
+  (* I need to chagne this function to mimic the behaviour of 
+    slt_llex_product_distributive_decide
+    
+    Certify_Slt_Not_Distributive (l, l0, (s1, s3, (s2, s4))) =
+    Certify_Slt_Not_Distributive
+      (A_witness_slt_llex_product_not_left_distributive L₁ S₁ L₂ S₂ A_eqv_eq1
+        A_eqv_eq2 A_eqv_witness2 A_slt_CS_plus A_slt_C_plus A_slt_CS_trans
+        A_slt_C_trans (inl A_sg_CS_selective) l s1 s2 l0 s3 s4)
+        
+    *)
   Definition slt_llex_product_distributive_certify 
     (selS_or_id_annT : @assert_selective S + 
       (@assert_exists_id T * @assert_exists_ann T))    
@@ -1830,128 +1831,7 @@ Section Verify.
       y0, p0, p; reflexivity.
   Qed.
       
-
-
-    (*
-    slt_llex_product_certs L₁ S₁ L₂ S₂ (A_eqv_witness L₁ (A_slt_CS_label A))
-  (A_eqv_witness L₂ (A_slt_C_label B)) (A_eqv_witness S₁ (A_slt_CS_carrier A))
-  (A_eqv_witness S₂ (A_slt_C_carrier B)) (inl Assert_Selective)
-  (P2C_left_transform L₁ S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A))
-     (A_eqv_eq L₁ (A_slt_CS_label A)) (A_slt_CS_trans A) 
-     (A_slt_CS_trans_proofs A))
-  (P2C_left_transform L₂ S₂ (A_eqv_eq S₂ (A_slt_C_carrier B))
-     (A_eqv_eq L₂ (A_slt_C_label B)) (A_slt_C_trans B) (A_slt_C_trans_proofs B))
-  (P2C_slt (A_eqv_eq S₁ (A_slt_CS_carrier A)) (A_slt_CS_plus A) 
-     (A_slt_CS_trans A) (A_slt_CS_proofs A))
-  (P2C_slt (A_eqv_eq S₂ (A_slt_C_carrier B)) (A_slt_C_plus B) 
-     (A_slt_C_trans B) (A_slt_C_proofs B)) =
-P2C_slt
-  (brel_product (A_eqv_eq S₁ (A_slt_CS_carrier A)) (A_eqv_eq S₂ (A_slt_C_carrier B)))
-  (bop_llex (A_eqv_witness S₂ (A_slt_C_carrier B))
-     (A_eqv_eq S₁ (A_slt_CS_carrier A)) (A_slt_CS_plus A) 
-     (A_slt_C_plus B)) (ltr_product (A_slt_CS_trans A) (A_slt_C_trans B))
-  (slt_llex_product_proofs L₁ S₁ L₂ S₂ (A_eqv_eq L₁ (A_slt_CS_label A))
-     (A_eqv_eq L₂ (A_slt_C_label B)) (A_eqv_eq S₁ (A_slt_CS_carrier A))
-     (A_eqv_eq S₂ (A_slt_C_carrier B)) (A_eqv_witness S₂ (A_slt_C_carrier B))
-     (A_eqv_witness L₁ (A_slt_CS_label A)) (A_eqv_witness L₂ (A_slt_C_label B))
-     (A_eqv_witness S₁ (A_slt_CS_carrier A)) (A_eqv_witness S₂ (A_slt_C_carrier B))
-     (A_eqv_proofs L₁ (A_slt_CS_label A)) (A_eqv_proofs S₁ (A_slt_CS_carrier A))
-     (A_eqv_proofs S₂ (A_slt_C_carrier B)) (A_slt_CS_plus A) 
-     (A_slt_C_plus B)
-     (bop_selective_implies_idempotent S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A))
-        (A_slt_CS_plus A)
-        (A_sg_CS_selective S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
-           (A_slt_CS_plus A) (A_slt_CS_plus_proofs A)))
-     (A_sg_C_commutative S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
-        (A_slt_C_plus B) (A_slt_C_plus_proofs B)) (A_slt_CS_trans A)
-     (A_slt_C_trans B)
-     (A_sg_CS_congruence S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
-        (A_slt_CS_plus A) (A_slt_CS_plus_proofs A))
-     (A_sg_C_congruence S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
-        (A_slt_C_plus B) (A_slt_C_plus_proofs B))
-     (A_left_transform_congruence L₁ S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A))
-        (A_eqv_eq L₁ (A_slt_CS_label A)) (A_slt_CS_trans A)
-        (A_slt_CS_trans_proofs A))
-     (A_sg_C_commutative S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
-        (A_slt_C_plus B) (A_slt_C_plus_proofs B))
-     (inl
-        (A_sg_CS_selective S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
-           (A_slt_CS_plus A) (A_slt_CS_plus_proofs A))) 
-     (A_slt_CS_trans_proofs A) (A_slt_C_trans_proofs B) 
-     (A_slt_CS_proofs A) (A_slt_C_proofs B))
-    
-    
-
-Check slt_llex_product_proofs.
-Check A_slt_CS_plus_proofs.
   
-  Lemma correct_slt_llex_product_certs :
-    forall 
-    (l₁ : L₁) (s₁ : S₁) 
-    (l₂ : L₂) (s₂ : S₂)
-    (brelS₁ : brel S₁) 
-    (brelS₂ : brel S₂)
-    (brelL₁ : brel L₁)
-    (brelL₂ : brel L₂) 
-    (bopS₁ : binary_op S₁)
-    (bopS₂ : binary_op S₂) 
-    (ltr₁ : ltr_type L₁ S₁)
-    (ltr₂ : ltr_type L₂ S₂) 
-    (pf₁ : slt_proofs brelS₁ bopS₁ ltr₁)
-    (pf₂ : slt_proofs brelS₂ bopS₂ ltr₂)
-    (pf₃ : assert_selective + assert_exists_id * assert_exists_ann)
-    (ltrpf₁ : left_transform_proofs L₁ S₁ brelS₁ breL₁ ltr₁)
-    (ltrpf₂ : left_transform_proofs L₂ S₂ brelS₂ breL₂ ltr₂)
-    (pppf₁ : )
-    (eqv_proofL₁ : eqv_proofs L₁ brelL₁)
-    (eqv_proofL₂ : eqv_proofs L₂ brelL₂)
-    (eqv_proofS₁ : eqv_proofs S₁ brelS₁)
-    (eqv_proofS₂ : eqv_proofs S₂ brelS₂),
-    slt_llex_product_certs L₁ S₁ L₂ S₂
-      l₁ l₂ s₁ s₂ pf₃
-      (P2C_left_transform L₁ S₁ brelS₁ breL₁ ltr₁ ltrpf₁)
-      (P2C_left_transform L₂ S₂ brelS₂ breL₂ ltr₂ ltrpf₂)
-      (P2C_slt brelS₁ bopS₁ ltr₁ pf₁)
-      (P2C_slt brelS₂ bopS₂ ltr₂ pf₂) =
-      P2C_slt
-      (brel_product brelS₁ brelS₂)
-      (bop_llex s₂ brelS₁ bopS₁ ltr₂)
-      (ltr_product ltr₁ ltr₂)
-      (slt_llex_product_proofs L₁ S₁ L₂ S₂ brelL₁
-         brelL₂ brelS₁
-         brelS₂ s₂
-         l₁ l₂ s₁ s₂
-         eqv_proofL₁
-         eqv_proofS₁
-         eqv_proofS₂ 
-         bopS₁ bopS₂
-         (bop_selective_implies_idempotent S₁ brelS₁
-           bopS₁
-            (A_sg_CS_selective S₁ brelS₁ 
-               bopS₁ (A_slt_CS_plus_proofs A)))
-         (A_sg_C_commutative S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
-            (A_slt_C_plus B) (A_slt_C_plus_proofs B)) (A_slt_CS_trans A)
-         (A_slt_C_trans B)
-         (A_sg_CS_congruence S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
-            (A_slt_CS_plus A) (A_slt_CS_plus_proofs A))
-         (A_sg_C_congruence S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
-            (A_slt_C_plus B) (A_slt_C_plus_proofs B))
-         (A_left_transform_congruence L₁ S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A))
-            (A_eqv_eq L₁ (A_slt_CS_label A)) (A_slt_CS_trans A)
-            (A_slt_CS_trans_proofs A))
-         (A_sg_C_commutative S₂ (A_eqv_eq S₂ (A_slt_C_carrier B)) 
-            (A_slt_C_plus B) (A_slt_C_plus_proofs B))
-         (inl
-            (A_sg_CS_selective S₁ (A_eqv_eq S₁ (A_slt_CS_carrier A)) 
-               (A_slt_CS_plus A) (A_slt_CS_plus_proofs A))) 
-         (A_slt_CS_trans_proofs A) (A_slt_C_trans_proofs B) 
-         (A_slt_CS_proofs A) (A_slt_C_proofs B)) *)
-    
-
-
-
-  
-
  
 
   
@@ -1986,9 +1866,114 @@ Check A_slt_CS_plus_proofs.
     + erewrite <-correct_check_exists_ann_llex.
       f_equal.
     + apply correct_bops_llex_product_certs_exists_id_ann_decide.
-    +  (* I need to write *)
-      admit.
-  Admitted. 
+    + unfold slt_llex_product_certs,
+      slt_llex_product_proofs, P2C_slt; simpl.
+      f_equal.
+      ++ 
+        destruct A, B, A_slt_CS_label, A_slt_C_label,
+        A_slt_CS_carrier, A_slt_C_carrier, 
+        A_slt_CS_plus_proofs, A_slt_C_plus_proofs,
+        A_slt_CS_proofs, A_slt_C_proofs, 
+        A_slt_CS_trans_proofs, A_slt_C_trans_proofs; 
+        simpl in * |- *.
+        unfold slt_llex_product_distributive_certify,
+        slt_llex_product_distributive_decide; simpl.
+        destruct A_slt_distributive_d, A_slt_distributive_d0,
+        A_left_transform_left_cancellative_d; simpl.
+        +++ reflexivity.
+        +++ destruct l, x, p; simpl.
+            destruct A_left_transform_left_constant_d0; simpl.
+            ++++ reflexivity.
+            ++++ 
+              destruct l0, x, p; simpl.
+              destruct y; simpl. 
+              unfold A_witness_slt_llex_product_not_left_distributive.
+              (*
+                I need to write CAS for Tim's version to match every thing
+                Copy this belwo change 
+
+                Certify_Slt_Not_Distributive (l, l0, (s1, s3, (s2, s4))) =
+                Certify_Slt_Not_Distributive
+                  (if A_eqv_eq1 (A_slt_CS_plus s1 s2) s1
+                    then
+                    if A_eqv_eq1 (A_slt_CS_plus s1 s2) s2
+                    then (l, l0, (s1, s3, (s2, s4))) (*This Thing is fine *)
+                    else
+                      if
+                      A_eqv_eq1 (A_slt_CS_trans l s1)
+                        (A_slt_CS_plus (A_slt_CS_trans l s1) (A_slt_CS_trans l s2))
+                      then
+                      if
+                        A_eqv_eq2 (A_slt_C_trans l0 s3)
+                          (A_slt_C_plus (A_slt_C_trans l0 s3) (A_slt_C_trans l0 s4))
+                      then (l, l0, (s1, s4, (s2, s3))) (* This one is not! *)
+                      else (l, l0, (s1, s3, (s2, s4))) (This one is fine )
+                      else (l, l0, (s1, s3, (s2, s4))) (* This one not! *)
+                    else
+                    if A_eqv_eq1 (A_slt_CS_plus s1 s2) s2
+                    then
+                      if
+                      A_eqv_eq2 (A_slt_C_trans l0 s4)
+                        (A_slt_C_plus (A_slt_C_trans l0 s3) (A_slt_C_trans l0 s4))
+                      then (l, l0, (s1, s4, (s2, s3)))
+                      else (l, l0, (s1, s3, (s2, s4)))
+                    else (l, l0, (s1, s3, (s2, s4))))
+              
+              *)
+              admit.
+          +++ destruct s0, x, p; simpl.
+              reflexivity.
+          +++ destruct s0, x, p; simpl.
+              reflexivity.
+          +++ destruct s, x, p; simpl. 
+              reflexivity.
+          +++ destruct s, x, p; simpl. 
+              reflexivity.
+          +++ destruct s, x, p; simpl. 
+              reflexivity.
+          +++ destruct s, x, p; simpl. 
+              reflexivity.
+      ++  
+          destruct A, B, A_slt_CS_label, A_slt_C_label,
+          A_slt_CS_carrier, A_slt_C_carrier, 
+          A_slt_CS_plus_proofs, A_slt_C_plus_proofs,
+          A_slt_CS_proofs, A_slt_C_proofs, 
+          A_slt_CS_trans_proofs, A_slt_C_trans_proofs; 
+          simpl in * |- *.
+          unfold slt_llex_product_absorptive_certify, 
+          p2c_slt_absorptive_check; simpl.
+          destruct A_slt_strictly_absorptive_d; simpl.
+          +++ reflexivity.
+          +++ destruct s, x; simpl.  
+              destruct A_slt_absorptive_d,
+              A_slt_absorptive_d0; simpl.
+              ++++ reflexivity.
+              ++++ destruct s1, x; simpl.
+                    reflexivity.
+              ++++ destruct s0, x; simpl; 
+                   reflexivity. 
+              ++++ destruct s0, x; simpl; 
+                   reflexivity. 
+        ++ 
+            destruct A, B, A_slt_CS_label, A_slt_C_label,
+            A_slt_CS_carrier, A_slt_C_carrier, 
+            A_slt_CS_plus_proofs, A_slt_C_plus_proofs,
+            A_slt_CS_proofs, A_slt_C_proofs, 
+            A_slt_CS_trans_proofs, A_slt_C_trans_proofs; 
+            simpl in * |- *.
+            unfold slt_llex_product_strictly_absorptive_certify,
+            p2c_slt_strictly_absorptive_check; simpl.
+            destruct A_slt_strictly_absorptive_d; simpl.
+            +++ reflexivity.
+            +++ destruct s, x; simpl.  
+                destruct A_slt_absorptive_d; simpl.
+                ++++ destruct A_slt_strictly_absorptive_d0; simpl.
+                  +++++ reflexivity.
+                  +++++ destruct s1, x, y, y0; simpl;
+                    try reflexivity.
+                ++++ destruct s0, x; simpl;
+                     reflexivity.
+      Admitted.  
 
 
 
@@ -2030,7 +2015,116 @@ Check A_slt_CS_plus_proofs.
       f_equal.
     + rewrite <-correct_bops_llex_product_certs_exists_id_ann_decide.
       reflexivity.
-    +  
+    + unfold slt_llex_product_certs,
+      slt_llex_product_proofs, P2C_slt; simpl.
+      f_equal.
+      ++ 
+        destruct A, B, A_slt_CI_label, A_slt_C_zero_is_ltr_ann_label,
+        A_slt_CI_carrier, A_slt_C_zero_is_ltr_ann_carrier, 
+        A_slt_CI_plus_proofs, A_slt_C_zero_is_ltr_ann_plus_proofs,
+        A_slt_CI_proofs, A_slt_C_zero_is_ltr_ann_proofs, 
+        A_slt_CI_trans_proofs, A_slt_C_zero_is_ltr_ann_trans_proofs; 
+        simpl in * |- *.
+        destruct A_slt_distributive_d, A_slt_distributive_d0,
+        A_left_transform_left_cancellative_d; simpl.
+        +++ reflexivity.
+        +++ destruct l, x, p; simpl.
+            destruct A_left_transform_left_constant_d0; simpl.
+            ++++ reflexivity.
+            ++++ 
+              destruct l0, x, p; simpl.
+              destruct y; simpl. 
+              unfold A_witness_slt_llex_product_not_left_distributive.
+              (*
+                Certify_Slt_Not_Distributive (l, l0, (s1, s3, (s2, s4))) =
+                Certify_Slt_Not_Distributive
+                  (if A_eqv_eq1 (A_slt_CI_plus s1 s2) s1
+                  then
+                    if A_eqv_eq1 (A_slt_CI_plus s1 s2) s2
+                    then (l, l0, (s1, s3, (s2, s4)))
+                    else
+                    if
+                      A_eqv_eq1 (A_slt_CI_trans l s1)
+                        (A_slt_CI_plus (A_slt_CI_trans l s1) (A_slt_CI_trans l s2))
+                    then
+                      if
+                      A_eqv_eq2 (A_slt_C_zero_is_ltr_ann_trans l0 s3)
+                        (A_slt_C_zero_is_ltr_ann_plus (A_slt_C_zero_is_ltr_ann_trans l0 s3)
+                            (A_slt_C_zero_is_ltr_ann_trans l0 s4))
+                      then (l, l0, (s1, s4, (s2, s3)))
+                      else (l, l0, (s1, s3, (s2, s4)))
+                    else (l, l0, (s1, s3, (s2, s4)))
+                  else
+                    if A_eqv_eq1 (A_slt_CI_plus s1 s2) s2
+                    then
+                    if
+                      A_eqv_eq2 (A_slt_C_zero_is_ltr_ann_trans l0 s4)
+                        (A_slt_C_zero_is_ltr_ann_plus (A_slt_C_zero_is_ltr_ann_trans l0 s3)
+                          (A_slt_C_zero_is_ltr_ann_trans l0 s4))
+                    then (l, l0, (s1, s4, (s2, s3)))
+                    else (l, l0, (s1, s3, (s2, s4)))
+                    else
+                    if
+                      A_eqv_eq2 (projT1 A_slt_C_zero_is_ltr_ann_id_ann_proofs)
+                        (A_slt_C_zero_is_ltr_ann_trans l0 s3)
+                    then
+                      (l, l0, (s1, projT1 A_slt_C_zero_is_ltr_ann_id_ann_proofs, (s2, s4)))
+                    else
+                      (l, l0, (s1, projT1 A_slt_C_zero_is_ltr_ann_id_ann_proofs, (s2, s3))))
+              
+              *)
+              admit.
+          +++ destruct s0, x, p; simpl.
+              reflexivity.
+          +++ destruct s0, x, p; simpl.
+              reflexivity.
+          +++ destruct s, x, p; simpl. 
+              reflexivity.
+          +++ destruct s, x, p; simpl. 
+              reflexivity.
+          +++ destruct s, x, p; simpl. 
+              reflexivity.
+          +++ destruct s, x, p; simpl. 
+              reflexivity.
+      ++  
+          destruct A, B, A_slt_CI_label, A_slt_C_zero_is_ltr_ann_label,
+          A_slt_CI_carrier, A_slt_C_zero_is_ltr_ann_carrier, 
+          A_slt_CI_plus_proofs, A_slt_C_zero_is_ltr_ann_plus_proofs,
+          A_slt_CI_proofs, A_slt_C_zero_is_ltr_ann_proofs, 
+          A_slt_CI_trans_proofs, A_slt_C_zero_is_ltr_ann_trans_proofs; 
+          simpl in * |- *.
+          unfold slt_llex_product_absorptive_certify, 
+          p2c_slt_absorptive_check; simpl.
+          destruct A_slt_strictly_absorptive_d; simpl.
+          +++ reflexivity.
+          +++ destruct s, x; simpl.  
+              destruct A_slt_absorptive_d,
+              A_slt_absorptive_d0; simpl.
+              ++++ reflexivity.
+              ++++ destruct s1, x; simpl.
+                    reflexivity.
+              ++++ destruct s0, x; simpl; 
+                   reflexivity. 
+              ++++ destruct s0, x; simpl; 
+                   reflexivity.
+      ++   destruct A, B, A_slt_CI_label, A_slt_C_zero_is_ltr_ann_label,
+          A_slt_CI_carrier, A_slt_C_zero_is_ltr_ann_carrier, 
+          A_slt_CI_plus_proofs, A_slt_C_zero_is_ltr_ann_plus_proofs,
+          A_slt_CI_proofs, A_slt_C_zero_is_ltr_ann_proofs, 
+          A_slt_CI_trans_proofs, A_slt_C_zero_is_ltr_ann_trans_proofs; 
+          simpl in * |- *.
+          unfold slt_llex_product_strictly_absorptive_certify,
+          p2c_slt_strictly_absorptive_check; simpl.
+          destruct A_slt_strictly_absorptive_d; simpl.
+          +++ reflexivity.
+          +++ destruct s, x; simpl.  
+              destruct A_slt_absorptive_d; simpl.
+              ++++ destruct A_slt_strictly_absorptive_d0; simpl.
+                +++++ reflexivity.
+                +++++ destruct s1, x, y, y0; simpl;
+                  try reflexivity.
+              ++++ destruct s0, x; simpl;
+                   reflexivity. 
   Admitted.
     
 
