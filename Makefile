@@ -129,6 +129,7 @@ CAS=\
    coq/os/from_bs_left.v \
    coq/st/properties.v \
    coq/st/structures.v \
+   coq/st/cast_up.v \
    coq/st/left/min_plus_one.v \
    coq/st/left/from_bs.v \
    coq/st/left/llex_product.v \

@@ -4,11 +4,12 @@ From Coq Require Import List Utf8
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
   coq.eqv.theory coq.sg.properties
-  coq.algorith.Mat
   coq.algorithm.Listprop 
   coq.algorithm.Orel.
 Import ListNotations.
 
+
+Definition Matrix (Node R : Type) := Node -> Node -> R.
 
 Section Pathdefs.
   Variables 
@@ -72,6 +73,8 @@ Section Pathdefs.
     | (_, _, v) :: t => v * measure_of_path t
     end.
 
+  
+  
 
   
   Fixpoint well_formed_path_aux (m : Matrix Node R) 

@@ -288,7 +288,7 @@ End Proofs.
 
 Section Combinators. 
 
-(* 1 *)   
+(* 1 *) 
 Definition A_sg_from_sg_NC (S : Type) (sgS : A_sg_NC S) : A_sg S := 
    {| 
      A_sg_eqv          := A_sg_NC_eqv _ sgS
