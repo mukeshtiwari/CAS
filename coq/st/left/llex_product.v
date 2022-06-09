@@ -254,37 +254,7 @@ Definition A_witness_slt_llex_product_not_left_distributive
                         else ((s1, t1), ((s2, argT), (s3, t2)))
              end.   
 
-(* for use in CAS  
-Definition witness_slt_llex_product_not_left_distributive_new
-      (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))
-      (s1 : LS) (s2 s3 : S)
-      (t1 : LT) (t2 t3 : T)
-:= if (rS (s2 +S s3) s2) 
-   then if rS (s2 +S s3) s3
-        then (* can't reach this branch *) 
-             ((s1, t1), ((s2, t2), (s3, t3)))
-        else  if rS (s1 *S s2) ((s1 *S s2) +S (s1 *S s3))
-              then (* case 1 *) 
-                   if rT (t1 *T t2) ((t1 *T t2) +T (t1 *T t3))
-                   then ((s1, t1), ((s2, t3), (s3, t2)))
-                   else ((s1, t1), ((s2, t2), (s3, t3)))
-              else (* case 2 *) 
-                   ((s1, t1), ((s2, t2), (s3, t3)))
-   else if rS (s2 +S s3) s3
-        then (* case 3 *) 
-             if rT (t1 *T t3) ((t1 *T t2) +T (t1 *T t3))
-             then ((s1, t1), ((s2, t3), (s3, t2)))
-             else ((s1, t1), ((s2, t2), (s3, t3)))
-        else (* case 4 *) 
-             match selS_or_id_annT with 
-             | inl _ => (* can't reach this branch *) 
-                       ((s1, t1), ((s2, t2), (s3, t3)))
-             | inr _ => if rT argT (t1 *T t2)
-                        then ((s1, t1), ((s2, argT), (s3, t3)))
-                        else ((s1, t1), ((s2, argT), (s3, t2)))
-             end.   
 
-*) 
 Lemma slt_llex_product_not_distributive_v3
       (a_commT : bop_commutative T eqT addT) (*NB*)
       (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
@@ -1328,20 +1298,48 @@ Variables (LS S LT T : Type)
           (wLS : LS)
           (wLT : LT)                     
           (wS : S)
-          (wT : T).
+          (wT : T)
+          (rS : brel S)
+          (rT : brel T)
+          (bopS : binary_op S)
+          (bopT : binary_op T)
+          (ltr₁ : ltr_type LS S)
+          (ltr₂ : ltr_type LT T).
+
+
+  
+  Definition witness_slt_llex_product_not_left_distributive_new 
+    (selS_or_id_annT : @assert_selective S + (@assert_exists_id T * @assert_exists_ann T))
+    (s1 : LS) (s2 s3 : S)
+    (t1 : LT) (t2 t3 : T)
+  := if (rS (bopS s2 s3) s2) 
+  then if rS (bopS s2 s3) s3
+    then (* can't reach this branch *) 
+        ((s1, t1), ((s2, t2), (s3, t3)))
+    else  if rS (ltr₁ s1 s2) (bopS (ltr₁ s1 s2) (ltr₁ s1 s3))
+          then (* case 1 *) 
+              if rT (ltr₂ t1 t2) (bopT (ltr₂ t1 t2) (ltr₂ t1  t3))
+              then ((s1, t1), ((s2, t3), (s3, t2)))
+              else ((s1, t1), ((s2, t2), (s3, t3)))
+          else (* case 2 *) 
+              ((s1, t1), ((s2, t2), (s3, t3)))
+  else if rS (bopS s2 s3) s3
+    then (* case 3 *) 
+        if rT (ltr₂ t1 t3) (bopT (ltr₂ t1 t2) (ltr₂ t1 t3))
+        then ((s1, t1), ((s2, t3), (s3, t2)))
+        else ((s1, t1), ((s2, t2), (s3, t3)))
+    else (* case 4 *) 
+        match selS_or_id_annT with 
+        | inl _ => (* can't reach this branch *) 
+                  ((s1, t1), ((s2, t2), (s3, t3)))
+        | inr _ => if rT argT (ltr₂ t1 t2)
+                    then ((s1, t1), ((s2, argT), (s3, t3)))
+                    else ((s1, t1), ((s2, argT), (s3, t2)))
+        end.  
 
 
 
-  (* I need to chagne this function to mimic the behaviour of 
-    slt_llex_product_distributive_decide
-    
-    Certify_Slt_Not_Distributive (l, l0, (s1, s3, (s2, s4))) =
-    Certify_Slt_Not_Distributive
-      (A_witness_slt_llex_product_not_left_distributive L₁ S₁ L₂ S₂ A_eqv_eq1
-        A_eqv_eq2 A_eqv_witness2 A_slt_CS_plus A_slt_C_plus A_slt_CS_trans
-        A_slt_C_trans (inl A_sg_CS_selective) l s1 s2 l0 s3 s4)
-        
-    *)
+  
   Definition slt_llex_product_distributive_certify 
     (selS_or_id_annT : @assert_selective S + 
       (@assert_exists_id T * @assert_exists_ann T))    
@@ -1366,8 +1364,10 @@ Variables (LS S LT T : Type)
           | Certify_Ltr_Not_Left_Cancellative (axx, (ayy, azz)) =>
             match LKT_d with
             | Certify_Ltr_Left_Constant  => Certify_Slt_Distributive 
-            | Certify_Ltr_Not_Left_Constant (bxx, (byy, bzz)) => 
-                Certify_Slt_Not_Distributive  (axx, bxx, (ayy, byy, (azz, bzz)))
+            | Certify_Ltr_Not_Left_Constant (bxx, (byy, bzz)) =>
+                Certify_Slt_Not_Distributive  
+                (witness_slt_llex_product_not_left_distributive_new 
+                selS_or_id_annT axx ayy azz bxx byy bzz)
             end 
           end 
         | Certify_Slt_Not_Distributive (cxx, (cyy, czz)) => 
@@ -1557,7 +1557,7 @@ End Decide.
 Section Combinators.
    
 
-
+   
     Definition llex_product_from_slt_CS_slt_C {L₁ S₁ L₂ S₂: Type} 
       (A : @slt_CS L₁ S₁) (B : @slt_C L₂ S₂) : @slt (L₁ * L₂) (S₁ * S₂).
       refine
@@ -1613,10 +1613,17 @@ Section Combinators.
               (slt_CS_id_ann_certs_d A)  
               (slt_C_id_ann_certs_d B)                 
           ; slt_certs := slt_llex_product_certs L₁ S₁ L₂ S₂
+              (eqv_witness (slt_C_carrier B))
               (eqv_witness (slt_CS_label A)) 
               (eqv_witness (slt_C_label B))
               (eqv_witness (slt_CS_carrier A)) 
               (eqv_witness (slt_C_carrier B))
+              (eqv_eq (slt_CS_carrier A)) 
+              (eqv_eq (slt_C_carrier B)) 
+              (slt_CS_plus A) 
+              (slt_C_plus B)
+              (slt_CS_trans A) 
+              (slt_C_trans B) 
               ((inl (sg_CS_selective (slt_CS_plus_certs A))))
               (slt_CS_trans_certs A) 
               (slt_C_trans_certs B)
@@ -1628,6 +1635,7 @@ Section Combinators.
         |}.
     Defined.
        
+   
        
 
 
@@ -1691,12 +1699,21 @@ Section Combinators.
             (match slt_C_zero_is_ltr_ann_id_ann_certs B with
               | Assert_Slt_Exists_Id_Ann_Equal s => s
             end))              
+        (* (projT1 (A_slt_C_zero_is_ltr_ann_id_ann_proofs B)) *)    
       ; slt_certs := slt_llex_product_certs L₁ S₁ L₂ S₂
+           (match slt_C_zero_is_ltr_ann_id_ann_certs B with
+          | Assert_Slt_Exists_Id_Ann_Equal s => s
+          end) (* need to chagne *)
           (eqv_witness (slt_CI_label A)) 
           (eqv_witness (slt_C_zero_is_ltr_ann_label B))
           (eqv_witness (slt_CI_carrier A)) 
           (eqv_witness (slt_C_zero_is_ltr_ann_carrier B))
-          _ 
+          (eqv_eq (slt_CI_carrier A)) 
+          (eqv_eq (slt_C_zero_is_ltr_ann_carrier B))
+          (slt_CI_plus A)
+          (slt_C_zero_is_ltr_ann_plus B)  
+          (slt_CI_trans A)
+          (slt_C_zero_is_ltr_ann_trans B)  _  
           (slt_CI_trans_certs A) 
           (slt_C_zero_is_ltr_ann_trans_certs B)
           (slt_CI_certs A)
@@ -1704,6 +1721,7 @@ Section Combinators.
       ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
             [slt_CI_ast A; slt_C_zero_is_ltr_ann_ast B]
     |}.
+   
     right.
     refine 
       match slt_C_zero_is_ltr_ann_id_ann_certs B with 
@@ -1887,40 +1905,9 @@ Section Verify.
             ++++ 
               destruct l0, x, p; simpl.
               destruct y; simpl. 
-              unfold A_witness_slt_llex_product_not_left_distributive.
-              (*
-                I need to write CAS for Tim's version to match every thing
-                Copy this belwo change 
-
-                Certify_Slt_Not_Distributive (l, l0, (s1, s3, (s2, s4))) =
-                Certify_Slt_Not_Distributive
-                  (if A_eqv_eq1 (A_slt_CS_plus s1 s2) s1
-                    then
-                    if A_eqv_eq1 (A_slt_CS_plus s1 s2) s2
-                    then (l, l0, (s1, s3, (s2, s4))) (*This Thing is fine *)
-                    else
-                      if
-                      A_eqv_eq1 (A_slt_CS_trans l s1)
-                        (A_slt_CS_plus (A_slt_CS_trans l s1) (A_slt_CS_trans l s2))
-                      then
-                      if
-                        A_eqv_eq2 (A_slt_C_trans l0 s3)
-                          (A_slt_C_plus (A_slt_C_trans l0 s3) (A_slt_C_trans l0 s4))
-                      then (l, l0, (s1, s4, (s2, s3))) (* This one is not! *)
-                      else (l, l0, (s1, s3, (s2, s4))) (This one is fine )
-                      else (l, l0, (s1, s3, (s2, s4))) (* This one not! *)
-                    else
-                    if A_eqv_eq1 (A_slt_CS_plus s1 s2) s2
-                    then
-                      if
-                      A_eqv_eq2 (A_slt_C_trans l0 s4)
-                        (A_slt_C_plus (A_slt_C_trans l0 s3) (A_slt_C_trans l0 s4))
-                      then (l, l0, (s1, s4, (s2, s3)))
-                      else (l, l0, (s1, s3, (s2, s4)))
-                    else (l, l0, (s1, s3, (s2, s4))))
-              
-              *)
-              admit.
+              unfold A_witness_slt_llex_product_not_left_distributive,
+              witness_slt_llex_product_not_left_distributive_new; simpl.
+              reflexivity.
           +++ destruct s0, x, p; simpl.
               reflexivity.
           +++ destruct s0, x, p; simpl.
@@ -1973,7 +1960,7 @@ Section Verify.
                     try reflexivity.
                 ++++ destruct s0, x; simpl;
                      reflexivity.
-      Admitted.  
+    Qed.
 
 
 
@@ -2034,46 +2021,10 @@ Section Verify.
             ++++ 
               destruct l0, x, p; simpl.
               destruct y; simpl. 
-              unfold A_witness_slt_llex_product_not_left_distributive.
-              (*
-                Certify_Slt_Not_Distributive (l, l0, (s1, s3, (s2, s4))) =
-                Certify_Slt_Not_Distributive
-                  (if A_eqv_eq1 (A_slt_CI_plus s1 s2) s1
-                  then
-                    if A_eqv_eq1 (A_slt_CI_plus s1 s2) s2
-                    then (l, l0, (s1, s3, (s2, s4)))
-                    else
-                    if
-                      A_eqv_eq1 (A_slt_CI_trans l s1)
-                        (A_slt_CI_plus (A_slt_CI_trans l s1) (A_slt_CI_trans l s2))
-                    then
-                      if
-                      A_eqv_eq2 (A_slt_C_zero_is_ltr_ann_trans l0 s3)
-                        (A_slt_C_zero_is_ltr_ann_plus (A_slt_C_zero_is_ltr_ann_trans l0 s3)
-                            (A_slt_C_zero_is_ltr_ann_trans l0 s4))
-                      then (l, l0, (s1, s4, (s2, s3)))
-                      else (l, l0, (s1, s3, (s2, s4)))
-                    else (l, l0, (s1, s3, (s2, s4)))
-                  else
-                    if A_eqv_eq1 (A_slt_CI_plus s1 s2) s2
-                    then
-                    if
-                      A_eqv_eq2 (A_slt_C_zero_is_ltr_ann_trans l0 s4)
-                        (A_slt_C_zero_is_ltr_ann_plus (A_slt_C_zero_is_ltr_ann_trans l0 s3)
-                          (A_slt_C_zero_is_ltr_ann_trans l0 s4))
-                    then (l, l0, (s1, s4, (s2, s3)))
-                    else (l, l0, (s1, s3, (s2, s4)))
-                    else
-                    if
-                      A_eqv_eq2 (projT1 A_slt_C_zero_is_ltr_ann_id_ann_proofs)
-                        (A_slt_C_zero_is_ltr_ann_trans l0 s3)
-                    then
-                      (l, l0, (s1, projT1 A_slt_C_zero_is_ltr_ann_id_ann_proofs, (s2, s4)))
-                    else
-                      (l, l0, (s1, projT1 A_slt_C_zero_is_ltr_ann_id_ann_proofs, (s2, s3))))
-              
-              *)
-              admit.
+              unfold A_witness_slt_llex_product_not_left_distributive,
+              witness_slt_llex_product_not_left_distributive_new.
+              destruct A_slt_C_zero_is_ltr_ann_id_ann_proofs; simpl.
+              reflexivity.
           +++ destruct s0, x, p; simpl.
               reflexivity.
           +++ destruct s0, x, p; simpl.
@@ -2125,7 +2076,7 @@ Section Verify.
                   try reflexivity.
               ++++ destruct s0, x; simpl;
                    reflexivity. 
-  Admitted.
+  Qed.
     
 
   Lemma correct_mcas_slt_llex_product :
