@@ -617,7 +617,9 @@ Variables (LS S LT T : Type)
 
 Definition slt_llex_product_distributive_decide
            (a_commT : bop_commutative T eqT addT) 
-           (selS_or_id_annT : bop_selective S eqS addS + (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
+           (selS_or_id_annT : 
+              bop_selective S eqS addS + 
+              (bop_is_id T eqT addT argT * ltr_is_ann LT T eqT ltrT argT))
            (LDS_d : slt_distributive_decidable eqS addS ltrS)
            (LDT_d : slt_distributive_decidable eqT addT ltrT)
            (LCS_d : ltr_left_cancellative_decidable LS S eqS ltrS)
@@ -1848,9 +1850,268 @@ Section Verify.
     + destruct s0, s, x0, x, y,
       y0, p0, p; reflexivity.
   Qed.
-      
+
   
+  Lemma correct_slt_llex_product_distributive_certify :
+    forall
+    (argT : S₂)
+    (s₁: S₁)
+    (l₁: L₁)
+    (s₂: S₂)
+    (l₂: L₂)
+    (brelS₁: brel S₁)
+    (brelS₂: brel S₂)
+    (brelL₁: brel L₁)
+    (brelL₂: brel L₂)
+    (bopS₁: binary_op S₁)
+    (bopS₂: binary_op S₂)
+    (ltr₁: ltr_type L₁ S₁)
+    (ltr₂: ltr_type L₂ S₂)
+    (eqv_pfS₁: eqv_proofs S₁ brelS₁)
+    (eqv_pfL₁: eqv_proofs L₁ brelL₁)
+    (eqv_pfS₂: eqv_proofs S₂ brelS₂)
+    (eqv_pfL₂: eqv_proofs L₂ brelL₂)
+    (bop_cong₁: bop_congruence S₁ brelS₁ bopS₁)
+    (bopSsel₁: bop_selective S₁ brelS₁ bopS₁)
+    (ltr_cong₁: ltr_congruence L₁ S₁ brelL₁ brelS₁ ltr₁)
+    (ltr_left_can₁: ltr_left_cancellative_decidable L₁ S₁ brelS₁ ltr₁)
+    (slt_dist₁: slt_distributive_decidable brelS₁ bopS₁ ltr₁)
+    (bop_cong₂: bop_congruence S₂ brelS₂ bopS₂)
+    (bop_com₂: bop_commutative S₂ brelS₂ bopS₂)
+    (bop_idem₁ : bop_idempotent S₁ brelS₁ bopS₁)
+    (* This is a mismatch *)
+    (selS_or_annT : bop_selective S₁ brelS₁ bopS₁ + 
+      bop_is_id S₂ brelS₂ bopS₂ s₂ * ltr_is_ann L₂ S₂ brelS₂ ltr₂ s₂)
+    (* (selS_or_id_annT : @assert_selective S₁ + 
+      (@assert_exists_id S₂ * @assert_exists_ann S₂)) 
+     I need a function maps proofs to certs *)   
+    (ltr_cong₂: ltr_congruence L₂ S₂ brelL₂ brelS₂ ltr₂)
+    (ltr_left_cons₂: ltr_left_constant_decidable L₂ S₂ brelS₂ ltr₂)
+    (ltr_left_can₂: ltr_left_cancellative_decidable L₂ S₂ brelS₂ ltr₂)
+    (slt_dist₂: slt_distributive_decidable brelS₂ bopS₂ ltr₂),
+    slt_llex_product_distributive_certify L₁ S₁ L₂ S₂ s₂ l₁ l₂
+      s₁ argT brelS₁ brelS₂ bopS₁ bopS₂ ltr₁
+      ltr₂ (match  selS_or_annT with 
+        | inl _ => inl Assert_Selective 
+        | inr _ => inr (Assert_Exists_Id s₂, Assert_Exists_Ann s₂)
+        end)
+      (p2c_slt_distributive_check brelS₁ bopS₁ ltr₁ slt_dist₁)
+      (p2c_slt_distributive_check brelS₂ bopS₂ ltr₂ slt_dist₂)
+      (p2c_ltr_left_cancellative L₁ S₁ brelS₁ ltr₁ ltr_left_can₁)
+      (p2c_ltr_left_constant L₂ S₂ brelS₂ ltr₂ ltr_left_cons₂) =
+    p2c_slt_distributive_check (brel_product brelS₁ brelS₂)
+      (bop_llex s₂ brelS₁ bopS₁ bopS₂)
+      (ltr_product ltr₁ ltr₂)
+      (slt_llex_product_distributive_decide L₁ S₁ L₂ S₂ brelL₁ brelS₁ brelS₂ s₂
+         l₁ l₂ s₁  argT eqv_pfL₁ eqv_pfS₁ eqv_pfS₂
+         bopS₁ bopS₂
+         bop_idem₁ bop_com₂
+         ltr₁ ltr₂ bop_cong₁ bop_cong₂ ltr_cong₁
+         bop_com₂ selS_or_annT slt_dist₁ slt_dist₂
+         ltr_left_can₁ ltr_left_cons₂).
+  Proof.
+    intros until slt_dist₂.
+    unfold slt_llex_product_distributive_certify,
+      slt_llex_product_distributive_decide; simpl.
+    destruct slt_dist₁, slt_dist₂, ltr_left_can₁; 
+    simpl.
+    +++ reflexivity.
+    +++ destruct l, x, p; simpl.
+        destruct ltr_left_cons₂; simpl.
+        ++++ reflexivity.
+        ++++ 
+          destruct l0, x, p; simpl.
+          destruct y; simpl. 
+          unfold A_witness_slt_llex_product_not_left_distributive,
+          witness_slt_llex_product_not_left_distributive_new; simpl.
+          destruct selS_or_annT; simpl.
+          reflexivity.
+          reflexivity.
+      +++ destruct s0, x, p; simpl.
+          reflexivity.
+      +++ destruct s0, x, p; simpl.
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+  Qed.
+  
+
+  Lemma correct_slt_llex_product_distributive_certify_left :
+    forall
+    (argT : S₂)
+    (s₁: S₁)
+    (l₁: L₁)
+    (s₂: S₂)
+    (l₂: L₂)
+    (brelS₁: brel S₁)
+    (brelS₂: brel S₂)
+    (brelL₁: brel L₁)
+    (brelL₂: brel L₂)
+    (bopS₁: binary_op S₁)
+    (bopS₂: binary_op S₂)
+    (ltr₁: ltr_type L₁ S₁)
+    (ltr₂: ltr_type L₂ S₂)
+    (eqv_pfS₁: eqv_proofs S₁ brelS₁)
+    (eqv_pfL₁: eqv_proofs L₁ brelL₁)
+    (eqv_pfS₂: eqv_proofs S₂ brelS₂)
+    (eqv_pfL₂: eqv_proofs L₂ brelL₂)
+    (bop_cong₁: bop_congruence S₁ brelS₁ bopS₁)
+    (ltr_cong₁: ltr_congruence L₁ S₁ brelL₁ brelS₁ ltr₁)
+    (ltr_left_can₁: ltr_left_cancellative_decidable L₁ S₁ brelS₁ ltr₁)
+    (slt_dist₁: slt_distributive_decidable brelS₁ bopS₁ ltr₁)
+    (bop_cong₂: bop_congruence S₂ brelS₂ bopS₂)
+    (bop_com₂: bop_commutative S₂ brelS₂ bopS₂)
+    (bop_idem₁ : bop_idempotent S₁ brelS₁ bopS₁)
+    (* This is a mismatch *)
+    (selS_or_annT : bop_selective S₁ brelS₁ bopS₁)
+    (* (selS_or_id_annT : @assert_selective S₁ + 
+      (@assert_exists_id S₂ * @assert_exists_ann S₂)) 
+     I need a function maps proofs to certs *)   
+    (ltr_cong₂: ltr_congruence L₂ S₂ brelL₂ brelS₂ ltr₂)
+    (ltr_left_cons₂: ltr_left_constant_decidable L₂ S₂ brelS₂ ltr₂)
+    (ltr_left_can₂: ltr_left_cancellative_decidable L₂ S₂ brelS₂ ltr₂)
+    (slt_dist₂: slt_distributive_decidable brelS₂ bopS₂ ltr₂),
+    slt_llex_product_distributive_certify L₁ S₁ L₂ S₂ s₂ l₁ l₂
+      s₁ argT brelS₁ brelS₂ bopS₁ bopS₂ ltr₁
+      ltr₂ (inl Assert_Selective)
+      (p2c_slt_distributive_check brelS₁ bopS₁ ltr₁ slt_dist₁)
+      (p2c_slt_distributive_check brelS₂ bopS₂ ltr₂ slt_dist₂)
+      (p2c_ltr_left_cancellative L₁ S₁ brelS₁ ltr₁ ltr_left_can₁)
+      (p2c_ltr_left_constant L₂ S₂ brelS₂ ltr₂ ltr_left_cons₂) =
+    p2c_slt_distributive_check (brel_product brelS₁ brelS₂)
+      (bop_llex s₂ brelS₁ bopS₁ bopS₂)
+      (ltr_product ltr₁ ltr₂)
+      (slt_llex_product_distributive_decide L₁ S₁ L₂ S₂ brelL₁ brelS₁ brelS₂ s₂
+         l₁ l₂ s₁  argT eqv_pfL₁ eqv_pfS₁ eqv_pfS₂
+         bopS₁ bopS₂
+         bop_idem₁ bop_com₂
+         ltr₁ ltr₂ bop_cong₁ bop_cong₂ ltr_cong₁
+         bop_com₂ (inl selS_or_annT) slt_dist₁ slt_dist₂
+         ltr_left_can₁ ltr_left_cons₂).
+  Proof.
+    intros until slt_dist₂.
+     unfold slt_llex_product_distributive_certify,
+      slt_llex_product_distributive_decide; simpl.
+    destruct slt_dist₁, slt_dist₂, ltr_left_can₁; 
+    simpl.
+    +++ reflexivity.
+    +++ destruct l, x, p; simpl.
+        destruct ltr_left_cons₂; simpl.
+        ++++ reflexivity.
+        ++++ 
+          destruct l0, x, p; simpl.
+          destruct y; simpl. 
+          unfold A_witness_slt_llex_product_not_left_distributive,
+          witness_slt_llex_product_not_left_distributive_new; 
+          reflexivity.
+      +++ destruct s0, x, p; simpl.
+          reflexivity.
+      +++ destruct s0, x, p; simpl.
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+  Qed.
+
  
+  Lemma correct_slt_llex_product_distributive_certify_right :
+    forall
+    (argT : S₂)
+    (s₁: S₁)
+    (l₁: L₁)
+    (s₂: S₂)
+    (l₂: L₂)
+    (brelS₁: brel S₁)
+    (brelS₂: brel S₂)
+    (brelL₁: brel L₁)
+    (brelL₂: brel L₂)
+    (bopS₁: binary_op S₁)
+    (bopS₂: binary_op S₂)
+    (ltr₁: ltr_type L₁ S₁)
+    (ltr₂: ltr_type L₂ S₂)
+    (eqv_pfS₁: eqv_proofs S₁ brelS₁)
+    (eqv_pfL₁: eqv_proofs L₁ brelL₁)
+    (eqv_pfS₂: eqv_proofs S₂ brelS₂)
+    (eqv_pfL₂: eqv_proofs L₂ brelL₂)
+    (bop_cong₁: bop_congruence S₁ brelS₁ bopS₁)
+    (ltr_cong₁: ltr_congruence L₁ S₁ brelL₁ brelS₁ ltr₁)
+    (ltr_left_can₁: ltr_left_cancellative_decidable L₁ S₁ brelS₁ ltr₁)
+    (slt_dist₁: slt_distributive_decidable brelS₁ bopS₁ ltr₁)
+    (bop_cong₂: bop_congruence S₂ brelS₂ bopS₂)
+    (bop_com₂: bop_commutative S₂ brelS₂ bopS₂)
+    (bop_idem₁ : bop_idempotent S₁ brelS₁ bopS₁)
+    (* This is a mismatch *)
+    (selS_or_annT :  
+      bop_is_id S₂ brelS₂ bopS₂ s₂ * ltr_is_ann L₂ S₂ brelS₂ ltr₂ s₂)
+    (* (selS_or_id_annT : @assert_selective S₁ + 
+      (@assert_exists_id S₂ * @assert_exists_ann S₂)) 
+     I need a function maps proofs to certs *)   
+    (ltr_cong₂: ltr_congruence L₂ S₂ brelL₂ brelS₂ ltr₂)
+    (ltr_left_cons₂: ltr_left_constant_decidable L₂ S₂ brelS₂ ltr₂)
+    (ltr_left_can₂: ltr_left_cancellative_decidable L₂ S₂ brelS₂ ltr₂)
+    (slt_dist₂: slt_distributive_decidable brelS₂ bopS₂ ltr₂),
+    slt_llex_product_distributive_certify L₁ S₁ L₂ S₂ s₂ l₁ l₂
+      s₁ argT brelS₁ brelS₂ bopS₁ bopS₂ ltr₁
+      ltr₂ (inr (Assert_Exists_Id s₂, Assert_Exists_Ann s₂))
+      (p2c_slt_distributive_check brelS₁ bopS₁ ltr₁ slt_dist₁)
+      (p2c_slt_distributive_check brelS₂ bopS₂ ltr₂ slt_dist₂)
+      (p2c_ltr_left_cancellative L₁ S₁ brelS₁ ltr₁ ltr_left_can₁)
+      (p2c_ltr_left_constant L₂ S₂ brelS₂ ltr₂ ltr_left_cons₂) =
+    p2c_slt_distributive_check (brel_product brelS₁ brelS₂)
+      (bop_llex s₂ brelS₁ bopS₁ bopS₂)
+      (ltr_product ltr₁ ltr₂)
+      (slt_llex_product_distributive_decide L₁ S₁ L₂ S₂ brelL₁ brelS₁ brelS₂ s₂
+         l₁ l₂ s₁  argT eqv_pfL₁ eqv_pfS₁ eqv_pfS₂
+         bopS₁ bopS₂
+         bop_idem₁ bop_com₂
+         ltr₁ ltr₂ bop_cong₁ bop_cong₂ ltr_cong₁
+         bop_com₂ (inr selS_or_annT) slt_dist₁ slt_dist₂
+         ltr_left_can₁ ltr_left_cons₂).
+  Proof.
+    intros until slt_dist₂.
+    unfold slt_llex_product_distributive_certify, 
+    slt_llex_product_distributive_decide.
+    destruct slt_dist₁, slt_dist₂, ltr_left_can₁; simpl.
+    +++ reflexivity.
+    +++ destruct l, x, p; simpl.
+        destruct ltr_left_cons₂; simpl.
+        ++++ reflexivity.
+        ++++ 
+          destruct l0, x, p; simpl.
+          destruct y; simpl. 
+          unfold A_witness_slt_llex_product_not_left_distributive,
+          witness_slt_llex_product_not_left_distributive_new.
+          reflexivity.
+      +++ destruct s0, x, p; simpl.
+          reflexivity.
+      +++ destruct s0, x, p; simpl.
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+      +++ destruct s, x, p; simpl. 
+          reflexivity.
+  Qed.
+
+   
+
+
+
+
 
   
   Lemma correct_llex_product_from_slt_CS_slt_C : 
@@ -1887,39 +2148,13 @@ Section Verify.
     + unfold slt_llex_product_certs,
       slt_llex_product_proofs, P2C_slt; simpl.
       f_equal.
-      ++ 
-        destruct A, B, A_slt_CS_label, A_slt_C_label,
-        A_slt_CS_carrier, A_slt_C_carrier, 
-        A_slt_CS_plus_proofs, A_slt_C_plus_proofs,
-        A_slt_CS_proofs, A_slt_C_proofs, 
-        A_slt_CS_trans_proofs, A_slt_C_trans_proofs; 
-        simpl in * |- *.
-        unfold slt_llex_product_distributive_certify,
-        slt_llex_product_distributive_decide; simpl.
-        destruct A_slt_distributive_d, A_slt_distributive_d0,
-        A_left_transform_left_cancellative_d; simpl.
-        +++ reflexivity.
-        +++ destruct l, x, p; simpl.
-            destruct A_left_transform_left_constant_d0; simpl.
-            ++++ reflexivity.
-            ++++ 
-              destruct l0, x, p; simpl.
-              destruct y; simpl. 
-              unfold A_witness_slt_llex_product_not_left_distributive,
-              witness_slt_llex_product_not_left_distributive_new; simpl.
-              reflexivity.
-          +++ destruct s0, x, p; simpl.
-              reflexivity.
-          +++ destruct s0, x, p; simpl.
-              reflexivity.
-          +++ destruct s, x, p; simpl. 
-              reflexivity.
-          +++ destruct s, x, p; simpl. 
-              reflexivity.
-          +++ destruct s, x, p; simpl. 
-              reflexivity.
-          +++ destruct s, x, p; simpl. 
-              reflexivity.
+      ++
+        eapply correct_slt_llex_product_distributive_certify_left.
+        exact (A_eqv_proofs _ (A_slt_C_label B)).
+        exact (A_left_transform_congruence _ _ _ _ _ (A_slt_C_trans_proofs B)).
+        exact (A_left_transform_left_cancellative_d _ _ _ _ _ (A_slt_C_trans_proofs B)).
+        (* cleaned upto here *)
+
       ++  
           destruct A, B, A_slt_CS_label, A_slt_C_label,
           A_slt_CS_carrier, A_slt_C_carrier, 
@@ -1963,6 +2198,8 @@ Section Verify.
     Qed.
 
 
+    
+
 
 
    
@@ -2005,38 +2242,15 @@ Section Verify.
     + unfold slt_llex_product_certs,
       slt_llex_product_proofs, P2C_slt; simpl.
       f_equal.
+     
       ++ 
-        destruct A, B, A_slt_CI_label, A_slt_C_zero_is_ltr_ann_label,
-        A_slt_CI_carrier, A_slt_C_zero_is_ltr_ann_carrier, 
-        A_slt_CI_plus_proofs, A_slt_C_zero_is_ltr_ann_plus_proofs,
-        A_slt_CI_proofs, A_slt_C_zero_is_ltr_ann_proofs, 
-        A_slt_CI_trans_proofs, A_slt_C_zero_is_ltr_ann_trans_proofs; 
-        simpl in * |- *.
-        destruct A_slt_distributive_d, A_slt_distributive_d0,
-        A_left_transform_left_cancellative_d; simpl.
-        +++ reflexivity.
-        +++ destruct l, x, p; simpl.
-            destruct A_left_transform_left_constant_d0; simpl.
-            ++++ reflexivity.
-            ++++ 
-              destruct l0, x, p; simpl.
-              destruct y; simpl. 
-              unfold A_witness_slt_llex_product_not_left_distributive,
-              witness_slt_llex_product_not_left_distributive_new.
-              destruct A_slt_C_zero_is_ltr_ann_id_ann_proofs; simpl.
-              reflexivity.
-          +++ destruct s0, x, p; simpl.
-              reflexivity.
-          +++ destruct s0, x, p; simpl.
-              reflexivity.
-          +++ destruct s, x, p; simpl. 
-              reflexivity.
-          +++ destruct s, x, p; simpl. 
-              reflexivity.
-          +++ destruct s, x, p; simpl. 
-              reflexivity.
-          +++ destruct s, x, p; simpl. 
-              reflexivity.
+        eapply correct_slt_llex_product_distributive_certify_right;
+        try eassumption.
+        exact (A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_label B)).
+        exact (A_left_transform_congruence _ _ _ _ _ (A_slt_C_zero_is_ltr_ann_trans_proofs B)).
+        exact (A_left_transform_left_cancellative_d _ _ _ _ _ 
+          (A_slt_C_zero_is_ltr_ann_trans_proofs B)).
+
       ++  
           destruct A, B, A_slt_CI_label, A_slt_C_zero_is_ltr_ann_label,
           A_slt_CI_carrier, A_slt_C_zero_is_ltr_ann_carrier, 
