@@ -1852,95 +1852,6 @@ Section Verify.
   Qed.
 
   
-  Lemma correct_slt_llex_product_distributive_certify :
-    forall
-    (argT : S₂)
-    (s₁: S₁)
-    (l₁: L₁)
-    (s₂: S₂)
-    (l₂: L₂)
-    (brelS₁: brel S₁)
-    (brelS₂: brel S₂)
-    (brelL₁: brel L₁)
-    (brelL₂: brel L₂)
-    (bopS₁: binary_op S₁)
-    (bopS₂: binary_op S₂)
-    (ltr₁: ltr_type L₁ S₁)
-    (ltr₂: ltr_type L₂ S₂)
-    (eqv_pfS₁: eqv_proofs S₁ brelS₁)
-    (eqv_pfL₁: eqv_proofs L₁ brelL₁)
-    (eqv_pfS₂: eqv_proofs S₂ brelS₂)
-    (eqv_pfL₂: eqv_proofs L₂ brelL₂)
-    (bop_cong₁: bop_congruence S₁ brelS₁ bopS₁)
-    (bopSsel₁: bop_selective S₁ brelS₁ bopS₁)
-    (ltr_cong₁: ltr_congruence L₁ S₁ brelL₁ brelS₁ ltr₁)
-    (ltr_left_can₁: ltr_left_cancellative_decidable L₁ S₁ brelS₁ ltr₁)
-    (slt_dist₁: slt_distributive_decidable brelS₁ bopS₁ ltr₁)
-    (bop_cong₂: bop_congruence S₂ brelS₂ bopS₂)
-    (bop_com₂: bop_commutative S₂ brelS₂ bopS₂)
-    (bop_idem₁ : bop_idempotent S₁ brelS₁ bopS₁)
-    (* This is a mismatch *)
-    (selS_or_annT : bop_selective S₁ brelS₁ bopS₁ + 
-      bop_is_id S₂ brelS₂ bopS₂ s₂ * ltr_is_ann L₂ S₂ brelS₂ ltr₂ s₂)
-    (* (selS_or_id_annT : @assert_selective S₁ + 
-      (@assert_exists_id S₂ * @assert_exists_ann S₂)) 
-     I need a function maps proofs to certs *)   
-    (ltr_cong₂: ltr_congruence L₂ S₂ brelL₂ brelS₂ ltr₂)
-    (ltr_left_cons₂: ltr_left_constant_decidable L₂ S₂ brelS₂ ltr₂)
-    (ltr_left_can₂: ltr_left_cancellative_decidable L₂ S₂ brelS₂ ltr₂)
-    (slt_dist₂: slt_distributive_decidable brelS₂ bopS₂ ltr₂),
-    slt_llex_product_distributive_certify L₁ S₁ L₂ S₂ s₂ l₁ l₂
-      s₁ argT brelS₁ brelS₂ bopS₁ bopS₂ ltr₁
-      ltr₂ (match  selS_or_annT with 
-        | inl _ => inl Assert_Selective 
-        | inr _ => inr (Assert_Exists_Id s₂, Assert_Exists_Ann s₂)
-        end)
-      (p2c_slt_distributive_check brelS₁ bopS₁ ltr₁ slt_dist₁)
-      (p2c_slt_distributive_check brelS₂ bopS₂ ltr₂ slt_dist₂)
-      (p2c_ltr_left_cancellative L₁ S₁ brelS₁ ltr₁ ltr_left_can₁)
-      (p2c_ltr_left_constant L₂ S₂ brelS₂ ltr₂ ltr_left_cons₂) =
-    p2c_slt_distributive_check (brel_product brelS₁ brelS₂)
-      (bop_llex s₂ brelS₁ bopS₁ bopS₂)
-      (ltr_product ltr₁ ltr₂)
-      (slt_llex_product_distributive_decide L₁ S₁ L₂ S₂ brelL₁ brelS₁ brelS₂ s₂
-         l₁ l₂ s₁  argT eqv_pfL₁ eqv_pfS₁ eqv_pfS₂
-         bopS₁ bopS₂
-         bop_idem₁ bop_com₂
-         ltr₁ ltr₂ bop_cong₁ bop_cong₂ ltr_cong₁
-         bop_com₂ selS_or_annT slt_dist₁ slt_dist₂
-         ltr_left_can₁ ltr_left_cons₂).
-  Proof.
-    intros until slt_dist₂.
-    unfold slt_llex_product_distributive_certify,
-      slt_llex_product_distributive_decide; simpl.
-    destruct slt_dist₁, slt_dist₂, ltr_left_can₁; 
-    simpl.
-    +++ reflexivity.
-    +++ destruct l, x, p; simpl.
-        destruct ltr_left_cons₂; simpl.
-        ++++ reflexivity.
-        ++++ 
-          destruct l0, x, p; simpl.
-          destruct y; simpl. 
-          unfold A_witness_slt_llex_product_not_left_distributive,
-          witness_slt_llex_product_not_left_distributive_new; simpl.
-          destruct selS_or_annT; simpl.
-          reflexivity.
-          reflexivity.
-      +++ destruct s0, x, p; simpl.
-          reflexivity.
-      +++ destruct s0, x, p; simpl.
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-  Qed.
-  
 
   Lemma correct_slt_llex_product_distributive_certify_left :
     forall
@@ -1968,11 +1879,7 @@ Section Verify.
     (bop_cong₂: bop_congruence S₂ brelS₂ bopS₂)
     (bop_com₂: bop_commutative S₂ brelS₂ bopS₂)
     (bop_idem₁ : bop_idempotent S₁ brelS₁ bopS₁)
-    (* This is a mismatch *)
     (selS_or_annT : bop_selective S₁ brelS₁ bopS₁)
-    (* (selS_or_id_annT : @assert_selective S₁ + 
-      (@assert_exists_id S₂ * @assert_exists_ann S₂)) 
-     I need a function maps proofs to certs *)   
     (ltr_cong₂: ltr_congruence L₂ S₂ brelL₂ brelS₂ ltr₂)
     (ltr_left_cons₂: ltr_left_constant_decidable L₂ S₂ brelS₂ ltr₂)
     (ltr_left_can₂: ltr_left_cancellative_decidable L₂ S₂ brelS₂ ltr₂)
@@ -2051,12 +1958,8 @@ Section Verify.
     (bop_cong₂: bop_congruence S₂ brelS₂ bopS₂)
     (bop_com₂: bop_commutative S₂ brelS₂ bopS₂)
     (bop_idem₁ : bop_idempotent S₁ brelS₁ bopS₁)
-    (* This is a mismatch *)
     (selS_or_annT :  
       bop_is_id S₂ brelS₂ bopS₂ s₂ * ltr_is_ann L₂ S₂ brelS₂ ltr₂ s₂)
-    (* (selS_or_id_annT : @assert_selective S₁ + 
-      (@assert_exists_id S₂ * @assert_exists_ann S₂)) 
-     I need a function maps proofs to certs *)   
     (ltr_cong₂: ltr_congruence L₂ S₂ brelL₂ brelS₂ ltr₂)
     (ltr_left_cons₂: ltr_left_constant_decidable L₂ S₂ brelS₂ ltr₂)
     (ltr_left_can₂: ltr_left_cancellative_decidable L₂ S₂ brelS₂ ltr₂)
@@ -2109,10 +2012,112 @@ Section Verify.
 
    
 
+  Lemma correct_slt_llex_product_absorptive_certify : 
+    forall 
+      (s₂: S₂)
+      (l₂: L₂)
+      (x: S₂)
+      (brelS₁: brel S₁)
+      (brelS₂: brel S₂)
+      (bopS₁: binary_op S₁)
+      (bopS₂ : binary_op S₂)
+      (ltr₁: ltr_type L₁ S₁)
+      (ltr₂: ltr_type L₂ S₂)
+      (bop_idemp : bop_idempotent S₁ brelS₁ bopS₁)
+      (slt_absorptive_decidable₁: 
+        slt_absorptive_decidable brelS₁ bopS₁ ltr₁)
+      (slt_absorptive_decidable₂: 
+        slt_absorptive_decidable brelS₂ bopS₂ ltr₂)  
+      (slt_strictly_absorptive₁: 
+        slt_strictly_absorptive_decidable brelS₁ bopS₁ ltr₁)
+      (eqv_pf₁: eqv_proofs S₁ brelS₁)
+      (eqv_pf₂: eqv_proofs S₂ brelS₂),
+      slt_llex_product_absorptive_certify L₁ S₁ L₂ S₂ l₂ s₂
+        (p2c_slt_strictly_absorptive_check brelS₁ bopS₁ ltr₁
+          slt_strictly_absorptive₁)
+        (p2c_slt_absorptive_check brelS₁ bopS₁ ltr₁
+          slt_absorptive_decidable₁)
+        (p2c_slt_absorptive_check brelS₂ bopS₂
+          ltr₂ slt_absorptive_decidable₂) =
+      p2c_slt_absorptive_check (brel_product brelS₁ brelS₂)
+        (bop_llex x brelS₁ bopS₁ bopS₂)
+        (ltr_product ltr₁ ltr₂)
+        (slt_llex_product_absorptive_decide L₁ S₁ L₂ S₂ brelS₁ brelS₂ x
+          l₂ s₂ eqv_pf₁ eqv_pf₂ bopS₁
+          bopS₂ bop_idemp ltr₁
+          ltr₂ slt_strictly_absorptive₁
+          slt_absorptive_decidable₁ slt_absorptive_decidable₂).
+  Proof.
+    intros until eqv_pf₂.
+    unfold slt_llex_product_absorptive_certify, 
+    p2c_slt_absorptive_check; simpl.
+    destruct slt_strictly_absorptive₁; simpl.
+    +++ reflexivity.
+    +++ destruct s, x0; simpl.  
+        destruct slt_absorptive_decidable₁,
+        slt_absorptive_decidable₂; simpl.
+        ++++ reflexivity.
+        ++++ destruct s1, x0; simpl.
+              reflexivity.
+        ++++ destruct s0, x0; simpl; 
+             reflexivity. 
+        ++++ destruct s0, x0; simpl; 
+             reflexivity.
+  Qed.
+  
 
-
-
-
+  Lemma correct_slt_llex_product_strictly_absorptive_certify : 
+    forall
+      (x: S₂)
+      (s₂: S₂)
+      (l₂: L₂)
+      (brelS₁: brel S₁)
+      (brelS₂: brel S₂)
+      (bopS₁: binary_op S₁)
+      (ltr₁: ltr_type L₁ S₁)
+      (bopS₂: binary_op S₂)
+      (ltr₂: ltr_type L₂ S₂)
+      (eqv_pf₁: eqv_proofs S₁ brelS₁)
+      (eqv_pf₂: eqv_proofs S₂ brelS₂)
+      (slt_absorptive_decidable₁:  
+        slt_absorptive_decidable brelS₁ bopS₁ ltr₁)
+      (slt_strictly_absorptive₁: 
+        slt_strictly_absorptive_decidable brelS₁ bopS₁ ltr₁)
+      (slt_absorptive₂: 
+        slt_absorptive_decidable brelS₂ bopS₂ ltr₂)
+      (slt_strictly_absorptive₂: 
+        slt_strictly_absorptive_decidable brelS₂ bopS₂ ltr₂),
+      slt_llex_product_strictly_absorptive_certify L₁ S₁ L₂ S₂ l₂
+        s₂
+        (p2c_slt_strictly_absorptive_check brelS₁ bopS₁ ltr₁
+          slt_strictly_absorptive₁)
+        (p2c_slt_absorptive_check brelS₁ bopS₁ ltr₁
+          slt_absorptive_decidable₁)
+        (p2c_slt_strictly_absorptive_check brelS₂ bopS₂
+          ltr₂ slt_strictly_absorptive₂) =
+      p2c_slt_strictly_absorptive_check (brel_product brelS₁ brelS₂)
+        (bop_llex x brelS₁ bopS₁ bopS₂)
+        (ltr_product ltr₁ ltr₂)
+        (slt_llex_product_strictly_absorptive_decide L₁ S₁ L₂ S₂ brelS₁
+          brelS₂ x l₂ s₂ eqv_pf₁ eqv_pf₂
+          bopS₁ bopS₂ ltr₁
+          ltr₂ slt_strictly_absorptive₁
+          slt_absorptive_decidable₁ slt_strictly_absorptive₂).
+  Proof.
+    intros until slt_strictly_absorptive₂.
+    unfold slt_llex_product_strictly_absorptive_certify,
+    p2c_slt_strictly_absorptive_check; simpl.
+    destruct slt_strictly_absorptive₁; simpl.
+    +++ reflexivity.
+    +++ destruct s, x0; simpl.  
+        destruct slt_absorptive_decidable₁; simpl.
+        ++++ destruct slt_strictly_absorptive₂; simpl.
+          +++++ reflexivity.
+          +++++ destruct s1, x0; reflexivity.
+        ++++ destruct s0, x0; simpl;
+              reflexivity.
+  Qed.
+  
   
   Lemma correct_llex_product_from_slt_CS_slt_C : 
     forall A B, 
@@ -2155,46 +2160,16 @@ Section Verify.
         exact (A_left_transform_left_cancellative_d _ _ _ _ _ (A_slt_C_trans_proofs B)).
         (* cleaned upto here *)
 
-      ++  
-          destruct A, B, A_slt_CS_label, A_slt_C_label,
-          A_slt_CS_carrier, A_slt_C_carrier, 
-          A_slt_CS_plus_proofs, A_slt_C_plus_proofs,
-          A_slt_CS_proofs, A_slt_C_proofs, 
-          A_slt_CS_trans_proofs, A_slt_C_trans_proofs; 
-          simpl in * |- *.
-          unfold slt_llex_product_absorptive_certify, 
-          p2c_slt_absorptive_check; simpl.
-          destruct A_slt_strictly_absorptive_d; simpl.
-          +++ reflexivity.
-          +++ destruct s, x; simpl.  
-              destruct A_slt_absorptive_d,
-              A_slt_absorptive_d0; simpl.
-              ++++ reflexivity.
-              ++++ destruct s1, x; simpl.
-                    reflexivity.
-              ++++ destruct s0, x; simpl; 
-                   reflexivity. 
-              ++++ destruct s0, x; simpl; 
-                   reflexivity. 
-        ++ 
-            destruct A, B, A_slt_CS_label, A_slt_C_label,
-            A_slt_CS_carrier, A_slt_C_carrier, 
-            A_slt_CS_plus_proofs, A_slt_C_plus_proofs,
-            A_slt_CS_proofs, A_slt_C_proofs, 
-            A_slt_CS_trans_proofs, A_slt_C_trans_proofs; 
-            simpl in * |- *.
-            unfold slt_llex_product_strictly_absorptive_certify,
-            p2c_slt_strictly_absorptive_check; simpl.
-            destruct A_slt_strictly_absorptive_d; simpl.
-            +++ reflexivity.
-            +++ destruct s, x; simpl.  
-                destruct A_slt_absorptive_d; simpl.
-                ++++ destruct A_slt_strictly_absorptive_d0; simpl.
-                  +++++ reflexivity.
-                  +++++ destruct s1, x, y, y0; simpl;
-                    try reflexivity.
-                ++++ destruct s0, x; simpl;
-                     reflexivity.
+      ++ eapply correct_slt_llex_product_absorptive_certify.
+      ++ eapply correct_slt_llex_product_strictly_absorptive_certify.
+      (* minor cleanup here *)
+        destruct A, B, A_slt_CS_label, A_slt_C_label,
+        A_slt_CS_carrier, A_slt_C_carrier, 
+        A_slt_CS_plus_proofs, A_slt_C_plus_proofs,
+        A_slt_CS_proofs, A_slt_C_proofs, 
+        A_slt_CS_trans_proofs, A_slt_C_trans_proofs; 
+        simpl in * |- *.
+        exact A_slt_absorptive_d0.
     Qed.
 
 
@@ -2251,45 +2226,17 @@ Section Verify.
         exact (A_left_transform_left_cancellative_d _ _ _ _ _ 
           (A_slt_C_zero_is_ltr_ann_trans_proofs B)).
 
-      ++  
+      ++  eapply correct_slt_llex_product_absorptive_certify.
+      ++  eapply correct_slt_llex_product_strictly_absorptive_certify.
+          (* minor cleanup here *)
           destruct A, B, A_slt_CI_label, A_slt_C_zero_is_ltr_ann_label,
           A_slt_CI_carrier, A_slt_C_zero_is_ltr_ann_carrier, 
           A_slt_CI_plus_proofs, A_slt_C_zero_is_ltr_ann_plus_proofs,
           A_slt_CI_proofs, A_slt_C_zero_is_ltr_ann_proofs, 
-          A_slt_CI_trans_proofs, A_slt_C_zero_is_ltr_ann_trans_proofs; 
+          A_slt_CI_trans_proofs, A_slt_C_zero_is_ltr_ann_trans_proofs,
+          A_slt_C_zero_is_ltr_ann_id_ann_proofs; 
           simpl in * |- *.
-          unfold slt_llex_product_absorptive_certify, 
-          p2c_slt_absorptive_check; simpl.
-          destruct A_slt_strictly_absorptive_d; simpl.
-          +++ reflexivity.
-          +++ destruct s, x; simpl.  
-              destruct A_slt_absorptive_d,
-              A_slt_absorptive_d0; simpl.
-              ++++ reflexivity.
-              ++++ destruct s1, x; simpl.
-                    reflexivity.
-              ++++ destruct s0, x; simpl; 
-                   reflexivity. 
-              ++++ destruct s0, x; simpl; 
-                   reflexivity.
-      ++   destruct A, B, A_slt_CI_label, A_slt_C_zero_is_ltr_ann_label,
-          A_slt_CI_carrier, A_slt_C_zero_is_ltr_ann_carrier, 
-          A_slt_CI_plus_proofs, A_slt_C_zero_is_ltr_ann_plus_proofs,
-          A_slt_CI_proofs, A_slt_C_zero_is_ltr_ann_proofs, 
-          A_slt_CI_trans_proofs, A_slt_C_zero_is_ltr_ann_trans_proofs; 
-          simpl in * |- *.
-          unfold slt_llex_product_strictly_absorptive_certify,
-          p2c_slt_strictly_absorptive_check; simpl.
-          destruct A_slt_strictly_absorptive_d; simpl.
-          +++ reflexivity.
-          +++ destruct s, x; simpl.  
-              destruct A_slt_absorptive_d; simpl.
-              ++++ destruct A_slt_strictly_absorptive_d0; simpl.
-                +++++ reflexivity.
-                +++++ destruct s1, x, y, y0; simpl;
-                  try reflexivity.
-              ++++ destruct s0, x; simpl;
-                   reflexivity. 
+          exact A_slt_absorptive_d0. 
   Qed.
     
 
