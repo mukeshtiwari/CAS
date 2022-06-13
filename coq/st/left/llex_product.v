@@ -1700,8 +1700,7 @@ Section Combinators.
           (Certify_SLT_Id_Ann_Proof_Equal 
             (match slt_C_zero_is_ltr_ann_id_ann_certs B with
               | Assert_Slt_Exists_Id_Ann_Equal s => s
-            end))              
-        (* (projT1 (A_slt_C_zero_is_ltr_ann_id_ann_proofs B)) *)    
+            end))
       ; slt_certs := slt_llex_product_certs L₁ S₁ L₂ S₂
            (match slt_C_zero_is_ltr_ann_id_ann_certs B with
           | Assert_Slt_Exists_Id_Ann_Equal s => s
@@ -1907,28 +1906,28 @@ Section Verify.
       slt_llex_product_distributive_decide; simpl.
     destruct slt_dist₁, slt_dist₂, ltr_left_can₁; 
     simpl.
-    +++ reflexivity.
-    +++ destruct l, x, p; simpl.
-        destruct ltr_left_cons₂; simpl.
-        ++++ reflexivity.
-        ++++ 
-          destruct l0, x, p; simpl.
-          destruct y; simpl. 
-          unfold A_witness_slt_llex_product_not_left_distributive,
-          witness_slt_llex_product_not_left_distributive_new; 
-          reflexivity.
-      +++ destruct s0, x, p; simpl.
-          reflexivity.
-      +++ destruct s0, x, p; simpl.
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
+    + reflexivity.
+    + destruct l, x, p; simpl.
+      destruct ltr_left_cons₂; simpl.
+      ++ reflexivity.
+      ++ 
+        destruct l0, x, p; simpl.
+        destruct y; simpl. 
+        unfold A_witness_slt_llex_product_not_left_distributive,
+        witness_slt_llex_product_not_left_distributive_new; 
+        reflexivity.
+    + destruct s0, x, p; simpl.
+      reflexivity.
+    + destruct s0, x, p; simpl.
+      reflexivity.
+    + destruct s, x, p; simpl. 
+      reflexivity.
+    + destruct s, x, p; simpl. 
+      reflexivity.
+    + destruct s, x, p; simpl. 
+      reflexivity.
+    + destruct s, x, p; simpl. 
+      reflexivity.
   Qed.
 
  
@@ -1986,28 +1985,28 @@ Section Verify.
     unfold slt_llex_product_distributive_certify, 
     slt_llex_product_distributive_decide.
     destruct slt_dist₁, slt_dist₂, ltr_left_can₁; simpl.
-    +++ reflexivity.
-    +++ destruct l, x, p; simpl.
-        destruct ltr_left_cons₂; simpl.
-        ++++ reflexivity.
-        ++++ 
-          destruct l0, x, p; simpl.
-          destruct y; simpl. 
-          unfold A_witness_slt_llex_product_not_left_distributive,
-          witness_slt_llex_product_not_left_distributive_new.
-          reflexivity.
-      +++ destruct s0, x, p; simpl.
-          reflexivity.
-      +++ destruct s0, x, p; simpl.
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
-      +++ destruct s, x, p; simpl. 
-          reflexivity.
+    + reflexivity.
+    + destruct l, x, p; simpl.
+      destruct ltr_left_cons₂; simpl.
+      ++ reflexivity.
+      ++ 
+        destruct l0, x, p; simpl.
+        destruct y; simpl. 
+        unfold A_witness_slt_llex_product_not_left_distributive,
+        witness_slt_llex_product_not_left_distributive_new.
+        reflexivity.
+    + destruct s0, x, p; simpl.
+      reflexivity.
+    + destruct s0, x, p; simpl.
+      reflexivity.
+    + destruct s, x, p; simpl. 
+      reflexivity.
+    + destruct s, x, p; simpl. 
+      reflexivity.
+    + destruct s, x, p; simpl. 
+      reflexivity.
+    + destruct s, x, p; simpl. 
+      reflexivity.
   Qed.
 
    
@@ -2052,17 +2051,17 @@ Section Verify.
     unfold slt_llex_product_absorptive_certify, 
     p2c_slt_absorptive_check; simpl.
     destruct slt_strictly_absorptive₁; simpl.
-    +++ reflexivity.
-    +++ destruct s, x0; simpl.  
-        destruct slt_absorptive_decidable₁,
-        slt_absorptive_decidable₂; simpl.
-        ++++ reflexivity.
-        ++++ destruct s1, x0; simpl.
-              reflexivity.
-        ++++ destruct s0, x0; simpl; 
-             reflexivity. 
-        ++++ destruct s0, x0; simpl; 
-             reflexivity.
+    + reflexivity.
+    + destruct s, x0; simpl.  
+      destruct slt_absorptive_decidable₁,
+      slt_absorptive_decidable₂; simpl.
+      ++ reflexivity.
+      ++ destruct s1, x0; simpl.
+          reflexivity.
+      ++ destruct s0, x0; simpl; 
+          reflexivity. 
+      ++ destruct s0, x0; simpl; 
+          reflexivity.
   Qed.
   
 
@@ -2108,14 +2107,14 @@ Section Verify.
     unfold slt_llex_product_strictly_absorptive_certify,
     p2c_slt_strictly_absorptive_check; simpl.
     destruct slt_strictly_absorptive₁; simpl.
-    +++ reflexivity.
-    +++ destruct s, x0; simpl.  
-        destruct slt_absorptive_decidable₁; simpl.
-        ++++ destruct slt_strictly_absorptive₂; simpl.
-          +++++ reflexivity.
-          +++++ destruct s1, x0; reflexivity.
-        ++++ destruct s0, x0; simpl;
-              reflexivity.
+    + reflexivity.
+    + destruct s, x0; simpl.  
+      destruct slt_absorptive_decidable₁; simpl.
+        ++ destruct slt_strictly_absorptive₂; simpl.
+          +++ reflexivity.
+          +++ destruct s1, x0; reflexivity.
+        ++ destruct s0, x0; simpl;
+           reflexivity.
   Qed.
   
   
@@ -2139,12 +2138,10 @@ Section Verify.
       ++
         erewrite <-correctness_sg_CS_certs_to_sg_certs.
         f_equal.
-        Unshelve.
-        auto.
+        Unshelve. auto.
       ++ erewrite <-correctness_sg_C_certs_to_sg_certs.
         f_equal.
-        Unshelve.
-        auto.
+        Unshelve. auto.
     + rewrite <-correct_ltr_product_certs.
       f_equal.
     + erewrite <-correct_check_exists_ann_llex.
@@ -2158,18 +2155,9 @@ Section Verify.
         exact (A_eqv_proofs _ (A_slt_C_label B)).
         exact (A_left_transform_congruence _ _ _ _ _ (A_slt_C_trans_proofs B)).
         exact (A_left_transform_left_cancellative_d _ _ _ _ _ (A_slt_C_trans_proofs B)).
-        (* cleaned upto here *)
-
       ++ eapply correct_slt_llex_product_absorptive_certify.
       ++ eapply correct_slt_llex_product_strictly_absorptive_certify.
-      (* minor cleanup here *)
-        destruct A, B, A_slt_CS_label, A_slt_C_label,
-        A_slt_CS_carrier, A_slt_C_carrier, 
-        A_slt_CS_plus_proofs, A_slt_C_plus_proofs,
-        A_slt_CS_proofs, A_slt_C_proofs, 
-        A_slt_CS_trans_proofs, A_slt_C_trans_proofs; 
-        simpl in * |- *.
-        exact A_slt_absorptive_d0.
+         exact (A_slt_absorptive_d _ _ _ (A_slt_C_proofs B)). 
     Qed.
 
 
@@ -2217,7 +2205,6 @@ Section Verify.
     + unfold slt_llex_product_certs,
       slt_llex_product_proofs, P2C_slt; simpl.
       f_equal.
-     
       ++ 
         eapply correct_slt_llex_product_distributive_certify_right;
         try eassumption.
@@ -2225,18 +2212,9 @@ Section Verify.
         exact (A_left_transform_congruence _ _ _ _ _ (A_slt_C_zero_is_ltr_ann_trans_proofs B)).
         exact (A_left_transform_left_cancellative_d _ _ _ _ _ 
           (A_slt_C_zero_is_ltr_ann_trans_proofs B)).
-
       ++  eapply correct_slt_llex_product_absorptive_certify.
       ++  eapply correct_slt_llex_product_strictly_absorptive_certify.
-          (* minor cleanup here *)
-          destruct A, B, A_slt_CI_label, A_slt_C_zero_is_ltr_ann_label,
-          A_slt_CI_carrier, A_slt_C_zero_is_ltr_ann_carrier, 
-          A_slt_CI_plus_proofs, A_slt_C_zero_is_ltr_ann_plus_proofs,
-          A_slt_CI_proofs, A_slt_C_zero_is_ltr_ann_proofs, 
-          A_slt_CI_trans_proofs, A_slt_C_zero_is_ltr_ann_trans_proofs,
-          A_slt_C_zero_is_ltr_ann_id_ann_proofs; 
-          simpl in * |- *.
-          exact A_slt_absorptive_d0. 
+          exact (A_slt_absorptive_d _ _ _ (A_slt_C_zero_is_ltr_ann_proofs B)).   
   Qed.
     
 
