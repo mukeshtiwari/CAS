@@ -713,8 +713,198 @@ let bs_describe bs =
      sg_certs_describe eq times data times_certs;
      id_ann_certs_describe_times data id_ann_certs;
      bs_certs_describe eq plus times data certs
-      )
+    )
 
+let next_int_ref = ref 0;; 
+
+let reset_next_int_ref () = next_int_ref := 0;;
+  
+let next_int () =
+  let v = !next_int_ref
+  in (next_int_ref := v + 1; v);;
+
+
+let stdf = Format.std_formatter;;
+let strf = Format.str_formatter;;
+
+let bs_i i = (Format.fprintf strf "(S_%s, +_%s, *_%s)" i i i;
+	      Format.flush_str_formatter ());;
+
+let bs_eq i l = (Format.fprintf strf "(S_%s, +_%s, *_%s) = %s" i i i (String.concat " " l);
+		 Format.flush_str_formatter ());;
+  
+let s_i i = "S_" ^ i
+
+let s_eq i t = (s_i i) ^ " = " ^ t
+
+let plus_i i a  b = (Format.fprintf strf "%s +_%s %s" a i b;
+		       Format.flush_str_formatter ());; 
+
+let times_i i a  b = (Format.fprintf strf "%s *_%s %s" a i b;
+			Format.flush_str_formatter ());;
+
+let plus_eq i a  b c = (Format.fprintf strf "%s +_%s %s = %s" a i b c;
+		       Format.flush_str_formatter ());; 
+
+let plus_eq_cond i a  b c cond =
+  (Format.fprintf strf "%s +_%s %s = %s (if %s)" a i b c cond;
+   Format.flush_str_formatter ());; 
+  
+let times_eq i a  b c = (Format.fprintf strf "%s *_%s %s = %s" a i b c;
+			Format.flush_str_formatter ());;
+
+let pline l = Format.pp_print_string stdf (l ^ "\n")
+
+let singleton a = "{" ^ a ^ "}"
+let sum a b = a ^ " + " ^ b
+let prod a b = a ^ " * " ^ b				   			    
+let inl x = "Inl(" ^ x ^ ")"
+let inr x = "Inr(" ^ x ^ ")"
+let pair x y = "(" ^ x ^ ", " ^ y ^ ")"
+let equal x y = x ^ " = " ^ y
+let nequal x y = x ^ " <> " ^ y  
+  
+let rec bs_describe_algebra_fully_aux =  function
+  | Ast_min_plus ->
+     let i = string_of_int (next_int ()) in
+     (pline (bs_eq i ["min_plus"]);
+      pline "where"; 
+      pline (s_eq i "nat");
+      pline (plus_eq i "x" "y" "x min y"); 
+      pline (times_eq i "x" "y" "x + y"); 
+      i) 
+  | Ast_max_plus ->
+     let i = string_of_int (next_int ()) in
+     (pline (bs_eq i ["max_plus"]);
+      pline "where";       
+      pline (s_eq i "nat");
+      pline (plus_eq i "x" "y" "x max y"); 
+      pline (times_eq i "x" "y" "x + y"); 
+      i) 
+  | Ast_and_or ->
+     let i = string_of_int (next_int ()) in
+     (pline (bs_eq i ["and_or"]);
+      pline "where"; 
+      pline (s_eq i "bool");
+      pline (plus_eq i "x" "y" "x and y"); 
+      pline (times_eq i "x" "y" "x or y"); 
+      i) 
+  | Ast_or_and ->
+     let i = string_of_int (next_int ()) in
+     (pline (bs_eq i ["or_and"]);
+      pline "where"; 
+      pline (s_eq i "bool");
+      pline (plus_eq i "x" "y" "x or y"); 
+      pline (times_eq i "x" "y" "x and y"); 
+      i) 
+  | Ast_max_min ->
+     let i = string_of_int (next_int ()) in
+     (pline (bs_eq i ["max_min"]);
+      pline "where"; 
+      pline (s_eq i "nat");       
+      pline (plus_eq i "x" "y" "x max y"); 
+      pline (times_eq i "x" "y" "x min y"); 
+      i) 
+  | Ast_min_max ->
+     let i = string_of_int (next_int ()) in
+     (pline (bs_eq i ["min_max"]);
+      pline "where"; 
+      pline (s_eq i "nat");       
+      pline (plus_eq i "x" "y" "x min y"); 
+      pline (times_eq i "x" "y" "x max y"); 
+      i) 
+  | Ast_bs_add_zero (c, bs) -> 
+     let j = bs_describe_algebra_fully_aux bs in 
+     let i = string_of_int (next_int ()) in     
+     let c' = char_list_to_string c.constant_ascii in
+     (pline (bs_eq i ["bs_add_zero"; (bs_i j); c']);
+      pline "where"; 
+      pline (s_eq i (sum (singleton c') (s_i j))); 
+      pline(plus_eq i (inr "x") (inr "y") (inr (plus_i j "x" "y")));
+      pline(plus_eq i (inl c') "a" "a");
+      pline(plus_eq i "a" (inl c') "a");      
+      pline(times_eq i (inr "x") (inr "y") (inr (times_i j "x" "y")));
+      pline(times_eq i (inl c') "_" (inl c')); 
+      pline(times_eq i "_" (inl c') (inl c')); 
+      i)
+  | Ast_bs_add_one (c, bs) ->
+     let j = bs_describe_algebra_fully_aux bs in 
+     let i = string_of_int (next_int ()) in     
+     let c' = char_list_to_string c.constant_ascii in
+     (pline (bs_eq i ["bs_add_one"; (bs_i j); c']);
+      pline "where"; 
+      pline (s_eq i (sum (singleton c') (s_i j))); 
+      pline(plus_eq i (inr "x") (inr "y") (inr (plus_i j "x" "y")));
+      pline(plus_eq i (inl c') "_" (inl c')); 
+      pline(plus_eq i "_" (inl c') (inl c')); 
+      pline(times_eq i (inr "x") (inr "y") (inr (times_i j "x" "y")));
+      pline(times_eq i (inl c') "a" "a");
+      pline(times_eq i "a" (inl c') "a");            
+      i)
+  | Ast_bs_product (bs1, bs2) ->
+     let i1 = bs_describe_algebra_fully_aux bs1 in
+     let i2 = bs_describe_algebra_fully_aux bs2 in           
+     let i = string_of_int (next_int ()) in
+     (pline (bs_eq i ["bs_product"; (bs_i i1); (bs_i i2)]);
+      pline "where"; 
+      pline (s_eq i (prod (s_i i1) (s_i i2)));
+      pline (plus_eq i "(a, b)" "(c, d)" (pair (plus_i i1 "a" "c") (plus_i i2 "b" "d")));
+      pline (times_eq i "(a, b)" "(c, d)" (pair (times_i i1 "a" "c") (times_i i2 "b" "d")));       
+      i) 
+  | Ast_bs_llex_product (bs1, bs2) ->
+     let i1 = bs_describe_algebra_fully_aux bs1 in
+     let i2 = bs_describe_algebra_fully_aux bs2 in           
+     let i = string_of_int (next_int ()) in
+     (pline (bs_eq i ["bs_llex_product"; (bs_i i1); (bs_i i2)]);
+      pline "where";       
+      pline (s_eq i (prod (s_i i1) (s_i i2)));
+      pline (plus_eq_cond i "(a, b)" "(c, d)" (pair "a" (plus_i i2 "b" "d")) (equal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (times_eq i "(a, b)" "(c, d)" (pair (times_i i1 "a" "c") (times_i i2 "b" "d")));       
+      i) 
+  | Ast_bs_union_lift sg ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_bs_left_sum_right_sum (bs1, bs2) ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_bs_right_sum_left_sum (bs1, bs2) ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_bs_left sg  ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_bs_right sg ->
+     let i = string_of_int (next_int ()) in
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_union_intersect eqv  ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_intersect_union eqv  ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_bs_dual bs           ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_minset_lift_union os ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_minset_union_lift os ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_lift_union sg        ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | Ast_union_lift sg        ->
+     let i = string_of_int (next_int ()) in     
+     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+    
+    
+let bs_describe_algebra_fully ast =
+  let _ = reset_next_int_ref () in
+  bs_describe_algebra_fully_aux ast
+  
 let bs_describe_fully bs =
     let eqv         = bs.bs_eqv          in      
     let eq          = eqv.eqv_eq         in   
@@ -726,16 +916,15 @@ let bs_describe_fully bs =
     let plus        = bs.bs_plus         in
     let times       = bs.bs_times        in
     let ast         = bs.bs_ast          in             
-    (print_string "Carrier set:\n";
-     eqv_describe_fully eqv; 
+    (bs_describe_algebra_fully ast; 
      print_string "Additive properties:\n";
-     print_string "--------------------\n";    
+     print_string "--------------------\n";
+     id_ann_certs_describe_plus data id_ann_certs;     
      sg_certs_describe_fully eq plus data plus_certs;
-     id_ann_certs_describe_plus data id_ann_certs;
      print_string "Multiplicative properties:\n";
-     print_string "-------------------------\n";         
+     print_string "-------------------------\n";
+     id_ann_certs_describe_times data id_ann_certs;     
      sg_certs_describe_fully eq times data times_certs;
-     id_ann_certs_describe_times data id_ann_certs;
      bs_certs_describe_fully eq plus times data certs
     )
 

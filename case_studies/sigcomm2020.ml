@@ -9,10 +9,9 @@ open Matrix_solver;;
 
 *)   
 
-let bs_bw_x_sp =
-  mcas_bs_add_zero
-    (mcas_bs_product (mcas_bs_add_one mcas_max_min infinity) mcas_min_plus)
-    infinity;;
+let bs_bw_x_sp = mcas_bs_product
+		   (mcas_bs_add_one mcas_max_min infinity)
+		   (mcas_bs_add_zero mcas_min_plus infinity);;
 
 let os_bw_x_sp = mcas_os_from_bs_left bs_bw_x_sp;;
 

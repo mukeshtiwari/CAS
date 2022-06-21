@@ -178,8 +178,8 @@ Admitted.
     ∀n k,  Mk[m, k, n] =M= LWP[ Pk[ m , k, n ] ].
   Proof. intros n k. induction k; simpl. 
          + apply identity_is_weight_of_matrix_of_paths_of_length_zero; auto.
-         + (* ugly : *)
-           assert (A := fundamental_theorem_on_paths_of_length_k R R 0 1 plus mul eqR eqR congrR refR symR trnR congrR refR symR trnR congrP plus_associative plus_commutative plusID bop_congruence_implies_ltr_congruence m n k).
+         + (* ugly : *) 
+           assert (A := fundamental_theorem_on_paths_of_length_k R R 0 1 plus mul eqR eqR congrR refR symR trnR congrR refR symR trnR congrP bop_congruence_implies_ltr_congruence plus_associative plus_commutative plusID m cong n k).
            assert (B : (m *[ n ]> (Mk[m, k, n])) =M= (m *[ n ]> (LWP[ Pk[ m, k, n ] ])) ).
               apply (left_matrix_mul_congruence _ _ eqR eqR); auto.
               apply bop_congruence_implies_ltr_congruence. 

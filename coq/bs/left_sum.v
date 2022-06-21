@@ -42,7 +42,7 @@ that can easily be genrealized to this left transform
      (a, b) |2> inl c = inl (a |>_S c) 
      (a, b) |2> inr c = inr (b |>_T c) 
 
-or to 
+or to
      (inl a) |> s = a |>_S s
      (inr b) |> s = b |>_T s 
 
@@ -50,24 +50,35 @@ or to
 Here is another interesting transform 
 or two (with different +) 
 
-     (inl c) |3> (a, b)  = (c * _S a, b) 
-     (inr c) |3> (a, b)  = (a, c * _T b) 
+     (inl a') |3> (a, b)  = (a' * _S a, b) 
+     (inr b') |3> (a, b)  = (a, b' * _T b) 
 
 which is a sub-algebra of product 
       
      (c, id) x (a, b)  = (c * _S a, b) 
      (id, c) x (a, b)  = (a, c * _T b) 
 
-Think of scoped product: 
+Q : could |3> be constructed like a product? 
+Yes: 
 
-     (inl (c, d)) |> (a, b)  = (c * _S a, d) = (c *_S a, d left b) 
-          (inr c) |> (a, b)  = (a, c * _T b) = (c right a, c * _T b) =  (id *_S a, c * _T b) =  
+(S, +_S, x_S) [x] (T, +_T, x_T)
+  = (S x T, S + T, +_S [x or lex] +_T, |3>) 
 
-Generalize scoped product: 
+Think of BGP-like scoped product: 
 
-     (inl (c, d)) |> (a, b)  = (c * _S a, d) = (c * _S a, d left b) 
-     (inr (c, d)) |> (a, b)  = (c * _S a, d *_T b) 
-      
+     (ebgp (a', b')) |> (a, b)  = (a' * _S a, b') 
+           (ibgp b') |> (a, b)  = (a, b' * _T b) 
+
+Could define 
+
+     (inl (a', b')) |4> (a, b)  = (a' * _S a, b') 
+           (inr b') |4> (a, b)  = (a, b' * _T b) 
+
+Q : could |4> be constructed like a product? 
+Yes: 
+
+(S, +_S, x_S) [x] (T, +_T, x_T)
+  = (S x T, S + T, +_S [x or lex] +_T, |4>) 
 *) 
 
 
