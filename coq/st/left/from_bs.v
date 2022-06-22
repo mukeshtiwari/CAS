@@ -21,30 +21,30 @@ Variables (S : Type)
 
 Lemma slt_from_bs_distributive 
       (LD : bop_left_distributive S eq plus times) : 
-      slt_distributive S S eq plus (ltr_from_sg times). 
+      slt_distributive eq plus (ltr_from_sg times). 
 Proof. intros s t u. unfold ltr_from_sg. apply LD. Qed.
 
 
 Lemma slt_from_bs_absorptive 
        (lrabs : bops_left_right_absorptive S eq plus times) :
-       slt_absorptive S S eq plus (ltr_from_sg times).
+       slt_absorptive eq plus (ltr_from_sg times).
 Proof. intros s t. unfold ltr_from_sg. exact (lrabs t s). Qed. 
 
 Lemma slt_from_bs_not_absorptive 
        (nlrabs : bops_not_left_right_absorptive S eq plus times) :
-       slt_not_absorptive S S eq plus (ltr_from_sg times).
+       slt_not_absorptive eq plus (ltr_from_sg times).
 Proof. destruct nlrabs as [[s t] P]. exists(t, s). compute. exact P. Defined. 
 
 
 Lemma slt_from_bs_strictly_absorptive 
        (lrabs : bops_strictly_left_right_absorptive S eq plus times) :  
-       slt_strictly_absorptive S S eq plus (ltr_from_sg times).
+       slt_strictly_absorptive eq plus (ltr_from_sg times).
 Proof. intros s t.  unfold ltr_from_sg. apply lrabs. Qed. 
 
 
 Lemma slt_union_insert_not_strictly_absorptive 
        (nlrabs : bops_not_strictly_left_right_absorptive S eq plus times) :  
-       slt_not_strictly_absorptive S S eq plus (ltr_from_sg times).
+       slt_not_strictly_absorptive eq plus (ltr_from_sg times).
 Proof. destruct nlrabs as [[s t] [P | P]]; exists(t, s); compute. left; exact P. right. exact P. Defined. 
       
 End Theory.   

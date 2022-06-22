@@ -127,6 +127,7 @@ CAS=\
    coq/os/from_bs_left.v \
    coq/st/properties.v \
    coq/st/structures.v \
+   coq/st/cast_up.v \
    coq/st/left/min_plus_one.v \
    coq/st/left/from_bs.v \
    coq/st/left/llex_product.v \
@@ -136,6 +137,7 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
+#<<<<<<< HEAD
    coq/algorithm/list_congruences.v \
    coq/algorithm/matrix_definition.v \
    coq/algorithm/matrix_algorithms.v \
@@ -145,6 +147,13 @@ CAS=\
    coq/algorithm/matrix_exp.v 
 #   coq/algorithm/Path.v \
 #   coq/algorithm/wrapper.v
+# =======
+#    coq/algorithm/Listprop.v \
+#    coq/algorithm/Path.v \
+#    coq/algorithm/Orel.v \
+#    coq/algorithm/Mat.v \
+#    coq/algorithm/wrapper.v
+# >>>>>>> e36f90c0ba2643458683f84d82c8458b5e6bde22
 
 
 

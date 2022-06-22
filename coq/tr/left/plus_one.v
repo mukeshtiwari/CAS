@@ -73,7 +73,9 @@ Lemma ltr_plus_one_not_exists_ann : ltr_not_exists_ann nat nat brel_eq_nat ltr_p
 Proof. unfold ltr_not_exists_ann.
        intro s.  unfold ltr_not_is_ann, ltr_plus_one. 
        exists 0. unfold brel_eq_nat. unfold bop_plus.
-Admitted. 
+       rewrite PeanoNat.Nat.eqb_neq.
+       auto with arith.
+Qed.
 
 
 
@@ -150,7 +152,13 @@ Section Verify.
 
 Theorem correct_ltr_plus_one :
     left_transform_plus_one = A2C_left_transform nat nat A_left_transform_plus_one. 
-Proof. compute. reflexivity. Qed. 
+Proof. reflexivity. Qed. 
+
+
+Theorem correct_mcas_ltr_plus_one : 
+    mcas_ltr_plus_one = A2C_mcas_ltr _  _ A_mcas_ltr_plus_one.
+Proof. reflexivity. Qed.
+
 
 End Verify.   
 
