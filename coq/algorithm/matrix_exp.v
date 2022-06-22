@@ -1,30 +1,6 @@
   (*  
 
 
-      let A be an adjacency matrix. 
-      A^(k) := A^0 + A^1 + A^2 + ... + A^k. 
-
-      Inductively: 
-      A^(0) = I 
-      A^(k+1) = A^(k) + A^{k+1}. 
-
-      We want to show that 
-
-      A^(k)(i,j) = Sum_{p in paths(i, j), |p| <= k} w(p)       
-
-      Standard proof: 
-
-      base case.  Show A^(0)(i,j)  = I(i,j) = Sum_{p in paths(i, j), |p| <= 0} w(p)       
-      The right-hand sum is over paths that have no length, so we must define 
-     
-      w(trivial path frim i to i) = 1 
-      w(null path) = 0 
-
-      induction:  A^(k+1) = A^(k) + A^{k+1} 
-                         = Sum_{p in paths(i, j), |p| <= k} w(p)       
-                           + 
-                           Sum_{p in paths(i, j), |p| = k} w(p)       
-                         = Sum_{p in paths(i, j), |p| <= k + 1} w(p)       
    *)
 
 From Coq Require Import
@@ -83,9 +59,13 @@ Section Computation.
              (k : nat) : functional_matrix S :=
     left_sum_of_matrix_powers_general n zeroS oneS plusS mulS m k.
 
-  Definition left_sum_of_path_powers (R : Type) (n : nat) (m : functional_matrix R)  :=
-       left_sum_of_matrix_powers_general n (zeroP R) (oneP R) (plusP R) (ltr_extend_paths R) (path_adjacency_arcs R m). 
-                                      
+  Definition left_sum_of_path_powers
+             (R : Type)
+             (n : nat)
+             (m : functional_matrix R)
+             (k : nat) : functional_matrix (weighted_path_set R) :=
+       left_sum_of_matrix_powers_general n (zeroP R) (oneP R) (plusP R) (ltr_extend_paths R) (path_adjacency_arcs R m) k. 
+
 End Computation.   
 
 Section Matrix_proofs.
@@ -141,21 +121,26 @@ Section Matrix_proofs.
   Local Definition domain dim := list_enum dim.
   Local Definition Cong := functional_matrix_congruence R eqR.
 
-(*  
-  Variables 
-    (plus_commutative  : bop_commutative R eqR plus)
-    (plus_associative : bop_associative R eqR plus)
-    (mul_associative : bop_associative R eqR mul)
-    (left_distributive_mul_over_plus : bop_left_distributive R eqR plus mul) 
-    (right_distributive_mul_over_plus : bop_right_distributive R eqR plus mul)
-    (plusID : bop_is_id R eqR plus 0)
-    (mulID : bop_is_id R eqR mul 1)    
-    (mulANN : bop_is_ann R eqR mul 0).
-*) 
+  (*  Main theorems below 
+
+  matrix_path_equation
+  ∀n k,  Mk[m, k, n] =M= LWP[ Pk[ m , k, n ] ].
+
+  left_sum_of_matrix_powers_is_equal_to_left_matrix_iteration
+  ∀ k, Mk{ m, k , n } =M= Mk<| m, k , n |>. 
+
+  powers
+  ∀ k, Mk[ m +M [I], k , n ] =M= Mk{ m, k, n}.
+
+  left_sum_of_matrix_powers_to_k_is_equal_to_weight_of_paths_of_length_at_most_k
+  ∀ k, Mk{ m, k , n } =M= LWP[ Pk{ m , k , n } ].
+  *) 
+  
+
     Lemma matrix_exp_congruence : ∀ m,  Cong m → ∀ n k, Cong (Mk[ m, k, n]).
     Proof. intros m cong n k. 
-           induction k; simpl. 
-           + admit. (*apply (matrix_mul_identity_congruence R eqR refR symR trnR zero one plus mul congrP congrM congrR).*)
+           induction k; simpl.
+           + apply (matrix_mul_identity_congruence R eqR refR).
            + intros i j i' j' A B. simpl.
              unfold left_matrix_mul. (* No! should preserve this abstraction and use higher-level congruence....Fix me... *) 
              apply sum_fn_congruence; auto.
@@ -164,9 +149,20 @@ Section Matrix_proofs.
              apply congrM.
              apply cong; auto.
              apply IHk; auto. 
-Admitted. 
+    Qed.
 
-  (* move this *) 
+
+    Lemma left_sum_of_matrix_powers_congruence : ∀ m,  Cong m → ∀ n k, Cong (Mk{ m, k, n}).
+    Proof. intros m cong n k. 
+           induction k; simpl.
+           + unfold left_sum_of_matrix_powers.
+             unfold left_sum_of_matrix_powers_general.
+             apply (matrix_mul_identity_congruence R eqR refR).
+           + admit. 
+   Admitted. 
+
+
+  (* move this ? *) 
   Lemma bop_congruence_implies_ltr_congruence : ltr_congruence R R eqR eqR mul. 
   Proof. intros a b c d. apply congrM. Qed. 
 
@@ -178,7 +174,7 @@ Admitted.
     ∀n k,  Mk[m, k, n] =M= LWP[ Pk[ m , k, n ] ].
   Proof. intros n k. induction k; simpl. 
          + apply identity_is_weight_of_matrix_of_paths_of_length_zero; auto.
-         + (* ugly : *) 
+         + (* UGLY!!! *) 
            assert (A := fundamental_theorem_on_paths_of_length_k R R 0 1 plus mul eqR eqR congrR refR symR trnR congrR refR symR trnR congrP bop_congruence_implies_ltr_congruence plus_associative plus_commutative plusID m cong n k).
            assert (B : (m *[ n ]> (Mk[m, k, n])) =M= (m *[ n ]> (LWP[ Pk[ m, k, n ] ])) ).
               apply (left_matrix_mul_congruence _ _ eqR eqR); auto.
@@ -260,8 +256,13 @@ Admitted.
 
  *)
 
-
-
+  (* move this? *) 
+  Lemma unfold_left_matrix_iteration(n : nat) (m : functional_matrix R) :
+    ∀ k, Mk<| m, S k, n |> =M= ((m *[ n ]> (Mk<| m, k, n |>)) +M ([I])). 
+  Proof. intro k. simpl. 
+         apply eq_functional_matrix_prop_reflexive; auto.
+  Qed.
+  
   Lemma unfold_left_sum_of_matrix_powers (n : nat) (m : functional_matrix R) :
     ∀ k, Mk{ m, S k, n} =M= Mk{ m, k, n} +M Mk[m, S k, n].
   Proof. intro k. unfold left_sum_of_matrix_powers.
@@ -277,54 +278,124 @@ Admitted.
          apply eq_weighted_path_set_reflexive; auto. 
   Qed.
 
-  
-  Lemma claim1 (n : nat) (m : functional_matrix R) :
-    ∀ k, (Mk<| m, k , n |> +M Mk[ m, k , n ]) =M= (m *[ n ]> Mk<| m, k , n |> +M [I]). 
-  Proof. induction k.
-         + simpl. 
-           (* (([I]) +M ([I])) =M= ((m *[ n ]> ([I])) +M ([I])) *)
-           admit.
-         + admit. 
-  Admitted.
-  
-  Lemma claim2 (n : nat) (m : functional_matrix R) :
-    ∀ k, (Mk{ m, k , n } +M Mk[ m, k , n ]) =M= (m *[ n ]> Mk{ m, k, n } +M [I]). 
-  Proof. induction k.
-         + simpl.
-           (* ((m ^{ 0, n}) +M ([I])) =M= ((m *[ n ]> (m ^{ 0, n})) +M ([I])) *)
-           admit.
-         + admit.
-  Admitted.            
+  Lemma shift_left_sum_of_matrix_powers
+        (assoc : bop_associative R eqR plus) 
+        (comm: bop_commutative R eqR plus)
+        (plusID : bop_is_id R eqR plus 0)
+        (LD : bop_left_distributive R eqR plus mul) 
+        (n : nat) (m : functional_matrix R) (cong : Cong m) :
+           ∀ k, Mk{ m, S k, n} =M= ((m *[ n ]> Mk{ m, k, n}) +M [I]).
+  Proof. induction k.     
+         + unfold left_sum_of_matrix_powers. simpl.
+           apply matrix_add_comm; auto. 
+         + (* IHk : (Mk{ m, S k, n}) =M= ((m *[ n ]> (Mk{ m, k, n})) +M ([I]))
+              ============================
+              (Mk{ m, S (S k), n}) =M= ((m *[ n ]> (Mk{ m, S k, n})) +M ([I]))
+
+             Proof: 
+             Mk{ m, S (S k), n}) 
+             =M= {unfold_left_sum_of_matrix_powers }
+             Mk{ m, S k, n} +M Mk[m, S (S k), n]
+             =M= {IHk, unfold_left_matrix_exponentiation, +M congruence} 
+             (m *[ n ]>Mk{ m, k, n} +M [I]) +M (m *[ n ]> Mk[m, S k, n])
+             =M={+M assoc, commutative}
+             (m *[ n ]> Mk{ m, k, n} +M (m *[ n ]> Mk[m, S k, n])) +M [I]
+             =M={*M assoc distributes over +M}
+             (m *[ n ]> (Mk{ m, k, n} +M Mk[m, S k, n])) +M [I]
+             =M= {unfold_left_sum_of_matrix_powers} 
+             ((m *[ n ]> (Mk{ m, S k, n})) +M ([I]))             
+            *)
+           assert (A := unfold_left_sum_of_matrix_powers n m (S k)).
+           assert (B : ((Mk{ m, S k, n}) +M (Mk[ m, S (S k), n]))
+                       =M=
+                       (((m *[ n ]> (Mk{ m, k, n})) +M ([I]))
+                        +M
+                       ((m *[ n ]> Mk[ m, S k, n])))).
+              apply matrix_add_congruence; auto. 
+              apply unfold_left_matrix_exponentiation; auto. 
+           assert (C : (((m *[ n ]> (Mk{ m, k, n})) +M ([I]))
+                        +M
+                       ((m *[ n ]> Mk[ m, S k, n])))
+                       =M=
+                       (((m *[ n ]> (Mk{ m, k, n})) +M ((m *[ n ]> Mk[ m, S k, n])))
+                        +M
+                       ([I]))).
+             admit. 
+           assert (D : (((m *[ n ]> (Mk{ m, k, n})) +M ((m *[ n ]> Mk[ m, S k, n])))
+                        +M
+                       ([I]))
+                       =M=
+                       ((m *[ n ]> (Mk{ m, k, n} +M Mk[ m, S k, n]))
+                        +M
+                       ([I]))).
+              apply matrix_add_congruence; auto.
+              apply eq_functional_matrix_prop_symmetric; auto. 
+              apply left_matrix_mul_left_distributive_over_matrix_add; auto. 
+              apply eq_functional_matrix_prop_reflexive; auto.
+           assert (E : ((m *[ n ]> (Mk{ m, k, n} +M Mk[ m, S k, n]))
+                        +M
+                       ([I]))
+                       =M=
+                       ((m *[ n ]> Mk{ m, S k, n})
+                        +M
+                       ([I]))).
+              apply matrix_add_congruence; auto.
+              apply (left_matrix_mul_congruence R R eqR eqR plus zero mul); auto.           
+              apply bop_congruence_implies_ltr_congruence; auto.
+              admit. 
+              apply eq_functional_matrix_prop_reflexive; auto.
+              apply eq_functional_matrix_prop_symmetric; auto.
+              apply unfold_left_sum_of_matrix_powers.
+              apply eq_functional_matrix_prop_reflexive; auto.              
+          apply (eq_functional_matrix_prop_transitive _ eqR trnR _ _ _ A 
+                    (eq_functional_matrix_prop_transitive _ eqR trnR _ _ _ B 
+                       (eq_functional_matrix_prop_transitive _ eqR trnR _ _ _ C     
+                          (eq_functional_matrix_prop_transitive _ eqR trnR _ _ _ D E)))). 
+  Admitted. 
   
   Lemma left_sum_of_matrix_powers_is_equal_to_left_matrix_iteration
-        (n : nat) (m : functional_matrix R) :
+        (comm: bop_commutative R eqR plus)
+        (assoc : bop_associative R eqR plus)
+        (plusID : bop_is_id R eqR plus 0)
+        (LD : bop_left_distributive R eqR plus mul) 
+        (n : nat) (m : functional_matrix R) (cong : Cong m) :
            ∀ k, Mk{ m, k , n } =M= Mk<| m, k , n |>. 
   Proof. induction k.     
          + simpl. apply eq_functional_matrix_prop_reflexive; auto.
          + (* Show : 
-              IHk : (m ^{ k, n}) =M= (m ^<| k, n |>)
+              IHk : Mk{ m, k, n} =M= Mk<| m, k, n |>
               ============================
-              (m ^{ S k, n}) =M= (m ^<| S k, n |>)
-
-
+              Mk{ m, S k, n} =M= Mk<| m, S k, n |>
 
               Proof: 
-              ((m ^{ k, n}) +M (m *[ n ]> (m ^( k, n)))) 
-              =M= {IHk, congruences} 
-              ((m ^<| k, n |>) +M (m *[ n ]> (m ^( k, n)))) 
-
-              =M= ((m *[ n ]> (m ^<| k, n |>)) +M ([I]))
+              Mk{ m, S k, n} 
+              =M={shift_left_sum_of_matrix_powers}              
+              (m *[ n ]> Mk{ m, k, n}) +M [I] 
+              =M={IHk, congruence}              
+              (m *[ n ]> Mk<| m, k, n |>) +M [I] 
+              =M={unfold_left_matrix_iteration}
+              Mk<| m, S k, n |>
             *)
-
-           (* Need unfold lemma for (m ^{ S k, n}) *)
-           
-           assert (A : (Mk{m, k, n} +M Mk[m, S k, n])
+           assert (A := shift_left_sum_of_matrix_powers assoc comm plusID LD n m cong k).
+           assert (B : ((m *[ n ]> (Mk{ m, k, n})) +M ([I]))
                        =M=
-                       (Mk<| m, k, n |> +M Mk[m, S k, n])). admit.
-           assert (B := claim1 n m (S k)).
-           (* assert (C := eq_functional_matrix_prop_transitive _ eqR trnR _ _ _ A B). *) 
-           
-  Admitted.
+                       ((m *[ n ]> (Mk<| m, k, n |>)) +M ([I]))).
+              assert (C : (m *[ n ]> Mk{ m, k, n}) =M= (m *[ n ]> (Mk<| m, k, n |>))).
+                 apply (left_matrix_mul_congruence R R eqR eqR plus zero mul); auto.
+                 apply bop_congruence_implies_ltr_congruence; auto.
+                 apply left_sum_of_matrix_powers_congruence; auto.
+                 apply eq_functional_matrix_prop_reflexive; auto. 
+              apply matrix_add_congruence; auto.
+              apply eq_functional_matrix_prop_reflexive; auto. 
+           assert (C : ((m *[ n ]> (Mk<| m, k, n |>)) +M ([I]))
+                       =M=
+                       Mk<| m, S k, n |>).
+              apply eq_functional_matrix_prop_symmetric; auto. 
+              apply unfold_left_matrix_iteration. 
+           exact (eq_functional_matrix_prop_transitive _ eqR trnR _ _ _ 
+                    (eq_functional_matrix_prop_transitive _ eqR trnR _ _ _ A B)
+                    C).                                    
+  Qed. 
 
   Lemma claim3 (plusIdempotent : bop_idempotent R eqR plus)
         (n : nat) (m : functional_matrix R) :

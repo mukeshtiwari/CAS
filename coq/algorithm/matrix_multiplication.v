@@ -452,7 +452,23 @@ Qed.
     Proof. intros m₁ m₂ m₃ i j.
            unfold matrix_add, matrix_mul.
            apply sum_fn_left_distributes_over_matrix_i_j; auto.
-    Qed. 
+    Qed.
+
+    Lemma left_matrix_mul_left_distributive_over_matrix_add
+          (plus_associative : bop_associative R eqR plusR)
+          (plus_commutative  : bop_commutative R eqR plusR)
+          (plusID : bop_is_id R eqR plusR 0)
+          (left_distributive_mul_over_plus : bop_left_distributive R eqR plusR mulR)
+          (n : nat) : 
+      ∀ m₁ m₂ m₃,     
+        (left_matrix_mul 0 plusR mulR n m₁ (m₂ +M m₃))
+        =M= 
+        ((left_matrix_mul 0 plusR mulR n m₁ m₂) +M 
+         (left_matrix_mul 0 plusR mulR n m₁ m₃)). 
+    Proof. intros m₁ m₂ m₃ i j.
+           unfold matrix_add.
+           apply sum_fn_left_distributes_over_matrix_i_j; auto.
+    Qed.
 
     Lemma sum_fn_right_distributes_over_matrix_i_j
           (plus_associative : bop_associative R eqR plusR)
