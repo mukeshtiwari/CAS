@@ -551,11 +551,7 @@ Qed.
         + intros A i B m j. simpl. 
           case_eq(i =n?= n); intro C. 
           ++ admit. (* OK? *)
-          ++ destruct n; simpl. 
-             +++ admit. (* B, C contra*) 
-             +++ case_eq(i =n?= n); intro D.
-                 ++++ admit. 
-                 ++++ admit. 
+          ++ admit. (* OK? *)
  Admitted. 
 
 

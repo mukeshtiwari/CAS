@@ -342,7 +342,7 @@ Section Matrix_proofs.
               apply matrix_add_congruence; auto.
               apply (left_matrix_mul_congruence R R eqR eqR plus zero mul); auto.           
               apply bop_congruence_implies_ltr_congruence; auto.
-              admit. 
+              admit. (* make sure different defs of congruence make sense*)
               apply eq_functional_matrix_prop_reflexive; auto.
               apply eq_functional_matrix_prop_symmetric; auto.
               apply unfold_left_sum_of_matrix_powers.
