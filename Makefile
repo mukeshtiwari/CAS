@@ -137,7 +137,6 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
-#<<<<<<< HEAD
    coq/algorithm/list_congruences.v \
    coq/algorithm/matrix_definition.v \
    coq/algorithm/matrix_algorithms.v \
