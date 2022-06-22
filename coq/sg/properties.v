@@ -493,6 +493,7 @@ Definition p2c_commutative_check : ∀ (S : Type) (r : brel S) (b : binary_op S)
    | inr p => Certify_Not_Commutative (projT1 p) 
    end. 
 
+
 Definition p2c_idempotent_check : ∀ (S : Type) (r : brel S) (b : binary_op S), 
        bop_idempotent_decidable S r b -> @check_idempotent S 
 := λ S eq b d, 
@@ -500,6 +501,8 @@ Definition p2c_idempotent_check : ∀ (S : Type) (r : brel S) (b : binary_op S),
    | inl _  => @Certify_Idempotent S
    | inr p  => Certify_Not_Idempotent (projT1 p) 
    end. 
+
+
 
 Definition p2c_selective_check : ∀ (S : Type) (r : brel S) (b : binary_op S), 
        bop_selective_decidable S r b -> @check_selective S 

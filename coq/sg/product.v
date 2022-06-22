@@ -2299,9 +2299,9 @@ Theorem correct_mcas_sg_product (S T : Type) (sgS : A_sg_mcas S) (sgT : A_sg_mca
          = 
          A2C_mcas_sg (S * T) (A_mcas_sg_product S T sgS sgT).
 Proof. unfold mcas_sg_product, A_mcas_sg_product. 
-       rewrite correct_sg_mcas_cast_up.
-       rewrite correct_sg_mcas_cast_up.       
-       destruct (A_sg_cas_up_is_error_or_sg S sgS) as [[l1 A] | [s1 A]];
+       Time rewrite correct_sg_mcas_cast_up.
+       Time rewrite correct_sg_mcas_cast_up.       
+       Time destruct (A_sg_cas_up_is_error_or_sg S sgS) as [[l1 A] | [s1 A]];
        destruct (A_sg_cas_up_is_error_or_sg T sgT) as [[l2 B] | [s2 B]].
        + rewrite A, B. simpl. reflexivity. 
        + rewrite A, B. simpl. reflexivity.

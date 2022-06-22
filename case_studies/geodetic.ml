@@ -252,6 +252,9 @@ Not Right left Absorptive:
 
   (* BUT, to solve path problems need to use a left_transform!!!
 
+  i think it is something like this: 
+
+  slt_add_zero (slt_llex_product slt_min_plus_one (slt_from_bs plus_times)) infinit
 
 *) 
   

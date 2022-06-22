@@ -1792,7 +1792,7 @@ Theorem correct_mcas_bs_product (S T : Type) (bsS : A_bs_mcas S) (bsT : A_bs_mca
 Proof. unfold mcas_bs_product, A_mcas_bs_product. 
        rewrite correct_bs_mcas_cast_up.
        rewrite correct_bs_mcas_cast_up.       
-       destruct (A_bs_cas_up_is_error_or_bs S bsS) as [[l1 A] | [s1 A]];
+       Time destruct (A_bs_cas_up_is_error_or_bs S bsS) as [[l1 A] | [s1 A]];
        destruct (A_bs_cas_up_is_error_or_bs T bsT) as [[l2 B] | [s2 B]].
        + rewrite A, B. simpl. reflexivity. 
        + rewrite A, B. simpl. reflexivity.
