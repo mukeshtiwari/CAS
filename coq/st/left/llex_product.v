@@ -1105,7 +1105,7 @@ Section Combinators.
             (A_slt_C_trans_proofs B)
             (A_slt_CS_proofs A)
             (A_slt_C_proofs B)
-        ; A_slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
+        ; A_slt_ast := ast.Cas_ast "slt_llex_product_CS_C" 
             [A_slt_CS_ast A; A_slt_C_ast B]
       |}.
     Defined.
@@ -1210,7 +1210,7 @@ Section Combinators.
               (A_slt_C_zero_is_ltr_ann_trans B)
               (A_slt_C_zero_is_ltr_ann_id_ann_proofs B))
         ; A_slt_proofs := _                       
-        ; A_slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
+        ; A_slt_ast := ast.Cas_ast "slt_llex_product_CI_C_zero_is_ann" 
             [A_slt_CI_ast A; A_slt_C_zero_is_ltr_ann_ast B]
     
     |}.
@@ -1632,7 +1632,7 @@ Section Combinators.
               (slt_CS_certs A)
               (slt_C_certs B)
                                  
-          ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
+          ; slt_ast := ast.Cas_ast "slt_llex_product_CS_C" 
             [slt_CS_ast A; slt_C_ast B]
         |}.
     Defined.
@@ -1719,7 +1719,7 @@ Section Combinators.
           (slt_C_zero_is_ltr_ann_trans_certs B)
           (slt_CI_certs A)
           (slt_C_zero_is_ltr_ann_certs B)
-      ; slt_ast := ast.Cas_ast "A_llex_product_from_A_slt_CS_A_slt_C" 
+      ; slt_ast := ast.Cas_ast "slt_llex_product_CI_C_zero_is_ann" 
             [slt_CI_ast A; slt_C_zero_is_ltr_ann_ast B]
     |}.
    

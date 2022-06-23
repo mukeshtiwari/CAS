@@ -732,10 +732,19 @@ let bs_i i = (Format.fprintf strf "(S_%s, +_%s, *_%s)" i i i;
 
 let bs_eq i l = (Format.fprintf strf "(S_%s, +_%s, *_%s) = %s" i i i (String.concat " " l);
 		 Format.flush_str_formatter ());;
+
+let slt_i i = (Format.fprintf strf "(L_%s, S_%s, +_%s, |>_%s)" i i i i;
+	       Format.flush_str_formatter ());;
+
+let slt_eq i l = (Format.fprintf strf "(L_%s, S_%s, +_%s, *_%s) = %s" i i i i (String.concat " " l);
+		  Format.flush_str_formatter ());;
+
   
 let s_i i = "S_" ^ i
+let l_i i = "L_" ^ i		     
 
 let s_eq i t = (s_i i) ^ " = " ^ t
+let l_eq i t = (l_i i) ^ " = " ^ t				   
 
 let plus_i i a  b = (Format.fprintf strf "%s +_%s %s" a i b;
 		       Format.flush_str_formatter ());; 
@@ -743,6 +752,9 @@ let plus_i i a  b = (Format.fprintf strf "%s +_%s %s" a i b;
 let times_i i a  b = (Format.fprintf strf "%s *_%s %s" a i b;
 			Format.flush_str_formatter ());;
 
+let ltr_i i a  b = (Format.fprintf strf "%s |>_%s %s" a i b;
+			Format.flush_str_formatter ());;
+  
 let plus_eq i a  b c = (Format.fprintf strf "%s +_%s %s = %s" a i b c;
 		       Format.flush_str_formatter ());; 
 
@@ -753,6 +765,9 @@ let plus_eq_cond i a  b c cond =
 let times_eq i a  b c = (Format.fprintf strf "%s *_%s %s = %s" a i b c;
 			Format.flush_str_formatter ());;
 
+let ltr_eq i a  b c = (Format.fprintf strf "%s |>_%s %s = %s" a i b c;
+			Format.flush_str_formatter ());;
+  
 let pline l = Format.pp_print_string stdf (l ^ "\n")
 
 let singleton a = "{" ^ a ^ "}"
@@ -899,8 +914,7 @@ let rec bs_describe_algebra_fully_aux =  function
   | Ast_union_lift sg        ->
      let i = string_of_int (next_int ()) in     
      (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
-    
-    
+
 let bs_describe_algebra_fully ast =
   let _ = reset_next_int_ref () in
   bs_describe_algebra_fully_aux ast
@@ -928,6 +942,107 @@ let bs_describe_fully bs =
      bs_certs_describe_fully eq plus times data certs
     )
 
+let rec slt_describe_algebra_fully_aux =  function
+  | Cas_ast name_cl ast_list ->
+     let name = char_list_to_string name_cl in
+     (match name, ast_list with 
+      | "slt_min_plus_one", [] ->
+	 let i = string_of_int (next_int ()) in
+	 (pline (bs_eq i ["slt_min_plus_one"]);
+	  pline "where";
+	  pline (l_eq i "nat");	  
+	  pline (s_eq i "nat");
+	  pline (plus_eq i "x" "y" "x min y"); 
+	  pline (times_eq i "x" "y" "1 + x + y"); 
+	  i)
+      | "slt_add_zero" [a; Cas_ast_constant c] ->
+     let j = slt_describe_algebra_fully_aux a in 
+     let i = string_of_int (next_int ()) in     
+     let c' = char_list_to_string c.constant_ascii in
+     (pline (slt_eq i ["bs_add_zero"; (slt_i j); c']);
+      pline "where"; 
+      pline (s_eq i (sum (singleton c') (s_i j)));
+      pline (l_eq i (l_i j));       
+      pline(plus_eq i (inr "x") (inr "y") (inr (plus_i j "x" "y")));
+      pline(plus_eq i (inl c') "y" "y");
+      pline(plus_eq i "x" (inl c') "x");      
+      pline(ltr_eq i "l" (inr "y") (inr (ltr_i j "l" "y")));
+      pline(ltr_eq i "l" (inl c') (inl c')); 
+      i)
+      | "slt_llex_product_CI_C", [a; b] ->
+     let i1 = slt_describe_algebra_fully_aux a in
+     let i2 = slt_describe_algebra_fully_aux b in           
+     let i = string_of_int (next_int ()) in
+     (pline (slt_eq i ["slt_llex_product"; (slt_i i1); (slt_i i2)]);
+      pline "where";
+      pline (l_eq i (prod (l_i i1) (l_i i2)));      
+      pline (s_eq i (prod (s_i i1) (s_i i2)));
+      pline (plus_eq_cond i "(a, b)" "(c, d)" (pair "a" (plus_i i2 "b" "d")) (equal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (ltr_eq i "(a, b)" "(c, d)" (pair (ltr_i i1 "a" "c") (ltr_i i2 "b" "d")));       
+      i) 
+      | "slt_llex_product_CI_C_zero_is_ann", [a; b] ->
+     (pline (slt_eq i ["slt_llex_product"; (slt_i i1); (slt_i i2)]);
+      pline "where";
+      pline (l_eq i (prod (l_i i1) (l_i i2)));      
+      pline (s_eq i (prod (s_i i1) (s_i i2)));
+      pline (plus_eq_cond i "(a, b)" "(c, d)" (pair "a" (plus_i i2 "b" "d")) (equal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (ltr_eq i "(a, b)" "(c, d)" (pair (ltr_i i1 "a" "c") (ltr_i i2 "b" "d")));       
+      i) 	 
+      | _, _ -> error "slt_describe_algebra_fully_aux : internal error 1" 
+     )
+  | Cas_ast_constant _ -> error "slt_describe_algebra_fully_aux : internal error 2" 
+
+let slt_describe_algebra_fully ast =
+  let _ = reset_next_int_ref () in
+  slt_describe_algebra_fully_aux ast
+
+
+let sg_certs_describe_fully eq b data certs =
+  (
+       print_string (string_of_check_idempotent eq b data (certs.sg_idempotent_d)) ; 
+       print_string (string_of_check_commutative eq b data (certs.sg_commutative_d)) ; 
+       print_string (string_of_check_selective eq b data (certs.sg_selective_d)) ;
+       print_string (string_of_check_left_cancellative eq b data (certs.sg_left_cancel_d)) ; 
+       print_string (string_of_check_right_cancellative eq b data (certs.sg_right_cancel_d)) ; 
+       print_string (string_of_check_left_constant eq b data (certs.sg_left_constant_d)) ; 
+       print_string (string_of_check_right_constant eq b data (certs.sg_right_constant_d)) ; 
+       print_string (string_of_check_anti_left eq b data (certs.sg_anti_left_d)) ; 
+       print_string (string_of_check_anti_right eq b data (certs.sg_anti_right_d)) ; 
+       print_string (string_of_check_is_left eq b data (certs.sg_is_left_d)) ;  
+       print_string (string_of_check_is_right eq b data (certs.sg_is_right_d))
+      )
+				 
+      
+let slt_describe_fully slt =
+  let eqvC        = stl.stl_carrier   in
+  let eqvL        = stl.stl_label   in        
+  let eqC          = eqvC.eqv_eq         in
+  let eqL          = eqvL.eqv_eq         in     
+  let dataC        = eqvC.eqv_data in
+  let dataL        = eqvL.eqv_data in
+  let plus        = slt.slt_plus         in  
+  let plus_certs  = slt.stl_plus_certs   in
+  let times       = slt.slt_trans        in  
+  let times_certs = slt.slt_trans_certs  in
+  let plus_ann_cert = slt.slt_exists_plus_ann_d in 
+  let id_ann_certs = slt.sld_id_ann_certs_d  in         
+  let certs       = slt.slt_certs        in
+  let ast         = slt.slt_ast          in             
+    (slt_describe_algebra_fully ast; 
+     print_string "Additive properties:\n";
+     print_string "--------------------\n";
+     id_ann_certs_describe_plus data id_ann_certs;     
+     sg_certs_describe_fully eq plus data plus_certs;
+     print_string "Multiplicative properties:\n";
+     print_string "-------------------------\n";
+     id_ann_certs_describe_times data id_ann_certs;     
+     ltr_certs_describe_fully eqC eqL times dataC dataL times_certs;
+     slt_certs_describe_fully eqC eqL plus times dataC dataL certs
+    )
 
 let string_of_bs_mcas_class mbs = 
 match mbs with 
@@ -960,7 +1075,24 @@ match mbs with
 | BS_selective_distributive_prelattice_with_one _ -> "Selective Distributive Pre-Lattice with One"
 | BS_selective_distributive_lattice _ -> "Selective Distributive Lattice"
 
+let string_of_slt_mcas_class mslt = 
+  match mslt with
+  | SLT_Error cll -> errors (List.map char_list_to_string cll)
+  | SLT _ -> "Left Semigroup Transform" 
+  | SLT_C _ -> "Commutative, Left Semigroup Transform" 
+  | SLT_CS _ -> "Commutative and Selective, Left Semigroup Transform" 
+  | SLT_CI _ -> "Commutative and Idempotent, Left Semigroup Transform" 
+  | SLT_C_Zero_Is_Ltr_ann _ -> "" 
+  | SLT_Dioid _ -> "Left Dioid" 
+  | SLT_Selective_Dioid _ -> "Selective Left Dioid" 
+  | SLT_Selective_Left_Pre_Dioid _ -> "Selective Left Pre-Dioid" 
+  | SLT_Left_Pre_Semiring _ -> "Selective Left Pre-Dioid" 
+  | SLT_Semiring _ -> "Left Semiring" 
+  | SLT_Idempotent_Semiring _ -> "Idempotent Left Semiring" 
+  | SLT_Selective_Semiring _ -> "Selective Left Semiring" 
 
+
+    
 let mcas_bs_describe mbs =
   (print_string ("Class : " ^ (string_of_bs_mcas_class mbs) ^ "\n"); 
   match bs_mcas_cast_up mbs with
@@ -973,6 +1105,19 @@ let mcas_bs_describe_fully mbs =
   | BS_bs bs -> bs_describe_fully bs
   | _        -> error "internal error: mcas_bs_describe_fully" )
 
+(*    
+let mcas_slt_describe mslt =
+  (print_string ("Class : " ^ (string_of_slt_mcas_class mslt) ^ "\n");   
+  match cast_slt_mcas_to_slt mslt with
+  | SLT slt -> slt_describe slt
+  | _        -> error "internal error: mcas_slt_describe_fully" )
+      
+let mcas_slt_describe_fully mslt =
+  (print_string ("Class : " ^ (string_of_slt_mcas_class mslt) ^ "\n");   
+  match cast_slt_mcas_to_slt mslt with
+  | SLT slt -> slt_describe_fully slt
+  | _        -> error "internal error: mcas_slt_describe_fully" )
+ *)     
 
 (* **** *)
 

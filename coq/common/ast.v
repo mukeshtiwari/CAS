@@ -2,7 +2,8 @@ Require Import CAS.coq.common.compute.
 From Coq Require Import String.
   
 Inductive cas_ast : Type :=
-   | Cas_ast : string -> list cas_ast -> cas_ast. 
+| Cas_ast : string -> list cas_ast -> cas_ast
+| Cas_ast_constant : cas_constant -> cas_ast. 
 
 Inductive cas_eqv_ast : Type :=
    | Ast_eqv_ascii         : cas_eqv_ast
