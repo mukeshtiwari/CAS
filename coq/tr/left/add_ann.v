@@ -227,19 +227,16 @@ Section Theory.
       try assumption.
   Defined.
   
-  
+    
   Lemma ltr_add_ann_not_left_constant :
-    ltr_not_left_constant L S eqS ltr ->
     ltr_not_left_constant L (with_constant S)
     (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
   Proof.
     unfold ltr_not_left_constant.
-    intros ((au, (bu, cu)) & H).
-    exists (au, (inr bu, inr cu)).
+    exists (wL, (inl c, inr wS));
     simpl.
-    exact H.
+    reflexivity.
   Defined.
-
 
 End Theory.
 
@@ -248,20 +245,22 @@ Section ACAS.
 
  
   
-  Definition ltr_add_ann_proofs 
+  Definition A_ltr_add_ann_proofs 
     {L S : Type} 
     (c : cas_constant)
+    (wS : S)
+    (wL : L)
     (eqS : brel S)
     (eqL : brel L)
     (ltr : ltr_type L S) : 
     ltr_congruence L S eqL eqS ltr ->
-    ltr_not_left_constant L S eqS ltr ->
     ltr_left_cancellative_decidable L S eqS ltr ->
     ltr_is_right_decidable L S eqS ltr ->
     left_transform_proofs L (with_constant S)
-    (brel_sum brel_constant eqS) eqL (ltr_add_ann ltr c).
+      (brel_sum brel_constant eqS) eqL 
+      (ltr_add_ann ltr c).
   Proof.
-    intros Ha Hb Hc Hd.
+    intros Ha Hc Hd.
     refine
     {|
       A_left_transform_congruence  := 
@@ -269,11 +268,84 @@ Section ACAS.
     ; A_left_transform_is_right_d  := 
         ltr_add_ann_is_right_decidable c eqS ltr Hd
     ; A_left_transform_left_constant_d := 
-        inr (ltr_add_ann_not_left_constant c eqS ltr Hb)
+        inr (ltr_add_ann_not_left_constant c eqS 
+          wS wL ltr)
     ; A_left_transform_left_cancellative_d := 
         ltr_add_ann_left_cancellative_decidable c eqS ltr Hc 
     |}.
   Defined.
+
+
+
+  Lemma A_ltr_add_ann 
+    {L S : Type}
+    (Hl : A_left_transform L S)
+    (c : cas_constant) : 
+    A_left_transform L (with_constant S).
+  Proof.
+    refine 
+    {|
+        A_left_transform_carrier :=  
+          A_eqv_add_constant S (A_left_transform_carrier _ _ Hl) c
+      ; A_left_transform_label  := 
+          A_left_transform_label _ _ Hl                                                    
+      ; A_left_transform_ltr  := 
+          (ltr_add_ann (A_left_transform_ltr _ _ Hl) c)
+      ; A_left_transform_exists_id_d  := 
+          ltr_add_ann_exists_id_decidable c
+          (A_eqv_eq S (A_left_transform_carrier L S Hl))
+          (A_left_transform_ltr L S Hl) 
+          (A_left_transform_exists_id_d L S Hl)
+      ; A_left_transform_exists_ann_d := 
+          inl
+          (ltr_add_ann_exists_ann c
+            (A_eqv_eq S (A_left_transform_carrier L S Hl))
+            (A_left_transform_ltr L S Hl)) 
+      ; A_left_transform_proofs  :=
+          A_ltr_add_ann_proofs c
+          (A_eqv_witness S (A_left_transform_carrier L S Hl))
+          (A_eqv_witness L (A_left_transform_label L S Hl))
+          (A_eqv_eq S (A_left_transform_carrier L S Hl))
+          (A_eqv_eq L (A_left_transform_label L S Hl))
+          (A_left_transform_ltr L S Hl) 
+          _ _ _
+      ; A_left_transform_ast  := _ 
+    |}.
+   
+   destruct Hl,
+   A_left_transform_proofs; simpl in * |- *.
+   exact A_left_transform_congruence.
+   destruct Hl,
+   A_left_transform_proofs; simpl in * |- *.
+   exact A_left_transform_left_cancellative_d.
+   destruct Hl,
+   A_left_transform_proofs; simpl in * |- *.
+   exact A_left_transform_is_right_d.
+   (* Change AST in structures.v file *)
+  Admitted.
+
+
+   
+
+
+    
+
+
+
+
+   
+
+    
+
+
+    
+
+
+
+    
+
+    
+
   
   
 
