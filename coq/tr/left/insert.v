@@ -6,7 +6,8 @@ Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.theory.set. 
 Require Import CAS.coq.sg.properties. 
-Require Import CAS.coq.sg.union. 
+Require Import CAS.coq.sg.union.
+Require Import CAS.coq.sg.or. 
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
 
@@ -84,6 +85,16 @@ Qed.
 Lemma ltr_insert_exists_ann (enum : carrier_is_finite S eq) : ltr_exists_ann S (finite_set S) (brel_set eq) (ltr_insert eq).
 Proof. exists (projT1 enum tt). apply ltr_insert_enum_is_ann. Defined.
 
+Lemma list_set_hack : ∀ l s,  in_set eq l s = true -> in_list eq l s = true. 
+Proof. induction l; intros s A.
+       + compute in A. discriminate A. 
+       + simpl. simpl in A.
+         apply bop_or_intro. apply bop_or_elim in A.
+         destruct A as [A | A]. 
+         ++ left. exact A. 
+         ++ right. apply IHl; auto. 
+Qed. 
+       
 Lemma ltr_insert_not_exists_ann (nfin : carrier_is_not_finite S eq) : ltr_not_exists_ann S (finite_set S) (brel_set eq) (ltr_insert eq). 
   intros s. unfold carrier_is_not_finite in nfin. 
   unfold ltr_not_is_ann. unfold ltr_insert.
@@ -94,12 +105,11 @@ Lemma ltr_insert_not_exists_ann (nfin : carrier_is_not_finite S eq) : ltr_not_ex
   apply brel_set_elim_prop in B; auto. destruct B as [B C].
   assert (D : set.in_set eq (bop_union eq (t :: nil) s) t = true).
   apply in_set_bop_union_intro; auto. left. compute. rewrite (ref t). reflexivity. 
-  assert (E := B t D). 
-  (* Fix this.  change def of carrier_is_not_finite so that f maps to sets*)
-Admitted. 
-
-
- 
+  assert (E := B t D).
+  assert (F := list_set_hack s t E).
+  rewrite F in P.
+  discriminate P. 
+Qed. 
  
 End Theory.
 
@@ -143,7 +153,7 @@ let trn := A_eqv_transitive _ _ eqvP in
 ; A_left_transform_exists_ann_d :=
                         match A_eqv_finite_d _ eqv with
                         | inl fin => inl (ltr_insert_exists_ann S eq ref sym trn fin) 
-                        | inr nfin => inr (ltr_insert_not_exists_ann S eq wS f nt ref sym trn nfin)
+                        | inr nfin => inr (ltr_insert_not_exists_ann S eq ref sym trn nfin)
                         end 
 ; A_left_transform_proofs       := ltr_insert_proofs S eq wS f nt eqvP 
 ; A_left_transform_ast          := Ast_ltr_insert (A_eqv_ast S eqv) 

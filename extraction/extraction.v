@@ -78,7 +78,8 @@ Require Import CAS.coq.os.from_sg.
 
 Require Import CAS.coq.st.cast_up.
 Require Import CAS.coq.st.left.min_plus_one.
-Require Import CAS.coq.st.left.llex_product. 
+Require Import CAS.coq.st.left.llex_product.
+Require Import CAS.coq.st.left.union_insert. 
 
 
 
@@ -201,7 +202,7 @@ Extraction "Cas.ml"
    mcas_left_order_from_sg
    (* mcas_right_order_from_sg *) 
    (* b-semigroups *)    
-   bs_mcas_cast_up
+   bs_mcas_cast_up  (* used in ocaml/Describe.ml *)
    mcas_bs_and_or
    mcas_bs_or_and     
    mcas_min_plus
@@ -234,9 +235,10 @@ Extraction "Cas.ml"
    (*
    semigroup transforms 
     *)
-   cast_slt_mcas_to_slt
+   cast_slt_mcas_to_slt  (* used in ocaml/Describe.ml *)
    mcas_slt_min_plus_one
    mcas_slt_llex_product
+   mcas_slt_union_insert   
    (* algorithms 
    instantiate_matrix_exp_unary_curry
    call_instantiate_matrix_exp_unary_curry
