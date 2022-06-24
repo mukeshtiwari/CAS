@@ -246,17 +246,14 @@ End Theory.
 
 Section ACAS.
 
-  Context {L S : Type}.
-  Variable c : cas_constant.
-  Variable eqS : brel S.
-  Variable eqL : brel L.
-  Variable wS : S.
-  Variable wL : L.
-  Variable ltr : ltr_type L S.
-  Variable refS : brel_reflexive S eqS.
-
+ 
   
-  Definition ltr_add_ann_proofs : 
+  Definition ltr_add_ann_proofs 
+    {L S : Type} 
+    (c : cas_constant)
+    (eqS : brel S)
+    (eqL : brel L)
+    (ltr : ltr_type L S) : 
     ltr_congruence L S eqL eqS ltr ->
     ltr_not_left_constant L S eqS ltr ->
     ltr_left_cancellative_decidable L S eqS ltr ->
@@ -278,6 +275,6 @@ Section ACAS.
     |}.
   Defined.
   
-
+  
 
 
