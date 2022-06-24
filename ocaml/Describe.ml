@@ -732,10 +732,19 @@ let bs_i i = (Format.fprintf strf "(S_%s, +_%s, *_%s)" i i i;
 
 let bs_eq i l = (Format.fprintf strf "(S_%s, +_%s, *_%s) = %s" i i i (String.concat " " l);
 		 Format.flush_str_formatter ());;
+
+let slt_i i = (Format.fprintf strf "(L_%s, S_%s, +_%s, |>_%s)" i i i i;
+	       Format.flush_str_formatter ());;
+
+let slt_eq i l = (Format.fprintf strf "(L_%s, S_%s, +_%s, *_%s) = %s" i i i i (String.concat " " l);
+		  Format.flush_str_formatter ());;
+
   
 let s_i i = "S_" ^ i
+let l_i i = "L_" ^ i		     
 
 let s_eq i t = (s_i i) ^ " = " ^ t
+let l_eq i t = (l_i i) ^ " = " ^ t				   
 
 let plus_i i a  b = (Format.fprintf strf "%s +_%s %s" a i b;
 		       Format.flush_str_formatter ());; 
@@ -743,6 +752,9 @@ let plus_i i a  b = (Format.fprintf strf "%s +_%s %s" a i b;
 let times_i i a  b = (Format.fprintf strf "%s *_%s %s" a i b;
 			Format.flush_str_formatter ());;
 
+let ltr_i i a  b = (Format.fprintf strf "%s |>_%s %s" a i b;
+			Format.flush_str_formatter ());;
+  
 let plus_eq i a  b c = (Format.fprintf strf "%s +_%s %s = %s" a i b c;
 		       Format.flush_str_formatter ());; 
 
@@ -753,6 +765,9 @@ let plus_eq_cond i a  b c cond =
 let times_eq i a  b c = (Format.fprintf strf "%s *_%s %s = %s" a i b c;
 			Format.flush_str_formatter ());;
 
+let ltr_eq i a  b c = (Format.fprintf strf "%s |>_%s %s = %s" a i b c;
+			Format.flush_str_formatter ());;
+  
 let pline l = Format.pp_print_string stdf (l ^ "\n")
 
 let singleton a = "{" ^ a ^ "}"
@@ -899,8 +914,7 @@ let rec bs_describe_algebra_fully_aux =  function
   | Ast_union_lift sg        ->
      let i = string_of_int (next_int ()) in     
      (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
-    
-    
+
 let bs_describe_algebra_fully ast =
   let _ = reset_next_int_ref () in
   bs_describe_algebra_fully_aux ast
@@ -928,6 +942,222 @@ let bs_describe_fully bs =
      bs_certs_describe_fully eq plus times data certs
     )
 
+let rec slt_describe_algebra_fully_aux =  function
+  | Cas_ast (name_cl, ast_list) ->
+     let name = char_list_to_string name_cl in
+     (match name, ast_list with 
+      | "slt_min_plus_one", [] ->
+	 let i = string_of_int (next_int ()) in
+	 (pline (bs_eq i ["slt_min_plus_one"]);
+	  pline "where";
+	  pline (l_eq i "nat");	  
+	  pline (s_eq i "nat");
+	  pline (plus_eq i "x" "y" "x min y"); 
+	  pline (times_eq i "x" "y" "1 + x + y"); 
+	  i)
+      | "slt_add_zero", [a; Cas_ast_constant c] ->
+     let j = slt_describe_algebra_fully_aux a in 
+     let i = string_of_int (next_int ()) in     
+     let c' = char_list_to_string c.constant_ascii in
+     (pline (slt_eq i ["bs_add_zero"; (slt_i j); c']);
+      pline "where"; 
+      pline (s_eq i (sum (singleton c') (s_i j)));
+      pline (l_eq i (l_i j));       
+      pline(plus_eq i (inr "x") (inr "y") (inr (plus_i j "x" "y")));
+      pline(plus_eq i (inl c') "y" "y");
+      pline(plus_eq i "x" (inl c') "x");      
+      pline(ltr_eq i "l" (inr "y") (inr (ltr_i j "l" "y")));
+      pline(ltr_eq i "l" (inl c') (inl c')); 
+      i)
+      | "slt_llex_product_CS_C", [a; b] ->
+     let i1 = slt_describe_algebra_fully_aux a in
+     let i2 = slt_describe_algebra_fully_aux b in           
+     let i = string_of_int (next_int ()) in
+     (pline (slt_eq i ["slt_llex_product"; (slt_i i1); (slt_i i2)]);
+      pline "where";
+      pline (l_eq i (prod (l_i i1) (l_i i2)));      
+      pline (s_eq i (prod (s_i i1) (s_i i2)));
+      pline (plus_eq_cond i "(a, b)" "(c, d)" (pair "a" (plus_i i2 "b" "d")) (equal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (ltr_eq i "(a, b)" "(c, d)" (pair (ltr_i i1 "a" "c") (ltr_i i2 "b" "d")));       
+      i) 
+      | "slt_llex_product_CI_C_zero_is_ann", [a; b] ->
+     let i1 = slt_describe_algebra_fully_aux a in
+     let i2 = slt_describe_algebra_fully_aux b in           
+     let i = string_of_int (next_int ()) in	 
+     (pline (slt_eq i ["slt_llex_product"; (slt_i i1); (slt_i i2)]);
+      pline "where";
+      pline (l_eq i (prod (l_i i1) (l_i i2)));      
+      pline (s_eq i (prod (s_i i1) (s_i i2)));
+      pline (plus_eq_cond i "(a, b)" "(c, d)" (pair "a" (plus_i i2 "b" "d")) (equal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
+      pline (ltr_eq i "(a, b)" "(c, d)" (pair (ltr_i i1 "a" "c") (ltr_i i2 "b" "d")));       
+      i) 	 
+      | _, _ -> error "slt_describe_algebra_fully_aux : internal error 1" 
+     )
+  | Cas_ast_constant _ -> error "slt_describe_algebra_fully_aux : internal error 2" 
+
+let slt_describe_algebra_fully ast =
+  let _ = reset_next_int_ref () in
+  slt_describe_algebra_fully_aux ast
+
+
+				 
+let string_of_check_ltr_is_right eqC ltr dataC dataL = function 
+    | Certify_Ltr_Is_Right -> "Is Right\n" 
+    | Certify_Ltr_Not_Is_Right (a, b) -> 
+       let result = ltr a b in
+       if eqC b result 
+       then "INTERNAL ERROR : Not Is Right\n"
+       else "Not Is Right: \n" ^
+	      "   " ^ (data_to_ascii (dataL a)) ^  "|>" ^ (data_to_ascii (dataC b)) ^ " = " ^ (data_to_ascii (dataC result)) ^ "\n"
+				 
+
+let string_of_check_ltr_left_constant eqC ltr dataC dataL = function 
+    | Certify_Ltr_Left_Constant -> "Left Constant\n" 
+    | Certify_Ltr_Not_Left_Constant (a, (b, c)) ->
+       (* ab <> ac *) 
+       let ab = ltr a b in
+       let ac = ltr a c in       
+       if eqC ab ac 
+       then "INTERNAL ERROR Not Left Constant\n"
+       else "Not Left Constant: \n" ^
+		   "   " ^ (data_to_ascii (dataL a)) ^  "|>" ^ (data_to_ascii (dataC b)) ^ " = " ^ (data_to_ascii (dataC ab)) ^ "\n" ^
+		   "   " ^ (data_to_ascii (dataL a)) ^  "|>" ^ (data_to_ascii (dataC c)) ^ " = " ^ (data_to_ascii (dataC ac)) ^ "\n"
+
+let string_of_check_ltr_left_cancellative eqC ltr dataC dataL = function 
+    | Certify_Ltr_Left_Cancellative -> "Left Cancellative\n" 
+    | Certify_Ltr_Not_Left_Cancellative (a, (b, c)) ->
+       (* ab = ac and b <> c *)
+       let ab = ltr a b in
+       let ac = ltr a c in       
+       if eqC b c 
+       then "INTERNAL ERROR : Not Left Cancellative\n"
+       else if eqC ab ac
+            then "Not Left Cancellative: \n" ^
+		   "   " ^ (data_to_ascii (dataL a)) ^  "." ^ (data_to_ascii (dataC b)) ^ " = " ^ (data_to_ascii (dataC ab)) ^ "\n" ^
+		   "   " ^ (data_to_ascii (dataL a)) ^  "." ^ (data_to_ascii (dataC c)) ^ " = " ^ (data_to_ascii (dataC ac)) ^ "\n" ^
+		   "   " ^ (data_to_ascii (dataC b)) ^ " <> " ^ (data_to_ascii (dataC c)) ^ "\n" 	       
+            else  "INTERNAL ERROR\n"	      
+																 
+let ltr_certs_describe_fully eqC ltr dataC dataL certs =
+  let _ = print_string (string_of_check_ltr_left_cancellative eqC ltr dataC dataL (certs.left_transform_left_cancellative_d)) in
+  let _ = print_string (string_of_check_ltr_left_constant eqC ltr dataC dataL (certs.left_transform_left_constant_d))  in
+  let _ = print_string (string_of_check_ltr_is_right eqC ltr dataC dataL (certs.left_transform_is_right_d)) in
+  ()
+
+
+let string_of_check_slt_absorptive eqC plus ltr dataC dataL = function 
+    | Certify_Slt_Absorptive -> "Absorptive\n" 
+    | Certify_Slt_Not_Absorptive (l, x) -> 
+       (* x <> x + l |>x *)
+       let ltr_l_x = ltr l x in
+       let rhs = plus x ltr_l_x in
+       if eqC x rhs
+       then "INTERNAL ERROR : Not slt Absorptive\n"
+       else "Not Absorptive: \n" ^
+	      "   x = " ^ (data_to_ascii (dataC x)) ^ "\n" ^
+	      "   l = " ^ (data_to_ascii (dataL l)) ^ "\n" ^
+	      "   x <> x + l|>x = rhs: \n" ^
+	      "   l|>x = " ^ (data_to_ascii (dataC ltr_l_x)) ^ "\n" ^
+	      "   rhs = " ^ (data_to_ascii (dataC rhs)) ^ "\n" 
+
+let string_of_check_slt_strictly_absorptive eqC plus ltr dataC dataL = function 
+    | Certify_Slt_Strictly_Absorptive -> "Strictly Absorptive\n" 
+    | Certify_Slt_Not_Strictly_Absorptive (l, x) -> 
+       (* x <> x + l |>x 
+          OR 
+          x = l |>x 
+       *)
+       let ltr_l_x = ltr l x in
+       let rhs = plus x ltr_l_x in
+       if eqC x rhs
+       then "Not Strictly Absorptive : \n" ^
+	      "   l|>x = " ^ (data_to_ascii (dataC ltr_l_x)) ^ " = x\n"
+       else "Not Strictly Absorptive (since not Absorptive): \n" ^
+	      "   x = " ^ (data_to_ascii (dataC x)) ^ "\n" ^
+	      "   l = " ^ (data_to_ascii (dataL l)) ^ "\n" ^
+	      "   x <> x + l|>x = rhs: \n" ^
+	      "   l|>x = " ^ (data_to_ascii (dataC ltr_l_x)) ^ "\n" ^
+	      "   rhs = " ^ (data_to_ascii (dataC rhs)) ^ "\n"
+							      
+let string_of_check_slt_distributive eqC plus ltr dataC dataL = function 
+    | Certify_Slt_Distributive ->  "Left Distributive\n" 
+    | Certify_Slt_Not_Distributive (a, (b, c)) ->
+       (* lhs = a*(b + c) <> a*b + a*c = rhs *)
+       let plus_b_c = plus b c    in
+       let lhs = ltr a plus_b_c in
+       let times_a_b = ltr a b in
+       let times_a_c = ltr a c in
+       let rhs = plus  times_a_b  times_a_c in
+       if eqC lhs rhs
+       then "INTERNAL ERROR : Not Slt Distributive\n"
+       else "Not Distributive:\n" ^
+	      "   a = " ^ (data_to_ascii (dataL a)) ^ "\n" ^
+	      "   b = " ^ (data_to_ascii (dataC b)) ^ "\n" ^
+	      "   c = " ^ (data_to_ascii (dataC c)) ^ "\n" ^				  
+	      "   lhs = a*(b + c) <> a*b + a*c = rhs: \n" ^
+	      "   b + c = " ^ (data_to_ascii (dataC plus_b_c)) ^ "\n" ^
+	      "   a*b = " ^ (data_to_ascii (dataC times_a_b)) ^ "\n" ^
+	      "   a*c = " ^ (data_to_ascii (dataC times_a_c)) ^ "\n" ^
+	      "   lhs = " ^ (data_to_ascii (dataC lhs)) ^ "\n" ^				 
+	      "   rhs = " ^ (data_to_ascii (dataC rhs)) ^ "\n" 
+							    
+let slt_certs_describe_fully eqC eqL plus ltr dataC dataL certs = 
+     (
+       print_string (string_of_check_slt_distributive eqC plus ltr dataC dataL (certs.slt_distributive_d) ); 
+       print_string (string_of_check_slt_absorptive eqC plus ltr dataC dataL (certs.slt_absorptive_d) ); 
+       print_string (string_of_check_slt_strictly_absorptive eqC plus ltr dataC dataL (certs.slt_strictly_absorptive_d) )
+      )
+
+let slt_plus_ann_cert_describe dataC cert = 
+  (print_string "Additive annihilator:\n"; 
+    print_string (string_of_check_exists_ann dataC cert))
+
+let slt_id_ann_certs_describe_times dataC = function 
+  | Certify_SLT_Id_Ann_Proof_None ->
+     print_string "No Identity \nNo Annihilator\n"
+   | Certify_SLT_Id_Ann_Proof_Id_None  s  ->
+      print_string ("Identity = " ^ (data_to_ascii (dataC s)) ^ "\n No Annihilator\n")
+   | Certify_SLT_Id_Ann_Proof_None_Ann s ->
+      print_string ("No Identity\n" ^ "Annihilator = " ^ (data_to_ascii (dataC s)) ^ "\n")
+   | Certify_SLT_Id_Ann_Proof_Equal     s ->
+      print_string ("Identity = Annihilator = " ^ (data_to_ascii (dataC s)) ^ "\n")
+   | Certify_SLT_Id_Ann_Proof_Not_Equal (s, t) ->
+      print_string ("Identity = " ^ (data_to_ascii (dataC s)) ^ "\nAnnihilator = " ^ (data_to_ascii (dataC s)) ^ " \n")
+		   
+      
+let slt_describe_fully slt =
+  let eqvC        = slt.slt_carrier   in
+  let eqvL        = slt.slt_label   in        
+  let eqC          = eqvC.eqv_eq         in
+  let eqL          = eqvL.eqv_eq         in     
+  let dataC        = eqvC.eqv_data in
+  let dataL        = eqvL.eqv_data in
+  let plus        = slt.slt_plus         in  
+  let plus_certs  = slt.slt_plus_certs   in
+  let times       = slt.slt_trans        in  
+  let times_certs = slt.slt_trans_certs  in
+  let plus_ann_cert = slt.slt_exists_plus_ann_d in 
+  let id_ann_certs = slt.slt_id_ann_certs_d  in         
+  let certs       = slt.slt_certs        in
+  let ast         = slt.slt_ast          in             
+    (slt_describe_algebra_fully ast;
+     print_string "Special values:\n";
+     slt_plus_ann_cert_describe dataC plus_ann_cert;
+     slt_id_ann_certs_describe_times dataC id_ann_certs;     
+     print_string "Additive properties:\n";
+     print_string "--------------------\n";
+     sg_certs_describe_fully eqC plus dataC plus_certs;
+     print_string "Multiplicative properties:\n";
+     print_string "-------------------------\n";
+     ltr_certs_describe_fully eqC times dataC dataL times_certs;
+     print_string "Interaction of Additive and Multiplicative operations\n";
+     print_string   "-------------------------------------------------------\n";         
+     slt_certs_describe_fully eqC eqL plus times dataC dataL certs
+    )
 
 let string_of_bs_mcas_class mbs = 
 match mbs with 
@@ -960,7 +1190,24 @@ match mbs with
 | BS_selective_distributive_prelattice_with_one _ -> "Selective Distributive Pre-Lattice with One"
 | BS_selective_distributive_lattice _ -> "Selective Distributive Lattice"
 
+let string_of_slt_mcas_class mslt = 
+  match mslt with
+  | SLT_Error cll -> errors (List.map char_list_to_string cll)
+  | SLT _ -> "Left Semigroup Transform" 
+  | SLT_C _ -> "Commutative, Left Semigroup Transform" 
+  | SLT_CS _ -> "Commutative and Selective, Left Semigroup Transform" 
+  | SLT_CI _ -> "Commutative and Idempotent, Left Semigroup Transform" 
+  | SLT_C_Zero_Is_Ltr_ann _ -> "" 
+  | SLT_Dioid _ -> "Left Dioid" 
+  | SLT_Selective_Dioid _ -> "Selective Left Dioid" 
+  | SLT_Selective_Left_Pre_Dioid _ -> "Selective Left Pre-Dioid" 
+  | SLT_Left_Pre_Semiring _ -> "Selective Left Pre-Dioid" 
+  | SLT_Semiring _ -> "Left Semiring" 
+  | SLT_Idempotent_Semiring _ -> "Idempotent Left Semiring" 
+  | SLT_Selective_Semiring _ -> "Selective Left Semiring" 
 
+
+    
 let mcas_bs_describe mbs =
   (print_string ("Class : " ^ (string_of_bs_mcas_class mbs) ^ "\n"); 
   match bs_mcas_cast_up mbs with
@@ -973,6 +1220,17 @@ let mcas_bs_describe_fully mbs =
   | BS_bs bs -> bs_describe_fully bs
   | _        -> error "internal error: mcas_bs_describe_fully" )
 
+(*let mcas_slt_describe mslt =
+  (print_string ("Class : " ^ (string_of_slt_mcas_class mslt) ^ "\n");   
+  match cast_slt_mcas_to_slt mslt with
+  | SLT slt -> slt_describe slt
+  | _        -> error "internal error: mcas_slt_describe_fully" )
+ *)       
+let mcas_slt_describe_fully mslt =
+  (print_string ("Class : " ^ (string_of_slt_mcas_class mslt) ^ "\n");   
+  match cast_slt_mcas_to_slt mslt with
+  | SLT slt -> slt_describe_fully slt
+  | _        -> error "internal error: mcas_slt_describe_fully" )
 
 (* **** *)
 

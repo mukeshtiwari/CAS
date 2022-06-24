@@ -1,3 +1,4 @@
+Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 
@@ -58,8 +59,7 @@ End Theory.
 
 Section ACAS.
   
-  
-
+Open Scope string_scope. 
   Definition A_slt_min_plus_one : @A_selective_left_pre_dioid nat nat :=
     {|
       A_selective_left_pre_dioid_carrier := A_eqv_nat;
@@ -83,7 +83,7 @@ Section ACAS.
           A_left_dioid_strictly_absorptive_d :=
             inl min_plus_one_slt_strictly_absorptive
         |};
-      A_selective_left_pre_dioid_ast := Cas_ast "slt_min_plus_one" nil
+      A_selective_left_pre_dioid_ast := Cas_ast ("slt_min_plus_one", nil)
     |}.
 
 
@@ -99,6 +99,7 @@ End AMCAS.
 
 Section CAS. 
 
+Open Scope string_scope.   
   Definition slt_min_plus_one : @selective_left_pre_dioid nat nat :=
     {|
       selective_left_pre_dioid_carrier := eqv_eq_nat;
@@ -116,7 +117,7 @@ Section CAS.
           left_dioid_absorptive := Assert_Slt_Absorptive;
           left_dioid_strictly_absorptive_d := Certify_Slt_Strictly_Absorptive
         |};
-      selective_left_pre_dioid_ast := Cas_ast "slt_min_plus_one" nil
+      selective_left_pre_dioid_ast := Cas_ast ("slt_min_plus_one", nil)
     |}.
     
     
