@@ -79,7 +79,7 @@ Section Theory.
   Qed.
 
 
-  Lemma ltr_add_ann_not : ltr_is_right_decidable L S eqS ltr ->
+  Lemma ltr_add_ann_is_right_decidable : ltr_is_right_decidable L S eqS ltr ->
     ltr_is_right_decidable L (with_constant S) 
     (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
   Proof.
@@ -240,6 +240,7 @@ Section Theory.
     exact H.
   Defined.
 
+
 End Theory.
 
 
@@ -258,22 +259,25 @@ Section ACAS.
   Definition ltr_add_ann_proofs : 
     ltr_congruence L S eqL eqS ltr ->
     ltr_not_left_constant L S eqS ltr ->
-    ltr_left_cancellative_decidable L S eqS ltr->
+    ltr_left_cancellative_decidable L S eqS ltr ->
+    ltr_is_right_decidable L S eqS ltr ->
     left_transform_proofs L (with_constant S)
     (brel_sum brel_constant eqS) eqL (ltr_add_ann ltr c).
   Proof.
-    intros Ha Hb Hc.
+    intros Ha Hb Hc Hd.
     refine
     {|
       A_left_transform_congruence  := 
         ltr_add_ann_congruence c eqS eqL ltr Ha
-    ; A_left_transform_is_right_d  := _ 
+    ; A_left_transform_is_right_d  := 
+        ltr_add_ann_is_right_decidable c eqS ltr Hd
     ; A_left_transform_left_constant_d := 
         inr (ltr_add_ann_not_left_constant c eqS ltr Hb)
     ; A_left_transform_left_cancellative_d := 
         ltr_add_ann_left_cancellative_decidable c eqS ltr Hc 
     |}.
-  Admitted.
+  Defined.
+  
 
 
 
