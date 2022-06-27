@@ -257,25 +257,27 @@ Section ACAS.
     (eqS : brel S)
     (eqL : brel L)
     (ltr : ltr_type L S) : 
-    ltr_congruence L S eqL eqS ltr ->
-    ltr_left_cancellative_decidable L S eqS ltr ->
-    ltr_is_right_decidable L S eqS ltr ->
+    left_transform_proofs 
+      L S eqS eqL ltr ->
     left_transform_proofs L (with_constant S)
       (brel_sum brel_constant eqS) eqL 
       (ltr_add_ann_op ltr c).
   Proof.
-    intros Ha Hc Hd.
+    intros Ha.
     refine
     {|
       A_left_transform_congruence  := 
-        ltr_add_ann_congruence c eqS eqL ltr Ha
+        ltr_add_ann_congruence c eqS eqL ltr 
+          (A_left_transform_congruence _ _ _ _ _ Ha) 
     ; A_left_transform_is_right_d  := 
-        ltr_add_ann_is_right_decidable c eqS ltr Hd
+        ltr_add_ann_is_right_decidable c eqS ltr 
+          (A_left_transform_is_right_d _ _ _ _ _ Ha) 
     ; A_left_transform_left_constant_d := 
         inr (ltr_add_ann_not_left_constant c eqS 
           wS wL ltr)
     ; A_left_transform_left_cancellative_d := 
-        ltr_add_ann_left_cancellative_decidable c eqS ltr Hc 
+        ltr_add_ann_left_cancellative_decidable c eqS ltr
+          (A_left_transform_left_cancellative_d _ _ _ _ _ Ha)
     |}.
   Defined.
 
@@ -305,26 +307,16 @@ Section ACAS.
           (ltr_add_ann_exists_ann c
             (A_eqv_eq S (A_left_transform_carrier L S Hl))
             (A_left_transform_ltr L S Hl)) 
-      ; A_left_transform_proofs  :=
-          A_ltr_add_ann_proofs c
+      ; A_left_transform_proofs  :=  A_ltr_add_ann_proofs c
           (A_eqv_witness S (A_left_transform_carrier L S Hl))
           (A_eqv_witness L (A_left_transform_label L S Hl))
           (A_eqv_eq S (A_left_transform_carrier L S Hl))
           (A_eqv_eq L (A_left_transform_label L S Hl))
           (A_left_transform_ltr L S Hl) 
-          _ _ _
+          (A_left_transform_proofs _ _ Hl)
       ; A_left_transform_ast  := Cas_ast ("A_left_transform_with_constant", 
         [A_left_transform_ast _ _ Hl])
     |}.
-   destruct Hl,
-   A_left_transform_proofs; simpl in * |- *.
-   exact A_left_transform_congruence.
-   destruct Hl,
-   A_left_transform_proofs; simpl in * |- *.
-   exact A_left_transform_left_cancellative_d.
-   destruct Hl,
-   A_left_transform_proofs; simpl in * |- *.
-   exact A_left_transform_is_right_d.
   Defined.
 
 End ACAS.
@@ -396,20 +388,23 @@ Section CAS.
     (c : cas_constant)
     (wS : S)
     (wL : L) :
-    @assert_ltr_congruence L S -> 
-    @check_ltr_left_cancellative L S -> 
-    @check_ltr_is_right L S ->
+    @left_transform_certificates L S -> 
     @left_transform_certificates L (with_constant S).
   Proof.
-    intros Ha Hb Hc.
+    intros Ha.
     refine
     {|
-      left_transform_congruence  := ltr_add_ann_congruence_cert Ha
-    ; left_transform_is_right_d  := ltr_add_ann_is_right_certs Hc 
+      left_transform_congruence  := ltr_add_ann_congruence_cert 
+        (left_transform_congruence Ha)
+    ; left_transform_is_right_d  := ltr_add_ann_is_right_certs 
+        (left_transform_is_right_d Ha) 
     ; left_transform_left_constant_d :=  (Certify_Ltr_Not_Left_Constant  (wL, (inl c, inr wS)))
-    ; left_transform_left_cancellative_d := ltr_add_ann_left_cancellative_certs Hb
+    ; left_transform_left_cancellative_d := ltr_add_ann_left_cancellative_certs 
+        (left_transform_left_cancellative_d Ha) 
     |}.
   Defined.
+  
+
 
   Lemma ltr_add_ann 
     {L S : Type}
@@ -428,17 +423,24 @@ Section CAS.
           ltr_add_ann_exists_id_certs (left_transform_exists_id_d _ _ Hl)  
       ; left_transform_exists_ann_d := Certify_Ltr_Exists_Ann (inl c)
       ; left_transform_certs  := 
-        @ltr_add_ann_certs _ _ c wS wL Assert_Ltr_Congruence 
-        (left_transform_left_cancellative_d (left_transform_certs _ _  Hl))
-        (left_transform_is_right_d (left_transform_certs _ _ Hl))
+        @ltr_add_ann_certs _ _ c wS wL (left_transform_certs _ _ Hl) 
       ; left_transform_ast := Cas_ast ("A_left_transform_with_constant", 
         [left_transform_ast _ _ Hl])
-    
-    |}.
+    |}.  
   Defined.
 
 
 End CAS. 
+(*
+Section Verify.
+
+  Check  P2C_left_transform.
+  Lemma correct_ltr_certs_add_ann 
+    {L S : Type} 
+    (eqS : brel S) 
+    (eqL : brel L) 
+    (ltr : L → S → S)
+*)
 
 
 
