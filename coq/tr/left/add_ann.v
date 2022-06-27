@@ -25,7 +25,7 @@ Import ListNotations.
 Section Computation.
 
 
-Definition ltr_add_ann {L S : Type} : 
+Definition ltr_add_ann_op {L S : Type} : 
   ltr_type L S -> cas_constant -> ltr_type L (cas_constant + S) :=
   λ ltr c l s, 
     match s with 
@@ -52,7 +52,7 @@ Section Theory.
   Lemma ltr_add_ann_congruence : 
     ltr_congruence L S eqL eqS ltr -> 
     ltr_congruence L (with_constant S) eqL 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     intros Ha ? ? [sa | sa] [sb | sb] Hb Hc;
     simpl in * |- *;
@@ -64,7 +64,7 @@ Section Theory.
 
   Lemma ltr_add_ann_is_right : ltr_is_right L S eqS ltr -> 
     ltr_is_right L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     intros Ha ? [sa | sa]; simpl.
     + reflexivity.
@@ -74,7 +74,7 @@ Section Theory.
 
   Lemma ltr_add_ann_not_is_right : ltr_not_is_right L S eqS ltr -> 
     ltr_not_is_right L (with_constant S)
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     intros ((l, s) & H).
     exists (l, inr s);
@@ -85,7 +85,7 @@ Section Theory.
 
   Lemma ltr_add_ann_is_right_decidable : ltr_is_right_decidable L S eqS ltr ->
     ltr_is_right_decidable L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     intros [Ha | Ha].
     + left.  
@@ -99,7 +99,7 @@ Section Theory.
   
   Lemma ltr_add_ann_is_id : ltr_is_id L S eqS ltr wL ->
     ltr_is_id L (with_constant S) 
-      (brel_sum brel_constant eqS) (ltr_add_ann ltr c) wL.
+      (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c) wL.
   Proof.
     intros Ha [sa | sa]; simpl.
     + reflexivity.
@@ -108,7 +108,7 @@ Section Theory.
 
   Lemma ltr_add_ann_not_is_id : ltr_not_is_id L S eqS ltr wL ->
     ltr_not_is_id L (with_constant S) 
-      (brel_sum brel_constant eqS) (ltr_add_ann ltr c) wL.
+      (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c) wL.
   Proof.
     intros (s & Hs).
     exists (inr s);
@@ -118,7 +118,7 @@ Section Theory.
 
   Lemma ltr_add_ann_exists_id :  ltr_exists_id L S eqS ltr ->
     ltr_exists_id  L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     intros (l & Hl).
     exists l; simpl.
@@ -133,7 +133,7 @@ Section Theory.
   Lemma ltr_add_ann_not_exists_id : 
     ltr_not_exists_id L S eqS ltr ->
     ltr_not_exists_id  L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     intros Ha l. 
     unfold ltr_not_exists_id in * |- *.
@@ -146,7 +146,7 @@ Section Theory.
   Lemma ltr_add_ann_exists_id_decidable : 
     ltr_exists_id_decidable L S eqS ltr -> 
     ltr_exists_id_decidable L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     intros [H | H].
     + left. 
@@ -160,7 +160,7 @@ Section Theory.
 
   Lemma ltr_add_ann_is_ann : ltr_is_ann L S eqS ltr wS ->
     ltr_is_ann L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c) (inr wS).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c) (inr wS).
   Proof.
     unfold ltr_is_ann.
     intros Ha ?. 
@@ -170,7 +170,7 @@ Section Theory.
 
   Lemma ltr_add_ann_not_is_ann : ltr_not_is_ann L S eqS ltr wS ->
     ltr_not_is_ann L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c) (inr wS).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c) (inr wS).
   Proof.
     intros (l & Hl).
     exists l; exact Hl.
@@ -179,7 +179,7 @@ Section Theory.
 
   Lemma ltr_add_ann_exists_ann :
     ltr_exists_ann L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     unfold ltr_exists_ann.
     exists (inl c);
@@ -191,7 +191,7 @@ Section Theory.
 
   Lemma ltr_add_ann_left_cancellative : ltr_left_cancellative L S eqS ltr ->
     ltr_left_cancellative L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     unfold ltr_left_cancellative.
     intros Ha ? [sa | sa] [sb | sb] Hb;
@@ -207,7 +207,7 @@ Section Theory.
   Lemma ltr_add_ann_not_left_cancellative : 
     ltr_not_left_cancellative L S eqS ltr ->
     ltr_not_left_cancellative L (with_constant S) 
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     unfold ltr_not_left_cancellative.
     intros ((au, (bu, cu)) & Ha & Hb).
@@ -220,7 +220,7 @@ Section Theory.
   Lemma ltr_add_ann_left_cancellative_decidable :
     ltr_left_cancellative_decidable L S eqS ltr ->
     ltr_left_cancellative_decidable L (with_constant S)
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     intros [H | H].
     + left.
@@ -234,7 +234,7 @@ Section Theory.
     
   Lemma ltr_add_ann_not_left_constant :
     ltr_not_left_constant L (with_constant S)
-    (brel_sum brel_constant eqS) (ltr_add_ann ltr c).
+    (brel_sum brel_constant eqS) (ltr_add_ann_op ltr c).
   Proof.
     unfold ltr_not_left_constant.
     exists (wL, (inl c, inr wS));
@@ -262,7 +262,7 @@ Section ACAS.
     ltr_is_right_decidable L S eqS ltr ->
     left_transform_proofs L (with_constant S)
       (brel_sum brel_constant eqS) eqL 
-      (ltr_add_ann ltr c).
+      (ltr_add_ann_op ltr c).
   Proof.
     intros Ha Hc Hd.
     refine
@@ -294,7 +294,7 @@ Section ACAS.
       ; A_left_transform_label  := 
           A_left_transform_label _ _ Hl                                                    
       ; A_left_transform_ltr  := 
-          (ltr_add_ann (A_left_transform_ltr _ _ Hl) c)
+          (ltr_add_ann_op (A_left_transform_ltr _ _ Hl) c)
       ; A_left_transform_exists_id_d  := 
           ltr_add_ann_exists_id_decidable c
           (A_eqv_eq S (A_left_transform_carrier L S Hl))
@@ -410,7 +410,25 @@ Section CAS.
     ; left_transform_left_cancellative_d := ltr_add_ann_left_cancellative_certs Hb
     |}.
   Defined.
-  
+
+  Lemma ltr_add_ann 
+    {L S : Type}
+    (Hl : left_transform L S)
+    (c : cas_constant) : 
+    left_transform L (with_constant S).
+  Proof.
+    refine
+    {|
+        left_transform_carrier  := eqv_add_constant (left_transform_carrier _ _ Hl) c 
+      ; left_transform_label  := left_transform_label _ _ Hl                                                 
+      ; left_transform_ltr  := ltr_add_ann_op (left_transform_ltr _ _ Hl) c 
+      ; left_transform_exists_id_d  := _   
+      ; left_transform_exists_ann_d := _ 
+      ; left_transform_certs  := _ 
+      ; left_transform_ast := _ 
+    
+    |}.
+    
 
 
 
