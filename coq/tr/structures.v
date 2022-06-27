@@ -25,7 +25,7 @@ Record A_left_transform (L S : Type) :=
 ; A_left_transform_exists_id_d  : ltr_exists_id_decidable L S  (A_eqv_eq S A_left_transform_carrier) A_left_transform_ltr 
 ; A_left_transform_exists_ann_d : ltr_exists_ann_decidable L S (A_eqv_eq S A_left_transform_carrier) A_left_transform_ltr 
 ; A_left_transform_proofs       : left_transform_proofs L S (A_eqv_eq S A_left_transform_carrier) (A_eqv_eq L A_left_transform_label)  A_left_transform_ltr
-; A_left_transform_ast          : cas_ltr_ast
+; A_left_transform_ast          : cas_ast (* cas_ltr_ast *)
 }.
 
 End ACAS.
@@ -58,7 +58,7 @@ Record left_transform (L S : Type) :=
 ; left_transform_exists_id_d  : @check_ltr_exists_id L S  
 ; left_transform_exists_ann_d : @check_ltr_exists_ann L S 
 ; left_transform_certs        : @left_transform_certificates L S
-; left_transform_ast          : cas_ltr_ast
+; left_transform_ast          : cas_ast (* cas_ltr_ast *)
 }.
 
 End CAS.
@@ -83,7 +83,7 @@ Definition P2C_left_transform : ∀ (L S : Type) (eqS : brel S) (eqL : brel L) (
 ; left_transform_is_right_d          := p2c_ltr_is_right L S eqS ltr (A_left_transform_is_right_d L S eqS eqL ltr P)
 ; left_transform_left_constant_d     := p2c_ltr_left_constant L S eqS ltr (A_left_transform_left_constant_d L S eqS eqL ltr P)                                                
 ; left_transform_left_cancellative_d := p2c_ltr_left_cancellative L S eqS ltr (A_left_transform_left_cancellative_d L S eqS eqL ltr P)
-|}. 
+|}.
 
 
 Definition A2C_left_transform (L S : Type) (R : A_left_transform L S) : @left_transform L S := 

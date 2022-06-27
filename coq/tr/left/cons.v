@@ -10,8 +10,12 @@ Require Import CAS.coq.sg.and.
 
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
-
+Require Import Coq.Lists.List.
+Require Import Coq.Strings.String.
 Open Scope list.
+
+Open Scope string_scope.
+Import ListNotations.
 
 
 Section Compute.
@@ -99,7 +103,9 @@ Definition A_left_transform_cons (S : Type) (eqv : A_eqv S) :=
 ; A_left_transform_exists_id_d  := inr(ltr_cons_not_exists_id S (A_eqv_eq S eqv)) 
 ; A_left_transform_exists_ann_d := inr(ltr_cons_not_exists_ann S (A_eqv_eq S eqv) (A_eqv_witness S eqv))
 ; A_left_transform_proofs       := ltr_cons_proofs S (A_eqv_eq S eqv) (A_eqv_witness S eqv) (A_eqv_proofs S eqv)
-; A_left_transform_ast          := Ast_ltr_cons (A_eqv_ast S eqv) 
+; A_left_transform_ast          := Cas_ast ("A_left_transform_cons", []) 
+    (* I don't want to open pandora box so let's keept the second component empty of Ast
+      Ast_ltr_cons (A_eqv_ast S eqv) *) 
 |}.
 
 End ACAS.
@@ -122,7 +128,7 @@ Definition left_transform_cons {S : Type} (eqv : @eqv S) :=
 ; left_transform_exists_id_d  := Certify_Ltr_Not_Exists_Id
 ; left_transform_exists_ann_d := Certify_Ltr_Not_Exists_Ann 
 ; left_transform_certs        := ltr_cons_certs (eqv_witness eqv) 
-; left_transform_ast          := Ast_ltr_cons (eqv_ast eqv) 
+; left_transform_ast          := Cas_ast ("A_left_transform_cons", [])
 |}.
   
 

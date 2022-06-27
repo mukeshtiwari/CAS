@@ -13,7 +13,10 @@ Require Import CAS.coq.sg.plus.
 
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
-
+Require Import Coq.Strings.String.
+Require Import Coq.Lists.List.
+Open Scope string_scope.
+Import ListNotations.
 
 Section Compute.  
 
@@ -101,7 +104,7 @@ Definition A_left_transform_plus_one : A_left_transform nat nat :=
 ; A_left_transform_exists_id_d  := inr ltr_plus_one_not_exists_id
 ; A_left_transform_exists_ann_d := inr ltr_plus_one_not_exists_ann 
 ; A_left_transform_proofs       := ltr_plus_one_proofs
-; A_left_transform_ast          := Ast_ltr_plus_one
+; A_left_transform_ast          := Cas_ast ("A_left_transform_plus_one", []) (* Ast_ltr_plus_one *)
 |}.
 
   
@@ -136,7 +139,7 @@ Definition left_transform_plus_one : @left_transform nat nat :=
 ; left_transform_exists_id_d  := Certify_Ltr_Not_Exists_Id
 ; left_transform_exists_ann_d := Certify_Ltr_Not_Exists_Ann 
 ; left_transform_certs        := ltr_plus_one_certs
-; left_transform_ast          := Ast_ltr_plus_one
+; left_transform_ast          := Cas_ast ("A_left_transform_plus_one", [])
 |}.
   
 End CAS.
