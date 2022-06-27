@@ -80,7 +80,7 @@ Section Theory.
     exists (l, inr s);
     simpl.
     exact H.
-  Qed.
+  Defined.
 
 
   Lemma ltr_add_ann_is_right_decidable : ltr_is_right_decidable L S eqS ltr ->
@@ -140,7 +140,7 @@ Section Theory.
     destruct (Ha l) as (x & Hx).
     exists (inr x);
     exact Hx.
-  Qed.
+  Defined.
   
   
   Lemma ltr_add_ann_exists_id_decidable : 
@@ -186,7 +186,7 @@ Section Theory.
     unfold ltr_is_ann.
     intros ?.
     reflexivity.
-  Qed.
+  Defined.
 
 
   Lemma ltr_add_ann_left_cancellative : ltr_left_cancellative L S eqS ltr ->
@@ -431,17 +431,42 @@ Section CAS.
 
 
 End CAS. 
-(*
-Section Verify.
 
-  Check  P2C_left_transform.
+Section Verify.
+ 
+
   Lemma correct_ltr_certs_add_ann 
     {L S : Type} 
+    (c : cas_constant)
+    (wS : S)
+    (wL : L)
     (eqS : brel S) 
     (eqL : brel L) 
     (ltr : L → S → S)
-*)
-
+    (pf : left_transform_proofs L S eqS eqL ltr) :
+    @P2C_left_transform L (with_constant S)
+      (brel_sum brel_constant eqS)
+      eqL (ltr_add_ann_op ltr c)
+      (@A_ltr_add_ann_proofs L S c wS wL eqS eqL ltr pf) = 
+    ltr_add_ann_certs c wS wL
+      (P2C_left_transform L S eqS eqL ltr pf).
+  Proof.
+    unfold P2C_left_transform,
+    ltr_add_ann_certs; cbn.
+    destruct pf; simpl.
+    f_equal.
+    + destruct A_left_transform_is_right_d as [H | H];
+      simpl. 
+      ++ reflexivity.
+      ++ destruct H, x;
+         reflexivity.
+    + destruct A_left_transform_left_cancellative_d as [H | H];
+      cbn.
+      ++ reflexivity.
+      ++ destruct H, x, p, y; cbn.
+         reflexivity.
+  Qed.    
+     
 
 
 
