@@ -413,8 +413,10 @@ Section CAS.
 
   Lemma ltr_add_ann 
     {L S : Type}
-    (Hl : left_transform L S)
-    (c : cas_constant) : 
+    (c : cas_constant)
+    (wS : S)
+    (wL : L) 
+    (Hl : left_transform L S) : 
     left_transform L (with_constant S).
   Proof.
     refine
@@ -422,14 +424,21 @@ Section CAS.
         left_transform_carrier  := eqv_add_constant (left_transform_carrier _ _ Hl) c 
       ; left_transform_label  := left_transform_label _ _ Hl                                                 
       ; left_transform_ltr  := ltr_add_ann_op (left_transform_ltr _ _ Hl) c 
-      ; left_transform_exists_id_d  := _   
-      ; left_transform_exists_ann_d := _ 
-      ; left_transform_certs  := _ 
-      ; left_transform_ast := _ 
+      ; left_transform_exists_id_d  := 
+          ltr_add_ann_exists_id_certs (left_transform_exists_id_d _ _ Hl)  
+      ; left_transform_exists_ann_d := Certify_Ltr_Exists_Ann (inl c)
+      ; left_transform_certs  := 
+        @ltr_add_ann_certs _ _ c wS wL Assert_Ltr_Congruence 
+        (left_transform_left_cancellative_d (left_transform_certs _ _  Hl))
+        (left_transform_is_right_d (left_transform_certs _ _ Hl))
+      ; left_transform_ast := Cas_ast ("A_left_transform_with_constant", 
+        [left_transform_ast _ _ Hl])
     
     |}.
-    
+  Defined.
 
+
+End CAS. 
 
 
 
