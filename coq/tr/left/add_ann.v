@@ -16,7 +16,11 @@ Require Import CAS.coq.sg.cast_up.
 
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
+Require Import Coq.Lists.List.
+Require Import Coq.Strings.String.
 
+Open Scope string_scope.
+Import ListNotations.
 
 Section Computation.
 
@@ -309,7 +313,8 @@ Section ACAS.
           (A_eqv_eq L (A_left_transform_label L S Hl))
           (A_left_transform_ltr L S Hl) 
           _ _ _
-      ; A_left_transform_ast  := _ 
+      ; A_left_transform_ast  := Cas_ast ("A_left_transform_with_constant", 
+        [A_left_transform_ast _ _ Hl])
     |}.
    
    destruct Hl,
@@ -321,8 +326,9 @@ Section ACAS.
    destruct Hl,
    A_left_transform_proofs; simpl in * |- *.
    exact A_left_transform_is_right_d.
-   (* Change AST in structures.v file *)
-  Admitted.
+  Defined.
+
+
 
 
    
