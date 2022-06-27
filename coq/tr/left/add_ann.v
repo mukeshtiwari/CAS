@@ -316,7 +316,6 @@ Section ACAS.
       ; A_left_transform_ast  := Cas_ast ("A_left_transform_with_constant", 
         [A_left_transform_ast _ _ Hl])
     |}.
-   
    destruct Hl,
    A_left_transform_proofs; simpl in * |- *.
    exact A_left_transform_congruence.
@@ -327,6 +326,92 @@ Section ACAS.
    A_left_transform_proofs; simpl in * |- *.
    exact A_left_transform_is_right_d.
   Defined.
+
+End ACAS.
+
+
+Section Certificate.
+
+
+  Context {L S : Type}.
+
+
+  Lemma ltr_add_ann_congruence_cert : 
+    @assert_ltr_congruence L S -> 
+    @assert_ltr_congruence L (with_constant S). 
+  Proof.
+    intros Ha.
+    exact Assert_Ltr_Congruence.
+  Defined.
+  
+
+  Lemma ltr_add_ann_is_right_certs : 
+    @check_ltr_is_right L S ->
+    @check_ltr_is_right L (with_constant S). 
+  Proof.
+    intros Ha.
+    case Ha eqn:Hwc.
+    + exact Certify_Ltr_Is_Right.
+    + apply Certify_Ltr_Not_Is_Right.
+      exact (fst p, inr (snd p)).
+  Defined. 
+    
+  
+  Lemma ltr_add_ann_exists_id_certs : 
+    @check_ltr_exists_id L S -> 
+    @check_ltr_exists_id L (with_constant S).
+  Proof.
+    intros Ha.
+    case_eq Ha.
+    + intros l Hb.
+      apply Certify_Ltr_Exists_Id.
+      exact l. 
+    + intros Hb.
+      apply Certify_Ltr_Not_Exists_Id.
+  Defined.
+    
+
+  Lemma ltr_add_ann_left_cancellative_certs :
+    @check_ltr_left_cancellative L S ->
+    @check_ltr_left_cancellative L (with_constant S).
+  Proof.
+    intros Ha.
+    case_eq Ha.
+    + intros Hb.
+      apply Certify_Ltr_Left_Cancellative.
+    + intros (l, (s₁, s₂)) Hb.
+      apply Certify_Ltr_Not_Left_Cancellative.
+      exact (l, (inr s₁, inr s₂)).
+  Defined.
+
+End Certificate.
+
+
+
+Section CAS. 
+
+
+  Definition ltr_add_ann_certs  
+    {L S : Type} 
+    (c : cas_constant)
+    (wS : S)
+    (wL : L) :
+    @assert_ltr_congruence L S -> 
+    @check_ltr_left_cancellative L S -> 
+    @check_ltr_is_right L S ->
+    @left_transform_certificates L (with_constant S).
+  Proof.
+    intros Ha Hb Hc.
+    refine
+    {|
+      left_transform_congruence  := ltr_add_ann_congruence_cert Ha
+    ; left_transform_is_right_d  := ltr_add_ann_is_right_certs Hc 
+    ; left_transform_left_constant_d :=  (Certify_Ltr_Not_Left_Constant  (wL, (inl c, inr wS)))
+    ; left_transform_left_cancellative_d := ltr_add_ann_left_cancellative_certs Hb
+    |}.
+  Defined.
+  
+
 
 
 
