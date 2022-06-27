@@ -465,7 +465,42 @@ Section Verify.
       ++ reflexivity.
       ++ destruct H, x, p, y; cbn.
          reflexivity.
-  Qed.    
+  Qed.
+  
+  
+  Lemma correct_ltr_transform_ann_add 
+    {L S : Type}
+    (c : cas_constant)
+    (Hl : A_left_transform L S) : 
+    A2C_left_transform L (with_constant S) 
+      (A_ltr_add_ann Hl c) = 
+    ltr_add_ann c 
+    (A_eqv_witness S (A_left_transform_carrier L S Hl))
+    (A_eqv_witness L (A_left_transform_label L S Hl))
+    (A2C_left_transform L S Hl).
+  Proof.
+    unfold A2C_left_transform,
+    ltr_add_ann; 
+    destruct Hl; simpl.
+    f_equal.
+    + rewrite correct_eqv_add_constant.
+      f_equal.
+    + destruct A_left_transform_exists_id_d as [H | H];
+      cbn.
+      ++ destruct H; reflexivity.
+      ++ reflexivity.
+    + apply correct_ltr_certs_add_ann.
+  Qed.
+  
+End Verify.
+
+
+  
+
+
+    
+    
+
      
 
 
