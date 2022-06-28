@@ -507,7 +507,7 @@ Section Verify.
     A2C_left_transform L (with_constant S) 
       (A_ltr_add_ann c Hl) = 
     ltr_add_ann c
-    (A2C_left_transform L S Hl).
+      (A2C_left_transform L S Hl).
   Proof.
     unfold A2C_left_transform,
     ltr_add_ann; 
@@ -522,26 +522,6 @@ Section Verify.
     + apply correct_ltr_certs_add_ann.
   Qed.
 
-  
-  (*
-  
-   Definition A_mcas_ltr_add_ann {L S : Type}
-    (Hl : A_ltr_mcas L S) (c : cas_constant) :=
-    match Hl with 
-    | A_MCAS_ltr_Error _ _ err =>  A_MCAS_ltr_Error _ _ err
-    | A_MCAS_ltr _ _ Hlt =>  @A_MCAS_ltr L (with_constant S) (A_ltr_add_ann c Hlt)
-    end.
-
-    Definition mcas_ltr_add_ann {L S : Type}
-    (Hl : @ltr_mcas L S) (c : cas_constant) :=
-    match Hl with 
-    | @MCAS_ltr_Error _ _ err =>  @MCAS_ltr_Error _ _ err
-    | @MCAS_ltr _ _ Hlt =>  @MCAS_ltr L (with_constant S) (ltr_add_ann c Hlt)
-    end.
-
-  
-  
-  *)
 
   
   Lemma correct_mcas_ltr_add_ann {L S : Type} 
