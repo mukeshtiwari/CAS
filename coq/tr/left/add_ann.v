@@ -323,11 +323,18 @@ End ACAS.
 
 Section AMCAS.
 
-  
+  Definition A_mcas_ltr_add_ann {L S : Type}
+    (Hl : A_ltr_mcas L S) (c : cas_constant) :=
+    match Hl with 
+    | A_MCAS_ltr_Error _ _ err =>  A_MCAS_ltr_Error _ _ err
+    | A_MCAS_ltr _ _ Hlt =>  @A_MCAS_ltr L (with_constant S) (A_ltr_add_ann c Hlt)
+    end.
+
+  (* 
   Definition A_mcas_ltr_add_ann {L S : Type}
     (Hl : A_left_transform L S) (c : cas_constant) := 
     @A_MCAS_ltr L (with_constant S) (A_ltr_add_ann c Hl).
-
+  *)
 
 End AMCAS.
 
@@ -442,11 +449,18 @@ End CAS.
 
 Section MCAS.
 
+  Definition mcas_ltr_add_ann {L S : Type}
+    (Hl : @ltr_mcas L S) (c : cas_constant) :=
+    match Hl with 
+    | @MCAS_ltr_Error _ _ err =>  @MCAS_ltr_Error _ _ err
+    | @MCAS_ltr _ _ Hlt =>  @MCAS_ltr L (with_constant S) (ltr_add_ann c Hlt)
+    end.
   
+  (* 
   Definition mcas_ltr_add_ann {L S : Type}
     (Hl : left_transform L S) (c : cas_constant)  := 
     @MCAS_ltr L (with_constant S) (ltr_add_ann c Hl).
-
+  *)
 
 End MCAS.
 
@@ -509,18 +523,38 @@ Section Verify.
   Qed.
 
   
+  (*
+  
+   Definition A_mcas_ltr_add_ann {L S : Type}
+    (Hl : A_ltr_mcas L S) (c : cas_constant) :=
+    match Hl with 
+    | A_MCAS_ltr_Error _ _ err =>  A_MCAS_ltr_Error _ _ err
+    | A_MCAS_ltr _ _ Hlt =>  @A_MCAS_ltr L (with_constant S) (A_ltr_add_ann c Hlt)
+    end.
 
+    Definition mcas_ltr_add_ann {L S : Type}
+    (Hl : @ltr_mcas L S) (c : cas_constant) :=
+    match Hl with 
+    | @MCAS_ltr_Error _ _ err =>  @MCAS_ltr_Error _ _ err
+    | @MCAS_ltr _ _ Hlt =>  @MCAS_ltr L (with_constant S) (ltr_add_ann c Hlt)
+    end.
+
+  
+  
+  *)
+
+  
   Lemma correct_mcas_ltr_add_ann {L S : Type} 
-    (Hl : A_left_transform L S) (c : cas_constant) :
+    (Hl : A_ltr_mcas L S) (c : cas_constant) :
     @A2C_mcas_ltr L (with_constant S) (A_mcas_ltr_add_ann Hl c) = 
-    @mcas_ltr_add_ann L _
-      (A2C_left_transform _ _ Hl) c.
+    @mcas_ltr_add_ann L _ (A2C_mcas_ltr _ _ Hl) c.
   Proof.
     unfold A_mcas_ltr_add_ann, 
-    mcas_ltr_add_ann.
-    rewrite <-correct_ltr_transform_ann_add.
+    mcas_ltr_add_ann;
     destruct Hl; simpl.
-    f_equal.
+    + reflexivity.
+    + rewrite <-correct_ltr_transform_ann_add.
+      f_equal.
   Qed.
 
 
