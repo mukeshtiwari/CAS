@@ -93,6 +93,7 @@ CAS=\
    coq/tr/left/insert.v \
    coq/tr/left/lift.v \
    coq/tr/left/product.v \
+   coq/tr/left/add_ann.v  \
    coq/bs/properties.v \
    coq/bs/structures.v \
    coq/bs/theory.v \

@@ -12,6 +12,11 @@ Require Import CAS.coq.sg.lift.
 Require Import CAS.coq.sg.union. 
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
+Require Import Coq.Lists.List.
+Require Import Coq.Strings.String.
+
+Open Scope string_scope.
+Import ListNotations.
 
 Open Scope list.
 
@@ -286,7 +291,7 @@ let ltr_cong := A_left_transform_congruence _ _ _ _ _ ltrP in
                         end
 ; A_left_transform_exists_ann_d := inl (ltr_lift_exists_ann L S eqS ltr)
 ; A_left_transform_proofs       := ltr_lift_proofs L S eqL eqS wL wS ltr eqvLP eqvSP ltrP 
-; A_left_transform_ast          := Ast_ltr_lift (A_left_transform_ast _ _ A) 
+; A_left_transform_ast          := Cas_ast ("A_left_transform_lift", [])  (*Ast_ltr_lift (A_left_transform_ast _ _ A)*) 
 |}.
 
 End ACAS.
@@ -327,7 +332,7 @@ let wL   := eqv_witness (left_transform_label _ _ A) in
                       end 
 ; left_transform_exists_ann_d := Certify_Ltr_Exists_Ann nil 
 ; left_transform_certs        := ltr_lift_certs wL wS (left_transform_certs _ _ A) 
-; left_transform_ast          := Ast_ltr_lift (left_transform_ast _ _ A) 
+; left_transform_ast          := Cas_ast ("A_left_transform_lift", []) (*Ast_ltr_lift (left_transform_ast _ _ A)*) 
 |}.
   
 

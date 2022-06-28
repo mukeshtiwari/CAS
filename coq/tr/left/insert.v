@@ -10,6 +10,12 @@ Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.or. 
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
+Require Import Coq.Lists.List.
+Require Import Coq.Strings.String.
+
+
+Open Scope string_scope.
+Import ListNotations.
 
 Open Scope list.
 
@@ -156,7 +162,7 @@ let trn := A_eqv_transitive _ _ eqvP in
                         | inr nfin => inr (ltr_insert_not_exists_ann S eq ref sym trn nfin)
                         end 
 ; A_left_transform_proofs       := ltr_insert_proofs S eq wS f nt eqvP 
-; A_left_transform_ast          := Ast_ltr_insert (A_eqv_ast S eqv) 
+; A_left_transform_ast          := Cas_ast ("A_left_transform_insert", [])  (* Ast_ltr_insert (A_eqv_ast S eqv) *)
 |}.
 
 End ACAS.
@@ -186,7 +192,7 @@ Definition left_transform_insert {S : Type} (eqv : @eqv S) :=
                         | Certify_Is_Not_Finite => Certify_Ltr_Not_Exists_Ann 
                         end 
 ; left_transform_certs        := ltr_insert_certs (eqv_witness eqv) (eqv_new eqv) 
-; left_transform_ast          := Ast_ltr_insert (eqv_ast eqv) 
+; left_transform_ast          := Cas_ast ("A_left_transform_insert", []) (*Ast_ltr_insert (eqv_ast eqv)*) 
 |}.
   
 
