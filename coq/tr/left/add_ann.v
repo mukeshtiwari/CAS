@@ -24,7 +24,6 @@ Import ListNotations.
 
 Section Computation.
 
-
 Definition ltr_add_ann_op {L S : Type} : 
   ltr_type L S -> cas_constant -> ltr_type L (cas_constant + S) :=
   λ ltr c l s, 
@@ -285,8 +284,8 @@ Section ACAS.
 
   Lemma A_ltr_add_ann 
     {L S : Type}
-    (Hl : A_left_transform L S)
-    (c : cas_constant) : 
+    (c : cas_constant)
+    (Hl : A_left_transform L S) : 
     A_left_transform L (with_constant S).
   Proof.
     refine 
@@ -321,6 +320,16 @@ Section ACAS.
 
 End ACAS.
 
+
+Section AMCAS.
+
+  
+  Definition A_mcas_ltr_add_ann {L S : Type}
+    (Hl : A_left_transform L S) (c : cas_constant) := 
+    @A_MCAS_ltr L (with_constant S) (A_ltr_add_ann c Hl).
+
+
+End AMCAS.
 
 Section Certificate.
 
@@ -404,13 +413,10 @@ Section CAS.
     |}.
   Defined.
   
-
-
+  
   Lemma ltr_add_ann 
     {L S : Type}
     (c : cas_constant)
-    (wS : S)
-    (wL : L) 
     (Hl : left_transform L S) : 
     left_transform L (with_constant S).
   Proof.
@@ -423,14 +429,26 @@ Section CAS.
           ltr_add_ann_exists_id_certs (left_transform_exists_id_d _ _ Hl)  
       ; left_transform_exists_ann_d := Certify_Ltr_Exists_Ann (inl c)
       ; left_transform_certs  := 
-        @ltr_add_ann_certs _ _ c wS wL (left_transform_certs _ _ Hl) 
+        @ltr_add_ann_certs _ _ c 
+        (eqv_witness (left_transform_carrier _ _ Hl)) 
+        (eqv_witness (left_transform_label L S Hl)) (left_transform_certs _ _ Hl) 
       ; left_transform_ast := Cas_ast ("A_left_transform_with_constant", 
         [left_transform_ast _ _ Hl])
-    |}.  
+    |}.
   Defined.
 
 
 End CAS. 
+
+Section MCAS.
+
+  
+  Definition mcas_ltr_add_ann {L S : Type}
+    (Hl : left_transform L S) (c : cas_constant)  := 
+    @MCAS_ltr L (with_constant S) (ltr_add_ann c Hl).
+
+
+End MCAS.
 
 Section Verify.
  
@@ -473,10 +491,8 @@ Section Verify.
     (c : cas_constant)
     (Hl : A_left_transform L S) : 
     A2C_left_transform L (with_constant S) 
-      (A_ltr_add_ann Hl c) = 
-    ltr_add_ann c 
-    (A_eqv_witness S (A_left_transform_carrier L S Hl))
-    (A_eqv_witness L (A_left_transform_label L S Hl))
+      (A_ltr_add_ann c Hl) = 
+    ltr_add_ann c
     (A2C_left_transform L S Hl).
   Proof.
     unfold A2C_left_transform,
@@ -491,8 +507,28 @@ Section Verify.
       ++ reflexivity.
     + apply correct_ltr_certs_add_ann.
   Qed.
+
+  
+
+  Lemma correct_mcas_ltr_add_ann {L S : Type} 
+    (Hl : A_left_transform L S) (c : cas_constant) :
+    @A2C_mcas_ltr L (with_constant S) (A_mcas_ltr_add_ann Hl c) = 
+    @mcas_ltr_add_ann L _
+      (A2C_left_transform _ _ Hl) c.
+  Proof.
+    unfold A_mcas_ltr_add_ann, 
+    mcas_ltr_add_ann.
+    rewrite <-correct_ltr_transform_ann_add.
+    destruct Hl; simpl.
+    f_equal.
+  Qed.
+
+
+  
   
 End Verify.
+
+
 
 
   
