@@ -5,6 +5,12 @@ Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
+Require Import Coq.Lists.List.
+Require Import Coq.Strings.String.
+
+
+Open Scope string_scope.
+Import ListNotations.
 
 Require Import CAS.coq.theory.set. 
 
@@ -113,7 +119,7 @@ let trn := A_eqv_transitive _ _ eqvP in
 ; A_left_transform_exists_id_d  := inr(ltr_singleton_not_exists_id S eq) 
 ; A_left_transform_exists_ann_d := inr(ltr_singleton_not_exists_ann S eq wS f nt ref sym trn) 
 ; A_left_transform_proofs       := ltr_singleton_proofs S eq wS f nt eqvP 
-; A_left_transform_ast          := Ast_ltr_singleton (A_eqv_ast S eqv) 
+; A_left_transform_ast          := Cas_ast ("A_left_transform_singleton", []) (*Ast_ltr_singleton (A_eqv_ast S eqv) *)
 |}.
 
 End ACAS.
@@ -137,7 +143,7 @@ Definition left_transform_singleton {S : Type} (eqv : @eqv S) :=
 ; left_transform_exists_id_d  := Certify_Ltr_Not_Exists_Id
 ; left_transform_exists_ann_d := Certify_Ltr_Not_Exists_Ann 
 ; left_transform_certs        := ltr_singleton_certs (eqv_witness eqv) (eqv_new eqv) 
-; left_transform_ast          := Ast_ltr_singleton (eqv_ast eqv) 
+; left_transform_ast          := Cas_ast ("A_left_transform_singleton", []) (*Ast_ltr_singleton (eqv_ast eqv)*)
 |}.
   
 

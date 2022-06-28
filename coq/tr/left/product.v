@@ -6,6 +6,10 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.tr.properties.
 Require Import CAS.coq.tr.structures.
+Require Import Coq.Lists.List.
+Require Import Coq.Strings.String.
+Open Scope string_scope.
+Import ListNotations.
 
 
 Definition ltr_product :
@@ -266,7 +270,7 @@ Definition ltr_product_proofs
 End Proofs.   
 
 Section Combinators.
-  
+  Locate Ast_ltr_product.
 Definition A_left_transform_product {L L' S S' : Type} (A : A_left_transform L S) (B : A_left_transform L' S') : A_left_transform (L * L') (S * S') :=
   let eqvS := A_left_transform_carrier _ _ A in
   let eqS := A_eqv_eq _ eqvS in
@@ -296,7 +300,9 @@ Definition A_left_transform_product {L L' S S' : Type} (A : A_left_transform L S
                                                                     (A_left_transform_exists_ann_d _ _ A) (A_left_transform_exists_ann_d _ _ B)
 ; A_left_transform_proofs       := ltr_product_proofs L S L' S' eqS eqL wS wL ltrA refS eqS' eqL' wS' wL' ltrB refS'
                                                       (A_left_transform_proofs _ _ A) (A_left_transform_proofs _ _ B)
-; A_left_transform_ast          := Ast_ltr_product (A_left_transform_ast _ _ A, A_left_transform_ast _ _ B) 
+; A_left_transform_ast          := Cas_ast ("A_left_transform_product", 
+    [A_left_transform_ast _ _ A; A_left_transform_ast _ _ B])
+  (* Ast_ltr_product (A_left_transform_ast _ _ A, A_left_transform_ast _ _ B) *)
 |}.
 
 
@@ -411,7 +417,7 @@ end.
 
 
 Section Combinators.
-  Check ltr_product_certs. 
+ 
 Definition left_transform_product {L L' S S' : Type} (A : @left_transform L S) (B : @left_transform L' S') : @left_transform (L * L') (S * S') :=
   let eqvS := left_transform_carrier _ _ A in
   let wS := eqv_witness eqvS in
@@ -430,7 +436,9 @@ Definition left_transform_product {L L' S S' : Type} (A : @left_transform L S) (
 ; left_transform_exists_id_d  := ltr_product_exists_id_certifiable (left_transform_exists_id_d _ _ A) (left_transform_exists_id_d _ _ B)
 ; left_transform_exists_ann_d := ltr_product_exists_ann_certifiable (left_transform_exists_ann_d  _ _ A) (left_transform_exists_ann_d _ _ B)
 ; left_transform_certs        := ltr_product_certs wS wL  (left_transform_certs _ _ A) wS' wL' (left_transform_certs _ _ B)
-; left_transform_ast          := Ast_ltr_product (left_transform_ast _ _ A, left_transform_ast _ _ B) 
+; left_transform_ast          := Cas_ast ("A_left_transform_product", 
+    [left_transform_ast _ _ A; left_transform_ast _ _ B])
+  (* Ast_ltr_product (left_transform_ast _ _ A, left_transform_ast _ _ B) *)
 |}.
 
 End Combinators.

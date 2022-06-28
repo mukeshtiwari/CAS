@@ -80,6 +80,8 @@ Require Import CAS.coq.st.left.min_plus_one.
 Require Import CAS.coq.st.left.llex_product.
 Require Import CAS.coq.st.left.union_insert. 
 
+(* from coq/tr/left*)
+Require Import CAS.coq.tr.left.add_ann.
 
 (*Require Import CAS.coq.algorithm.Mat.
 Require Import CAS.coq.algorithm.wrapper. *) 
@@ -243,5 +245,7 @@ Extraction "Cas.ml"
    *)
 (* semigroup left transform *)
 mcas_slt_llex_product
-slt_min_plus_one. 
+slt_min_plus_one
+(* transform tr/left *)
+mcas_ltr_add_ann.
 
