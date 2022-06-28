@@ -1,11 +1,66 @@
+(*
+Approach 1
+----------
+union_insert eqv SELF
+
+(inr X) + (inr Y) = inr (X union Y)
+(inl SELF) + _    = (inl SELF)
+
+x |> inr X    = inr ({x} union X) 
+x |> inl SELF = inr {x} 
+
++id  = inr {}
++ann = inl SELF
+
+problem: not distributive 
+
+lhs = x |> (inl SELF) + (inr X) 
+    = x |> (inl SELF) 
+    = inr {x} 
+
+rhs = (x |> (inl SELF)) + (x |> (inr X)) 
+    = inr {x} union' inr ({x} union X)
+    = inr ({x} union X)
+
+Approach 2
+----------
+start with distributive 
+
+x |> X = {x} union X
+(+) = union
+
+(+)-id = {} 
+
+note : x |> {} = {x} 
+
+So, {} could be read as "self". However, 
+such a best value should be the (+) annahilator, not the id. 
+
+Add a double ann now. 
+
+(inl SELF) + _    = (inl SELF)
+
+but 
+
+x |> inl SELF = inl SELF
+
+which is not correct. 
+
+Approach 3
+----------
+
+*) 
 Require Import Coq.Strings.String.
 Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures. 
-Require Import CAS.coq.eqv.set. 
+Require Import CAS.coq.eqv.set.
+Require Import CAS.coq.eqv.add_constant.
+Require Import CAS.coq.eqv.sum. 
 Require Import CAS.coq.sg.union.
-Require Import CAS.coq.sg.cast_up. 
+Require Import CAS.coq.sg.cast_up.
+Require Import CAS.coq.sg.add_ann. 
 Require Import CAS.coq.tr.left.insert.
 Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.union_union. 
@@ -15,6 +70,7 @@ Require Import CAS.coq.st.structures.
 Section Theory.
 
 Variables (S : Type)
+          (c : cas_constant) 
           (wS : S)   
           (eq : brel S)
           (f : S -> S)
@@ -23,27 +79,61 @@ Variables (S : Type)
           (sym : brel_symmetric S eq)
           (trn : brel_transitive S eq). 
 
-Lemma slt_union_insert_distributive : @slt_distributive S (finite_set S) (brel_set eq) (bop_union eq) (ltr_insert eq).
-Proof. intros s X Y. unfold slt_distributive, ltr_insert.
-       apply bops_union_union_left_distributive; auto. 
-Qed. 
+
+Lemma slt_union_insert_not_distributive :
+  @slt_not_distributive S
+                    (with_constant (finite_set S))
+                    (brel_sum brel_constant (brel_set eq))
+                    (bop_add_ann (bop_union eq) c) 
+                    (ltr_insert eq).
+Proof. exists (wS, (inl c, inr ((f wS) :: nil))); simpl. 
+       case_eq(brel_set eq (wS :: nil)
+                        (bop_union eq (wS :: nil)
+                                   (bop_union eq (wS :: nil) (f wS :: nil)))); intro A; auto.
+       apply brel_set_elim_prop in A; auto.
+       destruct A as [A B]. 
+       assert (C : set.in_set eq (bop_union eq (wS :: nil) (bop_union eq (wS :: nil) (f wS :: nil))) (f wS) = true).
+          apply in_set_bop_union_intro; auto.
+          right. apply in_set_bop_union_intro; auto.
+          right. compute. rewrite ref. reflexivity.
+       assert (D := B _ C). compute in D.
+       destruct (nt wS) as [L R].
+       rewrite R in D. discriminate D. 
+Defined. 
 
 Lemma slt_union_insert_not_absorptive : 
-       @slt_not_absorptive S (finite_set S) (brel_set eq) (bop_union eq) (ltr_insert eq).
-Proof. exists (wS, nil). compute. reflexivity. Defined. 
+  @slt_not_absorptive S
+                    (with_constant (finite_set S))
+                    (brel_sum brel_constant (brel_set eq))
+                    (bop_add_ann (bop_union eq) c) 
+                    (ltr_insert eq).
+Proof. exists (wS, inr nil). compute. reflexivity. Defined. 
 
 Lemma slt_union_insert_not_strictly_absorptive : 
-       @slt_not_strictly_absorptive S (finite_set S) (brel_set eq) (bop_union eq) (ltr_insert eq).
-Proof. exists (wS, nil). left. compute. reflexivity. Defined. 
+  @slt_not_strictly_absorptive S
+                    (with_constant (finite_set S))
+                    (brel_sum brel_constant (brel_set eq))
+                    (bop_add_ann (bop_union eq) c) 
+                    (ltr_insert eq).
+Proof. exists (wS, inr nil). left. compute. reflexivity. Defined. 
 
 Lemma slt_union_insert_exists_id_ann_decide (fin_d : carrier_is_finite_decidable S eq) : 
-     @slt_exists_id_ann_decidable S (finite_set S) (brel_set eq) (bop_union eq) (ltr_insert eq).
+  @slt_exists_id_ann_decidable S
+                               (with_constant (finite_set S))
+                               (brel_sum brel_constant (brel_set eq))
+                               (bop_add_ann (bop_union eq) c) 
+                               (ltr_insert eq).
 Proof. destruct fin_d as [finP | nfinP].
-       + assert (A : @slt_exists_id_ann_not_equal S (finite_set S) (brel_set eq) (bop_union eq) (ltr_insert eq)).
-            exists (nil, (projT1 finP) tt). split. split. 
-            apply bop_union_nil_is_id; auto. 
-            apply ltr_insert_enum_is_ann; auto.
-            case_eq(brel_set eq nil (projT1 finP tt)); intro B; auto.
+       + assert (A : @slt_exists_id_ann_not_equal S
+                                                  (with_constant (finite_set S))
+                                                  (brel_sum brel_constant (brel_set eq))
+                                                  (bop_add_ann (bop_union eq) c) 
+                                                  (ltr_insert eq)).
+         exists (inr nil, inr ((projT1 finP) tt)); simpl. split. split.
+         apply bop_add_ann_is_id. 
+         apply bop_union_nil_is_id; auto. 
+         apply ltr_insert_enum_is_ann; auto.
+         case_eq(brel_set eq nil (projT1 finP tt)); intro B; auto.
             destruct finP as [enum P]. unfold projT1 in B.
             assert (C := P wS).
             apply brel_set_elim_prop in B;auto. destruct B as [B1 B2].
@@ -51,8 +141,8 @@ Proof. destruct fin_d as [finP | nfinP].
             compute in D. discriminate D.
          exact (@SLT_Id_Ann_Proof_Not_Equal _ _ _ _ _ A). 
        + exact (@SLT_Id_Ann_Proof_Id_None _ _ _ _ _ 
-                   (bop_union_exists_id S eq ref sym trn,
-                    ltr_insert_not_exists_ann S eq ref sym trn nfinP)).
+                   (bop_add_ann_exists_id _ _ c (bop_union eq) (bop_union_exists_id S eq ref sym trn), 
+                    ltr_insert_not_exists_ann S eq wS ref sym trn nfinP)).
 Defined.          
 
 
@@ -60,7 +150,7 @@ End Theory.
 
 Section ACAS.
 
-
+(*
 Definition union_insert_left_semiring_proofs (S : Type) (eq : brel S) (wS : S) (eqvP : eqv_proofs S eq) :=
 let ref := A_eqv_reflexive _ _ eqvP in
 let sym := A_eqv_symmetric _ _ eqvP in
@@ -234,3 +324,4 @@ Proof. destruct eqvS; simpl.
 Qed.  
 
 End Verify.   
+*) 
