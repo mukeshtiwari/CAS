@@ -5,6 +5,7 @@ Require Import CAS.coq.common.compute.
 Require Import CAS.coq.eqv.properties. 
 Require Import CAS.coq.eqv.set. 
 Require Import CAS.coq.eqv.add_constant.
+Require Import CAS.coq.common.ast.
 
 Require Import CAS.coq.tr.left.from_sg.
 Require Import CAS.coq.bs.properties. 
@@ -15,6 +16,8 @@ Require Import CAS.coq.sg.add_ann.
 Require Import CAS.coq.sg.cast_up. 
 Require Import CAS.coq.tr.left.add_ann.
 
+Require Import List. 
+Import ListNotations.
 
 Section Theory.
 
@@ -33,31 +36,73 @@ End Decide.
 
 Section Proofs. 
 
-  Lemma slt_add_ann_proof 
-      {L S : Type} (c : cas_constant) 
-      (r : brel S) (bop : binary_op S)
-      (ltr : ltr_type L S) :
-      slt_proofs r bop ltr ->
-      slt_proofs (sum.brel_sum brel_constant r) 
+  Lemma slt_add_ann_distributive_decidable 
+    {L S : Type} (c : cas_constant) 
+    (r : brel S) (bop : binary_op S)
+    (ltr : ltr_type L S) :
+    slt_distributive_decidable r bop ltr ->
+    slt_distributive_decidable 
+      (sum.brel_sum brel_constant r) 
       (bop_add_id bop c) 
       (ltr_add_ann_op ltr c).
   Proof.
-    intros [[Hd | Hnd] [Ha | Hna] [Hsa | Hnsa]].
-    econstructor.
-    left.
-    intros ? [Ht | Ht] [Hu | Hu];
-    simpl; try reflexivity.
-    admit.
-    admit.
-    apply Hd.
+
   Admitted.
 
+
+  Lemma slt_add_ann_absorptive_decidable 
+    {L S : Type} (c : cas_constant) 
+    (r : brel S) (bop : binary_op S)
+    (ltr : ltr_type L S) :
+    slt_absorptive_decidable r bop ltr ->
+    slt_absorptive_decidable 
+      (sum.brel_sum brel_constant r) 
+      (bop_add_id bop c) 
+      (ltr_add_ann_op ltr c).
+    Admitted.
+    
+  Lemma slt_add_ann_strictly_absorptive_decidable 
+    {L S : Type} (c : cas_constant) 
+    (r : brel S) (bop : binary_op S)
+    (ltr : ltr_type L S) :
+    slt_strictly_absorptive_decidable r bop ltr ->
+    slt_strictly_absorptive_decidable 
+      (sum.brel_sum brel_constant r)
+      (bop_add_id bop c) 
+      (ltr_add_ann_op ltr c).
+  Admitted.
+
+
+
+
+
+
+
+  Lemma slt_add_ann_proof 
+    {L S : Type} (c : cas_constant) 
+    (r : brel S) (bop : binary_op S)
+    (ltr : ltr_type L S) :
+    slt_proofs r bop ltr ->
+    slt_proofs (sum.brel_sum brel_constant r) 
+    (bop_add_id bop c) 
+    (ltr_add_ann_op ltr c).
+  Proof.
+    intros [Ha Hb Hc].
+    econstructor.
+    + apply slt_add_ann_distributive_decidable;
+      try assumption.
+    + apply slt_add_ann_absorptive_decidable;
+      try assumption.
+    + apply slt_add_ann_strictly_absorptive_decidable; 
+      try assumption.
+  Qed.
 
 End Proofs.
 
 Section Combinators.
 
-  Definition A_slt_add_zero {L S : Type} (A : @A_slt L S) (c : cas_constant) :
+  Definition A_slt_add_zero {L S : Type} 
+    (A : @A_slt L S) (c : cas_constant) :
     @A_slt L (with_constant S).
   Proof.
     refine 
@@ -83,7 +128,7 @@ Section Combinators.
          (A_slt_exists_plus_ann_d A)                                  
       ; A_slt_id_ann_proofs_d  := _                                               
       ; A_slt_proofs := _                                 
-      ; A_slt_ast := _  
+      ; A_slt_ast :=  Cas_ast ("A_slt_add_zero", [A_slt_ast A])
     |}.
     apply SLT_Id_Ann_Proof_Equal.
     exists (inl c); simpl.
@@ -92,10 +137,9 @@ Section Combinators.
     exact (structures.A_eqv_reflexive _ _ 
       (structures.A_eqv_proofs _ (A_slt_carrier A))).
     intros ?; reflexivity.
-
-    destruct A; simpl in * |- *.
-    destruct A_slt_carrier; simpl in * |- *.
-    Print slt_proofs.
+    apply slt_add_ann_proof.
+    exact (A_slt_proofs A).
+  Defined.    
 
 
 
