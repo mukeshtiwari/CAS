@@ -932,6 +932,31 @@ End Certificates.
 
 Section Combinators.
 
+  Definition slt_add_zero {L S : Type} 
+    (A : @slt L S) (c : cas_constant) :
+    @slt L (with_constant S).
+  Proof.
+    refine 
+    {|
+        slt_carrier := eqv_add_constant (slt_carrier A) c
+      ; slt_label  := slt_label A
+      ; slt_plus  := bop_add_id (slt_plus A) c                                        
+      ; slt_trans  := ltr_add_ann_op (slt_trans A) c
+      ; slt_plus_certs := sg_certs_add_id c
+          (structures.eqv_witness (slt_carrier A))
+          (structures.eqv_new (slt_carrier A))
+          (slt_plus_certs A)    
+      ; slt_trans_certs := ltr_add_ann_certs c 
+          (structures.eqv_witness (slt_carrier A))
+          (structures.eqv_witness (slt_label A))
+          (slt_trans_certs A)
+      ; slt_exists_plus_ann_d := @bop_add_id_exists_ann_check S 
+          (slt_exists_plus_ann_d A)                          
+      ; slt_id_ann_certs_d  := Certify_SLT_Id_Ann_Proof_Equal (inl c)                                              
+      ; slt_certs := slt_add_ann_certificate (slt_certs A)                          
+      ; slt_ast :=  Cas_ast ("A_slt_add_zero", [slt_ast A])
+    |}.
+  Defined.
 
 
 
