@@ -168,6 +168,31 @@ Section Proofs.
   Qed.
   
 
+  Lemma left_semiring_add_ann_proofs :
+    left_semiring_proofs r bop ltr ->
+    left_semiring_proofs (sum.brel_sum brel_constant r)
+      (bop_add_id bop c) (ltr_add_ann_op ltr c).
+  Proof.
+    intros [Ha Hb].
+    econstructor.
+    + unfold slt_distributive in * |- *.
+      intros ? [t | t] [u | u];
+      simpl.
+      ++ reflexivity.
+      ++ destruct eqv_s; simpl in *.
+         apply A_eqv_reflexive.
+      ++ destruct eqv_s; simpl in *.
+         apply A_eqv_reflexive.
+      ++ apply Ha;
+         try assumption.
+    + unfold slt_not_absorptive in * |- *.
+      destruct Hb as ((au, bu) & H).
+      exists (au, inr bu);
+      simpl.
+      exact H.
+  Qed.
+
+
 End Proofs.
 
 Section Combinators.
@@ -444,6 +469,228 @@ Section Combinators.
       (structures.A_eqv_proofs _ (A_selective_left_pre_dioid_carrier A))).
     intros ?; reflexivity.
   Defined.
+
+
+   Definition A_selective_left_dioid_add_zero {L S : Type} 
+    (A : @A_selective_left_dioid L S) (c : cas_constant) :
+    @A_selective_left_dioid L (with_constant S).
+  Proof.
+    refine
+    {|
+        A_selective_left_dioid_carrier  := 
+          A_eqv_add_constant S (A_selective_left_dioid_carrier A) c
+      ; A_selective_left_dioid_label := 
+         A_selective_left_dioid_label A
+      ; A_selective_left_dioid_plus :=  
+          bop_add_id (A_selective_left_dioid_plus A) c                                           
+      ; A_selective_left_dioid_trans  := 
+          ltr_add_ann_op (A_selective_left_dioid_trans A) c 
+      ; A_selective_left_dioid_plus_proofs  := 
+          sg_CS_proofs_add_id S _ c _ 
+          (structures.A_eqv_witness _ (A_selective_left_dioid_carrier A))
+          (structures.A_eqv_proofs _ (A_selective_left_dioid_carrier A)) 
+          (A_selective_left_dioid_plus_proofs A)      
+      ; A_selective_left_dioid_trans_proofs := 
+          A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_selective_left_dioid_carrier A))
+          (structures.A_eqv_witness _ (A_selective_left_dioid_label A))
+          _ _ _ (A_selective_left_dioid_trans_proofs A) 
+      ; A_selective_left_dioid_exists_plus_ann := 
+          bop_add_id_exists_ann S
+         (A_eqv_eq S (A_selective_left_dioid_carrier A)) c
+         (A_selective_left_dioid_plus A)
+         (A_eqv_reflexive S
+            (A_eqv_eq S (A_selective_left_dioid_carrier A))
+            (A_eqv_proofs S (A_selective_left_dioid_carrier A)))
+         (A_selective_left_dioid_exists_plus_ann A)
+      ; A_selective_left_dioid_id_ann_proofs := _                        
+      ; A_selective_left_dioid_proofs :=  
+          left_dioid_add_ann_proof c
+         (A_eqv_witness L (A_selective_left_dioid_label A))
+         (A_eqv_eq S (A_selective_left_dioid_carrier A))
+         (A_selective_left_dioid_trans A)
+         (A_selective_left_dioid_plus A)
+         (A_eqv_proofs S (A_selective_left_dioid_carrier A))
+         (A_selective_left_dioid_proofs A)                                
+      ; A_selective_left_dioid_ast := 
+          Cas_ast ("A_selective_left_dioid_add_zero", 
+            [A_selective_left_dioid_ast A])
+    |}.
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_selective_left_dioid_carrier A))).
+    intros ?; reflexivity.
+  Defined.
+
+  Definition A_left_dioid_add_zero {L S : Type} 
+    (A : @A_left_dioid L S) (c : cas_constant) :
+    @A_left_dioid L (with_constant S).
+  Proof.
+    refine
+    {|
+        A_left_dioid_carrier  := 
+          A_eqv_add_constant S (A_left_dioid_carrier A) c
+      ; A_left_dioid_label := 
+         A_left_dioid_label A
+      ; A_left_dioid_plus :=  
+          bop_add_id (A_left_dioid_plus A) c                                           
+      ; A_left_dioid_trans  := 
+          ltr_add_ann_op (A_left_dioid_trans A) c 
+      ; A_left_dioid_plus_proofs  := 
+          sg_CI_proofs_add_id S _ c _ 
+          (structures.A_eqv_witness _ (A_left_dioid_carrier A))
+          (structures.A_eqv_proofs _ (A_left_dioid_carrier A)) 
+          (A_left_dioid_plus_proofs A)      
+      ; A_left_dioid_trans_proofs := 
+          A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_left_dioid_carrier A))
+          (structures.A_eqv_witness _ (A_left_dioid_label A))
+          _ _ _ (A_left_dioid_trans_proofs A) 
+      ; A_left_dioid_exists_plus_ann := 
+          bop_add_id_exists_ann S
+         (A_eqv_eq S (A_left_dioid_carrier A)) c
+         (A_left_dioid_plus A)
+         (A_eqv_reflexive S
+            (A_eqv_eq S (A_left_dioid_carrier A))
+            (A_eqv_proofs S (A_left_dioid_carrier A)))
+         (A_left_dioid_exists_plus_ann A)
+      ; A_left_dioid_id_ann_proofs := _                        
+      ; A_left_dioid_proofs :=  
+          left_dioid_add_ann_proof c
+         (A_eqv_witness L (A_left_dioid_label A))
+         (A_eqv_eq S (A_left_dioid_carrier A))
+         (A_left_dioid_trans A)
+         (A_left_dioid_plus A)
+         (A_eqv_proofs S (A_left_dioid_carrier A))
+         (A_left_dioid_proofs A)                                
+      ; A_left_dioid_ast := 
+          Cas_ast ("A_left_dioid_add_zero", 
+            [A_left_dioid_ast A])
+    |}.
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_left_dioid_carrier A))).
+    intros ?; reflexivity.
+  Defined.
+
+  Definition A_left_pre_semring_add_zero {L S : Type} 
+    (A : @A_left_pre_semiring L S) (c : cas_constant) :
+    @A_left_pre_semiring L (with_constant S).
+  Proof.
+    refine
+    {|
+        A_left_pre_semiring_carrier   := 
+          A_eqv_add_constant S (A_left_pre_semiring_carrier A) c
+      ; A_left_pre_semiring_label   :=  
+          A_left_pre_semiring_label A
+      ; A_left_pre_semiring_plus   := 
+          bop_add_id (A_left_pre_semiring_plus A) c                                                
+      ; A_left_pre_semiring_trans  := 
+          ltr_add_ann_op (A_left_pre_semiring_trans A) c 
+      ; A_left_pre_semiring_plus_proofs := 
+          sg_C_proofs_add_id S _ c _ 
+          (structures.A_eqv_witness _ (A_left_pre_semiring_carrier A))
+          (structures.A_eqv_new _ (A_left_pre_semiring_carrier A))
+          (structures.A_eqv_not_trivial _ (A_left_pre_semiring_carrier A)) 
+          (structures.A_eqv_proofs _ (A_left_pre_semiring_carrier A)) 
+          (A_left_pre_semiring_plus_proofs A)                                 
+      ; A_left_pre_semiring_trans_proofs := 
+          A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_left_pre_semiring_carrier A))
+          (structures.A_eqv_witness _ (A_left_pre_semiring_label A))
+          _ _ _ (A_left_pre_semiring_trans_proofs A)
+      ; A_left_pre_semiring_exists_plus_ann_d :=
+          bop_add_id_exists_ann_decide S _ c _ 
+         (structures.A_eqv_witness _ (A_left_pre_semiring_carrier A))
+         (structures.A_eqv_reflexive _ _ 
+            (structures.A_eqv_proofs _ (A_left_pre_semiring_carrier A))) 
+         (A_left_pre_semiring_exists_plus_ann_d A)                          
+      ; A_left_pre_semiring_id_ann_proofs_d := _ 
+      ; A_left_pre_semiring_proofs :=
+          left_semiring_add_ann_proofs c
+         (A_eqv_eq S (A_left_pre_semiring_carrier A))
+         (A_left_pre_semiring_trans A) (A_left_pre_semiring_plus A)
+         (A_eqv_proofs S (A_left_pre_semiring_carrier A))
+         (A_left_pre_semiring_proofs A)
+      ; A_left_pre_semiring_ast := 
+          Cas_ast ("A_left_pre_semiring_add_zero", 
+            [A_left_pre_semiring_ast A])
+    |}.
+    apply SLT_Id_Ann_Proof_Equal.
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_left_pre_semiring_carrier A))).
+    intros ?; reflexivity.
+  Defined.
+
+
+  Definition A_left_semring_add_zero {L S : Type} 
+    (A : @A_left_semiring L S) (c : cas_constant) :
+    @A_left_semiring L (with_constant S).
+  Proof.
+    refine
+    {|
+        A_left_semiring_carrier   := 
+          A_eqv_add_constant S (A_left_semiring_carrier A) c
+      ; A_left_semiring_label   :=  
+          A_left_semiring_label A
+      ; A_left_semiring_plus   := 
+          bop_add_id (A_left_semiring_plus A) c                                                
+      ; A_left_semiring_trans  := 
+          ltr_add_ann_op (A_left_semiring_trans A) c 
+      ; A_left_semiring_plus_proofs := 
+          sg_C_proofs_add_id S _ c _ 
+          (structures.A_eqv_witness _ (A_left_semiring_carrier A))
+          (structures.A_eqv_new _ (A_left_semiring_carrier A))
+          (structures.A_eqv_not_trivial _ (A_left_semiring_carrier A)) 
+          (structures.A_eqv_proofs _ (A_left_semiring_carrier A)) 
+          (A_left_semiring_plus_proofs A)                                 
+      ; A_left_semiring_trans_proofs := 
+          A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_left_semiring_carrier A))
+          (structures.A_eqv_witness _ (A_left_semiring_label A))
+          _ _ _ (A_left_semiring_trans_proofs A)
+      ; A_left_semiring_exists_plus_ann_d :=
+          bop_add_id_exists_ann_decide S _ c _ 
+         (structures.A_eqv_witness _ (A_left_semiring_carrier A))
+         (structures.A_eqv_reflexive _ _ 
+            (structures.A_eqv_proofs _ (A_left_semiring_carrier A))) 
+         (A_left_semiring_exists_plus_ann_d A)                          
+      ; A_left_semiring_id_ann_proofs:= _ 
+      ; A_left_semiring_proofs :=
+          left_semiring_add_ann_proofs c
+         (A_eqv_eq S (A_left_semiring_carrier A))
+         (A_left_semiring_trans A) (A_left_semiring_plus A)
+         (A_eqv_proofs S (A_left_semiring_carrier A))
+         (A_left_semiring_proofs A)
+      ; A_left_semiring_ast := 
+          Cas_ast ("A_left_semiring_add_zero", 
+            [A_left_semiring_ast A])
+    |}.
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_left_semiring_carrier A))).
+    intros ?; reflexivity.
+  Defined.
+
+  
+
+  
+
+
+
+
+
+
+
 
 
 
