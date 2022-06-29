@@ -142,6 +142,32 @@ Section Proofs.
       try assumption.
   Qed.
 
+  Lemma left_dioid_add_ann_proof : 
+    left_dioid_proofs r bop ltr ->
+    left_dioid_proofs (sum.brel_sum brel_constant r)
+      (bop_add_id bop c) (ltr_add_ann_op ltr c).
+  Proof.
+    intros [Ha Hb Hc].
+    econstructor.
+    + unfold slt_distributive in * |- *.
+      intros ? [t | t] [u | u];
+      simpl.
+      ++ reflexivity.
+      ++ destruct eqv_s; simpl in *.
+        apply A_eqv_reflexive.
+      ++ destruct eqv_s; simpl in *.
+        apply A_eqv_reflexive.
+      ++ apply Ha;
+        try assumption.
+    + unfold slt_absorptive in * |- *.
+      intros ? [sa | sa].
+      ++ reflexivity.
+      ++ apply Hb; try assumption.
+    + apply slt_add_ann_strictly_absorptive_decidable; 
+      try assumption.
+  Qed.
+  
+
 End Proofs.
 
 Section Combinators.
@@ -229,7 +255,197 @@ Section Combinators.
     exact (structures.A_eqv_reflexive _ _ 
       (structures.A_eqv_proofs _ (A_slt_C_carrier A))).
     intros ?; reflexivity.
-  Qed.
+  Defined.
+
+  Definition A_slt_CS_add_zero {L S : Type} 
+    (A : @A_slt_CS L S) (c : cas_constant) :
+    @A_slt_CS L (with_constant S).
+  Proof.
+    refine
+    {|
+        A_slt_CS_carrier  := A_eqv_add_constant S (A_slt_CS_carrier A) c
+      ; A_slt_CS_label := A_slt_CS_label A
+      ; A_slt_CS_plus  := bop_add_id (A_slt_CS_plus A) c                                          
+      ; A_slt_CS_trans := ltr_add_ann_op (A_slt_CS_trans A) c 
+      ; A_slt_CS_plus_proofs  := sg_CS_proofs_add_id S _ c _ 
+        (structures.A_eqv_witness _ (A_slt_CS_carrier A))
+        (structures.A_eqv_proofs _ (A_slt_CS_carrier A)) 
+        (A_slt_CS_plus_proofs A)        
+      ; A_slt_CS_trans_proofs  := A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_slt_CS_carrier A))
+          (structures.A_eqv_witness _ (A_slt_CS_label A))
+          _ _ _ (A_slt_CS_trans_proofs A) 
+      ; A_slt_CS_exists_plus_ann_d := bop_add_id_exists_ann_decide S _ c _ 
+         (structures.A_eqv_witness _ (A_slt_CS_carrier A))
+         (structures.A_eqv_reflexive _ _ 
+            (structures.A_eqv_proofs _ (A_slt_CS_carrier A))) 
+         (A_slt_CS_exists_plus_ann_d A)                                   
+      ; A_slt_CS_id_ann_proofs_d  := _                                    
+      ; A_slt_CS_proofs := slt_add_ann_proof c (A_eqv_witness L (A_slt_CS_label A))
+         (A_eqv_eq S (A_slt_CS_carrier A)) (A_slt_CS_trans A) 
+         (A_slt_CS_plus A) (A_eqv_proofs S (A_slt_CS_carrier A)) 
+         (A_slt_CS_proofs A)                               
+      ; A_slt_CS_ast := Cas_ast ("A_slt_CS_add_zero", [A_slt_CS_ast A])
+    |}.
+    apply SLT_Id_Ann_Proof_Equal.
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_slt_CS_carrier A))).
+    intros ?; reflexivity.
+  Defined.
+    
+
+  Definition A_slt_CI_add_zero {L S : Type} 
+    (A : @A_slt_CI L S) (c : cas_constant) :
+    @A_slt_CI L (with_constant S).
+  Proof.
+    refine
+    {|
+        A_slt_CI_carrier  := A_eqv_add_constant S (A_slt_CI_carrier A) c
+      ; A_slt_CI_label := A_slt_CI_label A
+      ; A_slt_CI_plus  := bop_add_id (A_slt_CI_plus A) c                                          
+      ; A_slt_CI_trans := ltr_add_ann_op (A_slt_CI_trans A) c 
+      ; A_slt_CI_plus_proofs  := sg_CI_proofs_add_id S _ c _ 
+        (structures.A_eqv_witness _ (A_slt_CI_carrier A))
+        (structures.A_eqv_proofs _ (A_slt_CI_carrier A)) 
+        (A_slt_CI_plus_proofs A)        
+      ; A_slt_CI_trans_proofs  := A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_slt_CI_carrier A))
+          (structures.A_eqv_witness _ (A_slt_CI_label A))
+          _ _ _ (A_slt_CI_trans_proofs A) 
+      ; A_slt_CI_exists_plus_ann_d := bop_add_id_exists_ann_decide S _ c _ 
+         (structures.A_eqv_witness _ (A_slt_CI_carrier A))
+         (structures.A_eqv_reflexive _ _ 
+            (structures.A_eqv_proofs _ (A_slt_CI_carrier A))) 
+         (A_slt_CI_exists_plus_ann_d A)                                   
+      ; A_slt_CI_id_ann_proofs_d  := _                                    
+      ; A_slt_CI_proofs := slt_add_ann_proof c (A_eqv_witness L (A_slt_CI_label A))
+         (A_eqv_eq S (A_slt_CI_carrier A)) (A_slt_CI_trans A) 
+         (A_slt_CI_plus A) (A_eqv_proofs S (A_slt_CI_carrier A)) 
+         (A_slt_CI_proofs A)                               
+      ; A_slt_CI_ast := Cas_ast ("A_slt_CI_add_zero", [A_slt_CI_ast A])
+    |}.
+    apply SLT_Id_Ann_Proof_Equal.
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_slt_CI_carrier A))).
+    intros ?; reflexivity.
+  Defined.
+
+
+  Definition A_slt_C_zero_is_ltr_ann_add_zero {L S : Type} 
+    (A : @A_slt_C_zero_is_ltr_ann L S) (c : cas_constant) :
+    @A_slt_C_zero_is_ltr_ann L (with_constant S).
+  Proof.
+    refine
+    {|
+        A_slt_C_zero_is_ltr_ann_carrier  := 
+          A_eqv_add_constant S (A_slt_C_zero_is_ltr_ann_carrier A) c
+      ; A_slt_C_zero_is_ltr_ann_label  := 
+          A_slt_C_zero_is_ltr_ann_label A
+      ; A_slt_C_zero_is_ltr_ann_plus  :=  
+          bop_add_id (A_slt_C_zero_is_ltr_ann_plus A) c                               
+      ; A_slt_C_zero_is_ltr_ann_trans   := 
+          ltr_add_ann_op (A_slt_C_zero_is_ltr_ann_trans A) c 
+      ; A_slt_C_zero_is_ltr_ann_plus_proofs  := 
+          sg_C_proofs_add_id S _ c _ 
+            (structures.A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_carrier A))
+            (structures.A_eqv_new _ (A_slt_C_zero_is_ltr_ann_carrier A))
+            (structures.A_eqv_not_trivial _ (A_slt_C_zero_is_ltr_ann_carrier A)) 
+            (structures.A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier A)) 
+            (A_slt_C_zero_is_ltr_ann_plus_proofs A)        
+      ; A_slt_C_zero_is_ltr_ann_trans_proofs := 
+          A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_carrier A))
+          (structures.A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_label A))
+          _ _ _ (A_slt_C_zero_is_ltr_ann_trans_proofs A) 
+      ; A_slt_C_zero_is_ltr_ann_exists_plus_ann_d :=  
+          bop_add_id_exists_ann_decide S _ c _ 
+         (structures.A_eqv_witness _ (A_slt_C_zero_is_ltr_ann_carrier A))
+         (structures.A_eqv_reflexive _ _ 
+            (structures.A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier A))) 
+         (A_slt_C_zero_is_ltr_ann_exists_plus_ann_d A)                                    
+      ; A_slt_C_zero_is_ltr_ann_id_ann_proofs  :=   _                                          
+      ; A_slt_C_zero_is_ltr_ann_proofs :=  
+          slt_add_ann_proof c (A_eqv_witness L (A_slt_C_zero_is_ltr_ann_label A))
+         (A_eqv_eq S (A_slt_C_zero_is_ltr_ann_carrier A)) 
+         (A_slt_C_zero_is_ltr_ann_trans A) 
+         (A_slt_C_zero_is_ltr_ann_plus A) 
+         (A_eqv_proofs S (A_slt_C_zero_is_ltr_ann_carrier A)) 
+         (A_slt_C_zero_is_ltr_ann_proofs A)                                 
+      ; A_slt_C_zero_is_ltr_ann_ast := 
+          Cas_ast ("A_slt_C_zero_is_ltr_ann_add_zero", 
+            [A_slt_C_zero_is_ltr_ann_ast A])
+    |}.
+    
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_slt_C_zero_is_ltr_ann_carrier A))).
+    intros ?; reflexivity.
+  Defined.
+
+
+  Definition A_selective_left_pre_dioid_add_zero {L S : Type} 
+    (A : @A_selective_left_pre_dioid L S) (c : cas_constant) :
+    @A_selective_left_pre_dioid L (with_constant S).
+  Proof.
+    refine
+    {|
+        A_selective_left_pre_dioid_carrier  := 
+          A_eqv_add_constant S (A_selective_left_pre_dioid_carrier A) c
+      ; A_selective_left_pre_dioid_label := 
+         A_selective_left_pre_dioid_label A
+      ; A_selective_left_pre_dioid_plus :=  
+          bop_add_id (A_selective_left_pre_dioid_plus A) c                                           
+      ; A_selective_left_pre_dioid_trans  := 
+          ltr_add_ann_op (A_selective_left_pre_dioid_trans A) c 
+      ; A_selective_left_pre_dioid_plus_proofs  := 
+          sg_CS_proofs_add_id S _ c _ 
+          (structures.A_eqv_witness _ (A_selective_left_pre_dioid_carrier A))
+          (structures.A_eqv_proofs _ (A_selective_left_pre_dioid_carrier A)) 
+          (A_selective_left_pre_dioid_plus_proofs A)      
+      ; A_selective_left_pre_dioid_trans_proofs := 
+          A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_selective_left_pre_dioid_carrier A))
+          (structures.A_eqv_witness _ (A_selective_left_pre_dioid_label A))
+          _ _ _ (A_selective_left_pre_dioid_trans_proofs A) 
+      ; A_selective_left_pre_dioid_exists_plus_ann := 
+          bop_add_id_exists_ann S
+         (A_eqv_eq S (A_selective_left_pre_dioid_carrier A)) c
+         (A_selective_left_pre_dioid_plus A)
+         (A_eqv_reflexive S
+            (A_eqv_eq S (A_selective_left_pre_dioid_carrier A))
+            (A_eqv_proofs S (A_selective_left_pre_dioid_carrier A)))
+         (A_selective_left_pre_dioid_exists_plus_ann A)
+      ; A_selective_left_pre_dioid_id_ann_proofs_d := _                        
+      ; A_selective_left_pre_dioid_proofs :=  
+          left_dioid_add_ann_proof c
+         (A_eqv_witness L (A_selective_left_pre_dioid_label A))
+         (A_eqv_eq S (A_selective_left_pre_dioid_carrier A))
+         (A_selective_left_pre_dioid_trans A)
+         (A_selective_left_pre_dioid_plus A)
+         (A_eqv_proofs S (A_selective_left_pre_dioid_carrier A))
+         (A_selective_left_pre_dioid_proofs A)                                
+      ; A_selective_left_pre_dioid_ast := 
+          Cas_ast ("A_selective_left_pre_dioid_add_zero", 
+            [A_selective_left_pre_dioid_ast A])
+    |}.
+    apply SLT_Id_Ann_Proof_Equal.
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_selective_left_pre_dioid_carrier A))).
+    intros ?; reflexivity.
+  Defined.
+
+
 
 
 End Combinators.   
