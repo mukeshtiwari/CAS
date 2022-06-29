@@ -172,7 +172,10 @@ Section Combinators.
             (structures.A_eqv_proofs _ (A_slt_carrier A))) 
          (A_slt_exists_plus_ann_d A)                                  
       ; A_slt_id_ann_proofs_d  := _                                               
-      ; A_slt_proofs := _                                 
+      ; A_slt_proofs := slt_add_ann_proof c (A_eqv_witness L (A_slt_label A))
+         (A_eqv_eq S (A_slt_carrier A)) (A_slt_trans A) 
+         (A_slt_plus A) (A_eqv_proofs S (A_slt_carrier A)) 
+         (A_slt_proofs A)                                 
       ; A_slt_ast :=  Cas_ast ("A_slt_add_zero", [A_slt_ast A])
     |}.
     apply SLT_Id_Ann_Proof_Equal.
@@ -182,19 +185,51 @@ Section Combinators.
     exact (structures.A_eqv_reflexive _ _ 
       (structures.A_eqv_proofs _ (A_slt_carrier A))).
     intros ?; reflexivity.
-    apply slt_add_ann_proof.
-    exact (structures.A_eqv_witness _ (A_slt_label A)).
-    exact (structures.A_eqv_proofs _ (A_slt_carrier A)).
-    exact (A_slt_proofs A).
   Defined.    
 
 
 
-  Definition A_slt_C_add_zero {L S : Type} (A : @A_slt_C L S) (c : cas_constant) :
+  Definition A_slt_C_add_zero {L S : Type} 
+    (A : @A_slt_C L S) (c : cas_constant) :
     @A_slt_C L (with_constant S).
   Proof.
-  Admitted.
-
+    refine
+    {|
+        A_slt_C_carrier := A_eqv_add_constant S (A_slt_C_carrier A) c
+      ; A_slt_C_label  := A_slt_C_label A
+      ; A_slt_C_plus  := bop_add_id (A_slt_C_plus A) c                                             
+      ; A_slt_C_trans  := ltr_add_ann_op (A_slt_C_trans A) c
+      ; A_slt_C_plus_proofs  := sg_C_proofs_add_id S _ c _ 
+        (structures.A_eqv_witness _ (A_slt_C_carrier A))
+        (structures.A_eqv_new _ (A_slt_C_carrier A))
+        (structures.A_eqv_not_trivial _ (A_slt_C_carrier A)) 
+        (structures.A_eqv_proofs _ (A_slt_C_carrier A)) 
+        (A_slt_C_plus_proofs A)           
+      ; A_slt_C_trans_proofs :=  A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_slt_C_carrier A))
+          (structures.A_eqv_witness _ (A_slt_C_label A))
+          _ _ _ (A_slt_C_trans_proofs A) 
+      ; A_slt_C_exists_plus_ann_d := bop_add_id_exists_ann_decide S _ c _ 
+         (structures.A_eqv_witness _ (A_slt_C_carrier A))
+         (structures.A_eqv_reflexive _ _ 
+            (structures.A_eqv_proofs _ (A_slt_C_carrier A))) 
+         (A_slt_C_exists_plus_ann_d A)                                         
+      ; A_slt_C_id_ann_proofs_d := _                                            
+      ; A_slt_C_proofs := slt_add_ann_proof c (A_eqv_witness L (A_slt_C_label A))
+         (A_eqv_eq S (A_slt_C_carrier A)) (A_slt_C_trans A) 
+         (A_slt_C_plus A) (A_eqv_proofs S (A_slt_C_carrier A)) 
+         (A_slt_C_proofs A)                               
+      ; A_slt_C_ast := Cas_ast ("A_slt_C_add_zero", [A_slt_C_ast A])
+    
+    |}.
+    apply SLT_Id_Ann_Proof_Equal.
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_slt_C_carrier A))).
+    intros ?; reflexivity.
+  Qed.
 
 
 End Combinators.   
