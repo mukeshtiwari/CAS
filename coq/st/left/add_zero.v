@@ -831,8 +831,97 @@ Section CAS.
 
 Section Certify.
     
+  Context 
+    {L S : Type}
+    (c : cas_constant)
+    (wL : L)
+    (wS : S)
+    (l : brel L)
+    (r : brel S)
+    (ltr : ltr_type L S)
+    (bop : binary_op S).
+
+ 
+  Lemma slt_add_ann_distributive_check :
+    @check_slt_distributive L S ->
+    @check_slt_distributive L (with_constant S).
+  Proof.
+    intros Ha.
+    destruct Ha eqn:H.
+    + apply Certify_Slt_Distributive.
+    + apply Certify_Slt_Not_Distributive.
+      destruct p as (au, (bu, cu)).  
+      exact (au, (inr bu, inr cu)).
+  Defined.
+  
+ 
 
 
+  Lemma slt_add_ann_absorptive_check :
+    @check_slt_absorptive L S ->
+    @check_slt_absorptive L (with_constant S). 
+  Proof.
+    intros Ha.
+    case Ha eqn:H.
+    + apply Certify_Slt_Absorptive.
+    + apply Certify_Slt_Not_Absorptive.
+      destruct p as (au, bu).
+      exact (au, inr bu).
+  Defined.  
+
+    
+  Lemma slt_add_ann_strictly_absorptive_check :
+    @check_slt_strictly_absorptive L S ->
+    @check_slt_strictly_absorptive L (with_constant S).
+  Proof.
+    intros Ha.
+    case Ha eqn:H.
+    + apply Certify_Slt_Strictly_Absorptive.
+    + apply Certify_Slt_Not_Strictly_Absorptive.
+      destruct p as (au, bu).
+      exact (au, inr bu).
+  Defined.
+  
+
+
+ 
+  Lemma slt_add_ann_certificate  :
+    @slt_certificates L S ->
+    @slt_certificates L (with_constant S).
+  Proof.
+    intros [Ha Hb Hc].
+    econstructor.
+    + exact (slt_add_ann_distributive_check Ha).
+    + exact (slt_add_ann_absorptive_check Hb).
+    + exact (slt_add_ann_strictly_absorptive_check Hc).
+  Defined.   
+
+  
+
+  Lemma left_dioid_add_ann_certificate : 
+    @left_dioid_certificates L S -> 
+    @left_dioid_certificates L (with_constant S).
+  Proof.
+    intros [Ha Hb Hc].
+    econstructor.
+    + exact Assert_Slt_Distributive.
+    + exact Assert_Slt_Absorptive.
+    + exact (slt_add_ann_strictly_absorptive_check Hc).
+  Defined.   
+   
+
+  Lemma left_semiring_add_ann_certificate :
+    @left_semiring_certificates L S ->
+    @left_semiring_certificates L (with_constant S). 
+  Proof.
+    intros [Ha Hb].
+    econstructor.
+    + exact Assert_Slt_Distributive.
+    + case Hb eqn:H.
+      destruct p as (au, av).
+      exact (Assert_Slt_Not_Absorptive (au, inr av)).
+  Defined.
+  
 End Certify.
 
 Section Certificates.
@@ -842,6 +931,8 @@ Section Certificates.
 End Certificates.   
 
 Section Combinators.
+
+
 
 
 End Combinators.   
