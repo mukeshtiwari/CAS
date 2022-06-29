@@ -577,7 +577,9 @@ Section Combinators.
     intros ?; reflexivity.
   Defined.
 
-  Definition A_left_pre_semring_add_zero {L S : Type} 
+
+
+  Definition A_left_pre_semiring_add_zero {L S : Type} 
     (A : @A_left_pre_semiring L S) (c : cas_constant) :
     @A_left_pre_semiring L (with_constant S).
   Proof.
@@ -683,6 +685,56 @@ Section Combinators.
 
 
 
+
+  Definition A_left_idempotent_semiring_add_zero {L S : Type} 
+    (A : @A_left_idempotent_semiring L S) (c : cas_constant) :
+    @A_left_idempotent_semiring L (with_constant S).
+  Proof.
+    refine
+    {|
+        A_left_idempotent_semiring_carrier   := 
+          A_eqv_add_constant S (A_left_idempotent_semiring_carrier A) c
+      ; A_left_idempotent_semiring_label   :=  
+          A_left_idempotent_semiring_label A
+      ; A_left_idempotent_semiring_plus   := 
+          bop_add_id (A_left_idempotent_semiring_plus A) c                                                
+      ; A_left_idempotent_semiring_trans  := 
+          ltr_add_ann_op (A_left_idempotent_semiring_trans A) c 
+      ; A_left_idempotent_semiring_plus_proofs := 
+          sg_CI_proofs_add_id S _ c _ 
+          (structures.A_eqv_witness _ (A_left_idempotent_semiring_carrier A))
+          (structures.A_eqv_proofs _ (A_left_idempotent_semiring_carrier A)) 
+          (A_left_idempotent_semiring_plus_proofs A)        
+      ; A_left_idempotent_semiring_trans_proofs := 
+          A_ltr_add_ann_proofs c
+          (structures.A_eqv_witness _ (A_left_idempotent_semiring_carrier A))
+          (structures.A_eqv_witness _ (A_left_idempotent_semiring_label A))
+          _ _ _ (A_left_idempotent_semiring_trans_proofs A)
+      ; A_left_idempotent_semiring_exists_plus_ann_d :=
+          bop_add_id_exists_ann_decide S _ c _ 
+         (structures.A_eqv_witness _ (A_left_idempotent_semiring_carrier A))
+         (structures.A_eqv_reflexive _ _ 
+            (structures.A_eqv_proofs _ (A_left_idempotent_semiring_carrier A))) 
+         (A_left_idempotent_semiring_exists_plus_ann_d A)                          
+      ; A_left_idempotent_semiring_id_ann_proofs:= _ 
+      ; A_left_idempotent_semiring_proofs :=
+          left_semiring_add_ann_proofs c
+         (A_eqv_eq S (A_left_idempotent_semiring_carrier A))
+         (A_left_idempotent_semiring_trans A) (A_left_idempotent_semiring_plus A)
+         (A_eqv_proofs S (A_left_idempotent_semiring_carrier A))
+         (A_left_idempotent_semiring_proofs A)
+      ; A_left_idempotent_semiring_ast := 
+          Cas_ast ("A_left_idempotent_semiring_add_zero", 
+            [A_left_idempotent_semiring_ast A])
+    |}.
+    exists (inl c); simpl.
+    split.
+    apply bop_add_id_is_id.
+    exact (structures.A_eqv_reflexive _ _ 
+      (structures.A_eqv_proofs _ (A_left_idempotent_semiring_carrier A))).
+    intros ?; reflexivity.
+  Defined.
+
   
   
 
@@ -747,15 +799,30 @@ Definition A_mcas_slt_add_zero {L S : Type}
 Proof.
   refine 
     match A with 
+    | A_SLT_Error ls => A_SLT_Error ls
+    | A_SLT slt => A_slt_classify_slt  (A_slt_add_zero slt c)
+    | A_SLT_C slt => A_slt_C_classify_slt (A_slt_C_add_zero slt c) 
+    | A_SLT_CS slt => A_slt_CS_classify_slt (A_slt_CS_add_zero slt c)
+    | A_SLT_CI slt => A_slt_CI_classify_slt (A_slt_CI_add_zero  slt c)
+    | A_SLT_C_Zero_Is_Ltr_ann slt => 
+        A_slt_C_zero_is_ltr_ann_classify_slt (A_slt_C_zero_is_ltr_ann_add_zero slt c)
+    | A_SLT_Left_Pre_Semiring slt => 
+        A_slt_classify_left_pre_semiring_slt (A_left_pre_semiring_add_zero slt c)
+    | A_SLT_Dioid slt => 
+        A_slt_classify_left_dioid_slt (A_left_dioid_add_zero slt c)
+    | A_SLT_Selective_Left_Pre_Dioid slt => 
+        A_slt_classify_selective_left_pre_dioid_slt (A_selective_left_pre_dioid_add_zero  slt c)
+    | A_SLT_Semiring slt => 
+        A_slt_classify_left_semiring_slt  (A_left_semiring_add_zero slt c) 
+    | A_SLT_Selective_Dioid slt => 
+        A_slt_classify_selective_left_dioid_slt (A_selective_left_dioid_add_zero slt c) 
+    | A_SLT_Selective_Semiring slt => 
+        A_slt_classify_left_selective_semiring_slt (A_left_selective_semiring_add_zero  slt c)
+    | A_SLT_Idempotent_Semiring slt => 
+        A_slt_classify_left_idempotent_semiring_slt (A_left_idempotent_semiring_add_zero slt c) 
+    end.
+Defined.
 
-  
-
-Definition A_mcas_bs_add_zero (S : Type) (A : A_bs_mcas S) (c : cas_constant) := 
-  match (A_bs_mcas_cast_up _ A) with
-  | A_BS_bs _ B => A_bs_classify _ (A_BS_bs _ (A_bs_add_zero _ B c))
-  | A_BS_Error _ str => A_BS_Error _ str                                                                                      
-  | _ => A_BS_Error _ ("internal error : A_bs_mcas_add_zero" :: nil) 
-  end.
 
 End AMCAS. 
 
