@@ -513,6 +513,7 @@ Section Combinators.
           Cas_ast ("A_selective_left_dioid_add_zero", 
             [A_selective_left_dioid_ast A])
     |}.
+
     exists (inl c); simpl.
     split.
     apply bop_add_id_is_id.
@@ -1029,7 +1030,7 @@ Section Combinators.
       ; slt_CI_id_ann_certs_d  :=  Certify_SLT_Id_Ann_Proof_Equal (inl c)                                     
       ; slt_CI_certs := slt_add_ann_certificate 
           c (structures.eqv_witness (slt_CI_label A)) (slt_CI_certs A)                             
-      ; slt_CI_ast := Cas_ast ("A_slt_CS_add_zero", [slt_CI_ast A])
+      ; slt_CI_ast := Cas_ast ("A_slt_CI_add_zero", [slt_CI_ast A])
     |}.
   Defined.
 
@@ -1098,7 +1099,7 @@ Section Combinators.
           (structures.eqv_witness (selective_left_pre_dioid_label A))
           (selective_left_pre_dioid_trans_certs A) 
       ; selective_left_pre_dioid_exists_plus_ann := 
-          properties.Assert_Exists_Ann (inl c)
+          _
       ; selective_left_pre_dioid_id_ann_certs_d :=  
           Certify_SLT_Id_Ann_Proof_Equal (inl c)                         
       ; selective_left_pre_dioid_certs :=  
@@ -1109,6 +1110,10 @@ Section Combinators.
           Cas_ast ("A_selective_left_pre_dioid_add_zero", 
             [selective_left_pre_dioid_ast A])
     |}.
+    destruct A; simpl.
+    destruct selective_left_pre_dioid_exists_plus_ann.
+    econstructor.
+    exact (inr s).
   Defined.
 
    
@@ -1137,7 +1142,7 @@ Section Combinators.
           (structures.eqv_witness (selective_left_dioid_label A))
           (selective_left_dioid_trans_certs A) 
       ; selective_left_dioid_exists_plus_ann := 
-           properties.Assert_Exists_Ann (inl c)
+          _
       ; selective_left_dioid_id_ann_certs :=
           Assert_Slt_Exists_Id_Ann_Equal (inl c)                        
       ; selective_left_dioid_certs :=  
@@ -1145,9 +1150,13 @@ Section Combinators.
           (structures.eqv_witness (selective_left_dioid_label A))
          (selective_left_dioid_certs A)                                
       ; selective_left_dioid_ast := 
-          Cas_ast ("selective_left_dioid_add_zero", 
+          Cas_ast ("A_selective_left_dioid_add_zero", 
             [selective_left_dioid_ast A])
     |}.
+    destruct A; simpl.
+    destruct selective_left_dioid_exists_plus_ann.
+    econstructor.
+    exact (inr s).
   Defined.
 
   
@@ -1174,7 +1183,7 @@ Section Combinators.
           (structures.eqv_witness (left_dioid_label A))
           (left_dioid_trans_certs A) 
       ; left_dioid_exists_plus_ann := 
-          properties.Assert_Exists_Ann (inl c)
+         _
       ; left_dioid_id_ann_certs := 
           Assert_Slt_Exists_Id_Ann_Equal (inl c)                         
       ; left_dioid_certs :=  
@@ -1182,9 +1191,12 @@ Section Combinators.
           (structures.eqv_witness (left_dioid_label A))
          (left_dioid_certs A)                                
       ; left_dioid_ast := 
-          Cas_ast ("left_dioid_add_zero", 
+          Cas_ast ("A_left_dioid_add_zero", 
             [left_dioid_ast A])
     |}.
+    destruct A, left_dioid_exists_plus_ann; simpl.
+    econstructor.
+    exact (inr s).
   Defined.
 
 
@@ -1221,7 +1233,7 @@ Proof.
         left_semiring_add_ann_certificate
        (left_pre_semiring_certs A)
     ; left_pre_semiring_ast := 
-        Cas_ast ("left_pre_semiring_add_zero", 
+        Cas_ast ("A_left_pre_semiring_add_zero", 
           [left_pre_semiring_ast A])
   |}.
   Defined.
@@ -1259,7 +1271,7 @@ Proof.
         left_semiring_add_ann_certificate
        (left_semiring_certs A)
     ; left_semiring_ast := 
-        Cas_ast ("left_semiring_add_zero", 
+        Cas_ast ("A_left_semiring_add_zero", 
           [left_semiring_ast A])
   |}.
   Defined.
@@ -1297,7 +1309,7 @@ Proof.
           left_semiring_add_ann_certificate
         (left_idempotent_semiring_certs A)
       ; left_idempotent_semiring_ast := 
-          Cas_ast ("left_idempotent_semiring_add_zero", 
+          Cas_ast ("A_left_idempotent_semiring_add_zero", 
             [left_idempotent_semiring_ast A])
     |}.
   Defined.
@@ -1335,7 +1347,7 @@ Proof.
         left_semiring_add_ann_certificate
        (left_selective_semiring_certs A)
     ; left_selective_semiring_ast := 
-        Cas_ast ("left_selective_semiring_add_zero", 
+        Cas_ast ("A_left_selective_semiring_add_zero", 
           [left_selective_semiring_ast A])
   |}.
   Defined.
@@ -1490,13 +1502,150 @@ Section Certify.
   Qed.
 
 
-
-
-
-
 End Certify.
 
 Section Combinators. 
+  
+  Context 
+    {L S : Type}
+    (c : cas_constant).
+
+  Lemma correct_slt_add_zero 
+    (A : @A_slt L S) :
+    A2C_slt (A_slt_add_zero A c) = 
+    slt_add_zero (A2C_slt A) c.
+  Proof.
+    unfold A2C_slt, 
+    slt_add_zero; cbn;
+    destruct A; simpl;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite <-correct_sg_certs_add_id.
+      f_equal.
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + rewrite bop_add_id_exists_ann_check_correct.
+      f_equal.
+    + apply slt_add_ann_proof_correct.
+  Qed.
+
+
+  Lemma correct_slt_C_add_zero 
+     (A : @A_slt_C L S) : 
+     A2C_slt_c (A_slt_C_add_zero A c) =
+     slt_C_add_zero (A2C_slt_c A) c.
+  Proof.
+    unfold A2C_slt_c, 
+    slt_C_add_zero; cbn;
+    destruct A; simpl;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite <-correct_sg_C_certs_add_id.
+      f_equal.
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + rewrite bop_add_id_exists_ann_check_correct.
+      f_equal.
+    + apply slt_add_ann_proof_correct.
+  Qed.
+
+
+  Lemma correct_slt_CS_add_zero 
+     (A : @A_slt_CS L S) : 
+     A2C_slt_cs (A_slt_CS_add_zero A c) =
+     slt_CS_add_zero (A2C_slt_cs A) c.
+  Proof.
+    unfold A2C_slt_cs, 
+    slt_CS_add_zero; cbn;
+    destruct A; simpl;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + rewrite bop_add_id_exists_ann_check_correct.
+      f_equal.
+    + apply slt_add_ann_proof_correct.
+  Qed.
+
+
+  Lemma correct_slt_CI_add_zero 
+     (A : @A_slt_CI L S) : 
+     A2C_slt_ci (A_slt_CI_add_zero A c) =
+     slt_CI_add_zero (A2C_slt_ci A) c.
+  Proof.
+    unfold A2C_slt_ci, 
+    slt_CI_add_zero; cbn;
+    destruct A; simpl;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite <-correct_sg_CI_certs_add_id.
+      f_equal.
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + rewrite bop_add_id_exists_ann_check_correct.
+      f_equal.
+    + apply slt_add_ann_proof_correct.
+  Qed.
+
+
+  Lemma correct_slt_C_zero_is_ltr_ann_add_zero 
+     (A : @A_slt_C_zero_is_ltr_ann L S) : 
+     A2C_slt_C_zero_is_ltr_ann (A_slt_C_zero_is_ltr_ann_add_zero A c) =
+     slt_C_zero_is_ltr_ann_add_zero (A2C_slt_C_zero_is_ltr_ann A) c.
+  Proof.
+    unfold A2C_slt_C_zero_is_ltr_ann, 
+    slt_C_zero_is_ltr_ann_add_zero; cbn;
+    destruct A; simpl;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite <-correct_sg_C_certs_add_id.
+      f_equal.
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + rewrite bop_add_id_exists_ann_check_correct.
+      f_equal.
+    + apply slt_add_ann_proof_correct.
+  Qed.
+
+
+  Lemma correct_selective_left_pre_dioid_add_zero 
+     (A : @A_selective_left_pre_dioid L S) : 
+     A2C_selective_left_pre_dioid (A_selective_left_pre_dioid_add_zero A c) =
+     selective_left_pre_dioid_add_zero (A2C_selective_left_pre_dioid A) c.
+  Proof.
+    unfold A2C_selective_left_pre_dioid, 
+    selective_left_pre_dioid_add_zero; cbn;
+    destruct A; simpl;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + unfold properties.p2c_exists_ann_assert. 
+      destruct A_selective_left_pre_dioid_exists_plus_ann; simpl.
+      reflexivity.  
+    + apply left_dioid_add_ann_proof_correct.
+  Qed.
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
 
 End Combinators. 
 
