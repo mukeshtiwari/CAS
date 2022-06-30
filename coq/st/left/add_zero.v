@@ -1633,24 +1633,131 @@ Section Combinators.
   Qed.
 
 
-  
+  Lemma correct_selective_left_dioid_add_zero 
+     (A : @A_selective_left_dioid L S) : 
+     A2C_selective_left_dioid (A_selective_left_dioid_add_zero A c) =
+     selective_left_dioid_add_zero (A2C_selective_left_dioid A) c.
+  Proof.
+    unfold A2C_selective_left_dioid, 
+    selective_left_dioid_add_zero; cbn;
+    destruct A; simpl;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + unfold properties.p2c_exists_ann_assert. 
+      destruct A_selective_left_dioid_exists_plus_ann; simpl.
+      reflexivity.  
+    + apply left_dioid_add_ann_proof_correct.
+  Qed.
 
 
+  Lemma correct_left_dioid_add_zero 
+     (A : @A_left_dioid L S) : 
+     A2C_left_dioid (A_left_dioid_add_zero A c) =
+     left_dioid_add_zero (A2C_left_dioid A) c.
+  Proof.
+    unfold A2C_left_dioid, 
+    left_dioid_add_zero; cbn;
+    destruct A; simpl;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite <-correct_sg_CI_certs_add_id.
+      f_equal.  
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + unfold properties.p2c_exists_ann_assert. 
+      destruct A_left_dioid_exists_plus_ann; simpl.
+      reflexivity.  
+    + apply left_dioid_add_ann_proof_correct.
+  Qed.
+
+  Lemma correct_left_pre_semiring_add_zero 
+     (A : @A_left_pre_semiring L S) : 
+     A2C_left_pre_semiring (A_left_pre_semiring_add_zero A c) =
+     left_pre_semiring_add_zero (A2C_left_pre_semiring A) c.
+  Proof.
+    unfold A2C_left_pre_semiring,
+    left_pre_semiring_add_zero; cbn;
+    destruct A; cbn;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite <-correct_sg_C_certs_add_id.
+      f_equal.  
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + rewrite bop_add_id_exists_ann_check_correct.
+      f_equal.  
+    + apply left_semiring_add_ann_proof_correct.
+  Qed.
 
 
+   Lemma correct_left_semiring_add_zero 
+     (A : @A_left_semiring L S) : 
+     A2C_left_semiring (A_left_semiring_add_zero A c) =
+     left_semiring_add_zero (A2C_left_semiring A) c.
+  Proof.
+    unfold A2C_left_semiring,
+    left_semiring_add_zero; cbn;
+    destruct A; cbn;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite <-correct_sg_C_certs_add_id.
+      f_equal.  
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + rewrite bop_add_id_exists_ann_check_correct.
+      f_equal.  
+    + apply left_semiring_add_ann_proof_correct.
+  Qed.
+
+  Lemma correct_left_idempotent_semiring_add_zero 
+     (A : @A_left_idempotent_semiring L S) : 
+     A2C_left_idempotent_semiring (A_left_idempotent_semiring_add_zero A c) =
+     left_idempotent_semiring_add_zero (A2C_left_idempotent_semiring A) c.
+  Proof.
+    unfold A2C_left_idempotent_semiring,
+    left_idempotent_semiring_add_zero; cbn;
+    destruct A; cbn;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant.
+    + rewrite <-correct_sg_CI_certs_add_id.
+      f_equal.  
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + rewrite bop_add_id_exists_ann_check_correct.
+      f_equal.  
+    + apply left_semiring_add_ann_proof_correct.
+  Qed.
 
 
-
-
-
-
-
+  Lemma correct_left_selective_semiring_add_zero 
+     (A : @A_left_selective_semiring L S) : 
+     A2C_left_selective_semiring (A_left_selective_semiring_add_zero A c) =
+     left_selective_semiring_add_zero (A2C_left_selective_semiring A) c.
+  Proof.
+    unfold A2C_left_selective_semiring,
+    left_selective_semiring_add_zero; cbn;
+    destruct A; cbn;
+    f_equal.
+    + symmetry.
+      apply correct_eqv_add_constant. 
+    + rewrite correct_ltr_certs_add_ann.
+      f_equal.
+    + rewrite bop_add_id_exists_ann_check_correct.
+      f_equal.  
+    + apply left_semiring_add_ann_proof_correct.
+  Qed.
 
 
 End Combinators. 
 
-  Lemma correct_mcas_slt_add_zero : 
-
+  
 
 
 End Verify.   
