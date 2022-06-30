@@ -1466,12 +1466,28 @@ Section Certify.
     + eapply slt_add_ann_strictly_absorptive_correct.
   Qed.   
     
+ 
+  Lemma left_dioid_add_ann_proof_correct  
+    (pf : left_dioid_proofs r bop ltr) :
+    P2C_left_dioid _ _ _  (left_dioid_add_ann_proof c wL r ltr bop eqv_s pf) = 
+    @left_dioid_add_ann_certificate _ _ c wL (P2C_left_dioid _ _ _ pf).
+  Proof.
+    unfold P2C_left_dioid;
+    destruct pf; simpl;
+    f_equal.
+    eapply slt_add_ann_strictly_absorptive_correct.
+  Qed.
   
-    unfold p2c_slt_distributive_check; simpl.
 
-
-
-
+  Lemma left_semiring_add_ann_proof_correct 
+    (pf : left_semiring_proofs r bop ltr) :
+    P2C_left_semiring _ _ _  (left_semiring_add_ann_proofs c r ltr bop eqv_s pf) = 
+    @left_semiring_add_ann_certificate _ _ (P2C_left_semiring _ _ _ pf).
+  Proof.
+    unfold P2C_left_semiring;
+    destruct pf, A_left_semiring_not_absorptive, x; simpl;
+    f_equal.
+  Qed.
 
 
 
