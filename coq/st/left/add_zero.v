@@ -72,7 +72,7 @@ Section Proofs.
       destruct Hb as ((au, (bu, cu)) & H).
       exists (au, (inr bu, inr cu)).
       exact H.
-  Qed.
+  Defined.
  
 
 
@@ -94,7 +94,7 @@ Section Proofs.
       destruct Ha as ((au, bu) & H).
       exists (au, inr bu).
       exact H.
-  Qed.
+  Defined.
     
   Lemma slt_add_ann_strictly_absorptive_decidable :
     slt_strictly_absorptive_decidable r bop ltr ->
@@ -118,7 +118,7 @@ Section Proofs.
       left. exact Hu.
       exists (au, inr bu); simpl.
       right. exact Hu.
-  Qed.
+  Defined.
       
 
 
@@ -137,7 +137,7 @@ Section Proofs.
       try assumption.
     + apply slt_add_ann_strictly_absorptive_decidable; 
       try assumption.
-  Qed.
+  Defined.
 
   Lemma left_dioid_add_ann_proof : 
     left_dioid_proofs r bop ltr ->
@@ -162,7 +162,7 @@ Section Proofs.
       ++ apply Hb; try assumption.
     + apply slt_add_ann_strictly_absorptive_decidable; 
       try assumption.
-  Qed.
+  Defined.
   
 
   Lemma left_semiring_add_ann_proofs :
@@ -187,7 +187,7 @@ Section Proofs.
       exists (au, inr bu);
       simpl.
       exact H.
-  Qed.
+  Defined.
 
 
 End Proofs.
@@ -830,7 +830,8 @@ Section Certify.
     
   Context 
     {L S : Type}
-    (c : cas_constant).
+    (c : cas_constant)
+    (wL : L).
 
  
   Lemma slt_add_ann_distributive_check :
@@ -862,12 +863,13 @@ Section Certify.
 
     
   Lemma slt_add_ann_strictly_absorptive_check :
-    @check_slt_strictly_absorptive L S ->
+    @check_slt_strictly_absorptive L S -> (* we don't need this *)
     @check_slt_strictly_absorptive L (with_constant S).
   Proof.
     intros Ha.
     case Ha eqn:H.
-    + apply Certify_Slt_Strictly_Absorptive.
+    + apply Certify_Slt_Not_Strictly_Absorptive.
+      exact (wL, inl c).
     + apply Certify_Slt_Not_Strictly_Absorptive.
       destruct p as (au, bu).
       exact (au, inr bu).
@@ -944,7 +946,8 @@ Section Combinators.
       ; slt_exists_plus_ann_d := @bop_add_id_exists_ann_check S 
           (slt_exists_plus_ann_d A)                          
       ; slt_id_ann_certs_d  := Certify_SLT_Id_Ann_Proof_Equal (inl c)                                              
-      ; slt_certs := slt_add_ann_certificate (slt_certs A)                          
+      ; slt_certs := slt_add_ann_certificate c 
+        (structures.eqv_witness (slt_label A)) (slt_certs A)                          
       ; slt_ast :=  Cas_ast ("A_slt_add_zero", [slt_ast A])
     |}.
   Defined.
@@ -970,7 +973,8 @@ Section Combinators.
       ; slt_C_exists_plus_ann_d :=  @bop_add_id_exists_ann_check S 
          (slt_C_exists_plus_ann_d A)                                         
       ; slt_C_id_ann_certs_d :=  Certify_SLT_Id_Ann_Proof_Equal (inl c)                                             
-      ; slt_C_certs := slt_add_ann_certificate (slt_C_certs A)                             
+      ; slt_C_certs := slt_add_ann_certificate 
+          c (structures.eqv_witness (slt_C_label A)) (slt_C_certs A)                             
       ; slt_C_ast := Cas_ast ("A_slt_C_add_zero", [slt_C_ast A])
     
     |}.
@@ -995,7 +999,8 @@ Section Combinators.
       ; slt_CS_exists_plus_ann_d :=  @bop_add_id_exists_ann_check S 
          (slt_CS_exists_plus_ann_d A)                                   
       ; slt_CS_id_ann_certs_d  :=  Certify_SLT_Id_Ann_Proof_Equal (inl c)                                     
-      ; slt_CS_certs := slt_add_ann_certificate (slt_CS_certs A)                             
+      ; slt_CS_certs := slt_add_ann_certificate 
+          c (structures.eqv_witness (slt_CS_label A)) (slt_CS_certs A)                             
       ; slt_CS_ast := Cas_ast ("A_slt_CS_add_zero", [slt_CS_ast A])
     |}.
   Defined.
@@ -1022,7 +1027,8 @@ Section Combinators.
       ; slt_CI_exists_plus_ann_d :=  @bop_add_id_exists_ann_check S 
          (slt_CI_exists_plus_ann_d A)                                   
       ; slt_CI_id_ann_certs_d  :=  Certify_SLT_Id_Ann_Proof_Equal (inl c)                                     
-      ; slt_CI_certs := slt_add_ann_certificate (slt_CI_certs A)                             
+      ; slt_CI_certs := slt_add_ann_certificate 
+          c (structures.eqv_witness (slt_CI_label A)) (slt_CI_certs A)                             
       ; slt_CI_ast := Cas_ast ("A_slt_CS_add_zero", [slt_CI_ast A])
     |}.
   Defined.
@@ -1059,7 +1065,8 @@ Section Combinators.
          (slt_C_zero_is_ltr_ann_exists_plus_ann_d A)                                    
       ; slt_C_zero_is_ltr_ann_id_ann_certs  := Assert_Slt_Exists_Id_Ann_Equal (inl c)                                           
       ; slt_C_zero_is_ltr_ann_certs :=  
-          slt_add_ann_certificate
+          slt_add_ann_certificate c 
+          (structures.eqv_witness (slt_C_zero_is_ltr_ann_label A))
          (slt_C_zero_is_ltr_ann_certs A)                                 
       ; slt_C_zero_is_ltr_ann_ast := 
           Cas_ast ("A_slt_C_zero_is_ltr_ann_add_zero", 
@@ -1095,7 +1102,8 @@ Section Combinators.
       ; selective_left_pre_dioid_id_ann_certs_d :=  
           Certify_SLT_Id_Ann_Proof_Equal (inl c)                         
       ; selective_left_pre_dioid_certs :=  
-          left_dioid_add_ann_certificate
+          left_dioid_add_ann_certificate c 
+          (structures.eqv_witness (selective_left_pre_dioid_label A))
          (selective_left_pre_dioid_certs A)                                
       ; selective_left_pre_dioid_ast := 
           Cas_ast ("A_selective_left_pre_dioid_add_zero", 
@@ -1110,7 +1118,6 @@ Section Combinators.
     (A : @selective_left_dioid L S) (c : cas_constant) :
     @selective_left_dioid L (with_constant S).
   Proof.
-    Check  left_dioid_add_ann_certificate.
     refine
     {|
         selective_left_dioid_carrier  := 
@@ -1134,7 +1141,8 @@ Section Combinators.
       ; selective_left_dioid_id_ann_certs :=
           Assert_Slt_Exists_Id_Ann_Equal (inl c)                        
       ; selective_left_dioid_certs :=  
-          left_dioid_add_ann_certificate
+          left_dioid_add_ann_certificate c 
+          (structures.eqv_witness (selective_left_dioid_label A))
          (selective_left_dioid_certs A)                                
       ; selective_left_dioid_ast := 
           Cas_ast ("selective_left_dioid_add_zero", 
@@ -1170,7 +1178,8 @@ Section Combinators.
       ; left_dioid_id_ann_certs := 
           Assert_Slt_Exists_Id_Ann_Equal (inl c)                         
       ; left_dioid_certs :=  
-          left_dioid_add_ann_certificate
+          left_dioid_add_ann_certificate c 
+          (structures.eqv_witness (left_dioid_label A))
          (left_dioid_certs A)                                
       ; left_dioid_ast := 
           Cas_ast ("left_dioid_add_zero", 
@@ -1400,7 +1409,73 @@ Section Certify.
     (bop : binary_op S)
     (eqv_s : @eqv_proofs S r).
 
+  Lemma slt_add_ann_distributive_correct 
+    (pf : slt_distributive_decidable r bop ltr) :
+    p2c_slt_distributive_check (sum.brel_sum brel_constant r)
+    (bop_add_id bop c) (ltr_add_ann_op ltr c)
+    (slt_add_ann_distributive_decidable c r ltr bop eqv_s pf) =
+   slt_add_ann_distributive_check
+    (p2c_slt_distributive_check r bop ltr pf).
+  Proof.
+    destruct pf; simpl.
+    + reflexivity.
+    + destruct s, x, p; cbn.
+      reflexivity.
+  Qed.
+
+  Lemma slt_add_ann_absorptive_correct 
+    (pf : slt_absorptive_decidable r bop ltr) : 
+    p2c_slt_absorptive_check (sum.brel_sum brel_constant r) 
+    (bop_add_id bop c) (ltr_add_ann_op ltr c)
+    (slt_add_ann_absorptive_decidable c r ltr bop pf) =
+    slt_add_ann_absorptive_check
+    (p2c_slt_absorptive_check r bop ltr pf).
+  Proof.
+    destruct pf; simpl.
+    + reflexivity.
+    + destruct s, x, y;
+      cbn; reflexivity.
+  Qed.  
+
   
+  Lemma slt_add_ann_strictly_absorptive_correct 
+    (pf : slt_strictly_absorptive_decidable r bop ltr) :
+    p2c_slt_strictly_absorptive_check (sum.brel_sum brel_constant r)
+    (bop_add_id bop c) (ltr_add_ann_op ltr c)
+    (slt_add_ann_strictly_absorptive_decidable c wL r ltr bop pf) =
+    slt_add_ann_strictly_absorptive_check c wL
+    (p2c_slt_strictly_absorptive_check r bop ltr pf).
+  Proof.
+    destruct pf; simpl.
+    + reflexivity.
+    + destruct s, x, y;
+      cbn; reflexivity.
+  Qed.  
+
+ 
+  Lemma slt_add_ann_proof_correct  
+    (pf : slt_proofs r bop ltr) :
+    P2C_slt _ _ _  (slt_add_ann_proof c wL r ltr bop eqv_s pf) = 
+    @slt_add_ann_certificate _ _ c wL (P2C_slt _ _ _ pf).
+  Proof.
+    unfold P2C_slt;
+    destruct pf; simpl;
+    f_equal.
+    + eapply slt_add_ann_distributive_correct.
+    + eapply slt_add_ann_absorptive_correct.
+    + eapply slt_add_ann_strictly_absorptive_correct.
+  Qed.   
+    
+  
+    unfold p2c_slt_distributive_check; simpl.
+
+
+
+
+
+
+
+
 
 
 End Certify.
