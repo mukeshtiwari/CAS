@@ -798,26 +798,26 @@ Proof.
   refine 
     match A with 
     | A_SLT_Error ls => A_SLT_Error ls
-    | A_SLT slt => A_slt_classify_slt  (A_slt_add_zero slt c)
-    | A_SLT_C slt => A_slt_C_classify_slt (A_slt_C_add_zero slt c) 
-    | A_SLT_CS slt => A_slt_CS_classify_slt (A_slt_CS_add_zero slt c)
-    | A_SLT_CI slt => A_slt_CI_classify_slt (A_slt_CI_add_zero  slt c)
+    | A_SLT slt => A_SLT (A_slt_add_zero slt c)
+    | A_SLT_C slt => A_SLT_C (A_slt_C_add_zero slt c) 
+    | A_SLT_CS slt => A_SLT_CS (A_slt_CS_add_zero slt c)
+    | A_SLT_CI slt =>A_SLT_CI (A_slt_CI_add_zero  slt c)
     | A_SLT_C_Zero_Is_Ltr_ann slt => 
-        A_slt_C_zero_is_ltr_ann_classify_slt (A_slt_C_zero_is_ltr_ann_add_zero slt c)
+        A_SLT_C_Zero_Is_Ltr_ann (A_slt_C_zero_is_ltr_ann_add_zero slt c)
     | A_SLT_Left_Pre_Semiring slt => 
-        A_slt_classify_left_pre_semiring_slt (A_left_pre_semiring_add_zero slt c)
+        A_SLT_Left_Pre_Semiring (A_left_pre_semiring_add_zero slt c)
     | A_SLT_Dioid slt => 
-        A_slt_classify_left_dioid_slt (A_left_dioid_add_zero slt c)
+        A_SLT_Dioid (A_left_dioid_add_zero slt c)
     | A_SLT_Selective_Left_Pre_Dioid slt => 
-        A_slt_classify_selective_left_pre_dioid_slt (A_selective_left_pre_dioid_add_zero  slt c)
+        A_SLT_Selective_Left_Pre_Dioid (A_selective_left_pre_dioid_add_zero  slt c)
     | A_SLT_Semiring slt => 
-        A_slt_classify_left_semiring_slt  (A_left_semiring_add_zero slt c) 
-    | A_SLT_Selective_Dioid slt => 
-        A_slt_classify_selective_left_dioid_slt (A_selective_left_dioid_add_zero slt c) 
+        A_SLT_Semiring (A_left_semiring_add_zero slt c) 
+    | A_SLT_Selective_Dioid slt =>
+        A_SLT_Selective_Dioid (A_selective_left_dioid_add_zero slt c) 
     | A_SLT_Selective_Semiring slt => 
-        A_slt_classify_left_selective_semiring_slt (A_left_selective_semiring_add_zero  slt c)
+        A_SLT_Selective_Semiring (A_left_selective_semiring_add_zero  slt c)
     | A_SLT_Idempotent_Semiring slt => 
-        A_slt_classify_left_idempotent_semiring_slt (A_left_idempotent_semiring_add_zero slt c) 
+        A_SLT_Idempotent_Semiring (A_left_idempotent_semiring_add_zero slt c) 
     end.
 Defined.
 
@@ -1379,26 +1379,26 @@ Proof.
 refine 
   match A with 
   | SLT_Error ls => SLT_Error ls
-  | SLT slt => slt_classify_slt  (slt_add_zero slt c)
-  | SLT_C slt => slt_C_classify_slt (slt_C_add_zero slt c) 
-  | SLT_CS slt => slt_CS_classify_slt (slt_CS_add_zero slt c)
-  | SLT_CI slt => slt_CI_classify_slt (slt_CI_add_zero  slt c)
+  | SLT slt => SLT (slt_add_zero slt c)
+  | SLT_C slt => SLT_C (slt_C_add_zero slt c) 
+  | SLT_CS slt => SLT_CS (slt_CS_add_zero slt c)
+  | SLT_CI slt => SLT_CI (slt_CI_add_zero  slt c)
   | SLT_C_Zero_Is_Ltr_ann slt => 
-      slt_C_zero_is_ltr_ann_classify_slt (slt_C_zero_is_ltr_ann_add_zero slt c)
+      SLT_C_Zero_Is_Ltr_ann (slt_C_zero_is_ltr_ann_add_zero slt c)
   | SLT_Left_Pre_Semiring slt => 
-      slt_classify_left_pre_semiring_slt (left_pre_semiring_add_zero slt c)
+      SLT_Left_Pre_Semiring (left_pre_semiring_add_zero slt c)
   | SLT_Dioid slt => 
-      slt_classify_left_dioid_slt (left_dioid_add_zero slt c)
+      SLT_Dioid (left_dioid_add_zero slt c)
   | SLT_Selective_Left_Pre_Dioid slt => 
-      slt_classify_selective_left_pre_dioid_slt (selective_left_pre_dioid_add_zero  slt c)
+      SLT_Selective_Left_Pre_Dioid (selective_left_pre_dioid_add_zero slt c)
   | SLT_Semiring slt => 
-      slt_classify_left_semiring_slt  (left_semiring_add_zero slt c) 
+      SLT_Semiring  (left_semiring_add_zero slt c) 
   | SLT_Selective_Dioid slt => 
-      slt_classify_selective_left_dioid_slt (selective_left_dioid_add_zero slt c) 
+      SLT_Selective_Dioid (selective_left_dioid_add_zero slt c) 
   | SLT_Selective_Semiring slt => 
-      slt_classify_left_selective_semiring_slt (left_selective_semiring_add_zero  slt c)
+      SLT_Selective_Semiring (left_selective_semiring_add_zero  slt c)
   | SLT_Idempotent_Semiring slt => 
-      slt_classify_left_idempotent_semiring_slt (left_idempotent_semiring_add_zero slt c) 
+      SLT_Idempotent_Semiring (left_idempotent_semiring_add_zero slt c) 
   end.
 Defined.
 
@@ -1433,7 +1433,7 @@ Section Certify.
     + reflexivity.
     + destruct s, x, p; cbn.
       reflexivity.
-  Qed.
+  Defined.
 
   Lemma slt_add_ann_absorptive_correct 
     (pf : slt_absorptive_decidable r bop ltr) : 
@@ -1447,7 +1447,7 @@ Section Certify.
     + reflexivity.
     + destruct s, x, y;
       cbn; reflexivity.
-  Qed.  
+  Defined.  
 
   
   Lemma slt_add_ann_strictly_absorptive_correct 
@@ -1462,7 +1462,7 @@ Section Certify.
     + reflexivity.
     + destruct s, x, y;
       cbn; reflexivity.
-  Qed.  
+  Defined.  
 
  
   Lemma slt_add_ann_proof_correct  
@@ -1476,7 +1476,7 @@ Section Certify.
     + eapply slt_add_ann_distributive_correct.
     + eapply slt_add_ann_absorptive_correct.
     + eapply slt_add_ann_strictly_absorptive_correct.
-  Qed.   
+  Defined.   
     
  
   Lemma left_dioid_add_ann_proof_correct  
@@ -1488,7 +1488,7 @@ Section Certify.
     destruct pf; simpl;
     f_equal.
     eapply slt_add_ann_strictly_absorptive_correct.
-  Qed.
+  Defined.
   
 
   Lemma left_semiring_add_ann_proof_correct 
@@ -1499,7 +1499,7 @@ Section Certify.
     unfold P2C_left_semiring;
     destruct pf, A_left_semiring_not_absorptive, x; simpl;
     f_equal.
-  Qed.
+  Defined.
 
 
 End Certify.
@@ -1528,7 +1528,7 @@ Section Combinators.
     + rewrite bop_add_id_exists_ann_check_correct.
       f_equal.
     + apply slt_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
   Lemma correct_slt_C_add_zero 
@@ -1549,7 +1549,7 @@ Section Combinators.
     + rewrite bop_add_id_exists_ann_check_correct.
       f_equal.
     + apply slt_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
   Lemma correct_slt_CS_add_zero 
@@ -1568,7 +1568,7 @@ Section Combinators.
     + rewrite bop_add_id_exists_ann_check_correct.
       f_equal.
     + apply slt_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
   Lemma correct_slt_CI_add_zero 
@@ -1589,7 +1589,7 @@ Section Combinators.
     + rewrite bop_add_id_exists_ann_check_correct.
       f_equal.
     + apply slt_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
   Lemma correct_slt_C_zero_is_ltr_ann_add_zero 
@@ -1610,7 +1610,7 @@ Section Combinators.
     + rewrite bop_add_id_exists_ann_check_correct.
       f_equal.
     + apply slt_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
   Lemma correct_selective_left_pre_dioid_add_zero 
@@ -1630,7 +1630,7 @@ Section Combinators.
       destruct A_selective_left_pre_dioid_exists_plus_ann; simpl.
       reflexivity.  
     + apply left_dioid_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
   Lemma correct_selective_left_dioid_add_zero 
@@ -1650,7 +1650,7 @@ Section Combinators.
       destruct A_selective_left_dioid_exists_plus_ann; simpl.
       reflexivity.  
     + apply left_dioid_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
   Lemma correct_left_dioid_add_zero 
@@ -1672,7 +1672,7 @@ Section Combinators.
       destruct A_left_dioid_exists_plus_ann; simpl.
       reflexivity.  
     + apply left_dioid_add_ann_proof_correct.
-  Qed.
+  Defined.
 
   Lemma correct_left_pre_semiring_add_zero 
      (A : @A_left_pre_semiring L S) : 
@@ -1692,7 +1692,7 @@ Section Combinators.
     + rewrite bop_add_id_exists_ann_check_correct.
       f_equal.  
     + apply left_semiring_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
    Lemma correct_left_semiring_add_zero 
@@ -1713,7 +1713,7 @@ Section Combinators.
     + rewrite bop_add_id_exists_ann_check_correct.
       f_equal.  
     + apply left_semiring_add_ann_proof_correct.
-  Qed.
+  Defined.
 
   Lemma correct_left_idempotent_semiring_add_zero 
      (A : @A_left_idempotent_semiring L S) : 
@@ -1733,7 +1733,7 @@ Section Combinators.
     + rewrite bop_add_id_exists_ann_check_correct.
       f_equal.  
     + apply left_semiring_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
   Lemma correct_left_selective_semiring_add_zero 
@@ -1752,12 +1752,46 @@ Section Combinators.
     + rewrite bop_add_id_exists_ann_check_correct.
       f_equal.  
     + apply left_semiring_add_ann_proof_correct.
-  Qed.
+  Defined.
 
 
 End Combinators. 
 
-  
+  Lemma correct_mcas_slt_add_zero 
+    {L S : Type}
+    (A : @A_slt_mcas L S) (c : cas_constant) :
+    A2C_mcas_slt (A_mcas_slt_add_zero A c) = 
+    mcas_slt_add_zero (A2C_mcas_slt A) c.
+  Proof.
+    destruct A; simpl.
+    + reflexivity.
+    + rewrite <-correct_slt_add_zero.
+      reflexivity.
+    + rewrite <-correct_slt_C_add_zero.
+      reflexivity.
+    + rewrite <-correct_slt_CS_add_zero.
+      reflexivity.
+    + rewrite <-correct_slt_CI_add_zero.
+      reflexivity.
+    + rewrite <-correct_slt_C_zero_is_ltr_ann_add_zero.
+      reflexivity.
+    + rewrite <-correct_left_dioid_add_zero.
+      reflexivity.
+    + rewrite <-correct_selective_left_pre_dioid_add_zero.
+      reflexivity.
+    + rewrite <-correct_selective_left_dioid_add_zero.
+      reflexivity.
+    + rewrite <-correct_left_pre_semiring_add_zero.
+      reflexivity.
+    + rewrite <-correct_left_semiring_add_zero.
+      reflexivity.
+    + rewrite <-correct_left_selective_semiring_add_zero.
+      reflexivity.
+    + rewrite <-correct_left_idempotent_semiring_add_zero.
+      reflexivity.
+  Qed.
+
+      
 
 
 End Verify.   
