@@ -1188,14 +1188,169 @@ Section Combinators.
   Defined.
 
 
+  Definition left_pre_semiring_add_zero {L S : Type} 
+  (A : @left_pre_semiring L S) (c : cas_constant) :
+  @left_pre_semiring L (with_constant S).
+Proof.
+  refine
+  {|
+      left_pre_semiring_carrier   := 
+        eqv_add_constant (left_pre_semiring_carrier A) c
+    ; left_pre_semiring_label   :=  
+        left_pre_semiring_label A
+    ; left_pre_semiring_plus   := 
+        bop_add_id (left_pre_semiring_plus A) c                                                
+    ; left_pre_semiring_trans  := 
+        ltr_add_ann_op (left_pre_semiring_trans A) c 
+    ; left_pre_semiring_plus_certs := 
+        sg_C_certs_add_id  c 
+        (structures.eqv_witness (left_pre_semiring_carrier A))
+        (structures.eqv_new (left_pre_semiring_carrier A))
+        (left_pre_semiring_plus_certs A)                                 
+    ; left_pre_semiring_trans_certs := 
+        ltr_add_ann_certs c
+        (structures.eqv_witness (left_pre_semiring_carrier A))
+        (structures.eqv_witness (left_pre_semiring_label A))
+        (left_pre_semiring_trans_certs A)
+    ; left_pre_semiring_exists_plus_ann_d :=
+        @bop_add_id_exists_ann_check S
+        (left_pre_semiring_exists_plus_ann_d A)                          
+    ; left_pre_semiring_id_ann_certs_d := 
+         Certify_SLT_Id_Ann_Proof_Equal (inl c) 
+    ; left_pre_semiring_certs :=
+        left_semiring_add_ann_certificate
+       (left_pre_semiring_certs A)
+    ; left_pre_semiring_ast := 
+        Cas_ast ("left_pre_semiring_add_zero", 
+          [left_pre_semiring_ast A])
+  |}.
+  Defined.
+
+  Definition left_semiring_add_zero {L S : Type} 
+  (A : @left_semiring L S) (c : cas_constant) :
+  @left_semiring L (with_constant S).
+Proof.
+  refine
+  {|
+      left_semiring_carrier   := 
+        eqv_add_constant (left_semiring_carrier A) c
+    ; left_semiring_label   :=  
+        left_semiring_label A
+    ; left_semiring_plus   := 
+        bop_add_id (left_semiring_plus A) c                                                
+    ; left_semiring_trans  := 
+        ltr_add_ann_op (left_semiring_trans A) c 
+    ; left_semiring_plus_certs := 
+        sg_C_certs_add_id c 
+        (structures.eqv_witness (left_semiring_carrier A))
+        (structures.eqv_new (left_semiring_carrier A))
+        (left_semiring_plus_certs A)                                 
+    ; left_semiring_trans_certs := 
+        ltr_add_ann_certs c
+        (structures.eqv_witness (left_semiring_carrier A))
+        (structures.eqv_witness (left_semiring_label A))
+        (left_semiring_trans_certs A)
+    ; left_semiring_exists_plus_ann_d :=
+        @bop_add_id_exists_ann_check S 
+       (left_semiring_exists_plus_ann_d A)                          
+    ; left_semiring_id_ann_certs:= 
+        Assert_Slt_Exists_Id_Ann_Equal (inl c)
+    ; left_semiring_certs :=
+        left_semiring_add_ann_certificate
+       (left_semiring_certs A)
+    ; left_semiring_ast := 
+        Cas_ast ("left_semiring_add_zero", 
+          [left_semiring_ast A])
+  |}.
+  Defined.
+  
+
+
+  Definition left_idempotent_semiring_add_zero {L S : Type} 
+    (A : @left_idempotent_semiring L S) (c : cas_constant) :
+    @left_idempotent_semiring L (with_constant S).
+  Proof.
+    refine
+    {|
+        left_idempotent_semiring_carrier   := 
+          eqv_add_constant (left_idempotent_semiring_carrier A) c
+      ; left_idempotent_semiring_label   :=  
+          left_idempotent_semiring_label A
+      ; left_idempotent_semiring_plus   := 
+          bop_add_id (left_idempotent_semiring_plus A) c                                                
+      ; left_idempotent_semiring_trans  := 
+          ltr_add_ann_op (left_idempotent_semiring_trans A) c 
+      ; left_idempotent_semiring_plus_certs := 
+          sg_CI_certs_add_id c
+          (left_idempotent_semiring_plus_certs A)        
+      ; left_idempotent_semiring_trans_certs := 
+          ltr_add_ann_certs c
+          (structures.eqv_witness (left_idempotent_semiring_carrier A))
+          (structures.eqv_witness (left_idempotent_semiring_label A))
+          (left_idempotent_semiring_trans_certs A)
+      ; left_idempotent_semiring_exists_plus_ann_d :=
+          @bop_add_id_exists_ann_check S
+          (left_idempotent_semiring_exists_plus_ann_d A)                          
+      ; left_idempotent_semiring_id_ann_certs :=
+          Assert_Slt_Exists_Id_Ann_Equal (inl c)
+      ; left_idempotent_semiring_certs :=
+          left_semiring_add_ann_certificate
+        (left_idempotent_semiring_certs A)
+      ; left_idempotent_semiring_ast := 
+          Cas_ast ("left_idempotent_semiring_add_zero", 
+            [left_idempotent_semiring_ast A])
+    |}.
+  Defined.
+
+
+
+  Definition left_selective_semiring_add_zero {L S : Type} 
+    (A : @left_selective_semiring L S) (c : cas_constant) :
+    @left_selective_semiring L (with_constant S).
+  Proof.
+  refine
+  {|
+      left_selective_semiring_carrier   := 
+        eqv_add_constant (left_selective_semiring_carrier A) c
+    ; left_selective_semiring_label   :=  
+        left_selective_semiring_label A
+    ; left_selective_semiring_plus   := 
+        bop_add_id (left_selective_semiring_plus A) c                                                
+    ; left_selective_semiring_trans  := 
+        ltr_add_ann_op (left_selective_semiring_trans A) c 
+    ; left_selective_semiring_plus_certs := 
+        sg_CS_certs_add_id c
+        (left_selective_semiring_plus_certs A)                                  
+    ; left_selective_semiring_trans_certs := 
+        ltr_add_ann_certs c
+        (structures.eqv_witness (left_selective_semiring_carrier A))
+        (structures.eqv_witness (left_selective_semiring_label A))
+        (left_selective_semiring_trans_certs A)
+    ; left_selective_semiring_exists_plus_ann_d :=
+        @bop_add_id_exists_ann_check S
+        (left_selective_semiring_exists_plus_ann_d A)                          
+    ; left_selective_semiring_id_ann_certs := 
+        Assert_Slt_Exists_Id_Ann_Equal (inl c)
+    ; left_selective_semiring_certs :=
+        left_semiring_add_ann_certificate
+       (left_selective_semiring_certs A)
+    ; left_selective_semiring_ast := 
+        Cas_ast ("left_selective_semiring_add_zero", 
+          [left_selective_semiring_ast A])
+  |}.
+  Defined.
+
+
+
+
+
+
+
+
+
   
 
     
-
-
-
-
-
 
 End Combinators.   
 End CAS.
@@ -1204,13 +1359,36 @@ End CAS.
 Section MCAS. 
 
 Open Scope string_scope.
-  
-Definition mcas_bs_add_zero {S : Type} (A : @bs_mcas S) (c : cas_constant) := 
-  match (bs_mcas_cast_up A) with
-  | BS_bs B => bs_classify (BS_bs (bs_add_zero B c))
-  | BS_Error str => BS_Error str                                                                                      
-  | _ => BS_Error ("internal error : A_bs_mcas_add_zero" :: nil) 
+
+
+Definition mcas_slt_add_zero {L S : Type}
+(A : @slt_mcas L S) (c : cas_constant) : @slt_mcas L (with_constant S).
+Proof.
+refine 
+  match A with 
+  | SLT_Error ls => SLT_Error ls
+  | SLT slt => slt_classify_slt  (slt_add_zero slt c)
+  | SLT_C slt => slt_C_classify_slt (slt_C_add_zero slt c) 
+  | SLT_CS slt => slt_CS_classify_slt (slt_CS_add_zero slt c)
+  | SLT_CI slt => slt_CI_classify_slt (slt_CI_add_zero  slt c)
+  | SLT_C_Zero_Is_Ltr_ann slt => 
+      slt_C_zero_is_ltr_ann_classify_slt (slt_C_zero_is_ltr_ann_add_zero slt c)
+  | SLT_Left_Pre_Semiring slt => 
+      slt_classify_left_pre_semiring_slt (left_pre_semiring_add_zero slt c)
+  | SLT_Dioid slt => 
+      slt_classify_left_dioid_slt (left_dioid_add_zero slt c)
+  | SLT_Selective_Left_Pre_Dioid slt => 
+      slt_classify_selective_left_pre_dioid_slt (selective_left_pre_dioid_add_zero  slt c)
+  | SLT_Semiring slt => 
+      slt_classify_left_semiring_slt  (left_semiring_add_zero slt c) 
+  | SLT_Selective_Dioid slt => 
+      slt_classify_selective_left_dioid_slt (selective_left_dioid_add_zero slt c) 
+  | SLT_Selective_Semiring slt => 
+      slt_classify_left_selective_semiring_slt (left_selective_semiring_add_zero  slt c)
+  | SLT_Idempotent_Semiring slt => 
+      slt_classify_left_idempotent_semiring_slt (left_idempotent_semiring_add_zero slt c) 
   end.
+Defined.
 
 End MCAS. 
 
