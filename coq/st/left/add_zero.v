@@ -958,6 +958,243 @@ Section Combinators.
     |}.
   Defined.
 
+  Definition slt_C_add_zero {L S : Type} 
+    (A : @slt_C L S) (c : cas_constant) :
+    @slt_C L (with_constant S).
+  Proof.
+    refine
+    {|
+        slt_C_carrier := eqv_add_constant (slt_C_carrier A) c
+      ; slt_C_label  := slt_C_label A
+      ; slt_C_plus  := bop_add_id (slt_C_plus A) c                                             
+      ; slt_C_trans  := ltr_add_ann_op (slt_C_trans A) c
+      ; slt_C_plus_certs  := sg_C_certs_add_id c
+          (structures.eqv_witness (slt_C_carrier A))
+          (structures.eqv_new (slt_C_carrier A))
+          (slt_C_plus_certs A)
+      ; slt_C_trans_certs :=  ltr_add_ann_certs c
+          (structures.eqv_witness (slt_C_carrier A))
+          (structures.eqv_witness (slt_C_label A))
+          (slt_C_trans_certs A) 
+      ; slt_C_exists_plus_ann_d :=  @bop_add_id_exists_ann_check S 
+         (slt_C_exists_plus_ann_d A)                                         
+      ; slt_C_id_ann_certs_d :=  Certify_SLT_Id_Ann_Proof_Equal (inl c)                                             
+      ; slt_C_certs := slt_add_ann_certificate (slt_C_certs A)                             
+      ; slt_C_ast := Cas_ast ("A_slt_C_add_zero", [slt_C_ast A])
+    
+    |}.
+  Defined.
+
+  Definition slt_CS_add_zero {L S : Type} 
+    (A : @slt_CS L S) (c : cas_constant) :
+    @slt_CS L (with_constant S).
+  Proof.
+    refine
+    {|
+        slt_CS_carrier  := eqv_add_constant (slt_CS_carrier A) c
+      ; slt_CS_label := slt_CS_label A
+      ; slt_CS_plus  := bop_add_id (slt_CS_plus A) c                                          
+      ; slt_CS_trans := ltr_add_ann_op (slt_CS_trans A) c 
+      ; slt_CS_plus_certs  := sg_CS_certs_add_id c 
+        (slt_CS_plus_certs A)        
+      ; slt_CS_trans_certs  := ltr_add_ann_certs c
+          (structures.eqv_witness (slt_CS_carrier A))
+          (structures.eqv_witness (slt_CS_label A))
+          (slt_CS_trans_certs A) 
+      ; slt_CS_exists_plus_ann_d :=  @bop_add_id_exists_ann_check S 
+         (slt_CS_exists_plus_ann_d A)                                   
+      ; slt_CS_id_ann_certs_d  :=  Certify_SLT_Id_Ann_Proof_Equal (inl c)                                     
+      ; slt_CS_certs := slt_add_ann_certificate (slt_CS_certs A)                             
+      ; slt_CS_ast := Cas_ast ("A_slt_CS_add_zero", [slt_CS_ast A])
+    |}.
+  Defined.
+
+
+
+
+  Definition slt_CI_add_zero {L S : Type} 
+    (A : @slt_CI L S) (c : cas_constant) :
+    @slt_CI L (with_constant S).
+  Proof.
+    refine
+    {|
+        slt_CI_carrier  := eqv_add_constant (slt_CI_carrier A) c
+      ; slt_CI_label := slt_CI_label A
+      ; slt_CI_plus  := bop_add_id (slt_CI_plus A) c                                          
+      ; slt_CI_trans := ltr_add_ann_op (slt_CI_trans A) c 
+      ; slt_CI_plus_certs  := sg_CI_certs_add_id c 
+        (slt_CI_plus_certs A)        
+      ; slt_CI_trans_certs  := ltr_add_ann_certs c
+          (structures.eqv_witness (slt_CI_carrier A))
+          (structures.eqv_witness (slt_CI_label A))
+          (slt_CI_trans_certs A) 
+      ; slt_CI_exists_plus_ann_d :=  @bop_add_id_exists_ann_check S 
+         (slt_CI_exists_plus_ann_d A)                                   
+      ; slt_CI_id_ann_certs_d  :=  Certify_SLT_Id_Ann_Proof_Equal (inl c)                                     
+      ; slt_CI_certs := slt_add_ann_certificate (slt_CI_certs A)                             
+      ; slt_CI_ast := Cas_ast ("A_slt_CS_add_zero", [slt_CI_ast A])
+    |}.
+  Defined.
+
+  
+
+
+  Definition slt_C_zero_is_ltr_ann_add_zero {L S : Type} 
+    (A : @slt_C_zero_is_ltr_ann L S) (c : cas_constant) :
+    @slt_C_zero_is_ltr_ann L (with_constant S).
+  Proof.
+    refine
+    {|
+        slt_C_zero_is_ltr_ann_carrier  := 
+          eqv_add_constant (slt_C_zero_is_ltr_ann_carrier A) c
+      ; slt_C_zero_is_ltr_ann_label  := 
+          slt_C_zero_is_ltr_ann_label A
+      ; slt_C_zero_is_ltr_ann_plus  :=  
+          bop_add_id (slt_C_zero_is_ltr_ann_plus A) c                               
+      ; slt_C_zero_is_ltr_ann_trans   := 
+          ltr_add_ann_op (slt_C_zero_is_ltr_ann_trans A) c 
+      ; slt_C_zero_is_ltr_ann_plus_certs  := 
+          sg_C_certs_add_id c 
+            (structures.eqv_witness (slt_C_zero_is_ltr_ann_carrier A))
+            (structures.eqv_new (slt_C_zero_is_ltr_ann_carrier A))
+            (slt_C_zero_is_ltr_ann_plus_certs A)        
+      ; slt_C_zero_is_ltr_ann_trans_certs := 
+          ltr_add_ann_certs c
+          (structures.eqv_witness (slt_C_zero_is_ltr_ann_carrier A))
+          (structures.eqv_witness (slt_C_zero_is_ltr_ann_label A))
+          (slt_C_zero_is_ltr_ann_trans_certs A) 
+      ; slt_C_zero_is_ltr_ann_exists_plus_ann_d :=  
+          @bop_add_id_exists_ann_check S
+         (slt_C_zero_is_ltr_ann_exists_plus_ann_d A)                                    
+      ; slt_C_zero_is_ltr_ann_id_ann_certs  := Assert_Slt_Exists_Id_Ann_Equal (inl c)                                           
+      ; slt_C_zero_is_ltr_ann_certs :=  
+          slt_add_ann_certificate
+         (slt_C_zero_is_ltr_ann_certs A)                                 
+      ; slt_C_zero_is_ltr_ann_ast := 
+          Cas_ast ("A_slt_C_zero_is_ltr_ann_add_zero", 
+            [slt_C_zero_is_ltr_ann_ast A])
+    |}.
+  Defined.
+
+
+  Definition selective_left_pre_dioid_add_zero {L S : Type} 
+    (A : @selective_left_pre_dioid L S) (c : cas_constant) :
+    @selective_left_pre_dioid L (with_constant S).
+  Proof.
+    refine
+    {|
+        selective_left_pre_dioid_carrier  := 
+          eqv_add_constant (selective_left_pre_dioid_carrier A) c
+      ; selective_left_pre_dioid_label := 
+         selective_left_pre_dioid_label A
+      ; selective_left_pre_dioid_plus :=  
+          bop_add_id (selective_left_pre_dioid_plus A) c                                           
+      ; selective_left_pre_dioid_trans  := 
+          ltr_add_ann_op (selective_left_pre_dioid_trans A) c 
+      ; selective_left_pre_dioid_plus_certs  := 
+          sg_CS_certs_add_id c   
+          (selective_left_pre_dioid_plus_certs A)      
+      ; selective_left_pre_dioid_trans_certs := 
+          ltr_add_ann_certs c
+          (structures.eqv_witness (selective_left_pre_dioid_carrier A))
+          (structures.eqv_witness (selective_left_pre_dioid_label A))
+          (selective_left_pre_dioid_trans_certs A) 
+      ; selective_left_pre_dioid_exists_plus_ann := 
+          properties.Assert_Exists_Ann (inl c)
+      ; selective_left_pre_dioid_id_ann_certs_d :=  
+          Certify_SLT_Id_Ann_Proof_Equal (inl c)                         
+      ; selective_left_pre_dioid_certs :=  
+          left_dioid_add_ann_certificate
+         (selective_left_pre_dioid_certs A)                                
+      ; selective_left_pre_dioid_ast := 
+          Cas_ast ("A_selective_left_pre_dioid_add_zero", 
+            [selective_left_pre_dioid_ast A])
+    |}.
+  Defined.
+
+   
+
+
+  Definition selective_left_dioid_add_zero {L S : Type} 
+    (A : @selective_left_dioid L S) (c : cas_constant) :
+    @selective_left_dioid L (with_constant S).
+  Proof.
+    Check  left_dioid_add_ann_certificate.
+    refine
+    {|
+        selective_left_dioid_carrier  := 
+          eqv_add_constant (selective_left_dioid_carrier A) c
+      ; selective_left_dioid_label := 
+         selective_left_dioid_label A
+      ; selective_left_dioid_plus :=  
+          bop_add_id (selective_left_dioid_plus A) c                                           
+      ; selective_left_dioid_trans  := 
+          ltr_add_ann_op (selective_left_dioid_trans A) c 
+      ; selective_left_dioid_plus_certs  := 
+          sg_CS_certs_add_id c 
+          (selective_left_dioid_plus_certs A)      
+      ; selective_left_dioid_trans_certs := 
+          ltr_add_ann_certs c
+          (structures.eqv_witness (selective_left_dioid_carrier A))
+          (structures.eqv_witness (selective_left_dioid_label A))
+          (selective_left_dioid_trans_certs A) 
+      ; selective_left_dioid_exists_plus_ann := 
+           properties.Assert_Exists_Ann (inl c)
+      ; selective_left_dioid_id_ann_certs :=
+          Assert_Slt_Exists_Id_Ann_Equal (inl c)                        
+      ; selective_left_dioid_certs :=  
+          left_dioid_add_ann_certificate
+         (selective_left_dioid_certs A)                                
+      ; selective_left_dioid_ast := 
+          Cas_ast ("selective_left_dioid_add_zero", 
+            [selective_left_dioid_ast A])
+    |}.
+  Defined.
+
+  
+  Definition left_dioid_add_zero {L S : Type} 
+    (A : @left_dioid L S) (c : cas_constant) :
+    @left_dioid L (with_constant S).
+  Proof.
+    refine
+    {|
+        left_dioid_carrier  := 
+          eqv_add_constant (left_dioid_carrier A) c
+      ; left_dioid_label := 
+         left_dioid_label A
+      ; left_dioid_plus :=  
+          bop_add_id (left_dioid_plus A) c                                           
+      ; left_dioid_trans  := 
+          ltr_add_ann_op (left_dioid_trans A) c 
+      ; left_dioid_plus_certs  := 
+          sg_CI_certs_add_id c
+          (left_dioid_plus_certs A)      
+      ; left_dioid_trans_certs := 
+          ltr_add_ann_certs c
+          (structures.eqv_witness (left_dioid_carrier A))
+          (structures.eqv_witness (left_dioid_label A))
+          (left_dioid_trans_certs A) 
+      ; left_dioid_exists_plus_ann := 
+          properties.Assert_Exists_Ann (inl c)
+      ; left_dioid_id_ann_certs := 
+          Assert_Slt_Exists_Id_Ann_Equal (inl c)                         
+      ; left_dioid_certs :=  
+          left_dioid_add_ann_certificate
+         (left_dioid_certs A)                                
+      ; left_dioid_ast := 
+          Cas_ast ("left_dioid_add_zero", 
+            [left_dioid_ast A])
+    |}.
+  Defined.
+
+
+  
+
+    
+
+
+
+
 
 
 End Combinators.   
