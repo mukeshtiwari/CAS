@@ -41,12 +41,9 @@ Section Proofs.
     {L S : Type}
     (c : cas_constant)
     (wL : L)
-    (wS : S)
-    (l : brel L)
     (r : brel S)
     (ltr : ltr_type L S)
     (bop : binary_op S)
-    (eqv_l : @eqv_proofs L l)
     (eqv_s : @eqv_proofs S r).
 
 
@@ -833,13 +830,7 @@ Section Certify.
     
   Context 
     {L S : Type}
-    (c : cas_constant)
-    (wL : L)
-    (wS : S)
-    (l : brel L)
-    (r : brel S)
-    (ltr : ltr_type L S)
-    (bop : binary_op S).
+    (c : cas_constant).
 
  
   Lemma slt_add_ann_distributive_check :
@@ -1400,12 +1391,27 @@ Section Verify.
 
 
 Section Certify.
+  Context 
+    {L S : Type}
+    (c : cas_constant)
+    (wL : L)
+    (r : brel S)
+    (ltr : ltr_type L S)
+    (bop : binary_op S)
+    (eqv_s : @eqv_proofs S r).
+
+  
+
 
 End Certify.
 
 Section Combinators. 
 
 End Combinators. 
+
+  Lemma correct_mcas_slt_add_zero : 
+
+
 
 End Verify.   
 
