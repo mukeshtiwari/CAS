@@ -792,7 +792,7 @@ Section AMCAS.
 
 Open Scope string_scope.   
 
-Definition A_mcas_slt_add_zero {L S : Type}
+Definition A_mcas_slt_add_zero_aux {L S : Type}
   (A : @A_slt_mcas L S) (c : cas_constant) : @A_slt_mcas L (with_constant S).
 Proof.
   refine 
@@ -821,6 +821,9 @@ Proof.
     end.
 Defined.
 
+Definition A_mcas_slt_add_zero {L S : Type}
+  (A : @A_slt_mcas L S) (c : cas_constant) := 
+  A_slt_classify (A_mcas_slt_add_zero_aux A c).
 
 End AMCAS. 
 
@@ -1373,8 +1376,8 @@ Section MCAS.
 Open Scope string_scope.
 
 
-Definition mcas_slt_add_zero {L S : Type}
-(A : @slt_mcas L S) (c : cas_constant) : @slt_mcas L (with_constant S).
+Definition mcas_slt_add_zero_aux {L S : Type}
+  (A : @slt_mcas L S) (c : cas_constant) : @slt_mcas L (with_constant S).
 Proof.
 refine 
   match A with 
@@ -1401,6 +1404,10 @@ refine
       SLT_Idempotent_Semiring (left_idempotent_semiring_add_zero slt c) 
   end.
 Defined.
+
+Definition mcas_slt_add_zero {L S : Type}
+  (A : @slt_mcas L S) (c : cas_constant) := 
+  slt_classify (mcas_slt_add_zero_aux A c).
 
 End MCAS. 
 
@@ -1757,11 +1764,11 @@ Section Combinators.
 
 End Combinators. 
 
-  Lemma correct_mcas_slt_add_zero 
+  Lemma correct_mcas_slt_add_zero_aux 
     {L S : Type}
     (A : @A_slt_mcas L S) (c : cas_constant) :
-    A2C_mcas_slt (A_mcas_slt_add_zero A c) = 
-    mcas_slt_add_zero (A2C_mcas_slt A) c.
+    A2C_mcas_slt (A_mcas_slt_add_zero_aux A c) = 
+    mcas_slt_add_zero_aux (A2C_mcas_slt A) c.
   Proof.
     destruct A; simpl.
     + reflexivity.
@@ -1791,7 +1798,18 @@ End Combinators.
       reflexivity.
   Qed.
 
-      
+  Lemma correct_mcas_slt_add_zero
+    {L S : Type}
+    (A : @A_slt_mcas L S) (c : cas_constant) :
+    A2C_mcas_slt (A_mcas_slt_add_zero A c) = 
+    mcas_slt_add_zero (A2C_mcas_slt A) c.
+  Proof.
+    unfold A_mcas_slt_add_zero,
+    mcas_slt_add_zero.
+    rewrite <-correct_mcas_slt_add_zero_aux.
+    rewrite correctness_slt_classify.
+    reflexivity.
+  Qed.
 
 
 End Verify.   
