@@ -456,11 +456,6 @@ Section MCAS.
     | @MCAS_ltr _ _ Hlt =>  @MCAS_ltr L (with_constant S) (ltr_add_ann c Hlt)
     end.
   
-  (* 
-  Definition mcas_ltr_add_ann {L S : Type}
-    (Hl : left_transform L S) (c : cas_constant)  := 
-    @MCAS_ltr L (with_constant S) (ltr_add_ann c Hl).
-  *)
 
 End MCAS.
 
