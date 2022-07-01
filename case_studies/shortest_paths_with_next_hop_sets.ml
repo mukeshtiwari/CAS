@@ -7,8 +7,17 @@ let next_hop_sets  = mcas_bs_union_lift (mcas_sg_left mcas_eqv_eq_nat);;
 (* mcas_bs_describe_fully next_hop_sets;;
 
 Class : Semiring
+(S_0, *_0) = sg_left nat
+S_0 = nat
+x *_0 y = x
+(S_1, +_1, *_1) = bs_union_lift (S_0, *_0)
+S_1 = set(S_0)
+X +_1 Y = X union Y
+X *_1 Y = {x *_0 y | x in X, y in Y}
 Additive properties:
 --------------------
+Identity = {}
+No annihilator
 Idempotent
 Commutative
 Not Selective: 
@@ -37,6 +46,8 @@ Not Is Right:
    {0}.{} = {0}
 Multiplicative properties:
 -------------------------
+No identity
+Annihilator = {}
 Idempotent
 Not Commutative: 
    {0}.{1} = {0}
@@ -87,13 +98,41 @@ Not Right left Absorptive:
 
 let pre_sp_with_nh_sets = mcas_bs_add_zero (mcas_bs_llex_product mcas_min_plus next_hop_sets) infinity;;
 
-(*
-
-mcas_bs_describe_fully pre_sp_with_nh_sets;;
+(* mcas_bs_describe_fully pre_sp_with_nh_sets;;
 
 Class : Semiring
+(S_0, +_0, *_0) = min_plus
+where
+S_0 = nat
+x +_0 y = x min y
+x *_0 y = x + y
+(S_1, *_1) = sg_left nat
+S_1 = nat
+x *_1 y = x
+(S_2, +_2, *_2) = bs_union_lift (S_1, *_1)
+S_2 = set(S_1)
+X +_2 Y = X union Y
+X *_2 Y = {x *_1 y | x in X, y in Y}
+(S_3, +_3, *_3) = bs_llex_product (S_0, +_0, *_0) (S_2, +_2, *_2)
+where
+S_3 = S_0 * S_2
+(a, b) +_3 (c, d) = (a, b +_2 d) (if a = a +_0 c = c)
+(a, b) +_3 (c, d) = (a, b) (if a = a +_0 c <> c)
+(a, b) +_3 (c, d) = (c, d) (if a <> a +_0 c = c)
+(a, b) *_3 (c, d) = (a *_0 c, b *_2 d)
+(S_4, +_4, *_4) = bs_add_zero (S_3, +_3, *_3) INF
+where
+S_4 = {INF} + S_3
+Inr(x) +_4 Inr(y) = Inr(x +_3 y)
+Inl(INF) +_4 a = a
+a +_4 Inl(INF) = a
+Inr(x) *_4 Inr(y) = Inr(x *_3 y)
+Inl(INF) *_4 _ = Inl(INF)
+_ *_4 Inl(INF) = Inl(INF)
 Additive properties:
 --------------------
+Identity = inl(INF)
+No annihilator
 Idempotent
 Commutative
 Not Selective: 
@@ -122,6 +161,8 @@ Not Is Right:
    inr((0, {0})).inl(INF) = inr((0, {0}))
 Multiplicative properties:
 -------------------------
+No identity
+Annihilator = inl(INF)
 Not Idempotent: 
    inr((1, {0})).inr((1, {0})) = inr((2, {0}))
 Not Commutative: 
@@ -170,19 +211,6 @@ Not Right left Absorptive:
    b*a = inr((0, {0}))
    rhs = inr((0, {0, 1}))
 
-
-take a look at zero and one: 
-
-match pre_sp_with_nh_sets with | BS_semiring b -> b.semiring_id_ann_certs | _ -> complain "Blah";;
-- : (int * int Cas.finite_set) Cas.with_constant Cas.pid_is_tann_certificates
-=
-{pid_is_tann_plus_times =
-  Assert_Exists_Id_Ann_Equal
-   (Inl
-     {constant_ascii = ['I'; 'N'; 'F'];
-      constant_latex = ['\\'; 'i'; 'n'; 'f'; 't'; 'y']});
- pid_is_tann_times_plus_d = Id_Ann_Cert_None}
-
  *)
 
 let sp_with_nh_sets = mcas_bs_add_one pre_sp_with_nh_sets self ;;
@@ -191,10 +219,48 @@ let sp_with_nh_sets = mcas_bs_add_one pre_sp_with_nh_sets self ;;
 Note: A(i, j) has the form inr(inr((w, {j}))) or inr (inl infinity) 
 
 mcas_bs_describe_fully sp_with_nh_sets;;
-
 Class : Commuative and Idempotent Bi-semigroup
+(S_0, +_0, *_0) = min_plus
+where
+S_0 = nat
+x +_0 y = x min y
+x *_0 y = x + y
+(S_1, *_1) = sg_left nat
+S_1 = nat
+x *_1 y = x
+(S_2, +_2, *_2) = bs_union_lift (S_1, *_1)
+S_2 = set(S_1)
+X +_2 Y = X union Y
+X *_2 Y = {x *_1 y | x in X, y in Y}
+(S_3, +_3, *_3) = bs_llex_product (S_0, +_0, *_0) (S_2, +_2, *_2)
+where
+S_3 = S_0 * S_2
+(a, b) +_3 (c, d) = (a, b +_2 d) (if a = a +_0 c = c)
+(a, b) +_3 (c, d) = (a, b) (if a = a +_0 c <> c)
+(a, b) +_3 (c, d) = (c, d) (if a <> a +_0 c = c)
+(a, b) *_3 (c, d) = (a *_0 c, b *_2 d)
+(S_4, +_4, *_4) = bs_add_zero (S_3, +_3, *_3) INF
+where
+S_4 = {INF} + S_3
+Inr(x) +_4 Inr(y) = Inr(x +_3 y)
+Inl(INF) +_4 a = a
+a +_4 Inl(INF) = a
+Inr(x) *_4 Inr(y) = Inr(x *_3 y)
+Inl(INF) *_4 _ = Inl(INF)
+_ *_4 Inl(INF) = Inl(INF)
+(S_5, +_5, *_5) = bs_add_one (S_4, +_4, *_4) SELF
+where
+S_5 = {SELF} + S_4
+Inr(x) +_5 Inr(y) = Inr(x +_4 y)
+Inl(SELF) +_5 _ = Inl(SELF)
+_ +_5 Inl(SELF) = Inl(SELF)
+Inr(x) *_5 Inr(y) = Inr(x *_4 y)
+Inl(SELF) *_5 a = a
+a *_5 Inl(SELF) = a
 Additive properties:
 --------------------
+Identity = inr(inl(INF))
+Annihilator = inl(SELF)
 Idempotent
 Commutative
 Not Selective: 
@@ -223,6 +289,8 @@ Not Is Right:
    inl(SELF).inr(inl(INF)) = inl(SELF)
 Multiplicative properties:
 -------------------------
+Identity = inl(SELF)
+Annihilator = inr(inl(INF))
 Not Idempotent: 
    inr(inr((1, {0}))).inr(inr((1, {0}))) = inr(inr((2, {0})))
 Not Commutative: 
@@ -282,11 +350,158 @@ Not Right left Absorptive:
 
  *)   
 
-  
 (* Alternatives? 
 
-let next_hop_sets    = mcas_slt_union_singleton eqv_eq_nat;;
-let slt_min_plus_nhs = mcas_slt_llex_product mcas_slt_min_plus_one next_hop_sets
+let slt_min_plus_nhs = mcas_slt_llex_product 
+                           mcas_slt_min_plus_one 
+                           (mcas_slt_union_insert mcas_eqv_eq_nat)
+ *) 
+
+let union_insert = mcas_slt_union_insert mcas_eqv_eq_nat;; 
+(*
+mcas_slt_describe_fully union_insert;; 
+
+Class : Selective Left Pre-Dioid
+(L_0, S_0, +_0, *_0) = slt_union_insert nat
+L_0 = nat
+S_0 = set(nat)
+X +_0 Y = X union Y
+x |>_0 Y = {x} union Y
+Special values:
+Additive annihilator:
+No Annihilator
+Identity = {}
+ No Annihilator
+Additive properties:
+--------------------
+Idempotent
+Commutative
+Not Selective: 
+   {0}.{1} = {0, 1}
+Not Left Cancellative: 
+   {0, 1}.{0} = {1, 0}
+   {0, 1}.{1} = {0, 1}
+   {0} <> {1}
+Not Right Cancellative: 
+   {0}.{0, 1} = {0, 1}
+   {1}.{0, 1} = {0, 1}
+   {0} <> {1}
+Not Left Constant: 
+   {}.{0} = {0}
+   {}.{} = {}
+Not Right Constant: 
+   {0}.{} = {0}
+   {}.{} = {}
+Not Anti Left: 
+   {0}.{0} = {0}
+Not Anti Right: 
+   {0}.{0} = {0}
+Not Is Left: 
+   {}.{0} = {0}
+Not Is Right: 
+   {0}.{} = {0}
+Multiplicative properties:
+-------------------------
+Not Left Cancellative: 
+   0.{} = {0}
+   0.{0} = {0}
+   {} <> {0}
+Not Left Constant: 
+   0|>{} = {0}
+   0|>{1} = {0, 1}
+Not Is Right: 
+   0|>{} = {0}
+Interaction of Additive and Multiplicative operations
+-------------------------------------------------------
+Left Distributive
+Not Absorptive: 
+   x = {}
+   l = 0
+   x <> x + l|>x = rhs: 
+   l|>x = {0}
+   rhs = {0}
+Not Strictly Absorptive (since not Absorptive): 
+   x = {}
+   l = 0
+   x <> x + l|>x = rhs: 
+   l|>x = {0}
+   rhs = {0}
+
 
  *) 
 
+let min_plus_one_llex_union_insert = mcas_slt_llex_product mcas_slt_min_plus_one union_insert;;
+(*  
+mcas_slt_describe_fully min_plus_one_llex_union_insert;; 
+
+mcas_slt_describe_fully min_plus_one_llex_union_insert;; 
+Class : Left Semigroup Transform
+(S_0, +_0, *_0) = slt_min_plus_one
+where
+L_0 = nat
+S_0 = nat
+x +_0 y = x min y
+x *_0 y = 1 + x + y
+(L_1, S_1, +_1, *_1) = slt_union_insert nat
+L_1 = nat
+S_1 = set(nat)
+X +_1 Y = X union Y
+x |>_1 Y = {x} union Y
+(L_2, S_2, +_2, *_2) = slt_llex_product (L_0, S_0, +_0, |>_0) (L_1, S_1, +_1, |>_1)
+where
+L_2 = L_0 * L_1
+S_2 = S_0 * S_1
+(a, b) +_2 (c, d) = (a, b +_1 d) (if a = a +_0 c = c)
+(a, b) +_2 (c, d) = (a, b) (if a = a +_0 c <> c)
+(a, b) +_2 (c, d) = (c, d) (if a <> a +_0 c = c)
+(a, b) |>_2 (c, d) = (a |>_0 c, b |>_1 d)
+Special values:
+Additive annihilator:
+No Annihilator
+No Identity 
+No Annihilator
+Additive properties:
+--------------------
+Idempotent
+Commutative
+Not Selective: 
+   (0, {0}).(0, {1}) = (0, {0, 1})
+Not Left Cancellative: 
+   (0, {0}).(1, {0}) = (0, {0})
+   (0, {0}).(1, {}) = (0, {0})
+   (1, {0}) <> (1, {})
+Not Right Cancellative: 
+   (1, {0}).(0, {0}) = (0, {0})
+   (1, {}).(0, {0}) = (0, {0})
+   (1, {0}) <> (1, {})
+Not Left Constant: 
+   (1, {0}).(0, {0}) = (0, {0})
+   (1, {0}).(0, {}) = (0, {})
+Not Right Constant: 
+   (0, {0}).(1, {0}) = (0, {0})
+   (0, {}).(1, {0}) = (0, {})
+Not Anti Left: 
+   (0, {0}).(1, {0}) = (0, {0})
+Not Anti Right: 
+   (1, {0}).(0, {0}) = (0, {0})
+Not Is Left: 
+   (1, {0}).(0, {0}) = (0, {0})
+Not Is Right: 
+   (0, {0}).(1, {0}) = (0, {0})
+Multiplicative properties:
+-------------------------
+Not Left Cancellative: 
+   (0, 0).(0, {}) = (1, {0})
+   (0, 0).(0, {0}) = (1, {0})
+   (0, {}) <> (0, {0})
+Not Left Constant: 
+   (0, 0)|>(0, {0}) = (1, {0})
+   (0, 0)|>(1, {0}) = (2, {0})
+Not Is Right: 
+   (0, 0)|>(0, {0}) = (1, {0})
+Interaction of Additive and Multiplicative operations
+-------------------------------------------------------
+Left Distributive
+Absorptive
+Strictly Absorptive
+*) 

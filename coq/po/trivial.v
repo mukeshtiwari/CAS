@@ -59,11 +59,14 @@ Proof. intro s. unfold brel_not_is_qo_bottom. right.
        exists (f s); compute; auto. 
 Defined.
 
+Lemma brel_trivial_trivial : order_trivial S brel_trivial. 
+Proof. intros s t. compute; reflexivity. Qed. 
 
 End Theory.
 
 Section ACAS.
-  
+
+
 Definition wo_proofs_trivial (S : Type) (eq : brel S) (wS : S) (f : S → S) (nt : brel_not_trivial S eq f) : 
     wo_proofs S eq brel_trivial := 
 {|
@@ -72,9 +75,10 @@ Definition wo_proofs_trivial (S : Type) (eq : brel S) (wS : S) (f : S → S) (nt
 ; A_wo_transitive    := brel_trivial_transitive S 
 ; A_wo_not_antisymmetric := brel_trivial_not_antisymmetric S eq wS f nt
 ; A_wo_total         := brel_trivial_total S
+; A_wo_trivial_d     := inl (brel_trivial_trivial S)                                           
 |}. 
 
-
+Print A_wo. 
 
 Definition A_wo_trivial (S : Type): A_eqv S -> A_wo S
 := λ eqv,
@@ -83,12 +87,12 @@ Definition A_wo_trivial (S : Type): A_eqv S -> A_wo S
   let nt := A_eqv_not_trivial S eqv in      
   let eq := A_eqv_eq S eqv in
   {| 
-     A_wo_eqv            := eqv 
-   ; A_wo_lte            := brel_trivial
-   ; A_wo_exists_top_d    := inr (brel_trivial_not_exists_qo_top S eq f nt)                                                                
-   ; A_wo_exists_bottom_d := inr (brel_trivial_not_exists_qo_bottom S eq f nt)                                  
-   ; A_wo_proofs         := wo_proofs_trivial S eq wS f nt
-   ; A_wo_ast            := Ast_qo_trivial (A_eqv_ast S eqv)
+     A_wo_eqv               := eqv 
+   ; A_wo_lte               := brel_trivial
+   ; A_wo_not_exists_top    := brel_trivial_not_exists_qo_top S eq f nt
+   ; A_wo_not_exists_bottom := brel_trivial_not_exists_qo_bottom S eq f nt
+   ; A_wo_proofs            := wo_proofs_trivial S eq wS f nt
+   ; A_wo_ast               := Ast_or_trivial (A_eqv_ast S eqv)
    |}. 
 
 End ACAS.
@@ -98,45 +102,40 @@ Section CAS.
 
 Definition wo_certs_trivial {S : Type} (wS : S) (f : S -> S) : @wo_certificates S := 
 {|
-  wo_congruence    := Assert_Brel_Congruence
-; wo_reflexive     := Assert_Reflexive 
-; wo_transitive    := Assert_Transitive 
+  wo_congruence        := Assert_Brel_Congruence
+; wo_reflexive         := Assert_Reflexive 
+; wo_transitive        := Assert_Transitive 
 ; wo_not_antisymmetric := Assert_Not_Antisymmetric (wS, f wS) 
-; wo_total       := Assert_Total
+; wo_total             := Assert_Total
+; wo_trivial_d         := Certify_Order_Trivial 
 |}. 
-
 
 Definition wo_trivial {S : Type} :  @eqv S -> @wo S 
 := λ eqv,
   let wS := eqv_witness eqv in
   let f := eqv_new eqv in           
   {| 
-     wo_eqv            := eqv
-   ; wo_lte            := brel_trivial
-   ; wo_exists_top_d    := Certify_Not_Exists_Qo_Top 
-   ; wo_exists_bottom_d := Certify_Not_Exists_Qo_Bottom 
-   ; wo_certs          := wo_certs_trivial wS f 
-   ; wo_ast            := Ast_qo_trivial (eqv_ast eqv)
+     wo_eqv               := eqv
+   ; wo_lte               := brel_trivial
+   ; wo_not_exists_top    := Assert_Not_Exists_Qo_Top 
+   ; wo_not_exists_bottom := Assert_Not_Exists_Qo_Bottom 
+   ; wo_certs             := wo_certs_trivial wS f 
+   ; wo_ast               := Ast_or_trivial (eqv_ast eqv)
    |}. 
-
-
-
  
 End CAS.
 
 Section Verify.
-
-
   
 Lemma correct_po_certs_trivial (S : Type) (eq : brel S) (wS : S) (f : S -> S) (nt : brel_not_trivial S eq f): 
        wo_certs_trivial wS f 
        = 
-       P2C_wo S eq brel_trivial (wo_proofs_trivial S eq wS f nt).
+       P2C_wo eq brel_trivial (wo_proofs_trivial S eq wS f nt).
 Proof. compute. reflexivity. Qed. 
 
 
 Theorem correct_sg_trivial (S : Type) (E : A_eqv S):  
-         wo_trivial (A2C_eqv S E)  = A2C_wo S (A_wo_trivial S E). 
+         wo_trivial (A2C_eqv S E)  = A2C_wo (A_wo_trivial S E). 
 Proof. unfold wo_trivial, A_wo_trivial, A2C_wo; simpl. 
        rewrite <- correct_po_certs_trivial. reflexivity.        
 Qed. 
