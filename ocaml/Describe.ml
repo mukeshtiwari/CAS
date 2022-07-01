@@ -1041,6 +1041,15 @@ let rec slt_describe_algebra_fully_aux =  function
 	  pline (plus_eq i "x" "y" "x min y"); 
 	  pline (times_eq i "x" "y" "1 + x + y"); 
 	  i)
+     | "slt_plus_times_FIX_AST", [] ->
+      let i = string_of_int (next_int ()) in
+      (pline (bs_eq i ["slt_plus_times"]);
+       pline "where";
+       pline (l_eq i "nat");	  
+       pline (s_eq i "nat");
+       pline (plus_eq i "x" "y" "x plus y"); 
+       pline (times_eq i "x" "y" "x * y"); 
+       i)
       | "slt_add_zero", [a; Cas_ast_constant c] ->
 	 let j = slt_describe_algebra_fully_aux a in 
 	 let i = string_of_int (next_int ()) in     
@@ -1090,7 +1099,7 @@ let rec slt_describe_algebra_fully_aux =  function
 	  pline (plus_eq i "X" "Y" "X union Y");
 	  pline (ltr_eq i "x" "Y" "{x} union Y"); 
 	  i)
-      | _, _ -> error "slt_describe_algebra_fully_aux : internal error 1" 
+      | s, _ -> error ("slt_describe_algebra_fully_aux : "^s)  
      )
   | Cas_ast_constant _ -> error "slt_describe_algebra_fully_aux : internal error 2" 
 

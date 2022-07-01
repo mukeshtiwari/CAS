@@ -16,6 +16,7 @@ Require Import CAS.coq.sg.add_id.
 Require Import CAS.coq.sg.add_ann. 
 Require Import CAS.coq.sg.cast_up. 
 Require Import CAS.coq.tr.left.add_ann.
+Require Import CAS.coq.st.cast_up.
 
 Require Import List. 
 Import ListNotations.
@@ -224,7 +225,7 @@ Section Combinators.
          (A_eqv_eq S (A_slt_carrier A)) (A_slt_trans A) 
          (A_slt_plus A) (A_eqv_proofs S (A_slt_carrier A)) 
          (A_slt_proofs A)                                 
-      ; A_slt_ast :=  Cas_ast ("A_slt_add_zero", [A_slt_ast A])
+      ; A_slt_ast :=  Cas_ast ("slt_add_zero", [A_slt_ast A; Cas_ast_constant c])
     |}.
     apply SLT_Id_Ann_Proof_Equal.
     exists (inl c); simpl.
@@ -823,7 +824,12 @@ Defined.
 
 Definition A_mcas_slt_add_zero {L S : Type}
   (A : @A_slt_mcas L S) (c : cas_constant) := 
-  A_slt_classify (A_mcas_slt_add_zero_aux A c).
+  match cast_A_slt_mcas_to_A_slt A with 
+  | A_SLT B =>  A_slt_classify_slt (A_slt_add_zero B c)
+  | A_SLT_Error l => A_SLT_Error l 
+  | _ => A_SLT_Error ["Internal Error : mcas_slt_add_zero"]
+  end.  
+
 
 End AMCAS. 
 
@@ -952,7 +958,7 @@ Section Combinators.
       ; slt_id_ann_certs_d  := Certify_SLT_Id_Ann_Proof_Equal (inl c)                                              
       ; slt_certs := slt_add_ann_certificate c 
         (structures.eqv_witness (slt_label A)) (slt_certs A)                          
-      ; slt_ast :=  Cas_ast ("A_slt_add_zero", [slt_ast A])
+      ; slt_ast :=  Cas_ast ("slt_add_zero", [slt_ast A; Cas_ast_constant c])
     |}.
   Defined.
 
@@ -1407,7 +1413,13 @@ Defined.
 
 Definition mcas_slt_add_zero {L S : Type}
   (A : @slt_mcas L S) (c : cas_constant) := 
-  slt_classify (mcas_slt_add_zero_aux A c).
+  match cast_slt_mcas_to_slt A with 
+  | SLT B =>  slt_classify_slt (slt_add_zero B c)
+  | SLT_Error l => SLT_Error l 
+  | _ => SLT_Error ["Internal Error : mcas_slt_add_zero"]
+  end.  
+
+
 
 End MCAS. 
 
@@ -1806,8 +1818,12 @@ End Combinators.
   Proof.
     unfold A_mcas_slt_add_zero,
     mcas_slt_add_zero.
-    rewrite <-correct_mcas_slt_add_zero_aux.
-    rewrite correctness_slt_classify.
+    rewrite correctness_cast_slt_mcas_to_slt.
+    destruct (cast_A_slt_mcas_to_A_slt A); 
+    simpl; try reflexivity.
+    rewrite <-correctness_slt_classify_slt.
+    f_equal.
+    rewrite correct_slt_add_zero.
     reflexivity.
   Qed.
 

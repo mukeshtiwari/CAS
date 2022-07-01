@@ -1,6 +1,7 @@
 open Cas;;
 open Describe;;
-open Matrix_solver;;
+ 
+(* open Matrix_solver;; *)
   
 (* 
    This file contains an from Section 4.11.3 
@@ -20,7 +21,7 @@ open Matrix_solver;;
 
 (* Note that the book defines this as follows *)
 
-let geodetic_not_correct =mcas_bs_llex_product ( mcas_bs_add_zero mcas_min_plus infinity) mcas_plus_times ;;
+let geodetic_not_correct = mcas_bs_llex_product ( mcas_bs_add_zero mcas_min_plus infinity) mcas_plus_times ;;
 
 (*
 Note: this has the additive and multiplicative ids as in the book. 
@@ -252,9 +253,21 @@ Not Right left Absorptive:
 
   (* BUT, to solve path problems need to use a left_transform!!!
 
-  i think it is something like this: 
+  i think it is something like this: *)
 
-  slt_add_zero (slt_llex_product slt_min_plus_one (slt_from_bs plus_times)) infinit
+(* 
+slt_add_zero (slt_llex_product slt_min_plus_one (slt_from_bs plus_times)) infinit   
+*)
 
-*) 
+(*
+I think I need to write a file add_zero.v in 
+coq/st/left/add_zero.v which will call the 
+ltr_add_ann or mcas_ltr_add_ann
+*)
+let lt_geodetic = mcas_slt_add_zero 
+   (mcas_slt_llex_product 
+      mcas_slt_min_plus_one 
+      mcas_slt_plus_times) 
+   infinity
+
   
