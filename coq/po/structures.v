@@ -13,7 +13,7 @@ Require Import CAS.coq.po.theory.
                 or
               /   \
              /     \
-    antisymm/       \not 
+    antisymm/       \not antisymm
            /         \ 
           /           \
           |            \ 
@@ -24,7 +24,7 @@ Require Import CAS.coq.po.theory.
        to  po           wo  qo 
 
 
-ord = order (ref, trans) 
+or = order (ref, trans) 
 to = total order   (ref, trans, antisymm, total) 
 po = partial order (ref, trans, antisymm, not total)   
 qo = quasi order (ref, trans, not_antisymm, not total) 

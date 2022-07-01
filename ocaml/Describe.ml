@@ -727,6 +727,13 @@ let next_int () =
 let stdf = Format.std_formatter;;
 let strf = Format.str_formatter;;
 
+let sg_eq i l = (Format.fprintf strf "(S_%s, *_%s) = %s" i i (String.concat " " l);
+		 Format.flush_str_formatter ());;  
+
+let sg_i i = (Format.fprintf strf "(S_%s, *_%s)" i i ;
+	      Format.flush_str_formatter ());;
+
+  
 let bs_i i = (Format.fprintf strf "(S_%s, +_%s, *_%s)" i i i;
 	      Format.flush_str_formatter ());;
 
@@ -771,13 +778,87 @@ let ltr_eq i a  b c = (Format.fprintf strf "%s |>_%s %s = %s" a i b c;
 let pline l = Format.pp_print_string stdf (l ^ "\n")
 
 let singleton a = "{" ^ a ^ "}"
+let set a = "set(" ^ a ^ ")"			      
 let sum a b = a ^ " + " ^ b
 let prod a b = a ^ " * " ^ b				   			    
 let inl x = "Inl(" ^ x ^ ")"
 let inr x = "Inr(" ^ x ^ ")"
 let pair x y = "(" ^ x ^ ", " ^ y ^ ")"
 let equal x y = x ^ " = " ^ y
-let nequal x y = x ^ " <> " ^ y  
+let nequal x y = x ^ " <> " ^ y
+
+let rec sg_describe_algebra_fully_aux =  function 			
+  | Ast_sg_times ->
+     let i = string_of_int (next_int ()) in
+     (pline (sg_eq i ["sg_times"]);
+      pline "where";       
+      pline (s_eq i "nat");
+      pline (times_eq i "x" "y" "x * y"); 
+      i) 
+  | Ast_sg_plus ->
+     let i = string_of_int (next_int ()) in
+     (pline (sg_eq i ["sg_plus"]);
+      pline "where";       
+      pline (s_eq i "nat");
+      pline (times_eq i "x" "y" "x + y"); 
+      i) 
+  | Ast_sg_or  -> 
+     let i = string_of_int (next_int ()) in
+     (pline (sg_eq i ["sg_or"]);
+      pline "where"; 
+      pline (s_eq i "bool");
+      pline (times_eq i "x" "y" "x or y"); 
+      i) 
+  | Ast_sg_and -> 
+     let i = string_of_int (next_int ()) in
+     (pline (sg_eq i ["sg_and"]);
+      pline "where"; 
+      pline (s_eq i "bool");
+      pline (times_eq i "x" "y" "x and y"); 
+      i) 
+  | Ast_sg_min ->
+     let i = string_of_int (next_int ()) in
+     (pline (sg_eq i ["sg_min"]);
+      pline "where";       
+      pline (s_eq i "nat");
+      pline (times_eq i "x" "y" "x min y"); 
+      i) 
+  | Ast_sg_max ->
+     let i = string_of_int (next_int ()) in
+     (pline (sg_eq i ["sg_max"]);
+      pline "where";       
+      pline (s_eq i "nat");
+      pline (times_eq i "x" "y" "x max y"); 
+      i)
+  | Ast_sg_left ast ->
+     let i = string_of_int (next_int ()) in
+     let carrier = unfold_eqv_ast ast in 
+     (pline (sg_eq i ["sg_left"; carrier]);
+      pline (s_eq i carrier);
+      pline (times_eq i "x" "y" "x");       
+     i)
+  | _ ->
+     let i = string_of_int (next_int ()) in          
+     (pline "bs_describe_algebra_fully_aux: Not Matched!"; i)       
+(*
+  | Ast_sg_add_id of (cas_constant*cas_sg_ast) -> 
+  | Ast_sg_add_ann of (cas_constant*cas_sg_ast)
+  | Ast_sg_concat of cas_eqv_ast
+| Ast_sg_union of cas_eqv_ast
+| Ast_sg_intersect of cas_eqv_ast
+
+| Ast_sg_right of cas_eqv_ast
+| Ast_sg_left_sum of (cas_sg_ast*cas_sg_ast)
+| Ast_sg_right_sum of (cas_sg_ast*cas_sg_ast)
+| Ast_sg_lift of cas_sg_ast
+| Ast_sg_llex of (cas_sg_ast*cas_sg_ast)
+| Ast_sg_product of (cas_sg_ast*cas_sg_ast)
+| Ast_sg_minset_lift of cas_os_ast
+| Ast_sg_minset_union of cas_or_ast
+| Ast_sg_plus_of_bs of cas_bs_ast
+| Ast_sg_times_of_bs of cas_bs_ast
+| Ast_sg_times_of_os of cas_os_ast
+ *) 
   
 let rec bs_describe_algebra_fully_aux =  function
   | Ast_min_plus ->
@@ -877,10 +958,15 @@ let rec bs_describe_algebra_fully_aux =  function
       pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
       pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
       pline (times_eq i "(a, b)" "(c, d)" (pair (times_i i1 "a" "c") (times_i i2 "b" "d")));       
-      i) 
-  | Ast_bs_union_lift sg ->
+      i)
+  | Ast_bs_union_lift sg        ->
+     let i1 = sg_describe_algebra_fully_aux sg in     
      let i = string_of_int (next_int ()) in     
-     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+     (pline (bs_eq i ["bs_union_lift"; (sg_i i1)]);
+      pline (s_eq i (set (s_i i1)));
+      pline (plus_eq i "X" "Y" "X union Y");
+      pline (times_eq i "X" "Y" ("{" ^ (times_i i1 "x" "y") ^ " | x in X, y in Y}")); 
+      i)
   | Ast_bs_left_sum_right_sum (bs1, bs2) ->
      let i = string_of_int (next_int ()) in     
      (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
@@ -911,9 +997,9 @@ let rec bs_describe_algebra_fully_aux =  function
   | Ast_lift_union sg        ->
      let i = string_of_int (next_int ()) in     
      (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
-  | Ast_union_lift sg        ->
-     let i = string_of_int (next_int ()) in     
-     (pline "bs_describe_algebra_fully_aux: Not Yet!"; i) 
+  | _   ->
+     let i = string_of_int (next_int ()) in          
+     (pline "bs_describe_algebra_fully_aux: Not Matched!"; i)       
 
 let bs_describe_algebra_fully ast =
   let _ = reset_next_int_ref () in
@@ -956,45 +1042,54 @@ let rec slt_describe_algebra_fully_aux =  function
 	  pline (times_eq i "x" "y" "1 + x + y"); 
 	  i)
       | "slt_add_zero", [a; Cas_ast_constant c] ->
-     let j = slt_describe_algebra_fully_aux a in 
-     let i = string_of_int (next_int ()) in     
-     let c' = char_list_to_string c.constant_ascii in
-     (pline (slt_eq i ["bs_add_zero"; (slt_i j); c']);
-      pline "where"; 
-      pline (s_eq i (sum (singleton c') (s_i j)));
-      pline (l_eq i (l_i j));       
-      pline(plus_eq i (inr "x") (inr "y") (inr (plus_i j "x" "y")));
-      pline(plus_eq i (inl c') "y" "y");
-      pline(plus_eq i "x" (inl c') "x");      
-      pline(ltr_eq i "l" (inr "y") (inr (ltr_i j "l" "y")));
-      pline(ltr_eq i "l" (inl c') (inl c')); 
-      i)
+	 let j = slt_describe_algebra_fully_aux a in 
+	 let i = string_of_int (next_int ()) in     
+	 let c' = char_list_to_string c.constant_ascii in
+	 (pline (slt_eq i ["bs_add_zero"; (slt_i j); c']);
+	  pline "where"; 
+	  pline (s_eq i (sum (singleton c') (s_i j)));
+	  pline (l_eq i (l_i j));       
+	  pline(plus_eq i (inr "x") (inr "y") (inr (plus_i j "x" "y")));
+	  pline(plus_eq i (inl c') "y" "y");
+	  pline(plus_eq i "x" (inl c') "x");      
+	  pline(ltr_eq i "l" (inr "y") (inr (ltr_i j "l" "y")));
+	  pline(ltr_eq i "l" (inl c') (inl c')); 
+	  i)
       | "slt_llex_product_CS_C", [a; b] ->
-     let i1 = slt_describe_algebra_fully_aux a in
-     let i2 = slt_describe_algebra_fully_aux b in           
-     let i = string_of_int (next_int ()) in
-     (pline (slt_eq i ["slt_llex_product"; (slt_i i1); (slt_i i2)]);
-      pline "where";
-      pline (l_eq i (prod (l_i i1) (l_i i2)));      
-      pline (s_eq i (prod (s_i i1) (s_i i2)));
-      pline (plus_eq_cond i "(a, b)" "(c, d)" (pair "a" (plus_i i2 "b" "d")) (equal (equal "a" ((plus_i i1 "a" "c"))) "c") );
-      pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
-      pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
-      pline (ltr_eq i "(a, b)" "(c, d)" (pair (ltr_i i1 "a" "c") (ltr_i i2 "b" "d")));       
-      i) 
+	 let i1 = slt_describe_algebra_fully_aux a in
+	 let i2 = slt_describe_algebra_fully_aux b in           
+	 let i = string_of_int (next_int ()) in
+	 (pline (slt_eq i ["slt_llex_product"; (slt_i i1); (slt_i i2)]);
+	  pline "where";
+	  pline (l_eq i (prod (l_i i1) (l_i i2)));      
+	  pline (s_eq i (prod (s_i i1) (s_i i2)));
+	  pline (plus_eq_cond i "(a, b)" "(c, d)" (pair "a" (plus_i i2 "b" "d")) (equal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+	  pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+	  pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
+	  pline (ltr_eq i "(a, b)" "(c, d)" (pair (ltr_i i1 "a" "c") (ltr_i i2 "b" "d")));       
+	  i) 
       | "slt_llex_product_CI_C_zero_is_ann", [a; b] ->
-     let i1 = slt_describe_algebra_fully_aux a in
-     let i2 = slt_describe_algebra_fully_aux b in           
-     let i = string_of_int (next_int ()) in	 
-     (pline (slt_eq i ["slt_llex_product"; (slt_i i1); (slt_i i2)]);
-      pline "where";
-      pline (l_eq i (prod (l_i i1) (l_i i2)));      
-      pline (s_eq i (prod (s_i i1) (s_i i2)));
-      pline (plus_eq_cond i "(a, b)" "(c, d)" (pair "a" (plus_i i2 "b" "d")) (equal (equal "a" ((plus_i i1 "a" "c"))) "c") );
-      pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
-      pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
-      pline (ltr_eq i "(a, b)" "(c, d)" (pair (ltr_i i1 "a" "c") (ltr_i i2 "b" "d")));       
-      i) 	 
+	 let i1 = slt_describe_algebra_fully_aux a in
+	 let i2 = slt_describe_algebra_fully_aux b in           
+	 let i = string_of_int (next_int ()) in	 
+	 (pline (slt_eq i ["slt_llex_product"; (slt_i i1); (slt_i i2)]);
+	  pline "where";
+	  pline (l_eq i (prod (l_i i1) (l_i i2)));      
+	  pline (s_eq i (prod (s_i i1) (s_i i2)));
+	  pline (plus_eq_cond i "(a, b)" "(c, d)" (pair "a" (plus_i i2 "b" "d")) (equal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+	  pline (plus_eq_cond i "(a, b)" "(c, d)" "(a, b)" (nequal (equal "a" ((plus_i i1 "a" "c"))) "c") );
+	  pline (plus_eq_cond i "(a, b)" "(c, d)" "(c, d)" (equal (nequal "a" ((plus_i i1 "a" "c"))) "c") );
+	  pline (ltr_eq i "(a, b)" "(c, d)" (pair (ltr_i i1 "a" "c") (ltr_i i2 "b" "d")));       
+	  i)
+      | "slt_union_insert", [Cas_eqv_ast a] ->
+	 let i = string_of_int (next_int ()) in
+	 let carrier = unfold_eqv_ast a in 	 
+	 (pline (slt_eq i ["slt_union_insert"; carrier]);
+	  pline (l_eq i carrier);      
+	  pline (s_eq i (set carrier));
+	  pline (plus_eq i "X" "Y" "X union Y");
+	  pline (ltr_eq i "x" "Y" "{x} union Y"); 
+	  i)
       | _, _ -> error "slt_describe_algebra_fully_aux : internal error 1" 
      )
   | Cas_ast_constant _ -> error "slt_describe_algebra_fully_aux : internal error 2" 
