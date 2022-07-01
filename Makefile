@@ -133,6 +133,7 @@ CAS=\
    coq/st/left/from_bs.v \
    coq/st/left/llex_product.v \
    coq/st/left/union_insert.v \
+   coq/st/left/add_zero.v  \
    coq/ot/properties.v \
    coq/ot/structures.v \
    coq/ot/left/length_cons.v \
