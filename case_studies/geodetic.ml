@@ -267,7 +267,7 @@ ltr_add_ann or mcas_ltr_add_ann
 let lt_geodetic = mcas_slt_add_zero 
    (mcas_slt_llex_product 
       mcas_slt_min_plus_one 
-      (slt_from_bs plus_times)) (* Where is this defined? *)
+      mcas_slt_plus_times) 
    infinity
 
   
