@@ -71,6 +71,17 @@ Proof. induction a.
              rewrite F in H.  apply injective_S in H. assumption.              
 Defined.
 
+
+(* anti-absorption *)
+
+Lemma bops_min_plus_not_left_anti_absorptive : 
+  bops_not_left_anti_absorptive nat brel_eq_nat bop_min bop_plus.
+Proof. exists (0, 0). compute; auto. Defined.   
+
+Lemma bops_min_plus_not_right_anti_absorptive : 
+  bops_not_right_anti_absorptive nat brel_eq_nat bop_min bop_plus.
+Proof. exists (0, 0). compute; auto. Defined.   
+
        
 (* absorption *) 
 

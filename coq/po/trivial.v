@@ -66,8 +66,7 @@ End Theory.
 
 Section ACAS.
 
-
-Definition wo_proofs_trivial (S : Type) (eq : brel S) (wS : S) (f : S → S) (nt : brel_not_trivial S eq f) : 
+Definition or_proofs_trivial (S : Type) (eq : brel S) (wS : S) (f : S → S) (nt : brel_not_trivial S eq f) : 
     wo_proofs S eq brel_trivial := 
 {|
   A_wo_congruence    := brel_trivial_congruence S eq
@@ -78,10 +77,8 @@ Definition wo_proofs_trivial (S : Type) (eq : brel S) (wS : S) (f : S → S) (nt
 ; A_wo_trivial_d     := inl (brel_trivial_trivial S)                                           
 |}. 
 
-Print A_wo. 
 
-Definition A_wo_trivial (S : Type): A_eqv S -> A_wo S
-:= λ eqv,
+Definition A_or_trivial {S : Type} (eqv : A_eqv S) : A_wo S := 
   let wS := A_eqv_witness S eqv in
   let f  := A_eqv_new S eqv in
   let nt := A_eqv_not_trivial S eqv in      
@@ -91,16 +88,26 @@ Definition A_wo_trivial (S : Type): A_eqv S -> A_wo S
    ; A_wo_lte               := brel_trivial
    ; A_wo_not_exists_top    := brel_trivial_not_exists_qo_top S eq f nt
    ; A_wo_not_exists_bottom := brel_trivial_not_exists_qo_bottom S eq f nt
-   ; A_wo_proofs            := wo_proofs_trivial S eq wS f nt
+   ; A_wo_proofs            := or_proofs_trivial S eq wS f nt
    ; A_wo_ast               := Ast_or_trivial (A_eqv_ast S eqv)
    |}. 
 
 End ACAS.
+
+Section AMCAS.
+
+  Definition A_mcas_or_trivial {S : Type} (meqv : @A_mcas_eqv S) :=
+    match meqv with
+    | A_EQV_Error sl => A_OR_Error sl
+    | A_EQV_eqv eqv => A_OR_wo (A_or_trivial eqv)
+    end.
+  
+End AMCAS.   
  
 
 Section CAS.
 
-Definition wo_certs_trivial {S : Type} (wS : S) (f : S -> S) : @wo_certificates S := 
+Definition or_certs_trivial {S : Type} (wS : S) (f : S -> S) : @wo_certificates S := 
 {|
   wo_congruence        := Assert_Brel_Congruence
 ; wo_reflexive         := Assert_Reflexive 
@@ -110,7 +117,7 @@ Definition wo_certs_trivial {S : Type} (wS : S) (f : S -> S) : @wo_certificates 
 ; wo_trivial_d         := Certify_Order_Trivial 
 |}. 
 
-Definition wo_trivial {S : Type} :  @eqv S -> @wo S 
+Definition or_trivial {S : Type} :  @eqv S -> @wo S 
 := λ eqv,
   let wS := eqv_witness eqv in
   let f := eqv_new eqv in           
@@ -119,26 +126,46 @@ Definition wo_trivial {S : Type} :  @eqv S -> @wo S
    ; wo_lte               := brel_trivial
    ; wo_not_exists_top    := Assert_Not_Exists_Qo_Top 
    ; wo_not_exists_bottom := Assert_Not_Exists_Qo_Bottom 
-   ; wo_certs             := wo_certs_trivial wS f 
+   ; wo_certs             := or_certs_trivial wS f 
    ; wo_ast               := Ast_or_trivial (eqv_ast eqv)
    |}. 
  
 End CAS.
 
+Section MCAS.
+
+    Definition mcas_or_trivial {S : Type} (meqv : @mcas_eqv S) :=
+    match meqv with
+    | EQV_Error sl => OR_Error sl
+    | EQV_eqv eqv => OR_wo (or_trivial eqv)
+    end.
+
+End MCAS.   
+
+
 Section Verify.
   
-Lemma correct_po_certs_trivial (S : Type) (eq : brel S) (wS : S) (f : S -> S) (nt : brel_not_trivial S eq f): 
-       wo_certs_trivial wS f 
+Lemma correct_or_certs_trivial (S : Type) (eq : brel S) (wS : S) (f : S -> S) (nt : brel_not_trivial S eq f): 
+       or_certs_trivial wS f 
        = 
-       P2C_wo eq brel_trivial (wo_proofs_trivial S eq wS f nt).
+       P2C_wo eq brel_trivial (or_proofs_trivial S eq wS f nt).
 Proof. compute. reflexivity. Qed. 
 
 
-Theorem correct_sg_trivial (S : Type) (E : A_eqv S):  
-         wo_trivial (A2C_eqv S E)  = A2C_wo (A_wo_trivial S E). 
-Proof. unfold wo_trivial, A_wo_trivial, A2C_wo; simpl. 
-       rewrite <- correct_po_certs_trivial. reflexivity.        
-Qed. 
+Theorem correct_or_trivial (S : Type) (E : A_eqv S):  
+         or_trivial (A2C_eqv S E)  = A2C_wo (A_or_trivial E). 
+Proof. unfold or_trivial, A_or_trivial, A2C_wo; simpl. 
+       rewrite <- correct_or_certs_trivial. reflexivity.        
+Qed.
+
+
+Theorem correct_mcas_or_trivial (S : Type) (E : @A_mcas_eqv S):  
+         mcas_or_trivial (A2C_mcas_eqv S E)  = A2C_mcas_or (A_mcas_or_trivial E). 
+Proof. destruct E; simpl. 
+       + reflexivity.
+       + rewrite <- correct_or_trivial. reflexivity.        
+Qed.
+
 
 
 End Verify.   
