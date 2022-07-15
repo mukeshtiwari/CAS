@@ -77,6 +77,29 @@ Proof. intros idem lla lm [c1 | s1] [c2 | s2] [c3 | s3]; compute; intro A; auto.
          discriminate A. 
 Qed. 
 
+
+Lemma bops_add_one_not_left_anti_absorptive :
+  bops_not_left_anti_absorptive (with_constant S) 
+    (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof.
+  unfold bops_not_left_anti_absorptive.
+  exists (inl c, inl c).
+  compute.
+  reflexivity.
+Defined.
+
+
+Lemma bops_add_one_right_anti_absorptive :
+  bops_not_right_anti_absorptive (with_constant S) 
+  (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof.
+  unfold bops_not_right_anti_absorptive.
+  exists (inl c, inl c).
+  compute.
+  reflexivity.
+Defined.
+
+
 (*
 bops_left_left_absorptive  : s = s + st 
 bops_right_left_absorptive : s = st + s 
