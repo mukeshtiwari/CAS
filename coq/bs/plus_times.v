@@ -29,8 +29,15 @@ Open Scope nat.
 *) 
 Lemma bop_plus_times_left_distributive : 
         bop_left_distributive nat brel_eq_nat bop_plus bop_times.
-Proof. unfold bop_plus, bop_times. unfold bop_left_distributive. 
-Admitted.
+Proof. 
+    unfold bop_plus, bop_times, 
+    bop_left_distributive.
+    intros ? ? ?.
+    rewrite Nat.mul_add_distr_l.
+    unfold brel_eq_nat.
+    apply Nat.eqb_refl.
+Defined.
+   
 
 Lemma bop_plus_times_right_distributive : 
         bop_right_distributive nat brel_eq_nat bop_plus bop_times.
@@ -39,7 +46,23 @@ Proof. apply bops_left_distributive_and_times_commutative_imply_right_distributi
        apply bop_plus_congruence. 
        apply bop_times_commutative. 
        apply bop_plus_times_left_distributive. 
-Qed. 
+Defined.
+
+(* anti absorption *)
+
+Lemma bop_plus_times_not_left_anti_absorptive :
+  bops_not_left_anti_absorptive nat brel_eq_nat bop_times bop_plus.
+Proof.
+  exists (0, 0);
+  reflexivity.
+Defined.
+
+
+Lemma bops_plus_time_not_right_anti_absorptive : 
+  bops_not_right_anti_absorptive nat brel_eq_nat bop_times bop_plus.
+Proof. exists (0, 0). compute; auto. Defined.   
+
+
 
 (* absorption *) 
 
