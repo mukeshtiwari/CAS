@@ -3,7 +3,8 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.set. 
 
 Require Import CAS.coq.tr.left.from_sg.
-Require Import CAS.coq.bs.properties. 
+Require Import CAS.coq.bs.properties.
+Require Import CAS.coq.bs.structures. 
 Require Import CAS.coq.st.properties. 
 Require Import CAS.coq.st.structures.
 
@@ -24,8 +25,15 @@ Lemma slt_from_bs_distributive
       slt_distributive eq plus (ltr_from_sg times). 
 Proof. intros s t u. unfold ltr_from_sg. apply LD. Qed.
 
+Lemma slt_from_bs_not_distributive 
+      (nLD : bop_not_left_distributive S eq plus times) : 
+  slt_not_distributive eq plus (ltr_from_sg times).
+Proof. destruct nLD as [[s [t u]] A]. 
+       exists (s, (t, u)). compute.
+       exact A. 
+Defined.
 
-Lemma slt_from_bs_absorptive 
+Lemma slt_from_bs_left_absorptive 
        (lrabs : bops_left_right_absorptive S eq plus times) :
        slt_absorptive eq plus (ltr_from_sg times).
 Proof. intros s t. unfold ltr_from_sg. exact (lrabs t s). Qed. 
@@ -41,10 +49,55 @@ Lemma slt_from_bs_strictly_absorptive
        slt_strictly_absorptive eq plus (ltr_from_sg times).
 Proof. intros s t.  unfold ltr_from_sg. apply lrabs. Qed. 
 
-
 Lemma slt_union_insert_not_strictly_absorptive 
        (nlrabs : bops_not_strictly_left_right_absorptive S eq plus times) :  
        slt_not_strictly_absorptive eq plus (ltr_from_sg times).
-Proof. destruct nlrabs as [[s t] [P | P]]; exists(t, s); compute. left; exact P. right. exact P. Defined. 
-      
-End Theory.   
+Proof. destruct nlrabs as [[s t] [P | P]]; exists(t, s);
+         compute. left; exact P. right. exact P. Defined. 
+
+End Theory.
+
+(*
+Section ACAS.
+
+Section Proofs.
+
+Variables (S : Type)
+          (eq : brel S)
+          (plus times : binary_op S)
+          . 
+  
+Definition slt_from_bs_proofs (bsP : bs_proofs S eq plus times) : 
+             slt_proofs S eq plus (ltr_from_sg times) := 
+{|
+  A_slt_distributive_d        := 
+; A_slt_absorptive_d          := 
+; A_slt_strictly_absorptive_d := 
+|}.
+
+
+End Proofs.
+
+Section Combinators. 
+
+Definition A_slt_from_bs {S : Type} (A : A_bs S) : A_slt S := 
+let eqv   := A_bs_eqv _ A in 
+let eq    := A_eqv_eq _ eqv in 
+let times := A_bs_times _ A in 
+{|
+    A_slt_carrier           := eqv
+    A_slt_label             := eqv 
+    A_slt_plus              := A_bs_plus _ A 
+    A_slt_trans             := ltr_from_sg times 
+    A_slt_plus_proofs       := A_bs_plus_proofs _ A 
+    A_slt_trans_proofs      := ltr_from_sg_proofs S eq times (A_bs_times_proofs _ A)
+    A_slt_exists_plus_ann_d := 
+    A_slt_id_ann_proofs_d   := 
+    A_slt_proofs            := slt_from_bs_proofs 
+    A_slt_ast               := Cas_ast("", (Cas_ast_bs (A_bs_ast _ A)) :: nil)
+|}.
+  
+End Combinators.
+
+End ACAS. 
+*) 

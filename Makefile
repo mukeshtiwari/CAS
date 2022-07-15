@@ -74,6 +74,7 @@ CAS=\
    coq/po/structures.v \
    coq/po/theory.v \
    coq/po/cast_up.v \
+   coq/po/trivial.v \
    coq/po/add_bottom.v \
    coq/po/from_sg.v \
    coq/po/add_top.v \

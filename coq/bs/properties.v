@@ -113,6 +113,28 @@ match P with
 | Id_Ann_Proof_Not_Equal _ _ _ _ id_ann_not_eq  => inl (extract_exist_ann_from_exists_id_ann_not_equal S r b1 b2 id_ann_not_eq) 
 end.
 
+(* Anti-Absorptivity 
+   Let's assume b1 is commutative, so only two properties instead of four. 
+*) 
+Definition bops_left_anti_absorptive (S : Type) (eq : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), eq (b2 s t) (b1 s (b2 s t)) = false.
+
+Definition bops_not_left_anti_absorptive (S : Type) (eq : brel S) (b1 b2 : binary_op S) 
+  := { z : S * S & match z with (s, t) => eq (b2 s t) (b1 s (b2 s t)) = true end }.
+
+Definition bops_left_anti_absorptive_decidable  (S : Type) (eq : brel S) (b1 b2 : binary_op S) := 
+    (bops_left_anti_absorptive S eq b1 b2) + (bops_not_left_anti_absorptive S eq b1 b2). 
+
+Definition bops_right_anti_absorptive (S : Type) (eq : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), eq (b2 t s) (b1 s (b2 t s)) = false.
+
+Definition bops_not_right_anti_absorptive (S : Type) (eq : brel S) (b1 b2 : binary_op S) 
+  := { z : S * S & match z with (s, t) => eq (b2 t s) (b1 s (b2 t s)) = true end }.
+
+Definition bops_right_anti_absorptive_decidable  (S : Type) (eq : brel S) (b1 b2 : binary_op S) := 
+    (bops_right_anti_absorptive S eq b1 b2) + (bops_not_right_anti_absorptive S eq b1 b2). 
+
+
 (* Absorptivity *) 
 
 Definition bops_left_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
