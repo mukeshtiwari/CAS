@@ -90,6 +90,88 @@ Defined.
 **************** *)
 
 
+(* anti absorption *)
+Lemma bops_product_left_anti_absorptive :
+  bops_left_anti_absorptive S rS addS mulS ->
+  bops_left_anti_absorptive T rT addT mulT ->
+  bops_left_anti_absorptive (S * T) (rS <*> rT) 
+    (addS [*] addT) (mulS [*] mulT).
+Proof.
+  unfold bops_left_anti_absorptive.
+  intros Ha Hb (sa, sb) (ta, tb).
+  compute.
+  rewrite (Ha sa ta);
+  reflexivity.
+Defined.
+
+Lemma bops_product_left_anti_absorptive_v1 :
+  bops_left_anti_absorptive S rS addS mulS ->
+  bops_not_left_anti_absorptive T rT addT mulT ->
+  bops_left_anti_absorptive (S * T) (rS <*> rT) 
+    (addS [*] addT) (mulS [*] mulT).
+Proof.
+  intros Ha Hb.
+  unfold bops_left_anti_absorptive in * |- *.
+  unfold bops_not_left_anti_absorptive in Hb.
+  destruct Hb as ((au, bu) & Hb).
+  intros (sa, sb) (ta, tb).
+  compute.
+  rewrite Ha.
+  reflexivity.
+Defined.
+
+Lemma bops_product_left_anti_absorptive_v2 :
+  bops_not_left_anti_absorptive S rS addS mulS ->
+  bops_left_anti_absorptive T rT addT mulT ->
+  bops_left_anti_absorptive 
+  (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT).
+Proof.
+  intros ((a, b) & Ha) Hb.
+  unfold bops_left_anti_absorptive in Hb.
+  unfold bops_left_anti_absorptive.
+  intros (sa, sb) (ta, tb).
+  compute.
+  rewrite Hb.
+  destruct (rS (sa *S ta) (sa +S (sa *S ta)));
+  reflexivity.
+Defined.
+
+
+Lemma bops_product_not_left_anti_absorptive :
+  bops_not_left_anti_absorptive S rS addS mulS ->
+  bops_not_left_anti_absorptive T rT addT mulT ->
+  bops_not_left_anti_absorptive 
+  (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT).
+Proof.
+  unfold bops_not_left_anti_absorptive.
+  intros ((au, bu) & Ha) ((cu, du) & Hb).
+  exists (au, cu, (bu, du));
+  compute.
+  rewrite Ha.
+  exact Hb.
+Defined.
+
+
+
+Lemma bops_product_left_anti_absorptive_decidable :
+  bops_left_anti_absorptive_decidable S rS addS mulS ->
+  bops_left_anti_absorptive_decidable T rT addT mulT ->
+  bops_left_anti_absorptive_decidable (S * T) (rS <*> rT) 
+    (addS [*] addT) (mulS [*] mulT).
+Proof.
+  intros [Ha | Ha] [Hb | Hb].
+  left; apply bops_product_left_anti_absorptive;
+  assumption.
+  left; apply bops_product_left_anti_absorptive_v1;
+  assumption.
+  left; apply bops_product_left_anti_absorptive_v2;
+  assumption.
+  right; apply bops_product_not_left_anti_absorptive;
+  assumption.
+Defined.
+ 
+
+
 
 
 (* left left *) 
