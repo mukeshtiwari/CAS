@@ -1054,8 +1054,94 @@ Defined.
 
 
 
-(* absorption *) 
 
+(* anti absorption *) 
+
+
+Lemma bops_llex_product_left_anti_absorptive_v1 :
+  bops_left_anti_absorptive S rS addS mulS ->
+  bops_left_anti_absorptive 
+    (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Proof.
+  unfold bops_left_anti_absorptive.
+  intros Ha (sa, sb) (ta, tb).
+  compute.
+  rewrite Ha.
+  reflexivity.
+Defined.
+
+(* 
+Lemma bops_llex_product_left_anti_absorptive_v2 :
+  bops_left_anti_absorptive T rT addT mulT ->
+  bop_is_left S rS mulS ->
+  bops_left_anti_absorptive 
+    (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Proof.
+  unfold bops_left_anti_absorptive.
+  intros Ha Hd (sa, ta) (sb, tb).
+  cbn.
+  eapply bop_and_false_intro.
+  right.
+  compute.
+  case_eq (rS sa (sa +S (sa *S sb))); intro Hb;
+  case_eq (rS (sa +S (sa *S sb)) (sa *S sb)); intro Hc.
+  apply Ha.
+  admit.
+  admit.
+Admitted.
+*)
+
+Lemma bops_llex_product_not_left_anti_absorptive (t1 t2 : T) : 
+  bops_not_left_anti_absorptive S rS addS mulS ->
+  bops_not_left_anti_absorptive T rT addT mulT ->
+  bops_not_left_anti_absorptive 
+  (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Proof.
+  intros ((sa, sb) & Ha) ((ta, tb) & Hb).
+  exists (sa, ta, (sb, tb)).
+  compute.
+  rewrite Ha.
+  case_eq (rS sa (sa +S (sa *S sb))); intros Hc;
+  case_eq (rS (sa +S (sa *S sb)) (sa *S sb)); intros Hd.
+  + exact Hb.
+  + apply symS in Ha.
+    rewrite Ha in Hd.
+    congruence.
+  + apply refT.
+  + apply symS in Ha.
+    rewrite Ha in Hd.
+    congruence.
+Defined. 
+
+(* 
+Lemma bops_llex_product_not_left_anti_absorptive : 
+  bops_not_left_anti_absorptive S rS addS mulS -> 
+  (bops_not_left_anti_absorptive T rT addT mulT)  ->
+  (bop_is_left T rT mulT) ->
+  bops_not_left_anti_absorptive 
+  (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
+Proof.
+  unfold bops_not_left_anti_absorptive.
+  intros ((sa, sb) & Ha) ((ta, tb) & Hb)  Hc.
+  exists (sa, ta, (sb, tb)).
+  unfold bop_product.
+  apply brel_product_intro.
+  exact Ha.
+  compute.
+  case_eq (rS sa (sa +S (sa *S sb))); intro Hd;
+  case_eq (rS (sa +S (sa *S sb)) (sa *S sb)); intro He.
+  exact Hb.
+  apply Hc.
+  apply refT.
+  *)
+
+
+
+
+
+
+
+(* absorption *)  
 (* left left *) 
 
 Lemma bops_llex_product_left_left_absorptive : 
@@ -1082,7 +1168,9 @@ Proof. intros [ [s1 s2] P ]. exists ((s1, wT), (s2, wT)). simpl. rewrite P. simp
 
 
 Lemma bops_llex_product_not_left_left_absorptive_right : 
-      bops_left_left_absorptive S rS addS mulS → bops_not_left_left_absorptive T rT addT mulT → bop_not_anti_left S rS mulS  →
+      bops_left_left_absorptive S rS addS mulS → 
+      bops_not_left_left_absorptive T rT addT mulT → 
+      bop_not_anti_left S rS mulS  →
       bops_not_left_left_absorptive (S * T) (rS <*> rT) (addS [+] addT) (mulS [*] mulT).
 Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]; compute.
        exists ((s1, t1), (s2, t2)).
