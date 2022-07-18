@@ -1213,6 +1213,107 @@ Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]; compute.
 Defined. 
 
 
+  (* Strictly Absorptive *)
+  Lemma bops_llex_product_left_strictly_absorptive :
+      ((bops_left_strictly_absorptive S rS addS mulS) +  
+       ((bops_left_left_absorptive S rS addS mulS) * 
+        (bops_left_strictly_absorptive T rT addT mulT))) →
+         bops_left_strictly_absorptive (S * T) (rS <*> rT) 
+          (addS [+] addT) (mulS [*] mulT).
+  Proof. 
+    intros [SAS | [AS SAT]] [s1 t1] [s2 t2].
+    + destruct (SAS s1 s2) as [A B]. split; compute.
+      ++ rewrite A.
+        case_eq (rS (s1 +S (s1 *S s2)) (s1 *S s2)); intro C.
+        +++ apply symS in C. rewrite C in B. discriminate B.
+        +++ apply refT.
+      ++ rewrite B. reflexivity.
+    + unfold bops_left_left_absorptive in AS.
+      compute.
+      assert (A := AS s1 s2).
+      unfold bops_left_strictly_absorptive in SAT.
+      destruct (SAT t1 t2) as [B C]. split; compute.
+      ++ rewrite A.
+        case_eq(rS (s1 +S (s1 *S s2)) (s1 *S s2)); intro D.
+        +++ exact B.
+        +++ apply refT.
+      ++ rewrite A.
+        case_eq (rS (s1 *S s2) (s1 +S (s1 *S s2))); intro D.
+        +++ apply symS in D. rewrite D. exact C.
+        +++ reflexivity.
+  Qed.
+
+  Lemma bops_llex_product_not_left_strictly_absorptive :
+      ((bops_not_left_strictly_absorptive S rS addS mulS) *
+       ((bops_not_left_left_absorptive S rS addS mulS) + 
+        (bops_not_left_strictly_absorptive T rT addT mulT))) →
+         bops_not_left_strictly_absorptive (S * T) (rS <*> rT) 
+          (addS [+] addT) (mulS [*] mulT).
+  Proof. 
+    intros [ [[s1 s2] [A | B]] [[[s3 s4] C] | [[t1 t2] [D | E] ]] ].
+      + exists ((s1, wT), (s2, wT)). compute.
+        rewrite A. left; auto.
+      + exists ((s1, wT), (s2, wT)). compute.
+        rewrite A. left; auto.
+      + exists ((s1, wT), (s2, wT)). compute.
+        rewrite A. left; auto.
+      + exists ((s3, wT), (s4, wT)). compute.
+        rewrite C. left; auto.          
+      + exists ((s1, t1), (s2, t2)). compute.
+        rewrite B. apply symS in B. rewrite B.
+        case_eq(rS s1 (s1 +S (s1 *S s2))); intro F.
+        ++ left. exact D.
+        ++ left. reflexivity.
+      + exists ((s1, t1), (s2, t2)). compute.
+        rewrite B. apply symS in B. rewrite B.
+        case_eq(rS s1 (s1 +S (s1 *S s2))); intro F.
+        ++ right. exact E.
+        ++ left. reflexivity.
+  Defined.   
+
+
+  Lemma bops_llex_product_right_strictly_absorptive :
+    ((bops_right_strictly_absorptive S rS addS mulS) +
+    ((bops_left_right_absorptive S rS addS mulS) * 
+     (bops_right_strictly_absorptive T rT addT mulT))) ->
+    bops_right_strictly_absorptive (S * T) (rS <*> rT) 
+      (addS [+] addT) (mulS [*] mulT).
+  Proof.
+    intros [Ha | [Ha Hb]] (sa, ta) (sb, tb); compute.
+    + destruct (Ha sa sb) as [A B].
+      rewrite A, B.
+      case_eq (rS (sa +S (sb *S sa)) (sb *S sa)); intro C.
+      ++  apply symS in C; 
+          rewrite C in B;
+          congruence.
+      ++ split; [apply refT | reflexivity].
+    + unfold bops_left_right_absorptive in Ha.
+      unfold bops_right_strictly_absorptive in Hb.
+      assert (A := Ha sa sb).
+      destruct (Hb ta tb) as [B C]. split; compute.
+      ++ rewrite A.
+         destruct (rS (sa +S (sb *S sa)) (sb *S sa));
+         [exact B | apply refT].
+      ++ rewrite A.
+         case_eq (rS (sb *S sa) (sa +S (sb *S sa))); intros D.
+         +++ apply symS in D. rewrite D. exact C.
+         +++ reflexivity.
+  Defined.  
+
+
+
+         
+
+        
+          
+
+
+   
+
+  
+
+
+
 
 End Theory.
 
