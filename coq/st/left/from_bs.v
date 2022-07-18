@@ -43,7 +43,9 @@ Lemma slt_from_bs_not_absorptive
        slt_not_absorptive eq plus (ltr_from_sg times).
 Proof. destruct nlrabs as [[s t] P]. exists(t, s). compute. exact P. Defined. 
 
-
+(*
+These properties have been commented in the bs/properties.v file.
+ 
 Lemma slt_from_bs_strictly_absorptive 
        (lrabs : bops_strictly_left_right_absorptive S eq plus times) :  
        slt_strictly_absorptive eq plus (ltr_from_sg times).
@@ -54,7 +56,7 @@ Lemma slt_union_insert_not_strictly_absorptive
        slt_not_strictly_absorptive eq plus (ltr_from_sg times).
 Proof. destruct nlrabs as [[s t] [P | P]]; exists(t, s);
          compute. left; exact P. right. exact P. Defined. 
-
+*)
 End Theory.
 
 (*

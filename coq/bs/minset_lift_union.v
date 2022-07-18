@@ -39,7 +39,8 @@ Require Import CAS.coq.os.theory.
 
 (* should move this to po as a combinator! *) 
 Definition set_lte {S : Type} (eq lte : brel S) (X Y: finite_set S) := 
-           ∀ y : S,  in_set eq Y y = true -> {x : S & (in_set eq X x = true) * (lte x y = true) }. 
+  ∀ y : S,  in_set eq Y y = true -> 
+  {x : S & (in_set eq X x = true) * (lte x y = true) }. 
 
 Section Computation.
 

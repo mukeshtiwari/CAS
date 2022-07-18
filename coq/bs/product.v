@@ -90,69 +90,6 @@ Defined.
 **************** *)
 
 
-(* anti absorption *)
-
-
-Lemma bops_product_left_anti_absorptive_v1 :
-  bops_left_anti_absorptive S rS addS mulS ->
-  bops_left_anti_absorptive (S * T) (rS <*> rT) 
-    (addS [*] addT) (mulS [*] mulT).
-Proof.
-  intros Ha (sa, sb) (ta, tb).
-  unfold bops_left_anti_absorptive in * |- *.
-  compute.
-  rewrite Ha.
-  reflexivity.
-Defined.
-
-Lemma bops_product_left_anti_absorptive_v2 :
-  bops_left_anti_absorptive T rT addT mulT ->
-  bops_left_anti_absorptive 
-  (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT).
-Proof.
-  intros Hb.
-  unfold bops_left_anti_absorptive.
-  intros (sa, sb) (ta, tb).
-  compute.
-  rewrite Hb.
-  destruct (rS (sa *S ta) (sa +S (sa *S ta)));
-  reflexivity.
-Defined.
-
-
-Lemma bops_product_not_left_anti_absorptive :
-  bops_not_left_anti_absorptive S rS addS mulS ->
-  bops_not_left_anti_absorptive T rT addT mulT ->
-  bops_not_left_anti_absorptive 
-  (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT).
-Proof.
-  unfold bops_not_left_anti_absorptive.
-  intros ((au, bu) & Ha) ((cu, du) & Hb).
-  exists (au, cu, (bu, du));
-  compute.
-  rewrite Ha.
-  exact Hb.
-Defined.
-
-
-
-Lemma bops_product_left_anti_absorptive_decidable :
-  bops_left_anti_absorptive_decidable S rS addS mulS ->
-  bops_left_anti_absorptive_decidable T rT addT mulT ->
-  bops_left_anti_absorptive_decidable (S * T) (rS <*> rT) 
-    (addS [*] addT) (mulS [*] mulT).
-Proof.
-  intros [Ha | Ha] [Hb | Hb].
-  left; apply bops_product_left_anti_absorptive_v1;
-  assumption.
-  left; apply bops_product_left_anti_absorptive_v1;
-  assumption.
-  left; apply bops_product_left_anti_absorptive_v2;
-  assumption.
-  right; apply bops_product_not_left_anti_absorptive;
-  assumption.
-Defined.
- 
 
 
 
@@ -194,7 +131,7 @@ Lemma bop_product_not_left_right_absorptive_right :
 Proof. intros [ [t1 t2] P ]. exists ((wS, t1), (wS, t2)). simpl. rewrite P. simpl. apply andb_comm.  Defined. 
 
 
-(* Strictly left right *)
+(* Strictly left right 
 
 Lemma bop_product_strictly_left_right_absorptive : 
       bops_strictly_left_right_absorptive S rS addS mulS → 
@@ -236,6 +173,9 @@ Proof. intros [ [s1 s2] P ] [ [t1 t2] Q ].
        + rewrite P, Q. right. auto. 
 Defined. 
 
+
+
+
 Lemma bop_product_not_strictly_left_right_absorptive_left : 
       bops_not_left_right_absorptive S rS addS mulS →
          bops_not_strictly_left_right_absorptive (S * T) (rS <*> rT) (addS [*] addT) (mulS [*] mulT). 
@@ -252,7 +192,7 @@ Proof. intros [ [t1 t2] P ].
        rewrite P.
        case_eq(rS wS (wS +S (wS *S wS))); intro Q; left; auto. 
 Defined. 
-
+*)
 
 (* right left *) 
 Lemma bop_product_right_left_absorptive : 

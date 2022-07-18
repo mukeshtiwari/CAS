@@ -126,30 +126,6 @@ Lemma bops_add_zero_not_right_distributive  :
         bop_not_right_distributive (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2).
 Proof. intros [ [s1 [s2 s3]] nldS]. exists (inr _ s1, (inr _ s2, inr _ s3)). compute. assumption. Defined. 
        
-(* anti absorptivity *)
-
-Lemma bops_add_zero_bops_not_left_anti_absorptive : 
-  bops_not_left_anti_absorptive (with_constant S) 
-    (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2).
-Proof.
-  unfold  bops_not_left_anti_absorptive.
-  exists (inl c, inl c).
-  compute.
-  reflexivity.
-Defined.
-
-
-Lemma bops_add_zero_bops_not_right_anti_absorptive : 
-  bops_not_right_anti_absorptive (with_constant S) 
-    (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2).
-Proof.
-  unfold  bops_not_right_anti_absorptive.
-  exists (inl c, inl c).
-  compute.
-  reflexivity.
-Defined.
-
-(* end of anti absorptivity *)
 
 
 (* left left *) 
@@ -183,11 +159,11 @@ Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption.
 
 
 
-(* Strictly left right *) 
+(* Strictly left right 
 Lemma bops_add_zero_not_strictly_left_right_absorptive  : 
         bops_not_strictly_left_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2).
 Proof. exists (inl c, inl c). compute. right; auto. Defined. 
-
+*)
 
 
 (* right left *) 
