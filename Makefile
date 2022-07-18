@@ -127,6 +127,8 @@ CAS=\
    coq/os/cast_up.v \
    coq/os/from_sg.v \
    coq/os/from_bs_left.v \
+   coq/os/trivial.v \
+   coq/os/lex_product.v \
    coq/st/properties.v \
    coq/st/structures.v \
    coq/st/cast_up.v \
@@ -146,19 +148,7 @@ CAS=\
    coq/algorithm/matrix_algorithms.v \
    coq/algorithm/matrix_addition.v \
    coq/algorithm/matrix_multiplication.v \
-   coq/algorithm/weighted_path.v \
-   coq/algorithm/matrix_exp.v 
-#   coq/algorithm/Path.v \
-#   coq/algorithm/wrapper.v
-# =======
-#    coq/algorithm/Listprop.v \
-#    coq/algorithm/Path.v \
-#    coq/algorithm/Orel.v \
-#    coq/algorithm/Mat.v \
-#    coq/algorithm/wrapper.v
-# >>>>>>> e36f90c0ba2643458683f84d82c8458b5e6bde22
-
-
+   coq/algorithm/weighted_path.v 
 
 
 FILES=$(BASE) $(CAS)

@@ -44,16 +44,30 @@ Lemma slt_from_bs_not_absorptive
 Proof. destruct nlrabs as [[s t] P]. exists(t, s). compute. exact P. Defined. 
 
 
-Lemma slt_from_bs_strictly_absorptive 
-       (lrabs : bops_strictly_left_right_absorptive S eq plus times) :  
+Lemma slt_from_bs_strictly_absorptive
+       (lrabs : bops_left_right_absorptive S eq plus times)       
+       (laabs : bops_right_anti_absorptive S eq plus times) :  
        slt_strictly_absorptive eq plus (ltr_from_sg times).
-Proof. intros s t.  unfold ltr_from_sg. apply lrabs. Qed. 
+Proof.  intros s t. split; auto. Qed. 
 
-Lemma slt_union_insert_not_strictly_absorptive 
-       (nlrabs : bops_not_strictly_left_right_absorptive S eq plus times) :  
+
+Lemma slt_from_bs_not_strictly_absorptive_v1
+       (lrabs : bops_not_left_right_absorptive S eq plus times) : 
        slt_not_strictly_absorptive eq plus (ltr_from_sg times).
-Proof. destruct nlrabs as [[s t] [P | P]]; exists(t, s);
-         compute. left; exact P. right. exact P. Defined. 
+Proof.  destruct lrabs as [[s1 s2] A].
+        exists (s2, s1); compute. left. exact A. 
+Defined. 
+
+
+Lemma slt_from_bs_not_strictly_absorptive_v2
+       (laabs : bops_not_right_anti_absorptive S eq plus times) :  
+       slt_not_strictly_absorptive eq plus (ltr_from_sg times).
+Proof.  destruct laabs as [[s1 s2] A].
+        exists (s2, s1); compute. right. exact A. 
+Defined. 
+
+
+
 
 End Theory.
 

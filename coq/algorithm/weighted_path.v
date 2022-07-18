@@ -8,11 +8,52 @@ From CAS Require Import
   coq.eqv.nat
   coq.eqv.product   
   coq.sg.properties
-  coq.tr.properties  
+  coq.tr.properties
+  coq.st.properties    
   coq.sg.and
+  coq.algorithm.list_congruences
   coq.algorithm.matrix_definition
   coq.algorithm.matrix_algorithms
+  coq.algorithm.matrix_addition  
   coq.algorithm.matrix_multiplication. 
+
+
+Section Computation.
+
+  Fixpoint left_sum_of_matrix_powers_general
+           {L S : Type} 
+           (n : nat)
+           (zeroS oneS : S)
+           (plusS : binary_op S)
+           (ltr : ltr_type L S) 
+           (m : functional_matrix L)
+           (k : nat) : functional_matrix S :=
+    match k with
+    | O => matrix_mul_identity zeroS oneS  
+    | S k' => matrix_add plusS
+                         (left_sum_of_matrix_powers_general n zeroS oneS plusS ltr m k')
+                         (left_matrix_exponentiation zeroS oneS plusS ltr n m k)
+    end.
+
+  (*
+  Fixpoint left_sum_of_matrix_powers (n : nat) (m : functional_matrix R) (k : nat) : functional_matrix R :=
+    match k with
+    | O => [I]
+    | S k' => (left_sum_of_matrix_powers n m k') +M (m ^( k , n ))
+    end.
+   *)
+
+  Definition left_sum_of_matrix_powers
+             (S : Type)
+             (n : nat)
+             (zeroS oneS : S)
+             (plusS mulS : binary_op S)
+             (m : functional_matrix S)
+             (k : nat) : functional_matrix S :=
+    left_sum_of_matrix_powers_general n zeroS oneS plusS mulS m k.
+
+
+End Computation.   
 
 
 Section Weighted_Paths.
@@ -259,7 +300,8 @@ Variables
   Local Infix "[in set]"   := in_path_set (at level 70).
   Local Infix "[?in set?]" := test_in_path_set (at level 70).    
 
-         
+  Local Definition CongP := functional_matrix_congruence _ eq_weighted_path_set.
+  
   (****************** Source and target of a weighted path ********************)
 
   Definition arc_source (a : weighted_arc) : nat := 
@@ -564,31 +606,93 @@ Qed.
 
    Definition plusP : binary_op weighted_path_set :=
      fun X => fun Y => X ++ Y.
-   
-   Definition ltr_extend_path : ltr_type weighted_arc weighted_path :=
-    fun a => fun p =>  if test_path_source (arc_target a) p then a :: p else []. 
 
    Definition path_adjacency_arcs (m : functional_matrix L) : functional_matrix weighted_arc := 
     fun (i j : nat) =>  ((i, j), m i j). 
     
+   Definition ltr_extend_path : ltr_type weighted_arc weighted_path :=
+     fun a => fun p =>
+                match p with
+                | nil => a :: nil
+(*                | _   => if test_path_source (arc_target a) p then a :: p else []  *)
+                | _   => a :: p 
+                end. 
+
    Definition ltr_extend_paths : ltr_type weighted_arc weighted_path_set :=
      fun a (X : weighted_path_set) => List.map (ltr_extend_path a) X.
 
    Definition matrix_of_k_length_paths m n k :=
      left_matrix_exponentiation zeroP oneP plusP ltr_extend_paths n (path_adjacency_arcs m) k.
 
-
+   (* ugly proof.  is missing some abstraction .... *) 
    Lemma ltr_extend_paths_congruence :
      ltr_congruence weighted_arc
                     weighted_path_set
                     eq_weighted_arc
                     eq_weighted_path_set
-                    ltr_extend_paths. 
-   Admitted.      
+                    ltr_extend_paths.
+   Proof. unfold ltr_congruence in ltr_cong.
+          unfold ltr_congruence. 
+          intros l1 l2 s1 s2 A B.
+          unfold eq_weighted_path_set. 
+          unfold ltr_extend_paths.
+          unfold eq_weighted_path_set in B.
+          apply brel_list_map_intro; auto.
+          unfold eq_weighted_path, weighted_path. 
+          intros p1 p2 C. 
+          destruct l1 as [[i1 j1] w1].
+          destruct l2 as [[i2 j2] w2].          
+          apply brel_product_elim in A.
+          destruct A as [A D].
+          apply brel_product_elim in A.
+          destruct A as [A E].
+          unfold ltr_extend_path.
+          destruct p1; destruct p2.
+          + unfold brel_list.
+            apply bop_and_intro; auto. 
+            ++ unfold eq_weighted_arc.
+               apply bop_and_intro; auto.
+               apply bop_and_intro; auto.
+          + compute in C. discriminate C. 
+          + compute in C. discriminate C. 
+          + apply brel_list_cons_elim in C.
+            destruct C as [C F].
+            apply brel_list_cons_intro.
+            ++ unfold eq_weighted_arc.
+               apply bop_and_intro; auto.
+               apply bop_and_intro; auto.
+            ++ apply brel_list_cons_intro; auto. 
+   Qed. 
+
+
+   (******* matrix of elementary paths ****************************************)   
+
+   Definition ltr_extend_elementary_path : ltr_type weighted_arc weighted_path :=
+     fun a => fun p =>
+                match p with
+                | nil => if (arc_source a) =n?= (arc_target a) then nil else  a :: nil
+                | _   => a :: p 
+                end. 
+
+   Fixpoint is_elementary_weighted_path (p : weighted_path) : bool :=
+     match p with
+     | [] => true
+     | (a, b, w) :: rest => bop_and (negb (a =n?= b))
+                                 (bop_and (negb (in_list brel_eq_nat (List.map arc_target rest) a))
+                                          (is_elementary_weighted_path rest)) 
+     end. 
+
+   Definition ltr_extend_elementary_paths : ltr_type weighted_arc weighted_path_set :=
+       fun a (X : weighted_path_set) =>
+         List.filter is_elementary_weighted_path (List.map (ltr_extend_elementary_path a) X).
+   
+   Definition matrix_of_k_length_elementary_paths m n k :=
+     left_matrix_exponentiation zeroP oneP plusP ltr_extend_elementary_paths n (path_adjacency_arcs m) k.
+
 
    (******* Local definitions ****************************************)
-   
-   Local Notation "Pk[ m , n ]^ k"  := (matrix_of_k_length_paths m n k) (at level 70).
+
+   Local Notation "Pk[ m , k , n ]"  := (matrix_of_k_length_paths m n k) (at level 70).
 
    Local Notation "LW[ X ]" := (sum_fn zero plus lw X) (at level 70). 
 
@@ -626,13 +730,18 @@ Qed.
          exact (eq_weighted_path_set_transitive _ _ _ (A i j) (B i j)).
   Qed. 
 
-   (****************************** congruences ***********************************************)
+   (****************************** matrix R congruences ***********************************************)
 
-   Lemma plusP_congruence : bop_congruence weighted_path_set eq_weighted_path_set plusP.
-   Proof. unfold bop_congruence. intros s1 s2 t1 t2 A B.
-          unfold plusP. 
-   Admitted. 
-          
+  Lemma left_matrix_mul_preserves_congruence
+        (m1 : functional_matrix L)
+        (m2 : functional_matrix R)        
+        (cL : CongL m1) 
+        (cR : CongR m2)
+        (n : nat) : CongR (m1 *[ n ]> m2).     
+  Proof. intros i j i' j' A B.
+  Admitted.
+  
+   
    (*
     congrM
      : ∀ (n : nat) (m1 m2 : functional_matrix L) 
@@ -655,6 +764,18 @@ Qed.
              :=
                congrM n m m m3 m4 cL cR (eq_functional_matrix_prop_reflexive L eqL refL m).
 
+
+  (****************************** matrix P congruences ***********************************************)
+  
+   Lemma plusP_congruence : bop_congruence weighted_path_set eq_weighted_path_set plusP.
+   Proof. unfold bop_congruence. intros s1 s2 t1 t2 A B.
+          unfold plusP. unfold eq_weighted_path_set in A, B.
+          unfold eq_weighted_path_set.
+          apply brel_list_append_intro; auto. 
+   Qed.
+
+  
+    
   (*
     congrPM
      : ∀ (n : nat) (m1 m2 : functional_matrix weighted_arc) 
@@ -699,11 +820,39 @@ Qed.
                           eq_weighted_arc 
                           eq_weighted_arc_reflexive
                           m).
+  
+  Lemma adjacency_congruence (m : functional_matrix L) (cL : CongL m) : 
+    functional_matrix_congruence weighted_arc eq_weighted_arc (A[ m]). 
+  Proof. intros i j i' j' A B.
+         unfold path_adjacency_arcs.
+         unfold eq_weighted_arc. 
+         apply brel_product_intro.
+         + apply brel_product_intro; auto. 
+         + apply cL; auto.
+  Qed. 
 
+    Lemma path_left_matrix_mul_preserves_congruence
+        (m1 : functional_matrix L)
+        (m2 : functional_matrix weighted_path_set)          
+        (cL : CongL m1)
+        (cP : CongP m2)         
+        (n k : nat) : CongP ((A[ m1 ]) *[| n |]> m2). 
+    Admitted.
+    
 
-    Lemma LWP_CongR : ∀ X, CongR (LWP[ X ]).
-  Proof. intro X. intros i j i' j' A B.
-  Admitted.          
+  (****************************** LWP congruences ***********************************************)
+    
+  Lemma LWP_preserves_congruence : ∀ X, CongP X -> CongR (LWP[ X ]).
+  Proof. intros X cong. intros i j i' j' A B.
+         unfold sum_fn.
+         apply (fold_right_congruence _ _ eqR eqR plus plus).
+         + intros b b' a a' C D.
+           apply congrP; auto. 
+         + apply refR. 
+         + apply (brel_list_map_intro_general _ _ eqR eq_weighted_path lw lw). 
+           unfold lw. apply left_weight_of_path_congruence.
+           exact (cong _ _ _ _ A B).
+  Qed. 
 
   Lemma LWP_congruence : 
     ∀ X Y, X =PM= Y -> LWP[ X ] =M= LWP[ Y ].
@@ -711,16 +860,7 @@ Qed.
          assert (B := A i j).
          assert (C := sum_fn_congruence_general R eqR plus zero refR congrP).
          exact (C weighted_path lw lw eq_weighted_path left_weight_of_path_congruence _ _ B). 
-  Qed. 
-
-  Lemma adjacency_congruence (m : functional_matrix L) (cL : CongL m) : 
-    functional_matrix_congruence weighted_arc eq_weighted_arc (A[ m]). 
-  Admitted.
-
-  Lemma Pk_congruence (m : functional_matrix L) (cL : CongL m) (n k : nat) : 
-  functional_matrix_congruence weighted_path_set eq_weighted_path_set
-                               (Pk[ m, n ]^k).
-  Admitted.
+  Qed.
 
   Lemma LWP_IP_congruence : CongR (LWP[ [IP] ]).
   Proof. intros i j i' j' A B. simpl.
@@ -736,10 +876,21 @@ Qed.
          + apply refR. 
   Qed.
 
+  (****************************** matrix Pk congruences ***********************************************)  
+
+  Lemma Pk_preserves_congruence
+        (m : functional_matrix L)
+        (cL : CongL m)
+        (n k : nat) : CongP (Pk[ m, k, n ]).
+  Proof. intros i j i' j' A B.
+         unfold matrix_of_k_length_paths. 
+         unfold path_adjacency_arcs. simpl.
+  Admitted. 
+         
   (***************************** equations *********************) 
 
   Lemma unfold_Pk (m : functional_matrix L) (n : nat) : 
-     ∀ k, Pk[ m, n ]^(S k) =PM= (A[ m ] *[| n |]> (Pk[ m , n ]^k)). 
+     ∀ k, Pk[ m, S k, n ] =PM= (A[ m ] *[| n |]> (Pk[ m , k, n ])). 
    Proof. intro k. unfold matrix_of_k_length_paths. 
           exact (unfold_left_matrix_exponentiation _ _
                     eq_weighted_path_set
@@ -756,7 +907,7 @@ Qed.
   Lemma identity_is_weight_of_matrix_of_paths_of_length_zero
         (plusID : bop_is_id R eqR plus 0)
         (m : functional_matrix L) (n : nat) : 
-             [I] =M= LWP[ Pk[ m , n ]^0  ].
+             [I] =M= LWP[ Pk[ m , 0, n ]  ].
   Proof. intros i j.  unfold matrix_of_k_length_paths.
          simpl. unfold matrix_mul_identity.         
          case_eq(i =n?= j); intro A; compute. 
@@ -778,7 +929,7 @@ Qed.
  Lemma LWP_of_path_identity_is_weight_of_matrix_of_paths_of_length_zero
        (plusID : bop_is_id R eqR plus 0)
        (m : functional_matrix L) (n : nat) :        
-         LWP[ [IP] ] =M= LWP[ Pk[ m , n ]^0  ].
+         LWP[ [IP] ] =M= LWP[ Pk[ m , 0, n ]  ].
  Proof. intros i j.
         assert (A := identity_is_weight_of_matrix_of_paths_of_length_zero plusID m n i j).
         assert (B := LWP_of_path_identity_is_identity plusID i j).
@@ -803,136 +954,151 @@ Qed.
         apply LW_distributes_over_path_plus; auto. 
  Qed.
 
-  Lemma tmp0 (m : functional_matrix L) (n : nat) : 
-     (A[ m ] *[| n |]> [IP]) =PM= Pk[ m, n ]^(S 0).
-  Admitted.
 
-  (*
-   Lemma tmp1 (m : functional_matrix L) (n : nat) :  
-    LWP[ A[ m ] *[| n |]> [IP] ] =M= m.
-*) 
   Lemma LWP_distributes_over_left_exponentiation_base_case
-        (m : functional_matrix L) (n : nat) :  
-    LWP[ A[ m ] *[| n |]> [IP] ] =M= (m *[ n ]> [I]).
-  Proof. intros i j.
-         unfold left_matrix_mul. 
-           unfold left_row_i_dot_col_j, ltr_extend_paths.
-           unfold matrix_mul_identity. unfold ltr_extend_path.
-           unfold path_adjacency_arcs. unfold sum_fn. 
-         
-(*
-LWP_of_path_identity_is_identity (plusID : bop_is_id R eqR plus 0) :
-         LWP[ [IP] ] =M= [I]. 
-*) 
-
+        (m : functional_matrix L) :  
+    ∀ n, LWP[ A[ m ] *[| n |]> [IP] ] =M= (m *[ n ]> [I]).
+  Proof. induction n; intros i j.
+         + compute. apply refR. 
+         + unfold left_matrix_mul in IHn.
+           unfold left_matrix_mul.
+           unfold list_enum. fold (list_enum n).
+           unfold sum_fn. unfold sum_fn in IHn.
+           simpl.
+           assert (A := IHn i j). simpl in A.
+           rewrite map_app.
+           rewrite fold_right_app.
   Admitted.
 
+(*  
+Lemma tmp : 
+  ((LW[ sum_fn zeroP plusP (λ q : nat, map (ltr_extend_path (i, q, w)) ps) l])
+   =r?=
+   sum_fn 0 plus (λ q : nat, w |> (LW[ ps ])) l) = true
+*)   
 
   Lemma LWP_distributes_over_left_matrix_mul
         (m : functional_matrix L) (n : nat) (P : functional_matrix weighted_path_set) : 
     LWP[ A[ m ] *[| n |]> P ] =M= (m *[ n ]> LWP[ P ]).
-  Proof. intros i j. unfold left_matrix_mul.
+  Proof. intros i j.
+         unfold left_matrix_mul.
          unfold left_row_i_dot_col_j, ltr_extend_paths.
-         unfold ltr_extend_path, sum_fn, path_adjacency_arcs.
+         unfold path_adjacency_arcs.
   Admitted.
 
-  
   Lemma LWP_distributes_over_left_exponentiation
         (idP : bop_is_id R eqR plus 0) 
         (m : functional_matrix L) (n : nat)
         (cL : CongL m) : 
-        ∀ k, LWP[ A[ m ] *[| n |]> (Pk[ m , n ]^k) ] =M= (m *[ n ]> LWP[ Pk[ m , n ]^k ]).
+        ∀ k, LWP[ A[ m ] *[| n |]> (Pk[ m , k, n ]) ] =M= (m *[ n ]> LWP[ Pk[ m , k, n ] ]).
   Proof. induction k. 
-         + (* (LWP[ (A[ m]) *[| n |]> (Pk[ m, n ]^ 0)]) 
+         + (* (LWP[ (A[ m]) *[| n |]> (Pk[ m, 0, n ])]) 
                =M=
-              (m *[ n ]> (LWP[ Pk[ m, n ]^ 0]))
+              (m *[ n ]> (LWP[ Pk[ m, 0, n ]]))
             *)
            unfold matrix_of_k_length_paths. simpl.
            (* (LWP[ (A[ m]) *[| n |]> ([IP])]) 
               =M= 
               (m *[ n ]> (LWP[ [IP]]))
             *)
-           assert (C: CongR (LWP[ [IP] ])). apply LWP_IP_congruence. 
+           assert (C: CongR (LWP[ [IP] ])).
+           {
+             apply LWP_IP_congruence.
+           }
            assert (A := LWP_distributes_over_left_exponentiation_base_case m n).
            assert (B : (m *[ n ]> LWP[ [IP]]) =M= (m *[ n ]> [I])).
-              exact (congrM_right n m _ _ cL C (LWP_of_path_identity_is_identity idP)).
+           {
+             exact (congrM_right n m _ _ cL C (LWP_of_path_identity_is_identity idP)).
+           }
            apply matrix_equality_symmetric in B. 
            exact (matrix_equality_transitive _ _ _ A B). 
-         + (*  IHk : (LWP[ (A[ m]) *[| n |]> (Pk[ m, n ]^ k)]) 
+         + (*  IHk : (LWP[ (A[ m]) *[| n |]> (Pk[ m, k, n ])]) 
                      =M=
-                     (m *[ n ]> (LWP[ Pk[ m, n ]^ k]))
+                     (m *[ n ]> (LWP[ Pk[ m, k, n ]]))
                ============================
-               (LWP[ (A[ m]) *[| n |]> (Pk[ m, n ]^ S k)]) 
+               (LWP[ (A[ m]) *[| n |]> (Pk[ m, S k, n ] )]) 
                =M=
-               (m *[ n ]> (LWP[ Pk[ m, n ]^ S k]))
+               (m *[ n ]> (LWP[ Pk[ m, S k, n ]]))
            
                Proof: 
-               LWP[ (A[ m]) *[| n |]> (Pk[ m, n ]^ S k)]
+               LWP[ (A[ m]) *[| n |]> (Pk[ m, S k, n ])]
                =M= {unfold_Pk, congr} 
-               LWP[ (A[ m]) *[| n |]> (A[ m ] *[| n |]> (Pk[ m , n ]^k))]
+               LWP[ (A[ m]) *[| n |]> (A[ m ] *[| n |]> (Pk[ m , k, n ]))]
                =M={LWP_distributes_over_left_matrix_mul} 
-               (m *[ n ]> LWP[ (A[ m ] *[| n |]> (Pk[ m , n ]^k)) ])
+               (m *[ n ]> LWP[ (A[ m ] *[| n |]> (Pk[ m , k, n ])) ])
                =M= {IHk, congr} 
-               (m *[ n ]> (m *[ n ]> (LWP[ Pk[ m, n ]^ k]))
+               (m *[ n ]> (m *[ n ]> (LWP[ Pk[ m, k, n ]]))
                =M= {LWP_distributes_over_left_matrix_mul, congr}
-               (m *[ n ]> (LWP[ A[ m ] *[| n |]> (Pk[ m , n ]^k  ]))
+               (m *[ n ]> (LWP[ A[ m ] *[| n |]> (Pk[ m , k, n ]  ]))
                =M= {unfold_Pk, congr}
-               (m *[ n ]> (LWP[ Pk[ m, n ]^ S k]))
+               (m *[ n ]> (LWP[ Pk[ m, S k, n ]]))
             *)
-           assert (A : LWP[ A[ m ] *[| n |]> Pk[ m, n ]^ (S k)]
+           assert (A : LWP[ A[ m ] *[| n |]> Pk[ m, S k, n ]]
                        =M=
-                       LWP[ A[ m ] *[| n |]> A[ m ] *[| n |]> Pk[ m , n ]^k]).
-              apply LWP_congruence.
-              apply congrPM_right; auto.
-              apply adjacency_congruence; auto. 
-              apply Pk_congruence; auto. 
-              apply unfold_Pk.
-              assert (B : LWP[ A[ m ] *[| n |]> A[ m ] *[| n |]> Pk[ m , n ]^k]
+                       LWP[ A[ m ] *[| n |]> A[ m ] *[| n |]> Pk[ m , k, n ]]).
+           {
+                apply LWP_congruence.
+                apply congrPM_right; auto.
+                + apply adjacency_congruence; auto. 
+                + apply Pk_preserves_congruence; auto. 
+                + apply unfold_Pk.
+           }
+           assert (B : LWP[ A[ m ] *[| n |]> A[ m ] *[| n |]> Pk[ m , k, n ]]
                           =M=
-                          (m *[ n ]> LWP[ A[ m ] *[| n |]> Pk[ m , n ]^k ])).                           
-                 apply LWP_distributes_over_left_matrix_mul.
-              assert (C : (m *[ n ]> LWP[ A[ m ] *[| n |]> Pk[ m , n ]^k ])
+                          (m *[ n ]> LWP[ A[ m ] *[| n |]> Pk[ m , k, n ]])).
+              {
+                apply LWP_distributes_over_left_matrix_mul.
+              }
+           assert (C : (m *[ n ]> LWP[ A[ m ] *[| n |]> Pk[ m , k, n ] ])
                           =M=
-                          (m *[ n ]> (m *[ n ]> (LWP[ Pk[ m, n ]^ k])))). 
+                          (m *[ n ]> (m *[ n ]> (LWP[ Pk[ m, k, n ]])))).
+              {
                  apply congrM_right; auto.
-                 apply LWP_CongR. 
-                 assert (D : (m *[ n ]> (m *[ n ]> (LWP[ Pk[ m, n ]^ k])))
+                 apply LWP_preserves_congruence.
+                 apply path_left_matrix_mul_preserves_congruence; auto.
+                 apply Pk_preserves_congruence; auto.
+              }
+            assert (D : (m *[ n ]> (m *[ n ]> (LWP[ Pk[ m, k, n ]])))
                              =M=
-                             (m *[ n ]> (LWP[ A[ m ] *[| n |]> (Pk[ m , n ]^k) ] ))).
+                             (m *[ n ]> (LWP[ A[ m ] *[| n |]> (Pk[ m , k, n ]) ] ))).
+              {
+                apply congrM_right; auto.
+                + apply left_matrix_mul_preserves_congruence; auto.
+                  apply LWP_preserves_congruence.
+                  apply Pk_preserves_congruence; auto.                 
+                + apply matrix_equality_symmetric.
+                  apply LWP_distributes_over_left_matrix_mul.
+              }
+            assert (E : (m *[ n ]> (LWP[ A[ m ] *[| n |]> (Pk[ m , k, n ]) ] ))
+                             =M=
+                             (m *[ n ]> (LWP[ Pk[ m, S k, n ]]))).
+              {
                     apply congrM_right; auto.
-                    admit. (* CongR (m *[ n ]> (LWP[ Pk[ m, n ]^ k])) *) 
-                    apply matrix_equality_symmetric.
-                    apply LWP_distributes_over_left_matrix_mul.                    
-                 assert (E : (m *[ n ]> (LWP[ A[ m ] *[| n |]> (Pk[ m , n ]^k) ] ))
-                             =M=
-                             (m *[ n ]> (LWP[ Pk[ m, n ]^ S k]))).
-                 apply congrM_right; auto.
-                 apply LWP_CongR.                  
-                 apply LWP_congruence.
-                 apply path_matrix_equality_symmetric.
-                 apply unfold_Pk.
-                 exact (matrix_equality_transitive  _ _ _
+                    + apply LWP_preserves_congruence.
+                      apply path_left_matrix_mul_preserves_congruence; auto.
+                      apply Pk_preserves_congruence; auto.                     
+                    + apply LWP_congruence. 
+                      apply unfold_Pk.
+              }
+                 exact (matrix_equality_transitive _ _ _
                           (matrix_equality_transitive _ _ _
                              (matrix_equality_transitive _ _ _
                                (matrix_equality_transitive _ _ _ A B) C) D) E). 
-  Admitted. 
-
-
-
+  Qed. 
 
 
   Lemma  base_case_of_fundamental_theorem_on_paths_of_length_k
          (assoc : bop_associative R eqR plus)
          (comm : bop_commutative R eqR plus)
          (plusID : bop_is_id R eqR plus 0) :
-        ∀ m n, LWP[ Pk[ m, n ]^1 ] =M= ((m *[ n ]> LWP[ Pk[ m, n ]^0 ])).
+        ∀ m n, LWP[ Pk[ m, 1, n ] ] =M= ((m *[ n ]> LWP[ Pk[ m, 0, n ] ])).
   Proof. intros m n. 
          unfold matrix_of_k_length_paths at 1. 
          unfold left_matrix_exponentiation.
          (* Show: 
           (LWP[ ((A[ m ]) *[| n |]> ([IP])) +PM ([IP])]) 
            =M= 
-          ((m *[ n ]> (LWP[ Pk[ m, n ]^ 0])))
+          ((m *[ n ]> (LWP[ Pk[ m, 0, n ]])))
          
           Proof: 
           LWP[ ((A[ m ]) *[| n |]> ([IP])) +PM ([IP])]
@@ -941,7 +1107,7 @@ LWP_of_path_identity_is_identity (plusID : bop_is_id R eqR plus 0) :
           =M= {LWP_of_path_identity_is_identity} 
           LWP[ ((A[ m ]) *[| n |]> ([IP])) ] +M I ]
           =M= {} 
-          ((m *[ n ]> (LWP[ Pk[ m, n ]^ 0])) +M ([I]))
+          ((m *[ n ]> (LWP[ Pk[ m, 0, n ]])) +M ([I]))
           
          assert (B := LWP_distributes_over_matrix_add assoc comm plusID ((A[ m]) *[| n |]> ([IP])) ([IP])).
          assert (C : ((LWP[ (A[ m]) *[| n |]> ([IP])]) +M (LWP[ [IP]]))
@@ -953,7 +1119,7 @@ LWP_of_path_identity_is_identity (plusID : bop_is_id R eqR plus 0) :
             apply plusID.
          assert (D : ((LWP[ (A[ m]) *[| n |]> ([IP])]) +M [I])
                      =M= 
-                     ((m *[ n ]> (LWP[ Pk[ m, n ]^ 0])) +M ([I]))).
+                     ((m *[ n ]> (LWP[ Pk[ m, 0, n ]])) +M ([I]))).
             apply matrix_add_congruence; auto. 
             apply LWP_distributes_over_matrix_add_base_case.
             apply matrix_equality_reflexive.             
@@ -971,41 +1137,420 @@ LWP_of_path_identity_is_identity (plusID : bop_is_id R eqR plus 0) :
          (comm : bop_commutative R eqR plus)
          (plusID : bop_is_id R eqR plus 0)
          (m : functional_matrix L) (cL : CongL m) (n : nat) : 
-    ∀ k, LWP[ Pk[ m , n ]^(k + 1) ]
+    ∀ k, LWP[ Pk[ m , k + 1, n ] ]
           =M=
-          (m *[ n ]> (LWP[ Pk[ m , n]^k ])). 
+          (m *[ n ]> (LWP[ Pk[ m , k, n] ])). 
   Proof. induction k.
          + apply base_case_of_fundamental_theorem_on_paths_of_length_k; auto. 
          + (* Show: 
-             IHk : (LWP[ Pk[ m, n ]^(k + 1)])  =M= (m *[ n ]> (LWP[ Pk[ m, n ]^ k]))
+             IHk : (LWP[ Pk[ m, k + 1, n ]])  =M= (m *[ n ]> (LWP[ Pk[ m, k, n ]]))
              ============================
-             (LWP[ Pk[ m, n ]^((S k) + 1)])  =M= (m *[ n ]> (LWP[ Pk[ m, n ]^(S k)]))
+             (LWP[ Pk[ m, (S k) + 1, n ]])  =M= (m *[ n ]> (LWP[ Pk[ m, S k, n ]]))
 
              Proof: 
-             LWP[ Pk[ m, n ]^((k + 1) + 1)]
+             LWP[ Pk[ m, (k + 1) + 1, n ]]
              = {unfold_left_matrix_exponentiation} 
-             LWP[ (A[ m ] *[| n |]> (Pk[ m , n ]^(k + 1)))]
+             LWP[ (A[ m ] *[| n |]> (Pk[ m , k + 1, n ]))]
              = {LWP_distributes_over_left_exponentiation, congruence}
-             (m *[ n ]> (LWP[ Pk[ m, n ]^(k + 1)]))
+             (m *[ n ]> (LWP[ Pk[ m, k + 1, n ]]))
             *)
-           assert (B : LWP[ Pk[ m, n ]^((S k) + 1)]
+           assert (B : LWP[ Pk[ m, (S k) + 1, n ]]
                        =M=
-                       LWP[ (A[ m ] *[| n |]> (Pk[ m , n ]^(S k))) ]).
+                       LWP[ (A[ m ] *[| n |]> (Pk[ m , S k, n ])) ]).
                assert (C := unfold_Pk m n (S k)).             
                apply LWP_congruence; auto. 
-               assert (D : S (S k) = ((S k) + 1)%nat). (* Ugh! *) 
+               assert (D : S (S k) = ((S k) + 1)%nat). 
                   assert (E := theory.plus_SS k 0).
                   rewrite <- plus_n_O in E.
                   rewrite E. reflexivity. 
                rewrite D in C. exact C. 
-           assert (D : LWP[   (A[ m ] *[| n |]> (Pk[ m , n ]^(S k)))   ] 
+           assert (D : LWP[   (A[ m ] *[| n |]> (Pk[ m , S k, n ]))   ] 
                        =M=
-                       (m *[ n ]> (LWP[ Pk[ m, n ]^(S k)]))).
+                       (m *[ n ]> (LWP[ Pk[ m, S k, n ]]))).
               apply LWP_distributes_over_left_exponentiation; auto. 
            exact (eq_functional_matrix_prop_transitive _ eqR trnR _ _ _ B D).
   Qed.
 
-    
-End Weighted_Paths. 
-         
+
+
+
+  Definition left_sum_of_path_powers
+             (n : nat)
+             (m : functional_matrix L)
+             (k : nat) : functional_matrix (weighted_path_set) :=
+       left_sum_of_matrix_powers_general n (zeroP) (oneP) (plusP) (ltr_extend_paths) (path_adjacency_arcs m) k. 
+
+  (*************************************************************************************************************)
+  (*************************************************************************************************************)  
+  (*************************************************************************************************************)
+
+  Local Notation "Mk[ m , k , n ]"   := (left_matrix_exponentiation zero one plus ltr n m k) (at level 70).
+  Local Notation "Mk{ m , k , n }"   := (left_sum_of_matrix_powers_general n zero one plus ltr m k) (at level 70).  
+  Local Notation "Mk<{ m , k , n }>" := (left_matrix_iteration zero one plus ltr n m k) (at level 70).
+
+
+  Local Notation "Pk{ m , k , n }"   := (left_sum_of_path_powers n m k) (at level 70).
+  Local Notation "Pk<{ m , k , n }>" := (left_matrix_iteration (zeroP R) (oneP R) (plusP R) (ltr_extend_paths R) n m k) (at level 70).
+
   
+  (*  Main theorems below 
+
+  matrix_path_equation
+  ∀n k,  Mk[m, k, n] =M= LWP[ Pk[ m , k, n ] ].
+
+  left_sum_of_matrix_powers_is_equal_to_left_matrix_iteration
+  ∀ k, Mk{ m, k , n } =M= Mk<{ m, k , n }>. 
+
+  powers
+  ∀ k, Mk[ m +M [I], k , n ] =M= Mk{ m, k, n}.
+
+  left_sum_of_matrix_powers_to_k_is_equal_to_weight_of_paths_of_length_at_most_k
+  ∀ k, Mk{ m, k , n } =M= LWP[ Pk{ m , k , n } ].
+  *) 
+  
+
+    Lemma matrix_exp_congruence : ∀ m,  CongL m → ∀ n k, CongR (Mk[ m, k, n]).
+    Proof. intros m cong n k. 
+           induction k; simpl.
+           + apply (matrix_mul_identity_congruence R eqR refR).
+           + intros i j i' j' A B. simpl.
+             unfold left_matrix_mul. (* No! should preserve this abstraction and use higher-level congruence....Fix me... *) 
+             apply sum_fn_congruence; auto.
+             intros i0 j0 C. 
+             unfold left_row_i_dot_col_j.
+(*             
+             apply congrM.
+             apply cong; auto.
+             apply IHk; auto. 
+
+*) 
+    Admitted. 
+
+    Lemma left_sum_of_matrix_powers_congruence : ∀ m,  CongL m → ∀ n k, CongR (Mk{ m, k, n}).
+    Proof. intros m cong n k. 
+           induction k; simpl.
+           + unfold left_sum_of_matrix_powers.
+             unfold left_sum_of_matrix_powers_general.
+             apply (matrix_mul_identity_congruence R eqR refR).
+           + admit. 
+   Admitted. 
+
+
+  (* move this ? 
+  Lemma bop_congruence_implies_ltr_congruence : ltr_congruence R R eqR eqR mul. 
+  Proof. intros a b c d. apply congrM. Qed. 
+   *)
+    
+  Lemma matrix_path_equation
+        (plus_commutative  : bop_commutative R eqR plus)
+        (plus_associative : bop_associative R eqR plus)
+        (plusID : bop_is_id R eqR plus 0)
+        (m : functional_matrix L) (cong : CongL m) :
+    ∀n k,  Mk[m, k, n] =M= LWP[ Pk[ m , k, n ] ].
+  Proof. intros n k. induction k; simpl. 
+         + apply identity_is_weight_of_matrix_of_paths_of_length_zero; auto.
+         + assert (A := fundamental_theorem_on_paths_of_length_k plus_associative plus_commutative plusID m cong n k).
+           assert (B : (m *[ n ]> (Mk[m, k, n])) =M= (m *[ n ]> (LWP[ Pk[ m, k, n ] ])) ).
+              apply (left_matrix_mul_congruence _ _ eqL eqR); auto.
+              apply matrix_exp_congruence; auto. 
+              apply eq_functional_matrix_prop_reflexive; auto. 
+           apply eq_functional_matrix_prop_symmetric in A; auto.
+           assert (C := eq_functional_matrix_prop_transitive _ _ trnR _ _ _ B A). 
+           assert (D : S k = (k + 1)%nat). (* Ugh!!! *) 
+              assert (E := plus_n_Sm k 0).
+              rewrite PeanoNat.Nat.add_0_r in E.
+              exact E. 
+           rewrite D. exact C. 
+  Qed. 
+  
+  (* move this? *) 
+  Lemma unfold_left_matrix_iteration(n : nat) (m : functional_matrix L) :
+    ∀ k, Mk<{ m, S k, n }> =M= ((m *[ n ]> (Mk<{ m, k, n }>)) +M ([I])). 
+  Proof. intro k. simpl. 
+         apply eq_functional_matrix_prop_reflexive; auto.
+  Qed.
+  
+  Lemma unfold_left_sum_of_matrix_powers (n : nat) (m : functional_matrix L) :
+    ∀ k, Mk{ m, S k, n} =M= Mk{ m, k, n} +M Mk[m, S k, n].
+  Proof. intro k. unfold left_sum_of_matrix_powers.
+         unfold left_sum_of_matrix_powers_general. simpl.
+         apply eq_functional_matrix_prop_reflexive; auto.
+  Qed.
+
+  Lemma unfold_left_sum_of_path_powers (n : nat) (m : functional_matrix L) :
+    ∀ k, Pk{ m, S k, n} =PM= (Pk{ m, k, n} +PM Pk[m, S k, n]).
+  Proof. intro k. unfold left_sum_of_path_powers.
+         unfold left_sum_of_matrix_powers_general. simpl.
+         apply eq_functional_matrix_prop_reflexive; auto.
+         apply eq_weighted_path_set_reflexive; auto. 
+  Qed.
+
+  Local Definition trnM := eq_functional_matrix_prop_transitive _ eqR trnR. 
+
+  Lemma shift_left_sum_of_matrix_powers
+        (assoc : bop_associative R eqR plus) 
+        (comm: bop_commutative R eqR plus)
+        (plusID : bop_is_id R eqR plus 0)
+        (LD : slt_distributive eqR plus ltr) 
+        (n : nat) (m : functional_matrix L) (cong : CongL m) :
+           ∀ k, Mk{ m, S k, n} =M= ((m *[ n ]> Mk{ m, k, n}) +M [I]).
+  Proof. induction k.     
+         + unfold left_sum_of_matrix_powers. simpl.
+           apply matrix_add_comm; auto. 
+         + (* IHk : (Mk{ m, S k, n}) =M= ((m *[ n ]> (Mk{ m, k, n})) +M ([I]))
+              ============================
+              (Mk{ m, S (S k), n}) =M= ((m *[ n ]> (Mk{ m, S k, n})) +M ([I]))
+
+             Proof: 
+             Mk{ m, S (S k), n}) 
+             =M= {unfold_left_sum_of_matrix_powers }
+             Mk{ m, S k, n} +M Mk[m, S (S k), n]
+             =M= {IHk, unfold_left_matrix_exponentiation, +M congruence} 
+             (m *[ n ]>Mk{ m, k, n} +M [I]) +M (m *[ n ]> Mk[m, S k, n])
+             =M={+M assoc, commutative}
+             (m *[ n ]> Mk{ m, k, n} +M (m *[ n ]> Mk[m, S k, n])) +M [I]
+             =M={*M assoc distributes over +M}
+             (m *[ n ]> (Mk{ m, k, n} +M Mk[m, S k, n])) +M [I]
+             =M= {unfold_left_sum_of_matrix_powers} 
+             ((m *[ n ]> (Mk{ m, S k, n})) +M ([I]))             
+            *)
+           assert (A := unfold_left_sum_of_matrix_powers n m (S k)).
+           assert (B : ((Mk{ m, S k, n}) +M (Mk[ m, S (S k), n]))
+                       =M=
+                       (((m *[ n ]> (Mk{ m, k, n})) +M ([I]))
+                        +M
+                       ((m *[ n ]> Mk[ m, S k, n])))).
+              apply matrix_add_congruence; auto. 
+              apply unfold_left_matrix_exponentiation; auto. 
+           assert (C : (((m *[ n ]> (Mk{ m, k, n})) +M ([I]))
+                        +M
+                       ((m *[ n ]> Mk[ m, S k, n])))
+                       =M=
+                       (((m *[ n ]> (Mk{ m, k, n})) +M ((m *[ n ]> Mk[ m, S k, n])))
+                        +M
+                        ([I]))).
+              assert (C1 : (((m *[ n ]> (Mk{ m, k, n})) +M ([I])) +M (m *[ n ]> (Mk[ m, S k, n])))
+                         =M=
+                        ((m *[ n ]> (Mk{ m, k, n})) +M (([I]) +M (m *[ n ]> (Mk[ m, S k, n]))))).
+                   apply matrix_add_assoc;auto. 
+              assert(C2 : ((m *[ n ]> (Mk{ m, k, n})) +M (([I]) +M (m *[ n ]> (Mk[ m, S k, n]))))
+                           =M= 
+                           ((m *[ n ]> (Mk{ m, k, n})) +M ((m *[ n ]> (Mk[ m, S k, n])) +M ([I])))). 
+                 apply matrix_add_congruence; auto.
+                 apply matrix_equality_reflexive.
+                 apply matrix_add_comm; auto.                   
+              assert (C3 : ((m *[ n ]> (Mk{ m, k, n})) +M ((m *[ n ]> (Mk[ m, S k, n])) +M ([I])))
+                           =M=
+                           (((m *[ n ]> (Mk{ m, k, n})) +M (m *[ n ]> (Mk[ m, S k, n]))) +M ([I]))).
+                 apply matrix_equality_symmetric. 
+                 apply matrix_add_assoc;auto. 
+              exact (trnM _ _ _ (trnM _ _ _ C1 C2) C3).
+           assert (D : (((m *[ n ]> (Mk{ m, k, n})) +M ((m *[ n ]> Mk[ m, S k, n])))
+                        +M
+                       ([I]))
+                       =M=
+                       ((m *[ n ]> (Mk{ m, k, n} +M Mk[ m, S k, n]))
+                        +M
+                       ([I]))).
+              apply matrix_add_congruence; auto.
+              apply eq_functional_matrix_prop_symmetric; auto.
+              apply left_matrix_left_mul_left_distributive_over_matrix_add; auto. 
+              apply eq_functional_matrix_prop_reflexive; auto.
+           assert (E : ((m *[ n ]> (Mk{ m, k, n} +M Mk[ m, S k, n]))
+                        +M
+                       ([I]))
+                       =M=
+                       ((m *[ n ]> Mk{ m, S k, n})
+                        +M
+                       ([I]))).
+              apply matrix_add_congruence; auto.
+              apply (left_matrix_mul_congruence L R eqL eqR plus zero ltr); auto.           
+              apply matrix_add_preserves_congruence; auto.
+              apply left_sum_of_matrix_powers_congruence; auto. 
+              apply matrix_exp_congruence; auto. 
+              apply eq_functional_matrix_prop_reflexive; auto.
+              apply eq_functional_matrix_prop_symmetric; auto.
+              apply unfold_left_sum_of_matrix_powers.
+              apply eq_functional_matrix_prop_reflexive; auto.              
+          apply (trnM _ _ _ A (trnM _ _ _ B (trnM _ _ _ C (trnM _ _ _ D E)))). 
+  Qed. 
+  
+  Lemma left_sum_of_matrix_powers_is_equal_to_left_matrix_iteration
+        (comm: bop_commutative R eqR plus)
+        (assoc : bop_associative R eqR plus)
+        (plusID : bop_is_id R eqR plus 0)
+        (LD : slt_distributive eqR plus ltr) 
+        (n : nat) (m : functional_matrix L) (cong : CongL m) :
+           ∀ k, Mk{ m, k , n } =M= Mk<{ m, k , n }>. 
+  Proof. induction k.     
+         + simpl. apply eq_functional_matrix_prop_reflexive; auto.
+         + (* Show : 
+              IHk : Mk{ m, k, n} =M= Mk<{ m, k, n }>
+              ============================
+              Mk{ m, S k, n} =M= Mk<{ m, S k, n }>
+
+              Proof: 
+              Mk{ m, S k, n} 
+              =M={shift_left_sum_of_matrix_powers}              
+              (m *[ n ]> Mk{ m, k, n}) +M [I] 
+              =M={IHk, congruence}              
+              (m *[ n ]> Mk<{ m, k, n }>) +M [I] 
+              =M={unfold_left_matrix_iteration}
+              Mk<{ m, S k, n }>
+            *)
+           assert (A := shift_left_sum_of_matrix_powers assoc comm plusID LD n m cong k).
+           assert (B : ((m *[ n ]> (Mk{ m, k, n})) +M ([I]))
+                       =M=
+                       ((m *[ n ]> (Mk<{ m, k, n }>)) +M ([I]))).
+              assert (C : (m *[ n ]> Mk{ m, k, n}) =M= (m *[ n ]> (Mk<{ m, k, n }>))).
+                 apply (left_matrix_mul_congruence L R eqL eqR plus zero ltr); auto.
+                 apply left_sum_of_matrix_powers_congruence; auto.
+                 apply eq_functional_matrix_prop_reflexive; auto. 
+              apply matrix_add_congruence; auto.
+              apply eq_functional_matrix_prop_reflexive; auto. 
+           assert (C : ((m *[ n ]> (Mk<{ m, k, n }>)) +M ([I]))
+                       =M=
+                       Mk<{ m, S k, n }>).
+              apply eq_functional_matrix_prop_symmetric; auto. 
+              apply unfold_left_matrix_iteration. 
+              exact (trnM _ _ _ (trnM _ _ _ A B) C).
+  Qed. 
+
+  Lemma claim3 (plusIdempotent : bop_idempotent R eqR plus)
+        (n : nat) (m : functional_matrix L) :
+        ∀ k, Mk{ m, k, n} +M (m *[ n ]> Mk{ m, k, n})
+              =M=
+              Mk{ m, k, n} +M Mk[m, S k, n].
+  Proof. induction k. 
+         + unfold left_sum_of_matrix_powers, left_matrix_exponentiation; simpl. 
+           admit. (* need I is +M ann *)
+         + (* IHk : Mk{ m, k, n} +M m *[ n]> Mk{ m, k, n}
+                    =M=
+                    Mk{ m, k, n} +M Mk[ m, S k, n]
+               ============================
+               Mk{ m, S k, n} +M m *[ n]> Mk{ m, S k, n}
+               =M=
+               Mk{ m, S k, n}) +M Mk[ m, S (S k), n]
+
+              Proof: 
+              Mk{ m, S k, n} +M m *[ n]> Mk{ m, S k, n}
+              =M={unfold} 
+              Mk{ m, S k, n} +M m *[ n]> (Mk{ m, k, n} +M Mk[m, S k, n]) 
+              =M={left_distrib}  
+              Mk{ m, S k, n} +M m *[ n]> Mk{ m, k, n} +M m *[ n]> Mk[m, S k, n]  
+              =M= {unfold} 
+              Mk{ m, S k, n} +M m *[ n]> Mk{ m, k, n} +M Mk[m, S (S k), n]  
+              =M={unfold} 
+              Mk{m, k, n} +M Mk[m, S k, n] +M m *[ n]> Mk{ m, k, n} +M Mk[m, S (S k), n]  
+              =M={assoc, comm} 
+              Mk{m, k, n} +M m *[ n]> Mk{ m, k, n} +M Mk[m, S k, n] +M Mk[m, S (S k), n]  
+              =M={IHk} 
+              Mk{ m, k, n} +M Mk[ m, S k, n] +M Mk[m, S k, n] +M Mk[m, S (S k), n]  
+              =M={matrix_add_idempotent} 
+              Mk{ m, k, n} +M Mk[ m, S k, n] +M Mk[m, S (S k), n]  
+              =M= 
+              Mk{ m, S k, n}) +M Mk[ m, S (S k), n]
+           *) 
+Admitted. 
+
+  (*
+  Lemma powers (n : nat) (m : functional_matrix L) :
+    ∀ k, Mk[ m +M [I], k , n ] =M= Mk{ m, k, n}.
+  Proof. induction k.
+         + simpl. apply eq_functional_matrix_prop_reflexive; auto. 
+         + (* IHk : Mk[ m +M [I], k, n] =M= Mk{ m, k, n}
+              ============================
+              Mk[ m +M [I], S k, n] =M= Mk{ m, S k, n}
+    
+              Proof: 
+              Mk[ m +M ([I]), S k, n]
+              =M={unfold} 
+              (m +M [I]) *M Mk[ m +M ([I]), k, n]
+              =M={IHk, congruence} 
+              (m +M [I]) *M Mk{ m, k, n} 
+              =M= {right_distrib} 
+              (m *M Mk{ m, k, n}) +M ([I] *M Mk{ m, k, n}) 
+              =M={identity} 
+              (m *M Mk{ m, k, n}) +M Mk{ m, k, n}
+              =M={commutative} 
+              Mk{ m, k, n} +M (m *M Mk{ m, k, n})
+              =M={claim3} 
+              Mk{ m, k, n} +M Mk[m, S k, n].
+              =M={unfold} 
+              Mk{ m, S k, n}
+            *)
+           assert (A : Mk[ m +M [I], S k, n]
+                       =M=
+                       ((m +M [I]) *[n] Mk[ m +M [I], k, n])).
+              admit.
+           assert (B : ((m +M [I]) *[n] Mk[ m +M [I], k, n])
+                       =M=
+                       ((m +M [I]) *[n] Mk{ m, k, n})).
+                  admit. 
+                  (*apply matrix_mul_congruence. *)
+           
+  Admitted.
+   *)
+
+  
+  Lemma  base_case (plusID : bop_is_id R eqR plus 0) (n : nat) (m : functional_matrix L) :
+    Mk{ m, 0, n} =M= LWP[ Pk{ m, 0, n}]. 
+  Proof. unfold left_sum_of_path_powers, left_sum_of_matrix_powers.
+         apply eq_functional_matrix_prop_symmetric; auto.
+         apply LWP_of_path_identity_is_identity; auto. 
+  Qed.          
+  
+  Lemma left_sum_of_matrix_powers_to_k_is_equal_to_weight_of_paths_of_length_at_most_k
+        (plus_associative : bop_associative R eqR plus)
+        (plus_commutative  : bop_commutative R eqR plus)
+        (plusID : bop_is_id R eqR plus 0)
+        (n : nat) (m : functional_matrix L) (cong : CongL m):
+           ∀ k, Mk{ m, k , n } =M= LWP[ Pk{ m , k , n } ].
+  Proof. induction k; simpl.
+         + (* Mk{ m, 0, n} =M= LWP[ Pk{ m, 0, n}] *) 
+           apply base_case; auto. 
+         + (*
+            IHk : (Mk{ m, k, n}) =M= (LWP[ Pk{ m, k, n}])
+            ============================
+            (Mk{ m, S k, n}) =M= (LWP[ Pk{ m, S k, n}])
+
+            Proof: 
+            Mk{ m, S k, n}
+            =M= {unfold_left_sum_of_matrix_powers} 
+            Mk{ m, k, n} +M Mk[ m, S k, n]
+            =M= {IHk, congruence} 
+            LWP[ Pk{ m, k, n} ] +M Mk[ m, S k, n]
+            =M={matrix_path_equation, congruence} 
+            LWP[ Pk{ m, k, n} ] +M LWP[ Pk[ m, S k, n] ] 
+            =M={LWP_distributes_over_matrix_add} 
+            LWP[ Pk{ m, k, n} +PM Pk[ m, S k, n] ] 
+            =M= {unfold_left_sum_of_path_powers, congruence}
+            LWP[ Pk{ m, S k, n}]
+           *)
+           assert (A := unfold_left_sum_of_matrix_powers n m k).
+           assert (B : (Mk{ m, k, n} +M Mk[ m, S k, n])
+                       =M= 
+                       (LWP[ Pk{ m, k, n}] +M Mk[ m, S k, n])). 
+              apply matrix_add_congruence; auto. 
+              apply eq_functional_matrix_prop_reflexive; auto. 
+           assert (C : (LWP[ Pk{ m, k, n}] +M Mk[ m, S k, n])
+                       =M=
+                       (LWP[ Pk{ m, k, n} ] +M LWP[ Pk[ m, S k, n] ])).
+              apply matrix_add_congruence; auto. 
+              apply eq_functional_matrix_prop_reflexive; auto.
+              apply matrix_path_equation; auto.
+           assert (D : (LWP[ Pk{ m, k, n} ] +M LWP[ Pk[ m, S k, n] ])
+                       =M=                 
+                       (LWP[ Pk{ m, k, n} +PM Pk[ m, S k, n] ])).
+             apply eq_functional_matrix_prop_symmetric; auto.
+             apply LWP_distributes_over_matrix_add; auto.  
+           assert (E := unfold_left_sum_of_path_powers n m k).
+           assert (F : (LWP[ Pk{ m, k, n} +PM Pk[ m, S k, n] ])
+                       =M=
+                       LWP[ Pk{ m, S k, n} ]).
+              apply LWP_congruence; auto.  
+           exact (trnM _ _ _ (trnM _ _ _ (trnM _ _ _ (trnM _ _ _ A B) C) D) F).
+  Qed.
+  
+End Weighted_Paths.   
+

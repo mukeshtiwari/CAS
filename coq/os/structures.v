@@ -14,6 +14,12 @@ Require Import CAS.coq.os.theory.
 
 Section ACAS.
 
+Record os_qo_bottom_top_proofs (S: Type) (eq lte : brel S) (times : binary_op S) := 
+{
+  A_qo_bottom_top_bottom_id_d : os_exists_qo_bottom_id_decidable S eq lte times 
+; A_qo_bottom_top_top_ann_d   : os_exists_qo_top_ann_decidable S eq lte times 
+}.
+  
 Record os_bottom_top_proofs (S: Type) (eq lte : brel S) (times : binary_op S) := 
 {
   A_bottom_top_bottom_id_d : os_exists_bottom_id_decidable S eq lte times 
@@ -80,7 +86,7 @@ Record A_orsg (S : Type) := {
 ; A_orsg_times             : binary_op S 
 ; A_orsg_lte_proofs        : or_proofs S (A_eqv_eq S A_orsg_eqv) A_orsg_lte
 ; A_orsg_times_proofs      : sg_proofs S (A_eqv_eq S A_orsg_eqv) A_orsg_times
-; A_orsg_bottom_top_proofs : os_bottom_top_proofs S (A_eqv_eq S A_orsg_eqv) A_orsg_lte A_orsg_times
+; A_orsg_bottom_top_proofs : os_qo_bottom_top_proofs S (A_eqv_eq S A_orsg_eqv) A_orsg_lte A_orsg_times
 ; A_orsg_proofs            : os_proofs S A_orsg_lte A_orsg_times 
 ; A_orsg_ast               : cas_os_ast
 }.
@@ -346,15 +352,19 @@ Definition A_os_classify_posg (S : Type) (A : A_posg S) : A_os_mcas S :=
        ; A_mposg_ast          := A_posg_ast _ A 
      |}
   | _ , _ => A_OS_posg _ A
-  end. 
+  end.
+
 
 Definition A_os_classify_orsg (S : Type) (A : A_orsg S) : A_os_mcas S :=
-  let P := A_orsg_lte_proofs _ A in 
+  let P := A_orsg_lte_proofs _ A in
+  let eqv := A_orsg_eqv _ A in
+  let sym := A_eqv_symmetric _ _ (A_eqv_proofs _ eqv) in 
+  let bot_top :=  A_orsg_bottom_top_proofs _ A in 
   match A_or_antisymmetric_d _ _ _ P, A_or_total_d _ _ _ P  with 
   | inl anti, inr ntot =>
     A_os_classify_posg _     
      {|
-         A_posg_eqv          := A_orsg_eqv _ A 
+         A_posg_eqv          := eqv 
        ; A_posg_lte          := A_orsg_lte _ A 
        ; A_posg_times        := A_orsg_times _ A 
        ; A_posg_lte_proofs   :=
@@ -366,7 +376,18 @@ Definition A_os_classify_orsg (S : Type) (A : A_orsg S) : A_os_mcas S :=
              ; A_po_not_total     := ntot 
            |}
        ; A_posg_times_proofs := A_orsg_times_proofs _ A 
-       ; A_posg_bottom_top_proofs   := A_orsg_bottom_top_proofs _ A 
+       ; A_posg_bottom_top_proofs   :=
+           {|
+             A_bottom_top_bottom_id_d :=
+               os_exists_bottom_id_decidable_from_os_exists_qo_bottom_id_decidable _ _ _ _
+                 sym anti 
+                 (A_qo_bottom_top_bottom_id_d _ _ _ _ bot_top)
+
+           ; A_bottom_top_top_ann_d :=
+               os_exists_top_ann_decidable_from_os_exists_qo_top_ann_decidable _ _ _ _ 
+                 sym anti 
+                 (A_qo_bottom_top_top_ann_d _ _ _ _ bot_top)                 
+           |}
        ; A_posg_proofs       := A_orsg_proofs _ A 
        ; A_posg_ast          := A_orsg_ast _ A 
      |}
@@ -392,6 +413,13 @@ End AMCAS.
 
 
 Section CAS.
+
+Record os_qo_bottom_top_certs {S: Type} :=
+{
+  qo_bottom_top_bottom_id_d : @os_exists_qo_bottom_id_certificate S
+; qo_bottom_top_top_ann_d   : @os_exists_qo_top_ann_certificate S
+}.
+  
 
 
 Record os_bottom_top_certs {S: Type} :=
@@ -458,7 +486,7 @@ Record orsg {S : Type} := {
 ; orsg_times            : @binary_op S 
 ; orsg_lte_certs        : @or_certificates S 
 ; orsg_times_certs      : @sg_certificates S 
-; orsg_bottom_top_certs : @os_bottom_top_certs S 
+; orsg_bottom_top_certs : @os_qo_bottom_top_certs S 
 ; orsg_certs            : @os_certificates S 
 ; orsg_ast              : cas_os_ast
 }.
@@ -616,7 +644,32 @@ Definition os_classify_posg {S : Type} (A : @posg S) : @os_mcas S :=
        ; mposg_ast          := posg_ast A 
      |}
   | _ , _ => OS_posg A
-  end. 
+  end.
+
+
+Definition os_exists_bottom_id_certificate_from_os_exists_qo_bottom_id_certificate {S : Type} 
+           (d : @os_exists_qo_bottom_id_certificate S) :
+                @os_exists_bottom_id_certificate S :=   
+match d with
+| Qo_Bottom_Id_Cert_None             => Bottom_Id_Cert_None 
+| Qo_Bottom_Id_Cert_Bottom_None b    => Bottom_Id_Cert_Bottom_None b 
+| Qo_Bottom_Id_Cert_None_Id i        => Bottom_Id_Cert_None_Id i 
+| Qo_Bottom_Id_Cert_Equal s          => Bottom_Id_Cert_Equal s 
+| Qo_Bottom_Id_Cert_Not_Equal (b, i) => Bottom_Id_Cert_Not_Equal  (b, i)
+    
+end. 
+Definition os_exists_top_ann_certificate_from_os_exists_qo_top_ann_certificate {S : Type} 
+           (d : @os_exists_qo_top_ann_certificate S ) :
+                @os_exists_top_ann_certificate S :=   
+match d with
+| Qo_Top_Ann_Cert_None            => Top_Ann_Cert_None 
+| Qo_Top_Ann_Cert_Top_None t      => Top_Ann_Cert_Top_None t 
+| Qo_Top_Ann_Cert_None_Ann a      => Top_Ann_Cert_None_Ann a
+| Qo_Top_Ann_Cert_Equal s         => Top_Ann_Cert_Equal s 
+| Qo_Top_Ann_Cert_Not_Equal (t,a) => Top_Ann_Cert_Not_Equal (t, a)
+    
+end. 
+
 
 Definition os_classify_orsg {S : Type} (A : @orsg S) : @os_mcas S :=
   let P := orsg_lte_certs A in 
@@ -635,8 +688,14 @@ Definition os_classify_orsg {S : Type} (A : @orsg S) : @os_mcas S :=
              ; po_antisymmetric := Assert_Antisymmetric 
              ; po_not_total     := Assert_Not_Total p2 
            |}
-       ; posg_times_certs        := orsg_times_certs A 
-       ; posg_bottom_top_certs   := orsg_bottom_top_certs A 
+       ; posg_times_certs        := orsg_times_certs A
+       ; posg_bottom_top_certs   :=
+           {|
+             bottom_top_bottom_id_d := os_exists_bottom_id_certificate_from_os_exists_qo_bottom_id_certificate
+                                           (qo_bottom_top_bottom_id_d (orsg_bottom_top_certs A))
+           ; bottom_top_top_ann_d   := os_exists_top_ann_certificate_from_os_exists_qo_top_ann_certificate
+                                            (qo_bottom_top_top_ann_d (orsg_bottom_top_certs A))
+           |}
        ; posg_certs              := orsg_certs A 
        ; posg_ast                := orsg_ast A 
      |}
@@ -691,6 +750,13 @@ Definition P2C_os_monotone_increasing_proofs (C : os_monotone_increasing_proofs 
 |}.
 
 
+
+Definition P2C_os_qo_bottom_top_proofs  (P : os_qo_bottom_top_proofs S eq lte b) :=
+{|
+  qo_bottom_top_bottom_id_d := p2c_os_exists_qo_bottom_id_decidable _ _ _ _ (A_qo_bottom_top_bottom_id_d S eq lte b P)
+; qo_bottom_top_top_ann_d   := p2c_os_exists_qo_top_ann_decidable _ _ _ _ (A_qo_bottom_top_top_ann_d S eq lte b P)
+|}.
+
 Definition P2C_os_bottom_top_proofs  (P : os_bottom_top_proofs S eq lte b) :=
 {|
   bottom_top_bottom_id_d := p2c_os_exists_bottom_id_decidable _ _ _ _ (A_bottom_top_bottom_id_d S eq lte b P)
@@ -725,7 +791,7 @@ Definition A2C_orsg {S : Type} (A : A_orsg S) : @orsg S :=
 ; orsg_times            := A_orsg_times _ A 
 ; orsg_lte_certs        := P2C_or _ _ (A_orsg_lte_proofs _ A)
 ; orsg_times_certs      := P2C_sg _ _ _ (A_orsg_times_proofs _ A)
-; orsg_bottom_top_certs := P2C_os_bottom_top_proofs _ _ _ _ (A_orsg_bottom_top_proofs _ A) 
+; orsg_bottom_top_certs := P2C_os_qo_bottom_top_proofs _ _ _ _ (A_orsg_bottom_top_proofs _ A) 
 ; orsg_certs            := P2C_os_proofs _ _ _ (A_orsg_proofs _ A)
 ; orsg_ast              := A_orsg_ast _ A 
 |}.

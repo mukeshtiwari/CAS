@@ -390,7 +390,7 @@ Lemma minset_lift_union_exists_id_ann_equal_quasi_order_version
    (LM : os_left_monotone lteS bS)
    (RM : os_right_monotone lteS bS)             
    (smono : os_left_strictly_monotone lteS bS * os_right_strictly_monotone lteS bS): 
-   A_os_qo_exists_bottom_id_equal rS lteS bS ->   
+   A_os_exists_qo_bottom_id_equal rS lteS bS ->   
        bops_exists_id_ann_equal (finite_set S) (brel_minset rS lteS) (bop_minset_lift S rS lteS bS) (bop_minset_union S rS lteS). 
 Proof. intros [b [[A B] C]]. exists (b :: nil). split. 
        apply bop_minset_lift_id_is_bottom; auto. (* here uses smono, LM, and RM *)
