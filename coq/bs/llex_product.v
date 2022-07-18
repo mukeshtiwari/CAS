@@ -1228,10 +1228,8 @@ Defined.
         +++ apply symS in C. rewrite C in B. discriminate B.
         +++ apply refT.
       ++ rewrite B. reflexivity.
-    + unfold bops_left_left_absorptive in AS.
-      compute.
+    + 
       assert (A := AS s1 s2).
-      unfold bops_left_strictly_absorptive in SAT.
       destruct (SAT t1 t2) as [B C]. split; compute.
       ++ rewrite A.
         case_eq(rS (s1 +S (s1 *S s2)) (s1 *S s2)); intro D.
@@ -1329,19 +1327,6 @@ Defined.
         ++ right. exact E.
         ++ left. reflexivity.
   Defined.   
-
-
-         
-
-        
-          
-
-
-   
-
-  
-
-
 
 
 End Theory.

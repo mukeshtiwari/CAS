@@ -292,6 +292,31 @@ Proof. intros [NID | NLRA].
 Defined. 
 
 
+(* strictly absorptive *)
+Lemma bops_add_one_not_left_strictly_absorptive :
+  bops_not_left_strictly_absorptive (with_constant S)  
+    (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof.
+  unfold bops_not_left_strictly_absorptive.
+  exists (inl c, inl c); compute.
+  right; reflexivity.
+Defined.
+
+
+Lemma bops_add_one_not_right_strictly_absorptive :
+  bops_not_right_strictly_absorptive (with_constant S)  
+    (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof.
+  unfold bops_not_right_strictly_absorptive.
+  exists (inl c, inl c); compute.
+  right; reflexivity.
+Defined.
+
+(* end of strictly absorptive *)
+
+
+
+
 
 
 
