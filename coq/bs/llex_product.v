@@ -1220,7 +1220,7 @@ Defined.
         (bops_left_strictly_absorptive T rT addT mulT))) →
          bops_left_strictly_absorptive (S * T) (rS <*> rT) 
           (addS [+] addT) (mulS [*] mulT).
-  Proof. 
+  Proof.
     intros [SAS | [AS SAT]] [s1 t1] [s2 t2].
     + destruct (SAS s1 s2) as [A B]. split; compute.
       ++ rewrite A.
@@ -1300,6 +1300,35 @@ Defined.
          +++ reflexivity.
   Defined.  
 
+
+  (* Tim's proof worked, but understand it *)
+  Lemma bops_llex_product_not_right_strictly_absorptive :
+      ((bops_not_right_strictly_absorptive S rS addS mulS) *
+       ((bops_not_left_right_absorptive S rS addS mulS) + 
+        (bops_not_right_strictly_absorptive T rT addT mulT))) →
+         bops_not_right_strictly_absorptive (S * T) (rS <*> rT) 
+          (addS [+] addT) (mulS [*] mulT).
+  Proof. 
+    intros [ [[s1 s2] [A | B]] [[[s3 s4] C] | [[t1 t2] [D | E] ]] ].
+      + exists ((s1, wT), (s2, wT)). compute.
+        rewrite A. left; auto.
+      + exists ((s1, wT), (s2, wT)). compute.
+        rewrite A. left; auto.
+      + exists ((s1, wT), (s2, wT)). compute.
+        rewrite A. left; auto.
+      + exists ((s3, wT), (s4, wT)). compute.
+        rewrite C. left; auto.          
+      + exists ((s1, t1), (s2, t2)). compute.
+        rewrite B. apply symS in B. rewrite B.
+        case_eq(rS s1 (s1 +S (s2 *S s1))); intro F.
+        ++ left. exact D.
+        ++ left. reflexivity.
+      + exists ((s1, t1), (s2, t2)). compute.
+        rewrite B. apply symS in B. rewrite B.
+        case_eq(rS s1 (s1 +S (s2 *S s1))); intro F.
+        ++ right. exact E.
+        ++ left. reflexivity.
+  Defined.   
 
 
          
