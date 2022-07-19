@@ -131,6 +131,277 @@ Lemma bop_product_not_left_right_absorptive_right :
 Proof. intros [ [t1 t2] P ]. exists ((wS, t1), (wS, t2)). simpl. rewrite P. simpl. apply andb_comm.  Defined. 
 
 
+(* strict absorption *)
+
+
+
+Lemma bops_product_left_strictly_absorptive_v1 :
+  bops_left_strictly_absorptive S rS addS mulS *
+  bops_left_strictly_absorptive T rT addT mulT ->
+  bops_left_strictly_absorptive (S * T) 
+  (rS <*> rT) (addS [*] addT) (mulS [*] mulT).
+Proof.
+  intros (Ha, Hb) (sa, ta) (sb, tb).
+  compute.
+  destruct (Ha sa sb) as [Hc Hd]; compute.
+  rewrite Hc, Hd; split.
+  + apply Hb.
+  + reflexivity. 
+Defined.
+
+Lemma bops_product_left_strictly_absorptive_v2 :
+  bops_left_strictly_absorptive S rS addS mulS *
+  bops_left_left_absorptive T rT addT mulT ->
+  bops_left_strictly_absorptive (S * T) 
+  (rS <*> rT) (addS [*] addT) (mulS [*] mulT).
+Proof.
+  intros (Ha, Hb) (sa, ta) (sb, tb).
+  compute.
+  destruct (Ha sa sb) as [Hc Hd]; compute.
+  rewrite Hc, Hd; split.
+  + apply Hb.
+  + reflexivity. 
+Defined.
+
+Lemma bops_product_left_strictly_absorptive_v3 :
+  bops_left_left_absorptive S rS addS mulS *
+  bops_left_strictly_absorptive T rT addT mulT ->
+  bops_left_strictly_absorptive (S * T) 
+  (rS <*> rT) (addS [*] addT) (mulS [*] mulT).
+Proof.
+  intros (Ha, Hb) (sa, ta) (sb, tb).
+  compute; split.
+  + rewrite Ha. apply Hb.
+  + destruct (rS (sa *S sb) (sa +S (sa *S sb)));
+    [apply Hb | reflexivity].
+Defined.
+
+
+
+Lemma bops_product_not_left_strictly_absorptive :
+  (bops_not_left_strictly_absorptive S rS addS mulS + 
+  bops_not_left_strictly_absorptive T rT addT mulT) ->
+  (bops_not_left_left_absorptive S rS addS mulS + 
+  bops_not_left_strictly_absorptive T rT addT mulT) ->
+  (bops_not_left_strictly_absorptive S rS addS mulS + 
+  bops_not_left_left_absorptive T rT addT mulT) ->
+  bops_not_left_strictly_absorptive (S * T) 
+  (rS <*> rT) (addS [*] addT) (mulS [*] mulT).
+Proof.
+  intros [((s1, s2) & [Ha | Ha]) | ((t1, t2) & [Hb | Hb])]
+  [((s3, s4) & Hc) | ((t3, t4) & [Hc | Hc])]
+  [((s5, s6) & [Hd | Hd]) | ((t5, t6) & He)].
+  +
+    exists (s1, wT, (s2, wT));
+    compute.
+    left.
+    rewrite Ha;
+    reflexivity.
+  + unfold bops_not_left_strictly_absorptive.
+    exists (s1, wT, (s2, wT)).
+    compute.
+    left.
+    rewrite Ha.
+    reflexivity.
+  + unfold bops_not_left_strictly_absorptive.
+    exists (s1, t5, (s2, t6)).
+    compute.
+    left.
+    rewrite Ha.
+    reflexivity.
+  + exists (s1, t3, (s2, t4)).
+    compute.
+    left.
+    rewrite Ha.
+    reflexivity.
+  + exists (s1, t3, (s2, t4)).
+    compute.
+    left.
+    rewrite Ha.
+    reflexivity.
+  + exists (s1, t3, (s2, t4)).
+    compute.
+    left.
+    rewrite Ha.
+    reflexivity.
+  + exists (s1, t3, (s2, t4)).
+    compute.
+    left.
+    rewrite Ha.
+    reflexivity.
+  + exists (s1, t3, (s2, t4)).
+    compute.
+    left.
+    rewrite Ha.
+    reflexivity.
+  + exists (s1, t3, (s2, t4)).
+    compute.
+    left.
+    rewrite Ha.
+    reflexivity.
+  + exists (s3, wT, (s4, wT)).
+    compute.
+    left.
+    rewrite Hc.
+    reflexivity.
+  + exists (s3, wT, (s4, wT)).
+    compute.
+    left.
+    rewrite Hc.
+    reflexivity.
+  + exists (s3, wT, (s4, wT)).
+    compute.
+    left.
+    rewrite Hc.
+    reflexivity.
+  + exists (s5, wT, (s6, wT)).
+    compute.
+    left.
+    rewrite Hd.
+    reflexivity.
+  + exists (wS, t3, (wS, t4)).
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS))); 
+    [exact Hc | reflexivity].
+  + exists (wS, t3, (wS, t4)).
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS))); 
+    [exact Hc | reflexivity].
+  + exists (s1, t3, (s2, t4)).
+    compute.
+    right.
+    rewrite Ha.
+    exact Hc.
+  + exists (s1, t3, (s2, t4)).
+    compute.
+    right.
+    rewrite Ha.
+    exact Hc.
+  + exists (s1, t3, (s2, t4)).
+    compute.
+    right.
+    rewrite Ha.
+    exact Hc.
+  + exists (s3, t1, (s4, t2)).
+    compute.
+    left.
+    rewrite Hc.
+    reflexivity.
+  + exists (s3, t1, (s4, t2)).
+    compute.
+    left.
+    rewrite Hc.
+    reflexivity.
+  + exists (s3, t1, (s4, t2)).
+    compute.
+    left.
+    rewrite Hc.
+    reflexivity.
+  + exists (s5, t1, (s6, t2)).
+    compute.
+    left.
+    rewrite Hd.
+    reflexivity.  
+  + exists (wS, t1, (wS, t2)).
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS)));
+    [exact Hb | reflexivity].
+  + exists (wS, t1, (wS, t2)).
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS)));
+    [exact Hb | reflexivity].
+  + exists (wS, t1, (wS, t2)).
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS)));
+    [exact Hb | reflexivity].
+  + exists (wS, t1, (wS, t2)).
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS)));
+    [exact Hb | reflexivity].
+  + exists (wS, t1, (wS, t2)).
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS)));
+    [exact Hb | reflexivity].
+  + exists (s3, t1, (s4, t2));
+    compute.
+    left.
+    rewrite Hc.
+    reflexivity.
+  + exists (s3, t1, (s4, t2));
+    compute.
+    left.
+    rewrite Hc.
+    reflexivity.
+  + exists (s3, t1, (s4, t2));
+    compute.
+    left.
+    rewrite Hc.
+    reflexivity.
+  + exists (s5, t1, (s6, t2));
+    compute.
+    left.
+    rewrite Hd.
+    reflexivity.
+  + exists (s5, t1, (s6, t2));
+    compute.
+    right.
+    rewrite Hd.
+    exact Hb.
+  + exists (wS, t3, (wS, t4));
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS)));
+    [exact Hc | reflexivity].
+  + exists (s5, t3, (s6, t4));
+    compute.
+    left.
+    rewrite Hd.
+    reflexivity.
+  + exists (s5, t3, (s6, t4));
+    compute.
+    right.
+    rewrite Hd.
+    exact Hc.
+  + exists (wS, t5, (wS, t6)).
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS)));
+    [exact He | reflexivity].
+  Qed. 
+
+
+Lemma bops_product_not_left_strictly_absorptive :
+  bops_not_left_left_absorptive S rS addS mulS + 
+  bops_not_left_left_absorptive T rT addT mulT -> 
+  bops_not_left_strictly_absorptive (S * T) 
+  (rS <*> rT) (addS [*] addT) (mulS [*] mulT).
+Proof.
+  intros [((sa, sb) & Ha) | ((ta, tb) & Hb)].
+  + exists (sa, wT, (sb, wT));
+    compute.
+    left.
+    rewrite Ha;
+    reflexivity.
+  + exists (wS, ta, (wS, tb)).
+    compute.
+    left.
+    case (rS wS (wS +S (wS *S wS)));
+    [exact Hb | reflexivity].
+Qed.
+
+
+
+
+
+
+
 (* Strictly left right 
 
 Lemma bop_product_strictly_left_right_absorptive : 
