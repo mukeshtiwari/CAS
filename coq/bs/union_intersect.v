@@ -76,7 +76,26 @@ Proof. intros s t.
              apply in_set_bop_intersect_elim in H; auto. destruct H as [L R]; auto.            
 Qed. 
 
+Lemma bops_union_intersect_not_left_strictly_absorptive : 
+  bops_not_left_strictly_absorptive 
+    (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
+Proof.
+  exists (nil, nil).
+  compute.
+  right.
+  auto.
+Qed.
 
+
+Lemma bops_union_intersect_not_right_strictly_absorptive : 
+  bops_not_right_strictly_absorptive 
+    (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
+Proof.
+  exists (nil, nil).
+  compute.
+  right.
+  auto.
+Qed.
 
 Lemma bops_union_intersect_left_right_absorptive : 
         bops_left_right_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r) . 

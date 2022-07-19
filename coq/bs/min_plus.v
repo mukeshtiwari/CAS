@@ -126,6 +126,24 @@ Proof. apply bops_right_left_absorptive_implies_right_right.
        apply bops_min_plus_right_left_absorptive. 
 Qed.
 
+(* strict absorption *)
+Lemma bops_min_plus_not_left_strictly_absorptive : 
+  bops_not_left_strictly_absorptive nat brel_eq_nat bop_min bop_plus.
+Proof.
+  exists (0, 0).
+  compute; auto.
+Qed.
+  
+
+Lemma bops_min_plus_not_right_strictly_absorptive : 
+  bops_not_right_strictly_absorptive nat brel_eq_nat bop_min bop_plus.
+Proof.
+  exists (0, 0).
+  compute; auto.
+Qed.
+  
+
+
 
 Lemma bop_min_plus_exists_id_ann_equal : bops_exists_id_ann_equal nat brel_eq_nat bop_plus bop_min.
 Proof. exists 0. split. apply bop_plus_zero_is_id. apply bop_min_zero_is_ann. Defined. 

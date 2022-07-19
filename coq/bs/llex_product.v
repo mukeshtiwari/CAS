@@ -1212,7 +1212,7 @@ Proof. intros laS [ [t1 t2] P ] [ [s1 s2]  Q]; compute.
        rewrite J. exact P. 
 Defined. 
 
-
+  
   (* Strictly Absorptive *)
   Lemma bops_llex_product_left_strictly_absorptive :
       ((bops_left_strictly_absorptive S rS addS mulS) +  
@@ -1299,7 +1299,7 @@ Defined.
   Defined.  
 
 
-  (* Tim's proof worked, but understand it *)
+  
   Lemma bops_llex_product_not_right_strictly_absorptive :
       ((bops_not_right_strictly_absorptive S rS addS mulS) *
        ((bops_not_left_right_absorptive S rS addS mulS) + 

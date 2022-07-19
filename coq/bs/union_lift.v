@@ -119,6 +119,29 @@ Proof. intros IL X Y.
              apply symS in H5. assert (H6 := in_set_right_congruence _ _ symS tranS _ _ _ H5 H1). exact H6. 
 Qed. 
 
+(* strict absorption *)
+Lemma bops_union_lift_not_left_strictly_absorptive : 
+        bops_not_left_strictly_absorptive (finite_set S) 
+        (brel_set r) (bop_union r) (bop_lift r bS). 
+Proof. 
+      exists (nil, nil).
+      compute.
+      right; auto.
+Qed.
+
+
+Lemma bops_union_lift_not_right_strictly_absorptive : 
+        bops_not_right_strictly_absorptive (finite_set S) 
+        (brel_set r) (bop_union r) (bop_lift r bS). 
+Proof. 
+      exists (nil, nil).
+      compute.
+      right; auto.
+Qed.
+
+
+
+
 (* just a test *) 
 Lemma bops_union_lift_left_left_absorptive_dual : 
         bop_is_left S r bS -> bops_left_left_absorptive (finite_set S) (brel_set r) (bop_lift r bS) (bop_union r). 

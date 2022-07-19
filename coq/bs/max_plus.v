@@ -117,6 +117,19 @@ Lemma bops_max_plus_not_right_right_absorptive :
         bops_not_right_right_absorptive nat brel_eq_nat bop_max bop_plus. 
 Proof. exists (0, 1); compute. reflexivity. Defined. 
 
+(* strict absorption *)
+Lemma bops_max_plus_not_left_strictly_absorptive : 
+  bops_not_left_strictly_absorptive nat brel_eq_nat bop_max bop_plus. 
+Proof. exists (0, 1); compute; right. reflexivity. Defined.
+
+Lemma bops_max_plus_not_right_strictly_absorptive : 
+  bops_not_right_strictly_absorptive nat brel_eq_nat bop_max bop_plus. 
+Proof. exists (0, 1); compute; right. reflexivity. Defined.
+
+
+
+
+
 End Theory.
 
 Section ACAS.

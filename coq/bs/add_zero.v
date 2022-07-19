@@ -164,6 +164,36 @@ Lemma bops_add_zero_not_strictly_left_right_absorptive  :
         bops_not_strictly_left_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2).
 Proof. exists (inl c, inl c). compute. right; auto. Defined. 
 *)
+(* strictly absorptive *)
+
+Lemma bops_add_zero_not_left_strictly_absorptive :
+  bops_not_left_strictly_absorptive 
+    (with_constant S) 
+    (brel_sum brel_constant r) 
+    (c [+id] b1) 
+    (c [+ann] b2).
+Proof.
+  exists (inl c, inl c).
+  compute.
+  right.
+  auto.
+Qed.
+
+
+Lemma bops_add_zero_not_right_strictly_absorptive :
+  bops_not_right_strictly_absorptive 
+    (with_constant S) 
+    (brel_sum brel_constant r) 
+    (c [+id] b1) 
+    (c [+ann] b2).
+Proof.
+  exists (inl c, inl c).
+  compute.
+  right.
+  auto.
+Qed.
+
+
 
 
 (* right left *) 

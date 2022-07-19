@@ -68,6 +68,23 @@ Lemma bops_plus_times_not_right_right_absorptive :
         bops_not_right_right_absorptive nat brel_eq_nat bop_plus bop_times.   
 Proof. exists (1, 1). compute. reflexivity. Defined. 
 
+(* strict absorption *)
+Lemma bops_plus_times_not_left_strictly_absorptive : 
+  bops_not_left_strictly_absorptive nat 
+    brel_eq_nat bop_plus bop_times.   
+Proof. exists (1, 1). compute.
+  left. reflexivity.  Defined. 
+
+
+Lemma bops_plus_times_not_right_strictly_absorptive : 
+  bops_not_right_strictly_absorptive nat 
+    brel_eq_nat bop_plus bop_times.   
+Proof. exists (1, 1). compute.
+  left. reflexivity.  Defined. 
+
+
+
+
 Lemma bop_plus_times_exists_id_ann_equal : bops_exists_id_ann_equal nat brel_eq_nat bop_plus bop_times.
 Proof. exists 0. split. apply bop_plus_zero_is_id. apply bop_times_zero_is_ann. Defined. 
 
