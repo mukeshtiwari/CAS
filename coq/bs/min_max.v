@@ -30,6 +30,25 @@ Proof. unfold bops_left_left_absorptive.
        apply brel_eq_nat_reflexive. 
 Qed. 
 
+
+(* strict absorption *)
+Lemma bops_min_max_not_left_strictly_absorptive  : 
+  bops_not_left_strictly_absorptive nat brel_eq_nat bop_min bop_max.
+Proof.
+  exists (0, 0)%nat.
+  compute.
+  right; auto.
+Qed.
+
+Lemma bops_min_max_not_right_strictly_absorptive  : 
+  bops_not_right_strictly_absorptive nat brel_eq_nat bop_min bop_max.
+Proof.
+  exists (0, 0)%nat.
+  compute.
+  right; auto.
+Qed.
+
+
 Lemma bops_min_max_left_right_absorptive  : 
        bops_left_right_absorptive nat brel_eq_nat bop_min bop_max. 
 Proof. apply bops_left_left_absorptive_implies_left_right.  
@@ -63,6 +82,7 @@ Proof. apply bops_right_left_absorptive_implies_right_right.
        apply bop_max_commutative. 
        apply bops_min_max_right_left_absorptive. 
 Qed. 
+
 
 
 Lemma bops_min_max_left_distributive  : 
