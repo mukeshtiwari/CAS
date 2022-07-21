@@ -903,7 +903,7 @@ Qed.
 
 
 (* strict absorption *)
-Lemma minset_union_bops_not_left_strictly_absorptive :
+Lemma minset_union_lift_bops_not_left_strictly_absorptive :
    bops_not_left_strictly_absorptive 
    (finite_set S) (brel_minset rS lteS) 
    (bop_minset_union S rS lteS) 
@@ -916,7 +916,7 @@ Qed.
 
 
 
-Lemma minset_union_bops_not_right_strictly_absorptive :
+Lemma minset_union_lift_bops_not_right_strictly_absorptive :
    bops_not_right_strictly_absorptive 
    (finite_set S) (brel_minset rS lteS) 
    (bop_minset_union S rS lteS) 
