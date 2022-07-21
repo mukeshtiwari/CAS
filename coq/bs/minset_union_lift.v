@@ -766,6 +766,7 @@ Qed.
 
 
 
+
 Lemma minset_union_lift_left_right_absorptive   
       (anti : brel_antisymmetric S rS lteS)
       (LM : os_left_monotone lteS bS) 
@@ -899,6 +900,35 @@ Proof. intros X Y.
        assert (H := uop_minset_idempotent (([ms] X) [U] ([ms] ([ms] (([ms] Y) [^] ([ms] X)))))).
        apply set_symmetric in H. exact (set_transitive _ _ _ G H). 
 Qed.
+
+
+(* strict absorption *)
+Lemma minset_union_bops_not_left_strictly_absorptive :
+   bops_not_left_strictly_absorptive 
+   (finite_set S) (brel_minset rS lteS) 
+   (bop_minset_union S rS lteS) 
+   (bop_minset_lift S rS lteS bS).
+Proof.
+   unfold bops_not_left_strictly_absorptive.
+   exists (nil, nil); compute.
+   right; reflexivity.
+Qed.
+
+
+
+Lemma minset_union_bops_not_right_strictly_absorptive :
+   bops_not_right_strictly_absorptive 
+   (finite_set S) (brel_minset rS lteS) 
+   (bop_minset_union S rS lteS) 
+   (bop_minset_lift S rS lteS bS).
+Proof.
+   exists (nil, nil); compute.
+   right; reflexivity.
+Qed.
+
+
+
+
 
 End Theory.
 
