@@ -35,6 +35,7 @@ Proof. apply bops_left_left_absorptive_implies_left_right.
        apply bops_max_min_left_left_absorptive. 
 Qed. 
 
+(* strict absorption *)
 Lemma bops_max_min_not_left_strictly_absorptive  : 
   bops_not_left_strictly_absorptive nat brel_eq_nat bop_max bop_min.
 Proof.
