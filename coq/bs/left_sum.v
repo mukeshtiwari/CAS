@@ -476,6 +476,48 @@ match idm_d with
 | inr nidm => inr _ (bop_left_sum_right_sum_not_right_right_absorptive_v1 nidm)
 end. 
 
+(* strict absorption. We insist on idempotence *)
+Lemma bops_left_sum_right_sum_not_left_strictly_absorptive :
+    bop_idempotent T rT addT -> 
+    bops_not_left_strictly_absorptive 
+      (S + T) (rS [+] rT) (addS <+] addT) (mulS [+> mulT).
+Proof.
+  intros Ha.
+  exists (inr wT, inl wS); compute.
+  right.
+  apply symT, Ha.
+Qed.
+
+
+
+(* Experimental *)
+Lemma bops_left_sum_right_sum_left_strictly_absorptive_absurd :
+  bops_left_strictly_absorptive_absurd
+    (S + T) (rS [+] rT) (addS <+] addT) (mulS [+> mulT).
+Proof.
+  intros Hd.
+  pose proof (Hd (inr wT) (inl wS)) as [Hfl Hfr];
+  compute in Hfl, Hfr.
+  rewrite Hfl in Hfr.
+  congruence.
+Qed.
+
+
+
+Lemma bops_left_sum_right_sum_not_right_strictly_absorptive :
+    bop_idempotent T rT addT -> 
+    bops_not_right_strictly_absorptive 
+      (S + T) (rS [+] rT) (addS <+] addT) (mulS [+> mulT).
+Proof.
+  intros Ha.
+  exists (inr wT, inl wS); compute.
+  right.
+  apply symT, Ha.
+Qed.
+
+
+
+
 
 Lemma bops_left_sum_right_sum_exists_id_ann_equal :
       bops_exists_id_ann_equal T rT addT mulT →                                                                                       

@@ -190,8 +190,15 @@ Definition bops_right_strictly_absorptive_decidable
   (bops_right_strictly_absorptive S eq b₁ b₂) + 
   (bops_not_right_strictly_absorptive S eq b₁ b₂).
 
+(* Experimental. *)
+Definition bops_left_strictly_absorptive_absurd (S : Type) 
+   (eq : brel S) (b1 b2 : binary_op S) :=
+   bops_left_strictly_absorptive S eq b1 b2 -> False.
 
-
+(* Experimental *)
+Definition bops_right_strictly_absorptive_absurd (S : Type) 
+   (eq : brel S) (b1 b2 : binary_op S) :=
+   bops_right_strictly_absorptive S eq b1 b2 -> False.
 
 
 (*** introduced for st/left/from_bs.v 
@@ -222,6 +229,8 @@ Definition bops_not_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : bina
 
 Definition bops_right_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
     (bops_right_right_absorptive S r b1 b2) + (bops_not_right_right_absorptive S r b1 b2). 
+
+(* *)
 
 
 End ACAS. 
