@@ -91,7 +91,7 @@ Record A_bs (S : Type) := {
   A_bs_eqv           : A_eqv S 
 ; A_bs_plus          : binary_op S 
 ; A_bs_times         : binary_op S 
-; A_bs_plus_proofs   : sg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus    
+; A_bs_plus_proofs   : sg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus    (* sg_C_proofs *)
 ; A_bs_times_proofs  : sg_proofs S (A_eqv_eq S A_bs_eqv) A_bs_times   
 ; A_bs_id_ann_proofs : id_ann_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus A_bs_times                                 
 ; A_bs_proofs        : bs_proofs S (A_eqv_eq S A_bs_eqv) A_bs_plus A_bs_times
