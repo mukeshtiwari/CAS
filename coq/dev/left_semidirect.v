@@ -1,7 +1,14 @@
 Require Import Coq.Bool.Bool.
-Require Export CAS.coq.common.compute.
+Require Import CAS.coq.common.compute.
+Require Import CAS.coq.eqv.properties.
+Require Import CAS.coq.eqv.product. 
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.product. 
+Require Import CAS.coq.sg.llex.
+Require Import CAS.coq.sg.and. 
+Require Import CAS.coq.bs.properties.
 
-
+Require Import CAS.coq.po.from_sg. 
 
 Definition ltr_congruence (S T : Type) (rS : brel S) (rT : brel T) (f : ltr_type S T) := 
    ∀ (s1 s2 : S) (t1 t2 : T), rS s1 s2 = true -> rT t1 t2 = true -> rT (f s1 t1) (f s2 t2) = true.
@@ -26,10 +33,10 @@ Definition ltr_associative (S T: Type) (rT : brel T) (bS : binary_op S) (f : ltr
 Definition ltr_distributive (S T: Type) (rT : brel T) (bT : binary_op T) (f : ltr_type S T)
    := ∀ (s : S) (t1 t2 : T), rT (f s (bT t1 t2)) (bT (f s t1) (f s t2)) = true. 
 
-Definition ltr_idempotent (S T: Type) (rT : brel T) (bT : binary_op T) (f : left_transform S T)
+Definition ltr_idempotent (S T: Type) (rT : brel T) (bT : binary_op T) (f : ltr_type S T)
    := ∀ (s : S) (t : T), rT (bT t (f s t)) t = true. 
 
-Definition ltr_not_idempotent (S T: Type) (rT : brel T) (bT : binary_op T) (f : left_transform S T)
+Definition ltr_not_idempotent (S T: Type) (rT : brel T) (bT : binary_op T) (f : ltr_type S T)
    := { z : (S * T) & 
         match z with (s, t) => 
                rT (bT t (f s t)) t = false 
@@ -69,13 +76,13 @@ Qed.
 
 
 
-Definition ltr_preserves_right_id (S T: Type) (rT : brel T) (bT : binary_op T) (f : left_transform S T)
+Definition ltr_preserves_right_id (S T: Type) (rT : brel T) (bT : binary_op T) (f : ltr_type S T)
   := ∀ (t  : T),  bop_is_right_id T rT bT t -> ∀ (s  : S),  rT t (f s t) = true.
 
 Definition uop_is_id (S : Type) (eqS : brel S) (u : unary_op S) 
   := ∀ s : S, eqS s (u s) = true.
 
-Definition ltr_preserves_right_id2 (S T: Type) (eqS : brel S) (bS : binary_op S) (rT : brel T) (f : left_transform S T)
+Definition ltr_preserves_right_id2 (S T: Type) (eqS : brel S) (bS : binary_op S) (rT : brel T) (f : ltr_type S T)
   := ∀ (s  : S),  bop_is_right_id S eqS bS s -> uop_is_id T rT (f s). 
 
 (*
@@ -83,7 +90,7 @@ Definition ltr_preserves_right_id2 (S T: Type) (eqS : brel S) (bS : binary_op S)
 (s1, t1) X| (s2, t2) = (s1 . (t1 |> s2), t1 * t2) 
 
 *) 
-Definition bop_left_semidirect (S T : Type) (bS : binary_op S) (bT : binary_op T) (f : left_transform T S) : binary_op (S * T) 
+Definition bop_left_semidirect (S T : Type) (bS : binary_op S) (bT : binary_op T) (f : ltr_type T S) : binary_op (S * T) 
 := λ x y,  
    match x, y with
     | (s1, t1), (s2, t2) => (bS s1 (f t1 s2), bT t1 t2) 
@@ -124,7 +131,8 @@ Variable plusS : binary_op S.
 Variable plusT: binary_op T.
 Variable timesS : binary_op S. 
 Variable timesT: binary_op T.
-Variable f  : left_transform T S.
+Variable f  : ltr_type T S.
+Variable argT : T. 
 
 Definition left_semidirect := bop_left_semidirect S T timesS timesT f.
 
@@ -203,9 +211,7 @@ Notation "a X| b"  := (bop_left_semidirect S T timesS timesT f a b) (at level 15
 
 Notation "a <*> b"  := (brel_product a b) (at level 15).
 Notation "a [*] b"  := (bop_product a b) (at level 15).
-Notation "a [!+] b" := (bop_llex eqS a b) (at level 15).
-
-
+Notation "a [!+] b" := (bop_llex argT eqS a b) (at level 15).
 
 
 
@@ -283,7 +289,7 @@ Lemma bop_left_semidirect_left_cancellative :
       bop_left_cancellative (S * T) (brel_product eqS eqT) left_semidirect. 
 Proof. 
    intros I L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
-   intro H. apply andb_is_true_left in H. destruct H as [HL HR]. 
+   intro H. apply bop_and_elim in H. destruct H as [HL HR]. 
    apply L in HL. apply R in HR. rewrite HR. rewrite (I s2 s3 t1 HL). auto. 
 Defined. 
 
@@ -294,7 +300,7 @@ Lemma bop_left_semidirect_left_cancellative_II :
       bop_left_cancellative (S * T) (brel_product eqS eqT) left_semidirect. 
 Proof. 
    intros I R [s1 t1] [s2 t2] [s3 t3]; simpl; intro H. 
-   apply andb_is_true_left in H. destruct H as [HL HR]. 
+   apply bop_and_elim in H. destruct H as [HL HR]. 
    apply R in HR. rewrite HR. rewrite (I s1 s2 s3 t1 HL). auto. 
 Defined. 
 
@@ -321,8 +327,8 @@ Lemma bop_left_semidirect_right_cancellative :
       bop_right_cancellative (S * T) (brel_product eqS eqT) left_semidirect. 
 Proof. 
    intros L R [s1 t1] [s2 t2] [s3 t3] ; simpl. intro H. 
-   apply andb_is_true_left in H. destruct H as [HL HR]. 
-   apply andb_is_true_right. split. 
+   apply bop_and_elim in H. destruct H as [HL HR]. 
+   apply bop_and_intro. 
       apply (L s1 s2 s3 t2 t3 HL). 
       apply R in HR. assumption. 
 Qed.
@@ -395,7 +401,7 @@ Lemma bop_left_semidirect_left_constant :
       bop_left_constant (S * T) (brel_product eqS eqT) left_semidirect. 
 Proof. 
    intros L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
-   apply andb_is_true_right. split. apply L. apply R. 
+   apply bop_and_intro. apply L. apply R. 
 Defined. 
 
 
@@ -447,7 +453,7 @@ Lemma bop_left_semidirect_right_constant :
       bop_right_constant (S * T) (brel_product eqS eqT) left_semidirect. 
 Proof. 
    intros L R [s1 t1] [s2 t2] [s3 t3]; simpl. 
-   apply andb_is_true_right. split. 
+   apply bop_and_intro. 
       destruct L as [ [rcS L ] | L].
          admit. 
          rewrite L. simpl. reflexivity. 
@@ -460,7 +466,7 @@ Lemma bop_left_semidirect_product_anti_left :
       (bop_anti_left S eqS timesS) + (bop_anti_left T eqT timesT) → 
       bop_anti_left (S * T) (brel_product eqS eqT) left_semidirect. 
 Proof. 
-   intros [P | P] [s1 t1] [s2 t2]; simpl; apply andb_is_false_right.
+   intros [P | P] [s1 t1] [s2 t2]; simpl; apply bop_and_false_intro. 
       left. apply P. 
       right. apply P. 
 Defined. 
@@ -472,7 +478,7 @@ Lemma bop_left_semidirect_anti_right :
       + (bop_anti_right T eqT timesT) → 
       bop_anti_right (S * T) (brel_product eqS eqT) left_semidirect. 
 Proof. 
-   intros [R | L] [s1 t1] [s2 t2]; simpl; apply andb_is_false_right.
+   intros [R | L] [s1 t1] [s2 t2]; simpl; apply bop_and_false_intro. 
       left. destruct R as [ [rcS P ] | P].
          admit. 
          rewrite P. simpl. reflexivity. 
@@ -488,7 +494,7 @@ Lemma bop_product_left_semidirect_left_distributive :
       bop_left_distributive S eqS plusS timesS → bop_left_distributive T eqT plusT timesT → 
              bop_left_distributive (S * T) (eqS <*> eqT) (plusS [*] plusT) (timesS [X|] timesT). 
 Proof. intros ldS ldT. unfold bop_left_distributive. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
-       apply andb_is_true_right. split. 
+       apply bop_and_intro. 
           assert (J1 := dis_plus_f t1 s2 s3).
           assert (J2 := congS _ _ _ _ (refS s1) J1).                 
           assert (J3 := ldS s1 (t1 |> s2) (t1 |> s3)).
@@ -501,7 +507,7 @@ Lemma bop_product_left_semidirect_right_distributive :
       bop_right_distributive S eqS plusS timesS → bop_right_distributive T eqT plusT timesT → 
              bop_right_distributive (S * T) (eqS <*> eqT) (plusS [*] plusT) (timesS [X|] timesT). 
 Proof. intros rdS rdT. unfold bop_left_distributive. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
-       apply andb_is_true_right. split. 
+       apply bop_and_intro. 
           (*
              ((s2 +S s3) *S ((t2 +T t3) |> s1)) 
               =S (s2 *S ((t2 +T t3) |> s1)) +S (s3 *S ((t2 +T t3) |> s1)) 
@@ -534,18 +540,59 @@ Lemma bop_llex_left_semidirect_left_distributive :
       bop_left_distributive S eqS plusS timesS → bop_left_distributive T eqT plusT timesT → 
              bop_left_distributive (S * T) (eqS <*> eqT) (plusS [!+] plusT) (timesS [X|] timesT). 
 Proof. intros selS ldS ldT. unfold bop_left_distributive. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
-       apply andb_is_true_right. split.
+       apply bop_and_intro. 
           assert (J1 := dis_plus_f t1 s2 s3).
           assert (J2 := congS _ _ _ _ (refS s1) J1).                 
           assert (J3 := ldS s1 (t1 |> s2) (t1 |> s3)).
           assert (J4 := tranS _ _ _ J2 J3). 
           exact J4.
 
+          unfold llex_p2. 
           case_eq(eqS s2 s3); intro J1;
-          case_eq(brel_llt eqS plusS s2 s3); intro J2;             
-          case_eq(eqS (s1 *S (t1 |> s2)) (s1 *S (t1 |> s3))); intro J3;
-          case_eq(brel_llt eqS plusS (s1 *S (t1 |> s2)) (s1 *S (t1 |> s3))); intro J4; compute in *; auto.
-          rewrite J1 in J2. case_eq(eqS s2 (s2 +S s3)); intro J5; rewrite J5 in J2; discriminate J2.
+          case_eq(eqS s2 (s2 +S s3)); intro J2;
+          case_eq(eqS (s1 *S (t1 |> s2)) ((s1 *S (t1 |> s2)) +S (s1 *S (t1 |> s3)))); intro J3;
+          case_eq(eqS ((s1 *S (t1 |> s2)) +S (s1 *S (t1 |> s3))) (s1 *S (t1 |> s3))); intro J4;
+          case_eq(eqS (s2 +S s3) s3); intro J5; auto.
+       + admit. (* *** s1 = s3 *) 
+       + admit. (* *** s1 = s3 *)
+       + admit. (* *** s1 = s3 *)
+       + admit. (* *** s1 = s3 *)
+       + (* *** sel *) admit.
+       + (* *** sel *) admit.
+       + (* *** sel *) admit.
+       + (* *** sel *) admit.
+       + (* *** sel *) admit.
+       + (* *** sel *) admit.
+       + (* *** sel *) admit.
+       + (* *** sel *) admit.
+       + (* *** sel *) admit.
+       + admit. (* need *** from 
+         J1 : s2 !=S s3
+         J2 : s2 =S (s2 +S s3)
+         J3 : (s1 *S (t1 |> s2)) =S ((s1 *S (t1 |> s2)) +S (s1 *S (t1 |> s3)))
+         J4 : ((s1 *S (t1 |> s2)) +S (s1 *S (t1 |> s3))) =S (s1 *S (t1 |> s3))
+         J5 : (s2 +S s3) !=S s3
+
+         so, need something like 
+         (P)     s < s' -> (s1 *S (t1 |> s)) < (s1 *S (t1 |> s'))
+                 *)
+       + admit. (* *** J2 + J5 -> Not J1*)
+       + admit. (* *** J2 + J5 -> Not J1*)
+       + admit. (* *** P *) 
+       + admit. (* *** J2 + J5 -> Not J1*)
+       + admit. (* *** P *) 
+       + admit. (* *** P *) 
+       + (* *** sel *) admit.
+       + admit. (* *** P *) 
+       + (* *** sel *) admit.
+       + (* *** sel *) admit.
+       + admit. (* *** P *) 
+       + (* *** sel *) admit.
+Admitted.           
+(*
+
+
+         rewrite J1 in J2. case_eq(eqS s2 (s2 +S s3)); intro J5; rewrite J5 in J2; discriminate J2.
           rewrite J1 in J2. case_eq(eqS s2 (s2 +S s3)); intro J5; rewrite J5 in J2; discriminate J2.            
           admit. (* J1, J3 -> false *)
           admit. (* J1, J3 -> false *)           
@@ -613,14 +660,17 @@ Proof. intros selS ldS ldT. unfold bop_left_distributive. intros [s1 t1] [s2 t2]
                       admit. 
                 rewrite J6 in J4. discriminate J4.
 Admitted. 
-
+*) 
 
 Lemma bop_llex_left_semidirect_right_distributive :
       bop_selective S eqS plusS -> 
       bop_right_distributive S eqS plusS timesS → bop_right_distributive T eqT plusT timesT → 
              bop_right_distributive (S * T) (eqS <*> eqT) (plusS [!+] plusT) (timesS [X|] timesT). 
-Proof. intros selS ldS ldT. unfold bop_right_distributive. intros [s1 t1] [s2 t2] [s3 t3]. simpl.
-       apply andb_is_true_right. split.
+Proof. intros selS ldS ldT. unfold bop_right_distributive.
+       intros [s1 t1] [s2 t2] [s3 t3]. simpl. unfold llex_p2.
+Admitted.
+(*
+       apply bop_and_intro. 
           case_eq(eqS s2 s3); intro J1;
           case_eq(brel_llt eqS plusS s2 s3); intro J2; compute in *; auto.
              rewrite J1 in J2. case_eq(eqS s2 (s2 +S s3)); intro J3; rewrite J3 in J2; discriminate J2. 
@@ -663,7 +713,7 @@ Proof. intros selS ldS ldT. unfold bop_right_distributive. intros [s1 t1] [s2 t2
              rewrite J5 in J2; discriminate J2.                          
              admit.             
 Admitted.        
-
+*) 
 
 Lemma bop_llex_left_semidirect_left_left_absorptive :
       bop_selective S eqS plusS -> 
@@ -672,11 +722,11 @@ Lemma bop_llex_left_semidirect_left_left_absorptive :
 Proof. intros selS laS laT [s1 t1] [s2 t2]. compute.
        case_eq(eqS s1 (s1 +S (s1 *S (t1 |> s2)))); intro J1;
        case_eq(eqS s1 (s1 *S (t1 |> s2))); intro J2;
-       case_eq(eqS s1 (s1 *S (t1 |> s2))); intro J3; compute in *; auto.
-          admit. 
-          rewrite J2 in J3. discriminate J3.
-          rewrite J2 in J3. discriminate J3.           
-          admit.
+       case_eq(eqS (s1 +S (s1 *S (t1 |> s2))) (s1 *S (t1 |> s2))); intro J3; auto.
+       + admit. (* OK *) (* *** s1 =S (s1 +S (s1 *S (t1 |> s2))) *) 
+       + admit. (* *** idem +S *) (* *** s1 =S (s1 +S (s1 *S (t1 |> s2))) *) 
+       + admit. (* *** s1 =S (s1 +S (s1 *S (t1 |> s2))) *) 
+       + admit. (* *** s1 =S (s1 +S (s1 *S (t1 |> s2))) *) 
 Admitted. 
           
 End Test.

@@ -17,7 +17,7 @@ Section Matrix_Addition.
   Local Notation "a =r= b" := (eqR a b = true) (at level 70).
   Local Notation "a +M b" := (matrix_add plusR a b) (at level 70).  
   Local Notation "a =M= b" := (eq_functional_matrix_prop R eqR a b) (at level 70).
-
+  Local Notation "~M m" := (functional_matrix_congruence _ eqR m) (at level 70).
 
   Lemma matrix_add_congruence (congrP : bop_congruence R eqR plusR) :
       ∀ m₁ m₂ m₃ m₄, (m₁ =M= m₃) -> (m₂ =M= m₄) -> (m₁ +M m₂) =M= (m₃ +M m₄). 
@@ -26,6 +26,15 @@ Section Matrix_Addition.
          apply congrP.
          apply H₁; intros *; apply refN.
          apply H₂; intros *; apply refN.
+  Qed.
+
+  Lemma matrix_add_preserves_congruence (congrP : bop_congruence R eqR plusR) :
+      ∀ m₁ m₂, ~M m₁ -> ~M m₂ -> ~M (m₁ +M m₂). 
+  Proof. intros m₁ m₂ A B i j i' j' C D. 
+         unfold matrix_add.
+         apply congrP.
+         + apply A; auto.
+         + apply B; auto.          
   Qed.
 
   Lemma matrix_add_assoc (plus_associative : bop_associative R eqR plusR) :

@@ -56,7 +56,7 @@ Section Matrix_Equality.
   Local Notation "a =n= b" := (brel_eq_nat a b = true) (at level 70).
   
 
-   Definition functional_matrix_congruence (m : functional_matrix R) :=
+  Definition functional_matrix_congruence (m : functional_matrix R) :=
          ∀ i j i' j', i =n= i' -> j =n= j' -> (m i j) =r= (m i' j'). 
 
   Definition eq_functional_matrix_prop (m₁ m₂ : functional_matrix R) : Prop :=
