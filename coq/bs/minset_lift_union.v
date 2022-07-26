@@ -39,7 +39,8 @@ Require Import CAS.coq.os.theory.
 
 (* should move this to po as a combinator! *) 
 Definition set_lte {S : Type} (eq lte : brel S) (X Y: finite_set S) := 
-           ∀ y : S,  in_set eq Y y = true -> {x : S & (in_set eq X x = true) * (lte x y = true) }. 
+  ∀ y : S,  in_set eq Y y = true -> 
+  {x : S & (in_set eq X x = true) * (lte x y = true) }. 
 
 Section Computation.
 
@@ -833,6 +834,32 @@ Proof. intros X Y.
        exact F. 
 Qed. 
 
+
+(* strict absorption *)
+Lemma minset_lift_union_bops_not_left_strictly_absorptive :
+   bops_not_left_strictly_absorptive 
+    (finite_set S)
+    (brel_minset rS lteS)
+    (bop_minset_lift S rS lteS bS)
+    (bop_minset_union S rS lteS). 
+Proof.
+   unfold bops_not_left_strictly_absorptive.
+   exists (nil, nil); compute.
+   right; reflexivity.
+Qed.
+
+
+
+Lemma minset_lift_union_bops_not_right_strictly_absorptive :
+   bops_not_right_strictly_absorptive 
+   (finite_set S)
+   (brel_minset rS lteS)
+   (bop_minset_lift S rS lteS bS)
+   (bop_minset_union S rS lteS). 
+Proof.
+   exists (nil, nil); compute.
+   right; reflexivity.
+Qed.
 
 (***************** ID, ANN ********************************) 
 

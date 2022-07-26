@@ -82,6 +82,21 @@ Lemma bops_union_union_not_left_left_absorptive :
   bops_not_left_left_absorptive (finite_set S) (brel_set eq) (bop_union eq) (bop_union eq). 
 Proof. exists (nil, wS :: nil). compute. reflexivity. Defined. 
 
+(* strict absorption *)
+Lemma bops_union_union_not_left_strictly_absorptive : 
+  bops_not_left_strictly_absorptive (finite_set S) 
+    (brel_set eq) (bop_union eq) (bop_union eq). 
+Proof. exists (nil, wS :: nil). compute. left. reflexivity. Defined.
+
+Lemma bops_union_union_not_right_strictly_absorptive : 
+  bops_not_right_strictly_absorptive (finite_set S) 
+    (brel_set eq) (bop_union eq) (bop_union eq). 
+Proof. exists (nil, wS :: nil). compute. left. reflexivity. Defined.
+
+
+
+
+
 Lemma bops_union_union_not_left_right_absorptive : 
   bops_not_left_right_absorptive (finite_set S) (brel_set eq) (bop_union eq) (bop_union eq). 
 Proof. exists (nil, wS :: nil). compute. reflexivity. Defined.

@@ -76,7 +76,26 @@ Proof. intros s t.
              apply in_set_bop_intersect_elim in H; auto. destruct H as [L R]; auto.            
 Qed. 
 
+Lemma bops_union_intersect_not_left_strictly_absorptive : 
+  bops_not_left_strictly_absorptive 
+    (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
+Proof.
+  exists (nil, nil).
+  compute.
+  right.
+  auto.
+Qed.
 
+
+Lemma bops_union_intersect_not_right_strictly_absorptive : 
+  bops_not_right_strictly_absorptive 
+    (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 
+Proof.
+  exists (nil, nil).
+  compute.
+  right.
+  auto.
+Qed.
 
 Lemma bops_union_intersect_left_right_absorptive : 
         bops_left_right_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r) . 
@@ -88,6 +107,7 @@ Proof. apply bops_left_left_absorptive_implies_left_right; auto.
        apply bops_union_intersect_left_left_absorptive; auto. 
 Qed. 
 (***************)
+(* 
 Lemma bops_union_intersect_not_strictly_left_right_absorptive : 
   bops_not_strictly_left_right_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r) .
 Proof. exists (nil, nil). right.   compute. reflexivity. Defined. 
@@ -95,6 +115,9 @@ Proof. exists (nil, nil). right.   compute. reflexivity. Defined.
 Lemma bops_intersect_union_not_strictly_left_right_absorptive : 
   bops_not_strictly_left_right_absorptive (finite_set S) (brel_set r) (bop_intersect r) (bop_union r).
 Proof. exists (nil, nil). right.   compute. reflexivity. Defined. 
+*)
+
+
 (***************)
 Lemma bops_union_intersect_right_left_absorptive : 
         bops_right_left_absorptive (finite_set S) (brel_set r) (bop_union r) (bop_intersect r). 

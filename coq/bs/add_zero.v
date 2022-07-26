@@ -127,6 +127,7 @@ Lemma bops_add_zero_not_right_distributive  :
 Proof. intros [ [s1 [s2 s3]] nldS]. exists (inr _ s1, (inr _ s2, inr _ s3)). compute. assumption. Defined. 
        
 
+
 (* left left *) 
 Lemma bops_add_zero_left_left_absorptive  : 
      bops_left_left_absorptive S r b1 b2 -> 
@@ -158,10 +159,40 @@ Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption.
 
 
 
-(* Strictly left right *) 
+(* Strictly left right 
 Lemma bops_add_zero_not_strictly_left_right_absorptive  : 
         bops_not_strictly_left_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2).
 Proof. exists (inl c, inl c). compute. right; auto. Defined. 
+*)
+(* strictly absorptive *)
+
+Lemma bops_add_zero_not_left_strictly_absorptive :
+  bops_not_left_strictly_absorptive 
+    (with_constant S) 
+    (brel_sum brel_constant r) 
+    (c [+id] b1) 
+    (c [+ann] b2).
+Proof.
+  exists (inl c, inl c).
+  compute.
+  right.
+  auto.
+Qed.
+
+
+Lemma bops_add_zero_not_right_strictly_absorptive :
+  bops_not_right_strictly_absorptive 
+    (with_constant S) 
+    (brel_sum brel_constant r) 
+    (c [+id] b1) 
+    (c [+ann] b2).
+Proof.
+  exists (inl c, inl c).
+  compute.
+  right.
+  auto.
+Qed.
+
 
 
 

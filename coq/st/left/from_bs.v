@@ -44,6 +44,7 @@ Lemma slt_from_bs_not_absorptive
 Proof. destruct nlrabs as [[s t] P]. exists(t, s). compute. exact P. Defined. 
 
 
+
 Lemma slt_from_bs_strictly_absorptive
        (lrabs : bops_left_right_absorptive S eq plus times)       
        (laabs : bops_right_anti_absorptive S eq plus times) :  

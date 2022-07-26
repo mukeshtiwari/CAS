@@ -77,6 +77,31 @@ Proof. destruct NR as [[s1 s2] A]. exists (s2, s1). compute.
        discriminate A.
 Defined.
 
+(* strict absorptivity. We insist on idempotence! *)
+Lemma bs_bops_not_left_strictly_absorptive : 
+  bop_idempotent S rS addS  ->
+  bops_not_left_strictly_absorptive S rS addS bop_left.
+Proof.
+  intros Ha.
+  exists (wS, wS); compute.
+  right.
+  apply symS, Ha.
+Qed.
+
+Lemma bs_bops_not_right_strictly_absorptive : 
+  bop_idempotent S rS addS  ->
+  bops_not_right_strictly_absorptive S rS addS bop_left.
+Proof.
+  intros Ha.
+  exists (wS, wS); compute.
+  right.
+  apply symS.
+  apply Ha.
+Qed.
+
+
+
+
 Definition bs_left_exists_id_ann_decide (id_d : bop_exists_id_decidable S rS addS) : 
   exists_id_ann_decidable S rS addS bop_left :=
   match id_d with

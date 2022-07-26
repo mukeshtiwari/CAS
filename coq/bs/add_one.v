@@ -77,6 +77,10 @@ Proof. intros idem lla lm [c1 | s1] [c2 | s2] [c3 | s3]; compute; intro A; auto.
          discriminate A. 
 Qed. 
 
+
+
+
+
 (*
 bops_left_left_absorptive  : s = s + st 
 bops_right_left_absorptive : s = st + s 
@@ -288,14 +292,39 @@ Proof. intros [NID | NLRA].
 Defined. 
 
 
+(* strictly absorptive *)
+Lemma bops_add_one_not_left_strictly_absorptive :
+  bops_not_left_strictly_absorptive (with_constant S)  
+    (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof.
+  unfold bops_not_left_strictly_absorptive.
+  exists (inl c, inl c); compute.
+  right; reflexivity.
+Defined.
+
+
+Lemma bops_add_one_not_right_strictly_absorptive :
+  bops_not_right_strictly_absorptive (with_constant S)  
+    (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof.
+  unfold bops_not_right_strictly_absorptive.
+  exists (inl c, inl c); compute.
+  right; reflexivity.
+Defined.
+
+(* end of strictly absorptive *)
 
 
 
-(* strictly left right *) 
+
+
+
+
+(* strictly left right 
 Lemma bops_add_one_not_strictly_left_right_absorptive  : 
         bops_not_strictly_left_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
 Proof.  exists (inl c, inl c). compute. right; auto. Defined. 
-
+*)
 
 
 (* right left *) 
