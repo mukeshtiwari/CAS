@@ -33,21 +33,23 @@ Require Import CAS.coq.sg.minset_union.
 Require Import CAS.coq.sg.lift.
 Require Import CAS.coq.sg.minset_lift.
 
+Require Import CAS.coq.po.cast_up.
 Require Import CAS.coq.po.add_bottom.
 Require Import CAS.coq.po.add_top.
 Require Import CAS.coq.po.from_sg.
 Require Import CAS.coq.po.product.
+Require Import CAS.coq.po.trivial.
+Require Import CAS.coq.po.lex.
 
 (* 
-
 Require Import CAS.coq.po.lte_nat. (* why is this not from_sg_left sg_min?*)
-Require Import CAS.coq.po.trivial.
+
 Require Import CAS.coq.po.length.
 Require Import CAS.coq.po.po_to_qo.
-Require Import CAS.coq.po.llex.
+
 Require Import CAS.coq.po.left_sum. 
 Require Import CAS.coq.po.right_sum. 
-Require Import CAS.coq.bs.cast_up.
+
 *) 
 
 Require Import CAS.coq.bs.and_or.
@@ -75,6 +77,7 @@ Require Import CAS.coq.bs.minset_lift_union.
 (* Require Import CAS.coq.bs.dual.*)
 Require Import CAS.coq.os.from_bs_left.
 Require Import CAS.coq.os.from_sg.
+Require Import CAS.coq.os.trivial. 
 Require Import CAS.coq.st.cast_up.
 Require Import CAS.coq.st.left.min_plus_one.
 Require Import CAS.coq.st.left.llex_product.
@@ -201,6 +204,8 @@ Extraction "Cas.ml"
    mcas_or_add_top
    mcas_or_add_bottom
    mcas_or_product
+   mcas_or_left_lex
+   mcas_or_trivial 
    mcas_left_order_from_sg
    (* mcas_right_order_from_sg *) 
    (* b-semigroups *)    
@@ -234,6 +239,7 @@ Extraction "Cas.ml"
    (* order semirgroups *)
    mcas_os_from_bs_left
    mcas_os_from_sg_right
+   mcas_os_from_sg_trivial
    (*
    semigroup transforms 
     *)

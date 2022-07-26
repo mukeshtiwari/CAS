@@ -1,3 +1,7 @@
+From Coq Require Import
+     List.
+Import ListNotations.
+
 Require Import CAS.coq.common.compute.
 Require Import CAS.coq.common.ast.
 Require Import CAS.coq.common.data.
@@ -83,8 +87,56 @@ Lemma brel_list_cons_elim (x y : S) (X Y : list S) :
        brel_list eq (x :: X) (y :: Y) = true -> (eq x y = true) * (brel_list eq X Y = true).
 Proof. intro A. simpl in A. apply bop_and_elim in A. exact A. Qed. 
 
+Lemma brel_list_append_intro : 
+  ∀ (X X' Y Y' : list S),
+    brel_list eq X Y = true -> brel_list eq X' Y' = true -> brel_list eq (X ++ X') (Y ++ Y') = true. 
+Proof. induction X; induction X'; intros Y Y' A B.
+       + destruct Y; destruct Y'.
+         ++ compute; auto. 
+         ++ compute in B. discriminate B. 
+         ++ compute in A. discriminate A. 
+         ++ compute in A. discriminate A. 
+       + destruct Y.
+         ++ rewrite List.app_nil_l. rewrite List.app_nil_l.
+            exact B. 
+         ++ compute in A. discriminate A. 
+       + destruct Y'.
+         ++ rewrite List.app_nil_r. rewrite List.app_nil_r.
+            exact A. 
+         ++ compute in B. discriminate B. 
+       + destruct Y. 
+         ++ compute in A. discriminate A. 
+         ++ apply brel_list_cons_elim in A.
+            destruct A as [A C].
+            rewrite <- List.app_comm_cons.
+            rewrite <- List.app_comm_cons.            
+            apply brel_list_cons_intro. 
+            +++ exact A. 
+            +++ apply IHX.
+                ++++ exact C. 
+                ++++ exact B. 
+Qed.
 
+Lemma brel_list_map_intro
+      (f g : S -> S)
+      (ext_eq : ∀ a s : S, eq a s = true -> eq (f a) (g s) = true) : 
+  ∀ (X Y : list S), 
+    brel_list eq X Y = true -> brel_list eq (map f X) (map g Y) = true. 
+Proof. induction X; intros Y A.
+       + destruct Y.
+         ++ compute; auto. 
+         ++ compute in A. discriminate A. 
+       + destruct Y.
+         ++ compute in A. discriminate A.          
+         ++ apply brel_list_cons_elim in A.
+            destruct A as [A B]. 
+            unfold map. fold (map f X). fold (map f Y).
+            apply brel_list_cons_intro.
+            +++ exact (ext_eq _ _ A).
+            +++ apply IHX; auto.
+Qed. 
 
+                
 End IntroElim.   
 
 Section Theory.
@@ -396,3 +448,24 @@ Qed.
  
 End Verify.   
   
+Lemma brel_list_map_intro_general
+      (S T : Type)
+      (eqS : brel S) 
+      (eqT : brel T) 
+      (f g : T -> S)
+      (ext_eq : ∀ a s : T, eqT a s = true -> eqS (f a) (g s) = true) : 
+  ∀ (X Y : list T), 
+    brel_list eqT X Y = true -> brel_list eqS (map f X) (map g Y) = true. 
+Proof. induction X; intros Y A.
+       + destruct Y.
+         ++ compute; auto. 
+         ++ compute in A. discriminate A. 
+       + destruct Y.
+         ++ compute in A. discriminate A.          
+         ++ apply brel_list_cons_elim in A.
+            destruct A as [A B]. 
+            unfold map. fold (map f X). fold (map f Y).
+            apply brel_list_cons_intro.
+            +++ exact (ext_eq _ _ A).
+            +++ apply IHX; auto.
+Qed. 

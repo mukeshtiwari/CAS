@@ -104,3 +104,13 @@ let times =
   | BS_dioid d -> d.dioid_times
   | _ -> error "times: nope!" ;; 
   
+(* Now, attempt to add paths
+
+let eqv_edge = mcas_eqv_product mcas_eqv_eq_nat mcas_eqv_eq_nat;;
+let sg_path = mcas_sg_concat eqv_edge;; 
+let sg_paths = mcas_sg_lift sg_path 
+let os_paths = mcas_os_trivial_from_sg sg_paths
+let os_bw_x_sp_lex_paths = mcas_os_left_lex os_bw_x_sp os_paths 
+let moo_bw_x_sp_lex_paths = mcas_minset_union_lift os_bw_x_sp_lex_paths;;
+
+ *) 

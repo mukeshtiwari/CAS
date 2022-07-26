@@ -4,7 +4,9 @@ Require Import CAS.coq.tr.properties.
 
 Close Scope nat.
 
-Section ACAS. 
+Section ACAS.
+
+Section Left_Properties.  
 
 Definition slt_distributive {L S : Type} (r : brel S) (add : binary_op S) (ltr : L -> (S -> S)) 
    := ∀ (l : L) (t u : S), r (ltr l (add t u)) (add (ltr l t) (ltr l u)) = true. 
@@ -46,6 +48,20 @@ Inductive slt_exists_id_ann_decidable {L S : Type} (eq : brel S) (b : binary_op 
 | SLT_Id_Ann_Proof_Equal     : slt_exists_id_ann_equal eq b ltr                         -> slt_exists_id_ann_decidable eq b ltr 
 | SLT_Id_Ann_Proof_Not_Equal : slt_exists_id_ann_not_equal eq b ltr                     -> slt_exists_id_ann_decidable eq b ltr 
 . 
+
+End Left_Properties.
+
+
+Section Right_Properties.
+
+Definition srt_distributive {L S : Type} (r : brel S) (add : binary_op S) (rtr : rtr_type L S)
+   := ∀ (l : L) (t u : S), r (rtr (add t u) l) (add (rtr t l) (rtr u l)) = true. 
+
+Definition rtr_is_ann (L S : Type) (rS : brel S) (rtr : rtr_type L S) (s : S) 
+  := ∀ l : L, (rS (rtr s l ) s = true).
+  
+End Right_Properties.
+
 
 End ACAS. 
 

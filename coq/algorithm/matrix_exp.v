@@ -531,7 +531,11 @@ Admitted.
               apply (LWP_congruence R R 0 1 plus mul eqR eqR); auto.
               apply bop_congruence_implies_ltr_congruence; auto. 
            exact (trnM _ _ _ (trnM _ _ _ (trnM _ _ _ (trnM _ _ _ A B) C) D) F).
-  Qed. 
+  Qed.
+
+
+  
+  
   
 End Matrix_proofs.
 
