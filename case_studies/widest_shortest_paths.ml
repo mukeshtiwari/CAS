@@ -11,16 +11,53 @@ let widest_shortest_paths =
 	  mcas_max_min
 	  infinity))
     infinity;;
+
+let widest_shortest_paths_solver = bs_adj_list_solver widest_shortest_paths;; 
+
   
 (* now, inspect this algebra 
-
 mcas_bs_describe_fully widest_shortest_paths;;
 
 Class : Selective Dioid
-Carrier set:
-{INF} + ((nat) * ({INF} + (nat)))
+(S_0, +_0, *_0) = min_plus
+where
+S_0 = nat
+x +_0 y = x min y
+x *_0 y = x + y
+(S_1, +_1, *_1) = max_min
+where
+S_1 = nat
+x +_1 y = x max y
+x *_1 y = x min y
+(S_2, +_2, *_2) = bs_add_one (S_1, +_1, *_1) INF
+where
+S_2 = {INF} + S_1
+Inr(x) +_2 Inr(y) = Inr(x +_1 y)
+Inl(INF) +_2 _ = Inl(INF)
+_ +_2 Inl(INF) = Inl(INF)
+Inr(x) *_2 Inr(y) = Inr(x *_1 y)
+Inl(INF) *_2 a = a
+a *_2 Inl(INF) = a
+(S_3, +_3, *_3) = bs_llex_product (S_0, +_0, *_0) (S_2, +_2, *_2)
+where
+S_3 = S_0 * S_2
+(a, b) +_3 (c, d) = (a, b +_2 d) (if a = a +_0 c = c)
+(a, b) +_3 (c, d) = (a, b) (if a = a +_0 c <> c)
+(a, b) +_3 (c, d) = (c, d) (if a <> a +_0 c = c)
+(a, b) *_3 (c, d) = (a *_0 c, b *_2 d)
+(S_4, +_4, *_4) = bs_add_zero (S_3, +_3, *_3) INF
+where
+S_4 = {INF} + S_3
+Inr(x) +_4 Inr(y) = Inr(x +_3 y)
+Inl(INF) +_4 a = a
+a +_4 Inl(INF) = a
+Inr(x) *_4 Inr(y) = Inr(x *_3 y)
+Inl(INF) *_4 _ = Inl(INF)
+_ *_4 Inl(INF) = Inl(INF)
 Additive properties:
 --------------------
+Identity = inl(INF)
+Annihilator = inr((0, inl(INF)))
 Idempotent
 Commutative
 Selective 
@@ -46,10 +83,10 @@ Not Is Left:
    inl(INF).inr((0, inl(INF))) = inr((0, inl(INF)))
 Not Is Right: 
    inr((0, inl(INF))).inl(INF) = inr((0, inl(INF)))
-Identity = inl(INF)
-Annihilator = inr((0, inl(INF)))
 Multiplicative properties:
 -------------------------
+Identity = inr((0, inl(INF)))
+Annihilator = inl(INF)
 Not Idempotent: 
    inr((1, inl(INF))).inr((1, inl(INF))) = inr((2, inl(INF)))
 Commutative
@@ -77,8 +114,6 @@ Not Is Left:
    inr((0, inl(INF))).inl(INF) = inl(INF)
 Not Is Right: 
    inl(INF).inr((0, inl(INF))) = inl(INF)
-Identity = inr((0, inl(INF)))
-Annihilator = inl(INF)
 Interaction of Additive and Multiplicative operations
 -------------------------------------------------------
 Left Distributive
@@ -91,13 +126,6 @@ Right_Right Absorptive
 *)
 
 (* now, configure an adjacency matrix *)
-
-let widest_shortest_paths_solver = instantiate_algorithm widest_shortest_paths Matrix_power;; 
-
-let widest_shortest_paths_solve_adj_list adjl =
-  match widest_shortest_paths_solver with
-  | Matrix_Power_Instance(algebra, mf ) -> mf (square_matrix_from_adj_list algebra adjl)
-  | _ -> error "widest_shortest_paths_solve_adj_list : internal error";; 
 
 (*     (1, 2) 
     0  ------  1 
@@ -115,7 +143,7 @@ let adj_1 = { adj_size = 4;
 			  (3, [(1, Inr (1, Inr 2)); (2, Inr (1, Inr 1))]) 
 			 ]
 	    } ;;
-let sol_1 = widest_shortest_paths_solve_adj_list adj_1;; 
+let sol_1 = widest_shortest_paths_solver adj_1;; 
 (*
 list_sq_matrix sol_1;; 
 
