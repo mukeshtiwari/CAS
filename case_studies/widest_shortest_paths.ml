@@ -5,7 +5,11 @@ open Matrix_solver;;
 
 let widest_shortest_paths =
   mcas_bs_add_zero
-    (mcas_bs_llex_product mcas_min_plus (mcas_bs_add_one mcas_max_min infinity))
+    (mcas_bs_llex_product
+       mcas_min_plus
+       (mcas_bs_add_one
+	  mcas_max_min
+	  infinity))
     infinity;;
   
 (* now, inspect this algebra 

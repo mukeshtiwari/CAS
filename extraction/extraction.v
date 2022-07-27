@@ -84,12 +84,12 @@ Require Import CAS.coq.st.left.llex_product.
 Require Import CAS.coq.st.left.union_insert. 
 Require Import CAS.coq.st.left.add_zero.
 Require Import CAS.coq.st.left.plus_times.
-
+Require Import CAS.coq.algorithm.wrapper. 
 (* from coq/tr/left*)
 Require Import CAS.coq.tr.left.add_ann.
 
-(*Require Import CAS.coq.algorithm.Mat.
-Require Import CAS.coq.algorithm.wrapper. *) 
+(*Require Import CAS.coq.algorithm.Mat.*) 
+
 Require Extraction.
 
 Cd "extraction".
@@ -236,6 +236,8 @@ Extraction "Cas.ml"
    mcas_right_sum_left_sum  
 
  *)
+   (* transform tr/left *)
+   mcas_ltr_add_ann
    (* order semirgroups *)
    mcas_os_from_bs_left
    mcas_os_from_sg_right
@@ -246,16 +248,13 @@ Extraction "Cas.ml"
    cast_slt_mcas_to_slt  (* used in ocaml/Describe.ml *)
    mcas_slt_min_plus_one
    mcas_slt_llex_product
-   mcas_slt_union_insert   
-   (* algorithms 
-   instantiate_matrix_exp_unary_curry
-   call_instantiate_matrix_exp_unary_curry
-   *)
-(* semigroup left transform *)
-mcas_slt_llex_product
-slt_min_plus_one
-mcas_slt_add_zero
-mcas_slt_plus_times
-(* transform tr/left *)
-mcas_ltr_add_ann.
+   mcas_slt_union_insert
+   mcas_slt_llex_product
+   mcas_slt_add_zero
+   mcas_slt_plus_times
+   bs_instantiate_matrix_exp_square_matrix 
+   (* algorithms *)
+   bs_instantiate_matrix_exp_square_matrix.    
+   (* semigroup left transform *)
+
 
