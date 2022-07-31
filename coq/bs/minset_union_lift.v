@@ -220,7 +220,7 @@ Proof. intro A.
                 exact(C t I).
 Qed. 
 
-(* not used *) 
+(* not used 
 Lemma minset_lift_left_uop_invariant_weak
       (anti: brel_antisymmetric S rS lteS)      
       (RM : os_right_monotone lteS bS)  :
@@ -281,11 +281,14 @@ Proof. intros X Y.
             apply in_minset_elim in G; auto. destruct G as [G _]. 
             apply in_set_bop_lift_intro; auto. 
 Admitted.
+*) 
 
-(* not used *) 
+(* not used 
 Lemma minset_lift_right_uop_invariant_weak 
      : ∀ X Y : finite_set S, ([ms] (X [^] ([ms] Y))) [=S] ([ms] (X [^] Y)).
 Admitted.
+
+*) 
 
 (*
 Lemma martelli_1 (X Y : finite_set S)
@@ -436,7 +439,7 @@ Qed.
 
 
 
-
+(*
 Lemma just_a_test : 
   bop_left_distributive (finite_set S) (brel_set rS) (bop_lift rS bS) (bop_union rS). 
 Proof. intros X Y Z. 
@@ -484,7 +487,7 @@ case a of
 
 *) 
 Admitted.
-
+*) 
 
 (* Martelli 
 
@@ -500,6 +503,7 @@ A in min(subset, X U min(subset, {y U z | y in Y, z in Z }))
 
 *) 
 
+(*
 Lemma just_a_test_2 (X Y Z: finite_set S) (a : S) : 
   a [in] ((X <U> Y) <^> (X <U> Z)) -> a [in] (X <U> (Y <^> Z)).
 Proof.  unfold bop_minset_lift, bop_minset_union.  intro A.
@@ -538,6 +542,8 @@ Proof.  unfold bop_minset_lift, bop_minset_union.  intro A.
         + admit.
         + admit.           
  Admitted. 
+ *)
+
 
 Lemma union_lift_right_distributive :
   bop_right_distributive (finite_set S) (brel_set rS) (bop_union rS) (bop_lift rS bS). 
@@ -606,7 +612,7 @@ Proof. intros X Y Z.
        exact (set_transitive _ _ _ N O).
 Qed.
 
-
+(*
 Lemma minset_union_lift_not_left_distributive_weak_v1 
   (NLM : os_not_left_monotone lteS bS) : 
      bop_not_left_distributive (finite_set S) (brel_set rS) (bop_minset_union S rS lteS) (bop_minset_lift S rS lteS bS). 
@@ -620,9 +626,9 @@ Proof. destruct NLM as [[s [t u]] [A B]].
 
 *) 
 Admitted.
+*) 
 
-
-
+(*
 Lemma minset_union_lift_not_left_distributive_weak_v2
   (LM : os_left_monotone lteS bS)
   (RM : os_right_monotone lteS bS)       
@@ -655,7 +661,7 @@ A : t <<= u
 
 *) 
 Admitted.          
-
+*) 
          
 Lemma minset_union_lift_left_distributive
   (LM : os_left_monotone lteS bS)
@@ -735,18 +741,22 @@ Lemma minset_union_lift_left_right_absorptive_increasing_weak
 Proof.  apply  union_left_antisymmetric; auto. apply lift_right_increasing; auto. Qed.
 
 
+
+(* only used for absorption? *) 
 Lemma minset_union_lift_ann_equals_id
-   (LM : os_left_monotone lteS bS)
+  (anti : brel_antisymmetric S rS lteS)      
+  (LM : os_left_monotone lteS bS)
   (RM : os_right_monotone lteS bS)       
-  (P : A_os_exists_bottom_id_equal rS lteS bS)
-  (D : brel_antisymmetric S rS lteS +  (os_left_strictly_monotone lteS bS * os_right_strictly_monotone lteS bS)) : 
+  (P : A_os_exists_bottom_id_equal rS lteS bS) : 
+
   bops_exists_id_ann_equal (finite_set S) (brel_minset rS lteS)
     (bop_minset_lift S rS lteS bS) (bop_minset_union S rS lteS). 
 Proof. destruct P as [bot_id [A B]].
        exists (bot_id :: nil). split. 
-       apply bop_minset_lift_id_is_bottom; auto. (* uses all assumptions! *) 
-       admit. (* fix : apply bop_minset_union_is_ann. *) 
-Admitted. 
+       + apply bop_minset_lift_id_is_bottom; auto. (* uses all assumptions! *) 
+       + apply bop_minset_union_exists_ann_is_bottom; auto.
+Defined. 
+
 
 Lemma minset_union_lift_left_left_absorptive 
       (anti : brel_antisymmetric S rS lteS)

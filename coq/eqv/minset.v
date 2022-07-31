@@ -39,7 +39,7 @@ Section Computation.
    (MIN(<=, S), =') 
    where equality =' is just equality over sets restricted to MIN(<=, S). 
 
-   Now, here is a problem.  We want MIN(<=, S) to be a type representable in OCaml! 
+   Now, here is a problem.  We want MIN(<=, S) to be a type representable in OCaml. 
    So, instead of (MIN(<=, S), ='), we represent minsets as 
 
       (Finite_set S, ='') 
@@ -47,14 +47,17 @@ Section Computation.
    where X ='' Y iff min(<=, X) =' min(<=, Y). 
 
    Note: This could be defined using the more abstract notion of a reduction.  
-   This was attempted, but it turned out that proving the in this file with 
+   This was attempted, but it turned out that proving things  
    so many layers of abstraction was pure torture, at least with the way reductions 
    are currently defined (see coq/theory/reductions). 
 
-   Another note: antisymmetry will not be assumed for <= ! This allows us to model 
+   Another note: antisymmetry will not be assumed for <=. This allows us to model 
    some exotic network routing constructions ... 
 *)   
 
+(* 
+
+*)   
 Fixpoint  iterate_minset {S : Type} (lte : brel S) (W Y X : finite_set S): (finite_set S) * (finite_set S) := 
       match X with
          | nil => (W, Y) 
@@ -67,20 +70,6 @@ Fixpoint  iterate_minset {S : Type} (lte : brel S) (W Y X : finite_set S): (fini
                      end
       end.
 
-(*
-Definition iterate_minset : ∀ {S : Type} (lte : brel S), (finite_set S)  -> (finite_set S)  -> (finite_set S) 
-  := λ {S} lte,  fix f Y X  :=
-      match X with
-         | nil => Y
-         | a :: Z => match find (below lte a) Z with
-                     | None   => match find (below lte a) Y with
-                                 | None   => f (a :: Y) Z 
-                                 | Some _ => f Y Z 
-                                 end 
-                     | Some _ => f Y Z 
-                     end
-end.
-*) 
 
 Definition uop_minset {S : Type} (lte :brel S) (X : finite_set S) : (finite_set S) := 
     let (_, Y) := iterate_minset lte nil nil X in Y. 
@@ -147,7 +136,6 @@ Definition below_transitive := below_transitive S lteS lteTrans.
 Definition equiv_elim := equiv_elim S lteS. 
 
 Definition is_antichain := is_antichain S rS lteS. 
-
 
 Lemma find_brel_congruence (X: finite_set S) (r : brel S) :
     brel_congruence S rS r -> ∀ (s t : S), s [=] t -> find (r s) X = find (r t) X. 
@@ -268,9 +256,10 @@ Proof. apply in_filter_brel_elim.  apply equiv_or_incomp_congruence; auto. Qed.
 
 (** *******************  uop_minset ********************* **)
 
-(* note: this is more general than the standard defintion since antisymmetry is not assumed 
-
-Now defined in po/properties.v 
+(* note: definition of is_antichaing 
+is more general than the standard defintion 
+since antisymmetry is not assumed. 
+It is defined in po/properties.v: 
 
 Definition is_antichain (X : finite_set S) :=   ∀ (s : S), s [in] X  -> ∀ (t : S), t [in] X  -> (s [~|#] t).
 

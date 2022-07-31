@@ -47,10 +47,39 @@ Section Computation.
 
 End Computation.   
 
-Section Theory. 
-
+Section Theory.  
 
 Section Lift_Union.
+
+(*
+   minset_lift_union (S, <=, (x)) = (P(S), (+), (x')) 
+   where 
+   (+)  = min(<=, lift(x)) 
+   (x') = min(<=, union)
+   That is, 
+   X (+) Y = min(<=, {x (x) y | x in X, y in Y}
+   X (x') Y = min(<=, X union Y)
+
+   NOTE: The construction (currently) requires (x) to be commutative, idempotent, and not selective. 
+
+A*[i,j] = (+)_{p in P(i,j)} w(p) 
+        = (+)_{p in P(i,j)} min(<=, U_{e in p} w(e))
+        = (+)_{p in {p_1, .... p_k}} min(<=, U_{e in p} w(e))
+        = min(<=, U_{e in p_1} w(e)) (+) ... (+) min(<=, U_{e in p_k} w(e))
+        = (U_{e in p_1} w(e)) (+) ... (+) (U_{e in p_k} w(e))
+        = min(<=, {w(e_1) (x) w(e_2) ... (x) w(e_k) | e_1 in p_1, ... e_k in p_k})
+
+or
+
+A*[i,j] = (+)_{p in P(i,j)} w(p) 
+        = (+)_{p in P(i,j)} min(<=, U_{e in p} w(e))
+        = (+)_{p in P(i,j)} U_{e in p} w(e)   
+        = (+)_{p in P(i,j)} {w'(e)| e in p}   (when w(e) = {w'(e)}, so each arc weight is a singleton) 
+        = min(<=, (lift (x))_{p in P(i,j)} {w'(e)| e in p})  (* need good notation for this operation *)
+        
+*) 
+
+    
 
 Variable S  : Type. 
 Variable rS : brel S.

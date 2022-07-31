@@ -33,6 +33,10 @@ Definition ltr_associative (S T: Type) (rT : brel T) (bS : binary_op S) (f : ltr
 Definition ltr_distributive (S T: Type) (rT : brel T) (bT : binary_op T) (f : ltr_type S T)
    := ∀ (s : S) (t1 t2 : T), rT (f s (bT t1 t2)) (bT (f s t1) (f s t2)) = true. 
 
+
+(* 
+   t = t * (s |> t) 
+*) 
 Definition ltr_idempotent (S T: Type) (rT : brel T) (bT : binary_op T) (f : ltr_type S T)
    := ∀ (s : S) (t : T), rT (bT t (f s t)) t = true. 
 
@@ -134,8 +138,6 @@ Variable timesT: binary_op T.
 Variable f  : ltr_type T S.
 Variable argT : T. 
 
-Definition left_semidirect := bop_left_semidirect S T timesS timesT f.
-
 (* all needed for associativity *)
 Variable refS : brel_reflexive S eqS. 
 Variable symS : brel_symmetric S eqS.
@@ -175,6 +177,8 @@ Variable annSf : ∀ (s  : S),  bop_is_ann S eqS timesS s -> ∀ (t : T),  eqS s
 Variable annTf : ∀ (t  : T),  bop_is_ann T eqT timesT t -> ∀ (s : S),  bop_is_ann S eqS timesS (f t s). 
 
 
+
+         
 (* Requre ANNs ? *)
 
 (* Require preservation of ids.  
@@ -206,17 +210,62 @@ Notation "a +T b"  := (plusT a b) (at level 15).
 Notation "a *S b"  := (timesS a b) (at level 15).
 Notation "a *T b"  := (timesT a b) (at level 15).
 Notation "a |> b"  := (f a b) (at level 15).
-Notation "bs [X|] bT"  := (bop_left_semidirect S T timesS timesT f) (at level 15).
-Notation "a X| b"  := (bop_left_semidirect S T timesS timesT f a b) (at level 15).
+
 
 Notation "a <*> b"  := (brel_product a b) (at level 15).
 Notation "a [*] b"  := (bop_product a b) (at level 15).
 Notation "a [!+] b" := (bop_llex argT eqS a b) (at level 15).
 
+Local Definition left_semidirect : (ltr_type T S) -> binary_op (S * T):= bop_left_semidirect S T timesS timesT.
+
+Local Notation "a | f > b"  := (left_semidirect f a b) (at level 15).
+
+(* 
+   (S, (x)) 
+   (T, [x]) 
+   f : T -> (S -> S) 
+   
+   1) t |> (s (x) s')   = (t |> s) (x) (t |> s') 
+   2) ((t [x] t') |> s) = (t |> (t' |> s))
+
+   How to construct in a bottom-up manner? 
+   
+   Need structures of this form? 
+
+   
+
+   sg_left_semidirect(S, T, (x), [x], f : T -> (S -> S)) 
+   = (S * T, |f>) 
 
 
 
-Lemma bop_left_semidirect_exists_id : bop_exists_id (S * T) (brel_product eqS eqT) left_semidirect. 
+
+*) 
+Lemma left_semidirect_associative
+       (LD :     ltr_distributive T S eqS timesS f)
+       (assocf : ltr_associative  T S eqS timesT f)
+       (assocS : bop_associative    S eqS timesS) 
+       (assocT : bop_associative    T eqT timesT) : 
+       bop_associative (S * T) (brel_product eqS eqT) (left_semidirect f). 
+Proof. intros [s1 t1] [s2 t2] [s3 t3]. compute.
+       rewrite (assocT t1 t2 t3).
+       assert (A := assocS s1 (t1 |> s2) ((t1 *T t2) |> s3)).
+       assert (B : ((t1 |> s2) *S ((t1 *T t2) |> s3))
+                   =S 
+                   (t1 |> (s2 *S (t2 |> s3)))).
+       {
+         assert (C := assocf t1 t2 s3).
+         assert (D := congS _ _ _ _ (refS (t1 |> s2)) C). 
+         assert (E := LD t1 s2 (t2 |> s3)). apply symS in E. 
+         exact (tranS _ _ _ D E). 
+       }
+       assert (C := congS _ _ _ _ (refS s1) B). 
+       rewrite (tranS _ _ _ A C).
+       reflexivity.
+Qed.
+
+
+Lemma bop_left_semidirect_exists_id : bop_exists_id (S * T) (brel_product eqS eqT) (left_semidirect f). 
 Proof. destruct (exists_id_implies_exists_left_id_and_exists_right_id _ _ _ has_idS) as [idS [is_left_idS is_right_idS]].
        destruct (exists_id_implies_exists_left_id_and_exists_right_id _ _ _ has_idT) as [idT [is_left_idT is_right_idT]].
        exists (idS, idT). intros [s2 t2].
