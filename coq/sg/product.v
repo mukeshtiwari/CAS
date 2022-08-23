@@ -15,7 +15,26 @@ Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.cast_up. 
 Require Import CAS.coq.sg.theory. 
 Require Import CAS.coq.sg.and. 
-Require Import CAS.coq.sg.or. 
+Require Import CAS.coq.sg.or.
+
+Lemma not_is_left_and_is_right
+      (S: Type)
+      (eq : brel S)
+      (wS : S)
+      (f : S -> S)
+      (nt : brel_not_trivial S eq f)
+      (b : binary_op S)
+      (sym : brel_symmetric S eq)
+      (trn : brel_transitive S eq) :
+   (bop_is_left S eq b) -> (bop_is_right S eq b) -> False. 
+Proof. intros il ir.    
+       assert (A := il wS (f wS)). 
+       assert (B := ir wS (f wS)).
+       destruct (nt wS) as [C D].
+       apply sym in A. 
+       rewrite (trn _ _ _ A B) in C.
+       discriminate C. 
+Qed. 
 
 Section Computation.
 
@@ -168,6 +187,32 @@ Proof.
        right. rewrite (L s1 s2), (R t1 t2). simpl. reflexivity. 
 Defined.  
 
+
+Lemma bop_product_not_selective_test : 
+      ((bop_not_is_left S rS bS) + (bop_not_is_left T rT bT)) 
+     * ((bop_not_is_right S rS bS) + (bop_not_is_right T rT bT)) → 
+      bop_not_selective (S * T) (rS <*> rT) (bS [*] bT). 
+Proof. 
+    unfold bop_not_is_left, bop_not_is_right, bop_not_selective.  
+    intros [ 
+             [ [ [s1 s2] P1 ] | [ [t1 t2] Q1]  ] 
+             [ [ [s3 s4] P2 ] | [ [t3 t4] Q2]  ] 
+           ]. 
+    + exists ((s1, wT), (s2, wT)). simpl. 
+      admit. 
+    + exists ((s1, t3), (s2, t4)); 
+          simpl. rewrite P1, Q2. simpl. rewrite andb_comm. simpl. split; reflexivity.             
+    + exists ((s3, t1), (s4, t2)); 
+          simpl. rewrite P2, Q1. simpl. rewrite andb_comm. simpl. split; reflexivity.             
+    + admit.
+Admitted.       
+
+(*
+   (NL(S) + NR(S)) * (NL(T) + NR(T)) * (NL(S)  + NL(T)) * (NR(S)  + NR(T)) 
+
+   (L(S) * R(S)) + (L(T) * R(T)) + (L(S) * L(T)) + (R(S) * R(T)) 
+
+*) 
 Lemma bop_product_not_selective : 
 (* NB *) ((bop_not_is_left S rS bS) + (bop_not_is_right S rS bS)) → 
 (* NB *) ((bop_not_is_left T rT bT) + (bop_not_is_right T rT bT)) → 
@@ -957,7 +1002,77 @@ Proof. intros U r b u h Ph symU transU ilS irS.
        assert (H3 := transU _ _ _ H1 H2).
        rewrite L in H3. 
        discriminate H3. 
-Qed. 
+Qed.
+
+Lemma bop_product_selective_direct_decide :
+  bop_selective_decidable S rS bS  →
+  bop_selective_decidable T rT bT  →   
+  bop_is_left_decidable S rS bS  → 
+  bop_is_left_decidable T rT bT  → 
+  bop_is_right_decidable S rS bS  → 
+  bop_is_right_decidable T rT bT  → 
+  bop_selective_decidable (S * T) (rS <*> rT) (bS [*] bT).
+Proof. intros selS_d selT_d ilS_d ilT_d irS_d irT_d.
+       destruct selS_d as [selS | [[s1 s2] [A B]]];
+         destruct selT_d as [selT | [[t1 t2] [C D]]].
+       + destruct ilS_d as [ilS | [[s1 s2] A]];
+         destruct ilT_d as [ilT | [[t1 t2] B]];
+         destruct irS_d as [irS | [[s3 s4] C]];
+         destruct irT_d as [irT | [[t3 t4] D]].
+         ++ exact (abort _ (not_is_left_and_is_right _ rS wS f Pf bS symS transS ilS irS)).
+         ++ exact (abort _ (not_is_left_and_is_right _ rS wS f Pf bS symS transS ilS irS)).
+         ++ exact (abort _ (not_is_left_and_is_right _ rT wT g Pg bT symT transT ilT irT)).
+         ++ left.  intros [a b] [c d]. compute. 
+            left. rewrite ilS. apply ilT. 
+         ++ exact (abort _ (not_is_left_and_is_right _ rS wS f Pf bS symS transS ilS irS)).
+         ++ exact (abort _ (not_is_left_and_is_right _ rS wS f Pf bS symS transS ilS irS)).
+         ++ right. exists ((s3, t1), (s4, t2)).
+            compute. rewrite B, C.
+            destruct (selS s3 s4) as [D | D].
+            +++ rewrite D. auto.
+            +++ rewrite D in C. discriminate C. 
+         ++ right. exists ((s3, t1), (s4, t2)).
+            compute. rewrite B, C.
+            destruct (selS s3 s4) as [E | E].
+            +++ rewrite E. auto.
+            +++ rewrite E in C. discriminate C. 
+         ++ exact (abort _ (not_is_left_and_is_right _ rT wT g Pg bT symT transT ilT irT)).
+         ++ right. exists ((s1, t3), (s2, t4)).
+            compute. rewrite A, D.
+            destruct (selS s1 s2) as [E | E].
+            +++ rewrite E in A. discriminate A. 
+            +++ rewrite E. auto.
+         ++ exact (abort _ (not_is_left_and_is_right _ rT wT g Pg bT symT transT ilT irT)).
+         ++ right. exists ((s1, t3), (s2, t4)).
+            compute. rewrite A, D.
+            destruct (selS s1 s2) as [E | E].
+            +++ rewrite E in A. discriminate A. 
+            +++ rewrite E. auto.
+         ++ left. intros [a b] [c d]. compute. 
+            rewrite irS. right. apply irT. 
+         ++ right. exists ((s1, t3), (s2, t4)).
+            compute. rewrite A, D.
+            destruct (selS s1 s2) as [E | E].
+            +++ rewrite E in A. discriminate A. 
+            +++ rewrite E. auto.
+         ++ right. exists ((s3, t1), (s4, t2)).
+            compute. rewrite B, C.
+            destruct (selS s3 s4) as [E | E].
+            +++ rewrite E. auto.
+            +++ rewrite E in C. discriminate C. 
+         ++ right. exists ((s3, t1), (s4, t2)).
+            compute. rewrite B, C.
+            destruct (selS s3 s4) as [E | E].
+            +++ rewrite E. auto.
+            +++ rewrite E in C. discriminate C. 
+       + right. exists ((wS, t1), (wS, t2)).
+         compute. rewrite C, D.
+         case_eq(rS (wS *S wS) wS); intro E; auto. 
+       + right. exists ((s1, wT), (s2, wT)).
+         compute. rewrite A, B; auto. 
+       + right. exists ((s1, wT), (s2, wT)).
+         compute. rewrite A, B; auto. 
+Defined. 
 
 Definition bop_product_selective_decide : 
      bop_is_left_decidable S rS bS  → 

@@ -1,25 +1,14 @@
 Require Import CAS.coq.common.compute.
-Require Import CAS.coq.sg.properties. 
-
+Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.po.from_sg. 
+Require Import CAS.coq.os.properties.
 
 Section ACAS. 
 
 
 
 Close Scope nat. 
-(* Interaction of multiple binary ops *)
-
-
-(* if this decidable property is added to bs, then we can get an iff rule for 
-    (plus, times) ->(left_order plus, times) and olt_left_monotone. 
-    First, try pushing bop_left_monotone through all bs combinators ... 
-*) 
-Definition bop_left_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
-   := ∀ s t u : S, r t (add t u) = true -> r (mul s t) (add (mul s t) (mul s u)) = true. 
-
-Definition bop_not_left_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
-   := { z : S * (S * S) & match z with (s, (t, u)) => (r t (add t u) = true) * (r (mul s t) (add (mul s t) (mul s u)) = false) end }.
-
+(* Interaction of two binary ops *)
 
 Definition bop_left_distributive (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
    := ∀ s t u : S, r (mul s (add t u)) (add (mul s t) (mul s u)) = true. 
@@ -138,13 +127,93 @@ Definition bops_left_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 
 Definition bops_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
   ∀ (s t : S), r s (b1 (b2 s t) s) = true.
 
+Definition bops_not_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) 
+   := { z : S * S & match z with (s, t) =>  r s (b1 (b2 s t) s) = false end }. 
 
+Definition bops_right_left_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    (bops_right_left_absorptive S r b1 b2) + (bops_not_right_left_absorptive S r b1 b2). 
+
+Definition bops_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    ∀ (s t : S), r s (b1 (b2 t s) s) = true.
+
+Definition bops_not_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) 
+   := { z : S * S & match z with (s, t) =>  r s (b1 (b2 t s) s) = false end }. 
+
+Definition bops_right_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
+    (bops_right_right_absorptive S r b1 b2) + (bops_not_right_right_absorptive S r b1 b2). 
+
+(**************************************************************************************************)
+(*
+
+*) 
+
+(* there are two combinators to produce order-semigroups (os) from bi-semigroups (bs). 
+
+   os_from_bs_left (+, x)  = (<=_L, x)   (<=_L = brel_lte_left +)
+   os_from_bs_right (+, x) = (<=_R, x)   (<=_R = brel_lte_right +)
+
+   where a <=_L b iff a = a + b
+         a <=_R b iff b = a + b
+
+   two important properties for os are 
+
+   Definition os_left_monotone {S : Type} (lte : brel S) (b : binary_op S)  
+       := ∀ s t u : S, lte t u = true -> lte (b s t) (b s u) = true. 
+
+   Definition os_right_monotone {S : Type} (lte : brel S) (b : binary_op S)  
+      := ∀ s t u : S, lte t u = true -> lte (b t s) (b u s) = true. 
+
+   In order to get "iff-rules" for these combinators and these two properties, 
+   we need bs properties that are equiv to 
+
+   1) os_left_monotone <=_L x    (bops_left_order_left_monotone)
+   2) os_left_monotone <=_R x    (bops_right_order_left_monotone)
+   3) os_right_monotone <=_L x   (bops_left_order_right_monotone)
+   4) os_right_monotone <=_R x   (bops_right_order_right_monotone)
+
+ *)
+
+(* left monotone *) 
+Definition bops_left_order_left_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S)
+  := os_left_monotone (brel_lte_left r add) mul. 
+
+Definition bops_not_left_order_left_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S)
+  := os_not_left_monotone (brel_lte_left r add) mul.
+
+Definition bops_left_order_left_monotone_decidable (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+  := os_left_monotone_decidable (brel_lte_left r add) mul.
+
+Definition bops_right_order_left_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+  := os_left_monotone (brel_lte_right r add) mul. 
+
+Definition bops_not_right_order_left_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S)
+  := os_not_left_monotone (brel_lte_right r add) mul.            
+
+Definition bops_right_order_left_monotone_decidable (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+  := os_left_monotone_decidable (brel_lte_left r add) mul.
+
+(* right monotone *) 
+Definition bops_left_order_right_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+  := os_right_monotone (brel_lte_left r add) mul.
+
+Definition bops_not_left_order_right_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+  := os_not_right_monotone (brel_lte_left r add) mul.
+
+Definition bops_left_order_right_monotone_decidable (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+  := os_right_monotone_decidable (brel_lte_left r add) mul.
+
+Definition bops_right_order_right_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+  := os_right_monotone (brel_lte_right r add) mul.
+
+Definition bops_not_right_order_right_monotone (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+  := os_not_right_monotone (brel_lte_right r add) mul.
+
+Definition bops_right_order_right_monotone_decidable (S : Type) (r : brel S) (add : binary_op S) (mul : binary_op S) 
+  := os_right_monotone_decidable (brel_lte_left r add) mul.
 
 (* Strict-Absorptivity 
    Let's assume b1 is commutative, so only two properties instead of four. 
 *)
-
-
 Definition bops_left_strictly_absorptive 
   (S : Type) (eq : brel S) (b₁ b₂ : binary_op S) := 
   ∀ (s t : S), 
@@ -214,21 +283,6 @@ Definition bops_left_right_strictly_absorptive_decidable  (S : Type) (r : brel S
 
 *)
 (***)
-
-Definition bops_not_right_left_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) 
-   := { z : S * S & match z with (s, t) =>  r s (b1 (b2 s t) s) = false end }. 
-
-Definition bops_right_left_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
-    (bops_right_left_absorptive S r b1 b2) + (bops_not_right_left_absorptive S r b1 b2). 
-
-Definition bops_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
-    ∀ (s t : S), r s (b1 (b2 t s) s) = true.
-
-Definition bops_not_right_right_absorptive (S : Type) (r : brel S) (b1 b2 : binary_op S) 
-   := { z : S * S & match z with (s, t) =>  r s (b1 (b2 t s) s) = false end }. 
-
-Definition bops_right_right_absorptive_decidable  (S : Type) (r : brel S) (b1 b2 : binary_op S) := 
-    (bops_right_right_absorptive S r b1 b2) + (bops_not_right_right_absorptive S r b1 b2). 
 
 (* *)
 

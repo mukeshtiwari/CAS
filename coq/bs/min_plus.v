@@ -47,7 +47,13 @@ Proof. unfold bop_left_distributive, bop_plus, bop_min.
                 apply brel_eq_nat_reflexive.
                 rewrite plus_SS.  rewrite plus_SS. rewrite bop_min_S.  rewrite bop_min_S. 
                 rewrite plus_SS.  apply injection_S_brel_eq_nat. apply IHs. 
-Qed. 
+Qed.
+
+(* a min (b + c) <> (a min b) + (a min c) *)
+Lemma bop_plus_min_not_left_distributive : 
+  bop_not_left_distributive nat brel_eq_nat bop_plus bop_min.
+Proof. exists (1,(1, 1)). compute. reflexivity. Defined.  
+
 
 Lemma bop_min_plus_right_distributive : 
         bop_right_distributive nat brel_eq_nat bop_min bop_plus. 
@@ -56,7 +62,12 @@ Proof. apply bops_left_distributive_and_times_commutative_imply_right_distributi
        apply bop_min_congruence. 
        apply bop_plus_commutative. 
        apply bop_min_plus_left_distributive. 
-Defined. 
+Defined.
+
+Lemma bop_plus_min_not_right_distributive : 
+  bop_not_right_distributive nat brel_eq_nat bop_plus bop_min.
+Proof. exists (1,(1, 1)). compute. reflexivity. Defined.  
+
 
 Lemma plus_lemma_1 : ∀ (a b : nat), plus a b = b -> a = 0. 
 Proof. induction a. 
@@ -91,6 +102,10 @@ Proof. unfold bops_left_left_absorptive, bop_plus, bop_min, brel_eq_nat.
        apply brel_eq_nat_reflexive. 
 Qed. 
 
+(* a <> a + (a min b) *)
+Lemma bops_plus_min_not_left_left_absorptive : 
+  bops_not_left_left_absorptive nat brel_eq_nat bop_plus bop_min.
+Proof. exists (1, 1). compute. reflexivity. Defined. 
 
 Lemma bops_min_plus_left_right_absorptive  : 
        bops_left_right_absorptive nat brel_eq_nat bop_min bop_plus. 
@@ -101,6 +116,10 @@ Proof. apply bops_left_left_absorptive_implies_left_right.
        apply bop_plus_commutative. 
        apply bops_min_plus_left_left_absorptive. 
 Qed. 
+
+Lemma bops_plus_min_not_left_right_absorptive : 
+  bops_not_left_right_absorptive nat brel_eq_nat bop_plus bop_min.
+Proof. exists (1, 1). compute. reflexivity. Defined. 
 
 
 Lemma bops_min_plus_right_left_absorptive  : 
@@ -114,6 +133,9 @@ Proof. apply bops_left_right_absorptive_implies_right_left.
        apply bops_min_plus_left_right_absorptive. 
 Qed. 
 
+Lemma bops_plus_min_not_right_left_absorptive : 
+  bops_not_right_left_absorptive nat brel_eq_nat bop_plus bop_min.
+Proof. exists (1, 1). compute. reflexivity. Defined. 
 
 
 Lemma bops_min_plus_right_right_absorptive  : 
@@ -125,6 +147,11 @@ Proof. apply bops_right_left_absorptive_implies_right_right.
        apply bop_plus_commutative. 
        apply bops_min_plus_right_left_absorptive. 
 Qed.
+
+Lemma bops_plus_min_not_right_right_absorptive : 
+  bops_not_right_right_absorptive nat brel_eq_nat bop_plus bop_min.
+Proof. exists (1, 1). compute. reflexivity. Defined. 
+
 
 (* strict absorption *)
 Lemma bops_min_plus_not_left_strictly_absorptive : 

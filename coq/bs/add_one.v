@@ -68,51 +68,6 @@ Proof. intros [[id ann] [[A B] C]].
 Defined.    
 
 
-Lemma bops_add_one_left_monotone  :
-     bop_idempotent S r b1 ->
-     bops_left_left_absorptive S r b1 b2 ->   
-     bop_left_monotone S r b1 b2 -> 
-        bop_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros idem lla lm [c1 | s1] [c2 | s2] [c3 | s3]; compute; intro A; auto.
-         discriminate A. 
-Qed. 
-
-
-
-
-
-(*
-bops_left_left_absorptive  : s = s + st 
-bops_right_left_absorptive : s = st + s 
-
-
-note:  comm(+) * left_abs * idem(+) -> 
-       (left_monotone <-> left_distributive)
-
-Why is this here? 
-*)
-
-Lemma bops_add_one_not_left_monotone_v1  :
-     bop_not_left_monotone S r b1 b2 -> 
-     bop_not_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
-Proof. intros [[s1 [s2 s3]] nld]. 
-       exists (inr s1, (inr s2, inr s3)).  compute. assumption. 
-Defined.
-
-Lemma bops_add_one_not_left_monotone_v2  :
-     bop_not_idempotent S r b1 -> 
-     bop_not_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
-Proof. intros [s nidem]. 
-       exists (inr s, (inl c, inl c)). compute. split; auto. 
-       apply (brel_symmetric_implies_dual _ _ symS). assumption. 
-Defined. 
-
-Lemma bops_add_one_not_left_monotone_v3  :
-  bops_not_left_left_absorptive S r b1 b2 -> 
-     bop_not_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
-Proof. intros [[s1 s3] nla]. 
-       exists (inr s1, (inl c, inr s3)). compute. split; auto. 
-Defined. 
 
 Lemma bops_add_one_left_distributive  : 
      bop_idempotent S r b1 ->          
@@ -314,7 +269,44 @@ Defined.
 
 (* end of strictly absorptive *)
 
+(*
+bops_left_left_absorptive  : s = s + st 
+bops_right_left_absorptive : s = st + s 
 
+note:  comm(+) * left_abs * idem(+) -> 
+       (left_monotone <-> left_distributive)
+*)
+Lemma bops_add_one_left_order_left_monotone  :
+     bop_idempotent S r b1 ->
+     bops_left_left_absorptive S r b1 b2 ->   
+     bops_left_order_left_monotone S r b1 b2 -> 
+        bops_left_order_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
+Proof. intros idem lla lm [c1 | s1] [c2 | s2] [c3 | s3]; compute; intro A; auto.
+       + discriminate A.
+       + apply lm; auto. 
+Qed. 
+
+Lemma bops_add_one_not_left_order_left_monotone_v1  :
+     bops_not_left_order_left_monotone S r b1 b2 -> 
+      bops_not_left_order_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof. intros [[s1 [s2 s3]] nld]. 
+       exists (inr s1, (inr s2, inr s3)).  compute. assumption. 
+Defined.
+
+Lemma bops_add_one_not_left_order_left_monotone_v2  :
+     bop_not_idempotent S r b1 -> 
+     bops_not_left_order_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof. intros [s nidem]. 
+       exists (inr s, (inl c, inl c)). compute. split; auto. 
+       apply (brel_symmetric_implies_dual _ _ symS). assumption. 
+Defined. 
+
+Lemma bops_add_one_not_left_order_left_monotone_v3  :
+  bops_not_left_left_absorptive S r b1 b2 -> 
+    bops_not_left_order_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2).
+Proof. intros [[s1 s3] nla]. 
+       exists (inr s1, (inl c, inr s3)). compute. split; auto. 
+Defined. 
 
 
 

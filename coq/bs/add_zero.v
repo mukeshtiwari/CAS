@@ -159,42 +159,6 @@ Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption.
 
 
 
-(* Strictly left right 
-Lemma bops_add_zero_not_strictly_left_right_absorptive  : 
-        bops_not_strictly_left_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2).
-Proof. exists (inl c, inl c). compute. right; auto. Defined. 
-*)
-(* strictly absorptive *)
-
-Lemma bops_add_zero_not_left_strictly_absorptive :
-  bops_not_left_strictly_absorptive 
-    (with_constant S) 
-    (brel_sum brel_constant r) 
-    (c [+id] b1) 
-    (c [+ann] b2).
-Proof.
-  exists (inl c, inl c).
-  compute.
-  right.
-  auto.
-Qed.
-
-
-Lemma bops_add_zero_not_right_strictly_absorptive :
-  bops_not_right_strictly_absorptive 
-    (with_constant S) 
-    (brel_sum brel_constant r) 
-    (c [+id] b1) 
-    (c [+ann] b2).
-Proof.
-  exists (inl c, inl c).
-  compute.
-  right.
-  auto.
-Qed.
-
-
-
 
 (* right left *) 
 Lemma bops_add_zero_right_left_absorptive  : 
@@ -217,7 +181,42 @@ Proof. intros la [c1 | s1] [c2 | s2]; compute; auto. Qed.
 Lemma bops_add_zero_not_right_right_absorptive : 
      bops_not_right_right_absorptive S r b1 b2 -> 
         bops_not_right_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2).
-Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined. 
+Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined.
+
+
+(* strictly absorptive *)
+
+Lemma bops_add_zero_not_left_strictly_absorptive :
+  bops_not_left_strictly_absorptive 
+    (with_constant S) 
+    (brel_sum brel_constant r) 
+    (c [+id] b1) 
+    (c [+ann] b2).
+Proof. exists (inl c, inl c); compute; right; auto. Defined. 
+
+Lemma bops_add_zero_not_right_strictly_absorptive :
+  bops_not_right_strictly_absorptive 
+    (with_constant S) 
+    (brel_sum brel_constant r) 
+    (c [+id] b1) 
+    (c [+ann] b2).
+Proof. exists (inl c, inl c); compute; right; auto. Defined.
+
+
+Lemma bops_add_zero_left_order_left_monotone
+      (lolm : bops_left_order_left_monotone S r b1 b2): 
+        bops_left_order_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (c [+ann] b2). 
+Proof. intros [c1 | s1] [c2 | s2] [c3 | s3]; compute; intro A; auto.
+       apply lolm; auto. 
+Qed.
+
+Lemma bops_zero_one_not_left_order_left_monotone  :
+     bops_not_left_order_left_monotone S r b1 b2 -> 
+      bops_not_left_order_left_monotone (with_constant S) (brel_sum brel_constant r) (c [+id] b1) (c [+id] b2).
+Proof. intros [[s1 [s2 s3]] nld]. 
+       exists (inr s1, (inr s2, inr s3)).  compute. assumption. 
+Defined.
+
 
 End Theory.
 

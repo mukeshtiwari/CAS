@@ -75,6 +75,12 @@ Proof. unfold bop_left_distributive, bop_plus, bop_max.
                 apply IHs. 
 Qed. 
 
+(* a max (b + c) <> (a max b) + (a max c) *) 
+Lemma bop_plus_max_not_left_distributive : 
+        bop_not_left_distributive nat brel_eq_nat bop_plus bop_max. 
+Proof. exists (1, (0, 0)). compute. reflexivity. Defined. 
+
+
 Lemma bop_max_plus_right_distributive : 
         bop_right_distributive nat brel_eq_nat bop_max bop_plus. 
 Proof. apply bops_left_distributive_and_times_commutative_imply_right_distributive. 
@@ -84,37 +90,45 @@ Proof. apply bops_left_distributive_and_times_commutative_imply_right_distributi
        apply bop_max_plus_left_distributive. 
 Defined.
 
-
-(*  Just for fun.  (+, max) is not distributive 
-      a max (b + c) <> (a + b) max (a + c)
- 2 =  0 max (1 + 1) <> (0 + 1) max (0 + 1) = 1
-*) 
-Lemma bop_plus_max_not_left_distributive : 
-        bop_not_left_distributive nat brel_eq_nat bop_plus bop_max.
-Proof. exists (2, (1, 1)); compute. reflexivity. Defined. 
-
 Lemma bop_plus_max_not_right_distributive : 
-        bop_not_right_distributive nat brel_eq_nat bop_plus bop_max.
-Proof. exists (2, (1, 1)); compute. reflexivity. Defined. 
-
+        bop_not_right_distributive nat brel_eq_nat bop_plus bop_max. 
+Proof. exists (1, (0, 0)). compute. reflexivity. Defined. 
 
 
 (* absorption *) 
 
+(* a <> max a (a + b) *) 
 Lemma bops_max_plus_not_left_left_absorptive : 
         bops_not_left_left_absorptive nat brel_eq_nat bop_max bop_plus. 
-Proof. exists (0, 1); compute. reflexivity. Defined. 
+Proof. exists (0,1); compute. reflexivity. Defined.
+
+(* a <> a + (a max b) *) 
+Lemma bops_plus_max_not_left_left_absorptive : 
+        bops_not_left_left_absorptive nat brel_eq_nat bop_plus bop_max. 
+Proof. exists (0,1); compute. reflexivity. Defined. 
 
 Lemma bops_max_plus_not_left_right_absorptive : 
         bops_not_left_right_absorptive nat brel_eq_nat bop_max bop_plus. 
 Proof. exists (0, 1); compute. reflexivity. Defined. 
 
+Lemma bops_plus_max_not_left_right_absorptive : 
+        bops_not_left_right_absorptive nat brel_eq_nat bop_plus bop_max. 
+Proof. exists (0, 1); compute. reflexivity. Defined. 
+
 Lemma bops_max_plus_not_right_left_absorptive : 
         bops_not_right_left_absorptive nat brel_eq_nat bop_max bop_plus. 
+Proof. exists (0, 1); compute. reflexivity. Defined.
+
+Lemma bops_plus_max_not_right_left_absorptive : 
+        bops_not_right_left_absorptive nat brel_eq_nat bop_plus bop_max. 
 Proof. exists (0, 1); compute. reflexivity. Defined. 
 
 Lemma bops_max_plus_not_right_right_absorptive : 
         bops_not_right_right_absorptive nat brel_eq_nat bop_max bop_plus. 
+Proof. exists (0, 1); compute. reflexivity. Defined.
+
+Lemma bops_plus_max_not_right_right_absorptive : 
+        bops_not_right_right_absorptive nat brel_eq_nat bop_plus bop_max. 
 Proof. exists (0, 1); compute. reflexivity. Defined. 
 
 (* strict absorption *)

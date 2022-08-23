@@ -1478,7 +1478,86 @@ Proof. intros [[a b] NL] [[c d] NR] idem [nex2 Net].
 Defined.
 
 
-(* simplify ? *) 
+(* simplify this ? 
+
+given 
+
+not left  : a * b <> a 
+not ritht : c * d <> d 
+nex2 x y <> x 
+nex2 x y <> y 
+
+produce (X, Y) such that X *^ Y <> X and X *^ Y <> Y. 
+
+Definition lift_not_selective (a b c d : S) (nex2 : S -> (S -> S)) : (finite_set S) * (finite_set S) :=
+  let e = nex2 a b in
+  let f = next c d in 
+  if a * b = b      
+  then if (c * d) = c 
+       then if e = e * b
+            then ({e, a}, {b})
+            else if b = e * b  
+                 then if f = c * f
+                      then ({c}, {f, d})
+                      else if c = c * f
+                           then if e = e * f 
+                                then if f = e * f
+                                     then if e = e * a
+                                          then ({e}, {a, b})
+                                          else if a = e * a 
+                                               then if f = d * f  
+                                                    then ({c, d}, {f})
+                                                    else if d = d * f
+                                                         then if a = c 
+                                                              then ({a}, {f, b})
+                                                              else ({e, c}, {f, a})
+                                                         else ({d}, {f})
+                                               else ({e}, {a})
+                                     else ({e}, {f, b})
+                                else if f = e * f
+                                     then ({e, c}, {f})
+                                     else ({e}, {f})
+                           else ({c}, {f})
+                 else ({e}, {b})
+       else ({c}, {d})
+  else ({a}, {b}).
+
+simplify to 
+
+  let e = nex2 a b in
+  let f = next c d in 
+  if a * b <> b      
+  then ({a}, {b}) 
+  else (* H1 : a * b = b <> a *) 
+       if (c * d) <> c 
+       then ({c}, {d})
+       else (* H2 : c * d = c <> d *) 
+            if (a * c) <> a 
+            then if (a * c) <> c 
+                 then ({a}, {c})
+                 else (* H3 : a * c = c *) 
+
+            else (* H3 : a * c = a *) 
+
+==============================
+  let e = nex2 a b in
+  let f = next c d in 
+  if ab <> b      
+  then ({a}, {b}) 
+  else (* H1 : ab = b <> a *) 
+       if cd <> c 
+       then ({c}, {d})
+       else (* H2 : cd = c <> d *) 
+            if ad <> d 
+            then {a}*{b, d} = {ab, ad} = {b, ad}
+            else (* H3 : ad = d *) 
+            if 
+            then {c}*{b, d} = {cb, cd} = {cb, c}
+            
+
+
+
+*) 
 Definition lift_not_selective (a b c d : S) (nex2 : S -> (S -> S)) : (finite_set S) * (finite_set S) :=
   if rS (bS a b) b      (* J1 *) 
   then if rS (bS c d) c (* J2 *) 

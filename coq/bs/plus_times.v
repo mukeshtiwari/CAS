@@ -37,7 +37,13 @@ Proof.
     unfold brel_eq_nat.
     apply Nat.eqb_refl.
 Defined.
-   
+
+(* 
+   a + (b * c) <> (a + b) * (a + c) 
+*) 
+Lemma bop_times_plus_not_left_distributive : 
+        bop_not_left_distributive nat brel_eq_nat bop_times bop_plus.
+Proof. exists (1, (1, 0)). compute. reflexivity. Defined. 
 
 Lemma bop_plus_times_right_distributive : 
         bop_right_distributive nat brel_eq_nat bop_plus bop_times.
@@ -48,13 +54,22 @@ Proof. apply bops_left_distributive_and_times_commutative_imply_right_distributi
        apply bop_plus_times_left_distributive. 
 Defined.
 
+Lemma bop_times_plus_not_right_distributive : 
+        bop_not_right_distributive nat brel_eq_nat bop_times bop_plus.
+Proof. exists (1, (1, 0)). compute. reflexivity. Defined. 
 
 
 (* absorption *) 
 
+(* a <> a + (a * b) *) 
 Lemma bops_plus_times_not_left_left_absorptive : 
         bops_not_left_left_absorptive nat brel_eq_nat bop_plus bop_times.   
-Proof. exists (1, 1). compute. reflexivity. Defined. 
+Proof. exists (1, 1). compute. reflexivity. Defined.
+
+(* a <> a * (a + b) *)
+Lemma bops_times_plus_not_left_left_absorptive : 
+        bops_not_left_left_absorptive nat brel_eq_nat bop_times bop_plus.   
+Proof. exists (1, 1). compute. reflexivity. Defined.
 
 Lemma bops_plus_times_not_left_right_absorptive : 
         bops_not_left_right_absorptive nat brel_eq_nat bop_plus bop_times.   

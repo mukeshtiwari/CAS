@@ -1,4 +1,6 @@
-(* This file attempts to use CAS to explore this paper. 
+(*
+
+This file attempts to use CAS to explore this paper. 
 
 Bottleneck shortest paths on a partially ordered scale
 Jérôme Monnot and Olivier Spanjaard 
@@ -46,7 +48,7 @@ let order_E = mcas_or_add_bottom (mcas_or_product or_max or_max) infinity;;
 
    X (x)_1 Y = min(<=_1, X union Y)  
              = {z in X union Y | for all w in (X union Y), not (w <_1 z)} 
-             = {(c,d) in X union Y | for all (a,b) in (X union Y), not ((a,b) <_1 (a,b))} 
+             = {(c,d) in X union Y | for all (a,b) in (X union Y), not ((a,b) <_1 (c,d))} 
  *)   
 let maxset = mcas_sg_minset_union order_E;;
 
@@ -126,9 +128,52 @@ think about bottleneck as a general construction over (S, <=_1).
 
     XX (x)_2 YY = min(<=_2, XX lift((x)_1) YY) 
                 = min(<=_2, {X (x)_1 Y | X in XX, Y in YY}) 
-                = min(<=_2, { min(<=_1, X union Y)  | X in XX, Y in YY}) 
+                = min(<=_2, { min(<=_1, X union Y)  | X in XX, Y in YY})
 
------
+how about: 
+minset_union_lift(max_order_semigroup(minset_lift(S, <=_1))). 
+
+
+A*[i,j] = (+)_2_{p in pi[i,j]} (x)_2(p)
+        = min(<=_2, U_{p in pi[i,j]} min(<=_2, {lift(x)_1(p)}
+        = min(<=_2, U_{p in pi[i,j]} {lift(x)_1(p)}
+        = min(<=_2, U_{p in pi[i,j]} {min(<=_1, U_{e in p} w(e))}
+
+
+
+--------------------
+start with (max, min)
+
+how to extend to partial orders?
+
+Given (S, <=, (x))
+
+construct 
+
+X [+] Y = max(<=, X union Y)
+
+X [x] Y = min(<=, X union Y) 	       
+
+w(p) = min(<=, U_{e in p} w(e))
+
+A*[i,j] = max(<=, U_{p in pi[i,j]} w(p))
+        = max(<=, U_{p in pi[i,j]} min(<=, U_{e in p} w(e)))
+
+Wait: this is not distributive.
+
+lhs = X [x] (Y [+] Z)
+rhs = (X [x] Y) [+]  (X [x] Z)
+
+X = {1} 
+Y = {0, 10} 
+Z = {0, 10} 
+
+lhs = {1} 
+rhs = {10} 
+
+
+-------------------
+
 
    minset_union_lift (T, <=, (x))n = ((P<=, T), [+], [x]) 
    X [+] Y = min(<=, X union Y) 
@@ -325,3 +370,549 @@ list_sq_matrix sol_1;;
   
  *) 
 
+
+
+(* 
+   what would this look like in the direct style?  
+
+   sg_minset_union_from_po_bounded      : 'a1 Cas.po_bounded     -> 'a1 Cas.finite_set Cas.sg_BCI 
+   sg_minset_union_from_po_with_bottom  : 'a1 Cas.po_with_bottom -> 'a1 Cas.finite_set Cas.sg_BCI 
+   
+   os_from_sg_BCI_right                 : 'a1 Cas.sg_BCI -> 'a1 Cas.bounded_monotone_increasing_posg 
+
+   minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CI_VERSION;;
+              : 'a1 Cas.bounded_monotone_increasing_posg -> 'a1 Cas.assert_not_selective -> 'a1 Cas.finite_set Cas.dioid
+
+   minset_union_lift_from_bounded_monotone_increasing_posg_GUARDED_CNI_VERSION;;
+              : 'a1 Cas.bounded_monotone_increasing_posg -> 'a1 Cas.assert_not_idempotent -> 'a1 Cas.finite_set Cas.dioid
+    
+= 
+
+
+  will this work with pre-orders? 
+*) 
+let test order = mcas_minset_union_lift (mcas_os_from_sg_right (mcas_sg_minset_union order));;
+
+(* test_lte_nat : (int * int) Cas.finite_set Cas.finite_set Cas.bs_mcas *) 
+let test_lte_nat = test (mcas_left_order_from_sg (mcas_sg_product mcas_sg_min mcas_sg_min));;
+
+let test_lte_nat_solver = bs_adj_list_solver test_lte_nat;; 
+
+let w_test1 w = [[(w, 1)]];; 
+
+let test_adj_1 = 
+  { adj_size = 4;
+    adj_list = 
+  [
+    (0, [(1, w_test1 10); (2, w_test1 9); (3, w_test1 100)]);
+    (1, [(2, w_test1 1)]);
+    (3, [(2, w_test1 9)])
+  ]};; 
+
+let sol1 = test_lte_nat_solver test_adj_1;;
+(*
+print_solution test_lte_nat sol1;;
+(0, 0): [[]]
+(0, 1): [[(10, 1)]]
+(0, 2): [[(9, 1)]]
+(0, 3): [[(100, 1)]]
+(1, 0): []
+(1, 1): [[]]
+(1, 2): [[(1, 1)]]
+(1, 3): []
+(2, 0): []
+(2, 1): []
+(2, 2): [[]]
+(2, 3): []
+(3, 0): []
+(3, 1): []
+(3, 2): [[(9, 1)]]
+(3, 3): [[]]
+*) 
+
+let max_min_adj_1 = 
+  { adj_size = 4;
+    adj_list = 
+  [
+    (0, [(1, Inr 10); (2, Inr 9); (3, Inr 100)]);
+    (1, [(2, Inr 1)]);
+    (3, [(2, Inr 9)])
+  ]};; 
+
+let max_min = mcas_bs_add_one mcas_max_min infinity;; 
+(* 
+print_solution max_min (bs_adj_list_solver max_min max_min_adj_1);;
+(0, 0): inl(INF)
+(0, 1): inr(10)
+(0, 2): inr(9)
+(0, 3): inr(100)
+(1, 0): inr(0)
+(1, 1): inl(INF)
+(1, 2): inr(1)
+(1, 3): inr(0)
+(2, 0): inr(0)
+(2, 1): inr(0)
+(2, 2): inl(INF)
+(2, 3): inr(0)
+(3, 0): inr(0)
+(3, 1): inr(0)
+(3, 2): inr(9)
+(3, 3): inl(INF)
+*) 
+
+let w_test2 w u = [[(w, u)]];; 
+
+let test_adj_2 = 
+  { adj_size = 4;
+    adj_list = 
+  [
+    (0, [(1, w_test2 10 2); (2, w_test2 9 5); (3, w_test2 100 2)]);
+    (1, [(2, w_test2 1 10)]);
+    (3, [(2, w_test2 9 20)])
+  ]};; 
+
+let sol2 = test_lte_nat_solver test_adj_2;;
+(*
+print_solution test_lte_nat sol2;;
+(0, 0): [[]]
+(0, 1): [[(10, 2)]]
+(0, 2): [[(100, 2), (9, 20)], [(9, 5)]]
+(0, 3): [[(100, 2)]]
+(1, 0): []
+(1, 1): [[]]
+(1, 2): [[(1, 10)]]
+(1, 3): []
+(2, 0): []
+(2, 1): []
+(2, 2): [[]]
+(2, 3): []
+(3, 0): []
+(3, 1): []
+(3, 2): [[(9, 20)]]
+(3, 3): [[]]
+
+*) 
+
+(*
+*) 
+
+let minimax = mcas_bs_add_zero mcas_min_max infinity;; 
+
+(*
+
+        3        2
+     0 ------ 1 ---- 4
+     |\  2           |
+   1 | \----         | 1
+     |      \        |
+     2 ------ 3------5 
+        1         3
+*)    
+
+let minimax_adj_1 = 
+  { adj_size = 6;
+    adj_list = 
+  [
+    (0, [(1, Inr 3); (2, Inr 1); (3, Inr 2)]);
+    (1, [(0, Inr 3); (4, Inr 2)]);
+    (2, [(0, Inr 1); (3, Inr 1)]);
+    (3, [(0, Inr 2); (2, Inr 1); (5, Inr 3)]);
+    (4, [(1, Inr 2); (5, Inr 1)]);
+    (5, [(3, Inr 3); (4, Inr 1)])
+  ]};; 
+
+(*
+print_solution minimax (bs_adj_list_solver minimax minimax_adj_1);;
+(0, 0): inr(0)
+(0, 1): inr(3)
+(0, 2): inr(1)
+(0, 3): inr(1)
+(0, 4): inr(3)
+(0, 5): inr(3)
+(1, 0): inr(3)
+(1, 1): inr(0)
+(1, 2): inr(3)
+(1, 3): inr(3)
+(1, 4): inr(2)
+(1, 5): inr(2)
+(2, 0): inr(1)
+(2, 1): inr(3)
+(2, 2): inr(0)
+(2, 3): inr(1)
+(2, 4): inr(3)
+(2, 5): inr(3)
+(3, 0): inr(1)
+(3, 1): inr(3)
+(3, 2): inr(1)
+(3, 3): inr(0)
+(3, 4): inr(3)
+(3, 5): inr(3)
+(4, 0): inr(3)
+(4, 1): inr(2)
+(4, 2): inr(3)
+(4, 3): inr(3)
+(4, 4): inr(0)
+(4, 5): inr(1)
+(5, 0): inr(3)
+(5, 1): inr(2)
+(5, 2): inr(3)
+(5, 3): inr(3)
+(5, 4): inr(1)
+(5, 5): inr(0)
+
+               3
+              / \
+             /   \
+            /     2
+           /     / \ 
+          1     1   \ 
+         /|\   /\   |
+        0 2 3  4 5  1
+*) 
+
+
+let minimax_adj_2 = 
+  { adj_size = 6;
+    adj_list = 
+  [
+    (0, [(1, Inr 3); (2, Inr 1); (3, Inr 2)]);
+    (1, [(0, Inr 3); (4, Inr 1)]);
+    (2, [(0, Inr 1); (3, Inr 1)]);
+    (3, [(0, Inr 2); (2, Inr 1); (5, Inr 3)]);
+    (4, [(1, Inr 1); (5, Inr 1)]);
+    (5, [(3, Inr 3); (4, Inr 1)])
+  ]};; 
+
+(*
+             only change 2->1 on link 1---4
+        3        1
+     0 ------ 1 ---- 4
+     |\  2           |
+   1 | \----         | 1
+     |      \        |
+     2 ------ 3------5 
+        1         3
+*)    
+
+(*
+print_solution minimax (bs_adj_list_solver minimax minimax_adj_2);;
+(0, 0): inr(0)
+(0, 1): inr(3)
+(0, 2): inr(1)
+(0, 3): inr(1)
+(0, 4): inr(3)
+(0, 5): inr(3)
+(1, 0): inr(3)
+(1, 1): inr(0)
+(1, 2): inr(3)
+(1, 3): inr(3)
+(1, 4): inr(1)
+(1, 5): inr(1)
+(2, 0): inr(1)
+(2, 1): inr(3)
+(2, 2): inr(0)
+(2, 3): inr(1)
+(2, 4): inr(3)
+(2, 5): inr(3)
+(3, 0): inr(1)
+(3, 1): inr(3)
+(3, 2): inr(1)
+(3, 3): inr(0)
+(3, 4): inr(3)
+(3, 5): inr(3)
+(4, 0): inr(3)
+(4, 1): inr(1)
+(4, 2): inr(3)
+(4, 3): inr(3)
+(4, 4): inr(0)
+(4, 5): inr(1)
+(5, 0): inr(3)
+(5, 1): inr(1)
+(5, 2): inr(3)
+(5, 3): inr(3)
+(5, 4): inr(1)
+(5, 5): inr(0)
+
+
+               3
+              / \
+             /   \
+            /     \
+           /       \
+          1         1 
+         /|\       /|\
+        0 2 3     4 5 1
+*) 
+
+
+let test_adj_1_and_2 = 
+  { adj_size = 6;
+    adj_list = 
+  [
+    (0, [(1, w_test2 3 3); (2, w_test2 1 1); (3, w_test2 2 2)]);
+    (1, [(0, w_test2 3 3); (4, w_test2 2 1)]);
+    (2, [(0, w_test2 1 1); (3, w_test2 1 1)]);
+    (3, [(0, w_test2 2 2); (2, w_test2 1 1); (5, w_test2 3 3)]);
+    (4, [(1, w_test2 2 1); (5, w_test2 1 1)]);
+    (5, [(3, w_test2 3 3); (4, w_test2 1 1)])
+  ]};; 
+
+(* 
+print_solution test_lte_nat (test_lte_nat_solver test_adj_1_and_2);;
+(0, 0): [[]]
+(0, 1): [[(3, 3)]]
+(0, 2): [[(1, 1)]]
+(0, 3): [[(2, 2)]]
+(0, 4): [[(2, 1)]]
+(0, 5): [[(2, 2)]]
+(1, 0): [[(3, 3)]]
+(1, 1): [[]]
+(1, 2): [[(1, 1)]]
+(1, 3): [[(2, 2)]]
+(1, 4): [[(2, 1)]]
+(1, 5): [[(2, 2)]]
+(2, 0): [[(1, 1)]]
+(2, 1): [[(1, 1)]]
+(2, 2): [[]]
+(2, 3): [[(1, 1)]]
+(2, 4): [[(1, 1)]]
+(2, 5): [[(1, 1)]]
+(3, 0): [[(2, 2)]]
+(3, 1): [[(2, 2)]]
+(3, 2): [[(1, 1)]]
+(3, 3): [[]]
+(3, 4): [[(2, 1)]]
+(3, 5): [[(3, 3)]]
+(4, 0): [[(2, 1)]]
+(4, 1): [[(2, 1)]]
+(4, 2): [[(1, 1)]]
+(4, 3): [[(2, 1)]]
+(4, 4): [[]]
+(4, 5): [[(2, 1)]]
+(5, 0): [[(2, 2)]]
+(5, 1): [[(2, 2)]]
+(5, 2): [[(1, 1)]]
+(5, 3): [[(3, 3)]]
+(5, 4): [[(2, 1)]]
+(5, 5): [[]]
+*) 
+
+(* use max 
+
+test_gte_nat :
+  (int * int) Cas.with_constant Cas.finite_set Cas.finite_set Cas.bs_mcas =
+
+*) 
+let test_gte_nat = 
+test (mcas_or_add_bottom (mcas_left_order_from_sg (mcas_sg_product mcas_sg_max mcas_sg_max)) infinity);;
+
+let test_gte_nat_solver = bs_adj_list_solver test_gte_nat;; 
+
+let w_test_gte w u = [[Inr (w, u)]];; 
+
+let test_gte_adj_1_and_2 = 
+  { adj_size = 6;
+    adj_list = 
+  [
+    (0, [(1, w_test_gte 3 3); (2, w_test_gte 1 1); (3, w_test_gte 2 2)]);
+    (1, [(0, w_test_gte 3 3); (4, w_test_gte 2 1)]);
+    (2, [(0, w_test_gte 1 1); (3, w_test_gte 1 1)]);
+    (3, [(0, w_test_gte 2 2); (2, w_test_gte 1 1); (5, w_test_gte 3 3)]);
+    (4, [(1, w_test_gte 2 1); (5, w_test_gte 1 1)]);
+    (5, [(3, w_test_gte 3 3); (4, w_test_gte 1 1)])
+  ]};; 
+(* 
+print_solution test_gte_nat (test_gte_nat_solver test_gte_adj_1_and_2);;
+
+(0, 0): [[]]
+(0, 1): [[inr((3, 3))]]
+(0, 2): [[inr((1, 1))]]
+(0, 3): [[inr((1, 1))]]
+(0, 4): [[inr((3, 3))]]
+(0, 5): [[inr((3, 3))]]
+(1, 0): [[inr((3, 3))]]
+(1, 1): [[]]
+(1, 2): [[inr((3, 3))]]
+(1, 3): [[inr((3, 3))]]
+(1, 4): [[inr((2, 1))]]
+(1, 5): [[inr((2, 1))]]
+(2, 0): [[inr((1, 1))]]
+(2, 1): [[inr((3, 3))]]
+(2, 2): [[]]
+(2, 3): [[inr((1, 1))]]
+(2, 4): [[inr((3, 3))]]
+(2, 5): [[inr((3, 3))]]
+(3, 0): [[inr((1, 1))]]
+(3, 1): [[inr((3, 3))]]
+(3, 2): [[inr((1, 1))]]
+(3, 3): [[]]
+(3, 4): [[inr((3, 3))]]
+(3, 5): [[inr((3, 3))]]
+(4, 0): [[inr((3, 3))]]
+(4, 1): [[inr((2, 1))]]
+(4, 2): [[inr((3, 3))]]
+(4, 3): [[inr((3, 3))]]
+(4, 4): [[]]
+(4, 5): [[inr((1, 1))]]
+(5, 0): [[inr((3, 3))]]
+(5, 1): [[inr((2, 1))]]
+(5, 2): [[inr((3, 3))]]
+(5, 3): [[inr((3, 3))]]
+(5, 4): [[inr((1, 1))]]
+(5, 5): [[]]
+*) 
+
+
+(*
+
+        1        2
+     0 ------ 1 ---- 4
+     |\  2           |
+   2 | \----         | 3
+     |      \        |
+     2 ------ 3------5 
+        2         3
+*)    
+
+let minimax_adj_3 = 
+  { adj_size = 6;
+    adj_list = 
+  [
+    (0, [(1, Inr 1); (2, Inr 2); (3, Inr 2)]);
+    (1, [(0, Inr 1); (4, Inr 2)]);
+    (2, [(0, Inr 2); (3, Inr 2)]);
+    (3, [(0, Inr 2); (2, Inr 2); (5, Inr 3)]);
+    (4, [(1, Inr 2); (5, Inr 3)]);
+    (5, [(3, Inr 3); (4, Inr 3)])
+  ]};; 
+
+(*
+print_solution minimax (bs_adj_list_solver minimax minimax_adj_3);;
+
+(0, 0): inr(0)
+(0, 1): inr(1)
+(0, 2): inr(2)
+(0, 3): inr(2)
+(0, 4): inr(2)
+(0, 5): inr(3)
+(1, 0): inr(1)
+(1, 1): inr(0)
+(1, 2): inr(2)
+(1, 3): inr(2)
+(1, 4): inr(2)
+(1, 5): inr(3)
+(2, 0): inr(2)
+(2, 1): inr(2)
+(2, 2): inr(0)
+(2, 3): inr(2)
+(2, 4): inr(2)
+(2, 5): inr(3)
+(3, 0): inr(2)
+(3, 1): inr(2)
+(3, 2): inr(2)
+(3, 3): inr(0)
+(3, 4): inr(2)
+(3, 5): inr(3)
+(4, 0): inr(2)
+(4, 1): inr(2)
+(4, 2): inr(2)
+(4, 3): inr(2)
+(4, 4): inr(0)
+(4, 5): inr(3)
+(5, 0): inr(3)
+(5, 1): inr(3)
+(5, 2): inr(3)
+(5, 3): inr(3)
+(5, 4): inr(3)
+(5, 5): inr(0)
+
+   3 
+   | \
+   |  \
+   |   \ 
+   |    \ 
+   |  -- 2
+   | /  /| \ 
+   | | | |  1 
+   | | | |  | \
+   5 2  3 4 0  1 
+*)
+  
+let test_gte_adj_1_and_3 = 
+  { adj_size = 6;
+    adj_list = 
+  [
+    (0, [(1, w_test_gte 3 1); (2, w_test_gte 1 2); (3, w_test_gte 2 2)]);
+    (1, [(0, w_test_gte 3 1); (4, w_test_gte 2 2)]);
+    (2, [(0, w_test_gte 1 2); (3, w_test_gte 1 2)]);
+    (3, [(0, w_test_gte 2 2); (2, w_test_gte 1 2); (5, w_test_gte 3 3)]);
+    (4, [(1, w_test_gte 2 2); (5, w_test_gte 1 3)]);
+    (5, [(3, w_test_gte 3 3); (4, w_test_gte 1 3)])
+  ]};; 
+(* 
+print_solution test_gte_nat (test_gte_nat_solver test_gte_adj_1_and_3);;
+
+(0, 0): [[]]
+(0, 1): [[inr((3, 1))]]
+(0, 2): [[inr((1, 2))]]
+(0, 3): [[inr((1, 2))]]
+(0, 4): [[inr((3, 1)), inr((2, 2))]]
+(0, 5): [[inr((3, 1)), inr((2, 2)), inr((1, 3))]]
+(1, 0): [[inr((3, 1))]]
+(1, 1): [[]]
+(1, 2): [[inr((3, 1)), inr((1, 2))]]
+(1, 3): [[inr((3, 1)), inr((1, 2))]]
+(1, 4): [[inr((2, 2))]]
+(1, 5): [[inr((2, 2)), inr((1, 3))]]
+(2, 0): [[inr((1, 2))]]
+(2, 1): [[inr((1, 2)), inr((3, 1))]]
+(2, 2): [[]]
+(2, 3): [[inr((1, 2))]]
+(2, 4): [[inr((3, 1)), inr((2, 2))]]
+(2, 5): [[inr((3, 1)), inr((2, 2)), inr((1, 3))]]
+(3, 0): [[inr((1, 2))]]
+(3, 1): [[inr((1, 2)), inr((3, 1))]]
+(3, 2): [[inr((1, 2))]]
+(3, 3): [[]]
+(3, 4): [[inr((3, 1)), inr((2, 2))]]
+(3, 5): [[inr((3, 1)), inr((2, 2)), inr((1, 3))]]
+(4, 0): [[inr((2, 2)), inr((3, 1))]]
+(4, 1): [[inr((2, 2))]]
+(4, 2): [[inr((2, 2)), inr((3, 1))]]
+(4, 3): [[inr((2, 2)), inr((3, 1))]]
+(4, 4): [[]]
+(4, 5): [[inr((1, 3))]]
+(5, 0): [[inr((1, 3)), inr((2, 2)), inr((3, 1))]]
+(5, 1): [[inr((1, 3)), inr((2, 2))]]
+(5, 2): [[inr((1, 3)), inr((2, 2)), inr((3, 1))]]
+(5, 3): [[inr((1, 3)), inr((2, 2)), inr((3, 1))]]
+(5, 4): [[inr((1, 3))]]
+(5, 5): [[]]
+
+Can this be viewed as some kind of combo of 
+
+
+               3
+              / \
+             /   \
+            /     2
+           /     / \ 
+          1     1   \ 
+         /|\   /\   |
+        0 2 3  4 5  1
+
+and 
+
+   3 
+   | \
+   |  \
+   |   \ 
+   |    \ 
+   |  -- 2
+   | /  /| \ 
+   | | | |  1 
+   | | | |  | \
+   5 2  3 4 0  1 
+
+
+*) 

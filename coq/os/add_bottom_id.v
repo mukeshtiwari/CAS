@@ -35,322 +35,66 @@ Notation "a [+id] b"  := (bop_add_id b a)       (at level 15).
 *)   
 
 
-Lemma os_add_bottom_id_left_monotone  : 
-     os_left_increasing S lte b -> os_left_monotone S lte b -> 
-        os_left_monotone (with_constant S) (brel_add_bottom lte bottom) (bop_add_id b bottom). 
-Proof. intros LI LM [c1 | s1] [c2 | s2] [c3 | s3]; simpl; intro A; auto. discriminate A. Qed. 
+Lemma os_add_bottom_id_left_monotone
+      (LI : os_left_increasing lte b)
+      (LM : os_left_monotone lte b) : 
+        os_left_monotone (brel_add_bottom lte bottom) (bop_add_id b bottom). 
+Proof. intros [c1 | s1] [c2 | s2] [c3 | s3]; simpl; intro A; auto. discriminate A. Qed. 
 
 Lemma os_add_bottom_id_not_left_monotone_v1 : 
-      os_not_left_increasing S lte b -> 
-        os_not_left_monotone (with_constant S) (brel_add_bottom lte bottom) (bop_add_id b bottom). 
+      os_not_left_increasing lte b -> 
+        os_not_left_monotone (brel_add_bottom lte bottom) (bop_add_id b bottom). 
 Proof. intros [[s1 s2] nli]. 
-       exists (inr s1, (inr s2, inr wS)).  compute.
-       admit. (* ??? *) 
-Admitted. 
+       exists (inr s1, (inl bottom, inr s2)).  compute.
+       split; auto. 
+Defined. 
 
-Lemma os_add_bottom_id_right_monotone  : 
-     os_right_increasing S lte b -> os_right_monotone S lte b -> 
-        os_right_monotone (with_constant S) (brel_add_bottom lte bottom) (bop_add_id b bottom). 
-Proof. intros RI RM [c1 | s1] [c2 | s2] [c3 | s3]; simpl; intro A; auto. discriminate A. Qed. 
+Lemma os_add_bottom_id_not_left_monotone_v2 : 
+      os_not_left_monotone lte b -> 
+        os_not_left_monotone (brel_add_bottom lte bottom) (bop_add_id b bottom). 
+Proof. intros [[s1 [s2 s3]] [A B]]. 
+       exists (inr s1, (inr s2, inr s3)).  compute.
+       split; auto. 
+Defined. 
+
+
+Lemma os_add_bottom_id_right_monotone   
+      (RI : os_right_increasing lte b)
+      (RM : os_right_monotone lte b) : 
+        os_right_monotone (brel_add_bottom lte bottom) (bop_add_id b bottom). 
+Proof. intros[c1 | s1] [c2 | s2] [c3 | s3]; simpl; intro A; auto. discriminate A. Qed.
+
 
 Lemma os_add_bottom_id_strictly_left_monotone  : 
-     os_left_strictly_increasing S lte b -> os_left_strictly_monotone S lte b -> 
-        os_left_strictly_monotone (with_constant S) (brel_add_bottom lte bottom) (bop_add_id b bottom). 
-Proof. intros LI LM [c1 | s1] [c2 | s2] [c3 | s3]; simpl; intros A B; auto. discriminate B. discriminate A. Qed. 
+     os_left_strictly_increasing lte b -> os_left_strictly_monotone lte b -> 
+        os_left_strictly_monotone (brel_add_bottom lte bottom) (bop_add_id b bottom). 
+Proof. intros LI LM [c1 | s1] [c2 | s2] [c3 | s3]; simpl; intros A B; auto.
+       discriminate B. discriminate A.
+Qed. 
 
-Lemma os_add_bottom_id_strictly_rigth_monotone  : 
-     os_right_strictly_increasing S lte b -> os_right_strictly_monotone S lte b -> 
-        os_right_strictly_monotone (with_constant S) (brel_add_bottom lte bottom) (bop_add_id b bottom). 
-Proof. intros RI RM [c1 | s1] [c2 | s2] [c3 | s3]; simpl; intros A B; auto. discriminate B. discriminate A. Qed.
-
+Lemma os_add_bottom_id_strictly_right_monotone  : 
+     os_right_strictly_increasing lte b -> os_right_strictly_monotone lte b -> 
+        os_right_strictly_monotone (brel_add_bottom lte bottom) (bop_add_id b bottom). 
+Proof. intros RI RM [c1 | s1] [c2 | s2] [c3 | s3]; simpl; intros A B; auto.
+       discriminate B. discriminate A.
+Qed.
 
 Lemma os_add_bottom_id_left_increasing  : 
-     os_left_increasing S lte b -> 
-        os_left_increasing (with_constant S) (brel_add_bottom lte bottom) (bop_add_id b bottom). 
+     os_left_increasing lte b -> 
+        os_left_increasing (brel_add_bottom lte bottom) (bop_add_id b bottom). 
 Proof. intros LI [c1 | s1] [c2 | s2]; simpl; auto. Qed. 
 
-
 Lemma os_add_bottom_id_right_increasing  : 
-     os_right_increasing S lte b -> 
-        os_right_increasing (with_constant S) (brel_add_bottom lte bottom) (bop_add_id b bottom). 
+     os_right_increasing lte b -> 
+        os_right_increasing (brel_add_bottom lte bottom) (bop_add_id b bottom). 
 Proof. intros RI [c1 | s1] [c2 | s2]; simpl; auto. Qed. 
 
 
-Lemma os_add_bottom_id_left_strictly_increasing  : 
-     os_left_strictly_increasing S lte b -> 
-        os_left_strictly_increasing (with_constant S) (brel_add_bottom lte bottom) (bop_add_id b bottom). 
-Proof. intros LI [c1 | s1] [c2 | s2]; simpl; auto. admit.
-
-
-os_left_increasing = λ (S : Type) (lte : brel S) (b : binary_op S), ∀ s t : S, lte s (b s t) = true
-     : ∀ S : Type, brel S → binary_op S → Prop
-       
-os_left_strictly_increasing = 
-λ (S : Type) (lte : brel S) (b : binary_op S), ∀ s t : S, (lte s (b s t) = true) * (lte (b s t) s = false)
-       
-
-Qed. 
-
-
-(* all new *) 
-
-(* left left *) 
-Lemma bops_add_bottom_id_left_left_absorptive  : 
-     bop_idempotent S r b1 -> 
-     bops_left_left_absorptive S r b1 b2 -> 
-        bops_left_left_absorptive (with_constant S)  (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros idemS la [c1 | s1] [c2 | s2]; compute; auto. Qed. 
-
-Lemma bops_add_bottom_id_not_left_left_absorptive_v1  : 
-     bop_not_idempotent S r b1 -> 
-        bops_not_left_left_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [s nidemS]. 
-       exists (inr s, inl c). compute. 
-       apply (brel_symmetric_implies_dual _ _ symS). 
-       assumption. 
+Lemma os_add_bottom_id_not_left_strictly_increasing  : 
+        os_not_left_strictly_increasing (brel_add_bottom lte bottom) (bop_add_id b bottom). 
+Proof. exists (inr wS, inl bottom). compute. 
+       right. apply lteRef. 
 Defined. 
-
-Lemma bops_add_bottom_id_not_left_left_absorptive_v2  : 
-     bops_not_left_left_absorptive S r b1 b2 -> 
-        bops_not_left_left_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined.
-
-
-Lemma bops_add_bottom_id_not_left_left_absorptive  : 
-     (bop_not_idempotent S r b1 + 
-      bops_not_left_left_absorptive S r b1 b2) -> 
-        bops_not_left_left_absorptive (with_constant S)  (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [NID | NLLA].
-       apply bops_add_bottom_id_not_left_left_absorptive_v1; auto.
-       apply bops_add_bottom_id_not_left_left_absorptive_v2; auto.   
-Defined. 
-
-(* left right *) 
-Lemma bops_add_bottom_id_left_right_absorptive  : 
-     bop_idempotent S r b1 -> 
-     bops_left_right_absorptive S r b1 b2 -> 
-        bops_left_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros idemS la [c1 | s1] [c2 | s2]; compute; auto. Qed. 
-
-Lemma bops_add_bottom_id_not_left_right_absorptive_v1  : 
-     bop_not_idempotent S r b1 -> 
-        bops_not_left_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [s nidemS]. 
-       exists (inr s, inl c). compute. 
-       apply (brel_symmetric_implies_dual _ _ symS). 
-       assumption. 
-Defined. 
-
-Lemma bops_add_bottom_id_not_left_right_absorptive_v2  : 
-     bops_not_left_right_absorptive S r b1 b2 -> 
-        bops_not_left_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined. 
-
-
-Lemma bops_add_bottom_id_not_left_right_absorptive  : 
-     (bop_not_idempotent S r b1 + 
-      bops_not_left_right_absorptive S r b1 b2) -> 
-        bops_not_left_right_absorptive (with_constant S)  (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [NID | NLRA].
-       apply bops_add_bottom_id_not_left_right_absorptive_v1; auto.
-       apply bops_add_bottom_id_not_left_right_absorptive_v2; auto.   
-Defined. 
-
-
-(* right left *) 
-Lemma bops_add_bottom_id_right_left_absorptive  : 
-     bop_idempotent S r b1 -> 
-     bops_right_left_absorptive S r b1 b2 -> 
-        bops_right_left_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros idemS la [c1 | s1] [c2 | s2]; compute; auto. Qed. 
-
-Lemma bops_add_bottom_id_not_right_left_absorptive_v1  : 
-     bop_not_idempotent S r b1 -> 
-        bops_not_right_left_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [s nidemS]. 
-       exists (inr s, inl c). compute. 
-       apply (brel_symmetric_implies_dual _ _ symS). 
-       assumption. 
-Defined. 
-
-Lemma bops_add_bottom_id_not_right_left_absorptive_v2  : 
-     bops_not_right_left_absorptive S r b1 b2 -> 
-        bops_not_right_left_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined. 
-
-Lemma bops_add_bottom_id_not_right_left_absorptive  : 
-     (bop_not_idempotent S r b1 + 
-      bops_not_right_left_absorptive S r b1 b2) -> 
-        bops_not_right_left_absorptive (with_constant S)  (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [NID | NRLA].
-       apply bops_add_bottom_id_not_right_left_absorptive_v1; auto.
-       apply bops_add_bottom_id_not_right_left_absorptive_v2; auto.   
-Defined. 
-
-
-(* right right *) 
-Lemma bops_add_bottom_id_right_right_absorptive  : 
-     bop_idempotent S r b1 -> 
-     bops_right_right_absorptive S r b1 b2 -> 
-        bops_right_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros idemS la [c1 | s1] [c2 | s2]; compute; auto. Qed. 
-
-Lemma bops_add_bottom_id_not_right_right_absorptive_v1  : 
-     bop_not_idempotent S r b1 -> 
-        bops_not_right_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [s nidemS]. 
-       exists (inr s, inl c). compute. 
-       apply (brel_symmetric_implies_dual _ _ symS). 
-       assumption. 
-Defined. 
-
-Lemma bops_add_bottom_id_not_right_right_absorptive_v2  : 
-     bops_not_right_right_absorptive S r b1 b2 -> 
-        bops_not_right_right_absorptive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [ [s1 s2] nldS]. exists (inr _ s1, inr _ s2). compute. assumption. Defined.
-
-Lemma bops_add_bottom_id_not_right_right_absorptive  : 
-     (bop_not_idempotent S r b1 + 
-      bops_not_right_right_absorptive S r b1 b2) -> 
-        bops_not_right_right_absorptive (with_constant S)  (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros [NID | NRRA].
-       apply bops_add_bottom_id_not_right_right_absorptive_v1; auto.
-       apply bops_add_bottom_id_not_right_right_absorptive_v2; auto.   
-Defined. 
-
-
-
-
-(* experiment 
-
-Lemma bops_add_bottom_id_left_left_dependent_distributive  : 
-     bop_idempotent S r b1 ->          
-     bops_left_left_absorptive S r b1 b2 -> 
-     bops_left_left_dependent_distributive S r b1 b2 -> 
-        bops_left_left_dependent_distributive (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2). 
-Proof. intros idemS la ld. 
-       intros [c1 | s1] [c2 | s2] [c3 | s3]; compute; intro H; auto.  
-       discriminate. 
-Qed.
- *)
-
-
-
-Definition bops_add_one_left_distributive_decide : 
-     bop_idempotent_decidable S r b1 -> 
-     bops_left_left_absorptive_decidable S r b1 b2 -> 
-     bops_right_left_absorptive_decidable S r b1 b2 -> 
-     bop_left_distributive_decidable S r b1 b2 -> 
-     bop_left_distributive_decidable (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2)
-:= λ idemS_d llaS_d rlaS_d ldS_d, 
-   match ldS_d with 
-   | inl ldS  => 
-    match llaS_d with 
-    | inl llaS   => 
-      match rlaS_d with 
-      | inl rlaS   => 
-         match idemS_d with 
-         | inl idemS   => inl _ (bops_add_bottom_id_left_distributive idemS llaS rlaS ldS)
-         | inr nidemS  => inr _ (bops_add_bottom_id_not_left_distributive_v2 nidemS)
-        end 
-      | inr nrlaS   => inr _ (bops_add_bottom_id_not_left_distributive_v4 nrlaS)
-      end 
-    | inr nllaS  => inr _ (bops_add_bottom_id_not_left_distributive_v3 nllaS)
-    end 
-   | inr nldS => inr _ (bops_add_bottom_id_not_left_distributive_v1 nldS)
-   end. 
-
-Definition bops_add_one_right_distributive_decide : 
-     bop_idempotent_decidable S r b1 -> 
-     bops_left_right_absorptive_decidable S r b1 b2 -> 
-     bops_right_right_absorptive_decidable S r b1 b2 -> 
-     bop_right_distributive_decidable S r b1 b2 -> 
-     bop_right_distributive_decidable (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2)
-:= λ idemS_d llaS_d rlaS_d ldS_d, 
-   match ldS_d with 
-   | inl ldS  => 
-    match llaS_d with 
-    | inl llaS   => 
-      match rlaS_d with 
-      | inl rlaS   => 
-         match idemS_d with 
-         | inl idemS   => inl _ (bops_add_bottom_id_right_distributive idemS llaS rlaS ldS)
-         | inr nidemS  => inr _ (bops_add_bottom_id_not_right_distributive_v2 nidemS)
-        end 
-      | inr nrlaS   => inr _ (bops_add_bottom_id_not_right_distributive_v4 nrlaS)
-      end 
-    | inr nllaS  => inr _ (bops_add_bottom_id_not_right_distributive_v3 nllaS)
-    end 
-   | inr nldS => inr _ (bops_add_bottom_id_not_right_distributive_v1 nldS)
-   end. 
-
-
-Definition bops_add_one_left_left_absorptive_decide : 
-     bop_idempotent_decidable S r b1 -> 
-     bops_left_left_absorptive_decidable S r b1 b2 -> 
-        bops_left_left_absorptive_decidable (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2)
-:= λ idemS_d laS_d, 
-   match laS_d with 
-   | inl laS  => 
-     match idemS_d with 
-     | inl idemS => inl _ (bops_add_bottom_id_left_left_absorptive idemS laS)
-     | inr nidemS => inr _ (bops_add_bottom_id_not_left_left_absorptive_v1 nidemS)
-     end 
-   | inr nlaS => inr _ (bops_add_bottom_id_not_left_left_absorptive_v2 nlaS)
-   end. 
-
-
-Definition bops_add_one_left_right_absorptive_decide : 
-     bop_idempotent_decidable S r b1 -> 
-     bops_left_right_absorptive_decidable S r b1 b2 -> 
-     bops_left_right_absorptive_decidable (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2)
-:= λ idemS_d laS_d, 
-   match laS_d with 
-   | inl laS  => 
-     match idemS_d with 
-     | inl idemS => inl _ (bops_add_bottom_id_left_right_absorptive idemS laS)
-     | inr nidemS => inr _ (bops_add_bottom_id_not_left_right_absorptive_v1 nidemS)
-     end 
-   | inr nlaS => inr _ (bops_add_bottom_id_not_left_right_absorptive_v2 nlaS)
-   end. 
-
-Definition bops_add_one_right_left_absorptive_decide : 
-     bop_idempotent_decidable S r b1 -> 
-     bops_right_left_absorptive_decidable S r b1 b2 -> 
-     bops_right_left_absorptive_decidable (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2)
-:= λ idemS_d laS_d, 
-   match laS_d with 
-   | inl laS  => 
-     match idemS_d with 
-     | inl idemS => inl _ (bops_add_bottom_id_right_left_absorptive idemS laS)
-     | inr nidemS => inr _ (bops_add_bottom_id_not_right_left_absorptive_v1 nidemS)
-     end 
-   | inr nlaS => inr _ (bops_add_bottom_id_not_right_left_absorptive_v2 nlaS)
-   end. 
-
-Definition bops_add_one_right_right_absorptive_decide : 
-     bop_idempotent_decidable S r b1 -> 
-     bops_right_right_absorptive_decidable S r b1 b2 -> 
-     bops_right_right_absorptive_decidable (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2)
-:= λ idemS_d laS_d, 
-   match laS_d with 
-   | inl laS  => 
-     match idemS_d with 
-     | inl idemS => inl _ (bops_add_bottom_id_right_right_absorptive idemS laS)
-     | inr nidemS => inr _ (bops_add_bottom_id_not_right_right_absorptive_v1 nidemS)
-     end 
-   | inr nlaS => inr _ (bops_add_bottom_id_not_right_right_absorptive_v2 nlaS)
-   end.
-
-
-Definition bops_add_one_id_equals_ann_decide :
-     bops_id_equals_ann_decidable S r b1 b2 -> 
-        bops_id_equals_ann_decidable (with_constant S) (brel_sum brel_constant r) (c [+ann] b1) (c [+id] b2) 
-:= λ dS, 
-   match dS with 
-   | inl pS  => inl _ (bops_add_bottom_id_id_equals_ann pS)
-   | inr npS => inr _ (bops_add_bottom_id_not_id_equals_ann npS)
-   end. 
 
 End Theory.
 

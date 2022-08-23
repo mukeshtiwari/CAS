@@ -23,28 +23,29 @@ let make_constant' s1 s2 = make_constant (string_to_char_list s1) (string_to_cha
 let infinity = make_constant' "INF"  "\\infty";;
 let self = make_constant' "SELF"  "\\bot";;
 
-
-(* expand these ... *)
 let get_plus bs =
-  match bs with
-  | BS_dioid d -> d.dioid_plus
-  | _ -> error "get_plus: nope!" ;; 
+  match bs_mcas_cast_up bs with
+  | BS_bs d -> d.bs_plus
+  | BS_Error cll -> errors (List.map char_list_to_string cll)
+  | _ -> error "Internal Error: get_plus" ;; 
 
 let get_times bs =
-  match bs with
-  | BS_dioid d -> d.dioid_times
-  | _ -> error "get_times: nope!" ;;
+  match bs_mcas_cast_up bs with
+  | BS_bs d -> d.bs_times
+  | BS_Error cll -> errors (List.map char_list_to_string cll)
+  | _ -> error "Internal Error: get_times" ;; 
 
 let get_eq bs =
-  match bs with
-  | BS_dioid d -> d.dioid_eqv.eqv_eq
-  | _ -> error "get_eq : nope!" ;; 
-  
+  match bs_mcas_cast_up bs with
+  | BS_bs d -> d.bs_eqv.eqv_eq
+  | BS_Error cll -> errors (List.map char_list_to_string cll)
+  | _ -> error "Internal Error: get_eq" ;; 
+
 let get_data bs =
-  match bs with
-  | BS_dioid d -> d.dioid_eqv.eqv_data
-  | _ -> error "get_data : nope!" ;; 
-  
+  match bs_mcas_cast_up bs with
+  | BS_bs d -> d.bs_eqv.eqv_data 
+  | BS_Error cll -> errors (List.map char_list_to_string cll)
+  | _ -> error "Internal Error: get_data" ;; 
 
 type string_type = Ascii | Latex
 

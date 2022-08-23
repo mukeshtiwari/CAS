@@ -1,0 +1,149 @@
+
+What if we did our case studies in the direct style? 
+
+===================================================================
+--simple shortest paths
+
+min_plus : int selective_cancellative_pre_dioid_with_one
+
+bs_add_zero_to_selective_cancellative_pre_dioid_with_one : 
+   'a selective_cancellative_pre_dioid_with_one
+   -> 
+   'a selective_cancellative_dioid
+
+-- widest_shortest_paths
+
+max_min : int selective_distributive_prelattice_with_zero
+
+add_one_to_selective_distributive_prelattice_with_zero :
+   'a selective_distributive_prelattice_with_zero
+   ->
+   'a selective_distributive_lattice
+
+llex_product_BLAH_BLAH :
+    'a selective_cancellative_pre_dioid_with_one
+    -> 
+    'a selective_distributive_lattice
+    -> 
+    'a selective_pre_dioid_with_one
+
+bs_add_zero_to_selective_pre_dioid_with_one : 
+     'a selective_pre_dioid_with_one
+     -> 
+     'a selective_dioid
+
+-- sigcomm2020
+
+let bs_bw_x_sp = mcas_bs_product
+		   (mcas_bs_add_one mcas_max_min infinity)
+		   (mcas_bs_add_zero mcas_min_plus infinity);;
+
+let os_bw_x_sp = mcas_os_from_bs_left bs_bw_x_sp;;
+
+let moo_bw_x_sp = mcas_minset_union_lift os_bw_x_sp;;
+
+bs_product_BLAH_BLAH :
+   'a selective_distributive_lattice
+   ->
+   'a selective_cancellative_dioid
+   ->
+   'a dioid 
+
+os_from_bs_left_BLAH_BLAH :
+   'a dioid
+   ->
+   'a bounded_monotone_increasing_posg
+
+minset_union_lift_BLAH_BLAH
+   'a bounded_monotone_increasing_posg
+   ->
+   'a finite_set dioid
+
+
+Note could define
+
+minset_union_lift_left  : 'a dioid -> ('a finite_set) dioid
+minset_union_lift_right : 'a dioid -> ('a finite_set) dioid
+
+How many ways can X and Y be instantiated?
+
+bs_product_from_X_Y : 'a X -> 'a Y -> 'a dioid 
+
+
+-- martelli
+
+let eqv_edge =
+     mcas_eqv_product mcas_eqv_eq_nat mcas_eqv_eq_nat;;
+     : (int * int) Cas.mcas_eqv
+
+let bs_edge_sets_intersect_union =
+    mcas_bs_add_zero (mcas_bs_intersect_union eqv_edge) infinity;;
+    : (int * int) finite_set with_constant bs_mcas
+    (is a dioid) 
+
+let os_edge_sets_intersect_union =
+    mcas_os_from_bs_left bs_edge_sets_intersect_union;;
+    : (int * int) finite_set with_constant os_mcas
+    (is a bounded_monotone_increasing_posg)
+
+let martelli =
+    mcas_minset_lift_union os_edge_sets_intersect_union;;
+    : (int * int) finite_set with_constant finite_set bs_mcas
+
+minset_lift_union_from_bounded_monotone_increasing_posg :
+   'a1 bounded_monotone_increasing_CI_posg  (NOTE CI, a new class) 
+    ->
+   'a1 finite_set dioid
+
+   could define 
+
+   minset_lift_union_left  : 'a dioid -> ('a finite set) dioid
+   minset_lift_union_right : 'a dioid -> ('a finite set) dioid    
+
+   what about dual?
+
+   when does minset_union_lift_left_D produce a distributive lattice??
+
+   implement dual? or classify to distributive lattice?
+   
+
+-- bottleneck
+
+   sg_minset_union_from_po_with_bottom  :
+      'a po_with_bottom
+      ->
+      'a finite_set sg_BCI 
+
+   sg_minset_union_from_po_bounded :
+      'a po_bounded
+      ->
+      'a finite_set sg_BCI
+         
+   os_from_sg_BCI_right :
+      'a sg_BCI
+      ->
+      'a bounded_monotone_increasing_posg 
+
+   (there are two versions of this: CI, CNI) 
+   minset_union_lift_from_bounded_monotone_increasing_posg : 
+      'a bounded_monotone_increasing_posg
+      ->
+      ('a finite_set) dioid
+
+   so define a function
+
+   f( p : 'a po_bounded) =
+      minset_union_lift_from_bounded_monotone_increasing_posg (os_from_sg_BCI_right (sg_minset_union_from_po_bounded p))
+
+    of type 
+   
+   'a po_bounded -> ('a finite_set) finite_set dioid
+
+   could define 
+
+   minset_union_lift_left  : 'a dioid -> ('a finite set) dioid
+   minset_union_lift_right : 'a dioid -> ('a finite set) dioid    
+
+  
+
+  
