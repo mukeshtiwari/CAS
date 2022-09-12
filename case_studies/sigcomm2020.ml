@@ -112,5 +112,4 @@ let sg_paths = mcas_sg_lift sg_path
 let os_paths = mcas_os_trivial_from_sg sg_paths
 let os_bw_x_sp_lex_paths = mcas_os_left_lex os_bw_x_sp os_paths 
 let moo_bw_x_sp_lex_paths = mcas_minset_union_lift os_bw_x_sp_lex_paths;;
-
  *) 

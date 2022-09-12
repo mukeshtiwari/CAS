@@ -227,7 +227,6 @@ rhs = {10}
            = ???
 
 =================================================
-
  *) 
 let bottleneck_shortest_paths = mcas_minset_union_lift os_maxset;;
 

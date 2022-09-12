@@ -645,6 +645,14 @@ let sg_describe_fully sg =
    print_string (string_of_check_exists_ann sg.sg_eqv.eqv_data (sg.sg_exists_ann_d)) ; 
    sg_certs_describe_fully sg.sg_eqv.eqv_eq sg.sg_bop sg.sg_eqv.eqv_data sg.sg_certs)
 
+
+let mcas_sg_describe_fully msg =
+(*  (print_string ("Class : " ^ (string_of_sg_mcas_class msg) ^ "\n");   *) 
+  match sg_mcas_cast_up msg with
+  | MCAS_sg sg -> sg_describe_fully sg
+  | _        -> error "internal error: mcas_sg_describe_fully" 
+
+
 let bs_certs_describe eq plus times data certs = 
   (print_string "Interaction of Additive and Multiplicative operations: \n";
    print_string   "-------------------------------------------------------\n"; 
