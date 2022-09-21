@@ -13,10 +13,10 @@ From CAS Require Import
      coq.sg.and 
      coq.bs.properties
      coq.st.properties     
-     coq.algorithm.list_congruences
-     coq.algorithm.matrix_definition
-     coq.algorithm.matrix_algorithms
-     coq.algorithm.matrix_addition. 
+     coq.algorithms.list_congruences
+     coq.algorithms.matrix_definition
+     coq.algorithms.matrix_algorithms
+     coq.algorithms.matrix_addition. 
 Import ListNotations.
 
 

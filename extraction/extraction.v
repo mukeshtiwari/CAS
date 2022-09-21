@@ -84,7 +84,7 @@ Require Import CAS.coq.st.left.llex_product.
 Require Import CAS.coq.st.left.union_insert. 
 Require Import CAS.coq.st.left.add_zero.
 Require Import CAS.coq.st.left.plus_times.
-Require Import CAS.coq.algorithm.wrapper. 
+Require Import CAS.coq.algorithms.wrapper. 
 (* from coq/tr/left*)
 Require Import CAS.coq.tr.left.add_ann.
 

@@ -62,7 +62,9 @@ let martelli_solver = instantiate_algorithm martelli Matrix_power;;
 
 let martelli_solve_adj_list adjl =
   match martelli_solver with
-  | Matrix_Power_Instance(algebra, mf ) -> mf (square_matrix_from_adj_list algebra adjl)
+  | Matrix_Power_Instance(algebra, mf ) -> 
+    let sqm = square_matrix_from_adj_list algebra adjl 
+    in mf sqm.sqm_size sqm 
   | _ -> error "martelli_solve_adj_list : internal error";; 
 
 let mt_w i j = [Inr [(i, j)]] ;;
@@ -92,26 +94,24 @@ let martelli_adj_1 =
 let martelli_sol_1 = martelli_solve_adj_list martelli_adj_1;; 
 
 (*
-list_sq_matrix martelli_sol_1;; 
-- : (int * int * (int * int) Cas.finite_set Cas.with_constant Cas.finite_set)
-    list
-=
-[(0, 0, []); 
- (0, 1, [Inr [(0, 1); (3, 1)]; Inr [(0, 1); (0, 3)]]);
- (0, 2, [Inr [(1, 2); (3, 2)]; Inr [(1, 2); (0, 3)]; Inr [(0, 1); (3, 1); (3, 2)]; Inr [(0, 1); (0, 3)]]);
- (0, 3, [Inr [(0, 3)]]); 
- (1, 0, [Inr []]); 
- (1, 1, []);
- (1, 2, [Inr [(1, 2)]]); 
- (1, 3, [Inr []]); 
- (2, 0, [Inr []]);
- (2, 1, [Inr []]); 
- (2, 2, []); 
- (2, 3, [Inr []]); 
- (3, 0, [Inr []]);
- (3, 1, [Inr [(3, 1)]]);
- (3, 2, [Inr [(1, 2); (3, 2)]; Inr [(3, 1); (3, 2)]]); 
- (3, 3, [])]
+
+print_solution martelli martelli_sol_1;; 
+(0, 0): []
+(0, 1): [inr({(0, 3), (0, 1)}), inr({(3, 1), (0, 1)})]
+(0, 2): [inr({(0, 3), (0, 1)}), inr({(0, 3), (1, 2)}), inr({(3, 1), (3, 2), (0, 1)}), inr({(3, 2), (1, 2)})]
+(0, 3): [inr({(0, 3)})]
+(1, 0): [inr({})]
+(1, 1): []
+(1, 2): [inr({(1, 2)})]
+(1, 3): [inr({})]
+(2, 0): [inr({})]
+(2, 1): [inr({})]
+(2, 2): []
+(2, 3): [inr({})]
+(3, 0): [inr({})]
+(3, 1): [inr({(3, 1)})]
+(3, 2): [inr({(3, 2), (3, 1)}), inr({(3, 2), (1, 2)})]
+(3, 3): []
  *)   
 
 
@@ -141,55 +141,91 @@ let martelli_sol_2 = martelli_solve_adj_list martelli_adj_2;;
 
 (*
 
-#print_length 100000;; 
-# list_sq_matrix martelli_sol_2;; 
-- : (int * int * (int * int) Cas.finite_set Cas.with_constant Cas.finite_set)
-    list
-=
-[(0, 0, []);
- (0, 1, [Inr [(0, 1); (2, 1); (3, 1)]; 
-         Inr [(0, 1); (3, 2); (3, 1)]; 
-         Inr [(0, 1); (0, 3)]]);
- (0, 2, [Inr [(1, 2); (3, 2)]; 
-         Inr [(1, 2); (1, 3); (0, 3)];
-         Inr [(0, 1); (3, 1); (3, 2)]; 
-         Inr [(0, 1); (0, 3)]]);
- (0, 3, [Inr [(2, 3); (1, 3); (0, 3)]; 
-         Inr [(1, 2); (1, 3); (0, 3)];
-         Inr [(0, 1); (0, 3)]]);
- (1, 0, [Inr [(1, 0); (3, 0)]; 
-         Inr [(1, 0); (2, 3); (1, 3)];
-         Inr [(1, 0); (1, 2); (1, 3)]]);
- (1, 1, []);
- (1, 2, [Inr [(1, 2); (3, 2)]; 
-         Inr [(0, 3); (1, 2); (1, 3)];
-         Inr [(1, 0); (1, 2); (1, 3)]]);
- (1, 3, [Inr [(0, 3); (2, 3); (1, 3)]; 
-         Inr [(0, 3); (1, 2); (1, 3)]; 
-         Inr [(1, 0); (2, 3); (1, 3)]; 
-         Inr [(1, 0); (1, 2); (1, 3)]]); << 
- (2, 0,
-  [Inr [(1, 0); (3, 0)]; Inr [(1, 3); (1, 0); (2, 3)];
-   Inr [(2, 1); (3, 1); (3, 0)]; Inr [(2, 1); (2, 3)]]);
- (2, 1,
-  [Inr [(0, 1); (2, 1); (3, 1)]; Inr [(3, 0); (2, 1); (3, 1)];
-   Inr [(2, 1); (2, 3)]]);
- (2, 2, []);
- (2, 3,
-  [Inr [(0, 3); (1, 3); (2, 3)]; Inr [(1, 0); (1, 3); (2, 3)];
-   Inr [(2, 1); (2, 3)]]);
- (3, 0,
-  [Inr [(1, 0); (3, 0)]; Inr [(2, 1); (3, 1); (3, 0)];
-   Inr [(3, 2); (3, 1); (3, 0)]]);
- (3, 1,
-  [Inr [(0, 1); (2, 1); (3, 1)]; Inr [(0, 1); (3, 2); (3, 1)];
-   Inr [(3, 0); (2, 1); (3, 1)]; Inr [(3, 0); (3, 2); (3, 1)]]);
- (3, 2,
-  [Inr [(1, 2); (3, 2)]; Inr [(0, 1); (3, 1); (3, 2)];
-   Inr [(3, 0); (3, 1); (3, 2)]]);
- (3, 3, [])]
+print_solution martelli martelli_sol_2
+  ;;
+(0, 0): []
+(0, 1): [inr({(0, 3), (0, 1)}), inr({(3, 2), (3, 1), (0, 1)}), inr({(2, 1), (3, 1), (0, 1)})]
+(0, 2): [inr({(0, 3), (0, 1)}), inr({(1, 3), (0, 3), (1, 2)}), inr({(3, 1), (3, 2), (0, 1)}), inr({(3, 2), (1, 2)})]
+(0, 3): [inr({(0, 1), (0, 3)}), inr({(1, 2), (1, 3), (0, 3)}), inr({(2, 3), (1, 3), (0, 3)})]
+(1, 0): [inr({(1, 2), (1, 3), (1, 0)}), inr({(2, 3), (1, 3), (1, 0)}), inr({(3, 0), (1, 0)})]
+(1, 1): []
+(1, 2): [inr({(1, 3), (1, 2), (1, 0)}), inr({(1, 3), (0, 3), (1, 2)}), inr({(3, 2), (1, 2)})]
+(1, 3): [inr({(1, 2), (1, 3), (1, 0)}), inr({(1, 2), (1, 3), (0, 3)}), inr({(2, 3), (1, 3), (1, 0)}), inr({(2, 3), (1, 3), (0, 3)})]
+(2, 0): [inr({(2, 3), (2, 1)}), inr({(2, 3), (1, 3), (1, 0)}), inr({(3, 1), (3, 0), (2, 1)}), inr({(3, 0), (1, 0)})]
+(2, 1): [inr({(2, 3), (2, 1)}), inr({(3, 0), (3, 1), (2, 1)}), inr({(0, 1), (3, 1), (2, 1)})]
+(2, 2): []
+(2, 3): [inr({(2, 3), (2, 1)}), inr({(2, 3), (1, 3), (1, 0)}), inr({(2, 3), (1, 3), (0, 3)})]
+(3, 0): [inr({(3, 2), (3, 1), (3, 0)}), inr({(2, 1), (3, 1), (3, 0)}), inr({(1, 0), (3, 0)})]
+(3, 1): [inr({(3, 2), (3, 1), (3, 0)}), inr({(3, 2), (3, 1), (0, 1)}), inr({(2, 1), (3, 1), (3, 0)}), inr({(2, 1), (3, 1), (0, 1)})]
+(3, 2): [inr({(3, 2), (3, 1), (3, 0)}), inr({(3, 1), (3, 2), (0, 1)}), inr({(3, 2), (1, 2)})]
+(3, 3): [] 
 
- *) 
+ *)
+
+ (* try sp lex martelli
+
+        2
+    0 ------ 3
+    |      /  |
+    |     /   | 
+  1 |   1/    | 1
+    |   /     |
+    |  /      |	  
+    1 ------- 2
+        2
+*)
+
+let mt2_w d i j = Inr (d, mt_w i j) ;; 
+
+let martelli_adj_3 = 
+  { adj_size = 4;
+    adj_list = 
+  [
+    (0, [(1, mt2_w 1 0 1); (3, mt2_w 2 0 3)]);
+    
+    (1, [(0, mt2_w 1 1 0); (2, mt2_w 2 1 2); (3, mt2_w 1 1 3)]);
+
+    (2, [(1, mt2_w 2 2 1); (3, mt2_w 1 2 3)]);    
+    
+    (3, [(0, mt2_w 2 3 0); (1, mt2_w 1 3 1); (2, mt2_w 1 3 2)])
+  ]};; 
+
+
+let sp_lex_martelli = mcas_bs_add_zero (mcas_bs_llex_product mcas_min_plus martelli) infinity;; 
+ 
+let sp_lex_martelli_solver = instantiate_algorithm sp_lex_martelli Matrix_power;; 
+
+let sp_lex_martelli_solve_adj_list adjl =
+  match sp_lex_martelli_solver with
+  | Matrix_Power_Instance(algebra, mf ) -> 
+    let sqm = square_matrix_from_adj_list algebra adjl 
+    in mf sqm.sqm_size sqm 
+  | _ -> error "martelli_solve_adj_list : internal error";; 
+
+
+let sp_lex_martelli_sol_3 = sp_lex_martelli_solve_adj_list martelli_adj_3;;
+
+(*
+print_solution sp_lex_martelli sp_lex_martelli_sol_3;; 
+ (0, 0): inr((0, []))
+(0, 1): inr((1, [inr({(0, 1)})]))
+(0, 2): inr((3, [inr({(0, 3), (0, 1)}), inr({(1, 3), (0, 3), (1, 2)}), inr({(3, 2), (0, 1)}), inr({(3, 2), (1, 2)})]))
+(0, 3): inr((2, [inr({(0, 1), (0, 3)}), inr({(1, 3), (0, 3)})]))
+(1, 0): inr((1, [inr({(1, 0)})]))
+(1, 1): inr((0, []))
+(1, 2): inr((2, [inr({(1, 3), (1, 2)}), inr({(3, 2), (1, 2)})]))
+(1, 3): inr((1, [inr({(1, 3)})]))
+(2, 0): inr((3, [inr({(2, 3), (2, 1)}), inr({(2, 3), (1, 0)}), inr({(3, 1), (3, 0), (2, 1)}), inr({(3, 0), (1, 0)})]))
+(2, 1): inr((2, [inr({(2, 3), (2, 1)}), inr({(3, 1), (2, 1)})]))
+(2, 2): inr((0, []))
+(2, 3): inr((1, [inr({(2, 3)})]))
+(3, 0): inr((2, [inr({(3, 1), (3, 0)}), inr({(1, 0), (3, 0)})]))
+(3, 1): inr((1, [inr({(3, 1)})]))
+(3, 2): inr((1, [inr({(3, 2)})]))
+(3, 3): inr((0, []))
+
+*) 
+
 
 (* Now, an experiment with a generalized version 
 

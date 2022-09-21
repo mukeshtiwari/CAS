@@ -143,13 +143,13 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
-   coq/algorithm/list_congruences.v \
-   coq/algorithm/matrix_definition.v \
-   coq/algorithm/matrix_algorithms.v \
-   coq/algorithm/matrix_addition.v \
-   coq/algorithm/matrix_multiplication.v \
-   coq/algorithm/weighted_path.v \
-   coq/algorithm/wrapper.v
+   coq/algorithms/list_congruences.v \
+   coq/algorithms/matrix_definition.v \
+   coq/algorithms/matrix_algorithms.v \
+   coq/algorithms/matrix_addition.v \
+   coq/algorithms/matrix_multiplication.v \
+   coq/algorithms/weighted_path.v \
+   coq/algorithms/wrapper.v
 
 
 FILES=$(BASE) $(CAS)

@@ -71,6 +71,170 @@ Notation "a [*] b" := (bop_product a b) (at level 15).
 Notation "[| p1 | a | c | b | d |]" := (llex_p2 argT rS addT p1 a c b d) (at level 15).
 
 
+Lemma bop_product_llex_not_left_distributive_v1
+      (nldS : bop_not_left_distributive S rS mulS addS) : 
+  bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. destruct nldS as [[s1 [s2 s3]] H].
+       exists ((s1, wT), ((s2, wT), (s3, wT))).
+       compute. rewrite H. reflexivity. 
+Defined.
+
+Lemma bop_product_llex_not_left_distributive_v2 
+      (ldS : bop_left_distributive S rS mulS addS)
+      (nldT : bop_not_left_distributive T rT mulT addT) : 
+  bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. destruct nldT as [[t1 [t2 t3]] H].
+       exists ((wS, t1), ((wS, t2), (wS, t3))). 
+       compute. 
+       rewrite ldS.
+       assert (A := a_idemS wS). rewrite A.
+       apply symS in A. rewrite A.
+       assert (B : rS wS (wS +S (wS *S wS)) = true).
+       {
+         admit. 
+       } 
+       assert (C : rS (wS +S (wS *S wS)) (wS *S wS) = true). admit. 
+       rewrite B, C. 
+       exact H. 
+Admitted. 
+(*   
+
+        LD: a*(b+c) = (a*b) + (a*c) 
+DUAL of LD: a+(b*c) = (a+b) * (a+c) 
+
+
+For += lex, *= product: 
+
+   LHS = (a, b) + ((c, d) * (e, f)) 
+       = (a, b) + (c * e, d * f)
+       = (a + c*e, t_lhs) 
+
+   RHS = ((a, b) + (c, d)) * ((a, b) + (e, f))
+       = (a + c, t_rhs1) * (a + e, t_rhs2) 
+       = ((a + c) * (a + e), t_rhs1 * t_rhs2) 
+
+   need 
+   1)  a + c*e = (a + c) * (a + e)
+
+       (id DUAL of a * (c + e) = (a * c) + (a * e), ie LD) 
+
+
+   2.0) a = a + c*e = c*e. 
+        t_lhs = b + d*f 
+        2.1.0) a = a + c = c 
+               t_rhs1 = b + d 
+               2.1.0.0) a = a + e = e 
+                        t_rhs2 = b + f 
+                        NEED : b + d*f = (b + d) * (b + f)   (DUAL of LD) 
+               2.1.0.1) a = a + e <> e 
+                        t_rhs2 = b
+                        NEED : b + d*f = (b + d) * b 
+                        a = a + c*e = c*e. 
+                        a = a + c = c 
+                        a = a + e <> e
+                        a = c = c*e  
+
+               2.1.0.0) a <> a + e = e 
+                        t_rhs2 = f 
+                        NEED : b + d*f = (b + d) * f 
+                        a = a + c*e = c*e. 
+                        a = a + c = c 
+                        a <> a + e = e
+                        a = c*e = c*(a + e) 
+
+               2.1.0.0) a <> a + e <> e 
+                        t_rhs2 = alt 
+                        NEED : b + d*f = (b + d) * alt n
+
+        2.1.1) a = a + c <> c 
+               t_rhs1 = b 
+        2.1.2) a <> a + c = c 
+               t_rhs1 = d
+        2.1.3) a <> a + c <> c 
+               t_rhs1 = alt 
+
+   2.1) a = a + c*e <> c*e. 
+        t_lhs = b 
+        2.1.0) a = a + c = c 
+               t_rhs1 = b + d 
+        2.1.1) a = a + c <> c 
+               t_rhs1 = b 
+        2.1.2) a <> a + c = c 
+               t_rhs1 = d
+        2.1.3) a <> a + c <> c 
+               t_rhs1 = alt 
+
+   2.1) a <> a + c*e = c*e. 
+        t_lhs = d*f 
+
+   2.1) a <> a + c*e <> c*e. 
+        t_lhs = alt 
+
+================================
+
+think in terms of monotonicity 
+
+b <= c -> a * b <= a * c
+
+(c, d) <= (e, f) -> (a,b) * (c,d) <= (a,b) * (e, f) 
+
+(c <= e) & (d <= f) -> (a*c, t1) <= (a*e, t2) 
+
+Need c <= e -> a*c <= a*e  
+
+0) a = a*c = c 
+   t1 = b + d 
+   0.0 a = a * e = e
+       t2 = b + f 
+   0.1 a = a * e <> e
+       t2 = b
+   0.2 a <> a * e = e
+       t2 = f 
+   0.3 a <> a * e <> e
+       t2 = alt 
+1) a = a*c <> c 
+   t1 = b 
+   0.0 a = a * e = e
+       t2 = b + f 
+   0.1 a = a * e <> e
+       t2 = b
+   0.2 a <> a * e = e
+       t2 = f 
+   0.3 a <> a * e <> e
+       t2 = alt 
+2) a <> a*c = c 
+   t1 = d 
+   0.0 a = a * e = e
+       t2 = b + f 
+   0.1 a = a * e <> e
+       t2 = b
+   0.2 a <> a * e = e
+       t2 = f 
+   0.3 a <> a * e <> e
+       t2 = alt 
+3) a <> a*c <> c 
+   t1 = alt  
+   0.0 a = a * e = e
+       t2 = b + f 
+   0.1 a = a * e <> e
+       t2 = b
+   0.2 a <> a * e = e
+       t2 = f 
+   0.3 a <> a * e <> e
+       t2 = alt 
+*)        
+
+
+Lemma bop_product_llex_not_left_distributive_v3 (s1 s2 s3 : S) (t1 t2 t3 : T) 
+      (ldS : bop_left_distributive S rS mulS addS)
+      (ldT : bop_left_distributive T rT mulT addT) : 
+         bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. exists ((s2 *S s3, t1), ((s2, t2), (s3, t3))). compute.
+       rewrite ldS. 
+
+Admitted.   
+
+       
 Lemma bop_llex_product_left_distributive 
       (selS_or_annT : bop_selective S rS addS + bop_is_ann T rT mulT argT)
       (ldS : bop_left_distributive S rS addS mulS)

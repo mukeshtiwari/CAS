@@ -44,7 +44,12 @@ Admitted.
 
 Lemma bop_twin_right_distributive : bop_right_distributive S eq add add. 
 Proof. intros s t u.
+Admitted.
+
+Lemma bop_twin_left_left_absorptive : bops_left_left_absorptive S eq add add. 
+Proof. intros s t.
 Admitted.        
+
 
 (* interesting!  can prove not(bop_is_left S eq add), but can't seem to produce a 
    witness for (bop_not_is_left S eq add) *)

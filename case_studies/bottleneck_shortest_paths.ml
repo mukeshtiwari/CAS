@@ -174,8 +174,7 @@ rhs = {10}
 
 -------------------
 
-
-   minset_union_lift (T, <=, (x))n = ((P<=, T), [+], [x]) 
+   minset_union_lift (T, <=, (x)) = ((P<=, T), [+], [x]) 
    X [+] Y = min(<=, X union Y) 
    X [x] Y = min(<=, {x (x) y | x in X, y in Y})
 

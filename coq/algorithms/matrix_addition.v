@@ -2,8 +2,8 @@ From CAS Require Import
      coq.common.compute     
      coq.eqv.properties
      coq.sg.properties
-     coq.algorithm.matrix_definition
-     coq.algorithm.matrix_algorithms. 
+     coq.algorithms.matrix_definition
+     coq.algorithms.matrix_algorithms. 
 
 Section Matrix_Addition.
 

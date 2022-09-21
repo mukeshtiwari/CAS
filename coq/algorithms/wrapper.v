@@ -1,8 +1,8 @@
 Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute. 
 Require Import
-        CAS.coq.algorithm.matrix_definition 
-        CAS.coq.algorithm.matrix_algorithms. 
+        CAS.coq.algorithms.matrix_definition 
+        CAS.coq.algorithms.matrix_algorithms. 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.bs.properties.

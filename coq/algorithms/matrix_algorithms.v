@@ -8,8 +8,8 @@ From CAS Require Import
      coq.eqv.list
      coq.sg.properties
      coq.tr.properties
-     coq.algorithm.list_congruences     
-     coq.algorithm.matrix_definition.
+     coq.algorithms.list_congruences     
+     coq.algorithms.matrix_definition.
 
 
 Section Computation. 
