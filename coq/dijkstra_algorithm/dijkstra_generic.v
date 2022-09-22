@@ -121,7 +121,8 @@ Section Computation.
       with 
       | None => fun Heq => R 
       | Some (qk, vs') => fun Heq => 
-        IHvs vs' _ (fun w => 
+        IHvs vs' (@remove_min_decreases U C vs vs' qk (R i) Heq) 
+          (fun w => 
           match Nat.eq_dec w i with 
           | left _ => 
             (fun j => 
@@ -133,10 +134,6 @@ Section Computation.
           | right _ => R w
           end)
       end eq_refl).
-      eapply remove_min_decreases.
-      exact Heq.
-      Unshelve.
-      exact C.
   Defined.
 
   (* I need to figure out how to bound nat as finite type. *)
