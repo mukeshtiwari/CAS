@@ -15,7 +15,6 @@ Section Priority.
 
   Context 
     {U : Type} (* Type *)
-    (u : U) (* bottom most element *)
     {C : U -> U -> bool}. (* Comparison operator *)
 
 
@@ -42,10 +41,18 @@ Section Priority.
     end
   end.
 
+  (* 
   Definition find_min 
     (n : nat) (f : nat -> U) : U * nat :=
     find_min_pair (f 0, 0) (get_list_of_nodes n f).
-  
+  *)
+
+  Definition remove_min (vs : list nat) 
+    (f : nat -> U) : 
+    option (nat * list nat).
+  Admitted.
+
+
 End Priority.
 
 
@@ -54,6 +61,7 @@ Section Computation.
 
   Context 
     {U : Type} 
+    {C : U -> U -> bool}
     {zero one : U}
     {plus mul : U -> U -> U}.
   
@@ -91,33 +99,54 @@ Section Computation.
 
 
   Context 
-    {n : nat} (* total number of nodes*)
     (A : functional_matrix U)
     (i : nat). (* node i *)
 
+  (* Everything is good upto here *)
 
-  Definition find_min (i : nat) 
-    (R : nat -> nat -> U) := 
-  List.map 
+  Definition zwf (xs ys : set nat) := 
+    List.length xs < List.length ys.
 
-  Definition generic_dijkstra : forall
-    (V : set nat) (A : functional_matrix U) 
-    (n : nat)
-    (S : set nat), functional_matrix U ->
+  Lemma zwf_well_founded : well_founded zwf.
+  Proof.
+    exact (Wf_nat.well_founded_ltof _ 
+      (fun xs => List.length xs)).
+  Defined.
+
+
+  
+  Definition generic_dijkstra :
+    set nat-> functional_matrix U ->
     functional_matrix U.
   Proof.
-    intros V A.
-    refine (fix Fn n {struct n} := 
-    match n with 
-    | 0 => fun S R => R 
-    | S n' => fun S R => _
-      (* find qk \in V - S *)
-    end).
-    (* Challenge will be termination. 
-    Should I write my own custom inducition 
-    
+    intro vs. (* vs contains all the nodes 
+    from 0, 1... n *)
+    induction (zwf_well_founded vs) as [vs Hvs IHvs].
+    intro R;
+    unfold zwf in IHvs.
+    (* 
+      now find the qk which is minimum 
+      remove_min vs (f : nat -> R) := Some (qk, vs')
+      Also, prove that List.lenght vs' < List.length vs
+      apply induction hypothesis.
     *)
-  
+    (* if vs is empty we have finished the iteration 
+      upto k times, but if vs is not empty then I pick
+      (qk, vs') := remove_minimum 
+      IHvs vs' prf (vector_add (R i) 
+        (vector_mul (R i) (fun j => A j qk) vs')
+      
+    refine(match remove_min vs with 
+    | None => R 
+    | Some (qk, vs') => 
+      (* we are bulding one row*)
+      IHvs vs' prf 
+        (fun w j => if w = i thne plus (R i j) 
+          (vector_mul_element (R i qk) (A qk)
+      
+    end *)
+  Admitted.
+   
 
 
 
