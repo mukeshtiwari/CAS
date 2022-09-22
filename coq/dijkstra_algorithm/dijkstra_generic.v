@@ -102,17 +102,11 @@ Section Computation.
     set nat-> functional_matrix U ->
     functional_matrix U.
   Proof.
-    intro vs. (* vs contains all the nodes 
-    from 0, 1... n *)
+    intro vs. (* vs contains so far unprocessed 
+    nodes. In the beginning, it is 0, 1, 2....|V| *)
     induction (zwf_well_founded vs) as [vs Hvs IHvs].
     intro R;
     unfold zwf in IHvs.
-    (* 
-      now find the qk which is minimum 
-      remove_min vs (f : nat -> R) := Some (qk, vs')
-      Also, prove that List.lenght vs' < List.length vs
-      apply induction hypothesis.
-    *)
     refine(
       match remove_min vs (R i) as rm 
       return rm = remove_min vs (R i) -> _ 
@@ -136,6 +130,8 @@ Section Computation.
       Unshelve.
       exact C.
   Defined.
+
+  (* *)
   
 
 
