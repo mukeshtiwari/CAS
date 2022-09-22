@@ -2,15 +2,13 @@
   algorithm, shown in the figure 6, from the paper On the Forwarding
   Paths Produced by Internt Routing Algorithms 
 *)
-
-Require Import List ListSet.
+Require Import 
+  List ListSet PeanoNat.
 From CAS Require Import 
   coq.algorithms.matrix_definition.
 
 Import ListNotations.
-
-
-
+(* efficient priority queue. *)
 Section Priority.
 
   Context 
@@ -18,38 +16,43 @@ Section Priority.
     {C : U -> U -> bool}. (* Comparison operator *)
 
 
-  (* I turn each row into a list (U * nat )*)
-  Fixpoint get_list_of_nodes  
-    (n : nat) (f : nat -> U) : list (U * nat) :=
-  match n with 
-  | 0 => [(f 0, 0)]
-  | S n' => (f n, n) :: get_list_of_nodes n' f
-  end.
-
   
-  Fixpoint find_min_pair
+
+  (* This function returns the minimum node *)
+  Fixpoint find_min_node
     (nund : U * nat)
-    (ls : list (U * nat)) : U * nat :=
+    (ls : list (U * nat)) : nat :=
   match ls with 
-  | [] => nund
+  | [] => snd nund
   | (nuh, ndh) :: t => 
     match C (fst nund) nuh with 
     (* nu is so far minimal element *)
-    | true =>  find_min_pair nund t 
+    | true =>  find_min_node nund t 
     (* nuh is minimal element *)
-    | false => find_min_pair (nuh, ndh) t 
+    | false => find_min_node (nuh, ndh) t 
     end
   end.
 
-  (* 
-  Definition find_min 
-    (n : nat) (f : nat -> U) : U * nat :=
-    find_min_pair (f 0, 0) (get_list_of_nodes n f).
-  *)
 
-  Definition remove_min (vs : list nat) 
-    (f : nat -> U) : 
-    option (nat * list nat).
+  Definition remove_min 
+    (vs : list nat) (* list of nodes *)
+    (f : nat -> U) :  (* one row *)
+    option (nat * list nat) :=
+  match vs with 
+  | [] => None
+  | h :: t => 
+    let qk := 
+      find_min_node (f h, h) 
+        (List.map (fun x => (f x, x)) t) 
+    in Some (qk, List.remove Nat.eq_dec qk vs)
+  end.
+  
+  Lemma remove_min_decreases : 
+    forall vs vs' qk (f : nat -> U), 
+    Some (qk, vs') = remove_min vs f ->
+    length vs' < length vs.
+  Proof.
+    induction vs. 
   Admitted.
 
 
@@ -66,43 +69,10 @@ Section Computation.
     {plus mul : U -> U -> U}.
   
 
-  (* 
-    
-    V is the set of nodes 
-    A is the graphs |V| -> |V| -> R
-    n is number of nodes
-    S is the initial set
-  *)
-
-  (* Notes: 
-    V - S_{k-1} can be represented in 
-    one set, so I don't need to carry
-    these two. 
-    Idea : we have a priority queue vs
-    and we pick a minimum element according 
-    to (<+ ). 
-    nd := pick_minimum R(i, q) (<+)
-
-
-    Some wrinkels: How to force it 
-    to finite type
-  
-  *)
-
-  (* I need a function that 
-    walk through one row R(i, _) 
-    and return the column number 
-    which has minimum value 
-    according to <+ 
-    Line 4 
-  *)
-
-
   Context 
     (A : functional_matrix U)
     (i : nat). (* node i *)
 
-  (* Everything is good upto here *)
 
   Definition zwf (xs ys : set nat) := 
     List.length xs < List.length ys.
@@ -114,6 +84,19 @@ Section Computation.
   Defined.
 
 
+  (* Idea:
+    We start with set of all nodes vs.
+    Using well founded induction, we show that this 
+    function terminates. 
+    Instead of looping (Line 3: for each k = 1, 2, ... |V|), 
+    we use priority queue as the termination argument. 
+    We find the node qk in vs for R(i, qk) is 
+    <+ minimum (minimal element). We split the 
+    (qk, vs') := remove_min vs (f : nat -> U) 
+    (* f here is the row (R i) *)
+
+    vs is basically V - Sk.
+  *)
   
   Definition generic_dijkstra :
     set nat-> functional_matrix U ->
@@ -130,23 +113,31 @@ Section Computation.
       Also, prove that List.lenght vs' < List.length vs
       apply induction hypothesis.
     *)
-    (* if vs is empty we have finished the iteration 
-      upto k times, but if vs is not empty then I pick
-      (qk, vs') := remove_minimum 
-      IHvs vs' prf (vector_add (R i) 
-        (vector_mul (R i) (fun j => A j qk) vs')
-      
-    refine(match remove_min vs with 
-    | None => R 
-    | Some (qk, vs') => 
-      (* we are bulding one row*)
-      IHvs vs' prf 
-        (fun w j => if w = i thne plus (R i j) 
-          (vector_mul_element (R i qk) (A qk)
-      
-    end *)
-  Admitted.
-   
+    refine(
+      match remove_min vs (R i) as rm 
+      return rm = remove_min vs (R i) -> _ 
+      with 
+      | None => fun Heq => R 
+      | Some (qk, vs') => fun Heq => 
+        IHvs vs' _ (fun w => 
+          match Nat.eq_dec w i with 
+          | left _ => 
+            (fun j => 
+              match List.in_dec Nat.eq_dec j vs' with 
+              | left _ => plus 
+                (R i j) (mul (R i qk) (A qk j)) (* if j is in vs' *)
+              | right _ => R i j  (* if j is not in vs' *)
+              end)
+          | right _ => R w
+          end)
+      end eq_refl).
+      eapply remove_min_decreases.
+      exact Heq.
+      Unshelve.
+      exact C.
+  Defined.
+  
+
 
 
 
