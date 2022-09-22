@@ -69,6 +69,14 @@ Section Computation.
     {plus mul : U -> U -> U}.
   
 
+  Declare Scope Dij_scope.
+  Delimit Scope Dij_scope with U.
+  Bind Scope Dij_scope with U.
+  Local Open Scope Dij_scope.
+
+  Local Infix "+" := plus : Dij_scope.
+  Local Infix "*" := mul : Dij_scope.
+
   Context 
     (A : functional_matrix U)
     (i : nat). (* node i *)
@@ -118,8 +126,8 @@ Section Computation.
           | left _ => 
             (fun j => 
               match List.in_dec Nat.eq_dec j vs' with 
-              | left _ => plus 
-                (R i j) (mul (R i qk) (A qk j)) (* if j is in vs' *)
+              | left _ => 
+                (R i j) + ((R i qk) * (A qk j)) (* if j is in vs' *)
               | right _ => R i j  (* if j is not in vs' *)
               end)
           | right _ => R w
@@ -131,7 +139,7 @@ Section Computation.
       exact C.
   Defined.
 
-  (* *)
+  (* I need to figure out how to bound nat as finite type. *)
   
 
 
