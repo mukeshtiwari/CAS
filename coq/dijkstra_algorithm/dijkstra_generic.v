@@ -3,13 +3,28 @@
   Paths Produced by Internt Routing Algorithms 
 *)
 Require Import 
-  List ListSet PeanoNat.
-From CAS Require Import 
-  coq.algorithms.matrix_definition.
+  List ListSet PeanoNat
+  Vector Fin.
 
-Import ListNotations.
+Section Computation.
+
+  (* state captures all the information *)
+  Record state :=
+    mk_state 
+    {
+        
+
+    }.
+
+  Definition dijkstra_one_step : state -> state. 
+  (* definition goes here *)
+
+  (* it computes f^n (init_state) *)
+  Definition dijkstra : state -> state :=
+    iter n dijkstra_one_step initial_state. 
 
 
+End Computation.
 
   
 
