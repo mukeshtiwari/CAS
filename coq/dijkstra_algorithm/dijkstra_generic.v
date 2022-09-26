@@ -77,8 +77,8 @@ Section Computation.
   Record state :=
     mk_state 
     {
-      visited : list (Fin.t n); (* visited so far *)
-      priority_queue : list (Fin.t n); (* we are going to pop one from the top *)
+      vis : list (Fin.t n); (* visited so far *)
+      pq : list (Fin.t n); (* priority_queue, we are going to pop one from the top *)
       Ri : Fin.t n -> T (* the ith row under consideration *)
     }.
 
