@@ -97,14 +97,14 @@ Section Computation.
       | None => s 
       | Some (qk, pq') => 
           mk_state 
-            (vis ++ [qk]) 
-            pq' 
-            (fun j : Fin.t n => 
+            (qk :: vis) (* add qk to visited set *)
+            pq' (* new priority queue *)
+            (fun j : Fin.t n =>  
               match List.in_dec Fin.eq_dec j pq' with 
               | left _ => 
                   (Ri j) + ((Ri qk) * (A qk j)) (* update if j is in vs' *)
               | right _ => Ri j  (* do nothing if j is not in vs' *)
-              end)
+              end) (* relax the row *)
       end 
     end.
 
