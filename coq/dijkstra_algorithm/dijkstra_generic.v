@@ -55,7 +55,6 @@ Section Computation.
     ssreflect formalisation *)
   Context
     {T : Type}
-    {zero one : T}
     {add mul : T -> T -> T}
     {C : T -> T -> bool} (* comparision  *)
     {n : nat}. (* num of nodes and it is represented by Fin.t *)
@@ -78,28 +77,31 @@ Section Computation.
     mk_state 
     {
       vis : list (Fin.t n); (* visited so far *)
-      pq : list (Fin.t n); (* priority_queue, we are going to pop one from the top *)
+      pq : list (Fin.t n); (* priority_queue *)
       Ri : Fin.t n -> T (* the ith row under consideration *)
     }.
 
   (* 
       Look for minimum element in Ri
-      Some (qk, pq') := find_min pq Ri
+      Some (qk, pq') := remove_min pq Ri
       new priority queue is pq'
       for every j in pq', relax the edges
       fun j : Fin.t n => (Ri j) + ((Ri qk) * (A qk j)) 
     *)
-    
-  Definition relax 
+
+  (* we relax all the edges in pq from qk,
+    i.e., every node in pq has a new (shortest) path from qk *)
+  Definition relax_edges 
     (qk : Fin.t n) 
     (pq : list (Fin.t n))
     (Ri : Fin.t n -> T) : Fin.t n -> T :=
     fun (j : Fin.t n) =>
       match List.in_dec Fin.eq_dec j pq with 
-      | left _ => (Ri j) + ((Ri qk) * (A qk j)) (* update if j is in vs' *)
-      | right _ => Ri j 
+      | left _ => (Ri j) + ((Ri qk) * (A qk j)) (* update if j is in pq *)
+      | right _ => Ri j (* do nothing, if j in not in pq *)
       end.
 
+  (* one iteration of Dijkstra. *)
   Definition dijkstra_one_step (s : state) : state :=
     match s with 
     |  mk_state vis pq Ri => 
@@ -109,7 +111,7 @@ Section Computation.
           mk_state 
             (qk :: vis) (* add qk to visited set *)
             pq' (* new priority queue *)
-            (relax qk pq' Ri) (* relax the row *)
+            (relax_edges qk pq' Ri) (* relax the row *)
       end 
     end.
 
