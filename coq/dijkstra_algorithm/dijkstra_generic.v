@@ -3,25 +3,24 @@
   Paths Produced by Internt Routing Algorithms 
 *)
 Require Import 
-  List ListSet PeanoNat.
-From CAS Require Import 
-  coq.algorithms.matrix_definition.
-
+  List ListSet PeanoNat
+  Vector Fin.
 Import ListNotations.
-(* efficient priority queue. *)
-Section Priority.
+
+(* Find a library with proofs *)
+Section Priority_Queue.
 
   Context 
     {U : Type} (* Type *)
     {C : U -> U -> bool}. (* Comparison operator *)
 
 
-  
 
   (* This function returns the minimum node *)
   Fixpoint find_min_node
-    (nund : U * nat)
-    (ls : list (U * nat)) : nat :=
+    {n : nat}
+    (nund : U * Fin.t n)
+    (ls : list (U * Fin.t n)) : Fin.t n :=
   match ls with 
   | [] => snd nund
   | (nuh, ndh) :: t => 
@@ -34,114 +33,94 @@ Section Priority.
   end.
 
 
-  Definition remove_min 
-    (vs : list nat) (* list of nodes *)
-    (f : nat -> U) :  (* one row *)
-    option (nat * list nat) :=
+  Definition remove_min
+    {n : nat} 
+    (vs : list (Fin.t n)) (* list of nodes *)
+    (f : Fin.t n -> U) :  (* one row *)
+    option (Fin.t n * list (Fin.t n)) :=
   match vs with 
   | [] => None
   | h :: t => 
     let qk := 
       find_min_node (f h, h) 
         (List.map (fun x => (f x, x)) t) 
-    in Some (qk, List.remove Nat.eq_dec qk vs)
+    in Some (qk, List.remove Fin.eq_dec qk vs)
   end.
   
-  Lemma remove_min_decreases : 
-    forall vs vs' qk (f : nat -> U), 
-    Some (qk, vs') = remove_min vs f ->
-    length vs' < length vs.
-  Proof.
-    induction vs. 
-  Admitted.
-
-
-End Priority.
-
-
+End Priority_Queue.
 
 Section Computation.
 
-  Context 
-    {U : Type} 
-    {C : U -> U -> bool}
-    {zero one : U}
-    {plus mul : U -> U -> U}.
-  
+  (*Most of the code is taken/inspired from Tim's 
+    ssreflect formalisation *)
+  Context
+    {T : Type}
+    {add mul : T -> T -> T}
+    {C : T -> T -> bool} (* comparision  *)
+    {n : nat}. (* num of nodes and it is represented by Fin.t *)
 
-  Declare Scope Dij_scope.
-  Delimit Scope Dij_scope with U.
-  Bind Scope Dij_scope with U.
-  Local Open Scope Dij_scope.
-
-  Local Infix "+" := plus : Dij_scope.
-  Local Infix "*" := mul : Dij_scope.
-
-  Context 
-    (A : functional_matrix U)
+   Context 
+    (A : Fin.t n -> Fin.t n -> T)
     (i : nat). (* node i *)
 
 
-  Definition zwf (xs ys : set nat) := 
-    List.length xs < List.length ys.
+  Declare Scope Dij_scope.
+  Delimit Scope Dij_scope with T.
+  Bind Scope Dij_scope with T.
+  Local Open Scope Dij_scope.
 
-  Lemma zwf_well_founded : well_founded zwf.
-  Proof.
-    exact (Wf_nat.well_founded_ltof _ 
-      (fun xs => List.length xs)).
-  Defined.
+  Local Infix "+" := add : Dij_scope.
+  Local Infix "*" := mul : Dij_scope.
 
+  (* state captures all the information.  *)   
+  Record state :=
+    mk_state 
+    {
+      vis : list (Fin.t n); (* visited so far *)
+      pq : list (Fin.t n); (* priority_queue *)
+      Ri : Fin.t n -> T (* the ith row under consideration *)
+    }.
 
-  (* Idea:
-    We start with set of all nodes vs.
-    Using well founded induction, we show that this 
-    function terminates. 
-    Instead of looping (Line 3: for each k = 1, 2, ... |V|), 
-    we use priority queue as the termination argument. 
-    We find the node qk in vs for R(i, qk) is 
-    <+ minimum (minimal element). We split the 
-    (qk, vs') := remove_min vs (f : nat -> U) 
-    (* f here is the row (R i) *)
+  (* 
+      Look for minimum element in Ri
+      Some (qk, pq') := remove_min pq Ri
+      new priority queue is pq'
+      for every j in pq', relax the edges
+      fun j : Fin.t n => (Ri j) + ((Ri qk) * (A qk j)) 
+    *)
 
-    vs is basically V - Sk.
-  *)
+  (* we relax all the edges in pq from qk,
+    i.e., every node in pq has a new (shortest) path from qk *)
+  Definition relax_edges 
+    (qk : Fin.t n) 
+    (pq : list (Fin.t n))
+    (Ri : Fin.t n -> T) : Fin.t n -> T :=
+    fun (j : Fin.t n) =>
+      match List.in_dec Fin.eq_dec j pq with 
+      | left _ => (Ri j) + ((Ri qk) * (A qk j)) (* update if j is in pq *)
+      | right _ => Ri j (* do nothing, if j in not in pq *)
+      end.
+
+  (* one iteration of Dijkstra. *)
+  Definition dijkstra_one_step (s : state) : state :=
+    match s with 
+    |  mk_state vis pq Ri => 
+      match @remove_min _ C n pq Ri with 
+      | None => s 
+      | Some (qk, pq') => 
+          mk_state 
+            (qk :: vis) (* add qk to visited set *)
+            pq' (* new priority queue *)
+            (relax_edges qk pq' Ri) (* relax the row *)
+      end 
+    end.
+
   
-  Definition generic_dijkstra :
-    set nat-> functional_matrix U ->
-    functional_matrix U.
-  Proof.
-    intro vs. (* vs contains so far unprocessed 
-    nodes. In the beginning, it is 0, 1, 2....|V| *)
-    induction (zwf_well_founded vs) as [vs Hvs IHvs].
-    intro R;
-    unfold zwf in IHvs.
-    refine(
-      match remove_min vs (R i) as rm 
-      return rm = remove_min vs (R i) -> _ 
-      with 
-      | None => fun Heq => R 
-      | Some (qk, vs') => fun Heq => 
-        IHvs vs' (@remove_min_decreases U C vs vs' qk (R i) Heq) 
-          (fun w => 
-          match Nat.eq_dec w i with 
-          | left _ => 
-            (fun j => 
-              match List.in_dec Nat.eq_dec j vs' with 
-              | left _ => 
-                (R i j) + ((R i qk) * (A qk j)) (* if j is in vs' *)
-              | right _ => R i j  (* if j is not in vs' *)
-              end)
-          | right _ => R w
-          end)
-      end eq_refl).
-  Defined.
-
-  (* I need to figure out how to bound nat as finite type. *)
-  
+  (* it computes f^n (init_state) *)
+  Definition dijkstra (m : nat) (s : state) : state :=
+    Nat.iter m dijkstra_one_step s.
+    
 End Computation.
-
-
-
 
   
 
