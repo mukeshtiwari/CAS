@@ -52,7 +52,9 @@ End Priority_Queue.
 Section Computation.
 
   (*Most of the code is taken/inspired from Tim's 
-    ssreflect formalisation *)
+    ssreflect formalisation 
+    https://www.cl.cam.ac.uk/~tgg22/metarouting/rie-1.0.v
+  *)
   Context
     {T : Type}
     {add mul : T -> T -> T}
@@ -77,8 +79,8 @@ Section Computation.
     mk_state 
     {
       vis : list (Fin.t n); (* visited so far *)
-      pq : list (Fin.t n); (* priority_queue *)
-      Ri : Fin.t n -> T (* the ith row under consideration *)
+      pq  : list (Fin.t n); (* priority_queue *)
+      Ri  : Fin.t n -> T (* the ith row under consideration *)
     }.
 
   (* 
