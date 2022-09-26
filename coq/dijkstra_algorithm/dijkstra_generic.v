@@ -88,8 +88,18 @@ Section Computation.
       new priority queue is pq'
       for every j in pq', relax the edges
       fun j : Fin.t n => (Ri j) + ((Ri qk) * (A qk j)) 
-
     *)
+    
+  Definition relax 
+    (qk : Fin.t n) 
+    (pq : list (Fin.t n))
+    (Ri : Fin.t n -> T) : Fin.t n -> T :=
+    fun (j : Fin.t n) =>
+      match List.in_dec Fin.eq_dec j pq with 
+      | left _ => (Ri j) + ((Ri qk) * (A qk j)) (* update if j is in vs' *)
+      | right _ => Ri j 
+      end.
+
   Definition dijkstra_one_step (s : state) : state :=
     match s with 
     |  mk_state vis pq Ri => 
@@ -99,12 +109,7 @@ Section Computation.
           mk_state 
             (qk :: vis) (* add qk to visited set *)
             pq' (* new priority queue *)
-            (fun j : Fin.t n =>  
-              match List.in_dec Fin.eq_dec j pq' with 
-              | left _ => 
-                  (Ri j) + ((Ri qk) * (A qk j)) (* update if j is in vs' *)
-              | right _ => Ri j  (* do nothing if j is not in vs' *)
-              end) (* relax the row *)
+            (relax qk pq' Ri) (* relax the row *)
       end 
     end.
 
