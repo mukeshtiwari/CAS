@@ -149,7 +149,9 @@ CAS=\
    coq/algorithms/matrix_addition.v \
    coq/algorithms/matrix_multiplication.v \
    coq/algorithms/weighted_path.v \
-   coq/algorithms/wrapper.v
+   coq/algorithms/wrapper.v   \
+   coq/dijkstra_algorithm/priority_queue.v   \
+   coq/dijkstra_algorithm/Finite.v
 
 
 FILES=$(BASE) $(CAS)
