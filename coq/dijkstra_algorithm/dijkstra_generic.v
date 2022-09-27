@@ -4,9 +4,45 @@
 *)
 Require Import 
   List ListSet PeanoNat
-  Vector Fin.
+  Vector Fin Utf8.
+From CAS Require Import coq.common.compute
+  coq.eqv.properties coq.eqv.structures
+  coq.eqv.theory.
 Import ListNotations.
 
+(* This section will move to another file
+  after I finish the proof because right now
+  I don't want to touch makefile to avoid 
+  merge conflict.
+*)
+Section Finite.
+
+  Lemma fin_inv_0 (i : Fin.t 0) : False.
+  Proof. refine (match i with end). Defined.
+
+  Lemma fin_inv_S {n : nat} (i : Fin.t (S n)) :
+    (i = Fin.F1) + {i' | i = Fin.FS i'}.
+  Proof.
+    refine (match i with
+            | Fin.F1 => _
+            | Fin.FS _ => _
+            end); eauto.
+  Defined.
+
+  (* How to write this function? 
+    n = 0 => []
+    n = 1 => [F1]
+    n = 2 => [FS F1; F1]
+    n = 3 => [FS (FS F1); FS F1; F1]
+  
+    I want to enumerate all the elements of Fin.t n into 
+    a list.
+  *)
+  Fixpoint enum_fin {n : nat} : list (Fin.t n).
+  Proof.
+  Admitted.
+
+End Finite.
 (* Find a library with proofs *)
 Section Priority_Queue.
 
@@ -47,6 +83,9 @@ Section Priority_Queue.
     in Some (qk, List.remove Fin.eq_dec qk vs)
   end.
   
+
+  
+
 End Priority_Queue.
 
 Section Computation.
@@ -57,13 +96,14 @@ Section Computation.
   *)
   Context
     {T : Type}
+    {zero one : T}
     {add mul : T -> T -> T}
     {C : T -> T -> bool} (* comparision  *)
     {n : nat}. (* num of nodes and it is represented by Fin.t *)
 
    Context 
     (A : Fin.t n -> Fin.t n -> T)
-    (i : nat). (* node i *)
+    (i : Fin.t n). (* node i *)
 
 
   Declare Scope Dij_scope.
@@ -73,6 +113,8 @@ Section Computation.
 
   Local Infix "+" := add : Dij_scope.
   Local Infix "*" := mul : Dij_scope.
+  Local Notation "0" := zero : Dij_scope.
+  Local Notation "1" := one : Dij_scope.
 
   (* state captures all the information.  *)   
   Record state :=
@@ -117,7 +159,20 @@ Section Computation.
       end 
     end.
 
-  
+
+  Definition I := λ (i j : Fin.t n),
+    if Fin.eq_dec i j then 1 else 0.
+  (* 
+    visisted is node i
+    priority_queue is very other nodes, except i 
+    Ri := fun j => I i j + A i j 
+  *)
+  (* I need to write enum_fin *)
+  Definition initial_state : state :=
+    (mk_state [i] (List.remove Fin.eq_dec i (@enum_fin n)) 
+    (fun j => I i j + A i j)).
+
+
   (* it computes f^n (init_state) *)
   Definition dijkstra (m : nat) (s : state) : state :=
     Nat.iter m dijkstra_one_step s.
@@ -140,7 +195,11 @@ Section Proofs.
   Context
     {T : Type}
     {zero one : T}
-    {add mul : T -> T -> T}.
+    {add mul : T -> T -> T}
+    {eqT : brel T}
+    {refT : brel_reflexive T eqT}
+    {symT : brel_symmetric T eqT}
+    {trnT : brel_transitive T eqT}.
 
   Declare Scope Dij_scope.
   Delimit Scope Dij_scope with T.
@@ -151,18 +210,23 @@ Section Proofs.
   Local Infix "*" := mul : Dij_scope.
   Local Notation "0" := zero : Dij_scope.
   Local Notation "1" := one : Dij_scope.
+  Local Infix "==" := eqT (at level 70) : Dij_scope.
+
 
   Context
-    {associative : forall (a b c : T), a + b + c = a + (b + c)}
-    {commutative : forall (a b : T), a + b = b + a}
-    {zero_add_id : forall (a : T), 0 + a = a}
-    {one_mul_id : forall (a : T), 1 * a = a}
+    {associative : forall (a b c : T), (a + b + c == a + (b + c)) = true}
+    {commutative : forall (a b : T), (a + b == b + a) = true}
+    {zero_add_id : forall (a : T), (0 + a == a) = true}
+    {one_mul_id : forall (a : T), (1 * a == a) = true}
     (* add_sel not used explicitly in the proofs *)
-    {add_sel : forall (a b : T), {a + b = a} + {a + b = b}}
-    {one_add_ann : forall (a : T), 1 + a = 1}
-    {add_mul_ra : forall (a b : T), a + (a * b) = a}.
+    {add_sel : forall (a b : T), ((a + b == a) = true) + ((a + b == b) = true)}
+    {one_add_ann : forall (a : T), (1 + a == 1) = true}
+    {add_mul_right_absorption : forall (a b : T), (a + (a * b) == a) = true}.
     (* a <=L a * b *)
 
+  
+
+  
 
 
 
