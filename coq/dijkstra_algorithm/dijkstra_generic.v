@@ -124,6 +124,50 @@ Section Computation.
     
 End Computation.
 
+Section Proofs.
+(* This section contains proofs about 
+  Dijkstra algorithm. 
+  
+  Notes from Tim's slides:
+  if we drop distributivity, then 
+  Dijkstra algorithm computes for a given 
+  source vertex i:
+  ∀ j : V, R i j := I i j + (forall q : V, R i q * A q j)
+
+  R := R * A + I 
+  *)
+  (* operators and assumptions that we going to have *)
+  Context
+    {T : Type}
+    {zero one : T}
+    {add mul : T -> T -> T}.
+
+  Declare Scope Dij_scope.
+  Delimit Scope Dij_scope with T.
+  Bind Scope Dij_scope with T.
+  Local Open Scope Dij_scope.
+
+  Local Infix "+" := add : Dij_scope.
+  Local Infix "*" := mul : Dij_scope.
+  Local Notation "0" := zero : Dij_scope.
+  Local Notation "1" := one : Dij_scope.
+
+  Context
+    {associative : forall (a b c : T), a + b + c = a + (b + c)}
+    {commutative : forall (a b : T), a + b = b + a}
+    {zero_add_id : forall (a : T), 0 + a = a}
+    {one_mul_id : forall (a : T), 1 * a = a}
+    (* add_sel not used explicitly in the proofs *)
+    {add_sel : forall (a b : T), {a + b = a} + {a + b = b}}
+    {one_add_ann : forall (a : T), 1 + a = 1}
+    {add_mul_ra : forall (a b : T), a + (a * b) = a}.
+    (* a <=L a * b *)
+
+
+
+
+
+End Proofs.
   
 
 
