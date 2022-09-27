@@ -8,7 +8,11 @@ Require Import
 
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
-  coq.eqv.theory.
+  coq.eqv.theory 
+  coq.dijkstra_algorithm.priority_queue
+  coq.dijkstra_algorithm.Finite.
+
+
 Import ListNotations.
 
 (* This section will move to another file
@@ -29,96 +33,10 @@ Import ListNotations.
 *)
 
 
-Section Finite.
-
-  Class Finite (A : Type) :=
-  {
-    l : list A; 
-    Hfin : (forall x : A, List.In x l)
-  }.
-
-
-  Instance fin_finite : forall (n : nat), Finite (Fin.t n).
-  Proof.
-    induction n.
-    + exists [].
-      intros x.
-      inversion x.
-    + destruct IHn as (l, Hl).
-      exists (Fin.F1 :: List.map Fin.FS l).
-      intro a. 
-      revert n a l Hl.
-      refine (@Fin.caseS _ _ _); 
-      intros; [left | right].
-      - exact eq_refl.
-      - now apply in_map.
-  Qed.  
-
-
-  (* 
-    enum_fin 0 := []
-    enum_fin 1 := [F1]
-    enum_fin 2 := [F1; FS F1]
-    enum_fin 3 := [F1; FS F1; FS (FS F1)]
-  *)
-  Fixpoint enum_fin {n : nat} : list (Fin.t n).
-  Proof.
-    induction n.
-    + exact [].
-    + exact (Fin.F1 :: List.map Fin.FS IHn).
-  Defined.    
-
-
-End Finite.
 
 
 
 
-
-(* Find a library with proofs *)
-Section Priority_Queue.
-
-  Context 
-    {U : Type} (* Type *)
-    {C : U -> U -> bool}. (* Comparison operator *)
-
-
-
-  (* This function returns the minimum node *)
-  Fixpoint find_min_node
-    {n : nat}
-    (nund : U * Fin.t n)
-    (ls : list (U * Fin.t n)) : Fin.t n :=
-  match ls with 
-  | [] => snd nund
-  | (nuh, ndh) :: t => 
-    match C (fst nund) nuh with 
-    (* nu is so far minimal element *)
-    | true =>  find_min_node nund t 
-    (* nuh is minimal element *)
-    | false => find_min_node (nuh, ndh) t 
-    end
-  end.
-
-
-  Definition remove_min
-    {n : nat} 
-    (vs : list (Fin.t n)) (* list of nodes *)
-    (f : Fin.t n -> U) :  (* one row *)
-    option (Fin.t n * list (Fin.t n)) :=
-  match vs with 
-  | [] => None
-  | h :: t => 
-    let qk := 
-      find_min_node (f h, h) 
-        (List.map (fun x => (f x, x)) t) 
-    in Some (qk, List.remove Fin.eq_dec qk vs)
-  end.
-  
-
-  
-
-End Priority_Queue.
 
 Section Computation.
 
@@ -134,8 +52,10 @@ Section Computation.
     {n : nat}. (* num of nodes and it is represented by Fin.t *)
 
    Context 
-    (A : Fin.t n -> Fin.t n -> T)
-    (i : Fin.t n). (* node i *)
+    {R : Type}
+    {Hdec : ∀ (x y : R), {x = y} + {x <> y}}
+    (A : R -> R -> T)
+    (i : R). (* node i *)
 
 
 
@@ -153,9 +73,9 @@ Section Computation.
   Record state :=
     mk_state 
     {
-      vis : list (Fin.t n); (* visited so far *)
-      pq  : list (Fin.t n); (* priority_queue *)
-      Ri  : Fin.t n -> T (* the ith row under consideration *)
+      vis : list R; (* visited so far *)
+      pq  : list R; (* priority_queue *)
+      Ri  : R -> T (* the ith row under consideration *)
     }.
 
   (* 
@@ -169,11 +89,11 @@ Section Computation.
   (* we relax all the edges in pq from qk,
     i.e., every node in pq has a new (shortest) path from qk *)
   Definition relax_edges 
-    (qk : Fin.t n) 
-    (pq : list (Fin.t n))
-    (Ri : Fin.t n -> T) : Fin.t n -> T :=
-    fun (j : Fin.t n) =>
-      match List.in_dec Fin.eq_dec j pq with 
+    (qk : R) 
+    (pq : list R)
+    (Ri : R -> T) : R -> T :=
+    fun (j : R) =>
+      match List.in_dec Hdec j pq with 
       | left _ => (Ri j) + ((Ri qk) * (A qk j)) (* update if j is in pq *)
       | right _ => Ri j (* do nothing, if j in not in pq *)
       end.
@@ -182,7 +102,7 @@ Section Computation.
   Definition dijkstra_one_step (s : state) : state :=
     match s with 
     |  mk_state vis pq Ri => 
-      match @remove_min _ C n pq Ri with 
+      match @remove_min R Hdec T C pq Ri with 
       | None => s 
       | Some (qk, pq') => 
           mk_state 
@@ -193,16 +113,17 @@ Section Computation.
     end.
 
 
-  Definition I := λ (i j : Fin.t n),
-    if Fin.eq_dec i j then 1 else 0.
+  (* Identity Matrix *)
+  Definition I := λ (i j : R),
+    if Hdec i j then 1 else 0.
+
   (* 
     visisted is node i
     priority_queue is very other nodes, except i 
     Ri := fun j => I i j + A i j 
   *)
-
-  Definition initial_state : state :=
-    (mk_state [i] (List.remove Fin.eq_dec i (@enum_fin n)) 
+  Definition initial_state (l : list R) : state :=
+    (mk_state [i] (List.remove Hdec i l) 
     (fun j => I i j + A i j)).
 
 
@@ -260,11 +181,13 @@ Section Proofs.
   
 
   
-
+  (* Everything good upto this point *)
 
 
 
 End Proofs.
+
+
   
 
 
