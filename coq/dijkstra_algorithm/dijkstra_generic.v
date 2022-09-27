@@ -112,7 +112,6 @@ Section Computation.
     end.
 
 
-
   (* 
     construct a state.
     i is the starting node
@@ -124,11 +123,19 @@ Section Computation.
     (Ri : R -> T): state :=
     (mk_state [i] (List.remove Hdec i l) Ri).
 
+  Definition I := λ (i j : R),
+    if Hdec i j then 1 else 0.
+
+  Definition initial_state (i : R) (l : list R) :=
+    construct_a_state i l 
+    (fun j : R => I i j + A i j).
 
   (* it computes f^n (init_state) *)
   Definition dijkstra (m : nat) (s : state) : state :=
     Nat.iter m dijkstra_one_step s.
     
+
+
 End Computation.
 
 Section Proofs.
