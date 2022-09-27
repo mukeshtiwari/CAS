@@ -48,14 +48,13 @@ Section Computation.
     {T : Type}
     {zero one : T}
     {add mul : T -> T -> T}
-    {C : T -> T -> bool} (* comparision  *)
-    {n : nat}. (* num of nodes and it is represented by Fin.t *)
+    {C : T -> T -> bool}. 
+    (* C a b = a + b =t= a comparision  *)
 
    Context 
     {R : Type}
     {Hdec : ∀ (x y : R), {x = y} + {x <> y}}
-    (A : R -> R -> T)
-    (i : R). (* node i *)
+    (A : R -> R -> T).
 
 
 
@@ -113,18 +112,17 @@ Section Computation.
     end.
 
 
-  (* Identity Matrix *)
-  Definition I := λ (i j : R),
-    if Hdec i j then 1 else 0.
 
   (* 
-    visisted is node i
-    priority_queue is very other nodes, except i 
-    Ri := fun j => I i j + A i j 
+    construct a state.
+    i is the starting node
+    l is the list of nodes except i 
+    Ri is the ith row 
   *)
-  Definition initial_state (l : list R) : state :=
-    (mk_state [i] (List.remove Hdec i l) 
-    (fun j => I i j + A i j)).
+  Definition construct_a_state 
+    (i : R) (l : list R) 
+    (Ri : R -> T): state :=
+    (mk_state [i] (List.remove Hdec i l) Ri).
 
 
   (* it computes f^n (init_state) *)
@@ -177,9 +175,6 @@ Section Proofs.
     {one_add_ann : forall (a : T), (1 + a == 1) = true}
     {add_mul_right_absorption : forall (a b : T), (a + (a * b) == a) = true}.
     (* a <=L a * b *)
-
-  
-
   
   (* Everything good upto this point *)
 
