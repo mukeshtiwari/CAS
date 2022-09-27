@@ -5,6 +5,7 @@
 Require Import 
   List ListSet PeanoNat
   Vector Fin Utf8.
+
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
   coq.eqv.theory.
@@ -15,34 +16,65 @@ Import ListNotations.
   I don't want to touch makefile to avoid 
   merge conflict.
 *)
+
+(* Plan: Discuss it with Tim.
+  Rather than working with a Fin.t n type, 
+  work with a Finite A, for some type A.
+  The benefit is that we get nice abstraction 
+  to work with and later we instantiate 
+  A with Fin.t n (see fin_finite theorem)
+  and use extraction method to extract 
+  a concrete OCaml code. 
+
+*)
+
+
 Section Finite.
 
-  Lemma fin_inv_0 (i : Fin.t 0) : False.
-  Proof. refine (match i with end). Defined.
+  Class Finite (A : Type) :=
+  {
+    l : list A; 
+    Hfin : (forall x : A, List.In x l)
+  }.
 
-  Lemma fin_inv_S {n : nat} (i : Fin.t (S n)) :
-    (i = Fin.F1) + {i' | i = Fin.FS i'}.
+
+  Instance fin_finite : forall (n : nat), Finite (Fin.t n).
   Proof.
-    refine (match i with
-            | Fin.F1 => _
-            | Fin.FS _ => _
-            end); eauto.
-  Defined.
+    induction n.
+    + exists [].
+      intros x.
+      inversion x.
+    + destruct IHn as (l, Hl).
+      exists (Fin.F1 :: List.map Fin.FS l).
+      intro a. 
+      revert n a l Hl.
+      refine (@Fin.caseS _ _ _); 
+      intros; [left | right].
+      - exact eq_refl.
+      - now apply in_map.
+  Qed.  
 
-  (* How to write this function? 
-    n = 0 => []
-    n = 1 => [F1]
-    n = 2 => [FS F1; F1]
-    n = 3 => [FS (FS F1); FS F1; F1]
-  
-    I want to enumerate all the elements of Fin.t n into 
-    a list.
+
+  (* 
+    enum_fin 0 := []
+    enum_fin 1 := [F1]
+    enum_fin 2 := [F1; FS F1]
+    enum_fin 3 := [F1; FS F1; FS (FS F1)]
   *)
   Fixpoint enum_fin {n : nat} : list (Fin.t n).
   Proof.
-  Admitted.
+    induction n.
+    + exact [].
+    + exact (Fin.F1 :: List.map Fin.FS IHn).
+  Defined.    
+
 
 End Finite.
+
+
+
+
+
 (* Find a library with proofs *)
 Section Priority_Queue.
 
@@ -106,6 +138,7 @@ Section Computation.
     (i : Fin.t n). (* node i *)
 
 
+
   Declare Scope Dij_scope.
   Delimit Scope Dij_scope with T.
   Bind Scope Dij_scope with T.
@@ -131,7 +164,7 @@ Section Computation.
       new priority queue is pq'
       for every j in pq', relax the edges
       fun j : Fin.t n => (Ri j) + ((Ri qk) * (A qk j)) 
-    *)
+  *)
 
   (* we relax all the edges in pq from qk,
     i.e., every node in pq has a new (shortest) path from qk *)
@@ -167,7 +200,7 @@ Section Computation.
     priority_queue is very other nodes, except i 
     Ri := fun j => I i j + A i j 
   *)
-  (* I need to write enum_fin *)
+
   Definition initial_state : state :=
     (mk_state [i] (List.remove Fin.eq_dec i (@enum_fin n)) 
     (fun j => I i j + A i j)).
