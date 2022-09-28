@@ -123,8 +123,12 @@ Section Computation.
 
 
   (* it computes f^n (init_state) *)
-  Definition dijkstra (m : nat) (s : state) : state :=
+  Definition dijkstra_gen (m : nat) (s : state) : state :=
     Nat.iter m dijkstra_one_step s.
+
+  
+  Definition dijkstra (m : nat) (i : Node) (l : list Node):= 
+    dijkstra_gen m (initial_state i l).
 
 
 
@@ -164,6 +168,36 @@ Section Computation.
   (* Everything good upto this point *)
 
   
+  (* 
+  
+  ∀ k : nat, k < nl -> forall j : Node, 
+    List.in j (vis (dijkstra k i l)), 
+    Ri (dijkstra k i l) j = I i j + 
+      (List.map (fun q => Ri (dijkstra k i l) q * A q j) 
+        (vis (dijkstra k i l)))
+  *)
+
+  (* 
+    Some ideas:
+    prove k < nl in a separate proof.
+
+  *)
+  Lemma dijkstra_main_proof (i : Node) : 
+    ∀ k : nat, k < nl -> forall (j : Node), 
+    List.In j (vis (dijkstra k i l)) -> 
+    Ri (dijkstra k i l) j = I i j + 
+      (List.fold_right (fun x y => x + y)
+        0 
+        (List.map (fun q => Ri (dijkstra k i l) q * A q j) 
+          (vis (dijkstra k i l)))). 
+  Proof.
+    induction k.
+    + simpl.
+      (* Looks true *)
+      admit.
+    + cbn.
+  Admitted.  
+
   
   
   
