@@ -15,29 +15,6 @@ From CAS Require Import coq.common.compute
 
 Import ListNotations.
 
-(* This section will move to another file
-  after I finish the proof because right now
-  I don't want to touch makefile to avoid 
-  merge conflict.
-*)
-
-(* Plan: Discuss it with Tim.
-  Rather than working with a Fin.t n type, 
-  work with a Finite A, for some type A.
-  The benefit is that we get nice abstraction 
-  to work with and later we instantiate 
-  A with Fin.t n (see fin_finite theorem)
-  and use extraction method to extract 
-  a concrete OCaml code. 
-
-*)
-
-
-
-
-
-
-
 Section Computation.
 
   (*Most of the code is taken/inspired from Tim's 
@@ -48,13 +25,17 @@ Section Computation.
     {T : Type}
     {zero one : T}
     {add mul : T -> T -> T}
-    {C : T -> T -> bool}. 
-    (* C a b = a + b =t= a comparision  *)
+    {eqT : brel T}
+    {refT : brel_reflexive T eqT}
+    {symT : brel_symmetric T eqT}
+    {trnT : brel_transitive T eqT}.
+    
+
 
    Context 
     {R : Type}
     {Hdec : ∀ (x y : R), {x = y} + {x <> y}}
-    (A : R -> R -> T).
+    (A : R -> R -> T). (* Adjacency Matrix *)
 
 
 
@@ -67,6 +48,11 @@ Section Computation.
   Local Infix "*" := mul : Dij_scope.
   Local Notation "0" := zero : Dij_scope.
   Local Notation "1" := one : Dij_scope.
+  Local Infix "==" := eqT (at level 70) : Dij_scope.
+
+  (* <=+ order *)
+  Definition C (a b : T) := (a + b == a).
+
 
   (* state captures all the information.  *)   
   Record state :=
@@ -74,7 +60,7 @@ Section Computation.
     {
       vis : list R; (* visited so far *)
       pq  : list R; (* priority_queue *)
-      Ri  : R -> T (* the ith row under consideration *)
+      Ri  : R -> T  (* the ith row under consideration *)
     }.
 
   (* 
@@ -82,11 +68,12 @@ Section Computation.
       Some (qk, pq') := remove_min pq Ri
       new priority queue is pq'
       for every j in pq', relax the edges
-      fun j : Fin.t n => (Ri j) + ((Ri qk) * (A qk j)) 
+      fun j : A => (Ri j) + ((Ri qk) * (A qk j)) 
   *)
 
   (* we relax all the edges in pq from qk,
-    i.e., every node in pq has a new (shortest) path from qk *)
+    i.e., every node in pq has a new (shortest) 
+    path from qk *)
   Definition relax_edges 
     (qk : R) 
     (pq : list R)
@@ -135,7 +122,6 @@ Section Computation.
     Nat.iter m dijkstra_one_step s.
     
 
-
 End Computation.
 
 Section Proofs.
@@ -177,7 +163,6 @@ Section Proofs.
     {commutative : forall (a b : T), (a + b == b + a) = true}
     {zero_add_id : forall (a : T), (0 + a == a) = true}
     {one_mul_id : forall (a : T), (1 * a == a) = true}
-    (* add_sel not used explicitly in the proofs *)
     {add_sel : forall (a b : T), ((a + b == a) = true) + ((a + b == b) = true)}
     {one_add_ann : forall (a : T), (1 + a == 1) = true}
     {add_mul_right_absorption : forall (a b : T), (a + (a * b) == a) = true}.
