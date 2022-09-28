@@ -216,7 +216,19 @@ Section Computation.
     + simpl.
       (* Looks true *)
       admit.
-    + cbn.
+    + simpl.
+      intros j Hin.
+      (* proof idea:
+        vis (dijkstra_one_step (dijkstra k i l)) can be 
+        written as 
+        qk :: (vis (dijkstra k i l))
+        
+        from Hin: we have 
+        j = qk \/ List.In j (vis (dijkstra k i l))
+       
+
+
+      *)  
   Admitted.  
 
   
