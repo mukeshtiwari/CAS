@@ -177,12 +177,7 @@ Section Computation.
         (vis (dijkstra k i l)))
   *)
 
-  (* 
-    Some ideas:
-    prove k < nl in a separate proof.
-
-  *)
-
+  
   (* Proof idea:
     After nl iterations, all the nodes 
     have been in visited state and there 
@@ -193,6 +188,18 @@ Section Computation.
     dijkstra nl i l = 
     dijkstra (k + nl) i l.
   Proof.
+    unfold dijkstra.
+    induction k.
+    + simpl.
+      reflexivity.
+    + simpl.
+      rewrite IHk.
+      unfold dijkstra_one_step,
+      initial_state,
+      construct_a_state;
+      simpl.
+      (* Prove that *)
+
   Admitted.
   
   
