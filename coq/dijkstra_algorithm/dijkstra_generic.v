@@ -182,8 +182,22 @@ Section Computation.
     prove k < nl in a separate proof.
 
   *)
+
+  (* Proof idea:
+    After nl iterations, all the nodes 
+    have been in visited state and there 
+    is no more change.
+  *)
+  Lemma dijkstra_fixpoint (i : Node) :
+    ∀ k : nat, 
+    dijkstra nl i l = 
+    dijkstra (k + nl) i l.
+  Proof.
+  Admitted.
+  
+  
   Lemma dijkstra_main_proof (i : Node) : 
-    ∀ k : nat, k < nl -> forall (j : Node), 
+    ∀ (k : nat) (j : Node), 
     List.In j (vis (dijkstra k i l)) -> 
     Ri (dijkstra k i l) j = I i j + 
       (List.fold_right (fun x y => x + y)
