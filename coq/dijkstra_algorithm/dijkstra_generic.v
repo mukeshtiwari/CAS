@@ -33,9 +33,9 @@ Section Computation.
 
 
    Context 
-    {R : Type}
-    {Hdec : ∀ (x y : R), {x = y} + {x <> y}}
-    (A : R -> R -> T). (* Adjacency Matrix *)
+    {Node : Type}
+    {Hdec : ∀ (x y : Node), {x = y} + {x <> y}}
+    (A : Node -> Node -> T). (* Adjacency Matrix *)
 
 
 
@@ -58,9 +58,9 @@ Section Computation.
   Record state :=
     mk_state 
     {
-      vis : list R; (* visited so far *)
-      pq  : list R; (* priority_queue *)
-      Ri  : R -> T  (* the ith row under consideration *)
+      vis : list Node; (* visited so far *)
+      pq  : list Node; (* priority_queue *)
+      Ri  : Node -> T  (* the ith row under consideration *)
     }.
 
   (* 
@@ -71,24 +71,26 @@ Section Computation.
       fun j : A => (Ri j) + ((Ri qk) * (A qk j)) 
   *)
 
+  
   (* we relax all the edges in pq from qk,
     i.e., every node in pq has a new (shortest) 
     path from qk *)
   Definition relax_edges 
-    (qk : R) 
-    (pq : list R)
-    (Ri : R -> T) : R -> T :=
-    fun (j : R) =>
+    (qk : Node) 
+    (pq : list Node)
+    (Ri : Node -> T) : Node -> T :=
+    fun (j : Node) =>
       match List.in_dec Hdec j pq with 
       | left _ => (Ri j) + ((Ri qk) * (A qk j)) (* update if j is in pq *)
       | right _ => Ri j (* do nothing, if j in not in pq *)
       end.
 
+
   (* one iteration of Dijkstra. *)
   Definition dijkstra_one_step (s : state) : state :=
     match s with 
     |  mk_state vis pq Ri => 
-      match @remove_min R Hdec T C pq Ri with 
+      match @remove_min _ Hdec T C pq Ri with 
       | None => s 
       | Some (qk, pq') => 
           mk_state 
@@ -106,26 +108,28 @@ Section Computation.
     Ri is the ith row 
   *)
   Definition construct_a_state 
-    (i : R) (l : list R) 
-    (Ri : R -> T): state :=
+    (i : Node) (l : list Node) 
+    (Ri : Node -> T) : state :=
     (mk_state [i] (List.remove Hdec i l) Ri).
 
-  Definition I := λ (i j : R),
+
+  Definition I := λ (i j : Node),
     if Hdec i j then 1 else 0.
 
-  Definition initial_state (i : R) (l : list R) :=
+
+  Definition initial_state (i : Node) (l : list Node) :=
     construct_a_state i l 
-    (fun j : R => I i j + A i j).
+    (fun j : Node => I i j + A i j).
+
 
   (* it computes f^n (init_state) *)
   Definition dijkstra (m : nat) (s : state) : state :=
     Nat.iter m dijkstra_one_step s.
-    
 
-End Computation.
 
-Section Proofs.
-(* This section contains proofs about 
+
+(* 
+  This section contains proofs about 
   Dijkstra algorithm. 
   
   Notes from Tim's slides:
@@ -136,28 +140,17 @@ Section Proofs.
 
   R := R * A + I 
   *)
-  (* operators and assumptions that we going to have *)
-  Context
-    {T : Type}
-    {zero one : T}
-    {add mul : T -> T -> T}
-    {eqT : brel T}
-    {refT : brel_reflexive T eqT}
-    {symT : brel_symmetric T eqT}
-    {trnT : brel_transitive T eqT}.
+  
 
-  Declare Scope Dij_scope.
-  Delimit Scope Dij_scope with T.
-  Bind Scope Dij_scope with T.
-  Local Open Scope Dij_scope.
-
-  Local Infix "+" := add : Dij_scope.
-  Local Infix "*" := mul : Dij_scope.
-  Local Notation "0" := zero : Dij_scope.
-  Local Notation "1" := one : Dij_scope.
-  Local Infix "==" := eqT (at level 70) : Dij_scope.
+  (* Finite Node *)
+  Context 
+    {l : list Node}
+    {Hfin : ∀ x : Node, List.In x l}.
+  
+  Let nl := List.length l.
 
 
+  (* Lemmas needed for proof *)
   Context
     {associative : forall (a b c : T), (a + b + c == a + (b + c)) = true}
     {commutative : forall (a b : T), (a + b == b + a) = true}
@@ -166,13 +159,20 @@ Section Proofs.
     {add_sel : forall (a b : T), ((a + b == a) = true) + ((a + b == b) = true)}
     {one_add_ann : forall (a : T), (1 + a == 1) = true}
     {add_mul_right_absorption : forall (a b : T), (a + (a * b) == a) = true}.
-    (* a <=L a * b *)
+
   
   (* Everything good upto this point *)
 
+  
+  
+  
+  
+    
 
 
-End Proofs.
+
+
+End Computation.
 
 
   
