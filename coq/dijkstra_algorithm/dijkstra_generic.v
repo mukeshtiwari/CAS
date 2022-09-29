@@ -101,25 +101,14 @@ Section Computation.
     end.
 
 
-  (* 
-    construct a state.
-    i is the starting node
-    l is the list of nodes except i 
-    Ri is the ith row 
-  *)
-  Definition construct_a_state 
-    (i : Node) (l : list Node) 
-    (Ri : Node -> T) : state :=
-    (mk_state [i] (List.remove Hdec i l) Ri).
-
-
+ 
   Definition I := λ (i j : Node),
     if Hdec i j then 1 else 0.
 
 
   Definition initial_state (i : Node) (l : list Node) :=
-    construct_a_state i l 
-    (fun j : Node => I i j + A i j).
+    (mk_state [i] (List.remove Hdec i l) 
+    (fun j : Node => I i j + A i j)).
 
 
   (* it computes f^n (init_state) *)
@@ -143,7 +132,8 @@ Section Computation.
   ∀ j : V, R i j := I i j + (forall q : V, R i q * A q j)
 
   R := R * A + I 
-  *)
+  
+*)
   
 
   (* Finite Node *)
@@ -170,7 +160,7 @@ Section Computation.
   
   (* 
   
-  ∀ k : nat, k < nl -> forall j : Node, 
+    ∀ k : nat, k < nl -> forall j : Node, 
     List.in j (vis (dijkstra k i l)), 
     Ri (dijkstra k i l) j = I i j + 
       (List.map (fun q => Ri (dijkstra k i l) q * A q j) 
@@ -183,6 +173,7 @@ Section Computation.
     have been in visited state and there 
     is no more change.
   *)
+
   Lemma dijkstra_fixpoint (i : Node) :
     ∀ k : nat, 
     dijkstra nl i l = 
@@ -195,10 +186,13 @@ Section Computation.
     + simpl.
       rewrite IHk.
       unfold dijkstra_one_step,
-      initial_state,
-      construct_a_state;
-      simpl.
-      (* Prove that *)
+      initial_state.
+      (* assert that pq = [] 
+        I need an invariant 
+        Permutation (vis ++ ps) nl
+      
+      *)
+      
 
   Admitted.
   
@@ -214,23 +208,27 @@ Section Computation.
   Proof.
     induction k.
     + simpl.
-      (* Looks true *)
+      intros j [H | H].
+      - subst.
+      (* 
+        I j j + A j j = I j j + ((I j j + A j j) * A j j + 0)
+        + is congruent.
+        A j j = ((I j j + A j j) * A j j + 0)
+        I j j = 1 and therefore 
+        I j j + A j j = 1 by one_add_ann
+        0 is additive idenitity.
+        We are home.
+      *)
       admit.
+      - inversion H.
     + simpl.
       intros j Hin.
-      (* proof idea:
-        vis (dijkstra_one_step (dijkstra k i l)) can be 
-        written as 
-        qk :: (vis (dijkstra k i l))
-        
-        from Hin: we have 
-        j = qk \/ List.In j (vis (dijkstra k i l))
-       
-
-
-      *)  
-  Admitted.  
-
+      (* 
+        Proof idea:
+      
+      
+      
+      *)
   
   
   
