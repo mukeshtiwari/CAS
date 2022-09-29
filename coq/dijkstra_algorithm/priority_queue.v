@@ -44,4 +44,26 @@ Section Priority_Queue.
   end.
   
 
-End Priority_Queue.
+  Lemma remove_min_none_implies_empty_pq : 
+    forall (vs : list A) (f : A -> U),
+    remove_min vs f = None <-> vs = [].
+  Proof.
+    split; intros H.
+    + refine(
+      match vs as vs' 
+        return vs = vs' -> _ 
+      with
+      | [] => fun Heq => eq_refl 
+      | _ :: _ => fun Heq => _  
+      end eq_refl).
+      rewrite Heq in H.
+      simpl in H;
+      inversion H.
+    + subst; exact eq_refl.
+  Qed.
+
+
+  
+
+
+End Priority_Queue
