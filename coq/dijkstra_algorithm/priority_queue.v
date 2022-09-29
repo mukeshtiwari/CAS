@@ -16,18 +16,41 @@ Section Priority_Queue.
 
   (* This function returns the minimum node *)
   Fixpoint find_min_node
-    (nund : U * A)
-    (ls : list (U * A)) : A :=
+    (ua : U * A)
+    (ls : list (U * A)) : U * A :=
   match ls with 
-  | [] => snd nund
-  | (nuh, ndh) :: t => 
-    match C (fst nund) nuh with 
-    (* nu is so far minimal element *)
-    | true =>  find_min_node nund t 
-    (* nuh is minimal element *)
-    | false => find_min_node (nuh, ndh) t 
+  | [] => ua
+  | (uy, ay) :: t => 
+    match C (fst ua) uy with 
+    (* ua is so far minimal element *)
+    | true =>  find_min_node ua t 
+    (* (uy, ay) is minimal element *)
+    | false => find_min_node (uy, ay) t 
     end
   end.
+
+
+  (* This theorem asserts that ur is a minimum 
+    element *)
+  Theorem find_min_node_empty_list : 
+    forall ls u a ur ar, 
+    find_min_node (u, a) ls = (ur, ar) ->
+    forall x y, In (x, y) ls -> C ur x = true.
+  Proof.
+    induction ls as [|(uax, uay) ls IHn].
+    + intros ? ? ? ? Ha ? ? Hb.
+      simpl in Ha.
+      inversion Hb.
+    + intros ? ? ? ? Ha ? ? Hb.
+      destruct Hb as [Hb | Hb].
+      inversion Hb;
+      subst; clear Hb.
+      - (* ur is a minimum element *)
+        simpl in Ha.
+  Admitted.
+  (* Why am I trying to prove this? *)    
+
+  
 
 
   Definition remove_min
@@ -37,10 +60,11 @@ Section Priority_Queue.
   match vs with 
   | [] => None
   | h :: t => 
-    let qk := 
-      find_min_node (f h, h) 
-        (List.map (fun x => (f x, x)) t) 
-    in Some (qk, List.remove Hdec qk vs)
+    match find_min_node (f h, h) 
+      (List.map (fun x => (f x, x)) t) 
+    with 
+    | (_, qk) => Some (qk, List.remove Hdec qk vs) 
+    end
   end.
   
 
@@ -57,13 +81,12 @@ Section Priority_Queue.
       | _ :: _ => fun Heq => _  
       end eq_refl).
       rewrite Heq in H.
-      simpl in H;
+      simpl in H.
+      destruct (find_min_node (f a, a) 
+      (List.map (fun x => (f x, x)) l));
       inversion H.
     + subst; exact eq_refl.
   Qed.
-
-
-  
 
 
 End Priority_Queue
