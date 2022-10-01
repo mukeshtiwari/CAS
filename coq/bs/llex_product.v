@@ -86,31 +86,63 @@ Proof. destruct nldS as [[s1 [s2 s3]] H].
 Defined.
 
 Lemma bop_product_llex_not_left_distributive_v2 
-      (ldS : bop_left_distributive S rS mulS addS)
-      (m_idemS : bop_idempotent S rS mulS) 
+      (*  ldS : bop_left_distributive S rS mulS addS  *) 
+      (m_idemS : bop_idempotent S rS mulS)
+      
       (nldT : bop_not_left_distributive T rT mulT addT) : 
   bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
 Proof. destruct nldT as [[t1 [t2 t3]] H].
        exists ((wS, t1), ((wS, t2), (wS, t3))). 
        compute. 
-       rewrite ldS.
-       assert (A := a_idemS wS). rewrite A.
-       apply symS in A. rewrite A.
-       assert (B := ldS wS wS wS).
-       assert (C := m_conS _ _ _ _ A A).
-       assert (D := tranS _ _ _ B (symS _ _ C)). rewrite D.
-       case_eq (rS wS (wS +S (wS *S wS))); intro E.
-       + exact H.
-       + assert (F := m_idemS wS).
-         assert (G := a_conS _ _ _ _ (refS wS) F).
-         assert (I := tranS _ _ _ A (symS _ _ G)).
-         rewrite I in E. discriminate E. 
-Defined. 
+       case_eq(rS (wS +S (wS *S wS)) ((wS +S wS) *S (wS +S wS))); intro K; auto. 
+       + assert (A := a_idemS wS). rewrite A.
+         apply symS in A. rewrite A.
+         assert (C := m_conS _ _ _ _ A A).
+         assert (D := tranS _ _ _ K (symS _ _ C)). rewrite D.
+         case_eq (rS wS (wS +S (wS *S wS))); intro E.
+         ++ exact H.
+         ++ assert (F := m_idemS wS).
+            assert (G := a_conS _ _ _ _ (refS wS) F).
+            assert (I := tranS _ _ _ A (symS _ _ G)).
+            rewrite I in E. discriminate E. 
+Defined.
 
-
-Lemma bop_product_llex_not_left_distributive_v17
+(* for case ldT : bop_left_distributive T rT mulT addT) *) 
+Lemma bop_product_llex_not_left_distributive_v3
       (ldS : bop_left_distributive S rS mulS addS)
-      (m_nidemS : bop_not_idempotent S rS mulS) 
+      (m_idemS : bop_idempotent S rS mulS)
+
+      (a_selS : bop_selective S rS addS)                  
+      (m_nidemT : bop_not_idempotent T rT mulT)
+           (a_nrS : bop_not_is_right S rS addS): (* follows from a_commS + a_idemS *) 
+  bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. destruct m_nidemT as [t1 H2].
+       destruct a_nrS as [[s1 s2] H3].
+       exists ((s1, t1), ((s2, t1), (s2, t1))). 
+       compute.
+       assert (C := ldS s1 s2 s2). rewrite C. 
+       assert (D := m_idemS (s1 +S s2)).
+       assert (G := tranS _ _ _ C D).
+       assert (I := m_idemS s2). 
+       case_eq (rS (s1 +S (s2 *S s2)) (s2 *S s2)); intro B. 
+       + assert (J := tranS _ _ _ B I).
+         assert (K := tranS _ _ _ (symS _ _ G) J). 
+         rewrite K in H3. discriminate H3. 
+       + rewrite H3.
+         destruct (a_selS s1 s2) as [M | M].
+         ++ apply symS in M. rewrite M.
+            rewrite (tranS _ _ _ M (symS _ _ G)).
+            case_eq(rT t1 (t1 *T t1)); intro F; auto.
+            +++ apply symT in F. rewrite F in H2.
+                discriminate H2. 
+         ++ rewrite M in H3. discriminate H3. 
+Defined.
+
+
+Lemma bop_product_llex_not_left_distributive_v4
+      (ldS : bop_left_distributive S rS mulS addS)
+      (m_nidemS : bop_not_idempotent S rS mulS)
+      (llaS : bops_left_left_absorptive S rS addS mulS)
       (nldT : bop_not_left_distributive T rT mulT addT) : 
   bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
 Proof. destruct nldT as [[t1 [t2 t3]] H].
@@ -118,15 +150,237 @@ Proof. destruct nldT as [[t1 [t2 t3]] H].
        exists ((s, t1), ((s, t2), (s, t3))). 
        compute. 
        rewrite ldS.
-       assert (A := a_idemS s). rewrite A.
-       apply symS in A. rewrite A.
+       assert (A := a_idemS s). rewrite A. 
+       apply symS in A. rewrite A. 
        assert (B := ldS s s s).
        assert (C := m_conS _ _ _ _ A A).
        assert (D := tranS _ _ _ B (symS _ _ C)). rewrite D.
-       case_eq (rS s (s +S (s *S s))); intro E.
-       + exact H.
-       + admit. (* ??? *) 
+       assert (E := llaS s s). rewrite E. 
+       exact H.
+Defined.  
+
+Lemma bop_product_llex_not_left_distributive_v4_2
+      (ldS : bop_left_distributive S rS mulS addS)
+      (m_nidemS : bop_not_idempotent S rS mulS)
+      (nllaS : bops_not_left_left_absorptive S rS addS mulS)
+      (nldT : bop_not_left_distributive T rT mulT addT) : 
+  bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. destruct nldT as [[t1 [t2 t3]] H1].
+       destruct m_nidemS as [s1 H2].
+       destruct nllaS as [[s2 s3] H3]. 
+       exists ((s2, t1), ((s2, t2), (s3, t3))). 
+       compute.
+       assert (H4 := ldS s2 s2 s3). 
+       rewrite H4.
+       rewrite H3. 
+       assert (A := a_idemS s2). rewrite A. 
+       apply symS in A. rewrite A. 
+       case_eq(rS (s2 +S (s2 *S s3)) (s2 *S s3)); intro B.
+       + admit. 
+       + admit. 
 Admitted. 
+
+
+
+(*
+           bs_trivial : exists a, forall b c, a = b + c and a = b * c
+           bs_not_trivial : forall a, exists b c, a <> b + c or a <> b * c
+                            exists f, forall a, f a = (b, c) and (a <> b + c or a <> b * c)
+          
+ *)
+
+
+Lemma bop_product_llex_not_left_distributive_v5 (t1 t2 t3 : T) 
+      (ldS : bop_left_distributive S rS mulS addS)
+      (ldT : bop_left_distributive T rT mulT addT)
+      (a_selS : bop_selective S rS addS)
+      (m_idemS : bop_idempotent S rS mulS)
+      (m_idemT : bop_idempotent T rT mulT) : 
+  bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. destruct (ntS wS) as [H1 H2].
+       destruct (a_selS (f wS) wS) as [H3 | H3]. 
+       + exists ((wS, t1), ((f wS, t2), (f wS, t3))). compute.
+         assert (H := ldS wS (f wS) (f wS)). rewrite H.
+         assert (H4 := m_idemS (wS +S f wS)).
+         assert (H5 := tranS _ _ _ H H4). 
+         assert (H6 : rS wS (wS +S f wS) = false). admit. rewrite H6.
+         assert (H7 : rS (wS +S f wS) (f wS) = true). admit. rewrite H7.
+         assert (H8 : rS (wS +S (f wS *S f wS)) (f wS *S f wS) = true). admit. rewrite H8.
+         (** OOOOPS **)
+Admitted. 
+
+Lemma bop_product_llex_not_left_distributive_v6 
+      (ldS : bop_left_distributive S rS mulS addS)
+      (ldT : bop_left_distributive T rT mulT addT)
+      (* annT : bop_is_ann T rT mulT argT *)      
+      (a_nselS : bop_not_selective S rS addS) 
+      (m_idemS : bop_idempotent S rS mulS) :       
+  bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+(*
+Proof. destruct a_nselS as [[s1 s2] [H1 H2]].
+       exists ((s1, argT), ((s2, g argT), (s2, g argT))). compute.
+       assert (H3 := ldS s1 s2 s2). rewrite H3.
+       assert (H4 := m_idemS (s1 +S s2)).
+       assert (H5 := tranS _ _ _ H3 H4). 
+       assert (H6 : rS s1 (s1 +S (s2 *S s2)) = false). admit. rewrite H6.
+       rewrite H2.
+       assert (H7 : rS s1 (s1 +S s2) = false). admit. rewrite H7.
+       assert (H8 := m_idemS s2).
+       case_eq(rS (s1 +S (s2 *S s2)) (s2 *S s2)); intro H9.
+       + admit. (* this is a contradiction *) 
+       + admit. (* NO *) 
+*) 
+Admitted. 
+       
+Lemma bop_product_llex_not_left_distributive_v7
+      (ldS : bop_left_distributive S rS mulS addS)
+      (ldT : bop_left_distributive T rT mulT addT)
+      (m_nidemS : bop_not_idempotent S rS mulS) :       
+  bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. Admitted. 
+
+Definition bop_product_llex_not_left_distributive_decide
+           (ldS_d : bop_left_distributive_decidable S rS mulS addS)
+           (ldT_d : bop_left_distributive_decidable T rT mulT addT)
+           (llaS_d : bops_left_left_absorptive_decidable S rS addS mulS)           
+           (a_selS_d : bop_selective_decidable S rS addS)           
+           (m_idemS_d : bop_idempotent_decidable S rS mulS)
+           (m_idemT_d : bop_idempotent_decidable T rT mulT)
+           (a_nrS : bop_not_is_right S rS addS) (* follows from a_commS + a_idemS *)            
+           (CHEAT : bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT)) :
+  bop_left_distributive_decidable (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT)
+  :=
+    match ldS_d with
+    | inr nldS => inr (bop_product_llex_not_left_distributive_v1 nldS)
+    | inl ldS =>
+      match ldT_d with
+      | inr nldT =>
+        match m_idemS_d with
+        | inl m_idemS => inr (bop_product_llex_not_left_distributive_v2 m_idemS nldT)
+        | inr m_nidemS =>
+          match llaS_d with
+          | inl llaS => inr (bop_product_llex_not_left_distributive_v4 ldS m_nidemS llaS nldT)
+          | inr nllaS => inr (bop_product_llex_not_left_distributive_v4_2 ldS m_nidemS nllaS nldT)
+          end 
+        end 
+      | inl ldT =>
+        match m_idemS_d with
+        | inl m_idemS =>
+          match a_selS_d with
+          | inl a_selS =>
+            match m_idemT_d with
+            | inl m_idemT => inr (bop_product_llex_not_left_distributive_v5 wT wT wT ldS ldT a_selS m_idemS m_idemT)
+            | inr m_nidemT => inr (bop_product_llex_not_left_distributive_v3 ldS m_idemS a_selS m_nidemT a_nrS)
+            end 
+          | inr a_nselS => inr (bop_product_llex_not_left_distributive_v6 ldS ldT a_nselS m_idemS)
+          end 
+        | inr m_nidemS => inr (bop_product_llex_not_left_distributive_v7 ldS ldT m_nidemS)
+        end 
+      end
+    end.
+
+(*
+Definition bop_product_llex_not_left_distributive_decide_v2 
+           (ldS_d : bop_left_distributive_decidable S rS mulS addS)
+           (ldT_d : bop_left_distributive_decidable T rT mulT addT)
+           (a_selS_or_annT : (bop_selective S rS addS) + ((bop_not_selective S rS addS) * (bop_is_ann T rT mulT argT)))
+           (m_idemS_d : bop_idempotent_decidable S rS mulS)
+           (m_idemT_d : bop_idempotent_decidable T rT mulT)
+           (a_nrS : bop_not_is_right S rS addS) : (* follows from a_commS + a_idemS *)            
+  bop_left_distributive_decidable (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT) :=
+match a_selS_or_annT with
+| inl a_selS =>
+    match ldS_d with
+    | inr nldS => inr (bop_product_llex_not_left_distributive_v1 nldS)
+    | inl ldS =>
+      match ldT_d with
+      | inr nldT =>
+        match m_idemS_d with
+        | inl m_idemS => inr (bop_product_llex_not_left_distributive_v2 m_idemS nldT) (* not using a_selS *)
+        | inr m_nidemS => inr (bop_product_llex_not_left_distributive_v4 ldS m_nidemS nldT) (* not using a_selS *)
+        end 
+      | inl ldT =>
+        match m_idemS_d with
+        | inl m_idemS =>
+            match m_idemT_d with
+            | inl m_idemT => inr (bop_product_llex_not_left_distributive_v5 wT wT wT ldS ldT a_selS m_idemS m_idemT)
+            | inr m_nidemT => inr (bop_product_llex_not_left_distributive_v3 ldS m_idemS a_selS m_nidemT a_nrS)
+            end 
+        | inr m_nidemS => inr (bop_product_llex_not_left_distributive_v7 ldS ldT m_nidemS) (* not using a_selS *)
+        end 
+      end
+    end
+| inr (a_nselS, annT) =>   
+    match ldS_d with
+    | inr nldS => inr (bop_product_llex_not_left_distributive_v1 nldS)
+    | inl ldS =>
+      match ldT_d with
+      | inr nldT =>
+        match m_idemS_d with
+        | inl m_idemS => inr (bop_product_llex_not_left_distributive_v2 m_idemS nldT)
+        | inr m_nidemS => inr (bop_product_llex_not_left_distributive_v4 ldS m_nidemS nldT)
+        end 
+      | inl ldT =>
+        match m_idemS_d with
+        | inl m_idemS => inr (bop_product_llex_not_left_distributive_v6 ldS ldT a_nselS m_idemS)
+        | inr m_nidemS => inr (bop_product_llex_not_left_distributive_v7 ldS ldT m_nidemS)
+        end 
+      end
+    end
+end .
+*) 
+       
+
+
+
+
+
+Lemma bop_product_llex_not_left_distributive_v300 (s3 : S) (t1 t2 t3 : T)
+      (annT : bop_is_ann T rT mulT argT)
+      (nselS : bop_not_selective S rS addS) 
+      (ldS : bop_left_distributive S rS mulS addS) : 
+         bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. destruct nselS as [[s1 s2] [H1 H2]].
+      exists ((s1, g argT), ((s2, argT), (s1, argT))). compute.
+       rewrite ldS.
+       rewrite H2. 
+       assert (H3 : rS s1 (s1 +S s2) = false). admit.
+       rewrite H3.
+       assert (H4 := a_idemS s1). rewrite H4. apply symS in H4. rewrite H4.
+       case_eq(rS s1 (s1 +S (s2 *S s1))); intro H5;
+       case_eq(rS (s1 +S (s2 *S s1)) (s2 *S s1)); intro H6.
+       + admit. (* need argT is +T id *) 
+       + admit. (* OK *) 
+       + assert (H7 := ldS s1 s2 s1). 
+         admit. (* NO! *) 
+       + admit. 
+Admitted.        
+
+
+Lemma bop_product_llex_not_left_distributive_v333 (t1 t2 t3 : T)
+      (annT : bop_is_ann T rT mulT argT)
+      (nselS : bop_not_selective S rS addS) 
+      (ldS : bop_left_distributive S rS mulS addS) : 
+         bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. destruct nselS as [[s1 s2] [H1 H2]].
+      exists ((s1, t2), ((s2, t1), (s1, t3))). compute.
+       rewrite ldS.
+       rewrite H2. 
+       assert (H3 : rS s1 (s1 +S s2) = false). admit.
+       rewrite H3.
+       assert (H4 := a_idemS s1). rewrite H4. apply symS in H4. rewrite H4.
+       case_eq(rS s1 (s1 +S (s2 *S s1))); intro H5;
+       case_eq(rS (s1 +S (s2 *S s1)) (s2 *S s1)); intro H6.
+       + admit. 
+       + admit. 
+       + assert (H7 := ldS s1 s2 s1). 
+         admit. 
+       + admit. 
+Admitted.        
+
+
+
+
 
 
 Lemma bop_product_llex_left_distributive_v0
@@ -456,29 +710,8 @@ subgoal 64 (ID 481) is:
 Admitted.        
 
 
-Lemma bop_product_llex_not_left_distributive_v3 (s3 : S) (t1 t2 t3 : T)
-      (annT : bop_is_ann T rT mulT argT)
-      (nselS : bop_not_selective S rS addS) 
-      (ldS : bop_left_distributive S rS mulS addS)
-      (ldT : bop_left_distributive T rT mulT addT) : 
-         bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
-Proof. destruct nselS as [[s1 s2] [H1 H2]].
-      exists ((s1, g argT), ((s2, argT), (s1, argT))). compute.
-       rewrite ldS.
-       rewrite H2. 
-       assert (H3 : rS s1 (s1 +S s2) = false). admit.
-       rewrite H3.
-       assert (H4 := a_idemS s1). rewrite H4. apply symS in H4. rewrite H4.
-       case_eq(rS s1 (s1 +S (s2 *S s1))); intro H5;
-       case_eq(rS (s1 +S (s2 *S s1)) (s2 *S s1)); intro H6.
-       + admit. (* need argT is +T id *) 
-       + admit. (* OK *) 
-       + assert (H7 := ldS s1 s2 s1). 
-         admit. (* NO! *) 
-       + admit. (* NO! *) 
-Admitted.        
 
-Lemma bop_product_llex_not_left_distributive_v5 (t1 t2 t3 : T)
+Lemma bop_product_llex_not_left_distributive_v555 (t1 t2 t3 : T)
       (selS : bop_selective S rS addS)
       (nlcS : bop_not_left_cancellative S rS addS) 
       (ldS : bop_left_distributive S rS mulS addS)
@@ -501,7 +734,7 @@ Proof. destruct nlcS as [[s1 [s2 s3]] [H1 H2]].
 Admitted. 
 
 
-Lemma bop_product_llex_not_left_distributive_v6 (t1 t2 t3 : T)
+Lemma bop_product_llex_not_left_distributive_v66 (t1 t2 t3 : T)
       (m_nidemS : bop_not_idempotent S rS mulS) 
       (ldS : bop_left_distributive S rS mulS addS)
       (ldT : bop_left_distributive T rT mulT addT) : 
@@ -522,7 +755,7 @@ Admitted.
 
 
 
-Lemma bop_product_llex_not_left_distributive_v7 (s1 s2 s3 : S) (t1 t2 t3 : T)
+Lemma bop_product_llex_not_left_distributive_v77 (s1 s2 s3 : S) (t1 t2 t3 : T)
       (ldS : bop_left_distributive S rS mulS addS)
       (ldT : bop_left_distributive T rT mulT addT) : 
          bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
@@ -555,13 +788,15 @@ Proof. exists ((s1, t1), ((s2, t2), (s3, t3))). compute.
        + admit.
        + admit.
        + admit. 
-       + (*
+       + (*  OK OK OK OK OK OK OK OK OK OK OK OK OK OK 
+
+This is Lemma bop_product_llex_not_left_distributive_v22
 
   CASE NOT SEL *T
   A : s1 =S (s1 +S (s2 *S s3))
          =S (s1 +S s2) *S (s1 +S s3)
-         =S s1 *S s1 
-  B : rS (s1 +S (s2 *S s3)) (s2 *S s3) = false
+         =S s1 *S s1 OK 
+  B : rS (s1 +S (s2 *S s3)) (s2 *S s3) = false ???
   C : s1 =S (s1 +S s2)
   D : rS (s1 +S s2) s2 = false   from not right
   E : s1 =S (s1 +S s3)
@@ -569,11 +804,16 @@ Proof. exists ((s1, t1), ((s2, t2), (s3, t3))). compute.
   ============================
   rT t1 (t1 *T t1) = false
  
-  s2 = s2 
+  s2 = s3
   
   B : rS (s1 +S (s2 *S s2)) (s2 *S s2) = false
   B : rS (s1 *S s1) (s2 *S s2) = false
+  B : rS s1 s2 = false OK (from C D) 
 
+  need idem( *S ) ! 
+
+  SO: Not Sel *T
+          idem *S 
 
           *) 
          admit.
@@ -597,6 +837,24 @@ Proof. exists ((s1, t1), ((s2, t2), (s3, t3))). compute.
   F : rS (s1 +S s3) s3 = false
   ============================
   rT t1 (t1 *T argT) = false
+
+   argT is ann 
+   t1 = g argT
+   +S not selective via (s1, s3) 
+   +S has top (id) 
+   s2 = top
+
+   need A,B,C,D 
+
+  C : s1 =S (s1 +S s2)
+  D : rS (s1 +S s2) s2 = false
+  what if s2 = top? 
+       then s1 <> s2, OK 
+
+  A : s1 =S (s1 +S (s2 *S s3)) ?? 
+  A : s1 =S (s1 +S (id *S s3)) ?? 
+  A : s1 =S (s1 +S  s3)   NOOOOOOOOOOOOO ***E 
+
           *) 
          admit.
        + admit. 
@@ -638,6 +896,24 @@ Proof. exists ((s1, t1), ((s2, t2), (s3, t3))). compute.
   F : rS (s1 +S s3) s3 = false
   ============================
   rT t1 (t2 *T argT) = false
+
+   argT is ann 
+   t1 = g argT
+   +S not selective via (s1, s3) 
+   +S has bottom (ann) s2 = ann 
+
+  C : rS s1 (s1 +S s2) = false
+  D : (s1 +S s2) =S s2 
+  OK 
+
+  A : s1 =S (s1 +S (s2 *S s3))
+         =S (s1 +S s2) *S (s1 +S s3)
+         =S s2 *S (s1 +S s3)
+         =S (s1 +S s3)            if ann = *S id BUT OK if ann +S = ann *S
+         **** E 
+
+  B : rS (s1 +S (s2 *S s3)) (s2 *S s3) = false
+      AH, s2 can't be ID of *S ! 
 
           *)
          admit.
