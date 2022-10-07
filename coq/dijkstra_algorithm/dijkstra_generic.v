@@ -4,7 +4,9 @@
 *)
 Require Import 
   List ListSet PeanoNat
-  Utf8.
+  Utf8
+  Coq.Sorting.Permutation
+  Psatz.
 
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
@@ -155,6 +157,29 @@ Section Computation.
 
 
   
+  (* 
+    In every step, 
+    either we take an element from the priority queue
+    and move it to the visited node or it's 
+    empty.   
+    
+  *)
+
+  Lemma dijkstra_permutation :
+    forall k lgen i,
+    Permutation 
+    (vis (dijkstra k i lgen) ++ 
+    pq (dijkstra k i lgen)) lgen.
+  Proof.
+    induction k.
+    + simpl;
+      intros ? ?.
+      admit.
+    + simpl.
+      unfold dijkstra_one_step;
+      cbn.
+  Admitted. 
+
   
   (* Proof idea:
     After n iterations, all the nodes 
@@ -166,16 +191,70 @@ Section Computation.
     dijkstra n i l = 
     dijkstra (k + n) i l.
   Proof.
+    unfold dijkstra,
+    dijkstra_gen.
   Admitted.
   
   Lemma dijkstra_main_proof (i : Node) : 
-    ∀ (k : nat) (j : Node), k < n -> 
+    ∀ (k : nat) (j : Node), 
+    k <= n -> 
     List.In j (vis (dijkstra k i l)) -> 
-    ri (dijkstra k i l) j = I i j + 
+    (ri (dijkstra k i l) j == I i j + 
       sum_fn 0 add 
         (fun q => ri (dijkstra k i l) q * A q j)
-        (vis (dijkstra k i l)).
+        (vis (dijkstra k i l))) = true.
   Proof.
+    induction k.
+    + unfold sum_fn; 
+      simpl;
+      intros ? Hn [H | H].
+      - subst.
+        unfold I, 
+        matrix_multiplication.I,
+        matrix_mul_identity,
+        brel_eq_nat.
+        rewrite Nat.eqb_refl.
+        (* + is congruence *)
+        (* 
+          A j j = ((1 + A j j) * A j j + 0))
+          We have (1 + A j j) =  1 by one_add_ann
+          A j j = (1 * A j j + 0) 
+          We 1 * A j j = A j j by one_mul_id 
+          A j j = A j j + 0 
+          and we have A j j + 0 = A j j
+          A j j = A j j and we are home
+        *)
+        admit.
+      - tauto.
+    + (* inductive case *)
+      simpl; 
+      intros ? Ha Hb.
+      (* From Hb : In j (vis (dijkstra_one_step (dijkstra k i l)))
+         I know what j = qk or inductive case.
+      *)
+      unfold dijkstra_one_step in Hb.
+      destruct (dijkstra k i l) eqn:Hd.
+      destruct (remove_min pq0 ri0) eqn:He.
+      destruct p.
+      simpl in He, Hb.
+      simpl in IHk.
+      simpl.
+      rewrite He.
+      simpl.
+      unfold sum_fn.
+      simpl.
+
+      assert (k <= n). nia. (* this condition is spurious *)
+      simpl.
+      unfold dijkstra_one_step, 
+      dijkstra,
+      dijkstra_gen,
+      initial_state,
+      dijkstra_one_step.
+
+    
+        
+
   Admitted.
   
   

@@ -66,12 +66,13 @@ Section Priority_Queue_Proofs.
 
 
   (* This theorem asserts that ur is a minimum 
-    element *)
+    element wrt (brel_lte_left eqT add) *)
   Theorem find_min_node_empty_list : 
     forall ls u a ur ar, 
     @find_min_node _ (brel_lte_left eqT add) 
       (u, a) ls = (ur, ar) ->
-    forall x y, In (x, y) ls -> brel_lte_left eqT add ur x = true.
+    forall x y, In (x, y) ls -> 
+    brel_lte_left eqT add ur x = true.
   Proof.
   Admitted.
   
@@ -98,6 +99,42 @@ Section Priority_Queue_Proofs.
       inversion H.
     + subst; exact eq_refl.
   Qed.
+
+  Lemma remove_min_some_implies_non_empty_pq : 
+    forall (vs : list Node) 
+    (vss : list Node) (qk : Node) (f : Node -> T), 
+    @remove_min _ (brel_lte_left eqT add) vs f = Some (qk, vss)
+    -> exists (vsl vsr : list Node),
+       vss = vsl ++ vsr ∧ 
+       vs = vsl ++ [qk] ++ vsr.
+  Proof.
+    induction vs.
+    + intros ? ? ? Hr.
+      simpl in Hr.
+      congruence.
+    + intros ? ? ?.
+      simpl; intros Ha.
+      destruct (find_min_node (f a, a) (map (λ x : Node, (f x, x)) vs))
+        eqn:Hb.
+      
+    
+
+  Admitted.
+
+
+  Lemma remove_min_some_implies_least_element : 
+    forall (vs : list Node) (f : Node -> T)
+    (vss : list Node) (qk : Node), 
+    @remove_min _ (brel_lte_left eqT add) vs f = Some (qk, vss)
+    -> (forall x : Node, In x vs -> 
+        brel_lte_left eqT add (f qk) (f x) = true). 
+  Proof.
+  Admitted.
+
+
+
+
+
 
 
 End Priority_Queue_Proofs.
