@@ -4,23 +4,30 @@
 *)
 Require Import 
   List ListSet PeanoNat
-  Vector Fin Utf8.
+  Utf8.
 
 From CAS Require Import coq.common.compute
   coq.eqv.properties coq.eqv.structures
   coq.eqv.theory 
   coq.dijkstra_algorithm.priority_queue
-  coq.dijkstra_algorithm.Finite.
-
+  coq.po.from_sg
+  coq.algorithms.list_congruences
+  coq.algorithms.matrix_addition
+  coq.algorithms.matrix_algorithms
+  coq.algorithms.matrix_definition
+  coq.algorithms.weighted_path
+  coq.algorithms.matrix_multiplication.
 
 Import ListNotations.
 
+(* 
+Most of the code is taken/inspired from Tim's 
+ssreflect formalisation 
+https://www.cl.cam.ac.uk/~tgg22/metarouting/rie-1.0.v
+*)
 Section Computation.
 
-  (*Most of the code is taken/inspired from Tim's 
-    ssreflect formalisation 
-    https://www.cl.cam.ac.uk/~tgg22/metarouting/rie-1.0.v
-  *)
+  
   Context
     {T : Type}
     {zero one : T}
@@ -31,10 +38,10 @@ Section Computation.
     {trnT : brel_transitive T eqT}.
     
 
+  (* Nodes are natural numbers *)
+  Definition Node := nat.
 
    Context 
-    {Node : Type}
-    {Hdec : ∀ (x y : Node), {x = y} + {x <> y}}
     (A : Node -> Node -> T). (* Adjacency Matrix *)
 
 
@@ -50,9 +57,6 @@ Section Computation.
   Local Notation "1" := one : Dij_scope.
   Local Infix "==" := eqT (at level 70) : Dij_scope.
 
-  (* <=+ order *)
-  Definition C (a b : T) := (a + b == a).
-
 
   (* state captures all the information.  *)   
   Record state :=
@@ -60,7 +64,7 @@ Section Computation.
     {
       vis : list Node; (* visited so far *)
       pq  : list Node; (* priority_queue *)
-      Ri  : Node -> T  (* the ith row under consideration *)
+      ri  : Node -> T  (* the ith row under consideration *)
     }.
 
   (* 
@@ -78,36 +82,35 @@ Section Computation.
   Definition relax_edges 
     (qk : Node) 
     (pq : list Node)
-    (Ri : Node -> T) : Node -> T :=
+    (ri : Node -> T) : Node -> T :=
     fun (j : Node) =>
-      match List.in_dec Hdec j pq with 
-      | left _ => (Ri j) + ((Ri qk) * (A qk j)) (* update if j is in pq *)
-      | right _ => Ri j (* do nothing, if j in not in pq *)
+      match List.in_dec Nat.eq_dec j pq with 
+      | left _ => (ri j) + ((ri qk) * (A qk j)) (* update if j is in pq *)
+      | right _ => ri j (* do nothing, if j in not in pq *)
       end.
 
 
   (* one iteration of Dijkstra. *)
   Definition dijkstra_one_step (s : state) : state :=
     match s with 
-    |  mk_state vis pq Ri => 
-      match @remove_min _ Hdec T C pq Ri with 
+    |  mk_state vis pq ri => 
+      match @remove_min _ (brel_lte_left eqT add) pq ri with 
       | None => s 
       | Some (qk, pq') => 
           mk_state 
             (qk :: vis) (* add qk to visited set *)
             pq' (* new priority queue *)
-            (relax_edges qk pq' Ri) (* relax the row *)
+            (relax_edges qk pq' ri) (* relax the row *)
       end 
     end.
 
 
- 
-  Definition I := λ (i j : Node),
-    if Hdec i j then 1 else 0.
 
+  (* Short hand of identity *)
+  Definition I := I T 0 1.
 
   Definition initial_state (i : Node) (l : list Node) :=
-    (mk_state [i] (List.remove Hdec i l) 
+    (mk_state [i] (List.remove Nat.eq_dec i l) 
     (fun j : Node => I i j + A i j)).
 
 
@@ -120,7 +123,6 @@ Section Computation.
     dijkstra_gen m (initial_state i l).
 
 
-
 (* 
   This section contains proofs about 
   Dijkstra algorithm. 
@@ -130,19 +132,16 @@ Section Computation.
   Dijkstra algorithm computes for a given 
   source vertex i:
   ∀ j : V, R i j := I i j + (forall q : V, R i q * A q j)
-
   R := R * A + I 
-  
 *)
   
 
   (* Finite Node *)
   Context 
-    {l : list Node}
-    {Hfin : ∀ x : Node, List.In x l}.
-  
-  Let nl := List.length l.
-
+    {n : nat} (* number of nodes*)
+    {l : list Node} (* list of nodes 0, 1, 2, .... n-1 *)
+    {Hndup: NoDup l} (* There are no duplicates *)
+    {Hnfin: forall x : Node, In x l -> x < n}.
 
   (* Lemmas needed for proof *)
   Context
@@ -154,82 +153,33 @@ Section Computation.
     {one_add_ann : forall (a : T), (1 + a == 1) = true}
     {add_mul_right_absorption : forall (a b : T), (a + (a * b) == a) = true}.
 
-  
-  (* Everything good upto this point *)
 
   
-  (* 
-  
-    ∀ k : nat, k < nl -> forall j : Node, 
-    List.in j (vis (dijkstra k i l)), 
-    Ri (dijkstra k i l) j = I i j + 
-      (List.map (fun q => Ri (dijkstra k i l) q * A q j) 
-        (vis (dijkstra k i l)))
-  *)
-
   
   (* Proof idea:
-    After nl iterations, all the nodes 
+    After n iterations, all the nodes 
     have been in visited state and there 
     is no more change.
   *)
 
+  
   Lemma dijkstra_fixpoint (i : Node) :
     ∀ k : nat, 
-    dijkstra nl i l = 
-    dijkstra (k + nl) i l.
+    dijkstra n i l = 
+    dijkstra (k + n) i l.
   Proof.
-    unfold dijkstra.
-    induction k.
-    + simpl.
-      reflexivity.
-    + simpl.
-      rewrite IHk.
-      unfold dijkstra_one_step,
-      initial_state.
-      (* assert that pq = [] 
-        I need an invariant 
-        Permutation (vis ++ ps) nl
-      
-      *)
-      
-
   Admitted.
   
-  
   Lemma dijkstra_main_proof (i : Node) : 
-    ∀ (k : nat) (j : Node), 
+    ∀ (k : nat) (j : Node), k < n -> 
     List.In j (vis (dijkstra k i l)) -> 
-    Ri (dijkstra k i l) j = I i j + 
+    ri (dijkstra k i l) j = I i j + 
       (List.fold_right (fun x y => x + y)
         0 
-        (List.map (fun q => Ri (dijkstra k i l) q * A q j) 
+        (List.map (fun q => ri (dijkstra k i l) q * A q j) 
           (vis (dijkstra k i l)))). 
   Proof.
-    induction k.
-    + simpl.
-      intros j [H | H].
-      - subst.
-      (* 
-        I j j + A j j = I j j + ((I j j + A j j) * A j j + 0)
-        + is congruent.
-        A j j = ((I j j + A j j) * A j j + 0)
-        I j j = 1 and therefore 
-        I j j + A j j = 1 by one_add_ann
-        0 is additive idenitity.
-        We are home.
-      *)
-      admit.
-      - inversion H.
-    + simpl.
-      intros j Hin.
-      (* 
-        Proof idea:
-      
-      
-      
-      *)
-  
+  Admitted.
   
   
     
