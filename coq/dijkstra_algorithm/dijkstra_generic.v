@@ -161,8 +161,6 @@ Section Computation.
     have been in visited state and there 
     is no more change.
   *)
-
-  
   Lemma dijkstra_fixpoint (i : Node) :
     ∀ k : nat, 
     dijkstra n i l = 
@@ -174,10 +172,9 @@ Section Computation.
     ∀ (k : nat) (j : Node), k < n -> 
     List.In j (vis (dijkstra k i l)) -> 
     ri (dijkstra k i l) j = I i j + 
-      (List.fold_right (fun x y => x + y)
-        0 
-        (List.map (fun q => ri (dijkstra k i l) q * A q j) 
-          (vis (dijkstra k i l)))). 
+      sum_fn 0 add 
+        (fun q => ri (dijkstra k i l) q * A q j)
+        (vis (dijkstra k i l)).
   Proof.
   Admitted.
   
