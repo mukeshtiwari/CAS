@@ -57,12 +57,13 @@ Section Priority_Queue_Proofs.
 
   Context 
     {T : Type}
-    {zero one : T}
-    {add mul : T -> T -> T}
+    {add : T -> T -> T}
     {eqT : brel T}
     {refT : brel_reflexive T eqT}
     {symT : brel_symmetric T eqT}
-    {trnT : brel_transitive T eqT}.
+    {trnT : brel_transitive T eqT}
+    {add_sel : forall (a b : T), 
+      ((eqT (add a b) a) = true) + ((eqT (add a b) b) = true)}.
 
 
   (* This theorem asserts that ur is a minimum 
@@ -74,11 +75,30 @@ Section Priority_Queue_Proofs.
     forall x y, In (x, y) ls -> 
     brel_lte_left eqT add ur x = true.
   Proof.
-  Admitted.
-  
+    induction ls as [| (uh, ah) ls IHls].
+    + simpl;
+      intros ? ? ? ? Ha ? n Hf.
+      tauto.
+    + simpl;
+      intros ? ? ? ? Hf ? ? [Ha | Ha].
+      unfold brel_lte_left in  * |- *.
+      inversion Ha; subst;
+      clear Ha.
+      
+      (* I need + to be selective! *)
+      (* Now I have two cases. 
+        ls = [] ∨ ls <> [] 
+        1. ls = [] we are home.
+        2. ls = (at, bt) :: ls 
+           C u 
+      *)
+      
+
+
+
 
   
-
+  
   Lemma remove_min_none_implies_empty_pq : 
     forall (vs : list Node) (f : Node -> T),
     @remove_min _ (brel_lte_left eqT add) vs f = None 
@@ -99,6 +119,7 @@ Section Priority_Queue_Proofs.
       inversion H.
     + subst; exact eq_refl.
   Qed.
+
 
   Lemma remove_min_some_implies_non_empty_pq : 
     forall (vs : list Node) 
