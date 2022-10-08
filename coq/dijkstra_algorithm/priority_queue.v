@@ -36,7 +36,6 @@ Section Priority_Queue_Def.
   end.
 
 
-
   Definition remove_min
     (vs : list Node) (* list of nodes *)
     (f : Node -> T) :  (* one row *)
@@ -68,6 +67,7 @@ Section Priority_Queue_Proofs.
 
   (* This theorem asserts that ur is a minimum 
     element wrt (brel_lte_left eqT add) *)
+   (* I need + to be selective! *)
   Theorem find_min_node_empty_list : 
     forall ls u a ur ar, 
     @find_min_node _ (brel_lte_left eqT add) 
@@ -75,24 +75,33 @@ Section Priority_Queue_Proofs.
     forall x y, In (x, y) ls -> 
     brel_lte_left eqT add ur x = true.
   Proof.
-    induction ls as [| (uh, ah) ls IHls].
-    + simpl;
-      intros ? ? ? ? Ha ? n Hf.
-      tauto.
-    + simpl;
-      intros ? ? ? ? Hf ? ? [Ha | Ha].
-      unfold brel_lte_left in  * |- *.
-      inversion Ha; subst;
-      clear Ha.
+    refine(fix Fn ls {struct ls} :=
+      match ls as ls' return ls = ls' -> _ 
+      with 
+      | [] => _ 
+      | (ah, bh) :: lst => 
+        match lst as lst' 
+          return lst = lst' -> _ 
+        with 
+        | [] => _ 
+        | (ahh, bhh) :: lstt => _ 
+        end eq_refl
+      end eq_refl).
+
+
+
+          (* what can I infer from x = x + u *)
+          (* From Hs, I can replace 
+             in H 
+             if eqT u x then (u, a) else (x, y) = (ur, ar)
+             1 eqT u x = true and we are home 
+               eqT u x = false 
+               So what can 
       
-      (* I need + to be selective! *)
-      (* Now I have two cases. 
-        ls = [] ∨ ls <> [] 
-        1. ls = [] we are home.
-        2. ls = (at, bt) :: ls 
-           C u 
-      *)
-      
+          *)
+          
+
+
 
 
 
