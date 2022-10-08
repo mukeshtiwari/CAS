@@ -1,4 +1,4 @@
-Require Import List ListSet PeanoNat.
+Require Import List ListSet PeanoNat Utf8.
 From CAS Require Import 
   coq.po.from_sg
   coq.common.compute
@@ -19,23 +19,16 @@ Section Priority_Queue_Def.
     {T : Type} (* Type *)
     {C : T -> T -> bool}. (* Comparison operator *)
 
-
+ 
   (* This function returns the minimum node *)
-  Fixpoint find_min_node
+  Definition find_min_node
     (ua : T * Node)
     (ls : list (T * Node)) : T * Node :=
-  match ls with 
-  | [] => ua
-  | (uy, ay) :: t => 
-    match C (fst ua) uy with 
-    (* ua is so far minimal element *)
-    | true =>  find_min_node ua t 
-    (* (uy, ay) is minimal element *)
-    | false => find_min_node (uy, ay) t 
-    end
-  end.
+    List.fold_right (λ '(uaxls, uayls) '(uax, uay),
+      if C uax uaxls then (uax, uay) else (uaxls, uayls))
+      ua ls.
 
-
+  
   Definition remove_min
     (vs : list Node) (* list of nodes *)
     (f : Node -> T) :  (* one row *)
@@ -87,20 +80,73 @@ Section Priority_Queue_Proofs.
         | (ahh, bhh) :: lstt => _ 
         end eq_refl
       end eq_refl).
-
-
-
-          (* what can I infer from x = x + u *)
-          (* From Hs, I can replace 
-             in H 
-             if eqT u x then (u, a) else (x, y) = (ur, ar)
-             1 eqT u x = true and we are home 
-               eqT u x = false 
-               So what can 
-      
+      + intros Ha ? ? ? ? Hb ? ? Hc.
+        simpl in Hc;
+        tauto.
+      + intros Ha Hb ? ? ? ? Hc ? ? [Hd | Hd].
+        ++
+          simpl in Hc.
+          unfold brel_lte_left in * |- *.
+          inversion Hd; subst;
+          clear Hd.
+          case (eqT u (add u x)) eqn:Ht.
+          inversion Hc; subst; clear Hc.
+          exact Ht.
+          inversion Hc; subst; clear Hc.
+          (* we need selectivity *)
+          case (add_sel ur ur) eqn:Ha;
+          apply symT; exact e.
+        ++ simpl in Hd.
+           tauto.
+      + intros Ha Hb ? ? ? ? Hc ? ? Hd.
+        rewrite <-Ha in Hb, Hc, Hd.
+        destruct Hd as [Hd | Hd].
+        ++
+          unfold brel_lte_left.
+          simpl in Hc.
+          destruct (find_min_node (u, a) lst) as (uax, uay) eqn:Ht.
+          unfold brel_lte_left in Hc.
+          case (eqT uax (add uax ah)) eqn:Heqt.
+          inversion Hc. 
+          inversion Hd.
+          rewrite <-H0, <-H2.
+          exact Heqt.
+          inversion Hc.
+          inversion Hd.
+          rewrite <-H0, <-H2.
+          (* we need selectivity *)
+          case (add_sel ah ah) eqn:He;
+          apply symT; exact e.
+        ++ (* inductive case *)
+          simpl in Hc.
+          destruct (find_min_node (u, a) lst) as (uax, uay) eqn:Ht.
+          unfold brel_lte_left in Hc.
+          case (eqT uax (add uax ah)) eqn:Heqt.
+          inversion Hc.
+          rewrite <-H0.
+          eapply Fn.
+          exact Ht.
+          exact Hd.
+          unfold brel_lte_left.
+          inversion Hc.
+          rewrite <-H0.
+          (* Now I know that ah is the minimum 
+            element *)
+          pose proof (Fn lst _ _ _ _ Ht x y Hd) as He.
+          unfold brel_lte_left in He.
+          (* From He, I know that 
+            uax is lowest element.
+            If I use add_sel lemma 
+            I know in Heqt 
+            add uax ah = ah 
+            eqT uax ah = false 
           *)
+    Admitted.
+
+          
           
 
+          
 
 
 
