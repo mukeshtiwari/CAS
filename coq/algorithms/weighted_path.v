@@ -976,6 +976,7 @@ Qed.
         exact (trnR _ _ _ B A). 
  Qed.
 
+ Locate sum_fn_distributes_over_concat.
  Lemma LW_distributes_over_path_plus
        (assoc : bop_associative R eqR plus)
        (comm : bop_commutative R eqR plus)
