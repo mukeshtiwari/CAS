@@ -1,4 +1,5 @@
-Require Import List ListSet PeanoNat Utf8.
+Require Import List ListSet PeanoNat Utf8
+  Mergesort.
 From CAS Require Import 
   coq.po.from_sg
   coq.common.compute
@@ -17,31 +18,32 @@ Section Priority_Queue_Def.
   
   Context 
     {T : Type} (* Type *)
-    {C : T -> T -> bool}. (* Comparison operator *)
+    {eqT : brel T}
+    {add : binary_op T}.
+
+  Definition lte (a b : T * Node) :=
+    (brel_lte_left eqT add) (fst a) (fst b).
+
+
+  Fixpoint find_min_node 
+    (m : T * Node)
+    (carry : list (T * Node))
+    (l : list (T * Node)) : (T * Node) * list (T * Node) :=
+    match l with 
+    | [] => (m, carry)
+    | h :: l' => 
+      if lte h m then find_min_node h (m :: carry) l' 
+      else find_min_node m (h :: carry) l' 
+    end. 
 
  
-  (* This function returns the minimum node *)
-  Definition find_min_node
-    (ua : T * Node)
-    (ls : list (T * Node)) : T * Node :=
-    List.fold_right (λ '(uaxls, uayls) '(uax, uay),
-      if C uax uaxls then (uax, uay) else (uaxls, uayls))
-      ua ls.
-
-  
-  Definition remove_min
-    (vs : list Node) (* list of nodes *)
-    (f : Node -> T) :  (* one row *)
-    option (Node * list Node) :=
-  match vs with 
+  Definition remove_min_pq 
+    (pq : list (T * Node)) :
+    option ((T * Node) * list (T * Node)) :=
+  match pq with 
   | [] => None
-  | h :: t => 
-    match find_min_node (f h, h) 
-      (List.map (fun x => (f x, x)) t) 
-    with 
-    | (_, qk) => Some (qk, List.remove Nat.eq_dec qk vs) 
-    end
-  end.
+  | h :: t => Some (find_min_node h [] t)
+  end. 
 
 End Priority_Queue_Def. (* End of Definitions *)
   
@@ -54,16 +56,18 @@ Section Priority_Queue_Proofs.
     {refT : brel_reflexive T eqT}
     {symT : brel_symmetric T eqT}
     {trnT : brel_transitive T eqT}
+    {commutative : forall (a b : T), 
+      (eqT (add a b) (add b a)) = true}
     {add_sel : forall (a b : T), 
       ((eqT (add a b) a) = true) + ((eqT (add a b) b) = true)}.
 
-
+  
   Theorem find_min_node_list_split : 
-    forall ls u a ur ar, 
-    @find_min_node _ (brel_lt_left eqT add) 
-      (u, a) ls = (ur, ar) ->
-      (ur, ar) = (u, a) ∨
-      ∃ lsl lsr, ls = lsl ++ [(ur, ar)] ++ lsr.
+    forall ls ua ur ar carry, 
+    @find_min_node T eqT add
+      ua carry ls  = (ur, ar) ->
+      ur = ua ∨
+      ∃ lsl lsr, ls = lsl ++ [ur] ++ lsr ++ carry.
   Proof.
     refine(fix Fn ls {struct ls} :=
       match ls as ls' return ls = ls' -> _ 
@@ -72,73 +76,34 @@ Section Priority_Queue_Proofs.
       | (ah, bh) :: lst => _
       end eq_refl).
     + intros Ha ? ? ? ? Hb.
-      left; simpl in Hb.
-      auto.
+      left;
+      inversion Hb; auto.
     + intros Ha ? ? ? ? Hb.
+      simpl in Hb;
+      unfold lte, brel_lte_left in Hb;
       simpl in Hb.
-      destruct (find_min_node (u, a) lst) 
-        as (uax, uay) eqn:Ht.
-      unfold brel_lt_left, theory.below,
-      brel_lte_left, and.bop_and, uop_not in Hb.
-      destruct (Fn lst _ _ _ _ Ht) as [Hc | Hc].
-      ++
-        case (eqT uax (add uax ah)) eqn:He;
-        case (eqT ah (add ah uax)) eqn:Hf; 
-        simpl in Hb;
-        inversion Hb; 
-        inversion Hc;
-        subst.
-        +++
-          right.
-          exists [], lst.
-          simpl.
-          reflexivity.
-        +++
-          left; reflexivity.
-        +++
-          right.
-          exists [], lst. 
-          simpl; reflexivity.
-        +++
-          right.
-          exists [], lst.
-          simpl; reflexivity.
-      ++
-        destruct Hc as (lsl & lsr & Hd).
-        case (eqT uax (add uax ah)) eqn:He;
-        case (eqT ah (add ah uax)) eqn:Hf; 
-        simpl in Hb;
-        inversion Hb;
-        subst.
-        +++
-          right.
-          exists [], (lsl ++ [(uax, uay)] ++ lsr);
-          simpl; reflexivity.
-        +++
-          right.
-          exists ((ah, bh) :: lsl),
-            lsr; simpl; reflexivity.
-        +++
-          right.
-          exists [], (lsl ++ [(uax, uay)] ++ lsr);
-          simpl; reflexivity.
-        +++
-          right.
-          exists [], (lsl ++ [(uax, uay)] ++ lsr);
-          simpl; reflexivity.
-  Qed.
+      destruct ua as (uah, uat) eqn:Hua.
+      destruct ur as (uar, hrt) eqn:Hur.
+      simpl in Hb.
+      destruct (eqT ah (add ah uah)) eqn:Ht.
+       
+  Admitted.
 
-        
+
+
 
   (* This theorem asserts that ur is a minimum 
     element wrt (brel_lte_left eqT add) *)
-   (* I need + to be selective! *)
-  Theorem find_min_node_list : 
+   (* I need + to be selective! 
+      + to be commutative and we 
+      total order 
+   *)
+  Theorem find_min_node_least_elem : 
     forall ls u a ur ar, 
-    @find_min_node _ (brel_lt_left eqT add) 
+    @find_min_node _ (brel_lte_left eqT add) 
       (u, a) ls = (ur, ar) ->
     forall x y, In (x, y) ls -> 
-    brel_lt_left eqT add ur x = true.
+    brel_lte_left eqT add ur x = true.
   Proof.
     refine(fix Fn ls {struct ls} :=
       match ls as ls' return ls = ls' -> _ 
@@ -158,48 +123,62 @@ Section Priority_Queue_Proofs.
       + intros Ha Hb ? ? ? ? Hc ? ? [Hd | Hd].
         ++
           simpl in Hc.
-          unfold brel_lt_left,theory.below,
-          brel_lte_left, and.bop_and, uop_not
-          in * |- *.
-          case (eqT u (add u ah)) eqn:He;
-          case (eqT ah (add ah u)) eqn:Hf; 
+          unfold brel_lte_left in * |- *.
+          inversion Hd; subst;
+          clear Hd.
+          case (eqT u (add u x)) eqn:Ht.
+          inversion Hc; subst; clear Hc.
+          exact Ht.
+          inversion Hc; subst; clear Hc.
+          (* we need selectivity *)
+          case (add_sel ur ur) eqn:Ha;
+          apply symT; exact e.
+        ++ simpl in Hd.
+           tauto.
+      + intros Ha Hb ? ? ? ? Hc ? ? Hd.
+        rewrite <-Ha in Hb, Hc, Hd.
+        destruct Hd as [Hd | Hd].
+        ++
+          unfold brel_lte_left.
           simpl in Hc.
-         
-          +++
-            inversion Hc; inversion Hd; 
-            subst; clear Hc; clear Hd.
-          (* This does not look provable,
-             unless we assume that all 
-             the T values are unique! 
-             if we take add_sel axiom, 
-             add x x = x, 
-             eqT x x = true 
-             true & false = true. 
-
-             This is only provable 
-             when all the T values are 
-             different, i.e., u <> x!
-          *)  
-          admit.
-          +++
-            inversion Hc; inversion Hd; 
-            subst; clear Hc; clear Hd. 
-            (* We can prove this *)
-            admit.
-          +++
-            inversion Hc; inversion Hd; 
-            subst; clear Hc; clear Hd.
-            (* does not look provable, 
-              unless all the T values are
-              unique *)
-            admit.
-          +++
-            inversion Hc; inversion Hd; 
-            subst; clear Hc; clear Hd.
-             
-
-
-
+          destruct (find_min_node (u, a) lst) as (uax, uay) eqn:Ht.
+          unfold brel_lte_left in Hc.
+          case (eqT uax (add uax ah)) eqn:Heqt.
+          inversion Hc. 
+          inversion Hd.
+          rewrite <-H0, <-H2.
+          exact Heqt.
+          inversion Hc.
+          inversion Hd.
+          rewrite <-H0, <-H2.
+          (* we need selectivity *)
+          case (add_sel ah ah) eqn:He;
+          apply symT; exact e.
+        ++ (* inductive case *)
+          simpl in Hc.
+          destruct (find_min_node (u, a) lst) as (uax, uay) eqn:Ht.
+          unfold brel_lte_left in Hc.
+          (* start from here *)
+          case (eqT uax (add uax ah)) eqn:Heqt.
+          inversion Hc.
+          rewrite <-H0.
+          eapply Fn.
+          exact Ht.
+          exact Hd.
+          (* Now I know that ah is the minimum 
+            element *)
+          unfold brel_lte_left.
+          inversion Hc.
+          rewrite <-H0.
+          pose proof (Fn lst _ _ _ _ Ht x y Hd) as He.
+          unfold brel_lte_left in He.
+          destruct (add_sel uax ah) as [Hf | Hf].
+          apply symT in Hf.
+          rewrite Heqt in Hf.
+          congruence.
+          apply symT in Hf.
+          Check brel_lte_left_transitive.
+          Print brel_transitive.
     
           
 
