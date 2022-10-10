@@ -58,15 +58,87 @@ Section Priority_Queue_Proofs.
       ((eqT (add a b) a) = true) + ((eqT (add a b) b) = true)}.
 
 
+  Theorem find_min_node_list_split : 
+    forall ls u a ur ar, 
+    @find_min_node _ (brel_lt_left eqT add) 
+      (u, a) ls = (ur, ar) ->
+      (ur, ar) = (u, a) ∨
+      ∃ lsl lsr, ls = lsl ++ [(ur, ar)] ++ lsr.
+  Proof.
+    refine(fix Fn ls {struct ls} :=
+      match ls as ls' return ls = ls' -> _ 
+      with 
+      | [] => _ 
+      | (ah, bh) :: lst => _
+      end eq_refl).
+    + intros Ha ? ? ? ? Hb.
+      left; simpl in Hb.
+      auto.
+    + intros Ha ? ? ? ? Hb.
+      simpl in Hb.
+      destruct (find_min_node (u, a) lst) 
+        as (uax, uay) eqn:Ht.
+      unfold brel_lt_left, theory.below,
+      brel_lte_left, and.bop_and, uop_not in Hb.
+      destruct (Fn lst _ _ _ _ Ht) as [Hc | Hc].
+      ++
+        case (eqT uax (add uax ah)) eqn:He;
+        case (eqT ah (add ah uax)) eqn:Hf; 
+        simpl in Hb;
+        inversion Hb; 
+        inversion Hc;
+        subst.
+        +++
+          right.
+          exists [], lst.
+          simpl.
+          reflexivity.
+        +++
+          left; reflexivity.
+        +++
+          right.
+          exists [], lst. 
+          simpl; reflexivity.
+        +++
+          right.
+          exists [], lst.
+          simpl; reflexivity.
+      ++
+        destruct Hc as (lsl & lsr & Hd).
+        case (eqT uax (add uax ah)) eqn:He;
+        case (eqT ah (add ah uax)) eqn:Hf; 
+        simpl in Hb;
+        inversion Hb;
+        subst.
+        +++
+          right.
+          exists [], (lsl ++ [(uax, uay)] ++ lsr);
+          simpl; reflexivity.
+        +++
+          right.
+          exists ((ah, bh) :: lsl),
+            lsr; simpl; reflexivity.
+        +++
+          right.
+          exists [], (lsl ++ [(uax, uay)] ++ lsr);
+          simpl; reflexivity.
+        +++
+          right.
+          exists [], (lsl ++ [(uax, uay)] ++ lsr);
+          simpl; reflexivity.
+  Qed.
+
+        
+
   (* This theorem asserts that ur is a minimum 
     element wrt (brel_lte_left eqT add) *)
    (* I need + to be selective! *)
-  Theorem find_min_node_empty_list : 
+  Theorem find_min_node_list : 
     forall ls u a ur ar, 
-    @find_min_node _ (brel_lte_left eqT add) 
+    @find_min_node _ (brel_lt_left eqT add) 
       (u, a) ls = (ur, ar) ->
     forall x y, In (x, y) ls -> 
-    brel_lte_left eqT add ur x = true.
+    brel_lt_left eqT add ur x = true.
   Proof.
     refine(fix Fn ls {struct ls} :=
       match ls as ls' return ls = ls' -> _ 
@@ -86,73 +158,51 @@ Section Priority_Queue_Proofs.
       + intros Ha Hb ? ? ? ? Hc ? ? [Hd | Hd].
         ++
           simpl in Hc.
-          unfold brel_lte_left in * |- *.
-          inversion Hd; subst;
-          clear Hd.
-          case (eqT u (add u x)) eqn:Ht.
-          inversion Hc; subst; clear Hc.
-          exact Ht.
-          inversion Hc; subst; clear Hc.
-          (* we need selectivity *)
-          case (add_sel ur ur) eqn:Ha;
-          apply symT; exact e.
-        ++ simpl in Hd.
-           tauto.
-      + intros Ha Hb ? ? ? ? Hc ? ? Hd.
-        rewrite <-Ha in Hb, Hc, Hd.
-        destruct Hd as [Hd | Hd].
-        ++
-          unfold brel_lte_left.
+          unfold brel_lt_left,theory.below,
+          brel_lte_left, and.bop_and, uop_not
+          in * |- *.
+          case (eqT u (add u ah)) eqn:He;
+          case (eqT ah (add ah u)) eqn:Hf; 
           simpl in Hc.
-          destruct (find_min_node (u, a) lst) as (uax, uay) eqn:Ht.
-          unfold brel_lte_left in Hc.
-          case (eqT uax (add uax ah)) eqn:Heqt.
-          inversion Hc. 
-          inversion Hd.
-          rewrite <-H0, <-H2.
-          exact Heqt.
-          inversion Hc.
-          inversion Hd.
-          rewrite <-H0, <-H2.
-          (* we need selectivity *)
-          case (add_sel ah ah) eqn:He;
-          apply symT; exact e.
-        ++ (* inductive case *)
-          simpl in Hc.
-          destruct (find_min_node (u, a) lst) as (uax, uay) eqn:Ht.
-          unfold brel_lte_left in Hc.
-          case (eqT uax (add uax ah)) eqn:Heqt.
-          inversion Hc.
-          rewrite <-H0.
-          eapply Fn.
-          exact Ht.
-          exact Hd.
-          unfold brel_lte_left.
-          inversion Hc.
-          rewrite <-H0.
-          (* Now I know that ah is the minimum 
-            element *)
-          pose proof (Fn lst _ _ _ _ Ht x y Hd) as He.
-          unfold brel_lte_left in He.
-          (* From He, I know that 
-            uax is lowest element.
-            If I use add_sel lemma 
-            I know in Heqt 
-            add uax ah = ah 
-            eqT uax ah = false 
-          *)
-    Admitted.
+         
+          +++
+            inversion Hc; inversion Hd; 
+            subst; clear Hc; clear Hd.
+          (* This does not look provable,
+             unless we assume that all 
+             the T values are unique! 
+             if we take add_sel axiom, 
+             add x x = x, 
+             eqT x x = true 
+             true & false = true. 
 
-          
+             This is only provable 
+             when all the T values are 
+             different, i.e., u <> x!
+          *)  
+          admit.
+          +++
+            inversion Hc; inversion Hd; 
+            subst; clear Hc; clear Hd. 
+            (* We can prove this *)
+            admit.
+          +++
+            inversion Hc; inversion Hd; 
+            subst; clear Hc; clear Hd.
+            (* does not look provable, 
+              unless all the T values are
+              unique *)
+            admit.
+          +++
+            inversion Hc; inversion Hd; 
+            subst; clear Hc; clear Hd.
+             
+
+
+
+    
           
 
-          
-
-
-
-
-
-  
   
   Lemma remove_min_none_implies_empty_pq : 
     forall (vs : list Node) (f : Node -> T),
@@ -184,27 +234,50 @@ Section Priority_Queue_Proofs.
        vss = vsl ++ vsr ∧ 
        vs = vsl ++ [qk] ++ vsr.
   Proof.
-    induction vs.
-    + intros ? ? ? Hr.
-      simpl in Hr.
+    unfold remove_min.
+    refine(fix Fn vs {struct vs} :=
+      match vs as vs' return vs = vs' -> _ 
+      with 
+      | [] => fun Hv vss qk f Ha => _ 
+      | hdvs :: tlvs => fun Hv vss qk f Ha => _ 
+      end eq_refl).
+    + 
+      simpl in Ha.
       congruence.
-    + intros ? ? ?.
-      simpl; intros Ha.
-      destruct (find_min_node (f a, a) (map (λ x : Node, (f x, x)) vs))
-        eqn:Hb.
-      
+    +
+      simpl in Ha.
+      destruct (find_min_node (f hdvs, hdvs) 
+        (map (λ x : Node, (f x, x)) tlvs)) as (ua, ub) eqn:Hb.
+      destruct (Nat.eq_dec ub hdvs) as [Hc | Hc].
+      ++ 
+        inversion Ha; clear Ha.
+        exists [], tlvs.
+        repeat split.
+        (* This goal will only be true 
+          when qk does not appear in 
+          tlvs. Now, it should be the 
+          case because nodes are 
+          unique *)
+        admit.
+        rewrite <-H0, <-Hc.
+        reflexivity.
+      ++ 
+        inversion Ha.
+        
+
     
-
-  Admitted.
-
+   
+      
+     
 
   Lemma remove_min_some_implies_least_element : 
     forall (vs : list Node) (f : Node -> T)
     (vss : list Node) (qk : Node), 
     @remove_min _ (brel_lte_left eqT add) vs f = Some (qk, vss)
-    -> (forall x : Node, In x vs -> 
-        brel_lte_left eqT add (f qk) (f x) = true). 
+    -> forall x : Node, In x vs -> 
+        brel_lte_left eqT add (f qk) (f x) = true. 
   Proof.
+    intros.
   Admitted.
 
 
