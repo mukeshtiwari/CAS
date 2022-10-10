@@ -82,14 +82,17 @@ Section Priority_Queue_Proofs.
       simpl in Hb;
       unfold lte, brel_lte_left in Hb;
       simpl in Hb.
-      destruct ua as (uah, uat) eqn:Hua.
-      destruct ur as (uar, hrt) eqn:Hur.
-      simpl in Hb.
+      destruct ua as (uah, uat) eqn:Hua;
+      destruct ur as (uar, hrt) eqn:Hur;
+      simpl in Hb;
       destruct (eqT ah (add ah uah)) eqn:Ht.
+      ++
+        (* ah is minimum *)
+        (* it's easy *) 
        
   Admitted.
 
-
+  (* everything is fine upto this point *)
 
 
   (* This theorem asserts that ur is a minimum 
@@ -99,9 +102,9 @@ Section Priority_Queue_Proofs.
       total order 
    *)
   Theorem find_min_node_least_elem : 
-    forall ls u a ur ar, 
+    forall ls ua ur ar, 
     @find_min_node _ (brel_lte_left eqT add) 
-      (u, a) ls = (ur, ar) ->
+      ua ls = (ur, ar) ->
     forall x y, In (x, y) ls -> 
     brel_lte_left eqT add ur x = true.
   Proof.
@@ -117,68 +120,6 @@ Section Priority_Queue_Proofs.
         | (ahh, bhh) :: lstt => _ 
         end eq_refl
       end eq_refl).
-      + intros Ha ? ? ? ? Hb ? ? Hc.
-        simpl in Hc;
-        tauto.
-      + intros Ha Hb ? ? ? ? Hc ? ? [Hd | Hd].
-        ++
-          simpl in Hc.
-          unfold brel_lte_left in * |- *.
-          inversion Hd; subst;
-          clear Hd.
-          case (eqT u (add u x)) eqn:Ht.
-          inversion Hc; subst; clear Hc.
-          exact Ht.
-          inversion Hc; subst; clear Hc.
-          (* we need selectivity *)
-          case (add_sel ur ur) eqn:Ha;
-          apply symT; exact e.
-        ++ simpl in Hd.
-           tauto.
-      + intros Ha Hb ? ? ? ? Hc ? ? Hd.
-        rewrite <-Ha in Hb, Hc, Hd.
-        destruct Hd as [Hd | Hd].
-        ++
-          unfold brel_lte_left.
-          simpl in Hc.
-          destruct (find_min_node (u, a) lst) as (uax, uay) eqn:Ht.
-          unfold brel_lte_left in Hc.
-          case (eqT uax (add uax ah)) eqn:Heqt.
-          inversion Hc. 
-          inversion Hd.
-          rewrite <-H0, <-H2.
-          exact Heqt.
-          inversion Hc.
-          inversion Hd.
-          rewrite <-H0, <-H2.
-          (* we need selectivity *)
-          case (add_sel ah ah) eqn:He;
-          apply symT; exact e.
-        ++ (* inductive case *)
-          simpl in Hc.
-          destruct (find_min_node (u, a) lst) as (uax, uay) eqn:Ht.
-          unfold brel_lte_left in Hc.
-          (* start from here *)
-          case (eqT uax (add uax ah)) eqn:Heqt.
-          inversion Hc.
-          rewrite <-H0.
-          eapply Fn.
-          exact Ht.
-          exact Hd.
-          (* Now I know that ah is the minimum 
-            element *)
-          unfold brel_lte_left.
-          inversion Hc.
-          rewrite <-H0.
-          pose proof (Fn lst _ _ _ _ Ht x y Hd) as He.
-          unfold brel_lte_left in He.
-          destruct (add_sel uax ah) as [Hf | Hf].
-          apply symT in Hf.
-          rewrite Heqt in Hf.
-          congruence.
-          apply symT in Hf.
-          Check brel_lte_left_transitive.
-          Print brel_transitive.
     
           
 
