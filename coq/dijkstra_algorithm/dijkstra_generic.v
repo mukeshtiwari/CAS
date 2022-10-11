@@ -43,11 +43,7 @@ Section Computation.
   (* Nodes are natural numbers *)
   Definition Node := nat.
 
-   Context 
-    (A : Node -> Node -> T). (* Adjacency Matrix *)
-
-
-
+  
   Declare Scope Dij_scope.
   Delimit Scope Dij_scope with T.
   Bind Scope Dij_scope with T.
@@ -64,9 +60,8 @@ Section Computation.
   Record state :=
     mk_state 
     {
-      vis : list Node; (* visited so far *)
-      pq  : list Node; (* priority_queue *)
-      ri  : Node -> T  (* the ith row under consideration *)
+      vis : list (T * Node); (* visited so far *)
+      pq  : list (T * Node); (* priority_queue *)
     }.
 
   (* 
@@ -82,27 +77,23 @@ Section Computation.
     i.e., every node in pq has a new (shortest) 
     path from qk *)
   Definition relax_edges 
-    (qk : Node) 
-    (pq : list Node)
-    (ri : Node -> T) : Node -> T :=
-    fun (j : Node) =>
-      match List.in_dec Nat.eq_dec j pq with 
-      | left _ => (ri j) + ((ri qk) * (A qk j)) (* update if j is in pq *)
-      | right _ => ri j (* do nothing, if j in not in pq *)
-      end.
-
+    (qk : T * Node) 
+    (pq : list (T * Node))
+    (ri : Node -> Node -> T) : list (T * Node).
+  Admitted.
 
   (* one iteration of Dijkstra. *)
-  Definition dijkstra_one_step (s : state) : state :=
+  Definition dijkstra_one_step (m : Node -> Node -> T) 
+    (s : state) : state.
+  refine
     match s with 
-    |  mk_state vis pq ri => 
-      match @remove_min _ (brel_lte_left eqT add) pq ri with 
+    |  mk_state vis pq => 
+      match remove_min pq with 
       | None => s 
-      | Some (qk, pq') => 
+      | Some ((w, qk), pq') => 
           mk_state 
-            (qk :: vis) (* add qk to visited set *)
-            pq' (* new priority queue *)
-            (relax_edges qk pq' ri) (* relax the row *)
+            ((w, qk) :: vis) (* add qk to visited set *)
+            (relax_edges (w, qk) pq' m) (* new priority queue *)
       end 
     end.
 
@@ -111,18 +102,21 @@ Section Computation.
   (* Short hand of identity *)
   Definition I := I T 0 1.
 
-  Definition initial_state (i : Node) (l : list Node) :=
-    (mk_state [i] (List.remove Nat.eq_dec i l) 
-    (fun j : Node => I i j + A i j)).
+  Definition initial_state (i : Node) (l : list Node) 
+    (m : Node -> Node -> T) :=
+    (mk_state [] (List.map (λ j, (m i j, j)) l)) 
+    
 
-
-  (* it computes f^n (init_state) *)
-  Definition dijkstra_gen (m : nat) (s : state) : state :=
-    Nat.iter m dijkstra_one_step s.
-
+  (* it computes f^n (init_state) 
+  Definition dijkstra (m : Node -> Node -> T) 
+    (s : state) : state :=
+    Nat.iter () dijkstra_one_step s.
+  *)
   
-  Definition dijkstra (m : nat) (i : Node) (l : list Node):= 
-    dijkstra_gen m (initial_state i l).
+  Definition dijkstra (i : Node) (l : list Node) 
+      (m : Node -> Node -> T) := 
+    Nat.iter (List.length l) 
+    dijkstra_one_step (initial_state i l m).
 
 
 (* 
