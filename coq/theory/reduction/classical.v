@@ -54,7 +54,10 @@ Proof. intros [s1 p1] [s2 p2] [s3 p3]. compute.
          exact H5. 
 Qed.
 
-Lemma reduced_bop_id : uop_preserves_id S eqS b r -> bop_exists_id S eqS b -> bop_exists_id (reduced_type S r eqS) (reduced_equality S r eqS) (reduced_bop S b r eqS r_idem). 
+Lemma reduced_bop_id :
+  uop_preserves_id S eqS b r
+  -> bop_exists_id S eqS b
+  -> bop_exists_id (reduced_type S r eqS) (reduced_equality S r eqS) (reduced_bop S b r eqS r_idem). 
   Proof. intros H [id p]. exists (inj S r eqS r_idem id). unfold bop_is_id in p. unfold bop_is_id.
          intros [t pt]. compute.
          destruct (p t) as [H1  H2]. split. 
@@ -76,7 +79,10 @@ Qed.
   (* 
       Ann 
   *)   
-Lemma reduced_bop_ann : uop_preserves_ann S eqS b r -> bop_exists_ann S eqS b -> bop_exists_ann (reduced_type S r eqS) (reduced_equality S r eqS) (reduced_bop S b r eqS r_idem). 
+Lemma reduced_bop_ann :
+  uop_preserves_ann S eqS b r
+  -> bop_exists_ann S eqS b
+  -> bop_exists_ann (reduced_type S r eqS) (reduced_equality S r eqS) (reduced_bop S b r eqS r_idem). 
   Proof. intros H [ann p]. exists (inj S r eqS r_idem ann). unfold bop_is_ann in p. unfold bop_is_ann.
          intros [t pt]. compute.
          destruct (p t) as [H1  H2]. split. 
