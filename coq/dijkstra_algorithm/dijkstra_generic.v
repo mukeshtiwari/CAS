@@ -22,11 +22,6 @@ From CAS Require Import coq.common.compute
 
 Import ListNotations.
 
-(* 
-Most of the code is taken/inspired from Tim's 
-ssreflect formalisation 
-https://www.cl.cam.ac.uk/~tgg22/metarouting/rie-1.0.v
-*)
 Section Computation.
 
   
@@ -64,72 +59,81 @@ Section Computation.
       pq  : list (T * Node); (* priority_queue *)
     }.
 
-  (* 
-      Look for minimum element in Ri
-      Some (qk, pq') := remove_min pq Ri
-      new priority queue is pq'
-      for every j in pq', relax the edges
-      fun j : A => (Ri j) + ((Ri qk) * (A qk j)) 
-  *)
-
   
   (* we relax all the edges in pq from qk,
     i.e., every node in pq has a new (shortest) 
-    path from qk *)
+    path from qk 
+  *)
+  
   Definition relax_edges 
     (qk : T * Node) 
     (pq : list (T * Node))
-    (ri : Node -> Node -> T) : list (T * Node).
-  Admitted.
+    (ri : Node -> Node -> T) : list (T * Node) :=
+    match qk with 
+    | (w, qk') =>  
+      List.map 
+        (λ '(tdist, tnode), 
+          if brel_lte_left eqT add (w + (ri qk' tnode)) tdist 
+          then (w + (ri qk' tnode), tnode) (* relax *)
+          else (tdist, tnode)) pq  (* don't change *)
+    end.
+    (* Note: make lambda a separate function *)
+
 
   (* one iteration of Dijkstra. *)
   Definition dijkstra_one_step (m : Node -> Node -> T) 
-    (s : state) : state.
-  refine
+    (s : state) : state :=
     match s with 
     |  mk_state vis pq => 
-      match remove_min pq with 
+      match @remove_min_pq T eqT add pq with 
       | None => s 
       | Some ((w, qk), pq') => 
           mk_state 
             ((w, qk) :: vis) (* add qk to visited set *)
-            (relax_edges (w, qk) pq' m) (* new priority queue *)
+            (relax_edges (w, qk) pq' m)  (* new priority queue *)
       end 
     end.
-
 
 
   (* Short hand of identity *)
   Definition I := I T 0 1.
 
   Definition initial_state (i : Node) (l : list Node) 
-    (m : Node -> Node -> T) :=
-    (mk_state [] (List.map (λ j, (m i j, j)) l)) 
+    (m : Node -> Node -> T) : state :=
+    let pq := (List.map (λ j, (m i j, j)) 
+      (List.remove Nat.eq_dec i l)) in 
+    (mk_state [(1, i)] pq).
     
 
-  (* it computes f^n (init_state) 
-  Definition dijkstra (m : Node -> Node -> T) 
+  (* it computes f^n (init_state)  
+  Definition dijkstra_aux (m : Node -> Node -> T) 
+    (n : nat)
     (s : state) : state :=
-    Nat.iter () dijkstra_one_step s.
+    Nat.iter n (dijkstra_one_step m) s.
   *)
   
-  Definition dijkstra (i : Node) (l : list Node) 
-      (m : Node -> Node -> T) := 
-    Nat.iter (List.length l) 
-    dijkstra_one_step (initial_state i l m).
+  
+  Definition dijkstra_aux (i : Node) (k : nat) (l : list Node) 
+    (m : Node -> Node -> T) : state := 
+    Nat.iter k 
+    (dijkstra_one_step m) (initial_state i l m).
 
+
+  Definition visited_to_map (s : state) : Node -> T := 
+    List.fold_left (λ f '(v, q) x, 
+      if x =? q then v else f q) 
+      (vis s) (λ x, 0).
+
+
+  Definition dijkstra (i : Node) (l : list Node) 
+      (m : Node -> Node -> T) : Node -> T := 
+    visited_to_map (dijkstra_aux i (List.length l) l m).
+     
 
 (* 
   This section contains proofs about 
   Dijkstra algorithm. 
-  
-  Notes from Tim's slides:
-  if we drop distributivity, then 
-  Dijkstra algorithm computes for a given 
-  source vertex i:
-  ∀ j : V, R i j := I i j + (forall q : V, R i q * A q j)
-  R := R * A + I 
-*)
+*)  
   
 
   (* Finite Node *)
@@ -159,97 +163,122 @@ Section Computation.
     
   *)
 
-  Lemma dijkstra_permutation :
-    forall k lgen i,
-    Permutation 
-    (vis (dijkstra k i lgen) ++ 
-    pq (dijkstra k i lgen)) lgen.
+  Lemma dijkstra_aux_iter_or_fix : 
+    forall i k l m, 
+    (dijkstra_aux i (S k) l m = dijkstra_aux i k l m) ∨
+    (∃ v q, vis (dijkstra_aux i (S k) l m) = 
+      ((v, q) :: vis (dijkstra_aux i k l m)) ∧
+      (forall x y, List.In (x, y) 
+        (pq (dijkstra_aux i k l m)) ->
+      brel_lte_left eqT add v x = true)).
+  Proof.
+  Admitted.
+
+  (* write our list membership for T * Node *)
+   Lemma dijkstra_aux_lemma (i : Node) : 
+    ∀ (k : nat) (pa : T) (j : Node)
+      (m : Node -> Node -> T), 
+      let r := (dijkstra_aux i k l m) in 
+      List.In (pa, j) (vis r) -> 
+      pa == I i j + 
+      sum_fn 0 add  
+        (fun '(w, q) => w * m q j) (vis r) = true.
   Proof.
     induction k.
-    + simpl;
-      intros ? ?.
-      admit.
     + simpl.
-      unfold dijkstra_one_step;
-      cbn.
+      intros ? ? ? [Ha | Ha].
+      ++ 
+        inversion Ha; subst; clear Ha.
+        unfold sum_fn;
+        simpl.
+        admit.
+      ++ tauto.
+    + (* inducation case *)   
+      intros ? ? ? ? Hb.
+      (* 
+        There are two cases here.
+        1. (vis (dijkstra_one_step m (dijkstra_aux i k l m))) =
+          vis (dijkstra_aux i k l m)) because 
+          everything has been added to visited set and nothing left
+          so we are home ! 
+        2. (vis (dijkstra_one_step m (dijkstra_aux i k l m))) = 
+          (ah, bh) :: vis (dijkstra_aux i k l m)) 
+          and we know that 
+          forall List.in (x, y) 
+            (pq  vis (dijkstra_aux i k l m))) ->
+            (ah, bh) <= (x, y).
+      *)
+      destruct (dijkstra_aux_iter_or_fix  i k l m) as [Hc | Hc].
+      unfold r in * |- *.
+      rewrite Hc in Hb.
+      rewrite Hc.
+      exact (IHk _ _ _ Hb).
+      (* *)
+      destruct Hc as (v & q & Hd & He).
+      unfold r in * |- *.
+      rewrite Hd.
+      rewrite Hd in Hb.
+      destruct Hb as [Hb | Hb].
+      unfold sum_fn; simpl.
+      inversion Hb; subst.
+  Admitted.
+
+
+  Lemma visited_simp : 
+    forall i j ln m, 
+      visited_to_map (initial_state i ln m) j == 
+      (if i =? j then 1 else 0) = true.
   Admitted. 
 
-  
-  (* Proof idea:
-    After n iterations, all the nodes 
-    have been in visited state and there 
-    is no more change.
-  *)
-  Lemma dijkstra_fixpoint (i : Node) :
-    ∀ k : nat, 
-    dijkstra n i l = 
-    dijkstra (k + n) i l.
-  Proof.
-    unfold dijkstra,
-    dijkstra_gen.
-  Admitted.
-  
-  Lemma dijkstra_main_proof (i : Node) : 
-    ∀ (k : nat) (j : Node), 
-    k <= n -> 
-    List.In j (vis (dijkstra k i l)) -> 
-    (ri (dijkstra k i l) j == I i j + 
+  Lemma initial_state_2 : 
+    forall i j ln m,
       sum_fn 0 add 
-        (fun q => ri (dijkstra k i l) q * A q j)
-        (vis (dijkstra k i l))) = true.
+      (λ q : Node, 
+        visited_to_map (initial_state i ln m) q * m q j) ln
+      == 0 = true.
+  Admitted. 
+
+  Lemma dijkstra_more_gen (i : Node) :
+    forall (k : nat) (j : Node)
+    (ln : list Node) (m : Node -> Node -> T), 
+    (visited_to_map (dijkstra_aux i k ln m) j ==
+    I i j +
+    sum_fn 0 add
+      (λ q : Node, 
+        visited_to_map (dijkstra_aux i k ln m) q * m q j) ln) =
+    true.
   Proof.
     induction k.
-    + unfold sum_fn; 
-      simpl;
-      intros ? Hn [H | H].
-      - subst.
-        unfold I, 
-        matrix_multiplication.I,
-        matrix_mul_identity,
-        brel_eq_nat.
-        rewrite Nat.eqb_refl.
-        (* + is congruence *)
-        (* 
-          A j j = ((1 + A j j) * A j j + 0))
-          We have (1 + A j j) =  1 by one_add_ann
-          A j j = (1 * A j j + 0) 
-          We 1 * A j j = A j j by one_mul_id 
-          A j j = A j j + 0 
-          and we have A j j + 0 = A j j
-          A j j = A j j and we are home
-        *)
-        admit.
-      - tauto.
-    + (* inductive case *)
-      simpl; 
-      intros ? Ha Hb.
-      (* From Hb : In j (vis (dijkstra_one_step (dijkstra k i l)))
-         I know what j = qk or inductive case.
-      *)
-      unfold dijkstra_one_step in Hb.
-      destruct (dijkstra k i l) eqn:Hd.
-      destruct (remove_min pq0 ri0) eqn:He.
-      destruct p.
-      simpl in He, Hb.
-      simpl in IHk.
-      simpl.
-      rewrite He.
-      simpl.
-      unfold sum_fn.
-      simpl.
-
-      assert (k <= n). nia. (* this condition is spurious *)
-      simpl.
-      unfold dijkstra_one_step, 
-      dijkstra,
-      dijkstra_gen,
-      initial_state,
-      dijkstra_one_step.
-
-    
-        
-
+    + simpl.
+      intros until m.
+      admit.
+    + simpl.
+      intros until m.
+      unfold visited_to_map.
+      
+      
   Admitted.
+
+  Lemma dijkstra_main_proof :
+    forall (i : Node) 
+      (ln : list Node)
+      (m : Node -> Node -> T),
+      let r := dijkstra i ln m in 
+      forall j : Node, 
+      List.In j ln -> 
+      r j == I i j + 
+      sum_fn 0 add  
+        (fun q => r q * m q j) ln = true.
+  Proof.
+    intros until j. 
+    intro Ha.
+    unfold r, dijkstra.
+    apply dijkstra_more_gen.
+  Qed.
+
+
+
+
   
   
     
