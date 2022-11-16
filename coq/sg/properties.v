@@ -211,6 +211,28 @@ Definition bop_right_cancellative_decidable  (S : Type) (r : brel S) (b : binary
     (bop_right_cancellative S r b) + (bop_not_right_cancellative S r b). 
 
 
+(* needed for Manger llex? *) 
+Definition bop_left_weakly_cancellative (S : Type) (r : brel S) (b : binary_op S)
+  := ∀ s t u : S, r (b s t) (b s u) = true
+                  -> (r t u = true) + (bop_is_ann S r b s).
+
+Definition bop_not_left_weakly_cancellative (S : Type) (r : brel S) (b : binary_op S)
+  := { z : S * (S * S) &
+           match z with (s, (t, u)) =>
+                        (r (b s t) (b s u) = true)
+                        *
+                        (r t u = false)
+                        *
+                        (bop_not_is_ann S r b s)
+           end }. 
+
+Definition bop_left_weakly_cancellative_decidable
+           (S : Type) (r : brel S) (b : binary_op S) := 
+  (bop_left_weakly_cancellative S r b)
+  +
+  (bop_not_left_weakly_cancellative S r b). 
+
+
 (* Condensed ("constant") *) 
 
 Definition bop_left_constant (S : Type) (r : brel S) (b : binary_op S)

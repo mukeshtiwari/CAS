@@ -23,7 +23,6 @@ Require Import CAS.coq.bs.properties.
 Require Import CAS.coq.bs.structures.
 Require Import CAS.coq.bs.cast_up. 
 
-
 Section Theory.
 
 Variable S  : Type. 
@@ -74,8 +73,6 @@ Notation "a <*> b" := (brel_product a b) (at level 15).
 Notation "a [+] b" := (bop_llex argT rS a b) (at level 15).
 Notation "a [*] b" := (bop_product a b) (at level 15).
 Notation "[| p1 | a | c | b | d |]" := (llex_p2 argT rS addT p1 a c b d) (at level 15).
-
-
 
        
 Lemma bop_llex_product_left_distributive 
