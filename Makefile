@@ -18,6 +18,7 @@ BASE=\
    coq/common/compute.v \
    coq/common/ast.v \
    coq/common/data.v \
+   coq/theory/arithmetic.v \
    coq/theory/set.v \
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
@@ -143,16 +144,14 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
+   coq/algorithms/dijkstra/general.v \
    coq/algorithms/list_congruences.v \
    coq/algorithms/matrix_definition.v \
    coq/algorithms/matrix_algorithms.v \
    coq/algorithms/matrix_addition.v \
    coq/algorithms/matrix_multiplication.v \
    coq/algorithms/weighted_path.v \
-   coq/algorithms/wrapper.v   \
-   coq/dijkstra_algorithm/priority_queue.v   \
-   coq/dijkstra_algorithm/Finite.v
-
+   coq/algorithms/wrapper.v 
 
 FILES=$(BASE) $(CAS)
 

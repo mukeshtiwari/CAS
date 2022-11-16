@@ -270,7 +270,7 @@ Definition ltr_product_proofs
 End Proofs.   
 
 Section Combinators.
-  Locate Ast_ltr_product.
+
 Definition A_left_transform_product {L L' S S' : Type} (A : A_left_transform L S) (B : A_left_transform L' S') : A_left_transform (L * L') (S * S') :=
   let eqvS := A_left_transform_carrier _ _ A in
   let eqS := A_eqv_eq _ eqvS in

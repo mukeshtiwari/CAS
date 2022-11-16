@@ -393,6 +393,68 @@ End ACAS.
 
 Section AMCAS.
 
+(*******************************************************************************)  
+Inductive proof_classes_below_sg (S: Type) (eq : brel S) (bop : binary_op S) := 
+| sg_proofs_below_sg       : sg_proofs S eq bop     -> proof_classes_below_sg S eq bop
+| sg_C_proofs_below_sg     : sg_C_proofs S eq bop   -> proof_classes_below_sg S eq bop
+| sg_NC_proofs_below_sg    : sg_NC_proofs S eq bop  -> proof_classes_below_sg S eq bop
+| sg_CS_proofs_below_sg    : sg_CS_proofs S eq bop  -> proof_classes_below_sg S eq bop    
+| sg_CI_proofs_below_sg    : sg_CI_proofs S eq bop  -> proof_classes_below_sg S eq bop
+| sg_CNI_proofs_below_sg   : sg_CNI_proofs S eq bop -> proof_classes_below_sg S eq bop
+| sg_CK_proofs_below_sg    : sg_CK_proofs S eq bop  -> proof_classes_below_sg S eq bop                                                                 
+.
+
+(*
+Inductive proof_classes_below_sg_or_errors (S: Type) (eq : brel S) (bop : binary_op S) := 
+| mk_sg_proof_classes : proof_classes_below_sg S eq bop -> proof_classes_below_sg_or_errors S eq bop
+| mk_sg_proof_errors  : list string                     -> proof_classes_below_sg_or_errors S eq bop
+. 
+*)
+
+Inductive A_classes_below_sg (S : Type) := 
+| A_sg_below_sg              : A_sg S             -> A_classes_below_sg S
+| A_sg_C_below_sg            : A_sg_C S           -> A_classes_below_sg S
+| A_sg_C_with_id_below_sg    : A_sg_C_with_id S   -> A_classes_below_sg S
+| A_sg_C_with_ann_below_sg   : A_sg_C_with_ann S  -> A_classes_below_sg S
+| A_sg_BC_below_sg           : A_sg_BC S          -> A_classes_below_sg S
+| A_sg_NC_below_sg           : A_sg_NC S          -> A_classes_below_sg S
+| A_sg_NC_with_id_below_sg   : A_sg_NC_with_id S  -> A_classes_below_sg S
+| A_sg_NC_with_ann_below_sg  : A_sg_NC_with_ann S -> A_classes_below_sg S
+| A_sg_BNC_below_sg          : A_sg_BNC S         -> A_classes_below_sg S
+| A_sg_CS_below_sg           : A_sg_CS S          -> A_classes_below_sg S
+| A_sg_CS_with_id_below_sg   : A_sg_CS_with_id S  -> A_classes_below_sg S
+| A_sg_CS_with_ann_below_sg  : A_sg_CS_with_ann S -> A_classes_below_sg S
+| A_sg_BCS_below_sg          : A_sg_BCS S         -> A_classes_below_sg S
+| A_sg_CI_below_sg           : A_sg_CI S          -> A_classes_below_sg S
+| A_sg_CI_with_id_below_sg   : A_sg_CI_with_id S  -> A_classes_below_sg S
+| A_sg_CI_with_ann_below_sg  : A_sg_CI_with_ann S -> A_classes_below_sg S
+| A_sg_BCI_below_sg          : A_sg_BCI S         -> A_classes_below_sg S
+| A_sg_CNI_below_sg          : A_sg_CNI S         -> A_classes_below_sg S
+| A_sg_CNI_with_id_below_sg  : A_sg_CNI_with_id S -> A_classes_below_sg S
+| A_sg_CNI_with_ann_below_sg : A_sg_CNI_with_ann S -> A_classes_below_sg S
+| A_sg_BCNI_below_sg         : A_sg_BCNI S        -> A_classes_below_sg S
+| A_sg_CK_below_sg           : A_sg_CK S          -> A_classes_below_sg S
+| A_sg_CK_with_id_below_sg   : A_sg_CK_with_id S  -> A_classes_below_sg S                                             
+.
+
+
+Inductive A_classes_below_sg_CS (S : Type) := 
+| A_sg_CS_below_sg_CS           : A_sg_CS S          -> A_classes_below_sg_CS S
+| A_sg_CS_with_id_below_sg_CS   : A_sg_CS_with_id S  -> A_classes_below_sg_CS S
+| A_sg_CS_with_ann_below_sg_CS  : A_sg_CS_with_ann S -> A_classes_below_sg_CS S
+| A_sg_BCS_below_sg_CS          : A_sg_BCS S         -> A_classes_below_sg_CS S
+.
+
+Inductive A_classes_below_sg_CI_with_id (S : Type) := 
+| A_sg_CI_with_id_below_sg_CI_with_id   : A_sg_CI_with_id S  -> A_classes_below_sg_CI_with_id S
+| A_sg_BCI_below_sg_CI_with_id          : A_sg_BCI S         -> A_classes_below_sg_CI_with_id S
+.
+
+
+(*******************************************************************************)  
+
+
+
 Inductive sg_proofs_mcas (S: Type) (eq : brel S) (bop : binary_op S) := 
 | A_MCAS_Proof_sg_Error : list string             -> sg_proofs_mcas S eq bop
 | A_MCAS_Proof_sg       : sg_proofs S eq bop     -> sg_proofs_mcas S eq bop

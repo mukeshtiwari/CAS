@@ -157,7 +157,6 @@ Compute (manger_mul s5 (manger_add s1 s3)).                 (* (2, 4, 9) :: (1, 
 
 End Testing.   
 
-
 Section Theory.
 
 Variables (S T : Type)

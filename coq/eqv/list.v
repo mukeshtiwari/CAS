@@ -134,7 +134,8 @@ Proof. induction X; intros Y A.
             apply brel_list_cons_intro.
             +++ exact (ext_eq _ _ A).
             +++ apply IHX; auto.
-Qed. 
+Qed.
+
 
                 
 End IntroElim.   
@@ -182,7 +183,29 @@ Proof. intros S r symS transS congS s t u v.
        apply brel_congruence_self. 
        apply brel_list_symmetric; auto. 
        apply brel_list_transitive; auto. 
+Qed.
+
+
+Lemma in_list_congruence
+      (S : Type) (eq : brel S) (cong : brel_congruence S eq eq) :
+  ∀ (l l': list S) (a a' : S),
+    eq a a' = true -> brel_list eq l l'= true -> (in_list eq l a) = (in_list eq l' a'). 
+Proof. induction l; induction l'; intros s s' A B.
+       - reflexivity.
+       - compute in B. discriminate B.
+       - compute in B. discriminate B. 
+       - simpl in B. apply bop_and_elim in B. 
+         destruct B as [B C]. 
+         simpl.
+         assert (D : (eq s a) = eq s' a0).
+         {
+           exact (cong _ _ _ _ A B).
+         } 
+         rewrite D.
+         case_eq(eq s' a0); intro E; simpl; auto. 
 Qed. 
+         
+    
 
 Open Scope nat.
 
@@ -469,3 +492,4 @@ Proof. induction X; intros Y A.
             +++ exact (ext_eq _ _ A).
             +++ apply IHX; auto.
 Qed. 
+

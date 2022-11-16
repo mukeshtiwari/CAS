@@ -340,6 +340,12 @@ match A_sg_proofs_mcas_cast_up S eqS wS f ntS eqvPS bS id_dS PS with
 end.
  *)
 
+(*
+Definition A_h_sg_add_ann (S : Type) (c : cas_constant) (A : A_classes_below_sg S) : A_classes_below_sg (with_constant S) :=
+  A_sg_classify_below_sg _ (A_sg_add_ann _ c (A_below_sg_cast_up _ A)). 
+*) 
+
+
 Definition A_mcas_sg_add_ann (S : Type) (c : cas_constant) (A : A_sg_mcas S) : A_sg_mcas (with_constant S) :=
 match A_sg_mcas_cast_up _ A with
 | A_MCAS_sg _ A'         => A_sg_classify _ (A_MCAS_sg _ (A_sg_add_ann _ c A'))
