@@ -35,7 +35,7 @@ Proof. compute. split; auto.   Qed.
 Lemma observation2 : (bop_right_uop_invariant S eqS (bop_reduce r b) r) <-> (bop_right_uop_invariant S (brel_reduce eqS r) b r).
 Proof. split; auto.   Qed. 
   
-Lemma r_left_and_right : ∀ (s1 s2 : S), eqS (r (b s1 s2)) (r (b (r s1) (r s2))) = true. 
+Lemma r_is_b_reduction : ∀ (s1 s2 : S), eqS (r (b s1 s2)) (r (b (r s1) (r s2))) = true. 
 Proof. intros s1 s2. 
            assert (H1 := r_left s1 s2). compute in H1. 
            assert (H2 := r_right (r s1) s2). compute in H2.            

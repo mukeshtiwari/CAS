@@ -23,11 +23,6 @@ BASE=\
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
    coq/theory/reduction/representations.v \
-   coq/theory/reduction/classical.v \
-   coq/theory/reduction/full.v \
-   coq/theory/reduction/predicate.v \
-   coq/theory/reduction/zeroes.v \
-
 
 CAS=\
    coq/eqv/properties.v \
@@ -46,6 +41,7 @@ CAS=\
    coq/eqv/predicate_reduce.v \
    coq/eqv/nat_ceiling.v \
    coq/eqv/minset.v \
+   coq/eqv/manger_sets.v \
    coq/sg/properties.v \
    coq/sg/theory.v \
    coq/sg/structures.v \
@@ -71,6 +67,8 @@ CAS=\
    coq/sg/lift.v \
    coq/sg/minset_union.v \
    coq/sg/minset_lift.v \
+   coq/sg/manger_llex.v \
+   coq/sg/manger_product.v \
    coq/po/properties.v \
    coq/po/structures.v \
    coq/po/theory.v \
