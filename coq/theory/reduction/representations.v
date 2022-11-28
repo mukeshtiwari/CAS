@@ -3,6 +3,35 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.uop.properties.
 Require Import CAS.coq.sg.properties.
 
+(* First, the "classic" theory of reductions. 
+
+   let (S, =, (x)) be a semigroup. 
+   A function r : S -> S is a reduction for (x) if 
+   (1) r(r(s)) = r(s)  
+   (2) r(a (x) b) = r(r(a) (x) b) 
+   (3) r(a (x) b) = r(a (x) r(b))  
+
+   We can then define the reduced semigroup 
+
+      (S_r, =, (x)_r) 
+
+   where S_r = {a in S | r(a) = a}, and 
+   equality on S_r is just 
+   equality on S restricted to S_r, and 
+
+      a (x)_r b = r(a (x) b). 
+
+   The problem CAPP has with this classic picture is 
+   that {a in S | r(a) = a} is not directly 
+   representable as an OCaml datatype. 
+
+   Our solution is the represent the reduced 
+   semigroup as 
+
+     (S, =_r, 
+
+*) 
+
 Section ReductionRepresentations.
 
   Variable S : Type. 
@@ -53,8 +82,81 @@ Section ReductionRepresentations.
          apply r_cong.
          apply b_cong; auto.
   Qed.
+
+(* "classical" axioms of Semirings and path spaces by Ahnont Wongseelashote, 1979 *) 
+Variable r_left  : bop_left_uop_invariant S eqS (bop_reduce r b) r.  (* eqS (r (b (r s1) s2)) (r (b s1 s2))  = true. *) 
+Variable r_right : bop_right_uop_invariant S eqS (bop_reduce r b) r. (* eqS (r (b s1 (r s2))) (r (b s1 s2))  = true. *)
   
-  Definition inj (s : S) : reduced_type := existT is_a_fixed_point (r s) (r_idem s).
+
+Lemma observation1 : (bop_left_uop_invariant S (brel_reduce eqS r) b r) <-> (bop_left_uop_invariant S eqS (bop_reduce r b) r).
+Proof. compute. split; auto.   Qed. 
+
+Lemma observation2 : (bop_right_uop_invariant S eqS (bop_reduce r b) r) <-> (bop_right_uop_invariant S (brel_reduce eqS r) b r).
+Proof. split; auto.   Qed.
+
+Lemma r_is_b_reduction : ∀ (s1 s2 : S), eqS (r (b s1 s2)) (r (b (r s1) (r s2))) = true. 
+Proof. intros s1 s2. 
+           assert (H1 := r_left s1 s2). compute in H1. 
+           assert (H2 := r_right (r s1) s2). compute in H2.            
+           assert (H3 := transS _ _ _ H2 H1). apply symS. 
+           exact H3.            
+    Qed. 
+
+Lemma reduced_bop_ass : bop_associative reduced_type reduced_equality reduced_bop. 
+Proof. intros [s1 p1] [s2 p2] [s3 p3]. compute.
+         assert (H1 := r_left (b s1 s2) s3).
+         assert (H2 := r_right s1 (b s2 s3)).
+         assert (H3 := r_cong _ _ (b_ass s1 s2 s3)).
+         apply symS in H2. 
+         assert (H4 := transS _ _ _ H3 H2).
+         assert (H5 := transS _ _ _ H1 H4).
+         exact H5. 
+Qed.
+
+Definition inj (s : S) : reduced_type := existT is_a_fixed_point (r s) (r_idem s).
+
+Lemma reduced_bop_id :
+  uop_preserves_id S eqS b r
+  -> bop_exists_id S eqS b
+  -> bop_exists_id reduced_type reduced_equality reduced_bop. 
+  Proof. intros H [id p]. exists (inj id). unfold bop_is_id in p. unfold bop_is_id.
+         intros [t pt]. compute.
+         destruct (p t) as [H1  H2]. split. 
+         assert (H3 := H id p).
+          assert (H4 := r_left  id t). compute in H4.
+          assert (H5 := r_cong _ _ H1).
+          assert (H6 := transS _ _ _ H4 H5).
+          compute in pt.
+          assert (H7 := transS _ _ _ H6 pt).
+          exact H7.
+          assert (H3 := H id p).
+          assert (H4 := r_right  t id). compute in H4.
+          assert (H5 := r_cong _ _ H2).
+          assert (H6 := transS _ _ _ H4 H5).
+          compute in pt.
+          assert (H7 := transS _ _ _ H6 pt).
+          exact H7.
+Qed.
+
+Lemma reduced_bop_ann :
+  uop_preserves_ann S eqS b r
+  -> bop_exists_ann S eqS b
+  -> bop_exists_ann reduced_type reduced_equality reduced_bop. 
+  Proof. intros H [ann p]. exists (inj ann). unfold bop_is_ann in p. unfold bop_is_ann.
+         intros [t pt]. compute.
+         destruct (p t) as [H1  H2]. split. 
+         assert (H3 := H ann p).
+          assert (H4 := r_left  ann t). compute in H4.
+          assert (H5 := r_cong _ _ H1).
+          assert (H6 := transS _ _ _ H4 H5).
+          exact H6.
+          assert (H3 := H ann p).
+          assert (H4 := r_right  t ann). compute in H4.
+          assert (H5 := r_cong _ _ H2).
+          assert (H6 := transS _ _ _ H4 H5).
+          exact H6.
+  Qed.
+
 
   (*
    f is a homomorphism for b and b' if 
@@ -107,7 +209,10 @@ Section ReductionRepresentations.
      Equality 
 *)
 
-Lemma reduced_equality_congruence_iff : brel_congruence reduced_type reduced_equality reduced_equality <-> brel_congruence S (brel_reduce eqS r) (brel_reduce eqS r).
+Lemma reduced_equality_congruence_iff :
+  brel_congruence reduced_type reduced_equality reduced_equality
+  <->
+  brel_congruence S (brel_reduce eqS r) (brel_reduce eqS r).
 Proof. split. intros H x y m n. compute. intros H1 H2.
        assert (K := H (inj x) (inj y) (inj m) (inj n)). compute in K. 
        apply K; auto.
@@ -115,7 +220,10 @@ Proof. split. intros H x y m n. compute. intros H1 H2.
        compute. apply eqS_cong.
 Qed. 
 
-Lemma reduced_equality_reflexive_iff : brel_reflexive reduced_type reduced_equality <-> brel_reflexive S (brel_reduce eqS r).
+Lemma reduced_equality_reflexive_iff :
+  brel_reflexive reduced_type reduced_equality
+  <->
+  brel_reflexive S (brel_reduce eqS r).
   Proof. split. intros H s. compute.
          assert (K := H (inj s)).
          unfold reduced_equality in K. simpl in K.
@@ -124,7 +232,10 @@ Lemma reduced_equality_reflexive_iff : brel_reflexive reduced_type reduced_equal
          compute. apply refS. 
 Qed.          
 
-Lemma reduced_equality_symmetric_iff : brel_symmetric reduced_type reduced_equality <-> brel_symmetric S (brel_reduce eqS r).
+Lemma reduced_equality_symmetric_iff :
+  brel_symmetric reduced_type reduced_equality
+  <->
+  brel_symmetric S (brel_reduce eqS r).
   Proof. split. intros H s1 s2. compute.
          assert (K := H (inj s1) (inj s2)).
          unfold reduced_equality in K. simpl in K.
@@ -135,7 +246,10 @@ Lemma reduced_equality_symmetric_iff : brel_symmetric reduced_type reduced_equal
          exact K.
 Qed.          
 
-Lemma reduced_equality_transitive_iff : brel_transitive reduced_type reduced_equality <-> brel_transitive S (brel_reduce eqS r).
+Lemma reduced_equality_transitive_iff :
+  brel_transitive reduced_type reduced_equality
+  <->
+  brel_transitive S (brel_reduce eqS r).
   Proof. split. intros H s1 s2 s3. compute. intros H1 H2. 
          assert (K := H (inj s1) (inj s2) (inj s3)). compute in K. 
          apply K; auto. 
@@ -145,9 +259,24 @@ Qed.
 
 (*
      full reduction 
-*)
+ *)
 
-Lemma reduced_bop_congruence_iff : bop_congruence reduced_type reduced_equality reduced_bop <-> bop_congruence S (brel_reduce eqS r) (bop_full_reduce r b).
+Lemma bop_reduce_is_bop_full_reduce 
+    (r_is_b_reduction : ∀ (s1 s2 : S), eqS (r (b s1 s2)) (r (b (r s1) (r s2))) = true) :
+    ∀ x y,
+   brel_reduce eqS r (bop_reduce r b x y) (bop_full_reduce r b x y) = true.
+Proof. intros x y. unfold bop_reduce, brel_reduce, bop_full_reduce.
+       assert (A := r_idem (b x y)). 
+       assert (B := r_idem (b (r x) (r y))).
+       assert (C := transS _ _ _ A (r_is_b_reduction x y)). 
+       apply symS in B. 
+       exact (transS _ _ _ C B).
+Qed.
+
+Lemma reduced_bop_congruence_iff: 
+  bop_congruence reduced_type reduced_equality reduced_bop
+  <->
+  bop_congruence S (brel_reduce eqS r) (bop_full_reduce r b).
 Proof. split.
        (* -> *) 
        intros H s1 s2 s3 s4. compute. intros H1 H2. 
@@ -175,7 +304,10 @@ Proof. split.
 Qed.
 
 
-Lemma reduced_bop_associative_iff : bop_associative reduced_type reduced_equality reduced_bop <-> bop_associative S (brel_reduce eqS r) (bop_full_reduce r b). 
+Lemma reduced_bop_associative_iff :
+  bop_associative reduced_type reduced_equality reduced_bop
+  <->
+  bop_associative S (brel_reduce eqS r) (bop_full_reduce r b). 
 Proof. split; intro H.
          intros s1 s2 s3. compute. 
          assert (H1 := H (inj s1) (inj s2) (inj s3)). compute in H1.
@@ -210,7 +342,10 @@ Proof. split; intro H.
 Qed.
 
 
-Lemma reduced_bop_commutative_iff :  bop_commutative reduced_type reduced_equality reduced_bop <-> bop_commutative S (brel_reduce eqS r) (bop_full_reduce r b).
+Lemma reduced_bop_commutative_iff :
+  bop_commutative reduced_type reduced_equality reduced_bop
+  <->
+  bop_commutative S (brel_reduce eqS r) (bop_full_reduce r b).
 Proof. split.
          intros H s1 s2. compute.
          assert (K := H (inj s1) (inj s2)). compute in K.
@@ -236,7 +371,10 @@ Qed.
    Note : bop_commutative is a Prop while bop_not_commutative is a Type (fix this?) so 
    can't use <-> here, and need break up into -> and <- lemmas. 
 *) 
-Lemma reduced_bop_not_commutative_iff_left :  bop_not_commutative reduced_type reduced_equality reduced_bop -> bop_not_commutative S (brel_reduce eqS r) (bop_full_reduce r b).
+Lemma reduced_bop_not_commutative_iff_left :
+  bop_not_commutative reduced_type reduced_equality reduced_bop
+  ->
+  bop_not_commutative S (brel_reduce eqS r) (bop_full_reduce r b).
 Proof.   intros [[[s1 p1] [s2 p2]]  p3]. compute in p3.  unfold is_a_fixed_point in p1. unfold is_a_fixed_point in p2. 
          exists (s1, s2). compute.
          case_eq(eqS (r (r (b (r s1) (r s2)))) (r (r (b (r s2) (r s1))))); intro J1.
@@ -255,7 +393,10 @@ Proof.   intros [[[s1 p1] [s2 p2]]  p3]. compute in p3.  unfold is_a_fixed_point
 Qed. 
 
 
-Lemma reduced_bop_not_commutative_iff_right :  bop_not_commutative S (brel_reduce eqS r) (bop_full_reduce r b) -> bop_not_commutative reduced_type reduced_equality reduced_bop. 
+Lemma reduced_bop_not_commutative_iff_right :
+  bop_not_commutative S (brel_reduce eqS r) (bop_full_reduce r b)
+  ->
+  bop_not_commutative reduced_type reduced_equality reduced_bop. 
 Proof.  intros [[s1 s2]  p]. exists (inj s1, inj s2). compute.  
         compute in p. 
         case_eq(eqS (r (b (r s1) (r s2))) (r (b (r s2) (r s1)))); intro J1.
@@ -264,7 +405,10 @@ Proof.  intros [[s1 s2]  p]. exists (inj s1, inj s2). compute.
         reflexivity. 
 Qed. 
 
- Lemma reduced_bop_selective_iff_left :  bop_selective reduced_type reduced_equality reduced_bop -> bop_selective S (brel_reduce eqS r) (bop_full_reduce r b).
+Lemma reduced_bop_selective_iff_left :
+  bop_selective reduced_type reduced_equality reduced_bop
+  ->
+  bop_selective S (brel_reduce eqS r) (bop_full_reduce r b).
  Proof. intros H s1 s2. compute.
   assert (K := H (inj s1) (inj s2)). compute in K.
   destruct K as [K | K]. left. 
@@ -274,7 +418,10 @@ Qed.
   exact (transS _ _ _ A K).
  Qed.
 
- Lemma reduced_bop_selective_iff_right :  bop_selective S (brel_reduce eqS r) (bop_full_reduce r b) -> bop_selective reduced_type reduced_equality reduced_bop.
+ Lemma reduced_bop_selective_iff_right :
+   bop_selective S (brel_reduce eqS r) (bop_full_reduce r b)
+   ->
+   bop_selective reduced_type reduced_equality reduced_bop.
  Proof. intros H1 [s1 p1] [s2 p2]. compute.
   assert (K := H1 s1 s2). compute in K. 
   unfold is_a_fixed_point in p1. unfold is_a_fixed_point in p2.
@@ -296,14 +443,20 @@ Qed.
  (* not selective ... *)
 
 
- Lemma reduced_bop_idempotent_iff_left :  bop_idempotent reduced_type reduced_equality reduced_bop -> bop_idempotent S (brel_reduce eqS r) (bop_full_reduce r b).
+ Lemma reduced_bop_idempotent_iff_left :
+   bop_idempotent reduced_type reduced_equality reduced_bop
+   ->
+   bop_idempotent S (brel_reduce eqS r) (bop_full_reduce r b).
  Proof. intros H s . compute.
   assert (K := H (inj s)). compute in K.
   assert (A := r_idem (b (r s) (r s)) ).
   exact (transS _ _ _ A K).
  Qed.
 
-  Lemma reduced_bop_idempotent_iff_right :  bop_idempotent S (brel_reduce eqS r) (bop_full_reduce r b) -> bop_idempotent reduced_type reduced_equality reduced_bop.
+ Lemma reduced_bop_idempotent_iff_right :
+   bop_idempotent S (brel_reduce eqS r) (bop_full_reduce r b)
+   ->
+   bop_idempotent reduced_type reduced_equality reduced_bop.
  Proof. intros H1 [s p]. compute.
   assert (K := H1 s). compute in K. 
   unfold is_a_fixed_point in p. 
@@ -316,7 +469,10 @@ Qed.
 
  (* not idempotent ... *) 
 
-Lemma red_exists_id_left :  bop_exists_id reduced_type reduced_equality reduced_bop -> bop_exists_id S (brel_reduce eqS r) (bop_full_reduce r b).
+ Lemma red_exists_id_left :
+   bop_exists_id reduced_type reduced_equality reduced_bop
+   ->
+   bop_exists_id S (brel_reduce eqS r) (bop_full_reduce r b).
 Proof. intros [[id P] Q].
        exists id. intro s; compute. compute in Q.
        destruct (Q (inj s)) as [L R]. compute in L, R. unfold is_a_fixed_point in P.
@@ -333,7 +489,10 @@ Proof. intros [[id P] Q].
        exact J4. 
 Qed. 
 
-Lemma red_exists_id_right : bop_exists_id S (brel_reduce eqS r) (bop_full_reduce r b) -> bop_exists_id reduced_type reduced_equality reduced_bop.
+Lemma red_exists_id_right :
+  bop_exists_id S (brel_reduce eqS r) (bop_full_reduce r b)
+  ->
+  bop_exists_id reduced_type reduced_equality reduced_bop.
 Proof. intros [id Q].
        exists (inj id). intros [s P]; compute. compute in Q.
        destruct (Q s) as [L R].  unfold is_a_fixed_point in P.
@@ -353,7 +512,10 @@ Proof. intros [id Q].
 Qed. 
 
 
-Lemma red_not_exists_id_left :  bop_not_exists_id reduced_type reduced_equality reduced_bop -> bop_not_exists_id S (brel_reduce eqS r) (bop_full_reduce r b).
+Lemma red_not_exists_id_left :
+  bop_not_exists_id reduced_type reduced_equality reduced_bop
+  ->
+  bop_not_exists_id S (brel_reduce eqS r) (bop_full_reduce r b).
 Proof. intros H s. compute.
        destruct (H (inj s)) as [[s' P] Q]. compute in Q. unfold is_a_fixed_point in P.
        exists s'.
@@ -384,7 +546,10 @@ Proof. intros H s. compute.
        reflexivity.
 Qed.
 
-Lemma red_not_exists_id_right :  bop_not_exists_id S (brel_reduce eqS r) (bop_full_reduce r b) -> bop_not_exists_id reduced_type reduced_equality reduced_bop.
+Lemma red_not_exists_id_right :
+  bop_not_exists_id S (brel_reduce eqS r) (bop_full_reduce r b)
+  ->
+  bop_not_exists_id reduced_type reduced_equality reduced_bop.
 Proof. intros H [s P]. compute. unfold is_a_fixed_point in P. 
        destruct (H s) as [s' Q]. compute in Q.
        exists (inj s'). compute. 

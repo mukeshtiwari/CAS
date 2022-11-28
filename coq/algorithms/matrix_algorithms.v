@@ -228,7 +228,8 @@ Section Theory.
 (*  Local Infix "*[ n ]" := (matrix_mul zero plus mul n) (at level 70). *) 
 
     
-  Lemma sum_fn_cons : ∀ (f : nat -> R) a l, sum_fn zero plus f (a :: l) = plus (f a) (sum_fn zero plus f l).
+  Lemma sum_fn_cons : ∀ (T : Type) (f : T -> R) a l,
+      sum_fn zero plus f (a :: l) = plus (f a) (sum_fn zero plus f l).
   Proof. intros f a l. unfold sum_fn. simpl. reflexivity. Qed.
 
   Lemma sum_fn_congruence_general

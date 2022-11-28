@@ -32,7 +32,7 @@ Definition olt_strictly_monotone_decidable (L S : Type) (lte : brel S) (ltr : lt
 
 (* a <= l |> a *) 
 Definition olt_increasing (L S : Type) (lte : brel S) (tr : ltr_type L S)  
-   := ∀ (l : L) (s : S), lte s (tr l s) = true. 
+   := ∀ (l : L) (s : S), lte s (tr l s) = true.  
 
 Definition olt_not_increasing (L S : Type) (lte : brel S) (tr : ltr_type L S)  
    := { z : L * S & match z with (l, s) => lte s (tr l s) = false end }. 
