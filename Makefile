@@ -22,6 +22,7 @@ BASE=\
    coq/theory/set.v \
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
+   coq/theory/reduction/full.v   \
    coq/theory/reduction/representations.v \
 
 CAS=\
