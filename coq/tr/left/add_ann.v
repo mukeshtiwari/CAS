@@ -377,7 +377,31 @@ Section Certificate.
     + intros Hb.
       apply Certify_Ltr_Not_Exists_Id.
   Defined.
-    
+
+(*   
+  Print ltr_add_ann_exists_id_certs. 
+ltr_add_ann_exists_id_certs = 
+λ Ha : check_ltr_exists_id,
+  match Ha as c return (Ha = c → check_ltr_exists_id) with
+  | Certify_Ltr_Exists_Id l =>
+      λ _ : Ha = Certify_Ltr_Exists_Id l, Certify_Ltr_Exists_Id l
+  | Certify_Ltr_Not_Exists_Id =>
+      λ _ : Ha = Certify_Ltr_Not_Exists_Id, Certify_Ltr_Not_Exists_Id
+  end eq_refl
+     : check_ltr_exists_id → check_ltr_exists_id
+
+  This extracts to 
+
+type __ = Obj.t
+let __ = let rec f _ = Obj.repr f in Obj.repr f
+
+let ltr_add_ann_exists_id_certs ha =
+  (match ha with
+   | Certify_Ltr_Exists_Id l -> (fun _ -> Certify_Ltr_Exists_Id l)
+   | Certify_Ltr_Not_Exists_Id -> (fun _ -> Certify_Ltr_Not_Exists_Id)) __
+
+
+*)     
 
   Lemma ltr_add_ann_left_cancellative_certs :
     @check_ltr_left_cancellative L S ->
@@ -419,8 +443,7 @@ Section CAS.
         (left_transform_left_cancellative_d Ha) 
     |}.
   Defined.
-  
-  
+
   Lemma ltr_add_ann 
     {L S : Type}
     (c : cas_constant)

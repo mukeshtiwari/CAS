@@ -476,7 +476,6 @@ match idm_d with
 | inr nidm => inr _ (bop_left_sum_right_sum_not_right_right_absorptive_v1 nidm)
 end. 
 
-(* strict absorption. We insist on idempotence *)
 Lemma bops_left_sum_right_sum_not_left_strictly_absorptive :
     bop_idempotent T rT addT -> 
     bops_not_left_strictly_absorptive 
@@ -488,9 +487,18 @@ Proof.
   apply symT, Ha.
 Qed.
 
+Lemma bops_left_sum_right_sum_not_left_strictly_absorptive_v2:
+  bop_not_idempotent T rT addT -> 
+  bops_not_left_strictly_absorptive
+    (S + T) (rS [+] rT) (addS <+] addT) (mulS [+> mulT).
+ Proof. intros [t nidem]. exists (inr t, inl wS); simpl.
+        left. case_eq(rT t (addT t t)); intro A; auto. 
+        apply symT in A. rewrite A in nidem. exact nidem. 
+Qed.
 
-
-(* Experimental *)
+(* Experimental 
+   Note: the above lemma shows the following is not needed. 
+*)
 Lemma bops_left_sum_right_sum_left_strictly_absorptive_absurd :
   bops_left_strictly_absorptive_absurd
     (S + T) (rS [+] rT) (addS <+] addT) (mulS [+> mulT).
@@ -498,6 +506,7 @@ Proof.
   intros Hd.
   pose proof (Hd (inr wT) (inl wS)) as [Hfl Hfr];
   compute in Hfl, Hfr.
+Print bops_not_left_strictly_absorptive.   
   rewrite Hfl in Hfr.
   congruence.
 Qed.
@@ -515,9 +524,16 @@ Proof.
   apply symT, Ha.
 Qed.
 
-
-
-
+Lemma bops_left_sum_right_sum_not_right_strictly_absorptive_v2 :
+    bop_not_idempotent T rT addT -> 
+    bops_not_right_strictly_absorptive 
+      (S + T) (rS [+] rT) (addS <+] addT) (mulS [+> mulT).
+Proof.
+  intros [t nidem].
+  exists (inr t, inl wS); compute.
+  left. case_eq(rT t (addT t t)); intro A; auto. 
+  apply symT in A.  rewrite A in nidem.  exact nidem. 
+Qed.
 
 Lemma bops_left_sum_right_sum_exists_id_ann_equal :
       bops_exists_id_ann_equal T rT addT mulT →                                                                                       

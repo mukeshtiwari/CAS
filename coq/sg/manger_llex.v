@@ -17,6 +17,12 @@ Section Computation.
 (* 
   A = type of active component
   P = type of passive component
+ *)
+
+(* is this a reduction over union? 
+ 
+   r1 = uop_manger_phase_1
+
 *)   
 Definition bop_manger_phase_1
            {A P : Type}
@@ -25,7 +31,10 @@ Definition bop_manger_phase_1
            (addP : binary_op P) : binary_op (finite_set (A * P))
   := λ X Z, uop_manger_phase_1 eqA addP (bop_union (brel_product eqA eqP) X Z).
 
+(* is this really the composition of reductions? 
 
+   r2 = uop_manger_phase_2 
+*) 
 Definition bop_manger_llex
            {A P : Type}
            (eqA lteA : brel A)

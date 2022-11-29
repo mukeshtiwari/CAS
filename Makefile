@@ -24,6 +24,9 @@ BASE=\
    coq/theory/semilattice_theory.v \
    coq/theory/reduction/full.v   \
    coq/theory/reduction/representations.v \
+   coq/theory/reduction/full.v \
+   coq/theory/reduction/predicate.v \
+   coq/theory/reduction/zeroes.v \
 
 CAS=\
    coq/eqv/properties.v \

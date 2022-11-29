@@ -3,7 +3,7 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.uop.properties.
 Require Import CAS.coq.sg.properties. 
 Require Import CAS.coq.theory.reduction.representations.
-Require Import CAS.coq.theory.reduction.classical. 
+(*Require Import CAS.coq.theory.reduction.classical. *) 
 
 (***************************************************************************************)
 

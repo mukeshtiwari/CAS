@@ -18,21 +18,6 @@ From CAS Require Import
   coq.algorithms.matrix_multiplication. 
 
 
-
-Definition bops_left_strictly_absorptive (S : Type) (eq : brel S) (b1 b2 : binary_op S) :=
-    ∀ (s t : S), (eq s (b1 s (b2 s t)) = true) * (eq (b2 s t) (b1 s (b2 s t)) = false).
-
-Definition bops_not_left_strictly_absorptive (S : Type) (eq : brel S) (b1 b2 : binary_op S)
-  := { z : S * S & match z with (s, t) => (eq s (b1 s (b2 s t)) = false) + (eq (b2 s t) (b1 s (b2 s t)) = true) end }.
-
-Definition bops_left_strictly_absorptive_absurd (S : Type) (eq : brel S) (b1 b2 : binary_op S) :=
-     bops_left_strictly_absorptive S eq b1 b2 -> False.
-
-Definition bops_left_strictly_absorptive_semi_decidable  (S : Type) (eq : brel S) (b1 b2 : binary_op S) :=
-    (bops_left_strictly_absorptive S eq b1 b2) +
-    (bops_not_left_strictly_absorptive S eq b1 b2) +
-    (bops_left_strictly_absorptive_absurd S eq b1 b2). 
-
 Section Computation.
 
   Fixpoint left_sum_of_matrix_powers_general

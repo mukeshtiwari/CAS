@@ -33,7 +33,13 @@ Definition manger_product_phase_0
            (mulA : binary_op A)
            (mulP : binary_op P) : binary_op (finite_set (A * P)) := 
   bop_lift (brel_product eqA eqP) (bop_product mulA mulP). 
-           
+
+(* is this a reduction over manger_product_phase_0? 
+ 
+   r1 = uop_manger_phase_1
+
+*)   
+
 Definition manger_product_phase_1 
            {A P : Type}
            (eqA : brel A)
@@ -43,6 +49,10 @@ Definition manger_product_phase_1
            (mulP : binary_op P) : binary_op (finite_set (A * P))
   := λ X Z, uop_manger_phase_1 eqA addP (manger_product_phase_0 eqA eqP mulA mulP X Z). 
 
+(* is this really the composition of reductions? 
+
+   r2 = uop_manger_phase_2 
+*) 
 
 Definition bop_manger_product 
            {A P : Type}

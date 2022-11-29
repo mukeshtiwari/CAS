@@ -28,7 +28,51 @@ Require Import CAS.coq.sg.properties.
    Our solution is the represent the reduced 
    semigroup as 
 
-     (S, =_r, 
+     (S, =_r, [x]_r) 
+ 
+   where 
+
+        a =_r b <-> r(a) = r(b) 
+
+      a [x]_r b = r(r(a) (x) r(b)). 
+
+   Big question : do we really have to 
+   do those extra reductions? That is, 
+   would 
+    
+     (S, =_r, (x)_r) 
+
+   still be correct? 
+
+
+   Another topic : composition of classical reductions 
+
+   (S, =, (x)) 
+   |
+   r1
+   |
+   \/
+  (S_r1, =, (x)_r1) 
+   |
+   r2
+   |
+   \/
+  ((S_r1)_r2, =, ((x)_r1)_r2) 
+
+
+      a ((x)_r1)_r2 b = r2(a (x)_r1 b). 
+                      = r2(r1(a (x) b)). 
+
+    (S_r1)_r2 = {a in S_r1 | r2(a) = a}
+              = {a in {a in S | r1(a) = a} | r2(a) = a} 
+              = {a in S | r1(a) = a and r2(a) = a} 
+
+        So, r1(r2(a)) = r2(r1(a))
+
+   Equality in "OCaml"? 
+
+        a (=_r1)_r2 b <-> r2(a) =_r1 r2(b) 
+                      <-> r1(r2(a)) = r1(r2(b)) 
 
 *) 
 
@@ -70,9 +114,25 @@ Section ReductionRepresentations.
   Lemma reduced_equality_transitive : brel_transitive reduced_type reduced_equality. 
   Proof. intros [s1 p1] [s2 p2] [s3 p3]. compute. apply transS. Qed.
 
+  (* 
+  Print brel_reduce.
+brel_reduce = 
+λ (S : Type) (r : brel S) (u : unary_op S) (x y : S), r (u x) (u y)
+     : ∀ S : Type, brel S → unary_op S → brel S
+  
+  Print bop_full_reduce.
+bop_full_reduce = 
+λ (S : Type) (r : unary_op S) (b : binary_op S) (x y : S), r (b (r x) (r y))
+     : ∀ S : Type, unary_op S → binary_op S → binary_op S
+  
+  Print bop_reduce. 
+bop_reduce = 
+λ (S : Type) (r : unary_op S) (b : binary_op S) (x y : S), r (b x y)
+     : ∀ S : Type, unary_op S → binary_op S → binary_op S
+*) 
   Lemma is_a_fixed_point_bop_reduce : ∀ (p1 p2 : reduced_type), is_a_fixed_point (bop_reduce r b (projT1 p1) (projT1 p2)).
   Proof. intros [s1 p1] [s2 p2]. compute. apply r_idem. Defined.
-
+  
   Definition reduced_bop : binary_op reduced_type :=
     λ p1 p2,  existT is_a_fixed_point (bop_reduce r b (projT1 p1) (projT1 p2)) (is_a_fixed_point_bop_reduce p1 p2).
 
@@ -83,16 +143,14 @@ Section ReductionRepresentations.
          apply b_cong; auto.
   Qed.
 
-(* "classical" axioms of Semirings and path spaces by Ahnont Wongseelashote, 1979 *) 
+(* "classical" axioms of Semirings and path spaces by Ahnont Wongseelashote, 1979 
+
+    r(a + b) = r(r(a) + b) 
+    r(a + b) = r(a + r(b)) 
+
+*) 
 Variable r_left  : bop_left_uop_invariant S eqS (bop_reduce r b) r.  (* eqS (r (b (r s1) s2)) (r (b s1 s2))  = true. *) 
 Variable r_right : bop_right_uop_invariant S eqS (bop_reduce r b) r. (* eqS (r (b s1 (r s2))) (r (b s1 s2))  = true. *)
-  
-
-Lemma observation1 : (bop_left_uop_invariant S (brel_reduce eqS r) b r) <-> (bop_left_uop_invariant S eqS (bop_reduce r b) r).
-Proof. compute. split; auto.   Qed. 
-
-Lemma observation2 : (bop_right_uop_invariant S eqS (bop_reduce r b) r) <-> (bop_right_uop_invariant S (brel_reduce eqS r) b r).
-Proof. split; auto.   Qed.
 
 Lemma r_is_b_reduction : ∀ (s1 s2 : S), eqS (r (b s1 s2)) (r (b (r s1) (r s2))) = true. 
 Proof. intros s1 s2. 
@@ -101,6 +159,7 @@ Proof. intros s1 s2.
            assert (H3 := transS _ _ _ H2 H1). apply symS. 
            exact H3.            
     Qed. 
+
 
 Lemma reduced_bop_ass : bop_associative reduced_type reduced_equality reduced_bop. 
 Proof. intros [s1 p1] [s2 p2] [s3 p3]. compute.
@@ -199,11 +258,21 @@ Lemma reduced_bop_ann :
 
   (*****************************************************************************************
       Now show that 
-      (reduced_type, reduced_equality, reduced_bop) is "isomorphic" to 
+      (reduced_type, reduced_equality, reduced_bop) is "isomorphic" to our "OCaml" implementation: 
 
       (S, brel_reduce r eqS, bop_full_reduce r b)
+
+      or (S, brel_reduce r eqS, bop_reduce r b)???
+
   *******************************************************************************************) 
+
   
+Lemma observation1 : (bop_left_uop_invariant S (brel_reduce eqS r) b r) <-> (bop_left_uop_invariant S eqS (bop_reduce r b) r).
+Proof. compute. split; auto.   Qed. 
+
+Lemma observation2 : (bop_right_uop_invariant S eqS (bop_reduce r b) r) <-> (bop_right_uop_invariant S (brel_reduce eqS r) b r).
+Proof. split; auto.   Qed.
+
 
 (*
      Equality 
@@ -260,7 +329,6 @@ Qed.
 (*
      full reduction 
  *)
-
 Lemma bop_reduce_is_bop_full_reduce 
     (r_is_b_reduction : ∀ (s1 s2 : S), eqS (r (b s1 s2)) (r (b (r s1) (r s2))) = true) :
     ∀ x y,

@@ -657,4 +657,41 @@ Qed.
 (* End non-commutative *) 
 
 End PredicateReduce.
+ *)
+
+Print bop_self_square. 
+
+(*
+
+bop_self_square = 
+λ (S : Type) (eqS : brel S) (bS : binary_op S) (aS : S),
+  ∀ a b : S, eqS (bS a b) aS = true → (eqS a aS = true) * (eqS b aS = true)
+     : ∀ S : Type, brel S → binary_op S → S → Prop
+
+
+Check bop_rap_add_associative.
+
+bop_rap_add_associative
+     : ∀ (S T : Type) (eqS : brel S) (eqT : brel T),
+         brel_reflexive S eqS
+         → brel_symmetric S eqS
+           → brel_transitive S eqS
+             → brel_reflexive T eqT
+               → brel_symmetric T eqT
+                 → brel_transitive T eqT
+                   → ∀ (zeroS : S) (zeroT : T) (addS : binary_op S) 
+                       (addT : binary_op T),
+                       bop_congruence S eqS addS
+                       → bop_congruence T eqT addT
+                         → bop_associative S eqS addS
+                           → bop_associative T eqT addT
+                             → bop_is_id S eqS addS zeroS
+                               → bop_is_id T eqT addT zeroT
+                                 → bop_self_square S eqS addS zeroS
+                                   → bop_self_square T eqT addT zeroT
+                                     → bop_associative 
+                                         (S * T)
+                                         (brel_rap S T eqS eqT zeroS zeroT)
+                                         (bop_rap_add S T eqS eqT zeroS zeroT
+                                            addS addT)
 *) 
