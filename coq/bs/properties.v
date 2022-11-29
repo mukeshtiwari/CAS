@@ -243,6 +243,7 @@ Definition bops_right_strictly_absorptive
   (eq s (b₁ s (b₂ t s)) = true) *
   (eq (b₂ t s) (b₁ s (b₂ t s)) = false).
 
+
 Definition bops_not_right_strictly_absorptive 
   (S : Type) (eq : brel S) (b₁ b₂ : binary_op S) := 
   {z : S * S & 
@@ -259,16 +260,15 @@ Definition bops_right_strictly_absorptive_decidable
   (bops_right_strictly_absorptive S eq b₁ b₂) + 
   (bops_not_right_strictly_absorptive S eq b₁ b₂).
 
-(* Experimental. *)
+(* Experimental.  not needed, so far ... *)
 Definition bops_left_strictly_absorptive_absurd (S : Type) 
    (eq : brel S) (b1 b2 : binary_op S) :=
    bops_left_strictly_absorptive S eq b1 b2 -> False.
 
-(* Experimental *)
+(* Experimental. not needed, so far ... *)
 Definition bops_right_strictly_absorptive_absurd (S : Type) 
    (eq : brel S) (b1 b2 : binary_op S) :=
    bops_right_strictly_absorptive S eq b1 b2 -> False.
-
 
 (*** introduced for st/left/from_bs.v 
 

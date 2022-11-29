@@ -75,8 +75,151 @@ Notation "a [+] b" := (bop_llex argT rS a b) (at level 15).
 Notation "a [*] b" := (bop_product a b) (at level 15).
 Notation "[| p1 | a | c | b | d |]" := (llex_p2 argT rS addT p1 a c b d) (at level 15).
 
+(*
 
 
+    lhs : (a,b) + ((c, d) * (e, f)) 
+        = (a,b) + (c * e, d * f)
+        = (a + (c * e), t_lhs)    
+          1) a=a+(c*e)=c*e  -> t_lhs = b + (d*f)  
+             a=(a+c)*(a+e)=c*e 
+          2) a=a+(c*e)<>c*e -> t_lhs = b   
+             a=(a+c)*(a+e)<>c*e 
+          3) a<>a+(c*e)=c*e -> t_lhs = d*f
+             a<>(a+c)*(a+e)=c*e 
+
+    rhs : ((a,b) + (c, d)) * ((a,b) + (e, f))    
+        = (a+c, t1) * (a+e, t2) 
+        = ((a+c)*(a+e), t1 * t2) 
+        = ((a+c)*(a+e), t_rhs) 
+           
+        4) a=a+c=c  -> t1 = b+d 
+        5) a=a+c<>c -> t1 = b
+        6) a<>a+c=c -> t1 = d
+
+        7) a=a+e=e  -> t2 = b+f
+        8) a=a+e<>e -> t2 = b
+        9) a<>a+e=e -> t2 = f
+
+nine combos: 
+
+1) 4+7: t_rhs = (b+d)*(b+f) = b + d*f 
+          1) a=a+(c*e)=c*e  -> t_lhs = b + (d*f)  
+             a=(a+c)*(a+e)=c* e
+             a=a*a=a*a OK
+          2) a=a+(c*e)<>c*e -> t_lhs = b   
+             a=(a+c)*(a+e)<>c*e 
+             a=a*a<>a*a *******
+          3) a<>a+(c*e)=c*e -> t_lhs = d*f
+             a<>(a+c)*(a+e)=c*e 
+             a<>a*a=a*a  ???? 
+2) 6+9: t_rhs = d*f 
+          1) a=a+(c*e)=c*e  -> t_lhs = b + (d*f)  
+             a=(a+c)*(a+e)=c*e 
+             a=c*e=c*e ???? 
+          2) a=a+(c*e)<>c*e -> t_lhs = b   
+             a=(a+c)*(a+e)<>c*e 
+             a=c*e<>c*e **********************
+          3) a<>a+(c*e)=c*e -> t_lhs = d*f
+             a<>(a+c)*(a+e)=c*e 
+             a<>c*e=c*e OK 
+3) 5+8: t_rhs = b*b 
+          1) a=a+(c*e)=c*e  -> t_lhs = b + (d*f)  
+             a=(a+c)*(a+e)=c*e 
+             a=a*a=c*e 
+          2) a=a+(c*e)<>c*e -> t_lhs = b   
+             a=(a+c)*(a+e)<>c*e 
+             a=a*a<>c*e 
+          3) a<>a+(c*e)=c*e -> t_lhs = d*f
+             a<>(a+c)*(a+e)=c*e 
+             a<>a*a=c*e 
+4) 4+8: t_rhs = (b+d)*b = (b+d)*(b+id) = b + (d*id) = b ? 
+          1) a=a+(c*e)=c*e  -> t_lhs = b + (d*f)  
+             a=(a+c)*(a+e)=c* e
+             a=a*a=c*a 
+          2) a=a+(c*e)<>c*e -> t_lhs = b   
+             a=(a+c)*(a+e)<>c*e 
+             a=a*a<>c*a 
+          3) a<>a+(c*e)=c*e -> t_lhs = d*f
+             a<>(a+c)*(a+e)=c*e 
+             a<>a*a=c*a  
+...
+
+ *)
+
+
+
+(* when is 
+ 
+        (s1 +S (s2 *S s3)) <> ((s1 +S s2) *S (s1 +S s3))? 
+
+        +S = min 
+        *S = + 
+
+        (s1 min (s2 + s3)) <?> ((s1 min s2) + (s1 min s3))
+     1 = 1       1    1          1       1     1       1 = 2 
+
+
+  Look at 
+
+        +S = max 
+        *S = min
+
+        +T = min 
+        *T = +      
+
+  caught by bop_product_llex_not_left_distributive_v2 
+
+
+  Look at 
+
+        +S = max 
+        *S = min
+
+        +T = max
+        *T = min     
+
+    lhs : (a,b) llex ((c, d) * (e, f)) 
+        = (a,b) llex (c min e, d min f)
+        = (a max (c min e), t_lhs)    
+          1) a=a max(c min e)=c min e  -> t_lhs = b max (d min f)   
+          2) a=a max (c min e)<>c min e -> t_lhs = b   
+          3) a<>a max (c min e)=c min e -> t_lhs = d*f
+
+    rhs : ((a,b) + (c, d)) * ((a,b) + (e, f))    
+        = (a max c, t1) * (a max e, t2) 
+        = ((a max c) min (a max e), t1 min t2) 
+        = ((a max c) min (a max e), t_rhs) 
+           
+        4) a=a max c=c  -> t1 = b max d 
+        5) a=a max c<>c -> t1 = b   
+        6) a<>a max c=c -> t1 = d
+
+        7) a=a max e=e  -> t2 = b max f
+        8) a=a max e<>e -> t2 = b  
+        9) a<>a max e=e -> t2 = f
+---
+        2) a=a max (c min e)<>c min e -> t_lhs = b   
+           2 2      1     3
+        5) a=a max c<>c -> t1 = b   
+           2 2     1
+        9) a<>a max e=e -> t2 = f
+           2  2 max 3=3
+        
+       lhs = b <> b min f = rhs 
+             1    1     0
+
+
+
+           sg_trivial     : exists a, forall b c, a = b + c 
+           sg_not_trivial : forall a, exists b c, a <> b + c 
+                          = exists f, forall a, f a = (b, c) and a <> b + c 
+
+           bs_trivial : exists a, forall b c, a = b + c and a = b * c
+           bs_not_trivial : forall a, exists b c, a <> b + c or a <> b * c
+                            exists f, forall a, f a = (b, c) and (a <> b + c or a <> b * c)
+
+*) 
 Lemma bop_product_llex_not_left_distributive_v1
       (nldS : bop_not_left_distributive S rS mulS addS) : 
   bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
@@ -85,10 +228,28 @@ Proof. destruct nldS as [[s1 [s2 s3]] H].
        compute. rewrite H. reflexivity. 
 Defined.
 
+
+
+Lemma bop_product_llex_not_left_distributive_NEW (s1 s2 s3 : S) 
+      (ldS : bop_left_distributive S rS mulS addS) 
+      (nldT : bop_not_left_distributive T rT mulT addT) : 
+  bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. destruct nldT as [[t1 [t2 t3]] H].
+       exists ((s1, t1), ((s2, t2), (s3, t3))). 
+       compute.
+       assert (A := ldS s1 s2 s3). rewrite A.
+       assert (B : rS s1 (s1 +S (s2 *S s3)) = true). admit. rewrite B.
+       assert (C : rS (s1 +S (s2 *S s3)) (s2 *S s3) = true). admit. rewrite C. 
+       assert (D : rS s1 (s1 +S s2) = true). admit. rewrite D.
+       assert (E : rS (s1 +S s2) s2 = true). admit. rewrite E.
+       assert (F : rS s1 (s1 +S s3) = true). admit. rewrite F.
+       assert (G : rS (s1 +S s3) s3 = true). admit. rewrite G. 
+       exact H. 
+Admitted. 
+
 Lemma bop_product_llex_not_left_distributive_v2 
       (*  ldS : bop_left_distributive S rS mulS addS  *) 
       (m_idemS : bop_idempotent S rS mulS)
-      
       (nldT : bop_not_left_distributive T rT mulT addT) : 
   bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
 Proof. destruct nldT as [[t1 [t2 t3]] H].
@@ -111,7 +272,6 @@ Defined.
 Lemma bop_product_llex_not_left_distributive_v3
       (ldS : bop_left_distributive S rS mulS addS)
       (m_idemS : bop_idempotent S rS mulS)
-
       (a_selS : bop_selective S rS addS)                  
       (m_nidemT : bop_not_idempotent T rT mulT)
            (a_nrS : bop_not_is_right S rS addS): (* follows from a_commS + a_idemS *) 
@@ -159,32 +319,31 @@ Proof. destruct nldT as [[t1 [t2 t3]] H].
        exact H.
 Defined.  
 
-Lemma bop_product_llex_not_left_distributive_v4_2
+Lemma bop_product_llex_not_left_distributive_v4_2 
       (ldS : bop_left_distributive S rS mulS addS)
       (m_nidemS : bop_not_idempotent S rS mulS)
       (nllaS : bops_not_left_left_absorptive S rS addS mulS)
+      (selS : bop_selective S rS addS) 
       (nldT : bop_not_left_distributive T rT mulT addT) : 
   bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
 Proof. destruct nldT as [[t1 [t2 t3]] H1].
        destruct m_nidemS as [s1 H2].
        destruct nllaS as [[s2 s3] H3]. 
-       exists ((s2, t1), ((s2, t2), (s1, t3))). 
+       exists ((s2, t1), ((s2, t2), (s3, t3))). 
        compute.
-       assert (H4 := ldS s2 s2 s1). 
-       rewrite H4.
+       assert (H4 := ldS s2 s2 s3).       
+       rewrite H4. rewrite H3. 
        assert (A := a_idemS s2). rewrite A. 
-       apply symS in A. rewrite A. 
-       case_eq(rS (s2 +S (s2 *S s3)) (s2 *S s3)); intro B.
-       + admit. 
-       + admit. 
+       apply symS in A. rewrite A.
+       destruct (selS s2 s3) as [B | B]. 
+       - apply symS in B. rewrite B.
+         admit. 
+       - rewrite B. 
+         admit. 
 Admitted. 
 
 (*
-           bs_trivial : exists a, forall b c, a = b + c and a = b * c
-           bs_not_trivial : forall a, exists b c, a <> b + c or a <> b * c
-                            exists f, forall a, f a = (b, c) and (a <> b + c or a <> b * c)
-          
- *)
+*)
 
 
 Lemma bop_product_llex_not_left_distributive_v5 (t1 t2 t3 : T) 
@@ -290,7 +449,7 @@ Definition bop_product_llex_not_left_distributive_decide
         | inr m_nidemS =>
           match llaS_d with
           | inl llaS => inr (bop_product_llex_not_left_distributive_v4 ldS m_nidemS llaS nldT) (*OK*)
-          | inr nllaS => inr (bop_product_llex_not_left_distributive_v4_2 ldS m_nidemS nllaS nldT)
+          | inr nllaS => inr CHEAT  
           end 
         end 
       | inl ldT =>
@@ -361,7 +520,35 @@ end .
 *) 
        
 
+Lemma bop_product_llex_not_left_distributive_COMPLETE_V2 (s1 s2 s3 : S) (t1 t2 t3 : T)
+      (selS : bop_selective S rS addS)
+      (ldS : bop_left_distributive S rS mulS addS)
+      (ldT : bop_left_distributive T rT mulT addT) : 
+         bop_not_left_distributive (S * T) (rS <*> rT) (mulS [*] mulT) (addS [+] addT).
+Proof. exists ((s1, t1), ((s2, t2), (s3, t3))). compute.
+       assert (H1 := ldS s1 s2 s3).
+       assert (H2 := ldT t1 t2 t3).        
+       rewrite H1.
+       destruct (selS s1 (s2 *S s3)) as [A | A];       
+       destruct (selS s1 s2) as [B | B];
+       destruct (selS s1 s3) as [C | C].
+       - apply symS in A. rewrite A.
+         apply symS in B. rewrite B.
+         apply symS in C. rewrite C.
+         admit. 
+       - apply symS in A. rewrite A.
+         apply symS in B. rewrite B.
+         rewrite C.
+         admit. 
+       - admit. 
+       - admit. 
+       - admit. 
+       - admit. 
+       - admit. 
+       - admit.  
+Admitted.          
 
+       
 
 Lemma bop_product_llex_not_left_distributive_COMPLETE (s1 s2 s3 : S) (t1 t2 t3 : T)
       (ldS : bop_left_distributive S rS mulS addS)
