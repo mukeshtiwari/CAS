@@ -26,6 +26,7 @@ Section Computation.
   P = type of passive component
 *)   
 
+
 Definition manger_product_phase_0
            {A P : Type}
            (eqA : brel A)
@@ -47,7 +48,9 @@ Definition manger_product_phase_1
            (addP : binary_op P)
            (mulA : binary_op A)
            (mulP : binary_op P) : binary_op (finite_set (A * P))
-  := λ X Z, uop_manger_phase_1 eqA addP (manger_product_phase_0 eqA eqP mulA mulP X Z). 
+  := bop_reduce (uop_manger_phase_1 eqA addP) (manger_product_phase_0 eqA eqP mulA mulP).
+
+
 
 (* is this really the composition of reductions? 
 
@@ -61,7 +64,7 @@ Definition bop_manger_product
            (addP : binary_op P)
            (mulA : binary_op A)
            (mulP : binary_op P) : binary_op (finite_set (A * P))
-  := λ X Z, @uop_manger_phase_2 A P lteA (manger_product_phase_1 eqA eqP addP mulA mulP X Z). 
+  := bop_reduce (@uop_manger_phase_2 A P lteA) (manger_product_phase_1 eqA eqP addP mulA mulP). 
 
 
 End Computation.
@@ -110,6 +113,34 @@ Compute (manger_mul s5 (manger_add s1 s3)).                 (* (2, 4, 9) :: (1, 
 End Testing.
 
 Section Theory.
+
+Variables  (A P : Type)
+           (eqA lteA : brel A)
+           (eqP : brel P)            
+           (addP : binary_op P)
+           (mulA : binary_op A)
+           (mulP : binary_op P).
+
+Local Notation "[MP]" := (bop_manger_product eqA lteA eqP addP mulA mulP). 
+Local Notation "[MR]" := (@uop_manger_phase_2 A P lteA).
+Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP).
+
+
+(*
+bop_left_uop_invariant = 
+λ (S : Type) (eq0 : brel S) (b : binary_op S) (r : unary_op S),
+  ∀ s1 s2 : S, eq0 (b (r s1) s2) (b s1 s2) = true
+     : ∀ S : Type, brel S → binary_op S → unary_op S → Prop
+*) 
+Lemma bop_manger_product_left_uop_invariant : 
+    bop_left_uop_invariant _ [EQ]  [MP] [MR]. 
+Admitted. 
+
+
+Lemma bop_manger_product_right_uop_invariant : 
+    bop_right_uop_invariant _ [EQ]  [MP] [MR]. 
+Admitted. 
+  
 
 End Theory.  
 
