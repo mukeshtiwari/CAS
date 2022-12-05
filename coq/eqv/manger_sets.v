@@ -62,6 +62,7 @@ Fixpoint manger_merge_sets
   end.
 
 
+
 Definition manger_phase_1_auxiliary 
           {A P : Type}
           (eqA : brel A)
@@ -688,182 +689,52 @@ Proof. induction Y; intros [a1 p1] [a2 p2] H1.
            exact (set_equal_with_cons_right _ _ (a3, p3) H6). 
 Qed.
 
+
+
+(* 
+This theorem is not true. See the counter example below.
+*)
 Lemma manger_merge_set_congruence_left :
   ∀ Y Y' p, Y =S= Y' -> ([MMS] Y p) =S= ([MMS] Y' p).
 Proof.
-  induction Y as [|(a, p) Y Ihy]; cbn.
-  +
-    destruct Y' as [|(a', p') Y']; cbn.
-    ++ intros ? ?.
-       eapply set_equal_with_cons_right.
-       compute; reflexivity.
-    ++ intros ? Ha.
-       congruence.  
-  + (* Induction case *) 
-    destruct Y' as [|(a', p') Y']; cbn.
-    ++ (* False *)
-      intros ? Hp.
-      congruence.
-    ++ (* Induction case *)
-      intros (aw, pw) Ha.
-      unfold brel_set, brel_and_sym in Ha.
-      apply theory.andb_true_implies in Ha.
-      destruct Ha as [Hal Har].
-      simpl in Hal, Har.
-      apply bop_and_elim in Hal, Har.
-      destruct Hal as [Hall Halr].
-      destruct Har as [Harl Harr].
-      (*
-
-      Hall: true holds for the following equations
-        1. bop_and (eqA a a') (eqP p p') = true ∧
-           (in_set (brel_product eqA eqP) Y' (a, p)) = true
-        2. bop_and (eqA a a') (eqP p p') = true ∧
-           (in_set (brel_product eqA eqP) Y' (a, p)) = false
-        3. bop_and (eqA a a') (eqP p p') = false ∧
-           (in_set (brel_product eqA eqP) Y' (a, p)) = true
-
-      Halr:
-          Y ⊂ ((a', p') :: Y')
-
-      Harl: true holds for the following equations 
-        1. bop_and (eqA a' a) (eqP p' p)) = true ∧ 
-           (in_set (brel_product eqA eqP) Y (a', p')) = true
-        2. bop_and (eqA a' a) (eqP p' p)) = true ∧ 
-           (in_set (brel_product eqA eqP) Y (a', p')) = false
-        3. bop_and (eqA a' a) (eqP p' p)) = false ∧ 
-           (in_set (brel_product eqA eqP) Y (a', p')) = true
-           
-      Harr:
-          Y' ⊂ ((a, p) :: Y)
-
-
-      We have total 9 cases and let's enumerate:
-
-      1. 
-        Hall: bop_and (eqA a a') (eqP p p') = true ∧
-              (in_set (brel_product eqA eqP) Y' (a, p)) = true
-        Halr: Y ⊂ ((a', p') :: Y')
-        Harl: bop_and (eqA a' a) (eqP p' p)) = true ∧ 
-              (in_set (brel_product eqA eqP) Y (a', p')) = true
-        Harr: Y' ⊂ ((a, p) :: Y)
-
-        Note: proof is easy in this case because (a, p) = (a', p').
-        We are home. 
-
-
-      2. 
-        Hall: bop_and (eqA a a') (eqP p p') = true ∧
-              (in_set (brel_product eqA eqP) Y' (a, p)) = true
-        Halr: Y ⊂ ((a', p') :: Y')
-        Harl: bop_and (eqA a' a) (eqP p' p)) = true ∧ 
-              (in_set (brel_product eqA eqP) Y (a', p')) = false
-        Harr: Y' ⊂ ((a, p) :: Y)
-
-        Note: same as case 1? 
-      
-
-      3. (* Contradiction *)
-        Hall: bop_and (eqA a a') (eqP p p') = true ∧
-              (in_set (brel_product eqA eqP) Y' (a, p)) = true
-        Halr: Y ⊂ ((a', p') :: Y')
-        Harl: bop_and (eqA a' a) (eqP p' p)) = false ∧ 
-              (in_set (brel_product eqA eqP) Y (a', p')) = true
-        Harr: Y' ⊂ ((a, p) :: Y)
-
-        Note: contradiction
-
-      4. 
-        Hall: bop_and (eqA a a') (eqP p p') = true ∧
-              (in_set (brel_product eqA eqP) Y' (a, p)) = false
-        Halr: Y ⊂ ((a', p') :: Y')
-        Harl: bop_and (eqA a' a) (eqP p' p)) = true ∧ 
-              (in_set (brel_product eqA eqP) Y (a', p')) = true
-        Harr: Y' ⊂ ((a, p) :: Y)
-
-        Note: same as case 1.
-      
-      5.
-        Hall: bop_and (eqA a a') (eqP p p') = true ∧
-              (in_set (brel_product eqA eqP) Y' (a, p)) = false
-        Halr: Y ⊂ ((a', p') :: Y')
-        Harl: bop_and (eqA a' a) (eqP p' p)) = true ∧ 
-              (in_set (brel_product eqA eqP) Y (a', p')) = false
-        Harr: Y' ⊂ ((a, p) :: Y)
-
-        Note: same as case 1.
-
-      6. (* Contradiction *)
-        Hall: bop_and (eqA a a') (eqP p p') = true ∧
-              (in_set (brel_product eqA eqP) Y' (a, p)) = false
-        Halr: Y ⊂ ((a', p') :: Y')
-        Harl: bop_and (eqA a' a) (eqP p' p)) = false ∧ 
-              (in_set (brel_product eqA eqP) Y (a', p')) = true
-        Harr: Y' ⊂ ((a, p) :: Y)
-
-        Note: contradiction
-
-      7. 
-        Hall: bop_and (eqA a a') (eqP p p') = false ∧
-              (in_set (brel_product eqA eqP) Y' (a, p)) = true
-        Halr: Y ⊂ ((a', p') :: Y')
-        Harl: bop_and (eqA a' a) (eqP p' p)) = true ∧ 
-              (in_set (brel_product eqA eqP) Y (a', p')) = true
-        Harr: Y' ⊂ ((a, p) :: Y)
-
-        Note: contradiction
-
-      8. (* Contradiction *)
-        Hall: bop_and (eqA a a') (eqP p p') = false ∧
-              (in_set (brel_product eqA eqP) Y' (a, p)) = true
-        Halr: Y ⊂ ((a', p') :: Y')
-        Harl: bop_and (eqA a' a) (eqP p' p)) = true ∧ 
-              (in_set (brel_product eqA eqP) Y (a', p')) = false
-        Harr: Y' ⊂ ((a, p) :: Y)
-
-        Note: contradiction
-        
-      9.
-        Hall: bop_and (eqA a a') (eqP p p') = false ∧
-              (in_set (brel_product eqA eqP) Y' (a, p)) = true
-        Halr: Y ⊂ ((a', p') :: Y')
-        Harl: bop_and (eqA a' a) (eqP p' p)) = false ∧ 
-              (in_set (brel_product eqA eqP) Y (a', p')) = true
-        Harr: Y' ⊂ ((a, p) :: Y)
-
-        Note: Induction and challenge
-        (a, p) <> (a', p') /\ In (a, p) Y' /\  In (a', p') Y 
-
-        From In (a, p) Y' we have:
-          Y' = Y₁' ++ [(a, p)] ++ Y₂' 
-        From In (a', p') Y we have:
-          Y = Y₁ ++ [(a', p')] ++ Y₂
-
-        From Halr Y ⊂ ((a', p') :: Y') we have:
-           Y₁ ++ [(a', p')] ++ Y₂ ⊂ ((a', p') :: Y₁' ++ [(a, p)] ++ Y₂') 
-          = Y₁ ++ Y₂ ⊂ (Y₁' ++ [(a, p)] ++ Y₂') (* Can I infer this? *)
-
-        From Harr Y' ⊂ ((a, p) :: Y) we have:
-          Y₁' ++ [(a, p)] ++ Y₂' ⊂ ((a, p) :: Y₁ ++ [(a', p')] ++ Y₂) 
-          =  Y₁' ++ Y₂' ⊂ Y₁ ++ [(a', p')] ++ Y₂
-
-
-
-
-
-
-     
-
-      *)
-
-      
-
-
-      
-
 Admitted.
 
+(*
+  Counter example for lemma manger_merge_set_congruence_left.
+*)
+Section CounterExample.
+  Import ListNotations.
 
+  Let Y := [(1, 2)]%nat.
+  Let Y' := [(1, 2); (1, 2); (1, 2)]%nat.
+  Let p := (1, 2)%nat.
+
+  (* Redefining for Natural Number *)
+  Local Notation "a =S= b" := 
+    (brel_set (brel_product  Nat.eqb Nat.eqb) a b = true) 
+    (at level 70). 
+
+  Local Notation "[MMS]"  := (manger_merge_sets Nat.eqb Nat.add).
+  
+  (* X and Y are equivalent, according to brel_set *)
+  Lemma X_and_Y_eq :  Y =S= Y'.
+  Proof.
+    compute;
+    reflexivity.
+  Qed.
+
+  (* However, ([MMS] X p) =S= ([MMS] Y p) are not. *)
+  Lemma not_mms_X_Y_eq : ~(([MMS] Y p) =S= ([MMS] Y' p)).
+  Proof.
+    compute; intro Hfalse.
+    congruence.
+  Qed.
+    
+  (*
+    Premise holds X =S= Y but conconclusion 
+    ([MMS] X p) =S= ([MMS] Y p) does not hold (it's negation hold)
+  *)
+End CounterExample.
 
 Lemma uop_manger_phase1_auxiliary_congurence_left :
   ∀ X Y1 Y2,  Y1 =S= Y2 -> [P1AX] Y1 X =S= [P1AX] Y2 X. 
