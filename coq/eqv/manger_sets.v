@@ -63,6 +63,45 @@ Fixpoint manger_merge_sets
 
 
 
+(* This makes the current proof that I am trying is bit easier.
+The manger_merge_sets and manger_merge_sets_new can 
+be proven equivalent, with some effort.
+*)
+
+
+Definition manger_merge_sets_new_aux
+  {A P : Type}
+  (eqA : brel A)
+  (addP : binary_op P)
+  (Y : finite_set (A * P))
+  (p1 : A * P) : list (A * P) * list (A * P) :=
+    ((List.filter (λ '(s2, t2), eqA (fst p1) s2) Y),
+    (List.filter (λ '(s2, t2), negb (eqA (fst p1) s2)) Y)).
+
+
+
+Definition manger_merge_sets_new
+  {A P : Type}
+  (eqA : brel A)
+  (addP : binary_op P)
+  (Y : finite_set (A * P))
+  (p1 : A * P) : list (A * P) :=
+    match manger_merge_sets_new_aux eqA addP Y p1 with 
+    | (Y1, Y2) => 
+        Y2 ++ 
+        (List.fold_left 
+          (λ '(s1, t1) '(s2, t2), (s1, addP t1 t2)) 
+          Y1 p1) :: nil (* import List notations? *)
+    end.
+
+(* My claim is 
+
+manger_merge_sets_new  = (* Notice the equality *)
+manger_merge_sets
+
+*)
+
+
 Definition manger_phase_1_auxiliary 
           {A P : Type}
           (eqA : brel A)
@@ -690,51 +729,97 @@ Proof. induction Y; intros [a1 p1] [a2 p2] H1.
 Qed.
 
 
+(*
 
-(* 
-This theorem is not true. See the counter example below.
+  Y =S= Y' 
+  1. Y = [] and Y' = [] we are home
+  2. Y = [] and y' <> [] we are home 
+  3. Y = a :: Y and Y' = [] we are home 
+  4. Y = a :: Y and Y' <> []
+      From a :: Y =S= Y' I can write infer: 
+      ∃ Y1, Y2, Y3, Y4, 
+        Y =S= Y1 ++ Y2 /\ 
+        all a Y1 = true /\  
+        exists a Y2 = false /\ 
+        Y' =S= Y3 ++ Y4 /\ 
+        all a Y3 = true /\ 
+        exists a Y4 = false 
+        /\ Y2 =S= Y4. 
+
+  In 4th step, we get rid of duplicates, if there is any, by using filter 
+  and transfering the MMS along the filter may help us in proving the 
+  lemma below.
+ 
 *)
+
+Definition wf (x y : list (A * P)) := 
+      (List.length x < List.length y)%nat.
+
+Lemma wf_well_founded : 
+  well_founded wf.
+Proof.
+    exact (Wf_nat.well_founded_ltof _ 
+      (fun x => List.length x)).
+Defined.
+
+
 Lemma manger_merge_set_congruence_left :
   ∀ Y Y' p, Y =S= Y' -> ([MMS] Y p) =S= ([MMS] Y' p).
 Proof.
+  intro Y.
+  induction (wf_well_founded Y) as [Y Hy IHy].
+  unfold wf in IHy.
+  intros ? (ph, pl) Ha.
+  (* 
+    case analysis on Y
+  *)
+  assert (Hb : (Y = nil) + (Y <> nil)).
+  admit.
+  destruct Hb as [Hb | Hb].
+  + (* assert that Y' is nil *)
+    admit.
+  + 
+    (* 
+      Y <> nil. 
+      Two case:
+      In (ph, pl) Y + ~In (ph, pl) Y 
+      1. In (ph, pl) Y. In this we have 
+
+        Y =S= Y1 ++ Y2 where
+        Y1 = (List.filter (λ '(s2, t2), eqA ph s2) Y) 
+        Y2 = (List.filter (λ '(s2, t2), negb (eqA ph s2)) Y)
+
+        Y' =S= Y1' ++ Y2' where 
+        Y1' = (List.filter (λ '(s2, t2), eqA ph s2) Y') 
+        Y2' = (List.filter (λ '(s2, t2), negb (eqA ph s2)) Y')
+
+        Hw : Y2 =S= Y2' 
+
+        Hp: List.lenght Y2 < List.length Y 
+
+        (IHy Y2 Hp Y2' Hw) and this gives me 
+        [MMS] Y2 p =S= [MMS] Y2' p 
+
+
+        This alone is not going to give me what I am looking 
+        for but I need one more lemma:
+
+      
+
+
+
+        Y =S= Y1 ++ Y2 -> Y' =S= Y1' ++ Y2' ->
+        all Y1 p = true -> exists Y2 p = false ->
+        all Y1' p = true -> exists Y2' p = false -> 
+        [MMS] Y2 p =S= [MMS] Y2' p -> 
+        [MMS] Y p =S= [MMS] Y' p
+
+      *)
+
+    
+  
 Admitted.
 
-(*
-  Counter example for lemma manger_merge_set_congruence_left.
-*)
-Section CounterExample.
-  Import ListNotations.
-
-  Let Y := [(1, 2)]%nat.
-  Let Y' := [(1, 2); (1, 2); (1, 2)]%nat.
-  Let p := (1, 2)%nat.
-
-  (* Redefining for Natural Number *)
-  Local Notation "a =S= b" := 
-    (brel_set (brel_product  Nat.eqb Nat.eqb) a b = true) 
-    (at level 70). 
-
-  Local Notation "[MMS]"  := (manger_merge_sets Nat.eqb Nat.add).
-  
-  (* X and Y are equivalent, according to brel_set *)
-  Lemma X_and_Y_eq :  Y =S= Y'.
-  Proof.
-    compute;
-    reflexivity.
-  Qed.
-
-  (* However, ([MMS] X p) =S= ([MMS] Y p) are not. *)
-  Lemma not_mms_X_Y_eq : ~(([MMS] Y p) =S= ([MMS] Y' p)).
-  Proof.
-    compute; intro Hfalse.
-    congruence.
-  Qed.
-    
-  (*
-    Premise holds X =S= Y but conconclusion 
-    ([MMS] X p) =S= ([MMS] Y p) does not hold (it's negation hold)
-  *)
-End CounterExample.
 
 Lemma uop_manger_phase1_auxiliary_congurence_left :
   ∀ X Y1 Y2,  Y1 =S= Y2 -> [P1AX] Y1 X =S= [P1AX] Y2 X. 
