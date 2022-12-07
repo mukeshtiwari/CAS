@@ -792,14 +792,9 @@ Proof.
       Ihx.
 Qed.
 
-(* Now, I know that if I filter 
-  a list X with respect to first 
-  element, it's preserved with respect 
-  to =S= 
-*)
+
 
 (*
-
 Now, the challenging lemma
 *)
 
@@ -818,21 +813,43 @@ Admitted.
 Another challenge and it probably need 
 idempotence on addP
 
+[(1, 2); (1, 3); (1, 2)] =S= 
+[(1, 2); (1, 3)]
+
+To make the life easier, I can turn 
+the first list 
+[(1, 2); (1, 3); (1, 2)] =S= 
+[(1, 2); (1, 2); (1, 3)]
+
+Now when I reduce, the first two will be
+[(1, 2); (1, 3)] -> 
+[(1, 2 + 3)]
+
 *)
 
-Lemma manger_merge_set_new_aux_fold_left :
+Lemma manger_merge_set_new_aux_fold_filter :
   ∀ (X Y : list (A * P)) (pa : A) (pb : P), 
   X =S= Y -> 
-  (* 
-    Every elemement in X and Y has the first 
-    component pa 
-  *)
   [fold_left (λ '(s1, t1) '(_, t2), 
-    (s1, addP t1 t2)) X (pa, pb)] =S= 
+    (s1, addP t1 t2)) 
+    (List.filter (λ '(s2, _), eqA pa s2) X) 
+    (pa, pb)] =S= 
   [fold_left (λ '(s1, t1) '(_, t2), 
-    (s1, addP t1 t2)) Y (pa, pb)].
+    (s1, addP t1 t2))
+    (List.filter (λ '(s2, _), eqA pa s2) Y) 
+    (pa, pb)].
 Proof.
 Admitted.
+
+
+
+Lemma append_congruence : 
+  forall X₁ X₂ Y₁ Y₂ : list (A * P), 
+  X₁ =S= Y₁ -> X₂ =S= Y₂ ->
+  X₁ ++ X₂ =S= Y₁ ++ Y₂.
+Proof.
+Admitted.
+
 
 
 Lemma manger_merge_set_new_congruence_left :
@@ -847,12 +864,12 @@ Proof.
   pose proof 
     (manger_merge_set_new_aux_congruence_left X Y pa Ha) as 
     [Hb Hc].
-  (* From Hb 
-    I can simplify the expression 
-  *)
-  
-  
-Admitted.
+  eapply append_congruence;
+  [exact Hb | 
+    eapply manger_merge_set_new_aux_fold_filter;
+    exact Ha].
+Qed.
+
 
 
 Lemma manger_merge_set_congruence_left :
