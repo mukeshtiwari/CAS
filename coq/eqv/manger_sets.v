@@ -20,6 +20,8 @@ Require Import CAS.coq.sg.product.
 
 Require Import CAS.coq.uop.properties.
 
+Import ListNotations.
+
 Section Computation.
 
 (*
@@ -79,7 +81,6 @@ Definition manger_merge_sets_new_aux
     (List.filter (λ '(s2, t2), negb (eqA (fst p1) s2)) Y)).
 
 
-
 Definition manger_merge_sets_new
   {A P : Type}
   (eqA : brel A)
@@ -89,9 +90,9 @@ Definition manger_merge_sets_new
     match manger_merge_sets_new_aux eqA addP Y p1 with 
     | (Y1, Y2) => 
         Y2 ++ 
-        (List.fold_left 
+        [(List.fold_left 
           (λ '(s1, t1) '(s2, t2), (s1, addP t1 t2)) 
-          Y1 p1) :: nil (* import List notations? *)
+          Y1 p1)] 
     end.
 
 (* My claim is 
@@ -761,6 +762,97 @@ Proof.
     exact (Wf_nat.well_founded_ltof _ 
       (fun x => List.length x)).
 Defined.
+
+
+Lemma filter_negb : 
+  forall (X : list (A * P)) (pa : A),
+  List.filter (λ '(s2, _), negb (eqA pa s2)) X ++ 
+  List.filter (λ '(s2, _), eqA pa s2) X =S= X.
+Proof.
+  induction X as [|(ax, bx) X Ihx];
+  intros p; cbn.
+  + reflexivity.
+  + case_eq (eqA p ax); intros Ha;
+    simpl.
+    ++
+      remember (List.filter (λ '(s2, _), 
+        negb (eqA p s2)) X) as Xt.
+      remember (List.filter (λ '(s2, _), 
+        eqA p s2) X) as Yt.
+      apply symSetAP.
+      eapply trnSetAP.
+      instantiate (1 := (ax, bx) :: Xt ++ Yt).
+      +++
+        apply set_equal_with_cons_right,
+        symSetAP; subst; apply Ihx.
+      +++
+        apply set_rearrange_v2.
+    ++
+      apply set_equal_with_cons_right,
+      Ihx.
+Qed.
+
+(* Now, I know that if I filter 
+  a list X with respect to first 
+  element, it's preserved with respect 
+  to =S= 
+*)
+
+(*
+
+Now, the challenging lemma
+*)
+
+Lemma manger_merge_set_new_aux_congruence_left :
+  ∀ X Y pa, 
+  X =S= Y -> 
+  (List.filter (λ '(s2, _), negb (eqA pa s2)) X =S= 
+    List.filter (λ '(s2, _), negb (eqA pa s2)) Y) ∧
+  (List.filter (λ '(s2, _), eqA pa s2) X =S= 
+    List.filter (λ '(s2, _), eqA pa s2) Y).
+Proof.
+Admitted.
+
+
+(* 
+Another challenge and it probably need 
+idempotence on addP
+
+*)
+
+Lemma manger_merge_set_new_aux_fold_left :
+  ∀ (X Y : list (A * P)) (pa : A) (pb : P), 
+  X =S= Y -> 
+  (* 
+    Every elemement in X and Y has the first 
+    component pa 
+  *)
+  [fold_left (λ '(s1, t1) '(_, t2), 
+    (s1, addP t1 t2)) X (pa, pb)] =S= 
+  [fold_left (λ '(s1, t1) '(_, t2), 
+    (s1, addP t1 t2)) Y (pa, pb)].
+Proof.
+Admitted.
+
+
+Lemma manger_merge_set_new_congruence_left :
+  ∀ X Y p, 
+  X =S= Y -> 
+  (manger_merge_sets_new eqA addP X p) =S= 
+  (manger_merge_sets_new eqA addP Y p).
+Proof.
+  unfold manger_merge_sets_new,
+  manger_merge_sets_new_aux.
+  intros ? ? (pa, pb) Ha; cbn.
+  pose proof 
+    (manger_merge_set_new_aux_congruence_left X Y pa Ha) as 
+    [Hb Hc].
+  (* From Hb 
+    I can simplify the expression 
+  *)
+  
+  
+Admitted.
 
 
 Lemma manger_merge_set_congruence_left :
