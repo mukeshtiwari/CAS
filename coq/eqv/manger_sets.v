@@ -793,18 +793,43 @@ Proof.
 Qed.
 
 
+(* 
+
+Assuming that I have a function 
+that removes duplicates from a list, 
+then I can prove. 
+
+X =S= remove_duplicate X 
+
+
+*)
 
 (*
 Now, the challenging lemma
 *)
+
+Lemma filter_congruence_gen : 
+  forall (X Y : list (A * P))
+  (f : A -> bool), 
+  X =S= Y ->
+  List.filter (λ '(s2, _), f s2) X =S=
+  List.filter (λ '(s2, _), f s2) Y.
+Proof.
+Admitted.
+    
+(* 
+
 Lemma filter_congruence : 
   forall X Y pa, 
   X =S= Y ->
   List.filter (λ '(s2, _), eqA pa s2) X =S=
   List.filter (λ '(s2, _), eqA pa s2) Y.
 Proof.
-  
-Admitted.
+  intros ? ? ? Ha.
+  eapply filter_congruence_gen;
+  exact Ha.
+Qed.
+
 
 
 Lemma filter_congruence_negb : 
@@ -813,8 +838,12 @@ Lemma filter_congruence_negb :
   List.filter (λ '(s2, _), negb (eqA pa s2)) X =S=
   List.filter (λ '(s2, _), negb (eqA pa s2)) Y.
 Proof.
-Admitted.
+  intros ? ? ? Ha.
+  eapply filter_congruence_gen;
+  exact Ha.
+Qed.
 
+*)
 
 Lemma manger_merge_set_new_aux_congruence_left :
   ∀ X Y pa, 
@@ -830,9 +859,9 @@ Proof.
   apply symSetAP in Hc.
   pose proof (trnSetAP _ _ _ Ha Hc) as Hd.
   split.
-  + eapply filter_congruence_negb;
+  + eapply filter_congruence_gen;
     exact Ha.
-  + eapply filter_congruence;
+  + eapply filter_congruence_gen;
     exact Ha.
 Qed.
 
@@ -854,7 +883,7 @@ Now when I reduce, the first two will be
 [(1, 2 + 3)]
 
 *)
-
+(* generalise this one *)
 Lemma manger_merge_set_new_aux_fold_filter :
   ∀ (X Y : list (A * P)) (pa : A) (pb : P), 
   X =S= Y -> 
@@ -873,7 +902,8 @@ Admitted.
 
 Lemma append_congruence : 
   forall X₁ X₂ Y₁ Y₂ : list (A * P), 
-  X₁ =S= Y₁ -> X₂ =S= Y₂ ->
+  X₁ =S= Y₁ -> 
+  X₂ =S= Y₂ ->
   X₁ ++ X₂ =S= Y₁ ++ Y₂.
 Proof.
 Admitted.
