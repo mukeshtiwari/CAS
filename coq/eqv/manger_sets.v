@@ -875,60 +875,7 @@ Qed.
 Lemma manger_merge_set_congruence_left :
   ∀ Y Y' p, Y =S= Y' -> ([MMS] Y p) =S= ([MMS] Y' p).
 Proof.
-  intro Y.
-  induction (wf_well_founded Y) as [Y Hy IHy].
-  unfold wf in IHy.
-  intros ? (ph, pl) Ha.
-  (* 
-    case analysis on Y
-  *)
-  assert (Hb : (Y = nil) + (Y <> nil)).
-  admit.
-  destruct Hb as [Hb | Hb].
-  + (* assert that Y' is nil *)
-    admit.
-  + 
-    (* 
-      Y <> nil. 
-      Two case:
-      In (ph, pl) Y + ~In (ph, pl) Y 
-      1. In (ph, pl) Y. In this we have 
-
-        Y =S= Y1 ++ Y2 where
-        Y1 = (List.filter (λ '(s2, t2), eqA ph s2) Y) 
-        Y2 = (List.filter (λ '(s2, t2), negb (eqA ph s2)) Y)
-
-        Y' =S= Y1' ++ Y2' where 
-        Y1' = (List.filter (λ '(s2, t2), eqA ph s2) Y') 
-        Y2' = (List.filter (λ '(s2, t2), negb (eqA ph s2)) Y')
-
-        Hw : Y2 =S= Y2' 
-
-        Hp: List.lenght Y2 < List.length Y 
-
-        (IHy Y2 Hp Y2' Hw) and this gives me 
-        [MMS] Y2 p =S= [MMS] Y2' p 
-
-
-        This alone is not going to give me what I am looking 
-        for but I need one more lemma:
-
-      
-
-
-
-        Y =S= Y1 ++ Y2 -> Y' =S= Y1' ++ Y2' ->
-        all Y1 p = true -> exists Y2 p = false ->
-        all Y1' p = true -> exists Y2' p = false -> 
-        [MMS] Y2 p =S= [MMS] Y2' p -> 
-        [MMS] Y p =S= [MMS] Y' p
-
-      *)
-
-    
-  
 Admitted.
-
 
 Lemma uop_manger_phase1_auxiliary_congurence_left :
   ∀ X Y1 Y2,  Y1 =S= Y2 -> [P1AX] Y1 X =S= [P1AX] Y2 X. 
