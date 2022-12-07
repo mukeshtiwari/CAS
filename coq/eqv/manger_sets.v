@@ -797,6 +797,24 @@ Qed.
 (*
 Now, the challenging lemma
 *)
+Lemma filter_congruence : 
+  forall X Y pa, 
+  X =S= Y ->
+  List.filter (λ '(s2, _), eqA pa s2) X =S=
+  List.filter (λ '(s2, _), eqA pa s2) Y.
+Proof.
+  
+Admitted.
+
+
+Lemma filter_congruence_negb : 
+  forall X Y pa, 
+  X =S= Y ->
+  List.filter (λ '(s2, _), negb (eqA pa s2)) X =S=
+  List.filter (λ '(s2, _), negb (eqA pa s2)) Y.
+Proof.
+Admitted.
+
 
 Lemma manger_merge_set_new_aux_congruence_left :
   ∀ X Y pa, 
@@ -806,7 +824,17 @@ Lemma manger_merge_set_new_aux_congruence_left :
   (List.filter (λ '(s2, _), eqA pa s2) X =S= 
     List.filter (λ '(s2, _), eqA pa s2) Y).
 Proof.
-Admitted.
+  intros ? ? ? Ha.
+  pose proof (filter_negb X pa) as Hb.
+  pose proof (filter_negb Y pa) as Hc.
+  apply symSetAP in Hc.
+  pose proof (trnSetAP _ _ _ Ha Hc) as Hd.
+  split.
+  + eapply filter_congruence_negb;
+    exact Ha.
+  + eapply filter_congruence;
+    exact Ha.
+Qed.
 
 
 (* 
