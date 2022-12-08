@@ -77,8 +77,8 @@ Definition manger_merge_sets_new_aux
   (addP : binary_op P)
   (Y : finite_set (A * P))
   (p1 : A * P) : list (A * P) * list (A * P) :=
-    ((List.filter (λ '(s2, t2), eqA (fst p1) s2) Y),
-    (List.filter (λ '(s2, t2), negb (eqA (fst p1) s2)) Y)).
+    ((filter (λ '(s2, t2), eqA (fst p1) s2) Y),
+    (filter (λ '(s2, t2), negb (eqA (fst p1) s2)) Y)).
 
 
 Definition manger_merge_sets_new
@@ -90,7 +90,7 @@ Definition manger_merge_sets_new
     match manger_merge_sets_new_aux eqA addP Y p1 with 
     | (Y1, Y2) => 
         Y2 ++ 
-        [(List.fold_left 
+        [(fold_left 
           (λ '(s1, t1) '(s2, t2), (s1, addP t1 t2)) 
           Y1 p1)] 
     end.
@@ -730,38 +730,6 @@ Proof. induction Y; intros [a1 p1] [a2 p2] H1.
 Qed.
 
 
-(*
-
-  Y =S= Y' 
-  1. Y = [] and Y' = [] we are home
-  2. Y = [] and y' <> [] we are home 
-  3. Y = a :: Y and Y' = [] we are home 
-  4. Y = a :: Y and Y' <> []
-      From a :: Y =S= Y' I can write infer: 
-      ∃ Y1, Y2, Y3, Y4, 
-        Y =S= Y1 ++ Y2 /\ 
-        all a Y1 = true /\  
-        exists a Y2 = false /\ 
-        Y' =S= Y3 ++ Y4 /\ 
-        all a Y3 = true /\ 
-        exists a Y4 = false 
-        /\ Y2 =S= Y4. 
-
-  In 4th step, we get rid of duplicates, if there is any, by using filter 
-  and transfering the MMS along the filter may help us in proving the 
-  lemma below.
- 
-*)
-
-Definition wf {U : Type} (x y : list U) := 
-      (List.length x < List.length y)%nat.
-
-Lemma wf_well_founded {U : Type}: 
-  well_founded (@wf U).
-Proof.
-    exact (Wf_nat.well_founded_ltof _ 
-      (fun x => List.length x)).
-Defined.
 
 
 Lemma filter_negb : 
@@ -796,31 +764,54 @@ Qed.
 
 
 Lemma filter_congruence_gen : 
-  forall X Y f, 
+  forall X Y f,
+  (theory.bProp_congruence _ 
+    (brel_product eqA eqP) f) ->
   X =S= Y ->
-  List.filter f X =S=
-  List.filter f Y.
+  filter f X =S=
+  filter f Y.
 Proof.
-  intros ? ? ? Ha.
+  intros ? ? ? Fcong Ha.
   apply brel_set_intro_prop.
   + apply refAP.
   + split.
     ++
-      generalize dependent Y.
-      induction X as [|(a, b) X IHx].
-      +++
-        admit.
-      +++
-        intros ? Ha (u, v) Hb.
-  Admitted.        
+      intros (a, p) Hb.
+      eapply in_set_filter_elim in Hb.
+      destruct Hb as [Hbl Hbr].
+      eapply in_set_filter_intro;
+      [apply symAP | apply Fcong | 
+        split; [exact Hbl | ]].
+      apply brel_set_elim_prop in Ha.
+      destruct Ha as [Hal Har].
+      apply Hal, Hbr.
+      apply symAP.
+      apply trnAP.
+      apply Fcong.
+    ++ 
+      intros (a, p) Hb.
+      eapply in_set_filter_elim in Hb.
+      destruct Hb as [Hbl Hbr].
+      eapply in_set_filter_intro;
+      [apply symAP | apply Fcong | 
+        split; [exact Hbl | ]].
+      apply brel_set_elim_prop in Ha.
+      destruct Ha as [Hal Har].
+      apply Har, Hbr.
+      apply symAP.
+      apply trnAP.
+      apply Fcong.
+  Qed. 
+
+
 
 Lemma manger_merge_set_new_aux_congruence_left :
   ∀ X Y pa, 
   X =S= Y -> 
-  (List.filter (λ '(s2, _), negb (eqA pa s2)) X =S= 
-    List.filter (λ '(s2, _), negb (eqA pa s2)) Y) ∧
-  (List.filter (λ '(s2, _), eqA pa s2) X =S= 
-    List.filter (λ '(s2, _), eqA pa s2) Y).
+  (filter (λ '(s2, _), negb (eqA pa s2)) X =S= 
+    filter (λ '(s2, _), negb (eqA pa s2)) Y) ∧
+  (filter (λ '(s2, _), eqA pa s2) X =S= 
+    filter (λ '(s2, _), eqA pa s2) Y).
 Proof.
   intros ? ? ? Ha.
   pose proof (filter_negb X (fun x => negb (eqA pa x))) as Hb.
@@ -828,12 +819,43 @@ Proof.
   apply symSetAP in Hc.
   pose proof (trnSetAP _ _ _ Ha Hc) as Hd.
   split.
-  + eapply filter_congruence_gen;
-    exact Ha.
-  + eapply filter_congruence_gen;
-    exact Ha.
+  + assert (He : theory.bProp_congruence _ 
+      (brel_product eqA eqP)
+      (λ '(s2, _), negb (eqA pa s2))).
+    unfold theory.bProp_congruence.
+    intros (aa, ap) (ba, bp) He.
+    f_equal.
+    apply brel_product_elim in He.
+    destruct He as [Hel Her].
+    case_eq (eqA pa aa); intro Hf.
+    rewrite (trnA pa aa ba Hf Hel);
+    reflexivity.
+    case_eq (eqA pa ba); intro Hg.
+    apply symA in Hel.
+    rewrite (trnA pa ba aa Hg Hel) in Hf;
+    congruence.
+    reflexivity.
+    eapply filter_congruence_gen;
+    [exact He | exact Ha].
+  + assert (He : theory.bProp_congruence _ 
+      (brel_product eqA eqP)
+      (λ '(s2, _), eqA pa s2)).
+    unfold theory.bProp_congruence.
+    intros (aa, ap) (ba, bp) He.
+    apply brel_product_elim in He.
+    destruct He as [Hel Her].
+    case_eq (eqA pa aa); intro Hf.
+    rewrite (trnA pa aa ba Hf Hel);
+    reflexivity.
+    case_eq (eqA pa ba); intro Hg.
+    apply symA in Hel.
+    rewrite (trnA pa ba aa Hg Hel) in Hf;
+    congruence.
+    reflexivity.
+    eapply filter_congruence_gen;
+    [exact He | exact Ha].
 Qed.
-
+  
 
 (* 
 Another challenge and it probably need 
@@ -852,17 +874,19 @@ Now when I reduce, the first two will be
 [(1, 2 + 3)]
 
 *)
+
+
 (* generalise this one *)
 Lemma manger_merge_set_new_aux_fold_filter :
   ∀ (X Y : list (A * P)) (pa : A) (pb : P), 
   X =S= Y -> 
   [fold_left (λ '(s1, t1) '(_, t2), 
     (s1, addP t1 t2)) 
-    (List.filter (λ '(s2, _), eqA pa s2) X) 
+    (filter (λ '(s2, _), eqA pa s2) X) 
     (pa, pb)] =S= (* This one = *)
   [fold_left (λ '(s1, t1) '(_, t2), 
     (s1, addP t1 t2))
-    (List.filter (λ '(s2, _), eqA pa s2) Y) 
+    (filter (λ '(s2, _), eqA pa s2) Y) 
     (pa, pb)].
 Proof.
 Admitted.
@@ -875,8 +899,35 @@ Lemma append_congruence :
   X₂ =S= Y₂ ->
   X₁ ++ X₂ =S= Y₁ ++ Y₂.
 Proof.
-Admitted.
-
+  intros ? ? ? ? Ha Hb.
+  apply brel_set_elim_prop in Ha, Hb;
+  try (repeat apply symAP; repeat apply trnAP).
+  destruct Ha as [Hal Har].
+  destruct Hb as [Hbl Hbr].
+  apply brel_set_intro_prop.
+  apply refAP.
+  split.
+  + intros (a, b) Hc.
+    apply in_set_concat_elim in Hc.
+    destruct Hc as [Hc | Hc].
+    apply in_set_concat_intro.
+    left.
+    apply Hal; exact Hc.
+    apply in_set_concat_intro.
+    right.
+    apply Hbl; exact Hc.
+    apply symAP.
+  + intros (a, b) Hc.
+    apply in_set_concat_elim in Hc.
+    destruct Hc as [Hc | Hc].
+    apply in_set_concat_intro.
+    left.
+    apply Har; exact Hc.
+    apply in_set_concat_intro.
+    right.
+    apply Hbr; exact Hc.
+    apply symAP.
+Qed.
 
 Local Notation "[MMSN]"  := 
   (manger_merge_sets_new eqA addP).
