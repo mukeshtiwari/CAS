@@ -753,11 +753,11 @@ Qed.
  
 *)
 
-Definition wf (x y : list (A * P)) := 
+Definition wf {U : Type} (x y : list U) := 
       (List.length x < List.length y)%nat.
 
-Lemma wf_well_founded : 
-  well_founded wf.
+Lemma wf_well_founded {U : Type}: 
+  well_founded (@wf U).
 Proof.
     exact (Wf_nat.well_founded_ltof _ 
       (fun x => List.length x)).
@@ -765,20 +765,21 @@ Defined.
 
 
 Lemma filter_negb : 
-  forall (X : list (A * P)) (pa : A),
-  List.filter (λ '(s2, _), negb (eqA pa s2)) X ++ 
-  List.filter (λ '(s2, _), eqA pa s2) X =S= X.
+  forall (X : list (A * P))
+  (f : A -> bool),
+  List.filter (λ '(s2, _), negb (f s2)) X ++ 
+  List.filter (λ '(s2, _), f s2) X =S= X.
 Proof.
   induction X as [|(ax, bx) X Ihx];
-  intros p; cbn.
+  intros f; cbn.
   + reflexivity.
-  + case_eq (eqA p ax); intros Ha;
+  + case_eq (f ax); intros Ha;
     simpl.
     ++
       remember (List.filter (λ '(s2, _), 
-        negb (eqA p s2)) X) as Xt.
+        negb (f s2)) X) as Xt.
       remember (List.filter (λ '(s2, _), 
-        eqA p s2) X) as Yt.
+        f s2) X) as Yt.
       apply symSetAP.
       eapply trnSetAP.
       instantiate (1 := (ax, bx) :: Xt ++ Yt).
@@ -794,56 +795,145 @@ Qed.
 
 
 (* 
+Local Notation "a =Sfst= b" := 
+  (brel_set eqA a b = true) (at level 70). 
+  
 
-Assuming that I have a function 
-that removes duplicates from a list, 
-then I can prove. 
 
-X =S= remove_duplicate X 
+Lemma filter_congruence_fst : 
+  forall (X Y : list A) 
+  (f : A -> bool), 
+  X =Sfst= Y ->
+  List.filter f X =Sfst=
+  List.filter f Y.
+Proof.
+  intro X.
+  induction (wf_well_founded X) as [X _ IHx].
+  unfold wf in IHx.
+  intros ? ? Ha.
+  destruct X as [|a X].
+  + admit.
+  + 
+    case_eq (in_set eqA X a); intros Hb.
+    ++
+     (* 
+     I can infer:
+     List.filter f (a :: X) = List.filter f X
+     
+     *)
+      assert (Hc : List.filter f (a :: X) =Sfst= 
+        List.filter f X). admit.
+      assert (Hd : X =Sfst= Y).
+      admit.
+      assert (He : (List.length X < 
+        List.length (a :: X))%nat).
+      admit.
+      pose proof (IHx _ He Y f Hd).
+      admit.
+    ++
+      (* But Y can multiple a 
+        Y = Y₁ ++ Y₂ where Y₁ contains 
+        all a and Y₂ has no a
+        Y =Sfst= a :: Y₂
+        X =Sfst= Y₂
+      *)
 
+     remember 
+      (List.filter (fun x => negb (eqA x a)) Y) 
+      as Y₂.
+    assert (Hc : 
+      X =Sfst= Y₂).
+    admit.
+    assert (Hd : Y =Sfst= a :: Y₂ ∧
+      (in_set eqA Y₂ a = false)).
+    admit.
+    destruct Hd as [Hdl Hdr].
+
+    assert (He : (List.length X < 
+      List.length (a :: X))%nat).
+    admit.
+    pose proof (IHx _ He _ f Hc) as Hf.
+    (*
+      I am just one step away! 
+    
+    
+    *)
+    (* If I can replace 
+
+    List.filter f Y by 
+    List.filter f (a :: Y₂)
+    *)
+      
+
+
+Admitted.
 
 *)
 
-(*
-Now, the challenging lemma
-*)
+
+
 
 Lemma filter_congruence_gen : 
-  forall (X Y : list (A * P))
-  (f : A -> bool), 
+  forall X Y f, 
   X =S= Y ->
-  List.filter (λ '(s2, _), f s2) X =S=
-  List.filter (λ '(s2, _), f s2) Y.
+  List.filter f X =S=
+  List.filter f Y.
 Proof.
-Admitted.
+  induction X as [|(a, b) X IHx]; simpl.
+  + admit.
+  + intros ? ? Ha.
+    case_eq (in_set (brel_product eqA eqP) X (a, b));
+    intros Hb.
+    ++ (* in_set (brel_product eqA eqP) X (a, b) = true *)
+      assert (Hc : (a, b) :: X =S= X).
+      admit.
+      assert (Hd : X =S= Y).
+      eapply trnSetAP.
+      apply symSetAP.
+      exact Hc.
+      exact Ha.
+      case_eq (f (a, b)); intros Hf.
+      (*
+        Since (a, b) [in] X ∧ f (a, b) = true
+        We can write:
+       (a, b) :: List.filter f X =S= List.filter f X
+      *)
+      assert (He : (a, b) :: List.filter f X =S= List.filter f X).
+      admit.
+      eapply trnSetAP.
+      exact He.
+      eapply IHx.
+      exact Hd.
+      eapply IHx.
+      exact Hd.
+  ++ (* in_set (brel_product eqA eqP) X (a, b) = false *) 
+     (*
+      (a, b) :: X =S= Y₁ ++ Y₂ where 
+      Y₁ contains all the (a, b) ∧
+      Y₂ does not contain (a, b)
+      but here comes an interesting observation:
+      I can write (a, b) :: X =S= (a, b) ::  Y₂
+      and X =S= Y₂ 
+     *)
     
-(* 
+    remember (List.filter (λ '(u, v),
+      (negb ((eqA a u) && (eqP b v)))%bool) Y) as Y₁.
+    assert (Hc : Y =S= (a, b) :: Y₁).
+    admit.
+    assert (Hd : X =S= Y₁).
+    admit.
+    pose proof (IHx _ f Hd).
+    (* Only if I could substitute Hc 
+      Y =S= (a, b) :: Y₁ ∧
+      in_set (brel_product eqA eqP) Y₁ (a, b) = false
+------------------------------------------------------
+      List.filter f Y =S= List.filter f ((a, b) :: Y₁)
+      This seems a bit easier
+    
+    *)
 
-Lemma filter_congruence : 
-  forall X Y pa, 
-  X =S= Y ->
-  List.filter (λ '(s2, _), eqA pa s2) X =S=
-  List.filter (λ '(s2, _), eqA pa s2) Y.
-Proof.
-  intros ? ? ? Ha.
-  eapply filter_congruence_gen;
-  exact Ha.
-Qed.
+Admitted.
 
-
-
-Lemma filter_congruence_negb : 
-  forall X Y pa, 
-  X =S= Y ->
-  List.filter (λ '(s2, _), negb (eqA pa s2)) X =S=
-  List.filter (λ '(s2, _), negb (eqA pa s2)) Y.
-Proof.
-  intros ? ? ? Ha.
-  eapply filter_congruence_gen;
-  exact Ha.
-Qed.
-
-*)
 
 Lemma manger_merge_set_new_aux_congruence_left :
   ∀ X Y pa, 
@@ -854,8 +944,8 @@ Lemma manger_merge_set_new_aux_congruence_left :
     List.filter (λ '(s2, _), eqA pa s2) Y).
 Proof.
   intros ? ? ? Ha.
-  pose proof (filter_negb X pa) as Hb.
-  pose proof (filter_negb Y pa) as Hc.
+  pose proof (filter_negb X (fun x => negb (eqA pa x))) as Hb.
+  pose proof (filter_negb Y (eqA pa)) as Hc.
   apply symSetAP in Hc.
   pose proof (trnSetAP _ _ _ Ha Hc) as Hd.
   split.
