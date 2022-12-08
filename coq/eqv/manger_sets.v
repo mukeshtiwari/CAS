@@ -232,7 +232,7 @@ Qed.
 
 Lemma set_equal_with_cons_left :
   ∀ X p1 p2, p1 == p2 -> (p1 :: X) =S= (p2 :: X) . 
-Proof. intros X p1 p2 H1. 
+Proof. intros X p1 p2 H1.
        apply brel_set_intro_prop.
        - apply refAP.
        - split; intros a H2. 
@@ -801,62 +801,18 @@ Lemma filter_congruence_gen :
   List.filter f X =S=
   List.filter f Y.
 Proof.
-  induction X as [|(a, b) X IHx]; simpl.
-  + admit.
-  + intros ? ? Ha.
-    case_eq (in_set (brel_product eqA eqP) X (a, b));
-    intros Hb.
-    ++ (* in_set (brel_product eqA eqP) X (a, b) = true *)
-      assert (Hc : (a, b) :: X =S= X).
-      admit.
-      assert (Hd : X =S= Y).
-      eapply trnSetAP.
-      apply symSetAP.
-      exact Hc.
-      exact Ha.
-      case_eq (f (a, b)); intros Hf.
-      (*
-        Since (a, b) [in] X ∧ f (a, b) = true
-        We can write:
-       (a, b) :: List.filter f X =S= List.filter f X
-      *)
-      assert (He : (a, b) :: List.filter f X
-       =S= List.filter f X).
-      admit.
-      eapply trnSetAP.
-      exact He.
-      eapply IHx.
-      exact Hd.
-      eapply IHx.
-      exact Hd.
-  ++ (* in_set (brel_product eqA eqP) X (a, b) = false *) 
-     (*
-      (a, b) :: X =S= Y₁ ++ Y₂ where 
-      Y₁ contains all the (a, b) ∧
-      Y₂ does not contain (a, b)
-      but here comes an interesting observation:
-      I can write (a, b) :: X =S= (a, b) ::  Y₂
-      and X =S= Y₂ 
-     *)
-    
-    remember (List.filter (λ '(u, v),
-      (negb ((eqA a u) && (eqP b v)))%bool) Y) as Y₁.
-    assert (Hc : Y =S= (a, b) :: Y₁).
-    admit.
-    assert (Hd : X =S= Y₁).
-    admit.
-    pose proof (IHx _ f Hd).
-    (* Only if I could substitute Hc 
-      Y =S= (a, b) :: Y₁ ∧
-      in_set (brel_product eqA eqP) Y₁ (a, b) = false
-------------------------------------------------------
-      List.filter f Y =S= List.filter f ((a, b) :: Y₁)
-      This seems a bit easier
-    
-    *)
-
-Admitted.
-
+  intros ? ? ? Ha.
+  apply brel_set_intro_prop.
+  + apply refAP.
+  + split.
+    ++
+      generalize dependent Y.
+      induction X as [|(a, b) X IHx].
+      +++
+        admit.
+      +++
+        intros ? Ha (u, v) Hb.
+  Admitted.        
 
 Lemma manger_merge_set_new_aux_congruence_left :
   ∀ X Y pa, 
@@ -903,7 +859,7 @@ Lemma manger_merge_set_new_aux_fold_filter :
   [fold_left (λ '(s1, t1) '(_, t2), 
     (s1, addP t1 t2)) 
     (List.filter (λ '(s2, _), eqA pa s2) X) 
-    (pa, pb)] =S= 
+    (pa, pb)] =S= (* This one = *)
   [fold_left (λ '(s1, t1) '(_, t2), 
     (s1, addP t1 t2))
     (List.filter (λ '(s2, _), eqA pa s2) Y) 
@@ -922,12 +878,12 @@ Proof.
 Admitted.
 
 
+Local Notation "[MMSN]"  := 
+  (manger_merge_sets_new eqA addP).
 
 Lemma manger_merge_set_new_congruence_left :
   ∀ X Y p, 
-  X =S= Y -> 
-  (manger_merge_sets_new eqA addP X p) =S= 
-  (manger_merge_sets_new eqA addP Y p).
+  X =S= Y -> [MMSN] X p =S= [MMSN] Y p.
 Proof.
   unfold manger_merge_sets_new,
   manger_merge_sets_new_aux.
