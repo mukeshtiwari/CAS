@@ -875,6 +875,19 @@ Now when I reduce, the first two will be
 
 *)
 
+Lemma fold_left_congruence : 
+  forall (X Y : list (A * P)) 
+  (pa : A) (pb : P),
+  (forall u v, (u, v) [in] X -> eqA u pa = true) ->
+  (forall u v, (u, v) [in] Y -> eqA u pa = true) ->
+  X =S= Y ->
+  [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2)) 
+    X (pa, pb)] =S= 
+  [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2)) 
+    Y (pa, pb)].
+Proof.
+Admitted.  
+
 
 (* generalise this one *)
 Lemma manger_merge_set_new_aux_fold_filter :
@@ -883,24 +896,47 @@ Lemma manger_merge_set_new_aux_fold_filter :
   [fold_left (λ '(s1, t1) '(_, t2), 
     (s1, addP t1 t2)) 
     (filter (λ '(s2, _), eqA pa s2) X) 
-    (pa, pb)] =S= (* This one = *)
+    (pa, pb)] =S= 
   [fold_left (λ '(s1, t1) '(_, t2), 
     (s1, addP t1 t2))
     (filter (λ '(s2, _), eqA pa s2) Y) 
     (pa, pb)].
 Proof.
   intros ? ? ? ? Ha.
-  apply  brel_set_elim_prop in Ha.
-  destruct Ha as [Hal Har].
-  apply  brel_set_intro_prop.
-  apply refAP.
-  split.
-  + intros (a, p) Hb.
-    admit.
-  + intros (a, p) Hb.
-    admit. 
-Admitted.
+  assert (Hb : theory.bProp_congruence _  
+    (brel_product eqA eqP)
+    (λ '(s2, _), eqA pa s2)).
+  intros (aa, ap) (ba, bp) He.
+  apply brel_product_elim in He.
+  destruct He as [Hel Her].
+  case_eq (eqA pa aa); intro Hf.
+  rewrite (trnA pa aa ba Hf Hel);
+  reflexivity.
+  case_eq (eqA pa ba); intro Hg.
+  apply symA in Hel.
+  rewrite (trnA pa ba aa Hg Hel) in Hf;
+  congruence.
+  reflexivity.
+  pose proof filter_congruence_gen 
+    X Y (λ '(s2, _), eqA pa s2) Hb Ha as Hc.
+  remember (filter (λ '(s2, _), eqA pa s2) X) 
+  as Xf.
+  remember (filter (λ '(s2, _), eqA pa s2) Y) 
+  as Yf.
+  eapply fold_left_congruence.
+  + intros ? ? Hd.
+    rewrite HeqXf in Hd.
+    eapply in_set_filter_elim in Hd;
+    firstorder.
+  + intros ? ? Hd.
+    rewrite HeqYf in Hd.
+    eapply in_set_filter_elim in Hd;
+    firstorder.
+  + exact Hc.
+Qed. 
 
+
+  
 
 
 Lemma append_congruence : 
