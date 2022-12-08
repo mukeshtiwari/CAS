@@ -794,84 +794,6 @@ Proof.
 Qed.
 
 
-(* 
-Local Notation "a =Sfst= b" := 
-  (brel_set eqA a b = true) (at level 70). 
-  
-
-
-Lemma filter_congruence_fst : 
-  forall (X Y : list A) 
-  (f : A -> bool), 
-  X =Sfst= Y ->
-  List.filter f X =Sfst=
-  List.filter f Y.
-Proof.
-  intro X.
-  induction (wf_well_founded X) as [X _ IHx].
-  unfold wf in IHx.
-  intros ? ? Ha.
-  destruct X as [|a X].
-  + admit.
-  + 
-    case_eq (in_set eqA X a); intros Hb.
-    ++
-     (* 
-     I can infer:
-     List.filter f (a :: X) = List.filter f X
-     
-     *)
-      assert (Hc : List.filter f (a :: X) =Sfst= 
-        List.filter f X). admit.
-      assert (Hd : X =Sfst= Y).
-      admit.
-      assert (He : (List.length X < 
-        List.length (a :: X))%nat).
-      admit.
-      pose proof (IHx _ He Y f Hd).
-      admit.
-    ++
-      (* But Y can multiple a 
-        Y = Y₁ ++ Y₂ where Y₁ contains 
-        all a and Y₂ has no a
-        Y =Sfst= a :: Y₂
-        X =Sfst= Y₂
-      *)
-
-     remember 
-      (List.filter (fun x => negb (eqA x a)) Y) 
-      as Y₂.
-    assert (Hc : 
-      X =Sfst= Y₂).
-    admit.
-    assert (Hd : Y =Sfst= a :: Y₂ ∧
-      (in_set eqA Y₂ a = false)).
-    admit.
-    destruct Hd as [Hdl Hdr].
-
-    assert (He : (List.length X < 
-      List.length (a :: X))%nat).
-    admit.
-    pose proof (IHx _ He _ f Hc) as Hf.
-    (*
-      I am just one step away! 
-    
-    
-    *)
-    (* If I can replace 
-
-    List.filter f Y by 
-    List.filter f (a :: Y₂)
-    *)
-      
-
-
-Admitted.
-
-*)
-
-
-
 
 Lemma filter_congruence_gen : 
   forall X Y f, 
@@ -898,7 +820,8 @@ Proof.
         We can write:
        (a, b) :: List.filter f X =S= List.filter f X
       *)
-      assert (He : (a, b) :: List.filter f X =S= List.filter f X).
+      assert (He : (a, b) :: List.filter f X
+       =S= List.filter f X).
       admit.
       eapply trnSetAP.
       exact He.
