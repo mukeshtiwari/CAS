@@ -889,6 +889,16 @@ Lemma manger_merge_set_new_aux_fold_filter :
     (filter (λ '(s2, _), eqA pa s2) Y) 
     (pa, pb)].
 Proof.
+  intros ? ? ? ? Ha.
+  apply  brel_set_elim_prop in Ha.
+  destruct Ha as [Hal Har].
+  apply  brel_set_intro_prop.
+  apply refAP.
+  split.
+  + intros (a, p) Hb.
+    admit.
+  + intros (a, p) Hb.
+    admit. 
 Admitted.
 
 
