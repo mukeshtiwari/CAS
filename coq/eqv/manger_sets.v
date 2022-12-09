@@ -886,6 +886,28 @@ Lemma fold_left_congruence :
   [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2)) 
     Y (pa, pb)].
 Proof.
+  intros ? ? ? ? Ha Hb Hc.
+  eapply  brel_set_elim_prop in Hc;
+  [| apply symAP| apply trnAP].
+  destruct Hc as [Hcl Hcr].
+  eapply  brel_set_intro_prop;
+  [apply refAP | split].
+  + intros (au, pu) Hd.
+    (* Think about it *)
+    (*
+      eqA au pa
+      eqP pu (List.fold_left 
+        (λ u v, addP u v) X pb)
+    ---------------------------
+      eqA au pa * eqP pu (List.fold_left 
+        (λ u v, addP u v) Y pb)
+    Here is proof strategy:
+    X =S= Y -> List.map snd X =Snd= List.map snd Y
+    Now prove a 
+    
+    *)
+    admit.
+  + intros (au, pu) Hd.
 Admitted.  
 
 
@@ -994,12 +1016,35 @@ Proof.
     exact Ha].
 Qed.
 
+(* [MMS] and [MMSN] are same *)
+Lemma manger_merge_set_manger_merge_set_new_same :
+  forall X p, [MMS] X p = [MMSN] X p.
+Proof.
+  unfold manger_merge_sets_new,
+  manger_merge_sets_new_aux.
+  induction X as [|(a, b) X Ihx].
+  + simpl;
+    intros ?; reflexivity.
+  + simpl.
+    intros (pa, pb); simpl.
+    case_eq (eqA pa a); intro Ha;
+    simpl.
+    rewrite Ihx;
+    reflexivity.
+    f_equal.
+    rewrite Ihx;
+    reflexivity.
+Qed.
 
 
 Lemma manger_merge_set_congruence_left :
   ∀ Y Y' p, Y =S= Y' -> ([MMS] Y p) =S= ([MMS] Y' p).
 Proof.
-Admitted.
+  intros ? ? ? Ha.
+  repeat rewrite manger_merge_set_manger_merge_set_new_same.
+  apply manger_merge_set_new_congruence_left;
+  exact Ha.
+Qed.
 
 Lemma uop_manger_phase1_auxiliary_congurence_left :
   ∀ X Y1 Y2,  Y1 =S= Y2 -> [P1AX] Y1 X =S= [P1AX] Y2 X. 
