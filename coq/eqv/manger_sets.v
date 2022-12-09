@@ -1029,11 +1029,13 @@ Proof.
     intros (pa, pb); simpl.
     case_eq (eqA pa a); intro Ha;
     simpl.
-    rewrite Ihx;
-    reflexivity.
-    f_equal.
-    rewrite Ihx;
-    reflexivity.
+    ++
+      rewrite Ihx;
+      reflexivity.
+    ++
+      f_equal.
+      rewrite Ihx;
+      reflexivity.
 Qed.
 
 
