@@ -857,6 +857,16 @@ Proof.
 Qed.
   
 
+
+Lemma fold_left_idempotent : 
+  forall (X Y : list P) (p : P)
+  (f : P -> P -> P),
+  (forall x : P, eqP (f x x) x = true) ->
+  brel_set eqP X Y = true ->
+  eqP (fold_left f X p) (fold_left f Y p) = true.
+Proof.
+Admitted. 
+
 (* 
 Another challenge and it probably need 
 idempotence on addP
@@ -902,8 +912,16 @@ Proof.
       eqA au pa * eqP pu (List.fold_left 
         (λ u v, addP u v) Y pb)
     Here is proof strategy:
-    X =S= Y -> List.map snd X =Snd= List.map snd Y
-    Now prove a 
+    Lemma one : 
+      X =S= Y -> eqP (List.map snd X) (List.map snd Y)
+    Lemma two : 
+      fold_left_idempotent : 
+      forall (X Y : list P) (p : P)
+      (f : P -> P -> P),
+      (forall x : P, eqP (f x x) x = true) ->
+      brel_set eqP X Y = true ->
+      eqP (fold_left f X p) (fold_left f Y p) = true.
+
     
     *)
     admit.
