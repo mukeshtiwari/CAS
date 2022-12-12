@@ -866,16 +866,16 @@ Lemma fold_left_idempotent :
   brel_set eqP X Y = true ->
   eqP (fold_left f X p) (fold_left f Y p) = true.
 Proof.
-  intros ? ? ? ? Ha Hb.
-  eapply brel_set_elim_prop in Hb;
-  try assumption.
-  destruct Hb as [Hbl Hbr].
-  (* 
-
-
-
-  *)
-
+  induction X as [|a X IHx].
+  + 
+    intros ? ? ? ? Ha.
+    eapply brel_set_nil in Ha;
+    rewrite Ha;
+    simpl;
+    apply refP.
+  + (* Inducation Case *)
+    simpl;
+    intros ? ? ? Ha Hb.
   (*
   
     Induction on X:
@@ -896,14 +896,7 @@ Proof.
       Hb: brel_set eqP (a :: X) Y = true
       -------------------------------------------------
       eqP (fold_left f X (f p a)) (fold_left f Y p) = true.
-      
-
-      
-      
-
-  
   *)
-
 Admitted. 
 
 
@@ -942,6 +935,7 @@ Proof.
     reflexivity.
 Qed.
 
+
 Lemma eqv_over_second : 
   forall X Y : list (A * P), 
   X =S= Y -> 
@@ -963,7 +957,6 @@ Admitted.
 Lemma fold_left_congruence : 
   forall (X Y : list (A * P)) 
   (pa : A) (pb : P),
-  (∀ x : P, eqP (addP x x) x = true)->
   (forall u v, (u, v) [in] X -> eqA u pa = true) ->
   (forall u v, (u, v) [in] Y -> eqA u pa = true) ->
   X =S= Y ->
@@ -972,7 +965,7 @@ Lemma fold_left_congruence :
   [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2)) 
     Y (pa, pb)].
 Proof.
-  intros ? ? ? ? Hidem Ha Hb Hc.
+  intros ? ? ? ? Ha Hb Hc.
   eapply  brel_set_elim_prop in Hc;
   [| apply symAP| apply trnAP].
   destruct Hc as [Hcl Hcr].
@@ -991,7 +984,7 @@ Proof.
     eapply trnP.
     exact Hdr.
     eapply fold_left_idempotent.
-    exact Hidem.
+    exact idemP.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
     eapply refAP.
@@ -1010,7 +1003,7 @@ Proof.
     eapply trnP.
     exact Hdr.
     eapply fold_left_idempotent.
-    exact Hidem.
+    exact idemP.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
     eapply refAP.
