@@ -858,6 +858,7 @@ Qed.
   
 
 
+
 Lemma fold_left_idempotent : 
   forall (X Y : list P) (p : P)
   (f : P -> P -> P),
@@ -865,10 +866,50 @@ Lemma fold_left_idempotent :
   brel_set eqP X Y = true ->
   eqP (fold_left f X p) (fold_left f Y p) = true.
 Proof.
+  intros ? ? ? ? Ha Hb.
+  eapply brel_set_elim_prop in Hb;
+  try assumption.
+  destruct Hb as [Hbl Hbr].
+  (* 
+
+
+
+  *)
+
+  (*
+  
+    Induction on X:
+    1. X = [] and we are home
+    2. X = a :: Y 
+      
+      IH : Y : list P) (p : P)
+      (f : P -> P -> P),
+      (forall x : P, eqP (f x x) x = true) ->
+      brel_set eqP X Y = true ->
+      eqP (fold_left f X p) (fold_left f Y p) = true.
+      a : P 
+      X : list P 
+      Y: list P
+      p: P
+      f: P → P → P
+      Ha: ∀ x : P, eqP (f x x) x = true
+      Hb: brel_set eqP (a :: X) Y = true
+      -------------------------------------------------
+      eqP (fold_left f X (f p a)) (fold_left f Y p) = true.
+      
+
+      
+      
+
+  
+  *)
+
 Admitted. 
 
+
+
 (* 
-Another challenge and it probably need 
+Another challenge and it needs 
 idempotence on addP
 
 [(1, 2); (1, 3); (1, 2)] =S= 
@@ -885,9 +926,44 @@ Now when I reduce, the first two will be
 
 *)
 
+Lemma fold_left_simp : 
+  forall (X : list (A * P))
+    (pa : A) (pb : P),
+  fold_left 
+    (λ '(s1, t1) '(_, t2), (s1, addP t1 t2)) 
+    X (pa, pb) =  
+    (pa, fold_left (λ t1 t2, addP t1 t2) 
+    (List.map snd X ) pb).
+Proof.
+  induction X as [|(a,b) X IHx].
+  + simpl; reflexivity.
+  + simpl; intros ? ?.
+    rewrite IHx.
+    reflexivity.
+Qed.
+
+Lemma eqv_over_second : 
+  forall X Y : list (A * P), 
+  X =S= Y -> 
+  brel_set eqP (List.map snd X) (List.map snd Y) = true.
+Proof.
+  intros ? ? Ha.
+  apply brel_set_elim_prop in Ha;
+  [|apply symAP| apply trnAP].
+  apply brel_set_intro_prop;
+  try assumption.
+  destruct Ha as [Hal Har].
+  split.
+  + intros ? Hb.
+    admit.
+  + admit.
+Admitted.
+
+
 Lemma fold_left_congruence : 
   forall (X Y : list (A * P)) 
   (pa : A) (pb : P),
+  (∀ x : P, eqP (addP x x) x = true)->
   (forall u v, (u, v) [in] X -> eqA u pa = true) ->
   (forall u v, (u, v) [in] Y -> eqA u pa = true) ->
   X =S= Y ->
@@ -896,37 +972,51 @@ Lemma fold_left_congruence :
   [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2)) 
     Y (pa, pb)].
 Proof.
-  intros ? ? ? ? Ha Hb Hc.
+  intros ? ? ? ? Hidem Ha Hb Hc.
   eapply  brel_set_elim_prop in Hc;
   [| apply symAP| apply trnAP].
   destruct Hc as [Hcl Hcr].
+  repeat rewrite fold_left_simp.
   eapply  brel_set_intro_prop;
   [apply refAP | split].
   + intros (au, pu) Hd.
-    (* Think about it *)
-    (*
-      eqA au pa
-      eqP pu (List.fold_left 
-        (λ u v, addP u v) X pb)
-    ---------------------------
-      eqA au pa * eqP pu (List.fold_left 
-        (λ u v, addP u v) Y pb)
-    Here is proof strategy:
-    Lemma one : 
-      X =S= Y -> eqP (List.map snd X) (List.map snd Y)
-    Lemma two : 
-      fold_left_idempotent : 
-      forall (X Y : list P) (p : P)
-      (f : P -> P -> P),
-      (forall x : P, eqP (f x x) x = true) ->
-      brel_set eqP X Y = true ->
-      eqP (fold_left f X p) (fold_left f Y p) = true.
-
-    
-    *)
-    admit.
-  + intros (au, pu) Hd.
-Admitted.  
+    apply bop_or_elim in Hd.
+    destruct Hd as [Hd | Hd].
+    apply brel_product_elim in Hd.
+    destruct Hd as [Hdl Hdr].
+    apply bop_or_intro.
+    left.
+    apply brel_product_intro.
+    exact Hdl.
+    eapply trnP.
+    exact Hdr.
+    eapply fold_left_idempotent.
+    exact Hidem.
+    apply eqv_over_second.
+    eapply brel_set_intro_prop.
+    eapply refAP.
+    split; assumption.
+    inversion Hd.
+  + 
+    intros (au, pu) Hd.
+    apply bop_or_elim in Hd.
+    destruct Hd as [Hd | Hd].
+    apply brel_product_elim in Hd.
+    destruct Hd as [Hdl Hdr].
+    apply bop_or_intro.
+    left.
+    apply brel_product_intro.
+    exact Hdl.
+    eapply trnP.
+    exact Hdr.
+    eapply fold_left_idempotent.
+    exact Hidem.
+    apply eqv_over_second.
+    eapply brel_set_intro_prop.
+    eapply refAP.
+    split; assumption.
+    inversion Hd.
+Qed.
 
 
 (* generalise this one *)
