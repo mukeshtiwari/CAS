@@ -857,14 +857,173 @@ Proof.
 Qed.
   
 
+(* 
+If a ∈ X then by idempotence 
+  a + (fold_right f p X) = (fold_right f p X). 
+*)
+Lemma fold_right_idempotent_aux_one : 
+  forall (X : list P) (a p : P)
+  (f : P -> P -> P),
+  (forall x : P, eqP (f x x) x = true) ->
+  in_set eqP X a = true ->
+  eqP (f a (fold_right f p X)) (fold_right f p X) = true.
+Proof.
+Admitted.
 
 
-Lemma fold_left_idempotent : 
+(* Congruence of f? *)
+Lemma fold_right_f_cong : 
+  forall (a w v: P)
+  (f : P -> P -> P),
+  eqP w v = true ->
+  eqP (f a w) (f a v) = true.
+Proof.
+Admitted.
+
+
+Lemma in_set_false : 
+  forall (Y : list P) (a : P),
+  in_set eqP (filter (λ x : P, negb (eqP a x)) Y) a = false.
+Proof.
+  induction Y as [|b Y IHy];
+  simpl.
+  + intros ?; reflexivity.
+  + intros ?.
+    case_eq (eqP a b); simpl; intro Ha.
+    ++
+      now rewrite IHy.
+    ++
+      now rewrite Ha, IHy.
+Qed.
+
+
+Lemma negb_eqP_congruence : 
+  forall a : P,
+  theory.bProp_congruence P eqP (λ x : P, negb (eqP a x)).
+Admitted.
+
+Lemma in_set_true_false : 
+  forall (Y : list P) (a b : P),
+  eqP b a = false ->
+  in_set eqP Y a = true ->
+  in_set eqP (filter (λ x : P, negb (eqP a x)) Y) b = true ->
+  in_set eqP Y b = true.
+Proof.
+  induction Y as [|u Y IHy]; simpl.
+  + 
+    intros ? ? Ha Hb Hc.
+    simpl in Hb;
+    congruence.
+  +
+    intros ? ? Ha Hb Hc.
+    case_eq (eqP a u);
+    case_eq (in_set eqP Y a);
+    intros Hd He.
+    rewrite He in Hc;
+    simpl in Hc.
+    eapply bop_or_intro.
+    right.
+    eapply in_set_filter_elim in Hc.
+    firstorder.
+    intros x y Hx.
+    apply negb_eqP_congruence;
+    exact Hx.
+    eapply bop_or_intro.
+    rewrite He in Hc;
+    simpl in Hc.
+    eapply in_set_filter_elim in Hc.
+    right; firstorder.
+    eapply negb_eqP_congruence.
+    rewrite He in Hc;
+    simpl in Hc.
+    eapply bop_or_elim in Hc.
+    eapply bop_or_intro.
+    destruct Hc as [Hc | Hc].
+    left; auto.
+    right. 
+    eapply in_set_filter_elim in Hc.
+    destruct Hc as [Hcl Hcr];
+    auto.
+    eapply negb_eqP_congruence.
+    rewrite Hd, He in Hb;
+    simpl in Hb; 
+    congruence.
+Qed.
+
+
+Lemma in_set_not_member :
+  forall (X : list P) (a b : P),
+  in_set eqP X a = false ->
+  in_set eqP X b = true ->
+  eqP a b = false.
+Proof.
+  induction X as [|u X IHx];
+  simpl.
+  + congruence.
+  + intros ? ? Ha Hb.
+    eapply bop_or_elim in Hb.
+    eapply bop_or_false_elim in Ha.
+    destruct Ha as [Hal Har].
+    destruct Hb as [Hb | Hb].
+    case_eq (eqP a b);
+    intro Hc.
+    rewrite (trnP _ _ _ Hc Hb) in Hal;
+    congruence.
+    reflexivity.
+    eapply IHx;
+    try assumption.
+Qed.
+
+Lemma brel_set_filter : 
+  forall (X Y : list P) (a : P),
+  in_set eqP X a = false ->
+  brel_set eqP (a :: X) Y = true ->
+  brel_set eqP X (filter (λ x : P, negb (eqP a x)) Y) = true.
+Proof.
+  intros ? ? ? Ha Hb.
+  eapply brel_set_elim_prop in Hb;
+  try assumption.
+  destruct Hb as [Hbl Hbr].
+  eapply brel_set_intro_prop;
+  try assumption.
+  split.
+  +
+    intros ? Hb.
+    eapply in_set_filter_intro;
+    try assumption.
+    eapply negb_eqP_congruence.
+    split.
+    eapply Bool.negb_true_iff.
+    eapply in_set_not_member;
+    [exact Ha | exact Hb].
+    eapply Hbl.
+    eapply in_set_cons_intro;
+    try assumption.
+    right.
+    exact Hb.
+  +
+    intros ? Hb.
+    eapply in_set_filter_elim in Hb.
+    destruct Hb as [Hba Hbb].
+    pose proof Hbr a0 Hbb as Hc.
+    eapply in_set_cons_elim in Hc;
+    try assumption.
+    eapply Bool.negb_true_iff in Hba.
+    destruct Hc as [Hc | Hc].
+    rewrite Hba in Hc.
+    congruence.
+    exact Hc.
+    eapply negb_eqP_congruence.
+Qed.
+
+
+
+Lemma fold_right_idempotent : 
   forall (X Y : list P) (p : P)
   (f : P -> P -> P),
   (forall x : P, eqP (f x x) x = true) ->
   brel_set eqP X Y = true ->
-  eqP (fold_left f X p) (fold_left f Y p) = true.
+  eqP (fold_right f p X) (fold_right f p Y) = true.
 Proof.
   induction X as [|a X IHx].
   + 
@@ -876,27 +1035,156 @@ Proof.
   + (* Inducation Case *)
     simpl;
     intros ? ? ? Ha Hb.
-  (*
-  
-    Induction on X:
-    1. X = [] and we are home
-    2. X = a :: Y 
+    destruct (in_set eqP X a) eqn:Hc.
+    ++
+      assert (Hd : brel_set eqP X Y = true).
+      apply brel_set_elim_prop in Hb;
+      [|apply symP | apply trnP].
+      destruct Hb as [Hbl Hbr].
+      eapply brel_set_intro_prop.
+      apply refP.
+      split.
+      +++
+        intros ? Hd.
+        eapply Hbl.
+        eapply in_set_cons_intro.
+        apply symP.
+        right.
+        exact Hd.
+      +++
+        intros ? Hd.
+        pose proof (Hbr _ Hd) as He.
+        apply in_set_cons_elim in He.
+        destruct He as [He | He].
+        eapply in_set_right_congruence.
+        apply symP.
+        apply trnP.
+        exact He.
+        exact Hc.
+        exact He.
+        apply symP.
+      +++
+        eapply trnP.
+        eapply fold_right_idempotent_aux_one.
+        exact Ha.
+        exact Hc.
+        eapply IHx.
+        exact Ha.
+        exact Hd.
+    ++
+      remember (filter (fun x => negb (eqP a x)) Y) as 
+        remove_a_Y.
+      (* There is no a in remove_a_Y *)
+      assert(Hd: in_set eqP remove_a_Y a = false).
+      subst; eapply in_set_false.
+      (* There is a, in fact one, 'a' in Y*)
+      assert(He : in_set eqP Y a = true).
+      eapply brel_set_elim_prop in Hb;
+      try assumption.
+      destruct Hb as [Hbl Hbr].
+      eapply Hbl.
+      cbn; eapply bop_or_intro.
+      left. apply refP.
+      (* Y =S= a :: remove_a_Y *)
+      assert(Hf : brel_set eqP Y (a :: remove_a_Y) = true).
+      eapply brel_set_elim_prop in Hb;
+      try assumption.
+      destruct Hb as [Hbl Hbr].
+      eapply brel_set_intro_prop;
+      try assumption.
+      *
+      split.
+      +++
+        intros b Hf.
+        cbn; eapply bop_or_intro.
+        case_eq (eqP b a); intro Hg.
+        left.
+        reflexivity.
+        right.
+        rewrite Heqremove_a_Y.
+        eapply in_set_filter_intro;
+        try assumption.
+        intros x y Hxy.
+        f_equal.
+        case_eq (eqP a x);
+        case_eq (eqP a y);
+        intros Hx Hy.
+        reflexivity.
+        rewrite (trnP _ _ _ Hy Hxy) in Hx;
+        congruence.
+        apply symP in Hxy.
+        rewrite (trnP _ _ _ Hx Hxy) in Hy;
+        congruence.
+        reflexivity.
+        split.
+        case_eq (eqP a b);
+        intro Hx.
+        apply symP in Hx.
+        rewrite Hx in Hg;
+        congruence.
+        reflexivity.
+        exact Hf.
+      +++
+        intros b Hf.
+        simpl in Hf.
+        case_eq (eqP b a);
+        case_eq (in_set eqP remove_a_Y b);
+        intros Hg Hh.
+        apply symP in Hh.
+        eapply in_set_right_congruence;
+        try assumption.
+        exact Hh.
+        exact He.
+        apply symP in Hh.
+        eapply in_set_right_congruence;
+        try assumption.
+        exact Hh.
+        exact He.
+        eapply in_set_true_false.
+        exact Hh.
+        exact He.
+        subst; exact Hg.
+        rewrite Hh, Hg in Hf;
+        simpl in Hf;
+        congruence.
+      *
+      assert(Hg : brel_set eqP X remove_a_Y = true).
+      rewrite Heqremove_a_Y.
+      eapply brel_set_filter;
+      try assumption.
+      pose proof IHx remove_a_Y p f Ha Hg as Hh.
+      eapply trnP.
+      eapply fold_right_f_cong.
+      exact Hh.
+
+
       
-      IH : Y : list P) (p : P)
-      (f : P -> P -> P),
-      (forall x : P, eqP (f x x) x = true) ->
-      brel_set eqP X Y = true ->
-      eqP (fold_left f X p) (fold_left f Y p) = true.
-      a : P 
-      X : list P 
-      Y: list P
-      p: P
-      f: P → P → P
-      Ha: ∀ x : P, eqP (f x x) x = true
-      Hb: brel_set eqP (a :: X) Y = true
-      -------------------------------------------------
-      eqP (fold_left f X (f p a)) (fold_left f Y p) = true.
-  *)
+
+
+
+
+      
+
+      
+      
+      (*
+        brel_set Y (a :: remove a Y) 
+        Hb : brel_set X (remove a Y)
+        Hc : in_set eqP Y a = true 
+        Hd : in_set eqP X a = false
+        He : in_set eqP (remove a Y) a = false 
+
+
+        Using (IHx (remove a Y) P f Ha Hb) we get
+        eqP (fold_right f p X) (fold_right f p (remove a Y)) = true
+        ------------------------------------------------------------
+        eqP (f a (fold_right f p X))
+          (f a (fold_right f p (remove a Y))) = true
+
+      
+      *)
+
+
 Admitted. 
 
 
