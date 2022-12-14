@@ -1016,6 +1016,17 @@ Proof.
     eapply negb_eqP_congruence.
 Qed.
 
+Lemma fold_right_idempotent_more_information : 
+  forall (X Y : list P) (a p : P)
+  (f : P -> P -> P),
+  (forall x : P, eqP (f x x) x = true) ->
+  brel_set eqP X (a :: Y) = true ->
+  in_set eqP X a = true ->
+  in_set eqP Y a = false ->
+  eqP (f a (fold_right f p Y)) 
+  (fold_right f p X) = true.
+Admitted.
+
 
 
 Lemma fold_right_idempotent : 
@@ -1156,37 +1167,10 @@ Proof.
       eapply trnP.
       eapply fold_right_f_cong.
       exact Hh.
-
-
-      
-
-
-
-
-      
-
-      
-      
-      (*
-        brel_set Y (a :: remove a Y) 
-        Hb : brel_set X (remove a Y)
-        Hc : in_set eqP Y a = true 
-        Hd : in_set eqP X a = false
-        He : in_set eqP (remove a Y) a = false 
-
-
-        Using (IHx (remove a Y) P f Ha Hb) we get
-        eqP (fold_right f p X) (fold_right f p (remove a Y)) = true
-        ------------------------------------------------------------
-        eqP (f a (fold_right f p X))
-          (f a (fold_right f p (remove a Y))) = true
-
-      
-      *)
-
-
-Admitted. 
-
+      eapply fold_right_idempotent_more_information;
+      try assumption.
+Qed.
+     
 
 
 (* 
