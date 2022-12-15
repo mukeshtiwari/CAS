@@ -1074,12 +1074,19 @@ Qed.
 Lemma fold_right_in_set :
   forall (Y : list P) (a p : P)
   (f : P -> P -> P),
-  (forall x : P, eqP (f x x) x = true) -> 
+  (forall (x y w v : P),
+    eqP x y = true ->
+    eqP w v = true ->
+    eqP (f x w) (f y v) = true) ->
+  (forall x y : P, eqP x y = true ->
+    eqP (f x y) y = true) ->
   in_set eqP Y a = true ->
   eqP (fold_right f p Y) 
     (f a (fold_right f p 
       (filter (fun x => negb (eqP a x)) Y))) = true.
 Proof.
+  
+
 Admitted.
 
 
@@ -1249,8 +1256,8 @@ Proof.
       eapply trnP.
       (* Now I am in a bit better situation. *)
       eapply fold_right_in_set.
-      intros ?; eapply Ha.
-      eapply refP.
+      exact fcong.
+      exact Ha.
       exact He.
       rewrite Heqremove_a_Y.
       eapply fcong.
