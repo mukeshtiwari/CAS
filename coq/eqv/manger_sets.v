@@ -1070,23 +1070,132 @@ Proof.
     eapply negb_eqP_congruence.
 Qed.
 
+Lemma in_set_filter_false :
+  forall (X : list P) (a : P),
+  in_set eqP X a = false ->
+  brel_set eqP X (filter (λ x : P, negb (eqP a x)) X) = true.
+Proof.
+  induction X as [|ax X IHx].
+  + intros ? Ha.
+    reflexivity.
+  +
+    simpl.
+    intros ? Ha.
+    case_eq ((in_set eqP X a));
+    case_eq (eqP a ax); 
+    intros Hc Hd;
+    simpl.
+    ++ 
+      rewrite Hc, Hd in Ha;
+      simpl in Ha.
+      congruence.
+    ++
+      rewrite Hc, Hd in Ha;
+      simpl in Ha.
+      congruence.
+    ++
+      rewrite Hc, Hd in Ha;
+      simpl in Ha; 
+      congruence.
+    ++
+      pose proof (IHx _ Hd) as He.
+  Admitted.
+
 
 Lemma fold_right_in_set :
-  forall (Y : list P) (a p : P)
+  forall (X : list P) (a p : P)
   (f : P -> P -> P),
+  (forall x y z : P, 
+    eqP (f x (f y z)) (f (f x y) z) = true) ->
+  (forall x y : P, eqP (f x y) (f y x) = true) ->
   (forall (x y w v : P),
     eqP x y = true ->
     eqP w v = true ->
     eqP (f x w) (f y v) = true) ->
   (forall x y : P, eqP x y = true ->
     eqP (f x y) y = true) ->
-  in_set eqP Y a = true ->
-  eqP (fold_right f p Y) 
+  in_set eqP X a = true ->
+  eqP (fold_right f p X) 
     (f a (fold_right f p 
-      (filter (fun x => negb (eqP a x)) Y))) = true.
+      (filter (fun x => negb (eqP a x)) X))) = true.
 Proof.
-  
+  induction X as [|ax X IHx];
+  simpl.
+  + 
+    intros ? ? ? fassoc fcom fcong Ha Hb.
+    simpl in Hb;
+    congruence.
+  +
+    intros ? ? ? fassoc fcom fcong Ha Hb.
+    simpl in *|- *.
+    case_eq ((in_set eqP X a));
+    case_eq (eqP a ax); 
+    intros Hc Hd;
+    simpl.
+    ++ (* a = x *)
+      pose proof IHx a p f fassoc fcom
+        fcong Ha Hd as He.
+      remember (fold_right f p X) as w.
+      remember (fold_right f p 
+        (filter (λ x : P, negb (eqP a x)) X)) as v.
+      eapply trnP with (f ax (f a v)).
+      eapply fcong.
+      eapply refP.
+      exact He.
+      (* 
+        f is associative
+        so I can write 
+        eqP (f ax (f a v)) (f a v) = true 
+        ==>
+        eqP (f (f ax a) v) (f a v) = true
+      *)
+      assert (Ht : eqP (f ax (f a v)) 
+        (f (f ax a) v) = true).
+      eapply fassoc.
+      rewrite <-Ht.
+      (*
+        We need gen congruence on eqP:
 
+        forall x y u v, 
+        eqP x u = true ->
+        eqP y v = true ->
+        eqP x y = eqP u v
+      *)
+      admit.
+      
+    ++ 
+      (* Induction case *)
+      pose proof IHx a p f fassoc fcom fcong
+        Ha Hd as He.
+      remember (fold_right f p X) as w.
+      remember (fold_right f p 
+        (filter (λ x : P, negb (eqP a x)) X)) as v.
+      eapply trnP with (f ax (f a v)).
+      eapply fcong.
+      eapply refP.
+      exact He.
+      eapply trnP with (f (f ax a) v).
+      eapply fassoc.
+      eapply trnP with (f (f a ax) v).
+      eapply fcong.
+      eapply fcom.
+      eapply refP.
+      eapply symP.
+      eapply fassoc.
+    ++
+      remember (fold_right f p X) as w.
+      remember (fold_right f p 
+        (filter (λ x : P, negb (eqP a x)) X)) as v.
+      pose proof in_set_filter_false _ _ Hd as He.
+      (* 
+        since in_set eqP X a = false
+        (filter (λ x : P, negb (eqP a x)) X) = X
+      *)
+
+     admit.
+    ++
+      rewrite Hc, Hd in Hb;
+      simpl in Hb; congruence.
 Admitted.
 
 
@@ -1256,6 +1365,8 @@ Proof.
       eapply trnP.
       (* Now I am in a bit better situation. *)
       eapply fold_right_in_set.
+      exact fassoc.
+      exact fcom.
       exact fcong.
       exact Ha.
       exact He.
