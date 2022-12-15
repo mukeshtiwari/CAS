@@ -857,10 +857,56 @@ If a ∈ X then by idempotence
 Lemma fold_right_idempotent_aux_one : 
   forall (X : list P) (a p : P)
   (f : P -> P -> P),
-  (forall x : P, eqP (f x x) x = true) ->
+  (forall x y z : P, 
+    eqP (f x (f y z)) (f (f x y) z) = true) ->
+  (forall x y : P, eqP (f x y) (f y x) = true) ->
+  (forall (x y w v : P),
+    eqP x y = true ->
+    eqP w v = true ->
+    eqP (f x w) (f y v) = true) ->
+  (forall x y : P, eqP x y = true ->
+    eqP (f x y) y = true) ->
   in_set eqP X a = true ->
   eqP (f a (fold_right f p X)) (fold_right f p X) = true.
 Proof.
+  induction X as [|x X IHx].
+  + 
+    intros ? ? ? fassoc fcom fcong Ha Hb.
+    simpl in Hb;
+    congruence.
+  +
+    intros ? ? ? fassoc fcom fcong Ha Hb.
+    simpl in *|- *.
+    case_eq ((in_set eqP X a));
+    case_eq (eqP a x); 
+    intros Hc Hd.
+    ++ (* a = x *)
+      remember ((fold_right f p X)) as w.
+      (* I need f to be associative *)
+      eapply trnP.
+      eapply fassoc.
+      eapply fcong. 
+      eapply Ha.
+      exact Hc.
+      apply refP.
+    ++
+      (* Induction case *)
+      pose proof IHx a p f fassoc fcom fcong Ha Hd as He.
+      remember ((fold_right f p X)) as w.
+      admit.      
+    ++
+      remember ((fold_right f p X)) as w.
+      (* I need f to be associative *)
+      eapply trnP.
+      eapply fassoc.
+      eapply fcong. 
+      eapply Ha.
+      exact Hc.
+      eapply refP.
+    ++
+      rewrite Hc, Hd in Hb;
+      simpl in Hb; congruence.
+
 Admitted.
 
 
@@ -971,6 +1017,8 @@ Proof.
     try assumption.
 Qed.
 
+
+
 Lemma brel_set_filter : 
   forall (X Y : list P) (a : P),
   in_set eqP X a = false ->
@@ -1028,30 +1076,31 @@ Admitted.
 
 
 
-
-
-
-
 Lemma fold_right_congruence : 
   forall (X Y : list P) (p : P)
   (f : P -> P -> P),
-  (forall (x w v : P),
+  (forall x y z : P, 
+    eqP (f x (f y z)) (f (f x y) z) = true) ->
+  (forall x y : P, eqP (f x y) (f y x) = true) ->
+  (forall (x y w v : P),
+    eqP x y = true ->
     eqP w v = true ->
-    eqP (f x w) (f x v) = true) ->
-  (forall x : P, eqP (f x x) x = true) ->
+    eqP (f x w) (f y v) = true) ->
+  (forall x y : P, eqP x y = true ->
+    eqP (f x y) y = true) ->
   brel_set eqP X Y = true ->
   eqP (fold_right f p X) (fold_right f p Y) = true.
 Proof.
   induction X as [|a X IHx].
   + 
-    intros ? ? ? ? fcong Ha.
+    intros ? ? ? ? fassoc fcom fcong Ha.
     eapply brel_set_nil in Ha;
     rewrite Ha;
     simpl;
     apply refP.
   + (* Inducation Case *)
     simpl;
-    intros ? ? ? fcong Ha Hb.
+    intros ? ? ? fassoc fcom fcong Ha Hb.
     destruct (in_set eqP X a) eqn:Hc.
     ++
       assert (Hd : brel_set eqP X Y = true).
@@ -1083,9 +1132,18 @@ Proof.
       +++
         eapply trnP.
         eapply fold_right_idempotent_aux_one.
-        exact Ha.
+        exact fassoc.
+        exact fcom.
+        intros ? ? ? Hx Hy.
+        eapply fcong.
+        exact Hy.
+        intros ? ? Hx.
+        eapply Ha;
+        exact Hx.
         exact Hc.
         eapply IHx.
+        exact fassoc.
+        exact fcom.
         exact fcong.
         exact Ha.
         exact Hd.
@@ -1170,18 +1228,20 @@ Proof.
       rewrite Heqremove_a_Y.
       eapply brel_set_filter;
       try assumption.
-      pose proof IHx remove_a_Y p f fcong Ha Hg as Hh.
+      pose proof IHx remove_a_Y p f fassoc fcom fcong Ha Hg as Hh.
       (* 
         I need to play with transitivity. 
       *)
       eapply trnP.
       eapply fcong.
+      eapply refP.
       exact Hh.
       eapply symP.
       eapply trnP.
       (* Now I am in a bit better situation. *)
       eapply fold_right_in_set.
-      exact Ha.
+      intros ?; eapply Ha.
+      eapply refP.
       exact He.
       rewrite Heqremove_a_Y.
       eapply fcong.
@@ -1192,10 +1252,12 @@ Proof.
       try reflexivity.
       rewrite symP in Hi;
       congruence.
+      eapply refP.
+      eapply refP.
 Qed.
       
 
-
+(* Everything good upto here. *)
 
 
 
@@ -1252,10 +1314,11 @@ Proof.
   try assumption.
   destruct Ha as [Hal Har].
   split.
-  + intros ? Hb.
-    admit.
+  + admit.
   + admit.
 Admitted.
+
+
 
 Lemma addp_cong : 
   ∀ x w v : P, 
