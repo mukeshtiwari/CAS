@@ -173,6 +173,7 @@ Variables (A P : Type)
           (trnP : brel_transitive P eqP)
           (cong_addP : bop_congruence P eqP addP) 
           (cong_lteA : brel_congruence A eqA lteA)
+          (cong_eqP : brel_congruence P eqP eqP)
           (ref_lteA : brel_reflexive A lteA)
           (* is idemP really needed, or is it 
              a consequence of using lists to represent sets?
@@ -1070,36 +1071,7 @@ Proof.
     eapply negb_eqP_congruence.
 Qed.
 
-Lemma in_set_filter_false :
-  forall (X : list P) (a : P),
-  in_set eqP X a = false ->
-  brel_set eqP X (filter (λ x : P, negb (eqP a x)) X) = true.
-Proof.
-  induction X as [|ax X IHx].
-  + intros ? Ha.
-    reflexivity.
-  +
-    simpl.
-    intros ? Ha.
-    case_eq ((in_set eqP X a));
-    case_eq (eqP a ax); 
-    intros Hc Hd;
-    simpl.
-    ++ 
-      rewrite Hc, Hd in Ha;
-      simpl in Ha.
-      congruence.
-    ++
-      rewrite Hc, Hd in Ha;
-      simpl in Ha.
-      congruence.
-    ++
-      rewrite Hc, Hd in Ha;
-      simpl in Ha; 
-      congruence.
-    ++
-      pose proof (IHx _ Hd) as He.
-  Admitted.
+
 
 
 Lemma fold_right_in_set :
@@ -1153,16 +1125,14 @@ Proof.
         (f (f ax a) v) = true).
       eapply fassoc.
       rewrite <-Ht.
-      (*
-        We need gen congruence on eqP:
-
-        forall x y u v, 
-        eqP x u = true ->
-        eqP y v = true ->
-        eqP x y = eqP u v
-      *)
-      admit.
-      
+      eapply cong_eqP.
+      eapply refP.
+      eapply fcong.
+      eapply symP.
+      eapply Ha.
+      eapply symP.
+      exact Hc.
+      eapply refP.
     ++ 
       (* Induction case *)
       pose proof IHx a p f fassoc fcom fcong
@@ -1186,7 +1156,6 @@ Proof.
       remember (fold_right f p X) as w.
       remember (fold_right f p 
         (filter (λ x : P, negb (eqP a x)) X)) as v.
-      pose proof in_set_filter_false _ _ Hd as He.
       (* 
         since in_set eqP X a = false
         (filter (λ x : P, negb (eqP a x)) X) = X
@@ -1197,7 +1166,6 @@ Proof.
       rewrite Hc, Hd in Hb;
       simpl in Hb; congruence.
 Admitted.
-
 
 
 
@@ -1372,8 +1340,8 @@ Proof.
       exact He.
       rewrite Heqremove_a_Y.
       eapply fcong.
-      remember ((fold_right f p (filter (λ x : P, negb (eqP a x)) Y)))
-      as t.
+      remember ((fold_right f p 
+      (filter (λ x : P, negb (eqP a x)) Y))) as t.
       case_eq (eqP t t);
       intro Hi;
       try reflexivity.
