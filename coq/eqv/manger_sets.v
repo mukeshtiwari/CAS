@@ -95,13 +95,6 @@ Definition manger_merge_sets_new
           Y1 p1)] 
     end.
 
-(* My claim is 
-
-manger_merge_sets_new  = (* Notice the equality *)
-manger_merge_sets
-
-*)
-
 
 Definition manger_phase_1_auxiliary 
           {A P : Type}
@@ -900,7 +893,20 @@ Qed.
 Lemma negb_eqP_congruence : 
   forall a : P,
   theory.bProp_congruence P eqP (λ x : P, negb (eqP a x)).
-Admitted.
+Proof.
+  intros ? x y Hx.
+  f_equal.
+  case_eq (eqP a x);
+  case_eq (eqP a y);
+  intros Ha Hb;
+  try reflexivity.
+  rewrite (trnP _ _ _ Hb Hx) in Ha;
+  congruence.
+  apply symP in Hx.
+  rewrite (trnP _ _ _ Ha Hx) in Hb;
+  congruence.
+Qed.
+
 
 Lemma in_set_true_false : 
   forall (Y : list P) (a b : P),
@@ -1016,20 +1022,40 @@ Proof.
     eapply negb_eqP_congruence.
 Qed.
 
-Lemma fold_right_idempotent_more_information : 
-  forall (X Y : list P) (a p : P)
+
+Lemma fold_right_in_set :
+  forall (Y : list P) (a p : P)
   (f : P -> P -> P),
-  (forall x : P, eqP (f x x) x = true) ->
-  brel_set eqP X (a :: Y) = true ->
-  in_set eqP X a = true ->
-  in_set eqP Y a = false ->
-  eqP (f a (fold_right f p Y)) 
-  (fold_right f p X) = true.
+  (forall x : P, eqP (f x x) x = true) -> 
+  in_set eqP Y a = true ->
+  eqP (fold_right f p Y) 
+    (f a (fold_right f p 
+      (filter (fun x => negb (eqP a x)) Y))) = true.
+Proof.
+  induction Y as [|y Y IHy].
+  + intros ? ? ? Ha Hb.
+    compute in Hb;
+    congruence.
+  +
+    intros ? ? ? Ha Hb.
+    simpl.
+    apply in_set_cons_elim in Hb;
+    try assumption.
+    destruct Hb as [Hb | Hb].
+    ++
+      apply symP in Hb.
+      rewrite Hb;
+      simpl.
 Admitted.
 
 
 
-Lemma fold_right_idempotent : 
+
+
+
+
+
+Lemma fold_right_congruence : 
   forall (X Y : list P) (p : P)
   (f : P -> P -> P),
   (forall x : P, eqP (f x x) x = true) ->
@@ -1164,13 +1190,38 @@ Proof.
       eapply brel_set_filter;
       try assumption.
       pose proof IHx remove_a_Y p f Ha Hg as Hh.
-      eapply trnP.
-      eapply fold_right_f_cong.
+      (* 
+        I need to play with transitivity. 
+      *)
+      eapply trnP. 
+      eapply fold_right_f_cong;
       exact Hh.
-      eapply fold_right_idempotent_more_information;
-      try assumption.
+      eapply symP.
+      eapply trnP.
+      (* Now I am in a bit better situation. *)
+      eapply fold_right_in_set.
+      exact Ha.
+      exact He.
+      rewrite Heqremove_a_Y.
+      eapply fold_right_f_cong.
+      remember ((fold_right f p (filter (λ x : P, negb (eqP a x)) Y)))
+      as t.
+      case_eq (eqP t t);
+      intro Hi;
+      try reflexivity.
+      rewrite symP in Hi;
+      congruence.
 Qed.
-     
+      
+
+
+
+
+
+
+
+
+       
 
 
 (* 
@@ -1255,12 +1306,19 @@ Proof.
     exact Hdl.
     eapply trnP.
     exact Hdr.
-    eapply fold_left_idempotent.
+    repeat rewrite fold_symmetric;
+    try assumption.
+    eapply fold_right_congruence.
     exact idemP.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
     eapply refAP.
     split; assumption.
+    (* We need addP to associative and commutative *)
+    admit.
+    admit.
+    admit.
+    admit.
     inversion Hd.
   + 
     intros (au, pu) Hd.
@@ -1274,14 +1332,20 @@ Proof.
     exact Hdl.
     eapply trnP.
     exact Hdr.
-    eapply fold_left_idempotent.
+    repeat rewrite fold_symmetric.
+    eapply fold_right_congruence.
     exact idemP.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
     eapply refAP.
     split; assumption.
+    (* We need addP to associative and commutative *)
+    admit.
+    admit.
+    admit.
+    admit.
     inversion Hd.
-Qed.
+Admitted.
 
 
 (* generalise this one *)
