@@ -1075,15 +1075,10 @@ Qed.
 Lemma fold_right_in_set_false :
   forall (X : list P) (a p : P)
   (f : P -> P -> P),
-  (forall x y z : P, 
-    eqP (f x (f y z)) (f (f x y) z) = true) ->
-  (forall x y : P, eqP (f x y) (f y x) = true) ->
   (forall (x y w v : P),
     eqP x y = true ->
     eqP w v = true ->
     eqP (f x w) (f y v) = true) ->
-  (forall x y : P, eqP x y = true ->
-    eqP (f x y) y = true) ->
   in_set eqP X a = false ->
   eqP 
     (fold_right f p X)
@@ -1093,10 +1088,10 @@ Proof.
   induction X as [|ax X IHx];
   simpl.
   + 
-    intros ? ? ? fassoc fcom fcong Has Hb.
+    intros ? ? ? fcong Hb.
     apply refP.
   +
-    intros ? ? ? fassoc fcom fcong Has Hb.
+    intros ? ? ? fcong Hb.
     case_eq (in_set eqP X a);
     case_eq (eqP a ax);
     intros Hc Hd.
@@ -1161,13 +1156,6 @@ Proof.
       eapply fcong.
       eapply refP.
       exact He.
-      (* 
-        f is associative
-        so I can write 
-        eqP (f ax (f a v)) (f a v) = true 
-        ==>
-        eqP (f (f ax a) v) (f a v) = true
-      *)
       assert (Ht : eqP (f ax (f a v)) 
         (f (f ax a) v) = true).
       eapply fassoc.
@@ -1209,11 +1197,6 @@ Proof.
       subst.
       eapply fold_right_in_set_false;
       try assumption.
-      
-      (* 
-        since in_set eqP X a = false
-        (filter (λ x : P, negb (eqP a x)) X) = X
-      *)
     ++
       rewrite Hc, Hd in Hb;
       simpl in Hb; congruence.
