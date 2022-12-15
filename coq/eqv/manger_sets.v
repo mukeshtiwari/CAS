@@ -864,15 +864,6 @@ Proof.
 Admitted.
 
 
-(* Congruence of f? *)
-Lemma fold_right_f_cong : 
-  forall (a w v: P)
-  (f : P -> P -> P),
-  eqP w v = true ->
-  eqP (f a w) (f a v) = true.
-Proof.
-Admitted.
-
 
 Lemma in_set_false : 
   forall (Y : list P) (a : P),
@@ -1032,20 +1023,6 @@ Lemma fold_right_in_set :
     (f a (fold_right f p 
       (filter (fun x => negb (eqP a x)) Y))) = true.
 Proof.
-  induction Y as [|y Y IHy].
-  + intros ? ? ? Ha Hb.
-    compute in Hb;
-    congruence.
-  +
-    intros ? ? ? Ha Hb.
-    simpl.
-    apply in_set_cons_elim in Hb;
-    try assumption.
-    destruct Hb as [Hb | Hb].
-    ++
-      apply symP in Hb.
-      rewrite Hb;
-      simpl.
 Admitted.
 
 
@@ -1058,20 +1035,23 @@ Admitted.
 Lemma fold_right_congruence : 
   forall (X Y : list P) (p : P)
   (f : P -> P -> P),
+  (forall (x w v : P),
+    eqP w v = true ->
+    eqP (f x w) (f x v) = true) ->
   (forall x : P, eqP (f x x) x = true) ->
   brel_set eqP X Y = true ->
   eqP (fold_right f p X) (fold_right f p Y) = true.
 Proof.
   induction X as [|a X IHx].
   + 
-    intros ? ? ? ? Ha.
+    intros ? ? ? ? fcong Ha.
     eapply brel_set_nil in Ha;
     rewrite Ha;
     simpl;
     apply refP.
   + (* Inducation Case *)
     simpl;
-    intros ? ? ? Ha Hb.
+    intros ? ? ? fcong Ha Hb.
     destruct (in_set eqP X a) eqn:Hc.
     ++
       assert (Hd : brel_set eqP X Y = true).
@@ -1106,6 +1086,7 @@ Proof.
         exact Ha.
         exact Hc.
         eapply IHx.
+        exact fcong.
         exact Ha.
         exact Hd.
     ++
@@ -1189,12 +1170,12 @@ Proof.
       rewrite Heqremove_a_Y.
       eapply brel_set_filter;
       try assumption.
-      pose proof IHx remove_a_Y p f Ha Hg as Hh.
+      pose proof IHx remove_a_Y p f fcong Ha Hg as Hh.
       (* 
         I need to play with transitivity. 
       *)
-      eapply trnP. 
-      eapply fold_right_f_cong;
+      eapply trnP.
+      eapply fcong.
       exact Hh.
       eapply symP.
       eapply trnP.
@@ -1203,7 +1184,7 @@ Proof.
       exact Ha.
       exact He.
       rewrite Heqremove_a_Y.
-      eapply fold_right_f_cong.
+      eapply fcong.
       remember ((fold_right f p (filter (λ x : P, negb (eqP a x)) Y)))
       as t.
       case_eq (eqP t t);
@@ -1276,6 +1257,23 @@ Proof.
   + admit.
 Admitted.
 
+Lemma addp_cong : 
+  ∀ x w v : P, 
+  eqP w v = true → 
+  eqP (addP x w) (addP x v) = true.
+Proof.
+  intros ? ? ? Ha.
+  eapply cong_addP.
+  +
+    case_eq (eqP x x);
+    intro Hb;
+    try reflexivity.
+    rewrite symP in Hb;
+    congruence.
+  +
+    exact Ha.
+Qed.
+
 
 Lemma fold_left_congruence : 
   forall (X Y : list (A * P)) 
@@ -1309,6 +1307,7 @@ Proof.
     repeat rewrite fold_symmetric;
     try assumption.
     eapply fold_right_congruence.
+    eapply addp_cong.
     exact idemP.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
@@ -1334,6 +1333,7 @@ Proof.
     exact Hdr.
     repeat rewrite fold_symmetric.
     eapply fold_right_congruence.
+    eapply addp_cong.
     exact idemP.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
