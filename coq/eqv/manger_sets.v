@@ -1072,6 +1072,53 @@ Proof.
 Qed.
 
 
+Lemma fold_right_in_set_false :
+  forall (X : list P) (a p : P)
+  (f : P -> P -> P),
+  (forall x y z : P, 
+    eqP (f x (f y z)) (f (f x y) z) = true) ->
+  (forall x y : P, eqP (f x y) (f y x) = true) ->
+  (forall (x y w v : P),
+    eqP x y = true ->
+    eqP w v = true ->
+    eqP (f x w) (f y v) = true) ->
+  (forall x y : P, eqP x y = true ->
+    eqP (f x y) y = true) ->
+  in_set eqP X a = false ->
+  eqP 
+    (fold_right f p X)
+    (fold_right f p 
+      (filter (λ x : P, negb (eqP a x)) X)) = true.
+Proof.
+  induction X as [|ax X IHx];
+  simpl.
+  + 
+    intros ? ? ? fassoc fcom fcong Has Hb.
+    apply refP.
+  +
+    intros ? ? ? fassoc fcom fcong Has Hb.
+    case_eq (in_set eqP X a);
+    case_eq (eqP a ax);
+    intros Hc Hd.
+    ++
+      rewrite Hc, Hd in Hb; 
+      simpl in Hb;
+      congruence.
+    ++
+      rewrite Hc, Hd in Hb; 
+      simpl in Hb;
+      congruence.
+    ++
+      rewrite Hc, Hd in Hb; 
+      simpl in Hb;
+      congruence.
+    ++
+      simpl.
+      eapply fcong.
+      eapply refP.
+      eapply IHx;
+      try assumption.
+Qed.
 
 
 Lemma fold_right_in_set :
@@ -1156,16 +1203,21 @@ Proof.
       remember (fold_right f p X) as w.
       remember (fold_right f p 
         (filter (λ x : P, negb (eqP a x)) X)) as v.
+      apply fcong.
+      eapply symP;
+      exact Hc.
+      subst.
+      eapply fold_right_in_set_false;
+      try assumption.
+      
       (* 
         since in_set eqP X a = false
         (filter (λ x : P, negb (eqP a x)) X) = X
       *)
-
-     admit.
     ++
       rewrite Hc, Hd in Hb;
       simpl in Hb; congruence.
-Admitted.
+Qed.
 
 
 
