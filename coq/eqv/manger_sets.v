@@ -893,7 +893,17 @@ Proof.
       (* Induction case *)
       pose proof IHx a p f fassoc fcom fcong Ha Hd as He.
       remember ((fold_right f p X)) as w.
-      admit.      
+      eapply trnP with (f a (f w x)).
+      eapply fcong.
+      eapply refP.
+      eapply fcom.
+      eapply trnP with (f (f a w) x).
+      eapply fassoc.
+      eapply trnP with (f w x).
+      eapply fcong.
+      exact He.
+      apply refP.
+      eapply fcom.
     ++
       remember ((fold_right f p X)) as w.
       (* I need f to be associative *)
@@ -906,8 +916,7 @@ Proof.
     ++
       rewrite Hc, Hd in Hb;
       simpl in Hb; congruence.
-
-Admitted.
+Qed.
 
 
 
