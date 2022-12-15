@@ -1246,81 +1246,21 @@ Proof.
       (* There is no a in remove_a_Y *)
       assert(Hd: in_set eqP remove_a_Y a = false).
       subst; eapply in_set_false.
+
       (* There is a, in fact one, 'a' in Y*)
-      assert(He : in_set eqP Y a = true).
-      eapply brel_set_elim_prop in Hb;
-      try assumption.
-      destruct Hb as [Hbl Hbr].
-      eapply Hbl.
-      cbn; eapply bop_or_intro.
-      left. apply refP.
-      (* Y =S= a :: remove_a_Y *)
-      assert(Hf : brel_set eqP Y (a :: remove_a_Y) = true).
-      eapply brel_set_elim_prop in Hb;
-      try assumption.
-      destruct Hb as [Hbl Hbr].
-      eapply brel_set_intro_prop;
-      try assumption.
-      *
-      split.
-      +++
-        intros b Hf.
+      assert(He : in_set eqP Y a = true).  
+        eapply brel_set_elim_prop in Hb;
+        try assumption.
+        destruct Hb as [Hbl Hbr].
+        eapply Hbl.
         cbn; eapply bop_or_intro.
-        case_eq (eqP b a); intro Hg.
-        left.
-        reflexivity.
-        right.
-        rewrite Heqremove_a_Y.
-        eapply in_set_filter_intro;
-        try assumption.
-        intros x y Hxy.
-        f_equal.
-        case_eq (eqP a x);
-        case_eq (eqP a y);
-        intros Hx Hy.
-        reflexivity.
-        rewrite (trnP _ _ _ Hy Hxy) in Hx;
-        congruence.
-        apply symP in Hxy.
-        rewrite (trnP _ _ _ Hx Hxy) in Hy;
-        congruence.
-        reflexivity.
-        split.
-        case_eq (eqP a b);
-        intro Hx.
-        apply symP in Hx.
-        rewrite Hx in Hg;
-        congruence.
-        reflexivity.
-        exact Hf.
-      +++
-        intros b Hf.
-        simpl in Hf.
-        case_eq (eqP b a);
-        case_eq (in_set eqP remove_a_Y b);
-        intros Hg Hh.
-        apply symP in Hh.
-        eapply in_set_right_congruence;
-        try assumption.
-        exact Hh.
-        exact He.
-        apply symP in Hh.
-        eapply in_set_right_congruence;
-        try assumption.
-        exact Hh.
-        exact He.
-        eapply in_set_true_false.
-        exact Hh.
-        exact He.
-        subst; exact Hg.
-        rewrite Hh, Hg in Hf;
-        simpl in Hf;
-        congruence.
-      *
+        left. apply refP.
+      
       assert(Hg : brel_set eqP X remove_a_Y = true).
-      rewrite Heqremove_a_Y.
-      eapply brel_set_filter;
-      try assumption.
+        rewrite Heqremove_a_Y.
+        eapply brel_set_filter;
+        try assumption.
+      (* Specialise the induction hypothesis *)
       pose proof IHx remove_a_Y p f fassoc fcom fcong Ha Hg as Hh.
       (* 
         I need to play with transitivity. 
@@ -1338,20 +1278,11 @@ Proof.
       exact fcong.
       exact Ha.
       exact He.
-      rewrite Heqremove_a_Y.
+      rewrite <-Heqremove_a_Y.
       eapply fcong.
-      remember ((fold_right f p 
-      (filter (λ x : P, negb (eqP a x)) Y))) as t.
-      case_eq (eqP t t);
-      intro Hi;
-      try reflexivity.
-      rewrite symP in Hi;
-      congruence.
-      eapply refP.
-      eapply refP.
+      all:eapply refP.
 Qed.
       
-
 (* Everything good upto here. *)
 
 
