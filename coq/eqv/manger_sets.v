@@ -1373,65 +1373,17 @@ Qed.
 
 
 
-
 Lemma eqv_over_second : 
   forall X Y : list (A * P), 
   X =S= Y -> 
   brel_set eqP (List.map snd X) (List.map snd Y) = true.
 Proof.
   intros ? ? Ha.
-  apply brel_set_elim_prop in Ha;
-  [|apply symAP| apply trnAP].
-  apply brel_set_intro_prop;
-  try assumption.
-  destruct Ha as [Hal Har].
-  split.
-  +
-    generalize dependent Y.
-    induction X as [|(ax, bx) X IHx];
-    simpl.
-    ++
-      intros ? Ha Hb ? Hc.
-      congruence.
-    ++
-      intros ? Ha Hb ? Hc.
-      case_eq (in_set eqP (map snd X) a);
-      case_eq (eqP a bx);
-      intros Hd He.
-      +++
-        pose proof Ha (ax, bx) as Hf.
-        simpl in Hf.
-        rewrite refA, refP in Hf.
-        simpl in Hf.
-        specialize (Hf eq_refl).
-        eapply map_in_set.
-        eapply refA.
-        exact Hd.
-        exact Hf.
-      +++
-        
+  pose proof  in_set_left_congruence_v2 _ 
+    _ symAP trnAP X Y Ha as Hb.
 
-      
 Admitted.
 
-
-
-Lemma addp_cong : 
-  ∀ x w v : P, 
-  eqP w v = true → 
-  eqP (addP x w) (addP x v) = true.
-Proof.
-  intros ? ? ? Ha.
-  eapply cong_addP.
-  +
-    case_eq (eqP x x);
-    intro Hb;
-    try reflexivity.
-    rewrite symP in Hb;
-    congruence.
-  +
-    exact Ha.
-Qed.
 
 
 Lemma fold_left_congruence : 
@@ -1470,7 +1422,9 @@ Proof.
     admit.
     (* commutative *)
     admit.
-    admit.
+    intros ? ? ? ? Hxy Hwv;
+    eapply cong_addP;
+    try assumption.
     admit.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
@@ -1500,7 +1454,9 @@ Proof.
     admit.
     (* commutative *)
     admit.
-    admit.
+    intros ? ? ? ? Hxy Hwv;
+    eapply cong_addP;
+    try assumption.
     admit.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
