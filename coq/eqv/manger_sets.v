@@ -1378,10 +1378,40 @@ Lemma eqv_over_second :
   X =S= Y -> 
   brel_set eqP (List.map snd X) (List.map snd Y) = true.
 Proof.
-  intros ? ? Ha.
-  pose proof  in_set_left_congruence_v2 _ 
-    _ symAP trnAP X Y Ha as Hb.
-
+  induction X as [|(ax, bx) X IHx];
+  simpl.
+  + intros ? Ha.
+    eapply brel_set_nil  in Ha.
+    rewrite Ha;
+    subst;
+    reflexivity.
+  +
+    intros ? Ha.
+    simpl.
+    case (in_set (brel_product eqA eqP) X (ax, bx)) eqn:Hb.
+    ++
+      assert (Hc : X =S= (ax, bx) :: 
+        filter (fun p => negb 
+        ((brel_product eqA eqP) p (ax, bx))) Y).
+      admit.
+      remember (filter (λ p : A * P, 
+        negb (brel_product eqA eqP p (ax, bx))) Y) as Yrem.
+      pose proof IHx ((ax, bx) :: Yrem) Hc as Hd.
+      eapply brel_set_transitive with (bx :: map snd Yrem);
+      try assumption.
+      simpl in * |- *.
+      (*
+        (ax, bx) [in] X  
+        brel_set eqP (bx :: map snd X) (map snd X).
+      
+      *)
+      assert (He : brel_set eqP 
+        (bx :: map snd X) (map snd X) = true).
+      admit.
+      eapply brel_set_transitive;
+      try assumption.
+      exact He.
+      exact Hd.
 Admitted.
 
 
@@ -1469,6 +1499,7 @@ Proof.
     admit.
     inversion Hd.
 Admitted.
+
 
 
 (* generalise this one *)
