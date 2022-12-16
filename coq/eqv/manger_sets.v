@@ -1338,31 +1338,39 @@ Proof.
 Qed.
 
 Lemma map_in_set :
-  forall (X : list (A * P)) (au : A)
+  forall (X : list (A * P)) (au av : A)
   (bu bv : P), 
+  eqA au av = true ->
   eqP bu bv = true ->
-  (au, bv) [in] X ->
+  (av, bv) [in] X ->
+  in_set eqA (map fst X) au = true ∧
   in_set eqP (map snd X) bu = true.
 Proof.
-    induction X as [|(ux, vx) X IHx];
-    simpl.
-    +
-      intros ? ? ? Ha Hb.
-      congruence.
-    +
-      intros ? ? ? Ha Hb.
+  induction X as [|(ux, vx) X IHx];
+  simpl.
+  +
+    intros ? ? ? ? Ha Hb Hc.
+    congruence.
+  +
+    intros ? ? ? ? Ha Hb Hc.
+    eapply bop_or_elim in Hc.
+    split.
+    ++ 
       eapply bop_or_intro.
-      eapply bop_or_elim in Hb.
-      destruct Hb as [Hb | Hb].
-      left. 
-      eapply bop_and_elim in Hb.
-      exact (trnP _ _ _ Ha (snd Hb)).
+      destruct Hc as [Hc | Hc].
+      eapply bop_and_elim in Hc.
+      firstorder.
       right.
-      eapply IHx; 
-      try assumption.
-      exact Ha.
-      exact Hb.
-Qed. 
+      exact (proj1 (IHx _ _ _ _ Ha Hb Hc)).
+    ++
+      eapply bop_or_intro.
+      destruct Hc as [Hc | Hc].
+      eapply bop_and_elim in Hc.
+      left. firstorder.
+      right.
+      exact (proj2 (IHx _ _ _ _ Ha Hb Hc)).
+Qed.
+
 
 
 
@@ -1397,9 +1405,11 @@ Proof.
         simpl in Hf.
         specialize (Hf eq_refl).
         eapply map_in_set.
+        eapply refA.
         exact Hd.
         exact Hf.
       +++
+        
 
       
 Admitted.
