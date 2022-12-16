@@ -1321,31 +1321,6 @@ Qed.
 (* Everything good upto here. *)
 
 
-
-
-
-
-       
-
-
-(* 
-Another challenge and it needs 
-idempotence on addP
-
-[(1, 2); (1, 3); (1, 2)] =S= 
-[(1, 2); (1, 3)]
-
-To make the life easier, I can turn 
-the first list 
-[(1, 2); (1, 3); (1, 2)] =S= 
-[(1, 2); (1, 2); (1, 3)]
-
-Now when I reduce, the first two will be
-[(1, 2); (1, 3)] -> 
-[(1, 2 + 3)]
-
-*)
-
 Lemma fold_left_simp : 
   forall (X : list (A * P))
     (pa : A) (pb : P),
@@ -1362,6 +1337,34 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma map_in_set :
+  forall (X : list (A * P)) (au : A)
+  (bu bv : P), 
+  eqP bu bv = true ->
+  (au, bv) [in] X ->
+  in_set eqP (map snd X) bu = true.
+Proof.
+    induction X as [|(ux, vx) X IHx];
+    simpl.
+    +
+      intros ? ? ? Ha Hb.
+      congruence.
+    +
+      intros ? ? ? Ha Hb.
+      eapply bop_or_intro.
+      eapply bop_or_elim in Hb.
+      destruct Hb as [Hb | Hb].
+      left. 
+      eapply bop_and_elim in Hb.
+      exact (trnP _ _ _ Ha (snd Hb)).
+      right.
+      eapply IHx; 
+      try assumption.
+      exact Ha.
+      exact Hb.
+Qed. 
+
+
 
 Lemma eqv_over_second : 
   forall X Y : list (A * P), 
@@ -1375,8 +1378,30 @@ Proof.
   try assumption.
   destruct Ha as [Hal Har].
   split.
-  + admit.
-  + admit.
+  +
+    generalize dependent Y.
+    induction X as [|(ax, bx) X IHx];
+    simpl.
+    ++
+      intros ? Ha Hb ? Hc.
+      congruence.
+    ++
+      intros ? Ha Hb ? Hc.
+      case_eq (in_set eqP (map snd X) a);
+      case_eq (eqP a bx);
+      intros Hd He.
+      +++
+        pose proof Ha (ax, bx) as Hf.
+        simpl in Hf.
+        rewrite refA, refP in Hf.
+        simpl in Hf.
+        specialize (Hf eq_refl).
+        eapply map_in_set.
+        exact Hd.
+        exact Hf.
+      +++
+
+      
 Admitted.
 
 
@@ -1431,8 +1456,12 @@ Proof.
     repeat rewrite fold_symmetric;
     try assumption.
     eapply fold_right_congruence.
-    eapply addp_cong.
-    exact idemP.
+    (* associative *)
+    admit.
+    (* commutative *)
+    admit.
+    admit.
+    admit.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
     eapply refAP.
@@ -1457,8 +1486,12 @@ Proof.
     exact Hdr.
     repeat rewrite fold_symmetric.
     eapply fold_right_congruence.
-    eapply addp_cong.
-    exact idemP.
+     (* associative *)
+    admit.
+    (* commutative *)
+    admit.
+    admit.
+    admit.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
     eapply refAP.
