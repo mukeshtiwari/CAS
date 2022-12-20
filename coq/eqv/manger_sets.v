@@ -1373,6 +1373,42 @@ Qed.
 
 
 
+Lemma eqv_over_second_simp : 
+  forall X Y : list (A * P), 
+  X =S= Y -> 
+  brel_set eqP (List.map snd X) (List.map snd Y) = true.
+Proof.
+  intros ? ? Ha.
+  eapply brel_set_intro_prop;
+  try assumption.
+  eapply brel_set_elim_prop in Ha.
+  destruct Ha as [Ha Hb].
+  split.
+  +
+    intros ? Hc.
+    (* Check if X is empty or not *)
+    destruct X as [|(ax, bx) X];
+    simpl.
+    ++
+      simpl in Hc;
+      congruence.
+    ++
+      simpl in Hc.
+      (* Can be done without induction! *)
+      admit.
+
+  +
+    intros ? Hc.
+    admit.
+Admitted.
+
+
+(*
+This turned out to be more tricky than 
+I anticipated because now I can't 
+do case analysis
+*)
+
 Lemma eqv_over_second : 
   forall X Y : list (A * P), 
   X =S= Y -> 
@@ -1387,32 +1423,21 @@ Proof.
     reflexivity.
   +
     intros ? Ha.
-    simpl.
-    case (in_set (brel_product eqA eqP) X (ax, bx)) eqn:Hb.
-    ++
-      assert (Hc : X =S= (ax, bx) :: 
-        filter (fun p => negb 
-        ((brel_product eqA eqP) p (ax, bx))) Y).
-      admit.
-      remember (filter (λ p : A * P, 
-        negb (brel_product eqA eqP p (ax, bx))) Y) as Yrem.
-      pose proof IHx ((ax, bx) :: Yrem) Hc as Hd.
-      eapply brel_set_transitive with (bx :: map snd Yrem);
-      try assumption.
-      simpl in * |- *.
-      (*
-        (ax, bx) [in] X  
-        brel_set eqP (bx :: map snd X) (map snd X).
-      
-      *)
-      assert (He : brel_set eqP 
-        (bx :: map snd X) (map snd X) = true).
-      admit.
-      eapply brel_set_transitive;
-      try assumption.
-      exact He.
-      exact Hd.
+    (* 
+      remove all (ax, bx) from X
+    *)
+    remember (filter (λ p : A * P, 
+      negb (brel_product eqA eqP p (ax, bx))) X) as Xrem.
+    assert (Hb : (ax, bx) :: X =S= (ax, bx) :: Xrem).
+    (* 
+      but what do I get from this? 
+    *)
+    admit.
+
 Admitted.
+        
+
+
 
 
 
