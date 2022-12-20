@@ -1320,7 +1320,7 @@ Proof.
       all:eapply refP.
 Qed.
       
-(* Everything good upto here. *)
+
 
 
 Lemma fold_left_simp : 
@@ -1449,6 +1449,136 @@ Proof.
 Qed.
 
 
+
+Lemma membship_filter : 
+  forall (Y X : list (A * P)) (ax : A)
+  (bx : P),
+  (ax, bx) :: X =S= Y ->
+  Y =S= (ax, bx) :: 
+  filter (λ p : A * P, 
+  negb (brel_product eqA eqP p (ax, bx))) Y.
+Proof.
+  intros ? ? ? ? Ha.
+  eapply brel_set_intro_prop;
+  try assumption.
+  eapply refAP.
+  eapply brel_set_elim_prop in Ha;
+  [|apply symAP | apply trnAP].
+  destruct Ha as [Hal Har].
+  split.
+  +
+    intros (au, av) Hb.
+    apply in_set_cons_intro;
+    [apply symAP |].
+    case_eq (eqP bx av);
+    case_eq (eqA ax au);
+    intros Hc Hd.
+    ++
+      left.
+      eapply brel_product_intro;
+      try assumption.
+    ++
+      right.
+      eapply in_set_filter_intro;
+      [eapply symAP | eapply bop_neg_bProp_product_cong |].
+      split.
+      eapply Bool.negb_true_iff.
+      unfold brel_product.
+      apply symP in Hd.
+      rewrite Hd.
+      assert (He : eqA au ax = false).
+      case_eq (eqA au ax); intro Hf.
+      apply symA in Hf.
+      rewrite Hf in Hc;
+      congruence.
+      reflexivity.
+      rewrite He.
+      compute;
+      reflexivity.
+      exact Hb.
+    ++
+      right.
+      eapply in_set_filter_intro;
+      [eapply symAP | eapply bop_neg_bProp_product_cong |].
+      split.
+      eapply Bool.negb_true_iff.
+      unfold brel_product.
+      apply symA in Hc.
+      rewrite Hc.
+      assert (He : eqP av bx = false).
+      case_eq (eqP av bx); intro Hf.
+      apply symP in Hf.
+      rewrite Hf in Hd;
+      congruence.
+      reflexivity.
+      rewrite He.
+      compute;
+      reflexivity.
+      exact Hb.
+    ++
+      right.
+      eapply in_set_filter_intro;
+      [eapply symAP | eapply bop_neg_bProp_product_cong |].
+      split.
+      eapply Bool.negb_true_iff.
+      unfold brel_product.
+      assert (He : eqA au ax = false).
+      case_eq (eqA au ax); intro Hf.
+      apply symA in Hf.
+      rewrite Hf in Hc;
+      congruence.
+      reflexivity.
+      rewrite He.
+      compute;
+      reflexivity.
+      exact Hb.
+  +
+    intros (au, av) Hb.
+    apply in_set_cons_elim in Hb;
+    [|apply symAP].
+    case_eq (eqP bx av);
+    case_eq (eqA ax au);
+    intros Hc Hd.
+    ++
+      eapply Hal.
+      eapply in_set_cons_intro;
+      [eapply symAP |].
+      left.
+      unfold brel_product.
+      rewrite Hc, Hd;
+      compute; reflexivity.
+    ++
+      destruct Hb as [Hb | Hb].
+      eapply brel_product_elim in Hb.
+      destruct Hb as [Hb _].
+      rewrite Hb in Hc;
+      congruence.
+      eapply in_set_filter_elim in Hb.
+      exact (snd Hb).
+      eapply bop_neg_bProp_product_cong.
+    ++
+      destruct Hb as [Hb | Hb].
+      eapply brel_product_elim in Hb.
+      destruct Hb as [_ Hb].
+      rewrite Hb in Hd;
+      congruence.
+      eapply in_set_filter_elim in Hb.
+      exact (snd Hb).
+      eapply bop_neg_bProp_product_cong.
+    ++
+      destruct Hb as [Hb | Hb].
+      eapply brel_product_elim in Hb.
+      destruct Hb as [_ Hb].
+      rewrite Hb in Hd;
+      congruence.
+      eapply in_set_filter_elim in Hb.
+      exact (snd Hb).
+      eapply bop_neg_bProp_product_cong.
+Qed.
+
+(* Everything good upto here. *)
+
+
 (*
 This turned out to be more tricky than 
 I anticipated because now I can't 
@@ -1491,17 +1621,9 @@ Proof.
     remember (filter (λ p : A * P, 
       negb (brel_product eqA eqP p (ax, bx))) Y) as Yrem.
     assert (Hc : Y =S= (ax, bx) :: Yrem).
-    (* 
-      Why ? 
-      Ha: (ax, bx) :: Xt =S= Y
-      HeqYrem: Yrem =
-          filter (λ p : A * P, 
-          negb (brel_product eqA eqP p (ax, bx))) Y
-      Y contains (ax, bx) while Yrem does not 
-
-    *)
-    admit.
-
+    rewrite HeqYrem.
+    eapply membship_filter;
+    exact Ha.
     assert (Hd : Xrem =S= Yrem).
     rewrite HeqXrem, HeqYrem.
     eapply filter_congruence_gen;
