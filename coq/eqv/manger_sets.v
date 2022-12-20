@@ -175,6 +175,7 @@ Variables (A P : Type)
           (cong_addP : bop_congruence P eqP addP) 
           (cong_lteA : brel_congruence A eqA lteA)
           (cong_eqP : brel_congruence P eqP eqP)
+          (cong_eqA : brel_congruence A eqA eqA)
           (ref_lteA : brel_reflexive A lteA)
           (* is idemP really needed, or is it 
              a consequence of using lists to represent sets?
@@ -1416,9 +1417,13 @@ Proof.
   destruct Ha as [Hal Har].
   eapply brel_product_congruence with 
     (rS := eqA) (rT := eqP).
-  admit.
+  eapply cong_eqA.
   eapply cong_eqP.
-Admitted.
+  apply brel_product_intro;
+  [exact Hal | exact Har].
+  apply brel_product_intro;
+  [apply refA | apply refP].
+Qed.
 
 
 
@@ -1443,11 +1448,14 @@ Proof.
       nia.
 Qed.
 
+
 (*
 This turned out to be more tricky than 
 I anticipated because now I can't 
 do case analysis
 *)
+
+(* Relation for well founded induction *)
 Definition zwf (xs ys : list (A * P)) : Prop :=
   (List.length xs < List.length ys)%nat.
 
@@ -1483,8 +1491,15 @@ Proof.
     remember (filter (λ p : A * P, 
       negb (brel_product eqA eqP p (ax, bx))) Y) as Yrem.
     assert (Hc : Y =S= (ax, bx) :: Yrem).
-    rewrite HeqYrem.
-    rewrite <-Hb in Ha.
+    (* 
+      Why ? 
+      Ha: (ax, bx) :: Xt =S= Y
+      HeqYrem: Yrem =
+          filter (λ p : A * P, 
+          negb (brel_product eqA eqP p (ax, bx))) Y
+      Y contains (ax, bx) while Yrem does not 
+
+    *)
     admit.
 
     assert (Hd : Xrem =S= Yrem).
@@ -1505,19 +1520,23 @@ Proof.
     simpl.
     eapply length_filter.
     specialize (Fn Xrem He Yrem Hd) as Hf.
-    (* Here comes transitivity 
+    (* 
+      Here comes tricky transitivity 
     *)
     eapply brel_set_transitive with (bx :: map snd Yrem);
     try assumption.
     eapply brel_set_transitive with (bx :: (map snd Xrem));
     try assumption.
     (* 
-      looks easy 
+      looks easy but lengthy! Prove it 
+      as a separate lemma
     *)
     admit.
     (* congruence from Hf. Looks easy *)
     admit.
     (* This one looks tricky *)
+    
+    
 
 
 Admitted.
