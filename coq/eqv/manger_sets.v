@@ -1394,7 +1394,7 @@ Proof.
       congruence.
     ++
       simpl in Hc.
-      (* Can be done without induction! *)
+      (* Can't be done without induction! *)
       admit.
 
   +
@@ -1403,40 +1403,86 @@ Proof.
 Admitted.
 
 
+Lemma bop_neg_bProp_product_cong : 
+  forall (ax : A) (bx : P),
+  theory.bProp_congruence (A * P) (brel_product eqA eqP)
+  (λ p : A * P, negb (brel_product eqA eqP p (ax, bx))).
+Proof.
+Admitted.
+
 (*
 This turned out to be more tricky than 
 I anticipated because now I can't 
 do case analysis
 *)
+Definition zwf (xs ys : list (A * P)) : Prop :=
+  (List.length xs < List.length ys)%nat.
+
+Lemma zwf_well_founded : well_founded zwf.
+Proof.
+  exact (Wf_nat.well_founded_ltof _ 
+    (fun x => List.length x)).
+Defined.
 
 Lemma eqv_over_second : 
   forall X Y : list (A * P), 
   X =S= Y -> 
   brel_set eqP (List.map snd X) (List.map snd Y) = true.
 Proof.
-  induction X as [|(ax, bx) X IHx];
-  simpl.
-  + intros ? Ha.
+  intro X.
+  refine ((fix Fn xs (Hacc : (Acc zwf xs)) {struct Hacc} := _) X _).
+  intros ? Ha.
+  refine (match xs as xsp return xs = xsp -> _ with 
+  | [] => _ 
+  | (ax, bx) :: Xt => _ 
+  end eq_refl); intros Hb.
+  +
+    rewrite Hb in Ha.
+    simpl.
     eapply brel_set_nil  in Ha.
     rewrite Ha;
-    subst;
+    compute; 
     reflexivity.
   +
-    intros ? Ha.
-    (* 
-      remove all (ax, bx) from X
-    *)
+    (* Induction case that involves 
+      some tricky transitivity *)
+    simpl.
+    rewrite Hb in Ha.
+    (* get rid of (ax, bx) from Xt *)
     remember (filter (λ p : A * P, 
-      negb (brel_product eqA eqP p (ax, bx))) X) as Xrem.
-    assert (Hb : (ax, bx) :: X =S= (ax, bx) :: Xrem).
-    (* 
-      but what do I get from this? 
-    *)
+      negb (brel_product eqA eqP p (ax, bx))) xs) as Xrem.
+    (* get rid of all (ax, bx) from Y *)
+    remember (filter (λ p : A * P, 
+      negb (brel_product eqA eqP p (ax, bx))) Y) as Yrem.
+    assert (Hc : Y =S= (ax, bx) :: Yrem).
+    rewrite HeqYrem.
+    rewrite <-Hb in Ha.
     admit.
 
-Admitted.
-        
+    assert (Hd : Xrem =S= Yrem).
+    rewrite HeqXrem, HeqYrem.
+    eapply filter_congruence_gen;
+    try assumption.
+    eapply bop_neg_bProp_product_cong;
+    try assumption.
+    rewrite <-Hb in Ha;
+    exact Ha.
+    assert (He : Acc zwf Xrem).
+    admit.
+    specialize (Fn Xrem He Yrem Hd) as Hf.
+    (* Here comes transitivity 
+      Goal: 
 
+    *)
+    eapply brel_set_transitive with (bx :: map snd Yrem);
+    try assumption.
+    eapply brel_set_transitive with (bx :: (map snd Xrem));
+    try assumption.
+
+Admitted.
+
+    
+    
 
 
 
