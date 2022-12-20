@@ -1,4 +1,5 @@
-Require Import Coq.Lists.List.
+Require Import Coq.Lists.List
+  Psatz.
 Require Import CAS.coq.common.compute.
 
 Require Import CAS.coq.theory.set. (* for in_set lemmas *) 
@@ -1372,7 +1373,7 @@ Proof.
 Qed.
 
 
-
+(* We can't avoid induction 
 Lemma eqv_over_second_simp : 
   forall X Y : list (A * P), 
   X =S= Y -> 
@@ -1401,6 +1402,7 @@ Proof.
     intros ? Hc.
     admit.
 Admitted.
+*)
 
 
 Lemma bop_neg_bProp_product_cong : 
@@ -1408,7 +1410,38 @@ Lemma bop_neg_bProp_product_cong :
   theory.bProp_congruence (A * P) (brel_product eqA eqP)
   (λ p : A * P, negb (brel_product eqA eqP p (ax, bx))).
 Proof.
+  intros ax bx (ap, aq) (bp, bq) Ha.
+  apply f_equal.
+  apply brel_product_elim in Ha.
+  destruct Ha as [Hal Har].
+  eapply brel_product_congruence with 
+    (rS := eqA) (rT := eqP).
+  admit.
+  eapply cong_eqP.
 Admitted.
+
+
+
+Lemma length_filter {T : Type} : 
+  forall (X : list T) (f : T -> bool),
+  (length (filter f X) < S (length X))%nat.
+Proof.
+  induction X as [| ax X IHx];
+  simpl.
+  +
+    intros ?.
+    nia.
+  +
+    intros ?.
+    destruct (f ax);
+    simpl.
+    ++
+      specialize (IHx f).
+      nia.
+    ++
+      specialize (IHx f).
+      nia.
+Qed.
 
 (*
 This turned out to be more tricky than 
@@ -1418,11 +1451,6 @@ do case analysis
 Definition zwf (xs ys : list (A * P)) : Prop :=
   (List.length xs < List.length ys)%nat.
 
-Lemma zwf_well_founded : well_founded zwf.
-Proof.
-  exact (Wf_nat.well_founded_ltof _ 
-    (fun x => List.length x)).
-Defined.
 
 Lemma eqv_over_second : 
   forall X Y : list (A * P), 
@@ -1468,16 +1496,29 @@ Proof.
     rewrite <-Hb in Ha;
     exact Ha.
     assert (He : Acc zwf Xrem).
-    admit.
+    eapply Acc_inv with xs;
+    try assumption.
+    unfold zwf.
+    rewrite HeqXrem, Hb;
+    simpl.
+    rewrite refA, refP;
+    simpl.
+    eapply length_filter.
     specialize (Fn Xrem He Yrem Hd) as Hf.
     (* Here comes transitivity 
-      Goal: 
-
     *)
     eapply brel_set_transitive with (bx :: map snd Yrem);
     try assumption.
     eapply brel_set_transitive with (bx :: (map snd Xrem));
     try assumption.
+    (* 
+      looks easy 
+    *)
+    admit.
+    (* congruence from Hf. Looks easy *)
+    admit.
+    (* This one looks tricky *)
+
 
 Admitted.
 
