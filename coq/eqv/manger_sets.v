@@ -1546,8 +1546,6 @@ Proof.
       eapply bop_neg_bProp_product_cong.
 Qed.
 
-(* Everything good upto here. *)
-
 
 Lemma map_snd_filter_membership_true : 
   forall (X : list (A * P)) (ax : A) (bx : P),
@@ -1800,6 +1798,55 @@ Proof.
     exact Ha.
 Qed.
 
+
+
+
+
+Lemma duplicate_an_element : 
+  forall (Y Xt : list (A * P)) (ax : A)
+  (bx : P),
+  (ax, bx) :: Xt =S= Y ->
+  brel_set eqP (map snd Y) (bx :: map snd Y) = true.
+Proof.
+    intros ? ? ? ? Ha.
+    eapply brel_set_intro_prop;
+    try assumption.
+    eapply brel_set_elim_prop in Ha;
+    [|eapply symAP| eapply trnAP].
+    split.
+    +
+      intros ? Hb.
+      eapply in_set_cons_intro;
+      try assumption.
+      right; exact Hb.
+    +
+      intros ? Hb.
+      eapply in_set_cons_elim in Hb;
+      try assumption.
+      destruct Hb as [Hb | Hb].
+      ++
+        eapply in_set_right_congruence with bx;
+        try assumption.
+        destruct Ha as [Hal Har].
+        pose proof Hal (ax, bx) as Hw.
+        assert (Hv : (ax, bx) [in] (ax, bx) :: Xt).
+        apply in_set_cons_intro;
+        [eapply symAP | left].
+        compute.
+        rewrite refA, refP;
+        reflexivity.
+        specialize (Hw Hv).
+        eapply map_in_set in Hw.
+        destruct Hw as [Hwl Hwr].
+        exact Hwr.
+        apply refA.
+        apply refP.
+      ++
+        exact Hb.
+Qed.
+
+
+
 (*
 This turned out to be more tricky than 
 I anticipated because now I can't 
@@ -1810,6 +1857,12 @@ do case analysis
 Definition zwf (xs ys : list (A * P)) : Prop :=
   (List.length xs < List.length ys)%nat.
 
+
+Lemma zwf_well_founded : well_founded zwf.
+Proof.
+    exact (Wf_nat.well_founded_ltof _ 
+      (fun x => List.length x)).
+Defined.
 
 Lemma eqv_over_second : 
   forall X Y : list (A * P), 
@@ -1907,18 +1960,22 @@ Proof.
         eapply Hfr;
         exact Hg.
     ++
+      eapply brel_set_symmetric.
+      (* duplicate a 'bx' in Y *)
+      assert (Hg : brel_set eqP (map snd Y) 
+        (bx :: map snd Y) = true).
+      eapply duplicate_an_element;
+      exact Ha.
+      eapply brel_set_transitive with (bx :: map snd Y);
+      try assumption.
       rewrite HeqYrem.
-
-      
-
-
-
-Admitted.
-
-    
-    
+      eapply brel_set_filter_product.
+    + 
+      eapply zwf_well_founded.
+Qed.
 
 
+ (* Everything good upto here. *) 
 
 
 Lemma fold_left_congruence : 
