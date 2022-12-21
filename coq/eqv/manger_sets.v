@@ -1374,36 +1374,6 @@ Proof.
 Qed.
 
 
-(* We can't avoid induction 
-Lemma eqv_over_second_simp : 
-  forall X Y : list (A * P), 
-  X =S= Y -> 
-  brel_set eqP (List.map snd X) (List.map snd Y) = true.
-Proof.
-  intros ? ? Ha.
-  eapply brel_set_intro_prop;
-  try assumption.
-  eapply brel_set_elim_prop in Ha.
-  destruct Ha as [Ha Hb].
-  split.
-  +
-    intros ? Hc.
-    (* Check if X is empty or not *)
-    destruct X as [|(ax, bx) X];
-    simpl.
-    ++
-      simpl in Hc;
-      congruence.
-    ++
-      simpl in Hc.
-      (* Can't be done without induction! *)
-      admit.
-
-  +
-    intros ? Hc.
-    admit.
-Admitted.
-*)
 
 
 Lemma bop_neg_bProp_product_cong : 
@@ -1579,6 +1549,257 @@ Qed.
 (* Everything good upto here. *)
 
 
+Lemma map_snd_filter_membership_true : 
+  forall (X : list (A * P)) (ax : A) (bx : P),
+  in_set eqP 
+    (map snd (filter (λ (p : A * P), 
+      negb (brel_product eqA eqP p (ax, bx))) X)) bx = true ->
+    in_set eqP (map snd X) bx = true.
+Proof.
+  induction X as [|(au, av) X IHx];
+  simpl.
+  +
+    intros ? ? Ha;
+    congruence.
+  +
+    intros ? ? Ha.
+    case_eq ((eqP av bx));
+    case_eq ((eqA au ax));
+    intros Hb Hc;
+    rewrite Hb, Hc in Ha;
+    simpl in Ha.
+    ++
+      apply symP in Hc.
+      rewrite Hc;
+      compute;
+      reflexivity.
+    ++
+      apply symP in Hc.
+      rewrite Hc;
+      compute;
+      reflexivity.
+    ++
+      assert (Hd : eqP bx av = false).
+      case_eq (eqP bx av); intros Hf.
+      apply symP in Hf;
+      rewrite Hf in Hc;
+      congruence.
+      reflexivity.
+      rewrite Hd in Ha |- *.
+      simpl in * |- *.
+      eapply IHx; exact Ha.
+    ++
+      assert (Hd : eqP bx av = false).
+      case_eq (eqP bx av); intros Hf.
+      apply symP in Hf;
+      rewrite Hf in Hc;
+      congruence.
+      reflexivity.
+      rewrite Hd in Ha |- *.
+      simpl in * |- *.
+      eapply IHx; exact Ha.
+Qed.
+
+
+
+Lemma in_set_filter_map_true_snd_forward : 
+  forall (X : list (A * P)) (ax : A) (a bx : P),
+  eqP bx a = false ->
+  in_set eqP (map snd X) a = true ->
+  in_set eqP
+  (map snd (filter (λ p : A * P, 
+    negb (brel_product eqA eqP p (ax, bx))) X)) a = true.
+Proof.
+  induction X as [|(au, av) X IHx];
+  simpl.
+  +
+    intros ? ? ? Ha Hb.
+    congruence.
+  +
+    intros ? ? ? Ha Hb.
+    case_eq (in_set eqP (map snd X) a);
+    case_eq (eqP a av); 
+    intros Hc Hd; 
+    rewrite Hc, Hd in Hb.
+    ++
+      simpl.
+      case_eq ((eqP av bx));
+      case_eq (eqA au ax);
+      intros He Hf;
+      simpl.
+      *
+        rewrite (symP _ _ (trnP _ _ _ Hc Hf)) in Ha;
+        congruence.
+      *
+        rewrite Hc;
+        compute;
+        reflexivity.
+      *
+        rewrite Hc;
+        compute;
+        reflexivity.
+      *
+        rewrite Hc; 
+        compute;
+        reflexivity.
+    ++
+      case_eq ((eqP av bx));
+      case_eq (eqA au ax);
+      intros He Hf;
+      simpl.
+      *
+        (* Induction Hypothesis *)
+        eapply IHx;
+        try assumption.
+      *
+        rewrite Hc;
+        simpl.
+        eapply IHx;
+        try assumption.
+      *
+        rewrite Hc;
+        simpl.
+        eapply IHx;
+        try assumption.
+      *
+        rewrite Hc;
+        simpl.
+        eapply IHx;
+        try assumption.
+      ++
+        case_eq ((eqP av bx));
+        case_eq (eqA au ax);
+        intros He Hf;
+        simpl.
+        *
+          rewrite (symP _ _ (trnP _ _ _ Hc Hf)) in Ha;
+          congruence.
+        *
+          rewrite Hc;
+          compute; 
+          reflexivity.
+        *
+          rewrite Hc;
+          compute; 
+          reflexivity.
+        * 
+          rewrite Hc;
+          compute; 
+          reflexivity.
+      ++
+        simpl in Hb; 
+        congruence.
+Qed.
+
+
+
+Lemma in_set_filter_map_true_snd_backward : 
+  forall (X : list (A * P)) (ax : A) (a bx : P),
+  eqP bx a = false ->
+  in_set eqP
+  (map snd (filter (λ p : A * P, 
+    negb (brel_product eqA eqP p (ax, bx))) X)) a = true ->
+  in_set eqP (map snd X) a = true. 
+Proof.
+  induction X as [|(au, av) X IHx];
+  simpl.
+  +
+    intros ? ? ? Ha Hb;
+    congruence.
+  +
+    intros ? ? ? Ha Hb.
+    case_eq (eqP av bx);
+    case_eq (eqA au ax);
+    intros Hc Hd;
+    rewrite Hc, Hd in Hb;
+    simpl in Hb.
+    ++
+      eapply bop_or_intro.
+      right.
+      eapply IHx; 
+      try assumption.
+      exact Ha.
+      exact Hb.
+    ++
+      eapply bop_or_elim in Hb.
+      eapply bop_or_intro.
+      destruct Hb as [Hb | Hb].
+      left. exact Hb.
+      right.
+      eapply IHx;
+      try assumption.
+      exact Ha.
+      exact Hb.
+    ++
+      eapply bop_or_elim in Hb.
+      eapply bop_or_intro.
+      destruct Hb as [Hb | Hb].
+      left. exact Hb.
+      right.
+      eapply IHx;
+      try assumption.
+      exact Ha.
+      exact Hb.
+    ++
+      eapply bop_or_elim in Hb.
+      eapply bop_or_intro.
+      destruct Hb as [Hb | Hb].
+      left. exact Hb.
+      right.
+      eapply IHx;
+      try assumption.
+      exact Ha.
+      exact Hb.
+Qed.
+
+
+
+Lemma brel_set_filter_product : 
+  forall (X : list (A * P)) (ax : A)
+  (bx : P),
+  brel_set eqP (bx :: map snd X)
+  (bx :: map snd (filter
+    (λ (p : A * P), 
+      negb (brel_product eqA eqP p (ax, bx))) X)) = true.
+Proof.
+  intros ? ? ?.
+  eapply brel_set_intro_prop;
+  try assumption.
+  split.
+  +
+    intros ? Ha.
+    eapply in_set_cons_elim in Ha;
+    try assumption.
+    eapply in_set_cons_intro;
+    try assumption.
+    case_eq (eqP bx a);
+    intros Hb.
+    left; exact eq_refl.
+    right.
+    destruct Ha as [Ha | Ha].
+    rewrite Ha in Hb;
+    congruence.
+    eapply in_set_filter_map_true_snd_forward;
+    try assumption.
+  +
+    intros ? Ha.
+    eapply in_set_cons_elim in Ha;
+    try assumption.
+    eapply in_set_cons_intro;
+    try assumption.
+    case_eq (eqP bx a);
+    intros Hb.
+    left; reflexivity.
+    right.
+    destruct Ha as [Ha | Ha].
+    rewrite Ha in Hb.
+    congruence.
+    eapply in_set_filter_map_true_snd_backward;
+    try assumption.
+    exact Hb.
+    exact Ha.
+Qed.
+
 (*
 This turned out to be more tricky than 
 I anticipated because now I can't 
@@ -1649,16 +1870,47 @@ Proof.
     try assumption.
     eapply brel_set_transitive with (bx :: (map snd Xrem));
     try assumption.
-    (* 
-      looks easy but lengthy! Prove it 
-      as a separate lemma
-    *)
-    admit.
-    (* congruence from Hf. Looks easy *)
-    admit.
-    (* This one looks tricky *)
-    
-    
+    ++
+      rewrite HeqXrem.
+      rewrite Hb;
+      simpl.
+      rewrite refA, refP;
+      simpl.
+      eapply brel_set_filter_product.
+    ++
+      eapply brel_set_intro_prop;
+      try assumption.
+      eapply brel_set_elim_prop in Hf;
+      try assumption.
+      destruct Hf as [Hfl Hfr].
+      split.
+      +++
+        intros a Hg.
+        eapply in_set_cons_elim in Hg;
+        try assumption.
+        eapply in_set_cons_intro; 
+        try assumption.
+        destruct Hg as [Hg | Hg].
+        left; exact Hg.
+        right.
+        eapply Hfl;
+        exact Hg.
+      +++
+        intros a Hg.
+        eapply in_set_cons_elim in Hg;
+        try assumption.
+        eapply in_set_cons_intro; 
+        try assumption.
+        destruct Hg as [Hg | Hg].
+        left; exact Hg.
+        right.
+        eapply Hfr;
+        exact Hg.
+    ++
+      rewrite HeqYrem.
+
+      
+
 
 
 Admitted.
