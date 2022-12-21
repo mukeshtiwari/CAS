@@ -180,7 +180,13 @@ Variables (A P : Type)
           (* is idemP really needed, or is it 
              a consequence of using lists to represent sets?
           *) 
-          (idemP : bop_idempotent P eqP addP). 
+          (idemP : bop_idempotent P eqP addP)
+          (* Extra assumptions needed to prove the lemmas fold_left congruence *)
+          (addP_assoc : bop_associative P eqP addP)
+          (addP_com : bop_commutative P eqP addP)
+          (addP_cong : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true)
+          (addP_assoc_cong : ∀ x y z : P, addP x (addP y z) = addP (addP x y) z)
+          (addP_com_cong : ∀ x y : P, addP x y = addP y x).
 
 
 Local Notation "a [in] X" := (in_set (brel_product eqA eqP) X a = true) (at level 70).
@@ -799,7 +805,87 @@ Proof.
       apply Fcong.
   Qed. 
 
+Lemma negb_eqP_congruence : 
+  forall a : P,
+  theory.bProp_congruence P 
+    eqP (λ x : P, negb (eqP a x)).
+Proof.
+  intros ? x y Hx.
+  f_equal.
+  case_eq (eqP a x);
+  case_eq (eqP a y);
+  intros Ha Hb;
+  try reflexivity.
+  rewrite (trnP _ _ _ Hb Hx) in Ha;
+  congruence.
+  apply symP in Hx.
+  rewrite (trnP _ _ _ Ha Hx) in Hb;
+  congruence.
+Qed.
 
+
+Lemma bop_neg_bProp_product_cong : 
+  forall (ax : A) (bx : P),
+  theory.bProp_congruence (A * P) (brel_product eqA eqP)
+  (λ p : A * P, negb (brel_product eqA eqP p (ax, bx))).
+Proof.
+  intros ax bx (ap, aq) (bp, bq) Ha.
+  apply f_equal.
+  apply brel_product_elim in Ha.
+  destruct Ha as [Hal Har].
+  eapply brel_product_congruence with 
+    (rS := eqA) (rT := eqP).
+  eapply cong_eqA.
+  eapply cong_eqP.
+  apply brel_product_intro;
+  [exact Hal | exact Har].
+  apply brel_product_intro;
+  [apply refA | apply refP].
+Qed.
+
+
+Lemma bop_theory_bProp_congruence_negb : 
+  forall (pa : A), 
+  theory.bProp_congruence _ 
+    (brel_product eqA eqP)
+    (λ '(s2, _), negb (eqA pa s2)).
+Proof.
+  intros ?.
+  unfold theory.bProp_congruence.
+  intros (aa, ap) (ba, bp) He.
+  f_equal.
+  apply brel_product_elim in He.
+  destruct He as [Hel Her].
+  case_eq (eqA pa aa); intro Hf.
+  rewrite (trnA pa aa ba Hf Hel);
+  reflexivity.
+  case_eq (eqA pa ba); intro Hg.
+  apply symA in Hel.
+  rewrite (trnA pa ba aa Hg Hel) in Hf;
+  congruence.
+  reflexivity.
+Qed.
+
+Lemma bop_congruence_bProp_eqA : 
+  forall (pa : A),
+  theory.bProp_congruence _ 
+        (brel_product eqA eqP)
+        (λ '(s2, _), eqA pa s2).
+Proof.
+  intros pa.
+  unfold theory.bProp_congruence.
+  intros (aa, ap) (ba, bp) He.
+  apply brel_product_elim in He.
+  destruct He as [Hel Her].
+  case_eq (eqA pa aa); intro Hf.
+  rewrite (trnA pa aa ba Hf Hel);
+  reflexivity.
+  case_eq (eqA pa ba); intro Hg.
+  apply symA in Hel.
+  rewrite (trnA pa ba aa Hg Hel) in Hf;
+  congruence.
+  reflexivity.
+Qed.
 
 Lemma manger_merge_set_new_aux_congruence_left :
   ∀ X Y pa, 
@@ -818,36 +904,13 @@ Proof.
   + assert (He : theory.bProp_congruence _ 
       (brel_product eqA eqP)
       (λ '(s2, _), negb (eqA pa s2))).
-    unfold theory.bProp_congruence.
-    intros (aa, ap) (ba, bp) He.
-    f_equal.
-    apply brel_product_elim in He.
-    destruct He as [Hel Her].
-    case_eq (eqA pa aa); intro Hf.
-    rewrite (trnA pa aa ba Hf Hel);
-    reflexivity.
-    case_eq (eqA pa ba); intro Hg.
-    apply symA in Hel.
-    rewrite (trnA pa ba aa Hg Hel) in Hf;
-    congruence.
-    reflexivity.
+    eapply bop_theory_bProp_congruence_negb.
     eapply filter_congruence_gen;
     [exact He | exact Ha].
   + assert (He : theory.bProp_congruence _ 
       (brel_product eqA eqP)
       (λ '(s2, _), eqA pa s2)).
-    unfold theory.bProp_congruence.
-    intros (aa, ap) (ba, bp) He.
-    apply brel_product_elim in He.
-    destruct He as [Hel Her].
-    case_eq (eqA pa aa); intro Hf.
-    rewrite (trnA pa aa ba Hf Hel);
-    reflexivity.
-    case_eq (eqA pa ba); intro Hg.
-    apply symA in Hel.
-    rewrite (trnA pa ba aa Hg Hel) in Hf;
-    congruence.
-    reflexivity.
+    eapply bop_congruence_bProp_eqA.
     eapply filter_congruence_gen;
     [exact He | exact Ha].
 Qed.
@@ -939,22 +1002,7 @@ Proof.
 Qed.
 
 
-Lemma negb_eqP_congruence : 
-  forall a : P,
-  theory.bProp_congruence P eqP (λ x : P, negb (eqP a x)).
-Proof.
-  intros ? x y Hx.
-  f_equal.
-  case_eq (eqP a x);
-  case_eq (eqP a y);
-  intros Ha Hb;
-  try reflexivity.
-  rewrite (trnP _ _ _ Hb Hx) in Ha;
-  congruence.
-  apply symP in Hx.
-  rewrite (trnP _ _ _ Ha Hx) in Hb;
-  congruence.
-Qed.
+
 
 
 Lemma in_set_true_false : 
@@ -1375,25 +1423,6 @@ Qed.
 
 
 
-
-Lemma bop_neg_bProp_product_cong : 
-  forall (ax : A) (bx : P),
-  theory.bProp_congruence (A * P) (brel_product eqA eqP)
-  (λ p : A * P, negb (brel_product eqA eqP p (ax, bx))).
-Proof.
-  intros ax bx (ap, aq) (bp, bq) Ha.
-  apply f_equal.
-  apply brel_product_elim in Ha.
-  destruct Ha as [Hal Har].
-  eapply brel_product_congruence with 
-    (rS := eqA) (rT := eqP).
-  eapply cong_eqA.
-  eapply cong_eqP.
-  apply brel_product_intro;
-  [exact Hal | exact Har].
-  apply brel_product_intro;
-  [apply refA | apply refP].
-Qed.
 
 
 
@@ -1975,7 +2004,6 @@ Proof.
 Qed.
 
 
- (* Everything good upto here. *) 
 
 
 Lemma fold_left_congruence : 
@@ -2010,23 +2038,21 @@ Proof.
     repeat rewrite fold_symmetric;
     try assumption.
     eapply fold_right_congruence.
-    (* associative *)
-    admit.
-    (* commutative *)
-    admit.
+    intros ? ? ?.
+    eapply symP.
+    eapply addP_assoc.
+    eapply addP_com.
     intros ? ? ? ? Hxy Hwv;
     eapply cong_addP;
     try assumption.
-    admit.
+    exact addP_cong.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
     eapply refAP.
     split; assumption.
-    (* We need addP to associative and commutative *)
-    admit.
-    admit.
-    admit.
-    admit.
+    intros ?.
+    eapply addP_com_cong.
+    eapply addP_com_cong.
     inversion Hd.
   + 
     intros (au, pu) Hd.
@@ -2042,25 +2068,24 @@ Proof.
     exact Hdr.
     repeat rewrite fold_symmetric.
     eapply fold_right_congruence.
-     (* associative *)
-    admit.
-    (* commutative *)
-    admit.
+    intros ? ? ?;
+    eapply symP;
+    eapply addP_assoc.
+    exact addP_com.
     intros ? ? ? ? Hxy Hwv;
     eapply cong_addP;
     try assumption.
-    admit.
+    exact addP_cong.
     apply eqv_over_second.
     eapply brel_set_intro_prop.
     eapply refAP.
     split; assumption.
-    (* We need addP to associative and commutative *)
-    admit.
-    admit.
-    admit.
-    admit.
+    eapply addP_assoc_cong.
+    eapply addP_com_cong.
+    eapply addP_assoc_cong.
+    eapply addP_com_cong.
     inversion Hd.
-Admitted.
+Qed.
 
 
 
