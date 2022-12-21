@@ -1880,34 +1880,31 @@ Qed.
 This turned out to be more tricky than 
 I anticipated because now I can't 
 do case analysis
+
+Key to prove this lemma is staging a tricky 
+induction principal that decreases on both components X and Y, 
+contrary to structural induction. In addition, 
+it also requires some key insight about transitivity. This 
+equality is very difficult, yet fun at the same time, to 
+work with. 
 *)
-
-(* Relation for well founded induction *)
-Definition zwf (xs ys : list (A * P)) : Prop :=
-  (List.length xs < List.length ys)%nat.
-
-
-Lemma zwf_well_founded : well_founded zwf.
-Proof.
-    exact (Wf_nat.well_founded_ltof _ 
-      (fun x => List.length x)).
-Defined.
-
-Lemma eqv_over_second : 
+Lemma map_preservs_equivalence_on_second : 
   forall X Y : list (A * P), 
   X =S= Y -> 
   brel_set eqP (List.map snd X) (List.map snd Y) = true.
 Proof.
   intro X.
-  refine ((fix Fn xs (Hacc : (Acc zwf xs)) {struct Hacc} := _) X _).
+  refine ((fix Fn xs 
+    (Hacc : (Acc (fun x y => 
+      (List.length x < List.length y)%nat) xs)) 
+    {struct Hacc} := _) X _).
   intros ? Ha.
   refine (match xs as xsp return xs = xsp -> _ with 
   | [] => _ 
   | (ax, bx) :: Xt => _ 
-  end eq_refl); intros Hb.
+  end eq_refl); simpl; intros Hb.
   +
     rewrite Hb in Ha.
-    simpl.
     eapply brel_set_nil  in Ha.
     rewrite Ha;
     compute; 
@@ -1915,7 +1912,6 @@ Proof.
   +
     (* Induction case that involves 
       some tricky transitivity *)
-    simpl.
     rewrite Hb in Ha.
     (* get rid of (ax, bx) from Xt *)
     remember (filter (λ p : A * P, 
@@ -1935,10 +1931,11 @@ Proof.
     try assumption.
     rewrite <-Hb in Ha;
     exact Ha.
-    assert (He : Acc zwf Xrem).
+    assert (He : Acc (fun x y => 
+      (List.length x < List.length y)%nat) Xrem).
     eapply Acc_inv with xs;
     try assumption.
-    unfold zwf.
+   
     rewrite HeqXrem, Hb;
     simpl.
     rewrite refA, refP;
@@ -1999,8 +1996,9 @@ Proof.
       try assumption.
       rewrite HeqYrem.
       eapply brel_set_filter_product.
-    + 
-      eapply zwf_well_founded.
+    +
+      eapply (Wf_nat.well_founded_ltof _ 
+        (fun x => List.length x)).
 Qed.
 
 
@@ -2046,7 +2044,7 @@ Proof.
     eapply cong_addP;
     try assumption.
     exact addP_cong.
-    apply eqv_over_second.
+    apply map_preservs_equivalence_on_second.
     eapply brel_set_intro_prop.
     eapply refAP.
     split; assumption.
@@ -2076,7 +2074,7 @@ Proof.
     eapply cong_addP;
     try assumption.
     exact addP_cong.
-    apply eqv_over_second.
+    apply map_preservs_equivalence_on_second.
     eapply brel_set_intro_prop.
     eapply refAP.
     split; assumption.
