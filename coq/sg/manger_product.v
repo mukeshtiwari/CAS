@@ -5,11 +5,13 @@ Require Import CAS.coq.common.compute.
 
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.product.
+Require Import CAS.coq.eqv.set.
 Require Import CAS.coq.eqv.manger_sets. 
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.lift.
-Require Import CAS.coq.sg.product. 
+Require Import CAS.coq.sg.product.
+Require Import CAS.coq.sg.reduce. 
 
 (* for testing *)
 Require Import CAS.coq.sg.manger_llex.
@@ -119,24 +121,119 @@ Variables  (A P : Type)
            (eqP : brel P)            
            (addP : binary_op P)
            (mulA : binary_op A)
-           (mulP : binary_op P).
+           (mulP : binary_op P)
+           (refA : brel_reflexive A eqA)
+           (refP : brel_reflexive P eqP).
 
+Local Notation "[EQP0]" :=  (brel_set (brel_product eqA eqP)).
+Local Notation "[EQP1]" :=  (equal_manger_phase_1 eqA eqP addP). 
+Local Notation "[MP1]" :=  (uop_manger_phase_1 eqA addP).
+Local Notation "[MPP0]" :=  (manger_product_phase_0 eqA eqP mulA mulP).
+Local Notation "[MPP1]" :=  (manger_product_phase_1 eqA eqP addP mulA mulP).
 Local Notation "[MP]" := (bop_manger_product eqA lteA eqP addP mulA mulP). 
 Local Notation "[MR]" := (@uop_manger_phase_2 A P lteA).
 Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP).
 
-
 (*
+  Variable r_left  : bop_left_uop_invariant S eqS (bop_reduce r b) r.  (* eqS (r (b (r s1) s2)) (r (b s1 s2))  = true. *)
 bop_left_uop_invariant = 
-λ (S : Type) (eq0 : brel S) (b : binary_op S) (r : unary_op S),
-  ∀ s1 s2 : S, eq0 (b (r s1) s2) (b s1 s2) = true
-     : ∀ S : Type, brel S → binary_op S → unary_op S → Prop
-*) 
-Lemma bop_manger_product_left_uop_invariant : 
-    bop_left_uop_invariant _ [EQ]  [MP] [MR]. 
+λ (S : Type) (eq0 : brel S) (b : binary_op S) (r : unary_op S), ∀ s1 s2 : S, eq0 (b (r s1) s2) (b s1 s2) = true
+
+eq0 (b (r s1) s2) (b s1 s2) = true
+ 
+
+Lemma test0 : bop_left_uop_invariant _ [EQP0] [MPP0] [MP1].
+ *)
+Print bop_left_uop_invariant.
+
+Lemma test0_left (a : A) (p : P) : ∀ X Y, 
+  set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] ([MP1] X) Y)) (a, p) = true -> 
+  set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] X Y)) (a, p) = true.
+Proof. intros X Y H1.
+(*
+      MP1 {(a1, b1), (a1, b2), (a3, b3)} x {(a4, b4)}
+       =
+      MP1 {(a1a4, b1b4), (a1a4, b2b4), (a3a4, b3b4)}
+       =
+      MP1 {(a1a4, b1b4+b2b4), (a3a4, b3b4)}
+      = (if a1a4 = a3a4) 
+      {(a1a4, b1b4+b2b4 + b3b4)}
+        
+vs 
+     MP1 (MP1 {(a1, b1), (a1, b2), (a3, b3)}) x {(a4, b4)}
+     =
+     MP1 ({(a1, b1+b2), (a3, b3)}) x {(a4, b4)}
+     =
+     MP1 {(a1a4, (b1+b2)b4), (a3a4, b3b4)}
+     =
+     MP1 {(a1a4, (b1+b2)b4), (a3a4, b3b4)}
+      = (if a1a4 = a3a4) 
+     {(a1a4, (b1+b2)b4 + b3b4)}
+ *)
+
+Lemma test0_right (a : A) (p : P) : ∀ X Y, 
+    set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] X Y)) (a, p) = true -> 
+  set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] ([MP1] X) Y)) (a, p) = true.
+Admitted. 
+
+Lemma test0 : bop_left_uop_invariant _ [EQP0] [MPP1] [MP1].
+Proof. (* [EQP0] ([MPP1] ([MP1] X) Y) ([MPP1] X Y) = true *)
+         intros X Y.
+         unfold manger_product_phase_1.
+         unfold bop_reduce.
+         (* [EQP0] ([MP1] ([MPP0] ([MP1] X) Y)) ([MP1] ([MPP0] X Y)) = true *)
+         apply brel_set_intro_prop. 
+         - apply refAP; auto. 
+         - split; intros [a p] H1. 
+           + apply test0_left; auto. 
+           + apply test0_right; auto. 
+Qed.
+
+
+Proof. 
+       intro X; induction X; intro Y.
+       - 
+         (*   [EQP0] ([MPP0] nil Y) ([MPP0] nil Y) = true *)
+         admit.
+       - (* [EQP0] ([MPP0] ([MP1] (a :: X)) Y) ([MPP0] (a :: X) Y) = true *) 
+         unfold uop_manger_phase_1.
+         simpl. unfold manger_phase_1_auxiliary.
+         
+         admit.
 Admitted. 
 
 
+Lemma test1 : bop_left_uop_invariant _ [EQP0] [MPP0] [MP1].
+Proof. intros X Y. unfold manger_product_phase_0.
+       (* [EQP0] ([MPP0] ([MP1] X) Y) ([MPP0] X Y) = true *)
+
+
+
+       
+       intro X; induction X; intro Y.
+       - unfold uop_manger_phase_1. simpl.
+         (*   [EQP0] ([MPP0] nil Y) ([MPP0] nil Y) = true *)
+         admit.
+       - (* [EQP0] ([MPP0] ([MP1] (a :: X)) Y) ([MPP0] (a :: X) Y) = true *) 
+         unfold uop_manger_phase_1.
+         simpl. unfold manger_phase_1_auxiliary.
+         
+         admit.
+Admitted. 
+
+Lemma bop_manger_product_left_uop_invariant : 
+    bop_left_uop_invariant _ [EQP1]  [MP] [MR]. 
+Proof. intros X Y. unfold bop_manger_product.
+       unfold bop_reduce.
+       unfold equal_manger_phase_1.
+       unfold manger_product_phase_1.
+       unfold bop_reduce.
+       (*
+         [EQP0] ([MP1] ([MR]        ([MPP1] ([MR] X) Y)))  ([MP1] ([MR] ([MPP1] X Y)))
+         [EQP0] ([MP1] ([MR] ([MP1] ([MPP0] ([MR] X) Y)))) ([MP1] ([MR] ([MP1] ([MPP0] X Y))))
+
+        *) 
+Admitted. 
 Lemma bop_manger_product_right_uop_invariant : 
     bop_right_uop_invariant _ [EQ]  [MP] [MR]. 
 Admitted. 

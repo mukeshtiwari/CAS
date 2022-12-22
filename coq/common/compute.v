@@ -150,9 +150,6 @@ Definition brel_or_sym : ∀ {S : Type}, brel S -> brel S
 := λ {S} r x y,  (r x y) || (r y x). 
 
 
-Definition brel_reduce : ∀ {S : Type}, brel S → unary_op S → brel S
-:= λ {S} r u x y,  r (u x) (u y). 
-
 
 (* brel2 *) 
 
@@ -244,22 +241,6 @@ Definition bop_concat : ∀ {S : Type}, binary_op (list S) := λ {S} x y,  x ++ 
 
 Definition bop_then_unary : ∀ {S : Type} (u : unary_op S) (b : binary_op S), binary_op S 
 := λ {S} u b x y,  u (b x y). 
-
-(*
-Definition bop_reduce : ∀ {S : Type} (u : unary_op S) (b : binary_op S), binary_op S 
-  := λ {S} u b x y,  u (b (u x) (u y)).
-*) 
-
-Definition bop_reduce {S : Type} (r : unary_op S) (b : binary_op S) : binary_op S
-  := λ x y,  r (b x y).
-
-Definition bop_reduce_args {S : Type} (r : unary_op S) (b : binary_op S) : binary_op S
-  := λ x y,  b (r x) (r y).   
-
-Definition bop_full_reduce {S : Type} (r : unary_op S) (b : binary_op S) : binary_op S
-  := λ x y,  r(b (r x) (r y)).   
-
-
 
 Definition ltran_list_product : ∀ {S : Type} (bs : binary_op S), ltr_type S (list S) 
 := fix f {S} bs a y := 
