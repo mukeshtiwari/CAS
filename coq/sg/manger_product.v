@@ -20,6 +20,8 @@ Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.plus.
 Require Import CAS.coq.po.from_sg. 
 
+
+(*
 Section Computation.
 
 
@@ -170,7 +172,7 @@ vs
       = (if a1a4 = a3a4) 
      {(a1a4, (b1+b2)b4 + b3b4)}
  *)
-
+Admitted. 
 Lemma test0_right (a : A) (p : P) : ∀ X Y, 
     set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] X Y)) (a, p) = true -> 
   set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] ([MP1] X) Y)) (a, p) = true.
@@ -189,7 +191,7 @@ Proof. (* [EQP0] ([MPP1] ([MP1] X) Y) ([MPP1] X Y) = true *)
            + apply test0_right; auto. 
 Qed.
 
-
+(*
 Proof. 
        intro X; induction X; intro Y.
        - 
@@ -201,16 +203,12 @@ Proof.
          
          admit.
 Admitted. 
-
+*) 
 
 Lemma test1 : bop_left_uop_invariant _ [EQP0] [MPP0] [MP1].
 Proof. intros X Y. unfold manger_product_phase_0.
        (* [EQP0] ([MPP0] ([MP1] X) Y) ([MPP0] X Y) = true *)
-
-
-
-       
-       intro X; induction X; intro Y.
+(*       intro X; induction X; intro Y.
        - unfold uop_manger_phase_1. simpl.
          (*   [EQP0] ([MPP0] nil Y) ([MPP0] nil Y) = true *)
          admit.
@@ -218,7 +216,8 @@ Proof. intros X Y. unfold manger_product_phase_0.
          unfold uop_manger_phase_1.
          simpl. unfold manger_phase_1_auxiliary.
          
-         admit.
+         admit. 
+*)
 Admitted. 
 
 Lemma bop_manger_product_left_uop_invariant : 
@@ -242,3 +241,4 @@ Admitted.
 End Theory.  
 
 
+*) 

@@ -164,16 +164,6 @@ Open Scope list_scope.
 
 Definition uop_not : unary_op bool := λ b, if b then false else true.  
 
-Definition uop_id : ∀ {S : Type}, (unary_op S) := λ {S} s, s.  
-
-
-Definition uop_with_constant : ∀ {S : Type}, unary_op S → unary_op (with_constant S)
-:= λ {S} g x ,  
-      match x with
-         | (inl _) => x 
-         | (inr s) => inr _ (g s) 
-      end.
-
 Definition uop_list_map : ∀ {S : Type}, unary_op S → unary_op (list S) 
 := λ {S} f,  
   fix map (l : list S) : list S :=
@@ -181,20 +171,6 @@ Definition uop_list_map : ∀ {S : Type}, unary_op S → unary_op (list S)
   | nil => nil
   | a :: t => f a :: map t
   end. 
-
-Definition uop_product : ∀ {S T : Type}, unary_op S → unary_op T → unary_op (S * T) 
-:= λ {S} {T} f g p,  
-   match p with
-    | (s, t) => (f s, g t) 
-   end.
-
-Definition uop_sum : ∀ {S T : Type}, unary_op S → unary_op T → unary_op (S + T)
-:= λ {S} {T} f g x ,  
-      match x with
-         | (inl s) => inl _ (f s)
-         | (inr t) => inr _ (g t) 
-      end.
-
 
 (* copied here from Coq.Lists.List.v    
    so that extraction does not construct a 

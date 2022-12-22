@@ -235,13 +235,13 @@ Proof.
            * admit. (* OK *)
            * assert (H3 := tmp _ eqA _ _ _ _ H2 H1).
              destruct H3 as [[[[X1 X2] Y1] Y2] [H3 H4]].
-             apply fold_left_app in H3.
-             THINK! 
+             admit. 
+Admitted. 
 (*
 fold_left_app: 
 ∀ (A B : Type) (f : A → B → A) (l l' : list B) (i : A),
     fold_left f (l ++ l') i = fold_left f l' (fold_left f l i)
-*) 
+
 Lemma fold_right_set_congruence 
   (A : Type)
   (eqA : brel A)
@@ -255,13 +255,13 @@ Lemma fold_right_set_congruence
       (brel_set eqA X Y = true) ->
         eqA (fold_right b a X) (fold_right b a Y) = true.
 Proof. intros a X Y H1.
-       assert (H2 := fold_left_set_congruence A eqA b a X Y H1).
+       assert (H2 := fold_left_set_congruence A eqA b refA X Y a H1).
        assert (H3 := fold_symmetric_with_equality A eqA b refA symA trnA assoc comm X a). 
        assert (H4 := fold_symmetric_with_equality A eqA b refA symA trnA assoc comm Y a).
        apply symA in H3.
        exact (trnA _ _ _ H3 (trnA _ _ _ H2 H4)).
 Qed. 
-       
+*)        
      Definition sum_fn
                {V : Type}               
                {R : Type}
@@ -270,7 +270,7 @@ Qed.
                (f : V -> R)
                (row : list V) : R := fold_right plusR zeroR (map f row). 
 
-
+(*
   Lemma sum_fn_set_congruence
     (A : Type)
     (eqA : brel A)
@@ -289,4 +289,4 @@ Qed.
          apply (fold_right_set_congruence _ eqA plus).
          apply (map_set_congruence _ _ eqA eqA f g); auto.
   Qed.          
- 
+ *) 

@@ -140,6 +140,10 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
+   coq/uop/product.v \
+   coq/uop/left_sum.v \
+   coq/uop/right_sum.v \
+   coq/uop/commutative_composition.v \
    coq/algorithms/dijkstra/general.v \
    coq/algorithms/list_congruences.v \
    coq/algorithms/matrix_definition.v \
