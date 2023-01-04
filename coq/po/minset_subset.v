@@ -4,7 +4,8 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures. 
 Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.eqv.set.
-Require Import CAS.coq.eqv.minset. 
+Require Import CAS.coq.eqv.minset.
+Require Import CAS.coq.eqv.reduce. 
 
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
@@ -52,7 +53,7 @@ Qed.
 Lemma brel_minset_subset_antisymmetric : brel_antisymmetric (finite_set S) (brel_minset eq lte) (brel_minset_subset eq lte). 
 Proof. intros x y H1 H2.
        unfold brel_minset_subset in H1, H2.
-       unfold brel_minset. 
+       unfold brel_minset, brel_reduce.
        unfold brel_set. unfold brel_and_sym.
        rewrite H1, H2. auto.
 Defined.

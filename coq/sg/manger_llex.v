@@ -253,7 +253,7 @@ Section Theory.
   Lemma P2_right : bop_right_uop_invariant _ eqSAP (bop_reduce [P2] bSAP) [P2].
   Admitted.
 
-  (* Now, show that the two reductions commute! *) 
+  (* Now, show that the two reductions commute! I hope this is true! *) 
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
   Admitted.
 
@@ -299,91 +299,89 @@ Section Theory.
   Admitted.          
 
 
-  Lemma uop_manger_is_reduction : uop_is_bop_reduction eqSAP bSAP uop_manger.
+  Lemma uop_manger_is_reduction : bop_uop_invariant eqSAP bSAP uop_manger.
   Proof. apply uop_compose_is_reduction.
-         - apply symSAP. 
-         - apply trnSAP. 
-         - apply P1_cong. 
-         - apply P1_left. 
-         - apply P1_right. 
-         - apply P2_cong. 
-         - apply P2_left. 
-         - apply P2_right. 
-         - apply P1_P2_commute. 
+         - exact symSAP. 
+         - exact trnSAP. 
+         - exact P1_cong. 
+         - exact P1_left. 
+         - exact P1_right. 
+         - exact P2_cong. 
+         - exact P2_left. 
+         - exact P2_right. 
+         - exact P1_P2_commute. 
   Qed. 
 
   Lemma bop_manger_congruence :
     bop_congruence _ eq_manger bop_manger.
   Proof. apply uop_compose_bop_congruence. 
-         - apply symSAP. 
-         - apply trnSAP.
-         - apply bSAP_cong. 
-         - apply P1_cong.
-         - apply P1_idem. 
-         - apply P1_left. 
-         - apply P1_right. 
-         - apply P2_cong.
-         - apply P2_idem. 
-         - apply P2_left. 
-         - apply P2_right. 
-         - apply P1_P2_commute. 
+         - exact symSAP. 
+         - exact trnSAP.
+         - exact bSAP_cong. 
+         - exact P1_cong.
+         - exact P1_left. 
+         - exact P1_right. 
+         - exact P2_cong.
+         - exact P2_left. 
+         - exact P2_right. 
+         - exact P1_P2_commute. 
   Qed. 
 
   Lemma bop_manger_associative :
     bop_associative _ eq_manger bop_manger.
   Proof. apply uop_compose_bop_associative.
-         - apply refSAP.          
-         - apply symSAP. 
-         - apply trnSAP.
-         - apply bSAP_cong. 
-         - apply bSAP_associative.           
-         - apply P1_cong.
-         - apply P1_idem. 
-         - apply P1_left. 
-         - apply P1_right. 
-         - apply P2_cong.
-         - apply P2_idem. 
-         - apply P2_left. 
-         - apply P2_right. 
-         - apply P1_P2_commute. 
+         - exact refSAP.          
+         - exact symSAP. 
+         - exact trnSAP.
+         - exact bSAP_cong. 
+         - exact bSAP_associative.           
+         - exact P1_cong.
+         - exact P1_idem. 
+         - exact P1_left. 
+         - exact P1_right. 
+         - exact P2_cong.
+         - exact P2_idem. 
+         - exact P2_left. 
+         - exact P2_right. 
+         - exact P1_P2_commute. 
   Qed. 
 
     Lemma bop_manger_commutative :
     bop_commutative _ eq_manger bop_manger.
   Proof. apply uop_compose_bop_commutative.
-         - apply refSAP.          
-         - apply symSAP. 
-         - apply trnSAP.
-         - apply bSAP_cong. 
-         - apply P1_cong.
-         - apply P1_idem. 
-         - apply P1_left. 
-         - apply P1_right. 
-         - apply P2_cong.
-         - apply P2_idem. 
-         - apply P2_left. 
-         - apply P2_right. 
-         - apply P1_P2_commute.
-         - apply bSAP_commutative. 
+         - exact refSAP.          
+         - exact symSAP. 
+         - exact trnSAP.
+         - exact bSAP_cong. 
+         - exact P1_cong.
+         - exact P1_idem. 
+         - exact P1_left. 
+         - exact P1_right. 
+         - exact P2_cong.
+         - exact P2_idem. 
+         - exact P2_left. 
+         - exact P2_right. 
+         - exact P1_P2_commute.
+         - exact bSAP_commutative. 
   Qed. 
  
   Lemma bop_manger_idempotent :
     bop_idempotent _ eq_manger bop_manger.
   Proof. apply uop_compose_bop_idempotent.
-         - apply refSAP.          
-         - apply symSAP. 
-         - apply trnSAP.
-         - apply bSAP_cong. 
-         - apply P1_cong.
-         - apply P1_idem. 
-         - apply P1_left. 
-         - apply P1_right. 
-         - apply P2_cong.
-         - apply P2_idem. 
-         - apply P2_left. 
-         - apply P2_right. 
-         - apply P1_P2_commute.
-         - apply bSAP_idempotent. 
+         - exact refSAP.          
+         - exact symSAP. 
+         - exact trnSAP.
+         - exact bSAP_cong. 
+         - exact P1_cong.
+         - exact P1_idem. 
+         - exact P1_left. 
+         - exact P1_right. 
+         - exact P2_cong.
+         - exact P2_idem. 
+         - exact P2_left. 
+         - exact P2_right. 
+         - exact P1_P2_commute.
+         - exact bSAP_idempotent. 
   Qed. 
 
   Lemma bop_manger_not_selective :

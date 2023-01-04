@@ -230,7 +230,7 @@ Extraction "Cas.ml"
    mcas_bs_left
    mcas_bs_right
    mcas_minset_union_lift
-   mcas_minset_lift_union
+   (* mcas_minset_lift_union TGG: fix this! *) 
 (*
    mcas_left_sum_right_sum
    mcas_right_sum_left_sum  

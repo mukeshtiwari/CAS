@@ -543,6 +543,7 @@ Proof. intros s f Pf.
           apply refS. 
 Defined.
 
+(**** some useful lemmas ************) 
 Lemma bop_union_with_nil_left : ∀ (X : finite_set S), (nil [U] X) [=S] X. 
 Proof. intro X. 
        apply brel_set_intro. split. 
@@ -564,6 +565,33 @@ Proof. intro X.
        exact C. 
 Qed. 
 
+Lemma bop_union_cons_shift_left (X : finite_set S) (s : S) : ((s :: nil) [U] X)  [=S] (s :: X).
+Proof. apply brel_set_intro_prop; auto. split. 
+          intros t A. apply in_set_bop_union_elim in A; auto.
+          apply in_set_cons_intro; auto.
+          destruct A as [A | A].
+             apply in_set_singleton_elim in A; auto. 
+             right; auto.           
+          intros t A. apply in_set_bop_union_intro; auto.
+          apply in_set_cons_elim in A; auto.
+          destruct A as [A | A].
+             left. apply in_set_singleton_intro; auto. 
+             right; auto.           
+Qed.           
+
+Lemma bop_union_cons_shift_right (X : finite_set S) (s : S) : (X [U] (s :: nil) )  [=S] (s :: X).
+Proof. apply brel_set_intro_prop; auto. split. 
+          intros t A. apply in_set_bop_union_elim in A; auto.
+          apply in_set_cons_intro; auto.
+          destruct A as [A | A].
+             right; auto.           
+             apply in_set_singleton_elim in A; auto. 
+          intros t A. apply in_set_bop_union_intro; auto.
+          apply in_set_cons_elim in A; auto.
+          destruct A as [A | A].
+             right. apply in_set_singleton_intro; auto. 
+             left; auto. 
+Qed.           
 
 Lemma bop_union_shift_element (X Y : finite_set S) (s : S) :
   ((s :: Y) [U] X) [=S] (Y [U] (s :: X)). 
@@ -603,6 +631,29 @@ Proof. apply brel_set_intro_prop; auto; split; intros a A.
          ++ right. apply in_set_bop_union_intro; auto.
 Qed. 
 
+
+Lemma bop_union_two_singletons (s t : S) :
+  (s :: nil) [U] (t :: nil) [=S] (s :: t :: nil). 
+Proof. apply brel_set_intro; auto. split.
+       - apply brel_subset_intro; auto. 
+         intros u D. 
+         apply in_set_bop_union_elim in D; auto. 
+         apply in_set_cons_intro; auto.                 
+         destruct D as [D | D]. 
+         + left. apply in_set_cons_elim in D; auto.
+           destruct D as [D | D]; auto. 
+           * compute in D. discriminate D.
+         + right; auto.                    
+       - apply brel_subset_intro; auto. 
+         intros u D. 
+         apply in_set_cons_elim in D; auto. 
+         apply in_set_bop_union_intro; auto.                 
+         destruct D as [D | D]. 
+         + left. apply in_set_cons_intro; auto.
+         + right; auto. 
+Qed.
+
+(****************** id and ann ************************) 
 
 Lemma bop_union_nil_is_id : bop_is_id (finite_set S) (brel_set r) (bop_union r) nil.
 Proof. intro s. 

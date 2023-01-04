@@ -10,11 +10,14 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.eqv.set.
+Require Import CAS.coq.theory.set.
+Require Import CAS.coq.eqv.reduce. 
 Require Import CAS.coq.eqv.minset.
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.structures.
 Require Import CAS.coq.sg.union.
+Require Import CAS.coq.sg.reduce. 
 
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
@@ -29,38 +32,36 @@ Require Import CAS.coq.os.properties.
 Require Import CAS.coq.os.structures. 
 Require Import CAS.coq.os.theory. 
 
+Section Computation.
+  
+  Definition bop_minset_union {S : Type} (eqS lteS : brel S) : binary_op (finite_set S)
+  := bop_reduce (uop_minset lteS) (bop_union eqS). 
 
+End Computation. 
 
 Section Theory.
 
 Variable S  : Type. 
-Variable rS : brel S.
+Variable eqS : brel S.
 
 Variable wS : S.
 Variable f : S -> S.                
-Variable Pf : brel_not_trivial S rS f. 
+Variable Pf : brel_not_trivial S eqS f. 
 
-Variable congS : brel_congruence S rS rS. 
-Variable refS  : brel_reflexive S rS.
-Variable symS  : brel_symmetric S rS.  
-Variable tranS : brel_transitive S rS.
+Variable congS : brel_congruence S eqS eqS. 
+Variable refS  : brel_reflexive S eqS.
+Variable symS  : brel_symmetric S eqS.  
+Variable tranS : brel_transitive S eqS.
 
 
 (* NB: antisymmetry is not assumed! *) 
 Variable lteS : brel S.
-Variable lteCong : brel_congruence S rS lteS.
+Variable lteCong : brel_congruence S eqS lteS.
 Variable lteRefl : brel_reflexive S lteS.
 Variable lteTrans : brel_transitive S lteS. 
 
-
-
-Definition bop_minset_union : binary_op (finite_set S)
-  := λ X Y, uop_minset lteS (bop_union rS (uop_minset lteS X) (uop_minset lteS Y)). 
-
-
-
-Notation "a [=] b"  := (rS a b = true)          (at level 15).
-Notation "a [<>] b" := (rS a b = false)         (at level 15).
+Notation "a [=] b"  := (eqS a b = true)          (at level 15).
+Notation "a [<>] b" := (eqS a b = false)         (at level 15).
 Notation "a <<= b"  := (lteS a b = true)        (at level 15).
 Notation "a !<<= b" := (lteS a b = false)       (at level 15).
 
@@ -74,150 +75,43 @@ Notation "a [~|#] b"   := (equiv_or_incomp lteS b a = true) (at level 15).
 Notation "a [!~|#] b"   := (equiv_or_incomp lteS b a = false) (at level 15).
 
 
-Notation "a [in] b"  := (in_set rS b a = true)   (at level 15).
-Notation "a [!in] b" := (in_set rS b a = false)  (at level 15).
+Notation "[SEQ]" := (brel_set eqS).
+(*Notation "[MSEQ]" := (brel_reduce [SEQ] (uop_minset lteS)).*) 
+Notation "[MSEQ]" := (brel_minset eqS lteS). 
+Notation "[MSU]" := (bop_minset_union eqS lteS).
 
-Notation "a [=S] b"   := (brel_set rS a b = true)         (at level 15).
-Notation "a [<>S] b"  := (brel_set rS a b = false)        (at level 15).
-Notation "a [=MS] b"  := (brel_minset rS lteS a b = true)        (at level 15).
-Notation "a [<>MS] b" := (brel_minset rS lteS a b = false)       (at level 15).
-Notation "[ms] x" := (uop_minset lteS x) (at level 15).
+Notation "a [in] b"  := (in_set eqS b a = true)   (at level 15).
+Notation "a [!in] b" := (in_set eqS b a = false)  (at level 15).
 
-Notation "a [U] b" := (bop_union rS a b)         (at level 15).
-Notation "a <U> b" := (bop_minset_union a b)         (at level 15).
+Notation "a [=S] b"   := ([SEQ] a b = true)         (at level 15).
+Notation "a [<>S] b"  := ([SEQ] a b = false)        (at level 15).
+Notation "a [=MS] b"  := ([MSEQ] a b = true)        (at level 15).
+Notation "a [<>MS] b" := ([MSEQ] a b = false)       (at level 15).
+Notation "[ms] x"     := (uop_minset lteS x) (at level 15).
 
-Definition set_transitive := brel_set_transitive S rS refS symS tranS.
-Definition set_symmetric := brel_set_symmetric S rS.
-Definition set_reflexive := brel_set_reflexive S rS refS symS.
-Definition minset_idempotent := uop_minset_idempotent S rS refS symS tranS lteS lteCong lteRefl. 
-Definition minset_transitive := brel_minset_transitive S rS refS symS tranS lteS.
-Definition minset_symmetric := brel_minset_symmetric S rS lteS.
-Definition minset_reflexive := brel_minset_reflexive S rS refS symS lteS.
+Notation "a [U] b" := (bop_union eqS a b)         (at level 15).
+Notation "a <U> b" := (bop_minset_union eqS lteS a b)         (at level 15).
+
+Definition set_transitive := brel_set_transitive S eqS refS symS tranS.
+Definition set_symmetric := brel_set_symmetric S eqS.
+Definition set_reflexive := brel_set_reflexive S eqS refS symS.
+Definition minset_idempotent := uop_minset_idempotent S eqS refS symS tranS lteS lteCong lteRefl. 
+Definition minset_transitive := brel_minset_transitive S eqS refS symS tranS lteS.
+Definition minset_symmetric := brel_minset_symmetric S eqS lteS.
+Definition minset_reflexive := brel_minset_reflexive S eqS refS symS lteS.
 Definition uop_minset_congruence_weak := uop_minset_congruence_weak _ _ refS symS tranS lteS lteCong lteRefl lteTrans. 
-Definition uop_minset_congruence := uop_minset_congruence S rS refS symS tranS lteS lteCong.
-Definition brel_minset_congruence_weak := brel_minset_congruence_weak S rS refS symS tranS lteS lteCong lteRefl lteTrans.
-Definition brel_minset_congruence := brel_minset_congruence S rS refS symS tranS lteS lteCong lteRefl lteTrans.
+Definition uop_minset_congruence := uop_minset_congruence S eqS refS symS tranS lteS lteCong.
+Definition brel_minset_congruence_weak := brel_minset_congruence_weak S eqS refS symS tranS lteS lteCong lteRefl lteTrans.
+Definition brel_minset_congruence := brel_minset_congruence S eqS refS symS tranS lteS lteCong lteRefl lteTrans.
 Definition uop_minset_idempotent := uop_minset_idempotent _ _ refS symS tranS lteS lteCong lteRefl. 
 Definition bop_union_congruence := bop_union_congruence _ _ refS symS tranS.
 Definition bop_union_idempotent := bop_union_idempotent _ _ refS symS tranS.
 Definition bop_union_commutative := bop_union_commutative _ _ refS symS tranS.
 Definition bop_union_associative := bop_union_associative _ _ refS symS tranS.
-Definition set_equal_implies_minset_equal := set_equal_implies_minset_equal S rS refS symS tranS lteS lteCong lteRefl lteTrans.
-Definition brel_minset_transitive := brel_minset_transitive S rS refS symS tranS lteS.
-Definition uop_minset_is_antichain := uop_minset_is_antichain S rS refS symS lteS lteCong lteRefl.
-Definition fundamental_minset_theorem := fundamental_minset_theorem S rS refS symS tranS lteS lteCong lteTrans.
-
-
-Lemma bop_minset_union_congruence_weak : bop_congruence (finite_set S) (brel_set rS) bop_minset_union.
-Proof. unfold bop_congruence. intros X1 X2 Y1 Y2 A B.
-       unfold bop_minset_union.
-       assert (C := uop_minset_congruence_weak _ _ A).
-       assert (D := uop_minset_congruence_weak _ _ B).       
-       assert (E := bop_union_congruence _ _ _ _ C D).
-       apply set_equal_implies_minset_equal; auto. 
-Qed. 
-
-Lemma bop_minset_union_congruence : bop_congruence (finite_set S) (brel_minset rS lteS) bop_minset_union.
-Proof. unfold bop_congruence. intros X1 X2 Y1 Y2 A B.
-       unfold bop_minset_union.
-       unfold brel_minset in A, B. 
-       assert (C := bop_union_congruence _ _ _ _ A B).
-       assert (D := uop_minset_congruence_weak _ _ C).
-       unfold brel_minset. 
-       apply uop_minset_congruence_weak; auto. 
-Qed.
-
-Lemma minset_union_commutative_weak (X Y : finite_set S) : ([ms] (X [U] Y)) [=S] ([ms] (Y [U] X)). 
-Proof. assert (A : (X [U] Y) [=S] (Y [U] X)).
-          apply bop_union_commutative; auto. 
-       exact (uop_minset_congruence_weak _ _ A).
-Qed. 
-
-
-Lemma bop_minset_union_commutative : bop_commutative (finite_set S) (brel_minset rS lteS) bop_minset_union.
-Proof. intros X Y.
-       unfold bop_minset_union.
-       assert (A := minset_union_commutative_weak ([ms] X) ([ms] Y)).
-       apply set_equal_implies_minset_equal; auto. 
-Qed. 
-
-
-Lemma minset_union_left_uop_invariant_weak (X Y : finite_set S): [ms] (([ms] X) [U] Y) [=S] [ms] (X [U] Y). 
-Proof.   apply brel_set_intro_prop; auto. split. 
-            intros s A. 
-            apply in_minset_elim in A; auto. destruct A as [A B]. 
-            apply in_set_bop_union_elim in A; auto.             
-            destruct A as [A | A].
-               apply in_minset_elim in A; auto. destruct A as [A C]. 
-               apply in_minset_intro; auto. split. 
-                  apply in_set_bop_union_intro; auto. 
-                  intros t D. 
-                  apply in_set_bop_union_elim in D; auto. 
-                  destruct D as [D | D].
-                     apply C; auto. 
-                     apply B; auto. 
-                     apply in_set_bop_union_intro; auto.                         
-               apply in_minset_intro; auto. split. 
-                  apply in_set_bop_union_intro; auto. 
-                  intros t C.
-                  apply in_set_bop_union_elim in C; auto. 
-                  destruct C as [C | C]. 
-                     case_eq(in_set rS ([ms] X) t); intro D. 
-                        apply B; auto.                      
-                        apply in_set_bop_union_intro; auto.                         
-                        apply in_set_minset_false_elim in D; auto. 
-                        destruct D as [u [D E]]. 
-                        assert (F : u [in] (([ms] X) [U] Y)).
-                           apply in_set_bop_union_intro; auto. 
-                        assert (G := B _ F).
-                        case_eq(below lteS s t);intro H; auto. 
-                           assert (I := below_transitive _ _ lteTrans _ _ _ E H). 
-                           rewrite I in G. discriminate G.                            
-                     apply B; auto.                      
-                     apply in_set_bop_union_intro; auto. 
-
-            intros s A. 
-            apply in_minset_elim in A; auto. destruct A as [A B].
-            apply in_minset_intro; auto. split. 
-               apply in_set_bop_union_intro; auto. 
-               apply in_set_bop_union_elim in A; auto.
-               destruct A as [A| A].
-                  left. apply in_minset_intro; auto. split; auto. 
-                     intros t C. apply B. 
-                     apply in_set_bop_union_intro; auto. 
-                  right; auto. 
-               intros t C.
-               apply in_set_bop_union_elim in C; auto. 
-               destruct C as [C | C].                
-                  apply B. apply in_minset_elim in C; auto.
-                  destruct C as [C _].
-                  apply in_set_bop_union_intro; auto.                   
-                  apply B. apply in_set_bop_union_intro; auto.
-Qed. 
-                                                                         
-Lemma minset_union_left_uop_invariant (X Y : finite_set S): [ms] (([ms] X) [U] Y) [=MS] [ms] (X [U] Y). 
-Proof. assert (A := minset_union_left_uop_invariant_weak X Y).  apply set_equal_implies_minset_equal; auto. Qed.
-
-Lemma minset_union_right_uop_invariant_weak (X Y : finite_set S): [ms] (X [U] ([ms] Y)) [=S] [ms] (X [U] Y). 
-Proof. assert (A := bop_union_commutative X ([ms] Y)). 
-       assert (B := uop_minset_congruence_weak _ _ A).
-       assert (C :=  minset_union_left_uop_invariant_weak Y X).
-       assert (D := set_transitive _ _ _ B C).
-       assert (E := bop_union_commutative Y X).
-       assert (F := uop_minset_congruence_weak _ _ E).       
-       exact (set_transitive _ _ _ D F).
-Qed. 
-
-Lemma minset_union_right_uop_invariant (X Y : finite_set S): [ms] (X [U] ([ms] Y)) [=MS] [ms] (X [U] Y). 
-Proof. assert (A := minset_union_right_uop_invariant_weak X Y).  apply set_equal_implies_minset_equal; auto. Qed.
-
-Lemma minset_union_uop_invariant_weak (X Y : finite_set S): [ms] (([ms] X) [U] ([ms] Y)) [=S] [ms] (X [U] Y). 
-Proof.  assert (A : [ms] (([ms] X) [U] ([ms] Y)) [=S] [ms] (X [U] ([ms] Y))).
-           apply minset_union_left_uop_invariant_weak. 
-        assert (B : [ms] (X [U] ([ms] Y)) [=S] [ms] (X [U] Y)).
-           apply minset_union_right_uop_invariant_weak.
-        exact (set_transitive _ _ _ A B).
-Qed.
+Definition set_equal_implies_minset_equal := set_equal_implies_minset_equal S eqS refS symS tranS lteS lteCong lteRefl lteTrans.
+Definition brel_minset_transitive := brel_minset_transitive S eqS refS symS tranS lteS.
+Definition uop_minset_is_antichain := uop_minset_is_antichain S eqS refS symS lteS lteCong lteRefl.
+Definition fundamental_minset_theorem := fundamental_minset_theorem S eqS refS symS tranS lteS lteCong lteTrans.
 
 Lemma fundamental_minset_union_theorem (X Y : finite_set S) :
        {Z : finite_set S &
@@ -226,88 +120,151 @@ Lemma fundamental_minset_union_theorem (X Y : finite_set S) :
        }. 
 Proof. assert (A := fundamental_minset_theorem (X [U] Y)).
        destruct A as [Z [B C]]. 
-       assert (D := minset_union_uop_invariant_weak X Y).
        exists Z. split.
-       + apply set_symmetric in D.
-         assert (E := bop_union_congruence _ _ _ _ D (set_reflexive Z)). 
-         assert (F := set_transitive _ _ _ B E).
-         unfold bop_minset_union.
-         exact F. 
+       + exact B. 
        + intros s E. 
          destruct (C s E) as [t [F G]].
          exists t. split; auto. 
-         unfold bop_minset_union.
-         rewrite (in_set_congruence _ _ symS tranS _ _ _ _ D (refS t)).
-         exact F. 
-Defined. 
+Defined.
 
-
-
-Lemma minset_union_uop_invariant (X Y : finite_set S): [ms] (([ms] X) [U] ([ms] Y)) [=MS] [ms] (X [U] Y). 
-Proof. assert (A := minset_union_uop_invariant_weak X Y).  apply set_equal_implies_minset_equal; auto. Qed.
-
-Lemma bop_minset_union_associative : bop_associative (finite_set S) (brel_minset rS lteS)  (bop_minset_union).
-Proof. intros X Y Z.
-       assert (A : ((X <U> Y) <U> Z) [=MS] [ms] (([ms] (X <U> Y)) [U] ([ms] Z))).
-           apply brel_minset_reflexive; auto. 
-       assert (B : [ms] (([ms] (X <U> Y)) [U] ([ms] Z)) [=MS]  [ms] ((X <U> Y) [U] ([ms] Z))). 
-           apply minset_union_left_uop_invariant. 
-       assert (C : ((X <U> Y) <U> Z) [=MS] [ms] ((X <U> Y) [U] ([ms] Z))). 
-          exact (minset_transitive _ _ _ A B).
-       assert (D : [ms] ((X <U> Y) [U] ([ms] Z))  [=MS] [ms] ([ms] (([ms] X) [U] ([ms] Y)) [U] ([ms] Z))). 
-           apply brel_minset_reflexive; auto. 
-       assert (E : ((X <U> Y) <U> Z) [=MS] [ms] ([ms] (([ms] X) [U] ([ms] Y)) [U] ([ms] Z))). 
-          exact (minset_transitive _ _ _ C D).
-       assert (F : [ms] ([ms] (([ms] X) [U] ([ms] Y)) [U] ([ms] Z)) [=MS] [ms] ((([ms] X) [U] ([ms] Y)) [U] ([ms] Z))).
-           apply minset_union_left_uop_invariant.            
-       assert (G : ((X <U> Y) <U> Z) [=MS] [ms] ((([ms] X) [U] ([ms] Y)) [U] ([ms] Z))).
-          exact(minset_transitive _ _ _ E F).
-       assert (H : [ms] ((([ms] X) [U] ([ms] Y)) [U] ([ms] Z)) [=MS] [ms] (([ms] X) [U] (([ms] Y) [U] ([ms] Z)))). 
-          assert (AS := bop_union_associative ([ms] X) ([ms] Y) ([ms] Z)).
-          apply set_equal_implies_minset_equal in AS. 
-          apply uop_minset_congruence; auto. 
-       assert (I : ((X <U> Y) <U> Z) [=MS] [ms] (([ms] X) [U] (([ms] Y) [U] ([ms] Z)))).
-          exact(minset_transitive _ _ _  G H).          
-       assert (J : [ms] (([ms] X) [U] (([ms] Y) [U] ([ms] Z))) [=MS] [ms] (([ms] X) [U] ([ms] (([ms] Y) [U] ([ms] Z))))).
-           apply brel_minset_symmetric. 
-           apply minset_union_right_uop_invariant. 
-       assert (K : ((X <U> Y) <U> Z) [=MS] [ms] (([ms] X) [U] ([ms] (([ms] Y) [U] ([ms] Z))))).
-          exact(minset_transitive _ _ _  I J).
-       assert (L : [ms] (([ms] X) [U] ([ms] (([ms] Y) [U] ([ms] Z)))) [=MS] [ms] (([ms] X) [U] (Y <U> Z))).
-          apply brel_minset_reflexive; auto. 
-       assert (M : ((X <U> Y) <U> Z) [=MS] [ms] (([ms] X) [U] (Y <U> Z))).
-          exact(minset_transitive _ _ _  K L).
-       assert (N : [ms] (([ms] X) [U] (Y <U> Z)) [=MS] [ms] (([ms] X) [U] ([ms] (Y <U> Z)))).
-           apply brel_minset_symmetric. 
-           apply minset_union_right_uop_invariant. 
-       assert (O : ((X <U> Y) <U> Z) [=MS] [ms] (([ms] X) [U] ([ms] (Y <U> Z)))).
-          exact(minset_transitive _ _ _  M N).
-       assert (P : [ms] (([ms] X) [U] ([ms] (Y <U> Z))) [=MS] (X <U> (Y <U> Z))). 
-          apply brel_minset_reflexive; auto. 
-       exact(minset_transitive _ _ _  O P).
+Lemma bop_minset_union_congruence_weak : bop_congruence _ [SEQ] [MSU]. 
+Proof. intros X1 X2 Y1 Y2 A B.
+       unfold bop_minset_union.
+       assert (C := bop_union_congruence _ _ _ _ A B).
+       apply set_equal_implies_minset_equal; auto. 
 Qed. 
 
-Lemma bop_minset_union_idempotent : bop_idempotent (finite_set S) (brel_minset rS lteS) bop_minset_union.
-Proof. intro X. 
-       unfold bop_minset_union.
-       unfold brel_minset.
-       assert (A := uop_minset_idempotent (([ms] X) [U] ([ms] X))). 
-       assert (B := bop_union_idempotent ([ms] X)).
-       apply uop_minset_congruence_weak in B; auto.
-       assert (C := set_transitive _ _ _ A B). 
-       assert (D := uop_minset_idempotent X). 
-       exact (set_transitive _ _ _ C D). 
+
+Lemma minset_union_left_uop_invariant : bop_left_uop_invariant _ [SEQ] [MSU] (uop_minset lteS). 
+Proof. unfold bop_left_uop_invariant. unfold bop_minset_union. unfold bop_reduce.
+       intros X Y. (* [ms] (([ms] X) [U] Y) [=S] [ms] (X [U] Y) *) 
+       apply brel_set_intro_prop; auto. split. 
+       - intros s A. 
+         apply in_minset_elim in A; auto. destruct A as [A B]. 
+         apply in_set_bop_union_elim in A; auto.             
+         destruct A as [A | A].
+         + apply in_minset_elim in A; auto. destruct A as [A C]. 
+           apply in_minset_intro; auto. split. 
+           * apply in_set_bop_union_intro; auto. 
+           * intros t D. 
+             apply in_set_bop_union_elim in D; auto. 
+             destruct D as [D | D].
+             -- apply C; auto. 
+             -- apply B; auto. 
+                apply in_set_bop_union_intro; auto.                         
+         + apply in_minset_intro; auto. split. 
+           apply in_set_bop_union_intro; auto. 
+           intros t C.
+           apply in_set_bop_union_elim in C; auto. 
+           destruct C as [C | C]. 
+           case_eq(in_set eqS ([ms] X) t); intro D. 
+           * apply B; auto.                      
+             -- apply in_set_bop_union_intro; auto.                         
+           * apply in_set_minset_false_elim in D; auto. 
+             destruct D as [u [D E]]. 
+             assert (F : u [in] (([ms] X) [U] Y)).
+             {
+               apply in_set_bop_union_intro; auto.
+             }
+             assert (G := B _ F).
+             case_eq(below lteS s t);intro H; auto. 
+             -- assert (I := below_transitive _ _ lteTrans _ _ _ E H). 
+                rewrite I in G. discriminate G.                            
+           * apply B; auto.                      
+             apply in_set_bop_union_intro; auto. 
+       - intros s A. 
+         apply in_minset_elim in A; auto. destruct A as [A B].
+         apply in_minset_intro; auto. split. 
+         + apply in_set_bop_union_intro; auto. 
+           apply in_set_bop_union_elim in A; auto.
+           destruct A as [A| A].
+           * left. apply in_minset_intro; auto. split; auto. 
+             -- intros t C. apply B. 
+                apply in_set_bop_union_intro; auto. 
+           * right; auto. 
+         + intros t C.
+           apply in_set_bop_union_elim in C; auto. 
+           destruct C as [C | C].                
+           * apply B. apply in_minset_elim in C; auto.
+             destruct C as [C _].
+             apply in_set_bop_union_intro; auto.                   
+           * apply B. apply in_set_bop_union_intro; auto.
+Qed. 
+
+Lemma minset_union_right_uop_invariant : bop_right_uop_invariant _ [SEQ] [MSU] (uop_minset lteS).
+Proof. apply bop_commutative_implies_left_uop_invariant_implies_right_uop_invariant.
+       - apply set_symmetric. 
+       - apply set_transitive. 
+       - apply uop_minset_congruence_weak.
+       - apply bop_union_commutative. 
+       - apply minset_union_left_uop_invariant.
+Qed. 
+
+Lemma minset_union_uop_invariant : bop_uop_invariant [SEQ] (bop_union eqS) (uop_minset lteS).
+Proof. apply r_is_b_reduction. 
+       - exact set_symmetric.
+       - exact set_transitive. 
+       - exact minset_union_left_uop_invariant.
+       - exact minset_union_right_uop_invariant.          
 Qed.
 
+Lemma bop_minset_union_congruence : bop_congruence _ [MSEQ] [MSU].
+Proof. apply bop_reduce_congruence.
+       - exact set_symmetric.
+       - exact set_transitive.
+       - exact bop_union_congruence.
+       - exact uop_minset_congruence_weak.
+       - exact minset_union_uop_invariant.
+Qed. 
+
+Lemma bop_minset_union_associative : bop_associative _ [MSEQ] [MSU].
+Proof. apply bop_reduce_associative. 
+       - exact set_reflexive.
+       - exact set_symmetric. 
+       - exact set_transitive. 
+       - exact bop_union_congruence.
+       - exact bop_union_associative.
+       - exact uop_minset_congruence_weak. 
+       - exact  minset_idempotent. 
+       - exact minset_union_left_uop_invariant.
+       - exact minset_union_right_uop_invariant. 
+Qed. 
+
+Lemma bop_minset_union_idempotent : bop_idempotent _ [MSEQ] [MSU].
+Proof. apply bop_reduce_idempotent. 
+       - exact set_reflexive.
+       - exact set_symmetric. 
+       - exact set_transitive. 
+       - exact bop_union_congruence.
+       - exact uop_minset_congruence_weak. 
+       - exact minset_idempotent. 
+       - exact minset_union_left_uop_invariant.
+       - exact minset_union_right_uop_invariant.
+       - exact bop_union_idempotent. 
+Qed.
+
+Lemma bop_minset_union_commutative : bop_commutative _ [MSEQ] [MSU].
+Proof. apply bop_reduce_commutative. 
+       - exact set_reflexive.
+       - exact set_symmetric. 
+       - exact set_transitive. 
+       - exact bop_union_congruence.
+       - exact uop_minset_congruence_weak. 
+       - exact minset_idempotent. 
+       - exact minset_union_left_uop_invariant.
+       - exact minset_union_right_uop_invariant.
+       - exact bop_union_commutative. 
+Qed.
 
 Lemma bop_minset_union_nil_left (X : finite_set S) :  (nil <U> X) [=MS] X. 
-Proof. unfold bop_minset_union. unfold brel_minset.        
-       rewrite minset_empty.
-       assert (A := bop_union_with_nil_left S rS refS symS tranS ([ms] X)).
+Proof. unfold bop_minset_union, brel_reduce. unfold bop_reduce.
+       assert (A : (nil [U] X) [=S] X).
+       {
+         apply bop_union_with_nil_left; auto. 
+       } 
        apply uop_minset_congruence_weak in A.
-       assert (B := uop_minset_idempotent ((nil [U] ([ms] X)))).               
-       assert (C := uop_minset_idempotent X).
-       exact (set_transitive _ _ _ B (set_transitive _ _ _ A C)). 
+       assert (B := uop_minset_idempotent ((nil [U] X))).               
+       exact (set_transitive _ _ _ B A). 
 Qed.
 
 
@@ -318,45 +275,15 @@ Proof. assert (A := bop_minset_union_nil_left X).
        exact (minset_transitive _ _ _ B A).  
 Qed.
 
-Lemma bop_minset_union_id_is_nil : bop_is_id (finite_set S) (brel_minset rS lteS) bop_minset_union nil. 
+Lemma bop_minset_union_id_is_nil : bop_is_id _ [MSEQ] [MSU] nil. 
 Proof. split. 
          apply bop_minset_union_nil_left. 
          apply bop_minset_union_nil_right.
 Qed.
 
-Lemma bop_minset_union_exists_id : bop_exists_id (finite_set S) (brel_minset rS lteS) bop_minset_union. 
+Lemma bop_minset_union_exists_id : bop_exists_id _ [MSEQ] [MSU]. 
 Proof. exists nil. apply bop_minset_union_id_is_nil. Defined.
 
-
-(* next two should be in union.v *) 
-
-Lemma bop_union_cons_shift (X : finite_set S) (s : S) : ((s :: nil) [U] X)  [=S] (s :: X).
-Proof. apply brel_set_intro_prop; auto. split. 
-          intros t A. apply in_set_bop_union_elim in A; auto.
-          apply in_set_cons_intro; auto.
-          destruct A as [A | A].
-             apply in_set_singleton_elim in A; auto. 
-             right; auto.           
-          intros t A. apply in_set_bop_union_intro; auto.
-          apply in_set_cons_elim in A; auto.
-          destruct A as [A | A].
-             left. apply in_set_singleton_intro; auto. 
-             right; auto.           
-Qed.           
-
-Lemma bop_union_cons_shift_v2 (X : finite_set S) (s : S) : (X [U] (s :: nil) )  [=S] (s :: X).
-Proof. apply brel_set_intro_prop; auto. split. 
-          intros t A. apply in_set_bop_union_elim in A; auto.
-          apply in_set_cons_intro; auto.
-          destruct A as [A | A].
-             right; auto.           
-             apply in_set_singleton_elim in A; auto. 
-          intros t A. apply in_set_bop_union_intro; auto.
-          apply in_set_cons_elim in A; auto.
-          destruct A as [A | A].
-             right. apply in_set_singleton_intro; auto. 
-             left; auto. 
-Qed.           
 
 (********************** BOTTOM ***********************
 
@@ -410,7 +337,7 @@ Proof. intros A A' X W. induction X.
 
                 ++++ intro C.
                      assert (D := find_below_none _ _ refS symS lteS lteCong _ _ C).
-                     assert (E := D _ (in_set_singleton_intro S rS symS _ _ (refS b))).
+                     assert (E := D _ (in_set_singleton_intro S eqS symS _ _ (refS b))).
                      assert (F := A a).
                      apply below_false_elim in E.  
                      destruct E as [E | E]. 
@@ -438,192 +365,174 @@ Proof. intros A A'. unfold uop_minset.
 Qed.
 
                                     
-Lemma minset_bottom_with_anti_symmetry2 (anti : brel_antisymmetric S rS lteS) (X : finite_set S) (b : S) :
+Lemma minset_bottom_with_anti_symmetry2 (anti : brel_antisymmetric S eqS lteS) (X : finite_set S) (b : S) :
     brel_is_bottom S lteS b -> ([ms] (b :: X)) [=MS] (b :: nil). 
 Proof. intros A. assert (A' := anti b). apply minset_bottom_aux; auto. Qed. 
 
 Lemma minset_bottom_without_anti_symmetry2 (X : finite_set S) (b : S) :
-    brel_is_qo_bottom S rS lteS b -> ([ms] (b :: X)) [=MS] (b :: nil). 
+    brel_is_qo_bottom S eqS lteS b -> ([ms] (b :: X)) [=MS] (b :: nil). 
 Proof. intros [A A']. apply minset_bottom_aux; auto. Qed. 
 
 
 Lemma bop_minset_union_exists_ann_is_bottom (b : S) :
      brel_is_bottom S lteS b -> (∀ t : S, b <<= t → t <<= b → b [=] t) ->  
-     bop_is_ann (finite_set S) (brel_minset rS lteS) bop_minset_union (b :: nil). 
-Proof. intros A A'. unfold brel_is_bottom in A.  unfold bop_is_ann. intro X.
-          assert (B : ([ms] (b :: X)) [=MS] (b :: nil)).
-             exact (minset_bottom_aux _ _ A A'). 
-          assert (C : ([ms] ((b :: nil) [U] X)) [=MS] ([ms] (b :: X)) ). 
-             assert (D :=  bop_union_cons_shift  X b). 
-             apply set_equal_implies_minset_equal in D. 
-             exact (uop_minset_congruence lteRefl lteTrans _ _ D). 
-          assert (D : ([ms] (X [U] (b :: nil))) [=MS] ([ms] (b :: X)) ). 
-             assert (D :=  bop_union_cons_shift_v2  X b). 
-             apply set_equal_implies_minset_equal in D. 
-             exact (uop_minset_congruence lteRefl lteTrans _ _ D). 
-          split. 
-          unfold bop_minset_union.
-          assert (E := minset_union_uop_invariant (b :: nil) X).
-          assert (F := minset_transitive _ _ _ E C). 
-          exact (minset_transitive _ _ _ F B). 
-          unfold bop_minset_union.
-          unfold brel_minset. rewrite minset_singleton.
-          assert (E := minset_union_uop_invariant X (b :: nil)).
-          assert (F := minset_transitive _ _ _ E D). 
-          exact (minset_transitive _ _ _ F B). 
+     bop_is_ann (finite_set S) [MSEQ] [MSU] (b :: nil). 
+Proof. intros A A' X. unfold brel_is_bottom in A.
+       split; unfold bop_minset_union, bop_reduce. 
+       - assert (B := minset_bottom_aux X b A A').
+         assert (C : ([ms] ((b :: nil) [U] X)) [=MS] ([ms] (b :: X))).
+         {
+           assert (D := bop_union_cons_shift_left S eqS refS symS tranS X b).
+           apply uop_minset_congruence_weak in D.
+           apply set_equal_implies_minset_equal; auto. 
+         } 
+         exact (minset_transitive _ _ _ C B). 
+       - assert (B := minset_bottom_aux X b A A').
+         assert (C : ([ms] (X [U] (b :: nil))) [=MS] ([ms] (b :: X))).
+         {
+           assert (D := bop_union_cons_shift_right S eqS refS symS tranS X b).
+           apply uop_minset_congruence_weak in D.
+           apply set_equal_implies_minset_equal; auto. 
+         } 
+         exact (minset_transitive _ _ _ C B). 
 Qed.
 
-Lemma bop_minset_union_exists_ann_without_antisymmetry : brel_exists_qo_bottom S rS lteS ->
-           bop_exists_ann (finite_set S) (brel_minset rS lteS) bop_minset_union. 
-Proof. intros [b [A A']]. exists (b :: nil). apply (bop_minset_union_exists_ann_is_bottom b); auto. Defined. 
+Lemma bop_minset_union_exists_ann_without_antisymmetry :
+  brel_exists_qo_bottom S eqS lteS ->  bop_exists_ann _ [MSEQ] [MSU].
+Proof. intros [b [A A']]. exists (b :: nil).
+       apply (bop_minset_union_exists_ann_is_bottom b); auto.
+Defined. 
 
 
-Lemma bop_minset_union_exists_ann_with_antisymmetry (anti : brel_antisymmetric S rS lteS) : 
+Lemma bop_minset_union_exists_ann_with_antisymmetry
+  (anti : brel_antisymmetric S eqS lteS) : 
       brel_exists_bottom S lteS ->
-           bop_exists_ann (finite_set S) (brel_minset rS lteS) bop_minset_union. 
+           bop_exists_ann  _ [MSEQ] [MSU].
 Proof. intros [b A].
-       assert (B : brel_exists_qo_bottom S rS lteS). 
+       assert (B : brel_exists_qo_bottom S eqS lteS). 
           exists b. split; auto. exact (anti b). 
        exact (bop_minset_union_exists_ann_without_antisymmetry B).
 Defined.        
 
 
 Lemma brel_not_antisymmetric_implies_bop_minset_union_not_selective :
-         (brel_not_antisymmetric S rS lteS) → bop_not_selective (finite_set S) (brel_minset rS lteS) bop_minset_union. 
-Proof. intros [ [s t] [[A B] C] ]. 
-       exists (s :: nil, t :: nil). 
-          unfold bop_minset_union.        
-          unfold brel_minset.
-          assert (D : (s :: nil) [U] (t :: nil) [=S] (s :: t :: nil)). (* extract as lemma *) 
-             apply brel_set_intro; auto. split. 
-                apply brel_subset_intro; auto. 
-                intros u D. 
-                apply in_set_bop_union_elim in D; auto. 
-                apply in_set_cons_intro; auto.                 
-                destruct D as [D | D]. 
-                   left. apply in_set_cons_elim in D; auto.
-                   destruct D as [D | D]; auto. 
-                   compute in D. discriminate D.
-                   right; auto.                    
-                apply brel_subset_intro; auto. 
-                intros u D. 
-                apply in_set_cons_elim in D; auto. 
-                apply in_set_bop_union_intro; auto.                 
-                destruct D as [D | D]. 
-                   left. apply in_set_cons_intro; auto.
-                   right; auto. 
-          assert (E : ([ms] ([ms] ((s :: nil) [U] (t :: nil)))) [=S] (s :: t :: nil)).
-             assert (G : ([ms] ((s :: nil) [U] (t :: nil))) [=S] (s :: t :: nil)).
-                assert (I : ([ms] (s :: t :: nil)) [=S] (s :: t :: nil)). 
-                   unfold uop_minset. unfold iterate_minset. 
-                   assert (J : List.find (below lteS s) (t :: nil) = None).
-                      compute. rewrite A, B; auto. 
-                    rewrite J. 
-                    assert (K: List.find (below lteS s) nil = None). compute; auto. 
-                    rewrite K. 
-                    assert (L: List.find (below lteS t) nil = None). compute; auto. 
-                    rewrite L. 
-                    assert (M: List.find (below lteS t) (s :: nil) = None). 
-                        compute. rewrite A, B; auto. 
-                    rewrite M. 
-                    compute. (* need a lemma here *)
-                    rewrite refS. rewrite refS. rewrite refS. rewrite refS. rewrite C.
-                    case_eq(rS t s); intro N; auto.
-                    assert (J := uop_minset_congruence_weak _ _ D). 
-                    exact (set_transitive _ _ _ J I).
-             assert (H := uop_minset_idempotent ((s :: nil) [U] (t :: nil))).
-                 exact (set_transitive _ _ _ H G).      
-          split.
-          rewrite minset_singleton. rewrite minset_singleton. 
-          case_eq(brel_set rS ([ms] ([ms] ((s :: nil) [U] (t :: nil)))) (s :: nil)); intro F; auto. 
-          apply set_symmetric in F. 
-          assert (G := set_transitive _ _ _ F E). 
-          compute in G.       
-          rewrite C in G. rewrite refS in G. rewrite refS in G. 
-          case_eq(rS t s); intro H.
-             apply symS in H. rewrite H in C. discriminate C. 
-             rewrite H in G. discriminate G. 
-
-          rewrite minset_singleton. rewrite minset_singleton. 
-          case_eq(brel_set rS ([ms] ([ms] ((s :: nil) [U] (t :: nil)))) (t :: nil)); intro F; auto. 
-          apply set_symmetric in F. 
-          assert (G := set_transitive _ _ _ F E). 
-          compute in G.       
-          rewrite C in G. rewrite refS in G. 
-          case_eq(rS t s); intro H.
-             apply symS in H. rewrite H in C. discriminate C. 
-             rewrite H in G. discriminate G. 
-Defined.              
+         (brel_not_antisymmetric S eqS lteS) → bop_not_selective _ [MSEQ] [MSU].
+Proof. intros [ [s t] [[A B] C] ]. unfold brel_reduce, bop_minset_union, bop_reduce. 
+       assert (D := bop_union_two_singletons S eqS refS symS tranS s t).
+       apply uop_minset_congruence_weak in D.
+       apply uop_minset_congruence_weak in D.
+       exists (s :: nil, t :: nil). split.
+       - case_eq([SEQ] ([ms] ([ms] ((s :: nil) [U] (t :: nil)))) ([ms] (s :: nil))); intro E; auto.
+         apply set_symmetric in E.
+         assert (F := set_transitive _ _ _ E D).
+         apply brel_set_elim_prop in F; auto.
+         destruct F as [F H].
+         (* pull out as a lemma? *) 
+         assert (I : t [in] ([ms] ([ms] (s :: t :: nil)))).
+         {
+           assert (J := uop_minset_idempotent (s :: t :: nil)). 
+           rewrite (in_set_congruence _ eqS symS tranS _ _ _ _ J (refS t)). 
+           apply in_minset_intro; auto. split.
+           + apply in_set_cons_intro; auto.
+             right. apply in_set_singleton_intro; auto.
+           + intros u I.
+             apply in_set_cons_elim in I; auto.
+             apply below_false_intro.
+             destruct I as [I | I].
+             * rewrite (lteCong _ _ _ _ (refS t) I) in B. 
+               right; auto. 
+             * apply in_set_singleton_elim in I; auto.
+               right. rewrite <- (lteCong _ _ _ _ (refS t) I).
+               apply lteRefl. 
+         } 
+         assert (J := H _ I).
+         apply in_minset_elim in J; auto. destruct J as [J _].
+         apply in_set_singleton_elim in J; auto.
+         rewrite J in C. discriminate C.
+       - unfold brel_minset, brel_reduce.
+         case_eq([SEQ] ([ms] ([ms] ((s :: nil) [U] (t :: nil)))) ([ms] (t :: nil))); intro E; auto.
+         apply set_symmetric in E.
+         assert (F := set_transitive _ _ _ E D).
+         apply brel_set_elim_prop in F; auto.
+         destruct F as [F H].
+         (* pull out as a lemma? *) 
+         assert (I : s [in] ([ms] ([ms] (s :: t :: nil)))).
+         {
+           assert (J := uop_minset_idempotent (s :: t :: nil)). 
+           rewrite (in_set_congruence _ eqS symS tranS _ _ _ _ J (refS s)). 
+           apply in_minset_intro; auto. split.
+           + apply in_set_cons_intro; auto.
+           + intros u I.
+             apply in_set_cons_elim in I; auto.
+             apply below_false_intro.
+             destruct I as [I | I].
+             * right. rewrite <- (lteCong _ _ _ _ (refS s) I).
+               apply lteRefl.
+             * apply in_set_singleton_elim in I; auto.
+               rewrite (lteCong _ _ _ _ (refS s) I) in A.
+               right; auto. 
+         } 
+         assert (J := H _ I).
+         apply in_minset_elim in J; auto. destruct J as [J _].
+         apply in_set_singleton_elim in J; auto. apply symS in J. 
+         rewrite J in C. discriminate C.
+Defined. 
 
 
 Lemma bop_minset_union_incomp_pair (s t : S) (L : s !<<= t) (R : t !<<= s): ((s :: nil) <U> (t :: nil)) [<>MS] (s :: nil).
-       unfold bop_minset_union.
-       unfold brel_minset. 
-       rewrite minset_singleton. rewrite minset_singleton. 
-       case_eq(brel_set rS ([ms] ([ms] ((s :: nil) [U] (t :: nil)))) (s :: nil) ); intro A; auto.
-       assert (B : ((s :: nil) [U] (t :: nil)) [=S] (s :: t :: nil)).
-          apply brel_set_intro_prop; auto. split. 
-             intros u B. apply in_set_bop_union_elim in B; auto. 
-             destruct B as [B | B]. 
-                apply in_set_singleton_elim in B; auto. 
-                apply in_set_cons_intro; auto. 
-                apply in_set_singleton_elim in B; auto. 
-                apply in_set_cons_intro; auto. 
-                right. apply in_set_cons_intro; auto. 
-             intros u B. apply in_set_cons_elim in B; auto.
-             destruct B as [B | B]. 
-                apply in_set_bop_union_intro; auto. left. 
-                apply in_set_cons_intro; auto. 
-                apply in_set_bop_union_intro; auto. 
-       assert (C : [ms] ((s :: nil) [U] (t :: nil)) [=S] [ms] (s :: t :: nil)).
-          exact (uop_minset_congruence_weak _ _ B). 
-       assert (D : [ms] ([ms] ((s :: nil) [U] (t :: nil))) [=S] [ms] ((s :: nil) [U] (t :: nil))).
-          exact(uop_minset_idempotent ((s :: nil) [U] (t :: nil))).    
-       assert (E : [ms] ([ms] ((s :: nil) [U] (t :: nil))) [=S] (s :: t :: nil)).
-          assert (F := set_transitive _ _ _ D C). 
-          assert (G : [ms] (s :: t :: nil) [=S] (s :: t :: nil)). 
-             apply brel_set_intro_prop; auto. split. 
-                intros u G. apply in_minset_elim in G; auto. destruct G as [G H]; auto. 
-                intros u G. apply in_minset_intro; auto. split; auto. 
-                   intros v H. apply in_set_cons_elim in G; apply in_set_cons_elim in H; auto. 
-                   destruct G as [G | G]; destruct H as [H | H]. 
-                      rewrite (below_congruence _ _ _ lteCong _ _ _ _ (symS _ _ G) (symS _ _ H)). 
-                         apply below_not_reflexive; auto.  
-                      apply in_set_singleton_elim in H; auto.
-                      rewrite (below_congruence _ _ _ lteCong _ _ _ _ (symS _ _ G) (symS _ _ H)). 
-                      apply below_false_intro; auto. 
-                      apply in_set_singleton_elim in G; auto. 
-                      rewrite (below_congruence _ _ _ lteCong _ _ _ _ (symS _ _ G) (symS _ _ H)). 
-                      apply below_false_intro; auto. 
-                      apply in_set_singleton_elim in H; apply in_set_singleton_elim in G; auto.
-                      rewrite (below_congruence _ _ _ lteCong _ _ _ _ (symS _ _ G) (symS _ _ H)). 
-                         apply below_not_reflexive; auto.  
-          exact (set_transitive _ _ _ F G). 
-       assert (F : (s:: t :: nil) [=S] (s :: nil)). apply set_symmetric in E. exact (set_transitive _ _ _ E A). 
-       apply brel_set_elim in F. destruct F as [F _].
-       assert (G : t [in] (s :: t :: nil)). compute. rewrite (refS t). case_eq(rS t s); intro; auto. 
-       assert (H := brel_subset_elim _ _ symS tranS _ _ F t G). 
-       compute in H.
-       case_eq(rS t s); intro I. 
-          rewrite (lteCong _ _ _ _ I (refS s)) in R.
-          rewrite (lteRefl s) in R. discriminate R. 
-          rewrite I in H. discriminate H.
+       unfold bop_minset_union, bop_reduce. 
+       case_eq([MSEQ] ([ms] ((s :: nil) [U] (t :: nil))) (s :: nil)); intro A; auto.
+       - apply brel_set_elim_prop in A; auto. destruct A as [A B].
+         assert (C : t [in] ([ms] ([ms] ((s :: nil) [U] (t :: nil))))).
+         {
+           assert (J := uop_minset_idempotent ((s :: nil) [U] (t :: nil))). 
+           rewrite (in_set_congruence _ eqS symS tranS _ _ _ _ J (refS t)).
+           apply in_minset_intro; auto. split.
+           + apply in_set_bop_union_intro; auto.
+             right. apply in_set_singleton_intro; auto.
+           + intros u I.
+             apply in_set_bop_union_elim in I; auto.
+             apply below_false_intro.
+             destruct I as [I | I].
+             * apply in_set_singleton_elim in I; auto.
+               rewrite (lteCong _ _ _ _ I (refS t)) in L. 
+               left; auto. 
+             * apply in_set_singleton_elim in I; auto.
+               rewrite <- (lteCong _ _ _ _ (refS t) I).
+               right. apply lteRefl. 
+         } 
+         assert (D := A _ C).
+         apply in_minset_elim in D; auto.
+         destruct D as [D E].
+         apply in_set_singleton_elim in D; auto.
+         assert (F := lteCong _ _ _ _ D (refS s)).
+         rewrite (lteRefl s) in F. rewrite R in F. 
+         exact F. 
 Qed. 
-  
 
-Lemma bop_minset_union_not_selective : (brel_not_total S lteS) → bop_not_selective (finite_set S) (brel_minset rS lteS) bop_minset_union. 
+
+Lemma bop_minset_union_not_selective :
+  (brel_not_total S lteS) → bop_not_selective _ [MSEQ] [MSU].
 Proof. intros [ [s t] [L R] ]. 
-       exists (s :: nil, t :: nil). split.
-       apply bop_minset_union_incomp_pair; auto. 
-       assert (A := bop_minset_union_incomp_pair t s R L). 
-       case_eq(brel_minset rS lteS ((s :: nil) <U> (t :: nil)) (t :: nil)); intro B; auto.
-       assert (C := bop_minset_union_commutative (t :: nil) (s :: nil)). 
-       assert (D := brel_minset_transitive _ _ _ C B). 
-       rewrite D in A. discriminate A. 
-Defined.
+       exists (s :: nil, t :: nil).
+       assert (A := bop_minset_union_incomp_pair s t L R).
+       assert (B := bop_minset_union_incomp_pair t s R L).
+       assert (C := bop_minset_union_commutative (s :: nil) (t :: nil)).
+       split. 
+       - exact A. 
+       - case_eq([MSEQ] ((s :: nil) <U> (t :: nil)) (t :: nil)); intro D; auto.
+         + apply minset_symmetric in C.
+           assert (E := minset_transitive _ _ _ C D). 
+           rewrite E in B. discriminate B. 
+Defined. 
 
 
-Lemma total_implies_singlton_minsets (tot : brel_total S lteS) (X : finite_set S) (anti : brel_antisymmetric S rS lteS):
+
+
+Lemma total_implies_singlton_minsets
+  (tot : brel_total S lteS)
+  (X : finite_set S)
+  (anti : brel_antisymmetric S eqS lteS):
             (nil [=S] X) + {s : S & (s :: nil) [=S] [ms] X}.
 Proof. induction X.
        left. compute; auto. 
@@ -694,7 +603,7 @@ Proof. induction X.
                       assert (L := anti _ _ K J). 
                       rewrite (lteCong _ _ _ _ (refS a) L) in F. 
                       apply in_set_singleton_intro; auto. 
-                      case_eq(rS a t); intro M; auto.                       
+                      case_eq(eqS a t); intro M; auto.                       
                          case_eq(lteS t a); intro N. 
                             rewrite (anti _ _ F N) in M. discriminate M. 
                             assert (O : a [in] (a :: X)). apply in_set_cons_intro; auto. 
@@ -734,16 +643,22 @@ Qed.
 
 Lemma bop_minset_union_nil_left_v2 (X Y : finite_set S) : nil [=S] X -> (X <U> Y) [=S] ([ms] Y).
 Proof. intro A. 
-       assert (B := bop_minset_union_congruence_weak _ _ _ _ A (set_reflexive Y)). 
-       apply set_symmetric in B. 
-       assert (C : (nil <U> Y) [=S] ([ms] Y)). 
-          unfold bop_minset_union. 
-          rewrite minset_empty. 
-          assert (C := bop_union_with_nil_left _ rS refS symS tranS ([ms] Y)). 
+       assert (B := bop_minset_union_congruence_weak _ _ _ _ A (set_reflexive Y)).
+       apply set_symmetric in B.
+       assert (C : (nil <U> Y) [=S] ([ms] Y)).
+       {
+          unfold bop_minset_union, brel_reduce, bop_reduce.  
+          assert (C := bop_union_with_nil_left _ eqS refS symS tranS Y). 
           assert (D := uop_minset_congruence_weak _ _ C). 
-          assert (E := uop_minset_idempotent Y). 
-          exact (set_transitive _ _ _ D E). 
+          exact D.
+       } 
        exact (set_transitive _ _ _ B C). 
+Qed. 
+
+Lemma minset_union_commutative_weak : bop_commutative _ [SEQ] [MSU].
+Proof. intros X Y.
+       apply uop_minset_congruence_weak. 
+       apply bop_union_commutative.
 Qed. 
 
 Lemma bop_minset_union_nil_right_v2 (X Y : finite_set S) : nil [=S] Y -> (X <U> Y) [=S] ([ms] X). 
@@ -755,18 +670,19 @@ Proof. intro A.
        exact (brel_set_transitive _ _ refS symS tranS _ _ _ C B).        
 Qed. 
        
-Lemma bop_minset_union_selective_weak (tot : brel_total S lteS) (anti : brel_antisymmetric S rS lteS) (X Y : finite_set S):
+Lemma bop_minset_union_selective_weak (tot : brel_total S lteS) (anti : brel_antisymmetric S eqS lteS) (X Y : finite_set S):
   (X <U> Y) [=S] ([ms] X) + (X <U> Y) [=S] ([ms] Y). 
 Proof. destruct(total_implies_singlton_minsets tot X) as [A | A];
        destruct(total_implies_singlton_minsets tot Y) as [B | B]; auto. 
-          left. apply bop_minset_union_nil_right_v2; auto. 
-          right. apply bop_minset_union_nil_left_v2; auto. 
-          left.  apply bop_minset_union_nil_right_v2; auto. 
-          destruct A as [x A]. destruct B as [y B].
-          unfold bop_minset_union.
-          assert (F := bop_union_congruence _ _ _ _ A B).
-          assert (G := uop_minset_congruence_weak _ _ F). 
-          assert (H : (x :: nil) [U] (y :: nil) [=S] (x :: y :: nil)).
+       - left. apply bop_minset_union_nil_right_v2; auto. 
+       - right. apply bop_minset_union_nil_left_v2; auto. 
+       - left.  apply bop_minset_union_nil_right_v2;auto.
+       - destruct A as [x A]. destruct B as [y B].
+         unfold bop_minset_union, brel_reduce, bop_reduce. 
+         assert (F := bop_union_congruence _ _ _ _ A B).
+         assert (G := uop_minset_congruence_weak _ _ F). 
+         assert (H : (x :: nil) [U] (y :: nil) [=S] (x :: y :: nil)).
+         {
              apply brel_set_intro_prop; auto. split. 
                 intros t C. apply in_set_bop_union_elim in C; auto.
                 destruct C as [C | C]. 
@@ -777,10 +693,13 @@ Proof. destruct(total_implies_singlton_minsets tot X) as [A | A];
                 apply in_set_cons_elim in C; auto. 
                 destruct C as [C | C]. 
                    left. apply in_set_singleton_intro; auto. 
-                   right. auto.                    
-          assert (I := uop_minset_congruence_weak _ _ H).           
-          apply brel_set_symmetric in G. 
-          assert (J := brel_set_transitive _ _ refS symS tranS _ _ _ G I).
+                   right. auto.
+         } 
+         assert (I := uop_minset_congruence_weak _ _ H).           
+         apply brel_set_symmetric in G. 
+         assert (J' := brel_set_transitive _ _ refS symS tranS _ _ _ G I).
+         assert (J'' := minset_union_uop_invariant X Y).
+         assert (J := set_transitive _ _ _ J'' J'). 
 
           assert (A' := A). assert(B' := B). 
           apply brel_set_elim_prop in A; auto. destruct A as [A1 A2].
@@ -813,7 +732,7 @@ Proof. destruct(total_implies_singlton_minsets tot X) as [A | A];
                         assert (N := tranS _ _ _ E M). 
                         rewrite (below_congruence _ _ _ lteCong _ _ _ _ (symS _ _ L) (symS _ _ N)). 
                         apply below_not_reflexive; auto.                         
-            exact (brel_set_transitive _ _ refS symS tranS _ _ _ J K). 
+            exact (brel_set_transitive _ _ refS symS tranS _ _ _ J K).
 
             (* x < y *)  
             left.
@@ -877,7 +796,7 @@ Proof. destruct(total_implies_singlton_minsets tot X) as [A | A];
                            apply below_not_reflexive; auto. 
 
                exact (brel_set_transitive _ _ refS symS tranS _ _ _ K B'). 
-            exact (brel_set_transitive _ _ refS symS tranS _ _ _ J K). 
+          exact (brel_set_transitive _ _ refS symS tranS _ _ _ J K). 
 
             (* x # y *)
             destruct (tot x y) as [E | E].
@@ -885,23 +804,24 @@ Proof. destruct(total_implies_singlton_minsets tot X) as [A | A];
                rewrite E in D. discriminate D. 
 Qed. 
           
-Lemma bop_minset_union_selective (tot : brel_total S lteS) (anti : brel_antisymmetric S rS lteS) :
-  bop_selective (finite_set S) (brel_minset rS lteS) bop_minset_union. 
+Lemma bop_minset_union_selective
+  (tot : brel_total S lteS)
+  (anti : brel_antisymmetric S eqS lteS) : bop_selective  _ [MSEQ] [MSU].
 Proof. intros X Y.
+       unfold brel_minset, brel_reduce.
+       unfold bop_minset_union, bop_reduce. 
        destruct (bop_minset_union_selective_weak tot anti X Y) as [B | B]. 
-       left. unfold brel_minset. unfold bop_minset_union.
-       unfold bop_minset_union in B. 
-       assert (C := uop_minset_idempotent (([ms] X) [U] ([ms] Y))). 
+       left. unfold bop_minset_union, bop_reduce in B. 
+       assert (C := uop_minset_idempotent (X [U] Y)). 
        exact (brel_set_transitive _ _ refS symS tranS _ _ _ C B). 
-       right. unfold brel_minset. unfold bop_minset_union.
-       unfold bop_minset_union in B. 
-       assert (C := uop_minset_idempotent (([ms] X) [U] ([ms] Y))). 
+       right. unfold bop_minset_union, bop_reduce in B. 
+       assert (C := uop_minset_idempotent (X [U] Y)). 
        exact (brel_set_transitive _ _ refS symS tranS _ _ _ C B). 
 Qed.
 
 
-Definition bop_minset_union_selective_decide_v1 (tot_d : brel_total_decidable S lteS) (anti : brel_antisymmetric S rS lteS): 
-      bop_selective_decidable (finite_set S) (brel_minset rS lteS) bop_minset_union
+Definition bop_minset_union_selective_decide_v1 (tot_d : brel_total_decidable S lteS) (anti : brel_antisymmetric S eqS lteS): 
+      bop_selective_decidable _ [MSEQ] [MSU]
  := match tot_d with
      | inl tot  => inl (bop_minset_union_selective tot anti) 
      | inr ntot => inr (bop_minset_union_not_selective ntot)
@@ -910,8 +830,8 @@ Definition bop_minset_union_selective_decide_v1 (tot_d : brel_total_decidable S 
 
 Definition bop_minset_union_selective_decide_v2 
            (tot_d : brel_total_decidable S lteS)
-           (anti_d : brel_antisymmetric_decidable S rS lteS): 
-  bop_selective_decidable (finite_set S) (brel_minset rS lteS) bop_minset_union
+           (anti_d : brel_antisymmetric_decidable S eqS lteS): 
+  bop_selective_decidable   _ [MSEQ] [MSU] 
 := match anti_d with
    | inl anti => match tot_d with
                  | inl tot  => inl (bop_minset_union_selective tot anti) 
@@ -938,7 +858,7 @@ Qed.
 
 
 (* this is really a general lemma about antichains *) 
-Lemma bottoms_is_minimal (BOTTOMS : finite_set S) (AC : is_antichain S rS lteS BOTTOMS) : 
+Lemma bottoms_is_minimal (BOTTOMS : finite_set S) (AC : is_antichain S eqS lteS BOTTOMS) : 
   [ms] BOTTOMS [=S] BOTTOMS.
 Proof. apply brel_set_intro_prop; auto. split. 
 
@@ -957,7 +877,7 @@ Qed.
 
 Lemma bop_minset_union_enum_is_ann_left
       (BOTTOMS : finite_set S)
-      (AC : is_antichain S rS lteS BOTTOMS)
+      (AC : is_antichain S eqS lteS BOTTOMS)
       (*EC : ∀ s x : S, x [in] BOTTOMS -> s [~] x -> s [in] BOTTOMS*) 
       (w : S → S)
       (H :  ∀ s : S, (s [in] BOTTOMS) + ((w s) [in] BOTTOMS * (w s) << s)) 
@@ -967,72 +887,39 @@ Lemma bop_minset_union_enum_is_ann_left
 Proof. intro X.
        assert (A : (BOTTOMS <U> X) [=S] BOTTOMS).
           apply brel_set_intro_prop; auto. split. 
-             intros s B. unfold bop_minset_union in B. 
+             intros s B. unfold bop_minset_union, bop_reduce in B. 
              apply in_minset_elim in B; auto. destruct B as [B C].
              apply in_set_bop_union_elim in B; auto. 
              destruct B as [B | B].
-                (* B : s [in] ([ms] BOTTOMS) *) 
-                apply in_minset_elim in B; auto. destruct B as [B _]. exact B.
+                (* B : s [in] BOTTOMS *) 
+                exact B. 
 
-                (* B : s [in] ([ms] X) *)                    
-(* H             
-                destruct (H s) as [E F].
-                assert (G : (w s) [in] (([ms] BOTTOMS) [U] ([ms] X))).
-                   apply in_set_bop_union_intro; auto. 
-                   left. rewrite (in_set_congruence _ rS symS tranS _ _ _ _ (bottoms_is_minimal BOTTOMS AC) (refS (w s))).
-                   exact E. 
- *)
+                (* B : s [in] X *)                    
                 destruct (H s) as [Q | [E F]].
                    exact Q. 
-
-                   assert (G : (w s) [in] (([ms] BOTTOMS) [U] ([ms] X))).
+                   assert (G : (w s) [in] (BOTTOMS [U] X)).
                       apply in_set_bop_union_intro; auto. 
-                      left. rewrite (in_set_congruence _ rS symS tranS _ _ _ _ (bottoms_is_minimal BOTTOMS AC) (refS (w s))).
-                      exact E. 
-                
-
                    assert (I := C (w s) G). apply below_false_elim in I.
                    destruct I as [I | I].
-                      (* new *) apply below_elim in F. destruct F as [F _]. 
+                      apply below_elim in F. destruct F as [F _]. 
                       rewrite I in F. discriminate F.
-
-(* H                       
-                   assert (J : s [~] (w s)). apply equiv_intro; auto. 
-                   exact (EC s (w s) E J). 
- *)
                       assert (J : w s << w s). exact (below_pseudo_transitive_right _ lteS lteTrans _ _ _ F I).
                       rewrite (below_not_reflexive S lteS  (w s)) in J. discriminate J. 
                    
              intros s B. unfold bop_minset_union. apply in_minset_intro; auto. split. 
-                apply in_set_bop_union_intro; auto. left. 
-                rewrite (in_set_congruence _ rS symS tranS _ _ _ _ (bottoms_is_minimal BOTTOMS AC) (refS s)).
-                exact B. 
-
-                intros t C. case_eq(below lteS s t); intro D; auto. 
-                   apply in_set_bop_union_elim in C; auto. 
-                   destruct C as [C | C].
-                      rewrite (in_set_congruence _ rS symS tranS _ _ _ _ (bottoms_is_minimal BOTTOMS AC) (refS t)) in C.
-                      assert (E := AC s B t C). apply equiv_or_incomp_elim in E.
-                      apply below_elim in D. destruct D as [D1 D2].                       
-                      destruct E as [E | E].
-                         apply equiv_elim in E. destruct E as [E1 E2]. 
+             apply in_set_bop_union_intro; auto. 
+             intros t C. case_eq(below lteS s t); intro D; auto. 
+             apply in_set_bop_union_elim in C; auto. 
+             destruct C as [C | C].
+             assert (E := AC s B t C). apply equiv_or_incomp_elim in E.
+             apply below_elim in D. destruct D as [D1 D2].                       
+             destruct E as [E | E].
+             apply equiv_elim in E. destruct E as [E1 E2]. 
                          rewrite E1 in D2. discriminate D2.
 
                          apply incomp_elim in E. destruct E as [E1 E2]. 
                          rewrite E2 in D1. discriminate D1. 
                          
-                      apply in_minset_elim in C; auto. destruct C as [C E].
-(* H                         
-                      destruct (H t) as [F G].
-                      assert (I : w t << s).  exact (below_pseudo_transitive_left _ lteS lteTrans _ _ _ G D).
-                      apply below_elim in I. destruct I as [I K]. 
-                      assert (J := AC s B (w t) F). apply equiv_or_incomp_elim in J.
-                      destruct J as [J | J]. 
-                         apply equiv_elim in J. destruct J as [J1 J2]. 
-                         rewrite J1 in K. discriminate K.
-                         apply incomp_elim in J. destruct J as [J1 J2]. 
-                         rewrite J2 in I. discriminate I.
- *)
                       destruct (H t) as [Q | [F G]].
                          assert (F := AC s B t Q). apply equiv_or_incomp_elim in F.
                          apply below_elim in D. destruct D as [D1 D2].
@@ -1058,7 +945,7 @@ Qed.
 
 Lemma bop_minset_union_enum_is_ann_right
       (BOTTOMS : finite_set S)
-      (AC : is_antichain S rS lteS BOTTOMS)
+      (AC : is_antichain S eqS lteS BOTTOMS)
       (w : S → S)
       (H :  ∀ s : S, (s [in] BOTTOMS) + ((w s) [in] BOTTOMS * (w s) << s)) :
   ∀ X : finite_set S, (X <U> BOTTOMS) [=MS] BOTTOMS. 
@@ -1071,10 +958,10 @@ Qed.
                  
 Lemma bop_minset_union_enum_is_ann_aux
       (BOTTOMS : finite_set S)
-      (AC : is_antichain S rS lteS BOTTOMS)
+      (AC : is_antichain S eqS lteS BOTTOMS)
       (w : S → S)
       (H :  ∀ s : S, (s [in] BOTTOMS) + ((w s) [in] BOTTOMS * (w s) << s)) :
-        bop_is_ann (finite_set S) (brel_minset rS lteS) bop_minset_union BOTTOMS. 
+        bop_is_ann  _ [MSEQ] [MSU]  BOTTOMS. 
 Proof. intro X. split. 
           (* (BOTTOMS <U> X) [=MS] BOTTOMS *) 
           apply (bop_minset_union_enum_is_ann_left BOTTOMS AC w H X). 
@@ -1083,12 +970,14 @@ Proof. intro X. split.
 Qed.
 
 
-Lemma bop_minset_union_enum_is_ann (bf : bottoms_set_is_finite S rS lteS) : 
-  bop_is_ann (finite_set S) (brel_minset rS lteS) bop_minset_union (fst (projT1 bf)).
-Proof. destruct bf as [[BOTTOMS w] [AC H]]. apply (bop_minset_union_enum_is_ann_aux BOTTOMS AC w H). Defined. 
+Lemma bop_minset_union_enum_is_ann (bf : bottoms_set_is_finite S eqS lteS) : 
+  bop_is_ann _ [MSEQ] [MSU] (fst (projT1 bf)).
+Proof. destruct bf as [[BOTTOMS w] [AC H]].
+       apply (bop_minset_union_enum_is_ann_aux BOTTOMS AC w H).
+Defined. 
 
-Lemma bop_minset_union_exists_ann (bf : bottoms_set_is_finite S rS lteS) : 
-   bop_exists_ann (finite_set S) (brel_minset rS lteS) bop_minset_union.
+Lemma bop_minset_union_exists_ann (bf : bottoms_set_is_finite S eqS lteS) : 
+   bop_exists_ann _ [MSEQ] [MSU] .
 Proof. exists (fst (projT1 bf)).
        apply (bop_minset_union_enum_is_ann bf). 
 Defined. 
@@ -1098,7 +987,7 @@ Defined.
 
 Lemma bop_minset_union_enum_is_ann_left2
       (BOTTOMS : finite_set S)
-      (AC : is_antichain S rS lteS BOTTOMS)
+      (AC : is_antichain S eqS lteS BOTTOMS)
       (w : S → S)
       (H :  ∀ s : S, (w s) [in] BOTTOMS * (w s) << s)
       :
@@ -1110,35 +999,23 @@ Proof. intro X.
              apply in_minset_elim in B; auto. destruct B as [B C].
              apply in_set_bop_union_elim in B; auto. 
              destruct B as [B | B].
-                (* B : s [in] ([ms] BOTTOMS) *) 
-                apply in_minset_elim in B; auto. destruct B as [B _]. exact B.
-
-                (* B : s [in] ([ms] X) *)                    
+                exact B. 
                 destruct (H s) as [E F].
-
-                   assert (G : (w s) [in] (([ms] BOTTOMS) [U] ([ms] X))).
+                   assert (G : (w s) [in] (BOTTOMS [U] X)).
                       apply in_set_bop_union_intro; auto. 
-                      left. rewrite (in_set_congruence _ rS symS tranS _ _ _ _ (bottoms_is_minimal BOTTOMS AC) (refS (w s))).
-                      exact E. 
-                
-
                    assert (I := C (w s) G). apply below_false_elim in I.
                    destruct I as [I | I].
-                      (* new *) apply below_elim in F. destruct F as [F _]. 
+                      apply below_elim in F. destruct F as [F _]. 
                       rewrite I in F. discriminate F.
 
                       assert (J : w s << w s). exact (below_pseudo_transitive_right _ lteS lteTrans _ _ _ F I).
                       rewrite (below_not_reflexive S lteS (w s)) in J. discriminate J. 
                    
-             intros s B. unfold bop_minset_union. apply in_minset_intro; auto. split. 
-                apply in_set_bop_union_intro; auto. left. 
-                rewrite (in_set_congruence _ rS symS tranS _ _ _ _ (bottoms_is_minimal BOTTOMS AC) (refS s)).
-                exact B. 
-
+             intros s B. unfold bop_minset_union, bop_reduce. apply in_minset_intro; auto. split. 
+                apply in_set_bop_union_intro; auto. 
                 intros t C. case_eq(below lteS s t); intro D; auto. 
                    apply in_set_bop_union_elim in C; auto. 
                    destruct C as [C | C].
-                      rewrite (in_set_congruence _ rS symS tranS _ _ _ _ (bottoms_is_minimal BOTTOMS AC) (refS t)) in C.
                       assert (E := AC s B t C). apply equiv_or_incomp_elim in E.
                       apply below_elim in D. destruct D as [D1 D2].                       
                       destruct E as [E | E].
@@ -1148,7 +1025,6 @@ Proof. intro X.
                          apply incomp_elim in E. destruct E as [E1 E2]. 
                          rewrite E2 in D1. discriminate D1. 
                          
-                      apply in_minset_elim in C; auto. destruct C as [C E].
                       destruct (H t) as [F G].
                          
                          assert (I : w t << s).  exact (below_transitive _ lteS lteTrans _ _ _ G D).
@@ -1167,7 +1043,7 @@ Qed.
 
 Lemma bop_minset_union_enum_is_ann_right2
       (BOTTOMS : finite_set S)
-      (AC : is_antichain S rS lteS BOTTOMS)
+      (AC : is_antichain S eqS lteS BOTTOMS)
       (w : S → S)
       (H :  ∀ s : S, ((w s) [in] BOTTOMS * (w s) << s)) :
   ∀ X : finite_set S, (X <U> BOTTOMS) [=MS] BOTTOMS. 
@@ -1180,10 +1056,10 @@ Qed.
 
 Lemma bop_minset_union_enum_is_ann_aux2
       (BOTTOMS : finite_set S)
-      (AC : is_antichain S rS lteS BOTTOMS)
+      (AC : is_antichain S eqS lteS BOTTOMS)
       (w : S → S)
       (H :  ∀ s : S, ((w s) [in] BOTTOMS * (w s) << s)) :
-        bop_is_ann (finite_set S) (brel_minset rS lteS) bop_minset_union BOTTOMS. 
+        bop_is_ann _ [MSEQ] [MSU] BOTTOMS. 
 Proof. intro X. split. 
           (* (BOTTOMS <U> X) [=MS] BOTTOMS *) 
           apply (bop_minset_union_enum_is_ann_left2 BOTTOMS AC w H X). 
@@ -1191,99 +1067,63 @@ Proof. intro X. split.
           apply (bop_minset_union_enum_is_ann_right2 BOTTOMS AC w H X). 
 Qed.
 
+Lemma bop_minset_union_enum_is_ann2 (bf : bottoms_set_is_finite2 S eqS lteS) : 
+  bop_is_ann _ [MSEQ] [MSU] (fst (projT1 bf)).
+Proof. destruct bf as [[BOTTOMS w] [AC H]].
+       apply (bop_minset_union_enum_is_ann_aux2 BOTTOMS AC w H).
+Defined. 
 
-Lemma bop_minset_union_enum_is_ann2 (bf : bottoms_set_is_finite2 S rS lteS) : 
-  bop_is_ann (finite_set S) (brel_minset rS lteS) bop_minset_union (fst (projT1 bf)).
-Proof. destruct bf as [[BOTTOMS w] [AC H]]. apply (bop_minset_union_enum_is_ann_aux2 BOTTOMS AC w H). Defined. 
-
-
-
-Lemma bop_minset_union_not_exists_ann_aux (bnf : bottoms_set_not_is_finite S rS lteS) : 
+Lemma bop_minset_union_not_exists_ann_aux (bnf : bottoms_set_not_is_finite S eqS lteS) : 
   ∀ X : finite_set S, {Z : finite_set S & (Z <U> X) [<>MS] X}.
 Proof. intro X. destruct bnf as [F P].
        exists ((F ([ms] X)) :: nil).
        assert (Q := P ([ms] X) (uop_minset_is_antichain X)). destruct Q as [Q1 Q2].
+       unfold brel_minset, brel_reduce. 
+       case_eq(brel_set eqS ([ms] ((F ([ms] X) :: nil) <U> X)) ([ms] X)); intro A; auto.
+       - apply brel_set_elim_prop in A; auto. destruct A as [A A'].
+         assert (B : F ([ms] X) [in] ([ms] ((F ([ms] X) :: nil) <U> X))).
+         { 
+           apply in_minset_intro; auto. split. 
+           unfold bop_minset_union, bop_reduce. 
+           apply in_minset_intro; auto. split. 
+           + apply in_set_bop_union_intro; auto. 
+             * left. apply in_set_singleton_intro; auto. 
+           + intros t B. apply in_set_bop_union_elim in B; auto. 
+             destruct B as [B | B].
+             * apply in_set_singleton_elim in B; auto. 
+               apply symS in B. rewrite (below_congruence S eqS lteS lteCong _ _ _ _ (refS (F ([ms] X))) B). 
+               apply (below_not_reflexive S lteS).
+             * case_eq(in_set eqS ([ms] X) t); intro C.
+               -- exact (Q2 t C).
+               -- destruct (in_set_minset_false_elim _ eqS refS symS lteS lteCong lteRefl lteTrans _ _ B C) as [t' [D E]].
+                  assert (G := Q2 _ D).
+                  case_eq(below lteS (F ([ms] X)) t); intro H; auto.
+                  rewrite (below_transitive _ lteS lteTrans _ _ _ E H) in G.
+                  exact G. 
+           +  unfold bop_minset_union, bop_reduce. 
+              intros t D. 
+              apply in_minset_elim in D; auto. destruct D as [D1 D2].
+              apply in_set_bop_union_elim in D1; auto.
+              destruct D1 as [D1 | D1]. 
+              * apply in_set_singleton_elim in D1; auto. 
+                apply symS in D1. rewrite (below_congruence S eqS lteS lteCong _ _ _ _ (refS (F ([ms] X))) D1). 
+                apply (below_not_reflexive S lteS).
+              * case_eq(in_set eqS ([ms] X) t); intro C.
+               -- exact (Q2 t C).
+               -- destruct (in_set_minset_false_elim _ eqS refS symS lteS lteCong lteRefl lteTrans _ _ D1 C) as [t' [D E]].
+                  assert (G := Q2 _ D).
+                  case_eq(below lteS (F ([ms] X)) t); intro H; auto.
+                  rewrite (below_transitive _ lteS lteTrans _ _ _ E H) in G.
+                  exact G. 
+         }    
+         assert (D := A _ B). rewrite D in Q1. discriminate Q1. 
+Defined. 
 
-       unfold brel_minset.
-       case_eq(brel_set rS ([ms] ((F ([ms] X) :: nil) <U> X)) ([ms] X)); intro A; auto.
-          apply brel_set_elim_prop in A; auto. destruct A as [A _].
-          assert (B : F ([ms] X) [in] ([ms] ((F ([ms] X) :: nil) <U> X))).           
-             apply in_minset_intro; auto. split. 
-                unfold bop_minset_union.
-                apply in_minset_intro; auto. split. 
-                   apply in_set_bop_union_intro; auto. 
-                   left. rewrite minset_singleton. apply in_set_singleton_intro; auto. 
-                   
-                   intros t B. apply in_set_bop_union_elim in B; auto. 
-                   destruct B as [B | B].
-                      rewrite minset_singleton in B. apply in_set_singleton_elim in B; auto. 
-                      apply symS in B. rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS (F ([ms] X))) B). 
-                      apply (below_not_reflexive S lteS).
-
-                      exact (Q2 t B). 
-                
-                unfold bop_minset_union.
-                intros t D. 
-                apply in_minset_elim in D; auto. destruct D as [D1 D2].
-                apply in_set_bop_union_elim in D1; auto.
-                destruct D1 as [D1 | D1]. 
-                   rewrite minset_singleton in D1. apply in_set_singleton_elim in D1; auto. 
-                   apply symS in D1. rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS (F ([ms] X))) D1). 
-                   apply (below_not_reflexive S lteS).
-                   
-                   exact (Q2 _ D1).
-             
-          assert (D := A _ B). rewrite D in Q1. discriminate Q1. 
-Qed.
-
-
-
-(*
-Lemma bop_minset_union_not_exists_ann_aux2 (bnf : bottoms_set_not_is_finite2 S rS lteS) : 
-  ∀ X : finite_set S, {Z : finite_set S & (Z <U> X) [<>MS] X}.
-Proof. intro X. destruct bnf as [F P].
-       exists ((F ([ms] X)) :: nil).
-       assert (Q := P ([ms] X) (uop_minset_is_antichain X)). 
-
-       unfold brel_minset.
-       case_eq(brel_set rS ([ms] ((F ([ms] X) :: nil) <U> X)) ([ms] X)); intro A; auto.
-          apply brel_set_elim_prop in A; auto. destruct A as [A _].
-          assert (B : F ([ms] X) [in] ([ms] ((F ([ms] X) :: nil) <U> X))).           
-             apply in_minset_intro; auto. split. 
-                unfold bop_minset_union.
-                apply in_minset_intro; auto. split. 
-                   apply in_set_bop_union_intro; auto. 
-                   left. rewrite minset_singleton. apply in_set_singleton_intro; auto. 
-                   
-                   intros t B. apply in_set_bop_union_elim in B; auto. 
-                   destruct B as [B | B].
-                      rewrite minset_singleton in B. apply in_set_singleton_elim in B; auto. 
-                      apply symS in B. rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS (F ([ms] X))) B). 
-                      apply (below_not_reflexive S lteS).
-
-                      exact (Q t B). 
-                
-                unfold bop_minset_union.
-                intros t D. 
-                apply in_minset_elim in D; auto. destruct D as [D1 D2].
-                apply in_set_bop_union_elim in D1; auto.
-                destruct D1 as [D1 | D1]. 
-                   rewrite minset_singleton in D1. apply in_set_singleton_elim in D1; auto. 
-                   apply symS in D1. rewrite (below_congruence S rS lteS lteCong _ _ _ _ (refS (F ([ms] X))) D1). 
-                   apply (below_not_reflexive S lteS).
-                   
-                   exact (Q _ D1).
-             
-         assert (D := A _ B).
-         assert (E := Q _ D).
-         admit.    (* this does not seem to work!  *)
-Admitted. 
-*) 
 
        
-Lemma bop_minset_union_not_exists_ann (bnf : bottoms_set_not_is_finite S rS lteS) : 
-  bop_not_exists_ann (finite_set S) (brel_minset rS lteS) bop_minset_union.
-Proof. unfold bop_not_exists_ann. intros X. 
+Lemma bop_minset_union_not_exists_ann (bnf : bottoms_set_not_is_finite S eqS lteS) : 
+  bop_not_exists_ann _ [MSEQ] [MSU].
+Proof. intros X. 
        destruct (bop_minset_union_not_exists_ann_aux bnf X) as [Z A]. 
        exists Z. right. exact A. 
 Defined. 
@@ -1293,27 +1133,26 @@ Definition bottoms_set_is_finite_decidable  (T : Type) (eq lte : brel T) :=
   (bottoms_set_is_finite T eq lte) + (bottoms_set_not_is_finite T eq lte).
 
 
-Definition bop_minset_union_exists_ann_decide (bf_d : bottoms_set_is_finite_decidable S rS lteS) :
-      bop_exists_ann_decidable (finite_set S) (brel_minset rS lteS) bop_minset_union
+Definition bop_minset_union_exists_ann_decide (bf_d : bottoms_set_is_finite_decidable S eqS lteS) :
+      bop_exists_ann_decidable _ [MSEQ] [MSU]
  := match bf_d with
      | inl p  => inl (bop_minset_union_exists_ann p) 
      | inr p => inr (bop_minset_union_not_exists_ann p)
     end.
 
 
-Lemma bop_minset_union_is_glb_wrt_lte_left : bop_is_glb (brel_lte_left (brel_minset rS lteS) bop_minset_union) bop_minset_union.
+Lemma bop_minset_union_is_glb_wrt_lte_left : bop_is_glb (brel_lte_left [MSEQ] [MSU]) [MSU].
 Proof. apply bop_is_glb_wrt_lte_left.
        apply brel_minset_reflexive; auto. 
        apply brel_minset_symmetric; auto. 
        apply brel_minset_transitive; auto. 
        apply bop_minset_union_associative; auto.
-       apply bop_minset_union_congruence; auto.        
+       apply bop_minset_union_congruence; auto.
        apply bop_minset_union_idempotent; auto.        
        apply bop_minset_union_commutative; auto.        
 Qed. 
 
-
-Lemma bop_union_is_lub_wrt_lte_right : bop_is_lub (brel_lte_right (brel_minset rS lteS) bop_minset_union) bop_minset_union.
+Lemma bop_union_is_lub_wrt_lte_right : bop_is_lub (brel_lte_right [MSEQ] [MSU]) [MSU].
 Proof. apply bop_is_lub_wrt_lte_right. 
        apply brel_minset_reflexive; auto. 
        apply brel_minset_symmetric; auto. 
@@ -1324,128 +1163,57 @@ Proof. apply bop_is_lub_wrt_lte_right.
        apply bop_minset_union_commutative; auto.        
 Qed. 
 
-(*
-Lemma minset_subset_implies_lte_right (X Y : finite_set S) (A : brel_minset_subset rS lteS X Y = true) :
-       brel_lte_right (brel_minset rS lteS) bop_minset_union X Y = true. 
-Proof. unfold brel_lte_right. unfold brel_minset. 
-       apply brel_set_intro. split. 
-       - apply brel_subset_minset_union_right. 
-       - unfold brel_minset_subset in A.
-         assert (B := brel_subset_elim _ _ symS tranS _ _ A). 
-         apply brel_subset_intro; auto. 
-         intros a C.
-         apply in_minset_intro; auto. 
-         apply in_minset_elim in C; auto. destruct C as [C D].
-         apply in_minset_elim in C; auto. destruct C as [C E].
-         apply in_set_bop_union_elim in C; auto. 
-         destruct C as [C | C]; split.
-         + assert (F := B _ C).
-           apply in_minset_elim in F; auto. destruct F as [F _].
-           exact F. 
-         + intros t F.
-           assert (G := B _ C).
-           apply in_minset_elim in G; auto. destruct G as [G H].
-           apply H; auto. 
-         + apply in_minset_elim in C; auto. destruct C as [C F].
-           exact C.
-         + intros t F. 
-           apply in_minset_elim in C; auto. destruct C as [C G].
-           apply G; auto. 
-Qed. 
-
-
-Lemma lte_right_implies_minset_subset (X Y : finite_set S) (A : brel_lte_right (brel_minset rS lteS) bop_minset_union X Y = true) :
-      brel_minset_subset rS lteS X Y = true. 
-Proof. unfold brel_lte_right in A. unfold brel_minset_subset.
-       unfold brel_minset in A. 
-       apply brel_set_elim in A; auto. destruct A as [A B].
-       assert (C := brel_subset_minset_union_left X Y). 
-       exact (brel_subset_transitive S rS refS symS tranS _ _ _ C B).  
-Qed. 
-*) 
-
-(* Think of (brel_minset_subset r) as an "optimization" of 
-   brel_lte_right (brel_minsetset r) (bop_minset_union r) 
-
-Lemma bop_minset_union_lub : bop_is_lub (brel_minset_subset rS lteS) bop_minset_union. 
-Proof. intros X Y.
-       destruct (bop_union_is_lub_wrt_lte_right X Y) as [A B].
-       unfold is_upper_bound in A. destruct A as [A C].
-       unfold is_lub. split. 
-       - unfold is_upper_bound. split. 
-         + unfold brel_minset_subset.
-           apply lte_right_implies_minset_subset. exact A. 
-         + unfold brel_minset_subset.
-           apply lte_right_implies_minset_subset. exact C. 
-       - intros U D. unfold is_upper_bound in D. destruct D as [D E]. 
-         assert (G : is_upper_bound (brel_lte_right (brel_minset rS lteS) bop_minset_union) X Y U).
-            unfold is_upper_bound. split.
-              apply minset_subset_implies_lte_right. exact D. 
-              apply minset_subset_implies_lte_right. exact E. 
-         assert (F := B U G).
-         apply lte_right_implies_minset_subset. exact F. 
-Qed.
- *)
-
-(*
-Lemma bop_minset_union_glb : bop_is_glb (brel_dual (brel_minset_subset rS lteS)) bop_minset_union. 
-Proof.  apply lub_implies_dual_glb. apply bop_minset_union_lub. Qed. 
-*) 
-
-
 End Theory.
 
 Section ACAS.
 
 
 Definition sg_CI_proofs_minset_union_from_po : 
-  ∀ (S : Type) (rS lteS : brel S) (s : S) (f : S -> S) ,
-     brel_not_trivial S rS f ->     
-     eqv_proofs S rS -> po_proofs S rS lteS -> 
-        sg_CI_proofs (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS)
-  := λ S rS lteS s f ntS eqvS poS,
-let congS := A_eqv_congruence S rS eqvS in  
-let refS := A_eqv_reflexive S rS eqvS in
-let symS := A_eqv_symmetric S rS eqvS in
-let tranS := A_eqv_transitive S rS eqvS in
+  ∀ (S : Type) (eqS lteS : brel S) (s : S) (f : S -> S) ,
+     brel_not_trivial S eqS f ->     
+     eqv_proofs S eqS -> po_proofs S eqS lteS -> 
+        sg_CI_proofs (finite_set S) (brel_minset eqS lteS) (bop_minset_union eqS lteS)
+  := λ S eqS lteS s f ntS eqvS poS,
+let congS := A_eqv_congruence S eqS eqvS in  
+let refS := A_eqv_reflexive S eqS eqvS in
+let symS := A_eqv_symmetric S eqS eqvS in
+let tranS := A_eqv_transitive S eqS eqvS in
 
-let lteCong    := A_po_congruence S rS lteS poS in
-let lteRefl    := A_po_reflexive S rS lteS poS in
-let lteTran    := A_po_transitive S rS lteS poS in
-let lteAntiSym := A_po_antisymmetric S rS lteS poS in 
-let tot        := A_po_not_total S rS lteS poS in 
+let lteCong    := A_po_congruence S eqS lteS poS in
+let lteRefl    := A_po_reflexive S eqS lteS poS in
+let lteTran    := A_po_transitive S eqS lteS poS in
+let lteAntiSym := A_po_antisymmetric S eqS lteS poS in 
+let tot        := A_po_not_total S eqS lteS poS in 
 {|
-  A_sg_CI_associative        := bop_minset_union_associative S rS refS symS tranS lteS lteCong lteRefl lteTran 
-; A_sg_CI_congruence         := bop_minset_union_congruence S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_commutative        := bop_minset_union_commutative S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_idempotent         := bop_minset_union_idempotent S rS refS symS tranS lteS lteCong lteRefl lteTran
-(*; A_sg_CI_selective_d        := bop_minset_union_selective_decide_v1 S rS refS symS tranS lteS lteCong lteRefl lteTran (inr tot) lteAntiSym *) 
-; A_sg_CI_not_selective        := bop_minset_union_not_selective S rS refS symS tranS lteS lteCong lteRefl lteTran tot 
+  A_sg_CI_associative        := bop_minset_union_associative S eqS refS symS tranS lteS lteCong lteRefl lteTran 
+; A_sg_CI_congruence         := bop_minset_union_congruence S eqS refS symS tranS lteS lteCong lteRefl lteTran
+; A_sg_CI_commutative        := bop_minset_union_commutative S eqS refS symS tranS lteS lteCong lteRefl lteTran
+; A_sg_CI_idempotent         := bop_minset_union_idempotent S eqS refS symS tranS lteS lteCong lteRefl lteTran
+; A_sg_CI_not_selective        := bop_minset_union_not_selective S eqS refS symS tranS lteS lteCong lteRefl lteTran tot 
 |}. 
 
 (* Uhg!  huge duplication here ... change mostly "po" -> "qo"! *)
 Definition sg_CI_proofs_minset_union_from_qo : 
-  ∀ (S : Type) (rS lteS : brel S) (s : S) (f : S -> S) ,
-     brel_not_trivial S rS f ->     
-     eqv_proofs S rS -> qo_proofs S rS lteS -> 
-        sg_CI_proofs (finite_set S) (brel_minset rS lteS) (bop_minset_union S rS lteS)
-  := λ S rS lteS s f ntS eqvS qoS,
-let congS := A_eqv_congruence S rS eqvS in  
-let refS := A_eqv_reflexive S rS eqvS in
-let symS := A_eqv_symmetric S rS eqvS in
-let tranS := A_eqv_transitive S rS eqvS in
+  ∀ (S : Type) (eqS lteS : brel S) (s : S) (f : S -> S) ,
+     brel_not_trivial S eqS f ->     
+     eqv_proofs S eqS -> qo_proofs S eqS lteS -> 
+        sg_CI_proofs (finite_set S) (brel_minset eqS lteS) (bop_minset_union eqS lteS)
+  := λ S eqS lteS s f ntS eqvS qoS,
+let congS := A_eqv_congruence S eqS eqvS in  
+let refS := A_eqv_reflexive S eqS eqvS in
+let symS := A_eqv_symmetric S eqS eqvS in
+let tranS := A_eqv_transitive S eqS eqvS in
 
-let lteCong    := A_qo_congruence S rS lteS qoS in
-let lteRefl    := A_qo_reflexive S rS lteS qoS in
-let lteTran    := A_qo_transitive S rS lteS qoS in
-let lteNotAntiSym := A_qo_not_antisymmetric S rS lteS qoS in 
+let lteCong    := A_qo_congruence S eqS lteS qoS in
+let lteRefl    := A_qo_reflexive S eqS lteS qoS in
+let lteTran    := A_qo_transitive S eqS lteS qoS in
+let lteNotAntiSym := A_qo_not_antisymmetric S eqS lteS qoS in 
 {|
-  A_sg_CI_associative        := bop_minset_union_associative S rS refS symS tranS lteS lteCong lteRefl lteTran 
-; A_sg_CI_congruence         := bop_minset_union_congruence S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_commutative        := bop_minset_union_commutative S rS refS symS tranS lteS lteCong lteRefl lteTran
-; A_sg_CI_idempotent         := bop_minset_union_idempotent S rS refS symS tranS lteS lteCong lteRefl lteTran
-(*; A_sg_CI_selective_d        := inr (brel_not_antisymmetric_implies_bop_minset_union_not_selective S rS refS symS tranS lteS lteCong lteRefl lteTran lteNotAntiSym) *) 
-; A_sg_CI_not_selective        := brel_not_antisymmetric_implies_bop_minset_union_not_selective S rS refS symS tranS lteS lteCong lteRefl lteTran lteNotAntiSym
+  A_sg_CI_associative        := bop_minset_union_associative S eqS refS symS tranS lteS lteCong lteRefl lteTran 
+; A_sg_CI_congruence         := bop_minset_union_congruence S eqS refS symS tranS lteS lteCong lteRefl lteTran
+; A_sg_CI_commutative        := bop_minset_union_commutative S eqS refS symS tranS lteS lteCong lteRefl lteTran
+; A_sg_CI_idempotent         := bop_minset_union_idempotent S eqS refS symS tranS lteS lteCong lteRefl lteTran
+; A_sg_CI_not_selective        := brel_not_antisymmetric_implies_bop_minset_union_not_selective S eqS refS symS tranS lteS lteCong lteRefl lteTran lteNotAntiSym
 |}. 
 
 
@@ -1469,7 +1237,7 @@ Definition A_sg_minset_union_from_po_with_bottom (S : Type) (A : A_po_with_botto
   let anti       := A_po_antisymmetric _ _ _ poP in
   {| 
      A_sg_BCI_eqv          := A_eqv_minset_from_or S (A_or_from_po_with_bottom A)
-   ; A_sg_BCI_bop          := bop_minset_union S eq lteS
+   ; A_sg_BCI_bop          := bop_minset_union eq lteS
    ; A_sg_BCI_exists_id    := bop_minset_union_exists_id S eq refS symS tranS lteS lteCong lteRefl lteTran
    ; A_sg_BCI_exists_ann   := bop_minset_union_exists_ann_with_antisymmetry S eq refS symS tranS lteS lteCong lteRefl lteTran anti botP
    ; A_sg_BCI_proofs       := sg_CI_proofs_minset_union_from_po S eq lteS s f ntS eqP poP 
@@ -1496,7 +1264,7 @@ Definition A_sg_minset_union_from_po_bounded (S : Type) (A : A_po_bounded S) : A
   let anti       := A_po_antisymmetric _ _ _ poP in
   {| 
      A_sg_BCI_eqv          := A_eqv_minset_from_or S (A_or_from_po_bounded A)
-   ; A_sg_BCI_bop          := bop_minset_union S eq lteS
+   ; A_sg_BCI_bop          := bop_minset_union eq lteS
    ; A_sg_BCI_exists_id    := bop_minset_union_exists_id S eq refS symS tranS lteS lteCong lteRefl lteTran
    ; A_sg_BCI_exists_ann   := bop_minset_union_exists_ann_with_antisymmetry S eq refS symS tranS lteS lteCong lteRefl lteTran anti botP
    ; A_sg_BCI_proofs       := sg_CI_proofs_minset_union_from_po S eq lteS s f ntS eqP poP 
@@ -1525,7 +1293,7 @@ Definition A_sg_minset_union_from_qo_with_bottom (S : Type) (A : A_qo_with_botto
 
   {| 
      A_sg_BCI_eqv          := A_eqv_minset_from_or S (A_or_from_qo_with_bottom A)
-   ; A_sg_BCI_bop          := bop_minset_union S eq lteS
+   ; A_sg_BCI_bop          := bop_minset_union eq lteS
    ; A_sg_BCI_exists_id    := bop_minset_union_exists_id S eq refS symS tranS lteS lteCong lteRefl lteTran
    ; A_sg_BCI_exists_ann   := bop_minset_union_exists_ann_without_antisymmetry S eq refS symS tranS lteS lteCong lteRefl lteTran botP
    ; A_sg_BCI_proofs       := sg_CI_proofs_minset_union_from_qo S eq lteS s f ntS eqP poP 
@@ -1553,7 +1321,7 @@ Definition A_sg_minset_union_from_qo_bounded (S : Type) (A : A_qo_bounded S) : A
 
   {| 
      A_sg_BCI_eqv          := A_eqv_minset_from_or S (A_or_from_qo_bounded A)
-   ; A_sg_BCI_bop          := bop_minset_union S eq lteS
+   ; A_sg_BCI_bop          := bop_minset_union eq lteS
    ; A_sg_BCI_exists_id    := bop_minset_union_exists_id S eq refS symS tranS lteS lteCong lteRefl lteTran
    ; A_sg_BCI_exists_ann   := bop_minset_union_exists_ann_without_antisymmetry S eq refS symS tranS lteS lteCong lteRefl lteTran botP
    ; A_sg_BCI_proofs       := sg_CI_proofs_minset_union_from_qo S eq lteS s f ntS eqP poP 
@@ -1596,14 +1364,6 @@ End AMCAS.
 
 Section CAS.
 
-(*  
-
-Definition  check_minset_union_exists_ann {S : Type} (df_d : @check_bottoms_finite S) : @check_exists_ann (finite_set S)
-  := match df_d with
-     | Certify_Bottoms_Finite (f, _)  => Certify_Exists_Ann (f tt)
-     | Certify_Is_Not_Bottoms_Finite => Certify_Not_Exists_Ann
-     end.
-*)
   
 Definition assert_minset_union_not_selective {S : Type} (ntot : @assert_not_total S) : @assert_not_selective (finite_set S)
   := match ntot with
@@ -1644,7 +1404,7 @@ Definition sg_minset_union_from_po_with_bottom {S : Type} (A : @po_with_bottom S
 
    {| 
      sg_BCI_eqv           := eqv_minset_from_or (or_from_po_with_bottom A)
-   ; sg_BCI_bop           := bop_minset_union S eq lteS 
+   ; sg_BCI_bop           := bop_minset_union eq lteS 
    ; sg_BCI_exists_id     := Assert_Exists_Id nil 
    ; sg_BCI_exists_ann    := match po_wb_exists_bottom A with
                              | Assert_Exists_Bottom b => Assert_Exists_Ann (b :: nil)
@@ -1660,7 +1420,7 @@ Definition sg_minset_union_from_po_bounded {S : Type} (A : @po_bounded S) : @sg_
 
    {| 
      sg_BCI_eqv           := eqv_minset_from_or (or_from_po_bounded A)
-   ; sg_BCI_bop           := bop_minset_union S eq lteS 
+   ; sg_BCI_bop           := bop_minset_union eq lteS 
    ; sg_BCI_exists_id     := Assert_Exists_Id nil 
    ; sg_BCI_exists_ann    := match po_bd_exists_bottom A with
                              | Assert_Exists_Bottom b => Assert_Exists_Ann (b :: nil)
@@ -1675,7 +1435,7 @@ Definition sg_minset_union_from_qo_with_bottom {S : Type} (A : @qo_with_bottom S
   let lteS := qo_wb_lte A   in   
    {| 
      sg_BCI_eqv           := eqv_minset_from_or (or_from_qo_with_bottom A)
-   ; sg_BCI_bop           := bop_minset_union S eq lteS 
+   ; sg_BCI_bop           := bop_minset_union eq lteS 
    ; sg_BCI_exists_id     := Assert_Exists_Id nil 
    ; sg_BCI_exists_ann    := match qo_wb_exists_bottom A with
                              | Assert_Exists_Qo_Bottom b => Assert_Exists_Ann (b :: nil)
@@ -1691,7 +1451,7 @@ Definition sg_minset_union_from_qo_bounded {S : Type} (A : @qo_bounded S) : @sg_
   let lteS := qo_bd_lte A   in   
    {| 
      sg_BCI_eqv           := eqv_minset_from_or (or_from_qo_bounded A)
-   ; sg_BCI_bop           := bop_minset_union S eq lteS 
+   ; sg_BCI_bop           := bop_minset_union eq lteS 
    ; sg_BCI_exists_id     := Assert_Exists_Id nil 
    ; sg_BCI_exists_ann    := match qo_bd_exists_bottom A with
                              | Assert_Exists_Qo_Bottom b => Assert_Exists_Ann (b :: nil)
@@ -1742,7 +1502,7 @@ Lemma bop_minset_union_from_po_certs_correct
       (S : Type) (eq lte : brel S) (s : S) (f : S -> S) (nt : brel_not_trivial S eq f) (eqv : eqv_proofs S eq) (po : po_proofs S eq lte) : 
       sg_CI_certs_minset_union_from_po (P2C_po eq lte po) 
       =                        
-      P2C_sg_CI (finite_set S) (brel_minset eq lte) (bop_minset_union S eq lte)
+      P2C_sg_CI (finite_set S) (brel_minset eq lte) (bop_minset_union eq lte)
                 (sg_CI_proofs_minset_union_from_po S eq lte s f nt eqv po).
 Proof. destruct eqv, po. 
        unfold sg_CI_certs_minset_union_from_po, sg_CI_proofs_minset_union_from_po, P2C_sg_CI, P2C_po; simpl.
@@ -1753,7 +1513,7 @@ Lemma bop_minset_union_from_qo_certs_correct
       (S : Type) (eq lte : brel S) (s : S) (f : S -> S) (nt : brel_not_trivial S eq f) (eqv : eqv_proofs S eq) (qo : qo_proofs S eq lte) : 
       sg_CI_certs_minset_union_from_qo (P2C_qo eq lte qo) 
       =                        
-      P2C_sg_CI (finite_set S) (brel_minset eq lte) (bop_minset_union S eq lte)
+      P2C_sg_CI (finite_set S) (brel_minset eq lte) (bop_minset_union eq lte)
                 (sg_CI_proofs_minset_union_from_qo S eq lte s f nt eqv qo).
 Proof. destruct eqv, qo. 
        unfold sg_CI_certs_minset_union_from_qo, sg_CI_proofs_minset_union_from_qo, P2C_sg_CI, P2C_qo; simpl.

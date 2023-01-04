@@ -104,7 +104,7 @@ Section Theory.
        (reduced_type S eqS (uop_compose r2 r1))
        (reduced_equality S eqS (uop_compose r2 r1))
        (reduced_bop S b (uop_compose r2 r1) eqS composition_idempotent).
-  Proof. apply reduced_bop_ass; auto. 
+  Proof. apply reduced_bop_associative; auto. 
          - apply composition_congruence.
          - apply composition_left_uop_invariant.
          - apply composition_right_uop_invariant. 
@@ -143,51 +143,54 @@ Section Theory.
   (* now, show correctess of "OCaml" version by 
      tracing back to "ground truth". 
   *) 
-  Lemma uop_compose_is_reduction : uop_is_bop_reduction eqS b (uop_compose r2 r1). 
+  Lemma uop_compose_is_reduction : bop_uop_invariant eqS b (uop_compose r2 r1). 
   Proof. apply r_is_b_reduction; auto.
-         + apply composition_left_uop_invariant.
-         + apply composition_right_uop_invariant.
+         + exact composition_left_uop_invariant.
+         + exact composition_right_uop_invariant.
   Qed. 
 
   Lemma uop_compose_bop_congruence : 
     bop_congruence S (brel_reduce eqS (uop_compose r2 r1)) (bop_reduce (uop_compose r2 r1) b). 
-  Proof. apply bop_full_reduce_congruence_iff_bop_reduce_congruence; auto.
-         - apply composition_congruence.
-         - apply uop_compose_is_reduction. 
-         - apply (reduced_bop_congruence_iff S b (uop_compose r2 r1) 
-                    eqS symS trnS b_cong  composition_congruence composition_idempotent).
-           apply uop_compose_classical_bop_congruence.
+  Proof. apply bop_reduce_congruence; auto.
+         - exact composition_congruence.
+         - exact uop_compose_is_reduction. 
   Qed. 
 
   Lemma uop_compose_bop_associative : 
     bop_associative S (brel_reduce eqS (uop_compose r2 r1)) (bop_reduce (uop_compose r2 r1) b). 
-  Proof. apply bop_full_reduce_associative_iff_bop_reduce_associative; auto.
-         - apply composition_congruence.
-         - apply uop_compose_is_reduction. 
-         - apply (reduced_bop_associative_iff S b (uop_compose r2 r1) 
-                    eqS refS symS trnS b_cong  composition_congruence composition_idempotent).
-           apply uop_compose_classical_bop_associative.
+  Proof. apply bop_reduce_associative; auto.
+         - exact composition_congruence.
+         - exact composition_idempotent.
+         - exact composition_left_uop_invariant.
+         - exact composition_right_uop_invariant.
   Qed. 
-
 
   Lemma uop_compose_bop_commutative (comm : bop_commutative S eqS b) : 
     bop_commutative S (brel_reduce eqS (uop_compose r2 r1)) (bop_reduce (uop_compose r2 r1) b). 
-  Proof. apply bop_full_reduce_commutative_iff_bop_reduce_commutative; auto.
-         - apply composition_congruence.
-         - apply uop_compose_is_reduction. 
-         - apply (reduced_bop_commutative_iff S b (uop_compose r2 r1) 
-                    eqS symS trnS b_cong  composition_congruence composition_idempotent).
-           apply uop_compose_classical_bop_commutative; auto. 
+  Proof. apply bop_reduce_commutative; auto. 
+         - exact composition_congruence.
+         - exact composition_idempotent.
+         - exact composition_left_uop_invariant.
+         - exact composition_right_uop_invariant.
   Qed. 
 
   Lemma uop_compose_bop_idempotent (idem : bop_idempotent S eqS b) : 
     bop_idempotent S (brel_reduce eqS (uop_compose r2 r1)) (bop_reduce (uop_compose r2 r1) b). 
-  Proof. apply bop_full_reduce_idempotent_iff_bop_reduce_idempotent; auto.
-         - apply composition_congruence.
-         - apply uop_compose_is_reduction. 
-         - apply (reduced_bop_idempotent_iff_left S b (uop_compose r2 r1) 
-                    eqS trnS composition_idempotent).
-           apply uop_compose_classical_bop_idempotent; auto.
+  Proof. apply bop_reduce_idempotent; auto. 
+         - exact composition_congruence.
+         - exact composition_idempotent.
+         - exact composition_left_uop_invariant.
+         - exact composition_right_uop_invariant.
+  Qed. 
+
+
+  Lemma uop_compose_bop_selective (sel : bop_selective S eqS b) : 
+    bop_selective S (brel_reduce eqS (uop_compose r2 r1)) (bop_reduce (uop_compose r2 r1) b). 
+  Proof. apply bop_reduce_selective; auto. 
+         - exact composition_congruence.
+         - exact composition_idempotent.
+         - exact composition_left_uop_invariant.
+         - exact composition_right_uop_invariant.
   Qed. 
 
   Lemma uop_compose_bop_not_selective
@@ -196,11 +199,10 @@ Section Theory.
     (Q2 : let (_, s) := projT1 nsel in eqS (uop_compose r2 r1 s) s = true)
     (P : let (s, t) := projT1 nsel in (eqS (uop_compose r2 r1 (b s t)) s = false) * (eqS (uop_compose r2 r1 (b s t)) t = false)) :           
     bop_not_selective S (brel_reduce eqS (uop_compose r2 r1)) (bop_reduce (uop_compose r2 r1) b). 
-  Proof. apply bop_full_reduce_not_selective_implies_bop_reduce_not_selective; auto.
-         - apply composition_idempotent.
-         - apply (reduced_bop_not_selective_iff_left S b (uop_compose r2 r1) 
-                    eqS symS trnS b_cong composition_congruence composition_idempotent).
-           apply (uop_compose_classical_bop_not_selective nsel); auto.
+  Proof. apply (bop_reduce_not_selective _
+                  b (uop_compose r2 r1)
+                  eqS symS trnS b_cong
+                  composition_congruence composition_idempotent nsel); auto. 
   Qed. 
 
 End Theory. 

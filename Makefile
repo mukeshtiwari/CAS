@@ -112,6 +112,7 @@ CAS=\
    coq/bs/add_one.v \
    coq/bs/left.v \
    coq/bs/right.v \
+   coq/bs/reduce.v \
    coq/bs/union_lift.v \
    coq/bs/intersect_union.v \
    coq/bs/union_intersect.v \
