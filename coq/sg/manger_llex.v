@@ -1,15 +1,23 @@
 Require Import Coq.Lists.List.
 Require Import Coq.Strings.String.
 Require Import CAS.coq.common.compute.
+
 Require Import CAS.coq.po.properties.
+Require Import CAS.coq.po.trivial.
+
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.product.
+
 Require Import CAS.coq.eqv.set.
-Require Import CAS.coq.eqv.reduce. 
-Require Import CAS.coq.eqv.manger_sets. 
-Require Import CAS.coq.sg.properties. 
-Require Import CAS.coq.sg.union.
+Require Import CAS.coq.eqv.reduce.
+Require Import CAS.coq.eqv.minset. 
+Require Import CAS.coq.eqv.manger_sets.
+
+Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.reduce.
+Require Import CAS.coq.sg.union.
+Require Import CAS.coq.sg.minset_union.
+
 Require Import CAS.coq.theory.set.
 Require Import CAS.coq.uop.properties. 
 Require Import CAS.coq.uop.commutative_composition. 
@@ -55,7 +63,8 @@ Section Theory.
     (symP : brel_symmetric P eqP)
     (trnP : brel_transitive P eqP)
     (conLte : brel_congruence A eqA lteA) 
-    (refLte : brel_reflexive A lteA) 
+    (refLte : brel_reflexive A lteA)
+    (trnLte : brel_transitive A lteA) 
     (ntot : brel_not_total A lteA). 
     
   Local Definition eqAP : brel (A * P)
@@ -240,20 +249,68 @@ Section Theory.
   Lemma P1_right : bop_right_uop_invariant _ eqSAP (bop_reduce [P1] bSAP) [P1].
   Admitted.
 
-  (* show [P2] is a reduction *)  
+  (* show [P2] is a reduction. 
+
+     Mukesh: I've modified minset_union so that it is now
+     compatible with our Manger definitions. 
+     So, now we can get the following results about [P2] 
+     from more general results about uop_minset and bop_minset_union. 
+  *)  
   Lemma P2_cong : uop_congruence _ eqSAP [P2].
-  Admitted. (* this should come from eqv/manger_sets.v *) 
+  Proof. unfold uop_manger_phase_2.
+         apply uop_minset_congruence_weak.
+         - exact refAP.
+         - exact symAP.
+         - exact trnAP.
+         - apply brel_product_congruence; auto.
+           + apply brel_trivial_congruence. 
+         - apply brel_product_reflexive; auto.
+           + apply brel_trivial_reflexive.
+         - apply brel_product_transitive; auto.
+           + apply brel_trivial_transitive.
+  Qed.
   
   Lemma P2_idem : uop_idempotent _ eqSAP [P2].
-  Admitted. (* this should come from eqv/manger_sets.v *) 
-  
-  Lemma P2_left : bop_left_uop_invariant _ eqSAP (bop_reduce [P2] bSAP) [P2].
-  Admitted.
-  
-  Lemma P2_right : bop_right_uop_invariant _ eqSAP (bop_reduce [P2] bSAP) [P2].
-  Admitted.
+  Proof. unfold uop_manger_phase_2.
+         apply uop_minset_idempotent. 
+         - exact refAP.
+         - exact symAP.
+         - exact trnAP.
+         - apply brel_product_congruence; auto.
+           + apply brel_trivial_congruence. 
+         - apply brel_product_reflexive; auto.
+           + apply brel_trivial_reflexive.
+  Qed.
 
-  (* Now, show that the two reductions commute! I hope this is true! *) 
+  Lemma P2_left : bop_left_uop_invariant _ eqSAP (bop_reduce [P2] bSAP) [P2].
+  Proof. apply minset_union_left_uop_invariant.
+         - exact refAP.
+         - exact symAP.
+         - exact trnAP.
+         - apply brel_product_congruence; auto.
+           + apply brel_trivial_congruence. 
+         - apply brel_product_reflexive; auto.
+           + apply brel_trivial_reflexive.
+         - apply brel_product_transitive; auto.
+           + apply brel_trivial_transitive.
+  Qed.
+
+  Lemma P2_right : bop_right_uop_invariant _ eqSAP (bop_reduce [P2] bSAP) [P2].
+  Proof. apply minset_union_right_uop_invariant.
+         - exact refAP.
+         - exact symAP.
+         - exact trnAP.
+         - apply brel_product_congruence; auto.
+           + apply brel_trivial_congruence. 
+         - apply brel_product_reflexive; auto.
+           + apply brel_trivial_reflexive.
+         - apply brel_product_transitive; auto.
+           + apply brel_trivial_transitive.
+  Qed.
+
+  (* Now, show that the two reductions commute! 
+    **** I hope this is true! *****
+  *) 
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
   Admitted.
 
