@@ -11,7 +11,8 @@ Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.structures.
 Require Import CAS.coq.eqv.theory.
 Require Import CAS.coq.eqv.set.
-Require Import CAS.coq.eqv.list. 
+Require Import CAS.coq.eqv.list.
+Require Import CAS.coq.eqv.reduce. 
 
 Require Import CAS.coq.po.properties.
 Require Import CAS.coq.po.structures.
@@ -74,8 +75,12 @@ Fixpoint  iterate_minset {S : Type} (lte : brel S) (W Y X : finite_set S): (fini
 Definition uop_minset {S : Type} (lte :brel S) (X : finite_set S) : (finite_set S) := 
     let (_, Y) := iterate_minset lte nil nil X in Y. 
 
-Definition brel_minset {S : Type} (eq lte : brel S)  : brel (finite_set S)
+(*Definition brel_minset {S : Type} (eq lte : brel S)  : brel (finite_set S)
   := λ X Y, brel_set eq (uop_minset lte X) (uop_minset lte Y).
+ *)
+
+Definition brel_minset {S : Type} (eq lte : brel S)  : brel (finite_set S)
+  := brel_reduce (brel_set eq) (uop_minset lte). 
 
 End Computation. 
 
@@ -1065,9 +1070,8 @@ Proof. intro A. unfold uop_minset.
        exact (set_transitive _ _ _ C D). 
 Qed. 
 
-Lemma uop_minset_idempotent (X : finite_set S):   ([ms] ([ms] X)) [=S] ([ms] X).
-Proof.  exact (uop_minset_on_antichain ([ms] X) (uop_minset_is_antichain X)). Qed.
-
+Lemma uop_minset_idempotent : uop_idempotent (finite_set S) (brel_set rS) (uop_minset lteS).   
+Proof.  intro X. exact (uop_minset_on_antichain ([ms] X) (uop_minset_is_antichain X)). Qed.
 
 Lemma in_minset_minset_intro (X : finite_set S) (a : S) (A : a [in] ([ms] X)) :  a [in] ([ms] ([ms] X)). 
 Proof. assert (B := uop_minset_idempotent X). 
@@ -1095,10 +1099,11 @@ Proof. unfold brel_congruence.
        intros X1 Y1 X2 Y2 A B. 
        unfold brel_minset in A, B.
        assert (C := brel_minset_congruence_weak _ _ _ _ A B). 
-       unfold brel_minset in C.
+       unfold brel_minset, brel_reduce in C. 
        assert (D := set_congruence _ _ _ _ (uop_minset_idempotent X1) (uop_minset_idempotent Y1)).
        assert (E := set_congruence _ _ _ _ (uop_minset_idempotent X2) (uop_minset_idempotent Y2)).        
-       rewrite D in C. rewrite E in C. unfold brel_minset. exact C. 
+       rewrite D in C. rewrite E in C. unfold brel_minset, brel_reduce.
+       exact C. 
 Qed. 
 
 
@@ -1363,19 +1368,17 @@ Qed.
        
 
 Lemma brel_minset_nil_singleton (X : finite_set S) : ∀ (s : S), nil [<>MS] (s :: X).
-  Proof. unfold brel_minset. rewrite minset_empty. unfold uop_minset. 
-         induction X.          
-            intro s. unfold iterate_minset.
-            assert (A : find (below lteS s) nil = None). compute; auto. 
-            rewrite A. compute; auto. 
-            intro s. unfold iterate_minset.            
+Proof. unfold brel_minset, brel_reduce.
+       induction X; intro s. 
+       - compute; auto. 
+       - unfold uop_minset, iterate_minset.            
             case_eq(find (below lteS s) (a :: X)).
                intros t A. 
                case_eq(find (below lteS a) X).
                   intros u B. 
                   fold(iterate_minset lteS (a :: s :: nil) nil X). 
                   assert (C := IHX a).                
-                  unfold iterate_minset in C. rewrite B in C. 
+                  unfold uop_minset, iterate_minset in C. rewrite B in C. 
                   fold(iterate_minset lteS (a :: nil) nil X) in C; auto.
                   assert (D := iterate_minset_invariant_0 X (a :: nil) (a :: s :: nil) nil).
                   unfold snd in D. rewrite D in C. exact C. 
@@ -1424,7 +1427,7 @@ Lemma brel_minset_nil_singleton (X : finite_set S) : ∀ (s : S), nil [<>MS] (s 
                     assert (G := brel_subset_transitive _ rS refS symS tranS _ _ _ F E). 
                     compute in G. discriminate G. 
 Qed. 
-                  
+
 Lemma brel_minset_singleton_nil (s : S) (X : finite_set S): (s :: X) [<>MS] nil.
  Proof. case_eq(brel_minset rS lteS (s :: X) nil); intro A; auto. 
        apply brel_minset_symmetric in A.
@@ -1460,10 +1463,10 @@ Proof. destruct X; destruct Y.
           intros t Z A. apply brel_minset_nil_singleton.  
        unfold minset_negate. rewrite minset_empty.       
        case_eq([ms] (s :: X)).
-          intro A. unfold brel_minset.  rewrite minset_singleton. 
-          case_eq(brel_set rS ([ms] (s :: X)) (wS :: nil)); intro B; auto. 
-             rewrite A in B. compute in B. discriminate B. 
-          intros t Z A.  unfold brel_minset.  rewrite minset_singleton. 
+       intro A. unfold brel_minset.  unfold brel_reduce. rewrite minset_singleton.
+       assert (B := brel_minset_nil_singleton X s). unfold brel_minset, brel_reduce in B.
+       rewrite A in B. compute in B. discriminate B. 
+       intros t Z A.  unfold brel_minset, brel_reduce.  rewrite minset_singleton. 
           case_eq(brel_set rS ([ms] (s :: X)) (fS t :: nil)); intro B; auto. 
              rewrite A in B. apply set_symmetric in B. 
              apply brel_set_elim in B; auto. destruct B as [_ B].
@@ -1476,11 +1479,11 @@ Proof. destruct X; destruct Y.
        case_eq([ms] (s :: X)).
           intro A.
           assert (B : nil [=MS] (s :: X)).
-             unfold brel_minset. rewrite A. compute; auto. 
+             unfold brel_minset, brel_reduce. rewrite A. compute; auto. 
           rewrite brel_minset_nil_singleton  in B. discriminate B. 
           intros t Z A. 
           case_eq([ms] (s0 :: Y)). 
-             intro B. unfold brel_minset. 
+             intro B. unfold brel_minset, brel_reduce.
              rewrite A.
              case_eq(brel_set rS (t :: Z) ([ms] (fS t :: nil))); intro C; auto. 
                 apply brel_set_elim in C; auto. destruct C as [C _].
@@ -1547,7 +1550,7 @@ Definition squash : list (finite_set S) -> list S
 
 Lemma brel_minset_singleton_elim (X : finite_set S) (s : S) : X [=MS] (s :: nil) → s [in] X. 
 Proof. intro A.
-       unfold brel_minset in A. 
+       unfold brel_minset, brel_reduce in A. 
        rewrite minset_singleton in A. 
        apply brel_set_elim in A; auto. destruct A as [_ A].
        assert (B := brel_subset_elim _ _ symS tranS _ _ A).

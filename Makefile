@@ -22,11 +22,6 @@ BASE=\
    coq/theory/set.v \
    coq/theory/lattice_theory.v \
    coq/theory/semilattice_theory.v \
-   coq/theory/reduction/full.v   \
-   coq/theory/reduction/representations.v \
-   coq/theory/reduction/full.v \
-   coq/theory/reduction/predicate.v \
-   coq/theory/reduction/zeroes.v \
 
 CAS=\
    coq/eqv/properties.v \
@@ -42,8 +37,6 @@ CAS=\
    coq/eqv/product.v \
    coq/eqv/add_constant.v \
    coq/eqv/reduce.v \
-   coq/eqv/predicate_reduce.v \
-   coq/eqv/nat_ceiling.v \
    coq/eqv/minset.v \
    coq/eqv/manger_sets.v \
    coq/sg/properties.v \
@@ -71,6 +64,7 @@ CAS=\
    coq/sg/lift.v \
    coq/sg/minset_union.v \
    coq/sg/minset_lift.v \
+   coq/sg/reduce.v \
    coq/sg/manger_llex.v \
    coq/sg/manger_product.v \
    coq/po/properties.v \
@@ -118,6 +112,7 @@ CAS=\
    coq/bs/add_one.v \
    coq/bs/left.v \
    coq/bs/right.v \
+   coq/bs/reduce.v \
    coq/bs/union_lift.v \
    coq/bs/intersect_union.v \
    coq/bs/union_intersect.v \
@@ -146,6 +141,10 @@ CAS=\
    coq/ot/left/length_cons.v \
    coq/ot/left/product_product.v \
    coq/uop/properties.v \
+   coq/uop/product.v \
+   coq/uop/left_sum.v \
+   coq/uop/right_sum.v \
+   coq/uop/commutative_composition.v \
    coq/algorithms/dijkstra/general.v \
    coq/algorithms/list_congruences.v \
    coq/algorithms/matrix_definition.v \

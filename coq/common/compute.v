@@ -150,9 +150,6 @@ Definition brel_or_sym : ∀ {S : Type}, brel S -> brel S
 := λ {S} r x y,  (r x y) || (r y x). 
 
 
-Definition brel_reduce : ∀ {S : Type}, brel S → unary_op S → brel S
-:= λ {S} r u x y,  r (u x) (u y). 
-
 
 (* brel2 *) 
 
@@ -167,16 +164,6 @@ Open Scope list_scope.
 
 Definition uop_not : unary_op bool := λ b, if b then false else true.  
 
-Definition uop_id : ∀ {S : Type}, (unary_op S) := λ {S} s, s.  
-
-
-Definition uop_with_constant : ∀ {S : Type}, unary_op S → unary_op (with_constant S)
-:= λ {S} g x ,  
-      match x with
-         | (inl _) => x 
-         | (inr s) => inr _ (g s) 
-      end.
-
 Definition uop_list_map : ∀ {S : Type}, unary_op S → unary_op (list S) 
 := λ {S} f,  
   fix map (l : list S) : list S :=
@@ -184,20 +171,6 @@ Definition uop_list_map : ∀ {S : Type}, unary_op S → unary_op (list S)
   | nil => nil
   | a :: t => f a :: map t
   end. 
-
-Definition uop_product : ∀ {S T : Type}, unary_op S → unary_op T → unary_op (S * T) 
-:= λ {S} {T} f g p,  
-   match p with
-    | (s, t) => (f s, g t) 
-   end.
-
-Definition uop_sum : ∀ {S T : Type}, unary_op S → unary_op T → unary_op (S + T)
-:= λ {S} {T} f g x ,  
-      match x with
-         | (inl s) => inl _ (f s)
-         | (inr t) => inr _ (g t) 
-      end.
-
 
 (* copied here from Coq.Lists.List.v    
    so that extraction does not construct a 
@@ -244,22 +217,6 @@ Definition bop_concat : ∀ {S : Type}, binary_op (list S) := λ {S} x y,  x ++ 
 
 Definition bop_then_unary : ∀ {S : Type} (u : unary_op S) (b : binary_op S), binary_op S 
 := λ {S} u b x y,  u (b x y). 
-
-(*
-Definition bop_reduce : ∀ {S : Type} (u : unary_op S) (b : binary_op S), binary_op S 
-  := λ {S} u b x y,  u (b (u x) (u y)).
-*) 
-
-Definition bop_reduce {S : Type} (r : unary_op S) (b : binary_op S) : binary_op S
-  := λ x y,  r (b x y).
-
-Definition bop_reduce_args {S : Type} (r : unary_op S) (b : binary_op S) : binary_op S
-  := λ x y,  b (r x) (r y).   
-
-Definition bop_full_reduce {S : Type} (r : unary_op S) (b : binary_op S) : binary_op S
-  := λ x y,  r(b (r x) (r y)).   
-
-
 
 Definition ltran_list_product : ∀ {S : Type} (bs : binary_op S), ltr_type S (list S) 
 := fix f {S} bs a y := 
