@@ -310,9 +310,14 @@ Section Theory.
 
   (* Now, show that the two reductions commute! 
     **** I hope this is true! *****
-  *) 
+  *)
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
+  Proof.
+    unfold uop_manger_phase_1, 
+    uop_manger_phase_2,
+    manger_phase_1_auxiliary.
   Admitted.
+
 
   (* Given the above lemmas, we can now use the results of 
      cas/coq/uop/commutative_composition.v to 
