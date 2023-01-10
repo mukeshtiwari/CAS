@@ -322,24 +322,33 @@ Section Theory.
 
   *)
 
-
+  (* More constraints on Y? *)
   Lemma hunch : 
     forall X Y W : finite_set (A * P),
-    snd (iterate_minset (manger_pre_order lteA) W Y X) =
+    snd (iterate_minset (manger_pre_order lteA) W Y X) =S=
     fold_left (manger_merge_sets eqA addP) X Y.
   Proof.
-    induction X as [|x X IHx];
+    induction X as [|(ax, bx) X IHx];
     simpl.
     + 
       intros ? ?.
-      reflexivity.
+      admit.
     +
-      
+      intros ? ?.
+      case_eq (find (theory.below (manger_pre_order lteA) (ax, bx)) X).
+      ++
+        intros (ap, bp) Hap.
+        (* I know that x is in the X.
+          X = X₁ ++ [(ax, bx)] ++ X₂
+
+          I am off by one for the second component? 
+          More constraints on Y? 
+        *)
 
   Admitted.
 
-
-
+  
+  
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
   Proof.
     unfold uop_manger_phase_2, 
@@ -347,29 +356,62 @@ Section Theory.
     manger_phase_1_auxiliary,
     uop_minset.
     intros X.
-    repeat erewrite <-hunch with (W := nil).
-    destruct (iterate_minset (manger_pre_order lteA) nil nil X) as 
-      (Ya & Wa); cbn.
-    destruct (iterate_minset (manger_pre_order lteA) nil nil Wa) as 
-    (Yb & Wb); cbn.
-    eapply refSAP.
-  Qed.
+    Print eqSAP.
+  
+    (*
+      
+      X = [(a, b); (a, c)] 
+      
+      LHS: when we pass it through the fold_left we get [(a, addP b c)]
+      and running iterate_minset on [(a, addP b c)] return [(a, addP b c)], 
+      unchanged. 
 
+      RHS: we run iterate_minset on X and we get [(a, c)] and 
+      running fold_left on [(a, c)] returns [(a, c)].
 
-
-
+      so [(a, addP b c)] =S= [(a, c)], only if we don't 
+      compare the second component.
     
-    (* 
+    
+    
       Discuss this with Tim:
-      We have Y = (fold_left (manger_merge_sets eqA addP) X nil) 
-      then we can infer
-      ∀ a b, In a Y -> In b Y -> equivalent a b ∨ incomparable a b
-
+      LHS:
+      We have Y = (fold_left (manger_merge_sets eqA addP) X nil).
       Basically Y contains incomporable elements, so 
-      what will happen if I run iterate_minset on Y with 
-      (manger_pre_order lteA)? 
-      Claim: we will get 
-      the Y back (is this true, Tim?)
+      my claim is:
+      iterate_minset (manger_pre_order lteA) nil nil Y = Y. 
+    
+      RHS:
+      We have Y = snd (iterate_minset (manger_pre_order lteA) nil nil X).
+      Y contains again incomparable elements so 
+      my claim is 
+      fold_left (manger_merge_sets eqA addP) Y = Y
+
+      Challenge:
+      From LHS I get 
+        (fold_left (manger_merge_sets eqA addP) X nil)
+      From RHS I get 
+        snd (iterate_minset (manger_pre_order lteA) nil nil X)
+      So how can I show them they are:
+      (fold_left (manger_merge_sets eqA addP) X nil) 
+      =S=
+      (snd (iterate_minset (manger_pre_order lteA) nil nil X)). 
+
+      
+
+
+
+
+
+      I feel this is not quite true but this lemma:
+      List.map fst ((fold_left (manger_merge_sets eqA addP) X nil)) 
+      =S=
+      List.map fst (snd (iterate_minset (manger_pre_order lteA) nil nil X))
+
+
+
+
+
     *)
 
       
