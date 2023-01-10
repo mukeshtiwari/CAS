@@ -323,8 +323,8 @@ Section Theory.
   *)
 
 
-  Lemma hunch  : 
-    forall X Y W,
+  Lemma hunch : 
+    forall X Y W : finite_set (A * P),
     snd (iterate_minset (manger_pre_order lteA) W Y X) =
     fold_left (manger_merge_sets eqA addP) X Y.
   Proof.
@@ -334,7 +334,7 @@ Section Theory.
       intros ? ?.
       reflexivity.
     +
-
+      
 
   Admitted.
 
@@ -346,12 +346,18 @@ Section Theory.
     uop_manger_phase_1,
     manger_phase_1_auxiliary,
     uop_minset.
-    intros.
+    intros X.
     repeat erewrite <-hunch with (W := nil).
-    
-    (* Do I really want to do induction? *)
-    Print manger_pre_order.
-    Print brel_trivial.
+    destruct (iterate_minset (manger_pre_order lteA) nil nil X) as 
+      (Ya & Wa); cbn.
+    destruct (iterate_minset (manger_pre_order lteA) nil nil Wa) as 
+    (Yb & Wb); cbn.
+    eapply refSAP.
+  Qed.
+
+
+
+
     
     (* 
       Discuss this with Tim:
@@ -364,28 +370,8 @@ Section Theory.
       (manger_pre_order lteA)? 
       Claim: we will get 
       the Y back (is this true, Tim?)
-
-
-      
-
-
-      
-      
-
     *)
 
-
-
-    induction X.
-    + reflexivity.
-    +
-      
-      
-      (* 
-        What does uop_minset does? 
-      *) 
-  Admitted.
-       
       
     
     
