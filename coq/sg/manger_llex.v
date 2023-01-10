@@ -233,8 +233,10 @@ Section Theory.
   Defined. 
 
   Local Notation "x =S= y" := (eqSAP x y = true) (at level 70). 
-  Local Notation "[P1]" := (uop_manger_phase_1 eqA addP).  (* Phase 1 reduction *) 
-  Local Notation "[P2]" := (@uop_manger_phase_2 A P lteA). (* Phase 2 reduction *)
+  Local Notation "[P1]" := (uop_manger_phase_1 eqA addP)
+    (only parsing).  (* Phase 1 reduction *) 
+  Local Notation "[P2]" := (@uop_manger_phase_2 A P lteA)
+    (only parsing). (* Phase 2 reduction *)
 
   (* show [P1] is a reduction *)  
   Lemma P1_cong : uop_congruence _ eqSAP [P1].
@@ -308,16 +310,86 @@ Section Theory.
            + apply brel_trivial_transitive.
   Qed.
 
+
   (* Now, show that the two reductions commute! 
     **** I hope this is true! *****
+    Seems true but difficult. 
+
+    By looking at the code iterate_minset, 
+    it seems that it splits X into list W and Y where 
+    Y contains the lowest elements according to 
+    (below lte a) 
+
   *)
-  Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
+
+
+  Lemma hunch  : 
+    forall X Y W,
+    snd (iterate_minset (manger_pre_order lteA) W Y X) =
+    fold_left (manger_merge_sets eqA addP) X Y.
   Proof.
-    unfold uop_manger_phase_1, 
-    uop_manger_phase_2,
-    manger_phase_1_auxiliary.
+    induction X as [|x X IHx];
+    simpl.
+    + 
+      intros ? ?.
+      reflexivity.
+    +
+
+
   Admitted.
 
+
+
+  Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
+  Proof.
+    unfold uop_manger_phase_2, 
+    uop_manger_phase_1,
+    manger_phase_1_auxiliary,
+    uop_minset.
+    intros.
+    repeat erewrite <-hunch with (W := nil).
+    
+    (* Do I really want to do induction? *)
+    Print manger_pre_order.
+    Print brel_trivial.
+    
+    (* 
+      Discuss this with Tim:
+      We have Y = (fold_left (manger_merge_sets eqA addP) X nil) 
+      then we can infer
+      ∀ a b, In a Y -> In b Y -> equivalent a b ∨ incomparable a b
+
+      Basically Y contains incomporable elements, so 
+      what will happen if I run iterate_minset on Y with 
+      (manger_pre_order lteA)? 
+      Claim: we will get 
+      the Y back (is this true, Tim?)
+
+
+      
+
+
+      
+      
+
+    *)
+
+
+
+    induction X.
+    + reflexivity.
+    +
+      
+      
+      (* 
+        What does uop_minset does? 
+      *) 
+  Admitted.
+       
+      
+    
+    
+    
 
   (* Given the above lemmas, we can now use the results of 
      cas/coq/uop/commutative_composition.v to 
@@ -356,7 +428,7 @@ Section Theory.
   Proof. unfold bSAP_not_selective.
          destruct ntot as [[a1 a2] [L R]]. simpl.
          split.
-         - admit. 
+         - admit.
          - admit. 
   Admitted.          
 
