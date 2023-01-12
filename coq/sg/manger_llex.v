@@ -314,50 +314,46 @@ Section Theory.
   (* Now, show that the two reductions commute! 
     **** I hope this is true! *****
     Seems true but difficult. 
-
-    By looking at the code iterate_minset, 
-    it seems that it splits X into list W and Y where 
-    Y contains the lowest elements according to 
-    (below lte a) 
-
   *)
 
-  (* More constraints on Y? *)
-  Lemma hunch : 
-    forall X Y W : finite_set (A * P),
-    snd (iterate_minset (manger_pre_order lteA) W Y X) =S=
-    fold_left (manger_merge_sets eqA addP) X Y.
-  Proof.
-    induction X as [|(ax, bx) X IHx];
-    simpl.
-    + 
-      intros ? ?.
-      admit.
-    +
-      intros ? ?.
-      case_eq (find (theory.below (manger_pre_order lteA) (ax, bx)) X).
-      ++
-        intros (ap, bp) Hap.
-        (* I know that x is in the X.
-          X = X₁ ++ [(ax, bx)] ++ X₂
-
-          I am off by one for the second component? 
-          More constraints on Y? 
-        *)
-
-  Admitted.
 
   
   
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
   Proof.
-    unfold uop_manger_phase_2, 
-    uop_manger_phase_1,
-    manger_phase_1_auxiliary,
-    uop_minset.
-    intros X.
-    Print eqSAP.
-  
+    intro X.
+    apply brel_set_intro_prop; auto.
+    + admit.
+    + split.
+      ++
+        intros (a, p) Ha.
+        unfold uop_manger_phase_2 in * |- *.
+        eapply in_minset_elim in Ha.
+        destruct Ha as [Hal Har].
+        (* intro rule for uop_manger phase_1 *)
+        unfold uop_manger_phase_1,
+        manger_phase_1_auxiliary.
+  Admitted.
+
+
+
+
+
+      
+        (*
+      Elim rule:
+        in_set eqAP
+    (uop_manger_phase_1 eqA addP X) (a, p) = true => 
+
+    p is the sum of second component in X whose first component in a. 
+
+    Intro rule 
+
+
+      
+      *)      
+
+
     (*
       
       X = [(a, b); (a, c)] 
