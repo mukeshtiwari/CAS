@@ -315,17 +315,6 @@ Section Theory.
     **** I hope this is true! *****
     Seems true but difficult. 
   *)
-
-  (* Not quite right. p is sum of 
-    all the second component*)
-  Import ListNotations.
-  Lemma uop_manger_phase_1_intro : 
-    forall (X : finite_set (A * P)) (a : A) (p : P),
-    in_set eqAP
-    (uop_manger_phase_1 eqA addP X) (a, p) = true ->
-    [p] = map snd (filter (λ '(x, _), eqA x a) X).
-  Admitted.
-
   
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
   Proof.
@@ -339,8 +328,6 @@ Section Theory.
         eapply in_minset_elim in Ha.
         destruct Ha as [Hal Har].
         (* intro rule for uop_manger phase_1 *)
-        unfold uop_manger_phase_1,
-        manger_phase_1_auxiliary.
   Admitted.
 
 
@@ -358,12 +345,6 @@ Section Theory.
     Intro rule 
 
 
-      
-      *)      
-
-
-    (*
-      
       X = [(a, b); (a, c)] 
       
       LHS: when we pass it through the fold_left we get [(a, addP b c)]
