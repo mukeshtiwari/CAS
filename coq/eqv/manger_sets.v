@@ -158,21 +158,6 @@ Definition equal_manger_v2
 
 (* conjecture these two equalities are the same *) 
 
-(* *)
-Definition sum_finite_set {P : Type} 
-  (addP : binary_op P)
-  (Y : finite_set P) (a : P) : P := 
-  fold_right (λ x y, addP x y) a Y.
-
-Definition sum_finite_set_option {P : Type} 
-  (addP : binary_op P)
-  (Y : finite_set P) : option P :=
-  match Y with 
-  | [] => None
-  | h :: t => Some (sum_finite_set addP t h)
-  end.
-
-
 
 End Computation. 
 
@@ -958,7 +943,7 @@ Proof.
     congruence.
   +
     intros ? ? ? fassoc fcom fcong Ha Hb.
-    simpl in *|- *.
+    simpl in * |- *.
     case_eq ((in_set eqP X a));
     case_eq (eqP a x); 
     intros Hc Hd.
@@ -1207,7 +1192,7 @@ Proof.
     congruence.
   +
     intros ? ? ? fassoc fcom fcong Ha Hb.
-    simpl in *|- *.
+    simpl in * |- *.
     case_eq ((in_set eqP X a));
     case_eq (eqP a ax); 
     intros Hc Hd;
@@ -2388,65 +2373,5 @@ Proof. intro X. unfold uop_manger_phase_2.
        - apply manger_pre_order_congruence. 
        - apply manger_pre_order_reflexive.
 Qed.          
-
-
-(* 
-  Facts about uop_manger_phase_1 
-*)
-Lemma MMS_functional_ext : 
-  [MMS] = [MMSN].
-Proof.
-  apply 
-    FunctionalExtensionality.functional_extensionality_dep.
-  intros X.
-  apply 
-    FunctionalExtensionality.functional_extensionality_dep.
-  intros x.
-  apply manger_merge_set_manger_merge_set_new_same.
-Qed.
-  
-
-(* Try to prove this statement for 
-  uop_manger_phase_1_auxilary because 
-  it has more general X and Y *)
-
-
-
-
-
-Lemma uop_manger_phase_1_intro : 
-  forall (X : finite_set (A * P)) (a : A) (p : P),
-  (a, p) [in] [P1] X ->
-  Some p = sum_finite_set_option addP 
-    (map snd (filter (λ '(x, _), eqA x a) X)).
-Proof.
-  intros ? ? ? Ha.
-  unfold uop_manger_phase_1, 
-  manger_phase_1_auxiliary in Ha.
-  unfold manger_phase_1_auxiliary;
-  generalize dependent p.
-  generalize dependent a.
-  generalize dependent X.
-  induction X as [|(ax, bx) X IHx].
-  +
-    intros ? ? Ha.
-    simpl in Ha;
-    congruence.
-  +
-    intros ? ? Ha.
-    simpl in * |- *.
-    case_eq (eqA ax a); 
-    intro Hb.
-    ++
-      simpl.
-      f_equal.
-      (* It's true *)
-      admit.
-    ++
-      simpl.
-      (* It's true *)
-      admit.
-
-Admitted.
 
 End Theory.   

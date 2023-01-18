@@ -318,16 +318,6 @@ Section Theory.
   
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
   Proof.
-    intro X.
-    apply brel_set_intro_prop; auto.
-    + admit.
-    + split.
-      ++
-        intros (a, p) Ha.
-        unfold uop_manger_phase_2 in * |- *.
-        eapply in_minset_elim in Ha.
-        destruct Ha as [Hal Har].
-        (* intro rule for uop_manger phase_1 *)
   Admitted.
 
 
