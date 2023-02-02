@@ -18,8 +18,10 @@ Require Import CAS.coq.sg.and.
 Require Import CAS.coq.sg.union.
 Require Import CAS.coq.sg.lift.
 Require Import CAS.coq.sg.product.
-
+Require Import CAS.coq.algorithms.matrix_algorithms.
 Require Import CAS.coq.uop.properties.
+Require Import CAS.coq.po.theory.
+
 
 Import ListNotations.
 
@@ -167,6 +169,7 @@ Variables (A P : Type)
           (eqA lteA : brel A)
           (eqP : brel P)          
           (addP : binary_op P)
+          (zeroP : P)
           (refA : brel_reflexive A eqA)
           (symA : brel_symmetric A eqA)
           (trnA : brel_transitive A eqA)
@@ -178,6 +181,7 @@ Variables (A P : Type)
           (cong_eqP : brel_congruence P eqP eqP)
           (cong_eqA : brel_congruence A eqA eqA)
           (ref_lteA : brel_reflexive A lteA)
+          (trn_lteA: brel_transitive A lteA)
           (* is idemP really needed, or is it 
              a consequence of using lists to represent sets?
           *) 
@@ -389,6 +393,16 @@ Proof. unfold manger_pre_order.
        apply brel_product_reflexive; auto.
        apply brel_trivial_reflexive. 
 Qed.
+
+ 
+Lemma manger_pre_order_transitive :
+  brel_transitive (A * P) (manger_pre_order lteA).
+Proof.
+  apply brel_product_transitive;
+  auto.
+  eapply brel_trivial_transitive.
+Qed.
+
 
 (* properties of equality [EQ1] *)
 
@@ -2373,5 +2387,153 @@ Proof. intro X. unfold uop_manger_phase_2.
        - apply manger_pre_order_congruence. 
        - apply manger_pre_order_reflexive.
 Qed.          
+
+
+Lemma in_set_uop_manger_phase_1_aux_lemma : 
+  forall (X : finite_set (A * P)) 
+  (a : A) (p : P),
+  in_set  (brel_product eqA eqP) 
+    (uop_manger_phase_1 eqA addP X) (a, p) = true ->
+  X <> nil.
+Proof.
+  destruct X as [|(ax, ay) X];
+  simpl.
+  +
+    intros ? ? Ha.
+    congruence.
+  +
+    intros ? ? Ha Hb.
+    congruence.
+Qed.
+
+
+Lemma  manger_pre_order_below_congruence : 
+  brel_congruence (A * P) (brel_product eqA eqP)
+  (manger_pre_order (below eqA)).
+Proof.
+  unfold manger_pre_order.
+  apply brel_product_congruence.
+  eapply below_congruence; assumption.
+  compute; intros; reflexivity.
+Qed.
+
+
+
+Lemma in_set_fold_left_intro : 
+  forall (X Y : finite_set (A * P))
+    (a : A) (p : P),
+    in_set (brel_product eqA eqP) Y (a, p) = false -> 
+    eqP p (sum_fn zeroP addP snd 
+      (filter (λ '(x, _), eqA x a) X)) = true ->
+    (a, p) [in] fold_left [MMS] X Y.
+Proof.
+
+Admitted.
+
+
+Lemma in_set_fold_left_elim : 
+  forall (X Y : finite_set (A * P))
+    (a : A) (p : P),
+    in_set (brel_product eqA eqP) Y (a, p) = false -> 
+    (a, p) [in] fold_left [MMS] X Y ->
+    eqP p (sum_fn zeroP addP snd 
+      (filter (λ '(x, _), eqA x a) X)) = true.
+Proof.
+Admitted.
+
+
+Lemma in_set_uop_manger_phase_1_intro : 
+  forall (X : finite_set (A * P)) 
+  (a : A) (p : P),
+  (∃ q : P, (a, q) [in] X) ->
+  eqP p (sum_fn zeroP addP snd 
+    (filter (λ '(x, _), eqA x a) X)) = true -> 
+  in_set (brel_product eqA eqP) 
+    (uop_manger_phase_1 eqA addP X) (a, p) = true.
+Proof.
+  intros ? ? ? [q Ha] Hb.
+  unfold uop_manger_phase_1, 
+  manger_phase_1_auxiliary.
+  eapply in_set_fold_left_intro;
+  cbn; [reflexivity | exact Hb].
+Qed.
+
+Lemma in_set_uop_manger_phase_1_elim : 
+  forall (X : finite_set (A * P)) 
+  (a : A) (p : P),
+  in_set  (brel_product eqA eqP) 
+    (uop_manger_phase_1 eqA addP X) (a, p) = true ->
+  (∃ q : P, (a, q) [in] X /\ 
+  eqP p (sum_fn zeroP addP snd 
+    (filter (λ '(x, _), eqA x a) X)) = true).
+Proof.
+Admitted.
+
+
+Lemma in_set_uop_manger_phase_2_intro : 
+  forall (X : finite_set (A * P)) 
+  (a : A) (p : P),
+  (a, p) [in] X ->
+  (forall (b : A) (q : P), (b, q) [in] X -> 
+    below lteA a b = false) ->  
+  in_set (brel_product eqA eqP) 
+    (uop_manger_phase_2 lteA X) (a, p) = true.
+Proof.
+  intros ? ? ? Ha Hb.
+  apply in_minset_intro;
+  [eapply refAP |
+  eapply symAP |
+  eapply manger_pre_order_congruence |
+  eapply manger_pre_order_reflexive |].
+  split.
+  + 
+    exact Ha.
+  +
+    intros (tx, ty) Hc.
+    apply below_false_intro.
+    pose proof (Hb _ _ Ha) as Hd.
+    pose proof (Hb _ _ Hc) as He.
+    eapply below_false_elim in He.
+    destruct He as [He | He];
+    compute; rewrite He; auto.
+  Qed.
+
+ 
+  
+
+Lemma in_set_uop_manger_phase_2_elim : 
+  forall (X : finite_set (A * P)) 
+  (a : A) (p : P),  
+  in_set (brel_product eqA eqP) 
+    (uop_manger_phase_2 lteA X) (a, p) = true ->
+  (a, p) [in] X ∧
+  (forall (b : A) (q : P), (b, q) [in] X -> 
+    below lteA a b = false).
+Proof.
+  intros ? ? ? Ha.
+  eapply in_minset_elim in Ha.
+  destruct Ha as [Hal Har].
+  refine(conj _ _);
+  [exact Hal |].
+  intros ? ? Hb.
+  pose proof (Har _ Hb) as Hc.
+  compute in Hc.
+  compute.
+  case_eq (lteA b a);
+  intros Hd.
+  rewrite Hd in Hc.
+  case_eq (lteA a b);
+  intros He.
+  reflexivity.
+  rewrite He in Hc;
+  congruence.
+  reflexivity.
+  apply refAP.
+  apply symAP.
+  eapply manger_pre_order_congruence.
+  eapply manger_pre_order_reflexive.
+  eapply manger_pre_order_transitive.
+Qed.
+
 
 End Theory.   
