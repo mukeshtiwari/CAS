@@ -2418,34 +2418,49 @@ Proof.
 Qed.
 
 
-
+(* 
 Lemma in_set_fold_left_intro : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
-    in_set (brel_product eqA eqP) Y (a, p) = false -> 
+    in_set eqA (map fst Y) a = false -> 
     eqP p (sum_fn zeroP addP snd 
       (filter (λ '(x, _), eqA x a) X)) = true ->
     (a, p) [in] fold_left [MMS] X Y.
 Proof.
-
+  induction X.
+  +
+   intros.
+   cbn in * |- *.
 Admitted.
 
 
 Lemma in_set_fold_left_elim : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
-    in_set (brel_product eqA eqP) Y (a, p) = false -> 
+    in_set eqA (map fst Y) a = false -> 
     (a, p) [in] fold_left [MMS] X Y ->
     eqP p (sum_fn zeroP addP snd 
       (filter (λ '(x, _), eqA x a) X)) = true.
 Proof.
 Admitted.
+*)
+
+
+Lemma manger_merge_set_funex : [MMS] = [MMSN].
+Proof.
+  eapply FunctionalExtensionality.functional_extensionality;
+  intros X.
+  eapply FunctionalExtensionality.functional_extensionality;
+  intros x.
+  eapply manger_merge_set_manger_merge_set_new_same.
+Qed.
+  
 
 
 Lemma in_set_uop_manger_phase_1_intro : 
   forall (X : finite_set (A * P)) 
   (a : A) (p : P),
-  (∃ q : P, (a, q) [in] X) ->
+  (∃ q : P, (a, q) [in] X) -> 
   eqP p (sum_fn zeroP addP snd 
     (filter (λ '(x, _), eqA x a) X)) = true -> 
   in_set (brel_product eqA eqP) 
@@ -2454,19 +2469,21 @@ Proof.
   intros ? ? ? [q Ha] Hb.
   unfold uop_manger_phase_1, 
   manger_phase_1_auxiliary.
-  eapply in_set_fold_left_intro;
-  cbn; [reflexivity | exact Hb].
-Qed.
+  rewrite manger_merge_set_funex.
+Admitted.
 
 Lemma in_set_uop_manger_phase_1_elim : 
   forall (X : finite_set (A * P)) 
   (a : A) (p : P),
   in_set  (brel_product eqA eqP) 
     (uop_manger_phase_1 eqA addP X) (a, p) = true ->
-  (∃ q : P, (a, q) [in] X /\ 
+  (∃ q : P, (a, q) [in] X) /\ 
   eqP p (sum_fn zeroP addP snd 
-    (filter (λ '(x, _), eqA x a) X)) = true).
+    (filter (λ '(x, _), eqA x a) X)) = true.
 Proof.
+  intros ? ? ? Ha.
+  split.
+
 Admitted.
 
 
