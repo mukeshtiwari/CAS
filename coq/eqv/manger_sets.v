@@ -2418,33 +2418,6 @@ Proof.
 Qed.
 
 
-(* 
-Lemma in_set_fold_left_intro : 
-  forall (X Y : finite_set (A * P))
-    (a : A) (p : P),
-    in_set eqA (map fst Y) a = false -> 
-    eqP p (sum_fn zeroP addP snd 
-      (filter (λ '(x, _), eqA x a) X)) = true ->
-    (a, p) [in] fold_left [MMS] X Y.
-Proof.
-  induction X.
-  +
-   intros.
-   cbn in * |- *.
-Admitted.
-
-
-Lemma in_set_fold_left_elim : 
-  forall (X Y : finite_set (A * P))
-    (a : A) (p : P),
-    in_set eqA (map fst Y) a = false -> 
-    (a, p) [in] fold_left [MMS] X Y ->
-    eqP p (sum_fn zeroP addP snd 
-      (filter (λ '(x, _), eqA x a) X)) = true.
-Proof.
-Admitted.
-*)
-
 
 Lemma manger_merge_set_funex : [MMS] = [MMSN].
 Proof.
@@ -2455,6 +2428,32 @@ Proof.
   eapply manger_merge_set_manger_merge_set_new_same.
 Qed.
   
+
+
+Lemma existence_non_empty : 
+  forall (X : finite_set (A * P)) 
+  (a : A),
+  (∃ q : P, (a, q) [in] X) -> X <> nil.
+Proof.
+  destruct X as [|(ax, bx) X];
+  simpl; intro a;
+  intros [q Ha] Hb;
+  congruence.
+Qed.
+ 
+
+Lemma in_set_fold_left_intro : 
+  forall (X Y : finite_set (A * P))
+    (a : A) (p : P),
+    (forall (x : A) (y : P), 
+      in_set (brel_product eqA eqP) Y (x, y) = true -> 
+      eqA x a = false) ->
+    (∃ q : P, (a, q) [in] X) -> 
+    eqP p (sum_fn zeroP addP snd 
+      (filter (λ '(x, _), eqA x a) X)) = true ->
+    (a, p) [in] fold_left [MMSN] X Y.
+Proof.
+Admitted.
 
 
 Lemma in_set_uop_manger_phase_1_intro : 
@@ -2470,7 +2469,40 @@ Proof.
   unfold uop_manger_phase_1, 
   manger_phase_1_auxiliary.
   rewrite manger_merge_set_funex.
+  (* 
+    First thing: 
+    generalise the [] to Y because it will 
+    make the induction hypothesis stronger, 
+    otherwise it is impossible to prove this, 
+    at least from my experience.
+  *)
+  eapply in_set_fold_left_intro.
+  +
+    intros ? ? Hc.
+    simpl in Hc;
+    congruence.
+  +
+    exists q;
+    exact Ha.
+  +
+    exact Hb.
+Qed.
+
+
+
+Lemma in_set_fold_left_elim : 
+  forall (X Y : finite_set (A * P))
+    (a : A) (p : P),
+    (forall (x : A) (y : P), 
+      in_set (brel_product eqA eqP) Y (x, y) = true -> 
+      eqA x a = false) ->
+    (a, p) [in] fold_left [MMSN] X Y ->
+    (∃ q : P, (a, q) [in] X) ∧
+    eqP p (sum_fn zeroP addP snd 
+      (filter (λ '(x, _), eqA x a) X)) = true.
+Proof.
 Admitted.
+
 
 Lemma in_set_uop_manger_phase_1_elim : 
   forall (X : finite_set (A * P)) 
@@ -2481,10 +2513,24 @@ Lemma in_set_uop_manger_phase_1_elim :
   eqP p (sum_fn zeroP addP snd 
     (filter (λ '(x, _), eqA x a) X)) = true.
 Proof.
-  intros ? ? ? Ha.
-  split.
-
-Admitted.
+    intros ? ? ? Ha.
+    unfold uop_manger_phase_1,
+    manger_phase_1_auxiliary in Ha;
+    rewrite manger_merge_set_funex in Ha.
+    (*
+      generalise the [] to Y because it will 
+      make the induction hypothesis stronger, 
+      otherwise it is impossible to prove this, 
+      at least from my experience.
+    *)
+    eapply in_set_fold_left_elim with (Y := nil).
+    +
+      intros ? ? Hb.
+      simpl in Hb;
+      congruence.
+    +
+      exact Ha.
+Qed.
 
 
 Lemma in_set_uop_manger_phase_2_intro : 
