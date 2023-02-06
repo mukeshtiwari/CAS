@@ -2442,17 +2442,21 @@ Proof.
 Qed.
  
 
-Lemma in_set_fold_left_intro : 
+(* 
+
+  bop_union X Y = elim_duplicate (X ++ Y)
+
+*)
+
+Lemma in_set_fold_left_mmsn_intro : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
-    (forall (x : A) (y : P), 
-      in_set (brel_product eqA eqP) Y (x, y) = true -> 
-      eqA x a = false) ->
     (∃ q : P, (a, q) [in] X) -> 
     eqP p (sum_fn zeroP addP snd 
-      (filter (λ '(x, _), eqA x a) X)) = true ->
+      (filter (λ '(x, _), eqA x a) (X ++ Y))) = true ->
     (a, p) [in] fold_left [MMSN] X Y.
 Proof.
+
 Admitted.
 
 
@@ -2476,30 +2480,24 @@ Proof.
     otherwise it is impossible to prove this, 
     at least from my experience.
   *)
-  eapply in_set_fold_left_intro.
-  +
-    intros ? ? Hc.
-    simpl in Hc;
-    congruence.
+  eapply in_set_fold_left_mmsn_intro.
   +
     exists q;
     exact Ha.
   +
+    rewrite app_nil_r.
     exact Hb.
 Qed. 
 
 
 
-Lemma in_set_fold_left_elim : 
+Lemma in_set_fold_left_mmsn_elim : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
-    (forall (x : A) (y : P), 
-      in_set (brel_product eqA eqP) Y (x, y) = true -> 
-      eqA x a = false) ->
     (a, p) [in] fold_left [MMSN] X Y ->
     (∃ q : P, (a, q) [in] X) ∧ 
     eqP p (sum_fn zeroP addP snd 
-      (filter (λ '(x, _), eqA x a) X)) = true.
+      (filter (λ '(x, _), eqA x a) (X ++ Y))) = true.
 Proof.
 Admitted.
 
@@ -2523,13 +2521,13 @@ Proof.
       otherwise it is impossible to prove this, 
       at least from my experience.
     *)
-    eapply in_set_fold_left_elim with (Y := nil).
-    +
-      intros ? ? Hb.
-      simpl in Hb;
-      congruence.
+    replace (X) with (X ++[]) at 1.
+    eapply in_set_fold_left_mmsn_elim with (Y := nil).
     +
       exact Ha.
+    +
+      rewrite app_nil_r;
+      exact eq_refl.
 Qed.
 
 
