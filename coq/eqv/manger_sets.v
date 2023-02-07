@@ -2446,16 +2446,99 @@ Qed.
 
   bop_union X Y = elim_duplicate (X ++ Y)
 
+  (a, p) [in] fold_left [MMSN] X Y <-> 
+  ∃ X₁ X₂, X₁ ++ X₂ =S= X ++ Y ∧
+   (forall x y, (x, y) [in] X₁ -> 
+   eqA x a = true) ∧
+   eqP p (sum_fn zeroP addP snd X₁)
+
+
+
+Lemma in_set_fold_left_mmsn_forward : 
+  forall (X Y X₁ Y₁ : finite_set (A * P))
+  (a : A) (p : P),
+  X <> nil -> 
+  X₁ ++ Y₁ =S= X ++ Y ->
+  (forall x y, (x, y) [in] Y₁ -> 
+   eqA x a = true) -> 
+   eqP p (sum_fn zeroP addP snd Y₁) = true ->
+   (a, p) [in] fold_left [MMSN] X Y.
+Proof.
+Admitted.
+
 *)
 
-Lemma in_set_fold_left_mmsn_intro : 
-  forall (X Y : finite_set (A * P))
-    (a : A) (p : P),
-    (∃ q : P, (a, q) [in] X) -> 
-    eqP p (sum_fn zeroP addP snd 
-      (filter (λ '(x, _), eqA x a) (X ++ Y))) = true ->
-    (a, p) [in] fold_left [MMSN] X Y.
+
+(* Needed to reconsile between 
+  Coq filter and filter defined 
+  in our library *)
+Lemma list_filter_lib_filter_same : 
+  forall (X : finite_set (A * P))
+  (f : A * P -> bool), 
+  List.filter f X = filter f X.
 Proof.
+  induction X as [|(ax, bx) X IHx];
+  simpl.
+  +
+    intros ?;
+    reflexivity.
+  +
+    intros ?.
+    case_eq (f (ax, bx));
+    intro Ha.
+    f_equal.
+    eapply IHx.
+    eapply IHx.
+Qed.
+
+
+
+Lemma in_set_fold_left_mmsn_intro : 
+  forall (U V : finite_set (A * P))
+    (a : A) (p : P),
+    (∃ q : P, (a, q) [in] U) -> 
+    eqP p (sum_fn zeroP addP snd 
+      (filter (λ '(x, _), eqA a x) 
+        (U ++ V))) = true ->
+    (a, p) [in] fold_left [MMSN] U V.
+Proof.
+  
+  induction U as [|(au, av) U IHu];
+  simpl.
+  + intros ? ? ? [_ Ha] Hb.
+    congruence.
+  +
+    intros ? ? ? [q Ha] Hb.
+    (* Check if U is empty or not? *)
+    destruct U as [|(bu, bv) U];
+    simpl.
+    ++
+      cbn in Ha, Hb.
+      eapply bop_or_elim in Ha.
+      destruct Ha as [Ha | Ha].
+      eapply bop_and_elim in Ha.
+      destruct Ha as (Hal & Har).
+      rewrite Hal in Hb.
+      cbn in Hb.
+      unfold manger_merge_sets_new,
+      manger_merge_sets_new_aux.
+      cbn.
+      (* Looks true except I need to 
+        prove some complicated lemma *)
+      eapply in_set_concat_intro.
+      right.
+      (* Difficult but true *)
+      admit.
+      congruence.
+    ++
+      (* Induction case *)
+      remember ((bu, bv) :: U) as Ub.
+      
+
+
+     
+
+          
 
 Admitted.
 
@@ -2465,7 +2548,7 @@ Lemma in_set_uop_manger_phase_1_intro :
   (a : A) (p : P),
   (∃ q : P, (a, q) [in] X) ->
   eqP p (sum_fn zeroP addP snd 
-    (filter (λ '(x, _), eqA x a) X)) = true -> 
+    (List.filter (λ '(x, _), eqA x a) X)) = true -> 
   in_set (brel_product eqA eqP) 
     (uop_manger_phase_1 eqA addP X) (a, p) = true.
 Proof.
@@ -2486,6 +2569,7 @@ Proof.
     exact Ha.
   +
     rewrite app_nil_r.
+    rewrite list_filter_lib_filter_same in Hb.
     exact Hb.
 Qed. 
 
@@ -2521,7 +2605,7 @@ Proof.
       otherwise it is impossible to prove this, 
       at least from my experience.
     *)
-    replace (X) with (X ++[]) at 1.
+    replace (X) with (X ++ []) at 1.
     eapply in_set_fold_left_mmsn_elim with (Y := nil).
     +
       exact Ha.
