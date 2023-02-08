@@ -2507,6 +2507,80 @@ Admitted.
 
 
 
+Lemma filter_filter : 
+  forall (V: finite_set (A * P))
+  (a b : A),
+  eqA a b = false ->
+  List.filter (λ '(x, _), eqA a x) 
+  (List.filter (λ '(s2, _), negb (eqA b s2)) V) =
+  List.filter (λ '(x, _), eqA a x) V.
+Proof.
+  induction V as [|(au, av) V IHv];
+  simpl; intros ? ? Ha.
+  + reflexivity.
+  +
+    case_eq (eqA b au);
+    case_eq (eqA a au);
+    intros Hc Hb;
+    cbn.
+    ++
+      apply symA in Hb.
+      rewrite (trnA _ _ _ Hc Hb) in Ha.
+      congruence.
+    ++
+      eapply IHv;
+      assumption.
+    ++
+      rewrite Hc.
+      f_equal.
+      eapply IHv;
+      assumption.
+    ++
+      rewrite Hc.
+      eapply IHv;
+      assumption.
+Qed.
+    
+
+Lemma mmsn_invariant : 
+  forall (V: finite_set (A * P))
+  (a au : A) (av : P),
+  eqA a au = false ->
+  List.filter (λ '(x, _), eqA a x) ([MMSN] V (au, av)) =
+  List.filter (λ '(x, _), eqA a x) V.
+Proof.
+  unfold manger_merge_sets_new,
+  manger_merge_sets_new_aux;
+  cbn.
+  intros ? ? ? ? Ha.
+  rewrite filter_app.
+  (*
+  I know that 
+  List.filter (λ '(x, _), eqA a x)
+    [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+     (filter (λ '(s2, _), eqA au s2) V) 
+     (au, av)] = [] 
+  Why? 
+  Because I filter all the elements of V 
+  whose first element is equal to 
+  au, then I am folding over it. 
+  Basically this expression:
+  [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+     (filter (λ '(s2, _), eqA au s2) V) 
+     (au, av)] = 
+  [(au, av + ....)] and when I apply 
+  the outer fitler, I get an empty list.
+  *)
+  assert (Hb : List.filter (λ '(x, _), eqA a x)
+    [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+    (filter (λ '(s2, _), eqA au s2) V) 
+    (au, av)] = []). admit.
+  rewrite Hb, app_nil_r.
+  rewrite <-list_filter_lib_filter_same,
+  filter_filter;
+  [reflexivity | exact Ha].
+Admitted.
+
 
 
 
@@ -2605,20 +2679,26 @@ Proof.
         exact He.
         rewrite <-list_filter_lib_filter_same.
         rewrite filter_app.
-        (* 
-        I need another lemma LL 
-        eqA a au = false 
-        List.filter (λ '(x, _), eqA a x) ([MMSN] V (au, av)) = 
-        List.filter (λ '(x, _), eqA a x) V)
-        *)
-        admit.
+        rewrite mmsn_invariant, 
+        <-filter_app.
+        rewrite list_filter_lib_filter_same.
+        exact Hb.
+        exact Hc.
       +++
         congruence.
       +++
         rewrite Hc in Hb;
         cbn in Hb.
-        (* apply LL *)
-        admit.
+        eapply IHu.
+        exists q;
+        exact He.
+        rewrite <-list_filter_lib_filter_same.
+        rewrite filter_app.
+        rewrite mmsn_invariant, 
+        <-filter_app.
+        rewrite list_filter_lib_filter_same.
+        exact Hb.
+        exact Hc.
       +++
         congruence.
   Admitted.
