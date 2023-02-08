@@ -2654,7 +2654,6 @@ Proof.
         fold_right_app in Hb.
         remember (List.filter (λ '(x, _), eqA a x)) 
         as f.
-       
         (*
           True but I need to figure out a Lemma, say, L
         *)
@@ -2735,9 +2734,24 @@ Proof.
   +
     rewrite app_nil_r.
     rewrite list_filter_lib_filter_same in Hb.
+    assert (Hc : (filter (λ '(x, _), eqA a x) X) =
+    filter (λ '(x, _), eqA x a) X).
+    f_equal. 
+    eapply FunctionalExtensionality.functional_extensionality;
+    intros (ax, bx).
+    case_eq (eqA a ax);
+    case_eq (eqA ax a);
+    intros Hc Hd;
+    try reflexivity.
+    eapply symA in Hd;
+    rewrite Hc in Hd;
+    congruence.
+    eapply symA in Hc; 
+    rewrite Hc in Hd;
+    congruence.
+    rewrite Hc;
     exact Hb.
-Qed. 
-
+  Qed.
 
 
 Lemma in_set_fold_left_mmsn_elim : 
