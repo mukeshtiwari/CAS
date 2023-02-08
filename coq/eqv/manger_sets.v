@@ -2492,6 +2492,23 @@ Proof.
 Qed.
 
 
+Lemma filter_equality : 
+  forall (X : finite_set (A * P))
+  (a au : A), 
+  eqA a au = true ->
+  filter (λ '(s2, _), eqA a s2) X = 
+  filter (λ '(s2, _), eqA au s2) X.
+Proof.
+  intros ? ? ? Ha.
+  (* I can apply 
+  eapply filter_brel_congruence.
+  *)
+Admitted.
+
+
+
+
+
 
 Lemma in_set_fold_left_mmsn_intro : 
   forall (U V : finite_set (A * P))
@@ -2509,38 +2526,106 @@ Proof.
     congruence.
   +
     intros ? ? ? [q Ha] Hb.
-    (* Check if U is empty or not? *)
-    destruct U as [|(bu, bv) U];
-    simpl.
+    (* Check if U is empty or not?
+      But don't simplify it *)
+    destruct U as [|(bu, bv) U].
     ++
       cbn in Ha, Hb.
       eapply bop_or_elim in Ha.
       destruct Ha as [Ha | Ha].
-      eapply bop_and_elim in Ha.
-      destruct Ha as (Hal & Har).
-      rewrite Hal in Hb.
-      cbn in Hb.
-      unfold manger_merge_sets_new,
-      manger_merge_sets_new_aux.
-      cbn.
-      (* Looks true except I need to 
-        prove some complicated lemma *)
-      eapply in_set_concat_intro.
-      right.
-      (* Difficult but true *)
-      admit.
-      congruence.
+      +++
+        (* Looks true except I need to 
+          prove some complicated lemma 
+        *)
+        (* Difficult but true *)
+        eapply bop_and_elim in Ha.
+        destruct Ha as (Hal & Har).
+        rewrite Hal in Hb.
+        cbn in Hb.
+        unfold manger_merge_sets_new,
+        manger_merge_sets_new_aux.
+        cbn.
+        eapply in_set_concat_intro.
+        right.
+        remember ((filter (λ '(x, _), 
+          eqA a x) V)) as Va.
+        remember ((filter (λ '(s2, _),
+          eqA au s2) V)) as Vb.
+        assert (Hc : Va = Vb).
+        rewrite HeqVa, HeqVb.
+        eapply filter_equality;
+        assumption.
+        rewrite Hc in Hb.
+        (* 
+          Now, I just need to figure out 
+          a suitable lemma 
+        *)
+        admit.
+      +++
+        congruence.
     ++
       (* Induction case *)
       remember ((bu, bv) :: U) as Ub.
+      case_eq (eqA a au);
+      case_eq (eqP q av);
+      case_eq (in_set (brel_product eqA eqP) Ub (a, q));
+      intros He Hd Hc;
+      rewrite Hc, Hd, He in Ha;
+      cbn in Ha.
+      +++
+        rewrite Hc in Hb;
+        cbn in Hb.
+        rewrite <-list_filter_lib_filter_same in Hb.
+        rewrite filter_app, map_app,
+        fold_right_app in Hb.
+        remember (List.filter (λ '(x, _), eqA a x)) 
+        as f.
+       
+        (*
+          True but I need to figure out a Lemma, say, L
+        *)
+        admit.
+      +++
+        rewrite Hc in Hb;
+        cbn in Hb.
+        (* apply L *)
+        admit.
+      +++
+        rewrite Hc in Hb; 
+        cbn in Hb.
+        (* apply L *)
+        admit.
+      +++
+        congruence.
+      +++
+        rewrite Hc in Hb.
+        (* inductive case *)
+        eapply IHu.
+        exists q;
+        exact He.
+        rewrite <-list_filter_lib_filter_same.
+        rewrite filter_app.
+        (* 
+        I need another lemma LL 
+        eqA a au = false 
+        List.filter (λ '(x, _), eqA a x) ([MMSN] V (au, av)) = 
+        List.filter (λ '(x, _), eqA a x) V)
+        *)
+        admit.
+      +++
+        congruence.
+      +++
+        rewrite Hc in Hb;
+        cbn in Hb.
+        (* apply LL *)
+        admit.
+      +++
+        congruence.
+  Admitted.
+        
+
+
       
-
-
-     
-
-          
-
-Admitted.
 
 
 Lemma in_set_uop_manger_phase_1_intro : 
