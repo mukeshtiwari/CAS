@@ -2581,7 +2581,17 @@ Proof.
   [reflexivity | exact Ha].
 Admitted.
 
-
+(* This lemma should be sum_fn *)
+Lemma fold_right_zero : 
+  forall (X : finite_set P)
+  (av : P),
+  fold_right (λ t1 t2 : P, addP t1 t2) av X =
+  addP av 
+  (fold_right (λ t1 t2 : P, addP t1 t2) zeroP X).
+Proof.
+  (* add zeroP in global context 
+  add axioms about it being an identity *)
+Admitted.
 
 
 Lemma in_set_fold_left_mmsn_intro : 
@@ -2630,11 +2640,17 @@ Proof.
         eapply filter_equality;
         assumption.
         rewrite Hc in Hb.
-        (* 
-          Now, I just need to figure out 
-          a suitable lemma 
-        *)
-        admit.
+        rewrite fold_left_simp.
+        eapply in_set_singleton_intro.
+        eapply symAP.
+        eapply brel_product_intro.
+        eapply symA; exact Hal.
+        eapply symP.
+        rewrite fold_symmetric.
+        rewrite fold_right_zero;
+        exact Hb.
+        eapply addP_assoc_cong.
+        eapply addP_com_cong.
       +++
         congruence.
     ++
