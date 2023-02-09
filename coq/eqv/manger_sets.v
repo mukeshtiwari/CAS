@@ -2594,8 +2594,7 @@ Proof.
   assert (Hb : List.filter (λ '(x, _), eqA a x)
     [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
     (filter (λ '(s2, _), eqA au s2) V) 
-    (au, av)] = []). 
-    
+    (au, av)] = []).   
   admit.
   rewrite Hb, app_nil_r.
   rewrite <-list_filter_lib_filter_same,
@@ -2621,10 +2620,23 @@ Proof.
     remember ((fold_right (λ t1 t2 : P, addP t1 t2) av X)) as Xa.
     remember (fold_right (λ t1 t2 : P, addP t1 t2) zeroP X) as Xb.
     assert (Ha : eqP ((addP av (addP ax Xb))) 
-    (addP ax (addP av Xb)) = true).
-    admit.   
-    (*zeroP is identity *)
-Admitted.
+    (addP (addP av ax) Xb) = true).
+    eapply symP, addP_assoc.
+    eapply trnP with (addP (addP av ax) Xb).
+    assert (Hb : eqP 
+    (addP (addP ax av) Xb) 
+    (addP (addP av ax) Xb) = true).
+    eapply cong_addP;
+    [eapply addP_com | eapply refP].
+    eapply trnP with (addP (addP ax av) Xb).
+    eapply trnP with (addP ax (addP av Xb)).
+    eapply cong_addP;
+    [eapply refP | exact IHx].
+    eapply symP, addP_assoc.  
+    exact Hb.
+    eapply symP.
+    exact Ha.
+Qed.
 
 
 Lemma in_set_fold_left_mmsn_intro : 
