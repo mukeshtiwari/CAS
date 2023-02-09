@@ -165,11 +165,15 @@ End Computation.
 
 Section Theory.
 
+
 Variables (A P : Type) 
           (eqA lteA : brel A)
           (eqP : brel P)          
           (addP : binary_op P)
           (zeroP : P)
+          (* *)
+          (zeropLid : ∀ (p : P), eqP (addP zeroP p) p = true)
+          (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true)
           (refA : brel_reflexive A eqA)
           (symA : brel_symmetric A eqA)
           (trnA : brel_transitive A eqA)
@@ -2499,12 +2503,28 @@ Lemma filter_equality :
   filter (λ '(s2, _), eqA a s2) X = 
   filter (λ '(s2, _), eqA au s2) X.
 Proof.
-  intros ? ? ? Ha.
-  (* I can apply 
-  eapply filter_brel_congruence.
-  *)
-Admitted.
-
+  induction X as [|(ax, ay) X IHx];
+  intros ? ? Ha; simpl.
+  + reflexivity.
+  + 
+    case_eq (eqA a ax);
+    case_eq (eqA au ax);
+    intros Hc Hb.
+    ++
+      f_equal.
+      eapply IHx;
+      assumption.
+    ++
+      eapply symA in Ha.
+      rewrite (trnA _ _ _ Ha Hb) in Hc.
+      congruence.
+    ++
+      rewrite (trnA _ _ _ Ha Hc) in Hb.
+      congruence.
+    ++
+      eapply IHx;
+      try assumption.
+Qed.
 
 
 Lemma filter_filter : 
@@ -2574,7 +2594,9 @@ Proof.
   assert (Hb : List.filter (λ '(x, _), eqA a x)
     [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
     (filter (λ '(s2, _), eqA au s2) V) 
-    (au, av)] = []). admit.
+    (au, av)] = []). 
+    
+  admit.
   rewrite Hb, app_nil_r.
   rewrite <-list_filter_lib_filter_same,
   filter_filter;
@@ -2585,12 +2607,23 @@ Admitted.
 Lemma fold_right_zero : 
   forall (X : finite_set P)
   (av : P),
-  fold_right (λ t1 t2 : P, addP t1 t2) av X =
-  addP av 
-  (fold_right (λ t1 t2 : P, addP t1 t2) zeroP X).
+  eqP (fold_right (λ t1 t2 : P, addP t1 t2) av X)
+  (addP av 
+  (fold_right (λ t1 t2 : P, addP t1 t2) zeroP X)) = true.
 Proof.
-  (* add zeroP in global context 
-  add axioms about it being an identity *)
+  induction X as [|ax X IHx];
+  intros ?; cbn.
+  +
+    eapply symP,
+    zeropRid.
+  +
+    specialize (IHx av).
+    remember ((fold_right (λ t1 t2 : P, addP t1 t2) av X)) as Xa.
+    remember (fold_right (λ t1 t2 : P, addP t1 t2) zeroP X) as Xb.
+    assert (Ha : eqP ((addP av (addP ax Xb))) 
+    (addP ax (addP av Xb)) = true).
+    admit.   
+    (*zeroP is identity *)
 Admitted.
 
 
@@ -2647,8 +2680,10 @@ Proof.
         eapply symA; exact Hal.
         eapply symP.
         rewrite fold_symmetric.
-        rewrite fold_right_zero;
-        exact Hb.
+        pose proof fold_right_zero (map snd Vb) av 
+        as Hd.
+        eapply symP in Hd.
+        exact (trnP _ _ _ Hb Hd).
         eapply addP_assoc_cong.
         eapply addP_com_cong.
       +++
@@ -2670,6 +2705,7 @@ Proof.
         fold_right_app in Hb.
         remember (List.filter (λ '(x, _), eqA a x)) 
         as f.
+        
         (*
           True but I need to figure out a Lemma, say, L
         *)
