@@ -2573,7 +2573,9 @@ Proof.
   manger_merge_sets_new_aux;
   cbn.
   intros ? ? ? ? Ha.
-  rewrite filter_app.
+  rewrite <-list_filter_lib_filter_same,
+    filter_app, filter_filter;
+  try assumption.
   (*
   I know that 
   List.filter (λ '(x, _), eqA a x)
@@ -2594,12 +2596,19 @@ Proof.
   assert (Hb : List.filter (λ '(x, _), eqA a x)
     [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
     (filter (λ '(s2, _), eqA au s2) V) 
-    (au, av)] = []).   
+    (au, av)] = []).
+    (* Proof idea:
+    fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+     (filter (λ '(s2, _), eqA au s2) V) (au, av) is 
+    is not going to contain any 'a'. Why?
+    Because we are filtering the list 
+    
+    
+    *)   
   admit.
   rewrite Hb, app_nil_r.
-  rewrite <-list_filter_lib_filter_same,
-  filter_filter;
-  [reflexivity | exact Ha].
+  reflexivity.
+  
 Admitted.
 
 (* This lemma should be sum_fn *)
