@@ -2583,14 +2583,6 @@ Proof.
 Qed.
   
 
-Lemma filter_fold_filter : 
-  forall V a, 
-  (forall (x : A) (y : P), (x, y) [in] V -> eqA a x = false) ->
-  List.filter (λ '(x, _), eqA a x) V = [].
-Proof.
-
-Admitted.
-
 
 Lemma mmsn_invariant_sum_fn : 
   forall (V: finite_set (A * P))
@@ -2620,21 +2612,29 @@ Proof.
   try assumption.
   split;
   [exact (zeropLid s) | exact (zeropRid s)].
-  remember ([fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+  assert (Hb : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
   (filter (λ '(s2, _), eqA au s2) V) (
-  au, av)]) as W.
-  rewrite filter_fold_filter with (V := W).
+  au, av) == (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+  (map snd (List.filter (λ '(x, _), eqA au x) V)) av)).
+  eapply fold_left_filter.
   cbn.
-  admit.
-  intros ? ? Hb.
-  subst.
-  eapply in_set_cons_elim in Hb.
-  destruct Hb as [Hb | Hb].
-  cbn in Hb.
-  admit.
-  cbn in Hb.
+  destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+  (filter (λ '(s2, _), eqA au s2) V) (
+  au, av)) as (x, y) eqn:Hc.
+  eapply brel_product_elim in Hb.
+  destruct Hb as [Hbl Hbr].
+  assert (Hd : eqA a x = false).
+  case_eq (eqA a x);
+  intro Hd.
+  rewrite (trnA _ _ _ Hd Hbl) in Ha;
   congruence.
-Admitted.
+  reflexivity.
+  rewrite Hd;
+  cbn.
+  eapply zeropRid.
+Qed.
+
+
 
 
 (* This lemma should be sum_fn *)
@@ -2674,6 +2674,7 @@ Proof.
 Qed.
 
 
+
 Lemma mmsn_invariant : 
   forall Ub V a au av, 
     a <A> au -> 
@@ -2686,9 +2687,36 @@ Lemma mmsn_invariant :
       (Ub ++ V))) = true.
 Proof.
   intros ? ? ? ? ? Ha.
-
-Admitted.
-
+  eapply trnP with 
+  (sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA a x) Ub ++
+      List.filter (λ '(x, _), eqA a x) V)).
+  eapply trnP with 
+  (addP (sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA a x) Ub))
+    (sum_fn zeroP addP snd 
+      (List.filter (λ '(x, _), eqA a x) ([MMSN] V (au, av))))).
+  eapply sum_fn_distributes_over_concat;
+  try assumption.
+  split;
+  [eapply zeropLid | eapply zeropRid].
+  eapply trnP with 
+    (addP (sum_fn zeroP addP snd (List.filter (λ '(x, _), eqA a x) Ub))
+     (sum_fn zeroP addP snd
+        (List.filter (λ '(x, _), eqA a x) V))).
+  eapply cong_addP.
+  eapply refP.
+  eapply mmsn_invariant_sum_fn;
+  exact Ha.
+  eapply symP.
+  apply sum_fn_distributes_over_concat;
+  try assumption.
+  split;
+  [eapply zeropLid | eapply zeropRid].
+  rewrite filter_app.
+  eapply refP.
+Qed.
+  
 
 
 Lemma in_set_fold_left_mmsn_intro : 
