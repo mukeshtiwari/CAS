@@ -2565,11 +2565,10 @@ Qed.
 Lemma fold_left_filter : 
   forall (V : finite_set (A * P))
   (au : A) (av : P),
-  brel_product eqA eqP 
   (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-    (filter (λ '(s2, _), eqA au s2) V) (au, av)) 
+    (filter (λ '(s2, _), eqA au s2) V) (au, av)) ==
   (au, fold_left (λ t1 t2 : P, addP t1 t2) 
-      (map snd (List.filter (λ '(x, _), eqA au x) V)) av) = true.
+      (map snd (List.filter (λ '(x, _), eqA au x) V)) av).
 Proof.
   induction V as [|(ax, ay) V IHv];
   simpl; intros ? ?.
@@ -2583,6 +2582,14 @@ Proof.
     exact (IHv au av).
 Qed.
   
+
+Lemma filter_fold_filter : 
+  forall V a, 
+  (forall (x : A) (y : P), (x, y) [in] V -> eqA a x = false) ->
+  List.filter (λ '(x, _), eqA a x) V = [].
+Proof.
+
+Admitted.
 
 
 Lemma mmsn_invariant_sum_fn : 
@@ -2613,21 +2620,21 @@ Proof.
   try assumption.
   split;
   [exact (zeropLid s) | exact (zeropRid s)].
-  eapply trnP with 
-  (addP (sum_fn zeroP addP snd (List.filter (λ '(x, _), eqA a x) V))
-     (sum_fn zeroP addP snd
-        (List.filter (λ '(x, _), eqA a x)
-          [(au, fold_left (λ t1 t2 : P, addP t1 t2) 
-          (map snd (List.filter (λ '(x, _), eqA au x) V)) av)]))).
-  eapply cong_addP;
-  [eapply refP|].
-  cbn. rewrite Ha.
+  remember ([fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+  (filter (λ '(s2, _), eqA au s2) V) (
+  au, av)]) as W.
+  rewrite filter_fold_filter with (V := W).
+  cbn.
   admit.
-  cbn.
-  rewrite Ha;
-  cbn.
+  intros ? ? Hb.
+  subst.
+  eapply in_set_cons_elim in Hb.
+  destruct Hb as [Hb | Hb].
+  cbn in Hb.
+  admit.
+  cbn in Hb.
+  congruence.
 Admitted.
-
 
 
 (* This lemma should be sum_fn *)
@@ -2678,6 +2685,8 @@ Lemma mmsn_invariant :
     (List.filter (λ '(x, _), eqA a x)
       (Ub ++ V))) = true.
 Proof.
+  intros ? ? ? ? ? Ha.
+
 Admitted.
 
 
