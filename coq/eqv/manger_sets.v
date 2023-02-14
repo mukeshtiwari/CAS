@@ -2446,32 +2446,6 @@ Proof.
 Qed.
  
 
-(* 
-
-  bop_union X Y = elim_duplicate (X ++ Y)
-
-  (a, p) [in] fold_left [MMSN] X Y <-> 
-  ∃ X₁ X₂, X₁ ++ X₂ =S= X ++ Y ∧
-   (forall x y, (x, y) [in] X₁ -> 
-   eqA x a = true) ∧
-   eqP p (sum_fn zeroP addP snd X₁)
-
-
-
-Lemma in_set_fold_left_mmsn_forward : 
-  forall (X Y X₁ Y₁ : finite_set (A * P))
-  (a : A) (p : P),
-  X <> nil -> 
-  X₁ ++ Y₁ =S= X ++ Y ->
-  (forall x y, (x, y) [in] Y₁ -> 
-   eqA x a = true) -> 
-   eqP p (sum_fn zeroP addP snd Y₁) = true ->
-   (a, p) [in] fold_left [MMSN] X Y.
-Proof.
-Admitted.
-
-*)
-
 
 (* Needed to reconsile between 
   Coq filter and filter defined 
