@@ -2562,12 +2562,38 @@ Proof.
 Qed.
     
 
-Lemma mmsn_invariant : 
+Lemma fold_left_filter : 
+  forall (V : finite_set (A * P))
+  (au : A) (av : P),
+  brel_product eqA eqP 
+  (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+    (filter (λ '(s2, _), eqA au s2) V) (au, av)) 
+  (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+      (map snd (List.filter (λ '(x, _), eqA au x) V)) av) = true.
+Proof.
+  induction V as [|(ax, ay) V IHv];
+  simpl; intros ? ?.
+  + eapply bop_and_intro;
+    [eapply refA | eapply refP].
+  +
+    case_eq (eqA au ax); 
+    intro Ha.
+    cbn.
+    exact (IHv au (addP av ay)).
+    exact (IHv au av).
+Qed.
+  
+
+
+Lemma mmsn_invariant_sum_fn : 
   forall (V: finite_set (A * P))
   (a au : A) (av : P),
   eqA a au = false ->
-  List.filter (λ '(x, _), eqA a x) ([MMSN] V (au, av)) =
-  List.filter (λ '(x, _), eqA a x) V.
+  eqP 
+  (sum_fn zeroP addP snd 
+    (List.filter (λ '(x, _), eqA a x) ([MMSN] V (au, av))))
+  (sum_fn zeroP addP snd 
+    (List.filter (λ '(x, _), eqA a x) V)) = true.
 Proof.
   unfold manger_merge_sets_new,
   manger_merge_sets_new_aux;
@@ -2576,40 +2602,33 @@ Proof.
   rewrite <-list_filter_lib_filter_same,
     filter_app, filter_filter;
   try assumption.
-  (*
-  I know that 
-  List.filter (λ '(x, _), eqA a x)
-    [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-     (filter (λ '(s2, _), eqA au s2) V) 
-     (au, av)] = [] 
-  Why? 
-  Because I filter all the elements of V 
-  whose first element is equal to 
-  au, then I am folding over it. 
-  Basically this expression:
-  [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-     (filter (λ '(s2, _), eqA au s2) V) 
-     (au, av)] = 
-  [(au, av + ....)] and when I apply 
-  the outer fitler, I get an empty list.
-  *)
-  assert (Hb : List.filter (λ '(x, _), eqA a x)
-    [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-    (filter (λ '(s2, _), eqA au s2) V) 
-    (au, av)] = []).
-    (* Proof idea:
-    fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-     (filter (λ '(s2, _), eqA au s2) V) (au, av) is 
-    is not going to contain any 'a'. Why?
-    Because we are filtering the list 
-    
-    
-    *)   
+  eapply trnP with 
+    (addP 
+      (sum_fn zeroP addP snd (List.filter (λ '(x, _), eqA a x) V))
+      (sum_fn zeroP addP snd 
+      (List.filter (λ '(x, _), eqA a x)
+       [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+         (filter (λ '(s2, _), eqA au s2) V) (au, av)]))).
+  eapply sum_fn_distributes_over_concat;
+  try assumption.
+  split;
+  [exact (zeropLid s) | exact (zeropRid s)].
+  eapply trnP with 
+  (addP (sum_fn zeroP addP snd (List.filter (λ '(x, _), eqA a x) V))
+     (sum_fn zeroP addP snd
+        (List.filter (λ '(x, _), eqA a x)
+          [(au, fold_left (λ t1 t2 : P, addP t1 t2) 
+          (map snd (List.filter (λ '(x, _), eqA au x) V)) av)]))).
+  eapply cong_addP;
+  [eapply refP|].
+  cbn. rewrite Ha.
   admit.
-  rewrite Hb, app_nil_r.
-  reflexivity.
-  
+  cbn.
+  rewrite Ha;
+  cbn.
 Admitted.
+
+
 
 (* This lemma should be sum_fn *)
 Lemma fold_right_zero : 
@@ -2646,6 +2665,21 @@ Proof.
     eapply symP.
     exact Ha.
 Qed.
+
+
+Lemma mmsn_invariant : 
+  forall Ub V a au av, 
+    a <A> au -> 
+  eqP
+  (sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA a x) Ub ++
+      List.filter (λ '(x, _), eqA a x) ([MMSN] V (au, av))))
+  (sum_fn zeroP addP snd 
+    (List.filter (λ '(x, _), eqA a x)
+      (Ub ++ V))) = true.
+Proof.
+Admitted.
+
 
 
 Lemma in_set_fold_left_mmsn_intro : 
@@ -2751,10 +2785,13 @@ Proof.
         exact He.
         rewrite <-list_filter_lib_filter_same.
         rewrite filter_app.
-        rewrite mmsn_invariant, 
-        <-filter_app.
+        eapply trnP with 
+        (sum_fn zeroP addP snd 
+        (List.filter (λ '(x, _), eqA a x) (Ub ++ V))).
         rewrite list_filter_lib_filter_same.
         exact Hb.
+        eapply symP. 
+        eapply mmsn_invariant.
         exact Hc.
       +++
         congruence.
@@ -2766,10 +2803,13 @@ Proof.
         exact He.
         rewrite <-list_filter_lib_filter_same.
         rewrite filter_app.
-        rewrite mmsn_invariant, 
-        <-filter_app.
+        eapply trnP with 
+        (sum_fn zeroP addP snd 
+        (List.filter (λ '(x, _), eqA a x) (Ub ++ V))).
         rewrite list_filter_lib_filter_same.
         exact Hb.
+        eapply symP. 
+        eapply mmsn_invariant.
         exact Hc.
       +++
         congruence.
