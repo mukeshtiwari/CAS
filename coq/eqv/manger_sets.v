@@ -2692,6 +2692,25 @@ Proof.
 Qed.
   
 
+(* Conjecture! But my believe is it's true *)
+Lemma push_manger_outside : 
+  forall U V au av, 
+  fold_left [MMSN] U ([MMSN] V (au, av)) = (* =S= *)
+  fold_left [MMSN] (U ++ V) [(au, av)].
+Proof.
+
+
+  induction U as [|(ax, bx) U Ihu];
+  intros ? ? ?.
+  + cbn.
+    unfold manger_merge_sets_new,
+    manger_merge_sets_new_aux.
+    cbn.
+    admit.
+  +
+    cbn.
+Admitted.
+
 
 Lemma in_set_fold_left_mmsn_intro : 
   forall (U V : finite_set (A * P))
@@ -2702,7 +2721,6 @@ Lemma in_set_fold_left_mmsn_intro :
         (U ++ V))) = true ->
     (a, p) [in] fold_left [MMSN] U V.
 Proof.
-  
   induction U as [|(au, av) U IHu];
   simpl.
   + intros ? ? ? [_ Ha] Hb.
@@ -2766,10 +2784,7 @@ Proof.
       +++
         rewrite Hc in Hb;
         cbn in Hb.
-        rewrite <-list_filter_lib_filter_same in Hb.
-        rewrite filter_app, map_app,
-        fold_right_app in Hb.
-        remember (List.filter (λ '(x, _), eqA a x)) 
+        remember (filter (λ '(x, _), eqA a x)) 
         as f.
         
         (*
