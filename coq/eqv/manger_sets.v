@@ -2722,6 +2722,62 @@ Proof.
 Qed.
       
 
+(* 
+This equality does not hold and I need a point wise 
+list equality with eqA eqP. Do we have pointwise 
+list equality with brel_product eqA eqP? 
+
+I can use =S= but I am avoiding it because 
+proving congruence to replace one term by another 
+is very painful.
+
+*)
+
+
+Lemma mmsn_true_add : 
+  forall V au av ax bx, 
+  eqA au ax = true ->
+  [MMSN] ([MMSN] V (au, av)) (ax, bx) = [MMSN] V (au, addP bx av).
+Proof.
+  induction V as [|(ah, bh) V IHv];
+  intros ? ? ? ? Ha.
+  +
+    cbn;
+    rewrite (symA _ _ Ha);
+    cbn.
+    admit.
+  +
+Admitted.
+
+
+Lemma fold_right_distributes : 
+  forall U V,
+  eqP (fold_right addP zeroP (U ++ V))
+  (addP (fold_right addP zeroP U) (fold_right addP zeroP V)) = true.
+Proof.
+  induction U as [|u U IHu];
+  intros ?.
+  +
+    cbn; eapply symP.
+    eapply zeropLid.
+  +
+    cbn.
+    eapply symP.
+    remember ((fold_right addP zeroP U)) as Ua.
+    remember ((fold_right addP zeroP V)) as Va.
+    remember ((fold_right addP zeroP (U ++ V))) as UVa.
+    eapply trnP with 
+      (addP u (addP Ua Va)).
+    eapply addP_assoc.
+    eapply cong_addP.
+    eapply refP.
+    eapply symP.
+    specialize (IHu V); subst.
+    exact IHu.
+Qed.
+
+
+
 (* Difficult to prove! *)
 Lemma mmsn_sum : 
   forall (U V : finite_set (A * P))
@@ -2741,8 +2797,9 @@ Proof.
     eapply in_set_cons_intro;
     [eapply symAP| left].
     cbn in Hb.
-    eapply brel_product_transitive with (au, fold_left (λ t1 t2 : P, addP t1 t2) 
-    (map snd (List.filter (λ '(x, _), eqA au x) V)) av);
+    eapply brel_product_transitive with 
+    (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+      (map snd (List.filter (λ '(x, _), eqA au x) V)) av);
     try assumption.
     rewrite <-list_filter_lib_filter_same.
     pose proof fold_left_filter V au av as Hc.
@@ -2780,13 +2837,21 @@ Proof.
       *)
       assert (He : ([MMSN] ([MMSN] V (au, av)) (ax, bx)) = 
         ([MMSN] V (au, addP av bx))). admit.
+      (* All in need is 
+        replace the goal:
+        (a, p) [in] fold_left [MMSN] U ([MMSN] ([MMSN] V (au, av)) (ax, bx))
+        with 
+        (a, p) [in] fold_left [MMSN] U ([MMSN] V (au, addP av bx))
+      *)
       rewrite He.
       rewrite Hc in Hb.
       simpl in Hb.
       eapply IHu;
       try assumption.
-      (* This works out with Hb*)
-      admit.
+      rewrite <-Hb.
+      eapply cong_eqP;
+      [eapply refP|].
+      eapply addP_assoc.
     ++
       (* a <A> ax *)
       rewrite Hc in Hb.
@@ -2794,15 +2859,38 @@ Proof.
       ([MMSN] ([MMSN] V (au, av)) (ax, bx)) = 
       ([MMSN] ([MMSN] V (ax, bx)) (au, av))).
       admit.
+      (* flip the argument *)
       rewrite Hd.
       eapply IHu;
       try assumption.
-      (* 
-        a <A> ax 
-        [MMSN] V (ax, bx) = V 
-        exact Hb. 
-      *)
-      admit.
+      rewrite <-Hb.
+      eapply cong_eqP;
+      [eapply refP|].
+      eapply cong_addP;
+      [eapply refP|].
+      repeat rewrite <-list_filter_lib_filter_same.
+      repeat rewrite filter_app,
+      map_app.
+      remember (map snd (List.filter (λ '(x, _), eqA a x) U)) as Ua.
+      remember (map snd (List.filter (λ '(x, _), eqA a x) ([MMSN] V (ax, bx)))) as Va.
+      remember (map snd (List.filter (λ '(x, _), eqA a x) V)) as Vb.
+      eapply trnP with 
+        (addP (fold_right addP zeroP Ua)
+          (fold_right addP zeroP Va)).
+      eapply fold_right_distributes.
+      eapply symP.
+      eapply trnP with 
+      (addP (fold_right addP zeroP Ua) (fold_right addP zeroP Vb)).
+      eapply fold_right_distributes.
+      remember ((fold_right addP zeroP Ua)) as Uaa.
+      remember ((fold_right addP zeroP Vb)) as Vbb.
+      remember ((fold_right addP zeroP Va)) as Vaa.
+      eapply cong_addP.
+      eapply refP.
+      subst.
+      eapply symP.
+      eapply mmsn_invariant_sum_fn;
+      assumption.
 Admitted.
 
 
