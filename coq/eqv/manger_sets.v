@@ -2729,19 +2729,27 @@ Qed.
 Lemma mmsn_same_add : 
   forall V au av ax bx, 
   eqA au ax = true ->
-  brel_list (brel_product eqA eqP) 
-  ([MMSN] ([MMSN] V (au, av)) (ax, bx)) 
-  ([MMSN] V (au, addP bx av)) = true.
+  ([MMSN] ([MMSN] V (au, av)) (ax, bx))  =S=
+  ([MMSN] V (au, addP bx av)).
 Proof.
   intros ? ? ? ? ? Ha.
+  eapply brel_set_intro_prop;
+  [eapply refAP|].
+  split.
+  +
+    intros (a, p) Hb.
+    admit.
+  +
+    intros (a, p) Hb.
+    admit.
 Admitted.
+
 
 Lemma mmsn_diff_swap : 
   forall V au av ax bx, 
-  eqA au ax = true ->
-  brel_list (brel_product eqA eqP) 
-  ([MMSN] ([MMSN] V (au, av)) (ax, bx))
-  ([MMSN] ([MMSN] V (ax, bx)) (au, av)) = true.
+  eqA au ax = true -> 
+  ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =S= 
+  ([MMSN] ([MMSN] V (ax, bx)) (au, av)).
 Proof.
 Admitted.
 
@@ -2827,20 +2835,15 @@ Proof.
       rewrite (trnA _ _ _ (symA _ _ Ha) Hc);
       exact eq_refl.
       (* in this case 
-      ([MMSN] ([MMSN] V (au, av)) (ax, bx)) ==
-      [MMSN] V (au, av + bx)
-      
-        assert (He : brel_list (brel_product eqA eqP) V V = true).
-        And from this relation: 
-        all in need is 
-        replace the goal:
+        ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =S= 
+        [MMSN] V (au, av + bx). And from this equation: 
+        all in need is replace the goal:
         (a, p) [in] fold_left [MMSN] U ([MMSN] ([MMSN] V (au, av)) (ax, bx))
         with 
         (a, p) [in] fold_left [MMSN] U ([MMSN] V (au, addP av bx))
       *)
 
-      (* This equality is not true. I need to use 
-        brel_list *)
+      (* This equality is not true. I need to use =S=. *)
       assert (He : ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =
         ([MMSN] V (au, addP av bx))). admit.
       rewrite He.
