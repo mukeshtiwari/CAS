@@ -21,6 +21,7 @@ Require Import CAS.coq.sg.product.
 Require Import CAS.coq.algorithms.matrix_algorithms.
 Require Import CAS.coq.uop.properties.
 Require Import CAS.coq.po.theory.
+Require Import CAS.coq.eqv.list.
 
 
 Import ListNotations.
@@ -2722,33 +2723,27 @@ Proof.
 Qed.
       
 
-(* 
-This equality does not hold and I need a point wise 
-list equality with eqA eqP. Do we have pointwise 
-list equality with brel_product eqA eqP? 
-
-I can use =S= but I am avoiding it because 
-proving congruence to replace one term by another 
-is very painful.
-
-*)
 
 
-Lemma mmsn_true_add : 
+
+Lemma mmsn_same_add : 
   forall V au av ax bx, 
   eqA au ax = true ->
-  [MMSN] ([MMSN] V (au, av)) (ax, bx) = [MMSN] V (au, addP bx av).
+  brel_list (brel_product eqA eqP) 
+  ([MMSN] ([MMSN] V (au, av)) (ax, bx)) 
+  ([MMSN] V (au, addP bx av)) = true.
 Proof.
-  induction V as [|(ah, bh) V IHv];
-  intros ? ? ? ? Ha.
-  +
-    cbn;
-    rewrite (symA _ _ Ha);
-    cbn.
-    admit.
-  +
+  intros ? ? ? ? ? Ha.
 Admitted.
 
+Lemma mmsn_diff_swap : 
+  forall V au av ax bx, 
+  eqA au ax = true ->
+  brel_list (brel_product eqA eqP) 
+  ([MMSN] ([MMSN] V (au, av)) (ax, bx))
+  ([MMSN] ([MMSN] V (ax, bx)) (au, av)) = true.
+Proof.
+Admitted.
 
 Lemma fold_right_distributes : 
   forall U V,
@@ -2834,15 +2829,20 @@ Proof.
       (* in this case 
       ([MMSN] ([MMSN] V (au, av)) (ax, bx)) ==
       [MMSN] V (au, av + bx)
-      *)
-      assert (He : ([MMSN] ([MMSN] V (au, av)) (ax, bx)) = 
-        ([MMSN] V (au, addP av bx))). admit.
-      (* All in need is 
+      
+        assert (He : brel_list (brel_product eqA eqP) V V = true).
+        And from this relation: 
+        all in need is 
         replace the goal:
         (a, p) [in] fold_left [MMSN] U ([MMSN] ([MMSN] V (au, av)) (ax, bx))
         with 
         (a, p) [in] fold_left [MMSN] U ([MMSN] V (au, addP av bx))
       *)
+
+      (* This equality is not true. I need to use 
+        brel_list *)
+      assert (He : ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =
+        ([MMSN] V (au, addP av bx))). admit.
       rewrite He.
       rewrite Hc in Hb.
       simpl in Hb.
