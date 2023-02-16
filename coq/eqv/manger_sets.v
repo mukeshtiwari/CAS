@@ -2692,24 +2692,22 @@ Proof.
 Qed.
   
 
-(* Conjecture! But my believe is it's true *)
-Lemma push_manger_outside : 
-  forall U V au av, 
-  fold_left [MMSN] U ([MMSN] V (au, av)) = (* =S= *)
-  fold_left [MMSN] (U ++ V) [(au, av)].
+
+
+(* Difficult to prove! *)
+Lemma mmsn_sum : 
+  forall (U V : finite_set (A * P))
+  (au a : A) (av p : P),
+  eqA a au = true ->
+  eqP p (addP av (fold_right addP zeroP 
+    (map snd (filter (λ '(x, _), eqA a x) (U ++ V))))) = true ->
+    (a, p) [in] fold_left [MMSN] U ([MMSN] V (au, av)).
 Proof.
 
-
-  induction U as [|(ax, bx) U Ihu];
-  intros ? ? ?.
-  + cbn.
-    unfold manger_merge_sets_new,
-    manger_merge_sets_new_aux.
-    cbn.
-    admit.
-  +
-    cbn.
 Admitted.
+
+
+
 
 
 Lemma in_set_fold_left_mmsn_intro : 
@@ -2784,23 +2782,18 @@ Proof.
       +++
         rewrite Hc in Hb;
         cbn in Hb.
-        remember (filter (λ '(x, _), eqA a x)) 
-        as f.
-        
-        (*
-          True but I need to figure out a Lemma, say, L
-        *)
-        admit.
+        eapply  mmsn_sum;
+        try assumption.
       +++
         rewrite Hc in Hb;
         cbn in Hb.
-        (* apply L *)
-        admit.
+        eapply  mmsn_sum;
+        try assumption.
       +++
         rewrite Hc in Hb; 
         cbn in Hb.
-        (* apply L *)
-        admit.
+        eapply  mmsn_sum;
+        try assumption.
       +++
         congruence.
       +++
@@ -2839,13 +2832,11 @@ Proof.
         exact Hc.
       +++
         congruence.
-  Admitted.
+Qed.
         
 
 
       
-
-
 Lemma in_set_uop_manger_phase_1_intro : 
   forall (X : finite_set (A * P)) 
   (a : A) (p : P),
