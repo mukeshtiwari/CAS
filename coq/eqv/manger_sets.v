@@ -2703,7 +2703,52 @@ Lemma mmsn_sum :
     (map snd (filter (λ '(x, _), eqA a x) (U ++ V))))) = true ->
     (a, p) [in] fold_left [MMSN] U ([MMSN] V (au, av)).
 Proof.
-
+  induction U as [|(ax, bx) U IHu];
+  intros ? ? ? ? ? Ha Hb.
+  +
+    cbn.
+    (* go right *)
+    eapply in_set_concat_intro.
+    right.
+    admit.
+  +
+    simpl in * |- *.
+    (* case analysis *)
+    case_eq (eqA a ax);
+    intro Hc.
+    ++
+      assert (Hd : eqA au ax = true).
+      rewrite (trnA _ _ _ (symA _ _ Ha) Hc);
+      exact eq_refl.
+      (* in this case 
+      ([MMSN] ([MMSN] V (au, av)) (ax, bx)) ==
+      [MMSN] V (au, av + bx)
+      *)
+      assert (He : ([MMSN] ([MMSN] V (au, av)) (ax, bx)) = 
+        ([MMSN] V (au, addP av bx))). admit.
+      rewrite He.
+      rewrite Hc in Hb.
+      simpl in Hb.
+      eapply IHu;
+      try assumption.
+      (* This works out with Hb*)
+      admit.
+    ++
+      (* a <A> ax *)
+      rewrite Hc in Hb.
+      assert (Hd : 
+      ([MMSN] ([MMSN] V (au, av)) (ax, bx)) = 
+      ([MMSN] ([MMSN] V (ax, bx)) (au, av))).
+      admit.
+      rewrite Hd.
+      eapply IHu;
+      try assumption.
+      (* 
+        a <A> ax 
+        [MMSN] V (ax, bx) = V 
+        exact Hb. 
+      *)
+      admit.
 Admitted.
 
 
