@@ -2692,7 +2692,35 @@ Proof.
 Qed.
   
 
-
+Lemma eqP_fold_right_refl : 
+  forall V a au, 
+  eqA a au = true ->
+  eqP (fold_right addP zeroP (map snd (List.filter (λ '(x, _), eqA au x) V)))
+  (fold_right addP zeroP (map snd (List.filter (λ '(x, _), eqA a x) V))) =
+  true.
+Proof.
+  induction V as [|(ax, bx) V IHv];
+  intros ? ? Ha; cbn.
+  +
+    eapply refP.
+  +
+    case_eq (eqA au ax);
+    intro Hb.
+    ++
+      rewrite (trnA _ _ _ Ha Hb).
+      cbn.
+      eapply cong_addP;
+      [eapply refP| eapply IHv].
+      exact Ha.
+    ++
+      case_eq (eqA a ax);
+      intro Hc.
+      rewrite (trnA _ _ _ (symA _ _ Ha) Hc) in Hb;
+      congruence.
+      eapply IHv.
+      exact Ha.
+Qed.
+      
 
 (* Difficult to prove! *)
 Lemma mmsn_sum : 
@@ -2710,7 +2738,33 @@ Proof.
     (* go right *)
     eapply in_set_concat_intro.
     right.
-    admit.
+    eapply in_set_cons_intro;
+    [eapply symAP| left].
+    cbn in Hb.
+    eapply brel_product_transitive with (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+    (map snd (List.filter (λ '(x, _), eqA au x) V)) av);
+    try assumption.
+    rewrite <-list_filter_lib_filter_same.
+    pose proof fold_left_filter V au av as Hc.
+    rewrite <-list_filter_lib_filter_same in Hc.
+    exact Hc.
+    eapply brel_product_intro;
+    [eapply symA in Ha; exact Ha|].
+    rewrite fold_symmetric.
+    rewrite <-list_filter_lib_filter_same in Hb.
+    eapply trnP with (addP av
+    (fold_right addP zeroP
+       (map snd (List.filter (λ '(x, _), eqA au x) V)))).
+    eapply fold_right_zero.
+    eapply symP.
+    rewrite <-Hb.
+    eapply cong_eqP;
+    [eapply refP|].
+    eapply cong_addP;
+    [eapply refP| eapply eqP_fold_right_refl].
+    exact Ha.
+    eapply addP_assoc_cong.
+    eapply addP_com_cong.
   +
     simpl in * |- *.
     (* case analysis *)
