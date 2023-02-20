@@ -2726,33 +2726,6 @@ Qed.
 
 
 
-Lemma mmsn_same_add : 
-  forall V au av ax bx, 
-  eqA au ax = true ->
-  ([MMSN] ([MMSN] V (au, av)) (ax, bx))  =S=
-  ([MMSN] V (au, addP bx av)).
-Proof.
-  intros ? ? ? ? ? Ha.
-  eapply brel_set_intro_prop;
-  [eapply refAP|].
-  split.
-  +
-    intros (a, p) Hb.
-    admit.
-  +
-    intros (a, p) Hb.
-    admit.
-Admitted.
-
-
-Lemma mmsn_diff_swap : 
-  forall V au av ax bx, 
-  eqA au ax = true -> 
-  ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =S= 
-  ([MMSN] ([MMSN] V (ax, bx)) (au, av)).
-Proof.
-Admitted.
-
 Lemma fold_right_distributes : 
   forall U V,
   eqP (fold_right addP zeroP (U ++ V))
@@ -2779,6 +2752,32 @@ Proof.
     exact IHu.
 Qed.
 
+
+
+Lemma mmsn_same_add : 
+  forall V au av ax bx, 
+  eqA au ax = true ->
+  ([MMSN] ([MMSN] V (au, av)) (ax, bx))  =S=
+  ([MMSN] V (au, addP av bx)).
+Proof.
+Admitted.
+
+
+Lemma mmsn_diff_swap : 
+  forall V au av ax bx, 
+  eqA au ax = false -> 
+  ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =S= 
+  ([MMSN] ([MMSN] V (ax, bx)) (au, av)).
+Proof.
+Admitted.
+
+Lemma fold_left_mmsn_cong : 
+  forall U V W a p, 
+  V =S= W ->  
+  (a, p) [in] fold_left [MMSN] U V ->
+  (a, p) [in] fold_left [MMSN] U W.
+Proof.
+Admitted.
 
 
 (* Difficult to prove! *)
@@ -2844,9 +2843,10 @@ Proof.
       *)
 
       (* This equality is not true. I need to use =S=. *)
-      assert (He : ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =
-        ([MMSN] V (au, addP av bx))). admit.
-      rewrite He.
+      eapply fold_left_mmsn_cong with (V := ([MMSN] V (au, addP av bx))).
+      eapply brel_set_symmetric.
+      eapply mmsn_same_add.
+      exact Hd.
       rewrite Hc in Hb.
       simpl in Hb.
       eapply IHu;
@@ -2858,12 +2858,15 @@ Proof.
     ++
       (* a <A> ax *)
       rewrite Hc in Hb.
-      assert (Hd : 
-      ([MMSN] ([MMSN] V (au, av)) (ax, bx)) = 
-      ([MMSN] ([MMSN] V (ax, bx)) (au, av))).
-      admit.
-      (* flip the argument *)
-      rewrite Hd.
+      eapply fold_left_mmsn_cong with  
+        ([MMSN] ([MMSN] V (ax, bx)) (au, av)).
+      eapply brel_set_symmetric.
+      eapply mmsn_diff_swap.
+      case_eq (eqA au ax);
+      intro Hd.
+      rewrite (trnA _ _ _ Ha Hd) in Hc.
+      congruence.
+      reflexivity.
       eapply IHu;
       try assumption.
       rewrite <-Hb.
@@ -2894,7 +2897,7 @@ Proof.
       eapply symP.
       eapply mmsn_invariant_sum_fn;
       assumption.
-Admitted.
+Qed.
 
 
 
