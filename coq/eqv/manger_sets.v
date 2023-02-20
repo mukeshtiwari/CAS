@@ -2771,13 +2771,34 @@ Lemma mmsn_diff_swap :
 Proof.
 Admitted.
 
-Lemma fold_left_mmsn_cong : 
+
+(* This is too general and may be difficult to prove 
+Wow, I can't believe it turned out to be such a nice proof!
+*)
+Lemma fold_left_in_set_mmsn_cong : 
   forall U V W a p, 
   V =S= W ->  
   (a, p) [in] fold_left [MMSN] U V ->
   (a, p) [in] fold_left [MMSN] U W.
 Proof.
-Admitted.
+  induction U as [|(ax, bx) U IHu].
+  +
+    cbn.
+    intros ? ? ? ? Ha Hb.
+    eapply brel_set_elim_prop in Ha.
+    destruct Ha as [Hal Har].
+    eapply Hal; exact Hb.
+    eapply symAP.
+    eapply trnAP.
+  +
+    simpl.
+    intros ? ? ? ? Ha Hb.
+    pose proof manger_merge_set_congruence_left V W (ax, bx) Ha as Hc.
+    rewrite manger_merge_set_funex in Hc.
+    eapply IHu.
+    exact Hc.
+    exact Hb.
+Qed.
 
 
 (* Difficult to prove! *)
@@ -2833,7 +2854,7 @@ Proof.
       assert (Hd : eqA au ax = true).
       rewrite (trnA _ _ _ (symA _ _ Ha) Hc);
       exact eq_refl.
-      eapply fold_left_mmsn_cong with 
+      eapply fold_left_in_set_mmsn_cong with 
         (V := ([MMSN] V (au, addP av bx))).
       eapply brel_set_symmetric.
       eapply mmsn_same_add.
@@ -2849,7 +2870,7 @@ Proof.
     ++
       (* a <A> ax *)
       rewrite Hc in Hb.
-      eapply fold_left_mmsn_cong with  
+      eapply fold_left_in_set_mmsn_cong with  
         (V := ([MMSN] ([MMSN] V (ax, bx)) (au, av))).
       eapply brel_set_symmetric.
       eapply mmsn_diff_swap.
