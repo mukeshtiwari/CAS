@@ -2501,6 +2501,37 @@ Proof.
       try assumption.
 Qed.
 
+Lemma filter_equality_negb : 
+  forall (X : finite_set (A * P))
+  (a au : A), 
+  eqA a au = true ->
+  filter (λ '(s2, _), negb (eqA a s2)) X = 
+  filter (λ '(s2, _), negb (eqA au s2)) X.
+Proof.
+  induction X as [|(ax, ay) X IHx];
+  intros ? ? Ha; simpl.
+  + reflexivity.
+  + 
+    case_eq (eqA a ax);
+    case_eq (eqA au ax);
+    intros Hc Hb.
+    ++
+      f_equal.
+      eapply IHx;
+      assumption.
+    ++
+      eapply symA in Ha.
+      rewrite (trnA _ _ _ Ha Hb) in Hc.
+      congruence.
+    ++
+      rewrite (trnA _ _ _ Ha Hc) in Hb.
+      congruence.
+    ++
+      cbn.
+      f_equal.
+      eapply IHx;
+      try assumption.
+Qed.
 
 Lemma filter_filter : 
   forall (V: finite_set (A * P))
@@ -2753,13 +2784,156 @@ Proof.
 Qed.
 
 
+Lemma filter_filter_negb : 
+  forall (V : finite_set (A * P)) ax au, 
+  eqA au ax = true ->
+  List.filter (λ '(s2, _), negb (eqA ax s2))
+    (filter (λ '(s2, _), negb (eqA au s2)) V) = 
+  List.filter (λ '(s2, _), negb (eqA ax s2)) V.
+Proof.
+  induction V as [|(a, b) V IHv];
+  simpl; intros ? ? Ha;
+  [exact eq_refl|].
+  case_eq (eqA au a);
+  intros Hb.
+  +
+    simpl.
+    rewrite (trnA _ _ _ (symA _ _ Ha) Hb);
+    simpl.
+    eapply IHv.
+    exact Ha.
+  +
+    simpl.
+    assert (Hc : eqA ax a = false).
+    case_eq (eqA ax a); 
+    intros Hc.
+    rewrite (trnA _ _ _ Ha Hc) in Hb;
+    congruence.
+    reflexivity.
+    rewrite Hc.
+    cbn. 
+    f_equal.
+    eapply IHv.
+    exact Ha.
+Qed.
 
+
+Lemma filter_empty : 
+  forall (V : finite_set (A * P))
+  au ax, 
+  eqA au ax = true -> 
+  List.filter (λ '(s2, _), eqA ax s2)
+  (List.filter (λ '(s2, _), negb (eqA au s2)) V) = [].
+Proof.
+  induction V as [|(a, b) V IHv];
+  simpl; 
+  intros ? ? Ha;
+  [exact eq_refl|].
+  case_eq (eqA au a);
+  intros Hb; cbn;
+  [eapply IHv; assumption |].
+  case_eq (eqA ax a);
+  intros Hc.
+  rewrite (trnA _ _ _ Ha Hc) in Hb;
+  congruence.
+  eapply IHv;
+  assumption.
+Qed.
+
+
+(* Properties related to in_set. Think about it *)
 Lemma mmsn_same_add : 
   forall V au av ax bx, 
   eqA au ax = true ->
   ([MMSN] ([MMSN] V (au, av)) (ax, bx))  =S=
   ([MMSN] V (au, addP av bx)).
 Proof.
+  intros ? ? ? ? ? Ha.
+  eapply brel_set_intro_prop;
+  [eapply refAP|].
+  split.
+  + 
+    intros (a, p) Hb.
+    eapply in_set_concat_elim in Hb.
+    eapply in_set_concat_intro.
+    destruct Hb as [Hb | Hb];
+    simpl in * |- * .
+    cbn in Hb.
+    repeat rewrite <-list_filter_lib_filter_same,
+    filter_app, filter_filter_negb in Hb.
+    eapply in_set_concat_elim in Hb.
+    destruct Hb as [Hb | Hb].
+    left.
+    rewrite list_filter_lib_filter_same in Hb.
+    erewrite filter_equality_negb.
+    exact Hb.
+    exact Ha.
+    rewrite list_filter_lib_filter_same in Hb.
+    assert (Hc : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+    (filter (λ '(s2, _), eqA au s2) V) (
+    au, av) == (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+    (map snd (List.filter (λ '(x, _), eqA au x) V)) av)).
+    eapply fold_left_filter.
+    destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+    (filter (λ '(s2, _), eqA au s2) V) (
+    au, av)) as (x, y) eqn:Hd.
+    eapply brel_product_elim in Hc.
+    destruct Hc as [Hcl Hcr].
+    cbn in Hb.
+    rewrite (trnA _ _ _ (symA _ _ Ha) (symA _ _ Hcl)) in Hb;
+    cbn in Hb;
+    congruence.
+    eapply symAP.
+    exact Ha.
+    eapply bop_or_elim in Hb.
+    destruct Hb as [Hb | Hb].
+    ++
+      cbn in Hb.
+      repeat rewrite <-list_filter_lib_filter_same in Hb.
+      rewrite filter_app, filter_empty, app_nil_l in Hb.
+      assert (Hc : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA au s2) V) (
+      au, av) == (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+      (map snd (List.filter (λ '(x, _), eqA au x) V)) av)).
+      eapply fold_left_filter.
+      destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA au s2) V) (
+      au, av)) as (x, y) eqn:Hd.
+      eapply brel_product_elim in Hc.
+      destruct Hc as [Hcl Hcr].
+      rewrite <-list_filter_lib_filter_same in Hd.
+      rewrite Hd in Hb.
+      cbn in Hb.
+      rewrite (trnA _ _ _ (symA _ _ Ha) (symA _ _ Hcl)) in Hb;
+      cbn in Hb.
+      eapply bop_and_elim in Hb.
+      destruct Hb as [Hbl Hbr].
+      right.
+      eapply bop_or_intro; left.
+      assert (He : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA au s2) V) (
+      au, addP av bx) == (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+      (map snd (List.filter (λ '(x, _), eqA au x) V)) (addP av bx))).
+      eapply fold_left_filter.
+      destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA au s2) V) (
+      au, addP av bx)) as (xt, yt) eqn:Hf.
+      eapply brel_product_elim in He.
+      destruct He as [Hel Her].
+      eapply bop_and_intro.
+      eapply trnA with au.
+      exact (trnA _ _ _ Hbl (symA _ _ Ha)).
+      eapply symA; assumption.
+      (* More algebraic manipulation! *)
+      admit.
+      admit.
+    ++
+      congruence.
+    ++
+      eapply symAP.
+  +
+    intros (a, p) Hb.
+    admit.
 Admitted.
 
 
@@ -2769,10 +2943,20 @@ Lemma mmsn_diff_swap :
   ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =S= 
   ([MMSN] ([MMSN] V (ax, bx)) (au, av)).
 Proof.
+  intros ? ? ? ? ? Ha.
+  eapply brel_set_intro_prop;
+  [eapply refAP|].
+  split.
+  + 
+    intros (a, p) Hb.
+    admit.
+  +
+    intros (a, p) Hb.
+    admit.
 Admitted.
 
 
-(* This is too general and may be difficult to prove 
+(* This is too general and may be difficult to prove.
 Wow, I can't believe it turned out to be such a nice proof!
 *)
 Lemma fold_left_in_set_mmsn_cong : 
@@ -2795,9 +2979,8 @@ Proof.
     intros ? ? ? ? Ha Hb.
     pose proof manger_merge_set_congruence_left V W (ax, bx) Ha as Hc.
     rewrite manger_merge_set_funex in Hc.
-    eapply IHu.
-    exact Hc.
-    exact Hb.
+    eapply IHu;
+    [exact Hc | exact Hb].
 Qed.
 
 
