@@ -2833,17 +2833,8 @@ Proof.
       assert (Hd : eqA au ax = true).
       rewrite (trnA _ _ _ (symA _ _ Ha) Hc);
       exact eq_refl.
-      (* in this case 
-        ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =S= 
-        [MMSN] V (au, av + bx). And from this equation: 
-        all in need is replace the goal:
-        (a, p) [in] fold_left [MMSN] U ([MMSN] ([MMSN] V (au, av)) (ax, bx))
-        with 
-        (a, p) [in] fold_left [MMSN] U ([MMSN] V (au, addP av bx))
-      *)
-
-      (* This equality is not true. I need to use =S=. *)
-      eapply fold_left_mmsn_cong with (V := ([MMSN] V (au, addP av bx))).
+      eapply fold_left_mmsn_cong with 
+        (V := ([MMSN] V (au, addP av bx))).
       eapply brel_set_symmetric.
       eapply mmsn_same_add.
       exact Hd.
@@ -2859,7 +2850,7 @@ Proof.
       (* a <A> ax *)
       rewrite Hc in Hb.
       eapply fold_left_mmsn_cong with  
-        ([MMSN] ([MMSN] V (ax, bx)) (au, av)).
+        (V := ([MMSN] ([MMSN] V (ax, bx)) (au, av))).
       eapply brel_set_symmetric.
       eapply mmsn_diff_swap.
       case_eq (eqA au ax);
