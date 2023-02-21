@@ -2840,6 +2840,52 @@ Proof.
   assumption.
 Qed.
 
+Lemma push_add_outside : 
+  forall V av bx y yt, 
+  eqP y (fold_left (λ t1 t2 : P, addP t1 t2) V av) = true ->
+  eqP yt (fold_left (λ t1 t2 : P, addP t1 t2) V (addP av bx)) = true ->
+  eqP (addP bx y) yt = true.
+Proof.
+  intros ? ? ? ? ? Ha Hb.
+  rewrite fold_symmetric in Ha, Hb;
+  try assumption.
+  assert (Hc : 
+    eqP y (addP av (fold_right (λ t1 t2 : P, addP t1 t2) zeroP V)) = true).
+  eapply trnP;
+  [exact Ha| eapply fold_right_zero].
+  clear Ha.
+  assert (Hd : 
+    eqP yt (addP (addP av bx) 
+    (fold_right (λ t1 t2 : P, addP t1 t2) zeroP V)) = true).
+  eapply trnP;
+  [exact Hb | eapply fold_right_zero].
+  clear Hb.
+  remember ((fold_right (λ t1 t2 : P, addP t1 t2) zeroP V)) as Vt.
+  assert (Ha : eqP yt (addP (addP bx av) Vt) = true).
+  eapply trnP.
+  exact Hd.
+  eapply cong_addP.
+  eapply addP_com.
+  eapply refP.
+  clear Hd.
+  assert (Hb : eqP yt (addP bx (addP av Vt)) = true).
+  eapply trnP.
+  exact Ha.
+  eapply addP_assoc.
+  clear Ha.
+  eapply trnP with (addP bx (addP av Vt)).
+  eapply cong_addP;
+  [eapply refP | exact Hc].
+  eapply symP;
+  exact Hb.
+  intros yz. 
+  rewrite addP_com_cong; 
+  exact eq_refl.
+  intros yz.
+  rewrite addP_com_cong;
+  exact eq_refl.
+Qed.
+
 
 (* Properties related to in_set. Think about it *)
 Lemma mmsn_same_add : 
@@ -2930,7 +2976,8 @@ Proof.
       (* pull out the bx from Her to the front, 
       use congruence and then Hcr *)
       (* More algebraic manipulation! *)
-      admit.
+      eapply push_add_outside;
+      [exact Hcr | exact Her].
       exact Ha.
     ++
       congruence.
@@ -3007,11 +3054,12 @@ Proof.
     try assumption.
     remember (map snd (List.filter (λ '(x, _), eqA au x) V)) as Vt.
     (* A lot of algebraic manipulation! *)
-    admit.
+    eapply push_add_outside;
+    [exact Hcr | exact Her].
     exact Ha.
     simpl in Hb; congruence.
     all:eapply symAP.
-Admitted.
+Qed.
 
 
 Lemma mmsn_diff_swap : 
