@@ -2924,16 +2924,93 @@ Proof.
       eapply trnA with au.
       exact (trnA _ _ _ Hbl (symA _ _ Ha)).
       eapply symA; assumption.
+      remember ((map snd (List.filter (λ '(x, _), eqA au x) V))) as Vt.
+      eapply trnP with (addP bx y);
+      try assumption.
+      (* pull out the bx from Her to the front, 
+      use congruence and then Hcr *)
       (* More algebraic manipulation! *)
       admit.
-      admit.
+      exact Ha.
     ++
       congruence.
     ++
       eapply symAP.
   +
     intros (a, p) Hb.
+    eapply in_set_concat_elim in Hb.
+    eapply in_set_concat_intro.
+    destruct Hb as [Hb | Hb].
+    left; simpl.
+    cbn.
+    erewrite <-list_filter_lib_filter_same,
+    filter_app, filter_filter_negb.
+    eapply in_set_concat_intro.
+    left; cbn in Hb;
+    erewrite list_filter_lib_filter_same, 
+    filter_equality_negb.
+    exact Hb. eapply symA; exact Ha.
+    exact Ha.
+    right.
+    eapply in_set_cons_elim in Hb.
+    eapply in_set_cons_intro;
+    [eapply symAP|].
+    destruct Hb as [Hb | Hb].
+    left.
+    cbn in Hb.
+    assert (He : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA au s2) V) (
+      au, addP av bx) == (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+      (map snd (List.filter (λ '(x, _), eqA au x) V)) (addP av bx))).
+    eapply fold_left_filter.
+    destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+    (filter (λ '(s2, _), eqA au s2) V) (
+    au, addP av bx)) as (xt, yt) eqn:Hf.
+    eapply brel_product_elim in He.
+    destruct He as [Hel Her].
+    cbn.
+    repeat rewrite <-list_filter_lib_filter_same.
+    rewrite filter_app, 
+    filter_empty, app_nil_l.
+    assert (Hc : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA au s2) V) (
+      au, av) == (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+      (map snd (List.filter (λ '(x, _), eqA au x) V)) av)).
+    eapply fold_left_filter.
+    destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+    (filter (λ '(s2, _), eqA au s2) V) (
+    au, av)) as (x, y) eqn:Hd.
+    eapply brel_product_elim in Hc.
+    destruct Hc as [Hcl Hcr].
+    repeat rewrite list_filter_lib_filter_same.
+    rewrite Hd.
+    cbn. 
+    assert (Hg : eqA ax x = true).
+    case_eq (eqA ax x);
+    intros Hg;
+    [exact eq_refl |].
+    rewrite (trnA _ _ _ (symA _ _ Ha) (symA _ _ Hcl)) in 
+    Hg; congruence.
+    rewrite Hg.
+    cbn.
+    eapply bop_and_intro.
+    eapply brel_product_elim in Hb.
+    destruct Hb as [Hbl Hbr].
+    (* it's good idea to write a proof search in 
+    Ltac or Coq-elpi *)
+    eapply trnA with au.
+    eapply symA; assumption.
+    exact (trnA _ _ _ (symA _ _ Hel) Hbl).
+    eapply brel_product_elim in Hb.
+    destruct Hb as [Hbl Hbr].
+    eapply trnP with yt;
+    try assumption.
+    remember (map snd (List.filter (λ '(x, _), eqA au x) V)) as Vt.
+    (* A lot of algebraic manipulation! *)
     admit.
+    exact Ha.
+    simpl in Hb; congruence.
+    all:eapply symAP.
 Admitted.
 
 
