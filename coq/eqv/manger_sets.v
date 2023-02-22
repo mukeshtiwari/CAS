@@ -3105,6 +3105,85 @@ Proof.
 Qed.
     
 
+
+Lemma mmsn_diff_swap_first : 
+  forall V au av ax bx a b,
+  eqA au ax = false ->
+  eqA a au = true ->
+  [MMSN] ([MMSN] ((a, b) :: V) (au, av)) (ax, bx) =S= 
+  [MMSN] ([MMSN] V (au, addP av b)) (ax, bx).
+Proof.
+  intros ? ? ? ? ? ? ? Ha Hb;
+  cbn.
+  rewrite (symA _ _ Hb);
+  cbn.
+  eapply brel_set_reflexive.
+  eapply refAP.
+  eapply symAP.
+Qed.
+
+
+
+Lemma mmsn_diff_swap_second : 
+  forall V au av ax bx a b,
+  eqA au ax = false ->
+  eqA a au = true ->
+  [MMSN] ([MMSN] ((a, b) :: V) (ax, bx)) (au, av) =S= 
+  [MMSN] ([MMSN] V (ax, bx)) (au, addP av b).
+Proof.
+  intros * Ha Hb.
+  cbn.
+  assert (Hc : eqA ax a = false).
+  case_eq (eqA ax a);
+  intros Hc.
+  rewrite (trnA _ _ _ (symA _ _ Hb) (symA _ _ Hc)) in Ha;
+  congruence.
+  reflexivity.
+  rewrite Hc; cbn.
+  rewrite (symA _ _ Hb); cbn.
+  eapply brel_set_reflexive.
+  eapply refAP.
+  eapply symAP.
+Qed.
+
+Lemma mmsn_diff_swap_third : 
+  forall V au av ax bx a b,
+  eqA au ax = false ->
+  eqA a au = false ->
+  eqA a ax = true -> 
+  [MMSN] ([MMSN] ((a, b) :: V) (ax, bx)) (au, av) =S= 
+  [MMSN] ([MMSN] V (ax, addP bx b)) (au, av).
+Proof.
+  intros * Ha Hb Hc.
+  cbn;
+  rewrite (symA _ _ Hc); cbn.
+  eapply brel_set_reflexive.
+  eapply refAP.
+  eapply symAP.
+Qed.
+
+Lemma mmsn_diff_swap_fourth : 
+  forall V au av ax bx a b,
+  eqA au ax = false ->
+  eqA a au = false ->
+  eqA a ax = true -> 
+  [MMSN] ([MMSN] ((a, b) :: V) (au, av)) (ax, bx) =S= 
+  [MMSN] ([MMSN] V (au, av)) (ax, addP bx b).
+Proof.
+  intros * Ha Hb Hc.
+  cbn.
+  case_eq (eqA au a);
+  intro Hd.
+  rewrite (symA _ _ Hd) in Hb;
+  congruence.
+  cbn.
+  rewrite (symA _ _ Hc); cbn.
+  eapply brel_set_reflexive.
+  eapply refAP.
+  eapply symAP.
+Qed.
+
+
 (* Think about it. This proof is more trickier than 
 I thought!  *)
 Lemma mmsn_diff_swap : 
@@ -3113,9 +3192,102 @@ Lemma mmsn_diff_swap :
   ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =S= 
   ([MMSN] ([MMSN] V (ax, bx)) (au, av)).
 Proof.
-  
-
-Admitted.
+  induction V as [|(a, b) V IHv];
+  intros ? ? ? ? Ha.
+  +
+    cbn; rewrite Ha; 
+    cbn.
+    case_eq (eqA ax au);
+    intros Hb; cbn.
+    rewrite (symA _ _ Hb) in Ha;
+    congruence.
+    eapply brel_set_intro_prop;
+    [eapply refAP|]; split;
+    intros (a, p) Hc.
+    eapply in_set_cons_elim in Hc;
+    [|eapply symAP].
+    eapply in_set_cons_intro;
+    [eapply symAP|].
+    destruct Hc as [Hc | Hc].
+    right.
+    eapply in_set_cons_intro;
+    [eapply symAP|left; assumption].
+    eapply in_set_cons_elim in Hc;
+    [|eapply symAP].
+    destruct Hc as [Hc | Hc].
+    left; assumption.
+    simpl in Hc; congruence.
+    eapply in_set_cons_elim in Hc;
+    [|eapply symAP].
+    eapply in_set_cons_intro;
+    [eapply symAP|].
+    destruct Hc as [Hc | Hc].
+    right.
+    eapply in_set_cons_intro;
+    [eapply symAP|left; assumption].
+    eapply in_set_cons_elim in Hc;
+    [|eapply symAP].
+    destruct Hc as [Hc | Hc].
+    left; assumption.
+    simpl in Hc; congruence.
+  +
+    case_eq (eqA a au);
+    intros Hb.
+    ++
+      (* a = au *)
+      (* we move things and we are home *)
+      eapply brel_set_transitive;
+      [eapply refAP | eapply symAP | eapply trnAP | | ].
+      eapply  mmsn_diff_swap_first; 
+      try assumption.
+      eapply brel_set_symmetric.
+      eapply brel_set_transitive;
+      [eapply refAP | eapply symAP | eapply trnAP | | ].
+      eapply mmsn_diff_swap_second; 
+      try assumption.
+      eapply IHv. 
+      case_eq (eqA ax au);
+      intro Hc.
+      rewrite (symA _ _ Hc) in Ha;
+      congruence.
+      reflexivity.
+    ++
+      (* a <> au *)
+      case_eq (eqA a ax);
+      intros Hc.
+      +++
+        (* a <> au ∧ a = ax *)
+        (* we move thing and we are home *)
+        eapply brel_set_symmetric.
+        eapply brel_set_transitive;
+        [eapply refAP | eapply symAP | eapply trnAP | | ].
+        eapply mmsn_diff_swap_third; 
+        try assumption.
+        eapply brel_set_symmetric.
+        eapply brel_set_transitive;
+        [eapply refAP | eapply symAP | eapply trnAP | | ].
+        eapply mmsn_diff_swap_fourth; 
+        try assumption.
+        eapply IHv; assumption.
+      +++
+        (* a <> au ∧ a <> ax *)
+        cbn.
+        assert (Hd : eqA au a = false).
+        case_eq (eqA au a);
+        intro Hd;
+        [rewrite (symA _ _ Hd) in Hb; 
+        congruence | reflexivity].
+        repeat rewrite Hd; cbn.
+        assert (He :  eqA ax a = false).
+        case_eq (eqA ax a);
+        intro He;
+        [rewrite (symA _ _ He) in Hc; 
+        congruence | reflexivity].
+        repeat rewrite He; cbn.
+        rewrite Hd; cbn.
+        eapply set_equal_with_cons_right.
+        exact (IHv au av ax bx Ha).
+Qed.        
 
 
 (* This is too general and may be difficult to prove.
