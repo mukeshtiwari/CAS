@@ -3062,22 +3062,59 @@ Proof.
 Qed.
 
 
+Lemma filter_filter_curry : 
+  forall (V : finite_set (A * P)) au ax, 
+  List.filter (λ '(s2, _), negb (eqA ax s2))
+  (List.filter (λ '(s2, _), negb (eqA au s2)) V) = 
+  List.filter (λ '(s2, _), 
+    bop_and (negb (eqA ax s2)) (negb (eqA au s2))) V.
+Proof.
+  induction V as [|(a, b) V IHv];
+  simpl; intros ? ?;
+  [exact eq_refl|].
+  case_eq (eqA au a); 
+  intros Hb.
+  +
+    cbn;
+    rewrite Bool.andb_false_r;
+    eapply IHv; 
+    try assumption.
+  +
+    cbn.
+    case_eq (eqA ax a);
+    intro Hc;
+    cbn.
+    eapply IHv.
+    f_equal.
+    eapply IHv.
+Qed.
+
+Lemma filter_bop_and_comm : 
+  forall (V : finite_set (A * P)) au ax, 
+  List.filter (λ '(s2, _), 
+    bop_and (negb (eqA ax s2)) (negb (eqA au s2))) V = 
+  List.filter (λ '(s2, _), 
+    bop_and (negb (eqA au s2)) (negb (eqA ax s2))) V.
+Proof.
+  induction V as [|(a, b) V IHv];
+  simpl; intros ? ?;
+  [exact eq_refl|].
+  unfold bop_and.
+  rewrite Bool.andb_comm, 
+  IHv; exact eq_refl.
+Qed.
+    
+
+(* Think about it. This proof is more trickier than 
+I thought!  *)
 Lemma mmsn_diff_swap : 
   forall V au av ax bx, 
   eqA au ax = false -> 
   ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =S= 
   ([MMSN] ([MMSN] V (ax, bx)) (au, av)).
 Proof.
-  intros ? ? ? ? ? Ha.
-  eapply brel_set_intro_prop;
-  [eapply refAP|].
-  split.
-  + 
-    intros (a, p) Hb.
-    admit.
-  +
-    intros (a, p) Hb.
-    admit.
+  
+
 Admitted.
 
 
