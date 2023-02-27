@@ -3606,6 +3606,72 @@ Proof.
   Qed.
 
 
+
+Lemma in_set_fold_left_mmsn_elim_first : 
+  forall (Y X : finite_set (A * P))
+    (a : A) (p : P),
+    (a, p) [in] fold_left [MMSN] X Y ->
+    (∃ q : P, (a, q) [in] X).
+Proof.
+  (* 
+  induction Y as [|(au, bu) Y Ihy]; 
+  cbn.
+  +
+    intros * Ha.
+    unfold manger_merge_sets_new,
+    manger_merge_sets_new_aux in Ha.
+    cbn in Ha.
+    destruct X as [|(ax, bx) X].
+    ++  cbn in Ha.
+      admit.
+    ++
+      cbn in Ha.
+  *)
+
+  (* 
+    Can it not be the case that 
+    X is empty and (a, p) in Y ?
+  *)
+  intros * Ha.
+  assert (Hb : ((a, p) [in] fold_left [MMSN] [] [(a, p)])).
+  compute; rewrite refA, refP; reflexivity.
+Admitted.
+
+
+Lemma in_set_fold_left_mmsn_elim_second : 
+  forall (X Y : finite_set (A * P))
+    (a : A) (p : P),
+    (a, p) [in] fold_left [MMSN] X Y ->
+    eqP p (sum_fn zeroP addP snd 
+      (filter (λ '(x, _), eqA x a) (X ++ Y))) = true.
+Proof.
+  induction X as [|(ax, bx) X IHx]; simpl.
+  +
+    intros * Ha.
+    (* Provable *)
+    admit.
+  +
+    intros * Ha.
+    case_eq (eqA ax a);
+    intros Hb.
+    ++
+      (* eqA ax a = true *)
+      pose proof (IHx _ _ _ Ha) as Hc.
+      unfold sum_fn; cbn.
+      (* pull out bx in Hc *)
+      admit.
+    ++
+      (* eqA ax a = false *)
+      (* 
+      (a, p) [in] fold_left [MMSN] X ([MMSN] Y (ax, bx)) = 
+      (a, p) [in] fold_left [MMSN] X Y 
+      eapply Inductive Hypothesis and 
+      we are home 
+      *)
+  
+Admitted.
+
+
 Lemma in_set_fold_left_mmsn_elim : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
@@ -3614,7 +3680,12 @@ Lemma in_set_fold_left_mmsn_elim :
     eqP p (sum_fn zeroP addP snd 
       (filter (λ '(x, _), eqA x a) (X ++ Y))) = true.
 Proof.
-Admitted.
+  intros * Ha.
+  split;
+  [eapply in_set_fold_left_mmsn_elim_first |
+  eapply in_set_fold_left_mmsn_elim_second]; 
+  exact Ha.
+Qed.
 
 
 Lemma in_set_uop_manger_phase_1_elim : 
