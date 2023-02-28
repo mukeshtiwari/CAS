@@ -3607,37 +3607,75 @@ Proof.
 
 
 
+(* 
+This one is not provable in its current form. 
+However, if we change the goal to  
+∃ q : P, (a, q) [in] (X ++ Y), then we can prove it.
+*)
 Lemma in_set_fold_left_mmsn_elim_first : 
-  forall (Y X : finite_set (A * P))
+  forall (X Y : finite_set (A * P))
     (a : A) (p : P),
     (a, p) [in] fold_left [MMSN] X Y ->
+    (* 
     (∃ q : P, (a, q) [in] X).
+    *)
+    ∃ q : P, (a, q) [in] (X ++ Y).
 Proof.
-  (* 
-  induction Y as [|(au, bu) Y Ihy]; 
-  cbn.
+  induction X as [|(ax, bx) X Ihx].
   +
+    cbn.
     intros * Ha.
-    unfold manger_merge_sets_new,
-    manger_merge_sets_new_aux in Ha.
-    cbn in Ha.
-    destruct X as [|(ax, bx) X].
-    ++  cbn in Ha.
+    eexists; exact Ha.
+  +
+    simpl.
+    intros * Ha.
+    (* What should be q? *)
+    (* if eqA a ax = true
+    then 
+    q := addP bx (sum_fn zeroP addP snd 
+      (filter (λ '(x, _), eqA a x) 
+        (X ++ Y))) 
+    wehn it's not then inductive hypothesis
+    *)
+    case_eq (eqA a ax);
+    intros Hb.
+    ++
+
+      exists (addP bx (sum_fn zeroP addP snd 
+      (filter (λ '(x, _), eqA a x) 
+        (X ++ Y)))).
+      eapply bop_or_intro; left.
+      eapply bop_and_intro;
+      [reflexivity |].
       admit.
     ++
-      cbn in Ha.
-  *)
-
-  (* 
-    Can it not be the case that 
-    X is empty and (a, p) in Y ?
-  *)
-  intros * Ha.
-  assert (Hb : ((a, p) [in] fold_left [MMSN] [] [(a, p)])).
-  compute; rewrite refA, refP; reflexivity.
+      (* 
+        a <A> ax 
+        (a, p) [in] fold_left [MMSN] X ([MMSN] Y (ax, bx)) 
+      *)
+      assert (Hc :
+        in_set (brel_product eqA eqP) (fold_left [MMSN] X ([MMSN] Y (ax, bx)))
+          (a, p) = 
+        in_set (brel_product eqA eqP) (fold_left [MMSN] X Y) 
+          (a, p)).
+      admit.
+      rewrite Hc in Ha.
+      destruct (Ihx _ _ _ Ha) as (q & Hd).
+      exists q.
+      simpl; exact Hd.
 Admitted.
 
+       
 
+
+
+(* 
+  Provable only 
+  if we have one (a, p) in Y, 
+  i.e., we assume NoDup Y.
+  Because here is a counter case: 
+  Y := (a, p) :: Y₁ ++ [(a, p)] ++ Y₂
+*)
 Lemma in_set_fold_left_mmsn_elim_second : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
@@ -3648,7 +3686,6 @@ Proof.
   induction X as [|(ax, bx) X IHx]; simpl.
   +
     intros * Ha.
-    (* Provable *)
     admit.
   +
     intros * Ha.
@@ -3676,7 +3713,7 @@ Lemma in_set_fold_left_mmsn_elim :
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
     (a, p) [in] fold_left [MMSN] X Y ->
-    (∃ q : P, (a, q) [in] X) ∧ 
+    (∃ q : P, (a, q) [in] (X ++ Y)) ∧ 
     eqP p (sum_fn zeroP addP snd 
       (filter (λ '(x, _), eqA x a) (X ++ Y))) = true.
 Proof.
@@ -3707,7 +3744,7 @@ Proof.
       otherwise it is impossible to prove this, 
       at least from my experience.
     *)
-    replace (X) with (X ++ []) at 1.
+    replace (X) with (X ++ []).
     eapply in_set_fold_left_mmsn_elim with (Y := nil).
     +
       exact Ha.
