@@ -3656,6 +3656,18 @@ Proof.
 Qed.
 
 
+
+Lemma nodup_inset : 
+  forall (Y : finite_set (A * P))
+  (a : A) (p : P),
+  NoDup Y -> (a, p) [in] Y -> 
+  ∃ Y₁ Y₂,  Y = Y₁ ++ [(a, p)] ++ Y₂ ∧
+    (in_set  (brel_product eqA eqP) Y₁ (a, p) = false) ∧
+    (in_set  (brel_product eqA eqP) Y₂ (a, p) = false).
+Proof.
+Admitted. 
+    
+
 (* 
   Provable only 
   if we have one (a, p) in Y, 
@@ -3674,6 +3686,10 @@ Proof.
   induction X as [|(ax, bx) X IHx]; simpl.
   +
     intros * Ha Hb.
+    (* use here the lemma nodup_inset 
+      Y := Y₁ ++ [(a, p)] ++ Y₂ 
+      
+    *)
     admit.
   +
     intros * Ha Hb.
