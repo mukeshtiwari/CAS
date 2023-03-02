@@ -3606,6 +3606,17 @@ Proof.
   Qed.
 
 
+Lemma in_set_equality_false : 
+  forall (X Y : finite_set (A * P))
+  a p au av, 
+  eqA a au = false ->
+  in_set (brel_product eqA eqP) 
+    (fold_left [MMSN] X ([MMSN] Y (au, av))) (a, p) 
+  = 
+  in_set (brel_product eqA eqP) 
+    (fold_left [MMSN] X Y) (a, p).
+Proof.
+Admitted.
 
 (* 
 This one is not provable in its current form. 
@@ -3621,7 +3632,7 @@ Lemma in_set_fold_left_mmsn_elim_first :
     *)
     ∃ q : P, (a, q) [in] (X ++ Y).
 Proof.
-  induction X as [|(ax, bx) X Ihx].
+  induction X as [|(au, av) X Ihx].
   +
     cbn.
     intros * Ha.
@@ -3629,44 +3640,20 @@ Proof.
   +
     simpl.
     intros * Ha.
-    (* What should be q? *)
-    (* if eqA a ax = true
-    then 
-    q := addP bx (sum_fn zeroP addP snd 
-      (filter (λ '(x, _), eqA a x) 
-        (X ++ Y))) 
-    wehn it's not then inductive hypothesis
-    *)
-    case_eq (eqA a ax);
+    case_eq (eqA a au);
     intros Hb.
     ++
-
-      exists (addP bx (sum_fn zeroP addP snd 
-      (filter (λ '(x, _), eqA a x) 
-        (X ++ Y)))).
-      eapply bop_or_intro; left.
-      eapply bop_and_intro;
-      [reflexivity |].
-      admit.
+     exists av.
+     rewrite refP.
+     cbn; reflexivity.
     ++
-      (* 
-        a <A> ax 
-        (a, p) [in] fold_left [MMSN] X ([MMSN] Y (ax, bx)) 
-      *)
-      assert (Hc :
-        in_set (brel_product eqA eqP) (fold_left [MMSN] X ([MMSN] Y (ax, bx)))
-          (a, p) = 
-        in_set (brel_product eqA eqP) (fold_left [MMSN] X Y) 
-          (a, p)).
-      admit.
-      rewrite Hc in Ha.
+      cbn.
+      rewrite in_set_equality_false in Ha.
       destruct (Ihx _ _ _ Ha) as (q & Hd).
       exists q.
       simpl; exact Hd.
-Admitted.
-
-       
-
+      exact Hb.
+Qed.
 
 
 (* 
@@ -3679,21 +3666,24 @@ Admitted.
 Lemma in_set_fold_left_mmsn_elim_second : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
+    NoDup Y ->
     (a, p) [in] fold_left [MMSN] X Y ->
     eqP p (sum_fn zeroP addP snd 
       (filter (λ '(x, _), eqA x a) (X ++ Y))) = true.
 Proof.
   induction X as [|(ax, bx) X IHx]; simpl.
   +
-    intros * Ha.
+    intros * Ha Hb.
     admit.
   +
-    intros * Ha.
+    intros * Ha Hb.
     case_eq (eqA ax a);
-    intros Hb.
+    intros Hc.
     ++
+      assert (Hd : NoDup ([MMSN] Y (ax, bx))).
+      admit.
       (* eqA ax a = true *)
-      pose proof (IHx _ _ _ Ha) as Hc.
+      pose proof (IHx ([MMSN] Y (ax, bx)) a p Hd Hb) as He.
       unfold sum_fn; cbn.
       (* pull out bx in Hc *)
       admit.
@@ -3705,23 +3695,26 @@ Proof.
       eapply Inductive Hypothesis and 
       we are home 
       *)
-  
+      rewrite in_set_equality_false in Hb;
+      try assumption.
+      eapply IHx; try assumption.
 Admitted.
 
 
 Lemma in_set_fold_left_mmsn_elim : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
+    NoDup Y ->
     (a, p) [in] fold_left [MMSN] X Y ->
     (∃ q : P, (a, q) [in] (X ++ Y)) ∧ 
     eqP p (sum_fn zeroP addP snd 
       (filter (λ '(x, _), eqA x a) (X ++ Y))) = true.
 Proof.
-  intros * Ha.
+  intros * Ha Hb.
   split;
   [eapply in_set_fold_left_mmsn_elim_first |
-  eapply in_set_fold_left_mmsn_elim_second]; 
-  exact Ha.
+  eapply in_set_fold_left_mmsn_elim_second];
+  try assumption; exact Hb.
 Qed.
 
 
@@ -3746,6 +3739,8 @@ Proof.
     *)
     replace (X) with (X ++ []).
     eapply in_set_fold_left_mmsn_elim with (Y := nil).
+    +
+      constructor.
     +
       exact Ha.
     +
