@@ -3606,6 +3606,8 @@ Proof.
   Qed.
 
 
+
+
 Lemma in_set_equality_false : 
   forall (X Y : finite_set (A * P))
   a p au av, 
@@ -3616,6 +3618,49 @@ Lemma in_set_equality_false :
   in_set (brel_product eqA eqP) 
     (fold_left [MMSN] X Y) (a, p).
 Proof.
+  (* 
+    It's obviously True
+  *)
+  induction X as [|(ax, bx) X IHx].
+  +
+    simpl; intros * Ha.
+    (*
+      I can replace 
+        in_set (brel_product eqA eqP)
+        (filter (λ '(s2, _), negb (eqA au s2)) Y ++
+          [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+            (filter (λ '(s2, _), eqA au s2) Y) (au, av)]) 
+            (a, p) by 
+        in_set (brel_product eqA eqP)
+        (filter (λ '(s2, _), negb (eqA au s2)) Y) (a, p)
+        Why? 
+        Because 
+        [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+            (filter (λ '(s2, _), eqA au s2) Y) (au, av)] = 
+        [(au, ....)]
+
+        Now, from 
+        in_set (brel_product eqA eqP)
+        (filter (λ '(s2, _), negb (eqA au s2)) Y) (a, p) = 
+        in_set (brel_product eqA eqP) Y (a, p) should be trivial.  
+    *)
+    admit.
+  +
+    simpl; intros * Ha.
+    (* 
+      case analysis eqA ax a ?? 
+      This is more tricky and may 
+      require a lot of sublemmas
+      if ax = a then we know that 
+      ax <> au then by unfolding 
+      and some rewriting, hopefully 
+      we can discharge it
+
+      ax <> a  
+      Can I avoid comparing ax with au? 
+      Otherwise, it's going to super annoying proof. 
+    *)
+
 Admitted.
 
 (* 
@@ -3627,9 +3672,6 @@ Lemma in_set_fold_left_mmsn_elim_first :
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
     (a, p) [in] fold_left [MMSN] X Y ->
-    (* 
-    (∃ q : P, (a, q) [in] X).
-    *)
     ∃ q : P, (a, q) [in] (X ++ Y).
 Proof.
   induction X as [|(au, av) X Ihx].
@@ -3656,17 +3698,110 @@ Proof.
 Qed.
 
 
+Fixpoint no_dup {U : Type} (r : brel U) 
+  (X : finite_set U) : bool := 
+ match X with 
+ | [] => true
+ | h :: t => bop_and (negb (in_list r t h))
+  (no_dup r t)
+ end.
+  
 
+
+Lemma brel_list_refl : 
+  forall Yt, 
+  brel_list (brel_product eqA eqP) Yt Yt = true.
+Proof.
+  induction Yt; cbn; 
+  [reflexivity| eapply bop_and_intro].
+  eapply brel_product_reflexive;
+  try assumption.
+  exact IHYt.
+Qed.
+
+
+(* it should in library *)
+Lemma bop_and_in_list_rewrite : 
+  forall Yt a au p bu, 
+  bop_and (eqA a au) (eqP p bu) = true ->
+  in_list (brel_product eqA eqP) Yt (au, bu) = false ->
+  in_list (brel_product eqA eqP) Yt (a, p) = false.
+Admitted.
+
+
+
+(* 
+There is a lemma in list_split in 
+coq/algorithms/list_lemmas.v but It seems 
+that we have delted the definition of 
+no_dup.
+*)
 Lemma nodup_inset : 
   forall (Y : finite_set (A * P))
   (a : A) (p : P),
-  NoDup Y -> (a, p) [in] Y -> 
-  ∃ Y₁ Y₂,  Y = Y₁ ++ [(a, p)] ++ Y₂ ∧
-    (in_set  (brel_product eqA eqP) Y₁ (a, p) = false) ∧
-    (in_set  (brel_product eqA eqP) Y₂ (a, p) = false).
+  no_dup (brel_product eqA eqP) Y = true -> 
+  (a, p) [in] Y -> 
+  ∃ Y₁ Y₂, 
+    brel_list (brel_product eqA eqP) Y (Y₁ ++ [(a, p)] ++ Y₂) = true ∧
+    (in_list (brel_product eqA eqP) Y₁ (a, p) = false) ∧
+    (in_list (brel_product eqA eqP) Y₂ (a, p) = false).
 Proof.
-Admitted. 
-    
+  induction Y as [|(au, bu) Y IHy].
+  +
+    intros * Ha Hb.
+    cbn in Hb; congruence.
+  +
+    intros * Ha Hb.
+    (* destruct Y *)
+    destruct Y as [| (auu, buu) Y].
+    ++
+      (* Y is empty *)
+      exists [], [].
+      cbn; repeat split; try reflexivity.
+      eapply in_set_cons_elim in Hb.
+      destruct Hb as [Hb | Hb].
+      eapply brel_product_elim in Hb.
+      destruct Hb as (Hbl & Hbr).
+      rewrite Hbl, Hbr; reflexivity.
+      cbn in Hb; congruence.
+      eapply symAP.
+    ++
+      (* inductive case *)
+      remember ((auu, buu) :: Y) as Yt.
+      cbn in Hb.
+      case_eq (bop_and (eqA a au) (eqP p bu));
+      intros Hc.
+      +++
+        exists [], Yt.
+        cbn in Ha |-*.
+        repeat split; try reflexivity.
+        apply bop_and_elim in Hc;
+        destruct Hc as (Hcl & Hcr);
+        rewrite (symA _ _ Hcl),
+        (symP _ _ Hcr); cbn.
+        eapply brel_list_refl.
+        eapply bop_and_elim in Ha.
+        destruct Ha as (Hal & Har).
+        eapply Bool.negb_true_iff in Hal.
+        eapply bop_and_in_list_rewrite; 
+        try assumption.
+        exact Hc. exact Hal.
+      +++
+        cbn in Ha.
+        eapply bop_and_elim in Ha.
+        destruct Ha as (Hal & Har).
+        rewrite Hc in Hb; cbn in Hb.
+        destruct (IHy _ _ Har Hb) as 
+        (Y₁ & Y₂ & Hd & He & Hf).
+        exists ((au, bu) :: Y₁), Y₂.
+        cbn.
+        repeat split.
+        rewrite refA, refP; cbn. 
+        exact Hd.
+        rewrite Hc; cbn.
+        exact He.
+        exact Hf.
+  Qed.
 
 (* 
   Provable only 
@@ -3678,7 +3813,7 @@ Admitted.
 Lemma in_set_fold_left_mmsn_elim_second : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
-    NoDup Y ->
+    no_dup (brel_product eqA eqP) Y = true ->
     (a, p) [in] fold_left [MMSN] X Y ->
     eqP p (sum_fn zeroP addP snd 
       (filter (λ '(x, _), eqA x a) (X ++ Y))) = true.
@@ -3686,10 +3821,14 @@ Proof.
   induction X as [|(ax, bx) X IHx]; simpl.
   +
     intros * Ha Hb.
+    destruct (nodup_inset Y a p Ha Hb) as 
+      (Y₁ & Y₂ & Hc & Hd & He).
     (* use here the lemma nodup_inset 
       Y := Y₁ ++ [(a, p)] ++ Y₂ 
-      
     *)
+    (*
+    rewrite Hc. This equality is not going 
+      work with change definition of no_dup *)
     admit.
   +
     intros * Ha Hb.
@@ -3698,9 +3837,9 @@ Proof.
     ++
       assert (Hd : NoDup ([MMSN] Y (ax, bx))).
       admit.
-      (* eqA ax a = true *)
+      (* eqA ax a = true 
       pose proof (IHx ([MMSN] Y (ax, bx)) a p Hd Hb) as He.
-      unfold sum_fn; cbn.
+      unfold sum_fn; cbn.*)
       (* pull out bx in Hc *)
       admit.
     ++
@@ -3720,7 +3859,7 @@ Admitted.
 Lemma in_set_fold_left_mmsn_elim : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
-    NoDup Y ->
+    no_dup (brel_product eqA eqP) Y = true  ->
     (a, p) [in] fold_left [MMSN] X Y ->
     (∃ q : P, (a, q) [in] (X ++ Y)) ∧ 
     eqP p (sum_fn zeroP addP snd 
