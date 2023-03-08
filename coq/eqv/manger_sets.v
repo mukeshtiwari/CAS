@@ -3801,7 +3801,30 @@ Proof.
         rewrite Hc; cbn.
         exact He.
         exact Hf.
-  Qed.
+Qed.
+
+Lemma in_list_brel_cong_intro : 
+  forall (Y Y₁ Y₂ : list (A * P)) a p ,
+  brel_list (brel_product eqA eqP) Y (Y₁ ++ Y₂) = true ->
+  eqP p
+  (fold_right addP zeroP
+     (map snd (filter (λ '(x, _), eqA x a) (Y₁ ++ Y₂)))) = true ->
+  eqP p
+  (fold_right addP zeroP
+     (map snd (filter (λ '(x, _), eqA x a) Y))) = true.
+Proof.
+  (* find out lemama *)
+Admitted.
+
+
+Lemma in_list_filter_empty : 
+  forall (Y : list (A * P)) a p, 
+  in_list (brel_product eqA eqP) Y (a, p) = false -> 
+  List.filter (λ '(x, _), eqA x a) Y = [].
+Proof.
+Admitted.
+
+
 
 (* 
   Provable only 
@@ -3823,13 +3846,18 @@ Proof.
     intros * Ha Hb.
     destruct (nodup_inset Y a p Ha Hb) as 
       (Y₁ & Y₂ & Hc & Hd & He).
-    (* use here the lemma nodup_inset 
-      Y := Y₁ ++ [(a, p)] ++ Y₂ 
-    *)
-    (*
-    rewrite Hc. This equality is not going 
-      work with change definition of no_dup *)
-    admit.
+    unfold sum_fn.
+    eapply in_list_brel_cong_intro;
+    [exact Hc |].
+    repeat rewrite <-list_filter_lib_filter_same, 
+    filter_app.
+    erewrite in_list_filter_empty with (p := p).
+    cbn; rewrite refA; cbn.
+    rewrite in_list_filter_empty with (p := p);
+    cbn.
+    eapply symP, zeropRid.
+    exact He.
+    exact Hd.
   +
     intros * Ha Hb.
     case_eq (eqA ax a);
