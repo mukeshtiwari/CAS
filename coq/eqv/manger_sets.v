@@ -3735,7 +3735,7 @@ There is a lemma in list_split in
 coq/algorithms/list_lemmas.v but It seems 
 that we have delted the definition of 
 no_dup.
-*)
+
 Lemma nodup_inset : 
   forall (Y : finite_set (A * P))
   (a : A) (p : P),
@@ -3803,6 +3803,21 @@ Proof.
         exact Hf.
 Qed.
 
+*)
+
+Lemma nodup_inset : 
+  forall (Y : finite_set (A * P))
+  (a : A) (p : P),
+  no_dup eqA (map fst Y) = true -> 
+  (a, p) [in] Y -> 
+  ∃ Y₁ Y₂, 
+    brel_list (brel_product eqA eqP) Y (Y₁ ++ [(a, p)] ++ Y₂) = true ∧
+    (in_list eqA (map fst Y₁) a = false) ∧
+    (in_list eqA (map fst Y₂) a = false).
+Proof.
+Admitted.
+
+
 Lemma in_list_brel_cong_intro : 
   forall (Y Y₁ Y₂ : list (A * P)) a p ,
   brel_list (brel_product eqA eqP) Y (Y₁ ++ Y₂) = true ->
@@ -3817,12 +3832,119 @@ Proof.
 Admitted.
 
 
+
 Lemma in_list_filter_empty : 
-  forall (Y : list (A * P)) a p, 
-  in_list (brel_product eqA eqP) Y (a, p) = false -> 
+  forall (Y : list (A * P)) a, 
+  in_list eqA (map fst Y) a = false -> 
   List.filter (λ '(x, _), eqA x a) Y = [].
 Proof.
+  induction Y as [|(ux, uy) Y IHy].
+  +
+    intros * Ha.
+    cbn; reflexivity.
+  +
+    intros * Ha.
+    cbn in Ha |- *.
+    eapply Bool.orb_false_iff in Ha.
+    destruct Ha as [Hal Har].
+    case_eq (eqA ux a);
+    intros Hb.
+    rewrite (symA _ _ Hb) in Hal;
+    congruence.
+    eapply IHy; try assumption.
+Qed.
+
+
+Lemma no_dup_mmsn : 
+  forall(Y : finite_set (A * P)) (ax : A) (bx : P), 
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst ([MMSN] Y (ax, bx))) = true.
+Proof.
+  intros * Ha.
+  cbn.
+  (* if ax in Y then we add the values 
+    otherwise discard *)
 Admitted.
+
+Lemma filter_arg_swap_gen : 
+  forall (Y : finite_set (A * P)) ax a, 
+  eqA ax a = true -> 
+  (List.filter (λ '(s2, _), eqA ax s2) Y) = 
+  (List.filter (λ '(s2, _), eqA s2 a) Y).
+Proof.
+  induction Y as [|(au, bu) Y IHy].
+  +
+    cbn; intros; reflexivity.
+  +
+    cbn; intros * Ha.
+    case_eq (eqA ax au);
+    case_eq (eqA au a); 
+    intros Hb Hc.
+    ++
+      f_equal.
+      exact (IHy _ _ Ha).
+    ++
+      rewrite (trnA _ _ _ (symA _ _ Hc) Ha) in Hb;
+      congruence.
+    ++
+      rewrite (trnA _ _ _ Ha (symA _ _ Hb)) in Hc;
+      congruence.
+    ++
+      case_eq (eqA au ax);
+      intro Hd.
+      rewrite (symA _ _ Hd) in Hc;
+      congruence.
+      exact (IHy _ _ Ha).
+Qed.
+
+
+
+Lemma filter_argument_swap :
+  forall (Y : finite_set (A * P)) a ax, 
+  List.filter (λ '(x, _), eqA x a)
+    (List.filter (λ '(s2, _), negb (eqA ax s2)) Y) = 
+  List.filter (λ '(x, _), eqA a x)
+    (List.filter (λ '(s2, _), negb (eqA ax s2)) Y).
+Proof.
+  intros *.
+  rewrite filter_arg_swap_gen with (a := a).
+  f_equal.
+  apply refA.
+Qed.
+
+
+
+Lemma fold_right_right : 
+  forall (Y : finite_set P) bx, 
+  eqP (fold_right addP zeroP
+      [fold_right (λ t1 t2 : P, addP t1 t2) bx Y])
+  (addP bx (fold_right addP zeroP Y)) = true.
+Proof.
+  induction Y as [|ay Y IHy].
+  +
+    intros *.
+    cbn; eapply refP.
+  +
+    intros *.
+    cbn.
+    specialize (IHy bx).
+    eapply trnP with 
+      (addP ay (addP bx (fold_right addP zeroP Y))).
+    eapply symP.
+    eapply trnP with 
+      (addP ay (addP (fold_right (λ t1 t2 : P, addP t1 t2) bx Y) zeroP)).
+    eapply cong_addP.
+    eapply refP.
+    eapply symP; exact IHy.
+    rewrite addP_assoc_cong;
+    eapply refP.
+    rewrite addP_com_cong, 
+    <-addP_assoc_cong.
+    eapply cong_addP.
+    eapply refP.
+    rewrite addP_com_cong;
+    eapply refP.
+Qed.
 
 
 
@@ -3836,7 +3958,8 @@ Admitted.
 Lemma in_set_fold_left_mmsn_elim_second : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
-    no_dup (brel_product eqA eqP) Y = true ->
+    no_dup eqA (map fst Y) = true ->
+    (* no_dup (brel_product eqA eqP) Y = true -> *)
     (a, p) [in] fold_left [MMSN] X Y ->
     eqP p (sum_fn zeroP addP snd 
       (filter (λ '(x, _), eqA x a) (X ++ Y))) = true.
@@ -3844,16 +3967,15 @@ Proof.
   induction X as [|(ax, bx) X IHx]; simpl.
   +
     intros * Ha Hb.
-    destruct (nodup_inset Y a p Ha Hb) as 
-      (Y₁ & Y₂ & Hc & Hd & He).
-    unfold sum_fn.
+    destruct (nodup_inset _ _ _ Ha Hb) as 
+    (Y₁ & Y₂ & Hc & Hd & He).
     eapply in_list_brel_cong_intro;
     [exact Hc |].
     repeat rewrite <-list_filter_lib_filter_same, 
     filter_app.
-    erewrite in_list_filter_empty with (p := p).
+    erewrite in_list_filter_empty.
     cbn; rewrite refA; cbn.
-    rewrite in_list_filter_empty with (p := p);
+    rewrite in_list_filter_empty;
     cbn.
     eapply symP, zeropRid.
     exact He.
@@ -3861,15 +3983,81 @@ Proof.
   +
     intros * Ha Hb.
     case_eq (eqA ax a);
-    intros Hc.
+    intro Hc.
     ++
-      assert (Hd : NoDup ([MMSN] Y (ax, bx))).
-      admit.
-      (* eqA ax a = true 
+      assert (Hd : no_dup eqA (map fst ([MMSN] Y (ax, bx))) = true).
+      eapply no_dup_mmsn; try assumption.
+      (* eqA ax a = true *)
       pose proof (IHx ([MMSN] Y (ax, bx)) a p Hd Hb) as He.
-      unfold sum_fn; cbn.*)
-      (* pull out bx in Hc *)
-      admit.
+      unfold sum_fn in He |- *; cbn.
+      repeat rewrite <-list_filter_lib_filter_same, filter_app, map_app in He.
+      cbn in He.
+      rewrite <-list_filter_lib_filter_same, filter_app in He.
+      rewrite filter_argument_swap, filter_empty,
+      app_nil_l, fold_left_simp in He.
+      cbn in He;
+      rewrite Hc in He.
+      cbn in He.
+      rewrite <-list_filter_lib_filter_same, filter_app, 
+      map_app.
+      remember (map snd (List.filter (λ '(x, _), eqA x a) X)) as U.
+      remember ([fold_left (λ t1 t2 : P, addP t1 t2)
+      (map snd (filter (λ '(s2, _), eqA ax s2) Y)) bx]) as V.
+      assert (Hf : eqP p (addP (fold_right addP zeroP U) 
+      (fold_right addP zeroP V)) = true).
+      eapply trnP with (fold_right addP zeroP (U ++ V)); 
+      try assumption.
+      eapply fold_right_distributes.
+      eapply trnP with (addP bx
+          (addP 
+          (fold_right addP zeroP (map snd (List.filter (λ '(x, _), eqA x a) X))) 
+          (fold_right addP zeroP (map snd (List.filter (λ '(x, _), eqA x a) Y))))).
+      rewrite fold_symmetric in HeqV; try assumption.
+      subst.
+      (* now replace in He 
+      fold_right_right 
+      *)
+      assert (Hg : 
+      eqP p
+      (addP
+        (fold_right addP zeroP
+            (map snd (List.filter (λ '(x, _), eqA x a) X)))
+        (addP bx (fold_right addP zeroP 
+          (map snd (filter (λ '(s2, _), eqA ax s2) Y))))) = true).
+      eapply trnP.
+      exact Hf.
+      eapply cong_addP.
+      eapply refP.
+      eapply fold_right_right.
+      (* I am close *)
+      remember 
+      ((fold_right addP zeroP
+      (map snd (List.filter (λ '(x, _), eqA x a) X)))) as Xv.
+      rewrite <-list_filter_lib_filter_same in Hg.
+      rewrite filter_arg_swap_gen with (a := a) in Hg.
+      remember ((fold_right addP zeroP
+      (map snd (List.filter (λ '(s2, _), eqA s2 a) Y)))) as Yv.
+      (* Hg is exactly the goal *)
+      eapply symP in Hg.
+      eapply symP.
+      eapply trnP with (addP Xv (addP bx Yv)); try assumption.
+      rewrite addP_assoc_cong.
+      eapply trnP with (addP (addP Xv bx) Yv).
+      eapply cong_addP.
+      rewrite addP_com_cong.
+      eapply refP.
+      eapply refP.
+      rewrite addP_assoc_cong.
+      eapply refP.
+      exact Hc.
+      intros;
+      eapply addP_com_cong.
+      eapply cong_addP.
+      eapply refP.
+      eapply symP.
+      subst.
+      eapply fold_right_distributes.
+      exact Hc.
     ++
       (* eqA ax a = false *)
       (* 
@@ -3881,13 +4069,19 @@ Proof.
       rewrite in_set_equality_false in Hb;
       try assumption.
       eapply IHx; try assumption.
-Admitted.
+      case_eq (eqA a ax);
+      intros Hd.
+      rewrite (symA _ _ Hd) in Hc;
+      congruence.
+      reflexivity.
+Qed.
+
 
 
 Lemma in_set_fold_left_mmsn_elim : 
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
-    no_dup (brel_product eqA eqP) Y = true  ->
+    no_dup eqA (map fst Y) = true  ->
     (a, p) [in] fold_left [MMSN] X Y ->
     (∃ q : P, (a, q) [in] (X ++ Y)) ∧ 
     eqP p (sum_fn zeroP addP snd 
