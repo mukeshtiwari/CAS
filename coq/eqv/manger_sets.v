@@ -3605,8 +3605,57 @@ Proof.
     exact Hb.
   Qed.
 
-
-
+Lemma in_set_concat_rewrite :
+  forall (X Y : finite_set (A * P)) a p , 
+  in_set (brel_product eqA eqP) (X ++ Y) (a, p) = 
+  (in_set (brel_product eqA eqP) X (a, p) || 
+  in_set (brel_product eqA eqP) Y (a, p))%bool.
+Proof.
+  induction X as [|(au, bu) X IHx].
+  +
+    intros *.
+    cbn; reflexivity.
+  +
+    intros *.
+    cbn.
+    rewrite IHx.
+    remember ((bop_and (eqA a au) (eqP p bu))) as ax.
+    remember (in_set (brel_product eqA eqP) X (a, p)) as bx.
+    remember (in_set (brel_product eqA eqP) Y (a, p)) as cx. 
+    destruct ax, bx, cx; simpl; reflexivity.
+Qed.
+    
+Lemma in_set_not_membership: 
+  forall (Y : finite_set (A * P)) a p au, 
+  a <A> au -> 
+  in_set (brel_product eqA eqP) 
+    (filter (λ '(s2, _), negb (eqA au s2)) Y) (a, p) 
+  = 
+  in_set (brel_product eqA eqP) Y (a, p).
+Proof.
+  induction Y as [|(ax, bx) Y IHy].
+  +
+    intros * Ha.
+    cbn; reflexivity.
+  +
+    intros * Ha.
+    cbn.
+    case_eq (eqA au ax);
+    intros Hb; cbn.
+    rewrite IHy.
+    assert (Hc : eqA a ax = false).
+    case_eq (eqA a ax);
+    intros Hc.
+    rewrite (trnA _ _ _ Hc (symA _ _ Hb)) in Ha; 
+    congruence.
+    reflexivity.
+    rewrite Hc; reflexivity.
+    assumption.
+    rewrite IHy.
+    reflexivity.
+    exact Ha.
+Qed.
+    
 
 Lemma in_set_equality_false : 
   forall (X Y : finite_set (A * P))
@@ -3624,6 +3673,23 @@ Proof.
   induction X as [|(ax, bx) X IHx].
   +
     simpl; intros * Ha.
+    cbn.
+    destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+    (filter (λ '(s2, _), eqA au s2) Y) (au, av)) as (ux, vx) eqn:Hb.
+    pose proof fold_left_filter Y au av as Hc.
+    rewrite Hb in Hc.
+    eapply brel_product_elim in Hc.
+    destruct Hc as (Hcl & Hcr).
+    rewrite in_set_concat_rewrite; cbn.
+    assert (Hd : eqA a ux = false).
+    case_eq (eqA a ux); intros Hd.
+    rewrite (trnA _ _ _ Hd Hcl) in Ha;
+    congruence.
+    reflexivity.
+    rewrite Hd; cbn. 
+    rewrite Bool.orb_false_r.
+    eapply in_set_not_membership; 
+    try assumption.
     (*
       I can replace 
         in_set (brel_product eqA eqP)
@@ -3644,7 +3710,6 @@ Proof.
         (filter (λ '(s2, _), negb (eqA au s2)) Y) (a, p) = 
         in_set (brel_product eqA eqP) Y (a, p) should be trivial.  
     *)
-    admit.
   +
     simpl; intros * Ha.
     (* 
@@ -3660,8 +3725,8 @@ Proof.
       Can I avoid comparing ax with au? 
       Otherwise, it's going to super annoying proof. 
     *)
-
 Admitted.
+
 
 (* 
 This one is not provable in its current form. 
@@ -3789,6 +3854,7 @@ Lemma brel_inlist_membership :
   in_list eqA (map fst Yt) a = true.
 Proof.
   intros * Ha.
+  Search (in_list _ _ _ = true).
     (* should be in library *)
 Admitted.
 
@@ -3887,6 +3953,7 @@ Lemma in_list_brel_cong_intro :
   (fold_right addP zeroP
      (map snd (filter (λ '(x, _), eqA x a) Y))) = true.
 Proof.
+  intros * Ha Hb.
   (* find out lemama *)
 Admitted.
 
