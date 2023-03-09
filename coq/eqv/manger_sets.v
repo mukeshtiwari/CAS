@@ -3853,12 +3853,39 @@ Lemma brel_inlist_membership :
   brel_list (brel_product eqA eqP) Yt (X ++ [(a, p)] ++ Y) = true ->
   in_list eqA (map fst Yt) a = true.
 Proof.
-  intros * Ha.
-  Search (in_list _ _ _ = true).
-    (* should be in library *)
-Admitted.
-
-
+  induction Yt as [|(au, bu) Yt IHyt].
+  +
+    intros * Ha.
+    cbn in Ha |- *.
+    destruct X; cbn in Ha; 
+    congruence.
+  +
+    intros * Ha.
+    cbn in Ha |- *.
+    destruct X as [|(ux, uy) X].
+    ++
+      cbn in Ha.
+      eapply bop_and_elim in Ha.
+      destruct Ha as (Hal & Har).
+      eapply bop_and_elim in Hal.
+      destruct Hal as (Hall & Halr).
+      case_eq (eqA a au); 
+      intro Hb.
+      reflexivity.
+      rewrite (symA _ _ Hall) in Hb;
+      congruence.
+    ++
+      cbn in Ha.
+      eapply bop_and_elim in Ha.
+      destruct Ha as (Hal & Har).
+      eapply bop_and_elim in Hal.
+      destruct Hal as (Hall & Halr).
+      cbn in IHyt.
+      rewrite (IHyt _ _ _ _ Har).
+      now rewrite Bool.orb_true_r.
+Qed.
+      
+    
 
 (* This turns out to be more challenging than 
 I anticipated! *)
@@ -3942,7 +3969,80 @@ Proof.
 Qed.
         
 
-      
+Lemma in_list_brel_cong_intro_gen : 
+  forall (Y Y₁ Y₂ : list (A * P)) a,
+  brel_list (brel_product eqA eqP) Y (Y₁ ++ Y₂) = true ->
+  eqP (fold_right addP zeroP
+     (map snd (filter (λ '(x, _), eqA x a) (Y₁ ++ Y₂))))
+  (fold_right addP zeroP
+     (map snd (filter (λ '(x, _), eqA x a) Y))) = true.
+Proof.
+  induction Y as [|(au, bu) Y IHy].
+  +
+    intros * Ha.
+    cbn in Ha.
+    destruct Y₁, Y₂; cbn 
+    in Ha |- *; try assumption;
+    try congruence.
+  +
+    intros * Ha.
+    destruct Y₁ as [|(uy, vy) Y₁].
+    ++
+      destruct Y₂ as [|(uyy, vyy) Y₂].
+      +++
+        cbn in Ha; 
+        congruence.
+      +++
+        cbn in Ha |- *.
+        eapply bop_and_elim in Ha.
+        destruct Ha as (Hal & Har).
+        eapply bop_and_elim in Hal.
+        destruct Hal as (Hall & Halr).
+        case_eq (eqA au a);
+        intro Hc.
+        rewrite (trnA _ _ _ (symA _ _ Hall) Hc);
+        cbn.
+        specialize (IHy [] Y₂ a Har);
+        cbn in IHy.
+        eapply cong_addP; 
+        try assumption.
+        exact (symP _ _ Halr).
+        assert (Hd : eqA uyy a = false).
+        case_eq (eqA uyy a);
+        intro Hd.
+        rewrite (trnA _ _ _ Hall Hd) in Hc;
+        congruence.
+        reflexivity.
+        rewrite Hd.
+        exact (IHy [] Y₂ a Har).
+    ++
+      cbn in Ha |- *.
+      eapply bop_and_elim in Ha.
+      destruct Ha as (Hal & Har).
+      eapply bop_and_elim in Hal.
+      destruct Hal as (Hall & Halr).
+      case_eq (eqA au a);
+      intro Hc.
+      rewrite (trnA _ _ _ (symA _ _ Hall) Hc);
+      cbn.
+      specialize (IHy Y₁ Y₂ a Har);
+      cbn in IHy.
+      eapply cong_addP; 
+      try assumption.
+      exact (symP _ _ Halr).
+      assert (Hd : eqA uy a = false).
+      case_eq (eqA uy a);
+      intro Hd.
+      rewrite (trnA _ _ _ Hall Hd) in Hc;
+      congruence.
+      reflexivity.
+      rewrite Hd.
+      exact (IHy Y₁ Y₂ a Har).
+Qed.
+
+
+
+
 Lemma in_list_brel_cong_intro : 
   forall (Y Y₁ Y₂ : list (A * P)) a p ,
   brel_list (brel_product eqA eqP) Y (Y₁ ++ Y₂) = true ->
@@ -3954,8 +4054,14 @@ Lemma in_list_brel_cong_intro :
      (map snd (filter (λ '(x, _), eqA x a) Y))) = true.
 Proof.
   intros * Ha Hb.
-  (* find out lemama *)
-Admitted.
+  eapply trnP.
+  exact Hb.
+  eapply in_list_brel_cong_intro_gen.
+  exact Ha.
+Qed.
+
+
+
 
 
 
