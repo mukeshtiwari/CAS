@@ -3722,89 +3722,34 @@ Qed.
 
 (* it should in library *)
 Lemma bop_and_in_list_rewrite : 
-  forall Yt a au p bu, 
-  bop_and (eqA a au) (eqP p bu) = true ->
-  in_list (brel_product eqA eqP) Yt (au, bu) = false ->
-  in_list (brel_product eqA eqP) Yt (a, p) = false.
+  forall (Yt : list A) (a au : A),
+  eqA a au = true ->
+  in_list eqA Yt au = false ->
+  in_list eqA Yt a = false.
+Admitted.
+
+
+(* This was an awesome find! *)
+Lemma bop_and_in_list_rewrite_tricky : 
+  forall (Yt : list A) (a au : A),
+  in_list eqA Yt au = false ->
+  in_list eqA Yt a = true ->
+  eqA a au = false.
+Admitted.
+
+
+Lemma brel_inlist_membership : 
+  ∀ (Yt X Y : list (A * P)) (a : A) (p : P),
+  brel_list (brel_product eqA eqP) Yt (X ++ [(a, p)] ++ Y) = true ->
+  in_list eqA (map fst Yt) a = true.
+Proof.
+    (* should be in library *)
 Admitted.
 
 
 
-(* 
-There is a lemma in list_split in 
-coq/algorithms/list_lemmas.v but It seems 
-that we have delted the definition of 
-no_dup.
-
-Lemma nodup_inset : 
-  forall (Y : finite_set (A * P))
-  (a : A) (p : P),
-  no_dup (brel_product eqA eqP) Y = true -> 
-  (a, p) [in] Y -> 
-  ∃ Y₁ Y₂, 
-    brel_list (brel_product eqA eqP) Y (Y₁ ++ [(a, p)] ++ Y₂) = true ∧
-    (in_list (brel_product eqA eqP) Y₁ (a, p) = false) ∧
-    (in_list (brel_product eqA eqP) Y₂ (a, p) = false).
-Proof.
-  induction Y as [|(au, bu) Y IHy].
-  +
-    intros * Ha Hb.
-    cbn in Hb; congruence.
-  +
-    intros * Ha Hb.
-    (* destruct Y *)
-    destruct Y as [| (auu, buu) Y].
-    ++
-      (* Y is empty *)
-      exists [], [].
-      cbn; repeat split; try reflexivity.
-      eapply in_set_cons_elim in Hb.
-      destruct Hb as [Hb | Hb].
-      eapply brel_product_elim in Hb.
-      destruct Hb as (Hbl & Hbr).
-      rewrite Hbl, Hbr; reflexivity.
-      cbn in Hb; congruence.
-      eapply symAP.
-    ++
-      (* inductive case *)
-      remember ((auu, buu) :: Y) as Yt.
-      cbn in Hb.
-      case_eq (bop_and (eqA a au) (eqP p bu));
-      intros Hc.
-      +++
-        exists [], Yt.
-        cbn in Ha |-*.
-        repeat split; try reflexivity.
-        apply bop_and_elim in Hc;
-        destruct Hc as (Hcl & Hcr);
-        rewrite (symA _ _ Hcl),
-        (symP _ _ Hcr); cbn.
-        eapply brel_list_refl.
-        eapply bop_and_elim in Ha.
-        destruct Ha as (Hal & Har).
-        eapply Bool.negb_true_iff in Hal.
-        eapply bop_and_in_list_rewrite; 
-        try assumption.
-        exact Hc. exact Hal.
-      +++
-        cbn in Ha.
-        eapply bop_and_elim in Ha.
-        destruct Ha as (Hal & Har).
-        rewrite Hc in Hb; cbn in Hb.
-        destruct (IHy _ _ Har Hb) as 
-        (Y₁ & Y₂ & Hd & He & Hf).
-        exists ((au, bu) :: Y₁), Y₂.
-        cbn.
-        repeat split.
-        rewrite refA, refP; cbn. 
-        exact Hd.
-        rewrite Hc; cbn.
-        exact He.
-        exact Hf.
-Qed.
-
-*)
-
+(* This turns out to be more challenging than 
+I anticipated! *)
 Lemma nodup_inset : 
   forall (Y : finite_set (A * P))
   (a : A) (p : P),
@@ -3815,9 +3760,77 @@ Lemma nodup_inset :
     (in_list eqA (map fst Y₁) a = false) ∧
     (in_list eqA (map fst Y₂) a = false).
 Proof.
-Admitted.
+  (* I need to thnk 
+    when a = au then p has to match with 
+    second component. 
+    when a <> au then we don't care
+  *)
+  induction Y as [|(au, bu) Y IHy].
+  +
+    intros * Ha Hb.
+    cbn in Hb; congruence.
+  +
+    intros * Ha Hb.
+    cbn in Ha, Hb.
+    eapply bop_and_elim in Ha.
+    destruct Ha as (Hal & Har).
+    eapply Bool.negb_true_iff in Hal.
+    eapply bop_or_elim in Hb.
+    (* destruct Y *)
+    destruct Y as [| (auu, buu) Y].
+    ++
+      clear IHy;
+      cbn in * |- .
+      destruct Hb as [Hb | Hb];
+      try congruence.
+      exists [], [].
+      cbn; repeat split; try reflexivity.
+      eapply bop_and_elim in Hb.
+      destruct Hb as [Hbl Hbr].
+      rewrite (symA _ _ Hbl),
+      (symP _ _ Hbr); reflexivity.
+    ++
+      (* inductive case *)
+      remember ((auu, buu) :: Y) as Yt.
+      destruct Hb as [Hb | Hb].
+      +++
+        exists [], Yt; cbn.
+        apply bop_and_elim in Hb;
+        destruct Hb as (Hbl & Hbr);
+        rewrite (symA _ _ Hbl),
+        (symP _ _ Hbr); cbn.
+        repeat split; try reflexivity.
+        eapply brel_list_refl.
+        eapply bop_and_in_list_rewrite; 
+        try assumption.
+        exact Hbl. 
+        exact Hal.
+       
+      +++
+        destruct (IHy _ _ Har Hb) as 
+        (Y₁ & Y₂ & Hd & He & Hf).
+        exists ((au, bu) :: Y₁), Y₂;
+        cbn.
+        repeat split.
+        rewrite refA, refP; 
+        cbn; exact Hd.
+        rewrite He.
+        (* now the challenge *)
+        (* I know that 
+          au is not in Yt (from Hal) and 
+          a is in Yt (from Hd )
+          a <> au
+        *)
+        assert (Hg : in_list eqA (map fst Yt) a = true).
+        eapply brel_inlist_membership; exact Hd.
+        pose proof bop_and_in_list_rewrite_tricky _ _ _ 
+          Hal Hg as Hi.
+        rewrite Hi; reflexivity.
+        exact Hf.
+  Qed.
+        
 
-
+      
 Lemma in_list_brel_cong_intro : 
   forall (Y Y₁ Y₂ : list (A * P)) a p ,
   brel_list (brel_product eqA eqP) Y (Y₁ ++ Y₂) = true ->
@@ -3855,6 +3868,7 @@ Proof.
 Qed.
 
 
+
 Lemma no_dup_mmsn : 
   forall(Y : finite_set (A * P)) (ax : A) (bx : P), 
   no_dup eqA (map fst Y) = true ->
@@ -3862,9 +3876,20 @@ Lemma no_dup_mmsn :
 Proof.
   intros * Ha.
   cbn.
-  (* if ax in Y then we add the values 
+  (* if ax in Y 
+    In ax Y + ~In ax Y 
+    In ax Y ==>
+    Y = Y₁ ++ [(ax, p)] ++ Y₂ 
+    and in this case 
+    [MMSN] Y (ax, bx)) = 
+    Y₁ ++ [(ax, add p bx)] ++ Y₂ 
+  
+  
+  then we add the values 
     otherwise discard *)
 Admitted.
+
+
 
 Lemma filter_arg_swap_gen : 
   forall (Y : finite_set (A * P)) ax a, 
