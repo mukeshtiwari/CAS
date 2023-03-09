@@ -3719,6 +3719,12 @@ Proof.
   exact IHYt.
 Qed.
 
+Ltac apply_in_Hyp_goal Hb := 
+  eapply Bool.orb_false_iff in Hb; 
+  eapply Bool.orb_false_iff;
+  destruct Hb; repeat split;
+  try assumption.
+
 
 (* it should in library *)
 Lemma bop_and_in_list_rewrite : 
@@ -3726,16 +3732,55 @@ Lemma bop_and_in_list_rewrite :
   eqA a au = true ->
   in_list eqA Yt au = false ->
   in_list eqA Yt a = false.
-Admitted.
+Proof.
+  induction Yt as [|b Y IHy].
+  +
+    intros * Ha Hb.
+    cbn.
+    reflexivity.
+  +
+    intros * Ha Hb.
+    cbn in Hb |- *.
+    apply_in_Hyp_goal Hb.
+    case_eq (eqA a b);
+    intros Hb.
+    rewrite (trnA _ _ _ (symA _ _ Ha) Hb) in H;
+    congruence.
+    reflexivity.
+    eapply IHy; 
+    [exact Ha | exact H0].
+Qed.
+    
 
-
-(* This was an awesome find! *)
+(* This was an awesome find!
+*)
 Lemma bop_and_in_list_rewrite_tricky : 
-  forall (Yt : list A) (a au : A),
-  in_list eqA Yt au = false ->
-  in_list eqA Yt a = true ->
+  forall (Y : list A) (a au : A),
+  in_list eqA Y au = false ->
+  in_list eqA Y a = true ->
   eqA a au = false.
-Admitted.
+Proof.
+  induction Y as [|ax Y IHy].
+  +
+    intros * Ha Hb.
+    cbn in Hb.
+    congruence.
+  +
+    intros * Ha Hb.
+    cbn in Ha, Hb.
+    eapply Bool.orb_false_iff in Ha.
+    eapply Bool.orb_true_iff in Hb.
+    destruct Ha as (Hal & Har).
+    destruct Hb as [Hb | Hb].
+    ++
+      case_eq (eqA a au);
+      intros Hc.
+      rewrite (trnA _ _ _ (symA _ _ Hc) Hb) in Hal;
+      congruence.
+      reflexivity.
+    ++
+      eapply IHy; try assumption.
+Qed.
 
 
 Lemma brel_inlist_membership : 
@@ -3743,6 +3788,7 @@ Lemma brel_inlist_membership :
   brel_list (brel_product eqA eqP) Yt (X ++ [(a, p)] ++ Y) = true ->
   in_list eqA (map fst Yt) a = true.
 Proof.
+  intros * Ha.
     (* should be in library *)
 Admitted.
 
@@ -3827,7 +3873,7 @@ Proof.
           Hal Hg as Hi.
         rewrite Hi; reflexivity.
         exact Hf.
-  Qed.
+Qed.
         
 
       
@@ -3868,27 +3914,135 @@ Proof.
 Qed.
 
 
+Lemma in_list_false_membership :
+  forall X Y a, 
+  in_list eqA X a = false ->
+  in_list eqA Y a = false ->
+  in_list eqA (X ++ Y) a = false.
+Proof.
+  induction X as [|ax X IHx].
+  +
+    cbn; intros; assumption.
+  +
+    cbn; intros * Ha Hb.
+    eapply Bool.orb_false_iff in Ha.
+    destruct Ha as (Hal & Har).
+    rewrite Hal; cbn.
+    eapply IHx; try assumption.
+Qed.
+
+
+
+Lemma in_list_false_filter_membership : 
+  forall (Y : finite_set (A * P)) au ax, 
+  ax <A> au -> 
+  in_list eqA (map fst Y) au = false ->
+  in_list eqA (map fst 
+  (filter (λ '(s2, _), negb (eqA ax s2)) Y)) au = false.
+Proof.
+  induction Y as [|(ah, bh) Y IHy].
+  +
+    cbn; intros; reflexivity.
+  +
+    cbn; intros * Ha Hb.
+    eapply Bool.orb_false_iff in Hb.
+    destruct Hb as (Hbl & Hbr).
+    case_eq (eqA ax ah);
+    intros Hc; cbn.
+    eapply IHy; try assumption.
+    rewrite Hbl; cbn.
+    eapply IHy; try assumption.
+Qed.
+
+
+Lemma no_dup_filter : 
+  forall (Y : finite_set (A * P)) ux ax,
+  eqA ux ax = true ->
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst (filter (λ '(s2, _), negb (eqA ax s2)) Y) ++ [ux]) =
+  true.
+Proof.
+  induction Y as [|(au, av) Y IHy].
+  +
+    intros * Ha Hb.
+    cbn; reflexivity.
+  +
+    intros * Ha Hb.
+    cbn in Hb |- *.
+    eapply bop_and_elim in Hb.
+    destruct Hb as (Hbl & Hbr).
+    eapply Bool.negb_true_iff in Hbl.
+    case_eq (eqA ax au);
+    intros Hc; cbn.
+    eapply IHy; assumption.
+    eapply bop_and_intro.
+    eapply Bool.negb_true_iff.
+    eapply in_list_false_membership.
+    eapply in_list_false_filter_membership; 
+    try assumption.
+    cbn. case_eq (eqA au ux);
+    intro Hd.
+    rewrite (trnA _ _ _ (symA _ _ Ha) (symA _ _ Hd)) in Hc;
+    congruence.
+    reflexivity.
+    eapply IHy; assumption.
+Qed.
+
 
 Lemma no_dup_mmsn : 
   forall(Y : finite_set (A * P)) (ax : A) (bx : P), 
   no_dup eqA (map fst Y) = true ->
   no_dup eqA (map fst ([MMSN] Y (ax, bx))) = true.
 Proof.
-  intros * Ha.
-  cbn.
-  (* if ax in Y 
-    In ax Y + ~In ax Y 
-    In ax Y ==>
-    Y = Y₁ ++ [(ax, p)] ++ Y₂ 
-    and in this case 
-    [MMSN] Y (ax, bx)) = 
-    Y₁ ++ [(ax, add p bx)] ++ Y₂ 
-  
-  
-  then we add the values 
-    otherwise discard *)
-Admitted.
-
+  induction Y as [|(au, av) Y IHy].
+  +
+    intros * Ha.
+    cbn; reflexivity.
+  +
+    intros * Ha.
+    simpl in Ha |- *.
+    eapply bop_and_elim in Ha.
+    destruct Ha as (Hal & Har).
+    eapply Bool.negb_true_iff in Hal.
+    case_eq (eqA ax au);
+    intro Hc.
+    ++
+      cbn; rewrite Hc; cbn.
+      eapply IHy; try assumption.
+    ++
+      cbn.
+      rewrite Hc; cbn.
+      eapply bop_and_intro.
+      eapply Bool.negb_true_iff.
+      rewrite map_app.
+      (* Wow, this is so annoying *)
+      eapply in_list_false_membership.
+      eapply in_list_false_filter_membership; 
+      try assumption.
+      cbn.
+      rewrite Bool.orb_false_r.
+      pose proof (fold_left_filter Y ax bx) as Hd.
+      destruct ((fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA ax s2) Y) (ax, bx))) as 
+      (ux, vx); cbn.
+      eapply brel_product_elim in Hd.
+      destruct Hd.
+      case_eq (eqA au ux);
+      intros Hd.
+      rewrite (trnA _ _ _ (symA _ _ e) (symA _ _ Hd)) in Hc;
+      congruence.
+      reflexivity.
+      rewrite map_app.
+      destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA ax s2) Y) (ax, bx)) as (ux, vx) eqn:Hd.
+      pose proof (fold_left_filter Y ax bx) as He.
+      rewrite Hd in He.
+      eapply brel_product_elim in He.
+      destruct He as (Hel & Her).
+      cbn.
+      eapply no_dup_filter; 
+      try assumption.
+Qed.
 
 
 Lemma filter_arg_swap_gen : 
