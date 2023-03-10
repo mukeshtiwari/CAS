@@ -3184,6 +3184,7 @@ Proof.
 Qed.
 
 
+
 (* Think about it. This proof is more trickier than 
 I thought!  *)
 Lemma mmsn_diff_swap : 
@@ -3194,7 +3195,7 @@ Lemma mmsn_diff_swap :
 Proof.
   induction V as [|(a, b) V IHv];
   intros ? ? ? ? Ha.
-  +
+  + 
     cbn; rewrite Ha; 
     cbn.
     case_eq (eqA ax au);
@@ -3657,6 +3658,116 @@ Proof.
 Qed.
     
 
+
+Lemma mmsn_diff_swap_gen : 
+  forall(V : finite_set (A * P)) 
+  (au : A) (av : P) (ax : A) (bx : P),
+  ([MMSN] ([MMSN] V (au, av)) (ax, bx)) =S= 
+  ([MMSN] ([MMSN] V (ax, bx)) (au, av)).
+Proof.
+  intros *.
+  case_eq (eqA ax au);
+  intro Ha.
+  +
+    (* eqA ax au = true *)
+    pose proof mmsn_same_add V au av ax bx (symA _ _ Ha) as Hb.
+    pose proof mmsn_same_add V ax bx au av Ha as Hc.
+    eapply brel_set_transitive with 
+    ([MMSN] V (au, addP av bx));
+    [eapply refAP | eapply symAP | eapply trnAP | 
+    exact Hb|].
+    eapply brel_set_symmetric, 
+    brel_set_transitive with ([MMSN] V (ax, addP bx av));
+    [eapply refAP | eapply symAP | eapply trnAP | 
+    exact Hc|].
+    repeat rewrite <-manger_merge_set_manger_merge_set_new_same.
+    eapply manger_merge_set_congruence_right.
+    eapply brel_product_intro.
+    exact Ha.
+    rewrite addP_com_cong.
+    eapply refP.
+  +
+    assert (Hb : au <A> ax).
+    case_eq (eqA au ax);
+    intro Hb;
+    [rewrite (symA _ _ Hb) in Ha;
+    congruence | exact eq_refl]. 
+    pose proof mmsn_diff_swap V au av ax bx Hb as Hc.
+    pose proof mmsn_diff_swap V ax bx au av Ha as Hd.
+    eapply brel_set_transitive with 
+    ([MMSN] ([MMSN] V (ax, bx)) (au, av));
+    [eapply refAP | eapply symAP | eapply trnAP | exact Hc | ].
+    eapply brel_set_reflexive;
+    [exact refAP | exact symAP].
+Qed.
+
+(* This was an awesome find!
+*)
+Lemma bop_and_in_list_rewrite_tricky {U : Type} 
+  {r : brel U}
+  {symU : brel_symmetric U r}
+  {trnU : brel_transitive U r} : 
+  forall (Y : list U) (au a : U),
+  in_list r Y au = false ->
+  in_list r Y a = true ->
+  r a au = false.
+Proof.
+  induction Y as [|ax Y IHy].
+  +
+    intros * Ha Hb.
+    cbn in Hb.
+    congruence.
+  +
+    intros * Ha Hb.
+    cbn in Ha, Hb.
+    eapply Bool.orb_false_iff in Ha.
+    eapply Bool.orb_true_iff in Hb.
+    destruct Ha as (Hal & Har).
+    destruct Hb as [Hb | Hb].
+    ++
+      case_eq (r a au);
+      intros Hc.
+      rewrite (trnU _ _ _ (symU _ _ Hc) Hb) in Hal;
+      congruence.
+      reflexivity.
+    ++
+      eapply IHy; try assumption.
+Qed.
+
+
+
+Lemma in_set_false_membership : 
+  forall (X U V  : finite_set (A * P)) a p,
+  U =S= V -> 
+  in_set (brel_product eqA eqP) 
+    (fold_left [MMSN] X V) (a, p) = false ->
+  in_set (brel_product eqA eqP) 
+    (fold_left [MMSN] X U) (a, p) = false.
+Proof.
+Admitted.
+
+
+
+Lemma in_set_mmsn : 
+  forall (X U V  : finite_set (A * P)) a p,
+  U =S= V -> 
+  in_set (brel_product eqA eqP)
+    (fold_left [MMSN] X U) (a, p) = 
+  in_set (brel_product eqA eqP)
+  (fold_left [MMSN] X V) (a, p).
+Proof.
+  intros * Ha.
+  case_eq (in_set (brel_product eqA eqP) 
+  (fold_left [MMSN] X V) (a, p)); intro Hb.
+  eapply fold_left_in_set_mmsn_cong with (V := V).
+  eapply brel_set_symmetric; exact Ha.
+  exact Hb.
+  eapply in_set_false_membership;
+  [exact Ha | exact Hb].
+Qed.
+
+
+
 Lemma in_set_equality_false : 
   forall (X Y : finite_set (A * P))
   a p au av, 
@@ -3712,7 +3823,13 @@ Proof.
     *)
   +
     simpl; intros * Ha.
-    (* 
+    (* Look at the IHx. It is very general, 
+    i.e., I can instantiate Y a p au av with anything 
+    as long I have a proof a <A> au 
+    
+    I need to figure out some case analysis. 
+
+
       case analysis eqA ax a ?? 
       This is more tricky and may 
       require a lot of sublemmas
@@ -3724,8 +3841,19 @@ Proof.
       ax <> a  
       Can I avoid comparing ax with au? 
       Otherwise, it's going to super annoying proof. 
+    Can I infer for any au av ax bx, 
+    ([MMSN] ([MMSN] Y (au, av)) (ax, bx))) =S=
+    ([MMSN] ([MMSN] Y (ax, bx)) (au, av)))?
     *)
-Admitted.
+    pose proof  mmsn_diff_swap_gen Y au av ax bx as Hb.
+    specialize (IHx ([MMSN] Y (ax, bx))  a p au av Ha) as Hc.
+    eapply eq_trans.
+    eapply in_set_mmsn.
+    exact Hb.
+    exact Hc.
+Qed.
+  
+
 
 
 (* 
@@ -3817,35 +3945,6 @@ Proof.
 Qed.
     
 
-(* This was an awesome find!
-*)
-Lemma bop_and_in_list_rewrite_tricky : 
-  forall (Y : list A) (a au : A),
-  in_list eqA Y au = false ->
-  in_list eqA Y a = true ->
-  eqA a au = false.
-Proof.
-  induction Y as [|ax Y IHy].
-  +
-    intros * Ha Hb.
-    cbn in Hb.
-    congruence.
-  +
-    intros * Ha Hb.
-    cbn in Ha, Hb.
-    eapply Bool.orb_false_iff in Ha.
-    eapply Bool.orb_true_iff in Hb.
-    destruct Ha as (Hal & Har).
-    destruct Hb as [Hb | Hb].
-    ++
-      case_eq (eqA a au);
-      intros Hc.
-      rewrite (trnA _ _ _ (symA _ _ Hc) Hb) in Hal;
-      congruence.
-      reflexivity.
-    ++
-      eapply IHy; try assumption.
-Qed.
 
 
 Lemma brel_inlist_membership : 
@@ -3962,8 +4061,8 @@ Proof.
         *)
         assert (Hg : in_list eqA (map fst Yt) a = true).
         eapply brel_inlist_membership; exact Hd.
-        pose proof bop_and_in_list_rewrite_tricky _ _ _ 
-          Hal Hg as Hi.
+        pose proof @bop_and_in_list_rewrite_tricky A 
+          eqA symA trnA  _ _ _  Hal Hg as Hi.
         rewrite Hi; reflexivity.
         exact Hf.
 Qed.
