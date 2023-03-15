@@ -3757,7 +3757,7 @@ Proof.
   eapply brel_set_elim_prop in Ha;
   [|exact symAP|exact trnAP];
   destruct Ha as (Hal & Har);
-  revert dependent V; revert p; revert a; 
+  revert dependent V; revert p; revert a;
   induction U as [|(au, bu) U IHu].
   +
     intros * Ha Hb Hc;
@@ -3789,14 +3789,6 @@ Proof.
       specialize (Hg Hh Ha).
       rewrite Hg in Hc;
       congruence.
-      (* 
-        Contradiction 
-        from Ha: (au, bu) [in] V 
-        Hd: eqA a au = true 
-        He: eqP p bu = true
-        Hc : in_set (brel_product eqA eqP) V (a, p) = false 
-        replace a and p by au and bu in Hc. 
-      *)
     ++
       specialize (Ha (au, bu)); 
       cbn in Ha; 
@@ -3813,15 +3805,6 @@ Proof.
       specialize (Hg Hh Ha).
       rewrite Hg in Hc;
       congruence.
-      (*
-        Contradiction:
-        Ha: (au, bu) [in] V
-        Hd: eqA a au = true
-        He: eqP p bu = true
-        Hc: in_set (brel_product eqA eqP) V (a, p) = false
-        Rewrite Hd, He in Hc to get 
-        in_set (brel_product eqA eqP) V (au, bu) = false
-      *)
     ++
       (* contradiction *)
       specialize (Ha (a, p)).
