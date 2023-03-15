@@ -3556,7 +3556,25 @@ Proof.
       +++
         congruence.
 Qed.
-        
+
+
+
+
+Lemma in_set_fold_left_mmsn_intro_forall : 
+  forall (U V : finite_set (A * P))
+  (a : A) (p : P) (q : P),
+  (a, q) [in] U -> 
+  eqP p (sum_fn zeroP addP snd 
+    (filter (λ '(x, _), eqA a x) 
+      (U ++ V))) = true ->
+  (a, p) [in] fold_left [MMSN] U V.
+Proof.
+  intros * Ha Hb.
+  eapply in_set_fold_left_mmsn_intro.
+  exists q; exact Ha.
+  exact Hb.
+Qed.
+
 
 
       
