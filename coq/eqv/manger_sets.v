@@ -3735,13 +3735,125 @@ Proof.
 Qed.
 
 
+
+Fixpoint no_dup {U : Type} (r : brel U) 
+  (X : finite_set U) : bool := 
+ match X with 
+ | [] => true
+ | h :: t => bop_and (negb (in_list r t h))
+  (no_dup r t)
+ end.
+
+
+
+
 Lemma in_set_false_membership_aux :
   forall (U V  : finite_set (A * P)) a p,
   U =S= V -> 
   in_set (brel_product eqA eqP) V (a, p) = false ->
   in_set (brel_product eqA eqP) U (a, p) = false.
 Proof.
-Admitted.
+  intros * Ha Hb.
+  eapply brel_set_elim_prop in Ha;
+  [|exact symAP|exact trnAP];
+  destruct Ha as (Hal & Har);
+  revert dependent V; revert p; revert a; 
+  induction U as [|(au, bu) U IHu].
+  +
+    intros * Ha Hb Hc;
+    reflexivity.
+  +
+    (* induction case *)
+    intros * Ha Hb Hc.
+    cbn in * |- *.
+    case_eq (eqA a au); intro Hd;
+    case_eq (eqP p bu); intro He;
+    case_eq ((in_set (brel_product eqA eqP) U (a, p))); 
+    intro Hf;
+    cbn in * |- *;
+    try reflexivity.
+    ++
+      
+      specialize (Ha (au, bu)); 
+      cbn in Ha; 
+      rewrite refA, refP in Ha; 
+      cbn in Ha.
+      specialize (Ha eq_refl).
+      pose proof in_set_right_congruence (A * P)
+      (brel_product eqA eqP) symAP trnAP 
+      (au, bu) (a, p) V as Hg.
+      assert (Hh: (au, bu) == (a, p)).
+      eapply brel_product_intro;
+      [rewrite (symA _ _ Hd); exact eq_refl | 
+      rewrite (symP _ _ He); exact eq_refl].
+      specialize (Hg Hh Ha).
+      rewrite Hg in Hc;
+      congruence.
+      (* 
+        Contradiction 
+        from Ha: (au, bu) [in] V 
+        Hd: eqA a au = true 
+        He: eqP p bu = true
+        Hc : in_set (brel_product eqA eqP) V (a, p) = false 
+        replace a and p by au and bu in Hc. 
+      *)
+    ++
+      specialize (Ha (au, bu)); 
+      cbn in Ha; 
+      rewrite refA, refP in Ha; 
+      cbn in Ha.
+      specialize (Ha eq_refl).
+      pose proof in_set_right_congruence (A * P)
+      (brel_product eqA eqP) symAP trnAP 
+      (au, bu) (a, p) V as Hg.
+      assert (Hh: (au, bu) == (a, p)).
+      eapply brel_product_intro;
+      [rewrite (symA _ _ Hd); exact eq_refl | 
+      rewrite (symP _ _ He); exact eq_refl].
+      specialize (Hg Hh Ha).
+      rewrite Hg in Hc;
+      congruence.
+      (*
+        Contradiction:
+        Ha: (au, bu) [in] V
+        Hd: eqA a au = true
+        He: eqP p bu = true
+        Hc: in_set (brel_product eqA eqP) V (a, p) = false
+        Rewrite Hd, He in Hc to get 
+        in_set (brel_product eqA eqP) V (au, bu) = false
+      *)
+    ++
+      (* contradiction *)
+      specialize (Ha (a, p)).
+      rewrite Hf in Ha;
+      cbn in Ha;
+      rewrite Hd, He in Ha;
+      cbn in Ha.
+      specialize (Ha eq_refl).
+      rewrite Ha in Hc;
+      congruence.
+      (* contradiction using Ha and Hc *)
+    ++
+      specialize (Ha (a, p)).
+      rewrite Hf in Ha;
+      cbn in Ha;
+      rewrite Hd, He in Ha;
+      cbn in Ha.
+      specialize (Ha eq_refl).
+      rewrite Ha in Hc;
+      congruence.
+    ++
+      specialize (Ha (a, p)).
+      rewrite Hf in Ha;
+      cbn in Ha;
+      rewrite Hd, He in Ha;
+      cbn in Ha.
+      specialize (Ha eq_refl).
+      rewrite Hc in Ha; 
+      congruence.
+Qed.
+
+
 
 
 Lemma in_set_false_membership : 
@@ -3913,13 +4025,7 @@ Proof.
 Qed.
 
 
-Fixpoint no_dup {U : Type} (r : brel U) 
-  (X : finite_set U) : bool := 
- match X with 
- | [] => true
- | h :: t => bop_and (negb (in_list r t h))
-  (no_dup r t)
- end.
+
   
 
 
