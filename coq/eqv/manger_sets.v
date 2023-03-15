@@ -3735,6 +3735,14 @@ Proof.
 Qed.
 
 
+Lemma in_set_false_membership_aux :
+  forall (U V  : finite_set (A * P)) a p,
+  U =S= V -> 
+  in_set (brel_product eqA eqP) V (a, p) = false ->
+  in_set (brel_product eqA eqP) U (a, p) = false.
+Proof.
+Admitted.
+
 
 Lemma in_set_false_membership : 
   forall (X U V  : finite_set (A * P)) a p,
@@ -3744,7 +3752,21 @@ Lemma in_set_false_membership :
   in_set (brel_product eqA eqP) 
     (fold_left [MMSN] X U) (a, p) = false.
 Proof.
-Admitted.
+  induction X as [|(ax, bx) X IHx].
+  +
+    intros * Ha Hb.
+    cbn in Hb |- *.
+    eapply in_set_false_membership_aux;
+    [exact Ha | exact Hb].
+  +
+    intros * Ha Hb.
+    simpl in Hb |- *.
+    exact (IHx ([MMSN] U (ax, bx))
+    ([MMSN] V (ax, bx)) a p
+    (manger_merge_set_new_congruence_left U V (ax, bx) Ha)
+    Hb).
+Qed.
+
 
 
 
