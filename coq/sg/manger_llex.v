@@ -415,26 +415,20 @@ Section Theory.
         unfold uop_manger_phase_2;
         rewrite <-list_filter_lib_filter_same in 
         Halr.
-        
-        (* think *)
-        pose proof in_minset_intro (A * P)
-        (brel_product eqA eqP)
-        refAP symAP (manger_pre_order lteA)
-        cong_manger_preorder 
-        ref_manger_pre_order X (a, p) as Hb.
-
-        
-        
-        
-
-        
+        assert (Hc : ∀ (b : A) (q : P),
+          in_set (brel_product eqA eqP) X (b, q) = true → 
+          theory.below lteA a b = false).
+        intros * Ha. eapply Har.
+        eapply in_set_uop_manger_phase_1_intro
+        with (zeroP := zeroP); try assumption.
+        exists q; exact Ha.
+        instantiate (1 :=
+        (matrix_algorithms.sum_fn zeroP addP snd 
+          (List.filter (λ '(x, _), eqA x b) X)));
+        eapply refP.
+        (* think! *)
         
       
-        
-        (* I know that if (a, p) is
-          in in_set (brel_product eqA eqP) 
-          (uop_minset (manger_pre_order lteA) X),
-          then it is in X *)
         admit.
       ++
         intros (a, p) Ha.
@@ -450,11 +444,11 @@ Section Theory.
         eapply in_set_uop_manger_phase_1_intro
         with (zeroP := zeroP); try assumption.
         exists qt; exact Hall.
+
         unfold uop_manger_phase_2 in Har.
         pose proof in_minset_implies_in_set
          (A * P) (brel_product eqA eqP)
-        symAP (manger_pre_order lteA) 
-        X (a, p) as Hb.
+        symAP (manger_pre_order lteA) as Hb.
         rewrite <-list_filter_lib_filter_same  in Har.
         remember ((uop_minset (manger_pre_order lteA) X)) as Y.
         (* I Know that *)
