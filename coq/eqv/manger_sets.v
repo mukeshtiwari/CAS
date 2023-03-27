@@ -194,10 +194,11 @@ Variables (A P : Type)
           (* Extra assumptions needed to prove the lemmas fold_left congruence *)
           (addP_assoc : bop_associative P eqP addP)
           (addP_com : bop_commutative P eqP addP)
-          (addP_cong : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true)
+          (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true)
           (addP_assoc_cong : ∀ x y z : P, addP x (addP y z) = addP (addP x y) z)
           (addP_com_cong : ∀ x y : P, addP x y = addP y x).
 
+      
 
 Local Notation "a [in] X" := (in_set (brel_product eqA eqP) X a = true) (at level 70).
 Local Notation "a == b"   := (brel_product eqA eqP a b = true) (at level 70).
@@ -2063,7 +2064,7 @@ Proof.
     intros ? ? ? ? Hxy Hwv;
     eapply cong_addP;
     try assumption.
-    exact addP_cong.
+    exact addP_gen_idempotent.
     apply map_preservs_equivalence_on_second.
     eapply brel_set_intro_prop.
     eapply refAP.
@@ -2093,7 +2094,7 @@ Proof.
     intros ? ? ? ? Hxy Hwv;
     eapply cong_addP;
     try assumption.
-    exact addP_cong.
+    exact addP_gen_idempotent.
     apply map_preservs_equivalence_on_second.
     eapply brel_set_intro_prop.
     eapply refAP.

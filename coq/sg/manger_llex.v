@@ -47,6 +47,7 @@ Require Import CAS.coq.uop.commutative_composition.
 Section Theory.
   Variables
     (A P : Type)
+    (zeroP : P) (* 0 *)
     (eqA lteA : brel A)
     (eqP : brel P)
     (addP : binary_op P)
@@ -59,13 +60,22 @@ Section Theory.
     (symA : brel_symmetric A eqA)
     (trnA : brel_transitive A eqA)
     (conP : brel_congruence P eqP eqP)
+    (cong_addP : bop_congruence P eqP addP) 
     (refP : brel_reflexive P eqP)
     (symP : brel_symmetric P eqP)
     (trnP : brel_transitive P eqP)
     (conLte : brel_congruence A eqA lteA) 
     (refLte : brel_reflexive A lteA)
     (trnLte : brel_transitive A lteA) 
-    (ntot : brel_not_total A lteA). 
+    (ntot : brel_not_total A lteA)
+    (addP_assoc : bop_associative P eqP addP)
+    (addP_com : bop_commutative P eqP addP)
+    (* idempotence is baked in this addP_cong *)
+    (zeropLid : ∀ (p : P), eqP (addP zeroP p) p = true)
+    (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true)
+    (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true)
+    (addP_assoc_cong : ∀ x y z : P, addP x (addP y z) = addP (addP x y) z)
+    (addP_com_cong : ∀ x y : P, addP x y = addP y x).
     
   Local Definition eqAP : brel (A * P)
     := brel_product eqA eqP.
@@ -316,79 +326,81 @@ Section Theory.
     Seems true but difficult. 
   *)
   
-  Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)). 
+  Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)).
   Proof.
-  Admitted.
-
-
-
-
-
-      
-        (*
-      Elim rule:
-        in_set eqAP
-    (uop_manger_phase_1 eqA addP X) (a, p) = true => 
-
-    p is the sum of second component in X whose first component in a. 
-
-    Intro rule 
-
-
-      X = [(a, b); (a, c)] 
-      
-      LHS: when we pass it through the fold_left we get [(a, addP b c)]
-      and running iterate_minset on [(a, addP b c)] return [(a, addP b c)], 
-      unchanged. 
-
-      RHS: we run iterate_minset on X and we get [(a, c)] and 
-      running fold_left on [(a, c)] returns [(a, c)].
-
-      so [(a, addP b c)] =S= [(a, c)], only if we don't 
-      compare the second component.
-    
-    
-    
-      Discuss this with Tim:
-      LHS:
-      We have Y = (fold_left (manger_merge_sets eqA addP) X nil).
-      Basically Y contains incomporable elements, so 
-      my claim is:
-      iterate_minset (manger_pre_order lteA) nil nil Y = Y. 
-    
-      RHS:
-      We have Y = snd (iterate_minset (manger_pre_order lteA) nil nil X).
-      Y contains again incomparable elements so 
-      my claim is 
-      fold_left (manger_merge_sets eqA addP) Y = Y
-
-      Challenge:
-      From LHS I get 
-        (fold_left (manger_merge_sets eqA addP) X nil)
-      From RHS I get 
-        snd (iterate_minset (manger_pre_order lteA) nil nil X)
-      So how can I show them they are:
-      (fold_left (manger_merge_sets eqA addP) X nil) 
-      =S=
-      (snd (iterate_minset (manger_pre_order lteA) nil nil X)). 
-
-      
-
-
-
-
-
-      I feel this is not quite true but this lemma:
-      List.map fst ((fold_left (manger_merge_sets eqA addP) X nil)) 
-      =S=
-      List.map fst (snd (iterate_minset (manger_pre_order lteA) nil nil X))
-
-
-
-
-
-    *)
-
+    intros ?.
+    eapply brel_set_intro_prop.
+    + exact refAP.
+    +
+      refine(pair _ _).
+      ++
+        intros (a, p) Ha.
+        eapply in_set_uop_manger_phase_2_elim in Ha;
+        try assumption.
+        destruct Ha as (Hal & Har).
+        (* from Hal we know that 
+        *)
+        eapply in_set_uop_manger_phase_1_elim 
+        with (zeroP := zeroP) in Hal;
+        try assumption.
+        destruct Hal as ((qt & Hall) & Halr).
+        (*  from Halr we know that sum of 
+        all 'a's is equal to p *)
+        (* now apply intro rule in the goal *)
+        eapply in_set_uop_manger_phase_1_intro with 
+        (zeroP := zeroP);
+        try assumption.
+        (* What should be q ?? 
+        What is uop_manger_phase_2 is doing? *)
+        eexists.
+        eapply in_set_uop_manger_phase_2_intro;
+        try assumption.
+        exact Hall.
+        intros * Hb.
+        eapply Har with (q := 
+        (matrix_algorithms.sum_fn zeroP addP snd 
+          (List.filter (λ '(x, _), eqA x b) X))).
+        eapply in_set_uop_manger_phase_1_intro 
+        with (zeroP := zeroP); try assumption.
+        exists q; exact Hb.
+        eapply refP.
+        unfold uop_manger_phase_2.
+        pose proof in_minset_implies_in_set
+          (A * P) (brel_product eqA eqP)
+          symAP (manger_pre_order lteA) 
+          X (a, p) as Hb.
+        (* I know that if (a, p) is
+          in in_set (brel_product eqA eqP) 
+          (uop_minset (manger_pre_order lteA) X),
+          then it is in X *)
+        admit.
+      ++
+        intros (a, p) Ha.
+        eapply in_set_uop_manger_phase_1_elim 
+        with (zeroP := zeroP) in Ha;
+        try assumption.
+        destruct Ha as ((qt & Hal) & Har).
+        eapply in_set_uop_manger_phase_2_elim in Hal;
+        try assumption.
+        destruct Hal as (Hall & Halr).
+        eapply in_set_uop_manger_phase_2_intro;
+        try assumption.
+        eapply in_set_uop_manger_phase_1_intro
+        with (zeroP := zeroP); try assumption.
+        exists qt; exact Hall.
+        unfold uop_manger_phase_2 in Har.
+        pose proof in_minset_implies_in_set
+         (A * P) (brel_product eqA eqP)
+        symAP (manger_pre_order lteA) 
+        X (a, p) as Hb.
+        (* I Know that *)
+        admit.
+        intros * Hb.
+        eapply in_set_uop_manger_phase_1_elim 
+        with (zeroP := zeroP) in Hb; try assumption.
+        destruct Hb as ((qp & Hbl) & Hbr).
+        eapply Halr; exact Hbl.
+    Admitted.
       
     
     
@@ -533,3 +545,4 @@ Section Theory.
   Qed. 
 
 End Theory.   
+
