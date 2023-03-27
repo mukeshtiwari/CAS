@@ -321,10 +321,57 @@ Section Theory.
   Qed.
 
 
-  (* Now, show that the two reductions commute! 
-    **** I hope this is true! *****
-    Seems true but difficult. 
+  Local Notation "a =S= b" := 
+    (brel_set (brel_product eqA eqP) a b = true) (at level 70). 
+
+  (* 
+  Lemma list_rewrite_uop_minset : 
+    forall (X Y : finite_set (A * P)) a p, 
+    (in_set (brel_product eqA eqP) Y (a, p) = true → 
+    in_set (brel_product eqA eqP) X (a, p) = true) ->
+    (List.filter (λ '(x, _), eqA x a) X) =S= 
+    (List.filter (λ '(x, _), eqA x a) Y).
+  Proof.
+    intros * Ha.
+    eapply brel_set_intro_prop;
+    try assumption.
+    + exact refAP.
+    +
+      refine(pair _ _).
+      ++
+        intros a' Hb.
   *)
+
+
+
+  (* 
+    Now, show that the two reductions commute! 
+    **** I hope this is true! *****
+    Seems true but difficult.
+    
+  *)
+
+  Lemma cong_manger_preorder : (brel_congruence (A * P) 
+    (brel_product eqA eqP) (manger_pre_order lteA)).
+  Proof.
+    intros (a, b) (c, d) (u, v) (w, x) Ha Hb.
+    cbn. unfold brel_trivial.
+    f_equal.
+    eapply brel_product_elim in Ha, Hb.
+    eapply conLte.
+    exact (fst Ha).
+    exact (fst Hb).
+  Qed.
+
+  Lemma ref_manger_pre_order :
+    (brel_reflexive (A * P) (manger_pre_order lteA)).
+  Proof.
+   intros (a, b).
+   cbn.
+   rewrite refLte;
+   unfold brel_trivial;
+   reflexivity.
+  Qed.
   
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)).
   Proof.
@@ -357,18 +404,33 @@ Section Theory.
         try assumption.
         exact Hall.
         intros * Hb.
-        eapply Har with (q := 
-        (matrix_algorithms.sum_fn zeroP addP snd 
-          (List.filter (λ '(x, _), eqA x b) X))).
+        eapply Har.
         eapply in_set_uop_manger_phase_1_intro 
         with (zeroP := zeroP); try assumption.
         exists q; exact Hb.
+        instantiate (1 :=
+        (matrix_algorithms.sum_fn zeroP addP snd 
+          (List.filter (λ '(x, _), eqA x b) X)));
         eapply refP.
-        unfold uop_manger_phase_2.
-        pose proof in_minset_implies_in_set
-          (A * P) (brel_product eqA eqP)
-          symAP (manger_pre_order lteA) 
-          X (a, p) as Hb.
+        unfold uop_manger_phase_2;
+        rewrite <-list_filter_lib_filter_same in 
+        Halr.
+        
+        (* think *)
+        pose proof in_minset_intro (A * P)
+        (brel_product eqA eqP)
+        refAP symAP (manger_pre_order lteA)
+        cong_manger_preorder 
+        ref_manger_pre_order X (a, p) as Hb.
+
+        
+        
+        
+
+        
+        
+      
+        
         (* I know that if (a, p) is
           in in_set (brel_product eqA eqP) 
           (uop_minset (manger_pre_order lteA) X),
@@ -393,6 +455,8 @@ Section Theory.
          (A * P) (brel_product eqA eqP)
         symAP (manger_pre_order lteA) 
         X (a, p) as Hb.
+        rewrite <-list_filter_lib_filter_same  in Har.
+        remember ((uop_minset (manger_pre_order lteA) X)) as Y.
         (* I Know that *)
         admit.
         intros * Hb.
