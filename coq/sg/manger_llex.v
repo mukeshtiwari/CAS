@@ -415,6 +415,7 @@ Section Theory.
         unfold uop_manger_phase_2;
         rewrite <-list_filter_lib_filter_same in 
         Halr.
+        (* from Har, I can infer below *)
         assert (Hc : ∀ (b : A) (q : P),
           in_set (brel_product eqA eqP) X (b, q) = true → 
           theory.below lteA a b = false).
@@ -427,8 +428,40 @@ Section Theory.
           (List.filter (λ '(x, _), eqA x b) X)));
         eapply refP.
         (* think! *)
+        (* 
+          It is only provable when we have 
+          (List.filter (λ '(x, _), eqA x a) X)) =S=
+          (List.filter (λ '(x, _), eqA x a) 
+            (uop_minset (manger_pre_order lteA) X)))
+
+        *)
+        (*
+          I know from Hc can I infer that 
+          'a' is a minimal element? 
+          min(<=, X) := {x in X | for all y in X, not (y < x)}. 
+        *)
+        pose proof in_minset_intro (A * P)
+          (brel_product eqA eqP) refAP
+          symAP (manger_pre_order lteA)
+          cong_manger_preorder
+          ref_manger_pre_order X (a, p) as Hd.
+        (* manger_pre_order lteA is just lteA because 
+          second component is trivial (true) *)
+        assert (He : ∀ t : A * P,
+          in_set (brel_product eqA eqP) X t = true → 
+          theory.below (manger_pre_order lteA) (a, p) t = false).
+        intros (c, d) He.
+        specialize (Hc c d He).
+        eapply theory.below_false_elim in Hc.
+        eapply theory.below_false_intro.
+        destruct Hc as [Hc | Hc].
+        left; cbn; rewrite Hc; reflexivity.
+        right; cbn; rewrite Hc; reflexivity.
+
         
-      
+        
+
+       
         admit.
       ++
         intros (a, p) Ha.
