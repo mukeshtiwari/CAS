@@ -374,6 +374,7 @@ Section Theory.
   Qed.
   
 
+  
   Lemma matrix_algorithm_addP : 
     forall (X : finite_set (A * P)) a,
     eqP (matrix_algorithms.sum_fn zeroP addP 
@@ -382,7 +383,7 @@ Section Theory.
       (List.filter (λ '(x, _), eqA x a) 
       (uop_minset (manger_pre_order lteA) X))) = true.
   Proof.
-    induction X as [|(au, bu) X].
+    induction X as [|(au, bu) X IHx].
     +
       intros ?; cbn;
       rewrite refP;
@@ -395,15 +396,114 @@ Section Theory.
         unfold uop_minset; cbn.
         destruct (find (theory.below (manger_pre_order lteA) (au, bu)) X) 
         as [(ap, bp)|] eqn:Hb.
+        +++
+          pose proof find_below_some (A * P) 
+            (brel_product eqA eqP) refAP symAP
+            (manger_pre_order lteA) X _ _ Hb as (Hd & He).
+          destruct (iterate_minset (manger_pre_order lteA)
+            ((au, bu) :: nil) nil X) as (W, Y) eqn:Hf.
+
+          (* 
+          I need two things to discharge this:
+          1. (au, bu) = (ap, bp) so that I can use idempotence 
+            to get rid or bu.
+          2. snd (iterate_minset (manger_pre_order lteA) ((au, bu) :: nil) nil X) =
+            snd (iterate_minset (manger_pre_order lteA) nil nil X)
+          
+          *)
+
+          (* need idempotence *)
+
+          admit.
+        +++
+          destruct (iterate_minset (manger_pre_order lteA) nil
+          ((au, bu) :: nil) X) as (W, Y) eqn:Hc.
+          admit.
+        ++
+          admit.
+  Admitted.
+
+
+
+  (* 
+  (* Axiom?? *)
+  Lemma eqA_lteA_rel : 
+    forall (au a ap : A),
+    eqA au a = true -> lteA ap au = true -> 
+    lteA ap a = true.
+  Proof.
+    intros * Ha Hb.
+  Admitted.
+
+
+
+  Lemma matrix_algorithm_addP : 
+    forall (X : finite_set (A * P)) a p, 
+    (∀ t : A * P,
+      in_set (brel_product eqA eqP) X t = true ->
+      theory.below (manger_pre_order lteA) (a, p) t = false) ->
+    eqP (matrix_algorithms.sum_fn zeroP addP 
+      snd (List.filter (λ '(x, _), eqA x a) X))
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (List.filter (λ '(x, _), eqA x a) 
+      (uop_minset (manger_pre_order lteA) X))) = true.
+  Proof.
+    induction X as [|(au, bu) X IHx].
+    +
+      intros ? ? Hw; cbn;
+      rewrite refP;
+      reflexivity.
+    +
+      intros ? ? Hw; cbn.
+      case_eq (eqA au a);
+      intros Ha.
+      ++
+        unfold uop_minset; cbn.
+        destruct (find (theory.below (manger_pre_order lteA) (au, bu)) X) 
+        as [(ap, bp)|] eqn:Hb.
       +++
-        destruct (iterate_minset (manger_pre_order lteA) 
-        ((au, bu) :: nil) nil X) as (W, Y) eqn:Hc.
         pose proof find_below_some (A * P) 
           (brel_product eqA eqP) refAP symAP
           (manger_pre_order lteA) X _ _ Hb as (Hd & He).
-        
-        
+        specialize (Hw (ap, bp)).
+        assert (Hf : in_set (brel_product eqA eqP)
+          ((au, bu) :: X) (ap, bp) = true).
+        cbn. rewrite Hd. rewrite Bool.orb_true_r;
+        reflexivity.
+        specialize (Hw Hf); clear Hf.
+        unfold theory.below in He.
+        eapply Bool.andb_true_iff in He.
+        destruct He as [Hel Her].
+        eapply theory.below_false_elim in Hw.
+        destruct Hw as [Hw | Hw].
+        *
+          unfold manger_pre_order, brel_trivial,
+          brel_product in Hw, Hel.
+          rewrite Bool.andb_true_r in Hw, Hel.
+          rewrite (eqA_lteA_rel _ _ _ Ha Hel) in Hw;
+          congruence.
+        *
+          unfold manger_pre_order, brel_trivial,
+          brel_product in Hw, Hel;
+          rewrite Bool.andb_true_r in Hw, Hel.
+          (* By transitivity from Hw and Hel, 
+          we have lteA a au = true but we have eq au a 
+          so there is just one possibility:
+           au = ap 
+           Now use idempotence and get rid of bu from the 
+           goal
+          *)
+          unfold uop_minset in IHx.
+          (* Now prove that 
+            snd (iterate_minset (manger_pre_order lteA) 
+                ((au, bu) :: nil) nil X) = 
+            snd (iterate_minset (manger_pre_order lteA) 
+                nil nil X)
+          *)
 
+
+
+  
        
         (* need idempotence *)
 
@@ -415,6 +515,10 @@ Section Theory.
 
 
   Admitted.
+
+  *)
+
+
 
 
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)).
