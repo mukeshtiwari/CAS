@@ -373,6 +373,17 @@ Section Theory.
    reflexivity.
   Qed.
   
+
+  Lemma matrix_algorithm_addP : 
+    forall (X : finite_set (A * P)) a,  
+    eqP (matrix_algorithms.sum_fn zeroP addP snd (List.filter (λ '(x, _), eqA x a) X))
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (List.filter (λ '(x, _), eqA x a) (uop_minset (manger_pre_order lteA) X))) = true.
+  Proof.
+    induction X.
+  Admitted.
+
+
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)).
   Proof.
     intros ?.
@@ -440,11 +451,14 @@ Section Theory.
           'a' is a minimal element? 
           min(<=, X) := {x in X | for all y in X, not (y < x)}. 
         *)
+        (* 
+        We don't need this. 
         pose proof in_minset_intro (A * P)
           (brel_product eqA eqP) refAP
           symAP (manger_pre_order lteA)
           cong_manger_preorder
           ref_manger_pre_order X (a, p) as Hd.
+        *)
         (* manger_pre_order lteA is just lteA because 
           second component is trivial (true) *)
         assert (He : ∀ t : A * P,
@@ -457,12 +471,9 @@ Section Theory.
         destruct Hc as [Hc | Hc].
         left; cbn; rewrite Hc; reflexivity.
         right; cbn; rewrite Hc; reflexivity.
-
-        
-        
-
-       
-        admit.
+        eapply trnP.
+        exact Halr.
+        eapply matrix_algorithm_addP.
       ++
         intros (a, p) Ha.
         eapply in_set_uop_manger_phase_1_elim 
@@ -483,18 +494,17 @@ Section Theory.
          (A * P) (brel_product eqA eqP)
         symAP (manger_pre_order lteA) as Hb.
         rewrite <-list_filter_lib_filter_same  in Har.
-        remember ((uop_minset (manger_pre_order lteA) X)) as Y.
-        (* I Know that *)
-        admit.
+        eapply trnP.
+        exact Har.
+        apply symP.
+        eapply matrix_algorithm_addP.
         intros * Hb.
         eapply in_set_uop_manger_phase_1_elim 
         with (zeroP := zeroP) in Hb; try assumption.
         destruct Hb as ((qp & Hbl) & Hbr).
         eapply Halr; exact Hbl.
-    Admitted.
-      
-    
-    
+    Qed.
+
     
 
   (* Given the above lemmas, we can now use the results of 
