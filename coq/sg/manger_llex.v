@@ -375,7 +375,7 @@ Section Theory.
   
 
   Lemma matrix_algorithm_addP : 
-    forall (X : finite_set (A * P)) a,  
+    forall (X : finite_set (A * P)) a,
     eqP (matrix_algorithms.sum_fn zeroP addP 
       snd (List.filter (λ '(x, _), eqA x a) X))
     (matrix_algorithms.sum_fn zeroP addP snd
@@ -398,6 +398,13 @@ Section Theory.
       +++
         destruct (iterate_minset (manger_pre_order lteA) 
         ((au, bu) :: nil) nil X) as (W, Y) eqn:Hc.
+        pose proof find_below_some (A * P) 
+          (brel_product eqA eqP) refAP symAP
+          (manger_pre_order lteA) X _ _ Hb as (Hd & He).
+        
+        
+
+       
         (* need idempotence *)
 
         admit.
