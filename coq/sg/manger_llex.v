@@ -376,11 +376,37 @@ Section Theory.
 
   Lemma matrix_algorithm_addP : 
     forall (X : finite_set (A * P)) a,  
-    eqP (matrix_algorithms.sum_fn zeroP addP snd (List.filter (λ '(x, _), eqA x a) X))
+    eqP (matrix_algorithms.sum_fn zeroP addP 
+      snd (List.filter (λ '(x, _), eqA x a) X))
     (matrix_algorithms.sum_fn zeroP addP snd
-      (List.filter (λ '(x, _), eqA x a) (uop_minset (manger_pre_order lteA) X))) = true.
+      (List.filter (λ '(x, _), eqA x a) 
+      (uop_minset (manger_pre_order lteA) X))) = true.
   Proof.
-    induction X.
+    induction X as [|(au, bu) X].
+    +
+      intros ?; cbn;
+      rewrite refP;
+      reflexivity.
+    +
+      intros ?; cbn.
+      case_eq (eqA au a);
+      intros Ha.
+      ++
+        unfold uop_minset; cbn.
+        destruct (find (theory.below (manger_pre_order lteA) (au, bu)) X) 
+        as [(ap, bp)|] eqn:Hb.
+      +++
+        destruct (iterate_minset (manger_pre_order lteA) 
+        ((au, bu) :: nil) nil X) as (W, Y) eqn:Hc.
+        (* need idempotence *)
+
+        admit.
+      +++
+        destruct (iterate_minset (manger_pre_order lteA) nil
+        ((au, bu) :: nil) X) as (W, Y) eqn:Hc.
+
+
+
   Admitted.
 
 
