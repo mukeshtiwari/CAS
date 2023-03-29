@@ -375,7 +375,9 @@ Section Theory.
   Qed.
   
 
-   
+  Notation "a =S= b"   := (brel_set  (brel_product eqA eqP) a b = true) (at level 70).
+  
+  (* = or =S=, both are fine! *)
   Lemma iterate_minset_inv_2 : 
     forall (X W Y : finite_set (A * P)) au bu,
     find (theory.below (manger_pre_order lteA) (au, bu)) X = None ->
@@ -388,6 +390,17 @@ Section Theory.
     snd (iterate_minset (manger_pre_order lteA) W ((au, bu) :: Y) X) = 
       (au, bu) :: snd (iterate_minset (manger_pre_order lteA) W Y X).
   Proof.
+    intros * Ha Hb.
+    pose proof find_below_none (A * P) 
+    (brel_product eqA eqP) refAP symAP
+    (manger_pre_order lteA)
+    cong_manger_preorder X _ Ha as Hc.
+    pose proof find_below_none (A * P) 
+    (brel_product eqA eqP) refAP symAP
+    (manger_pre_order lteA)
+    cong_manger_preorder Y _ Hb as Hd.
+
+
   Admitted.
 
         
@@ -441,7 +454,8 @@ Section Theory.
       case_eq (eqA au a);
       intros Ha.
       ++
-        unfold uop_minset; cbn.
+        (* I need Lemma so that I don't need to *)
+        unfold uop_minset; cbn. 
         destruct (find (theory.below (manger_pre_order lteA) (au, bu)) X) 
         as [(ap, bp)|] eqn:Hb.
         +++
@@ -485,8 +499,13 @@ Section Theory.
           unfold uop_minset in IHx.
           destruct (iterate_minset (manger_pre_order lteA) nil nil X)
           as (W1, Y1) eqn:Hd.
+          Search (iterate_minset _ _ (_ :: _) _).
+          (* I need a connection between Y and Y1 *)
+          (*
+            Y = Y1 ++ [(au, bu)]
+          
+          *)
           (* using Hc and Hf, can I infer 
-
           snd 
             (iterate_minset (manger_pre_order lteA) 
             nil ((au, bu) :: nil) X)  =
