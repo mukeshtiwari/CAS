@@ -374,20 +374,91 @@ Section Theory.
   Qed.
   
 
+  (* 
+  Lemma iterate_minset_inv_2 : 
+    forall (X W Y : finite_set (A * P)) au bu,
+    (forall ax bx, in_set (brel_product eqA eqP) X (ax, bx) = true ->
+    theory.below (manger_pre_order lteA) (ax, bx) (au, bu) = false) -> 
+    snd (iterate_minset (manger_pre_order lteA) W ((au, bu) :: Y) X) = 
+    (au, bu) :: snd (iterate_minset (manger_pre_order lteA) W Y X).
+  Proof.
+    induction X as [|(alx, blx) X IHx].
+    +
+      cbn; intros *; reflexivity.
+    +
+      cbn; intros * Ha.
+      destruct (find (theory.below (manger_pre_order lteA) (alx, blx)) X)
+      eqn:Hb.
+      *
+        rewrite IHx. reflexivity.
+        intros * Hc; eapply Ha.
+        apply Bool.orb_true_iff; right; exact Hc.
+      *
+        destruct (theory.below (manger_pre_order lteA) (alx, blx) (au, bu))
+        eqn:Hc.
+        destruct (find (theory.below (manger_pre_order lteA) (alx, blx)) Y)
+        eqn:Hd.
+        rewrite IHx. reflexivity.
+        intros * He.
+        eapply Ha.
+        apply Bool.orb_true_iff; right; exact He.
+        specialize (Ha alx blx);
+        rewrite refA, refP in Ha;
+        cbn in Ha; specialize (Ha eq_refl);
+        rewrite Ha in Hc; congruence.
+        destruct (find (theory.below (manger_pre_order lteA) (alx, blx)) Y)
+        eqn:Hd.
+        rewrite IHx. reflexivity.
+        intros * He; eapply Ha.
+        apply Bool.orb_true_iff; right; exact He.
+        rewrite IHx.
 
-  
+      
 
+  Admitted.
+
+  *)
+
+
+   
   Lemma iterate_minset_inv_2 : 
     forall (X W Y : finite_set (A * P)) au bu,
     find (theory.below (manger_pre_order lteA) (au, bu)) X = None ->
+    find (theory.below (manger_pre_order lteA) (au, bu)) Y = None ->
+    (* 
     (∀ t : A * P,
       in_set (brel_product eqA eqP) X t = true -> 
       theory.below (manger_pre_order lteA) (au, bu) t = false) ->
+    *)
     snd (iterate_minset (manger_pre_order lteA) W ((au, bu) :: Y) X) = 
       (au, bu) :: snd (iterate_minset (manger_pre_order lteA) W Y X).
   Proof.
+    induction X as [|(alx, blx) X IHx].
+    +
+      cbn; intros *; reflexivity.
+    +
+      intros * Ha Hb.
+      cbn in Ha, Hb |- *.
+      destruct (theory.below (manger_pre_order lteA) (au, bu) (alx, blx));
+      [inversion Ha |].
+      destruct (find (theory.below (manger_pre_order lteA) (alx, blx)) X)
+      eqn:Hc.
+      ++
+        eapply IHx; try assumption.
+      ++
+        destruct (theory.below (manger_pre_order lteA) (alx, blx) (au, bu))
+        eqn:Hd;
+        destruct (find (theory.below (manger_pre_order lteA) (alx, blx)) Y)
+        eqn:He.
+        rewrite IHx; try (reflexivity); try assumption.
+        rewrite IHx.
   Admitted.
 
+        
+
+
+
+      
 
     
 
@@ -474,6 +545,7 @@ Section Theory.
             snd (iterate_minset (manger_pre_order lteA) nil nil X)).
           eapply iterate_minset_inv_2; 
           try assumption.
+          cbn; reflexivity.
           rewrite Hd, Hf in He;
           cbn in He; rewrite He;
           cbn; rewrite Ha;
@@ -523,10 +595,11 @@ Section Theory.
             snd (iterate_minset (manger_pre_order lteA) nil nil X)).
           eapply iterate_minset_inv_2; 
           try assumption.
+          cbn; reflexivity.
           rewrite Hb, He in Hf;
           cbn in Hf; rewrite Hf;
           cbn; rewrite Ha;
-          exact IHx.
+          exact IHx.          
   Admitted.
 
 
@@ -537,7 +610,7 @@ Section Theory.
     eapply brel_set_intro_prop.
     + exact refAP.
     +
-      refine(pair _ _).
+      split.
       ++
         intros (a, p) Ha.
         eapply in_set_uop_manger_phase_2_elim in Ha;
@@ -570,9 +643,10 @@ Section Theory.
         (matrix_algorithms.sum_fn zeroP addP snd 
           (List.filter (λ '(x, _), eqA x b) X)));
         eapply refP.
-        unfold uop_manger_phase_2;
         rewrite <-list_filter_lib_filter_same in 
         Halr.
+        (* 
+        unfold uop_manger_phase_2.
         (* from Har, I can infer below *)
         assert (Hc : ∀ (b : A) (q : P),
           in_set (brel_product eqA eqP) X (b, q) = true → 
@@ -617,7 +691,7 @@ Section Theory.
         eapply theory.below_false_intro.
         destruct Hc as [Hc | Hc].
         left; cbn; rewrite Hc; reflexivity.
-        right; cbn; rewrite Hc; reflexivity.
+        right; cbn; rewrite Hc; reflexivity. *)
         eapply trnP.
         exact Halr.
         eapply matrix_algorithm_addP.
@@ -632,24 +706,24 @@ Section Theory.
         destruct Hal as (Hall & Halr).
         eapply in_set_uop_manger_phase_2_intro;
         try assumption.
-        eapply in_set_uop_manger_phase_1_intro
-        with (zeroP := zeroP); try assumption.
-        exists qt; exact Hall.
-
-        unfold uop_manger_phase_2 in Har.
-        pose proof in_minset_implies_in_set
-         (A * P) (brel_product eqA eqP)
-        symAP (manger_pre_order lteA) as Hb.
-        rewrite <-list_filter_lib_filter_same  in Har.
-        eapply trnP.
-        exact Har.
-        apply symP.
-        eapply matrix_algorithm_addP.
-        intros * Hb.
-        eapply in_set_uop_manger_phase_1_elim 
-        with (zeroP := zeroP) in Hb; try assumption.
-        destruct Hb as ((qp & Hbl) & Hbr).
-        eapply Halr; exact Hbl.
+        +++
+          eapply in_set_uop_manger_phase_1_intro
+          with (zeroP := zeroP); try assumption.
+          exists qt; exact Hall.
+          (* 
+          unfold uop_manger_phase_2 in Har.
+          pose proof in_minset_implies_in_set
+          (A * P) (brel_product eqA eqP)
+          symAP (manger_pre_order lteA) as Hb. *)
+          rewrite <-list_filter_lib_filter_same  in Har.
+          eapply trnP;
+          [exact Har | apply symP, matrix_algorithm_addP].
+        +++
+          intros * Hb.
+          eapply in_set_uop_manger_phase_1_elim 
+          with (zeroP := zeroP) in Hb; try assumption.
+          destruct Hb as ((qp & Hbl) & Hbr).
+          eapply Halr; exact Hbl.
     Qed.
 
     
