@@ -374,15 +374,46 @@ Section Theory.
   Qed.
   
 
+
   
+
+  Lemma iterate_minset_inv_2 : 
+    forall (X W Y : finite_set (A * P)) au bu,
+    find (theory.below (manger_pre_order lteA) (au, bu)) X = None ->
+    (∀ t : A * P,
+      in_set (brel_product eqA eqP) X t = true -> 
+      theory.below (manger_pre_order lteA) (au, bu) t = false) ->
+    snd (iterate_minset (manger_pre_order lteA) W ((au, bu) :: Y) X) = 
+      (au, bu) :: snd (iterate_minset (manger_pre_order lteA) W Y X).
+  Proof.
+  Admitted.
+
+
+    
+
+  
+
+
+  (* My hunch: this proof will go through only 
+  if X is anti-chain. 
+  forall ax bx, In (ax, bx) X ->
+  (find (theory.below (manger_pre_order lteA) (au, bu)) X)= None. 
+  *)
   Lemma matrix_algorithm_addP : 
     forall (X : finite_set (A * P)) a,
-    eqP (matrix_algorithms.sum_fn zeroP addP 
+    eqP 
+    (matrix_algorithms.sum_fn zeroP addP 
       snd (List.filter (λ '(x, _), eqA x a) X))
     (matrix_algorithms.sum_fn zeroP addP snd
       (List.filter (λ '(x, _), eqA x a) 
-      (uop_minset (manger_pre_order lteA) X))) = true.
+        (uop_minset (manger_pre_order lteA) X))) = true.
   Proof.
+    (* So we minimizing the set X using lteA.
+      Sow what if during minimization if there is an element 
+      strictly below 'lteA' ?? 'a' will be eliminated??
+
+      What if 'a' ends up in W ?? 
+    *)
     induction X as [|(au, bu) X IHx].
     +
       intros ?; cbn;
@@ -397,127 +428,106 @@ Section Theory.
         destruct (find (theory.below (manger_pre_order lteA) (au, bu)) X) 
         as [(ap, bp)|] eqn:Hb.
         +++
+          (* Some case and it's unprovable *)
+          destruct (iterate_minset (manger_pre_order lteA)
+            ((au, bu) :: nil) nil X) as (W, Y) eqn:Hf.
           pose proof find_below_some (A * P) 
             (brel_product eqA eqP) refAP symAP
             (manger_pre_order lteA) X _ _ Hb as (Hd & He).
-          destruct (iterate_minset (manger_pre_order lteA)
-            ((au, bu) :: nil) nil X) as (W, Y) eqn:Hf.
-
           (* 
-          I need two things to discharge this:
-          1. (au, bu) = (ap, bp) so that I can use idempotence 
-            to get rid or bu.
-          2. snd (iterate_minset (manger_pre_order lteA) ((au, bu) :: nil) nil X) =
-            snd (iterate_minset (manger_pre_order lteA) nil nil X)
-          
+            Notice how au got eliminated, 
+            even though it is equal to a. 'a's second 
+            component
+            
+            For this proof to go through, (au, bu) 
+            should have gone Y, not in W.
           *)
-
-          (* need idempotence *)
-
+          pose proof iterate_minset_invariant_0 (A * P)
+            (manger_pre_order lteA) X ((au, bu) :: nil)
+            nil nil as Hg;
+          rewrite Hf in Hg; cbn in Hg;
+          eapply eq_sym in Hg.
+          (* This case should be impossible *)
           admit.
         +++
-          destruct (iterate_minset (manger_pre_order lteA) nil
-          ((au, bu) :: nil) X) as (W, Y) eqn:Hc.
-          admit.
-        ++
-          admit.
-  Admitted.
-
-
-
-  (* 
-  (* Axiom?? *)
-  Lemma eqA_lteA_rel : 
-    forall (au a ap : A),
-    eqA au a = true -> lteA ap au = true -> 
-    lteA ap a = true.
-  Proof.
-    intros * Ha Hb.
-  Admitted.
-
-
-
-  Lemma matrix_algorithm_addP : 
-    forall (X : finite_set (A * P)) a p, 
-    (∀ t : A * P,
-      in_set (brel_product eqA eqP) X t = true ->
-      theory.below (manger_pre_order lteA) (a, p) t = false) ->
-    eqP (matrix_algorithms.sum_fn zeroP addP 
-      snd (List.filter (λ '(x, _), eqA x a) X))
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (List.filter (λ '(x, _), eqA x a) 
-      (uop_minset (manger_pre_order lteA) X))) = true.
-  Proof.
-    induction X as [|(au, bu) X IHx].
-    +
-      intros ? ? Hw; cbn;
-      rewrite refP;
-      reflexivity.
-    +
-      intros ? ? Hw; cbn.
-      case_eq (eqA au a);
-      intros Ha.
-      ++
-        unfold uop_minset; cbn.
-        destruct (find (theory.below (manger_pre_order lteA) (au, bu)) X) 
-        as [(ap, bp)|] eqn:Hb.
-      +++
-        pose proof find_below_some (A * P) 
+          destruct (iterate_minset (manger_pre_order lteA) nil 
+          ((au, bu) :: nil) X) as (W, Y) eqn:Hf.
+          pose proof find_below_none (A * P) 
           (brel_product eqA eqP) refAP symAP
-          (manger_pre_order lteA) X _ _ Hb as (Hd & He).
-        specialize (Hw (ap, bp)).
-        assert (Hf : in_set (brel_product eqA eqP)
-          ((au, bu) :: X) (ap, bp) = true).
-        cbn. rewrite Hd. rewrite Bool.orb_true_r;
-        reflexivity.
-        specialize (Hw Hf); clear Hf.
-        unfold theory.below in He.
-        eapply Bool.andb_true_iff in He.
-        destruct He as [Hel Her].
-        eapply theory.below_false_elim in Hw.
-        destruct Hw as [Hw | Hw].
-        *
-          unfold manger_pre_order, brel_trivial,
-          brel_product in Hw, Hel.
-          rewrite Bool.andb_true_r in Hw, Hel.
-          rewrite (eqA_lteA_rel _ _ _ Ha Hel) in Hw;
-          congruence.
-        *
-          unfold manger_pre_order, brel_trivial,
-          brel_product in Hw, Hel;
-          rewrite Bool.andb_true_r in Hw, Hel.
-          (* By transitivity from Hw and Hel, 
-          we have lteA a au = true but we have eq au a 
-          so there is just one possibility:
-           au = ap 
-           Now use idempotence and get rid of bu from the 
-           goal
-          *)
+          (manger_pre_order lteA)
+          cong_manger_preorder X _ Hb as Hc.
+          specialize (IHx a).
           unfold uop_minset in IHx.
-          (* Now prove that 
-            snd (iterate_minset (manger_pre_order lteA) 
-                ((au, bu) :: nil) nil X) = 
-            snd (iterate_minset (manger_pre_order lteA) 
-                nil nil X)
+          destruct (iterate_minset (manger_pre_order lteA) nil nil X)
+          as (W1, Y1) eqn:Hd.
+          (* using Hc and Hf, can I infer 
+
+          snd 
+            (iterate_minset (manger_pre_order lteA) 
+            nil ((au, bu) :: nil) X)  =
+          (au, bu) :: 
+            snd (iterate_minset (manger_pre_order lteA) nil nil X) ?? 
           *)
+          assert (He : snd (iterate_minset (manger_pre_order lteA) 
+            nil ((au, bu) :: nil) X)  =
+            (au, bu) :: 
+            snd (iterate_minset (manger_pre_order lteA) nil nil X)).
+          eapply iterate_minset_inv_2; 
+          try assumption.
+          rewrite Hd, Hf in He;
+          cbn in He; rewrite He;
+          cbn; rewrite Ha;
+          cbn.
+          eapply cong_addP;
+          [eapply refP| exact IHx].
+      ++
+        (* Trivial case *)
+        unfold uop_minset.
+        destruct (iterate_minset (manger_pre_order lteA) nil nil ((au, bu) :: X))
+        as (W, Y) eqn:Hb.
+        cbn in Hb.
+        destruct (find (theory.below (manger_pre_order lteA) (au, bu)) X)
+        eqn:Hc.
+        *
+          pose proof iterate_minset_invariant_0 (A * P)
+            (manger_pre_order lteA) X ((au, bu) :: nil)
+            nil nil as Hg;
+          rewrite Hb in Hg; cbn in Hg;
+          eapply eq_sym in Hg.
+          specialize (IHx a).
+          unfold uop_minset in IHx.
+          destruct (iterate_minset (manger_pre_order lteA) nil nil X)
+          as (W1, Y1) eqn:Hd.
+          cbn in Hg; rewrite Hg in IHx.
+          exact IHx.
+        *
+          pose proof find_below_none (A * P) 
+          (brel_product eqA eqP) refAP symAP
+          (manger_pre_order lteA)
+          cong_manger_preorder X _ Hc as Hd.
+          specialize (IHx a).
+          unfold uop_minset in IHx.
+          destruct (iterate_minset (manger_pre_order lteA) nil nil X)
+          as (W1, Y1) eqn:He.
+          (* using Hc and Hf, can I infer 
 
-
-
-  
-       
-        (* need idempotence *)
-
-        admit.
-      +++
-        destruct (iterate_minset (manger_pre_order lteA) nil
-        ((au, bu) :: nil) X) as (W, Y) eqn:Hc.
-
-
-
+          snd 
+            (iterate_minset (manger_pre_order lteA) 
+            nil ((au, bu) :: nil) X)  =
+          (au, bu) :: 
+            snd (iterate_minset (manger_pre_order lteA) nil nil X) ?? 
+          *)
+          assert (Hf : snd (iterate_minset (manger_pre_order lteA) 
+            nil ((au, bu) :: nil) X)  =
+            (au, bu) :: 
+            snd (iterate_minset (manger_pre_order lteA) nil nil X)).
+          eapply iterate_minset_inv_2; 
+          try assumption.
+          rewrite Hb, He in Hf;
+          cbn in Hf; rewrite Hf;
+          cbn; rewrite Ha;
+          exact IHx.
   Admitted.
-
-  *)
-
 
 
 
