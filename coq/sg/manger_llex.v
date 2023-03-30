@@ -250,15 +250,27 @@ Section Theory.
 
   (* show [P1] is a reduction *)  
   Lemma P1_cong : uop_congruence _ eqSAP [P1].
+  Proof.
   Admitted. (* this should come from eqv/manger_sets.v *) 
   
   Lemma P1_idem : uop_idempotent _ eqSAP [P1].
-  Admitted. (* this should come from eqv/manger_sets.v *) 
+  Proof.
+    eapply uop_manger_phase_1_uop_idempotent;
+    try assumption.
+    unfold bop_idempotent;
+    intros.
+    eapply addP_gen_idempotent;
+    now rewrite refP.
+  Qed.
   
+
   Lemma P1_left : bop_left_uop_invariant _ eqSAP (bop_reduce [P1] bSAP) [P1].
+  Proof.
   Admitted. 
   
   Lemma P1_right : bop_right_uop_invariant _ eqSAP (bop_reduce [P1] bSAP) [P1].
+  Proof.
+    
   Admitted.
 
   (* show [P2] is a reduction. 
