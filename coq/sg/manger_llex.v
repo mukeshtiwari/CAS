@@ -324,24 +324,6 @@ Section Theory.
   Local Notation "a =S= b" := 
     (brel_set (brel_product eqA eqP) a b = true) (at level 70). 
 
-  (* 
-  Lemma list_rewrite_uop_minset : 
-    forall (X Y : finite_set (A * P)) a p, 
-    (in_set (brel_product eqA eqP) Y (a, p) = true → 
-    in_set (brel_product eqA eqP) X (a, p) = true) ->
-    (List.filter (λ '(x, _), eqA x a) X) =S= 
-    (List.filter (λ '(x, _), eqA x a) Y).
-  Proof.
-    intros * Ha.
-    eapply brel_set_intro_prop;
-    try assumption.
-    + exact refAP.
-    +
-      refine(pair _ _).
-      ++
-        intros a' Hb.
-  *)
-
 
 
   (* 
@@ -383,6 +365,7 @@ Section Theory.
        → theory.below (manger_pre_order lteA) (a, p) t = false) ->
     uop_minset (manger_pre_order lteA) ((au, bu) :: X) =
     (au, bu) :: uop_minset (manger_pre_order lteA) X.
+    (* = uop_minset (manger_pre_order lteA) X ++ [(au, bu)] ??*)
   Proof.
   Admitted.
     
@@ -496,28 +479,6 @@ Section Theory.
           (List.filter (λ '(x, _), eqA x b) X)));
         eapply refP.
         (* think! *)
-        (* 
-          It is only provable when we have 
-          (List.filter (λ '(x, _), eqA x a) X)) =S=
-          (List.filter (λ '(x, _), eqA x a) 
-            (uop_minset (manger_pre_order lteA) X)))
-
-        *)
-        (*
-          I know from Hc can I infer that 
-          'a' is a minimal element? 
-          min(<=, X) := {x in X | for all y in X, not (y < x)}. 
-        *)
-        (* 
-        We don't need this. 
-        pose proof in_minset_intro (A * P)
-          (brel_product eqA eqP) refAP
-          symAP (manger_pre_order lteA)
-          cong_manger_preorder
-          ref_manger_pre_order X (a, p) as Hd.
-        *)
-        (* manger_pre_order lteA is just lteA because 
-          second component is trivial (true) *)
         assert (He : ∀ t : A * P,
           in_set (brel_product eqA eqP) X t = true → 
           theory.below (manger_pre_order lteA) (a, p) t = false).
