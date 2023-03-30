@@ -21,7 +21,7 @@ Require Import CAS.coq.sg.minset_union.
 Require Import CAS.coq.theory.set.
 Require Import CAS.coq.uop.properties. 
 Require Import CAS.coq.uop.commutative_composition. 
-
+Import ListNotations.
 (* 
   A = type of active component
   P = type of passive component
@@ -322,16 +322,12 @@ Section Theory.
 
 
   Local Notation "a =S= b" := 
-    (brel_set (brel_product eqA eqP) a b = true) (at level 70). 
+    (brel_set (brel_product eqA eqP) a b = true) 
+    (at level 70, only parsing). 
 
 
 
-  (* 
-    Now, show that the two reductions commute! 
-    **** I hope this is true! *****
-    Seems true but difficult.
-    
-  *)
+ 
 
   Lemma cong_manger_preorder : (brel_congruence (A * P) 
     (brel_product eqA eqP) (manger_pre_order lteA)).
@@ -356,27 +352,132 @@ Section Theory.
    reflexivity.
   Qed.
   
+  Lemma tran_manger_pre_order : 
+    brel_transitive (A * P) (manger_pre_order lteA).
+  Proof.
+    intros (a, b) (c, d) (e, f) Ha Hb;
+    cbn in Ha, Hb |- *.
+    unfold brel_trivial in Ha, Hb |- *;
+    rewrite Bool.andb_true_r in Ha, Hb |- *.
+    rewrite trnLte;
+    [reflexivity | exact Ha | exact Hb].
+  Qed.
 
 
-  Lemma uop_minset_rewrite : 
-    forall (X : finite_set (A * P)) au bu a p, 
+
+
+  Lemma bop_congruence_bProp_fst : 
+    forall (a : A),
+    theory.bProp_congruence (A * P) (brel_product eqA eqP)
+    (λ '(x, _), eqA x a).
+  Proof.
+    intros a.
+    unfold theory.bProp_congruence.
+    intros (aa, ap) (ba, bp) He.
+    apply brel_product_elim in He.
+    destruct He as [Hel Her].
+    case_eq (eqA aa a); intro Hf.
+    eapply symA in Hel.
+    rewrite (trnA _ _ _  Hel Hf);
+    reflexivity.
+    case_eq (eqA ba a); intro Hg.
+    rewrite (trnA _ _ _ Hel Hg) in Hf;
+    congruence.
+    reflexivity.
+  Qed.
+
+ 
+
+
+  Lemma set_are_eq_reduce : 
+    forall (X : finite_set (A * P)) a p,
     (∀ t : A * P,
-       in_set (brel_product eqA eqP) ((au, bu) :: X) t = true
-       → theory.below (manger_pre_order lteA) (a, p) t = false) ->
-    uop_minset (manger_pre_order lteA) ((au, bu) :: X) =
-    (au, bu) :: uop_minset (manger_pre_order lteA) X.
-    (* = uop_minset (manger_pre_order lteA) X ++ [(au, bu)] ??*)
+      in_set (brel_product eqA eqP) X t = true ->
+      theory.below (manger_pre_order lteA) (a, p) t = false) ->
+    (List.filter (λ '(x, _), eqA x a) X) =S= 
+    (List.filter (λ '(x, _), eqA x a) 
+        (uop_minset (manger_pre_order lteA) X)).
+  Proof.
+    intros * Ha.
+    eapply brel_set_intro_prop.
+    + exact refAP.
+    +
+      split.
+      ++
+        intros (au, bu) Hb.
+        rewrite list_filter_lib_filter_same in Hb |- *.
+        eapply in_set_filter_elim in Hb.
+        destruct Hb as [Hbl Hbr].
+        * 
+          eapply in_set_filter_intro;
+          [eapply symAP | eapply bop_congruence_bProp_fst| ].
+          split;
+          [exact Hbl |].
+          eapply in_minset_intro;
+          [eapply refAP | eapply symAP | eapply cong_manger_preorder |
+          eapply ref_manger_pre_order |].
+          split;
+          [exact Hbr | intros (ta, tb) Hc].
+          specialize (Ha _ Hc).
+          eapply theory.below_false_intro.
+          eapply theory.below_false_elim in Ha.
+          destruct Ha as [Ha | Ha].
+          **
+            left; rewrite <- Ha.
+            unfold manger_pre_order, brel_product,
+            brel_trivial in Ha |- *;
+            repeat rewrite Bool.andb_true_r in |- *.
+            eapply conLte;
+            [eapply refA | exact Hbl].
+          **
+            right; rewrite <-Ha.
+            unfold manger_pre_order, brel_product,
+            brel_trivial in |- *;
+            repeat rewrite Bool.andb_true_r in |- *.
+            eapply conLte;
+            [exact Hbl | eapply refA].
+        *
+          eapply bop_congruence_bProp_fst.
+      ++
+        intros (au, bu) Hb.
+        rewrite list_filter_lib_filter_same in Hb |- *.
+        eapply in_set_filter_elim in Hb;
+        [|eapply bop_congruence_bProp_fst].
+        destruct Hb as [Hbl Hbr].
+        eapply in_minset_elim in Hbr;
+        [|eapply refAP | eapply symAP | eapply cong_manger_preorder|
+        eapply ref_manger_pre_order | eapply tran_manger_pre_order ].
+        eapply in_set_filter_intro;
+        [eapply symAP | eapply bop_congruence_bProp_fst|].
+        split;
+        [exact Hbl | ].
+        destruct Hbr as (Hbrl & Hbrr).
+        exact Hbrl.
+  Qed.
+      
+
+  (* This lemma will come from Matrix.algorithm because 
+    Tim is working on it, so for the moment I am admitting it. *)
+  Lemma sum_fn_congruence_general_set :
+    forall (Xa Xb : finite_set (A * P)),
+    Xa =S= Xb ->
+    eqP (matrix_algorithms.sum_fn zeroP addP snd Xa)
+    (matrix_algorithms.sum_fn zeroP addP snd Xb) = true.
   Proof.
   Admitted.
-    
 
+
+
+  
+
+        
 
   (* In this proof, let's not unfold uop_minset *)
   Lemma matrix_algorithm_addP : 
     forall (X : finite_set (A * P)) a p,
     (∀ t : A * P,
       in_set (brel_product eqA eqP) X t = true ->
-      theory.below (manger_pre_order lteA) (a, p) t = false) -> 
+      theory.below (manger_pre_order lteA) (a, p) t = false) ->
     eqP 
     (matrix_algorithms.sum_fn zeroP addP 
       snd (List.filter (λ '(x, _), eqA x a) X))
@@ -384,44 +485,24 @@ Section Theory.
       (List.filter (λ '(x, _), eqA x a) 
         (uop_minset (manger_pre_order lteA) X))) = true.
   Proof.
-    induction X as [|(au, bu) X IHx].
-    +
-      intros ?; cbn;
-      rewrite refP;
-      reflexivity.
-    +
-      intros * Hw; cbn.
-      case_eq (eqA au a);
-      cbn; intros Ha.
-      ++
-        (* In this case *)
-        assert (Hb : (uop_minset (manger_pre_order lteA) ((au, bu) :: X)) = 
-         (au, bu) :: uop_minset (manger_pre_order lteA) X).
-        eapply uop_minset_rewrite; exact Hw.
-        rewrite Hb; cbn;
-        rewrite Ha; cbn.
-        eapply cong_addP, 
-        IHx;[eapply refP|].
-        intros (ta, tb) Hc.
-        eapply Hw; cbn;
-        rewrite Hc, 
-        Bool.orb_true_r;
-        reflexivity.
-      ++
-        assert (Hb : (uop_minset (manger_pre_order lteA) ((au, bu) :: X)) = 
-         (au, bu) :: uop_minset (manger_pre_order lteA) X).
-        eapply uop_minset_rewrite; exact Hw.
-        rewrite Hb; cbn;
-        rewrite Ha; cbn.
-        eapply IHx.
-        intros (ta, tb) Hc.
-        eapply Hw; cbn; rewrite 
-        Hc, Bool.orb_true_r;
-        reflexivity.
+    intros * Ha.
+    pose proof set_are_eq_reduce X a p Ha as Hb.
+    remember (List.filter (λ '(x, _), eqA x a) X) as Xa.
+    remember (List.filter (λ '(x, _), eqA x a)
+      (uop_minset (manger_pre_order lteA) X)) as Xb.
+    eapply sum_fn_congruence_general_set;
+    try assumption.
   Qed.
-        
+     
 
+   (* 
+    Tim: Now, show that the two reductions commute! 
+    **** I hope this is true! *****
+    Seems true but difficult.
 
+    Mukesh: yes, it's true and difficult as well.
+    
+  *)
 
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)).
   Proof.
