@@ -377,10 +377,11 @@ Section Theory.
 
   Notation "a =S= b"   := (brel_set  (brel_product eqA eqP) a b = true) (at level 70).
   
+
   (* = or =S=, both are fine! *)
   Lemma iterate_minset_inv_2 : 
     forall (X W Y : finite_set (A * P)) au bu,
-    find (theory.below (manger_pre_order lteA) (au, bu)) X = None ->
+    find (theory.below (manger_pre_order lteA) (au, bu)) X = None -> 
     find (theory.below (manger_pre_order lteA) (au, bu)) Y = None ->
     (* 
     (∀ t : A * P,
@@ -390,15 +391,45 @@ Section Theory.
     snd (iterate_minset (manger_pre_order lteA) W ((au, bu) :: Y) X) = 
       (au, bu) :: snd (iterate_minset (manger_pre_order lteA) W Y X).
   Proof.
-    intros * Ha Hb.
-    pose proof find_below_none (A * P) 
-    (brel_product eqA eqP) refAP symAP
-    (manger_pre_order lteA)
-    cong_manger_preorder X _ Ha as Hc.
-    pose proof find_below_none (A * P) 
-    (brel_product eqA eqP) refAP symAP
-    (manger_pre_order lteA)
-    cong_manger_preorder Y _ Hb as Hd.
+    induction X as [|(ax, bx) X IHx].
+    +
+      intros * Ha Hw.
+      cbn; reflexivity.
+    +
+      intros * Ha Hw.
+      cbn in Ha |- .
+      destruct (theory.below (manger_pre_order lteA) (au, bu) (ax, bx));
+      [congruence |].
+      (* From Ha, we know that there is nothing strictly below (au, bu) in X *)
+      pose proof find_below_none (A * P) 
+      (brel_product eqA eqP) refAP symAP
+      (manger_pre_order lteA)
+      cong_manger_preorder X _ Ha as Hb.
+      (* Hb is the proof that there is nothing below (au, bu) *)
+      cbn.
+      destruct (find (theory.below (manger_pre_order lteA) (ax, bx)) X)
+      as [(pa, pb) |] eqn:Hc.
+      ++
+        eapply IHx.
+        admit.
+        admit.
+      ++
+
+        unfold manger_pre_order, 
+        brel_product, brel_trivial, 
+        theory.below, and.bop_and.
+
+        (* From Hc, I know that there is nothign 
+        below (ax, bx) *)
+        pose proof find_below_none (A * P) 
+        (brel_product eqA eqP) refAP symAP
+        (manger_pre_order lteA)
+        cong_manger_preorder X _ Hc as Hd.
+        destruct (theory.below (manger_pre_order lteA) (ax, bx) (au, bu))
+        eqn:He.
+
+
+       
 
 
   Admitted.
@@ -428,10 +459,104 @@ Section Theory.
     theory.below (manger_pre_order lteA) (au, bu) t = false ->
     theory.below (manger_pre_order lteA) (a, bu) t = false.
   Proof.
+    intros (ta, tb) * Ha Hb.
+    eapply theory.below_false_elim in Hb.
+    eapply theory.below_false_intro.
+    destruct Hb as [Hb | Hb].
+    +
+      left;
+      unfold manger_pre_order,
+      brel_product, brel_trivial in Hb |- *.
+      rewrite Bool.andb_true_r in Hb |- *.
+      admit.
+    +
+      right; unfold manger_pre_order,
+      brel_product, brel_trivial in Hb |- *.
+      rewrite Bool.andb_true_r in Hb |- *.
+      admit.
+  Admitted.
+
+ 
+
+  Fact manger_rewrite_exists : 
+    forall (X : finite_set (A * P)) (a : A) p,
+    (∀ t : A * P,
+      in_set (brel_product eqA eqP) X t = true ->
+      theory.below (manger_pre_order lteA) (a, p) t = false) ->
+    exists q : P, in_set (brel_product eqA eqP) X (a, q) = 
+      in_set (brel_product eqA eqP) 
+        (uop_minset (manger_pre_order lteA) X) (a, q).
   Admitted.
 
 
+  Fact manger_rewrite_forall : 
+    forall (X : finite_set (A * P)) (a : A) p,
+    (∀ t : A * P,
+      in_set (brel_product eqA eqP) X t = true ->
+      theory.below (manger_pre_order lteA) (a, p) t = false) ->
+    in_set (brel_product eqA eqP) X (a, p) =  true ->
+    in_set (brel_product eqA eqP) 
+      (uop_minset (manger_pre_order lteA) X) (a, p) = true.
+  Proof.
+    induction X as [|(ax, bx) X IHx].
+    +
+      intros * Ha Hb.
+      cbn in Hb; congruence.
+    +
+      intros * Ha Hb.
+      cbn in Hb |- *.
+      eapply Bool.orb_true_iff in Hb.
+      destruct Hb as [Hb | Hb].
+      ++
+      (* from Ha, I know that (ax, bx) is not 
+        strictly below (a, p) *)
+      pose proof (Ha (ax, bx)) as Hc;
+      cbn in Hc; rewrite refA, refP in Hc;
+      cbn in Hc; specialize (Hc eq_refl). 
+      eapply theory.below_false_elim in Hc.
+      destruct Hc as [Hc | Hc].
+      *
+        unfold manger_pre_order,
+        brel_product, brel_trivial in Hc.
+        eapply Bool.andb_true_iff in Hb.
+        rewrite Bool.andb_true_r in Hc.
+        destruct Hb as [Hbl Hbr].
+        (* contradiction *)
+        admit.
+      *
+        unfold manger_pre_order,
+        brel_product, brel_trivial in Hc.
+        eapply Bool.andb_true_iff in Hb.
+        rewrite Bool.andb_true_r in Hc.
+        destruct Hb as [Hbl Hbr].
+        (* I know that *)
+        assert (Hd : uop_minset (manger_pre_order lteA) ((ax, bx) :: X) = 
+         (ax, bx) :: uop_minset (manger_pre_order lteA) X).
+        admit.
+        (* But this is what bothering me. Proving this one 
+          is nightmare *)
+        rewrite Hd; cbn; rewrite Hbl, Hbr;
+        cbn; reflexivity.
+      ++
+        (* same reasoning as abouve *)
+        assert (Hd : uop_minset (manger_pre_order lteA) ((ax, bx) :: X) = 
+         (ax, bx) :: uop_minset (manger_pre_order lteA) X).
+        admit.
+        rewrite Hd; cbn.
+        (* use induction hypothesis *)
+        assert (He : (∀ t : A * P,
+        in_set (brel_product eqA eqP) X t = true ->
+        theory.below (manger_pre_order lteA) (a, p) t = false)).
+        intros (ta, tb) He.
+        eapply Ha; cbn; rewrite He, 
+        Bool.orb_true_r; reflexivity.
+        rewrite (IHx _ _ He Hb), 
+        Bool.orb_true_r; reflexivity.
+  Admitted.
 
+
+  
+  (* In this proof, let's not unfold uop_minset *)
   Lemma matrix_algorithm_addP : 
     forall (X : finite_set (A * P)) a p,
     (∀ t : A * P,
@@ -452,9 +577,54 @@ Section Theory.
     +
       intros * Hw; cbn.
       case_eq (eqA au a);
+      cbn; intros Ha.
+      ++
+        (* In this case *)
+        assert (Hb : (uop_minset (manger_pre_order lteA) ((au, bu) :: X)) = 
+         (au, bu) :: uop_minset (manger_pre_order lteA) X).
+        admit.
+        rewrite Hb; cbn;
+        rewrite Ha; cbn.
+        eapply cong_addP, 
+        IHx;[eapply refP|].
+        intros (ta, tb) Hc.
+        eapply Hw; cbn;
+        rewrite Hc, 
+        Bool.orb_true_r;
+        reflexivity.
+      ++
+        assert (Hb : (uop_minset (manger_pre_order lteA) ((au, bu) :: X)) = 
+         (au, bu) :: uop_minset (manger_pre_order lteA) X).
+        admit.
+        rewrite Hb; cbn;
+        rewrite Ha; cbn.
+        eapply IHx.
+        intros (ta, tb) Hc.
+        eapply Hw; cbn; rewrite 
+        Hc, Bool.orb_true_r;
+        reflexivity.
+  Admitted.
+        
+
+    
+
+
+
+
+
+    (* 
+    induction X as [|(au, bu) X IHx].
+    +
+      intros ?; cbn;
+      rewrite refP;
+      reflexivity.
+    +
+      intros * Hw; cbn.
+      case_eq (eqA au a);
       intros Ha.
       ++
-        (* I need Lemma so that I don't need to *)
+        (* I need Lemma so that I don't need to 
+          unfold uop_minset *)
         unfold uop_minset; cbn. 
         destruct (find (theory.below (manger_pre_order lteA) (au, bu)) X) 
         as [(ap, bp)|] eqn:Hb.
@@ -474,7 +644,8 @@ Section Theory.
           cbn in Hh; rewrite Hd in Hh;
           cbn in Hh; rewrite Bool.orb_true_r in Hh;
           specialize (Hh eq_refl).
-          assert (Hi : theory.below (manger_pre_order lteA) (a, p) (ap, bp) = true).
+          assert (Hi : theory.below (manger_pre_order lteA) 
+          (a, p) (ap, bp) = true).
           unfold theory.below, manger_pre_order, uop_not, 
           brel_trivial, brel_product in He |-  *.
           eapply Bool.andb_true_iff in He.
@@ -499,7 +670,6 @@ Section Theory.
           unfold uop_minset in IHx.
           destruct (iterate_minset (manger_pre_order lteA) nil nil X)
           as (W1, Y1) eqn:Hd.
-          Search (iterate_minset _ _ (_ :: _) _).
           (* I need a connection between Y and Y1 *)
           (*
             Y = Y1 ++ [(au, bu)]
@@ -585,7 +755,7 @@ Section Theory.
           eapply Hw; cbn;
           now rewrite Hg, Bool.orb_true_r.
   Qed.
-        
+  *)
 
 
   Lemma P1_P2_commute : ∀ X, ([P2] ([P1] X)) =S= ([P1] ([P2] X)).
