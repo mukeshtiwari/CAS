@@ -248,10 +248,119 @@ Section Theory.
   Local Notation "[P2]" := (@uop_manger_phase_2 A P lteA)
     (only parsing). (* Phase 2 reduction *)
 
+
+
+  (* This lemma will come from Matrix.algorithm because 
+    Tim is working on it, so for the moment I am admitting it. *)
+  Lemma sum_fn_congruence_general_set :
+    forall (Xa Xb : finite_set (A * P)),
+    Xa =S= Xb ->
+    eqP (matrix_algorithms.sum_fn zeroP addP snd Xa)
+    (matrix_algorithms.sum_fn zeroP addP snd Xb) = true.
+  Proof.
+  Admitted.
+
+  Lemma bop_congruence_bProp_fst : 
+    forall (a : A),
+    theory.bProp_congruence (A * P) (brel_product eqA eqP)
+    (λ '(x, _), eqA x a).
+  Proof.
+    intros a.
+    unfold theory.bProp_congruence.
+    intros (aa, ap) (ba, bp) He.
+    apply brel_product_elim in He.
+    destruct He as [Hel Her].
+    case_eq (eqA aa a); intro Hf.
+    eapply symA in Hel.
+    rewrite (trnA _ _ _  Hel Hf);
+    reflexivity.
+    case_eq (eqA ba a); intro Hg.
+    rewrite (trnA _ _ _ Hel Hg) in Hf;
+    congruence.
+    reflexivity.
+  Qed.
+
+
   (* show [P1] is a reduction *)  
   Lemma P1_cong : uop_congruence _ eqSAP [P1].
   Proof.
-  Admitted. (* this should come from eqv/manger_sets.v *) 
+    intros X Y Ha.
+    eapply brel_set_intro_prop;
+    [exact refAP| refine(pair _ _); intros (ap, bp) Hb].
+    + 
+      unfold uop_manger_phase_1, 
+      manger_phase_1_auxiliary in Hb |- *;
+      rewrite manger_merge_set_funex in Hb |- *.
+      eapply in_set_fold_left_mmsn_intro with 
+      (zeroP := zeroP); try assumption.
+      ++
+        eapply in_set_fold_left_mmsn_elim with 
+        (zeroP := zeroP) in Hb; try assumption.
+        destruct Hb as [(q & Hbl) Hbr].
+        eapply brel_set_elim_prop in Ha;
+        [|exact symAP | eapply trnAP].
+        destruct Ha as [Hal Har].
+        exists q; eapply Hal;
+        rewrite app_nil_r in Hbl;
+        exact Hbl.
+        cbn; reflexivity.
+      ++
+        eapply in_set_fold_left_mmsn_elim with 
+        (zeroP := zeroP) in Hb; cbn; try assumption;
+        try reflexivity.
+        destruct Hb as [Hbl Hbr].
+        rewrite app_nil_r in Hbr |- *.
+        rewrite <-list_filter_lib_filter_same,
+        filter_arg_swap_gen with (a := ap), 
+        list_filter_lib_filter_same; try assumption;
+        try (apply refA).
+        assert (Hc : (filter (λ '(x, _), eqA x ap) X) =S= 
+        (filter (λ '(x, _), eqA x ap) Y)).
+        eapply filter_congruence_gen; try assumption;
+        try (apply bop_congruence_bProp_fst).
+        eapply symP, trnP.
+        eapply sum_fn_congruence_general_set,
+        brel_set_symmetric; exact Hc.
+        eapply symP; exact Hbr.
+    +
+      unfold uop_manger_phase_1, 
+      manger_phase_1_auxiliary in Hb |- *;
+      rewrite manger_merge_set_funex in Hb |- *.
+      eapply in_set_fold_left_mmsn_intro with 
+      (zeroP := zeroP); try assumption.
+      ++
+        eapply in_set_fold_left_mmsn_elim with 
+        (zeroP := zeroP) in Hb; try assumption.
+        destruct Hb as [(q & Hbl) Hbr].
+        eapply brel_set_elim_prop in Ha;
+        [|exact symAP | eapply trnAP].
+        destruct Ha as [Hal Har].
+        exists q; eapply Har;
+        rewrite app_nil_r in Hbl;
+        exact Hbl.
+        cbn; reflexivity.
+      ++
+        eapply in_set_fold_left_mmsn_elim with 
+        (zeroP := zeroP) in Hb; cbn; try assumption;
+        try reflexivity.
+        destruct Hb as [Hbl Hbr].
+        rewrite app_nil_r in Hbr |- *.
+        rewrite <-list_filter_lib_filter_same,
+        filter_arg_swap_gen with (a := ap), 
+        list_filter_lib_filter_same; try assumption;
+        try (apply refA).
+        assert (Hc : (filter (λ '(x, _), eqA x ap) X) =S= 
+        (filter (λ '(x, _), eqA x ap) Y)).
+        eapply filter_congruence_gen; try assumption;
+        try (apply bop_congruence_bProp_fst).
+        eapply symP, trnP.
+        eapply sum_fn_congruence_general_set;
+        exact Hc.
+        eapply symP; exact Hbr.
+  Qed.
+
+        
+
   
   Lemma P1_idem : uop_idempotent _ eqSAP [P1].
   Proof.
@@ -264,13 +373,39 @@ Section Theory.
   Qed.
   
 
+  
+
   Lemma P1_left : bop_left_uop_invariant _ eqSAP (bop_reduce [P1] bSAP) [P1].
   Proof.
+    intros X Y; 
+    unfold bop_reduce;
+    eapply brel_set_intro_prop;
+    [exact refAP| refine(pair _ _); intros (ap, bp) Ha].
+    +
+      unfold uop_manger_phase_1, 
+      manger_phase_1_auxiliary in Ha |- *;
+      rewrite manger_merge_set_funex in Ha |- *.
+      eapply in_set_fold_left_mmsn_elim with 
+      (zeroP := zeroP) in Ha; try assumption;
+      cbn; try reflexivity.
+      destruct Ha as [(q & Hal) Har];
+      rewrite app_nil_r in Hal.
+      eapply in_set_bop_union_elim in Hal.
+
+      eapply in_set_fold_left_mmsn_intro with 
+      (zeroP := zeroP); try assumption.
+ 
+
+        
+      
   Admitted. 
   
   Lemma P1_right : bop_right_uop_invariant _ eqSAP (bop_reduce [P1] bSAP) [P1].
   Proof.
-    
+    intros X Y.
+    eapply brel_set_intro_prop;
+    [exact refAP| refine(pair _ _); intros (ap, bp) Ha].
+    +
   Admitted.
 
   (* show [P2] is a reduction. 
@@ -333,10 +468,6 @@ Section Theory.
   Qed.
 
 
-  Local Notation "a =S= b" := 
-    (brel_set (brel_product eqA eqP) a b = true) 
-    (at level 70, only parsing). 
-
 
 
  
@@ -378,25 +509,7 @@ Section Theory.
 
 
 
-  Lemma bop_congruence_bProp_fst : 
-    forall (a : A),
-    theory.bProp_congruence (A * P) (brel_product eqA eqP)
-    (λ '(x, _), eqA x a).
-  Proof.
-    intros a.
-    unfold theory.bProp_congruence.
-    intros (aa, ap) (ba, bp) He.
-    apply brel_product_elim in He.
-    destruct He as [Hel Her].
-    case_eq (eqA aa a); intro Hf.
-    eapply symA in Hel.
-    rewrite (trnA _ _ _  Hel Hf);
-    reflexivity.
-    case_eq (eqA ba a); intro Hg.
-    rewrite (trnA _ _ _ Hel Hg) in Hf;
-    congruence.
-    reflexivity.
-  Qed.
+  
 
  
 
@@ -468,21 +581,9 @@ Section Theory.
   Qed.
       
 
-  (* This lemma will come from Matrix.algorithm because 
-    Tim is working on it, so for the moment I am admitting it. *)
-  Lemma sum_fn_congruence_general_set :
-    forall (Xa Xb : finite_set (A * P)),
-    Xa =S= Xb ->
-    eqP (matrix_algorithms.sum_fn zeroP addP snd Xa)
-    (matrix_algorithms.sum_fn zeroP addP snd Xb) = true.
-  Proof.
-  Admitted.
 
 
-
-  
-
-        
+          
 
   (* In this proof, let's not unfold uop_minset *)
   Lemma matrix_algorithm_addP : 
