@@ -272,6 +272,39 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA ap x) (bop_union eqAP X Y))) = true.
   Proof.
+    induction X as [|(ax, bx) X IHx].
+    +
+      intros *; cbn.
+      repeat rewrite <-list_filter_lib_filter_same.
+      erewrite  filter_arg_swap_gen with (a := ap); 
+      try assumption;
+      [eapply refP | eapply refA].
+    +
+      intros *; cbn.
+      case_eq (in_set eqAP (X ++ Y) (ax, bx));
+      intros Ha.
+      ++
+        (* from Ha: in_set eqAP (X ++ Y) (ax, bx) = true, 
+        we know that (ax, bx) is in (X ++ Y) so 
+        we can replace 
+        (uop_duplicate_elim eqAP
+          (fold_left (manger_merge_sets_new eqA addP) X
+            [(ax, bx)] ++ Y)) by 
+        (uop_duplicate_elim eqAP
+          (fold_left (manger_merge_sets_new eqA addP) X ++ Y))
+        and apply induction hypothesis *)
+        admit.
+      ++
+         (* from Ha: in_set eqAP (X ++ Y) (ax, bx) = false, 
+         we know that (ax, bx) is not (X ++ Y) so 
+         we can replace 
+         (uop_duplicate_elim eqAP
+              (fold_left (manger_merge_sets_new eqA addP) X
+                 [(ax, bx)] ++ Y)))) by 
+        (ax, bx) :: (uop_duplicate_elim eqAP
+              (fold_left (manger_merge_sets_new eqA addP) X ++ Y))))
+        then simplify, use IHx and we are home
+        *)
   Admitted.
 
 
