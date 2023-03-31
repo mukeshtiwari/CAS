@@ -250,8 +250,9 @@ Section Theory.
 
 
 
-  (* This lemma will come from Matrix.algorithm because 
+  (* These admitted lemmas will come from Matrix.algorithm because 
     Tim is working on it, so for the moment I am admitting it. *)
+
   Lemma sum_fn_congruence_general_set :
     forall (Xa Xb : finite_set (A * P)),
     Xa =S= Xb ->
@@ -259,6 +260,142 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd Xb) = true.
   Proof.
   Admitted.
+
+
+
+  Lemma sum_fn_cong_bop_union_X : 
+    forall (X Y : finite_set (A * P)) ap, 
+    eqP
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA x ap)
+          (bop_union eqAP (fold_left (manger_merge_sets_new eqA addP) X []) Y)))
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA ap x) (bop_union eqAP X Y))) = true.
+  Proof.
+  Admitted.
+
+
+
+  Lemma sum_fn_cong_bop_union_Y : 
+    forall (X Y : finite_set (A * P)) ap, 
+    eqP
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA x ap)
+          (bop_union eqAP X (fold_left (manger_merge_sets_new eqA addP) Y []))))
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA ap x) (bop_union eqAP X Y))) = true.
+  Admitted.
+
+  (* end of admit *)
+
+  (* it's same as above the the arguments are in reversed 
+    order. Why? *)
+  Lemma sum_fn_cong_bop_union_arg_flipped_X : 
+    forall (X Y : finite_set (A * P)) ap,
+    eqP
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA ap x)
+          (bop_union eqAP (fold_left (manger_merge_sets_new eqA addP) X []) Y)))
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
+  Proof.
+    intros *.
+    remember ((bop_union eqAP (fold_left (manger_merge_sets_new eqA addP) X []) Y))
+    as Ya.
+    remember ((bop_union eqAP X Y)) as Xa.
+    assert (Ha : (filter (λ '(x, _), eqA ap x) Ya) = 
+    (filter (λ '(x, _), eqA x ap) Ya)).
+    f_equal. 
+    eapply FunctionalExtensionality.functional_extensionality;
+    intros (ax, bx).
+    rename ap into a.
+    case_eq (eqA a ax);
+    case_eq (eqA ax a);
+    intros Hc Hd;
+    try reflexivity.
+    eapply symA in Hd;
+    rewrite Hc in Hd;
+    congruence.
+    eapply symA in Hc; 
+    rewrite Hc in Hd;
+    congruence.
+    rewrite Ha at 1; clear Ha.
+    assert (Ha : (filter (λ '(x, _), eqA x ap) Xa) = 
+    (filter (λ '(x, _), eqA ap x) Xa)).
+    f_equal. 
+    eapply FunctionalExtensionality.functional_extensionality;
+    intros (ax, bx).
+    rename ap into a.
+    case_eq (eqA a ax);
+    case_eq (eqA ax a);
+    intros Hc Hd;
+    try reflexivity.
+    eapply symA in Hd;
+    rewrite Hc in Hd;
+    congruence.
+    eapply symA in Hc; 
+    rewrite Hc in Hd;
+    congruence.
+    rewrite Ha at 1; clear Ha.
+    subst;
+    eapply sum_fn_cong_bop_union_X.
+  Qed.
+
+
+
+
+
+  Lemma sum_fn_cong_bop_union_arg_flipped_Y : 
+    forall (X Y : finite_set (A * P)) ap, 
+    eqP
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA ap x)
+          (bop_union eqAP X (fold_left (manger_merge_sets_new eqA addP) Y []))))
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
+  Proof.
+    intros *.
+    remember (((bop_union eqAP X (fold_left (manger_merge_sets_new eqA addP) Y [])))) as Ya.
+    remember ((bop_union eqAP X Y)) as Xa.
+    assert (Ha : (filter (λ '(x, _), eqA ap x) Ya) = 
+    (filter (λ '(x, _), eqA x ap) Ya)).
+    f_equal. 
+    eapply FunctionalExtensionality.functional_extensionality;
+    intros (ax, bx).
+    rename ap into a.
+    case_eq (eqA a ax);
+    case_eq (eqA ax a);
+    intros Hc Hd;
+    try reflexivity.
+    eapply symA in Hd;
+    rewrite Hc in Hd;
+    congruence.
+    eapply symA in Hc; 
+    rewrite Hc in Hd;
+    congruence.
+    rewrite Ha at 1; clear Ha.
+    assert (Ha : (filter (λ '(x, _), eqA x ap) Xa) = 
+    (filter (λ '(x, _), eqA ap x) Xa)).
+    f_equal. 
+    eapply FunctionalExtensionality.functional_extensionality;
+    intros (ax, bx).
+    rename ap into a.
+    case_eq (eqA a ax);
+    case_eq (eqA ax a);
+    intros Hc Hd;
+    try reflexivity.
+    eapply symA in Hd;
+    rewrite Hc in Hd;
+    congruence.
+    eapply symA in Hc; 
+    rewrite Hc in Hd;
+    congruence.
+    rewrite Ha at 1; clear Ha.
+    subst;
+    eapply sum_fn_cong_bop_union_Y.
+  Qed.
+
+
 
   Lemma bop_congruence_bProp_fst : 
     forall (a : A),
@@ -276,6 +413,24 @@ Section Theory.
     reflexivity.
     case_eq (eqA ba a); intro Hg.
     rewrite (trnA _ _ _ Hel Hg) in Hf;
+    congruence.
+    reflexivity.
+  Qed.
+
+  Lemma bop_congruence_bProp_snd : 
+    forall (pa : A),theory.bProp_congruence _  
+    (brel_product eqA eqP)
+    (λ '(s2, _), eqA pa s2).
+  Proof.
+    intros pa (aa, ap) (ba, bp) He.
+    apply brel_product_elim in He.
+    destruct He as [Hel Her].
+    case_eq (eqA pa aa); intro Hf.
+    rewrite (trnA pa aa ba Hf Hel);
+    reflexivity.
+    case_eq (eqA pa ba); intro Hg.
+    apply symA in Hel.
+    rewrite (trnA pa ba aa Hg Hel) in Hf;
     congruence.
     reflexivity.
   Qed.
@@ -390,15 +545,117 @@ Section Theory.
       cbn; try reflexivity.
       destruct Ha as [(q & Hal) Har];
       rewrite app_nil_r in Hal.
-      eapply in_set_bop_union_elim in Hal.
-
-      eapply in_set_fold_left_mmsn_intro with 
-      (zeroP := zeroP); try assumption.
- 
-
-        
+      eapply in_set_bop_union_elim in Hal;
+      [|eapply symAP].
+      (* case analysis on Hal *)
+      destruct Hal  as [Hal | Hal].
+      ++
       
-  Admitted. 
+        unfold bSAP in Har |- *.
+        rewrite app_nil_r in Har.
+        eapply in_set_fold_left_mmsn_elim  
+        with (zeroP := zeroP) in Hal; try assumption;
+        cbn; try reflexivity.
+        destruct Hal as [(q' & Hall)  Halr].
+        rewrite app_nil_r in Hall, Halr.
+        (* 
+          q is the sum of the second component whose 
+          first component in ap. We can write 
+          bp = q + 
+        
+        *)
+
+        (* *)
+        eapply in_set_fold_left_mmsn_intro with 
+        (zeroP := zeroP); try assumption.
+        +++
+          exists q'.
+          eapply in_set_bop_union_intro;
+          [eapply symAP | eapply trnAP | ].
+          left; exact Hall.
+        +++
+          rewrite app_nil_r.
+          eapply trnP; 
+          [exact Har|].
+          (* 
+            It's true but I need a lemma. 
+            LHS: we apply MMSN on set X and then union it 
+            Y and filter all the ap and sum second component is 
+            same unioning X and Y and then filtering ap and sum second 
+            compont.
+          *)
+          eapply sum_fn_cong_bop_union_X.
+      ++
+        eapply in_set_fold_left_mmsn_intro 
+        with (zeroP := zeroP); try assumption.
+        +++
+          unfold bSAP; exists q.
+          eapply in_set_bop_union_intro;
+          [eapply symAP | eapply trnAP | ].
+          right; exact Hal.
+        +++
+          unfold bSAP in Har |- *;
+          rewrite app_nil_r in Har |- *;
+          eapply trnP; 
+          [exact Har|].
+          eapply sum_fn_cong_bop_union_X.
+    +
+      unfold uop_manger_phase_1, 
+      manger_phase_1_auxiliary in Ha |- *;
+      rewrite manger_merge_set_funex in Ha |- *.
+      eapply in_set_fold_left_mmsn_elim with 
+      (zeroP := zeroP) in Ha; try assumption;
+      cbn; try reflexivity.
+      destruct Ha as [(q & Hal) Har];
+      rewrite app_nil_r in Hal.
+      eapply in_set_bop_union_elim in Hal;
+      [|eapply symAP].
+      (* case analysis on Hal *)
+      destruct Hal  as [Hal | Hal].
+      ++
+        unfold bSAP in Har |- *.
+        rewrite app_nil_r in Har.
+        eapply in_set_fold_left_mmsn_intro 
+        with (zeroP := zeroP); try assumption;
+        cbn; try reflexivity.
+        +++
+          eexists.
+          eapply in_set_bop_union_intro;
+          [apply symAP | eapply trnAP|].
+          left.
+          eapply in_set_fold_left_mmsn_intro 
+          with (zeroP := zeroP); try assumption;
+          [exists q; exact Hal|].
+          rewrite app_nil_r.
+          instantiate (1 := matrix_algorithms.sum_fn zeroP addP snd 
+            (filter (λ '(x, _), eqA ap x) X));
+          now rewrite refP.
+        +++
+          unfold bSAP.
+          rewrite app_nil_r;
+          eapply trnP; 
+          [exact Har|].
+          eapply symP.
+          eapply sum_fn_cong_bop_union_arg_flipped_X.
+      ++
+        eapply in_set_fold_left_mmsn_intro 
+        with (zeroP := zeroP); try assumption.
+        +++
+          unfold bSAP; exists q.
+          eapply in_set_bop_union_intro;
+          [eapply symAP | eapply trnAP | ].
+          right; exact Hal.
+        +++
+          unfold bSAP in Har |- *;
+          rewrite app_nil_r in Har |- *;
+          eapply trnP; 
+          [exact Har|].
+          eapply symP.
+          eapply sum_fn_cong_bop_union_arg_flipped_X.
+  Qed.
+
+          
+
   
   Lemma P1_right : bop_right_uop_invariant _ eqSAP (bop_reduce [P1] bSAP) [P1].
   Proof.
@@ -406,7 +663,125 @@ Section Theory.
     eapply brel_set_intro_prop;
     [exact refAP| refine(pair _ _); intros (ap, bp) Ha].
     +
-  Admitted.
+      unfold bop_reduce, bSAP in Ha |- *.
+      unfold uop_manger_phase_1, 
+      manger_phase_1_auxiliary in Ha |- *;
+      rewrite manger_merge_set_funex in Ha |- *.
+      eapply in_set_fold_left_mmsn_elim with 
+      (zeroP := zeroP) in Ha; try assumption;
+      cbn; try reflexivity.
+      destruct Ha as [(q & Hal) Har];
+      rewrite app_nil_r in Hal.
+      eapply in_set_bop_union_elim in Hal;
+      [|eapply symAP].
+      (* case analysis on Hal *)
+      destruct Hal  as [Hal | Hal].
+      ++
+        unfold bSAP in Har |- *.
+        rewrite app_nil_r in Har.
+        eapply in_set_fold_left_mmsn_intro  
+        with (zeroP := zeroP); try assumption;
+        cbn; try reflexivity.
+        +++
+          exists q.
+          eapply in_set_bop_union_intro;
+          [eapply symAP | eapply trnAP | ].
+          left; exact Hal.
+        +++
+          rewrite app_nil_r.
+          eapply trnP; 
+          [exact Har|].
+          (* 
+            It's true but I need a lemma. 
+            LHS: we apply MMSN on set X and then union it 
+            Y and filter all the ap and sum second component is 
+            same unioning X and Y and then filtering ap and sum second 
+            compont.
+          *)
+          eapply sum_fn_cong_bop_union_Y.
+      ++
+        eapply in_set_fold_left_mmsn_intro 
+        with (zeroP := zeroP); try assumption.
+        +++
+          eapply in_set_fold_left_mmsn_elim 
+          with (zeroP := zeroP) in Hal;
+          try assumption;
+          cbn; try reflexivity.
+          destruct Hal as [(q' & Hall)  Halr].
+          rewrite app_nil_r in Hall, Halr.
+          exists q'.
+          eapply in_set_bop_union_intro;
+          [eapply symAP | eapply trnAP | ].
+          right; exact Hall.
+        +++
+          rewrite app_nil_r in Har |- *.
+          eapply trnP; 
+          [exact Har|].
+          (* 
+            It's true but I need a lemma. 
+            LHS: we apply MMSN on set X and then union it 
+            Y and filter all the ap and sum second component is 
+            same unioning X and Y and then filtering ap and sum second 
+            compont.
+          *)
+          eapply sum_fn_cong_bop_union_Y.
+    +
+      unfold uop_manger_phase_1, 
+      manger_phase_1_auxiliary in Ha |- *;
+      rewrite manger_merge_set_funex in Ha |- *.
+      eapply in_set_fold_left_mmsn_elim with 
+      (zeroP := zeroP) in Ha; try assumption;
+      cbn; try reflexivity.
+      destruct Ha as [(q & Hal) Har];
+      rewrite app_nil_r in Hal.
+      eapply in_set_bop_union_elim in Hal;
+      [|eapply symAP].
+      (* case analysis on Hal *)
+      destruct Hal  as [Hal | Hal].
+      ++
+        unfold bSAP in Har |- *.
+        rewrite app_nil_r in Har.
+        eapply in_set_fold_left_mmsn_intro 
+        with (zeroP := zeroP); try assumption;
+        cbn; try reflexivity.
+        +++
+          eexists.
+          eapply in_set_bop_union_intro;
+          [apply symAP | eapply trnAP|].
+          left; exact Hal.
+        +++
+          unfold bSAP.
+          rewrite app_nil_r;
+          eapply trnP; 
+          [exact Har|].
+          eapply symP.
+          eapply sum_fn_cong_bop_union_arg_flipped_Y.
+        ++
+          eapply in_set_fold_left_mmsn_intro 
+          with (zeroP := zeroP); try assumption.
+          +++
+            eexists.
+            unfold bSAP.
+            eapply in_set_bop_union_intro;
+            [eapply symAP | eapply trnAP | ].
+            right.
+            eapply in_set_fold_left_mmsn_intro 
+            with (zeroP := zeroP); try assumption;
+            [exists q; exact Hal|].
+            rewrite app_nil_r.
+            instantiate (1 :=
+            (matrix_algorithms.sum_fn 
+            zeroP addP snd (filter (λ '(x, _), eqA ap x) Y))).
+            now rewrite refP.
+          +++
+            unfold bSAP in Har |- *;
+            rewrite app_nil_r in Har |- *;
+            eapply trnP; 
+            [exact Har|].
+            eapply symP.
+            eapply sum_fn_cong_bop_union_arg_flipped_Y.
+  Qed.
+        
 
   (* show [P2] is a reduction. 
 
@@ -772,7 +1147,7 @@ Section Theory.
   Proof. unfold bSAP_not_selective.
          destruct ntot as [[a1 a2] [L R]]. simpl.
          split.
-         - admit.
+         - admit. 
          - admit. 
   Admitted.          
 
