@@ -242,7 +242,8 @@ Section Theory.
            + apply trnAP.
   Defined. 
 
-  Local Notation "x =S= y" := (eqSAP x y = true) (at level 70). 
+  Local Notation "x =S= y" := (eqSAP x y = true) (at level 70,
+  only parsing).
   Local Notation "[P1]" := (uop_manger_phase_1 eqA addP)
     (only parsing).  (* Phase 1 reduction *) 
   Local Notation "[P2]" := (@uop_manger_phase_2 A P lteA)
@@ -262,7 +263,8 @@ Section Theory.
   Admitted.
 
 
-
+  
+  
   Lemma sum_fn_cong_bop_union_X : 
     forall (X Y : finite_set (A * P)) ap, 
     eqP
@@ -272,39 +274,15 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA ap x) (bop_union eqAP X Y))) = true.
   Proof.
-    induction X as [|(ax, bx) X IHx].
-    +
-      intros *; cbn.
-      repeat rewrite <-list_filter_lib_filter_same.
-      erewrite  filter_arg_swap_gen with (a := ap); 
-      try assumption;
-      [eapply refP | eapply refA].
-    +
-      intros *; cbn.
-      case_eq (in_set eqAP (X ++ Y) (ax, bx));
-      intros Ha.
-      ++
-        (* from Ha: in_set eqAP (X ++ Y) (ax, bx) = true, 
-        we know that (ax, bx) is in (X ++ Y) so 
-        we can replace 
-        (uop_duplicate_elim eqAP
-          (fold_left (manger_merge_sets_new eqA addP) X
-            [(ax, bx)] ++ Y)) by 
-        (uop_duplicate_elim eqAP
-          (fold_left (manger_merge_sets_new eqA addP) X ++ Y))
-        and apply induction hypothesis *)
-        admit.
-      ++
-         (* from Ha: in_set eqAP (X ++ Y) (ax, bx) = false, 
-         we know that (ax, bx) is not (X ++ Y) so 
-         we can replace 
-         (uop_duplicate_elim eqAP
-              (fold_left (manger_merge_sets_new eqA addP) X
-                 [(ax, bx)] ++ Y)))) by 
-        (ax, bx) :: (uop_duplicate_elim eqAP
-              (fold_left (manger_merge_sets_new eqA addP) X ++ Y))))
-        then simplify, use IHx and we are home
-        *)
+    intros.
+    unfold matrix_algorithms.sum_fn.
+    remember ((fold_left (manger_merge_sets_new eqA addP) X [])) as
+    W.
+    (* releation between W and X? *)
+    (* *)
+    Search (bop_union).
+
+
   Admitted.
 
 

@@ -2253,6 +2253,8 @@ Proof. induction X; intros Y1 Y2 H1; simpl.
          apply IHX; auto.
 Qed.
 
+
+
 Lemma  fst_unique_in_set_implies_manger_merge_set_fixpoint : 
 ∀ Y a' p', fst_unique_in_set ((a', p') :: Y) -> ([MMS] Y (a',p')) =S= ((a', p') :: Y). 
 Proof. induction Y; intros a' p' H1; simpl. 
@@ -4771,6 +4773,7 @@ Proof.
   eapply manger_pre_order_reflexive.
   eapply manger_pre_order_transitive.
 Qed.
+
 
 
 End Theory.   
