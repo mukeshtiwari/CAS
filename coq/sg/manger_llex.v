@@ -263,6 +263,19 @@ Section Theory.
   Admitted.
 
 
+  Lemma replace_fold_left_by_right : 
+    forall (X Y : finite_set (A * P)), 
+    fold_left (manger_merge_sets_new eqA addP) X Y = 
+    fold_right (fun u v => (manger_merge_sets_new eqA addP) v u) Y X.
+  Proof.
+    induction X as [|(ax, bx) X IHx].
+    +
+      intros *; cbn;
+      reflexivity.
+    +
+      intros *; cbn.
+      rewrite <-IHx.
+  Admitted.
   
   
   Lemma sum_fn_cong_bop_union_X : 
@@ -270,14 +283,32 @@ Section Theory.
     eqP
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap)
-          (bop_union eqAP (fold_left (manger_merge_sets_new eqA addP) X []) Y)))
+          (bop_union eqAP 
+            (fold_left (manger_merge_sets_new eqA addP) X []) Y)))
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
   Proof.
     intros *.
     unfold matrix_algorithms.sum_fn.
-    remember ((fold_left (manger_merge_sets_new eqA addP) X [])) 
-    as W.
+    (* rewrite replace_fold_left_by_right. *)
+    revert ap; revert Y.
+    induction X as [|(ax, bx) X IHx].
+    +
+      intros *; cbn; now rewrite refP.
+    +
+
+      intros *; cbn.
+      case_eq (in_set eqAP (X ++ Y) (ax, bx));
+      intros Ha.
+      ++
+        eapply in_set_concat_elim in Ha.
+        destruct Ha as [Ha | Ha].
+        +++
+          (* (ax, bx) ∈ X *)
+          admit.
+        +++
+           (* (ax, bx) ∈ Y *)
+          admit.
     (* relation between W and X? *)
     (* W has all elements from X witout any 
     duplicate *)
