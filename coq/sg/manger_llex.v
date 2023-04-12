@@ -272,17 +272,15 @@ Section Theory.
       (filter (λ '(x, _), eqA x ap)
           (bop_union eqAP (fold_left (manger_merge_sets_new eqA addP) X []) Y)))
     (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA ap x) (bop_union eqAP X Y))) = true.
+      (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
   Proof.
-    intros.
+    intros *.
     unfold matrix_algorithms.sum_fn.
-    remember ((fold_left (manger_merge_sets_new eqA addP) X [])) as
-    W.
-    (* releation between W and X? *)
-    (* *)
-    Search (bop_union).
-
-
+    remember ((fold_left (manger_merge_sets_new eqA addP) X [])) 
+    as W.
+    (* relation between W and X? *)
+    (* W has all elements from X witout any 
+    duplicate *)
   Admitted.
 
 
@@ -294,119 +292,15 @@ Section Theory.
       (filter (λ '(x, _), eqA x ap)
           (bop_union eqAP X (fold_left (manger_merge_sets_new eqA addP) Y []))))
     (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA ap x) (bop_union eqAP X Y))) = true.
+      (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
+  Proof.
+    intros *.
+    unfold matrix_algorithms.sum_fn.
+    remember ((fold_left (manger_merge_sets_new eqA addP) Y [])) 
+    as W.
   Admitted.
 
   (* end of admit *)
-
-  (* it's same as above the the arguments are in reversed 
-    order. Why? *)
-  Lemma sum_fn_cong_bop_union_arg_flipped_X : 
-    forall (X Y : finite_set (A * P)) ap,
-    eqP
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA ap x)
-          (bop_union eqAP (fold_left (manger_merge_sets_new eqA addP) X []) Y)))
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
-  Proof.
-    intros *.
-    remember ((bop_union eqAP (fold_left (manger_merge_sets_new eqA addP) X []) Y))
-    as Ya.
-    remember ((bop_union eqAP X Y)) as Xa.
-    assert (Ha : (filter (λ '(x, _), eqA ap x) Ya) = 
-    (filter (λ '(x, _), eqA x ap) Ya)).
-    f_equal. 
-    eapply FunctionalExtensionality.functional_extensionality;
-    intros (ax, bx).
-    rename ap into a.
-    case_eq (eqA a ax);
-    case_eq (eqA ax a);
-    intros Hc Hd;
-    try reflexivity.
-    eapply symA in Hd;
-    rewrite Hc in Hd;
-    congruence.
-    eapply symA in Hc; 
-    rewrite Hc in Hd;
-    congruence.
-    rewrite Ha at 1; clear Ha.
-    assert (Ha : (filter (λ '(x, _), eqA x ap) Xa) = 
-    (filter (λ '(x, _), eqA ap x) Xa)).
-    f_equal. 
-    eapply FunctionalExtensionality.functional_extensionality;
-    intros (ax, bx).
-    rename ap into a.
-    case_eq (eqA a ax);
-    case_eq (eqA ax a);
-    intros Hc Hd;
-    try reflexivity.
-    eapply symA in Hd;
-    rewrite Hc in Hd;
-    congruence.
-    eapply symA in Hc; 
-    rewrite Hc in Hd;
-    congruence.
-    rewrite Ha at 1; clear Ha.
-    subst;
-    eapply sum_fn_cong_bop_union_X.
-  Qed.
-
-
-
-
-
-  Lemma sum_fn_cong_bop_union_arg_flipped_Y : 
-    forall (X Y : finite_set (A * P)) ap, 
-    eqP
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA ap x)
-          (bop_union eqAP X (fold_left (manger_merge_sets_new eqA addP) Y []))))
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
-  Proof.
-    intros *.
-    remember (((bop_union eqAP X (fold_left (manger_merge_sets_new eqA addP) Y [])))) as Ya.
-    remember ((bop_union eqAP X Y)) as Xa.
-    assert (Ha : (filter (λ '(x, _), eqA ap x) Ya) = 
-    (filter (λ '(x, _), eqA x ap) Ya)).
-    f_equal. 
-    eapply FunctionalExtensionality.functional_extensionality;
-    intros (ax, bx).
-    rename ap into a.
-    case_eq (eqA a ax);
-    case_eq (eqA ax a);
-    intros Hc Hd;
-    try reflexivity.
-    eapply symA in Hd;
-    rewrite Hc in Hd;
-    congruence.
-    eapply symA in Hc; 
-    rewrite Hc in Hd;
-    congruence.
-    rewrite Ha at 1; clear Ha.
-    assert (Ha : (filter (λ '(x, _), eqA x ap) Xa) = 
-    (filter (λ '(x, _), eqA ap x) Xa)).
-    f_equal. 
-    eapply FunctionalExtensionality.functional_extensionality;
-    intros (ax, bx).
-    rename ap into a.
-    case_eq (eqA a ax);
-    case_eq (eqA ax a);
-    intros Hc Hd;
-    try reflexivity.
-    eapply symA in Hd;
-    rewrite Hc in Hd;
-    congruence.
-    eapply symA in Hc; 
-    rewrite Hc in Hd;
-    congruence.
-    rewrite Ha at 1; clear Ha.
-    subst;
-    eapply sum_fn_cong_bop_union_Y.
-  Qed.
-
-
 
   Lemma bop_congruence_bProp_fst : 
     forall (a : A),
@@ -538,134 +432,80 @@ Section Theory.
     now rewrite refP.
   Qed.
   
-
   
+
 
   Lemma P1_left : bop_left_uop_invariant _ eqSAP (bop_reduce [P1] bSAP) [P1].
   Proof.
-    intros X Y; 
-    unfold bop_reduce;
+    intros X Y;
     eapply brel_set_intro_prop;
     [exact refAP| refine(pair _ _); intros (ap, bp) Ha].
     +
-      unfold uop_manger_phase_1, 
-      manger_phase_1_auxiliary in Ha |- *;
-      rewrite manger_merge_set_funex in Ha |- *.
-      eapply in_set_fold_left_mmsn_elim with 
-      (zeroP := zeroP) in Ha; try assumption;
-      cbn; try reflexivity.
-      destruct Ha as [(q & Hal) Har];
-      rewrite app_nil_r in Hal.
-      eapply in_set_bop_union_elim in Hal;
+      unfold bop_reduce in Ha |- *.
+      eapply in_set_uop_manger_phase_1_elim in Ha; 
+      auto.
+      destruct Ha as ((q & Hal) & Har).
+      unfold bSAP in Hal.
+      eapply in_set_bop_union_elim in Hal; 
       [|eapply symAP].
-      (* case analysis on Hal *)
-      destruct Hal  as [Hal | Hal].
+      eapply in_set_uop_manger_phase_1_intro;
+      auto.
       ++
-      
-        unfold bSAP in Har |- *.
-        rewrite app_nil_r in Har.
-        eapply in_set_fold_left_mmsn_elim  
-        with (zeroP := zeroP) in Hal; try assumption;
-        cbn; try reflexivity.
-        destruct Hal as [(q' & Hall)  Halr].
-        rewrite app_nil_r in Hall, Halr.
-        (* 
-          q is the sum of the second component whose 
-          first component in ap. We can write 
-          bp = q + 
-        
-        *)
-
-        (* *)
-        eapply in_set_fold_left_mmsn_intro with 
-        (zeroP := zeroP); try assumption.
+        destruct Hal as [Hall | Halr].
         +++
+          eapply in_set_uop_manger_phase_1_elim in Hall;
+          auto.
+          destruct Hall as ((q' & Halll) & Hallr).
           exists q'.
           eapply in_set_bop_union_intro;
           [eapply symAP | eapply trnAP | ].
-          left; exact Hall.
+          left; exact Halll.
         +++
-          rewrite app_nil_r.
-          eapply trnP; 
-          [exact Har|].
-          (* 
-            It's true but I need a lemma. 
-            LHS: we apply MMSN on set X and then union it 
-            Y and filter all the ap and sum second component is 
-            same unioning X and Y and then filtering ap and sum second 
-            compont.
-          *)
-          eapply sum_fn_cong_bop_union_X.
-      ++
-        eapply in_set_fold_left_mmsn_intro 
-        with (zeroP := zeroP); try assumption.
-        +++
-          unfold bSAP; exists q.
+          exists q.
           eapply in_set_bop_union_intro;
           [eapply symAP | eapply trnAP | ].
-          right; exact Hal.
-        +++
-          unfold bSAP in Har |- *;
-          rewrite app_nil_r in Har |- *;
-          eapply trnP; 
-          [exact Har|].
-          eapply sum_fn_cong_bop_union_X.
-    +
-      unfold uop_manger_phase_1, 
-      manger_phase_1_auxiliary in Ha |- *;
-      rewrite manger_merge_set_funex in Ha |- *.
-      eapply in_set_fold_left_mmsn_elim with 
-      (zeroP := zeroP) in Ha; try assumption;
-      cbn; try reflexivity.
-      destruct Ha as [(q & Hal) Har];
-      rewrite app_nil_r in Hal.
-      eapply in_set_bop_union_elim in Hal;
-      [|eapply symAP].
-      (* case analysis on Hal *)
-      destruct Hal  as [Hal | Hal].
+          right; exact Halr.
       ++
-        unfold bSAP in Har |- *.
-        rewrite app_nil_r in Har.
-        eapply in_set_fold_left_mmsn_intro 
-        with (zeroP := zeroP); try assumption;
-        cbn; try reflexivity.
+        unfold uop_manger_phase_1, 
+        manger_phase_1_auxiliary in Har |- *;
+        rewrite manger_merge_set_funex in Har.
+        eapply trnP;[exact Har |
+        rewrite list_filter_lib_filter_same;
+        eapply sum_fn_cong_bop_union_X].
+    +
+      unfold bop_reduce in Ha |- *.
+      eapply in_set_uop_manger_phase_1_elim in Ha; 
+      auto.
+      destruct Ha as ((q & Hal) & Har).
+      unfold bSAP in Hal.
+      eapply in_set_bop_union_elim in Hal; 
+      [|eapply symAP].
+      eapply in_set_uop_manger_phase_1_intro;
+      auto.
+      ++
+        destruct Hal as [Hall | Halr].
         +++
           eexists.
           eapply in_set_bop_union_intro;
           [apply symAP | eapply trnAP|].
-          left.
-          eapply in_set_fold_left_mmsn_intro 
-          with (zeroP := zeroP); try assumption;
-          [exists q; exact Hal|].
-          rewrite app_nil_r.
-          instantiate (1 := matrix_algorithms.sum_fn zeroP addP snd 
-            (filter (λ '(x, _), eqA ap x) X));
-          now rewrite refP.
+          left;
+          eapply in_set_uop_manger_phase_1_intro; auto;
+          exists q; exact Hall.
         +++
-          unfold bSAP.
-          rewrite app_nil_r;
-          eapply trnP; 
-          [exact Har|].
-          eapply symP.
-          eapply sum_fn_cong_bop_union_arg_flipped_X.
-      ++
-        eapply in_set_fold_left_mmsn_intro 
-        with (zeroP := zeroP); try assumption.
-        +++
-          unfold bSAP; exists q.
+          exists q.
           eapply in_set_bop_union_intro;
           [eapply symAP | eapply trnAP | ].
-          right; exact Hal.
-        +++
-          unfold bSAP in Har |- *;
-          rewrite app_nil_r in Har |- *;
-          eapply trnP; 
-          [exact Har|].
-          eapply symP.
-          eapply sum_fn_cong_bop_union_arg_flipped_X.
+          right; exact Halr.
+      ++
+        unfold uop_manger_phase_1, 
+        manger_phase_1_auxiliary in *;
+        rewrite manger_merge_set_funex in *.
+        eapply trnP;[exact Har |
+        rewrite list_filter_lib_filter_same;
+        eapply symP, sum_fn_cong_bop_union_X].
   Qed.
 
-          
+      
 
   
   Lemma P1_right : bop_right_uop_invariant _ eqSAP (bop_reduce [P1] bSAP) [P1].
@@ -674,125 +514,69 @@ Section Theory.
     eapply brel_set_intro_prop;
     [exact refAP| refine(pair _ _); intros (ap, bp) Ha].
     +
-      unfold bop_reduce, bSAP in Ha |- *.
-      unfold uop_manger_phase_1, 
-      manger_phase_1_auxiliary in Ha |- *;
-      rewrite manger_merge_set_funex in Ha |- *.
-      eapply in_set_fold_left_mmsn_elim with 
-      (zeroP := zeroP) in Ha; try assumption;
-      cbn; try reflexivity.
-      destruct Ha as [(q & Hal) Har];
-      rewrite app_nil_r in Hal.
-      eapply in_set_bop_union_elim in Hal;
+      unfold bop_reduce in Ha |- *.
+      eapply in_set_uop_manger_phase_1_elim in Ha; 
+      auto.
+      destruct Ha as ((q & Hal) & Har).
+      unfold bSAP in Hal.
+      eapply in_set_bop_union_elim in Hal; 
       [|eapply symAP].
-      (* case analysis on Hal *)
-      destruct Hal  as [Hal | Hal].
+      eapply in_set_uop_manger_phase_1_intro;
+      auto.
       ++
-        unfold bSAP in Har |- *.
-        rewrite app_nil_r in Har.
-        eapply in_set_fold_left_mmsn_intro  
-        with (zeroP := zeroP); try assumption;
-        cbn; try reflexivity.
+        destruct Hal as [Hall | Halr].
         +++
           exists q.
           eapply in_set_bop_union_intro;
-          [eapply symAP | eapply trnAP | ].
-          left; exact Hal.
+          [apply symAP | eapply trnAP|].
+          left; exact Hall.
         +++
-          rewrite app_nil_r.
-          eapply trnP; 
-          [exact Har|].
-          (* 
-            It's true but I need a lemma. 
-            LHS: we apply MMSN on set X and then union it 
-            Y and filter all the ap and sum second component is 
-            same unioning X and Y and then filtering ap and sum second 
-            compont.
-          *)
-          eapply sum_fn_cong_bop_union_Y.
-      ++
-        eapply in_set_fold_left_mmsn_intro 
-        with (zeroP := zeroP); try assumption.
-        +++
-          eapply in_set_fold_left_mmsn_elim 
-          with (zeroP := zeroP) in Hal;
-          try assumption;
-          cbn; try reflexivity.
-          destruct Hal as [(q' & Hall)  Halr].
-          rewrite app_nil_r in Hall, Halr.
-          exists q'.
+          eapply in_set_uop_manger_phase_1_elim 
+          in Halr; auto;
+          destruct Halr as ((q' & Halrl) & Halrr).
+          eexists.
           eapply in_set_bop_union_intro;
           [eapply symAP | eapply trnAP | ].
-          right; exact Hall.
-        +++
-          rewrite app_nil_r in Har |- *.
-          eapply trnP; 
-          [exact Har|].
-          (* 
-            It's true but I need a lemma. 
-            LHS: we apply MMSN on set X and then union it 
-            Y and filter all the ap and sum second component is 
-            same unioning X and Y and then filtering ap and sum second 
-            compont.
-          *)
-          eapply sum_fn_cong_bop_union_Y.
-    +
-      unfold uop_manger_phase_1, 
-      manger_phase_1_auxiliary in Ha |- *;
-      rewrite manger_merge_set_funex in Ha |- *.
-      eapply in_set_fold_left_mmsn_elim with 
-      (zeroP := zeroP) in Ha; try assumption;
-      cbn; try reflexivity.
-      destruct Ha as [(q & Hal) Har];
-      rewrite app_nil_r in Hal.
-      eapply in_set_bop_union_elim in Hal;
-      [|eapply symAP].
-      (* case analysis on Hal *)
-      destruct Hal  as [Hal | Hal].
+          right; exact Halrl.
       ++
-        unfold bSAP in Har |- *.
-        rewrite app_nil_r in Har.
-        eapply in_set_fold_left_mmsn_intro 
-        with (zeroP := zeroP); try assumption;
-        cbn; try reflexivity.
+        unfold uop_manger_phase_1, 
+        manger_phase_1_auxiliary in Har;
+        rewrite manger_merge_set_funex in Har.
+        eapply trnP;[exact Har |
+        rewrite list_filter_lib_filter_same;
+        eapply sum_fn_cong_bop_union_Y].
+    + 
+      unfold bop_reduce in Ha |- *.
+      eapply in_set_uop_manger_phase_1_elim in Ha; 
+      auto.
+      destruct Ha as ((q & Hal) & Har).
+      unfold bSAP in Hal.
+      eapply in_set_bop_union_elim in Hal; 
+      [|eapply symAP].
+      eapply in_set_uop_manger_phase_1_intro;
+      auto.
+      ++
+        destruct Hal as [Hall | Halr].
         +++
           eexists.
           eapply in_set_bop_union_intro;
           [apply symAP | eapply trnAP|].
-          left; exact Hal.
+          left; exact Hall.
         +++
-          unfold bSAP.
-          rewrite app_nil_r;
-          eapply trnP; 
-          [exact Har|].
-          eapply symP.
-          eapply sum_fn_cong_bop_union_arg_flipped_Y.
-        ++
-          eapply in_set_fold_left_mmsn_intro 
-          with (zeroP := zeroP); try assumption.
-          +++
-            eexists.
-            unfold bSAP.
-            eapply in_set_bop_union_intro;
-            [eapply symAP | eapply trnAP | ].
-            right.
-            eapply in_set_fold_left_mmsn_intro 
-            with (zeroP := zeroP); try assumption;
-            [exists q; exact Hal|].
-            rewrite app_nil_r.
-            instantiate (1 :=
-            (matrix_algorithms.sum_fn 
-            zeroP addP snd (filter (λ '(x, _), eqA ap x) Y))).
-            now rewrite refP.
-          +++
-            unfold bSAP in Har |- *;
-            rewrite app_nil_r in Har |- *;
-            eapply trnP; 
-            [exact Har|].
-            eapply symP.
-            eapply sum_fn_cong_bop_union_arg_flipped_Y.
+          eexists.
+          eapply in_set_bop_union_intro;
+          [apply symAP | eapply trnAP|].
+          right; eapply in_set_uop_manger_phase_1_intro;
+          auto; exists q; exact Halr.
+      ++
+        unfold uop_manger_phase_1, 
+        manger_phase_1_auxiliary in *;
+        rewrite manger_merge_set_funex in *.
+        eapply trnP;[exact Har |
+        rewrite list_filter_lib_filter_same;
+        eapply symP, sum_fn_cong_bop_union_Y].
   Qed.
-        
+
 
   (* show [P2] is a reduction. 
 
@@ -1149,19 +933,7 @@ Section Theory.
          rewrite refA. rewrite refP. rewrite refA. rewrite refP. reflexivity.
   Qed. 
 
-  (* Mukesh : this should be true now, but I've run out of steam ... *) 
-  Lemma nsel_witness_is_a_reduction_witness : 
-      let (s, t) := projT1 bSAP_not_selective in
-      (eqSAP (bop_manger s t) s = false)
-      *
-      (eqSAP (bop_manger s t) t = false).
-  Proof. unfold bSAP_not_selective.
-         destruct ntot as [[a1 a2] [L R]]. simpl.
-         split.
-         - admit. 
-         - admit. 
-  Admitted.          
-
+  
 
   Lemma uop_manger_is_reduction : bop_uop_invariant eqSAP bSAP uop_manger.
   Proof. apply uop_compose_is_reduction.
@@ -1250,14 +1022,11 @@ Section Theory.
 
   Lemma bop_manger_not_selective :
     bop_not_selective _ eq_manger bop_manger.
-  Proof. exact (uop_compose_bop_not_selective _
-                  bSAP [P1] [P2] eqSAP symSAP trnSAP bSAP_cong
-                  P1_cong P1_idem P2_cong P2_idem P1_P2_commute
-                  bSAP_not_selective
-                  fst_nsel_witness_is_fixed_point
-                  snd_nsel_witness_is_fixed_point
-                  nsel_witness_is_a_reduction_witness).
-  Qed. 
+  Proof.
+    destruct ntot as ((a₁, a₂) & Ha).
+    exists ([(a₁, wP)], [(a₂, wP)]);
+    cbn.
+  Admitted. 
 
 End Theory.   
 
