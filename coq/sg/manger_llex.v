@@ -263,28 +263,66 @@ Section Theory.
   Admitted.
 
 
-  Lemma replace_fold_left_by_right : 
-    forall (X Y : finite_set (A * P)), 
-    fold_left (manger_merge_sets_new eqA addP) X Y = 
-    fold_right (fun u v => (manger_merge_sets_new eqA addP) v u) Y X.
+
+
+  Lemma in_set_true_case_analysis : 
+    forall (X Y : finite_set (A * P)) ax bx, 
+    in_set eqAP (X ++ Y) (ax, bx) = true ->
+    (in_set eqAP X (ax, bx) = true ∧ 
+    in_set eqAP Y (ax, bx) = false) ∨
+    (in_set eqAP X (ax, bx) = false ∧ 
+    in_set eqAP Y (ax, bx) = true) ∨
+    (in_set eqAP X (ax, bx) = true ∧
+    in_set eqAP Y (ax, bx) = true).
   Proof.
-    induction X as [|(ax, bx) X IHx].
-    +
-      intros *; cbn;
-      reflexivity.
-    +
-      intros *; cbn.
-      rewrite <-IHx.
+    intros * Ha.
   Admitted.
-  
+
+  Lemma in_set_false_case_analysis : 
+    forall (X Y : finite_set (A * P)) ax bx, 
+    in_set eqAP (X ++ Y) (ax, bx) = false ->
+    in_set eqAP X (ax, bx) = false ∧ 
+    in_set eqAP Y (ax, bx) = false.
+  Admitted.
+
+
+
+
+    
+
+
+
+  Lemma bop_union_cons_rewrite :
+    forall (X Y : finite_set (A * P)) ax bx,
+    in_set eqAP X (ax, bx) = true -> 
+    (bop_union eqAP ((ax, bx) :: X) Y) =S=
+    (bop_union eqAP X Y).
+  Proof.
+  Admitted.
+
+
+  (* generalise that empty list. This need 
+    idempotence. It can't be proven without 
+    idempotence. *)
+  Lemma fold_left_dup_rewrite : 
+    forall (X Y : finite_set (A * P)) ax bx,
+    in_set eqAP X (ax, bx) = true -> 
+    (fold_left (manger_merge_sets_new eqA addP) X
+      (manger_merge_sets_new eqA addP [] (ax, bx))) =S= 
+    (fold_left (manger_merge_sets_new eqA addP) X []).
+  Proof.
+  Admitted.
+    
+
+
   
   Lemma sum_fn_cong_bop_union_X : 
     forall (X Y : finite_set (A * P)) ap, 
     eqP
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap)
-          (bop_union eqAP 
-            (fold_left (manger_merge_sets_new eqA addP) X []) Y)))
+        (bop_union eqAP 
+          (fold_left (manger_merge_sets_new eqA addP) X []) Y)))
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
   Proof.
@@ -297,21 +335,93 @@ Section Theory.
       intros *; cbn; now rewrite refP.
     +
 
-      intros *; cbn.
+      intros *; simpl.
       case_eq (in_set eqAP (X ++ Y) (ax, bx));
       intros Ha.
       ++
-        eapply in_set_concat_elim in Ha.
-        destruct Ha as [Ha | Ha].
+        eapply in_set_true_case_analysis in Ha.
+        destruct Ha as [[Ha Hb] | [[Ha Hb] | [Ha Hb]]].
         +++
-          (* (ax, bx) ∈ X *)
+          (* I know that (ax, bx) in X and therefore 
+          I can do the following transformation, relying 
+          on idempotence: 
+          1. 
+            fold_left (manger_merge_sets_new eqA addP) X
+                 (manger_merge_sets_new eqA addP [] (ax, bx)) 
+          by 
+            fold_left (manger_merge_sets_new eqA addP) X [] 
+          2. 
+            (bop_union eqAP ((ax, bx) :: X) Y) by 
+            (bop_union eqAP X Y)
+
+          Apply induction hypothesis and we 
+          are home!
+          *)
+
+
           admit.
         +++
-           (* (ax, bx) ∈ Y *)
+           (* 
+              I know that (ax, bx) is not in X but in Y 
+              so I can do the following transformation:
+            1. 
+              (fold_left (manger_merge_sets_new eqA addP) X
+                 (manger_merge_sets_new eqA addP [] (ax, bx))) =S= 
+              (ax, bx) :: (fold_left (manger_merge_sets_new eqA addP) X [])
+            2.  
+              bop_union eqAP ((ax, bx) :: X) Y =S=
+              bop_union eqAP X Y.     
+              
+              apply induction hypothesis and we 
+              are home!
+           *)
+           admit.
+        +++
+          (* Same as first case, only use the fact 
+          that (ax, bx) ∈ X and therefore 
+          I can do the following transformation, relying 
+          on idempotence: 
+          1. 
+            fold_left (manger_merge_sets_new eqA addP) X
+                 (manger_merge_sets_new eqA addP [] (ax, bx)) 
+          by 
+            fold_left (manger_merge_sets_new eqA addP) X [] 
+          2. 
+            (bop_union eqAP ((ax, bx) :: X) Y) by 
+            (bop_union eqAP X Y)
+
+          Apply induction hypothesis and we 
+          are home!
+          *)
           admit.
-    (* relation between W and X? *)
-    (* W has all elements from X witout any 
-    duplicate *)
+      ++
+       
+        eapply in_set_false_case_analysis in Ha.
+        destruct Ha as (Hal & Har).
+        (* 
+          use the fact that (ax, bx) ∉ X 
+          I know that (ax, bx) is not in X 
+              so I can do the following transformation:
+          1. 
+            (fold_left (manger_merge_sets_new eqA addP) X
+                (manger_merge_sets_new eqA addP [] (ax, bx))) =S= 
+            (ax, bx) :: (fold_left (manger_merge_sets_new eqA addP) X [])
+          2.  
+            bop_union eqAP ((ax, bx) :: X) Y =S=
+            (ax, bx) :: bop_union eqAP X Y.     
+          
+          case analysis: 
+            ap = a ∨ ap <> a.
+          1. ap = a then it will go all the up 
+            we will have expression 
+            eqP (a :: _ )(a :: _ )
+            apply induction hypothesis and we are home! 
+          2. ap <> a then we will have expression:
+            eqP (_) (_) 
+            apply induction hypothesis and 
+            we are home!
+        *)
+        admit.
   Admitted.
 
 
@@ -321,7 +431,8 @@ Section Theory.
     eqP
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap)
-          (bop_union eqAP X (fold_left (manger_merge_sets_new eqA addP) Y []))))
+        (bop_union eqAP X 
+          (fold_left (manger_merge_sets_new eqA addP) Y []))))
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
   Proof.
