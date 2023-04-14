@@ -262,20 +262,7 @@ Section Theory.
   Proof.
   Admitted.
 
-  
-  (* easy *)
-  Lemma sum_fn_filter_bop_union_cong : 
-    forall (X Y U : finite_set (A * P)) ap, 
-    X =S= Y ->
-    eqP
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) (bop_union eqAP X U)))
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) (bop_union eqAP Y U))) = true.
-  Admitted.
-
-
-  (* This is easy. May be in library *)
+   (* This is easy. May be in library *)
   Lemma sum_fn_filter_cong :
     forall (X Y: finite_set (A * P)) ap, 
     X =S= Y ->
@@ -288,31 +275,280 @@ Section Theory.
   Admitted.
 
 
-  (* Easy *)
+   (* This is easy! Lemma should be in library *)
+  Lemma bop_union_comm : 
+    forall (X Y : finite_set (A * P)), 
+    bop_union eqAP X Y =S= bop_union eqAP Y X.
+  Proof.
+    intros *.
+    eapply brel_set_intro_prop;
+    [eapply refAP|split; intros (ap, bp) Ha].
+    +
+      eapply in_set_uop_duplicate_elim_elim in Ha.
+      eapply in_set_uop_duplicate_elim_intro;
+      [eapply symAP|eapply trnAP|].
+      eapply in_set_concat_intro.
+      eapply in_set_concat_elim in Ha;
+      [|eapply symAP].
+      destruct Ha as [Ha | Ha];
+      [right | left]; exact Ha.
+    +
+      eapply in_set_uop_duplicate_elim_elim in Ha.
+      eapply in_set_uop_duplicate_elim_intro;
+      [eapply symAP|eapply trnAP|].
+      eapply in_set_concat_intro.
+      eapply in_set_concat_elim in Ha;
+      [|eapply symAP].
+      destruct Ha as [Ha | Ha];
+      [right | left]; exact Ha.
+  Qed.
+
+
+  (* easy *)
+  Lemma bop_union_cong : 
+    forall (X Y U : finite_set (A * P)), 
+    X =S= Y ->
+    (bop_union eqAP X U) =S= (bop_union eqAP Y U).
+  Proof.
+    intros * Ha.
+    eapply brel_set_elim_prop in Ha;
+    [|eapply symAP|eapply trnAP];
+    destruct Ha as [Hal Har].
+    eapply brel_set_intro_prop;
+    [eapply refAP|split; intros (ap, bp) Hb].
+    +
+      eapply in_set_uop_duplicate_elim_elim in Hb.
+      eapply in_set_uop_duplicate_elim_intro;
+      [eapply symAP|eapply trnAP|].
+      eapply in_set_concat_intro.
+      eapply in_set_concat_elim in Hb;
+      [|eapply symAP].
+      destruct Hb as [Hb | Hb];
+      [left | right].
+      eapply Hal; exact Hb.
+      exact Hb.
+    +
+      eapply in_set_uop_duplicate_elim_elim in Hb.
+      eapply in_set_uop_duplicate_elim_intro;
+      [eapply symAP|eapply trnAP|].
+      eapply in_set_concat_intro.
+      eapply in_set_concat_elim in Hb;
+      [|eapply symAP].
+      destruct Hb as [Hb | Hb];
+      [left | right].
+      eapply Har; exact Hb.
+      exact Hb.
+  Qed.
+
+  (* should be in library *)
+  Lemma in_set_congruence :
+    forall (X : finite_set (A * P)) ap ax bp bx, 
+    eqA ap ax = true -> eqP bp bx = true ->
+    in_set eqAP X (ax, bx) = true ->
+    in_set eqAP X (ap, bp) = true.
+  Proof.
+    induction X as [|(au, bu) X IHx].
+    +
+      intros * Ha Hb Hc.
+      cbn in Hc; congruence.
+    +
+      intros * Ha Hb Hc.
+      cbn in Hc |- *.
+      eapply Bool.orb_true_iff in Hc.
+      destruct Hc as [Hc | Hc].
+      ++
+        eapply Bool.andb_true_iff in Hc.
+        destruct Hc as [Hcl Hcr].
+        rewrite (trnA _ _ _ Ha Hcl), 
+        (trnP _ _ _ Hb Hcr); cbn;
+        reflexivity.
+      ++
+        eapply Bool.orb_true_iff;
+        right; eapply IHx;
+        [exact Ha | exact Hb | exact Hc].
+  Qed.
+
+
+
+
+  (* This is also easy*)
+  Lemma bop_union_in_set_true_rewrite :
+    forall (X Y : finite_set (A * P)) ax bx,
+    in_set eqAP X (ax, bx) = true -> 
+    (bop_union eqAP ((ax, bx) :: X) Y) =S=
+    (bop_union eqAP X Y).
+  Proof.
+    intros * Ha.
+    eapply brel_set_intro_prop;
+    [eapply refAP|split; intros (ap, bp) Hb].
+    +
+      eapply in_set_uop_duplicate_elim_elim in Hb.
+      eapply in_set_uop_duplicate_elim_intro;
+      [eapply symAP|eapply trnAP|].
+      eapply in_set_concat_intro.
+      eapply in_set_concat_elim in Hb;
+      [|eapply symAP].
+      destruct Hb as [Hb | Hb];
+      [left | right].
+      cbn in Hb; eapply Bool.orb_true_iff in Hb.
+      destruct Hb as [Hb | Hb].
+      eapply Bool.andb_true_iff in Hb.
+      destruct Hb as [Hbl Hbr].
+      (* requires some congruence *)
+      eapply in_set_congruence;
+      [exact Hbl | exact Hbr| exact Ha].
+      exact Hb.
+      exact Hb.
+    + 
+      eapply in_set_uop_duplicate_elim_elim in Hb.
+      eapply in_set_uop_duplicate_elim_intro;
+      [eapply symAP|eapply trnAP|].
+      eapply in_set_concat_intro.
+      eapply in_set_concat_elim in Hb;
+      [|eapply symAP].
+      destruct Hb as [Hb | Hb];
+      [left | right].
+      cbn.
+      eapply Bool.orb_true_iff; right;
+      exact Hb.
+      exact Hb.
+  Qed.
+  
+
+  (* This is also easy. *)
+  Lemma bop_union_in_set_false_rewrite :
+    forall (X Y : finite_set (A * P)) ax bx,
+    in_set eqAP X (ax, bx) = false -> 
+    (bop_union eqAP ((ax, bx) :: X) Y) =S=
+    (ax, bx) :: (bop_union eqAP X Y).
+  Proof.
+    intros * Ha.
+    eapply brel_set_intro_prop;
+    [eapply refAP|split; intros (ap, bp) Hb].
+    +
+      cbn in Hb |- *.
+      eapply Bool.orb_true_iff.
+      case_eq (in_set eqAP (X ++ Y) (ax, bx));
+      intro Hc; rewrite Hc in Hb.
+      ++
+        right.
+        eapply in_set_uop_duplicate_elim_elim in Hb.
+        eapply in_set_uop_duplicate_elim_intro;
+        [eapply symAP|eapply trnAP|].
+        eapply in_set_concat_intro.
+        eapply in_set_concat_elim in Hb;
+        [|eapply symAP].
+        destruct Hb as [Hb | Hb];
+        [left | right]; exact Hb.
+      ++
+        cbn in Hb; eapply Bool.orb_true_iff in Hb.
+        destruct Hb as [Hb | Hb].
+        left; exact Hb.
+        right.
+        eapply in_set_uop_duplicate_elim_elim in Hb.
+        eapply in_set_uop_duplicate_elim_intro;
+        [eapply symAP|eapply trnAP|].
+        eapply in_set_concat_intro.
+        eapply in_set_concat_elim in Hb;
+        [|eapply symAP].
+        destruct Hb as [Hb | Hb];
+        [left | right]; exact Hb.
+    +
+      cbn in Hb |- *.
+      eapply Bool.orb_true_iff in Hb.
+      case_eq (in_set eqAP (X ++ Y) (ax, bx));
+      intros Hc.
+      ++
+        destruct Hb as [Hb | Hb].
+        +++
+          eapply in_set_uop_duplicate_elim_intro;
+          [eapply symAP|eapply trnAP|].
+          eapply Bool.andb_true_iff in Hb.
+          destruct Hb as [Hbl Hbr].
+          (* congruence *)
+          eapply in_set_congruence;
+          [exact Hbl | exact Hbr | exact Hc].
+        +++
+          unfold bop_union in Hb.
+          exact Hb.
+      ++
+        destruct Hb as [Hb | Hb].
+        +++
+          cbn; rewrite Hb; cbn;
+          reflexivity.
+        +++
+          cbn; eapply Bool.orb_true_iff;
+          right.
+          eapply in_set_uop_duplicate_elim_elim in Hb.
+          eapply in_set_uop_duplicate_elim_intro;
+          [eapply symAP|eapply trnAP|];
+          exact Hb.
+  Qed.
+  
+
+  (* easy *)
+  Lemma sum_fn_filter_bop_union_cong : 
+    forall (X Y U : finite_set (A * P)) ap, 
+    X =S= Y ->
+    eqP
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA x ap) (bop_union eqAP X U)))
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA x ap) (bop_union eqAP Y U))) = true.
+  Proof.
+    intros * Ha.
+    eapply sum_fn_filter_cong, bop_union_cong;
+    try assumption.
+  Qed.
+ 
+
   Lemma in_set_true_case_analysis : 
     forall (X Y : finite_set (A * P)) ax bx, 
     in_set eqAP (X ++ Y) (ax, bx) = true ->
-    (in_set eqAP X (ax, bx) = true ∧ 
-    in_set eqAP Y (ax, bx) = false) ∨
+    (in_set eqAP X (ax, bx) = true) ∨
     (in_set eqAP X (ax, bx) = false ∧ 
-    in_set eqAP Y (ax, bx) = true) ∨
-    (in_set eqAP X (ax, bx) = true ∧
     in_set eqAP Y (ax, bx) = true).
   Proof.
-    intros * Ha.
-  Admitted.
+    induction X as [|(ap, bp) X IHx].
+    +
+      intros * Ha.
+      cbn in Ha |- *.
+      right; refine (conj eq_refl Ha).
+    + 
+      intros * Ha.
+      cbn in Ha |- *.
+      case_eq (and.bop_and (eqA ax ap) (eqP bx bp));
+      case_eq ((in_set eqAP (X ++ Y) (ax, bx)));
+      intros Hb Hc; 
+      rewrite Hb, Hc in Ha;
+      cbn in Ha; try congruence.
+      ++
+        left; cbn;
+        reflexivity.
+      ++
+        left; cbn;
+        reflexivity.
+      ++
+        cbn; eapply IHx.
+        exact Hb.
+  Qed.
 
+  
   (* This is easy*)
   Lemma in_set_false_case_analysis : 
     forall (X Y : finite_set (A * P)) ax bx, 
     in_set eqAP (X ++ Y) (ax, bx) = false ->
     in_set eqAP X (ax, bx) = false ∧ 
     in_set eqAP Y (ax, bx) = false.
+  Proof.
+    intros * Ha.
+    (* Search (in_set _ _ _ = false) *)
+
   Admitted.
 
 
 
-  (* generalise that empty list. This need 
+  (* Difficult! generalise that empty list. This need 
     idempotence. It can't be proven without 
     idempotence. *)
   Lemma fold_left_in_set_true_rewrite : 
@@ -342,42 +578,29 @@ Section Theory.
   Admitted.
 
 
-  (* This is also easy*)
-  Lemma bop_union_in_set_true_rewrite :
-    forall (X Y : finite_set (A * P)) ax bx,
-    in_set eqAP X (ax, bx) = true -> 
-    (bop_union eqAP ((ax, bx) :: X) Y) =S=
-    (bop_union eqAP X Y).
-  Proof.
-  Admitted.
-
-  (* This is also easy. *)
-  Lemma bop_union_in_set_false_rewrite :
-    forall (X Y : finite_set (A * P)) ax bx,
-    in_set eqAP X (ax, bx) = false -> 
-    (bop_union eqAP ((ax, bx) :: X) Y) =S=
-    (ax, bx) :: (bop_union eqAP X Y).
-  Proof.
-  Admitted.
-
-  (* This is easy. *)
+  (* Not easy because I need to generalise the [] to 
+    Y  *)
   Lemma in_set_fold_left_false_rewrite : 
     forall (X : finite_set (A * P)) ax bx, 
     in_set eqAP X (ax, bx) = false ->
     in_set eqAP (fold_left 
       (manger_merge_sets_new eqA addP) X []) (ax, bx) = false.
   Proof.
-    (* 
-    Search (in_set _ (fold_left _ _ _ ) _ = false).
-    *)
+    (* Search (in_set _ (fold_left _ _ _ ) _ = false). *)
+    induction X as [|(ap, bp) X IHx].
+    +
+      intros * Ha.
+      cbn; reflexivity.
+    +
+      intros * Ha.
+      cbn in Ha |- *.
+      (* Now here comes the challenge: induction 
+      hypothesis contains [] which 
+      *)
+
   Admitted.
 
-  (* This is easy! Lemma should be in library *)
-  Lemma bop_union_comm : 
-    forall (X Y : finite_set (A * P)), 
-    bop_union eqAP X Y =S= bop_union eqAP Y X.
-  Proof.
-  Admitted.
+ 
 
   (* end of admit *)
 
@@ -403,7 +626,7 @@ Section Theory.
       intros Ha.
       ++
         eapply in_set_true_case_analysis in Ha.
-        destruct Ha as [[Ha Hb] | [[Ha Hb] | [Ha Hb]]].
+        destruct Ha as [Ha| [Ha Hb]].
         +++
           (* I know that (ax, bx) in X and therefore 
           I can do the following transformation, relying 
@@ -486,42 +709,6 @@ Section Theory.
           eapply cong_addP;
           [eapply refP| eapply IHx].
           eapply IHx.
-        +++
-          (* Same as first case, only use the fact 
-          that (ax, bx) ∈ X and therefore 
-          I can do the following transformation, relying 
-          on idempotence: 
-          1. 
-            fold_left (manger_merge_sets_new eqA addP) X
-                 (manger_merge_sets_new eqA addP [] (ax, bx)) 
-          by 
-            fold_left (manger_merge_sets_new eqA addP) X [] 
-          2. 
-            (bop_union eqAP ((ax, bx) :: X) Y) by 
-            (bop_union eqAP X Y)
-
-          Apply induction hypothesis and we 
-          are home!
-          *)
-          remember ((fold_left (manger_merge_sets_new eqA addP) X
-          (manger_merge_sets_new eqA addP [] (ax, bx)))) as U.
-          remember (fold_left (manger_merge_sets_new eqA addP) X []) 
-          as V.
-          eapply trnP with 
-            (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) (bop_union eqAP V Y))).
-          eapply sum_fn_filter_bop_union_cong;
-          subst;
-          eapply fold_left_in_set_true_rewrite;
-          try assumption.
-          remember (((ax, bx) :: X) ) as Xa.
-          eapply symP, trnP with 
-            (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))).
-          eapply  sum_fn_filter_cong.
-          subst; eapply bop_union_in_set_true_rewrite;
-          try assumption.
-          eapply symP; subst; eapply IHx.
       ++
        
         eapply in_set_false_case_analysis in Ha.
@@ -606,7 +793,7 @@ Section Theory.
       intros Ha.
       ++
         eapply in_set_true_case_analysis in Ha.
-        destruct Ha as [[Ha Hb] | [[Ha Hb] | [Ha Hb]]].
+        destruct Ha as [Ha | [Ha Hb]].
         +++
           (* Here is the problem! The quantifier in IHy *)
           (* Maybe, have another lemma that bop_union X Y =S= 
@@ -727,52 +914,6 @@ Section Theory.
            (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))). 
          eapply IHy.
          eapply sum_fn_filter_cong, bop_union_comm.
-      +++
-        eapply trnP with 
-        (matrix_algorithms.sum_fn zeroP addP snd
-        (filter (λ '(x, _), eqA x ap)
-        (bop_union eqAP 
-        (fold_left (manger_merge_sets_new eqA addP) Y
-            (manger_merge_sets_new eqA addP [] (ax, bx))) X))).
-        eapply sum_fn_filter_cong, bop_union_comm.
-        eapply symP.
-        eapply trnP with 
-        (matrix_algorithms.sum_fn zeroP addP snd
-        (filter (λ '(x, _), eqA x ap) (bop_union eqAP ((ax, bx) :: Y)  X))).
-        eapply sum_fn_filter_cong, bop_union_comm.
-        eapply symP.
-        (* swap finished. Now I can apply the lemma *) 
-        remember ((fold_left (manger_merge_sets_new eqA addP) Y
-          (manger_merge_sets_new eqA addP [] (ax, bx)))) as U.
-        remember (fold_left (manger_merge_sets_new eqA addP) Y []) 
-        as V.
-        eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap) (bop_union eqAP V X))).
-        eapply sum_fn_filter_bop_union_cong;
-        subst;
-        eapply fold_left_in_set_true_rewrite;
-        try assumption.
-        remember (((ax, bx) :: Y) ) as Ya.
-        eapply symP, trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap) (bop_union eqAP Y X))).
-        eapply  sum_fn_filter_cong.
-        subst; eapply bop_union_in_set_true_rewrite;
-        try assumption.
-        eapply symP; subst. 
-        (* Now do swap again *)
-        eapply trnP with 
-        (matrix_algorithms.sum_fn zeroP addP snd
-        (filter (λ '(x, _), eqA x ap)
-        (bop_union eqAP X
-        (fold_left (manger_merge_sets_new eqA addP) Y [])))).
-        eapply sum_fn_filter_cong, bop_union_comm.
-        eapply trnP with 
-        (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))). 
-        eapply IHy.
-        eapply sum_fn_filter_cong, bop_union_comm.
     ++
       eapply in_set_false_case_analysis in Ha.
       destruct Ha as (Hal & Har).
