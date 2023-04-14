@@ -679,24 +679,25 @@ Section Theory.
           try assumption.
           eapply symP; subst; eapply IHx.
       ++
-        (* This is the challenge! *)
-        pose proof in_set_false_case_analysis_gen _ _ _ Ha as Hb.
+        (* It seems that I am running out of steam!
+          I don't how to prove it.  *)
+        unfold manger_merge_sets_new at 2;
+        unfold manger_merge_sets_new_aux at 1;
+        simpl;
+        remember (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+        (filter (λ '(s2, _), eqA ax s2) U) (ax, bx)) as Ua.
+        destruct Ua as (Uax, Ubx).
+        remember (filter (λ '(s2, _), negb (eqA ax s2)) U) as Ub.
+        (* 
+        (fold_left (manger_merge_sets_new eqA addP) X (Ub ++ [(Uax, Ubx)]))
+        =S= 
+        (fold_left (manger_merge_sets_new eqA addP) X Ub) ++ 
+        ((fold_left (manger_merge_sets_new eqA addP) X [(Uax, Ubx)])
+        *)
   Admitted.
+
         
-        
-
-
-
-
-
-
-      
-
-      
-      
-      
-
-
+  
 
   Lemma sum_fn_cong_bop_union_X : 
     forall (X Y : finite_set (A * P)) ap, 
