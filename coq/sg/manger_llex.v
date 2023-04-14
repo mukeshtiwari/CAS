@@ -261,8 +261,11 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd Xb) = true.
   Proof.
   Admitted.
+  (* End of admit that will come from library *)
 
-   (* This is easy. May be in library *)
+
+
+   (* This is easy.  *)
   Lemma sum_fn_filter_cong :
     forall (X Y: finite_set (A * P)) ap, 
     X =S= Y ->
@@ -272,10 +275,20 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap) Y)) = true.
   Proof.
-  Admitted.
+    intros * Ha.
+    eapply sum_fn_congruence_general_set,
+    filter_congruence_gen;
+    try assumption.
+    intros (au, av) (bu, bv) Hb.
+    eapply brel_product_elim in Hb.
+    destruct Hb as (Hbl & Hbr).
+    eapply conA; try assumption.
+    eapply refA.
+  Qed.
+    
 
 
-   (* This is easy! Lemma should be in library *)
+   (* This is easy!  *)
   Lemma bop_union_comm : 
     forall (X Y : finite_set (A * P)), 
     bop_union eqAP X Y =S= bop_union eqAP Y X.
@@ -533,7 +546,7 @@ Section Theory.
         exact Hb.
   Qed.
 
-  
+
   (* This is easy*)
   Lemma in_set_false_case_analysis : 
     forall (X Y : finite_set (A * P)) ax bx, 
@@ -541,11 +554,21 @@ Section Theory.
     in_set eqAP X (ax, bx) = false ∧ 
     in_set eqAP Y (ax, bx) = false.
   Proof.
-    intros * Ha.
-    (* Search (in_set _ _ _ = false) *)
-
-  Admitted.
-
+    induction X as [|(ap, bp) X IHx].
+    +
+      intros * Ha.
+      cbn in Ha |- *.
+      exact (conj eq_refl Ha).
+    +
+      intros * Ha;
+      cbn in Ha |- *.
+      case_eq (and.bop_and (eqA ax ap) (eqP bx bp));
+      case_eq ((in_set eqAP (X ++ Y) (ax, bx)));
+      intros Hb Hc; 
+      rewrite Hb, Hc in Ha;
+      cbn in Ha; try congruence.
+      cbn; eapply IHx; exact Hb.
+  Qed.
 
 
   (* Difficult! generalise that empty list. This need 
