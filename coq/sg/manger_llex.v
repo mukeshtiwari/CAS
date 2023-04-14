@@ -261,6 +261,8 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd Xb) = true.
   Proof.
   Admitted.
+
+
   (* End of admit that will come from library *)
 
 
@@ -387,43 +389,18 @@ Section Theory.
   (* This is also easy*)
   Lemma bop_union_in_set_true_rewrite :
     forall (X Y : finite_set (A * P)) ax bx,
-    in_set eqAP X (ax, bx) = true -> 
+    in_set eqAP (X ++ Y) (ax, bx) = true -> 
     (bop_union eqAP ((ax, bx) :: X) Y) =S=
     (bop_union eqAP X Y).
   Proof.
     intros * Ha.
     eapply brel_set_intro_prop;
-    [eapply refAP|split; intros (ap, bp) Hb].
+    [eapply refAP|split; intros (au, bu) Hb].
     +
-      eapply in_set_uop_duplicate_elim_elim in Hb.
-      eapply in_set_uop_duplicate_elim_intro;
-      [eapply symAP|eapply trnAP|].
-      eapply in_set_concat_intro.
-      eapply in_set_concat_elim in Hb;
-      [|eapply symAP].
-      destruct Hb as [Hb | Hb];
-      [left | right].
-      cbn in Hb; eapply Bool.orb_true_iff in Hb.
-      destruct Hb as [Hb | Hb].
-      eapply Bool.andb_true_iff in Hb.
-      destruct Hb as [Hbl Hbr].
-      (* requires some congruence *)
-      eapply in_set_congruence;
-      [exact Hbl | exact Hbr| exact Ha].
+      cbn in Hb; rewrite Ha in Hb.
       exact Hb.
-      exact Hb.
-    + 
-      eapply in_set_uop_duplicate_elim_elim in Hb.
-      eapply in_set_uop_duplicate_elim_intro;
-      [eapply symAP|eapply trnAP|].
-      eapply in_set_concat_intro.
-      eapply in_set_concat_elim in Hb;
-      [|eapply symAP].
-      destruct Hb as [Hb | Hb];
-      [left | right].
-      cbn.
-      eapply Bool.orb_true_iff; right;
-      exact Hb.
+    +
+      cbn; rewrite Ha;
       exact Hb.
   Qed.
   
@@ -570,62 +547,154 @@ Section Theory.
       cbn; eapply IHx; exact Hb.
   Qed.
 
+  
+
+
+  (* start of admit *)
 
   (* Difficult! generalise that empty list. This need 
     idempotence. It can't be proven without 
     idempotence. *)
   Lemma fold_left_in_set_true_rewrite : 
-    forall (X : finite_set (A * P)) ax bx,
-    in_set eqAP X (ax, bx) = true -> 
+    forall (X U : finite_set (A * P)) ax bx,
+    in_set eqAP (X ++ U) (ax, bx) = true -> 
     (fold_left (manger_merge_sets_new eqA addP) X
-      (manger_merge_sets_new eqA addP [] (ax, bx))) =S= 
-    (fold_left (manger_merge_sets_new eqA addP) X []).
+      (manger_merge_sets_new eqA addP U (ax, bx))) =S= 
+    (fold_left (manger_merge_sets_new eqA addP) X U).
   Proof.
   Admitted.
 
 
-  (* This one is tricky and if there is 
-    no lemma in manger_sets.v then it's going 
-    to be challenging. Besides, I need to 
-    generalise it *)
-  Lemma fold_left_in_set_false_rewrite :
-    forall (X : finite_set (A * P)) ax bx,
-    in_set eqAP X (ax, bx) = false -> 
-    (fold_left (manger_merge_sets_new eqA addP) X
-      (manger_merge_sets_new eqA addP [] (ax, bx))) =S= 
-    (ax, bx) :: (fold_left (manger_merge_sets_new eqA addP) X []).
-  Proof.
-    (* 
-    Search (fold_left (manger_merge_sets_new _ _ ) _ _).
-    *)
-  Admitted.
 
-
-  (* Not easy because I need to generalise the [] to 
-    Y  *)
-  Lemma in_set_fold_left_false_rewrite : 
+  Lemma in_set_false_case_analysis_gen : 
     forall (X : finite_set (A * P)) ax bx, 
     in_set eqAP X (ax, bx) = false ->
-    in_set eqAP (fold_left 
-      (manger_merge_sets_new eqA addP) X []) (ax, bx) = false.
+    (forall ap bp, in_set eqAP X (ap, bp) = true ->
+      (eqA ax ap = false ∨ 
+      (eqA ax ap = true ∧ eqP bx bp = false))).
   Proof.
-    (* Search (in_set _ (fold_left _ _ _ ) _ = false). *)
-    induction X as [|(ap, bp) X IHx].
+    induction X as [|(au, bu) X IHx].
     +
-      intros * Ha.
-      cbn; reflexivity.
+      intros * Ha * Hb.
+      cbn in Hb; 
+      congruence.
     +
-      intros * Ha.
-      cbn in Ha |- *.
-      (* Now here comes the challenge: induction 
-      hypothesis contains [] which 
-      *)
+      intros * Ha * Hb.
+      cbn in Ha, Hb.
+      eapply Bool.orb_false_iff in Ha.
+      destruct Ha as (Hal & Har).
+      case_eq (and.bop_and (eqA ap au) (eqP bp bu));
+      case_eq ((in_set eqAP X (ap, bp))); 
+      intros Hc Hd; rewrite Hc, Hd in Hb;
+      cbn in Hb; try congruence.
+      ++
+        eapply Bool.andb_true_iff in Hd.
+        destruct Hd as (Hdl & Hdr).
+        case_eq (eqA ax au);
+        case_eq (eqP bx bu);
+        intros He Hf;
+        rewrite He, Hf in Hal;
+        cbn in Hal; try congruence;
+        try auto.
+      ++
+        eapply Bool.andb_true_iff in Hd.
+        destruct Hd as (Hdl & Hdr).
+        case_eq (eqA ax au);
+        case_eq (eqP bx bu);
+        intros He Hf;
+        rewrite He, Hf in Hal;
+        cbn in Hal; try congruence.
+        +++
+          right;
+          rewrite (trnA _ _ _ Hf (symA _ _ Hdl));
+          refine (conj eq_refl _).
+          case_eq (eqP bx bp);
+          try reflexivity;
+          intro Hg.
+          rewrite (trnP _ _ _ Hg Hdr) in He;
+          congruence.
+        +++
+          left; 
+          case_eq (eqA ax ap);
+          intro Hg; try reflexivity.
+          rewrite (trnA _ _ _ Hg Hdl) in Hf;
+          congruence.
+        +++
+          left;
+          case_eq (eqA ax ap);
+          intro Hg; try reflexivity.
+          rewrite (trnA _ _ _ Hg Hdl) in Hf;
+          congruence.
+    ++
+      eapply IHx; assumption.
+  Qed.
+      
 
-  Admitted.
+
+
 
  
 
   (* end of admit *)
+  
+
+  Lemma sum_fn_cong_bop_union_X_gen_acc : 
+    forall (X Y U : finite_set (A * P)) ap, 
+    eqP
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA x ap)
+        (bop_union eqAP 
+          (fold_left (manger_merge_sets_new eqA addP) X U) Y)))
+    (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA x ap) 
+        (bop_union eqAP (bop_union eqAP X U) Y))) = true.
+  Proof.
+    induction X as [|(ax, bx) X IHx].
+    +
+      intros *; cbn.
+      assert (Ha : (uop_duplicate_elim eqAP (uop_duplicate_elim eqAP U ++ Y)) =
+        (uop_duplicate_elim eqAP (U ++ Y))). admit.
+      rewrite Ha; now rewrite refP.
+    +
+      intros *; simpl.
+      case_eq (in_set eqAP (X ++ U) (ax, bx));
+      intros Ha.
+      ++
+        eapply trnP with 
+        (matrix_algorithms.sum_fn zeroP addP snd
+        (filter (λ '(x, _), eqA x ap) (bop_union eqAP
+        (fold_left (manger_merge_sets_new eqA addP) X U) Y))).
+        +++
+          eapply sum_fn_filter_bop_union_cong;
+          subst;
+          eapply fold_left_in_set_true_rewrite;
+          try assumption.
+        +++
+          eapply symP, trnP with 
+            (matrix_algorithms.sum_fn zeroP addP snd
+            (filter (λ '(x, _), eqA x ap) 
+              (bop_union eqAP (bop_union eqAP X U) Y))).
+          eapply  sum_fn_filter_cong, bop_union_cong.
+          subst; eapply bop_union_in_set_true_rewrite;
+          try assumption.
+          eapply symP; subst; eapply IHx.
+      ++
+        (* This is the challenge! *)
+        pose proof in_set_false_case_analysis_gen _ _ _ Ha as Hb.
+  Admitted.
+        
+        
+
+
+
+
+
+
+      
+
+      
+      
+      
 
 
 
@@ -639,161 +708,16 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
   Proof.
-    induction X as [|(ax, bx) X IHx].
-    +
-      intros *; cbn; now rewrite refP.
-    +
+    intros *.
+    pose proof sum_fn_cong_bop_union_X_gen_acc X Y [] ap as Ha.
+    cbn in Ha.
+    assert (Hb : (bop_union eqAP X []) = X).
+    admit.
+    rewrite Hb in Ha.
+    eapply Ha.
+  Admitted.
 
-      intros *; simpl.
-      case_eq (in_set eqAP (X ++ Y) (ax, bx));
-      intros Ha.
-      ++
-        eapply in_set_true_case_analysis in Ha.
-        destruct Ha as [Ha| [Ha Hb]].
-        +++
-          (* I know that (ax, bx) in X and therefore 
-          I can do the following transformation, relying 
-          on idempotence: 
-          1. 
-            fold_left (manger_merge_sets_new eqA addP) X
-                 (manger_merge_sets_new eqA addP [] (ax, bx)) =S=
-            fold_left (manger_merge_sets_new eqA addP) X [] 
-          2. 
-            (bop_union eqAP ((ax, bx) :: X) Y) =S=
-            (bop_union eqAP X Y)
-
-          Apply induction hypothesis and we 
-          are home!
-          *)
-          remember ((fold_left (manger_merge_sets_new eqA addP) X
-          (manger_merge_sets_new eqA addP [] (ax, bx)))) as U.
-          remember (fold_left (manger_merge_sets_new eqA addP) X []) 
-          as V.
-          eapply trnP with 
-            (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) (bop_union eqAP V Y))).
-          eapply sum_fn_filter_bop_union_cong;
-          subst;
-          eapply fold_left_in_set_true_rewrite;
-          try assumption.
-          remember (((ax, bx) :: X) ) as Xa.
-          eapply symP, trnP with 
-            (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))).
-          eapply  sum_fn_filter_cong.
-          subst; eapply bop_union_in_set_true_rewrite;
-          try assumption.
-          eapply symP; subst; eapply IHx.
-        +++
-           (* 
-              I know that (ax, bx) is not in X but in Y 
-              so I can do the following transformation:
-            1. 
-              (fold_left (manger_merge_sets_new eqA addP) X
-                 (manger_merge_sets_new eqA addP [] (ax, bx))) =S= 
-              (ax, bx) :: (fold_left (manger_merge_sets_new eqA addP) X [])
-            2.  
-              bop_union eqAP ((ax, bx) :: X) Y =S=
-              (ax, bx) :: bop_union eqAP X Y.     
-              
-              apply induction hypothesis and we 
-              are home!
-           *)
-           eapply trnP with 
-           (matrix_algorithms.sum_fn zeroP addP snd
-           (filter (λ '(x, _), eqA x ap)
-              (bop_union eqAP
-                 ((ax, bx) :: 
-                 fold_left (manger_merge_sets_new eqA addP) X []) Y))).
-          eapply sum_fn_filter_bop_union_cong, 
-          fold_left_in_set_false_rewrite; try assumption.
-          eapply symP.
-          eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) 
-              ((ax, bx) :: bop_union eqAP X Y))).
-          eapply  sum_fn_filter_cong,
-          bop_union_in_set_false_rewrite; 
-          try assumption.
-          remember (fold_left (manger_merge_sets_new eqA addP) X []) as Xa.
-          eapply symP. 
-          eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) 
-              ((ax, bx) :: bop_union eqAP Xa Y))).
-          eapply sum_fn_filter_cong,
-          bop_union_in_set_false_rewrite; 
-          try assumption; subst.
-          eapply in_set_fold_left_false_rewrite;
-          try assumption.
-          (* I knowt *)
-          cbn; case_eq (eqA ax ap);
-          intro Hc; cbn.
-          eapply cong_addP;
-          [eapply refP| eapply IHx].
-          eapply IHx.
-      ++
-       
-        eapply in_set_false_case_analysis in Ha.
-        destruct Ha as (Hal & Har).
-        (* 
-          use the fact that (ax, bx) ∉ X 
-          I know that (ax, bx) is not in X 
-              so I can do the following transformation:
-          1. 
-            (fold_left (manger_merge_sets_new eqA addP) X
-                (manger_merge_sets_new eqA addP [] (ax, bx))) =S= 
-            (ax, bx) :: (fold_left (manger_merge_sets_new eqA addP) X [])
-          2.  
-            bop_union eqAP ((ax, bx) :: X) Y =S=
-            (ax, bx) :: bop_union eqAP X Y.     
-          
-          case analysis: 
-            ap = a ∨ ap <> a.
-          1. ap = a then it will go all the up 
-            we will have expression 
-            eqP (a :: _ )(a :: _ )
-            apply induction hypothesis and we are home! 
-          2. ap <> a then we will have expression:
-            eqP (_) (_) 
-            apply induction hypothesis and 
-            we are home!
-        *)
-        eapply trnP with 
-        (matrix_algorithms.sum_fn zeroP addP snd
-        (filter (λ '(x, _), eqA x ap)
-           (bop_union eqAP
-              ((ax, bx) :: 
-              fold_left (manger_merge_sets_new eqA addP) X []) Y))).
-        eapply sum_fn_filter_bop_union_cong, 
-        fold_left_in_set_false_rewrite; try assumption.
-        eapply symP.
-        eapply trnP with 
-        (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap) 
-            ((ax, bx) :: bop_union eqAP X Y))).
-        eapply  sum_fn_filter_cong,
-        bop_union_in_set_false_rewrite; 
-        try assumption.
-        remember (fold_left (manger_merge_sets_new eqA addP) X []) as Xa.
-        eapply symP. 
-        eapply trnP with 
-        (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap) 
-            ((ax, bx) :: bop_union eqAP Xa Y))).
-        eapply sum_fn_filter_cong,
-        bop_union_in_set_false_rewrite; 
-        try assumption; subst.
-        eapply in_set_fold_left_false_rewrite;
-        try assumption.
-        (* I knowt *)
-        cbn; case_eq (eqA ax ap);
-        intro Hc; cbn.
-        eapply cong_addP;
-        [eapply refP| eapply IHx].
-        eapply IHx.
-  Qed.
-
+    
 
 
   Lemma sum_fn_cong_bop_union_Y : 
@@ -806,211 +730,7 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
   Proof.
-    intros X Y. revert X.
-    induction Y as [|(ax, bx) Y IHy].
-    +
-      intros *; cbn; now rewrite refP.
-    +
-      intros *; simpl.
-      case_eq (in_set eqAP (Y ++ X) (ax, bx));
-      intros Ha.
-      ++
-        eapply in_set_true_case_analysis in Ha.
-        destruct Ha as [Ha | [Ha Hb]].
-        +++
-          (* Here is the problem! The quantifier in IHy *)
-          (* Maybe, have another lemma that bop_union X Y =S= 
-            bop_union Y X *)
-          eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap)
-          (bop_union eqAP 
-           (fold_left (manger_merge_sets_new eqA addP) Y
-              (manger_merge_sets_new eqA addP [] (ax, bx))) X))).
-          eapply sum_fn_filter_cong, bop_union_comm.
-          eapply symP.
-          eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap) (bop_union eqAP ((ax, bx) :: Y)  X))).
-          eapply sum_fn_filter_cong, bop_union_comm.
-          eapply symP.
-          (* swap finished. Now I can apply the lemma *) 
-          remember ((fold_left (manger_merge_sets_new eqA addP) Y
-            (manger_merge_sets_new eqA addP [] (ax, bx)))) as U.
-          remember (fold_left (manger_merge_sets_new eqA addP) Y []) 
-          as V.
-          eapply trnP with 
-            (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) (bop_union eqAP V X))).
-          eapply sum_fn_filter_bop_union_cong;
-          subst;
-          eapply fold_left_in_set_true_rewrite;
-          try assumption.
-          remember (((ax, bx) :: Y) ) as Ya.
-          eapply symP, trnP with 
-            (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) (bop_union eqAP Y X))).
-          eapply  sum_fn_filter_cong.
-          subst; eapply bop_union_in_set_true_rewrite;
-          try assumption.
-          eapply symP; subst. 
-          (* Now do swap again *)
-          eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap)
-          (bop_union eqAP X
-           (fold_left (manger_merge_sets_new eqA addP) Y [])))).
-          eapply sum_fn_filter_cong, bop_union_comm.
-          eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))). 
-          eapply IHy.
-          eapply sum_fn_filter_cong, bop_union_comm.
-        +++
-          eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap)
-          (bop_union eqAP 
-           (fold_left (manger_merge_sets_new eqA addP) Y
-              (manger_merge_sets_new eqA addP [] (ax, bx))) X))).
-          eapply sum_fn_filter_cong, bop_union_comm.
-          eapply symP.
-          eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap) (bop_union eqAP ((ax, bx) :: Y)  X))).
-          eapply sum_fn_filter_cong, bop_union_comm.
-          eapply symP.
-          (* end of swap *)
-          eapply trnP with 
-          (matrix_algorithms.sum_fn zeroP addP snd
-          (filter (λ '(x, _), eqA x ap)
-             (bop_union eqAP
-                ((ax, bx) :: 
-                fold_left (manger_merge_sets_new eqA addP) Y []) X))).
-         eapply sum_fn_filter_bop_union_cong, 
-         fold_left_in_set_false_rewrite; try assumption.
-         eapply symP.
-         eapply trnP with 
-         (matrix_algorithms.sum_fn zeroP addP snd
-           (filter (λ '(x, _), eqA x ap) 
-             ((ax, bx) :: bop_union eqAP Y X))).
-         eapply  sum_fn_filter_cong,
-         bop_union_in_set_false_rewrite; 
-         try assumption.
-         remember (fold_left (manger_merge_sets_new eqA addP) Y []) as Ya.
-         eapply symP. 
-         eapply trnP with 
-         (matrix_algorithms.sum_fn zeroP addP snd
-           (filter (λ '(x, _), eqA x ap) 
-             ((ax, bx) :: bop_union eqAP Ya X))).
-         eapply sum_fn_filter_cong,
-         bop_union_in_set_false_rewrite; 
-         try assumption; subst.
-         eapply in_set_fold_left_false_rewrite;
-         try assumption.
-         (* I knowt *)
-         cbn; case_eq (eqA ax ap);
-         intro Hc; cbn.
-         eapply cong_addP;
-         [eapply refP| ];subst.
-         (* now do the swap again *)
-         eapply trnP with 
-         (matrix_algorithms.sum_fn zeroP addP snd
-         (filter (λ '(x, _), eqA x ap)
-         (bop_union eqAP X
-          (fold_left (manger_merge_sets_new eqA addP) Y [])))).
-         eapply sum_fn_filter_cong, bop_union_comm.
-         eapply trnP with 
-         (matrix_algorithms.sum_fn zeroP addP snd
-           (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))). 
-         eapply IHy.
-         eapply sum_fn_filter_cong, bop_union_comm.
-         subst.
-         eapply trnP with 
-         (matrix_algorithms.sum_fn zeroP addP snd
-         (filter (λ '(x, _), eqA x ap)
-         (bop_union eqAP X
-          (fold_left (manger_merge_sets_new eqA addP) Y [])))).
-         eapply sum_fn_filter_cong, bop_union_comm.
-         eapply trnP with 
-         (matrix_algorithms.sum_fn zeroP addP snd
-           (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))). 
-         eapply IHy.
-         eapply sum_fn_filter_cong, bop_union_comm.
-    ++
-      eapply in_set_false_case_analysis in Ha.
-      destruct Ha as (Hal & Har).
-      eapply trnP with 
-      (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap)
-      (bop_union eqAP 
-        (fold_left (manger_merge_sets_new eqA addP) Y
-          (manger_merge_sets_new eqA addP [] (ax, bx))) X))).
-      eapply sum_fn_filter_cong, bop_union_comm.
-      eapply symP.
-      eapply trnP with 
-      (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) (bop_union eqAP ((ax, bx) :: Y)  X))).
-      eapply sum_fn_filter_cong, bop_union_comm.
-      eapply symP.
-      (* end of swap *)
-      eapply trnP with 
-      (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap)
-          (bop_union eqAP
-            ((ax, bx) :: 
-            fold_left (manger_merge_sets_new eqA addP) Y []) X))).
-      eapply sum_fn_filter_bop_union_cong, 
-      fold_left_in_set_false_rewrite; try assumption.
-      eapply symP.
-      eapply trnP with 
-      (matrix_algorithms.sum_fn zeroP addP snd
-        (filter (λ '(x, _), eqA x ap) 
-          ((ax, bx) :: bop_union eqAP Y X))).
-      eapply  sum_fn_filter_cong,
-      bop_union_in_set_false_rewrite; 
-      try assumption.
-      remember (fold_left (manger_merge_sets_new eqA addP) Y []) as Ya.
-      eapply symP. 
-      eapply trnP with 
-      (matrix_algorithms.sum_fn zeroP addP snd
-        (filter (λ '(x, _), eqA x ap) 
-          ((ax, bx) :: bop_union eqAP Ya X))).
-      eapply sum_fn_filter_cong,
-      bop_union_in_set_false_rewrite; 
-      try assumption; subst.
-      eapply in_set_fold_left_false_rewrite;
-      try assumption.
-      (* I knowt *)
-      cbn; case_eq (eqA ax ap);
-      intro Hc; cbn.
-      eapply cong_addP;
-      [eapply refP| ];subst.
-      (* now do the swap again *)
-      eapply trnP with 
-      (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap)
-      (bop_union eqAP X
-      (fold_left (manger_merge_sets_new eqA addP) Y [])))).
-      eapply sum_fn_filter_cong, bop_union_comm.
-      eapply trnP with 
-      (matrix_algorithms.sum_fn zeroP addP snd
-        (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))). 
-      eapply IHy.
-      eapply sum_fn_filter_cong, bop_union_comm.
-      subst.
-      eapply trnP with 
-      (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap)
-      (bop_union eqAP X
-      (fold_left (manger_merge_sets_new eqA addP) Y [])))).
-      eapply sum_fn_filter_cong, bop_union_comm.
-      eapply trnP with 
-      (matrix_algorithms.sum_fn zeroP addP snd
-        (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))). 
-      eapply IHy.
-      eapply sum_fn_filter_cong, bop_union_comm.
-  Qed.
+  Admitted.
 
   Lemma bop_congruence_bProp_fst : 
     forall (a : A),
@@ -1145,7 +865,8 @@ Section Theory.
   
 
 
-  Lemma P1_left : bop_left_uop_invariant _ eqSAP (bop_reduce [P1] bSAP) [P1].
+  Lemma P1_left : bop_left_uop_invariant _ 
+    eqSAP (bop_reduce [P1] bSAP) [P1].
   Proof.
     intros X Y;
     eapply brel_set_intro_prop;
