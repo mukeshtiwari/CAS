@@ -279,7 +279,7 @@ Section Theory.
 
   (* End of admit that will come from library *)
 
-
+  (* Move these lemmas to respective files *)
 
   Lemma in_set_filter : 
     forall (X : finite_set (A * P)) ap ax bx, 
@@ -426,6 +426,7 @@ Section Theory.
         eapply IHx.
   Qed.
 
+  (* end of lemma movement *)
 
   Lemma matrix_sum_fn_addition : 
     forall (X Y : finite_set (A * P)) ap,
@@ -436,6 +437,7 @@ Section Theory.
      (filter (λ '(x, _), eqA x ap)
       (fold_left (manger_merge_sets_new eqA addP) X Y))) = true.
   Proof.
+    
   Admitted.
   
         
@@ -461,9 +463,6 @@ Section Theory.
     [eapply sum_fn_bop_union_dist |].
     eapply symP, trnP;
     [eapply sum_fn_bop_union_dist |].
-    remember ((matrix_algorithms.sum_fn zeroP addP snd Xb)) as Xaa.
-    remember ((matrix_algorithms.sum_fn zeroP addP snd Ya)) as Yaa.
-    remember ((matrix_algorithms.sum_fn zeroP addP snd Xa)) as Xab.
     eapply cong_addP;
     [| now rewrite refP].
     subst.
@@ -485,7 +484,25 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
   Proof.
-  Admitted.
+    intros *.
+    repeat rewrite <-bop_union_filter_push.
+    remember ((filter (λ '(x, _), eqA x ap) X)) as Xa.
+    remember (filter (λ '(x, _), eqA x ap)
+           (fold_left (manger_merge_sets_new eqA addP) Y [])) as Ya.
+    remember ((filter (λ '(x, _), eqA x ap) Y)) as Yb.
+    eapply trnP;
+    [eapply sum_fn_bop_union_dist |].
+    eapply symP, trnP;
+    [eapply sum_fn_bop_union_dist |].
+    eapply cong_addP;
+    [now rewrite refP|].
+    subst.
+    replace (Y) with (Y ++ []) at 1.
+    now erewrite matrix_sum_fn_addition.
+    now rewrite app_nil_r.
+  Qed.
+
+
 
   Lemma bop_congruence_bProp_fst : 
     forall (a : A),
