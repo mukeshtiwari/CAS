@@ -437,9 +437,17 @@ Section Theory.
      (filter (λ '(x, _), eqA x ap)
       (fold_left (manger_merge_sets_new eqA addP) X Y))) = true.
   Proof.
-    
+    intros *.
+    remember (matrix_algorithms.sum_fn zeroP addP snd
+     (filter (λ '(x, _), eqA x ap)
+        (fold_left (manger_merge_sets_new eqA addP) X Y))) as p.
+    eapply symP.
+    eapply in_set_fold_left_mmsn_elim; try assumption.
+    + admit.
+    +
   Admitted.
-  
+    
+
         
   
 
