@@ -262,7 +262,62 @@ Section Theory.
   Proof.
   Admitted.
 
-  (* This proof certainly needs idempontence because of duplicate
+  (* End of admit that will come from library *)
+
+
+   (* Move these lemmas to respective files *)
+
+  Lemma sum_fn_base_case : 
+    forall (Y : finite_set (A * P)), 
+    eqP 
+    (fold_right addP zeroP (map snd (uop_duplicate_elim eqAP Y)))
+    (addP zeroP (fold_right addP zeroP (map snd Y))) = true.
+  Proof.
+    induction Y as [|(au, bu) Y IHy].
+    +
+      cbn; eapply symP.
+      rewrite zeropRid;
+      exact eq_refl.
+    +
+      cbn;
+      case_eq (in_set eqAP Y (au, bu));
+      intros Ha.
+      ++
+        eapply symP, trnP with 
+        (addP zeroP (fold_right addP zeroP (map snd Y))).
+        remember ((map snd Y)) as Ya.
+        eapply trnP with 
+        (addP bu (fold_right addP zeroP Ya));
+        [eapply zeropLid | eapply symP].
+        eapply trnP with 
+        (fold_right addP zeroP Ya);
+        [eapply zeropLid|].
+        eapply symP.
+        eapply fold_right_idempotent_aux_one; 
+        try assumption.
+        intros *. now rewrite addP_assoc_cong.
+        intros * Hu Hv;
+        eapply cong_addP; try assumption.
+        eapply map_in_set with (au := au) (bu := bu) in Ha; 
+        try assumption.
+        destruct Ha as (Hal & Har).
+        subst; exact Har.
+        now rewrite refA.
+        now rewrite refP.
+        eapply symP, IHy.
+      ++
+        cbn; eapply symP, trnP with
+        (addP bu (fold_right addP zeroP (map snd Y))).
+        eapply zeropLid.
+        eapply cong_addP;
+        [now rewrite refP|].
+        eapply symP, trnP. 
+        eapply IHy. 
+        eapply zeropLid.
+  Qed.
+       
+
+  (* Easy. This proof certainly needs idempontence because of duplicate
     elimination during bop_union *)
   Lemma sum_fn_bop_union_dist : 
     forall (X Y : finite_set (A * P)),
@@ -272,14 +327,57 @@ Section Theory.
       (matrix_algorithms.sum_fn zeroP addP snd X)
       (matrix_algorithms.sum_fn zeroP addP snd Y)) = true.
   Proof.
-  Admitted.
+    induction X as [|(ax, bx) X IHx].
+    + 
+      intros *; cbn;
+      unfold matrix_algorithms.sum_fn.
+      eapply sum_fn_base_case.
+    +
+      intros *; cbn.
+      case_eq (in_set eqAP (X ++ Y) (ax, bx));
+      intro Ha.
+      ++
+        (* idempotence *)
+        specialize (IHx Y).
+        unfold matrix_algorithms.sum_fn, bop_union,
+        bop_concat in * |- *.
+        eapply trnP;
+        [eapply IHx|].
+        eapply trnP.
+        eapply symP, fold_right_distributes;
+        try assumption.
+        eapply symP, trnP.
+        eapply addP_assoc.
+        eapply trnP with 
+          (addP bx (fold_right addP zeroP (map snd X ++ map snd Y))),
+        symP.
+        eapply cong_addP;
+        [eapply refP|].
+        eapply symP, fold_right_distributes;
+        try assumption.
+        eapply symP, fold_right_idempotent_aux_one; 
+        try assumption.
+        intros *. now rewrite addP_assoc_cong.
+        intros * Hu Hv;
+        eapply cong_addP; try assumption.
+        eapply map_in_set with (au := ax) (bu := bx) in Ha;
+        try assumption.
+        destruct Ha as (Hal & Har).
+        rewrite map_app in Har; exact Har.
+        now rewrite refA.
+        now rewrite refP.
+      ++
+        cbn;
+        unfold matrix_algorithms.sum_fn, bop_union,
+        bop_concat in * |- *.
+        eapply symP, trnP.
+        eapply addP_assoc.
+        eapply cong_addP;
+        [now rewrite refP| eapply symP, IHx].
+  Qed.
 
 
-
-
-  (* End of admit that will come from library *)
-
-  (* Move these lemmas to respective files *)
+ 
 
   Lemma in_set_filter : 
     forall (X : finite_set (A * P)) ap ax bx, 
