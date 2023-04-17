@@ -262,440 +262,182 @@ Section Theory.
   Proof.
   Admitted.
 
+  (* This proof certainly needs idempontence because of duplicate
+    elimination during bop_union *)
+  Lemma sum_fn_bop_union_dist : 
+    forall (X Y : finite_set (A * P)),
+    eqP
+    (matrix_algorithms.sum_fn zeroP addP snd (bop_union eqAP X Y))
+    (addP 
+      (matrix_algorithms.sum_fn zeroP addP snd X)
+      (matrix_algorithms.sum_fn zeroP addP snd Y)) = true.
+  Proof.
+  Admitted.
+
+
+
 
   (* End of admit that will come from library *)
 
 
 
-   (* This is easy.  *)
-  Lemma sum_fn_filter_cong :
-    forall (X Y: finite_set (A * P)) ap, 
-    X =S= Y ->
-    eqP 
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) X))
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) Y)) = true.
-  Proof.
-    intros * Ha.
-    eapply sum_fn_congruence_general_set,
-    filter_congruence_gen;
-    try assumption.
-    intros (au, av) (bu, bv) Hb.
-    eapply brel_product_elim in Hb.
-    destruct Hb as (Hbl & Hbr).
-    eapply conA; try assumption.
-    eapply refA.
-  Qed.
-    
-
-
-   (* This is easy!  *)
-  Lemma bop_union_comm : 
-    forall (X Y : finite_set (A * P)), 
-    bop_union eqAP X Y =S= bop_union eqAP Y X.
-  Proof.
-    intros *.
-    eapply brel_set_intro_prop;
-    [eapply refAP|split; intros (ap, bp) Ha].
-    +
-      eapply in_set_uop_duplicate_elim_elim in Ha.
-      eapply in_set_uop_duplicate_elim_intro;
-      [eapply symAP|eapply trnAP|].
-      eapply in_set_concat_intro.
-      eapply in_set_concat_elim in Ha;
-      [|eapply symAP].
-      destruct Ha as [Ha | Ha];
-      [right | left]; exact Ha.
-    +
-      eapply in_set_uop_duplicate_elim_elim in Ha.
-      eapply in_set_uop_duplicate_elim_intro;
-      [eapply symAP|eapply trnAP|].
-      eapply in_set_concat_intro.
-      eapply in_set_concat_elim in Ha;
-      [|eapply symAP].
-      destruct Ha as [Ha | Ha];
-      [right | left]; exact Ha.
-  Qed.
-
-
-  (* easy *)
-  Lemma bop_union_cong : 
-    forall (X Y U : finite_set (A * P)), 
-    X =S= Y ->
-    (bop_union eqAP X U) =S= (bop_union eqAP Y U).
-  Proof.
-    intros * Ha.
-    eapply brel_set_elim_prop in Ha;
-    [|eapply symAP|eapply trnAP];
-    destruct Ha as [Hal Har].
-    eapply brel_set_intro_prop;
-    [eapply refAP|split; intros (ap, bp) Hb].
-    +
-      eapply in_set_uop_duplicate_elim_elim in Hb.
-      eapply in_set_uop_duplicate_elim_intro;
-      [eapply symAP|eapply trnAP|].
-      eapply in_set_concat_intro.
-      eapply in_set_concat_elim in Hb;
-      [|eapply symAP].
-      destruct Hb as [Hb | Hb];
-      [left | right].
-      eapply Hal; exact Hb.
-      exact Hb.
-    +
-      eapply in_set_uop_duplicate_elim_elim in Hb.
-      eapply in_set_uop_duplicate_elim_intro;
-      [eapply symAP|eapply trnAP|].
-      eapply in_set_concat_intro.
-      eapply in_set_concat_elim in Hb;
-      [|eapply symAP].
-      destruct Hb as [Hb | Hb];
-      [left | right].
-      eapply Har; exact Hb.
-      exact Hb.
-  Qed.
-
-  (* should be in library *)
-  Lemma in_set_congruence :
-    forall (X : finite_set (A * P)) ap ax bp bx, 
-    eqA ap ax = true -> eqP bp bx = true ->
+  Lemma in_set_filter : 
+    forall (X : finite_set (A * P)) ap ax bx, 
+    eqA ax ap = true -> 
     in_set eqAP X (ax, bx) = true ->
-    in_set eqAP X (ap, bp) = true.
+    in_set eqAP (filter (λ '(x, _), eqA x ap) X) (ax, bx) = true.
   Proof.
     induction X as [|(au, bu) X IHx].
     +
-      intros * Ha Hb Hc.
-      cbn in Hc; congruence.
+      cbn; intros; 
+      try congruence.
     +
-      intros * Ha Hb Hc.
-      cbn in Hc |- *.
-      eapply Bool.orb_true_iff in Hc.
-      destruct Hc as [Hc | Hc].
+      cbn; intros * Ha Hb.
+      case_eq (and.bop_and (eqA ax au) (eqP bx bu));
+      intro Hc; rewrite Hc in Hb; cbn in Hb.
       ++
         eapply Bool.andb_true_iff in Hc.
         destruct Hc as [Hcl Hcr].
-        rewrite (trnA _ _ _ Ha Hcl), 
-        (trnP _ _ _ Hb Hcr); cbn;
+        case_eq (eqA au ap); intro Hd.
+        cbn; rewrite Hcl, Hcr; 
         reflexivity.
+        rewrite (trnA _ _ _ (symA _ _ Hcl) Ha) in Hd;
+        congruence.
       ++
-        eapply Bool.orb_true_iff;
-        right; eapply IHx;
-        [exact Ha | exact Hb | exact Hc].
+        case_eq (eqA au ap); intro Hd.
+        cbn; rewrite (trnA _ _ _ Ha (symA _ _ Hd)) in Hc |- *;
+        cbn in Hc |- *; rewrite Hc; cbn.
+        eapply IHx; try assumption.
+        eapply IHx; try assumption.
   Qed.
 
 
 
 
-  (* This is also easy*)
-  Lemma bop_union_in_set_true_rewrite :
-    forall (X Y : finite_set (A * P)) ax bx,
-    in_set eqAP (X ++ Y) (ax, bx) = true -> 
-    (bop_union eqAP ((ax, bx) :: X) Y) =S=
-    (bop_union eqAP X Y).
-  Proof.
-    intros * Ha.
-    eapply brel_set_intro_prop;
-    [eapply refAP|split; intros (au, bu) Hb].
-    +
-      cbn in Hb; rewrite Ha in Hb.
-      exact Hb.
-    +
-      cbn; rewrite Ha;
-      exact Hb.
-  Qed.
-  
 
-  (* This is also easy. *)
-  Lemma bop_union_in_set_false_rewrite :
-    forall (X Y : finite_set (A * P)) ax bx,
-    in_set eqAP X (ax, bx) = false -> 
-    (bop_union eqAP ((ax, bx) :: X) Y) =S=
-    (ax, bx) :: (bop_union eqAP X Y).
-  Proof.
-    intros * Ha.
-    eapply brel_set_intro_prop;
-    [eapply refAP|split; intros (ap, bp) Hb].
-    +
-      cbn in Hb |- *.
-      eapply Bool.orb_true_iff.
-      case_eq (in_set eqAP (X ++ Y) (ax, bx));
-      intro Hc; rewrite Hc in Hb.
-      ++
-        right.
-        eapply in_set_uop_duplicate_elim_elim in Hb.
-        eapply in_set_uop_duplicate_elim_intro;
-        [eapply symAP|eapply trnAP|].
-        eapply in_set_concat_intro.
-        eapply in_set_concat_elim in Hb;
-        [|eapply symAP].
-        destruct Hb as [Hb | Hb];
-        [left | right]; exact Hb.
-      ++
-        cbn in Hb; eapply Bool.orb_true_iff in Hb.
-        destruct Hb as [Hb | Hb].
-        left; exact Hb.
-        right.
-        eapply in_set_uop_duplicate_elim_elim in Hb.
-        eapply in_set_uop_duplicate_elim_intro;
-        [eapply symAP|eapply trnAP|].
-        eapply in_set_concat_intro.
-        eapply in_set_concat_elim in Hb;
-        [|eapply symAP].
-        destruct Hb as [Hb | Hb];
-        [left | right]; exact Hb.
-    +
-      cbn in Hb |- *.
-      eapply Bool.orb_true_iff in Hb.
-      case_eq (in_set eqAP (X ++ Y) (ax, bx));
-      intros Hc.
-      ++
-        destruct Hb as [Hb | Hb].
-        +++
-          eapply in_set_uop_duplicate_elim_intro;
-          [eapply symAP|eapply trnAP|].
-          eapply Bool.andb_true_iff in Hb.
-          destruct Hb as [Hbl Hbr].
-          (* congruence *)
-          eapply in_set_congruence;
-          [exact Hbl | exact Hbr | exact Hc].
-        +++
-          unfold bop_union in Hb.
-          exact Hb.
-      ++
-        destruct Hb as [Hb | Hb].
-        +++
-          cbn; rewrite Hb; cbn;
-          reflexivity.
-        +++
-          cbn; eapply Bool.orb_true_iff;
-          right.
-          eapply in_set_uop_duplicate_elim_elim in Hb.
-          eapply in_set_uop_duplicate_elim_intro;
-          [eapply symAP|eapply trnAP|];
-          exact Hb.
-  Qed.
-  
-
-  (* easy *)
-  Lemma sum_fn_filter_bop_union_cong : 
-    forall (X Y U : finite_set (A * P)) ap, 
-    X =S= Y ->
-    eqP
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) (bop_union eqAP X U)))
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) (bop_union eqAP Y U))) = true.
-  Proof.
-    intros * Ha.
-    eapply sum_fn_filter_cong, bop_union_cong;
-    try assumption.
-  Qed.
- 
-
-  Lemma in_set_true_case_analysis : 
-    forall (X Y : finite_set (A * P)) ax bx, 
-    in_set eqAP (X ++ Y) (ax, bx) = true ->
-    (in_set eqAP X (ax, bx) = true) ∨
-    (in_set eqAP X (ax, bx) = false ∧ 
-    in_set eqAP Y (ax, bx) = true).
-  Proof.
-    induction X as [|(ap, bp) X IHx].
-    +
-      intros * Ha.
-      cbn in Ha |- *.
-      right; refine (conj eq_refl Ha).
-    + 
-      intros * Ha.
-      cbn in Ha |- *.
-      case_eq (and.bop_and (eqA ax ap) (eqP bx bp));
-      case_eq ((in_set eqAP (X ++ Y) (ax, bx)));
-      intros Hb Hc; 
-      rewrite Hb, Hc in Ha;
-      cbn in Ha; try congruence.
-      ++
-        left; cbn;
-        reflexivity.
-      ++
-        left; cbn;
-        reflexivity.
-      ++
-        cbn; eapply IHx.
-        exact Hb.
-  Qed.
-
-
-  (* This is easy*)
-  Lemma in_set_false_case_analysis : 
-    forall (X Y : finite_set (A * P)) ax bx, 
-    in_set eqAP (X ++ Y) (ax, bx) = false ->
-    in_set eqAP X (ax, bx) = false ∧ 
-    in_set eqAP Y (ax, bx) = false.
-  Proof.
-    induction X as [|(ap, bp) X IHx].
-    +
-      intros * Ha.
-      cbn in Ha |- *.
-      exact (conj eq_refl Ha).
-    +
-      intros * Ha;
-      cbn in Ha |- *.
-      case_eq (and.bop_and (eqA ax ap) (eqP bx bp));
-      case_eq ((in_set eqAP (X ++ Y) (ax, bx)));
-      intros Hb Hc; 
-      rewrite Hb, Hc in Ha;
-      cbn in Ha; try congruence.
-      cbn; eapply IHx; exact Hb.
-  Qed.
-
-  
-
-
-  (* start of admit *)
-
-  (* Difficult! generalise that empty list. This need 
-    idempotence. It can't be proven without 
-    idempotence. *)
-  Lemma fold_left_in_set_true_rewrite : 
-    forall (X U : finite_set (A * P)) ax bx,
-    in_set eqAP (X ++ U) (ax, bx) = true -> 
-    (fold_left (manger_merge_sets_new eqA addP) X
-      (manger_merge_sets_new eqA addP U (ax, bx))) =S= 
-    (fold_left (manger_merge_sets_new eqA addP) X U).
-  Proof.
-  Admitted.
-
-
-
-  Lemma in_set_false_case_analysis_gen : 
+  Lemma uop_dup_dup_elim : 
     forall (X : finite_set (A * P)) ax bx, 
-    in_set eqAP X (ax, bx) = false ->
-    (forall ap bp, in_set eqAP X (ap, bp) = true ->
-      (eqA ax ap = false ∨ 
-      (eqA ax ap = true ∧ eqP bx bp = false))).
+    in_set eqAP X (ax, bx) = true ->
+    uop_duplicate_elim eqAP ((ax, bx) :: X) = 
+    uop_duplicate_elim eqAP X.
   Proof.
-    induction X as [|(au, bu) X IHx].
-    +
-      intros * Ha * Hb.
-      cbn in Hb; 
-      congruence.
-    +
-      intros * Ha * Hb.
-      cbn in Ha, Hb.
-      eapply Bool.orb_false_iff in Ha.
-      destruct Ha as (Hal & Har).
-      case_eq (and.bop_and (eqA ap au) (eqP bp bu));
-      case_eq ((in_set eqAP X (ap, bp))); 
-      intros Hc Hd; rewrite Hc, Hd in Hb;
-      cbn in Hb; try congruence.
-      ++
-        eapply Bool.andb_true_iff in Hd.
-        destruct Hd as (Hdl & Hdr).
-        case_eq (eqA ax au);
-        case_eq (eqP bx bu);
-        intros He Hf;
-        rewrite He, Hf in Hal;
-        cbn in Hal; try congruence;
-        try auto.
-      ++
-        eapply Bool.andb_true_iff in Hd.
-        destruct Hd as (Hdl & Hdr).
-        case_eq (eqA ax au);
-        case_eq (eqP bx bu);
-        intros He Hf;
-        rewrite He, Hf in Hal;
-        cbn in Hal; try congruence.
-        +++
-          right;
-          rewrite (trnA _ _ _ Hf (symA _ _ Hdl));
-          refine (conj eq_refl _).
-          case_eq (eqP bx bp);
-          try reflexivity;
-          intro Hg.
-          rewrite (trnP _ _ _ Hg Hdr) in He;
-          congruence.
-        +++
-          left; 
-          case_eq (eqA ax ap);
-          intro Hg; try reflexivity.
-          rewrite (trnA _ _ _ Hg Hdl) in Hf;
-          congruence.
-        +++
-          left;
-          case_eq (eqA ax ap);
-          intro Hg; try reflexivity.
-          rewrite (trnA _ _ _ Hg Hdl) in Hf;
-          congruence.
-    ++
-      eapply IHx; assumption.
+    intros * Ha.
+    cbn; rewrite Ha;
+    reflexivity.
   Qed.
-      
-
-
-
-
- 
-
-  (* end of admit *)
   
+  
+  Lemma uop_dup_filter_elim : 
+    forall (X : finite_set (A * P)) ap, 
+    uop_duplicate_elim eqAP (filter (λ '(x, _), eqA x ap) X) =
+    filter (λ '(x, _), eqA x ap) (uop_duplicate_elim eqAP X).
+  Proof.
+    induction X as [|(ax, bx) X IHx].
+    +
+      intros *; cbn;
+      exact eq_refl.
+    +
+      intros *; cbn.
+      case_eq (eqA ax ap);
+      case_eq (in_set eqAP X (ax, bx));
+      intros Ha Hb.
+      ++
+         (* we know that (ax, bx) is a
+         member of filter *)
+        rewrite <-IHx.
+        pose proof in_set_filter X ap ax bx Hb
+          Ha as Hc.
+        rewrite uop_dup_dup_elim;
+        [exact eq_refl | exact Hc].
+      ++
+        rewrite uop_duplicate_elim_lemma_2;
+        cbn. rewrite Hb, IHx;
+        reflexivity.
+        case_eq (in_set eqAP (filter (λ '(x, _), eqA x ap) X) (ax, bx));
+        intro Hc; try reflexivity.
+        eapply in_set_filter_elim in Hc;
+        [rewrite Ha in Hc; destruct Hc; congruence|].
+        intros (au, bu) (cu, du) He.
+        eapply brel_product_elim in He.
+        destruct He as (Hel & Her).
+        eapply conA; try assumption.
+        now rewrite refA.
+      ++
+        eapply IHx.
+      ++
+        cbn; rewrite Hb;
+        eapply IHx.
+  Qed.
+        
 
-  Lemma sum_fn_cong_bop_union_X_gen_acc : 
-    forall (X Y U : finite_set (A * P)) ap, 
-    eqP
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap)
-        (bop_union eqAP 
-          (fold_left (manger_merge_sets_new eqA addP) X U) Y)))
-    (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x ap) 
-        (bop_union eqAP (bop_union eqAP X U) Y))) = true.
+
+  Lemma bop_union_filter_push : 
+    forall (X Y : finite_set (A * P)) ap,
+    bop_union eqAP 
+      (filter (λ '(x, _), eqA x ap) X)
+      (filter (λ '(x, _), eqA x ap) Y) = 
+    filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y).
   Proof.
     induction X as [|(ax, bx) X IHx].
     +
       intros *; cbn.
-      assert (Ha : (uop_duplicate_elim eqAP (uop_duplicate_elim eqAP U ++ Y)) =
-        (uop_duplicate_elim eqAP (U ++ Y))). admit.
-      rewrite Ha; now rewrite refP.
+      eapply uop_dup_filter_elim.
     +
-      intros *; simpl.
-      case_eq (in_set eqAP (X ++ U) (ax, bx));
-      intros Ha.
+      intros *; cbn.
+      case_eq (eqA ax ap);
+      case_eq (in_set eqAP (X ++ Y) (ax, bx));
+      intros Ha Hb.
       ++
-        eapply trnP with 
-        (matrix_algorithms.sum_fn zeroP addP snd
-        (filter (λ '(x, _), eqA x ap) (bop_union eqAP
-        (fold_left (manger_merge_sets_new eqA addP) X U) Y))).
-        +++
-          eapply sum_fn_filter_bop_union_cong;
-          subst;
-          eapply fold_left_in_set_true_rewrite;
-          try assumption.
-        +++
-          eapply symP, trnP with 
-            (matrix_algorithms.sum_fn zeroP addP snd
-            (filter (λ '(x, _), eqA x ap) 
-              (bop_union eqAP (bop_union eqAP X U) Y))).
-          eapply  sum_fn_filter_cong, bop_union_cong.
-          subst; eapply bop_union_in_set_true_rewrite;
-          try assumption.
-          eapply symP; subst; eapply IHx.
+        remember (filter (λ '(x, _), eqA x ap) X) as Xa.
+        remember (filter (λ '(x, _), eqA x ap) Y) as Ya.
+        rewrite <-app_comm_cons, uop_dup_dup_elim; subst;
+        [eapply IHx |].
+        repeat rewrite <-list_filter_lib_filter_same;
+        rewrite <-filter_app, list_filter_lib_filter_same.
+        eapply in_set_filter_intro;
+        [eapply symAP| | refine(pair Hb Ha)].
+        intros (au, bu) (cu, du) He.
+        eapply brel_product_elim in He.
+        destruct He as (Hel & Her).
+        eapply conA; try assumption.
+        now rewrite refA.
       ++
-        (* It seems that I am running out of steam!
-          I don't how to prove it.  *)
-        unfold manger_merge_sets_new at 2;
-        unfold manger_merge_sets_new_aux at 1;
-        simpl;
-        remember (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-        (filter (λ '(s2, _), eqA ax s2) U) (ax, bx)) as Ua.
-        destruct Ua as (Uax, Ubx).
-        remember (filter (λ '(s2, _), negb (eqA ax s2)) U) as Ub.
-        (* 
-        (fold_left (manger_merge_sets_new eqA addP) X (Ub ++ [(Uax, Ubx)]))
-        =S= 
-        (fold_left (manger_merge_sets_new eqA addP) X Ub) ++ 
-        ((fold_left (manger_merge_sets_new eqA addP) X [(Uax, Ubx)])
-        *)
-  Admitted.
+        remember (filter (λ '(x, _), eqA x ap) X) as Xa.
+        remember (filter (λ '(x, _), eqA x ap) Y) as Ya.
+        rewrite <-app_comm_cons, uop_duplicate_elim_lemma_2;
+        cbn. rewrite Hb. f_equal.
+        subst; eapply IHx.
+        subst.
+        repeat rewrite <-list_filter_lib_filter_same.
+        rewrite <-filter_app, list_filter_lib_filter_same.
+        case_eq (in_set eqAP (filter (λ '(x, _), eqA x ap) (X ++ Y)) (ax, bx));
+        intro Hc; try reflexivity.
+        eapply in_set_filter_elim in Hc;
+        [rewrite Ha in Hc; destruct Hc; congruence|].
+        intros (au, bu) (cu, du) He.
+        eapply brel_product_elim in He.
+        destruct He as (Hel & Her).
+        eapply conA; try assumption.
+        now rewrite refA.
+      ++
+        eapply IHx.
+      ++
+        cbn; rewrite Hb.
+        eapply IHx.
+  Qed.
 
+
+  Lemma matrix_sum_fn_addition : 
+    forall (X Y : finite_set (A * P)) ap,
+    eqP
+    (matrix_algorithms.sum_fn zeroP addP snd
+     (filter (λ '(x, _), eqA x ap) (X ++ Y)))
+    (matrix_algorithms.sum_fn zeroP addP snd
+     (filter (λ '(x, _), eqA x ap)
+      (fold_left (manger_merge_sets_new eqA addP) X Y))) = true.
+  Proof.
+  Admitted.
+  
         
   
 
@@ -709,14 +451,26 @@ Section Theory.
     (matrix_algorithms.sum_fn zeroP addP snd
       (filter (λ '(x, _), eqA x ap) (bop_union eqAP X Y))) = true.
   Proof.
-    intros *.
-    pose proof sum_fn_cong_bop_union_X_gen_acc X Y [] ap as Ha.
-    cbn in Ha.
-    assert (Hb : (bop_union eqAP X []) = X).
-    admit.
-    rewrite Hb in Ha.
-    eapply Ha.
-  Admitted.
+    intros *;
+    repeat rewrite <-bop_union_filter_push.
+    remember ((filter (λ '(x, _), eqA x ap) Y)) as Ya.
+    remember ((filter (λ '(x, _), eqA x ap)
+    (fold_left (manger_merge_sets_new eqA addP) X []))) as Xa.
+    remember ((filter (λ '(x, _), eqA x ap) X)) as Xb.
+    eapply trnP;
+    [eapply sum_fn_bop_union_dist |].
+    eapply symP, trnP;
+    [eapply sum_fn_bop_union_dist |].
+    remember ((matrix_algorithms.sum_fn zeroP addP snd Xb)) as Xaa.
+    remember ((matrix_algorithms.sum_fn zeroP addP snd Ya)) as Yaa.
+    remember ((matrix_algorithms.sum_fn zeroP addP snd Xa)) as Xab.
+    eapply cong_addP;
+    [| now rewrite refP].
+    subst.
+    replace (X) with (X ++ []) at 1.
+    now erewrite matrix_sum_fn_addition.
+    now rewrite app_nil_r.
+  Qed.
 
     
 
