@@ -262,10 +262,43 @@ Section Theory.
   Proof.
   Admitted.
 
+  
+
   (* End of admit that will come from library *)
 
 
    (* Move these lemmas to respective files *)
+
+   Lemma sum_fn_distribute : 
+  forall (X Y : finite_set (A * P)),
+  eqP 
+  (matrix_algorithms.sum_fn zeroP addP snd (X ++ Y))
+  (addP 
+    (matrix_algorithms.sum_fn zeroP addP snd X)
+    (matrix_algorithms.sum_fn zeroP addP snd Y)) = true.
+  Proof.
+    intros *.
+    eapply matrix_algorithms.sum_fn_distributes_over_concat;
+    auto.
+    unfold bop_is_id; split;
+    [eapply zeropLid | eapply zeropRid].
+  Qed.
+    
+   
+  Lemma sum_fn_commutative : 
+    forall (X Y : finite_set (A * P)),
+    eqP 
+    (matrix_algorithms.sum_fn zeroP addP snd (X ++ Y))
+    (matrix_algorithms.sum_fn zeroP addP snd (Y ++ X)) = true.
+  Proof.
+    intros *.
+    eapply trnP;
+    [eapply sum_fn_distribute |].
+    eapply symP, trnP;
+    [eapply sum_fn_distribute|].
+    eapply trnP;
+    [eapply addP_com| eapply refP].
+  Qed.
 
   Lemma sum_fn_base_case : 
     forall (Y : finite_set (A * P)), 
@@ -525,8 +558,30 @@ Section Theory.
   Qed.
 
   (* end of lemma movement *)
+  Lemma matrix_sum_filter_push_inside :
+    forall (X Y : finite_set (A * P)) au bu ap, 
+    eqA au ap = true ->
+    eqP 
+    (matrix_algorithms.sum_fn zeroP addP snd
+      ((au, bu) :: filter (λ '(x, _), eqA x ap) (X ++ Y)))
+    (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x ap) (X ++ ((au, bu) :: Y)))) = true.
+  Proof.
+    intros * Ha.
+    repeat rewrite <-list_filter_lib_filter_same;
+    repeat rewrite filter_app; cbn;
+    rewrite Ha; cbn.
+    remember (List.filter (λ '(x, _), eqA x ap) X) as Xa.
+    remember ((au, bu) :: List.filter (λ '(x, _), eqA x ap) Y) 
+    as Ya.
+    eapply symP, trnP;
+    [eapply sum_fn_commutative |].
+    subst; cbn.
+    eapply cong_addP;
+    [eapply refP |].
+    eapply sum_fn_commutative.
+  Qed.
 
- 
 
 
   Lemma matrix_sum_fn_addition : 
@@ -545,55 +600,65 @@ Section Theory.
      (filter (λ '(x, _), eqA x ap)
       (fold_left (manger_merge_sets_new eqA addP) X Y))) = true.
   Proof.
-    (* 
-      Plain simple induction is not going to work! 
-      well_founded_induction ??
-    *)
-    (* 
     induction X as [|(au, bu) X IHx].
-    + admit.
+    + intros * Ha. cbn. 
+      eapply refP.
     +
-      simpl; intros.
+      simpl; intros * Ha.
+      unfold manger_merge_sets_new at 2;
+      unfold manger_merge_sets_new_aux;
+      cbn.
+      remember (filter (λ '(s2, _), negb (eqA au s2)) Y) as Ya;
+      destruct (fold_left
+      (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA au s2) Y) (au, bu)) 
+      as (aw, av) eqn:Hb;
+      rewrite fold_left_simp in Hb;
+      inversion Hb; clear Hb;
+      rename H0 into Hb;
+      rename H1 into Hc;
+      rewrite Hc, <-Hb;
+      assert (Hd : no_dup eqA (map fst (Ya ++ [(au, av)])) = true).
+      rewrite map_app; cbn; subst.
+      eapply no_dup_filter; auto.
+      (* Y is duplicate free *)
+      rewrite <-Hb in Hc.
+      specialize (IHx (Ya ++ [(au, av)]) ap Hd).
+      eapply symP in IHx. 
+      eapply symP.
+      eapply trnP; 
+      [eapply IHx |].
+      (* This one is bit easy goal! Thanks Tim for 
+      the idea! *)
       case_eq (eqA au ap);
-      intros Ha.
+      intro He.
       ++
-        (* 
-          1. (au, bu) ∈ Y 
-            I can write:
-            Y = Y₁ ++ [(au, bu)] ++ Y₂
-            (manger_merge_sets_new eqA addP Y (au, bu))) =S=  
+        eapply symP, trnP;
+        [eapply matrix_sum_filter_push_inside; 
+        exact He|].
+        repeat rewrite <-list_filter_lib_filter_same, 
+        filter_app;
+        repeat rewrite list_filter_lib_filter_same.
+        eapply trnP;
+        [eapply sum_fn_distribute |].
+        eapply symP, trnP;
+        [eapply sum_fn_distribute |].
+        eapply cong_addP;
+        [eapply refP|].
+        admit.
+      ++
+        repeat rewrite <-list_filter_lib_filter_same;
+        repeat rewrite filter_app;
+        repeat rewrite list_filter_lib_filter_same.
+        eapply trnP;
+        [eapply sum_fn_distribute |].
+        eapply symP, trnP;
+        [eapply sum_fn_distribute |].
+        eapply cong_addP;
+        [eapply refP|].
 
-        *)
-    *)
-
-  
-    intros * Ha.
-    remember ((fold_left (manger_merge_sets_new eqA addP) X Y)) as Xa.
-
-    (*
-      Prove a lemma:
-    forall X : 
-    (forall (ux, vx), in_set X (ux, vx) = true -> ux = a) ∧
-    (w = )
-   
-    eqP
-    (matrix_algorithms.sum_fn zeroP addP snd X)
-    (matrix_algorithms.sum_fn zeroP addP snd [(a, w)]) = true
-    
-    Now, I need to connect X and Y 
-
-    *)
-
-
-
-    eapply symP.
-    (* 
-      Is this any help? 
-      No. What if ap is not in X or Y ?? 
-    *)
-    eapply in_set_fold_left_mmsn_elim; try assumption.
+      
   Admitted.
-
 
         
   
@@ -1409,13 +1474,18 @@ Section Theory.
           enough. It should be 
           ∀ a₁ a₂, eqA a₁ a₂ = true -> lteA a₁ a₂ = true. 
         *)
-        admit.
+        assert (Hd := conLte _ _ _ _ (refA a₁) Hbl).
+        rewrite <-Hd in Hal.
+        rewrite (refLte a₁) in Hal; congruence.
       +++
         unfold eqSAP, brel_set, 
         brel_and_sym, brel_subset; cbn.
         rewrite refA, refP; cbn.
         (* true = false *)
-        admit.
+        (* Same as above. *)
+        assert (Hd := conLte _ _ _ _ (refA a₁) Hbl).
+        rewrite <-Hd in Hal.
+        rewrite (refLte a₁) in Hal; congruence.
     ++
       unfold uop_compose; cbn.
       eapply Bool.andb_false_iff in Hb.
@@ -1449,16 +1519,8 @@ Section Theory.
       +++
         rewrite refP in Hbr;
         congruence.
-  Admitted.
+  Qed.
           
-
-
-
-      
-
-
-
-  Admitted. 
 
 End Theory.   
 
