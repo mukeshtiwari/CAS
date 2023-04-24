@@ -69,9 +69,10 @@ Fixpoint manger_merge_sets
 
 
 
-(* This makes the current proof that I am trying is bit easier.
-The manger_merge_sets and manger_merge_sets_new can 
-be proven equivalent, with some effort.
+(* 
+This makes the current proof that I am trying is bit easier.
+The manger_merge_sets and manger_merge_sets_new are 
+equivalent.
 *)
 
 
@@ -100,6 +101,7 @@ Definition manger_merge_sets_new
     end.
 
 
+
 Definition manger_phase_1_auxiliary 
           {A P : Type}
           (eqA : brel A)
@@ -107,6 +109,8 @@ Definition manger_phase_1_auxiliary
           (Y : finite_set (A * P))
           (X : finite_set (A * P))  : finite_set (A * P) :=
   fold_left (manger_merge_sets eqA addP) X Y.
+
+
 
 Definition uop_manger_phase_1 
           {A P : Type}
@@ -2622,8 +2626,8 @@ Proof.
   split;
   [exact (zeropLid s) | exact (zeropRid s)].
   assert (Hb : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-  (filter (λ '(s2, _), eqA au s2) V) (
-  au, av) == (au, fold_left (λ t1 t2 : P, addP t1 t2) 
+  (filter (λ '(s2, _), eqA au s2) V) (au, av) == 
+  (au, fold_left (λ t1 t2 : P, addP t1 t2) 
   (map snd (List.filter (λ '(x, _), eqA au x) V)) av)).
   eapply fold_left_filter.
   cbn.
