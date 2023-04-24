@@ -583,7 +583,6 @@ Section Theory.
   Qed.
 
 
-
   Lemma matrix_sum_fn_addition : 
     forall (X Y : finite_set (A * P)) ap,
     no_dup eqA (map fst Y) = true -> 
@@ -645,7 +644,32 @@ Section Theory.
         [eapply sum_fn_distribute |].
         eapply cong_addP;
         [eapply refP|].
-        admit.
+        rewrite HeqYa.
+        (* requires some thinking! *)
+        repeat rewrite <-list_filter_lib_filter_same, 
+        filter_app.
+        repeat rewrite <-list_filter_lib_filter_same.
+        (* why rewriting is such a mess! *)
+        rewrite <-filter_arg_swap_gen  
+        with (ax := ap) at 1; auto.
+        rewrite filter_empty; auto.
+        cbn; rewrite He; cbn.
+        rewrite <-Hc.
+        rewrite fold_symmetric; auto.
+        eapply trnP with 
+        ((fold_right (λ t1 t2 : P, addP t1 t2) bu
+        (map snd (filter (λ '(s2, _), eqA au s2) Y)))).
+        eapply zeropRid.
+        eapply trnP;
+        [eapply fold_right_zero |]; auto.
+        eapply cong_addP;
+        [eapply refP|].
+        repeat rewrite <-list_filter_lib_filter_same.
+        rewrite <-filter_arg_swap_gen  
+        with (ax := ap) at 1; auto.
+        repeat rewrite list_filter_lib_filter_same.
+        erewrite filter_equality with (a := au); auto.
+      
       ++
         repeat rewrite <-list_filter_lib_filter_same;
         repeat rewrite filter_app;
@@ -656,12 +680,22 @@ Section Theory.
         [eapply sum_fn_distribute |].
         eapply cong_addP;
         [eapply refP|].
-
+        cbn; rewrite He, app_nil_r.
+        rewrite HeqYa.
+        (* requires some thinking! *)
+        repeat rewrite <-list_filter_lib_filter_same.
+        eapply symP.
+        rewrite <-filter_arg_swap_gen  
+        with (ax := ap) at 1; auto.
+        rewrite filter_filter; auto.
+        rewrite <-filter_arg_swap_gen  
+        with (ax := ap) at 1; auto.
+        case_eq (eqA ap au);
+        intro Hf; try reflexivity.
+        rewrite (symA _ _ Hf) in He;
+        congruence.
+  Qed.
       
-  Admitted.
-
-        
-  
 
   Lemma sum_fn_cong_bop_union_X : 
     forall (X Y : finite_set (A * P)) ap, 
