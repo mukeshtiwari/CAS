@@ -526,8 +526,18 @@ Section Theory.
 
   (* end of lemma movement *)
 
+ 
+
+
   Lemma matrix_sum_fn_addition : 
     forall (X Y : finite_set (A * P)) ap,
+    no_dup eqA (map fst Y) = true -> 
+    (*
+      Basically, Y is empty from the places
+      it called, so we can add whatever 
+      assumption as long as it's true for
+      empty list.
+    *)
     eqP
     (matrix_algorithms.sum_fn zeroP addP snd
      (filter (λ '(x, _), eqA x ap) (X ++ Y)))
@@ -535,16 +545,55 @@ Section Theory.
      (filter (λ '(x, _), eqA x ap)
       (fold_left (manger_merge_sets_new eqA addP) X Y))) = true.
   Proof.
-    intros *.
-    remember (matrix_algorithms.sum_fn zeroP addP snd
-     (filter (λ '(x, _), eqA x ap)
-        (fold_left (manger_merge_sets_new eqA addP) X Y))) as p.
-    eapply symP.
-    eapply in_set_fold_left_mmsn_elim; try assumption.
+    (* 
+      Plain simple induction is not going to work! 
+      well_founded_induction ??
+    *)
+    (* 
+    induction X as [|(au, bu) X IHx].
     + admit.
     +
-  Admitted.
+      simpl; intros.
+      case_eq (eqA au ap);
+      intros Ha.
+      ++
+        (* 
+          1. (au, bu) ∈ Y 
+            I can write:
+            Y = Y₁ ++ [(au, bu)] ++ Y₂
+            (manger_merge_sets_new eqA addP Y (au, bu))) =S=  
+
+        *)
+    *)
+
+  
+    intros * Ha.
+    remember ((fold_left (manger_merge_sets_new eqA addP) X Y)) as Xa.
+
+    (*
+      Prove a lemma:
+    forall X : 
+    (forall (ux, vx), in_set X (ux, vx) = true -> ux = a) ∧
+    (w = )
+   
+    eqP
+    (matrix_algorithms.sum_fn zeroP addP snd X)
+    (matrix_algorithms.sum_fn zeroP addP snd [(a, w)]) = true
     
+    Now, I need to connect X and Y 
+
+    *)
+
+
+
+    eapply symP.
+    (* 
+      Is this any help? 
+      No. What if ap is not in X or Y ?? 
+    *)
+    eapply in_set_fold_left_mmsn_elim; try assumption.
+  Admitted.
+
 
         
   
@@ -1334,7 +1383,81 @@ Section Theory.
   Proof.
     destruct ntot as ((a₁, a₂) & Ha).
     exists ([(a₁, wP)], [(a₂, wP)]);
-    cbn.
+    cbn; unfold eq_manger, brel_reduce,
+    uop_manger, uop_compose, 
+    uop_manger_phase_2, uop_manger_phase_1, 
+    uop_minset, manger_phase_1_auxiliary,
+    bop_manger, bop_reduce, 
+    uop_manger, uop_manger_phase_1; cbn.
+    case_eq (and.bop_and (eqA a₁ a₂) (eqP wP wP));
+    intros Hb; cbn.
+    ++
+      eapply Bool.andb_true_iff in Hb.
+      destruct Hb as (Hbl & Hbr).
+      destruct Ha as (Hal & Har).
+      split.
+      +++
+        unfold eqSAP, brel_set, 
+        brel_and_sym, brel_subset; cbn;
+        rewrite Hbl, refP; cbn.
+        rewrite (symA _ _ Hbl); cbn.
+        (* true = false *)
+        (* it's contradiction, but I don't have 
+          suitable axiom to discharge it. 
+          From Hbl I know that a₁ and a₂ are 
+          equivalent, but refLte is not general 
+          enough. It should be 
+          ∀ a₁ a₂, eqA a₁ a₂ = true -> lteA a₁ a₂ = true. 
+        *)
+        admit.
+      +++
+        unfold eqSAP, brel_set, 
+        brel_and_sym, brel_subset; cbn.
+        rewrite refA, refP; cbn.
+        (* true = false *)
+        admit.
+    ++
+      unfold uop_compose; cbn.
+      eapply Bool.andb_false_iff in Hb.
+      destruct Hb as [Hb | Hbr].
+      +++
+        assert (Hc : eqA a₂ a₁ = false). 
+        case_eq (eqA a₂ a₁); intro Hc;
+        try reflexivity. 
+        rewrite (symA _ _ Hc) in Hb; 
+        congruence.
+        rewrite Hc.
+        unfold uop_manger_phase_2,
+        uop_minset. cbn.
+        unfold theory.below; cbn.
+        destruct Ha as [Hal Har].
+        rewrite Hal, Har; cbn.
+        rewrite Hb; cbn.
+        unfold theory.below; cbn.
+        rewrite Hal, Har; cbn.
+        split.
+        *
+          unfold eqSAP, brel_set, 
+          brel_and_sym, brel_subset; cbn.
+          rewrite Hb, Hc, refA, refP; cbn;
+          reflexivity.
+        *
+          unfold eqSAP, brel_set, 
+          brel_and_sym, brel_subset; cbn.
+          rewrite Hb, Hc, refA, refP; cbn;
+          reflexivity.
+      +++
+        rewrite refP in Hbr;
+        congruence.
+  Admitted.
+          
+
+
+
+      
+
+
+
   Admitted. 
 
 End Theory.   
