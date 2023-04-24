@@ -269,12 +269,12 @@ Section Theory.
 
    (* Move these lemmas to respective files *)
 
-   Lemma sum_fn_distribute : 
-  forall (X Y : finite_set (A * P)),
-  eqP 
-  (matrix_algorithms.sum_fn zeroP addP snd (X ++ Y))
-  (addP 
-    (matrix_algorithms.sum_fn zeroP addP snd X)
+  Lemma sum_fn_distribute : 
+    forall (X Y : finite_set (A * P)),
+    eqP 
+    (matrix_algorithms.sum_fn zeroP addP snd (X ++ Y))
+    (addP 
+      (matrix_algorithms.sum_fn zeroP addP snd X)
     (matrix_algorithms.sum_fn zeroP addP snd Y)) = true.
   Proof.
     intros *.
