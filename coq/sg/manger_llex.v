@@ -585,13 +585,7 @@ Section Theory.
 
   Lemma matrix_sum_fn_addition : 
     forall (X Y : finite_set (A * P)) ap,
-    no_dup eqA (map fst Y) = true -> 
-    (*
-      Basically, Y is empty from the places
-      it called, so we can add whatever 
-      assumption as long as it's true for
-      empty list.
-    *)
+    no_dup eqA (map fst Y) = true ->
     eqP
     (matrix_algorithms.sum_fn zeroP addP snd
      (filter (λ '(x, _), eqA x ap) (X ++ Y)))
