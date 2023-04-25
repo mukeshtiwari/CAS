@@ -21,7 +21,7 @@ Require Import CAS.coq.sg.plus.
 Require Import CAS.coq.po.from_sg. 
 
 
-(*
+
 Section Computation.
 
 
@@ -30,6 +30,7 @@ Section Computation.
   P = type of passive component
 *)   
 
+(* replace bSAP with this one *)
 
 Definition manger_product_phase_0
            {A P : Type}
@@ -39,12 +40,13 @@ Definition manger_product_phase_0
            (mulP : binary_op P) : binary_op (finite_set (A * P)) := 
   bop_lift (brel_product eqA eqP) (bop_product mulA mulP). 
 
+  
 (* is this a reduction over manger_product_phase_0? 
  
    r1 = uop_manger_phase_1
 
 *)   
-
+(*
 Definition manger_product_phase_1 
            {A P : Type}
            (eqA : brel A)
@@ -52,7 +54,8 @@ Definition manger_product_phase_1
            (addP : binary_op P)
            (mulA : binary_op A)
            (mulP : binary_op P) : binary_op (finite_set (A * P))
-  := bop_reduce (uop_manger_phase_1 eqA addP) (manger_product_phase_0 eqA eqP mulA mulP).
+  := bop_reduce (uop_manger_phase_1 eqA addP) 
+    (manger_product_phase_0 eqA eqP mulA mulP).
 
 
 
@@ -68,10 +71,25 @@ Definition bop_manger_product
            (addP : binary_op P)
            (mulA : binary_op A)
            (mulP : binary_op P) : binary_op (finite_set (A * P))
-  := bop_reduce (@uop_manger_phase_2 A P lteA) (manger_product_phase_1 eqA eqP addP mulA mulP). 
+  := bop_reduce (@uop_manger_phase_2 A P lteA) 
+    (manger_product_phase_1 eqA eqP addP mulA mulP). 
+*)
+
+Definition bop_manger_product 
+    {A P : Type}
+    (eqA lteA : brel A)
+    (eqP : brel P)            
+    (addP : binary_op P)
+    (mulA : binary_op A)
+    (mulP : binary_op P) : binary_op (finite_set (A * P)) :=
+    bop_reduce (@uop_manger A P eqA lteA addP) 
+      (manger_product_phase_0 eqA eqP mulA mulP).
 
 
 End Computation.
+
+
+
 
 Section Testing.
 
@@ -86,7 +104,7 @@ Local Definition eqP  := brel_eq_nat.
 Local Definition addP := bop_min. 
 Local Definition mulP := bop_plus.
 
-Local Definition manger_add := bop_manger_llex eqA lteA eqP addP.
+Local Definition manger_add := @bop_manger _ _ eqA lteA eqP addP.
 Local Definition manger_mul := bop_manger_product eqA lteA eqP addP mulA mulP.
 (*
   Check manger_add.
@@ -127,14 +145,13 @@ Variables  (A P : Type)
            (refA : brel_reflexive A eqA)
            (refP : brel_reflexive P eqP).
 
-Local Notation "[EQP0]" :=  (brel_set (brel_product eqA eqP)).
-Local Notation "[EQP1]" :=  (equal_manger_phase_1 eqA eqP addP). 
-Local Notation "[MP1]" :=  (uop_manger_phase_1 eqA addP).
-Local Notation "[MPP0]" :=  (manger_product_phase_0 eqA eqP mulA mulP).
-Local Notation "[MPP1]" :=  (manger_product_phase_1 eqA eqP addP mulA mulP).
-Local Notation "[MP]" := (bop_manger_product eqA lteA eqP addP mulA mulP). 
-Local Notation "[MR]" := (@uop_manger_phase_2 A P lteA).
-Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP).
+Local Notation "[EQP0]" :=  (brel_set (brel_product eqA eqP)) (only parsing).
+Local Notation "[EQP1]" :=  (equal_manger_phase_1 eqA eqP addP) (only parsing). 
+Local Notation "[MP1]" :=  (uop_manger_phase_1 eqA addP) (only parsing).
+Local Notation "[MPP0]" :=  (manger_product_phase_0 eqA eqP mulA mulP) (only parsing).
+Local Notation "[MP]" := (bop_manger_product eqA lteA eqP addP mulA mulP) (only parsing). 
+Local Notation "[MR]" := (@uop_manger_phase_2 A P lteA) (only parsing).
+Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP) (only parsing).
 
 (*
   Variable r_left  : bop_left_uop_invariant S eqS (bop_reduce r b) r.  (* eqS (r (b (r s1) s2)) (r (b s1 s2))  = true. *)
@@ -145,8 +162,8 @@ eq0 (b (r s1) s2) (b s1 s2) = true
  
 
 Lemma test0 : bop_left_uop_invariant _ [EQP0] [MPP0] [MP1].
- *)
-Print bop_left_uop_invariant.
+ 
+
 
 Lemma test0_left (a : A) (p : P) : ∀ X Y, 
   set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] ([MP1] X) Y)) (a, p) = true -> 
@@ -172,12 +189,56 @@ vs
       = (if a1a4 = a3a4) 
      {(a1a4, (b1+b2)b4 + b3b4)}
  *)
-Admitted. 
+Admitted.
+
+
 Lemma test0_right (a : A) (p : P) : ∀ X Y, 
     set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] X Y)) (a, p) = true -> 
   set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] ([MP1] X) Y)) (a, p) = true.
 Admitted. 
+*)
 
+Lemma bop_manger_product_congruence :
+    bop_congruence _ (brel_set (brel_product eqA eqP)) 
+      (bop_manger_product eqA lteA eqP addP mulA mulP).
+Proof.
+  unfold bop_congruence, brel_set, brel_and_sym.
+  intros * Ha Hb.
+  apply and.bop_and_elim in Ha, Hb;
+  destruct Ha as (Hal & Har), Hb as (Hbl & Hbr);
+  eapply and.bop_and_intro.
+  +
+    eapply brel_subset_intro;
+    [eapply refAP; assumption | intros (a, p) Hc].
+Admitted.
+
+Lemma bop_manger_product_associative :
+  bop_associative _ (brel_set (brel_product eqA eqP)) 
+  (bop_manger_product eqA lteA eqP addP mulA mulP).
+Proof.
+  unfold bop_associative,  brel_set, brel_and_sym.
+  intros *; eapply and.bop_and_intro.
+  +
+    eapply brel_subset_intro;
+    [eapply refAP; auto | intros (a, p) Ha].
+    admit.
+  +
+    eapply brel_subset_intro;
+    [eapply refAP; auto | intros (a, p) Ha].
+Admitted.
+
+
+Lemma bop_manger_product_commutative :
+  bop_commutative _ (brel_set (brel_product eqA eqP)) 
+  (bop_manger_product eqA lteA eqP addP mulA mulP).
+Admitted.
+
+
+
+
+
+  
+(* 
 Lemma test0 : bop_left_uop_invariant _ [EQP0] [MPP1] [MP1].
 Proof. (* [EQP0] ([MPP1] ([MP1] X) Y) ([MPP1] X Y) = true *)
          intros X Y.
@@ -190,7 +251,7 @@ Proof. (* [EQP0] ([MPP1] ([MP1] X) Y) ([MPP1] X Y) = true *)
            + apply test0_left; auto. 
            + apply test0_right; auto. 
 Qed.
-
+*)
 (*
 Proof. 
        intro X; induction X; intro Y.
@@ -205,6 +266,7 @@ Proof.
 Admitted. 
 *) 
 
+(* 
 Lemma test1 : bop_left_uop_invariant _ [EQP0] [MPP0] [MP1].
 Proof. intros X Y. unfold manger_product_phase_0.
        (* [EQP0] ([MPP0] ([MP1] X) Y) ([MPP0] X Y) = true *)
@@ -225,20 +287,22 @@ Lemma bop_manger_product_left_uop_invariant :
 Proof. intros X Y. unfold bop_manger_product.
        unfold bop_reduce.
        unfold equal_manger_phase_1.
-       unfold manger_product_phase_1.
        unfold bop_reduce.
        (*
          [EQP0] ([MP1] ([MR]        ([MPP1] ([MR] X) Y)))  ([MP1] ([MR] ([MPP1] X Y)))
          [EQP0] ([MP1] ([MR] ([MP1] ([MPP0] ([MR] X) Y)))) ([MP1] ([MR] ([MP1] ([MPP0] X Y))))
 
         *) 
-Admitted. 
+Admitted.
+
+
 Lemma bop_manger_product_right_uop_invariant : 
     bop_right_uop_invariant _ [EQ]  [MP] [MR]. 
 Admitted. 
+*)
   
 
 End Theory.  
 
 
-*) 
+
