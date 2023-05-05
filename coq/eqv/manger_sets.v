@@ -198,9 +198,8 @@ Variables (A P : Type)
           (* Extra assumptions needed to prove the lemmas fold_left congruence *)
           (addP_assoc : bop_associative P eqP addP)
           (addP_com : bop_commutative P eqP addP)
-          (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true)
-          (addP_assoc_cong : ∀ x y z : P, addP x (addP y z) = addP (addP x y) z)
-          (addP_com_cong : ∀ x y : P, addP x y = addP y x).
+          (* idempotence is baked in this addP_gen_idempotent but it can be proved *)
+          (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true).
 
       
 
@@ -2058,8 +2057,13 @@ Proof.
     exact Hdl.
     eapply trnP.
     exact Hdr.
-    repeat rewrite fold_symmetric;
-    try assumption.
+    (* start *)
+    eapply trnP;
+    [eapply list_congruences.fold_symmetric_with_equality; auto |].
+    eapply symP, trnP;
+    [eapply list_congruences.fold_symmetric_with_equality; auto|].
+    eapply symP.
+    (* end *)
     eapply fold_right_congruence.
     intros ? ? ?.
     eapply symP.
@@ -2073,9 +2077,6 @@ Proof.
     eapply brel_set_intro_prop.
     eapply refAP.
     split; assumption.
-    intros ?.
-    eapply addP_com_cong.
-    eapply addP_com_cong.
     inversion Hd.
   + 
     intros (au, pu) Hd.
@@ -2089,7 +2090,13 @@ Proof.
     exact Hdl.
     eapply trnP.
     exact Hdr.
-    repeat rewrite fold_symmetric.
+    (* start *)
+    eapply trnP;
+    [eapply list_congruences.fold_symmetric_with_equality; auto |].
+    eapply symP, trnP;
+    [eapply list_congruences.fold_symmetric_with_equality; auto|].
+    eapply symP.
+    (* end *)
     eapply fold_right_congruence.
     intros ? ? ?;
     eapply symP;
@@ -2103,10 +2110,6 @@ Proof.
     eapply brel_set_intro_prop.
     eapply refAP.
     split; assumption.
-    eapply addP_assoc_cong.
-    eapply addP_com_cong.
-    eapply addP_assoc_cong.
-    eapply addP_com_cong.
     inversion Hd.
 Qed.
 
@@ -2854,8 +2857,19 @@ Lemma push_add_outside :
   eqP (addP bx y) yt = true.
 Proof.
   intros ? ? ? ? ? Ha Hb.
-  rewrite fold_symmetric in Ha, Hb;
-  try assumption.
+  
+  (* start *)
+  assert (Hal : eqP y (fold_right (λ t1 t2 : P, addP t1 t2) av V) = true).
+  eapply trnP;
+  [eapply Ha| eapply list_congruences.fold_symmetric_with_equality; auto].
+  clear Ha; rename Hal into Ha.
+  assert (Hbl : eqP yt
+    (fold_right (λ t1 t2 : P, addP t1 t2) (addP av bx) V) = true).
+  eapply trnP;
+  [eapply Hb| eapply list_congruences.fold_symmetric_with_equality; auto].
+  clear Hb; rename Hbl into Hb.
+  (* end *)
+
   assert (Hc : 
     eqP y (addP av (fold_right (λ t1 t2 : P, addP t1 t2) zeroP V)) = true).
   eapply trnP;
@@ -2885,12 +2899,6 @@ Proof.
   [eapply refP | exact Hc].
   eapply symP;
   exact Hb.
-  intros yz. 
-  rewrite addP_com_cong; 
-  exact eq_refl.
-  intros yz.
-  rewrite addP_com_cong;
-  exact eq_refl.
 Qed.
 
 
@@ -3355,7 +3363,12 @@ Proof.
     exact Hc.
     eapply brel_product_intro;
     [eapply symA in Ha; exact Ha|].
-    rewrite fold_symmetric.
+    
+    (* start  *)
+    eapply trnP.
+    eapply list_congruences.fold_symmetric_with_equality; auto.
+    (* end *)
+
     rewrite <-list_filter_lib_filter_same in Hb.
     eapply trnP with (addP av
     (fold_right addP zeroP
@@ -3368,8 +3381,6 @@ Proof.
     eapply cong_addP;
     [eapply refP| eapply eqP_fold_right_refl].
     exact Ha.
-    eapply addP_assoc_cong.
-    eapply addP_com_cong.
   +
     simpl in * |- *.
     (* case analysis *)
@@ -3491,13 +3502,15 @@ Proof.
         eapply brel_product_intro.
         eapply symA; exact Hal.
         eapply symP.
-        rewrite fold_symmetric.
+        (* start  *)
+        eapply symP, trnP.
+        eapply list_congruences.fold_symmetric_with_equality; auto.
+        eapply symP.
+        (* end *)
         pose proof fold_right_zero (map snd Vb) av 
         as Hd.
         eapply symP in Hd.
         exact (trnP _ _ _ Hb Hd).
-        eapply addP_assoc_cong.
-        eapply addP_com_cong.
       +++
         congruence.
     ++
@@ -3709,8 +3722,7 @@ Proof.
     eapply manger_merge_set_congruence_right.
     eapply brel_product_intro.
     exact Ha.
-    rewrite addP_com_cong.
-    eapply refP.
+    eapply addP_com.
   +
     assert (Hb : au <A> ax).
     case_eq (eqA au ax);
@@ -4523,15 +4535,18 @@ Proof.
     eapply cong_addP.
     eapply refP.
     eapply symP; exact IHy.
-    rewrite addP_assoc_cong;
-    eapply refP.
-    rewrite addP_com_cong, 
-    <-addP_assoc_cong.
-    eapply cong_addP.
-    eapply refP.
-    rewrite addP_com_cong;
-    eapply refP.
-Qed.
+    ++
+      eapply symP, addP_assoc.
+    ++
+      remember ((fold_right addP zeroP Y)) as Ya.
+      eapply trnP;
+      [eapply addP_com|].
+      eapply trnP;
+      [eapply addP_assoc|].
+      eapply cong_addP.
+      eapply refP.
+      eapply addP_com.
+  Qed.
 
 
 
@@ -4599,8 +4614,26 @@ Proof.
           (addP 
           (fold_right addP zeroP (map snd (List.filter (λ '(x, _), eqA x a) X))) 
           (fold_right addP zeroP (map snd (List.filter (λ '(x, _), eqA x a) Y))))).
-      rewrite fold_symmetric in HeqV; try assumption.
-      subst.
+
+      (* start *)
+      assert (Hft : eqP p
+      (addP
+         (fold_right addP zeroP
+            (map snd (List.filter (λ '(x, _), eqA x a) X)))
+         (fold_right addP zeroP
+            [fold_right (λ t1 t2 : P, addP t1 t2) bx
+               (map snd (filter (λ '(s2, _), eqA ax s2) Y))])) = true).
+      subst. eapply trnP;
+      [eapply Hf |].
+      eapply cong_addP;
+      [eapply refP|].
+      cbn. eapply cong_addP.
+      eapply list_congruences.fold_symmetric_with_equality; 
+      try auto.
+      eapply refP.
+      clear Hf; rename Hft into Hf.
+      (* end *)
+      
       (* now replace in He 
       fold_right_right 
       *)
@@ -4624,27 +4657,22 @@ Proof.
       rewrite filter_arg_swap_gen with (a := a) in Hg.
       remember ((fold_right addP zeroP
       (map snd (List.filter (λ '(s2, _), eqA s2 a) Y)))) as Yv.
-      (* Hg is exactly the goal *)
-      eapply symP in Hg.
-      eapply symP.
-      eapply trnP with (addP Xv (addP bx Yv)); try assumption.
-      rewrite addP_assoc_cong.
-      eapply trnP with (addP (addP Xv bx) Yv).
-      eapply cong_addP.
-      rewrite addP_com_cong.
-      eapply refP.
-      eapply refP.
-      rewrite addP_assoc_cong.
-      eapply refP.
+      (* start *)
+      eapply trnP;
+      [eapply Hg | ].
+      eapply trnP;
+      [eapply addP_com|].
+      eapply trnP with (addP bx (addP Yv Xv));
+      [eapply addP_assoc | eapply cong_addP].
+      eapply refP. eapply addP_com.
       exact Hc.
-      intros;
-      eapply addP_com_cong.
       eapply cong_addP.
       eapply refP.
       eapply symP.
       subst.
       eapply fold_right_distributes.
       exact Hc.
+      (* end *)
     ++
       (* eqA ax a = false *)
       (* 

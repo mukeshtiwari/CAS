@@ -6,7 +6,10 @@ Require Import CAS.coq.common.compute.
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.eqv.set.
-Require Import CAS.coq.eqv.manger_sets. 
+Require Import CAS.coq.eqv.manger_sets.
+Require Import CAS.coq.eqv.reduce
+  CAS.coq.uop.commutative_composition
+  CAS.coq.uop.properties.
 
 Require Import CAS.coq.sg.properties.
 Require Import CAS.coq.sg.lift.
@@ -18,7 +21,7 @@ Require Import CAS.coq.sg.manger_llex.
 Require Import CAS.coq.eqv.nat. 
 Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.plus.
-Require Import CAS.coq.po.from_sg. 
+Require Import CAS.coq.po.from_sg.
 
 
 
@@ -90,7 +93,7 @@ End Computation.
 
 
 
-
+(* 
 Section Testing.
 
 (*  A = nat * nat, P = nat *) 
@@ -133,6 +136,7 @@ Compute (manger_add (manger_mul s5 s1) (manger_mul s5 s3)). (* (1, 7, 10) :: (2,
 Compute (manger_mul s5 (manger_add s1 s3)).                 (* (2, 4, 9) :: (1, 7, 10) :: nil *) 
 
 End Testing.
+*)
 
 Section Theory.
 
@@ -143,7 +147,11 @@ Variables  (A P : Type)
            (mulA : binary_op A)
            (mulP : binary_op P)
            (refA : brel_reflexive A eqA)
-           (refP : brel_reflexive P eqP).
+           (symA : brel_symmetric A eqA)
+           (trnA : brel_transitive A eqA)
+           (refP : brel_reflexive P eqP)
+           (symP : brel_symmetric P eqP)
+           (trnP : brel_transitive P eqP).
 
 Local Notation "[EQP0]" :=  (brel_set (brel_product eqA eqP)) (only parsing).
 Local Notation "[EQP1]" :=  (equal_manger_phase_1 eqA eqP addP) (only parsing). 
@@ -198,38 +206,44 @@ Lemma test0_right (a : A) (p : P) : ∀ X Y,
 Admitted. 
 *)
 
-Lemma bop_manger_product_congruence :
-    bop_congruence _ (brel_set (brel_product eqA eqP)) 
-      (bop_manger_product eqA lteA eqP addP mulA mulP).
+Lemma manger_product_phase_0_cong :
+  bop_congruence (finite_set (A * P)) (manger_llex.eqSAP A P eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP).
 Proof.
-  unfold bop_congruence, brel_set, brel_and_sym.
-  intros * Ha Hb.
-  apply and.bop_and_elim in Ha, Hb;
-  destruct Ha as (Hal & Har), Hb as (Hbl & Hbr);
-  eapply and.bop_and_intro.
-  +
-    eapply brel_subset_intro;
-    [eapply refAP; assumption | intros (a, p) Hc].
 Admitted.
 
+
+Lemma bop_manger_product_congruence :
+    bop_congruence _ (@eq_manger A P eqA lteA eqP addP) 
+      (bop_manger_product eqA lteA eqP addP mulA mulP).
+Proof.
+  eapply uop_compose_bop_congruence.
+  + eapply symSAP.
+  + eapply trnSAP; 
+    try assumption.
+  + eapply manger_product_phase_0_cong.
+  + eapply P1_cong; try assumption; try admit.
+    (* add goal as assumptions becuase it's
+      coming from manger_llex *)
+  + admit.
+  + admit.
+  + admit.
+  + admit.
+  + admit.
+  + admit.
+Admitted.
+
+
 Lemma bop_manger_product_associative :
-  bop_associative _ (brel_set (brel_product eqA eqP)) 
+  bop_associative _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Proof.
-  unfold bop_associative,  brel_set, brel_and_sym.
-  intros *; eapply and.bop_and_intro.
-  +
-    eapply brel_subset_intro;
-    [eapply refAP; auto | intros (a, p) Ha].
-    admit.
-  +
-    eapply brel_subset_intro;
-    [eapply refAP; auto | intros (a, p) Ha].
+  apply uop_compose_bop_associative.
 Admitted.
 
 
 Lemma bop_manger_product_commutative :
-  bop_commutative _ (brel_set (brel_product eqA eqP)) 
+  bop_commutative _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Admitted.
 

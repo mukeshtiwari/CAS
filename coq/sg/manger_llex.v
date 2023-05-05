@@ -70,12 +70,10 @@ Section Theory.
     (ntot : brel_not_total A lteA)
     (addP_assoc : bop_associative P eqP addP)
     (addP_com : bop_commutative P eqP addP)
-    (* idempotence is baked in this addP_cong *)
+    (* idempotence is baked in this addP_gen_idempotent but it can be proved *)
     (zeropLid : ∀ (p : P), eqP (addP zeroP p) p = true)
     (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true)
-    (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true)
-    (addP_assoc_cong : ∀ x y z : P, addP x (addP y z) = addP (addP x y) z)
-    (addP_com_cong : ∀ x y : P, addP x y = addP y x).
+    (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true).
     
   Local Definition eqAP : brel (A * P)
     := brel_product eqA eqP.
@@ -328,7 +326,8 @@ Section Theory.
         eapply symP.
         eapply fold_right_idempotent_aux_one; 
         try assumption.
-        intros *. now rewrite addP_assoc_cong.
+        intros *;
+        eapply symP, addP_assoc.
         intros * Hu Hv;
         eapply cong_addP; try assumption.
         eapply map_in_set with (au := au) (bu := bu) in Ha; 
@@ -390,7 +389,8 @@ Section Theory.
         try assumption.
         eapply symP, fold_right_idempotent_aux_one; 
         try assumption.
-        intros *. now rewrite addP_assoc_cong.
+        intros *;
+        eapply symP, addP_assoc.
         intros * Hu Hv;
         eapply cong_addP; try assumption.
         eapply map_in_set with (au := ax) (bu := bx) in Ha;
@@ -649,7 +649,19 @@ Section Theory.
         rewrite filter_empty; auto.
         cbn; rewrite He; cbn.
         rewrite <-Hc.
-        rewrite fold_symmetric; auto.
+        (* start *)
+        eapply trnP with 
+        (addP
+        (fold_right (λ t1 t2 : P, addP t1 t2) bu
+          (map snd (filter (λ '(s2, _), eqA au s2) Y))) zeroP).
+        remember ((map snd (filter (λ '(s2, _), eqA au s2) Y))) as Yt.
+        eapply trnP;
+        [eapply zeropRid| eapply symP].
+        eapply trnP;
+        [eapply zeropRid | eapply symP].
+        eapply list_congruences.fold_symmetric_with_equality;
+        try auto.
+        (* end *)
         eapply trnP with 
         ((fold_right (λ t1 t2 : P, addP t1 t2) bu
         (map snd (filter (λ '(s2, _), eqA au s2) Y)))).
