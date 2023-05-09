@@ -140,18 +140,37 @@ End Testing.
 
 Section Theory.
 
-Variables  (A P : Type)
-           (eqA lteA : brel A)
-           (eqP : brel P)            
-           (addP : binary_op P)
-           (mulA : binary_op A)
-           (mulP : binary_op P)
-           (refA : brel_reflexive A eqA)
-           (symA : brel_symmetric A eqA)
-           (trnA : brel_transitive A eqA)
-           (refP : brel_reflexive P eqP)
-           (symP : brel_symmetric P eqP)
-           (trnP : brel_transitive P eqP).
+Variables  
+  (A P : Type)
+  (zeroP : P) (* 0 *)
+  (eqA lteA : brel A)
+  (eqP : brel P)            
+  (addP : binary_op P)
+  (wA : A)
+  (wP : P) 
+  (fA : A -> A) 
+  (ntA : brel_not_trivial A eqA fA)
+  (conA : brel_congruence A eqA eqA) 
+  (mulA : binary_op A)
+  (mulP : binary_op P)
+  (refA : brel_reflexive A eqA)
+  (symA : brel_symmetric A eqA)
+  (trnA : brel_transitive A eqA)
+  (refP : brel_reflexive P eqP)
+  (symP : brel_symmetric P eqP)
+  (trnP : brel_transitive P eqP)
+  (ntot : properties.brel_not_total A lteA)
+  (conP : brel_congruence P eqP eqP)
+  (cong_addP : bop_congruence P eqP addP) 
+  (conLte : brel_congruence A eqA lteA) 
+  (refLte : brel_reflexive A lteA)
+  (trnLte : brel_transitive A lteA) 
+  (addP_assoc : bop_associative P eqP addP)
+  (addP_com : bop_commutative P eqP addP)
+   (* idempotence is baked in this addP_gen_idempotent but it can be proved *)
+   (zeropLid : ∀ (p : P), eqP (addP zeroP p) p = true)
+   (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true)
+   (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true).
 
 Local Notation "[EQP0]" :=  (brel_set (brel_product eqA eqP)) (only parsing).
 Local Notation "[EQP1]" :=  (equal_manger_phase_1 eqA eqP addP) (only parsing). 
@@ -212,6 +231,39 @@ Lemma manger_product_phase_0_cong :
 Proof.
 Admitted.
 
+Lemma bop_left_uop_inv_phase_1 : 
+  bop_left_uop_invariant (finite_set (A * P))
+  (manger_llex.eqSAP A P eqA eqP)
+  (bop_reduce (uop_manger_phase_1 eqA addP)
+    (manger_product_phase_0 eqA eqP mulA mulP))
+  (uop_manger_phase_1 eqA addP).
+Admitted.
+
+Lemma bop_right_uop_inv_phase_1 : 
+  bop_right_uop_invariant (finite_set (A * P))
+  (manger_llex.eqSAP A P eqA eqP)
+  (bop_reduce (uop_manger_phase_1 eqA addP)
+     (manger_product_phase_0 eqA eqP mulA mulP))
+  (uop_manger_phase_1 eqA addP).
+Admitted.
+
+Lemma bop_left_uop_inv_phase_2 : 
+  bop_left_uop_invariant (finite_set (A * P))
+  (manger_llex.eqSAP A P eqA eqP)
+  (bop_reduce (uop_manger_phase_2 lteA)
+     (manger_product_phase_0 eqA eqP mulA mulP))
+  (uop_manger_phase_2 lteA).
+Admitted.
+
+Lemma bop_right_uop_inv_phase_2 : 
+  bop_right_uop_invariant (finite_set (A * P))
+  (manger_llex.eqSAP A P eqA eqP)
+  (bop_reduce (uop_manger_phase_2 lteA)
+     (manger_product_phase_0 eqA eqP mulA mulP))
+  (uop_manger_phase_2 lteA).
+Admitted.
+
+
 
 Lemma bop_manger_product_congruence :
     bop_congruence _ (@eq_manger A P eqA lteA eqP addP) 
@@ -222,16 +274,16 @@ Proof.
   + eapply trnSAP; 
     try assumption.
   + eapply manger_product_phase_0_cong.
-  + eapply P1_cong; try assumption; try admit.
-    (* add goal as assumptions becuase it's
-      coming from manger_llex *)
-  + admit.
-  + admit.
-  + admit.
-  + admit.
-  + admit.
-  + admit.
-Admitted.
+  + eapply P1_cong with (fA := fA) (lteA := lteA)
+    (zeroP := zeroP); try assumption. 
+  + eapply bop_left_uop_inv_phase_1.
+  + eapply bop_right_uop_inv_phase_1.
+  + eapply P2_cong; try assumption.
+  + eapply bop_left_uop_inv_phase_2.
+  + eapply bop_right_uop_inv_phase_2.
+  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
+    try assumption.
+Qed.
 
 
 Lemma bop_manger_product_associative :
