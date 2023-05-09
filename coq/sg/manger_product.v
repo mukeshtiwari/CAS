@@ -285,13 +285,35 @@ Proof.
     try assumption.
 Qed.
 
+Lemma manger_product_phase_0_associative : 
+  bop_associative (finite_set (A * P))
+  (manger_llex.eqSAP A P eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP).
+Admitted.
+
 
 Lemma bop_manger_product_associative :
   bop_associative _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Proof.
   apply uop_compose_bop_associative.
-Admitted.
+  + eapply refSAP; try assumption.
+  + eapply symSAP; try assumption.
+  + eapply trnSAP; try assumption.
+  + eapply manger_product_phase_0_cong.
+  + eapply  manger_product_phase_0_associative.
+  + eapply P1_cong with (fA := fA) (zeroP := zeroP) (lteA := lteA); 
+    try assumption.
+  + eapply P1_idem; try assumption.
+  + eapply bop_left_uop_inv_phase_1.
+  + eapply bop_right_uop_inv_phase_1.
+  + eapply P2_cong; try assumption.
+  + eapply P2_idem; try assumption.
+  + eapply bop_left_uop_inv_phase_2.
+  + eapply bop_right_uop_inv_phase_2.
+  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
+    try assumption.
+Qed.
 
 
 Lemma bop_manger_product_commutative :
