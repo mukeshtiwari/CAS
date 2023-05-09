@@ -347,6 +347,48 @@ Proof.
 Qed.
 
 
+Lemma manger_product_phase_0_idem : 
+  bop_idempotent (finite_set (A * P))
+  (manger_llex.eqSAP A P eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP).
+Admitted.
+
+
+Lemma bop_manger_product_idempotent :
+  bop_idempotent _ (@eq_manger A P eqA lteA eqP addP)
+  (bop_manger_product eqA lteA eqP addP mulA mulP).
+Proof.
+  eapply uop_compose_bop_idempotent.
+  + eapply refSAP; try assumption.
+  + eapply symSAP; try assumption.
+  + eapply trnSAP; try assumption.
+  + eapply manger_product_phase_0_cong.
+  + eapply P1_cong with (fA := fA) (lteA := lteA)
+    (zeroP := zeroP); try assumption. 
+  + eapply P1_idem; try assumption.
+  + eapply bop_left_uop_inv_phase_1.
+  + eapply bop_right_uop_inv_phase_1.
+  + eapply P2_cong; try assumption.
+  + eapply P2_idem; try assumption.
+  + eapply bop_left_uop_inv_phase_2.
+  + eapply bop_right_uop_inv_phase_2.
+  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
+    try assumption.
+  + eapply  manger_product_phase_0_idem.
+Qed.
+  
+
+
+Lemma bop_manger_product_not_selective :
+  bop_not_selective _ (@eq_manger A P eqA lteA eqP addP)
+  (bop_manger_product eqA lteA eqP addP mulA mulP).
+Proof.
+Admitted.
+ 
+
+
+
+
 
 
 
