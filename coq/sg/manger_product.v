@@ -234,6 +234,10 @@ Admitted.
 Lemma bop_right : 
   bop_is_right (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
 Admitted.
+
+Lemma bop_cong : 
+  bop_congruence (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
+Admitted.
 (* end of Admit *)
 
 
@@ -264,16 +268,13 @@ Proof.
     [eapply trnAP | eapply symAP | | |];
     try assumption.
     ++
-      (* bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP) *)
       eapply bop_left.
     ++
       eapply bop_list_product_is_left_elim in Hc;
       [|eapply trnAP | eapply symAP | ]; 
       try assumption.
       * eapply Hal; exact Hc.
-      * (* 
-        bop_is_left (A * P) (manger_llex.eqAP A P eqA eqP) (bop_product mulA mulP)*)
-        eapply bop_left.
+      * eapply bop_left.
     ++
       eapply bop_list_product_is_right_elim in Hc;
       [|eapply refAP | eapply trnAP | eapply symAP | ]; 
@@ -283,10 +284,7 @@ Proof.
         destruct t2; cbn in Hc;
         try congruence;
         cbn; reflexivity.
-      *
-        (* bop_is_right (A * P) (manger_llex.eqAP A P eqA eqP)
-        (bop_product mulA mulP) *)
-        eapply bop_right.
+      * eapply bop_right.
   + 
     eapply union.in_set_uop_duplicate_elim_intro;
     eapply union.in_set_uop_duplicate_elim_elim in Hc;
@@ -336,21 +334,28 @@ Proof.
     (zeroP := zeroP) in Ha; try assumption;
     destruct Ha as ((q & Hal) & Har).
     ++
-      (* what should be q?? *)
+      eapply union.in_set_uop_duplicate_elim_elim,
+      bop_list_product_is_left_elim in Hal;
+      [|eapply trnAP | eapply symAP | eapply bop_left];
+      try assumption.
+      eapply in_set_uop_manger_phase_1_elim with 
+      (zeroP := zeroP) in Hal; try assumption;
+      destruct Hal as ((qt & Hala) & Halb).
+      exists qt.
+      eapply union.in_set_uop_duplicate_elim_intro;
+      [eapply symAP | eapply trnAP | ];
+      try assumption.
+      (* This is the challenge! Because it's 
+        demanding s2 to be non-empty *)
+      eapply bop_list_product_is_left_intro;
+      [eapply trnAP | eapply symAP | eapply bop_left | | ];
+      try assumption.
       admit.
+    
     ++
 
       admit.
   +
-    eapply in_set_uop_manger_phase_1_intro with 
-    (zeroP := zeroP); try assumption;
-    eapply in_set_uop_manger_phase_1_elim with 
-    (zeroP := zeroP) in Ha; try assumption;
-    destruct Ha as ((q & Hal) & Har).
-    ++ 
-      (* same goal *)
-      admit.
-    ++
       admit.
 Admitted.
 
@@ -360,6 +365,12 @@ Lemma bop_right_uop_inv_phase_1 :
   (bop_reduce (uop_manger_phase_1 eqA addP)
      (manger_product_phase_0 eqA eqP mulA mulP))
   (uop_manger_phase_1 eqA addP).
+Proof.
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP|split; intros (au, av) Ha]; 
+  try assumption.
+
 Admitted.
 
 Lemma bop_left_uop_inv_phase_2 : 
@@ -400,10 +411,22 @@ Proof.
     try assumption.
 Qed.
 
+
 Lemma manger_product_phase_0_associative : 
   bop_associative (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
   (manger_product_phase_0 eqA eqP mulA mulP).
+Proof.
+  intros ? ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; 
+  try assumption.
+  +
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Ha;
+    [eapply symAP| eapply trnAP|]; try assumption.
+    
+
 Admitted.
 
 
@@ -441,9 +464,44 @@ Proof.
   [eapply refAP | split; intros (au, av) Ha]; 
   try assumption.
   +
-
-
-Admitted.
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Ha;
+    [eapply symAP| eapply trnAP|]; try assumption;
+    (* intro and elim rule for bop_list_product_left 
+    from CAS.coq.sg.lift *)
+    eapply bop_list_product_is_left_intro;
+    [eapply trnAP | eapply symAP | | |];
+    try assumption.
+    ++
+      eapply bop_left.
+    ++
+      eapply bop_list_product_is_right_elim in Ha;
+      [|eapply refAP | eapply trnAP | eapply symAP | eapply bop_right]; 
+      try assumption.
+    ++
+      destruct s; cbn in Ha;
+      try congruence;
+      cbn; reflexivity.
+  +
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Ha;
+    [eapply symAP| eapply trnAP|]; try assumption;
+    (* intro and elim rule for bop_list_product_left 
+    from CAS.coq.sg.lift *)
+    eapply bop_list_product_is_left_intro;
+    [eapply trnAP | eapply symAP | | |];
+    try assumption.
+    ++
+      eapply bop_left.
+    ++
+      eapply bop_list_product_is_right_elim in Ha;
+      [|eapply refAP | eapply trnAP | eapply symAP | eapply bop_right]; 
+      try assumption.
+    ++
+      destruct t; cbn in Ha;
+      try congruence;
+      cbn; reflexivity.
+Qed.
 
 
 Lemma bop_manger_product_commutative :
