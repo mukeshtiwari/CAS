@@ -227,7 +227,13 @@ Admitted.
 *)
 
 (* Begin Admit *)      
+Lemma bop_left : 
+  bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
+Admitted.
 
+Lemma bop_right : 
+  bop_is_right (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
+Admitted.
 (* end of Admit *)
 
 
@@ -259,7 +265,7 @@ Proof.
     try assumption.
     ++
       (* bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP) *)
-      admit.
+      eapply bop_left.
     ++
       eapply bop_list_product_is_left_elim in Hc;
       [|eapply trnAP | eapply symAP | ]; 
@@ -267,7 +273,7 @@ Proof.
       * eapply Hal; exact Hc.
       * (* 
         bop_is_left (A * P) (manger_llex.eqAP A P eqA eqP) (bop_product mulA mulP)*)
-        admit.
+        eapply bop_left.
     ++
       eapply bop_list_product_is_right_elim in Hc;
       [|eapply refAP | eapply trnAP | eapply symAP | ]; 
@@ -280,7 +286,7 @@ Proof.
       *
         (* bop_is_right (A * P) (manger_llex.eqAP A P eqA eqP)
         (bop_product mulA mulP) *)
-        admit.
+        eapply bop_right.
   + 
     eapply union.in_set_uop_duplicate_elim_intro;
     eapply union.in_set_uop_duplicate_elim_elim in Hc;
@@ -291,13 +297,13 @@ Proof.
     [eapply trnAP | eapply symAP | | |];
     try assumption.
     ++
-      admit.
+      eapply bop_left.
     ++
       eapply bop_list_product_is_left_elim in Hc;
       [|eapply trnAP | eapply symAP | ]; 
       try assumption.
       * eapply Har; exact Hc.
-      * admit.
+      * eapply bop_left.
     ++
       eapply bop_list_product_is_right_elim in Hc;
       [|eapply refAP | eapply trnAP | eapply symAP | ]; 
@@ -307,10 +313,9 @@ Proof.
         destruct s2; cbn in Hc;
         try congruence;
         cbn; reflexivity.
-      *
-        admit.
-  Admitted.
-
+      * eapply bop_right.
+Qed.
+  
 
 
 Lemma bop_left_uop_inv_phase_1 : 
