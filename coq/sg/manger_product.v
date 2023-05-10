@@ -226,25 +226,10 @@ Lemma test0_right (a : A) (p : P) : ∀ X Y,
 Admitted. 
 *)
 
-Lemma in_set_bop_list_product_left_iff : 
-  forall (t1 t2: finite_set (A * P)) au av,
-  set.in_set (brel_product eqA eqP)
-    (bop_list_product_left (bop_product mulA mulP) t1 t2) (au, av) = true 
-  <-> 
-  set.in_set eqA (bop_list_product_left mulA (map fst t1) (map fst t2)) 
-    au = true ∧ 
-  set.in_set eqP (bop_list_product_left mulP (map snd t1) (map snd t2)) 
-    av = true.
-Proof.
-Admitted.
+(* Begin Admit *)      
 
-Lemma in_set_bop_list_product_left_exists_iff {T : Type} :
-  forall (f : binary_op T) (eqT : brel T) (X Y : finite_set T) au,
-  set.in_set eqT (bop_list_product_left f X Y) au = true <->
-  exists (ax ay : T), eqT (f ax ay) au = true ∧
-  set.in_set eqT X ax = true ∧ set.in_set eqT Y ay = true.
-Proof.
-Admitted.
+(* end of Admit *)
+
 
 
 
@@ -266,45 +251,64 @@ Proof.
   +
     eapply union.in_set_uop_duplicate_elim_intro;
     eapply union.in_set_uop_duplicate_elim_elim in Hc;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    eapply in_set_bop_list_product_left_iff in Hc.
-    eapply in_set_bop_list_product_left_iff.
-    destruct Hc as (Hcl & Hcr); split.
+    [eapply symAP| eapply trnAP|]; try assumption;
+    (* intro and elim rule for bop_list_product_left 
+    from CAS.coq.sg.lift *)
+    eapply bop_list_product_is_left_intro;
+    [eapply trnAP | eapply symAP | | |];
+    try assumption.
     ++
-      eapply in_set_bop_list_product_left_exists_iff in Hcl.
-      eapply in_set_bop_list_product_left_exists_iff.
-      destruct Hcl as (ax & ay & Hcla & Hclb & Hclc).
-      exists ax, ay; repeat split; try assumption.
-      admit.
+      (* bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP) *)
       admit.
     ++
-      eapply in_set_bop_list_product_left_exists_iff in Hcr.
-      eapply in_set_bop_list_product_left_exists_iff.
-      destruct Hcr as (ax & ay & Hcra & Hcrb & Hcrc).
-      exists ax, ay; repeat split; try assumption.
-      admit.
-      admit.
-  +
+      eapply bop_list_product_is_left_elim in Hc;
+      [|eapply trnAP | eapply symAP | ]; 
+      try assumption.
+      * eapply Hal; exact Hc.
+      * (* 
+        bop_is_left (A * P) (manger_llex.eqAP A P eqA eqP) (bop_product mulA mulP)*)
+        admit.
+    ++
+      eapply bop_list_product_is_right_elim in Hc;
+      [|eapply refAP | eapply trnAP | eapply symAP | ]; 
+      try assumption.
+      *
+        eapply Hbl in Hc;
+        destruct t2; cbn in Hc;
+        try congruence;
+        cbn; reflexivity.
+      *
+        (* bop_is_right (A * P) (manger_llex.eqAP A P eqA eqP)
+        (bop_product mulA mulP) *)
+        admit.
+  + 
     eapply union.in_set_uop_duplicate_elim_intro;
     eapply union.in_set_uop_duplicate_elim_elim in Hc;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    eapply in_set_bop_list_product_left_iff in Hc.
-    eapply in_set_bop_list_product_left_iff.
-    destruct Hc as (Hcl & Hcr); split.
+    [eapply symAP| eapply trnAP|]; try assumption;
+    (* intro and elim rule for bop_list_product_left 
+    from CAS.coq.sg.lift *)
+    eapply bop_list_product_is_left_intro;
+    [eapply trnAP | eapply symAP | | |];
+    try assumption.
     ++
-      eapply in_set_bop_list_product_left_exists_iff in Hcl.
-      eapply in_set_bop_list_product_left_exists_iff.
-      destruct Hcl as (ax & ay & Hcla & Hclb & Hclc).
-      exists ax, ay; repeat split; try assumption.
-      admit.
       admit.
     ++
-      eapply in_set_bop_list_product_left_exists_iff in Hcr.
-      eapply in_set_bop_list_product_left_exists_iff.
-      destruct Hcr as (ax & ay & Hcra & Hcrb & Hcrc).
-      exists ax, ay; repeat split; try assumption.
-      admit.
-      admit.
+      eapply bop_list_product_is_left_elim in Hc;
+      [|eapply trnAP | eapply symAP | ]; 
+      try assumption.
+      * eapply Har; exact Hc.
+      * admit.
+    ++
+      eapply bop_list_product_is_right_elim in Hc;
+      [|eapply refAP | eapply trnAP | eapply symAP | ]; 
+      try assumption.
+      *
+        eapply Hbr in Hc;
+        destruct s2; cbn in Hc;
+        try congruence;
+        cbn; reflexivity.
+      *
+        admit.
   Admitted.
 
 
