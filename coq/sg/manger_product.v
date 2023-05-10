@@ -11,7 +11,8 @@ Require Import CAS.coq.eqv.reduce
   CAS.coq.uop.commutative_composition
   CAS.coq.uop.properties.
 
-Require Import CAS.coq.sg.properties.
+Require Import CAS.coq.sg.properties
+  CAS.coq.sg.product.
 Require Import CAS.coq.sg.lift.
 Require Import CAS.coq.sg.product.
 Require Import CAS.coq.sg.reduce. 
@@ -22,7 +23,7 @@ Require Import CAS.coq.eqv.nat.
 Require Import CAS.coq.sg.min.
 Require Import CAS.coq.sg.plus.
 Require Import CAS.coq.po.from_sg.
-
+Import ListNotations.
 
 
 Section Computation.
@@ -225,11 +226,88 @@ Lemma test0_right (a : A) (p : P) : ∀ X Y,
 Admitted. 
 *)
 
-Lemma manger_product_phase_0_cong :
-  bop_congruence (finite_set (A * P)) (manger_llex.eqSAP A P eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP).
+Lemma in_set_bop_list_product_left_iff : 
+  forall (t1 t2: finite_set (A * P)) au av,
+  set.in_set (brel_product eqA eqP)
+    (bop_list_product_left (bop_product mulA mulP) t1 t2) (au, av) = true 
+  <-> 
+  set.in_set eqA (bop_list_product_left mulA (map fst t1) (map fst t2)) 
+    au = true ∧ 
+  set.in_set eqP (bop_list_product_left mulP (map snd t1) (map snd t2)) 
+    av = true.
 Proof.
 Admitted.
+
+Lemma in_set_bop_list_product_left_exists_iff {T : Type} :
+  forall (f : binary_op T) (eqT : brel T) (X Y : finite_set T) au,
+  set.in_set eqT (bop_list_product_left f X Y) au = true <->
+  exists (ax ay : T), eqT (f ax ay) au = true ∧
+  set.in_set eqT X ax = true ∧ set.in_set eqT Y ay = true.
+Proof.
+Admitted.
+
+
+
+
+
+Lemma manger_product_phase_0_cong :
+  bop_congruence _ 
+  (manger_llex.eqSAP A P eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP).
+Proof.
+  intros ? ? ? ? Ha Hb.
+  eapply brel_set_elim_prop in Ha, Hb;
+  [|eapply symAP | eapply trnAP | eapply symAP | eapply trnAP];
+  try assumption; destruct Ha as (Hal & Har);
+  destruct Hb as (Hbl & Hbr).
+  eapply brel_set_intro_prop;
+  [eapply refAP|split; intros (au, av) Hc];
+  try assumption.
+  +
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Hc;
+    [eapply symAP| eapply trnAP|]; try assumption.
+    eapply in_set_bop_list_product_left_iff in Hc.
+    eapply in_set_bop_list_product_left_iff.
+    destruct Hc as (Hcl & Hcr); split.
+    ++
+      eapply in_set_bop_list_product_left_exists_iff in Hcl.
+      eapply in_set_bop_list_product_left_exists_iff.
+      destruct Hcl as (ax & ay & Hcla & Hclb & Hclc).
+      exists ax, ay; repeat split; try assumption.
+      admit.
+      admit.
+    ++
+      eapply in_set_bop_list_product_left_exists_iff in Hcr.
+      eapply in_set_bop_list_product_left_exists_iff.
+      destruct Hcr as (ax & ay & Hcra & Hcrb & Hcrc).
+      exists ax, ay; repeat split; try assumption.
+      admit.
+      admit.
+  +
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Hc;
+    [eapply symAP| eapply trnAP|]; try assumption.
+    eapply in_set_bop_list_product_left_iff in Hc.
+    eapply in_set_bop_list_product_left_iff.
+    destruct Hc as (Hcl & Hcr); split.
+    ++
+      eapply in_set_bop_list_product_left_exists_iff in Hcl.
+      eapply in_set_bop_list_product_left_exists_iff.
+      destruct Hcl as (ax & ay & Hcla & Hclb & Hclc).
+      exists ax, ay; repeat split; try assumption.
+      admit.
+      admit.
+    ++
+      eapply in_set_bop_list_product_left_exists_iff in Hcr.
+      eapply in_set_bop_list_product_left_exists_iff.
+      destruct Hcr as (ax & ay & Hcra & Hcrb & Hcrc).
+      exists ax, ay; repeat split; try assumption.
+      admit.
+      admit.
+  Admitted.
+
+
 
 Lemma bop_left_uop_inv_phase_1 : 
   bop_left_uop_invariant (finite_set (A * P))
@@ -237,6 +315,34 @@ Lemma bop_left_uop_inv_phase_1 :
   (bop_reduce (uop_manger_phase_1 eqA addP)
     (manger_product_phase_0 eqA eqP mulA mulP))
   (uop_manger_phase_1 eqA addP).
+Proof.
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP|split; intros (au, av) Ha]; 
+  try assumption.
+  +
+    eapply in_set_uop_manger_phase_1_intro with 
+    (zeroP := zeroP); try assumption;
+    eapply in_set_uop_manger_phase_1_elim with 
+    (zeroP := zeroP) in Ha; try assumption;
+    destruct Ha as ((q & Hal) & Har).
+    ++
+      (* what should be q?? *)
+      admit.
+    ++
+
+      admit.
+  +
+    eapply in_set_uop_manger_phase_1_intro with 
+    (zeroP := zeroP); try assumption;
+    eapply in_set_uop_manger_phase_1_elim with 
+    (zeroP := zeroP) in Ha; try assumption;
+    destruct Ha as ((q & Hal) & Har).
+    ++ 
+      (* same goal *)
+      admit.
+    ++
+      admit.
 Admitted.
 
 Lemma bop_right_uop_inv_phase_1 : 
@@ -320,6 +426,14 @@ Lemma manger_product_phase_0_commutative :
   bop_commutative (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
   (manger_product_phase_0 eqA eqP mulA mulP).
+Proof.
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; 
+  try assumption.
+  +
+
+
 Admitted.
 
 
@@ -383,9 +497,10 @@ Lemma bop_manger_product_not_selective :
   bop_not_selective _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Proof.
+  destruct ntot as ((a₁, a₂) & Ha);
+  exists ([(a₁, wP)], [(a₂, wP)]); cbn.
 Admitted.
- 
-
+  
 
 
 
