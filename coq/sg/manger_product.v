@@ -237,6 +237,17 @@ Admitted.
 
 Lemma bop_cong : 
   bop_congruence (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
+Proof.
+  intros (sfa, sfb) (ssa, ssb) (tfa, tfb) (tsa, tsb) Ha Hb.
+  eapply brel_product_elim in Ha, Hb;
+  destruct Ha as (Hal & Har);
+  destruct Hb as (Hbl & Hbr);
+  eapply brel_product_intro.
+  +
+    (* We need axiom that mulA is congruence *)
+    admit.
+  +
+    (* We meed axiom that mulP is congruence *)
 Admitted.
 (* end of Admit *)
 
@@ -315,6 +326,22 @@ Proof.
 Qed.
   
 
+Lemma set_in_set_non_empty : 
+  forall (X Y : finite_set (A * P)) au q, 
+  set.in_set (brel_product eqA eqP)
+    (manger_product_phase_0 eqA eqP mulA mulP X Y) (au, q) = true ->
+  brel_set (brel_product eqA eqP) [] Y = false.
+Proof.
+  intros * Ha.
+  eapply in_set_bop_lift_elim in Ha;
+  [| eapply refAP | eapply symAP];
+  try assumption.
+  destruct Ha as ((xa, xb) & (ya, yb) & (Ha, Hb) & Hc).
+  destruct Y; cbn in Hb; 
+  try congruence;
+  cbn; try reflexivity.
+Qed.
+
 
 Lemma bop_left_uop_inv_phase_1 : 
   bop_left_uop_invariant (finite_set (A * P))
@@ -333,6 +360,8 @@ Proof.
     eapply in_set_uop_manger_phase_1_elim with 
     (zeroP := zeroP) in Ha; try assumption;
     destruct Ha as ((q & Hal) & Har).
+    assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
+    eapply set_in_set_non_empty; exact Hal.
     ++
       eapply union.in_set_uop_duplicate_elim_elim,
       bop_list_product_is_left_elim in Hal;
@@ -350,14 +379,43 @@ Proof.
       eapply bop_list_product_is_left_intro;
       [eapply trnAP | eapply symAP | eapply bop_left | | ];
       try assumption.
-      admit.
-    
     ++
-
+      (* Think about it! *)
       admit.
   +
-      admit.
-Admitted.
+    eapply in_set_uop_manger_phase_1_intro with 
+    (zeroP := zeroP); try assumption;
+    eapply in_set_uop_manger_phase_1_elim with 
+    (zeroP := zeroP) in Ha; try assumption;
+    destruct Ha as ((q & Hal) & Har).
+    assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
+    eapply set_in_set_non_empty; exact Hal.
+    ++
+      eapply union.in_set_uop_duplicate_elim_elim,
+      bop_list_product_is_left_elim in Hal;
+      [|eapply trnAP | eapply symAP | eapply bop_left];
+      try assumption.
+      eexists.
+      eapply union.in_set_uop_duplicate_elim_intro;
+      [eapply symAP | eapply trnAP | ];
+      try assumption.
+      eapply bop_list_product_is_left_intro;
+      [eapply trnAP | eapply symAP | | |];
+      try assumption.
+      * eapply bop_left.
+      *
+        eapply in_set_uop_manger_phase_1_intro with 
+        (zeroP := zeroP); try assumption.
+        **
+          exists q; exact Hal.
+        **
+          eapply refP.
+    ++
+      (* Think about it! *)
+  Admitted.
+
+
+
 
 Lemma bop_right_uop_inv_phase_1 : 
   bop_right_uop_invariant (finite_set (A * P))
@@ -370,7 +428,57 @@ Proof.
   eapply brel_set_intro_prop;
   [eapply refAP|split; intros (au, av) Ha]; 
   try assumption.
-
+  + 
+    eapply in_set_uop_manger_phase_1_intro with 
+    (zeroP := zeroP); try assumption;
+    eapply in_set_uop_manger_phase_1_elim with 
+    (zeroP := zeroP) in Ha; try assumption;
+    destruct Ha as ((q & Hal) & Har).
+    assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
+    destruct s2; cbn in Hal |- *.
+    eapply set_in_set_non_empty in Hal; cbn in Hal;
+    congruence. reflexivity.
+    ++
+      eexists.
+      eapply union.in_set_uop_duplicate_elim_intro;
+      eapply union.in_set_uop_duplicate_elim_elim in Hal;
+      [eapply symAP| eapply trnAP|]; try assumption.
+      eapply bop_list_product_is_left_intro;
+      [eapply trnAP | eapply symAP | | |];
+      try assumption.
+      * eapply bop_left.
+      *
+        eapply bop_list_product_is_left_elim in Hal;
+        [|eapply trnAP | eapply symAP | ]; 
+        try assumption; [exact Hal | eapply bop_left].
+    ++
+      (* May require some thinking*)
+      admit.
+  +
+    eapply in_set_uop_manger_phase_1_intro with 
+    (zeroP := zeroP); try assumption;
+    eapply in_set_uop_manger_phase_1_elim with 
+    (zeroP := zeroP) in Ha; try assumption;
+    destruct Ha as ((q & Hal) & Har).
+    assert (Hb : brel_set (brel_product eqA eqP) [] s1 = false).
+    destruct s1; cbn in Hal |- *; congruence.
+    ++
+      eexists.
+      eapply union.in_set_uop_duplicate_elim_intro;
+      eapply union.in_set_uop_duplicate_elim_elim in Hal;
+      [eapply symAP| eapply trnAP|]; try assumption.
+      eapply bop_list_product_is_right_intro;
+      [eapply refAP | eapply trnAP | eapply symAP |
+        eapply bop_cong | eapply bop_right | | exact Hb];
+      try assumption.
+      eapply bop_list_product_is_right_elim in Hal;
+      [|eapply refAP | eapply trnAP | eapply symAP | 
+      eapply bop_right]; try assumption.
+      eapply in_set_uop_manger_phase_1_intro with 
+      (zeroP := zeroP); try assumption;
+      [eexists; exact Hal | eapply refP].
+    ++
+      (* This about it *)
 Admitted.
 
 Lemma bop_left_uop_inv_phase_2 : 
