@@ -832,7 +832,29 @@ Lemma manger_product_phase_0_idem :
   bop_idempotent (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
   (manger_product_phase_0 eqA eqP mulA mulP).
-Admitted.
+Proof.
+  intros ?;
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha];
+  try assumption.
+  +
+    eapply union.in_set_uop_duplicate_elim_elim,
+    bop_list_product_is_left_elim in Ha;
+    [| eapply trnAP | eapply symAP | eapply bop_left];
+    try assumption.
+  +
+    eapply union.in_set_uop_duplicate_elim_intro;
+    [eapply symAP | eapply trnAP | ];
+    try assumption;
+    eapply bop_list_product_is_left_intro;
+    [eapply trnAP | apply symAP | eapply bop_left | 
+      exact Ha | ];
+    try assumption;
+    destruct s; cbn in Ha;
+    try congruence; 
+    cbn; reflexivity.
+Qed.
+
 
 
 Lemma bop_manger_product_idempotent :
