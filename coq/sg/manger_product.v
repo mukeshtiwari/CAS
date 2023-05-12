@@ -168,10 +168,9 @@ Variables
   (trnLte : brel_transitive A lteA) 
   (addP_assoc : bop_associative P eqP addP)
   (addP_com : bop_commutative P eqP addP)
-  (* idempotence is baked in this addP_gen_idempotent but it can be proved *)
+  (idemP : bop_idempotent P eqP addP)
   (zeropLid : ∀ (p : P), eqP (addP zeroP p) p = true)
-  (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true)
-  (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true).
+  (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true).
 
 (* Assumption about mulA and mulP *)
 Variables 
@@ -279,6 +278,15 @@ Admitted.
 
 
 (* end of Admit *)
+
+Lemma addP_gen_idempotent : 
+  ∀ x y : P, 
+  eqP x y = true → eqP (addP x y) y = true.
+Proof. intros x y B.
+       assert (C := cong_addP _ _ _ _ B (refP y)).
+       assert (D := idemP y).
+       exact (trnP _ _ _ C D).
+Qed. 
 
 Lemma bop_left : 
   bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
@@ -518,8 +526,10 @@ Proof.
   +
     eapply in_set_uop_manger_phase_1_intro with 
     (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent);
     eapply in_set_uop_manger_phase_1_elim with 
     (zeroP := zeroP) in Ha; try assumption;
+    try (eapply addP_gen_idempotent);
     destruct Ha as ((q & Hal) & Har).
     assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
     eapply set_in_set_non_empty_right; exact Hal.
@@ -527,9 +537,10 @@ Proof.
       eapply union.in_set_uop_duplicate_elim_elim,
       bop_list_product_is_left_elim in Hal;
       [|eapply trnAP | eapply symAP | eapply bop_left];
-      try assumption;
+      try assumption; try (eapply addP_gen_idempotent);
       eapply in_set_uop_manger_phase_1_elim with 
       (zeroP := zeroP) in Hal; try assumption;
+      try (eapply addP_gen_idempotent);
       destruct Hal as ((qt & Hala) & Halb);
       exists qt;
       eapply union.in_set_uop_duplicate_elim_intro;
@@ -548,8 +559,10 @@ Proof.
   +
     eapply in_set_uop_manger_phase_1_intro with 
     (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent);
     eapply in_set_uop_manger_phase_1_elim with 
     (zeroP := zeroP) in Ha; try assumption;
+    try (eapply addP_gen_idempotent);
     destruct Ha as ((q & Hal) & Har).
     assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
     eapply set_in_set_non_empty_right; exact Hal.
@@ -567,6 +580,7 @@ Proof.
       *
         eapply in_set_uop_manger_phase_1_intro with 
         (zeroP := zeroP); try assumption;
+        try (eapply addP_gen_idempotent);
         [exists q; exact Hal | eapply refP].
     ++
       (* Think about it! *)
@@ -590,8 +604,10 @@ Proof.
   + 
     eapply in_set_uop_manger_phase_1_intro with 
     (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent);
     eapply in_set_uop_manger_phase_1_elim with 
     (zeroP := zeroP) in Ha; try assumption;
+    try (eapply addP_gen_idempotent);
     destruct Ha as ((q & Hal) & Har).
     assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
     destruct s2; cbn in Hal |- *.
@@ -616,8 +632,10 @@ Proof.
   +
     eapply in_set_uop_manger_phase_1_intro with 
     (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent);
     eapply in_set_uop_manger_phase_1_elim with 
     (zeroP := zeroP) in Ha; try assumption;
+    try (eapply addP_gen_idempotent);
     destruct Ha as ((q & Hal) & Har).
     assert (Hb : brel_set (brel_product eqA eqP) [] s1 = false).
     destruct s1; cbn in Hal |- *; congruence.
@@ -626,15 +644,18 @@ Proof.
       eapply union.in_set_uop_duplicate_elim_intro;
       eapply union.in_set_uop_duplicate_elim_elim in Hal;
       [eapply symAP| eapply trnAP|]; try assumption;
+      try (eapply addP_gen_idempotent);
       eapply bop_list_product_is_right_intro;
       [eapply refAP | eapply trnAP | eapply symAP |
         eapply bop_cong | eapply bop_right | | exact Hb];
-      try assumption;
+      try assumption; try (eapply addP_gen_idempotent);
       eapply bop_list_product_is_right_elim in Hal;
       [|eapply refAP | eapply trnAP | eapply symAP | 
       eapply bop_right]; try assumption;
+      try (eapply addP_gen_idempotent);
       eapply in_set_uop_manger_phase_1_intro with 
       (zeroP := zeroP); try assumption;
+      try (eapply addP_gen_idempotent);
       [eexists; exact Hal | eapply refP].
     ++
       (* This about it *)
@@ -859,14 +880,16 @@ Proof.
     try assumption.
   + eapply manger_product_phase_0_cong.
   + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption. 
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent).
   + eapply bop_left_uop_inv_phase_1.
   + eapply bop_right_uop_inv_phase_1.
   + eapply P2_cong; try assumption.
   + eapply bop_left_uop_inv_phase_2.
   + eapply bop_right_uop_inv_phase_2.
   + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption.
+    try assumption;
+    try (eapply addP_gen_idempotent).
 Qed.
 
 
@@ -956,8 +979,10 @@ Proof.
   + eapply manger_product_phase_0_cong.
   + eapply  manger_product_phase_0_associative.
   + eapply P1_cong with (fA := fA) (zeroP := zeroP) (lteA := lteA); 
-    try assumption.
-  + eapply P1_idem; try assumption.
+    try assumption;
+    try (eapply addP_gen_idempotent).
+  + eapply P1_idem; try assumption;
+    try (eapply addP_gen_idempotent).
   + eapply bop_left_uop_inv_phase_1.
   + eapply bop_right_uop_inv_phase_1.
   + eapply P2_cong; try assumption.
@@ -965,7 +990,7 @@ Proof.
   + eapply bop_left_uop_inv_phase_2.
   + eapply bop_right_uop_inv_phase_2.
   + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption.
+    try assumption; try (eapply addP_gen_idempotent).
 Qed.
 
 
@@ -1029,8 +1054,10 @@ Proof.
   + eapply trnSAP; try assumption.
   + eapply manger_product_phase_0_cong.
   + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption. 
-  + eapply P1_idem; try assumption.
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent).
+  + eapply P1_idem; try assumption; 
+    try (eapply addP_gen_idempotent).
   + eapply bop_left_uop_inv_phase_1.
   + eapply bop_right_uop_inv_phase_1.
   + eapply P2_cong; try assumption.
@@ -1038,7 +1065,7 @@ Proof.
   + eapply bop_left_uop_inv_phase_2.
   + eapply bop_right_uop_inv_phase_2.
   + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption.
+    try assumption; try (eapply addP_gen_idempotent).
   + eapply manger_product_phase_0_commutative.
 Qed.
 
@@ -1082,8 +1109,10 @@ Proof.
   + eapply trnSAP; try assumption.
   + eapply manger_product_phase_0_cong.
   + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption. 
-  + eapply P1_idem; try assumption.
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent).
+  + eapply P1_idem; try assumption;
+    try (eapply addP_gen_idempotent).
   + eapply bop_left_uop_inv_phase_1.
   + eapply bop_right_uop_inv_phase_1.
   + eapply P2_cong; try assumption.
@@ -1091,7 +1120,7 @@ Proof.
   + eapply bop_left_uop_inv_phase_2.
   + eapply bop_right_uop_inv_phase_2.
   + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption.
+    try assumption; try (eapply addP_gen_idempotent).
   + eapply  manger_product_phase_0_idem.
 Qed.
   
