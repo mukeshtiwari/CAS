@@ -249,7 +249,69 @@ Proof.
   +
     (* We meed axiom that mulP is congruence *)
 Admitted.
+
 (* end of Admit *)
+
+Lemma sum_fn_forward_first : 
+  forall (X Y : finite_set (A * P)) au av, 
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP
+        (uop_manger_phase_1 eqA addP X) Y))) = true ->
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X Y ))) = true.
+Proof.
+Admitted.
+
+Lemma sum_fn_backward_first : 
+  forall (X Y : finite_set (A * P)) au av, 
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X Y ))) = true ->
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP
+        (uop_manger_phase_1 eqA addP X) Y))) = true.
+Proof.
+Admitted.
+
+Lemma sum_fn_forward_second : 
+  forall (X Y : finite_set (A * P)) au av, 
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X
+          (uop_manger_phase_1 eqA addP Y)))) = true ->
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA x au)
+        (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
+Proof.
+Admitted.
+  
+
+Lemma sum_fn_backward_second : 
+  forall (X Y : finite_set (A * P)) au av,
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+      (filter (λ '(x, _), eqA x au)
+        (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true ->
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA x au)
+        (manger_product_phase_0 eqA eqP mulA mulP X
+           (uop_manger_phase_1 eqA addP Y)))) = true.
+Admitted.
+  
+
+
+  
+    
 
 
 
@@ -390,7 +452,9 @@ Proof.
       try assumption.
     ++
       (* Think about it! *)
-      admit.
+      eapply sum_fn_forward_first; 
+      try assumption.
+      
   +
     eapply in_set_uop_manger_phase_1_intro with 
     (zeroP := zeroP); try assumption;
@@ -416,9 +480,10 @@ Proof.
         [exists q; exact Hal | eapply refP].
     ++
       (* Think about it! *)
-Admitted.
-
-
+      eapply sum_fn_backward_first;
+      try assumption.
+Qed.
+    
 
 
 Lemma bop_right_uop_inv_phase_1 : 
@@ -456,7 +521,8 @@ Proof.
         try assumption; [exact Hal | eapply bop_left].
     ++
       (* May require some thinking*)
-      admit.
+      eapply sum_fn_forward_second;
+      try assumption.
   +
     eapply in_set_uop_manger_phase_1_intro with 
     (zeroP := zeroP); try assumption;
@@ -482,7 +548,10 @@ Proof.
       [eexists; exact Hal | eapply refP].
     ++
       (* This about it *)
-Admitted.
+      eapply sum_fn_backward_second;
+      try assumption.
+Qed.
+
 
 
 Lemma bop_left_uop_inv_phase_2 : 
