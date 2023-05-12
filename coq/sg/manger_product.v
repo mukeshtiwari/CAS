@@ -173,6 +173,17 @@ Variables
    (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true)
    (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true).
 
+(* Assumption about mulA and mulP *)
+Variables 
+  (mulA_assoc : bop_associative A eqA mulA)
+  (mulP_assoc : bop_associative P eqP mulP)
+  (mulA_left : bop_is_left A eqA mulA)
+  (mulP_left : bop_is_left P eqP mulP)
+  (mulA_right : bop_is_right A eqA mulA)
+  (mulP_right : bop_is_right P eqP mulP)
+  (cong_mulA : bop_congruence A eqA mulA)
+  (cong_mulP : bop_congruence P eqP mulP).
+
 Local Notation "[EQP0]" :=  (brel_set (brel_product eqA eqP)) (only parsing).
 Local Notation "[EQP1]" :=  (equal_manger_phase_1 eqA eqP addP) (only parsing). 
 Local Notation "[MP1]" :=  (uop_manger_phase_1 eqA addP) (only parsing).
@@ -181,84 +192,9 @@ Local Notation "[MP]" := (bop_manger_product eqA lteA eqP addP mulA mulP) (only 
 Local Notation "[MR]" := (@uop_manger_phase_2 A P lteA) (only parsing).
 Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP) (only parsing).
 
-(*
-  Variable r_left  : bop_left_uop_invariant S eqS (bop_reduce r b) r.  (* eqS (r (b (r s1) s2)) (r (b s1 s2))  = true. *)
-bop_left_uop_invariant = 
-λ (S : Type) (eq0 : brel S) (b : binary_op S) (r : unary_op S), ∀ s1 s2 : S, eq0 (b (r s1) s2) (b s1 s2) = true
-
-eq0 (b (r s1) s2) (b s1 s2) = true
- 
-
-Lemma test0 : bop_left_uop_invariant _ [EQP0] [MPP0] [MP1].
- 
-
-
-Lemma test0_left (a : A) (p : P) : ∀ X Y, 
-  set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] ([MP1] X) Y)) (a, p) = true -> 
-  set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] X Y)) (a, p) = true.
-Proof. intros X Y H1.
-(*
-      MP1 {(a1, b1), (a1, b2), (a3, b3)} x {(a4, b4)}
-       =
-      MP1 {(a1a4, b1b4), (a1a4, b2b4), (a3a4, b3b4)}
-       =
-      MP1 {(a1a4, b1b4+b2b4), (a3a4, b3b4)}
-      = (if a1a4 = a3a4) 
-      {(a1a4, b1b4+b2b4 + b3b4)}
-        
-vs 
-     MP1 (MP1 {(a1, b1), (a1, b2), (a3, b3)}) x {(a4, b4)}
-     =
-     MP1 ({(a1, b1+b2), (a3, b3)}) x {(a4, b4)}
-     =
-     MP1 {(a1a4, (b1+b2)b4), (a3a4, b3b4)}
-     =
-     MP1 {(a1a4, (b1+b2)b4), (a3a4, b3b4)}
-      = (if a1a4 = a3a4) 
-     {(a1a4, (b1+b2)b4 + b3b4)}
- *)
-Admitted.
-
-
-Lemma test0_right (a : A) (p : P) : ∀ X Y, 
-    set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] X Y)) (a, p) = true -> 
-  set.in_set (brel_product eqA eqP) ([MP1] ([MPP0] ([MP1] X) Y)) (a, p) = true.
-Admitted. 
-*)
 
 (* Begin Admit *)      
-Lemma bop_left : 
-  bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
-Admitted.
 
-Lemma bop_right : 
-  bop_is_right (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
-Admitted.
-
-Lemma bop_cong : 
-  bop_congruence (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
-Proof.
-  intros (sfa, sfb) (ssa, ssb) (tfa, tfb) (tsa, tsb) Ha Hb.
-  eapply brel_product_elim in Ha, Hb;
-  destruct Ha as (Hal & Har);
-  destruct Hb as (Hbl & Hbr);
-  eapply brel_product_intro.
-  +
-    (* We need axiom that mulA is congruence *)
-    admit.
-  +
-    (* We meed axiom that mulP is congruence *)
-Admitted.
-
-Lemma bop_assoc : 
-  bop_associative (A * P) (manger_llex.eqAP A P eqA eqP)
-  (bop_product mulA mulP).
-Proof.
-  intros ? ? ?.
-  (* requires mulA and mulP to be associative *)
-Admitted.
-
-(* end of Admit *)
 
 Lemma sum_fn_first : 
 forall (X Y : finite_set (A * P)) au,
@@ -271,27 +207,65 @@ forall (X Y : finite_set (A * P)) au,
     (List.filter (λ '(x, _), eqA x au)
       (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
 Proof.
-  (* Use the same trick matrix_sum_fn_addition of 
-  manger_llex.v *)
-  unfold uop_manger_phase_1, manger_phase_1_auxiliary, 
-  manger_product_phase_0, bop_lift.
-  (* Challenge with this proof: 
-  (fold_left (manger_merge_sets eqA addP) X []) Y 
-  I need to deal with empty list in accumulator and 
-  this makes induction hypothesis unusable. 
-  1. Try to generalise it. 
-  2. Replace (manger_merge_sets eqA addP) by 
-    (manger_merge_sets_new eqA addP) because 
-    manger_merge_sets_new is simpler and easy to 
-    work. (A lesson for future: 
-    try to avoid fold_left if working with 
-    empty accumulator. fold_right is basically 
-    nice becaues it reduces nicely. )
-
-  *)
-
 Admitted.
     
+
+Lemma sum_fn_second : 
+  forall (X Y : finite_set (A * P)) au,
+  eqP 
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X
+        (uop_manger_phase_1 eqA addP Y)))) 
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
+Proof.
+Admitted.
+
+
+(* end of Admit *)
+
+Lemma bop_left : 
+  bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
+Proof.
+  intros (sa, sb) (ta, tb).
+  eapply brel_product_intro;
+  [eapply mulA_left | eapply mulP_left].
+Qed.
+ 
+
+Lemma bop_right : 
+  bop_is_right (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
+Proof.
+  intros (sa, sb) (ta, tb).
+  eapply brel_product_intro;
+  [eapply mulA_right | eapply mulP_right].
+Qed.
+
+ 
+
+Lemma bop_cong : 
+  bop_congruence (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
+Proof.
+  intros (sfa, sfb) (ssa, ssb) (tfa, tfb) (tsa, tsb) Ha Hb.
+  eapply brel_product_elim in Ha, Hb;
+  destruct Ha as (Hal & Har);
+  destruct Hb as (Hbl & Hbr);
+  eapply brel_product_intro;
+  [eapply cong_mulA; try assumption | 
+  eapply cong_mulP; try assumption ].
+Qed.
+    
+
+Lemma bop_assoc : 
+  bop_associative (A * P) (manger_llex.eqAP A P eqA eqP)
+  (bop_product mulA mulP).
+Proof.
+  intros (sa, sb) (ta, tb) (ua, ub).
+  eapply brel_product_intro;
+  [eapply mulA_assoc | eapply mulP_assoc].
+Qed.
 
 
 Lemma sum_fn_forward_first : 
@@ -334,18 +308,7 @@ Qed.
 
 
 
-Lemma sum_fn_second : 
-  forall (X Y : finite_set (A * P)) au,
-  eqP 
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X
-        (uop_manger_phase_1 eqA addP Y)))) 
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
-Proof.
-Admitted.
+
   
 
 
@@ -1087,80 +1050,7 @@ Proof.
   destruct ntot as ((a₁, a₂) & Ha);
   exists ([(a₁, wP)], [(a₂, wP)]).
   (* Discuss this with Tim *)
-Admitted.
-  
-
-
-
-
-
-
-
-
-  
-(* 
-Lemma test0 : bop_left_uop_invariant _ [EQP0] [MPP1] [MP1].
-Proof. (* [EQP0] ([MPP1] ([MP1] X) Y) ([MPP1] X Y) = true *)
-         intros X Y.
-         unfold manger_product_phase_1.
-         unfold bop_reduce.
-         (* [EQP0] ([MP1] ([MPP0] ([MP1] X) Y)) ([MP1] ([MPP0] X Y)) = true *)
-         apply brel_set_intro_prop. 
-         - apply refAP; auto. 
-         - split; intros [a p] H1. 
-           + apply test0_left; auto. 
-           + apply test0_right; auto. 
-Qed.
-*)
-(*
-Proof. 
-       intro X; induction X; intro Y.
-       - 
-         (*   [EQP0] ([MPP0] nil Y) ([MPP0] nil Y) = true *)
-         admit.
-       - (* [EQP0] ([MPP0] ([MP1] (a :: X)) Y) ([MPP0] (a :: X) Y) = true *) 
-         unfold uop_manger_phase_1.
-         simpl. unfold manger_phase_1_auxiliary.
-         
-         admit.
-Admitted. 
-*) 
-
-(* 
-Lemma test1 : bop_left_uop_invariant _ [EQP0] [MPP0] [MP1].
-Proof. intros X Y. unfold manger_product_phase_0.
-       (* [EQP0] ([MPP0] ([MP1] X) Y) ([MPP0] X Y) = true *)
-(*       intro X; induction X; intro Y.
-       - unfold uop_manger_phase_1. simpl.
-         (*   [EQP0] ([MPP0] nil Y) ([MPP0] nil Y) = true *)
-         admit.
-       - (* [EQP0] ([MPP0] ([MP1] (a :: X)) Y) ([MPP0] (a :: X) Y) = true *) 
-         unfold uop_manger_phase_1.
-         simpl. unfold manger_phase_1_auxiliary.
-         
-         admit. 
-*)
-Admitted. 
-
-Lemma bop_manger_product_left_uop_invariant : 
-    bop_left_uop_invariant _ [EQP1]  [MP] [MR]. 
-Proof. intros X Y. unfold bop_manger_product.
-       unfold bop_reduce.
-       unfold equal_manger_phase_1.
-       unfold bop_reduce.
-       (*
-         [EQP0] ([MP1] ([MR]        ([MPP1] ([MR] X) Y)))  ([MP1] ([MR] ([MPP1] X Y)))
-         [EQP0] ([MP1] ([MR] ([MP1] ([MPP0] ([MR] X) Y)))) ([MP1] ([MR] ([MP1] ([MPP0] X Y))))
-
-        *) 
-Admitted.
-
-
-Lemma bop_manger_product_right_uop_invariant : 
-    bop_right_uop_invariant _ [EQ]  [MP] [MR]. 
-Admitted. 
-*)
-  
+Admitted.  
 
 End Theory.  
 
