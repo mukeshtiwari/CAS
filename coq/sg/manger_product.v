@@ -271,6 +271,25 @@ forall (X Y : finite_set (A * P)) au,
     (List.filter (λ '(x, _), eqA x au)
       (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
 Proof.
+  (* Use the same trick matrix_sum_fn_addition of 
+  manger_llex.v *)
+  unfold uop_manger_phase_1, manger_phase_1_auxiliary, 
+  manger_product_phase_0, bop_lift.
+  (* Challenge with this proof: 
+  (fold_left (manger_merge_sets eqA addP) X []) Y 
+  I need to deal with empty list in accumulator and 
+  this makes induction hypothesis unusable. 
+  1. Try to generalise it. 
+  2. Replace (manger_merge_sets eqA addP) by 
+    (manger_merge_sets_new eqA addP) because 
+    manger_merge_sets_new is simpler and easy to 
+    work. (A lesson for future: 
+    try to avoid fold_left if working with 
+    empty accumulator. fold_right is basically 
+    nice becaues it reduces nicely. )
+
+  *)
+
 Admitted.
     
 
@@ -448,6 +467,8 @@ Proof.
   try congruence;
   cbn; split; try reflexivity.
 Qed.
+
+
 
 Lemma set_in_set_non_empty_right : 
   forall (X Y : finite_set (A * P)) au q, 
@@ -1064,7 +1085,8 @@ Lemma bop_manger_product_not_selective :
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Proof.
   destruct ntot as ((a₁, a₂) & Ha);
-  exists ([(a₁, wP)], [(a₂, wP)]); cbn.
+  exists ([(a₁, wP)], [(a₂, wP)]).
+  (* Discuss this with Tim *)
 Admitted.
   
 
