@@ -168,10 +168,10 @@ Variables
   (trnLte : brel_transitive A lteA) 
   (addP_assoc : bop_associative P eqP addP)
   (addP_com : bop_commutative P eqP addP)
-   (* idempotence is baked in this addP_gen_idempotent but it can be proved *)
-   (zeropLid : ∀ (p : P), eqP (addP zeroP p) p = true)
-   (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true)
-   (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true).
+  (* idempotence is baked in this addP_gen_idempotent but it can be proved *)
+  (zeropLid : ∀ (p : P), eqP (addP zeroP p) p = true)
+  (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true)
+  (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true).
 
 (* Assumption about mulA and mulP *)
 Variables 
@@ -195,7 +195,61 @@ Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP) (only parsing).
 
 (* Begin Admit *)      
 
+(*
+  X := [(a, b); (c, d); (a, e)]
+  Y := [(u, v); (x, y); (x, t)]
 
+  1. (uop_manger_phase_1 eqA addP X) =  
+    [(a, b + e); (c, d)]
+  
+  2. (manger_product_phase_0 eqA eqP mulA mulP
+        (uop_manger_phase_1 eqA addP X) Y) = 
+  [
+    (mulA a u, mulP (b + e) v); 
+    (mulA a x, mulP (b + e) y;
+    (mulA a x, mulP (b + e) t);
+    (mulA c u, mulP d v);
+    (mulA c x, mulP d y);
+    (mulA c x, mulP d t);
+  ]
+
+  3. (manger_product_phase_0 eqA eqP mulA mulP X Y) = 
+  [
+    (mulA a u, mulP b v);
+    (mulA a x, mulP b y);
+    (mulA a x, mulP b t);
+    (mulA c u, mulP d v);
+    (mulA c x, mulP d y);
+    (mulA c x, mulP d t);
+    (mulA a u, mulP e v);
+    (mulA a x, mulP e y);
+    (mulA a x, mulP e t)
+  ]
+
+  Now, let's say I want to filter (mulA a x) from 
+  equation 3 and 2. 
+  2 gives me:
+  [
+    (mulA a x, mulP (b + e) y;
+    (mulA a x, mulP (b + e) t);
+  ]
+  and 3 gives me:
+  [
+    (mulA a x, mulP b y);
+    (mulA a x, mulP b t);
+    (mulA a x, mulP e y);
+    (mulA a x, mulP e t)
+  ]
+
+  (* addP is + *)
+  mulP needs to distribute over addP 
+  Prove that:
+  mulP (b + e) y + mulP (b + e) t = 
+  mulP b y + mulP b t + mulP e y + 
+  mulP e t 
+
+
+*)
 Lemma sum_fn_first : 
 forall (X Y : finite_set (A * P)) au,
   eqP 
