@@ -282,10 +282,11 @@ Admitted.
 Lemma addP_gen_idempotent : 
   ∀ x y : P, 
   eqP x y = true → eqP (addP x y) y = true.
-Proof. intros x y B.
-       assert (C := cong_addP _ _ _ _ B (refP y)).
-       assert (D := idemP y).
-       exact (trnP _ _ _ C D).
+Proof. 
+  intros * Ha.
+  assert (Hb := cong_addP _ _ _ _ Ha (refP y)).
+  assert (Hc := idemP y).
+  exact (trnP _ _ _ Hb Hc).
 Qed. 
 
 Lemma bop_left : 
