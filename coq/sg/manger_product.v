@@ -250,6 +250,11 @@ Proof.
     (* We meed axiom that mulP is congruence *)
 Admitted.
 
+Lemma bop_assoc : 
+  bop_associative (A * P) (manger_llex.eqAP A P eqA eqP)
+  (bop_product mulA mulP).
+Admitted.
+
 (* end of Admit *)
 
 Lemma sum_fn_forward_first : 
@@ -262,7 +267,7 @@ Lemma sum_fn_forward_first :
   eqP av
   (matrix_algorithms.sum_fn zeroP addP snd
     (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X Y ))) = true.
+      (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
 Proof.
 Admitted.
 
@@ -286,7 +291,7 @@ Lemma sum_fn_forward_second :
   (matrix_algorithms.sum_fn zeroP addP snd
     (filter (λ '(x, _), eqA x au)
       (manger_product_phase_0 eqA eqP mulA mulP X
-          (uop_manger_phase_1 eqA addP Y)))) = true ->
+        (uop_manger_phase_1 eqA addP Y)))) = true ->
   eqP av
   (matrix_algorithms.sum_fn zeroP addP snd
      (List.filter (λ '(x, _), eqA x au)
@@ -305,7 +310,7 @@ Lemma sum_fn_backward_second :
   (matrix_algorithms.sum_fn zeroP addP snd
      (List.filter (λ '(x, _), eqA x au)
         (manger_product_phase_0 eqA eqP mulA mulP X
-           (uop_manger_phase_1 eqA addP Y)))) = true.
+          (uop_manger_phase_1 eqA addP Y)))) = true.
 Admitted.
   
 
@@ -757,7 +762,6 @@ Proof.
 Qed.
       
 
-   
 
 
 Lemma bop_manger_product_congruence :
@@ -791,12 +795,69 @@ Proof.
   [eapply refAP | split; intros (au, av) Ha]; 
   try assumption.
   +
+    (* preprocessing *)
+    assert (Hb : brel_set (brel_product eqA eqP) []
+      (manger_product_phase_0 eqA eqP mulA mulP s t) = false).
+    eapply set_in_set_non_empty_left; exact Ha.
+    assert (Hc : brel_set (brel_product eqA eqP) [] s = false).
+    destruct s; cbn in Hb |- *; [congruence | reflexivity].
+    assert (Hd : brel_set (brel_product eqA eqP) []
+      (manger_product_phase_0 eqA eqP mulA mulP t u) = false).
+    eapply lift_lemma_1 in Ha;
+    [eapply set_in_set_non_empty_right; exact Ha | eapply refAP |
+    eapply trnAP | eapply symAP | eapply bop_cong | eapply bop_assoc];
+    try assumption.
+    assert (He : brel_set (brel_product eqA eqP) [] t = false).
+    destruct t; cbn in Hd |- *; [congruence | reflexivity].
+    (* I can use the fact the manger_product_0 
+    is commutative but it's not necessary *)
     eapply union.in_set_uop_duplicate_elim_intro;
     eapply union.in_set_uop_duplicate_elim_elim in Ha;
     [eapply symAP| eapply trnAP|]; try assumption.
-    
+    (* go right *)
+    eapply bop_list_product_is_right_elim in Ha;
+    [ | eapply refAP | eapply trnAP | eapply symAP | 
+      eapply bop_right]; try assumption.
+    eapply bop_list_product_is_right_intro;
+    [eapply refAP | eapply trnAP | eapply symAP |
+    eapply bop_cong | eapply bop_right | | exact Hc];
+    try assumption.
+    eapply union.in_set_uop_duplicate_elim_intro;
+    [eapply symAP | eapply trnAP | 
+    eapply bop_list_product_is_right_intro; 
+      [eapply refAP| eapply trnAP  | eapply symAP | 
+      eapply bop_cong  | eapply bop_right | | ] ];
+    try assumption.
+  +
+    (* preprocessing *)
+    assert (Hb : brel_set (brel_product eqA eqP) []
+    (manger_product_phase_0 eqA eqP mulA mulP t u) = false).
+    eapply  set_in_set_non_empty_right; exact Ha.
+    assert (Hc : brel_set (brel_product eqA eqP) [] t = false).
+    destruct t; cbn in Hb |- *; [congruence | reflexivity].
+    assert (Hd : brel_set (brel_product eqA eqP) [] u = false).
+    eapply lift_lemma_2 in Ha; 
+    [eapply set_in_set_non_empty_right; exact Ha |
+    eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | eapply bop_assoc]; try assumption.
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Ha;
+    [eapply symAP| eapply trnAP|]; try assumption.
+    (* end of preprocessing *)
+    (* go left *)
+    eapply bop_list_product_is_left_elim in Ha;
+    [| eapply trnAP | eapply symAP | eapply bop_left];
+    try assumption.
+    eapply bop_list_product_is_left_intro;
+    [eapply trnAP | eapply symAP | eapply bop_left | 
+    eapply union.in_set_uop_duplicate_elim_intro;
+    [eapply symAP | eapply trnAP | 
+    eapply bop_list_product_is_left_intro;
+    [eapply trnAP | eapply symAP | eapply bop_left |  | ]] | 
+    exact Hd]; try assumption.
+Qed.
 
-Admitted.
+
 
 
 Lemma bop_manger_product_associative :
