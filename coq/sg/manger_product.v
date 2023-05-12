@@ -253,9 +253,27 @@ Admitted.
 Lemma bop_assoc : 
   bop_associative (A * P) (manger_llex.eqAP A P eqA eqP)
   (bop_product mulA mulP).
+Proof.
+  intros ? ? ?.
+  (* requires mulA and mulP to be associative *)
 Admitted.
 
 (* end of Admit *)
+
+Lemma sum_fn_first : 
+forall (X Y : finite_set (A * P)) au,
+  eqP 
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP
+        (uop_manger_phase_1 eqA addP X) Y)))
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
+Proof.
+Admitted.
+    
+
 
 Lemma sum_fn_forward_first : 
   forall (X Y : finite_set (A * P)) au av, 
@@ -269,7 +287,11 @@ Lemma sum_fn_forward_first :
     (List.filter (λ '(x, _), eqA x au)
       (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
 Proof.
-Admitted.
+  intros * Ha.
+  eapply trnP;
+  [exact Ha | eapply sum_fn_first].
+Qed.
+
 
 Lemma sum_fn_backward_first : 
   forall (X Y : finite_set (A * P)) au av, 
@@ -283,7 +305,30 @@ Lemma sum_fn_backward_first :
       (manger_product_phase_0 eqA eqP mulA mulP
         (uop_manger_phase_1 eqA addP X) Y))) = true.
 Proof.
+  intros * Ha.
+  eapply trnP;
+  [exact Ha | 
+  rewrite list_filter_lib_filter_same, 
+  <-list_filter_lib_filter_same;
+  eapply symP, sum_fn_first].
+Qed.
+
+
+
+Lemma sum_fn_second : 
+  forall (X Y : finite_set (A * P)) au,
+  eqP 
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X
+        (uop_manger_phase_1 eqA addP Y)))) 
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
+Proof.
 Admitted.
+  
+
 
 Lemma sum_fn_forward_second : 
   forall (X Y : finite_set (A * P)) au av, 
@@ -297,7 +342,10 @@ Lemma sum_fn_forward_second :
      (List.filter (λ '(x, _), eqA x au)
         (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
 Proof.
-Admitted.
+  intros * Ha.
+  eapply trnP;
+  [exact Ha | eapply sum_fn_second].
+Qed.
   
 
 Lemma sum_fn_backward_second : 
@@ -308,19 +356,18 @@ Lemma sum_fn_backward_second :
         (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true ->
   eqP av
   (matrix_algorithms.sum_fn zeroP addP snd
-     (List.filter (λ '(x, _), eqA x au)
-        (manger_product_phase_0 eqA eqP mulA mulP X
-          (uop_manger_phase_1 eqA addP Y)))) = true.
-Admitted.
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X
+        (uop_manger_phase_1 eqA addP Y)))) = true.
+Proof.
+  intros * Ha.
+  eapply trnP;
+  [exact Ha | 
+  rewrite list_filter_lib_filter_same, 
+  <-list_filter_lib_filter_same;
+  eapply symP, sum_fn_second].
+Qed.
   
-
-
-  
-    
-
-
-
-
 
 
 Lemma manger_product_phase_0_cong :
