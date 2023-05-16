@@ -172,14 +172,24 @@ Variables
   (zeropLid : ∀ (p : P), eqP (addP zeroP p) p = true)
   (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true).
 
-(* Assumption about mulA and mulP *)
+(* Assumption about mulA and mulP  *)
 Variables 
   (mulA_assoc : bop_associative A eqA mulA)
   (mulP_assoc : bop_associative P eqP mulP)
+  (* This would go away to individual lemmas *)
+  (* 
+    These assumptions are needed are coming from 
+    1. bop_list_product_is_left_intro
+    2. bop_list_product_is_right_intro
+    3. bop_list_product_is_left_elim
+    4. bop_list_product_is_right_elim
+    
+  *)
   (mulA_left : bop_is_left A eqA mulA)
   (mulP_left : bop_is_left P eqP mulP)
   (mulA_right : bop_is_right A eqA mulA)
   (mulP_right : bop_is_right P eqP mulP)
+  (* end of movement *)
   (cong_mulA : bop_congruence A eqA mulA)
   (cong_mulP : bop_congruence P eqP mulP).
 
@@ -249,7 +259,7 @@ Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP) (only parsing).
 
 *)
 
-
+(* Generalised accumulator *)
 Lemma sum_fn_first_gen : 
   forall (X Y U : finite_set (A * P)) au,
   no_dup eqA (map fst Y) = true ->
@@ -263,6 +273,26 @@ Lemma sum_fn_first_gen :
       (manger_product_phase_0 eqA eqP mulA mulP (X ++ Y) U))) = true.
 Proof.
   induction X as [|(ax, bx) X IHx].
+  + intros * Ha; cbn;
+    now rewrite list_filter_lib_filter_same, refP.
+  +
+    intros * Ha. simpl.
+    (* instantiate Y with 
+    (manger_merge_sets_new eqA addP Y (ax, bx))
+    but I need to discharge no_dup for it *)
+    eapply trnP; [eapply IHx |].
+    ++
+      (* true *)
+      admit.
+    ++
+      (* seems provable *)
+      (* 
+        replace (manger_product_phase_0 eqA eqP mulA mulP
+           ((ax, bx) :: X ++ Y) U) with 
+        (manger_product_phase_0 eqA eqP mulA mulP
+           (X ++ ((ax, bx) :: Y)) U)
+        Now push the manger_product_phase_0 inside. 
+      *)
 Admitted.
 
 
@@ -288,8 +318,9 @@ Admitted.
 (* end of Admit *)
 
 (*
-This proof is similar, but more difficult, to 
-matrix_sum_fn_addition in manger_llex.v
+This proof is similar to 
+matrix_sum_fn_addition in manger_llex.v, 
+but appears more difficult. 
 *)
 Lemma sum_fn_first : 
 forall (X Y : finite_set (A * P)) au,
@@ -346,11 +377,11 @@ Proof.
   exact (trnP _ _ _ Hb Hc).
 Qed. 
 
+(* These lemmas would go away because it exist in sg/product.v *)
 Lemma bop_left : 
   bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
 Proof.
-  intros (sa, sb) (ta, tb).
-  eapply brel_product_intro;
+  eapply bop_product_is_left;
   [eapply mulA_left | eapply mulP_left].
 Qed.
  
@@ -358,8 +389,7 @@ Qed.
 Lemma bop_right : 
   bop_is_right (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
 Proof.
-  intros (sa, sb) (ta, tb).
-  eapply brel_product_intro;
+  eapply bop_product_is_right;
   [eapply mulA_right | eapply mulP_right].
 Qed.
 
@@ -368,13 +398,7 @@ Qed.
 Lemma bop_cong : 
   bop_congruence (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
 Proof.
-  intros (sfa, sfb) (ssa, ssb) (tfa, tfb) (tsa, tsb) Ha Hb.
-  eapply brel_product_elim in Ha, Hb;
-  destruct Ha as (Hal & Har);
-  destruct Hb as (Hbl & Hbr);
-  eapply brel_product_intro;
-  [eapply cong_mulA; try assumption | 
-  eapply cong_mulP; try assumption ].
+  eapply bop_product_congruence; assumption.
 Qed.
     
 
@@ -382,10 +406,10 @@ Lemma bop_assoc :
   bop_associative (A * P) (manger_llex.eqAP A P eqA eqP)
   (bop_product mulA mulP).
 Proof.
-  intros (sa, sb) (ta, tb) (ua, ub).
-  eapply brel_product_intro;
-  [eapply mulA_assoc | eapply mulP_assoc].
+  eapply bop_product_associative; assumption.
 Qed.
+
+(* end of movement *)
 
 
 Lemma sum_fn_forward_first : 
@@ -427,9 +451,6 @@ Proof.
 Qed.
 
 
-
-
-  
 
 
 Lemma sum_fn_forward_second : 
@@ -483,17 +504,17 @@ Proof.
   try assumption; destruct Ha as (Hal & Har);
   destruct Hb as (Hbl & Hbr);
   eapply brel_set_intro_prop;
-  [eapply refAP|split; intros (au, av) Hc];
+  [eapply refAP| split; intros (au, av) Hc];
   try assumption.
   +
     eapply union.in_set_uop_duplicate_elim_intro;
     eapply union.in_set_uop_duplicate_elim_elim in Hc;
-    [eapply symAP| eapply trnAP|]; try assumption;
+    [eapply symAP| eapply trnAP|]; try assumption.
     (* intro and elim rule for bop_list_product_left 
     from CAS.coq.sg.lift *)
     eapply bop_list_product_is_left_intro;
     [eapply trnAP | eapply symAP | | |];
-    try assumption;[eapply bop_left | | ].
+    try assumption; [eapply bop_left | | ].
     ++
       eapply bop_list_product_is_left_elim in Hc;
       [|eapply trnAP | eapply symAP | ]; 
@@ -501,7 +522,7 @@ Proof.
       [eapply Hal; exact Hc | eapply bop_left].
     ++
       eapply bop_list_product_is_right_elim in Hc;
-      [|eapply refAP | eapply trnAP | eapply symAP | ]; 
+      [|eapply refAP | eapply trnAP | eapply symAP | ];
       try assumption;[|eapply bop_right].
       *
         eapply Hbl in Hc;
@@ -533,6 +554,8 @@ Proof.
         try congruence;
         cbn; reflexivity.
 Qed.
+
+
   
 (* *)
 Lemma set_in_set_non_empty_left : 
