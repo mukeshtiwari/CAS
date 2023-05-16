@@ -247,7 +247,49 @@ Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP) (only parsing).
   mulP b y + mulP b t + mulP e y + 
   mulP e t 
 
+*)
 
+
+Lemma sum_fn_first_gen : 
+  forall (X Y U : finite_set (A * P)) au,
+  no_dup eqA (map fst Y) = true ->
+  eqP
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP
+        (fold_left (manger_merge_sets_new eqA addP) X Y) U)))
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP (X ++ Y) U))) = true.
+Proof.
+  induction X as [|(ax, bx) X IHx].
+Admitted.
+
+
+
+  
+    
+Lemma sum_fn_second_gen : 
+  forall (X Y U : finite_set (A * P)) au,
+  no_dup eqA (map fst U) = true ->
+  eqP
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X
+        (fold_left (manger_merge_sets_new eqA addP) Y U))))
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X (Y ++ U)))) = true.
+Proof.
+Admitted.
+
+
+
+(* end of Admit *)
+
+(*
+This proof is similar, but more difficult, to 
+matrix_sum_fn_addition in manger_llex.v
 *)
 Lemma sum_fn_first : 
 forall (X Y : finite_set (A * P)) au,
@@ -260,8 +302,16 @@ forall (X Y : finite_set (A * P)) au,
     (List.filter (λ '(x, _), eqA x au)
       (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
 Proof.
-Admitted.
-    
+  intros *.
+  unfold uop_manger_phase_1,
+  manger_phase_1_auxiliary;
+  rewrite manger_merge_set_funex.
+  replace (X) with (X ++ []) at 2;
+  [| eapply app_nil_r].
+  eapply sum_fn_first_gen with (Y := []);
+  reflexivity.
+Qed.
+
 
 Lemma sum_fn_second : 
   forall (X Y : finite_set (A * P)) au,
@@ -274,10 +324,17 @@ Lemma sum_fn_second :
     (List.filter (λ '(x, _), eqA x au)
       (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
 Proof.
-Admitted.
+  intros *.
+  unfold uop_manger_phase_1,
+  manger_phase_1_auxiliary;
+  rewrite manger_merge_set_funex.
+  replace (Y) with (Y ++ []) at 2;
+  [| eapply app_nil_r];
+  eapply sum_fn_second_gen;
+  reflexivity.
+Qed.
 
 
-(* end of Admit *)
 
 Lemma addP_gen_idempotent : 
   ∀ x y : P, 
