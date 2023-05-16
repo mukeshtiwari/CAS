@@ -259,6 +259,67 @@ Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP) (only parsing).
 
 *)
 
+Local Notation "x =S= y" := (manger_llex.eqSAP x y = true) (at level 70,
+  only parsing).
+
+
+Lemma manger_no_dup : 
+  forall (Y : finite_set (A * P)) ax bx,
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst (manger_merge_sets_new eqA addP Y (ax, bx))) = true.
+Proof.
+Admitted.
+
+
+
+Lemma manger_product_phase_0_comm : 
+  forall (X Y U : finite_set (A * P)) au ax bx,
+  eqP 
+    ((matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP
+        (((ax, bx) :: X) ++ Y) U))))
+    (matrix_algorithms.sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA x au)
+        (manger_product_phase_0 eqA eqP mulA mulP
+          (X ++ ((ax, bx) :: Y)) U))) = true.
+Admitted.
+
+
+Lemma manger_product_phase_0_dist : 
+  forall (X Y U : finite_set (A * P)) au,
+  eqP
+  (matrix_algorithms.sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA x au)
+        (manger_product_phase_0 eqA eqP mulA mulP (X ++ Y) U)))
+  (matrix_algorithms.sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP X U ++ 
+        manger_product_phase_0 eqA eqP mulA mulP Y U))) = true.
+Admitted. 
+  
+
+
+Lemma manger_product_phase_0_manger_merge_interaction : 
+  forall (Y U : finite_set (A * P)) au ax bx, 
+  no_dup eqA (map fst Y) = true -> 
+  eqP
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP
+        (manger_merge_sets_new eqA addP Y (ax, bx)) U)))
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP ((ax, bx) :: Y) U))) = true.
+Proof.
+  intros * Ha.
+  (* Case analysis (ax, bx) ∈ Y ∨ (ax, bx) ∉ Y 
+  *)
+  
+Admitted.
+
+
+
 (* Generalised accumulator *)
 Lemma sum_fn_first_gen : 
   forall (X Y U : finite_set (A * P)) au,
@@ -283,7 +344,8 @@ Proof.
     eapply trnP; [eapply IHx |].
     ++
       (* true *)
-      admit.
+      eapply manger_no_dup; 
+      exact Ha.
     ++
       (* seems provable *)
       (* 
@@ -293,11 +355,29 @@ Proof.
            (X ++ ((ax, bx) :: Y)) U)
         Now push the manger_product_phase_0 inside. 
       *)
-Admitted.
-
-
+      eapply symP, trnP;
+      [eapply manger_product_phase_0_comm |].
+      remember ((ax, bx) :: Y) as Ya.
+      eapply trnP;
+      [eapply manger_product_phase_0_dist | ].
+      repeat rewrite filter_app.
+      eapply trnP;
+      [eapply sum_fn_distribute |]; 
+      try assumption.
+      eapply symP, trnP;
+      [eapply manger_product_phase_0_dist | ].
+      repeat rewrite filter_app.
+      eapply trnP;
+      [eapply sum_fn_distribute |]; 
+      try assumption.
+      eapply cong_addP;
+      [eapply refP | subst].
+      eapply manger_product_phase_0_manger_merge_interaction;
+      exact Ha.
+Qed.
 
   
+
     
 Lemma sum_fn_second_gen : 
   forall (X Y U : finite_set (A * P)) au,
@@ -378,13 +458,14 @@ Proof.
 Qed. 
 
 (* These lemmas would go away because it exist in sg/product.v *)
+(* 
 Lemma bop_left : 
   bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
 Proof.
   eapply bop_product_is_left;
   [eapply mulA_left | eapply mulP_left].
 Qed.
- 
+*) 
 
 Lemma bop_right : 
   bop_is_right (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
@@ -392,6 +473,7 @@ Proof.
   eapply bop_product_is_right;
   [eapply mulA_right | eapply mulP_right].
 Qed.
+
 
  
 
@@ -492,7 +574,7 @@ Proof.
 Qed.
   
 
-
+(* Broken without bop_right *)
 Lemma manger_product_phase_0_cong :
   bop_congruence _ 
   (manger_llex.eqSAP A P eqA eqP)
@@ -593,6 +675,8 @@ Proof.
 Qed.
 
 
+
+(* Broken without bop_right *)
 Lemma bop_left_uop_inv_phase_1 : 
   bop_left_uop_invariant (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
@@ -671,6 +755,7 @@ Qed.
     
 
 
+(* Broken without bop_right *)
 Lemma bop_right_uop_inv_phase_1 : 
   bop_right_uop_invariant (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
@@ -746,6 +831,7 @@ Qed.
 
 
 
+(* Broken without bop_right *)
 Lemma bop_left_uop_inv_phase_2 : 
   bop_left_uop_invariant (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
@@ -846,6 +932,7 @@ Qed.
       
 
 
+(* Broken without bop_right *)
 Lemma bop_right_uop_inv_phase_2 : 
   bop_right_uop_invariant (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
