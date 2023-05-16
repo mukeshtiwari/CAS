@@ -313,7 +313,7 @@ Lemma manger_product_phase_0_manger_merge_interaction :
       (manger_product_phase_0 eqA eqP mulA mulP ((ax, bx) :: Y) U))) = true.
 Proof.
   intros * Ha.
-  (* Case analysis (ax, bx) ∈ Y ∨ (ax, bx) ∉ Y 
+  (* Case analysis ax  ∈ Y ∨ ax ∉ Y 
   *)
   
 Admitted.
@@ -391,6 +391,15 @@ Lemma sum_fn_second_gen :
     (List.filter (λ '(x, _), eqA x au)
       (manger_product_phase_0 eqA eqP mulA mulP X (Y ++ U)))) = true.
 Proof.
+  intros * Ha.
+  (* Prove a lemma that:
+  manger_product_phase_0 eqA eqP mulA mulP X Y =S= 
+  manger_product_phase_0 eqA eqP mulA mulP Y X. 
+  Then use it swap the arguments and use the lemma above. 
+  *)
+ 
+    
+  
 Admitted.
 
 
@@ -458,14 +467,14 @@ Proof.
 Qed. 
 
 (* These lemmas would go away because it exist in sg/product.v *)
-(* 
+
 Lemma bop_left : 
   bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
 Proof.
   eapply bop_product_is_left;
   [eapply mulA_left | eapply mulP_left].
 Qed.
-*) 
+
 
 Lemma bop_right : 
   bop_is_right (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
