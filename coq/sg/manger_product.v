@@ -1183,11 +1183,11 @@ Proof.
       try assumption.
 Qed.
 
-(* Everything good upto this point *)
 
 
-(* Broken without bop_right *)
-Lemma bop_left_uop_inv_phase_2 : 
+
+
+Lemma bop_left_uop_inv_phase_2_left : 
   bop_is_left A eqA mulA -> 
   bop_is_left P eqP mulP ->
   bop_left_uop_invariant (finite_set (A * P))
@@ -1287,6 +1287,32 @@ Proof.
       try assumption.
 Qed.
 
+
+Lemma bop_left_uop_inv_phase_2_right : 
+  bop_is_right A eqA mulA -> 
+  bop_is_right P eqP mulP ->
+  bop_left_uop_invariant (finite_set (A * P))
+  (manger_llex.eqSAP A P eqA eqP)
+  (bop_reduce (uop_manger_phase_2 lteA)
+     (manger_product_phase_0 eqA eqP mulA mulP))
+  (uop_manger_phase_2 lteA).
+Proof.
+  intros Hu Hv ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP|split; intros (au, av) Ha]; 
+  try assumption.
+  +
+    eapply in_set_uop_manger_phase_2_intro; try assumption.
+    eapply in_set_uop_manger_phase_2_elim in Ha; try assumption;
+    destruct Ha as (Hal & Har);
+    assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
+    eapply set_in_set_non_empty_right; exact Hal.
+    ++
+      
+
+Admitted.
+
+(* Everything good upto this point *)
 
 (* Broken without bop_right *)
 Lemma bop_right_uop_inv_phase_2 : 
