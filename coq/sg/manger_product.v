@@ -259,31 +259,66 @@ Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP) (only parsing).
 
 *)
 
+Lemma addP_gen_idempotent : 
+  ∀ x y : P, 
+  eqP x y = true → eqP (addP x y) y = true.
+Proof. 
+  intros * Ha.
+  assert (Hb := cong_addP _ _ _ _ Ha (refP y)).
+  assert (Hc := idemP y).
+  exact (trnP _ _ _ Hb Hc).
+Qed. 
+
 Local Notation "x =S= y" := (manger_llex.eqSAP x y = true) (at level 70,
   only parsing).
 
-
-Lemma manger_no_dup : 
-  forall (Y : finite_set (A * P)) ax bx,
-  no_dup eqA (map fst Y) = true ->
-  no_dup eqA (map fst (manger_merge_sets_new eqA addP Y (ax, bx))) = true.
-Proof.
+Lemma bProp_cong : 
+  forall au,
+  theory.bProp_congruence (A * P) (brel_product eqA eqP)
+  (λ '(x, _), eqA x au).
 Admitted.
 
+
+
+Lemma brel_set_manger_product_phase_0_swap : 
+  forall (X Y U : finite_set (A * P)) ax bx,
+  brel_set (brel_product eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP (((ax, bx) :: X) ++ Y) U)
+  (manger_product_phase_0 eqA eqP mulA mulP (X ++ (ax, bx) :: Y) U) = true.
+Admitted.
+
+Lemma brel_set_manger_product_phase_0_dist : 
+  forall (X Y U : finite_set (A * P)),
+  brel_set (brel_product eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP (X ++ Y) U)
+  (manger_product_phase_0 eqA eqP mulA mulP X U ++
+   manger_product_phase_0 eqA eqP mulA mulP Y U) = true.
+Admitted.
 
 
 Lemma manger_product_phase_0_comm : 
   forall (X Y U : finite_set (A * P)) au ax bx,
   eqP 
     ((matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP
-        (((ax, bx) :: X) ++ Y) U))))
+      (List.filter (λ '(x, _), eqA x au)
+        (manger_product_phase_0 eqA eqP mulA mulP
+          (((ax, bx) :: X) ++ Y) U))))
     (matrix_algorithms.sum_fn zeroP addP snd
-     (List.filter (λ '(x, _), eqA x au)
+      (List.filter (λ '(x, _), eqA x au)
         (manger_product_phase_0 eqA eqP mulA mulP
           (X ++ ((ax, bx) :: Y)) U))) = true.
-Admitted.
+Proof.
+  intros *.
+  eapply sum_fn_congruence_general_set with 
+  (eqA := eqA) (lteA := lteA) (fA := fA);
+  try assumption.
+  + eapply addP_gen_idempotent.
+  +
+    repeat rewrite  list_filter_lib_filter_same;
+    eapply filter_congruence_gen; 
+    try assumption; try (eapply bProp_cong).
+    eapply brel_set_manger_product_phase_0_swap.
+Qed.
 
 
 Lemma manger_product_phase_0_dist : 
@@ -296,10 +331,22 @@ Lemma manger_product_phase_0_dist :
      (List.filter (λ '(x, _), eqA x au)
       (manger_product_phase_0 eqA eqP mulA mulP X U ++ 
         manger_product_phase_0 eqA eqP mulA mulP Y U))) = true.
-Admitted. 
+Proof.
+  intros *.
+  eapply sum_fn_congruence_general_set with 
+  (eqA := eqA) (lteA := lteA) (fA := fA);
+  try assumption.
+  + eapply addP_gen_idempotent.
+  +
+    repeat rewrite  list_filter_lib_filter_same;
+    eapply filter_congruence_gen; 
+    try assumption; try (eapply bProp_cong).
+    eapply brel_set_manger_product_phase_0_dist.
+Qed.
   
 
-
+(* I need some observation about manger_merge_set and 
+  bop_lift, but it's not very obvious! *)
 Lemma manger_product_phase_0_manger_merge_interaction : 
   forall (Y U : finite_set (A * P)) au ax bx, 
   no_dup eqA (map fst Y) = true -> 
@@ -314,6 +361,24 @@ Lemma manger_product_phase_0_manger_merge_interaction :
 Proof.
   intros * Ha.
   (* Case analysis ax  ∈ Y ∨ ax ∉ Y 
+  1. ax ∉ Y 
+    (manger_merge_sets_new eqA addP Y (ax, bx)) =S= 
+    (ax, bx) :: Y and we are home 
+  2. (challenge)
+    ax ∈ Y. Y = Y₁ ++ [(ax, bx')] ++ Y₂ 
+    (manger_merge_sets_new eqA addP Y (ax, bx)) =S=
+    Y₁ ++ [(ax, bx + bx')] ++ Y₂
+    matrix_algorithms.sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP (Y₁ ++ [(ax, bx + bx')] ++ Y₂)))
+    =
+    (matrix_algorithms.sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA x au)
+        (manger_product_phase_0 eqA eqP mulA mulP 
+          ((ax, bx) :: Y₁ ++ [(ax, bx')] ++ Y₂) U)))
+
+    Oh, easy pesy! Awesome finding because I don't need to 
+    do any induction. 
   *)
   
 Admitted.
@@ -344,8 +409,9 @@ Proof.
     eapply trnP; [eapply IHx |].
     ++
       (* true *)
-      eapply manger_no_dup; 
-      exact Ha.
+      eapply no_dup_mmsn;
+      try assumption.
+      exact refP.
     ++
       (* seems provable *)
       (* 
@@ -456,15 +522,7 @@ Qed.
 
 
 
-Lemma addP_gen_idempotent : 
-  ∀ x y : P, 
-  eqP x y = true → eqP (addP x y) y = true.
-Proof. 
-  intros * Ha.
-  assert (Hb := cong_addP _ _ _ _ Ha (refP y)).
-  assert (Hc := idemP y).
-  exact (trnP _ _ _ Hb Hc).
-Qed. 
+
 
 (* These lemmas would go away because it exist in sg/product.v *)
 
