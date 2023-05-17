@@ -345,7 +345,7 @@ Proof.
 Qed.
   
 
-(* This should exists in our codebase somewhere *)
+(* This should exists in in_set  *)
 Lemma list_membership_exists : 
   forall (Y : finite_set (A * P)) ax, 
   no_dup eqA (map fst Y) = true ->
@@ -356,6 +356,7 @@ Lemma list_membership_exists :
     set.in_set eqA (map fst Y₂) ax = false.
 Proof.
 Admitted.
+
 
 
 (* I need some observation about manger_merge_set and 
@@ -407,7 +408,6 @@ Proof.
 
   
 Admitted.
-
 
 
 (* Generalised accumulator *)
@@ -665,79 +665,9 @@ Proof.
   <-list_filter_lib_filter_same;
   eapply symP, sum_fn_second].
 Qed.
-  
-
-(* Broken without bop_right *)
-Lemma manger_product_phase_0_cong :
-  bop_congruence _ 
-  (manger_llex.eqSAP A P eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP).
-Proof.
-  intros ? ? ? ? Ha Hb.
-  eapply brel_set_elim_prop in Ha, Hb;
-  [|eapply symAP | eapply trnAP | eapply symAP | eapply trnAP];
-  try assumption; destruct Ha as (Hal & Har);
-  destruct Hb as (Hbl & Hbr);
-  eapply brel_set_intro_prop;
-  [eapply refAP| split; intros (au, av) Hc];
-  try assumption.
-  +
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Hc;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    (* 
-    (* intro and elim rule for bop_list_product_left 
-    from CAS.coq.sg.lift *)
-    eapply bop_list_product_is_left_intro;
-    [eapply trnAP | eapply symAP | | |];
-    try assumption; [eapply bop_left | | ].
-    ++
-      eapply bop_list_product_is_left_elim in Hc;
-      [|eapply trnAP | eapply symAP | ]; 
-      try assumption; 
-      [eapply Hal; exact Hc | eapply bop_left].
-    ++
-      eapply bop_list_product_is_right_elim in Hc;
-      [|eapply refAP | eapply trnAP | eapply symAP | ];
-      try assumption;[|eapply bop_right].
-      *
-        eapply Hbl in Hc;
-        destruct t2; cbn in Hc;
-        try congruence;
-        cbn; reflexivity.
-    *)
-    admit.
-  + 
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Hc;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    (* 
-    (* intro and elim rule for bop_list_product_left 
-    from CAS.coq.sg.lift *)
-    eapply bop_list_product_is_left_intro;
-    [eapply trnAP | eapply symAP | | |];
-    try assumption;[eapply bop_left | | ].
-    ++
-      eapply bop_list_product_is_left_elim in Hc;
-      [|eapply trnAP | eapply symAP | ]; 
-      try assumption;
-      [eapply Har; exact Hc |
-      eapply bop_left].
-    ++
-      eapply bop_list_product_is_right_elim in Hc;
-      [|eapply refAP | eapply trnAP | eapply symAP | ]; 
-      try assumption;[|eapply bop_right].
-      *
-        eapply Hbr in Hc;
-        destruct s2; cbn in Hc;
-        try congruence;
-        cbn; reflexivity.
-  *)
-  admit.
-Admitted.
 
 
-  
+
 (* *)
 Lemma set_in_set_non_empty_left : 
   forall (X Y : finite_set (A * P)) au q, 
@@ -772,6 +702,171 @@ Proof.
   try congruence;
   cbn; split; try reflexivity.
 Qed.
+
+
+
+Lemma non_empty_list : 
+  forall (X Y : finite_set (A * P)),
+  (∀ a : A * P,
+    set.in_set (manger_llex.eqAP A P eqA eqP) X a = true ->
+    set.in_set (manger_llex.eqAP A P eqA eqP) Y a = true) ->
+  brel_set (brel_product eqA eqP) [] X = false ->
+  brel_set (brel_product eqA eqP) [] Y = false.
+Proof.
+  intros * Ha Hb.
+  destruct X as [|(ax, bx) X];
+  cbn in Hb |- *;
+  [congruence |].
+  specialize (Ha (ax, bx));
+  cbn in Ha; rewrite refA, refP in Ha;
+  cbn in Ha.
+  specialize (Ha eq_refl).
+  destruct Y;
+  cbn in Ha |- *;
+  [congruence | reflexivity].
+Qed.
+
+
+
+(* I can prove congruence assuming when both, 
+mulA and mulP, are left or both are right *)
+Lemma manger_product_phase_0_cong_left :
+  bop_is_left A eqA mulA -> bop_is_left P eqP mulP -> 
+  bop_congruence _ 
+  (manger_llex.eqSAP A P eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP).
+Proof.
+  intros Hu Hv ? ? ? ? Ha Hb.
+  eapply brel_set_elim_prop in Ha, Hb;
+  [|eapply symAP | eapply trnAP | eapply symAP | eapply trnAP];
+  try assumption; destruct Ha as (Hal & Har);
+  destruct Hb as (Hbl & Hbr).
+  eapply brel_set_intro_prop;
+  [eapply refAP| split; intros (au, av) Hc];
+  try assumption.
+  +
+    pose proof (set_in_set_non_empty_left _ _ _ _ Hc) as Hd.
+    pose proof (set_in_set_non_empty_right _ _ _ _ Hc) as He.
+    (* I know that s1 and s2 are non-empty *)
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Hc;
+    [eapply symAP| eapply trnAP|]; try assumption.
+    (* 
+      Proof idea:
+      from set.in_set (manger_llex.eqAP A P eqA eqP)
+       (bop_list_product_left (bop_product mulA mulP) s1 s2) (
+       au, av) = true 
+      I know that (bop_list_product_left (bop_product mulA mulP) s1 s2) <> []
+      from (bop_list_product_left (bop_product mulA mulP) s1 s2) <> []
+      I know that s1 and s2 are non-empty
+    *)
+
+    eapply bop_list_product_is_left_intro;
+    [eapply trnAP | eapply symAP | eapply bop_product_is_left | | ]; 
+    try assumption.
+    ++  
+      eapply bop_list_product_is_left_elim in Hc;
+      [|eapply trnAP | eapply symAP | eapply bop_product_is_left]; 
+      try assumption.
+      eapply Hal; exact Hc.
+    ++
+      eapply non_empty_list;
+      [exact Hbl | exact He].
+      (* Provable *)
+  + 
+    pose proof (set_in_set_non_empty_left _ _ _ _ Hc) as Hd.
+    pose proof (set_in_set_non_empty_right _ _ _ _ Hc) as He.
+
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Hc;
+    [eapply symAP| eapply trnAP|]; try assumption.
+    eapply bop_list_product_is_left_intro;
+    [eapply trnAP | eapply symAP | eapply bop_product_is_left | | ]; 
+    try assumption.
+    ++  
+      eapply bop_list_product_is_left_elim in Hc;
+      [|eapply trnAP | eapply symAP | eapply bop_product_is_left]; 
+      try assumption.
+      eapply Har; exact Hc.
+    ++
+      (* Provable *)
+      eapply non_empty_list;
+      [exact Hbr | exact He].
+Qed.
+
+
+Lemma manger_product_phase_0_cong_right :
+  bop_is_right A eqA mulA -> bop_is_right P eqP mulP -> 
+  bop_congruence _ 
+  (manger_llex.eqSAP A P eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP).
+Proof.
+  intros Hu Hv ? ? ? ? Ha Hb.
+  eapply brel_set_elim_prop in Ha, Hb;
+  [|eapply symAP | eapply trnAP | eapply symAP | eapply trnAP];
+  try assumption; destruct Ha as (Hal & Har);
+  destruct Hb as (Hbl & Hbr).
+  eapply brel_set_intro_prop;
+  [eapply refAP| split; intros (au, av) Hc];
+  try assumption.
+  +
+    pose proof (set_in_set_non_empty_left _ _ _ _ Hc) as Hd.
+    pose proof (set_in_set_non_empty_right _ _ _ _ Hc) as He.
+    (* I know that s1 and s2 are non-empty *)
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Hc;
+    [eapply symAP| eapply trnAP|]; try assumption.
+    (* 
+      Proof idea:
+      from set.in_set (manger_llex.eqAP A P eqA eqP)
+       (bop_list_product_left (bop_product mulA mulP) s1 s2) (
+       au, av) = true 
+      I know that (bop_list_product_left (bop_product mulA mulP) s1 s2) <> []
+      from (bop_list_product_left (bop_product mulA mulP) s1 s2) <> []
+      I know that s1 and s2 are non-empty
+    *)
+
+    eapply bop_list_product_is_right_intro;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | eapply bop_product_is_right | | ];
+    try assumption.
+    ++  
+      eapply bop_list_product_is_right_elim in Hc;
+      [|eapply refAP | eapply trnAP | eapply symAP | 
+      eapply bop_product_is_right]; 
+      try assumption.
+      eapply Hbl; exact Hc.
+    ++
+      eapply non_empty_list;
+      [exact Hal | exact Hd].
+      (* Provable *)
+  + 
+    pose proof (set_in_set_non_empty_left _ _ _ _ Hc) as Hd.
+    pose proof (set_in_set_non_empty_right _ _ _ _ Hc) as He.
+
+    eapply union.in_set_uop_duplicate_elim_intro;
+    eapply union.in_set_uop_duplicate_elim_elim in Hc;
+    [eapply symAP| eapply trnAP|]; try assumption.
+    eapply bop_list_product_is_right_intro;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | eapply bop_product_is_right | | ];
+    try assumption.
+    ++  
+      eapply bop_list_product_is_right_elim in Hc;
+      [|eapply refAP | eapply trnAP | eapply symAP | 
+      eapply bop_product_is_right]; 
+      try assumption.
+      eapply Hbr; exact Hc.
+    ++
+      eapply non_empty_list;
+      [exact Har | exact Hd].
+Qed.
+
+(* End of congruence *)
+
+
+
+  
 
 
 
@@ -1466,10 +1561,7 @@ Proof.
   intros Hb Hc Hd He Hf Hg Hi Hj;
   try eauto.
   +
-    (* mulA a₁ a₂ = a₁ ∨ mulA a₁ a₂ = a₂ *)
-    Print bop_is_right.
     admit.
-    
   + rewrite (symA _ _ Hc) in He; 
     congruence.
   + admit.
@@ -1480,9 +1572,7 @@ Proof.
     rewrite (symA _ _ Hg) in Hj; 
     congruence.
   +
-
     admit.
-
 Admitted.  
 
 End Theory.  
