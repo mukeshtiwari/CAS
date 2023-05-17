@@ -176,20 +176,6 @@ Variables
 Variables 
   (mulA_assoc : bop_associative A eqA mulA)
   (mulP_assoc : bop_associative P eqP mulP)
-  (* This would go away to individual lemmas *)
-  (* 
-    These assumptions are needed are coming from 
-    1. bop_list_product_is_left_intro
-    2. bop_list_product_is_right_intro
-    3. bop_list_product_is_left_elim
-    4. bop_list_product_is_right_elim
-    
-  (mulA_left : bop_is_left A eqA mulA)
-  (mulP_left : bop_is_left P eqP mulP)
-  (mulA_right : bop_is_right A eqA mulA)
-  (mulP_right : bop_is_right P eqP mulP)
-  *)
-  (* end of movement *)
   (cong_mulA : bop_congruence A eqA mulA)
   (cong_mulP : bop_congruence P eqP mulP).
 
@@ -549,23 +535,6 @@ Qed.
 
 
 
-(* These lemmas would go away because it exist in sg/product.v *)
-(* 
-Lemma bop_left : 
-  bop_is_left (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
-Proof.
-  eapply bop_product_is_left;
-  [eapply mulA_left | eapply mulP_left].
-Qed.
-
-
-Lemma bop_right : 
-  bop_is_right (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
-Proof.
-  eapply bop_product_is_right;
-  [eapply mulA_right | eapply mulP_right].
-Qed.
-*)
 
 
  
