@@ -474,9 +474,6 @@ Proof.
   manger_product_phase_0 eqA eqP mulA mulP Y X. 
   Then use it swap the arguments and use the lemma above. 
   *)
- 
-    
-  
 Admitted.
 
 
@@ -838,20 +835,21 @@ Qed.
   
 
 
-
-(* Broken without bop_right *)
+(* Assumes bop_is_left *)
 Lemma bop_left_uop_inv_phase_1 : 
+  bop_is_left A eqA mulA -> bop_is_left P eqP mulP ->
   bop_left_uop_invariant (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
   (bop_reduce (uop_manger_phase_1 eqA addP)
     (manger_product_phase_0 eqA eqP mulA mulP))
   (uop_manger_phase_1 eqA addP).
 Proof.
-  intros ? ?.
+  intros Hu Hv ? ?.
   eapply brel_set_intro_prop;
   [eapply refAP|split; intros (au, av) Ha]; 
   try assumption.
   +
+
     eapply in_set_uop_manger_phase_1_intro with 
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent);
@@ -862,12 +860,10 @@ Proof.
     assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
     eapply set_in_set_non_empty_right; exact Hal.
     ++
-      admit.
-      (* 
       eapply union.in_set_uop_duplicate_elim_elim,
       bop_list_product_is_left_elim in Hal;
-      [|eapply trnAP | eapply symAP | eapply bop_left];
-      try assumption; try (eapply addP_gen_idempotent);
+      [|eapply trnAP | eapply symAP | eapply bop_product_is_left];
+      try assumption; try (eapply addP_gen_idempotent).
       eapply in_set_uop_manger_phase_1_elim with 
       (zeroP := zeroP) in Hal; try assumption;
       try (eapply addP_gen_idempotent);
@@ -879,9 +875,8 @@ Proof.
       (* This is the challenge! Because it's 
         demanding s2 to be non-empty *)
       eapply bop_list_product_is_left_intro;
-      [eapply trnAP | eapply symAP | eapply bop_left | | ];
+      [eapply trnAP | eapply symAP | eapply bop_product_is_left | | ];
       try assumption.
-      *)
     ++
       (* Think about it! *)
       eapply sum_fn_forward_first; 
@@ -898,41 +893,41 @@ Proof.
     assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
     eapply set_in_set_non_empty_right; exact Hal.
     ++
-      admit.
-      (* 
+    
       eapply union.in_set_uop_duplicate_elim_elim,
       bop_list_product_is_left_elim in Hal;
-      [|eapply trnAP | eapply symAP | eapply bop_left];
+      [|eapply trnAP | eapply symAP | eapply bop_product_is_left];
       try assumption; eexists;
       eapply union.in_set_uop_duplicate_elim_intro;
       [eapply symAP | eapply trnAP | ];
       try assumption;
       eapply bop_list_product_is_left_intro;
-      [eapply trnAP | eapply symAP | | |];
-      try assumption;[eapply bop_left | ].
+      [eapply trnAP | eapply symAP | eapply bop_product_is_left | |];
+      try assumption.
       *
         eapply in_set_uop_manger_phase_1_intro with 
         (zeroP := zeroP); try assumption;
         try (eapply addP_gen_idempotent);
         [exists q; exact Hal | eapply refP].
-    *)
     ++
       (* Think about it! *)
       eapply sum_fn_backward_first;
       try assumption.
-Admitted.
+Qed.
     
 
 
 (* Broken without bop_right *)
 Lemma bop_right_uop_inv_phase_1 : 
+  bop_is_right A eqA mulA ->
+  bop_is_right P eqP mulP -> 
   bop_right_uop_invariant (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
   (bop_reduce (uop_manger_phase_1 eqA addP)
      (manger_product_phase_0 eqA eqP mulA mulP))
   (uop_manger_phase_1 eqA addP).
 Proof.
-  intros ? ?.
+  intros Hu Hv ? ?.
   eapply brel_set_intro_prop;
   [eapply refAP|split; intros (au, av) Ha]; 
   try assumption.
@@ -948,21 +943,25 @@ Proof.
     destruct s2; cbn in Hal |- *.
     eapply set_in_set_non_empty_right in Hal; cbn in Hal;
     congruence. reflexivity.
+    assert (Hc :  brel_set (brel_product eqA eqP) [] s1 = false).
+    destruct s1; cbn in Hal |- *;
+    [congruence | reflexivity].
     ++
-      eexists.
+      eapply union.in_set_uop_duplicate_elim_elim,
+      bop_list_product_is_right_elim,
+      in_set_uop_manger_phase_1_elim with 
+      (zeroP := zeroP) in Hal; try assumption;
+      [| eapply addP_gen_idempotent | eapply refAP | 
+        eapply trnAP | eapply symAP | eapply bop_product_is_right];
+      try assumption; destruct Hal as ((qt & Hala) & Halb).
+      (* this qt is going to be the witness *)
+      exists qt.
       eapply union.in_set_uop_duplicate_elim_intro;
-      eapply union.in_set_uop_duplicate_elim_elim in Hal;
-      [eapply symAP| eapply trnAP|]; try assumption.
-      (* 
-      eapply bop_list_product_is_left_intro;
-      [eapply trnAP | eapply symAP | | |];
-      try assumption; [eapply bop_left | ].
-      *
-        eapply bop_list_product_is_left_elim in Hal;
-        [|eapply trnAP | eapply symAP | ]; 
-        try assumption; [exact Hal | eapply bop_left].
-      *)
-      admit.
+      [eapply symAP | eapply trnAP | ]; try assumption.
+      eapply bop_list_product_is_right_intro;
+      [eapply refAP | eapply trnAP | eapply symAP | 
+      eapply bop_cong | eapply bop_product_is_right | 
+      | exact Hc]; try assumption.
     ++
       (* May require some thinking*)
       eapply sum_fn_forward_second;
@@ -978,8 +977,7 @@ Proof.
     assert (Hb : brel_set (brel_product eqA eqP) [] s1 = false).
     destruct s1; cbn in Hal |- *; congruence.
     ++
-      admit.
-      (* 
+
       eexists;
       eapply union.in_set_uop_duplicate_elim_intro;
       eapply union.in_set_uop_duplicate_elim_elim in Hal;
@@ -987,22 +985,21 @@ Proof.
       try (eapply addP_gen_idempotent);
       eapply bop_list_product_is_right_intro;
       [eapply refAP | eapply trnAP | eapply symAP |
-        eapply bop_cong | eapply bop_right | | exact Hb];
+        eapply bop_cong | eapply bop_product_is_right | | exact Hb];
       try assumption; try (eapply addP_gen_idempotent);
       eapply bop_list_product_is_right_elim in Hal;
       [|eapply refAP | eapply trnAP | eapply symAP | 
-      eapply bop_right]; try assumption;
+      eapply bop_product_is_right]; try assumption;
       try (eapply addP_gen_idempotent);
       eapply in_set_uop_manger_phase_1_intro with 
       (zeroP := zeroP); try assumption;
       try (eapply addP_gen_idempotent);
       [eexists; exact Hal | eapply refP].
-    *)
     ++
       (* This about it *)
       eapply sum_fn_backward_second;
       try assumption.
-Admitted.
+Qed.
 
 
 
