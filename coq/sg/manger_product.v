@@ -265,6 +265,30 @@ Lemma bProp_cong :
 Admitted.
 
 
+Lemma brel_set_manger_product_phase_0_dist : 
+  forall (X Y U : finite_set (A * P)),
+  brel_set (brel_product eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP (X ++ Y) U)
+  (manger_product_phase_0 eqA eqP mulA mulP X U ++
+   manger_product_phase_0 eqA eqP mulA mulP Y U) = true.
+Proof.
+  intros *.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, ay) Ha]; try assumption.
+  +
+Admitted.
+
+Lemma brel_set_manger_product_phase_0_comm : 
+  forall (X Y U : finite_set (A * P)),
+  brel_set (brel_product eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP (X ++ Y) U)
+  (manger_product_phase_0 eqA eqP mulA mulP (Y ++ X) U) = true.
+Proof.
+  intros *.
+Admitted.
+
+
+
 
 Lemma brel_set_manger_product_phase_0_swap : 
   forall (X Y U : finite_set (A * P)) ax bx,
@@ -273,13 +297,7 @@ Lemma brel_set_manger_product_phase_0_swap :
   (manger_product_phase_0 eqA eqP mulA mulP (X ++ (ax, bx) :: Y) U) = true.
 Admitted.
 
-Lemma brel_set_manger_product_phase_0_dist : 
-  forall (X Y U : finite_set (A * P)),
-  brel_set (brel_product eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP (X ++ Y) U)
-  (manger_product_phase_0 eqA eqP mulA mulP X U ++
-   manger_product_phase_0 eqA eqP mulA mulP Y U) = true.
-Admitted.
+
 
 
 Lemma manger_product_phase_0_comm : 
@@ -1308,7 +1326,7 @@ Proof.
     assert (Hb : brel_set (brel_product eqA eqP) [] s2 = false).
     eapply set_in_set_non_empty_right; exact Hal.
     ++
-      
+
 
 Admitted.
 
