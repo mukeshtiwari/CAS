@@ -1998,12 +1998,11 @@ Proof.
     *)
     assert (He : brel_product eqA eqP (au, av)
       (bop_product mulA mulP (ya, yb) (xa, xb)) = true).
-    eapply brel_product_intro.
-    eapply brel_product_elim in Hd.
-    destruct Hd as (Hdl & Hdr).
-
-    
-    admit. admit.
+    eapply brel_product_intro;
+    eapply brel_product_elim in Hd;
+    destruct Hd as (Hdl & Hdr);
+   [exact (trnA _ _ _ Hdl (mulA_comm xa ya)) |
+    exact (trnP _ _ _ Hdr (mulP_comm xb yb))].
     (*Now replace the pair (au, av) by He. 
       apply in_set_list_product_intro
     *)
@@ -2018,10 +2017,11 @@ Proof.
     unfold manger_llex.eqAP in Hd.
     assert (He : brel_product eqA eqP (au, av)
       (bop_product mulA mulP (ya, yb) (xa, xb)) = true).
-    eapply brel_product_intro.
-    eapply brel_product_elim in Hd.
-    destruct Hd as (Hdl & Hdr).
-    admit. admit.
+    eapply brel_product_intro;
+    eapply brel_product_elim in Hd;
+    destruct Hd as (Hdl & Hdr);
+     [exact (trnA _ _ _ Hdl (mulA_comm xa ya)) |
+      exact (trnP _ _ _ Hdr (mulP_comm xb yb))].
     (*Now replace the pair (au, av) by He. 
       apply in_set_list_product_intro
     *)
