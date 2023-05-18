@@ -176,6 +176,8 @@ Variables
 Variables 
   (mulA_assoc : bop_associative A eqA mulA)
   (mulP_assoc : bop_associative P eqP mulP)
+  (mulA_comm : bop_commutative A eqA mulA)
+  (mulP_comm : bop_commutative P eqP mulP)
   (cong_mulA : bop_congruence A eqA mulA)
   (cong_mulP : bop_congruence P eqP mulP).
 
@@ -1904,7 +1906,7 @@ Proof.
 
 
 Lemma bop_manger_product_associative_left :
-   bop_is_left A eqA mulA -> 
+  bop_is_left A eqA mulA -> 
   bop_is_left P eqP mulP ->
   bop_associative _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
@@ -1972,9 +1974,9 @@ Proof.
     try assumption; try (eapply addP_gen_idempotent).
 Qed.
 
-(* Everything good upto this point *)
 
-Lemma manger_product_phase_0_commutative : 
+(* This should be provable without left of right *)
+Lemma manger_product_phase_0_commutative: 
   bop_commutative (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
   (manger_product_phase_0 eqA eqP mulA mulP).
@@ -1984,50 +1986,52 @@ Proof.
   [eapply refAP | split; intros (au, av) Ha]; 
   try assumption.
   +
-    admit.
-    (* 
     eapply union.in_set_uop_duplicate_elim_intro;
     eapply union.in_set_uop_duplicate_elim_elim in Ha;
-    [eapply symAP| eapply trnAP|]; try assumption;
-    (* intro and elim rule for bop_list_product_left 
-    from CAS.coq.sg.lift *)
-    eapply bop_list_product_is_left_intro;
-    [eapply trnAP | eapply symAP | | |];
-    try assumption.
-    ++
-      eapply bop_left.
-    ++
-      eapply bop_list_product_is_right_elim in Ha;
-      [|eapply refAP | eapply trnAP | eapply symAP | eapply bop_right]; 
-      try assumption.
-    ++
-      destruct s; cbn in Ha;
-      try congruence;
-      cbn; reflexivity.
-  *)
+    [eapply symAP| eapply trnAP|]; try assumption.
+    eapply in_set_list_product_elim in Ha;
+    [| eapply refAP | eapply symAP]; try assumption.
+    destruct Ha as ((xa, xb) & (ya, yb) & (Hb & Hc) & Hd). 
+    unfold manger_llex.eqAP in Hd.
+    (* What an awesome proof! This requires 
+      mulA and mulP to commutative.
+    *)
+    assert (He : brel_product eqA eqP (au, av)
+      (bop_product mulA mulP (ya, yb) (xa, xb)) = true).
+    eapply brel_product_intro.
+    eapply brel_product_elim in Hd.
+    destruct Hd as (Hdl & Hdr).
+    admit. admit.
+    (*Now replace the pair (au, av) by He. 
+      apply in_set_list_product_intro
+    *)
+    admit.
   +
-    admit.
-    (* 
     eapply union.in_set_uop_duplicate_elim_intro;
     eapply union.in_set_uop_duplicate_elim_elim in Ha;
-    [eapply symAP| eapply trnAP|]; try assumption;
-    (* intro and elim rule for bop_list_product_left 
-    from CAS.coq.sg.lift *)
-    eapply bop_list_product_is_left_intro;
-    [eapply trnAP | eapply symAP | | |];
-    try assumption.
-    ++
-      eapply bop_left.
-    ++
-      eapply bop_list_product_is_right_elim in Ha;
-      [|eapply refAP | eapply trnAP | eapply symAP | eapply bop_right]; 
-      try assumption.
-    ++
-      destruct t; cbn in Ha;
-      try congruence;
-      cbn; reflexivity.
-  *)
+    [eapply symAP| eapply trnAP|]; try assumption.
+    eapply in_set_list_product_elim in Ha;
+    [| eapply refAP | eapply symAP]; try assumption.
+    destruct Ha as ((xa, xb) & (ya, yb) & (Hb & Hc) & Hd). 
+    unfold manger_llex.eqAP in Hd.
+    assert (He : brel_product eqA eqP (au, av)
+      (bop_product mulA mulP (ya, yb) (xa, xb)) = true).
+    eapply brel_product_intro.
+    eapply brel_product_elim in Hd.
+    destruct Hd as (Hdl & Hdr).
+    admit. admit.
+    (*Now replace the pair (au, av) by He. 
+      apply in_set_list_product_intro
+    *)
+    admit.
 Admitted.
+
+
+
+    
+
+
+(* Everything good upto this point *)
 
 
 Lemma bop_manger_product_commutative :
