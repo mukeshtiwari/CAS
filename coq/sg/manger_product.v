@@ -1975,7 +1975,7 @@ Proof.
 Qed.
 
 
-(* This should be provable without left of right *)
+(* This require mulA and mulP to be commutative  *)
 Lemma manger_product_phase_0_commutative: 
   bop_commutative (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
@@ -2003,10 +2003,14 @@ Proof.
     destruct Hd as (Hdl & Hdr);
    [exact (trnA _ _ _ Hdl (mulA_comm xa ya)) |
     exact (trnP _ _ _ Hdr (mulP_comm xb yb))].
-    (*Now replace the pair (au, av) by He. 
-      apply in_set_list_product_intro
-    *)
-    admit.
+    eapply set.in_set_right_congruence with 
+    (bop_product mulA mulP (ya, yb) (xa, xb));
+    [eapply symAP | eapply trnAP | eapply brel_product_symmetric | ];
+    try assumption. 
+    eapply in_set_list_product_intro;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | exact Hc | exact Hb];
+    try assumption.
   +
     eapply union.in_set_uop_duplicate_elim_intro;
     eapply union.in_set_uop_duplicate_elim_elim in Ha;
@@ -2025,11 +2029,15 @@ Proof.
     (*Now replace the pair (au, av) by He. 
       apply in_set_list_product_intro
     *)
-    admit.
-Admitted.
-
-
-
+    eapply set.in_set_right_congruence with 
+    (bop_product mulA mulP (ya, yb) (xa, xb));
+    [eapply symAP | eapply trnAP | eapply brel_product_symmetric | ];
+    try assumption. 
+    eapply in_set_list_product_intro;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | exact Hc | exact Hb];
+    try assumption.
+Qed.
   
 
 Lemma bop_manger_product_commutative_left :
