@@ -264,9 +264,37 @@ Lemma bProp_cong :
   forall au,
   theory.bProp_congruence (A * P) (brel_product eqA eqP)
   (λ '(x, _), eqA x au).
-Admitted.
+Proof.
+  intros * (ax, bx) (aw, bw) Ha;
+  cbn in Ha.
+  eapply Bool.andb_true_iff in Ha.
+  destruct Ha as (Hal & Har).
+  case_eq (eqA ax au);
+  case_eq (eqA aw au);
+  intros Hb Hc; try reflexivity.
+  rewrite (trnA _ _ _ (symA _ _ Hal) Hc) in 
+  Hb; congruence.
+  rewrite (trnA _ _ _ Hal Hb) in Hc;
+  congruence.
+Qed.
+
+Lemma bop_cong : 
+  bop_congruence (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
+Proof.
+  eapply bop_product_congruence; assumption.
+Qed.
+    
+
+Lemma bop_assoc : 
+  bop_associative (A * P) (manger_llex.eqAP A P eqA eqP)
+  (bop_product mulA mulP).
+Proof.
+  eapply bop_product_associative; assumption.
+Qed.
 
 
+(* It's good idea to create a hint database and 
+  writing some custom tactics using coq-elpi *)
 Lemma brel_set_manger_product_phase_0_dist : 
   forall (X Y U : finite_set (A * P)),
   brel_set (brel_product eqA eqP)
@@ -278,7 +306,59 @@ Proof.
   eapply brel_set_intro_prop;
   [eapply refAP | split; intros (ax, ay) Ha]; try assumption.
   +
-Admitted.
+    eapply in_set_bop_lift_elim in Ha;
+    [| eapply refAP | eapply symAP]; try assumption;
+    destruct Ha as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    (* Now replace *)
+    eapply set.in_set_right_congruence with 
+    (bop_product mulA mulP (xa, xp) (ya, yp));
+    [eapply symAP | eapply trnAP | eapply brel_product_symmetric |
+    ]; try assumption.
+    (* case analysis on Ha *)
+    eapply set.in_set_concat_elim in Ha;
+    [| eapply symAP]; try assumption.
+    destruct Ha as [Ha | Ha].
+    ++
+      (* go left *)
+      eapply set.in_set_concat_intro; left.
+      eapply in_set_bop_lift_intro;
+      [eapply refAP | eapply trnAP | eapply symAP | eapply 
+      bop_cong | exact Ha | exact Hb];
+      try assumption.
+    ++
+      (* go right *)
+      eapply set.in_set_concat_intro; right.
+      eapply in_set_bop_lift_intro;
+      [eapply refAP | eapply trnAP | eapply symAP | eapply 
+      bop_cong | exact Ha | exact Hb]; 
+      try assumption.
+  +
+    (* I need find out (xa, xp) (ya, yp) such 
+    that ax = mulA xa ya & ay = mulP xp yp from Ha *) 
+
+    eapply set.in_set_concat_elim in Ha;
+    [| eapply symAP]; try assumption.
+    (* case analysis on Ha*)
+    destruct Ha as [Ha | Ha].
+    ++
+      eapply in_set_bop_lift_elim in Ha;   
+      [| eapply refAP | eapply symAP]; try assumption;
+      destruct Ha as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+      eapply in_set_bop_lift_intro_v2;
+      [eapply refAP | eapply trnAP | eapply symAP | 
+      eapply bop_cong | eapply set.in_set_concat_intro; left; 
+      exact Ha | exact Hb | ]; try assumption.
+    ++
+       eapply in_set_bop_lift_elim in Ha;   
+      [| eapply refAP | eapply symAP]; try assumption;
+      destruct Ha as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+      eapply in_set_bop_lift_intro_v2;
+      [eapply refAP | eapply trnAP | eapply symAP | 
+      eapply bop_cong | eapply set.in_set_concat_intro; right; 
+      exact Ha | exact Hb | ]; try assumption.
+Qed.
+
+      
 
 Lemma brel_set_manger_product_phase_0_comm : 
   forall (X Y U : finite_set (A * P)),
@@ -287,16 +367,46 @@ Lemma brel_set_manger_product_phase_0_comm :
   (manger_product_phase_0 eqA eqP mulA mulP (Y ++ X) U) = true.
 Proof.
   intros *.
-Admitted.
+  eapply brel_set_transitive;
+  [eapply refAP | eapply symAP | eapply trnAP | 
+  eapply brel_set_manger_product_phase_0_dist | 
+  eapply brel_set_symmetric]; 
+  try assumption.
+  eapply brel_set_transitive;
+  [eapply refAP | eapply symAP | eapply trnAP | 
+  eapply brel_set_manger_product_phase_0_dist | 
+  eapply brel_set_symmetric]; 
+  try assumption.
+  eapply brel_set_intro_prop;
+  [eapply refAP|split; intros (ax, bx) Ha];
+  try assumption.
+  +
+    eapply set.in_set_concat_intro.
+    eapply set.in_set_concat_elim in Ha;
+    [| eapply symAP]; try assumption.
+    destruct Ha as [Ha | Ha];
+    [right | left]; assumption.
+  +
+    eapply set.in_set_concat_intro.
+    eapply set.in_set_concat_elim in Ha;
+    [| eapply symAP]; try assumption.
+    destruct Ha as [Ha | Ha];
+    [right | left]; assumption.
+Qed.
 
 
 
-
+(* This is pretty annoying *)
 Lemma brel_set_manger_product_phase_0_swap : 
   forall (X Y U : finite_set (A * P)) ax bx,
   brel_set (brel_product eqA eqP)
   (manger_product_phase_0 eqA eqP mulA mulP (((ax, bx) :: X) ++ Y) U)
   (manger_product_phase_0 eqA eqP mulA mulP (X ++ (ax, bx) :: Y) U) = true.
+Proof.
+  intros *. cbn.
+  remember (((ax, bx) :: X)) as Xa.
+  remember ((ax, bx) :: Y) as Ya.
+  cbn.
 Admitted.
 
 
@@ -588,19 +698,7 @@ Qed.
 
 
 
-Lemma bop_cong : 
-  bop_congruence (A * P) (brel_product eqA eqP) (bop_product mulA mulP).
-Proof.
-  eapply bop_product_congruence; assumption.
-Qed.
-    
 
-Lemma bop_assoc : 
-  bop_associative (A * P) (manger_llex.eqAP A P eqA eqP)
-  (bop_product mulA mulP).
-Proof.
-  eapply bop_product_associative; assumption.
-Qed.
 
 (* end of movement *)
 
