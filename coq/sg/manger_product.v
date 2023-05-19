@@ -396,7 +396,6 @@ Qed.
 
 
 
-(* This is pretty annoying *)
 Lemma brel_set_manger_product_phase_0_swap : 
   forall (X Y U : finite_set (A * P)) au bu,
   brel_set (brel_product eqA eqP)
@@ -449,12 +448,47 @@ Proof.
       try assumption.
   +
     (* other direction *)
-      
+    subst; 
+    eapply set.in_set_concat_elim in Ha;
+    [|eapply symAP]; try assumption.
+    destruct Ha as [Ha | Ha].
+    ++
+      eapply set.in_set_concat_intro; left;
+      cbn; eapply union.in_set_uop_duplicate_elim_intro;
+      [eapply symAP | eapply trnAP | ]; try assumption.
+      eapply set.in_set_concat_intro; right.
+      unfold manger_product_phase_0 in Ha.
+      eapply in_set_bop_lift_elim in Ha;
+      [| eapply refAP | eapply symAP]; try assumption;
+      destruct Ha as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+      eapply set.in_set_right_congruence with 
+      (bop_product mulA mulP (xa, xp) (ya, yp));
+      [eapply symAP | eapply trnAP | eapply brel_product_symmetric |
+      ]; try assumption.
+      eapply in_set_list_product_intro;
+      [eapply refAP | eapply trnAP | eapply symAP | 
+      eapply bop_cong | exact Ha | exact Hb];
+      try assumption.
+    ++
+      cbn in Ha |- *;
+      eapply union.in_set_uop_duplicate_elim_elim,
+      set.in_set_concat_elim in Ha;
+      [| eapply symAP]; try assumption.
+      destruct Ha as [Ha | Ha].
+      +++
+        eapply set.in_set_concat_intro; left;
+        eapply union.in_set_uop_duplicate_elim_intro;
+        [eapply symAP | eapply trnAP | ]; 
+        try assumption.
+        eapply set.in_set_concat_intro; left; 
+        assumption.
+      +++
+        eapply set.in_set_concat_intro; right;
+        eapply union.in_set_uop_duplicate_elim_intro;
+        [eapply symAP | eapply trnAP | ]; 
+        try assumption.
+Qed.
 
-
-
-  
-Admitted.
 
 
 
