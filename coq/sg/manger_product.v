@@ -780,6 +780,15 @@ Lemma brel_set_uop_manger_phase_2 :
     (uop_manger_phase_2 lteA s1) = false.
 Proof.
   intros * Ha.
+  unfold uop_manger_phase_2, 
+  minset.uop_minset.
+  destruct (minset.iterate_minset (manger_pre_order lteA) [] [] s1) eqn:Hb.
+  assert (Hc : f0 = snd (minset.iterate_minset (manger_pre_order lteA) [] [] s1)).
+  rewrite Hb; now reflexivity.
+  rewrite Hc; clear Hc.
+  
+
+ 
 Admitted.
 
 
