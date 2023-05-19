@@ -515,11 +515,36 @@ Proof.
     [eapply symAP | eapply trnAP | eapply brel_product_symmetric | ];
     try assumption;
     [eapply brel_product_symmetric| ];
-    try assumption. admit.
+    try assumption.
+    eapply brel_product_intro;
+    [eapply mulA_comm | eapply mulP_comm].
     eapply in_set_bop_lift_intro;
     [eapply refAP | eapply trnAP | eapply symAP | 
     eapply bop_cong | exact Hb  | exact Ha];
     try assumption.
+  +
+    eapply in_set_bop_lift_elim in Ha;
+    [| eapply refAP | eapply symAP]; try assumption;
+    destruct Ha as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    (* Now replace *)
+    eapply set.in_set_right_congruence with 
+    (bop_product mulA mulP (xa, xp) (ya, yp));
+    [eapply symAP | eapply trnAP | eapply brel_product_symmetric |
+    ]; try assumption.
+    eapply set.in_set_right_congruence with 
+    (bop_product mulA mulP (ya, yp) (xa, xp));
+    [eapply symAP | eapply trnAP | eapply brel_product_symmetric | ];
+    try assumption;
+    [eapply brel_product_symmetric| ];
+    try assumption. 
+    eapply brel_product_intro;
+    [eapply mulA_comm | eapply mulP_comm].
+    eapply in_set_bop_lift_intro;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | exact Hb  | exact Ha];
+    try assumption.
+Qed.
+
 
     
 
@@ -717,8 +742,35 @@ Proof.
   Then use it swap the arguments and use the lemma above. 
   *)
   remember ((fold_left (manger_merge_sets_new eqA addP) Y U)) as YU.
+  eapply trnP with 
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP YU X))).
+  +
+    eapply sum_fn_congruence_general_set with 
+    (eqA := eqA) (fA := fA) (lteA := lteA); try assumption;
+    try (eapply addP_gen_idempotent);
+    eapply filter_congruence_gen; try assumption.
+    eapply bop_congruence_bProp_fst; try assumption.
+    eapply brel_set_manger_product_phase_0_swap_v1.
+  +
+    eapply symP, trnP with 
+    (matrix_algorithms.sum_fn zeroP addP snd
+     (List.filter (λ '(x, _), eqA x au)
+        (manger_product_phase_0 eqA eqP mulA mulP (Y ++ U) X))).
+    ++
+      eapply sum_fn_congruence_general_set with 
+      (eqA := eqA) (fA := fA) (lteA := lteA); try assumption;
+      try (eapply addP_gen_idempotent).
+      repeat rewrite list_filter_lib_filter_same.
+      eapply filter_congruence_gen; try assumption.
+      eapply bop_congruence_bProp_fst; try assumption.
+      eapply brel_set_manger_product_phase_0_swap_v1.
+    ++
+      subst. eapply symP.
+      eapply sum_fn_first_gen; exact Ha.
+Qed.
 
-Admitted.
 
 (* It's true but seems annonying *)
 Lemma brel_set_uop_manger_phase_2 : 
