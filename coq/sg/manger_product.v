@@ -490,7 +490,38 @@ Proof.
 Qed.
 
 
+(* requires commutativity *)
+Lemma brel_set_manger_product_phase_0_swap_v1: 
+  forall (X Y : finite_set (A * P)),
+  brel_set (brel_product eqA eqP) 
+  (manger_product_phase_0 eqA eqP mulA mulP X Y)
+  (manger_product_phase_0 eqA eqP mulA mulP Y X) = true.
+Proof.
+  intros *;
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Ha];
+  try assumption.
+  +
+    eapply in_set_bop_lift_elim in Ha;
+    [| eapply refAP | eapply symAP]; try assumption;
+    destruct Ha as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    (* Now replace *)
+    eapply set.in_set_right_congruence with 
+    (bop_product mulA mulP (xa, xp) (ya, yp));
+    [eapply symAP | eapply trnAP | eapply brel_product_symmetric |
+    ]; try assumption.
+    eapply set.in_set_right_congruence with 
+    (bop_product mulA mulP (ya, yp) (xa, xp));
+    [eapply symAP | eapply trnAP | eapply brel_product_symmetric | ];
+    try assumption;
+    [eapply brel_product_symmetric| ];
+    try assumption. admit.
+    eapply in_set_bop_lift_intro;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | exact Hb  | exact Ha];
+    try assumption.
 
+    
 
 
 Lemma manger_product_phase_0_comm : 
@@ -685,6 +716,8 @@ Proof.
   manger_product_phase_0 eqA eqP mulA mulP Y X. 
   Then use it swap the arguments and use the lemma above. 
   *)
+  remember ((fold_left (manger_merge_sets_new eqA addP) Y U)) as YU.
+
 Admitted.
 
 (* It's true but seems annonying *)
