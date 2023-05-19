@@ -398,15 +398,62 @@ Qed.
 
 (* This is pretty annoying *)
 Lemma brel_set_manger_product_phase_0_swap : 
-  forall (X Y U : finite_set (A * P)) ax bx,
+  forall (X Y U : finite_set (A * P)) au bu,
   brel_set (brel_product eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP (((ax, bx) :: X) ++ Y) U)
-  (manger_product_phase_0 eqA eqP mulA mulP (X ++ (ax, bx) :: Y) U) = true.
+  (manger_product_phase_0 eqA eqP mulA mulP (((au, bu) :: X) ++ Y) U)
+  (manger_product_phase_0 eqA eqP mulA mulP (X ++ (au, bu) :: Y) U) = true.
 Proof.
-  intros *. cbn.
-  remember (((ax, bx) :: X)) as Xa.
-  remember ((ax, bx) :: Y) as Ya.
-  cbn.
+  intros *.
+  remember (((au, bu) :: X)) as Xa.
+  remember ((au, bu) :: Y) as Ya.
+  eapply brel_set_transitive;
+  [eapply refAP | eapply symAP | eapply trnAP | 
+  eapply brel_set_manger_product_phase_0_dist | 
+  eapply brel_set_symmetric]; 
+  try assumption.
+  eapply brel_set_transitive;
+  [eapply refAP | eapply symAP | eapply trnAP | 
+  eapply brel_set_manger_product_phase_0_dist | 
+  eapply brel_set_symmetric]; 
+  try assumption.
+  eapply brel_set_intro_prop;
+  [eapply refAP|split; intros (ax, bx) Ha];
+  try assumption.
+  +
+    subst; cbn in Ha |- *.
+    eapply set.in_set_concat_elim in Ha;
+    [| eapply symAP]; try assumption.
+    destruct Ha as [Ha | Ha].
+    eapply union.in_set_uop_duplicate_elim_elim,
+    set.in_set_concat_elim in Ha;
+    [| eapply symAP]; try assumption.
+    destruct Ha as [Ha | Ha].
+    ++
+      (* go right; left *)
+      eapply set.in_set_concat_intro; right;
+      eapply union.in_set_dup_elim_intro;
+      [eapply symAP | eapply trnAP | eapply 
+      set.in_set_concat_intro; left]; try assumption.
+    ++
+      eapply set.in_set_concat_intro; left.
+      unfold manger_product_phase_0, bop_lift.
+      eapply union.in_set_dup_elim_intro;
+      [eapply symAP | eapply trnAP | exact Ha];
+      try assumption.
+    ++
+      eapply set.in_set_concat_intro; right;
+      eapply union.in_set_dup_elim_intro;
+      [eapply symAP | eapply trnAP | eapply 
+      set.in_set_concat_intro; right]; try assumption.
+      eapply union.in_set_uop_duplicate_elim_elim in Ha;
+      try assumption.
+  +
+    (* other direction *)
+      
+
+
+
+  
 Admitted.
 
 
