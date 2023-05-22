@@ -772,7 +772,9 @@ Proof.
 Qed.
 
 
+
 (* It's true but seems annonying *)
+(* And it is indeed annoying *)
 Lemma brel_set_uop_manger_phase_2 : 
   forall s1, 
   brel_set (brel_product eqA eqP) [] s1 = false ->
@@ -780,33 +782,31 @@ Lemma brel_set_uop_manger_phase_2 :
     (uop_manger_phase_2 lteA s1) = false.
 Proof.
   intros * Ha.
-  unfold uop_manger_phase_2, 
-  minset.uop_minset.
-  destruct (minset.iterate_minset (manger_pre_order lteA) [] [] s1) eqn:Hb.
-  assert (Hc : f0 = snd (minset.iterate_minset (manger_pre_order lteA) [] [] s1)).
-  rewrite Hb; now reflexivity.
-  rewrite Hc; clear Hc.
-  
 
- 
+  case_eq (brel_set (brel_product eqA eqP) [] (uop_manger_phase_2 lteA s1));
+  intros Hb; [rewrite <-Ha; eapply eq_sym|try reflexivity].
+  eapply brel_set_nil in Hb.
+  (* There is just one case uop_manger_phase_2 is empty 
+    and that is when s1 = [] *)
+  unfold uop_manger_phase_2, minset.uop_minset in Hb.
 Admitted.
 
 
 Lemma uop_manger_phase_1_non_empty : 
-  forall (s1 : finite_set (A * P)),
-  brel_set (brel_product eqA eqP) [] s1 = false -> 
+  forall (X : finite_set (A * P)),
+  brel_set (brel_product eqA eqP) [] X = false -> 
   brel_set (brel_product eqA eqP) [] 
-    (uop_manger_phase_1 eqA addP s1) = false.
+    (uop_manger_phase_1 eqA addP X) = false.
 Proof.
   intros * Ha.
   unfold uop_manger_phase_1,
   manger_phase_1_auxiliary.
-  destruct s1; cbn in Ha |- *;
-  [congruence | ].
+  rewrite manger_merge_set_funex.
   (* My learning from this project is: avoid fold_left! *)
   (* Also use https://github.com/coq-community/aac-tactics 
   if rolling equality *)
 Admitted.
+
 
 Lemma brel_set_manger_product_phase_0_non_empty_backward : 
   forall (s t : finite_set (A * P)),
