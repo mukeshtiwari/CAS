@@ -2516,12 +2516,12 @@ Qed.
 (* Everything good upto this point *) 
 
 Lemma bop_manger_product_not_selective_left :
-   bop_is_left A eqA mulA -> 
-  bop_is_left P eqP mulP ->
+  (* bop_is_left A eqA mulA -> 
+  bop_is_left P eqP mulP -> *)
   bop_not_selective _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Proof.
-  intros Hu Hv.
+  (* intros Hu Hv. *)
   destruct ntot as ((a₁, a₂) & Ha);
   exists ([(a₁, wP)], [(a₂, wP)]); compute.
   (* Discuss this with Tim *)
@@ -2536,10 +2536,19 @@ Proof.
   intros Hb Hc Hd He Hf Hg Hi Hj;
   try eauto.
   +
-    admit.
+    eapply symA in Hc.
+    pose proof (trnA _ _ _ (symA _ _ Hj) Hc) as Hk.
+    destruct Ha as (Hal & Har).
+    assert (Hl := conLte _ _ _ _ (refA a₁) Hk).
+    rewrite <-Hl in Hal.
+    rewrite (refLte a₁) in Hal; congruence.
   + rewrite (symA _ _ Hc) in He; 
     congruence.
-  + admit.
+  +
+    destruct Ha as (Hal & Har).
+    (* This does not look provable? *)
+    admit.
+    
   +
     rewrite (symA _ _ Hj) in Hg; 
     congruence.
@@ -2547,6 +2556,7 @@ Proof.
     rewrite (symA _ _ Hg) in Hj; 
     congruence.
   +
+    destruct Ha as (Hal & Har).
     admit.
 Admitted.  
 
