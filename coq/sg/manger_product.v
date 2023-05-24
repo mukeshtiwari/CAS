@@ -45,39 +45,6 @@ Definition manger_product_phase_0
   bop_lift (brel_product eqA eqP) (bop_product mulA mulP). 
 
   
-(* is this a reduction over manger_product_phase_0? 
- 
-   r1 = uop_manger_phase_1
-
-*)   
-(*
-Definition manger_product_phase_1 
-           {A P : Type}
-           (eqA : brel A)
-           (eqP : brel P)                       
-           (addP : binary_op P)
-           (mulA : binary_op A)
-           (mulP : binary_op P) : binary_op (finite_set (A * P))
-  := bop_reduce (uop_manger_phase_1 eqA addP) 
-    (manger_product_phase_0 eqA eqP mulA mulP).
-
-
-
-(* is this really the composition of reductions? 
-
-   r2 = uop_manger_phase_2 
-*) 
-
-Definition bop_manger_product 
-           {A P : Type}
-           (eqA lteA : brel A)
-           (eqP : brel P)            
-           (addP : binary_op P)
-           (mulA : binary_op A)
-           (mulP : binary_op P) : binary_op (finite_set (A * P))
-  := bop_reduce (@uop_manger_phase_2 A P lteA) 
-    (manger_product_phase_1 eqA eqP addP mulA mulP). 
-*)
 
 Definition bop_manger_product 
     {A P : Type}
@@ -598,6 +565,8 @@ Proof.
 Qed.
   
 
+
+(* Begin admit *)
 (* This should exists in in_set  *)
 Lemma list_membership_exists : 
   forall (Y : finite_set (A * P)) ax, 
@@ -661,6 +630,7 @@ Proof.
 
   
 Admitted.
+(* End admit *)
 
 
 (* Generalised accumulator *)
@@ -772,7 +742,7 @@ Proof.
 Qed.
 
 
-
+(* Begin admit *)
 (* It's true but seems annonying *)
 (* And it is indeed annoying *)
 Lemma brel_set_uop_manger_phase_2 : 
@@ -818,10 +788,8 @@ Proof.
   intros * Ha Hb.
 Admitted.
 
-  
-
- 
 (* end of Admit *)
+
 
 (*
 This proof is similar to 
@@ -1017,11 +985,6 @@ Proof.
 Qed.
 
 
-  
-
-    
-
-
 
 Lemma non_empty_list : 
   forall (X Y : finite_set (A * P)),
@@ -1184,9 +1147,7 @@ Qed.
 
 
 
-  
 
-(* Can this be proven using bop_is_right ?? *)
 (* Assumes bop_is_left *)
 Lemma bop_left_uop_inv_phase_1_left : 
   bop_is_left A eqA mulA -> 
@@ -2409,6 +2370,8 @@ Proof.
     cbn; reflexivity.
 Qed.
 
+
+
 Lemma manger_product_phase_0_idem_right : 
   bop_is_right A eqA mulA -> 
   bop_is_right P eqP mulP ->
@@ -2515,7 +2478,7 @@ Qed.
 
 (* Everything good upto this point *) 
 
-Lemma bop_manger_product_not_selective_left :
+Lemma bop_manger_product_not_selective :
   (* bop_is_left A eqA mulA -> 
   bop_is_left P eqP mulP -> *)
   bop_not_selective _ (@eq_manger A P eqA lteA eqP addP)
@@ -2523,8 +2486,7 @@ Lemma bop_manger_product_not_selective_left :
 Proof.
   (* intros Hu Hv. *)
   destruct ntot as ((a₁, a₂) & Ha);
-  exists ([(a₁, wP)], [(a₂, wP)]); compute.
-  (* Discuss this with Tim *)
+  exists ([(a₁, wP)], [(a₂, wP)]); compute;
   case_eq (eqA (mulA a₁ a₂) a₁); 
   case_eq (eqP (mulP wP wP) wP);
   case_eq (eqA a₁ (mulA a₁ a₂));
@@ -2546,7 +2508,9 @@ Proof.
     congruence.
   +
     destruct Ha as (Hal & Har).
-    (* This does not look provable? *)
+    (* case where a₁ and a₂ are incomprable  *)
+    (* What can I infer from Hal and Har *)
+    (* We need some extra condition to prove this? *)
     admit.
     
   +
@@ -2557,6 +2521,7 @@ Proof.
     congruence.
   +
     destruct Ha as (Hal & Har).
+    (* case where a₁ and a₂ are incomprable  *)
     admit.
 Admitted.  
 
