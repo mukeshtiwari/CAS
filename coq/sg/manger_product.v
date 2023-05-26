@@ -567,19 +567,14 @@ Qed.
 
 
 (* Begin admit *)
-(* This should exists in in_set  *)
-Lemma list_membership_exists : 
-  forall (Y : finite_set (A * P)) ax, 
-  no_dup eqA (map fst Y) = true ->
-  set.in_set eqA (map fst Y) ax = true ->
-  ∃ Y₁ bx Y₂, brel_set (brel_product eqA eqP)
-    Y (Y₁ ++ [(ax, bx)] ++ Y₂) = true ∧
-    set.in_set eqA (map fst Y₁) ax = false ∧
-    set.in_set eqA (map fst Y₂) ax = false.
-Proof.
-Admitted.
 
 
+(* 
+Mukesh: Tim, I ran out of energy for these admitted proofs, so 
+may be you can discharge them when rewriting this file. 
+There is already pen-and-paper proof for the below one, 
+and others are trivial, I hope.
+*)
 
 (* I need some observation about manger_merge_set and 
   bop_lift, but it's not very obvious! *)
@@ -598,13 +593,18 @@ Proof.
   intros * Ha.
 
   (* Case analysis ax  ∈ Y ∨ ax ∉ Y 
-  1. ax ∉ Y 
+  1. ax ∉ Y. In this case the following equivalence holds:
     (manger_merge_sets_new eqA addP Y (ax, bx)) =S= 
-    (ax, bx) :: Y and we are home 
-  2. (challenge)
-    ax ∈ Y. Y = Y₁ ++ [(ax, bx')] ++ Y₂ 
-    (manger_merge_sets_new eqA addP Y (ax, bx)) =S=
-    Y₁ ++ [(ax, bx + bx')] ++ Y₂
+    (ax, bx) :: Y
+    And we are home. 
+  2. ax ∈ Y. In this case, we have 
+      Y = Y₁ ++ [(ax, bx')] ++ Y₂ and the following 
+      equivalence holds:
+    2.1:
+      (manger_merge_sets_new eqA addP Y (ax, bx)) =S=
+      Y₁ ++ [(ax, bx + bx')] ++ Y₂
+
+    2.2: And now the goal is almost trivial.
     matrix_algorithms.sum_fn zeroP addP snd
      (List.filter (λ '(x, _), eqA x au)
       (manger_product_phase_0 eqA eqP mulA mulP (Y₁ ++ [(ax, bx + bx')] ++ Y₂)))
@@ -613,23 +613,48 @@ Proof.
      (List.filter (λ '(x, _), eqA x au)
         (manger_product_phase_0 eqA eqP mulA mulP 
           ((ax, bx) :: Y₁ ++ [(ax, bx')] ++ Y₂) U)))
-
-    Oh, easy pesy! Awesome finding because I don't need to 
-    do any induction. 
   *)
-  destruct (set.in_set eqA (map fst Y) ax) eqn:Hb.
-  +
-    destruct (list_membership_exists Y ax Ha Hb) as 
-    (Y₁ & bx' & Y₂ & Hc & Hd & He).
-    (* Now I want to replace 
-      (manger_merge_sets_new eqA addP Y (ax, bx)) by 
-      Y₁ ++ [(ax, bx + bx')] ++ Y₂
-      *)
-    admit.
-  +
 
   
 Admitted.
+
+(* Some other trivial but annoying lemma *)
+Lemma brel_set_uop_manger_phase_2 : 
+  forall s1, 
+  brel_set (brel_product eqA eqP) [] s1 = false ->
+  brel_set (brel_product eqA eqP) [] 
+    (uop_manger_phase_2 lteA s1) = false.
+Proof.
+  intros * Ha.
+
+  case_eq (brel_set (brel_product eqA eqP) [] (uop_manger_phase_2 lteA s1));
+  intros Hb; [rewrite <-Ha; eapply eq_sym|try reflexivity].
+  eapply brel_set_nil in Hb.
+  (* There is just one case uop_manger_phase_2 is empty 
+    and that is when s1 = [] *)
+Admitted.
+
+
+Lemma uop_manger_phase_1_non_empty : 
+  forall (X : finite_set (A * P)),
+  brel_set (brel_product eqA eqP) [] X = false -> 
+  brel_set (brel_product eqA eqP) [] 
+    (uop_manger_phase_1 eqA addP X) = false.
+Proof.
+  intros * Ha.
+Admitted.
+
+
+Lemma brel_set_manger_product_phase_0_non_empty_backward : 
+  forall (s t : finite_set (A * P)),
+  brel_set (brel_product eqA eqP) [] s = false  -> 
+  brel_set (brel_product eqA eqP) [] t = false ->
+  brel_set (brel_product eqA eqP) []
+    (manger_product_phase_0 eqA eqP mulA mulP s t) = false.
+Proof.
+  intros * Ha Hb.
+Admitted.
+
 (* End admit *)
 
 
@@ -742,53 +767,6 @@ Proof.
 Qed.
 
 
-(* Begin admit *)
-(* It's true but seems annonying *)
-(* And it is indeed annoying *)
-Lemma brel_set_uop_manger_phase_2 : 
-  forall s1, 
-  brel_set (brel_product eqA eqP) [] s1 = false ->
-  brel_set (brel_product eqA eqP) [] 
-    (uop_manger_phase_2 lteA s1) = false.
-Proof.
-  intros * Ha.
-
-  case_eq (brel_set (brel_product eqA eqP) [] (uop_manger_phase_2 lteA s1));
-  intros Hb; [rewrite <-Ha; eapply eq_sym|try reflexivity].
-  eapply brel_set_nil in Hb.
-  (* There is just one case uop_manger_phase_2 is empty 
-    and that is when s1 = [] *)
-  unfold uop_manger_phase_2, minset.uop_minset in Hb.
-Admitted.
-
-
-Lemma uop_manger_phase_1_non_empty : 
-  forall (X : finite_set (A * P)),
-  brel_set (brel_product eqA eqP) [] X = false -> 
-  brel_set (brel_product eqA eqP) [] 
-    (uop_manger_phase_1 eqA addP X) = false.
-Proof.
-  intros * Ha.
-  unfold uop_manger_phase_1,
-  manger_phase_1_auxiliary.
-  rewrite manger_merge_set_funex.
-  (* My learning from this project is: avoid fold_left! *)
-  (* Also use https://github.com/coq-community/aac-tactics 
-  if rolling equality *)
-Admitted.
-
-
-Lemma brel_set_manger_product_phase_0_non_empty_backward : 
-  forall (s t : finite_set (A * P)),
-  brel_set (brel_product eqA eqP) [] s = false  -> 
-  brel_set (brel_product eqA eqP) [] t = false ->
-  brel_set (brel_product eqA eqP) []
-    (manger_product_phase_0 eqA eqP mulA mulP s t) = false.
-Proof.
-  intros * Ha Hb.
-Admitted.
-
-(* end of Admit *)
 
 
 (*
@@ -2478,9 +2456,10 @@ Qed.
 
 (* Everything good upto this point *) 
 
+
+(* With the assumption that we have, this is not 
+provable. *)
 Lemma bop_manger_product_not_selective :
-  (* bop_is_left A eqA mulA -> 
-  bop_is_left P eqP mulP -> *)
   bop_not_selective _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Proof.
