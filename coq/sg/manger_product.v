@@ -576,8 +576,7 @@ There is already pen-and-paper proof for the below one,
 and others are trivial, I hope.
 *)
 
-(* I need some observation about manger_merge_set and 
-  bop_lift, but it's not very obvious! *)
+
 Lemma manger_product_phase_0_manger_merge_interaction : 
   forall (Y U : finite_set (A * P)) au ax bx, 
   no_dup eqA (map fst Y) = true -> 
