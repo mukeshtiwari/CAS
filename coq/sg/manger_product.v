@@ -597,16 +597,22 @@ Proof.
     (ax, bx) :: Y
     And we are home. 
   2. ax ∈ Y. In this case, we have 
-      Y = Y₁ ++ [(ax, bx')] ++ Y₂ and the following 
+      Y = Y₁ ++ [(ax, bx')] ++ Y₂ ∧
+      ax ∉ (map fst Y₁) ∧ ax ∉ (map fst Y₂).
+      
+      Under these assumptions, the following 
       equivalence holds:
     2.1:
       (manger_merge_sets_new eqA addP Y (ax, bx)) =S=
       Y₁ ++ [(ax, bx + bx')] ++ Y₂
 
-    2.2: And now the goal is almost trivial.
+    2.2: And now the goal is almost trivial (Also, see
+      the example at the top.)
+
     matrix_algorithms.sum_fn zeroP addP snd
      (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP (Y₁ ++ [(ax, bx + bx')] ++ Y₂)))
+      (manger_product_phase_0 eqA eqP mulA mulP 
+        (Y₁ ++ [(ax, bx + bx')] ++ Y₂) U))
     =
     (matrix_algorithms.sum_fn zeroP addP snd
      (List.filter (λ '(x, _), eqA x au)
