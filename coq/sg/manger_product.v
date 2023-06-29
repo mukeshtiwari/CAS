@@ -991,7 +991,16 @@ Proof.
 Qed.
 
 
+(* prove congruence without left and right *)
 
+Lemma manger_product_phase_0_cong : 
+  bop_congruence _ 
+  (manger_llex.eqSAP A P eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP).
+Proof.
+Admitted.
+
+(* 
 (* I can prove congruence assuming when both, 
 mulA and mulP, are left or both are right *)
 Lemma manger_product_phase_0_cong_left :
@@ -1127,6 +1136,7 @@ Proof.
 Qed.
 
 (* End of congruence *)
+*)
 
 
 
