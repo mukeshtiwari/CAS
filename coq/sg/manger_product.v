@@ -1000,144 +1000,6 @@ Lemma manger_product_phase_0_cong :
 Proof.
 Admitted.
 
-(* 
-(* I can prove congruence assuming when both, 
-mulA and mulP, are left or both are right *)
-Lemma manger_product_phase_0_cong_left :
-  bop_is_left A eqA mulA -> bop_is_left P eqP mulP -> 
-  bop_congruence _ 
-  (manger_llex.eqSAP A P eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP).
-Proof.
-  intros Hu Hv ? ? ? ? Ha Hb.
-  eapply brel_set_elim_prop in Ha, Hb;
-  [|eapply symAP | eapply trnAP | eapply symAP | eapply trnAP];
-  try assumption; destruct Ha as (Hal & Har);
-  destruct Hb as (Hbl & Hbr).
-  eapply brel_set_intro_prop;
-  [eapply refAP| split; intros (au, av) Hc];
-  try assumption.
-  +
-    pose proof (set_in_set_non_empty_left _ _ _ _ Hc) as Hd.
-    pose proof (set_in_set_non_empty_right _ _ _ _ Hc) as He.
-    (* I know that s1 and s2 are non-empty *)
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Hc;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    (* 
-      Proof idea:
-      from set.in_set (manger_llex.eqAP A P eqA eqP)
-       (bop_list_product_left (bop_product mulA mulP) s1 s2) (
-       au, av) = true 
-      I know that (bop_list_product_left (bop_product mulA mulP) s1 s2) <> []
-      from (bop_list_product_left (bop_product mulA mulP) s1 s2) <> []
-      I know that s1 and s2 are non-empty
-    *)
-
-    eapply bop_list_product_is_left_intro;
-    [eapply trnAP | eapply symAP | eapply bop_product_is_left | | ]; 
-    try assumption.
-    ++  
-      eapply bop_list_product_is_left_elim in Hc;
-      [|eapply trnAP | eapply symAP | eapply bop_product_is_left]; 
-      try assumption.
-      eapply Hal; exact Hc.
-    ++
-      eapply non_empty_list;
-      [exact Hbl | exact He].
-      (* Provable *)
-  + 
-    pose proof (set_in_set_non_empty_left _ _ _ _ Hc) as Hd.
-    pose proof (set_in_set_non_empty_right _ _ _ _ Hc) as He.
-
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Hc;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    eapply bop_list_product_is_left_intro;
-    [eapply trnAP | eapply symAP | eapply bop_product_is_left | | ]; 
-    try assumption.
-    ++  
-      eapply bop_list_product_is_left_elim in Hc;
-      [|eapply trnAP | eapply symAP | eapply bop_product_is_left]; 
-      try assumption.
-      eapply Har; exact Hc.
-    ++
-      (* Provable *)
-      eapply non_empty_list;
-      [exact Hbr | exact He].
-Qed.
-
-
-Lemma manger_product_phase_0_cong_right :
-  bop_is_right A eqA mulA -> bop_is_right P eqP mulP -> 
-  bop_congruence _ 
-  (manger_llex.eqSAP A P eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP).
-Proof.
-  intros Hu Hv ? ? ? ? Ha Hb.
-  eapply brel_set_elim_prop in Ha, Hb;
-  [|eapply symAP | eapply trnAP | eapply symAP | eapply trnAP];
-  try assumption; destruct Ha as (Hal & Har);
-  destruct Hb as (Hbl & Hbr).
-  eapply brel_set_intro_prop;
-  [eapply refAP| split; intros (au, av) Hc];
-  try assumption.
-  +
-    pose proof (set_in_set_non_empty_left _ _ _ _ Hc) as Hd.
-    pose proof (set_in_set_non_empty_right _ _ _ _ Hc) as He.
-    (* I know that s1 and s2 are non-empty *)
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Hc;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    (* 
-      Proof idea:
-      from set.in_set (manger_llex.eqAP A P eqA eqP)
-       (bop_list_product_left (bop_product mulA mulP) s1 s2) (
-       au, av) = true 
-      I know that (bop_list_product_left (bop_product mulA mulP) s1 s2) <> []
-      from (bop_list_product_left (bop_product mulA mulP) s1 s2) <> []
-      I know that s1 and s2 are non-empty
-    *)
-
-    eapply bop_list_product_is_right_intro;
-    [eapply refAP | eapply trnAP | eapply symAP | 
-    eapply bop_cong | eapply bop_product_is_right | | ];
-    try assumption.
-    ++  
-      eapply bop_list_product_is_right_elim in Hc;
-      [|eapply refAP | eapply trnAP | eapply symAP | 
-      eapply bop_product_is_right]; 
-      try assumption.
-      eapply Hbl; exact Hc.
-    ++
-      eapply non_empty_list;
-      [exact Hal | exact Hd].
-      (* Provable *)
-  + 
-    pose proof (set_in_set_non_empty_left _ _ _ _ Hc) as Hd.
-    pose proof (set_in_set_non_empty_right _ _ _ _ Hc) as He.
-
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Hc;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    eapply bop_list_product_is_right_intro;
-    [eapply refAP | eapply trnAP | eapply symAP | 
-    eapply bop_cong | eapply bop_product_is_right | | ];
-    try assumption.
-    ++  
-      eapply bop_list_product_is_right_elim in Hc;
-      [|eapply refAP | eapply trnAP | eapply symAP | 
-      eapply bop_product_is_right]; 
-      try assumption.
-      eapply Hbr; exact Hc.
-    ++
-      eapply non_empty_list;
-      [exact Har | exact Hd].
-Qed.
-
-(* End of congruence *)
-*)
-
 
 
 (* I need to prove these ones *)
@@ -1147,52 +1009,20 @@ Qed.
   cancellative or multiplicative component of the 
   passive part is constant. 
 *)
-Lemma bop_left_uop_inv_phase_1 :
+Lemma bop_left_uop_inv :
   bop_left_uop_invariant (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
-  (bop_reduce (uop_manger_phase_1 eqA addP)
+  (bop_reduce (@uop_manger A P eqA lteA addP)
     (manger_product_phase_0 eqA eqP mulA mulP))
-  (uop_manger_phase_1 eqA addP).
+    (@uop_manger A P eqA lteA addP).
 Proof.
   intros ? ?.
   eapply brel_set_intro_prop;
   [eapply refAP |split; intros (au, av) Ha]; 
   try assumption.
-  +
-    eapply in_set_uop_manger_phase_1_elim with (zeroP := zeroP) in Ha;
-    try assumption;
-    [|intros *; eapply addP_gen_idempotent].
-    destruct Ha as ((q & Hal) & Har).
-    eapply in_set_uop_manger_phase_1_intro with (zeroP := zeroP);
-    try assumption;
-    [intros *; eapply addP_gen_idempotent | | ].
-    ++
-
 
 Admitted.
 
-
-
-(* May need some extra assumptions *)
-Lemma bop_right_uop_inv_phase_1 : 
-  bop_right_uop_invariant (finite_set (A * P))
-  (manger_llex.eqSAP A P eqA eqP)
-  (bop_reduce (uop_manger_phase_1 eqA addP)
-     (manger_product_phase_0 eqA eqP mulA mulP))
-  (uop_manger_phase_1 eqA addP).
-Proof.
-Admitted.
-
-
-
-Lemma bop_left_uop_inv_phase_2 : 
-  bop_left_uop_invariant (finite_set (A * P))
-  (manger_llex.eqSAP A P eqA eqP)
-  (bop_reduce (uop_manger_phase_2 lteA)
-     (manger_product_phase_0 eqA eqP mulA mulP))
-  (uop_manger_phase_2 lteA).
-Proof.
-Admitted.
 
 
 
@@ -1204,13 +1034,16 @@ Admitted.
     The multiplicative component of the active part is 
     cancellative or multiplicative component of the 
     passive part is constant. 
+
+    mulA is cancellative 
+
 *)
-Lemma bop_right_uop_inv_phase_2 :
+Lemma bop_right_uop_inv :
   bop_right_uop_invariant (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
-  (bop_reduce (uop_manger_phase_2 lteA)
+  (bop_reduce (@uop_manger A P eqA lteA addP)
      (manger_product_phase_0 eqA eqP mulA mulP))
-  (uop_manger_phase_2 lteA).
+  (@uop_manger A P eqA lteA addP).
 Proof.
   intros ? ?.
   eapply brel_set_intro_prop;
@@ -1221,77 +1054,19 @@ Proof.
     destruct Ha as (Hal & Har).
     eapply in_set_uop_manger_phase_2_intro; try assumption.
     ++
-      eapply in_set_bop_lift_elim in Hal;
-      [| eapply refAP | eapply symAP];
+      eapply in_set_uop_manger_phase_1_elim with (zeroP := zeroP) in Hal;
       try assumption;
-      destruct Hal as ((xa, xb) & (ya, yb) & (Ha, Hb) & Hc).
-      eapply in_set_bop_lift_intro_v2;
-      [eapply refAP | eapply trnAP | eapply symAP | eapply 
-      bop_cong | exact Ha | | exact Hc]; 
-      try assumption.
-      eapply in_set_uop_manger_phase_2_elim in Hb;
-      try assumption.
-      destruct Hb as (Hbl & Hbr);
-      exact Hbl.
-      (* Can I infer *)
-    ++
-      intros * Hd.
-      (* 
-        Equation 1. 
-        From Hal, I know that there is 
-        (xa, xb) ∈ s1 and 
-        (ya, yb) ∈ (uop_manger_phase_2 lteA s2) such that 
-        mulA xa ya = au 
-        mulP xb yb = av
-
-        Equation 2. 
-        from Hd, I know that there is 
-        (dxa, dxb) ∈ s1 and 
-        (dya, dyb) ∈ s2 such that 
-
-        Question:
-        What can I infer from (ya, yb) ∈ (uop_manger_phase_2 lteA s2) ? 
-
-        Question: 
-        What can I infer from Har:
+      [| eapply addP_gen_idempotent].
+      destruct Hal as ((q & Hall) & Halr).
+      eapply in_set_uop_manger_phase_1_intro with (zeroP := zeroP);
+      try assumption;
+      [eapply addP_gen_idempotent | | ].
+      +++
         
-        What (uop_manger_phase_2 lteA s2) does to s2? 
 
-        uop_minset (manger_pre_order lteA) = 
-         (minset.uop_minset
-          (brel_product lteA trivial.brel_trivial) s2)
 
-        It reduces the s2 according to lteA x true 
-
-        What is the difference between 
-        (uop_manger_phase_2 lteA s2) and s2?? 
-
-        Question for Tim: 
-        What is the relation between
-         (uop_manger_phase_2 lteA s2) and s2??  
-
+          
       
-      *)
-     
-
-
-
-
-      Search (set.in_set _ (bop_lift _ _ _ _) _ ).
-      Print ltran_list_product.
-      (* 
-        The definition itself is in terms of *bop_list_product_left* 
-
-        bop_lift = 
-        λ (S : Type) (eq : brel S) (bS : binary_op S) (X Y : finite_set S),
-        set.uop_duplicate_elim eq (bop_list_product_left bS X Y)
-	      : ∀ S : Type, brel S → binary_op S → binary_op (finite_set S)
-
-      eapply union.in_set_uop_duplicate_elim_elim,
-      bop_list_product_is_right_elim in Hal.
-
-      *)
-
 
   
 Admitted.
