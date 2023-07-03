@@ -224,8 +224,8 @@ Proof.
   exact (trnP _ _ _ Hb Hc).
 Qed. 
 
-Local Notation "x =S= y" := (manger_llex.eqSAP x y = true) (at level 70,
-  only parsing).
+Local Notation "x =S= y" := (manger_llex.eqSAP A P eqA eqP x y  = true) 
+  (at level 70,only parsing).
 
 Lemma bProp_cong : 
   forall au,
@@ -566,349 +566,6 @@ Qed.
   
 
 
-(* Begin admit *)
-
-
-(* 
-Mukesh: Tim, I ran out of energy for these admitted proofs, so 
-may be you can discharge them when rewriting this file. 
-There is already pen-and-paper proof for the below one, 
-and others are trivial, I hope.
-*)
-
-
-Lemma manger_product_phase_0_manger_merge_interaction : 
-  forall (Y U : finite_set (A * P)) au ax bx, 
-  no_dup eqA (map fst Y) = true -> 
-  eqP
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP
-        (manger_merge_sets_new eqA addP Y (ax, bx)) U)))
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP ((ax, bx) :: Y) U))) = true.
-Proof.
-  intros * Ha.
-
-  (* Case analysis ax  ∈ Y ∨ ax ∉ Y 
-  1. ax ∉ Y. In this case the following equivalence holds:
-    (manger_merge_sets_new eqA addP Y (ax, bx)) =S= 
-    (ax, bx) :: Y
-    And we are home. 
-  2. ax ∈ Y. In this case, we have 
-      Y = Y₁ ++ [(ax, bx')] ++ Y₂ ∧
-      ax ∉ (map fst Y₁) ∧ ax ∉ (map fst Y₂).
-      
-      Under these assumptions, the following 
-      equivalence holds:
-    2.1:
-      (manger_merge_sets_new eqA addP Y (ax, bx)) =S=
-      Y₁ ++ [(ax, bx + bx')] ++ Y₂
-
-    2.2: And now the goal is almost trivial (Also, see
-      the example at the top.)
-
-    matrix_algorithms.sum_fn zeroP addP snd
-     (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP 
-        (Y₁ ++ [(ax, bx + bx')] ++ Y₂) U))
-    =
-    (matrix_algorithms.sum_fn zeroP addP snd
-     (List.filter (λ '(x, _), eqA x au)
-        (manger_product_phase_0 eqA eqP mulA mulP 
-          ((ax, bx) :: Y₁ ++ [(ax, bx')] ++ Y₂) U)))
-  *)
-
-  
-Admitted.
-
-(* Some other trivial but annoying lemma *)
-Lemma brel_set_uop_manger_phase_2 : 
-  forall s1, 
-  brel_set (brel_product eqA eqP) [] s1 = false ->
-  brel_set (brel_product eqA eqP) [] 
-    (uop_manger_phase_2 lteA s1) = false.
-Proof.
-  intros * Ha.
-
-  case_eq (brel_set (brel_product eqA eqP) [] (uop_manger_phase_2 lteA s1));
-  intros Hb; [rewrite <-Ha; eapply eq_sym|try reflexivity].
-  eapply brel_set_nil in Hb.
-  (* There is just one case uop_manger_phase_2 is empty 
-    and that is when s1 = [] *)
-Admitted.
-
-
-Lemma uop_manger_phase_1_non_empty : 
-  forall (X : finite_set (A * P)),
-  brel_set (brel_product eqA eqP) [] X = false -> 
-  brel_set (brel_product eqA eqP) [] 
-    (uop_manger_phase_1 eqA addP X) = false.
-Proof.
-  intros * Ha.
-Admitted.
-
-
-Lemma brel_set_manger_product_phase_0_non_empty_backward : 
-  forall (s t : finite_set (A * P)),
-  brel_set (brel_product eqA eqP) [] s = false  -> 
-  brel_set (brel_product eqA eqP) [] t = false ->
-  brel_set (brel_product eqA eqP) []
-    (manger_product_phase_0 eqA eqP mulA mulP s t) = false.
-Proof.
-  intros * Ha Hb.
-Admitted.
-
-(* End admit *)
-
-
-(* Generalised accumulator *)
-Lemma sum_fn_first_gen : 
-  forall (X Y U : finite_set (A * P)) au,
-  no_dup eqA (map fst Y) = true ->
-  eqP
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP
-        (fold_left (manger_merge_sets_new eqA addP) X Y) U)))
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP (X ++ Y) U))) = true.
-Proof.
-  induction X as [|(ax, bx) X IHx].
-  + intros * Ha; cbn;
-    now rewrite list_filter_lib_filter_same, refP.
-  +
-    intros * Ha. simpl.
-    (* instantiate Y with 
-    (manger_merge_sets_new eqA addP Y (ax, bx))
-    but I need to discharge no_dup for it *)
-    eapply trnP; [eapply IHx |].
-    ++
-      (* true *)
-      eapply no_dup_mmsn;
-      try assumption.
-      exact refP.
-    ++
-      (* seems provable *)
-      (* 
-        replace (manger_product_phase_0 eqA eqP mulA mulP
-           ((ax, bx) :: X ++ Y) U) with 
-        (manger_product_phase_0 eqA eqP mulA mulP
-           (X ++ ((ax, bx) :: Y)) U)
-        Now push the manger_product_phase_0 inside. 
-      *)
-      eapply symP, trnP;
-      [eapply manger_product_phase_0_comm |].
-      remember ((ax, bx) :: Y) as Ya.
-      eapply trnP;
-      [eapply manger_product_phase_0_dist | ].
-      repeat rewrite filter_app.
-      eapply trnP;
-      [eapply sum_fn_distribute |]; 
-      try assumption.
-      eapply symP, trnP;
-      [eapply manger_product_phase_0_dist | ].
-      repeat rewrite filter_app.
-      eapply trnP;
-      [eapply sum_fn_distribute |]; 
-      try assumption.
-      eapply cong_addP;
-      [eapply refP | subst].
-      eapply manger_product_phase_0_manger_merge_interaction;
-      exact Ha.
-Qed.
-
-  
-
-    
-Lemma sum_fn_second_gen : 
-  forall (X Y U : finite_set (A * P)) au,
-  no_dup eqA (map fst U) = true ->
-  eqP
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X
-        (fold_left (manger_merge_sets_new eqA addP) Y U))))
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X (Y ++ U)))) = true.
-Proof.
-  intros * Ha.
-  (* Prove a lemma that:
-  manger_product_phase_0 eqA eqP mulA mulP X Y =S= 
-  manger_product_phase_0 eqA eqP mulA mulP Y X. 
-  Then use it swap the arguments and use the lemma above. 
-  *)
-  remember ((fold_left (manger_merge_sets_new eqA addP) Y U)) as YU.
-  eapply trnP with 
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP YU X))).
-  +
-    eapply sum_fn_congruence_general_set with 
-    (eqA := eqA) (fA := fA) (lteA := lteA); try assumption;
-    try (eapply addP_gen_idempotent);
-    eapply filter_congruence_gen; try assumption.
-    eapply bop_congruence_bProp_fst; try assumption.
-    eapply brel_set_manger_product_phase_0_swap_v1.
-  +
-    eapply symP, trnP with 
-    (matrix_algorithms.sum_fn zeroP addP snd
-     (List.filter (λ '(x, _), eqA x au)
-        (manger_product_phase_0 eqA eqP mulA mulP (Y ++ U) X))).
-    ++
-      eapply sum_fn_congruence_general_set with 
-      (eqA := eqA) (fA := fA) (lteA := lteA); try assumption;
-      try (eapply addP_gen_idempotent).
-      repeat rewrite list_filter_lib_filter_same.
-      eapply filter_congruence_gen; try assumption.
-      eapply bop_congruence_bProp_fst; try assumption.
-      eapply brel_set_manger_product_phase_0_swap_v1.
-    ++
-      subst. eapply symP.
-      eapply sum_fn_first_gen; exact Ha.
-Qed.
-
-
-
-
-(*
-This proof is similar to 
-matrix_sum_fn_addition in manger_llex.v, 
-but appears more difficult. 
-*)
-Lemma sum_fn_first : 
-forall (X Y : finite_set (A * P)) au,
-  eqP 
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP
-        (uop_manger_phase_1 eqA addP X) Y)))
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
-Proof.
-  intros *.
-  unfold uop_manger_phase_1,
-  manger_phase_1_auxiliary;
-  rewrite manger_merge_set_funex.
-  replace (X) with (X ++ []) at 2;
-  [| eapply app_nil_r].
-  eapply sum_fn_first_gen with (Y := []);
-  reflexivity.
-Qed.
-
-
-Lemma sum_fn_second : 
-  forall (X Y : finite_set (A * P)) au,
-  eqP 
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X
-        (uop_manger_phase_1 eqA addP Y)))) 
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
-Proof.
-  intros *.
-  unfold uop_manger_phase_1,
-  manger_phase_1_auxiliary;
-  rewrite manger_merge_set_funex.
-  replace (Y) with (Y ++ []) at 2;
-  [| eapply app_nil_r];
-  eapply sum_fn_second_gen;
-  reflexivity.
-Qed.
-
-
-
-
-
-(* end of movement *)
-
-
-Lemma sum_fn_forward_first : 
-  forall (X Y : finite_set (A * P)) au av, 
-  eqP av
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP
-        (uop_manger_phase_1 eqA addP X) Y))) = true ->
-  eqP av
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
-Proof.
-  intros * Ha.
-  eapply trnP;
-  [exact Ha | eapply sum_fn_first].
-Qed.
-
-
-Lemma sum_fn_backward_first : 
-  forall (X Y : finite_set (A * P)) au av, 
-  eqP av
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X Y ))) = true ->
-  eqP av
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP
-        (uop_manger_phase_1 eqA addP X) Y))) = true.
-Proof.
-  intros * Ha.
-  eapply trnP;
-  [exact Ha | 
-  rewrite list_filter_lib_filter_same, 
-  <-list_filter_lib_filter_same;
-  eapply symP, sum_fn_first].
-Qed.
-
-
-
-
-Lemma sum_fn_forward_second : 
-  forall (X Y : finite_set (A * P)) au av, 
-  eqP av
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X
-        (uop_manger_phase_1 eqA addP Y)))) = true ->
-  eqP av
-  (matrix_algorithms.sum_fn zeroP addP snd
-     (List.filter (λ '(x, _), eqA x au)
-        (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true.
-Proof.
-  intros * Ha.
-  eapply trnP;
-  [exact Ha | eapply sum_fn_second].
-Qed.
-  
-
-Lemma sum_fn_backward_second : 
-  forall (X Y : finite_set (A * P)) au av,
-  eqP av
-  (matrix_algorithms.sum_fn zeroP addP snd
-      (filter (λ '(x, _), eqA x au)
-        (manger_product_phase_0 eqA eqP mulA mulP X Y))) = true ->
-  eqP av
-  (matrix_algorithms.sum_fn zeroP addP snd
-    (List.filter (λ '(x, _), eqA x au)
-      (manger_product_phase_0 eqA eqP mulA mulP X
-        (uop_manger_phase_1 eqA addP Y)))) = true.
-Proof.
-  intros * Ha.
-  eapply trnP;
-  [exact Ha | 
-  rewrite list_filter_lib_filter_same, 
-  <-list_filter_lib_filter_same;
-  eapply symP, sum_fn_second].
-Qed.
-
-
 
 (* *)
 Lemma set_in_set_non_empty_left : 
@@ -1026,8 +683,15 @@ Proof.
 Qed.
 
 
+(* Admits *)
 
-(* Discuss this with Tim *)
+
+
+
+ 
+
+(* end of admits *)
+
 Lemma bop_left_uop_inv_phase_1 : 
   bop_left_uop_invariant (finite_set (A * P))
     (manger_llex.eqSAP A P eqA eqP)
@@ -1035,7 +699,61 @@ Lemma bop_left_uop_inv_phase_1 :
       (manger_product_phase_0 eqA eqP mulA mulP))
     (uop_manger_phase_1 eqA addP).
 Proof.
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; try assumption.
+  +
+    unfold bop_reduce in Ha |- *.
+   
+
+    (* I don't want to do induction! Think, Think, Think Mukesh *)
+    (* 
+      Calculation using Ha
+      s1 := [(a, b); (c, d); (a, e)]
+      s2 := [(u, v); (x, y); (x, t)]
+
+    1. (uop_manger_phase_1 eqA addP s1) = 
+      [(a, b + e); (c, d)]
+      ---------------------------------------
+    2. (manger_product_phase_0 eqA eqP mulA mulP
+        [(a, b + e); (c, d)] [(u, v); (x, y); (x, t)]) = 
+        -----------------------------------------------
+        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
+        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
+        (c * x, d * t)]
+        ----------------------------------------------
+    3. (uop_manger_phase_1 eqA addP  
+        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
+        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
+        (c * x, d * t)] = 
+        ---------------------------------------------
+        [(a * u, (b + e) * v); (a * x; (b + e) * y + (b + e) * t);
+        (c * u, d * v); (c * x; d * y + d * t)]
+        -----------------------------------------
+
+    Calculation using the goal:
+    5. (manger_product_phase_0 eqA eqP mulA mulP 
+      [(a, b); (c, d); (a, e)] [(u, v); (x, y); (x, t)] = 
+      -------------------------------------------------
+      [(a * u, b * v); (a * x, b * y); (a * x, b * t);
+      (c * u, d * v); (c * x, d * y); (c * x, d * t);
+      (a * u, e * v); (a * x, e * y); (a * x, e * t)] 
+    --------------------------------------------------
+    6. uop_manger_phase_1 eqA addP 
+        [(a * u, v * v); (a * x, b * y); (a * x, b * t);
+        (c * u, d * v); (c * x, d * y); (c * x, d * t);
+        (a * u, e * v); (a * x, e * y); (a * x, e * t)] = 
+      -------------------------------------------------
+      [(a * u, b * v + e * v); (a * x, b * y + b * t + e * y + e * t); 
+        (c * u, d * d); (c * x, d * y + d * t)] 
+
+
+    The problem with current intro and elim rule is that 
+    we throw some information 
+      
+    *)
 Admitted.
+    
 
 
 Lemma bop_left_uop_inv_phase_2 : 
@@ -1045,7 +763,15 @@ Lemma bop_left_uop_inv_phase_2 :
       (manger_product_phase_0 eqA eqP mulA mulP))
     (uop_manger_phase_2 lteA).
 Proof.
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; try assumption.
+  +
+    unfold bop_reduce in Ha |- *.
+   
+
 Admitted.
+
 
 Lemma bop_right_uop_inv_phase_1 : 
   bop_right_uop_invariant (finite_set (A * P))
@@ -1053,7 +779,13 @@ Lemma bop_right_uop_inv_phase_1 :
     (bop_reduce (uop_manger_phase_1 eqA addP)
       (manger_product_phase_0 eqA eqP mulA mulP))
     (uop_manger_phase_1 eqA addP).
-Proof. 
+Proof.
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; try assumption.
+  +
+    unfold bop_reduce in Ha |- *.
+    
 Admitted. 
 
 Lemma bop_right_uop_inv_phase_2 : 
@@ -1064,54 +796,6 @@ Lemma bop_right_uop_inv_phase_2 :
     (uop_manger_phase_2 lteA).
 Proof. 
 Admitted. 
-
-
-
-
-
-(* I need to prove these ones *)
-(* May require some extra assumptions *)
-(*
-  The multiplicative component of the active part is 
-  cancellative or multiplicative component of the 
-  passive part is constant. 
-*)
-Lemma bop_left_uop_inv :
-  bop_left_uop_invariant (finite_set (A * P))
-  (manger_llex.eqSAP A P eqA eqP)
-  (bop_reduce (@uop_manger A P eqA lteA addP)
-    (manger_product_phase_0 eqA eqP mulA mulP))
-    (@uop_manger A P eqA lteA addP).
-Proof.
-  unfold bop_left_uop_invariant, bop_reduce,
-  uop_manger, uop_compose. (* uop_manger_phase_2,
-  uop_manger_phase_1, manger_phase_1_auxiliary,
-  manger_product_phase_0. *)
-  (* So why is this true?? 
-    Come up with an example and see why it's true.
-  
-  *)
-Admitted.
-
-
-(*
-    The multiplicative component of the active part is 
-    cancellative or multiplicative component of the 
-    passive part is constant. 
-
-    mulA is cancellative 
-
-*)
-Lemma bop_right_uop_inv :
-  bop_right_uop_invariant (finite_set (A * P))
-  (manger_llex.eqSAP A P eqA eqP)
-  (bop_reduce (@uop_manger A P eqA lteA addP)
-     (manger_product_phase_0 eqA eqP mulA mulP))
-  (@uop_manger A P eqA lteA addP).
-Proof.
-Admitted.
-
-
 
 
 
@@ -1182,6 +866,38 @@ Qed.
 
 (* Proof starts from here *)
 
+
+Lemma bop_left_uop_inv :
+  bop_left_uop_invariant (finite_set (A * P))
+  (manger_llex.eqSAP A P eqA eqP)
+  (bop_reduce (@uop_manger A P eqA lteA addP)
+    (manger_product_phase_0 eqA eqP mulA mulP))
+    (@uop_manger A P eqA lteA addP).
+Proof.
+  eapply composition_left_uop_invariant.
+  
+Admitted.
+
+
+(*
+    The multiplicative component of the active part is 
+    cancellative or multiplicative component of the 
+    passive part is constant. 
+    mulA is cancellative 
+    Definition uop_manger := uop_compose [P2] [P1].
+*)
+Lemma bop_right_uop_inv :
+  bop_right_uop_invariant (finite_set (A * P))
+  (manger_llex.eqSAP A P eqA eqP)
+  (bop_reduce (@uop_manger A P eqA lteA addP)
+     (manger_product_phase_0 eqA eqP mulA mulP))
+  (@uop_manger A P eqA lteA addP).
+Proof.
+Admitted.
+
+
+
+
 Lemma bop_manger_product_congruence : 
   bop_congruence _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
@@ -1189,8 +905,10 @@ Proof.
   apply uop_compose_bop_congruence.
   + eapply symSAP.
   + eapply trnSAP; try assumption.
-  + admit.
-  + admit.
+  + eapply manger_product_phase_0_cong.
+  + eapply P1_cong with (fA := fA) (lteA := lteA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent). 
   + admit.
   + admit.  
 Admitted.
