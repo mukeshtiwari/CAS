@@ -991,14 +991,81 @@ Proof.
 Qed.
 
 
-(* prove congruence without left and right *)
-
 Lemma manger_product_phase_0_cong : 
   bop_congruence _ 
   (manger_llex.eqSAP A P eqA eqP)
   (manger_product_phase_0 eqA eqP mulA mulP).
 Proof.
+  intros ? ? ? ? Ha Hb.
+  eapply brel_set_elim_prop in Ha, Hb;
+  [| eapply symAP| eapply trnAP| eapply symAP|
+  eapply trnAP]; try assumption;
+  destruct Ha as (Hal & Har);
+  destruct Hb as (Hbl & Hbr).
+  eapply brel_set_intro_prop;
+  [eapply refAP| split; intros (au, av) Hc];
+  try assumption.
+  +
+    eapply in_set_bop_lift_elim in Hc;
+    [| eapply refAP | eapply symAP];
+    try assumption;
+    destruct Hc as ((xa, xb) & (ya, yb) & (Ha, Hb) & Hc).
+    eapply in_set_bop_lift_intro_v2;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | eapply Hal; exact Ha |  eapply Hbl; exact Hb | 
+    exact Hc]; try assumption.
+  +
+    eapply in_set_bop_lift_elim in Hc;
+    [| eapply refAP | eapply symAP];
+    try assumption;
+    destruct Hc as ((xa, xb) & (ya, yb) & (Ha, Hb) & Hc).
+    eapply in_set_bop_lift_intro_v2;
+    [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong | 
+    eapply Har; exact Ha | eapply Hbr; exact Hb | exact Hc ];
+    try assumption.
+Qed.
+
+
+
+(* Discuss this with Tim *)
+Lemma bop_left_uop_inv_phase_1 : 
+  bop_left_uop_invariant (finite_set (A * P))
+    (manger_llex.eqSAP A P eqA eqP)
+    (bop_reduce (uop_manger_phase_1 eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP))
+    (uop_manger_phase_1 eqA addP).
+Proof.
 Admitted.
+
+
+Lemma bop_left_uop_inv_phase_2 : 
+  bop_left_uop_invariant (finite_set (A * P))
+    (manger_llex.eqSAP A P eqA eqP)
+    (bop_reduce (uop_manger_phase_2 lteA)
+      (manger_product_phase_0 eqA eqP mulA mulP))
+    (uop_manger_phase_2 lteA).
+Proof.
+Admitted.
+
+Lemma bop_right_uop_inv_phase_1 : 
+  bop_right_uop_invariant (finite_set (A * P))
+    (manger_llex.eqSAP A P eqA eqP)
+    (bop_reduce (uop_manger_phase_1 eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP))
+    (uop_manger_phase_1 eqA addP).
+Proof. 
+Admitted. 
+
+Lemma bop_right_uop_inv_phase_2 : 
+  bop_right_uop_invariant (finite_set (A * P))
+    (manger_llex.eqSAP A P eqA eqP)
+    (bop_reduce (uop_manger_phase_2 lteA)
+      (manger_product_phase_0 eqA eqP mulA mulP))
+    (uop_manger_phase_2 lteA).
+Proof. 
+Admitted. 
+
+
 
 
 
@@ -1016,20 +1083,17 @@ Lemma bop_left_uop_inv :
     (manger_product_phase_0 eqA eqP mulA mulP))
     (@uop_manger A P eqA lteA addP).
 Proof.
-  intros ? ?.
-  eapply brel_set_intro_prop;
-  [eapply refAP |split; intros (au, av) Ha]; 
-  try assumption.
-
+  unfold bop_left_uop_invariant, bop_reduce,
+  uop_manger, uop_compose. (* uop_manger_phase_2,
+  uop_manger_phase_1, manger_phase_1_auxiliary,
+  manger_product_phase_0. *)
+  (* So why is this true?? 
+    Come up with an example and see why it's true.
+  
+  *)
 Admitted.
 
 
-
-
-
-(* 
-  Prove this without any extra assumption 
-*)
 (*
     The multiplicative component of the active part is 
     cancellative or multiplicative component of the 
@@ -1045,315 +1109,10 @@ Lemma bop_right_uop_inv :
      (manger_product_phase_0 eqA eqP mulA mulP))
   (@uop_manger A P eqA lteA addP).
 Proof.
-  intros ? ?.
-  eapply brel_set_intro_prop;
-  [eapply refAP |split; intros (au, av) Ha]; 
-  try assumption.
-  +
-    eapply in_set_uop_manger_phase_2_elim in Ha; try assumption.
-    destruct Ha as (Hal & Har).
-    eapply in_set_uop_manger_phase_2_intro; try assumption.
-    ++
-      eapply in_set_uop_manger_phase_1_elim with (zeroP := zeroP) in Hal;
-      try assumption;
-      [| eapply addP_gen_idempotent].
-      destruct Hal as ((q & Hall) & Halr).
-      eapply in_set_uop_manger_phase_1_intro with (zeroP := zeroP);
-      try assumption;
-      [eapply addP_gen_idempotent | | ].
-      +++
-        
-
-
-          
-      
-
-  
 Admitted.
 
 
 
-(* Every *)
-
-
-
-Lemma bop_manger_product_congruence_left :
-  bop_is_left A eqA mulA -> 
-  bop_is_left P eqP mulP ->
-  bop_congruence _ (@eq_manger A P eqA lteA eqP addP) 
-    (bop_manger_product eqA lteA eqP addP mulA mulP).
-Proof.
-  intros Hu Hv.
-  eapply uop_compose_bop_congruence.
-  + eapply symSAP.
-  + eapply trnSAP; 
-    try assumption.
-  + eapply manger_product_phase_0_cong_left;
-    try assumption.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply bop_left_uop_inv_phase_1_left; 
-    try assumption.
-  + eapply bop_right_uop_inv_phase_1_left;
-    try assumption.
-  + eapply P2_cong; try assumption.
-  + eapply bop_left_uop_inv_phase_2_left; 
-    try assumption.
-  + eapply bop_right_uop_inv_phase_2_left;
-    try assumption.
-  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption;
-    try (eapply addP_gen_idempotent).
-Qed.
-
-Lemma bop_manger_product_congruence_right :
-  bop_is_right A eqA mulA -> 
-  bop_is_right P eqP mulP ->
-  bop_congruence _ (@eq_manger A P eqA lteA eqP addP) 
-    (bop_manger_product eqA lteA eqP addP mulA mulP).
-Proof.
-  intros Hu Hv.
-  eapply uop_compose_bop_congruence.
-  + eapply symSAP.
-  + eapply trnSAP; 
-    try assumption.
-  + eapply manger_product_phase_0_cong_right;
-    try assumption.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply bop_left_uop_inv_phase_1_right; 
-    try assumption.
-  + eapply bop_right_uop_inv_phase_1_right;
-    try assumption.
-  + eapply P2_cong; try assumption.
-  + eapply bop_left_uop_inv_phase_2_right; 
-    try assumption.
-  + eapply bop_right_uop_inv_phase_2_right;
-    try assumption.
-  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption;
-    try (eapply addP_gen_idempotent).
-Qed.
-
-
-
-Lemma manger_product_phase_0_associative_left :
-  bop_is_left A eqA mulA -> 
-  bop_is_left P eqP mulP ->
-  bop_associative (finite_set (A * P))
-  (manger_llex.eqSAP A P eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP).
-Proof.
-  intros Hu Hv ? ? ?.
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (au, av) Ha]; 
-  try assumption.
-  +
-    (* do a bunch of preprocessing here *)
-    (* prove that s <> [], t <> [], u <> []
-      and bunch of other combinations *)
-    assert (Hb : brel_set (brel_product eqA eqP) [] 
-      (manger_product_phase_0 eqA eqP mulA mulP s t) = false).
-    eapply set_in_set_non_empty_left; exact Ha.
-    assert (Hc : brel_set (brel_product eqA eqP) [] u = false).
-    eapply set_in_set_non_empty_right; exact Ha.
-    eapply brel_set_manger_product_phase_0_non_empty_forward in Hb.
-    destruct Hb as (Hbl & Hbr).
-    assert (Hb :  brel_set (brel_product eqA eqP) []
-    (manger_product_phase_0 eqA eqP mulA mulP t u) = false).
-    eapply brel_set_manger_product_phase_0_non_empty_backward;
-    try assumption.
-
-    (* actual proof *)
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Ha;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    (* go left  *)
-    eapply bop_list_product_is_left_elim in Ha;
-    [ |  eapply trnAP | eapply symAP | 
-    eapply bop_product_is_left]; try assumption.
-    eapply union.in_set_uop_duplicate_elim_elim, 
-    bop_list_product_is_left_elim in Ha;
-    [| eapply trnAP|eapply symAP| eapply 
-    bop_product_is_left ]; try assumption.
-    (* go left  *)
-    eapply bop_list_product_is_left_intro;
-    [eapply trnAP | eapply symAP | eapply 
-    bop_product_is_left | exact Ha | ];
-    try assumption.
-  +
-    assert (Hb : brel_set (brel_product eqA eqP) [] u = false).
-    eapply set_in_set_non_empty_right in Ha.
-    eapply  brel_set_manger_product_phase_0_non_empty_forward in Ha;
-    exact (proj2 Ha).
-    assert (Hc : brel_set (brel_product eqA eqP) [] t = false).
-    eapply set_in_set_non_empty_right in Ha.
-    eapply  brel_set_manger_product_phase_0_non_empty_forward in Ha;
-    exact (proj1 Ha).
-    (* actual proof *)
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Ha;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    (* go left  *)
-    eapply bop_list_product_is_left_elim in Ha;
-    [ |  eapply trnAP | eapply symAP | 
-    eapply bop_product_is_left]; try assumption.
-    (* go left  *)
-    eapply bop_list_product_is_left_intro;
-    [eapply trnAP | eapply symAP | eapply 
-    bop_product_is_left |  | exact Hb];
-    try assumption.
-    eapply union.in_set_uop_duplicate_elim_intro,
-    bop_list_product_is_left_intro;
-    [eapply symAP | eapply trnAP | eapply trnAP | 
-    eapply symAP | eapply bop_product_is_left |
-    | exact Hc]; try assumption.
-Qed.
-
-    
-
-Lemma manger_product_phase_0_associative_right :
-  bop_is_right A eqA mulA -> 
-  bop_is_right P eqP mulP ->
-  bop_associative (finite_set (A * P))
-  (manger_llex.eqSAP A P eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP).
-Proof.
-  intros Hu Hv ? ? ?.
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (au, av) Ha]; 
-  try assumption.
-  +
-    (* I need some preprocessing here *)
-    assert (Hb : brel_set (brel_product eqA eqP) [] s = false).
-    eapply set_in_set_non_empty_left in Ha;
-    eapply  brel_set_manger_product_phase_0_non_empty_forward in Ha;
-    exact (proj1 Ha).
-    assert (Hc : brel_set (brel_product eqA eqP) [] t = false).
-    eapply set_in_set_non_empty_left in Ha.
-    eapply  brel_set_manger_product_phase_0_non_empty_forward in Ha;
-    exact (proj2 Ha).
-    (* actual proof *)
-    (* go right *)
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Ha;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    (* go left  *)
-    eapply bop_list_product_is_right_elim in Ha;
-    [ |  eapply refAP | eapply trnAP | eapply symAP | 
-    eapply bop_product_is_right]; try assumption.
-    eapply bop_list_product_is_right_intro;
-    [eapply refAP | eapply trnAP | eapply symAP | 
-    eapply bop_cong | eapply 
-    bop_product_is_right | | exact Hb];
-    try assumption.
-    eapply union.in_set_uop_duplicate_elim_intro,
-    bop_list_product_is_right_intro;
-    [eapply symAP | eapply trnAP | 
-    eapply refAP | eapply trnAP | eapply symAP | 
-    eapply bop_cong | eapply bop_product_is_right | 
-    exact Ha | exact Hc]; try assumption.
-  +
-    (* some preprocessing*)
-    assert (Hb : brel_set (brel_product eqA eqP) [] s = false).
-    eapply set_in_set_non_empty_left in Ha; exact Ha.
-    assert (Hc : brel_set (brel_product eqA eqP) [] t = false).
-    eapply set_in_set_non_empty_right in Ha.
-    eapply brel_set_manger_product_phase_0_non_empty_forward in Ha;
-    exact (proj1 Ha).
-    assert (Hd : brel_set (brel_product eqA eqP) []
-    (manger_product_phase_0 eqA eqP mulA mulP s t) = false).
-    eapply brel_set_manger_product_phase_0_non_empty_backward;
-    try assumption.
-    (* actual proof *)
-    eapply union.in_set_uop_duplicate_elim_intro;
-    eapply union.in_set_uop_duplicate_elim_elim in Ha;
-    [eapply symAP| eapply trnAP|]; try assumption.
-    eapply bop_list_product_is_right_elim in Ha;
-    [ |  eapply refAP | eapply trnAP | eapply symAP | 
-    eapply bop_product_is_right]; try assumption.
-    eapply union.in_set_uop_duplicate_elim_elim, 
-    bop_list_product_is_right_elim in Ha;
-    [|eapply refAP | eapply trnAP | eapply symAP | 
-    eapply bop_product_is_right]; try assumption.
-    eapply bop_list_product_is_right_intro;
-    [eapply refAP | eapply trnAP | eapply symAP | 
-    eapply bop_cong | eapply bop_product_is_right | 
-    exact Ha | ]; try assumption.
-  Qed.
-
-
-
-Lemma bop_manger_product_associative_left :
-  bop_is_left A eqA mulA -> 
-  bop_is_left P eqP mulP ->
-  bop_associative _ (@eq_manger A P eqA lteA eqP addP)
-  (bop_manger_product eqA lteA eqP addP mulA mulP).
-Proof.
-  intros Hu Hv.
-  apply uop_compose_bop_associative.
-  + eapply refSAP; try assumption.
-  + eapply symSAP; try assumption.
-  + eapply trnSAP; try assumption.
-  + eapply manger_product_phase_0_cong_left; 
-    try assumption.
-  + eapply  manger_product_phase_0_associative_left; 
-    try assumption.
-  + eapply P1_cong with (fA := fA) (zeroP := zeroP) (lteA := lteA); 
-    try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply P1_idem; try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply bop_left_uop_inv_phase_1_left; 
-    try assumption.
-  + eapply bop_right_uop_inv_phase_1_left; 
-    try assumption.
-  + eapply P2_cong; try assumption.
-  + eapply P2_idem; try assumption.
-  + eapply bop_left_uop_inv_phase_2_left; 
-    try assumption.
-  + eapply bop_right_uop_inv_phase_2_left; 
-    try assumption.
-  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption; try (eapply addP_gen_idempotent).
-Qed.
-
-
-Lemma bop_manger_product_associative_right :
-  bop_is_right A eqA mulA -> 
-  bop_is_right P eqP mulP ->
-  bop_associative _ (@eq_manger A P eqA lteA eqP addP)
-  (bop_manger_product eqA lteA eqP addP mulA mulP).
-Proof.
-  intros Hu Hv.
-  apply uop_compose_bop_associative.
-  + eapply refSAP; try assumption.
-  + eapply symSAP; try assumption.
-  + eapply trnSAP; try assumption.
-  + eapply manger_product_phase_0_cong_right; 
-    try assumption.
-  + eapply  manger_product_phase_0_associative_right; 
-    try assumption.
-  + eapply P1_cong with (fA := fA) (zeroP := zeroP) (lteA := lteA); 
-    try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply P1_idem; try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply bop_left_uop_inv_phase_1_right; 
-    try assumption.
-  + eapply bop_right_uop_inv_phase_1_right; 
-    try assumption.
-  + eapply P2_cong; try assumption.
-  + eapply P2_idem; try assumption.
-  + eapply bop_left_uop_inv_phase_2_right; 
-    try assumption.
-  + eapply bop_right_uop_inv_phase_2_right; 
-    try assumption.
-  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption; try (eapply addP_gen_idempotent).
-Qed.
 
 
 (* This require mulA and mulP to be commutative  *)
@@ -1421,9 +1180,34 @@ Proof.
 Qed.
   
 
-Lemma bop_manger_product_commutative_left :
-  bop_is_left A eqA mulA -> 
-  bop_is_left P eqP mulP ->
+(* Proof starts from here *)
+
+Lemma bop_manger_product_congruence : 
+  bop_congruence _ (@eq_manger A P eqA lteA eqP addP)
+  (bop_manger_product eqA lteA eqP addP mulA mulP).
+Proof.
+  apply uop_compose_bop_congruence.
+  + eapply symSAP.
+  + eapply trnSAP; try assumption.
+  + admit.
+  + admit.
+  + admit.
+  + admit.  
+Admitted.
+
+
+Lemma bop_manger_product_associative : 
+  bop_associative _ (@eq_manger A P eqA lteA eqP addP)
+  (bop_manger_product eqA lteA eqP addP mulA mulP).
+Proof.
+  apply uop_compose_bop_associative.
+  + eapply refSAP; try assumption.
+  + eapply symSAP; try assumption.
+  + eapply trnSAP; try assumption.
+Admitted.
+
+
+Lemma bop_manger_product_commutative :
   bop_commutative _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Proof.
@@ -1432,196 +1216,21 @@ Proof.
   + eapply refSAP; try assumption.
   + eapply symSAP; try assumption.
   + eapply trnSAP; try assumption.
-  + eapply manger_product_phase_0_cong_left;
-    try assumption.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply P1_idem; try assumption; 
-    try (eapply addP_gen_idempotent).
-  + eapply bop_left_uop_inv_phase_1_left;
-    try assumption.
-  + eapply bop_right_uop_inv_phase_1_left;
-    try assumption.
-  + eapply P2_cong; try assumption.
-  + eapply P2_idem; try assumption.
-  + eapply bop_left_uop_inv_phase_2_left;
-    try assumption.
-  + eapply bop_right_uop_inv_phase_2_left;
-    try assumption.
-  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption; try (eapply addP_gen_idempotent).
-  + eapply manger_product_phase_0_commutative.
-Qed.
-
-Lemma bop_manger_product_commutative_right :
-  bop_is_right A eqA mulA -> 
-  bop_is_right P eqP mulP ->
-  bop_commutative _ (@eq_manger A P eqA lteA eqP addP)
-  (bop_manger_product eqA lteA eqP addP mulA mulP).
-Proof.
-  intros Hu Hv.
-  eapply uop_compose_bop_commutative.
-  + eapply refSAP; try assumption.
-  + eapply symSAP; try assumption.
-  + eapply trnSAP; try assumption.
-  + eapply manger_product_phase_0_cong_right;
-    try assumption.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply P1_idem; try assumption; 
-    try (eapply addP_gen_idempotent).
-  + eapply bop_left_uop_inv_phase_1_right;
-    try assumption.
-  + eapply bop_right_uop_inv_phase_1_right;
-    try assumption.
-  + eapply P2_cong; try assumption.
-  + eapply P2_idem; try assumption.
-  + eapply bop_left_uop_inv_phase_2_right;
-    try assumption.
-  + eapply bop_right_uop_inv_phase_2_right;
-    try assumption.
-  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption; try (eapply addP_gen_idempotent).
-  + eapply manger_product_phase_0_commutative.
-Qed.
-
-
-Lemma manger_product_phase_0_idem_left : 
-  bop_is_left A eqA mulA -> 
-  bop_is_left P eqP mulP ->
-  bop_idempotent (finite_set (A * P))
-  (manger_llex.eqSAP A P eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP).
-Proof.
-  intros Hu Hv ?;
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (au, av) Ha];
-  try assumption.
-  +
-    eapply union.in_set_uop_duplicate_elim_elim,
-    bop_list_product_is_left_elim in Ha;
-    [| eapply trnAP | eapply symAP | eapply bop_product_is_left];
-    try assumption.
-  +
-    eapply union.in_set_uop_duplicate_elim_intro;
-    [eapply symAP | eapply trnAP | ];
-    try assumption;
-    eapply bop_list_product_is_left_intro;
-    [eapply trnAP | apply symAP | eapply bop_product_is_left | 
-      exact Ha | ];
-    try assumption;
-    destruct s; cbn in Ha;
-    try congruence; 
-    cbn; reflexivity.
-Qed.
+ Admitted. 
 
 
 
-Lemma manger_product_phase_0_idem_right : 
-  bop_is_right A eqA mulA -> 
-  bop_is_right P eqP mulP ->
-  bop_idempotent (finite_set (A * P))
-  (manger_llex.eqSAP A P eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP).
-Proof.
-  intros Hu Hv ?;
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (au, av) Ha];
-  try assumption.
-  +
-    eapply union.in_set_uop_duplicate_elim_elim,
-    bop_list_product_is_right_elim in Ha;
-    [exact Ha | eapply refAP | eapply trnAP | eapply symAP 
-    | eapply bop_product_is_right];
-    try assumption.
-  +
-    eapply union.in_set_uop_duplicate_elim_intro;
-    [eapply symAP | eapply trnAP | ];
-    try assumption;
-    eapply bop_list_product_is_right_intro;
-    [eapply refAP | eapply trnAP | apply symAP | 
-    eapply bop_cong | eapply bop_product_is_right | 
-    exact Ha | ];
-    try assumption;
-    destruct s; cbn in Ha;
-    try congruence; 
-    cbn; reflexivity.
-Qed.
-
-
-
-
-
-
-Lemma bop_manger_product_idempotent_left :
-  bop_is_left A eqA mulA -> 
-  bop_is_left P eqP mulP ->
+Lemma bop_manger_product_idempotent : 
   bop_idempotent _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Proof.
-  intros Hu Hv.
-  eapply uop_compose_bop_idempotent.
-  + eapply refSAP; try assumption.
-  + eapply symSAP; try assumption.
-  + eapply trnSAP; try assumption.
-  + eapply manger_product_phase_0_cong_left;
-    try assumption.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply P1_idem; try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply bop_left_uop_inv_phase_1_left;
-    try assumption.
-  + eapply bop_right_uop_inv_phase_1_left;
-    try assumption.
-  + eapply P2_cong; try assumption.
-  + eapply P2_idem; try assumption.
-  + eapply bop_left_uop_inv_phase_2_left;
-    try assumption.
-  + eapply bop_right_uop_inv_phase_2_left;
-    try assumption.
-  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption; try (eapply addP_gen_idempotent).
-  + eapply  manger_product_phase_0_idem_left;
-    try assumption.
-Qed.
   
-Lemma bop_manger_product_idempotent_right :
-  bop_is_right A eqA mulA -> 
-  bop_is_right P eqP mulP ->
-  bop_idempotent _ (@eq_manger A P eqA lteA eqP addP)
-  (bop_manger_product eqA lteA eqP addP mulA mulP).
-Proof.
-  intros Hu Hv.
   eapply uop_compose_bop_idempotent.
   + eapply refSAP; try assumption.
   + eapply symSAP; try assumption.
   + eapply trnSAP; try assumption.
-  + eapply manger_product_phase_0_cong_right;
-    try assumption.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply P1_idem; try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply bop_left_uop_inv_phase_1_right;
-    try assumption.
-  + eapply bop_right_uop_inv_phase_1_right;
-    try assumption.
-  + eapply P2_cong; try assumption.
-  + eapply P2_idem; try assumption.
-  + eapply bop_left_uop_inv_phase_2_right;
-    try assumption.
-  + eapply bop_right_uop_inv_phase_2_right;
-    try assumption.
-  + intros *. eapply P1_P2_commute with (fA := fA) (zeroP := zeroP);
-    try assumption; try (eapply addP_gen_idempotent).
-  + eapply  manger_product_phase_0_idem_right;
-    try assumption.
-Qed.
+Admitted.
+
 
 (* Everything good upto this point *) 
 
@@ -1700,6 +1309,4 @@ Proof.
 Admitted.  
 
 End Theory.  
-
-Check bop_left_uop_inv_phase_1_left.
 
