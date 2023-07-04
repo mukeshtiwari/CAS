@@ -683,14 +683,6 @@ Proof.
 Qed.
 
 
-(* Admits *)
-
-
-
-
- 
-
-(* end of admits *)
 
 Lemma bop_left_uop_inv_phase_1 : 
   bop_left_uop_invariant (finite_set (A * P))
@@ -704,9 +696,20 @@ Proof.
   [eapply refAP | split; intros (au, av) Ha]; try assumption.
   +
     unfold bop_reduce in Ha |- *.
-   
+    (* induction on s2 ?? *)
+    (* Pen-and-paper proof 
+      Change Ha to 
+      set.in_set (manger_llex.eqAP A P eqA eqP)
+       (uop_manger_phase_1 eqA addP
+          (manger_product_phase_0 eqA eqP mulA mulP
+             s2 (uop_manger_phase_1 eqA addP s1))) (au, av) = true
+      by using the theorem    
+    
+    
+    *)
+     
 
-    (* I don't want to do induction! Think, Think, Think Mukesh *)
+    (* Think, Think, Think Mukesh *)
     (* 
       Calculation using Ha
       s1 := [(a, b); (c, d); (a, e)]
@@ -768,11 +771,191 @@ Proof.
   [eapply refAP | split; intros (au, av) Ha]; try assumption.
   +
     unfold bop_reduce in Ha |- *.
-   
+Admitted.
+
+
+(*  *)
+Lemma fold_left_manger_merge_set_idempotent : 
+  forall (X Y : finite_set (A * P)),
+  no_dup eqA (map fst Y) = true -> 
+  fold_left (manger_merge_sets_new eqA addP)
+    (set.uop_duplicate_elim (brel_product eqA eqP) X) Y =S= 
+  fold_left (manger_merge_sets_new eqA addP) X Y.
+Proof.
+  induction X as [| (ax, bx) X IHx].
+  +
+    intros * Ha; cbn.
+    eapply refSAP; try assumption.
+  +
+    intros * Ha; cbn.
+    case_eq (set.in_set (brel_product eqA eqP) X (ax, bx));
+    intro Hb.
+    ++
+      specialize (IHx Y Ha).
+      eapply trnSAP; try assumption;
+      [exact IHx |].
+      (*
+        Two cases:
+          ax ∉ (map fst Y) ∨ ax ∈ (map fst Y)
+          1. ax ∉ (map fst Y)
+            (filter (λ '(s2, _), negb (eqA ax s2)) Y ++
+            [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+            (filter (λ '(s2, _), eqA ax s2) Y) (ax, bx)]))  =S= Y 
+            we are home. 
+
+          2. ax ∈ (map fst Y) then we can write Y as:
+             Y =S= (ax, bx') :: Y₁  (and there is no ax in Y₁)
+
+             Now we the goal simplifies
+             (filter (λ '(s2, _), negb (eqA ax s2)) Y ++
+              [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+              (filter (λ '(s2, _), eqA ax s2) Y) (ax, bx)])) =S=
+             [(ax, bx + bx')] ++ Y₁
+
+            (fold_left (manger_merge_sets_new eqA addP) X Y)
+            (fold_left (manger_merge_sets_new eqA addP) X 
+              ([(ax, bx ++ bx')] ++ Y₁)
+
+            I believe I have proof for this. 
+
+          
+          
+      *)
+      admit.
+      
+      
+    ++
+      cbn.
+      rewrite IHx;
+      [reflexivity |].
+      (* This is also true *)
+     
+Admitted.
+
+
+Lemma manger_ltrtrans_duplicate_free : 
+  forall (X Y Z : finite_set (A * P)) ah bh,
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst Z) = true ->
+  no_dup eqA (map fst (fold_left (manger_merge_sets_new eqA addP)
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) 
+      (fold_left (manger_merge_sets_new eqA addP) X Y)) Z)) = true.
+Proof.
+  intros * Ha Hb.
+Admitted.
+
+
+
+
+
+(* generalise version  *)
+(* Challenging, yet nice, proof. *)
+Lemma bop_right_uop_inv_phase_1_gen_foward : 
+  forall (s1 s2 Y Z : finite_set (A * P)) au av, 
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst Z) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP s1
+        (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z) 
+          (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP s1 (s2 ++ Y)) Z) 
+        (au, av) = true.
+Proof.
+  (* Don't touch s2 *)
+  (* Also, don't use fold_left *)
+  refine (fix Fn s1 := 
+    match s1 as s1' return s1 = s1' -> _ with 
+    | [] => _ 
+    | (ah, bh) :: t => _ 
+    end eq_refl).
+  +
+    intros Ha * Hb Hc Hd.
+    cbn in Hd |- *.
+    exact Hd.
+  +
+    intros Ha * Hb Hc Hd;
+    cbn in Hd |- *.
+    remember (ltran_list_product (bop_product mulA mulP) (ah, bh) 
+    (fold_left (manger_merge_sets_new eqA addP) s2 Y)) as Ya.
+    remember (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) 
+    as Yb.
+    (* 
+      Now I invoke fold_left_manger_merge_set_idempotent 
+    *)
+    (* remove the set.uop_duplicate_elim from Hd and goal *)
+    erewrite in_set_left_congruence_v2 with 
+    (Y := fold_left (manger_merge_sets_new eqA addP)
+      (Yb ++ bop_list_product_left (bop_product mulA mulP) t (s2 ++ Y)) Z);
+      [| eapply symAP | eapply trnAP | 
+      eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    erewrite in_set_left_congruence_v2 with 
+    (Y := fold_left (manger_merge_sets_new eqA addP) 
+      (Ya ++ bop_list_product_left (bop_product mulA mulP) t
+      (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z) in Hd;
+    [| eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+
+    (* some unfold of definitions to apply induction hypothesis *)
+    unfold manger_product_phase_0, bop_lift in Hd, Fn.
+    rewrite fold_left_app in Hd |- *.
+    specialize (Fn t s2 Y 
+      (fold_left (manger_merge_sets_new eqA addP) Ya Z) au av Hb).
+    
+    (* prove that it's duplicate free *)
+    assert (He : no_dup eqA (map fst (fold_left 
+      (manger_merge_sets_new eqA addP) Ya Z)) = true). 
+    subst. eapply manger_ltrtrans_duplicate_free;
+    try assumption.
+    (* instantiate the IHn *)
+    specialize (Fn He).
+    (* remove uop_duplicate from Fn *)
+    erewrite in_set_left_congruence_v2 with 
+    (Y := (fold_left (manger_merge_sets_new eqA addP)
+    (bop_list_product_left (bop_product mulA mulP) t
+       (fold_left (manger_merge_sets_new eqA addP) s2 Y))
+    (fold_left (manger_merge_sets_new eqA addP) Ya Z))) in Fn;
+    [| eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    specialize (Fn Hd).
+    rewrite in_set_left_congruence_v2 with 
+    (Y := (fold_left (manger_merge_sets_new eqA addP)
+       (bop_list_product_left (bop_product mulA mulP) t (s2 ++ Y))
+      (fold_left (manger_merge_sets_new eqA addP) Ya Z))) in Fn;
+    [| eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    (* Now one more challenge left*)
+    subst.
+    remember (fold_left (manger_merge_sets_new eqA addP) s2 Y) as Ya.
+    (* nested definitions are needlessly complicated. *)
+    
+
+
+
 
 Admitted.
 
 
+Lemma bop_right_uop_inv_phase_1_gen_backward : 
+  forall (s1 s2 Y Z : finite_set (A * P)) au av, 
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst Z) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP s1 (s2 ++ Y)) Z) 
+        (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP s1
+        (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z) 
+          (au, av) = true.
+Proof.
+Admitted.
+
+
+(* I need to generalise this to do induction. *)
 Lemma bop_right_uop_inv_phase_1 : 
   bop_right_uop_invariant (finite_set (A * P))
     (manger_llex.eqSAP A P eqA eqP)
@@ -785,8 +968,25 @@ Proof.
   [eapply refAP | split; intros (au, av) Ha]; try assumption.
   +
     unfold bop_reduce in Ha |- *.
-    
-Admitted. 
+    unfold uop_manger_phase_1,
+    manger_phase_1_auxiliary in Ha |- *.
+    rewrite manger_merge_set_funex in Ha |- *.
+    replace s2 with (s2 ++ []).
+    eapply bop_right_uop_inv_phase_1_gen_foward;
+    [try reflexivity | try reflexivity | exact Ha].
+    eapply app_nil_r.
+  +
+    unfold bop_reduce in Ha |- *.
+    unfold uop_manger_phase_1,
+    manger_phase_1_auxiliary in Ha |- *.
+    rewrite manger_merge_set_funex in Ha |- *.
+    replace s2 with (s2 ++ []) in Ha.
+    eapply bop_right_uop_inv_phase_1_gen_backward;
+    [try reflexivity | try reflexivity | exact Ha].
+    eapply app_nil_r.
+Qed.
+
+
 
 Lemma bop_right_uop_inv_phase_2 : 
   bop_right_uop_invariant (finite_set (A * P))
