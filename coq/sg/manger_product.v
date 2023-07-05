@@ -155,7 +155,7 @@ Local Notation "[MR]" := (@uop_manger_phase_2 A P lteA) (only parsing).
 Local Notation "[EQ]" := (equal_manger eqA lteA eqP addP) (only parsing).
 
 
-(* Begin Admit *)      
+    
 
 (*
   X := [(a, b); (c, d); (a, e)]
@@ -1324,13 +1324,25 @@ Proof.
     try (eapply addP_gen_idempotent).
 Qed.
 
+(* mulA and mulP has to be associative *)
 Lemma bop_manger_product_phase_0_assoc : 
   bop_associative (finite_set (A * P)) (manger_llex.eqSAP A P eqA eqP)
   (manger_product_phase_0 eqA eqP mulA mulP).
 Proof.
-Admitted.
-
-
+  intros X Y Z.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Ha];
+  try assumption.
+  + eapply lift_lemma_1;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | eapply bop_assoc | exact Ha];
+    try assumption.
+  + eapply lift_lemma_2;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | eapply bop_assoc | exact Ha];
+    try assumption.
+Qed.
+  
 
 Lemma bop_manger_product_associative : 
   bop_associative _ (@eq_manger A P eqA lteA eqP addP)
@@ -1391,12 +1403,30 @@ Proof.
     try assumption.
 Qed.
 
-(* mulA and mulP has to be idempotent *)
-Lemma manger_product_phase_0_idem : 
+
+(* Everything good upto this point *) 
+
+(* This can't be proved without mulA and mulP left or right *)
+(* What it unfortunately means is that it can never be 
+used as + because it's never going to be idempotent, 
+unless mulA and mulP are left or right *)
+Lemma manger_product_phase_0_idem :
   bop_idempotent (finite_set (A * P)) (manger_llex.eqSAP A P eqA eqP)
   (manger_product_phase_0 eqA eqP mulA mulP).
 Proof.
-  intro.
+  intro s;
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Ha];
+  try assumption.
+  +
+    eapply in_set_bop_lift_elim in Ha;
+    [| eapply refAP | eapply symAP]; try assumption;
+    destruct Ha as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    eapply brel_product_elim in Hc;
+    destruct Hc as (Hcl & Hcr).
+    admit.
+  +
+
 Admitted.
 
 
@@ -1428,10 +1458,10 @@ Proof.
   + eapply manger_product_phase_0_idem.
 Qed.
 
-(* Everything good upto this point *) 
 
 
-(* With the assumption that we have, this is not 
+
+(* With the assumption we have, this is not 
 provable. *)
 Lemma bop_manger_product_not_selective :
   bop_not_selective _ (@eq_manger A P eqA lteA eqP addP)
