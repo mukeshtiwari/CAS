@@ -143,8 +143,6 @@ Variables
 Variables 
   (mulA_assoc : bop_associative A eqA mulA)
   (mulP_assoc : bop_associative P eqP mulP)
-  (mulA_comm : bop_commutative A eqA mulA)
-  (mulP_comm : bop_commutative P eqP mulP)
   (cong_mulA : bop_congruence A eqA mulA)
   (cong_mulP : bop_congruence P eqP mulP).
 
@@ -458,7 +456,9 @@ Qed.
 
 
 (* requires commutativity *)
-Lemma brel_set_manger_product_phase_0_swap_v1: 
+Lemma brel_set_manger_product_phase_0_swap_v1 
+  (mulA_comm : bop_commutative A eqA mulA)
+  (mulP_comm : bop_commutative P eqP mulP) : 
   forall (X Y : finite_set (A * P)),
   brel_set (brel_product eqA eqP) 
   (manger_product_phase_0 eqA eqP mulA mulP X Y)
@@ -684,97 +684,9 @@ Qed.
 
 
 
-Lemma bop_left_uop_inv_phase_1 : 
-  bop_left_uop_invariant (finite_set (A * P))
-    (manger_llex.eqSAP A P eqA eqP)
-    (bop_reduce (uop_manger_phase_1 eqA addP)
-      (manger_product_phase_0 eqA eqP mulA mulP))
-    (uop_manger_phase_1 eqA addP).
-Proof.
-  intros ? ?.
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (au, av) Ha]; try assumption.
-  +
-    unfold bop_reduce in Ha |- *.
-    (* induction on s2 ?? *)
-    (* Pen-and-paper proof 
-      Change Ha to 
-      set.in_set (manger_llex.eqAP A P eqA eqP)
-       (uop_manger_phase_1 eqA addP
-          (manger_product_phase_0 eqA eqP mulA mulP
-             s2 (uop_manger_phase_1 eqA addP s1))) (au, av) = true
-      by using the theorem    
-    
-    
-    *)
-     
 
-    (* Think, Think, Think Mukesh *)
-    (* 
-      Calculation using Ha
-      s1 := [(a, b); (c, d); (a, e)]
-      s2 := [(u, v); (x, y); (x, t)]
+(*  begin Admit *)
 
-    1. (uop_manger_phase_1 eqA addP s1) = 
-      [(a, b + e); (c, d)]
-      ---------------------------------------
-    2. (manger_product_phase_0 eqA eqP mulA mulP
-        [(a, b + e); (c, d)] [(u, v); (x, y); (x, t)]) = 
-        -----------------------------------------------
-        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
-        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
-        (c * x, d * t)]
-        ----------------------------------------------
-    3. (uop_manger_phase_1 eqA addP  
-        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
-        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
-        (c * x, d * t)] = 
-        ---------------------------------------------
-        [(a * u, (b + e) * v); (a * x; (b + e) * y + (b + e) * t);
-        (c * u, d * v); (c * x; d * y + d * t)]
-        -----------------------------------------
-
-    Calculation using the goal:
-    5. (manger_product_phase_0 eqA eqP mulA mulP 
-      [(a, b); (c, d); (a, e)] [(u, v); (x, y); (x, t)] = 
-      -------------------------------------------------
-      [(a * u, b * v); (a * x, b * y); (a * x, b * t);
-      (c * u, d * v); (c * x, d * y); (c * x, d * t);
-      (a * u, e * v); (a * x, e * y); (a * x, e * t)] 
-    --------------------------------------------------
-    6. uop_manger_phase_1 eqA addP 
-        [(a * u, v * v); (a * x, b * y); (a * x, b * t);
-        (c * u, d * v); (c * x, d * y); (c * x, d * t);
-        (a * u, e * v); (a * x, e * y); (a * x, e * t)] = 
-      -------------------------------------------------
-      [(a * u, b * v + e * v); (a * x, b * y + b * t + e * y + e * t); 
-        (c * u, d * d); (c * x, d * y + d * t)] 
-
-
-    The problem with current intro and elim rule is that 
-    we throw some information 
-      
-    *)
-Admitted.
-    
-
-
-Lemma bop_left_uop_inv_phase_2 : 
-  bop_left_uop_invariant (finite_set (A * P))
-    (manger_llex.eqSAP A P eqA eqP)
-    (bop_reduce (uop_manger_phase_2 lteA)
-      (manger_product_phase_0 eqA eqP mulA mulP))
-    (uop_manger_phase_2 lteA).
-Proof.
-  intros ? ?.
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (au, av) Ha]; try assumption.
-  +
-    unfold bop_reduce in Ha |- *.
-Admitted.
-
-
-(*  *)
 Lemma fold_left_manger_merge_set_idempotent : 
   forall (X Y : finite_set (A * P)),
   no_dup eqA (map fst Y) = true -> 
@@ -816,9 +728,7 @@ Proof.
             (fold_left (manger_merge_sets_new eqA addP) X 
               ([(ax, bx ++ bx')] ++ Y₁)
 
-            I believe I have proof for this. 
-
-          
+            I believe I have proof for this.
           
       *)
       admit.
@@ -833,16 +743,29 @@ Proof.
 Admitted.
 
 
-Lemma manger_ltrtrans_duplicate_free : 
+Lemma manger_ltrtrans_duplicate_free_forward : 
   forall (X Y Z : finite_set (A * P)) ah bh,
   no_dup eqA (map fst Y) = true ->
   no_dup eqA (map fst Z) = true ->
-  no_dup eqA (map fst (fold_left (manger_merge_sets_new eqA addP)
-    (ltran_list_product (bop_product mulA mulP) (ah, bh) 
-      (fold_left (manger_merge_sets_new eqA addP) X Y)) Z)) = true.
+  no_dup eqA (map fst 
+    (fold_left (manger_merge_sets_new eqA addP)
+      (ltran_list_product (bop_product mulA mulP) (ah, bh) 
+        (fold_left (manger_merge_sets_new eqA addP) X Y)) Z)) = true.
 Proof.
   intros * Ha Hb.
 Admitted.
+
+Lemma manger_ltrtrans_duplicate_free_backward : 
+  forall (X Y Z : finite_set (A * P)) ah bh,
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst Z) = true ->
+  no_dup eqA (map fst 
+    (fold_left (manger_merge_sets_new eqA addP)
+      (ltran_list_product (bop_product mulA mulP) 
+        (ah, bh) (X ++ Y)) Z)) = true.
+Proof.
+Admitted.
+
 
 
 Lemma ltran_fold_left_interaction : 
@@ -862,7 +785,7 @@ Lemma manger_manger_double_red :
   no_dup eqA (map fst Z) = true ->
   (fold_left (manger_merge_sets_new eqA addP)
     (fold_left (manger_merge_sets_new eqA addP) X Y) Z) =S= 
-    fold_left (manger_merge_sets_new eqA addP) (X ++ Y) Z.
+  fold_left (manger_merge_sets_new eqA addP) (X ++ Y) Z.
 Proof.
 Admitted.
 
@@ -875,7 +798,7 @@ Lemma ltran_list_product_cong :
 Admitted.
 
 
-
+(* end of admit *)
 
 
 
@@ -938,7 +861,7 @@ Proof.
     (* prove that it's duplicate free *)
     assert (He : no_dup eqA (map fst (fold_left 
       (manger_merge_sets_new eqA addP) Ya Z)) = true). 
-    subst. eapply manger_ltrtrans_duplicate_free;
+    subst. eapply manger_ltrtrans_duplicate_free_forward;
     try assumption.
     (* instantiate the IHn *)
     specialize (Fn He).
@@ -1047,40 +970,167 @@ Proof.
     in Hd; [| eapply symAP | eapply trnAP | 
     eapply fold_left_manger_merge_set_idempotent]; try assumption.
     (* some unfold of definitions to apply induction hypothesis *)
-    unfold manger_product_phase_0, bop_lift in Fn.
+    unfold manger_product_phase_0, bop_lift in Hd, Fn.
     rewrite fold_left_app in Hd |- *.
+    specialize (Fn t s2 Y 
+      (fold_left (manger_merge_sets_new eqA addP) Yb Z) au av Hb).
+    (* prove that it's duplicate free *)
+    assert (He : no_dup eqA (map fst (fold_left 
+      (manger_merge_sets_new eqA addP) Yb Z)) = true). 
+    subst. eapply manger_ltrtrans_duplicate_free_backward;
+    try assumption.
+    (* instantiate the IHn *)
+    specialize (Fn He).
+    rewrite in_set_left_congruence_v2 with 
+    (Y := (fold_left (manger_merge_sets_new eqA addP)
+       (bop_list_product_left (bop_product mulA mulP) t (s2 ++ Y))
+      (fold_left (manger_merge_sets_new eqA addP) Yb Z))) in Fn;
+    [| eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    specialize (Fn Hd).
+    erewrite in_set_left_congruence_v2 with 
+    (Y := (fold_left (manger_merge_sets_new eqA addP)
+    (bop_list_product_left (bop_product mulA mulP) t
+       (fold_left (manger_merge_sets_new eqA addP) s2 Y))
+    (fold_left (manger_merge_sets_new eqA addP) Yb Z))) in Fn;
+    [| eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    subst. clear Hd He.
+    remember ((fold_left (manger_merge_sets_new eqA addP)
+    (ltran_list_product (bop_product mulA mulP) (
+       ah, bh) (fold_left (manger_merge_sets_new eqA addP) s2 Y))
+    Z)) as Za.
+    remember ((fold_left (manger_merge_sets_new eqA addP)
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z))
+    as Zb.
 
+    (* 
+      Now the challenge is to prove if this goal 
+      is a reduction 
+      If I can prove that Za and Zb are same, then we 
+      are home. 
+    *)    
+    assert (Hd : Za =S= Zb).
+    subst; eapply trnSAP
+    with (t := ltran_list_product (bop_product mulA mulP) (ah, bh)
+      (fold_left (manger_merge_sets_new eqA addP)
+        (fold_left (manger_merge_sets_new eqA addP) s2 Y) Z));
+    try assumption.
+    eapply ltran_fold_left_interaction; try assumption.
+    (* 
+      If we were not using a custom equality, this proof 
+      could have been done in an hour. Equality is not making 
+      the proof conceptually difficult but just a boring task. 
+      Note to myself: If I am dealing with a custom equality, 
+      either use typeclass or aac_tactic.   
+    *)
+    eapply symSAP, trnSAP with (t := ltran_list_product 
+      (bop_product mulA mulP) (ah, bh) 
+      (fold_left (manger_merge_sets_new eqA addP)  (s2 ++ Y) Z));
+    try assumption.
+    eapply ltran_fold_left_interaction; try assumption.
+    (* no congruence for ltran_list_product ? *)
+    eapply ltran_list_product_cong,
+    symSAP, manger_manger_double_red;
+    try assumption.
+    eapply fold_left_in_set_mmsn_cong with (V := Zb);
+    try assumption;
+    try (eapply addP_gen_idempotent).
+    eapply symSAP; exact Hd.
+Qed.
+
+
+Lemma bop_left_uop_inv_phase_1 : 
+  bop_left_uop_invariant (finite_set (A * P))
+    (manger_llex.eqSAP A P eqA eqP)
+    (bop_reduce (uop_manger_phase_1 eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP))
+    (uop_manger_phase_1 eqA addP).
+Proof.
+    (* Think, Think, Think Mukesh *)
+    (* 
+      Calculation using Ha
+      s1 := [(a, b); (c, d); (a, e)]
+      s2 := [(u, v); (x, y); (x, t)]
+
+    1. (uop_manger_phase_1 eqA addP s1) = 
+      [(a, b + e); (c, d)]
+      ---------------------------------------
+    2. (manger_product_phase_0 eqA eqP mulA mulP
+        [(a, b + e); (c, d)] [(u, v); (x, y); (x, t)]) = 
+        -----------------------------------------------
+        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
+        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
+        (c * x, d * t)]
+        ----------------------------------------------
+    3. (uop_manger_phase_1 eqA addP  
+        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
+        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
+        (c * x, d * t)] = 
+        ---------------------------------------------
+        [(a * u, (b + e) * v); (a * x; (b + e) * y + (b + e) * t);
+        (c * u, d * v); (c * x; d * y + d * t)]
+        -----------------------------------------
+
+    Calculation using the goal:
+    5. (manger_product_phase_0 eqA eqP mulA mulP 
+      [(a, b); (c, d); (a, e)] [(u, v); (x, y); (x, t)] = 
+      -------------------------------------------------
+      [(a * u, b * v); (a * x, b * y); (a * x, b * t);
+      (c * u, d * v); (c * x, d * y); (c * x, d * t);
+      (a * u, e * v); (a * x, e * y); (a * x, e * t)] 
+    --------------------------------------------------
+    6. uop_manger_phase_1 eqA addP 
+        [(a * u, v * v); (a * x, b * y); (a * x, b * t);
+        (c * u, d * v); (c * x, d * y); (c * x, d * t);
+        (a * u, e * v); (a * x, e * y); (a * x, e * t)] = 
+      -------------------------------------------------
+      [(a * u, b * v + e * v); (a * x, b * y + b * t + e * y + e * t); 
+        (c * u, d * d); (c * x, d * y + d * t)] 
+
+
+    The problem with current intro and elim rule is that 
+    we throw some information 
+   
+
+  This can be proven easily with commuativity and apply 
+  bop_right_uop_inv_phase_1 and we are home.
+  *)
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; try assumption.
+  +
+    unfold bop_reduce in Ha |- *.
+    unfold uop_manger_phase_1,
+    manger_phase_1_auxiliary in Ha |- *.
+    rewrite manger_merge_set_funex in Ha |- *.
+    admit.    
+
+  +
+    unfold bop_reduce in Ha |- *.
+    unfold uop_manger_phase_1,
+    manger_phase_1_auxiliary in Ha |- *.
+    rewrite manger_merge_set_funex in Ha |- *.
     
-
-    
-
-
-
   
-
-  intros * Ha Hb Hc.
-  rewrite <-Hc; unfold manger_product_phase_0,
-  bop_lift.
-  eapply in_set_left_congruence_v2;
-  [eapply symAP | eapply trnAP | ]; 
-  try assumption.
-  eapply trnSAP with (t := fold_left (manger_merge_sets_new eqA addP)
-  (bop_list_product_left (bop_product mulA mulP) s1
-  (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z);
-  try assumption.
-  eapply fold_left_manger_merge_set_idempotent; 
-  try assumption.
-  eapply symSAP, trnSAP with (t := fold_left 
-    (manger_merge_sets_new eqA addP) 
-    (bop_list_product_left (bop_product mulA mulP) s1 (s2 ++ Y)) Z);
-  try assumption.
-  eapply fold_left_manger_merge_set_idempotent; 
-  try assumption.
-
-
-
-
 Admitted.
+    
+
+
+Lemma bop_left_uop_inv_phase_2 : 
+  bop_left_uop_invariant (finite_set (A * P))
+    (manger_llex.eqSAP A P eqA eqP)
+    (bop_reduce (uop_manger_phase_2 lteA)
+      (manger_product_phase_0 eqA eqP mulA mulP))
+    (uop_manger_phase_2 lteA).
+Proof.
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; try assumption.
+  +
+    unfold bop_reduce in Ha |- *.
+Admitted.
+
 
 
 (* I need to generalise this to do induction. *)
@@ -1128,7 +1178,9 @@ Admitted.
 
 
 (* This require mulA and mulP to be commutative  *)
-Lemma manger_product_phase_0_commutative: 
+Lemma manger_product_phase_0_commutative 
+  (mulA_comm : bop_commutative A eqA mulA)
+  (mulP_comm : bop_commutative P eqP mulP) : 
   bop_commutative (finite_set (A * P))
   (manger_llex.eqSAP A P eqA eqP)
   (manger_product_phase_0 eqA eqP mulA mulP).
@@ -1203,8 +1255,19 @@ Lemma bop_left_uop_inv :
     (@uop_manger A P eqA lteA addP).
 Proof.
   eapply composition_left_uop_invariant.
-  
-Admitted.
+  + eapply symSAP.
+  + eapply trnSAP; try assumption.
+  + eapply P1_cong with (lteA := lteA) (zeroP := zeroP)
+    (fA := fA); try assumption;
+    try (eapply addP_gen_idempotent).
+  + eapply bop_left_uop_inv_phase_1.
+  + eapply P2_cong; try assumption.
+  + eapply bop_left_uop_inv_phase_2.
+  + intros *. 
+    eapply P1_P2_commute with (fA := fA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent).
+Qed.
 
 
 (*
@@ -1221,7 +1284,20 @@ Lemma bop_right_uop_inv :
      (manger_product_phase_0 eqA eqP mulA mulP))
   (@uop_manger A P eqA lteA addP).
 Proof.
-Admitted.
+  eapply composition_right_uop_invariant.
+  + eapply symSAP.
+  + eapply trnSAP; try assumption.
+  + eapply P1_cong with (lteA := lteA) (zeroP := zeroP)
+    (fA := fA); try assumption;
+    try (eapply addP_gen_idempotent).
+  + eapply bop_right_uop_inv_phase_1.
+  + eapply P2_cong; try assumption.
+  + eapply bop_right_uop_inv_phase_2.
+  + intros *. 
+    eapply P1_P2_commute with (fA := fA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent).
+Qed.
 
 
 
@@ -1237,9 +1313,23 @@ Proof.
   + eapply P1_cong with (fA := fA) (lteA := lteA)
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent). 
-  + admit.
-  + admit.  
+  + eapply bop_left_uop_inv_phase_1.
+  + eapply bop_right_uop_inv_phase_1.
+  + eapply P2_cong; try assumption.
+  + eapply bop_left_uop_inv_phase_2.
+  + eapply bop_right_uop_inv_phase_2.
+  + intros *. 
+    eapply P1_P2_commute with (fA := fA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent).
+Qed.
+
+Lemma bop_manger_product_phase_0_assoc : 
+  bop_associative (finite_set (A * P)) (manger_llex.eqSAP A P eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP).
+Proof.
 Admitted.
+
 
 
 Lemma bop_manger_product_associative : 
@@ -1250,33 +1340,93 @@ Proof.
   + eapply refSAP; try assumption.
   + eapply symSAP; try assumption.
   + eapply trnSAP; try assumption.
-Admitted.
+  + eapply manger_product_phase_0_cong.
+  + eapply bop_manger_product_phase_0_assoc.
+  + eapply P1_cong with (fA := fA) (lteA := lteA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent). 
+  + eapply P1_idem;try assumption;
+    try (eapply addP_gen_idempotent). 
+  + eapply bop_left_uop_inv_phase_1.
+  + eapply bop_right_uop_inv_phase_1.
+  + eapply P2_cong; try assumption.
+  + eapply P2_idem; try assumption.
+  + eapply bop_left_uop_inv_phase_2.
+  + eapply bop_right_uop_inv_phase_2.
+  + intros *. 
+    eapply P1_P2_commute with (fA := fA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent).
+Qed.
 
 
-Lemma bop_manger_product_commutative :
+
+Lemma bop_manger_product_commutative 
+  (mulA_comm : bop_commutative A eqA mulA)
+  (mulP_comm : bop_commutative P eqP mulP) :
   bop_commutative _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
 Proof.
-  intros Hu Hv.
   eapply uop_compose_bop_commutative.
   + eapply refSAP; try assumption.
   + eapply symSAP; try assumption.
   + eapply trnSAP; try assumption.
- Admitted. 
+  + eapply manger_product_phase_0_cong.
+  + eapply P1_cong with (fA := fA) (lteA := lteA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent). 
+  + eapply P1_idem;try assumption;
+    try (eapply addP_gen_idempotent).
+  + eapply bop_left_uop_inv_phase_1.
+  + eapply bop_right_uop_inv_phase_1.
+  + eapply P2_cong; try assumption.
+  + eapply P2_idem; try assumption.
+  + eapply bop_left_uop_inv_phase_2.
+  + eapply bop_right_uop_inv_phase_2.
+  + intros *. 
+    eapply P1_P2_commute with (fA := fA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent).
+  + eapply manger_product_phase_0_commutative; 
+    try assumption.
+Qed.
+
+(* mulA and mulP has to be idempotent *)
+Lemma manger_product_phase_0_idem : 
+  bop_idempotent (finite_set (A * P)) (manger_llex.eqSAP A P eqA eqP)
+  (manger_product_phase_0 eqA eqP mulA mulP).
+Proof.
+  intro.
+Admitted.
 
 
 
 Lemma bop_manger_product_idempotent : 
   bop_idempotent _ (@eq_manger A P eqA lteA eqP addP)
   (bop_manger_product eqA lteA eqP addP mulA mulP).
-Proof.
-  
+Proof.  
   eapply uop_compose_bop_idempotent.
   + eapply refSAP; try assumption.
   + eapply symSAP; try assumption.
   + eapply trnSAP; try assumption.
-Admitted.
-
+  + eapply manger_product_phase_0_cong.
+  + eapply P1_cong with (fA := fA) (lteA := lteA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent). 
+  + eapply P1_idem;try assumption;
+    try (eapply addP_gen_idempotent).
+  + eapply bop_left_uop_inv_phase_1.
+  + eapply bop_right_uop_inv_phase_1.
+  + eapply P2_cong; try assumption.
+  + eapply P2_idem; try assumption.
+  + eapply bop_left_uop_inv_phase_2.
+  + eapply bop_right_uop_inv_phase_2.
+  + intros *. 
+    eapply P1_P2_commute with (fA := fA)
+    (zeroP := zeroP); try assumption;
+    try (eapply addP_gen_idempotent).
+  + eapply manger_product_phase_0_idem.
+Qed.
 
 (* Everything good upto this point *) 
 
