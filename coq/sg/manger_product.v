@@ -966,10 +966,11 @@ Proof.
     remember ((fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z))
     as Zb.
-    (* Now the challenge is to prove if this goal 
-    is a reduction 
-    If I can prove that Za and Zb are same, then we 
-    are home. 
+    (* 
+      Now the challenge is to prove if this goal 
+      is a reduction 
+      If I can prove that Za and Zb are same, then we 
+      are home. 
     *)    
     assert (Hd : Za =S= Zb).
     subst; eapply trnSAP
@@ -978,11 +979,12 @@ Proof.
         (fold_left (manger_merge_sets_new eqA addP) s2 Y) Z));
     try assumption.
     eapply ltran_fold_left_interaction; try assumption.
-    (* If we were not using a custom equality, this proof 
+    (* 
+      If we were not using a custom equality, this proof 
       could have been done in an hour. Equality is not making 
       the proof conceptually difficult but just a boring task. 
-    Note to myself: If I am dealing with a custom equality, 
-    either use typeclass or aac_tactic.   
+      Note to myself: If I am dealing with a custom equality, 
+      either use typeclass or aac_tactic.   
     *)
     eapply symSAP, trnSAP with (t := ltran_list_product 
       (bop_product mulA mulP) (ah, bh) 
@@ -1015,6 +1017,69 @@ Lemma bop_right_uop_inv_phase_1_gen_backward :
         (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z) 
           (au, av) = true.
 Proof.
+  refine (fix Fn s1 := 
+    match s1 as s1' return s1 = s1' -> _ with 
+    | [] => _ 
+    | (ah, bh) :: t => _ 
+    end eq_refl).
+  +
+    intros * Ha * Hb Hc Hd.
+    cbn in Hd |-*;
+    exact Hd.
+  +
+    intros * Ha * Hb Hc Hd.
+    cbn in Hd |- *.
+    remember (ltran_list_product (bop_product mulA mulP) (ah, bh) 
+    (fold_left (manger_merge_sets_new eqA addP) s2 Y)) as Ya.
+    remember (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) 
+    as Yb.
+    (* get rid of set.uop_duplicate_elim *)
+    erewrite in_set_left_congruence_v2 with 
+    (Y := fold_left (manger_merge_sets_new eqA addP) 
+      (Ya ++ bop_list_product_left (bop_product mulA mulP) t
+      (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z);
+    [| eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+
+    erewrite in_set_left_congruence_v2 with 
+    (Y := fold_left (manger_merge_sets_new eqA addP)
+      (Yb ++ bop_list_product_left (bop_product mulA mulP) t (s2 ++ Y)) Z) 
+    in Hd; [| eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    (* some unfold of definitions to apply induction hypothesis *)
+    unfold manger_product_phase_0, bop_lift in Fn.
+    rewrite fold_left_app in Hd |- *.
+
+    
+
+    
+
+
+
+  
+
+  intros * Ha Hb Hc.
+  rewrite <-Hc; unfold manger_product_phase_0,
+  bop_lift.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | ]; 
+  try assumption.
+  eapply trnSAP with (t := fold_left (manger_merge_sets_new eqA addP)
+  (bop_list_product_left (bop_product mulA mulP) s1
+  (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z);
+  try assumption.
+  eapply fold_left_manger_merge_set_idempotent; 
+  try assumption.
+  eapply symSAP, trnSAP with (t := fold_left 
+    (manger_merge_sets_new eqA addP) 
+    (bop_list_product_left (bop_product mulA mulP) s1 (s2 ++ Y)) Z);
+  try assumption.
+  eapply fold_left_manger_merge_set_idempotent; 
+  try assumption.
+
+
+
+
 Admitted.
 
 
