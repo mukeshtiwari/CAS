@@ -845,6 +845,37 @@ Proof.
 Admitted.
 
 
+Lemma ltran_fold_left_interaction : 
+  forall (X Y : finite_set (A * P)) ah bh, 
+  no_dup eqA (map fst Y) = true ->
+  fold_left (manger_merge_sets_new eqA addP)
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) X) Y =S= 
+  ltran_list_product (bop_product mulA mulP) (ah, bh)
+    (fold_left (manger_merge_sets_new eqA addP) X Y).
+Proof.
+Admitted.
+
+
+Lemma manger_manger_double_red : 
+  forall (X Y Z : finite_set (A * P)), 
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst Z) = true ->
+  (fold_left (manger_merge_sets_new eqA addP)
+    (fold_left (manger_merge_sets_new eqA addP) X Y) Z) =S= 
+    fold_left (manger_merge_sets_new eqA addP) (X ++ Y) Z.
+Proof.
+Admitted.
+
+
+Lemma ltran_list_product_cong : 
+  forall (X Y : finite_set (A * P)) ah bh, 
+  X =S= Y ->
+  ltran_list_product (bop_product mulA mulP) (ah, bh) X =S= 
+  ltran_list_product (bop_product mulA mulP) (ah, bh) Y.
+Admitted.
+
+
+
 
 
 
@@ -927,15 +958,47 @@ Proof.
     [| eapply symAP | eapply trnAP | 
     eapply fold_left_manger_merge_set_idempotent]; try assumption.
     (* Now one more challenge left*)
-    subst.
-    remember (fold_left (manger_merge_sets_new eqA addP) s2 Y) as Ya.
-    (* nested definitions are needlessly complicated. *)
-    
+    subst. clear Hd He.
+    remember ((fold_left (manger_merge_sets_new eqA addP)
+    (ltran_list_product (bop_product mulA mulP) (
+       ah, bh) (fold_left (manger_merge_sets_new eqA addP) s2 Y))
+    Z)) as Za.
+    remember ((fold_left (manger_merge_sets_new eqA addP)
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z))
+    as Zb.
+    (* Now the challenge is to prove if this goal 
+    is a reduction 
+    If I can prove that Za and Zb are same, then we 
+    are home. 
+    *)    
+    assert (Hd : Za =S= Zb).
+    subst; eapply trnSAP
+    with (t := ltran_list_product (bop_product mulA mulP) (ah, bh)
+      (fold_left (manger_merge_sets_new eqA addP)
+        (fold_left (manger_merge_sets_new eqA addP) s2 Y) Z));
+    try assumption.
+    eapply ltran_fold_left_interaction; try assumption.
+    (* If we were not using a custom equality, this proof 
+      could have been done in an hour. Equality is not making 
+      the proof conceptually difficult but just a boring task. 
+    Note to myself: If I am dealing with a custom equality, 
+    either use typeclass or aac_tactic.   
+    *)
+    eapply symSAP, trnSAP with (t := ltran_list_product 
+      (bop_product mulA mulP) (ah, bh) 
+      (fold_left (manger_merge_sets_new eqA addP)  (s2 ++ Y) Z));
+    try assumption.
+    eapply ltran_fold_left_interaction; try assumption.
+    (* no congruence for ltran_list_product ? *)
+    eapply ltran_list_product_cong,
+    symSAP, manger_manger_double_red;
+    try assumption.
+    eapply fold_left_in_set_mmsn_cong with (V := Za);
+    try assumption;
+    try (eapply addP_gen_idempotent).
+Qed.
 
-
-
-
-Admitted.
+   
 
 
 Lemma bop_right_uop_inv_phase_1_gen_backward : 
