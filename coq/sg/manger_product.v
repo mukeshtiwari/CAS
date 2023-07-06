@@ -44,7 +44,14 @@ Definition manger_product_phase_0
   (mulP : binary_op P) : binary_op (finite_set (A * P)) := 
   bop_lift (brel_product eqA eqP) (bop_product mulA mulP). 
 
-  
+(* 
+ Print bop_lift. 
+ Print bop_list_product_left.
+ Print ltran_list_product.
+ Print uop_manger.
+ Print uop_manger_phase_1.
+ Print manger_phase_1_auxiliary.
+*)
 
 Definition bop_manger_product 
   {A P : Type}
@@ -100,8 +107,10 @@ Compute (manger_add s5 nil). (* = (1, 2, 1) :: nil *)
 Compute (manger_add nil s5). (* = (1, 2, 1) :: nil *)
 Compute (manger_mul s1 s2). (* = (4, 7, 17) :: nil *) 
 Compute (manger_mul s2 s5). (* = (4, 7, 10) :: nil *)
-Compute (manger_add (manger_mul s5 s1) (manger_mul s5 s3)). (* (1, 7, 10) :: (2, 4, 9) :: nil *) 
-Compute (manger_mul s5 (manger_add s1 s3)).                 (* (2, 4, 9) :: (1, 7, 10) :: nil *) 
+Compute (manger_add (manger_mul s5 s1) (manger_mul s5 s3)). 
+(* (1, 7, 10) :: (2, 4, 9) :: nil *) 
+Compute (manger_mul s5 (manger_add s1 s3)).                 
+(* (2, 4, 9) :: (1, 7, 10) :: nil *) 
 
 End Testing.
 *)
@@ -687,6 +696,21 @@ Qed.
 
 (*  begin Admit *)
 
+Lemma uop_dup_elim_membership_cong : 
+  forall (X : finite_set (A * P)),
+  set.uop_duplicate_elim (brel_product eqA eqP) X =S= X.
+Proof.
+Admitted.
+
+
+Lemma fold_left_cong : 
+forall (U V Y : finite_set (A * P)) 
+  (f : finite_set (A * P) → A * P -> finite_set (A * P)), 
+  U =S= V -> fold_left f U Y =S= fold_left f V Y.
+Proof.
+  pose proof fold_right_congruence.
+Admitted. 
+
 Lemma fold_left_manger_merge_set_idempotent : 
   forall (X Y : finite_set (A * P)),
   no_dup eqA (map fst Y) = true -> 
@@ -694,52 +718,12 @@ Lemma fold_left_manger_merge_set_idempotent :
     (set.uop_duplicate_elim (brel_product eqA eqP) X) Y =S= 
   fold_left (manger_merge_sets_new eqA addP) X Y.
 Proof.
-  induction X as [| (ax, bx) X IHx].
-  +
-    intros * Ha; cbn.
-    eapply refSAP; try assumption.
-  +
-    intros * Ha; cbn.
-    case_eq (set.in_set (brel_product eqA eqP) X (ax, bx));
-    intro Hb.
-    ++
-      specialize (IHx Y Ha).
-      eapply trnSAP; try assumption;
-      [exact IHx |].
-      (*
-        Two cases:
-          ax ∉ (map fst Y) ∨ ax ∈ (map fst Y)
-          1. ax ∉ (map fst Y)
-            (filter (λ '(s2, _), negb (eqA ax s2)) Y ++
-            [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-            (filter (λ '(s2, _), eqA ax s2) Y) (ax, bx)]))  =S= Y 
-            we are home. 
+  (* Use the above two lemmas to finish the proof 
+    I think above two lemmas should exists some where! 
+  *)
+  intros * Ha.
+  eapply fold_left_cong, uop_dup_elim_membership_cong .
 
-          2. ax ∈ (map fst Y) then we can write Y as:
-             Y =S= (ax, bx') :: Y₁  (and there is no ax in Y₁)
-
-             Now we the goal simplifies
-             (filter (λ '(s2, _), negb (eqA ax s2)) Y ++
-              [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-              (filter (λ '(s2, _), eqA ax s2) Y) (ax, bx)])) =S=
-             [(ax, bx + bx')] ++ Y₁
-
-            (fold_left (manger_merge_sets_new eqA addP) X Y)
-            (fold_left (manger_merge_sets_new eqA addP) X 
-              ([(ax, bx ++ bx')] ++ Y₁)
-
-            I believe I have proof for this.
-          
-      *)
-      admit.
-      
-      
-    ++
-      cbn.
-      rewrite IHx;
-      [reflexivity |].
-      (* This is also true *)
-     
 Admitted.
 
 
@@ -755,6 +739,15 @@ Proof.
   intros * Ha Hb.
 Admitted.
 
+Lemma nodup_left_forward : 
+  forall (Y : finite_set (A * P)) ah bh,
+  no_dup eqA (map fst Y) = true -> 
+  no_dup eqA (map fst
+    (filter (λ '(s2, _), negb (eqA ah s2)) Y ++
+      [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+        (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)])) = true. 
+Admitted.
+
 Lemma manger_ltrtrans_duplicate_free_backward : 
   forall (X Y Z : finite_set (A * P)) ah bh,
   no_dup eqA (map fst Y) = true ->
@@ -767,7 +760,11 @@ Proof.
 Admitted.
 
 
-
+(* requires distributivity 
+I need to figure out some condition 
+so that I can replace (manger_merge_sets_new eqA addP) by 
+a generic function f. 
+*)
 Lemma ltran_fold_left_interaction : 
   forall (X Y : finite_set (A * P)) ah bh, 
   no_dup eqA (map fst Y) = true ->
@@ -779,6 +776,9 @@ Proof.
 Admitted.
 
 
+(* This is going to be a challenge! *)
+(* requires distributivity *)
+(* Related with manger_phase_1_auxiliary is a reduction? *)
 Lemma manger_manger_double_red : 
   forall (X Y Z : finite_set (A * P)), 
   no_dup eqA (map fst Y) = true ->
@@ -790,15 +790,213 @@ Proof.
 Admitted.
 
 
+(* end of admit *)
+
+
+
 Lemma ltran_list_product_cong : 
   forall (X Y : finite_set (A * P)) ah bh, 
   X =S= Y ->
   ltran_list_product (bop_product mulA mulP) (ah, bh) X =S= 
   ltran_list_product (bop_product mulA mulP) (ah, bh) Y.
+Proof.
+  intros * Ha.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Hb];
+  try assumption.
+  +
+    eapply in_set_ltran_list_product_elim in Hb;
+    [|eapply refAP | eapply symAP]; try assumption.
+    destruct Hb as ((ya, yb) & Hb & Hc).
+    (* replace (ax, bx) in the goal with goal with Hc. *)
+    eapply set.in_set_right_congruence with 
+      (a := (bop_product mulA mulP (ah, bh) (ya, yb)));
+    [eapply symAP | eapply trnAP | eapply symAP | ];
+    try assumption.
+    eapply in_set_ltran_list_product_intro;
+    [eapply refAP | eapply symAP | eapply bop_cong | ];
+    try assumption.
+    eapply brel_set_elim_prop in Ha;
+    [| eapply symAP | eapply trnAP];
+    try assumption.
+    destruct Ha as (Hal & Har).
+    eapply Hal; try assumption.
+
+  +
+    eapply in_set_ltran_list_product_elim in Hb;
+    [|eapply refAP | eapply symAP]; try assumption.
+    destruct Hb as ((ya, yb) & Hb & Hc).
+    eapply set.in_set_right_congruence with 
+      (a := (bop_product mulA mulP (ah, bh) (ya, yb)));
+    [eapply symAP | eapply trnAP | eapply symAP | ];
+    try assumption.
+    eapply in_set_ltran_list_product_intro;
+    [eapply refAP | eapply symAP | eapply bop_cong | ];
+    try assumption.
+    eapply brel_set_elim_prop in Ha;
+    [| eapply symAP | eapply trnAP];
+    try assumption.
+    destruct Ha as (Hal & Har).
+    eapply Har; try assumption.
+Qed.
+    
+
+
+(* begin admit *)
+Lemma bop_left_uop_inv_phase_1_gen_forward : 
+  forall (s1 s2 Y Z : finite_set (A * P)) au av, 
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst Z) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP
+        (fold_left (manger_merge_sets_new eqA addP) s1 Y) s2) Z) 
+        (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP (s1 ++ Y) s2) Z) 
+      (au, av) = true.
+Proof.
+  (* Don't touch s2 *)
+  (* Also, don't use fold_left *)
+  refine (fix Fn s1 := 
+    match s1 as s1' return s1 = s1' -> _ with 
+    | [] => _ 
+    | (ah, bh) :: t => _ 
+    end eq_refl).
+  +
+    intros Ha * Hb Hc Hd.
+    cbn in Hd |- *.
+    exact Hd.
+  +
+    intros Ha * Hb Hc Hd;
+    cbn in Hd |- *.
+    (* Looks complicated but looks provable *)
+    (* elim set.uop_duplicate_elim *)
+    unfold manger_product_phase_0, bop_lift in Fn.
+    specialize (Fn t s2  (filter (λ '(s2, _), negb (eqA ah s2)) Y 
+      ++ [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+        (filter (λ '(s2, _), eqA ah s2) Y) ( ah, bh)]) Z au av
+    (nodup_left_forward Y ah bh Hb) Hc Hd).
+    clear Hd.
+    
+
+Admitted.
+
+Lemma bop_left_uop_inv_phase_1_gen_backward : 
+  forall (s1 s2 Y Z : finite_set (A * P)) au av, 
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst Z) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP (s1 ++ Y) s2) Z) 
+      (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP
+        (fold_left (manger_merge_sets_new eqA addP) s1 Y) s2) Z) 
+        (au, av) = true.
+Proof.
 Admitted.
 
 
-(* end of admit *)
+
+
+
+Lemma bop_left_uop_inv_phase_1 : 
+  bop_left_uop_invariant (finite_set (A * P))
+    (manger_llex.eqSAP A P eqA eqP)
+    (bop_reduce (uop_manger_phase_1 eqA addP)
+      (manger_product_phase_0 eqA eqP mulA mulP))
+    (uop_manger_phase_1 eqA addP).
+Proof.
+    (* Think, Think, Think Mukesh *)
+    (* 
+      Calculation using Ha
+      s1 := [(a, b); (c, d); (a, e)]
+      s2 := [(u, v); (x, y); (x, t)]
+
+    1. (uop_manger_phase_1 eqA addP s1) = 
+      [(a, b + e); (c, d)]
+      ---------------------------------------
+    2. (manger_product_phase_0 eqA eqP mulA mulP
+        [(a, b + e); (c, d)] [(u, v); (x, y); (x, t)]) = 
+        -----------------------------------------------
+        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
+        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
+        (c * x, d * t)]
+        ----------------------------------------------
+    3. (uop_manger_phase_1 eqA addP  
+        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
+        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
+        (c * x, d * t)] = 
+        ---------------------------------------------
+        [(a * u, (b + e) * v); (a * x; (b + e) * y + (b + e) * t);
+        (c * u, d * v); (c * x; d * y + d * t)]
+        -----------------------------------------
+
+    Calculation using the goal:
+    5. (manger_product_phase_0 eqA eqP mulA mulP 
+      [(a, b); (c, d); (a, e)] [(u, v); (x, y); (x, t)] = 
+      -------------------------------------------------
+      [(a * u, b * v); (a * x, b * y); (a * x, b * t);
+      (c * u, d * v); (c * x, d * y); (c * x, d * t);
+      (a * u, e * v); (a * x, e * y); (a * x, e * t)] 
+    --------------------------------------------------
+    6. uop_manger_phase_1 eqA addP 
+        [(a * u, v * v); (a * x, b * y); (a * x, b * t);
+        (c * u, d * v); (c * x, d * y); (c * x, d * t);
+        (a * u, e * v); (a * x, e * y); (a * x, e * t)] = 
+      -------------------------------------------------
+      [(a * u, b * v + e * v); (a * x, b * y + b * t + e * y + e * t); 
+        (c * u, d * d); (c * x, d * y + d * t)] 
+
+
+    The problem with current intro and elim rule is that 
+    we throw some information 
+   
+
+  This can be proven easily with commuativity and apply 
+  bop_right_uop_inv_phase_1 and we are home.
+  *)
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; try assumption.
+  +
+    unfold bop_reduce in Ha |- *.
+    unfold uop_manger_phase_1,
+    manger_phase_1_auxiliary in Ha |- *.
+    rewrite manger_merge_set_funex in Ha |- *.
+    (* How to generalise this? *)
+    replace s1 with (s1 ++ []).
+    eapply bop_left_uop_inv_phase_1_gen_forward;
+    try reflexivity; try assumption.
+    eapply app_nil_r.    
+  +
+    unfold bop_reduce in Ha |- *.
+    unfold uop_manger_phase_1,
+    manger_phase_1_auxiliary in Ha |- *.
+    rewrite manger_merge_set_funex in Ha |- *.
+    eapply  bop_left_uop_inv_phase_1_gen_backward;
+    try reflexivity. 
+    rewrite app_nil_r; try assumption.
+Qed.
+
+
+
+Lemma bop_left_uop_inv_phase_2 : 
+  bop_left_uop_invariant (finite_set (A * P))
+    (manger_llex.eqSAP A P eqA eqP)
+    (bop_reduce (uop_manger_phase_2 lteA)
+      (manger_product_phase_0 eqA eqP mulA mulP))
+    (uop_manger_phase_2 lteA).
+Proof.
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; try assumption.
+  +
+    unfold bop_reduce in Ha |- *.
+Admitted.
 
 
 
@@ -1040,98 +1238,6 @@ Proof.
 Qed.
 
 
-Lemma bop_left_uop_inv_phase_1 : 
-  bop_left_uop_invariant (finite_set (A * P))
-    (manger_llex.eqSAP A P eqA eqP)
-    (bop_reduce (uop_manger_phase_1 eqA addP)
-      (manger_product_phase_0 eqA eqP mulA mulP))
-    (uop_manger_phase_1 eqA addP).
-Proof.
-    (* Think, Think, Think Mukesh *)
-    (* 
-      Calculation using Ha
-      s1 := [(a, b); (c, d); (a, e)]
-      s2 := [(u, v); (x, y); (x, t)]
-
-    1. (uop_manger_phase_1 eqA addP s1) = 
-      [(a, b + e); (c, d)]
-      ---------------------------------------
-    2. (manger_product_phase_0 eqA eqP mulA mulP
-        [(a, b + e); (c, d)] [(u, v); (x, y); (x, t)]) = 
-        -----------------------------------------------
-        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
-        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
-        (c * x, d * t)]
-        ----------------------------------------------
-    3. (uop_manger_phase_1 eqA addP  
-        [(a * u, (b + e) * v); (a * x, (b + e) * y); 
-        (a * x, (b + e) * t); (c * u, d * v); (c * x, d * y);
-        (c * x, d * t)] = 
-        ---------------------------------------------
-        [(a * u, (b + e) * v); (a * x; (b + e) * y + (b + e) * t);
-        (c * u, d * v); (c * x; d * y + d * t)]
-        -----------------------------------------
-
-    Calculation using the goal:
-    5. (manger_product_phase_0 eqA eqP mulA mulP 
-      [(a, b); (c, d); (a, e)] [(u, v); (x, y); (x, t)] = 
-      -------------------------------------------------
-      [(a * u, b * v); (a * x, b * y); (a * x, b * t);
-      (c * u, d * v); (c * x, d * y); (c * x, d * t);
-      (a * u, e * v); (a * x, e * y); (a * x, e * t)] 
-    --------------------------------------------------
-    6. uop_manger_phase_1 eqA addP 
-        [(a * u, v * v); (a * x, b * y); (a * x, b * t);
-        (c * u, d * v); (c * x, d * y); (c * x, d * t);
-        (a * u, e * v); (a * x, e * y); (a * x, e * t)] = 
-      -------------------------------------------------
-      [(a * u, b * v + e * v); (a * x, b * y + b * t + e * y + e * t); 
-        (c * u, d * d); (c * x, d * y + d * t)] 
-
-
-    The problem with current intro and elim rule is that 
-    we throw some information 
-   
-
-  This can be proven easily with commuativity and apply 
-  bop_right_uop_inv_phase_1 and we are home.
-  *)
-  intros ? ?.
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (au, av) Ha]; try assumption.
-  +
-    unfold bop_reduce in Ha |- *.
-    unfold uop_manger_phase_1,
-    manger_phase_1_auxiliary in Ha |- *.
-    rewrite manger_merge_set_funex in Ha |- *.
-    admit.    
-
-  +
-    unfold bop_reduce in Ha |- *.
-    unfold uop_manger_phase_1,
-    manger_phase_1_auxiliary in Ha |- *.
-    rewrite manger_merge_set_funex in Ha |- *.
-    
-  
-Admitted.
-    
-
-
-Lemma bop_left_uop_inv_phase_2 : 
-  bop_left_uop_invariant (finite_set (A * P))
-    (manger_llex.eqSAP A P eqA eqP)
-    (bop_reduce (uop_manger_phase_2 lteA)
-      (manger_product_phase_0 eqA eqP mulA mulP))
-    (uop_manger_phase_2 lteA).
-Proof.
-  intros ? ?.
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (au, av) Ha]; try assumption.
-  +
-    unfold bop_reduce in Ha |- *.
-Admitted.
-
-
 
 (* I need to generalise this to do induction. *)
 Lemma bop_right_uop_inv_phase_1 : 
@@ -1143,7 +1249,8 @@ Lemma bop_right_uop_inv_phase_1 :
 Proof.
   intros ? ?.
   eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (au, av) Ha]; try assumption.
+  [eapply refAP | split; intros (au, av) Ha]; 
+  try assumption.
   +
     unfold bop_reduce in Ha |- *.
     unfold uop_manger_phase_1,
@@ -1173,6 +1280,13 @@ Lemma bop_right_uop_inv_phase_2 :
       (manger_product_phase_0 eqA eqP mulA mulP))
     (uop_manger_phase_2 lteA).
 Proof. 
+  intros ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (au, av) Ha]; try assumption.
+  +
+    unfold bop_reduce, uop_manger_phase_2 in Ha |- *.
+    
+
 Admitted. 
 
 
@@ -1456,7 +1570,7 @@ Proof.
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent).
   + eapply manger_product_phase_0_idem.
-Qed.
+Admitted.
 
 
 
