@@ -722,7 +722,7 @@ Proof.
     I think above two lemmas should exists some where! 
   *)
   intros * Ha.
-  eapply fold_left_cong, uop_dup_elim_membership_cong .
+  eapply fold_left_cong, uop_dup_elim_membership_cong.
 
 Admitted.
 
@@ -879,6 +879,95 @@ Proof.
         (filter (λ '(s2, _), eqA ah s2) Y) ( ah, bh)]) Z au av
     (nodup_left_forward Y ah bh Hb) Hc Hd).
     clear Hd.
+    remember ([fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+    (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)]) as Ya.
+    remember (filter (λ '(s2, _), negb (eqA ah s2)) Y) as Yb.
+    (* Now the challenge is to show that the goal holds from Fn *)
+    (* Get rid of set.uop_duplicate_elim from Fn   *)
+    erewrite in_set_left_congruence_v2 with 
+    (Y := fold_left (manger_merge_sets_new eqA addP)
+    (bop_list_product_left (bop_product mulA mulP) (t ++ Yb ++ Ya) s2) Z)
+    in Fn;
+    [ | eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    (* Get rid of set.uop_duplicate_elim from the goal *)
+    erewrite in_set_left_congruence_v2 with 
+    (Y := fold_left (manger_merge_sets_new eqA addP) 
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+    bop_list_product_left (bop_product mulA mulP) (t ++ Y) s2) Z);
+    [|eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    (* bloody hell!!! This is going to be a nightmare *)
+    (* proof sketch 
+      ah ∉ (map fst Y) ∨ ah ∈ (map fst Y) (* there are no duplicates in Y*)
+      1.  ah ∉ (map fst Y)
+        Ya = [(ah, bh)] 
+        Yb = Y 
+        And we are home! 
+
+      2. ah ∈ (map fst Y)
+        Y =S= [(ah, bh')] ++ Yt (* no ah in Yt *)
+
+        Ya := [(ah, bh + bh')]
+        Yb = Yt 
+
+
+        Fn :
+        set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+          (bop_list_product_left (bop_product mulA mulP)
+          (t ++ Yb ++ [(ah, bh + bh')]) s2) Z) (au, av) = true
+
+
+        2.1 Simplify Fn:
+        set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+        (ltran_list_product (bop_product mulA mulP)
+          (ah, bh + bh') s2 ++ 
+          (bop_list_product_left (bop_product mulA mulP)
+            (t ++ Yb) s2) Z) (au, av) = true
+
+        2.2 Use fold_left_app in Fn:
+        set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+        (bop_list_product_left (bop_product mulA mulP) (t ++ Yb) s2)
+        (fold_left (manger_merge_sets_new eqA addP)
+          (ltran_list_product (bop_product mulA mulP) (ah, bh + bh') s2) 
+        Z) (au, av) = true
+
+
+        2.3 Rewrite Y in goal. 
+        set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+          (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+            ltran_list_product (bop_product mulA mulP) (ah, bh') s2 ++ 
+            bop_list_product_left (bop_product mulA mulP) (t ++ Yb) s2) Z)
+        (au, av) = true
+      
+        2.4 Use fold_left_app in step 2.3 
+        set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+          (bop_list_product_left (bop_product mulA mulP) (t ++ Yb) s2) Z) 
+          (fold_left (manger_merge_sets_new eqA addP) 
+            (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+            ltran_list_product (bop_product mulA mulP) (ah, bh') s2) 
+          Z)) (au, av) = true
+
+
+        Now just prove that 
+        (fold_left (manger_merge_sets_new eqA addP)
+          (ltran_list_product (bop_product mulA mulP) (ah, bh + bh') s2) Z) 
+        =S=
+        (fold_left (manger_merge_sets_new eqA addP) 
+            (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+            ltran_list_product (bop_product mulA mulP) (ah, bh') s2) 
+        Z)
+        We are home! 
+        I have the proof! 
+
+    *)
+   
+     
     
 
 Admitted.
