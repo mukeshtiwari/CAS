@@ -876,7 +876,7 @@ Proof.
     unfold manger_product_phase_0, bop_lift in Fn.
     specialize (Fn t s2  (filter (λ '(s2, _), negb (eqA ah s2)) Y 
       ++ [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-        (filter (λ '(s2, _), eqA ah s2) Y) ( ah, bh)]) Z au av
+        (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)]) Z au av
     (nodup_left_forward Y ah bh Hb) Hc Hd).
     clear Hd.
     remember ([fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
@@ -986,6 +986,69 @@ Lemma bop_left_uop_inv_phase_1_gen_backward :
         (fold_left (manger_merge_sets_new eqA addP) s1 Y) s2) Z) 
         (au, av) = true.
 Proof.
+  (* Going to be very similar to above *)
+  (* Don't touch s2 *)
+  (* Also, don't use fold_left *)
+  refine (fix Fn s1 := 
+    match s1 as s1' return s1 = s1' -> _ with 
+    | [] => _ 
+    | (ah, bh) :: t => _ 
+    end eq_refl).
+  +
+    intros Ha * Hb Hc Hd.
+    cbn in Hd |- *.
+    exact Hd.
+  +
+    intros Ha * Hb Hc Hd;
+    cbn in Hd |- *.
+    unfold manger_product_phase_0, bop_lift in Fn.
+    (* Now think for what do we want to instantiate *)
+    remember ([fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+    (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)]) as Ya.
+    remember (filter (λ '(s2, _), negb (eqA ah s2)) Y) as Yb.
+    eapply Fn;
+    [subst; eapply nodup_left_forward; try assumption | 
+    exact Hc | ].
+    (* Get rid of set.uop_duplicate_elim from Fn   *)
+    erewrite in_set_left_congruence_v2 with 
+    (Y := fold_left (manger_merge_sets_new eqA addP)
+    (bop_list_product_left (bop_product mulA mulP) (t ++ Yb ++ Ya) s2) Z);
+    [ | eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    (* Get rid of set.uop_duplicate_elim from the goal *)
+    erewrite in_set_left_congruence_v2 with 
+    (Y := fold_left (manger_merge_sets_new eqA addP) 
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+    bop_list_product_left (bop_product mulA mulP) (t ++ Y) s2) Z) in Hd;
+    [|eapply symAP | eapply trnAP | 
+    eapply fold_left_manger_merge_set_idempotent]; try assumption.
+    clear Fn. 
+    (* Now do the same trick as the previous one *)
+    (*
+    
+    proof sketch 
+      ah ∉ (map fst Y) ∨ ah ∈ (map fst Y) (* there are no duplicates in Y*)
+      1.  ah ∉ (map fst Y)
+        Ya = [(ah, bh)] 
+        Yb = Y 
+        And we are home! 
+
+      2. ah ∈ (map fst Y)
+        Y =S= [(ah, bh')] ++ Yt (* no ah in Yt *)
+
+        Ya := [(ah, bh + bh')]
+        Yb = Yt 
+
+        2.1 Rewrite Y in Hd. 
+          
+    
+    
+    *)
+
+
+
+
+
 Admitted.
 
 
