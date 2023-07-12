@@ -792,6 +792,32 @@ Admitted.
 
 (* end of admit *)
 
+Lemma filter_in_set_no_dup : 
+  forall (Y : finite_set (A * P)) (ah : A),
+  set.in_set eqA (map fst Y) ah = false ->
+  filter (λ '(s2, _), eqA ah s2) Y = [] ∧
+  filter (λ '(s2, _), negb (eqA ah s2)) Y = Y.
+Proof.
+  induction Y as [|(ax, bx) Y IHy].
+  +
+    cbn; intros ? Ha.
+    auto.
+  +
+    cbn; intros ? Ha.
+    case_eq (eqA ah ax);
+    cbn; intros Hb.
+    rewrite Hb in Ha.
+    cbn in Ha; congruence. 
+    rewrite Hb in Ha; 
+    cbn in Ha.
+    destruct (IHy _ Ha) as (IHl & IHr).
+    split; auto.
+    f_equal. auto.
+Qed.
+
+    
+
+
 
 
 Lemma ltran_list_product_cong : 
@@ -965,6 +991,29 @@ Proof.
         We are home! 
         I have the proof! 
     *)
+    case_eq (set.in_set eqA (map fst Y) ah);
+    intro Hd; swap 1 2.
+    ++
+      (* 
+       1.  ah ∉ (map fst Y)
+        Ya = [(ah, bh)] 
+        Yb = Y 
+        And we are home! 
+      *)
+      destruct (filter_in_set_no_dup Y ah Hd) as (Hel & Her).
+      rewrite Hel in HeqYa;
+      cbn in HeqYa.
+      rewrite Her in HeqYb.
+      rewrite HeqYa, HeqYb in Fn.
+      
+
+      
+
+
+
+   
+
+
 Admitted.
 
 Lemma bop_left_uop_inv_phase_1_gen_backward : 
