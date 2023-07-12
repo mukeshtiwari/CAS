@@ -964,12 +964,7 @@ Proof.
         Z)
         We are home! 
         I have the proof! 
-
     *)
-   
-     
-    
-
 Admitted.
 
 Lemma bop_left_uop_inv_phase_1_gen_backward : 
@@ -1022,7 +1017,7 @@ Proof.
     bop_list_product_left (bop_product mulA mulP) (t ++ Y) s2) Z) in Hd;
     [|eapply symAP | eapply trnAP | 
     eapply fold_left_manger_merge_set_idempotent]; try assumption.
-    clear Fn. 
+    clear Fn.
     (* Now do the same trick as the previous one *)
     (*
     
@@ -1040,7 +1035,48 @@ Proof.
         Yb = Yt 
 
         2.1 Rewrite Y in Hd. 
-          
+        Hd: set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+          (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+           bop_list_product_left (bop_product mulA mulP) 
+            (t ++ [(ah, bh')] ++ Yb) s2) Z) (au, av) = true
+
+        2.2 Simplify Hd (pull out ah and bh')
+        Hd : set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+          (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+          ltran_list_product (bop_product mulA mulP) (ah, bh') s2 ++
+           bop_list_product_left (bop_product mulA mulP) 
+            (t  ++ Yb) s2) Z) (au, av) = true
+        2.4 Rewrite fold_left_app in Hd
+          set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+           (bop_list_product_left (bop_product mulA mulP) 
+            (t  ++ Yb) s2) 
+          (fold_left (manger_merge_sets_new eqA addP)
+          ((ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+          ltran_list_product (bop_product mulA mulP) (ah, bh') s2) Z) (au, av) = true
+
+
+
+        2.5 Rewrite Ya in goal:
+        set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+        (bop_list_product_left (bop_product mulA mulP) 
+          (t ++ Yb ++ [(ah, bh + bh')]) s2) Z) (au, av) = true
+
+        2.6 Simplify the goal
+        set.in_set (manger_llex.eqAP A P eqA eqP)
+        (fold_left (manger_merge_sets_new eqA addP)
+        ltran_list_product (bop_product mulA mulP) (ah, bh + bh') s2 ++
+        (bop_list_product_left (bop_product mulA mulP) 
+          (t ++ Yb ) s2) Z) (au, av) = true
+
+        2.7 Rewrite fold_left_app and we are home. 
+
+
+        
+
     
     
     *)
