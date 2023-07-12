@@ -692,6 +692,31 @@ Proof.
 Qed.
 
 
+Lemma filter_not_in_set_no_dup : 
+  forall (Y : finite_set (A * P)) (ah : A),
+  set.in_set eqA (map fst Y) ah = false ->
+  filter (λ '(s2, _), eqA ah s2) Y = [] ∧
+  filter (λ '(s2, _), negb (eqA ah s2)) Y = Y.
+Proof.
+  induction Y as [|(ax, bx) Y IHy].
+  +
+    cbn; intros ? Ha.
+    auto.
+  +
+    cbn; intros ? Ha.
+    case_eq (eqA ah ax);
+    cbn; intros Hb.
+    rewrite Hb in Ha.
+    cbn in Ha; congruence. 
+    rewrite Hb in Ha; 
+    cbn in Ha.
+    destruct (IHy _ Ha) as (IHl & IHr).
+    split; auto.
+    f_equal. auto.
+Qed.
+
+
+
 
 
 (*  begin Admit *)
@@ -790,32 +815,133 @@ Proof.
 Admitted.
 
 
+Lemma bop_list_product_left_swap_list : 
+  forall (X Y Z : finite_set (A * P)),
+  (bop_list_product_left (bop_product mulA mulP)
+    (X ++ Y) Z) =S= 
+  (bop_list_product_left (bop_product mulA mulP)
+    (Y ++ X) Z).
+Proof.
+Admitted.
+
+Lemma ltr_bop_list_dist : 
+  forall (tY s2 : finite_set (A * P)) ah bh, 
+  (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+   bop_list_product_left (bop_product mulA mulP) tY s2) =S= 
+  (bop_list_product_left (bop_product mulA mulP) 
+     (tY ++ [(ah, bh)]) s2).
+Proof.
+  intros *.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Ha]; 
+  try assumption.
+  +
+Admitted.
+
+Lemma bop_congruecen_eqA : 
+  forall ah,
+  theory.bProp_congruence (A * P) (brel_product eqA eqP)
+  (λ '(s2, _), eqA ah s2).
+Admitted.
+
+
+Lemma nodup_inset_set : 
+  forall (Y : finite_set (A * P))
+  (a : A) (p : P),
+  no_dup eqA (map fst Y) = true -> 
+  set.in_set (brel_product eqA eqP) Y (a, p) = true ->
+  ∃ Y₁ Y₂, 
+    set.brel_set (brel_product eqA eqP) Y (Y₁ ++ [(a, p)] ++ Y₂) = true ∧
+    (in_list eqA (map fst Y₁) a = false) ∧
+    (in_list eqA (map fst Y₂) a = false).
+Proof.
+Admitted.
+
+
+
 (* end of admit *)
 
+(* This proof existed somewhere in algorithm directory 
+but I can't find it. *)
 Lemma filter_in_set_no_dup : 
-  forall (Y : finite_set (A * P)) (ah : A),
-  set.in_set eqA (map fst Y) ah = false ->
-  filter (λ '(s2, _), eqA ah s2) Y = [] ∧
-  filter (λ '(s2, _), negb (eqA ah s2)) Y = Y.
+  forall (Y Y₁ Y₂ : finite_set (A * P)) ah bh', 
+  brel_set (brel_product eqA eqP) Y
+    (Y₁ ++ [(ah, bh')] ++ Y₂) = true ->
+  in_list eqA (map fst Y₁) ah = false ->
+  in_list eqA (map fst Y₂) ah = false ->
+  filter (λ '(s2, _), eqA ah s2) Y =S= [(ah, bh')] ∧
+  filter (λ '(s2, _), negb (eqA ah s2)) Y =S= Y₁ ++ Y₂.
+Proof.
+  intros * Ha Hb Hc.
+  split.
+  +
+    eapply trnSAP with  
+    (t := filter (λ '(s2, _), eqA ah s2)  (Y₁ ++ [(ah, bh')] ++ Y₂)); try 
+    assumption.
+    eapply filter_congruence_gen; try assumption.
+    eapply bop_congruecen_eqA.
+    rewrite <-list_filter_lib_filter_same;
+    repeat rewrite filter_app.
+    cbn; rewrite refA.
+    pose proof filter_not_in_set_no_dup Y₁ ah Hb as Hd;
+    destruct Hd as (Hdl & Hdr).
+    pose proof filter_not_in_set_no_dup Y₂ ah Hc as He;
+    destruct He as (Hel & Her).
+    repeat rewrite list_filter_lib_filter_same.
+    rewrite Hdl, Hel; cbn.
+    eapply refSAP; try assumption.
+  +
+    eapply trnSAP with  
+    (t := filter (λ '(s2, _), negb (eqA ah s2))  (Y₁ ++ [(ah, bh')] ++ Y₂)); try 
+    assumption.
+    eapply filter_congruence_gen; try assumption.
+    eapply bop_theory_bProp_congruence_negb; try assumption.
+    rewrite <-list_filter_lib_filter_same;
+    repeat rewrite filter_app.
+    cbn; rewrite refA; cbn.
+    pose proof filter_not_in_set_no_dup Y₁ ah Hb as Hd;
+    destruct Hd as (Hdl & Hdr).
+    pose proof filter_not_in_set_no_dup Y₂ ah Hc as He;
+    destruct He as (Hel & Her).
+    repeat rewrite list_filter_lib_filter_same.
+    rewrite Hdr, Her; cbn.
+    eapply refSAP; try assumption.
+Qed.
+
+   
+
+
+
+
+
+Lemma no_dup_split_list_aux : 
+  forall (Y : finite_set (A * P)) ah,
+  no_dup eqA (map fst Y) = true ->
+  set.in_set eqA (map fst Y) ah = true ->
+  ∃ bh, set.in_set (manger_llex.eqAP A P eqA eqP) Y (ah, bh) = true.
 Proof.
   induction Y as [|(ax, bx) Y IHy].
   +
-    cbn; intros ? Ha.
-    auto.
+    cbn; intros; 
+    try congruence. 
   +
-    cbn; intros ? Ha.
-    case_eq (eqA ah ax);
-    cbn; intros Hb.
-    rewrite Hb in Ha.
-    cbn in Ha; congruence. 
-    rewrite Hb in Ha; 
-    cbn in Ha.
-    destruct (IHy _ Ha) as (IHl & IHr).
-    split; auto.
-    f_equal. auto.
+    cbn; intros * Ha Hb.
+    eapply and.bop_and_elim in Ha;
+    destruct Ha as (Hal & Har);
+    eapply Bool.negb_true_iff in Hal.
+    case_eq ((eqA ah ax)); intro Hc.
+    *
+      exists bx. rewrite refP;
+      cbn; reflexivity.
+    * 
+      rewrite Hc in Hb; 
+      simpl in Hb.
+      destruct (IHy _ Har Hb) as (bh' & Hd).
+      exists bh'.
+      rewrite Hd; cbn; 
+      reflexivity.
 Qed.
 
-    
 
 
 
@@ -994,18 +1120,46 @@ Proof.
     case_eq (set.in_set eqA (map fst Y) ah);
     intro Hd; swap 1 2.
     ++
-      (* 
-       1.  ah ∉ (map fst Y)
-        Ya = [(ah, bh)] 
-        Yb = Y 
-        And we are home! 
-      *)
-      destruct (filter_in_set_no_dup Y ah Hd) as (Hel & Her).
+      destruct (filter_not_in_set_no_dup Y ah Hd) as (Hel & Her).
       rewrite Hel in HeqYa;
       cbn in HeqYa.
       rewrite Her in HeqYb.
       rewrite HeqYa, HeqYb in Fn.
+      rewrite <-Fn.
+      eapply in_set_left_congruence_v2;
+      [eapply symAP | eapply trnAP | 
+      eapply fold_left_cong; rewrite app_assoc];
+      try assumption.
+      remember (t ++ Y) as tY.
+      eapply ltr_bop_list_dist.
+    ++
+      (* challenging case! *)
+      (*
+       ah ∈ (map fst Y)
+        Y =S= [(ah, bh')] ++ Yt (* no ah in Yt *)
+
+        Ya := [(ah, bh + bh')]
+        Yb = Yt 
+      *)
+    
+      destruct (no_dup_split_list_aux Y ah Hb Hd) as 
+      (bh' & He).
+      destruct (nodup_inset_set Y ah bh' Hb He)
+      as (Y₁ & Y₂ & Hf & Hg & Hi).
+      clear He Hd.
+      rewrite <-Fn.
+      eapply in_set_left_congruence_v2;
+      [eapply symAP | eapply trnAP | 
+      eapply fold_left_cong; rewrite app_assoc];
+      try assumption.
+      unfold set.brel_set.
+      destruct (filter_in_set_no_dup Y Y₁ Y₂ 
+      ah bh' Hf Hg Hi) as (Hj & Hk).
       
+
+      
+
+
 
       
 
