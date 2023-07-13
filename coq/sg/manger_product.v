@@ -844,6 +844,16 @@ Proof.
 Admitted.
 
 
+Lemma fold_left_map_filter_cong :
+  forall Y ah bh bh',
+  brel_set (brel_product eqA eqP) 
+    (filter (λ '(s2, _), eqA ah s2) Y)
+    [(ah, bh')] = true -> 
+    eqP
+    (fold_left (λ t1 t2 : P, addP t1 t2)
+       (map snd (filter (λ '(x0, _), eqA ah x0) Y)) bh) 
+    (addP bh bh') = true.
+Admitted.
 
 (* end of admit *)
 
@@ -1026,6 +1036,9 @@ Proof.
 Qed.
     
 
+Local Notation "a == b"   := (brel_product eqA eqP a b = true) 
+  (at level 70).
+
 
 (* begin admit *)
 Lemma bop_left_uop_inv_phase_1_gen_forward : 
@@ -1184,7 +1197,6 @@ Proof.
       destruct (nodup_inset_set Y ah bh' Hb He)
       as (Y₁ & Y₂ & Hf & Hg & Hi).
       rewrite ltr_bop_list_dist.
-      rewrite fold_left_simp in HeqYa.
       destruct (manger_merge_set_new_aux_congruence_left
       A P eqA eqP refA symA trnA refP symP trnP 
       Y (Y₁ ++ [(ah, bh')] ++ Y₂) ah Hf) as (Hjl & Hjr).
@@ -1205,7 +1217,43 @@ Proof.
       rewrite <-filter_app in Hjl.
       repeat rewrite list_filter_lib_filter_same in Hjl, Hjr.
       rewrite list_filter_lib_filter_same in Hjl.
-      (* How to replace *)
+      (* How to replace 
+      1. I want to replace Y in the goal by 
+        Y₁ ++ [(ah, bh)] ++ Y₂ 
+
+        Yb by Y₁ ++ Y₂  and 
+        Ya by [(ah, bh + bh')] in Fn
+
+        Fn 
+      *)
+      assert (Hk : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh) == 
+      (ah, fold_left (λ t1 t2 : P, addP t1 t2) 
+      (map snd (List.filter (λ '(x, _), eqA ah x) Y)) bh)).
+      eapply fold_left_filter; try assumption.
+      destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+      (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)) as (x, y) eqn:Hl.
+      eapply brel_product_elim in Hk.
+      destruct Hk as [Hkl Hkr].
+      rewrite <-HeqYb in Hjl.
+      rewrite HeqYa in Fn.
+      rewrite list_filter_lib_filter_same in Hkr.
+      assert (Hm : eqP y (addP bh bh') = true).
+      eapply trnP with (fold_left (λ t1 t2 : P, addP t1 t2)
+      (map snd (filter (λ '(x, _), eqA ah x) Y)) bh);
+      [exact Hkr | ].
+      eapply trnP with 
+      (fold_left (λ t1 t2 : P, addP t1 t2)
+      (map snd (filter (λ '(x0, _), eqA ah x0) [(ah, bh')])) bh).
+      cbn; rewrite refA; cbn.
+      (* Prove it separately. It's polluting the main proof *)
+      eapply fold_left_map_filter_cong; try assumption.
+      cbn; rewrite refA; cbn; eapply refP.
+      clear Hkr Hl.
+      
+      
+   
+
       
 
 
