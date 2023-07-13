@@ -728,28 +728,30 @@ Proof.
 Admitted.
 
 
+(* This, or similar to this, should exists in list library *)
 Lemma fold_left_cong : 
-forall (U V Y : finite_set (A * P)) 
-  (f : finite_set (A * P) → A * P -> finite_set (A * P)), 
-  U =S= V -> fold_left f U Y =S= fold_left f V Y.
+forall (U V Y : finite_set (A * P)),
+  no_dup eqA (map fst Y) = true -> 
+  U =S= V -> 
+  fold_left (manger_merge_sets_new eqA addP) U Y =S= 
+  fold_left (manger_merge_sets_new eqA addP) V Y.
 Proof.
-  pose proof fold_right_congruence.
+  intro U.
+  cut (Acc lt (List.length U)).
+  revert U.
+  refine (fix Fn U Hacc {struct Hacc} := _).
+  refine (match U as xsp return U = xsp -> _ with 
+  | [] => _ 
+  | (ax, bx) :: ut => _ 
+  end eq_refl); simpl; intros Ha.
+  +
+    intros * Hb Hc.
+    
+
 Admitted. 
 
-Lemma fold_left_manger_merge_set_idempotent : 
-  forall (X Y : finite_set (A * P)),
-  no_dup eqA (map fst Y) = true -> 
-  fold_left (manger_merge_sets_new eqA addP)
-    (set.uop_duplicate_elim (brel_product eqA eqP) X) Y =S= 
-  fold_left (manger_merge_sets_new eqA addP) X Y.
-Proof.
-  (* Use the above two lemmas to finish the proof 
-    I think above two lemmas should exists some where! 
-  *)
-  intros * Ha.
-  eapply fold_left_cong, uop_dup_elim_membership_cong.
 
-Admitted.
+
 
 
 Lemma manger_ltrtrans_duplicate_free_forward : 
@@ -812,6 +814,9 @@ Lemma manger_manger_double_red :
     (fold_left (manger_merge_sets_new eqA addP) X Y) Z) =S= 
   fold_left (manger_merge_sets_new eqA addP) (X ++ Y) Z.
 Proof.
+  intros * Ha Hb.
+  rewrite fold_left_app.
+  (* Easy. *)
 Admitted.
 
 
@@ -824,25 +829,6 @@ Lemma bop_list_product_left_swap_list :
 Proof.
 Admitted.
 
-Lemma ltr_bop_list_dist : 
-  forall (tY s2 : finite_set (A * P)) ah bh, 
-  (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
-   bop_list_product_left (bop_product mulA mulP) tY s2) =S= 
-  (bop_list_product_left (bop_product mulA mulP) 
-     (tY ++ [(ah, bh)]) s2).
-Proof.
-  intros *.
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (ax, bx) Ha]; 
-  try assumption.
-  +
-Admitted.
-
-Lemma bop_congruecen_eqA : 
-  forall ah,
-  theory.bProp_congruence (A * P) (brel_product eqA eqP)
-  (λ '(s2, _), eqA ah s2).
-Admitted.
 
 
 Lemma nodup_inset_set : 
@@ -860,6 +846,53 @@ Admitted.
 
 
 (* end of admit *)
+
+
+Lemma fold_left_manger_merge_set_idempotent : 
+  forall (X Y : finite_set (A * P)),
+  no_dup eqA (map fst Y) = true -> 
+  fold_left (manger_merge_sets_new eqA addP)
+    (set.uop_duplicate_elim (brel_product eqA eqP) X) Y =S= 
+  fold_left (manger_merge_sets_new eqA addP) X Y.
+Proof.
+  (* Use the above two lemmas to finish the proof 
+    I think above two lemmas should exists some where! 
+  *)
+  intros * Ha.
+  eapply fold_left_cong, uop_dup_elim_membership_cong;
+  assumption.
+Qed.
+
+Lemma bop_congruecen_eqA : 
+  forall ah,
+  theory.bProp_congruence (A * P) (brel_product eqA eqP)
+  (λ '(s2, _), eqA ah s2).
+Proof.
+  intros ? (xa, xb) (ya, yb) Hx.
+  eapply brel_product_elim in Hx.
+  destruct Hx as (Hxl & Hxr).
+  case_eq (eqA ah xa);
+  case_eq (eqA ah ya);
+  intros Ha Hb;
+  try reflexivity.
+  rewrite (trnA _ _ _ Hb Hxl) in Ha;
+  congruence.
+  apply symA in Hxl.
+  rewrite (trnA _ _ _ Ha Hxl) in Hb;
+  congruence.
+Qed.
+
+Lemma ltr_bop_list_dist : 
+  forall (tY s2 : finite_set (A * P)) ah bh, 
+  (ltran_list_product (bop_product mulA mulP) (ah, bh) s2 ++
+   bop_list_product_left (bop_product mulA mulP) tY s2) =
+  (bop_list_product_left (bop_product mulA mulP) 
+     ([(ah, bh)] ++ tY ) s2).
+Proof.
+  intros *; cbn; reflexivity.
+Qed.
+
+
 
 (* This proof existed somewhere in algorithm directory 
 but I can't find it. *)
@@ -1124,14 +1157,18 @@ Proof.
       rewrite Hel in HeqYa;
       cbn in HeqYa.
       rewrite Her in HeqYb.
-      rewrite HeqYa, HeqYb in Fn.
+      rewrite HeqYa, 
+      HeqYb in Fn.
+      rewrite ltr_bop_list_dist.
       rewrite <-Fn.
       eapply in_set_left_congruence_v2;
-      [eapply symAP | eapply trnAP | 
-      eapply fold_left_cong; rewrite app_assoc];
+      [eapply symAP | eapply trnAP | ];
       try assumption.
       remember (t ++ Y) as tY.
-      eapply ltr_bop_list_dist.
+      rewrite app_assoc.
+      rewrite <-HeqtY.
+      eapply fold_left_cong;
+      [exact Hc | eapply bop_list_product_left_swap_list].
     ++
       (* challenging case! *)
       (*
@@ -1141,34 +1178,58 @@ Proof.
         Ya := [(ah, bh + bh')]
         Yb = Yt 
       *)
-    
+
       destruct (no_dup_split_list_aux Y ah Hb Hd) as 
       (bh' & He).
       destruct (nodup_inset_set Y ah bh' Hb He)
       as (Y₁ & Y₂ & Hf & Hg & Hi).
-      clear He Hd.
-      rewrite <-Fn.
-      eapply in_set_left_congruence_v2;
-      [eapply symAP | eapply trnAP | 
-      eapply fold_left_cong; rewrite app_assoc];
-      try assumption.
-      unfold set.brel_set.
-      destruct (filter_in_set_no_dup Y Y₁ Y₂ 
-      ah bh' Hf Hg Hi) as (Hj & Hk).
+      rewrite ltr_bop_list_dist.
+      rewrite fold_left_simp in HeqYa.
+      destruct (manger_merge_set_new_aux_congruence_left
+      A P eqA eqP refA symA trnA refP symP trnP 
+      Y (Y₁ ++ [(ah, bh')] ++ Y₂) ah Hf) as (Hjl & Hjr).
+      repeat rewrite <- list_filter_lib_filter_same in Hjl, Hjr.
+      repeat rewrite filter_app in Hjl, Hjr.
+      cbn in Hjl, Hjr;
+      rewrite refA in Hjl, Hjr;
+      cbn in Hjl, Hjr.
+      pose proof (in_list_filter_empty A P eqA symA Y₁ ah Hg) as Hk.
+      erewrite <-filter_arg_swap_gen with (ax := ah) in Hk;
+      try assumption; try (eapply refA).
+      rewrite Hk in Hjr; clear Hk.
+      pose proof (in_list_filter_empty A P eqA symA Y₂ ah Hi) as Hk.
+      erewrite <-filter_arg_swap_gen with (ax := ah) in Hk;
+      try assumption; try (eapply refA).
+      rewrite Hk in Hjr; clear Hk.
+      cbn in Hjr.
+      rewrite <-filter_app in Hjl.
+      repeat rewrite list_filter_lib_filter_same in Hjl, Hjr.
+      rewrite list_filter_lib_filter_same in Hjl.
+      (* How to replace *)
       
 
-      
+
+
+
+
+
+
 
 
 
       
+      (* 
+        from Hj, 
+        we can infer Ya = [(ah, bh + bh')]
+        Yb = Y₁ ++ Y₂ 
 
-
-
+      *)
    
 
 
 Admitted.
+
+
 
 Lemma bop_left_uop_inv_phase_1_gen_backward : 
   forall (s1 s2 Y Z : finite_set (A * P)) au av, 
