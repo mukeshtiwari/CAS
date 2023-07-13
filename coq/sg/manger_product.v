@@ -831,6 +831,7 @@ Admitted.
 
 
 
+
 Lemma nodup_inset_set : 
   forall (Y : finite_set (A * P))
   (a : A) (p : P),
@@ -857,6 +858,22 @@ Admitted.
 
 (* end of admit *)
 
+
+Lemma bop_list_product_left_app : 
+  forall (X Y Z : finite_set (A * P)),
+  (bop_list_product_left (bop_product mulA mulP) (X ++ Y) Z) =
+  (bop_list_product_left (bop_product mulA mulP) X Z) ++
+  (bop_list_product_left (bop_product mulA mulP) Y Z).
+Proof.
+  induction X as [|(ax, bx) X Ihx].
+  +
+    cbn; intros; reflexivity.
+  +
+    cbn; intros *.
+    rewrite Ihx.
+    rewrite app_assoc.
+    reflexivity.
+Qed.
 
 Lemma fold_left_manger_merge_set_idempotent : 
   forall (X Y : finite_set (A * P)),
@@ -1251,6 +1268,9 @@ Proof.
       cbn; rewrite refA; cbn; eapply refP.
       clear Hkr Hl.
       
+      repeat rewrite bop_list_product_left_app in Fn |- *.
+      repeat rewrite fold_left_app. 
+
       
    
 
