@@ -859,6 +859,49 @@ Proof.
     ++
 Admitted.
 
+
+Lemma brel_set_not_member :
+  forall (Y₁ Y₂ : finite_set (A * P)) ah,
+  in_list eqA (map fst Y₁) ah = false ->
+  in_list eqA (map fst Y₂) ah = false ->
+  brel_set (brel_product eqA eqP) 
+    (filter (λ '(s2, _), negb (eqA ah s2)) (Y₁ ++ Y₂))
+    (Y₁ ++ Y₂) = true.
+Admitted. 
+  
+
+(* rewrite is indeed a pain! *)
+Lemma in_set_subst_1 : 
+  forall (Yb Y₁ Y₂ Z s2 t : finite_set (A * P)) ah bh bh' x y au av, 
+  eqA x ah = true ->
+  eqP y (addP bh bh') = true ->
+  brel_set (brel_product eqA eqP) Yb (Y₁ ++ Y₂) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (bop_list_product_left (bop_product mulA mulP)
+        (t ++ Yb ++ [(x, y)]) s2) Z) (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (bop_list_product_left (bop_product mulA mulP)
+        (t ++ Y₁ ++ Y₂ ++ [(ah, (addP bh bh'))]) s2) Z) (au, av) = true.
+Admitted.
+
+
+Lemma in_set_subst_2 : 
+  forall (Y Y₁ Y₂ s2 Z t : finite_set (A * P)) ah bh bh' au av, 
+  brel_set (brel_product eqA eqP) Y (Y₁ ++ [(ah, bh')] ++ Y₂) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP)
+    (bop_list_product_left (bop_product mulA mulP)
+      ([(ah, bh)] ++ t ++ Y₁ ++ [(ah, bh')] ++ Y₂) s2) Z) (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP)
+    (bop_list_product_left (bop_product mulA mulP)
+      ([(ah, bh)] ++ t ++ Y) s2) Z) (au, av) = true.
+Admitted. 
+
+
+
 (* end of admit *)
 
 
@@ -1300,10 +1343,24 @@ Proof.
       eapply fold_left_map_filter_cong; try assumption.
       cbn; rewrite refA; cbn; eapply refP.
       clear Hkr Hl.
+      (* Yb = Y₁ ++ Y₂ *)
+      assert (Hn : brel_set (brel_product eqA eqP) Yb (Y₁ ++ Y₂) = true).
+      eapply brel_set_transitive with 
+      (t := (filter (λ '(s2, _), negb (eqA ah s2)) (Y₁ ++ Y₂)));
+      [eapply refAP | eapply symAP | eapply trnAP | 
+      exact Hjl |]; try assumption.
+      eapply brel_set_not_member; try assumption.
+      clear Hjl Hjr.
+      pose proof in_set_subst_1 Yb Y₁ Y₂ Z s2 t ah bh bh' x y au av 
+      Hkl Hm Hn Fn as Fnn.
+      eapply in_set_subst_2;
+      [exact Hf | ].
+      (* Now the next challenge is infer the goal from Fnn *)
+      
 
-      repeat rewrite bop_list_product_left_app in Fn |- *.
-      repeat rewrite fold_left_app. 
 
+
+      
       
    
 
