@@ -746,6 +746,9 @@ Proof.
   end eq_refl); simpl; intros Ha.
   +
     intros * Hb Hc.
+    admit.
+  +
+    intros * Hb Hc.
     
 
 Admitted. 
@@ -800,6 +803,7 @@ Lemma ltran_fold_left_interaction :
   ltran_list_product (bop_product mulA mulP) (ah, bh)
     (fold_left (manger_merge_sets_new eqA addP) X Y).
 Proof.
+
 Admitted.
 
 
@@ -820,15 +824,15 @@ Proof.
 Admitted.
 
 
-Lemma bop_list_product_left_swap_list : 
-  forall (X Y Z : finite_set (A * P)),
-  (bop_list_product_left (bop_product mulA mulP)
-    (X ++ Y) Z) =S= 
-  (bop_list_product_left (bop_product mulA mulP)
-    (Y ++ X) Z).
-Proof.
+Lemma fold_left_map_filter_cong :
+  forall Y ah bh bh',
+  brel_set (brel_product eqA eqP) 
+    (filter (λ '(s2, _), eqA ah s2) Y) [(ah, bh')] = true -> 
+    eqP
+    (fold_left (λ t1 t2 : P, addP t1 t2)
+       (map snd (filter (λ '(s2, _), eqA ah s2) Y)) bh) 
+    (addP bh bh') = true.
 Admitted.
-
 
 
 
@@ -842,21 +846,21 @@ Lemma nodup_inset_set :
     (in_list eqA (map fst Y₁) a = false) ∧
     (in_list eqA (map fst Y₂) a = false).
 Proof.
-Admitted.
-
-
-Lemma fold_left_map_filter_cong :
-  forall Y ah bh bh',
-  brel_set (brel_product eqA eqP) 
-    (filter (λ '(s2, _), eqA ah s2) Y)
-    [(ah, bh')] = true -> 
-    eqP
-    (fold_left (λ t1 t2 : P, addP t1 t2)
-       (map snd (filter (λ '(x0, _), eqA ah x0) Y)) bh) 
-    (addP bh bh') = true.
+  induction Y as [|(ya, yb) Y Ihy].
+  +
+    intros * Ha Hb.
+    cbn in * |- *;
+    congruence.
+  +
+    intros * Ha Hb;
+    cbn in * |- *.
+    case_eq (and.bop_and (eqA a ya) (eqP p yb));
+    intros Hc.
+    ++
 Admitted.
 
 (* end of admit *)
+
 
 
 Lemma bop_list_product_left_app : 
@@ -874,6 +878,35 @@ Proof.
     rewrite app_assoc.
     reflexivity.
 Qed.
+
+
+Lemma bop_list_product_left_swap_list : 
+  forall (X Y Z : finite_set (A * P)),
+  (bop_list_product_left (bop_product mulA mulP)
+    (X ++ Y) Z) =S= 
+  (bop_list_product_left (bop_product mulA mulP)
+    (Y ++ X) Z).
+Proof.
+  intros *.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Ha];
+  try assumption.
+  +
+    rewrite bop_list_product_left_app in Ha |- *.
+    eapply set.in_set_concat_elim in Ha;
+    [eapply set.in_set_concat_intro | eapply symAP];
+    try assumption.
+    destruct Ha as [Ha | Ha];
+    [right | left]; try assumption.
+  +
+    rewrite bop_list_product_left_app in Ha |- *.
+    eapply set.in_set_concat_elim in Ha;
+    [eapply set.in_set_concat_intro | eapply symAP];
+    try assumption.
+    destruct Ha as [Ha | Ha];
+    [right | left]; try assumption.
+Qed.
+
 
 Lemma fold_left_manger_merge_set_idempotent : 
   forall (X Y : finite_set (A * P)),
@@ -1267,7 +1300,7 @@ Proof.
       eapply fold_left_map_filter_cong; try assumption.
       cbn; rewrite refA; cbn; eapply refP.
       clear Hkr Hl.
-      
+
       repeat rewrite bop_list_product_left_app in Fn |- *.
       repeat rewrite fold_left_app. 
 
