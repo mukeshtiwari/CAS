@@ -900,7 +900,40 @@ Lemma in_set_subst_2 :
       ([(ah, bh)] ++ t ++ Y) s2) Z) (au, av) = true.
 Admitted. 
 
+Lemma in_set_swap_arugments : 
+  forall (t Y₁ Y₂ s2 Z : finite_set (A * P)) au av ah bh bh', 
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP)
+     (bop_list_product_left (bop_product mulA mulP)
+        (t ++ Y₁ ++ Y₂ ++ [(ah, bh)] ++ [(ah, bh')]) s2) Z) (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP)
+     (bop_list_product_left (bop_product mulA mulP)
+        ([(ah, bh)] ++ t ++ Y₁ ++ [(ah, bh')] ++ Y₂) s2) Z) (au, av) = true.
+Admitted.
 
+
+
+(* Important Lemma so prove it first *)
+(* I can assume that Y is no duplicate but I think, right 
+now, I don't need it
+*)
+Lemma set_in_fold_dist_imp : 
+  forall (X Y : finite_set (A * P)) au av ah bh bh', 
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (bop_list_product_left (bop_product mulA mulP)
+        [(ah, addP bh bh')] X) Y) (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (bop_list_product_left (bop_product mulA mulP)
+        ([(ah, bh)] ++ [(ah, bh')]) X) Y) (au, av) = true.
+Proof.
+  intros * Ha.
+  cbn in Ha |- *.
+Admitted.
+
+        
 
 (* end of admit *)
 
@@ -1355,37 +1388,24 @@ Proof.
       Hkl Hm Hn Fn as Fnn.
       eapply in_set_subst_2;
       [exact Hf | ].
+      rewrite app_assoc in Fnn.
+      rewrite app_assoc in Fnn.
+
       (* Now the next challenge is infer the goal from Fnn *)
-      
+      remember ((t ++ Y₁) ++ Y₂) as tY.
+      eapply in_set_swap_arugments.
+      rewrite app_assoc, app_assoc.
+      rewrite <-HeqtY.
+
+      (*This lemma is going to be challengign *)
+      rewrite bop_list_product_left_app in Fnn |- *.
+      remember (bop_list_product_left (bop_product mulA mulP) tY s2) as tYX.
+      rewrite fold_left_app in Fnn |- *.
+      remember (fold_left (manger_merge_sets_new eqA addP) tYX Z) as ftYX.
+      eapply  set_in_fold_dist_imp; try assumption.
+Qed.
 
 
-
-      
-      
-   
-
-      
-
-
-
-
-
-
-
-
-
-
-      
-      (* 
-        from Hj, 
-        we can infer Ya = [(ah, bh + bh')]
-        Yb = Y₁ ++ Y₂ 
-
-      *)
-   
-
-
-Admitted.
 
 
 
