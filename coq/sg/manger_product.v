@@ -233,6 +233,9 @@ Qed.
 
 Local Notation "x =S= y" := (manger_llex.eqSAP A P eqA eqP x y  = true) 
   (at level 70,only parsing).
+Local Notation "a == b"   := (brel_product eqA eqP a b = true) 
+  (at level 70).
+
 
 Lemma bProp_cong : 
   forall au,
@@ -719,15 +722,25 @@ Qed.
 
 
 
-(*  begin Admit *)
+
 
 Lemma uop_dup_elim_membership_cong : 
   forall (X : finite_set (A * P)),
   set.uop_duplicate_elim (brel_product eqA eqP) X =S= X.
 Proof.
-Admitted.
+  intros *. 
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (xa, xb) Ha];
+  try assumption.
+  +
+    eapply union.in_set_uop_duplicate_elim_elim; try assumption.
+  +
+    eapply union.in_set_uop_duplicate_elim_intro;
+    [eapply symAP | eapply trnAP | exact Ha];
+    try assumption.
+Qed.
 
-
+(*  begin Admit *)
 (* This, or similar to this, should exists in list library *)
 Lemma fold_left_cong : 
 forall (U V Y : finite_set (A * P)),
@@ -767,6 +780,7 @@ Lemma manger_ltrtrans_duplicate_free_forward :
         (fold_left (manger_merge_sets_new eqA addP) X Y)) Z)) = true.
 Proof.
   intros * Ha Hb.
+
 Admitted.
 
 
@@ -777,7 +791,26 @@ Lemma nodup_left_forward :
   no_dup eqA (map fst
     (filter (λ '(s2, _), negb (eqA ah s2)) Y ++
       [fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-        (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)])) = true. 
+        (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)])) = true.
+Proof.
+  intros * Ha.
+  rewrite map_app.
+  cbn.
+  assert (Hk : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+  (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh) == 
+  (ah, fold_left (λ t1 t2 : P, addP t1 t2) 
+  (map snd (List.filter (λ '(x, _), eqA ah x) Y)) bh)).
+  eapply fold_left_filter; try assumption.
+  destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
+  (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)) as (x, y) eqn:Hl.
+  eapply brel_product_elim in Hk.
+  destruct Hk as [Hkl Hkr].
+  cbn. 
+  (* 
+    replace x by ah 
+  *)
+
+
 Admitted.
 
 Lemma manger_ltrtrans_duplicate_free_backward : 
@@ -789,6 +822,8 @@ Lemma manger_ltrtrans_duplicate_free_backward :
       (ltran_list_product (bop_product mulA mulP) 
         (ah, bh) (X ++ Y)) Z)) = true.
 Proof.
+  intros * Ha Hb.
+
 Admitted.
 
 
@@ -796,7 +831,7 @@ Admitted.
 I need to figure out some condition 
 so that I can replace (manger_merge_sets_new eqA addP) by 
 a generic function f. 
-*)
+
 Lemma ltran_fold_left_interaction : 
   forall (X Y : finite_set (A * P)) ah bh, 
   no_dup eqA (map fst Y) = true ->
@@ -805,7 +840,25 @@ Lemma ltran_fold_left_interaction :
   ltran_list_product (bop_product mulA mulP) (ah, bh)
     (fold_left (manger_merge_sets_new eqA addP) X Y).
 Proof.
+  induction X as [|(ax, bx) X Ihx].
+  +
+    cbn.
 
+Admitted.
+
+*)
+Lemma ltran_fold_left_interaction : 
+  forall s2 Y Z ah bh, 
+  manger_llex.eqSAP A P eqA eqP
+    (fold_left (manger_merge_sets_new eqA addP)
+      (ltran_list_product (bop_product mulA mulP) (
+          ah, bh)
+          (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z)
+    (ltran_list_product (bop_product mulA mulP) (
+      ah, bh)
+      (fold_left (manger_merge_sets_new eqA addP)
+          (fold_left (manger_merge_sets_new eqA addP) s2 Y) Z)) =
+  true.
 Admitted.
 
 
@@ -838,6 +891,7 @@ Admitted.
 
 
 
+
 Lemma nodup_inset_set : 
   forall (Y : finite_set (A * P))
   (a : A) (p : P),
@@ -848,17 +902,6 @@ Lemma nodup_inset_set :
     (in_list eqA (map fst Y₁) a = false) ∧
     (in_list eqA (map fst Y₂) a = false).
 Proof.
-  induction Y as [|(ya, yb) Y Ihy].
-  +
-    intros * Ha Hb.
-    cbn in * |- *;
-    congruence.
-  +
-    intros * Ha Hb;
-    cbn in * |- *.
-    case_eq (and.bop_and (eqA a ya) (eqP p yb));
-    intros Hc.
-    ++
 Admitted.
 
 
@@ -979,6 +1022,7 @@ Proof.
   intros * Ha.
   cbn in Ha |- *.
 Admitted.
+
 
 Lemma set_in_fold_dist_imp_2 : 
   forall (X Y : finite_set (A * P)) au av ah bh bh', 
@@ -1239,8 +1283,6 @@ Proof.
 Qed.
     
 
-Local Notation "a == b"   := (brel_product eqA eqP a b = true) 
-  (at level 70).
 
 
 Lemma bop_left_uop_inv_phase_1_gen_forward : 
@@ -1791,6 +1833,36 @@ Proof.
 Admitted.
 
 
+(* Looks provable and it will make life super easy *)
+Lemma fold_left_same : 
+  forall s2 Y Z ah bh,
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst Z) = true -> 
+  fold_left (manger_merge_sets_new eqA addP)
+  (ltran_list_product (bop_product mulA mulP) (ah, bh)
+   (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z = 
+  fold_left (manger_merge_sets_new eqA addP)
+   (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z.
+Proof.
+  induction s2 as [|(ax, bx) s2 Ih].
+  +
+    cbn; intros * Ha Hb;
+    reflexivity.
+  +
+    cbn; intros * Ha Hb.
+    rewrite Ih; try assumption.
+    ++
+
+      (* 
+        (ah, bh) -> s2 ++ Ya ++ [(ax, bx + bx')] 
+      
+      *)
+
+
+Admitted.    
+
+
+
 
 (* generalise version  *)
 (* Challenging, yet nice, proof. *)
@@ -1879,13 +1951,18 @@ Proof.
     remember ((fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z))
     as Zb.
+
+
+    
     (* 
       Now the challenge is to prove if this goal 
       is a reduction 
       If I can prove that Za and Zb are same, then we 
       are home. 
     *)    
+    (* 
     assert (Hd : Za =S= Zb).
+    admit.
     subst; eapply trnSAP
     with (t := ltran_list_product (bop_product mulA mulP) (ah, bh)
       (fold_left (manger_merge_sets_new eqA addP)
@@ -1910,8 +1987,8 @@ Proof.
     try assumption.
     eapply fold_left_in_set_mmsn_cong with (V := Za);
     try assumption;
-    try (eapply addP_gen_idempotent).
-Qed.
+    try (eapply addP_gen_idempotent). *)
+Admitted.
 
    
 
@@ -1993,6 +2070,7 @@ Proof.
     remember ((fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z))
     as Zb.
+  
 
     (* 
       Now the challenge is to prove if this goal 
@@ -2000,6 +2078,7 @@ Proof.
       If I can prove that Za and Zb are same, then we 
       are home. 
     *)    
+    (* 
     assert (Hd : Za =S= Zb).
     subst; eapply trnSAP
     with (t := ltran_list_product (bop_product mulA mulP) (ah, bh)
@@ -2027,7 +2106,9 @@ Proof.
     try assumption;
     try (eapply addP_gen_idempotent).
     eapply symSAP; exact Hd.
-Qed.
+*)
+Admitted.
+
 
 
 
