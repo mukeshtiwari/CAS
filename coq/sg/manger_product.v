@@ -232,7 +232,7 @@ Proof.
 Qed. 
 
 Local Notation "x =S= y" := (manger_llex.eqSAP A P eqA eqP x y  = true) 
-  (at level 70,only parsing).
+  (at level 70, only parsing).
 Local Notation "a == b"   := (brel_product eqA eqP a b = true) 
   (at level 70).
 
@@ -754,10 +754,14 @@ Qed.
 
 (*  begin Admit *)
 
-(* This, or similar to this, should exists in list library *)
-(* challenging *)
+
+(*
+
+This is such an awesome proof technique. I have 
+never seen it anywhere. 
+*)
 Lemma fold_left_cong : 
-forall (U V Y : finite_set (A * P)),
+  forall (U V Y : finite_set (A * P)),
   no_dup eqA (map fst Y) = true -> 
   U =S= V -> 
   fold_left (manger_merge_sets_new eqA addP) U Y =S= 
@@ -769,13 +773,42 @@ Proof.
   refine (fix Fn U Hacc {struct Hacc} := _).
   refine (match U as xsp return U = xsp -> _ with 
   | [] => _ 
-  | (ax, bx) :: ut => _ 
+  | (ax, bx) :: Ut => _ 
   end eq_refl); simpl; intros Ha.
   +
     intros * Hb Hc.
-    admit.
+    destruct V as [|(av, bv) V]; 
+    cbn in Hc |- *;
+    [eapply refSAP | congruence];
+    try assumption.
   +
     intros * Hb Hc.
+    (* get rid of (ax, bx) from ut *)
+    remember (filter (λ p : A * P, 
+      negb (brel_product eqA eqP p (ax, bx))) U) as Urem.
+    remember (filter (λ p : A * P, 
+      negb (brel_product eqA eqP p (ax, bx))) V) as Vrem.
+    assert (Hd : V =S= (ax, bx) :: Vrem).
+    rewrite HeqVrem.
+    eapply membship_filter; 
+    try assumption; exact Hc.
+    assert (He : Urem =S= Vrem).
+    rewrite HeqUrem, HeqVrem.
+    eapply filter_congruence_gen;
+    try assumption.
+    eapply bop_neg_bProp_product_cong;
+    try assumption.
+    rewrite <-Ha in Hc;
+    exact Hc.
+    assert (Hf : Acc lt (Datatypes.length Urem)).
+    eapply Acc_inv with (List.length U);
+    [exact Hacc | rewrite HeqUrem, Ha; cbn;
+    rewrite refA, refP; cbn; eapply length_filter].
+    specialize (Fn Urem Hf Vrem 
+      (manger_merge_sets_new eqA addP Y (ax, bx))).
+    (* Play with transitivity *)
+    
+
     
 
 Admitted. 
@@ -2073,15 +2106,6 @@ Proof.
   +
     unfold bop_reduce in Ha |- *.
 Admitted.
-
-
-
-
-
-
-  
-
-
 
 
 (* generalise version  *)
