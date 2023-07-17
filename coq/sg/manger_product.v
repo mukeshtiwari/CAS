@@ -721,9 +721,6 @@ Qed.
 
 
 
-
-
-
 Lemma uop_dup_elim_membership_cong : 
   forall (X : finite_set (A * P)),
   set.uop_duplicate_elim (brel_product eqA eqP) X =S= X.
@@ -852,6 +849,8 @@ Lemma fold_left_map_filter_cong :
     (fold_left (λ t1 t2 : P, addP t1 t2)
        (map snd (filter (λ '(s2, _), eqA ah s2) Y)) bh) 
     (addP bh bh') = true.
+Proof.
+  intros * Ha.
 Admitted.
 
 
@@ -881,6 +880,17 @@ Lemma brel_set_not_member :
 Admitted. 
   
 
+Lemma fold_left_bop_list_cong : 
+  forall (U V Y Z : finite_set (A * P)),
+  U =S= V -> 
+  fold_left (manger_merge_sets_new eqA addP)
+    (bop_list_product_left (bop_product mulA mulP) U Y) Z =S= 
+  fold_left (manger_merge_sets_new eqA addP)
+    (bop_list_product_left (bop_product mulA mulP) V Y) Z.
+Admitted.
+  
+
+
 (* rewrite is indeed a pain! *)
 Lemma in_set_subst_1 : 
   forall (Yb Y₁ Y₂ Z s2 t : finite_set (A * P)) ah bh bh' x y au av, 
@@ -895,6 +905,14 @@ Lemma in_set_subst_1 :
     (fold_left (manger_merge_sets_new eqA addP)
       (bop_list_product_left (bop_product mulA mulP)
         (t ++ Y₁ ++ Y₂ ++ [(ah, addP bh bh')]) s2) Z) (au, av) = true.
+Proof.
+  intros * Ha Hb Hc Hd.
+  rewrite <-Hd.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
+  try assumption.
+
+  (* simple substitution. Should be in list library*)
 Admitted.
 
 
@@ -909,6 +927,15 @@ Lemma in_set_subst_2 :
   (fold_left (manger_merge_sets_new eqA addP)
     (bop_list_product_left (bop_product mulA mulP)
       ([(ah, bh)] ++ t ++ Y) s2) Z) (au, av) = true.
+Proof.
+  intros * Ha Hb.
+  rewrite <-Hb.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
+  try assumption.
+  (* congruence with ++ *)
+
+  (* simple congruence. Should be in library *)
 Admitted. 
 
 
@@ -924,6 +951,12 @@ Lemma in_set_subst_3 :
     (bop_list_product_left (bop_product mulA mulP)
       ([(ah, bh)] ++ t ++ Y₁ ++ [(ah, bh')] ++ Y₂) s2) Z) (au, av) = true.
 Proof.
+  intros * Ha Hb.
+  rewrite <-Hb.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
+  try assumption.
+  (* simple congruence. Should be in library *)
 Admitted. 
 
 
@@ -940,6 +973,13 @@ Lemma in_set_subst_4 :
     (fold_left (manger_merge_sets_new eqA addP)
       (bop_list_product_left (bop_product mulA mulP)
         (t ++ Yb ++ [(x, y)]) s2) Z) (au, av) = true.
+Proof.
+  intros * Ha Hb Hc Hd.
+  rewrite <-Hd.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
+  try assumption.
+  (* simple congruene with ++ *)
 Admitted.
 
 
@@ -953,6 +993,13 @@ Lemma in_set_swap_arugments :
   (fold_left (manger_merge_sets_new eqA addP)
      (bop_list_product_left (bop_product mulA mulP)
         ([(ah, bh)] ++ t ++ Y₁ ++ [(ah, bh')] ++ Y₂) s2) Z) (au, av) = true.
+Proof.
+  intros * Ha.
+  rewrite <-Ha.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
+  try assumption.
+  (* congruence and commute *)
 Admitted.
 
 
@@ -967,6 +1014,12 @@ Lemma in_set_swap_arugments_2 :
      (bop_list_product_left (bop_product mulA mulP)
         (t ++ Y₁ ++ Y₂ ++ [(ah, bh)] ++ [(ah, bh')]) s2) Z) (au, av) = true.
 Proof.
+  intros * Ha.
+  rewrite <-Ha.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
+  try assumption.
+  (* commute and ++ congruence *)
 Admitted.
 
 
@@ -986,7 +1039,7 @@ Lemma set_in_fold_dist_imp :
         ([(ah, bh)] ++ [(ah, bh')]) X) Y) (au, av) = true.
 Proof.
   intros * Ha.
-  cbn in Ha |- *.
+
 Admitted.
 
 
@@ -1002,7 +1055,7 @@ Lemma set_in_fold_dist_imp_2 :
         [(ah, addP bh bh')] X) Y) (au, av) = true.
 Proof.
   intros * Ha.
-  cbn in Ha |- *.
+
 Admitted.
 
 
@@ -1018,9 +1071,46 @@ Lemma set_in_fold_left_swap_2 :
   (fold_left (manger_merge_sets_new eqA addP)
      (bop_list_product_left (bop_product mulA mulP)
         (tY ++ tX) s2) Z) (au, av) = true.
-Admitted. 
-  
+Proof.
+  intros * Ha.
+  rewrite <-Ha.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
+  try assumption.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Hb];
+  try assumption.
+  + 
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption.
+    eapply set.in_set_concat_intro.
+    destruct Hb as [Hb | Hb]; 
+    [right | left]; assumption.
+  +
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption.
+    eapply set.in_set_concat_intro.
+    destruct Hb as [Hb | Hb]; 
+    [right | left]; assumption.
+Qed.
 
+
+(* If I replace =S= by =, then it is true? 
+Try with some examples!
+
+*)
+Lemma fold_left_ltrtrans_interaction : 
+  forall s2 Y Z ah bh,
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst Z) = true -> 
+  fold_left (manger_merge_sets_new eqA addP)
+    (ltran_list_product (bop_product mulA mulP) (ah, bh)
+      (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z =S=
+  fold_left (manger_merge_sets_new eqA addP)
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z.
+Proof.
+ 
+Admitted.  
 
 (* end of admit *)
 
@@ -1803,40 +1893,7 @@ Admitted.
 
 
 
-(* Looks provable and it will make life super easy *)
-(* This is true! *)
-Lemma fold_left_same : 
-  forall s2 Y Z ah bh,
-  no_dup eqA (map fst Y) = true ->
-  no_dup eqA (map fst Z) = true -> 
-  fold_left (manger_merge_sets_new eqA addP)
-  (ltran_list_product (bop_product mulA mulP) (ah, bh)
-   (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z = 
-  fold_left (manger_merge_sets_new eqA addP)
-   (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z.
-Proof.
-  induction s2 as [|(ax, bx) s2 Ih].
-  +
-    cbn; intros * Ha Hb;
-    reflexivity.
-  +
-    simpl; intros * Ha Hb.
-    rewrite Ih; try assumption.
-    ++
-      repeat rewrite ltrans_list_app.
-      remember (ltran_list_product 
-        (bop_product mulA mulP) (ah, bh) s2) as Sa.
-      repeat rewrite fold_left_app.
-
-      
-
-      (* 
-        (ah, bh) -> s2 ++ Ya ++ [(ax, bx + bx')] 
-      
-      *)
-
-
-Admitted.    
+  
 
 
 
@@ -1929,42 +1986,9 @@ Proof.
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z))
     as Zb.
     assert (Hd : Za =S= Zb).
-    admit.
-    
-    (* 
-      Now the challenge is to prove if this goal 
-      is a reduction 
-      If I can prove that Za and Zb are same, then we 
-      are home. 
-    *)    
-    (* 
-    assert (Hd : Za =S= Zb).
-    admit.
-    subst; eapply trnSAP
-    with (t := ltran_list_product (bop_product mulA mulP) (ah, bh)
-      (fold_left (manger_merge_sets_new eqA addP)
-        (fold_left (manger_merge_sets_new eqA addP) s2 Y) Z));
+    subst; eapply  fold_left_ltrtrans_interaction;
     try assumption.
-    eapply ltran_fold_left_interaction; try assumption.
-    (* 
-      If we were not using a custom equality, this proof 
-      could have been done in an hour. Equality is not making 
-      the proof conceptually difficult but just a boring task. 
-      Note to myself: If I am dealing with a custom equality, 
-      either use typeclass or aac_tactic.   
-    *)
-    eapply symSAP, trnSAP with (t := ltran_list_product 
-      (bop_product mulA mulP) (ah, bh) 
-      (fold_left (manger_merge_sets_new eqA addP)  (s2 ++ Y) Z));
-    try assumption.
-    eapply ltran_fold_left_interaction; try assumption.
-    (* no congruence for ltran_list_product ? *)
-    eapply ltran_list_product_cong,
-    symSAP, manger_manger_double_red;
-    try assumption.
-    eapply fold_left_in_set_mmsn_cong with (V := Za);
-    try assumption;
-    try (eapply addP_gen_idempotent). *)
+   
 Admitted.
 
    
@@ -2047,43 +2071,15 @@ Proof.
     remember ((fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z))
     as Zb.
-  
-
+    assert (Hd : Za =S= Zb).
+    subst; eapply  fold_left_ltrtrans_interaction;
+    try assumption.
     (* 
       Now the challenge is to prove if this goal 
       is a reduction 
       If I can prove that Za and Zb are same, then we 
       are home. 
-    *)    
-    (* 
-    assert (Hd : Za =S= Zb).
-    subst; eapply trnSAP
-    with (t := ltran_list_product (bop_product mulA mulP) (ah, bh)
-      (fold_left (manger_merge_sets_new eqA addP)
-        (fold_left (manger_merge_sets_new eqA addP) s2 Y) Z));
-    try assumption.
-    eapply ltran_fold_left_interaction; try assumption.
-    (* 
-      If we were not using a custom equality, this proof 
-      could have been done in an hour. Equality is not making 
-      the proof conceptually difficult but just a boring task. 
-      Note to myself: If I am dealing with a custom equality, 
-      either use typeclass or aac_tactic.   
-    *)
-    eapply symSAP, trnSAP with (t := ltran_list_product 
-      (bop_product mulA mulP) (ah, bh) 
-      (fold_left (manger_merge_sets_new eqA addP)  (s2 ++ Y) Z));
-    try assumption.
-    eapply ltran_fold_left_interaction; try assumption.
-    (* no congruence for ltran_list_product ? *)
-    eapply ltran_list_product_cong,
-    symSAP, manger_manger_double_red;
-    try assumption.
-    eapply fold_left_in_set_mmsn_cong with (V := Zb);
-    try assumption;
-    try (eapply addP_gen_idempotent).
-    eapply symSAP; exact Hd.
-*)
+    *) 
 Admitted.
 
 
