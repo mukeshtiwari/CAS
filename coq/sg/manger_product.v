@@ -862,9 +862,30 @@ Proof.
 Admitted.
 
 
+Lemma set_in_set_in_list_interaction : 
+  forall (Y : finite_set (A * P)) a p, 
+  set.in_set (brel_product eqA eqP) Y (a, p) = true ->
+  in_list eqA (map fst Y) a = true.
+Proof.
+  induction Y as [|(ya, yb) Y IHy].
+  +
+    intros * Ha;
+    cbn in Ha;
+    congruence.
+  +
+    intros * Ha.
+    cbn in Ha |- *.
+    case_eq ((eqA a ya)); 
+    case_eq ((eqP p yb));
+    intros Hb Hc; 
+    rewrite Hb, Hc in Ha; 
+    cbn in Ha; cbn in Ha |- *;
+    try reflexivity.
+    eapply IHy; exact Ha.
+    eapply IHy; exact Ha.
+Qed.
 
 
-(* This should be in libarary *)
 Lemma nodup_inset_set : 
   forall (Y : finite_set (A * P))
   (a : A) (p : P),
@@ -875,7 +896,58 @@ Lemma nodup_inset_set :
     (in_list eqA (map fst Y₁) a = false) ∧
     (in_list eqA (map fst Y₂) a = false).
 Proof.
-Admitted.
+  induction Y as [|(ya, yb) Y IHy].
+  +
+    intros * Ha Hb;
+    cbn in Hb; congruence.
+  +
+    intros * Ha Hb;
+    cbn in Hb.
+    simpl in Ha. 
+    eapply Bool.andb_true_iff in Ha.
+    destruct Ha as (Hal & Har).
+    eapply Bool.negb_true_iff in Hal.
+    case_eq ((and.bop_and (eqA a ya) (eqP p yb)));
+    intro Hbt.
+    ++
+      eapply Bool.andb_true_iff in Hbt.
+      destruct Hbt as (Hbl & Hbr).
+      exists [], Y.
+      cbn; repeat split; try assumption.
+      *
+        eapply set_equal_with_cons_left;
+        try assumption.
+        eapply brel_product_intro; 
+        [eapply symA | eapply symP]; 
+        assumption.
+      *
+        eapply bop_and_in_list_rewrite with (au := ya);
+        try assumption.
+    ++
+      rewrite Hbt in Hb; cbn in Hb. 
+      destruct (IHy _ _ Har Hb) as 
+      (Ya & Yb & Yc & Hc & He).
+      exists ((ya, yb) :: Ya), Yb.
+      cbn; repeat split.
+      eapply set_equal_with_cons_right;
+      try assumption.
+      rewrite Hc.
+      (*
+        Proof idea:
+        We know that ya is not Y 
+        Hal : in_list eqA (map fst Y) ya = false 
+        We also know that a in Y 
+        Yc : 
+        brel_set (brel_product eqA eqP) Y (Ya ++ [(a, p)] ++ Yb) = true
+
+      *)
+
+      assert (Hg : in_list eqA (map fst Y) a = true).
+      eapply  set_in_set_in_list_interaction; exact Hb.
+      rewrite (@bop_and_in_list_rewrite_tricky A 
+      eqA symA trnA _ _ _ Hal Hg); reflexivity.
+      exact He.
+Qed.
 
 
 
