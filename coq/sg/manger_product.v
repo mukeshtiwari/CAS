@@ -740,7 +740,23 @@ Proof.
     try assumption.
 Qed.
 
+
+Lemma ltrans_list_app : 
+  forall(X Y : list (A * P)) (ah : A) (bh : P),
+  ltran_list_product (bop_product mulA mulP) (ah, bh) (X ++ Y) = 
+  ltran_list_product (bop_product mulA mulP) (ah, bh) X ++ 
+  ltran_list_product (bop_product mulA mulP) (ah, bh) Y.
+Proof.
+  induction X as [|(ax, bx) X IHx].
+  +
+    simpl; intros; reflexivity.
+  +
+    simpl; intros *.
+    rewrite IHx; f_equal.
+Qed.
+
 (*  begin Admit *)
+
 (* This, or similar to this, should exists in list library *)
 Lemma fold_left_cong : 
 forall (U V Y : finite_set (A * P)),
@@ -827,57 +843,6 @@ Proof.
 Admitted.
 
 
-(* requires distributivity 
-I need to figure out some condition 
-so that I can replace (manger_merge_sets_new eqA addP) by 
-a generic function f. 
-
-Lemma ltran_fold_left_interaction : 
-  forall (X Y : finite_set (A * P)) ah bh, 
-  no_dup eqA (map fst Y) = true ->
-  fold_left (manger_merge_sets_new eqA addP)
-    (ltran_list_product (bop_product mulA mulP) (ah, bh) X) Y =S= 
-  ltran_list_product (bop_product mulA mulP) (ah, bh)
-    (fold_left (manger_merge_sets_new eqA addP) X Y).
-Proof.
-  induction X as [|(ax, bx) X Ihx].
-  +
-    cbn.
-
-Admitted.
-
-*)
-Lemma ltran_fold_left_interaction : 
-  forall s2 Y Z ah bh, 
-  manger_llex.eqSAP A P eqA eqP
-    (fold_left (manger_merge_sets_new eqA addP)
-      (ltran_list_product (bop_product mulA mulP) (
-          ah, bh)
-          (fold_left (manger_merge_sets_new eqA addP) s2 Y)) Z)
-    (ltran_list_product (bop_product mulA mulP) (
-      ah, bh)
-      (fold_left (manger_merge_sets_new eqA addP)
-          (fold_left (manger_merge_sets_new eqA addP) s2 Y) Z)) =
-  true.
-Admitted.
-
-
-(* This is going to be a challenge! *)
-(* requires distributivity *)
-(* Related with manger_phase_1_auxiliary is a reduction? *)
-Lemma manger_manger_double_red : 
-  forall (X Y Z : finite_set (A * P)), 
-  no_dup eqA (map fst Y) = true ->
-  no_dup eqA (map fst Z) = true ->
-  (fold_left (manger_merge_sets_new eqA addP)
-    (fold_left (manger_merge_sets_new eqA addP) X Y) Z) =S= 
-  fold_left (manger_merge_sets_new eqA addP) (X ++ Y) Z.
-Proof.
-  intros * Ha Hb.
-  rewrite fold_left_app.
-  (* Easy. *)
-Admitted.
-
 
 Lemma fold_left_map_filter_cong :
   forall Y ah bh bh',
@@ -888,6 +853,7 @@ Lemma fold_left_map_filter_cong :
        (map snd (filter (λ '(s2, _), eqA ah s2) Y)) bh) 
     (addP bh bh') = true.
 Admitted.
+
 
 
 
@@ -1833,7 +1799,12 @@ Proof.
 Admitted.
 
 
+
+
+
+
 (* Looks provable and it will make life super easy *)
+(* This is true! *)
 Lemma fold_left_same : 
   forall s2 Y Z ah bh,
   no_dup eqA (map fst Y) = true ->
@@ -1849,9 +1820,15 @@ Proof.
     cbn; intros * Ha Hb;
     reflexivity.
   +
-    cbn; intros * Ha Hb.
+    simpl; intros * Ha Hb.
     rewrite Ih; try assumption.
     ++
+      repeat rewrite ltrans_list_app.
+      remember (ltran_list_product 
+        (bop_product mulA mulP) (ah, bh) s2) as Sa.
+      repeat rewrite fold_left_app.
+
+      
 
       (* 
         (ah, bh) -> s2 ++ Ya ++ [(ax, bx + bx')] 
@@ -1951,8 +1928,8 @@ Proof.
     remember ((fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z))
     as Zb.
-
-
+    assert (Hd : Za =S= Zb).
+    admit.
     
     (* 
       Now the challenge is to prove if this goal 
