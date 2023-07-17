@@ -755,6 +755,7 @@ Qed.
 (*  begin Admit *)
 
 (* This, or similar to this, should exists in list library *)
+(* challenging *)
 Lemma fold_left_cong : 
 forall (U V Y : finite_set (A * P)),
   no_dup eqA (map fst Y) = true -> 
@@ -780,6 +781,22 @@ Proof.
 Admitted. 
 
 
+Lemma manger_merge_set_no_dup : 
+  forall (X Y : finite_set (A * P)), 
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst
+    (fold_left (manger_merge_sets_new eqA addP) X Y)) = true.
+Proof.
+  induction X as [|(ax, bx) X IHx].
+  +
+    simpl; intros * Ha.
+    exact Ha.
+  +
+    simpl; intros * Ha.
+    eapply IHx.
+    eapply no_dup_mmsn with (eqP := eqP);
+    try assumption.
+Qed.
 
 
 
@@ -793,8 +810,10 @@ Lemma manger_ltrtrans_duplicate_free_forward :
         (fold_left (manger_merge_sets_new eqA addP) X Y)) Z)) = true.
 Proof.
   intros * Ha Hb.
+  eapply manger_merge_set_no_dup;
+  try assumption.
+Qed.
 
-Admitted.
 
 
 
@@ -807,24 +826,10 @@ Lemma nodup_left_forward :
         (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)])) = true.
 Proof.
   intros * Ha.
-  rewrite map_app.
-  cbn.
-  assert (Hk : fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-  (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh) == 
-  (ah, fold_left (λ t1 t2 : P, addP t1 t2) 
-  (map snd (List.filter (λ '(x, _), eqA ah x) Y)) bh)).
-  eapply fold_left_filter; try assumption.
-  destruct (fold_left (λ '(s1, t1) '(_, t2), (s1, addP t1 t2))
-  (filter (λ '(s2, _), eqA ah s2) Y) (ah, bh)) as (x, y) eqn:Hl.
-  eapply brel_product_elim in Hk.
-  destruct Hk as [Hkl Hkr].
-  cbn. 
-  (* 
-    replace x by ah 
-  *)
+  pose proof manger_merge_set_no_dup [(ah, bh)] Y Ha as Hb.
+  exact Hb.
+Qed.
 
-
-Admitted.
 
 Lemma manger_ltrtrans_duplicate_free_backward : 
   forall (X Y Z : finite_set (A * P)) ah bh,
@@ -836,11 +841,13 @@ Lemma manger_ltrtrans_duplicate_free_backward :
         (ah, bh) (X ++ Y)) Z)) = true.
 Proof.
   intros * Ha Hb.
+  eapply manger_merge_set_no_dup;
+  try assumption.
+Qed.
 
-Admitted.
 
 
-
+(* Trivial but pesky congruence  *)
 Lemma fold_left_map_filter_cong :
   forall Y ah bh bh',
   brel_set (brel_product eqA eqP) 
@@ -851,12 +858,13 @@ Lemma fold_left_map_filter_cong :
     (addP bh bh') = true.
 Proof.
   intros * Ha.
+
 Admitted.
 
 
 
 
-
+(* This should be in libarary *)
 Lemma nodup_inset_set : 
   forall (Y : finite_set (A * P))
   (a : A) (p : P),
@@ -870,6 +878,29 @@ Proof.
 Admitted.
 
 
+
+Lemma brel_set_not_member_gen : 
+  forall (X : finite_set (A * P))  ah, 
+  in_list eqA (map fst X) ah = false ->
+  brel_set (brel_product eqA eqP) 
+    (filter (λ '(s2, _), negb (eqA ah s2)) X) X = true.
+Proof.
+  induction X as [|(ax, bx) X Ihx].
+  +
+    intros * Ha;
+    cbn; reflexivity.
+  +
+    intros * Ha.
+    simpl in * |- *.
+    eapply Bool.orb_false_iff in Ha.
+    destruct Ha as (Hal & Har).
+    rewrite Hal; simpl.
+    specialize (Ihx _ Har).
+    eapply set_equal_with_cons_right;
+    try assumption.
+Qed.
+
+
 Lemma brel_set_not_member :
   forall (Y₁ Y₂ : finite_set (A * P)) ah,
   in_list eqA (map fst Y₁) ah = false ->
@@ -877,23 +908,89 @@ Lemma brel_set_not_member :
   brel_set (brel_product eqA eqP) 
     (filter (λ '(s2, _), negb (eqA ah s2)) (Y₁ ++ Y₂))
     (Y₁ ++ Y₂) = true.
-Admitted. 
-  
+Proof.
+  intros * Ha Hb.
+  eapply brel_set_not_member_gen.
+  rewrite map_app.
+  eapply in_list_false_membership; try assumption.
+Qed.
+
+ 
+
+Lemma bop_list_product_left_cong : 
+  forall (U V Y : finite_set (A * P)),
+  U =S= V ->
+  (bop_list_product_left (bop_product mulA mulP) U Y) =S= 
+  (bop_list_product_left (bop_product mulA mulP) V Y).
+Proof.
+  intros * Ha.
+  eapply brel_set_elim_prop in Ha;
+  [| eapply symAP | eapply trnAP];
+  try assumption.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Hb];
+  try assumption.
+  +
+    eapply in_set_list_product_elim in Hb;
+    [| eapply refAP | eapply symAP]; try assumption.
+    destruct Hb as ((xa, xb) & (ya, yb) & (Hb & Hc) & Hd).
+    eapply set.in_set_right_congruence with 
+    (a := (bop_product mulA mulP (xa, xb) (ya, yb)));
+    [eapply symAP | eapply trnAP | | ];
+    try assumption.
+    eapply brel_product_elim in Hd;
+    destruct Hd as (Hdl & Hdr).
+    eapply brel_product_intro;
+    [eapply symA | eapply symP ]; 
+    try assumption.
+    eapply in_set_list_product_intro;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | | exact Hc]; 
+    try assumption.
+    eapply Ha; exact Hb.
+  +
+    eapply in_set_list_product_elim in Hb;
+    [| eapply refAP | eapply symAP]; try assumption.
+    destruct Hb as ((xa, xb) & (ya, yb) & (Hb & Hc) & Hd).
+    eapply set.in_set_right_congruence with 
+    (a := (bop_product mulA mulP (xa, xb) (ya, yb)));
+    [eapply symAP | eapply trnAP | | ];
+    try assumption.
+    eapply brel_product_elim in Hd;
+    destruct Hd as (Hdl & Hdr).
+    eapply brel_product_intro;
+    [eapply symA | eapply symP ]; 
+    try assumption.
+    eapply in_set_list_product_intro;
+    [eapply refAP | eapply trnAP | eapply symAP | 
+    eapply bop_cong | | exact Hc]; 
+    try assumption.
+    eapply Ha; exact Hb.
+Qed.
+
 
 Lemma fold_left_bop_list_cong : 
   forall (U V Y Z : finite_set (A * P)),
   U =S= V -> 
+  no_dup eqA (map fst Z) = true ->
   fold_left (manger_merge_sets_new eqA addP)
     (bop_list_product_left (bop_product mulA mulP) U Y) Z =S= 
   fold_left (manger_merge_sets_new eqA addP)
     (bop_list_product_left (bop_product mulA mulP) V Y) Z.
-Admitted.
-  
+Proof.
+  intros * Ha Hb.
+  eapply fold_left_cong;
+  [exact Hb | eapply bop_list_product_left_cong];
+  try assumption.
+Qed.
+
 
 
 (* rewrite is indeed a pain! *)
+(* easy but annonying  *)
 Lemma in_set_subst_1 : 
   forall (Yb Y₁ Y₂ Z s2 t : finite_set (A * P)) ah bh bh' x y au av, 
+  no_dup eqA (map fst Z) = true ->
   eqA x ah = true ->
   eqP y (addP bh bh') = true ->
   brel_set (brel_product eqA eqP) Yb (Y₁ ++ Y₂) = true ->
@@ -906,7 +1003,7 @@ Lemma in_set_subst_1 :
       (bop_list_product_left (bop_product mulA mulP)
         (t ++ Y₁ ++ Y₂ ++ [(ah, addP bh bh')]) s2) Z) (au, av) = true.
 Proof.
-  intros * Ha Hb Hc Hd.
+  intros * Ht Ha Hb Hc Hd.
   rewrite <-Hd.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
@@ -915,9 +1012,10 @@ Proof.
   (* simple substitution. Should be in list library*)
 Admitted.
 
-
+(* easy but annonying  *)
 Lemma in_set_subst_2 : 
   forall (Y Y₁ Y₂ s2 Z t : finite_set (A * P)) ah bh bh' au av, 
+  no_dup eqA (map fst Z) = true -> 
   brel_set (brel_product eqA eqP) Y (Y₁ ++ [(ah, bh')] ++ Y₂) = true ->
   set.in_set (manger_llex.eqAP A P eqA eqP)
   (fold_left (manger_merge_sets_new eqA addP)
@@ -928,7 +1026,7 @@ Lemma in_set_subst_2 :
     (bop_list_product_left (bop_product mulA mulP)
       ([(ah, bh)] ++ t ++ Y) s2) Z) (au, av) = true.
 Proof.
-  intros * Ha Hb.
+  intros * Ht Ha Hb.
   rewrite <-Hb.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
@@ -939,8 +1037,10 @@ Proof.
 Admitted. 
 
 
+(* easy but annonying  *)
 Lemma in_set_subst_3 : 
   forall (Y Y₁ Y₂ s2 Z t : finite_set (A * P)) ah bh bh' au av, 
+  no_dup eqA (map fst Z) = true ->
   brel_set (brel_product eqA eqP) Y (Y₁ ++ [(ah, bh')] ++ Y₂) = true ->
   set.in_set (manger_llex.eqAP A P eqA eqP)
   (fold_left (manger_merge_sets_new eqA addP)
@@ -951,7 +1051,7 @@ Lemma in_set_subst_3 :
     (bop_list_product_left (bop_product mulA mulP)
       ([(ah, bh)] ++ t ++ Y₁ ++ [(ah, bh')] ++ Y₂) s2) Z) (au, av) = true.
 Proof.
-  intros * Ha Hb.
+  intros * Ht Ha Hb.
   rewrite <-Hb.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
@@ -960,8 +1060,10 @@ Proof.
 Admitted. 
 
 
+(* easy but annonying  *)
 Lemma in_set_subst_4 : 
   forall (Yb Y₁ Y₂ Z s2 t : finite_set (A * P)) ah bh bh' x y au av, 
+  no_dup eqA (map fst Z) = true ->
   eqA x ah = true ->
   eqP y (addP bh bh') = true ->
   brel_set (brel_product eqA eqP) Yb (Y₁ ++ Y₂) = true ->
@@ -974,7 +1076,7 @@ Lemma in_set_subst_4 :
       (bop_list_product_left (bop_product mulA mulP)
         (t ++ Yb ++ [(x, y)]) s2) Z) (au, av) = true.
 Proof.
-  intros * Ha Hb Hc Hd.
+  intros * Ht Ha Hb Hc Hd.
   rewrite <-Hd.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
@@ -982,9 +1084,10 @@ Proof.
   (* simple congruene with ++ *)
 Admitted.
 
-
+(* easy but annonying *)
 Lemma in_set_swap_arugments : 
-  forall (t Y₁ Y₂ s2 Z : finite_set (A * P)) au av ah bh bh', 
+  forall (t Y₁ Y₂ s2 Z : finite_set (A * P)) au av ah bh bh',
+  no_dup eqA (map fst Z) = true -> 
   set.in_set (manger_llex.eqAP A P eqA eqP)
   (fold_left (manger_merge_sets_new eqA addP)
      (bop_list_product_left (bop_product mulA mulP)
@@ -994,7 +1097,7 @@ Lemma in_set_swap_arugments :
      (bop_list_product_left (bop_product mulA mulP)
         ([(ah, bh)] ++ t ++ Y₁ ++ [(ah, bh')] ++ Y₂) s2) Z) (au, av) = true.
 Proof.
-  intros * Ha.
+  intros * Ht Ha.
   rewrite <-Ha.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
@@ -1002,9 +1105,10 @@ Proof.
   (* congruence and commute *)
 Admitted.
 
-
+(* easy but annonying *)
 Lemma in_set_swap_arugments_2 : 
   forall (t Y₁ Y₂ s2 Z : finite_set (A * P)) au av ah bh bh', 
+  no_dup eqA (map fst Z) = true ->
   set.in_set (manger_llex.eqAP A P eqA eqP)
   (fold_left (manger_merge_sets_new eqA addP)
      (bop_list_product_left (bop_product mulA mulP)
@@ -1014,7 +1118,7 @@ Lemma in_set_swap_arugments_2 :
      (bop_list_product_left (bop_product mulA mulP)
         (t ++ Y₁ ++ Y₂ ++ [(ah, bh)] ++ [(ah, bh')]) s2) Z) (au, av) = true.
 Proof.
-  intros * Ha.
+  intros * Ht Ha.
   rewrite <-Ha.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
@@ -1027,8 +1131,10 @@ Admitted.
 (* I can assume that Y is no duplicate but I think, right 
 now, I don't need it
 *)
+(* Challenging *)
 Lemma set_in_fold_dist_imp : 
   forall (X Y : finite_set (A * P)) au av ah bh bh', 
+  no_dup eqA (map fst Y) = true ->
   set.in_set (manger_llex.eqAP A P eqA eqP)
     (fold_left (manger_merge_sets_new eqA addP)
       (bop_list_product_left (bop_product mulA mulP)
@@ -1038,13 +1144,14 @@ Lemma set_in_fold_dist_imp :
       (bop_list_product_left (bop_product mulA mulP)
         ([(ah, bh)] ++ [(ah, bh')]) X) Y) (au, av) = true.
 Proof.
-  intros * Ha.
-
+  intros * Ha Hb.
 Admitted.
 
 
+(* Challenging *)
 Lemma set_in_fold_dist_imp_2 : 
   forall (X Y : finite_set (A * P)) au av ah bh bh', 
+  no_dup eqA (map fst Y) = true ->
   set.in_set (manger_llex.eqAP A P eqA eqP)
     (fold_left (manger_merge_sets_new eqA addP)
       (bop_list_product_left (bop_product mulA mulP)
@@ -1054,15 +1161,16 @@ Lemma set_in_fold_dist_imp_2 :
       (bop_list_product_left (bop_product mulA mulP)
         [(ah, addP bh bh')] X) Y) (au, av) = true.
 Proof.
-  intros * Ha.
+  intros * Ha Hb.
+
 
 Admitted.
 
 
-        
-(* we can assume Z in not duplicate *)
+
 Lemma set_in_fold_left_swap_2 : 
   forall (tY tX s2 Z : finite_set (A * P)) au av, 
+  no_dup eqA (map fst Z) = true -> 
   set.in_set (manger_llex.eqAP A P eqA eqP)
   (fold_left (manger_merge_sets_new eqA addP)
     (bop_list_product_left (bop_product mulA mulP)
@@ -1072,7 +1180,7 @@ Lemma set_in_fold_left_swap_2 :
      (bop_list_product_left (bop_product mulA mulP)
         (tY ++ tX) s2) Z) (au, av) = true.
 Proof.
-  intros * Ha.
+  intros * Ht Ha.
   rewrite <-Ha.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
@@ -1097,7 +1205,7 @@ Qed.
 
 (* If I replace =S= by =, then it is true? 
 Try with some examples!
-
+Chellenging
 *)
 Lemma fold_left_ltrtrans_interaction : 
   forall s2 Y Z ah bh,
@@ -1109,6 +1217,7 @@ Lemma fold_left_ltrtrans_interaction :
   fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z.
 Proof.
+
  
 Admitted.  
 
@@ -1558,16 +1667,17 @@ Proof.
       exact Hjl |]; try assumption.
       eapply brel_set_not_member; try assumption.
       clear Hjl Hjr.
-      pose proof in_set_subst_1 Yb Y₁ Y₂ Z s2 t ah bh bh' x y au av 
-      Hkl Hm Hn Fn as Fnn.
+      pose proof in_set_subst_1 Yb Y₁ Y₂ Z s2 t ah bh bh' x y au av
+      Hc Hkl Hm Hn Fn as Fnn.
       eapply in_set_subst_2;
-      [exact Hf | ].
+      [| exact Hf | ]; try assumption.
       rewrite app_assoc in Fnn.
       rewrite app_assoc in Fnn.
 
       (* Now the next challenge is infer the goal from Fnn *)
       remember ((t ++ Y₁) ++ Y₂) as tY.
-      eapply in_set_swap_arugments.
+      eapply in_set_swap_arugments; 
+      try assumption.
       rewrite app_assoc, app_assoc.
       rewrite <-HeqtY.
 
@@ -1577,6 +1687,8 @@ Proof.
       rewrite fold_left_app in Fnn |- *.
       remember (fold_left (manger_merge_sets_new eqA addP) tYX Z) as ftYX.
       eapply  set_in_fold_dist_imp; try assumption.
+      subst; eapply manger_merge_set_no_dup; 
+      try assumption.
 Qed.
 
 
@@ -1716,7 +1828,7 @@ Proof.
       destruct (nodup_inset_set Y ah bh' Hb Hf)
       as (Y₁ & Y₂ & Hg & Hi & Hj).
       pose proof in_set_subst_3 _ _ _ _ _ _ _ _ _ _ _ 
-      Hg Hd as Hdd; clear Hd.
+      Hc Hg Hd as Hdd; clear Hd.
       destruct (manger_merge_set_new_aux_congruence_left
       A P eqA eqP refA symA trnA refP symP trnP 
       Y (Y₁ ++ [(ah, bh')] ++ Y₂) ah Hg) as (Hkl & Hkr).
@@ -1777,7 +1889,7 @@ Proof.
       try assumption.
       exact Hn.
       pose proof in_set_swap_arugments_2 _ _ _ _ _ _ _ _ _ _ 
-      Hdd as Hddd; clear Hdd.
+      Hc Hdd as Hddd; clear Hdd.
       rewrite app_assoc in Hddd |- *.
       rewrite app_assoc in Hddd |- *.
       remember ((t ++ Y₁) ++ Y₂) as tY.
@@ -1786,6 +1898,8 @@ Proof.
       remember ((fold_left (manger_merge_sets_new eqA addP)
       (bop_list_product_left (bop_product mulA mulP) tY s2) Z)) as txyZ.
       eapply set_in_fold_dist_imp_2; try assumption.
+      subst; eapply manger_merge_set_no_dup; 
+      try assumption.
 Qed.
 
 
@@ -1988,9 +2102,10 @@ Proof.
     assert (Hd : Za =S= Zb).
     subst; eapply  fold_left_ltrtrans_interaction;
     try assumption.
+    eapply fold_left_in_set_mmsn_cong with (V := Za); try assumption.
+    exact addP_gen_idempotent.
+Qed.
    
-Admitted.
-
    
 
 
@@ -2071,17 +2186,20 @@ Proof.
     remember ((fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z))
     as Zb.
-    assert (Hd : Za =S= Zb).
-    subst; eapply  fold_left_ltrtrans_interaction;
-    try assumption.
     (* 
       Now the challenge is to prove if this goal 
       is a reduction 
       If I can prove that Za and Zb are same, then we 
       are home. 
     *) 
-Admitted.
-
+    assert (Hd : Za =S= Zb).
+    subst; eapply  fold_left_ltrtrans_interaction;
+    try assumption.
+    eapply fold_left_in_set_mmsn_cong with (V := Zb); try assumption.
+    exact addP_gen_idempotent.
+    eapply brel_set_symmetric.
+    exact Hd.
+Qed.
 
 
 
@@ -2363,136 +2481,6 @@ Proof.
     try assumption.
 Qed.
 
-
-(* Everything good upto this point *) 
-
-(* This can't be proved without mulA and mulP left or right *)
-(* What it unfortunately means is that it can never be 
-used as + because it's never going to be idempotent, 
-unless mulA and mulP are left or right *)
-Lemma manger_product_phase_0_idem :
-  bop_idempotent (finite_set (A * P)) (manger_llex.eqSAP A P eqA eqP)
-  (manger_product_phase_0 eqA eqP mulA mulP).
-Proof.
-  intro s;
-  eapply brel_set_intro_prop;
-  [eapply refAP | split; intros (ax, bx) Ha];
-  try assumption.
-  +
-    eapply in_set_bop_lift_elim in Ha;
-    [| eapply refAP | eapply symAP]; try assumption;
-    destruct Ha as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
-    eapply brel_product_elim in Hc;
-    destruct Hc as (Hcl & Hcr).
-    admit.
-  +
-
-Admitted.
-
-
-
-Lemma bop_manger_product_idempotent : 
-  bop_idempotent _ (@eq_manger A P eqA lteA eqP addP)
-  (bop_manger_product eqA lteA eqP addP mulA mulP).
-Proof.  
-  eapply uop_compose_bop_idempotent.
-  + eapply refSAP; try assumption.
-  + eapply symSAP; try assumption.
-  + eapply trnSAP; try assumption.
-  + eapply manger_product_phase_0_cong.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
-    (zeroP := zeroP); try assumption;
-    try (eapply addP_gen_idempotent). 
-  + eapply P1_idem;try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply bop_left_uop_inv_phase_1.
-  + eapply bop_right_uop_inv_phase_1.
-  + eapply P2_cong; try assumption.
-  + eapply P2_idem; try assumption.
-  + eapply bop_left_uop_inv_phase_2.
-  + eapply bop_right_uop_inv_phase_2.
-  + intros *. 
-    eapply P1_P2_commute with (fA := fA)
-    (zeroP := zeroP); try assumption;
-    try (eapply addP_gen_idempotent).
-  + eapply manger_product_phase_0_idem.
-Admitted.
-
-
-
-
-(* With the assumption we have, this is not 
-provable. *)
-Lemma bop_manger_product_not_selective :
-  bop_not_selective _ (@eq_manger A P eqA lteA eqP addP)
-  (bop_manger_product eqA lteA eqP addP mulA mulP).
-Proof.
-  (* intros Hu Hv. *)
-  destruct ntot as ((a₁, a₂) & Ha);
-  exists ([(a₁, wP)], [(a₂, wP)]); compute;
-  case_eq (eqA (mulA a₁ a₂) a₁); 
-  case_eq (eqP (mulP wP wP) wP);
-  case_eq (eqA a₁ (mulA a₁ a₂));
-  case_eq (eqP wP (mulP wP wP));
-  case_eq (eqA (mulA a₁ a₂) a₂);
-  case_eq (eqP (mulP wP wP) wP);
-  case_eq (eqA a₂ (mulA a₁ a₂));
-  case_eq (eqP wP (mulP wP wP));
-  intros Hb Hc Hd He Hf Hg Hi Hj;
-  try eauto.
-  +
-    eapply symA in Hc.
-    pose proof (trnA _ _ _ (symA _ _ Hj) Hc) as Hk.
-    destruct Ha as (Hal & Har).
-    assert (Hl := conLte _ _ _ _ (refA a₁) Hk).
-    rewrite <-Hl in Hal.
-    rewrite (refLte a₁) in Hal; congruence.
-  + rewrite (symA _ _ Hc) in He; 
-    congruence.
-  +
-    destruct Ha as (Hal & Har).
-    refine (pair _ eq_refl).
-    clear Hb Hd Hi Hf.
-    
-    (*
-      a₁ = a₁ * a₂ 
-      a₂ <> a₁ * a₂
-      -------------
-      a₁ <> a₂ 
-      a₁ and a₂ are distinct, or incomprable, elements. 
-
-      What information we get from Hal and Har?
-      a₁ and a₂ are distinct, or incomprable, elements.
-
-    
-      lteA is reflexive and transitive, i.e., pre order. 
-      In addition, it's not total. 
-
-      Tim: what is the rationale for 
-      not-total pre-order? 
-      
-
-    
-    
-    
-    
-    *)
-    (* case where a₁ and a₂ are incomprable  *)
-    (* What can I infer from Hal and Har *)
-    (* We need some extra condition to prove this? *)
-    admit.
-    
-  +
-    rewrite (symA _ _ Hj) in Hg; 
-    congruence.
-  +
-    rewrite (symA _ _ Hg) in Hj; 
-    congruence.
-  +
-    destruct Ha as (Hal & Har).
-    (* case where a₁ and a₂ are incomprable  *)
-    admit.
-Admitted.  
 
 End Theory.  
 
