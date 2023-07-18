@@ -893,10 +893,10 @@ Lemma fold_left_sum_cong :
 Proof.
   intros * Ha.
   eapply trnP.
-  eapply list_congruences.fold_symmetric_with_equality;
+  eapply fold_left_right_symmetric;
   try assumption.
   eapply symP, trnP.
-  eapply list_congruences.fold_symmetric_with_equality;
+  eapply fold_left_right_symmetric;
   try assumption.
   eapply fold_right_congruence;
   try assumption.
