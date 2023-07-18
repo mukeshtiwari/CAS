@@ -1199,6 +1199,7 @@ Admitted.
 
 
 (* easy but annonying *)
+(* congruence and commute *)
 Lemma in_set_swap_arugments : 
   forall (t Y₁ Y₂ s2 Z : finite_set (A * P)) au av ah bh bh',
   no_dup eqA (map fst Z) = true -> 
@@ -1216,11 +1217,115 @@ Proof.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
   try assumption.
-  (* congruence and commute *)
-Admitted.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Hb];
+  try assumption.
+  +
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption.
+    destruct Hb as [Hb | Hb].
+    ++  
+      eapply set.in_set_concat_intro.
+      right.
+      eapply set.in_set_concat_intro.
+      right. 
+      eapply set.in_set_concat_intro.
+      right.
+      eapply set.in_set_concat_intro.
+      left; exact Hb.
+    ++
+      eapply set.in_set_concat_elim in Hb;
+      [| eapply symAP]; try assumption.
+      destruct Hb as [Hb | Hb].
+      +++
+        eapply set.in_set_concat_intro.
+        left; exact Hb.
+      +++
+        eapply set.in_set_concat_elim in Hb;
+        [| eapply symAP]; try assumption.
+        destruct Hb as [Hb | Hb].
+        ++++
+          eapply set.in_set_concat_intro.
+          right.
+          eapply set.in_set_concat_intro.
+          left; exact Hb.
+        ++++
+          eapply set.in_set_concat_elim in Hb;
+          [| eapply symAP]; try assumption.
+          destruct Hb as [Hb | Hb].
+          *
+            eapply set.in_set_concat_intro.
+            right.
+            eapply set.in_set_concat_intro.
+            right. 
+            eapply set.in_set_concat_intro.
+            right.
+            eapply set.in_set_concat_intro.
+            right; exact Hb.
+          *
+            eapply set.in_set_concat_intro.
+            right.
+            eapply set.in_set_concat_intro.
+            right.
+            eapply set.in_set_concat_intro.
+            left; exact Hb.
+  +
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption.
+    destruct Hb as [Hb | Hb].
+    ++
+      eapply set.in_set_concat_intro.
+      right.
+      eapply set.in_set_concat_intro.
+      left; exact Hb.
+    ++
+      eapply set.in_set_concat_elim in Hb;
+      [| eapply symAP]; try assumption.
+      destruct Hb as [Hb | Hb].
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        left; exact Hb.
+      +++
+        eapply set.in_set_concat_elim in Hb;
+        [| eapply symAP]; try assumption.
+        destruct Hb as [Hb | Hb].
+        ++++
+          eapply set.in_set_concat_intro.
+          right.
+          eapply set.in_set_concat_intro.
+          right. 
+          eapply set.in_set_concat_intro.
+          right.
+          eapply set.in_set_concat_intro.
+          right; exact Hb.
+        ++++
+          eapply set.in_set_concat_elim in Hb;
+          [| eapply symAP]; try assumption.
+          destruct Hb as [Hb | Hb].
+          *
+            eapply set.in_set_concat_intro.
+            left; exact Hb.
+          * 
+            eapply set.in_set_concat_intro.
+            right.
+            eapply set.in_set_concat_intro.
+            right. 
+            eapply set.in_set_concat_intro.
+            right.
+            eapply set.in_set_concat_intro.
+            left; exact Hb.
+Qed.
+
+
 
 
 (* easy but annonying *)
+(* commute and ++ congruence *)
+(* indeed annoying *)
 Lemma in_set_swap_arugments_2 : 
   forall (t Y₁ Y₂ s2 Z : finite_set (A * P)) au av ah bh bh', 
   no_dup eqA (map fst Z) = true ->
@@ -1238,8 +1343,111 @@ Proof.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
   try assumption.
-  (* commute and ++ congruence *)
-Admitted.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Hb];
+  try assumption.
+  +
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption.
+    destruct Hb as [Hb | Hb].
+    ++
+      eapply set.in_set_concat_intro.
+      right.
+      eapply set.in_set_concat_intro.
+      left. exact Hb.
+    ++
+      eapply set.in_set_concat_elim in Hb;
+      [| eapply symAP]; try assumption.
+      destruct Hb as [Hb | Hb].
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right. 
+        eapply set.in_set_concat_intro.
+        left; exact Hb.
+      +++
+        eapply set.in_set_concat_elim in Hb;
+        [| eapply symAP]; try assumption.
+        destruct Hb as [Hb | Hb].
+        ++++
+          eapply set.in_set_concat_intro.
+          right.
+          eapply set.in_set_concat_intro.
+          right. 
+          eapply set.in_set_concat_intro.
+          right.
+          eapply set.in_set_concat_intro.
+          right; exact Hb.
+        ++++
+          eapply set.in_set_concat_elim in Hb;
+          [| eapply symAP]; try assumption.
+          destruct Hb as [Hb | Hb].
+          *
+            eapply set.in_set_concat_intro.
+            left; exact Hb.
+          *
+          eapply set.in_set_concat_intro.
+          right.
+          eapply set.in_set_concat_intro.
+          right. 
+          eapply set.in_set_concat_intro.
+          right.
+          eapply set.in_set_concat_intro.
+          left; exact Hb.
+  +
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption.
+    destruct Hb as [Hb | Hb].
+    ++
+      eapply set.in_set_concat_intro.
+      right.
+      eapply set.in_set_concat_intro.
+      right. 
+      eapply set.in_set_concat_intro.
+      right.
+      eapply set.in_set_concat_intro.
+      left. exact Hb.
+    ++  
+      eapply set.in_set_concat_elim in Hb;
+      [| eapply symAP]; try assumption.
+      destruct Hb as [Hb | Hb].
+      +++
+        eapply set.in_set_concat_intro.
+        left. exact Hb.
+      +++
+        eapply set.in_set_concat_elim in Hb;
+        [| eapply symAP]; try assumption.
+        destruct Hb as [Hb | Hb].
+        ++++
+          eapply set.in_set_concat_intro.
+          right.
+          eapply set.in_set_concat_intro.
+          left. exact Hb.
+        ++++
+          eapply set.in_set_concat_elim in Hb;
+          [| eapply symAP]; try assumption.
+          destruct Hb as [Hb | Hb].
+          *
+            eapply set.in_set_concat_intro.
+            right.
+            eapply set.in_set_concat_intro.
+            right. 
+            eapply set.in_set_concat_intro.
+            right.
+            eapply set.in_set_concat_intro.
+            right; exact Hb.
+          *
+            eapply set.in_set_concat_intro.
+            right.
+            eapply set.in_set_concat_intro.
+            right. 
+            eapply set.in_set_concat_intro.
+            left. exact Hb.
+Qed.
+      
+
+
 
 
 Lemma set_in_swap_first_step : 
@@ -1257,8 +1465,24 @@ Proof.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply  fold_left_cong];
   try assumption.
-  (* some annoyance but provable *)
-Admitted.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Hb];
+  try assumption.
+  +
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption.
+    rewrite app_comm_cons.
+    eapply set.in_set_concat_intro.
+    destruct Hb as [Hb | Hb];
+    [right | left]; assumption.
+  +
+    rewrite app_comm_cons in Hb.
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption.
+    eapply set.in_set_concat_intro.
+    destruct Hb as [Hb | Hb];
+    [right | left]; assumption.
+Qed.
 
 
 Lemma set_in_swap_second_step : 
@@ -1276,8 +1500,22 @@ Proof.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply  fold_left_cong];
   try assumption.
- (* some annoyance but provable *)
-Admitted.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Hb];
+  try assumption.
+  +
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption;
+    eapply set.in_set_concat_intro.
+    destruct Hb as [Hb | Hb];
+    [right | left]; assumption.
+  +
+    eapply set.in_set_concat_elim in Hb;
+    [| eapply symAP]; try assumption;
+    eapply set.in_set_concat_intro.
+    destruct Hb as [Hb | Hb];
+    [right | left]; assumption.
+Qed.
 
 
 (* Move this to manger_sets.v *)
@@ -1287,6 +1525,23 @@ Lemma manger_congruence_accumulator :
   manger_merge_sets_new eqA addP Y ah =S= 
   manger_merge_sets_new eqA addP Y bh.
 Proof.
+  induction Y as [|(ya, yb) Y IHy];
+  intros (aha, ahb) (bha, bhb) Ha.
+  eapply brel_product_elim in Ha.
+  destruct Ha as (Hal & Har).
+  +
+    cbn.
+    eapply brel_set_intro_prop;
+    [eapply refAP | split; intros (ax, bx) Hb];
+    try assumption.
+    *
+      cbn in Hb |- *.
+      admit.
+    *
+      cbn in Hb |- *.
+      admit.
+  +
+      (* Provable but annoying *)
 Admitted.
 
 
@@ -1386,6 +1641,7 @@ Lemma set_in_fold_dist_imp_2 :
         [(ah, addP bh bh')] X) Y) (au, av) = true.
 Proof.
   intros * Ha Hb.
+  
 
 
 Admitted.
