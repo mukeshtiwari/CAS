@@ -1194,6 +1194,37 @@ Proof.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
   try assumption.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) He];
+  try assumption.
+  +
+    eapply set.in_set_concat_elim in He;
+    [| eapply symAP]; try assumption.
+    destruct He as [He | He].
+    ++
+      eapply set.in_set_concat_intro.
+      left; exact He.
+    ++  
+      eapply set.in_set_concat_elim in He;
+      [| eapply symAP]; try assumption.
+      destruct He as [He | He].
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        rewrite app_assoc.
+        eapply set.in_set_concat_intro.
+        left.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | eapply brel_set_symmetric];
+        try assumption.
+      +++
+        
+
+
+
+
+
   (* simple congruene with ++ *)
 Admitted.
 
@@ -1528,7 +1559,30 @@ Lemma set_in_swap_third_step :
   (fold_left (manger_merge_sets_new eqA addP)
     ((ah, bh) :: Xb ++ Xa) Y) (au, av) = true.
 Proof.
-Admitted.
+  intros * Ha Hb.
+  rewrite <-Hb.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply  fold_left_cong];
+  try assumption.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Hc];
+  try assumption.
+  +
+    rewrite app_comm_cons in Hc.
+    eapply set.in_set_concat_elim in Hc;
+    [| eapply symAP]; try assumption;
+    eapply set.in_set_concat_intro.
+    destruct Hc as [Hc | Hc];
+    [right | left]; assumption.
+  +
+    eapply set.in_set_concat_elim in Hc;
+    [| eapply symAP]; try assumption.
+    rewrite app_comm_cons.
+    eapply set.in_set_concat_intro.
+    destruct Hc as [Hc | Hc];
+    [right | left]; assumption.
+Qed.
+
 
 
 (* Move this to manger_sets.v *)
