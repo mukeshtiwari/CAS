@@ -1518,6 +1518,19 @@ Proof.
 Qed.
 
 
+Lemma set_in_swap_third_step : 
+  forall (Xa Xb Y : finite_set (A * P)) ah bh au av, 
+  no_dup eqA (map fst Y) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP)
+    (Xa ++ (ah, bh) :: Xb) Y) (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP)
+    ((ah, bh) :: Xb ++ Xa) Y) (au, av) = true.
+Proof.
+Admitted.
+
+
 (* Move this to manger_sets.v *)
 Lemma manger_congruence_accumulator : 
   forall (Y : finite_set (A * P)) ah bh,
@@ -1640,11 +1653,66 @@ Lemma set_in_fold_dist_imp_2 :
       (bop_list_product_left (bop_product mulA mulP)
         [(ah, addP bh bh')] X) Y) (au, av) = true.
 Proof.
-  intros * Ha Hb.
-  
+  induction X as [|(ax, bx) X IHx].
+  +
+    cbn; intros; 
+    assumption.
+  +
+    simpl; intros * Ha Hb.
+    simpl in IHx.
+    rewrite app_nil_r in Hb |- *.
+    remember (ltran_list_product (bop_product mulA mulP) (ah, bh) X)
+    as Xa.
+    remember (ltran_list_product (bop_product mulA mulP) (ah, bh') X)
+    as Xb.
+    (* message Hb *)
+    eapply set_in_swap_third_step in Hb;
+    [| eapply no_dup_mmsn with (eqP := eqP)];
+    try assumption.
+    simpl in Hb.
+    eapply set_in_swap_second_step in Hb;
+    [|eapply no_dup_mmsn with (eqP := eqP); 
+      try assumption; 
+      eapply no_dup_mmsn with (eqP := eqP)];
+    try assumption.
+
+    specialize (IHx (manger_merge_sets_new eqA addP
+      (manger_merge_sets_new eqA addP Y (mulA ah ax, mulP bh bx))
+      (mulA ah ax, mulP bh' bx)) au av ah bh bh').
+    assert (Hc : no_dup eqA (map fst
+      (manger_merge_sets_new eqA addP
+        (manger_merge_sets_new eqA addP Y (mulA ah ax, mulP bh bx))
+        (mulA ah ax, mulP bh' bx))) = true).
+    eapply no_dup_mmsn with (eqP := eqP); 
+    try assumption; 
+    eapply no_dup_mmsn with (eqP := eqP); try assumption.
+    repeat rewrite app_nil_r in IHx.
+    subst.
+    specialize (IHx Hc Hb);
+    clear Hb Hc.
+    eapply fold_left_in_set_mmsn_cong with 
+    (V := (manger_merge_sets_new eqA addP
+    (manger_merge_sets_new eqA addP Y (mulA ah ax, mulP bh bx))
+    (mulA ah ax, mulP bh' bx)));
+    try assumption.
+    exact addP_gen_idempotent.
+    eapply brel_set_transitive with 
+    (t := manger_merge_sets_new eqA addP Y 
+    (mulA ah ax, addP (mulP bh bx) (mulP bh' bx)));
+    [eapply refAP | eapply symAP | eapply trnAP | |];
+    try assumption.
+    ++
+      eapply  mmsn_same_add with 
+      (zeroP := zeroP); try assumption.
+      eapply refA.
+    ++
+      eapply  manger_congruence_accumulator,
+      brel_product_intro;
+      [eapply refA | eapply symP,
+      mulP_addP_right_distributive].
+Qed.
 
 
-Admitted.
 
 
 
