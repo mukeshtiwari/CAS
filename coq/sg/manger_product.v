@@ -2,7 +2,7 @@ Require Import Coq.Lists.List.
 Require Import Coq.Strings.String.
 
 Require Import CAS.coq.common.compute.
-
+Require Import CAS.coq.bs.properties. 
 Require Import CAS.coq.eqv.properties.
 Require Import CAS.coq.eqv.product.
 Require Import CAS.coq.eqv.set.
@@ -153,7 +153,9 @@ Variables
   (mulA_assoc : bop_associative A eqA mulA)
   (mulP_assoc : bop_associative P eqP mulP)
   (cong_mulA : bop_congruence A eqA mulA)
-  (cong_mulP : bop_congruence P eqP mulP).
+  (cong_mulP : bop_congruence P eqP mulP)
+  (mulP_addP_right_distributive : 
+    (bop_right_distributive P eqP addP mulP)).
 
 Local Notation "[EQP0]" :=  (brel_set (brel_product eqA eqP)) (only parsing).
 Local Notation "[EQP1]" :=  (equal_manger_phase_1 eqA eqP addP) (only parsing). 
@@ -756,7 +758,6 @@ Qed.
 
 
 (*
-
 This is such an awesome proof technique. I have 
 never seen it anywhere. 
 *)
@@ -783,15 +784,18 @@ Proof.
     try assumption.
   +
     intros * Hb Hc.
-    (* get rid of (ax, bx) from ut *)
+    (* get rid of (ax, bx) from U *)
     remember (filter (λ p : A * P, 
       negb (brel_product eqA eqP p (ax, bx))) U) as Urem.
+    (* get rid of (ax, bx) from V*)
     remember (filter (λ p : A * P, 
       negb (brel_product eqA eqP p (ax, bx))) V) as Vrem.
+    (* Now prove that V is equal to (ax, bx) :: Vrem *)
     assert (Hd : V =S= (ax, bx) :: Vrem).
     rewrite HeqVrem.
     eapply membship_filter; 
     try assumption; exact Hc.
+    (* Now prove that Urem =S= Vrem *)
     assert (He : Urem =S= Vrem).
     rewrite HeqUrem, HeqVrem.
     eapply filter_congruence_gen;
@@ -800,10 +804,14 @@ Proof.
     try assumption.
     rewrite <-Ha in Hc;
     exact Hc.
+    (* Now prove that it is Accessible relation *)
     assert (Hf : Acc lt (Datatypes.length Urem)).
     eapply Acc_inv with (List.length U);
     [exact Hacc | rewrite HeqUrem, Ha; cbn;
     rewrite refA, refP; cbn; eapply length_filter].
+    (* Needs idempotence *)
+
+
     specialize (Fn Urem Hf Vrem 
       (manger_merge_sets_new eqA addP Y (ax, bx))).
     (* Play with transitivity *)
@@ -1189,6 +1197,7 @@ Proof.
   (* simple congruene with ++ *)
 Admitted.
 
+
 (* easy but annonying *)
 Lemma in_set_swap_arugments : 
   forall (t Y₁ Y₂ s2 Z : finite_set (A * P)) au av ah bh bh',
@@ -1209,6 +1218,7 @@ Proof.
   try assumption.
   (* congruence and commute *)
 Admitted.
+
 
 (* easy but annonying *)
 Lemma in_set_swap_arugments_2 : 
@@ -1232,11 +1242,60 @@ Proof.
 Admitted.
 
 
+Lemma set_in_swap_first_step : 
+  forall (Xa Xb Y : finite_set (A * P)) ah bh au av, 
+  no_dup eqA (map fst Y) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP)
+    ((ah, bh) :: Xb ++ Xa) Y) (au, av) = true->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP)
+    (Xa ++ (ah, bh) :: Xb) Y) (au, av) = true.
+Proof.
+  intros * Ht Ha.
+  rewrite <-Ha.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply  fold_left_cong];
+  try assumption.
+  (* some annoyance but provable *)
+Admitted.
+
+
+Lemma set_in_swap_second_step : 
+  forall (Xa Xb Y : finite_set (A * P)) au av, 
+  no_dup eqA (map fst Y) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP) (Xa ++ Xb) Y) 
+  (au, av) = true ->
+  set.in_set (manger_llex.eqAP A P eqA eqP)
+  (fold_left (manger_merge_sets_new eqA addP) (Xb ++ Xa) Y) 
+  (au, av) = true.
+Proof.
+  intros * Ht Ha.
+  rewrite <-Ha.
+  eapply in_set_left_congruence_v2;
+  [eapply symAP | eapply trnAP | eapply  fold_left_cong];
+  try assumption.
+ (* some annoyance but provable *)
+Admitted.
+
+
+(* Move this to manger_sets.v *)
+Lemma manger_congruence_accumulator : 
+  forall (Y : finite_set (A * P)) ah bh,
+  ah == bh ->
+  manger_merge_sets_new eqA addP Y ah =S= 
+  manger_merge_sets_new eqA addP Y bh.
+Proof.
+Admitted.
+
+
 (* Important Lemma so prove it first *)
 (* I can assume that Y is no duplicate but I think, right 
 now, I don't need it
 *)
 (* Challenging *)
+(* requires right distributivity *)
 Lemma set_in_fold_dist_imp : 
   forall (X Y : finite_set (A * P)) au av ah bh bh', 
   no_dup eqA (map fst Y) = true ->
@@ -1249,9 +1308,69 @@ Lemma set_in_fold_dist_imp :
       (bop_list_product_left (bop_product mulA mulP)
         ([(ah, bh)] ++ [(ah, bh')]) X) Y) (au, av) = true.
 Proof.
-  intros * Ha Hb.
-Admitted.
+  induction X as [|(ax, bx) X IHx].
+  +
+    cbn; intros; 
+    assumption.
+  +
+    simpl; intros * Ha Hb.
+    simpl in IHx.
+    rewrite app_nil_r in Hb |- *.
+    specialize (IHx (manger_merge_sets_new eqA addP Y
+     (mulA ah ax, mulP (addP bh bh') bx)) au av ah bh bh').
+    assert (Hc : no_dup eqA
+      (map fst (manger_merge_sets_new eqA addP Y
+        (mulA ah ax, mulP (addP bh bh') bx))) = true).
+    eapply no_dup_mmsn with (eqP := eqP);
+    try assumption.
+    specialize (IHx Hc); clear Hc.
+    rewrite app_nil_r in IHx.
+    specialize (IHx Hb); clear Hb.
+    (* Now using IHx, discharge the goal *)
+    rewrite app_nil_r in IHx.
+    remember (ltran_list_product (bop_product mulA mulP) (ah, bh) X)
+    as Xa.
+    remember (ltran_list_product (bop_product mulA mulP) (ah, bh') X)
+    as Xb.
+    eapply set_in_swap_first_step;
+    [eapply no_dup_mmsn with (eqP := eqP) | simpl];
+    try assumption.
+    remember (mulA ah ax) as ahax.
+    remember (mulP bh bx) as bhbx.
+    remember (mulP bh' bx) as bhbx'.
+    eapply set_in_swap_second_step.
+    eapply no_dup_mmsn with (eqP := eqP);
+    try assumption.
+    eapply no_dup_mmsn with (eqP := eqP);
+    try assumption.
+    eapply fold_left_in_set_mmsn_cong with 
+    (V := (manger_merge_sets_new eqA addP Y 
+    (ahax, mulP (addP bh bh') bx))); 
+    try assumption.
+    exact addP_gen_idempotent.
+    subst.
+    (* I need distributivity 
+      eqP (mulP (addP bh bh') bx) 
+      (addP (mulP bh bx) (addP bh' bx)) = true
+    *)
+    eapply brel_set_transitive with
+    (t :=  (manger_merge_sets_new eqA addP Y 
+      (mulA ah ax, addP (mulP bh bx) (mulP bh' bx))));
+    [eapply refAP | eapply symAP | eapply trnAP | | ];
+    try assumption.
+    ++
+      eapply  manger_congruence_accumulator,
+      brel_product_intro;
+      [eapply refA | 
+      eapply mulP_addP_right_distributive].
+    ++
+      eapply brel_set_symmetric.
+      eapply  mmsn_same_add with 
+      (zeroP := zeroP); try assumption.
+      eapply refA.
+Qed.
 
+    
 
 (* Challenging *)
 Lemma set_in_fold_dist_imp_2 : 
