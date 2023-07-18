@@ -2026,6 +2026,68 @@ Proof.
 Qed.
 
 
+Lemma fold_left_right_symmetric_aux : 
+  ∀ (U : Type) (eqU : brel U) (f : binary_op U),
+    brel_reflexive U eqU -> 
+    brel_symmetric U eqU ->
+    brel_transitive U eqU -> 
+    bop_associative U eqU f -> 
+    bop_commutative U eqU f ->
+    bop_congruence U eqU f ->
+    ∀ (X : list U) (a ax : U),
+    eqU (fold_right f (f a ax) X) (f ax (fold_right f a X)) = true.
+Proof.
+  intros * Href Hsym Htrn Hassoc Hcom Hcong.
+  induction X as [|ah X IHx].
+  +
+    intros *; cbn.
+    eapply Hcom.
+  +
+    intros *; cbn.
+    specialize (IHx a ax).
+    eapply Htrn with 
+    (f ah (f ax (fold_right f a X))).
+    ++
+      remember ((fold_right f (f a ax) X)) as Xa.
+      remember ((f ax (fold_right f a X))) as Xb.
+      eapply Hcong;
+      [eapply Href | exact IHx].
+    ++
+      remember ((fold_right f a X)) as Xa.
+      eapply Htrn with (t := f (f ah ax) Xa);
+      [eapply Hsym, Hassoc | eapply Hsym].
+      eapply Htrn with (t := f (f ax ah) Xa);
+      [eapply Hsym, Hassoc | eapply Hcong;
+      [eapply Hcom | eapply Href]].
+Qed.
+
+
+
+
+Lemma fold_left_right_symmetric : 
+  ∀ (U : Type) (eqU : brel U) (f : binary_op U),
+    brel_reflexive U eqU -> 
+    brel_symmetric U eqU ->
+    brel_transitive U eqU -> 
+    bop_associative U eqU f -> 
+    bop_commutative U eqU f ->
+    bop_congruence U eqU f ->
+    ∀ (X : list U) (a : U),
+    eqU (fold_left f X a) (fold_right f a X) = true.
+Proof.
+  intros * Href Hsym Htrn Hassoc Hcom. 
+  induction X as [|ax X IHx].
+  +
+    intros *; cbn;
+    eapply Href.
+  +
+    intros *; cbn.
+    specialize (IHx (f a ax)).
+    eapply Htrn;
+    [exact IHx | eapply fold_left_right_symmetric_aux];
+    try assumption.
+Qed.
+
 
 
 Lemma fold_left_congruence : 
@@ -2059,9 +2121,9 @@ Proof.
     exact Hdr.
     (* start *)
     eapply trnP;
-    [eapply list_congruences.fold_symmetric_with_equality; auto |].
+    [eapply fold_left_right_symmetric; auto |].
     eapply symP, trnP;
-    [eapply list_congruences.fold_symmetric_with_equality; auto|].
+    [eapply fold_left_right_symmetric; auto |].
     eapply symP.
     (* end *)
     eapply fold_right_congruence.
@@ -2092,9 +2154,9 @@ Proof.
     exact Hdr.
     (* start *)
     eapply trnP;
-    [eapply list_congruences.fold_symmetric_with_equality; auto |].
+    [eapply fold_left_right_symmetric; auto |].
     eapply symP, trnP;
-    [eapply list_congruences.fold_symmetric_with_equality; auto|].
+    [eapply fold_left_right_symmetric; auto |].
     eapply symP.
     (* end *)
     eapply fold_right_congruence.
@@ -2861,12 +2923,12 @@ Proof.
   (* start *)
   assert (Hal : eqP y (fold_right (λ t1 t2 : P, addP t1 t2) av V) = true).
   eapply trnP;
-  [eapply Ha| eapply list_congruences.fold_symmetric_with_equality; auto].
+  [eapply Ha| eapply fold_left_right_symmetric; auto].
   clear Ha; rename Hal into Ha.
   assert (Hbl : eqP yt
     (fold_right (λ t1 t2 : P, addP t1 t2) (addP av bx) V) = true).
   eapply trnP;
-  [eapply Hb| eapply list_congruences.fold_symmetric_with_equality; auto].
+  [eapply Hb| eapply fold_left_right_symmetric; auto].
   clear Hb; rename Hbl into Hb.
   (* end *)
 
@@ -3366,7 +3428,7 @@ Proof.
     
     (* start  *)
     eapply trnP.
-    eapply list_congruences.fold_symmetric_with_equality; auto.
+    eapply fold_left_right_symmetric; auto.
     (* end *)
 
     rewrite <-list_filter_lib_filter_same in Hb.
@@ -3504,7 +3566,7 @@ Proof.
         eapply symP.
         (* start  *)
         eapply symP, trnP.
-        eapply list_congruences.fold_symmetric_with_equality; auto.
+        eapply fold_left_right_symmetric; auto.
         eapply symP.
         (* end *)
         pose proof fold_right_zero (map snd Vb) av 
@@ -4628,7 +4690,7 @@ Proof.
       eapply cong_addP;
       [eapply refP|].
       cbn. eapply cong_addP.
-      eapply list_congruences.fold_symmetric_with_equality; 
+      eapply fold_left_right_symmetric; 
       try auto.
       eapply refP.
       clear Hf; rename Hft into Hf.
