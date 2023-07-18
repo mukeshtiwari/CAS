@@ -1549,13 +1549,56 @@ Proof.
     try assumption.
     *
       cbn in Hb |- *.
-      admit.
+      case_eq (eqA ax aha);
+      case_eq (eqP bx ahb);
+      intros Hc Hd;
+      rewrite Hc, Hd in Hb;
+      cbn in Hb |- *;
+      try congruence.
+      rewrite (trnA _ _ _ Hd Hal).
+      rewrite (trnP _ _ _ Hc Har).
+      reflexivity.
     *
       cbn in Hb |- *.
-      admit.
+      case_eq (eqA ax bha);
+      case_eq (eqP bx bhb);
+      intros Hc Hd;
+      rewrite Hc, Hd in Hb;
+      cbn in Hb |- *;
+      try congruence.
+      rewrite (trnA _ _ _ Hd (symA _ _ Hal)).
+      rewrite (trnP _ _ _ Hc (symP _ _ Har)).
+      reflexivity.
   +
-      (* Provable but annoying *)
-Admitted.
+    eapply brel_product_elim in Ha.
+    destruct Ha as (Hal & Har).
+    cbn.
+    (* Provable but annoying *)
+    case_eq (eqA aha ya);
+    case_eq ((eqA bha ya));
+    intros Hc Hd; 
+    cbn.
+    ++
+      eapply (IHy (aha, addP ahb yb) (bha, addP bhb yb)).
+      eapply brel_product_intro.
+      exact (trnA _ _ _ Hd (symA _ _ Hc)).
+      eapply cong_addP;
+      [exact Har | eapply refP].
+    ++
+      (* false *)
+      rewrite (trnA _ _ _ (symA _ _ Hal) Hd) in Hc;
+      congruence. 
+    ++
+      (* false *)
+      rewrite (trnA _ _ _ Hal Hc) in Hd;
+      congruence.
+    ++
+      eapply set_equal_with_cons_right;
+      try assumption.
+      eapply (IHy (aha, ahb) (bha, bhb)).
+      eapply brel_product_intro.
+      exact Hal. exact Har.
+Qed.
 
 
 (* Important Lemma so prove it first *)
