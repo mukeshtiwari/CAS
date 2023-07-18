@@ -815,13 +815,10 @@ Proof.
     specialize (Fn Urem Hf Vrem 
       (manger_merge_sets_new eqA addP Y (ax, bx))).
     (* Play with transitivity *)
-    
-
-    
 
 Admitted. 
 
-
+(* end admit *)
 Lemma manger_merge_set_no_dup : 
   forall (X Y : finite_set (A * P)), 
   no_dup eqA (map fst Y) = true ->
@@ -886,8 +883,33 @@ Proof.
   try assumption.
 Qed.
 
+ 
+Lemma fold_left_sum_cong : 
+  forall (X Y : finite_set P) bh, 
+  brel_set eqP X Y = true ->
+  eqP 
+    (fold_left (λ t1 t2 : P, addP t1 t2) X bh)
+    (fold_left (λ t1 t2 : P, addP t1 t2) Y bh) = true.
+Proof.
+  intros * Ha.
+  eapply trnP.
+  eapply list_congruences.fold_symmetric_with_equality;
+  try assumption.
+  eapply symP, trnP.
+  eapply list_congruences.fold_symmetric_with_equality;
+  try assumption.
+  eapply fold_right_congruence;
+  try assumption.
+  intros *; eapply symP, addP_assoc.
+  intros * Hb Hc.
+  eapply cong_addP;
+  try assumption.
+  exact addP_gen_idempotent.
+  eapply brel_set_symmetric; 
+  exact Ha.
+Qed.
 
-
+  
 (* Trivial but pesky congruence  *)
 Lemma fold_left_map_filter_cong :
   forall Y ah bh bh',
@@ -899,8 +921,19 @@ Lemma fold_left_map_filter_cong :
     (addP bh bh') = true.
 Proof.
   intros * Ha.
+  eapply trnP 
+  with (t := (fold_left (λ t1 t2 : P, addP t1 t2)
+    (map snd [(ah, bh')]) bh)).
+  +
+   
+    eapply fold_left_sum_cong.
+    eapply map_preservs_equivalence_on_second with 
+    (eqA := eqA);
+    try assumption.
+  +
+    cbn; eapply refP.
+Qed.
 
-Admitted.
 
 
 Lemma set_in_set_in_list_interaction : 
@@ -1121,9 +1154,80 @@ Proof.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
   try assumption.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) He];
+  try assumption.
+  + 
+    eapply set.in_set_concat_elim in He;
+    [| eapply symAP]; try assumption.
+    destruct He as [He | He].
+    ++
+      eapply set.in_set_concat_intro.
+      left; exact He.
+    ++
+      rewrite app_assoc in He.
+      eapply set.in_set_concat_elim in He;
+      [| eapply symAP]; try assumption.
+      destruct He as [He | He].
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        left.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | ];
+        try assumption.
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | eapply brel_set_symmetric];
+        try assumption.
+        compute; rewrite Ha, Hb, 
+        (symA _ _ Ha), (symP _ _ Hb);
+        reflexivity.
+  +
+    eapply set.in_set_concat_elim in He;
+    [| eapply symAP]; try assumption.
+    destruct He as [He | He].
+    ++
+      eapply set.in_set_concat_intro.
+      left; exact He.
+    ++
+      eapply set.in_set_concat_elim in He;
+      [| eapply symAP]; try assumption.
+      destruct He as [He | He].
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        rewrite app_assoc.
+        eapply set.in_set_concat_intro.
+        left.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | eapply brel_set_symmetric];
+        try assumption.
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | eapply brel_set_symmetric];
+        try assumption.
+        compute; rewrite Ha, Hb, 
+        (symA _ _ Ha), (symP _ _ Hb);
+        reflexivity.
+Qed.
 
-  (* simple substitution. Should be in list library*)
-Admitted.
+
 
 (* easy but annonying  *)
 Lemma in_set_subst_2 : 
@@ -1145,9 +1249,62 @@ Proof.
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
   try assumption.
   (* congruence with ++ *)
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) He];
+  try assumption.
+  +
+    eapply set.in_set_concat_elim in He;
+    [| eapply symAP]; try assumption.
+    destruct He as [He | He].
+    ++
+      eapply set.in_set_concat_intro.
+      left; exact He.
+    ++
+      eapply set.in_set_concat_elim in He;
+      [| eapply symAP]; try assumption.
+      destruct He as [He | He].
+      +++
+         eapply set.in_set_concat_intro.
+         right.
+         eapply set.in_set_concat_intro.
+         left; exact He.
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | 
+        eapply brel_set_symmetric];
+        try assumption.
+  +
+    eapply set.in_set_concat_elim in He;
+    [| eapply symAP]; try assumption.
+    destruct He as [He | He].
+    ++
+      eapply set.in_set_concat_intro.
+      left; exact He.
+    ++
+      eapply set.in_set_concat_elim in He;
+      [| eapply symAP]; try assumption.
+      destruct He as [He | He].
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        left; exact He.
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | ];
+        try assumption.
+Qed.
 
-  (* simple congruence. Should be in library *)
-Admitted. 
 
 
 (* easy but annonying  *)
@@ -1940,7 +2097,7 @@ Proof.
     [right | left]; assumption.
 Qed.
 
-
+(* begin admit *)
 (* If I replace =S= by =, then it is true? 
 Try with some examples!
 Chellenging
@@ -1955,8 +2112,6 @@ Lemma fold_left_ltrtrans_interaction :
   fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z.
 Proof.
-
- 
 Admitted.  
 
 (* end of admit *)
