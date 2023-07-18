@@ -1169,8 +1169,61 @@ Proof.
   eapply in_set_left_congruence_v2;
   [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
   try assumption.
-  (* simple congruence. Should be in library *)
-Admitted. 
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) He];
+  try assumption.
+  +
+    eapply set.in_set_concat_elim in He;
+    [| eapply symAP]; try assumption.
+    destruct He as [He | He].
+    ++
+      eapply set.in_set_concat_intro.
+      left; exact He.
+    ++
+      eapply set.in_set_concat_elim in He;
+      [| eapply symAP]; try assumption.
+      destruct He as [He | He].
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        left; exact He.
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | ];
+        try assumption.
+  +
+    eapply set.in_set_concat_elim in He;
+    [| eapply symAP]; try assumption.
+    destruct He as [He | He].
+    ++
+      eapply set.in_set_concat_intro.
+      left; exact He.
+    ++
+      eapply set.in_set_concat_elim in He;
+      [| eapply symAP]; try assumption.
+      destruct He as [He | He].
+      +++ 
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        left; exact He.
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | eapply brel_set_symmetric];
+        try assumption.
+Qed.
+
 
 
 (* easy but annonying  *)
@@ -1219,14 +1272,54 @@ Proof.
         [eapply symAP | apply trnAP | eapply brel_set_symmetric];
         try assumption.
       +++
-        
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        right.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | eapply brel_set_symmetric];
+        try assumption.
+        compute; rewrite Ha, Hb, 
+        (symA _ _ Ha), (symP _ _ Hb);
+        reflexivity.
+  +
+    eapply set.in_set_concat_elim in He;
+    [| eapply symAP]; try assumption.
+    destruct He as [He | He].
+    ++
+      eapply set.in_set_concat_intro.
+      left; exact He.
+    ++
+      rewrite app_assoc in He.
+      eapply set.in_set_concat_elim in He;
+      [| eapply symAP]; try assumption.
+      destruct He as [He | He].
+      +++
+        eapply set.in_set_concat_intro.
+        right.
+        eapply set.in_set_concat_intro.
+        left.
+        rewrite <-He.
+        eapply in_set_left_congruence_v2;
+        [eapply symAP | apply trnAP | ];
+        try assumption.
+      +++
+      eapply set.in_set_concat_intro.
+      right.
+      eapply set.in_set_concat_intro.
+      right.
+      rewrite <-He.
+      eapply in_set_left_congruence_v2;
+      [eapply symAP | apply trnAP | eapply brel_set_symmetric];
+      try assumption.
+      compute; rewrite Ha, Hb, 
+      (symA _ _ Ha), (symP _ _ Hb);
+      reflexivity.
+Qed.
 
-
-
-
-
-  (* simple congruene with ++ *)
-Admitted.
 
 
 (* easy but annonying *)
