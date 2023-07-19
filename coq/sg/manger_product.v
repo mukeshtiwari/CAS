@@ -773,12 +773,42 @@ Qed.
 
 (*  begin Admit *)
 
+Lemma fold_left_cong_aux_1 : 
+  forall (X Y : finite_set (A * P)) ax bx, 
+  no_dup eqA (map fst Y) = true -> 
+  manger_llex.eqSAP A P eqA eqP
+  (fold_left (manger_merge_sets_new eqA addP) X
+    (manger_merge_sets_new eqA addP Y (ax, bx)))
+  (fold_left (manger_merge_sets_new eqA addP)
+    (filter (λ p : A * P, negb (brel_product eqA eqP p (ax, bx))) X)
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true.
+Proof.
+Admitted.
+
+
+
+Lemma fold_left_cong_aux_2: 
+  forall (X Y : finite_set (A * P)) ax bx, 
+  no_dup eqA (map fst Y) = true -> 
+  manger_llex.eqSAP A P eqA eqP
+  (fold_left (manger_merge_sets_new eqA addP)
+    (filter (λ p : A * P, negb (brel_product eqA eqP p (ax, bx))) X)
+      (manger_merge_sets_new eqA addP Y (ax, bx)))
+  (fold_left (manger_merge_sets_new eqA addP) X Y) = true.
+Proof.
+Admitted.
+
+
+
+(* end admit *)
+
+
 
 (*
 This is such an awesome proof technique. I have 
-never seen it anywhere. 
+never seen it anywhere. This proof requires 
+well founded induction with a tricky transitivity. 
 *)
-
 Lemma fold_left_cong : 
   forall (U V Y : finite_set (A * P)),
   no_dup eqA (map fst Y) = true -> 
@@ -853,7 +883,9 @@ Proof.
     (* Now the challenge *)
     ++
       simpl.
-      rewrite HeqUrem.
+      rewrite HeqUrem, Ha;
+      simpl; rewrite refA, refP;
+      simpl.
       (* 
       Prove a lemma and it requires idempotence. 
       Think about it.
@@ -867,17 +899,24 @@ Proof.
         ((ax, bx) :: filter (λ p : A * P, 
           negb (brel_product eqA eqP p (ax, bx))) U) Y)
       *)
-      admit.
+      eapply fold_left_cong_aux_1; 
+      try assumption.
     ++
       (* How to prove this one? *)
       simpl;
       rewrite HeqVrem.
-      (* same lemma as above *)
-
-Admitted. 
-
-(* end admit *)
-
+      (* prove another lemma that 
+      manger_llex.eqSAP A P eqA eqP
+      (fold_left (manger_merge_sets_new eqA addP)
+        (filter (λ p0 : A * P, negb (brel_product eqA eqP p0 (ax, bx))) V)
+        (manger_merge_sets_new eqA addP Y (ax, bx)))
+      (fold_left (manger_merge_sets_new eqA addP) V Y) = true
+  *)
+    eapply fold_left_cong_aux_2;
+    try assumption.
+  +
+    eapply (Wf_nat.well_founded_ltof _ _).
+Qed.
 
 
 
