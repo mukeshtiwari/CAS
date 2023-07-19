@@ -797,16 +797,68 @@ Proof.
     case_eq (eqA ax au);
     intros Hb Hc; simpl.
     ++
-      (* easy *)
+      specialize (IHx Y au bu Ha).
+      eapply trnSAP with 
+      (t := (fold_left (manger_merge_sets_new eqA addP) X
+      (manger_merge_sets_new eqA addP Y (au, bu))));
+      try assumption.
+      (* Prove it separately *)
       admit.
     ++
-      (* How to prove this?? *)
+
+      assert (Hd : no_dup eqA (map fst 
+          (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+      eapply no_dup_mmsn with (eqP := eqP);
+      try assumption.
+      specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
+      au bu Hd).
+      (*
+      I can replace 
+      (manger_merge_sets_new eqA addP
+        (manger_merge_sets_new eqA addP Y (au, bu)) (
+        ax, bx))
+      by 
+      (manger_merge_sets_new eqA addP
+        (manger_merge_sets_new eqA addP Y [(au, bu); (ax, bx)]
+
+      Now My goal turns into 
+     
+      (fold_left (manger_merge_sets_new eqA addP) X
+      (manger_merge_sets_new eqA addP Y [(au, bu); (ax, bx)])) =S=
+      (fold_left (manger_merge_sets_new eqA addP)
+      (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
+       (manger_merge_sets_new eqA addP Y [(au, bu); (ax, bx)]))
+      After simplification, the goal is same as IHx
+      
+       *)
+       
       admit.
     ++
       (* easy *)
+      (*
+      In the goal, 
+      (manger_merge_sets_new eqA addP
+        (manger_merge_sets_new eqA addP Y (au, bu)) (
+        ax, bx)) can be replace by 
+      (manger_merge_sets_new eqA addP Y [(au, bu); (ax, bx)])
+      *)
+      assert (Hd : no_dup eqA (map fst 
+        (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+      eapply no_dup_mmsn with (eqP := eqP);
+      try assumption.
+      specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
+      au bu Hd).
       admit.
     ++
-      (* easy *)
+
+      assert (Hd : no_dup eqA (map fst 
+        (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+      eapply no_dup_mmsn with (eqP := eqP);
+      try assumption.
+      specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
+      au bu Hd).
+      (*
+      *)
 Admitted.
     
 
