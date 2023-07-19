@@ -773,29 +773,60 @@ Qed.
 
 (*  begin Admit *)
 
+
 Lemma fold_left_cong_aux_1 : 
-  forall (X Y : finite_set (A * P)) ax bx, 
+  forall (X Y : finite_set (A * P)) au bu, 
   no_dup eqA (map fst Y) = true -> 
   manger_llex.eqSAP A P eqA eqP
   (fold_left (manger_merge_sets_new eqA addP) X
-    (manger_merge_sets_new eqA addP Y (ax, bx)))
+    (manger_merge_sets_new eqA addP Y (au, bu)))
   (fold_left (manger_merge_sets_new eqA addP)
-    (filter (λ p : A * P, negb (brel_product eqA eqP p (ax, bx))) X)
-      (manger_merge_sets_new eqA addP Y (ax, bx))) = true.
+    (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
+      (manger_merge_sets_new eqA addP Y (au, bu))) = true.
 Proof.
+  induction X as [|(ax, bx) X IHx].
+  +
+    simpl;
+    intros * Ha.
+    eapply refSAP; try assumption.
+  +
+    (* induction case *)
+    (* case analysis *)
+    simpl; intros * Ha.
+    case_eq (eqP bx bu);
+    case_eq (eqA ax au);
+    intros Hb Hc; simpl.
+    ++
+      (* easy *)
+      admit.
+    ++
+      (* How to prove this?? *)
+      admit.
+    ++
+      (* easy *)
+      admit.
+    ++
+      (* easy *)
 Admitted.
+    
+
+
+
 
 
 
 Lemma fold_left_cong_aux_2: 
   forall (X Y : finite_set (A * P)) ax bx, 
   no_dup eqA (map fst Y) = true -> 
+  set.in_set (brel_product eqA eqP) X (ax, bx) = true ->
   manger_llex.eqSAP A P eqA eqP
   (fold_left (manger_merge_sets_new eqA addP)
     (filter (λ p : A * P, negb (brel_product eqA eqP p (ax, bx))) X)
       (manger_merge_sets_new eqA addP Y (ax, bx)))
   (fold_left (manger_merge_sets_new eqA addP) X Y) = true.
 Proof.
+  
+
 Admitted.
 
 
@@ -868,8 +899,7 @@ Proof.
       Use transitivity to connect:
       1. (ax, bx) :: Ut to (ax, bx) :: Urem 
       2. (ax, bx) :: Urem to (ax, bx) :: Vrem 
-      3. (ax, bx) :: Vrem to (ax, bx) :: V (or V?)
-    
+      3. (ax, bx) :: Vrem to V 
     *)
     (* step 1 *)
     eapply trnSAP with 
@@ -886,32 +916,20 @@ Proof.
       rewrite HeqUrem, Ha;
       simpl; rewrite refA, refP;
       simpl.
-      (* 
-      Prove a lemma and it requires idempotence. 
-      Think about it.
-      
-      U = (ax, bx) :: Ut -> 
-      manger_llex.eqSAP A P eqA eqP
-      (fold_left (manger_merge_sets_new eqA addP) 
-        ((ax, bx) :: Ut) Y =S= 
-      manger_llex.eqSAP A P eqA eqP
-      (fold_left (manger_merge_sets_new eqA addP)
-        ((ax, bx) :: filter (λ p : A * P, 
-          negb (brel_product eqA eqP p (ax, bx))) U) Y)
-      *)
       eapply fold_left_cong_aux_1; 
       try assumption.
     ++
       (* How to prove this one? *)
       simpl;
       rewrite HeqVrem.
-      (* prove another lemma that 
-      manger_llex.eqSAP A P eqA eqP
-      (fold_left (manger_merge_sets_new eqA addP)
-        (filter (λ p0 : A * P, negb (brel_product eqA eqP p0 (ax, bx))) V)
-        (manger_merge_sets_new eqA addP Y (ax, bx)))
-      (fold_left (manger_merge_sets_new eqA addP) V Y) = true
-  *)
+    (* add an extra assumption (ax, bx) in V *)
+    assert (Hi : set.in_set (brel_product eqA eqP) V (ax, bx) = true).
+    eapply in_set_left_congruence_v3 with 
+    (X := ((ax, bx) :: Vrem));
+    [eapply symAP | eapply trnAP | 
+    eapply brel_set_symmetric; exact Hd|
+    simpl; rewrite refA, refP; simpl; 
+    reflexivity]; try assumption.
     eapply fold_left_cong_aux_2;
     try assumption.
   +
