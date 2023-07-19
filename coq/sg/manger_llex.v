@@ -251,7 +251,8 @@ Section Theory.
 
   (* These admitted lemmas will come from Matrix.algorithm because 
     Tim is working on it, so for the moment I am admitting it. *)
-
+  (* Unfold matrix_algorithms.sum_fn 
+  and then use to get rid of dependency from algorithms files *)
   Lemma sum_fn_congruence_general_set :
     forall (Xa Xb : finite_set (A * P)),
     Xa =S= Xb ->
@@ -659,7 +660,7 @@ Section Theory.
         [eapply zeropRid| eapply symP].
         eapply trnP;
         [eapply zeropRid | eapply symP].
-        eapply list_congruences.fold_symmetric_with_equality;
+        eapply fold_left_right_symmetric;
         try auto.
         (* end *)
         eapply trnP with 
@@ -1562,5 +1563,8 @@ Section Theory.
   Qed.
           
 
-End Theory.   
+
+End Theory.
+
+
 
