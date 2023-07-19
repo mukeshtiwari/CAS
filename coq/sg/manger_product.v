@@ -773,6 +773,97 @@ Qed.
 
 (*  begin Admit *)
 
+(* I don't think it is true! *)
+Lemma mmsn_diff_swap_gen : 
+  forall V au av ax bx, 
+  ((manger_merge_sets_new eqA addP) 
+    ((manger_merge_sets_new eqA addP) V (au, av)) (ax, bx)) =S= 
+  ((manger_merge_sets_new eqA addP) 
+    ((manger_merge_sets_new eqA addP) V (ax, bx)) (au, av)).
+Proof.
+  intros ? ? ? ? ?.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ma, mb) Ha];
+  try assumption.
+  +
+    eapply set.in_set_concat_elim in Ha;
+    [| eapply symAP];
+    try assumption.
+    eapply set.in_set_concat_intro.
+    destruct Ha as [Ha | Ha].
+    ++
+      left; simpl in Ha |- *.
+      cbn in Ha |- *.
+      repeat rewrite <-list_filter_lib_filter_same in Ha |- *.
+      repeat rewrite filter_app in Ha |- *.
+      eapply set.in_set_concat_elim in Ha;
+      [| eapply symAP]; try assumption.
+      eapply set.in_set_concat_intro.
+      destruct Ha as [Ha | Ha];
+      [left | right].
+      +++
+        rewrite filter_filter_curry  in Ha |- *.
+        rewrite <-Ha.
+        f_equal. f_equal.
+        eapply FunctionalExtensionality.functional_extensionality;
+        intros (am, bm).
+        case_eq (eqA au am);
+        case_eq (eqA ax am);
+        intros Hb Hc; cbn;
+        try reflexivity.
+      +++
+         
+Admitted.
+(* end *)
+
+
+
+Lemma fold_left_cong_aux_aux_1 :
+  forall (X Y : finite_set (A * P)) au bu ax bx,
+  no_dup eqA (map fst Y) = true ->
+  eqA ax au = true ->
+  eqP bx bu = true ->
+  (fold_left (manger_merge_sets_new eqA addP) X
+    (manger_merge_sets_new eqA addP
+      (manger_merge_sets_new eqA addP Y (au, bu)) (ax, bx))) =S=
+  (fold_left (manger_merge_sets_new eqA addP) X
+     (manger_merge_sets_new eqA addP Y (au, bu))).
+Proof.
+Admitted.
+
+
+(* use mmsn_diff_swap *)
+Lemma fold_left_cong_aux_aux_2 :
+  forall (X Y : finite_set (A * P)) au bu ax bx,
+  no_dup eqA (map fst Y) = true ->
+  eqA ax au = false ->
+  (fold_left (manger_merge_sets_new eqA addP) X
+    (manger_merge_sets_new eqA addP
+      (manger_merge_sets_new eqA addP Y (ax, bx)) (au, bu))) =S= 
+  (fold_left (manger_merge_sets_new eqA addP) X
+    (manger_merge_sets_new eqA addP
+      (manger_merge_sets_new eqA addP Y (au, bu)) (ax, bx))).
+Proof.
+Admitted.
+
+
+
+Lemma fold_left_cong_aux_aux_3 :
+  forall (X Y : finite_set (A * P)) au bu ax bx,
+  no_dup eqA (map fst Y) = true -> 
+  eqA ax au = true ->
+  (* eqP bx bu = false *) (* I don't need but keep it *)
+  (fold_left (manger_merge_sets_new eqA addP) X
+    (manger_merge_sets_new eqA addP
+      (manger_merge_sets_new eqA addP Y (au, bu)) (ax, bx))) =S= 
+  (fold_left (manger_merge_sets_new eqA addP) X
+    (manger_merge_sets_new eqA addP Y (au, addP bu bx))).
+Proof.
+Admitted.
+
+
+
+
 
 Lemma fold_left_cong_aux_1 : 
   forall (X Y : finite_set (A * P)) au bu, 
@@ -803,9 +894,10 @@ Proof.
       (manger_merge_sets_new eqA addP Y (au, bu))));
       try assumption.
       (* Prove it separately *)
-      admit.
+      eapply fold_left_cong_aux_aux_1; 
+      try assumption.
+      
     ++
-
       assert (Hd : no_dup eqA (map fst 
           (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
       eapply no_dup_mmsn with (eqP := eqP);
@@ -831,8 +923,25 @@ Proof.
       After simplification, the goal is same as IHx
       
        *)
-       
-      admit.
+      remember ((filter (λ p : A * P, negb 
+      (brel_product eqA eqP p (au, bu))) X)) as Xa.
+      eapply trnSAP with 
+      (t := (fold_left (manger_merge_sets_new eqA addP) X
+      (manger_merge_sets_new eqA addP
+        (manger_merge_sets_new eqA addP Y (ax, bx)) (au, bu)))); 
+        try assumption;
+      [eapply fold_left_cong_aux_aux_2; try assumption;
+      case_eq (eqA au ax); intro He; try reflexivity;
+      rewrite (symA _ _ He) in Hb; congruence| ];
+      try assumption.
+      eapply trnSAP with 
+      (t := (fold_left (manger_merge_sets_new eqA addP) Xa
+      (manger_merge_sets_new eqA addP
+         (manger_merge_sets_new eqA addP Y (ax, bx)) (au, bu))));
+      try assumption.
+      eapply fold_left_cong_aux_aux_2;
+      try assumption.
+      
     ++
       (* easy *)
       (*
@@ -848,6 +957,7 @@ Proof.
       try assumption.
       specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
       au bu Hd).
+
       admit.
     ++
 
