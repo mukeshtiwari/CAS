@@ -754,6 +754,23 @@ Proof.
     rewrite IHx; f_equal.
 Qed.
 
+Lemma manger_merge_set_no_dup : 
+  forall (X Y : finite_set (A * P)), 
+  no_dup eqA (map fst Y) = true ->
+  no_dup eqA (map fst
+    (fold_left (manger_merge_sets_new eqA addP) X Y)) = true.
+Proof.
+  induction X as [|(ax, bx) X IHx].
+  +
+    simpl; intros * Ha.
+    exact Ha.
+  +
+    simpl; intros * Ha.
+    eapply IHx.
+    eapply no_dup_mmsn with (eqP := eqP);
+    try assumption.
+Qed.
+
 (*  begin Admit *)
 
 
@@ -761,6 +778,7 @@ Qed.
 This is such an awesome proof technique. I have 
 never seen it anywhere. 
 *)
+
 Lemma fold_left_cong : 
   forall (U V Y : finite_set (A * P)),
   no_dup eqA (map fst Y) = true -> 
@@ -810,31 +828,56 @@ Proof.
     [exact Hacc | rewrite HeqUrem, Ha; cbn;
     rewrite refA, refP; cbn; eapply length_filter].
     (* Needs idempotence *)
-
-
+    assert (Hg : no_dup eqA (map fst 
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+    eapply  no_dup_mmsn with (eqP := eqP);
+    try assumption.
     specialize (Fn Urem Hf Vrem 
-      (manger_merge_sets_new eqA addP Y (ax, bx))).
-    (* Play with transitivity *)
+    (manger_merge_sets_new eqA addP Y (ax, bx)) Hg He).
+    (* 
+      Use transitivity to connect:
+      1. (ax, bx) :: Ut to (ax, bx) :: Urem 
+      2. (ax, bx) :: Urem to (ax, bx) :: Vrem 
+      3. (ax, bx) :: Vrem to (ax, bx) :: V (or V?)
+    
+    *)
+    (* step 1 *)
+    eapply trnSAP with 
+    (t := fold_left (manger_merge_sets_new eqA addP) 
+      ((ax, bx) :: Vrem) Y);
+    try assumption.
+    (* step 2*)
+    eapply trnSAP with 
+    (t := (fold_left (manger_merge_sets_new eqA addP) ((ax, bx) :: Urem) Y));
+    try assumption.
+    (* Now the challenge *)
+    ++
+      simpl.
+      rewrite HeqUrem.
+      (* 
+      Prove a lemma and it requires idempotence. 
+      Think about it.
+      
+      U = (ax, bx) :: Ut -> 
+      manger_llex.eqSAP A P eqA eqP
+      (fold_left (manger_merge_sets_new eqA addP) 
+        ((ax, bx) :: Ut) Y =S= 
+      manger_llex.eqSAP A P eqA eqP
+      (fold_left (manger_merge_sets_new eqA addP)
+        ((ax, bx) :: filter (λ p : A * P, 
+          negb (brel_product eqA eqP p (ax, bx))) U) Y)
+      *)
+      admit.
+    ++
+      (* How to prove this one? *)
+      simpl;
+      rewrite HeqVrem.
+      (* same lemma as above *)
 
 Admitted. 
 
 (* end admit *)
-Lemma manger_merge_set_no_dup : 
-  forall (X Y : finite_set (A * P)), 
-  no_dup eqA (map fst Y) = true ->
-  no_dup eqA (map fst
-    (fold_left (manger_merge_sets_new eqA addP) X Y)) = true.
-Proof.
-  induction X as [|(ax, bx) X IHx].
-  +
-    simpl; intros * Ha.
-    exact Ha.
-  +
-    simpl; intros * Ha.
-    eapply IHx.
-    eapply no_dup_mmsn with (eqP := eqP);
-    try assumption.
-Qed.
+
 
 
 
