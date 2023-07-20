@@ -891,143 +891,133 @@ Qed.
 
 
 
-Lemma fold_left_cong_aux_1 : 
-  forall (X Y : finite_set (A * P)) au bu, 
-  no_dup eqA (map fst Y) = true -> 
-  manger_llex.eqSAP A P eqA eqP
+Lemma fold_left_aux_2_aux_1 : 
+  forall (X Y : finite_set (A * P)) au bu av bv, 
+  no_dup eqA (map fst Y) = true ->
+  eqA au av = true ->
+  eqP bu bv = true -> 
   (fold_left (manger_merge_sets_new eqA addP) X
-    (manger_merge_sets_new eqA addP Y (au, bu)))
+      (manger_merge_sets_new eqA addP Y (av, bv))) =S= 
   (fold_left (manger_merge_sets_new eqA addP)
     (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
-      (manger_merge_sets_new eqA addP Y (au, bu))) = true.
+      (manger_merge_sets_new eqA addP Y (au, bu))).
 Proof.
   induction X as [|(ax, bx) X IHx].
   +
     simpl;
-    intros * Ha.
-    eapply refSAP; try assumption.
+    intros * Ha Hb Hc.
+    rewrite <-manger_merge_set_funex.
+    eapply manger_merge_set_congruence_right;
+    try assumption.
+    eapply brel_product_intro;
+    [eapply symA | apply symP];
+    assumption.
   +
-    (* induction case *)
-    (* case analysis *)
-    simpl; intros * Ha.
+    simpl; intros * Ha Hb Hc.
     case_eq (eqP bx bu);
     case_eq (eqA ax au);
-    intros Hb Hc; simpl.
+    intros Hd He; simpl.
     ++
-      specialize (IHx Y au bu Ha).
-      eapply trnSAP with 
-      (t := (fold_left (manger_merge_sets_new eqA addP) X
-      (manger_merge_sets_new eqA addP Y (au, bu))));
-      try assumption.
-      (* Prove it separately *)
-      eapply fold_left_cong_aux_aux_1; 
-      try assumption.
-      
-    ++
-      assert (Hd : no_dup eqA (map fst 
-          (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+      assert (Hf : no_dup eqA (map fst 
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
       eapply no_dup_mmsn with (eqP := eqP);
       try assumption.
-      specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
-      au bu Hd).
-      (*
-      I can replace 
-      (manger_merge_sets_new eqA addP
-        (manger_merge_sets_new eqA addP Y (au, bu)) (
-        ax, bx))
-      by 
-      (manger_merge_sets_new eqA addP
-        (manger_merge_sets_new eqA addP Y [(au, bu); (ax, bx)]
-
-      Now My goal turns into 
-     
-      (fold_left (manger_merge_sets_new eqA addP) X
-      (manger_merge_sets_new eqA addP Y [(au, bu); (ax, bx)])) =S=
-      (fold_left (manger_merge_sets_new eqA addP)
+      specialize (IHx ((manger_merge_sets_new eqA addP Y (ax, bx)))
+      au bu av bv Hf Hb Hc).
+      eapply trnSAP with 
+      (t := (fold_left (manger_merge_sets_new eqA addP)
       (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
-       (manger_merge_sets_new eqA addP Y [(au, bu); (ax, bx)]))
-      After simplification, the goal is same as IHx
-       *)
-      remember ((filter (λ p : A * P, negb 
-      (brel_product eqA eqP p (au, bu))) X)) as Xa.
-      eapply trnSAP with 
-      (t := (fold_left (manger_merge_sets_new eqA addP) X
-      (manger_merge_sets_new eqA addP
-         (manger_merge_sets_new eqA addP Y (ax, bx)) (
-         au, bu))));
-      try assumption;
-      [eapply fold_left_cong_aux_aux_2 | ];
-      try assumption.
-      eapply trnSAP with 
-      (t := (fold_left (manger_merge_sets_new eqA addP) Xa
       (manger_merge_sets_new eqA addP
          (manger_merge_sets_new eqA addP Y (ax, bx)) (
          au, bu))));
       try assumption.
-      eapply fold_left_cong_aux_aux_2;
-      try assumption.
+      +++
+        eapply trnSAP with
+        (t := (fold_left (manger_merge_sets_new eqA addP) X
+        (manger_merge_sets_new eqA addP
+           (manger_merge_sets_new eqA addP Y (ax, bx)) (
+           av, bv))));
+        try assumption.
+        eapply  fold_left_cong_aux_aux_2;
+        try assumption.
+      +++
+        eapply trnSAP with 
+        (t := (fold_left (manger_merge_sets_new eqA addP)
+        (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
+        (manger_merge_sets_new eqA addP
+           (manger_merge_sets_new eqA addP Y (au, bu)) (
+           ax, bx)))); try assumption;
+        [eapply fold_left_cong_aux_aux_2 |
+        eapply  fold_left_cong_aux_aux_1]; 
+        try assumption.
     ++
-      (* easy *)
-      (*
-      In the goal, 
-      (manger_merge_sets_new eqA addP
-        (manger_merge_sets_new eqA addP Y (au, bu)) (
-        ax, bx)) can be replace by 
-      (manger_merge_sets_new eqA addP Y [(au, bu); (ax, bx)])
-      *)
-      assert (Hd : no_dup eqA (map fst 
-        (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+      assert (Hf : no_dup eqA (map fst 
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
       eapply no_dup_mmsn with (eqP := eqP);
       try assumption.
-      specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
-      au bu Hd).
-      (* *)
-      remember ((filter (λ p : A * P, negb 
-      (brel_product eqA eqP p (au, bu))) X)) as Xa.
-      eapply trnSAP with 
+      specialize (IHx ((manger_merge_sets_new eqA addP Y (ax, bx)))
+      au bu av bv Hf Hb Hc).
+      eapply trnSAP with
       (t := (fold_left (manger_merge_sets_new eqA addP) X
       (manger_merge_sets_new eqA addP
          (manger_merge_sets_new eqA addP Y (ax, bx)) (
-         au, bu))));
-      try assumption;
-      [eapply fold_left_cong_aux_aux_2 | ];
+         av, bv)))); try assumption;
+      [eapply fold_left_cong_aux_aux_2 |]; 
       try assumption.
       eapply trnSAP with 
-      (t := (fold_left (manger_merge_sets_new eqA addP) Xa
+      (t := (fold_left (manger_merge_sets_new eqA addP)
+      (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
       (manger_merge_sets_new eqA addP
          (manger_merge_sets_new eqA addP Y (ax, bx)) (
-         au, bu))));
-      try assumption.
-      eapply fold_left_cong_aux_aux_2;
+         au, bu)))); try assumption.
+      eapply fold_left_cong_aux_aux_2; 
       try assumption.
     ++
-
-      assert (Hd : no_dup eqA (map fst 
-        (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+       assert (Hf : no_dup eqA (map fst 
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
       eapply no_dup_mmsn with (eqP := eqP);
       try assumption.
-      specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
-      au bu Hd).
-      (**)
-      remember ((filter (λ p : A * P, negb 
-      (brel_product eqA eqP p (au, bu))) X)) as Xa.
-      eapply trnSAP with 
+      specialize (IHx ((manger_merge_sets_new eqA addP Y (ax, bx)))
+      au bu av bv Hf Hb Hc).
+      eapply trnSAP with
       (t := (fold_left (manger_merge_sets_new eqA addP) X
       (manger_merge_sets_new eqA addP
          (manger_merge_sets_new eqA addP Y (ax, bx)) (
-         au, bu))));
-      try assumption;
-      [eapply fold_left_cong_aux_aux_2 | ];
+         av, bv)))); try assumption;
+      [eapply fold_left_cong_aux_aux_2 |]; 
       try assumption.
       eapply trnSAP with 
-      (t := (fold_left (manger_merge_sets_new eqA addP) Xa
+      (t := (fold_left (manger_merge_sets_new eqA addP)
+      (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
       (manger_merge_sets_new eqA addP
          (manger_merge_sets_new eqA addP Y (ax, bx)) (
-         au, bu))));
+         au, bu)))); try assumption.
+      eapply fold_left_cong_aux_aux_2; 
       try assumption.
-      eapply fold_left_cong_aux_aux_2;
+    ++
+      assert (Hf : no_dup eqA (map fst 
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+      eapply no_dup_mmsn with (eqP := eqP);
+      try assumption.
+      specialize (IHx ((manger_merge_sets_new eqA addP Y (ax, bx)))
+      au bu av bv Hf Hb Hc).
+      eapply trnSAP with
+      (t := (fold_left (manger_merge_sets_new eqA addP) X
+      (manger_merge_sets_new eqA addP
+         (manger_merge_sets_new eqA addP Y (ax, bx)) (
+         av, bv)))); try assumption;
+      [eapply fold_left_cong_aux_aux_2 |]; 
+      try assumption.
+      eapply trnSAP with 
+      (t := (fold_left (manger_merge_sets_new eqA addP)
+      (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
+      (manger_merge_sets_new eqA addP
+         (manger_merge_sets_new eqA addP Y (ax, bx)) (
+         au, bu)))); try assumption.
+      eapply fold_left_cong_aux_aux_2; 
       try assumption.
 Qed.
+
 
 
 
@@ -1054,11 +1044,8 @@ Proof.
     ++
       rewrite (symA _ _ Hc), (symP _ _ Hd);
       simpl; eapply symSAP.
-      
-
-      admit.
-      (* replace ax, bx by au bu *)
-      
+      eapply fold_left_aux_2_aux_1;
+      try assumption.  
     ++
 
       assert (He : eqA ax au = false). 
@@ -1124,7 +1111,7 @@ Proof.
          au, bu)))); try assumption.
       eapply fold_left_cong_aux_aux_2;
       try assumption.
-Admitted.
+Qed.
 
 
 
@@ -1213,8 +1200,10 @@ Proof.
       rewrite HeqUrem, Ha;
       simpl; rewrite refA, refP;
       simpl.
-      eapply fold_left_cong_aux_1; 
-      try assumption.
+      eapply fold_left_aux_2_aux_1;
+      try assumption;
+      try (eapply refA);
+      try (eapply refP).
     ++
       (* How to prove this one? *)
       simpl;
