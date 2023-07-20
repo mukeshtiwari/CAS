@@ -867,7 +867,26 @@ Lemma fold_left_cong_aux_aux_2 :
     (manger_merge_sets_new eqA addP
       (manger_merge_sets_new eqA addP Y (au, bu)) (ax, bx))).
 Proof.
-Admitted.
+  intros * Ha.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (am, bm) Hd];
+  try assumption.
+  +
+    eapply fold_left_in_set_mmsn_cong with 
+    (V :=  (manger_merge_sets_new eqA addP
+    (manger_merge_sets_new eqA addP Y (ax, bx)) (au, bu)));
+    try assumption.
+    exact addP_gen_idempotent.
+    eapply mmsn_diff_swap_gen.
+  +
+    eapply fold_left_in_set_mmsn_cong with 
+    (V :=  (manger_merge_sets_new eqA addP
+    (manger_merge_sets_new eqA addP Y (au, bu)) (ax, bx)));
+    try assumption.
+    exact addP_gen_idempotent.
+    eapply mmsn_diff_swap_gen.
+Qed.
+
 
 
 Lemma fold_left_cong_aux_1 : 
@@ -1020,6 +1039,8 @@ Lemma fold_left_cong_aux_2:
       (manger_merge_sets_new eqA addP Y (ax, bx)))
   (fold_left (manger_merge_sets_new eqA addP) X Y) = true.
 Proof.
+  intros * Ha Hb.
+  eapply symSAP.
 Admitted.
 
 
