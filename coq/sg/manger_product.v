@@ -857,6 +857,8 @@ Proof.
       [eapply addP_com| eapply refP].
 Qed.
 
+
+
 Lemma fold_left_cong_aux_aux_2 :
   forall (X Y : finite_set (A * P)) au bu ax bx,
   no_dup eqA (map fst Y) = true ->
@@ -1030,17 +1032,98 @@ Qed.
 
 
 Lemma fold_left_cong_aux_2: 
-  forall (X Y : finite_set (A * P)) ax bx, 
+  forall (X Y : finite_set (A * P)) au bu, 
   no_dup eqA (map fst Y) = true -> 
-  set.in_set (brel_product eqA eqP) X (ax, bx) = true ->
-  manger_llex.eqSAP A P eqA eqP
+  set.in_set (brel_product eqA eqP) X (au, bu) = true ->
   (fold_left (manger_merge_sets_new eqA addP)
-    (filter (λ p : A * P, negb (brel_product eqA eqP p (ax, bx))) X)
-      (manger_merge_sets_new eqA addP Y (ax, bx)))
-  (fold_left (manger_merge_sets_new eqA addP) X Y) = true.
+    (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
+      (manger_merge_sets_new eqA addP Y (au, bu))) =S= 
+  (fold_left (manger_merge_sets_new eqA addP) X Y).
 Proof.
-  intros * Ha Hb.
-  eapply symSAP.
+  induction X as [|(ax, bx) X IHx].
+  +
+    simpl; intros * Ha Hb.
+    congruence.
+  +
+    simpl; intros * Ha Hb;
+    case_eq ((eqP bu bx));
+    case_eq ((eqA au ax));
+    intros Hc Hd;
+    rewrite Hc, Hd in Hb;
+    simpl in Hb.
+    ++
+      rewrite (symA _ _ Hc), (symP _ _ Hd);
+      simpl; eapply symSAP.
+      
+
+      admit.
+      (* replace ax, bx by au bu *)
+      
+    ++
+
+      assert (He : eqA ax au = false). 
+      case_eq (eqA ax au);
+      intro He; try reflexivity.
+      rewrite (symA _ _ He) in Hc;
+      congruence.
+      rewrite He; simpl;
+      clear He.
+      assert (He : no_dup eqA (map fst 
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+      eapply no_dup_mmsn with (eqP); try assumption.
+      specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
+      au bu He Hb).
+      eapply trnSAP with 
+      (t := (fold_left (manger_merge_sets_new eqA addP)
+      (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
+      (manger_merge_sets_new eqA addP
+         (manger_merge_sets_new eqA addP Y (ax, bx)) (
+         au, bu)))); try assumption.
+      eapply fold_left_cong_aux_aux_2;
+      try assumption.
+    ++
+      assert (He : eqP bx bu = false). 
+      case_eq (eqP bx bu);
+      intro He; try reflexivity.
+      rewrite (symP _ _ He) in Hd;
+      congruence.
+      rewrite He; clear He.
+      rewrite Bool.andb_false_r; 
+      simpl.
+      assert (He : no_dup eqA (map fst 
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+      eapply no_dup_mmsn with (eqP); try assumption.
+      specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
+      au bu He Hb).
+      eapply trnSAP with 
+      (t := (fold_left (manger_merge_sets_new eqA addP)
+      (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
+      (manger_merge_sets_new eqA addP
+         (manger_merge_sets_new eqA addP Y (ax, bx)) (
+         au, bu)))); try assumption.
+      eapply fold_left_cong_aux_aux_2;
+      try assumption.
+    ++
+      assert (He : eqA ax au = false). 
+      case_eq (eqA ax au);
+      intro He; try reflexivity.
+      rewrite (symA _ _ He) in Hc;
+      congruence.
+      rewrite He; simpl;
+      clear He.
+      assert (He : no_dup eqA (map fst 
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+      eapply no_dup_mmsn with (eqP); try assumption.
+      specialize (IHx (manger_merge_sets_new eqA addP Y (ax, bx))
+      au bu He Hb).
+      eapply trnSAP with 
+      (t := (fold_left (manger_merge_sets_new eqA addP)
+      (filter (λ p : A * P, negb (brel_product eqA eqP p (au, bu))) X)
+      (manger_merge_sets_new eqA addP
+         (manger_merge_sets_new eqA addP Y (ax, bx)) (
+         au, bu)))); try assumption.
+      eapply fold_left_cong_aux_aux_2;
+      try assumption.
 Admitted.
 
 
@@ -3448,9 +3531,11 @@ Proof.
   eapply brel_set_intro_prop;
   [eapply refAP | split; intros (au, av) Ha]; try assumption.
   +
+    (* Think about it *)
     unfold bop_reduce, uop_manger_phase_2 in Ha |- *.
-    
-
+    eapply minset.in_minset_elim in Ha.
+    eapply minset.in_minset_intro.
+   
 Admitted. 
 
 
