@@ -2529,6 +2529,29 @@ Lemma fold_left_ltrtrans_interaction :
   fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z.
 Proof.
+  induction s2 as [|(ax, bx) s2 Ih].
+  +
+    simpl; intros * Ha Hb.
+    eapply refSAP;
+    try assumption.
+  +
+    simpl; intros * Ha Hb.
+    assert (Hc : no_dup eqA (map fst 
+      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
+    eapply no_dup_mmsn with (eqP := eqP); try assumption.
+    assert (Hd : no_dup eqA (map fst
+    (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx))) = true).
+    eapply no_dup_mmsn with (eqP := eqP); try assumption.
+    specialize (Ih (manger_merge_sets_new eqA addP Y (ax, bx))
+      (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx))
+    ah bh Hc Hd).
+    remember ((manger_merge_sets_new eqA addP Y (ax, bx))) as Ya.
+    remember ((manger_merge_sets_new eqA addP Z 
+    (mulA ah ax, mulP bh bx))) as Za.
+    (* connect the ih to goal *)
+
+
+
 Admitted.  
 
 (* end of admit *)
@@ -2626,8 +2649,6 @@ Qed.
 
 
 
-(* This proof existed somewhere in algorithm directory 
-but I can't find it. *)
 Lemma filter_in_set_no_dup : 
   forall (Y Y₁ Y₂ : finite_set (A * P)) ah bh', 
   brel_set (brel_product eqA eqP) Y
