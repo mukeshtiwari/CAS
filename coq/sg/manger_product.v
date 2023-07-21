@@ -771,19 +771,43 @@ Proof.
     try assumption.
 Qed.
 
-(*  begin Admit *)
+
 
 (* Looks true! *)
+(* and it is true! *)
 Lemma mmsn_diff_swap_gen : 
   forall V au av ax bx, 
   ((manger_merge_sets_new eqA addP) 
     ((manger_merge_sets_new eqA addP) V (au, av)) (ax, bx)) =S= 
   ((manger_merge_sets_new eqA addP) 
     ((manger_merge_sets_new eqA addP) V (ax, bx)) (au, av)).
-Proof.   
-Admitted.
-(* end *)
-
+Proof.
+  intros *.
+  case_eq (eqA au ax);
+  intro Ha.
+  +
+    eapply trnSAP with 
+    (t := (manger_merge_sets_new eqA addP V (au, addP av bx)));
+    try assumption;
+    [eapply mmsn_same_add with (zeroP := zeroP) |];
+    try assumption.
+    eapply symSAP.
+    eapply trnSAP with 
+    (t := (manger_merge_sets_new eqA addP V (ax, addP bx av)));
+    try assumption;
+    [eapply mmsn_same_add with (zeroP := zeroP) |];
+    try assumption.
+    exact (symA _ _ Ha).
+    repeat rewrite <-manger_merge_set_funex.
+    eapply manger_merge_set_congruence_right; 
+    try assumption.
+    eapply brel_product_intro;
+    [exact (symA _ _ Ha) | eapply addP_com].
+  +
+    eapply mmsn_diff_swap; 
+    try assumption.
+Qed.
+    
 
 
 Lemma fold_left_cong_aux_aux_1 :
@@ -1115,14 +1139,18 @@ Qed.
 
 
 
-(* end admit *)
-
-
 
 (*
 This is such an awesome proof technique. I have 
 never seen it anywhere. This proof requires 
 well founded induction with a tricky transitivity. 
+*)
+(* 
+Idea: to make these kinds of proofs easy, 
+prove that:
+∀ U V, U =S= V <-> (removed_duplicate U) =S= (remove_duplicate V)
+
+
 *)
 Lemma fold_left_cong : 
   forall (U V Y : finite_set (A * P)),
@@ -1192,7 +1220,8 @@ Proof.
     try assumption.
     (* step 2*)
     eapply trnSAP with 
-    (t := (fold_left (manger_merge_sets_new eqA addP) ((ax, bx) :: Urem) Y));
+    (t := (fold_left (manger_merge_sets_new eqA addP) 
+    ((ax, bx) :: Urem) Y));
     try assumption.
     (* Now the challenge *)
     ++
