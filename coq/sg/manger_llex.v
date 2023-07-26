@@ -272,9 +272,6 @@ Section Theory.
     
   
 
-  (* End of admit that will come from library *)
-
-
    (* Move these lemmas to respective files *)
 
   Lemma sum_fn_distribute : 
