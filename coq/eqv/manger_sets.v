@@ -198,7 +198,8 @@ Variables (A P : Type)
           (* Extra assumptions needed to prove the lemmas fold_left congruence *)
           (addP_assoc : bop_associative P eqP addP)
           (addP_com : bop_commutative P eqP addP)
-          (* idempotence is baked in this addP_gen_idempotent but it can be proved *)
+          (* generalised idempotence but it can be proven assuming normal idempotence.
+            This one is a bit less annoying. *)
           (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true).
 
       
@@ -3642,6 +3643,9 @@ Qed.
 
 
 
+
+
+
 Lemma in_set_fold_left_mmsn_intro_forall : 
   forall (U V : finite_set (A * P))
   (a : A) (p : P) (q : P),
@@ -4623,7 +4627,6 @@ Lemma in_set_fold_left_mmsn_elim_second :
   forall (X Y : finite_set (A * P))
     (a : A) (p : P),
     no_dup eqA (map fst Y) = true ->
-    (* no_dup (brel_product eqA eqP) Y = true -> *)
     (a, p) [in] fold_left [MMSN] X Y ->
     eqP p (sum_fn zeroP addP snd 
       (filter (λ '(x, _), eqA x a) (X ++ Y))) = true.
@@ -4867,7 +4870,6 @@ Proof.
   eapply manger_pre_order_reflexive.
   eapply manger_pre_order_transitive.
 Qed.
-
 
 
 End Theory.   

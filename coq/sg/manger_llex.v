@@ -73,6 +73,8 @@ Section Theory.
     (* idempotence is baked in this addP_gen_idempotent but it can be proved *)
     (zeropLid : ∀ (p : P), eqP (addP zeroP p) p = true)
     (zeropRid : ∀ (p : P), eqP (addP p zeroP) p = true)
+     (* generalised idempotence but it can be proven assuming normal idempotence.
+        This one is a bit less annoying. *)
     (addP_gen_idempotent : ∀ x y : P, eqP x y = true → eqP (addP x y) y = true).
     
   Local Definition eqAP : brel (A * P)
