@@ -1146,10 +1146,10 @@ never seen it anywhere. This proof requires
 well founded induction with a tricky transitivity. 
 *)
 (* 
+
 Idea: to make these kinds of proofs easy, 
 prove that:
 ∀ U V, U =S= V <-> (removed_duplicate U) =S= (remove_duplicate V)
-
 
 *)
 Lemma fold_left_cong : 
@@ -3331,6 +3331,58 @@ Proof.
   [eapply refAP | split; intros (au, av) Ha]; try assumption.
   +
     unfold bop_reduce in Ha |- *.
+    eapply in_set_uop_manger_phase_2_elim in Ha;
+    try assumption.
+    destruct Ha as (Hal & Har).
+    eapply in_set_bop_lift_elim in Hal;
+    [| eapply refAP | eapply symAP];
+    try assumption.
+    destruct Hal as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    (* intro rule *)
+    eapply in_set_uop_manger_phase_2_intro;
+    try assumption.
+    ++
+      eapply set.in_set_right_congruence with 
+      (a := bop_product mulA mulP (xa, xp) (ya, yp)); 
+      [eapply symAP | eapply trnAP | eapply brel_product_symmetric |];
+      try assumption.
+      eapply in_set_bop_lift_intro;
+      [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong|
+      |exact Hb]; try assumption.
+      eapply in_set_uop_manger_phase_2_elim in Ha;
+      destruct Ha; try assumption.
+    ++
+      intros * Hd.
+      (* I don't know how to prove this. *)
+      admit.
+  +
+    eapply in_set_uop_manger_phase_2_elim in Ha;
+    try assumption.
+    destruct Ha as (Hal & Har).
+    eapply in_set_bop_lift_elim in Hal;
+    [| eapply refAP | eapply symAP];
+    try assumption.
+    destruct Hal as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    eapply in_set_uop_manger_phase_2_intro;
+    try assumption.
+    ++
+      eapply set.in_set_right_congruence with 
+      (a := bop_product mulA mulP (xa, xp) (ya, yp)); 
+      [eapply symAP | eapply trnAP | eapply brel_product_symmetric |];
+      try assumption.
+      eapply in_set_bop_lift_intro;
+      [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong|
+      |exact Hb]; try assumption.
+      (* 
+        under what circumstances, 
+        set.in_set (brel_product eqA eqP) s1 (xa, xp) = true
+        and 
+        set.in_set (brel_product eqA eqP) (uop_manger_phase_2 lteA s1) 
+        (xa, xp) = true 
+      *)
+      admit.
+    ++
+      intros * Hd.
 Admitted.
 
 
@@ -3570,10 +3622,59 @@ Proof.
   eapply brel_set_intro_prop;
   [eapply refAP | split; intros (au, av) Ha]; try assumption.
   +
-    (* Think about it *)
-    unfold bop_reduce, uop_manger_phase_2 in Ha |- *.
-    eapply minset.in_minset_elim in Ha.
-    eapply minset.in_minset_intro.
+    unfold bop_reduce in Ha |- *.
+    eapply in_set_uop_manger_phase_2_elim in Ha;
+    try assumption.
+    destruct Ha as (Hal & Har).
+    eapply in_set_bop_lift_elim in Hal;
+    [| eapply refAP | eapply symAP];
+    try assumption.
+    destruct Hal as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    (* intro rule *)
+    eapply in_set_uop_manger_phase_2_intro;
+    try assumption.
+    ++
+      eapply set.in_set_right_congruence with 
+      (a := bop_product mulA mulP (xa, xp) (ya, yp)); 
+      [eapply symAP | eapply trnAP | eapply brel_product_symmetric |];
+      try assumption.
+      eapply in_set_bop_lift_intro;
+      [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong| |]; 
+      try assumption.
+      eapply in_set_uop_manger_phase_2_elim in Hb;
+      destruct Hb; try assumption.
+    ++
+      intros * Hd.
+      (* I don't know how to prove this. *)
+      admit.
+  +
+    eapply in_set_uop_manger_phase_2_elim in Ha;
+    try assumption.
+    destruct Ha as (Hal & Har).
+    eapply in_set_bop_lift_elim in Hal;
+    [| eapply refAP | eapply symAP];
+    try assumption.
+    destruct Hal as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    eapply in_set_uop_manger_phase_2_intro;
+    try assumption.
+    ++
+      eapply set.in_set_right_congruence with 
+      (a := bop_product mulA mulP (xa, xp) (ya, yp)); 
+      [eapply symAP | eapply trnAP | eapply brel_product_symmetric |];
+      try assumption.
+      eapply in_set_bop_lift_intro;
+      [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong| |]; 
+      try assumption.
+      (* 
+        under what circumstances, 
+        set.in_set (brel_product eqA eqP) s2 (xa, xp) = true
+        and 
+        set.in_set (brel_product eqA eqP) (uop_manger_phase_2 lteA s2) 
+        (xa, xp) = true 
+      *)
+      admit.
+    ++
+      intros * Hd.
    
 Admitted. 
 
