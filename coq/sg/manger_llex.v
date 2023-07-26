@@ -248,19 +248,28 @@ Section Theory.
     (only parsing). (* Phase 2 reduction *)
 
 
-
-  (* These admitted lemmas will come from Matrix.algorithm because 
-    Tim is working on it, so for the moment I am admitting it. *)
-  (* Unfold matrix_algorithms.sum_fn 
-  and then use to get rid of dependency from algorithms files *)
   Lemma sum_fn_congruence_general_set :
-    forall (Xa Xb : finite_set (A * P)),
-    Xa =S= Xb ->
-    eqP (matrix_algorithms.sum_fn zeroP addP snd Xa)
-    (matrix_algorithms.sum_fn zeroP addP snd Xb) = true.
+    forall (X Y : finite_set (A * P)),
+    X =S= Y ->
+    eqP (matrix_algorithms.sum_fn zeroP addP snd X)
+    (matrix_algorithms.sum_fn zeroP addP snd Y) = true.
   Proof.
-  Admitted.
-
+    intros * Ha.
+    eapply fold_right_congruence;
+    try assumption.
+    +
+      intros *; eapply symP, 
+      addP_assoc.
+    +
+      intros * Hb Hc.
+      eapply cong_addP;
+      try assumption.
+    +
+      eapply  map_preservs_equivalence_on_second
+      with (eqA := eqA);
+      try assumption.
+  Qed.
+    
   
 
   (* End of admit that will come from library *)
