@@ -3319,10 +3319,10 @@ Qed.
 
 (* I can find it in the library. *)
 Lemma theory_below_cong : 
-  forall au xa ya ab, 
-  eqA au (mulA xa ya) = true ->
+  forall au aw ab, 
+  eqA au aw = true ->
   theory.below lteA au ab = false ->
-  theory.below lteA (mulA xa ya) ab = false.
+  theory.below lteA aw ab = false.
 Proof.
   intros * Ha Hb.
   eapply theory.below_false_elim in Hb.
@@ -3341,6 +3341,30 @@ Proof.
   try assumption.
 Qed.
     
+
+(* I can find it in the library. *)
+Lemma theory_below_cong_second : 
+  forall au aw ab, 
+  eqA au aw = true ->
+  theory.below lteA ab au = false ->
+  theory.below lteA ab aw = false.
+Proof.
+  intros * Ha Hb.
+  eapply theory.below_false_elim in Hb.
+  eapply theory.below_false_intro.
+  destruct Hb as [Hb | Hb];
+  [left | right].
+  +
+    rewrite <-Hb.
+    eapply conLte;
+    [eapply symA | eapply refA];
+    try assumption.
+  +
+  rewrite <-Hb.
+  eapply conLte;
+  [eapply refA | eapply symA];
+  try assumption.
+Qed.
 
 Lemma bop_left_uop_inv_phase_2 : 
   bop_left_uop_invariant (finite_set (A * P))
@@ -3381,13 +3405,17 @@ Proof.
       [| eapply refAP | eapply symAP];
       try assumption.
       destruct Hd as ((xaa, xbb) & (yaa, ybb) & (Hdl & Hdr) & Hdrr).
-      
-      
-
-
-
-
+      eapply brel_product_elim in Hc;
+      destruct Hc as (Hcl & Hcr).
+      eapply brel_product_elim in Hdrr;
+      destruct Hdrr as (Hdrrl & Hdrrr).
+      (* replace au by mulA xa ya and b by mulA xaa yaa *)
+      eapply theory_below_cong with (au := (mulA xa ya));
+      [eapply symA | ]; try assumption.
+      eapply theory_below_cong_second with (au := mulA xaa yaa);
+      [eapply symA | ]; try assumption.
       admit.
+     
   +
     eapply in_set_uop_manger_phase_2_elim in Ha;
     try assumption.
@@ -3425,7 +3453,7 @@ Proof.
       specialize (Har He).
       eapply brel_product_elim in Hc;
       destruct Hc as (Hcl & Hcr).
-      pose proof (theory_below_cong _ _ _ _ Hcl Har) as Hf.
+      pose proof (theory_below_cong _ _ _ Hcl Har) as Hf.
       eapply theory.below_false_elim in Hf.
       eapply theory.below_false_intro.
       (* case analysis *)
