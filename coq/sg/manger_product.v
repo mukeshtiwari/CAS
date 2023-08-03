@@ -3360,13 +3360,13 @@ Proof.
     eapply in_set_bop_lift_elim in Hal;
     [| eapply refAP | eapply symAP];
     try assumption.
-    destruct Hal as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    destruct Hal as ((xa, xb) & (ya, yb) & (Ha & Hb) & Hc).
     (* intro rule *)
     eapply in_set_uop_manger_phase_2_intro;
     try assumption.
     ++
       eapply set.in_set_right_congruence with 
-      (a := bop_product mulA mulP (xa, xp) (ya, yp)); 
+      (a := bop_product mulA mulP (xa, xb) (ya, yb)); 
       [eapply symAP | eapply trnAP | eapply brel_product_symmetric |];
       try assumption.
       eapply in_set_bop_lift_intro;
@@ -3377,6 +3377,16 @@ Proof.
     ++
       intros * Hd.
       (* I don't know how to prove this. *)
+      eapply in_set_bop_lift_elim in Hd;
+      [| eapply refAP | eapply symAP];
+      try assumption.
+      destruct Hd as ((xaa, xbb) & (yaa, ybb) & (Hdl & Hdr) & Hdrr).
+      
+      
+
+
+
+
       admit.
   +
     eapply in_set_uop_manger_phase_2_elim in Ha;
@@ -3429,6 +3439,10 @@ Proof.
          admit.
     ++
       intros * Hd.
+      
+
+
+
 Admitted.
 
 
