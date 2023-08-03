@@ -3317,7 +3317,30 @@ Proof.
     rewrite app_nil_r; try assumption.
 Qed.
 
-
+(* I can find it in the library. *)
+Lemma theory_below_cong : 
+  forall au xa ya ab, 
+  eqA au (mulA xa ya) = true ->
+  theory.below lteA au ab = false ->
+  theory.below lteA (mulA xa ya) ab = false.
+Proof.
+  intros * Ha Hb.
+  eapply theory.below_false_elim in Hb.
+  eapply theory.below_false_intro.
+  destruct Hb as [Hb | Hb];
+  [left | right].
+  +
+    rewrite <-Hb.
+    eapply conLte;
+    [eapply refA | eapply symA];
+    try assumption.
+  +
+  rewrite <-Hb.
+  eapply conLte;
+  [eapply symA | eapply refA];
+  try assumption.
+Qed.
+    
 
 Lemma bop_left_uop_inv_phase_2 : 
   bop_left_uop_invariant (finite_set (A * P))
@@ -3362,25 +3385,48 @@ Proof.
     eapply in_set_bop_lift_elim in Hal;
     [| eapply refAP | eapply symAP];
     try assumption.
-    destruct Hal as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    destruct Hal as ((xa, xp) & (ya, yb) & (Ha & Hb) & Hc).
     eapply in_set_uop_manger_phase_2_intro;
     try assumption.
     ++
       eapply set.in_set_right_congruence with 
-      (a := bop_product mulA mulP (xa, xp) (ya, yp)); 
+      (a := bop_product mulA mulP (xa, xp) (ya, yb)); 
       [eapply symAP | eapply trnAP | eapply brel_product_symmetric |];
       try assumption.
       eapply in_set_bop_lift_intro;
       [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong|
       |exact Hb]; try assumption.
-      (* 
-        under what circumstances, 
-        set.in_set (brel_product eqA eqP) s1 (xa, xp) = true
-        and 
-        set.in_set (brel_product eqA eqP) (uop_manger_phase_2 lteA s1) 
-        (xa, xp) = true 
-      *)
-      admit.
+
+      (* mulA has to be right cancellative *)
+      eapply in_set_uop_manger_phase_2_intro;
+      try assumption.
+      intros sa sb Hd.
+      specialize (Har (mulA sa ya) (mulP sb yb)).
+      assert (He : set.in_set (brel_product eqA eqP)
+      (manger_product_phase_0 eqA eqP mulA mulP s1 s2)
+      (mulA sa ya, mulP sb yb) = true).
+      eapply in_set_bop_lift_intro_v2 with 
+      (x := (sa, sb)) (y := (ya, yb));
+      [eapply refAP | eapply trnAP | eapply symAP |
+      eapply bop_cong | exact Hd | exact Hb | ];
+      try assumption.
+      eapply brel_product_intro;
+      [eapply refA | eapply refP].
+      specialize (Har He).
+      eapply brel_product_elim in Hc;
+      destruct Hc as (Hcl & Hcr).
+      pose proof (theory_below_cong _ _ _ _ Hcl Har) as Hf.
+      eapply theory.below_false_elim in Hf.
+      eapply theory.below_false_intro.
+      (* case analysis *)
+      destruct Hf as [Hf | Hf];
+      [left | right].
+      +++
+         (* this is only true is mulA is right cancellative *)
+         admit.
+      +++
+         (* this is only true is mulA is right cancellative *)
+         admit.
     ++
       intros * Hd.
 Admitted.
@@ -3646,6 +3692,10 @@ Proof.
     ++
       intros * Hd.
       (* I don't know how to prove this. *)
+      (*
+      
+      
+      *)
       admit.
   +
     eapply in_set_uop_manger_phase_2_elim in Ha;
@@ -3654,25 +3704,50 @@ Proof.
     eapply in_set_bop_lift_elim in Hal;
     [| eapply refAP | eapply symAP];
     try assumption.
-    destruct Hal as ((xa, xp) & (ya, yp) & (Ha & Hb) & Hc).
+    destruct Hal as ((xa, xb) & (ya, yb) & (Ha & Hb) & Hc).
     eapply in_set_uop_manger_phase_2_intro;
     try assumption.
     ++
       eapply set.in_set_right_congruence with 
-      (a := bop_product mulA mulP (xa, xp) (ya, yp)); 
+      (a := bop_product mulA mulP (xa, xb) (ya, yb)); 
       [eapply symAP | eapply trnAP | eapply brel_product_symmetric |];
       try assumption.
       eapply in_set_bop_lift_intro;
       [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong| |]; 
       try assumption.
-      (* 
-        under what circumstances, 
-        set.in_set (brel_product eqA eqP) s2 (xa, xp) = true
-        and 
-        set.in_set (brel_product eqA eqP) (uop_manger_phase_2 lteA s2) 
-        (xa, xp) = true 
-      *)
-      admit.
+
+      (* mulA has to be left cancellative  *)
+      eapply in_set_uop_manger_phase_2_intro;
+      try assumption.
+      intros sa sb Hd.
+      specialize (Har (mulA xa sa) (mulP xb sb)).
+      assert (He : set.in_set (brel_product eqA eqP)
+      (manger_product_phase_0 eqA eqP mulA mulP s1 s2)
+      (mulA xa sa, mulP xb sb) = true).
+      eapply in_set_bop_lift_intro_v2 with 
+      (x := (xa, xb)) (y := (sa, sb));
+      [eapply refAP | eapply trnAP | eapply symAP |
+      eapply bop_cong |  | | ];
+      try assumption. 
+      eapply brel_product_intro;
+      [eapply refA | eapply refP].
+      specialize (Har He).
+      eapply brel_product_elim in Hc;
+      destruct Hc as (Hcl & Hcr).
+      pose proof (theory_below_cong _ _ _ _ Hcl Har) as Hf.
+      eapply theory.below_false_elim in Hf.
+      eapply theory.below_false_intro.
+      (* case analysis *)
+      destruct Hf as [Hf | Hf];
+      [left | right].
+      +++
+         (* this is only true is mulA is left cancellative *)
+         admit.
+      +++
+         (* this is only true is mulA is left cancellative *)
+         admit.
+      
+
     ++
       intros * Hd.
    
