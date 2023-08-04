@@ -3399,12 +3399,17 @@ Proof.
       eapply in_set_uop_manger_phase_2_elim in Ha;
       destruct Ha; try assumption.
     ++
+      (* Challenging case*)
       intros * Hd.
       eapply in_set_uop_manger_phase_2_elim in Ha;
       try assumption;
       destruct Ha as (Hal & Harr).
       
+      (* there is nothing below xa in s1 
+        It is bottom most element. 
+      *)
 
+      (* let break down b *)
       eapply in_set_bop_lift_elim in Hd;
       [| eapply refAP | eapply symAP];
       try assumption.
@@ -3419,21 +3424,24 @@ Proof.
       [eapply symA | ]; try assumption.
       eapply theory_below_cong_second with (au := mulA xaa yaa);
       [eapply symA | ]; try assumption.
+      (* Now our goal is to prove that there is 
+        nothing below (mulA xa ya).  
+      *)
+
+
+
       (* 
       The challenge is the relation between xa and xaa 
       and how to manipulate it 
       *)
 
-      (* from Harr, I know that every element in 
-      s1 is not below xa 
-      *)
-    
+      (* let's construct an element *)
       specialize (Har (mulA xa yaa) (mulP xb ybb)).
 
       (* construct an element *)
       assert (Hf : set.in_set (brel_product eqA eqP)
-        (manger_product_phase_0 eqA eqP mulA mulP
-        (uop_manger_phase_2 lteA s1) s2) (mulA xa yaa, mulP xb ybb) = true).
+      (manger_product_phase_0 eqA eqP mulA mulP
+      (uop_manger_phase_2 lteA s1) s2) (mulA xa yaa, mulP xb ybb) = true).
       eapply  in_set_bop_lift_intro_v2 with 
       (x := (xa, xb)) (y := (yaa, ybb));
       try assumption;
@@ -3441,6 +3449,7 @@ Proof.
       eapply  in_set_uop_manger_phase_2_intro | 
       eapply brel_product_intro;[eapply refA | eapply refP]]; 
       try assumption.
+
       (* get an element *)
       specialize (Har Hf).
       (* replace au by mula xa ya in Har *)
@@ -3453,25 +3462,24 @@ Proof.
       And how is it going to help me??  
       *)
       pose proof (Harr _ _ Hdl) as Hg.
+      (* 
+        Intutively, from Har --assuming that 
+        mulA is left cancellative-- 
+        we have theory.below lteA ya yaa = false. 
+        (I understand it as yaa is not below ya)
 
-      (* break them into more primitive parts *)
-      eapply theory.below_false_elim in Har, Hg.
-      eapply theory.below_false_intro.
-      destruct Har as [Har | Har];
-      destruct Hg as [Hg | Hg].
-      *
-         (*
-            xa * yaa ≮ xa * ya 
-            xaa ≮ xa  
-         
-         *)
-         admit.
-      *
-        admit.
-      *
-        admit.
-      *
-        admit.
+        From Hg I know xaa is not below xa. 
+
+        Then it's true that (mulA xaa yaa) is not 
+        below (mulA xa ya).
+
+      *)
+
+
+      (* Looks like some kind of transitivity! *)
+
+
+    admit.
 
      
   +
@@ -3511,18 +3519,13 @@ Proof.
       specialize (Har He).
       eapply brel_product_elim in Hc;
       destruct Hc as (Hcl & Hcr).
-      pose proof (theory_below_cong _ _ _ Hcl Har) as Hf.
-      eapply theory.below_false_elim in Hf.
-      eapply theory.below_false_intro.
-      (* case analysis *)
-      destruct Hf as [Hf | Hf];
-      [left | right].
-      +++
-         (* this is only true is mulA is right cancellative *)
-         admit.
-      +++
-         (* this is only true is mulA is right cancellative *)
-         admit.
+      eapply theory_below_cong with (aw := mulA xa ya) in Har;
+      try assumption.
+      (*
+        if mulA is right cancellative, then 
+        we have the goal.
+      *)
+      admit.
     ++
       intros * Hd.
       eapply in_set_bop_lift_elim in Hd;
@@ -3532,9 +3535,10 @@ Proof.
       eapply in_set_uop_manger_phase_2_elim in Hdl;
       try assumption;
       destruct Hdl as (Hdll & Hdlr).
+
       (* from Hdlr, I know that 
-      every element in s1 is not below xaa.
-      But what do we gain from this?? 
+      every element in s1 is not below xaa, i.e.,
+      xaa is the bottom most element. 
       *)
 
       (* replace au and b *)
@@ -3547,29 +3551,20 @@ Proof.
       eapply theory_below_cong_second with (au := mulA xaa yaa);
       [eapply symA | ]; try assumption.
 
-      specialize (Har (mulA xa yaa) (mulP xb ybb)).
+      (* instantiate *)
+      specialize (Har (mulA xaa yaa) (mulP xbb ybb)).
       assert (He : set.in_set (brel_product eqA eqP)
       (manger_product_phase_0 eqA eqP mulA mulP s1 s2)
-      (mulA xa yaa, mulP xb ybb) = true).
+      (mulA xaa yaa, mulP xbb ybb) = true).
       eapply in_set_bop_lift_intro_v2 with 
-      (x := (xa, xb)) (y := (yaa, ybb));
+      (x := (xaa, xbb)) (y := (yaa, ybb));
       [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong |
       | | eapply brel_product_intro;[eapply refA | eapply refP]]; 
       try assumption.
+      (* get a concrete instance *)
       specialize (Har He).
       eapply theory_below_cong with (aw := mulA xa ya) in Har;
       try assumption.
-
-      (* What is the relation between xa and xaa ?? *)
-      (* from Harr, I know that everything in s1 is 
-       NOT below xa. I am interpreting this correct? 
-      And how is it going to help me??  
-      *)
-      pose proof (Hdlr _ _ Ha) as Hg.
-      eapply theory.below_false_elim in Har, Hg.
-      eapply theory.below_false_intro.
-
-      (* it's the same above*)
 
 
 Admitted.
@@ -3963,29 +3958,18 @@ Proof.
     eapply theory_below_cong_second with (au := mulA xaa yaa);
     [eapply symA | ]; try assumption.
 
-    specialize (Har (mulA xaa ya) (mulP xbb yb)).
+    specialize (Har (mulA xaa yaa) (mulP xbb ybb)).
     assert (He : set.in_set (brel_product eqA eqP)
     (manger_product_phase_0 eqA eqP mulA mulP s1 s2)
-    (mulA xaa ya, mulP xbb yb) = true).
+    (mulA xaa yaa, mulP xbb ybb) = true).
     eapply in_set_bop_lift_intro_v2 with 
-    (x := (xaa, xbb)) (y := (ya, yb));
+    (x := (xaa, xbb)) (y := (yaa, ybb));
     [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong |
     | | eapply brel_product_intro;[eapply refA | eapply refP]]; 
     try assumption.
     specialize (Har He).
     eapply theory_below_cong with (aw := mulA xa ya) in Har;
-    try assumption.
-
-    (* What is the relation between ya and yaa ?? *)
-    (* from Harr, I know that everything in s1 is 
-     NOT below xa. I am interpreting this correct? 
-    And how is it going to help me??  
-    *)
-    pose proof (Hdrrr _ _ Hb) as Hg.
-    eapply theory.below_false_elim in Har, Hg.
-    eapply theory.below_false_intro.
-    (* same as above but right hand side *)
-   
+    try assumption.   
 Admitted. 
 
 
