@@ -3400,7 +3400,11 @@ Proof.
       destruct Ha; try assumption.
     ++
       intros * Hd.
-      (* I don't know how to prove this. *)
+      eapply in_set_uop_manger_phase_2_elim in Ha;
+      try assumption;
+      destruct Ha as (Hal & Harr).
+      
+
       eapply in_set_bop_lift_elim in Hd;
       [| eapply refAP | eapply symAP];
       try assumption.
@@ -3409,12 +3413,66 @@ Proof.
       destruct Hc as (Hcl & Hcr).
       eapply brel_product_elim in Hdrr;
       destruct Hdrr as (Hdrrl & Hdrrr).
+
       (* replace au by mulA xa ya and b by mulA xaa yaa *)
       eapply theory_below_cong with (au := (mulA xa ya));
       [eapply symA | ]; try assumption.
       eapply theory_below_cong_second with (au := mulA xaa yaa);
       [eapply symA | ]; try assumption.
-      admit.
+      (* 
+      The challenge is the relation between xa and xaa 
+      and how to manipulate it 
+      *)
+
+      (* from Harr, I know that every element in 
+      s1 is not below xa 
+      *)
+    
+      specialize (Har (mulA xa yaa) (mulP xb ybb)).
+
+      (* construct an element *)
+      assert (Hf : set.in_set (brel_product eqA eqP)
+        (manger_product_phase_0 eqA eqP mulA mulP
+        (uop_manger_phase_2 lteA s1) s2) (mulA xa yaa, mulP xb ybb) = true).
+      eapply  in_set_bop_lift_intro_v2 with 
+      (x := (xa, xb)) (y := (yaa, ybb));
+      try assumption;
+      [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong |
+      eapply  in_set_uop_manger_phase_2_intro | 
+      eapply brel_product_intro;[eapply refA | eapply refP]]; 
+      try assumption.
+      (* get an element *)
+      specialize (Har Hf).
+      (* replace au by mula xa ya in Har *)
+      eapply theory_below_cong with (aw := mulA xa ya) in Har;
+      try assumption.
+
+      (* What is the relation between xa and xaa ?? *)
+      (* from Harr, I know that everything in s1 is 
+       NOT below xa. I am interpreting this correct? 
+      And how is it going to help me??  
+      *)
+      pose proof (Harr _ _ Hdl) as Hg.
+
+      (* break them into more primitive parts *)
+      eapply theory.below_false_elim in Har, Hg.
+      eapply theory.below_false_intro.
+      destruct Har as [Har | Har];
+      destruct Hg as [Hg | Hg].
+      *
+         (*
+            xa * yaa ≮ xa * ya 
+            xaa ≮ xa  
+         
+         *)
+         admit.
+      *
+        admit.
+      *
+        admit.
+      *
+        admit.
+
      
   +
     eapply in_set_uop_manger_phase_2_elim in Ha;
@@ -3423,12 +3481,12 @@ Proof.
     eapply in_set_bop_lift_elim in Hal;
     [| eapply refAP | eapply symAP];
     try assumption.
-    destruct Hal as ((xa, xp) & (ya, yb) & (Ha & Hb) & Hc).
+    destruct Hal as ((xa, xb) & (ya, yb) & (Ha & Hb) & Hc).
     eapply in_set_uop_manger_phase_2_intro;
     try assumption.
     ++
       eapply set.in_set_right_congruence with 
-      (a := bop_product mulA mulP (xa, xp) (ya, yb)); 
+      (a := bop_product mulA mulP (xa, xb) (ya, yb)); 
       [eapply symAP | eapply trnAP | eapply brel_product_symmetric |];
       try assumption.
       eapply in_set_bop_lift_intro;
@@ -3467,8 +3525,51 @@ Proof.
          admit.
     ++
       intros * Hd.
-      
+      eapply in_set_bop_lift_elim in Hd;
+      [| eapply refAP | eapply symAP];
+      try assumption.
+      destruct Hd as ((xaa, xbb) & (yaa, ybb) & (Hdl & Hdr) & Hdrr).
+      eapply in_set_uop_manger_phase_2_elim in Hdl;
+      try assumption;
+      destruct Hdl as (Hdll & Hdlr).
+      (* from Hdlr, I know that 
+      every element in s1 is not below xaa.
+      But what do we gain from this?? 
+      *)
 
+      (* replace au and b *)
+      eapply brel_product_elim in Hc;
+      destruct Hc as (Hcl & Hcr).
+      eapply brel_product_elim in Hdrr;
+      destruct Hdrr as (Hdrrl & Hdrrr).
+      eapply theory_below_cong with (au := (mulA xa ya));
+      [eapply symA | ]; try assumption.
+      eapply theory_below_cong_second with (au := mulA xaa yaa);
+      [eapply symA | ]; try assumption.
+
+      specialize (Har (mulA xa yaa) (mulP xb ybb)).
+      assert (He : set.in_set (brel_product eqA eqP)
+      (manger_product_phase_0 eqA eqP mulA mulP s1 s2)
+      (mulA xa yaa, mulP xb ybb) = true).
+      eapply in_set_bop_lift_intro_v2 with 
+      (x := (xa, xb)) (y := (yaa, ybb));
+      [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong |
+      | | eapply brel_product_intro;[eapply refA | eapply refP]]; 
+      try assumption.
+      specialize (Har He).
+      eapply theory_below_cong with (aw := mulA xa ya) in Har;
+      try assumption.
+
+      (* What is the relation between xa and xaa ?? *)
+      (* from Harr, I know that everything in s1 is 
+       NOT below xa. I am interpreting this correct? 
+      And how is it going to help me??  
+      *)
+      pose proof (Hdlr _ _ Ha) as Hg.
+      eapply theory.below_false_elim in Har, Hg.
+      eapply theory.below_false_intro.
+
+      (* it's the same above*)
 
 
 Admitted.
@@ -3776,7 +3877,7 @@ Proof.
       specialize (Har He).
       eapply brel_product_elim in Hc;
       destruct Hc as (Hcl & Hcr).
-      pose proof (theory_below_cong _ _ _ _ Hcl Har) as Hf.
+      pose proof (theory_below_cong _ _ _ Hcl Har) as Hf.
       eapply theory.below_false_elim in Hf.
       eapply theory.below_false_intro.
       (* case analysis *)
