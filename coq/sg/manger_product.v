@@ -155,7 +155,9 @@ Variables
   (cong_mulA : bop_congruence A eqA mulA)
   (cong_mulP : bop_congruence P eqP mulP)
   (mulP_addP_right_distributive : 
-    (bop_right_distributive P eqP addP mulP)).
+    (bop_right_distributive P eqP addP mulP))
+  (mulA_left_cancellative : bop_left_cancellative A lteA mulA)
+  (mulA_right_cancellative : bop_right_cancellative A lteA mulA).
 
 Local Notation "[EQP0]" :=  (brel_set (brel_product eqA eqP)) (only parsing).
 Local Notation "[EQP1]" :=  (equal_manger_phase_1 eqA eqP addP) (only parsing). 
@@ -3404,12 +3406,11 @@ Proof.
       eapply in_set_uop_manger_phase_2_elim in Ha;
       try assumption;
       destruct Ha as (Hal & Harr).
-      
       (* there is nothing below xa in s1 
-        It is bottom most element. 
+        It is a bottom most element. 
       *)
 
-      (* let break down b *)
+
       eapply in_set_bop_lift_elim in Hd;
       [| eapply refAP | eapply symAP];
       try assumption.
@@ -3419,21 +3420,14 @@ Proof.
       eapply brel_product_elim in Hdrr;
       destruct Hdrr as (Hdrrl & Hdrrr).
 
+
+
       (* replace au by mulA xa ya and b by mulA xaa yaa *)
       eapply theory_below_cong with (au := (mulA xa ya));
       [eapply symA | ]; try assumption.
       eapply theory_below_cong_second with (au := mulA xaa yaa);
       [eapply symA | ]; try assumption.
-      (* Now our goal is to prove that there is 
-        nothing below (mulA xa ya).  
-      *)
 
-
-
-      (* 
-      The challenge is the relation between xa and xaa 
-      and how to manipulate it 
-      *)
 
       (* let's construct an element *)
       specialize (Har (mulA xa yaa) (mulP xb ybb)).
@@ -3456,28 +3450,26 @@ Proof.
       eapply theory_below_cong with (aw := mulA xa ya) in Har;
       try assumption.
 
-      (* What is the relation between xa and xaa ?? *)
-      (* from Harr, I know that everything in s1 is 
-       NOT below xa. I am interpreting this correct? 
-      And how is it going to help me??  
-      *)
+     
+      (* from Harr, I know that there is nothign below 
+      xa. It is a bottom element *)
       pose proof (Harr _ _ Hdl) as Hg.
       (* 
         Intutively, from Har --assuming that 
         mulA is left cancellative-- 
-        we have theory.below lteA ya yaa = false. 
-        (I understand it as yaa is not below ya)
+        we have theory.below lteA ya yaa = false, i.e., 
+        it is not the case that yaa is below ya 
+        (ya <= yaa). 
 
-        From Hg I know xaa is not below xa. 
+        From Hg I know that it is not the case that
+        xaa is below xa (xa <= xaa)
 
         Then it's true that (mulA xaa yaa) is not 
-        below (mulA xa ya).
+        below (mulA xa ya) 
+        (mulA xa ya <= mulA xaa yaa)
 
       *)
-
-
-      (* Looks like some kind of transitivity! *)
-
+    
 
     admit.
 
@@ -3505,6 +3497,8 @@ Proof.
       eapply in_set_uop_manger_phase_2_intro;
       try assumption.
       intros sa sb Hd.
+
+      (* specialise *)
       specialize (Har (mulA sa ya) (mulP sb yb)).
       assert (He : set.in_set (brel_product eqA eqP)
       (manger_product_phase_0 eqA eqP mulA mulP s1 s2)
@@ -3525,6 +3519,7 @@ Proof.
         if mulA is right cancellative, then 
         we have the goal.
       *)
+      
       admit.
     ++
       intros * Hd.
@@ -3565,6 +3560,7 @@ Proof.
       specialize (Har He).
       eapply theory_below_cong with (aw := mulA xa ya) in Har;
       try assumption.
+    
 
 
 Admitted.
@@ -3832,8 +3828,10 @@ Proof.
       eapply in_set_uop_manger_phase_2_elim in Hb;
       try assumption;
       destruct Hb as (Hbl & Hbr).
-      (* From Hbr, I know that nothing is 
-      below ya is s2 *)
+      (* 
+      From Hbr, I know there is nothing 
+      below ya is s2, i.e., ya is 
+      a bottom element. *)
       
 
       eapply in_set_bop_lift_elim in Hd;
@@ -3873,15 +3871,21 @@ Proof.
 
       (* relation between ya yaa *)
       pose proof (Hbr _ _ Hdr) as Hf.
-      eapply theory.below_false_elim in Har, Hf.
-      eapply theory.below_false_intro.
-      (* 
+      (*
+        From Har, we have --assuming that mulA is
+        right cancellative-- theory.below lteA xa xaa = false, i.e.,
+        it is not the case that xaa is below xa 
+        (xa <= xaa)
+
+        From Hf, it is not the case that yaa is 
+        below ya (ya <= yaa). 
+
+        We are home. 
       
-        We are in the same situation as above.
-        But now mulA has to be right cancellative 
+      
+      
       *)
 
-      
       admit.
   +
     eapply in_set_uop_manger_phase_2_elim in Ha;
@@ -3920,20 +3924,13 @@ Proof.
       specialize (Har He).
       eapply brel_product_elim in Hc;
       destruct Hc as (Hcl & Hcr).
-      pose proof (theory_below_cong _ _ _ Hcl Har) as Hf.
-      eapply theory.below_false_elim in Hf.
-      eapply theory.below_false_intro.
-      (* case analysis *)
-      destruct Hf as [Hf | Hf];
-      [left | right].
-      +++
-         (* this is only true is mulA is left cancellative *)
-         admit.
-      +++
-         (* this is only true is mulA is left cancellative *)
-         admit.
-      
+      eapply theory_below_cong with (aw := (mulA xa ya))
+      in Har; try assumption.
+      (* 
+        mulA is left cancellative and we are home!
+      *)
 
+      admit.
     ++
     intros * Hd.
     eapply in_set_bop_lift_elim in Hd;
