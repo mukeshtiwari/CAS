@@ -1552,7 +1552,6 @@ Qed.
 
 
 (* rewrite is indeed a pain! *)
-(* easy but annonying  *)
 Lemma in_set_subst_1 : 
   forall (Yb Y₁ Y₂ Z s2 t : finite_set (A * P)) ah bh bh' x y au av, 
   no_dup eqA (map fst Z) = true ->
@@ -1648,7 +1647,6 @@ Qed.
 
 
 
-(* easy but annonying  *)
 Lemma in_set_subst_2 : 
   forall (Y Y₁ Y₂ s2 Z t : finite_set (A * P)) ah bh bh' au av, 
   no_dup eqA (map fst Z) = true -> 
@@ -1726,7 +1724,6 @@ Qed.
 
 
 
-(* easy but annonying  *)
 Lemma in_set_subst_3 : 
   forall (Y Y₁ Y₂ s2 Z t : finite_set (A * P)) ah bh bh' au av, 
   no_dup eqA (map fst Z) = true ->
@@ -1802,7 +1799,6 @@ Qed.
 
 
 
-(* easy but annonying  *)
 Lemma in_set_subst_4 : 
   forall (Yb Y₁ Y₂ Z s2 t : finite_set (A * P)) ah bh bh' x y au av, 
   no_dup eqA (map fst Z) = true ->
@@ -1898,7 +1894,7 @@ Qed.
 
 
 
-(* easy but annonying *)
+
 (* congruence and commute *)
 Lemma in_set_swap_arugments : 
   forall (t Y₁ Y₂ s2 Z : finite_set (A * P)) au av ah bh bh',
@@ -2023,9 +2019,7 @@ Qed.
 
 
 
-(* easy but annonying *)
 (* commute and ++ congruence *)
-(* indeed annoying *)
 Lemma in_set_swap_arugments_2 : 
   forall (t Y₁ Y₂ s2 Z : finite_set (A * P)) au av ah bh bh', 
   no_dup eqA (map fst Z) = true ->
@@ -2497,7 +2491,8 @@ Proof.
   intros * Ht Ha.
   rewrite <-Ha.
   eapply in_set_left_congruence_v2;
-  [eapply symAP | eapply trnAP | eapply fold_left_bop_list_cong];
+  [eapply symAP | eapply trnAP | 
+  eapply fold_left_bop_list_cong];
   try assumption.
   eapply brel_set_intro_prop;
   [eapply refAP | split; intros (ax, bx) Hb];
@@ -2612,9 +2607,6 @@ Lemma fold_left_manger_merge_set_idempotent :
     (set.uop_duplicate_elim (brel_product eqA eqP) X) Y =S= 
   fold_left (manger_merge_sets_new eqA addP) X Y.
 Proof.
-  (* Use the above two lemmas to finish the proof 
-    I think above two lemmas should exists some where! 
-  *)
   intros * Ha.
   eapply fold_left_cong, uop_dup_elim_membership_cong;
   assumption.
@@ -2664,8 +2656,8 @@ Proof.
   split.
   +
     eapply trnSAP with  
-    (t := filter (λ '(s2, _), eqA ah s2)  (Y₁ ++ [(ah, bh')] ++ Y₂)); try 
-    assumption.
+    (t := filter (λ '(s2, _), eqA ah s2)  (Y₁ ++ [(ah, bh')] ++ Y₂)); 
+    try assumption.
     eapply filter_congruence_gen; try assumption.
     eapply bop_congruecen_eqA.
     rewrite <-list_filter_lib_filter_same;
