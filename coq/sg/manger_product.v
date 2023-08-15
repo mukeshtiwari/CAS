@@ -2511,11 +2511,18 @@ Proof.
     [right | left]; assumption.
 Qed.
 
+
+
 (* begin admit *)
 (* If I replace =S= by =, then it is true? 
 Try with some examples!
 Chellenging
 *)
+
+
+
+(* This can't be proven without induction. *)
+
 Lemma fold_left_ltrtrans_interaction : 
   forall s2 Y Z ah bh,
   no_dup eqA (map fst Y) = true ->
@@ -2546,6 +2553,76 @@ Proof.
     remember ((manger_merge_sets_new eqA addP Z 
     (mulA ah ax, mulP bh bx))) as Za.
     (* connect the ih to goal *)
+    remember ((ltran_list_product (bop_product mulA mulP) 
+    (ah, bh) (fold_left (manger_merge_sets_new eqA addP) s2 Ya)))
+    as Yaa.
+    rewrite  ltrans_list_app in Ih |- *.
+    remember (ltran_list_product (bop_product mulA mulP) (ah, bh) s2)
+    as s2a.
+    (* I need some observation *)
+    rewrite fold_left_app in Ih |- *.
+    remember ((fold_left (manger_merge_sets_new eqA addP) s2a Za))
+    as Zaa.
+    (* I need to factor out some common values in 
+    Ih so that I can match the goal *)
+    (*
+      What is the connection between 
+      fold_left (manger_merge_sets_new eqA addP) Yaa Z and 
+      fold_left (manger_merge_sets_new eqA addP) Yaa 
+        (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx))
+      ?? 
+
+      (* This requires left distributivity *)
+      fold_left (manger_merge_sets_new eqA addP) Yaa 
+        (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx)) 
+      =S=
+      fold_left (manger_merge_sets_new eqA addP) Yaa 
+       (ltran_list_product (bop_product mulA mulP) (ah, bh)
+        manger_merge_sets_new eqA addP Z (ax, bx))
+
+      Can I write (pull out the ltrans )
+      fold_left (manger_merge_sets_new eqA addP) Yaa 
+       (ltran_list_product (bop_product mulA mulP) (ah, bh)
+        manger_merge_sets_new eqA addP Z (ax, bx)) =S= 
+      ltran_list_product (bop_product mulA mulP) (ah, bh) 
+        (manger_merge_sets_new eqA addP 
+          (fold_left (manger_merge_sets_new eqA addP) Yaa Z) 
+          (ax, bx)??
+
+
+
+
+
+      Can I write 
+      (fold_left (manger_merge_sets_new eqA addP)
+        (ltran_list_product (bop_product mulA mulP) (ah, bh) Ya) Zaa) =S=
+      ltran_list_product (bop_product mulA mulP) (ah, bh)
+        (fold_left (manger_merge_sets_new eqA addP) Ya Zaa) 
+
+
+
+
+
+
+
+
+
+
+
+      I can rewrite Ih as 
+      fold_left (manger_merge_sets_new eqA addP) Yaa 
+       (ltran_list_product (bop_product mulA mulP) (ah, bh)
+        (manger_merge_sets_new eqA addP Z (ax, bx))) =S= 
+      (fold_left (manger_merge_sets_new eqA addP)
+        (ltran_list_product (bop_product mulA mulP) (ah, bh) 
+        (manger_merge_sets_new eqA addP Y (ax, bx))) Zaa)
+
+
+
+    *)
+    
+    
+
 
 
 
