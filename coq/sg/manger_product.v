@@ -2519,9 +2519,47 @@ Try with some examples!
 Chellenging
 *)
 
+(* require left distributivity *)
+
+Lemma fold_left_factor_out_mulA_mulP_first : 
+  forall (Y Z : list (A * P)) ah ax bh bx,
+  no_dup eqA (map fst Z) = true ->
+  fold_left (manger_merge_sets_new eqA addP) Y 
+    (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx)) =S= 
+  fold_left (manger_merge_sets_new eqA addP) Y 
+    (ltran_list_product (bop_product mulA mulP) (ah, bh)
+     (manger_merge_sets_new eqA addP Z (ax, bx))).
+Proof.
+Admitted.
 
 
-(* This can't be proven without induction. *)
+Lemma fold_left_factor_out_mulA_mulP_second : 
+  forall (Y Z : list (A * P)) ah ax bh bx,
+  no_dup eqA (map fst Z) = true -> 
+  fold_left (manger_merge_sets_new eqA addP) Y
+    (ltran_list_product (bop_product mulA mulP) (ah, bh)
+      (manger_merge_sets_new eqA addP Z (ax, bx))) =S= 
+  ltran_list_product (bop_product mulA mulP) (ah, bh) 
+    (manger_merge_sets_new eqA addP 
+      (fold_left (manger_merge_sets_new eqA addP) Y Z) (ax, bx)).
+Proof.
+  induction Y as [|(au, bu) Y IHy].
+  +
+    intros * Ha.
+    eapply refSAP;
+    try assumption.
+  +
+    intros * Ha.
+    simpl.
+Admitted.
+
+
+
+
+
+
+
+(* *)
 
 Lemma fold_left_ltrtrans_interaction : 
   forall s2 Y Z ah bh,
