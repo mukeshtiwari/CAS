@@ -546,7 +546,7 @@ Lemma manger_product_phase_0_comm :
 Proof.
   intros *.
   eapply sum_fn_congruence_general_set with 
-  (eqA := eqA) (lteA := lteA) (fA := fA);
+  (eqA := eqA);
   try assumption.
   + eapply addP_gen_idempotent.
   +
@@ -570,7 +570,7 @@ Lemma manger_product_phase_0_dist :
 Proof.
   intros *.
   eapply sum_fn_congruence_general_set with 
-  (eqA := eqA) (lteA := lteA) (fA := fA);
+  (eqA := eqA);
   try assumption.
   + eapply addP_gen_idempotent.
   +
@@ -2519,45 +2519,42 @@ Try with some examples!
 Chellenging
 *)
 
-(* require left distributivity *)
-
+(* would = work? *)
 Lemma fold_left_factor_out_mulA_mulP_first : 
-  forall (Y Z : list (A * P)) ah ax bh bx,
+  forall (Y Z : list (A * P)) ah bh,
   no_dup eqA (map fst Z) = true ->
   fold_left (manger_merge_sets_new eqA addP) Y 
-    (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx)) =S= 
-  fold_left (manger_merge_sets_new eqA addP) Y 
-    (ltran_list_product (bop_product mulA mulP) (ah, bh)
-     (manger_merge_sets_new eqA addP Z (ax, bx))).
+    (manger_merge_sets_new eqA addP Z (ah, bh)) =
+  manger_merge_sets_new eqA addP
+    (fold_left (manger_merge_sets_new eqA addP) Y Z) 
+    (ah, bh).
 Proof.
+  
 Admitted.
 
-
+(* Notice the equality *)
 Lemma fold_left_factor_out_mulA_mulP_second : 
-  forall (Y Z : list (A * P)) ah ax bh bx,
-  no_dup eqA (map fst Z) = true -> 
-  fold_left (manger_merge_sets_new eqA addP) Y
-    (ltran_list_product (bop_product mulA mulP) (ah, bh)
-      (manger_merge_sets_new eqA addP Z (ax, bx))) =S= 
-  ltran_list_product (bop_product mulA mulP) (ah, bh) 
-    (manger_merge_sets_new eqA addP 
-      (fold_left (manger_merge_sets_new eqA addP) Y Z) (ax, bx)).
+  forall (X : list (A * P)) ah ax bh bx,
+  ltran_list_product (bop_product mulA mulP) (ah, bh)
+    (manger_merge_sets_new eqA addP X (ax, bx)) = 
+  manger_merge_sets_new eqA addP 
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) X) 
+    (mulA ah ax, mulP bh bx).
 Proof.
-  induction Y as [|(au, bu) Y IHy].
-  +
-    intros * Ha.
-    eapply refSAP;
-    try assumption.
-  +
-    intros * Ha.
-    simpl.
 Admitted.
 
 
+Lemma fold_left_factor_out_mulA_mulP_third : 
+  forall (X Y : list (A * P)) ah bh,
+  ltran_list_product (bop_product mulA mulP) (ah, bh)
+    (fold_left (manger_merge_sets_new eqA addP) X Y) = 
+  fold_left (manger_merge_sets_new eqA addP) 
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) X)
+    (ltran_list_product (bop_product mulA mulP) (ah, bh) Y).
+Proof.
+Admitted.
 
-
-
-
+    
 
 (* *)
 
@@ -2601,69 +2598,103 @@ Proof.
     rewrite fold_left_app in Ih |- *.
     remember ((fold_left (manger_merge_sets_new eqA addP) s2a Za))
     as Zaa.
-    (* I need to factor out some common values in 
-    Ih so that I can match the goal *)
-    (*
-      What is the connection between 
-      fold_left (manger_merge_sets_new eqA addP) Yaa Z and 
-      fold_left (manger_merge_sets_new eqA addP) Yaa 
-        (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx))
-      ?? 
-
-      (* This requires left distributivity *)
-      fold_left (manger_merge_sets_new eqA addP) Yaa 
-        (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx)) 
-      =S=
-      fold_left (manger_merge_sets_new eqA addP) Yaa 
-       (ltran_list_product (bop_product mulA mulP) (ah, bh)
-        manger_merge_sets_new eqA addP Z (ax, bx))
-
-      Can I write (pull out the ltrans )
-      fold_left (manger_merge_sets_new eqA addP) Yaa 
-       (ltran_list_product (bop_product mulA mulP) (ah, bh)
-        manger_merge_sets_new eqA addP Z (ax, bx)) =S= 
-      ltran_list_product (bop_product mulA mulP) (ah, bh) 
-        (manger_merge_sets_new eqA addP 
-          (fold_left (manger_merge_sets_new eqA addP) Yaa Z) 
-          (ax, bx)??
-
-
-
-
-
-      Can I write 
+    (* 
+     
+      Ih : 
       (fold_left (manger_merge_sets_new eqA addP)
-        (ltran_list_product (bop_product mulA mulP) (ah, bh) Ya) Zaa) =S=
-      ltran_list_product (bop_product mulA mulP) (ah, bh)
-        (fold_left (manger_merge_sets_new eqA addP) Ya Zaa) 
-
-
-
-
-
-
-
-
-
-
-
-      I can rewrite Ih as 
-      fold_left (manger_merge_sets_new eqA addP) Yaa 
-       (ltran_list_product (bop_product mulA mulP) (ah, bh)
-        (manger_merge_sets_new eqA addP Z (ax, bx))) =S= 
+        (ltran_list_product (bop_product mulA mulP) (ah, bh) Ya) Zaa)
+      and 
       (fold_left (manger_merge_sets_new eqA addP)
-        (ltran_list_product (bop_product mulA mulP) (ah, bh) 
-        (manger_merge_sets_new eqA addP Y (ax, bx))) Zaa)
+      (ltran_list_product (bop_product mulA mulP) (ah, bh) Y) Zaa)
 
+      1. 
+      (fold_left (manger_merge_sets_new eqA addP) Yaa Za) = 
+
+      (* rewrite HeqZa *)
+      (fold_left (manger_merge_sets_new eqA addP) Yaa 
+        (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx))) =
+
+      (* rewrite using fold_left_factor_out_mulA_mulP_first *)
+      manger_merge_sets_new eqA addP
+      (fold_left (manger_merge_sets_new eqA addP) Yaa Z) 
+      (mulA ah ax, mulP bh bx)  = 
+
+      (* rewrite HeqYaa *)
+      manger_merge_sets_new eqA addP
+        (fold_left (manger_merge_sets_new eqA addP) 
+          (ltran_list_product (bop_product mulA mulP) (ah, bh) 
+            (fold_left (manger_merge_sets_new eqA addP) s2 Ya)) Z) 
+      (mulA ah ax, mulP bh bx)  = 
+
+      (* rewrite HeqYa *)
+      manger_merge_sets_new eqA addP
+        (fold_left (manger_merge_sets_new eqA addP) 
+          (ltran_list_product (bop_product mulA mulP) (ah, bh) 
+            (fold_left (manger_merge_sets_new eqA addP) s2 
+              (manger_merge_sets_new eqA addP Y (ax, bx)))) Z) 
+      (mulA ah ax, mulP bh bx) = 
+
+     (* using the fold_left_factor_out_mulA_mulP_first *)
+     manger_merge_sets_new eqA addP
+        (fold_left (manger_merge_sets_new eqA addP) 
+          (ltran_list_product (bop_product mulA mulP) (ah, bh)
+            (manger_merge_sets_new eqA addP
+              (fold_left (manger_merge_sets_new eqA addP) s2 Y)
+            (ax, bx))) Z) 
+    (mulA ah ax, mulP bh bx) =
+    
+    (* rewrite using fold_left_factor_out_mulA_mulP_second *)
+    manger_merge_sets_new eqA addP
+      (fold_left (manger_merge_sets_new eqA addP)
+        (manger_merge_sets_new eqA addP
+          (ltran_list_product (bop_product mulA mulP) (ah, bh)
+            (fold_left (manger_merge_sets_new eqA addP) s2 Y))
+        (mulA ah ax, mulP bh bx)) Z)
+    (mulA ah ax, mulP bh bx)
+
+    (* rewrite fold_left_factor_out_mulA_mulP_third *)
+    manger_merge_sets_new eqA addP
+      (fold_left (manger_merge_sets_new eqA addP)
+        (manger_merge_sets_new eqA addP
+          (fold_left (manger_merge_sets_new eqA addP) 
+            (ltran_list_product (bop_product mulA mulP) (ah, bh) s2) 
+            (ltran_list_product (bop_product mulA mulP) (ah, bh) Y))
+        (mulA ah ax, mulP bh bx)) Z)
+    (mulA ah ax, mulP bh bx)
+
+
+    2. 
+      (fold_left (manger_merge_sets_new eqA addP)
+        (ltran_list_product (bop_product mulA mulP) (ah, bh) Ya) Zaa)
+
+    (* rewrite HeqYa *)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (ltran_list_product (bop_product mulA mulP) (ah, bh) 
+        (manger_merge_sets_new eqA addP Y (ax, bx))) 
+    Zaa)
+
+    (* rewrite fold_left_factor_out_mulA_mulP_second *)
+    (fold_left (manger_merge_sets_new eqA addP)
+      (manger_merge_sets_new eqA addP 
+        (ltran_list_product (bop_product mulA mulP) (ah, bh) Y)
+        (mulA ah ax, mulP bh bx))
+    Zaa)
+    
+    
+    
 
 
     *)
+    subst.
+    rewrite fold_left_factor_out_mulA_mulP_first in * |- *.
+    rewrite fold_left_factor_out_mulA_mulP_first in * |- *.
+    rewrite fold_left_factor_out_mulA_mulP_first in * |- *.
+    rewrite fold_left_factor_out_mulA_mulP_first in * |- *.
+    rewrite fold_left_factor_out_mulA_mulP_second in * |- *.
+    rewrite fold_left_factor_out_mulA_mulP_second in * |- *.
+    rewrite fold_left_factor_out_mulA_mulP_third in * |- *.
     
     
-
-
-
-
 Admitted.  
 
 (* end of admit *)
@@ -3475,6 +3506,7 @@ Proof.
   try assumption.
 Qed.
 
+
 Lemma bop_left_uop_inv_phase_2 : 
   bop_left_uop_invariant (finite_set (A * P))
     (manger_llex.eqSAP A P eqA eqP)
@@ -3535,6 +3567,7 @@ Proof.
       eapply theory_below_cong_second with (au := mulA xaa yaa);
       [eapply symA | ]; try assumption.
 
+      (* 
 
       (* let's construct an element *)
       specialize (Har (mulA xa yaa) (mulP xb ybb)).
@@ -3576,6 +3609,7 @@ Proof.
         (mulA xa ya <= mulA xaa yaa)
 
       *)
+    *)
     
 
     admit.
@@ -3605,6 +3639,7 @@ Proof.
       try assumption.
       intros sa sb Hd.
 
+      (* 
       (* specialise *)
       specialize (Har (mulA sa ya) (mulP sb yb)).
       assert (He : set.in_set (brel_product eqA eqP)
@@ -3622,11 +3657,13 @@ Proof.
       destruct Hc as (Hcl & Hcr).
       eapply theory_below_cong with (aw := mulA xa ya) in Har;
       try assumption.
+      *)
+
+      
       (*
         if mulA is right cancellative, then 
-        we have the goal.
+        from Har we have the goal.
       *)
-      
       admit.
     ++
       intros * Hd.
@@ -3667,8 +3704,6 @@ Proof.
       specialize (Har He).
       eapply theory_below_cong with (aw := mulA xa ya) in Har;
       try assumption.
-    
-
 
 Admitted.
 
@@ -3955,6 +3990,7 @@ Proof.
       [eapply symA | ]; try assumption.
       eapply theory_below_cong_second with (au := mulA xaa yaa);
       [eapply symA | ]; try assumption.
+      (* 
 
       (* interesting! *)
       specialize (Har (mulA xaa ya) (mulP xbb yb)).
@@ -3989,8 +4025,7 @@ Proof.
 
         We are home. 
       
-      
-      
+      *)
       *)
 
       admit.
@@ -4013,6 +4048,7 @@ Proof.
       [eapply refAP | eapply trnAP | eapply symAP | eapply bop_cong| |]; 
       try assumption.
 
+      (* 
       (* mulA has to be left cancellative  *)
       eapply in_set_uop_manger_phase_2_intro;
       try assumption.
@@ -4034,7 +4070,8 @@ Proof.
       eapply theory_below_cong with (aw := (mulA xa ya))
       in Har; try assumption.
       (* 
-        mulA is left cancellative and we are home!
+        if mulA is left cancellative, then from Har we are home!
+      *)
       *)
 
       admit.
@@ -4158,14 +4195,13 @@ Proof.
   eapply composition_left_uop_invariant.
   + eapply symSAP.
   + eapply trnSAP; try assumption.
-  + eapply P1_cong with (lteA := lteA) (zeroP := zeroP)
-    (fA := fA); try assumption;
+  + eapply P1_cong with (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent).
   + eapply bop_left_uop_inv_phase_1.
   + eapply P2_cong; try assumption.
   + eapply bop_left_uop_inv_phase_2.
   + intros *. 
-    eapply P1_P2_commute with (fA := fA)
+    eapply P1_P2_commute with 
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent).
 Qed.
@@ -4188,14 +4224,14 @@ Proof.
   eapply composition_right_uop_invariant.
   + eapply symSAP.
   + eapply trnSAP; try assumption.
-  + eapply P1_cong with (lteA := lteA) (zeroP := zeroP)
-    (fA := fA); try assumption;
+  + eapply P1_cong with (zeroP := zeroP); 
+    try assumption;
     try (eapply addP_gen_idempotent).
   + eapply bop_right_uop_inv_phase_1.
   + eapply P2_cong; try assumption.
   + eapply bop_right_uop_inv_phase_2.
   + intros *. 
-    eapply P1_P2_commute with (fA := fA)
+    eapply P1_P2_commute with 
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent).
 Qed.
@@ -4211,7 +4247,7 @@ Proof.
   + eapply symSAP.
   + eapply trnSAP; try assumption.
   + eapply manger_product_phase_0_cong.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
+  + eapply P1_cong with 
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent). 
   + eapply bop_left_uop_inv_phase_1.
@@ -4220,7 +4256,7 @@ Proof.
   + eapply bop_left_uop_inv_phase_2.
   + eapply bop_right_uop_inv_phase_2.
   + intros *. 
-    eapply P1_P2_commute with (fA := fA)
+    eapply P1_P2_commute with 
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent).
 Qed.
@@ -4255,7 +4291,7 @@ Proof.
   + eapply trnSAP; try assumption.
   + eapply manger_product_phase_0_cong.
   + eapply bop_manger_product_phase_0_assoc.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
+  + eapply P1_cong with 
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent). 
   + eapply P1_idem;try assumption;
@@ -4267,7 +4303,7 @@ Proof.
   + eapply bop_left_uop_inv_phase_2.
   + eapply bop_right_uop_inv_phase_2.
   + intros *. 
-    eapply P1_P2_commute with (fA := fA)
+    eapply P1_P2_commute with 
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent).
 Qed.
@@ -4285,7 +4321,7 @@ Proof.
   + eapply symSAP; try assumption.
   + eapply trnSAP; try assumption.
   + eapply manger_product_phase_0_cong.
-  + eapply P1_cong with (fA := fA) (lteA := lteA)
+  + eapply P1_cong with 
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent). 
   + eapply P1_idem;try assumption;
@@ -4297,7 +4333,7 @@ Proof.
   + eapply bop_left_uop_inv_phase_2.
   + eapply bop_right_uop_inv_phase_2.
   + intros *. 
-    eapply P1_P2_commute with (fA := fA)
+    eapply P1_P2_commute with 
     (zeroP := zeroP); try assumption;
     try (eapply addP_gen_idempotent).
   + eapply manger_product_phase_0_commutative; 
