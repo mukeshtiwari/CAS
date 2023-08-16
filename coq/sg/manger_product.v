@@ -313,6 +313,27 @@ Qed.
 
 
 
+ (* 
+ I am going to admit this because Tim 
+  has changed the definition of sum_fn so the 
+  proof will come from there. 
+  
+*)
+
+Lemma sum_fn_phase_1 : 
+  forall (s1 s2 : finite_set (A * P)) au av, 
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP
+        (uop_manger_phase_1 eqA addP s1) s2))) = true <->
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP s1 s2))) = true.
+Proof.
+Admitted. 
+  
 
 
 
@@ -359,10 +380,8 @@ Proof.
       [exact Hccl | instantiate (1:= (mulP qt yb));
       eapply refP].
     ++
-      (* I am going to admit this because Tim 
-      has changed the definition of sum_fn so the 
-      proof will come from there. *)
-      admit.
+      eapply sum_fn_phase_1; 
+      try assumption.
   +
     eapply in_set_uop_manger_phase_1_elim 
     with (zeroP := zeroP) in Ha;
@@ -393,7 +412,12 @@ Proof.
         destruct Hcc as (Hccl & Hccr).
         eapply brel_product_intro;
         [exact Hccl | eapply refP].
-Admitted.
+    ++
+      rewrite  list_filter_lib_filter_same.
+      rewrite <- list_filter_lib_filter_same in Hb.
+      eapply sum_fn_phase_1;
+      try assumption.
+Qed.
     
 
 
@@ -648,6 +672,23 @@ Proof.
 Admitted.
 
 
+(* I am going to admit this because Tim 
+  has changed the definition of sum_fn so the 
+proof will come from there. *)
+Lemma sum_fn_phase_2 : 
+  forall (s1 s2 : finite_set (A * P)) au av, 
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP s1
+        (uop_manger_phase_1 eqA addP s2)))) = true <->
+  eqP av
+  (matrix_algorithms.sum_fn zeroP addP snd
+    (List.filter (λ '(x, _), eqA x au)
+      (manger_product_phase_0 eqA eqP mulA mulP s1 s2))) = true.
+Proof.
+Admitted.
+
 
 (* I need to generalise this to do induction. *)
 Lemma bop_right_uop_inv_phase_1 : 
@@ -691,10 +732,8 @@ Proof.
       eapply brel_product_intro;
       [exact Hccl | eapply refP].
     ++
-     (* I am going to admit this because Tim 
-      has changed the definition of sum_fn so the 
-      proof will come from there. *)
-      admit.
+      eapply sum_fn_phase_2; 
+      try assumption.
   +
     eapply in_set_uop_manger_phase_1_elim 
     with (zeroP := zeroP) in Ha;
@@ -725,7 +764,12 @@ Proof.
         destruct Hcc as (Hccl & Hccr).
         eapply brel_product_intro;
         [exact Hccl | eapply refP].
-Admitted.
+    ++ 
+      rewrite list_filter_lib_filter_same.
+      rewrite  <-list_filter_lib_filter_same in Hb.
+      eapply sum_fn_phase_2;
+      try assumption.
+Qed.
 
 
 
