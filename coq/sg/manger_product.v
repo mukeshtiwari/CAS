@@ -2518,45 +2518,7 @@ Qed.
 Try with some examples!
 Chellenging
 *)
-
-(* would = work? *)
-Lemma fold_left_factor_out_mulA_mulP_first : 
-  forall (Y Z : list (A * P)) ah bh,
-  no_dup eqA (map fst Z) = true ->
-  fold_left (manger_merge_sets_new eqA addP) Y 
-    (manger_merge_sets_new eqA addP Z (ah, bh)) =
-  manger_merge_sets_new eqA addP
-    (fold_left (manger_merge_sets_new eqA addP) Y Z) 
-    (ah, bh).
-Proof.
-  
-Admitted.
-
-(* Notice the equality *)
-Lemma fold_left_factor_out_mulA_mulP_second : 
-  forall (X : list (A * P)) ah ax bh bx,
-  ltran_list_product (bop_product mulA mulP) (ah, bh)
-    (manger_merge_sets_new eqA addP X (ax, bx)) = 
-  manger_merge_sets_new eqA addP 
-    (ltran_list_product (bop_product mulA mulP) (ah, bh) X) 
-    (mulA ah ax, mulP bh bx).
-Proof.
-Admitted.
-
-
-Lemma fold_left_factor_out_mulA_mulP_third : 
-  forall (X Y : list (A * P)) ah bh,
-  ltran_list_product (bop_product mulA mulP) (ah, bh)
-    (fold_left (manger_merge_sets_new eqA addP) X Y) = 
-  fold_left (manger_merge_sets_new eqA addP) 
-    (ltran_list_product (bop_product mulA mulP) (ah, bh) X)
-    (ltran_list_product (bop_product mulA mulP) (ah, bh) Y).
-Proof.
-Admitted.
-
     
-
-(* *)
 
 Lemma fold_left_ltrtrans_interaction : 
   forall s2 Y Z ah bh,
@@ -2568,133 +2530,17 @@ Lemma fold_left_ltrtrans_interaction :
   fold_left (manger_merge_sets_new eqA addP)
     (ltran_list_product (bop_product mulA mulP) (ah, bh) (s2 ++ Y)) Z.
 Proof.
-  induction s2 as [|(ax, bx) s2 Ih].
+  intros * Ha Hb.
+  eapply brel_set_intro_prop;
+  [eapply refAP | split; intros (ax, bx) Hc];
+  try assumption.
   +
-    simpl; intros * Ha Hb.
-    eapply refSAP;
+    eapply in_set_fold_left_mmsn_elim with (zeroP := zeroP) in Hc;
     try assumption.
-  +
-    simpl; intros * Ha Hb.
-    assert (Hc : no_dup eqA (map fst 
-      (manger_merge_sets_new eqA addP Y (ax, bx))) = true).
-    eapply no_dup_mmsn with (eqP := eqP); try assumption.
-    assert (Hd : no_dup eqA (map fst
-    (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx))) = true).
-    eapply no_dup_mmsn with (eqP := eqP); try assumption.
-    specialize (Ih (manger_merge_sets_new eqA addP Y (ax, bx))
-      (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx))
-    ah bh Hc Hd).
-    remember ((manger_merge_sets_new eqA addP Y (ax, bx))) as Ya.
-    remember ((manger_merge_sets_new eqA addP Z 
-    (mulA ah ax, mulP bh bx))) as Za.
-    (* connect the ih to goal *)
-    remember ((ltran_list_product (bop_product mulA mulP) 
-    (ah, bh) (fold_left (manger_merge_sets_new eqA addP) s2 Ya)))
-    as Yaa.
-    rewrite  ltrans_list_app in Ih |- *.
-    remember (ltran_list_product (bop_product mulA mulP) (ah, bh) s2)
-    as s2a.
-    (* I need some observation *)
-    rewrite fold_left_app in Ih |- *.
-    remember ((fold_left (manger_merge_sets_new eqA addP) s2a Za))
-    as Zaa.
-    (* 
-     
-      Ih : 
-      (fold_left (manger_merge_sets_new eqA addP)
-        (ltran_list_product (bop_product mulA mulP) (ah, bh) Ya) Zaa)
-      and 
-      (fold_left (manger_merge_sets_new eqA addP)
-      (ltran_list_product (bop_product mulA mulP) (ah, bh) Y) Zaa)
+    destruct Hc as ((q & Hcl) & Hcr).
+    eapply in_set_fold_left_mmsn_intro.
 
-      1. 
-      (fold_left (manger_merge_sets_new eqA addP) Yaa Za) = 
-
-      (* rewrite HeqZa *)
-      (fold_left (manger_merge_sets_new eqA addP) Yaa 
-        (manger_merge_sets_new eqA addP Z (mulA ah ax, mulP bh bx))) =
-
-      (* rewrite using fold_left_factor_out_mulA_mulP_first *)
-      manger_merge_sets_new eqA addP
-      (fold_left (manger_merge_sets_new eqA addP) Yaa Z) 
-      (mulA ah ax, mulP bh bx)  = 
-
-      (* rewrite HeqYaa *)
-      manger_merge_sets_new eqA addP
-        (fold_left (manger_merge_sets_new eqA addP) 
-          (ltran_list_product (bop_product mulA mulP) (ah, bh) 
-            (fold_left (manger_merge_sets_new eqA addP) s2 Ya)) Z) 
-      (mulA ah ax, mulP bh bx)  = 
-
-      (* rewrite HeqYa *)
-      manger_merge_sets_new eqA addP
-        (fold_left (manger_merge_sets_new eqA addP) 
-          (ltran_list_product (bop_product mulA mulP) (ah, bh) 
-            (fold_left (manger_merge_sets_new eqA addP) s2 
-              (manger_merge_sets_new eqA addP Y (ax, bx)))) Z) 
-      (mulA ah ax, mulP bh bx) = 
-
-     (* using the fold_left_factor_out_mulA_mulP_first *)
-     manger_merge_sets_new eqA addP
-        (fold_left (manger_merge_sets_new eqA addP) 
-          (ltran_list_product (bop_product mulA mulP) (ah, bh)
-            (manger_merge_sets_new eqA addP
-              (fold_left (manger_merge_sets_new eqA addP) s2 Y)
-            (ax, bx))) Z) 
-    (mulA ah ax, mulP bh bx) =
-    
-    (* rewrite using fold_left_factor_out_mulA_mulP_second *)
-    manger_merge_sets_new eqA addP
-      (fold_left (manger_merge_sets_new eqA addP)
-        (manger_merge_sets_new eqA addP
-          (ltran_list_product (bop_product mulA mulP) (ah, bh)
-            (fold_left (manger_merge_sets_new eqA addP) s2 Y))
-        (mulA ah ax, mulP bh bx)) Z)
-    (mulA ah ax, mulP bh bx)
-
-    (* rewrite fold_left_factor_out_mulA_mulP_third *)
-    manger_merge_sets_new eqA addP
-      (fold_left (manger_merge_sets_new eqA addP)
-        (manger_merge_sets_new eqA addP
-          (fold_left (manger_merge_sets_new eqA addP) 
-            (ltran_list_product (bop_product mulA mulP) (ah, bh) s2) 
-            (ltran_list_product (bop_product mulA mulP) (ah, bh) Y))
-        (mulA ah ax, mulP bh bx)) Z)
-    (mulA ah ax, mulP bh bx)
-
-
-    2. 
-      (fold_left (manger_merge_sets_new eqA addP)
-        (ltran_list_product (bop_product mulA mulP) (ah, bh) Ya) Zaa)
-
-    (* rewrite HeqYa *)
-    (fold_left (manger_merge_sets_new eqA addP)
-      (ltran_list_product (bop_product mulA mulP) (ah, bh) 
-        (manger_merge_sets_new eqA addP Y (ax, bx))) 
-    Zaa)
-
-    (* rewrite fold_left_factor_out_mulA_mulP_second *)
-    (fold_left (manger_merge_sets_new eqA addP)
-      (manger_merge_sets_new eqA addP 
-        (ltran_list_product (bop_product mulA mulP) (ah, bh) Y)
-        (mulA ah ax, mulP bh bx))
-    Zaa)
-    
-    
-    
-
-
-    *)
-    subst.
-    rewrite fold_left_factor_out_mulA_mulP_first in * |- *.
-    rewrite fold_left_factor_out_mulA_mulP_first in * |- *.
-    rewrite fold_left_factor_out_mulA_mulP_first in * |- *.
-    rewrite fold_left_factor_out_mulA_mulP_first in * |- *.
-    rewrite fold_left_factor_out_mulA_mulP_second in * |- *.
-    rewrite fold_left_factor_out_mulA_mulP_second in * |- *.
-    rewrite fold_left_factor_out_mulA_mulP_third in * |- *.
-    
-    
+   
 Admitted.  
 
 (* end of admit *)
