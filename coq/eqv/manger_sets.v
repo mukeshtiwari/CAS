@@ -651,10 +651,10 @@ Qed.
 
 Lemma manger_merge_sets_unchanged_v2 : 
   ∀ Y a b p p',
-    Y <> nil -> 
+    (* Y <> nil ->  *)
     a <A> b -> (b, p') [in] Y -> (b, p') [in] ([MMS] Y (a, p)).
-Proof. induction Y; intros a1 a2 p1 p2 H0 H1 H2.
-       - congruence. 
+Proof. induction Y; intros a1 a2 p1 p2 H1 H2.
+       - cbn in H2. congruence. 
        - destruct a as [a3 p3].
          simpl. 
          apply in_set_cons_elim in H2.
@@ -670,11 +670,11 @@ Proof. induction Y; intros a1 a2 p1 p2 H0 H1 H2.
            * destruct Y. 
              -- compute in H2. discriminate H2.
              -- assert (H4 : p :: Y ≠ nil). congruence.  
-                exact(IHY _ _ (addP p1 p3) _ H4 H1 H2).
+                exact(IHY _ _ (addP p1 p3) _ H1 H2).
            * destruct Y. 
              -- compute in H2. discriminate H2.
              -- assert (H4 : p :: Y ≠ nil). congruence.  
-                assert (H5 := IHY _ _ p1 _ H4 H1 H2).
+                assert (H5 := IHY _ _ p1 _ H1 H2).
                 apply in_set_cons_intro.
                 ++ apply symAP.
                 ++ right. auto. 

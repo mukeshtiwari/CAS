@@ -1963,6 +1963,7 @@ Section BopReduce.
          simpl in H0.
          apply H0; auto.
   Defined.
+
       
   End BopReduce.
 

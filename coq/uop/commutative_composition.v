@@ -207,3 +207,4 @@ Section Theory.
 
 End Theory. 
 
+Check composition_left_uop_invariant.

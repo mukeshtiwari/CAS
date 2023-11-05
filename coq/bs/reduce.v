@@ -703,3 +703,5 @@ Lemma bop_reduce_left_distributive
   
 End Classical_vs_Bop_Reduce.
 
+Check bop_reduce_left_distributive.
+
