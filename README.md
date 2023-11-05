@@ -1,8 +1,9 @@
 
 Combinators for Algebraic Structures (CAS) 
 ==========================================
-     http://www.cl.cam.ac.uk/~tgg22 (tgg22@cam.ac.uk)
-  Mukesh Tiwari (https://mukeshtiwari.github.io/)
+      http://www.cl.cam.ac.uk/~tgg22 (tgg22@cam.ac.uk)
+
+      Mukesh Tiwari (https://mukeshtiwari.github.io/)
 
 ==========================================
 
